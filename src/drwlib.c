@@ -396,7 +396,7 @@ objectType drw_destr (listType arguments)
 objectType drw_empty (listType arguments)
 
   { /* drw_empty */
-    return bld_win_temp(NULL);
+    return bld_win_temp(drwEmpty());
   } /* drw_empty */
 
 

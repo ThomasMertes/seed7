@@ -171,6 +171,8 @@ void memcpy_to_strelem (register strElemType *const dest,
  *  Up to a length of 6 a simple loop is faster than calling
  *  this function. With a length of 7 a simple loop is as fast
  *  as calling this function.
+ *  The use of indices relative to pos allows the C compiler
+ *  to do more optimizations.
  */
 void memset_to_strelem (register strElemType *const dest,
     register const strElemType ch, memSizeType len)

@@ -36,7 +36,8 @@ Write Seed7 interpreter usage.
 Analyze only and suppress the execution phase.
 .TP
 .B \-dx
-Set compile time trace level to x.
+Set compile time trace level to x. E.g.:
+.B \-de
 .TP
 .B \-d
 Equivalent to \-da
@@ -50,12 +51,19 @@ Add a directory to the include library search path (e.g.:
 .I ../lib
 ).
 .TP
+.B \-p
+Specify a protocol file, for trace output (e.g.:
+.B \-p
+.I prot.txt
+).
+.TP
 .B \-q
 Compile quiet. Line and file information and compilation
 statistics are suppressed.
 .TP
 .B \-tx
-Set runtime trace level to x.
+Set runtime trace level to x. E.g.:
+.B \-te
 .TP
 .B \-t
 Equivalent to \-ta
@@ -92,6 +100,9 @@ Trace exceptions and handlers
 .TP
 .I  h
 Trace heap size (in combination with 'a')
+.TP
+.I  s
+Trace signals
 .PD 1
 .SH VERBOSITY LEVEL
 .PD 0

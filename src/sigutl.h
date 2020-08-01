@@ -35,6 +35,4 @@ EXTERN volatile int signal_number;
 
 void shut_drivers (void);
 const_cstriType signal_name (int sig_num);
-#ifdef CATCH_SIGNALS
-void activate_signal_handlers (void);
-#endif
+void setup_signal_handlers (boolType catch_signals, boolType do_trace_signals);

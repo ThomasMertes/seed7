@@ -342,6 +342,9 @@ const func integer: sqrt (in integer: number)                    is action "INT_
  *  The definition of ''log10'' is extended by defining log10(0) = -1.
  *   log10(10 ** A)        returns A        for A >= 0
  *   log10(pred(10 ** A))  returns pred(A)  for A >= 0
+ *   log10(10)             returns 1
+ *   log10(1)              returns 0
+ *   log10(0)              returns -1
  *  @return the truncated base 10 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  *)
@@ -353,6 +356,9 @@ const func integer: log10 (in integer: number)                   is action "INT_
  *  The definition of ''log2'' is extended by defining log2(0) = -1.
  *   log2(2 ** A)        returns A        for A >= 0
  *   log2(pred(2 ** A))  returns pred(A)  for A >= 0
+ *   log2(2)             returns 1
+ *   log2(1)             returns 0
+ *   log2(0)             returns -1
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  *)

@@ -299,6 +299,9 @@ const func bigInteger: abs (in bigInteger: number)                       is acti
  *  The definition of ''log10'' is extended by defining log10(0_) = -1_.
  *   log10(10_ ** A)        returns A       for A >= 0
  *   log10(pred(10_ ** A))  returns pred(A) for A >= 0
+ *   log10(10_)             returns 1
+ *   log10(1_)              returns 0
+ *   log10(0_)              returns -1
  *  @return the truncated base 10 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  *)
@@ -310,6 +313,9 @@ const func bigInteger: log10 (in bigInteger: number)                     is acti
  *  The definition of ''log2'' is extended by defining log2(0_) = -1_.
  *   log2(2_ ** A)        returns A       for A >= 0
  *   log2(pred(2_ ** A))  returns pred(A) for A >= 0
+ *   log2(2_)             returns 1
+ *   log2(1_)             returns 0
+ *   log2(0_)             returns -1
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  *)
@@ -533,11 +539,7 @@ const func string: (in bigInteger: number) sci (in integer: precision) is func
       if precision <> 0 then
         stri := stri[1 len 1] & "." & stri[2 .. ];
       end if;
-      if exponent >= 0 then
-        stri &:= "e+" <& exponent;
-      else
-        stri &:= "e" <& exponent;
-      end if;
+      stri &:= "e+" <& exponent;
       if number < 0_ then
         stri := "-" & stri;
       end if;

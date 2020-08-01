@@ -33,10 +33,11 @@ typedef struct traceStruct {
     boolType heapsize;
     boolType match;
     boolType executil;
+    boolType signals;
   } traceRecord;
 
 #ifdef DO_INIT
-traceRecord trace = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
+traceRecord trace = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
 #else
 EXTERN traceRecord trace;
 #endif

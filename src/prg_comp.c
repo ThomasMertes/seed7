@@ -48,6 +48,7 @@
 #include "analyze.h"
 #include "name.h"
 #include "exec.h"
+#include "option.h"
 #include "match.h"
 #include "objutl.h"
 #include "runerr.h"
@@ -148,6 +149,8 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
         memcpy(&prog_backup, &prog, sizeof(progRecord));
         memcpy(&prog, currentProg, sizeof(progRecord));
         prog.option_flags = options;
+        setup_signal_handlers((options & HANDLE_SIGNALS) != 0,
+                              (options & TRACE_SIGNALS) != 0);
         set_trace(prog.option_flags);
         set_protfile_name(prot_file_name);
         prog.arg_v = copy_args(argv, argv_start);

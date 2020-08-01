@@ -241,14 +241,10 @@ const func string: windowLiteral (in PRIMITIVE_WINDOW: aWindow) is func
   result
     var string: expr is "";
   begin
-    if aWindow = PRIMITIVE_WINDOW.value then
-      expr := "(winType) NULL";
-    else
-      if aWindow not in win_const_table then
-        win_const_table @:= [aWindow] length(win_const_table);
-      end if;
-      expr := "win[";
-      expr &:= str(win_const_table[aWindow]);
-      expr &:= "]";
+    if aWindow not in win_const_table then
+      win_const_table @:= [aWindow] length(win_const_table);
     end if;
+    expr := "win[";
+    expr &:= str(win_const_table[aWindow]);
+    expr &:= "]";
   end func;

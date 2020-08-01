@@ -869,6 +869,37 @@ void drwPFEllipse (const_winType actual_window,
 
 
 
+winType drwEmpty (void)
+
+  {
+    x11_winType result;
+
+  /* drwEmpty */
+#ifdef TRACE_X11
+    printf("BEGIN drwEmpty()\n");
+#endif
+    if (!ALLOC_RECORD(result, x11_winRecord, count.win)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memset(result, 0, sizeof(x11_winRecord));
+      result->usage_count = 1;
+      result->window = 0;
+      result->backup = 0;
+      result->clip_mask = 0;
+      result->is_pixmap = TRUE;
+      result->width = 0;
+      result->height = 0;
+    } /* if */
+#ifdef TRACE_X11
+    printf("END drwEmpty ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
+           (memSizeType) result,
+           result != NULL ? result->usage_count : (uintType) 0);
+#endif
+    return (winType) result;
+  } /* drwEmpty */
+
+
+
 void drwFree (winType old_window)
 
   { /* drwFree */
@@ -956,10 +987,12 @@ bstriType drwGetImage (const_winType actual_window)
       image = XGetImage(mydisplay, to_backup(actual_window),
                         0, 0, to_width(actual_window), to_height(actual_window),
                         (unsigned long) -1, ZPixmap);
-    } else {
+    } else if (to_window(actual_window) != 0) {
       image = XGetImage(mydisplay, to_window(actual_window),
                         0, 0, to_width(actual_window), to_height(actual_window),
                         (unsigned long) -1, ZPixmap);
+    } else {
+      image = NULL;
     } /* if */
     result_size = to_width(actual_window) * to_height(actual_window) * sizeof(int32Type);
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
@@ -974,7 +1007,9 @@ bstriType drwGetImage (const_winType actual_window)
         } /* for */
       } /* for */
     } /* if */
-    XDestroyImage(image);
+    if (image != NULL) {
+      XDestroyImage(image);
+    } /* if */
     return result;
   } /* drwGetImage */
 
@@ -1019,7 +1054,7 @@ intType drwHeight (const_winType actual_window)
 
   /* drwHeight */
     /* printf("drwHeight(" FMT_U_MEM "), usage=" FMT_U "\n",
-       actual_window, actual_window->usage_count); */
+       actual_window, actual_window != 0 ? actual_window->usage_count: 0); */
     if (is_pixmap(actual_window)) {
       height = to_height(actual_window);
     } else if (XGetGeometry(mydisplay, to_window(actual_window), &root,
@@ -1044,7 +1079,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
 
   /* drwImage */
 #ifdef TRACE_X11
-    printf("BEGIN drwImage(" FMT_D ", " FMT_D ")\n", width, height);
+    printf("BEGIN drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height);
 #endif
     if (width < 1 || width > UINT_MAX ||
         height < 1 || height > UINT_MAX) {
@@ -2156,7 +2191,7 @@ intType drwWidth (const_winType actual_window)
 
   /* drwWidth */
     /* printf("drwWidth(" FMT_U_MEM "), usage=" FMT_U "\n",
-       actual_window, actual_window->usage_count); */
+       actual_window, actual_window != 0 ? actual_window->usage_count: 0); */
     if (is_pixmap(actual_window)) {
       width = to_width(actual_window);
     } else if (XGetGeometry(mydisplay, to_window(actual_window), &root,

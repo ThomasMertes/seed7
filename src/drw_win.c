@@ -670,6 +670,45 @@ void drwPFEllipse (const_winType actual_window,
 
 
 
+winType drwEmpty (void)
+
+  {
+    HDC screenDC;
+    win_winType result;
+
+  /* drwEmpty */
+#ifdef TRACE_WIN
+    printf("BEGIN drwEmpty()\n");
+#endif
+    if (init_called == 0) {
+      dra_init();
+    } /* if */
+    if (!ALLOC_RECORD(result, win_winRecord, count.win)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memset(result, 0, sizeof(win_winRecord));
+      result->usage_count = 1;
+      screenDC = GetDC(NULL);
+      result->hdc = CreateCompatibleDC(screenDC);
+      result->hBitmap = CreateCompatibleBitmap(screenDC, 0, 0);
+      ReleaseDC(NULL, screenDC);
+      result->oldBitmap = (HBITMAP) SelectObject(result->hdc, result->hBitmap);
+      result->hasTransparentPixel = FALSE;
+      result->transparentPixel = 0;
+      result->is_pixmap = TRUE;
+      result->width = 0;
+      result->height = 0;
+    } /* if */
+#ifdef TRACE_WIN
+    printf("END drwEmpty ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
+           (memSizeType) result,
+           result != NULL ? result->usage_count : (uintType) 0);
+#endif
+    return (winType) result;
+  } /* drwEmpty */
+
+
+
 void drwFlush (void)
 
   { /* drwFlush */
@@ -801,8 +840,10 @@ intType drwHeight (const_winType actual_window)
 
   /* drwHeight */
     /* printf("drwHeight(" FMT_U_MEM "), usage=" FMT_U "\n",
-       actual_window, actual_window->usage_count); */
-    if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
+       actual_window, actual_window != 0 ? actual_window->usage_count: 0); */
+    if (is_pixmap(actual_window)) {
+      height = to_height(actual_window);
+    } else if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
       height = (intType) to_height(actual_window);
     } else {
       height = (intType) ((unsigned int) (rect.bottom - rect.top) -
@@ -826,7 +867,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
 
   /* drwImage */
 #ifdef TRACE_WIN
-    printf("BEGIN drwImage(" FMT_D ", " FMT_D ")\n", width, height);
+    printf("BEGIN drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height);
 #endif
     if (width < 1 || width > INTTYPE_MAX ||
         height < 1 || height > INTTYPE_MAX) {
@@ -1631,8 +1672,10 @@ intType drwWidth (const_winType actual_window)
 
   /* drwWidth */
     /* printf("drwWidth(" FMT_U_MEM "), usage=" FMT_U "\n",
-       actual_window, actual_window->usage_count); */
-    if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
+       actual_window, actual_window != 0 ? actual_window->usage_count: 0); */
+    if (is_pixmap(actual_window)) {
+      width = to_width(actual_window);
+    } else if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
       width = (intType) to_width(actual_window);
     } else {
       width = (intType) ((unsigned int) (rect.right - rect.left) -

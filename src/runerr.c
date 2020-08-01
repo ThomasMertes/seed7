@@ -60,7 +60,11 @@ void continue_question (void)
     long unsigned int exception_num;
 
   /* continue_question */
-    printf("\n*** (Type RETURN to continue or '*' to terminate)\n");
+    printf("\n*** The following commands are possible:\n"
+           "  RETURN  Continue\n"
+           "  *       Terminate\n"
+           "  /       Trigger SIGFPE\n"
+           "  !n      Raise exception with number (e.g.: !1 raises MEMORY_ERROR)\n");
     ch = fgetc(stdin);
     if (ch == (int) '*') {
       shut_drivers();

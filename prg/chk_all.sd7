@@ -76,6 +76,7 @@ const string: chkint_output is "\n\
   \The integer << and <<:= works correct.\n\
   \The integer >> and >>:= works correct.\n\
   \Integer str does work correct.\n\
+  \Integer sci operator does work correct.\n\
   \Integer parse does work correct.\n\
   \Integer lpad0 does work correct.\n\
   \Integer bitLength does work correct.\n\
@@ -125,20 +126,21 @@ const string: chkflt_output is "\n\
 
 const string: chkstr_output is "\n\
   \String literals work correct.\n\
-  \String comparisons work correct\n\
-  \String indices work correct\n\
-  \String head works correct\n\
-  \String tail works correct\n\
-  \String range works correct\n\
-  \String substr works correct\n\
-  \String concatenation works correct\n\
-  \String operations work correct\n\
-  \String functions work correct\n\
-  \split(string) works correct\n\
-  \join(string) works correct\n\
-  \String assignment works correct\n\
-  \String append works correct\n\
-  \@:= for strings works correct\n";
+  \String comparisons work correct.\n\
+  \String indices work correct.\n\
+  \String head works correct.\n\
+  \String tail works correct.\n\
+  \String range works correct.\n\
+  \String substr works correct.\n\
+  \String concatenation works correct.\n\
+  \String multiplication works correct.\n\
+  \String operations work correct.\n\
+  \String functions work correct.\n\
+  \split(string) works correct.\n\
+  \join(string) works correct.\n\
+  \String assignment works correct.\n\
+  \String append works correct.\n\
+  \@:= for strings works correct.\n";
 
 const string: chkprc_output is "\n\
   \If statements work correct.\n\
@@ -216,6 +218,7 @@ const string: chkset_output is "\n\
   \set membership test works correct.\n\
   \min(bitset) works correct.\n\
   \max(bitset) works correct.\n\
+  \str(bitset) works correct.\n\
   \set assignment works correct.\n\
   \character sets work correct.\n";
 

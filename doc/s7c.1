@@ -67,12 +67,9 @@ Suppress checks specified with x. E.g.:
 or
 .B \-sro
 .TP
+.B \-tx
+Set runtime trace level to x. E.g.:
 .B \-te
-Generate code to trace exceptions. This option works in the same way
-as the interpreter option
-.B \-te
-: Every exception will write a message to stdout and the user will
-be asked to continue (with enter) or to terminate (with * ).
 .PD 1
 .SH OPTIMIZATION LEVEL FOR CONSTANTS
 .PD 0
@@ -107,6 +104,19 @@ Suppress the generation of range checks for strings and arrays.
 .TP
 .I  o
 Suppress the generation of integer overflow checks.
+.PD 1
+.SH TRACE LEVEL
+.PD 0
+The option
+.B \-tx
+can set the trace level.
+The trace levels x are specified with letters from the following list:
+.TP
+.I  e
+Trace exceptions and handlers
+.TP
+.I  s
+Trace signals
 .PD 1
 .SH FILES
 .PD 0

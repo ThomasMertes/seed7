@@ -68,6 +68,7 @@ void drwFEllipse (const_winType actual_window,
     intType x, intType y, intType width, intType height);
 void drwPFEllipse (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col);
+winType drwEmpty (void);
 void drwFlush (void);
 void drwFree (winType old_window);
 winType drwGet (const_winType actual_window, intType left, intType upper,

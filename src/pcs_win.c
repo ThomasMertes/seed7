@@ -486,6 +486,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     win_processType process = NULL;
 
   /* pcsStart */
+    /* printf("BEGIN pcsStart\n"); */
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
@@ -535,6 +536,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
+    /* printf("END pcsStart -> " FMT_U_MEM "\n", (memSizeType) process); */
     return (processType) process;
   } /* pcsStart */
 

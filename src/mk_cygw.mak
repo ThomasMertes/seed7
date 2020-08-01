@@ -151,10 +151,14 @@ test:
 install:
 	cd ../bin; ln -s `pwd`/s7 /usr/local/bin
 	cd ../bin; ln -s `pwd`/s7c /usr/local/bin
+	gzip -c ../doc/s7.1 > /usr/share/man/man1/s7.1.gz
+	gzip -c ../doc/s7c.1 > /usr/share/man/man1/s7c.1.gz
 
 uninstall:
 	rm /usr/local/bin/s7
 	rm /usr/local/bin/s7c
+	rm /usr/share/man/man1/s7.1.gz
+	rm /usr/share/man/man1/s7c.1.gz
 
 dep: depend
 
@@ -235,12 +239,12 @@ version.h: chkccomp.h
 	$(CC) wrdepend.c -o wrdepend
 
 depend: version.h
-	./wrdepend $(CFLAGS) -M $(SRC) "> depend"
-	./wrdepend $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
+	./wrdepend.exe $(CFLAGS) -M $(SRC) "> depend"
+	./wrdepend.exe $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
+	./wrdepend.exe $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
+	./wrdepend.exe $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
+	./wrdepend.exe $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
+	./wrdepend.exe $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
 	@echo
 	@echo "  Use 'make' (with your make command) to create the interpreter."
 	@echo

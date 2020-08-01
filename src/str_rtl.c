@@ -2510,8 +2510,8 @@ striType strMult (const const_striType stri, const intType factor)
 
   {
     memSizeType len;
-    memSizeType number;
-    strElemType *result_pointer;
+    memSizeType count;
+    memSizeType powerOfTwo;
     strElemType ch;
     memSizeType result_size;
     striType result;
@@ -2535,20 +2535,26 @@ striType strMult (const const_striType stri, const intType factor)
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result_size = (memSizeType) factor * len;
+        count = (memSizeType) factor;
+        result_size = count * len;
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = result_size;
           if (len == 1) {
             ch = stri->mem[0];
-            memset_to_strelem(result->mem, ch, (memSizeType) factor);
-          } else {
-            result_pointer = result->mem;
-            for (number = (memSizeType) factor; number > 0; number--) {
-              memcpy(result_pointer, stri->mem, len * sizeof(strElemType));
-              result_pointer += len;
-            } /* for */
+            memset_to_strelem(result->mem, ch, count);
+          } else if (count != 0) {
+            /* Use binary method for string multiplication: */
+            memcpy(result->mem, stri->mem, len * sizeof(strElemType));
+            powerOfTwo = 1;
+            while (powerOfTwo << 1 < count) {
+              memcpy(&result->mem[powerOfTwo * len], result->mem,
+                     powerOfTwo * len * sizeof(strElemType));
+              powerOfTwo <<= 1;
+            } /* while */
+            memcpy(&result->mem[powerOfTwo * len], result->mem,
+                   (count - powerOfTwo) * len * sizeof(strElemType));
           } /* if */
         } /* if */
       } /* if */

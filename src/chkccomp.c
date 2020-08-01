@@ -1134,23 +1134,28 @@ void detemineMySqlDefines (FILE *versionFile,
         printf("MySql/MariaDb: %s found at: %s\n", libName, buffer);
         sprintf(buffer, "\"%s/lib/%s\"", dbHome, libName);
         appendOption(system_db_libs, buffer);
+      } else {
+        writeDllList = 1;
       } /* if */
 #else
-      fprintf(versionFile, "#define MYSQL_DLL");
-      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-        sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
-        if (fileIsRegular(buffer)) {
-          printf("MySql/MariaDb: %s found at: %s\n", dllNameList[idx], buffer);
-          fprintf(versionFile, " \"");
-          escapeString(versionFile, buffer);
-          fprintf(versionFile, "\",");
-        } /* if */
-      } /* for */
-      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-        fprintf(versionFile, " \"%s\",", dllNameList[idx]);
-      } /* for */
-      fprintf(versionFile, "\n");
+      writeDllList = 1;
 #endif
+      if (writeDllList) {
+        fprintf(versionFile, "#define MYSQL_DLL");
+        for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+          sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
+          if (fileIsRegular(buffer)) {
+            printf("MySql/MariaDb: %s found at: %s\n", dllNameList[idx], buffer);
+            fprintf(versionFile, " \"");
+            escapeString(versionFile, buffer);
+            fprintf(versionFile, "\",");
+          } /* if */
+        } /* for */
+        for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+          fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+        } /* for */
+        fprintf(versionFile, "\n");
+      } /* if */
     } else {
 #if defined MYSQL_USE_LIB && defined MYSQL_LIBS
       sprintf(buffer, "#include \"stdlib.h\"\n#include \"%s\"\n"
@@ -1265,23 +1270,28 @@ void detemineSqliteDefines (FILE *versionFile,
         printf("SQLite: %s found at: %s\n", libName, buffer);
         sprintf(buffer, "\"%s/%s\"", dbHome, libName);
         appendOption(system_db_libs, buffer);
+      } else {
+        writeDllList = 1;
       } /* if */
 #else
-      fprintf(versionFile, "#define SQLITE_DLL");
-      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-        sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
-        if (fileIsRegular(buffer)) {
-          printf("SQLite: %s found at: %s\n", dllNameList[idx], buffer);
-          fprintf(versionFile, " \"");
-          escapeString(versionFile, buffer);
-          fprintf(versionFile, "\",");
-        } /* if */
-      } /* for */
-      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-        fprintf(versionFile, " \"%s\",", dllNameList[idx]);
-      } /* for */
-      fprintf(versionFile, "\n");
+      writeDllList = 1;
 #endif
+      if (writeDllList) {
+        fprintf(versionFile, "#define SQLITE_DLL");
+        for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+          sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
+          if (fileIsRegular(buffer)) {
+            printf("SQLite: %s found at: %s\n", dllNameList[idx], buffer);
+            fprintf(versionFile, " \"");
+            escapeString(versionFile, buffer);
+            fprintf(versionFile, "\",");
+          } /* if */
+        } /* for */
+        for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+          fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+        } /* for */
+        fprintf(versionFile, "\n");
+      } /* if */
     } else {
 #if defined SQLITE_USE_LIB && defined SQLITE_LIBS
       sprintf(buffer, "#include \"tst_vers.h\"\n#include \"%s\"\n"
@@ -1581,37 +1591,42 @@ void deteminePostgresDefines (FILE *versionFile,
         printf("PostgreSQL: %s found at: %s\n", libName, buffer);
         sprintf(buffer, "\"%s/lib/%s\"", dbHome, libName);
         appendOption(system_db_libs, buffer);
+      } else {
+        writeDllList = 1;
       } /* if */
 #else
-      fprintf(versionFile, "#define POSTGRESQL_DLL");
-      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-        sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
-        if (fileIsRegular(buffer)) {
-          printf("PostgreSQL: %s found at: %s\n", dllNameList[idx], buffer);
-          fprintf(versionFile, " \"");
-          escapeString(versionFile, buffer);
-          fprintf(versionFile, "\",");
-        } /* if */
-      } /* for */
-      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-        fprintf(versionFile, " \"%s\",", dllNameList[idx]);
-      } /* for */
-      fprintf(versionFile, "\n");
-      dllName = NULL;
-      for (idx = 0; dllName == NULL && idx < sizeof(libIntlDllList) / sizeof(char *); idx++) {
-        sprintf(buffer, "%s/bin/%s", dbHome, libIntlDllList[idx]);
-        if (fileIsRegular(buffer)) {
-          dllName = libIntlDllList[idx];
-        } /* if */
-      } /* for */
-      if (dllName != NULL) {
-        printf("PostgreSQL: %s found at: %s\n", dllName, buffer);
-        fprintf(versionFile, "#define LIBINTL_DLL_PATH \"");
-        escapeString(versionFile, buffer);
-        fprintf(versionFile, "\"\n");
-        fprintf(versionFile, "#define LIBINTL_DLL \"%s\"\n", dllName);
-      } /* if */
+      writeDllList = 1;
 #endif
+      if (writeDllList) {
+        fprintf(versionFile, "#define POSTGRESQL_DLL");
+        for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+          sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
+          if (fileIsRegular(buffer)) {
+            printf("PostgreSQL: %s found at: %s\n", dllNameList[idx], buffer);
+            fprintf(versionFile, " \"");
+            escapeString(versionFile, buffer);
+            fprintf(versionFile, "\",");
+          } /* if */
+        } /* for */
+        for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+          fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+        } /* for */
+        fprintf(versionFile, "\n");
+        dllName = NULL;
+        for (idx = 0; dllName == NULL && idx < sizeof(libIntlDllList) / sizeof(char *); idx++) {
+          sprintf(buffer, "%s/bin/%s", dbHome, libIntlDllList[idx]);
+          if (fileIsRegular(buffer)) {
+            dllName = libIntlDllList[idx];
+          } /* if */
+        } /* for */
+        if (dllName != NULL) {
+          printf("PostgreSQL: %s found at: %s\n", dllName, buffer);
+          fprintf(versionFile, "#define LIBINTL_DLL_PATH \"");
+          escapeString(versionFile, buffer);
+          fprintf(versionFile, "\"\n");
+          fprintf(versionFile, "#define LIBINTL_DLL \"%s\"\n", dllName);
+        } /* if */
+      } /* if */
     } else {
 #if defined POSTGRESQL_USE_LIB && defined POSTGRESQL_LIBS
       sprintf(buffer, "#include \"stdlib.h\"\n#include \"%s\"\n"

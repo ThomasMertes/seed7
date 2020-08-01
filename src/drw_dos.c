@@ -249,6 +249,14 @@ void drwFlush (void)
 
 
 
+winType drwEmpty (intType width, intType height)
+
+  { /* drwEmpty */
+    return NULL;
+  } /* drwEmpty */
+
+
+
 void drwFree (winType old_window)
 
   { /* drwFree */

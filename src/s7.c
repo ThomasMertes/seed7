@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -70,7 +70,7 @@ char *stack_base;
 memSizeType max_stack_size = 0;
 #endif
 
-#define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2014 Thomas Mertes\n"
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2015 Thomas Mertes\n"
 
 
 
@@ -96,9 +96,11 @@ static void writeHelp (void)
     printf("         d Trace dynamic calls\n");
     printf("         e Trace exceptions and handlers\n");
     printf("         h Trace heap size (in combination with 'a')\n");
+    printf("         s Trace signals\n");
     printf("  -d   Equivalent to -da\n");
     printf("  -i   Show the identifier table after the analyzing phase.\n");
     printf("  -l   Add a directory to the include library search path (e.g.: -l ../lib).\n");
+    printf("  -p   Specify a protocol file, for trace output (e.g.: -p prot.txt).\n");
     printf("  -q   Compile quiet. Line and file information and compilation\n");
     printf("       statistics are suppressed.\n");
     printf("  -tx  Set runtime trace level to x. Where x is a string consisting of:\n");
@@ -107,6 +109,7 @@ static void writeHelp (void)
     printf("         d Trace dynamic calls\n");
     printf("         e Trace exceptions and handlers\n");
     printf("         h Trace heap size (in combination with 'a')\n");
+    printf("         s Trace signals\n");
     printf("  -t   Equivalent to -ta\n");
     printf("  -vn  Set verbosity level of analyse phase to n. Where n is one of:\n");
     printf("         0 Compile quiet (equivalent to -q)\n");
@@ -179,7 +182,7 @@ static void processOptions (rtlArrayType arg_v)
               verbosity_level = 0;
               break;
             case 's':
-              option.catch_signals = FALSE;
+              option.handle_signals = FALSE;
               break;
             case 't':
               if (ALLOC_STRI_SIZE_OK(trace_level, 1)) {
@@ -285,6 +288,10 @@ static void processOptions (rtlArrayType arg_v)
         printf(VERSION_INFO, LEVEL);
       } /* if */
     } /* if */
+    if (option.handle_signals) {
+      option.parser_options |= HANDLE_SIGNALS;
+      option.exec_options   |= HANDLE_SIGNALS;
+    } /* if */
 #ifdef TRACE_OPTION
     printf("END processOptions\n");
 #endif
@@ -302,7 +309,7 @@ static void printOptions (void)
     printf("analyze_only:         "); prot_int(  option.analyze_only);            printf("\n");
     printf("execute_always:       "); prot_int(  option.execute_always);          printf("\n");
     printf("parser_options:       "); prot_int(  option.parser_options);          printf("\n");
-    printf("catch_signals:        "); prot_int(  option.catch_signals);           printf("\n");
+    printf("handle_signals:       "); prot_int(  option.handle_signals);          printf("\n");
     printf("seed7_libraries:      "); prot_int((intType) option.seed7_libraries); printf("\n");
     printf("argv:                 "); prot_int((intType) option.argv);            printf("\n");
     printf("argv_start:           "); prot_int( option.argv_start);               printf("\n");
@@ -343,11 +350,7 @@ int main (int argc, char **argv)
     } else {
       processOptions(arg_v);
       /* printOptions(); */
-#ifdef CATCH_SIGNALS
-      if (option.catch_signals) {
-        activate_signal_handlers();
-      } /* if */
-#endif
+      setup_signal_handlers(option.handle_signals, option.parser_options & TRACE_SIGNALS);
       if (fail_flag) {
         printf("\n*** Processing the options failed. Program terminated.\n");
       } else {

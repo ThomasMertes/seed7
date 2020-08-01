@@ -216,7 +216,7 @@ const proc: check_string_literal is func
     if okay then
       writeln("String literals work correct.");
     else
-      writeln(" ***** String literals do not work correct");
+      writeln(" ***** String literals do not work correct.");
       writeln;
     end if;
   end func;
@@ -265,7 +265,7 @@ const proc: check_string_comparisons is func
         "123456789" = "abcdefghijklmnopqrstuvwxyz" or
         "1234567890" = "123456789" or
         "abcdefghijklmnopqrstuvwxyz" = "123456789" then
-      writeln(" ***** STRING = STRING does not work correct");
+      writeln(" ***** STRING = STRING does not work correct.");
       okay := FALSE;
     end if;
     if not (striExpr("") = "") or
@@ -306,7 +306,7 @@ const proc: check_string_comparisons is func
         striExpr("123456789") = "abcdefghijklmnopqrstuvwxyz" or
         striExpr("1234567890") = "123456789" or
         striExpr("abcdefghijklmnopqrstuvwxyz") = "123456789" then
-      writeln(" ***** STRING = STRING does not work correct");
+      writeln(" ***** STRING = STRING does not work correct.");
       okay := FALSE;
     end if;
     if not ("" = striExpr("")) or
@@ -347,7 +347,7 @@ const proc: check_string_comparisons is func
         "123456789" = striExpr("abcdefghijklmnopqrstuvwxyz") or
         "1234567890" = striExpr("123456789") or
         "abcdefghijklmnopqrstuvwxyz" = striExpr("123456789") then
-      writeln(" ***** STRING = STRING does not work correct");
+      writeln(" ***** STRING = STRING does not work correct.");
       okay := FALSE;
     end if;
     if not (striExpr("") = striExpr("")) or
@@ -388,7 +388,7 @@ const proc: check_string_comparisons is func
         striExpr("123456789") = striExpr("abcdefghijklmnopqrstuvwxyz") or
         striExpr("1234567890") = striExpr("123456789") or
         striExpr("abcdefghijklmnopqrstuvwxyz") = striExpr("123456789") then
-      writeln(" ***** STRING = STRING does not work correct");
+      writeln(" ***** STRING = STRING does not work correct.");
       okay := FALSE;
     end if;
     if "" <> "" or
@@ -429,7 +429,7 @@ const proc: check_string_comparisons is func
         not ("123456789" <> "abcdefghijklmnopqrstuvwxyz") or
         not ("1234567890" <> "123456789") or
         not ("abcdefghijklmnopqrstuvwxyz" <> "123456789") then
-      writeln(" ***** STRING <> STRING does not work correct");
+      writeln(" ***** STRING <> STRING does not work correct.");
       okay := FALSE;
     end if;
     if striExpr("") <> "" or
@@ -470,7 +470,7 @@ const proc: check_string_comparisons is func
         not (striExpr("123456789") <> "abcdefghijklmnopqrstuvwxyz") or
         not (striExpr("1234567890") <> "123456789") or
         not (striExpr("abcdefghijklmnopqrstuvwxyz") <> "123456789") then
-      writeln(" ***** STRING <> STRING does not work correct");
+      writeln(" ***** STRING <> STRING does not work correct.");
       okay := FALSE;
     end if;
     if "" <> striExpr("") or
@@ -511,7 +511,7 @@ const proc: check_string_comparisons is func
         not ("123456789" <> striExpr("abcdefghijklmnopqrstuvwxyz")) or
         not ("1234567890" <> striExpr("123456789")) or
         not ("abcdefghijklmnopqrstuvwxyz" <> striExpr("123456789")) then
-      writeln(" ***** STRING <> STRING does not work correct");
+      writeln(" ***** STRING <> STRING does not work correct.");
       okay := FALSE;
     end if;
     if striExpr("") <> striExpr("") or
@@ -552,7 +552,7 @@ const proc: check_string_comparisons is func
         not (striExpr("123456789") <> striExpr("abcdefghijklmnopqrstuvwxyz")) or
         not (striExpr("1234567890") <> striExpr("123456789")) or
         not (striExpr("abcdefghijklmnopqrstuvwxyz") <> striExpr("123456789")) then
-      writeln(" ***** STRING <> STRING does not work correct");
+      writeln(" ***** STRING <> STRING does not work correct.");
       okay := FALSE;
     end if;
     if  not (
@@ -653,7 +653,7 @@ const proc: check_string_comparisons is func
              "222"   > "123"     and
              "2222"  > "123"
              ) then
-      writeln(" ***** STRING > STRING does not work correct");
+      writeln(" ***** STRING > STRING does not work correct.");
       okay := FALSE;
     end if;
     if  not (
@@ -754,7 +754,7 @@ const proc: check_string_comparisons is func
              "222"   >= "123"     and
              "2222"  >= "123"
              ) then
-      writeln(" ***** STRING >= STRING does not work correct");
+      writeln(" ***** STRING >= STRING does not work correct.");
       okay := FALSE;
     end if;
     if  not (
@@ -855,7 +855,7 @@ const proc: check_string_comparisons is func
              "123"   < "222"     and
              "123"   < "2222"
              ) then
-      writeln(" ***** STRING < STRING does not work correct");
+      writeln(" ***** STRING < STRING does not work correct.");
       okay := FALSE;
     end if;
     if  not (
@@ -956,27 +956,27 @@ const proc: check_string_comparisons is func
              "123"   <= "222"     and
              "123"   <= "2222"
              ) then
-      writeln(" ***** STRING <= STRING does not work correct");
+      writeln(" ***** STRING <= STRING does not work correct.");
       okay := FALSE;
     end if;
     if  "\2050;" < "\1152;" or
         "\1152;" > "\2050;" then
-      writeln(" ***** \"\\4096;\" < \"\\1152;\" does not work correct");
+      writeln(" ***** \"\\4096;\" < \"\\1152;\" does not work correct.");
       okay := FALSE;
     end if;
     if  "\16#0201;" < "\16#0102;" or
         "\16#0102;" > "\16#0201;" then
-      writeln(" ***** \"\\16#0201;\" < \"\\16#0102;\" does not work correct");
+      writeln(" ***** \"\\16#0201;\" < \"\\16#0102;\" does not work correct.");
       okay := FALSE;
     end if;
     if  "\16#030201;" < "\16#010203;" or
         "\16#010203;" > "\16#030201;" then
-      writeln(" ***** \"\\16#030201;\" < \"\\16#010203;\" does not work correct");
+      writeln(" ***** \"\\16#030201;\" < \"\\16#010203;\" does not work correct.");
       okay := FALSE;
     end if;
     if  "\16#04030201;" < "\16#01020304;" or
         "\16#01020304;" > "\16#04030201;" then
-      writeln(" ***** \"\\16#04030201;\" < \"\\16#01020304;\" does not work correct");
+      writeln(" ***** \"\\16#04030201;\" < \"\\16#01020304;\" does not work correct.");
       okay := FALSE;
     end if;
     if  compare("",       "")       <>  0 or
@@ -1085,11 +1085,11 @@ const proc: check_string_comparisons is func
         compare("22",     "123")    <>  1 or
         compare("222",    "123")    <>  1 or
         compare("2222",   "123")    <>  1 then
-      writeln(" ***** compare(STRING, STRING) does not work correct");
+      writeln(" ***** compare(STRING, STRING) does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String comparisons work correct");
+      writeln("String comparisons work correct.");
     end if;
   end func;
 
@@ -1109,7 +1109,7 @@ const proc: check_string_index is func
         "1234567890" [  8 ] <> '8' or
         "1234567890" [  9 ] <> '9' or
         "1234567890" [ 10 ] <> '0' then
-      writeln(" ***** STRING [ INDEX ] does not work correct");
+      writeln(" ***** STRING [ INDEX ] does not work correct.");
       okay := FALSE;
     end if;
     if  striExpr("1234567890") [  1 ] <> '1' or
@@ -1122,7 +1122,7 @@ const proc: check_string_index is func
         striExpr("1234567890") [  8 ] <> '8' or
         striExpr("1234567890") [  9 ] <> '9' or
         striExpr("1234567890") [ 10 ] <> '0' then
-      writeln(" ***** STRING [ INDEX ] does not work correct");
+      writeln(" ***** STRING [ INDEX ] does not work correct.");
       okay := FALSE;
     end if;
     if  "1234567890" [intExpr(  1 )] <> '1' or
@@ -1135,7 +1135,7 @@ const proc: check_string_index is func
         "1234567890" [intExpr(  8 )] <> '8' or
         "1234567890" [intExpr(  9 )] <> '9' or
         "1234567890" [intExpr( 10 )] <> '0' then
-      writeln(" ***** STRING [ INDEX ] does not work correct");
+      writeln(" ***** STRING [ INDEX ] does not work correct.");
       okay := FALSE;
     end if;
     if  striExpr("1234567890") [intExpr(  1 )] <> '1' or
@@ -1148,11 +1148,11 @@ const proc: check_string_index is func
         striExpr("1234567890") [intExpr(  8 )] <> '8' or
         striExpr("1234567890") [intExpr(  9 )] <> '9' or
         striExpr("1234567890") [intExpr( 10 )] <> '0' then
-      writeln(" ***** STRING [ INDEX ] does not work correct");
+      writeln(" ***** STRING [ INDEX ] does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String indices work correct");
+      writeln("String indices work correct.");
     end if;
   end func;
 
@@ -1262,11 +1262,11 @@ const proc: check_string_head is func
         striExpr("1234567890") [ intExpr(10) .. ] <> "0" or
         striExpr("1234567890") [ intExpr(11) .. ] <> "" or
         striExpr("1234567890") [ intExpr(15) .. ] <> "" then
-      writeln(" ***** STRING [ START .. ] does not work correct");
+      writeln(" ***** STRING [ START .. ] does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String head works correct");
+      writeln("String head works correct.");
     end if;
   end func;
 
@@ -1360,11 +1360,11 @@ const proc: check_string_tail is func
         striExpr("1234567890") [ .. intExpr(10) ] <> "1234567890" or
         striExpr("1234567890") [ .. intExpr(11) ] <> "1234567890" or
         striExpr("1234567890") [ .. intExpr(15) ] <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] does not work correct");
+      writeln(" ***** STRING [ .. STOP ] does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String tail works correct");
+      writeln("String tail works correct.");
     end if;
   end func;
 
@@ -1790,7 +1790,7 @@ const proc: check_string_range is func
         "1234567890" [ intExpr(15) .. intExpr(11) ] <> "" or
         "1234567890" [ intExpr(15) .. intExpr(15) ] <> "" or
         "1234567890" [ intExpr(15) .. intExpr(20) ] <> "" then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct");
+      writeln(" ***** STRING [ START .. STOP ] does not work correct.");
       okay := FALSE;
     end if;
     if  striExpr("") [ -5 .. -9 ] <> "" or
@@ -2209,7 +2209,7 @@ const proc: check_string_range is func
         striExpr("1234567890") [ intExpr(15) .. intExpr(11) ] <> "" or
         striExpr("1234567890") [ intExpr(15) .. intExpr(15) ] <> "" or
         striExpr("1234567890") [ intExpr(15) .. intExpr(20) ] <> "" then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct");
+      writeln(" ***** STRING [ START .. STOP ] does not work correct.");
       okay := FALSE;
     end if;
     if  "" [-2147483643 .. pred(-2147483647)] <> "" or
@@ -2320,11 +2320,11 @@ const proc: check_string_range is func
         "12" [-2147483646 .. 2147483647] <> "12" or
         "12" [-2147483647 .. 2147483647] <> "12" or
         "12" [pred(-2147483647) .. 2147483647] <> "12" then
-      writeln(" ***** STRING [ START .. STOP ] does not work correct");
+      writeln(" ***** STRING [ START .. STOP ] does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String range works correct");
+      writeln("String range works correct.");
     end if;
   end func;
 
@@ -3382,7 +3382,7 @@ const proc: check_string_substr is func
         striExpr("1234567890") [ intExpr(15) len intExpr( 1) ] <> "" or
         striExpr("1234567890") [ intExpr(15) len intExpr( 2) ] <> "" or
         striExpr("1234567890") [ intExpr(15) len intExpr(20) ] <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correct.");
       okay := FALSE;
     end if;
     if  "" [-2147483643 len 2147483647] <> "" or
@@ -3415,11 +3415,11 @@ const proc: check_string_substr is func
         "1234" [-2147483646 len 2147483647] <> "" or
         "1234" [-2147483647 len 2147483647] <> "" or
         "1234" [pred(-2147483647) len 2147483647] <> "" then
-      writeln(" ***** STRING [ START len LENGTH ] does not work correct");
+      writeln(" ***** STRING [ START len LENGTH ] does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String substr works correct");
+      writeln("String substr works correct.");
     end if;
   end func;
 
@@ -3840,16 +3840,16 @@ const proc: check_string_concat is func
                  "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
         striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" then
 
-      writeln(" ***** STRING & STRING does not work correct");
+      writeln(" ***** STRING & STRING does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String concatenation works correct");
+      writeln("String concatenation works correct.");
     end if;
   end func;
 
 
-const proc: check_string_ops is func
+const proc: check_string_mult is func
   local
     var boolean: okay is TRUE;
   begin
@@ -3877,12 +3877,43 @@ const proc: check_string_ops is func
         "a" mult 4 <> "aaaa" or
         "a" mult 5 <> "aaaaa" or
         "a" mult 6 <> "aaaaaa" or
+        "a" mult 7 <> "aaaaaaa" or
+        "a" mult 8 <> "aaaaaaaa" or
+        "a" mult 9 <> "aaaaaaaaa" or
         "a" mult 10 <> "aaaaaaaaaa" or
+        "a" mult 15 <> "aaaaaaaaaaaaaaa" or
+        "a" mult 16 <> "aaaaaaaaaaaaaaaa" or
+        "a" mult 17 <> "aaaaaaaaaaaaaaaaa" or
         "a" mult 20 <> "aaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 25 <> "aaaaaaaaaaaaaaaaaaaaaaaaa" or
         "a" mult 30 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 31 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 32 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 33 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 35 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
         "a" mult 40 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
         "a" mult 50 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
         "a" mult 60 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 63 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 64 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 65 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 70 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 80 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 90 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                       \aaaaaaaaaa" or
+        "a" mult 100 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                        \aaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 127 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 128 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 129 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 150 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 200 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                        \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
         "ab" mult 0 <> "" or
         "ab" mult 1 <> "ab" or
         "ab" mult 2 <> "abab" or
@@ -3890,9 +3921,62 @@ const proc: check_string_ops is func
         "ab" mult 4 <> "abababab" or
         "ab" mult 5 <> "ababababab" or
         "ab" mult 6 <> "abababababab" or
+        "ab" mult 7 <> "ababababababab" or
+        "ab" mult 8 <> "abababababababab" or
+        "ab" mult 9 <> "ababababababababab" or
         "ab" mult 10 <> "abababababababababab" or
+        "ab" mult 15 <> "ababababababababababababababab" or
+        "ab" mult 16 <> "abababababababababababababababab" or
+        "ab" mult 17 <> "ababababababababababababababababab" or
         "ab" mult 20 <> "abababababababababababababababababababab" or
+        "ab" mult 25 <> "ababababababababababababababababababababababababab" or
         "ab" mult 30 <> "abababababababababababababababababababababababababababababab" or
+        "ab" mult 31 <> "ababababababababababababababababababababababababababababababab" or
+        "ab" mult 32 <> "abababababababababababababababababababababababababababababababab" or
+        "ab" mult 33 <> "ababababababababababababababababababababababababababababababababab" or
+        "ab" mult 35 <> "ababababababababababababababababababababababababababababababababababab" or
+        "ab" mult 40 <> "abababababababababababababababababababababababababababababababababababababababab" or
+        "ab" mult 50 <> "abababababababababababababababababababababababababababababababababababababababab\
+                        \abababababababababab" or
+        "ab" mult 60 <> "abababababababababababababababababababababababababababababababababababababababab\
+                        \abababababababababababababababababababab" or
+        "ab" mult 63 <> "abababababababababababababababababababababababababababababababababababababababab\
+                        \ababababababababababababababababababababababab" or
+        "ab" mult 64 <> "abababababababababababababababababababababababababababababababababababababababab\
+                        \abababababababababababababababababababababababab" or
+        "ab" mult 65 <> "abababababababababababababababababababababababababababababababababababababababab\
+                        \ababababababababababababababababababababababababab" or
+        "ab" mult 70 <> "abababababababababababababababababababababababababababababababababababababababab\
+                        \abababababababababababababababababababababababababababababab" or
+        "ab" mult 80 <> "abababababababababababababababababababababababababababababababababababababababab\
+                        \abababababababababababababababababababababababababababababababababababababababab" or
+        "ab" mult 90 <> "abababababababababababababababababababababababababababababababababababababababab\
+                        \abababababababababababababababababababababababababababababababababababababababab\
+                        \abababababababababab" or
+        "ab" mult 100 <> "abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababab" or
+        "ab" mult 127 <> "abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \ababababababab" or
+        "ab" mult 128 <> "abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababab" or
+        "ab" mult 129 <> "abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \ababababababababab" or
+        "ab" mult 150 <> "abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababab" or
+        "ab" mult 200 <> "abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab\
+                         \abababababababababababababababababababababababababababababababababababababababab" or
         "abc" mult 0 <> "" or
         "abc" mult 1 <> "abc" or
         "abc" mult 2 <> "abcabc" or
@@ -3900,9 +3984,84 @@ const proc: check_string_ops is func
         "abc" mult 4 <> "abcabcabcabc" or
         "abc" mult 5 <> "abcabcabcabcabc" or
         "abc" mult 6 <> "abcabcabcabcabcabc" or
+        "abc" mult 7 <> "abcabcabcabcabcabcabc" or
+        "abc" mult 8 <> "abcabcabcabcabcabcabcabc" or
+        "abc" mult 9 <> "abcabcabcabcabcabcabcabcabc" or
         "abc" mult 10 <> "abcabcabcabcabcabcabcabcabcabc" or
         "abc" mult 15 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 16 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 17 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
         "abc" mult 20 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 25 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 30 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabc" or
+        "abc" mult 31 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabc" or
+        "abc" mult 32 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabc" or
+        "abc" mult 33 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabc" or
+        "abc" mult 35 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabc" or
+        "abc" mult 40 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 50 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 60 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabc" or
+        "abc" mult 63 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabc" or
+        "abc" mult 64 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 65 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 70 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 80 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 90 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                         \abcabcabcabcabcabcabcabcabc" or
+        "abc" mult 100 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 127 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 128 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 129 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 150 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 200 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc\
+                          \abcabcabcabcabcabcabcabcabcabcabc" or
         "abcd" mult 0 <> "" or
         "abcd" mult 1 <> "abcd" or
         "abcd" mult 2 <> "abcdabcd" or
@@ -3910,8 +4069,103 @@ const proc: check_string_ops is func
         "abcd" mult 4 <> "abcdabcdabcdabcd" or
         "abcd" mult 5 <> "abcdabcdabcdabcdabcd" or
         "abcd" mult 6 <> "abcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 7 <> "abcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 8 <> "abcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 9 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcd" or
         "abcd" mult 10 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
         "abcd" mult 15 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 16 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 17 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 20 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 25 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcd" or
+        "abcd" mult 30 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 31 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 32 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 33 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 35 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 40 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 50 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 60 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 63 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcd" or
+        "abcd" mult 64 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcd" or
+        "abcd" mult 65 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcd" or
+        "abcd" mult 70 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 80 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 90 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                          \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 100 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 127 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 128 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 129 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 150 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 200 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd\
+                           \abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
         "abcde" mult 0 <> "" or
         "abcde" mult 1 <> "abcde" or
         "abcde" mult 2 <> "abcdeabcde" or
@@ -3919,7 +4173,125 @@ const proc: check_string_ops is func
         "abcde" mult 4 <> "abcdeabcdeabcdeabcde" or
         "abcde" mult 5 <> "abcdeabcdeabcdeabcdeabcde" or
         "abcde" mult 6 <> "abcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 7 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 8 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 9 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
         "abcde" mult 10 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 15 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 16 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 17 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcde" or
+        "abcde" mult 20 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcde" or
+        "abcde" mult 25 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 30 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 31 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 32 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 33 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcde" or
+        "abcde" mult 35 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcde" or
+        "abcde" mult 40 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 50 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcde" or
+        "abcde" mult 60 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 63 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 64 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 65 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcde" or
+        "abcde" mult 70 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 80 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 90 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                           \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 100 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcde" or
+        "abcde" mult 127 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 128 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 129 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcde" or
+        "abcde" mult 150 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 200 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde\
+                            \abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
         "abcdef" mult 0 <> "" or
         "abcdef" mult 1 <> "abcdef" or
         "abcdef" mult 2 <> "abcdefabcdef" or
@@ -3927,7 +4299,23 @@ const proc: check_string_ops is func
         "abcdef" mult 4 <> "abcdefabcdefabcdefabcdef" or
         "abcdef" mult 5 <> "abcdefabcdefabcdefabcdefabcdef" or
         "abcdef" mult 6 <> "abcdefabcdefabcdefabcdefabcdefabcdef" or
+        "abcdef" mult 7 <> "abcdefabcdefabcdefabcdefabcdefabcdefabcdef" or
+        "abcdef" mult 8 <> "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef" or
+        "abcdef" mult 9 <> "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef" or
         "abcdef" mult 10 <> "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef" or
+        "abcdef" mult 15 <> "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef\
+                            \abcdefabcdef" or
+        "abcdef" mult 16 <> "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef\
+                            \abcdefabcdefabcdef" or
+        "abcdef" mult 17 <> "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef\
+                            \abcdefabcdefabcdefabcdef" or
+        "abcdef" mult 20 <> "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef\
+                            \abcdefabcdefabcdefabcdefabcdefabcdefabcdef" or
+        "abcdef" mult 25 <> "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef\
+                            \abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef" or
+        "abcdef" mult 30 <> "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef\
+                            \abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef\
+                            \abcdefabcdefabcdefabcdef" or
         "abcdefghij" mult 0 <> "" or
         "abcdefghij" mult 1 <> "abcdefghij" or
         "abcdefghij" mult 2 <> "abcdefghijabcdefghij" or
@@ -3935,6 +4323,112 @@ const proc: check_string_ops is func
         "abcdefghij" mult 4 <> "abcdefghijabcdefghijabcdefghijabcdefghij" or
         "abcdefghij" mult 5 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
         "abcdefghij" mult 6 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
+        "abcdefghij" mult 10 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
+        striExpr("") mult 0 <> "" or
+        striExpr("") mult 1 <> "" or
+        striExpr("") mult 2 <> "" or
+        striExpr("") mult 3 <> "" or
+        striExpr("") mult 4 <> "" or
+        striExpr("") mult 5 <> "" or
+        striExpr("") mult 6 <> "" or
+        striExpr("") mult 10 <> "" or
+        striExpr("") mult 50 <> "" or
+        striExpr("") mult 100 <> "" or
+        striExpr("") mult 1000 <> "" or
+        striExpr("") mult 10000 <> "" or
+        striExpr("") mult 100000 <> "" or
+        striExpr("") mult 1000000 <> "" or
+        striExpr("") mult 10000000 <> "" or
+        striExpr("") mult 100000000 <> "" or
+        striExpr("") mult 1000000000 <> "" or
+        striExpr("a") mult 0 <> "" or
+        striExpr("a") mult 1 <> "a" or
+        striExpr("a") mult 2 <> "aa" or
+        striExpr("a") mult 3 <> "aaa" or
+        striExpr("a") mult 4 <> "aaaa" or
+        striExpr("a") mult 5 <> "aaaaa" or
+        striExpr("a") mult 6 <> "aaaaaa" or
+        striExpr("a") mult 7 <> "aaaaaaa" or
+        striExpr("a") mult 8 <> "aaaaaaaa" or
+        striExpr("a") mult 9 <> "aaaaaaaaa" or
+        striExpr("a") mult 10 <> "aaaaaaaaaa" or
+        striExpr("a") mult 15 <> "aaaaaaaaaaaaaaa" or
+        striExpr("a") mult 16 <> "aaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 17 <> "aaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 20 <> "aaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 25 <> "aaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 30 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 31 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 32 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 33 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 35 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 40 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 50 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 60 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 63 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 64 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 65 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 70 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 80 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 90 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                                 \aaaaaaaaaa" or
+        striExpr("a") mult 100 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                                  \aaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 127 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                                  \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 128 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                                  \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 129 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                                  \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 150 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                                  \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        striExpr("a") mult 200 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                                  \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                                  \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 0 <> "" or
+        str('a') mult 1 <> "a" or
+        str('a') mult 2 <> "aa" or
+        str('a') mult 3 <> "aaa" or
+        str('a') mult 4 <> "aaaa" or
+        str('a') mult 5 <> "aaaaa" or
+        str('a') mult 6 <> "aaaaaa" or
+        str('a') mult 7 <> "aaaaaaa" or
+        str('a') mult 8 <> "aaaaaaaa" or
+        str('a') mult 9 <> "aaaaaaaaa" or
+        str('a') mult 10 <> "aaaaaaaaaa" or
+        str('a') mult 15 <> "aaaaaaaaaaaaaaa" or
+        str('a') mult 16 <> "aaaaaaaaaaaaaaaa" or
+        str('a') mult 17 <> "aaaaaaaaaaaaaaaaa" or
+        str('a') mult 20 <> "aaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 25 <> "aaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 30 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 31 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 32 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 33 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 35 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 40 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 50 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 60 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 63 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 64 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 65 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 70 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 80 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 90 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                            \aaaaaaaaaa" or
+        str('a') mult 100 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                             \aaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 127 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                             \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 128 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                             \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 129 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                             \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 150 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                             \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        str('a') mult 200 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                             \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                             \aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
         "\16#1234;" mult 0 <> "" or
         "\16#1234;" mult 1 <> "\16#1234;" or
         "\16#1234;" mult 2 <> "\16#1234;\16#1234;" or
@@ -3957,9 +4451,19 @@ const proc: check_string_ops is func
         "\16#FECB;\16#1234;" mult 1 <> "\16#FECB;\16#1234;" or
         "\16#FECB;\16#1234;" mult 2 <> "\16#FECB;\16#1234;\16#FECB;\16#1234;" or
         "\16#FECB;\16#1234;" mult 3 <> "\16#FECB;\16#1234;\16#FECB;\16#1234;\16#FECB;\16#1234;" then
-      writeln(" ***** STRING mult integer does not work correct");
+      writeln(" ***** STRING mult integer does not work correct.");
       okay := FALSE;
     end if;
+    if okay then
+      writeln("String multiplication works correct.");
+    end if;
+  end func;
+
+
+const proc: check_string_ops is func
+  local
+    var boolean: okay is TRUE;
+  begin
     if  ("" lpad -10) <> "" or
         ("" lpad -5) <> "" or
         ("" lpad -2) <> "" or
@@ -4122,7 +4626,7 @@ const proc: check_string_ops is func
         (striExpr("abcdefghijk") lpad 2) <> "abcdefghijk" or
         (striExpr("abcdefghijk") lpad 5) <> "abcdefghijk" or
         (striExpr("abcdefghijk") lpad 10) <> "abcdefghijk" then
-      writeln(" ***** string lpad integer does not work correct");
+      writeln(" ***** string lpad integer does not work correct.");
       okay := FALSE;
     end if;
     if ("" rpad -10) <> "" or
@@ -4206,11 +4710,11 @@ const proc: check_string_ops is func
         ("abcdefghijk" rpad 2) <> "abcdefghijk" or
         ("abcdefghijk" rpad 5) <> "abcdefghijk" or
         ("abcdefghijk" rpad 10) <> "abcdefghijk" then
-      writeln(" ***** string rpad integer does not work correct");
+      writeln(" ***** string rpad integer does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String operations work correct");
+      writeln("String operations work correct.");
     end if;
   end func;
 
@@ -4227,7 +4731,7 @@ const proc: check_string_funcs is func
         pos("abcde",  "") <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "") <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "") <> 0 then
-      writeln(" ***** pos(STRING, \"\") does not work correct");
+      writeln(" ***** pos(STRING, \"\") does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       "\0;") <> 0 or
@@ -4237,13 +4741,13 @@ const proc: check_string_funcs is func
         pos("abcde",  "\0;") <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "\0;") <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "\0;") <> 0 then
-      writeln(" ***** pos(STRING, \"\\0;\") does not work correct");
+      writeln(" ***** pos(STRING, \"\\0;\") does not work correct.");
       okay := FALSE;
     end if;
     if  pos("\4096;\0;\0;", "\4096;") <> 1 or
         pos("\0;\4096;\0;", "\4096;") <> 2 or
         pos("\0;\0;\4096;", "\4096;") <> 3 then
-      writeln(" ***** pos(STRING, \"\\4096;\") does not work correct");
+      writeln(" ***** pos(STRING, \"\\4096;\") does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       "a") <> 0 or
@@ -4274,7 +4778,7 @@ const proc: check_string_funcs is func
         pos("xyzaa",  "a") <> 4 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "a") <> 1 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "a") <> 26 then
-      writeln(" ***** pos(STRING, \"a\") does not work correct");
+      writeln(" ***** pos(STRING, \"a\") does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       "ab") <> 0 or
@@ -4317,7 +4821,7 @@ const proc: check_string_funcs is func
         pos("cbazb",  "ab") <> 0 or
         pos("aaaaa",  "ab") <> 0 or
         pos("bbbbb",  "ab") <> 0 then
-      writeln(" ***** pos(STRING, \"ab\") does not work correct");
+      writeln(" ***** pos(STRING, \"ab\") does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       "aa") <> 0 or
@@ -4358,7 +4862,7 @@ const proc: check_string_funcs is func
         pos("aaaab",  "aa") <> 1 or
         pos("zaaaa",  "aa") <> 2 or
         pos("aaaaa",  "aa") <> 1 then
-      writeln(" ***** pos(STRING, \"aa\") does not work correct");
+      writeln(" ***** pos(STRING, \"aa\") does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       "abc") <> 0 or
@@ -4416,7 +4920,7 @@ const proc: check_string_funcs is func
         pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc",  "abc") <> 31 or
         pos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb",  "abc") <> 31 or
         pos("ababababababcbababababcbababababcbababababcbabababa",  "abc") <> 11 then
-      writeln(" ***** pos(STRING, \"abc\") does not work correct");
+      writeln(" ***** pos(STRING, \"abc\") does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       "aba") <> 0 or
@@ -4495,7 +4999,7 @@ const proc: check_string_funcs is func
         pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcababcbcbcbcbcbcbcbcbc",  "aba") <> 31 or
         pos("acbacbacbacbacbacbacbacbacbacbabaacbacbacbacbacbacb",  "aba") <> 31 or
         pos("cbabcbabcbababababababababababababababababababababa",  "aba") <> 11 then
-      writeln(" ***** pos(STRING, \"aba\") does not work correct");
+      writeln(" ***** pos(STRING, \"aba\") does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       "", 1) <> 0 or
@@ -4528,7 +5032,7 @@ const proc: check_string_funcs is func
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "",  2) <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "",  9) <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "", 99) <> 0 then
-      writeln(" ***** pos(STRING, \"\", start) does not work correct");
+      writeln(" ***** pos(STRING, \"\", start) does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       "a", 1) <> 0 or
@@ -4686,7 +5190,7 @@ const proc: check_string_funcs is func
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 26) <> 26 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 27) <>  0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 99) <>  0 then
-      writeln(" ***** pos(STRING, \"a\", start) does not work correct");
+      writeln(" ***** pos(STRING, \"a\", start) does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       "ab", 1) <> 0 or
@@ -4913,7 +5417,7 @@ const proc: check_string_funcs is func
         pos("bbbbb",  "ab", 5) <> 0 or
         pos("bbbbb",  "ab", 6) <> 0 or
         pos("bbbbb",  "ab", 9) <> 0 then
-      writeln(" ***** pos(STRING, \"ab\", start) does not work correct");
+      writeln(" ***** pos(STRING, \"ab\", start) does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       "aa", 1) <> 0 or
@@ -5144,7 +5648,7 @@ const proc: check_string_funcs is func
         pos("aaaaa",  "aa", 5) <> 0 or
         pos("aaaaa",  "aa", 6) <> 0 or
         pos("aaaaa",  "aa", 9) <> 0 then
-      writeln(" ***** pos(STRING, \"aa\", start) does not work correct");
+      writeln(" ***** pos(STRING, \"aa\", start) does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("",       "") <> 0 or
@@ -5154,7 +5658,7 @@ const proc: check_string_funcs is func
         rpos("abcde",  "") <> 0 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "") <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "") <> 0 then
-      writeln(" ***** rpos(STRING, \"\") does not work correct");
+      writeln(" ***** rpos(STRING, \"\") does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("",       "\0;") <> 0 or
@@ -5164,11 +5668,11 @@ const proc: check_string_funcs is func
         rpos("abcde",  "\0;") <> 0 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "\0;") <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "\0;") <> 0 then
-      writeln(" ***** rpos(STRING, \"\\0;\") does not work correct");
+      writeln(" ***** rpos(STRING, \"\\0;\") does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("\0;\4096;\0;",  "\4096;") <> 2 then
-      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correct");
+      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("",       "a") <> 0 or
@@ -5199,7 +5703,7 @@ const proc: check_string_funcs is func
         rpos("xyzaa",  "a") <> 5 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "a") <> 51 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "a") <> 26 then
-      writeln(" ***** rpos(STRING, \"a\") does not work correct");
+      writeln(" ***** rpos(STRING, \"a\") does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("",       "ab") <> 0 or
@@ -5242,7 +5746,7 @@ const proc: check_string_funcs is func
         rpos("cbazb",  "ab") <> 0 or
         rpos("aaaaa",  "ab") <> 0 or
         rpos("bbbbb",  "ab") <> 0 then
-      writeln(" ***** rpos(STRING, \"ab\") does not work correct");
+      writeln(" ***** rpos(STRING, \"ab\") does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("",       "abc") <> 0 or
@@ -5300,7 +5804,7 @@ const proc: check_string_funcs is func
         rpos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc", "abc") <> 31 or
         rpos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb", "abc") <> 31 or
         rpos("ababababababcbababababcbababababcbababababcbabababa", "abc") <> 41 then
-      writeln(" ***** rpos(STRING, \"abc\") does not work correct");
+      writeln(" ***** rpos(STRING, \"abc\") does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("",       "", -5) <> 0 or
@@ -5342,7 +5846,7 @@ const proc: check_string_funcs is func
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "",  2) <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "",  9) <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "", 51) <> 0 then
-      writeln(" ***** rpos(STRING, \"\", start) does not work correct");
+      writeln(" ***** rpos(STRING, \"\", start) does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("",       "a", -5) <> 0 or
@@ -5530,7 +6034,7 @@ const proc: check_string_funcs is func
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 27) <> 26 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 50) <> 26 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  "a", 51) <> 26 then
-      writeln(" ***** rpos(STRING, \"a\", start) does not work correct");
+      writeln(" ***** rpos(STRING, \"a\", start) does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("",       "ab", -5) <> 0 or
@@ -5796,7 +6300,7 @@ const proc: check_string_funcs is func
         rpos("bbbbb",  "ab",  3) <> 0 or
         rpos("bbbbb",  "ab",  4) <> 0 or
         rpos("bbbbb",  "ab",  5) <> 0 then
-      writeln(" ***** rpos(STRING, \"ab\", start) does not work correct");
+      writeln(" ***** rpos(STRING, \"ab\", start) does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("",       "aa", -5) <> 0 or
@@ -6064,7 +6568,7 @@ const proc: check_string_funcs is func
         rpos("aaaaa",  "aa",  3) <> 3 or
         rpos("aaaaa",  "aa",  4) <> 4 or
         rpos("aaaaa",  "aa",  5) <> 4 then
-      writeln(" ***** rpos(STRING, \"aa\", start) does not work correct");
+      writeln(" ***** rpos(STRING, \"aa\", start) does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       '\0;') <> 0 or
@@ -6074,13 +6578,13 @@ const proc: check_string_funcs is func
         pos("abcde",  '\0;') <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\0;') <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0;') <> 0 then
-      writeln(" ***** pos(STRING, \'\\0;\') does not work correct");
+      writeln(" ***** pos(STRING, \'\\0;\') does not work correct.");
       okay := FALSE;
     end if;
     if  pos("\4096;\0;\0;", '\4096;') <> 1 or
         pos("\0;\4096;\0;", '\4096;') <> 2 or
         pos("\0;\0;\4096;", '\4096;') <> 3 then
-      writeln(" ***** pos(STRING, \'\\4096;\') does not work correct");
+      writeln(" ***** pos(STRING, \'\\4096;\') does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       'a') <> 0 or
@@ -6111,7 +6615,7 @@ const proc: check_string_funcs is func
         pos("xyzaa",  'a') <> 4 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", 'a') <> 1 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 then
-      writeln(" ***** pos(STRING, \'a\') does not work correct");
+      writeln(" ***** pos(STRING, \'a\') does not work correct.");
       okay := FALSE;
     end if;
     if  pos("",       'a', 1) <> 0 or
@@ -6269,7 +6773,7 @@ const proc: check_string_funcs is func
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 26) <> 26 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 27) <>  0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 99) <>  0 then
-      writeln(" ***** pos(STRING, \'a\', start) does not work correct");
+      writeln(" ***** pos(STRING, \'a\', start) does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("",       '\0;') <> 0 or
@@ -6279,11 +6783,11 @@ const proc: check_string_funcs is func
         rpos("abcde",  '\0;') <> 0 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\0;') <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0;') <> 0 then
-      writeln(" ***** rpos(STRING, '\\0;') does not work correct");
+      writeln(" ***** rpos(STRING, '\\0;') does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("\0;\4096;\0;",  '\4096;') <> 2 then
-      writeln(" ***** rpos(STRING, '\\4096;') does not work correct");
+      writeln(" ***** rpos(STRING, '\\4096;') does not work correct.");
       okay := FALSE;
     end if;
     if  rpos("",       'a') <> 0 or
@@ -6314,11 +6818,11 @@ const proc: check_string_funcs is func
         rpos("xyzaa",  'a') <> 5 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", 'a') <> 51 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 then
-      writeln(" ***** rpos(STRING, 'a') does not work correct");
+      writeln(" ***** rpos(STRING, 'a') does not work correct.");
       okay := FALSE;
     end if;
     if  replace("abc", "de", "fg") <> "abc" then
-      writeln(" ***** replace(STRING, STRING, STRING) does not work correct");
+      writeln(" ***** replace(STRING, STRING, STRING) does not work correct.");
       okay := FALSE;
     end if;
     if  lower("") <> "" or
@@ -6371,7 +6875,7 @@ const proc: check_string_funcs is func
               "ҁҁ҂ ҃ ҄ ҅ ҆ ҇ ҈ ҉ҋҋҍҍҏҏґґғғҕҕҗҗҙҙққҝҝҟҟҡҡңңҥҥҧҧҩҩҫҫҭҭүүұұҳҳҵҵҷҷҹҹһһҽҽҿҿ" or
         lower("ӀӁӂӃӄӅӆӇӈӉӊӋӌӍӎӏӐӑӒӓӔӕӖӗӘәӚӛӜӝӞӟӠӡӢӣӤӥӦӧӨөӪӫӬӭӮӯӰӱӲӳӴӵӶӷӸӹӺӻӼӽӾӿ") <>
               "ӏӂӂӄӄӆӆӈӈӊӊӌӌӎӎӏӑӑӓӓӕӕӗӗәәӛӛӝӝӟӟӡӡӣӣӥӥӧӧөөӫӫӭӭӯӯӱӱӳӳӵӵӷӷӹӹӻӻӽӽӿӿ" then
-      writeln(" ***** lower(STRING) does not work correct");
+      writeln(" ***** lower(STRING) does not work correct.");
       okay := FALSE;
     end if;
     if  upper("") <> "" or
@@ -6424,16 +6928,16 @@ const proc: check_string_funcs is func
               "ҀҀ҂ ҃ ҄ ҅ ҆ ҇ ҈ ҉ҊҊҌҌҎҎҐҐҒҒҔҔҖҖҘҘҚҚҜҜҞҞҠҠҢҢҤҤҦҦҨҨҪҪҬҬҮҮҰҰҲҲҴҴҶҶҸҸҺҺҼҼҾҾ" or
         upper("ӀӁӂӃӄӅӆӇӈӉӊӋӌӍӎӏӐӑӒӓӔӕӖӗӘәӚӛӜӝӞӟӠӡӢӣӤӥӦӧӨөӪӫӬӭӮӯӰӱӲӳӴӵӶӷӸӹӺӻӼӽӾӿ") <>
               "ӀӁӁӃӃӅӅӇӇӉӉӋӋӍӍӀӐӐӒӒӔӔӖӖӘӘӚӚӜӜӞӞӠӠӢӢӤӤӦӦӨӨӪӪӬӬӮӮӰӰӲӲӴӴӶӶӸӸӺӺӼӼӾӾ" then
-      writeln(" ***** upper(STRING) does not work correct");
+      writeln(" ***** upper(STRING) does not work correct.");
       okay := FALSE;
     end if;
     if  trim(""          ) <> "" then
-      writeln(" ***** trim(\"\") does not work correct");
+      writeln(" ***** trim(\"\") does not work correct.");
       okay := FALSE;
     end if;
     if
         trim(" "         ) <> "" then
-      writeln(" ***** trim(\" \") does not work correct");
+      writeln(" ***** trim(\" \") does not work correct.");
       okay := FALSE;
     end if;
     if  trim("  "        ) <> "" or
@@ -6469,7 +6973,7 @@ const proc: check_string_funcs is func
         trim(" \n \n"    ) <> "" or
         trim(" \n \n "   ) <> "" or
         trim("  \n \n  " ) <> "" then
-      writeln(" ***** trim(STRING) does not work correct");
+      writeln(" ***** trim(STRING) does not work correct.");
       okay := FALSE;
     end if;
     if  trim("A"         ) <> "A" or
@@ -6536,16 +7040,16 @@ const proc: check_string_funcs is func
               \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <> "x" or
         trim("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
               \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <> "" then
-      writeln(" ***** trim(STRING) does not work correct");
+      writeln(" ***** trim(STRING) does not work correct.");
       okay := FALSE;
     end if;
     if  ltrim(""          ) <> "" then
-      writeln(" ***** ltrim(\"\") does not work correct");
+      writeln(" ***** ltrim(\"\") does not work correct.");
       okay := FALSE;
     end if;
     if
         ltrim(" "         ) <> "" then
-      writeln(" ***** ltrim(\" \") does not work correct");
+      writeln(" ***** ltrim(\" \") does not work correct.");
       okay := FALSE;
     end if;
     if  ltrim("  "        ) <> "" or
@@ -6581,7 +7085,7 @@ const proc: check_string_funcs is func
         ltrim(" \n \n"    ) <> "" or
         ltrim(" \n \n "   ) <> "" or
         ltrim("  \n \n  " ) <> "" then
-      writeln(" ***** ltrim(STRING) does not work correct");
+      writeln(" ***** ltrim(STRING) does not work correct.");
       okay := FALSE;
     end if;
     if  ltrim("A"         ) <> "A" or
@@ -6649,16 +7153,16 @@ const proc: check_string_funcs is func
               "x\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;" or
         ltrim("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
               \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <> "" then
-      writeln(" ***** ltrim(STRING) does not work correct");
+      writeln(" ***** ltrim(STRING) does not work correct.");
       okay := FALSE;
     end if;
     if  rtrim(""          ) <> "" then
-      writeln(" ***** rtrim(\"\") does not work correct");
+      writeln(" ***** rtrim(\"\") does not work correct.");
       okay := FALSE;
     end if;
     if
         rtrim(" "         ) <> "" then
-      writeln(" ***** rtrim(\" \") does not work correct");
+      writeln(" ***** rtrim(\" \") does not work correct.");
       okay := FALSE;
     end if;
     if  rtrim("  "        ) <> "" or
@@ -6694,7 +7198,7 @@ const proc: check_string_funcs is func
         rtrim(" \n \n"    ) <> "" or
         rtrim(" \n \n "   ) <> "" or
         rtrim("  \n \n  " ) <> "" then
-      writeln(" ***** rtrim(STRING) does not work correct");
+      writeln(" ***** rtrim(STRING) does not work correct.");
       okay := FALSE;
     end if;
     if  rtrim("A"         ) <> "A" or
@@ -6762,11 +7266,11 @@ const proc: check_string_funcs is func
               "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;x" or
         rtrim("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
               \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <> "" then
-      writeln(" ***** rtrim(STRING) does not work correct");
+      writeln(" ***** rtrim(STRING) does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String functions work correct");
+      writeln("String functions work correct.");
     end if;
   end func;
 
@@ -7031,7 +7535,7 @@ const proc: check_string_split is func
         split("A+BCDEF", '+') <> [] ("A", "BCDEF") or
         split("+ABCDEF", '+') <> [] ("", "ABCDEF") or
         split("ABCDEFG", '+') <> [] ("ABCDEFG") then
-      writeln(" ***** split(string, char) does not work correct");
+      writeln(" ***** split(string, char) does not work correct.");
       okay := FALSE;
     end if;
     if  split("", "") <> [] ("") or
@@ -7297,11 +7801,11 @@ const proc: check_string_split is func
         split("A+BCDEF", "+") <> [] ("A", "BCDEF") or
         split("+ABCDEF", "+") <> [] ("", "ABCDEF") or
         split("ABCDEFG", "+") <> [] ("ABCDEFG") then
-      writeln(" ***** split(string, string) does not work correct");
+      writeln(" ***** split(string, string) does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("split(string) works correct");
+      writeln("split(string) works correct.");
     end if;
   end func;
 
@@ -7566,11 +8070,11 @@ const proc: check_string_join is func
         join([] ("A", "BCDEF"), '+')                   <> "A+BCDEF" or
         join([] ("", "ABCDEF"), '+')                   <> "+ABCDEF" or
         join([] ("ABCDEFG"), '+')                      <> "ABCDEFG" then
-      writeln(" ***** join(string) does not work correct");
+      writeln(" ***** join(string) does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("join(string) works correct");
+      writeln("join(string) works correct.");
     end if;
   end func;
 
@@ -7593,51 +8097,51 @@ const proc: check_string_assign is func
     okay := TRUE;
     stri := "asdfghjkl";
     if stri <> "asdfghjkl" then
-      writeln(" ***** 'stri := \"asdfghjkl\"' does not work correct");
+      writeln(" ***** 'stri := \"asdfghjkl\"' does not work correct.");
       okay := FALSE;
     end if;
     stri := stri;
     if stri <> "asdfghjkl" then
-      writeln(" ***** 'stri := stri' does not work correct");
+      writeln(" ***** 'stri := stri' does not work correct.");
       okay := FALSE;
     end if;
     do_assign(stri, stri);
     if stri <> "asdfghjkl" then
-      writeln(" ***** 'stri := stri' does not work correct");
+      writeln(" ***** 'stri := stri' does not work correct.");
       okay := FALSE;
     end if;
     stri := stri[2 ..];
     if stri <> "sdfghjkl" then
-      writeln(" ***** 'stri := stri[2 ..]' does not work correct");
+      writeln(" ***** 'stri := stri[2 ..]' does not work correct.");
       okay := FALSE;
     end if;
     stri := stri[.. 7];
     if stri <> "sdfghjk" then
-      writeln(" ***** 'stri := stri[.. 7]' does not work correct");
+      writeln(" ***** 'stri := stri[.. 7]' does not work correct.");
       okay := FALSE;
     end if;
     stri := stri[2 .. 6];
     if stri <> "dfghj" then
-      writeln(" ***** 'stri := stri[2 .. 6]' does not work correct");
+      writeln(" ***** 'stri := stri[2 .. 6]' does not work correct.");
       okay := FALSE;
     end if;
     stri := stri[2 len 3];
     if stri <> "fgh" then
-      writeln(" ***** 'stri := stri[2 len 3]' does not work correct");
+      writeln(" ***** 'stri := stri[2 len 3]' does not work correct.");
       okay := FALSE;
     end if;
     stri := "asdfghjkl";
     if stri <> "asdfghjkl" then
-      writeln(" ***** 'stri := \"asdfghjkl\"' does not work correct");
+      writeln(" ***** 'stri := \"asdfghjkl\"' does not work correct.");
       okay := FALSE;
     end if;
     stri := stri[2 ..][.. 7];
     if stri <> "sdfghjk" then
-      writeln(" ***** 'stri := stri[2 ..][.. 7]' does not work correct");
+      writeln(" ***** 'stri := stri[2 ..][.. 7]' does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String assignment works correct");
+      writeln("String assignment works correct.");
     end if;
   end func;
 
@@ -7662,83 +8166,83 @@ const proc: check_string_append is func
     stri := "123";
     stri &:= "456";
     if stri <> "123456" then
-      writeln(" ***** stri &:= \"456\" does not work correct");
+      writeln(" ***** stri &:= \"456\" does not work correct.");
       okay := FALSE;
     end if;
     stri := "1234567890";
     stri &:= stri;
     if stri <> "12345678901234567890" then
-      writeln(" ***** stri &:= stri does not work correct");
+      writeln(" ***** stri &:= stri does not work correct.");
       okay := FALSE;
     end if;
     stri := "1234567890";
     do_append(stri, stri);
     if stri <> "12345678901234567890" then
-      writeln(" ***** stri &:= stri does not work correct");
+      writeln(" ***** stri &:= stri does not work correct.");
       okay := FALSE;
     end if;
     stri := "1234567890";
     stri &:= stri[2 ..];
     if stri <> "1234567890234567890" then
-      writeln(" ***** stri &:= stri[2 ..] does not work correct");
+      writeln(" ***** stri &:= stri[2 ..] does not work correct.");
       okay := FALSE;
     end if;
     stri := "1234567890";
     stri &:= stri[.. 9];
     if stri <> "1234567890123456789" then
-      writeln(" ***** stri &:= stri[.. 9] does not work correct");
+      writeln(" ***** stri &:= stri[.. 9] does not work correct.");
       okay := FALSE;
     end if;
     stri := "1234567890";
     stri &:= stri[2 .. 9];
     if stri <> "123456789023456789" then
-      writeln(" ***** stri &:= stri[2 .. 9] does not work correct");
+      writeln(" ***** stri &:= stri[2 .. 9] does not work correct.");
       okay := FALSE;
     end if;
     stri := "1234567890";
     stri &:= stri[2 len 8];
     if stri <> "123456789023456789" then
-      writeln(" ***** stri &:= stri[2 len 8] does not work correct");
+      writeln(" ***** stri &:= stri[2 len 8] does not work correct.");
       okay := FALSE;
     end if;
     stri2 := "1234567890";
     stri2 &:= stri2[2 ..][.. 8];
     if stri2 <> "123456789023456789" then
-      writeln(" ***** stri2 &:= stri2[2 ..][.. 8] does not work correct");
+      writeln(" ***** stri2 &:= stri2[2 ..][.. 8] does not work correct.");
       okay := FALSE;
     end if;
     stri := "12345";
     stri &:= str('6');
     if stri <> "123456" then
-      writeln(" ***** stri &:= str('6') does not work correct");
+      writeln(" ***** stri &:= str('6') does not work correct.");
       okay := FALSE;
     end if;
     stri := "12345";
     stri &:= str(chr(48));
     if stri <> "123450" then
-      writeln(" ***** stri &:= str(chr(48)) does not work correct");
+      writeln(" ***** stri &:= str(chr(48)) does not work correct.");
       okay := FALSE;
     end if;
     stri := "12345";
     stri &:= '6';
     if stri <> "123456" then
-      writeln(" ***** stri &:= '6' does not work correct");
+      writeln(" ***** stri &:= '6' does not work correct.");
       okay := FALSE;
     end if;
     stri := "12345";
     stri &:= chr(48);
     if stri <> "123450" then
-      writeln(" ***** stri &:= chr(48) does not work correct");
+      writeln(" ***** stri &:= chr(48) does not work correct.");
       okay := FALSE;
     end if;
     stri := "12345";
     stri &:= stri[3];
     if stri <> "123453" then
-      writeln(" ***** stri &:= stri[3] does not work correct");
+      writeln(" ***** stri &:= stri[3] does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("String append works correct");
+      writeln("String append works correct.");
     end if;
   end func;
 
@@ -7754,122 +8258,122 @@ const proc: check_string_assign_at is func
     stri := "a";
     stri @:= [1] 'X';
     if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [1] 'X';
     if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [2] 'X';
     if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [1] 'X';
     if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [2] 'X';
     if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [3] 'X';
     if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] 'X';
     if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] 'X';
     if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [3] 'X';
     if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [4] 'X';
     if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
 
     stri := "a";
     stri @:= [1] ch;
     if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [1] ch;
     if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [2] ch;
     if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [1] ch;
     if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [2] ch;
     if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [3] ch;
     if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] ch;
     if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] ch;
     if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [3] ch;
     if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [4] ch;
     if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
 
@@ -7877,70 +8381,70 @@ const proc: check_string_assign_at is func
     index := 1;
     stri @:= [index] 'X';
     if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     index := 1;
     stri @:= [index] 'X';
     if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     index := 2;
     stri @:= [index] 'X';
     if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 1;
     stri @:= [index] 'X';
     if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 2;
     stri @:= [index] 'X';
     if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 3;
     stri @:= [index] 'X';
     if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 1;
     stri @:= [index] 'X';
     if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 2;
     stri @:= [index] 'X';
     if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 3;
     stri @:= [index] 'X';
     if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 4;
     stri @:= [index] 'X';
     if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
 
@@ -7948,191 +8452,191 @@ const proc: check_string_assign_at is func
     index := 1;
     stri @:= [index] ch;
     if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     index := 1;
     stri @:= [index] ch;
     if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     index := 2;
     stri @:= [index] ch;
     if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 1;
     stri @:= [index] ch;
     if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 2;
     stri @:= [index] ch;
     if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 3;
     stri @:= [index] ch;
     if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 1;
     stri @:= [index] ch;
     if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 2;
     stri @:= [index] ch;
     if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 3;
     stri @:= [index] ch;
     if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 4;
     stri @:= [index] ch;
     if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
 
     stri := "a";
     stri @:= [1] "X";
     if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [1] "X";
     if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [2] "X";
     if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [1] "XY";
     if stri <> "XY" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [1] "X";
     if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [2] "X";
     if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [3] "X";
     if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [1] "XY";
     if stri <> "XYc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [2] "XY";
     if stri <> "aXY" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [1] "XYZ";
     if stri <> "XYZ" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] "X";
     if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] "X";
     if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [3] "X";
     if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [4] "X";
     if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] "XY";
     if stri <> "XYcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] "XY";
     if stri <> "aXYd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [3] "XY";
     if stri <> "abXY" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] "XYZ";
     if stri <> "XYZd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] "XYZ";
     if stri <> "aXYZ" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] "XYZA";
     if stri <> "XYZA" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
 
@@ -8140,464 +8644,464 @@ const proc: check_string_assign_at is func
     index := 1;
     stri @:= [index] "X";
     if stri <> "X" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     index := 1;
     stri @:= [index] "X";
     if stri <> "Xb" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     index := 2;
     stri @:= [index] "X";
     if stri <> "aX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     index := 1;
     stri @:= [index] "XY";
     if stri <> "XY" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 1;
     stri @:= [index] "X";
     if stri <> "Xbc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 2;
     stri @:= [index] "X";
     if stri <> "aXc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 3;
     stri @:= [index] "X";
     if stri <> "abX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 1;
     stri @:= [index] "XY";
     if stri <> "XYc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 2;
     stri @:= [index] "XY";
     if stri <> "aXY" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     index := 1;
     stri @:= [index] "XYZ";
     if stri <> "XYZ" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 1;
     stri @:= [index] "X";
     if stri <> "Xbcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 2;
     stri @:= [index] "X";
     if stri <> "aXcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 3;
     stri @:= [index] "X";
     if stri <> "abXd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 4;
     stri @:= [index] "X";
     if stri <> "abcX" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 1;
     stri @:= [index] "XY";
     if stri <> "XYcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 2;
     stri @:= [index] "XY";
     if stri <> "aXYd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 3;
     stri @:= [index] "XY";
     if stri <> "abXY" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 1;
     stri @:= [index] "XYZ";
     if stri <> "XYZd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 2;
     stri @:= [index] "XYZ";
     if stri <> "aXYZ" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     index := 1;
     stri @:= [index] "XYZA";
     if stri <> "XYZA" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
 
     stri := "a";
     stri @:= [1] stri;
     if stri <> "a" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [1] stri[1 len 1];
     if stri <> "ab" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [1] stri[2 len 1];
     if stri <> "bb" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [2] stri[1 len 1];
     if stri <> "aa" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [2] stri[2 len 1];
     if stri <> "ab" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "ab";
     stri @:= [1] stri;
     if stri <> "ab" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [1] stri[1 len 1];
     if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [1] stri[2 len 1];
     if stri <> "bbc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [1] stri[3 len 1];
     if stri <> "cbc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [2] stri[1 len 1];
     if stri <> "aac" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [2] stri[2 len 1];
     if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [2] stri[3 len 1];
     if stri <> "acc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [3] stri[1 len 1];
     if stri <> "aba" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [3] stri[2 len 1];
     if stri <> "abb" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [3] stri[3 len 1];
     if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [1] stri[1 len 2];
     if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [1] stri[2 len 2];
     if stri <> "bcc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [2] stri[1 len 2];
     if stri <> "aab" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [2] stri[2 len 2];
     if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abc";
     stri @:= [1] stri;
     if stri <> "abc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] stri[1 len 1];
     if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] stri[2 len 1];
     if stri <> "bbcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] stri[3 len 1];
     if stri <> "cbcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri @:= [1] stri[4 len 1];
     if stri <> "dbcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] stri[1 len 1];
     if stri <> "aacd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] stri[2 len 1];
     if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] stri[3 len 1];
     if stri <> "accd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] stri[4 len 1];
     if stri <> "adcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [3] stri[1 len 1];
     if stri <> "abad" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [3] stri[2 len 1];
     if stri <> "abbd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [3] stri[3 len 1];
     if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [3] stri[4 len 1];
     if stri <> "abdd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [4] stri[1 len 1];
     if stri <> "abca" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [4] stri[2 len 1];
     if stri <> "abcb" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [4] stri[3 len 1];
     if stri <> "abcc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [4] stri[4 len 1];
     if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] stri[1 len 2];
     if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] stri[2 len 2];
     if stri <> "bccd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] stri[3 len 2];
     if stri <> "cdcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] stri[1 len 2];
     if stri <> "aabd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] stri[2 len 2];
     if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] stri[3 len 2];
     if stri <> "acdd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [3] stri[1 len 2];
     if stri <> "abab" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [3] stri[2 len 2];
     if stri <> "abbc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [3] stri[3 len 2];
     if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] stri[1 len 3];
     if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] stri[2 len 3];
     if stri <> "bcdd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] stri[1 len 3];
     if stri <> "aabc" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] stri[2 len 3];
     if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [1] stri;
     if stri <> "abcd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcd";
     stri @:= [2] stri[3 len 1] & stri[2 .. 2];
     if stri <> "acbd" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
 
     stri := "abcdefghijklmnopqrstuvwxyz";
     stri @:= [7] stri [13 len 11];
     if stri <> "abcdefmnopqrstuvwrstuvwxyz" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
     stri := "abcdefghijklmnopqrstuvwxyz";
     stri @:= [13] stri [7 len 11];
     if stri <> "abcdefghijklghijklmnopqxyz" then
-      writeln(" ***** @:= for strings does not work correct");
+      writeln(" ***** @:= for strings does not work correct.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("@:= for strings works correct");
+      writeln("@:= for strings works correct.");
     end if;
   end func;
 
@@ -8616,6 +9120,7 @@ const proc: main is func
     check_string_range;
     check_string_substr;
     check_string_concat;
+    check_string_mult;
     check_string_ops;
     check_string_funcs;
     check_string_split;

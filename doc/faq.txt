@@ -240,12 +240,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2015-01-18 the number of lines is:
+than 200000 lines of Seed7. For version 2015-02-01 the number of lines is:
 
-  121617  C source files (*.c)
-    9966  C header files (*.h)
-  118989  Seed7 source files (*.sd7)
-  127036  Seed7 library/include files (*.s7i)
+  121862  C source files (*.c)
+    9968  C header files (*.h)
+  120152  Seed7 source files (*.sd7)
+  127055  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -543,9 +543,11 @@ The following options are recognized by s7:
          d Trace dynamic calls
          e Trace exceptions and handlers
          h Trace heap size (in combination with 'a')
+         s Trace signals
   -d   Equivalent to -da
   -i   Show the identifier table after the analyzing phase.
   -l   Add a directory to the include library search path (e.g.: -l ../lib).
+  -p   Specify a protocol file, for trace output (e.g.: -p prot.txt).
   -q   Compile quiet. Line and file information and compilation
        statistics are suppressed.
   -tx  Set runtime trace level to x. Where x is a string consisting
@@ -555,6 +557,7 @@ The following options are recognized by s7:
          d Trace dynamic calls
          e Trace exceptions and handlers
          h Trace heap size (in combination with 'a')
+         s Trace signals
   -t   Equivalent to -ta
   -vn  Set verbosity level of analyse phase to n. Where n is one
        of the following characters:
@@ -604,10 +607,10 @@ Possible options are
        The checks x are specified with letters from the following list:
          r Suppress the generation of range checks for strings and arrays.
          o Suppress the generation of integer overflow checks.
-  -te  Generate code to trace exceptions. This option works in the same way
-       as the interpreter option -te: Every exception will write a message
-       to stdout and the user will be asked to continue (with enter) or to
-       terminate (with * ).
+  -tx  Set runtime trace level to x. Where x is a string consisting
+       of the following characters:
+         e Trace exceptions and handlers
+         s Trace signals
 
 
 What are the reserved words of Seed7?

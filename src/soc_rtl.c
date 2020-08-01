@@ -1805,7 +1805,7 @@ void socWrite (socketType outSocket, const const_striType stri)
       printf("WSAEINVAL=%ld, WSAECONNABORTED=%ld, WSAETIMEDOUT=%ld, WSAECONNRESET=%ld\n",
              WSAEINVAL, WSAECONNABORTED, WSAETIMEDOUT, WSAECONNRESET);
       printf("WSAENOBUFS=%ld\n", WSAENOBUFS); */
-      /* printf("bytes_sent=%ld, stri->size=%lu\n", (long) bytes_sent, stri->size); */
+      /* printf("bytes_sent=%ld, stri->size= "FMT_U_MEM "\n", (long) bytes_sent, stri->size); */
       raise_error(FILE_ERROR);
     } /* if */
   } /* socWrite */

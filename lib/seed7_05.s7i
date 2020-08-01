@@ -823,11 +823,7 @@ const func string: (in integer: number) sci (in integer: precision) is func
       if precision <> 0 then
         stri := stri[1 len 1] & "." & stri[2 .. ];
       end if;
-      if exponent >= 0 then
-        stri &:= "e+" & str(exponent);
-      else
-        stri &:= "e" & str(exponent);
-      end if;
+      stri &:= "e+" & str(exponent);
       if number < 0 then
         stri := "-" & stri;
       end if;

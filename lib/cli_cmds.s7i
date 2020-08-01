@@ -375,11 +375,16 @@ const proc: doRemoveCmd (in array string: fileList,
           writeln("Cannot remove " <& fileName <& " - No such file or directory");
         end if;
       else
-        if recursive then
-          removeTree(fileName);
-        else
-          removeFile(fileName);
-        end if;
+        block
+          if recursive then
+            removeTree(fileName);
+          else
+            removeFile(fileName);
+          end if;
+        exception
+          catch FILE_ERROR:
+            writeln("Cannot remove " <& fileName <& " - Not permitted");
+        end block;
       end if;
     end for;
   end func;

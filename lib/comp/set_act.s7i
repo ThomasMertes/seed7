@@ -99,22 +99,25 @@ const proc: set_prototypes (inout file: c_prog) is func
 const func string: bitsetElemAsHex (in bitset: set1, in integer: start_num) is func
 
   result
-    var string: hex_num is "";
+    var string: hex_num is " " mult ccConf.INTTYPE_SIZE div 4 + 2;
   local
+    const string: to_hex is "0123456789abcdef";
     var integer: hex_digit_num is 0;
     var integer: bit_num is 0;
     var integer: hex_digit is 0;
+    var integer: digit_idx is ccConf.INTTYPE_SIZE div 4 + 2;
   begin
-    for hex_digit_num range 0 to pred(ccConf.INTTYPE_SIZE div 4) do
+    for hex_digit_num range start_num to start_num + pred(ccConf.INTTYPE_SIZE) step 4 do
       hex_digit := 0;
       for bit_num range 0 to 3 do
-        if start_num + hex_digit_num * 4 + bit_num in set1 then
+        if hex_digit_num + bit_num in set1 then
           hex_digit +:= 2 ** bit_num;
         end if;
       end for;
-      hex_num := hex_digit radix 16 <& hex_num;
+      hex_num @:= [digit_idx] to_hex[succ(hex_digit)];
+      decr(digit_idx);
     end for;
-    hex_num := "0x" & hex_num;
+    hex_num @:= [1] "0x";
   end func;
 
 

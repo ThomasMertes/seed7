@@ -161,10 +161,14 @@ install:
 	mkdir -p /usr/local/bin
 	cd ../bin; ln -s `pwd`/s7 /usr/local/bin
 	cd ../bin; ln -s `pwd`/s7c /usr/local/bin
+	gzip -c ../doc/s7.1 > /usr/share/man/man1/s7.1.gz
+	gzip -c ../doc/s7c.1 > /usr/share/man/man1/s7c.1.gz
 
 uninstall:
 	rm /usr/local/bin/s7
 	rm /usr/local/bin/s7c
+	rm /usr/share/man/man1/s7.1.gz
+	rm /usr/share/man/man1/s7c.1.gz
 
 dep: depend
 

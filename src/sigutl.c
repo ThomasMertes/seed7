@@ -40,6 +40,13 @@
 #include "sigutl.h"
 
 
+#ifdef CATCH_SIGNALS
+volatile boolType trace_signals = FALSE;
+
+static void activate_signal_handlers (void);
+#endif
+
+
 
 void shut_drivers (void)
 
@@ -100,7 +107,7 @@ static void handle_signals (int sig_num)
     signal(SIGALRM, SIG_IGN);
 #endif
 #ifdef DIALOG_IN_SIGNAL_HANDLER
-    printf("\n*** SIGNAL %s RAISED\n\n*** (Type RETURN to continue or '*' to terminate)\n",
+    printf("\n*** SIGNAL %s RAISED\n\n*** (Type RETURN to continue, '*' to terminate or 'c' to stop)\n",
            signal_name(sig_num));
     ch = fgetc(stdin);
     if (ch == '*') {
@@ -128,17 +135,6 @@ static void handle_signals (int sig_num)
 
 
 
-static void handle_segv_signal (int sig_num)
-
-  { /* handle_segv_signal */
-    shut_drivers();
-    printf("\n*** SIGNAL SEGV RAISED\n"
-           "\n*** Program terminated.\n");
-    exit(1);
-  } /* handle_segv_signal */
-
-
-
 static void handle_term_signal (int sig_num)
 
   { /* handle_term_signal */
@@ -150,7 +146,19 @@ static void handle_term_signal (int sig_num)
 
 
 
-void activate_signal_handlers (void)
+static void handle_segv_signal (int sig_num)
+
+  { /* handle_segv_signal */
+    shut_drivers();
+    printf("\n*** SIGNAL SEGV RAISED\n"
+           "\n*** Program terminated.\n");
+    signal(SIGABRT, SIG_DFL);
+    abort();
+  } /* handle_segv_signal */
+
+
+
+static void activate_signal_handlers (void)
 
   { /* activate_signal_handlers */
 #ifdef HAS_SIGACTION
@@ -158,33 +166,65 @@ void activate_signal_handlers (void)
       struct sigaction sig_act;
       boolType okay;
 
-      sig_act.sa_handler = handle_signals;
+      if (trace_signals) {
+        sig_act.sa_handler = handle_signals;
+      } else {
+        sig_act.sa_handler = handle_term_signal;
+      } /* if */
       sigemptyset(&sig_act.sa_mask);
       sig_act.sa_flags = SA_RESTART;
       okay = sigaction(SIGABRT,  &sig_act, NULL) == 0 &&
              sigaction(SIGFPE,   &sig_act, NULL) == 0 &&
              sigaction(SIGILL,   &sig_act, NULL) == 0 &&
              sigaction(SIGINT,   &sig_act, NULL) == 0;
-      sig_act.sa_handler = handle_segv_signal;
-      okay = okay &&
-             sigaction(SIGSEGV,  &sig_act, NULL) == 0;
       sig_act.sa_handler = handle_term_signal;
       okay = okay &&
              sigaction(SIGTERM,  &sig_act, NULL) == 0;
+      if (trace_signals) {
+        sig_act.sa_handler = handle_segv_signal;
+      } else {
+        sig_act.sa_handler = SIG_DFL;
+      } /* if */
+      okay = okay &&
+             sigaction(SIGSEGV,  &sig_act, NULL) == 0;
       if (!okay) {
         printf("\n*** Activating signal handlers failed.\n");
       } /* if */
     }
 #else
-    signal(SIGABRT, handle_signals);
-    signal(SIGFPE,  handle_signals);
-    signal(SIGILL,  handle_signals);
-    signal(SIGINT,  handle_signals);
-    signal(SIGSEGV, handle_segv_signal);
+    if (trace_signals) {
+      signal(SIGABRT, handle_signals);
+      signal(SIGFPE,  handle_signals);
+      signal(SIGILL,  handle_signals);
+      signal(SIGINT,  handle_signals);
+    } else {
+      signal(SIGABRT, handle_term_signal);
+      signal(SIGFPE,  handle_term_signal);
+      signal(SIGILL,  handle_term_signal);
+      signal(SIGINT,  handle_term_signal);
+    } /* if */
     signal(SIGTERM, handle_term_signal);
+    if (trace_signals) {
+      signal(SIGSEGV, handle_segv_signal);
+    } else {
+      signal(SIGSEGV, SIG_DFL);
+    } /* if */
 #endif
 #ifdef SIGPIPE
     signal(SIGPIPE, SIG_IGN);
 #endif
   } /* activate_signal_handlers */
 #endif
+
+
+
+void setup_signal_handlers (boolType do_handle_signals, boolType do_trace_signals)
+
+  { /* setup_signal_handlers */
+#ifdef CATCH_SIGNALS
+    trace_signals = do_trace_signals;
+    if (do_handle_signals) {
+      activate_signal_handlers();
+    } /* if */
+#endif
+  } /* setup_signal_handlers */

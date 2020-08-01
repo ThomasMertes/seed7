@@ -104,6 +104,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwFArcPieSlice (const_winType, intType, intType, intType, floatType, floatType);");
     declareExtern(c_prog, "void        drwFCircle (const_winType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwFEllipse (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "winType     drwEmpty (void);");
     declareExtern(c_prog, "void        drwFlush (void);");
     declareExtern(c_prog, "bstriType   drwGenPointList (const const_arrayType);");
     declareExtern(c_prog, "winType     drwGet (const_winType, intType, intType, intType, intType);");

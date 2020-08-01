@@ -48,7 +48,9 @@
 #include "doany.h"
 #include "option.h"
 #include "set_rtl.h"
+#include "str_rtl.h"
 #include "big_drv.h"
+#include "pcs_drv.h"
 
 #undef EXTERN
 #define EXTERN
@@ -505,6 +507,7 @@ static void print_real_value (const_objectType anyobject)
 
   {
     structType structValue;
+    striType stri;
 
   /* print_real_value */
 #ifdef TRACE_TRACE
@@ -642,6 +645,18 @@ static void print_real_value (const_objectType anyobject)
           prot_ptr(anyobject->value.winValue);
         } /* if */
         break;
+      case PROCESSOBJECT:
+        if (anyobject->value.winValue == NULL) {
+          prot_cstri(" *NULL_PROCESS* ");
+        } else {
+          prot_cstri("process [");
+          prot_int((intType) anyobject->value.processValue->usage_count);
+          prot_cstri("] ");
+          stri = pcsStr(anyobject->value.processValue);
+          prot_stri(stri);
+          strDestr(stri);
+        } /* if */
+        break;
       case PROGOBJECT:
         if (anyobject->value.progValue == NULL) {
           prot_cstri(" *NULL_PROG* ");
@@ -744,6 +759,8 @@ void printobject (const_objectType anyobject)
         case INTERFACEOBJECT:
         case SETOBJECT:
         case BLOCKOBJECT:
+        case WINOBJECT:
+        case PROCESSOBJECT:
         case PROGOBJECT:
           printvalue(anyobject);
           break;
@@ -929,6 +946,7 @@ void prot_list (const_listType list)
           case ACTOBJECT:
           case BLOCKOBJECT:
           case WINOBJECT:
+          case PROCESSOBJECT:
             printvalue(list->obj);
             break;
           case VARENUMOBJECT:
@@ -1536,6 +1554,7 @@ void trace1 (const_objectType traceobject)
         case ACTOBJECT:
         case BLOCKOBJECT:
         case WINOBJECT:
+        case PROCESSOBJECT:
           print_real_value(traceobject);
           break;
 #ifndef OUT_OF_ORDER
@@ -1671,6 +1690,7 @@ void printTraceOptions (uintType options)
     if ((options & TRACE_HEAP_SIZE      ) != 0) { printf("HEAP_SIZE\n"); }
     if ((options & TRACE_MATCH          ) != 0) { printf("MATCH\n"); }
     if ((options & TRACE_EXECUTIL       ) != 0) { printf("EXECUTIL\n"); }
+    if ((options & TRACE_SIGNALS        ) != 0) { printf("SIGNALS\n"); }
   } /* printTraceOptions */
 #endif
 
@@ -1690,6 +1710,7 @@ void set_trace (uintType options)
     trace.heapsize      = (options & TRACE_HEAP_SIZE      ) != 0;
     trace.match         = (options & TRACE_MATCH          ) != 0;
     trace.executil      = (options & TRACE_EXECUTIL       ) != 0;
+    trace.signals       = (options & TRACE_SIGNALS        ) != 0;
 #ifdef TRACE_TRACE
     printf("END set_trace\n");
 #endif
@@ -1726,10 +1747,11 @@ void mapTraceFlags (const_striType trace_level, uintType *options)
           case 'h': DO_FLAG(TRACE_HEAP_SIZE);        break;
           case 'm': DO_FLAG(TRACE_MATCH);            break;
           case 'u': DO_FLAG(TRACE_EXECUTIL);         break;
+          case 's': DO_FLAG(TRACE_SIGNALS);          break;
           case '*': DO_FLAG(TRACE_ACTIONS       | TRACE_DO_ACTION_CHECK |
                             TRACE_DYNAMIC_CALLS | TRACE_EXCEPTIONS      |
                             TRACE_HEAP_SIZE     | TRACE_MATCH           |
-                            TRACE_EXECUTIL);
+                            TRACE_EXECUTIL      | TRACE_SIGNALS);
             break;
         } /* switch */
       } /* for */

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  s7c.sd7       Seed7 compiler - Compiles Seed7 to C              *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -698,7 +698,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
         c_declaration.temp_assigns &:= diagnosticLine(current_object);
         c_declaration.temp_assigns &:= "o_";
         create_name(current_object, c_declaration.temp_assigns);
-        c_declaration.temp_assigns &:= "=winCreate(";
+        c_declaration.temp_assigns &:= "=drwCreate(";
         c_declaration.temp_assigns &:= windowLiteral(getValue(object_value, PRIMITIVE_WINDOW));
         c_declaration.temp_assigns &:= ");\n";
       end if;
@@ -3196,17 +3196,13 @@ const proc: process_win_declaration (in reference: current_object,
     if isVar(current_object) then
       c_expr.expr &:= "winType o_";
       create_name(current_object, c_expr.expr);
-      if getValue(current_object, PRIMITIVE_WINDOW) = PRIMITIVE_WINDOW.value then
-        c_expr.expr &:= "=NULL;\n\n";
-      else
-        c_expr.expr &:= ";\n\n";
-        global_init.expr &:= diagnosticLine(current_object);
-        global_init.expr &:= "o_";
-        create_name(current_object, global_init.expr);
-        global_init.expr &:= "=drwCreate(";
-        global_init.expr &:= windowLiteral(getValue(current_object, PRIMITIVE_WINDOW));
-        global_init.expr &:= ");\n";
-      end if;
+      c_expr.expr &:= ";\n\n";
+      global_init.expr &:= diagnosticLine(current_object);
+      global_init.expr &:= "o_";
+      create_name(current_object, global_init.expr);
+      global_init.expr &:= "=drwCreate(";
+      global_init.expr &:= windowLiteral(getValue(current_object, PRIMITIVE_WINDOW));
+      global_init.expr &:= ");\n";
       count_declarations(c_expr);
     end if;
   end func;
@@ -3494,6 +3490,8 @@ const proc: process_dynamic_call (in reference: current_object,
           objectCategory = ARRAYOBJECT or
           objectCategory = STRUCTOBJECT or
           objectCategory = SETOBJECT or
+          objectCategory = WINOBJECT or
+          objectCategory = PROCESSOBJECT or
           objectCategory = CONSTENUMOBJECT then
         c_expr.expr &:= "return ";
         getAnyParamToExpr(matched_object, resultExpr);
@@ -4393,11 +4391,11 @@ const proc: process_action_declaration (in reference: current_object,
       elsif action_name = "BST_CPY" or action_name = "BST_CREATE" then
         defineParam1TypeCategory(current_object, BSTRIOBJECT);
         count_declarations(c_expr);
-      elsif action_name = "PCS_CPY" or action_name = "PCS_CREATE" then
-        defineParam1TypeCategory(current_object, PROCESSOBJECT);
-        count_declarations(c_expr);
       elsif action_name = "DRW_CPY" or action_name = "DRW_CREATE" then
         defineParam1TypeCategory(current_object, WINOBJECT);
+        count_declarations(c_expr);
+      elsif action_name = "PCS_CPY" or action_name = "PCS_CREATE" then
+        defineParam1TypeCategory(current_object, PROCESSOBJECT);
         count_declarations(c_expr);
       elsif action_name = "ENU_CPY" then
         defineParam1TypeCategory(current_object, ENUMOBJECT);
@@ -5125,6 +5123,7 @@ const proc: write_file_head is func
     writeln(c_prog, "#define divChk(x) unlikely(x)");
     writeln(c_prog, "#define numChk(x) unlikely(x)");
     writeln(c_prog, "#define idxChk(x) unlikely(x)");
+    writeln(c_prog, "#define rngChk(x) unlikely(x)");
     writeln(c_prog, "#define push_stack(stack,elem) \\");
     writeln(c_prog, "{\\");
     writeln(c_prog, "  hashElemListType new_head = (hashElemListType)(malloc(sizeof(struct hashElemListStruct)));\\");
@@ -5238,7 +5237,7 @@ const proc: write_signal_handlers is func
 
   local
     const array string: normalSignals is [] (
-        "SIGABRT", "SIGILL", "SIGINT", "SIGSEGV");
+        "SIGABRT", "SIGILL", "SIGINT");
     var string: signalName is "";
   begin
     writeln(c_prog);
@@ -5246,16 +5245,12 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "static void activate_signal_handlers (void);");
     writeln(c_prog);
     writeln(c_prog);
-    writeln(c_prog, "static void handle_signals (int sig_num)");
+    writeln(c_prog, "static char *signal_name (int sig_num)");
     writeln(c_prog);
     writeln(c_prog, "  {");
-    writeln(c_prog, "    int ch;");
+    writeln(c_prog, "    static char buffer[20];");
     writeln(c_prog, "    char *sig_name;");
-    writeln(c_prog, "    char buffer[20];");
     writeln(c_prog);
-    writeln(c_prog, "#ifdef SIGALRM");
-    writeln(c_prog, "    signal(SIGALRM, SIG_IGN);");
-    writeln(c_prog, "#endif");
     writeln(c_prog, "    if (sig_num == SIGABRT) {");
     writeln(c_prog, "      sig_name = \"ABORT\";");
     writeln(c_prog, "    } else if (sig_num == SIGFPE) {");
@@ -5268,33 +5263,63 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "      sig_name = \"SEGV\";");
     writeln(c_prog, "    } else if (sig_num == SIGTERM) {");
     writeln(c_prog, "      sig_name = \"TERM\";");
+    writeln(c_prog, "#ifdef SIGALRM");
+    writeln(c_prog, "    } else if (sig_num == SIGALRM) {");
+    writeln(c_prog, "      sig_name = \"ALARM\";");
+    writeln(c_prog, "#endif");
+    writeln(c_prog, "#ifdef SIGPIPE");
+    writeln(c_prog, "    } else if (sig_num == SIGPIPE) {");
+    writeln(c_prog, "      sig_name = \"SIGPIPE\";");
+    writeln(c_prog, "#endif");
     writeln(c_prog, "    } else {");
     writeln(c_prog, "      sprintf(buffer, \"%d\", sig_num);");
     writeln(c_prog, "      sig_name = buffer;");
     writeln(c_prog, "    } /* if */");
-    writeln(c_prog, "    printf(\"\\n*** SIGNAL %s RAISED\\n\", sig_name);");
+    writeln(c_prog, "    return sig_name;");
+    writeln(c_prog, "  }");
+    writeln(c_prog);
+    writeln(c_prog);
     if trace_signal then
+      writeln(c_prog, "static void handle_signals (int sig_num)");
+      writeln(c_prog);
+      writeln(c_prog, "  {");
+      writeln(c_prog, "    int ch;");
+      writeln(c_prog);
+      writeln(c_prog, "#ifdef SIGALRM");
+      writeln(c_prog, "    signal(SIGALRM, SIG_IGN);");
+      writeln(c_prog, "#endif");
+      writeln(c_prog, "    printf(\"\\n*** SIGNAL %s RAISED\\n\", signal_name(sig_num));");
       writeln(c_prog, "    printf(\"\\n*** (Type RETURN to continue or '*' to terminate)\\n\");");
       writeln(c_prog, "    ch = fgetc(stdin);");
       writeln(c_prog, "    if (ch == '*') {");
       writeln(c_prog, "      exit(1);");
       writeln(c_prog, "    } /* if */");
       writeln(c_prog, "    activate_signal_handlers();");
-    else
-      writeln(c_prog, "    exit(1);");
+      writeln(c_prog, "  }");
+      writeln(c_prog);
+      writeln(c_prog);
     end if;
-    writeln(c_prog, "  }");
-    writeln(c_prog);
-    writeln(c_prog);
     writeln(c_prog, "static void handle_term_signal (int sig_num)");
     writeln(c_prog);
     writeln(c_prog, "  {");
-    writeln(c_prog, "    printf(\"\\n*** SIGNAL TERM RAISED\\n\");");
+    writeln(c_prog, "    printf(\"\\n*** SIGNAL %s RAISED\\n\", signal_name(sig_num));");
     writeln(c_prog, "    printf(\"\\n*** Program terminated\\n\");");
     writeln(c_prog, "    exit(1);");
     writeln(c_prog, "  }");
     writeln(c_prog);
     writeln(c_prog);
+    if trace_signal then
+      writeln(c_prog, "static void handle_segv_signal (int sig_num)");
+      writeln(c_prog);
+      writeln(c_prog, "  {");
+      writeln(c_prog, "    printf(\"\\n*** SIGNAL SEGV RAISED\\n\");");
+      writeln(c_prog, "    printf(\"\\n*** Program terminated\\n\");");
+      writeln(c_prog, "    signal(SIGABRT, SIG_DFL);");
+      writeln(c_prog, "    abort();");
+      writeln(c_prog, "  }");
+      writeln(c_prog);
+      writeln(c_prog);
+    end if;
     writeln(c_prog, "static void handle_numeric_error (int sig_num)");
     writeln(c_prog);
     writeln(c_prog, "  {");
@@ -5322,11 +5347,18 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "  {");
     writeln(c_prog, "    signal(SIGFPE, handle_numeric_error);");
     writeln(c_prog, "    signal(SIGTERM, handle_term_signal);");
+    if trace_signal then
+      writeln(c_prog, "    signal(SIGSEGV, handle_segv_signal);");
+    else
+      writeln(c_prog, "    signal(SIGSEGV, SIG_DFL);");
+    end if;
     for signalName range normalSignals do
       if signalName = ccConf.OVERFLOW_SIGNAL then
         writeln(c_prog, "    signal(" <& signalName <& ", handle_overflow_error);");
-      else
+      elsif trace_signal then
         writeln(c_prog, "    signal(" <& signalName <& ", handle_signals);");
+      else
+        writeln(c_prog, "    signal(" <& signalName <& ", handle_term_signal);");
       end if;
     end for;
     writeln(c_prog, "#ifdef SIGPIPE");
@@ -5618,6 +5650,9 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
     elsif objectCategory = WINOBJECT then
       c_expr.expr &:= ".value.winValue=";
       c_expr.expr &:= windowLiteral(getValue(current_object, PRIMITIVE_WINDOW));
+    elsif objectCategory = PROCESSOBJECT then
+      c_expr.expr &:= ".value.processValue=";
+      c_expr.expr &:= "NULL";
     elsif objectCategory = CONSTENUMOBJECT then
       c_expr.expr &:= select_value_from_rtlObjectStruct(
           getType(getValue(current_object, reference)));
@@ -5787,6 +5822,7 @@ const proc: init_win_constants (inout expr_type: c_expr) is func
 
   local
     var win_index_hash: win_index is win_index_hash.EMPTY_HASH;
+    var PRIMITIVE_WINDOW: win1 is PRIMITIVE_WINDOW.value;
     var integer: number is 0;
     var integer: line is 0;
     var integer: column is 0;
@@ -5796,11 +5832,14 @@ const proc: init_win_constants (inout expr_type: c_expr) is func
   begin
     win_index := flip(win_const_table);
     for number range sort(keys(win_index)) do
-      bImage := getImage(win_index[number][1]);
-      if bImage not in bstri_const_table then
-        bstri_const_table @:= [bImage] length(bstri_const_table);
+      win1 := win_index[number][1];
+      if width(win1) <> 0 or height(win1) <> 0 then
+        bImage := getImage(win1);
+        if bImage not in bstri_const_table then
+          bstri_const_table @:= [bImage] length(bstri_const_table);
+        end if;
+        win_bstri_table @:= [number] bstri_const_table[bImage];
       end if;
-      win_bstri_table @:= [number] bstri_const_table[bImage];
     end for;
   end func;
 
@@ -5823,17 +5862,22 @@ const proc: assign_win_constants (inout expr_type: c_expr) is func
         win1 := win_index[number][1];
         c_expr.expr &:= "win[";
         c_expr.expr &:= str(number);
-        c_expr.expr &:= "]=drwImage((int32Type *)((";
-        if ccConf.ALLOW_BSTRITYPE_SLICES then
-          c_expr.expr &:= "&";
+        c_expr.expr &:= "]=";
+        if width(win1) = 0 and height(win1) = 0 then
+          c_expr.expr &:= "drwEmpty();\n";
+        else
+          c_expr.expr &:= "drwImage((int32Type *)((";
+          if ccConf.ALLOW_BSTRITYPE_SLICES then
+            c_expr.expr &:= "&";
+          end if;
+          c_expr.expr &:= "bst[";
+          c_expr.expr &:= str(win_bstri_table[number]);
+          c_expr.expr &:= "])->mem), ";
+          c_expr.expr &:= str(width(win1));
+          c_expr.expr &:= ", ";
+          c_expr.expr &:= str(height(win1));
+          c_expr.expr &:= ");\n";
         end if;
-        c_expr.expr &:= "bst[";
-        c_expr.expr &:= str(win_bstri_table[number]);
-        c_expr.expr &:= "])->mem), ";
-        c_expr.expr &:= str(width(win1));
-        c_expr.expr &:= ", ";
-        c_expr.expr &:= str(height(win1));
-        c_expr.expr &:= ");\n";
       end for;
     end if;
   end func;
@@ -6834,8 +6878,12 @@ const proc: pass_1 (in string: source, inout program: prog,
         source_debug_info := compiler_option["-g"] <> "-debug_c";
       end if;
       if "-t" in compiler_option then
-        trace_exception := compiler_option["-t"] = "e";
-        trace_signal := compiler_option["-t"] = "s";
+        if pos(compiler_option["-t"], 'e') <> 0 then
+          trace_exception := TRUE;
+        end if;
+        if pos(compiler_option["-t"], 's') <> 0 then
+          trace_signal := TRUE;
+        end if;
       end if;
       if "-e" in compiler_option then
         signal_exception := TRUE;
@@ -7220,10 +7268,9 @@ const proc: writeHelp is func
     writeln("       The checks x are specified with letters from the following list:");
     writeln("         r Suppress the generation of range checks for strings and arrays.");
     writeln("         o Suppress the generation of integer overflow checks.");
-    writeln("  -te  Generate code to trace exceptions. This option works in the same way");
-    writeln("       as the interpreter option -te: Every exception will write a message");
-    writeln("       to stdout and the user will be asked to continue (with enter) or to");
-    writeln("       terminate (with * ).");
+    writeln("  -tx  Set runtime trace level to x. Where x is a string consisting of:");
+    writeln("         e Trace exceptions and handlers");
+    writeln("         s Trace signals");
     writeln;
   end func;
 
@@ -7240,7 +7287,7 @@ const proc: main is func
 
   begin
     OUT := STD_UTF8_OUT;
-    writeln("SEED7 COMPILER Version 3.0  Copyright (c) 1990-2014 Thomas Mertes");
+    writeln("SEED7 COMPILER Version 3.0  Copyright (c) 1990-2015 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");

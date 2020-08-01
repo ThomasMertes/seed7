@@ -607,12 +607,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2015-01-18 the number of lines is:
+than 200000 lines of Seed7. For version 2015-02-01 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">121617</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  9966</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">118989</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">127036</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">121862</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  9968</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">120152</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">127055</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -909,10 +909,12 @@ The following options are recognized by s7:
          <li><b>c</b> Do action check</li>
          <li><b>d</b> Trace dynamic calls</li>
          <li><b>e</b> Trace exceptions and handlers</li>
-         <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
+         <li><b>h</b> Trace heap size (in combination with 'a')</li>
+         <li><b>s</b> Trace signals</li></ul></li>
   <li><b>-d</b>   Equivalent to <b>-da</b></li>
   <li><b>-i</b>   Show the identifier table after the analyzing phase.</li>
   <li><a name="faq_interpreter_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
+  <li><b>-p</b>   Specify a protocol file, for trace output (e.g.: <b>-p</b><tt> <span class="lib">prot.txt</span></tt>).</li>
   <li><b>-q</b>   Compile quiet. Line and file information and compilation
        statistics are suppressed.</li>
   <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
@@ -921,7 +923,8 @@ The following options are recognized by s7:
          <li><b>c</b> Do action check</li>
          <li><b>d</b> Trace dynamic calls</li>
          <li><b>e</b> Trace exceptions and handlers</li>
-         <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
+         <li><b>h</b> Trace heap size (in combination with 'a')</li>
+         <li><b>s</b> Trace signals</li></ul></li>
   <li><b>-t</b>   Equivalent to <b>-ta</b></li>
   <li><b>-v</b><span class="keywd">n</span>  Set verbosity level of analyse phase to <span class="keywd">n</span>. Where <span class="keywd">n</span> is one
        of the following characters:<ul>
@@ -971,10 +974,10 @@ Possible options are
        The checks <span class="keywd">x</span> are specified with letters from the following list:<ul>
          <li><b>r</b> Suppress the generation of range checks for strings and arrays.</li>
          <li><b>o</b> Suppress the generation of <span class="link">integer overflow</span> checks.</li></ul></li>
-  <li><b>-te</b>  Generate code to trace exceptions. This option works in the same way
-       as the interpreter option <b>-te</b>: Every exception will write a message
-       to stdout and the user will be asked to continue (with enter) or to
-       terminate (with * ).</li>
+  <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
+       of the following characters:<ul>
+         <li><b>e</b> Trace exceptions and handlers</li>
+         <li><b>s</b> Trace signals</li></ul></li>
 </ul></div>
 
 <div><br /><a name="faq_reserved_words"><h3>What are the reserved words of Seed7?

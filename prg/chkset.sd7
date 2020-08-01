@@ -6022,6 +6022,48 @@ const proc: check_max is func
   end func;
 
 
+const proc: check_str is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  str(EMPTY_SET)          <> "{}"                 or
+        str({-900})             <> "{-900}"             or
+        str({-2})               <> "{-2}"               or
+        str({-1})               <> "{-1}"               or
+        str({0})                <> "{0}"                or
+        str({1})                <> "{1}"                or
+        str({900})              <> "{900}"              or
+        str({-900, -1})         <> "{-900, -1}"         or
+        str({-900, 0})          <> "{-900, 0}"          or
+        str({-900, 900})        <> "{-900, 900}"        or
+        str({-2, -1})           <> "{-2, -1}"           or
+        str({-2, 0})            <> "{-2, 0}"            or
+        str({-2, 1})            <> "{-2, 1}"            or
+        str({-1, 0})            <> "{-1, 0}"            or
+        str({-1, 1})            <> "{-1, 1}"            or
+        str({-1, 900})          <> "{-1, 900}"          or
+        str({0, 1})             <> "{0, 1}"             or
+        str({0, 900})           <> "{0, 900}"           or
+        str({-900, -1, 0})      <> "{-900, -1, 0}"      or
+        str({-900, -1, 900})    <> "{-900, -1, 900}"    or
+        str({-900, 0, 900})     <> "{-900, 0, 900}"     or
+        str({-2, -1, 0})        <> "{-2, -1, 0}"        or
+        str({-2, -1, 1})        <> "{-2, -1, 1}"        or
+        str({-2, 0, 1})         <> "{-2, 0, 1}"         or
+        str({-1, 0, 1})         <> "{-1, 0, 1}"         or
+        str({-1, 0, 900})       <> "{-1, 0, 900}"       or
+        str({-900, -1, 0, 900}) <> "{-900, -1, 0, 900}" then
+      writeln(" ***** The str function for bitsets does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("str(bitset) works correct.");
+    end if;
+  end func;
+
+
 const proc: check_assign is func
   local
     var boolean: okay is TRUE;
@@ -6287,6 +6329,7 @@ const proc: main is func
     check_elem;
     check_min;
     check_max;
+    check_str;
     check_assign;
     check_charset;
   end func;

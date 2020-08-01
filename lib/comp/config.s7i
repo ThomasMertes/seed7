@@ -29,7 +29,7 @@ var boolean: conversion_range_check is TRUE;
 var boolean: integer_overflow_check is TRUE;
 var boolean: source_debug_info      is TRUE;
 var boolean: trace_exception        is FALSE;
-var boolean: trace_signal           is TRUE;
+var boolean: trace_signal           is FALSE;
 var boolean: signal_exception       is FALSE;
 var integer: evaluate_const_expr    is 1;
 var boolean: inlineFunctions        is TRUE;

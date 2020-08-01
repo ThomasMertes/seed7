@@ -125,7 +125,8 @@ const func integer: hashCode (in char: ch)                    is action "CHR_HAS
 (**
  *  Get the ordinal number of a character.
  *  For Unicode characters a value between 0 and 1114111 is returned.
- *  For EOF the value -1 is returned.
+ *  For cursor and function keys a value between 1114112 and 1114368
+ *  is returned. For EOF the value -1 is returned.
  *  @return the ordinal number of a character.
  *)
 const func integer: ord (in char: ch)                         is action "CHR_ORD";
@@ -134,7 +135,8 @@ const func integer: ord (in char: ch)                         is action "CHR_ORD
 (**
  *  Convert an [[integer]] number to a character.
  *  For values between 0 and 1114111 a Unicode character is returned.
- *  For -1 the value EOF is returned.
+ *  For values between 1114112 and 1114368 a cursor or function key
+ *  is returned. For -1 the value EOF is returned.
  *  @return a character which corresponds to the given [[integer]].
  *  @exception RANGE_ERROR When the number does not fit into a 32-bit ''char''.
  *)
@@ -144,7 +146,8 @@ const func char: chr (in integer: number)                     is action "CHR_CHR
 (**
  *  Convert an [[integer]] number to a character.
  *  For values between 0 and 1114111 a Unicode character is returned.
- *  For -1 the value EOF is returned.
+ *  For values between 1114112 and 1114368 a cursor or function key
+ *  is returned. For -1 the value EOF is returned.
  *  @return a character which corresponds to the given [[integer]].
  *)
 const func char: (attr char) conv (in integer: number)        is action "CHR_ICONV";

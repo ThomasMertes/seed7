@@ -95,6 +95,62 @@ static inline uintType bitsetPopulation (bitSetType bitset)
 
 
 
+/**
+ *  Find a a non-zero bitSet in an array of bitSets.
+ *  This function uses loop unrolling inspired by Duff's device.
+ *  @return a pointer to the non-zero bitSet or NULL if there was none.
+ */
+static inline const bitSetType *bitsetNonZero (const register bitSetType *bitset,
+    const memSizeType len)
+
+  {
+    register memSizeType count;
+
+  /* bitsetNonZero */
+    if (len != 0) {
+      bitset--;
+      count = (len + 31) >> 5;
+      switch (len & 31) {
+        case  0: do { if (unlikely(* ++bitset != 0)) return bitset;
+        case 31:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 30:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 29:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 28:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 27:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 26:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 25:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 24:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 23:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 22:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 21:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 20:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 19:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 18:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 17:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 16:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 15:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 14:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 13:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 12:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 11:      if (unlikely(* ++bitset != 0)) return bitset;
+        case 10:      if (unlikely(* ++bitset != 0)) return bitset;
+        case  9:      if (unlikely(* ++bitset != 0)) return bitset;
+        case  8:      if (unlikely(* ++bitset != 0)) return bitset;
+        case  7:      if (unlikely(* ++bitset != 0)) return bitset;
+        case  6:      if (unlikely(* ++bitset != 0)) return bitset;
+        case  5:      if (unlikely(* ++bitset != 0)) return bitset;
+        case  4:      if (unlikely(* ++bitset != 0)) return bitset;
+        case  3:      if (unlikely(* ++bitset != 0)) return bitset;
+        case  2:      if (unlikely(* ++bitset != 0)) return bitset;
+        case  1:      if (unlikely(* ++bitset != 0)) return bitset;
+                } while (--count > 0);
+      } /* switch */
+    } /* if */
+    return NULL;
+  } /* bitsetNonZero */
+
+
+
 setType setArrlit (const_rtlArrayType arr1)
 
   {
@@ -1146,6 +1202,7 @@ intType setNext (const const_setType set1, const intType number)
     memSizeType bitset_index;
     unsigned int bit_index;
     bitSetType curr_bitset;
+    const bitSetType *bitset_ptr;
     intType result;
 
   /* setNext */
@@ -1164,15 +1221,17 @@ intType setNext (const const_setType set1, const intType number)
         return result;
       } /* if */
       bitset_index++;
-      while (bitset_index < bitset_size) {
-        curr_bitset = set1->bitset[bitset_index];
-        if (unlikely(curr_bitset != 0)) {
-          result = bitsetLeastSignificantBit(curr_bitset);
-          result += (set1->min_position + (intType) bitset_index) << bitset_shift;
-          return result;
-        } /* if */
-        bitset_index++;
-      } /* while */
+      /* printf("min_position=%ld\n", set1->min_position);
+         printf("max_position=%ld\n", set1->max_position);
+         printf("index=%lu\n", bitset_index);
+         printf("size=%lu\n", bitset_size - bitset_index); */
+      bitset_ptr = bitsetNonZero(&set1->bitset[bitset_index], bitset_size - bitset_index);
+      if (bitset_ptr != NULL) {
+        bitset_index = (memSizeType) (bitset_ptr - set1->bitset);
+        result = bitsetLeastSignificantBit(*bitset_ptr);
+        result += (set1->min_position + (intType) bitset_index) << bitset_shift;
+        return result;
+      } /* if */
     } /* if */
     raise_error(RANGE_ERROR);
     return 0;

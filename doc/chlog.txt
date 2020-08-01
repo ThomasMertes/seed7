@@ -1,3 +1,40 @@
+20150201:
+- The option -p of the interpreter (Specify a protocol file, for
+  trace output) has been documented in FAQ, s7.1 and in the help
+  function of the interpreter.
+- The behavior of a Seed7 program, when it receives a signal, has
+  changed. Now a program is terminated, when it receives a signal.
+  The old behavior, that asks for RETURN or '*', is used when
+  interpreter or compiler are called with the option -ts.
+- The option -ts of interpreter and compiler (Trace signals) has
+  been documented in FAQ, s7.1, s7c.1 and in the help functions of
+  the programs.
+- Documentation comments in integer.s7i, bigint.s7i and char.s7i have
+  been improved.
+- The function bitsetElemAsHex (in comp/set_act.s7i) has been
+  improved by a factor of 7 (measured with gcc and Valgrind).
+- The operator sci has been improved in integer.s7i and bigint.s7i.
+- The function check_sci, which checks the sci operator has been
+  added to chkint.sd7.
+- The function check_str, which checks the str function has been
+  added to chkset.sd7.
+- The function doRemoveCmd in cli_cmds.s7i has been improved to write
+  a message when the operation is not permitted.
+- The compiler has been improved to generate better code for the
+  action STR_MULT.
+- The function check_string_mult, which checks string
+  multiplications, has been added to chkstr.sd7.
+- The function bitsetNonZero has been added to set_rtl.c. This
+  function uses loop unrolling inspired by Duff's device.
+- The function setNext (in set_rtl.c) has been changed to call
+  bitsetNonZero. This improves the speed of setNext by a factor of 2
+  (measured with gcc and Valgrind).
+- The function strMult in str_rtl.c has been improved to use a binary
+  method for string multiplication. This improves the speed of
+  setMult by a factor of 2 (measured with gcc and Valgrind).
+- The function drwEmpty has been added to drw_x11.c drw_win.c and
+  drw_dos.c.
+
 20150118:
 - The performance of the function bytes2Int in bytedata.s7i has been
   improved by 10% (measured with gcc and valgrind). An intermediate
