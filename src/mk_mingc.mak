@@ -237,12 +237,19 @@ level.h:
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
 	..\bin\call_ar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
+..\bin\%.exe: ..\prg\%.sd7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 $<
+	move /Y $(<:.sd7=.exe) ..\bin
+
 make7: ..\bin\make7.exe
 
-..\bin\make7.exe: ..\prg\make7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\make7
-	copy ..\prg\make7.exe ..\bin /Y
-	del ..\prg\make7.exe
+calc7: ..\bin\calc7.exe
+
+tar7: ..\bin\tar7.exe
+
+ftp7: ..\bin\ftp7.exe
+
+ftpserv: ..\bin\ftpserv.exe
 
 wc: $(SRC)
 	echo SRC:

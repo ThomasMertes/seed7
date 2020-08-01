@@ -426,8 +426,26 @@ $ include "char.s7i";
 
 $ include "string.s7i";
 
-const func char: (attr char) parse (in string: stri) is
-  return stri[1];
+const func char: (attr char) parse (in string: stri) is func
+  result
+    var char: aChar is ' ';
+  begin
+    if length(stri) = 1 then
+      aChar := stri[1];
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+const func string: trimValue (attr char, in string: stri) is func
+  result
+    var string: trimmed is "";
+  begin
+    trimmed := trim(stri);
+    if trimmed = "" and stri <> "" then
+      trimmed := stri[1 len 1];
+    end if;
+  end func;
 
 const func boolean: (attr boolean) parse (in string: stri) is func
   result
@@ -1019,10 +1037,13 @@ const proc: BLOCK_DECLS (in type: unusedType) is func
     const proc: block (ref proc: statements) exception
                   (ref CATCH_PROC: catchPart)
                 end block                                                          is action "PRC_BLOCK";
-    (*const proc: block (ref proc: statements) exception
+    const proc: block (ref proc: statements) exception
                   (ref CATCH_PROC: catchPart)
-                  otherwise : (ref proc: statements)
-                end block                                                          is action "PRC_BLOCK_DEF"; *)
+                  otherwise : (ref proc: otherwiseStatements)
+                end block                                                          is action "PRC_BLOCK_OTHERWISE";
+    const proc: block (ref proc: statements) exception
+                  otherwise : (ref proc: otherwiseStatements)
+                end block                                                          is action "PRC_BLOCK_CATCH_ALL";
     const proc: (ref CATCH_PROC param) ::= (ref CATCH_RESULT param)                is action "ENU_CREATE";
     const CATCH_PROC: catch (ref EXCEPTION: anException) : (ref proc: statements)  is CATCH_RESULT.value;
     const CATCH_PROC: catch (ref EXCEPTION: anException) : (ref proc: statements)
@@ -1030,6 +1051,17 @@ const proc: BLOCK_DECLS (in type: unusedType) is func
   end func;
 
 BLOCK_DECLS(void);
+
+const func boolean: succeeds (ref proc: statement) is func
+  result
+    var boolean: success is TRUE;
+  begin
+    block
+      statement;
+    exception
+      otherwise: success := FALSE;
+    end block;
+  end func;
 
 
 (* ARGS + ENV *)

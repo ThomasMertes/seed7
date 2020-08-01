@@ -536,6 +536,27 @@ const func string: rtrim (in string: stri)                     is action "STR_RT
 
 
 (**
+ *  Trim a string such that it can be converted to ''aType''.
+ *  This function is overloaded for types where removing leading
+ *  or trailing whitespace whould change the value.
+ *   integer parse trimValue(integer, " 1 ")   returns 1
+ *  @return the trimmed string.
+ *)
+const func string: trimValue (in type: aType, in string: stri) is
+  return trim(stri);
+
+
+(**
+ *  Trim a string such that it can be converted to ''string''.
+ *  Leaves ''stri'' unchanged, since that would change the value.
+ *   string parse trimValue(string, " 1 ")   returns " 1 "
+ *  @return the unchanged string.
+ *)
+const func string: trimValue (attr string, in string: stri) is
+  return stri;
+
+
+(**
  *  Convert to a string.
  *  @return its parameter unchanged.
  *)

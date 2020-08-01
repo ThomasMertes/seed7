@@ -167,17 +167,37 @@ objectType prc_block (listType arguments)
 
 
 
-objectType prc_block_def (listType arguments)
+objectType prc_block_catch_all (listType arguments)
 
   {
     objectType statement;
     objectType default_statement;
+
+  /* prc_block_catch_all */
+    statement = arg_2(arguments);
+    evaluate(statement);
+    if (fail_flag) {
+      default_statement = arg_6(arguments);
+      set_fail_flag(FALSE);
+      fail_value = NULL;
+      evaluate(default_statement);
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* prc_block_catch_all */
+
+
+
+objectType prc_block_otherwise (listType arguments)
+
+  {
+    objectType statement;
+    objectType otherwise_statement;
     objectType current_catch;
     objectType catch_value;
     objectType catch_statement;
     boolType searching;
 
-  /* prc_block_def */
+  /* prc_block_otherwise */
     statement = arg_2(arguments);
     evaluate(statement);
     if (fail_flag) {
@@ -202,14 +222,14 @@ objectType prc_block_def (listType arguments)
         } /* if */
       } /* while */
       if (searching) {
-        default_statement = arg_7(arguments);
+        otherwise_statement = arg_7(arguments);
         set_fail_flag(FALSE);
         fail_value = NULL;
-        evaluate(default_statement);
+        evaluate(otherwise_statement);
       } /* if */
     } /* if */
     return SYS_EMPTY_OBJECT;
-  } /* prc_block_def */
+  } /* prc_block_otherwise */
 
 
 

@@ -109,7 +109,12 @@ const proc: main is func
         incl(flags, silentMode);
       end if;
       if okay then
-        make(makefile, targets, flags, macros);
+        block
+          make(makefile, targets, flags, macros);
+        exception
+          catch FILE_ERROR:
+            writeln(" *** Make7 terminated.");
+        end block;
       end if;
     end if;
   end func;

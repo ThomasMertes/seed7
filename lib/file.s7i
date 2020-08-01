@@ -213,22 +213,70 @@ const func integer: hashCode (in file: aFile)                is action "ITF_HASH
 
 const func char: (in file: aFile).bufferChar          is DYNAMIC;
 const varfunc char: (inout file: aFile).bufferChar    is DYNAMIC;
-const func boolean: (in file: aFile).io_empty         is DYNAMIC;
-const varfunc boolean: (inout file: aFile).io_empty   is DYNAMIC;
-const func boolean: (in file: aFile).io_ok            is DYNAMIC;
-const varfunc boolean: (inout file: aFile).io_ok      is DYNAMIC;
 
-const func boolean: io_ok (in file: aFile) is
-  return aFile.io_ok;
 
-const func boolean: io_error (in file: aFile) is
-  return not aFile.io_ok;
+(**
+ *  Read a word from ''inFile'' into ''aVar''.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+ *  The word ending character is not copied into the string.
+ *  When the function is left inFile.bufferChar contains the
+ *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+ *)
+const proc: read (inout file: inFile, inout string: aVar) is func
+  begin
+    aVar := getwd(inFile);
+  end func;
 
-const func boolean: io_empty (in file: aFile) is
-  return aFile.io_empty;
 
-const func boolean: io_filled (in file: aFile) is
-  return not aFile.io_empty;
+(**
+ *  Read a word from ''inFile'' into ''aVar'' or use ''defaultValue''.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+ *  When the word is empty ''defaultValue'' is assigned to ''aVar''.
+ *  The word ending character is not copied into the string.
+ *  When the function is left inFile.bufferChar contains the
+ *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+ *)
+const proc: read (inout file: inFile, inout string: aVar,
+    in string: defaultValue) is func
+  begin
+    aVar := getwd(inFile);
+    if aVar = "" then
+      aVar := defaultValue;
+    end if;
+  end func;
+
+
+(**
+ *  Read a line from ''inFile'' into ''aVar''.
+ *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+ *  The line ending character is not copied into the string.
+ *  When the function is left inFile.bufferChar contains the
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
+ *)
+const proc: readln (inout file: inFile, inout string: aVar) is func
+  begin
+    aVar := getln(inFile);
+  end func;
+
+
+(**
+ *  Read a line from ''inFile'' into ''aVar'' or use ''defaultValue''.
+ *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+ *  When the line is empty ''defaultValue'' is assigned to ''aVar''.
+ *  The line ending character is not copied into the string.
+ *  When the function is left inFile.bufferChar contains the
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
+ *)
+const proc: readln (inout file: inFile, inout string: aVar,
+    in string: defaultValue) is func
+  begin
+    aVar := getln(inFile);
+    if aVar = "" then
+      aVar := defaultValue;
+    end if;
+  end func;
 
 
 (**
@@ -242,39 +290,6 @@ const proc: readln (inout file: inFile) is func
     var string: stri is "";
   begin
     stri := getln(inFile);
-    inFile.io_empty := stri = "";
-    inFile.io_ok := TRUE;
-  end func;
-
-
-(**
- *  Read a word from a file.
- *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
- *  The word ending characters are not copied into the string.
- *  When the function is left inFile.bufferChar contains the
- *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
- *)
-const proc: read (inout file: inFile, inout string: stri) is func
-  begin
-    stri := getwd(inFile);
-    inFile.io_empty := stri = "";
-    inFile.io_ok := TRUE;
-  end func;
-
-
-(**
- *  Read a line from a file.
- *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
- *  The line ending characters are not copied into the string.
- *  When the function is left inFile.bufferChar contains the
- *  line ending character ('\n' or [[char#EOF|EOF]]).
- *)
-const proc: readln (inout file: inFile, inout string: stri) is func
-  begin
-    stri := getln(inFile);
-    inFile.io_empty := stri = "";
-    inFile.io_ok := TRUE;
   end func;
 
 

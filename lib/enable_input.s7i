@@ -49,77 +49,139 @@ const proc: enable_input (in type: aType) is func
   begin
 
     (**
-     *  Read ''aValue'' from a word read from ''inFile''.
+     *  Read ''aVar'' from a word read from ''inFile''.
      *  Before reading the word it skips spaces and tabs. The function
      *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left inFile.bufferChar contains the
-     *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]) and
-     *  inFile.io_ok is TRUE when the read was successful.
+     *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *             the word to the type ''aType''.
      *)
-    const proc: read (inout file: inFile, inout aType: aValue) is func
+    const proc: read (inout file: inFile, inout aType: aVar) is func
+      begin
+         aVar := aType parse getwd(inFile);
+      end func;
+
+   (**
+     *  Read ''aVar'' from a word read from ''inFile'' or use ''defaultValue''.
+     *  Before reading the word it skips spaces and tabs. The function
+     *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+     *  When the word is empty ''defaultValue'' is assigned to ''aVar''.
+     *  The conversion to the type ''aType'' is done with the ''parse''
+     *  operator. When the function is left inFile.bufferChar contains the
+     *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *             the word to the type ''aType''.
+     *)
+    const proc: read (inout file: inFile, inout aType: aVar,
+        in aType: defaultValue) is func
       local
         var string: stri is "";
       begin
         stri := getwd(inFile);
-        inFile.io_empty := stri = "";
-        block
-          aValue := aType parse stri;
-          inFile.io_ok := TRUE;
-        exception
-          catch RANGE_ERROR:
-            inFile.io_ok := FALSE;
-        end block;
+        if stri = "" then
+          aVar := defaultValue;
+        else
+          aVar := aType parse stri;
+        end if;
       end func;
 
     (**
-     *  Read ''aValue'' from a line read from ''inFile''.
+     *  Read ''aVar'' from a line read from ''inFile''.
      *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left inFile.bufferChar contains the
-     *  line ending character ('\n' or [[char#EOF|EOF]]). and inFile.io_ok
-     *  is TRUE when the read was successful.
+     *  line ending character ('\n' or [[char#EOF|EOF]]).
+     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *             the line to the type ''aType''.
      *)
-    const proc: readln (inout file: inFile, inout aType: aValue) is func
+    const proc: readln (inout file: inFile, inout aType: aVar) is func
+      begin
+        aVar := aType parse trimValue(aType, getln(inFile));
+      end func;
+
+    (**
+     *  Read ''aVar'' from a line read from ''inFile'' or use ''defaultValue''.
+     *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+     *  When the line is empty ''defaultValue'' is assigned to ''aVar''.
+     *  The conversion to the type ''aType'' is done with the ''parse''
+     *  operator. When the function is left inFile.bufferChar contains the
+     *  line ending character ('\n' or [[char#EOF|EOF]]).
+     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *             the line to the type ''aType''.
+     *)
+    const proc: readln (inout file: inFile, inout aType: aVar,
+        in aType: defaultValue) is func
       local
         var string: stri is "";
       begin
         stri := getln(inFile);
-        inFile.io_empty := stri = "";
-        block
-          aValue := aType parse stri;
-          inFile.io_ok := TRUE;
-        exception
-          catch RANGE_ERROR:
-            inFile.io_ok := FALSE;
-        end block;
+        if stri = "" then
+          aVar := defaultValue;
+        else
+          aVar := aType parse trimValue(aType, stri);
+        end if;
       end func;
 
     (**
-     *  Read ''aValue'' from a word read from the standard input file [[stdio#IN|IN]].
+     *  Read ''aVar'' from a word read from the standard input file [[stdio#IN|IN]].
      *  Before reading the word it skips spaces and tabs. The function
      *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left [[stdio#IN|IN]].bufferChar contains the
-     *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]) and
-     *  [[stdio#IN|IN]].io_ok is TRUE when the read was successful.
+     *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *             the word to the type ''aType''.
      *)
-    const proc: read (inout aType: aValue) is func
+    const proc: read (inout aType: aVar) is func
       begin
-        read(IN, aValue);
+        read(IN, aVar);
       end func;
 
     (**
-     *  Read ''aValue'' from a line read from the standard input file [[stdio#IN|IN]].
+     *  Read ''aVar'' from a word read from standard input ([[stdio#IN|IN]]) or use ''defaultValue''.
+     *  Before reading the word it skips spaces and tabs. The function
+     *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+     *  When the word is empty ''defaultValue'' is assigned to ''aVar''.
+     *  The conversion to the type ''aType'' is done with the ''parse''
+     *  operator. When the function is left [[stdio#IN|IN]].bufferChar contains the
+     *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *             the word to the type ''aType''.
+     *)
+    const proc: read (inout aType: aVar, in aType: defaultValue) is func
+      begin
+        read(IN, aVar, defaultValue);
+      end func;
+
+    (**
+     *  Read ''aVar'' from a line read from the standard input file [[stdio#IN|IN]].
      *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
      *  The conversion to the type ''aType'' is done with the ''parse''
      *  operator. When the function is left [[stdio#IN|IN]].bufferChar contains the
-     *  line ending character ('\n' or [[char#EOF|EOF]]). and [[stdio#IN|IN]].io_ok
-     *  is TRUE when the read was successful.
+     *  line ending character ('\n' or [[char#EOF|EOF]]).
+     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *             the line to the type ''aType''.
      *)
-    const proc: readln (inout aType: aValue) is func
+    const proc: readln (inout aType: aVar) is func
       begin
-        readln(IN, aValue);
+        readln(IN, aVar);
+      end func;
+
+    (**
+     *  Read ''aVar'' from a line read from standard input ([[stdio#IN|IN]]) or use ''defaultValue''.
+     *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+     *  When the line is empty ''defaultValue'' is assigned to ''aVar''.
+     *  The conversion to the type ''aType'' is done with the ''parse''
+     *  operator. When the function is left [[stdio#IN|IN]].bufferChar contains the
+     *  line ending character ('\n' or [[char#EOF|EOF]]).
+     *  @exception RANGE_ERROR When the ''parse'' operator cannot convert
+     *             the line to the type ''aType''.
+     *)
+    const proc: readln (inout aType: aVar, in aType: defaultValue) is func
+      begin
+        readln(IN, aVar, defaultValue);
       end func;
 
   end func;

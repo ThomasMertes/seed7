@@ -190,7 +190,9 @@ $ syntax expr: .for.().range.().downto.().step.().do.().end.for  is  -> 25;
 $ syntax expr: .for.().range.().do.().end.for                    is  -> 25;
 $ syntax expr: .for.().range.().until.().do.().end.for           is  -> 25;
 $ syntax expr: .for.().key.().range.().do.().end.for             is  -> 25;
+$ syntax expr: .for.().key.().range.().until.().do.().end.for    is  -> 25;
 $ syntax expr: .for.key.().range.().do.().end.for                is  -> 25;
+$ syntax expr: .for.key.().range.().until.().do.().end.for       is  -> 25;
 
 $ syntax expr: .if.().then.().end.if                             is  -> 25;
 $ syntax expr: .if.().then.().().end.if                          is  -> 25;
@@ -201,6 +203,7 @@ $ syntax expr: .case.().of.end.case                              is  -> 25;
 
 $ syntax expr: .block.().exception.().end.block                  is  -> 25;
 $ syntax expr: .block.().exception.().otherwise. : .().end.block is  -> 25;
+$ syntax expr: .block.().exception.otherwise. : .().end.block    is  -> 25;
 $ syntax expr: .block.().exception.end.block                     is  -> 25;
 
 $ syntax expr: .global.().end.global                             is  -> 25;

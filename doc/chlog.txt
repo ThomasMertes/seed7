@@ -1,3 +1,53 @@
+20140817:
+- The chapter about files in the manual has been improved.
+- Variants of the for-each-loop with an until condition have been
+  added to array.s7i.
+- The parse operator for characters has been improved to accept only
+  strings with a length of 1.
+- The function trimValue has been introduced. This function trims a
+  string such that it can be converted to a specified type.
+- The exception handlers for RANGE_ERROR have been removed from the
+  functions read and readln in enable_input.s7i. The functions read
+  and readln now raise range RANGE_ERROR when the conversion to the
+  target type fails.
+- Occurances of io_ok, io_error, io_empty and io_filled have been
+  removed from the libraries. This undocumented feature was not used
+  for years. The function succeeds and the functions read and readln
+  with default value are better suited for error checking, when data
+  is read.
+- The exception handlers in interpreter and compiler have been
+  improved to allow an otherwise part.
+- The function succeeds has been introduced. This function executes
+  a statement and returns TRUE when no exception occurs.
+- The example programs nicoma.sd7 and savehd7.sd7 have been improved
+  to use the new function succeeds.
+- The parse operator for float has been changed to raise RANGE_ERROR
+  when leading whitespace is found.
+- The library make.s7i has been improved to accept the commands
+  erase, xcopy, mv, move and rem.
+- The library makedata.s7i has been improved to accept the macro
+  functions subst and patsubst.
+- The reading of rules in makedata.s7i has been improved to read
+  commands without macro substitution. The macros in commands are
+  substituted just before the commands are executed.
+- The make functions in make.s7i have been changed to raise
+  FILE_ERROR when a command fails.
+- The function applyMacros in makedata.s7i has been improved to
+  accept macro functions and the shorthands of patsubst.
+- The function replaceSuffixes in makedata.s7i has been improved to
+  accept pattern substitution with the % character.
+- In the library make.s7i the logging has been removed from the
+  functions doRm, doCp, doPwd, doEcho, doCd, doMake, doOneCommand,
+  doCommands and processCommand.
+- The program chkflt.sd7 has been adjusted to work with the strict
+  parse operator for float.
+- Interpreter and compiler have been improved to support the actions
+  PRC_BLOCK_CATCH_ALL and PRC_BLOCK_OTHERWISE.
+- The program sudo.c has been improved to work without upper limit
+  for the parameter length.
+- The functions checkIfOutsideRange and negate have been added to
+  int_act.s7i.
+
 20140803:
 - The handling of ctrl-c has been changed to work better under
   windows.

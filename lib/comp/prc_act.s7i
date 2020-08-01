@@ -24,22 +24,24 @@
 (********************************************************************)
 
 
-const ACTION: PRC_ARGS        is action "PRC_ARGS";
-const ACTION: PRC_BLOCK       is action "PRC_BLOCK";
-const ACTION: PRC_CASE        is action "PRC_CASE";
-const ACTION: PRC_CASE_DEF    is action "PRC_CASE_DEF";
-const ACTION: PRC_CPY         is action "PRC_CPY";
-const ACTION: PRC_DYNAMIC     is action "PRC_DYNAMIC";
-const ACTION: PRC_EXIT        is action "PRC_EXIT";
-const ACTION: PRC_FOR_DOWNTO  is action "PRC_FOR_DOWNTO";
-const ACTION: PRC_FOR_TO      is action "PRC_FOR_TO";
-const ACTION: PRC_HSIZE       is action "PRC_HSIZE";
-const ACTION: PRC_IF          is action "PRC_IF";
-const ACTION: PRC_IF_ELSIF    is action "PRC_IF_ELSIF";
-const ACTION: PRC_NOOP        is action "PRC_NOOP";
-const ACTION: PRC_RAISE       is action "PRC_RAISE";
-const ACTION: PRC_REPEAT      is action "PRC_REPEAT";
-const ACTION: PRC_WHILE       is action "PRC_WHILE";
+const ACTION: PRC_ARGS            is action "PRC_ARGS";
+const ACTION: PRC_BLOCK           is action "PRC_BLOCK";
+const ACTION: PRC_BLOCK_CATCH_ALL is action "PRC_BLOCK";
+const ACTION: PRC_BLOCK_OTHERWISE is action "PRC_BLOCK";
+const ACTION: PRC_CASE            is action "PRC_CASE";
+const ACTION: PRC_CASE_DEF        is action "PRC_CASE_DEF";
+const ACTION: PRC_CPY             is action "PRC_CPY";
+const ACTION: PRC_DYNAMIC         is action "PRC_DYNAMIC";
+const ACTION: PRC_EXIT            is action "PRC_EXIT";
+const ACTION: PRC_FOR_DOWNTO      is action "PRC_FOR_DOWNTO";
+const ACTION: PRC_FOR_TO          is action "PRC_FOR_TO";
+const ACTION: PRC_HSIZE           is action "PRC_HSIZE";
+const ACTION: PRC_IF              is action "PRC_IF";
+const ACTION: PRC_IF_ELSIF        is action "PRC_IF_ELSIF";
+const ACTION: PRC_NOOP            is action "PRC_NOOP";
+const ACTION: PRC_RAISE           is action "PRC_RAISE";
+const ACTION: PRC_REPEAT          is action "PRC_REPEAT";
+const ACTION: PRC_WHILE           is action "PRC_WHILE";
 
 
 const proc: process_statements (in expr_type: statements, inout expr_type: c_expr) is func
@@ -599,10 +601,14 @@ const proc: process (PRC_BLOCK, in reference: function,
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (likely((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0)) {\n";
     process_expr(params[2], c_expr);
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "catch_stack_pos--;\n";
     current_catch := params[4];
     catch_expr := getValue(current_catch, ref_list);
     c_expr.expr &:= diagnosticLine(current_catch);
     c_expr.expr &:= "} else {\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "catch_stack_pos--;\n";
     # c_expr.expr &:= "printf(\"catch %d\\n\", fail_value);\n";
     while current_catch <> NIL and
         category(current_catch) = MATCHOBJECT and
@@ -623,9 +629,9 @@ const proc: process (PRC_BLOCK, in reference: function,
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
-        c_expr.expr &:= "  catch_stack_pos--;\n";
-        setDiagnosticLine(c_expr);
         c_expr.expr &:= "  rtlRaiseError(fail_value, error_file, error_line);\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "}\n";
         current_catch := NIL;
       end if;
     end while;
@@ -633,8 +639,100 @@ const proc: process (PRC_BLOCK, in reference: function,
     c_expr.expr &:= "}\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "}\n";
+  end func;
+
+
+const proc: process (PRC_BLOCK_CATCH_ALL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "{\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "int fail_value;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "catch_stack_pos++;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "if (unlikely(catch_stack_pos >= max_catch_stack)) {\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "  resize_catch_stack();\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "}\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "if (likely((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0)) {\n";
+    process_expr(params[2], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "} else {\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "catch_stack_pos--;\n";
+    process_expr(params[6], c_expr);
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "}\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "}\n";
+  end func;
+
+
+const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: current_catch is NIL;
+    var ref_list: catch_expr is ref_list.EMPTY;
+    var reference: catch_value is NIL;
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "{\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "int fail_value;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "catch_stack_pos++;\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "if (unlikely(catch_stack_pos >= max_catch_stack)) {\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "  resize_catch_stack();\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "}\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "if (likely((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0)) {\n";
+    process_expr(params[2], c_expr);
+    current_catch := params[4];
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "catch_stack_pos--;\n";
+    catch_expr := getValue(current_catch, ref_list);
+    c_expr.expr &:= diagnosticLine(current_catch);
+    c_expr.expr &:= "} else {\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "catch_stack_pos--;\n";
+    # c_expr.expr &:= "printf(\"catch %d\\n\", fail_value);\n";
+    while current_catch <> NIL and
+        category(current_catch) = MATCHOBJECT and
+        length(catch_expr) >= 5 do
+      catch_value := catch_expr[3];
+      c_expr.expr &:= diagnosticLine(current_catch);
+      c_expr.expr &:= "if (";
+      process_expr(catch_value, c_expr);
+      c_expr.expr &:= " == fail_value - 1) {\n";
+      process_expr(catch_expr[5], c_expr);
+      if length(catch_expr) >= 6 then
+        c_expr.expr &:= diagnosticLine(current_catch);
+        c_expr.expr &:= "} else\n";
+        current_catch := catch_expr[6];
+        catch_expr := getValue(current_catch, ref_list);
+      else
+        incr(c_expr.currentLine);
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "} else {\n";
+        process_expr(params[7], c_expr);
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "}\n";
+        current_catch := NIL;
+      end if;
+    end while;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "}\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "}\n";
   end func;

@@ -47,8 +47,6 @@ include "file.s7i";
  *)
 const type: null_file is new struct
     var char: bufferChar is '\n';
-    var boolean: io_empty is FALSE;
-    var boolean: io_ok is TRUE;
   end struct;
 
 type_implements_interface(null_file, file);

@@ -36,6 +36,7 @@
 #include "string.h"
 #include "math.h"
 #include "float.h"
+#include "ctype.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -599,20 +600,25 @@ floatType fltParse (const const_striType stri)
       buffer_ptr = cstri;
     } /* if */
     if (likely(err_info == OKAY_NO_ERROR)) {
-/*    result = (floatType) atof(buffer_ptr); */
-      result = (floatType) strtod(buffer_ptr, &next_ch);
-      if (next_ch == buffer_ptr) {
-        if (strcmp(buffer_ptr, "NaN") == 0) {
-          result = NOT_A_NUMBER;
-        } else if (strcmp(buffer_ptr, "Infinity") == 0) {
-          result = POSITIVE_INFINITY;
-        } else if (strcmp(buffer_ptr, "-Infinity") == 0) {
-          result = NEGATIVE_INFINITY;
-        } else {
+      if (isspace(buffer_ptr[0])) {
+        err_info = RANGE_ERROR;
+        result = 0.0;
+      } else {
+/*      result = (floatType) atof(buffer_ptr); */
+        result = (floatType) strtod(buffer_ptr, &next_ch);
+        if (next_ch == buffer_ptr) {
+          if (strcmp(buffer_ptr, "NaN") == 0) {
+            result = NOT_A_NUMBER;
+          } else if (strcmp(buffer_ptr, "Infinity") == 0) {
+            result = POSITIVE_INFINITY;
+          } else if (strcmp(buffer_ptr, "-Infinity") == 0) {
+            result = NEGATIVE_INFINITY;
+          } else {
+            err_info = RANGE_ERROR;
+          } /* if */
+        } else if (next_ch != &buffer_ptr[stri->size]) {
           err_info = RANGE_ERROR;
         } /* if */
-      } else if (next_ch != &buffer_ptr[stri->size]) {
-        err_info = RANGE_ERROR;
       } /* if */
       if (cstri != NULL) {
         free_cstri(cstri, stri);

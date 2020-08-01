@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  makedata.s7i  Function and data structure to read makefiles     *)
-(*  Copyright (C) 2010 - 2013  Thomas Mertes                        *)
+(*  Copyright (C) 2010 - 2014  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -57,7 +57,7 @@ const type: makeDataType is new struct
   end struct;
 
 
-const func boolean: wildcard_match (in string: main_stri, in string: pattern) is func
+const func boolean: wildcardMatch (in string: main_stri, in string: pattern) is func
   result
     var boolean: doesMatch is FALSE;
   local
@@ -76,17 +76,17 @@ const func boolean: wildcard_match (in string: main_stri, in string: pattern) is
             main_length := length(main_stri);
             pattern_tail := pattern[2 .. ];
             while main_index <= main_length and not doesMatch do
-              doesMatch := wildcard_match(main_stri[main_index .. ], pattern_tail);
+              doesMatch := wildcardMatch(main_stri[main_index .. ], pattern_tail);
               incr(main_index);
             end while;
           end if;
         when {'?'}:
           if main_stri <> "" then
-            doesMatch := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
+            doesMatch := wildcardMatch(main_stri[2 .. ], pattern[2 .. ]);
           end if;
         otherwise:
           if main_stri <> "" and main_stri[1] = pattern[1] then
-            doesMatch := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
+            doesMatch := wildcardMatch(main_stri[2 .. ], pattern[2 .. ]);
           end if;
       end case;
     end if;
@@ -114,10 +114,39 @@ const func array string: findMatchingFiles (in string: pattern) is func
       dirContent := readDir(".");
     end if;
     for fileName range dirContent do
-      if wildcard_match(fileName, filePattern) then
+      if wildcardMatch(fileName, filePattern) then
         matchingFiles &:= [] (path & fileName);
       end if;
     end for;
+  end func;
+
+
+const func string: patternSubstitute (in var string: stri, in string: pattern, in string: replacement) is func
+  result
+    var string: replaced is ""
+  local
+    var string: symbol is "";
+    var integer: patternPercentPos is 0;
+    var integer: replacementPercentPos is 0;
+  begin
+    # writeln("patternSubstitute(" <& stri <& ", " <& pattern <& ", " <& replacement <& ")");
+    patternPercentPos := pos(pattern, '%');
+    replacementPercentPos := pos(replacement, '%');
+    if patternPercentPos <> 0 and replacementPercentPos <> 0 then
+      repeat
+        replaced &:= getWhiteSpace(stri);
+        symbol := getWord(stri);
+        if symbol <> "" then
+          if startsWith(symbol, pattern[.. pred(patternPercentPos)]) and
+              endsWith(symbol, pattern[succ(patternPercentPos) ..]) then
+            symbol := replacement[.. pred(replacementPercentPos)] &
+                symbol[patternPercentPos .. length(symbol) - length(pattern) + patternPercentPos] &
+                replacement[succ(replacementPercentPos) ..];
+          end if;
+          replaced &:= symbol;
+        end if;
+      until symbol = "";
+    end if;
   end func;
 
 
@@ -127,27 +156,158 @@ const func string: replaceSuffixes (in var string: stri, in string: suffix, in s
   local
     var string: symbol is "";
   begin
-    repeat
-      replaced &:= getWhiteSpace(stri);
-      symbol := getWord(stri);
-      if symbol <> "" then
-        if endsWith(symbol, suffix) then
-          symbol := symbol[.. length(symbol) - length(suffix)] & replacement;
+    # writeln("replaceSuffixes(" <& stri <& ", " <& suffix <& ", " <& replacement <& ")");
+    if pos(suffix, '%') <> 0 and pos(replacement, '%') <> 0 then
+      replaced := patternSubstitute(stri, suffix, replacement);
+    else
+      repeat
+        replaced &:= getWhiteSpace(stri);
+        symbol := getWord(stri);
+        if symbol <> "" then
+          if endsWith(symbol, suffix) then
+            symbol := symbol[.. length(symbol) - length(suffix)] & replacement;
+          end if;
+          replaced &:= symbol;
         end if;
-        replaced &:= symbol;
-      end if;
-    until symbol = "";
+      until symbol = "";
+    end if;
   end func;
 
 
-const func string: applyMacros (in stringHash: macros, in string: stri, in boolean: leaveUndefMacros) is func
+const func string: getMacroName (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: pos is 1;
+  begin
+    while pos <= length(stri) and stri[pos] in macro_name_char do
+      incr(pos);
+    end while;
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+
+const func string: getMacroParameter (in string: stri, inout integer: pos,
+    in char: delimiter) is func
+  result
+    var string: parameter is "";
+  begin
+    while pos <= length(stri) and stri[pos] <> delimiter do
+      if stri[pos] = '(' then
+        incr(pos);
+        parameter &:= "(";
+        parameter &:= getMacroParameter(stri, pos, ')');
+        parameter &:= ")";
+      else
+        parameter &:= stri[pos];
+      end if;
+      incr(pos);
+    end while;
+  end func;
+
+
+const func string: applyMacros (in stringHash: macros, in string: stri,
+    in boolean: leaveUndefMacros) is forward;
+
+
+const func string: replaceSuffixes (in stringHash: macros, in string: stri,
+    in string: parameters, in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var integer: pos is 1;
+    var string: suffix is "";
+    var string: replacement is "";
+    var string: evaluatedParam is "";
+  begin
+    # writeln("replaceSuffixes(" <& stri <& ", " <& parameters <& ")");
+    suffix := getMacroParameter(parameters, pos, '=');
+    if pos <= length(parameters) then
+      incr(pos);
+      replacement := parameters[pos ..];
+      evaluatedParam := applyMacros(macros, stri, leaveUndefMacros);
+      funcResult := replaceSuffixes(evaluatedParam, suffix, replacement);
+    end if;
+  end func;
+
+
+const func string: strip (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var integer: pos is 1;
+    var string: evaluatedParam is "";
+  begin
+    # writeln("strip: " <& literal(parameters));
+    evaluatedParam := applyMacros(macros, parameters, leaveUndefMacros);
+    funcResult := replace(evaluatedParam, "\t", " ");
+    funcResult := replaceN(funcResult, "  ", " ");
+    funcResult := trim(funcResult);
+  end func;
+
+
+const func string: subst (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var integer: pos is 1;
+    var string: from is "";
+    var string: replacement is "";
+    var string: evaluatedParam is "";
+  begin
+    # writeln("subst: " <& literal(parameters));
+    from := getMacroParameter(parameters, pos, ',');
+    if pos <= length(parameters) then
+      incr(pos);
+      replacement := getMacroParameter(parameters, pos, ',');
+      if pos <= length(parameters) then
+        incr(pos);
+        evaluatedParam := applyMacros(macros, parameters[pos ..], leaveUndefMacros);
+        funcResult := replace(evaluatedParam, from, replacement);
+      end if;
+    end if;
+  end func;
+
+
+const func string: patsubst (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var integer: pos is 1;
+    var string: pattern is "";
+    var string: replacement is "";
+    var string: evaluatedParam is "";
+  begin
+    # writeln("patsubst: " <& literal(parameters));
+    pattern := getMacroParameter(parameters, pos, ',');
+    if pos <= length(parameters) then
+      incr(pos);
+      replacement := getMacroParameter(parameters, pos, ',');
+      if pos <= length(parameters) then
+        incr(pos);
+        evaluatedParam := applyMacros(macros, parameters[pos ..], leaveUndefMacros);
+        funcResult := patternSubstitute(evaluatedParam, pattern, replacement);
+      end if;
+    end if;
+  end func;
+
+
+const func string: applyMacros (in stringHash: macros, in string: stri,
+    in boolean: leaveUndefMacros) is func
   result
     var string: applied is "";
   local
     var integer: dollarPos is 0;
     var integer: closeParenPos is 0;
+    var string: parameter is "";
     var string: name is "";
+    var boolean: done is FALSE;
   begin
+    # writeln("applyMacros(macros, " <& literal(stri) <& ", " <& leaveUndefMacros <& ")");
     applied := stri;
     dollarPos := pos(applied, '$');
     while dollarPos <> 0 do
@@ -159,11 +319,44 @@ const func string: applyMacros (in stringHash: macros, in string: stri, in boole
             closeParenPos := pos(applied, '}', dollarPos + 2);
           end if;
           if closeParenPos <> 0 then
-            name := applied[dollarPos + 2 .. pred(closeParenPos)];
-            if name in macros then
-              applied := applied[.. pred(dollarPos)] &
-                  applyMacros(macros, macros[name], leaveUndefMacros) & applied[succ(closeParenPos) ..];
-            elsif not leaveUndefMacros then
+            parameter := applied[dollarPos + 2 .. pred(closeParenPos)];
+            name := getMacroName(parameter);
+            done := FALSE;
+            if parameter = "" then
+              if name in macros then
+                applied := applied[.. pred(dollarPos)] &
+                           applyMacros(macros, macros[name], leaveUndefMacros) &
+                           applied[succ(closeParenPos) ..];
+                done := TRUE;
+              end if;
+            elsif parameter[1] = ':' then
+              if name in macros then
+                applied := applied[.. pred(dollarPos)] &
+                           replaceSuffixes(macros, macros[name],
+                                           parameter[2 ..], leaveUndefMacros) &
+                           applied[succ(closeParenPos) ..];
+                done := TRUE;
+              end if;
+            elsif parameter[1] = ' ' then
+              skipSpaceOrTab(parameter);
+              if name = "strip" then
+                applied := applied[.. pred(dollarPos)] &
+                           strip(macros, parameter, leaveUndefMacros) &
+                           applied[succ(closeParenPos) ..];
+                done := TRUE;
+              elsif name = "subst" then
+                applied := applied[.. pred(dollarPos)] &
+                           subst(macros, parameter, leaveUndefMacros) &
+                           applied[succ(closeParenPos) ..];
+                done := TRUE;
+              elsif name = "patsubst" then
+                applied := applied[.. pred(dollarPos)] &
+                           patsubst(macros, parameter, leaveUndefMacros) &
+                           applied[succ(closeParenPos) ..];
+                done := TRUE;
+              end if;
+            end if;
+            if not (done or leaveUndefMacros) then
               applied := applied[.. pred(dollarPos)] & applied[succ(closeParenPos) ..];
             end if;
           end if;
@@ -189,21 +382,86 @@ const func string: getMacroName (inout file: makefile) is func
   end func;
 
 
-const func string: getMacroParameter (inout file: makefile) is func
+const func string: getMacroParameter (inout file: makefile, in char: delimiter) is func
   result
     var string: parameter is "";
   begin
-    while makefile.bufferChar <> ')' and makefile.bufferChar <> EOF do
+    while makefile.bufferChar <> delimiter and makefile.bufferChar <> EOF do
       if makefile.bufferChar = '(' then
         parameter &:= "(";
         makefile.bufferChar := getc(makefile);
-        parameter &:= getMacroParameter(makefile);
+        parameter &:= getMacroParameter(makefile, ')');
         parameter &:= ")";
       else
         parameter &:= makefile.bufferChar;
       end if;
       makefile.bufferChar := getc(makefile);
     end while;
+  end func;
+
+
+const func string: evalFunction (inout file: makefile, in stringHash: macros,
+    in string: funcName) is func
+  result
+    var string: funcResult is "";
+  local
+    var array string: matches is 0 times "";
+    var string: parameter is "";
+    var string: evaluatedParam is "";
+    var string: from is "";
+    var string: pattern is "";
+    var string: replacement is "";
+  begin
+    skipSpaceOrTab(makefile);
+    if funcName = "wildcard" then
+      matches := findMatchingFiles(getMacroName(makefile));
+      if length(matches) <> 0 then
+        funcResult := join(matches, ' ');
+      end if;
+    elsif funcName = "strip" then
+      parameter := getMacroParameter(makefile, ')');
+      funcResult := replace(applyMacros(macros, parameter, TRUE), "\t", " ");
+      funcResult := replaceN(funcResult, "  ", " ");
+      funcResult := trim(funcResult);
+    elsif funcName = "subst" then
+      from := getMacroParameter(makefile, ',');
+      if makefile.bufferChar = ',' then
+        makefile.bufferChar := getc(makefile);
+        replacement := getMacroParameter(makefile, ',');
+        if makefile.bufferChar = ',' then
+          makefile.bufferChar := getc(makefile);
+          parameter := getMacroParameter(makefile, ')');
+          evaluatedParam := applyMacros(macros, parameter, TRUE);
+          funcResult := replace(evaluatedParam, from, replacement);
+        else
+          funcResult := "$(subst " & from & "," & replacement;
+        end if;
+      else
+        funcResult := "$(subst " & from;
+      end if;
+    elsif funcName = "patsubst" then
+      pattern := getMacroParameter(makefile, ',');
+      if makefile.bufferChar = ',' then
+        makefile.bufferChar := getc(makefile);
+        replacement := getMacroParameter(makefile, ',');
+        if makefile.bufferChar = ',' then
+          makefile.bufferChar := getc(makefile);
+          parameter := getMacroParameter(makefile, ')');
+          evaluatedParam := applyMacros(macros, parameter, TRUE);
+          funcResult := patternSubstitute(evaluatedParam, pattern, replacement);
+        else
+          funcResult := "$(patsubst " & pattern & "," & replacement;
+        end if;
+      else
+        funcResult := "$(patsubst " & pattern;
+      end if;
+    else
+      funcResult := "$(" & funcName & " ";
+    end if;
+    skipSpaceOrTab(makefile);
+    if makefile.bufferChar = ')' then
+      makefile.bufferChar := getc(makefile);
+    end if;
   end func;
 
 
@@ -214,7 +472,6 @@ const func string: getMacro (inout file: makefile, in stringHash: macros) is fun
     var string: name is "";
     var string: suffix is "";
     var string: replacement is "";
-    var array string: matches is 0 times "";
   begin
     makefile.bufferChar := getc(makefile);
     if makefile.bufferChar = '(' then
@@ -247,20 +504,7 @@ const func string: getMacro (inout file: makefile, in stringHash: macros) is fun
           macro := "$(" & name & ":" & suffix;
         end if;
       elsif makefile.bufferChar in space_or_tab then
-        skipSpaceOrTab(makefile);
-        if name = "wildcard" then
-          matches := findMatchingFiles(getMacroName(makefile));
-          if length(matches) <> 0 then
-            macro := join(matches, ' ');
-          end if;
-        elsif name = "strip" then
-          name := getMacroParameter(makefile);
-          macro := trim(applyMacros(macros, name, TRUE));
-        end if;
-        skipSpaceOrTab(makefile);
-        if makefile.bufferChar = ')' then
-          makefile.bufferChar := getc(makefile);
-        end if;
+        macro := evalFunction(makefile, macros, name);
       end if;
     else
       macro := "$";
@@ -268,7 +512,7 @@ const func string: getMacro (inout file: makefile, in stringHash: macros) is fun
   end func;
 
 
-const func string: getLineWithMacrosApplied (inout makeDataType: makeData) is func
+const func string: getLine (inout makeDataType: makeData, in boolean: applyMacros) is func
   result
     var string: data is "";
   local
@@ -304,7 +548,7 @@ const func string: getLineWithMacrosApplied (inout makeDataType: makeData) is fu
         else
           data &:= '\\';
         end if;
-      elsif makefile.bufferChar = '$' then
+      elsif makefile.bufferChar = '$' and applyMacros then
         data &:= getMacro(makefile, makeData.macros);
       else
         data &:= makefile.bufferChar;
@@ -382,7 +626,7 @@ const proc: execIf (inout file: makefile, in stringHash: macros) is func
     functionName := getName(makefile);
     if functionName = "exist" and makefile.bufferChar = '(' then
       makefile.bufferChar := getc(makefile);
-      fileName := getMacroParameter(makefile);
+      fileName := getMacroParameter(makefile, ')');
       skipLine(makefile);
       makefile.bufferChar := getc(makefile);
       if fileType(fileName) = FILE_ABSENT then
@@ -503,7 +747,7 @@ const proc: readRule (inout makeDataType: makeData, in string: name) is func
     makefile := makeData.makefile;
     rule.name := name;
     skipSpaceOrTab(makefile);
-    dependencies := getLineWithMacrosApplied(makeData);
+    dependencies := getLine(makeData, TRUE);
     # write(name <& ":");
     while dependencies <> "" do
       dependency := getDependency(dependencies);
@@ -523,7 +767,7 @@ const proc: readRule (inout makeDataType: makeData, in string: name) is func
       if makefile.bufferChar = '#' then
         skipLineComment(makefile);
       elsif makefile.bufferChar <> '\n' then
-        command := getLineWithMacrosApplied(makeData);
+        command := getLine(makeData, FALSE);
         rule.commands &:= [] (command);
         # writeln("\t" <& command);
       end if;
@@ -594,7 +838,7 @@ const proc: readMakefile (inout makeDataType: makeData) is func
         if makefile.bufferChar = '=' then
           makefile.bufferChar := getc(makefile);
           skipSpace(makefile);
-          data := getLineWithMacrosApplied(makeData);
+          data := getLine(makeData, TRUE);
           makeData.macros @:= [name] data;
           # writeln(name <& " = " <& data);
           makefile.bufferChar := getc(makefile);
@@ -603,7 +847,7 @@ const proc: readMakefile (inout makeDataType: makeData) is func
           if makefile.bufferChar = '=' then
             makefile.bufferChar := getc(makefile);
             skipSpace(makefile);
-            data := getLineWithMacrosApplied(makeData);
+            data := getLine(makeData, TRUE);
             if name in makeData.macros then
               makeData.macros @:= [name] makeData.macros[name] & data;
             else
@@ -617,7 +861,7 @@ const proc: readMakefile (inout makeDataType: makeData) is func
           if makefile.bufferChar = '=' then
             makefile.bufferChar := getc(makefile);
             skipSpace(makefile);
-            data := getLineWithMacrosApplied(makeData);
+            data := getLine(makeData, TRUE);
             makeData.macros @:= [name] data;
             # writeln(name <& " := " <& data);
             makefile.bufferChar := getc(makefile);
@@ -674,7 +918,7 @@ const proc: includeMakefile (inout makeDataType: makeData, in boolean: ignoreErr
     var file: surroundingFile is STD_NULL;
   begin
     skipSpace(makeData.makefile);
-    includeFiles := getLineWithMacrosApplied(makeData);
+    includeFiles := getLine(makeData, TRUE);
     makeData.makefile.bufferChar := getc(makeData.makefile);
     while includeFiles <> "" do
       fileName := getWord(includeFiles);

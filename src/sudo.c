@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  sudo.c        Execute as administrator under Windows.           */
+/*  sudo.c        Execute command as administrator under Windows.   */
 /*  Copyright (C) 2014  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
@@ -18,13 +18,14 @@
 /*  Free Software Foundation, Inc., 51 Franklin Street,             */
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
-/*  Module: Setwpath                                                */
-/*  File: seed7/src/setwpath.c                                      */
+/*  Module: Sudo                                                    */
+/*  File: seed7/src/sudo.c                                          */
 /*  Changes: 2014  Thomas Mertes                                    */
-/*  Content: Set the search path (PATH variable) under Windows.     */
+/*  Content: Execute command as administrator under Windows.        */
 /*                                                                  */
 /********************************************************************/
 
+#include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 #include "windows.h"
@@ -34,20 +35,39 @@
 int main (int argc, char *argv[])
 
   {
-    char parameters[4096];
+    int length = 0;
+    char *parameters;
     int idx;
+    int mainResult = 0;
 
   /* main */
-    if (argc >= 2) {
-      parameters[0] = '\0';
+    if (argc < 2) {
+      printf("usage: sudo command [parameters]\n");
+    } else {
       for (idx = 2; idx < argc; idx++) {
-        if (idx != 2) {
-          strcat(parameters, " ");
-        } /* if */
-        strcat(parameters, argv[idx]);
+        length += strlen(argv[idx]) + 1;
       } /* for */
-      printf("%s %s\n", argv[1], parameters);
-      ShellExecute(NULL, "runas", argv[1], parameters, NULL, SW_HIDE);
+      if (length > 0) {
+        length--;
+      } /* if */
+      parameters = (char *) malloc(length + 1);
+      if (parameters == NULL) {
+        mainResult = -1;
+      } else {
+        parameters[0] = '\0';
+        if (argc > 2) {
+          strcat(parameters, argv[2]);
+          for (idx = 3; idx < argc; idx++) {
+            strcat(parameters, " ");
+            strcat(parameters, argv[idx]);
+          } /* for */
+        } /* if */
+        printf("%s %s\n", argv[1], parameters);
+        if (ShellExecute(NULL, "runas", argv[1], parameters, NULL, SW_HIDE) <= 32) {
+          mainResult = -1;
+        } /* if */
+        free(parameters);
+      } /* if */
     } /* if */
-    return 0;
+    return mainResult;
   } /* main */

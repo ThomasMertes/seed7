@@ -125,9 +125,51 @@ const proc: writeln (in string: stri) is func
  *  When the function is left [[#IN|IN]].bufferChar contains the
  *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
  *)
-const proc: read (inout string: stri) is func
+const proc: read (inout string: aVar) is func
   begin
-    read(IN, stri);
+    read(IN, aVar);
+  end func;
+
+
+(**
+ *  Read a word from the standard input file ([[#IN|IN]]) or use ''defaultValue''.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+ *  When the word is empty ''defaultValue'' is assigned to ''aVar''.
+ *  The word ending characters are not copied into the string.
+ *  When the function is left [[#IN|IN]].bufferChar contains the
+ *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+ *)
+const proc: read (inout string: aVar, in string: defaultValue) is func
+  begin
+    read(IN, aVar, defaultValue);
+  end func;
+
+
+(**
+ *  Read a line from the standard input file ([[#IN|IN]]).
+ *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+ *  The line ending characters are not copied into the string.
+ *  When the function is left [[#IN|IN]].bufferChar contains the
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
+ *)
+const proc: readln (inout string: aVar) is func
+  begin
+    readln(IN, aVar);
+  end func;
+
+
+(**
+ *  Read a line from the standard input file ([[#IN|IN]]) or use ''defaultValue''.
+ *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+ *  When the line is empty ''defaultValue'' is assigned to ''aVar''.
+ *  The line ending characters are not copied into the string.
+ *  When the function is left [[#IN|IN]].bufferChar contains the
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
+ *)
+const proc: readln (inout string: aVar, in string: defaultValue) is func
+  begin
+    readln(IN, aVar, defaultValue);
   end func;
 
 
@@ -142,19 +184,4 @@ const proc: readln is func
     var string: stri is "";
   begin
     stri := getln(IN);
-    IN.io_empty := stri = "";
-    IN.io_ok := TRUE;
-  end func;
-
-
-(**
- *  Read a line from the standard input file ([[#IN|IN]]).
- *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
- *  The line ending characters are not copied into the string.
- *  When the function is left [[#IN|IN]].bufferChar contains the
- *  line ending character ('\n' or [[char#EOF|EOF]]).
- *)
-const proc: readln (inout string: stri) is func
-  begin
-    readln(IN, stri);
   end func;

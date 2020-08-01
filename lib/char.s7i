@@ -238,10 +238,31 @@ const char: EOF is chr(-1);
 
 
 (**
- *  Convert a [[string]] to a character.
+ *  Convert a [[string]] with a length of 1 to a character.
+ *   char parse "a"   returns 'a'
+ *   char parse " "   returns ' '
+ *   char parse "aa"  raises RANGE_ERROR
+ *   char parse "  "  raises RANGE_ERROR
+ *   char parse ""    raises RANGE_ERROR
  *  @return the first character of the [[string]].
+ *  @exception RANGE_ERROR When the length of the string is not 1.
  *)
 const func char: (attr char) parse (in string: stri) is forward;
+
+
+(**
+ *  Trim a string such that it can be converted to ''char''.
+ *   trimValue(char, " 1 ")             returns "1"
+ *   trimValue(char, "   ")             returns " "
+ *   trimValue(char, "\t ")             returns "\t"
+ *   trimValue(char, "")                returns ""
+ *   char parse trimValue(char, " 1 ")  returns '1'
+ *   char parse trimValue(char, "   ")  returns ' '
+ *   char parse trimValue(char, "\t ")  returns '\t'
+ *   char parse trimValue(char, "")     raises RANGE_ERROR
+ *  @return the trimmed string.
+ *)
+const func string: trimValue (attr char, in string: stri) is forward;
 
 
 (**

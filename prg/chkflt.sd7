@@ -1725,22 +1725,22 @@ const proc: check_parse is func
         float parse striExpr(     "Infinity") <>  Infinity or
         float parse striExpr(    "-Infinity") <> -Infinity or
         not isNaN(float parse striExpr("NaN"))             or
-        float parse          " 123.456000000000000000000000000000000"  <>  123.456   or
+        float parse           "123.456000000000000000000000000000000"  <>  123.456   or
         float parse          "+123.456000000000000000000000000000000"  <>  123.456   or
         float parse          "-123.456000000000000000000000000000000"  <> -123.456   or
-        float parse          " 0.00000000000000000000000000000000001"  <>    1.0e-35 or
+        float parse           "0.00000000000000000000000000000000001"  <>    1.0e-35 or
         float parse          "+0.00000000000000000000000000000000001"  <>    1.0e-35 or
         float parse          "-0.00000000000000000000000000000000001"  <>   -1.0e-35 or
-        float parse          " 00000000000000000000000000000000000.5"  <>    0.5     or
+        float parse           "00000000000000000000000000000000000.5"  <>    0.5     or
         float parse          "+00000000000000000000000000000000000.5"  <>    0.5     or
         float parse          "-00000000000000000000000000000000000.5"  <>   -0.5     or
-        float parse striExpr(" 123.456000000000000000000000000000000") <>  123.456   or
+        float parse striExpr( "123.456000000000000000000000000000000") <>  123.456   or
         float parse striExpr("+123.456000000000000000000000000000000") <>  123.456   or
         float parse striExpr("-123.456000000000000000000000000000000") <> -123.456   or
-        float parse striExpr(" 0.00000000000000000000000000000000001") <>    1.0e-35 or
+        float parse striExpr( "0.00000000000000000000000000000000001") <>    1.0e-35 or
         float parse striExpr("+0.00000000000000000000000000000000001") <>    1.0e-35 or
         float parse striExpr("-0.00000000000000000000000000000000001") <>   -1.0e-35 or
-        float parse striExpr(" 00000000000000000000000000000000000.5") <>    0.5     or
+        float parse striExpr( "00000000000000000000000000000000000.5") <>    0.5     or
         float parse striExpr("+00000000000000000000000000000000000.5") <>    0.5     or
         float parse striExpr("-00000000000000000000000000000000000.5") <>   -0.5     or
         float parse                               "1.0" <>                               1.0 or

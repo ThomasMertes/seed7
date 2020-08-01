@@ -144,14 +144,12 @@ const func stateType: loadState (in string: stateFileName) is func
         readln(stateFile, state.badAreaToProcess);
         readln(stateFile, state.sizeOfBadAreaToProcess);
         readln(stateFile, state.blockToProcess);
-        read(stateFile, position);
-        while io_ok(stateFile) do
+        while succeeds(read(stateFile, position)) do
           readln(stateFile, badAreaSize);
           # writeln(literal(getln(stateFile)));
           state.badAreas @:= [position] badAreaSize;
           # writeln(position <& " " <& badAreaSize);
           state.sumOfBadBytes +:= badAreaSize;
-          read(stateFile, position);
         end while;
       end if;
       close(stateFile);

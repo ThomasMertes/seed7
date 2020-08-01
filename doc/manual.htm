@@ -5169,8 +5169,6 @@ type_implements_interface(<span class="type">line</span>, <span class="type">sha
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_type">type</a>: null_file <span class="keywd">is</span> <span class="keywd">new struct</span>
   <span class="keywd">var</span> <a class="type" href="#types_char">char</a>: bufferChar <span class="keywd">is</span> '\n';
-  <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: io_empty <span class="keywd">is</span> FALSE;
-  <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: io_ok <span class="keywd">is</span> TRUE;
 <span class="keywd">end struct</span>;
 </pre><p>
   In most situations it makes sense when the implementation
@@ -5886,15 +5884,11 @@ writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2)
 <span class="keywd">const</span> <span class="type">proc</span>: read (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     stri := getwd(aFile);
-    aFile.io_empty := stri = <span class="stri">""</span>;
-    aFile.io_ok := TRUE;
   <span class="keywd">end func</span>;
 
 <span class="keywd">const</span> <span class="type">proc</span>: readln (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     stri := getln(aFile);
-    aFile.io_empty := stri = <span class="stri">""</span>;
-    aFile.io_ok := TRUE;
   <span class="keywd">end func</span>;
 </pre><p></p>
 
@@ -5917,33 +5911,13 @@ writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2)
   <tt><span class="func">read</span></tt> and <tt><span class="func">readln</span></tt> functions:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">proc</span>: read (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
-  <span class="keywd">local</span>
-    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
-    stri := getwd(aFile);
-    aFile.io_empty := stri = <span class="stri">""</span>;
-    <span class="keywd">block</span>
-      aValue := <span class="type">aType</span> <span class="op">parse</span> stri;
-      aFile.io_ok := TRUE;
-    <span class="keywd">exception</span>
-      <span class="keywd">catch</span> RANGE_ERROR:
-        aFile.io_ok := FALSE;
-    <span class="keywd">end block</span>;
+    aValue := <span class="type">aType</span> <span class="op">parse</span> getwd(aFile);
   <span class="keywd">end func</span>;
 
 <span class="keywd">const</span> <span class="type">proc</span>: readln (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
-  <span class="keywd">local</span>
-    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
-    stri := getln(aFile);
-    aFile.io_empty := stri = <span class="stri">""</span>;
-    <span class="keywd">block</span>
-      aValue := <span class="type">aType</span> <span class="op">parse</span> stri;
-      aFile.io_ok := TRUE;
-    <span class="keywd">exception</span>
-      <span class="keywd">catch</span> RANGE_ERROR:
-        aFile.io_ok := FALSE;
-    <span class="keywd">end block</span>;
+    aValue := <span class="type">aType</span> <span class="op">parse</span> trimValue(aType, getln(aFile));
   <span class="keywd">end func</span>;
 </pre><p>
   The next declaration defines <tt>'backSpace'</tt>:
@@ -5994,8 +5968,6 @@ read(amount);
     <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
     stri := getln(IN);
-    IN.io_empty := stri = <span class="stri">""</span>;
-    IN.io_ok := TRUE;
   <span class="keywd">end func</span>;
 
 <span class="keywd">const</span> <span class="type">proc</span>: writeln <span class="keywd">is func</span>

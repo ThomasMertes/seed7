@@ -36,13 +36,11 @@ const proc: verify (in integer: guessed_number) is func
     var integer: number is 0;
   begin
     writeln("I feel your arithmetic is in error.");
-    repeat
+    write("Please enter your number for verification ");
+    while not succeeds(read(number)) do
+      writeln("This is not a number.");
       write("Please enter your number for verification ");
-      read(number);
-      if io_error(IN) then
-        writeln("This is not a number.");
-      end if;
-    until not io_error(IN);
+    end while;
     writeln;
     if number = guessed_number then
       writeln("So what, I guessed your number.");
@@ -74,8 +72,7 @@ const func integer: read_remainder (in integer: divisor) is func
   begin
     repeat
       write("Your number divided by " <& divisor <& " has a remainder of ");
-      read(remainder);
-      if io_error(IN) then
+      if not succeeds(read(remainder)) then
         writeln(" *** Please enter a number.");
         remainder := divisor;
       elsif remainder < 0 then

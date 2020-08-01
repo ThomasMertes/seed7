@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  make.s7i      Make library to manage the compilation process    *)
-(*  Copyright (C) 2010 - 2013  Thomas Mertes                        *)
+(*  Copyright (C) 2010 - 2014  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -175,7 +175,7 @@ const func string: getDosCommandParameter (inout string: stri, in set of char: a
 
 
 const func boolean: doOneCommand (inout string: command,
-    inout string: commandOutput, in boolean: doLog) is forward;
+    inout string: commandOutput) is forward;
 
 
 const func string: execBacktickCommands (in string: stri) is func
@@ -194,7 +194,7 @@ const func string: execBacktickCommands (in string: stri) is func
       closingBacktickPos := pos(withBacktickOutput, '`', succ(backtickPos));
       if closingBacktickPos <> 0 then
         command := withBacktickOutput[succ(backtickPos) .. pred(closingBacktickPos)];
-        if not doOneCommand(command, backtickOutput, FALSE) then
+        if not doOneCommand(command, backtickOutput) then
           commandFile := popen(command, "r");
           if commandFile <> STD_NULL then
             backtickOutput := gets(commandFile, 999999999);
@@ -216,92 +216,117 @@ const func string: execBacktickCommands (in string: stri) is func
   end func;
 
 
-const proc: doRm (in string: commandName, inout string: command, in boolean: doLog) is func
+const proc: addToFileList (inout array string: fileList, in var string: parameter) is func
   local
-    var string: parameter is "";
-    var boolean: force is FALSE;
     var string: fileName is "";
   begin
-    if doLog then
-      write(commandName);
+    parameter := convDosPath(parameter);
+    if pos(parameter, "*") <> 0 or pos(parameter, "?") <> 0 then
+      for fileName range findMatchingFiles(parameter) do
+        fileList &:= [] (fileName);
+      end for;
+    else
+      fileList &:= [] (parameter);
     end if;
-    skipWhiteSpace(command);
-    while command <> "" do
-      parameter := getCommandParameter(command);
-      if doLog then
-        write(" " <& parameter);
-      end if;
-      if parameter = "-f" then
-        force := TRUE;
-      else
-        parameter := convDosPath(parameter);
-        if pos(parameter, "*") <> 0 or pos(parameter, "?") <> 0 then
-          for fileName range findMatchingFiles(parameter) do
-            removeFile(fileName);
-          end for;
-        else
-          if fileType(parameter) <> FILE_ABSENT then
-            removeFile(parameter);
-          end if;
-        end if;
-      end if;
-      skipWhiteSpace(command);
-    end while;
   end func;
 
 
-const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLog) is func
+const proc: doRemoveCmd (in array string: fileList,
+    in boolean: recursive, in boolean: force) is func
+  local
+    var string: fileName is "";
+  begin
+    for fileName range fileList do
+      if fileTypeSL(fileName) = FILE_ABSENT then
+        if not force then
+          writeln("Cannot remove '" <& fileName <& "': No such file or directory");
+        end if;
+      else
+        if recursive then
+          removeTree(fileName);
+        else
+          removeFile(fileName);
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const proc: doRm (inout string: command) is func
   local
     var string: parameter is "";
-    var boolean: overwriteExisting is FALSE;
-    var boolean: archive is FALSE;
-    var string: fileName is "";
+    var char: option is ' ';
+    var boolean: recursive is FALSE;
+    var boolean: force is FALSE;
+    var boolean: optionMayFollow is TRUE;
     var array string: fileList is 0 times "";
+  begin
+    skipWhiteSpace(command);
+    parameter := getCommandParameter(command);
+    while startsWith(parameter, "-") and optionMayFollow do
+      parameter := parameter[2 ..];
+      for option range parameter do
+        case option of
+          when {'r', 'R'}: recursive := TRUE;
+          when {'f'}:      force := TRUE;
+          when {'-'}:      optionMayFollow := FALSE;
+        end case;
+      end for;
+      skipWhiteSpace(command);
+      parameter := getCommandParameter(command);
+    end while;
+    while parameter <> "" do
+      addToFileList(fileList, parameter);
+      skipWhiteSpace(command);
+      parameter := getCommandParameter(command);
+    end while;
+    doRemoveCmd(fileList, recursive, force);
+  end func;
+
+
+const proc: doDel (inout string: command) is func
+  local
+    var string: parameter is "";
+    var boolean: recursive is FALSE;
+    var array string: fileList is 0 times "";
+  begin
+    skipWhiteSpace(command);
+    parameter := getCommandParameter(command);
+    while parameter <> "" do
+      if upper(parameter) = "/S" then
+        recursive := TRUE;
+      elsif not startsWith(parameter, "/") then
+        addToFileList(fileList, parameter);
+      end if;
+      skipWhiteSpace(command);
+      parameter := getCommandParameter(command);
+    end while;
+    doRemoveCmd(fileList, recursive, FALSE);
+  end func;
+
+
+const proc: doCopyCmd (in var array string: fileList,
+   in boolean: recursive, in boolean: overwriteExisting, in boolean: archive) is func
+  local
+    var string: fileName is "";
     var string: destination is "";
     var string: destFileName is "";
     var integer: slashPos is 0;
   begin
-    if doLog then
-      write([]("copy", "cp")[ord(cpCommand)]);
-    end if;
-    overwriteExisting := cpCommand;
-    skipWhiteSpace(command);
-    while command <> "" do
-      parameter := getCommandParameter(command);
-      if doLog then
-        write(" " <& parameter);
-      end if;
-      if parameter = "/Y" then
-        overwriteExisting := TRUE;
-      elsif parameter = "-n" then
-        overwriteExisting := FALSE;
-      elsif parameter = "-a" or parameter = "-p" then
-        archive := TRUE;
-      else
-        parameter := convDosPath(parameter);
-        if pos(parameter, "*") <> 0 or pos(parameter, "?") <> 0 then
-          for fileName range findMatchingFiles(parameter) do
-            fileList &:= [] (fileName);
-          end for;
-        else
-          fileList &:= [] (parameter);
-        end if;
-      end if;
-      skipWhiteSpace(command);
-    end while;
     if length(fileList) >= 2 then
       destination := fileList[length(fileList)];
       fileList := fileList[.. pred(length(fileList))];
       if fileType(destination) = FILE_DIR then
         for fileName range fileList do
-          if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
+          if fileType(fileName) = FILE_REGULAR or
+              (recursive and fileType(fileName) = FILE_DIR) then
             slashPos := rpos(fileName, "/");
             if slashPos = 0 then
               destFileName := destination & "/" & fileName;
             else
               destFileName := destination & "/" & fileName[succ(slashPos) ..];
             end if;
-            if fileType(destFileName) = FILE_REGULAR and overwriteExisting then
+            if fileTypeSL(destFileName) = FILE_REGULAR and overwriteExisting then
               block
                 removeFile(destFileName);
               exception
@@ -317,12 +342,15 @@ const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLo
                 copyFile(fileName, destFileName);
               end if;
             end if;
+          else
+            writeln("Does not copy " <& fileName);
           end if;
         end for;
       elsif length(fileList) = 1 then
         fileName := fileList[1];
-        if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
-          if fileType(destination) = FILE_REGULAR and overwriteExisting then
+        if fileType(fileName) = FILE_REGULAR or
+            (recursive and fileType(fileName) = FILE_DIR) then
+          if fileTypeSL(destination) = FILE_REGULAR and overwriteExisting then
             block
               removeFile(destination);
             exception
@@ -338,24 +366,213 @@ const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLo
               copyFile(fileName, destFileName);
             end if;
           end if;
+        else
+          writeln("Does not copy " <& fileName);
         end if;
       end if;
     end if;
   end func;
 
 
-const func string: doPwd (inout string: command, in boolean: doLog) is func
+const proc: doCp (inout string: command) is func
+  local
+    var string: parameter is "";
+    var char: option is ' ';
+    var boolean: recursive is FALSE;
+    var boolean: overwriteExisting is TRUE;
+    var boolean: archive is FALSE;
+    var boolean: optionMayFollow is TRUE;
+    var array string: fileList is 0 times "";
+  begin
+    skipWhiteSpace(command);
+    parameter := getCommandParameter(command);
+    while startsWith(parameter, "-") and optionMayFollow do
+      parameter := parameter[2 ..];
+      for option range parameter do
+        case option of
+          when {'r', 'R'}: recursive := TRUE;
+          when {'n'}:      overwriteExisting := FALSE;
+          when {'a', 'p'}: recursive := TRUE;
+                           archive := TRUE;
+          when {'-'}:      optionMayFollow := FALSE;
+        end case;
+      end for;
+      skipWhiteSpace(command);
+      parameter := getCommandParameter(command);
+    end while;
+    while parameter <> "" do
+      addToFileList(fileList, parameter);
+      skipWhiteSpace(command);
+      parameter := getCommandParameter(command);
+    end while;
+    doCopyCmd(fileList, recursive, overwriteExisting, archive);
+  end func;
+
+
+const proc: doCopy (inout string: command) is func
+  local
+    var string: parameter is "";
+    var boolean: overwriteExisting is FALSE;
+    var array string: fileList is 0 times "";
+  begin
+    skipWhiteSpace(command);
+    parameter := getCommandParameter(command);
+    while parameter <> "" do
+      if upper(parameter) = "/Y" then
+        overwriteExisting := TRUE;
+      elsif not startsWith(parameter, "/") then
+        addToFileList(fileList, parameter);
+      end if;
+      skipWhiteSpace(command);
+      parameter := getCommandParameter(command);
+    end while;
+    doCopyCmd(fileList, FALSE, overwriteExisting, FALSE);
+  end func;
+
+
+const proc: doXCopy (inout string: command) is func
+  local
+    var string: parameter is "";
+    var boolean: recursive is FALSE;
+    var boolean: overwriteExisting is FALSE;
+    var boolean: archive is FALSE;
+    var array string: fileList is 0 times "";
+  begin
+    skipWhiteSpace(command);
+    parameter := getCommandParameter(command);
+    while parameter <> "" do
+      if upper(parameter) = "/E" then
+        recursive := TRUE;
+      elsif upper(parameter) = "/O" then
+        archive := TRUE;
+      elsif upper(parameter) = "/Y" then
+        overwriteExisting := TRUE;
+      elsif not startsWith(parameter, "/") then
+        addToFileList(fileList, parameter);
+      end if;
+      skipWhiteSpace(command);
+      parameter := getCommandParameter(command);
+    end while;
+    doCopyCmd(fileList, recursive, overwriteExisting, archive);
+  end func;
+
+
+const proc: doMoveCmd (in var array string: fileList,
+    in boolean: overwriteExisting) is func
+  local
+    var string: fileName is "";
+    var string: destination is "";
+    var string: destFileName is "";
+    var integer: slashPos is 0;
+  begin
+    if length(fileList) >= 2 then
+      destination := fileList[length(fileList)];
+      fileList := fileList[.. pred(length(fileList))];
+      if fileType(destination) = FILE_DIR then
+        for fileName range fileList do
+          if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
+            slashPos := rpos(fileName, "/");
+            if slashPos = 0 then
+              destFileName := destination & "/" & fileName;
+            else
+              destFileName := destination & "/" & fileName[succ(slashPos) ..];
+            end if;
+            if fileTypeSL(destFileName) = FILE_REGULAR and overwriteExisting then
+              block
+                removeFile(destFileName);
+              exception
+                catch FILE_ERROR:
+                  writeln(" *** Cannot remove " <& destFileName);
+              end block;
+            end if;
+            if fileType(destFileName) = FILE_ABSENT then
+              # write("moveFile " <& fileName <& " " <& destination);
+              moveFile(fileName, destFileName);
+            end if;
+          else
+            writeln("Does not move " <& fileName);
+          end if;
+        end for;
+      elsif length(fileList) = 1 then
+        fileName := fileList[1];
+        if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
+          if fileTypeSL(destination) = FILE_REGULAR and overwriteExisting then
+            block
+              removeFile(destination);
+            exception
+              catch FILE_ERROR:
+                writeln(" *** Cannot remove " <& destFileName);
+            end block;
+          end if;
+          if fileType(destination) = FILE_ABSENT then
+            # write("moveFile " <& fileName <& " " <& destination);
+            moveFile(fileName, destFileName);
+          end if;
+        else
+          writeln("Does not move " <& fileName);
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: doMv (inout string: command) is func
+  local
+    var string: parameter is "";
+    var char: option is ' ';
+    var boolean: overwriteExisting is TRUE;
+    var boolean: optionMayFollow is TRUE;
+    var array string: fileList is 0 times "";
+  begin
+    skipWhiteSpace(command);
+    parameter := getCommandParameter(command);
+    while startsWith(parameter, "-") and optionMayFollow do
+      parameter := parameter[2 ..];
+      for option range parameter do
+        case option of
+          when {'n'}:      overwriteExisting := FALSE;
+          when {'-'}:      optionMayFollow := FALSE;
+        end case;
+      end for;
+      skipWhiteSpace(command);
+      parameter := getCommandParameter(command);
+    end while;
+    while parameter <> "" do
+      addToFileList(fileList, parameter);
+      skipWhiteSpace(command);
+      parameter := getCommandParameter(command);
+    end while;
+    doMoveCmd(fileList, overwriteExisting);
+  end func;
+
+
+const proc: doMove (inout string: command) is func
+  local
+    var string: parameter is "";
+    var boolean: overwriteExisting is FALSE;
+    var array string: fileList is 0 times "";
+  begin
+    skipWhiteSpace(command);
+    parameter := getCommandParameter(command);
+    while parameter <> "" do
+      if upper(parameter) = "/Y" then
+        overwriteExisting := TRUE;
+      elsif not startsWith(parameter, "/") then
+        addToFileList(fileList, parameter);
+      end if;
+      skipWhiteSpace(command);
+      parameter := getCommandParameter(command);
+    end while;
+    doMoveCmd(fileList, overwriteExisting);
+  end func;
+
+
+const func string: doPwd (inout string: command) is func
   result
     var string: commandOutput is "";
   begin
-    if doLog then
-      write("pwd");
-    end if;
     skipWhiteSpace(command);
     if startsWith(command, "-W") then
-      if doLog then
-        write(" -W");
-      end if;
       command := command[3 ..];
       skipWhiteSpace(command);
     end if;
@@ -363,7 +580,7 @@ const func string: doPwd (inout string: command, in boolean: doLog) is func
   end func;
 
 
-const func string: doEcho (inout string: command, in boolean: doLog) is func
+const func string: doEcho (inout string: command) is func
   result
     var string: commandOutput is "";
   local
@@ -387,23 +604,17 @@ const func string: doEcho (inout string: command, in boolean: doLog) is func
         commandOutput &:= getWhiteSpace(command);
       end while;
     end if;
-    if doLog then
-      write("echo " <& commandOutput);
-    end if;
     commandOutput &:= "\n";
   end func;
 
 
-const proc: doCd (inout string: command, in boolean: doLog) is func
+const proc: doCd (inout string: command) is func
   local
     var string: parameter is "";
   begin
     skipWhiteSpace(command);
     if command <> "" then
       parameter := getCommandParameter(command);
-      if doLog then
-        write("cd " <& parameter);
-      end if;
       parameter := convDosPath(parameter);
       if fileType(parameter) = FILE_DIR then
         chdir(parameter);
@@ -419,7 +630,7 @@ const proc: doCd (inout string: command, in boolean: doLog) is func
 const proc: make (in string: makefile, in array string: targets, in makeFlags: flags) is forward;
 
 
-const proc: doMake (inout string: command, in boolean: doLog) is func
+const proc: doMake (inout string: command) is func
   local
     var string: parameter is "";
     var string: makefile is "";
@@ -429,28 +640,16 @@ const proc: doMake (inout string: command, in boolean: doLog) is func
   begin
     savedCurrentDir := getcwd;
     skipWhiteSpace(command);
-    if doLog then
-      write("make");
-    end if;
     while command <> "" and command[1] in parameter_char do
       parameter := getCommandParameter(command);
-      if doLog then
-        write(" " <& parameter);
-      end if;
       if length(parameter) >= 2 and parameter[1] = '-' then
         if parameter = "-C" then
           skipWhiteSpace(command);
           parameter := convDosPath(getCommandParameter(command));
           chdir(parameter);
-          if doLog then
-            write(" " <& parameter);
-          end if;
         elsif parameter = "-f" then
           skipWhiteSpace(command);
           makefile := convDosPath(getCommandParameter(command));
-          if doLog then
-            write(" " <& makefile);
-          end if;
         elsif parameter = "-i" then
           incl(flags, ignoreErrors);
         elsif parameter = "-n" then
@@ -463,9 +662,6 @@ const proc: doMake (inout string: command, in boolean: doLog) is func
       end if;
       skipWhiteSpace(command);
     end while;
-    if doLog then
-      writeln;
-    end if;
     if makefile = "" then
       if fileType("makefile") = FILE_REGULAR then
         makefile := "makefile";
@@ -479,7 +675,7 @@ const proc: doMake (inout string: command, in boolean: doLog) is func
 
 
 const func boolean: doOneCommand (inout string: command,
-    inout string: commandOutput, in boolean: doLog) is func
+    inout string: commandOutput) is func
   result
     var boolean: done is TRUE;
   local
@@ -491,27 +687,42 @@ const func boolean: doOneCommand (inout string: command,
     else
       commandName := lower(getWord(command));
       # writeln("doOneCommand: " <& commandName);
-      if commandName = "rm" or commandName = "del" then
-        doRm(commandName, command, doLog);
+      if commandName = "rm"then
+        doRm(command);
+        commandOutput := "";
+      elsif commandName = "del" or commandName = "erase" then
+        doDel(command);
         commandOutput := "";
       elsif commandName = "cp" then
-        doCp(command, TRUE, doLog);
+        doCp(command);
         commandOutput := "";
       elsif commandName = "copy" then
-        doCp(command, FALSE, doLog);
+        doCopy(command);
+        commandOutput := "";
+      elsif commandName = "xcopy" then
+        doXCopy(command);
+        commandOutput := "";
+      elsif commandName = "mv" then
+        doMv(command);
+        commandOutput := "";
+      elsif commandName = "move" then
+        doMove(command);
         commandOutput := "";
       elsif commandName = "pwd" then
-        commandOutput := doPwd(command, doLog);
+        commandOutput := doPwd(command);
       elsif commandName = "echo" or commandName = "echo." then
-        commandOutput := doEcho(command, doLog);
+        commandOutput := doEcho(command);
       elsif commandName = "cd" then
-        doCd(command, doLog);
+        doCd(command);
         commandOutput := "";
       elsif commandName = "make" or commandName = "make7" then
-        doMake(command, doLog);
+        doMake(command);
+        commandOutput := "";
+      elsif commandName = "rem" then
+        command := "";
         commandOutput := "";
       elsif commandName = "(" then
-        done := doOneCommand(command, commandOutput, doLog);
+        done := doOneCommand(command, commandOutput);
       else
         done := FALSE;
         commandOutput := "";
@@ -534,7 +745,7 @@ const proc: appendToFile (in string: file_name, in string: stri) is func
   end func;
 
 
-const func boolean: doCommands (inout string: command, in boolean: doLog) is func
+const func boolean: doCommands (inout string: command) is func
   result
     var boolean: done is TRUE;
   local
@@ -550,16 +761,13 @@ const func boolean: doCommands (inout string: command, in boolean: doLog) is fun
       end if;
     end if;
     repeat
-      done := doOneCommand(command, commandOutput, doLog);
+      done := doOneCommand(command, commandOutput);
       if done then
         skipWhiteSpace(command);
         redirect := getWord(command);
         if redirect = ">" then
           skipWhiteSpace(command);
           fileName := getCommandParameter(command);
-          if doLog then
-            writeln(" > " <& fileName);
-          end if;
           if fileName <> "/dev/null" and fileName <> "NUL:" and fileName <> "NUL" then
             fileName := convDosPath(fileName);
             putf(fileName, commandOutput);
@@ -567,9 +775,6 @@ const func boolean: doCommands (inout string: command, in boolean: doLog) is fun
         elsif redirect = ">>" then
           skipWhiteSpace(command);
           fileName := getCommandParameter(command);
-          if doLog then
-            writeln(" >> " <& fileName);
-          end if;
           if fileName <> "/dev/null" and fileName <> "NUL:" and fileName <> "NUL" then
             fileName := convDosPath(fileName);
             appendToFile(fileName, commandOutput);
@@ -587,8 +792,8 @@ const func boolean: doCommands (inout string: command, in boolean: doLog) is fun
   end func;
 
 
-const func integer: processCommand (in makeDataType: makeData, in var string: command,
-    in boolean: doLog) is func
+const func integer: processCommand (in makeDataType: makeData,
+    in var string: command) is func
   result
     var integer: commandStatus is 0;
   local
@@ -602,7 +807,7 @@ const func integer: processCommand (in makeDataType: makeData, in var string: co
   begin
     # writeln("process command: " <& command);
     fullCommand := command;
-    if not doCommands(command, doLog) then
+    if not doCommands(command) then
       gtPos := rpos(fullCommand, ">");
       if gtPos >= 2 then
         fileName := fullCommand[succ(gtPos) ..];
@@ -617,13 +822,6 @@ const func integer: processCommand (in makeDataType: makeData, in var string: co
         end if;
       end if;
       if doRedirect or doAppend then
-        if doLog then
-          write(fullCommand);
-          if doAppend then
-            write(">");
-          end if;
-          writeln("> " & fileName);
-        end if;
         if startsWith(fullCommand, "\"") then
           command := getQuotedText(fullCommand);
         else
@@ -643,10 +841,6 @@ const func integer: processCommand (in makeDataType: makeData, in var string: co
           end if;
         end if;
       else
-        if doLog then
-          writeln(fullCommand);
-          flush(STD_OUT);
-        end if;
         if startsWith(fullCommand, "\"") then
           command := getQuotedText(fullCommand);
         else
@@ -779,10 +973,10 @@ const proc: processCommands (in makeDataType: makeData, inout ruleType: rule) is
       end if;
       if makeData.executeCommands then
         command := applyMacros(makeData.macros, command, FALSE);
-        commandStatus := processCommand(makeData, command, FALSE);
-        if commandStatus <> 0 and not makeData.doIgnoreErrors then
+        commandStatus := processCommand(makeData, command);
+        if commandStatus <> 0 and not (ignoreError or makeData.doIgnoreErrors) then
           writeln(" *** [" <& rule.name <& "] Error " <& commandStatus);
-          exit(PROGRAM);
+          raise FILE_ERROR;
         end if;
       end if;
     end for;
@@ -925,6 +1119,8 @@ const proc: processRule (inout makeDataType: makeData, in string: targetName) is
  *  @param targets The targets that should be made.
  *  @param flags Options which affect command execution
  *  @param macros Predefined make macros.
+ *  @exception FILE_ERROR A command failed and the flag ignoreErrors
+ *                        has not been set (ignoreErrors not in flags holds).
  *)
 const proc: make (in string: makefile, in array string: targets, in makeFlags: flags,
     in stringHash: macros) is func
@@ -992,6 +1188,8 @@ const proc: make (in string: makefile, in array string: targets, in makeFlags: f
  *                  in the usual makefile syntax.
  *  @param targets The targets that should be made.
  *  @param flags Options which affect command execution
+ *  @exception FILE_ERROR A command failed and the flag ignoreErrors
+ *                        has not been set (ignoreErrors not in flags holds).
  *)
 const proc: make (in string: makefile, in array string: targets, in makeFlags: flags) is func
   begin
@@ -1006,6 +1204,8 @@ const proc: make (in string: makefile, in array string: targets, in makeFlags: f
  *  @param target The target that should be made.
  *  @param flags Options which affect command execution
  *  @param macros Predefined make macros.
+ *  @exception FILE_ERROR A command failed and the flag ignoreErrors
+ *                        has not been set (ignoreErrors not in flags holds).
  *)
 const proc: make (in string: makefile, in string: target, in makeFlags: flags, in stringHash: macros) is func
   begin
@@ -1023,6 +1223,8 @@ const proc: make (in string: makefile, in string: target, in makeFlags: flags, i
  *                  in the usual makefile syntax.
  *  @param target The target that should be made.
  *  @param flags Options which affect command execution
+ *  @exception FILE_ERROR A command failed and the flag ignoreErrors
+ *                        has not been set (ignoreErrors not in flags holds).
  *)
 const proc: make (in string: makefile, in string: target, in makeFlags: flags) is func
   begin

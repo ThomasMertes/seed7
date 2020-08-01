@@ -5023,8 +5023,6 @@ CONTENTS
 
     const type: null_file is new struct
       var char: bufferChar is '\n';
-      var boolean: io_empty is FALSE;
-      var boolean: io_ok is TRUE;
     end struct;
 
   In most situations it makes sense when the implementation
@@ -5740,15 +5738,11 @@ CONTENTS
     const proc: read (inout file: aFile, inout string: stri) is func
       begin
         stri := getwd(aFile);
-        aFile.io_empty := stri = "";
-        aFile.io_ok := TRUE;
       end func;
 
     const proc: readln (inout file: aFile, inout string: stri) is func
       begin
         stri := getln(aFile);
-        aFile.io_empty := stri = "";
-        aFile.io_ok := TRUE;
       end func;
 
 
@@ -5771,33 +5765,13 @@ CONTENTS
   'read' and 'readln' functions:
 
     const proc: read (inout file: aFile, inout aType: aValue) is func
-      local
-        var string: stri is "";
       begin
-        stri := getwd(aFile);
-        aFile.io_empty := stri = "";
-        block
-          aValue := aType parse stri;
-          aFile.io_ok := TRUE;
-        exception
-          catch RANGE_ERROR:
-            aFile.io_ok := FALSE;
-        end block;
+        aValue := aType parse getwd(aFile);
       end func;
 
     const proc: readln (inout file: aFile, inout aType: aValue) is func
-      local
-        var string: stri is "";
       begin
-        stri := getln(aFile);
-        aFile.io_empty := stri = "";
-        block
-          aValue := aType parse stri;
-          aFile.io_ok := TRUE;
-        exception
-          catch RANGE_ERROR:
-            aFile.io_ok := FALSE;
-        end block;
+        aValue := aType parse trimValue(aType, getln(aFile));
       end func;
 
   The next declaration defines 'backSpace':
@@ -5848,8 +5822,6 @@ CONTENTS
         var string: stri is "";
       begin
         stri := getln(IN);
-        IN.io_empty := stri = "";
-        IN.io_ok := TRUE;
       end func;
 
     const proc: writeln is func
