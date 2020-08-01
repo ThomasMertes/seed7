@@ -551,6 +551,13 @@ booltype look_for_interfaces;
 #ifdef TRACE_MATCH
     printf("BEGIN match_subexpr_type\n");
 #endif
+    if (trace.match) {
+      printf("//MST// ");
+      printf("is_variable_obj=%s, ",     is_variable_obj     ? "TRUE" : "FALSE");
+      printf("check_access_right=%s, ",  check_access_right  ? "TRUE" : "FALSE");
+      printf("look_for_interfaces=%s, ", look_for_interfaces ? "TRUE" : "FALSE");
+      fflush(stdout);
+    } /* if */
     matched_object = NULL;
     if (is_variable_obj) {
       if (look_for_interfaces) {
@@ -703,6 +710,8 @@ booltype look_for_interfaces;
 #endif
     if (trace.match) {
       printf("\nbegin sub match ");
+      printf("check_access_right=%s, ",  check_access_right  ? "TRUE" : "FALSE");
+      printf("look_for_interfaces=%s, ", look_for_interfaces ? "TRUE" : "FALSE");
       prot_list(match_expr);
       printf(" in sy{ ");
       printnodes(start_node->symbol);

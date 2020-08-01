@@ -178,6 +178,25 @@ const array string: diamond_pic is [](
   "                ");
 
 
+const array string: drop_pic is [](
+  "            BBBB",
+  "      XXXXXXBBBB",
+  "   XXXXXXXXXBBBB",
+  " XXX    XX  BBBB",
+  "X       X       ",
+  "       X        ",
+  "                ",
+  "   RRR          ",
+  "   RRR          ",
+  "   RRR          ",
+  "  RRRRR         ",
+  "   RRR          ",
+  "    R           ",
+  "                ",
+  "  GGGGG         ",
+  "  GGGGG         ");
+
+
 const array string: exit_pic is [](
   "GGGGGGGGGGGGGGGG",
   "GG            GG",
@@ -331,22 +350,22 @@ const array string: hand_pic is [](
 
 
 const array string: harp_pic is [](
-  "             bbb",
-  "           bbbX ",
-  "         bbbX X ",
-  "       bbbX X X ",
-  "     bbbX X X X ",
-  "   bbbX X X X X ",
-  " bbbX X X X X X ",
-  "bbX X X X X X X ",
-  "b X X X X X X X ",
-  "b X X X X X X X ",
-  "bbXbX X X X X X ",
-  "bbbbXbXbX X X X ",
-  "  bbbbbbXbXbX X ",
-  "     bbbbbbbXbXb",
-  "        bbbbbbbb",
-  "           bbbb ");
+  "  OOO           ",
+  "  OxOOOO    OOOO",
+  " OOx xOOOOOOOxbO",
+  " O x x x x x xOO",
+  " O x x x x xbxOO",
+  "OO x x x x xOOOb",
+  "O  x x x xbxOOb ",
+  "O  x x x xOOOb  ",
+  "O  x x xbxOOb   ",
+  "O  x x xOOOb    ",
+  "OO x xbxOOb     ",
+  " O x xOOOb      ",
+  " O xbxOOb       ",
+  " OOxOOOb        ",
+  "  OxOOb         ",
+  "  OOOb          ");
 
 
 const array string: helmet_pic is [](
@@ -708,6 +727,25 @@ const array string: sword_pic is [](
   "bbbb            ",
   " bb             ",
   "  b             ");
+
+
+const array string: take_pic is [](
+  "           BBBBB",
+  "         BBBBBBB",
+  "       BBBBBBBBB",
+  "     BBBBBBBBB  ",
+  "   XXXBBBBBB    ",
+  " XXXXXXBBB      ",
+  "XX  XXX         ",
+  "X    X          ",
+  "XGGGGX          ",
+  " GGGG           ",
+  "                ",
+  "   R            ",
+  "  RRR           ",
+  " RRRRR          ",
+  "  RRR           ",
+  "  RRR           ");
 
 
 const array string: tree_pic is [](

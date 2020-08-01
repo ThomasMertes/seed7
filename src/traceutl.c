@@ -998,6 +998,15 @@ listtype list;
             break;
 #endif
           default:
+            /*
+            printf("VAR_OBJECT=%s, ",    VAR_OBJECT(list->obj)    ? "TRUE" : "FALSE");
+            printf("TEMP_OBJECT=%s, ",   TEMP_OBJECT(list->obj)   ? "TRUE" : "FALSE");
+            printf("TEMP2_OBJECT=%s, ",  TEMP2_OBJECT(list->obj)  ? "TRUE" : "FALSE");
+            printf("HAS_POSINFO=%s, ",   HAS_POSINFO(list->obj)   ? "TRUE" : "FALSE");
+            printf("HAS_MATCH_ERR=%s, ", HAS_MATCH_ERR(list->obj) ? "TRUE" : "FALSE");
+            printf("HAS_PROPERTY=%s, ",  HAS_PROPERTY(list->obj)  ? "TRUE" : "FALSE");
+            printf("HAS_ENTITY=%s, ",    HAS_ENTITY(list->obj)    ? "TRUE" : "FALSE");
+            */
             if (HAS_ENTITY(list->obj) &&
                 GET_ENTITY(list->obj)->ident != NULL) {
               prot_cstri(id_string(GET_ENTITY(list->obj)->ident));
@@ -1006,7 +1015,14 @@ listtype list;
               prot_cstri(": <");
               printcategory(CATEGORY_OF_OBJ(list->obj));
               prot_cstri("> ");
-              prot_int((inttype) GET_ENTITY(list->obj));
+              if (HAS_POSINFO(list->obj)) {
+                prot_cstri(file_name(GET_FILE_NUM(list->obj)));
+                prot_cstri("(");
+                prot_int((inttype) GET_LINE_NUM(list->obj));
+                prot_cstri(")");
+              } else {
+                prot_cstri("*NULL_ENTITY_OBJECT*");
+              } /* if */
             } /* if */
             break;
         } /* switch */

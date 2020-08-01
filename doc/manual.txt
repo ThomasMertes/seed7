@@ -2152,18 +2152,37 @@ CONTENTS
       length(A) Length of string
                   ( Type of result: integer,
                     length("") => 0 )
+      pos(A,B)  First position of char B in string A
+                  ( Type of argument B: char,
+                    Type of result: integer,
+                    pos("ABCABC",'B')=>2,
+                    pos("XYZ",'A')=>0 )
       pos(A,B)  First position of string B in string A
                   ( Type of result: integer,
                     pos("ABCDE ABCDE","BC")=>2,
                     pos("XYZXYZ","ZYX")=>0,
                     pos("123456789","")=>0 )
+      pos(A,B,C) First position of char B in string A
+                 The search starts at position C of string A
+                  ( Type of argument B: char,
+                    Type of argument C: integer,
+                    Type of result: integer,
+                    pos("ABCABC",'B', 3)=>5,
+                    pos("XYZYX",'Z', 4)=>0,
+                    pos("12345",'3', 7)=>0 )
       pos(A,B,C) First position of string B in string A
                  The search starts at position C of string A
                   ( Type of argument C: integer,
                     Type of result: integer,
                     pos("ABCDE ABCDE","BC", 3)=>8,
                     pos("XYZXYZ","ZXY", 4)=>0,
+                    pos("12345","34", 7)=>0 )
                     pos("123456789","", 2)=>0 )
+      rpos(A,B) Last position of char B in string A
+                  ( Type of argument B: char,
+                    Type of result: integer,
+                    rpos("ABCABC",'B')=>5,
+                    rpos("XYZ",'A')=>0 )
       rpos(A,B) Last position of string B in string A
                   ( Type of result: integer,
                     rpos("ABCDE ABCDE","BC")=>8,

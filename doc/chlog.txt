@@ -1,3 +1,14 @@
+20071227:
+- The library cards.s7i which contains the card pictures of a french deck was added.
+- The documentation of the draw.s7i library was improved.
+- Some pictures were moved from castle.sd7 to pic16.s7i and pic32.s7i.
+- The function rpos (reverse search for a character in a string) was added to the
+  seed7_05.s7i library.
+- The bas.sd7 (basic interpreter) example program was improved.
+- A new example program (carddemo.sd7), which demonstrates the playing cards of the
+  french deck, was added.
+- Testcases for the rpos function were added to the chkstr.sd7 program.
+
 20071210:
 - The interpreter was improved to flag match errors only once instead of multiple times.
 - The graph.s7i library was improved to define the type pointList and the function

@@ -2566,6 +2566,51 @@ const proc: check_string_funcs is func
       writeln(" ***** pos(STRING, \'a\', start) does not work correct");
       okay := FALSE;
     end if;
+    if  rpos("",       '\0\') <> 0 or
+        rpos("a",      '\0\') <> 0 or
+        rpos("ab",     '\0\') <> 0 or
+        rpos("abc",    '\0\') <> 0 or
+        rpos("abcde",  '\0\') <> 0 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\0\') <> 0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0\') <> 0 then
+      writeln(" ***** rpos(STRING, '\\0\\') does not work correct");
+      okay := FALSE;
+    end if;
+    if  rpos("\0\\4096\\0\",  '\4096\') <> 2 then
+      writeln(" ***** rpos(STRING, '\\4096\\') does not work correct");
+      okay := FALSE;
+    end if;
+    if  rpos("",       'a') <> 0 or
+        rpos("b",      'a') <> 0 or
+        rpos("a",      'a') <> 1 or
+        rpos("bc",     'a') <> 0 or
+        rpos("ab",     'a') <> 1 or
+        rpos("za",     'a') <> 2 or
+        rpos("aa",     'a') <> 2 or
+        rpos("bcd",    'a') <> 0 or
+        rpos("abc",    'a') <> 1 or
+        rpos("zab",    'a') <> 2 or
+        rpos("yza",    'a') <> 3 or
+        rpos("aab",    'a') <> 2 or
+        rpos("aba",    'a') <> 3 or
+        rpos("zaa",    'a') <> 3 or
+        rpos("aaa",    'a') <> 3 or
+        rpos("bcdef",  'a') <> 0 or
+        rpos("abcde",  'a') <> 1 or
+        rpos("zabcd",  'a') <> 2 or
+        rpos("yzabc",  'a') <> 3 or
+        rpos("xyzab",  'a') <> 4 or
+        rpos("wxyza",  'a') <> 5 or
+        rpos("ababc",  'a') <> 3 or
+        rpos("zabad",  'a') <> 4 or
+        rpos("yzaba",  'a') <> 5 or
+        rpos("yzaab",  'a') <> 4 or
+        rpos("xyzaa",  'a') <> 5 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", 'a') <> 51 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 then
+      writeln(" ***** rpos(STRING, 'a') does not work correct");
+      okay := FALSE;
+    end if;
     if  lower(""       ) <> "" or
         lower("a"      ) <> "a" or
         lower("A"      ) <> "a" or

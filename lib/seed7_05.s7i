@@ -642,12 +642,13 @@ const func integer: hashCode (in string param) is                 action "STR_HA
 
 const func integer: length (in string param) is                   action "STR_LNG";
 const func integer: pos (in string param, in string param) is     action "STR_POS";
+const func integer: pos (in string param, in char param) is       action "STR_CHPOS";
 const func integer: pos (in string param, in string param,
                          in integer param) is                     action "STR_IPOS";
-const func integer: rpos (in string param, in string param) is    action "STR_RPOS";
-const func integer: pos (in string param, in char param) is       action "STR_CHPOS";
 const func integer: pos (in string param, in char param,
                          in integer param) is                     action "STR_CHIPOS";
+const func integer: rpos (in string param, in string param) is    action "STR_RPOS";
+const func integer: rpos (in string param, in char param) is      action "STR_RCHPOS";
 (* const proc: count (in string param, in string param) is        action "STR_CNT"; *)
 const func string: replace (in string param, in string param, in string param) is action "STR_REPL";
 const func string: upper (in string param) is                     action "STR_UP";

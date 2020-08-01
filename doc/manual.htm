@@ -2152,18 +2152,37 @@
       length(A) Length of <font color=red>string</font>
                   ( Type of result: <font color=red>integer</font>,
                     length(<font color=maroon>""</font>) => 0 )
+      pos(A,B)  First position of <font color=red>char</font> B in <font color=red>string</font> A
+                  ( Type of argument B: <font color=red>char</font>,
+                    Type of result: <font color=red>integer</font>,
+                    pos(<font color=maroon>"ABCABC"</font>,<font color=maroon>'B'</font>)=>2,
+                    pos(<font color=maroon>"XYZ"</font>,<font color=maroon>'A'</font>)=>0 )
       pos(A,B)  First position of <font color=red>string</font> B in <font color=red>string</font> A
                   ( Type of result: <font color=red>integer</font>,
                     pos(<font color=maroon>"ABCDE ABCDE"</font>,<font color=maroon>"BC"</font>)=>2,
                     pos(<font color=maroon>"XYZXYZ"</font>,<font color=maroon>"ZYX"</font>)=>0,
                     pos(<font color=maroon>"123456789"</font>,<font color=maroon>""</font>)=>0 )
+      pos(A,B,C) First position of <font color=red>char</font> B in <font color=red>string</font> A
+                 The search starts at position C of <font color=red>string</font> A
+                  ( Type of argument B: <font color=red>char</font>,
+                    Type of argument C: <font color=red>integer</font>,
+                    Type of result: <font color=red>integer</font>,
+                    pos(<font color=maroon>"ABCABC"</font>,<font color=maroon>'B'</font>, 3)=>5,
+                    pos(<font color=maroon>"XYZYX"</font>,<font color=maroon>'Z'</font>, 4)=>0,
+                    pos(<font color=maroon>"12345"</font>,<font color=maroon>'3'</font>, 7)=>0 )
       pos(A,B,C) First position of <font color=red>string</font> B in <font color=red>string</font> A
                  The search starts at position C of <font color=red>string</font> A
                   ( Type of argument C: <font color=red>integer</font>,
                     Type of result: <font color=red>integer</font>,
                     pos(<font color=maroon>"ABCDE ABCDE"</font>,<font color=maroon>"BC"</font>, 3)=>8,
                     pos(<font color=maroon>"XYZXYZ"</font>,<font color=maroon>"ZXY"</font>, 4)=>0,
+                    pos(<font color=maroon>"12345"</font>,<font color=maroon>"34"</font>, 7)=>0 )
                     pos(<font color=maroon>"123456789"</font>,<font color=maroon>""</font>, 2)=>0 )
+      rpos(A,B) Last position of <font color=red>char</font> B in <font color=red>string</font> A
+                  ( Type of argument B: <font color=red>char</font>,
+                    Type of result: <font color=red>integer</font>,
+                    rpos(<font color=maroon>"ABCABC"</font>,<font color=maroon>'B'</font>)=>5,
+                    rpos(<font color=maroon>"XYZ"</font>,<font color=maroon>'A'</font>)=>0 )
       rpos(A,B) Last position of <font color=red>string</font> B in <font color=red>string</font> A
                   ( Type of result: <font color=red>integer</font>,
                     rpos(<font color=maroon>"ABCDE ABCDE"</font>,<font color=maroon>"BC"</font>)=>8,

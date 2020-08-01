@@ -4,6 +4,7 @@ addup.sd7    Game of adding numbers to reach a goal number
 bas.sd7      Basic interpreter                                 
 bifurk.sd7   Display the bifurcation diagram                   
 calc.sd7     Calculator                                        
+carddemo.sd7 Demonstate the playing cards of the french deck   
 castle.sd7   Castle Adventure                                  
 celsius.sd7  Print a Fahrenheit-Celsius table                  
 chkbig.sd7   Checks bigInteger literals and operations         

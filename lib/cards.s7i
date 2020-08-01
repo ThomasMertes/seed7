@@ -1,0 +1,1303 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  cards.s7i     Playing card pictures of a french deck            *)
+(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const array string: black_A_sign is [](
+  "XXXXX XXXXX",
+  "XXXXX XXXXX",
+  "XXXX   XXXX",
+  "XXXX   XXXX",
+  "XXX  X  XXX",
+  "XXX  X  XXX",
+  "XX  XXX  XX",
+  "XX       XX",
+  "X         X",
+  "X  XXXXX  X",
+  "    XXX    ",
+  "    XXX    ");
+
+const array string: black_K_sign is [](
+  "    X    X",
+  "    X    X",
+  "X  XX  XXX",
+  "X  X  XXXX",
+  "X    XXXXX",
+  "X   XXXXXX",
+  "X    XXXXX",
+  "X  X  XXXX",
+  "X  XX  XXX",
+  "X  XXX  XX",
+  "    X    X",
+  "    X    X");
+
+
+const array string: black_Q_sign is [](
+  "XX     XXX",
+  "X       XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X       XX",
+  "XX     XXX",
+  "XXXXX   XX",
+  "XXXXXX  XX");
+
+
+const array string: black_J_sign is [](
+  "XXXX    XX",
+  "XXXX    XX",
+  "XXXXX  XXX",
+  "XXXXX  XXX",
+  "XXXXX  XXX",
+  "XXXXX  XXX",
+  "XXXXX  XXX",
+  "XXXXX  XXX",
+  "X  XX  XXX",
+  "X  XX  XXX",
+  "X      XXX",
+  "XX    XXXX");
+
+
+const array string: black_10_sign is [](
+  "X  XX    X",
+  "X  X      ",
+  "X  X  XX  ",
+  "X  X  XX  ",
+  "X  X  XX  ",
+  "X  X  XX  ",
+  "X  X  XX  ",
+  "X  X  XX  ",
+  "X  X  XX  ",
+  "X  X  XX  ",
+  "X  X      ",
+  "X  XX    X");
+
+
+const array string: black_9_sign is [](
+  "XX     XXX",
+  "X       XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X       XX",
+  "XX      XX",
+  "XXXXXX  XX",
+  "XXXXX   XX",
+  "XX     XXX",
+  "XX    XXXX");
+
+
+const array string: black_8_sign is [](
+  "XX     XXX",
+  "X       XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "XX     XXX",
+  "X       XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X       XX",
+  "XX     XXX");
+
+
+const array string: black_7_sign is [](
+  "X       XX",
+  "X       XX",
+  "X  XXX  XX",
+  "XXXXX  XXX",
+  "XXXXX  XXX",
+  "XXXX  XXXX",
+  "XXXX  XXXX",
+  "XXXX  XXXX",
+  "XXX  XXXXX",
+  "XXX  XXXXX",
+  "XXX  XXXXX",
+  "XXX  XXXXX");
+
+
+const array string: black_6_sign is [](
+  "XXX    XXX",
+  "XX     XXX",
+  "X   XXXXXX",
+  "X  XXXXXXX",
+  "X      XXX",
+  "X       XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X       XX",
+  "XX     XXX");
+
+
+const array string: black_5_sign is [](
+  "X       XX",
+  "X       XX",
+  "X  XXXXXXX",
+  "X  XXXXXXX",
+  "X      XXX",
+  "X       XX",
+  "XXXXXX  XX",
+  "XXXXXX  XX",
+  "X  XXX  XX",
+  "X  XXX  XX",
+  "X       XX",
+  "XX     XXX");
+
+
+const array string: black_4_sign is [](
+  "XXXXX  XXX",
+  "XXXX   XXX",
+  "XXX    XXX",
+  "XX     XXX",
+  "X   X  XXX",
+  "   XX  XXX",
+  "         X",
+  "         X",
+  "XXXXX  XXX",
+  "XXXXX  XXX",
+  "XXXX    XX",
+  "XXXX    XX");
+
+
+const array string: black_3_sign is [](
+  "X       XX",
+  "X       XX",
+  "X  XX  XXX",
+  "XXXX  XXXX",
+  "XXX  XXXXX",
+  "XX     XXX",
+  "XX     XXX",
+  "XXXXXX  XX",
+  "XXXXXX  XX",
+  "X  XXX  XX",
+  "X       XX",
+  "XX     XXX");
+
+
+const array string: black_2_sign is [](
+  "XX     XXX",
+  "X       XX",
+  "X  XXX  XX",
+  "XXXXXX  XX",
+  "XXXXX   XX",
+  "XXXX   XXX",
+  "XXX   XXXX",
+  "XX   XXXXX",
+  "X   XX  XX",
+  "X  XXX  XX",
+  "X       XX",
+  "X       XX");
+
+
+const array string: red_A_sign is [](
+  "XXXXXRXXXXX",
+  "XXXXXRXXXXX",
+  "XXXXRRRXXXX",
+  "XXXXRRRXXXX",
+  "XXXRRXRRXXX",
+  "XXXRRXRRXXX",
+  "XXRRXXXRRXX",
+  "XXRRRRRRRXX",
+  "XRRRRRRRRRX",
+  "XRRXXXXXRRX",
+  "RRRRXXXRRRR",
+  "RRRRXXXRRRR");
+
+const array string: red_K_sign is [](
+  "RRRRXRRRRX",
+  "RRRRXRRRRX",
+  "XRRXXRRXXX",
+  "XRRXRRXXXX",
+  "XRRRRXXXXX",
+  "XRRRXXXXXX",
+  "XRRRRXXXXX",
+  "XRRXRRXXXX",
+  "XRRXXRRXXX",
+  "XRRXXXRRXX",
+  "RRRRXRRRRX",
+  "RRRRXRRRRX");
+
+
+const array string: red_Q_sign is [](
+  "XXRRRRRXXX",
+  "XRRRRRRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRRRRRRXX",
+  "XXRRRRRXXX",
+  "XXXXXRRRXX",
+  "XXXXXXRRXX");
+
+
+const array string: red_J_sign is [](
+  "XXXXRRRRXX",
+  "XXXXRRRRXX",
+  "XXXXXRRXXX",
+  "XXXXXRRXXX",
+  "XXXXXRRXXX",
+  "XXXXXRRXXX",
+  "XXXXXRRXXX",
+  "XXXXXRRXXX",
+  "XRRXXRRXXX",
+  "XRRXXRRXXX",
+  "XRRRRRRXXX",
+  "XXRRRRXXXX");
+
+
+const array string: red_10_sign is [](
+  "XRRXXRRRRX",
+  "XRRXRRRRRR",
+  "XRRXRRXXRR",
+  "XRRXRRXXRR",
+  "XRRXRRXXRR",
+  "XRRXRRXXRR",
+  "XRRXRRXXRR",
+  "XRRXRRXXRR",
+  "XRRXRRXXRR",
+  "XRRXRRXXRR",
+  "XRRXRRRRRR",
+  "XRRXXRRRRX");
+
+
+const array string: red_9_sign is [](
+  "XXRRRRRXXX",
+  "XRRRRRRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRRRRRRXX",
+  "XXRRRRRRXX",
+  "XXXXXXRRXX",
+  "XXXXXRRRXX",
+  "XXRRRRRXXX",
+  "XXRRRRXXXX");
+
+
+const array string: red_8_sign is [](
+  "XXRRRRRXXX",
+  "XRRRRRRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XXRRRRRXXX",
+  "XRRRRRRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRRRRRRXX",
+  "XXRRRRRXXX");
+
+
+const array string: red_7_sign is [](
+  "XRRRRRRRXX",
+  "XRRRRRRRXX",
+  "XRRXXXRRXX",
+  "XXXXXRRXXX",
+  "XXXXXRRXXX",
+  "XXXXRRXXXX",
+  "XXXXRRXXXX",
+  "XXXXRRXXXX",
+  "XXXRRXXXXX",
+  "XXXRRXXXXX",
+  "XXXRRXXXXX",
+  "XXXRRXXXXX");
+
+
+const array string: red_6_sign is [](
+  "XXXRRRRXXX",
+  "XXRRRRRXXX",
+  "XRRRXXXXXX",
+  "XRRXXXXXXX",
+  "XRRRRRRXXX",
+  "XRRRRRRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRRRRRRXX",
+  "XXRRRRRXXX");
+
+
+const array string: red_5_sign is [](
+  "XRRRRRRRXX",
+  "XRRRRRRRXX",
+  "XRRXXXXXXX",
+  "XRRXXXXXXX",
+  "XRRRRRRXXX",
+  "XRRRRRRRXX",
+  "XXXXXXRRXX",
+  "XXXXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRRRRRRXX",
+  "XXRRRRRXXX");
+
+
+const array string: red_4_sign is [](
+  "XXXXXRRXXX",
+  "XXXXRRRXXX",
+  "XXXRRRRXXX",
+  "XXRRRRRXXX",
+  "XRRRXRRXXX",
+  "RRRXXRRXXX",
+  "RRRRRRRRRX",
+  "RRRRRRRRRX",
+  "XXXXXRRXXX",
+  "XXXXXRRXXX",
+  "XXXXRRRRXX",
+  "XXXXRRRRXX");
+
+
+const array string: red_3_sign is [](
+  "XRRRRRRRXX",
+  "XRRRRRRRXX",
+  "XRRXXRRXXX",
+  "XXXXRRXXXX",
+  "XXXRRXXXXX",
+  "XXRRRRRXXX",
+  "XXRRRRRXXX",
+  "XXXXXXRRXX",
+  "XXXXXXRRXX",
+  "XRRXXXRRXX",
+  "XRRRRRRRXX",
+  "XXRRRRRXXX");
+
+
+const array string: red_2_sign is [](
+  "XXRRRRRXXX",
+  "XRRRRRRRXX",
+  "XRRXXXRRXX",
+  "XXXXXXRRXX",
+  "XXXXXRRRXX",
+  "XXXXRRRXXX",
+  "XXXRRRXXXX",
+  "XXRRRXXXXX",
+  "XRRRXXRRXX",
+  "XRRXXXRRXX",
+  "XRRRRRRRXX",
+  "XRRRRRRRXX");
+
+
+const array string: small_spades_sign is [](
+  "XXXX XXXX",
+  "XXX   XXX",
+  "XX     XX",
+  "X       X",
+  "         ",
+  "         ",
+  "         ",
+  "X  X X  X",
+  "XXXX XXXX",
+  "XXX   XXX");
+
+const array string: small_hearts_sign is [](
+  "XRRRXRRRX",
+  "RRRRXRRRR",
+  "RRRRRRRRR",
+  "RRRRRRRRR",
+  "RRRRRRRRR",
+  "XRRRRRRRX",
+  "XXRRRRRXX",
+  "XXXRRRXXX",
+  "XXXXRXXXX",
+  "XXXXXXXXX");
+
+
+const array string: small_diamonds_sign is [](
+  "XXXXRXXXX",
+  "XXXRRRXXX",
+  "XXRRRRRXX",
+  "XRRRRRRRX",
+  "XRRRRRRRX",
+  "XRRRRRRRX",
+  "XXRRRRRXX",
+  "XXXRRRXXX",
+  "XXXXRXXXX",
+  "XXXXXXXXX");
+
+
+const array string: small_clubs_sign is [](
+  "XXX   XXX",
+  "XX     XX",
+  "XX     XX",
+  "X X   X X",
+  "         ",
+  "         ",
+  "         ",
+  "X  X X  X",
+  "XXXX XXXX",
+  "XXX   XXX");
+
+
+const array string: big_spades_sign is [](
+  "XXXXXXX XXXXXXX",
+  "XXXXXX   XXXXXX",
+  "XXXXX     XXXXX",
+  "XXXX       XXXX",
+  "XXX         XXX",
+  "XX           XX",
+  "X             X",
+  "X             X",
+  "               ",
+  "               ",
+  "               ",
+  "      X X      ",
+  "X    XX XX    X",
+  "XXXXXX   XXXXXX",
+  "XXXXX     XXXXX", 
+  "XXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXX");
+
+
+const array string: big_hearts_sign is [](
+  "XXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXX",
+  "XXRRRRXXXRRRRXX",
+  "XRRRRRRXRRRRRRX",
+  "RRRRRRRXRRRRRRR",
+  "RRRRRRRRRRRRRRR",
+  "RRRRRRRRRRRRRRR",
+  "RRRRRRRRRRRRRRR",
+  "RRRRRRRRRRRRRRR",
+  "XRRRRRRRRRRRRRX",
+  "XRRRRRRRRRRRRRX",
+  "XXRRRRRRRRRRRXX",
+  "XXXRRRRRRRRRXXX",
+  "XXXXRRRRRRRXXXX",
+  "XXXXXRRRRRXXXXX",
+  "XXXXXXRRRXXXXXX",
+  "XXXXXXXRXXXXXXX");
+
+
+const array string: big_diamonds_sign is [](
+  "XXXXXXXXXXXXXXX",
+  "XXXXXXXRXXXXXXX",
+  "XXXXXXRRRXXXXXX",
+  "XXXXXRRRRRXXXXX",
+  "XXXXRRRRRRRXXXX",
+  "XXXRRRRRRRRRXXX",
+  "XXXRRRRRRRRRXXX",
+  "XXRRRRRRRRRRRXX",
+  "XRRRRRRRRRRRRRX",
+  "XXRRRRRRRRRRRXX",
+  "XXXRRRRRRRRRXXX",
+  "XXXRRRRRRRRRXXX",
+  "XXXXRRRRRRRXXXX",
+  "XXXXXRRRRRXXXXX",
+  "XXXXXXRRRXXXXXX",
+  "XXXXXXXRXXXXXXX",
+  "XXXXXXXXXXXXXXX");
+
+
+const array string: big_clubs_sign is [](
+  "XXXXXX   XXXXXX",
+  "XXXXX     XXXXX",
+  "XXXX       XXXX",
+  "XXXX       XXXX",
+  "XXXX       XXXX",
+  "XXXXX     XXXXX",
+  "XX   X   X   XX",
+  "X             X",
+  "               ",
+  "               ",
+  "               ",
+  "X     X X     X",
+  "XX   XX XX   XX",
+  "XXXXXX   XXXXXX",
+  "XXXXX     XXXXX",
+  "XXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXX");
+
+
+const array string: king_of_spades_pic is [](
+  "XXXXXXXXXXXXXXX YYYYYYYYYYYYYYYYYYYY XXXXXXXX",
+  "XXXXXXXX XXXXXXX YYYYYYY Y Y Y Y Y  XXXXXXXXX",
+  "XXXXXXX   XXXXXXX  Y Y Y R R R R R XXXXXXXXXX",
+  "XXXXXX     XXXXXXX R R RRRRRRRRRR XXXXXXXXXX ",
+  "XXXXX       XXXXXX RRRRR          XXXXXXXXX  ",
+  "XXXX         XXXXX       XXXXXXXX  XXXXXXX Y ",
+  "XXX           XXXX X X X XXXXXXXX X XXXXXX Y ",
+  "XX             XXX X X X     X    X XXXXXX Y ",
+  "XX             XXX X X X  X   X    XXXXXXX Y ",
+  "X               XX X X X XXXX XXX X XXXXXX Y ",
+  "X               XX X X X XXXX XXX X XXXXXX Y ",
+  "X               XX X X X XXXX XXX X XXXXXX Y ",
+  "X      X X      XX X X X XXX   XX X XXXXXX Y ",
+  "XX    XX XX    XXX X X X X  XXX X X XXXXXX Y ",
+  "XXXXXXX   XXXXXX   X X X X X   XX  X  XXXX Y ",
+  "XXXXXX     XXXX XX X X X XXXXXXXX X XX XXX Y ",
+  "XXXXXXXXXXXXXX X X X X X XX XXX X X XX XXX Y ",
+  "XXXXXXXXXXXX   X  XX X X  X X X X XX  Y  X Y ",
+  "XXXXXXXXXX   Y  XXX XX X XX X   XX   Y  X  Y ",
+  "XXXXXXXX  Y RY     X  X XX X X Y R  Y  X R Y ",
+  "XXXXXX    Y   Y  Y        X X  Y   Y  X    Y ",
+  "XXXX  Y Y  Y  Y R  Y Y Y      Y R Y  X RRR Y ",
+  "XX  RR     Y R Y RR      Y Y  Y   Y  X R   Y ",
+  "X RYY  Y   Y   Y RRRYYYY     Y R Y  X RRRR Y ",
+  " YRR     Y  Y  Y RRRY   YYRR Y   Y  X R    Y ",
+  "RYYR  Y Y Y Y R Y RRYYYYYYRR Y  Y  X RRRRR Y ",
+  "RRY     Y   Y   Y           Y R Y  X R       ",
+  "YRR  Y Y YYY Y  Y  XXX XXX  Y   Y  X R YYYY  ",
+  "YYR    Y Y   Y  Y XX XXX XX Y  Y  X R Y   YYY",
+  "RYY  Y Y YYY Y R Y X X X XX Y  Y  X R YY X YY",
+  "RRY    Y Y   Y   Y XXX XXX Y R Y    RR    X  ",
+  "YRR  Y Y YYYY Y  Y X XXX X Y   Y Y   RRRRR   ",
+  "RYR    Y Y    Y  Y         Y  Y           XXX",
+  "RRY  Y  Y YYY Y  Y YYYYYYYYY  Y        XXX   ",
+  "  R     Y Y   Y  Y         Y  Y YY   Y  X XXX",
+  "XX X  Y  Y YY Y RY   RRR   Y  Y   YY    XX   ");
+
+
+const array string: queen_of_spades_pic is [](
+  "XXXXXXXXXX  X  X X XR Y  YYYY XXXXXXXXXXXXXXX",
+  "XX XXXXXX     X X  XR YY YYY XXXXXXX XXXXXXXX",
+  "XX XXXXXX  X X  XX XR YYYYYY XXXXXX   XXXXXXX",
+  "XX XXXXXX   X XX XX R Y  YY XXXXXX     XXXXXX",
+  "X Y XXXXX X  XXXX X R YY YY XXXXX       XXXXX",
+  "X Y XXXX  X XXXXXX  RR YYYYY XXX         XXXX",
+  "X Y XXXX RX    X    RR Y  YY XX           XXX",
+  "X Y XXXX RX   X   X RRR Y Y XX             XX",
+  " YYY XXX RX XXX XXX XRR YY XXX             XX",
+  " Y Y XXX RX XXX XXXX RRR Y XX               X",
+  " YYY XX RRX XXX XXXX XRRR  XX               X",
+  "X Y XXX RX  XX   XXXX RRR  XX               X",
+  "X Y XXX RX  XXXXXXXXX XRRR XX      X X      X",
+  "     XX X    X   XXX R XRRR XX    XX XX    XX",
+  " YYY X RX    XX XXX R  XRRR  XXXXXX   XXXXXXX",
+  "X   XX RX   Y XXXX   Y  XRRR  XXXX     XXXXXX",
+  " YYY X RX Y  Y    Y Y YY XRRR  XXXXXXXXXXXXXX",
+  " YYY X    YY  Y Y Y  YY   XXXX  XXXXXXXRRXXXX",
+  "X   XX    YYYY     YYY        R  XXXXRR  RRXX",
+  "X R X   X  Y YYYYYY Y   XX  RRRR YXXRR YY RRX",
+  "X Y  Y  X  YY Y Y YY  XX   RRRX Y  XXRR  RRX ",
+  "X Y RYY     YYYYYYY  X   RRRRX Y  Y  XXRRXX R",
+  "  Y RRY  X  Y Y YY  X   RRRXX Y   YYY X XX YR",
+  "  Y RRY      YYYY  X  RRRRXX Y R   YYY  X   Y",
+  "  Y RRYY  X  YYY  X  RRRRXRR Y        Y     Y",
+  "  Y XRRY   X   Y X  RRRXXRRR Y RRR     XXXX Y",
+  "  Y  RRYY    YY X  RRRXRRR   Y        XXXXX Y",
+  "  Y X RRY   YRRY  RRRXRR     YY RRRR XXXXXX Y",
+  "  Y  XRRYY  YRRY RRRXR   XX   Y     XX XX  YR",
+  "  Y X  RRYY YRRY RRXR  XXXXX   Y RR X       R",
+  "  Y  X RRRYY YY RRX   XX   XX   Y     Y      ",
+  "  Y X X RRRYY   RX   XX     XX   Y R YY Y   Y",
+  "  Y  X X RRRRRRRR   XXXXXXXXXXX   Y YYY YYYY ",
+  "  Y X X X                            YYYYY  Y",
+  "  Y  X X RRRRRRRRRRRRRRRRRRRRRRRRRRR      YY ",
+  "  Y X X   X   X   X   X   X   X   X   YYYY   ");
+
+
+const array string: jack_of_spades_pic is [](
+  "XXX  XXX RR RRR R RR R RRR RR XXXXXXXXXXXXXXX",
+  "XX YY XXX RR RR R RR R RR RR XXXXXXX XXXXXXXX",
+  "X Y RY XXX RR   R    R   RR XXXXXXX   XXXXXXX",
+  "X Y RY XXXX RRRRRRRRRRRRRR XXXXXXX     XXXXXX",
+  "X Y RY XXXX               XXXXXXX       XXXXX",
+  "XX YY XXXXX XXXXX Y Y Y Y XXXXXX         XXXX",
+  "XXX  XXXXXX X  XX Y Y Y Y XXXXX           XXX",
+  "XX YY XXXXX X X  X Y Y Y Y XXX             XX",
+  "X Y RY XXXX XXXXXX Y Y Y Y XXX             XX",
+  "XX YY XXXX XXXXXXX Y Y Y Y XX               X",
+  "XXX  XXXX XXXXXXXX Y Y Y Y XX               X",
+  "XX YY XXX  XX  X X Y Y Y Y XX               X",
+  "X Y RY XXXX XX   X Y Y Y Y XX      X X      X",
+  "X Y RY XXXX XXXXXX Y Y Y YY  X    XX XX    XX",
+  "X Y RY XXXX   XXX YY Y Y YYYY XXXXX   XXXXXXX",
+  "XX YY XXXXX XXXXX YY YY Y Y YY XXX     XXXXXX",
+  "X     XXXX  XXXXXR  Y Y Y YY Y XXXXXXXXXXXXXX",
+  "X XXX  X     XXRRRR Y  Y Y  YY XXXXXXXXXXXXXX",
+  "XX  XX        RRRRR  YY Y YYY  XXXXXXXXXXXXXX",
+  "X XX    X                        XXXXXXXXXXXX",
+  "X X   X X                    X X   XXXXXXXXXX",
+  "X   X    X Y Y Y Y Y Y Y Y Y X   X   XXXXXXXX",
+  " R   X X X                   X X X  R  XXXXXX",
+  "R  R X    X RRRRRRRRRRRRRRRR X   X RRR   XX  ",
+  "  R   X X X  RYRRYRRYRRYRRYR X X X R   RR  Y ",
+  " R  Y X    X RRRY YRYRY YRRR X   X   RR  YYY ",
+  "R  Y Y X X X  RY YRYYYRY YRR X X X RR  YY    ",
+  "  Y Y  X     Y RYRRY YRRYRRR X   X    YYYYY  ",
+  " Y Y Y  X  Y      X   X   X  X X X   YY     Y",
+  "Y Y Y     Y  Y X X X X X X X X      YYYYYY  Y",
+  " Y Y  R  Y  YY  X   X   X    X X   YY Y    Y ",
+  "YYY  XR Y    Y                    YYYYYYY  Y ",
+  "Y   RR Y  YYYY XXXXXXXXXXXXXXXXXX YY Y    Y R",
+  "   XR Y  Y   Y RRRRRRRRRRRRRRRRR YYYYYYY  YRR",
+  "  RR Y  YYYYY                    Y Y     Y RR",
+  " YR Y    Y  Y   Y  X XXX  X  X  YYYYYYY YRRRR");
+
+
+const array string: king_of_hearts_pic is [](
+  "XXXXXXXXXXXXXXX Y YYY YYY YYY YYYYYY XXXXXXXX",
+  "XXXRRRRXXXRRRRXX   Y   Y   Y   Y  Y XXXXXXXXX",
+  "XXRRRRRRXRRRRRRXX YYYYYYYYYYYY YY  XX  XXXXXX",
+  "XRRRRRRRXRRRRRRRXX RRRRRRRRRYYYYY XX YY XXXXX",
+  "XRRRRRRRRRRRRRRRXX          RRRRR XX YY   XXX",
+  "XRRRRRRRRRRRRRRRXX XXXXXXXX          Y XX  XX",
+  "XRRRRRRRRRRRRRRRXX XXXXXXXX X X X XX Y XX Y X",
+  "XRRRRRRRRRRRRRRRX     X     X X X   YY    Y X",
+  "XXRRRRRRRRRRRRRX X   X   X  X X X   YY  XX XX",
+  "XXRRRRRRRRRRRRRX X XXX XXXX X X X X YY XXX XX",
+  "XXXRRRRRRRRRRRXX X XXX XXXX X X X XX       XX",
+  "XXXXRRRRRRRRRXXX X XXX XXXX X X XX XX RRRR XX",
+  "XXXXXRRRRRRRXXX X XXX   XXXX X X X X        X",
+  "XXXXXXRRRRRXXXX X XXXXXXXXXX XX X X  R R R R ",
+  "XXXXXXXRRRXXXXXX  X X   XXXXX X X X RRRRRRR  ",
+  "XXXXXXXXRXXX     XX XXXXXX X X X XX  RRRRR XX",
+  "XXXXXXXXXX   R  XX X XXX X X X XXX XX   R XRR",
+  "XXXXXXX       R   XX X X X   XXX  X XXX   RR ",
+  "XXXXX   R XX  RR X  XX X XX X   XXXXX  R     ",
+  "XXX  XX R XXX  RR  XX  X  X YY XX XX R R Y   ",
+  "X   X X R X XX  RR   Y  X  YYY X XX RY R   Y ",
+  " YYR X X R X XX RR  Y Y  YYYY XXXX RY R     Y",
+  "YRRR  XX R XXXX  RR  Y  YYYYY  XXX YR R Y    ",
+  "RR     XX R X XX RRR   YYYYYY XXX YR R  RYY  ",
+  "R     R X RR X X  RR  YYYYYY XX X R RR    YY ",
+  " Y   RRR X RR XXX RRR YYYYY  X XX  RR    RRYY",
+  "YRRY   RR X RRR X  R YYYYY R XXX  RR    RRRRY",
+  "RRYYYR     X  RR  X  YYYYY  XX  RR     RRYR Y",
+  "RYYY RYY    XX                RR      RRRRRYY",
+  "YYY R   Y     XXXXXRRRRRRRRRRR       RRYR YY ",
+  "YYY RYYYY Y XXXXR             X     RRRRRYYY ",
+  "YYY R   Y Y XXXXXXXXX RRRR XXXX    RRYR YYY  ",
+  "YYY RYYYY Y XXXXXXX   XRRR X X    RYRRRYYY   ",
+  " YYY RYY           X     R  X       R YYY   R",
+  "  YYYY         XXX  YYYYY  XX    RR YYYY   R ",
+  "R  Y     YYYYY XXX  Y R Y XX X YYYYYYYY    RR");
+
+
+const array string: queen_of_hearts_pic is [](
+  "XXXXXXXXXXX  X X XX   RYYYYY XXXXXXXXXXXXXXXX",
+  "XXXXXXXXXX  X X X X   RY YY XXXRRRRXXXRRRRXXX",
+  "XXXXXXXXX    X  XXX   RYYYY XXRRRRRRXRRRRRRXX",
+  "XXXXXXXXX Y X XX XXX  RY Y XXRRRRRRRXRRRRRRRX",
+  "XXXXXXXX  Y  XXXX  X  RRYY XXRRRRRRRRRRRRRRRX",
+  "XXXXXXXX YR XXXXXXX    RYY XXRRRRRRRRRRRRRRRX",
+  "XXXXXXX  YR    X   X   RRYY XRRRRRRRRRRRRRRRX",
+  "XXXXXXX YRR   X   X     RRY XRRRRRRRRRRRRRRRX",
+  "XXXXXX  YRR XXX XXXX X   R XXXRRRRRRRRRRRRRXX",
+  "XXXXXX YRRY XXX XXXX X    XXXXRRRRRRRRRRRRRXX",
+  "XXXXXX YRRY XXX XXXX XX    XXXXRRRRRRRRRRRXXX",
+  "XXXXXX YRRY XX   XXXX X     XXXXRRRRRRRRRXXXX",
+  "XXXXX YRRYY XXXXXXXXX XX     XXXXRRRRRRRXXXXX",
+  "XXXXX YRRY   X   XXX Y XX     XXXXRRRRRXXXXXX",
+  "XXXXX YRR  Y XX XXX YY XXX      XXXRRRXXXXXXX",
+  "XXXXX YR Y  Y XXXX YY   XXX       XXRXXXXXXXX",
+  "XXXXX Y XY   Y    YY   Y XXX      XXXXXXXXXXX",
+  "XXXXX  YX Y   YYYY    Y X XXX    XXXX  X  XXX",
+  "XXXX  Y YRXY         YRXY   XXX XXXX YY YY XX",
+  "XXX YYYY YX YY    YYY XY        XXXX YRRR XXX",
+  "XX   Y  Y YRX YYYY XRYY    XXXXX XXXX YRYY XX",
+  "X YYYYYYYY YYYRX RYYY  X  XX X X  X    YY X X",
+  "    Y   YY    YYYY    Y  X XXXX RR YYY   Y  X",
+  "YYYYYYYYY  XX     Y   Y  XXXX  RR YYY XX  Y X",
+  "   Y    Y X X      Y Y  X X  RR      XXX YY X",
+  "YYYYYYYY  X    XX  Y Y  XX RRR YYY X     Y XX",
+  " Y Y   Y   X  XX X  Y  X X RR YRRR X R X  XXX",
+  "YYYYYYYY X X R  XX  Y  XX RR YRRYR  X  X  XXX",
+  "  Y Y  Y   X YRR XX Y X X RR YRRR   X X XX XX",
+  "YYYYYYYY  X  YYRR X   XX RR YRRYR  X  X XX XX",
+  " Y    Y  X  Y YYR     XX RR YRRRR X   XX   XX",
+  "YYYYYYY  X  Y  YR  YY    RR YRYRR X X XXX R X",
+  " Y  YY   X  YR YYR   YYY  R YRR   X   X  RRR ",
+  "YYYYY R   X YR YRR Y    YY     RR  X   RRRRRR",
+  "   Y RR X X Y  YYR Y YYY  YY RRRY X X RRRRRR ",
+  "YYY RRR  X  Y YYR Y YRRRY   RRYYY   X RRRR  Y");
+
+
+const array string: jack_of_hearts_pic is [](
+  "XXXXXXXX RXRRRXRRXRRXRRXRRRXR XXXXXXXXXXXXXXX",
+  " XX   XXX RXRRXRRXRRXRRXRRXR XXRRRRXXXRRRRXXX",
+  "R XX Y XXX RXXXRRXXXXRRXXXR XXRRRRRRXRRRRRRXX",
+  "R XX YY XXX RRRRRRRRRRRRRR XXRRRRRRRXRRRRRRRX",
+  "R XX YY XXXX               XXRRRRRRRRRRRRRRRX",
+  "    X YY XXX Y Y Y Y XXXXX XXRRRRRRRRRRRRRRRX",
+  "XRXRXX Y XXX Y Y Y Y XX  X XXRRRRRRRRRRRRRRRX",
+  "XRXRXXX  XX Y Y Y Y X  X X XXRRRRRRRRRRRRRRRX",
+  "X X XX Y XX Y Y Y Y XXXXXX XXXRRRRRRRRRRRRRXX",
+  "    X YY XX Y Y Y Y XXXXXXX XXRRRRRRRRRRRRRXX",
+  "R XX YY XXX Y Y Y Y XXXXXXXX XXRRRRRRRRRRRXXX",
+  "R XX YY XXX Y Y Y Y XXX  X   XXXRRRRRRRRRXXXX",
+  "R XX Y XXXX Y Y Y Y X   XX XXXXXXRRRRRRRXXXXX",
+  "R X   XXX   Y Y Y Y XXXXXX XXXXXXXRRRRRXXXXXX",
+  "R XXXXXX YYY  Y Y Y XXXX   XXXXXXXXRRRXXX XXX",
+  "R XXXXX YY Y Y Y  Y XXXXXX XXXXXXXXXRXX  R  X",
+  "R XXXXX Y YY Y Y Y RRRXXXX      XXXXXXX RRR X",
+  "R XXXXX YY  YY Y  RRRRR   YY YYY XXXXXXX R XX",
+  "R XXXXXX YYYY Y  RRRRRRRRR YY  Y XXXXXXX R XX",
+  "R XXXXXX       YY  RRRRRRR  YYYY XXX     R XX",
+  "R XXXX  RXR YYYYYYY      YYY YY  XX  XXXX   X",
+  "R XX      RX  YYYYYYYYYYYYYYY  XR   XX  X X X",
+  "R   XXRR    RX   YYYYYYYYY   XRRR    XX     X",
+  "R RRXXXXRR    RXR         RXRRR    RR XX XX X",
+  "    RRXXXXRR    RXRXRXRXRXRRR    RRXXX      X",
+  "YYY   RRXXXXRR    R       R    RRXXXXR  XX XX",
+  "YY YYY  RRXXXXRR   R XXX R   RRXXXXRR  X   XX",
+  "Y YYY YY  RRXXXXRR  R X R  RRXXXXRR  Y XXXX X",
+  "   Y YYR    RRXXXXR  R R  RXXXXRR  YYY X X   ",
+  "XXX YYR  YYY  RRXXXR  R  RXXXXR  YYYYY XXXX  ",
+  " XXX R  YYYYYY RRXXXR   RXXXRR YYYYYYY X X   ",
+  "XX X   Y         RXXXR RXXXR         Y XXXX  ",
+  " XXXX YY XXXXXXX RRXX   XXRR XXXXXXX Y X X   ",
+  "  X X YY X     X  RR XXX RR  X     X Y XXXX  ",
+  "  XXXX Y X YY    X  X   X  X    YY X Y X X   ",
+  "   X X Y X YY  XX  X RRR X  XX  YY X Y XXXX  ");
+
+
+const array string: king_of_diamonds_pic is [](
+  "XXXXXXXXXXXXX YYYY YYY YYYYYYYYYYYYY XXXXXXXX",
+  "XXXXXXXRXXXXXX YY   Y   YY YYYYYYYY XXX   XX ",
+  "XXXXXXRRRXXXXXX RRRRRRRRY   YY YYY XXX Y XX R",
+  "XXXXXRRRRRXXXXX         RRRRY   Y  XX YY XX R",
+  "XXXXRRRRRRRXXXXX            RRRRR XXX YY XX R",
+  "XXXRRRRRRRRRXXXX XXXXXX  X        XX YY X    ",
+  "XXXRRRRRRRRRXXXX X  XXX X X       XX Y XXRXRX",
+  "XXRRRRRRRRRRRXXX   X XX X X X X X XX  XXXRXRX",
+  "XRRRRRRRRRRRRRXX XXXXXX X X X X X XX Y XX X X",
+  "XXRRRRRRRRRRRXX XXXXXXX X X X X X XX YY X    ",
+  "XXXRRRRRRRRRXX XXXXXXXX X X X X X XXX YY XX R",
+  "XXXRRRRRRRRRXX   XXXXXXX X X X X X XX YY XX R",
+  "XXXXRRRRRRRXXXXX    X XX X X X X X XXX Y XX R",
+  "XXXXXRRRRRXXXXXX XX   XXX X X X X X XXX   X R",
+  "XXXXXXRRRXXXXXXXX  XXXXXXX X X X X X XXXXXX R",
+  "XXXXXXXRXXXXXXXX XXXXXX   XX X X X X XXXXXX R",
+  "XX   XXXXXXXXXXX  XXXX XXX X X X X X XXXXXX R",
+  "X X X   XXXXX  X XXXXX X  XX X X X X XXXXXX R",
+  "X  X X X XXX X  XXXXXX  XXX X X X X XXXXXXX R",
+  "  X X X X XX XXXXXXXXXX                XXXX R",
+  " X X XXXXX  Y XXXXX        YY XXX YY XX      ",
+  "X X XXXX     Y           X  YY X   YY XX YY X",
+  "XX XX     RR  Y   RR    X  X YY   X YY X  YY ",
+  "XXX  R  Y RR   Y R RR                    X YX",
+  "X  RRRRR Y  X  Y RR R  YYYYYYYYYYYYYY        ",
+  " RRRRR  Y Y  RR   RR  X X X X X X XX Y       ",
+  "RRRR  YYYY Y RR Y   XXXXXXXXXXXXXXX Y RR  XX ",
+  "RR  YYYY    Y   Y XXX           XX Y Y RR  X ",
+  "R YYYY      Y X Y X  YYYYYYYYYY X Y  RY RR   ",
+  " YYY     X  Y   Y  YY        Y X Y YY RY RR  ",
+  "YYY    XXX   Y    Y    RRRR Y XX Y  YY RY RR ",
+  "YY RR   XXX  Y   Y   RRRRRR Y X Y    Y       ",
+  "Y R RR   XX  Y   Y         Y XX Y     RY RY R",
+  " YYR RR   X   Y  Y RRRRRRR Y X Y    Y RY RY R",
+  " RYYR RR   X  Y  Y        Y XX Y  RRY R      ",
+  "RR RYYR           Y XXXXX Y           RYYR RR");
+
+
+const array string: queen_of_diamonds_pic is [](
+  "X YYYYYYYYY RR XX X X  Y XXXXXXXXXXXXXXXXXXXX",
+  "XX YYYYY  Y RR X X X X YY XXXXXXXXXXXRXXXXXXX",
+  "XX YYYYYYYY RR XXX  X   Y XXXXXXXXXXRRRXXXXXX",
+  "XXX YYYY  Y RR XX XX X   Y XXXXXXXXRRRRRXXXXX",
+  "XXX YYYYYY  R X  XXXX     Y XXXXXXRRRRRRRXXXX",
+  "XXX YYY  Y RR  XXXXXXX R  Y XXXXXRRRRRRRRRXXX",
+  "XXX YYYYY  R XX   X    R   Y XXXXRRRRRRRRRXXX",
+  "XXX YY  Y RR X X   X   RR  Y XXXRRRRRRRRRRRXX",
+  "XXX YYYY  R  XXXXX XXX RR   Y XRRRRRRRRRRRRRX",
+  "XX YY  Y RR X XXXX XXX RRR  Y XXRRRRRRRRRRRXX",
+  "XX YYYY  R X X XXX XXX RRR  Y XXXRRRRRRRRRXXX",
+  "X YY Y  RR X  XXX   XX RRR  Y XXXRRRRRRRRRXXX",
+  "XX YY  RR XX XXXXXXXXX RRRR  Y XXXRRRRRRRXXXX",
+  "XXX   RR XX R XXX   X Y RRR  Y XXXXRRRRRXXXXX",
+  "XXXX RR XXX  R XXX XX Y  RR  Y XXXXXRRRXXXXXX",
+  "XXX RR XXX YY   XXXX YY X R  Y XXXXXXRXXXXXXX",
+  "XX RR     X YYY      YY X    Y XXXXXXXXXXXXXX",
+  "X RR  X    X    YYYY   X     Y XXXXXX   XXXXX",
+  " RR  X X    XXXX    XXX   X  Y XXXX  YY  XXXX",
+  "RR X  X        XXXXXX   X   Y  XXXX Y  YY X X",
+  "R Y X    X  X          X X   Y XXX YYYYY XX  ",
+  "   Y X     X X    X     X   X Y XXX   Y XX Y ",
+  "  Y Y X    X X X X X X     X YY  XXXXX  X YY ",
+  " Y   Y XX   X    X X      X YY    XXXXX  Y  X",
+  "Y  R  Y  XX       X     XX Y Y  X  XXX     XX",
+  "  R  Y YY  XXX        XX  Y  Y X    X XXX   X",
+  " R  Y R  YY   XXXXXXXX  YY   Y X     XX   X X",
+  "R  Y   RX  YYY        YY   R Y X    Y XX X  X",
+  "  Y  R  RX    YYYYYYYY  Y  R Y  X  YY  XX X X",
+  " Y  Y R  RXR Y        YYY  RX Y   YY    X X X",
+  "Y   Y  R XRX  Y     YY  Y  RX YY YY X X  X XX",
+  "X X  Y R RXRX Y XR  YYYYY  RXR YYY        XXX",
+  "     Y R XRX  Y XR  Y   Y  R  R Y   X X X  XX",
+  "X X X Y  RXRX Y XR  YYYYY   RR Y  Y         X",
+  "      Y RXRX  Y          RRRYR Y R Y  X X X  ",
+  "X X X  Y RXRX Y RRRRRRRRRYYYR Y  XR Y        ");
+
+
+const array string: jack_of_diamonds_pic is [](
+  "XXXXXXXXX RXRRRXRRXRRXRRXRRRXR XXXXXXXXXXXXXX",
+  "XXXXXXXXXX RXRRXRRXRRXRRXRRXR XXXXXXXRXXXXXXX",
+  "XXXXXXXXXXX RXXXRRXXXXRRXXXR XXXXXXXRRRXXXXXX",
+  " XXXXXXXXXXX RRRRRRRRRRRRRR XXXXXXXRRRRRXXXXX",
+  "  XXXXXXXXXX                XXXXXXRRRRRRRXXXX",
+  " Y XXXXXXXXX     Y XXXXXXXX  XXXXRRRRRRRRRXXX",
+  " Y XXXXXXXXX   Y Y XXXXXXXX  XXXXRRRRRRRRRXXX",
+  " Y XXXXXXXXX Y Y Y X   X    Y XXRRRRRRRRRRRXX",
+  " Y XXXX XXXX Y Y Y  X   X   Y XRRRRRRRRRRRRRX",
+  " Y XXX  XXXX Y Y Y XXXX XXX Y XXRRRRRRRRRRRXX",
+  " Y X  Y XXXX Y Y Y XXXX XXX Y XXXRRRRRRRRRXXX",
+  "    YY XXXXX Y Y Y XXXX XXX Y XXXRRRRRRRRRXXX",
+  "RYYY   XXXXX Y Y Y XXX   XX Y XXXXRRRRRRRXXXX",
+  " Y    XXXXXX Y Y Y XXXXXXXX Y   XXXRRRRRXXXXX",
+  "RY  XXXXXX  YY Y Y XXX   X XY YY XXXRRRXXXXXX",
+  " Y XXXXXX YY Y Y Y  XXXXXX  YY Y XXXXRXXXXXXX",
+  "RY XXXXXX Y  Y  Y RX XXXX XR YYY XXXXXXXXXXX ",
+  " Y XXXXXX YYY YY RRRR    RRRR     XXXXXXXXX R",
+  "RY XXXXXX        RRRRRRRRRRR  X Y   XXXXXX Y ",
+  " Y XXXX  R   X     RRRRRRR      Y X   XXXX YR",
+  "RY XX   Y R    X             X  Y   YY  XX Y ",
+  " Y       Y R     X         X    Y X YY R   YR",
+  "RY        Y R      X X X X   R  Y    Y RRR Y ",
+  " Y   R     Y R             R R  YY X YY  R YR",
+  "   X  R     Y R  R R R R R R R X Y    YYY  Y ",
+  "XX X Y R     Y R  RYRYRYRYRYRY X YY X   YY YR",
+  "   X  Y R     Y R  R R R R R R X  YY  X    Y ",
+  "XX   Y Y R     Y R   R R R R R X   YYY   X YR",
+  "   RR Y   Y     Y R  R R R R R X  X  YYY   Y ",
+  "X  XR Y YY R     Y R  RYRYRYRY X  X X  YYY YR",
+  " Y RRR Y   RY     Y R  R R R R X  X  Y     Y ",
+  " Y XXR Y Y RYR     Y R   R R R X  X    Y R YR",
+  "RY RRR Y   RYRY  X  Y R  R R R X  X YY Y X Y ",
+  " Y XXR Y Y RYR      RY R  RYRY    X   Y RR YR",
+  "RY RRR Y   RY  X   YRRY R  R R     YY Y RX Y ",
+  " Y XXR Y Y R      R YRRY R  R  X     Y RRR YR");
+
+
+const array string: king_of_clubs_pic is [](
+  "XXXXXXXXXXXXXXXX YYY YYY YYY YYYYYYYY XXXXXXX",
+  "XXXXXXX   XXXXXXX Y   Y   Y   YY YYY XXXXXXXX",
+  "XXXXXX     XXXXXXX RRRRRRRRRRRR   Y XXXXXXXXX",
+  "XXXXX       XXXXXXX            RRR XXXXXXXX X",
+  "XXXXX       XXXXXXX                XXXXXXX   ",
+  "XXXXX       XXXXXX  XXXXXXXX X     XXXXXX X R",
+  "XXXXXX     XXXXXX X XXXXXXXX X X   XXXXXX X R",
+  "XXX   X   X   XXX X    X     X X X XXXXXX X R",
+  "XX             XX     X   X  X X X XXXXXX X R",
+  "X               X X XXX XXXX X X X XXXXXX X R",
+  "X               X X XXX XXXX X X X XXXXXX X R",
+  "X               X X XXX XXXX X X X XXXXXX X R",
+  "XX     X X     XX X XX   XXX X X X XXXXXX X R",
+  "XXX   XX XX   XX XX   XXX  X X X X   XXXX X R",
+  "XXXXXXX   XXXXXX    XX   XXX X X X XX XXX X R",
+  "XXXXXX     XXXXXX X XXXXXXXX X XX X X  XX X R",
+  "XXXXXXXXXXXXXXX   X X XXX X  X X   X  R   X R",
+  "XXXXXXXXXXXXXX XX X X X X X X  X X X RRRR X R",
+  "XXXXXXXXXXXXXX X XX X X X X  X XXX  RYRRR X R",
+  "XXXXXXXXXXX    XXX X X R X XX R   RRYYRRR X R",
+  "XXXXXXXX            R RRR R  RRRR RRRRRY  X R",
+  "XXXXX   RR YY  X  Y  RRRRRRRRRR  RYRRRR X X R",
+  "XXXX RRRRRR YY     Y   RRRRRR   RYYRRY XX X R",
+  "XX  RXRXRXRX YY  X Y Y   RR   Y RRRRR XX  X R",
+  "X   RRRRRRRRR YY    Y Y      Y RRRRY XX   X R",
+  "R   XRXRXRXRXR YY   Y YY    YY RYRRR X    X R",
+  "R   RRRRRRRRRR  YR   Y  Y  Y  RYYRR XX    X R",
+  "R   RXRXRXRXRX   YR  Y YYYYYY RRRRY X  R  X R",
+  "R   RRRRR    R  R Y   Y   R   RRRRR X     X R",
+  " YY  RXR XXXX      Y  Y YYYYY RYRY XX  R  X R",
+  "YYYY RR XX  XX  RR Y  Y   R  RYYRR X      X R",
+  " YY   R X RR X      Y  Y YYY RRRRY X        R",
+  "        X RR X  RRR Y  Y  R  RRRRR X   XX XX ",
+  " RR     XX  XX       Y Y YYY RRYRY X  XXXX   ",
+  "         XXXX                RYYRR X  X  XXX ",
+  " XX XX       RR XXXX RRR      RRRY X  XXX    ");
+
+
+const array string: queen_of_clubs_pic is [](
+  "YYYYYYYYYYR  RX X X  X XXXXXXXXXXXXXXXXXXXXXX",
+  " YYYYYYYYYR  RX  X X   XXXXXXXXXXXX   XXXXXXX",
+  "X YYYYY  YR  RX XX  X  XXXXXXXXXXX     XXXXXX",
+  "XX YYYY YRR  RX X XX X XXXXXXXXXX       XXXXX",
+  "XX YYYYYRR  RRX  XXXX   XXXXXXXXX       XXXXX",
+  "XXX YYYYRR  RXX XXXXXX  XXXXXXXXX       XXXXX",
+  "XXX Y  YR   RXX   X    R XXXXXXXXX     XXXXXX",
+  "XXX Y YRR  RRX X  XX   R XXXXXX   X   X   XXX",
+  "XX YYYRR   RXX XXX XXX  R XXXX             XX",
+  "XX YYYRR  RRX XXXX XXX  R XXX               X",
+  "X Y  RR  RRXX XXXX XXX   R XX               X",
+  " YY RR   RXX XXXX   XX R RR X               X",
+  "X  RR   RRXX XXXXXXXXX RR RR X     X X     XX",
+  "XXX    RRXX R XXX   X   R  RR X   XX XX   XXX",
+  "XXXX   RXXX  R XXX XX    R  RR XXXX   XXXXXXX",
+  "XXX   RRXX  Y   XXXX Y    R  RR XX     XXXXXX",
+  "XX   RRX  RYRY Y    Y RYYR RR  R XXXXXXXXXXXX",
+  "X   RRX XX RYRRY Y YRRYYR X RR  R XXX  XXXXXX",
+  "   R        RYYRRRRRYYYR     RR R XX RR  XXXX",
+  "  RYYY     X  RYYYYYYRR X X Y R R X R  RR XXX",
+  " YY YYY XX XX   R   R  XX  Y Y R X RRRRR XXXX",
+  "YYYY Y Y X X   X RRR X    YYY   XXX   R X   X",
+  "RRRRR YYY    X X RYR X X Y Y   Y XXXXX X YYY ",
+  "RRRRRR YY Y  X X RRR X  YYY R  Y  X   X YY  X",
+  "RRRRRRR  YYYY     R    Y Y RR  Y   YYY     XX",
+  "Y Y Y RRR  Y YYYY   YYYY   YR  Y  YYY X XXX X",
+  " Y Y Y Y RR   YYYYYYYY     YRR  Y     XX    X",
+  "Y Y        RRY          Y  YRR   RR R  X XX X",
+  " Y  YYYYYYY  RRY    Y  Y  YRRRR RXXR        X",
+  "Y YYY     YYY RR     Y Y  YRRR Y RXRR R XXX X",
+  " YY   Y Y   YY RY     Y   YRR YY  RRRR     XX",
+  "R   Y Y Y Y  YY R    Y Y  YRR Y YY RXXR R XXX",
+  "RR  Y      YY Y RY  Y   Y YR YY     RXRR   XX",
+  "RXR  RRRRR    YY R Y      YR Y YY RR RRRR R X",
+  "RXXR RXXXRR YY Y     YYY     Y    RXX RXXR   ",
+  " RRRR X  XR    Y RR RRRRR YY Y YY RX X RXRR R");
+
+
+const array string: jack_of_clubs_pic is [](
+  "XXXXXXXX RR RRR R RR R RRR RR XXXXXXXXXXXXXXX",
+  " XXXXXXXX RR RR R RR R RR RR XXXXXX   XXXXXXX",
+  "R XXXXXXX  RR   R    R   RR XXXXXX     XXXXXX",
+  "RR XXXXX GG RRRRRRRRRRRRRR XXXXXX       XXXXX",
+  "RRR XXXX G                 XXXXXX       XXXXX",
+  "     XXXGG  XXXXXXXX Y Y Y XXXXXX       XXXXX",
+  "YYY XXX GG  XXXXXXXX Y Y Y XXXXXXX     XXXXXX",
+  " YY XXX   Y    X   X Y Y Y XXXX   X   X   XXX",
+  "YYY XXXXX Y   X   X  Y Y Y XXX             XX",
+  " YY XXXXX Y XXX XXXX Y Y Y XX               X",
+  "YYY XXXX  Y XXX XXXX Y Y Y XX               X",
+  " YY XXX Y Y XXX XXXX Y Y Y XX               X",
+  "YYY XXX Y Y XX   XXX Y Y Y  XX     X X     XX",
+  "  Y XXX   Y XXXXXXXX Y Y  YY XX   XX XX   XXX",
+  "YYY XX YY YX X   XXX Y   YY  XXXXXX   XXXXXXX",
+  "  Y XX Y YY  XXXXXX  Y YY      XXX     XXXXXX",
+  "YYY XX YYY  R XXXX R Y  Y   X X XXXXXXXXXXXXX",
+  "YYY  XX   R RR    RRR YYY  X  XR  XXXXXXXXXX ",
+  " Y XX  R R  RRRR  RRR       Y XRRR  XXXXXXX Y",
+  "X XXXX  R R RYYR   R  XX  X Y XRRYRX  XXXX YY",
+  "     X R R  RRRR X   XX  X YY XRYYYRX     YYY",
+  "XX  XX  R R RYYR XX XX  X YYY XYYRYYX     YYY",
+  "  Y XX R R  RRRR  XXX  X YY   XRYYYRX     YYY",
+  "X Y XX  R R RYYR   X  XR YYYY XRRYRRX     YYY",
+  " YY XX R R  RRRR X   XR YY    XRRRRRX     YYY",
+  "X Y X R R   RYYR  X X  YYYYYY XRRYRRX     YYY",
+  " YY    R    RRRR R X R Y Y    XRYYYRX     YYY",
+  "YYY        RYYR Y R R YYYYYYY XYYRYYX     YYY",
+  "YYY  X   X RRRR  Y R Y Y      XRYYYR   RR YYY",
+  "YYY XXX XX RYYR YYY YYYYYYYYY XRRYRR RRRY YYY",
+  "YYY X XXX  RRRR    YY Y       X    RRYYRR YYY",
+  "YYY  X X X RYYR YYYYYYYYYYYYY  XX RRRRRRR YYY",
+  "YYY X X X  RRRR  YR Y   Y RY XXX RRYYRR   YYY",
+  "YYY  X X XRYYR YYY R XXX R  XXXX RRRRR  X YYY",
+  "YYY X X X RRRR  YYY X   X XXXXX RYYRR X X YYY",
+  "YYY  X X  RYYR Y   X RRR X XXX  RRRR X X  YYY");
+
+
+var PRIMITIVE_WINDOW: ace_of_spades     is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: king_of_spades    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: queen_of_spades   is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: jack_of_spades    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: ten_of_spades     is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: nine_of_spades    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: eight_of_spades   is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: seven_of_spades   is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: six_of_spades     is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: five_of_spades    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: four_of_spades    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: three_of_spades   is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: two_of_spades     is PRIMITIVE_WINDOW.value;
+
+var PRIMITIVE_WINDOW: ace_of_hearts     is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: king_of_hearts    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: queen_of_hearts   is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: jack_of_hearts    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: ten_of_hearts     is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: nine_of_hearts    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: eight_of_hearts   is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: seven_of_hearts   is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: six_of_hearts     is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: five_of_hearts    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: four_of_hearts    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: three_of_hearts   is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: two_of_hearts     is PRIMITIVE_WINDOW.value;
+
+var PRIMITIVE_WINDOW: ace_of_diamonds   is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: king_of_diamonds  is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: queen_of_diamonds is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: jack_of_diamonds  is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: ten_of_diamonds   is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: nine_of_diamonds  is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: eight_of_diamonds is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: seven_of_diamonds is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: six_of_diamonds   is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: five_of_diamonds  is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: four_of_diamonds  is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: three_of_diamonds is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: two_of_diamonds   is PRIMITIVE_WINDOW.value;
+
+var PRIMITIVE_WINDOW: ace_of_clubs      is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: king_of_clubs     is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: queen_of_clubs    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: jack_of_clubs     is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: ten_of_clubs      is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: nine_of_clubs     is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: eight_of_clubs    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: seven_of_clubs    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: six_of_clubs      is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: five_of_clubs     is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: four_of_clubs     is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: three_of_clubs    is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: two_of_clubs      is PRIMITIVE_WINDOW.value;
+
+
+const type: posType is array array integer;
+
+const posType: EMPTY_POS is 0 times 0 times 0;
+const posType: ACE_POS   is []([](27, 39, 1));
+const posType: TEN_POS   is []([](13,  8, 2), [](41,  8, 2), [](13, 28, 2), [](41, 28, 2), [](27, 18, 2));
+const posType: NINE_POS  is []([](13,  8, 2), [](41,  8, 2), [](13, 28, 2), [](41, 28, 2), [](27, 39, 1));
+const posType: EIGHT_POS is []([](13,  8, 2), [](41,  8, 2), [](13, 39, 1), [](41, 39, 1), [](27, 23, 2));
+const posType: SEVEN_POS is []([](13,  8, 2), [](41,  8, 2), [](13, 39, 1), [](41, 39, 1), [](27, 23, 1));
+const posType: SIX_POS   is []([](13,  8, 2), [](41,  8, 2), [](13, 39, 1), [](41, 39, 1));
+const posType: FIVE_POS  is []([](13,  8, 2), [](41,  8, 2), [](27, 39, 1));
+const posType: FOUR_POS  is []([](13,  8, 2), [](41,  8, 2));
+const posType: THREE_POS is []([](27,  8, 2), [](27, 39, 1));
+const posType: TWO_POS   is []([](27,  8, 2));
+
+
+const func color: charColor (in char: ch) is func
+  result
+    var color: result is black;
+  begin
+    case ch of
+      when {' '}: result := black;
+      when {'R'}: result := light_red;
+      when {'G'}: result := light_green;
+      when {'B'}: result := light_blue;
+      when {'Y'}: result := yellow;
+      when {'M'}: result := light_magenta;
+      when {'O'}: result := orange;
+      when {'r'}: result := dark_red;
+      when {'g'}: result := dark_green;
+      when {'c'}: result := light_cyan;
+      when {'X'}: result := white;
+      when {'x'}: result := light_gray;
+      when {'b'}: result := brown;
+      otherwise:  result := black;
+    end case;
+  end func;
+
+
+const proc: drawPic (inout PRIMITIVE_WINDOW: pixmap,
+    in integer: xPos, in integer: yPos, in array string: pattern,
+    in integer: scale) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var char: ch is ' ';
+    var color: col is black;
+  begin
+    for line range 1 to length(pattern) do
+      for column range 1 to length(pattern[1]) do
+        ch := pattern[line][column];
+        if ch <> 'X' then
+          col := charColor(ch);
+          rect(pixmap, (xPos + column) * scale, (yPos + line) * scale,
+              scale, scale, col);
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: drawPic2 (inout PRIMITIVE_WINDOW: pixmap,
+    in integer: xPos, in integer: yPos, in array string: pattern,
+    in integer: scale) is func
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var char: ch is ' ';
+    var color: col is black;
+  begin
+    height := height(pixmap) div scale;
+    width := width(pixmap) div scale;
+    for line range 1 to length(pattern) do
+      for column range 1 to length(pattern[1]) do
+        ch := pattern[line][column];
+        if ch <> 'X' then
+          col := charColor(ch);
+          rect(pixmap, (xPos + column) * scale, (yPos + line) * scale,
+              scale, scale, col);
+          rect(pixmap, pred(width - xPos - column) * scale,
+              pred(height - yPos - line) * scale,
+              scale, scale, col);
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: genPixmap (in array string: pattern,
+    in array string: small_card_sign, in array string: color_sign,
+    in integer: scale) is func
+  result
+    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var color: col is black;
+  begin
+    height := 2 * (length(pattern) + 12);
+    width := length(pattern[1]) + 2 * 13;
+    result := newPixmap(width * scale, height * scale);
+    clear(result, black);
+    rectTo(result, 1 * scale, 1 * scale,
+        pred(pred(width) * scale),
+        pred(pred(height) * scale), white);
+    rect(result, scale, scale,
+        scale, scale, light_gray);
+    rect(result, (width - 2) * scale, scale,
+        scale, scale, light_gray);
+    rect(result, scale, (height - 2) * scale,
+        scale, scale, light_gray);
+    rect(result, (width - 2) * scale, (height - 2) * scale,
+        scale, scale, light_gray);
+    rectTo(result, 12 * scale, 11 * scale,
+        pred((width - 12) * scale),
+        pred((height - 11) * scale), black);
+    rectTo(result, 13 * scale, 12 * scale,
+        pred((width - 13) * scale),
+        pred((height - 12) * scale), white);
+    drawPic2(result, 12, 11, pattern, scale);
+    drawPic2(result,  1,  3, small_card_sign, scale);
+    drawPic2(result,  1, 18, color_sign, scale);
+  end func;
+
+
+const func PRIMITIVE_WINDOW: genPixmap (in array string: big_card_sign,
+    in array string: small_card_sign, in array string: color_sign,
+    in posType: positions, in integer: scale) is func
+  result
+    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var color: col is black;
+    var integer: index is 0;
+  begin
+    height := 96;
+    width := 71;
+    result := newPixmap(width * scale, height * scale);
+    clear(result, black);
+    rectTo(result, 1 * scale, 1 * scale,
+        pred(pred(width) * scale),
+        pred(pred(height) * scale), white);
+    rect(result, scale, scale,
+        scale, scale, light_gray);
+    rect(result, (width - 2) * scale, scale,
+        scale, scale, light_gray);
+    rect(result, scale, (height - 2) * scale,
+        scale, scale, light_gray);
+    rect(result, (width - 2) * scale, (height - 2) * scale,
+        scale, scale, light_gray);
+    for index range 1 to length(positions) do
+      if positions[index][3] = 2 then
+        drawPic2(result, positions[index][1], positions[index][2],
+            big_card_sign, scale);
+      else
+        drawPic(result, positions[index][1], positions[index][2],
+            big_card_sign, scale);
+      end if;
+    end for;
+    drawPic2(result,  1,  3, small_card_sign, scale);
+    drawPic2(result,  1, 18, color_sign, scale);
+  end func;
+
+
+const proc: initCardPixmaps (in integer: scale) is func
+  local
+    var integer: number is 0;
+  begin
+    ace_of_spades     := genPixmap(big_spades_sign,   black_A_sign,  small_spades_sign,   ACE_POS,   scale);
+    ace_of_hearts     := genPixmap(big_hearts_sign,   red_A_sign,    small_hearts_sign,   ACE_POS,   scale);
+    ace_of_diamonds   := genPixmap(big_diamonds_sign, red_A_sign,    small_diamonds_sign, ACE_POS,   scale);
+    ace_of_clubs      := genPixmap(big_clubs_sign,    black_A_sign,  small_clubs_sign,    ACE_POS,   scale);
+    ten_of_spades     := genPixmap(big_spades_sign,   black_10_sign, small_spades_sign,   TEN_POS,   scale);
+    ten_of_hearts     := genPixmap(big_hearts_sign,   red_10_sign,   small_hearts_sign,   TEN_POS,   scale);
+    ten_of_diamonds   := genPixmap(big_diamonds_sign, red_10_sign,   small_diamonds_sign, TEN_POS,   scale);
+    ten_of_clubs      := genPixmap(big_clubs_sign,    black_10_sign, small_clubs_sign,    TEN_POS,   scale);
+    nine_of_spades    := genPixmap(big_spades_sign,   black_9_sign,  small_spades_sign,   NINE_POS,  scale);
+    nine_of_hearts    := genPixmap(big_hearts_sign,   red_9_sign,    small_hearts_sign,   NINE_POS,  scale);
+    nine_of_diamonds  := genPixmap(big_diamonds_sign, red_9_sign,    small_diamonds_sign, NINE_POS,  scale);
+    nine_of_clubs     := genPixmap(big_clubs_sign,    black_9_sign,  small_clubs_sign,    NINE_POS,  scale);
+    eight_of_spades   := genPixmap(big_spades_sign,   black_8_sign,  small_spades_sign,   EIGHT_POS, scale);
+    eight_of_hearts   := genPixmap(big_hearts_sign,   red_8_sign,    small_hearts_sign,   EIGHT_POS, scale);
+    eight_of_diamonds := genPixmap(big_diamonds_sign, red_8_sign,    small_diamonds_sign, EIGHT_POS, scale);
+    eight_of_clubs    := genPixmap(big_clubs_sign,    black_8_sign,  small_clubs_sign,    EIGHT_POS, scale);
+    seven_of_spades   := genPixmap(big_spades_sign,   black_7_sign,  small_spades_sign,   SEVEN_POS, scale);
+    seven_of_hearts   := genPixmap(big_hearts_sign,   red_7_sign,    small_hearts_sign,   SEVEN_POS, scale);
+    seven_of_diamonds := genPixmap(big_diamonds_sign, red_7_sign,    small_diamonds_sign, SEVEN_POS, scale);
+    seven_of_clubs    := genPixmap(big_clubs_sign,    black_7_sign,  small_clubs_sign,    SEVEN_POS, scale);
+    six_of_spades     := genPixmap(big_spades_sign,   black_6_sign,  small_spades_sign,   SIX_POS,   scale);
+    six_of_hearts     := genPixmap(big_hearts_sign,   red_6_sign,    small_hearts_sign,   SIX_POS,   scale);
+    six_of_diamonds   := genPixmap(big_diamonds_sign, red_6_sign,    small_diamonds_sign, SIX_POS,   scale);
+    six_of_clubs      := genPixmap(big_clubs_sign,    black_6_sign,  small_clubs_sign,    SIX_POS,   scale);
+    five_of_spades    := genPixmap(big_spades_sign,   black_5_sign,  small_spades_sign,   FIVE_POS,  scale);
+    five_of_hearts    := genPixmap(big_hearts_sign,   red_5_sign,    small_hearts_sign,   FIVE_POS,  scale);
+    five_of_diamonds  := genPixmap(big_diamonds_sign, red_5_sign,    small_diamonds_sign, FIVE_POS,  scale);
+    five_of_clubs     := genPixmap(big_clubs_sign,    black_5_sign,  small_clubs_sign,    FIVE_POS,  scale);
+    four_of_spades    := genPixmap(big_spades_sign,   black_4_sign,  small_spades_sign,   FOUR_POS,  scale);
+    four_of_hearts    := genPixmap(big_hearts_sign,   red_4_sign,    small_hearts_sign,   FOUR_POS,  scale);
+    four_of_diamonds  := genPixmap(big_diamonds_sign, red_4_sign,    small_diamonds_sign, FOUR_POS,  scale);
+    four_of_clubs     := genPixmap(big_clubs_sign,    black_4_sign,  small_clubs_sign,    FOUR_POS,  scale);
+    three_of_spades   := genPixmap(big_spades_sign,   black_3_sign,  small_spades_sign,   THREE_POS, scale);
+    three_of_hearts   := genPixmap(big_hearts_sign,   red_3_sign,    small_hearts_sign,   THREE_POS, scale);
+    three_of_diamonds := genPixmap(big_diamonds_sign, red_3_sign,    small_diamonds_sign, THREE_POS, scale);
+    three_of_clubs    := genPixmap(big_clubs_sign,    black_3_sign,  small_clubs_sign,    THREE_POS, scale);
+    two_of_spades     := genPixmap(big_spades_sign,   black_2_sign,  small_spades_sign,   TWO_POS,   scale);
+    two_of_hearts     := genPixmap(big_hearts_sign,   red_2_sign,    small_hearts_sign,   TWO_POS,   scale);
+    two_of_diamonds   := genPixmap(big_diamonds_sign, red_2_sign,    small_diamonds_sign, TWO_POS,   scale);
+    two_of_clubs      := genPixmap(big_clubs_sign,    black_2_sign,  small_clubs_sign,    TWO_POS,   scale);
+    king_of_spades    := genPixmap(king_of_spades_pic,    black_K_sign, small_spades_sign,   scale);
+    queen_of_spades   := genPixmap(queen_of_spades_pic,   black_Q_sign, small_spades_sign,   scale);
+    jack_of_spades    := genPixmap(jack_of_spades_pic,    black_J_sign, small_spades_sign,   scale);
+    king_of_hearts    := genPixmap(king_of_hearts_pic,    red_K_sign,   small_hearts_sign,   scale);
+    queen_of_hearts   := genPixmap(queen_of_hearts_pic,   red_Q_sign,   small_hearts_sign,   scale);
+    jack_of_hearts    := genPixmap(jack_of_hearts_pic,    red_J_sign,   small_hearts_sign,   scale);
+    king_of_diamonds  := genPixmap(king_of_diamonds_pic,  red_K_sign,   small_diamonds_sign, scale);
+    queen_of_diamonds := genPixmap(queen_of_diamonds_pic, red_Q_sign,   small_diamonds_sign, scale);
+    jack_of_diamonds  := genPixmap(jack_of_diamonds_pic,  red_J_sign,   small_diamonds_sign, scale);
+    king_of_clubs     := genPixmap(king_of_clubs_pic,     black_K_sign, small_clubs_sign,    scale);
+    queen_of_clubs    := genPixmap(queen_of_clubs_pic,    black_Q_sign, small_clubs_sign,    scale);
+    jack_of_clubs     := genPixmap(jack_of_clubs_pic,     black_J_sign, small_clubs_sign,    scale);
+  end func;

@@ -27,8 +27,6 @@ $ include "seed7_05.s7i";
   include "keybd.s7i";
   include "time.s7i";
 
-var text: screen is STD_NULL;
-
 const integer: WINDOW_WIDTH is 200;
 const integer: WINDOW_HEIGHT is 200;
 const color: BACKGROUND is White;
@@ -44,7 +42,6 @@ const proc: main is func
   begin
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
     clear(curr_win, BACKGROUND);
-    screen := open(curr_win);
     KEYBOARD := GRAPH_KEYBOARD;
     command := busy_getc(KEYBOARD);
     while command <> 'q' do

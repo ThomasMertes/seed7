@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  draw.s7i      Graphic library                                   *)
-(*  Copyright (C) 2001, 2005  Thomas Mertes                         *)
+(*  Copyright (C) 2001, 2005, 2007  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -94,6 +94,10 @@ const proc: color (in color: col1, in color: col2) is func
   end func;
 
 
+(**
+ *  Draws a point with the color 'col' to the window 'win' at the
+ *  position (x1, y1).
+ *)
 const proc: point (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in color: col) is func
   begin
@@ -101,12 +105,21 @@ const proc: point (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+(**
+ *  Draws a point with the color 'col' to the current window 'curr_win'
+ *  at the position (x1, y1).
+ *)
 const proc: point (in integer: x, in integer: y, in color: col) is func
   begin
     DRAW_PPOINT(curr_win, x, y, colorPixel(col));
   end func;
 
 
+(**
+ *  Draws a line with the color 'col' to the window 'win'.
+ *  The line starts at (x1, y1) and ends at (delta_x, delta_y).
+ *  The coordinates of the endpoint are measured relative to x1, y1.
+ *)
 const proc: line (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: delta_x, in integer: delta_y, in color: col) is func
@@ -115,6 +128,11 @@ const proc: line (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+(**
+ *  Draws a line with the color 'col' to the current window 'curr_win'.
+ *  The line starts at (x1, y1) and ends at (delta_x, delta_y).
+ *  The coordinates of the endpoint are measured relative to x1, y1.
+ *)
 const proc: line (in integer: x1, in integer: y1,
     in integer: delta_x, in integer: delta_y, in color: col) is func
   begin
@@ -122,6 +140,12 @@ const proc: line (in integer: x1, in integer: y1,
   end func;
 
 
+(**
+ *  Draws a line with the color 'col' to the window 'win'.
+ *  The line starts at (x1, y1) and ends at (x2, y2).
+ *  The coordinates of the endpoint are measured in absolute
+ *  window coordinates.
+ *)
 const proc: lineTo (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
@@ -130,6 +154,12 @@ const proc: lineTo (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+(**
+ *  Draws a line with the color 'col' to the current window 'curr_win'.
+ *  The line starts at (x1, y1) and ends at (x2, y2).
+ *  The coordinates of the endpoint are measured in absolute
+ *  window coordinates.
+ *)
 const proc: lineTo (in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
   begin
@@ -137,6 +167,11 @@ const proc: lineTo (in integer: x1, in integer: y1,
   end func;
 
 
+(**
+ *  Draws a line with the color 'col' to the window 'win'.
+ *  The line starts at (x1, y1), has the given 'length' and extends
+ *  in the given 'angle'.
+ *)
 const proc: lineToAngle (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y,
     in integer: length, in float: angle, in color: col) is func
@@ -147,6 +182,11 @@ const proc: lineToAngle (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+(**
+ *  Draws a line with the color 'col' to the current window 'curr_win'.
+ *  The line starts at (x1, y1), has the given 'length' and extends
+ *  in the given 'angle'.
+ *)
 const proc: lineToAngle (in integer: x, in integer: y,
     in integer: length, in float: angle, in color: col) is func
   begin
@@ -186,6 +226,11 @@ const proc: vline (in integer: x1, in integer: y1,
   end func;
 
 
+(**
+ *  Draws a filled rectangle with the color 'col' to the window 'win'.
+ *  The top left edge of the rectangle is at (x1, y1). The size of the
+ *  rectangle is specified with 'width' and 'height'.
+ *)
 const proc: rect (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: width, in integer: height, in color: col) is func
@@ -194,6 +239,11 @@ const proc: rect (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+(**
+ *  Draws a filled rectangle with the color 'col' to the current window 'curr_win'.
+ *  The top left edge of the rectangle is at (x1, y1). The size of the
+ *  rectangle is specified with 'width' and 'height'.
+ *)
 const proc: rect (in integer: x1, in integer: y1,
     in integer: width, in integer: height, in color: col) is func
   begin
@@ -218,6 +268,11 @@ const proc: rect (inout array array pixel: image,
   end func;
 
 
+(**
+ *  Draws a filled rectangle with the color 'col' to the window 'win'.
+ *  The top left edge of the rectangle is at (x1, y1) and the lower right
+ *  edge is at (x2, y2).
+ *)
 const proc: rectTo (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
@@ -226,6 +281,11 @@ const proc: rectTo (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+(**
+ *  Draws a filled rectangle with the color 'col' to the current window 'curr_win'.
+ *  The top left edge of the rectangle is at (x1, y1) and the lower right
+ *  edge is at (x2, y2).
+ *)
 const proc: rectTo (in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
   begin
@@ -233,6 +293,11 @@ const proc: rectTo (in integer: x1, in integer: y1,
   end func;
 
 
+(**
+ *  Draws an empty rectangle with the color 'col' to the window 'win'.
+ *  The top left edge of the rectangle is at (x1, y1). The size of the
+ *  rectangle is specified with 'width' and 'height'.
+ *)
 const proc: box (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: width, in integer: height, in color: col) is func
@@ -247,6 +312,11 @@ const proc: box (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+(**
+ *  Draws an empty rectangle with the color 'col' to the current window 'curr_win'.
+ *  The top left edge of the rectangle is at (x1, y1). The size of the
+ *  rectangle is specified with 'width' and 'height'.
+ *)
 const proc: box (in integer: x1, in integer: y1,
     in integer: width, in integer: height, in color: col) is func
   local
@@ -260,6 +330,11 @@ const proc: box (in integer: x1, in integer: y1,
   end func;
 
 
+(**
+ *  Draws an empty rectangle with the color 'col' to the window 'win'.
+ *  The top left edge of the rectangle is at (x1, y1) and the lower right
+ *  edge is at (x2, y2).
+ *)
 const proc: boxTo (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
@@ -274,6 +349,11 @@ const proc: boxTo (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+(**
+ *  Draws an empty rectangle with the color 'col' to the current window 'curr_win'.
+ *  The top left edge of the rectangle is at (x1, y1) and the lower right
+ *  edge is at (x2, y2).
+ *)
 const proc: boxTo (in integer: x1, in integer: y1,
     in integer: x2, in integer: y2, in color: col) is func
   local
@@ -287,43 +367,77 @@ const proc: boxTo (in integer: x1, in integer: y1,
   end func;
 
 
+(**
+ *  Draws a circle with the color 'col' to the window 'win'.
+ *  The circle has the given 'radius' and it's center is at (x, y).
+ *)
 const proc: circle (inout PRIMITIVE_WINDOW: win,
-    in integer: x, in integer: y, in integer: r, in color: col) is func
+    in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
-    DRAW_CIRCLE(win, x, y, r, colorPixel(col));
+    DRAW_CIRCLE(win, x, y, radius, colorPixel(col));
   end func;
 
 
-const proc: circle (in integer: x, in integer: y, in integer: r, in color: col) is func
+(**
+ *  Draws a circle with the color 'col' to the current window 'curr_win'.
+ *  The circle has the given 'radius' and it's center is at (x, y).
+ *)
+const proc: circle (in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
-    DRAW_CIRCLE(curr_win, x, y, r, colorPixel(col));
+    DRAW_CIRCLE(curr_win, x, y, radius, colorPixel(col));
   end func;
 
 
+(**
+ *  Draws a filled circle with the color 'col' to the window 'win'.
+ *  The circle has the given 'radius' and it's center is at (x, y).
+ *)
 const proc: fcircle (inout PRIMITIVE_WINDOW: win,
-    in integer: x, in integer: y, in integer: r, in color: col) is func
+    in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
-    FILL_CIRCLE(win, x, y, r, colorPixel(col));
+    FILL_CIRCLE(win, x, y, radius, colorPixel(col));
   end func;
 
 
-const proc: fcircle (in integer: x, in integer: y, in integer: r, in color: col) is func
+(**
+ *  Draws a filled circle with the color 'col' to the current window 'curr_win'.
+ *  The circle has the given 'radius' and it's center is at (x, y).
+ *)
+const proc: fcircle (in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
-    FILL_CIRCLE(curr_win, x, y, r, colorPixel(col));
+    FILL_CIRCLE(curr_win, x, y, radius, colorPixel(col));
   end func;
 
 
-const proc: arc (in integer: x, in integer: y, in integer: r,
+(**
+ *  Draws an arc with the color 'col' to the window 'win'.
+ *  The arc has the given 'radius' and it's center is at (x, y).
+ *  The arc begins at 'beginAngle' and ends at 'endAngle'.
+ *)
+const proc: arc (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in integer: radius,
+    in float: beginAngle, in float: endAngle, in color: col) is func
+  begin
+    DRAW_ARC(win, x, y, radius, beginAngle, endAngle, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws an arc with the color 'col' to the current window 'curr_win'.
+ *  The arc has the given 'radius' and it's center is at (x, y).
+ *  The arc begins at 'beginAngle' and ends at 'endAngle'.
+ *)
+const proc: arc (in integer: x, in integer: y, in integer: radius,
+    in float: beginAngle, in float: endAngle, in color: col) is func
+  begin
+    DRAW_ARC(curr_win, x, y, radius, beginAngle, endAngle, colorPixel(col));
+  end func;
+
+
+const proc: chord (in integer: x, in integer: y, in integer: radius,
     in float: cstart, in float: cend, in color: col) is func
   begin
-    DRAW_ARC(curr_win, x, y, r, cstart, cend, colorPixel(col));
-  end func;
-
-
-const proc: chord (in integer: x, in integer: y, in integer: r,
-    in float: cstart, in float: cend, in color: col) is func
-  begin
-    FILL_ARCCHORD(curr_win, x, y, r, cstart, cend, colorPixel(col));
+    FILL_ARCCHORD(curr_win, x, y, radius, cstart, cend, colorPixel(col));
   end func;
 
 
@@ -349,30 +463,46 @@ const proc: fellipse (in integer: x, in integer: y,
   end func;
 
 
+(**
+ *  Clears the window 'win' with the color 'col'.
+ *)
 const proc: clear (inout PRIMITIVE_WINDOW: win, in color: col) is func
   begin
     DRAW_CLEAR(win, colorPixel(col));
   end func;
 
 
+(**
+ *  Clears the window 'win' with the color black.
+ *)
 const proc: clear (inout PRIMITIVE_WINDOW: win) is func
   begin
     DRAW_CLEAR(win, colorPixel(black));
   end func;
 
 
+(**
+ *  Clears the current window 'curr_win' with the color 'col'.
+ *)
 const proc: clear (in color: col) is func
   begin
     DRAW_CLEAR(curr_win, colorPixel(col));
   end func;
 
 
+(**
+ *  Clears the current window 'curr_win' with black.
+ *)
 const proc: clear is func
   begin
     DRAW_CLEAR(curr_win, colorPixel(black));
   end func;
 
 
+(**
+ *  Draws lines with the color 'col' to the window 'win'.
+ *  The lines connect the 'points' and are drawn at the position (x, y).
+ *)
 const proc: polyLine (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in pointList: points, in color: col) is func
   begin
@@ -380,12 +510,21 @@ const proc: polyLine (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+(**
+ *  Draws lines with the color 'col' to the current window 'curr_win'.
+ *  The lines connect the 'points' and are drawn at the position (x, y).
+ *)
 const proc: polyLine (in integer: x, in integer: y, in pointList: points, in color: col) is func
   begin
     DRAW_POLYLINE(curr_win, x, y, points, colorPixel(col));
   end func;
 
 
+(**
+ *  Draws a filled polygon with the color 'col' to the window 'win'.
+ *  The corners of the polygon are given with 'points'.
+ *  The polygon is drawn at the position (x, y).
+ *)
 const proc: fpolyLine (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in pointList: points, in color: col) is func
   begin
@@ -393,6 +532,11 @@ const proc: fpolyLine (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+(**
+ *  Draws a filled polygon with the color 'col' to the current window 'curr_win'.
+ *  The corners of the polygon are given with 'points'.
+ *  The polygon is drawn at the position (x, y).
+ *)
 const proc: fpolyLine (in integer: x, in integer: y, in pointList: points, in color: col) is func
   begin
     FILL_POLYLINE(curr_win, x, y, points, colorPixel(col));
@@ -461,6 +605,9 @@ const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win) is func
   end func;
 
 
+(**
+ *  Creates a new pixmap with the given 'width' and 'height'.
+ *)
 const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) is func
   result
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
@@ -513,6 +660,9 @@ const func integer: get_le_uint4 (inout file: in_file) is func
   end func;
 
 
+(**
+ *  Reads a bitmap file (extension bmp) into a pixmap.
+ *)
 const func PRIMITIVE_WINDOW: read_bmp (in string: file_name) is func
   result
     var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
@@ -645,6 +795,10 @@ const type: graph_file is sub NULL_FILE struct
 type_implements_interface(graph_file, text);
 
 
+(**
+ *  Creates a graph_file which is placed at the upper left corner
+ *  of the 'graph_win'.
+ *)
 const func graph_file: open (in PRIMITIVE_WINDOW: graph_win) is func
   result
     var graph_file: graphFile is graph_file.value;
@@ -663,6 +817,10 @@ const func graph_file: open (in PRIMITIVE_WINDOW: graph_win) is func
   end func;
 
 
+(**
+ *  Creates a graph_file which is placed at (min_x, min_y)
+ *  in the 'graph_win'.
+ *)
 const func graph_file: open (in PRIMITIVE_WINDOW: graph_win,
     in integer: min_x, in integer: min_y) is func
   result
@@ -731,12 +889,18 @@ const proc: flush (in graph_file: graphFile) is func
   end func;
 
 
+(**
+ *  Set the foreground color of the 'graphFile'.
+ *)
 const proc: color (inout graph_file: graphFile, in color: col) is func
   begin
     graphFile.foreground := col;
   end func;
 
 
+(**
+ *  Set the foreground and background color of the 'graphFile'.
+ *)
 const proc: color (inout graph_file: graphFile, in color: col1, in color: col2) is func
   begin
     graphFile.foreground := col1;
@@ -744,22 +908,39 @@ const proc: color (inout graph_file: graphFile, in color: col1, in color: col2) 
   end func;
 
 
+(**
+ *  Get the height of the 'graphFile'.
+ *)
 const func integer: height (in graph_file: graphFile) is
   return graphFile.height;
 
 
+(**
+ *  Get the width of the 'graphFile'.
+ *)
 const func integer: width (in graph_file: graphFile) is
   return graphFile.width;
 
 
+(**
+ *  Get the current line of the 'graphFile'.
+ *)
 const func integer: line (in graph_file: graphFile) is
   return graphFile.line;
 
 
+(**
+ *  Get the current column of the 'graphFile'.
+ *)
 const func integer: column (in graph_file: graphFile) is
   return graphFile.column;
 
 
+(**
+ *  Clear an area of the 'graphFile' with the background color.
+ *  The area is specified in (line, column) coordinates and is
+ *  between the ('upper', 'left') and ('lower', 'right').
+ *)
 const proc: clear (in graph_file: graphFile,
     in integer: upper, in integer: left, in integer: lower, in integer: right) is func
   begin
@@ -772,6 +953,9 @@ const proc: clear (in graph_file: graphFile,
   end func;
 
 
+(**
+ *  Clear the area of the 'graphFile' with the background color.
+ *)
 const proc: clear (in graph_file: graphFile) is func
   begin
     clear(graphFile, 1, 1, height(graphFile), width(graphFile));
@@ -833,6 +1017,9 @@ const proc: h_scroll (ref graph_file: graphFile,
   end func;
 
 
+(**
+ *  Set the current position of the 'graphFile' to the given 'line' and 'column'.
+ *)
 const proc: setPos (inout graph_file: graphFile, in integer: line, in integer: column) is func
   begin
     graphFile.line := line;
@@ -842,6 +1029,10 @@ const proc: setPos (inout graph_file: graphFile, in integer: line, in integer: c
   end func;
 
 
+(**
+ *  Set the current position of the 'graphFile' to the coordinates (xPos, yPos).
+ *  The coordinates are from the graphic window which belongs to the 'graphFile'.
+ *)
 const proc: setPosXY (inout graph_file: graphFile, in integer: xPos, in integer: yPos) is func
   begin
     graphFile.curr_x := graphFile.min_x + xPos;
@@ -851,6 +1042,9 @@ const proc: setPosXY (inout graph_file: graphFile, in integer: xPos, in integer:
   end func;
 
 
+(**
+ *  Set the 'line' of the current position of the 'graphFile'.
+ *)
 const proc: setLine (inout graph_file: graphFile, in integer: line) is func
   begin
     graphFile.line := line;
@@ -858,6 +1052,9 @@ const proc: setLine (inout graph_file: graphFile, in integer: line) is func
   end func;
 
 
+(**
+ *  Set the 'column' of the current position of the 'graphFile'.
+ *)
 const proc: setColumn (inout graph_file: graphFile, in integer: column) is func
   begin
     graphFile.column := column;
@@ -872,6 +1069,9 @@ const proc: setXY (inout graph_file: graphFile, in integer: xPos, in integer: yP
   end func;
 
 
+(**
+ *  Write a string to the current position of the 'graphFile'.
+ *)
 const proc: write (inout graph_file: graphFile, in string: stri) is func
   begin
     DRAW_TEXT(graphFile.win, graphFile.curr_x, graphFile.curr_y, stri,
@@ -881,12 +1081,18 @@ const proc: write (inout graph_file: graphFile, in string: stri) is func
   end func;
 
 
+(**
+ *  Write a character to the current position of the 'graphFile'.
+ *)
 const proc: write (inout graph_file: graphFile, in char: ch) is func
   begin
     write(graphFile, str(ch));
   end func;
 
 
+(**
+ *  Set the current position of the 'graphFile' to the beginning of the next line.
+ *)
 const proc: writeln (inout graph_file: graphFile) is func
   begin
     incr(graphFile.line);

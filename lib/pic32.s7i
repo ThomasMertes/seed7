@@ -306,6 +306,41 @@ const array string: diamond_pic is [](
   "                                ");
 
 
+const array string: drop_pic is [](
+  "                                ",
+  "                                ",
+  "                       BBBBBBBBB",
+  "                       BBBBBBBBB",
+  "          XXXXXXXXXXXXXBBBBBBBBB",
+  "      XXXXXXXXXXXXXXXXXBBBBBBBBB",
+  "    XXXXXXXXXXXXXXXXXXXBBBBBBBBB",
+  "  XXXX        XXXXXXXX BBBBBBBBB",
+  " XXX           XXXXX   BBBBBBBBB",
+  "XX             XXX              ",
+  "              XXX               ",
+  "             XXX                ",
+  "            XXX                 ",
+  "                                ",
+  "      RRRRR                     ",
+  "      RRRRR                     ",
+  "      RRRRR                     ",
+  "      RRRRR                     ",
+  "      RRRRR                     ",
+  "      RRRRR                     ",
+  "      RRRRR                     ",
+  "      RRRRR                     ",
+  "   RRRRRRRRRRR                  ",
+  "    RRRRRRRRR                   ",
+  "     RRRRRRR                    ",
+  "      RRRRR                     ",
+  "       RRR                      ",
+  "        R                       ",
+  "                                ",
+  "   GGGGGGGGGG                   ",
+  "   GGGGGGGGGG                   ",
+  "   GGGGGGGGGG                   ");
+
+
 const array string: exit_pic is [](
   "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
   "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
@@ -1284,6 +1319,41 @@ const array string: sword_pic is [](
   "   bbb                          ",
   "    bb                          ",
   "    bb                          ");
+
+
+const array string: take_pic is [](
+  "                       BBBBBBBBB",
+  "                     BBBBBBBBBBB",
+  "                   BBBBBBBBBBBBB",
+  "                 BBBBBBBBBBBBBBB",
+  "               BBBBBBBBBBBBBBBBB",
+  "             BBBBBBBBBBBBBBBBBBB",
+  "             BBBBBBBBBBBBBBBBB  ",
+  "              BBBBBBBBBBBBBB    ",
+  "           XXXBBBBBBBBBBBB      ",
+  "        XXXXXXXBBBBBBBBB        ",
+  "     XXXXXXXXXXBBBBBBB          ",
+  "   XXXXXXXXXXXXXBBBB            ",
+  "  XXX    XXXXXX BB              ",
+  " XXX      XXXX                  ",
+  "XXX       XXXX                  ",
+  "XXX        XXX                  ",
+  "XXXGGGGGGGGXXX                  ",
+  "XXXGGGGGGGGXXX                  ",
+  " XXGGGGGGGGXX                   ",
+  "   GGGGGGGG                     ",
+  "                                ",
+  "       R                        ",
+  "      RRR                       ",
+  "     RRRRR                      ",
+  "    RRRRRRR                     ",
+  "   RRRRRRRRR                    ",
+  "  RRRRRRRRRRR                   ",
+  "     RRRRR                      ",
+  "     RRRRR                      ",
+  "     RRRRR                      ",
+  "     RRRRR                      ",
+  "     RRRRR                      ");
 
 
 const array string: tree_pic is [](

@@ -1,0 +1,125 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  carddemo.sd7  Demonstate the playing cards of the french deck   *)
+(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "float.s7i";
+  include "draw.s7i";
+  include "keybd.s7i";
+  include "cards.s7i";
+  include "time.s7i";
+
+
+const integer: PICTURE_SCALE is 1;
+
+
+const proc: move_card is func
+  local
+    var integer: cursorXpos is 0;
+    var integer: cursorYpos is 0;
+    var integer: cardXpos is 0;
+    var integer: cardYpos is 0;
+    var PRIMITIVE_WINDOW: backup is PRIMITIVE_WINDOW.value;
+  begin
+    repeat
+      cursorXpos := getxpos(KEYBOARD);
+      cursorYpos := getypos(KEYBOARD);
+      writeln("X=" <& cursorXpos <& ", Y=" <& cursorYpos);
+      if cursorXpos <> cardXpos or
+          cursorYpos <> cardYpos then
+        put(cardXpos, cardYpos, backup, PSET);
+        cardXpos := cursorXpos;
+        cardYpos := cursorYpos;
+        backup := getPixmap(cardXpos, cardYpos,
+            width(seven_of_hearts), height(seven_of_hearts));
+        put(cardXpos, cardYpos, seven_of_hearts, PSET);
+        DRAW_FLUSH;
+      end if;
+      wait(100000 . MYCRO_SECONDS);
+    until busy_getc(KEYBOARD) = KEY_NL;
+  end func;
+
+
+const proc: main is func
+  begin
+    screen(980 * PICTURE_SCALE, 405 * PICTURE_SCALE);
+    clear(curr_win, white);
+    (* screen := open(curr_win, 16); *)
+    KEYBOARD := GRAPH_KEYBOARD;
+    initCardPixmaps(PICTURE_SCALE);
+    put(  4 * PICTURE_SCALE,   4 * PICTURE_SCALE, ace_of_spades,     PSET);
+    put( 79 * PICTURE_SCALE,   4 * PICTURE_SCALE, king_of_spades,    PSET);
+    put(154 * PICTURE_SCALE,   4 * PICTURE_SCALE, queen_of_spades,   PSET);
+    put(229 * PICTURE_SCALE,   4 * PICTURE_SCALE, jack_of_spades,    PSET);
+    put(304 * PICTURE_SCALE,   4 * PICTURE_SCALE, ten_of_spades,     PSET);
+    put(379 * PICTURE_SCALE,   4 * PICTURE_SCALE, nine_of_spades,    PSET);
+    put(454 * PICTURE_SCALE,   4 * PICTURE_SCALE, eight_of_spades,   PSET);
+    put(529 * PICTURE_SCALE,   4 * PICTURE_SCALE, seven_of_spades,   PSET);
+    put(604 * PICTURE_SCALE,   4 * PICTURE_SCALE, six_of_spades,     PSET);
+    put(679 * PICTURE_SCALE,   4 * PICTURE_SCALE, five_of_spades,    PSET);
+    put(754 * PICTURE_SCALE,   4 * PICTURE_SCALE, four_of_spades,    PSET);
+    put(829 * PICTURE_SCALE,   4 * PICTURE_SCALE, three_of_spades,   PSET);
+    put(904 * PICTURE_SCALE,   4 * PICTURE_SCALE, two_of_spades,     PSET);
+    put(  4 * PICTURE_SCALE, 104 * PICTURE_SCALE, ace_of_hearts,     PSET);
+    put( 79 * PICTURE_SCALE, 104 * PICTURE_SCALE, king_of_hearts,    PSET);
+    put(154 * PICTURE_SCALE, 104 * PICTURE_SCALE, queen_of_hearts,   PSET);
+    put(229 * PICTURE_SCALE, 104 * PICTURE_SCALE, jack_of_hearts,    PSET);
+    put(304 * PICTURE_SCALE, 104 * PICTURE_SCALE, ten_of_hearts,     PSET);
+    put(379 * PICTURE_SCALE, 104 * PICTURE_SCALE, nine_of_hearts,    PSET);
+    put(454 * PICTURE_SCALE, 104 * PICTURE_SCALE, eight_of_hearts,   PSET);
+    put(529 * PICTURE_SCALE, 104 * PICTURE_SCALE, seven_of_hearts,   PSET);
+    put(604 * PICTURE_SCALE, 104 * PICTURE_SCALE, six_of_hearts,     PSET);
+    put(679 * PICTURE_SCALE, 104 * PICTURE_SCALE, five_of_hearts,    PSET);
+    put(754 * PICTURE_SCALE, 104 * PICTURE_SCALE, four_of_hearts,    PSET);
+    put(829 * PICTURE_SCALE, 104 * PICTURE_SCALE, three_of_hearts,   PSET);
+    put(904 * PICTURE_SCALE, 104 * PICTURE_SCALE, two_of_hearts,     PSET);
+    put(  4 * PICTURE_SCALE, 204 * PICTURE_SCALE, ace_of_diamonds,   PSET);
+    put( 79 * PICTURE_SCALE, 204 * PICTURE_SCALE, king_of_diamonds,  PSET);
+    put(154 * PICTURE_SCALE, 204 * PICTURE_SCALE, queen_of_diamonds, PSET);
+    put(229 * PICTURE_SCALE, 204 * PICTURE_SCALE, jack_of_diamonds,  PSET);
+    put(304 * PICTURE_SCALE, 204 * PICTURE_SCALE, ten_of_diamonds,   PSET);
+    put(379 * PICTURE_SCALE, 204 * PICTURE_SCALE, nine_of_diamonds,  PSET);
+    put(454 * PICTURE_SCALE, 204 * PICTURE_SCALE, eight_of_diamonds, PSET);
+    put(529 * PICTURE_SCALE, 204 * PICTURE_SCALE, seven_of_diamonds, PSET);
+    put(604 * PICTURE_SCALE, 204 * PICTURE_SCALE, six_of_diamonds,   PSET);
+    put(679 * PICTURE_SCALE, 204 * PICTURE_SCALE, five_of_diamonds,  PSET);
+    put(754 * PICTURE_SCALE, 204 * PICTURE_SCALE, four_of_diamonds,  PSET);
+    put(829 * PICTURE_SCALE, 204 * PICTURE_SCALE, three_of_diamonds, PSET);
+    put(904 * PICTURE_SCALE, 204 * PICTURE_SCALE, two_of_diamonds,   PSET);
+    put(  4 * PICTURE_SCALE, 304 * PICTURE_SCALE, ace_of_clubs,      PSET);
+    put( 79 * PICTURE_SCALE, 304 * PICTURE_SCALE, king_of_clubs,     PSET);
+    put(154 * PICTURE_SCALE, 304 * PICTURE_SCALE, queen_of_clubs,    PSET);
+    put(229 * PICTURE_SCALE, 304 * PICTURE_SCALE, jack_of_clubs,     PSET);
+    put(304 * PICTURE_SCALE, 304 * PICTURE_SCALE, ten_of_clubs,      PSET);
+    put(379 * PICTURE_SCALE, 304 * PICTURE_SCALE, nine_of_clubs,     PSET);
+    put(454 * PICTURE_SCALE, 304 * PICTURE_SCALE, eight_of_clubs,    PSET);
+    put(529 * PICTURE_SCALE, 304 * PICTURE_SCALE, seven_of_clubs,    PSET);
+    put(604 * PICTURE_SCALE, 304 * PICTURE_SCALE, six_of_clubs,      PSET);
+    put(679 * PICTURE_SCALE, 304 * PICTURE_SCALE, five_of_clubs,     PSET);
+    put(754 * PICTURE_SCALE, 304 * PICTURE_SCALE, four_of_clubs,     PSET);
+    put(829 * PICTURE_SCALE, 304 * PICTURE_SCALE, three_of_clubs,    PSET);
+    put(904 * PICTURE_SCALE, 304 * PICTURE_SCALE, two_of_clubs,      PSET);
+    DRAW_FLUSH;
+    # move_card;
+    readln(KEYBOARD);
+  end func;

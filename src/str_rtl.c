@@ -1205,6 +1205,34 @@ inttype stop;
 
 #ifdef ANSI_C
 
+inttype strRChPos (const const_stritype main_stri, const chartype searched)
+#else
+
+inttype strRChPos (main_stri, searched)
+stritype main_stri;
+chartype searched;
+#endif
+
+  {
+    const strelemtype *main_mem;
+    const strelemtype *found_pos;
+
+  /* strRChPos */
+    if (main_stri->size >= 1) {
+      main_mem = main_stri->mem;
+      found_pos = rsearch_strelem(&main_mem[main_stri->size - 1], searched,
+	  (SIZE_TYPE) (main_stri->size));
+      if (found_pos != NULL) {
+        return(((inttype) (found_pos - main_mem)) + 1);
+      } /* if */
+    } /* if */
+    return(0);
+  } /* strRChPos */
+
+
+
+#ifdef ANSI_C
+
 stritype strRepl (const const_stritype main_stri,
     const const_stritype searched, const const_stritype replace)
 #else
