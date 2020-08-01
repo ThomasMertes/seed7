@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2016  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Main                                                    */
 /*  File: seed7/src/primitiv.c                                      */
-/*  Changes: 1992, 1993, 1994, 2004 - 2016  Thomas Mertes           */
+/*  Changes: 1992, 1993, 1994, 2004 - 2020  Thomas Mertes           */
 /*  Content: Table definitions for all primitive actions.           */
 /*                                                                  */
 /********************************************************************/
@@ -918,6 +918,7 @@ static const actEntryRecord actEntryTable[] = {
     { "SQL_ERR_MESSAGE",         sql_err_message,         },
     { "SQL_EXECUTE",             sql_execute,             },
     { "SQL_FETCH",               sql_fetch,               },
+    { "SQL_GET_AUTO_COMMIT",     sql_get_auto_commit,     },
     { "SQL_IS_NULL",             sql_is_null,             },
     { "SQL_NE_DB",               sql_ne_db,               },
     { "SQL_NE_STMT",             sql_ne_stmt,             },
@@ -929,7 +930,10 @@ static const actEntryRecord actEntryTable[] = {
     { "SQL_OPEN_ODBC",           sql_open_odbc,           },
     { "SQL_OPEN_POST",           sql_open_post,           },
     { "SQL_OPEN_SQLSRV",         sql_open_sqlsrv,         },
+    { "SQL_OPEN_TDS",            sql_open_tds,            },
     { "SQL_PREPARE",             sql_prepare,             },
+    { "SQL_ROLLBACK",            sql_rollback,            },
+    { "SQL_SET_AUTO_COMMIT",     sql_set_auto_commit,     },
     { "SQL_STMT_COLUMN_COUNT",   sql_stmt_column_count,   },
     { "SQL_STMT_COLUMN_NAME",    sql_stmt_column_name,    },
 #endif

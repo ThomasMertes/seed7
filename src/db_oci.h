@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  db_oci.h      OCI interfaces used by Seed7.                     */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/db_oci.h                                        */
-/*  Changes: 2014  Thomas Mertes                                    */
+/*  Changes: 2014, 2020  Thomas Mertes                              */
 /*  Content: OCI interfaces used by Seed7.                          */
 /*                                                                  */
 /********************************************************************/
@@ -130,7 +130,8 @@ typedef sb4 (*OCICallbackLobWrite2) (void  *ctxp, void  *bufp, oraub8 *lenp,
 #define OCI_NEXT_PIECE  2
 #define OCI_LAST_PIECE  3
 
-#define OCI_DESCRIBE_ONLY 0x10
+#define OCI_DESCRIBE_ONLY     0x10
+#define OCI_COMMIT_ON_SUCCESS 0x20
 
 #define OCI_STMT_SELECT 1
 
@@ -172,57 +173,59 @@ typedef sb4 (*OCICallbackLobWrite2) (void  *ctxp, void  *bufp, oraub8 *lenp,
 #define SQLT_INTERVAL_DS   190
 #define SQLT_TIMESTAMP_LTZ 232
 
-sword OCIAttrGet (const void  *trgthndlp, ub4 trghndltyp,
-                  void  *attributep, ub4 *sizep, ub4 attrtype,
+sword OCIAttrGet (const void *trgthndlp, ub4 trghndltyp,
+                  void *attributep, ub4 *sizep, ub4 attrtype,
                   OCIError *errhp);
-sword OCIAttrSet (void  *trgthndlp, ub4 trghndltyp, void  *attributep,
+sword OCIAttrSet (void *trgthndlp, ub4 trghndltyp, void *attributep,
                   ub4 size, ub4 attrtype, OCIError *errhp);
 sword OCIBindByPos (OCIStmt *stmtp, OCIBind **bindp, OCIError *errhp,
-                    ub4 position, void  *valuep, sb4 value_sz,
-                    ub2 dty, void  *indp, ub2 *alenp, ub2 *rcodep,
+                    ub4 position, void *valuep, sb4 value_sz,
+                    ub2 dty, void *indp, ub2 *alenp, ub2 *rcodep,
                     ub4 maxarr_len, ub4 *curelep, ub4 mode);
 sword OCIDateTimeConstruct (void *hndl,OCIError *err,OCIDateTime *datetime,
                             sb2 yr,ub1 mnth,ub1 dy,ub1 hr,ub1 mm,ub1 ss,ub4 fsec,
-                            OraText *timezone,size_t timezone_length);
-sword OCIDateTimeGetDate (void  *hndl, OCIError *err,  const OCIDateTime *date,
+                            OraText *timezone, size_t timezone_length);
+sword OCIDateTimeGetDate (void *hndl, OCIError *err,  const OCIDateTime *date,
                           sb2 *yr, ub1 *mnth, ub1 *dy);
-sword OCIDateTimeGetTime (void  *hndl, OCIError *err, OCIDateTime *datetime,
+sword OCIDateTimeGetTime (void *hndl, OCIError *err, OCIDateTime *datetime,
                           ub1 *hr, ub1 *mm, ub1 *ss, ub4 *fsec);
+sword OCIDateTimeGetTimeZoneOffset (void *hndl, OCIError *err,
+                                    OCIDateTime *datetime, sb1 *hour, sb1 *min);
 sword OCIDefineByPos (OCIStmt *stmtp, OCIDefine **defnp, OCIError *errhp,
-                      ub4 position, void  *valuep, sb4 value_sz, ub2 dty,
-                      void  *indp, ub2 *rlenp, ub2 *rcodep, ub4 mode);
-sword OCIDefineDynamic (OCIDefine *defnp, OCIError *errhp, void  *octxp,
+                      ub4 position, void *valuep, sb4 value_sz, ub2 dty,
+                      void *indp, ub2 *rlenp, ub2 *rcodep, ub4 mode);
+sword OCIDefineDynamic (OCIDefine *defnp, OCIError *errhp, void *octxp,
                         OCICallbackDefine ocbfp);
 sword OCIDefineObject (OCIDefine *defnp, OCIError *errhp,
-                       const OCIType *type, void  **pgvpp,
-                       ub4 *pvszsp, void  **indpp, ub4 *indszp);
-sword OCIDescriptorAlloc (const void  *parenth, void  **descpp,
+                       const OCIType *type, void **pgvpp,
+                       ub4 *pvszsp, void **indpp, ub4 *indszp);
+sword OCIDescriptorAlloc (const void *parenth, void **descpp,
                           const ub4 type, const size_t xtramem_sz,
-                          void  **usrmempp);
-sword OCIDescriptorFree (void  *descp, const ub4 type);
-sword OCIEnvCreate (OCIEnv **envp, ub4 mode, void  *ctxp,
-                    void  *(*malocfp)(void  *ctxp, size_t size),
-                    void  *(*ralocfp)(void  *ctxp, void  *memptr, size_t newsize),
-                    void   (*mfreefp)(void  *ctxp, void  *memptr),
-                    size_t xtramem_sz, void  **usrmempp);
-sword OCIEnvNlsCreate (OCIEnv **envp, ub4 mode, void  *ctxp,
-                       void  *(*malocfp)(void  *ctxp, size_t size),
-                       void  *(*ralocfp)(void  *ctxp, void  *memptr, size_t newsize),
-                       void   (*mfreefp)(void  *ctxp, void  *memptr),
-                       size_t xtramem_sz, void  **usrmempp,
+                          void **usrmempp);
+sword OCIDescriptorFree (void *descp, const ub4 type);
+sword OCIEnvCreate (OCIEnv **envp, ub4 mode, void *ctxp,
+                    void *(*malocfp)(void *ctxp, size_t size),
+                    void *(*ralocfp)(void *ctxp, void *memptr, size_t newsize),
+                    void (*mfreefp)(void *ctxp, void *memptr),
+                    size_t xtramem_sz, void **usrmempp);
+sword OCIEnvNlsCreate (OCIEnv **envp, ub4 mode, void *ctxp,
+                       void *(*malocfp)(void *ctxp, size_t size),
+                       void *(*ralocfp)(void *ctxp, void *memptr, size_t newsize),
+                       void (*mfreefp)(void *ctxp, void *memptr),
+                       size_t xtramem_sz, void **usrmempp,
                        ub2 charset, ub2 ncharset);
-sword OCIErrorGet (void  *hndlp, ub4 recordno, OraText *sqlstate,
+sword OCIErrorGet (void *hndlp, ub4 recordno, OraText *sqlstate,
                    sb4 *errcodep, OraText *bufp, ub4 bufsiz, ub4 type);
-sword OCIHandleAlloc (const void  *parenth, void  **hndlpp, const ub4 type,
-                      const size_t xtramem_sz, void  **usrmempp);
-sword OCIHandleFree (void  *hndlp, const ub4 type);
-sword OCIIntervalSetDaySecond (void  *hndl, OCIError *err, sb4 dy, sb4 hr,
+sword OCIHandleAlloc (const void *parenth, void **hndlpp, const ub4 type,
+                      const size_t xtramem_sz, void **usrmempp);
+sword OCIHandleFree (void *hndlp, const ub4 type);
+sword OCIIntervalSetDaySecond (void *hndl, OCIError *err, sb4 dy, sb4 hr,
                                sb4 mm, sb4 ss, sb4 fsec, OCIInterval *result);
-sword OCIIntervalSetYearMonth (void  *hndl, OCIError *err, sb4 yr, sb4 mnth,
+sword OCIIntervalSetYearMonth (void *hndl, OCIError *err, sb4 yr, sb4 mnth,
                                OCIInterval *result);
-sword OCIIntervalGetDaySecond (void  *hndl, OCIError *err, sb4 *dy, sb4 *hr,
+sword OCIIntervalGetDaySecond (void *hndl, OCIError *err, sb4 *dy, sb4 *hr,
                                sb4 *mm, sb4 *ss, sb4 *fsec, const OCIInterval *result);
-sword OCIIntervalGetYearMonth (void  *hndl, OCIError *err, sb4 *yr, sb4 *mnth,
+sword OCIIntervalGetYearMonth (void *hndl, OCIError *err, sb4 *yr, sb4 *mnth,
                                const OCIInterval *result);
 sword OCILobCreateTemporary (OCISvcCtx *svchp,
                              OCIError *errhp,
@@ -243,19 +246,19 @@ sword OCILobIsTemporary (OCIEnv *envp,
                          boolean *is_temporary);
 sword OCILobRead2 (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
                    oraub8 *byte_amtp, oraub8 *char_amtp, oraub8 offset,
-                   void  *bufp, oraub8 bufl, ub1 piece, void  *ctxp,
+                   void *bufp, oraub8 bufl, ub1 piece, void *ctxp,
                    OCICallbackLobRead2 cbfp, ub2 csid, ub1 csfrm);
 sword OCILobTrim2 (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
                    oraub8 newlen);
 sword OCILobWrite2 (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
                     oraub8 *byte_amtp, oraub8 *char_amtp, oraub8 offset,
-                    void  *bufp, oraub8 buflen, ub1 piece, void  *ctxp,
+                    void *bufp, oraub8 buflen, ub1 piece, void *ctxp,
                     OCICallbackLobWrite2 cbfp, ub2 csid, ub1 csfrm);
-ub2 OCINlsCharSetNameToId (void  *envhp, const oratext *name);
+ub2 OCINlsCharSetNameToId (void *envhp, const oratext *name);
 sword OCINumberToReal (OCIError *err, const OCINumber *number,
-                       uword rsl_length, void  *rsl);
-sword OCIParamGet (const void  *hndlp, ub4 htype, OCIError *errhp,
-                   void  **parmdpp, ub4 pos);
+                       uword rsl_length, void *rsl);
+sword OCIParamGet (const void *hndlp, ub4 htype, OCIError *errhp,
+                   void **parmdpp, ub4 pos);
 ub4 OCIRefHexSize (OCIEnv *env, const OCIRef *ref);
 sword OCIRefToHex (OCIEnv *env, OCIError *err, const OCIRef *ref,
                    oratext *hex, ub4 *hex_length);
@@ -278,3 +281,4 @@ sword OCIStmtPrepare (OCIStmt *stmtp, OCIError *errhp, const OraText *stmt,
 oratext *OCIStringPtr (OCIEnv *env, const OCIString *vs);
 ub4 OCIStringSize (OCIEnv *env, const OCIString *vs);
 sword OCITransCommit (OCISvcCtx *svchp, OCIError *errhp, ub4 flags);
+sword OCITransRollback (dvoid *svchp,  OCIError *errhp, ub4 flags);

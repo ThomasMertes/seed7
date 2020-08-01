@@ -1080,12 +1080,13 @@ void create_local_object (const_locObjType local, objectType init_value,
 
 
 
-void destroy_local_object (const_locObjType local, errInfoType *err_info)
+void destroy_local_object (const_locObjType local, boolType ignoreError)
 
   {
     objectRecord call_object;
     listRecord call_list[3];
     objectType call_result;
+    boolType okay = TRUE;
 
   /* destroy_local_object */
     switch (CATEGORY_OF_OBJ(local->object->value.objValue)) {
@@ -1126,12 +1127,24 @@ void destroy_local_object (const_locObjType local, errInfoType *err_info)
         call_result = exec_call(&call_object);
         /* printf("destroy_local_object: after exec_call\n");
            fflush(stdout); */
-        if (call_result != SYS_EMPTY_OBJECT) {
-          set_fail_flag(FALSE);
-          *err_info = CREATE_ERROR;
+        if (unlikely(call_result != SYS_EMPTY_OBJECT)) {
+          okay = FALSE;
+          if (ignoreError) {
+            leaveExceptionHandling();
+          /* } else if (!fail_flag) {
+             raise_error(DESTROY_ERROR); */
+          } /* if */
         } /* if */
         break;
     } /* switch */
+    if (IS_UNUSED(local->object->value.objValue)) {
+      FREE_OBJECT(local->object->value.objValue);
+    } else if (unlikely(okay &&
+        CATEGORY_OF_OBJ(local->object->value.objValue) != STRUCTOBJECT)) {
+      printf("loc not dumped: ");
+      trace1(local->object->value.objValue);
+      printf("\n");
+    } /* if */
   } /* destroy_local_object */
 
 

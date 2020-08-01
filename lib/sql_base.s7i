@@ -47,13 +47,13 @@ include "bstring.s7i";
  *  * DB_SQL_SERVER SQL Server
  *)
 const type: dbCategory is new enum
-    NO_DB, DB_MYSQL, DB_SQLITE, DB_POSTGRESQL, DB_OCI, DB_ODBC, DB_FIRE, DB_DB2, DB_SQL_SERVER
+    NO_DB, DB_MYSQL, DB_SQLITE, DB_POSTGRESQL, DB_OCI, DB_ODBC, DB_FIRE, DB_DB2, DB_SQL_SERVER, DB_TDS
   end enum;
 
 
 const func string: str (in dbCategory: driver) is
-  return [] ("NO_DB", "DB_MYSQL", "DB_SQLITE", "DB_POSTGRESQL",
-             "DB_OCI", "DB_ODBC", "DB_FIRE", "DB_DB2", "DB_SQL_SERVER") [succ(ord(driver))];
+  return [] ("NO_DB", "DB_MYSQL", "DB_SQLITE", "DB_POSTGRESQL", "DB_OCI",
+             "DB_ODBC", "DB_FIRE", "DB_DB2", "DB_SQL_SERVER", "DB_TDS") [succ(ord(driver))];
 
 
 const func dbCategory: dbCategory (in string: name) is func
@@ -87,6 +87,8 @@ const func dbCategory: dbCategory (in string: name) is func
           ucName = "SQL_SERVER" or
           ucName = "SQL SERVER" then
       driver := DB_SQL_SERVER;
+    elsif ucName = "TDS" then
+      driver := DB_TDS;
     end if;
   end func;
 
@@ -206,6 +208,10 @@ const func database: openDatabase (DB_DB2, in string: host,
 const func database: openDatabase (DB_SQL_SERVER, in string: host,
                                    in integer: port, in string: dbName,
                                    in string: user, in string: password) is action "SQL_OPEN_SQLSRV";
+
+const func database: openDatabase (DB_TDS, in string: host,
+                                   in integer: port, in string: dbName,
+                                   in string: user, in string: password) is action "SQL_OPEN_TDS";
 
 (**
  *  Open database with ''host'', ''port'', ''dbName'' ''user'' and ''password''.
@@ -794,9 +800,27 @@ const func boolean: isNull (in sqlStatement: statement, in integer: column)     
 
 
 (**
+ *  Get the current auto-commit mode for the specified database 'database'.
+ *)
+const func boolean: getAutoCommit (in database: db)                                    is action "SQL_GET_AUTO_COMMIT";
+
+
+(**
+ *  Set the auto-commit mode for the specified database 'database'.
+ *)
+const proc: setAutoCommit (in database: db, in boolean: autoCommit)                    is action "SQL_SET_AUTO_COMMIT";
+
+
+(**
  *  Execute a commit statement for the specified database ''db''.
  *)
 const proc: commit (in database: db)                                                   is action "SQL_COMMIT";
+
+
+(**
+ *  Execute a rollback statement for the specified database ''db''.
+ *)
+const proc: rollback (in database: db)                                                 is action "SQL_ROLLBACK";
 
 
 (**

@@ -31,19 +31,32 @@
 
 time_t mkutc (struct tm *timeptr);
 time_t unchecked_mkutc (struct tm *timeptr);
-void timFromTimestamp (time_t st_time,
+void timFromTimestamp (time_t timestamp,
     intType *year, intType *month, intType *day, intType *hour,
-    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
-    boolType *is_dst);
+    intType *minute, intType *second, intType *micro_sec, intType *timeZone,
+    boolType *isDst);
 void timFromIntTimestamp (intType timestamp,
     intType *year, intType *month, intType *day, intType *hour,
-    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
-    boolType *is_dst);
-void timUtcFromTimestamp (time_t timestamp,
-    intType *year, intType *month, intType *day, intType *hour,
-    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
-    boolType *is_dst);
-time_t timToTimestamp (intType year, intType month, intType day, intType hour,
-    intType min, intType sec, intType micro_sec, intType time_zone);
+    intType *minute, intType *second, intType *micro_sec, intType *timeZone,
+    boolType *isDst);
+void timUtcFromTimestamp (timeStampType timestamp,
+    intType *year, intType *month, intType *day,
+    intType *hour, intType *minute, intType *second);
+timeStampType timToTimestamp (intType year, intType month, intType day,
+    intType hour, intType minute, intType second, intType timeZone);
+
+#if TIME_T_SIZE == TIMESTAMPTYPE_SIZE && TIME_T_SIGNED
+#define timToOsTimestamp(year, month, day, hour, minute, second, timeZone) \
+    (time_t) timToTimestamp(year, month, day, hour, minute, second, timeZone)
+#else
+time_t timToOsTimestamp (intType year, intType month, intType day,
+    intType hour, intType minute, intType second, intType timeZone);
+#endif
+
 void timSetLocalTZ (intType year, intType month, intType day, intType hour,
-    intType min, intType sec, intType *time_zone, boolType *is_dst);
+    intType minute, intType second, intType *timeZone, boolType *isDst);
+void dateFromDaysSince1900 (int32Type daysSince1900_01_01,
+    intType *year, intType *month, intType *day);
+boolType assignTime (const_cstriType isoDate, intType *year, intType *month,
+    intType *day, intType *hour, intType *minute, intType *second,
+    intType *microSecond, boolType *isTime);

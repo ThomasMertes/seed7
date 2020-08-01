@@ -62,7 +62,7 @@
 #define SYS_OVF_EXCEPTION         OVF_EXCEPTION(prog)
 #define SYS_RNG_EXCEPTION         RNG_EXCEPTION(prog)
 #define SYS_FIL_EXCEPTION         FIL_EXCEPTION(prog)
-#define SYS_DB_EXCEPTION          FIL_EXCEPTION(prog)
+#define SYS_DB_EXCEPTION          DB_EXCEPTION(prog)
 #define SYS_ACT_ILLEGAL_EXCEPTION ACT_ILLEGAL_EXCEPTION(prog)
 #define SYS_FALSE_OBJECT          FALSE_OBJECT(prog)
 #define SYS_TRUE_OBJECT           TRUE_OBJECT(prog)

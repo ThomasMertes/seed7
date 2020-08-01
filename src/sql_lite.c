@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_lite.c    Database access functions for SQLite.             */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_lite.c                                      */
-/*  Changes: 2013, 2014, 2015, 2017 - 2019  Thomas Mertes           */
+/*  Changes: 2013, 2014, 2015, 2017 - 2020  Thomas Mertes           */
 /*  Content: Database access functions for SQLite.                  */
 /*                                                                  */
 /********************************************************************/
@@ -131,10 +131,16 @@ typedef int (CDECL *tp_sqlite3_column_type) (sqlite3_stmt *pStmt, int iCol);
 typedef sqlite3 *(CDECL *tp_sqlite3_db_handle) (sqlite3_stmt *pStmt);
 typedef int (CDECL *tp_sqlite3_errcode) (sqlite3 *db);
 typedef const char *(CDECL *tp_sqlite3_errmsg) (sqlite3 *db);
+typedef int (CDECL *tp_sqlite3_exec) (sqlite3 *db,
+                                      const char *sql,
+                                      int (*callback) (void*, int, char**, char**),
+                                      void *arg1OfCallback,
+                                      char **errMsg);
 typedef int (CDECL *tp_sqlite3_finalize) (sqlite3_stmt *pStmt);
+typedef int (CDECL *tp_sqlite3_get_autocommit) (sqlite3 *db);
 typedef int (CDECL *tp_sqlite3_open) (const char *filename, sqlite3 **ppDb);
 typedef int (CDECL *tp_sqlite3_prepare) (sqlite3 *db,
-                                         const char *zSql,
+                                         const char *sql,
                                          int nByte,
                                          sqlite3_stmt **ppStmt,
                                          const char **pzTail);
@@ -161,7 +167,9 @@ static tp_sqlite3_column_type          ptr_sqlite3_column_type;
 static tp_sqlite3_db_handle            ptr_sqlite3_db_handle;
 static tp_sqlite3_errcode              ptr_sqlite3_errcode;
 static tp_sqlite3_errmsg               ptr_sqlite3_errmsg;
+static tp_sqlite3_exec                 ptr_sqlite3_exec;
 static tp_sqlite3_finalize             ptr_sqlite3_finalize;
+static tp_sqlite3_get_autocommit       ptr_sqlite3_get_autocommit;
 static tp_sqlite3_open                 ptr_sqlite3_open;
 static tp_sqlite3_prepare              ptr_sqlite3_prepare;
 static tp_sqlite3_reset                ptr_sqlite3_reset;
@@ -187,7 +195,9 @@ static tp_sqlite3_step                 ptr_sqlite3_step;
 #define sqlite3_db_handle            ptr_sqlite3_db_handle
 #define sqlite3_errcode              ptr_sqlite3_errcode
 #define sqlite3_errmsg               ptr_sqlite3_errmsg
+#define sqlite3_exec                 ptr_sqlite3_exec
 #define sqlite3_finalize             ptr_sqlite3_finalize
+#define sqlite3_get_autocommit       ptr_sqlite3_get_autocommit
 #define sqlite3_open                 ptr_sqlite3_open
 #define sqlite3_prepare              ptr_sqlite3_prepare
 #define sqlite3_reset                ptr_sqlite3_reset
@@ -225,7 +235,9 @@ static boolType setupDll (const char *dllName)
             (sqlite3_db_handle            = (tp_sqlite3_db_handle)            dllFunc(dbDll, "sqlite3_db_handle"))            == NULL ||
             (sqlite3_errcode              = (tp_sqlite3_errcode)              dllFunc(dbDll, "sqlite3_errcode"))              == NULL ||
             (sqlite3_errmsg               = (tp_sqlite3_errmsg)               dllFunc(dbDll, "sqlite3_errmsg"))               == NULL ||
+            (sqlite3_exec                 = (tp_sqlite3_exec)                 dllFunc(dbDll, "sqlite3_exec"))                 == NULL ||
             (sqlite3_finalize             = (tp_sqlite3_finalize)             dllFunc(dbDll, "sqlite3_finalize"))             == NULL ||
+            (sqlite3_get_autocommit       = (tp_sqlite3_get_autocommit)       dllFunc(dbDll, "sqlite3_get_autocommit"))       == NULL ||
             (sqlite3_open                 = (tp_sqlite3_open)                 dllFunc(dbDll, "sqlite3_open"))                 == NULL ||
             (sqlite3_prepare              = (tp_sqlite3_prepare)              dllFunc(dbDll, "sqlite3_prepare"))              == NULL ||
             (sqlite3_reset                = (tp_sqlite3_reset)                dllFunc(dbDll, "sqlite3_reset"))                == NULL ||
@@ -1112,30 +1124,33 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
-      } else if (unlikely(!ALLOC_CSTRI(isoDate, 23))) {
+      } else if (unlikely(!ALLOC_CSTRI(isoDate, 26))) {
         raise_error(MEMORY_ERROR);
       } else {
         if (hour == 0 && minute == 0 && second == 0 && micro_second == 0) {
-          sprintf(isoDate, "%04d-%02u-%02u",
-                  (int) year, (unsigned int) month, (unsigned int) day);
+          sprintf(isoDate, F_D(04) "-" F_U(02) "-" F_U(02),
+                  year, month, day);
           length = 10;
-        } else if (year == 0 && month == 1 && day == 1 && micro_second == 0) {
-          sprintf(isoDate, "%02u:%02u:%02u",
-                  (unsigned int) hour, (unsigned int) minute,
-                  (unsigned int) second);
-          length = 8;
+        } else if (year == 0 && month == 1 && day == 1) {
+          if (micro_second == 0) {
+            sprintf(isoDate, F_U(02) ":" F_U(02) ":" F_U(02),
+                    hour, minute, second);
+            length = 8;
+          } else {
+            sprintf(isoDate, F_U(02) ":" F_U(02) ":" F_U(02) "." F_U(06),
+                    hour, minute, second, micro_second);
+            length = 15;
+          } /* if */
         } else if (micro_second == 0) {
-          sprintf(isoDate, "%04d-%02u-%02u %02u:%02u:%02u",
-                  (int) year, (unsigned int) month, (unsigned int) day,
-                  (unsigned int) hour, (unsigned int) minute,
-                  (unsigned int) second);
+          sprintf(isoDate, F_D(04) "-" F_U(02) "-" F_U(02) " "
+                           F_U(02) ":" F_U(02) ":" F_U(02),
+                  year, month, day, hour, minute, second);
           length = 19;
         } else {
-          sprintf(isoDate, "%04d-%02u-%02u %02u:%02u:%02u.%03u",
-                  (int) year, (unsigned int) month, (unsigned int) day,
-                  (unsigned int) hour, (unsigned int) minute,
-                  (unsigned int) second, (unsigned int) micro_second / 1000);
-          length = 23;
+          sprintf(isoDate, F_D(04) "-" F_U(02) "-" F_U(02) " "
+                           F_U(02) ":" F_U(02) ":" F_U(02) "." F_U(06),
+                  year, month, day, hour, minute, second,  micro_second);
+          length = 26;
         } /* if */
         if (unlikely(sqlite3_bind_text(preparedStmt->ppStmt,
                                        (int) pos,
@@ -1830,11 +1845,9 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
 
   {
     preparedStmtType preparedStmt;
-    const_ustriType isoDate;
+    const_cstriType isoDate;
     boolType okay;
-    boolType setYearToZero = FALSE;
-    memSizeType microsecStriLen;
-    char microsecStri[6 + NULL_TERMINATION_LEN];
+    boolType isTime;
 
   /* sqlColumnTime */
     logFunction(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", *)\n",
@@ -1849,7 +1862,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     } else {
       /* printf("type: %s\n",
          nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1))); */
-      isoDate = sqlite3_column_text(preparedStmt->ppStmt, (int) column - 1);
+      isoDate = (const_cstriType) sqlite3_column_text(preparedStmt->ppStmt,
+                                                      (int) column - 1);
       /* printf("isoDate: %lx\n", (unsigned long int) isoDate); */
       if (isoDate == NULL) {
         *year         = 0;
@@ -1862,71 +1876,21 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         *time_zone    = 0;
         *is_dst       = 0;
       } else {
-        switch (strlen((cstriType) isoDate)) {
-          case 21:
-          case 22:
-          case 23:
-          case 24:
-          case 25:
-          case 26:
-            okay = sscanf((const_cstriType) isoDate,
-                          F_D(04) "-" F_U(02) "-" F_U(02) " "
-                          F_U(02) ":" F_U(02) ":" F_U(02) ".%s",
-                          year, month, day, hour, minute, second,
-                          microsecStri) == 7;
-            if (okay) {
-              microsecStriLen = (memSizeType) strlen(microsecStri);
-              if (microsecStriLen < 6) {
-                memset(&microsecStri[microsecStriLen], '0', 6 - microsecStriLen);
-                microsecStri[6] = '\0';
-              } /* if */
-              okay &= sscanf((const char *) microsecStri, FMT_D, micro_second) == 1;
-            } /* if */
-            break;
-          case 19:
-            okay = sscanf((const_cstriType) isoDate,
-                          F_D(04) "-" F_U(02) "-" F_U(02) " "
-                          F_U(02) ":" F_U(02) ":" F_U(02),
-                          year, month, day, hour, minute, second) == 6;
-            *micro_second = 0;
-            break;
-          case 10:
-            okay = sscanf((const_cstriType) isoDate,
-                          F_D(04) "-" F_U(02) "-" F_U(02),
-                          year, month, day) == 3;
-            *hour         = 0;
-            *minute       = 0;
-            *second       = 0;
-            *micro_second = 0;
-            break;
-          case 8:
-            okay = sscanf((const_cstriType) isoDate,
-                          F_U(02) ":" F_U(02) ":" F_U(02),
-                          hour, minute, second) == 3;
-            *year         = 2000;
-            *month        = 1;
-            *day          = 1;
-            *micro_second = 0;
-            setYearToZero = TRUE;
-            break;
-          default:
-            logError(printf("sqlColumnTime: Unexpected length of date (%s): "
-                            FMT_U_MEM "\n",
-                            isoDate, strlen((cstriType) isoDate)););
-            okay = FALSE;
-            break;
-        } /* switch */
+        okay = assignTime(isoDate, year, month, day, hour, minute, second,
+                          micro_second, &isTime);
         if (unlikely(!okay)) {
           logError(printf("sqlColumnTime: Column " FMT_D ": "
                           "Failed to recognize time: %s\n",
                           column, isoDate););
           raise_error(RANGE_ERROR);
+        } else if (isTime) {
+          *year = 2000;
+          timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                        time_zone, is_dst);
+          *year = 0;
         } else {
           timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
                         time_zone, is_dst);
-          if (setYearToZero) {
-            *year = 0;
-          } /* if */
         } /* if */
       } /* if */
     } /* if */
@@ -1943,7 +1907,23 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
 
 static void sqlCommit (databaseType database)
 
-  { /* sqlCommit */
+  {
+    dbType db;
+
+  /* sqlCommit */
+    logFunction(printf("sqlCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else {
+      if (sqlite3_get_autocommit(db->connection) != 0) {
+        sqlite3_exec(db->connection, "COMMIT", NULL, NULL, NULL);
+        sqlite3_exec(db->connection, "BEGIN", NULL, NULL, NULL);
+      } /* if */
+    } /* if */
+    logFunction(printf("sqlCommit -->\n"););
   } /* sqlCommit */
 
 
@@ -2050,6 +2030,29 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
 
 
 
+static boolType sqlGetAutoCommit (databaseType database)
+
+  {
+    dbType db;
+    boolType autoCommit;
+
+  /* sqlGetAutoCommit */
+    logFunction(printf("sqlGetAutoCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlGetAutoCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+      autoCommit = FALSE;
+    } else {
+      autoCommit = sqlite3_get_autocommit(db->connection) != 0;
+    } /* if */
+    logFunction(printf("sqlGetAutoCommit --> %d\n", autoCommit););
+    return autoCommit;
+  } /* sqlGetAutoCommit */
+
+
+
 static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
   {
@@ -2092,7 +2095,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
-    if (db->connection == NULL) {
+    if (unlikely(db->connection == NULL)) {
       logError(printf("sqlPrepare: Database is not open.\n"););
       err_info = RANGE_ERROR;
       preparedStmt = NULL;
@@ -2160,6 +2163,57 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) preparedStmt););
     return (sqlStmtType) preparedStmt;
   } /* sqlPrepare */
+
+
+
+static void sqlRollback (databaseType database)
+
+  {
+    dbType db;
+
+  /* sqlRollback */
+    logFunction(printf("sqlRollback(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlRollback: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else {
+      if (sqlite3_get_autocommit(db->connection) != 0) {
+        sqlite3_exec(db->connection, "ROLLBACK", NULL, NULL, NULL);
+        sqlite3_exec(db->connection, "BEGIN", NULL, NULL, NULL);
+      } /* if */
+    } /* if */
+    logFunction(printf("sqlRollback -->\n"););
+  } /* sqlRollback */
+
+
+
+static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
+
+  {
+    dbType db;
+    boolType inAutoCommitMode;
+
+  /* sqlSetAutoCommit */
+    logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) database, autoCommit););
+    db = (dbType) database;
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlSetAutoCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else {
+      inAutoCommitMode = sqlite3_get_autocommit(db->connection) != 0;
+      if (inAutoCommitMode != autoCommit) {
+        if (autoCommit) {
+          sqlite3_exec(db->connection, "COMMIT", NULL, NULL, NULL);
+        } else {
+          sqlite3_exec(db->connection, "BEGIN", NULL, NULL, NULL);
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("sqlSetAutoCommit -->\n"););
+  } /* sqlSetAutoCommit */
 
 
 
@@ -2255,8 +2309,11 @@ static boolType setupFuncTable (void)
         sqlFunc->sqlCommit          = &sqlCommit;
         sqlFunc->sqlExecute         = &sqlExecute;
         sqlFunc->sqlFetch           = &sqlFetch;
+        sqlFunc->sqlGetAutoCommit   = &sqlGetAutoCommit;
         sqlFunc->sqlIsNull          = &sqlIsNull;
         sqlFunc->sqlPrepare         = &sqlPrepare;
+        sqlFunc->sqlRollback        = &sqlRollback;
+        sqlFunc->sqlSetAutoCommit   = &sqlSetAutoCommit;
         sqlFunc->sqlStmtColumnCount = &sqlStmtColumnCount;
         sqlFunc->sqlStmtColumnName  = &sqlStmtColumnName;
       } /* if */
@@ -2341,9 +2398,7 @@ databaseType sqlOpenLite (const const_striType host, intType port,
           err_info = DATABASE_ERROR;
           fileName = NULL;
         } /* if */
-        /* printf("fileName: ");
-           prot_stri(fileName);
-           printf("\n"); */
+        /* printf("fileName: %s\n", striAsUnquotedCStri(fileName)); */
         if (fileName == NULL) {
           /* err_info was set before. */
           fileName8 = NULL;

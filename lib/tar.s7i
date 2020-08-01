@@ -1151,6 +1151,7 @@ const proc: putFile (inout tarArchive: tar, in string: filePath,
         header.mode     := fileMode conv 8#664;
         header.uid      := 100;
         header.gid      := 100;
+        header.mtime    := timestamp1970(time(NOW));
         header.typeflag := REGTYPE;
         header.magic    := TMAGIC;
         header.version  := "  ";
@@ -1204,6 +1205,7 @@ const proc: mkdir (inout tarArchive: tar, in string: filePath) is func
         header.mode     := fileMode conv 8#775;
         header.uid      := 100;
         header.gid      := 100;
+        header.mtime    := timestamp1970(time(NOW));
         header.typeflag := DIRTYPE;
         header.magic    := TMAGIC;
         header.version  := "  ";

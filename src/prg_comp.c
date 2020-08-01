@@ -152,7 +152,7 @@ void interpret (const progType currentProg, const const_rtlArrayType argv,
         prog->option_flags = options;
         setupSignalHandlers((options & HANDLE_SIGNALS) != 0,
                             (options & TRACE_SIGNALS) != 0,
-                            FALSE, FALSE, suspendInterpreter);
+                            FALSE, FALSE, doSuspendInterpreter);
         set_trace(prog->option_flags);
         set_protfile_name(protFileName);
         if (prog->arg_v != NULL) {

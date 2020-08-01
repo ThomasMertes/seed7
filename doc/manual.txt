@@ -4480,7 +4480,7 @@ CONTENTS
   The example above shows that functions with 'in' and 'inout'
   parameters can be overloaded. At the right side of an assignment
   the 'func' is called, while at the left side the 'varfunc'
-  is called. That way the access functions of arrays, hashs
+  is called. That way the access functions of arrays, hashes
   and structs can be used in the usual way.
 
 
@@ -9117,8 +9117,9 @@ CONTENTS
   a client may access a database. Seed7 accomplishes database
   independence by using database drivers as abstraction layers
   between the application and the database. There are database
-  drivers for MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, ODBC,
-  Firebird and Interbase databases. The following example uses the
+  drivers for MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird,
+  Interbase, Db2 and SQL Server databases. Databases can also be
+  accessed via the ODBC interface. The following example uses the
   datapase abstraction API:
 
     const proc: dbDemo is func
@@ -9165,11 +9166,12 @@ CONTENTS
   SQLLite       | DB_SQLITE     |              | Host must be "" and port must be 0.
   PostgreSQL    | DB_POSTGRESQL |   5432       |
   Oracle        | DB_OCI        |   1521       |
-   various DBs  | DB_ODBC       |              | Needs an ODBC driver to connect to a database.
   Firebird      | DB_FIRE       |              |
   Interbase     | DB_FIRE       |              |
   Db2           | DB_DB2        |  50000       |
   SQL Server    | DB_SQL_SERVER |   1433       |
+   various DBs  | DB_ODBC       |              | Needs an ODBC driver to connect to a database.
+  Sybase based  | DB_TDS        |   1433       |Supports SQL Server and Sybase.
 
   A basic function to open a database is:
 
@@ -9197,10 +9199,15 @@ CONTENTS
 
     currDb := openDatabase(DB_SQL_SERVER, "192.168.1.13", 0, "testDb", "testUser", "testPassword");
 
+    currDb := openDatabase(DB_TDS, "192.168.1.13", 0, "testDb", "testUser", "testPassword");
+
   The 'host' can be specified by name (e.g.: "www.example.org"),
   by an IPv4 address (e.g.: "192.0.2.235") or by an IPv6
   address in colon notation (e.g.: "1234:feed::dead:beef").
   Specifying "" as 'host' means "localhost".
+
+
+13.1.1 Opening an Oracle database connection
 
   When using the 'DB_OCI' driver you can either supply a net_service_name
   from tnsnames.ora or a service_name or a sid as 'dbName'. If
@@ -9209,12 +9216,18 @@ CONTENTS
 
     currDb := openDatabase(DB_OCI, "", 0, "tnsnamesOraEntryName", "testUser", "testPassword");
 
-  When using the 'DB_DB2' driver you can either supply a database alias
-  from db2cli.ini or a database name as 'dbName'. If
-  db2cli.ini is used the parameter 'host' must be "" and the
-  parameter 'port' must be 0.
+
+13.1.2 Opening a Db2 database connection
+
+  When using the 'DB_DB2' driver you can either supply a DSN
+  (data source name) from db2cli.ini (or db2dsdriver.cfg) or a
+  database name as 'dbName'. If a DSN is used the parameter
+  'host' must be "" and the parameter 'port' must be 0.
 
     currDb := openDatabase(DB_DB2, "", 0, "databaseAlias", "testUser", "testPassword");
+
+
+13.1.3 Opening a SQL Server database connection
 
   When using the 'DB_SQL_SERVER' driver you can either supply a database name
   from the local machine or a database that can be accessed via
@@ -9223,6 +9236,9 @@ CONTENTS
   If TCP/IP is used it must be enabled in the database.
 
     currDb := openDatabase(DB_SQL_SERVER, "", 0, "localDb", "testUser", "testPassword");
+
+
+13.1.4 Opening a SQLite database connection
 
   A SQLite database can be opened with:
 
@@ -9233,6 +9249,9 @@ CONTENTS
   The path to the database file (in the example above "aDir/dbName")
   can be specified with or without the extension ".db".
   For a SQLite database 'host' must be "" and 'port' must be 0.
+
+
+13.1.5 Opening a ODBC database connection
 
   The Seed7 database driver 'DB_ODBC' is special, as the ODBC
   interface itself allows connecting to several database types.
@@ -9259,7 +9278,7 @@ CONTENTS
   ODBC uses also data source names (DSNs) to specify possible
   database connections. It is possible to open an ODBC database
   by specifying the data source name (DSN) in the parameter
-  'dbName'. In this case the prameters 'odbcDriver' and 'server'
+  'dbName'. In this case the parameters 'odbcDriver' and 'server'
   must be "".
 
     currDb := openDatabase(DB_ODBC, "", "", "dsnName", "testUser", "testPassword");

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_my.c      Database access functions for MariaDB and MySQL.  */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_my.c                                        */
-/*  Changes: 2014, 2015, 2017 - 2019  Thomas Mertes                 */
+/*  Changes: 2014, 2015, 2017 - 2020  Thomas Mertes                 */
 /*  Content: Database access functions for MariaDB and MySQL.       */
 /*                                                                  */
 /********************************************************************/
@@ -66,6 +66,7 @@ typedef struct {
     sqlFuncType  sqlFunc;
     intType      driver;
     MYSQL       *connection;
+    boolType     autoCommit;
     boolType     backslashEscapes;
   } dbRecord, *dbType;
 
@@ -122,6 +123,7 @@ static sqlFuncType sqlFunc = NULL;
 #endif
 #endif
 
+typedef my_bool (STDCALL *tp_mysql_autocommit) (MYSQL *mysql, my_bool mode);
 typedef void (STDCALL *tp_mysql_close) (MYSQL *sock);
 typedef my_bool (STDCALL *tp_mysql_commit) (MYSQL *mysql);
 typedef unsigned int (STDCALL *tp_mysql_errno) (MYSQL *mysql);
@@ -142,6 +144,7 @@ typedef MYSQL *(STDCALL *tp_mysql_real_connect) (MYSQL *mysql,
                                                  unsigned int port,
                                                  const char *unix_socket,
                                                  unsigned long clientflag);
+typedef my_bool (STDCALL *tp_mysql_rollback) (MYSQL *mysql);
 typedef int (STDCALL *tp_mysql_set_character_set) (MYSQL *mysql,
                                                    const char *csname);
 typedef my_bool (STDCALL *tp_mysql_stmt_bind_param) (MYSQL_STMT *stmt,
@@ -165,6 +168,7 @@ typedef int (STDCALL *tp_mysql_stmt_prepare) (MYSQL_STMT *stmt,
 typedef MYSQL_RES *(STDCALL *tp_mysql_stmt_result_metadata) (MYSQL_STMT *stmt);
 typedef int *(STDCALL *tp_mysql_stmt_store_result) (MYSQL_STMT *stmt);
 
+static tp_mysql_autocommit           ptr_mysql_autocommit;
 static tp_mysql_close                ptr_mysql_close;
 static tp_mysql_commit               ptr_mysql_commit;
 static tp_mysql_errno                ptr_mysql_errno;
@@ -175,6 +179,7 @@ static tp_mysql_init                 ptr_mysql_init;
 static tp_mysql_num_fields           ptr_mysql_num_fields;
 static tp_mysql_options              ptr_mysql_options;
 static tp_mysql_real_connect         ptr_mysql_real_connect;
+static tp_mysql_rollback             ptr_mysql_rollback;
 static tp_mysql_set_character_set    ptr_mysql_set_character_set;
 static tp_mysql_stmt_bind_param      ptr_mysql_stmt_bind_param;
 static tp_mysql_stmt_bind_result     ptr_mysql_stmt_bind_result;
@@ -190,6 +195,7 @@ static tp_mysql_stmt_prepare         ptr_mysql_stmt_prepare;
 static tp_mysql_stmt_result_metadata ptr_mysql_stmt_result_metadata;
 static tp_mysql_stmt_store_result    ptr_mysql_stmt_store_result;
 
+#define mysql_autocommit           ptr_mysql_autocommit
 #define mysql_close                ptr_mysql_close
 #define mysql_commit               ptr_mysql_commit
 #define mysql_errno                ptr_mysql_errno
@@ -200,6 +206,7 @@ static tp_mysql_stmt_store_result    ptr_mysql_stmt_store_result;
 #define mysql_num_fields           ptr_mysql_num_fields
 #define mysql_options              ptr_mysql_options
 #define mysql_real_connect         ptr_mysql_real_connect
+#define mysql_rollback             ptr_mysql_rollback
 #define mysql_set_character_set    ptr_mysql_set_character_set
 #define mysql_stmt_bind_param      ptr_mysql_stmt_bind_param
 #define mysql_stmt_bind_result     ptr_mysql_stmt_bind_result
@@ -227,7 +234,8 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((mysql_close                = (tp_mysql_close)                dllFunc(dbDll, "mysql_close"))                == NULL ||
+        if ((mysql_autocommit           = (tp_mysql_autocommit)           dllFunc(dbDll, "mysql_autocommit"))           == NULL ||
+            (mysql_close                = (tp_mysql_close)                dllFunc(dbDll, "mysql_close"))                == NULL ||
             (mysql_commit               = (tp_mysql_commit)               dllFunc(dbDll, "mysql_commit"))               == NULL ||
             (mysql_errno                = (tp_mysql_errno)                dllFunc(dbDll, "mysql_errno"))                == NULL ||
             (mysql_error                = (tp_mysql_error)                dllFunc(dbDll, "mysql_error"))                == NULL ||
@@ -237,6 +245,7 @@ static boolType setupDll (const char *dllName)
             (mysql_num_fields           = (tp_mysql_num_fields)           dllFunc(dbDll, "mysql_num_fields"))           == NULL ||
             (mysql_options              = (tp_mysql_options)              dllFunc(dbDll, "mysql_options"))              == NULL ||
             (mysql_real_connect         = (tp_mysql_real_connect)         dllFunc(dbDll, "mysql_real_connect"))         == NULL ||
+            (mysql_rollback             = (tp_mysql_rollback)             dllFunc(dbDll, "mysql_rollback"))             == NULL ||
             (mysql_set_character_set    = (tp_mysql_set_character_set)    dllFunc(dbDll, "mysql_set_character_set"))    == NULL ||
             (mysql_stmt_bind_param      = (tp_mysql_stmt_bind_param)      dllFunc(dbDll, "mysql_stmt_bind_param"))      == NULL ||
             (mysql_stmt_bind_result     = (tp_mysql_stmt_bind_result)     dllFunc(dbDll, "mysql_stmt_bind_result"))     == NULL ||
@@ -506,6 +515,8 @@ static striType processStatementStri (const const_striType sqlStatementStri,
               pos++;
             } while (pos < sqlStatementStri->size && sqlStatementStri->mem[pos] != '/');
             pos++;
+            /* Replace the comment with a space. */
+            processed->mem[destPos++] = ' ';
           } /* if */
         } else if (ch == '-') {
           pos++;
@@ -516,6 +527,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
             while (pos < sqlStatementStri->size && sqlStatementStri->mem[pos] != '\n') {
               pos++;
             } /* while */
+            /* The final newline replaces the comment. */
           } /* if */
         } else {
           processed->mem[destPos++] = ch;
@@ -575,6 +587,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* setupResultColumn */
+    logFunction(printf("setupResultColumn: column_num=%d\n", column_num););
     column = mysql_fetch_field_direct(result_metadata, column_num - 1);
     /* printf("column[%u]->type: %s\n", column_num, nameOfBufferType(column->type)); */
     /* printf("charsetnr: %u\n", column->charsetnr); */
@@ -681,6 +694,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         preparedStmt->result_data_array[column_num - 1].binary = column->charsetnr == 63;
       } /* if */
     } /* if */
+    logFunction(printf("setupResultColumn --> %d\n", err_info););
     return err_info;
   } /* setupResultColumn */
 
@@ -771,8 +785,7 @@ static unsigned int setBigInt (const void *buffer, const const_bigIntType bigInt
     if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
     } else {
-      /* prot_stri(stri);
-         printf("\n"); */
+      /* printf("%s\n", striAsUnquotedCStri(stri)); */
       decimal = (unsigned char *) buffer;
       srcIndex = 0;
       destIndex = 0;
@@ -845,8 +858,7 @@ static unsigned int setBigRat (const void *buffer, const const_bigIntType numera
           FREE_STRI(stri, stri->size);
           *err_info = MEMORY_ERROR;
         } else {
-          /* prot_stri(stri);
-             printf("\n"); */
+          /* printf("%s\n", striAsUnquotedCStri(stri)); */
           striSizeUsed = (unsigned int) stri->size;
           scale = MAX_DECIMAL_SCALE;
           while (scale >= 2 && stri->mem[striSizeUsed - 1] == '0') {
@@ -2235,21 +2247,38 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               *time_zone    = 0;
               *is_dst       = 0;
             } else {
+              /* printf("timeValue->time_type: %d\n", timeValue->time_type); */
               *hour         = timeValue->hour;
               *minute       = timeValue->minute;
               *second       = timeValue->second;
               *micro_second = (intType) timeValue->second_part;
-              if (timeValue->time_type == MYSQL_TIMESTAMP_DATE ||
-                  timeValue->time_type == MYSQL_TIMESTAMP_DATETIME) {
-                *year      = timeValue->year;
-                *month     = timeValue->month;
-                *day       = timeValue->day;
+              if ((columnData->buffer_type != MYSQL_TYPE_TIME ||
+                  timeValue->time_type == MYSQL_TIMESTAMP_DATE ||
+                  timeValue->time_type == MYSQL_TIMESTAMP_DATETIME) &&
+                  timeValue->month != 0 && timeValue->day != 0) {
+                /* For 00:00:00 buffer_type is always MYSQL_TYPE_TIME. But */
+                /* for this time time_type might be MYSQL_TIMESTAMP_DATE.  */
+                /* In this case month and day are both zero. The condition */
+                /* above corrects this bug.                                */
+                *year  = timeValue->year;
+                *month = timeValue->month;
+                *day   = timeValue->day;
                 timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
                               time_zone, is_dst);
               } else {
-                *year      = 2000;
-                *month     = 1;
-                *day       = 1;
+                *year  = 2000;
+                *month = 1;
+                *day   = 1;
+                /* It actually happens that hour is outside */
+                /* of the allowed range from 0 to 23.       */
+                if (*hour >= 24) {
+                  *hour = *hour % 24;
+                } else if (*hour < 0) {
+                  *hour = *hour % 24;
+                  if (*hour != 0) {
+                    *hour += 24;
+                  } /* if */
+                } /* if */
                 timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
                               time_zone, is_dst);
                 *year      = 0;
@@ -2282,13 +2311,18 @@ static void sqlCommit (databaseType database)
     dbType db;
 
   /* sqlCommit */
+    logFunction(printf("sqlCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     db = (dbType) database;
     if (unlikely(mysql_commit(db->connection) != 0)) {
       setDbErrorMsg("sqlCommit", "mysql_commit",
                     mysql_errno(db->connection),
                     mysql_error(db->connection));
+      logError(printf("sqlCommit: mysql_commit error: %s\n",
+                      mysql_error(db->connection)););
       raise_error(DATABASE_ERROR);
     } /* if */
+    logFunction(printf("sqlCommit -->\n"););
   } /* sqlCommit */
 
 
@@ -2399,6 +2433,25 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
     logFunction(printf("sqlFetch --> %d\n", preparedStmt->fetchOkay););
     return preparedStmt->fetchOkay;
   } /* sqlFetch */
+
+
+
+static boolType sqlGetAutoCommit (databaseType database)
+
+  {
+    dbType db;
+    boolType autoCommit;
+
+  /* sqlGetAutoCommit */
+    logFunction(printf("sqlGetAutoCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    /* There seems to be no function to retrieve the current         */
+    /* autocommit mode. Therefore the mode is retrieved from the db. */
+    autoCommit = db->autoCommit;
+    logFunction(printf("sqlGetAutoCommit --> %d\n", autoCommit););
+    return autoCommit;
+  } /* sqlGetAutoCommit */
 
 
 
@@ -2528,6 +2581,54 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) preparedStmt););
     return (sqlStmtType) preparedStmt;
   } /* sqlPrepare */
+
+
+
+static void sqlRollback (databaseType database)
+
+  {
+    dbType db;
+
+  /* sqlRollback */
+    logFunction(printf("sqlRollback(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(mysql_rollback(db->connection) != 0)) {
+      setDbErrorMsg("sqlRollback", "mysql_rollback",
+                    mysql_errno(db->connection),
+                    mysql_error(db->connection));
+      logError(printf("sqlRollback: mysql_rollback error: %s\n",
+                      mysql_error(db->connection)););
+      raise_error(DATABASE_ERROR);
+    } /* if */
+    logFunction(printf("sqlRollback -->\n"););
+  } /* sqlRollback */
+
+
+
+static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
+
+  {
+    dbType db;
+
+  /* sqlSetAutoCommit */
+    logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) database, autoCommit););
+    db = (dbType) database;
+    if (unlikely(mysql_autocommit(db->connection, autoCommit) != 0)) {
+      setDbErrorMsg("sqlSetAutoCommit", "mysql_autocommit",
+                    mysql_errno(db->connection),
+                    mysql_error(db->connection));
+      logError(printf("sqlSetAutoCommit: mysql_autocommit: %s\n",
+                      mysql_error(db->connection)););
+      raise_error(DATABASE_ERROR);
+    } else {
+      /* There seems to be no function to retrieve the current    */
+      /* autocommit mode. Therefore the mode is stored in the db. */
+      db->autoCommit = autoCommit;
+    } /* if */
+    logFunction(printf("sqlSetAutoCommit -->\n"););
+  } /* sqlSetAutoCommit */
 
 
 
@@ -2706,8 +2807,11 @@ static boolType setupFuncTable (void)
         sqlFunc->sqlCommit          = &sqlCommit;
         sqlFunc->sqlExecute         = &sqlExecute;
         sqlFunc->sqlFetch           = &sqlFetch;
+        sqlFunc->sqlGetAutoCommit   = &sqlGetAutoCommit;
         sqlFunc->sqlIsNull          = &sqlIsNull;
         sqlFunc->sqlPrepare         = &sqlPrepare;
+        sqlFunc->sqlRollback        = &sqlRollback;
+        sqlFunc->sqlSetAutoCommit   = &sqlSetAutoCommit;
         sqlFunc->sqlStmtColumnCount = &sqlStmtColumnCount;
         sqlFunc->sqlStmtColumnName  = &sqlStmtColumnName;
       } /* if */
@@ -2840,6 +2944,7 @@ databaseType sqlOpenMy (const const_striType host, intType port,
                   database->sqlFunc = sqlFunc;
                   database->driver = DB_CATEGORY_MYSQL;
                   database->connection = connection;
+                  database->autoCommit = TRUE;
                   determineIfBackslashEscapes(database);
                 } /* if */
               } /* if */

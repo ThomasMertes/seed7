@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  soc_rtl.c     Primitive actions for the socket type.            */
-/*  Copyright (C) 1989 - 2015, 2018 - 2019  Thomas Mertes           */
+/*  Copyright (C) 1989 - 2015, 2018 - 2020  Thomas Mertes           */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/soc_rtl.c                                       */
-/*  Changes: 2007, 2011, 2013 - 2015  Thomas Mertes                 */
+/*  Changes: 2007, 2011, 2013 - 2015, 2018 - 2020  Thomas Mertes    */
 /*  Content: Primitive actions for the socket type.                 */
 /*                                                                  */
 /********************************************************************/
@@ -1187,9 +1187,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
           printf("***** h_errno=%d\n", h_errno);
           printf("***** name=\"%s\"\n", name);
           printf("***** port=%d\n", port);
-          printf("***** hostName=");
-          prot_stri(hostName);
-          printf("\n");
+          printf("***** hostName=%s\n", striAsUnquotedCStri(hostName));
           */
           host_ent = gethostbyname(name);
         } /* if */

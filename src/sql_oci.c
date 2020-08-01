@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_oci.c     Database access functions for OCI.                */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_oci.c                                       */
-/*  Changes: 2013, 2014, 2015, 2017, 2018  Thomas Mertes            */
+/*  Changes: 2013, 2014, 2015, 2017 - 2020  Thomas Mertes           */
 /*  Content: Database access functions for OCI.                     */
 /*                                                                  */
 /********************************************************************/
@@ -74,6 +74,7 @@ typedef struct {
     OCISession  *oci_session;
     OCISvcCtx   *oci_service_context;
     ub2          charSetId;
+    boolType     autoCommit;
   } dbRecord, *dbType;
 
 typedef struct {
@@ -105,6 +106,7 @@ typedef struct {
 typedef struct {
     uintType       usage_count;
     sqlFuncType    sqlFunc;
+    dbType         db;
     OCIEnv        *oci_environment;
     OCIError      *oci_error;
     OCISvcCtx     *oci_service_context;
@@ -163,57 +165,59 @@ static sqlFuncType sqlFunc = NULL;
 
 
 #ifdef OCI_DLL
-typedef sword (*tp_OCIAttrGet) (const void  *trgthndlp, ub4 trghndltyp,
-                                void  *attributep, ub4 *sizep, ub4 attrtype,
+typedef sword (*tp_OCIAttrGet) (const void *trgthndlp, ub4 trghndltyp,
+                                void *attributep, ub4 *sizep, ub4 attrtype,
                                 OCIError *errhp);
-typedef sword (*tp_OCIAttrSet) (void  *trgthndlp, ub4 trghndltyp, void  *attributep,
+typedef sword (*tp_OCIAttrSet) (void *trgthndlp, ub4 trghndltyp, void *attributep,
                                 ub4 size, ub4 attrtype, OCIError *errhp);
 typedef sword (*tp_OCIBindByPos) (OCIStmt *stmtp, OCIBind **bindp, OCIError *errhp,
-                                  ub4 position, void  *valuep, sb4 value_sz,
-                                  ub2 dty, void  *indp, ub2 *alenp, ub2 *rcodep,
+                                  ub4 position, void *valuep, sb4 value_sz,
+                                  ub2 dty, void *indp, ub2 *alenp, ub2 *rcodep,
                                   ub4 maxarr_len, ub4 *curelep, ub4 mode);
 typedef sword (*tp_OCIDateTimeConstruct) (void *hndl,OCIError *err,OCIDateTime *datetime,
                                           sb2 yr,ub1 mnth,ub1 dy,ub1 hr,ub1 mm,ub1 ss,ub4 fsec,
-                                          OraText *timezone,size_t timezone_length);
-typedef sword (*tp_OCIDateTimeGetDate) (void  *hndl, OCIError *err,  const OCIDateTime *date,
+                                          OraText *timezone, size_t timezone_length);
+typedef sword (*tp_OCIDateTimeGetDate) (void *hndl, OCIError *err,  const OCIDateTime *date,
                                         sb2 *yr, ub1 *mnth, ub1 *dy);
-typedef sword (*tp_OCIDateTimeGetTime) (void  *hndl, OCIError *err, OCIDateTime *datetime,
+typedef sword (*tp_OCIDateTimeGetTime) (void *hndl, OCIError *err, OCIDateTime *datetime,
                                         ub1 *hr, ub1 *mm, ub1 *ss, ub4 *fsec);
+typedef sword (*tp_OCIDateTimeGetTimeZoneOffset) (void *hndl, OCIError *err,
+                                                  OCIDateTime *datetime, sb1 *hour, sb1 *min);
 typedef sword (*tp_OCIDefineByPos) (OCIStmt *stmtp, OCIDefine **defnp, OCIError *errhp,
-                                    ub4 position, void  *valuep, sb4 value_sz, ub2 dty,
-                                    void  *indp, ub2 *rlenp, ub2 *rcodep, ub4 mode);
-typedef sword (*tp_OCIDefineDynamic) (OCIDefine *defnp, OCIError *errhp, void  *octxp,
+                                    ub4 position, void *valuep, sb4 value_sz, ub2 dty,
+                                    void *indp, ub2 *rlenp, ub2 *rcodep, ub4 mode);
+typedef sword (*tp_OCIDefineDynamic) (OCIDefine *defnp, OCIError *errhp, void *octxp,
                                       OCICallbackDefine ocbfp);
 typedef sword (*tp_OCIDefineObject) (OCIDefine *defnp, OCIError *errhp,
-                                     const OCIType *type, void  **pgvpp,
-                                     ub4 *pvszsp, void  **indpp, ub4 *indszp);
-typedef sword (*tp_OCIDescriptorAlloc) (const void  *parenth, void  **descpp,
+                                     const OCIType *type, void **pgvpp,
+                                     ub4 *pvszsp, void **indpp, ub4 *indszp);
+typedef sword (*tp_OCIDescriptorAlloc) (const void *parenth, void **descpp,
                                         const ub4 type, const size_t xtramem_sz,
-                                        void  **usrmempp);
-typedef sword (*tp_OCIDescriptorFree) (void  *descp, const ub4 type);
-typedef sword (*tp_OCIEnvCreate) (OCIEnv **envp, ub4 mode, void  *ctxp,
-                                  void  *(*malocfp)(void  *ctxp, size_t size),
-                                  void  *(*ralocfp)(void  *ctxp, void  *memptr, size_t newsize),
-                                  void   (*mfreefp)(void  *ctxp, void  *memptr),
-                                  size_t xtramem_sz, void  **usrmempp);
-typedef sword (*tp_OCIEnvNlsCreate) (OCIEnv **envp, ub4 mode, void  *ctxp,
-                                     void  *(*malocfp)(void  *ctxp, size_t size),
-                                     void  *(*ralocfp)(void  *ctxp, void  *memptr, size_t newsize),
-                                     void   (*mfreefp)(void  *ctxp, void  *memptr),
-                                     size_t xtramem_sz, void  **usrmempp,
+                                        void **usrmempp);
+typedef sword (*tp_OCIDescriptorFree) (void *descp, const ub4 type);
+typedef sword (*tp_OCIEnvCreate) (OCIEnv **envp, ub4 mode, void *ctxp,
+                                  void *(*malocfp)(void *ctxp, size_t size),
+                                  void *(*ralocfp)(void *ctxp, void *memptr, size_t newsize),
+                                  void   (*mfreefp)(void *ctxp, void *memptr),
+                                  size_t xtramem_sz, void **usrmempp);
+typedef sword (*tp_OCIEnvNlsCreate) (OCIEnv **envp, ub4 mode, void *ctxp,
+                                     void *(*malocfp)(void *ctxp, size_t size),
+                                     void *(*ralocfp)(void *ctxp, void *memptr, size_t newsize),
+                                     void   (*mfreefp)(void *ctxp, void *memptr),
+                                     size_t xtramem_sz, void **usrmempp,
                                      ub2 charset, ub2 ncharset);
-typedef sword (*tp_OCIErrorGet) (void  *hndlp, ub4 recordno, OraText *sqlstate,
+typedef sword (*tp_OCIErrorGet) (void *hndlp, ub4 recordno, OraText *sqlstate,
                                  sb4 *errcodep, OraText *bufp, ub4 bufsiz, ub4 type);
-typedef sword (*tp_OCIHandleAlloc) (const void  *parenth, void  **hndlpp, const ub4 type,
-                                    const size_t xtramem_sz, void  **usrmempp);
-typedef sword (*tp_OCIHandleFree) (void  *hndlp, const ub4 type);
-typedef sword (*tp_OCIIntervalSetDaySecond) (void  *hndl, OCIError *err, sb4 dy, sb4 hr,
+typedef sword (*tp_OCIHandleAlloc) (const void *parenth, void **hndlpp, const ub4 type,
+                                    const size_t xtramem_sz, void **usrmempp);
+typedef sword (*tp_OCIHandleFree) (void *hndlp, const ub4 type);
+typedef sword (*tp_OCIIntervalSetDaySecond) (void *hndl, OCIError *err, sb4 dy, sb4 hr,
                                              sb4 mm, sb4 ss, sb4 fsec, OCIInterval *result);
-typedef sword (*tp_OCIIntervalSetYearMonth) (void  *hndl, OCIError *err, sb4 yr, sb4 mnth,
+typedef sword (*tp_OCIIntervalSetYearMonth) (void *hndl, OCIError *err, sb4 yr, sb4 mnth,
                                              OCIInterval *result);
-typedef sword (*tp_OCIIntervalGetDaySecond) (void  *hndl, OCIError *err, sb4 *dy, sb4 *hr,
+typedef sword (*tp_OCIIntervalGetDaySecond) (void *hndl, OCIError *err, sb4 *dy, sb4 *hr,
                                              sb4 *mm, sb4 *ss, sb4 *fsec, const OCIInterval *result);
-typedef sword (*tp_OCIIntervalGetYearMonth) (void  *hndl, OCIError *err, sb4 *yr, sb4 *mnth,
+typedef sword (*tp_OCIIntervalGetYearMonth) (void *hndl, OCIError *err, sb4 *yr, sb4 *mnth,
                                              const OCIInterval *result);
 typedef sword (*tp_OCILobCreateTemporary) (OCISvcCtx *svchp,
                                            OCIError *errhp,
@@ -234,19 +238,19 @@ typedef sword (*tp_OCILobIsTemporary) (OCIEnv *envp,
                                        boolean *is_temporary);
 typedef sword (*tp_OCILobRead2) (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
                                  oraub8 *byte_amtp, oraub8 *char_amtp, oraub8 offset,
-                                 void  *bufp, oraub8 bufl, ub1 piece, void  *ctxp,
+                                 void *bufp, oraub8 bufl, ub1 piece, void *ctxp,
                                  OCICallbackLobRead2 cbfp, ub2 csid, ub1 csfrm);
 typedef sword (*tp_OCILobTrim2) (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
                                  oraub8 newlen);
 typedef sword (*tp_OCILobWrite2) (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
                                   oraub8 *byte_amtp, oraub8 *char_amtp, oraub8 offset,
-                                  void  *bufp, oraub8 buflen, ub1 piece, void  *ctxp,
+                                  void *bufp, oraub8 buflen, ub1 piece, void *ctxp,
                                   OCICallbackLobWrite2 cbfp, ub2 csid, ub1 csfrm);
-typedef ub2 (*tp_OCINlsCharSetNameToId) (void  *envhp, const oratext *name);
+typedef ub2 (*tp_OCINlsCharSetNameToId) (void *envhp, const oratext *name);
 typedef sword (*tp_OCINumberToReal) (OCIError *err, const OCINumber *number,
-                                     uword rsl_length, void  *rsl);
-typedef sword (*tp_OCIParamGet) (const void  *hndlp, ub4 htype, OCIError *errhp,
-                                 void  **parmdpp, ub4 pos);
+                                     uword rsl_length, void *rsl);
+typedef sword (*tp_OCIParamGet) (const void *hndlp, ub4 htype, OCIError *errhp,
+                                 void **parmdpp, ub4 pos);
 typedef ub4 (*tp_OCIRefHexSize) (OCIEnv *env, const OCIRef *ref);
 typedef sword (*tp_OCIRefToHex) (OCIEnv *env, OCIError *err, const OCIRef *ref,
                                  oratext *hex, ub4 *hex_length);
@@ -269,94 +273,99 @@ typedef sword (*tp_OCIStmtPrepare) (OCIStmt *stmtp, OCIError *errhp, const OraTe
 typedef oratext *(*tp_OCIStringPtr) (OCIEnv *env, const OCIString *vs);
 typedef ub4 (*tp_OCIStringSize) (OCIEnv *env, const OCIString *vs);
 typedef sword (*tp_OCITransCommit) (OCISvcCtx *svchp, OCIError *errhp, ub4 flags);
+typedef sword (*tp_OCITransRollback) (dvoid *svchp,  OCIError *errhp, ub4 flags);
 
-static tp_OCIAttrGet              ptr_OCIAttrGet;
-static tp_OCIAttrSet              ptr_OCIAttrSet;
-static tp_OCIBindByPos            ptr_OCIBindByPos;
-static tp_OCIDateTimeConstruct    ptr_OCIDateTimeConstruct;
-static tp_OCIDateTimeGetDate      ptr_OCIDateTimeGetDate;
-static tp_OCIDateTimeGetTime      ptr_OCIDateTimeGetTime;
-static tp_OCIDefineByPos          ptr_OCIDefineByPos;
-static tp_OCIDefineDynamic        ptr_OCIDefineDynamic;
-static tp_OCIDefineObject         ptr_OCIDefineObject;
-static tp_OCIDescriptorAlloc      ptr_OCIDescriptorAlloc;
-static tp_OCIDescriptorFree       ptr_OCIDescriptorFree;
-static tp_OCIEnvCreate            ptr_OCIEnvCreate;
-static tp_OCIEnvNlsCreate         ptr_OCIEnvNlsCreate;
-static tp_OCIErrorGet             ptr_OCIErrorGet;
-static tp_OCIHandleAlloc          ptr_OCIHandleAlloc;
-static tp_OCIHandleFree           ptr_OCIHandleFree;
-static tp_OCIIntervalSetDaySecond ptr_OCIIntervalSetDaySecond;
-static tp_OCIIntervalSetYearMonth ptr_OCIIntervalSetYearMonth;
-static tp_OCIIntervalGetDaySecond ptr_OCIIntervalGetDaySecond;
-static tp_OCIIntervalGetYearMonth ptr_OCIIntervalGetYearMonth;
-static tp_OCILobCreateTemporary   ptr_OCILobCreateTemporary;
-static tp_OCILobFreeTemporary     ptr_OCILobFreeTemporary;
-static tp_OCILobGetLength2        ptr_OCILobGetLength2;
-static tp_OCILobIsTemporary       ptr_OCILobIsTemporary;
-static tp_OCILobRead2             ptr_OCILobRead2;
-static tp_OCILobTrim2             ptr_OCILobTrim2;
-static tp_OCILobWrite2            ptr_OCILobWrite2;
-static tp_OCINlsCharSetNameToId   ptr_OCINlsCharSetNameToId;
-static tp_OCINumberToReal         ptr_OCINumberToReal;
-static tp_OCIParamGet             ptr_OCIParamGet;
-static tp_OCIRefHexSize           ptr_OCIRefHexSize;
-static tp_OCIRefToHex             ptr_OCIRefToHex;
-static tp_OCIRowidToChar          ptr_OCIRowidToChar;
-static tp_OCIServerAttach         ptr_OCIServerAttach;
-static tp_OCIServerDetach         ptr_OCIServerDetach;
-static tp_OCISessionBegin         ptr_OCISessionBegin;
-static tp_OCISessionEnd           ptr_OCISessionEnd;
-static tp_OCIStmtExecute          ptr_OCIStmtExecute;
-static tp_OCIStmtFetch2           ptr_OCIStmtFetch2;
-static tp_OCIStmtPrepare          ptr_OCIStmtPrepare;
-static tp_OCIStringPtr            ptr_OCIStringPtr;
-static tp_OCIStringSize           ptr_OCIStringSize;
-static tp_OCITransCommit          ptr_OCITransCommit;
+static tp_OCIAttrGet                   ptr_OCIAttrGet;
+static tp_OCIAttrSet                   ptr_OCIAttrSet;
+static tp_OCIBindByPos                 ptr_OCIBindByPos;
+static tp_OCIDateTimeConstruct         ptr_OCIDateTimeConstruct;
+static tp_OCIDateTimeGetDate           ptr_OCIDateTimeGetDate;
+static tp_OCIDateTimeGetTime           ptr_OCIDateTimeGetTime;
+static tp_OCIDateTimeGetTimeZoneOffset ptr_OCIDateTimeGetTimeZoneOffset;
+static tp_OCIDefineByPos               ptr_OCIDefineByPos;
+static tp_OCIDefineDynamic             ptr_OCIDefineDynamic;
+static tp_OCIDefineObject              ptr_OCIDefineObject;
+static tp_OCIDescriptorAlloc           ptr_OCIDescriptorAlloc;
+static tp_OCIDescriptorFree            ptr_OCIDescriptorFree;
+static tp_OCIEnvCreate                 ptr_OCIEnvCreate;
+static tp_OCIEnvNlsCreate              ptr_OCIEnvNlsCreate;
+static tp_OCIErrorGet                  ptr_OCIErrorGet;
+static tp_OCIHandleAlloc               ptr_OCIHandleAlloc;
+static tp_OCIHandleFree                ptr_OCIHandleFree;
+static tp_OCIIntervalSetDaySecond      ptr_OCIIntervalSetDaySecond;
+static tp_OCIIntervalSetYearMonth      ptr_OCIIntervalSetYearMonth;
+static tp_OCIIntervalGetDaySecond      ptr_OCIIntervalGetDaySecond;
+static tp_OCIIntervalGetYearMonth      ptr_OCIIntervalGetYearMonth;
+static tp_OCILobCreateTemporary        ptr_OCILobCreateTemporary;
+static tp_OCILobFreeTemporary          ptr_OCILobFreeTemporary;
+static tp_OCILobGetLength2             ptr_OCILobGetLength2;
+static tp_OCILobIsTemporary            ptr_OCILobIsTemporary;
+static tp_OCILobRead2                  ptr_OCILobRead2;
+static tp_OCILobTrim2                  ptr_OCILobTrim2;
+static tp_OCILobWrite2                 ptr_OCILobWrite2;
+static tp_OCINlsCharSetNameToId        ptr_OCINlsCharSetNameToId;
+static tp_OCINumberToReal              ptr_OCINumberToReal;
+static tp_OCIParamGet                  ptr_OCIParamGet;
+static tp_OCIRefHexSize                ptr_OCIRefHexSize;
+static tp_OCIRefToHex                  ptr_OCIRefToHex;
+static tp_OCIRowidToChar               ptr_OCIRowidToChar;
+static tp_OCIServerAttach              ptr_OCIServerAttach;
+static tp_OCIServerDetach              ptr_OCIServerDetach;
+static tp_OCISessionBegin              ptr_OCISessionBegin;
+static tp_OCISessionEnd                ptr_OCISessionEnd;
+static tp_OCIStmtExecute               ptr_OCIStmtExecute;
+static tp_OCIStmtFetch2                ptr_OCIStmtFetch2;
+static tp_OCIStmtPrepare               ptr_OCIStmtPrepare;
+static tp_OCIStringPtr                 ptr_OCIStringPtr;
+static tp_OCIStringSize                ptr_OCIStringSize;
+static tp_OCITransCommit               ptr_OCITransCommit;
+static tp_OCITransRollback             ptr_OCITransRollback;
 
-#define OCIAttrGet              ptr_OCIAttrGet
-#define OCIAttrSet              ptr_OCIAttrSet
-#define OCIBindByPos            ptr_OCIBindByPos
-#define OCIDateTimeConstruct    ptr_OCIDateTimeConstruct
-#define OCIDateTimeGetDate      ptr_OCIDateTimeGetDate
-#define OCIDateTimeGetTime      ptr_OCIDateTimeGetTime
-#define OCIDefineByPos          ptr_OCIDefineByPos
-#define OCIDefineDynamic        ptr_OCIDefineDynamic
-#define OCIDefineObject         ptr_OCIDefineObject
-#define OCIDescriptorAlloc      ptr_OCIDescriptorAlloc
-#define OCIDescriptorFree       ptr_OCIDescriptorFree
-#define OCIEnvCreate            ptr_OCIEnvCreate
-#define OCIEnvNlsCreate         ptr_OCIEnvNlsCreate
-#define OCIErrorGet             ptr_OCIErrorGet
-#define OCIHandleAlloc          ptr_OCIHandleAlloc
-#define OCIHandleFree           ptr_OCIHandleFree
-#define OCIIntervalSetDaySecond ptr_OCIIntervalSetDaySecond
-#define OCIIntervalSetYearMonth ptr_OCIIntervalSetYearMonth
-#define OCIIntervalGetDaySecond ptr_OCIIntervalGetDaySecond
-#define OCIIntervalGetYearMonth ptr_OCIIntervalGetYearMonth
-#define OCILobCreateTemporary   ptr_OCILobCreateTemporary
-#define OCILobFreeTemporary     ptr_OCILobFreeTemporary
-#define OCILobGetLength2        ptr_OCILobGetLength2
-#define OCILobIsTemporary       ptr_OCILobIsTemporary
-#define OCILobRead2             ptr_OCILobRead2
-#define OCILobTrim2             ptr_OCILobTrim2
-#define OCILobWrite2            ptr_OCILobWrite2
-#define OCINlsCharSetNameToId   ptr_OCINlsCharSetNameToId
-#define OCINumberToReal         ptr_OCINumberToReal
-#define OCIParamGet             ptr_OCIParamGet
-#define OCIRefHexSize           ptr_OCIRefHexSize
-#define OCIRefToHex             ptr_OCIRefToHex
-#define OCIRowidToChar          ptr_OCIRowidToChar
-#define OCIServerAttach         ptr_OCIServerAttach
-#define OCIServerDetach         ptr_OCIServerDetach
-#define OCISessionBegin         ptr_OCISessionBegin
-#define OCISessionEnd           ptr_OCISessionEnd
-#define OCIStmtExecute          ptr_OCIStmtExecute
-#define OCIStmtFetch2           ptr_OCIStmtFetch2
-#define OCIStmtPrepare          ptr_OCIStmtPrepare
-#define OCIStringPtr            ptr_OCIStringPtr
-#define OCIStringSize           ptr_OCIStringSize
-#define OCITransCommit          ptr_OCITransCommit
+#define OCIAttrGet                   ptr_OCIAttrGet
+#define OCIAttrSet                   ptr_OCIAttrSet
+#define OCIBindByPos                 ptr_OCIBindByPos
+#define OCIDateTimeConstruct         ptr_OCIDateTimeConstruct
+#define OCIDateTimeGetDate           ptr_OCIDateTimeGetDate
+#define OCIDateTimeGetTime           ptr_OCIDateTimeGetTime
+#define OCIDateTimeGetTimeZoneOffset ptr_OCIDateTimeGetTimeZoneOffset
+#define OCIDefineByPos               ptr_OCIDefineByPos
+#define OCIDefineDynamic             ptr_OCIDefineDynamic
+#define OCIDefineObject              ptr_OCIDefineObject
+#define OCIDescriptorAlloc           ptr_OCIDescriptorAlloc
+#define OCIDescriptorFree            ptr_OCIDescriptorFree
+#define OCIEnvCreate                 ptr_OCIEnvCreate
+#define OCIEnvNlsCreate              ptr_OCIEnvNlsCreate
+#define OCIErrorGet                  ptr_OCIErrorGet
+#define OCIHandleAlloc               ptr_OCIHandleAlloc
+#define OCIHandleFree                ptr_OCIHandleFree
+#define OCIIntervalSetDaySecond      ptr_OCIIntervalSetDaySecond
+#define OCIIntervalSetYearMonth      ptr_OCIIntervalSetYearMonth
+#define OCIIntervalGetDaySecond      ptr_OCIIntervalGetDaySecond
+#define OCIIntervalGetYearMonth      ptr_OCIIntervalGetYearMonth
+#define OCILobCreateTemporary        ptr_OCILobCreateTemporary
+#define OCILobFreeTemporary          ptr_OCILobFreeTemporary
+#define OCILobGetLength2             ptr_OCILobGetLength2
+#define OCILobIsTemporary            ptr_OCILobIsTemporary
+#define OCILobRead2                  ptr_OCILobRead2
+#define OCILobTrim2                  ptr_OCILobTrim2
+#define OCILobWrite2                 ptr_OCILobWrite2
+#define OCINlsCharSetNameToId        ptr_OCINlsCharSetNameToId
+#define OCINumberToReal              ptr_OCINumberToReal
+#define OCIParamGet                  ptr_OCIParamGet
+#define OCIRefHexSize                ptr_OCIRefHexSize
+#define OCIRefToHex                  ptr_OCIRefToHex
+#define OCIRowidToChar               ptr_OCIRowidToChar
+#define OCIServerAttach              ptr_OCIServerAttach
+#define OCIServerDetach              ptr_OCIServerDetach
+#define OCISessionBegin              ptr_OCISessionBegin
+#define OCISessionEnd                ptr_OCISessionEnd
+#define OCIStmtExecute               ptr_OCIStmtExecute
+#define OCIStmtFetch2                ptr_OCIStmtFetch2
+#define OCIStmtPrepare               ptr_OCIStmtPrepare
+#define OCIStringPtr                 ptr_OCIStringPtr
+#define OCIStringSize                ptr_OCIStringSize
+#define OCITransCommit               ptr_OCITransCommit
+#define OCITransRollback             ptr_OCITransRollback
 
 
 
@@ -370,49 +379,51 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((OCIAttrGet              = (tp_OCIAttrGet)              dllFunc(dbDll, "OCIAttrGet"))              == NULL ||
-            (OCIAttrSet              = (tp_OCIAttrSet)              dllFunc(dbDll, "OCIAttrSet"))              == NULL ||
-            (OCIBindByPos            = (tp_OCIBindByPos)            dllFunc(dbDll, "OCIBindByPos"))            == NULL ||
-            (OCIDateTimeConstruct    = (tp_OCIDateTimeConstruct)    dllFunc(dbDll, "OCIDateTimeConstruct"))    == NULL ||
-            (OCIDateTimeGetDate      = (tp_OCIDateTimeGetDate)      dllFunc(dbDll, "OCIDateTimeGetDate"))      == NULL ||
-            (OCIDateTimeGetTime      = (tp_OCIDateTimeGetTime)      dllFunc(dbDll, "OCIDateTimeGetTime"))      == NULL ||
-            (OCIDefineByPos          = (tp_OCIDefineByPos)          dllFunc(dbDll, "OCIDefineByPos"))          == NULL ||
-            (OCIDefineDynamic        = (tp_OCIDefineDynamic)        dllFunc(dbDll, "OCIDefineDynamic"))        == NULL ||
-            (OCIDefineObject         = (tp_OCIDefineObject)         dllFunc(dbDll, "OCIDefineObject"))         == NULL ||
-            (OCIDescriptorAlloc      = (tp_OCIDescriptorAlloc)      dllFunc(dbDll, "OCIDescriptorAlloc"))      == NULL ||
-            (OCIDescriptorFree       = (tp_OCIDescriptorFree)       dllFunc(dbDll, "OCIDescriptorFree"))       == NULL ||
-            (OCIEnvCreate            = (tp_OCIEnvCreate)            dllFunc(dbDll, "OCIEnvCreate"))            == NULL ||
-            (OCIEnvNlsCreate         = (tp_OCIEnvNlsCreate)         dllFunc(dbDll, "OCIEnvNlsCreate"))         == NULL ||
-            (OCIErrorGet             = (tp_OCIErrorGet)             dllFunc(dbDll, "OCIErrorGet"))             == NULL ||
-            (OCIHandleAlloc          = (tp_OCIHandleAlloc)          dllFunc(dbDll, "OCIHandleAlloc"))          == NULL ||
-            (OCIHandleFree           = (tp_OCIHandleFree)           dllFunc(dbDll, "OCIHandleFree"))           == NULL ||
-            (OCIIntervalSetDaySecond = (tp_OCIIntervalSetDaySecond) dllFunc(dbDll, "OCIIntervalSetDaySecond")) == NULL ||
-            (OCIIntervalSetYearMonth = (tp_OCIIntervalSetYearMonth) dllFunc(dbDll, "OCIIntervalSetYearMonth")) == NULL ||
-            (OCIIntervalGetDaySecond = (tp_OCIIntervalGetDaySecond) dllFunc(dbDll, "OCIIntervalGetDaySecond")) == NULL ||
-            (OCIIntervalGetYearMonth = (tp_OCIIntervalGetYearMonth) dllFunc(dbDll, "OCIIntervalGetYearMonth")) == NULL ||
-            (OCILobCreateTemporary   = (tp_OCILobCreateTemporary)   dllFunc(dbDll, "OCILobCreateTemporary"))   == NULL ||
-            (OCILobFreeTemporary     = (tp_OCILobFreeTemporary)     dllFunc(dbDll, "OCILobFreeTemporary"))     == NULL ||
-            (OCILobGetLength2        = (tp_OCILobGetLength2)        dllFunc(dbDll, "OCILobGetLength2"))        == NULL ||
-            (OCILobIsTemporary       = (tp_OCILobIsTemporary)       dllFunc(dbDll, "OCILobIsTemporary"))       == NULL ||
-            (OCILobRead2             = (tp_OCILobRead2)             dllFunc(dbDll, "OCILobRead2"))             == NULL ||
-            (OCILobTrim2             = (tp_OCILobTrim2)             dllFunc(dbDll, "OCILobTrim2"))             == NULL ||
-            (OCILobWrite2            = (tp_OCILobWrite2)            dllFunc(dbDll, "OCILobWrite2"))            == NULL ||
-            (OCINlsCharSetNameToId   = (tp_OCINlsCharSetNameToId)   dllFunc(dbDll, "OCINlsCharSetNameToId"))   == NULL ||
-            (OCINumberToReal         = (tp_OCINumberToReal)         dllFunc(dbDll, "OCINumberToReal"))         == NULL ||
-            (OCIParamGet             = (tp_OCIParamGet)             dllFunc(dbDll, "OCIParamGet"))             == NULL ||
-            (OCIRefHexSize           = (tp_OCIRefHexSize)           dllFunc(dbDll, "OCIRefHexSize"))           == NULL ||
-            (OCIRefToHex             = (tp_OCIRefToHex)             dllFunc(dbDll, "OCIRefToHex"))             == NULL ||
-            (OCIRowidToChar          = (tp_OCIRowidToChar)          dllFunc(dbDll, "OCIRowidToChar"))          == NULL ||
-            (OCIServerAttach         = (tp_OCIServerAttach)         dllFunc(dbDll, "OCIServerAttach"))         == NULL ||
-            (OCIServerDetach         = (tp_OCIServerDetach)         dllFunc(dbDll, "OCIServerDetach"))         == NULL ||
-            (OCISessionBegin         = (tp_OCISessionBegin)         dllFunc(dbDll, "OCISessionBegin"))         == NULL ||
-            (OCISessionEnd           = (tp_OCISessionEnd)           dllFunc(dbDll, "OCISessionEnd"))           == NULL ||
-            (OCIStmtExecute          = (tp_OCIStmtExecute)          dllFunc(dbDll, "OCIStmtExecute"))          == NULL ||
-            (OCIStmtFetch2           = (tp_OCIStmtFetch2)           dllFunc(dbDll, "OCIStmtFetch2"))           == NULL ||
-            (OCIStmtPrepare          = (tp_OCIStmtPrepare)          dllFunc(dbDll, "OCIStmtPrepare"))          == NULL ||
-            (OCIStringPtr            = (tp_OCIStringPtr)            dllFunc(dbDll, "OCIStringPtr"))            == NULL ||
-            (OCIStringSize           = (tp_OCIStringSize)           dllFunc(dbDll, "OCIStringSize"))           == NULL ||
-            (OCITransCommit          = (tp_OCITransCommit)          dllFunc(dbDll, "OCITransCommit"))          == NULL) {
+        if ((OCIAttrGet                   = (tp_OCIAttrGet)                   dllFunc(dbDll, "OCIAttrGet"))                   == NULL ||
+            (OCIAttrSet                   = (tp_OCIAttrSet)                   dllFunc(dbDll, "OCIAttrSet"))                   == NULL ||
+            (OCIBindByPos                 = (tp_OCIBindByPos)                 dllFunc(dbDll, "OCIBindByPos"))                 == NULL ||
+            (OCIDateTimeConstruct         = (tp_OCIDateTimeConstruct)         dllFunc(dbDll, "OCIDateTimeConstruct"))         == NULL ||
+            (OCIDateTimeGetDate           = (tp_OCIDateTimeGetDate)           dllFunc(dbDll, "OCIDateTimeGetDate"))           == NULL ||
+            (OCIDateTimeGetTime           = (tp_OCIDateTimeGetTime)           dllFunc(dbDll, "OCIDateTimeGetTime"))           == NULL ||
+            (OCIDateTimeGetTimeZoneOffset = (tp_OCIDateTimeGetTimeZoneOffset) dllFunc(dbDll, "OCIDateTimeGetTimeZoneOffset")) == NULL ||
+            (OCIDefineByPos               = (tp_OCIDefineByPos)               dllFunc(dbDll, "OCIDefineByPos"))               == NULL ||
+            (OCIDefineDynamic             = (tp_OCIDefineDynamic)             dllFunc(dbDll, "OCIDefineDynamic"))             == NULL ||
+            (OCIDefineObject              = (tp_OCIDefineObject)              dllFunc(dbDll, "OCIDefineObject"))              == NULL ||
+            (OCIDescriptorAlloc           = (tp_OCIDescriptorAlloc)           dllFunc(dbDll, "OCIDescriptorAlloc"))           == NULL ||
+            (OCIDescriptorFree            = (tp_OCIDescriptorFree)            dllFunc(dbDll, "OCIDescriptorFree"))            == NULL ||
+            (OCIEnvCreate                 = (tp_OCIEnvCreate)                 dllFunc(dbDll, "OCIEnvCreate"))                 == NULL ||
+            (OCIEnvNlsCreate              = (tp_OCIEnvNlsCreate)              dllFunc(dbDll, "OCIEnvNlsCreate"))              == NULL ||
+            (OCIErrorGet                  = (tp_OCIErrorGet)                  dllFunc(dbDll, "OCIErrorGet"))                  == NULL ||
+            (OCIHandleAlloc               = (tp_OCIHandleAlloc)               dllFunc(dbDll, "OCIHandleAlloc"))               == NULL ||
+            (OCIHandleFree                = (tp_OCIHandleFree)                dllFunc(dbDll, "OCIHandleFree"))                == NULL ||
+            (OCIIntervalSetDaySecond      = (tp_OCIIntervalSetDaySecond)      dllFunc(dbDll, "OCIIntervalSetDaySecond"))      == NULL ||
+            (OCIIntervalSetYearMonth      = (tp_OCIIntervalSetYearMonth)      dllFunc(dbDll, "OCIIntervalSetYearMonth"))      == NULL ||
+            (OCIIntervalGetDaySecond      = (tp_OCIIntervalGetDaySecond)      dllFunc(dbDll, "OCIIntervalGetDaySecond"))      == NULL ||
+            (OCIIntervalGetYearMonth      = (tp_OCIIntervalGetYearMonth)      dllFunc(dbDll, "OCIIntervalGetYearMonth"))      == NULL ||
+            (OCILobCreateTemporary        = (tp_OCILobCreateTemporary)        dllFunc(dbDll, "OCILobCreateTemporary"))        == NULL ||
+            (OCILobFreeTemporary          = (tp_OCILobFreeTemporary)          dllFunc(dbDll, "OCILobFreeTemporary"))          == NULL ||
+            (OCILobGetLength2             = (tp_OCILobGetLength2)             dllFunc(dbDll, "OCILobGetLength2"))             == NULL ||
+            (OCILobIsTemporary            = (tp_OCILobIsTemporary)            dllFunc(dbDll, "OCILobIsTemporary"))            == NULL ||
+            (OCILobRead2                  = (tp_OCILobRead2)                  dllFunc(dbDll, "OCILobRead2"))                  == NULL ||
+            (OCILobTrim2                  = (tp_OCILobTrim2)                  dllFunc(dbDll, "OCILobTrim2"))                  == NULL ||
+            (OCILobWrite2                 = (tp_OCILobWrite2)                 dllFunc(dbDll, "OCILobWrite2"))                 == NULL ||
+            (OCINlsCharSetNameToId        = (tp_OCINlsCharSetNameToId)        dllFunc(dbDll, "OCINlsCharSetNameToId"))        == NULL ||
+            (OCINumberToReal              = (tp_OCINumberToReal)              dllFunc(dbDll, "OCINumberToReal"))              == NULL ||
+            (OCIParamGet                  = (tp_OCIParamGet)                  dllFunc(dbDll, "OCIParamGet"))                  == NULL ||
+            (OCIRefHexSize                = (tp_OCIRefHexSize)                dllFunc(dbDll, "OCIRefHexSize"))                == NULL ||
+            (OCIRefToHex                  = (tp_OCIRefToHex)                  dllFunc(dbDll, "OCIRefToHex"))                  == NULL ||
+            (OCIRowidToChar               = (tp_OCIRowidToChar)               dllFunc(dbDll, "OCIRowidToChar"))               == NULL ||
+            (OCIServerAttach              = (tp_OCIServerAttach)              dllFunc(dbDll, "OCIServerAttach"))              == NULL ||
+            (OCIServerDetach              = (tp_OCIServerDetach)              dllFunc(dbDll, "OCIServerDetach"))              == NULL ||
+            (OCISessionBegin              = (tp_OCISessionBegin)              dllFunc(dbDll, "OCISessionBegin"))              == NULL ||
+            (OCISessionEnd                = (tp_OCISessionEnd)                dllFunc(dbDll, "OCISessionEnd"))                == NULL ||
+            (OCIStmtExecute               = (tp_OCIStmtExecute)               dllFunc(dbDll, "OCIStmtExecute"))               == NULL ||
+            (OCIStmtFetch2                = (tp_OCIStmtFetch2)                dllFunc(dbDll, "OCIStmtFetch2"))                == NULL ||
+            (OCIStmtPrepare               = (tp_OCIStmtPrepare)               dllFunc(dbDll, "OCIStmtPrepare"))               == NULL ||
+            (OCIStringPtr                 = (tp_OCIStringPtr)                 dllFunc(dbDll, "OCIStringPtr"))                 == NULL ||
+            (OCIStringSize                = (tp_OCIStringSize)                dllFunc(dbDll, "OCIStringSize"))                == NULL ||
+            (OCITransCommit               = (tp_OCITransCommit)               dllFunc(dbDll, "OCITransCommit"))               == NULL ||
+            (OCITransRollback             = (tp_OCITransRollback)             dllFunc(dbDll, "OCITransRollback"))             == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */
@@ -504,9 +515,12 @@ static void freeDatabase (databaseType database)
     dbType db;
 
   /* freeDatabase */
+    logFunction(printf("freeDatabase(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
     FREE_RECORD2(db, dbRecord, count.database, count.database_bytes);
+    logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
 
@@ -632,6 +646,11 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       FREE_TABLE(preparedStmt->result_array, resultDataRecord, preparedStmt->result_array_size);
     } /* if */
     OCIHandleFree(preparedStmt->ppStmt, OCI_HTYPE_STMT);
+    preparedStmt->db->usage_count--;
+    if (preparedStmt->db->usage_count == 0) {
+      /* printf("FREE " FMT_X_MEM "\n", (memSizeType) preparedStmt->db); */
+      freeDatabase((databaseType) preparedStmt->db);
+    } /* if */
     FREE_RECORD2(preparedStmt, preparedStmtRecord,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
@@ -1310,6 +1329,8 @@ static striType processStatementStri (const const_striType sqlStatementStri,
               pos++;
             } while (pos < sqlStatementStri->size && sqlStatementStri->mem[pos] != '/');
             pos++;
+            /* Replace the comment with a space. */
+            processed->mem[destPos++] = ' ';
           } /* if */
         } else if (ch == '-') {
           pos++;
@@ -1320,6 +1341,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
             while (pos < sqlStatementStri->size && sqlStatementStri->mem[pos] != '\n') {
               pos++;
             } /* while */
+            /* The final newline replaces the comment. */
           } /* if */
         } else {
           processed->mem[destPos++] = ch;
@@ -3163,6 +3185,8 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
   {
     preparedStmtType preparedStmt;
     bindDataType param;
+    char timezoneStri[3 + 2 * INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
+    memSizeType timezoneStriLength;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindTime */
@@ -3219,8 +3243,47 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
         param->buffer_length = 0;
       } /* if */
       if (year <= 0) {
+        /* In the database BC dates are represented with negative numbers */
+        /* and the year 0 does not exist. The year 0 of the proleptic     */
+        /* Gregorian calendar corresponds to 1 BC (= -1) in the database. */
         year--;
       } /* if */
+      if (time_zone < 0) {
+        if (unlikely(year == -1 && month == 12 && day == 31 &&
+                     (hour + (-time_zone) / 60 > 23 ||
+                     (hour + (-time_zone) / 60 == 23 &&
+                     minute + (-time_zone) % 60 > 59)))) {
+          /* When the time_zone would move the year from 1 BC to 1 AD the */
+          /* function OCIDateTimeConstruct() fails. This is avoided by    */
+          /* setting time_zone to zero. Luckily all time values at the    */
+          /* default date 0-1-1 are not affected by this special case.    */
+          time_zone = 0;
+          /* printf(F_D(04) "-" F_D(02) "-" F_D(02) " "
+                 F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", " FMT_D "\n",
+                 year, month, day, hour, minute, second, micro_second, time_zone); */
+        } /* if */
+        timezoneStriLength =
+            (memSizeType) sprintf(timezoneStri, "-" F_D(02) ":" F_D(02),
+                                  (-time_zone) / 60, (-time_zone) % 60);
+      } else {
+        if (unlikely((year == 1 || year == -4712) && month == 1 && day == 1 &&
+                     (time_zone / 60 > hour ||
+                     (time_zone / 60 == hour && time_zone % 60 > minute)))) {
+          /* When the time_zone would move the year from 1 AD to 1 BC the */
+          /* function OCIDateTimeConstruct() fails. This is avoided by    */
+          /* setting time_zone to zero. For the minimum allowed time      */
+          /* (January 1, 4712 BC) OCIDateTimeConstruct() does also not    */
+          /* work correct, if the time_zone is greater than zero.         */
+          time_zone = 0;
+          /* printf(F_D(04) "-" F_D(02) "-" F_D(02) " "
+                 F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", " FMT_D "\n",
+                 year, month, day, hour, minute, second, micro_second, time_zone); */
+        } /* if */
+        timezoneStriLength =
+            (memSizeType) sprintf(timezoneStri, F_D(02) ":" F_D(02),
+                                  time_zone / 60, time_zone % 60);
+      } /* if */
+      /* printf("timezone: %s\n", timezoneStri); */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
       } else if (unlikely(OCIDateTimeConstruct(preparedStmt->oci_environment,
@@ -3228,8 +3291,9 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                                                (OCIDateTime *) param->descriptor,
                                                (sb2) year, (ub1) month, (ub1) day,
                                                (ub1) hour, (ub1) minute, (ub1) second,
-                                               (ub4) micro_second,
-                                               NULL, 0) != OCI_SUCCESS)) {
+                                               (ub4) (micro_second * 1000),
+                                               (OraText *) timezoneStri,
+                                               timezoneStriLength) != OCI_SUCCESS)) {
         logError(printf("sqlBindTime: OCIDateTimeConstruct:\n");
                  printError(preparedStmt->oci_error););
         raise_error(RANGE_ERROR);
@@ -3947,6 +4011,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     ub1 ociMinute;
     ub1 ociSecond;
     ub4 ociFsec;
+    sb1 tzHour;
+    sb1 tzMinute;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlColumnTime */
@@ -3996,6 +4062,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             *minute = sqltDat[5] - 1;
             *second = sqltDat[6] - 1;
             *micro_second = 0;
+            timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                          time_zone, is_dst);
             break;
           case SQLT_DATE:
           case SQLT_TIMESTAMP:
@@ -4024,7 +4092,19 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             *hour   = ociHour;
             *minute = ociMinute;
             *second = ociSecond;
-            *micro_second = ociFsec;
+            *micro_second = ociFsec / 1000;
+            if (columnData->buffer_type == SQLT_TIMESTAMP_TZ || columnData->buffer_type == SQLT_DATE) {
+              OCIDateTimeGetTimeZoneOffset(preparedStmt->oci_environment,
+                                           preparedStmt->oci_error,
+                                           (OCIDateTime *) columnData->descriptor,
+                                           &tzHour, &tzMinute);
+              /* printf(F_D16(02) ":" F_D16(02) "\n", tzHour, tzMinute); */
+              *time_zone = tzHour * 60 + tzMinute;
+              *is_dst = FALSE;
+            } else {
+              timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                            time_zone, is_dst);
+            } /* if */
             break;
           default:
             logError(printf("sqlColumnTime: Column " FMT_D " has the unknown type %s.\n",
@@ -4034,9 +4114,6 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         } /* switch */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
-        } else {
-          timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
-                        time_zone, is_dst);
         } /* if */
       } /* if */
     } /* if */
@@ -4057,10 +4134,13 @@ static void sqlCommit (databaseType database)
     dbType db;
 
   /* sqlCommit */
+    logFunction(printf("sqlCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
     db = (dbType) database;
     OCITransCommit(db->oci_service_context,
                    db->oci_error,
                    OCI_DEFAULT);
+    logFunction(printf("sqlCommit -->\n"););
   } /* sqlCommit */
 
 
@@ -4069,6 +4149,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
 
   {
     preparedStmtType preparedStmt;
+    ub4 executeMode;
 
   /* sqlExecute */
     logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
@@ -4083,12 +4164,13 @@ static void sqlExecute (sqlStmtType sqlStatement)
       preparedStmt->fetchOkay = FALSE;
       /* showBindVars(preparedStmt); */
       /* showResultVars(preparedStmt); */
+      executeMode = preparedStmt->db->autoCommit ? OCI_COMMIT_ON_SUCCESS : OCI_DEFAULT;
       if (unlikely(OCIStmtExecute(preparedStmt->oci_service_context,
                                   preparedStmt->ppStmt,
                                   preparedStmt->oci_error,
                                   preparedStmt->statementType != OCI_STMT_SELECT, /* iters */
                                   0, NULL, NULL,
-                                  OCI_DEFAULT) != OCI_SUCCESS)) {
+                                  executeMode) != OCI_SUCCESS)) {
         setDbErrorMsg("sqlExecute", "OCIStmtExecute",
                       preparedStmt->oci_error);
         logError(printf("sqlExecute: OCIStmtExecute:\n%s\n",
@@ -4156,6 +4238,23 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
     logFunction(printf("sqlFetch --> %d\n", preparedStmt->fetchOkay););
     return preparedStmt->fetchOkay;
   } /* sqlFetch */
+
+
+
+static boolType sqlGetAutoCommit (databaseType database)
+
+  {
+    dbType db;
+    boolType autoCommit;
+
+  /* sqlGetAutoCommit */
+    logFunction(printf("sqlGetAutoCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    autoCommit = db->autoCommit;
+    logFunction(printf("sqlGetAutoCommit --> %d\n", autoCommit););
+    return autoCommit;
+  } /* sqlGetAutoCommit */
 
 
 
@@ -4246,6 +4345,8 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
             preparedStmt->executeSuccessful = FALSE;
             preparedStmt->fetchOkay = FALSE;
             preparedStmt->fetchFinished = TRUE;
+            preparedStmt->db = db;
+            db->usage_count++;
             err_info = setupParameters(preparedStmt, numBindParameters);
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               preparedStmt->result_array = NULL;
@@ -4269,6 +4370,38 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) preparedStmt););
     return (sqlStmtType) preparedStmt;
   } /* sqlPrepare */
+
+
+
+static void sqlRollback (databaseType database)
+
+  {
+    dbType db;
+
+  /* sqlRollback */
+    logFunction(printf("sqlRollback(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    OCITransRollback(db->oci_service_context,
+                   db->oci_error,
+                   OCI_DEFAULT);
+    logFunction(printf("sqlRollback -->\n"););
+  } /* sqlRollback */
+
+
+
+static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
+
+  {
+    dbType db;
+
+  /* sqlSetAutoCommit */
+    logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) database, autoCommit););
+    db = (dbType) database;
+    db->autoCommit = autoCommit;
+    logFunction(printf("sqlSetAutoCommit -->\n"););
+  } /* sqlSetAutoCommit */
 
 
 
@@ -4467,8 +4600,11 @@ static boolType setupFuncTable (void)
         sqlFunc->sqlCommit          = &sqlCommit;
         sqlFunc->sqlExecute         = &sqlExecute;
         sqlFunc->sqlFetch           = &sqlFetch;
+        sqlFunc->sqlGetAutoCommit   = &sqlGetAutoCommit;
         sqlFunc->sqlIsNull          = &sqlIsNull;
         sqlFunc->sqlPrepare         = &sqlPrepare;
+        sqlFunc->sqlRollback        = &sqlRollback;
+        sqlFunc->sqlSetAutoCommit   = &sqlSetAutoCommit;
         sqlFunc->sqlStmtColumnCount = &sqlStmtColumnCount;
         sqlFunc->sqlStmtColumnName  = &sqlStmtColumnName;
       } /* if */
@@ -4737,6 +4873,7 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 database->oci_session         = db.oci_session;
                 database->oci_service_context = db.oci_service_context;
                 database->charSetId           = db.charSetId;
+                database->autoCommit = TRUE;
               } /* if */
               free_cstri8(password8, password);
             } /* if */

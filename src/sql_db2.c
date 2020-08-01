@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_db2.c     Database access functions for Db2.                */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_db2.c                                       */
-/*  Changes: 2019  Thomas Mertes                                    */
+/*  Changes: 2019 - 2020  Thomas Mertes                             */
 /*  Content: Database access functions for Db2.                     */
 /*                                                                  */
 /********************************************************************/
@@ -60,6 +60,9 @@
 #ifdef DB2_DLL
 #define CLI_DLL DB2_DLL
 #endif
+
+#define ALLOW_EXECUTE_SUCCESS_WITH_INFO
+#define ALLOW_FETCH_SUCCESS_WITH_INFO
 
 #include "sql_cli.c"
 

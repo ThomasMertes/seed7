@@ -36,6 +36,13 @@ EXTERN listType fail_stack;
 
 #define set_fail_flag(failValue) interrupt_flag = (failValue); fail_flag = (failValue);
 
+typedef struct {
+    boolType fail_flag;
+    objectType fail_value;
+    listType fail_expression;
+    listType fail_stack;
+  } failStateStruct;
+
 
 void run_error (objectCategory required, objectType argument);
 void empty_value (objectType argument);
@@ -44,4 +51,7 @@ void write_call_stack (const_listType stack_elem);
 void uncaught_exception (void);
 objectType raise_with_arguments (objectType exception, listType list);
 objectType raise_exception (objectType exception);
+void leaveExceptionHandling (void);
+void saveFailState (failStateStruct *failState);
+void restoreFailState (failStateStruct *failState);
 void show_signal (void);

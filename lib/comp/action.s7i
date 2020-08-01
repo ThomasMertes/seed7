@@ -1500,78 +1500,118 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"SOC_WRITE"}:
         process(SOC_WRITE, function, params, c_expr);
       when {"SQL_BIND_BIGINT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_BIND_BIGINT, function, params, c_expr);
       when {"SQL_BIND_BIGRAT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_BIND_BIGRAT, function, params, c_expr);
       when {"SQL_BIND_BOOL"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_BIND_BOOL, function, params, c_expr);
       when {"SQL_BIND_BSTRI"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_BIND_BSTRI, function, params, c_expr);
       when {"SQL_BIND_DURATION"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_BIND_DURATION, function, params, c_expr);
       when {"SQL_BIND_FLOAT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_BIND_FLOAT, function, params, c_expr);
       when {"SQL_BIND_INT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_BIND_INT, function, params, c_expr);
       when {"SQL_BIND_NULL"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_BIND_NULL, function, params, c_expr);
       when {"SQL_BIND_STRI"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_BIND_STRI, function, params, c_expr);
       when {"SQL_BIND_TIME"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_BIND_TIME, function, params, c_expr);
       when {"SQL_CLOSE"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_CLOSE, function, params, c_expr);
       when {"SQL_CMP_DB"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_CMP_DB, function, params, c_expr);
       when {"SQL_CMP_STMT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_CMP_STMT, function, params, c_expr);
       when {"SQL_COLUMN_BIGINT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_COLUMN_BIGINT, function, params, c_expr);
       when {"SQL_COLUMN_BIGRAT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_COLUMN_BIGRAT, function, params, c_expr);
       when {"SQL_COLUMN_BOOL"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_COLUMN_BOOL, function, params, c_expr);
       when {"SQL_COLUMN_BSTRI"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_COLUMN_BSTRI, function, params, c_expr);
       when {"SQL_COLUMN_DURATION"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_COLUMN_DURATION, function, params, c_expr);
       when {"SQL_COLUMN_FLOAT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_COLUMN_FLOAT, function, params, c_expr);
       when {"SQL_COLUMN_INT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_COLUMN_INT, function, params, c_expr);
       when {"SQL_COLUMN_STRI"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_COLUMN_STRI, function, params, c_expr);
       when {"SQL_COLUMN_TIME"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_COLUMN_TIME, function, params, c_expr);
       when {"SQL_COMMIT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_COMMIT, function, params, c_expr);
       when {"SQL_CPY_DB"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_CPY_DB, function, params, c_expr);
       when {"SQL_CPY_STMT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_CPY_STMT, function, params, c_expr);
       when {"SQL_DRIVER"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_DRIVER, function, params, c_expr);
       when {"SQL_EQ_DB"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_EQ_DB, function, params, c_expr);
       when {"SQL_EQ_STMT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_EQ_STMT, function, params, c_expr);
       when {"SQL_ERR_CODE"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_ERR_CODE, function, params, c_expr);
       when {"SQL_ERR_DB_FUNC"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_ERR_DB_FUNC, function, params, c_expr);
       when {"SQL_ERR_LIB_FUNC"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_ERR_LIB_FUNC, function, params, c_expr);
       when {"SQL_ERR_MESSAGE"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_ERR_MESSAGE, function, params, c_expr);
       when {"SQL_EXECUTE"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_EXECUTE, function, params, c_expr);
       when {"SQL_FETCH"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_FETCH, function, params, c_expr);
+      when {"SQL_GET_AUTO_COMMIT"}:
+        databaseLibraryUsed := TRUE;
+        process(SQL_GET_AUTO_COMMIT, function, params, c_expr);
       when {"SQL_IS_NULL"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_IS_NULL, function, params, c_expr);
       when {"SQL_NE_DB"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_NE_DB, function, params, c_expr);
       when {"SQL_NE_STMT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_NE_STMT, function, params, c_expr);
       when {"SQL_OPEN_DB2"}:
         databaseLibraryUsed := TRUE;
@@ -1597,11 +1637,23 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"SQL_OPEN_SQLSRV"}:
         databaseLibraryUsed := TRUE;
         process(SQL_OPEN_SQLSRV, function, params, c_expr);
+      when {"SQL_OPEN_TDS"}:
+        databaseLibraryUsed := TRUE;
+        process(SQL_OPEN_TDS, function, params, c_expr);
       when {"SQL_PREPARE"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_PREPARE, function, params, c_expr);
+      when {"SQL_ROLLBACK"}:
+        databaseLibraryUsed := TRUE;
+        process(SQL_ROLLBACK, function, params, c_expr);
+      when {"SQL_SET_AUTO_COMMIT"}:
+        databaseLibraryUsed := TRUE;
+        process(SQL_SET_AUTO_COMMIT, function, params, c_expr);
       when {"SQL_STMT_COLUMN_COUNT"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_STMT_COLUMN_COUNT, function, params, c_expr);
       when {"SQL_STMT_COLUMN_NAME"}:
+        databaseLibraryUsed := TRUE;
         process(SQL_STMT_COLUMN_NAME, function, params, c_expr);
       when {"STR_APPEND"}:
         process(STR_APPEND, function, params, c_expr);

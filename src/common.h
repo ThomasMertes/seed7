@@ -239,18 +239,27 @@ typedef uint128Type               doubleUintType;
 #define UBYTE_MAX UINT8TYPE_MAX
 
 
+typedef int64Type timeStampType;
+#define TIMESTAMPTYPE_MIN INT64TYPE_MIN
+#define TIMESTAMPTYPE_MAX INT64TYPE_MAX
+#define TIMESTAMPTYPE_SIZE 64
+
 #if TIME_T_SIZE == 32
 #define TIME_T_MAX INT32TYPE_MAX
 #if TIME_T_SIGNED
+#define TIME_T_ERROR        INT32TYPE_MIN
 #define FMT_T                     FMT_D32
 #else
+#define TIME_T_ERROR       UINT32TYPE_MAX
 #define FMT_T                     FMT_U32
 #endif
 #elif TIME_T_SIZE == 64
 #define TIME_T_MAX INT64TYPE_MAX
 #if TIME_T_SIGNED
+#define TIME_T_ERROR        INT64TYPE_MIN
 #define FMT_T                     FMT_D64
 #else
+#define TIME_T_ERROR       UINT64TYPE_MAX
 #define FMT_T                     FMT_U64
 #endif
 #endif

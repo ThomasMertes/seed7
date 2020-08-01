@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  db_lite.h     SQLite interfaces used by Seed7.                  */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/db_lite.h                                       */
-/*  Changes: 2014  Thomas Mertes                                    */
+/*  Changes: 2014, 2015, 2019, 2020  Thomas Mertes                  */
 /*  Content: SQLite interfaces used by Seed7.                       */
 /*                                                                  */
 /********************************************************************/
@@ -80,10 +80,16 @@ int CDECL sqlite3_column_type (sqlite3_stmt *pStmt, int iCol);
 sqlite3 *CDECL sqlite3_db_handle (sqlite3_stmt *pStmt);
 int CDECL sqlite3_errcode (sqlite3 *db);
 const char *CDECL sqlite3_errmsg (sqlite3 *db);
+int CDECL sqlite3_exec (sqlite3 *db,
+                        const char *sql,
+                        int (*callback) (void*, int, char**, char**),
+                        void *arg1OfCallback,
+                        char **errMsg);
 int CDECL sqlite3_finalize (sqlite3_stmt *pStmt);
+int CDECL sqlite3_get_autocommit (sqlite3 *db);
 int CDECL sqlite3_open (const char *filename, sqlite3 **ppDb);
 int CDECL sqlite3_prepare (sqlite3 *db,
-                           const char *zSql,
+                           const char *sql,
                            int nByte,
                            sqlite3_stmt **ppStmt,
                            const char **pzTail);

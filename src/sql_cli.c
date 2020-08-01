@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_cli.c     Database access functions for ODBC/CLI interface. */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_cli.c                                       */
-/*  Changes: 2014, 2015, 2017 - 2019  Thomas Mertes                 */
+/*  Changes: 2014, 2015, 2017 - 2020  Thomas Mertes                 */
 /*  Content: Database access functions for ODBC/CLI interface.      */
 /*                                                                  */
 /********************************************************************/
@@ -34,7 +34,7 @@ typedef struct {
     sqlFuncType  sqlFunc;
     intType      driver;
     SQLHENV      sql_environment;
-    SQLHDBC      sql_connection;
+    SQLHDBC      connection;
     boolType     wideCharsSupported;
     boolType     tinyintIsUnsigned;
     SQLUSMALLINT maxConcurrentActivities;
@@ -127,6 +127,20 @@ static sqlFuncType sqlFunc = NULL;
 #ifndef SQL_CLOB
 #define SQL_CLOB -99
 #endif
+#ifndef SQL_SS_TIME2
+#define SQL_SS_TIME2 -154
+#endif
+#ifndef SQL_XML
+#define SQL_XML -370
+#endif
+
+typedef struct {
+    SQLUSMALLINT hour;
+    SQLUSMALLINT minute;
+    SQLUSMALLINT second;
+    SQLUINTEGER fraction;
+  } sqlSsTime2Struct;
+
 
 /* Define formats for SQLLEN and SQLULEN */
 #if POINTER_SIZE == 32
@@ -229,12 +243,20 @@ typedef SQLRETURN (STDCALL *tp_SQLDriversW) (SQLHENV      henv,
                                              SQLWCHAR     *szDriverAttributes,
                                              SQLSMALLINT  cbDrvrAttrMax,
                                              SQLSMALLINT *pcbDrvrAttr);
+typedef SQLRETURN (STDCALL *tp_SQLEndTran) (SQLSMALLINT handleType,
+                                            SQLHANDLE   handle,
+                                            SQLSMALLINT completionType);
 typedef SQLRETURN (STDCALL *tp_SQLExecute) (SQLHSTMT statementHandle);
 typedef SQLRETURN (STDCALL *tp_SQLFetch) (SQLHSTMT statementHandle);
 typedef SQLRETURN (STDCALL *tp_SQLFreeHandle) (SQLSMALLINT handleType,
                                                SQLHANDLE   handle);
 typedef SQLRETURN (STDCALL *tp_SQLFreeStmt) (SQLHSTMT     statementHandle,
                                              SQLUSMALLINT option);
+typedef SQLRETURN (STDCALL *tp_SQLGetConnectAttrW) (SQLHDBC     connectionHandle,
+                                                    SQLINTEGER  attribute,
+                                                    SQLPOINTER  valuePtr,
+                                                    SQLINTEGER  bufferLength,
+                                                    SQLINTEGER *stringLengthPtr);
 typedef SQLRETURN (STDCALL *tp_SQLGetData) (SQLHSTMT     statementHandle,
                                             SQLUSMALLINT columnNumber,
                                             SQLSMALLINT  targetType,
@@ -268,6 +290,10 @@ typedef SQLRETURN (STDCALL *tp_SQLNumResultCols) (SQLHSTMT     statementHandle,
 typedef SQLRETURN (STDCALL *tp_SQLPrepareW) (SQLHSTMT   statementHandle,
                                              SQLWCHAR  *statementText,
                                              SQLINTEGER textLength);
+typedef SQLRETURN (STDCALL *tp_SQLSetConnectAttrW) (SQLHDBC    connectionHandle,
+                                                    SQLINTEGER attribute,
+                                                    SQLPOINTER valuePtr,
+                                                    SQLINTEGER stringLength);
 typedef SQLRETURN (STDCALL *tp_SQLSetDescFieldW) (SQLHDESC    descriptorHandle,
                                                   SQLSMALLINT recNumber,
                                                   SQLSMALLINT fieldIdentifier,
@@ -278,59 +304,65 @@ typedef SQLRETURN (STDCALL *tp_SQLSetEnvAttr) (SQLHENV    environmentHandle,
                                                SQLPOINTER value,
                                                SQLINTEGER stringLength);
 
-static tp_SQLAllocHandle    ptr_SQLAllocHandle;
-static tp_SQLBindCol        ptr_SQLBindCol;
-static tp_SQLBindParameter  ptr_SQLBindParameter;
-static tp_SQLBrowseConnectW ptr_SQLBrowseConnectW;
-static tp_SQLColAttributeW  ptr_SQLColAttributeW;
-static tp_SQLConnectW       ptr_SQLConnectW;
-static tp_SQLDataSources    ptr_SQLDataSources;
-static tp_SQLDescribeColW   ptr_SQLDescribeColW;
-static tp_SQLDescribeParam  ptr_SQLDescribeParam;
-static tp_SQLDisconnect     ptr_SQLDisconnect;
-static tp_SQLDriverConnectW ptr_SQLDriverConnectW;
-static tp_SQLDriversW       ptr_SQLDriversW;
-static tp_SQLExecute        ptr_SQLExecute;
-static tp_SQLFetch          ptr_SQLFetch;
-static tp_SQLFreeHandle     ptr_SQLFreeHandle;
-static tp_SQLFreeStmt       ptr_SQLFreeStmt;
-static tp_SQLGetData        ptr_SQLGetData;
-static tp_SQLGetDiagRecW    ptr_SQLGetDiagRecW;
-static tp_SQLGetInfoW       ptr_SQLGetInfoW;
-static tp_SQLGetStmtAttrW   ptr_SQLGetStmtAttrW;
-static tp_SQLGetTypeInfoW   ptr_SQLGetTypeInfoW;
-static tp_SQLNumParams      ptr_SQLNumParams;
-static tp_SQLNumResultCols  ptr_SQLNumResultCols;
-static tp_SQLPrepareW       ptr_SQLPrepareW;
-static tp_SQLSetDescFieldW  ptr_SQLSetDescFieldW;
-static tp_SQLSetEnvAttr     ptr_SQLSetEnvAttr;
+static tp_SQLAllocHandle     ptr_SQLAllocHandle;
+static tp_SQLBindCol         ptr_SQLBindCol;
+static tp_SQLBindParameter   ptr_SQLBindParameter;
+static tp_SQLBrowseConnectW  ptr_SQLBrowseConnectW;
+static tp_SQLColAttributeW   ptr_SQLColAttributeW;
+static tp_SQLConnectW        ptr_SQLConnectW;
+static tp_SQLDataSources     ptr_SQLDataSources;
+static tp_SQLDescribeColW    ptr_SQLDescribeColW;
+static tp_SQLDescribeParam   ptr_SQLDescribeParam;
+static tp_SQLDisconnect      ptr_SQLDisconnect;
+static tp_SQLDriverConnectW  ptr_SQLDriverConnectW;
+static tp_SQLDriversW        ptr_SQLDriversW;
+static tp_SQLEndTran         ptr_SQLEndTran;
+static tp_SQLExecute         ptr_SQLExecute;
+static tp_SQLFetch           ptr_SQLFetch;
+static tp_SQLFreeHandle      ptr_SQLFreeHandle;
+static tp_SQLFreeStmt        ptr_SQLFreeStmt;
+static tp_SQLGetConnectAttrW ptr_SQLGetConnectAttrW;
+static tp_SQLGetData         ptr_SQLGetData;
+static tp_SQLGetDiagRecW     ptr_SQLGetDiagRecW;
+static tp_SQLGetInfoW        ptr_SQLGetInfoW;
+static tp_SQLGetStmtAttrW    ptr_SQLGetStmtAttrW;
+static tp_SQLGetTypeInfoW    ptr_SQLGetTypeInfoW;
+static tp_SQLNumParams       ptr_SQLNumParams;
+static tp_SQLNumResultCols   ptr_SQLNumResultCols;
+static tp_SQLPrepareW        ptr_SQLPrepareW;
+static tp_SQLSetConnectAttrW ptr_SQLSetConnectAttrW;
+static tp_SQLSetDescFieldW   ptr_SQLSetDescFieldW;
+static tp_SQLSetEnvAttr      ptr_SQLSetEnvAttr;
 
-#define SQLAllocHandle    ptr_SQLAllocHandle
-#define SQLBindCol        ptr_SQLBindCol
-#define SQLBindParameter  ptr_SQLBindParameter
-#define SQLBrowseConnectW ptr_SQLBrowseConnectW
-#define SQLColAttributeW  ptr_SQLColAttributeW
-#define SQLConnectW       ptr_SQLConnectW
-#define SQLDataSources    ptr_SQLDataSources
-#define SQLDescribeColW   ptr_SQLDescribeColW
-#define SQLDescribeParam  ptr_SQLDescribeParam
-#define SQLDisconnect     ptr_SQLDisconnect
-#define SQLDriverConnectW ptr_SQLDriverConnectW
-#define SQLDriversW       ptr_SQLDriversW
-#define SQLExecute        ptr_SQLExecute
-#define SQLFetch          ptr_SQLFetch
-#define SQLFreeHandle     ptr_SQLFreeHandle
-#define SQLFreeStmt       ptr_SQLFreeStmt
-#define SQLGetData        ptr_SQLGetData
-#define SQLGetDiagRecW    ptr_SQLGetDiagRecW
-#define SQLGetInfoW       ptr_SQLGetInfoW
-#define SQLGetStmtAttrW   ptr_SQLGetStmtAttrW
-#define SQLGetTypeInfoW   ptr_SQLGetTypeInfoW
-#define SQLNumParams      ptr_SQLNumParams
-#define SQLNumResultCols  ptr_SQLNumResultCols
-#define SQLPrepareW       ptr_SQLPrepareW
-#define SQLSetDescFieldW  ptr_SQLSetDescFieldW
-#define SQLSetEnvAttr     ptr_SQLSetEnvAttr
+#define SQLAllocHandle     ptr_SQLAllocHandle
+#define SQLBindCol         ptr_SQLBindCol
+#define SQLBindParameter   ptr_SQLBindParameter
+#define SQLBrowseConnectW  ptr_SQLBrowseConnectW
+#define SQLColAttributeW   ptr_SQLColAttributeW
+#define SQLConnectW        ptr_SQLConnectW
+#define SQLDataSources     ptr_SQLDataSources
+#define SQLDescribeColW    ptr_SQLDescribeColW
+#define SQLDescribeParam   ptr_SQLDescribeParam
+#define SQLDisconnect      ptr_SQLDisconnect
+#define SQLDriverConnectW  ptr_SQLDriverConnectW
+#define SQLDriversW        ptr_SQLDriversW
+#define SQLEndTran         ptr_SQLEndTran
+#define SQLExecute         ptr_SQLExecute
+#define SQLFetch           ptr_SQLFetch
+#define SQLFreeHandle      ptr_SQLFreeHandle
+#define SQLFreeStmt        ptr_SQLFreeStmt
+#define SQLGetConnectAttrW ptr_SQLGetConnectAttrW
+#define SQLGetData         ptr_SQLGetData
+#define SQLGetDiagRecW     ptr_SQLGetDiagRecW
+#define SQLGetInfoW        ptr_SQLGetInfoW
+#define SQLGetStmtAttrW    ptr_SQLGetStmtAttrW
+#define SQLGetTypeInfoW    ptr_SQLGetTypeInfoW
+#define SQLNumParams       ptr_SQLNumParams
+#define SQLNumResultCols   ptr_SQLNumResultCols
+#define SQLPrepareW        ptr_SQLPrepareW
+#define SQLSetConnectAttrW ptr_SQLSetConnectAttrW
+#define SQLSetDescFieldW   ptr_SQLSetDescFieldW
+#define SQLSetEnvAttr      ptr_SQLSetEnvAttr
 
 
 
@@ -344,44 +376,47 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((SQLAllocHandle    = (tp_SQLAllocHandle)    dllFunc(dbDll, "SQLAllocHandle"))    == NULL ||
-            (SQLBindCol        = (tp_SQLBindCol)        dllFunc(dbDll, "SQLBindCol"))        == NULL ||
-            (SQLBindParameter  = (tp_SQLBindParameter)  dllFunc(dbDll, "SQLBindParameter"))  == NULL ||
+        if ((SQLAllocHandle     = (tp_SQLAllocHandle)     dllFunc(dbDll, "SQLAllocHandle"))     == NULL ||
+            (SQLBindCol         = (tp_SQLBindCol)         dllFunc(dbDll, "SQLBindCol"))         == NULL ||
+            (SQLBindParameter   = (tp_SQLBindParameter)   dllFunc(dbDll, "SQLBindParameter"))   == NULL ||
 #ifdef ODBC_DRIVER_FUNCTIONS_NEEDED
-            (SQLBrowseConnectW = (tp_SQLBrowseConnectW) dllFunc(dbDll, "SQLBrowseConnectW")) == NULL ||
+            (SQLBrowseConnectW  = (tp_SQLBrowseConnectW)  dllFunc(dbDll, "SQLBrowseConnectW"))  == NULL ||
 #else
-            (SQLBrowseConnectW = (tp_SQLBrowseConnectW) dllFunc(dbDll, "SQLBrowseConnectW"),  FALSE) ||
+            (SQLBrowseConnectW  = (tp_SQLBrowseConnectW)  dllFunc(dbDll, "SQLBrowseConnectW"),  FALSE) ||
 #endif
-            (SQLColAttributeW  = (tp_SQLColAttributeW)  dllFunc(dbDll, "SQLColAttributeW"))  == NULL ||
-            (SQLConnectW       = (tp_SQLConnectW)       dllFunc(dbDll, "SQLConnectW"))       == NULL ||
+            (SQLColAttributeW   = (tp_SQLColAttributeW)   dllFunc(dbDll, "SQLColAttributeW"))   == NULL ||
+            (SQLConnectW        = (tp_SQLConnectW)        dllFunc(dbDll, "SQLConnectW"))        == NULL ||
 #ifdef ODBC_DRIVER_FUNCTIONS_NEEDED
-            (SQLDataSources    = (tp_SQLDataSources)    dllFunc(dbDll, "SQLDataSources"))    == NULL ||
+            (SQLDataSources     = (tp_SQLDataSources)     dllFunc(dbDll, "SQLDataSources"))     == NULL ||
 #else
-            (SQLDataSources    = (tp_SQLDataSources)    NULL, FALSE) ||
+            (SQLDataSources     = (tp_SQLDataSources)     NULL, FALSE) ||
 #endif
-            (SQLDescribeColW   = (tp_SQLDescribeColW)   dllFunc(dbDll, "SQLDescribeColW"))   == NULL ||
-            (SQLDescribeParam  = (tp_SQLDescribeParam)  dllFunc(dbDll, "SQLDescribeParam"),   FALSE) ||
-            (SQLDisconnect     = (tp_SQLDisconnect)     dllFunc(dbDll, "SQLDisconnect"))     == NULL ||
-            (SQLDriverConnectW = (tp_SQLDriverConnectW) dllFunc(dbDll, "SQLDriverConnectW")) == NULL ||
+            (SQLDescribeColW    = (tp_SQLDescribeColW)    dllFunc(dbDll, "SQLDescribeColW"))    == NULL ||
+            (SQLDescribeParam   = (tp_SQLDescribeParam)   dllFunc(dbDll, "SQLDescribeParam"),   FALSE) ||
+            (SQLDisconnect      = (tp_SQLDisconnect)      dllFunc(dbDll, "SQLDisconnect"))      == NULL ||
+            (SQLDriverConnectW  = (tp_SQLDriverConnectW)  dllFunc(dbDll, "SQLDriverConnectW"))  == NULL ||
 #ifdef ODBC_DRIVER_FUNCTIONS_NEEDED
-            (SQLDriversW       = (tp_SQLDriversW)       dllFunc(dbDll, "SQLDriversW"))       == NULL ||
+            (SQLDriversW        = (tp_SQLDriversW)        dllFunc(dbDll, "SQLDriversW"))        == NULL ||
 #else
-            (SQLDriversW       = (tp_SQLDriversW)       NULL, FALSE) ||
+            (SQLDriversW        = (tp_SQLDriversW)        NULL, FALSE) ||
 #endif
-            (SQLExecute        = (tp_SQLExecute)        dllFunc(dbDll, "SQLExecute"))        == NULL ||
-            (SQLFetch          = (tp_SQLFetch)          dllFunc(dbDll, "SQLFetch"))          == NULL ||
-            (SQLFreeHandle     = (tp_SQLFreeHandle)     dllFunc(dbDll, "SQLFreeHandle"))     == NULL ||
-            (SQLFreeStmt       = (tp_SQLFreeStmt)       dllFunc(dbDll, "SQLFreeStmt"))       == NULL ||
-            (SQLGetData        = (tp_SQLGetData)        dllFunc(dbDll, "SQLGetData"))        == NULL ||
-            (SQLGetDiagRecW    = (tp_SQLGetDiagRecW)    dllFunc(dbDll, "SQLGetDiagRecW"))    == NULL ||
-            (SQLGetInfoW       = (tp_SQLGetInfoW)       dllFunc(dbDll, "SQLGetInfoW"))       == NULL ||
-            (SQLGetStmtAttrW   = (tp_SQLGetStmtAttrW)   dllFunc(dbDll, "SQLGetStmtAttrW"))   == NULL ||
-            (SQLGetTypeInfoW   = (tp_SQLGetTypeInfoW)   dllFunc(dbDll, "SQLGetTypeInfoW"))   == NULL ||
-            (SQLNumParams      = (tp_SQLNumParams )     dllFunc(dbDll, "SQLNumParams"))      == NULL ||
-            (SQLNumResultCols  = (tp_SQLNumResultCols)  dllFunc(dbDll, "SQLNumResultCols"))  == NULL ||
-            (SQLPrepareW       = (tp_SQLPrepareW)       dllFunc(dbDll, "SQLPrepareW"))       == NULL ||
-            (SQLSetDescFieldW  = (tp_SQLSetDescFieldW)  dllFunc(dbDll, "SQLSetDescFieldW"))  == NULL ||
-            (SQLSetEnvAttr     = (tp_SQLSetEnvAttr)     dllFunc(dbDll, "SQLSetEnvAttr"))     == NULL) {
+            (SQLEndTran         = (tp_SQLEndTran)         dllFunc(dbDll, "SQLEndTran"))         == NULL ||
+            (SQLExecute         = (tp_SQLExecute)         dllFunc(dbDll, "SQLExecute"))         == NULL ||
+            (SQLFetch           = (tp_SQLFetch)           dllFunc(dbDll, "SQLFetch"))           == NULL ||
+            (SQLFreeHandle      = (tp_SQLFreeHandle)      dllFunc(dbDll, "SQLFreeHandle"))      == NULL ||
+            (SQLFreeStmt        = (tp_SQLFreeStmt)        dllFunc(dbDll, "SQLFreeStmt"))        == NULL ||
+            (SQLGetConnectAttrW = (tp_SQLGetConnectAttrW) dllFunc(dbDll, "SQLGetConnectAttrW")) == NULL ||
+            (SQLGetData         = (tp_SQLGetData)         dllFunc(dbDll, "SQLGetData"))         == NULL ||
+            (SQLGetDiagRecW     = (tp_SQLGetDiagRecW)     dllFunc(dbDll, "SQLGetDiagRecW"))     == NULL ||
+            (SQLGetInfoW        = (tp_SQLGetInfoW)        dllFunc(dbDll, "SQLGetInfoW"))        == NULL ||
+            (SQLGetStmtAttrW    = (tp_SQLGetStmtAttrW)    dllFunc(dbDll, "SQLGetStmtAttrW"))    == NULL ||
+            (SQLGetTypeInfoW    = (tp_SQLGetTypeInfoW)    dllFunc(dbDll, "SQLGetTypeInfoW"))    == NULL ||
+            (SQLNumParams       = (tp_SQLNumParams )      dllFunc(dbDll, "SQLNumParams"))       == NULL ||
+            (SQLNumResultCols   = (tp_SQLNumResultCols)   dllFunc(dbDll, "SQLNumResultCols"))   == NULL ||
+            (SQLPrepareW        = (tp_SQLPrepareW)        dllFunc(dbDll, "SQLPrepareW"))        == NULL ||
+            (SQLSetConnectAttrW = (tp_SQLSetConnectAttrW) dllFunc(dbDll, "SQLSetConnectAttrW")) == NULL ||
+            (SQLSetDescFieldW   = (tp_SQLSetDescFieldW)   dllFunc(dbDll, "SQLSetDescFieldW"))   == NULL ||
+            (SQLSetEnvAttr      = (tp_SQLSetEnvAttr)      dllFunc(dbDll, "SQLSetEnvAttr"))      == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */
@@ -404,7 +439,7 @@ static boolType findDll (void)
       found = setupDll(dllList[pos]);
     } /* for */
     if (!found) {
-      dllErrorMessage("sqlOpenOdbc", "findDll", dllList,
+      dllErrorMessage("sqlOpen", "findDll", dllList,
                       sizeof(dllList) / sizeof(char *));
     } /* if */
     return found;
@@ -489,13 +524,16 @@ static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
                                 (SQLSMALLINT) ERROR_MESSAGE_BUFFER_SIZE,
                                 &bufferLength);
     if (returnCode == SQL_NO_DATA) {
+      dbError.errorCode = 0;
       snprintf(dbError.message, DB_ERR_MESSAGE_SIZE,
                " *** SQLGetDiagRecW returned: SQL_NO_DATA");
     } else if (returnCode != SQL_SUCCESS &&
                returnCode != SQL_SUCCESS_WITH_INFO) {
+      dbError.errorCode = 0;
       snprintf(dbError.message, DB_ERR_MESSAGE_SIZE,
                " *** SQLGetDiagRecW returned: %d\n", returnCode);
     } else {
+      dbError.errorCode = (intType) nativeError;
       wstri_to_cstri8(sqlState8, sqlState);
       wstri_to_cstri8(messageText8, messageText);
       snprintf(dbError.message, DB_ERR_MESSAGE_SIZE,
@@ -593,15 +631,10 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     } /* if */
     freePrefetched(preparedStmt);
     freeFetchData(preparedStmt, &preparedStmt->fetchRecord);
-    if (preparedStmt->db->sql_connection != SQL_NULL_HANDLE) {
+    if (preparedStmt->db->connection != SQL_NULL_HANDLE) {
       if (preparedStmt->executeSuccessful) {
-        if (unlikely(SQLFreeStmt(preparedStmt->ppStmt, SQL_CLOSE) != SQL_SUCCESS)) {
-          setDbErrorMsg("freePreparedStmt", "SQLFreeStmt",
-                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
-          logError(printf("freePreparedStmt: SQLFreeStmt SQL_CLOSE:\n%s\n",
-                          dbError.message););
-          raise_error(DATABASE_ERROR);
-        } /* if */
+        /* Ignore possible errors. */
+        SQLFreeStmt(preparedStmt->ppStmt, SQL_CLOSE);
       } /* if */
       SQLFreeHandle(SQL_HANDLE_STMT, preparedStmt->ppStmt);
     } /* if */
@@ -663,6 +696,7 @@ static const char *nameOfSqlType (SQLSMALLINT sql_type)
       case SQL_BINARY:                    typeName = "SQL_BINARY"; break;
       case SQL_VARBINARY:                 typeName = "SQL_VARBINARY"; break;
       case SQL_LONGVARBINARY:             typeName = "SQL_LONGVARBINARY"; break;
+      case SQL_SS_TIME2:                  typeName = "SQL_SS_TIME2"; break;
       default:
         sprintf(buffer, FMT_D16, sql_type);
         typeName = buffer;
@@ -775,6 +809,8 @@ static striType processStatementStri (const const_striType sqlStatementStri,
               pos++;
             } while (pos < sqlStatementStri->size && sqlStatementStri->mem[pos] != '/');
             pos++;
+            /* Replace the comment with a space. */
+            processed->mem[destPos++] = ' ';
           } /* if */
         } else if (ch == '-') {
           pos++;
@@ -785,6 +821,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
             while (pos < sqlStatementStri->size && sqlStatementStri->mem[pos] != '\n') {
               pos++;
             } /* while */
+            /* The final newline replaces the comment. */
           } /* if */
         } else {
           processed->mem[destPos++] = ch;
@@ -800,7 +837,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
 
 
 
-static boolType hasDataType (SQLHDBC sql_connection, SQLSMALLINT requestedDataType,
+static boolType hasDataType (SQLHDBC connection, SQLSMALLINT requestedDataType,
     errInfoType *err_info)
 
   {
@@ -811,10 +848,10 @@ static boolType hasDataType (SQLHDBC sql_connection, SQLSMALLINT requestedDataTy
   /* hasDataType */
     logFunction(printf("hasDataType(*, " FMT_D16 ", *)\n", requestedDataType););
     if (SQLAllocHandle(SQL_HANDLE_STMT,
-                       sql_connection,
+                       connection,
                        &ppStmt) != SQL_SUCCESS) {
       setDbErrorMsg("hasDataType", "SQLAllocHandle",
-                    SQL_HANDLE_DBC, sql_connection);
+                    SQL_HANDLE_DBC, connection);
       logError(printf("hasDataType: SQLAllocHandle SQL_HANDLE_STMT:\n%s\n",
                       dbError.message););
       *err_info = DATABASE_ERROR;
@@ -834,7 +871,7 @@ static boolType hasDataType (SQLHDBC sql_connection, SQLSMALLINT requestedDataTy
 
 
 
-static boolType dataTypeIsUnsigned (SQLHDBC sql_connection, SQLSMALLINT requestedDataType,
+static boolType dataTypeIsUnsigned (SQLHDBC connection, SQLSMALLINT requestedDataType,
     errInfoType *err_info)
 
   {
@@ -848,10 +885,10 @@ static boolType dataTypeIsUnsigned (SQLHDBC sql_connection, SQLSMALLINT requeste
   /* dataTypeIsUnsigned */
     logFunction(printf("dataTypeIsUnsigned(*, " FMT_D16 ", *)\n", requestedDataType););
     if (SQLAllocHandle(SQL_HANDLE_STMT,
-                       sql_connection,
+                       connection,
                        &ppStmt) != SQL_SUCCESS) {
       setDbErrorMsg("dataTypeIsUnsigned", "SQLAllocHandle",
-                    SQL_HANDLE_DBC, sql_connection);
+                    SQL_HANDLE_DBC, connection);
       logError(printf("dataTypeIsUnsigned: SQLAllocHandle SQL_HANDLE_STMT:\n%s\n",
                       dbError.message););
       *err_info = DATABASE_ERROR;
@@ -860,7 +897,7 @@ static boolType dataTypeIsUnsigned (SQLHDBC sql_connection, SQLSMALLINT requeste
       /* printf("returnCode: " FMT_D16 "\n", returnCode); */
       if (returnCode != SQL_SUCCESS) {
         setDbErrorMsg("dataTypeIsUnsigned", "SQLGetTypeInfoW",
-                      SQL_HANDLE_DBC, sql_connection);
+                      SQL_HANDLE_DBC, connection);
         logError(printf("dataTypeIsUnsigned: SQLGetTypeInfoW error:\n%s\n",
                         dbError.message););
         *err_info = DATABASE_ERROR;
@@ -871,7 +908,7 @@ static boolType dataTypeIsUnsigned (SQLHDBC sql_connection, SQLSMALLINT requeste
                             (SQLLEN) sizeof(unsignedAttribute),
                             &unsignedAttribute_ind) != SQL_SUCCESS) {
         setDbErrorMsg("dataTypeIsUnsigned", "SQLBindCol",
-                      SQL_HANDLE_DBC, sql_connection);
+                      SQL_HANDLE_DBC, connection);
         logError(printf("dataTypeIsUnsigned: SQLBindCol error:\n%s\n",
                         dbError.message););
         *err_info = DATABASE_ERROR;
@@ -889,7 +926,7 @@ static boolType dataTypeIsUnsigned (SQLHDBC sql_connection, SQLSMALLINT requeste
           /* Assume that the dataType is signed. */
         } else {
           setDbErrorMsg("dataTypeIsUnsigned", "SQLFetch",
-                        SQL_HANDLE_DBC, sql_connection);
+                        SQL_HANDLE_DBC, connection);
           logError(printf("dataTypeIsUnsigned: SQLFetch error:\n%s\n",
                           dbError.message););
           *err_info = DATABASE_ERROR;
@@ -978,6 +1015,8 @@ static errInfoType setupParameterColumn (preparedStmtType preparedStmt,
         case SQL_BINARY:
         case SQL_VARBINARY:
         case SQL_LONGVARBINARY:
+        case SQL_BLOB:
+        case SQL_CLOB:
           /* For this data types no buffer is reserved. Therefore   */
           /* param->buffer is NULL and param->buffer_capacity is 0. */
           /* All bind functions dealing with this data types check  */
@@ -1153,7 +1192,8 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
                                  &columnDescr->columnSize,
                                  &columnDescr->decimalDigits,
                                  &columnDescr->nullable);
-    if (returnCode != SQL_SUCCESS && returnCode != SQL_SUCCESS_WITH_INFO) {
+    if (unlikely(returnCode != SQL_SUCCESS &&
+                 returnCode != SQL_SUCCESS_WITH_INFO)) {
       setDbErrorMsg("setupResultColumn", "SQLDescribeColW",
                     SQL_HANDLE_STMT, preparedStmt->ppStmt);
       logError(printf("setupResultColumn: SQLDescribeColW returns "
@@ -1371,6 +1411,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           buffer_length = (memSizeType) SQL_DATA_AT_EXEC;
           break;
         case SQL_CLOB:
+        case SQL_XML:
           columnDescr->dataType = SQL_LONGVARCHAR;
           if (preparedStmt->db->wideCharsSupported) {
             c_type = SQL_C_WCHAR;
@@ -1379,6 +1420,10 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           } /* if */
           columnDescr->sql_data_at_exec = TRUE;
           buffer_length = (memSizeType) SQL_DATA_AT_EXEC;
+          break;
+        case SQL_SS_TIME2:
+          c_type = SQL_C_BINARY;
+          buffer_length = sizeof(sqlSsTime2Struct);
           break;
         default:
           logError(printf("setupResultColumn: Column %hd has the unknown type %s.\n",
@@ -1394,6 +1439,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         columnDescr->buffer_length = buffer_length;
       } /* if */
     } /* if */
+    logFunction(printf("setupResultColumn --> %d\n", err_info););
     return err_info;
   } /* setupResultColumn */
 
@@ -1755,7 +1801,7 @@ static intType getNumericInt (const void *buffer)
 #if 0
       if (bigIntValue != NULL) {
         printf("numStruct->val: ");
-        prot_stri_unquoted(bigStr(bigIntValue));
+        prot_bigint(bigIntValue);
         printf("\n");
       }
 #endif
@@ -1772,7 +1818,7 @@ static intType getNumericInt (const void *buffer)
       if (bigIntValue != NULL) {
 #if 0
         printf("numStruct->val: ");
-        prot_stri_unquoted(bigStr(bigIntValue));
+        prot_bigint(bigIntValue);
         printf("\n");
 #endif
 #if INTTYPE_SIZE == 32
@@ -1818,7 +1864,7 @@ static bigIntType getNumericBigInt (const void *buffer)
 #if 0
       if (bigIntValue != NULL) {
         printf("numStruct->val: ");
-        prot_stri_unquoted(bigStr(bigIntValue));
+        prot_bigint(bigIntValue);
         printf("\n");
       } /* if */
 #endif
@@ -1834,11 +1880,7 @@ static bigIntType getNumericBigInt (const void *buffer)
       } /* if */
     } /* if */
     logFunction(printf("getNumericBigInt --> ");
-                if (bigIntValue == NULL) {
-                  printf("NULL");
-                } else {
-                  prot_stri_unquoted(bigStr(bigIntValue));
-                }
+                prot_bigint(bigIntValue);
                 printf("\n"););
     return bigIntValue;
  } /* getNumericBigInt */
@@ -1870,7 +1912,7 @@ static bigIntType getNumericBigRational (const void *buffer, bigIntType *denomin
 #if 0
     if (numerator != NULL) {
       printf("numStruct->val: ");
-      prot_stri_unquoted(bigStr(numerator));
+      prot_bigint(numerator);
       printf("\n");
     } /* if */
 #endif
@@ -2071,7 +2113,7 @@ static memSizeType setNumericBigRat (void **buffer,
         } /* if */
         if (mantissaValue != NULL) {
           /* printf("mantissaValue: ");
-             prot_stri_unquoted(bigStr(mantissaValue));
+             prot_bigint(mantissaValue);
              printf("\n"); */
           negative = bigCmpSignedDigit(mantissaValue, 0) < 0;
           if (negative) {
@@ -2105,7 +2147,7 @@ static memSizeType setNumericBigRat (void **buffer,
               printf("numStruct->scale: %d\n", numStruct->scale);
               printf("numStruct->sign: %u\n", numStruct->sign);
               printf("numStruct->val: ");
-              prot_stri_unquoted(bigStr(mantissaValue));
+              prot_bigint(mantissaValue);
               printf("\n");
               { int pos; for (pos = 0; pos < SQL_MAX_NUMERIC_LEN; pos++) {
                 printf(" %d", numStruct->val[pos]); } printf("\n"); }
@@ -2116,9 +2158,9 @@ static memSizeType setNumericBigRat (void **buffer,
 
                 numerator2 = getNumericBigRational(*buffer, &denominator2);
                 printf("stored: ");
-                prot_stri_unquoted(bigStr(numerator2));
+                prot_bigint(numerator2);
                 printf(" / ");
-                prot_stri_unquoted(bigStr(denominator2));
+                prot_bigint(denominator2);
                 printf("\n");
               } */
             } /* if */
@@ -2150,8 +2192,7 @@ static memSizeType setDecimalBigInt (void **buffer, memSizeType *buffer_capacity
     if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
     } else {
-      /* prot_stri(stri);
-         printf("\n"); */
+      /* printf("%s\n", striAsUnquotedCStri(stri)); */
       if (*buffer_capacity < stri->size + NULL_TERMINATION_LEN) {
         free(*buffer);
         *buffer = malloc(stri->size + NULL_TERMINATION_LEN);
@@ -2701,6 +2742,11 @@ static errInfoType doFetch (preparedStmtType preparedStmt, fetchDataType boundFe
       preparedStmt->currentFetch->next = NULL;
     } else {
       boundFetchData->fetch_result = SQLFetch(preparedStmt->ppStmt);
+#ifdef ALLOW_FETCH_SUCCESS_WITH_INFO
+      if (boundFetchData->fetch_result == SQL_SUCCESS_WITH_INFO) {
+        boundFetchData->fetch_result = SQL_SUCCESS;
+      } /*if */
+#endif
       if (boundFetchData->fetch_result == SQL_SUCCESS) {
         if (preparedStmt->hasBlob) {
           err_info = fetchBlobs(preparedStmt, boundFetchData);
@@ -3127,6 +3173,8 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
           case SQL_LONGVARBINARY:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
+          case SQL_BLOB:
+          case SQL_CLOB:
             c_type = SQL_C_BINARY;
             if (unlikely(bstri->size > SQLLEN_MAX)) {
               /* It is not possible to cast bstri->size to SQLLEN. */
@@ -3651,6 +3699,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
           case SQL_WCHAR:
           case SQL_WVARCHAR:
           case SQL_WLONGVARCHAR:
+          case SQL_CLOB:
             c_type = SQL_C_WCHAR;
             if (unlikely(stri->size > MAX_WSTRI_LEN / SURROGATE_PAIR_FACTOR)) {
               /* It is not possible to compute the memory size. */
@@ -3672,7 +3721,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
                 if (likely(err_info == OKAY_NO_ERROR)) {
                   if (unlikely(length > SQLLEN_MAX >> 1)) {
                     /* It is not possible to cast length << 1 to SQLLEN. */
-                    free_wstri(wstri, stri);
+                    free(param->buffer);
                     param->buffer = NULL;
                     param->buffer_capacity = 0;
                     err_info = MEMORY_ERROR;
@@ -3823,18 +3872,34 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                 param->buffer_capacity = SIZ_CSTRI(MAX_DATETIME2_LENGTH);
               } /* if */
             } /* if */
+            if (unlikely(year < -999 || year > 9999)) {
+              logError(printf("sqlBindTime: Year not in allowed range.\n"););
+              err_info = RANGE_ERROR;
+            } /* if */
             if (likely(err_info == OKAY_NO_ERROR)) {
               datetime2 = (char *) param->buffer;
-              sprintf(datetime2,
-                      F_D(04) "-" F_D(02) "-" F_D(02) " "
-                      F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(07),
-                      year, month, day,
-                      hour, minute, second, micro_second * 10);
+              /* printf("paramSize: " FMT_U_MEM "\n", param->paramSize); */
+              if (param->paramSize == 10 && hour == 0 && minute == 0 &&
+                  second == 0 && micro_second == 0 &&
+                  (year != 0 || month != 1 || day != 1)) {
+                sprintf(datetime2, F_D(04) "-" F_D(02) "-" F_D(02),
+                        year, month, day);
+              } else if (param->paramSize >= 8 &&
+                         year == 0 && month == 1 && day == 1) {
+                sprintf(datetime2, F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(07),
+                        hour, minute, second, micro_second * 10);
+              } else if (param->paramSize >= 19) {
+                sprintf(datetime2, F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                   F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(07),
+                        year, month, day,
+                        hour, minute, second, micro_second * 10);
+              } else {
+                err_info = RANGE_ERROR;
+              } /* if */
               /* printf("datetime2: %s\n", datetime2); */
               datetime2[param->paramSize] = '\0';
               /* printf("datetime2: %s\n", datetime2); */
-              param->buffer_length =
-                  (memSizeType) param->paramSize;
+              param->buffer_length = (memSizeType) param->paramSize;
               /* printf("buffer_length: " FMT_U_MEM "\n", param->buffer_length); */
             } /* if */
             break;
@@ -3885,10 +3950,10 @@ static void sqlClose (databaseType database)
     logFunction(printf("sqlClose(" FMT_U_MEM ")\n",
                        (memSizeType) database););
     db = (dbType) database;
-    if (db->sql_connection != SQL_NULL_HANDLE) {
-      SQLDisconnect(db->sql_connection);
-      SQLFreeHandle(SQL_HANDLE_DBC, db->sql_connection);
-      db->sql_connection = SQL_NULL_HANDLE;
+    if (db->connection != SQL_NULL_HANDLE) {
+      SQLDisconnect(db->connection);
+      SQLFreeHandle(SQL_HANDLE_DBC, db->connection);
+      db->connection = SQL_NULL_HANDLE;
     } /* if */
     if (db->sql_environment != SQL_NULL_HANDLE) {
       SQLFreeHandle(SQL_HANDLE_ENV, db->sql_environment);
@@ -4819,8 +4884,11 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     SQL_DATE_STRUCT *dateValue;
     SQL_TIME_STRUCT *timeValue;
     SQL_TIMESTAMP_STRUCT *timestampValue;
+    sqlSsTime2Struct *time2Value;
     memSizeType length;
     char datetime2[MAX_DATETIME2_LENGTH + NULL_TERMINATION_LEN];
+    boolType okay;
+    boolType isTime;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlColumnTime */
@@ -4896,6 +4964,19 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
                           time_zone, is_dst);
             break;
+          case SQL_SS_TIME2:
+            time2Value = (sqlSsTime2Struct *) columnData->buffer;
+            *year         = 2000;
+            *month        = 1;
+            *day          = 1;
+            *hour         = time2Value->hour;
+            *minute       = time2Value->minute;
+            *second       = time2Value->second;
+            *micro_second = time2Value->fraction / 1000;
+            timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                          time_zone, is_dst);
+            *year = 0;
+            break;
           case SQL_WVARCHAR:
             length = (memSizeType) columnData->length >> 1;
             if (unlikely(length > MAX_DATETIME2_LENGTH)) {
@@ -4905,41 +4986,28 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               err_info = RANGE_ERROR;
             } else {
               err_info = conv_wstri_buf_to_cstri(datetime2,
-                  (wstriType) columnData->buffer,
-                  length);
+                  (wstriType) columnData->buffer, length);
               if (unlikely(err_info != OKAY_NO_ERROR)) {
                 logError(printf("sqlColumnTime: In column " FMT_D
                                 " the datetime2 contains characters byond Latin-1.\n",
                                 column););
               } else {
-                /* printf("sqlColumnTime: Datetime2 = \"%s\"\n", datetime2); */
-                if (length == 19) {
-                  if (unlikely(sscanf(datetime2,
-                                      F_D(04) "-" F_U(02) "-" F_U(02) " "
-                                      F_U(02) ":" F_U(02) ":" F_U(02),
-                                      year, month, day, hour, minute, second) != 6)) {
-                    err_info = RANGE_ERROR;
-                  } else {
-                    *micro_second = 0;
-                  } /* if */
+                okay = assignTime(datetime2, year, month, day, hour, minute,
+                                  second, micro_second, &isTime);
+                if (unlikely(!okay)) {
+                  logError(printf("sqlColumnTime: Column " FMT_D ": "
+                                  "Failed to recognize time: %s\n",
+                                  column, datetime2););
+                  err_info = RANGE_ERROR;
+                } else if (isTime) {
+                  *year = 2000;
+                  timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                                time_zone, is_dst);
+                  *year = 0;
                 } else {
-                  /* printf("datetime2: %s\n", datetime2); */
-                  memset(&datetime2[length], '0', MAX_DATETIME2_LENGTH - length);
-                  datetime2[MAX_DATETIME2_LENGTH] = '\0';
-                  /* printf("datetime2: %s\n", datetime2); */
-                  if (unlikely(sscanf(datetime2,
-                                      F_D(04) "-" F_U(02) "-" F_U(02) " "
-                                      F_U(02) ":" F_U(02) ":" F_U(02) "." F_U(06),
-                                      year, month, day, hour, minute, second,
-                                      micro_second) != 7)) {
-                    err_info = RANGE_ERROR;
-                  } /* if */
+                  timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                                time_zone, is_dst);
                 } /* if */
-              } /* if */
-              if (likely(err_info == OKAY_NO_ERROR)) {
-                /* printf("micro_second: " FMT_D "\n", *micro_second); */
-                timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
-                              time_zone, is_dst);
               } /* if */
             } /* if */
             break;
@@ -4967,7 +5035,25 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
 
 static void sqlCommit (databaseType database)
 
-  { /* sqlCommit */
+  {
+    dbType db;
+
+  /* sqlCommit */
+    logFunction(printf("sqlCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(db->connection == SQL_NULL_HANDLE)) {
+      logError(printf("sqlCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(SQLEndTran(SQL_HANDLE_DBC, db->connection,
+                                   SQL_COMMIT) != SQL_SUCCESS)) {
+      setDbErrorMsg("sqlCommit", "SQLEndTran",
+                    SQL_HANDLE_DBC, db->connection);
+      logError(printf("sqlCommit: SQLEndTran SQL_COMMIT:\n%s\n",
+                      dbError.message););
+      raise_error(DATABASE_ERROR);
+    } /* if */
+    logFunction(printf("sqlCommit -->\n"););
   } /* sqlCommit */
 
 
@@ -5006,6 +5092,11 @@ static void sqlExecute (sqlStmtType sqlStatement)
       } else {
         preparedStmt->fetchOkay = FALSE;
         execute_result = SQLExecute(preparedStmt->ppStmt);
+#ifdef ALLOW_EXECUTE_SUCCESS_WITH_INFO
+      if (execute_result == SQL_SUCCESS_WITH_INFO) {
+        execute_result = SQL_SUCCESS;
+      } /*if */
+#endif
         if (execute_result == SQL_NO_DATA || execute_result == SQL_SUCCESS) {
           if (preparedStmt->db->maxConcurrentActivities != 0) {
             /* The number of concurrent activities is limited. That */
@@ -5095,6 +5186,38 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
 
 
 
+static boolType sqlGetAutoCommit (databaseType database)
+
+  {
+    dbType db;
+    SQLUINTEGER autoCommitState;
+    boolType autoCommit;
+
+  /* sqlGetAutoCommit */
+    logFunction(printf("sqlGetAutoCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(db->connection == SQL_NULL_HANDLE)) {
+      logError(printf("sqlGetAutoCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+      autoCommit = FALSE;
+    } else if (unlikely(SQLGetConnectAttrW(db->connection,
+        SQL_ATTR_AUTOCOMMIT, &autoCommitState, 0, NULL) != SQL_SUCCESS)) {
+      setDbErrorMsg("sqlGetAutoCommit", "SQLGetConnectAttrW",
+                    SQL_HANDLE_DBC, db->connection);
+      logError(printf("sqlGetAutoCommit: SQLGetConnectAttrW SQL_ATTR_AUTOCOMMIT:\n%s\n",
+                      dbError.message););
+      raise_error(DATABASE_ERROR);
+      autoCommit = FALSE;
+    } else {
+      autoCommit = autoCommitState == SQL_AUTOCOMMIT_ON;
+    } /* if */
+    logFunction(printf("sqlGetAutoCommit --> %d\n", autoCommit););
+    return autoCommit;
+  } /* sqlGetAutoCommit */
+
+
+
 static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
   {
@@ -5137,7 +5260,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
-    if (db->sql_connection == SQL_NULL_HANDLE) {
+    if (unlikely(db->connection == SQL_NULL_HANDLE)) {
       logError(printf("sqlPrepare: Database is not open.\n"););
       err_info = RANGE_ERROR;
       preparedStmt = NULL;
@@ -5162,10 +5285,10 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
           } else {
             memset(preparedStmt, 0, sizeof(preparedStmtRecord));
             if (SQLAllocHandle(SQL_HANDLE_STMT,
-                               db->sql_connection,
+                               db->connection,
                                &preparedStmt->ppStmt) != SQL_SUCCESS) {
               setDbErrorMsg("sqlPrepare", "SQLAllocHandle",
-                            SQL_HANDLE_DBC, db->sql_connection);
+                            SQL_HANDLE_DBC, db->connection);
               logError(printf("sqlPrepare: SQLAllocHandle SQL_HANDLE_STMT:\n%s\n",
                               dbError.message););
               FREE_RECORD2(preparedStmt, preparedStmtRecord,
@@ -5218,6 +5341,64 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) preparedStmt););
     return (sqlStmtType) preparedStmt;
   } /* sqlPrepare */
+
+
+
+static void sqlRollback (databaseType database)
+
+  {
+    dbType db;
+
+  /* sqlRollback */
+    logFunction(printf("sqlRollback(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(db->connection == SQL_NULL_HANDLE)) {
+      logError(printf("sqlRollback: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(SQLEndTran(SQL_HANDLE_DBC, db->connection,
+                                   SQL_ROLLBACK) != SQL_SUCCESS)) {
+      setDbErrorMsg("sqlRollback", "SQLEndTran",
+                    SQL_HANDLE_DBC, db->connection);
+      logError(printf("sqlRollback: SQLEndTran SQL_ROLLBACK:\n%s\n",
+                      dbError.message););
+      raise_error(DATABASE_ERROR);
+    } /* if */
+    logFunction(printf("sqlRollback -->\n"););
+  } /* sqlRollback */
+
+
+
+static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
+
+  {
+    dbType db;
+    SQLPOINTER autoCommitState;
+
+  /* sqlSetAutoCommit */
+    logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) database, autoCommit););
+    db = (dbType) database;
+    if (unlikely(db->connection == SQL_NULL_HANDLE)) {
+      logError(printf("sqlSetAutoCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else {
+      if (autoCommit) {
+        autoCommitState = (SQLPOINTER) SQL_AUTOCOMMIT_ON;
+      } else {
+        autoCommitState = (SQLPOINTER) SQL_AUTOCOMMIT_OFF;
+      } /* if */
+      if (unlikely(SQLSetConnectAttrW(db->connection, SQL_ATTR_AUTOCOMMIT,
+                                     autoCommitState, 0) != SQL_SUCCESS)) {
+        setDbErrorMsg("sqlSetAutoCommit", "SQLSetConnectAttrW",
+                      SQL_HANDLE_DBC, db->connection);
+        logError(printf("sqlSetAutoCommit: SQLSetConnectAttrW SQL_ATTR_AUTOCOMMIT:\n%s\n",
+                        dbError.message););
+        raise_error(DATABASE_ERROR);
+      } /* if */
+    } /* if */
+    logFunction(printf("sqlSetAutoCommit -->\n"););
+  } /* sqlSetAutoCommit */
 
 
 
@@ -5359,8 +5540,11 @@ static boolType setupFuncTable (void)
         sqlFunc->sqlCommit          = &sqlCommit;
         sqlFunc->sqlExecute         = &sqlExecute;
         sqlFunc->sqlFetch           = &sqlFetch;
+        sqlFunc->sqlGetAutoCommit   = &sqlGetAutoCommit;
         sqlFunc->sqlIsNull          = &sqlIsNull;
         sqlFunc->sqlPrepare         = &sqlPrepare;
+        sqlFunc->sqlRollback        = &sqlRollback;
+        sqlFunc->sqlSetAutoCommit   = &sqlSetAutoCommit;
         sqlFunc->sqlStmtColumnCount = &sqlStmtColumnCount;
         sqlFunc->sqlStmtColumnName  = &sqlStmtColumnName;
       } /* if */
@@ -5388,7 +5572,7 @@ static void printWstri (wstriType wstri)
 
 
 static errInfoType prepareSqlConnection (SQLHENV *sql_environment,
-    SQLHDBC *sql_connection)
+    SQLHDBC *connection)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
@@ -5397,24 +5581,24 @@ static errInfoType prepareSqlConnection (SQLHENV *sql_environment,
     logFunction(printf("prepareSqlConnection\n"););
     if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE,
                        sql_environment) != SQL_SUCCESS) {
-      logError(printf("sqlOpenOdbc: SQLAllocHandle failed\n"););
+      logError(printf("prepareSqlConnection: SQLAllocHandle failed\n"););
       err_info = MEMORY_ERROR;
     } else if (SQLSetEnvAttr(*sql_environment,
                              SQL_ATTR_ODBC_VERSION,
                              (SQLPOINTER) SQL_OV_ODBC3,
                              SQL_IS_INTEGER) != SQL_SUCCESS) {
-      setDbErrorMsg("sqlOpenOdbc", "SQLSetEnvAttr",
+      setDbErrorMsg("prepareSqlConnection", "SQLSetEnvAttr",
                     SQL_HANDLE_ENV, *sql_environment);
-      logError(printf("sqlOpenOdbc: SQLSetEnvAttr "
+      logError(printf("prepareSqlConnection: SQLSetEnvAttr "
                       "SQL_ATTR_ODBC_VERSION:\n%s\n",
                       dbError.message););
       err_info = DATABASE_ERROR;
       SQLFreeHandle(SQL_HANDLE_ENV, *sql_environment);
     } else if (SQLAllocHandle(SQL_HANDLE_DBC, *sql_environment,
-                              sql_connection) != SQL_SUCCESS) {
-      setDbErrorMsg("sqlOpenOdbc", "SQLAllocHandle",
+                              connection) != SQL_SUCCESS) {
+      setDbErrorMsg("prepareSqlConnection", "SQLAllocHandle",
                     SQL_HANDLE_ENV, *sql_environment);
-      logError(printf("sqlOpenOdbc: SQLAllocHandle "
+      logError(printf("prepareSqlConnection: SQLAllocHandle "
                       "SQL_HANDLE_DBC:\n%s\n", dbError.message););
       err_info = DATABASE_ERROR;
       SQLFreeHandle(SQL_HANDLE_ENV, *sql_environment);
@@ -5425,7 +5609,7 @@ static errInfoType prepareSqlConnection (SQLHENV *sql_environment,
 
 
 
-static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC sql_connection,
+static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
     intType driver, errInfoType *err_info)
 
   {
@@ -5437,26 +5621,26 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC sql_connect
   /* createDbRecord */
     logFunction(printf("createDbRecord(*, *, " FMT_D ", %d)\n",
                        driver, *err_info););
-    if (SQLGetInfoW(sql_connection,
+    if (SQLGetInfoW(connection,
                     SQL_MAX_CONCURRENT_ACTIVITIES,
                     (SQLPOINTER) &maxConcurrentActivities,
                     sizeof(maxConcurrentActivities),
                     NULL) != SQL_SUCCESS) {
-      setDbErrorMsg("sqlOpenDb2", "SQLGetInfoW",
-                    SQL_HANDLE_DBC, sql_connection);
-      logError(printf("sqlOpenDb2: SQLGetInfoW:\n%s\n",
+      setDbErrorMsg("createDbRecord", "SQLGetInfoW",
+                    SQL_HANDLE_DBC, connection);
+      logError(printf("createDbRecord: SQLGetInfoW:\n%s\n",
                       dbError.message););
       *err_info = DATABASE_ERROR;
     } else {
 #ifdef WIDE_CHARS_SUPPORTED
       wideCharsSupported = WIDE_CHARS_SUPPORTED;
 #else
-      wideCharsSupported = hasDataType(sql_connection, SQL_WCHAR, err_info);
+      wideCharsSupported = hasDataType(connection, SQL_WCHAR, err_info);
 #endif
 #ifdef TINY_INT_IS_UNSIGNED
       tinyintIsUnsigned = TINY_INT_IS_UNSIGNED;
 #else
-      tinyintIsUnsigned = dataTypeIsUnsigned(sql_connection, SQL_TINYINT, err_info);
+      tinyintIsUnsigned = dataTypeIsUnsigned(connection, SQL_TINYINT, err_info);
 #endif
       if (likely(*err_info == OKAY_NO_ERROR)) {
         if (unlikely(!setupFuncTable() ||
@@ -5467,8 +5651,8 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC sql_connect
       } /* if */
     } /* if */
     if (unlikely(*err_info != OKAY_NO_ERROR)) {
-      SQLDisconnect(sql_connection);
-      SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);
+      SQLDisconnect(connection);
+      SQLFreeHandle(SQL_HANDLE_DBC, connection);
       SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
       database = NULL;
     } else {
@@ -5478,7 +5662,7 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC sql_connect
       database->sqlFunc = sqlFunc;
       database->driver = driver;
       database->sql_environment = sql_environment;
-      database->sql_connection = sql_connection;
+      database->connection = connection;
       database->wideCharsSupported = wideCharsSupported;
       database->tinyintIsUnsigned = tinyintIsUnsigned;
       database->maxConcurrentActivities = maxConcurrentActivities;

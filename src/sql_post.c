@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_post.c    Database access functions for PostgreSQL.         */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_post.c                                      */
-/*  Changes: 2014, 2015, 2017 - 2019  Thomas Mertes                 */
+/*  Changes: 2014, 2015, 2017 - 2020  Thomas Mertes                 */
 /*  Content: Database access functions for PostgreSQL.              */
 /*                                                                  */
 /********************************************************************/
@@ -39,6 +39,7 @@
 #include "string.h"
 #include "time.h"
 #include "limits.h"
+#include "ctype.h"
 #if SOCKET_LIB == UNIX_SOCKETS
 #include "netinet/in.h"
 #elif SOCKET_LIB == WINSOCK_SOCKETS
@@ -88,6 +89,7 @@ typedef struct {
     PGconn      *connection;
     boolType     integerDatetimes;
     uintType     nextStmtNum;
+    boolType     autoCommit;
   } dbRecord, *dbType;
 
 typedef struct {
@@ -98,8 +100,9 @@ typedef struct {
 typedef struct {
     uintType       usage_count;
     sqlFuncType    sqlFunc;
-    PGconn        *connection;
+    dbType         db;
     boolType       integerDatetimes;
+    boolType       implicitCommit;
     uintType       stmtNum;
     char           stmtName[30];
     memSizeType    param_array_size;
@@ -389,6 +392,80 @@ static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
 
 
 
+static errInfoType doExecSql (PGconn *connection, const char *query,
+    errInfoType err_info)
+
+  {
+    PGresult *execResult;
+
+  /* doExecSql */
+    logFunction(printf("doExecSql(" FMT_U_MEM ", \"%s\", %d)\n",
+                       (memSizeType) connection, query, err_info););
+    if (likely(err_info == OKAY_NO_ERROR)) {
+      execResult = PQexec(connection, query);
+      if (unlikely(execResult == NULL)) {
+        err_info = MEMORY_ERROR;
+      } else {
+        if (PQresultStatus(execResult) != PGRES_COMMAND_OK) {
+          setDbErrorMsg("doExecSql", "PQexec", connection);
+          logError(printf("doExecSql: PQexec(" FMT_U_MEM ", \"%s\") "
+                          "returns a status of %s:\n%s",
+                          (memSizeType) connection, query,
+                          PQresStatus(PQresultStatus(execResult)),
+                          dbError.message););
+          err_info = DATABASE_ERROR;
+        } /* if */
+        PQclear(execResult);
+      } /* if */
+    } /* if */
+    logFunction(printf("doExecSql --> %d\n", err_info););
+    return err_info;
+  } /* doExecSql */
+
+
+
+static boolType implicitCommit (const_cstriType query)
+
+  {
+    const char *explicitCommit[] = {
+      /* DML */ "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE",
+      /* TCS */ "COMMIT", "ROLLBACK", "SAVEPOINT", "BEGIN"};
+    const_cstriType startPos;
+    const_cstriType beyond;
+    const_cstriType pos;
+    char keyword[20];
+    int idx;
+    boolType implicitCommit = TRUE;
+
+  /* implicitCommit */
+    logFunction(printf("implicitCommit(\"%s\")\n", query););
+    startPos = query;
+    while (*startPos == ' ' || *startPos == '\t' ||
+           *startPos == '\n' || *startPos == '\r') {
+      startPos++;
+    } /* while */
+    beyond = startPos;
+    while (isalpha(*beyond)) {
+      beyond++;
+    } /* while */
+    if (beyond - startPos <= sizeof(keyword)) {
+      for (pos = startPos; pos != beyond; pos++) {
+        keyword[pos - startPos] = (char) toupper(*pos);
+      } /* for */
+      keyword[beyond - startPos] = '\0';
+      for (idx = 0; idx < sizeof(explicitCommit) / sizeof(char *) &&
+           implicitCommit; idx++) {
+        if (strcmp(keyword, explicitCommit[idx]) == 0) {
+          implicitCommit = FALSE;
+        } /* if */
+      } /* for */
+    } /* if */
+    logFunction(printf("implicitCommit --> %d\n", implicitCommit););
+    return implicitCommit;
+  } /* implicitCommit */
+
+
+
 static PGresult *PQdeallocate (PGconn *conn, const char *stmtName)
 
   {
@@ -469,18 +546,15 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     if (preparedStmt->execute_result != NULL) {
       PQclear(preparedStmt->execute_result);
     } /* if */
-    deallocate_result = PQdeallocate(preparedStmt->connection, preparedStmt->stmtName);
-    if (unlikely(deallocate_result == NULL)) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      if (PQresultStatus(deallocate_result) != PGRES_COMMAND_OK) {
-        setDbErrorMsg("freePreparedStmt", "PQdeallocate", preparedStmt->connection);
-        logError(printf("freePreparedStmt: PQdeallocate returns a status of %s:\n%s",
-                        PQresStatus(PQresultStatus(deallocate_result)),
-                        dbError.message););
-        raise_error(DATABASE_ERROR);
-      } /* if */
+    deallocate_result = PQdeallocate(preparedStmt->db->connection, preparedStmt->stmtName);
+    if (unlikely(deallocate_result != NULL)) {
+      /* Ignore possible errors. */
       PQclear(deallocate_result);
+    } /* if */
+    preparedStmt->db->usage_count--;
+    if (preparedStmt->db->usage_count == 0) {
+      /* printf("FREE " FMT_X_MEM "\n", (memSizeType) preparedStmt->db); */
+      freeDatabase((databaseType) preparedStmt->db);
     } /* if */
     FREE_RECORD2(preparedStmt, preparedStmtRecord,
                  count.prepared_stmt, count.prepared_stmt_bytes);
@@ -670,6 +744,8 @@ static striType processStatementStri (const const_striType sqlStatementStri,
               pos++;
             } while (pos < sqlStatementStri->size && sqlStatementStri->mem[pos] != '/');
             pos++;
+            /* Replace the comment with a space. */
+            processed->mem[destPos++] = ' ';
           } /* if */
         } else if (ch == '-') {
           pos++;
@@ -680,6 +756,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
             while (pos < sqlStatementStri->size && sqlStatementStri->mem[pos] != '\n') {
               pos++;
             } /* while */
+            /* The final newline replaces the comment. */
           } /* if */
         } else {
           processed->mem[destPos++] = ch;
@@ -887,12 +964,12 @@ static errInfoType setupParametersAndResult (preparedStmtType preparedStmt)
 
   /* setupParametersAndResult */
     logFunction(printf("setupParametersAndResult\n"););
-    describe_result = PQdescribePrepared(preparedStmt->connection, preparedStmt->stmtName);
+    describe_result = PQdescribePrepared(preparedStmt->db->connection, preparedStmt->stmtName);
     if (unlikely(describe_result == NULL)) {
       err_info = MEMORY_ERROR;
     } else {
       if (PQresultStatus(describe_result) != PGRES_COMMAND_OK) {
-        setDbErrorMsg("setupParametersAndResult", "PQdescribePrepared", preparedStmt->connection);
+        setDbErrorMsg("setupParametersAndResult", "PQdescribePrepared", preparedStmt->db->connection);
         logError(printf("setupParametersAndResult: PQdescribePrepared returns a status of %s:\n%s",
                         PQresStatus(PQresultStatus(describe_result)),
                         dbError.message););
@@ -1023,7 +1100,8 @@ static cstriType getNumericAsCStri (numeric *numStruct)
         decimal[length + scale + 2] = '\0';
       } /* if */
     } /* if */
-    logFunction(printf("getNumericAsCStri --> %s\n", decimal));
+    logFunction(printf("getNumericAsCStri --> %s\n",
+                       decimal != NULL ? decimal : "NULL"));
     return decimal;
   } /* getNumericAsCStri */
 
@@ -1260,7 +1338,8 @@ static floatType getNumericAsFloat (const unsigned char *buffer)
 
 
 
-static int64Type getTimestamp1970 (int64Type timestamp, intType *micro_second)
+static timeStampType getTimestamp1970 (timeStampType timestamp,
+    intType *micro_second)
 
   { /* getTimestamp1970 */
     logFunction(printf("getTimestamp1970(" FMT_D64 ")\n", timestamp););
@@ -1274,19 +1353,13 @@ static int64Type getTimestamp1970 (int64Type timestamp, intType *micro_second)
       timestamp /= 1000000;
     } /* if */
     /* printf("timestamp2000: " FMT_U64 "\n", timestamp); */
-    if (unlikely(timestamp > TIME_T_MAX - SECONDS_FROM_1970_TO_2000)) {
+    if (unlikely(timestamp > INT64TYPE_MAX - SECONDS_FROM_1970_TO_2000)) {
       logError(printf("getTimestamp1970: "
                       "Cannot compute timestamp1970 from timestamp2000 (" FMT_D64 ").\n",
                       timestamp););
       raise_error(RANGE_ERROR);
     } else {
       timestamp += SECONDS_FROM_1970_TO_2000;
-      /* printf("timestamp1970: " FMT_U64 "\n", timestamp); */
-      if (unlikely(!inTimeTRange(timestamp))) {
-        logError(printf("getTimestamp1970: Timestamp " FMT_D64 " not in allowed range.\n",
-                        timestamp););
-        raise_error(RANGE_ERROR);
-      } /* if */
     } /* if */
     logFunction(printf("getTimestamp1970 --> " FMT_D64 "\n", timestamp););
     return timestamp;
@@ -1902,7 +1975,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
   {
     preparedStmtType preparedStmt;
     bindDataType param;
-    int64Type timestamp;
+    timeStampType timestamp;
     int32Type zone;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -1933,7 +2006,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       switch (preparedStmt->paramTypes[pos - 1]) {
         case DATEOID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
-          timestamp = timToTimestamp(year, month, day, 0, 0, 0, 0, 0);
+          timestamp = timToTimestamp(year, month, day, 0, 0, 0, 0);
           timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) / (24 * 60 * 60);
           /* printf("DATEOID timestamp: " FMT_D64 "\n", timestamp); */
           *(int32Type *) param->buffer =
@@ -1941,8 +2014,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           break;
         case TIMEOID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
-          timestamp = timToTimestamp(2000, 1, 1, hour, minute, second,
-                                     micro_second, 0);
+          timestamp = timToTimestamp(2000, 1, 1, hour, minute, second, 0);
           /* printf("timestamp1970: " FMT_D64 "\n", timestamp); */
           timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) * 1000000 + micro_second;
           /* printf("TIMEOID timestamp: " FMT_D64 "\n", timestamp); */
@@ -1961,8 +2033,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           break;
         case TIMETZOID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
-          timestamp = timToTimestamp(2000, 1, 1, hour, minute, second,
-                                     micro_second, 0);
+          timestamp = timToTimestamp(2000, 1, 1, hour, minute, second, 0);
           /* printf("timestamp1970: " FMT_D64 "\n", timestamp); */
           timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) * 1000000 + micro_second;
           /* printf("TIMETZOID timestamp: " FMT_D64 "\n", timestamp); */
@@ -1984,9 +2055,8 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           break;
         case TIMESTAMPOID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
-          timestamp = timToTimestamp(year, month, day, hour, minute, second,
-                                     micro_second, 0);
-          /* printf("timestamp1970: " FMT_U64 "\n", timestamp); */
+          timestamp = timToTimestamp(year, month, day, hour, minute, second, 0);
+          /* printf("timestamp1970: " FMT_D64 "\n", timestamp); */
           timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) * 1000000 + micro_second;
           /* printf("TIMESTAMPOID timestamp: " FMT_D64 "\n", timestamp); */
           /* The timestamp is either an int64Type representing      */
@@ -2005,8 +2075,8 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
         case TIMESTAMPTZOID:
           preparedStmt->paramValues[pos - 1] = param->buffer;
           timestamp = timToTimestamp(year, month, day, hour, minute, second,
-                                     micro_second, time_zone);
-          /* printf("timestamp1970: " FMT_U64 "\n", timestamp); */
+                                     time_zone);
+          /* printf("timestamp1970: " FMT_D64 "\n", timestamp); */
           timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) * 1000000 + micro_second;
           /* printf("TIMESTAMPTZOID timestamp: " FMT_D64 "\n", timestamp); */
           /* The timestamp is either an int64Type representing      */
@@ -2881,7 +2951,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     int isNull;
     const_cstriType buffer;
     Oid buffer_type;
-    int64Type timestamp;
+    timeStampType timestamp;
     intType dummy_micro_second;
 
   /* sqlColumnTime */
@@ -2931,11 +3001,12 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
           /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
           switch (buffer_type) {
             case DATEOID:
-              timestamp = (int64Type) ntohl(*(uint32Type *) buffer);
+              timestamp = (timeStampType) (int32Type) ntohl(*(uint32Type *) buffer);
               /* printf("DATEOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = timestamp * 24 * 60 * 60 + SECONDS_FROM_1970_TO_2000;
-              timUtcFromTimestamp((time_t) timestamp, year, month, day,
-                                  hour, minute, second, micro_second, time_zone, is_dst);
+              timUtcFromTimestamp(timestamp, year, month, day,
+                                  hour, minute, second);
+              *micro_second = 0;
               timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
                             time_zone, is_dst);
               break;
@@ -2946,15 +3017,14 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               /* PQparameterStatus(connection, "integer_datetimes") is  */
               /* used to determine if an int64Type or a double is used. */
               if (preparedStmt->integerDatetimes) {
-                timestamp = (int64Type) ntohll(*(uint64Type *) buffer);
+                timestamp = (timeStampType) ntohll(*(uint64Type *) buffer);
               } else {
-                timestamp = (int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+                timestamp = (timeStampType) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
               } /* if */
               /* printf("TIMEOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
-              timUtcFromTimestamp((time_t) timestamp, year, month, day,
-                                  hour, minute, second, &dummy_micro_second,
-                                  time_zone, is_dst);
+              timUtcFromTimestamp(timestamp, year, month, day,
+                                  hour, minute, second);
               timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
                             time_zone, is_dst);
               *year = 0;
@@ -2968,15 +3038,15 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               /* PQparameterStatus(connection, "integer_datetimes") is  */
               /* used to determine if an int64Type or a double is used. */
               if (preparedStmt->integerDatetimes) {
-                timestamp = (int64Type) ntohll(*(uint64Type *) buffer);
+                timestamp = (timeStampType) ntohll(*(uint64Type *) buffer);
               } else {
-                timestamp = (int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+                timestamp = (timeStampType) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
               } /* if */
               /* printf("TIMETZOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
-              timUtcFromTimestamp((time_t) timestamp, year, month, day,
-                                  hour, minute, second, &dummy_micro_second,
-                                  time_zone, is_dst);
+              timUtcFromTimestamp(timestamp, year, month, day,
+                                  hour, minute, second);
+              *is_dst = 0;
               /* printf("time_zone: " FMT_D32 "\n",
                   (int32Type) -ntohl(*(uint32Type *) &buffer[8]) / 60); */
               *time_zone = -ntohl(*(uint32Type *) &buffer[8]) / 60;
@@ -2991,15 +3061,14 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               /* PQparameterStatus(connection, "integer_datetimes") is  */
               /* used to determine if an int64Type or a double is used. */
               if (preparedStmt->integerDatetimes) {
-                timestamp = (int64Type) ntohll(*(uint64Type *) buffer);
+                timestamp = (timeStampType) ntohll(*(uint64Type *) buffer);
               } else {
-                timestamp = (int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+                timestamp = (timeStampType) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
               } /* if */
               /* printf("TIMESTAMPOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
-              timUtcFromTimestamp((time_t) timestamp, year, month, day,
-                                  hour, minute, second, &dummy_micro_second,
-                                  time_zone, is_dst);
+              timUtcFromTimestamp(timestamp, year, month, day,
+                                  hour, minute, second);
               timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
                             time_zone, is_dst);
               break;
@@ -3010,15 +3079,17 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               /* PQparameterStatus(connection, "integer_datetimes") is  */
               /* used to determine if an int64Type or a double is used. */
               if (preparedStmt->integerDatetimes) {
-                timestamp = (int64Type) ntohll(*(uint64Type *) buffer);
+                timestamp = (timeStampType) ntohll(*(uint64Type *) buffer);
               } else {
-                timestamp = (int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+                timestamp = (timeStampType) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
               } /* if */
               /* printf("TIMESTAMPTZOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
-              timFromTimestamp((time_t) timestamp, year, month, day,
-                               hour, minute, second, &dummy_micro_second,
-                               time_zone, is_dst);
+              *time_zone = 0;
+              *is_dst = 0;
+              timFromIntTimestamp((intType) timestamp, year, month, day,
+                                  hour, minute, second, &dummy_micro_second,
+                                  time_zone, is_dst);
               break;
             default:
               logError(printf("sqlColumnTime: Column " FMT_D " has the unknown type %s.\n",
@@ -3040,10 +3111,36 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
 
 
 
+static void sqlCommit (databaseType database)
+
+  {
+    dbType db;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* sqlCommit */
+    logFunction(printf("sqlCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else if (!db->autoCommit) {
+      err_info = doExecSql(db->connection, "COMMIT", err_info);
+      err_info = doExecSql(db->connection, "BEGIN TRANSACTION", err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } /* if */
+    } /* if */
+    logFunction(printf("sqlCommit -->\n"););
+  } /* sqlCommit */
+
+
+
 static void sqlExecute (sqlStmtType sqlStatement)
 
   {
     preparedStmtType preparedStmt;
+    errInfoType err_info = OKAY_NO_ERROR;
     int num_tuples;
 
   /* sqlExecute */
@@ -3059,7 +3156,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
       if (preparedStmt->execute_result != NULL) {
         PQclear(preparedStmt->execute_result);
       } /* if */
-      preparedStmt->execute_result = PQexecPrepared(preparedStmt->connection,
+      preparedStmt->execute_result = PQexecPrepared(preparedStmt->db->connection,
                                                     preparedStmt->stmtName,
                                                     (int) preparedStmt->param_array_size,
                                                     (const_cstriType *) preparedStmt->paramValues,
@@ -3074,6 +3171,13 @@ static void sqlExecute (sqlStmtType sqlStatement)
         preparedStmt->execute_status = PQresultStatus(preparedStmt->execute_result);
         if (preparedStmt->execute_status == PGRES_COMMAND_OK) {
           preparedStmt->executeSuccessful = TRUE;
+          if (preparedStmt->implicitCommit && !preparedStmt->db->autoCommit) {
+            err_info = doExecSql(preparedStmt->db->connection, "COMMIT", err_info);
+            err_info = doExecSql(preparedStmt->db->connection, "BEGIN TRANSACTION", err_info);
+            if (unlikely(err_info != OKAY_NO_ERROR)) {
+              raise_error(err_info);
+            } /* if */
+          } /* if */
         } else if (preparedStmt->execute_status == PGRES_TUPLES_OK) {
           num_tuples = PQntuples(preparedStmt->execute_result);
           if (unlikely(num_tuples < 0)) {
@@ -3097,7 +3201,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
             preparedStmt->increment_index = FALSE;
           } /* if */
         } else {
-          setDbErrorMsg("sqlExecute", "PQexecPrepared", preparedStmt->connection);
+          setDbErrorMsg("sqlExecute", "PQexecPrepared", preparedStmt->db->connection);
           logError(printf("sqlExecute: PQexecPrepared returns a status of %s:\n%s",
                           PQresStatus(preparedStmt->execute_status),
                           dbError.message););
@@ -3146,6 +3250,29 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
 
 
 
+static boolType sqlGetAutoCommit (databaseType database)
+
+  {
+    dbType db;
+    boolType autoCommit;
+
+  /* sqlGetAutoCommit */
+    logFunction(printf("sqlGetAutoCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlGetAutoCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+      autoCommit = FALSE;
+    } else {
+      autoCommit = db->autoCommit;
+    } /* if */
+    logFunction(printf("sqlGetAutoCommit --> %d\n", autoCommit););
+    return autoCommit;
+  } /* sqlGetAutoCommit */
+
+
+
 static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
   {
@@ -3190,7 +3317,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) database,
                        striAsUnquotedCStri(sqlStatementStri)););
     db = (dbType) database;
-    if (db->connection == NULL) {
+    if (unlikely(db->connection == NULL)) {
       logError(printf("sqlPrepare: Database is not open.\n"););
       err_info = RANGE_ERROR;
       preparedStmt = NULL;
@@ -3230,11 +3357,13 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
               } else {
                 preparedStmt->usage_count = 1;
                 preparedStmt->sqlFunc = db->sqlFunc;
-                preparedStmt->connection = db->connection;
                 preparedStmt->integerDatetimes = db->integerDatetimes;
+                preparedStmt->implicitCommit = implicitCommit(query);
                 preparedStmt->executeSuccessful = FALSE;
                 preparedStmt->execute_result = NULL;
                 preparedStmt->fetchOkay = FALSE;
+                preparedStmt->db = db;
+                db->usage_count++;
                 err_info = setupParametersAndResult(preparedStmt);
                 if (unlikely(err_info != OKAY_NO_ERROR)) {
                   freePreparedStmt((sqlStmtType) preparedStmt);
@@ -3256,6 +3385,63 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) preparedStmt););
     return (sqlStmtType) preparedStmt;
   } /* sqlPrepare */
+
+
+
+static void sqlRollback (databaseType database)
+
+  {
+    dbType db;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* sqlRollback */
+    logFunction(printf("sqlRollback(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    db = (dbType) database;
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlRollback: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else if (!db->autoCommit) {
+      err_info = doExecSql(db->connection, "ROLLBACK", err_info);
+      err_info = doExecSql(db->connection, "BEGIN TRANSACTION", err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } /* if */
+    } /* if */
+    logFunction(printf("sqlRollback -->\n"););
+  } /* sqlRollback */
+
+
+
+static void sqlSetAutoCommit (databaseType database, boolType autoCommit)
+
+  {
+    dbType db;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* sqlSetAutoCommit */
+    logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) database, autoCommit););
+    db = (dbType) database;
+    if (unlikely(db->connection == NULL)) {
+      logError(printf("sqlSetAutoCommit: Database is not open.\n"););
+      raise_error(RANGE_ERROR);
+    } else {
+      if (db->autoCommit != autoCommit) {
+        if (autoCommit) {
+          err_info = doExecSql(db->connection, "COMMIT", err_info);
+        } else {
+          err_info = doExecSql(db->connection, "BEGIN TRANSACTION", err_info);
+        } /* if */
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          raise_error(err_info);
+        } else {
+          db->autoCommit = autoCommit;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("sqlSetAutoCommit -->\n"););
+  } /* sqlSetAutoCommit */
 
 
 
@@ -3353,13 +3539,14 @@ static boolType setupFuncTable (void)
         sqlFunc->sqlColumnInt       = &sqlColumnInt;
         sqlFunc->sqlColumnStri      = &sqlColumnStri;
         sqlFunc->sqlColumnTime      = &sqlColumnTime;
-        /*
         sqlFunc->sqlCommit          = &sqlCommit;
-        */
         sqlFunc->sqlExecute         = &sqlExecute;
         sqlFunc->sqlFetch           = &sqlFetch;
+        sqlFunc->sqlGetAutoCommit   = &sqlGetAutoCommit;
         sqlFunc->sqlIsNull          = &sqlIsNull;
         sqlFunc->sqlPrepare         = &sqlPrepare;
+        sqlFunc->sqlRollback        = &sqlRollback;
+        sqlFunc->sqlSetAutoCommit   = &sqlSetAutoCommit;
         sqlFunc->sqlStmtColumnCount = &sqlStmtColumnCount;
         sqlFunc->sqlStmtColumnName  = &sqlStmtColumnName;
       } /* if */
@@ -3462,6 +3649,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
               setting = PQparameterStatus(db.connection, "integer_datetimes");
               database->integerDatetimes = setting != NULL && strcmp(setting, "on") == 0;
               database->nextStmtNum = 1;
+              database->autoCommit = TRUE;
             } /* if */
             free_cstri8(password8, password);
           } /* if */

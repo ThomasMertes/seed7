@@ -1922,7 +1922,7 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                                         (using format %f) will
                                         always work ok.
 
-  LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION: Defined if a printf
+  LIMIT_FMT_F_MAXIMUM_FLOAT_PRECISION: Defined if a printf
                                        (using format %f) with a
                                        larger precision crashes.
                                        In that case it is defined

@@ -340,6 +340,51 @@ void interprRaiseError (int exception_num, const_cstriType filename, int line)
 
 
 
+void leaveExceptionHandling (void)
+
+  { /* leaveExceptionHandling */
+    logFunction(printf("leaveExceptionHandling\n"););
+    set_fail_flag(FALSE);
+    fail_value = NULL;
+    free_list(fail_expression);
+    fail_expression = NULL;
+    free_list(fail_stack);
+    fail_stack = NULL;
+  } /* leaveExceptionHandling */
+
+
+
+void saveFailState (failStateStruct *failState)
+
+  { /* saveFailState */
+    logFunction(printf("saveFailState\n"););
+    failState->fail_flag = fail_flag;
+    failState->fail_value = fail_value;
+    failState->fail_expression = fail_expression;
+    failState->fail_stack = fail_stack;
+    set_fail_flag(FALSE);
+    fail_value = NULL;
+    fail_expression = NULL;
+    fail_stack = NULL;
+  } /* saveFailState */
+
+
+
+void restoreFailState (failStateStruct *failState)
+
+  { /* restoreFailState */
+    logFunction(printf("restoreFailState\n"););
+    free_list(fail_expression);
+    free_list(fail_stack);
+    interrupt_flag = TRUE;
+    fail_flag = failState->fail_flag;
+    fail_value = failState->fail_value;
+    fail_expression = failState->fail_expression;
+    fail_stack = failState->fail_stack;
+  } /* restoreFailState */
+
+
+
 void show_signal (void)
 
   { /* show_signal */

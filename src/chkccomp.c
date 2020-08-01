@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  chkccomp.c    Check properties of C compiler and runtime.       */
-/*  Copyright (C) 2010 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 2010 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Chkccomp                                                */
 /*  File: seed7/src/chkccomp.c                                      */
-/*  Changes: 2010 - 2019  Thomas Mertes                             */
+/*  Changes: 2010 - 2020  Thomas Mertes                             */
 /*  Content: Program to Check properties of C compiler and runtime. */
 /*                                                                  */
 /********************************************************************/
@@ -81,10 +81,6 @@
  *      If it is FALSE raise(SIGFPE) can be called instead. Under Windows
  *      it is necessary to trigger SIGFPE this way, to assure that the debugger
  *      can catch it.
- *  PRINTF_MAXIMUM_FLOAT_PRECISION:
- *      Precision up to which writing a float with printf (using format %e or
- *      %f) will always work ok. This can be defined in a makefile and is
- *      used only in chkccomp.c.
  *  USE_ALTERNATE_LOCALTIME_R:
  *      Defined if the function alternate_localtime_r() should be used
  *      instead of localtime().
@@ -124,9 +120,12 @@
  *      Either "ls" or "dir".
  *      E.g.: #define LIST_DIRECTORY_CONTENTS "ls"
  *            #define LIST_DIRECTORY_CONTENTS "dir"
- *  The macros described above are only used in the program chkccomp.
- *  This macros are not used in the Seed7 Interpreter (s7) or in the
- *  Seed7 Runtime Library.
+ *  PRINTF_MAXIMUM_FLOAT_PRECISION:
+ *      Precision up to which writing a float with printf (using format %e or
+ *      %f) will always work ok.
+ *  The macros described can be defined in a makefile and they are only used
+ *  in chkccomp.c. This macros are not used in the Seed7 Interpreter (s7) or
+ *  in the Seed7 Runtime Library.
  */
 
 
@@ -6410,6 +6409,71 @@ static void determineSqlServerDefines (FILE *versionFile,
 
 
 
+static void determineTdsDefines (FILE *versionFile,
+    char *include_options, char *additional_system_libs)
+
+  {
+#ifdef TDS_DLL
+    const char *dllNameList[] = { TDS_DLL };
+#elif LIBRARY_TYPE == UNIX_LIBRARIES
+    const char *dllNameList[] = {"libsybdb.so"};
+#elif LIBRARY_TYPE == MACOS_LIBRARIES
+    const char *dllNameList[] = {"libsybdb.dylib"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
+    const char *dllNameList[] = {"sybdb.dll"};
+#endif
+    int nameIndex;
+    int searchForLib = 1;
+    char includeOption[BUFFER_SIZE];
+    int includeSybfront = 0;
+    const char *tdsInclude = NULL;
+
+  /* determineTdsDefines */
+#ifdef TDS_INCLUDE_OPTIONS
+    strcpy(includeOption, TDS_INCLUDE_OPTIONS);
+#else
+    includeOption[0] = '\0';
+#endif
+    if (compileAndLinkWithOptionsOk("#include <sybfront.h>\n"
+                                    "#include <sybdb.h>\n"
+                                    "int main(int argc,char *argv[]){\n"
+                                    "DBINT aDbInt; DBPROCESS *dbproc;\n"
+                                    "RETCODE rc = NO_MORE_ROWS;\n"
+                                    "return 0;}\n",
+                                    includeOption, "")) {
+      includeSybfront = 1;
+      tdsInclude = "sybdb.h";
+      fprintf(logFile, "\rTDS: %s found in system include directory.\n",
+              tdsInclude);
+    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                           "#include \"db_tds.h\"\n"
+                                           "int main(int argc,char *argv[]){\n"
+                                           "DBINT aDbInt; DBPROCESS *dbproc;\n"
+                                           "RETCODE rc = NO_MORE_ROWS;\n"
+                                           "return 0;}\n",
+                                           "", "")) {
+      tdsInclude = "db_tds.h";
+      fprintf(logFile, "\rTDS: %s found in Seed7 include directory.\n",
+              tdsInclude);
+      includeOption[0] = '\0';
+    } /* if */
+    if (tdsInclude != NULL) {
+      fprintf(versionFile, "#define TDS_INCLUDE \"%s\"\n", tdsInclude);
+      fprintf(versionFile, "#define TDS_INCLUDE_SYBFRONT_H %d\n", includeSybfront);
+    } /* if */
+    if (searchForLib) {
+      /* Handle dynamic libraries: */
+      fprintf(versionFile, "#define TDS_DLL");
+      for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
+        fprintf(logFile, "\rTDS: DLL / Shared library: %s\n", dllNameList[nameIndex]);
+        fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
+      } /* for */
+      fprintf(versionFile, "\n");
+    } /* if */
+  } /* determineTdsDefines */
+
+
+
 static void determineBigIntDefines (FILE *versionFile,
     char *include_options, char *additional_system_libs)
 
@@ -6480,6 +6544,7 @@ static void determineIncludesAndLibs (FILE *versionFile)
     determineFireDefines(versionFile, include_options, additional_system_libs);
     determineDb2Defines(versionFile, include_options, additional_system_libs);
     determineSqlServerDefines(versionFile, include_options, additional_system_libs);
+    determineTdsDefines(versionFile, include_options, additional_system_libs);
     determineBigIntDefines(versionFile, include_options, additional_system_libs);
     sprintf(buffer, "INCLUDE_OPTIONS = %s", include_options);
     replaceNLBySpace(buffer);

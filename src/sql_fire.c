@@ -374,6 +374,7 @@ static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
   /* setDbErrorMsg */
     dbError.funcName = funcName;
     dbError.dbFuncName = dbFuncName;
+    dbError.errorCode = 0;
     pvector = status_vector;
     isc_interprete(messageText, &pvector);
     strcpy(dbError.message, messageText);
@@ -901,7 +902,7 @@ static int64Type bigIntToScaledInt64 (const const_bigIntType value,
       bigMultAssign(&number, value);
       if (number != NULL) {
         /* printf("mantissaValue: ");
-           prot_stri_unquoted(bigStr(mantissaValue));
+           prot_bigint(mantissaValue);
            printf("\n"); */
         int64Value = bigToInt64(number, err_info);
         bigDestr(number);
@@ -937,7 +938,7 @@ static int64Type bigRatToScaledInt64 (const const_bigIntType numerator,
         bigDestr(number);
         if (mantissaValue != NULL) {
           /* printf("mantissaValue: ");
-             prot_stri_unquoted(bigStr(mantissaValue));
+             prot_bigint(mantissaValue);
              printf("\n"); */
           int64Value = bigToInt64(mantissaValue, err_info);
           bigDestr(mantissaValue);

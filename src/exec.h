@@ -33,7 +33,7 @@ EXTERN volatile boolType interrupt_flag;
 EXTERN volatile int signal_number;
 
 
-void suspendInterpreter (int signalNum);
+void doSuspendInterpreter (int signalNum);
 objectType exec_object (register objectType object);
 objectType exec_call (objectType object);
 objectType evaluate (objectType object);

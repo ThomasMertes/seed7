@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/sqllib.c                                        */
-/*  Changes: 2013, 2014  Thomas Mertes                              */
+/*  Changes: 2013, 2014, 2017 - 2020  Thomas Mertes                 */
 /*  Content: All primitive actions for database access.             */
 /*                                                                  */
 /********************************************************************/
@@ -433,6 +433,9 @@ objectType sql_column_time (listType arguments)
 
 
 
+/**
+ *  Execute a commit statement for the database/arg_1.
+ */
 objectType sql_commit (listType arguments)
 
   { /* sql_commit */
@@ -655,6 +658,26 @@ objectType sql_fetch (listType arguments)
 
 
 
+/**
+ *  Get the current auto-commit mode for database/arg_1.
+ */
+objectType sql_get_auto_commit (listType arguments)
+
+  {
+    boolType autoCommit;
+
+  /* sql_get_auto_commit */
+    isit_database(arg_1(arguments));
+    autoCommit = sqlGetAutoCommit(take_database(arg_1(arguments)));
+    if (autoCommit) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* sql_get_auto_commit */
+
+
+
 objectType sql_is_null (listType arguments)
 
   { /* sql_is_null */
@@ -868,6 +891,27 @@ objectType sql_open_sqlsrv (listType arguments)
 
 
 
+objectType sql_open_tds (listType arguments)
+
+  {
+    databaseType database;
+
+  /* sql_open_tds */
+    isit_stri(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    isit_stri(arg_5(arguments));
+    isit_stri(arg_6(arguments));
+    database = sqlOpenTds(take_stri(arg_2(arguments)),
+                          take_int(arg_3(arguments)),
+                          take_stri(arg_4(arguments)),
+                          take_stri(arg_5(arguments)),
+                          take_stri(arg_6(arguments)));
+    return bld_database_temp(database);
+  } /* sql_open_tds */
+
+
+
 objectType sql_prepare (listType arguments)
 
   {
@@ -880,6 +924,34 @@ objectType sql_prepare (listType arguments)
                               take_stri(arg_2(arguments)));
     return bld_sqlstmt_temp(sqlStatement);
   } /* sql_prepare */
+
+
+
+/**
+ *  Execute a rollback statement for the database/arg_1.
+ */
+objectType sql_rollback (listType arguments)
+
+  { /* sql_rollback */
+    isit_database(arg_1(arguments));
+    sqlRollback(take_database(arg_1(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* sql_rollback */
+
+
+
+/**
+ *  Set the auto-commit mode for database/arg_1.
+ */
+objectType sql_set_auto_commit (listType arguments)
+
+  { /* sql_set_auto_commit */
+    isit_database(arg_1(arguments));
+    isit_bool(arg_2(arguments));
+    sqlSetAutoCommit(take_database(arg_1(arguments)),
+                     take_bool(arg_3(arguments)) == SYS_TRUE_OBJECT);
+    return SYS_EMPTY_OBJECT;
+  } /* sql_set_auto_commit */
 
 
 

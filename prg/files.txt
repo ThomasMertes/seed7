@@ -149,6 +149,7 @@ crc32.s7i    CRC-32 cyclic redundancy check support library
 cronos16.s7i Cronos vector font with capHeight 16.
 cronos27.s7i Cronos vector font with capHeight 27.
 csv.s7i      Comma-separated values (CSV) support library.
+db_prop.s7i  Collection of database properties.
 deflate.s7i  Deflate compression algorithm
 des.s7i      DES (Data Encryption Standard) cipher support.
 dialog.s7i   Dialog support library

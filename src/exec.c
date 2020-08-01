@@ -61,13 +61,13 @@ extern boolType interpreter_exception;
 
 
 
-void suspendInterpreter (int signalNum)
+void doSuspendInterpreter (int signalNum)
 
-  { /* suspendInterpreter */
-    logFunction(printf("suspendInterpreter(%d)\n", signalNum););
+  { /* doSuspendInterpreter */
+    logFunction(printf("doSuspendInterpreter(%d)\n", signalNum););
     interrupt_flag = TRUE;
     signal_number = signalNum;
-  } /* suspendInterpreter */
+  } /* doSuspendInterpreter */
 
 
 
@@ -267,52 +267,55 @@ static inline void par_restore (const_locListType form_param,
     const_listType backup_form_params, const_listType evaluated_act_params)
 
   {
-    boolType save_interrupt_flag;
-    boolType save_fail_flag;
-    errInfoType err_info = OKAY_NO_ERROR;
+    failStateStruct savedFailState;
 
   /* par_restore */
     logFunction(printf("par_restore\n"););
-    save_interrupt_flag = interrupt_flag;
-    save_fail_flag = fail_flag;
-    set_fail_flag(FALSE);
-    while (form_param != NULL && err_info == OKAY_NO_ERROR) {
-#ifdef OUT_OF_ORDER
-      if (trace.actions) {
-        prot_cstri("par_restore ");
-        if (evaluated_act_params->obj != NULL) {
-          printcategory(CATEGORY_OF_OBJ(evaluated_act_params->obj));
-          prot_cstri(" ");
-          prot_int((intType) evaluated_act_params->obj);
-          prot_cstri(" ");
-          trace1(evaluated_act_params->obj);
-        } else {
-          prot_cstri("NULL");
+    if (unlikely(fail_flag)) {
+      saveFailState(&savedFailState);
+      while (form_param != NULL) {
+        switch (CATEGORY_OF_OBJ(form_param->local.object)) {
+          case VALUEPARAMOBJECT:
+            destroy_local_object(&form_param->local, TRUE);
+            break;
+          case REFPARAMOBJECT:
+            if (evaluated_act_params->obj != NULL) {
+              dump_any_temp(evaluated_act_params->obj);
+            } /* if */
+            break;
+          default:
+            /* Do nothing for SYMBOLOBJECT and TYPEOBJECT. */
+            break;
+        } /* switch */
+        form_param->local.object->value.objValue = backup_form_params->obj;
+        form_param = form_param->next;
+        backup_form_params = backup_form_params->next;
+        evaluated_act_params = evaluated_act_params->next;
+      } /* while */
+      restoreFailState(&savedFailState);
+    } else {
+      while (form_param != NULL) {
+        if (!fail_flag) {
+          switch (CATEGORY_OF_OBJ(form_param->local.object)) {
+            case VALUEPARAMOBJECT:
+              destroy_local_object(&form_param->local, FALSE);
+              break;
+            case REFPARAMOBJECT:
+              if (evaluated_act_params->obj != NULL) {
+                dump_any_temp(evaluated_act_params->obj);
+              } /* if */
+              break;
+            default:
+              /* Do nothing for SYMBOLOBJECT and TYPEOBJECT. */
+              break;
+          } /* switch */
         } /* if */
-        prot_nl();
-      } /* if */
-#endif
-      switch (CATEGORY_OF_OBJ(form_param->local.object)) {
-        case VALUEPARAMOBJECT:
-          destroy_local_object(&form_param->local, &err_info);
-          FREE_OBJECT(form_param->local.object->value.objValue);
-          break;
-        case REFPARAMOBJECT:
-          if (evaluated_act_params->obj != NULL) {
-            dump_any_temp(evaluated_act_params->obj);
-          } /* if */
-          break;
-        default:
-          /* Do nothing for SYMBOLOBJECT and TYPEOBJECT. */
-          break;
-      } /* switch */
-      form_param->local.object->value.objValue = backup_form_params->obj;
-      form_param = form_param->next;
-      backup_form_params = backup_form_params->next;
-      evaluated_act_params = evaluated_act_params->next;
-    } /* while */
-    interrupt_flag = save_interrupt_flag;
-    fail_flag = save_fail_flag;
+        form_param->local.object->value.objValue = backup_form_params->obj;
+        form_param = form_param->next;
+        backup_form_params = backup_form_params->next;
+        evaluated_act_params = evaluated_act_params->next;
+      } /* while */
+    } /* if */
     logFunction(printf("par_restore -->\n"););
   } /* par_restore */
 
@@ -343,30 +346,29 @@ static void loc_init (const_locListType loc_var, listType *backup_loc_var,
 static void loc_restore (const_locListType loc_var, const_listType backup_loc_var)
 
   {
-    boolType save_interrupt_flag;
-    boolType save_fail_flag;
-    errInfoType err_info = OKAY_NO_ERROR;
+    failStateStruct savedFailState;
 
   /* loc_restore */
     logFunction(printf("loc_restore\n"););
-    save_interrupt_flag = interrupt_flag;
-    save_fail_flag = fail_flag;
-    set_fail_flag(FALSE);
-    while (loc_var != NULL) {
-      destroy_local_object(&loc_var->local, &err_info);
-      if (IS_UNUSED(loc_var->local.object->value.objValue)) {
-        FREE_OBJECT(loc_var->local.object->value.objValue);
-      } else if (CATEGORY_OF_OBJ(loc_var->local.object->value.objValue) != STRUCTOBJECT) {
-        printf("loc not dumped: ");
-        trace1(loc_var->local.object->value.objValue);
-        printf("\n");
-      } /* if */
-      loc_var->local.object->value.objValue = backup_loc_var->obj;
-      loc_var = loc_var->next;
-      backup_loc_var = backup_loc_var->next;
-    } /* while */
-    interrupt_flag = save_interrupt_flag;
-    fail_flag = save_fail_flag;
+    if (unlikely(fail_flag)) {
+      saveFailState(&savedFailState);
+      while (loc_var != NULL) {
+        destroy_local_object(&loc_var->local, TRUE);
+        loc_var->local.object->value.objValue = backup_loc_var->obj;
+        loc_var = loc_var->next;
+        backup_loc_var = backup_loc_var->next;
+      } /* while */
+      restoreFailState(&savedFailState);
+    } else {
+      while (loc_var != NULL) {
+        if (likely(!fail_flag)) {
+          destroy_local_object(&loc_var->local, FALSE);
+        } /* if */
+        loc_var->local.object->value.objValue = backup_loc_var->obj;
+        loc_var = loc_var->next;
+        backup_loc_var = backup_loc_var->next;
+      } /* while */
+    } /* if */
     logFunction(printf("loc_restore -->\n"););
   } /* loc_restore */
 

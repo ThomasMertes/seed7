@@ -499,8 +499,8 @@ should be no need to <span class="link">call foreign C functions</span>, or to <
    windows manipulation and bitmap <span class="link">fonts</span>. Events to redraw a window
    and other annoyances are managed in the graphics library.</li>
 <li>A <span class="link">database library</span> provides a <span class="link">database independent API</span> to connect
-   to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, ODBC, Firebird
-   and Interbase databases.</li>
+   to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird, Interbase,
+   Db2 and SQL Server databases. The ODBC interface can be used also.</li>
 <li>Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
    the modification of directory <span class="link">access</span> and <span class="link">modification times</span> also
@@ -623,12 +623,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2019-12-29 the number of lines is:
+than 300000 lines of Seed7. For version 2020-02-09 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">152752</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12178</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">165581</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">146949</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">156795</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12466</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">166386</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">148062</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1580,12 +1580,9 @@ A <span class="link">database library</span> provides a <span class="link">datab
 a client may access a database. Seed7 accomplishes database independence
 by using database drivers as abstraction layers between the application
 and the database. There are database drivers for MySQL, MariaDB, SQLLite,
-PostgreSQL, Oracle, ODBC, Firebird and Interbase databases. You might have
-heard of a database interface named ODBC. Compared to the ODBC interface
-the database independent API of Seed7 is much simpler. The drivers of ODBC
-come also in varying quality so some features might not be present or they
-might work wrong. How the database independent API of Seed7 works can be
-seen in the following example:
+PostgreSQL, Oracle, Firebird, Interbase, Db2 and SQL Server databases.
+Databases can also be accessed via the ODBC interface. How the database
+independent API of Seed7 works can be seen in the following example:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">proc</span>: dbDemo <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">local</span>
@@ -2483,6 +2480,7 @@ currently supported databases:
   <tr><td> DB2        </td><td> sqlcli1.h  </td><td> db_odbc.h </td><td> sql_db2.c  </td><td> DB2_LIBS         </td><td> DB2_LIBS          </td></tr>
   <tr><td> SQL Server </td><td> sql.h      </td><td> db_odbc.h </td><td> sql_srv.c  </td><td> SQL_SERVER_LIBS  </td><td> SQL_SERVER_DLL    </td></tr>
   <tr><td> ODBC       </td><td> sql.h      </td><td> db_odbc.h </td><td> sql_odbc.c </td><td> ODBC_LIBS        </td><td> ODBC_DLL          </td></tr>
+  <tr><td> TDS        </td><td> sybdb.h    </td><td> db_tds.h  </td><td> sql_tds.c  </td><td>                  </td><td> TDS_DLL           </td></tr>
   
 </table></dd></dl><p>
 If no static library is provided in the makefile (by writing it to
@@ -2517,6 +2515,7 @@ value differs between Linux, macOS and Windows:
   <tr><td> DB2_LIBS          </td><td> libdb2.so              </td><td> libdb2.dylib         </td><td> db2cli.dll                     </td></tr>
   <tr><td> SQL_SERVER_DLL    </td><td> libtdsodbc.so          </td><td> libtdsodbc.dylib     </td><td> sqlsrv32.dll                   </td></tr>
   <tr><td> ODBC_DLL          </td><td> libodbc.so             </td><td> libiodbc.dylib       </td><td> odbc32.dll                     </td></tr>
+  <tr><td> TDS_DLL           </td><td> libsybdb.so            </td><td> libsybdb.dylib       </td><td> sybdb.dll                      </td></tr>
   
 </table></dd></dl><p>
 For Oracle it is assumed that the environment variable ORACLE_HOME has

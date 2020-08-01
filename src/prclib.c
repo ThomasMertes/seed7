@@ -243,12 +243,7 @@ objectType prc_block (listType arguments)
         catch_value = arg_3(current_catch->value.listValue);
         if (catch_value == fail_value) {
           catch_statement = arg_5(current_catch->value.listValue);
-          set_fail_flag(FALSE);
-          fail_value = NULL;
-          free_list(fail_stack);
-          fail_stack = NULL;
-          free_list(fail_expression);
-          fail_expression = NULL;
+          leaveExceptionHandling();
           evaluate(catch_statement);
           searching = FALSE;
         } else {
@@ -276,12 +271,7 @@ objectType prc_block_catch_all (listType arguments)
     evaluate(statement);
     if (unlikely(fail_flag)) {
       default_statement = arg_6(arguments);
-      set_fail_flag(FALSE);
-      fail_value = NULL;
-      free_list(fail_stack);
-      fail_stack = NULL;
-      free_list(fail_expression);
-      fail_expression = NULL;
+      leaveExceptionHandling();
       evaluate(default_statement);
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -311,12 +301,7 @@ objectType prc_block_otherwise (listType arguments)
         catch_value = arg_3(current_catch->value.listValue);
         if (catch_value == fail_value) {
           catch_statement = arg_5(current_catch->value.listValue);
-          set_fail_flag(FALSE);
-          fail_value = NULL;
-          free_list(fail_stack);
-          fail_stack = NULL;
-          free_list(fail_expression);
-          fail_expression = NULL;
+          leaveExceptionHandling();
           evaluate(catch_statement);
           searching = FALSE;
         } else {
@@ -329,12 +314,7 @@ objectType prc_block_otherwise (listType arguments)
       } /* while */
       if (searching) {
         otherwise_statement = arg_7(arguments);
-        set_fail_flag(FALSE);
-        fail_value = NULL;
-        free_list(fail_stack);
-        fail_stack = NULL;
-        free_list(fail_expression);
-        fail_expression = NULL;
+        leaveExceptionHandling();
         evaluate(otherwise_statement);
       } /* if */
     } /* if */

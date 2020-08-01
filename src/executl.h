@@ -43,7 +43,7 @@ objectType create_return_object (const_locObjType local, objectType init_value,
     errInfoType *err_info);
 void create_local_object (const_locObjType local, objectType init_value,
     errInfoType *err_info);
-void destroy_local_object (const_locObjType local, errInfoType *err_info);
+void destroy_local_object (const_locObjType local, boolType ignoreError);
 void destroy_local_init_value (const_locObjType local, errInfoType *err_info);
 void destr_struct (objectType old_elem, memSizeType old_size);
 boolType crea_struct (objectType elem_to, objectType elem_from,

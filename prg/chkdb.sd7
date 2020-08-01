@@ -23,545 +23,35 @@
 
 
 $ include "seed7_05.s7i";
+  include "keybd.s7i";
+  include "console.s7i";
+  include "editline.s7i";
   include "sql_base.s7i";
+  include "db_prop.s7i";
   include "bstring.s7i";
   include "time.s7i";
   include "duration.s7i";
-  include "console.s7i";
 
 
-const func boolean: raisesRangeError (ref proc: expression) is func
+const type: connectData is new struct
+    var dbCategory: driver       is NO_DB;
+    var string:     dbName       is "";
+    var string:     user         is "";
+    var string:     password     is "";
+    var dbCategory: databaseKind is NO_DB;
+  end struct;
+
+
+const func connectData: connectData (in dbCategory: driver, in string: dbName,
+    in string: user, in string: password, in dbCategory: databaseKind) is func
   result
-    var boolean: raisesRangeError is FALSE;
+    var connectData: connData is connectData.value;
   begin
-    block
-      expression;
-    exception
-      catch RANGE_ERROR: raisesRangeError := TRUE;
-    end block;
-  end func;
-
-
-const func boolean: raisesDatabaseError (ref proc: expression) is func
-  result
-    var boolean: raisesDatabaseError is FALSE;
-  begin
-    block
-      expression;
-    exception
-      catch DATABASE_ERROR: raisesDatabaseError := TRUE;
-    end block;
-  end func;
-
-
-const func string: int8Type (in dbCategory: databaseKind) is func
-  result
-    var string: int8Type is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      int8Type := "TINYINT";
-      when {DB_SQLITE}:     int8Type := "TINYINT";
-      when {DB_POSTGRESQL}: int8Type := "SMALLINT";
-      when {DB_OCI}:        int8Type := "SMALLINT";
-      when {DB_ODBC}:       int8Type := "TINYINT";
-      when {DB_FIRE}:       int8Type := "SMALLINT";
-      when {DB_SQL_SERVER}: int8Type := "TINYINT";
-    end case;
-  end func;
-
-
-const func integer: maxInt8Value (in dbCategory: databaseKind) is func
-  result
-    var integer: maxInt8Value is 0;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      maxInt8Value := 127;
-      when {DB_SQLITE}:     maxInt8Value := 127;
-      when {DB_POSTGRESQL}: maxInt8Value := 127;
-      when {DB_OCI}:        maxInt8Value := 127;
-      when {DB_ODBC}:       maxInt8Value := 255;
-      when {DB_FIRE}:       maxInt8Value := 127;
-      when {DB_SQL_SERVER}: maxInt8Value := 255;
-    end case;
-  end func;
-
-
-const func string: int64Type (in dbCategory: databaseKind) is func
-  result
-    var string: int64Type is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      int64Type := "BIGINT";
-      when {DB_SQLITE}:     int64Type := "BIGINT";
-      when {DB_POSTGRESQL}: int64Type := "BIGINT";
-      when {DB_OCI}:        int64Type := "INTEGER";
-      when {DB_ODBC}:       int64Type := "BIGINT";
-      when {DB_FIRE}:       int64Type := "BIGINT";
-      when {DB_SQL_SERVER}: int64Type := "BIGINT";
-    end case;
-  end func;
-
-
-const func boolean: withRangeCheck (in dbCategory: databaseKind) is func
-  result
-    var boolean: withRangeCheck is FALSE;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      withRangeCheck := FALSE;
-      when {DB_SQLITE}:     withRangeCheck := FALSE;
-      when {DB_POSTGRESQL}: withRangeCheck := TRUE;
-      when {DB_OCI}:        withRangeCheck := FALSE;
-      when {DB_ODBC}:       withRangeCheck := TRUE;
-      when {DB_FIRE}:       withRangeCheck := TRUE;
-      when {DB_SQL_SERVER}: withRangeCheck := TRUE;
-    end case;
-  end func;
-
-
-const func string: bigIntType (in dbCategory: databaseKind) is func
-  result
-    var string: bigIntType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      bigIntType := "DECIMAL(65)";
-      when {DB_SQLITE}:     bigIntType := "DECIMAL";
-      when {DB_POSTGRESQL}: bigIntType := "DECIMAL";
-      when {DB_OCI}:        bigIntType := "DECIMAL";
-      when {DB_ODBC}:       bigIntType := "DECIMAL(38)";
-      when {DB_FIRE}:       bigIntType := "DECIMAL(18)";
-      when {DB_SQL_SERVER}: bigIntType := "DECIMAL(38)";
-    end case;
-  end func;
-
-
-const func integer: sqlIntLiteralBits (in dbCategory: databaseKind) is func
-  result
-    var integer: sqlIntLiteralBits is 0;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      sqlIntLiteralBits := 216;
-      when {DB_SQLITE}:     sqlIntLiteralBits := 64;
-      when {DB_POSTGRESQL}: sqlIntLiteralBits := 435411;
-      when {DB_OCI}:        sqlIntLiteralBits := 127;
-      when {DB_ODBC}:       sqlIntLiteralBits := 127;
-      when {DB_FIRE}:       sqlIntLiteralBits := 64;
-      when {DB_SQL_SERVER}: sqlIntLiteralBits := 127;
-    end case;
-  end func;
-
-
-const func integer: bigIntTypeBits (in dbCategory: databaseKind) is func
-  result
-    var integer: bigIntTypeBits is 0;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      bigIntTypeBits := 216;
-      when {DB_SQLITE}:     bigIntTypeBits := integer.last;
-      when {DB_POSTGRESQL}: bigIntTypeBits := 435411;
-      when {DB_OCI}:        bigIntTypeBits := 127;
-      when {DB_ODBC}:       bigIntTypeBits := 127;
-      when {DB_FIRE}:       bigIntTypeBits := 64;
-      when {DB_SQL_SERVER}: bigIntTypeBits := 127;
-    end case;
-  end func;
-
-
-const func string: floatType (in dbCategory: databaseKind) is func
-  result
-    var string: floatType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      floatType := "FLOAT";
-      when {DB_SQLITE}:     floatType := "REAL";
-      when {DB_POSTGRESQL}: floatType := "REAL";
-      when {DB_OCI}:        floatType := "FLOAT";
-      when {DB_ODBC}:       floatType := "REAL";
-      when {DB_FIRE}:       floatType := "FLOAT";
-      when {DB_SQL_SERVER}: floatType := "REAL";
-    end case;
-  end func;
-
-
-const func string: doubleType (in dbCategory: databaseKind) is func
-  result
-    var string: doubleType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      doubleType := "DOUBLE";
-      when {DB_SQLITE}:     doubleType := "DOUBLE";
-      when {DB_POSTGRESQL}: doubleType := "DOUBLE PRECISION";
-      when {DB_OCI}:        doubleType := "DOUBLE PRECISION";
-      when {DB_ODBC}:       doubleType := "DOUBLE PRECISION";
-      when {DB_FIRE}:       doubleType := "DOUBLE PRECISION";
-      when {DB_SQL_SERVER}: doubleType := "DOUBLE PRECISION";
-    end case;
-  end func;
-
-
-const func string: bigRatType (in dbCategory: databaseKind) is func
-  result
-    var string: bigRatType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      bigRatType := "DECIMAL(65,30)";
-      when {DB_SQLITE}:     bigRatType := "NUMBER";
-      when {DB_POSTGRESQL}: bigRatType := "DECIMAL";
-      when {DB_OCI}:        bigRatType := "NUMBER";
-      when {DB_ODBC}:       bigRatType := "NUMERIC(38,15)";
-      when {DB_FIRE}:       bigRatType := "DECIMAL(18, 9)";
-      when {DB_SQL_SERVER}: bigRatType := "NUMERIC(38,15)";
-    end case;
-  end func;
-
-
-const func string: decimalIntType (in dbCategory: databaseKind) is func
-  result
-    var string: decimalType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      decimalType := "DECIMAL(65)";   # DECIMAL(p), 1 <= p <= 65
-      when {DB_SQLITE}:     decimalType := "NUMBER";
-      when {DB_POSTGRESQL}: decimalType := "DECIMAL(100)";  # DECIMAL(p), 1 <= p <= 1000
-      when {DB_OCI}:        decimalType := "NUMBER(38)";    # NUMBER(p),  1 <= p <= 38
-      when {DB_ODBC}:       decimalType := "DECIMAL(38)";   # DECIMAL(p), 1 <= p <= 38
-      when {DB_FIRE}:       decimalType := "DECIMAL(18)";   # DECIMAL(p), 1 <= p <= 18
-      when {DB_SQL_SERVER}: decimalType := "DECIMAL(38)";   # DECIMAL(p), 1 <= p <= 38
-    end case;
-  end func;
-
-
-const func integer: maxDecimalPrecision (in dbCategory: databaseKind) is func
-  result
-    var integer: precision is 0;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      precision := 65;
-      when {DB_SQLITE}:     precision := 100;  # NUMBER works without scale.
-      when {DB_POSTGRESQL}: precision := 100;  # PostgreSQL is tested with maximum precision of 100.
-      when {DB_OCI}:        precision := 38;
-      when {DB_ODBC}:       precision := 38;
-      when {DB_FIRE}:       precision := 18;
-      when {DB_SQL_SERVER}: precision := 38;
-    end case;
-  end func;
-
-
-const func integer: maxDecimalLiteralPrecision (in dbCategory: databaseKind) is func
-  result
-    var integer: precision is 0;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      precision := 65;
-      when {DB_SQLITE}:     precision := 13;
-      when {DB_POSTGRESQL}: precision := 100;
-      when {DB_OCI}:        precision := 38;
-      when {DB_ODBC}:       precision := 38;
-      when {DB_FIRE}:       precision := 18;
-      when {DB_SQL_SERVER}: precision := 38;
-    end case;
-  end func;
-
-
-const func string: numericIntType (in dbCategory: databaseKind) is func
-  result
-    var string: numericType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      numericType := "NUMERIC(65)";   # NUMERIC(p), 1 <= p <= 65
-      when {DB_SQLITE}:     numericType := "NUMBER";
-      when {DB_POSTGRESQL}: numericType := "NUMERIC(100)";  # NUMERIC(p), 1 <= p <= 1000
-      when {DB_OCI}:        numericType := "NUMBER(38)";    # NUMBER(p),  1 <= p <= 38
-      when {DB_ODBC}:       numericType := "NUMERIC(38)";   # NUMERIC(p), 1 <= p <= 38
-      when {DB_FIRE}:       numericType := "NUMERIC(18)";   # NUMERIC(p), 1 <= p <= 18
-      when {DB_SQL_SERVER}: numericType := "NUMERIC(38)";   # NUMERIC(p), 1 <= p <= 38
-     end case;
-  end func;
-
-
-const func integer: maxNumericPrecision (in dbCategory: databaseKind) is func
-  result
-    var integer: precision is 0;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      precision := 65;
-      when {DB_SQLITE}:     precision := 100;  # NUMBER works without scale.
-      when {DB_POSTGRESQL}: precision := 100;  # PostgreSQL is tested with maximum precision of 100.
-      when {DB_OCI}:        precision := 38;
-      when {DB_ODBC}:       precision := 38;
-      when {DB_FIRE}:       precision := 18;
-      when {DB_SQL_SERVER}: precision := 38;
-     end case;
-  end func;
-
-
-const func integer: maxNumericLiteralPrecision (in dbCategory: databaseKind) is func
-  result
-    var integer: precision is 0;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      precision := 65;
-      when {DB_SQLITE}:     precision := 13;
-      when {DB_POSTGRESQL}: precision := 100;
-      when {DB_OCI}:        precision := 38;
-      when {DB_ODBC}:       precision := 38;
-      when {DB_FIRE}:       precision := 18;
-      when {DB_SQL_SERVER}: precision := 38;
-    end case;
-  end func;
-
-
-const func string: decimalType (in dbCategory: databaseKind, in integer: scale) is func
-  result
-    var string: decimalType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      decimalType := "DECIMAL(65," <& scale <& ")";   # DECIMAL(p,s), 1 <= p <= 65, 0 <= s <= 30
-      when {DB_SQLITE}:     decimalType := "NUMBER";
-      when {DB_POSTGRESQL}: decimalType := "DECIMAL(100," <& scale <& ")";  # DECIMAL(p,s), 1 <= p <= 1000, 0 <= s <= p
-      when {DB_OCI}:        decimalType := "NUMBER(38," <& scale <& ")";    # NUMBER(p,s),  1 <= p <= 38, -84 <= s <= 127
-      when {DB_ODBC}:       decimalType := "DECIMAL(38," <& scale <& ")";   # DECIMAL(p,s), 1 <= p <= 38, 0 <= s <= p
-      when {DB_FIRE}:       decimalType := "DECIMAL(18," <& scale <& ")";   # DECIMAL(p,s), 1 <= p <= 18, 0 <= s <= p
-      when {DB_SQL_SERVER}: decimalType := "DECIMAL(38," <& scale <& ")";   # DECIMAL(p,s), 1 <= p <= 38, 0 <= s <= p
-    end case;
-  end func;
-
-
-const func integer: minDecimalScale (in dbCategory: databaseKind) is func
-  result
-    var integer: scale is 0;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      scale := 0;
-      when {DB_SQLITE}:     scale := -5;   # NUMBER works without scale.
-      when {DB_POSTGRESQL}: scale := 0;
-      when {DB_OCI}:        scale := -84;
-      when {DB_ODBC}:       scale := 0;
-      when {DB_FIRE}:       scale := 0;
-      when {DB_SQL_SERVER}: scale := 0;
-    end case;
-  end func;
-
-
-const func integer: maxDecimalScale (in dbCategory: databaseKind) is func
-  result
-    var integer: scale is 0;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      scale := 30;
-      when {DB_SQLITE}:     scale := 10;   # NUMBER works without scale.
-      when {DB_POSTGRESQL}: scale := 100;  # PostgreSQL is tested with maximum precision of 100.
-      when {DB_OCI}:        scale := 127;  # The scale can be bigger than the precision.
-      when {DB_ODBC}:       scale := 38;
-      when {DB_FIRE}:       scale := 18;
-      when {DB_SQL_SERVER}: scale := 38;
-    end case;
-  end func;
-
-
-const func string: numericType (in dbCategory: databaseKind, in integer: scale) is func
-  result
-    var string: numericType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      numericType := "NUMERIC(65," <& scale <& ")";   # NUMERIC(p,s), 1 <= p <= 65, 0 <= s <= 30
-      when {DB_SQLITE}:     numericType := "NUMBER";
-      when {DB_POSTGRESQL}: numericType := "NUMERIC(100," <& scale <& ")";  # NUMERIC(p,s), 1 <= p <= 1000, 0 <= s <= p
-      when {DB_OCI}:        numericType := "NUMBER(38," <& scale <& ")";    # NUMBER(p,s),  1 <= p <= 38, -84 <= s <= 127
-      when {DB_ODBC}:       numericType := "NUMERIC(38," <& scale <& ")";   # NUMERIC(p,s), 1 <= p <= 38, 0 <= s <= p
-      when {DB_FIRE}:       numericType := "NUMERIC(18," <& scale <& ")";   # NUMERIC(p,s), 1 <= p <= 18, 0 <= s <= p
-      when {DB_SQL_SERVER}: numericType := "NUMERIC(38," <& scale <& ")";   # NUMERIC(p,s), 1 <= p <= 38, 0 <= s <= p
-     end case;
-  end func;
-
-
-const func integer: minNumericScale (in dbCategory: databaseKind) is func
-  result
-    var integer: scale is 0;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      scale := 0;
-      when {DB_SQLITE}:     scale := -5;   # NUMBER works without scale.
-      when {DB_POSTGRESQL}: scale := 0;
-      when {DB_OCI}:        scale := -84;
-      when {DB_ODBC}:       scale := 0;
-      when {DB_FIRE}:       scale := 0;
-      when {DB_SQL_SERVER}: scale := 0;
-    end case;
-  end func;
-
-
-const func integer: maxNumericScale (in dbCategory: databaseKind) is func
-  result
-    var integer: scale is 0;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      scale := 30;
-      when {DB_SQLITE}:     scale := 10;   # NUMBER works without scale.
-      when {DB_POSTGRESQL}: scale := 100;  # PostgreSQL is tested with maximum precision of 100.
-      when {DB_OCI}:        scale := 127;  # The scale can be bigger than the precision.
-      when {DB_ODBC}:       scale := 38;
-      when {DB_FIRE}:       scale := 18;
-      when {DB_SQL_SERVER}: scale := 38;
-    end case;
-  end func;
-
-
-const func char: maxChar1FieldCharacter (in dbCategory: databaseKind) is func
-  result
-    var char: maxChar1FieldCharacter is char.last;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      maxChar1FieldCharacter := '\8888;'; # Code page 1252
-      when {DB_SQLITE}:     maxChar1FieldCharacter := char.last;
-      when {DB_POSTGRESQL}: maxChar1FieldCharacter := char.last;
-      when {DB_OCI}:        maxChar1FieldCharacter := char.last;
-      when {DB_ODBC}:       maxChar1FieldCharacter := char.last;
-      when {DB_FIRE}:       maxChar1FieldCharacter := '\127;';
-      when {DB_SQL_SERVER}: maxChar1FieldCharacter := char.last;
-    end case;
-  end func;
-
-
-const func boolean: charFieldPreservesTrailingSpaces (in dbCategory: databaseKind) is func
-  result
-    var boolean: charFieldPreservesTrailingSpaces is FALSE;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      charFieldPreservesTrailingSpaces := FALSE;
-      when {DB_SQLITE}:     charFieldPreservesTrailingSpaces := TRUE;
-      when {DB_POSTGRESQL}: charFieldPreservesTrailingSpaces := FALSE;
-      when {DB_OCI}:        charFieldPreservesTrailingSpaces := FALSE;
-      when {DB_ODBC}:       charFieldPreservesTrailingSpaces := FALSE;
-      when {DB_FIRE}:       charFieldPreservesTrailingSpaces := FALSE;
-      when {DB_SQL_SERVER}: charFieldPreservesTrailingSpaces := FALSE;
-    end case;
-  end func;
-
-
-const func boolean: nullAllowedInStringLiteral (in dbCategory: databaseKind) is func
-  result
-    var boolean: nullAllowedInStringLiteral is FALSE;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      nullAllowedInStringLiteral := TRUE;
-      when {DB_SQLITE}:     nullAllowedInStringLiteral := FALSE;
-      when {DB_POSTGRESQL}: nullAllowedInStringLiteral := FALSE;
-      when {DB_OCI}:        nullAllowedInStringLiteral := TRUE;
-      when {DB_ODBC}:       nullAllowedInStringLiteral := FALSE;
-      when {DB_FIRE}:       nullAllowedInStringLiteral := TRUE;
-      when {DB_SQL_SERVER}: nullAllowedInStringLiteral := FALSE;
-    end case;
-  end func;
-
-
-const func boolean: nullAllowedInString (in dbCategory: databaseKind) is func
-  result
-    var boolean: nullAllowedInString is FALSE;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      nullAllowedInString := TRUE;
-      when {DB_SQLITE}:     nullAllowedInString := TRUE;
-      when {DB_POSTGRESQL}: nullAllowedInString := FALSE;
-      when {DB_OCI}:        nullAllowedInString := TRUE;
-      when {DB_ODBC}:       nullAllowedInString := FALSE;
-      when {DB_FIRE}:       nullAllowedInString := TRUE;
-      when {DB_SQL_SERVER}: nullAllowedInString := FALSE;
-    end case;
-  end func;
-
-
-const func string: varcharType (in dbCategory: databaseKind) is func
-  result
-    var string: varcharType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      varcharType := "VARCHAR";
-      when {DB_SQLITE}:     varcharType := "VARCHAR";
-      when {DB_POSTGRESQL}: varcharType := "VARCHAR";
-      when {DB_OCI}:        varcharType := "VARCHAR2";
-      when {DB_ODBC}:       varcharType := "VARCHAR";
-      when {DB_FIRE}:       varcharType := "VARCHAR";
-      when {DB_SQL_SERVER}: varcharType := "VARCHAR";
-    end case;
-  end func;
-
-
-const func string: blobType (in dbCategory: databaseKind) is func
-  result
-    var string: blobType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      blobType := "LONGBLOB";
-      when {DB_SQLITE}:     blobType := "BLOB";
-      when {DB_POSTGRESQL}: blobType := "BYTEA";
-      when {DB_OCI}:        blobType := "BLOB";
-      when {DB_ODBC}:       blobType := "VARBINARY(MAX)";
-      when {DB_FIRE}:       blobType := "BLOB";
-      when {DB_SQL_SERVER}: blobType := "VARBINARY(MAX)";
-    end case;
-  end func;
-
-
-const func string: clobType (in dbCategory: databaseKind) is func
-  result
-    var string: clobType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      clobType := "LONGTEXT";
-      when {DB_SQLITE}:     clobType := "BLOB";
-      when {DB_POSTGRESQL}: clobType := "TEXT";
-      when {DB_OCI}:        clobType := "CLOB";
-      when {DB_ODBC}:       clobType := "VARCHAR(MAX)";
-      when {DB_FIRE}:       clobType := "BLOB SUB_TYPE TEXT";
-      when {DB_SQL_SERVER}: clobType := "VARCHAR(MAX)";
-    end case;
-  end func;
-
-
-const func string: timeType (in dbCategory: databaseKind) is func
-  result
-    var string: timeType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      timeType := "DATETIME";
-      when {DB_SQLITE}:     timeType := "VARCHAR";
-      when {DB_POSTGRESQL}: timeType := "TIMESTAMP";
-      when {DB_OCI}:        timeType := "TIMESTAMP WITH TIME ZONE";
-      when {DB_ODBC}:       timeType := "DATETIME2";
-      when {DB_FIRE}:       timeType := "TIMESTAMP";
-      when {DB_SQL_SERVER}: timeType := "DATETIME2";
-    end case;
-  end func;
-
-
-const func string: durationType (in dbCategory: databaseKind) is func
-  result
-    var string: durationType is "";
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      durationType := "DATETIME";
-      when {DB_SQLITE}:     durationType := "VARCHAR(32)";
-      when {DB_POSTGRESQL}: durationType := "INTERVAL";
-      when {DB_OCI}:        durationType := "INTERVAL DAY TO SECOND";
-      when {DB_ODBC}:       durationType := "DATETIMEOFFSET"; # "INTERVAL DAY(3) TO SECOND(6)";
-      when {DB_FIRE}:       durationType := "TIMESTAMP";
-      when {DB_SQL_SERVER}: durationType := "DATETIMEOFFSET"; # "INTERVAL DAY(3) TO SECOND(6)";
-    end case;
-  end func;
-
-
-const func boolean: supportsFloatingDecimals (in dbCategory: databaseKind) is func
-  result
-    var boolean: supportsFloatingDecimals is FALSE;
-  begin
-    case databaseKind of
-      when {DB_MYSQL}:      supportsFloatingDecimals := FALSE;
-      when {DB_SQLITE}:     supportsFloatingDecimals := TRUE;
-      when {DB_POSTGRESQL}: supportsFloatingDecimals := TRUE;
-      when {DB_OCI}:        supportsFloatingDecimals := TRUE;
-      when {DB_ODBC}:       supportsFloatingDecimals := FALSE;
-      when {DB_SQL_SERVER}: supportsFloatingDecimals := FALSE;
-    end case;
+    connData.driver       := driver;
+    connData.dbName       := dbName;
+    connData.user         := user;
+    connData.password     := password;
+    connData.databaseKind := databaseKind;
   end func;
 
 
@@ -587,6 +77,30 @@ const func testState: testState (in string: tableName,
 
 const boolean: infiniteAllowed is FALSE;
 const boolean: nanAllowed is FALSE;
+
+
+const func boolean: raisesRangeError (ref proc: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  begin
+    block
+      expression;
+    exception
+      catch RANGE_ERROR: raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesDatabaseError (ref proc: expression) is func
+  result
+    var boolean: raisesDatabaseError is FALSE;
+  begin
+    block
+      expression;
+    exception
+      catch DATABASE_ERROR: raisesDatabaseError := TRUE;
+    end block;
+  end func;
 
 
 const proc: DECL_INSERT (in type: elemType) is func
@@ -819,7 +333,7 @@ const proc: create (in database: testDb, inout testState: state,
 
 const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseKind) is func
   local
-    var testState: state is testState("testTable", "charField", FALSE);
+    var testState: state is testState("testPrepAndExecTable", "charField", FALSE);
     var database: emptyDb is database.value;
   begin
     if state.details then
@@ -854,6 +368,118 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
       state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
                                  " (" & state.fieldName & " CHAR)");
       execute(state.statement);
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = 'x' /* ? */")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Question mark in comment interpreted as parameter placeholder.");
+        end if;
+      elsif raisesDatabaseError(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Question mark in comment interpreted as parameter placeholder.");
+        end if;
+      end if;
+      # Reset statement before a fetch is done to make sure that the next prepare works.
+      state.statement := sqlStatement.value;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = 'x' -- ? \n")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Question mark in line comment interpreted as parameter placeholder.");
+        end if;
+      elsif raisesDatabaseError(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Question mark in line comment interpreted as parameter placeholder.");
+        end if;
+      end if;
+      # Reset statement before a fetch is done to make sure that the next prepare works.
+      state.statement := sqlStatement.value;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM/* */" & state.tableName &
+                                     "/* */WHERE " & state.fieldName & " = 'x'")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Comments to not separate words from each other.");
+        end if;
+      elsif raisesDatabaseError(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Comments to not separate words from each other.");
+        end if;
+      end if;
+      # Reset statement before a fetch is done to make sure that the next prepare works.
+      state.statement := sqlStatement.value;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM-- \n" & state.tableName &
+                                     "-- \nWHERE " & state.fieldName & " = 'x'")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Line comments to not separate words from each other.");
+        end if;
+      elsif raisesDatabaseError(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Line comments to not separate words from each other.");
+        end if;
+      end if;
+      # Reset statement before a fetch is done to make sure that the next prepare works.
+      state.statement := sqlStatement.value;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = /*'*/?/*'*/")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Quotation characters in comments are interpreted as literal. (1)");
+        end if;
+      elsif raisesRangeError(bind(state.statement, 1, "x")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Bind: Quotation characters in comments are interpreted as literal. (1)");
+        end if;
+      end if;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = /*'*/'x'/*'*/")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Quotation characters in comments are interpreted as literal. (2)");
+        end if;
+      end if;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = /*'*/'\\'/*'*/")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Quotation characters in comments are interpreted as literal. (3)");
+        end if;
+      end if;
+
+      if raisesDatabaseError(
+          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                     " WHERE " & state.fieldName & " = '/*'")) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Prepare: Comment sequence in literal triggers error.");
+        end if;
+      elsif raisesDatabaseError(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Comment sequence in literal triggers error.");
+        end if;
+      end if;
+      # Reset statement before a fetch is done to make sure that the next prepare works.
+      state.statement := sqlStatement.value;
 
       state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
                                  " WHERE " & state.fieldName & " = ?");
@@ -935,8 +561,12 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
 
       execute(state.statement);
       # Execute a second time before fetching data from the first execute.
-      execute(state.statement);
-      if not fetch(state.statement) then
+      if raisesDatabaseError(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Cannot execute a second time before fetching data from the first execute.");
+        end if;
+      elsif not fetch(state.statement) then
         state.okay := FALSE;
         if state.details then
           writeln(" *** Cannot fetch data from table with one entry, when executing again.");
@@ -950,133 +580,59 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
         end if;
       end if;
 
-      # Bind and execute again.
-      bind(state.statement, 1, "x");
-      execute(state.statement);
-      if not fetch(state.statement) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Cannot fetch data from table with one entry.");
-        end if;
-      elsif fetch(state.statement) then
-        # Reset statement to make sure that the next prepare works:
-        state.statement := sqlStatement.value;
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Can fetch two entries from table with one entry.)");
-        end if;
-      end if;
-
-      execute(state.statement);
-      # Bind and execute again although a previous execute is not fetched.
-      bind(state.statement, 1, "x");
-      execute(state.statement);
-      if not fetch(state.statement) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Cannot fetch data from table with one entry.");
-        end if;
-      elsif fetch(state.statement) then
-        # Reset statement to make sure that the next prepare works:
-        state.statement := sqlStatement.value;
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Can fetch two entries from table with one entry.)");
+      if state.okay then
+        # Bind and execute again.
+        bind(state.statement, 1, "x");
+        execute(state.statement);
+        if not fetch(state.statement) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** Cannot fetch data from table with one entry.");
+          end if;
+        elsif fetch(state.statement) then
+          # Reset statement to make sure that the next prepare works:
+          state.statement := sqlStatement.value;
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** Can fetch two entries from table with one entry.)");
+          end if;
         end if;
       end if;
 
-      # Prepare next statement before the result of executed statement is fetched.
-      execute(state.statement);
-      if raisesDatabaseError(
-          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
-                                     " WHERE " & state.fieldName & " = ?")) then
-        # Reset statement to make sure that the next prepare works:
-        state.statement := sqlStatement.value;
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Preparing a statement before a fetch of a previous statement is done raises DATABASE_ERROR. (non-empty table)");
+      if state.okay then
+        execute(state.statement);
+        # Bind and execute again although a previous execute is not fetched.
+        bind(state.statement, 1, "x");
+        execute(state.statement);
+        if not fetch(state.statement) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** Cannot fetch data from table with one entry.");
+          end if;
+        elsif fetch(state.statement) then
+          # Reset statement to make sure that the next prepare works:
+          state.statement := sqlStatement.value;
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** Can fetch two entries from table with one entry.)");
+          end if;
         end if;
       end if;
 
-      if raisesDatabaseError(
-          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
-                                     " WHERE " & state.fieldName & " = 'x' /* ? */")) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Prepare: Question mark in comment interpreted as parameter placeholder.");
-        end if;
-      elsif raisesDatabaseError(execute(state.statement)) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Execute: Question mark in comment interpreted as parameter placeholder.");
-        end if;
-      end if;
-      # Reset statement before a fetch is done to make sure that the next prepare works.
-      state.statement := sqlStatement.value;
-
-      if raisesDatabaseError(
-          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
-                                     " WHERE " & state.fieldName & " = 'x' -- ? \n")) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Prepare: Question mark in line comment interpreted as parameter placeholder.");
-        end if;
-      elsif raisesDatabaseError(execute(state.statement)) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Execute: Question mark in line comment interpreted as parameter placeholder.");
+      if state.okay then
+        # Prepare next statement before the result of executed statement is fetched.
+        execute(state.statement);
+        if raisesDatabaseError(
+            state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
+                                       " WHERE " & state.fieldName & " = ?")) then
+          # Reset statement to make sure that the next prepare works:
+          state.statement := sqlStatement.value;
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** Preparing a statement before a fetch of a previous statement is done raises DATABASE_ERROR. (non-empty table)");
+          end if;
         end if;
       end if;
-      # Reset statement before a fetch is done to make sure that the next prepare works.
-      state.statement := sqlStatement.value;
-
-      if raisesDatabaseError(
-          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
-                                     " WHERE " & state.fieldName & " = /*'*/?/*'*/")) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Prepare: Quotation characters in comments are interpreted as literal. (1)");
-        end if;
-      elsif raisesRangeError(bind(state.statement, 1, "x")) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Bind: Quotation characters in comments are interpreted as literal. (1)");
-        end if;
-      end if;
-
-      if raisesDatabaseError(
-          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
-                                     " WHERE " & state.fieldName & " = /*'*/'x'/*'*/")) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Prepare: Quotation characters in comments are interpreted as literal. (2)");
-        end if;
-      end if;
-
-      if raisesDatabaseError(
-          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
-                                     " WHERE " & state.fieldName & " = /*'*/'\\'/*'*/")) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Prepare: Quotation characters in comments are interpreted as literal. (3)");
-        end if;
-      end if;
-
-      if raisesDatabaseError(
-          state.statement := prepare(testDb, "SELECT * FROM " & state.tableName &
-                                     " WHERE " & state.fieldName & " = '/*'")) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Prepare: Comment sequence in literal triggers error.");
-        end if;
-      elsif raisesDatabaseError(execute(state.statement)) then
-        state.okay := FALSE;
-        if state.details then
-          writeln(" *** Execute: Comment sequence in literal triggers error.");
-        end if;
-      end if;
-      # Reset statement before a fetch is done to make sure that the next prepare works.
-      state.statement := sqlStatement.value;
 
     exception
       catch RANGE_ERROR:
@@ -1090,7 +646,12 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
         writeln(" *** DATABASE_ERROR was raised");
     end block;
     state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
-    execute(state.statement);
+    if not succeeds(execute(state.statement)) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Execute: Cannot drop table.");
+      end if;
+    end if;
 
     if state.okay then
       writeln("Preparing and executing prepared statements works okay.");
@@ -1103,13 +664,14 @@ const proc: testPrepareAndExecute (in database: testDb, in dbCategory: databaseK
 const proc: testFieldNames (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("testTable", "unused", FALSE);
-    var database: emptyDb is database.value;
   begin
     if state.details then
-      writeln("testPrepareAndExecute");
+      writeln("testFieldNames");
     end if;
     create(testDb, state, "\"ch a\"",    "ch a");   # Space in name
-    create(testDb, state, "\"ch\"\"a\"", "ch\"a");  # Double quote in name
+    if allowedInFieldName(databaseKind, '\"') then
+      create(testDb, state, "\"ch\"\"a\"", "ch\"a");  # Double quote in name
+    end if;
     create(testDb, state, "\"ch'a\"",    "ch'a");   # Single quote in name
     create(testDb, state, "\"ch`a\"",    "ch`a");   # Backtick in name
     create(testDb, state, "\"ch\\a\"",   "ch\\a");  # Backslash in name
@@ -1118,7 +680,9 @@ const proc: testFieldNames (in database: testDb, in dbCategory: databaseKind) is
     create(testDb, state, "\"ch€a\"",    "ch€a");
     create(testDb, state, "\"chµa\"",    "chµa");
 
-    # create(testDb, state, "\"\0;\"",         "\0;");  # Fails with all databases.
+    if allowedInFieldName(databaseKind, '\0;') then
+      create(testDb, state, "\"\0;\"",         "\0;");
+    end if;
     create(testDb, state, "\"\1;\"",         "\1;");
     create(testDb, state, "\"\2;\"",         "\2;");
     create(testDb, state, "\"\3;\"",         "\3;");
@@ -1127,17 +691,33 @@ const proc: testFieldNames (in database: testDb, in dbCategory: databaseKind) is
     create(testDb, state, "\"\6;\"",         "\6;");
     create(testDb, state, "\"\7;\"",         "\7;");
     create(testDb, state, "\"\8;\"",         "\8;");
-    create(testDb, state, "\"\9;\"",         "\9;");
-    create(testDb, state, "\"\10;\"",        "\10;");
-    create(testDb, state, "\"\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\"",
-                            "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;");
+    if allowedInFieldName(databaseKind, '\9;') then
+      create(testDb, state, "\"\9;\"",         "\9;");
+    end if;
+    if allowedInFieldName(databaseKind, '\10;') then
+      create(testDb, state, "\"\10;\"",        "\10;");
+    end if;
+    if allowedInFieldName(databaseKind, '\9;') and
+        allowedInFieldName(databaseKind, '\10;') then
+      create(testDb, state, "\"\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\"",
+                              "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;");
+    else
+      create(testDb, state, "\"\1;\2;\3;\4;\5;\6;\7;\8;\"",
+                              "\1;\2;\3;\4;\5;\6;\7;\8;");
+    end if;
     create(testDb, state, "\"\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\"",
                             "\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;");
     create(testDb, state, "\"\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\"",
                             "\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;");
 
-    create(testDb, state, "\" \"",                   " ");
-    create(testDb, state, "\"!\"\"#$%&'()*+,-./\"",  "!\"#$%&'()*+,-./");
+    if allowedInFieldName(databaseKind, ' ') then
+      create(testDb, state, "\" \"",                   " ");
+    end if;
+    if allowedInFieldName(databaseKind, '\"') then
+      create(testDb, state, "\"!\"\"#$%&'()*+,-./\"",  "!\"#$%&'()*+,-./");
+    else
+      create(testDb, state, "\"!#$%&'()*+,-./\"",      "!#$%&'()*+,-./");
+    end if;
     create(testDb, state, "\"0123456789\"",          "0123456789");
     create(testDb, state, "\":;<=>?@\"",             ":;<=>?@");
     create(testDb, state, "\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"",
@@ -1171,9 +751,342 @@ const proc: testFieldNames (in database: testDb, in dbCategory: databaseKind) is
     create(testDb, state, "\"øùúûüýþÿ\"",            "øùúûüýþÿ");
 
     if state.okay then
-      writeln("Creating tables with arbitrary characters in field names works okay.");
+      writeln("Creating tables with allowed characters in field names works okay.");
     else
-      writeln(" *** Creating tables with arbitrary characters in field names does not work okay.");
+      writeln(" *** Creating tables with allowed characters in field names does not work okay.");
+    end if;
+  end func;
+
+
+
+const proc: testWithAutoCommit (in database: testDb, inout testState: state,
+    in database: secondDbConnection) is func
+  local
+    var sqlStatement: secondStmt is sqlStatement.value;
+  begin
+    secondStmt := prepare(secondDbConnection, "CREATE TABLE " & state.tableName &
+                                              " (" & state.fieldName & " CHAR(32))");
+    execute(secondStmt);
+
+    state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+    if not succeeds(execute(state.statement)) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Execute: Table created by other connection does not exist. (1)");
+      end if;
+    elsif fetch(state.statement) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Fetch: Fetch succeeds for table created by other connection. (1)");
+      end if;
+    end if;
+
+    secondStmt := prepare(secondDbConnection, "INSERT INTO " & state.tableName &
+                                              " (" & state.fieldName & ") VALUES (NULL)");
+    execute(secondStmt);
+
+    if not succeeds(execute(state.statement)) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Execute: Table created by other connection does not exist. (2)");
+      end if;
+    elsif not fetch(state.statement) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Fetch: Fetch fails for table created by other connection. (1)");
+      end if;
+    end if;
+
+    secondStmt := prepare(secondDbConnection, "DELETE FROM " & state.tableName);
+    if not succeeds(execute(secondStmt)) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Execute: Cannot delete from table while another database connection is open.");
+      end if;
+    end if;
+
+    state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+    if not succeeds(execute(state.statement)) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Execute: Table created by other connection does not exist. (3)");
+      end if;
+    elsif fetch(state.statement) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Fetch: Fetch succeeds for table created by other connection. (2)");
+      end if;
+    end if;
+
+    secondStmt := prepare(secondDbConnection, "DROP TABLE " & state.tableName);
+    if not succeeds(execute(secondStmt)) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Execute: Cannot drop table while another database connection is open.");
+      end if;
+    end if;
+
+    if succeeds(execute(state.statement)) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Execute: Table dropped by other connection still does exist. (1)");
+      end if;
+    end if;
+  end func;
+
+
+const proc: testAutoCommit (in database: testDb, in connectData: dbConnectData) is func
+  local
+    var testState: state is testState("testTable", "charField", FALSE);
+    var database: secondDbConnection is database.value;
+    var sqlStatement: secondStmt is sqlStatement.value;
+  begin
+    if state.details then
+      writeln("testAutoCommit");
+    end if;
+    block
+      secondDbConnection := openDatabase(dbConnectData.driver,
+                                         dbConnectData.dbName,
+                                         dbConnectData.user,
+                                         dbConnectData.password);
+    exception
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Cannot open database " <& dbConnectData.dbName <&
+                  " with driver " <& dbConnectData.driver);
+          writeln(" *** Database error: " <& errMessage(DATABASE_ERROR));
+        end if;
+      otherwise:
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Cannot open database " <& dbConnectData.dbName <&
+                  " with driver " <& dbConnectData.driver);
+        end if;
+    end block;
+    if secondDbConnection <> database.value then
+      block
+        if not getAutoCommit(secondDbConnection) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** AutoCommit is off on a new created connection.");
+          end if;
+        else
+          testWithAutoCommit(testDb, state, secondDbConnection);
+        end if;
+      exception
+        catch RANGE_ERROR:
+          state.okay := FALSE;
+          writeln(" *** RANGE_ERROR was raised");
+        catch FILE_ERROR:
+          state.okay := FALSE;
+          writeln(" *** FILE_ERROR was raised");
+        catch DATABASE_ERROR:
+          state.okay := FALSE;
+          writeln(" *** DATABASE_ERROR was raised");
+      end block;
+      close(secondDbConnection);
+      if not state.okay then
+        block
+          state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+          execute(state.statement);
+        exception
+          otherwise:
+            noop;
+        end block;
+      end if;
+    end if;
+
+    if state.okay then
+      writeln("Autocommit works okay.");
+    else
+      writeln(" *** Autocommit does not work okay.");
+    end if;
+  end func;
+
+
+const proc: testWithoutAutoCommit (in database: testDb, inout testState: state,
+    in database: secondDbConnection) is func
+  local
+    var sqlStatement: secondStmt is sqlStatement.value;
+  begin
+    secondStmt := prepare(secondDbConnection, "CREATE TABLE " & state.tableName &
+                                              " (" & state.fieldName & " CHAR(32))");
+    execute(secondStmt);
+
+    if not succeeds(
+        state.statement := prepare(testDb, "SELECT * FROM " & state.tableName)) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Prepare: Select from table created by other connection fails.");
+      end if;
+    elsif not succeeds(execute(state.statement)) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Execute: Table created by other connection does not exist. (1)");
+      end if;
+    elsif fetch(state.statement) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Fetch: Fetch succeeds for table created by other connection. (1)");
+      end if;
+    end if;
+
+    secondStmt := prepare(secondDbConnection, "INSERT INTO " & state.tableName &
+                                              " (" & state.fieldName & ") VALUES (NULL)");
+    execute(secondStmt);
+
+    if state.statement <> sqlStatement.value then
+      if not succeeds(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Table created by other connection does not exist. (2)");
+        end if;
+      elsif fetch(state.statement) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Fetch: Fetch succeeds for table created by other connection. (2)");
+        end if;
+      end if;
+    end if;
+
+    commit(secondDbConnection);
+
+    if state.statement <> sqlStatement.value then
+      if not succeeds(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Table created by other connection does not exist. (3)");
+        end if;
+      elsif not fetch(state.statement) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Fetch: Fetch fails for table created by other connection. (1)");
+        end if;
+      end if;
+    end if;
+
+    secondStmt := prepare(secondDbConnection, "DELETE FROM " & state.tableName);
+    execute(secondStmt);
+
+    if state.statement <> sqlStatement.value then
+      if not succeeds(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Table created by other connection does not exist. (4)");
+        end if;
+      elsif not fetch(state.statement) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Fetch: Fetch fails for table created by other connection. (2)");
+        end if;
+      end if;
+    end if;
+
+    rollback(secondDbConnection);
+
+    if state.statement <> sqlStatement.value then
+      if not succeeds(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Table created by other connection does not exist. (5)");
+        end if;
+      elsif not fetch(state.statement) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Fetch: Fetch fails for table created by other connection. (3)");
+        end if;
+      end if;
+    end if;
+
+    secondStmt := prepare(secondDbConnection, "DROP TABLE " & state.tableName);
+    execute(secondStmt);
+
+    if state.statement <> sqlStatement.value then
+      if succeeds(execute(state.statement)) then
+        state.okay := FALSE;
+        if state.details then
+          writeln(" *** Execute: Table dropped by other connection still does exist. (1)");
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: testTransactions (in database: testDb, in connectData: dbConnectData) is func
+  local
+    var testState: state is testState("testTable", "charField", FALSE);
+    var database: secondDbConnection is database.value;
+    var sqlStatement: secondStmt is sqlStatement.value;
+  begin
+    if state.details then
+      writeln("testTransactions");
+    end if;
+    if transactionLocks(dbConnectData.databaseKind) then
+      state.okay := FALSE;
+      if state.details then
+        writeln(" *** Transaction locks database or column.");
+      end if;
+    else
+      block
+        secondDbConnection := openDatabase(dbConnectData.driver,
+                                           dbConnectData.dbName,
+                                           dbConnectData.user,
+                                           dbConnectData.password);
+      exception
+        catch DATABASE_ERROR:
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** Cannot open database " <& dbConnectData.dbName <&
+                    " with driver " <& dbConnectData.driver);
+            writeln(" *** Database error: " <& errMessage(DATABASE_ERROR));
+          end if;
+        otherwise:
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** Cannot open database " <& dbConnectData.dbName <&
+                    " with driver " <& dbConnectData.driver);
+          end if;
+      end block;
+    end if;
+    if secondDbConnection <> database.value then
+      block
+        setAutoCommit(secondDbConnection, FALSE);
+        if getAutoCommit(secondDbConnection) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** AutoCommit is still on after switching it off.");
+          end if;
+        else
+          testWithoutAutoCommit(testDb, state, secondDbConnection);
+        end if;
+      exception
+        catch RANGE_ERROR:
+          state.okay := FALSE;
+          writeln(" *** RANGE_ERROR was raised");
+        catch FILE_ERROR:
+          state.okay := FALSE;
+          writeln(" *** FILE_ERROR was raised");
+        catch DATABASE_ERROR:
+          state.okay := FALSE;
+          writeln(" *** DATABASE_ERROR was raised");
+      end block;
+      close(secondDbConnection);
+      if not state.okay then
+        block
+          state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+          execute(state.statement);
+        exception
+          otherwise:
+            noop;
+        end block;
+      end if;
+    end if;
+
+    if state.okay then
+      writeln("Database transactions work okay.");
+    else
+      writeln(" *** Database transactions do not work okay.");
     end if;
   end func;
 
@@ -1316,6 +1229,7 @@ const proc: testInt8Field (in database: testDb, in dbCategory: databaseKind) is 
     var bigInteger: bigIntColumn is 0_;
     var bigRational: bigRatColumn is 0_/1_;
     var float: floatColumn is 0.0;
+    var boolean: booleanColumn is FALSE;
     var integer: row is 1;
   begin
     if state.details then
@@ -1334,6 +1248,7 @@ const proc: testInt8Field (in database: testDb, in dbCategory: databaseKind) is 
       insert(testDb, state,   "1", expect &:=   1);
       insert(testDb, state, "127", expect &:= 127);
       if maxInt8Value(databaseKind) = 255 then
+        insert(testDb, state,  "128", expect &:=  128);
         insert(testDb, state,  "255", expect &:=  255);
       else
         insert(testDb, state,   "-1", expect &:=   -1);
@@ -1344,6 +1259,7 @@ const proc: testInt8Field (in database: testDb, in dbCategory: databaseKind) is 
       insert(state,   1, expect &:=   1);
       insert(state, 127, expect &:= 127);
       if maxInt8Value(databaseKind) = 255 then
+        insert(state,  128, expect &:=  128);
         insert(state,  255, expect &:=  255);
         if int8Type(databaseKind) = "TINYINT" and withRangeCheck(databaseKind) then
           insert(state, 256, expect &:= 256, RANGE_CHECK);
@@ -1362,6 +1278,7 @@ const proc: testInt8Field (in database: testDb, in dbCategory: databaseKind) is 
       insert(state,   1_, expect &:=   1);
       insert(state, 127_, expect &:= 127);
       if maxInt8Value(databaseKind) = 255 then
+        insert(state,  128_, expect &:=  128);
         insert(state,  255_, expect &:=  255);
         if int8Type(databaseKind) = "TINYINT" and withRangeCheck(databaseKind) then
           insert(state, 256_, expect &:= 256, RANGE_CHECK);
@@ -1449,6 +1366,23 @@ const proc: testInt8Field (in database: testDb, in dbCategory: databaseKind) is 
                     " Expected " <& expect[row] <& " found NULL");
           end if;
         end if;
+        if expect[row] in {0, 1} then
+          booleanColumn := column(state.statement, 1, boolean);
+          if booleanColumn <> boolean(expect[row]) then
+            state.okay := FALSE;
+            if state.details then
+              writeln(" *** testInt8Field: Row: " <& row <&
+                      " Expected " <& expect[row] <& " found boolean " <& booleanColumn);
+            end if;
+          end if;
+          if row <= 2 and not isNull(state.statement, 1) then
+            state.okay := FALSE;
+            if state.details then
+              writeln(" *** testInt8Field: Row: " <& row <&
+                      " Expected NULL found boolean " <& booleanColumn);
+            end if;
+          end if;
+        end if;
         incr(row);
       end while;
     exception
@@ -1481,6 +1415,7 @@ const proc: testInt16Field (in database: testDb, in dbCategory: databaseKind) is
     var bigInteger: bigIntColumn is 0_;
     var bigRational: bigRatColumn is 0_/1_;
     var float: floatColumn is 0.0;
+    var boolean: booleanColumn is FALSE;
     var integer: row is 1;
   begin
     if state.details then
@@ -1594,6 +1529,23 @@ const proc: testInt16Field (in database: testDb, in dbCategory: databaseKind) is
                     " Expected " <& expect[row] <& " found NULL");
           end if;
         end if;
+        if expect[row] in {0, 1} then
+          booleanColumn := column(state.statement, 1, boolean);
+          if booleanColumn <> boolean(expect[row]) then
+            state.okay := FALSE;
+            if state.details then
+              writeln(" *** testInt16Field: Row: " <& row <&
+                      " Expected " <& expect[row] <& " found boolean " <& booleanColumn);
+            end if;
+          end if;
+          if row <= 2 and not isNull(state.statement, 1) then
+            state.okay := FALSE;
+            if state.details then
+              writeln(" *** testInt16Field: Row: " <& row <&
+                      " Expected NULL found boolean " <& booleanColumn);
+            end if;
+          end if;
+        end if;
         incr(row);
       end while;
     exception
@@ -1626,6 +1578,7 @@ const proc: testInt32Field (in database: testDb, in dbCategory: databaseKind) is
     var bigInteger: bigIntColumn is 0_;
     var bigRational: bigRatColumn is 0_/1_;
     var float: floatColumn is 0.0;
+    var boolean: booleanColumn is FALSE;
     var integer: row is 1;
   begin
     if state.details then
@@ -1741,6 +1694,23 @@ const proc: testInt32Field (in database: testDb, in dbCategory: databaseKind) is
                     " Expected " <& expect[row] <& " found NULL");
           end if;
         end if;
+        if expect[row] in {0, 1} then
+          booleanColumn := column(state.statement, 1, boolean);
+          if booleanColumn <> boolean(expect[row]) then
+            state.okay := FALSE;
+            if state.details then
+              writeln(" *** testInt32Field: Row: " <& row <&
+                      " Expected " <& expect[row] <& " found boolean " <& booleanColumn);
+            end if;
+          end if;
+          if row <= 2 and not isNull(state.statement, 1) then
+            state.okay := FALSE;
+            if state.details then
+              writeln(" *** testInt32Field: Row: " <& row <&
+                      " Expected NULL found boolean " <& booleanColumn);
+            end if;
+          end if;
+        end if;
         incr(row);
       end while;
     exception
@@ -1774,6 +1744,7 @@ const proc: testInt64Field (in database: testDb, in dbCategory: databaseKind) is
     var bigRational: bigRatColumn is 0_/1_;
     var float: floatColumn is 0.0;
     var string: floatAsString is "";
+    var boolean: booleanColumn is FALSE;
     var integer: row is 1;
   begin
     if state.details then
@@ -1926,6 +1897,23 @@ const proc: testInt64Field (in database: testDb, in dbCategory: databaseKind) is
                     " Expected " <& expect[row] <& " found NULL");
           end if;
         end if;
+        if expect[row] in {0, 1} then
+          booleanColumn := column(state.statement, 1, boolean);
+          if booleanColumn <> boolean(expect[row]) then
+            state.okay := FALSE;
+            if state.details then
+              writeln(" *** testInt64Field: Row: " <& row <&
+                      " Expected " <& expect[row] <& " found boolean " <& booleanColumn);
+            end if;
+          end if;
+          if row <= 2 and not isNull(state.statement, 1) then
+            state.okay := FALSE;
+            if state.details then
+              writeln(" *** testInt64Field: Row: " <& row <&
+                      " Expected NULL found boolean " <& booleanColumn);
+            end if;
+          end if;
+        end if;
         incr(row);
       end while;
     exception
@@ -2075,6 +2063,7 @@ const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is
     var testState: state is testState("floatTest", "floatField", FALSE);
     var array float: expect is 0 times 0.0;
     var float: floatColumn is 0.0;
+    var boolean: isEqual is FALSE;
     var integer: row is 1;
   begin
     if state.details then
@@ -2126,7 +2115,12 @@ const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is
       execute(state.statement);
       while fetch(state.statement) do
         floatColumn := column(state.statement, 1, float);
-        if floatColumn <> expect[row] and
+        if compareFloatAsDecimalString(databaseKind) then
+          isEqual := str(floatColumn) = str(expect[row]);
+        else
+          isEqual := floatColumn = expect[row];
+        end if;
+        if not isEqual and
             (not isNaN(floatColumn) or not isNaN(expect[row])) then
           state.okay := FALSE;
           if state.details then
@@ -2177,6 +2171,7 @@ const proc: testDoubleField (in database: testDb, in dbCategory: databaseKind) i
     var testState: state is testState("doubleTest", "doubleField", FALSE);
     var array float: expect is 0 times 0.0;
     var float: doubleColumn is 0.0;
+    var boolean: isEqual is FALSE;
     var integer: row is 1;
   begin
     if state.details then
@@ -2228,7 +2223,12 @@ const proc: testDoubleField (in database: testDb, in dbCategory: databaseKind) i
       execute(state.statement);
       while fetch(state.statement) do
         doubleColumn := column(state.statement, 1, float);
-        if doubleColumn <> expect[row] and
+        if compareDoubleAsDecimalString(databaseKind) then
+          isEqual := str(doubleColumn) = str(expect[row]);
+        else
+          isEqual := doubleColumn = expect[row];
+        end if;
+        if not isEqual and
             (not isNaN(doubleColumn) or not isNaN(expect[row])) then
           state.okay := FALSE;
           if state.details then
@@ -4719,6 +4719,7 @@ const proc: testBlobField (in database: testDb, in dbCategory: databaseKind) is 
       insert(state, NULL,                  expect &:= bstring(""));
       insert(state, bstring(""),           expect &:= bstring(""));
       insert(state, bstring("X"),          expect &:= bstring("X"));
+      insert(state, bstring("!~"),         expect &:= bstring("!~"));
       insert(state, bstring("Ab2"),        expect &:= bstring("Ab2"));
       insert(state, bstring("abcdefghij"), expect &:= bstring("abcdefghij"));
       insert(state, bstring("ÄäÖöÜüß"),    expect &:= bstring("ÄäÖöÜüß"));
@@ -4934,6 +4935,173 @@ const proc: testClobField (in database: testDb, in dbCategory: databaseKind) is 
   end func;
 
 
+const proc: testDateField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("dateTest", "dateField", FALSE);
+    var array time: expect is 0 times time.value;
+    var time: dateColumn is time.value;
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testDateField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " DATE)");
+      execute(state.statement);
+      insert(testDb, state, "NULL", expect &:= time.value);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,               expect &:= time.value);
+
+      if minDate(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(testDb, state, toDate(databaseKind, "-4711-1-1"),   expect &:= time("-4711-1-1"));
+        insert(testDb, state, toDate(databaseKind, "-4711-12-31"), expect &:= time("-4711-12-31"));
+        insert(testDb, state, toDate(databaseKind, "-999-12-31"),  expect &:= time("-999-12-31"));
+        insert(testDb, state, toDate(databaseKind, "-123-1-23"),   expect &:= time("-123-1-23"));
+        insert(testDb, state, toDate(databaseKind, "-42-4-2"),     expect &:= time("-42-4-2"));
+        insert(testDb, state, toDate(databaseKind, "-1-1-1"),      expect &:= time("-1-1-1"));
+        insert(testDb, state, toDate(databaseKind, "-1-12-31"),    expect &:= time("-1-12-31"));
+      end if;
+      if minDate(databaseKind) < time("1-1-1 0:0:0") then
+        insert(testDb, state, toDate(databaseKind, "0-1-1"),       expect &:= time("0-1-1"));
+        insert(testDb, state, toDate(databaseKind, "0-12-31"),     expect &:= time("0-12-31"));
+      end if;
+      insert(testDb, state, toDate(databaseKind, "1-1-1"),       expect &:= time("1-1-1"));
+      insert(testDb, state, toDate(databaseKind, "1-12-31"),     expect &:= time("1-12-31"));
+      insert(testDb, state, toDate(databaseKind, "42-4-2"),      expect &:= time("42-4-2"));
+      insert(testDb, state, toDate(databaseKind, "123-1-23"),    expect &:= time("123-1-23"));
+      insert(testDb, state, toDate(databaseKind, "999-12-31"),   expect &:= time("999-12-31"));
+      insert(testDb, state, toDate(databaseKind, "1000-1-1"),    expect &:= time("1000-1-1"));
+      insert(testDb, state, toDate(databaseKind, "1752-12-31"),  expect &:= time("1752-12-31"));
+      insert(testDb, state, toDate(databaseKind, "1753-1-1"),    expect &:= time("1753-1-1"));
+      insert(testDb, state, toDate(databaseKind, "1800-1-1"),    expect &:= time("1800-1-1"));
+      insert(testDb, state, toDate(databaseKind, "1899-12-31"),  expect &:= time("1899-12-31"));
+      insert(testDb, state, toDate(databaseKind, "1900-1-1"),    expect &:= time("1900-1-1"));
+      insert(testDb, state, toDate(databaseKind, "1961-1-9"),    expect &:= time("1961-1-9"));
+      insert(testDb, state, toDate(databaseKind, "1969-12-31"),  expect &:= time("1969-12-31"));
+      insert(testDb, state, toDate(databaseKind, "1970-1-1"),    expect &:= time("1970-1-1"));
+      insert(testDb, state, toDate(databaseKind, "1979-12-31"),  expect &:= time("1979-12-31"));
+      insert(testDb, state, toDate(databaseKind, "1980-1-1"),    expect &:= time("1980-1-1"));
+      insert(testDb, state, toDate(databaseKind, "2010-11-12"),  expect &:= time("2010-11-12"));
+      insert(testDb, state, toDate(databaseKind, "2011-11-11"),  expect &:= time("2011-11-11"));
+      insert(testDb, state, toDate(databaseKind, "2012-12-12"),  expect &:= time("2012-12-12"));
+
+      if minDate(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(state, time("-4711-1-1"),   expect &:= time("-4711-1-1"));
+        insert(state, time("-4711-12-31"), expect &:= time("-4711-12-31"));
+        insert(state, time("-999-12-31"),  expect &:= time("-999-12-31"));
+        insert(state, time("-123-1-23"),   expect &:= time("-123-1-23"));
+        insert(state, time("-42-4-2"),     expect &:= time("-42-4-2"));
+        insert(state, time("-1-1-1"),      expect &:= time("-1-1-1"));
+        insert(state, time("-1-12-31"),    expect &:= time("-1-12-31"));
+      end if;
+      if minDate(databaseKind) < time("1-1-1 0:0:0") then
+        insert(state, time("0-1-1"),       expect &:= time("0-1-1"));
+        insert(state, time("0-12-31"),     expect &:= time("0-12-31"));
+      end if;
+      insert(state, time("1-1-1"),       expect &:= time("1-1-1"));
+      insert(state, time("1-12-31"),     expect &:= time("1-12-31"));
+      insert(state, time("42-4-2"),      expect &:= time("42-4-2"));
+      insert(state, time("123-1-23"),    expect &:= time("123-1-23"));
+      insert(state, time("999-12-31"),   expect &:= time("999-12-31"));
+      insert(state, time("1000-1-1"),    expect &:= time("1000-1-1"));
+      insert(state, time("1752-12-31"),  expect &:= time("1752-12-31"));
+      insert(state, time("1753-1-1"),    expect &:= time("1753-1-1"));
+      insert(state, time("1800-1-1"),    expect &:= time("1800-1-1"));
+      insert(state, time("1899-12-31"),  expect &:= time("1899-12-31"));
+      insert(state, time("1900-1-1"),    expect &:= time("1900-1-1"));
+      insert(state, time("1961-1-9"),    expect &:= time("1961-1-9"));
+      insert(state, time("1969-12-31"),  expect &:= time("1969-12-31"));
+      insert(state, time("1970-1-1"),    expect &:= time("1970-1-1"));
+      insert(state, time("1979-12-31"),  expect &:= time("1979-12-31"));
+      insert(state, time("1980-1-1"),    expect &:= time("1980-1-1"));
+      insert(state, time("2010-11-12"),  expect &:= time("2010-11-12"));
+      insert(state, time("2011-11-11"),  expect &:= time("2011-11-11"));
+      insert(state, time("2012-12-12"),  expect &:= time("2012-12-12"));
+
+      if minDate(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(state, setLocalTZ(time("-4711-1-1")),   expect &:= setLocalTZ(time("-4711-1-1")));
+        insert(state, setLocalTZ(time("-4711-12-31")), expect &:= setLocalTZ(time("-4711-12-31")));
+        insert(state, setLocalTZ(time("-999-12-31")),  expect &:= setLocalTZ(time("-999-12-31")));
+        insert(state, setLocalTZ(time("-123-1-23")),   expect &:= setLocalTZ(time("-123-1-23")));
+        insert(state, setLocalTZ(time("-42-4-2")),     expect &:= setLocalTZ(time("-42-4-2")));
+        insert(state, setLocalTZ(time("-1-1-1")),      expect &:= setLocalTZ(time("-1-1-1")));
+        insert(state, setLocalTZ(time("-1-12-31")),    expect &:= setLocalTZ(time("-1-12-31")));
+      end if;
+      if minDate(databaseKind) < time("1-1-1 0:0:0") then
+        insert(state, setLocalTZ(time("0-1-1")),       expect &:= setLocalTZ(time("0-1-1")));
+        insert(state, setLocalTZ(time("0-12-31")),     expect &:= setLocalTZ(time("0-12-31")));
+      end if;
+      insert(state, setLocalTZ(time("1-1-1")),       expect &:= setLocalTZ(time("1-1-1")));
+      insert(state, setLocalTZ(time("42-4-2")),      expect &:= setLocalTZ(time("42-4-2")));
+      insert(state, setLocalTZ(time("123-1-23")),    expect &:= setLocalTZ(time("123-1-23")));
+      insert(state, setLocalTZ(time("999-12-31")),   expect &:= setLocalTZ(time("999-12-31")));
+      insert(state, setLocalTZ(time("1000-1-1")),    expect &:= setLocalTZ(time("1000-1-1")));
+      insert(state, setLocalTZ(time("1752-12-31")),  expect &:= setLocalTZ(time("1752-12-31")));
+      insert(state, setLocalTZ(time("1753-1-1")),    expect &:= setLocalTZ(time("1753-1-1")));
+      insert(state, setLocalTZ(time("1800-1-1")),    expect &:= setLocalTZ(time("1800-1-1")));
+      insert(state, setLocalTZ(time("1899-12-31")),  expect &:= setLocalTZ(time("1899-12-31")));
+      insert(state, setLocalTZ(time("1900-1-1")),    expect &:= setLocalTZ(time("1900-1-1")));
+      insert(state, setLocalTZ(time("1961-1-9")),    expect &:= setLocalTZ(time("1961-1-9")));
+      insert(state, setLocalTZ(time("1969-12-31")),  expect &:= setLocalTZ(time("1969-12-31")));
+      insert(state, setLocalTZ(time("1970-1-1")),    expect &:= setLocalTZ(time("1970-1-1")));
+      insert(state, setLocalTZ(time("1979-12-31")),  expect &:= setLocalTZ(time("1979-12-31")));
+      insert(state, setLocalTZ(time("1980-1-1")),    expect &:= setLocalTZ(time("1980-1-1")));
+      insert(state, setLocalTZ(time("2010-11-12")),  expect &:= setLocalTZ(time("2010-11-12")));
+      insert(state, setLocalTZ(time("2011-11-11")),  expect &:= setLocalTZ(time("2011-11-11")));
+      insert(state, setLocalTZ(time("2012-12-12")),  expect &:= setLocalTZ(time("2012-12-12")));
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        dateColumn := column(state.statement, 1, time);
+        if dateColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testDateField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <&
+                    " found " <& literal(str(dateColumn)));
+          end if;
+        end if;
+        if row <= 2 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testDateField: Row: " <& row <&
+                    " Expected NULL found " <& dateColumn);
+          end if;
+        end if;
+        if row > 2 and isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testDateField: Row: " <& row <&
+                    " Expected " <& literal(expect[row]) <& " found NULL");
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised");
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching date fields works okay.");
+    else
+      writeln(" *** Inserting and fetching date fields does not work okay.");
+    end if;
+  end func;
+
+
 const proc: testTimeField (in database: testDb, in dbCategory: databaseKind) is func
   local
     var testState: state is testState("timeTest", "timeField", FALSE);
@@ -4948,26 +5116,34 @@ const proc: testTimeField (in database: testDb, in dbCategory: databaseKind) is 
       state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
                                  " (" & state.fieldName & " " & timeType(databaseKind) & ")");
       execute(state.statement);
+      insert(testDb, state, "NULL", expect &:= time.value);
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
-      insert(state, NULL,                           expect &:= time.value);
-      insert(state, time("0-1-1 0:0:0"),            expect &:= time("0-1-1 0:0:0"));
-      insert(state, time("1900-1-1 0:0:0"),         expect &:= time("1900-1-1 0:0:0"));
-      insert(state, time("1961-1-9 6:1:0"),         expect &:= time("1961-1-9 6:1:0"));
-      insert(state, time("1970-1-1 0:0:0"),         expect &:= time("1970-1-1 0:0:0"));
-      insert(state, time("1980-1-1 0:0:0"),         expect &:= time("1980-1-1 0:0:0"));
-      insert(state, time("2010-11-12 13:14:15.16"), expect &:= time("2010-11-12 13:14:15.16"));
-      insert(state, time("2011-11-11 11:11:11.11"), expect &:= time("2011-11-11 11:11:11.11"));
-      insert(state, time("2012-12-12 12:12:12.12"), expect &:= time("2012-12-12 12:12:12.12"));
+      insert(state, NULL,               expect &:= time.value);
 
-      insert(state, setLocalTZ(time("0-1-1 0:0:0")),            expect &:= setLocalTZ(time("0-1-1 0:0:0")));
-      insert(state, setLocalTZ(time("1900-1-1 0:0:0")),         expect &:= setLocalTZ(time("1900-1-1 0:0:0")));
-      insert(state, setLocalTZ(time("1961-1-9 6:1:0")),         expect &:= setLocalTZ(time("1961-1-9 6:1:0")));
-      insert(state, setLocalTZ(time("1970-1-1 0:0:0")),         expect &:= setLocalTZ(time("1970-1-1 0:0:0")));
-      insert(state, setLocalTZ(time("1980-1-1 0:0:0")),         expect &:= setLocalTZ(time("1980-1-1 0:0:0")));
-      insert(state, setLocalTZ(time("2010-11-12 13:14:15.16")), expect &:= setLocalTZ(time("2010-11-12 13:14:15.16")));
-      insert(state, setLocalTZ(time("2011-11-11 11:11:11.11")), expect &:= setLocalTZ(time("2011-11-11 11:11:11.11")));
-      insert(state, setLocalTZ(time("2012-12-12 12:12:12.12")), expect &:= setLocalTZ(time("2012-12-12 12:12:12.12")));
+      insert(testDb, state, toTime(databaseKind, "0:0:0"),           expect &:= time("0:0:0"));
+      insert(testDb, state, toTime(databaseKind, "0:0:59"),          expect &:= time("0:0:59"));
+      insert(testDb, state, toTime(databaseKind, "0:59:59"),         expect &:= time("0:59:59"));
+      insert(testDb, state, toTime(databaseKind, "1:0:0"),           expect &:= time("1:0:0"));
+      insert(testDb, state, toTime(databaseKind, "11:59:59"),        expect &:= time("11:59:59"));
+      insert(testDb, state, toTime(databaseKind, "12:0:0"),          expect &:= time("12:0:0"));
+      insert(testDb, state, toTime(databaseKind, "23:59:59"),        expect &:= time("23:59:59"));
+
+      insert(state, time("0:0:0"),           expect &:= time("0:0:0"));
+      insert(state, time("0:0:59"),          expect &:= time("0:0:59"));
+      insert(state, time("0:59:59"),         expect &:= time("0:59:59"));
+      insert(state, time("1:0:0"),           expect &:= time("1:0:0"));
+      insert(state, time("11:59:59"),        expect &:= time("11:59:59"));
+      insert(state, time("12:0:0"),          expect &:= time("12:0:0"));
+      insert(state, time("23:59:59"),        expect &:= time("23:59:59"));
+
+      insert(state, setLocalTZ(time("0:0:0")),           expect &:= setLocalTZ(time("0:0:0")));
+      insert(state, setLocalTZ(time("0:0:59")),          expect &:= setLocalTZ(time("0:0:59")));
+      insert(state, setLocalTZ(time("0:59:59")),         expect &:= setLocalTZ(time("0:59:59")));
+      insert(state, setLocalTZ(time("1:0:0")),           expect &:= setLocalTZ(time("1:0:0")));
+      insert(state, setLocalTZ(time("11:59:59")),        expect &:= setLocalTZ(time("11:59:59")));
+      insert(state, setLocalTZ(time("12:0:0")),          expect &:= setLocalTZ(time("12:0:0")));
+      insert(state, setLocalTZ(time("23:59:59")),        expect &:= setLocalTZ(time("23:59:59")));
 
       state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
       execute(state.statement);
@@ -4981,11 +5157,18 @@ const proc: testTimeField (in database: testDb, in dbCategory: databaseKind) is 
                     " found " <& literal(str(timeColumn)));
           end if;
         end if;
-        if row = 1 and not isNull(state.statement, 1) then
+        if row <= 2 and not isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
             writeln(" *** testTimeField: Row: " <& row <&
                     " Expected NULL found " <& timeColumn);
+          end if;
+        end if;
+        if row > 2 and isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testTimeField: Row: " <& row <&
+                    " Expected " <& literal(expect[row]) <& " found NULL");
           end if;
         end if;
         incr(row);
@@ -5008,6 +5191,617 @@ const proc: testTimeField (in database: testDb, in dbCategory: databaseKind) is 
       writeln("Inserting and fetching time fields works okay.");
     else
       writeln(" *** Inserting and fetching time fields does not work okay.");
+    end if;
+  end func;
+
+
+const proc: testDateTimeField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("dateTimeTest", "dateTimeField", FALSE);
+    var array time: expect is 0 times time.value;
+    var time: dateTimeColumn is time.value;
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testDateTimeField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " " & dateTimeType(databaseKind) & ")");
+      execute(state.statement);
+      insert(testDb, state, "NULL", expect &:= time.value);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,                           expect &:= time.value);
+
+      if minDate(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(testDb, state, toDateTime(databaseKind, "-4711-1-1 0:0:0"),      expect &:= time("-4711-1-1 0:0:0"));
+        insert(testDb, state, toDateTime(databaseKind, "-4711-12-31 23:59:59"), expect &:= time("-4711-12-31 23:59:59"));
+        insert(testDb, state, toDateTime(databaseKind, "-999-12-31 23:59:59"),  expect &:= time("-999-12-31 23:59:59"));
+        insert(testDb, state, toDateTime(databaseKind, "-123-1-23 12:31:12"),   expect &:= time("-123-1-23 12:31:12"));
+        insert(testDb, state, toDateTime(databaseKind, "-42-4-2 4:42:42"),      expect &:= time("-42-4-2 4:42:42"));
+        insert(testDb, state, toDateTime(databaseKind, "-1-1-1 0:0:0"),         expect &:= time("-1-1-1 0:0:0"));
+        insert(testDb, state, toDateTime(databaseKind, "-1-12-31 23:59:59"),    expect &:= time("-1-12-31 23:59:59"));
+      end if;
+      if minDate(databaseKind) < time("1-1-1 0:0:0") then
+        insert(testDb, state, toDateTime(databaseKind, "0-1-1 0:0:0"),          expect &:= time("0-1-1 0:0:0"));
+        insert(testDb, state, toDateTime(databaseKind, "0-12-31 23:59:59"),     expect &:= time("0-12-31 23:59:59"));
+      end if;
+      insert(testDb, state, toDateTime(databaseKind, "1-1-1 0:0:0"),          expect &:= time("1-1-1 0:0:0"));
+      insert(testDb, state, toDateTime(databaseKind, "1-12-31 23:59:59"),     expect &:= time("1-12-31 23:59:59"));
+      insert(testDb, state, toDateTime(databaseKind, "42-4-2 4:42:42"),       expect &:= time("42-4-2 4:42:42"));
+      insert(testDb, state, toDateTime(databaseKind, "123-1-23 12:31:12"),    expect &:= time("123-1-23 12:31:12"));
+      insert(testDb, state, toDateTime(databaseKind, "999-12-31 23:59:59"),   expect &:= time("999-12-31 23:59:59"));
+      insert(testDb, state, toDateTime(databaseKind, "1000-1-1 0:0:0"),       expect &:= time("1000-1-1 0:0:0"));
+      insert(testDb, state, toDateTime(databaseKind, "1752-12-31 23:59:59"),  expect &:= time("1752-12-31 23:59:59"));
+      insert(testDb, state, toDateTime(databaseKind, "1753-1-1 0:0:0"),       expect &:= time("1753-1-1 0:0:0"));
+      insert(testDb, state, toDateTime(databaseKind, "1800-1-1 0:0:0"),       expect &:= time("1800-1-1 0:0:0"));
+      insert(testDb, state, toDateTime(databaseKind, "1899-12-31 23:59:59"),  expect &:= time("1899-12-31 23:59:59"));
+      insert(testDb, state, toDateTime(databaseKind, "1900-1-1 0:0:0"),       expect &:= time("1900-1-1 0:0:0"));
+      insert(testDb, state, toDateTime(databaseKind, "1961-1-9 6:1:0"),       expect &:= time("1961-1-9 6:1:0"));
+      insert(testDb, state, toDateTime(databaseKind, "1969-12-31 23:59:59"),  expect &:= time("1969-12-31 23:59:59"));
+      insert(testDb, state, toDateTime(databaseKind, "1970-1-1 0:0:0"),       expect &:= time("1970-1-1 0:0:0"));
+      insert(testDb, state, toDateTime(databaseKind, "1979-12-31 23:59:59"),  expect &:= time("1979-12-31 23:59:59"));
+      insert(testDb, state, toDateTime(databaseKind, "1980-1-1 0:0:0"),       expect &:= time("1980-1-1 0:0:0"));
+      insert(testDb, state, toDateTime(databaseKind, "2010-11-12 13:14:15"),  expect &:= time("2010-11-12 13:14:15"));
+      insert(testDb, state, toDateTime(databaseKind, "2011-11-11 11:11:11"),  expect &:= time("2011-11-11 11:11:11"));
+      insert(testDb, state, toDateTime(databaseKind, "2012-12-12 12:12:12"),  expect &:= time("2012-12-12 12:12:12"));
+
+      if minDate(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(state, time("-4711-1-1 0:0:0"),      expect &:= time("-4711-1-1 0:0:0"));
+        insert(state, time("-4711-12-31 23:59:59"), expect &:= time("-4711-12-31 23:59:59"));
+        insert(state, time("-999-12-31 23:59:59"),  expect &:= time("-999-12-31 23:59:59"));
+        insert(state, time("-123-1-23 12:31:12"),   expect &:= time("-123-1-23 12:31:12"));
+        insert(state, time("-42-4-2 4:42:42"),      expect &:= time("-42-4-2 4:42:42"));
+        insert(state, time("-1-1-1 0:0:0"),         expect &:= time("-1-1-1 0:0:0"));
+        insert(state, time("-1-12-31 23:59:59"),    expect &:= time("-1-12-31 23:59:59"));
+      end if;
+      if minDate(databaseKind) < time("1-1-1 0:0:0") then
+        insert(state, time("0-1-1 0:0:0"),          expect &:= time("0-1-1 0:0:0"));
+        insert(state, time("0-12-31 23:59:59"),     expect &:= time("0-12-31 23:59:59"));
+      end if;
+      insert(state, time("1-1-1 0:0:0"),          expect &:= time("1-1-1 0:0:0"));
+      insert(state, time("1-12-31 23:59:59"),     expect &:= time("1-12-31 23:59:59"));
+      insert(state, time("42-4-2 4:42:42"),       expect &:= time("42-4-2 4:42:42"));
+      insert(state, time("123-1-23 12:31:12"),    expect &:= time("123-1-23 12:31:12"));
+      insert(state, time("999-12-31 23:59:59"),   expect &:= time("999-12-31 23:59:59"));
+      insert(state, time("1000-1-1 0:0:0"),       expect &:= time("1000-1-1 0:0:0"));
+      insert(state, time("1752-12-31 23:59:59"),  expect &:= time("1752-12-31 23:59:59"));
+      insert(state, time("1753-1-1 0:0:0"),       expect &:= time("1753-1-1 0:0:0"));
+      insert(state, time("1800-1-1 0:0:0"),       expect &:= time("1800-1-1 0:0:0"));
+      insert(state, time("1899-12-31 23:59:59"),  expect &:= time("1899-12-31 23:59:59"));
+      insert(state, time("1900-1-1 0:0:0"),       expect &:= time("1900-1-1 0:0:0"));
+      insert(state, time("1961-1-9 6:1:0"),       expect &:= time("1961-1-9 6:1:0"));
+      insert(state, time("1969-12-31 23:59:59"),  expect &:= time("1969-12-31 23:59:59"));
+      insert(state, time("1970-1-1 0:0:0"),       expect &:= time("1970-1-1 0:0:0"));
+      insert(state, time("1979-12-31 23:59:59"),  expect &:= time("1979-12-31 23:59:59"));
+      insert(state, time("1980-1-1 0:0:0"),       expect &:= time("1980-1-1 0:0:0"));
+      insert(state, time("2010-11-12 13:14:15"),  expect &:= time("2010-11-12 13:14:15"));
+      insert(state, time("2011-11-11 11:11:11"),  expect &:= time("2011-11-11 11:11:11"));
+      insert(state, time("2012-12-12 12:12:12"),  expect &:= time("2012-12-12 12:12:12"));
+
+      if minDate(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(state, setLocalTZ(time("-4711-1-1 0:0:0")),      expect &:= setLocalTZ(time("-4711-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("-4711-12-31 23:59:59")), expect &:= setLocalTZ(time("-4711-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("-999-12-31 23:59:59")),  expect &:= setLocalTZ(time("-999-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("-123-1-23 12:31:12")),   expect &:= setLocalTZ(time("-123-1-23 12:31:12")));
+        insert(state, setLocalTZ(time("-42-4-2 4:42:42")),      expect &:= setLocalTZ(time("-42-4-2 4:42:42")));
+        insert(state, setLocalTZ(time("-1-1-1 0:0:0")),         expect &:= setLocalTZ(time("-1-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("-1-12-31 23:59:59")),    expect &:= setLocalTZ(time("-1-12-31 23:59:59")));
+      end if;
+      if minDate(databaseKind) < time("1-1-1 0:0:0") then
+        insert(state, setLocalTZ(time("0-1-1 0:0:0")),          expect &:= setLocalTZ(time("0-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("0-12-31 23:59:59")),     expect &:= setLocalTZ(time("0-12-31 23:59:59")));
+      end if;
+      insert(state, setLocalTZ(time("1-1-1 0:0:0")),          expect &:= setLocalTZ(time("1-1-1 0:0:0")));
+      insert(state, setLocalTZ(time("42-4-2 4:42:42")),       expect &:= setLocalTZ(time("42-4-2 4:42:42")));
+      insert(state, setLocalTZ(time("123-1-23 12:31:12")),    expect &:= setLocalTZ(time("123-1-23 12:31:12")));
+      insert(state, setLocalTZ(time("999-12-31 23:59:59")),   expect &:= setLocalTZ(time("999-12-31 23:59:59")));
+      insert(state, setLocalTZ(time("1000-1-1 0:0:0")),       expect &:= setLocalTZ(time("1000-1-1 0:0:0")));
+      insert(state, setLocalTZ(time("1752-12-31 23:59:59")),  expect &:= setLocalTZ(time("1752-12-31 23:59:59")));
+      insert(state, setLocalTZ(time("1753-1-1 0:0:0")),       expect &:= setLocalTZ(time("1753-1-1 0:0:0")));
+      insert(state, setLocalTZ(time("1800-1-1 0:0:0")),       expect &:= setLocalTZ(time("1800-1-1 0:0:0")));
+      insert(state, setLocalTZ(time("1899-12-31 23:59:59")),  expect &:= setLocalTZ(time("1899-12-31 23:59:59")));
+      insert(state, setLocalTZ(time("1900-1-1 0:0:0")),       expect &:= setLocalTZ(time("1900-1-1 0:0:0")));
+      insert(state, setLocalTZ(time("1961-1-9 6:1:0")),       expect &:= setLocalTZ(time("1961-1-9 6:1:0")));
+      insert(state, setLocalTZ(time("1969-12-31 23:59:59")),  expect &:= setLocalTZ(time("1969-12-31 23:59:59")));
+      insert(state, setLocalTZ(time("1970-1-1 0:0:0")),       expect &:= setLocalTZ(time("1970-1-1 0:0:0")));
+      insert(state, setLocalTZ(time("1979-12-31 23:59:59")),  expect &:= setLocalTZ(time("1979-12-31 23:59:59")));
+      insert(state, setLocalTZ(time("1980-1-1 0:0:0")),       expect &:= setLocalTZ(time("1980-1-1 0:0:0")));
+      insert(state, setLocalTZ(time("2010-11-12 13:14:15")),  expect &:= setLocalTZ(time("2010-11-12 13:14:15")));
+      insert(state, setLocalTZ(time("2011-11-11 11:11:11")),  expect &:= setLocalTZ(time("2011-11-11 11:11:11")));
+      insert(state, setLocalTZ(time("2012-12-12 12:12:12")),  expect &:= setLocalTZ(time("2012-12-12 12:12:12")));
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        dateTimeColumn := column(state.statement, 1, time);
+        if dateTimeColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testDateTimeField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <&
+                    " found " <& literal(str(dateTimeColumn)));
+          end if;
+        end if;
+        if row <= 2 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testDateTimeField: Row: " <& row <&
+                    " Expected NULL found " <& dateTimeColumn);
+          end if;
+        end if;
+        if row > 2 and isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testDateTimeField: Row: " <& row <&
+                    " Expected " <& literal(expect[row]) <& " found NULL");
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised");
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching dateTime fields works okay.");
+    else
+      writeln(" *** Inserting and fetching dateTime fields does not work okay.");
+    end if;
+  end func;
+
+
+const proc: testTimeStampField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("timeStampTest", "timeStampField", FALSE);
+    var array time: expect is 0 times time.value;
+    var time: timeColumn is time.value;
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testTimeStampField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " " & timeStampType(databaseKind) & ")");
+      execute(state.statement);
+      insert(testDb, state, "NULL", expect &:= time.value);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,                           expect &:= time.value);
+
+      if minTimeStamp(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(testDb, state, toTimeStamp(databaseKind, "-4711-1-1 0:0:0"),      expect &:= time("-4711-1-1 0:0:0"));
+        insert(testDb, state, toTimeStamp(databaseKind, "-4711-12-31 23:59:59"), expect &:= time("-4711-12-31 23:59:59"));
+        insert(testDb, state, toTimeStamp(databaseKind, "-4711-12-31 23:59:59.123456"),
+               expect &:= time("-4711-12-31 23:59:59.123456"));
+        insert(testDb, state, toTimeStamp(databaseKind, "-999-12-31 23:59:59"),  expect &:= time("-999-12-31 23:59:59"));
+        insert(testDb, state, toTimeStamp(databaseKind, "-123-1-23 12:31:12"),   expect &:= time("-123-1-23 12:31:12"));
+        insert(testDb, state, toTimeStamp(databaseKind, "-42-4-2 4:42:42"),      expect &:= time("-42-4-2 4:42:42"));
+        insert(testDb, state, toTimeStamp(databaseKind, "-1-1-1 0:0:0"),         expect &:= time("-1-1-1 0:0:0"));
+        insert(testDb, state, toTimeStamp(databaseKind, "-1-12-31 23:59:59"),    expect &:= time("-1-12-31 23:59:59"));
+        insert(testDb, state, toTimeStamp(databaseKind, "-1-12-31 23:59:59.999999"),
+               expect &:= time("-1-12-31 23:59:59.999999"));
+      end if;
+      if minTimeStamp(databaseKind) < time("1-1-1 0:0:0") then
+        insert(testDb, state, toTimeStamp(databaseKind, "0-1-1 0:0:0"),            expect &:= time("0-1-1 0:0:0"));
+        insert(testDb, state, toTimeStamp(databaseKind, "0-12-31 23:59:59"),       expect &:= time("0-12-31 23:59:59"));
+        insert(testDb, state, toTimeStamp(databaseKind, "0-12-31 23:59:59.123456"),
+               expect &:= time("0-12-31 23:59:59.123456"));
+        insert(testDb, state, toTimeStamp(databaseKind, "0-12-31 23:59:59.999999"),
+               expect &:= time("0-12-31 23:59:59.999999"));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-1 0:0:0") then
+        insert(testDb, state, toTimeStamp(databaseKind, "1-1-1 0:0:0"),            expect &:= time("1-1-1 0:0:0"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1-12-31 23:59:59"),       expect &:= time("1-12-31 23:59:59"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1-12-31 23:59:59.123456"),
+               expect &:= time("1-12-31 23:59:59.123456"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1-12-31 23:59:59.999999"),
+               expect &:= time("1-12-31 23:59:59.999999"));
+        insert(testDb, state, toTimeStamp(databaseKind, "42-4-2 4:42:42"),         expect &:= time("42-4-2 4:42:42"));
+        insert(testDb, state, toTimeStamp(databaseKind, "123-1-23 12:31:12"),      expect &:= time("123-1-23 12:31:12"));
+        insert(testDb, state, toTimeStamp(databaseKind, "999-12-31 23:59:59"),     expect &:= time("999-12-31 23:59:59"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1000-1-1 0:0:0"),         expect &:= time("1000-1-1 0:0:0"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1752-12-31 23:59:59"),    expect &:= time("1752-12-31 23:59:59"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1753-1-1 0:0:0"),         expect &:= time("1753-1-1 0:0:0"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1800-1-1 0:0:0"),         expect &:= time("1800-1-1 0:0:0"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1899-12-31 23:59:59"),    expect &:= time("1899-12-31 23:59:59"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1900-1-1 0:0:0"),         expect &:= time("1900-1-1 0:0:0"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1961-1-9 6:1:0"),         expect &:= time("1961-1-9 6:1:0"));
+        insert(testDb, state, toTimeStamp(databaseKind, "1969-12-31 23:59:59"),    expect &:= time("1969-12-31 23:59:59"));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-2 0:0:0") then
+        insert(testDb, state, toTimeStamp(databaseKind, "1970-1-1 0:0:0"),         expect &:= time("1970-1-1 0:0:0"));
+      end if;
+      insert(testDb, state, toTimeStamp(databaseKind, "1970-1-2 0:0:0"),         expect &:= time("1970-1-2 0:0:0"));
+      insert(testDb, state, toTimeStamp(databaseKind, "1979-12-31 23:59:59"),    expect &:= time("1979-12-31 23:59:59"));
+      insert(testDb, state, toTimeStamp(databaseKind, "1980-1-1 0:0:0"),         expect &:= time("1980-1-1 0:0:0"));
+      insert(testDb, state, toTimeStamp(databaseKind, "2010-11-12 13:14:15.16"), expect &:= time("2010-11-12 13:14:15.16"));
+      insert(testDb, state, toTimeStamp(databaseKind, "2011-11-11 11:11:11.11"), expect &:= time("2011-11-11 11:11:11.11"));
+      insert(testDb, state, toTimeStamp(databaseKind, "2012-12-12 12:12:12.12"), expect &:= time("2012-12-12 12:12:12.12"));
+
+      if minTimeStamp(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(state, time("-4711-1-1 0:0:0"),      expect &:= time("-4711-1-1 0:0:0"));
+        insert(state, time("-4711-12-31 23:59:59"), expect &:= time("-4711-12-31 23:59:59"));
+        insert(state, time("-4711-12-31 23:59:59.123456"),
+               expect &:= time("-4711-12-31 23:59:59.123456"));
+        insert(state, time("-999-12-31 23:59:59"),  expect &:= time("-999-12-31 23:59:59"));
+        insert(state, time("-123-1-23 12:31:12"),   expect &:= time("-123-1-23 12:31:12"));
+        insert(state, time("-42-4-2 4:42:42"),      expect &:= time("-42-4-2 4:42:42"));
+        insert(state, time("-1-1-1 0:0:0"),         expect &:= time("-1-1-1 0:0:0"));
+        insert(state, time("-1-12-31 23:59:59"),    expect &:= time("-1-12-31 23:59:59"));
+        insert(state, time("-1-12-31 23:59:59.999999"),
+               expect &:= time("-1-12-31 23:59:59.999999"));
+      end if;
+      if minTimeStamp(databaseKind) < time("1-1-1 0:0:0") then
+        insert(state, time("0-1-1 0:0:0"),            expect &:= time("0-1-1 0:0:0"));
+        insert(state, time("0-12-31 23:59:59"),       expect &:= time("0-12-31 23:59:59"));
+        insert(state, time("0-12-31 23:59:59.123456"),
+               expect &:= time("0-12-31 23:59:59.123456"));
+        insert(state, time("0-12-31 23:59:59.999999"),
+               expect &:= time("0-12-31 23:59:59.999999"));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-1 0:0:0") then
+        insert(state, time("1-1-1 0:0:0"),            expect &:= time("1-1-1 0:0:0"));
+        insert(state, time("1-12-31 23:59:59"),       expect &:= time("1-12-31 23:59:59"));
+        insert(state, time("1-12-31 23:59:59.123456"),
+               expect &:= time("1-12-31 23:59:59.123456"));
+        insert(state, time("1-12-31 23:59:59.999999"),
+               expect &:= time("1-12-31 23:59:59.999999"));
+        insert(state, time("42-4-2 4:42:42"),         expect &:= time("42-4-2 4:42:42"));
+        insert(state, time("123-1-23 12:31:12"),      expect &:= time("123-1-23 12:31:12"));
+        insert(state, time("999-12-31 23:59:59"),     expect &:= time("999-12-31 23:59:59"));
+        insert(state, time("1000-1-1 0:0:0"),         expect &:= time("1000-1-1 0:0:0"));
+        insert(state, time("1752-12-31 23:59:59"),    expect &:= time("1752-12-31 23:59:59"));
+        insert(state, time("1753-1-1 0:0:0"),         expect &:= time("1753-1-1 0:0:0"));
+        insert(state, time("1800-1-1 0:0:0"),         expect &:= time("1800-1-1 0:0:0"));
+        insert(state, time("1899-12-31 23:59:59"),    expect &:= time("1899-12-31 23:59:59"));
+        insert(state, time("1900-1-1 0:0:0"),         expect &:= time("1900-1-1 0:0:0"));
+        insert(state, time("1961-1-9 6:1:0"),         expect &:= time("1961-1-9 6:1:0"));
+        insert(state, time("1969-12-31 23:59:59"),    expect &:= time("1969-12-31 23:59:59"));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-2 0:0:0") then
+        insert(state, time("1970-1-1 0:0:0"),         expect &:= time("1970-1-1 0:0:0"));
+      end if;
+      insert(state, time("1970-1-2 0:0:0"),         expect &:= time("1970-1-2 0:0:0"));
+      insert(state, time("1979-12-31 23:59:59"),    expect &:= time("1979-12-31 23:59:59"));
+      insert(state, time("1980-1-1 0:0:0"),         expect &:= time("1980-1-1 0:0:0"));
+      insert(state, time("2010-11-12 13:14:15.16"), expect &:= time("2010-11-12 13:14:15.16"));
+      insert(state, time("2011-11-11 11:11:11.11"), expect &:= time("2011-11-11 11:11:11.11"));
+      insert(state, time("2012-12-12 12:12:12.12"), expect &:= time("2012-12-12 12:12:12.12"));
+
+      if minTimeStamp(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(state, setLocalTZ(time("-4711-1-1 0:0:0")),      expect &:= setLocalTZ(time("-4711-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("-4711-12-31 23:59:59")), expect &:= setLocalTZ(time("-4711-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("-4711-12-31 23:59:59.123456")),
+               expect &:= setLocalTZ(time("-4711-12-31 23:59:59.123456")));
+        insert(state, setLocalTZ(time("-999-12-31 23:59:59")),  expect &:= setLocalTZ(time("-999-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("-123-1-23 12:31:12")),   expect &:= setLocalTZ(time("-123-1-23 12:31:12")));
+        insert(state, setLocalTZ(time("-42-4-2 4:42:42")),      expect &:= setLocalTZ(time("-42-4-2 4:42:42")));
+        insert(state, setLocalTZ(time("-1-1-1 0:0:0")),         expect &:= setLocalTZ(time("-1-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("-1-12-31 23:59:59")),    expect &:= setLocalTZ(time("-1-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("-1-12-31 23:59:59.999999")),
+               expect &:= setLocalTZ(time("-1-12-31 23:59:59.999999")));
+      end if;
+      if minTimeStamp(databaseKind) < time("1-1-1 0:0:0") then
+        insert(state, setLocalTZ(time("0-1-1 0:0:0")),            expect &:= setLocalTZ(time("0-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("0-12-31 23:59:59")),       expect &:= setLocalTZ(time("0-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("0-12-31 23:59:59.123456")),
+               expect &:= setLocalTZ(time("0-12-31 23:59:59.123456")));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-1 0:0:0") then
+        insert(state, setLocalTZ(time("1-1-1 0:0:0")),            expect &:= setLocalTZ(time("1-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1-12-31 23:59:59")),       expect &:= setLocalTZ(time("1-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("1-12-31 23:59:59.123456")),
+               expect &:= setLocalTZ(time("1-12-31 23:59:59.123456")));
+        insert(state, setLocalTZ(time("1-12-31 23:59:59.999999")),
+               expect &:= setLocalTZ(time("1-12-31 23:59:59.999999")));
+        insert(state, setLocalTZ(time("42-4-2 4:42:42")),         expect &:= setLocalTZ(time("42-4-2 4:42:42")));
+        insert(state, setLocalTZ(time("123-1-23 12:31:12")),      expect &:= setLocalTZ(time("123-1-23 12:31:12")));
+        insert(state, setLocalTZ(time("999-12-31 23:59:59")),     expect &:= setLocalTZ(time("999-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("1000-1-1 0:0:0")),         expect &:= setLocalTZ(time("1000-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1752-12-31 23:59:59")),    expect &:= setLocalTZ(time("1752-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("1753-1-1 0:0:0")),         expect &:= setLocalTZ(time("1753-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1800-1-1 0:0:0")),         expect &:= setLocalTZ(time("1800-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1899-12-31 23:59:59")),    expect &:= setLocalTZ(time("1899-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("1900-1-1 0:0:0")),         expect &:= setLocalTZ(time("1900-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1961-1-9 6:1:0")),         expect &:= setLocalTZ(time("1961-1-9 6:1:0")));
+        insert(state, setLocalTZ(time("1969-12-31 23:59:59")),    expect &:= setLocalTZ(time("1969-12-31 23:59:59")));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-2 0:0:0") then
+        insert(state, setLocalTZ(time("1970-1-1 0:0:0")),         expect &:= setLocalTZ(time("1970-1-1 0:0:0")));
+      end if;
+      insert(state, setLocalTZ(time("1970-1-2 0:0:0")),         expect &:= setLocalTZ(time("1970-1-2 0:0:0")));
+      insert(state, setLocalTZ(time("1979-12-31 23:59:59")),    expect &:= setLocalTZ(time("1979-12-31 23:59:59")));
+      insert(state, setLocalTZ(time("1980-1-1 0:0:0")),         expect &:= setLocalTZ(time("1980-1-1 0:0:0")));
+      insert(state, setLocalTZ(time("2010-11-12 13:14:15.16")), expect &:= setLocalTZ(time("2010-11-12 13:14:15.16")));
+      insert(state, setLocalTZ(time("2011-11-11 11:11:11.11")), expect &:= setLocalTZ(time("2011-11-11 11:11:11.11")));
+      insert(state, setLocalTZ(time("2012-12-12 12:12:12.12")), expect &:= setLocalTZ(time("2012-12-12 12:12:12.12")));
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        timeColumn := column(state.statement, 1, time);
+        if timeColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testTimeStampField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <&
+                    " found " <& literal(str(timeColumn)));
+          end if;
+        end if;
+        if row <= 2 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testTimeStampField: Row: " <& row <&
+                    " Expected NULL found " <& timeColumn);
+          end if;
+        end if;
+        if row > 2 and isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testTimeStampField: Row: " <& row <&
+                    " Expected " <& literal(expect[row]) <& " found NULL");
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised");
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching timeStamp fields works okay.");
+    else
+      writeln(" *** Inserting and fetching timeStamp fields does not work okay.");
+    end if;
+  end func;
+
+
+const proc: testTimeStampTzField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    var testState: state is testState("timeStampTzTest", "timeStampTzField", FALSE);
+    var array time: expect is 0 times time.value;
+    var time: timeColumn is time.value;
+    var integer: row is 1;
+  begin
+    if state.details then
+      writeln("testTimeStampTzField: " <& databaseKind);
+    end if;
+    block
+      state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
+                                 " (" & state.fieldName & " " & timeStampTzType(databaseKind) & ")");
+      execute(state.statement);
+      insert(testDb, state, "NULL", expect &:= time.value);
+      state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
+                                 " (" & state.fieldName & ") VALUES (?)");
+      insert(state, NULL,                           expect &:= time.value);
+
+      if minTimeStamp(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(testDb, state, toTimeStamp(databaseKind, "-4711-1-1 0:0:0"),      expect &:= setLocalTZ(time("-4711-1-1 0:0:0")));
+        insert(testDb, state, toTimeStamp(databaseKind, "-4711-12-31 23:59:59"), expect &:= setLocalTZ(time("-4711-12-31 23:59:59")));
+        insert(testDb, state, toTimeStamp(databaseKind, "-4711-12-31 23:59:59.123456"),
+               expect &:= setLocalTZ(time("-4711-12-31 23:59:59.123456")));
+        insert(testDb, state, toTimeStamp(databaseKind, "-999-12-31 23:59:59"),  expect &:= setLocalTZ(time("-999-12-31 23:59:59")));
+        insert(testDb, state, toTimeStamp(databaseKind, "-123-1-23 12:31:12"),   expect &:= setLocalTZ(time("-123-1-23 12:31:12")));
+        insert(testDb, state, toTimeStamp(databaseKind, "-42-4-2 4:42:42"),      expect &:= setLocalTZ(time("-42-4-2 4:42:42")));
+        insert(testDb, state, toTimeStamp(databaseKind, "-1-1-1 0:0:0"),         expect &:= setLocalTZ(time("-1-1-1 0:0:0")));
+        insert(testDb, state, toTimeStamp(databaseKind, "-1-12-31 23:59:59"),    expect &:= setLocalTZ(time("-1-12-31 23:59:59")));
+        insert(testDb, state, toTimeStamp(databaseKind, "-1-12-31 23:59:59.999999"),
+               expect &:= setLocalTZ(time("-1-12-31 23:59:59.999999")));
+      end if;
+      if minTimeStamp(databaseKind) < time("1-1-1 0:0:0") then
+        insert(testDb, state, toTimeStamp(databaseKind, "0-1-1 0:0:0"),            expect &:= setLocalTZ(time("0-1-1 0:0:0")));
+        insert(testDb, state, toTimeStamp(databaseKind, "0-12-31 23:59:59"),       expect &:= setLocalTZ(time("0-12-31 23:59:59")));
+        insert(testDb, state, toTimeStamp(databaseKind, "0-12-31 23:59:59.123456"),
+               expect &:= setLocalTZ(time("0-12-31 23:59:59.123456")));
+        insert(testDb, state, toTimeStamp(databaseKind, "0-12-31 23:59:59.999999"),
+               expect &:= setLocalTZ(time("0-12-31 23:59:59.999999")));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-1 0:0:0") then
+        insert(testDb, state, toTimeStamp(databaseKind, "1-1-1 0:0:0"),            expect &:= setLocalTZ(time("1-1-1 0:0:0")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1-12-31 23:59:59"),       expect &:= setLocalTZ(time("1-12-31 23:59:59")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1-12-31 23:59:59.123456"),
+               expect &:= setLocalTZ(time("1-12-31 23:59:59.123456")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1-12-31 23:59:59.999999"),
+               expect &:= setLocalTZ(time("1-12-31 23:59:59.999999")));
+        insert(testDb, state, toTimeStamp(databaseKind, "42-4-2 4:42:42"),         expect &:= setLocalTZ(time("42-4-2 4:42:42")));
+        insert(testDb, state, toTimeStamp(databaseKind, "123-1-23 12:31:12"),      expect &:= setLocalTZ(time("123-1-23 12:31:12")));
+        insert(testDb, state, toTimeStamp(databaseKind, "999-12-31 23:59:59"),     expect &:= setLocalTZ(time("999-12-31 23:59:59")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1000-1-1 0:0:0"),         expect &:= setLocalTZ(time("1000-1-1 0:0:0")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1752-12-31 23:59:59"),    expect &:= setLocalTZ(time("1752-12-31 23:59:59")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1753-1-1 0:0:0"),         expect &:= setLocalTZ(time("1753-1-1 0:0:0")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1800-1-1 0:0:0"),         expect &:= setLocalTZ(time("1800-1-1 0:0:0")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1899-12-31 23:59:59"),    expect &:= setLocalTZ(time("1899-12-31 23:59:59")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1900-1-1 0:0:0"),         expect &:= setLocalTZ(time("1900-1-1 0:0:0")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1961-1-9 6:1:0"),         expect &:= setLocalTZ(time("1961-1-9 6:1:0")));
+        insert(testDb, state, toTimeStamp(databaseKind, "1969-12-31 23:59:59"),    expect &:= setLocalTZ(time("1969-12-31 23:59:59")));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-2 0:0:0") then
+        insert(testDb, state, toTimeStamp(databaseKind, "1970-1-1 0:0:0"),         expect &:= setLocalTZ(time("1970-1-1 0:0:0")));
+      end if;
+      insert(testDb, state, toTimeStamp(databaseKind, "1970-1-2 0:0:0"),         expect &:= setLocalTZ(time("1970-1-2 0:0:0")));
+      insert(testDb, state, toTimeStamp(databaseKind, "1979-12-31 23:59:59"),    expect &:= setLocalTZ(time("1979-12-31 23:59:59")));
+      insert(testDb, state, toTimeStamp(databaseKind, "1980-1-1 0:0:0"),         expect &:= setLocalTZ(time("1980-1-1 0:0:0")));
+      insert(testDb, state, toTimeStamp(databaseKind, "2010-11-12 13:14:15.16"), expect &:= setLocalTZ(time("2010-11-12 13:14:15.16")));
+      insert(testDb, state, toTimeStamp(databaseKind, "2011-11-11 11:11:11.11"), expect &:= setLocalTZ(time("2011-11-11 11:11:11.11")));
+      insert(testDb, state, toTimeStamp(databaseKind, "2012-12-12 12:12:12.12"), expect &:= setLocalTZ(time("2012-12-12 12:12:12.12")));
+
+      if minTimeStamp(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(state, time("-4711-1-1 0:0:0"),      expect &:= time("-4711-1-1 0:0:0"));
+        insert(state, time("-4711-12-31 23:59:59"), expect &:= time("-4711-12-31 23:59:59"));
+        insert(state, time("-4711-12-31 23:59:59.123456"),
+               expect &:= time("-4711-12-31 23:59:59.123456"));
+        insert(state, time("-999-12-31 23:59:59"),  expect &:= time("-999-12-31 23:59:59"));
+        insert(state, time("-123-1-23 12:31:12"),   expect &:= time("-123-1-23 12:31:12"));
+        insert(state, time("-42-4-2 4:42:42"),      expect &:= time("-42-4-2 4:42:42"));
+        insert(state, time("-1-1-1 0:0:0"),         expect &:= time("-1-1-1 0:0:0"));
+        insert(state, time("-1-12-31 23:59:59"),    expect &:= time("-1-12-31 23:59:59"));
+        insert(state, time("-1-12-31 23:59:59.999999"),
+               expect &:= time("-1-12-31 23:59:59.999999"));
+      end if;
+      if minTimeStamp(databaseKind) < time("1-1-1 0:0:0") then
+        insert(state, time("0-1-1 0:0:0"),            expect &:= time("0-1-1 0:0:0"));
+        insert(state, time("0-12-31 23:59:59"),       expect &:= time("0-12-31 23:59:59"));
+        insert(state, time("0-12-31 23:59:59.123456"),
+               expect &:= time("0-12-31 23:59:59.123456"));
+        insert(state, time("0-12-31 23:59:59.999999"),
+               expect &:= time("0-12-31 23:59:59.999999"));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-1 0:0:0") then
+        insert(state, time("1-1-1 0:0:0"),            expect &:= time("1-1-1 0:0:0"));
+        insert(state, time("1-12-31 23:59:59"),       expect &:= time("1-12-31 23:59:59"));
+        insert(state, time("1-12-31 23:59:59.123456"),
+               expect &:= time("1-12-31 23:59:59.123456"));
+        insert(state, time("1-12-31 23:59:59.999999"),
+               expect &:= time("1-12-31 23:59:59.999999"));
+        insert(state, time("42-4-2 4:42:42"),         expect &:= time("42-4-2 4:42:42"));
+        insert(state, time("123-1-23 12:31:12"),      expect &:= time("123-1-23 12:31:12"));
+        insert(state, time("999-12-31 23:59:59"),     expect &:= time("999-12-31 23:59:59"));
+        insert(state, time("1000-1-1 0:0:0"),         expect &:= time("1000-1-1 0:0:0"));
+        insert(state, time("1752-12-31 23:59:59"),    expect &:= time("1752-12-31 23:59:59"));
+        insert(state, time("1753-1-1 0:0:0"),         expect &:= time("1753-1-1 0:0:0"));
+        insert(state, time("1800-1-1 0:0:0"),         expect &:= time("1800-1-1 0:0:0"));
+        insert(state, time("1899-12-31 23:59:59"),    expect &:= time("1899-12-31 23:59:59"));
+        insert(state, time("1900-1-1 0:0:0"),         expect &:= time("1900-1-1 0:0:0"));
+        insert(state, time("1961-1-9 6:1:0"),         expect &:= time("1961-1-9 6:1:0"));
+        insert(state, time("1969-12-31 23:59:59"),    expect &:= time("1969-12-31 23:59:59"));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-2 0:0:0") then
+        insert(state, time("1970-1-1 0:0:0"),         expect &:= time("1970-1-1 0:0:0"));
+      end if;
+      insert(state, time("1970-1-2 0:0:0"),         expect &:= time("1970-1-2 0:0:0"));
+      insert(state, time("1979-12-31 23:59:59"),    expect &:= time("1979-12-31 23:59:59"));
+      insert(state, time("1980-1-1 0:0:0"),         expect &:= time("1980-1-1 0:0:0"));
+      insert(state, time("2010-11-12 13:14:15.16"), expect &:= time("2010-11-12 13:14:15.16"));
+      insert(state, time("2011-11-11 11:11:11.11"), expect &:= time("2011-11-11 11:11:11.11"));
+      insert(state, time("2012-12-12 12:12:12.12"), expect &:= time("2012-12-12 12:12:12.12"));
+
+      if minTimeStamp(databaseKind) <= time("-4711-1-1 0:0:0") then
+        insert(state, setLocalTZ(time("-4711-1-1 0:0:0")),      expect &:= setLocalTZ(time("-4711-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("-4711-12-31 23:59:59")), expect &:= setLocalTZ(time("-4711-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("-4711-12-31 23:59:59.123456")),
+               expect &:= setLocalTZ(time("-4711-12-31 23:59:59.123456")));
+        insert(state, setLocalTZ(time("-999-12-31 23:59:59")),  expect &:= setLocalTZ(time("-999-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("-123-1-23 12:31:12")),   expect &:= setLocalTZ(time("-123-1-23 12:31:12")));
+        insert(state, setLocalTZ(time("-42-4-2 4:42:42")),      expect &:= setLocalTZ(time("-42-4-2 4:42:42")));
+        insert(state, setLocalTZ(time("-1-1-1 0:0:0")),         expect &:= setLocalTZ(time("-1-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("-1-12-31 23:59:59")),    expect &:= setLocalTZ(time("-1-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("-1-12-31 23:59:59.999999")),
+               expect &:= setLocalTZ(time("-1-12-31 23:59:59.999999")));
+      end if;
+      if minTimeStamp(databaseKind) < time("1-1-1 0:0:0") then
+        insert(state, setLocalTZ(time("0-1-1 0:0:0")),            expect &:= setLocalTZ(time("0-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("0-12-31 23:59:59")),       expect &:= setLocalTZ(time("0-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("0-12-31 23:59:59.123456")),
+               expect &:= setLocalTZ(time("0-12-31 23:59:59.123456")));
+        insert(state, setLocalTZ(time("0-12-31 23:59:59.999999")),
+               expect &:= setLocalTZ(time("0-12-31 23:59:59.999999")));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-1 0:0:0") then
+        insert(state, setLocalTZ(time("1-1-1 0:0:0")),            expect &:= setLocalTZ(time("1-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1-12-31 23:59:59")),       expect &:= setLocalTZ(time("1-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("1-12-31 23:59:59.123456")),
+               expect &:= setLocalTZ(time("1-12-31 23:59:59.123456")));
+        insert(state, setLocalTZ(time("1-12-31 23:59:59.999999")),
+               expect &:= setLocalTZ(time("1-12-31 23:59:59.999999")));
+        insert(state, setLocalTZ(time("42-4-2 4:42:42")),         expect &:= setLocalTZ(time("42-4-2 4:42:42")));
+        insert(state, setLocalTZ(time("123-1-23 12:31:12")),      expect &:= setLocalTZ(time("123-1-23 12:31:12")));
+        insert(state, setLocalTZ(time("999-12-31 23:59:59")),     expect &:= setLocalTZ(time("999-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("1000-1-1 0:0:0")),         expect &:= setLocalTZ(time("1000-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1752-12-31 23:59:59")),    expect &:= setLocalTZ(time("1752-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("1753-1-1 0:0:0")),         expect &:= setLocalTZ(time("1753-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1800-1-1 0:0:0")),         expect &:= setLocalTZ(time("1800-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1899-12-31 23:59:59")),    expect &:= setLocalTZ(time("1899-12-31 23:59:59")));
+        insert(state, setLocalTZ(time("1900-1-1 0:0:0")),         expect &:= setLocalTZ(time("1900-1-1 0:0:0")));
+        insert(state, setLocalTZ(time("1961-1-9 6:1:0")),         expect &:= setLocalTZ(time("1961-1-9 6:1:0")));
+        insert(state, setLocalTZ(time("1969-12-31 23:59:59")),    expect &:= setLocalTZ(time("1969-12-31 23:59:59")));
+      end if;
+      if minTimeStamp(databaseKind) < time("1970-1-2 0:0:0") then
+        insert(state, setLocalTZ(time("1970-1-1 0:0:0")),         expect &:= setLocalTZ(time("1970-1-1 0:0:0")));
+      end if;
+      insert(state, setLocalTZ(time("1970-1-2 0:0:0")),         expect &:= setLocalTZ(time("1970-1-2 0:0:0")));
+      insert(state, setLocalTZ(time("1979-12-31 23:59:59")),    expect &:= setLocalTZ(time("1979-12-31 23:59:59")));
+      insert(state, setLocalTZ(time("1980-1-1 0:0:0")),         expect &:= setLocalTZ(time("1980-1-1 0:0:0")));
+      insert(state, setLocalTZ(time("2010-11-12 13:14:15.16")), expect &:= setLocalTZ(time("2010-11-12 13:14:15.16")));
+      insert(state, setLocalTZ(time("2011-11-11 11:11:11.11")), expect &:= setLocalTZ(time("2011-11-11 11:11:11.11")));
+      insert(state, setLocalTZ(time("2012-12-12 12:12:12.12")), expect &:= setLocalTZ(time("2012-12-12 12:12:12.12")));
+
+      state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
+      execute(state.statement);
+      while fetch(state.statement) do
+        timeColumn := column(state.statement, 1, time);
+        if timeColumn <> expect[row] then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testTimeStampTzField: Row: " <& row <&
+                    " Expected " <& literal(str(expect[row])) <&
+                    " found " <& literal(str(timeColumn)));
+          end if;
+        end if;
+        if timeColumn.timeZone <> expect[row].timeZone then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testTimeStampTzField: Row: " <& row <&
+                    " Expected time zone " <& expect[row] <&
+                    " found " <& timeColumn);
+          end if;
+        end if;
+        if row <= 2 and not isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testTimeStampTzField: Row: " <& row <&
+                    " Expected NULL found " <& timeColumn);
+          end if;
+        end if;
+        if row > 2 and isNull(state.statement, 1) then
+          state.okay := FALSE;
+          if state.details then
+            writeln(" *** testTimeStampTzField: Row: " <& row <&
+                    " Expected " <& literal(expect[row]) <& " found NULL");
+          end if;
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        state.okay := FALSE;
+        writeln(" *** DATABASE_ERROR was raised");
+    end block;
+    state.statement := prepare(testDb, "DROP TABLE " & state.tableName);
+    execute(state.statement);
+
+    if state.okay then
+      writeln("Inserting and fetching timeStampTz fields works okay.");
+    else
+      writeln(" *** Inserting and fetching timeStampTz fields does not work okay.");
     end if;
   end func;
 
@@ -5280,8 +6074,8 @@ const proc: testTimeField2 (in database: testDb, in dbCategory: databaseKind) is
       statement := prepare(testDb, "SELECT * FROM " & tableName);
       execute(statement);
       while fetch(statement) do
-        writeln(" *** testTimeField: Row: " <& row <& " Found " <& literal(str(column(statement, 1, time))));
-        # writeln(" *** testTimeField: Row: " <& row <& " Found " <& column(statement, 1, string));
+        writeln(" *** testTimeField2: Row: " <& row <& " Found " <& literal(str(column(statement, 1, time))));
+        # writeln(" *** testTimeField2: Row: " <& row <& " Found " <& column(statement, 1, string));
         incr(row);
       end while;
     exception
@@ -5491,10 +6285,15 @@ const proc: testVarcharField2 (in database: testDb, in dbCategory: databaseKind)
   end func;
 
 
-const proc: testDb (in database: testDb, in dbCategory: databaseKind) is func
+const proc: testDb (in database: testDb, in connectData: dbConnectData) is func
+  local
+    var dbCategory: databaseKind is NO_DB;
   begin
+    databaseKind := dbConnectData.databaseKind;
     testPrepareAndExecute(testDb, databaseKind);
     testFieldNames(testDb, databaseKind);
+    testAutoCommit(testDb, dbConnectData);
+    testTransactions(testDb, dbConnectData);
     testBooleanField(testDb, databaseKind);
     testInt8Field(testDb, databaseKind);
     testInt16Field(testDb, databaseKind);
@@ -5517,7 +6316,11 @@ const proc: testDb (in database: testDb, in dbCategory: databaseKind) is func
     testVarcharField(testDb, databaseKind);
     testBlobField(testDb, databaseKind);
     testClobField(testDb, databaseKind);
+    testDateField(testDb, databaseKind);
     testTimeField(testDb, databaseKind);
+    testDateTimeField(testDb, databaseKind);
+    testTimeStampField(testDb, databaseKind);
+    testTimeStampTzField(testDb, databaseKind);
     testDurationField(testDb, databaseKind);
 
     # testFloatField2(testDb, databaseKind);
@@ -5548,28 +6351,6 @@ const func boolean: failed (in proc: statement) is func
   end func;
 
 
-const type: connectData is new struct
-    var dbCategory: driver       is NO_DB;
-    var string:     dbName       is "";
-    var string:     user         is "";
-    var string:     password     is "";
-    var dbCategory: databaseKind is NO_DB;
-  end struct;
-
-
-const func connectData: connectData (in dbCategory: driver, in string: dbName,
-    in string: user, in string: password, in dbCategory: databaseKind) is func
-  result
-    var connectData: connData is connectData.value;
-  begin
-    connData.driver       := driver;
-    connData.dbName       := dbName;
-    connData.user         := user;
-    connData.password     := password;
-    connData.databaseKind := databaseKind;
-  end func;
-
-
 const proc: testDatabase (in connectData: dbConnectData) is func
   local
     var database: testDb is database.value;
@@ -5591,7 +6372,7 @@ const proc: testDatabase (in connectData: dbConnectData) is func
                 " with driver " <& dbConnectData.driver);
     end block;
     if testDb <> database.value then
-      testDb(testDb, dbConnectData.databaseKind);
+      testDb(testDb, dbConnectData);
       close(testDb);
     end if;
   end func;
@@ -5618,12 +6399,15 @@ const proc: main is func
         connectData(DB_ODBC,       "post",             "test", "test", DB_POSTGRESQL));
     var integer: index is 0;
     var string: driverName is "";
+    var boolean: okay is TRUE;
+    var integer: paramNum is 0;
     var string: databaseKindName is "";
     var connectData: dbConnectData is connectData.value;
   begin
     OUT := STD_CONSOLE;
-    if length(argv(PROGRAM)) = 0 or length(argv(PROGRAM)) > 5 then
-      writeln("usage: chkdb driver [dbName [user [password [databaseKind]]]]");
+    IN := openEditLine(KEYBOARD, OUT);
+    if length(argv(PROGRAM)) = 0 then
+      writeln("usage: chkdb driver [-d databaseKind] [dbName [user [password]]]");
       writeln("       chkdb all");
     elsif length(argv(PROGRAM)) = 1 and argv(PROGRAM)[1] = "all" then
       for key index range dbConnectDataList do
@@ -5635,34 +6419,55 @@ const proc: main is func
       if dbConnectData.driver = NO_DB then
         writeln("*** " <& literal(driverName) <& " is not a valid database driver.");
       else
-        dbConnectData.dbName := "test";
-        dbConnectData.user := "test";
-        dbConnectData.password := "test";
-        if length(argv(PROGRAM)) >= 2 then
-          dbConnectData.dbName := argv(PROGRAM)[2];
-          if length(argv(PROGRAM)) >= 3 then
-            dbConnectData.user := argv(PROGRAM)[3];
-            if length(argv(PROGRAM)) >= 4 then
-              dbConnectData.password := argv(PROGRAM)[4];
+        paramNum := 2;
+        if length(argv(PROGRAM)) >= paramNum then
+          if argv(PROGRAM)[paramNum] = "-d" then
+            incr(paramNum);
+            if length(argv(PROGRAM)) >= paramNum then
+              databaseKindName := argv(PROGRAM)[paramNum];
+              dbConnectData.databaseKind := dbCategory(databaseKindName);
+              if dbConnectData.databaseKind = NO_DB then
+                writeln("*** " <& literal(databaseKindName) <& " is not a valid database kind.");
+                okay := FALSE;
+              end if;
+              incr(paramNum);
+            else
+              writeln("*** Database kind parameter missing.");
+              okay := FALSE;
             end if;
           end if;
         end if;
-        if length(argv(PROGRAM)) = 5 then
-          databaseKindName := argv(PROGRAM)[5];
-          dbConnectData.databaseKind := dbCategory(databaseKindName);
-          if dbConnectData.databaseKind = NO_DB then
-            writeln("*** " <& literal(databaseKindName) <& " is not a valid database kind.");
-          end if;
-        elsif dbConnectData.driver = DB_ODBC then
-          dbConnectData.databaseKind := dbCategory(dbConnectData.dbName);
-          if dbConnectData.databaseKind = NO_DB then
+        if dbConnectData.databaseKind = NO_DB then
+          if (dbConnectData.driver = DB_ODBC or dbConnectData.driver = DB_TDS) then
+            writeln("** For the " <& dbConnectData.driver <& " driver a database kind must be specified.");
+            okay := FALSE;
+          else
             dbConnectData.databaseKind := dbConnectData.driver;
           end if;
-        else
-          dbConnectData.databaseKind := dbConnectData.driver;
         end if;
-        if dbConnectData.databaseKind <> NO_DB then
-          testDatabase(dbConnectData);
+        if okay then
+          dbConnectData.dbName := "test";
+          dbConnectData.user := "test";
+          dbConnectData.password := "";
+          if length(argv(PROGRAM)) >= paramNum then
+            dbConnectData.dbName := argv(PROGRAM)[paramNum];
+            incr(paramNum);
+            if length(argv(PROGRAM)) >= paramNum then
+              dbConnectData.user := argv(PROGRAM)[paramNum];
+              incr(paramNum);
+              if length(argv(PROGRAM)) >= paramNum then
+                dbConnectData.password := argv(PROGRAM)[paramNum];
+              end if;
+            end if;
+          end if;
+          if dbConnectData.password = "" then
+            write("Password: ");
+            flush(OUT);
+            dbConnectData.password := readPassword(IN);
+          end if;
+          if dbConnectData.databaseKind <> NO_DB then
+            testDatabase(dbConnectData);
+          end if;
         end if;
       end if;
     end if;

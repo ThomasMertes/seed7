@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_srv.c    Database access functions for MS SQL-Server.       */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_srv.c                                       */
-/*  Changes: 2019  Thomas Mertes                                    */
+/*  Changes: 2019, 2020  Thomas Mertes                              */
 /*  Content: Database access functions for MS SQL-Server.           */
 /*                                                                  */
 /********************************************************************/
@@ -187,7 +187,9 @@ static boolType createConnectionString (connectDataType connectData)
       } /* if */
     } /* if */
     logFunction(printf("createConnectionString --> %d (connectionString=\"", okay);
-                printWstri(connectData->connectionString);
+                if (connectData->connectionString != NULL) {
+                  printWstri(connectData->connectionString);
+                }
                 printf("\")\n"););
     return okay;
   } /* createConnectionString */
@@ -232,7 +234,7 @@ static wstriType wstriSearch (const_wstriType haystack, const_wstriType needle)
 
 
 
-static SQLRETURN connectToServer (connectDataType connectData,
+static boolType connectToServer (connectDataType connectData,
     SQLHDBC sql_connection, wstriType server, memSizeType serverLength)
 
   {
@@ -245,6 +247,7 @@ static SQLRETURN connectToServer (connectDataType connectData,
     SQLWCHAR outConnectionString[4096];
     SQLSMALLINT outConnectionStringLength;
     SQLRETURN returnCode;
+    boolType okay = TRUE;
 
   /* connectToServer */
     logFunction(printf("connectToServer(\"");
@@ -292,18 +295,21 @@ static SQLRETURN connectToServer (connectDataType connectData,
     logMessage(printf("outConnectionString: ");
                printWstri(outConnectionString);
                printf("\n"););
-    if (returnCode != SQL_SUCCESS && returnCode != SQL_SUCCESS_WITH_INFO) {
+    if (unlikely(returnCode != SQL_SUCCESS &&
+                 returnCode != SQL_SUCCESS_WITH_INFO)) {
       setDbErrorMsg("connectToServer", "SQLDriverConnectW",
                     SQL_HANDLE_DBC, sql_connection);
-      logError(printf("connectToServer: SQLDriverConnectW:\n%s\n", dbError.message););
+      logError(printf("connectToServer: SQLDriverConnectW:\n%s\n",
+                      dbError.message););
+      okay = FALSE;
     } /* if */
-    logFunction(printf("connectToServer --> " FMT_U16 "\n", returnCode););
-    return returnCode;
+    logFunction(printf("connectToServer --> %s\n", okay ? "TRUE" : "FALSE"););
+    return okay;
   } /* connectToServer */
 
 
 
-static SQLRETURN connectToLocalServer (connectDataType connectData,
+static boolType connectToLocalServer (connectDataType connectData,
     SQLHDBC sql_connection)
 
   {
@@ -315,6 +321,8 @@ static SQLRETURN connectToLocalServer (connectDataType connectData,
     wstriType server;
     boolType lastServer;
     SQLRETURN returnCode;
+    boolType triedToConnect = FALSE;
+    boolType okay = FALSE;
 
   /* connectToLocalServer */
     logFunction(printf("connectToLocalServer\n"););
@@ -333,7 +341,8 @@ static SQLRETURN connectToLocalServer (connectDataType connectData,
                printf("outConnectionString: ");
                printWstri(outConnectionString);
                printf("\n"););
-    if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO ||
+    if (returnCode == SQL_SUCCESS ||
+        returnCode == SQL_SUCCESS_WITH_INFO ||
         returnCode == SQL_NEED_DATA) {
       SQLDisconnect(sql_connection);
       posFound = wstriSearch(outConnectionString, serverKey);
@@ -358,15 +367,25 @@ static SQLRETURN connectToLocalServer (connectDataType connectData,
             /* printf("check for server: ");
                printWstri(server);
                printf("\n"); */
-            returnCode = connectToServer(connectData, sql_connection, server,
-                                         (memSizeType) (posFound - server));
+            if (server != posFound) {
+              /* Only try to connect if the server name is not empty. */
+              okay = connectToServer(connectData, sql_connection, server,
+                                     (memSizeType) (posFound - server));
+              triedToConnect = TRUE;
+            } /* if */
             posFound++;
-          } while (returnCode == SQL_ERROR && !lastServer);
+          } while (!okay && !lastServer);
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("connectToLocalServer --> " FMT_U16 "\n", returnCode););
-    return returnCode;
+    if (!triedToConnect) {
+      dbLibError("connectToLocalServer", "SQLBrowseConnectW",
+                 "No local database server found.\n");
+      logError(printf("connectToLocalServer: SQLBrowseConnectW:\n%s\n",
+                      dbError.message););
+    } /* if */
+    logFunction(printf("connectToLocalServer --> %s\n", okay ? "TRUE" : "FALSE"););
+    return okay;
   } /* connectToLocalServer */
 
 
@@ -376,7 +395,8 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
   {
     SQLHENV sql_environment;
     SQLHDBC sql_connection;
-    SQLRETURN returnCode;
+    boolType okay;
+    SQLRETURN returnCode = SQL_ERROR;
     SQLSMALLINT outConnectionStringLength;
     SQLWCHAR outConnectionString[4096];
     databaseType database;
@@ -396,12 +416,16 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
       } else {
         if (connectData->serverLength == 0 && connectData->port == 0 &&
             FUNCTION_PRESENT(SQLBrowseConnectW)) {
-          returnCode = connectToLocalServer(connectData, sql_connection);
+          okay = connectToLocalServer(connectData, sql_connection);
         } else {
-          returnCode = SQL_ERROR;
+          dbLibError("doOpenSqlServer", "doOpenSqlServer",
+                     "Cannot open database.\n");
+          logError(printf("doOpenSqlServer:\n%s\n",
+                          dbError.message););
+          okay = FALSE;
         } /* if */
-        if (returnCode != SQL_SUCCESS &&
-            returnCode != SQL_SUCCESS_WITH_INFO) {
+        if (!okay && connectData->databaseLength != 0) {
+          /* The connection string must contain a database name. */
           logMessage(printf("inConnectionString: ");
                      printWstri(connectData->connectionString);
                      printf("\n"););
@@ -418,13 +442,18 @@ static databaseType doOpenSqlServer (connectDataType connectData, errInfoType *e
           logMessage(printf("outConnectionString: ");
                      printWstri(outConnectionString);
                      printf("\n"););
+          if (unlikely(returnCode != SQL_SUCCESS &&
+                       returnCode != SQL_SUCCESS_WITH_INFO)) {
+            setDbErrorMsg("sqlOpenSqlServer", "SQLDriverConnectW",
+                          SQL_HANDLE_DBC, sql_connection);
+            logError(printf("sqlOpenSqlServer: SQLDriverConnectW:\n%s\n",
+                            dbError.message););
+            okay = FALSE;
+          } else {
+            okay = TRUE;
+          } /* if */
         } /* if */
-        if (returnCode != SQL_SUCCESS &&
-            returnCode != SQL_SUCCESS_WITH_INFO) {
-          setDbErrorMsg("sqlOpenSqlServer", "SQLDriverConnect",
-                        SQL_HANDLE_DBC, sql_connection);
-          logError(printf("sqlOpenSqlServer: SQLDriverConnect:\n%s\n",
-                          dbError.message););
+        if (unlikely(!okay)) {
           *err_info = DATABASE_ERROR;
           SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);
           SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);

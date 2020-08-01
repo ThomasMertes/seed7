@@ -286,6 +286,8 @@ const func string: literal (in time: aTime) is
 const func time: time (in var string: stri) is func
   result
     var time: aTime is time.value;
+  local
+    var boolean: checkForTimeZone is FALSE;
   begin
     if stri[1] = '-' then
       stri := stri[2 ..];
@@ -293,50 +295,70 @@ const func time: time (in var string: stri) is func
     else
       aTime.year := integer(getint(stri));
     end if;
-    if stri[1] <> '-' then
+    if stri <> "" and stri[1] = '-' then
+      stri := stri[2 ..];
+      aTime.month := integer(getint(stri));
+      if stri <> "" and stri[1] = '-' then
+        stri := stri[2 ..];
+        aTime.day := integer(getint(stri));
+        if stri <> "" and (stri[1] = ' ' or stri[1] = 'T') then
+          stri := stri[2 ..];
+          aTime.hour := integer(getint(stri));
+          if stri <> "" and stri[1] = ':' then
+            stri := stri[2 ..];
+            aTime.minute := integer(getint(stri));
+            if stri <> "" and stri[1] = ':' then
+              stri := stri[2 ..];
+              aTime.second := integer(getint(stri));
+              if stri <> "" and stri[1] = '.' then
+                stri := stri[2 ..];
+                aTime.micro_second := integer((getint(stri) & "00000X")[.. 6]);
+              end if;
+            end if;
+          end if;
+          checkForTimeZone := TRUE;
+        end if;
+      end if;
+    elsif stri <> "" and stri[1] = ':' then
+      stri := stri[2 ..];
+      aTime.hour := aTime.year;
+      aTime.year := 0;
+      aTime.minute := integer(getint(stri));
+      if stri <> "" and stri[1] = ':' then
+        stri := stri[2 ..];
+        aTime.second := integer(getint(stri));
+        if stri <> "" and stri[1] = '.' then
+          stri := stri[2 ..];
+          aTime.micro_second := integer((getint(stri) & "00000X")[.. 6]);
+        end if;
+      end if;
+      checkForTimeZone := TRUE;
+    end if;
+    if checkForTimeZone then
+      if startsWith(stri, " UTC") then
+        stri := stri[5 ..];
+      end if;
+      if stri <> "" then
+        if stri[1] = '+' then
+          stri := stri[2 ..];
+          aTime.timeZone := integer(getint(stri)) * 60;
+          if stri <> "" and stri[1] = ':' then
+            stri := stri[2 ..];
+            aTime.timeZone +:= integer(getint(stri));
+          end if;
+        elsif stri[1] = '-' then
+          stri := stri[2 ..];
+          aTime.timeZone := -integer(getint(stri)) * 60;
+          if stri <> "" and stri[1] = ':' then
+            stri := stri[2 ..];
+            aTime.timeZone -:= integer(getint(stri));
+          end if;
+        end if;
+      end if;
+    end if;
+    if stri <> "" then
       raise RANGE_ERROR;
     end if;
-    stri := stri[2 ..];
-    aTime.month := integer(getint(stri));
-    if stri <> "" then
-      if stri[1] <> '-' then
-        raise RANGE_ERROR;
-      end if;
-      stri := stri[2 ..];
-      aTime.day := integer(getint(stri));
-      if stri <> "" then
-        if stri[1] <> ' ' and stri[1] <> 'T' then
-          raise RANGE_ERROR;
-        end if;
-        stri := stri[2 ..];
-        aTime.hour := integer(getint(stri));
-        if stri <> "" then
-          if stri[1] <> ':' then
-            raise RANGE_ERROR;
-          end if;
-          stri := stri[2 ..];
-          aTime.minute := integer(getint(stri));
-          if stri <> "" then
-            if stri[1] <> ':' then
-              raise RANGE_ERROR;
-            end if;
-            stri := stri[2 ..];
-            aTime.second := integer(getint(stri));
-            if stri <> "" then
-              if stri[1] <> '.' then
-                raise RANGE_ERROR;
-              end if;
-              stri := stri[2 ..];
-              aTime.micro_second := integer((getint(stri) & "00000X")[.. 6]);
-              if stri <> "" then
-                raise RANGE_ERROR;
-              end if;
-            end if;
-          end if;
-        end if;
-      end if;
-    end if;
-    aTime.timeZone := 0;
     aTime.daylightSavingTime := FALSE;
     if aTime.month < 1 or aTime.month > 12 or
         aTime.day < 1 or aTime.day > daysInMonth(aTime.year, aTime.month) or

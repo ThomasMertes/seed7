@@ -294,7 +294,7 @@ const func file: nextFile (inout pollData: pData) is
  *  For-loop to loop over the values of the ''pData'' iterator.
  *  The for-loop loops over the values determined by the ''pollMode''.
  *  With ''iterCheck'' or ''iterFindings'' the ''pollMode'' of the
- *  iterator is determinated.
+ *  iterator is determined.
  *)
 const proc: for (inout file: forVar) range (inout pollData: pData) do
               (in proc: statements)

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/traceutl.c                                      */
-/*  Changes: 1990 - 1994, 2008, 2010 - 2014  Thomas Mertes          */
+/*  Changes: 1990 - 1994, 2008, 2010 - 2020  Thomas Mertes          */
 /*  Content: Tracing and protocol procedures.                       */
 /*                                                                  */
 /********************************************************************/
@@ -56,6 +56,7 @@
 #include "str_rtl.h"
 #include "ut8_rtl.h"
 #include "big_drv.h"
+#include "con_rtl.h"
 #include "con_drv.h"
 #include "pcs_drv.h"
 
@@ -236,16 +237,33 @@ void prot_int (intType ivalue)
 
 
 
-void prot_bigint (const const_bigIntType bintvalue)
+void prot_bigint (const const_bigIntType bigIntValue)
+
+  {
+    striType stri;
+
+  /* prot_bigint */
+    if (bigIntValue == NULL) {
+      prot_cstri("NULL");
+    } else {
+      stri = bigStr(bigIntValue);
+      prot_cstri(striAsUnquotedCStri(stri));
+      strDestr(stri);
+    } /* if */
+  } /* prot_bigint */
+
+
+
+static void prot_bigint_hex (const const_bigIntType bigIntValue)
 
   {
     cstriType cstri;
 
-  /* prot_bigint */
-    cstri = bigHexCStri(bintvalue);
+  /* prot_bigint_hex */
+    cstri = bigHexCStri(bigIntValue);
     prot_cstri(cstri);
     UNALLOC_CSTRI(cstri, strlen(cstri));
-  } /* prot_bigint */
+  } /* prot_bigint_hex */
 
 
 
@@ -479,7 +497,7 @@ static void print_real_value (const_objectType anyobject)
         prot_int(anyobject->value.intValue);
         break;
       case BIGINTOBJECT:
-        prot_bigint(anyobject->value.bigIntValue);
+        prot_bigint_hex(anyobject->value.bigIntValue);
         break;
       case CHAROBJECT:
         prot_char(anyobject->value.charValue);

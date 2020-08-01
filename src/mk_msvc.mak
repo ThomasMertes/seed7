@@ -55,7 +55,8 @@ OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.obj drw_win.obj gkb_win.obj
 CONSOLE_LIB_OBJ = kbd_rtl.obj con_win.obj
-DATABASE_LIB_OBJ = sql_base.obj sql_db2.obj sql_fire.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj sql_srv.obj
+DATABASE_LIB_OBJ = sql_base.obj sql_db2.obj sql_fire.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj \
+                   sql_post.obj sql_srv.obj sql_tds.obj
 COMP_DATA_LIB_OBJ = typ_data.obj rfl_data.obj ref_data.obj listutl.obj flistutl.obj typeutl.obj datautl.obj
 COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
 
@@ -80,7 +81,8 @@ SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c gkb_win.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_win.c
-DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_srv.c
+DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c \
+                   sql_post.c sql_srv.c sql_tds.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -160,6 +162,7 @@ dep: depend
 
 chkccomp.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
+	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
 
 version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h

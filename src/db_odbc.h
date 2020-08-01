@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  db_odbc.h     ODBC interfaces used by Seed7.                    */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/db_odbc.h                                       */
-/*  Changes: 2014  Thomas Mertes                                    */
+/*  Changes: 2014, 2015, 2019, 2020  Thomas Mertes                  */
 /*  Content: ODBC interfaces used by Seed7.                         */
 /*                                                                  */
 /********************************************************************/
@@ -248,6 +248,14 @@ typedef SQLHANDLE SQLHWND;
 
 #define SQL_ARD_TYPE (-99)
 
+#define SQL_ATTR_AUTOCOMMIT 102
+
+#define SQL_AUTOCOMMIT_OFF 0UL
+#define SQL_AUTOCOMMIT_ON  1UL
+
+#define SQL_COMMIT   0
+#define SQL_ROLLBACK 1
+
 /* Used by SQLGetInfoW() */
 #define SQL_MAX_CONCURRENT_ACTIVITIES   1
 
@@ -346,12 +354,20 @@ SQLRETURN STDCALL SQLDriversW (SQLHENV      henv,
                                SQLWCHAR    *szDriverAttributes,
                                SQLSMALLINT  cbDrvrAttrMax,
                                SQLSMALLINT *pcbDrvrAttr);
+SQLRETURN STDCALL SQLEndTran (SQLSMALLINT handleType,
+                              SQLHANDLE   handle,
+                              SQLSMALLINT completionType);
 SQLRETURN STDCALL SQLExecute (SQLHSTMT statementHandle);
 SQLRETURN STDCALL SQLFetch (SQLHSTMT statementHandle);
 SQLRETURN STDCALL SQLFreeHandle (SQLSMALLINT handleType,
                                  SQLHANDLE   handle);
 SQLRETURN STDCALL SQLFreeStmt (SQLHSTMT     statementHandle,
                                SQLUSMALLINT option);
+SQLRETURN STDCALL SQLGetConnectAttrW (SQLHDBC     connectionHandle,
+                                      SQLINTEGER  attribute,
+                                      SQLPOINTER  valuePtr,
+                                      SQLINTEGER  bufferLength,
+                                      SQLINTEGER *stringLengthPtr);
 SQLRETURN STDCALL SQLGetData (SQLHSTMT     statementHandle,
                               SQLUSMALLINT columnNumber,
                               SQLSMALLINT  targetType,
@@ -385,6 +401,10 @@ SQLRETURN STDCALL SQLNumResultCols (SQLHSTMT     statementHandle,
 SQLRETURN STDCALL SQLPrepareW (SQLHSTMT   statementHandle,
                                SQLWCHAR  *statementText,
                                SQLINTEGER textLength);
+SQLRETURN STDCALL SQLSetConnectAttrW (SQLHDBC    connectionHandle,
+                                      SQLINTEGER attribute,
+                                      SQLPOINTER valuePtr,
+                                      SQLINTEGER stringLength);
 SQLRETURN STDCALL SQLSetDescFieldW (SQLHDESC    descriptorHandle,
                                     SQLSMALLINT recNumber,
                                     SQLSMALLINT fieldIdentifier,

@@ -77,11 +77,12 @@ void *dllOpen (const char *dllName)
     } else {
       aDll = (void *) LoadLibrary(dllName);
     } /* if */
-    logError(if (unlikely(aDll == NULL)) {
-               printf("LoadLibrary(\"%s\") failed:\n"
-                      "error: " FMT_U32 "\n",
-                      dllName, GetLastError());
-             });
+    logErrorIfTrue(aDll == NULL,
+                   {
+                     printf("LoadLibrary(\"%s\") failed:\n"
+                            "error: " FMT_U32 "\n",
+                            dllName, GetLastError());
+                   });
     return aDll;
   } /* dllOpen */
 

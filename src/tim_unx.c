@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  tim_unx.c     Time functions which call the Unix API.           */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015, 2018 - 2020 Thomas Mertes            */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/tim_unx.c                                       */
-/*  Changes: 1992, 1993, 1994, 2009, 2013  Thomas Mertes            */
+/*  Changes: 1992 - 1994, 2009, 2013, 2018 - 2020  Thomas Mertes    */
 /*  Content: Time functions which call the Unix API.                */
 /*                                                                  */
 /********************************************************************/
@@ -93,7 +93,6 @@ void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    struct tm tm_time;
     time_t await_second;
     struct timeval time_val;
     int timeout_value;
@@ -103,20 +102,14 @@ void timAwait (intType year, intType month, intType day, intType hour,
     logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
                                    F_D(02) ":" F_D(02) ":" F_D(02) "."
                                    F_D(06) ", " FMT_D ")\n",
-                       year, month, day, hour, min, sec, micro_sec, time_zone););
-    tm_time.tm_year  = (int) year - 1900;
-    tm_time.tm_mon   = (int) month - 1;
-    tm_time.tm_mday  = (int) day;
-    tm_time.tm_hour  = (int) hour;
-    tm_time.tm_min   = (int) min;
-    tm_time.tm_sec   = (int) sec;
-    tm_time.tm_isdst = 0;
-    await_second = mkutc(&tm_time);
-    if (unlikely(await_second == (time_t) -1)) {
-      logError(printf("timAwait: mkutc() failed.\n"););
+                       year, month, day, hour, min, sec, micro_sec,
+                       time_zone););
+    await_second = timToOsTimestamp(year, month, day, hour, min, sec,
+                                    time_zone);
+    if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
+      logError(printf("timAwait: Timestamp not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      await_second -= time_zone * 60;
       do {
         gettimeofday(&time_val, NULL);
         if (time_val.tv_sec > await_second ||
@@ -150,7 +143,6 @@ void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    struct tm tm_time;
     time_t await_second;
     struct timeval time_val;
     struct timespec timeout_value;
@@ -160,20 +152,14 @@ void timAwait (intType year, intType month, intType day, intType hour,
     logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
                                    F_D(02) ":" F_D(02) ":" F_D(02) "."
                                    F_D(06) ", " FMT_D ")\n",
-                       year, month, day, hour, min, sec, micro_sec, time_zone););
-    tm_time.tm_year  = (int) year - 1900;
-    tm_time.tm_mon   = (int) month - 1;
-    tm_time.tm_mday  = (int) day;
-    tm_time.tm_hour  = (int) hour;
-    tm_time.tm_min   = (int) min;
-    tm_time.tm_sec   = (int) sec;
-    tm_time.tm_isdst = 0;
-    await_second = mkutc(&tm_time);
-    if (unlikely(await_second == (time_t) -1)) {
-      logError(printf("timAwait: mkutc() failed.\n"););
+                       year, month, day, hour, min, sec, micro_sec,
+                       time_zone););
+    await_second = timToOsTimestamp(year, month, day, hour, min, sec,
+                                    time_zone);
+    if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
+      logError(printf("timAwait: Timestamp not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      await_second -= time_zone * 60;
       do {
         gettimeofday(&time_val, NULL);
         if (time_val.tv_sec > await_second ||
@@ -212,7 +198,6 @@ void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    struct tm tm_time;
     time_t await_second;
     struct timeval time_val;
     struct timeval timeout_value;
@@ -222,20 +207,14 @@ void timAwait (intType year, intType month, intType day, intType hour,
     logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
                                    F_D(02) ":" F_D(02) ":" F_D(02) "."
                                    F_D(06) ", " FMT_D ")\n",
-                       year, month, day, hour, min, sec, micro_sec, time_zone););
-    tm_time.tm_year  = (int) year - 1900;
-    tm_time.tm_mon   = (int) month - 1;
-    tm_time.tm_mday  = (int) day;
-    tm_time.tm_hour  = (int) hour;
-    tm_time.tm_min   = (int) min;
-    tm_time.tm_sec   = (int) sec;
-    tm_time.tm_isdst = 0;
-    await_second = mkutc(&tm_time);
-    if (unlikely(await_second == (time_t) -1)) {
-      logError(printf("timAwait: mkutc() failed.\n"););
+                       year, month, day, hour, min, sec, micro_sec,
+                       time_zone););
+    await_second = timToOsTimestamp(year, month, day, hour, min, sec,
+                                    time_zone);
+    if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
+      logError(printf("timAwait: Timestamp not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      await_second -= time_zone * 60;
       do {
         gettimeofday(&time_val, NULL);
         if (time_val.tv_sec > await_second ||
@@ -281,7 +260,6 @@ void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    struct tm tm_time;
     time_t await_second;
     struct timeval time_val;
     struct timespec timeout_value;
@@ -291,20 +269,14 @@ void timAwait (intType year, intType month, intType day, intType hour,
     logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
                                    F_D(02) ":" F_D(02) ":" F_D(02) "."
                                    F_D(06) ", " FMT_D ")\n",
-                       year, month, day, hour, min, sec, micro_sec, time_zone););
-    tm_time.tm_year  = (int) year - 1900;
-    tm_time.tm_mon   = (int) month - 1;
-    tm_time.tm_mday  = (int) day;
-    tm_time.tm_hour  = (int) hour;
-    tm_time.tm_min   = (int) min;
-    tm_time.tm_sec   = (int) sec;
-    tm_time.tm_isdst = 0;
-    await_second = mkutc(&tm_time);
-    if (unlikely(await_second == (time_t) -1)) {
-      logError(printf("timAwait: mkutc() failed.\n"););
+                       year, month, day, hour, min, sec, micro_sec,
+                       time_zone););
+    await_second = timToOsTimestamp(year, month, day, hour, min, sec,
+                                    time_zone);
+    if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
+      logError(printf("timAwait: Timestamp not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      await_second -= time_zone * 60;
       do {
         gettimeofday(&time_val, NULL);
         if (time_val.tv_sec > await_second ||
@@ -356,7 +328,6 @@ void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    struct tm tm_time;
     time_t await_second;
     struct timeval time_val;
     struct itimerval timer_value;
@@ -366,20 +337,14 @@ void timAwait (intType year, intType month, intType day, intType hour,
     logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
                                    F_D(02) ":" F_D(02) ":" F_D(02) "."
                                    F_D(06) ", " FMT_D ")\n",
-                       year, month, day, hour, min, sec, micro_sec, time_zone););
-    tm_time.tm_year  = (int) year - 1900;
-    tm_time.tm_mon   = (int) month - 1;
-    tm_time.tm_mday  = (int) day;
-    tm_time.tm_hour  = (int) hour;
-    tm_time.tm_min   = (int) min;
-    tm_time.tm_sec   = (int) sec;
-    tm_time.tm_isdst = 0;
-    await_second = mkutc(&tm_time);
-    if (unlikely(await_second == (time_t) -1)) {
-      logError(printf("timAwait: mkutc() failed.\n"););
+                       year, month, day, hour, min, sec, micro_sec,
+                       time_zone););
+    await_second = timToOsTimestamp(year, month, day, hour, min, sec,
+                                    time_zone);
+    if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
+      logError(printf("timAwait: Timestamp not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      await_second -= time_zone * 60;
       gettimeofday(&time_val, NULL);
       if (time_val.tv_sec < await_second ||
           (time_val.tv_sec == await_second &&
@@ -433,7 +398,6 @@ void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    struct tm tm_time;
     time_t await_second;
     struct timeval time_val;
     struct itimerval timer_value;
@@ -442,20 +406,14 @@ void timAwait (intType year, intType month, intType day, intType hour,
     logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
                                    F_D(02) ":" F_D(02) ":" F_D(02) "."
                                    F_D(06) ", " FMT_D ")\n",
-                       year, month, day, hour, min, sec, micro_sec, time_zone););
-    tm_time.tm_year  = (int) year - 1900;
-    tm_time.tm_mon   = (int) month - 1;
-    tm_time.tm_mday  = (int) day;
-    tm_time.tm_hour  = (int) hour;
-    tm_time.tm_min   = (int) min;
-    tm_time.tm_sec   = (int) sec;
-    tm_time.tm_isdst = 0;
-    await_second = mkutc(&tm_time);
-    if (unlikely(await_second == (time_t) -1)) {
-      logError(printf("timAwait: mkutc() failed.\n"););
+                       year, month, day, hour, min, sec, micro_sec,
+                       time_zone););
+    await_second = timToOsTimestamp(year, month, day, hour, min, sec,
+                                    time_zone);
+    if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
+      logError(printf("timAwait: Timestamp not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      await_second -= time_zone * 60;
       gettimeofday(&time_val, NULL);
       if (time_val.tv_sec < await_second ||
           (time_val.tv_sec == await_second &&

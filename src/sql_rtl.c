@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_rtl.c     Database access functions.                        */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_rtl.c                                       */
-/*  Changes: 2014, 2015, 2017 - 2019  Thomas Mertes                 */
+/*  Changes: 2014, 2015, 2017 - 2020  Thomas Mertes                 */
 /*  Content: Database access functions.                             */
 /*                                                                  */
 /********************************************************************/
@@ -825,6 +825,7 @@ void sqlCommit (databaseType database)
     } else {
       ((dbType) database)->sqlFunc->sqlCommit(database);
     } /* if */
+    logFunction(printf("sqlCommit -->\n"););
   } /* sqlCommit */
 
 
@@ -1219,6 +1220,33 @@ boolType sqlFetch (sqlStmtType sqlStatement)
 
 
 /**
+ *  Get the current auto-commit mode for the specified database 'database'.
+ */
+boolType sqlGetAutoCommit (databaseType database)
+
+  {
+    boolType autoCommit;
+
+  /* sqlGetAutoCommit */
+    logFunction(printf("sqlGetAutoCommit(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    if (unlikely(database == NULL ||
+                 ((dbType) database)->sqlFunc == NULL ||
+                 ((dbType) database)->sqlFunc->sqlGetAutoCommit == NULL)) {
+      logError(printf("sqlGetAutoCommit(" FMT_U_MEM "): Database not okay.\n",
+                      (memSizeType) database););
+      raise_error(RANGE_ERROR);
+      autoCommit = FALSE;
+    } else {
+      autoCommit = ((dbType) database)->sqlFunc->sqlGetAutoCommit(database);
+    } /* if */
+    logFunction(printf("sqlGetAutoCommit --> %d\n", autoCommit););
+    return autoCommit;
+  } /* sqlGetAutoCommit */
+
+
+
+/**
  *  Determine if the specified column of fetched data is NULL.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
@@ -1281,6 +1309,48 @@ sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                        (memSizeType) preparedStmt););
     return preparedStmt;
   } /* sqlPrepare */
+
+
+
+/**
+ *  Set the auto-commit mode for the specified database 'database'.
+ */
+void sqlSetAutoCommit (databaseType database, boolType autoCommit)
+
+  { /* sqlSetAutoCommit */
+    logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) database, autoCommit););
+    if (unlikely(database == NULL ||
+                 ((dbType) database)->sqlFunc == NULL ||
+                 ((dbType) database)->sqlFunc->sqlSetAutoCommit == NULL)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      ((dbType) database)->sqlFunc->sqlSetAutoCommit(database, autoCommit);
+    } /* if */
+    logFunction(printf("sqlSetAutoCommit --> %d\n", fetchOkay););
+  } /* sqlSetAutoCommit */
+
+
+
+/**
+ *  Execute a rollback statement for the specified database 'database'.
+ */
+void sqlRollback (databaseType database)
+
+  { /* sqlRollback */
+    logFunction(printf("sqlRollback(" FMT_U_MEM ")\n",
+                       (memSizeType) database););
+    if (unlikely(database == NULL ||
+                 ((dbType) database)->sqlFunc == NULL ||
+                 ((dbType) database)->sqlFunc->sqlRollback == NULL)) {
+      logError(printf("sqlRollback(" FMT_U_MEM "): Database not okay.\n",
+                      (memSizeType) database););
+      raise_error(RANGE_ERROR);
+    } else {
+      ((dbType) database)->sqlFunc->sqlRollback(database);
+    } /* if */
+    logFunction(printf("sqlRollback -->\n"););
+  } /* sqlRollback */
 
 
 

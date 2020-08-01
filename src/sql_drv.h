@@ -69,8 +69,11 @@ typedef struct {
     void (*sqlCommit) (databaseType database);
     void (*sqlExecute) (sqlStmtType sqlStatement);
     boolType (*sqlFetch) (sqlStmtType sqlStatement);
+    boolType (*sqlGetAutoCommit) (databaseType database);
     boolType (*sqlIsNull) (sqlStmtType sqlStatement, intType column);
     sqlStmtType (*sqlPrepare) (databaseType database, striType sqlStatementStri);
+    void (*sqlRollback) (databaseType database);
+    void (*sqlSetAutoCommit) (databaseType database, boolType autoCommit);
     intType (*sqlStmtColumnCount) (sqlStmtType sqlStatement);
     striType (*sqlStmtColumnName) (sqlStmtType sqlStatement, intType column);
   } sqlFuncRecord, *sqlFuncType;
@@ -83,6 +86,7 @@ typedef struct {
 #define DB_CATEGORY_FIREBIRD   6
 #define DB_CATEGORY_DB2        7
 #define DB_CATEGORY_SQL_SERVER 8
+#define DB_CATEGORY_TDS        9
 
 
 databaseType sqlOpenDb2 (const const_striType host, intType port,
@@ -107,5 +111,8 @@ databaseType sqlOpenPost (const const_striType host, intType port,
     const const_striType dbName, const const_striType user,
     const const_striType password);
 databaseType sqlOpenSqlServer (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password);
+databaseType sqlOpenTds (const const_striType host, intType port,
     const const_striType dbName, const const_striType user,
     const const_striType password);

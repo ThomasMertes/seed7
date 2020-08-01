@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  numutl.c      Numeric utility functions.                        */
-/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/numutl.c                                        */
-/*  Changes: 2014, 2015  Thomas Mertes                              */
+/*  Changes: 2014 - 2016, 2019 - 2020  Thomas Mertes                */
 /*  Content: Numeric utility functions.                             */
 /*                                                                  */
 /********************************************************************/
@@ -462,7 +462,8 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
             (decimal[srcIndex] == '-' && srcIndex == 0)) {
           stri->mem[destIndex] = decimal[srcIndex];
           destIndex++;
-        } else if (decimal[srcIndex] == '.') {
+        } else if (decimal[srcIndex] == '.' || decimal[srcIndex] == ',') {
+          /* Accept decimal point and decimal comma. */
           if (hasDecimalPoint) {
             okay = FALSE;
           } else {
@@ -521,6 +522,7 @@ floatType getDecimalFloat (const const_ustriType decimal, memSizeType length)
   {
     char localCharBuffer[MAX_DECIMAL_BUFFER_LENGTH + NULL_TERMINATION_LEN];
     char *charBuffer;
+    char *commaPos;
     floatType floatValue;
 
   /* getDecimalFloat */
@@ -528,19 +530,24 @@ floatType getDecimalFloat (const const_ustriType decimal, memSizeType length)
                        DECIMAL_WITH_LIMIT(decimal, limit), length););
     if (length > MAX_DECIMAL_BUFFER_LENGTH) {
       charBuffer = (char *) malloc(length + NULL_TERMINATION_LEN);
-      if (unlikely(charBuffer == NULL)) {
-        raise_error(MEMORY_ERROR);
-        floatValue = 0.0;
-      } else {
-        memcpy(charBuffer, decimal, length);
-        charBuffer[length] = '\0';
-        floatValue = (floatType) strtod(charBuffer, NULL);
+    } else {
+      charBuffer = localCharBuffer;
+    } /* if */
+    if (unlikely(charBuffer == NULL)) {
+      raise_error(MEMORY_ERROR);
+      floatValue = 0.0;
+    } else {
+      memcpy(charBuffer, decimal, length);
+      charBuffer[length] = '\0';
+      commaPos = strchr(charBuffer, ',');
+      if (commaPos != NULL) {
+        /* Accept decimal point and decimal comma. */
+        *commaPos = '.';
+      } /* if */
+      floatValue = (floatType) strtod(charBuffer, NULL);
+      if (charBuffer != localCharBuffer) {
         free(charBuffer);
       } /* if */
-    } else {
-      memcpy(localCharBuffer, decimal, length);
-      localCharBuffer[length] = '\0';
-      floatValue = (floatType) strtod(localCharBuffer, NULL);
     } /* if */
     logFunction(printf("getDecimalFloat --> " FMT_E "\n",
                        floatValue););
@@ -576,7 +583,7 @@ ustriType bigIntToDecimal (const const_bigIntType bigIntValue,
       *length = stri->size;
       FREE_STRI(stri, stri->size);
     } /* if */
-    logFunction(printf("bigIntToDecimal --> %s (length = " FMT_U_MEM ", err_info = %d)\n",
+    logFunction(printf("bigIntToDecimal --> %s (length=" FMT_U_MEM ", err_info=%d)\n",
                        decimal == NULL ? "NULL" : (char *) decimal,
                        *length, *err_info););
     return decimal;
@@ -690,7 +697,7 @@ ustriType bigRatToDecimal (const const_bigIntType numerator,
         bigDestr(mantissaValue);
       } /* if */
     } /* if */
-    logFunction(printf("bigRatToDecimal --> %s (length = " FMT_U_MEM ", err_info = %d)\n",
+    logFunction(printf("bigRatToDecimal --> %s (length=" FMT_U_MEM ", err_info=%d)\n",
                        decimal == NULL ? "NULL" : (char *) decimal,
                        *length, *err_info););
     return decimal;

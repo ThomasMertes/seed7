@@ -1,3 +1,99 @@
+20200209:
+- The new database driver sql_tds.c has been added. This driver uses
+  the Tabular Data Stream (TDS) protocol to transfer data between
+  database server and client. TDS is used by SQL Server and Sybase.
+  This driver allows the connection to a SQL Server database from
+  Linux.
+- The new library db_prop.s7i has been added. This library provides a
+  collection of database properties. 
+- The example program chkdb.sd7 has been improved:
+  - Tests with comments in sql statements have been added.
+  - Tests that fetch boolean values from numeric fields have been
+    added.
+  - Tests for date, time, datetime and timestamp fields have been
+    added.
+- In the library time.s7i the function time() has been improved, to
+  accept more variants of the ISO 8601 time and date format including
+  variants with a time zone.
+- The interpreter (s7) has been improved to write the error message of
+  a DATABASE_ERROR, if the exception is not catched.
+- In tim_rtl.c the function timUtcFromTimestamp() has been improved to
+  work without calling gmtime() or gmtime_r() or gmtime_s(). Now the
+  function always works with a 64-bit signed timestamp. Gmtime() uses
+  time_t, which can be 32-bit or 64-bit and it can be signed or
+  unsigned.
+- In tim_rtl.c the function timToTimestamp() has been improved to work
+  without calling mkutc(). This way the function always works with a
+  64-bit signed timestamp. Mkutc() is also defined in tim_rtl.c and it
+  uses the system dependend type time_t.
+- In tim_rtl.c the functions timToOsTimestamp(), assignTime() and
+  dateFromDaysSince1900() have been added and the functions
+  timFromBigTimestamp() and timToBigTimestamp() have been removed.
+- In exec.c the functions par_restore() and loc_restore() have been
+  improved to free unneeded memory, in case an exception has been
+  raised.
+- In executl.c the function destroy_local_object() has been improved to
+  optionally ignore exceptions.
+- The functions leaveExceptionHandling(), saveFailState() and
+  restoreFailState() have been added to runerr.c. This function is used
+  in executl.c and prclib.c.
+- In numutl.c the functions getDecimalBigRational() and
+  getDecimalFloat() have been improved to accept both, a decimal point
+  and a decimal comma.
+- In several database drivers the function processStatementStri() has
+  been improved to replace a comment with a space.
+- Interpreter and compiler have been improved to support the actions
+  SQL_ROLLBACK, SQL_GET_AUTO_COMMIT and SQL_SET_AUTO_COMMIT.
+- The functions sqlRollback(), sqlGetAutoCommit() and
+  sqlSetAutoCommit() have been added to sql_cli.c, sql_lite.c,
+  sql_my.c, sql_oci.c, sql_post.c and sql_rtl.c.
+- In the database driver sql_lite.c the functions sqlBindTime() and
+  sqlColumnTime() have been improved to support more time and date
+  formats. The function sqlColumnTime() calls assignTime() to reach
+  this goal.
+- In the database driver sql_my.c the function sqlColumnTime() has
+  been improved to correct values, if they are outside of the allowed
+  range.
+- The database driver sql_db2.c has been improved to allow that for
+  the functions SQLExecute() and SQLFetch() SUCCESS_WITH_INFO is
+  treated as SQL_SUCCESS.
+- The database driver sql_post.c has been improved:
+  - Inserting and selecting time fields is now supported under
+    different operating systems and compilers.
+  - The type preparedStmtRecord and the functions freePreparedStmt()
+    and sqlPrepare() have been improved such that a prepared statement
+    maintains a dbType reference instead of a connection (PGconn).
+  - The functions doExecSql() and implicitCommit() have been added.
+    These functions are used for autocommit and for transaction
+    handling.
+- The database driver sql_oci.c has been improved:
+  - The function sqlBindTime() has been improved to set the timeZone
+    and to use a nanosecond as unit for the fraction of a second.
+    There is also a check for situations in which the function
+    OCIDateTimeConstruct() fails.
+  - The function sqlColumnTime() has been improved to use the function
+    OCIDateTimeGetTimeZoneOffset() to retrieve a timeZone and to use a
+    nanosecond as unit for the fraction of a second.
+- The database driver sql_cli.c has been improved:
+  - In case of a DATABASE_ERROR exception the native SQL error is
+    assigned to the errorCode.
+  - The function freePreparedStmt() has been changed to ignore
+    possible errors of SQLFreeStmt().
+  - Binding SQL_BLOB and SQL_CLOB parameters is supported now.
+  - Retrieving SQL_SS_TIME2 and SQL_XML columns is supported now.
+  - Retrieving datetime2 columns in sqlColumnTime() has been improved
+    to use the function assignTime().
+- The database include files db_lite.h, db_my.h, db_oci.h and db_odbc.h
+  have been improved.
+- In sql_srv.c the functions connectToServer() and
+  connectToLocalServer() have been improved to return a boolean value
+  instead of a SQLRETURN value.
+- In cmd_rtl.c the functions cmdSetATime() and cmdSetMTime() have been
+  improved to use the new function timToOsTimestamp().
+- The function determineTdsDefines() has been added to chkccomp.c.
+- In exec.c the function suspendInterpreter() has been renamed to
+  doSuspendInterpreter().
+
 20191229:
 - Spelling corrections have been done in several files. Many thanks go
   to Jens Schleusener, for sending a source code misspelling report

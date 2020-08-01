@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  db_my.h       MariaDB and MySQL interfaces used by Seed7.       */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/db_my.h                                         */
-/*  Changes: 2014  Thomas Mertes                                    */
+/*  Changes: 2014, 2020  Thomas Mertes                              */
 /*  Content: MariaDB and MySQL interfaces used by Seed7.            */
 /*                                                                  */
 /********************************************************************/
@@ -142,6 +142,7 @@ typedef struct {
 #endif
 #endif
 
+my_bool STDCALL mysql_autocommit (MYSQL *mysql, my_bool mode);
 void STDCALL mysql_close (MYSQL *sock);
 my_bool STDCALL mysql_commit (MYSQL *mysql);
 unsigned int STDCALL mysql_errno (MYSQL *mysql);
@@ -162,6 +163,7 @@ MYSQL *STDCALL mysql_real_connect (MYSQL *mysql,
                                    unsigned int port,
                                    const char *unix_socket,
                                    unsigned long clientflag);
+my_bool STDCALL mysql_rollback (MYSQL *mysql);
 int STDCALL mysql_set_character_set (MYSQL *mysql,
                                      const char *csname);
 my_bool STDCALL mysql_stmt_bind_param (MYSQL_STMT *stmt,

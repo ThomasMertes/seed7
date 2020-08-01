@@ -4626,7 +4626,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
   The example above shows that functions with <tt><span class="keywd">in</span></tt> and <tt><span class="keywd">inout</span></tt>
   parameters can be overloaded. At the right side of an assignment
   the <tt><a class="type" href="#types_func">func</a></tt> is called, while at the left side the <tt><a class="type" href="#types_varfunc">varfunc</a></tt>
-  is called. That way the access functions of <a class="type" href="#types_array">array</a>s, <a class="type" href="#types_hash">hash</a>s
+  is called. That way the access functions of <a class="type" href="#types_array">array</a>s, <a class="type" href="#types_hash">hash</a>es
   and <a class="type" href="#types_struct">struct</a>s can be used in the usual way.
 </p>
 
@@ -9263,8 +9263,9 @@ my_dir := homeDir;
   a client may access a database. Seed7 accomplishes database
   independence by using database drivers as abstraction layers
   between the application and the database. There are database
-  drivers for MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, ODBC,
-  Firebird and Interbase databases. The following example uses the
+  drivers for MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird,
+  Interbase, Db2 and SQL Server databases. Databases can also be
+  accessed via the ODBC interface. The following example uses the
   datapase abstraction API:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: dbDemo <span class="keywd">is</span> <span class="keywd">func</span>
@@ -9311,11 +9312,12 @@ my_dir := homeDir;
   <tr><td>SQLLite       </td><td> DB_SQLITE     </td><td>              </td><td> Host must be <tt><span class="stri">""</span></tt> and port must be 0.</td></tr>
   <tr><td>PostgreSQL    </td><td> DB_POSTGRESQL </td><td>   5432       </td><td></td></tr>
   <tr><td>Oracle        </td><td> DB_OCI        </td><td>   1521       </td><td></td></tr>
-  <tr><td> various DBs  </td><td> DB_ODBC       </td><td>              </td><td> Needs an ODBC driver to connect to a database.</td></tr>
   <tr><td>Firebird      </td><td> DB_FIRE       </td><td>              </td><td></td></tr>
   <tr><td>Interbase     </td><td> DB_FIRE       </td><td>              </td><td></td></tr>
   <tr><td>Db2           </td><td> DB_DB2        </td><td>  50000       </td><td></td></tr>
   <tr><td>SQL Server    </td><td> DB_SQL_SERVER </td><td>   1433       </td><td></td></tr>
+  <tr><td> various DBs  </td><td> DB_ODBC       </td><td>              </td><td> Needs an ODBC driver to connect to a database.</td></tr>
+  <tr><td>Sybase based  </td><td> DB_TDS        </td><td>   1433       </td><td>Supports SQL Server and Sybase.</td></tr>
 </table></dd></dl><p>
   A basic function to open a database is:
 </p><pre class="indent">
@@ -9342,26 +9344,37 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_DB2</span>, <span class="stri">"www.example.org"</span>, 0, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQL_SERVER</span>, <span class="stri">"192.168.1.13"</span>, 0, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_TDS</span>, <span class="stri">"192.168.1.13"</span>, 0, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 </pre><p>
   The <tt>host</tt> can be specified by name (e.g.: <tt><span class="stri">"www.example.org"</span></tt>),
   by an IPv4 address (e.g.: <tt><span class="stri">"192.0.2.235"</span></tt>) or by an IPv6
   address in colon notation (e.g.: <tt><span class="stri">"1234:feed::dead:beef"</span></tt>).
   Specifying <tt><span class="stri">""</span></tt> as <tt>host</tt> means <tt><span class="stri">"localhost"</span></tt>.
-</p><p>
+</p>
+
+<a name="database_Opening_an_Oracle_database_connection"><h4>13.1.1 Opening an Oracle database connection</h4></a>
+<p>
   When using the <tt><span class="var">DB_OCI</span></tt> driver you can either supply a <tt>net_service_name</tt>
   from <tt><span class="stri">tnsnames.ora</span></tt> or a <tt>service_name</tt> or a <tt>sid</tt> as <tt>dbName</tt>. If
   <tt><span class="stri">tnsnames.ora</span></tt> is used the parameter <tt>host</tt> must be <tt><span class="stri">""</span></tt> and the
   parameter <tt>port</tt> must be 0.
 </p><pre class="indent">
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_OCI</span>, <span class="stri">""</span>, 0, <span class="stri">"tnsnamesOraEntryName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
-</pre><p>
-  When using the <tt><span class="var">DB_DB2</span></tt> driver you can either supply a <tt>database alias</tt>
-  from <tt><span class="stri">db2cli.ini</span></tt> or a <tt>database name</tt> as <tt>dbName</tt>. If
-  <tt><span class="stri">db2cli.ini</span></tt> is used the parameter <tt>host</tt> must be <tt><span class="stri">""</span></tt> and the
-  parameter <tt>port</tt> must be 0.
+</pre>
+
+<a name="database_Opening_a_Db2_database_connection"><h4>13.1.2 Opening a Db2 database connection</h4></a>
+<p>
+  When using the <tt><span class="var">DB_DB2</span></tt> driver you can either supply a <tt>DSN</tt>
+  (data source name) from <tt><span class="stri">db2cli.ini</span></tt> (or <tt><span class="stri">db2dsdriver.cfg</span></tt>) or a
+  <tt>database name</tt> as <tt>dbName</tt>. If a <tt>DSN</tt> is used the parameter
+  <tt>host</tt> must be <tt><span class="stri">""</span></tt> and the parameter <tt>port</tt> must be 0.
 </p><pre class="indent">
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_DB2</span>, <span class="stri">""</span>, 0, <span class="stri">"databaseAlias"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
-</pre><p>
+</pre>
+
+<a name="database_Opening_a_SQL_Server_database_connection"><h4>13.1.3 Opening a SQL Server database connection</h4></a>
+<p>
   When using the <tt><span class="var">DB_SQL_SERVER</span></tt> driver you can either supply a <tt>database name</tt>
   from the local machine or a database that can be accessed via
   TCP/IP. To access a database at the local machine the parameter
@@ -9369,7 +9382,10 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_DB2</span>
   If TCP/IP is used it must be enabled in the database.
 </p><pre class="indent">
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQL_SERVER</span>, <span class="stri">""</span>, 0, <span class="stri">"localDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
-</pre><p>
+</pre>
+
+<a name="database_Opening_a_SQLite_database_connection"><h4>13.1.4 Opening a SQLite database connection</h4></a>
+<p>
   A SQLite database can be opened with:
 </p><pre class="indent">
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</span>, <span class="stri">""</span>, 0, <span class="stri">"aDir/dbName.db"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
@@ -9379,7 +9395,10 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</sp
   The path to the database file (in the example above <tt><span class="stri">"aDir/dbName"</span></tt>)
   can be specified with or without the extension <tt><span class="stri">".db"</span></tt>.
   For a SQLite database <tt>host</tt> must be <tt><span class="stri">""</span></tt> and <tt>port</tt> must be 0.
-</p><p>
+</p>
+
+<a name="database_Opening_a_ODBC_database_connection"><h4>13.1.5 Opening a ODBC database connection</h4></a>
+<p>
   The Seed7 database driver <tt><span class="var">DB_ODBC</span></tt> is special, as the ODBC
   interface itself allows connecting to several database types.
   The ODBC interface library accomplishes this by using ODBC drivers.
@@ -9405,7 +9424,7 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_ODBC</span
   ODBC uses also data source names (DSNs) to specify possible
   database connections. It is possible to open an ODBC database
   by specifying the data source name (DSN) in the parameter
-  <tt>dbName</tt>. In this case the prameters <tt>odbcDriver</tt> and <tt>server</tt>
+  <tt>dbName</tt>. In this case the parameters <tt>odbcDriver</tt> and <tt>server</tt>
   must be <tt><span class="stri">""</span></tt>.
 </p><pre class="indent">
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_ODBC</span>, <span class="stri">""</span>, <span class="stri">""</span>, <span class="stri">"dsnName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);

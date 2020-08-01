@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  cmd_rtl.c     Directory, file and other system functions.       */
-/*  Copyright (C) 1989 - 2016, 2018, 2019  Thomas Mertes            */
+/*  Copyright (C) 1989 - 2016, 2018 - 2020  Thomas Mertes           */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_rtl.c                                       */
-/*  Changes: 1994, 2006, 2009  Thomas Mertes                        */
+/*  Changes: 1994, 2006, 2009, 2018 - 2020  Thomas Mertes           */
 /*  Content: Directory, file and other system functions.            */
 /*                                                                  */
 /********************************************************************/
@@ -3257,18 +3257,18 @@ void cmdSetATime (const const_striType filePath,
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(os_path != NULL)) {
       if (os_stat(os_path, &stat_buf) == 0) {
-        utime_buf.actime = timToTimestamp(year, month, day, hour,
-            min, sec, micro_sec, time_zone);
+        utime_buf.actime = timToOsTimestamp(year, month, day, hour,
+            min, sec, time_zone);
         /* printf("cmdSetATime: actime=" FMT_T "\n", utime_buf.actime); */
         utime_buf.modtime = stat_buf.st_mtime;
-        if (utime_buf.actime == (time_t) -1) {
-          logError(printf("cmdSetATime: timToTimestamp("
+        if (unlikely(utime_buf.actime == (time_t) TIME_T_ERROR)) {
+          logError(printf("cmdSetATime: timToOsTimestamp("
                           F_D(04) "-" F_D(02) "-" F_D(02) " " F_D(02) ":"
                           F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ") failed.\n",
                           year, month, day, hour, min, sec,
                           micro_sec, time_zone););
           err_info = RANGE_ERROR;
-        } else if (os_utime(os_path, &utime_buf) != 0) {
+        } else if (unlikely(os_utime(os_path, &utime_buf) != 0)) {
           logError(printf("cmdSetATime: os_utime(\"" FMT_S_OS "\") failed:\n"
                           "errno=%d\nerror: %s\n",
                           os_path, errno, strerror(errno)););
@@ -3379,17 +3379,17 @@ void cmdSetMTime (const const_striType filePath,
     if (likely(os_path != NULL)) {
       if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = stat_buf.st_atime;
-        utime_buf.modtime = timToTimestamp(year, month, day, hour,
-            min, sec, micro_sec, time_zone);
+        utime_buf.modtime = timToOsTimestamp(year, month, day, hour,
+            min, sec, time_zone);
         /* printf("cmdSetMTime: modtime=" FMT_T "\n", utime_buf.modtime); */
-        if (utime_buf.modtime == (time_t) -1) {
-          logError(printf("cmdSetMTime: timToTimestamp("
+        if (unlikely(utime_buf.modtime == (time_t) TIME_T_ERROR)) {
+          logError(printf("cmdSetMTime: timToOsTimestamp("
                           F_D(04) "-" F_D(02) "-" F_D(02) " " F_D(02) ":"
                           F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ") failed.\n",
                           year, month, day, hour, min, sec,
                           micro_sec, time_zone););
           err_info = RANGE_ERROR;
-        } else if (os_utime(os_path, &utime_buf) != 0) {
+        } else if (unlikely(os_utime(os_path, &utime_buf) != 0)) {
           logError(printf("cmdSetMTime: os_utime(\"" FMT_S_OS "\") failed:\n"
                           "errno=%d\nerror: %s\n",
                           os_path, errno, strerror(errno)););

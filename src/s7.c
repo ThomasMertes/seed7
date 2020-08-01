@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2020  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -57,6 +57,8 @@
 #include "flt_rtl.h"
 #include "arr_rtl.h"
 #include "cmd_rtl.h"
+#include "sql_rtl.h"
+#include "con_rtl.h"
 #include "con_drv.h"
 #include "fil_drv.h"
 #include "big_drv.h"
@@ -68,7 +70,7 @@ typedef struct {
 typedef HINSTANCE__ *HINSTANCE;
 #endif
 
-#define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2019 Thomas Mertes\n"
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2020 Thomas Mertes\n"
 
 
 
@@ -264,7 +266,7 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
                 error = TRUE;
               } /* if */
               printf("*** Ignore unsupported option: ");
-              prot_stri_unquoted(opt);
+              conWrite(opt);
               printf("\n");
               break;
           } /* switch */
@@ -301,7 +303,7 @@ static void processOptions (rtlArrayType arg_v, const optionType option)
                 error = TRUE;
               } /* if */
               printf("*** Ignore unsupported option: ");
-              prot_stri_unquoted(opt);
+              conWrite(opt);
               printf("\n");
               break;
           } /* switch */
@@ -386,7 +388,7 @@ int main (int argc, char **argv)
       processOptions(arg_v, &option);
       setupSignalHandlers((option.parserOptions & HANDLE_SIGNALS) != 0,
                           (option.parserOptions & TRACE_SIGNALS) != 0,
-                          FALSE, FALSE, suspendInterpreter);
+                          FALSE, FALSE, doSuspendInterpreter);
       if (fail_flag) {
         printf("\n*** Processing the options failed. Program terminated.\n");
       } else {
@@ -426,12 +428,21 @@ int main (int argc, char **argv)
               /* prgDestr(currentProg); */
               /* heapStatistic(); */
             } /* if */
+            if (fail_flag) {
+              uncaught_exception();
+              if (fail_value == DB_EXCEPTION(currentProg)) {
+                striType message;
+
+                message = sqlErrMessage();
+                printf("\nMessage from the DATABASE_ERROR exception:\n");
+                conWrite(message);
+                printf("\n");
+                FREE_STRI(message, message->size);
+              } /* if */
+            } /* if */
           } /* if */
         } /* if */
         shutDrivers();
-        if (fail_flag) {
-          uncaught_exception();
-        } /* if */
       } /* if */
     } /* if */
     /* getchar(); */

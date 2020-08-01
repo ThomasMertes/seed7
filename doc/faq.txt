@@ -120,8 +120,8 @@ should be no need to call foreign C functions, or to execute shell
    windows manipulation and bitmap fonts. Events to redraw a window
    and other annoyances are managed in the graphics library.
  - A database library provides a database independent API to connect
-   to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, ODBC, Firebird
-   and Interbase databases.
+   to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird, Interbase,
+   Db2 and SQL Server databases. The ODBC interface can be used also.
  - Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
    the modification of directory access and modification times also
@@ -244,12 +244,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2019-12-29 the number of lines is:
+than 300000 lines of Seed7. For version 2020-02-09 the number of lines is:
 
-  152752  C source files (*.c)
-   12178  C header files (*.h)
-  165581  Seed7 source files (*.sd7)
-  146949  Seed7 library/include files (*.s7i)
+  156795  C source files (*.c)
+   12466  C header files (*.h)
+  166386  Seed7 source files (*.sd7)
+  148062  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1201,12 +1201,9 @@ A database library provides a database independent API, which defines how
 a client may access a database. Seed7 accomplishes database independence
 by using database drivers as abstraction layers between the application
 and the database. There are database drivers for MySQL, MariaDB, SQLLite,
-PostgreSQL, Oracle, ODBC, Firebird and Interbase databases. You might have
-heard of a database interface named ODBC. Compared to the ODBC interface
-the database independent API of Seed7 is much simpler. The drivers of ODBC
-come also in varying quality so some features might not be present or they
-might work wrong. How the database independent API of Seed7 works can be
-seen in the following example:
+PostgreSQL, Oracle, Firebird, Interbase, Db2 and SQL Server databases.
+Databases can also be accessed via the ODBC interface. How the database
+independent API of Seed7 works can be seen in the following example:
 
   const proc: dbDemo is func
     local
@@ -2104,6 +2101,7 @@ currently supported databases:
   | DB2        | sqlcli1.h  | db_odbc.h | sql_db2.c  | DB2_LIBS         | DB2_LIBS          |
   | SQL Server | sql.h      | db_odbc.h | sql_srv.c  | SQL_SERVER_LIBS  | SQL_SERVER_DLL    |
   | ODBC       | sql.h      | db_odbc.h | sql_odbc.c | ODBC_LIBS        | ODBC_DLL          |
+  | TDS        | sybdb.h    | db_tds.h  | sql_tds.c  |                  | TDS_DLL           |
   +------------+------------+-----------+------------+------------------+-------------------+
 
 If no static library is provided in the makefile (by writing it to
@@ -2138,6 +2136,7 @@ value differs between Linux, macOS and Windows:
   | DB2_LIBS          | libdb2.so              | libdb2.dylib         | db2cli.dll                     |
   | SQL_SERVER_DLL    | libtdsodbc.so          | libtdsodbc.dylib     | sqlsrv32.dll                   |
   | ODBC_DLL          | libodbc.so             | libiodbc.dylib       | odbc32.dll                     |
+  | TDS_DLL           | libsybdb.so            | libsybdb.dylib       | sybdb.dll                      |
   +-------------------+------------------------+----------------------+--------------------------------+
 
 For Oracle it is assumed that the environment variable ORACLE_HOME has
