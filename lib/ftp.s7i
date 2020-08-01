@@ -369,13 +369,7 @@ const proc: retrieve (inout ftpConnection: ftp, in string: source,
         if  startsWith(ftp.response, "125") or
             startsWith(ftp.response, "150") then
           prepareFtpDataCommunication(ftp);
-          buffer := gets(ftp.data, 1000000);
-          while buffer <> "" do
-            # writeln(literal(buffer));
-            # writeln(length(buffer));
-            write(destFile, buffer);
-            buffer := gets(ftp.data, 1000000);
-          end while;
+          copyFile(ftp.data, destFile);
           close(destFile);
           closeFtpData(ftp);
           ftpResponse(ftp);
@@ -414,11 +408,7 @@ const proc: store (inout ftpConnection: ftp, in string: sourcePath,
         if  startsWith(ftp.response, "125") or
             startsWith(ftp.response, "150") then
           prepareFtpDataCommunication(ftp);
-          buffer := gets(sourceFile, 4096);
-          while buffer <> "" do
-            write(ftp.data, buffer);
-            buffer := gets(sourceFile, 4096);
-          end while;
+          copyFile(sourceFile, ftp.data);
           close(sourceFile);
           closeFtpData(ftp);
           ftpResponse(ftp);
@@ -500,6 +490,20 @@ const proc: putFile (inout ftpConnection: ftp, in string: fileName,
         closeFtpData(ftp);
         raise FILE_ERROR;
       end if;
+    end if;
+  end func;
+
+
+(**
+ *  Remove a file using a FTP connection.
+ *  @exception FILE_ERROR The remote host returns an error.
+ *)
+const proc: removeFile (inout ftpConnection: ftp, in string: fileName) is func
+  begin
+    ftpCommand(ftp, "DELE " <& striToUtf8(fileName));
+    ftpResponse(ftp);
+    if not startsWith(ftp.response, "257") then
+      raise FILE_ERROR;
     end if;
   end func;
 

@@ -46,7 +46,8 @@ const type: listener is sub object interface;
 const proc: close (inout listener: aListener)                               is DYNAMIC;
 const proc: listen (in listener: aListener, in integer: backlog)            is DYNAMIC;
 const func file: accept (inout listener: aListener)                         is DYNAMIC;
-const proc: signOff (inout listener: aListener, in PRIMITIVE_SOCKET: sock)  is DYNAMIC;
+const proc: signOn (inout listener: aListener, in file: sock)               is DYNAMIC;
+const proc: signOff (inout listener: aListener, in file: sock)              is DYNAMIC;
 const proc: waitForRequest (inout listener: aListener)                      is DYNAMIC;
 const func file: getExistingConnection (in listener: aListener)             is DYNAMIC;
 const func file: getNewConnection (in listener: aListener)                  is DYNAMIC;
@@ -172,7 +173,7 @@ const func file: openInetSocket (in string: hostName, in integer: portNumber) is
 const proc: close (inout socket: aSocket) is func
   begin
     if aSocket.acceptedFrom <> listener.value then
-      signOff(aSocket.acceptedFrom, aSocket.sock);
+      signOff(aSocket.acceptedFrom, aSocket);
     end if;
     close(aSocket.sock);
     aSocket.sock := PRIMITIVE_NULL_SOCKET;

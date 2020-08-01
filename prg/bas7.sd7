@@ -5483,7 +5483,7 @@ const func file: basicOpen (in var string: filePath, in string: access) is func
         if fileType(path & "/" & pathElems[number]) <> FILE_ABSENT then
           path &:= "/" & pathElems[number];
         elsif fileType(path) = FILE_DIR then
-          directoryContent := read_dir(path);
+          directoryContent := readDir(path);
           foundTwice := FALSE;
           foundElement := "";
           for directoryElement range directoryContent do

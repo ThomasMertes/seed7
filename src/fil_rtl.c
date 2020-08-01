@@ -1298,6 +1298,7 @@ stritype mode;
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
+        /* printf("os_command: \"%s\"\n", os_command); */
         result = os_popen(os_command, os_mode);
       } /* if */
       os_stri_free(os_command);

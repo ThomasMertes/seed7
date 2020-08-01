@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_x11.c     Graphic access using the X11 capabilities.        */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -69,7 +69,6 @@ GC mygc;
 XSizeHints myhint;
 XWMHints mywmhint;
 int myscreen;
-extern Window button_window;
 
 typedef struct x11_winstruct {
     uinttype usage_count;
@@ -80,7 +79,6 @@ typedef struct x11_winstruct {
     booltype is_pixmap;
     unsigned int width;
     unsigned int height;
-    struct x11_winstruct *next;
   } x11_winrecord, *x11_wintype;
 
 typedef const struct x11_winstruct *const_x11_wintype;
@@ -98,8 +96,6 @@ typedef const struct x11_winstruct *const_x11_wintype;
 #define is_var_pixmap(win)    (((x11_wintype) win)->is_pixmap)
 #define to_var_width(win)     (((x11_wintype) win)->width)
 #define to_var_height(win)    (((x11_wintype) win)->height)
-
-static x11_wintype window_hash[1024];
 
 Visual *default_visual;
 
@@ -131,94 +127,17 @@ static const int highest_bit[16] = {
 
 #ifdef ANSI_C
 
-static x11_wintype find_window (Window curr_window)
+wintype find_window (Window curr_window);
+void enter_window (wintype curr_window, Window xWin);
+void remove_window (wintype curr_window, Window xWin);
+
 #else
 
-static x11_wintype find_window (curr_window)
-Window curr_window;
+wintype find_window ();
+void enter_window ();
+void remove_window ();
+
 #endif
-
-  {
-    x11_wintype window;
-
-  /* find_window */
-    window = window_hash[((memsizetype) curr_window) >> 6 & 1023];
-    while (window != NULL) {
-      if (to_window(window) == curr_window) {
-        return window;
-      } /* if */
-      window = window->next;
-    } /* while */
-    return NULL;
-  } /* find_window */
-
-
-
-#ifdef ANSI_C
-
-wintype gkbWindow (void)
-#else
-
-wintype gkbWindow ()
-#endif
-
-  {
-    wintype result;
-
-  /* gkbWindow */
-    result = (wintype) find_window(button_window);
-    if (result != NULL) {
-      result->usage_count++;
-    } /* if */
-    return result;
-  } /* gkbWindow */
-
-
-
-#ifdef ANSI_C
-
-static void enter_window (x11_wintype curr_window)
-#else
-
-static void enter_window (curr_window)
-x11_wintype curr_window;
-#endif
-
-  {
-    x11_wintype window;
-
-  /* enter_window */
-    window = window_hash[((memsizetype) to_window(curr_window)) >> 6 & 1023];
-    curr_window->next = window;
-    window_hash[((memsizetype) to_window(curr_window)) >> 6 & 1023] = curr_window;
-  } /* enter_window */
-
-
-
-#ifdef ANSI_C
-
-static void remove_window (x11_wintype curr_window)
-#else
-
-static void remove_window (curr_window)
-x11_wintype curr_window;
-#endif
-
-  {
-    x11_wintype *win_addr;
-    x11_wintype window;
-
-  /* remove_window */
-    win_addr = &window_hash[((memsizetype) curr_window) >> 6 & 1023];
-    window = *win_addr;
-    while (window != NULL) {
-      if (window == curr_window) {
-        *win_addr = window->next;
-      } /* if */
-      win_addr = &window->next;
-      window = window->next;
-    } /* while */
-  } /* remove_window */
 
 
 
@@ -241,7 +160,7 @@ XExposeEvent *xexpose;
 #endif
     /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d, count=%d\n",
         xexpose->x, xexpose->y, xexpose->width, xexpose->height, xexpose->count); */
-    expose_window = find_window(xexpose->window);
+    expose_window = (x11_wintype) find_window(xexpose->window);
     /* XFlush(mydisplay);
        XSync(mydisplay, 0);
        getchar(); */
@@ -308,8 +227,11 @@ void doFlush ()
 #endif
 
   { /* doFlush */
+#ifdef TRACE_X11
+    printf("doFlush\n");
+#endif
     XFlush(mydisplay);
-    XSync(mydisplay, 0);
+    /* XSync(mydisplay, 0); */
   } /* doFlush */
 
 
@@ -353,7 +275,7 @@ XConfigureEvent *xconfigure;
 #ifdef TRACE_X11
     printf("begin configure\n");
 #endif
-    configure_window = find_window(xconfigure->window);
+    configure_window = (x11_wintype) find_window(xconfigure->window);
     if (configure_window->actual_width != xconfigure->width ||
         configure_window->actual_height != xconfigure->height) {
       printf("XConfigureEvent x=%d, y=%d, width=%d, height=%d\n",
@@ -495,8 +417,6 @@ static void dra_init ()
       printf("lshift_blue:  %d\n", lshift_blue);
       printf("rshift_blue:  %d\n", rshift_blue);
 #endif
-      memset(window_hash, 0, 1024 * sizeof(x11_wintype));
-
       mybackground = WhitePixel(mydisplay, myscreen);
       myforeground = BlackPixel(mydisplay, myscreen);
 
@@ -748,8 +668,8 @@ floattype startAngle, sweepAngle;
 
   /* drwFArcPieSlice */
 #ifdef TRACE_X11
-    printf("drwFArcPieSlice(%d, %d, %d, %.4f, %.4f)\n",
-        x, y, radius, startAngle, sweepAngle);
+    printf("drwFArcPieSlice(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
+        actual_window, x, y, radius, startAngle, sweepAngle);
 #endif
     XSetArcMode(mydisplay, mygc, ArcPieSlice);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
@@ -794,8 +714,8 @@ inttype col;
 
   /* drwPFArcPieSlice */
 #ifdef TRACE_X11
-    printf("drwPFArcPieSlice(%d, %d, %d, %.4f, %.4f)\n",
-        x, y, radius, startAngle, sweepAngle); */
+    printf("drwPFArcPieSlice(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
+        actual_window, x, y, radius, startAngle, sweepAngle);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XSetArcMode(mydisplay, mygc, ArcPieSlice);
@@ -1021,7 +941,8 @@ inttype col;
 
   { /* drwPFCircle */
 #ifdef TRACE_X11
-    printf("drwPFCircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
+    printf("drwPFCircle(%lu, %ld, %ld, %ld, %08lx)\n",
+        actual_window, x, y, radius, col);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XDrawArc(mydisplay, to_window(actual_window), mygc,
@@ -1127,7 +1048,7 @@ wintype old_window;
       XFreePixmap(mydisplay, to_window(old_window));
     } else {
       XDestroyWindow(mydisplay, to_window(old_window));
-      remove_window((x11_wintype) old_window);
+      remove_window(old_window, to_window(old_window));
     } /* if */
     FREE_RECORD(old_window, x11_winrecord, count.win);
   } /* drwFree */
@@ -1171,7 +1092,6 @@ inttype height;
       result->is_pixmap = TRUE;
       result->width = (unsigned int) width;
       result->height = (unsigned int) height;
-      result->next = NULL;
       if (to_backup(actual_window) != 0) {
         XCopyArea(mydisplay, to_backup(actual_window),
             result->window, mygc, left, upper,
@@ -1204,6 +1124,9 @@ inttype y;
     long pixel;
 
   /* drwGetPixel */
+#ifdef TRACE_X11
+    printf("drwGetPixel(%lu, %ld, %ld)\n", actual_window, x, y);
+#endif
     if (to_backup(actual_window) != 0) {
       image = XGetImage(mydisplay, to_backup(actual_window), x, y, 1, 1,
                         (unsigned long) -1, ZPixmap);
@@ -1239,6 +1162,9 @@ wintype actual_window;
   /* drwHeight */
     status = XGetGeometry(mydisplay, to_window(actual_window), &root,
         &x, &y, &width, &height, &border_width, &depth);
+#ifdef TRACE_X11
+    printf("drwHeight(%lu) -> %u\n", actual_window, height);
+#endif
     return (inttype) height;
   } /* drwHeight */
 
@@ -1287,7 +1213,6 @@ inttype height;
           result->is_pixmap = TRUE;
           result->width = (unsigned int) width;
           result->height = (unsigned int) height;
-          result->next = NULL;
           XPutImage(mydisplay, result->window, mygc, image, 0, 0, 0, 0,
               (unsigned int) width, (unsigned int) height);
         } /* if */
@@ -1387,7 +1312,6 @@ inttype height;
           result->is_pixmap = TRUE;
           result->width = (unsigned int) width;
           result->height = (unsigned int) height;
-          result->next = NULL;
         } /* if */
       } /* if */
     } /* if */
@@ -1429,7 +1353,6 @@ inttype height;
       result->is_pixmap = TRUE;
       result->width = (unsigned int) width;
       result->height = (unsigned int) height;
-      result->next = NULL;
     } /* if */
     return (wintype) result;
   } /* drwNewBitmap */
@@ -1495,7 +1418,7 @@ stritype window_name;
                 DefaultRootWindow(mydisplay),
                 myhint.x, myhint.y, (unsigned) myhint.width, (unsigned) myhint.height,
                 5, myforeground, mybackground);
-            enter_window(result);
+            enter_window((wintype) result, result->window);
 
             result->backup = 0;
             result->clip_mask = 0;
@@ -1618,7 +1541,7 @@ inttype height;
               to_window(parent_window),
               xPos, yPos, (unsigned) width, (unsigned) height,
               0, myforeground, mybackground);
-          enter_window(result);
+          enter_window((wintype) result, result->window);
 
           result->backup = 0;
           result->clip_mask = 0;
@@ -1912,8 +1835,8 @@ inttype y;
   { /* drwPut */
 #ifdef TRACE_X11
     printf("drwPut(%lu, %lu, %ld, %ld)\n", actual_window, pixmap, x, y);
-    printf("actual_window=%lu, pixmap=%lu\n", to_window(actual_window),
-        pixmap != NULL ? to_window(pixmap) : NULL);
+    /* printf("actual_window=%lu, pixmap=%lu\n", to_window(actual_window),
+        pixmap != NULL ? to_window(pixmap) : NULL); */
 #endif
     /* A pixmap value of NULL is used to describe an empty pixmap. */
     /* In this case nothing should be done.                        */
@@ -2543,6 +2466,9 @@ wintype actual_window;
   /* drwWidth */
     status = XGetGeometry(mydisplay, to_window(actual_window), &root,
         &x, &y, &width, &height, &border_width, &depth);
+#ifdef TRACE_X11
+    printf("drwWidth(%lu) -> %u\n", actual_window, height);
+#endif
     return (inttype) width;
   } /* drwWidth */
 
@@ -2568,6 +2494,9 @@ wintype actual_window;
   /* drwXPos */
     status = XGetGeometry(mydisplay, to_window(actual_window), &root,
         &x, &y, &width, &height, &border_width, &depth);
+#ifdef TRACE_X11
+    printf("drwXPos(%lu) -> %d\n", actual_window, x);
+#endif
     return (inttype) x;
   } /* drwXPos */
 
@@ -2593,5 +2522,8 @@ wintype actual_window;
   /* drwYPos */
     status = XGetGeometry(mydisplay, to_window(actual_window), &root,
         &x, &y, &width, &height, &border_width, &depth);
+#ifdef TRACE_X11
+    printf("drwYPos(%lu) -> %d\n", actual_window, y);
+#endif
     return (inttype) y;
   } /* drwYPos */

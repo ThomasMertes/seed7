@@ -83,13 +83,22 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
     - Copying, moving and removing files (and directory trees).
     - File properties such as size, type, time and mode can be
       obtained and changed.
+    - Reading the contents of a directory as array of strings or via the file interface.
     - A standard path representation removes all problems with
       drive letters and different path delimiters.
  - Differences between Unix sockets and winsockets are hidden and
    Seed7 sockets are files (as in Unix).
- - Reading keys and key combinations such as ctrl-F1 from a text
-   console or a graphic window under different operating systems
-   always delivers the same character code.
+ - The library keyboard.s7i defines the file KEYBOARD, which supports
+   reading single keypresses. The characters read from KEYBOARD are
+   not echoed to the console and there is no need to press ENTER.
+   There is also a portable way to check, if a key has been pressed.
+ - Reading keys and key combinations such as ctrl-F1 from a
+   text console or a graphic window under different operating
+   systems always delivers the same character code.
+ - An operating system independend type for times and dates,
+   based on the proleptic Gregorian calendar, is provided in
+   the library time.s7i.
+ - A text console which allows cursor positioning.
  - A portable graphics library allows drawing, image operations,
    windows manipulation and bitmap fonts. Events to redraw a window
    and other annoyances are managed in the graphics library.
@@ -187,12 +196,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-01-15 the number of lines is:
+than 150000 lines of Seed7. For version 2012-02-05 the number of lines is:
 
-  100346  C source files (*.c)
+  100461  C source files (*.c)
    10077  C header files (*.h)
-  107704  Seed7 source files (*.sd7)
-   64541  Seed7 library/include files (*.s7i)
+  107694  Seed7 source files (*.sd7)
+   64572  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1472,6 +1481,7 @@ interpreter is compiled. The command 'make depend' writes C preprocessor
 macros to "seed7/src/version.h". E.g.:
 
   #define SEED7_LIB "seed7_05.a"
+  #define CONSOLE_LIB "s7_con.a"
   #define DRAW_LIB "s7_draw.a"
   #define COMP_DATA_LIB "s7_data.a"
   #define COMPILER_LIB "s7_comp.a"
@@ -1498,8 +1508,8 @@ defined or undefined 'configValue' returns "TRUE" or "FALSE"
 respectively. E.g.: configValue("TWOS_COMPLEMENT_INTTYPE") returns
 "TRUE".
 
-The Seed7 compiler uses the runtime libraries SEED7_LIB, DRAW_LIB,
-COMP_DATA_LIB and COMPILER_LIB in the directory S7_LIB_DIR
+The Seed7 compiler uses the runtime libraries SEED7_LIB, CONSOLE_LIB,
+DRAW_LIB, COMP_DATA_LIB and COMPILER_LIB in the directory S7_LIB_DIR
 when it links object files to an executable. Config values
 like RSHIFT_DOES_SIGN_EXTEND, TWOS_COMPLEMENT_INTTYPE and
 LITTLE_ENDIAN_INTTYPE are used to control the kind of C code

@@ -32,7 +32,7 @@ const proc: main is func
     var string: name is "";
   begin
     write("directory? ");
-    dirFile := open_dir_path(getln(IN));
+    dirFile := openDirPath(getln(IN));
     name := getln(dirFile);
     while name <> "" do
       write(name <& " ");

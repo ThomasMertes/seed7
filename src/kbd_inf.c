@@ -160,7 +160,7 @@ static void consume_chars_present ()
     term_descr.c_cc[VTIME] = 0;
     tcsetattr(file_no, TCSANOW, &term_descr);
     while (fread(&ch, 1, 1, stdin) == 1) {
-      printf("consume: %d\n", ch);
+      /* printf("consume: %d\n", ch); */
     } /* while */
     term_descr.c_cc[VMIN] = 1;
     term_descr.c_cc[VTIME] = 0;
@@ -278,7 +278,7 @@ chartype actual_char;
         /* If the previous call of read_f_key was at most 5 seconds */
         /* ago and the function key was recognised with a partial   */
         /* match and a timeout the following check is done. It is   */
-        /* checked if the new character together with the       */
+        /* checked if the new character together with the           */
         /* characters from the partial match of the previous call   */
         /* of read_f_key are a possible begin of a function key. In */
         /* this case it was wrong that the previous call of         */
@@ -717,6 +717,7 @@ booltype kbdKeyPressed ()
           key_buffer_filled = TRUE;
         } else {
           result = FALSE;
+          clearerr(stdin);
         } /* if */
         term_descr.c_cc[VMIN] = 1;
         term_descr.c_cc[VTIME] = 0;

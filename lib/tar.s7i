@@ -504,7 +504,7 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
         writeln(name);
       end if;
       if fileType(basePath & name) = FILE_DIR then
-        dir_content := read_dir(basePath & name);
+        dir_content := readDir(basePath & name);
         setUpHead(basePath, name, "/", head);
         head.typeflag := DIRTYPE;
         head.size :=     0;

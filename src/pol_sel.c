@@ -575,7 +575,7 @@ struct timeval *timeout;
           WSANOTINITIALISED, WSAEFAULT, WSAENETDOWN, WSAEINVAL);
       printf("WSAEINTR=%ld  WSAEINPROGRESS=%ld  WSAENOTSOCK =%ld\n",
           WSAEINTR, WSAEINPROGRESS, WSAENOTSOCK); */
-      /* printf("nfds=%d", nfds); */
+      /* printf("nfds=%d\n", nfds); */
       raise_error(FILE_ERROR);
     } else {
       var_conv(pollData)->readTest.iterPos = 0;

@@ -45,8 +45,8 @@ const proc: syncDir (in string: sourcePath, in string: destPath) is func
     if getMTime(sourcePath) + 1 . SECONDS >= getMTime(destPath) then
       updateMtime := TRUE;
     end if;
-    sourceContent := read_dir(sourcePath);
-    destContent := read_dir(destPath);
+    sourceContent := readDir(sourcePath);
+    destContent := readDir(destPath);
     # writeln("syncDir " <& literal(sourcePath) <& " " <& literal(destPath));
     while sourceIndex <= length(sourceContent) and
         destIndex <= length(destContent) do

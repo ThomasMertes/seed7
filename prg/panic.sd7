@@ -2599,6 +2599,7 @@ const proc: game_round is func
   local
     var integer: number is 0;
     var integer: progress is 0;
+    var integer: blackBarLength is -1;
     var integer: new_bonus is 0;
     var integer: bonus is 0;
   begin
@@ -2612,17 +2613,19 @@ const proc: game_round is func
         check_direction(monster[number]);
         move(monster[number]);
       end for;
-      DRAW_FLUSH;
       get_command(player);
       if not game.round_finished and not game.quit then
         process(player);
         move(player);
         do_dig(player);
-        rect(1             * FIELD_ELEM_STEP,
-           182             * FIELD_ELEM_STEP,
-           progress div 62 * FIELD_ELEM_STEP,
-           3               * FIELD_ELEM_STEP,
-           black);
+        if progress div 62 <> blackBarLength then
+          blackBarLength := progress div 62;
+          rect(1            * FIELD_ELEM_STEP,
+             182            * FIELD_ELEM_STEP,
+             blackBarLength * FIELD_ELEM_STEP,
+             3              * FIELD_ELEM_STEP,
+             black);
+        end if;
         new_bonus := (game.round_bonus + 19 - progress div 7) div 20 * 20;
         if bonus <> new_bonus then
           bonus := new_bonus;

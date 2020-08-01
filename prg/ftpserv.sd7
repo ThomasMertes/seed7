@@ -163,7 +163,7 @@ const proc: listFiles (inout ftpServerConnection: ftp, in string: filePath,
     block
       if fileType(filePath) = FILE_DIR then
         ftpResponse(ftp.control, "150 Here comes the directory listing.");
-        dirContent := read_dir(filePath);
+        dirContent := readDir(filePath);
         if showAll then
           listOneFile(ftp.data, ".", filePath & "/.", currentYear);
           listOneFile(ftp.data, "..", filePath & "/..", currentYear);
@@ -203,7 +203,7 @@ const proc: nameListFiles (inout ftpServerConnection: ftp, in string: filePath) 
     block
       if fileType(filePath) = FILE_DIR then
         ftpResponse(ftp.control, "150 Here comes the directory listing.");
-        dirContent := read_dir(filePath);
+        dirContent := readDir(filePath);
         for fileName range dirContent do
           write(ftp.data, striToUtf8(fileName) <& "\r\n");
         end for;
@@ -232,7 +232,7 @@ const proc: mlsdFileList (inout ftpServerConnection: ftp, in string: dirName) is
     var time: modificationTime is time.value;
   begin
     block
-      dirContent := read_dir(dirName);
+      dirContent := readDir(dirName);
     exception
       catch RANGE_ERROR: okay := FALSE;
       catch FILE_ERROR: okay := FALSE;
@@ -267,20 +267,12 @@ const proc: mlsdFileList (inout ftpServerConnection: ftp, in string: dirName) is
 const proc: retrieveFile (inout ftpServerConnection: ftp, in string: filePath) is func
   local
     var file: localFile is STD_NULL;
-    var string: buffer is "";
   begin
     localFile := open(filePath, "r");
     if localFile <> STD_NULL then
       ftpResponse(ftp.control, "150 Opening BINARY mode data connection for " <&
           striToUtf8(filePath) <& " (" <& bigLength(localFile) <& " bytes).");
-      buffer := gets(localFile, 1000000);
-      while buffer <> "" do
-        # writeln(literal(buffer));
-        # writeln(length(buffer));
-        write(ftp.data, buffer);
-        buffer := gets(localFile, 1000000);
-      end while;
-      # writeln("finished");
+      copyFile(localFile, ftp.data);
       close(localFile);
       ftpResponse(ftp.control, "226 Transfer complete.");
     else
@@ -293,20 +285,12 @@ const proc: retrieveFile (inout ftpServerConnection: ftp, in string: filePath) i
 const proc: storeFile (inout ftpServerConnection: ftp, in string: filePath) is func
   local
     var file: localFile is STD_NULL;
-    var string: buffer is "";
   begin
     localFile := open(filePath, "w");
     if localFile <> STD_NULL then
       ftpResponse(ftp.control, "150 Opening BINARY mode data connection for " <&
           striToUtf8(filePath));
-      buffer := gets(ftp.data, 1000000);
-      while buffer <> "" do
-        # writeln(literal(buffer));
-        # writeln(length(buffer));
-        write(localFile, buffer);
-        buffer := gets(ftp.data, 1000000);
-      end while;
-      # writeln("finished");
+      copyFile(ftp.data, localFile);
       close(localFile);
       ftpResponse(ftp.control, "226 Transfer complete.");
     else

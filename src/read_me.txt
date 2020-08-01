@@ -829,9 +829,13 @@ THE VERSION.H FILE
            target operating system. If not defined stat()
            is used.
 
-  os_stat_struct: Type to be used instead of 'struct stat'
-                  under the target operating system. If not
-                  defined 'struct stat' is used.
+  os_stat_struct: Type to be used for the output parameter of
+                  os_stat() and os_lstat(). If not defined
+                  'struct stat' is used.
+
+  os_fstat_struct: Type to be used for the output parameter of
+                   os_fstat(). If not defined 'os_stat_struct'
+                   is used.
 
   os_chown(name,uid,gid): Function to be used instead of chown()
                           under the target operating system.
@@ -863,6 +867,27 @@ THE VERSION.H FILE
   os_fopen: Function to be used instead of fopen() under the
             target operating system. If not defined fopen() is
             used.
+
+  os_fseek: Function to be used instead of fseek() under the
+            target operating system. If it is not defined
+            os_fsetpos() or os_lseek() are used.
+
+  os_ftell: Function to be used instead of ftell()  under the
+            target operating system. If it is not defined
+            os_fgetpos() or os_lseek() are used.
+
+  os_off_t: Type used for os_fseek(), os_ftell(), offsetSeek(),
+            offsetTell() and seekFileLength().
+
+  POINTER_SIZE: Size of a pointer in bits.
+
+  FLOAT_SIZE: Size of a float in bits.
+
+  DOUBLE_SIZE: Size of a double in bits.
+
+  OS_OFF_T_SIZE: Size of os_off_t in bits.
+
+  TIME_T_SIZE: Size of time_t in bits.
 
   USE_WINSOCK: Use thw winsocket functions instead of the
                normal Unix socket functions.
@@ -1023,8 +1048,8 @@ THE VERSION.H FILE
 
   SEED7_LIB: Contains the name of the Seed7 runtime library.
 
-  DRAW_LIB, COMP_DATA_LIB, COMPILER_LIB: Contain names of other
-            Seed7 runtime libraries.
+  CONSOLE_LIB, DRAW_LIB, COMP_DATA_LIB, COMPILER_LIB: Contain names
+               of other Seed7 runtime libraries.
 
   S7_LIB_DIR: Directory containing the Seed7 runtime libraries.
               This path uses the standard path representation

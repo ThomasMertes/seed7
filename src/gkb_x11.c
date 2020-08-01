@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  gkb_x11.c     Keyboard and mouse access with X11 capabilities.  */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -45,10 +45,14 @@
 #include <X11/keysym.h>
 
 #include "common.h"
+#include "data_rtl.h"
+#include "hsh_rtl.h"
 #include "kbd_drv.h"
 
 #undef FLAG_EVENTS
 #undef TRACE_KBD
+
+#define ALLOW_REPARENT_NOTIFY
 
 
 extern Display *mydisplay;
@@ -56,7 +60,8 @@ static booltype eventPresent = FALSE;
 static XEvent currentEvent;
 static inttype button_x = 0;
 static inttype button_y = 0;
-Window button_window = 0;
+static Window button_window = 0;
+static rtlHashtype window_hash = NULL;
 
 
 #ifdef ANSI_C
@@ -71,6 +76,107 @@ extern void redraw ();
 extern void doFlush ();
 extern void flushBeforeRead ();
 
+#endif
+
+
+
+#ifdef ANSI_C
+
+wintype find_window (Window curr_window)
+#else
+
+wintype find_window (curr_window)
+Window curr_window;
+#endif
+
+  {
+    wintype window;
+
+  /* find_window */
+    if (window_hash == NULL) {
+      window = NULL;
+    } else {
+      window = (wintype) hshIdxWithDefault(window_hash,
+          (rtlGenerictype) (memsizetype) curr_window, (rtlGenerictype) NULL,
+          (inttype) ((memsizetype) curr_window) >> 6,
+          (comparetype) &uintCmpGeneric);
+    } /* if */
+    return window;
+  } /* find_window */
+
+
+
+#ifdef ANSI_C
+
+void enter_window (wintype curr_window, Window xWin)
+#else
+
+void enter_window (curr_window, xWin)
+wintype curr_window;
+Window xWin;
+#endif
+
+  { /* enter_window */
+    if (window_hash == NULL) {
+      window_hash = hshEmpty();
+    } /* if */
+    hshIdxEnterDefault(window_hash, (rtlGenerictype) (memsizetype) xWin,
+                      (rtlGenerictype) (memsizetype) curr_window,
+                      (inttype) ((memsizetype) xWin) >> 6,
+                      (comparetype) &uintCmpGeneric,
+                      (createfunctype) &intCreateGeneric,
+                      (createfunctype) &intCreateGeneric);
+  } /* enter_window */
+
+
+
+#ifdef ANSI_C
+
+void remove_window (wintype curr_window, Window xWin)
+#else
+
+void remove_window (curr_window, xWin)
+wintype curr_window;
+Window xWin;
+#endif
+
+  { /* remove_window */
+    hshExcl(window_hash, (rtlGenerictype) (memsizetype) xWin,
+            (inttype) ((memsizetype) xWin) >> 6, (comparetype) &uintCmpGeneric,
+            (destrfunctype) &intDestrGeneric, (destrfunctype) &intDestrGeneric);
+  } /* remove_window */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+void waitForReparent (void)
+#else
+
+void waitForReparent ()
+#endif
+
+  { /* waitForReparent */
+    XNextEvent(mydisplay, &currentEvent);
+    switch(currentEvent.type) {
+      case ReparentNotify:
+      case ConfigureNotify:
+        break;
+      default:
+        printf("Other Event %d\n", currentEvent.type);
+        break;
+    } /* switch */
+    XNextEvent(mydisplay, &currentEvent);
+    switch(currentEvent.type) {
+      case ReparentNotify:
+      case ConfigureNotify:
+        break;
+      default:
+        printf("Other Event %d\n", currentEvent.type);
+        break;
+    } /* switch */
+  } /* waitForReparent */
 #endif
 
 
@@ -120,9 +226,25 @@ chartype gkbGetc ()
         configure(&currentEvent.xconfigure);
         result = gkbGetc();
         break;
-
       case MapNotify:
+#endif
+
+#ifdef TRACE_REPARENT_NOTIFY
       case ReparentNotify:
+        printf("gkbGetc: Reparent\n");
+        result = gkbGetc();
+        break;
+
+      case ConfigureNotify:
+        printf("gkbGetc: Configure %lx %d, %d\n",
+               currentEvent.xconfigure.window,
+               currentEvent.xconfigure.width, currentEvent.xconfigure.height);
+        result = gkbGetc();
+        break;
+#endif
+#ifdef ALLOW_REPARENT_NOTIFY
+      case ReparentNotify:
+      case ConfigureNotify:
 #endif
       case GraphicsExpose:
       case NoExpose:
@@ -587,7 +709,30 @@ booltype processEvents ()
             result = TRUE;
             break;
           case MapNotify:
+#endif
+#ifdef TRACE_REPARENT_NOTIFY
           case ReparentNotify:
+            printf("processEvents: Reparent\n");
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            break;
+          case ConfigureNotify:
+            printf("processEvents: Configure %lx %d, %d\n",
+                   currentEvent.xconfigure.window,
+                   currentEvent.xconfigure.width, currentEvent.xconfigure.height);
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            break;
+#endif
+#ifdef ALLOW_REPARENT_NOTIFY
+          case ReparentNotify:
+          case ConfigureNotify:
 #endif
           case GraphicsExpose:
           case NoExpose:
@@ -620,12 +765,14 @@ booltype processEvents ()
                 } /* if */
                 break;
               default:
+                /* printf("currentKey=%d\n", currentKey); */
                 num_events = 0;
                 eventPresent = TRUE;
                 break;
             } /* switch */
             break;
           default:
+            /* printf("currentEvent.type=%d\n", currentEvent.type); */
             num_events = 0;
             eventPresent = TRUE;
             break;
@@ -867,6 +1014,9 @@ chartype button;
         } /* if */
       } /* if */
     } /* if */
+#ifdef TRACE_KBD
+    printf("gkbButtonPressed -> %d\n", result);
+#endif
     return result;
   } /* gkbButtonPressed */
 
@@ -895,6 +1045,9 @@ inttype gkbButtonXpos ()
 #endif
 
   { /* gkbButtonXpos */
+#ifdef TRACE_KBD
+    printf("gkbButtonXpos -> %d\n", button_x);
+#endif
     return button_x;
   } /* gkbButtonXpos */
 
@@ -909,8 +1062,35 @@ inttype gkbButtonYpos ()
 #endif
 
   { /* gkbButtonYpos */
+#ifdef TRACE_KBD
+    printf("gkbButtonYpos -> %d\n", button_y);
+#endif
     return button_y;
   } /* gkbButtonYpos */
+
+
+
+#ifdef ANSI_C
+
+wintype gkbWindow (void)
+#else
+
+wintype gkbWindow ()
+#endif
+
+  {
+    wintype result;
+
+  /* gkbWindow */
+    result = find_window(button_window);
+    if (result != NULL) {
+      result->usage_count++;
+    } /* if */
+#ifdef TRACE_KBD
+    printf("gkbWindow -> %lu\n", result);
+#endif
+    return result;
+  } /* gkbWindow */
 
 
 

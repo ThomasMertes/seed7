@@ -116,10 +116,13 @@ const proc: close (inout inetListener: aListener) is func
   end func;
 
 
-const proc: signOff (inout inetListener: aListener, in PRIMITIVE_SOCKET: sock) is func
-  local
-    var integer: index is 0;
-    var integer: index_found is 0;
+const proc: signOn (inout inetListener: aListener, in socket: sock) is func
+  begin
+    addCheck(aListener.checkedSocks, sock, POLLIN);
+  end func;
+
+
+const proc: signOff (inout inetListener: aListener, in socket: sock) is func
   begin
     removeCheck(aListener.checkedSocks, sock, POLLIN);
   end func;

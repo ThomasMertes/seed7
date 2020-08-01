@@ -113,6 +113,9 @@ enable_output(fileMode);
  *             system path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
+const func array string: readDir (in string: dirPath)        is action "CMD_LS";
+
+
 const func array string: read_dir (in string: dirPath)       is action "CMD_LS";
 
 

@@ -1,3 +1,36 @@
+20120219:
+- A call of clearerr(stdin) was added to the function
+  kbdKeyPressed() in the file "kbd_inf.c". This fixes a bug, which
+  happend under FreeBSD (thanks to Pietro Cerutti for pointing out
+  the error and for suggesting this fix).
+- The FAQ answer, which explains the portability of Seed7, was
+  improved.
+- The function 'copyFile' was added to the library "file.s7i" and
+  the files "ftp.s7i" and "ftpserv.sd7" were changed to use it.
+- The function 'removeFile' was added to the library "ftp.s7i".
+- The function 'signOn' was added to the libraries "listener.s7i"
+  and "socket.s7i".
+- The function 'signOff' was improved in "listener.s7i" and
+  "socket.s7i", to use a 'socket' instead of a 'PRIMITIVE_SOCKET'
+  parameter.
+- The "gkbd.sd7" example program was improved.
+- The "panic.sd7" example program was improved to use DRAW_FLUSH
+  less often.
+- The function 'readDir' was added to "osfiles.s7i" as replacement
+  for 'read_dir'. The function 'read_dir' is deprecated and
+  should not be used.
+- The functions 'open_dir' and 'open_dir_path' were renamed to
+  'openDir' and 'openDirPath' respectively.
+- The functions 'find_window', 'enter_window', 'remove_window' and
+  'gkbWindow' were moved from "drw_x11.c" to "gkb_x11.c".
+- Trace statements were added to "drw_x11.c" and "gkb_x11.c".
+- A description of several C preprocessor macros used in "version.h"
+  was added to the file "src/read_me.txt".
+- The makefiles "mk_bcc32.mak", "mk_bccv5.mak", "mk_cygw.mak",
+  "mk_mingw.mak", "mk_msvc.mak", "mk_msys.mak" and "mk_nmake.mak"
+  were changed to write a definition of QUOTE_WHOLE_SHELL_COMMAND to
+  "version.h".
+
 20120205:
 - FAQ answers, explaining call-by-name and how it is implemented in
   Seed7, were added.

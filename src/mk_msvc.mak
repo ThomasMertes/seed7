@@ -142,6 +142,7 @@ version.h:
 	echo #define os_off_t __int64 >> version.h
 	echo #define os_getenv _wgetenv >> version.h
 	echo #define os_putenv _wputenv >> version.h
+	echo #define QUOTE_WHOLE_SHELL_COMMAND >> version.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define $(BIGINT_LIB_DEFINE) >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt

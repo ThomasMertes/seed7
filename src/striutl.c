@@ -1770,7 +1770,7 @@ errinfotype *err_info;
               result = NULL;
             } else if (os_parameters[0] != '\0') {
               result_len = os_stri_strlen(result);
-#ifndef ESCAPE_SHELL_COMMANDS
+#ifdef QUOTE_WHOLE_SHELL_COMMAND
               if (result[0] == '\"') {
                 memmove(&result[1], result, sizeof(os_chartype) * result_len);
                 result[0] = '\"';
@@ -1783,7 +1783,7 @@ errinfotype *err_info;
               } /* if */
               memcpy(&result[result_len], os_parameters,
                   sizeof(os_chartype) * (param_len + 1));
-#ifndef ESCAPE_SHELL_COMMANDS
+#ifdef QUOTE_WHOLE_SHELL_COMMAND
               if (result[0] == '\"' && result[1] == '\"') {
                 result_len = os_stri_strlen(result);
                 result[result_len] = '\"';

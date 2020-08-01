@@ -7577,16 +7577,16 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   in a portable way, an absolute path will usually not be portable.
 </p>
 
-<a name="read_dir"><h3>12.2 read_dir</h3></a>
+<a name="readDir"><h3>12.2 readDir</h3></a>
 <p>
-    The function <tt>'read_dir'</tt> provides a portable access to the
+    The function <tt>'readDir'</tt> provides a portable access to the
   contents of directories in the file system. It reads the
   specified directory and the filenames are stored in the
   string-array result. The files <tt><font color=maroon>"."</font></tt> and <tt><font color=maroon>".."</font></tt> are left out from
   the result. Note that the strings contain only the filenames.
   Additional information must be obtained with other calls.
 </p><pre>
-    <font color=blue>const</font> <font color=red>func array string</font>: read_dir (<font color=blue>in</font> <font color=red>string</font>: dirPath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func array string</font>: readDir (<font color=blue>in</font> <font color=red>string</font>: dirPath) <font color=blue>is</font> ...
 </pre>
   <p><dl><dt><p>Returns:</p></dt><dd><p>
     An array of strings containing the names of all
@@ -7609,7 +7609,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     </pre><p>
     the statement
     </p><pre>
-      dir_array := read_dir(<font color=maroon>"."</font>);
+      dir_array := readDir(<font color=maroon>"."</font>);
     </pre><p>
     reads the current working directory and stores it into the
     string-array <tt>'dir_array'</tt>. The components of the directory
@@ -7620,9 +7620,9 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <font color=blue>end for</font>;
     </pre><p></p></dd></dl></p>
 
-<a name="open_dir"><h3>12.3 open_dir</h3></a>
+<a name="openDir"><h3>12.3 openDir</h3></a>
 <p>
-    The function <tt>'open_dir'</tt> opens the specified
+    The function <tt>'openDir'</tt> opens the specified
   directory as file. Each line in this directory file
   contains the filename of a file present in the the
   directory. The files <tt><font color=maroon>"."</font></tt> and <tt><font color=maroon>".."</font></tt> are left out from the
@@ -7630,7 +7630,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   from the directory file. Additional information must be
   obtained with other calls.
 </p><pre>
-    <font color=blue>const</font> <font color=red>func file</font>: open_dir (<font color=blue>in</font> <font color=red>string</font>: dirPath) <font color=blue>is</font> ...
+    <font color=blue>const</font> <font color=red>func file</font>: openDir (<font color=blue>in</font> <font color=red>string</font>: dirPath) <font color=blue>is</font> ...
 </pre>
   <p><dl><dt><p>Returns:</p></dt><dd><p>
     The directory file of the specified directory.
@@ -7655,7 +7655,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 
       ...
 
-      dir_file := open_dir(<font color=maroon>"."</font>);
+      dir_file := openDir(<font color=maroon>"."</font>);
       file_name := getln(dir_file);
       <font color=blue>while</font> file_name &lt;> <font color=maroon>""</font> <font color=blue>do</font>
         writeln(file_name);
@@ -9428,7 +9428,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     FILE_ERROR:</dt><dd><dl><dt>
       May be raised by the following functions:</dt><dd>
           fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,
-          read_dir, remove, removeAnyFile, rename, cloneFile, copyFile,
+          readDir, remove, removeAnyFile, rename, cloneFile, copyFile,
           readlink, symlink, hasNext, seek, tell, bigTell, setbuf, write,
           inetSocketAddress, openInetSocket, openInetListener</dd><dt></dl></dd><dt>
     ILLEGAL_ACTION:</dt><dd>

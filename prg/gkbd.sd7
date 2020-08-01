@@ -39,14 +39,17 @@ const proc: main is func
     var char: lastChar is ' ';
     var integer: xPos is 10;
     var integer: xIncr is xSpeed;
+    var time: waitTime is time.value;
   begin
     screen(640, 480);
     writeln("Keyboard test program. Type ! to terminate the program");
     KEYBOARD := GRAPH_KEYBOARD;
     DRAW_FLUSH;
+    waitTime := time(NOW);
     repeat
+      waitTime +:= 100000 . MICRO_SECONDS;
       ch := busy_getc(KEYBOARD);
-      if ch <> KEY_NONE then
+      while ch <> KEY_NONE do
         lastChar := ch;
         write(ord(ch) <& " ");
         if ord(ch) >= 1 and ord(ch) <= length(EVENT_DESCR) then
@@ -54,21 +57,21 @@ const proc: main is func
         else
           writeln;
         end if;
-      else
-        rect(xPos, 10, 10, 10, black);
-        if xPos > 620 then
-          xIncr := -xSpeed;
-        elsif xPos < 10 then
-          xIncr := xSpeed;
-        end if;
-        xPos +:= xIncr;
-        if buttonPressed(KEYBOARD, lastChar) then
-          rect(xPos, 10, 10, 10, light_red);
-        else
-          rect(xPos, 10, 10, 10, light_blue);
-        end if;
-        DRAW_FLUSH;
-        await(time(NOW) + 100000 . MICRO_SECONDS);
+        ch := busy_getc(KEYBOARD);
+      end while;
+      rect(xPos, 10, 10, 10, black);
+      if xPos > 620 then
+        xIncr := -xSpeed;
+      elsif xPos < 10 then
+        xIncr := xSpeed;
       end if;
-    until ch = '!';
+      xPos +:= xIncr;
+      if buttonPressed(KEYBOARD, lastChar) then
+        rect(xPos, 10, 10, 10, light_red);
+      else
+        rect(xPos, 10, 10, 10, light_blue);
+      end if;
+      DRAW_FLUSH;
+      await(waitTime);
+    until lastChar = '!';
   end func;

@@ -271,13 +271,22 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
 <li><!--     -  --><a href="manual/os.htm#copyFile">Copying</a>, <a href="manual/os.htm#moveFile">moving</a> and <a href="manual/os.htm#removeFile">removing files</a> (and directory trees).</li>
 <li><!--     -  -->File properties such as <a href="manual/os.htm#fileSize">size</a>, <a href="manual/os.htm#fileType">type</a>, <a href="manual/os.htm#getATime">time</a> and <a href="manual/os.htm#fileMode">mode</a> can be
       obtained and changed.</li>
+<li><!--     -  --><a href="manual/os.htm#readDir">Reading the contents of a directory</a> as array of strings or <a href="libraries/dir.htm">via the file interface</a>.</li>
 <li><!--     -  -->A <a href="manual/os.htm#Standard_path_representation">standard path representation</a> removes all problems with
       drive letters and different path delimiters.</li></ul></li>
 <li><!--  -  -->Differences between Unix sockets and winsockets are hidden and
    Seed7 <a href="manual/file.htm#Sockets">sockets</a> are files (as in Unix).</li>
-<li><!--  -  --><a href="manual/file.htm#Keyboard_file">Reading keys</a> and key combinations such as ctrl-F1 from a text
-   console or a graphic window under different operating systems
-   always delivers the same character code.</li>
+<li><!--  -  -->The library <a href="libraries/keybd.htm">keyboard.s7i</a> defines the file <a href="manual/file.htm#Keyboard_file">KEYBOARD</a>, which supports
+   reading single keypresses. The characters read from KEYBOARD are
+   not echoed to the console and there is no need to press ENTER.
+   There is also a portable way to check, if a <a href="libraries/keybd.htm#keypressed(in_keyboard_file)">key has been pressed</a>.</li>
+<li><!--  -  --><a href="manual/file.htm#Keyboard_file">Reading keys</a> and key combinations such as ctrl-F1 from a
+   <a href="libraries/console.htm">text console</a> or a <a href="libraries/draw.htm">graphic window</a> under different operating
+   systems always delivers the same character code.</li>
+<li><!--  -  -->An operating system independend type for <a href="manual/types.htm#time">times and dates</a>,
+   based on the proleptic Gregorian calendar, is provided in
+   the library <a href="libraries/time.htm">time.s7i</a>.</li>
+<li><!--  -  -->A <a href="libraries/console.htm">text console</a> which allows <a href="libraries/console.htm#setPos(ref_console_file,__ref_integer,ref_integer)">cursor positioning</a>.</li>
 <li><!--  -  -->A <a href="libraries/draw.htm">portable graphics library</a> allows drawing, image operations,
    windows manipulation and bitmap <a href="libraries/font.htm">fonts</a>. Events to redraw a window
    and other annoyances are managed in the graphics library.</li>
@@ -375,12 +384,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr><!-- ================================================ -->
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-01-15 the number of lines is:
+than 150000 lines of Seed7. For version 2012-02-05 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">100346</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">100461</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
   <tr><td align="right"> 10077</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">107704</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 64541</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">107694</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 64572</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1660,6 +1669,7 @@ interpreter is compiled. The command <tt>'make depend'</tt> writes C preprocesso
 macros to <tt><font color=maroon>"seed7/src/version.h"</font></tt>. E.g.:
 </p><pre>
   #define SEED7_LIB <font color=maroon>"seed7_05.a"</font>
+  #define CONSOLE_LIB <font color=maroon>"s7_con.a"</font>
   #define DRAW_LIB <font color=maroon>"s7_draw.a"</font>
   #define COMP_DATA_LIB <font color=maroon>"s7_data.a"</font>
   #define COMPILER_LIB <font color=maroon>"s7_comp.a"</font>
@@ -1686,8 +1696,8 @@ defined or undefined <tt>'configValue'</tt> returns <tt><font color=maroon>"TRUE
 respectively. E.g.: <tt>configValue(<font color=maroon>"TWOS_COMPLEMENT_INTTYPE"</font>)</tt> returns
 <tt><font color=maroon>"TRUE"</font></tt>.
 </p><p>
-The Seed7 compiler uses the runtime libraries SEED7_LIB, DRAW_LIB,
-COMP_DATA_LIB and COMPILER_LIB in the directory S7_LIB_DIR
+The Seed7 compiler uses the runtime libraries SEED7_LIB, CONSOLE_LIB,
+DRAW_LIB, COMP_DATA_LIB and COMPILER_LIB in the directory S7_LIB_DIR
 when it links object files to an executable. Config values
 like RSHIFT_DOES_SIGN_EXTEND, TWOS_COMPLEMENT_INTTYPE and
 LITTLE_ENDIAN_INTTYPE are used to control the kind of C code

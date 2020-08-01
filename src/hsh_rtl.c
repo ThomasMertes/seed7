@@ -997,9 +997,10 @@ rtlGenerictype hshIdxWithDefault (const const_rtlHashtype hash1, const rtlGeneri
     const rtlGenerictype defaultData, inttype hashcode, comparetype cmp_func)
 #else
 
-rtlGenerictype hshIdxWithDefault (hash1, key, hashcode, cmp_func)
+rtlGenerictype hshIdxWithDefault (hash1, key, defaultData, hashcode, cmp_func)
 rtlHashtype hash1;
 rtlGenerictype key;
+rtlGenerictype defaultData;
 inttype hashcode;
 comparetype cmp_func;
 #endif

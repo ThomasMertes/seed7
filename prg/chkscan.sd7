@@ -60,7 +60,7 @@ const proc: main is func
     var string: originalFile is "";
     var string: compareFile is "";
   begin
-    directoryContent := read_dir(".");
+    directoryContent := readDir(".");
     for fileName range directoryContent do
       if endsWith(fileName, ".sd7") then
         write(literal(fileName) <& " ");

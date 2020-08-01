@@ -87,9 +87,9 @@ const proc: main is func
   begin
     OUT := STD_UTF8_OUT;
     if length(argv(PROGRAM)) = 0 then
-      names := read_dir(".");
+      names := readDir(".");
     elsif length(argv(PROGRAM)) = 1 then
-      names := read_dir(".");
+      names := readDir(".");
       pattern := argv(PROGRAM)[1];
     else
       names := argv(PROGRAM);
@@ -98,7 +98,7 @@ const proc: main is func
       readln(pattern); *)
     end if;
 (*  write("directory? ");
-    names := read_dir(getln(IN)); *)
+    names := readDir(getln(IN)); *)
     number_of_names := length(names);
     if pattern <> "" then
       copy_index := 1;

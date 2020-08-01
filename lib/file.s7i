@@ -250,8 +250,28 @@ const proc: read (inout file: aFile, inout string: stri) is func
  *  line ending character ('\n' or EOF). 
  *)
 const proc: readln (inout file: aFile, inout string: stri) is func
- begin
+  begin
     stri := getln(aFile);
     aFile.io_empty := stri = "";
     aFile.io_ok := TRUE;
+  end func;
+
+
+(**
+ *  Copy a file from source to destination.
+ *  The ''source'' file is copied to ''dest'' until end-of-file
+ *  is reached.
+ *)
+const proc: copyFile (inout file: source, inout file: dest) is func
+  local
+    var string: buffer is "";
+   begin
+    buffer := gets(source, 1000000);
+    while buffer <> "" do
+      # writeln(literal(buffer));
+      # writeln(length(buffer));
+      write(dest, buffer);
+      buffer := gets(source, 1000000);
+    end while;
+    # writeln("finished");
   end func;

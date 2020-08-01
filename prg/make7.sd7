@@ -510,11 +510,11 @@ const func array string: findMatchingFiles (in string: pattern) is func
     if slashPos <> 0 then
       path := pattern[.. pred(slashPos)];
       filePattern := pattern[succ(slashPos) ..];
-      dirContent := read_dir(path);
+      dirContent := readDir(path);
       path &:= "/";
     else
       filePattern := pattern;
-      dirContent := read_dir(".");
+      dirContent := readDir(".");
     end if;
     for fileName range dirContent do
       if wildcard_match(fileName, filePattern) then

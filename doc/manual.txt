@@ -7577,16 +7577,16 @@ ont color=blue>is "";
   in a portable way, an absolute path will usually not be portable.
 
 
-12.2 read_dir
+12.2 readDir
 
-    The function 'read_dir' provides a portable access to the
+    The function 'readDir' provides a portable access to the
   contents of directories in the file system. It reads the
   specified directory and the filenames are stored in the
   string-array result. The files "." and ".." are left out from
   the result. Note that the strings contain only the filenames.
   Additional information must be obtained with other calls.
 
-    const func array string: read_dir (in string: dirPath) is ...
+    const func array string: readDir (in string: dirPath) is ...
 
   Returns:
     An array of strings containing the names of all
@@ -7609,7 +7609,7 @@ ont color=blue>is "";
     
     the statement
     
-      dir_array := read_dir(".");
+      dir_array := readDir(".");
     
     reads the current working directory and stores it into the
     string-array 'dir_array'. The components of the directory
@@ -7620,9 +7620,9 @@ ont color=blue>is "";
       end for;
     
 
-12.3 open_dir
+12.3 openDir
 
-    The function 'open_dir' opens the specified
+    The function 'openDir' opens the specified
   directory as file. Each line in this directory file
   contains the filename of a file present in the the
   directory. The files "." and ".." are left out from the
@@ -7630,7 +7630,7 @@ ont color=blue>is "";
   from the directory file. Additional information must be
   obtained with other calls.
 
-    const func file: open_dir (in string: dirPath) is ...
+    const func file: openDir (in string: dirPath) is ...
 
   Returns:
     The directory file of the specified directory.
@@ -7655,7 +7655,7 @@ ont color=blue>is "";
 
       ...
 
-      dir_file := open_dir(".");
+      dir_file := openDir(".");
       file_name := getln(dir_file);
       while file_name <> "" do
         writeln(file_name);
@@ -9428,7 +9428,7 @@ ont color=blue>is "";
     FILE_ERROR:
       May be raised by the following functions:
           fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,
-          read_dir, remove, removeAnyFile, rename, cloneFile, copyFile,
+          readDir, remove, removeAnyFile, rename, cloneFile, copyFile,
           readlink, symlink, hasNext, seek, tell, bigTell, setbuf, write,
           inetSocketAddress, openInetSocket, openInetListener
     ILLEGAL_ACTION:
