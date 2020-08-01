@@ -373,6 +373,32 @@ const proc: clear is func
   end func;
 
 
+const proc: polyLine (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in pointList: points, in color: col) is func
+  begin
+    DRAW_POLYLINE(win, x, y, points, colorPixel(col));
+  end func;
+
+
+const proc: polyLine (in integer: x, in integer: y, in pointList: points, in color: col) is func
+  begin
+    DRAW_POLYLINE(curr_win, x, y, points, colorPixel(col));
+  end func;
+
+
+const proc: fpolyLine (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in pointList: points, in color: col) is func
+  begin
+    FILL_POLYLINE(win, x, y, points, colorPixel(col));
+  end func;
+
+
+const proc: fpolyLine (in integer: x, in integer: y, in pointList: points, in color: col) is func
+  begin
+    FILL_POLYLINE(curr_win, x, y, points, colorPixel(col));
+  end func;
+
+
 const proc: paint (in integer: x, in integer: y, in integer: col) is func
   begin
     write("PAINT");
@@ -448,6 +474,12 @@ const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: image) is func
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   begin
     pixmap := DRAW_IMAGE(curr_win, image);
+  end func;
+
+
+const proc: setTransparentColor (in PRIMITIVE_WINDOW: pixmap, in color: col) is func
+  begin
+    SET_TRANSPARENTCOLOR(pixmap, colorPixel(col));
   end func;
 
 

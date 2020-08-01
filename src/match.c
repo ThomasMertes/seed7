@@ -918,7 +918,7 @@ objecttype expr_object;
     } else {
       matched_object = NULL;
     } /* if */
-    if (matched_object == NULL) {
+    if (matched_object == NULL && !HAS_MATCH_ERR(expr_object)) {
       if (expr_list != NULL) {
         matched_object = match_subexpr(expr_object, prog.declaration_root,
             expr_list, TRUE, TRUE);

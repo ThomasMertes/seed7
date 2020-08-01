@@ -3246,6 +3246,32 @@ const proc: process_drw_flush (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_drw_genpointlist (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    prepare_bstri_result(c_expr);
+    incr(c_expr.temp_num);
+    temp_num := c_expr.temp_num;
+    c_expr.temp_decls &:= "arraytype tmp_";
+    c_expr.temp_decls &:= str(temp_num);
+    c_expr.temp_decls &:= ";\n";
+    c_expr.result_expr &:= "(tmp_";
+    c_expr.result_expr &:= str(temp_num);
+    c_expr.result_expr &:= "=(arraytype)(";
+    get_result_arg(params[1], c_expr);
+    c_expr.result_expr &:= "), drwGenPointList(";
+    c_expr.result_expr &:= "tmp_";
+    c_expr.result_expr &:= str(temp_num);
+    c_expr.result_expr &:= "->arr, tmp_";
+    c_expr.result_expr &:= str(temp_num);
+    c_expr.result_expr &:= "->max_position - tmp_";
+    c_expr.result_expr &:= str(temp_num);
+    c_expr.result_expr &:= "->min_position + 1))";
+  end func;
+
+
 const proc: process_drw_get (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -3507,6 +3533,40 @@ const proc: process_drw_ppoint (in ref_list: params, inout expr_type: c_expr) is
   end func;
 
 
+const proc: process_drw_polyline (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwPolyLine(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_arg(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_drw_fpolyline (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwFPolyLine(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_arg(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process_drw_prect (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -3568,6 +3628,17 @@ const proc: process_drw_rgbcol (in ref_list: params, inout expr_type: c_expr) is
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_drw_setTransparentColor (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwSetTransparentColor(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
   end func;
 
 
@@ -7092,6 +7163,30 @@ const proc: process_str_cat (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_str_chipos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "strChIpos(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_str_chpos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "strChPos(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_str_chsplit (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -8166,6 +8261,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_drw_fellipse(params, c_expr);
       elsif action_name = "DRW_FLUSH" then
         process_drw_flush(params, c_expr);
+      elsif action_name = "DRW_GENPOINTLIST" then
+        process_drw_genpointlist(params, c_expr);
       elsif action_name = "DRW_GET" then
         process_drw_get(params, c_expr);
       elsif action_name = "DRW_HEIGHT" then
@@ -8200,6 +8297,10 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_drw_point(params, c_expr);
       elsif action_name = "DRW_PPOINT" then
         process_drw_ppoint(params, c_expr);
+      elsif action_name = "DRW_POLYLINE" then
+        process_drw_polyline(params, c_expr);
+      elsif action_name = "DRW_FPOLYLINE" then
+        process_drw_fpolyline(params, c_expr);
       elsif action_name = "DRW_PRECT" then
         process_drw_prect(params, c_expr);
       elsif action_name = "DRW_PUT" then
@@ -8208,6 +8309,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_drw_rect(params, c_expr);
       elsif action_name = "DRW_RGBCOL" then
         process_drw_rgbcol(params, c_expr);
+      elsif action_name = "DRW_SETTRANSPARENTCOLOR" then
+        process_drw_setTransparentColor(params, c_expr);
       elsif action_name = "DRW_TEXT" then
         process_drw_text(params, c_expr);
       elsif action_name = "DRW_WIDTH" then
@@ -8808,6 +8911,10 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_str_append(params, c_expr);
       elsif action_name = "STR_CAT" then
         process_str_cat(params, c_expr);
+      elsif action_name = "STR_CHIPOS" then
+        process_str_chipos(params, c_expr);
+      elsif action_name = "STR_CHPOS" then
+        process_str_chpos(params, c_expr);
       elsif action_name = "STR_CHSPLIT" then
         process_str_chsplit(params, c_expr);
       elsif action_name = "STR_CLIT" then
@@ -12217,6 +12324,8 @@ const proc: write_file_head is func
     c_prog << "settype     setSymdiff (settype, settype);\n";
     c_prog << "settype     setUnion (settype, settype);\n";
     c_prog << "void        strAppend (stritype *, stritype);\n";
+    c_prog << "inttype     strChIpos (stritype, chartype, inttype);\n";
+    c_prog << "inttype     strChPos (stritype, chartype);\n";
     c_prog << "arraytype   strChSplit (stritype, chartype);\n";
     c_prog << "inttype     strCompare (stritype, stritype);\n";
     c_prog << "stritype    strConcat (stritype, stritype);\n";

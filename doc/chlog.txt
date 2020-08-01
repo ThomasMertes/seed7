@@ -1,3 +1,16 @@
+20071210:
+- The interpreter was improved to flag match errors only once instead of multiple times.
+- The graph.s7i library was improved to define the type pointList and the function
+  genPointList (to create a pointList from an integer array of x and y coordinates).
+- The functions polyLine and fpolyLine (to draw polygons and filled polygons) were
+  added to the draw.s7i library .
+- The functions pos (search for a character in a string) and isDigitString were added
+  to the seed7_05.s7i library.
+- Several testcases were added to the chkint.sd7 and chkstr.sd7 programs.
+- The drwSetTransparentColor function was added to the drw_x11.c driver.
+- An analog clock program (clock3.sd7) provided by Volker Schuller was added.
+- The compiler was improved to support the new graphic and string functions.
+
 20071125:
 - The interpreter was improved to store the filename and the line of the definition of
   an object.

@@ -846,7 +846,38 @@ objecttype obj_found;
 
 #ifdef ANSI_C
 
-void err_match (errortype err, const_objecttype obj_found)
+static booltype contains_match_err_flag (objecttype curr_obj)
+#else
+
+static booltype contains_match_err_flag (curr_obj)
+objecttype curr_obj;
+#endif
+
+  {
+    const_listtype list_elem;
+    booltype result;
+
+  /* contains_match_err_flag */
+    result = FALSE;
+    if (HAS_MATCH_ERR(curr_obj)) {
+      result = TRUE;
+    } else if (CATEGORY_OF_OBJ(curr_obj) == EXPROBJECT) {
+      list_elem = curr_obj->value.listvalue;
+      while (list_elem != NULL) {
+        if (list_elem->obj != NULL && contains_match_err_flag(list_elem->obj)) {
+          result = TRUE;
+        } /* if */
+        list_elem = list_elem->next;
+      } /* while */
+    } /* if */
+    return(result);
+  } /* contains_match_err_flag */
+
+
+
+#ifdef ANSI_C
+
+void err_match (errortype err, objecttype obj_found)
 #else
 
 void err_match (err, obj_found)
@@ -855,32 +886,35 @@ objecttype obj_found;
 #endif
 
   { /* err_match */
-    /* place_of_error(err); */
-    prog.error_count++;
-    if (HAS_POSINFO(obj_found)){
-      printf("*** %s(%1u):%d: ", file_name(GET_FILE_NUM(obj_found)),
-          GET_LINE_NUM(obj_found), ((int) err) + 1);
-    } else if (in_file.name != NULL) {
-      printf("*** %s(%1u):%d: ", in_file.name, in_file.line, ((int) err) + 1);
-    } else {
-      printf("*** ");
+    if (!contains_match_err_flag(obj_found)) {
+      /* place_of_error(err); */
+      prog.error_count++;
+      if (HAS_POSINFO(obj_found)){
+        printf("*** %s(%1u):%d: ", file_name(GET_FILE_NUM(obj_found)),
+            GET_LINE_NUM(obj_found), ((int) err) + 1);
+      } else if (in_file.name != NULL) {
+        printf("*** %s(%1u):%d: ", in_file.name, in_file.line, ((int) err) + 1);
+      } else {
+        printf("*** ");
+      } /* if */
+      switch (err) {
+        case NO_MATCH:
+          printf("Match for ");
+          prot_list(obj_found->value.listvalue);
+          printf(" failed\n");
+          break;
+        default:
+          undef_err();
+          break;
+      } /* switch */
+      if (HAS_POSINFO(obj_found)){
+        print_line(GET_LINE_NUM(obj_found));
+      } else {
+        print_error_line();
+      } /* if */
+      display_compilation_info();
     } /* if */
-    switch (err) {
-      case NO_MATCH:
-        printf("Match for ");
-        prot_list(obj_found->value.listvalue);
-        printf(" failed\n");
-        break;
-      default:
-        undef_err();
-        break;
-    } /* switch */
-    if (HAS_POSINFO(obj_found)){
-      print_line(GET_LINE_NUM(obj_found));
-    } else {
-      print_error_line();
-    } /* if */
-    display_compilation_info();
+    SET_MATCH_ERR_FLAG(obj_found);
   } /* err_match */
 
 

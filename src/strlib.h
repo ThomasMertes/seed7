@@ -29,6 +29,8 @@
 
 objecttype str_append (listtype);
 objecttype str_cat (listtype);
+objecttype str_chipos (listtype);
+objecttype str_chpos (listtype);
 objecttype str_chsplit (listtype);
 objecttype str_clit (listtype);
 objecttype str_cmp (listtype);
@@ -68,6 +70,8 @@ objecttype str_value (listtype);
 
 objecttype str_append ();
 objecttype str_cat ();
+objecttype str_chipos ();
+objecttype str_chpos ();
 objecttype str_chsplit ();
 objecttype str_clit ();
 objecttype str_cmp ();

@@ -629,6 +629,56 @@ const proc: division is func
   end func;
 
 
+const proc: check_parse is func
+  local
+    var boolean: okay is TRUE;
+    var integer: n is 0;
+    var integer: k is 0;
+  begin
+    okay := TRUE;
+    if  integer parse "-10001" <> -10001 or
+        integer parse "-10000" <> -10000 or
+        integer parse  "-9999" <>  -9999 or
+        integer parse  "-2000" <>  -2000 or
+        integer parse  "-1001" <>  -1001 or
+        integer parse  "-1000" <>  -1000 or
+        integer parse   "-999" <>   -999 or
+        integer parse   "-200" <>   -200 or
+        integer parse   "-101" <>   -101 or
+        integer parse   "-100" <>   -100 or
+        integer parse    "-99" <>    -99 or
+        integer parse    "-20" <>    -20 or
+        integer parse    "-11" <>    -11 or
+        integer parse    "-10" <>    -10 or
+        integer parse     "-9" <>     -9 or
+        integer parse     "-2" <>     -2 or
+        integer parse     "-1" <>     -1 or
+        integer parse      "0" <>      0 or
+        integer parse      "1" <>      1 or
+        integer parse      "2" <>      2 or
+        integer parse      "9" <>      9 or
+        integer parse     "10" <>     10 or
+        integer parse     "11" <>     11 or
+        integer parse     "20" <>     20 or
+        integer parse     "99" <>     99 or
+        integer parse    "100" <>    100 or
+        integer parse    "101" <>    101 or
+        integer parse    "200" <>    200 or
+        integer parse    "999" <>    999 or
+        integer parse   "1000" <>   1000 or
+        integer parse   "1001" <>   1001 or
+        integer parse   "2000" <>   2000 or
+        integer parse   "9999" <>   9999 or
+        integer parse  "10000" <>  10000 or
+        integer parse  "10001" <>  10001 then
+      writeln(" ***** Integer parse is not correct computed");
+    end if;
+    if okay then
+      writeln("Integer parse does work correct");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -648,4 +698,5 @@ const proc: main is func
     check_power;
     check_sqrt;
     check_log2;
+    check_parse;
   end func;

@@ -440,6 +440,44 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype str_chipos (listtype arguments)
+#else
+
+objecttype str_chipos (arguments)
+listtype arguments;
+#endif
+
+  { /* str_chipos */
+    isit_stri(arg_1(arguments));
+    isit_char(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    return(bld_int_temp(
+        strChIpos(take_stri(arg_1(arguments)), take_char(arg_2(arguments)),
+                  take_int(arg_3(arguments)))));
+  } /* str_chipos */
+
+
+
+#ifdef ANSI_C
+
+objecttype str_chpos (listtype arguments)
+#else
+
+objecttype str_chpos (arguments)
+listtype arguments;
+#endif
+
+  { /* str_chpos */
+    isit_stri(arg_1(arguments));
+    isit_char(arg_2(arguments));
+    return(bld_int_temp(
+        strChPos(take_stri(arg_1(arguments)), take_char(arg_2(arguments)))));
+  } /* str_chpos */
+
+
+
+#ifdef ANSI_C
+
 objecttype str_chsplit (listtype arguments)
 #else
 

@@ -146,6 +146,8 @@ const proc: copyArea(in PRIMITIVE_WINDOW param,
     ref integer param, ref integer param,
     ref integer param, ref integer param,
     ref integer param, ref integer param) is           action "DRW_COPYAREA";
+const proc: SET_TRANSPARENTCOLOR (in PRIMITIVE_WINDOW param,
+    ref pixel param) is                                action "DRW_SETTRANSPARENTCOLOR";
 const func integer: height (in PRIMITIVE_WINDOW param) is    action "DRW_HEIGHT";
 const func integer: width (in PRIMITIVE_WINDOW param) is     action "DRW_WIDTH";
 const func pixel: rgbPixel (ref integer param,
@@ -155,6 +157,25 @@ const proc: SET_BACKGROUND (ref pixel param) is        action "DRW_BACKGROUND";
 const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param, in string param,
     ref pixel param, ref pixel param) is               action "DRW_TEXT";
+
+
+const type: pointList is newtype;
+IN_PARAM_IS_REFERENCE(pointList);
+
+const proc: destroy (ref pointList param) is                         action "BST_DESTR";
+const proc: (ref pointList param) ::= (ref pointList param) is       action "BST_CREATE";
+const proc: (inout pointList param) := (ref pointList param) is      action "BST_CPY";
+
+const func pointList: _GENERATE_EMPTY_POINT_LIST     is              action "BST_EMPTY";
+const pointList: (attr pointList) . value is                         _GENERATE_EMPTY_POINT_LIST;
+
+const func pointList: genPointList (ref array integer param) is      action "DRW_GENPOINTLIST";
+const proc: DRAW_POLYLINE (inout PRIMITIVE_WINDOW param,
+    in integer param, in integer param, in pointList param,
+    ref pixel param) is                                              action "DRW_POLYLINE";
+const proc: FILL_POLYLINE (inout PRIMITIVE_WINDOW param,
+    in integer param, in integer param, in pointList param,
+    ref pixel param) is                                              action "DRW_FPOLYLINE";
 
 
 const type: GRAPH is subtype object;

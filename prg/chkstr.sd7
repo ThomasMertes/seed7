@@ -2361,6 +2361,211 @@ const proc: check_string_funcs is func
       writeln(" ***** rpos(STRING, \"abc\") does not work correct");
       okay := FALSE;
     end if;
+    if  pos("",       '\0\') <> 0 or
+        pos("a",      '\0\') <> 0 or
+        pos("ab",     '\0\') <> 0 or
+        pos("abc",    '\0\') <> 0 or
+        pos("abcde",  '\0\') <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\0\') <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0\') <> 0 then
+      writeln(" ***** pos(STRING, \'\\0\\\') does not work correct");
+      okay := FALSE;
+    end if;
+    if  pos("\4096\\0\\0\", '\4096\') <> 1 or
+        pos("\0\\4096\\0\", '\4096\') <> 2 or
+        pos("\0\\0\\4096\", '\4096\') <> 3 then
+      writeln(" ***** pos(STRING, \'\\4096\\\') does not work correct");
+      okay := FALSE;
+    end if;
+    if  pos("",       'a') <> 0 or
+        pos("b",      'a') <> 0 or
+        pos("a",      'a') <> 1 or
+        pos("bc",     'a') <> 0 or
+        pos("ab",     'a') <> 1 or
+        pos("za",     'a') <> 2 or
+        pos("aa",     'a') <> 1 or
+        pos("bcd",    'a') <> 0 or
+        pos("abc",    'a') <> 1 or
+        pos("zab",    'a') <> 2 or
+        pos("yza",    'a') <> 3 or
+        pos("aab",    'a') <> 1 or
+        pos("aba",    'a') <> 1 or
+        pos("zaa",    'a') <> 2 or
+        pos("aaa",    'a') <> 1 or
+        pos("bcdef",  'a') <> 0 or
+        pos("abcde",  'a') <> 1 or
+        pos("zabcd",  'a') <> 2 or
+        pos("yzabc",  'a') <> 3 or
+        pos("xyzab",  'a') <> 4 or
+        pos("wxyza",  'a') <> 5 or
+        pos("ababc",  'a') <> 1 or
+        pos("zabad",  'a') <> 2 or
+        pos("yzaba",  'a') <> 3 or
+        pos("yzaab",  'a') <> 3 or
+        pos("xyzaa",  'a') <> 4 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", 'a') <> 1 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 then
+      writeln(" ***** pos(STRING, \'a\') does not work correct");
+      okay := FALSE;
+    end if;
+    if  pos("",       'a', 1) <> 0 or
+        pos("",       'a', 2) <> 0 or
+        pos("",       'a', 9) <> 0 or
+        pos("b",      'a', 1) <> 0 or
+        pos("b",      'a', 2) <> 0 or
+        pos("b",      'a', 9) <> 0 or
+        pos("a",      'a', 1) <> 1 or
+        pos("a",      'a', 2) <> 0 or
+        pos("a",      'a', 9) <> 0 or
+        pos("bc",     'a', 1) <> 0 or
+        pos("bc",     'a', 2) <> 0 or
+        pos("bc",     'a', 3) <> 0 or
+        pos("bc",     'a', 9) <> 0 or
+        pos("ab",     'a', 1) <> 1 or
+        pos("ab",     'a', 2) <> 0 or
+        pos("ab",     'a', 3) <> 0 or
+        pos("ab",     'a', 9) <> 0 or
+        pos("za",     'a', 1) <> 2 or
+        pos("za",     'a', 2) <> 2 or
+        pos("za",     'a', 3) <> 0 or
+        pos("za",     'a', 9) <> 0 or
+        pos("aa",     'a', 1) <> 1 or
+        pos("aa",     'a', 2) <> 2 or
+        pos("aa",     'a', 3) <> 0 or
+        pos("aa",     'a', 9) <> 0 or
+        pos("bcd",    'a', 1) <> 0 or
+        pos("bcd",    'a', 2) <> 0 or
+        pos("bcd",    'a', 3) <> 0 or
+        pos("bcd",    'a', 4) <> 0 or
+        pos("bcd",    'a', 9) <> 0 or
+        pos("abc",    'a', 1) <> 1 or
+        pos("abc",    'a', 2) <> 0 or
+        pos("abc",    'a', 3) <> 0 or
+        pos("abc",    'a', 4) <> 0 or
+        pos("abc",    'a', 9) <> 0 or
+        pos("zab",    'a', 1) <> 2 or
+        pos("zab",    'a', 2) <> 2 or
+        pos("zab",    'a', 3) <> 0 or
+        pos("zab",    'a', 4) <> 0 or
+        pos("zab",    'a', 9) <> 0 or
+        pos("yza",    'a', 1) <> 3 or
+        pos("yza",    'a', 2) <> 3 or
+        pos("yza",    'a', 3) <> 3 or
+        pos("yza",    'a', 4) <> 0 or
+        pos("yza",    'a', 9) <> 0 or
+        pos("aab",    'a', 1) <> 1 or
+        pos("aab",    'a', 2) <> 2 or
+        pos("aab",    'a', 3) <> 0 or
+        pos("aab",    'a', 4) <> 0 or
+        pos("aab",    'a', 9) <> 0 or
+        pos("aba",    'a', 1) <> 1 or
+        pos("aba",    'a', 2) <> 3 or
+        pos("aba",    'a', 3) <> 3 or
+        pos("aba",    'a', 4) <> 0 or
+        pos("aba",    'a', 9) <> 0 or
+        pos("zaa",    'a', 1) <> 2 or
+        pos("zaa",    'a', 2) <> 2 or
+        pos("zaa",    'a', 3) <> 3 or
+        pos("zaa",    'a', 4) <> 0 or
+        pos("zaa",    'a', 9) <> 0 or
+        pos("aaa",    'a', 1) <> 1 or
+        pos("aaa",    'a', 2) <> 2 or
+        pos("aaa",    'a', 3) <> 3 or
+        pos("aaa",    'a', 4) <> 0 or
+        pos("aaa",    'a', 9) <> 0 or
+        pos("bcdef",  'a', 1) <> 0 or
+        pos("bcdef",  'a', 2) <> 0 or
+        pos("bcdef",  'a', 3) <> 0 or
+        pos("bcdef",  'a', 4) <> 0 or
+        pos("bcdef",  'a', 5) <> 0 or
+        pos("bcdef",  'a', 6) <> 0 or
+        pos("bcdef",  'a', 9) <> 0 or
+        pos("abcde",  'a', 1) <> 1 or
+        pos("abcde",  'a', 2) <> 0 or
+        pos("abcde",  'a', 3) <> 0 or
+        pos("abcde",  'a', 4) <> 0 or
+        pos("abcde",  'a', 5) <> 0 or
+        pos("abcde",  'a', 6) <> 0 or
+        pos("abcde",  'a', 9) <> 0 or
+        pos("zabcd",  'a', 1) <> 2 or
+        pos("zabcd",  'a', 2) <> 2 or
+        pos("zabcd",  'a', 3) <> 0 or
+        pos("zabcd",  'a', 4) <> 0 or
+        pos("zabcd",  'a', 5) <> 0 or
+        pos("zabcd",  'a', 6) <> 0 or
+        pos("zabcd",  'a', 9) <> 0 or
+        pos("yzabc",  'a', 1) <> 3 or
+        pos("yzabc",  'a', 2) <> 3 or
+        pos("yzabc",  'a', 3) <> 3 or
+        pos("yzabc",  'a', 4) <> 0 or
+        pos("yzabc",  'a', 5) <> 0 or
+        pos("yzabc",  'a', 6) <> 0 or
+        pos("yzabc",  'a', 9) <> 0 or
+        pos("xyzab",  'a', 1) <> 4 or
+        pos("xyzab",  'a', 2) <> 4 or
+        pos("xyzab",  'a', 3) <> 4 or
+        pos("xyzab",  'a', 4) <> 4 or
+        pos("xyzab",  'a', 5) <> 0 or
+        pos("xyzab",  'a', 6) <> 0 or
+        pos("xyzab",  'a', 9) <> 0 or
+        pos("wxyza",  'a', 1) <> 5 or
+        pos("wxyza",  'a', 2) <> 5 or
+        pos("wxyza",  'a', 3) <> 5 or
+        pos("wxyza",  'a', 4) <> 5 or
+        pos("wxyza",  'a', 5) <> 5 or
+        pos("wxyza",  'a', 6) <> 0 or
+        pos("wxyza",  'a', 9) <> 0 or
+        pos("ababc",  'a', 1) <> 1 or
+        pos("ababc",  'a', 2) <> 3 or
+        pos("ababc",  'a', 3) <> 3 or
+        pos("ababc",  'a', 4) <> 0 or
+        pos("ababc",  'a', 5) <> 0 or
+        pos("ababc",  'a', 6) <> 0 or
+        pos("ababc",  'a', 9) <> 0 or
+        pos("zabad",  'a', 1) <> 2 or
+        pos("zabad",  'a', 2) <> 2 or
+        pos("zabad",  'a', 3) <> 4 or
+        pos("zabad",  'a', 4) <> 4 or
+        pos("zabad",  'a', 5) <> 0 or
+        pos("zabad",  'a', 6) <> 0 or
+        pos("zabad",  'a', 9) <> 0 or
+        pos("yzaba",  'a', 1) <> 3 or
+        pos("yzaba",  'a', 2) <> 3 or
+        pos("yzaba",  'a', 3) <> 3 or
+        pos("yzaba",  'a', 4) <> 5 or
+        pos("yzaba",  'a', 5) <> 5 or
+        pos("yzaba",  'a', 6) <> 0 or
+        pos("yzaba",  'a', 9) <> 0 or
+        pos("yzaab",  'a', 1) <> 3 or
+        pos("yzaab",  'a', 2) <> 3 or
+        pos("yzaab",  'a', 3) <> 3 or
+        pos("yzaab",  'a', 4) <> 4 or
+        pos("yzaab",  'a', 5) <> 0 or
+        pos("yzaab",  'a', 6) <> 0 or
+        pos("yzaab",  'a', 9) <> 0 or
+        pos("xyzaa",  'a', 1) <> 4 or
+        pos("xyzaa",  'a', 2) <> 4 or
+        pos("xyzaa",  'a', 3) <> 4 or
+        pos("xyzaa",  'a', 4) <> 4 or
+        pos("xyzaa",  'a', 5) <> 5 or
+        pos("xyzaa",  'a', 6) <> 0 or
+        pos("xyzaa",  'a', 9) <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  1) <>  1 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  2) <> 51 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  9) <> 51 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 50) <> 51 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 51) <> 51 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 52) <>  0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 99) <>  0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a',  1) <> 26 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a',  2) <> 26 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 25) <> 26 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 26) <> 26 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 27) <>  0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 99) <>  0 then
+      writeln(" ***** pos(STRING, \'a\', start) does not work correct");
+      okay := FALSE;
+    end if;
     if  lower(""       ) <> "" or
         lower("a"      ) <> "a" or
         lower("A"      ) <> "a" or

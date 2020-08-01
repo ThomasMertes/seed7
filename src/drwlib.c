@@ -674,6 +674,48 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_genPointList (listtype arguments)
+#else
+
+objecttype drw_genPointList (arguments)
+listtype arguments;
+#endif
+
+  {
+    arraytype points_array;
+    inttype len;
+    inttype *xy;
+    objecttype curr_number;
+    inttype pos;
+    bstritype result;
+
+  /* drw_genPointList */
+    isit_array(arg_1(arguments));
+    points_array = take_array(arg_1(arguments));
+    len = points_array->max_position - points_array->min_position + 1;
+    if (len == 0 || len & 1) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } else {
+      if (!ALLOC_TABLE(xy, inttype, len)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        curr_number = &points_array->arr[0];
+        for (pos = 0; pos < len; pos++) {
+          isit_int(curr_number);
+          xy[pos] = take_int(curr_number);
+          curr_number++;
+        } /* for */
+        result = drwGenPointList(xy, len);
+        FREE_TABLE(xy, inttype, len);
+      } /* if */
+    } /* if */
+    return(bld_bstri_temp(result));
+  } /* drw_genPointList */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_get (listtype arguments)
 #else
 
@@ -1149,6 +1191,68 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_polyLine (listtype arguments)
+#else
+
+objecttype drw_polyLine (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype actual_window;
+    inttype x, y, col;
+    const_bstritype point_list;
+
+  /* drw_polyLine */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_bstri(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x = take_int(arg_2(arguments));
+    y = take_int(arg_3(arguments));
+    point_list = take_bstri(arg_4(arguments));
+    col = take_int(arg_5(arguments));
+    drwPolyLine(actual_window, x, y, point_list, col);
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_polyLine */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_fpolyLine (listtype arguments)
+#else
+
+objecttype drw_fpolyLine (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype actual_window;
+    inttype x, y, col;
+    const_bstritype point_list;
+
+  /* drw_fpolyLine */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_bstri(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x = take_int(arg_2(arguments));
+    y = take_int(arg_3(arguments));
+    point_list = take_bstri(arg_4(arguments));
+    col = take_int(arg_5(arguments));
+    drwFPolyLine(actual_window, x, y, point_list, col);
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_fpolyLine */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_ppoint (listtype arguments)
 #else
 
@@ -1296,6 +1400,25 @@ listtype arguments;
   { /* drw_rot */
     return(SYS_EMPTY_OBJECT);
   } /* drw_rot */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_setTransparentColor (listtype arguments)
+#else
+
+objecttype drw_setTransparentColor (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_setTransparentColor */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    drwSetTransparentColor(take_win(arg_1(arguments)),
+        take_int(arg_2(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_setTransparentColor */
 
 
 

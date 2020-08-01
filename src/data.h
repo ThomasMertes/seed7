@@ -410,11 +410,12 @@ extern progrecord prog;
 #define GET_LINE_NUM(O)     (linenumtype) (((long)(O)->descriptor.posinfo) & 1048575L)
 #define GET_FILE_NUM(O)     (filenumtype) ((((long)(O)->descriptor.posinfo) & 2146435072L) >> 20)
 
-#define CATEGORY_MASK ((categorytype)  63)
-#define VAR_MASK      ((categorytype)  64)
-#define TEMP_MASK     ((categorytype) 128)
-#define TEMP2_MASK    ((categorytype) 256)
-#define POSINFO_MASK  ((categorytype) 512)
+#define CATEGORY_MASK  ((categorytype)   63)
+#define VAR_MASK       ((categorytype)   64)
+#define TEMP_MASK      ((categorytype)  128)
+#define TEMP2_MASK     ((categorytype)  256)
+#define POSINFO_MASK   ((categorytype)  512)
+#define MATCH_ERR_MASK ((categorytype) 1024)
 
 #define SET_ANY_FLAG(O,FLAG)            (O)->objcategory = (O)->objcategory | (FLAG)
 
@@ -443,6 +444,10 @@ extern progrecord prog;
 #define CLEAR_POSINFO_FLAG(O)           (O)->objcategory = (O)->objcategory & ~POSINFO_MASK
 #define HAS_POSINFO(O)                  ((O)->objcategory & POSINFO_MASK)
 #define COPY_POSINFO_FLAG(O1,O2)        (O1)->objcategory = ((O1)->objcategory & ~POSINFO_MASK) | ((O2)->objcategory & POSINFO_MASK)
+
+#define SET_MATCH_ERR_FLAG(O)           (O)->objcategory = (O)->objcategory | MATCH_ERR_MASK
+#define CLEAR_MATCH_ERR_FLAG(O)         (O)->objcategory = (O)->objcategory & ~MATCH_ERR_MASK
+#define HAS_MATCH_ERR(O)                ((O)->objcategory & MATCH_ERR_MASK)
 
 #define HAS_PROPERTY(O)                 (!HAS_POSINFO(O) && (O)->descriptor.property != NULL)
 #define HAS_ENTITY(O)                   (HAS_PROPERTY(O) && (O)->descriptor.property->entity != NULL)

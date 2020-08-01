@@ -645,6 +645,9 @@ const func integer: pos (in string param, in string param) is     action "STR_PO
 const func integer: pos (in string param, in string param,
                          in integer param) is                     action "STR_IPOS";
 const func integer: rpos (in string param, in string param) is    action "STR_RPOS";
+const func integer: pos (in string param, in char param) is       action "STR_CHPOS";
+const func integer: pos (in string param, in char param,
+                         in integer param) is                     action "STR_CHIPOS";
 (* const proc: count (in string param, in string param) is        action "STR_CNT"; *)
 const func string: replace (in string param, in string param, in string param) is action "STR_REPL";
 const func string: upper (in string param) is                     action "STR_UP";
@@ -1406,6 +1409,19 @@ const func string: join (in array string: striArray, in string: delimiter) is fu
     for pos range 2 to length(striArray) do
       result &:= delimiter;
       result &:= striArray[pos];
+    end for;
+  end func;
+
+const func boolean: isDigitString (in string: stri) is func
+  result
+    var boolean: result is TRUE;
+  local
+    var char: ch is ' ';
+  begin
+    for ch range stri do
+      if ch < '0' or ch > '9' then
+        result := FALSE;
+      end if;
     end for;
   end func;
 

@@ -17,6 +17,7 @@ chkset.sd7   Checks set literals and operations
 chkstr.sd7   Checks string literals and operations             
 clock.sd7    Displays a digital clock                          
 clock2.sd7   Displays a digital clock with mycroseconds        
+clock3.sd7   Analog Clock                                      
 cmpfil.sd7   Compares two files in main memory                 
 comp.sd7     Compiler from Seed7 to C                          
 dirtst.sd7   Test reading a directory as file                  

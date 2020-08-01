@@ -219,6 +219,155 @@ stritype stri_from;
 
 
 
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+rtlArraytype strChEscSplit (const const_stritype main_stri, const chartype delimiter,
+    const chartype escape)
+#else
+
+rtlArraytype strChEscSplit (main_stri, delimiter, escape)
+stritype main_stri;
+chartype delimiter;
+chartype escape;
+#endif
+
+  {
+    memsizetype used_max_position;
+    const strelemtype *search_start;
+    const strelemtype *search_end;
+    const strelemtype *curr_pos;
+    const strelemtype *found_pos;
+    stritype curr_stri;
+    const strelemtype *stri_pos;
+    memsizetype pos;
+    rtlArraytype result_array;
+
+  /* strChEscSplit */
+    if (delimiter == escape) {
+      raise_error(RANGE_ERROR);
+    } else {
+      if (ALLOC_RTL_ARRAY(result_array, 256)) {
+        result_array->min_position = 1;
+        result_array->max_position = 256;
+        used_max_position = 0;
+        search_start = main_stri->mem;
+        search_end = &main_stri->mem[main_stri->size];
+        old_pos = search_start;
+        curr_pos = search_start;
+        while (curr_pos != search_end && result_array != NULL) {
+          while (curr_pos != search_end && *curr_pos != delimiter) {
+            while (curr_pos != search_end && *curr_pos != delimiter && *curr_pos != escape) {
+              curr_pos++;
+            } /* while */
+            memcpy(stri_pos, old_pos, curr_pos - old_pos);
+            stri_pos += curr_pos - old_pos;
+            if (curr_pos != search_end && *curr_pos == escape) {
+              curr_pos++;
+              if (curr_pos != search_end) {
+                *stri_pos = *curr_pos;
+                stri_pos++;
+              } /* if */
+            } /* if */
+          } /* while */
+          result_array = add_stri_to_array(search_start,
+              (memsizetype) (found_pos - search_start), result_array,
+              &used_max_position);
+          search_start = found_pos + 1;
+        
+      if (result_array != NULL) {
+        result_array = add_stri_to_array(search_start,
+            (memsizetype) (search_end - search_start), result_array,
+            &used_max_position);
+        if (result_array != NULL) {
+          if (!RESIZE_RTL_ARRAY(result_array, result_array->max_position,
+              used_max_position)) {
+            for (pos = 0; pos < used_max_position; pos++) {
+              FREE_STRI(result_array->arr[pos].value.strivalue,
+                  result_array->arr[pos].value.strivalue->size);
+            } /* for */
+            FREE_RTL_ARRAY(result_array, result_array->max_position);
+            result_array = NULL;
+          } else {
+            COUNT3_RTL_ARRAY(result_array->max_position, used_max_position);
+            result_array->max_position = used_max_position;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    if (result_array == NULL) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return(result_array);
+  } /* strChEscSplit */
+#endif
+
+
+
+#ifdef ANSI_C
+
+inttype strChIpos (const const_stritype main_stri, const chartype searched,
+    const inttype from_index)
+#else
+
+inttype strChIpos (main_stri, searched, from_index)
+stritype main_stri;
+chartype searched;
+inttype from_index;
+#endif
+
+  {
+    const strelemtype *main_mem;
+    const strelemtype *search_start;
+    const strelemtype *found_pos;
+
+  /* strChIpos */
+    if (from_index <= 0) {
+      raise_error(RANGE_ERROR);
+    } else {
+      if (from_index <= main_stri->size) {
+        main_mem = main_stri->mem;
+        search_start = &main_mem[from_index - 1];
+        found_pos = search_strelem(search_start, searched,
+            (SIZE_TYPE) (main_stri->size - from_index + 1));
+        if (found_pos != NULL) {
+          return(((inttype) (found_pos - main_mem)) + 1);
+        } /* if */
+      } /* if */
+    } /* if */
+    return(0);
+  } /* strChIpos */
+
+
+
+#ifdef ANSI_C
+
+inttype strChPos (const const_stritype main_stri, const chartype searched)
+#else
+
+inttype strChPos (main_stri, searched)
+stritype main_stri;
+chartype searched;
+#endif
+
+  {
+    const strelemtype *main_mem;
+    const strelemtype *found_pos;
+
+  /* strChPos */
+    if (main_stri->size >= 1) {
+      main_mem = main_stri->mem;
+      found_pos = search_strelem(main_mem, searched,
+	  (SIZE_TYPE) (main_stri->size));
+      if (found_pos != NULL) {
+        return(((inttype) (found_pos - main_mem)) + 1);
+      } /* if */
+    } /* if */
+    return(0);
+  } /* strChPos */
+
+
+
 #ifdef ANSI_C
 
 rtlArraytype strChSplit (const const_stritype main_stri, const chartype delimiter)

@@ -68,6 +68,8 @@ typedef struct win_winstruct {
   HDC backup_hdc;
   HBITMAP hBitmap;
   HBITMAP oldBitmap;
+  booltype hasTransparentPixel;
+  UINT transparentPixel;
   booltype is_pixmap;
   unsigned int width;
   unsigned int height;
@@ -76,15 +78,17 @@ typedef struct win_winstruct {
 
 static win_wintype window_list = NULL;
 
-#define to_hwnd(win)        (((win_wintype) win)->hWnd)
-#define to_hdc(win)         (((win_wintype) win)->hdc)
-#define to_backup_hdc(win)  (((win_wintype) win)->backup_hdc)
-#define to_backup(win)      (((win_wintype) win)->backup)
-#define to_hBitmap(win)     (((win_wintype) win)->hBitmap)
-#define to_oldBitmap(win)   (((win_wintype) win)->oldBitmap)
-#define is_pixmap(win)      (((win_wintype) win)->is_pixmap)
-#define to_width(win)       (((win_wintype) win)->width)
-#define to_height(win)      (((win_wintype) win)->height)
+#define to_hwnd(win)                 (((win_wintype) win)->hWnd)
+#define to_hdc(win)                  (((win_wintype) win)->hdc)
+#define to_backup_hdc(win)           (((win_wintype) win)->backup_hdc)
+#define to_backup(win)               (((win_wintype) win)->backup)
+#define to_hBitmap(win)              (((win_wintype) win)->hBitmap)
+#define to_oldBitmap(win)            (((win_wintype) win)->oldBitmap)
+#define is_pixmap(win)               (((win_wintype) win)->is_pixmap)
+#define to_hasTransparentPixel(win)  (((win_wintype) win)->hasTransparentPixel)
+#define to_transparentPixel(win)     (((win_wintype) win)->transparentPixel)
+#define to_width(win)                (((win_wintype) win)->width)
+#define to_height(win)               (((win_wintype) win)->height)
 
 #ifndef WM_NCMOUSELEAVE
 #define WM_NCMOUSELEAVE 674
@@ -953,7 +957,7 @@ inttype col;
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     if (current_pen == NULL) {
-      printf("drwPFCircle pen with color %lx is NULL\n", col);
+      printf("drwPCircle pen with color %lx is NULL\n", col);
     } /* if */
     old_pen = SelectObject(to_hdc(actual_window), current_pen);
     MoveToEx(to_hdc(actual_window), x + radius, y, NULL);
@@ -1250,6 +1254,8 @@ inttype height;
         raise_error(MEMORY_ERROR);
       } else {
         result->oldBitmap = SelectObject(result->hdc, result->hBitmap);
+        result->hasTransparentPixel = FALSE;
+        result->transparentPixel = 0;
         result->is_pixmap = TRUE;
         result->width = width;
         result->height = height;
@@ -1389,6 +1395,8 @@ inttype height;
       result->hdc = CreateCompatibleDC(to_hdc(actual_window));
       result->hBitmap = CreateCompatibleBitmap(to_hdc(actual_window), width, height);
       result->oldBitmap = SelectObject(result->hdc, result->hBitmap);
+      result->hasTransparentPixel = FALSE;
+      result->transparentPixel = 0;
       result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
@@ -1508,6 +1516,8 @@ stritype window_name;
           if (result->hWnd != NULL) {
             result->hdc = GetDC(result->hWnd);
             /* printf("hdc=%lu\n", result->hdc); */
+            result->hasTransparentPixel = FALSE;
+            result->transparentPixel = 0;
             result->is_pixmap = FALSE;
             result->width = width;
             result->height = height;
@@ -1575,6 +1585,151 @@ inttype col;
       SetPixel(to_backup_hdc(actual_window), x, y, (COLORREF) col);
     } /* if */
   } /* drwPPoint */
+
+
+
+#ifdef ANSI_C
+
+bstritype drwGenPointList (inttype *xy, inttype length)
+#else
+
+bstritype drwGenPointList (xy, length)
+inttype *xy;
+inttype length;
+#endif
+
+  {
+    memsizetype len;
+    POINT *points;
+    memsizetype pos;
+    bstritype result;
+
+  /* drwGenPointList */
+    /* printf("drwGenPointList(%ld, %ld)\n", xy, length); */
+    len = length >> 1;
+    if (!ALLOC_BSTRI(result, len * sizeof(POINT))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = len * sizeof(POINT);
+      if (len > 0) {
+        points = (POINT *) result->mem;
+        for (pos = 0; pos < len; pos ++) {
+          points[pos].x = xy[pos << 1];
+          points[pos].y = xy[(pos << 1) + 1];
+        } /* for */
+      } /* if */
+    } /* if */
+    return(result);
+  } /* drwGenPointList */
+
+
+
+#ifdef ANSI_C
+
+void drwPolyLine (const_wintype actual_window,
+    inttype x1, inttype y1, const_bstritype point_list, inttype col)
+#else
+
+void drwPolyLine (actual_window, x1, y1, point_list)
+wintype actual_window;
+inttype x1, y1;
+const_bstritype point_list;
+inttype col;
+#endif
+
+  {
+    POINT *points;
+    int npoints;
+    int pos;
+    HPEN old_pen;
+    HPEN current_pen;
+
+  /* drwPolyLine */
+    points = point_list->mem;
+    npoints = point_list->size / sizeof(POINT);
+    if (npoints >= 2) {
+      current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+      if (current_pen == NULL) {
+        printf("drwPLine pen with color %lx is NULL\n", col);
+      } /* if */
+      old_pen = SelectObject(to_hdc(actual_window), current_pen);
+      MoveToEx(to_hdc(actual_window), x1 + points[0].x, y1 + points[0].y, NULL);
+      for (pos = 1; pos < npoints; pos ++) {
+        LineTo(to_hdc(actual_window), x1 + points[pos].x, y1 + points[pos].y);
+      } /* for */
+      SetPixel(to_hdc(actual_window), x1 + points[npoints - 1].x, y1 + points[npoints - 1].y, (COLORREF) col);
+      SelectObject(to_hdc(actual_window), old_pen);
+      if (to_backup_hdc(actual_window) != 0) {
+        old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
+        MoveToEx(to_backup_hdc(actual_window), x1 + points[0].x, y1 + points[0].y, NULL);
+        for (pos = 1; pos < npoints; pos ++) {
+          LineTo(to_backup_hdc(actual_window), x1 + points[pos].x, y1 + points[pos].y);
+        } /* for */
+        SetPixel(to_backup_hdc(actual_window), x1 + points[npoints - 1].x, y1 + points[npoints - 1].y, (COLORREF) col);
+        SelectObject(to_backup_hdc(actual_window), old_pen);
+      } /* if */
+      DeleteObject(current_pen);
+    } /* if */
+  } /* drwPolyLine */
+
+
+
+#ifdef ANSI_C
+
+void drwFPolyLine (const_wintype actual_window,
+    inttype x1, inttype y1, const_bstritype point_list, inttype col)
+#else
+
+void drwFPolyLine (actual_window, x1, y1, point_list)
+wintype actual_window;
+inttype x1, y1;
+const_bstritype point_list;
+inttype col;
+#endif
+
+  {
+    POINT *points;
+    int npoints;
+    int pos;
+    HPEN old_pen;
+    HPEN current_pen;
+    HBRUSH old_brush;
+    HBRUSH current_brush;
+
+  /* drwFPolyLine */
+    points = point_list->mem;
+    npoints = point_list->size / sizeof(POINT);
+    for (pos = 0; pos < npoints; pos ++) {
+      points[pos].x += x1;
+      points[pos].y += y1;
+    } /* for */
+    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+    current_brush = CreateSolidBrush((COLORREF) col);
+    if (current_pen == NULL) {
+      printf("drwPFCircle pen with color %lx is NULL\n", col);
+    } /* if */
+    if (current_brush == NULL) {
+      printf("drwPFCircle brush with color %lx is NULL\n", col);
+    } /* if */
+    old_pen = SelectObject(to_hdc(actual_window), current_pen);
+    old_brush = SelectObject(to_hdc(actual_window), current_brush);
+    Polygon(to_hdc(actual_window), points, npoints);
+    SelectObject(to_hdc(actual_window), old_pen);
+    SelectObject(to_hdc(actual_window), old_brush);
+    if (to_backup_hdc(actual_window) != 0) {
+      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
+      old_brush = SelectObject(to_backup_hdc(actual_window), current_brush);
+      Polygon(to_backup_hdc(actual_window), points, npoints);
+      SelectObject(to_backup_hdc(actual_window), old_pen);
+      SelectObject(to_backup_hdc(actual_window), old_brush);
+    } /* if */
+    DeleteObject(current_pen);
+    DeleteObject(current_brush);
+    for (pos = 0; pos < npoints; pos ++) {
+      points[pos].x -= x1;
+      points[pos].y -= y1;
+    } /* for */
+  } /* drwFPolyLine */
 
 
 
@@ -1678,12 +1833,25 @@ inttype y1;
 
   { /* drwPut */
     if (pixmap != NULL) {
-      BitBlt(to_hdc(actual_window), x1, y1, to_width(pixmap), to_height(pixmap),
-          to_hdc(pixmap), 0, 0, SRCCOPY);
-      if (to_backup_hdc(actual_window) != 0) {
-        BitBlt(to_backup_hdc(actual_window), x1, y1, to_width(pixmap), to_height(pixmap),
+#ifdef USE_TRANSPARENTBLT
+      if (to_hasTransparentPixel(pixmap)) {
+        TransparentBlt(to_hdc(actual_window), x1, y1, to_width(pixmap), to_height(pixmap),
+            to_hdc(pixmap), 0, 0, to_width(pixmap), to_height(pixmap), to_transparentPixel(pixmap));
+        if (to_backup_hdc(actual_window) != 0) {
+          TransparentBlt(to_backup_hdc(actual_window), x1, y1, to_width(pixmap), to_height(pixmap),
+              to_hdc(pixmap), 0, 0, to_width(pixmap), to_height(pixmap), to_transparentPixel(pixmap));
+        } /* if */
+      } else {
+#endif
+        BitBlt(to_hdc(actual_window), x1, y1, to_width(pixmap), to_height(pixmap),
             to_hdc(pixmap), 0, 0, SRCCOPY);
+        if (to_backup_hdc(actual_window) != 0) {
+          BitBlt(to_backup_hdc(actual_window), x1, y1, to_width(pixmap), to_height(pixmap),
+              to_hdc(pixmap), 0, 0, SRCCOPY);
+        } /* if */
+#ifdef USE_TRANSPARENTBLT
       } /* if */
+#endif
     } /* if */
   } /* drwPut */
 
@@ -1757,6 +1925,23 @@ inttype col;
   { /* drwColor */
       /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
   } /* drwColor */
+
+
+
+#ifdef ANSI_C
+
+void drwSetTransparentColor (const_wintype pixmap, inttype col)
+#else
+
+void drwSetTransparentColor (pixmap, col)
+wintype pixmap;
+inttype col;
+#endif
+
+  { /* drwSetTransparentColor */
+    to_hasTransparentPixel(pixmap) = TRUE;
+    to_transparentPixel(pixmap) = col;
+  } /* drwSetTransparentColor */
 
 
 

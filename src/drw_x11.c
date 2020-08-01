@@ -80,6 +80,7 @@ typedef struct x11_winstruct {
   unsigned long usage_count;
   Window window;
   Pixmap backup;
+  Pixmap clip_mask;
   booltype is_pixmap;
   unsigned int width;
   unsigned int height;
@@ -88,11 +89,12 @@ typedef struct x11_winstruct {
 
 static x11_wintype window_list = NULL;
 
-#define to_window(win) (((x11_wintype) win)->window)
-#define to_backup(win) (((x11_wintype) win)->backup)
-#define is_pixmap(win) (((x11_wintype) win)->is_pixmap)
-#define to_width(win)  (((x11_wintype) win)->width)
-#define to_height(win) (((x11_wintype) win)->height)
+#define to_window(win)    (((x11_wintype) win)->window)
+#define to_backup(win)    (((x11_wintype) win)->backup)
+#define to_clip_mask(win) (((x11_wintype) win)->clip_mask)
+#define is_pixmap(win)    (((x11_wintype) win)->is_pixmap)
+#define to_width(win)     (((x11_wintype) win)->width)
+#define to_height(win)    (((x11_wintype) win)->height)
 
 Visual *default_visual;
 
@@ -1353,6 +1355,7 @@ inttype height;
           to_window(actual_window), width, height,
           DefaultDepth(mydisplay, myscreen));
       result->backup = 0;
+      result->clip_mask = 0;
       result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
@@ -1431,6 +1434,7 @@ inttype height;
             to_window(actual_window), width, height,
             DefaultDepth(mydisplay, myscreen));
         result->backup = 0;
+        result->clip_mask = 0;
         result->is_pixmap = TRUE;
         result->width = width;
         result->height = height;
@@ -1519,6 +1523,7 @@ inttype height;
           to_window(actual_window), width, height,
           DefaultDepth(mydisplay, myscreen));
       result->backup = 0;
+      result->clip_mask = 0;
       result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
@@ -1553,6 +1558,7 @@ inttype height;
       result->window = XCreatePixmap(mydisplay,
           to_window(actual_window), width, height, 1);
       result->backup = 0;
+      result->clip_mask = 0;
       result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
@@ -1696,6 +1702,8 @@ stritype window_name;
               myhint.x, myhint.y, (unsigned) myhint.width, (unsigned) myhint.height,
               5, myforeground, mybackground);
 
+          result->backup = 0;
+          result->clip_mask = 0;
           result->is_pixmap = FALSE;
           result->width = width;
           result->height = height;
@@ -1797,6 +1805,114 @@ inttype col;
 
 #ifdef ANSI_C
 
+bstritype drwGenPointList (inttype *xy, inttype length)
+#else
+
+bstritype drwGenPointList (xy, length)
+inttype *xy;
+inttype length;
+#endif
+
+  {
+    memsizetype len;
+    XPoint *points;
+    memsizetype pos;
+    bstritype result;
+
+  /* drwGenPointList */
+    /* printf("drwGenPointList(%ld, %ld)\n", xy, length); */
+    len = length >> 1;
+    if (!ALLOC_BSTRI(result, len * sizeof(XPoint))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = len * sizeof(XPoint);
+      if (len > 0) {
+        points = (XPoint *) result->mem;
+        points[0].x = xy[0];
+        points[0].y = xy[1];
+        for (pos = 1; pos < len; pos ++) {
+          points[pos].x = xy[pos << 1]       - xy[(pos << 1) - 2];
+          points[pos].y = xy[(pos << 1) + 1] - xy[(pos << 1) - 1];
+        } /* for */
+      } /* if */
+    } /* if */
+    return(result);
+  } /* drwGenPointList */
+
+
+
+#ifdef ANSI_C
+
+void drwPolyLine (const_wintype actual_window,
+    inttype x1, inttype y1, const_bstritype point_list, inttype col)
+#else
+
+void drwPolyLine (actual_window, x1, y1, point_list)
+wintype actual_window;
+inttype x1, y1;
+const_bstritype point_list;
+inttype col;
+#endif
+
+  {
+    XPoint *points;
+    int npoints;
+    XPoint startBackup;
+
+  /* drwPolyLine */
+    points = (XPoint *) point_list->mem;
+    npoints = point_list->size / sizeof(XPoint);
+    memcpy(&startBackup, &points[0], sizeof(XPoint));
+    points[0].x += x1;
+    points[0].y += y1;
+    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XDrawLines(mydisplay, to_window(actual_window), mygc, points, npoints, CoordModePrevious);
+    if (to_backup(actual_window) != 0) {
+      XDrawLines(mydisplay, to_backup(actual_window), mygc, points, npoints, CoordModePrevious);
+    } /* if */
+    memcpy(&points[0], &startBackup, sizeof(XPoint));
+  } /* drwPolyLine */
+
+
+
+#ifdef ANSI_C
+
+void drwFPolyLine (const_wintype actual_window,
+    inttype x1, inttype y1, const_bstritype point_list, inttype col)
+#else
+
+void drwFPolyLine (actual_window, x1, y1, point_list)
+wintype actual_window;
+inttype x1, y1;
+const_bstritype point_list;
+inttype col;
+#endif
+
+  {
+    XPoint *points;
+    int npoints;
+    XPoint startBackup;
+
+  /* drwFPolyLine */
+    points = (XPoint *) point_list->mem;
+    npoints = point_list->size / sizeof(XPoint);
+    memcpy(&startBackup, &points[0], sizeof(XPoint));
+    points[0].x += x1;
+    points[0].y += y1;
+    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XFillPolygon(mydisplay, to_window(actual_window), mygc, points, npoints,
+        Nonconvex, CoordModePrevious);
+    if (to_backup(actual_window) != 0) {
+      XFillPolygon(mydisplay, to_backup(actual_window), mygc, points, npoints,
+          Nonconvex, CoordModePrevious);
+    } /* if */
+    memcpy(&points[0], &startBackup, sizeof(XPoint));
+  } /* drwFPolyLine */
+
+
+
+#ifdef ANSI_C
+
 void drwPut (const_wintype actual_window, const_wintype pixmap,
     inttype x1, inttype y1)
 #else
@@ -1817,11 +1933,18 @@ inttype y1;
     /* A pixmap value of NULL is used to describe an empty pixmap. */
     /* In this case nothing should be done.                        */
     if (pixmap != NULL) {
+      if (to_clip_mask(pixmap) != 0) {
+        XSetClipMask(mydisplay, mygc, to_clip_mask(pixmap));
+        XSetClipOrigin(mydisplay, mygc, x1, y1);
+      } /* if */
       XCopyArea(mydisplay, to_window(pixmap), to_window(actual_window),
           mygc, 0, 0, to_width(pixmap), to_height(pixmap), x1, y1);
       if (to_backup(actual_window) != 0) {
         XCopyArea(mydisplay, to_window(pixmap), to_backup(actual_window),
             mygc, 0, 0, to_width(pixmap), to_height(pixmap), x1, y1);
+      } /* if */
+      if (to_clip_mask(pixmap) != 0) {
+        XSetClipMask(mydisplay, mygc, None);
       } /* if */
     } /* if */
   } /* drwPut */
@@ -2210,6 +2333,71 @@ inttype col;
 /*  printf("set color = %ld\n", (long) col); */
     XSetForeground(mydisplay, mygc, (unsigned) col);
   } /* drwColor */
+
+
+
+#ifdef ANSI_C
+
+void drwSetTransparentColor (const_wintype pixmap, inttype col)
+#else
+
+void drwSetTransparentColor (pixmap, col)
+wintype pixmap;
+inttype col;
+#endif
+
+  {
+    GC bitmap_gc;
+    int depth;
+    int plane;
+    unsigned long plane_mask;
+
+  /* drwSetTransparentColor */
+#ifdef TRACE_X11
+    printf("drwSetTransparentColor(%lu, %lu)\n", pixmap, col);
+    printf("pixmap=%lu\n", pixmap != NULL ? to_window(pixmap) : NULL);
+#endif
+    /* A pixmap value of NULL is used to describe an empty pixmap. */
+    /* In this case nothing should be done.                        */
+    if (pixmap != NULL) {
+      if (to_clip_mask(pixmap) == 0) {
+        to_clip_mask(pixmap) = XCreatePixmap(mydisplay,
+            to_window(pixmap), to_width(pixmap), to_height(pixmap), 1);
+	/* printf("clip_mask = %lu\n", to_window(pixmap)); */
+      } /* if */
+      bitmap_gc = XCreateGC(mydisplay, to_clip_mask(pixmap), 0, 0);
+      depth = DefaultDepth(mydisplay, myscreen);
+      /* printf("depth=%d\n", depth); */
+      XSetForeground(mydisplay, bitmap_gc, 1);
+      XSetBackground(mydisplay, bitmap_gc, 0);
+      plane_mask = 1;
+      if (col & plane_mask) {
+        XSetFunction(mydisplay, bitmap_gc, GXcopyInverted);
+      } else {
+        XSetFunction(mydisplay, bitmap_gc, GXcopy);
+      } /* if */
+      /* printf("XCopyPlane(%lu, %lu, %lu, %lu, %d, %d, %u, %u, %d, %d, %lu)\n",
+          mydisplay, to_window(pixmap), to_clip_mask(pixmap), bitmap_gc,
+          0, 0, to_width(pixmap), to_height(pixmap), 0, 0, plane_mask); */
+      XCopyPlane(mydisplay, to_window(pixmap), to_clip_mask(pixmap), bitmap_gc,
+          0, 0, to_width(pixmap), to_height(pixmap), 0, 0, plane_mask);
+      plane_mask <<= 1;
+      for (plane = 1; plane < depth; plane++) {
+        if (col & plane_mask) {
+          XSetFunction(mydisplay, bitmap_gc, GXorInverted);
+        } else {
+          XSetFunction(mydisplay, bitmap_gc, GXor);
+        } /* if */
+        /* printf("XCopyPlane(%lu, %lu, %lu, %lu, %d, %d, %u, %u, %d, %d, %lu)\n",
+            mydisplay, to_window(pixmap), to_clip_mask(pixmap), bitmap_gc,
+            0, 0, to_width(pixmap), to_height(pixmap), 0, 0, plane_mask); */
+        XCopyPlane(mydisplay, to_window(pixmap), to_clip_mask(pixmap), bitmap_gc,
+	    0, 0, to_width(pixmap), to_height(pixmap), 0, 0, plane_mask);
+        plane_mask <<= 1;
+      } /* for */
+      XFreeGC(mydisplay, bitmap_gc);
+    } /* if */
+  } /* drwSetTransparentColor */
 
 
 

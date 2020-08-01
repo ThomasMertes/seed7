@@ -32,6 +32,8 @@
 #ifdef ANSI_C
 
 void strAppend (stritype *const, const const_stritype);
+inttype strChIpos (const const_stritype, const chartype, const inttype);
+inttype strChPos (const const_stritype, const chartype);
 /* rtlArraytype strChSplit (const const_stritype, const chartype); */
 inttype strCompare (const const_stritype, const const_stritype);
 stritype strConcat (const const_stritype, const const_stritype);
@@ -63,6 +65,8 @@ stritype strUp (const const_stritype);
 #else
 
 void strAppend ();
+inttype strChIpos ();
+inttype strChPos ();
 /* rtlArraytype strChSplit (); */
 inttype strCompare ();
 stritype strConcat ();
