@@ -40,8 +40,8 @@
 #include "listutl.h"
 #include "entutl.h"
 #include "executl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 #include "name.h"
 #include "match.h"
 

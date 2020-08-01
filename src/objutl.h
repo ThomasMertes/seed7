@@ -19,7 +19,7 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Runtime                                                 */
-/*  File: seed7/src/memory.h                                        */
+/*  File: seed7/src/objutl.h                                        */
 /*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
 /*  Content: isit_.. and bld_.. functions for primitive datatypes.  */
 /*                                                                  */
@@ -143,19 +143,19 @@
 /* void isit_action (objecttype); */
 /* void isit_array (objecttype); */
 /* void isit_block (objecttype); */
-void isit_bool (objecttype);
+void isit_bool (objecttype argument);
 /* void isit_bstri (objecttype); */
 /* void isit_call (objecttype); */
 /* void isit_char (objecttype); */
 /* void isit_interface (objecttype); */
-void isit_enum (objecttype);
+void isit_enum (objecttype argument);
 /* void isit_file (objecttype); */
 #ifdef WITH_FLOAT
 /* void isit_float (objecttype); */
 #endif
 /* void isit_hash (objecttype); */
 /* void isit_int (objecttype); */
-void isit_list (objecttype);
+void isit_list (objecttype argument);
 /* void isit_proc (objecttype); */
 /* void isit_prog (objecttype); */
 /* void isit_reference (objecttype); */
@@ -167,29 +167,29 @@ void isit_list (objecttype);
 /* void isit_type (objecttype); */
 /* void isit_win (objecttype); */
 #endif
-objecttype bld_action_temp (acttype);
-objecttype bld_array_temp (arraytype);
-objecttype bld_bigint_temp (biginttype);
-objecttype bld_block_temp (blocktype);
-objecttype bld_bstri_temp (bstritype);
-objecttype bld_char_temp (chartype);
-objecttype bld_interface_temp (objecttype);
-objecttype bld_file_temp (filetype);
-objecttype bld_float_temp (double);
-objecttype bld_hash_temp (hashtype);
-objecttype bld_int_temp (inttype);
-objecttype bld_list_temp (listtype);
-objecttype bld_param_temp (objecttype);
-objecttype bld_prog_temp (progtype);
-objecttype bld_reference_temp (objecttype);
-objecttype bld_reflist_temp (listtype);
-objecttype bld_set_temp (settype);
-objecttype bld_socket_temp (sockettype);
-objecttype bld_stri_temp (stritype);
-objecttype bld_struct_temp (structtype);
-objecttype bld_type_temp (typetype);
-objecttype bld_win_temp (wintype);
-void dump_any_temp (objecttype);
+objecttype bld_action_temp (acttype temp_action);
+objecttype bld_array_temp (arraytype temp_array);
+objecttype bld_bigint_temp (biginttype temp_bigint);
+objecttype bld_block_temp (blocktype temp_block);
+objecttype bld_bstri_temp (bstritype temp_bstri);
+objecttype bld_char_temp (chartype temp_char);
+objecttype bld_interface_temp (objecttype temp_interface);
+objecttype bld_file_temp (filetype temp_file);
+objecttype bld_float_temp (double temp_float);
+objecttype bld_hash_temp (hashtype temp_hash);
+objecttype bld_int_temp (inttype temp_int);
+objecttype bld_list_temp (listtype temp_list);
+objecttype bld_param_temp (objecttype temp_param);
+objecttype bld_prog_temp (progtype temp_prog);
+objecttype bld_reference_temp (objecttype temp_reference);
+objecttype bld_reflist_temp (listtype temp_reflist);
+objecttype bld_set_temp (settype temp_set);
+objecttype bld_socket_temp (sockettype temp_socket);
+objecttype bld_stri_temp (stritype temp_stri);
+objecttype bld_struct_temp (structtype temp_struct);
+objecttype bld_type_temp (typetype temp_type);
+objecttype bld_win_temp (wintype temp_win);
+void dump_any_temp (objecttype object);
 
 #else
 

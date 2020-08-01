@@ -40,7 +40,7 @@
 #include "entutl.h"
 #include "traceutl.h"
 #include "executl.h"
-#include "memory.h"
+#include "objutl.h"
 #include "error.h"
 #include "prclib.h"
 #include "dcllib.h"

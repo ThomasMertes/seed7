@@ -33,8 +33,8 @@
 #include "common.h"
 #include "data.h"
 #include "syvarutl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 #include "ut8_rtl.h"
 
 #undef EXTERN

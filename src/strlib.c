@@ -39,8 +39,8 @@
 #include "chclsutl.h"
 #include "syvarutl.h"
 #include "striutl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 #include "str_rtl.h"
 #include "rtl_err.h"
 

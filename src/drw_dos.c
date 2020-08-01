@@ -87,6 +87,48 @@ chartype gkbRawGetc ()
 
 #ifdef ANSI_C
 
+wintype gkbWindow (void)
+#else
+
+wintype gkbWindow ()
+#endif
+
+  { /* gkbWindow */
+    return(NULL);
+  } /* gkbWindow */
+
+
+
+#ifdef ANSI_C
+
+inttype gkbButtonXpos (void)
+#else
+
+inttype gkbButtonXpos ()
+#endif
+
+  { /* gkbButtonXpos */
+    return(0);
+  } /* gkbButtonXpos */
+
+
+
+#ifdef ANSI_C
+
+inttype gkbButtonYpos (void)
+#else
+
+inttype gkbButtonYpos ()
+#endif
+
+  { /* gkbButtonYpos */
+    return(0);
+  } /* gkbButtonYpos */
+
+
+
+#ifdef ANSI_C
+
 inttype gkbXpos (void)
 #else
 
@@ -506,7 +548,7 @@ inttype height;
 #ifdef ANSI_C
 
 wintype drwOpen (inttype xPos, inttype yPos,
-    inttype width, inttype height, stritype window_name)
+    inttype width, inttype height, const const_stritype window_name)
 #else
 
 wintype drwOpen (xPos, yPos, width, height, window_name)
@@ -556,15 +598,51 @@ inttype col;
 
 #ifdef ANSI_C
 
-bstritype drwGenPointList (const const_rtlArraytype xyArray);
+bstritype drwGenPointList (const const_rtlArraytype xyArray)
 #else
 
-bstritype drwGenPointList (xyArray);
+bstritype drwGenPointList (xyArray)
 rtlArraytype xyArray;
 #endif
 
   { /* drwGenPointList */
   } /* drwGenPointList */
+
+
+
+#ifdef ANSI_C
+
+void drwPolyLine (const_wintype actual_window,
+    inttype x1, inttype y1, bstritype point_list, inttype col)
+#else
+
+void drwPolyLine (actual_window, x1, y1, point_list, col)
+wintype actual_window;
+inttype x1, y1;
+const_bstritype point_list;
+inttype col;
+#endif
+
+  { /* drwPolyLine */
+  } /* drwPolyLine */
+
+
+
+#ifdef ANSI_C
+
+void drwFPolyLine (const_wintype actual_window,
+    inttype x1, inttype y1, bstritype point_list, inttype col)
+#else
+
+void drwFPolyLine (actual_window, x1, y1, point_list, col)
+wintype actual_window;
+inttype x1, y1;
+const_bstritype point_list;
+inttype col;
+#endif
+
+  { /* drwFPolyLine */
+  } /* drwFPolyLine */
 
 
 
@@ -666,8 +744,8 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwText (const_wintype actual_window, inttype x, inttype y, stritype stri,
-    inttype col, inttype bkcol)
+void drwText (const_wintype actual_window, inttype x, inttype y,
+    const const_stritype stri, inttype col, inttype bkcol)
 #else
 
 void drwText (actual_window, x, y, stri, col, bkcol)

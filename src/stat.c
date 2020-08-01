@@ -57,8 +57,8 @@ void show_statistic ()
   {
 #ifdef WITH_COMPILATION_INFO
     clock_t stop_time;
-    long c_per_msec;
-    long msecs_total;
+    unsigned long c_per_msec;
+    unsigned long msecs_total;
 #endif
 
   /* show_statistic */
@@ -69,17 +69,17 @@ void show_statistic ()
     printf("%6d stop clock\n", stop_time); */
     if (CLOCKS_PER_SEC >= 1000) {
       c_per_msec = CLOCKS_PER_SEC / 1000;
-      msecs_total = ((long) (stop_time - start_time)) / c_per_msec;
+      msecs_total = ((unsigned long) (stop_time - start_time)) / c_per_msec;
     } else if (CLOCKS_PER_SEC > 0) {
       c_per_msec = 1000 / CLOCKS_PER_SEC;
-      msecs_total = ((long) (stop_time - start_time)) * c_per_msec;
+      msecs_total = ((unsigned long) (stop_time - start_time)) * c_per_msec;
     } else {
-      msecs_total = (long) 0;
+      msecs_total = 0;
     } /* if */
-/*  printf("%6d milliseconds\n", msecs_total); */
+/*  printf("%6lu milliseconds\n", msecs_total); */
     if (msecs_total != 0) {
-      printf("%6d lines per second\n",
-        (int) ((total_lines * 1000) / msecs_total));
+      printf("%6lu lines per second\n",
+          (total_lines * 1000) / msecs_total);
     } /* if */
 #endif
 #ifdef WITH_STATISTIC

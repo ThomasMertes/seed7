@@ -38,8 +38,8 @@
 #include "striutl.h"
 #include "actutl.h"
 #include "syvarutl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 
 #undef EXTERN
 #define EXTERN

@@ -39,8 +39,8 @@
 #include "syvarutl.h"
 #include "executl.h"
 #include "traceutl.h"
+#include "objutl.h"
 #include "match.h"
-#include "memory.h"
 
 #undef EXTERN
 #define EXTERN

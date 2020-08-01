@@ -32,8 +32,8 @@
 #include "common.h"
 #include "data.h"
 #include "syvarutl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 #include "soc_rtl.h"
 
 

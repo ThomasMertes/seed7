@@ -42,10 +42,10 @@
 #include "entutl.h"
 #include "findid.h"
 #include "traceutl.h"
+#include "objutl.h"
 #include "analyze.h"
 #include "exec.h"
 #include "runerr.h"
-#include "memory.h"
 #include "match.h"
 #include "name.h"
 #include "option.h"
@@ -243,16 +243,20 @@ listtype arguments;
 #endif
 
   {
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype result;
 
   /* prg_eval */
     isit_prog(arg_1(arguments));
     isit_reference(arg_2(arguments));
-    result = exec_expr(take_prog(arg_1(arguments)), take_reference(arg_2(arguments)));
-    fail_flag = FALSE;
-    fail_value = (objecttype) NULL;
-    fail_expression = (listtype) NULL;
-    return bld_reference_temp(result);
+    result = exec_expr(take_prog(arg_1(arguments)),
+                       take_reference(arg_2(arguments)),
+                       &err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      return raise_exception(prog.sys_var[err_info]);
+    } else {
+      return bld_reference_temp(result);
+    } /* if */
   } /* prg_eval */
 
 

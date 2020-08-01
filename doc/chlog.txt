@@ -1,3 +1,24 @@
+20110306:
+- The support for CGI programs in the comanche.sd7 webserver was improved.
+- The first steps towards evaluating pure functions in the compiler (when they
+  are called with constant parameters), were done.
+- The compiler (comp.sd7) was improved to generate code with fewer temporary
+  variables for the actions SET_ELEM and SET_NOT_ELEM.
+- The function 'evaluate' (defined in "progs.s7i" and implemented in "exec.c",
+  "prglib.c" and "prg_comp.c") was improved to work correctly when the
+  evaluation raises an exception.
+- Parameter names were added to the prototypes in the files "exec.h",
+  "executl.h", "expr.h", "identutl.h", "match.h", "objutl.h", "name.h",
+  "object.h", "parser.h", "runerr.h", "symbol.h" and "token.h".
+- The files "memory.c" and "memory.h" were renamed to "objutl.c" and
+  "objutl.h" respectively.
+- The function 'uintCmpGeneric' was introduced in the file "int_rtl.c" and
+  used in compiled programs.
+- The example programs "chk_all.sd7" and "chkprc.sd7" were improved.
+- The file "drw_x11.c" was changed to reduce the number of warnings generated
+  by the C compiler.
+- Missing functions were added to the file "drw_dos.c".
+
 20110220:
 - The handling of closure parameters in the compiler (comp.sd7) was improved.
 - A free string memory management for small strings was introduced in

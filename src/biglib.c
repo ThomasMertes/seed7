@@ -35,8 +35,8 @@
 #include "data.h"
 #include "heaputl.h"
 #include "syvarutl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 #include "big_drv.h"
 
 #undef EXTERN

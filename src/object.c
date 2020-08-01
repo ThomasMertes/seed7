@@ -36,8 +36,8 @@
 #include "heaputl.h"
 #include "flistutl.h"
 #include "entutl.h"
+#include "objutl.h"
 #include "infile.h"
-#include "memory.h"
 #include "fatal.h"
 #include "stat.h"
 

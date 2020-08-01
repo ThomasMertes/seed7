@@ -163,13 +163,15 @@ objecttype object;
 #endif
 
   {
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype result;
 
   /* prgEval */
-    result = exec_expr(currentProg, object);
-    fail_flag = FALSE;
-    fail_value = (objecttype) NULL;
-    fail_expression = (listtype) NULL;
+    result = exec_expr(currentProg, object, &err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+      result = NULL;
+    } /* if */
     return(result);
   } /* prgEval */
 

@@ -27,7 +27,7 @@
 
 #ifdef ANSI_C
 
-void decl_const (nodetype, errinfotype *);
+void decl_const (nodetype node_level, errinfotype *err_info);
 
 #else
 

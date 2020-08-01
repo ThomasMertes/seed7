@@ -19,7 +19,7 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Runtime                                                 */
-/*  File: seed7/src/memory.c                                        */
+/*  File: seed7/src/objutl.c                                        */
 /*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
 /*  Content: isit_.. and bld_.. functions for primitive datatypes.  */
 /*                                                                  */
@@ -51,7 +51,7 @@
 #undef EXTERN
 #define EXTERN
 #define DO_INIT
-#include "memory.h"
+#include "objutl.h"
 
 
 
@@ -128,11 +128,11 @@ objecttype argument;
 
 #ifdef ANSI_C
 
-objecttype bld_action_temp (acttype temp_value)
+objecttype bld_action_temp (acttype temp_action)
 #else
 
-objecttype bld_action_temp (temp_value)
-acttype temp_value;
+objecttype bld_action_temp (temp_action)
+acttype temp_action;
 #endif
 
   {
@@ -143,7 +143,7 @@ acttype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, ACTOBJECT);
-      result->value.actvalue = temp_value;
+      result->value.actvalue = temp_action;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -154,11 +154,11 @@ acttype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_array_temp (arraytype temp_value)
+objecttype bld_array_temp (arraytype temp_array)
 #else
 
-objecttype bld_array_temp (temp_value)
-arraytype temp_value;
+objecttype bld_array_temp (temp_array)
+arraytype temp_array;
 #endif
 
   {
@@ -169,7 +169,7 @@ arraytype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, ARRAYOBJECT);
-      result->value.arrayvalue = temp_value;
+      result->value.arrayvalue = temp_array;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -180,11 +180,11 @@ arraytype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_bigint_temp (biginttype temp_value)
+objecttype bld_bigint_temp (biginttype temp_bigint)
 #else
 
-objecttype bld_bigint_temp (temp_value)
-biginttype temp_value;
+objecttype bld_bigint_temp (temp_bigint)
+biginttype temp_bigint;
 #endif
 
   {
@@ -195,7 +195,7 @@ biginttype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BIGINTOBJECT);
-      result->value.bigintvalue = temp_value;
+      result->value.bigintvalue = temp_bigint;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -206,11 +206,11 @@ biginttype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_block_temp (blocktype temp_value)
+objecttype bld_block_temp (blocktype temp_block)
 #else
 
-objecttype bld_block_temp (temp_value)
-blocktype temp_value;
+objecttype bld_block_temp (temp_block)
+blocktype temp_block;
 #endif
 
   {
@@ -221,7 +221,7 @@ blocktype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BLOCKOBJECT);
-      result->value.blockvalue = temp_value;
+      result->value.blockvalue = temp_block;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -232,11 +232,11 @@ blocktype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_bstri_temp (bstritype temp_value)
+objecttype bld_bstri_temp (bstritype temp_bstri)
 #else
 
-objecttype bld_bstri_temp (temp_value)
-bstritype temp_value;
+objecttype bld_bstri_temp (temp_bstri)
+bstritype temp_bstri;
 #endif
 
   {
@@ -247,7 +247,7 @@ bstritype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BSTRIOBJECT);
-      result->value.bstrivalue = temp_value;
+      result->value.bstrivalue = temp_bstri;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -258,11 +258,11 @@ bstritype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_char_temp (chartype temp_value)
+objecttype bld_char_temp (chartype temp_char)
 #else
 
-objecttype bld_char_temp (temp_value)
-chartype temp_value;
+objecttype bld_char_temp (temp_char)
+chartype temp_char;
 #endif
 
   {
@@ -273,7 +273,7 @@ chartype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, CHAROBJECT);
-      result->value.charvalue = temp_value;
+      result->value.charvalue = temp_char;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -284,11 +284,11 @@ chartype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_interface_temp (objecttype temp_value)
+objecttype bld_interface_temp (objecttype temp_interface)
 #else
 
-objecttype bld_interface_temp (temp_value)
-objecttype temp_value;
+objecttype bld_interface_temp (temp_interface)
+objecttype temp_interface;
 #endif
 
   {
@@ -299,7 +299,7 @@ objecttype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, INTERFACEOBJECT);
-      result->value.objvalue = temp_value;
+      result->value.objvalue = temp_interface;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -310,11 +310,11 @@ objecttype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_file_temp (filetype temp_value)
+objecttype bld_file_temp (filetype temp_file)
 #else
 
-objecttype bld_file_temp (temp_value)
-filetype temp_value;
+objecttype bld_file_temp (temp_file)
+filetype temp_file;
 #endif
 
   {
@@ -325,7 +325,7 @@ filetype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FILEOBJECT);
-      result->value.filevalue = temp_value;
+      result->value.filevalue = temp_file;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -336,11 +336,11 @@ filetype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_float_temp (double temp_value)
+objecttype bld_float_temp (double temp_float)
 #else
 
-objecttype bld_float_temp (temp_value)
-double temp_value;
+objecttype bld_float_temp (temp_float)
+double temp_float;
 #endif
 
   {
@@ -351,7 +351,7 @@ double temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FLOATOBJECT);
-      result->value.floatvalue = temp_value;
+      result->value.floatvalue = temp_float;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -362,11 +362,11 @@ double temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_hash_temp (hashtype temp_value)
+objecttype bld_hash_temp (hashtype temp_hash)
 #else
 
-objecttype bld_hash_temp (temp_value)
-hashtype temp_value;
+objecttype bld_hash_temp (temp_hash)
+hashtype temp_hash;
 #endif
 
   {
@@ -377,7 +377,7 @@ hashtype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, HASHOBJECT);
-      result->value.hashvalue = temp_value;
+      result->value.hashvalue = temp_hash;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -388,11 +388,11 @@ hashtype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_int_temp (inttype temp_value)
+objecttype bld_int_temp (inttype temp_int)
 #else
 
-objecttype bld_int_temp (temp_value)
-inttype temp_value;
+objecttype bld_int_temp (temp_int)
+inttype temp_int;
 #endif
 
   {
@@ -403,7 +403,7 @@ inttype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, INTOBJECT);
-      result->value.intvalue = temp_value;
+      result->value.intvalue = temp_int;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -414,11 +414,11 @@ inttype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_list_temp (listtype temp_value)
+objecttype bld_list_temp (listtype temp_list)
 #else
 
-objecttype bld_list_temp (temp_value)
-listtype temp_value;
+objecttype bld_list_temp (temp_list)
+listtype temp_list;
 #endif
 
   {
@@ -429,7 +429,7 @@ listtype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, LISTOBJECT);
-      result->value.listvalue = temp_value;
+      result->value.listvalue = temp_list;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -440,11 +440,11 @@ listtype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_param_temp (objecttype temp_value)
+objecttype bld_param_temp (objecttype temp_param)
 #else
 
-objecttype bld_param_temp (temp_value)
-objecttype temp_value;
+objecttype bld_param_temp (temp_param)
+objecttype temp_param;
 #endif
 
   {
@@ -455,7 +455,7 @@ objecttype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FORMPARAMOBJECT);
-      result->value.objvalue = temp_value;
+      result->value.objvalue = temp_param;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -466,11 +466,11 @@ objecttype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_prog_temp (progtype temp_value)
+objecttype bld_prog_temp (progtype temp_prog)
 #else
 
-objecttype bld_prog_temp (temp_value)
-progtype temp_value;
+objecttype bld_prog_temp (temp_prog)
+progtype temp_prog;
 #endif
 
   {
@@ -481,7 +481,7 @@ progtype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, PROGOBJECT);
-      result->value.progvalue = temp_value;
+      result->value.progvalue = temp_prog;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -492,11 +492,11 @@ progtype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_reference_temp (objecttype temp_value)
+objecttype bld_reference_temp (objecttype temp_reference)
 #else
 
-objecttype bld_reference_temp (temp_value)
-objecttype temp_value;
+objecttype bld_reference_temp (temp_reference)
+objecttype temp_reference;
 #endif
 
   {
@@ -507,7 +507,7 @@ objecttype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, REFOBJECT);
-      result->value.objvalue = temp_value;
+      result->value.objvalue = temp_reference;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -518,11 +518,11 @@ objecttype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_reflist_temp (listtype temp_value)
+objecttype bld_reflist_temp (listtype temp_reflist)
 #else
 
-objecttype bld_reflist_temp (temp_value)
-listtype temp_value;
+objecttype bld_reflist_temp (temp_reflist)
+listtype temp_reflist;
 #endif
 
   {
@@ -533,7 +533,7 @@ listtype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, REFLISTOBJECT);
-      result->value.listvalue = temp_value;
+      result->value.listvalue = temp_reflist;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -544,11 +544,11 @@ listtype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_set_temp (settype temp_value)
+objecttype bld_set_temp (settype temp_set)
 #else
 
-objecttype bld_set_temp (temp_value)
-settype temp_value;
+objecttype bld_set_temp (temp_set)
+settype temp_set;
 #endif
 
   {
@@ -559,7 +559,7 @@ settype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, SETOBJECT);
-      result->value.setvalue = temp_value;
+      result->value.setvalue = temp_set;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -570,11 +570,11 @@ settype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_socket_temp (sockettype temp_value)
+objecttype bld_socket_temp (sockettype temp_socket)
 #else
 
-objecttype bld_socket_temp (temp_value)
-sockettype temp_value;
+objecttype bld_socket_temp (temp_socket)
+sockettype temp_socket;
 #endif
 
   {
@@ -585,7 +585,7 @@ sockettype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, SOCKETOBJECT);
-      result->value.socketvalue = temp_value;
+      result->value.socketvalue = temp_socket;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -596,11 +596,11 @@ sockettype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_stri_temp (stritype temp_value)
+objecttype bld_stri_temp (stritype temp_stri)
 #else
 
-objecttype bld_stri_temp (temp_value)
-stritype temp_value;
+objecttype bld_stri_temp (temp_stri)
+stritype temp_stri;
 #endif
 
   {
@@ -611,7 +611,7 @@ stritype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, STRIOBJECT);
-      result->value.strivalue = temp_value;
+      result->value.strivalue = temp_stri;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -622,11 +622,11 @@ stritype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_struct_temp (structtype temp_value)
+objecttype bld_struct_temp (structtype temp_struct)
 #else
 
-objecttype bld_struct_temp (temp_value)
-structtype temp_value;
+objecttype bld_struct_temp (temp_struct)
+structtype temp_struct;
 #endif
 
   {
@@ -637,7 +637,7 @@ structtype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, STRUCTOBJECT);
-      result->value.structvalue = temp_value;
+      result->value.structvalue = temp_struct;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -648,18 +648,18 @@ structtype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_type_temp (typetype temp_value)
+objecttype bld_type_temp (typetype temp_type)
 #else
 
-objecttype bld_type_temp (temp_value)
-typetype temp_value;
+objecttype bld_type_temp (temp_type)
+typetype temp_type;
 #endif
 
   {
     register objecttype result;
 
   /* bld_type_temp */
-    result = temp_value->match_obj;
+    result = temp_type->match_obj;
     return(result);
   } /* bld_type_temp */
 
@@ -667,11 +667,11 @@ typetype temp_value;
 
 #ifdef ANSI_C
 
-objecttype bld_win_temp (wintype temp_value)
+objecttype bld_win_temp (wintype temp_win)
 #else
 
-objecttype bld_win_temp (temp_value)
-wintype temp_value;
+objecttype bld_win_temp (temp_win)
+wintype temp_win;
 #endif
 
   {
@@ -682,7 +682,7 @@ wintype temp_value;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, WINOBJECT);
-      result->value.winvalue = temp_value;
+      result->value.winvalue = temp_win;
       return(result);
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));

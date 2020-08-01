@@ -27,24 +27,32 @@
 
 #ifdef ANSI_C
 
-objecttype get_create_call_obj (objecttype, errinfotype *);
-objecttype get_destroy_call_obj (objecttype, errinfotype *);
-void do_create (objecttype, objecttype, errinfotype *);
-void do_destroy (objecttype, errinfotype *);
-inttype do_ord (objecttype, errinfotype *);
-booltype do_in (objecttype, objecttype, errinfotype *);
-objecttype param1_call (objecttype, objecttype);
-objecttype param2_call (objecttype, objecttype, objecttype);
-objecttype param3_call (objecttype, objecttype, objecttype, objecttype);
-objecttype create_return_object (const_locobjtype, objecttype, errinfotype *);
-void create_local_object (const_locobjtype, objecttype, errinfotype *);
-void destroy_local_object (const_locobjtype, errinfotype *);
-void destroy_object_list (const_listtype);
-booltype any_var_initialisation (objecttype, objecttype);
-void destr_struct (objecttype, memsizetype);
-void destr_array (objecttype, memsizetype);
-booltype crea_array (objecttype, objecttype, memsizetype);
-void cpy_array (objecttype, objecttype, memsizetype);
+objecttype get_create_call_obj (objecttype obj, errinfotype *err_info);
+objecttype get_destroy_call_obj (objecttype obj, errinfotype *err_info);
+void do_create (objecttype destination, objecttype source,
+    errinfotype *err_info);
+void do_destroy (objecttype old_obj, errinfotype *err_info);
+inttype do_ord (objecttype any_obj, errinfotype *err_info);
+booltype do_in (objecttype elem_obj, objecttype set_obj,
+    errinfotype *err_info);
+objecttype param1_call (objecttype function_obj, objecttype param1);
+objecttype param2_call (objecttype function_obj, objecttype param1,
+    objecttype param2);
+objecttype param3_call (objecttype function_obj, objecttype param1,
+    objecttype param2, objecttype param3);
+objecttype create_return_object (const_locobjtype local, objecttype init_value,
+    errinfotype *err_info);
+void create_local_object (const_locobjtype local, objecttype init_value,
+    errinfotype *err_info);
+void destroy_local_object (const_locobjtype local, errinfotype *err_info);
+void destroy_object_list (const_listtype obj_list);
+booltype any_var_initialisation (objecttype obj_to, objecttype obj_from);
+void destr_struct (objecttype old_elem, memsizetype old_size);
+void destr_array (objecttype old_elem, memsizetype old_size);
+booltype crea_array (objecttype elem_to, objecttype elem_from,
+    memsizetype new_size);
+void cpy_array (objecttype elem_to, objecttype elem_from,
+    memsizetype new_size);
 
 #else
 

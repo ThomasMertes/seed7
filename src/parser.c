@@ -43,6 +43,7 @@
 #include "actutl.h"
 #include "traceutl.h"
 #include "executl.h"
+#include "objutl.h"
 #include "fatal.h"
 #include "scanner.h"
 #include "object.h"
@@ -52,7 +53,6 @@
 #include "atom.h"
 #include "expr.h"
 #include "stat.h"
-#include "memory.h"
 #include "type.h"
 #include "name.h"
 

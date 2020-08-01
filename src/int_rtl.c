@@ -515,6 +515,28 @@ uint64type number;
 
 #ifdef ANSI_C
 
+inttype uintCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
+#else
+
+inttype uintCmpGeneric (value1, value2)
+rtlGenerictype value1;
+rtlGenerictype value2;
+#endif
+
+  { /* uintCmpGeneric */
+    if (value1 < value2) {
+      return -1;
+    } else if (value1 > value2) {
+      return 1;
+    } else {
+      return 0;
+    } /* if */
+  } /* uintCmpGeneric */
+
+
+
+#ifdef ANSI_C
+
 inttype intBinom (inttype n_number, inttype k_number)
 #else
 

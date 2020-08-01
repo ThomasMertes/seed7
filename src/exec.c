@@ -43,8 +43,8 @@
 #include "traceutl.h"
 #include "actutl.h"
 #include "executl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 #include "match.h"
 #include "option.h"
 
@@ -53,6 +53,8 @@
 #include "exec.h"
 
 #undef TRACE_EXEC
+
+extern booltype in_analyze;
 
 
 
@@ -1191,12 +1193,14 @@ printf("\n"); */
 
 #ifdef ANSI_C
 
-objecttype exec_expr (const_progtype currentProg, objecttype object)
+objecttype exec_expr (const_progtype currentProg, objecttype object,
+    errinfotype *err_info)
 #else
 
-objecttype exec_expr (currentProg, object)
+objecttype exec_expr (currentProg, object, err_info)
 progtype currentProg;
 objecttype object;
+errinfotype *err_info;
 #endif
 
   {
@@ -1214,13 +1218,31 @@ objecttype object;
       set_trace(option.exec_trace_level, -1, option.prot_file_name);
       memcpy(&prog_backup, &prog, sizeof(progrecord));
       memcpy(&prog, currentProg, sizeof(progrecord));
+      in_analyze = TRUE;
       result = exec_object(object);
+      in_analyze = FALSE;
       if (fail_flag) {
+        /*
         printf("\n*** Uncaught EXCEPTION ");
         printobject(fail_value);
         printf(" raised with\n");
         prot_list(fail_expression);
         printf("\n");
+        */
+        if (fail_value == SYS_MEM_EXCEPTION) {
+          *err_info = MEMORY_ERROR;
+        } else if (fail_value == SYS_NUM_EXCEPTION) {
+          *err_info = NUMERIC_ERROR;
+        } else if (fail_value == SYS_RNG_EXCEPTION) {
+          *err_info = RANGE_ERROR;
+        } else if (fail_value == SYS_FIL_EXCEPTION) {
+          *err_info = FILE_ERROR;
+        } else if (fail_value == SYS_ACT_ILLEGAL_EXCEPTION) {
+          *err_info = ACTION_ERROR;
+        } /* if */
+        fail_flag = FALSE;
+        fail_value = (objecttype) NULL;
+        fail_expression = (listtype) NULL;
       } /* if */
       memcpy(&prog, &prog_backup, sizeof(progrecord));
     } else {

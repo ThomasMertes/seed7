@@ -27,10 +27,11 @@
 
 #ifdef ANSI_C
 
-void update_owner (const_objecttype);
-objecttype match_object (objecttype);
-objecttype match_expression (objecttype);
-objecttype match_prog_expression (const_nodetype, objecttype);
+void update_owner (const_objecttype expr_object);
+objecttype match_object (objecttype object);
+objecttype match_expression (objecttype expr_object);
+objecttype match_prog_expression (const_nodetype start_node,
+    objecttype expr_object);
 
 #else
 

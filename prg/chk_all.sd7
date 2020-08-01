@@ -235,12 +235,28 @@ const proc: check (in string: progName, in string: referenceOutput) is func
       writeln;
       writeln(" *** The interpreted compiler was not able to compile " <& progName);
       if fileType("tmp_" & progName & ".cerrs") = FILE_REGULAR then
-        writeln(" *** Errors in " <& literal("tmp_" & progName & ".c") <&
-            " - see " <& literal("tmp_" & progName & ".cerrs"));
+        if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
+          removeFile("tmp1_" & progName & ".c");
+        end if;
+        moveFile("tmp_" & progName & ".c", "tmp1_" & progName & ".c");
+        if fileType("tmp1_" & progName & ".cerrs") = FILE_REGULAR then
+          removeFile("tmp1_" & progName & ".cerrs");
+        end if;
+        moveFile("tmp_" & progName & ".cerrs", "tmp1_" & progName & ".cerrs");
+        writeln(" *** Errors in " <& literal("tmp1_" & progName & ".c") <&
+            " - see " <& literal("tmp1_" & progName & ".cerrs"));
       elsif fileType("tmp_" & progName & ".lerrs") = FILE_REGULAR then
+        if fileType("tmp1_" & progName & OBJECT_FILE_EXTENSION) = FILE_REGULAR then
+          removeFile("tmp1_" & progName & OBJECT_FILE_EXTENSION);
+        end if;
+        moveFile("tmp_" & progName & OBJECT_FILE_EXTENSION, "tmp1_" & progName & OBJECT_FILE_EXTENSION);
+        if fileType("tmp1_" & progName & ".lerrs") = FILE_REGULAR then
+          removeFile("tmp1_" & progName & ".lerrs");
+        end if;
+        moveFile("tmp_" & progName & ".lerrs", "tmp1_" & progName & ".lerrs");
         writeln(" *** Linker errors with " <&
-            literal("tmp_" & progName & OBJECT_FILE_EXTENSION) <&
-            " - see " <& literal("tmp_" & progName & ".lerrs"));
+            literal("tmp1_" & progName & OBJECT_FILE_EXTENSION) <&
+            " - see " <& literal("tmp1_" & progName & ".lerrs"));
       end if;
       okay := FALSE;
     end if;
@@ -250,17 +266,32 @@ const proc: check (in string: progName, in string: referenceOutput) is func
           removeFile("tmp1_" & progName & ".c");
         end if;
         moveFile("tmp_" & progName & ".c", "tmp1_" & progName & ".c");
-        compilerOutput := cmdOutput("./comp " & progName);
-        if not equalFiles("tmp_" & progName & ".c", "tmp1_" & progName & ".c") then
-          writeln;
-          writeln(" *** The interpreted compiler and the compiled compiler do not produce the same output");
-          okay := FALSE;
-        else
-          removeFile("tmp1_" & progName & ".c");
+      end if;
+      if fileType(progName & EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
+        removeFile(progName & EXECUTABLE_FILE_EXTENSION);
+      end if;
+      compilerOutput := cmdOutput("./comp " & progName);
+      if fileType(progName & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+        if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
+          if not equalFiles("tmp_" & progName & ".c", "tmp1_" & progName & ".c") then
+            writeln;
+            writeln(" *** The interpreted compiler and the compiled compiler do not produce the same output");
+            okay := FALSE;
+          else
+            removeFile("tmp1_" & progName & ".c");
+          end if;
         end if;
       else
         writeln;
-        writeln(" *** File tmp_" & progName & ".c missing.");
+        writeln(" *** The compiled compiler was not able to compile " <& progName);
+        if fileType("tmp_" & progName & ".cerrs") = FILE_REGULAR then
+          writeln(" *** Errors in " <& literal("tmp_" & progName & ".c") <&
+              " - see " <& literal("tmp_" & progName & ".cerrs"));
+        elsif fileType("tmp_" & progName & ".lerrs") = FILE_REGULAR then
+          writeln(" *** Linker errors with " <&
+              literal("tmp_" & progName & OBJECT_FILE_EXTENSION) <&
+              " - see " <& literal("tmp_" & progName & ".lerrs"));
+        end if;
         okay := FALSE;
       end if;
     end if;

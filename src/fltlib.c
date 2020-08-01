@@ -39,8 +39,8 @@
 #include "heaputl.h"
 #include "flistutl.h"
 #include "syvarutl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 #include "flt_rtl.h"
 
 #undef EXTERN

@@ -41,8 +41,8 @@
 #include "object.h"
 #include "typeutl.h"
 #include "executl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 #include "traceutl.h"
 
 #undef EXTERN

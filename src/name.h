@@ -27,18 +27,22 @@
 
 #ifdef ANSI_C
 
-listtype create_parameter_list (listtype, errinfotype *);
-void init_stack (progtype, errinfotype *);
-void close_stack (const_progtype);
-void grow_stack (errinfotype *);
+listtype create_parameter_list (listtype name_list, errinfotype *err_info);
+void init_stack (progtype currentProg, errinfotype *err_info);
+void close_stack (const_progtype currentProg);
+void grow_stack (errinfotype *err_info);
 void shrink_stack (void);
 void push_stack (void);
 void pop_stack (void);
 listtype *get_local_object_insert_place (void);
-objecttype entername (nodetype, objecttype, errinfotype *);
-objecttype find_name (nodetype, const_objecttype, errinfotype *);
-objecttype search_name (const_nodetype, const_objecttype, errinfotype *);
-objecttype dollar_entername (nodetype, objecttype, errinfotype *);
+objecttype entername (nodetype declaration_base, objecttype object_name,
+    errinfotype *err_info);
+objecttype find_name (nodetype declaration_base, const_objecttype object_name,
+    errinfotype *err_info);
+objecttype search_name (const_nodetype declaration_base,
+    const_objecttype object_name, errinfotype *err_info);
+objecttype dollar_entername (nodetype declaration_base, objecttype object_name,
+    errinfotype *err_info);
 
 #else
 

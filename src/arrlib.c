@@ -38,8 +38,8 @@
 #include "syvarutl.h"
 #include "traceutl.h"
 #include "executl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 
 #undef EXTERN
 #define EXTERN

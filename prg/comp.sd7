@@ -65,12 +65,14 @@ var boolean: array_range_check    is TRUE;
 var boolean: source_debug_info    is TRUE;
 var boolean: trace_exception      is FALSE;
 var boolean: signal_exception     is FALSE;
+var boolean: evaluate_const_expr  is FALSE;
 var boolean: generate_c_plus_plus is FALSE;
 
 var boolean: compilerLibraryUsed is FALSE;
 var boolean: compDataLibraryUsed is FALSE;
 
 var integer: countOptimizations is 0;
+var integer: countEvaluations   is 0;
 
 var program: prog is program.EMPTY;
 var reference: main_object is NIL;
@@ -2005,6 +2007,83 @@ const func boolean: isActionExpression (in reference: current_expression, in str
   end func;
 
 
+const func boolean: isPureFunction (in reference: function) is func
+
+  result
+    var boolean: result is FALSE;
+  local
+    const set of string: pureFunctionActions is
+        {"ARR_ARRLIT", "ARR_ARRLIT2", "ARR_BASELIT", "ARR_BASELIT2", "ARR_CAT",
+         "ARR_CONV", "ARR_EMPTY", "ARR_EXTEND", "ARR_GEN", "ARR_HEAD", "ARR_IDX",
+         "ARR_LNG", "ARR_MAXIDX", "ARR_MINIDX", "ARR_RANGE", "ARR_SORT",
+         "ARR_TAIL", "ARR_TIMES",
+         "BIG_ABS", "BIG_ADD", "BIG_BIT_LENGTH", "BIG_CLIT", "BIG_CMP", "BIG_DIV",
+         "BIG_EQ", "BIG_GCD", "BIG_GE", "BIG_GT", "BIG_HASHCODE", "BIG_ICONV",
+         "BIG_IPOW", "BIG_LE", "BIG_LOG2", "BIG_LOWEST_SET_BIT", "BIG_LSHIFT",
+         "BIG_LT", "BIG_MDIV", "BIG_MINUS", "BIG_MOD", "BIG_MULT", "BIG_NE",
+         "BIG_ODD", "BIG_ORD", "BIG_PARSE", "BIG_PLUS", "BIG_PRED", "BIG_REM",
+         "BIG_RSHIFT", "BIG_SBTR", "BIG_STR", "BIG_SUCC", "BIG_VALUE",
+         "BLN_AND", "BLN_GE", "BLN_GT", "BLN_ICONV", "BLN_LE", "BLN_LT",
+         "BLN_NOT", "BLN_OR", "BLN_ORD",
+         "BST_CAT", "BST_CMP", "BST_EMPTY", "BST_EQ", "BST_HASHCODE", "BST_IDX",
+         "BST_LNG", "BST_NE", "BST_PARSE", "BST_STR", "BST_VALUE",
+         "CHR_CHR", "CHR_CLIT", "CHR_CMP", "CHR_CONV", "CHR_EQ", "CHR_GE",
+         "CHR_GT", "CHR_HASHCODE", "CHR_ICONV", "CHR_LE", "CHR_LOW", "CHR_LT",
+         "CHR_NE", "CHR_ORD", "CHR_PRED", "CHR_STR", "CHR_SUCC", "CHR_UP",
+         "CHR_VALUE",
+         "ENU_CONV", "ENU_EQ", "ENU_NE", "ENU_VALUE",
+         "FIL_EQ", "FIL_NE", "FIL_VALUE",
+         "FLT_A2TAN", "FLT_ABS", "FLT_ACOS", "FLT_ADD", "FLT_ASIN", "FLT_ATAN",
+         "FLT_CEIL", "FLT_CMP", "FLT_COS", "FLT_COSH", "FLT_DGTS", "FLT_DIV",
+         "FLT_EQ", "FLT_EXP", "FLT_FLOOR", "FLT_GE", "FLT_GT", "FLT_HASHCODE",
+         "FLT_ICONV", "FLT_IFLT", "FLT_IPOW", "FLT_ISNAN", "FLT_LE", "FLT_LOG",
+         "FLT_LOG10", "FLT_LT", "FLT_MINUS", "FLT_MULT", "FLT_NE", "FLT_PARSE",
+         "FLT_PLUS", "FLT_POW", "FLT_ROUND", "FLT_SBTR", "FLT_SIN", "FLT_SINH",
+         "FLT_SQRT", "FLT_STR", "FLT_TAN", "FLT_TANH", "FLT_TRUNC", "FLT_VALUE",
+         "HSH_CONTAINS", "HSH_EMPTY", "HSH_IDX", "HSH_KEYS", "HSH_LNG",
+         "HSH_VALUES",
+         "INT_ABS", "INT_ADD", "INT_BINOM", "INT_BIT_LENGTH", "INT_CMP",
+         "INT_CONV", "INT_DIV", "INT_EQ", "INT_FACT", "INT_GE", "INT_GT",
+         "INT_HASHCODE", "INT_LE", "INT_LOG2", "INT_LOWEST_SET_BIT", "INT_LPAD0",
+         "INT_LSHIFT", "INT_LT", "INT_MDIV", "INT_MINUS", "INT_MOD", "INT_MULT",
+         "INT_NE", "INT_ODD", "INT_ORD", "INT_PARSE", "INT_PLUS", "INT_POW",
+         "INT_PRED", "INT_REM", "INT_RSHIFT", "INT_SBTR", "INT_SQRT", "INT_STR",
+         "INT_STR_BASED", "INT_SUCC", "INT_VALUE",
+         "ITF_CMP", "ITF_EQ", "ITF_HASHCODE", "ITF_NE",
+         "LST_CAT", "LST_ELEM", "LST_EMPTY", "LST_HEAD", "LST_IDX", "LST_LNG",
+         "LST_RANGE", "LST_TAIL",
+         "PRG_EQ", "PRG_NE",
+         "REF_CMP", "REF_EQ", "REF_NE", "REF_NIL",
+         "RFL_CAT", "RFL_ELEM", "RFL_EMPTY", "RFL_EQ", "RFL_HEAD", "RFL_IDX",
+         "RFL_IPOS", "RFL_LNG", "RFL_NE", "RFL_NOT_ELEM", "RFL_POS", "RFL_RANGE",
+         "RFL_TAIL", "RFL_VALUE",
+         "SCT_LNG", "SCT_SELECT",
+         "SET_ARRLIT", "SET_BASELIT", "SET_CARD", "SET_CMP", "SET_CONV",
+         "SET_DIFF", "SET_ELEM", "SET_EMPTY", "SET_EQ", "SET_GE", "SET_GT",
+         "SET_HASHCODE", "SET_ICONV", "SET_INTERSECT", "SET_LE", "SET_LT",
+         "SET_MAX", "SET_MIN", "SET_NE", "SET_NOT_ELEM", "SET_SCONV",
+         "SET_SYMDIFF", "SET_UNION", "SET_VALUE",
+         "SOC_EQ", "SOC_NE",
+         "STR_CAT", "STR_CHIPOS", "STR_CHPOS", "STR_CHSPLIT", "STR_CLIT",
+         "STR_CMP", "STR_EQ", "STR_GE", "STR_GT", "STR_HASHCODE", "STR_HEAD",
+         "STR_IDX","STR_IPOS", "STR_LE", "STR_LIT", "STR_LNG", "STR_LOW",
+         "STR_LPAD", "STR_LPAD0", "STR_LT", "STR_MULT", "STR_NE", "STR_POS",
+         "STR_RANGE", "STR_RCHIPOS", "STR_RCHPOS", "STR_REPL", "STR_RPAD",
+         "STR_RPOS", "STR_SPLIT", "STR_STR", "STR_SUBSTR", "STR_TAIL",
+         "STR_TOUTF8", "STR_TRIM", "STR_UP", "STR_UTF8TOSTRI", "STR_VALUE",
+         "TYP_CMP", "TYP_EQ", "TYP_NE"};
+    var category: functionCategory is category.value;
+    var string: action_name is "";
+    var reference: obj is NIL;
+  begin
+    functionCategory := category(function);
+    if functionCategory = ACTOBJECT then
+      action_name := str(getValue(function, ACTION));
+      result := action_name in pureFunctionActions;
+    end if;
+  end func;
+
+
 const func boolean: isConstant (in reference: current_expression) is forward;
 
 
@@ -2013,32 +2092,20 @@ const func boolean: isConstantCall (in reference: current_expression) is func
   result
     var boolean: result is FALSE;
   local
-    const set of string: nonConstantExpressionActions is {"FIL_PRINT", "PRC_RAISE", "TYP_GENTYPE"};
     var ref_list: params is ref_list.EMPTY;
     var reference: function is NIL;
-    var category: functionCategory is category.value;
-    var string: action_name is "";
     var reference: obj is NIL;
   begin
     params := getValue(current_expression, ref_list);
     function := params[1];
     params := params[2 ..];
-    functionCategory := category(function);
-    if functionCategory = ACTOBJECT then
-      action_name := str(getValue(function, ACTION));
-      if action_name in nonConstantExpressionActions then
-        result := FALSE;
-      else
-        result := TRUE;
-        for obj range params until not result do
-          if not isConstant(obj) then
-            result := FALSE;
-          end if;
-        end for;
-        # if result then
-        #   writeln(action_name);
-        # end if;
-      end if;
+    if isPureFunction(function) then
+      result := TRUE;
+      for obj range params until not result do
+        if not isConstant(obj) then
+          result := FALSE;
+        end if;
+      end for;
     end if;
   end func;
 
@@ -2065,6 +2132,39 @@ const func boolean: isConstant (in reference: current_expression) is func
         result := TRUE;
       elsif exprCategory = ACTOBJECT then
         result := TRUE;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: isConstantExpr (in reference: current_expression) is func
+
+  result
+    var boolean: result is FALSE;
+  local
+    var category: exprCategory is category.value;
+  begin
+    if not isVar(current_expression) then
+      exprCategory := category(current_expression);
+      if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
+        result := isConstantCall(current_expression);
+      end if;
+    end if;
+  end func;
+
+
+const func string: getExprValue (in reference: current_expression, attr string) is func
+  result
+    var string: result is "";
+  local
+    var reference: evaluated_expression is NIL;
+  begin
+    if category(current_expression) = STRIOBJECT then
+      result := getValue(current_expression, string);
+    else
+      evaluated_expression := evaluate(prog, current_expression);
+      if evaluated_expression <> NIL then
+        result := getValue(evaluated_expression, string);
       end if;
     end if;
   end func;
@@ -2336,7 +2436,7 @@ const proc: process_prc_for (in ref_list: params, in boolean: for_to,
     process_expr(params[2], c_expr);
     c_expr.expr &:= "=";
     if c_start_expr.temp_frees <> "" then
-      c_expr.expr &:= "inttype tmp_s_";
+      c_expr.expr &:= "tmp_s_";
       c_expr.expr &:= str(temp_num);
     else
       c_expr.expr &:= c_start_expr.expr;
@@ -6299,7 +6399,7 @@ const proc: process_drw_clear (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_drw_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "refCmpGeneric((generictype)(";
+    c_expr.expr &:= "uintCmpGeneric((generictype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "), (generictype)(";
     process_expr(params[2], c_expr);
@@ -10115,7 +10215,7 @@ const proc: process_int_value (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_itf_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "refCmpGeneric((generictype)(";
+    c_expr.expr &:= "uintCmpGeneric((generictype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "), (generictype)(";
     process_expr(params[2], c_expr);
@@ -10596,7 +10696,7 @@ const proc: process_ref_cat_str (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_ref_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "refCmpGeneric((generictype)(";
+    c_expr.expr &:= "uintCmpGeneric((generictype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "), (generictype)(";
     process_expr(params[2], c_expr);
@@ -11838,7 +11938,7 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
     inout expr_type: c_expr) is func
 
   local
-    var integer: temp_num is 0;
+    var string: integer_name is "";
     var integer: number is 0;
     var boolean: first_element is TRUE;
   begin
@@ -11859,24 +11959,27 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
       c_expr.expr &:= str(min(aBitset));
     elsif card(aBitset) in {2 .. 4} then
       incr(countOptimizations);
-      incr(c_expr.temp_num);
-      temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "inttype tmp_";
-      c_expr.temp_decls &:= str(temp_num);
-      c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "(tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "=";
-      process_expr(param1, c_expr);
-      c_expr.expr &:= ",";
+      c_expr.expr &:= "(";
+      if isNormalVariable(param1) then
+        integer_name := normalVariable(param1, c_expr);
+      else
+        incr(c_expr.temp_num);
+        integer_name := "tmp_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= "inttype ";
+        c_expr.temp_decls &:= integer_name;
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= integer_name;
+        c_expr.expr &:= "=";
+        getAnyParamToExpr(param1, c_expr);
+        c_expr.expr &:= ",";
+      end if;
       for number range aBitset do
         if first_element then
           first_element := FALSE;
         else
           c_expr.expr &:= "||";
         end if;
-        c_expr.expr &:= "tmp_";
-        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= integer_name;
         c_expr.expr &:= "==";
         c_expr.expr &:= str(number);
       end for;
@@ -11893,9 +11996,20 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
 
 const proc: process_set_elem (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam3 is NIL;
   begin
     if category(params[3]) = SETOBJECT and not isVar(params[3]) then
       process_const_set_elem(params[1], getValue(params[3], bitset), c_expr);
+    elsif isConstant(params[3]) then
+      evaluatedParam3 := evaluate(prog, params[3]);
+      if category(evaluatedParam3) = SETOBJECT then
+        process_const_set_elem(params[1], getValue(evaluatedParam3, bitset), c_expr);
+      else
+        c_expr.expr &:= "/* setElem ";
+        c_expr.expr &:= str(category(evaluatedParam3));
+        c_expr.expr &:= " */";
+      end if;
     else
       c_expr.expr &:= "setElem(";
       process_expr(params[1], c_expr);
@@ -12084,7 +12198,7 @@ const proc: process_const_set_not_elem (in reference: param1, in bitset: aBitset
     inout expr_type: c_expr) is func
 
   local
-    var integer: temp_num is 0;
+    var string: integer_name is "";
     var integer: number is 0;
     var boolean: first_element is TRUE;
   begin
@@ -12105,24 +12219,27 @@ const proc: process_const_set_not_elem (in reference: param1, in bitset: aBitset
       c_expr.expr &:= str(min(aBitset));
     elsif card(aBitset) in {2 .. 4} then
       incr(countOptimizations);
-      incr(c_expr.temp_num);
-      temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "inttype tmp_";
-      c_expr.temp_decls &:= str(temp_num);
-      c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "(tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "=";
-      process_expr(param1, c_expr);
-      c_expr.expr &:= ",";
+      c_expr.expr &:= "(";
+      if isNormalVariable(param1) then
+        integer_name := normalVariable(param1, c_expr);
+      else
+        incr(c_expr.temp_num);
+        integer_name := "tmp_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= "inttype ";
+        c_expr.temp_decls &:= integer_name;
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= integer_name;
+        c_expr.expr &:= "=";
+        getAnyParamToExpr(param1, c_expr);
+        c_expr.expr &:= ",";
+      end if;
       for number range aBitset do
         if first_element then
           first_element := FALSE;
         else
           c_expr.expr &:= "&&";
         end if;
-        c_expr.expr &:= "tmp_";
-        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= integer_name;
         c_expr.expr &:= "!=";
         c_expr.expr &:= str(number);
       end for;
@@ -12139,9 +12256,20 @@ const proc: process_const_set_not_elem (in reference: param1, in bitset: aBitset
 
 const proc: process_set_not_elem (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam4 is NIL;
   begin
     if category(params[4]) = SETOBJECT and not isVar(params[4]) then
       process_const_set_not_elem(params[1], getValue(params[4], bitset), c_expr);
+    elsif isConstant(params[4]) then
+      evaluatedParam4 := evaluate(prog, params[4]);
+      if category(evaluatedParam4) = SETOBJECT then
+        process_const_set_not_elem(params[1], getValue(evaluatedParam4, bitset), c_expr);
+      else
+        c_expr.expr &:= "/* setNotElem ";
+        c_expr.expr &:= str(category(evaluatedParam4));
+        c_expr.expr &:= " */";
+      end if;
     else
       c_expr.expr &:= "setNotElem(";
       process_expr(params[1], c_expr);
@@ -16896,14 +17024,23 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
     var category: exprCategory is category.value;
     var expr_type: c_body is expr_type.value;
   begin
-(*
-    if isConstant(current_expression) then
-      evaluated_expression := evaluate(prog, current_expression);
-      if evaluated_expression <> NIL then
-        current_expression := evaluated_expression;
-      end if;
+    if evaluate_const_expr and isConstantExpr(current_expression) then
+      block
+        evaluated_expression := evaluate(prog, current_expression);
+        if evaluated_expression <> NIL then
+          incr(countEvaluations);
+          c_expr.expr &:= "/* evaluate ";
+          c_expr.expr &:= str(getValue(getValue(current_expression, ref_list)[1], ACTION));
+          c_expr.expr &:= " */ ";
+          setVar(evaluated_expression, FALSE);
+          current_expression := evaluated_expression;
+        end if;
+      exception
+        catch NUMERIC_ERROR: c_expr.expr &:= "/* NUMERIC_ERROR */ "; # noop;
+        catch RANGE_ERROR:   c_expr.expr &:= "/* RANGE_ERROR */ "; # noop;
+        catch FILE_ERROR:    c_expr.expr &:= "/* FILE_ERROR */ "; # noop;
+      end block;
     end if;
-*)
     exprCategory := category(current_expression);
     if exprCategory = MATCHOBJECT then
       process_call(current_expression, c_expr);
@@ -17821,7 +17958,7 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
     elsif action_name = "CHR_CREATE" then
       c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "DRW_CMP" then
-      c_expr.expr &:= "&refCmpGeneric";
+      c_expr.expr &:= "&uintCmpGeneric";
     elsif action_name = "DRW_CPY" then
       c_expr.expr &:= "&drwCpy";
     elsif action_name = "DRW_CREATE" then
@@ -17841,7 +17978,7 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
     elsif action_name = "INT_CREATE" then
       c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "ITF_CMP" then
-      c_expr.expr &:= "&refCmpGeneric";
+      c_expr.expr &:= "&uintCmpGeneric";
     elsif action_name = "ITF_CPY" then
       c_expr.expr &:= "&intCpy";
     elsif action_name = "ITF_CREATE" then
@@ -17853,7 +17990,7 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
         c_expr.expr &:= "&prcNoop";
       end if;
     elsif action_name = "REF_CMP" then
-      c_expr.expr &:= "&refCmpGeneric";
+      c_expr.expr &:= "&uintCmpGeneric";
     elsif action_name = "REF_CPY" then
       c_expr.expr &:= "&refCpy";
     elsif action_name = "REF_CREATE" then
@@ -18244,15 +18381,7 @@ const proc: process_enum_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   begin
-    if isVar(current_object) then
-      declare_type_if_necessary(getType(current_object), c_expr);
-      c_expr.expr &:= type_name(getType(current_object));
-      c_expr.expr &:= " o_";
-      create_name(current_object, c_expr.expr);
-      c_expr.expr &:= "=";
-      c_expr.expr &:= enum_value(getValue(current_object, reference));
-      c_expr.expr &:= ";\n\n";
-    elsif not is_func(getType(current_object)) then
+    if isVar(current_object) or not is_func(getType(current_object)) then
       declare_type_if_necessary(getType(current_object), c_expr);
       c_expr.expr &:= type_name(getType(current_object));
       c_expr.expr &:= " o_";
@@ -18813,6 +18942,8 @@ const proc: process_hashcode (in reference: current_object, inout expr_type: c_e
     param_list := make_list(current_object);
     param_list &:= make_list(syobject(prog, "hashCode"));
     expression := matchExpr(prog, param_list);
+    # TRACE_REF(expression);
+    setCategory(expression, CALLOBJECT);
     process_expr(expression, c_expr);
   end func;
 
@@ -20120,7 +20251,6 @@ const proc: write_prototypes is func
     declareExtern("objreftype  refBody (objreftype);");
     declareExtern("inttype     refCategory (objreftype);");
     declareExtern("stritype    refCatStr (inttype);");
-    declareExtern("inttype     refCmpGeneric (const generictype, const generictype);");
     declareExtern("void        refCpy (objreftype *, objreftype);");
     declareExtern("stritype    refFile (objreftype);");
     declareExtern("listtype    refHshDataToList (objreftype);");
@@ -20302,6 +20432,7 @@ const proc: write_prototypes is func
     declareExtern("void        setupFloat (void);");
     declareExtern("void        init_values (void);");
     declareExtern("void        init_globals (void);");
+    declareExtern("inttype     uintCmpGeneric (const generictype value1, const generictype value2);");
     declareExtern("void        raise_error2 (int, const char *, int);");
     writeln(c_prog, "#define raise_error(num) raise_error2(num, __FILE__, __LINE__)\n");
 (*
@@ -20541,7 +20672,7 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= ".value.intvalue=";
       c_expr.expr &:= "-1";
     elsif objectCategory = WINOBJECT then
-      c_expr.expr &:= ".value.intvalue=";
+      c_expr.expr &:= ".value.winvalue=";
       c_expr.expr &:= "NULL";
     elsif objectCategory = CONSTENUMOBJECT then
       c_expr.expr &:= ".value.intvalue=";
@@ -21458,6 +21589,9 @@ const proc: pass_1 (in string: source, inout program: prog,
       if "-e" in compiler_option then
         signal_exception := TRUE;
       end if;
+      if "-v" in compiler_option then
+        evaluate_const_expr := TRUE;
+      end if;
       if "-c" in compiler_option then
         generate_c_plus_plus := compiler_option["-c"] = "++";
       end if;
@@ -21531,6 +21665,7 @@ const proc: pass_2 (in string: source, in program: prog,
             close(c_prog);
             writeln;
             writeln(countOptimizations <& " optimizations done");
+            writeln(countEvaluations   <& " evaluations done");
           else
             write("*** Cannot open temp file ");
             write(literal(temporaryFileName));

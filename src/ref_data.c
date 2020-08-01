@@ -40,7 +40,7 @@
 #include "striutl.h"
 #include "listutl.h"
 #include "identutl.h"
-#include "memory.h"
+#include "objutl.h"
 #include "infile.h"    /* from the compiler library */
 #include "name.h"      /* from the compiler library */
 #include "blockutl.h"  /* from the compiler library */
@@ -255,10 +255,10 @@ inttype aCategory;
 
 #ifdef ANSI_C
 
-inttype refCmpGeneric (const rtlGenerictype ref1, const rtlGenerictype ref2)
+static inttype refCmpGeneric (const rtlGenerictype ref1, const rtlGenerictype ref2)
 #else
 
-inttype refCmpGeneric (ref1, ref2)
+static inttype refCmpGeneric (ref1, ref2)
 rtlGenerictype ref1;
 rtlGenerictype ref2;
 #endif

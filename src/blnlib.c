@@ -34,8 +34,8 @@
 #include "data.h"
 #include "syvarutl.h"
 #include "exec.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 
 #undef EXTERN
 #define EXTERN

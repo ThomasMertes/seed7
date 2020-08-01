@@ -37,9 +37,9 @@
 #include "syvarutl.h"
 #include "traceutl.h"
 #include "listutl.h"
+#include "objutl.h"
 #include "exec.h"
 #include "runerr.h"
-#include "memory.h"
 
 #undef EXTERN
 #define EXTERN

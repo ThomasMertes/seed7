@@ -39,8 +39,8 @@
 #include "chclsutl.h"
 #include "syvarutl.h"
 #include "striutl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 #include "bst_rtl.h"
 
 #undef EXTERN

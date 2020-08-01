@@ -39,9 +39,9 @@
 #include "listutl.h"
 #include "traceutl.h"
 #include "executl.h"
+#include "objutl.h"
 #include "exec.h"
 #include "runerr.h"
-#include "memory.h"
 
 #undef EXTERN
 #define EXTERN

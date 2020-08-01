@@ -36,8 +36,8 @@
 #include "heaputl.h"
 #include "syvarutl.h"
 #include "striutl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 #include "scr_rtl.h"
 #include "scr_drv.h"
 

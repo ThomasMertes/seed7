@@ -34,8 +34,8 @@
 #include "common.h"
 #include "data.h"
 #include "syvarutl.h"
+#include "objutl.h"
 #include "runerr.h"
-#include "memory.h"
 #include "tim_rtl.h"
 #include "tim_drv.h"
 

@@ -44,9 +44,9 @@
 #include "flistutl.h"
 #include "syvarutl.h"
 #include "traceutl.h"
+#include "objutl.h"
 #include "runerr.h"
 #include "exec.h"
-#include "memory.h"
 #include "match.h"
 
 #undef EXTERN

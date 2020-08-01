@@ -27,13 +27,14 @@
 
 #ifdef ANSI_C
 
-objecttype exec_object (register objecttype);
-objecttype exec_call (objecttype);
-objecttype evaluate (objecttype);
-objecttype eval_expression (objecttype);
-objecttype exec_dynamic (listtype);
-objecttype exec_expr (const_progtype, objecttype);
-void interpr (const_progtype);
+objecttype exec_object (register objecttype object);
+objecttype exec_call (objecttype object);
+objecttype evaluate (objecttype object);
+objecttype eval_expression (objecttype object);
+objecttype exec_dynamic (listtype expr_list);
+objecttype exec_expr (const_progtype currentProg, objecttype object,
+                      errinfotype *err_info);
+void interpr (const_progtype currentProg);
 
 #else
 

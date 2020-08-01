@@ -27,10 +27,11 @@
 
 #ifdef ANSI_C
 
-void free_tokens (tokentype);
-tokentype get_sy_token (tokentype *, identtype);
-tokentype get_expr_token (tokentype *, prior_type, typetype);
-tokentype get_syntax_description (tokentype *);
+void free_tokens (tokentype token);
+tokentype get_sy_token (tokentype *tokens, identtype identifier);
+tokentype get_expr_token (tokentype *tokens, prior_type pri,
+    typetype type_of);
+tokentype get_syntax_description (tokentype *tokens);
 
 #else
 

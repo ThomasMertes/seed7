@@ -38,11 +38,11 @@
 #include "fatal.h"
 #include "scanner.h"
 #include "findid.h"
+#include "objutl.h"
 #include "object.h"
 #include "match.h"
 #include "error.h"
 #include "expr.h"
-#include "memory.h"
 #include "exec.h"
 
 #undef EXTERN

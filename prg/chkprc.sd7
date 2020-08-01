@@ -1052,6 +1052,19 @@ const proc: check_for_int_to is func
       writeln(" ***** for integer range 0 to VARIABLE ...  does not work correct");
       okay := FALSE;
     end if;
+    counter := 0;
+    for number range length([]("asdf","bnm")&[]("cvbn","dfgh")) to length([]("zuiop","yxcvb","xcv")&[]("wertz","vbnm","uiop")) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("For to statements work correct.");
     else
@@ -1119,6 +1132,19 @@ const proc: check_for_int_downto is func
     end for;
     if counter <> 1 then
       writeln(" ***** for integer range VARIABLE downto 0 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range length([]("zuiop","yxcvb","xcv")&[]("wertz","vbnm","uiop")) downto length([]("asdf","bnm")&[]("cvbn","dfgh")) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct");
       okay := FALSE;
     end if;
     if okay then

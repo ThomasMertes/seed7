@@ -59,7 +59,7 @@ EXTERN symtype symbol;
 
 void extend_symb_length (void);
 void extend_stri_length (void);
-void init_symbol (errinfotype *);
+void init_symbol (errinfotype *err_info);
 void close_symbol (void);
 
 #else

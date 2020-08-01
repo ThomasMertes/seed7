@@ -1911,7 +1911,7 @@ inttype height;
       result->usage_count = 1;
       result->window = XCreatePixmap(mydisplay,
           to_window(actual_window), (unsigned int) width, (unsigned int) height,
-          DefaultDepth(mydisplay, myscreen));
+          (unsigned int) DefaultDepth(mydisplay, myscreen));
       result->backup = 0;
       result->clip_mask = 0;
       result->is_pixmap = TRUE;
@@ -1985,7 +1985,8 @@ inttype height;
       result = NULL;
     } else {
       image = XCreateImage(mydisplay, default_visual,
-          DefaultDepth(mydisplay, myscreen), ZPixmap, 0, (char *) image_data,
+          (unsigned int) DefaultDepth(mydisplay, myscreen),
+          ZPixmap, 0, (char *) image_data,
           (unsigned int) width, (unsigned int) height, 32, 0);
       if (image == NULL) {
         result = NULL;
@@ -1995,7 +1996,7 @@ inttype height;
           result->usage_count = 1;
           result->window = XCreatePixmap(mydisplay,
               to_window(actual_window), (unsigned int) width, (unsigned int) height,
-              DefaultDepth(mydisplay, myscreen));
+              (unsigned int) DefaultDepth(mydisplay, myscreen));
           result->backup = 0;
           result->clip_mask = 0;
           result->is_pixmap = TRUE;
@@ -2089,7 +2090,7 @@ inttype height;
       result->usage_count = 1;
       result->window = XCreatePixmap(mydisplay,
           to_window(actual_window), (unsigned int) width, (unsigned int) height,
-          DefaultDepth(mydisplay, myscreen));
+          (unsigned int) DefaultDepth(mydisplay, myscreen));
       result->backup = 0;
       result->clip_mask = 0;
       result->is_pixmap = TRUE;
@@ -2311,13 +2312,13 @@ stritype window_name;
               if (attribs.backing_store != Always) {
                 result->backup = XCreatePixmap(mydisplay, result->window,
                     (unsigned int) width, (unsigned int) height,
-                    DefaultDepth(mydisplay, myscreen));
+                    (unsigned int) DefaultDepth(mydisplay, myscreen));
                 /* printf("backup=%lu\n", (long unsigned) result->backup); */
               } /* if */
             } else {
               result->backup = XCreatePixmap(mydisplay, result->window,
                   (unsigned int) width, (unsigned int) height,
-                  DefaultDepth(mydisplay, myscreen));
+                  (unsigned int) DefaultDepth(mydisplay, myscreen));
               /* printf("backup=%lu\n", (long unsigned) result->backup); */
             } /* if */
 
@@ -2436,13 +2437,13 @@ inttype height;
             if (attribs.backing_store != Always) {
               result->backup = XCreatePixmap(mydisplay, result->window,
                   (unsigned int) width, (unsigned int) height,
-                  DefaultDepth(mydisplay, myscreen));
+                  (unsigned int) DefaultDepth(mydisplay, myscreen));
               /* printf("backup=%lu\n", (long unsigned) result->backup); */
             } /* if */
           } else {
             result->backup = XCreatePixmap(mydisplay, result->window,
                 (unsigned int) width, (unsigned int) height,
-                DefaultDepth(mydisplay, myscreen));
+                (unsigned int) DefaultDepth(mydisplay, myscreen));
             /* printf("backup=%lu\n", (long unsigned) result->backup); */
           } /* if */
 
@@ -2616,7 +2617,7 @@ bstritype point_list;
 #endif
 
   { /* drwLngPointList */
-    return(point_list->size / sizeof(XPoint));
+    return((inttype) (point_list->size / sizeof(XPoint)));
   } /* drwLngPointList */
 
 

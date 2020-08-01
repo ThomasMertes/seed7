@@ -38,7 +38,7 @@
 #include "syvarutl.h"
 #include "striutl.h"
 #include "entutl.h"
-#include "memory.h"
+#include "objutl.h"
 #include "fatal.h"
 #include "scanner.h"
 #include "symbol.h"

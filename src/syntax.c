@@ -36,6 +36,7 @@
 #include "flistutl.h"
 #include "identutl.h"
 #include "listutl.h"
+#include "objutl.h"
 #include "stat.h"
 #include "scanner.h"
 #include "symbol.h"
@@ -44,7 +45,6 @@
 #include "findid.h"
 #include "expr.h"
 #include "object.h"
-#include "memory.h"
 
 #undef EXTERN
 #define EXTERN

@@ -29,7 +29,7 @@ $ include "seed7_05.s7i";
 
 const integer: port is 1080;
 var string: htdocs is "../htdocs";
-var string: cgi_bin is "";
+var string: cgi_bin is "../prg";
 
 
 const proc: sendHttpResponse (inout file: sock, in string: buffer,
@@ -102,6 +102,7 @@ const func string: callCgi (in string: filePath, in string: queryParams,
   result
     var string: result is "";
   local
+    var string: cgiPath is "";
     var string: tempName is "";
     var file: cgiInput is STD_NULL;
     var file: cgiOutput is STD_NULL;
@@ -109,6 +110,7 @@ const func string: callCgi (in string: filePath, in string: queryParams,
   begin
     # writeln("CGI " <& filePath <& " " <& queryParams);
     # writeln(postParams);
+    cgiPath := toStdPath(cgi_bin & filePath[9 ..]);
     setenv("QUERY_STRING", queryParams);
     tempName := "cgiInput_" & str(rand(0, 99999));
     cgiInput := open(tempName, "w");
@@ -116,8 +118,8 @@ const func string: callCgi (in string: filePath, in string: queryParams,
     # writeln(cgiInput, "*");
     # writeln(cgiInput, "*");
     close(cgiInput);
-    # cgiOutput := popen("./hi -q " <& filePath & " < " & tempName, "r");
-    cgiOutput := popen(filePath & " < " & tempName, "r");
+    # cgiOutput := popen("./hi -q " <& cgiPath & " < " & tempName, "r");
+    cgiOutput := popen(cgiPath & " < " & tempName, "r");
     if cgiOutput <> STD_NULL then
       line := getln(cgiOutput);
       while line <> "" do
@@ -133,13 +135,16 @@ const func string: callCgi (in string: filePath, in string: queryParams,
       removeFile(tempName);
     end if;
     if result = "" then
+      header &:= "Status: 404 Not Found";
+      header &:= "Content-Type: text/html";
       result := "<html><head>\n\
                 \<title>CGI Error</title>\n\
                 \</head><body>\n\
-                \<h1>CGI</h1>\n\
-                \<p>" <& filePath <& "</p>\n\
-                \<p>" <& queryParams <& "</p>\n\
-                \<p>" <& postParams <& "</p>\n\
+                \<h1>CGI Error</h1>\n\
+                \<p>The requested CGI script " <& filePath <&
+                  " could not be executed or did not produce any output.</p>\n\
+                \<p>Query params: " <& queryParams <& "</p>\n\
+                \<p>Post params: " <& postParams <& "</p>\n\
                 \<hr>\n\
                 \<address>Comanche</address>\n\
                 \</body></html>\n";
@@ -197,7 +202,6 @@ const proc: processHttpRequest (inout file: sock) is func
       end if;
       filePath := replace(requestPath, "\\", "/");
       if startsWith(filePath, "/cgi-bin/") then
-        filePath := toStdPath(cgi_bin & filePath[9 ..]);
         buffer := callCgi(filePath, queryParams, "", cgiHeader);
         if buffer <> "" then
           sendHttpResponse(sock, buffer, "", cgiHeader);
@@ -260,7 +264,6 @@ const proc: processHttpRequest (inout file: sock) is func
       # writeln(postParams);
       filePath := replace(requestPath, "\\", "/");
       if startsWith(filePath, "/cgi-bin/") then
-        filePath := toStdPath(cgi_bin & filePath[9 ..]);
         buffer := callCgi(filePath, queryParams, postParams, cgiHeader);
       end if;
       if buffer <> "" then
@@ -279,7 +282,7 @@ const proc: main is func
     var listener: inetListener is listener.value;
     var file: sock is socket.value;
   begin
-    writeln("Comanche Version 1.0 - Simple webserver for static pages");
+    writeln("Comanche Version 1.1 - Simple webserver for static and cgi pages");
     writeln("Copyright (C) 2009 Thomas Mertes");
     writeln("This is free software; see the source for copying conditions.  There is NO");
     writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
@@ -295,8 +298,15 @@ const proc: main is func
       writeln(" *** Directory " <& literal(htdocs) <& " not found.");
       writeln("     You need to specify a directory which contains");
       writeln("     at least \"index.htm\" and possibly other HTML files.");
-    else
+    end if;
+    if fileType(cgi_bin) <> FILE_DIR then
+      writeln(" *** Directory " <& literal(cgi_bin) <& " not found.");
+      writeln("     You need to specify a directory which contains");
+      writeln("     executable CGI scripts.");
+    end if;
+    if fileType(htdocs) = FILE_DIR and fileType(cgi_bin) = FILE_DIR then
       writeln("HTML directory: " <& htdocs);
+      writeln("CGI directory: " <& cgi_bin);
       writeln("Port: " <& port);
       writeln("To test comanche make sure that " <&
               literal(htdocs & "/index.htm") <&

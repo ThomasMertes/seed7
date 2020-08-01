@@ -38,11 +38,11 @@
 #include "syvarutl.h"
 #include "listutl.h"
 #include "traceutl.h"
+#include "objutl.h"
 #include "error.h"
 #include "doany.h"
 #include "exec.h"
 #include "match.h"
-#include "memory.h"
 #include "runerr.h"
 
 #undef EXTERN
