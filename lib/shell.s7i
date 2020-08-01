@@ -97,14 +97,14 @@ const proc: cmd_sh (in string: command, in string: parameters) is func
  *)
 const func integer: shell (in string: cmdAndParams) is func
   result
-    var integer: result is 0;
+    var integer: returnCode is 0;
   local
     var string: command is "";
     var string: parameters is "";
   begin
     parameters := cmdAndParams;
     command := getCommandLineWord(parameters);
-    result := shell(command, parameters);
+    returnCode := shell(command, parameters);
   end func;
 
 

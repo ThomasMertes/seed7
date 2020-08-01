@@ -319,7 +319,7 @@ const func integer: (attr integer) conv (in integer: number)     is action "INT_
 
 
 (**
- *  Convert an integer number to a string.
+ *  Convert an integer number to a [[string]].
  *  The number is converted to a string with decimal representation.
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -328,7 +328,7 @@ const func string: str (in integer: number)                      is action "INT_
 
 
 (**
- *  Convert an integer number to a string.
+ *  Convert an integer number to a [[string]].
  *  The number is converted to a string with decimal representation.
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -337,7 +337,7 @@ const func string: literal (in integer: number)                  is action "INT_
 
 
 (**
- *  Convert an integer number to a string.
+ *  Convert an integer number to a [[string]].
  *  The conversion uses the numeral system with the given base.
  *  Digit values from 10 upward are encoded with upper case letters.
  *  E.g.: 10 is encoded with A, 11 with B, etc.
@@ -395,7 +395,7 @@ const func integer: lowestSetBit (in integer: number)              is action "IN
 
 
 (**
- *  Convert a string to an integer number.
+ *  Convert a [[string]] to an integer number.
  *  @return the integer result of the conversion.
  *  @exception RANGE_ERROR When the string is empty or
  *             contains not only digits.

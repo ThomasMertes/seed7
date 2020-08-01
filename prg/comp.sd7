@@ -170,6 +170,7 @@ const type: inline_param_value_hash is hash [reference] ref_list;
 const type: inline_param_hash is hash [reference] array integer;
 const type: funcparam_data_hash is hash [reference] string;
 const type: element_repeat_count_hash is hash [reference] integer;
+const type: typeReferenceHash is hash [type] reference;
 
 var typeCategoryHash: typeCategory is typeCategoryHash.EMPTY_HASH;
 var type_hash: array_element is type_hash.EMPTY_HASH;
@@ -199,6 +200,9 @@ var inline_param_hash: inline_param is inline_param_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_data is funcparam_data_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_reference is funcparam_data_hash.EMPTY_HASH;
 var element_repeat_count_hash: element_repeat_count is element_repeat_count_hash.EMPTY_HASH;
+var typeReferenceHash: createFunction is typeReferenceHash.EMPTY_HASH;
+var typeReferenceHash: destrFunction is typeReferenceHash.EMPTY_HASH;
+var typeReferenceHash: copyFunction is typeReferenceHash.EMPTY_HASH;
 
 var boolean: write_object_declaration is TRUE;
 
@@ -815,10 +819,15 @@ const proc: process_arr_create_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   local
+    var string: diagnosticLine is "";
     var string: select_value is "";
   begin
+    if object_type in createFunction then
+      diagnosticLine := diagnosticLine(createFunction[object_type]);
+    end if;
     select_value := select_value_from_rtlObjectstruct(array_element[object_type]);
     process_create_declaration(array_element[object_type], c_expr);
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static ";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " create_";
@@ -826,31 +835,50 @@ const proc: process_arr_create_declaration (in type: object_type,
     c_expr.expr &:= " (const_";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " a;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "memsizetype i;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "memsizetype size = (uinttype)(b->max_position - b->min_position + 1);\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a=(";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= ")(malloc(sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "  size * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (a == NULL) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->min_position = b->min_position;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->max_position = b->max_position;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "for (i = 0; i < size; i++) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->arr[i]";
     c_expr.expr &:= select_value;
     c_expr.expr &:= "=";
     process_create_call(array_element[object_type],
         "b->arr[i]" & select_value, c_expr.expr);
     c_expr.expr &:= ";\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "return a;\n";
-    c_expr.expr &:= "}\n\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
     create_declared @:= [object_type] TRUE;
   end func;
 
@@ -859,11 +887,15 @@ const proc: process_sct_create_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   local
+    var string: diagnosticLine is "";
     var number_element_hash: elements is number_element_hash.EMPTY_HASH;
     var integer: number is 0;
     var reference: struct_elem is NIL;
     var string: select_value is "";
   begin
+    if object_type in createFunction then
+      diagnosticLine := diagnosticLine(createFunction[object_type]);
+    end if;
     if object_type in struct_elements then
       elements := flip(struct_elements[object_type]);
     end if;
@@ -871,6 +903,7 @@ const proc: process_sct_create_declaration (in type: object_type,
       struct_elem := elements[number][1];
       process_create_declaration(struct_element_type[object_type][struct_elem], c_expr);
     end for;
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static ";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " create_";
@@ -878,19 +911,29 @@ const proc: process_sct_create_declaration (in type: object_type,
     c_expr.expr &:= " (const_";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " a;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a=(";
     c_expr.expr &:= type_name(object_type);
-    c_expr.expr &:= ")(malloc(sizeof(struct rtlStructstruct) - sizeof(rtlObjecttype) + \n  ";
+    c_expr.expr &:= ")(malloc(sizeof(struct rtlStructstruct) - sizeof(rtlObjecttype) + \n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "  ";
     c_expr.expr &:= str(length(elements));
     c_expr.expr &:= " * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (a == NULL) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->type_num = b->type_num;\n";
     for number range 0 to pred(length(elements)) do
+      c_expr.expr &:= diagnosticLine;
       struct_elem := elements[number][1];
       select_value := select_value_from_rtlObjectstruct(struct_element_type[object_type][struct_elem]);
       c_expr.expr &:= "a->stru[" & str(number) & "]" & select_value & "=";
@@ -898,9 +941,14 @@ const proc: process_sct_create_declaration (in type: object_type,
           "b->stru[" & str(number) & "]" & select_value, c_expr.expr);
       c_expr.expr &:= ";\n";
     end for;
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "return a;\n";
-    c_expr.expr &:= "}\n\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
     create_declared @:= [object_type] TRUE;
   end func;
 
@@ -908,7 +956,13 @@ const proc: process_sct_create_declaration (in type: object_type,
 const proc: process_hsh_create_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
+  local
+    var string: diagnosticLine is "";
   begin
+    if object_type in createFunction then
+      diagnosticLine := diagnosticLine(createFunction[object_type]);
+    end if;
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static ";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " create_";
@@ -916,11 +970,16 @@ const proc: process_hsh_create_declaration (in type: object_type,
     c_expr.expr &:= " (const_";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "return hshCreate(b";
     c_expr.expr &:= parametersOfHshCreate[object_type];
     c_expr.expr &:= ");\n";
-    c_expr.expr &:= "}\n\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
     create_declared @:= [object_type] TRUE;
   end func;
 
@@ -1034,27 +1093,45 @@ const proc: process_arr_destr_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   local
+    var string: diagnosticLine is "";
     var string: select_value is "";
   begin
+    if object_type in destrFunction then
+      diagnosticLine := diagnosticLine(destrFunction[object_type]);
+    end if;
     select_value := select_value_from_rtlObjectstruct(array_element[object_type]);
     process_destr_declaration(array_element[object_type], c_expr);
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static void destr_";
     c_expr.expr &:= str(type_number(object_type));
     c_expr.expr &:= " (const_";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "memsizetype i;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "memsizetype size;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (b != NULL) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "size = (uinttype)(b->max_position - b->min_position + 1);\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "for (i = 0; i < size; i++) {\n";
+    c_expr.expr &:= diagnosticLine;
     process_destr_call(array_element[object_type],
         "b->arr[i]" & select_value, c_expr.expr);
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "free((void *)(b));\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
-    c_expr.expr &:= "}\n\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
     destr_declared @:= [object_type] TRUE;
   end func;
 
@@ -1063,11 +1140,15 @@ const proc: process_sct_destr_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   local
+    var string: diagnosticLine is "";
     var number_element_hash: elements is number_element_hash.EMPTY_HASH;
     var integer: number is 0;
     var reference: struct_elem is NIL;
     var string: select_value is "";
   begin
+    if object_type in destrFunction then
+      diagnosticLine := diagnosticLine(destrFunction[object_type]);
+    end if;
     if object_type in struct_elements then
       elements := flip(struct_elements[object_type]);
     end if;
@@ -1075,22 +1156,31 @@ const proc: process_sct_destr_declaration (in type: object_type,
       struct_elem := elements[number][1];
       process_destr_declaration(struct_element_type[object_type][struct_elem], c_expr);
     end for;
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static void destr_";
     c_expr.expr &:= str(type_number(object_type));
     c_expr.expr &:= " (const_";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (b != NULL) {\n";
     for number range 0 to pred(length(elements)) do
       struct_elem := elements[number][1];
       select_value := select_value_from_rtlObjectstruct(struct_element_type[object_type][struct_elem]);
+      c_expr.expr &:= diagnosticLine;
       process_destr_call(struct_element_type[object_type][struct_elem],
           "b->stru[" & str(number) & "]" & select_value, c_expr.expr);
     end for;
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "free((void *)(b));\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
-    c_expr.expr &:= "}\n\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
     destr_declared @:= [object_type] TRUE;
   end func;
 
@@ -1098,17 +1188,28 @@ const proc: process_sct_destr_declaration (in type: object_type,
 const proc: process_hsh_destr_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
+  local
+    var string: diagnosticLine is "";
   begin
+    if object_type in destrFunction then
+      diagnosticLine := diagnosticLine(destrFunction[object_type]);
+    end if;
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static void destr_";
     c_expr.expr &:= str(type_number(object_type));
     c_expr.expr &:= " (const_";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "hshDestr(b";
     c_expr.expr &:= parametersOfHshDestr[object_type];
     c_expr.expr &:= ");\n";
-    c_expr.expr &:= "}\n\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
     destr_declared @:= [object_type] TRUE;
   end func;
 
@@ -1224,12 +1325,17 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   local
+    var string: diagnosticLine is "";
     var string: select_value is "";
   begin
+    if object_type in copyFunction then
+      diagnosticLine := diagnosticLine(copyFunction[object_type]);
+    end if;
     select_value := select_value_from_rtlObjectstruct(array_element[object_type]);
     process_create_declaration(array_element[object_type], c_expr);
     process_destr_declaration(array_element[object_type], c_expr);
     process_cpy_declaration(array_element[object_type], c_expr);
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static void cpy_";
     c_expr.expr &:= str(type_number(object_type));
     c_expr.expr &:= " (";
@@ -1237,56 +1343,95 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     c_expr.expr &:= " *a, ";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "memsizetype i;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "memsizetype size_a = (uinttype)((*a)->max_position - (*a)->min_position + 1);\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "memsizetype size_b = (uinttype)(b->max_position - b->min_position + 1);\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "memsizetype size;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "(*a)->min_position = b->min_position;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "(*a)->max_position = b->max_position;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (size_a == size_b) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "size = size_a;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (size_a < size_b) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "*a=(";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= ")(realloc((void *)(*a), sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "  size_b * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (*a == NULL) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "size = size_a;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "for (i = size_a; i < size_b; i++) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "(*a)->arr[i]";
     c_expr.expr &:= select_value;
     c_expr.expr &:= "=";
     process_create_call(array_element[object_type],
         "b->arr[i]" & select_value, c_expr.expr);
     c_expr.expr &:= ";\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "} else /* size_a > size_b */ {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "size = size_b;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "for (i = size_b; i < size_a; i++) {\n";
+    c_expr.expr &:= diagnosticLine;
     process_destr_call(array_element[object_type],
         "(*a)->arr[i]" & select_value, c_expr.expr);
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "*a=(";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= ")(realloc((void *)(*a), sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "  size_b * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (*a == NULL) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "for (i = 0; i < size; i++) {\n";
+    c_expr.expr &:= diagnosticLine;
     process_cpy_call(array_element[object_type],
         "(*a)->arr[i]" & select_value,
         "b->arr[i]" & select_value, c_expr.expr);
     c_expr.expr &:= ";\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
-    c_expr.expr &:= "}\n\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
     cpy_declared @:= [object_type] TRUE;
   end func;
 
@@ -1295,11 +1440,15 @@ const proc: process_sct_cpy_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   local
+    var string: diagnosticLine is "";
     var number_element_hash: elements is number_element_hash.EMPTY_HASH;
     var integer: number is 0;
     var reference: struct_elem is NIL;
     var string: select_value is "";
   begin
+    if object_type in copyFunction then
+      diagnosticLine := diagnosticLine(copyFunction[object_type]);
+    end if;
     if object_type in struct_elements then
       elements := flip(struct_elements[object_type]);
     end if;
@@ -1307,6 +1456,7 @@ const proc: process_sct_cpy_declaration (in type: object_type,
       struct_elem := elements[number][1];
       process_cpy_declaration(struct_element_type[object_type][struct_elem], c_expr);
     end for;
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static void cpy_";
     c_expr.expr &:= str(type_number(object_type));
     c_expr.expr &:= " (";
@@ -1314,18 +1464,23 @@ const proc: process_sct_cpy_declaration (in type: object_type,
     c_expr.expr &:= " a, ";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
     # The dynamic type of a struct cannot change with a deep copy.
     # c_expr.expr &:= "a->type_num = b->type_num;\n";
     for number range 0 to pred(length(elements)) do
       struct_elem := elements[number][1];
       select_value := select_value_from_rtlObjectstruct(struct_element_type[object_type][struct_elem]);
+      c_expr.expr &:= diagnosticLine;
       process_cpy_call(struct_element_type[object_type][struct_elem],
           "a->stru[" & str(number) & "]" & select_value,
           "b->stru[" & str(number) & "]" & select_value, c_expr.expr);
       c_expr.expr &:= ";\n";
     end for;
-    c_expr.expr &:= "}\n\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
     cpy_declared @:= [object_type] TRUE;
   end func;
 
@@ -1333,7 +1488,13 @@ const proc: process_sct_cpy_declaration (in type: object_type,
 const proc: process_hsh_cpy_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
+  local
+    var string: diagnosticLine is "";
   begin
+    if object_type in copyFunction then
+      diagnosticLine := diagnosticLine(copyFunction[object_type]);
+    end if;
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static void cpy_";
     c_expr.expr &:= str(type_number(object_type));
     c_expr.expr &:= " (";
@@ -1341,11 +1502,16 @@ const proc: process_hsh_cpy_declaration (in type: object_type,
     c_expr.expr &:= " *a, ";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "hshCpy(a, b";
     c_expr.expr &:= parametersOfHshCpy[object_type];
     c_expr.expr &:= ");\n";
-    c_expr.expr &:= "}\n\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
     cpy_declared @:= [object_type] TRUE;
   end func;
 
@@ -1483,14 +1649,14 @@ const proc: declare_prototype_if_necessary (in reference: function,
       object_type := getType(params[3]);
       process_create_declaration(object_type, c_expr);
       # c_expr.expr &:= type_name(result_type);
-      c_expr.expr &:= "arraytype times_";
+      c_expr.expr &:= "static arraytype times_";
       c_expr.expr &:= str(type_number(result_type));
       c_expr.expr &:= " (inttype, const ";
       if useConstPrefix(object_type) then
         c_expr.expr &:= "const_";
       end if;
       c_expr.expr &:= type_name(object_type);
-      c_expr.expr &:= ");\n";
+      c_expr.expr &:= ");\n\n";
       prototype_declared @:= [function] TRUE;
     end if;
   end func;
@@ -2188,8 +2354,9 @@ const func boolean: isPureFunction (in reference: function) is func
          "FLT_EQ", "FLT_EXP", "FLT_FLOOR", "FLT_GE", "FLT_GT", "FLT_HASHCODE",
          "FLT_ICONV", "FLT_IFLT", "FLT_IPOW", "FLT_ISNAN", "FLT_LE", "FLT_LOG",
          "FLT_LOG10", "FLT_LT", "FLT_MINUS", "FLT_MULT", "FLT_NE", "FLT_PARSE",
-         "FLT_PLUS", "FLT_POW", "FLT_ROUND", "FLT_SBTR", "FLT_SIN", "FLT_SINH",
-         "FLT_SQRT", "FLT_STR", "FLT_TAN", "FLT_TANH", "FLT_TRUNC", "FLT_VALUE",
+         "FLT_PLUS", "FLT_POW", "FLT_ROUND", "FLT_SBTR", "FLT_SCI", "FLT_SIN",
+         "FLT_SINH", "FLT_SQRT", "FLT_STR", "FLT_TAN", "FLT_TANH", "FLT_TRUNC",
+         "FLT_VALUE",
          "HSH_CONTAINS", "HSH_EMPTY", "HSH_IDX", "HSH_KEYS", "HSH_LNG",
          "HSH_VALUES",
          "INT_ABS", "INT_ADD", "INT_BINOM", "INT_BIT_LENGTH", "INT_CMP",
@@ -2218,8 +2385,8 @@ const func boolean: isPureFunction (in reference: function) is func
          "STR_CMP", "STR_EQ", "STR_GE", "STR_GT", "STR_HASHCODE", "STR_HEAD",
          "STR_IDX","STR_IPOS", "STR_LE", "STR_LIT", "STR_LNG", "STR_LOW",
          "STR_LPAD", "STR_LPAD0", "STR_LT", "STR_MULT", "STR_NE", "STR_POS",
-         "STR_RANGE", "STR_RCHIPOS", "STR_RCHPOS", "STR_REPL", "STR_RPAD",
-         "STR_RPOS", "STR_SPLIT", "STR_STR", "STR_SUBSTR", "STR_TAIL",
+         "STR_RANGE", "STR_RCHIPOS", "STR_RCHPOS", "STR_REPL", "STR_RIPOS",
+         "STR_RPAD", "STR_RPOS", "STR_SPLIT", "STR_STR", "STR_SUBSTR", "STR_TAIL",
          "STR_TOUTF8", "STR_TRIM", "STR_UP", "STR_UTF8TOSTRI", "STR_VALUE",
          "TYP_CMP", "TYP_EQ", "TYP_NE"};
     const set of string: specialFunctionActions is
@@ -2557,33 +2724,107 @@ const proc: process_prc_repeat (in ref_list: params, inout expr_type: c_expr) is
   end func;
 
 
-const proc: process_prc_for (in ref_list: params, in boolean: for_to,
+const proc: process_const_prc_for (in reference: variable, in reference: startExpr,
+    in integer: endValue, in reference: statement, in boolean: for_to,
+    inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_start_expr is expr_type.value;
+    var expr_type: c_statement is expr_type.value;
+    var string: start_name is "";
+    var integer: temp_num is 0;
+  begin
+    process_expr(startExpr, c_start_expr);
+    c_statement.temp_num := c_start_expr.temp_num;
+    process_expr(statement, c_statement);
+    temp_num := c_statement.temp_num;
+    incr(temp_num);
+    if c_start_expr.temp_decls <> "" then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_start_expr.temp_decls, c_expr);
+    end if;
+    if c_start_expr.temp_frees <> "" then
+      start_name := "tmp_s_" & str(temp_num);
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "inttype ";
+      c_expr.expr &:= start_name;
+      if c_start_expr.temp_assigns <> "" then
+        c_expr.expr &:= ";\n";
+        AppendWithDiagnostic(c_start_expr.temp_assigns, c_expr);
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= start_name;
+      end if;
+      c_expr.expr &:= "=";
+      c_expr.expr &:= c_start_expr.expr;
+      c_expr.expr &:= ";\n";
+      AppendWithDiagnostic(c_start_expr.temp_frees, c_expr);
+    else
+      start_name := c_start_expr.expr;
+      AppendWithDiagnostic(c_start_expr.temp_assigns, c_expr);
+    end if;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "for (";
+    process_expr(variable, c_expr);
+    c_expr.expr &:= "=";
+    c_expr.expr &:= start_name;
+    c_expr.expr &:= "; ";
+    process_expr(variable, c_expr);
+    if for_to then
+      c_expr.expr &:= "<=";
+    else
+      c_expr.expr &:= ">=";
+    end if;
+    c_expr.expr &:= integerLiteral(endValue);
+    c_expr.expr &:= "; (";
+    process_expr(variable, c_expr);
+    if for_to then
+      c_expr.expr &:= ")++) {\n";
+    else
+      c_expr.expr &:= ")--) {\n";
+    end if;
+    process_statements(c_statement, c_expr);
+    c_expr.expr &:= "}\n";
+    if c_start_expr.temp_decls <> "" then
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process_prc_for (in reference: variable, in reference: startExpr,
+    in reference: endExpr, in reference: statement, in boolean: for_to,
     inout expr_type: c_expr) is func
 
   local
     var expr_type: c_start_expr is expr_type.value;
     var expr_type: c_end_expr is expr_type.value;
     var expr_type: c_statement is expr_type.value;
+    var string: start_name is "";
+    var string: end_name is "";
     var integer: temp_num is 0;
   begin
-    process_expr(params[4], c_start_expr);
+    process_expr(startExpr, c_start_expr);
     c_end_expr.temp_num := c_start_expr.temp_num;
-    process_expr(params[6], c_end_expr);
+    process_expr(endExpr, c_end_expr);
     c_statement.temp_num := c_end_expr.temp_num;
-    process_expr(params[8], c_statement);
+    process_expr(statement, c_statement);
     temp_num := c_statement.temp_num;
     incr(temp_num);
     c_expr.expr &:= "{\n";
     AppendWithDiagnostic(c_start_expr.temp_decls, c_expr);
     AppendWithDiagnostic(c_end_expr.temp_decls, c_expr);
     if c_start_expr.temp_frees <> "" then
-      c_expr.expr &:= "inttype tmp_s_";
-      c_expr.expr &:= str(temp_num);
+      start_name := "tmp_s_" & str(temp_num);
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "inttype ";
+      c_expr.expr &:= start_name;
       c_expr.expr &:= ";\n";
+    else
+      start_name := c_start_expr.expr;
     end if;
+    end_name := "tmp_e_" & str(temp_num);
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "inttype tmp_e_";
-    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "inttype ";
+    c_expr.expr &:= end_name;
     if  c_start_expr.temp_assigns <> "" or
         c_start_expr.temp_frees <> "" or
         c_end_expr.temp_assigns <> "" then
@@ -2592,16 +2833,14 @@ const proc: process_prc_for (in ref_list: params, in boolean: for_to,
       AppendWithDiagnostic(c_end_expr.temp_assigns, c_expr);
       if c_start_expr.temp_frees <> "" then
         setDiagnosticLine(c_expr);
-        c_expr.expr &:= "tmp_s_";
-        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= start_name;
         c_expr.expr &:= "=";
         c_expr.expr &:= c_start_expr.expr;
         c_expr.expr &:= ";\n";
         AppendWithDiagnostic(c_start_expr.temp_frees, c_expr);
       end if;
       setDiagnosticLine(c_expr);
-      c_expr.expr &:= "tmp_e_";
-      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= end_name;
     end if;
     c_expr.expr &:= "=";
     c_expr.expr &:= c_end_expr.expr;
@@ -2609,24 +2848,19 @@ const proc: process_prc_for (in ref_list: params, in boolean: for_to,
     AppendWithDiagnostic(c_end_expr.temp_frees, c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "for (";
-    process_expr(params[2], c_expr);
+    process_expr(variable, c_expr);
     c_expr.expr &:= "=";
-    if c_start_expr.temp_frees <> "" then
-      c_expr.expr &:= "tmp_s_";
-      c_expr.expr &:= str(temp_num);
-    else
-      c_expr.expr &:= c_start_expr.expr;
-    end if;
+    c_expr.expr &:= start_name;
     c_expr.expr &:= "; ";
-    process_expr(params[2], c_expr);
+    process_expr(variable, c_expr);
     if for_to then
-      c_expr.expr &:= "<=tmp_e_";
+      c_expr.expr &:= "<=";
     else
-      c_expr.expr &:= ">=tmp_e_";
+      c_expr.expr &:= ">=";
     end if;
-    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= end_name;
     c_expr.expr &:= "; (";
-    process_expr(params[2], c_expr);
+    process_expr(variable, c_expr);
     if for_to then
       c_expr.expr &:= ")++) {\n";
     else
@@ -2634,6 +2868,21 @@ const proc: process_prc_for (in ref_list: params, in boolean: for_to,
     end if;
     process_statements(c_statement, c_expr);
     c_expr.expr &:= "}\n}\n";
+  end func;
+
+
+const proc: process_prc_for (in ref_list: params, in boolean: for_to,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if getConstant(params[6], INTOBJECT, evaluatedParam) then
+      process_const_prc_for(params[2], params[4], getValue(evaluatedParam, integer),
+          params[8], for_to, c_expr);
+    else
+      process_prc_for(params[2], params[4], params[6], params[8], for_to, c_expr);
+    end if;
   end func;
 
 
@@ -2816,6 +3065,7 @@ const proc: process_prc_dynamic (in reference: function, in ref_list: params,
 const proc: process_prc_exit (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "exit(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -8868,6 +9118,18 @@ const proc: process_flt_sbtr (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.expr &:= ") - (";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_flt_sci (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "fltSci(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -15969,6 +16231,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_flt_round(params, c_expr);
       elsif action_name = "FLT_SBTR" then
         process_flt_sbtr(params, c_expr);
+      elsif action_name = "FLT_SCI" then
+        process_flt_sci(params, c_expr);
       elsif action_name = "FLT_SHRINK" then
         process_flt_shrink(params, c_expr);
       elsif action_name = "FLT_SIN" then
@@ -20000,18 +20264,62 @@ const func reference: dataCopyObj (in type: hash_type) is func
   end func;
 
 
-const proc: process_arr_create_declaration (in reference: current_object,
-    inout expr_type: c_expr) is func
+const proc: process_arr_cpy_declaration (in reference: current_object) is func
 
   local
     var ref_list: params is ref_list.EMPTY;
     var type: base_type is void;
     var type: object_type is void;
-    var element_number_hash: element_number is element_number_hash.EMPTY_HASH;
-    var element_type_hash: element_type is element_type_hash.EMPTY_HASH;
   begin
     params := params(current_object);
     object_type := getType(params[1]);
+    copyFunction @:= [object_type] current_object;
+    typeCategory @:= [object_type] ARRAYOBJECT;
+    base_type := base_type(object_type);
+    if base_type <> void then
+      if object_type not in array_element then
+        array_element @:= [object_type] base_type;
+      end if;
+      if base_type not in array_type then
+        array_type @:= [base_type] object_type;
+      end if;
+    end if;
+  end func;
+
+
+const proc: process_arr_create_declaration (in reference: current_object) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: base_type is void;
+    var type: object_type is void;
+  begin
+    params := params(current_object);
+    object_type := getType(params[1]);
+    createFunction @:= [object_type] current_object;
+    typeCategory @:= [object_type] ARRAYOBJECT;
+    base_type := base_type(object_type);
+    if base_type <> void then
+      if object_type not in array_element then
+        array_element @:= [object_type] base_type;
+      end if;
+      if base_type not in array_type then
+        array_type @:= [base_type] object_type;
+      end if;
+    end if;
+  end func;
+
+
+const proc: process_arr_destr_declaration (in reference: current_object) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: base_type is void;
+    var type: object_type is void;
+  begin
+    params := params(current_object);
+    object_type := getType(params[1]);
+    destrFunction @:= [object_type] current_object;
     typeCategory @:= [object_type] ARRAYOBJECT;
     base_type := base_type(object_type);
     if base_type <> void then
@@ -20032,8 +20340,6 @@ const proc: process_arr_gen_declaration (in reference: current_object,
     var ref_list: params is ref_list.EMPTY;
     var type: result_type is void;
     var type: object_type is void;
-    var element_number_hash: element_number is element_number_hash.EMPTY_HASH;
-    var element_type_hash: element_type is element_type_hash.EMPTY_HASH;
   begin
     result_type := result_type(getType(current_object));
     params := params(current_object);
@@ -20059,8 +20365,6 @@ const proc: process_arr_idx_declaration (in reference: current_object,
     var ref_list: params is ref_list.EMPTY;
     var type: result_type is void;
     var type: object_type is void;
-    var element_number_hash: element_number is element_number_hash.EMPTY_HASH;
-    var element_type_hash: element_type is element_type_hash.EMPTY_HASH;
   begin
     result_type := result_type(getType(current_object));
     params := params(current_object);
@@ -20083,16 +20387,19 @@ const proc: process_arr_times_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   local
+    var string: diagnosticLine is "";
     var ref_list: params is ref_list.EMPTY;
     var type: result_type is void;
     var type: object_type is void;
   begin
+    diagnosticLine := diagnosticLine(current_object);
     result_type := result_type(getType(current_object));
     params := params(current_object);
     object_type := getType(params[3]);
     process_create_declaration(object_type, c_expr);
+    c_expr.expr &:= diagnosticLine;
     # c_expr.expr &:= type_name(result_type);
-    c_expr.expr &:= "arraytype times_";
+    c_expr.expr &:= "static arraytype times_";
     c_expr.expr &:= str(type_number(result_type));
     c_expr.expr &:= " (inttype n, const ";
     if useConstPrefix(object_type) then
@@ -20100,31 +20407,53 @@ const proc: process_arr_times_declaration (in reference: current_object,
     end if;
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
     prototype_declared @:= [current_object] TRUE;
     c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "arraytype a;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "memsizetype i;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (n < 0) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "raise_error(RANGE_ERROR);\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a=(arraytype)(malloc(sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "  (memsizetype)(n) * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (a == NULL) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->min_position = 1;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->max_position = n;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "for (i = 0; i < (memsizetype)(n); i++) {\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->arr[i]";
     c_expr.expr &:= select_value_from_rtlObjectstruct(object_type);
     c_expr.expr &:= "=";
     process_create_call(object_type, "b", c_expr.expr);
     c_expr.expr &:= ";\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "return a;\n";
-    c_expr.expr &:= "}\n\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
   end func;
 
 
@@ -20177,6 +20506,45 @@ const proc: process_itf_cpy2_declaration (in reference: current_object,
   end func;
 
 
+const proc: process_hsh_cpy_declaration (in reference: current_object) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: hash_type is void;
+  begin
+    params := params(current_object);
+    hash_type := getType(params[1]);
+    copyFunction @:= [hash_type] current_object;
+    typeCategory @:= [hash_type] HASHOBJECT;
+  end func;
+
+
+const proc: process_hsh_create_declaration (in reference: current_object) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: object_type is void;
+  begin
+    params := params(current_object);
+    object_type := getType(params[1]);
+    createFunction @:= [object_type] current_object;
+    typeCategory @:= [object_type] HASHOBJECT;
+  end func;
+
+
+const proc: process_hsh_destr_declaration (in reference: current_object) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: object_type is void;
+  begin
+    params := params(current_object);
+    object_type := getType(params[1]);
+    destrFunction @:= [object_type] current_object;
+    typeCategory @:= [object_type] HASHOBJECT;
+  end func;
+
+
 const proc: addStructElem (in type: structType, in type: elemType, in reference: elementOfStruct) is func
 
   local
@@ -20199,8 +20567,7 @@ const proc: addStructElem (in type: structType, in type: elemType, in reference:
   end func;
 
 
-const proc: process_sct_cpy_declaration (in reference: current_object,
-    inout expr_type: c_expr) is func
+const proc: process_sct_cpy_declaration (in reference: current_object) is func
 
   local
     var ref_list: params is ref_list.EMPTY;
@@ -20213,6 +20580,7 @@ const proc: process_sct_cpy_declaration (in reference: current_object,
   begin
     params := params(current_object);
     sct_type := getType(params[1]);
+    copyFunction @:= [sct_type] current_object;
     typeCategory @:= [sct_type] STRUCTOBJECT;
     if is_derived(sct_type) then
       meta_type := meta(sct_type);
@@ -20229,6 +20597,32 @@ const proc: process_sct_cpy_declaration (in reference: current_object,
         end for;
       end if;
     end if;
+  end func;
+
+
+const proc: process_sct_create_declaration (in reference: current_object) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: object_type is void;
+  begin
+    params := params(current_object);
+    object_type := getType(params[1]);
+    createFunction @:= [object_type] current_object;
+    typeCategory @:= [object_type] STRUCTOBJECT;
+  end func;
+
+
+const proc: process_sct_destr_declaration (in reference: current_object) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var type: object_type is void;
+  begin
+    params := params(current_object);
+    object_type := getType(params[1]);
+    destrFunction @:= [object_type] current_object;
+    typeCategory @:= [object_type] STRUCTOBJECT;
   end func;
 
 
@@ -20324,8 +20718,14 @@ const proc: process_action_declaration (in reference: current_object,
       elsif action_name = "ACT_CPY" then
         defineParam1TypeCategory(current_object, ACTOBJECT);
         count_declarations;
+      elsif action_name = "ARR_CPY" then
+        process_arr_cpy_declaration(current_object);
+        count_declarations;
       elsif action_name = "ARR_CREATE" then
-        process_arr_create_declaration(current_object, c_expr);
+        process_arr_create_declaration(current_object);
+        count_declarations;
+      elsif action_name = "ARR_DESTR" then
+        process_arr_destr_declaration(current_object);
         count_declarations;
       elsif action_name = "ARR_GEN" then
         process_arr_gen_declaration(current_object, c_expr);
@@ -20366,8 +20766,14 @@ const proc: process_action_declaration (in reference: current_object,
       elsif action_name = "SOC_CPY" or action_name = "SOC_CREATE" then
         defineParam1TypeCategory(current_object, SOCKETOBJECT);
         count_declarations;
-      elsif action_name = "HSH_CPY" or action_name = "HSH_CREATE" then
-        defineParam1TypeCategory(current_object, HASHOBJECT);
+      elsif action_name = "HSH_CPY" then
+        process_hsh_cpy_declaration(current_object);
+        count_declarations;
+      elsif action_name = "HSH_CREATE" then
+        process_hsh_create_declaration(current_object);
+        count_declarations;
+      elsif action_name = "HSH_DESTR" then
+        process_hsh_destr_declaration(current_object);
         count_declarations;
       elsif action_name = "PRG_CPY" or action_name = "PRG_CREATE" then
         defineParam1TypeCategory(current_object, PROGOBJECT);
@@ -20382,7 +20788,13 @@ const proc: process_action_declaration (in reference: current_object,
         defineParam1TypeCategory(current_object, REFLISTOBJECT);
         count_declarations;
       elsif action_name = "SCT_CPY" then
-        process_sct_cpy_declaration(current_object, c_expr);
+        process_sct_cpy_declaration(current_object);
+        count_declarations;
+      elsif action_name = "SCT_CREATE" then
+        process_sct_create_declaration(current_object);
+        count_declarations;
+      elsif action_name = "SCT_DESTR" then
+        process_sct_destr_declaration(current_object);
         count_declarations;
       elsif action_name = "SCT_SELECT" then
         process_sct_select_declaration(current_object, c_expr);
@@ -21212,6 +21624,7 @@ const proc: write_prototypes is func
       declareExtern("floattype   fltPow (floattype, floattype);");
     end if;
     declareExtern("floattype   fltRand (floattype, floattype);");
+    declareExtern("stritype    fltSci (floattype, inttype);");
     declareExtern("stritype    fltStr (floattype);");
     declareExtern("floattype   fltValue (objreftype);");
     declareExtern("booltype    gkbButtonPressed (chartype);");

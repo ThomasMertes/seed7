@@ -407,6 +407,7 @@ static primactrecord prim_act_table[] = {
     { "FLT_RAND",            flt_rand,            },
     { "FLT_ROUND",           flt_round,           },
     { "FLT_SBTR",            flt_sbtr,            },
+    { "FLT_SCI",             flt_sci,             },
     { "FLT_SHRINK",          flt_shrink,          },
     { "FLT_SIN",             flt_sin,             },
     { "FLT_SINH",            flt_sinh,            },

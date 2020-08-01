@@ -1738,7 +1738,61 @@ const proc: check_parse is func
         str(floatExpr(     -1.0)) <>      "-1.0" or
         str(floatExpr( Infinity)) <>  "Infinity" or
         str(floatExpr(-Infinity)) <> "-Infinity" or
-        str(floatExpr(      NaN)) <>       "NaN" then
+        str(floatExpr(      NaN)) <>       "NaN" or
+        (          0.012345   digits 4)      <> "0.0123"     or
+        (          1.2468     digits 2)      <> "1.25"       or
+        (          3.1415     digits 0)      <> "3"          or
+        (          0.125      digits 2)      <> "0.12"       or
+        (          0.375      digits 2)      <> "0.38"       or
+        (          Infinity   digits 5)      <> "Infinity"   or
+        (          -Infinity  digits 6)      <> "-Infinity"  or
+        (          NaN        digits 7)      <> "NaN"        or
+        (          -0.004     digits 2)      <> "0.00"       or
+        (floatExpr(0.012345 ) digits 4)      <> "0.0123"     or
+        (floatExpr(1.2468   ) digits 2)      <> "1.25"       or
+        (floatExpr(3.1415   ) digits 0)      <> "3"          or
+        (floatExpr(0.125    ) digits 2)      <> "0.12"       or
+        (floatExpr(0.375    ) digits 2)      <> "0.38"       or
+        (floatExpr(Infinity ) digits 5)      <> "Infinity"   or
+        (floatExpr(-Infinity) digits 6)      <> "-Infinity"  or
+        (floatExpr(NaN      ) digits 7)      <> "NaN"        or
+        (floatExpr(-0.004   ) digits 2)      <> "0.00"       or
+        (          0.012345   sci 4)         <> "1.2345e-2"  or
+        (          1.2468     sci 2)         <> "1.25e+0"    or
+        (          3.1415     sci 0)         <> "3e+0"       or
+        (          0.125      sci 1)         <> "1.2e-1"     or
+        (          0.375      sci 1)         <> "3.8e-1"     or
+        (          Infinity   sci 5)         <> "Infinity"   or
+        (          -Infinity  sci 6)         <> "-Infinity"  or
+        (          NaN        sci 7)         <> "NaN"        or
+        (          -0.004     sci 2)         <> "-4.00e-3"   or
+        (floatExpr(0.012345 ) sci 4)         <> "1.2345e-2"  or
+        (floatExpr(1.2468   ) sci 2)         <> "1.25e+0"    or
+        (floatExpr(3.1415   ) sci 0)         <> "3e+0"       or
+        (floatExpr(0.125    ) sci 1)         <> "1.2e-1"     or
+        (floatExpr(0.375    ) sci 1)         <> "3.8e-1"     or
+        (floatExpr(Infinity ) sci 5)         <> "Infinity"   or
+        (floatExpr(-Infinity) sci 6)         <> "-Infinity"  or
+        (floatExpr(NaN      ) sci 7)         <> "NaN"        or
+        (floatExpr(-0.004   ) sci 2)         <> "-4.00e-3"   or
+        (          0.012345   sci 4 exp 2)   <> "1.2345e-02" or
+        (          1.2468e15  sci 2 exp 1)   <> "1.25e+15"   or
+        (          3.1415     sci 0 exp 3)   <> "3e+000"     or
+        (          0.125      sci 1 exp 2)   <> "1.2e-01"    or
+        (          0.375      sci 1 exp 2)   <> "3.8e-01"    or
+        (          Infinity   sci 5 exp 2)   <> "Infinity"   or
+        (          -Infinity  sci 6 exp 2)   <> "-Infinity"  or
+        (          NaN        sci 7 exp 2)   <> "NaN"        or
+        (          -0.004     sci 2 exp 2)   <> "-4.00e-03"  or
+        (floatExpr(0.012345 ) sci 4 exp 2)   <> "1.2345e-02" or
+        (floatExpr(1.2468e15) sci 2 exp 1)   <> "1.25e+15"   or
+        (floatExpr(3.1415   ) sci 0 exp 3)   <> "3e+000"     or
+        (floatExpr(0.125    ) sci 1 exp 2)   <> "1.2e-01"    or
+        (floatExpr(0.375    ) sci 1 exp 2)   <> "3.8e-01"    or
+        (floatExpr(Infinity ) sci 5 exp 2)   <> "Infinity"   or
+        (floatExpr(-Infinity) sci 6 exp 2)   <> "-Infinity"  or
+        (floatExpr(NaN      ) sci 7 exp 2)   <> "NaN"        or
+        (floatExpr(-0.004   ) sci 2 exp 2)   <> "-4.00e-03"  then
       writeln(" ***** Decimal conversion of float does not work correct.");
       okay := FALSE;
     end if;

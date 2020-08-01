@@ -56,6 +56,7 @@ floattype fltParse (const const_stritype stri);
 floattype fltPow (floattype base, floattype exponent);
 #endif
 floattype fltRand (floattype lower_limit, floattype upper_limit);
+stritype fltSci (floattype number, inttype digits_precision);
 stritype fltStr (floattype number);
 
 #else
@@ -80,6 +81,7 @@ floattype fltParse ();
 floattype fltPow ();
 #endif
 floattype fltRand ();
+stritype fltSci ();
 stritype fltStr ();
 
 #endif

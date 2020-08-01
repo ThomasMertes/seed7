@@ -31,7 +31,7 @@ include "chartype.s7i";
 
 
 (**
- *  Skips a possibly nested comment from a 'file'.
+ *  Skips a possibly nested comment from a [[file]].
  *  The comment starts with (* and ends with *) . When the function
  *  is called it is assumed that inFile.bufferChar contains the '*'
  *  of the comment start. When the function is left the character
@@ -68,7 +68,7 @@ const proc: skipComment (inout file: inFile) is func
 
 
 (**
- *  Reads a possibly nested comment from a 'file'.
+ *  Reads a possibly nested comment from a [[file]].
  *  The comment starts with (* and ends with *) . When the function
  *  is called it is assumed that inFile.bufferChar contains the '*'
  *  of the comment start. When the function is left the character
@@ -114,7 +114,7 @@ const func string: getComment (inout file: inFile) is func
 
 
 (**
- *  Skips a line comment from a 'file'.
+ *  Skips a line comment from a [[file]].
  *  A line comment starts with an introducing character (like '#')
  *  and ends with the end of the line. When the function is called
  *  it is assumed that the introducing character (e.g. '#') is in
@@ -133,7 +133,7 @@ const proc: skipLineComment (inout file: inFile) is func
 
 
 (**
- *  Reads a line comment from a 'file'.
+ *  Reads a line comment from a [[file]].
  *  A line comment starts with an introducing character (like '#')
  *  and ends with the end of the line. When the function is called
  *  it is assumed that the introducing character (e.g. '#') is in
@@ -167,7 +167,7 @@ const func string: getLineComment (inout file: inFile) is func
 
 
 (**
- *  Reads a sequence of digits from a 'file'.
+ *  Reads a sequence of digits from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the digits.
@@ -192,7 +192,36 @@ const func string: getDigits (inout file: inFile) is func
 
 
 (**
- *  Reads a numeric literal from a 'file'.
+ *  Reads a decimal integer with optional sign from a [[file]].
+ *  A decimal integer accepted by ''getInteger'' consists of an optional
+ *  + or - sign followed by a possibly empty sequence of digits. Because
+ *  of the LL(1) approach, a sign without following digits is accepted.
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the integer.
+ *  @return the decimal integer string or "" when no integer was found.
+ *)
+const func string: getInteger (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    character := inFile.bufferChar;
+    if character in digit_char or (character = '-' or character = '+') then
+      symbol := str(inFile.bufferChar);
+      character := getc(inFile);
+      while character in digit_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      inFile.bufferChar := character;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a numeric literal from a [[file]].
  *  When the function is called it is assumed that the introducing
  *  digit is in inFile.bufferChar. When the function is left the
  *  character after the literal is in inFile.bufferChar.
@@ -266,7 +295,7 @@ const func string: getNumber (inout file: inFile) is func
 
 
 (**
- *  Reads a sequence of non digits from a 'file'.
+ *  Reads a sequence of non digits from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains a digit or EOF.
@@ -291,7 +320,7 @@ const func string: getNonDigits (inout file: inFile) is func
 
 
 (**
- *  Reads a text quoted with " or ' from a 'file'.
+ *  Reads a text quoted with " or ' from a [[file]].
  *  The introducing and the closing character ( " or ' ) of the quoted
  *  text must be identical. When the function is called it is assumed
  *  that inFile.bufferChar contains the introducing " or ' . When the
@@ -318,13 +347,13 @@ const func string: getQuotedText (inout file: inFile) is func
 
 
 (**
- *  Reads an escape sequence from 'inFile' and appends it to 'symbol'.
+ *  Reads an escape sequence from ''inFile'' and appends it to ''symbol''.
  *  The function accepts escape sequences from character end string
  *  literals. When the function is called it is assumed that the
  *  introducing \ is in inFile.bufferChar. When the function is left
  *  the character after the escape sequence is in inFile.bufferChar.
  *  The complete escape sequence including the introducing \ is
- *  appended to 'symbol'.
+ *  appended to ''symbol''.
  *)
 const proc: getEscapeSequence (inout file: inFile, inout string: symbol) is func
   local
@@ -358,7 +387,7 @@ const proc: getEscapeSequence (inout file: inFile, inout string: symbol) is func
 
 
 (**
- *  Reads a character literal from a 'file'.
+ *  Reads a character literal from a [[file]].
  *  When the function is called it is assumed that the introducing '
  *  is in inFile.bufferChar. When the function is left the character
  *  after the closing ' is in inFile.bufferChar.
@@ -406,7 +435,7 @@ const func string: getCharLiteral (inout file: inFile) is func
 
 
 (**
- *  Reads a string literal from a 'file'.
+ *  Reads a string literal from a [[file]].
  *  When the function is called it is assumed that the introducing "
  *  is in inFile.bufferChar. When the function is left the character
  *  after the closing " is in inFile.bufferChar.
@@ -452,7 +481,7 @@ const func string: getStringLiteral (inout file: inFile) is func
 
 
 (**
- *  Reads an alphanumeric name from a 'file'.
+ *  Reads an alphanumeric name from a [[file]].
  *  A name consists of a letter or underscore followed by letters,
  *  digits or underscores. When the function is called it is assumed
  *  that inFile.bufferChar contains the first character to be handled.
@@ -479,7 +508,7 @@ const func string: getName (inout file: inFile) is func
 
 
 (**
- *  Skips space characters from a 'file'.
+ *  Skips space characters from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar does not contain a space character.
@@ -497,7 +526,7 @@ const proc: skipSpace (inout file: inFile) is func
 
 
 (**
- *  Skips space and tab characters from a 'file'.
+ *  Skips space and tab characters from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the
@@ -512,7 +541,7 @@ const proc: skipSpaceOrTab (inout file: inFile) is func
 
 
 (**
- *  Skips whitespace characters from a 'file'.
+ *  Skips whitespace characters from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the
@@ -527,7 +556,7 @@ const proc: skipWhiteSpace (inout file: inFile) is func
 
 
 (**
- *  Reads whitespace characters from a 'file'.
+ *  Reads whitespace characters from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left inFile.bufferChar contains the character after the
@@ -547,7 +576,7 @@ const func string: getWhiteSpace (inout file: inFile) is func
 
 
 (**
- *  Reads a white space delimited word from a 'file'.
+ *  Reads a white space delimited word from a [[file]].
  *  Before reading the word it skips whitespace characters. A word is
  *  a sequence of characters which does not contain a whitespace
  *  character. When the function is called it is assumed that
@@ -577,7 +606,7 @@ const func string: getWord (inout file: inFile) is func
 
 
 (**
- *  Skips a line from a 'file'.
+ *  Skips a line from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left the line end character ('\n' or EOF) is in inFile.bufferChar.
@@ -597,7 +626,7 @@ const proc: skipLine (inout file: inFile) is func
 
 
 (**
- *  Reads a line from a 'file'.
+ *  Reads a line from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left the line end character ('\n' or EOF) is in inFile.bufferChar.
@@ -630,7 +659,7 @@ const func string: getLine (inout file: inFile) is func
 
 
 (**
- *  Reads a symbol or a comment from a 'file'.
+ *  Reads a symbol or a comment from a [[file]].
  *  Before reading the symbol or comment it skips whitespace
  *  characters. A symbol can be a literal (numeric, character or
  *  string), a name, a special symbol (sequence of special characters)
@@ -691,7 +720,7 @@ const func string: getSymbolOrComment (inout file: inFile) is func
 
 
 (**
- *  Reads a symbol from a 'file'.
+ *  Reads a symbol from a [[file]].
  *  Before reading the symbol it skips whitespace characters and
  *  comments (normal comments and line comments). A symbol can be a
  *  literal (numeric, character or string), a name, a special symbol
@@ -754,7 +783,7 @@ const func string: getSymbol (inout file: inFile) is func
 
 
 (**
- *  Reads a symbol, where html entities are allowed, from a 'file'.
+ *  Reads a symbol, where html entities are allowed, from a [[file]].
  *  Before reading the symbol it skips whitespace characters and
  *  comments (normal comments and line comments). A symbol can be a
  *  literal (numeric, character or string), a name, a special symbol
@@ -830,7 +859,7 @@ const func string: getSymbolWithHtmlEntities (inout file: inFile) is func
 
 
 (**
- *  Reads a HTML tag, a symbol or a comment from a 'file'.
+ *  Reads a HTML tag, a symbol or a comment from a [[file]].
  *  Before reading the HTML tag, symbol or comment it skips whitespace
  *  characters. A HTML tag starts with < and ends with > . A symbol
  *  can be a literal (numeric, character or string), a name, a special
@@ -915,7 +944,7 @@ const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
 
 
 (**
- *  Skips a XML comment from a 'file'.
+ *  Skips a XML comment from a [[file]].
  *  The XML comment starts with <!-- and ends with --> . When the
  *  function is called it is assumed that the character in
  *  inFile.bufferChar is the last '-' of the introducing <!-- .
@@ -950,7 +979,7 @@ const proc: skipXmlComment (inout file: inFile) is func
 
 
 (**
- *  Reads a XML/HTML tag or the XML/HTML content text from a 'file'.
+ *  Reads a XML/HTML tag or the XML/HTML content text from a [[file]].
  *  A XML/HTML tag starts with < and ends with > . The content text
  *  starts with everything else and ends just before a < or with EOF.
  *  When the function is called it is assumed that inFile.bufferChar
@@ -984,7 +1013,7 @@ const func string: getXmlTagOrContent (inout file: inFile) is func
 
 
 (**
- *  Reads a predefined XML entity from a 'file'.
+ *  Reads a predefined XML entity from a [[file]].
  *  @return the predefined XML entity or "" when EOF was reached.
  *)
 const func string: getXmlCharacterReference (inout file: inFile) is func
@@ -1034,7 +1063,7 @@ const func string: getXmlCharacterReference (inout file: inFile) is func
 
 
 (**
- *  Reads a XML/HTML tag head or a XML/HTML content from a 'file'.
+ *  Reads a XML/HTML tag head or a XML/HTML content from a [[file]].
  *  Before reading a tag head or content it skips whitespace
  *  characters and XML comments. A XML/HTML tag head starts
  *  with < and ends before a > or a / or a whitespace character
@@ -1097,7 +1126,7 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
 
 
 (**
- *  Reads a symbol which can appear inside a XML/HTML tag from a 'file'.
+ *  Reads a symbol which can appear inside a XML/HTML tag from a [[file]].
  *  Before reading the symbol it skips whitespace characters. A symbol
  *  inside a XML/HTML tag can be a name, a string literal (quoted with "
  *  or ' ), the equals sign (=), the end tag sign (>), the end of empty
@@ -1151,7 +1180,7 @@ const func string: getSymbolInXmlTag (inout file: inFile) is func
 
 
 (**
- *  Skips beyond a XML Tag in a 'file'.
+ *  Skips beyond a XML Tag in a [[file]].
  *  When the function is left the character after '>' is in
  *  inFile.bufferChar.
  *)
@@ -1166,8 +1195,8 @@ const proc: skipXmlTag (inout file: inFile) is func
 
 
 (**
- *  Skips beyond a XML Tag in a 'file'.
- *  The parameter 'symbol' is used to provide the current symbol
+ *  Skips beyond a XML Tag in a [[file]].
+ *  The parameter ''symbol'' is used to provide the current symbol
  *  which possibly can be ">" or "". When the function is left the
  *  character after '>' is in inFile.bufferChar.
  *)
@@ -1180,17 +1209,17 @@ const proc: skipXmlTag (inout file: inFile, in var string: symbol) is func
 
 
 (**
- *  Reads name and value of an attribute inside a XML tag from 'file'.
- *  Attribute name and value are returned in 'attributeName' and
- *  'attributeValue' respectively. Surrounding single or double
+ *  Reads name and value of an attribute inside a XML tag from [[file]].
+ *  Attribute name and value are returned in ''attributeName'' and
+ *  ''attributeValue'' respectively. Surrounding single or double
  *  quotes of the attribute value are omitted. It is a syntax
  *  error when an attribute value is not quoted. XML entities in
- *  'attributeValue' are left as is. When no more attributes are
- *  present in the XML tag 'attributeName' is set to "". In this case
- *  'attributeValue' contains the end of the XML tag (">" or "/>").
+ *  ''attributeValue'' are left as is. When no more attributes are
+ *  present in the XML tag ''attributeName'' is set to "". In this case
+ *  ''attributeValue'' contains the end of the XML tag (">" or "/>").
  *  When a syntax error occurs the function skips beyond the end
- *  of the XML tag. To indicate the syntax error 'attributeName' is
- *  set to "" and 'attributeValue' is set to a symbol shortly before
+ *  of the XML tag. To indicate the syntax error ''attributeName'' is
+ *  set to "" and ''attributeValue'' is set to a symbol shortly before
  *  the error (this will never be ">" or "/>").
  *)
 const proc: getNextXmlAttribute (inout file: inFile,
@@ -1231,7 +1260,7 @@ const proc: getNextXmlAttribute (inout file: inFile,
 
 
 (**
- *  Reads a HTML tag attribute value from a 'file'.
+ *  Reads a HTML tag attribute value from a [[file]].
  *  Before reading the value it skips whitespace characters. A HTML
  *  tag attribute value can be quoted with " or ' or it is terminated
  *  with the character > or a whitespace character. When the function
@@ -1277,12 +1306,12 @@ const func string: getHtmlAttributeValue (inout file: inFile) is func
 
 
 (**
- *  Reads name and value of an attribute inside a HTML tag from a 'file'.
- *  The variable 'attributeName' is set to "" when no more attributes
+ *  Reads name and value of an attribute inside a HTML tag from a [[file]].
+ *  The variable ''attributeName'' is set to "" when no more attributes
  *  are present in the HTML tag. When the HTML tag ends with / the
- *  function assigns "/" to 'attributeValue' when 'attributeName' is
- *  set to "". When the HTML tag does not end with / 'attributeValue'
- *  and 'attributeName' are set to "" when no more attributes are
+ *  function assigns "/" to ''attributeValue'' when ''attributeName'' is
+ *  set to "". When the HTML tag does not end with / ''attributeValue''
+ *  and ''attributeName'' are set to "" when no more attributes are
  *  present.
  *)
 const proc: getNextHtmlAttribute (inout file: inFile,
@@ -1315,7 +1344,7 @@ const proc: getNextHtmlAttribute (inout file: inFile,
 
 
 (**
- *  Reads a simple symbol from a 'file'.
+ *  Reads a simple symbol from a [[file]].
  *  Before reading the simple symbol it skips whitespace characters.
  *  A simple symbol can be an integer literal, a name, a special
  *  symbol (sequence of special characters) or a parenthesis.

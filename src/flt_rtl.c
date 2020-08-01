@@ -237,7 +237,7 @@ inttype digits_precision;
 #ifndef USE_VARIABLE_FORMATS
     char form_buffer[10];
 #endif
-    memsizetype len;
+    memsizetype pos;
     stritype result;
 
   /* fltDgts */
@@ -268,11 +268,11 @@ inttype digits_precision;
       if (buffer[0] == '-' && buffer[1] == '0') {
         /* All forms of -0 are converted to 0 */
         if (buffer[2] == '.') {
-          len = 3;
-          while (buffer[len] == '0') {
-            len++;
+          pos = 3;
+          while (buffer[pos] == '0') {
+            pos++;
           } /* while */
-          if (buffer[len] == '\0') {
+          if (buffer[pos] == '\0') {
             buffer_ptr++;
           } /* if */
         } else if (buffer[2] == '\0') {
@@ -636,6 +636,105 @@ floattype upper_limit;
       return result;
     } /* if */
   } /* fltRand */
+
+
+
+#ifdef ANSI_C
+
+stritype fltSci (floattype number, inttype digits_precision)
+#else
+
+stritype fltSci (number, digits_precision)
+floattype number;
+inttype digits_precision;
+#endif
+
+  {
+    char buffer[2001];
+    cstritype buffer_ptr;
+#ifndef USE_VARIABLE_FORMATS
+    char form_buffer[10];
+#endif
+    memsizetype pos;
+    memsizetype len;
+    memsizetype after_zeros;
+    stritype result;
+
+  /* fltSci */
+    if (digits_precision < 0) {
+      digits_precision = 0;
+    } /* if */
+    if (digits_precision > 1000) {
+      digits_precision = 1000;
+    } /* if */
+    if (isnan(number)) {
+      buffer_ptr = "NaN";
+    } else if (number == POSITIVE_INFINITY) {
+      buffer_ptr = "Infinity";
+    } else if (number == NEGATIVE_INFINITY) {
+      buffer_ptr = "-Infinity";
+    } else {
+#ifdef USE_VARIABLE_FORMATS
+      sprintf(buffer, "%1.*e", (int) digits_precision, number);
+#else
+      if (digits_precision > MAX_FORM) {
+        sprintf(form_buffer, "%%1.%lde", digits_precision);
+        sprintf(buffer, form_buffer, number);
+      } else {
+        sprintf(buffer, form[digits_precision], number);
+      } /* if */
+#endif
+      buffer_ptr = buffer;
+      if (buffer[0] == '-' && buffer[1] == '0') {
+        /* All forms of -0 are converted to 0 */
+        if (buffer[2] == '.') {
+          pos = 3;
+          while (buffer[pos] == '0') {
+            pos++;
+          } /* while */
+          if (buffer[pos] == 'e' && buffer[pos + 2] == '0') {
+            pos += 3;
+            while (buffer[pos] == '0') {
+              pos++;
+            } /* while */
+            if (buffer[pos] == '\0') {
+              buffer_ptr++;
+            } /* if */
+          } /* if */
+        } else if (buffer[2] == 'e' && buffer[4] == '0') {
+          pos = 5;
+          while (buffer[pos] == '0') {
+            pos++;
+          } /* while */
+          if (buffer[pos] == '\0') {
+            buffer_ptr++;
+          } /* if */
+        } /* if */
+      } /* if */
+      len = strlen(buffer_ptr);
+      if (len != 0) {
+        pos = len;
+        do {
+          pos--;
+        } while (pos > 0 && buffer_ptr[pos] != 'e');
+        pos += 2;
+        after_zeros = pos;
+        while (buffer_ptr[after_zeros] == '0') {
+          after_zeros++;
+        } /* while */
+        if (buffer_ptr[after_zeros] == '\0') {
+          after_zeros--;
+        } /* if */
+        memmove(&buffer_ptr[pos], &buffer_ptr[after_zeros],
+  	    sizeof(char) * (len - after_zeros + 1));
+      } /* if */
+    } /* if */
+    result = cstri_to_stri(buffer_ptr);
+    if (result == NULL) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return result;
+  } /* fltSci */
 
 
 

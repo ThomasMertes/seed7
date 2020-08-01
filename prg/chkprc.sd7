@@ -1055,6 +1055,71 @@ const proc: check_for_int_to is func
       okay := FALSE;
     end if;
     counter := 0;
+    for number range 4 to (14 + 0) mod (8 + 0) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range (12 + 0) mod (8 + 0) to 6 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range (12 + 0) mod (8 + 0) to (14 + 0) mod (8 + 0) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 4 to length([]("zuiop","yxcvb","xcv")&[]("wertz","vbnm","uiop")) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range length([]("asdf","bnm")&[]("cvbn","dfgh")) to 6 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
     for number range length([]("asdf","bnm")&[]("cvbn","dfgh")) to length([]("zuiop","yxcvb","xcv")&[]("wertz","vbnm","uiop")) do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then

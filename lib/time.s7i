@@ -321,28 +321,28 @@ const func boolean: (in time: tim1) <> (in time: tim2) is
 
 const func boolean: (in time: tim1) >= (in time: tim2) is func
   result
-    var boolean: result is FALSE;
+    var boolean: isGreaterEqual is FALSE;
   begin
     if tim1.year > tim2.year then
-      result := TRUE;
+      isGreaterEqual := TRUE;
     elsif tim1.year = tim2.year then
       if tim1.month > tim2.month then
-        result := TRUE;
+        isGreaterEqual := TRUE;
       elsif tim1.month = tim2.month then
         if tim1.day > tim2.day then
-          result := TRUE;
+          isGreaterEqual := TRUE;
         elsif tim1.day = tim2.day then
           if tim1.hour > tim2.hour then
-            result := TRUE;
+            isGreaterEqual := TRUE;
           elsif tim1.hour = tim2.hour then
             if tim1.minute > tim2.minute then
-              result := TRUE;
+              isGreaterEqual := TRUE;
             elsif tim1.minute = tim2.minute then
               if tim1.second > tim2.second then
-                result := TRUE;
+                isGreaterEqual := TRUE;
               elsif tim1.second = tim2.second then
                 if tim1.micro_second >= tim2.micro_second then
-                  result := TRUE;
+                  isGreaterEqual := TRUE;
                 end if;
               end if;
             end if;
@@ -355,28 +355,28 @@ const func boolean: (in time: tim1) >= (in time: tim2) is func
 
 const func boolean: (in time: tim1) <= (in time: tim2) is func
   result
-    var boolean: result is FALSE;
+    var boolean: isLessEqual is FALSE;
   begin
     if tim1.year < tim2.year then
-      result := TRUE;
+      isLessEqual := TRUE;
     elsif tim1.year = tim2.year then
       if tim1.month < tim2.month then
-        result := TRUE;
+        isLessEqual := TRUE;
       elsif tim1.month = tim2.month then
         if tim1.day < tim2.day then
-          result := TRUE;
+          isLessEqual := TRUE;
         elsif tim1.day = tim2.day then
           if tim1.hour < tim2.hour then
-            result := TRUE;
+            isLessEqual := TRUE;
           elsif tim1.hour = tim2.hour then
             if tim1.minute < tim2.minute then
-              result := TRUE;
+              isLessEqual := TRUE;
             elsif tim1.minute = tim2.minute then
               if tim1.second < tim2.second then
-                result := TRUE;
+                isLessEqual := TRUE;
               elsif tim1.second = tim2.second then
                 if tim1.micro_second <= tim2.micro_second then
-                  result := TRUE;
+                  isLessEqual := TRUE;
                 end if;
               end if;
             end if;

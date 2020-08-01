@@ -145,6 +145,8 @@ $ syntax expr: .().and.() is                      -> 14;
 $ syntax expr: .().or.() is                       -> 15;
 $ syntax expr: .().val.() is                      -> 16;
 $ syntax expr: .().digits.() is                   -> 16;
+$ syntax expr: .().sci.() is                      -> 16;
+$ syntax expr: .().exp.() is                      -> 17;
 $ syntax expr: .().lpad.() is                     -> 17;
 $ syntax expr: .().rpad.() is                     -> 17;
 $ syntax expr: .().lpad0.() is                    -> 17;

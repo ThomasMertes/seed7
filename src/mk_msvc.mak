@@ -6,7 +6,7 @@
 # If you use bcc32 you should use mk_bcc32.mak instead.
 
 # CFLAGS = -AL -Ozax -Gr -Gs -Gm -G0 -W4
-CFLAGS = -O2 -W4
+CFLAGS = -O2 -W4 -Z7
 # CFLAGS = -O2 -W4 -Tp
 # CFLAGS = -O2 -W4 /Zi /Yd
 # CFLAGS = -W4 /Zi /Yd /GZ
@@ -163,10 +163,11 @@ version.h:
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
 	echo #define C_COMPILER "$(CC)" >> version.h
 	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
-	echo #define CC_OPT_DEBUG_INFO "-Zi -Yd" >> version.h
+	echo #define CC_OPT_DEBUG_INFO "-Z7" >> version.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
 	echo #define CC_FLAGS "-Zm800" >> version.h
 	echo #define REDIRECT_C_ERRORS "2>NUL: >" >> version.h
+	echo #define LINKER_OPT_DEBUG_INFO "-Z7" >> version.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h

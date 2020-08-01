@@ -179,10 +179,10 @@ const func complex: (in complex: summand1) + (in complex: summand2) is func
  *)
 const func complex: (in complex: minuend) - (in complex: subtrahend) is func
   result
-    var complex: result is complex.value;
+    var complex: difference is complex.value;
   begin
-    result.re := minuend.re - subtrahend.re;
-    result.im := minuend.im - subtrahend.im;
+    difference.re := minuend.re - subtrahend.re;
+    difference.im := minuend.im - subtrahend.im;
   end func;
 
 

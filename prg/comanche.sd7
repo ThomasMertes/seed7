@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  comanche.sd7  Simple webserver for static and cgi pages.        *)
-(*  Copyright (C) 2009  Thomas Mertes                               *)
+(*  Copyright (C) 2009 - 2011  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -293,7 +293,7 @@ const proc: main is func
     var file: sock is socket.value;
   begin
     writeln("Comanche Version 1.1 - Simple webserver for static and cgi pages");
-    writeln("Copyright (C) 2009 Thomas Mertes");
+    writeln("Copyright (C) 2009 - 2011 Thomas Mertes");
     writeln("This is free software; see the source for copying conditions.  There is NO");
     writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
     writeln("Comanche is written in the Seed7 programming language");
@@ -334,7 +334,9 @@ const proc: main is func
         writeln("     executable CGI scripts.");
         okay := FALSE;
       end if;
-      if okay then
+      if not okay then
+        writeln("Use the option -? (or -h) to get more information.");
+      else
         writeln("HTML directory: " <& htdocs);
         writeln("CGI directory: " <& cgi_bin);
         writeln("Port: " <& port);

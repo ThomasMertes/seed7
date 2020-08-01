@@ -236,7 +236,7 @@ const func integer: hashCode (in float: number)                  is action "FLT_
 
 
 (**
- *  Convert a float number to a string.
+ *  Convert a float number to a [[string]].
  *  The number is converted to a string with decimal representation.
  *  The sign of negative zero (-0.0) is ignored.
  *   str(16.125)    returns "16.125"
@@ -251,7 +251,7 @@ const func string: str (ref float: number)                       is action "FLT_
 
 
 (**
- *  Convert a string to a float number.
+ *  Convert a [[string]] to a float number.
  *  @return the float result of the conversion.
  *  @exception RANGE_ERROR When the string contains not a float literal.
  *)
@@ -259,13 +259,14 @@ const func float: (attr float) parse (in string: stri)           is action "FLT_
 
 
 (**
- *  Convert a float number to a string.
- *  The ''number'' is converted to a string with decimal representation.
+ *  Convert a float to a [[string]] in decimal fixed point notation.
  *  The ''precision'' parameter specifies the number of digits after
- *  the decimal point. When the result contains only zero digits a
- *  possible negative sign is omitted.
+ *  the decimal point. When the ''precision'' is zero the decimal
+ *  point is omitted. When all digits in the result are 0 a negative
+ *  sign is omitted.
  *   0.012345 digits 4   returns "0.0123"
  *   1.2468 digits 2     returns "1.25"
+ *   3.1415 digits 0     returns "3"
  *   0.125 digits 2      returns "0.12"
  *   0.375 digits 2      returns "0.38"
  *   Infinity digits 5   returns "Infinity"
@@ -276,6 +277,70 @@ const func float: (attr float) parse (in string: stri)           is action "FLT_
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (ref float: number) digits (ref integer: precision) is action "FLT_DGTS";
+
+
+(**
+ *  Convert a float to a [[string]] in scientific notation.
+ *  Scientific notation uses a decimal float with optional sign, which
+ *  has only one digit before the decimal point. The float is followed
+ *  by the letter e and an exponent, which is always signed.
+ *  The ''precision'' parameter specifies the number of digits after
+ *  the decimal point. When the ''precision'' is zero the decimal
+ *  point is omitted. When all digits in the result are 0 a negative
+ *  sign is omitted.
+ *   0.012345 sci 4   returns "1.2345e-2"
+ *   1.2468 sci 2     returns "1.25e+0"
+ *   3.1415 sci 0     returns "3e+0"
+ *   0.125 sci 1      returns "1.2e-1"
+ *   0.375 sci 1      returns "3.8e-1"
+ *   Infinity sci 5   returns "Infinity"
+ *   -Infinity sci 6  returns "-Infinity"
+ *   NaN sci 7        returns "NaN"
+ *   -0.004 sci 2     returns "-4.00e-3"
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: (ref float: number) sci (ref integer: precision)    is action "FLT_SCI";
+
+
+(**
+ *  Set the number of exponent digits in a scientific float notation.
+ *  When ''sciNumber'' contains a [[string]] in scientific float notation
+ *  the exponent is changed to contain at least ''expDigits'' digits.
+ *  When ''sciNumber'' contains not a string in scientific float
+ *  notation it is returned unchanged. The ''exp'' operator is
+ *  intended to be used together with the ''sci'' operator
+ *   0.012345 sci 4 exp 2   returns "1.2345e-02"
+ *   1.2468e15 sci 2 exp 1  returns "1.25e+15"
+ *   3.1415 sci 0 exp 3     returns "3e+000"
+ *   0.125 sci 1 exp 2      returns "1.2e-01"
+ *   0.375 sci 1 exp 2      returns "3.8e-01"
+ *   Infinity sci 5 exp 2   returns "Infinity"
+ *   -Infinity sci 6 exp 2  returns "-Infinity"
+ *   NaN sci 7 exp 2        returns "NaN"
+ *   -0.004 sci 2 exp 2     returns "-4.00e-03"
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: (in string: sciNumber) exp (in integer: expDigits) is func
+  result
+    var string: paddedStri is "";
+  local
+    var integer: pos is 0;
+  begin
+    pos := length(sciNumber);
+    while pos >= 1 and sciNumber[pos] >= '0' and sciNumber[pos] <= '9' do
+      decr(pos);
+    end while;
+    if pos >= 2 and sciNumber[pred(pos)] = 'e' and
+        (sciNumber[pos] = '+' or sciNumber[pos] = '-') and
+        expDigits > length(sciNumber) - pos then
+      paddedStri := sciNumber[.. pos] & "0" mult expDigits - length(sciNumber) + pos &
+          sciNumber[succ(pos) ..];
+    else
+      paddedStri := sciNumber;
+    end if;
+  end func;
 
 
 (**
@@ -324,7 +389,7 @@ const func boolean: isNaN (ref float: number)                    is action "FLT_
  *  is -0.0. The comparison operators (=, <>, <, >, <=, >=) and
  *  the function ''compare'' treat 0.0 and -0.0 as equal. The
  *  ''digits'' operator and the ''str'' function convert -0.0 to
- *  the string "0.0".
+ *  the [[string]] "0.0".
  *  @return TRUE if the number is -0.0,
  *          FALSE otherwise.
  *)
@@ -332,7 +397,7 @@ const func boolean: isNegativeZero (in float: number)            is action "FLT_
 
 
 (**
- *  Convert a float number to a string.
+ *  Convert a float number to a [[string]].
  *  The number is converted to a string with decimal representation.
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.

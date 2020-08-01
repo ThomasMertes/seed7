@@ -1,3 +1,27 @@
+20111101:
+- Documentation comments were improved in "scanfile.s7i",
+  "scanstri.s7i" and "float.s7i".
+- The operators 'sci' and 'exp' were added to "float.s7i". This
+  operators write floating point values in scientific notation.
+- Testcases for the operators 'sci' and 'exp' were added to
+  "chkflt.sd7".
+- The function 'getInteger' was added to "scanfile.s7i" and
+  "scanstri.s7i".
+- The "comanche.sd7" webserver was improved to write information
+  about the option -? respectively -h, when an error was found.
+- The compiler (comp.sd7) was improved, to create better debugging
+  information for compiler generated create, destroy, copy and
+  times functions (actions: ARR_CREATE, HSH_CREATE, SCT_CREATE,
+  ARR_DESTR, HSH_DESTR, SCT_DESTR ARR_CPY, HSH_CPY, SCT_CPY and
+  ARR_TIMES).
+- The creation of code for for-loops in the compiler was improved.
+- Testcases for the for-loop were added to "chkprc.sd7".
+- Interpreter, compiler and runtime library (function 'fltSci' in
+  "flt_rtl.c") were improved to support the new action "FLT_SCI".
+- The debugging options in "mk_msvc.mak" were improved.
+- Parameters were renamed in the files "color.s7i", "complex.s7i",
+  "time.s7i", "duration.s7i" and "shell.s7i".
+
 20111014:
 - The FAQ answer, explaining the -v option of the interpreter, was
   improved.

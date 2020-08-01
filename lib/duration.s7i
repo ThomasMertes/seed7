@@ -200,70 +200,62 @@ const func duration: (attr duration) parse (in var string: stri) is func
 enable_io(duration);
 
 
-const func boolean: (in duration: dur1) = (in duration: dur2) is func
-  result
-    var boolean: result is FALSE;
-  begin
-    result :=
-        dur1.year_365 = dur2.year_365 and
-        dur1.year_366 = dur2.year_366 and
-        dur1.month_28 = dur2.month_28 and
-        dur1.month_29 = dur2.month_29 and
-        dur1.month_30 = dur2.month_30 and
-        dur1.month_31 = dur2.month_31 and
-        dur1.day = dur2.day and
-        dur1.hour = dur2.hour and
-        dur1.minute = dur2.minute and
-        dur1.second = dur2.second and
-        dur1.micro_second = dur2.micro_second;
-  end func;
+const func boolean: (in duration: dur1) = (in duration: dur2) is
+  return
+    dur1.year_365 = dur2.year_365 and
+    dur1.year_366 = dur2.year_366 and
+    dur1.month_28 = dur2.month_28 and
+    dur1.month_29 = dur2.month_29 and
+    dur1.month_30 = dur2.month_30 and
+    dur1.month_31 = dur2.month_31 and
+    dur1.day = dur2.day and
+    dur1.hour = dur2.hour and
+    dur1.minute = dur2.minute and
+    dur1.second = dur2.second and
+    dur1.micro_second = dur2.micro_second;
 
 
-const func boolean: (in duration: dur1) <> (in duration: dur2) is func
-  result
-    var boolean: result is FALSE;
-  begin
-    result :=
-        dur1.year_365 <> dur2.year_365 and
-        dur1.year_366 <> dur2.year_366 and
-        dur1.month_28 <> dur2.month_28 and
-        dur1.month_29 <> dur2.month_29 and
-        dur1.month_30 <> dur2.month_30 and
-        dur1.month_31 <> dur2.month_31 and
-        dur1.day <> dur2.day or
-        dur1.hour <> dur2.hour or
-        dur1.minute <> dur2.minute or
-        dur1.second <> dur2.second or
-        dur1.micro_second <> dur2.micro_second;
-  end func;
+const func boolean: (in duration: dur1) <> (in duration: dur2) is
+  return
+    dur1.year_365 <> dur2.year_365 and
+    dur1.year_366 <> dur2.year_366 and
+    dur1.month_28 <> dur2.month_28 and
+    dur1.month_29 <> dur2.month_29 and
+    dur1.month_30 <> dur2.month_30 and
+    dur1.month_31 <> dur2.month_31 and
+    dur1.day <> dur2.day or
+    dur1.hour <> dur2.hour or
+    dur1.minute <> dur2.minute or
+    dur1.second <> dur2.second or
+    dur1.micro_second <> dur2.micro_second;
 
 
 const func boolean: (in duration: dur1) >= (in duration: dur2) is func
   result
-    var boolean: result is FALSE;
+    var boolean: isGreaterEqual is FALSE;
   begin
     if dur1.year_365 + dur1.year_366 > dur2.year_365 + dur2.year_366 then
-      result := TRUE;
+      isGreaterEqual := TRUE;
     elsif dur1.year_365 + dur1.year_366 = dur2.year_365 + dur2.year_366 then
       if dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 >
           dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
-        result := TRUE;
+        isGreaterEqual := TRUE;
       elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 =
           dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
         if dur1.day > dur2.day then
-          result := TRUE;
+          isGreaterEqual := TRUE;
         elsif dur1.day = dur2.day then
           if dur1.hour > dur2.hour then
-            result := TRUE;
+            isGreaterEqual := TRUE;
           elsif dur1.hour = dur2.hour then
             if dur1.minute > dur2.minute then
-              result := TRUE;
+              isGreaterEqual := TRUE;
             elsif dur1.minute = dur2.minute then
               if dur1.second > dur2.second then
-                result := TRUE;
+                isGreaterEqual := TRUE;
               elsif dur1.second = dur2.second then
                 if dur1.micro_second >= dur2.micro_second then
-                  result := TRUE;
+                  isGreaterEqual := TRUE;
                 end if;
               end if;
             end if;
@@ -276,30 +268,30 @@ const func boolean: (in duration: dur1) >= (in duration: dur2) is func
 
 const func boolean: (in duration: dur1) <= (in duration: dur2) is func
   result
-    var boolean: result is FALSE;
+    var boolean: isLessEqual is FALSE;
   begin
     if dur1.year_365 + dur1.year_366 < dur2.year_365 + dur2.year_366 then
-      result := TRUE;
+      isLessEqual := TRUE;
     elsif dur1.year_365 + dur1.year_366 = dur2.year_365 + dur2.year_366 then
       if dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 <
           dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
-        result := TRUE;
+        isLessEqual := TRUE;
       elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 =
           dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
         if dur1.day < dur2.day then
-          result := TRUE;
+          isLessEqual := TRUE;
         elsif dur1.day = dur2.day then
           if dur1.hour < dur2.hour then
-            result := TRUE;
+            isLessEqual := TRUE;
           elsif dur1.hour = dur2.hour then
             if dur1.minute < dur2.minute then
-              result := TRUE;
+              isLessEqual := TRUE;
             elsif dur1.minute = dur2.minute then
               if dur1.second < dur2.second then
-                result := TRUE;
+                isLessEqual := TRUE;
               elsif dur1.second = dur2.second then
                 if dur1.micro_second <= dur2.micro_second then
-                  result := TRUE;
+                  isLessEqual := TRUE;
                 end if;
               end if;
             end if;
@@ -585,20 +577,20 @@ const func duration: - (in duration: aDuration) is func
  *)
 const func duration: (in duration: aDuration1) + (in duration: aDuration2) is func
   result
-    var duration: dur_val is duration.value;
+    var duration: sum is duration.value;
   begin
-    dur_val.year_365     := aDuration1.year_365     + aDuration2.year_365;
-    dur_val.year_366     := aDuration1.year_366     + aDuration2.year_366;
-    dur_val.month_28     := aDuration1.month_28     + aDuration2.month_28;
-    dur_val.month_29     := aDuration1.month_29     + aDuration2.month_29;
-    dur_val.month_30     := aDuration1.month_30     + aDuration2.month_30;
-    dur_val.month_31     := aDuration1.month_31     + aDuration2.month_31;
-    dur_val.day          := aDuration1.day          + aDuration2.day;
-    dur_val.hour         := aDuration1.hour         + aDuration2.hour;
-    dur_val.minute       := aDuration1.minute       + aDuration2.minute;
-    dur_val.second       := aDuration1.second       + aDuration2.second;
-    dur_val.micro_second := aDuration1.micro_second + aDuration2.micro_second;
-    NORMALIZE(dur_val);
+    sum.year_365     := aDuration1.year_365     + aDuration2.year_365;
+    sum.year_366     := aDuration1.year_366     + aDuration2.year_366;
+    sum.month_28     := aDuration1.month_28     + aDuration2.month_28;
+    sum.month_29     := aDuration1.month_29     + aDuration2.month_29;
+    sum.month_30     := aDuration1.month_30     + aDuration2.month_30;
+    sum.month_31     := aDuration1.month_31     + aDuration2.month_31;
+    sum.day          := aDuration1.day          + aDuration2.day;
+    sum.hour         := aDuration1.hour         + aDuration2.hour;
+    sum.minute       := aDuration1.minute       + aDuration2.minute;
+    sum.second       := aDuration1.second       + aDuration2.second;
+    sum.micro_second := aDuration1.micro_second + aDuration2.micro_second;
+    NORMALIZE(sum);
   end func;
 
 
@@ -608,20 +600,20 @@ const func duration: (in duration: aDuration1) + (in duration: aDuration2) is fu
  *)
 const func duration: (in duration: aDuration1) - (in duration: aDuration2) is func
   result
-    var duration: dur_val is duration.value;
+    var duration: difference is duration.value;
   begin
-    dur_val.year_365     := aDuration1.year_365     - aDuration2.year_365;
-    dur_val.year_366     := aDuration1.year_366     - aDuration2.year_366;
-    dur_val.month_28     := aDuration1.month_28     - aDuration2.month_28;
-    dur_val.month_29     := aDuration1.month_29     - aDuration2.month_29;
-    dur_val.month_30     := aDuration1.month_30     - aDuration2.month_30;
-    dur_val.month_31     := aDuration1.month_31     - aDuration2.month_31;
-    dur_val.day          := aDuration1.day          - aDuration2.day;
-    dur_val.hour         := aDuration1.hour         - aDuration2.hour;
-    dur_val.minute       := aDuration1.minute       - aDuration2.minute;
-    dur_val.second       := aDuration1.second       - aDuration2.second;
-    dur_val.micro_second := aDuration1.micro_second - aDuration2.micro_second;
-    NORMALIZE(dur_val);
+    difference.year_365     := aDuration1.year_365     - aDuration2.year_365;
+    difference.year_366     := aDuration1.year_366     - aDuration2.year_366;
+    difference.month_28     := aDuration1.month_28     - aDuration2.month_28;
+    difference.month_29     := aDuration1.month_29     - aDuration2.month_29;
+    difference.month_30     := aDuration1.month_30     - aDuration2.month_30;
+    difference.month_31     := aDuration1.month_31     - aDuration2.month_31;
+    difference.day          := aDuration1.day          - aDuration2.day;
+    difference.hour         := aDuration1.hour         - aDuration2.hour;
+    difference.minute       := aDuration1.minute       - aDuration2.minute;
+    difference.second       := aDuration1.second       - aDuration2.second;
+    difference.micro_second := aDuration1.micro_second - aDuration2.micro_second;
+    NORMALIZE(difference);
   end func;
 
 

@@ -58,15 +58,15 @@ const func boolean: (in color: col1) <> (in color: col2) is
 
 (**
  *  Add two colors in an additive color system.
- *  @return The sum of the thwo colors.
+ *  @return the sum of the two colors.
  *)
 const func color: (in color: col1) + (in color: col2) is func
   result
-    var color: result is color.value;
+    var color: sum is color.value;
   begin
-    result.red_part :=   (col1.red_part   + col2.red_part)   div 2;
-    result.green_part := (col1.green_part + col2.green_part) div 2;
-    result.blue_part :=  (col1.blue_part  + col2.blue_part)  div 2;
+    sum.red_part :=   (col1.red_part   + col2.red_part)   div 2;
+    sum.green_part := (col1.green_part + col2.green_part) div 2;
+    sum.blue_part :=  (col1.blue_part  + col2.blue_part)  div 2;
   end func;
 
 

@@ -902,6 +902,25 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype flt_sci (listtype arguments)
+#else
+
+objecttype flt_sci (arguments)
+listtype arguments;
+#endif
+
+  { /* flt_sci */
+    isit_float(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_stri_temp(
+        fltSci(take_float(arg_1(arguments)),
+               take_int(arg_3(arguments))));
+  } /* flt_sci */
+
+
+
+#ifdef ANSI_C
+
 objecttype flt_shrink (listtype arguments)
 #else
 
