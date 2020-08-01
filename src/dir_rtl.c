@@ -254,7 +254,6 @@ striType dirRead (dirType directory)
 
   {
     os_dirent_struct *dirEntry;
-    errInfoType err_info = OKAY_NO_ERROR;
     striType fileName;
 
   /* dirRead */
@@ -274,9 +273,10 @@ striType dirRead (dirType directory)
         fileName = NULL;
       } else {
         /* printf("os_readdir() -> \"" FMT_S_OS "\"\n", dirEntry->d_name); */
-        fileName = os_stri_to_stri(dirEntry->d_name, &err_info);
+        fileName = conv_from_os_stri(dirEntry->d_name,
+            os_stri_strlen(dirEntry->d_name));
         if (unlikely(fileName == NULL)) {
-          raise_error(err_info);
+          raise_error(MEMORY_ERROR);
         } /* if */
       } /* if */
     }

@@ -78,6 +78,8 @@ typedef struct {
 
 static sqlFuncType sqlFunc = NULL;
 
+#define DEFAULT_DECIMAL_SCALE 1000
+
 
 #ifdef SQLITE_DLL
 typedef int (*tp_sqlite3_bind_blob) (sqlite3_stmt *pStmt,
@@ -474,7 +476,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
           preparedStmt->executeSuccessful = FALSE;
         } /* if */
       } /* if */
-      decimal = bigRatToDecimal(numerator, denominator, 1000,
+      decimal = bigRatToDecimal(numerator, denominator, DEFAULT_DECIMAL_SCALE,
                                 &length, &err_info);
       if (unlikely(decimal == NULL)) {
         raise_error(err_info);
@@ -617,58 +619,68 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
-    cstriType isoDate;
+    cstriType isoDuration;
+    cstriType stri;
     int length;
 
   /* sqlBindDuration */
-    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", "
-                       F_D(04) "-" F_D(02) "-" F_D(02) " "
-                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
+                                          FMT_D "Y" FMT_D "M" FMT_D "DT"
+                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
                        (memSizeType) sqlStatement, pos,
-                       year, month, day,
-                       hour, minute, second, micro_second););
+                       year, month, day, hour, minute,
+                       second < 0 || micro_second < 0 ? "-" : "",
+                       intAbs(second), intAbs(micro_second)););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || pos > INT_MAX)) {
       logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: %u.\n",
                       pos, INT_MAX););
       raise_error(RANGE_ERROR);
-    } else if (unlikely(year < -INT_MAX || year > INT_MAX || month < -12 || month > 12 ||
-                        day < -31 || day > 31 || hour < -24 || hour > 24 ||
-                        minute < -60 || minute > 60 || second < -60 || second > 60 ||
-                        micro_second < -1000000 || micro_second > 1000000)) {
+    } else if (unlikely(year < -9999 || year > 9999 || month < -12 || month > 12 ||
+                        day < -31 || day > 31 || hour <= -24 || hour >= 24 ||
+                        minute <= -60 || minute >= 60 || second <= -60 || second >= 60 ||
+                        micro_second <= -1000000 || micro_second >= 1000000)) {
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
       raise_error(RANGE_ERROR);
-    } else if (unlikely(!((year >= 0 && month >= 0 && day >= 0 && hour >= 0 &&
-                           minute >= 0 && second >= 0 && micro_second >= 0) ||
-                          (year <= 0 && month <= 0 && day <= 0 && hour <= 0 &&
-                           minute <= 0 && second <= 0 && micro_second <= 0)))) {
-      logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
-      raise_error(RANGE_ERROR);
-    } else if (unlikely(!ALLOC_CSTRI(isoDate, 23))) {
+    } else if (unlikely(!ALLOC_CSTRI(isoDuration, 35))) {
       raise_error(MEMORY_ERROR);
     } else {
-      if (hour == 0 && minute == 0 && second == 0 && micro_second == 0) {
-        sprintf(isoDate, "%04d-%02u-%02u",
-                (int) year, (unsigned int) month, (unsigned int) day);
-        length = 10;
-      } else if (year == 0 && month == 1 && day == 1 && micro_second == 0) {
-        sprintf(isoDate, "%02u:%02u:%02u",
-                (unsigned int) hour, (unsigned int) minute,
-                (unsigned int) second);
-        length = 8;
-      } else if (micro_second == 0) {
-        sprintf(isoDate, "%04d-%02u-%02u %02u:%02u:%02u",
-                (int) year, (unsigned int) month, (unsigned int) day,
-                (unsigned int) hour, (unsigned int) minute,
-                (unsigned int) second);
-        length = 19;
-      } else {
-        sprintf(isoDate, "%04d-%02u-%02u %02u:%02u:%02u.%03u",
-                (int) year, (unsigned int) month, (unsigned int) day,
-                (unsigned int) hour, (unsigned int) minute,
-                (unsigned int) second, (unsigned int) micro_second / 1000);
-        length = 23;
+      /* Write the duration in the format: P[nY][nM][nD][T[nH][nM][n[.n]S]] */
+      stri = isoDuration;
+      *stri = 'P';
+      stri++;
+      if (year != 0) {
+        stri += sprintf(stri, FMT_D "Y", year);
       } /* if */
+      if (month != 0) {
+        stri += sprintf(stri, FMT_D "M", month);
+      } /* if */
+      if (day != 0 || (year == 0 && month == 0 && hour == 0 &&
+          minute == 0 && second == 0 && micro_second == 0)) {
+        stri += sprintf(stri, FMT_D "D", day);
+      } /* if */
+      if (hour != 0 || minute != 0 || second != 0 || micro_second != 0) {
+        *stri = 'T';
+        stri++;
+        if (hour != 0) {
+          stri += sprintf(stri, FMT_D "H", hour);
+        } /* if */
+        if (minute != 0) {
+          stri += sprintf(stri, FMT_D "M", minute);
+        } /* if */
+        if (second != 0 || micro_second != 0) {
+          if (second == 0 && micro_second < 0) {
+            stri += sprintf(stri, "-0");
+          } else {
+            stri += sprintf(stri, FMT_D, second);
+          } /* if */
+          if (micro_second != 0) {
+            stri += sprintf(stri, ".%06lu", labs((long) micro_second));
+          } /* if */
+          sprintf(stri, "S");
+        } /* if */
+      } /* if */
+      length = (int) strlen(isoDuration);
       if (preparedStmt->executeSuccessful) {
         if (unlikely(sqlite3_reset(preparedStmt->ppStmt) != SQLITE_OK)) {
           setDbErrorMsg("sqlBindDuration", "sqlite3_reset",
@@ -682,7 +694,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       } /* if */
       if (unlikely(sqlite3_bind_text(preparedStmt->ppStmt,
                                      (int) pos,
-                                     isoDate,
+                                     isoDuration,
                                      length,
                                      &freeText) != SQLITE_OK)) {
         setDbErrorMsg("sqlBindDuration", "sqlite3_bind_text",
@@ -887,7 +899,8 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
 static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
-    intType minute, intType second, intType micro_second)
+    intType minute, intType second, intType micro_second,
+    intType time_zone)
 
   {
     preparedStmtType preparedStmt;
@@ -897,19 +910,21 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
   /* sqlBindTime */
     logFunction(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
                        F_D(04) "-" F_D(02) "-" F_D(02) " "
-                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
+                       FMT_D ")\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day,
-                       hour, minute, second, micro_second););
+                       hour, minute, second, micro_second,
+                       time_zone););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || pos > INT_MAX)) {
       logError(printf("sqlBindTime: pos: " FMT_D ", max pos: %u.\n",
                       pos, INT_MAX););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year < -999 || year > 9999 || month < 1 || month > 12 ||
-                        day < 1 || day > 31 || hour < 0 || hour > 24 ||
-                        minute < 0 || minute > 60 || second < 0 || second > 60 ||
-                        micro_second < 0 || micro_second > 1000000)) {
+                        day < 1 || day > 31 || hour < 0 || hour >= 24 ||
+                        minute < 0 || minute >= 60 || second < 0 || second >= 60 ||
+                        micro_second < 0 || micro_second >= 1000000)) {
       logError(printf("sqlBindTime: Time not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else if (unlikely(!ALLOC_CSTRI(isoDate, 23))) {
@@ -1268,8 +1283,16 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
 
   {
     preparedStmtType preparedStmt;
-    const_ustriType isoDate;
-    boolType okay;
+    const_ustriType isoDuration;
+    const_ustriType numStri;
+    const_ustriType stri;
+    boolType datePart = TRUE;
+    boolType secondsPart = TRUE;
+    boolType negativeSeconds = FALSE;
+    intType seconds;
+    memSizeType microsecStriLen;
+    char microsecStri[6 + NULL_TERMINATION_LEN];
+    boolType okay = TRUE;
 
   /* sqlColumnDuration */
     logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", *)\n",
@@ -1282,71 +1305,108 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
     } else {
+      *year         = 0;
+      *month        = 0;
+      *day          = 0;
+      *hour         = 0;
+      *minute       = 0;
+      *second       = 0;
+      *micro_second = 0;
       /* printf("type: %s\n",
          nameOfBufferType(sqlite3_column_type(preparedStmt->ppStmt, (int) column - 1))); */
-      isoDate = sqlite3_column_text(preparedStmt->ppStmt, (int) column - 1);
-      /* printf("isoDate: %lx\n", (unsigned long int) isoDate); */
-      if (isoDate == NULL) {
-        *year         = 0;
-        *month        = 0;
-        *day          = 0;
-        *hour         = 0;
-        *minute       = 0;
-        *second       = 0;
-        *micro_second = 0;
-      } else {
-        switch (strlen((cstriType) isoDate)) {
-          case 23:
-            okay = sscanf((const_cstriType) isoDate,
-                          F_D(04) "-" F_U(02) "-" F_U(02) " "
-                          F_U(02) ":" F_U(02) ":" F_U(02) "." F_U(03),
-                          year, month, day, hour, minute, second,
-                          micro_second) == 7;
-            if (okay) {
-              *micro_second *= 1000;
+      isoDuration = sqlite3_column_text(preparedStmt->ppStmt, (int) column - 1);
+      /* printf("isoDuration: %lx\n", (unsigned long int) isoDuration); */
+      if (isoDuration != NULL) {
+        stri = isoDuration;
+        if (*stri != 'P') {
+          okay = FALSE;
+        } else {
+          stri++;
+          while (*stri != '\0') {
+            numStri = stri;
+            if (*stri == '-') {
+              stri++;
             } /* if */
-            break;
-          case 19:
-            okay = sscanf((const_cstriType) isoDate,
-                          F_D(04) "-" F_U(02) "-" F_U(02) " "
-                          F_U(02) ":" F_U(02) ":" F_U(02),
-                          year, month, day, hour, minute, second) == 6;
-            *micro_second = 0;
-            break;
-          case 10:
-            okay = sscanf((const_cstriType) isoDate,
-                          F_D(04) "-" F_U(02) "-" F_U(02),
-                          year, month, day) == 3;
-            *hour         = 0;
-            *minute       = 0;
-            *second       = 0;
-            *micro_second = 0;
-            break;
-          case 8:
-            okay = sscanf((const_cstriType) isoDate,
-                          F_U(02) ":" F_U(02) ":" F_U(02),
-                          hour, minute, second) == 3;
-            *year         = 0;
-            *month        = 0;
-            *day          = 0;
-            *micro_second = 0;
-            break;
-          default:
-            okay = FALSE;
-            break;
-        } /* switch */
+            stri += strspn((const char *) stri, "0123456789");
+            if (*stri != '\0') {
+              switch (*stri) {
+                case 'Y':
+                  okay &= sscanf((const char *) numStri, FMT_D "Y", year) == 1;
+                  stri++;
+                  break;
+                case 'M':
+                  if (datePart) {
+                    okay &= sscanf((const char *) numStri, FMT_D "M", month) == 1;
+                  } else {
+                    okay &= sscanf((const char *) numStri, FMT_D "M", minute) == 1;
+                  } /* if */
+                  stri++;
+                  break;
+                case 'D':
+                  okay &= sscanf((const char *) numStri, FMT_D "D", day) == 1;
+                  stri++;
+                  break;
+                case 'T':
+                  break;
+                case 'H':
+                  okay &= sscanf((const char *) numStri, FMT_D "H", hour) == 1;
+                  stri++;
+                  break;
+                case 'S':
+                  if (secondsPart) {
+                    okay &= sscanf((const char *) numStri, FMT_D "S", second) == 1;
+                  } else {
+                    *second = seconds;
+                    sprintf(microsecStri, "%.6s", numStri);
+                    microsecStriLen = (memSizeType) (stri - numStri);
+                    if (microsecStriLen < 6) {
+                      memset(&microsecStri[microsecStriLen], '0', 6 - microsecStriLen);
+                      microsecStri[6] = '\0';
+                    } /* if */
+                    okay &= sscanf((const char *) microsecStri, FMT_D "S", micro_second) == 1;
+                    if (negativeSeconds) {
+                      *micro_second = -*micro_second;
+                    } /* if */
+                  } /* if */
+                  stri++;
+                  break;
+                case '.':
+                  secondsPart = FALSE;
+                  negativeSeconds = *numStri == '-';
+                  okay &= sscanf((const char *) numStri, FMT_D ".", &seconds) == 1;
+                  stri++;
+                  break;
+                default:
+                  okay = FALSE;
+                  break;
+              } /* switch */
+              if (*stri == 'T') {
+                if (datePart) {
+                  datePart = FALSE;
+                  stri++;
+                } else {
+                  okay = FALSE;
+                } /* if */
+              } /* if */
+            } else {
+              okay = FALSE;
+            } /* if */
+          } /* while */
+        } /* if */
         if (unlikely(!okay)) {
+          logError(printf("sqlColumnDuration: Wrong duration format: %s, column: " FMT_D ".\n",
+                          isoDuration, column););
           raise_error(RANGE_ERROR);
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", "
-                                            F_D(04) "-" F_D(02) "-" F_D(02) " "
-                                            F_D(02) ":" F_D(02) ":" F_D(02) "."
-                                            F_D(06) ") -->\n",
+    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") -> P"
+                                            FMT_D "Y" FMT_D "M" FMT_D "DT"
+                                            FMT_D "H" FMT_D "M%s%lu.%06luS\n",
                        (memSizeType) sqlStatement, column,
-                       *year, *month, *day, *hour, *minute, *second,
-                       *micro_second););
+                       *year, *month, *day, *hour, *minute,
+                       *second < 0 || *micro_second < 0 ? "-" : "",
+                       intAbs(*second), intAbs(*micro_second)););
   } /* sqlColumnDuration */
 
 
@@ -1549,6 +1609,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     const_ustriType isoDate;
     boolType okay;
     boolType setYearToZero = FALSE;
+    memSizeType microsecStriLen;
+    char microsecStri[6 + NULL_TERMINATION_LEN];
 
   /* sqlColumnTime */
     logFunction(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", *)\n",
@@ -1577,14 +1639,24 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         *is_dst       = 0;
       } else {
         switch (strlen((cstriType) isoDate)) {
+          case 21:
+          case 22:
           case 23:
+          case 24:
+          case 25:
+          case 26:
             okay = sscanf((const_cstriType) isoDate,
                           F_D(04) "-" F_U(02) "-" F_U(02) " "
-                          F_U(02) ":" F_U(02) ":" F_U(02) "." F_U(03),
+                          F_U(02) ":" F_U(02) ":" F_U(02) ".%s",
                           year, month, day, hour, minute, second,
-                          micro_second) == 7;
+                          microsecStri) == 7;
             if (okay) {
-              *micro_second *= 1000;
+              microsecStriLen = (memSizeType) strlen(microsecStri);
+              if (microsecStriLen < 6) {
+                memset(&microsecStri[microsecStriLen], '0', 6 - microsecStriLen);
+                microsecStri[6] = '\0';
+              } /* if */
+              okay &= sscanf((const char *) microsecStri, FMT_D, micro_second) == 1;
             } /* if */
             break;
           case 19:
@@ -1614,6 +1686,9 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             setYearToZero = TRUE;
             break;
           default:
+            logError(printf("sqlColumnTime: Unexpected length of date (%s): "
+                            FMT_U_MEM "\n",
+                            isoDate, strlen((cstriType) isoDate)););
             okay = FALSE;
             break;
         } /* switch */

@@ -281,6 +281,12 @@ SQLRETURN STDCALL SQLDataSources (SQLHENV EnvironmentHandle,
                                   SQLSMALLINT BufferLength1, SQLSMALLINT *NameLength1,
                                   SQLCHAR *Description, SQLSMALLINT BufferLength2,
                                   SQLSMALLINT *NameLength2);
+SQLRETURN SQLDescribeParam(SQLHSTMT     StatementHandle,
+                           SQLUSMALLINT ParameterNumber,
+                           SQLSMALLINT *DataTypePtr,
+                           SQLULEN     *ParameterSizePtr,
+                           SQLSMALLINT *DecimalDigitsPtr,
+                           SQLSMALLINT *NullablePtr);
 SQLRETURN STDCALL SQLDisconnect (SQLHDBC ConnectionHandle);
 SQLRETURN STDCALL SQLDrivers (SQLHENV      henv,
                               SQLUSMALLINT fDirection,
@@ -307,6 +313,8 @@ SQLRETURN STDCALL SQLGetDiagRec (SQLSMALLINT HandleType, SQLHANDLE Handle,
 SQLRETURN STDCALL SQLGetStmtAttr (SQLHSTMT StatementHandle,
                                   SQLINTEGER Attribute, SQLPOINTER Value,
                                   SQLINTEGER BufferLength, SQLINTEGER *StringLength);
+SQLRETURN STDCALL SQLNumParams(SQLHSTMT     StatementHandle,
+                               SQLSMALLINT *ParameterCountPtr);
 SQLRETURN STDCALL SQLNumResultCols (SQLHSTMT StatementHandle,
                                     SQLSMALLINT *ColumnCount);
 SQLRETURN STDCALL SQLPrepareW (SQLHSTMT   hstmt,

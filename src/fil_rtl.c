@@ -673,6 +673,12 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
 
 
 #if !HAS_SIGACTION && !HAS_SIGNAL
+/**
+ *  Read a character from 'inFile' and check if ctrl-c is pressed.
+ *  @param inFile File from which the character is read.
+ *  @param sigintReceived Flag indicating if ctrl-c has been pressed.
+ *  @return the character read.
+ */
 int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
 
   {
@@ -690,6 +696,17 @@ int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
 
 
 
+/**
+ *  Read a character from 'inFile' and handle when ctrl-c is pressed.
+ *  When the user decides that the program should resume a prompt to
+ *  re-enter the input is written. This is the central function to read from
+ *  a terminal. It is used by doGetcFromTerminal(), doGetsFromTerminal(),
+ *  doLineReadFromTerminal() and doWordReadFromTerminal().
+ *  @param inFile File from which the character is read.
+ *  @param sigintReceived Flag indicating that ctrl-c has been pressed and
+ *         no resume is done.
+ *  @return the character read.
+ */
 static int readCharFromTerminal (fileType inFile, boolType *sigintReceived)
 
   {

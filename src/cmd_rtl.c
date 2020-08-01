@@ -1486,8 +1486,7 @@ striType cmdConfigValue (const const_striType name)
     } else if (strcmp(opt_name, "CC_FLAGS") == 0) {
       opt = CC_FLAGS;
     } else if (strcmp(opt_name, "CC_ERROR_FILDES") == 0) {
-      sprintf(buffer, "%d", CC_ERROR_FILDES);
-      opt = buffer;
+      opt = STRINGIFY(CC_ERROR_FILDES);
     } else if (strcmp(opt_name, "LINKER_OPT_DEBUG_INFO") == 0) {
       opt = LINKER_OPT_DEBUG_INFO;
     } else if (strcmp(opt_name, "LINKER_OPT_NO_DEBUG_INFO") == 0) {
@@ -1550,17 +1549,15 @@ striType cmdConfigValue (const const_striType name)
       sprintf(buffer, "%d", POINTER_SIZE);
       opt = buffer;
     } else if (strcmp(opt_name, "INT_SIZE") == 0) {
-      sprintf(buffer, "%d", INT_SIZE);
-      opt = buffer;
+      opt = STRINGIFY(INT_SIZE);
     } else if (strcmp(opt_name, "LONG_SIZE") == 0) {
-      sprintf(buffer, "%d", LONG_SIZE);
-      opt = buffer;
+      opt = STRINGIFY(LONG_SIZE);
     } else if (strcmp(opt_name, "INT_RANGE_IN_FLOATTYPE_MAX") == 0) {
       sprintf(buffer, FMT_D, INT_RANGE_IN_FLOATTYPE_MAX);
       opt = buffer;
     } else if (strcmp(opt_name, "MACRO_DEFS") == 0) {
-      sprintf(buffer, "%s%s", MACRO_DEFS, OS_ISNAN_DEFINITION);
-      opt = buffer;
+      /* Use string literal concatenation: */
+      opt = MACRO_DEFS  OS_ISNAN_DEFINITION;
     } else if (strcmp(opt_name, "OVERFLOW_SIGNAL") == 0) {
       opt = OVERFLOW_SIGNAL_STR;
     } else if (strcmp(opt_name, "FLOATTYPE_DOUBLE") == 0) {
@@ -1748,16 +1745,14 @@ rtlArrayType cmdEnvironment (void)
           /* printf("nameStartPos: \"" FMT_S_OS "\"\n", *nameStartPos); */
           if ((*nameStartPos)[0] != '=' && (*nameStartPos)[0] != '\0') {
             nameEndPos = os_stri_strchr(*nameStartPos, '=');
-            if (nameEndPos != NULL) {
-              variableName = conv_from_os_stri(*nameStartPos,
-                                               (memSizeType) (nameEndPos - *nameStartPos));
-              if (unlikely(variableName == NULL)) {
-                err_info = MEMORY_ERROR;
-              } /* if */
-            } else {
-              variableName = os_stri_to_stri(*nameStartPos, &err_info);
+            if (unlikely(nameEndPos == NULL)) {
+              nameEndPos = *nameStartPos + os_stri_strlen(*nameStartPos);
             } /* if */
-            if (likely(variableName != NULL)) {
+            variableName = conv_from_os_stri(*nameStartPos,
+                                             (memSizeType) (nameEndPos - *nameStartPos));
+            if (unlikely(variableName == NULL)) {
+              err_info = MEMORY_ERROR;
+            } else {
               environment_array = addStriToRtlArray(variableName, environment_array,
                   used_max_position);
               used_max_position++;

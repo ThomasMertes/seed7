@@ -188,6 +188,7 @@ objectType sql_bind_time (listType arguments)
     isit_int(arg_7(arguments));
     isit_int(arg_8(arguments));
     isit_int(arg_9(arguments));
+    isit_int(arg_10(arguments));
     sqlBindTime(take_sqlstmt(arg_1(arguments)),
                 take_int(arg_2(arguments)),
                 take_int(arg_3(arguments)),
@@ -196,7 +197,8 @@ objectType sql_bind_time (listType arguments)
                 take_int(arg_6(arguments)),
                 take_int(arg_7(arguments)),
                 take_int(arg_8(arguments)),
-                take_int(arg_9(arguments)));
+                take_int(arg_9(arguments)),
+                take_int(arg_10(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* sql_bind_time */
 

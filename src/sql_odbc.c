@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_odbc.c    Database access functions for the ODBC interface. */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_odbc.c                                      */
-/*  Changes: 2014  Thomas Mertes                                    */
+/*  Changes: 2014, 2015, 2017, 2018  Thomas Mertes                  */
 /*  Content: Database access functions for the ODBC interface.      */
 /*                                                                  */
 /********************************************************************/
@@ -73,15 +73,20 @@ typedef struct {
   } dbRecord, *dbType;
 
 typedef struct {
-    int          buffer_type;
+    int          sql_type;
     memSizeType  buffer_length;
     memSizeType  buffer_capacity;
     void        *buffer;
     SQLLEN       length;
+    SQLSMALLINT  dataType;
+    SQLULEN      paramSize;
+    SQLSMALLINT  decimalDigits;
+    SQLSMALLINT  nullable;
   } bindDataRecord, *bindDataType;
 
 typedef struct {
-    int          buffer_type;
+    int          sql_type;
+    SQLSMALLINT  c_type;
     memSizeType  buffer_length;
     void        *buffer;
     SQLLEN       length;
@@ -93,11 +98,11 @@ typedef struct {
     sqlFuncType    sqlFunc;
     dbType         db;
     SQLHSTMT       ppStmt;
-    memSizeType    param_array_capacity;
     memSizeType    param_array_size;
     bindDataType   param_array;
     memSizeType    result_array_size;
     resultDataType result_array;
+    boolType       hasBlob;
     boolType       executeSuccessful;
     boolType       fetchOkay;
     boolType       fetchFinished;
@@ -125,6 +130,7 @@ static sqlFuncType sqlFunc = NULL;
 #define SQLINTEGER_MAX (SQLINTEGER) (((SQLUINTEGER) 1 << (8 * sizeof(SQLINTEGER) - 1)) - 1)
 #define SQLSMALLINT_MAX (SQLSMALLINT) (((SQLUSMALLINT) 1 << (8 * sizeof(SQLSMALLINT) - 1)) - 1)
 #define ERROR_MESSAGE_BUFFER_SIZE 1024
+#define MAX_DATETIME2_LENGTH 27
 
 
 #ifdef ODBC_DLL
@@ -176,6 +182,12 @@ typedef SQLRETURN (STDCALL *tp_SQLDataSources) (SQLHENV EnvironmentHandle,
                                                 SQLSMALLINT BufferLength1, SQLSMALLINT *NameLength1,
                                                 SQLCHAR *Description, SQLSMALLINT BufferLength2,
                                                 SQLSMALLINT *NameLength2);
+typedef SQLRETURN (STDCALL *tp_SQLDescribeParam) (SQLHSTMT     StatementHandle,
+                                                  SQLUSMALLINT ParameterNumber,
+                                                  SQLSMALLINT *DataTypePtr,
+                                                  SQLULEN     *ParameterSizePtr,
+                                                  SQLSMALLINT *DecimalDigitsPtr,
+                                                  SQLSMALLINT *NullablePtr);
 typedef SQLRETURN (STDCALL *tp_SQLDisconnect) (SQLHDBC ConnectionHandle);
 typedef SQLRETURN (STDCALL *tp_SQLDrivers) (SQLHENV      henv,
                                             SQLUSMALLINT fDirection,
@@ -202,6 +214,8 @@ typedef SQLRETURN (STDCALL *tp_SQLGetDiagRec) (SQLSMALLINT HandleType, SQLHANDLE
 typedef SQLRETURN (STDCALL *tp_SQLGetStmtAttr) (SQLHSTMT StatementHandle,
                                                 SQLINTEGER Attribute, SQLPOINTER Value,
                                                 SQLINTEGER BufferLength, SQLINTEGER *StringLength);
+typedef SQLRETURN (STDCALL *tp_SQLNumParams) (SQLHSTMT     StatementHandle,
+                                              SQLSMALLINT *ParameterCountPtr);
 typedef SQLRETURN (STDCALL *tp_SQLNumResultCols) (SQLHSTMT StatementHandle,
                                                   SQLSMALLINT *ColumnCount);
 typedef SQLRETURN (STDCALL *tp_SQLPrepareW) (SQLHSTMT   hstmt,
@@ -221,6 +235,7 @@ static tp_SQLColAttribute  ptr_SQLColAttribute;
 static tp_SQLColAttributeW ptr_SQLColAttributeW;
 static tp_SQLConnectW      ptr_SQLConnectW;
 static tp_SQLDataSources   ptr_SQLDataSources;
+static tp_SQLDescribeParam ptr_SQLDescribeParam;
 static tp_SQLDisconnect    ptr_SQLDisconnect;
 static tp_SQLDrivers       ptr_SQLDrivers;
 static tp_SQLExecute       ptr_SQLExecute;
@@ -230,6 +245,7 @@ static tp_SQLFreeStmt      ptr_SQLFreeStmt;
 static tp_SQLGetData       ptr_SQLGetData;
 static tp_SQLGetDiagRec    ptr_SQLGetDiagRec;
 static tp_SQLGetStmtAttr   ptr_SQLGetStmtAttr;
+static tp_SQLNumParams     ptr_SQLNumParams;
 static tp_SQLNumResultCols ptr_SQLNumResultCols;
 static tp_SQLPrepareW      ptr_SQLPrepareW;
 static tp_SQLSetDescField  ptr_SQLSetDescField;
@@ -242,6 +258,7 @@ static tp_SQLSetEnvAttr    ptr_SQLSetEnvAttr;
 #define SQLColAttributeW ptr_SQLColAttributeW
 #define SQLConnectW      ptr_SQLConnectW
 #define SQLDataSources   ptr_SQLDataSources
+#define SQLDescribeParam ptr_SQLDescribeParam
 #define SQLDisconnect    ptr_SQLDisconnect
 #define SQLDrivers       ptr_SQLDrivers
 #define SQLExecute       ptr_SQLExecute
@@ -251,6 +268,7 @@ static tp_SQLSetEnvAttr    ptr_SQLSetEnvAttr;
 #define SQLGetData       ptr_SQLGetData
 #define SQLGetDiagRec    ptr_SQLGetDiagRec
 #define SQLGetStmtAttr   ptr_SQLGetStmtAttr
+#define SQLNumParams     ptr_SQLNumParams
 #define SQLNumResultCols ptr_SQLNumResultCols
 #define SQLPrepareW      ptr_SQLPrepareW
 #define SQLSetDescField  ptr_SQLSetDescField
@@ -275,6 +293,7 @@ static boolType setupDll (const char *dllName)
             (SQLColAttributeW = (tp_SQLColAttributeW) dllFunc(dbDll, "SQLColAttributeW")) == NULL ||
             (SQLConnectW      = (tp_SQLConnectW)      dllFunc(dbDll, "SQLConnectW"))      == NULL ||
             (SQLDataSources   = (tp_SQLDataSources)   dllFunc(dbDll, "SQLDataSources"))   == NULL ||
+            (SQLDescribeParam = (tp_SQLDescribeParam) dllFunc(dbDll, "SQLDescribeParam")) == NULL ||
             (SQLDisconnect    = (tp_SQLDisconnect)    dllFunc(dbDll, "SQLDisconnect"))    == NULL ||
             (SQLDrivers       = (tp_SQLDrivers)       dllFunc(dbDll, "SQLDrivers"))       == NULL ||
             (SQLExecute       = (tp_SQLExecute)       dllFunc(dbDll, "SQLExecute"))       == NULL ||
@@ -284,6 +303,7 @@ static boolType setupDll (const char *dllName)
             (SQLGetData       = (tp_SQLGetData)       dllFunc(dbDll, "SQLGetData"))       == NULL ||
             (SQLGetDiagRec    = (tp_SQLGetDiagRec)    dllFunc(dbDll, "SQLGetDiagRec"))    == NULL ||
             (SQLGetStmtAttr   = (tp_SQLGetStmtAttr)   dllFunc(dbDll, "SQLGetStmtAttr"))   == NULL ||
+            (SQLNumParams     = (tp_SQLNumParams )    dllFunc(dbDll, "SQLNumParams"))     == NULL ||
             (SQLNumResultCols = (tp_SQLNumResultCols) dllFunc(dbDll, "SQLNumResultCols")) == NULL ||
             (SQLPrepareW      = (tp_SQLPrepareW)      dllFunc(dbDll, "SQLPrepareW"))      == NULL ||
             (SQLSetDescField  = (tp_SQLSetDescField)  dllFunc(dbDll, "SQLSetDescField"))  == NULL ||
@@ -415,7 +435,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
         free(preparedStmt->param_array[pos].buffer);
       } /* for */
-      FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_capacity);
+      FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
     } /* if */
     if (preparedStmt->result_array != NULL) {
       for (pos = 0; pos < preparedStmt->result_array_size; pos++) {
@@ -448,15 +468,15 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
 
 
 #if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
-static const char *nameOfBufferType (int buffer_type)
+static const char *nameOfSqlType (int sql_type)
 
   {
     static char buffer[50];
     const char *typeName;
 
-  /* nameOfBufferType */
-    logFunction(printf("nameOfBufferType(%d)\n", buffer_type););
-    switch (buffer_type) {
+  /* nameOfSqlType */
+    logFunction(printf("nameOfSqlType(%d)\n", sql_type););
+    switch (sql_type) {
       case SQL_CHAR:                      typeName = "SQL_CHAR"; break;
       case SQL_VARCHAR:                   typeName = "SQL_VARCHAR"; break;
       case SQL_LONGVARCHAR:               typeName = "SQL_LONGVARCHAR"; break;
@@ -494,24 +514,24 @@ static const char *nameOfBufferType (int buffer_type)
       case SQL_VARBINARY:                 typeName = "SQL_VARBINARY"; break;
       case SQL_LONGVARBINARY:             typeName = "SQL_LONGVARBINARY"; break;
       default:
-        sprintf(buffer, "%d", buffer_type);
+        sprintf(buffer, "%d", sql_type);
         typeName = buffer;
         break;
     } /* switch */
-    logFunction(printf("nameOfBufferType --> %s\n", typeName););
+    logFunction(printf("nameOfSqlType --> %s\n", typeName););
     return typeName;
-  } /* nameOfBufferType */
+  } /* nameOfSqlType */
 
 
 
-static const char *nameOfCType (int buffer_type)
+static const char *nameOfCType (int c_type)
 
   {
     static char buffer[50];
     const char *typeName;
 
   /* nameOfCType */
-    switch (buffer_type) {
+    switch (c_type) {
       case SQL_C_CHAR:                      typeName = "SQL_C_CHAR"; break;
       case SQL_C_WCHAR:                     typeName = "SQL_C_WCHAR"; break;
       case SQL_C_BIT:                       typeName = "SQL_C_BIT"; break;
@@ -540,7 +560,7 @@ static const char *nameOfCType (int buffer_type)
       case SQL_C_INTERVAL_MINUTE_TO_SECOND: typeName = "SQL_C_INTERVAL_MINUTE_TO_SECOND"; break;
       case SQL_C_BINARY:                    typeName = "SQL_C_BINARY"; break;
       default:
-        sprintf(buffer, "%d", buffer_type);
+        sprintf(buffer, "%d", c_type);
         typeName = buffer;
         break;
     } /* switch */
@@ -550,8 +570,57 @@ static const char *nameOfCType (int buffer_type)
 
 
 
+static void setupParameters (preparedStmtType preparedStmt,
+    errInfoType *err_info)
+
+  {
+    SQLSMALLINT num_columns;
+    SQLUSMALLINT column_index;
+
+  /* setupParameters */
+    logFunction(printf("setupParameters\n"););
+    if (SQLNumParams(preparedStmt->ppStmt,
+                     &num_columns) != SQL_SUCCESS) {
+      setDbErrorMsg("setupParameters", "SQLNumParams",
+                    SQL_HANDLE_STMT, preparedStmt->ppStmt);
+      logError(printf("setupParameters: SQLNumParams:\n%s\n",
+                      dbError.message););
+      *err_info = DATABASE_ERROR;
+    } else if (num_columns < 0) {
+      dbInconsistent("setupParameters", "SQLNumParams");
+      logError(printf("setupParameters: SQLNumParams returns negative number: %hd\n",
+                      num_columns););
+      *err_info = DATABASE_ERROR;
+    } else if (!ALLOC_TABLE(preparedStmt->param_array,
+                            bindDataRecord, (memSizeType) num_columns)) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      preparedStmt->param_array_size = (memSizeType) num_columns;
+      memset(preparedStmt->param_array, 0, (memSizeType) num_columns * sizeof(bindDataRecord));
+      for (column_index = 0; column_index < num_columns &&
+           *err_info == OKAY_NO_ERROR; column_index++) {
+        if (unlikely(SQLDescribeParam(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) (column_index + 1),
+                                      &preparedStmt->param_array[column_index].dataType,
+                                      &preparedStmt->param_array[column_index].paramSize,
+                                      &preparedStmt->param_array[column_index].decimalDigits,
+                                      &preparedStmt->param_array[column_index].nullable)
+                     != SQL_SUCCESS)) {
+          setDbErrorMsg("setupParameters", "SQLDescribeParam",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("setupParameters: SQLDescribeParam:\n%s\n",
+                          dbError.message););
+          *err_info = DATABASE_ERROR;
+        } /* if */
+      } /* for */
+    } /* if */
+    logFunction(printf("setupParameters -->\n"););
+  } /* setupParameters */
+
+
+
 static void setupResultColumn (preparedStmtType preparedStmt,
-    SQLSMALLINT column_num, resultDataType resultData,
+    SQLSMALLINT column_num, resultDataType resultData, boolType blobFound,
     errInfoType *err_info)
 
   {
@@ -628,9 +697,9 @@ static void setupResultColumn (preparedStmtType preparedStmt,
       *err_info = DATABASE_ERROR;
     } else {
       /* printf("sqlDataType: %ld\n", sqlDataType); */
-      resultData->buffer_type = (int) sqlDataType;
-      /* printf("buffer_type: %s\n", nameOfBufferType(resultData->buffer_type)); */
-      switch (resultData->buffer_type) {
+      resultData->sql_type = (int) sqlDataType;
+      /* printf("sql_type: %s\n", nameOfSqlType(resultData->sql_type)); */
+      switch (resultData->sql_type) {
         case SQL_CHAR:
         case SQL_VARCHAR:
         case SQL_LONGVARCHAR:
@@ -650,7 +719,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           } else {
             column_size = ((memSizeType) dataLength + 1) * 2;
           } /* if */
-          /* printf("%s:\n", nameOfBufferType(resultData->buffer_type));
+          /* printf("%s:\n", nameOfSqlType(resultData->sql_type));
           printf("dataLength: %ld\n", dataLength);
           printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
           printf("octetLength: %ld\n", octetLength);
@@ -677,7 +746,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           } else {
             column_size = ((memSizeType) dataLength + 1) * 2;
           } /* if */
-          /* printf("%s:\n", nameOfBufferType(resultData->buffer_type));
+          /* printf("%s:\n", nameOfSqlType(resultData->sql_type));
           printf("dataLength: %ld\n", dataLength);
           printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
           printf("octetLength: %ld\n", octetLength);
@@ -704,7 +773,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           } else {
             column_size = (memSizeType) dataLength;
           } /* if */
-          /* printf("%s:\n", nameOfBufferType(resultData->buffer_type));
+          /* printf("%s:\n", nameOfSqlType(resultData->sql_type));
           printf("dataLength: %ld\n", dataLength);
           printf("SQLLEN_MAX: %ld\n", SQLLEN_MAX);
           printf("octetLength: %ld\n", octetLength);
@@ -802,28 +871,28 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           }
           }
           {
-            SQLSMALLINT   NameLength;
-            SQLSMALLINT   DataType;
-            SQLULEN       ColumnSize;
-            SQLSMALLINT   DecimalDigits;
-            SQLSMALLINT   Nullable;
+            SQLSMALLINT nameLength;
+            SQLSMALLINT dataType;
+            SQLULEN     columnSize;
+            SQLSMALLINT decimalDigits;
+            SQLSMALLINT nullable;
 
           if (SQLDescribeCol(preparedStmt->ppStmt,
                              (SQLUSMALLINT) column_num,
                              NULL,
                              0,
-                             &NameLength,
-                             &DataType,
-                             &ColumnSize,
-                             &DecimalDigits,
-                             &Nullable) != SQL_SUCCESS) {
+                             &nameLength,
+                             &dataType,
+                             &columnSize,
+                             &decimalDigits,
+                             &nullable) != SQL_SUCCESS) {
             printf("SQLDescribeCol failed\n");
           } else {
-            printf("NameLength:    %d\n",  NameLength);
-            printf("DataType:      %d\n",  DataType);
-            printf("ColumnSize:    %ld\n", ColumnSize);
-            printf("DecimalDigits: %d\n",  DecimalDigits);
-            printf("Nullable:      %d\n",  Nullable);
+            printf("NameLength:    %d\n",  nameLength);
+            printf("DataType:      %d\n",  dataType);
+            printf("ColumnSize:    %ld\n", columnSize);
+            printf("DecimalDigits: %d\n",  decimalDigits);
+            printf("Nullable:      %d\n",  nullable);
           }
           }
           {
@@ -962,7 +1031,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           break;
         default:
           logError(printf("setupResultColumn: Column %hd has the unknown type %s.\n",
-                          column_num, nameOfBufferType(resultData->buffer_type)););
+                          column_num, nameOfSqlType(resultData->sql_type)););
           *err_info = RANGE_ERROR;
           break;
       } /* switch */
@@ -982,19 +1051,34 @@ static void setupResultColumn (preparedStmtType preparedStmt,
       } /* if */
       if (*err_info == OKAY_NO_ERROR) {
         /* printf("c_type: %s\n", nameOfCType(c_type)); */
+        resultData->c_type = c_type;
         resultData->buffer_length = column_size;
-        if (SQLBindCol(preparedStmt->ppStmt,
-                       (SQLUSMALLINT) column_num,
-                       c_type,
-                       resultData->buffer,
-                       (SQLLEN) resultData->buffer_length,
-                       &resultData->length) != SQL_SUCCESS) {
-          setDbErrorMsg("setupResultColumn", "SQLBindCol",
-                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
-          logError(printf("setupResultColumn: SQLBindCol "
-                          "c_type: %d = %s:\n%s\n",
-                          c_type, nameOfCType(c_type), dbError.message););
-          *err_info = DATABASE_ERROR;
+        /* The data of blobs (sql_data_at_exec = TRUE) is retrieved */
+        /* with SQLGetData(). According to the SQL Server Native    */
+        /* Client ODBC driver documentation SQLGetData() cannot     */
+        /* retrieve data in random column order. Additionally all   */
+        /* unbound columns processed with SQLGetData must have      */
+        /* higher column ordinals than the bound columns in the     */
+        /* result set. Therfore binding of columns stops as soon as */
+        /* a blob column is found and the data is retrived with     */
+        /* SQLGetData().                                            */
+        if (!resultData->sql_data_at_exec && !blobFound) {
+          /* printf("SQLBindCol(" FMT_U_MEM ", %d, " FMT_U_MEM ", ...)\n",
+                    preparedStmt->ppStmt,
+                    (int) column_num, column_size); */
+          if (SQLBindCol(preparedStmt->ppStmt,
+                         (SQLUSMALLINT) column_num,
+                         c_type,
+                         resultData->buffer,
+                         (SQLLEN) column_size,
+                         &resultData->length) != SQL_SUCCESS) {
+            setDbErrorMsg("setupResultColumn", "SQLBindCol",
+                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
+            logError(printf("setupResultColumn: SQLBindCol "
+                            "c_type: %d = %s:\n%s\n",
+                            c_type, nameOfCType(c_type), dbError.message););
+            *err_info = DATABASE_ERROR;
+          } /* if */
         } /* if */
         if (c_type == SQL_C_NUMERIC) {
           printf("SQL_C_NUMERIC:\n");
@@ -1092,6 +1176,7 @@ static void setupResult (preparedStmtType preparedStmt,
   {
     SQLSMALLINT num_columns;
     SQLSMALLINT column_index;
+    boolType blobFound = FALSE;
 
   /* setupResult */
     logFunction(printf("setupResult\n"););
@@ -1117,42 +1202,13 @@ static void setupResult (preparedStmtType preparedStmt,
            *err_info == OKAY_NO_ERROR; column_index++) {
         setupResultColumn(preparedStmt, (SQLSMALLINT) (column_index + 1),
                           &preparedStmt->result_array[column_index],
-                          err_info);
+                          blobFound, err_info);
+        blobFound |= preparedStmt->result_array[column_index].sql_data_at_exec;
       } /* for */
+      preparedStmt->hasBlob = blobFound;
     } /* if */
     logFunction(printf("setupResult -->\n"););
   } /* setupResult */
-
-
-
-static void resizeBindArray (preparedStmtType preparedStmt, memSizeType pos)
-
-  {
-    memSizeType new_size;
-    bindDataType resized_param_array;
-
-  /* resizeBindArray */
-    if (pos > preparedStmt->param_array_capacity) {
-      new_size = (((pos - 1) >> 3) + 1) << 3;  /* Round to next multiple of 8. */
-      resized_param_array = REALLOC_TABLE(preparedStmt->param_array,
-          bindDataRecord, preparedStmt->param_array_capacity, new_size);
-      if (unlikely(resized_param_array == NULL)) {
-        FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_capacity);
-        preparedStmt->param_array = NULL;
-        preparedStmt->param_array_capacity = 0;
-        raise_error(MEMORY_ERROR);
-      } else {
-        preparedStmt->param_array = resized_param_array;
-        COUNT3_TABLE(bindDataRecord, preparedStmt->param_array_capacity, new_size);
-        memset(&preparedStmt->param_array[preparedStmt->param_array_capacity], 0,
-               (new_size - preparedStmt->param_array_capacity) * sizeof(bindDataRecord));
-        preparedStmt->param_array_capacity = new_size;
-      } /* if */
-    } /* if */
-    if (pos > preparedStmt->param_array_size) {
-      preparedStmt->param_array_size = pos;
-    } /* if */
-  } /* resizeBindArray */
 
 
 
@@ -1604,147 +1660,251 @@ static memSizeType setBigRat (void **buffer,
 
 
 
-static striType getClob (preparedStmtType preparedStmt, intType column,
-    errInfoType *err_info)
+static errInfoType getBlob (preparedStmtType preparedStmt, intType column,
+    SQLSMALLINT targetType)
 
   {
     char ch;
-    SQLLEN totalLength = 0;
-    SQLLEN dataLength = 0;
+    SQLLEN totalLength;
     SQLRETURN returnCode;
-    cstriType cstri;
-    striType columnValue;
+    cstriType buffer;
+    errInfoType err_info = OKAY_NO_ERROR;
 
-  /* getClob */
-    logFunction(printf("getClob(" FMT_U_MEM ", " FMT_D ")\n",
+  /* getBlob */
+    logFunction(printf("getBlob(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) preparedStmt, column););
+    if (preparedStmt->result_array[column - 1].buffer != NULL) {
+      /* printf("getBlob: removing data\n"); */
+      UNALLOC_CSTRI(preparedStmt->result_array[column - 1].buffer,
+          (memSizeType) preparedStmt->result_array[column - 1].buffer_length -
+          NULL_TERMINATION_LEN);
+      preparedStmt->result_array[column - 1].buffer_length = 0;
+      preparedStmt->result_array[column - 1].buffer = NULL;
+      preparedStmt->result_array[column - 1].length = 0;
+    } /* if */
     returnCode = SQLGetData(preparedStmt->ppStmt,
                             (SQLUSMALLINT) column,
-                            SQL_C_CHAR,
+                            targetType,
                             &ch, 0, &totalLength);
     if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO) {
-      if (totalLength == SQL_NULL_DATA) {
-        /* printf("Column is NULL -> Use default value: \"\"\n"); */
-        columnValue = strEmpty();
-      } else if (totalLength == SQL_NO_TOTAL) {
-        *err_info = RANGE_ERROR;
-        columnValue = NULL;
+      if (totalLength == SQL_NO_TOTAL) {
+        err_info = RANGE_ERROR;
+      } else if (totalLength == SQL_NULL_DATA || totalLength == 0) {
+        /* printf("Column is NULL or \"\" -> Use default value: \"\"\n"); */
+        preparedStmt->result_array[column - 1].length = (SQLLEN) totalLength;
       } else if (unlikely(totalLength < 0)) {
-        dbInconsistent("getClob", "SQLGetData");
-        logError(printf("getClob: Column " FMT_D ": "
+        dbInconsistent("getBlob", "SQLGetData");
+        logError(printf("getBlob: Column " FMT_D ": "
                         "SQLGetData returns negative total length: %ld\n",
                         column, totalLength););
-        raise_error(DATABASE_ERROR);
-        columnValue = NULL;
+        err_info = DATABASE_ERROR;
       } else {
         /* printf("totalLength=%ld\n", totalLength); */
-        if (unlikely(!ALLOC_CSTRI(cstri, (memSizeType) totalLength))) {
-          *err_info = RANGE_ERROR;
-          columnValue = NULL;
+        if (unlikely(!ALLOC_CSTRI(buffer, (memSizeType) totalLength))) {
+          err_info = MEMORY_ERROR;
         } else {
           returnCode= SQLGetData(preparedStmt->ppStmt,
                                  (SQLUSMALLINT) column,
-                                 SQL_C_CHAR,
-                                 cstri, totalLength + 1, &dataLength);
+                                 targetType,
+                                 buffer,
+                                 SIZ_CSTRI(totalLength),
+                                 &preparedStmt->result_array[column - 1].length);
           /* printf("dataLength=%ld\n", dataLength);
-             printf("cstri[0]=%d\n", cstri[0]); */
+             printf("buffer[0]=%d\n", buffer[0]); */
           if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO) {
-            columnValue = cstri_buf_to_stri(cstri, (memSizeType) totalLength);
-            if (unlikely(columnValue == NULL)) {
-              *err_info = MEMORY_ERROR;
-            } /* if */
+            preparedStmt->result_array[column - 1].buffer_length =
+                SIZ_CSTRI((memSizeType) totalLength);
+            preparedStmt->result_array[column - 1].buffer = buffer;
           } else {
-            setDbErrorMsg("getClob", "SQLGetData",
+            UNALLOC_CSTRI(buffer, (memSizeType) totalLength);
+            setDbErrorMsg("getBlob", "SQLGetData",
                           SQL_HANDLE_STMT, preparedStmt->ppStmt);
-            logError(printf("getClob: SQLGetData:\n%s\n",
+            logError(printf("getBlob: SQLGetData:\n%s\n",
                             dbError.message););
-            *err_info = DATABASE_ERROR;
-            columnValue = NULL;
+            err_info = DATABASE_ERROR;
           } /* if */
-          UNALLOC_CSTRI(cstri, (memSizeType) totalLength);
         } /* if */
       } /* if */
     } else {
-      setDbErrorMsg("getClob", "SQLGetData",
+      /* printf("returnCode: %ld\n", returnCode); */
+      setDbErrorMsg("getBlob", "SQLGetData",
                     SQL_HANDLE_STMT, preparedStmt->ppStmt);
-      logError(printf("getClob: SQLGetData:\n%s\n",
+      logError(printf("getBlob: SQLGetData:\n%s\n",
                       dbError.message););
-      *err_info = DATABASE_ERROR;
-      columnValue = NULL;
+      err_info = DATABASE_ERROR;
     } /* if */
-    logFunction(printf("getClob --> \"%s\"\n", striAsUnquotedCStri(columnValue)););
-    return columnValue;
-  } /* getClob */
+    logFunction(printf("getBlob --> %d\n", err_info););
+    return err_info;
+  } /* getBlob */
 
 
 
-static striType getWClob (preparedStmtType preparedStmt, intType column,
-    errInfoType *err_info)
+static errInfoType getWClob (preparedStmtType preparedStmt, intType column)
 
   {
     char ch;
-    SQLLEN totalLength = 0;
-    SQLLEN dataLength = 0;
+    SQLLEN totalLength;
+    memSizeType wstriLength;
     SQLRETURN returnCode;
     wstriType wstri;
-    striType columnValue;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* getWClob */
     logFunction(printf("getWClob(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) preparedStmt, column););
+    if (preparedStmt->result_array[column - 1].buffer != NULL) {
+      /* printf("getWClob: removing data\n"); */
+      UNALLOC_WSTRI((wstriType) preparedStmt->result_array[column - 1].buffer,
+          (memSizeType) preparedStmt->result_array[column - 1].buffer_length -
+          sizeof(wcharType) * NULL_TERMINATION_LEN);
+      preparedStmt->result_array[column - 1].buffer_length = 0;
+      preparedStmt->result_array[column - 1].buffer = NULL;
+      preparedStmt->result_array[column - 1].length = 0;
+    } /* if */
     returnCode = SQLGetData(preparedStmt->ppStmt,
                             (SQLUSMALLINT) column,
                             SQL_C_WCHAR,
                             &ch, 0, &totalLength);
     if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO) {
-      if (totalLength == SQL_NULL_DATA) {
-        /* printf("Column is NULL -> Use default value: \"\"\n"); */
-        columnValue = strEmpty();
-      } else if (totalLength == SQL_NO_TOTAL) {
-        *err_info = RANGE_ERROR;
-        columnValue = NULL;
+      if (totalLength == SQL_NO_TOTAL) {
+        err_info = RANGE_ERROR;
+      } else if (totalLength == SQL_NULL_DATA || totalLength == 0) {
+        /* printf("Column is NULL or \"\" -> Use default value: \"\"\n"); */
+        preparedStmt->result_array[column - 1].length = (SQLLEN) totalLength;
       } else if (unlikely(totalLength < 0)) {
         dbInconsistent("getWClob", "SQLGetData");
         logError(printf("getWClob: Column " FMT_D ": "
                         "SQLGetData returns negative total length: %ld\n",
                         column, totalLength););
-        raise_error(DATABASE_ERROR);
-        columnValue = NULL;
+        err_info = DATABASE_ERROR;
       } else {
         /* printf("totalLength=%ld\n", totalLength); */
-        if (unlikely(!ALLOC_WSTRI(wstri, (memSizeType) totalLength / 2))) {
-          *err_info = RANGE_ERROR;
-          columnValue = NULL;
+        wstriLength = (memSizeType) totalLength / sizeof(wcharType);
+        if (unlikely(!ALLOC_WSTRI(wstri, wstriLength))) {
+          err_info = RANGE_ERROR;
         } else {
           returnCode= SQLGetData(preparedStmt->ppStmt,
                                  (SQLUSMALLINT) column,
                                  SQL_C_WCHAR,
-                                 wstri, totalLength + 2, &dataLength);
+                                 wstri,
+                                 (SQLLEN) SIZ_WSTRI(wstriLength),
+                                 &preparedStmt->result_array[column - 1].length);
+          /* printf("dataLength=%ld\n", dataLength);
+             printf("wstri[0]=%d\n", wstri[0]); */
           if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO) {
-            columnValue = wstri_buf_to_stri(
-                wstri, (memSizeType) totalLength / 2, err_info);
+            preparedStmt->result_array[column - 1].buffer_length =
+                SIZ_WSTRI(wstriLength);
+            preparedStmt->result_array[column - 1].buffer = (cstriType) wstri;
           } else {
+            UNALLOC_WSTRI(wstri, wstriLength);
             setDbErrorMsg("getWClob", "SQLGetData",
                           SQL_HANDLE_STMT, preparedStmt->ppStmt);
             logError(printf("getWClob: SQLGetData:\n%s\n",
                             dbError.message););
-            *err_info = DATABASE_ERROR;
-            columnValue = NULL;
+            err_info = DATABASE_ERROR;
           } /* if */
-          UNALLOC_WSTRI(wstri, (memSizeType) totalLength / 2);
         } /* if */
       } /* if */
     } else {
+      /* printf("returnCode: %ld\n", returnCode); */
       setDbErrorMsg("getWClob", "SQLGetData",
                     SQL_HANDLE_STMT, preparedStmt->ppStmt);
       logError(printf("getWClob: SQLGetData:\n%s\n",
                       dbError.message););
-      *err_info = DATABASE_ERROR;
-      columnValue = NULL;
+      err_info = DATABASE_ERROR;
     } /* if */
-    logFunction(printf("getWClob --> \"%s\"\n", striAsUnquotedCStri(columnValue)););
-    return columnValue;
+    logFunction(printf("getWClob --> %d\n", err_info););
+    return err_info;
   } /* getWClob */
+
+
+
+/**
+ *  Get column data of an unbound column into an existing buffer.
+ *  The buffer is allocated by setupResultColumn(), but the column
+ *  is not bound with SQLBindCol(). This is done because this column
+ *  has a higher column ordinal than a blob column.
+ */
+static errInfoType getData (preparedStmtType preparedStmt, intType column)
+
+  {
+    SQLRETURN returnCode;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* getData */
+    logFunction(printf("getData(" FMT_U_MEM ", " FMT_D ")\n",
+                       (memSizeType) preparedStmt, column););
+    returnCode= SQLGetData(preparedStmt->ppStmt,
+                           (SQLUSMALLINT) column,
+                           preparedStmt->result_array[column - 1].c_type,
+                           preparedStmt->result_array[column - 1].buffer,
+                           (SQLLEN) preparedStmt->result_array[column - 1].buffer_length,
+                           &preparedStmt->result_array[column - 1].length);
+    if (returnCode != SQL_SUCCESS) {
+      /* printf("returnCode: %ld\n", returnCode); */
+      setDbErrorMsg("getData", "SQLGetData",
+                    SQL_HANDLE_STMT, preparedStmt->ppStmt);
+      logError(printf("getData: SQLGetData:\n%s\n",
+                      dbError.message););
+      err_info = DATABASE_ERROR;
+    } /* if */
+    logFunction(printf("getData --> %d\n", err_info););
+    return err_info;
+  } /* getData */
+
+
+
+/**
+ *  Get column data of blobs and all column data after the first blob.
+ *  The data of blobs (sql_data_at_exec = TRUE) is retrieved 
+ *  with SQLGetData(). According to the SQL Server Native
+ *  Client ODBC driver documentation SQLGetData() cannot
+ *  retrieve data in random column order. Additionally all
+ *  unbound columns processed with SQLGetData must have
+ *  higher column ordinals than the bound columns in the
+ *  result set. Therfore binding of columns stops as soon as
+ *  a blob column is found and the data is retrived with
+ *  SQLGetData().
+ */
+static errInfoType fetchBlobs (preparedStmtType preparedStmt)
+
+  {
+    intType pos;
+    boolType blobFound = FALSE;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* fetchBlobs */
+    logFunction(printf("fetchBlobs(" FMT_U_MEM ")\n",
+                       (memSizeType) preparedStmt););
+    for (pos = 0; pos < preparedStmt->result_array_size &&
+         err_info == OKAY_NO_ERROR; pos++) {
+      if (preparedStmt->result_array[pos].sql_data_at_exec) {
+        blobFound = TRUE;
+        /* printf("fetchBlobs: length: %ld\n", preparedStmt->result_array[pos].length); */
+        /* printf("sql_type: %s\n",
+           nameOfSqlType(preparedStmt->result_array[pos].sql_type)); */
+        switch (preparedStmt->result_array[pos].sql_type) {
+          case SQL_VARCHAR:
+          case SQL_LONGVARCHAR:
+            err_info = getBlob(preparedStmt, pos + 1, SQL_C_CHAR);
+            break;
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
+            err_info = getWClob(preparedStmt, pos + 1);
+            break;
+          case SQL_BINARY:
+          case SQL_VARBINARY:
+          case SQL_LONGVARBINARY:
+            err_info = getBlob(preparedStmt, pos + 1, SQL_C_BINARY);
+            break;
+        } /* switch */
+      } else if (blobFound) {
+        err_info = getData(preparedStmt, pos + 1);
+      } /* if */
+    } /* for */
+    logFunction(printf("fetchBlobs --> %d\n", err_info););
+    return err_info;
+  } /* fetchBlobs */
 
 
 
@@ -1759,67 +1919,64 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     logFunction(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", %s)\n",
                        (memSizeType) sqlStatement, pos, bigHexCStri(value)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > USHRT_MAX)) {
-      logError(printf("sqlBindBigInt: pos: " FMT_D ", max pos: %u.\n",
-                      pos, USHRT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindBigInt: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          preparedStmt->param_array[pos - 1].buffer_length =
-              setBigInt(&preparedStmt->param_array[pos - 1].buffer,
-                        &preparedStmt->param_array[pos - 1].buffer_capacity,
-                        value, &err_info);
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        preparedStmt->param_array[pos - 1].buffer_length =
+            setBigInt(&preparedStmt->param_array[pos - 1].buffer,
+                      &preparedStmt->param_array[pos - 1].buffer_capacity,
+                      value, &err_info);
 #if ENCODE_NUMERIC_STRUCT
-          preparedStmt->param_array[pos - 1].buffer_type = SQL_NUMERIC;
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_NUMERIC) {
+        preparedStmt->param_array[pos - 1].sql_type = SQL_NUMERIC;
+      } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_NUMERIC) {
 #else
-          preparedStmt->param_array[pos - 1].buffer_type = SQL_DECIMAL;
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_DECIMAL) {
+        preparedStmt->param_array[pos - 1].sql_type = SQL_DECIMAL;
+      } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_DECIMAL) {
 #endif
-          err_info = RANGE_ERROR;
-        } else {
-          preparedStmt->param_array[pos - 1].buffer_length =
-              setBigInt(&preparedStmt->param_array[pos - 1].buffer,
-                        &preparedStmt->param_array[pos - 1].buffer_capacity,
-                        value, &err_info);
-        } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
-        } else {
+        err_info = RANGE_ERROR;
+      } else {
+        preparedStmt->param_array[pos - 1].buffer_length =
+            setBigInt(&preparedStmt->param_array[pos - 1].buffer,
+                      &preparedStmt->param_array[pos - 1].buffer_capacity,
+                      value, &err_info);
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
 #if ENCODE_NUMERIC_STRUCT
-          if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                        (SQLUSMALLINT) pos,
-                                        SQL_PARAM_INPUT,
-                                        SQL_C_NUMERIC,
-                                        (SQLSMALLINT) preparedStmt->param_array[pos - 1].buffer_type,
-                                        MAX_NUMERIC_PRECISION,
-                                        0,
-                                        preparedStmt->param_array[pos - 1].buffer,
-                                        (SQLLEN) preparedStmt->param_array[pos - 1].buffer_length,
-                                        NULL) != SQL_SUCCESS)) {
+        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) pos,
+                                      SQL_PARAM_INPUT,
+                                      SQL_C_NUMERIC,
+                                      (SQLSMALLINT) preparedStmt->param_array[pos - 1].sql_type,
+                                      MAX_NUMERIC_PRECISION,
+                                      0,
+                                      preparedStmt->param_array[pos - 1].buffer,
+                                      (SQLLEN) preparedStmt->param_array[pos - 1].buffer_length,
+                                      NULL) != SQL_SUCCESS)) {
 #else
-          if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                        (SQLUSMALLINT) pos,
-                                        SQL_PARAM_INPUT,
-                                        SQL_C_CHAR,
-                                        (SQLSMALLINT) preparedStmt->param_array[pos - 1].buffer_type,
-                                        preparedStmt->param_array[pos - 1].buffer_length,
-                                        0,
-                                        preparedStmt->param_array[pos - 1].buffer,
-                                        (SQLLEN) preparedStmt->param_array[pos - 1].buffer_length,
-                                        NULL) != SQL_SUCCESS)) {
+        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) pos,
+                                      SQL_PARAM_INPUT,
+                                      SQL_C_CHAR,
+                                      (SQLSMALLINT) preparedStmt->param_array[pos - 1].sql_type,
+                                      preparedStmt->param_array[pos - 1].buffer_length,
+                                      0,
+                                      preparedStmt->param_array[pos - 1].buffer,
+                                      (SQLLEN) preparedStmt->param_array[pos - 1].buffer_length,
+                                      NULL) != SQL_SUCCESS)) {
 #endif
-            setDbErrorMsg("sqlBindBigInt", "SQLBindParameter",
-                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
-            logError(printf("sqlBindBigInt: SQLBindParameter:\n%s\n",
-                            dbError.message););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          setDbErrorMsg("sqlBindBigInt", "SQLBindParameter",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("sqlBindBigInt: SQLBindParameter:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
         } /* if */
       } /* if */
     } /* if */
@@ -1832,6 +1989,8 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    char *dotPos;
+    memSizeType scale;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBigRat */
@@ -1839,65 +1998,69 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
                        (memSizeType) sqlStatement, pos,
                        bigHexCStri(numerator), bigHexCStri(denominator)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > USHRT_MAX)) {
-      logError(printf("sqlBindBigRat: pos: " FMT_D ", max pos: %u.\n",
-                      pos, USHRT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindBigRat: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          preparedStmt->param_array[pos - 1].buffer_length =
-              setBigRat(&preparedStmt->param_array[pos - 1].buffer,
-                        numerator, denominator, &err_info);
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        preparedStmt->param_array[pos - 1].buffer_length =
+            setBigRat(&preparedStmt->param_array[pos - 1].buffer,
+                      numerator, denominator, &err_info);
 #if ENCODE_NUMERIC_STRUCT
-          preparedStmt->param_array[pos - 1].buffer_type = SQL_NUMERIC;
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_NUMERIC) {
+        preparedStmt->param_array[pos - 1].sql_type = SQL_NUMERIC;
+      } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_NUMERIC) {
 #else
-          preparedStmt->param_array[pos - 1].buffer_type = SQL_DECIMAL;
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_DECIMAL) {
+        preparedStmt->param_array[pos - 1].sql_type = SQL_DECIMAL;
+      } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_DECIMAL) {
 #endif
-          err_info = RANGE_ERROR;
+        err_info = RANGE_ERROR;
+      } else {
+        preparedStmt->param_array[pos - 1].buffer_length =
+            setBigRat(&preparedStmt->param_array[pos - 1].buffer,
+                      numerator, denominator, &err_info);
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        dotPos = strchr(preparedStmt->param_array[pos - 1].buffer, '.');
+        if (dotPos != NULL) {
+          scale = preparedStmt->param_array[pos - 1].buffer_length -
+              (memSizeType) (dotPos - (char *) preparedStmt->param_array[pos - 1].buffer) - 1;
         } else {
-          preparedStmt->param_array[pos - 1].buffer_length =
-              setBigRat(&preparedStmt->param_array[pos - 1].buffer,
-                        numerator, denominator, &err_info);
+          scale = 0;
         } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
-        } else {
 #if ENCODE_NUMERIC_STRUCT
-          if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                        (SQLUSMALLINT) pos,
-                                        SQL_PARAM_INPUT,
-                                        SQL_C_NUMERIC,
-                                        (SQLSMALLINT) preparedStmt->param_array[pos - 1].buffer_type,
-                                        MAX_NUMERIC_PRECISION,
-                                        0,
-                                        preparedStmt->param_array[pos - 1].buffer,
-                                        (SQLLEN) preparedStmt->param_array[pos - 1].buffer_length,
-                                        NULL) != SQL_SUCCESS)) {
+        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) pos,
+                                      SQL_PARAM_INPUT,
+                                      SQL_C_NUMERIC,
+                                      (SQLSMALLINT) preparedStmt->param_array[pos - 1].sql_type,
+                                      MAX_NUMERIC_PRECISION,
+                                      (SQLSMALLINT) scale,
+                                      preparedStmt->param_array[pos - 1].buffer,
+                                      (SQLLEN) preparedStmt->param_array[pos - 1].buffer_length,
+                                      NULL) != SQL_SUCCESS)) {
 #else
-          if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                        (SQLUSMALLINT) pos,
-                                        SQL_PARAM_INPUT,
-                                        SQL_C_CHAR,
-                                        (SQLSMALLINT) preparedStmt->param_array[pos - 1].buffer_type,
-                                        preparedStmt->param_array[pos - 1].buffer_length,
-                                        0,
-                                        preparedStmt->param_array[pos - 1].buffer,
-                                        (SQLLEN) preparedStmt->param_array[pos - 1].buffer_length,
-                                        NULL) != SQL_SUCCESS)) {
+        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) pos,
+                                      SQL_PARAM_INPUT,
+                                      SQL_C_CHAR,
+                                      (SQLSMALLINT) preparedStmt->param_array[pos - 1].sql_type,
+                                      preparedStmt->param_array[pos - 1].buffer_length,
+                                      (SQLSMALLINT) scale,
+                                      preparedStmt->param_array[pos - 1].buffer,
+                                      (SQLLEN) preparedStmt->param_array[pos - 1].buffer_length,
+                                      NULL) != SQL_SUCCESS)) {
 #endif
-            setDbErrorMsg("sqlBindBigRat", "SQLBindParameter",
-                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
-            logError(printf("sqlBindBigRat: SQLBindParameter:\n%s\n",
-                            dbError.message););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          setDbErrorMsg("sqlBindBigRat", "SQLBindParameter",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("sqlBindBigRat: SQLBindParameter:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
         } /* if */
       } /* if */
     } /* if */
@@ -1915,48 +2078,45 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
     logFunction(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s)\n",
                        (memSizeType) sqlStatement, pos, value ? "TRUE" : "FALSE"););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > USHRT_MAX)) {
-      logError(printf("sqlBindBool: pos: " FMT_D ", max pos: %u.\n",
-                      pos, USHRT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindBool: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(1)) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_type = SQL_VARCHAR;
-            preparedStmt->param_array[pos - 1].buffer_length = 1;
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_VARCHAR ||
-                   preparedStmt->param_array[pos - 1].buffer_length != 1) {
-          err_info = RANGE_ERROR;
-        } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        if ((preparedStmt->param_array[pos - 1].buffer = malloc(1)) == NULL) {
+          err_info = MEMORY_ERROR;
         } else {
-          ((char *) preparedStmt->param_array[pos - 1].buffer)[0] = (char) ('0' + value);
-          preparedStmt->param_array[pos - 1].length = 1;
-          if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                        (SQLUSMALLINT) pos,
-                                        SQL_PARAM_INPUT,
-                                        SQL_C_CHAR,
-                                        SQL_VARCHAR,
-                                        1,
-                                        0,
-                                        preparedStmt->param_array[pos - 1].buffer,
-                                        1,
-                                        &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
-            setDbErrorMsg("sqlBindBool", "SQLBindParameter",
-                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
-            logError(printf("sqlBindBool: SQLBindParameter:\n%s\n",
-                            dbError.message););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          preparedStmt->param_array[pos - 1].sql_type = SQL_VARCHAR;
+          preparedStmt->param_array[pos - 1].buffer_length = 1;
+        } /* if */
+      } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_VARCHAR ||
+                 preparedStmt->param_array[pos - 1].buffer_length != 1) {
+        err_info = RANGE_ERROR;
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        ((char *) preparedStmt->param_array[pos - 1].buffer)[0] = (char) ('0' + value);
+        preparedStmt->param_array[pos - 1].length = 1;
+        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) pos,
+                                      SQL_PARAM_INPUT,
+                                      SQL_C_CHAR,
+                                      SQL_VARCHAR,
+                                      1,
+                                      0,
+                                      preparedStmt->param_array[pos - 1].buffer,
+                                      1,
+                                      &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
+          setDbErrorMsg("sqlBindBool", "SQLBindParameter",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("sqlBindBool: SQLBindParameter:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
         } /* if */
       } /* if */
     } /* if */
@@ -1974,59 +2134,56 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
     logFunction(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
                        (memSizeType) sqlStatement, pos, bstriAsUnquotedCStri(bstri)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > USHRT_MAX)) {
-      logError(printf("sqlBindBStri: pos: " FMT_D ", max pos: %u.\n",
-                      pos, USHRT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindBStri: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(bstri->size)) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_type = SQL_VARBINARY;
-            preparedStmt->param_array[pos - 1].buffer_capacity = bstri->size;
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_VARBINARY) {
-          err_info = RANGE_ERROR;
-        } else if (bstri->size > preparedStmt->param_array[pos - 1].buffer_capacity) {
-          free(preparedStmt->param_array[pos - 1].buffer);
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(bstri->size)) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_capacity = bstri->size;
-          } /* if */
-        } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
-        } else if (unlikely(bstri->size > SQLLEN_MAX)) {
-          free(preparedStmt->param_array[pos - 1].buffer);
-          preparedStmt->param_array[pos - 1].buffer = NULL;
-          raise_error(MEMORY_ERROR);
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        if ((preparedStmt->param_array[pos - 1].buffer = malloc(bstri->size)) == NULL) {
+          err_info = MEMORY_ERROR;
         } else {
-          memcpy(preparedStmt->param_array[pos - 1].buffer, bstri->mem, bstri->size);
-          preparedStmt->param_array[pos - 1].buffer_length = bstri->size;
-          preparedStmt->param_array[pos - 1].length = (SQLLEN) bstri->size;
-          if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                        (SQLUSMALLINT) pos,
-                                        SQL_PARAM_INPUT,
-                                        SQL_C_BINARY,
-                                        SQL_VARBINARY,
-                                        bstri->size == 0 ? 1 : bstri->size,
-                                        0,
-                                        preparedStmt->param_array[pos - 1].buffer,
-                                        (SQLLEN) bstri->size,
-                                        &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
-            setDbErrorMsg("sqlBindBStri", "SQLBindParameter",
-                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
-            logError(printf("sqlBindBStri: SQLBindParameter:\n%s\n",
-                            dbError.message););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          preparedStmt->param_array[pos - 1].sql_type = SQL_VARBINARY;
+          preparedStmt->param_array[pos - 1].buffer_capacity = bstri->size;
+        } /* if */
+      } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_VARBINARY) {
+        err_info = RANGE_ERROR;
+      } else if (bstri->size > preparedStmt->param_array[pos - 1].buffer_capacity) {
+        free(preparedStmt->param_array[pos - 1].buffer);
+        if ((preparedStmt->param_array[pos - 1].buffer = malloc(bstri->size)) == NULL) {
+          err_info = MEMORY_ERROR;
+        } else {
+          preparedStmt->param_array[pos - 1].buffer_capacity = bstri->size;
+        } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else if (unlikely(bstri->size > SQLLEN_MAX)) {
+        free(preparedStmt->param_array[pos - 1].buffer);
+        preparedStmt->param_array[pos - 1].buffer = NULL;
+        raise_error(MEMORY_ERROR);
+      } else {
+        memcpy(preparedStmt->param_array[pos - 1].buffer, bstri->mem, bstri->size);
+        preparedStmt->param_array[pos - 1].buffer_length = bstri->size;
+        preparedStmt->param_array[pos - 1].length = (SQLLEN) bstri->size;
+        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) pos,
+                                      SQL_PARAM_INPUT,
+                                      SQL_C_BINARY,
+                                      preparedStmt->param_array[pos - 1].dataType,
+                                      bstri->size == 0 ? 1 : bstri->size,
+                                      0,
+                                      preparedStmt->param_array[pos - 1].buffer,
+                                      (SQLLEN) bstri->size,
+                                      &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
+          setDbErrorMsg("sqlBindBStri", "SQLBindParameter",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("sqlBindBStri: SQLBindParameter:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
         } /* if */
       } /* if */
     } /* if */
@@ -2046,182 +2203,175 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindDuration */
-    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", "
-                       F_D(04) "-" F_D(02) "-" F_D(02) " "
-                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
+                                          FMT_D "Y" FMT_D "M" FMT_D "DT"
+                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
                        (memSizeType) sqlStatement, pos,
-                       year, month, day,
-                       hour, minute, second, micro_second););
+                       year, month, day, hour, minute,
+                       second < 0 || micro_second < 0 ? "-" : "",
+                       intAbs(second), intAbs(micro_second)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > USHRT_MAX)) {
-      logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: %u.\n",
-                      pos, USHRT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year < -INT_MAX || year > INT_MAX || month < -12 || month > 12 ||
-                        day < -31 || day > 31 || hour < -24 || hour > 24 ||
-                        minute < -60 || minute > 60 || second < -60 || second > 60 ||
-                        micro_second < -1000000 || micro_second > 1000000)) {
+                        day < -31 || day > 31 || hour <= -24 || hour >= 24 ||
+                        minute <= -60 || minute >= 60 || second <= -60 || second >= 60 ||
+                        micro_second <= -1000000 || micro_second >= 1000000)) {
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
       raise_error(RANGE_ERROR);
-    } else if (unlikely(!((year >= 0 && month >= 0 && day >= 0 && hour >= 0 &&
-                           minute >= 0 && second >= 0 && micro_second >= 0) ||
-                          (year <= 0 && month <= 0 && day <= 0 && hour <= 0 &&
-                           minute <= 0 && second <= 0 && micro_second <= 0)))) {
-      logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
-      raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer =
-              malloc(sizeof(SQL_INTERVAL_STRUCT))) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            /* Use SQL_C_INTERVAL_SECOND internally for all interval types. */
-            preparedStmt->param_array[pos - 1].buffer_type = SQL_INTERVAL_SECOND;
-            preparedStmt->param_array[pos - 1].buffer_length = sizeof(SQL_INTERVAL_STRUCT);
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_INTERVAL_SECOND ||
-                   preparedStmt->param_array[pos - 1].buffer_length != sizeof(SQL_INTERVAL_STRUCT)) {
-          err_info = RANGE_ERROR;
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        if ((preparedStmt->param_array[pos - 1].buffer =
+            malloc(sizeof(SQL_INTERVAL_STRUCT))) == NULL) {
+          err_info = MEMORY_ERROR;
+        } else {
+          /* Use SQL_C_INTERVAL_SECOND internally for all interval types. */
+          preparedStmt->param_array[pos - 1].sql_type = SQL_INTERVAL_SECOND;
+          preparedStmt->param_array[pos - 1].buffer_length = sizeof(SQL_INTERVAL_STRUCT);
         } /* if */
-        if (likely(err_info == OKAY_NO_ERROR)) {
-          interval = (SQL_INTERVAL_STRUCT *) preparedStmt->param_array[pos - 1].buffer;
-          memset(interval, 0, sizeof(SQL_INTERVAL_STRUCT));
-          if (day == 0 && hour == 0 && minute == 0 && second == 0 && micro_second == 0) {
-            if (year != 0) {
-              if (month != 0) {
-                c_type = SQL_C_INTERVAL_YEAR_TO_MONTH;
-                sql_type = SQL_INTERVAL_YEAR_TO_MONTH;
-                interval->interval_type = SQL_IS_YEAR_TO_MONTH;
-                interval->interval_sign = year < 0 ? SQL_TRUE : SQL_FALSE;
-                interval->intval.year_month.year  = (SQLUINTEGER) abs((int) year);
-                interval->intval.year_month.month = (SQLUINTEGER) abs((int) month);
-              } else {
-                c_type = SQL_C_INTERVAL_YEAR;
-                sql_type = SQL_INTERVAL_YEAR;
-                interval->interval_type = SQL_IS_YEAR;
-                interval->interval_sign = year < 0 ? SQL_TRUE : SQL_FALSE;
-                interval->intval.year_month.year = (SQLUINTEGER) abs((int) year);
-              } /* if */
-            } else if (month != 0) {
-              c_type = SQL_C_INTERVAL_MONTH;
-              sql_type = SQL_INTERVAL_MONTH;
-              interval->interval_type = SQL_IS_MONTH;
-              interval->interval_sign = month < 0 ? SQL_TRUE : SQL_FALSE;
+      } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_INTERVAL_SECOND ||
+                 preparedStmt->param_array[pos - 1].buffer_length != sizeof(SQL_INTERVAL_STRUCT)) {
+        err_info = RANGE_ERROR;
+      } /* if */
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        interval = (SQL_INTERVAL_STRUCT *) preparedStmt->param_array[pos - 1].buffer;
+        memset(interval, 0, sizeof(SQL_INTERVAL_STRUCT));
+        if (day == 0 && hour == 0 && minute == 0 && second == 0 && micro_second == 0) {
+          if (year != 0) {
+            if (month != 0) {
+              c_type = SQL_C_INTERVAL_YEAR_TO_MONTH;
+              sql_type = SQL_INTERVAL_YEAR_TO_MONTH;
+              interval->interval_type = SQL_IS_YEAR_TO_MONTH;
+              interval->interval_sign = year < 0 ? SQL_TRUE : SQL_FALSE;
+              interval->intval.year_month.year  = (SQLUINTEGER) abs((int) year);
               interval->intval.year_month.month = (SQLUINTEGER) abs((int) month);
             } else {
-              c_type = SQL_C_INTERVAL_SECOND;
-              sql_type = SQL_INTERVAL_SECOND;
-              interval->interval_type = SQL_IS_SECOND;
-              interval->interval_sign = SQL_FALSE;
-              interval->intval.day_second.second = 0;
+              c_type = SQL_C_INTERVAL_YEAR;
+              sql_type = SQL_INTERVAL_YEAR;
+              interval->interval_type = SQL_IS_YEAR;
+              interval->interval_sign = year < 0 ? SQL_TRUE : SQL_FALSE;
+              interval->intval.year_month.year = (SQLUINTEGER) abs((int) year);
             } /* if */
-          } else if (year == 0 && month == 0) {
-            if (day != 0) {
-              if (second != 0) {
-                c_type = SQL_C_INTERVAL_DAY_TO_SECOND;
-                sql_type = SQL_INTERVAL_DAY_TO_SECOND;
-                interval->interval_type = SQL_IS_DAY_TO_SECOND;
-                interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
-                interval->intval.day_second.day    = (SQLUINTEGER) abs((int) day);
-                interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
-                interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
-                interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
-              } else if (minute != 0) {
-                c_type = SQL_C_INTERVAL_DAY_TO_MINUTE;
-                sql_type = SQL_INTERVAL_DAY_TO_MINUTE;
-                interval->interval_type = SQL_IS_DAY_TO_MINUTE;
-                interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
-                interval->intval.day_second.day    = (SQLUINTEGER) abs((int) day);
-                interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
-                interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
-              } else if (hour != 0) {
-                c_type = SQL_C_INTERVAL_DAY_TO_HOUR;
-                sql_type = SQL_INTERVAL_DAY_TO_HOUR;
-                interval->interval_type = SQL_IS_DAY_TO_HOUR;
-                interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
-                interval->intval.day_second.day  = (SQLUINTEGER) abs((int) day);
-                interval->intval.day_second.hour = (SQLUINTEGER) abs((int) hour);
-              } else {
-                c_type = SQL_C_INTERVAL_DAY;
-                sql_type = SQL_INTERVAL_DAY;
-                interval->interval_type = SQL_IS_DAY;
-                interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
-                interval->intval.day_second.day = (SQLUINTEGER) abs((int) day);
-              } /* if */
-            } else if (hour != 0) {
-              if (second != 0) {
-                c_type = SQL_C_INTERVAL_HOUR_TO_SECOND;
-                sql_type = SQL_INTERVAL_HOUR_TO_SECOND;
-                interval->interval_type = SQL_IS_HOUR_TO_SECOND;
-                interval->interval_sign = hour < 0 ? SQL_TRUE : SQL_FALSE;
-                interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
-                interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
-                interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
-              } else if (minute != 0) {
-                c_type = SQL_C_INTERVAL_HOUR_TO_MINUTE;
-                sql_type = SQL_INTERVAL_HOUR_TO_MINUTE;
-                interval->interval_type = SQL_IS_HOUR_TO_MINUTE;
-                interval->interval_sign = hour < 0 ? SQL_TRUE : SQL_FALSE;
-                interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
-                interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
-              } else {
-                c_type = SQL_C_INTERVAL_HOUR;
-                sql_type = SQL_INTERVAL_HOUR;
-                interval->interval_type = SQL_IS_HOUR;
-                interval->interval_sign = hour < 0 ? SQL_TRUE : SQL_FALSE;
-                interval->intval.day_second.hour = (SQLUINTEGER) abs((int) hour);
-              } /* if */
-            } else if (minute != 0) {
-              if (second != 0) {
-                c_type = SQL_C_INTERVAL_MINUTE_TO_SECOND;
-                sql_type = SQL_INTERVAL_MINUTE_TO_SECOND;
-                interval->interval_type = SQL_IS_MINUTE_TO_SECOND;
-                interval->interval_sign = minute < 0 ? SQL_TRUE : SQL_FALSE;
-                interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
-                interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
-              } else {
-                c_type = SQL_C_INTERVAL_MINUTE;
-                sql_type = SQL_INTERVAL_MINUTE;
-                interval->interval_type = SQL_IS_MINUTE;
-                interval->interval_sign = minute < 0 ? SQL_TRUE : SQL_FALSE;
-                interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
-              } /* if */
-            } else {
-              c_type = SQL_C_INTERVAL_SECOND;
-              sql_type = SQL_INTERVAL_SECOND;
-              interval->interval_type = SQL_IS_SECOND;
-              interval->interval_sign = second < 0 ? SQL_TRUE : SQL_FALSE;
+          } else if (month != 0) {
+            c_type = SQL_C_INTERVAL_MONTH;
+            sql_type = SQL_INTERVAL_MONTH;
+            interval->interval_type = SQL_IS_MONTH;
+            interval->interval_sign = month < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.year_month.month = (SQLUINTEGER) abs((int) month);
+          } else {
+            c_type = SQL_C_INTERVAL_SECOND;
+            sql_type = SQL_INTERVAL_SECOND;
+            interval->interval_type = SQL_IS_SECOND;
+            interval->interval_sign = SQL_FALSE;
+            interval->intval.day_second.second = 0;
+          } /* if */
+        } else if (year == 0 && month == 0) {
+          if (day != 0) {
+            if (second != 0) {
+              c_type = SQL_C_INTERVAL_DAY_TO_SECOND;
+              sql_type = SQL_INTERVAL_DAY_TO_SECOND;
+              interval->interval_type = SQL_IS_DAY_TO_SECOND;
+              interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
+              interval->intval.day_second.day    = (SQLUINTEGER) abs((int) day);
+              interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
+              interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
               interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
+            } else if (minute != 0) {
+              c_type = SQL_C_INTERVAL_DAY_TO_MINUTE;
+              sql_type = SQL_INTERVAL_DAY_TO_MINUTE;
+              interval->interval_type = SQL_IS_DAY_TO_MINUTE;
+              interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
+              interval->intval.day_second.day    = (SQLUINTEGER) abs((int) day);
+              interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
+              interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+            } else if (hour != 0) {
+              c_type = SQL_C_INTERVAL_DAY_TO_HOUR;
+              sql_type = SQL_INTERVAL_DAY_TO_HOUR;
+              interval->interval_type = SQL_IS_DAY_TO_HOUR;
+              interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
+              interval->intval.day_second.day  = (SQLUINTEGER) abs((int) day);
+              interval->intval.day_second.hour = (SQLUINTEGER) abs((int) hour);
+            } else {
+              c_type = SQL_C_INTERVAL_DAY;
+              sql_type = SQL_INTERVAL_DAY;
+              interval->interval_type = SQL_IS_DAY;
+              interval->interval_sign = day < 0 ? SQL_TRUE : SQL_FALSE;
+              interval->intval.day_second.day = (SQLUINTEGER) abs((int) day);
             } /* if */
-            interval->intval.day_second.fraction = (SQLUINTEGER) micro_second;
+          } else if (hour != 0) {
+            if (second != 0) {
+              c_type = SQL_C_INTERVAL_HOUR_TO_SECOND;
+              sql_type = SQL_INTERVAL_HOUR_TO_SECOND;
+              interval->interval_type = SQL_IS_HOUR_TO_SECOND;
+              interval->interval_sign = hour < 0 ? SQL_TRUE : SQL_FALSE;
+              interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
+              interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+              interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
+            } else if (minute != 0) {
+              c_type = SQL_C_INTERVAL_HOUR_TO_MINUTE;
+              sql_type = SQL_INTERVAL_HOUR_TO_MINUTE;
+              interval->interval_type = SQL_IS_HOUR_TO_MINUTE;
+              interval->interval_sign = hour < 0 ? SQL_TRUE : SQL_FALSE;
+              interval->intval.day_second.hour   = (SQLUINTEGER) abs((int) hour);
+              interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+            } else {
+              c_type = SQL_C_INTERVAL_HOUR;
+              sql_type = SQL_INTERVAL_HOUR;
+              interval->interval_type = SQL_IS_HOUR;
+              interval->interval_sign = hour < 0 ? SQL_TRUE : SQL_FALSE;
+              interval->intval.day_second.hour = (SQLUINTEGER) abs((int) hour);
+            } /* if */
+          } else if (minute != 0) {
+            if (second != 0) {
+              c_type = SQL_C_INTERVAL_MINUTE_TO_SECOND;
+              sql_type = SQL_INTERVAL_MINUTE_TO_SECOND;
+              interval->interval_type = SQL_IS_MINUTE_TO_SECOND;
+              interval->interval_sign = minute < 0 ? SQL_TRUE : SQL_FALSE;
+              interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+              interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
+            } else {
+              c_type = SQL_C_INTERVAL_MINUTE;
+              sql_type = SQL_INTERVAL_MINUTE;
+              interval->interval_type = SQL_IS_MINUTE;
+              interval->interval_sign = minute < 0 ? SQL_TRUE : SQL_FALSE;
+              interval->intval.day_second.minute = (SQLUINTEGER) abs((int) minute);
+            } /* if */
           } else {
-            err_info = RANGE_ERROR;
+            c_type = SQL_C_INTERVAL_SECOND;
+            sql_type = SQL_INTERVAL_SECOND;
+            interval->interval_type = SQL_IS_SECOND;
+            interval->interval_sign = second < 0 ? SQL_TRUE : SQL_FALSE;
+            interval->intval.day_second.second = (SQLUINTEGER) abs((int) second);
           } /* if */
-        } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
+          interval->intval.day_second.fraction = (SQLUINTEGER) micro_second;
         } else {
-          if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                        (SQLUSMALLINT) pos,
-                                        SQL_PARAM_INPUT,
-                                        c_type,
-                                        sql_type,
-                                        0,
-                                        0,
-                                        preparedStmt->param_array[pos - 1].buffer,
-                                        sizeof(SQL_INTERVAL_STRUCT),
-                                        NULL) != SQL_SUCCESS)) {
-            setDbErrorMsg("sqlBindDuration", "SQLBindParameter",
-                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
-            logError(printf("sqlBindDuration: SQLBindParameter:\n%s\n",
-                            dbError.message););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          logError(printf("sqlBindDuration: There is no adequate interval type.\n"););
+          err_info = RANGE_ERROR;
+        } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) pos,
+                                      SQL_PARAM_INPUT,
+                                      c_type,
+                                      sql_type,
+                                      0,
+                                      0,
+                                      preparedStmt->param_array[pos - 1].buffer,
+                                      sizeof(SQL_INTERVAL_STRUCT),
+                                      NULL) != SQL_SUCCESS)) {
+          setDbErrorMsg("sqlBindDuration", "SQLBindParameter",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("sqlBindDuration: SQLBindParameter:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
         } /* if */
       } /* if */
     } /* if */
@@ -2244,47 +2394,44 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
     logFunction(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E ")\n",
                        (memSizeType) sqlStatement, pos, value););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > USHRT_MAX)) {
-      logError(printf("sqlBindFloat: pos: " FMT_D ", max pos: %u.\n",
-                      pos, USHRT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindFloat: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(sizeof(floatType))) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_type = SQL_DOUBLE;
-            preparedStmt->param_array[pos - 1].buffer_length = sizeof(floatType);
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_DOUBLE ||
-                   preparedStmt->param_array[pos - 1].buffer_length != sizeof(floatType)) {
-          err_info = RANGE_ERROR;
-        } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        if ((preparedStmt->param_array[pos - 1].buffer = malloc(sizeof(floatType))) == NULL) {
+          err_info = MEMORY_ERROR;
         } else {
-          *(floatType *) preparedStmt->param_array[pos - 1].buffer = value;
-          if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                        (SQLUSMALLINT) pos,
-                                        SQL_PARAM_INPUT,
-                                        c_type,
-                                        SQL_DOUBLE,
-                                        0,
-                                        0,
-                                        preparedStmt->param_array[pos - 1].buffer,
-                                        sizeof(floatType),
-                                        NULL) != SQL_SUCCESS)) {
-            setDbErrorMsg("sqlBindFloat", "SQLBindParameter",
-                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
-            logError(printf("sqlBindFloat: SQLBindParameter:\n%s\n",
-                            dbError.message););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          preparedStmt->param_array[pos - 1].sql_type = SQL_DOUBLE;
+          preparedStmt->param_array[pos - 1].buffer_length = sizeof(floatType);
+        } /* if */
+      } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_DOUBLE ||
+                 preparedStmt->param_array[pos - 1].buffer_length != sizeof(floatType)) {
+        err_info = RANGE_ERROR;
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        *(floatType *) preparedStmt->param_array[pos - 1].buffer = value;
+        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) pos,
+                                      SQL_PARAM_INPUT,
+                                      c_type,
+                                      SQL_DOUBLE,
+                                      0,
+                                      0,
+                                      preparedStmt->param_array[pos - 1].buffer,
+                                      sizeof(floatType),
+                                      NULL) != SQL_SUCCESS)) {
+          setDbErrorMsg("sqlBindFloat", "SQLBindParameter",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("sqlBindFloat: SQLBindParameter:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
         } /* if */
       } /* if */
     } /* if */
@@ -2307,47 +2454,44 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
     logFunction(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, pos, value););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > USHRT_MAX)) {
-      logError(printf("sqlBindInt: pos: " FMT_D ", max pos: %u.\n",
-                      pos, USHRT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindInt: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(sizeof(intType))) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_type = SQL_BIGINT;
-            preparedStmt->param_array[pos - 1].buffer_length = sizeof(intType);
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_BIGINT ||
-                   preparedStmt->param_array[pos - 1].buffer_length != sizeof(intType)) {
-          err_info = RANGE_ERROR;
-        } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        if ((preparedStmt->param_array[pos - 1].buffer = malloc(sizeof(intType))) == NULL) {
+          err_info = MEMORY_ERROR;
         } else {
-          *(intType *) preparedStmt->param_array[pos - 1].buffer = value;
-          if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                        (SQLUSMALLINT) pos,
-                                        SQL_PARAM_INPUT,
-                                        c_type,
-                                        SQL_BIGINT,
-                                        0,
-                                        0,
-                                        preparedStmt->param_array[pos - 1].buffer,
-                                        sizeof(intType),
-                                        NULL) != SQL_SUCCESS)) {
-            setDbErrorMsg("sqlBindInt", "SQLBindParameter",
-                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
-            logError(printf("sqlBindInt: SQLBindParameter:\n%s\n",
-                            dbError.message););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          preparedStmt->param_array[pos - 1].sql_type = SQL_BIGINT;
+          preparedStmt->param_array[pos - 1].buffer_length = sizeof(intType);
+        } /* if */
+      } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_BIGINT ||
+                 preparedStmt->param_array[pos - 1].buffer_length != sizeof(intType)) {
+        err_info = RANGE_ERROR;
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        *(intType *) preparedStmt->param_array[pos - 1].buffer = value;
+        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) pos,
+                                      SQL_PARAM_INPUT,
+                                      c_type,
+                                      SQL_BIGINT,
+                                      0,
+                                      0,
+                                      preparedStmt->param_array[pos - 1].buffer,
+                                      sizeof(intType),
+                                      NULL) != SQL_SUCCESS)) {
+          setDbErrorMsg("sqlBindInt", "SQLBindParameter",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("sqlBindInt: SQLBindParameter:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
         } /* if */
       } /* if */
     } /* if */
@@ -2364,33 +2508,30 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
     logFunction(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, pos););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > USHRT_MAX)) {
-      logError(printf("sqlBindNull: pos: " FMT_D ", max pos: %u.\n",
-                      pos, USHRT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindNull: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        preparedStmt->param_array[pos - 1].length = SQL_NULL_DATA;
-        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                      (SQLUSMALLINT) pos,
-                                      SQL_PARAM_INPUT,
-                                      SQL_C_CHAR,
-                                      SQL_VARCHAR,
-                                      1,
-                                      0,
-                                      NULL,
-                                      0,
-                                      &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
-          setDbErrorMsg("sqlBindNull", "SQLBindParameter",
-                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
-          logError(printf("sqlBindNull: SQLBindParameter:\n%s\n",
-                          dbError.message););
-          raise_error(DATABASE_ERROR);
-        } else {
-          preparedStmt->executeSuccessful = FALSE;
-          preparedStmt->fetchOkay = FALSE;
-        } /* if */
+      preparedStmt->param_array[pos - 1].length = SQL_NULL_DATA;
+      if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                    (SQLUSMALLINT) pos,
+                                    SQL_PARAM_INPUT,
+                                    SQL_C_CHAR,
+                                    preparedStmt->param_array[pos - 1].dataType,
+                                    preparedStmt->param_array[pos - 1].paramSize,
+                                    preparedStmt->param_array[pos - 1].decimalDigits,
+                                    NULL,
+                                    0,
+                                    &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
+        setDbErrorMsg("sqlBindNull", "SQLBindParameter",
+                      SQL_HANDLE_STMT, preparedStmt->ppStmt);
+        logError(printf("sqlBindNull: SQLBindParameter:\n%s\n",
+                        dbError.message););
+        raise_error(DATABASE_ERROR);
+      } else {
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
       } /* if */
     } /* if */
   } /* sqlBindNull */
@@ -2409,52 +2550,49 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
     logFunction(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
                        (memSizeType) sqlStatement, pos, striAsUnquotedCStri(stri)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > USHRT_MAX)) {
-      logError(printf("sqlBindStri: pos: " FMT_D ", max pos: %u.\n",
-                      pos, USHRT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindStri: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          wstri = stri_to_wstri_buf(stri, &length, &err_info);
-          if (wstri != NULL) {
-            preparedStmt->param_array[pos - 1].buffer_type = SQL_WVARCHAR;
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_WVARCHAR) {
-          err_info = RANGE_ERROR;
-        } else {
-          free(preparedStmt->param_array[pos - 1].buffer);
-          wstri = stri_to_wstri_buf(stri, &length, &err_info);
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        wstri = stri_to_wstri_buf(stri, &length, &err_info);
+        if (wstri != NULL) {
+          preparedStmt->param_array[pos - 1].sql_type = SQL_WVARCHAR;
         } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
-        } else if (unlikely(length > SQLLEN_MAX >> 1)) {
-          free(preparedStmt->param_array[pos - 1].buffer);
-          raise_error(MEMORY_ERROR);
+      } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_WVARCHAR) {
+        err_info = RANGE_ERROR;
+      } else {
+        free(preparedStmt->param_array[pos - 1].buffer);
+        wstri = stri_to_wstri_buf(stri, &length, &err_info);
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else if (unlikely(length > SQLLEN_MAX >> 1)) {
+        free(preparedStmt->param_array[pos - 1].buffer);
+        raise_error(MEMORY_ERROR);
+      } else {
+        preparedStmt->param_array[pos - 1].buffer = wstri;
+        preparedStmt->param_array[pos - 1].buffer_length = length << 1;
+        preparedStmt->param_array[pos - 1].length = (SQLLEN) (length << 1);
+        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) pos,
+                                      SQL_PARAM_INPUT,
+                                      SQL_C_WCHAR,
+                                      preparedStmt->param_array[pos - 1].dataType,
+                                      length == 0 ? 1 : length << 1,
+                                      0,
+                                      preparedStmt->param_array[pos - 1].buffer,
+                                      (SQLLEN) (length << 1),
+                                      &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
+          setDbErrorMsg("sqlBindStri", "SQLBindParameter",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("sqlBindStri: SQLBindParameter:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
         } else {
-          preparedStmt->param_array[pos - 1].buffer = wstri;
-          preparedStmt->param_array[pos - 1].buffer_length = length << 1;
-          preparedStmt->param_array[pos - 1].length = (SQLLEN) (length << 1);
-          if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                        (SQLUSMALLINT) pos,
-                                        SQL_PARAM_INPUT,
-                                        SQL_C_WCHAR,
-                                        SQL_WVARCHAR,
-                                        length == 0 ? 1 : length << 1,
-                                        0,
-                                        preparedStmt->param_array[pos - 1].buffer,
-                                        (SQLLEN) (length << 1),
-                                        &preparedStmt->param_array[pos - 1].length) != SQL_SUCCESS)) {
-            setDbErrorMsg("sqlBindStri", "SQLBindParameter",
-                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
-            logError(printf("sqlBindStri: SQLBindParameter:\n%s\n",
-                            dbError.message););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
         } /* if */
       } /* if */
     } /* if */
@@ -2464,49 +2602,92 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
 static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
-    intType minute, intType second, intType micro_second)
+    intType minute, intType second, intType micro_second,
+    intType time_zone)
 
   {
     preparedStmtType preparedStmt;
+    SQLSMALLINT c_type;
+    SQLLEN buffer_length;
+    char *datetime2;
     SQL_TIMESTAMP_STRUCT *timestampValue;
+    intType fraction;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindTime */
     logFunction(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
                        F_D(04) "-" F_D(02) "-" F_D(02) " "
-                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
+                       FMT_D ")\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day,
-                       hour, minute, second, micro_second););
+                       hour, minute, second, micro_second,
+                       time_zone););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > USHRT_MAX)) {
-      logError(printf("sqlBindTime: pos: " FMT_D ", max pos: %u.\n",
-                      pos, USHRT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindTime: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year < SHRT_MIN || year > SHRT_MAX || month < 1 || month > 12 ||
-                        day < 1 || day > 31 || hour < 0 || hour > 24 ||
-                        minute < 0 || minute > 60 || second < 0 || second > 60 ||
-                        micro_second < 0 || micro_second > 1000000)) {
+                        day < 1 || day > 31 || hour < 0 || hour >= 24 ||
+                        minute < 0 || minute >= 60 || second < 0 || second >= 60 ||
+                        micro_second < 0 || micro_second >= 1000000)) {
       logError(printf("sqlBindTime: Time not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
+      /* printf("dataType: %s\n", nameOfSqlType(preparedStmt->param_array[pos - 1].dataType)); */
+      if (preparedStmt->param_array[pos - 1].dataType == SQL_WVARCHAR) {
+        c_type = SQL_C_CHAR;
+        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+          if ((preparedStmt->param_array[pos - 1].buffer =
+              malloc(SIZ_CSTRI(MAX_DATETIME2_LENGTH))) == NULL) {
+            err_info = MEMORY_ERROR;
+          } else {
+            preparedStmt->param_array[pos - 1].sql_type = SQL_WVARCHAR;
+            preparedStmt->param_array[pos - 1].buffer_length = SIZ_CSTRI(MAX_DATETIME2_LENGTH);
+          } /* if */
+        } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_WVARCHAR ||
+                   preparedStmt->param_array[pos - 1].buffer_length != SIZ_CSTRI(MAX_DATETIME2_LENGTH)) {
+          err_info = RANGE_ERROR;
+        } /* if */
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          datetime2 = (char *) preparedStmt->param_array[pos - 1].buffer;
+          sprintf(datetime2,
+                  F_D(04) "-" F_D(02) "-" F_D(02) " "
+                  F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(07),
+                  year, month, day,
+                  hour, minute, second, micro_second * 10);
+          /* printf("datetime2: %s\n", datetime2); */
+          datetime2[preparedStmt->param_array[pos - 1].paramSize] = '\0';
+          /* printf("datetime2: %s\n", datetime2); */
+          buffer_length = (SQLLEN) strlen(datetime2);
+          /* printf("buffer_length: %lu\n", buffer_length); */
+        } /* if */
+      } else {
+        c_type = SQL_C_TYPE_TIMESTAMP;
+        buffer_length = sizeof(SQL_TIMESTAMP_STRUCT);
         if (preparedStmt->param_array[pos - 1].buffer == NULL) {
           if ((preparedStmt->param_array[pos - 1].buffer =
               malloc(sizeof(SQL_TIMESTAMP_STRUCT))) == NULL) {
             err_info = MEMORY_ERROR;
           } else {
-            preparedStmt->param_array[pos - 1].buffer_type = SQL_TYPE_TIMESTAMP;
+            preparedStmt->param_array[pos - 1].sql_type = SQL_TYPE_TIMESTAMP;
             preparedStmt->param_array[pos - 1].buffer_length = sizeof(SQL_TIMESTAMP_STRUCT);
           } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != SQL_TYPE_TIMESTAMP ||
+        } else if (preparedStmt->param_array[pos - 1].sql_type != SQL_TYPE_TIMESTAMP ||
                    preparedStmt->param_array[pos - 1].buffer_length != sizeof(SQL_TIMESTAMP_STRUCT)) {
           err_info = RANGE_ERROR;
         } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
-        } else {
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          switch (preparedStmt->param_array[pos - 1].decimalDigits) {
+            case 0:  fraction = 0; break;
+            case 1:  fraction = micro_second / 100000 * 100000000; break;
+            case 2:  fraction = micro_second /  10000 *  10000000; break;
+            case 3:  fraction = micro_second /   1000 *   1000000; break;
+            case 4:  fraction = micro_second /    100 *    100000; break;
+            case 5:  fraction = micro_second /     10 *     10000; break;
+            default: fraction = micro_second * 1000; break;
+          } /* switch */
           timestampValue = (SQL_TIMESTAMP_STRUCT *) preparedStmt->param_array[pos - 1].buffer;
           timestampValue->year     = (SQLSMALLINT)  year;
           timestampValue->month    = (SQLUSMALLINT) month;
@@ -2514,26 +2695,33 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           timestampValue->hour     = (SQLUSMALLINT) hour;
           timestampValue->minute   = (SQLUSMALLINT) minute;
           timestampValue->second   = (SQLUSMALLINT) second;
-          timestampValue->fraction = (SQLUINTEGER)  micro_second;
-          if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
-                                        (SQLUSMALLINT) pos,
-                                        SQL_PARAM_INPUT,
-                                        SQL_C_TYPE_TIMESTAMP,
-                                        SQL_TYPE_TIMESTAMP,
-                                        0,
-                                        0,
-                                        preparedStmt->param_array[pos - 1].buffer,
-                                        sizeof(SQL_TIMESTAMP_STRUCT),
-                                        NULL) != SQL_SUCCESS)) {
-            setDbErrorMsg("sqlBindTime", "SQLBindParameter",
-                          SQL_HANDLE_STMT, preparedStmt->ppStmt);
-            logError(printf("sqlBindTime: SQLBindParameter:\n%s\n",
-                            dbError.message););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          timestampValue->fraction = (SQLUINTEGER)  fraction;
+          /* printf("fraction: %lu\n", (unsigned long) timestampValue->fraction); */
+        } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        /* printf("paramSize: %ld\n", (long) preparedStmt->param_array[pos - 1].paramSize); */
+        /* printf("decimalDigits: %ld\n", (long) preparedStmt->param_array[pos - 1].decimalDigits); */
+        if (unlikely(SQLBindParameter(preparedStmt->ppStmt,
+                                      (SQLUSMALLINT) pos,
+                                      SQL_PARAM_INPUT,
+                                      c_type,
+                                      preparedStmt->param_array[pos - 1].dataType,
+                                      preparedStmt->param_array[pos - 1].paramSize,
+                                      preparedStmt->param_array[pos - 1].decimalDigits,
+                                      preparedStmt->param_array[pos - 1].buffer,
+                                      buffer_length,
+                                      NULL) != SQL_SUCCESS)) {
+          setDbErrorMsg("sqlBindTime", "SQLBindParameter",
+                        SQL_HANDLE_STMT, preparedStmt->ppStmt);
+          logError(printf("sqlBindTime: SQLBindParameter:\n%s\n",
+                          dbError.message););
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
         } /* if */
       } /* if */
     } /* if */
@@ -2595,9 +2783,9 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
         columnValue = NULL;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
-        switch (preparedStmt->result_array[column - 1].buffer_type) {
+        /* printf("sql_type: %s\n",
+           nameOfSqlType(preparedStmt->result_array[column - 1].sql_type)); */
+        switch (preparedStmt->result_array[column - 1].sql_type) {
           case SQL_BIT:
             columnValue = bigFromInt32((int32Type)
                 (*(char *) preparedStmt->result_array[column - 1].buffer) != 0);
@@ -2630,8 +2818,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
             break;
           default:
             logError(printf("sqlColumnBigInt: Column " FMT_D " has the unknown type %s.\n",
-                            column, nameOfBufferType(
-                            preparedStmt->result_array[column - 1].buffer_type)););
+                            column, nameOfSqlType(
+                            preparedStmt->result_array[column - 1].sql_type)););
             raise_error(RANGE_ERROR);
             columnValue = NULL;
             break;
@@ -2678,9 +2866,9 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
         *denominator = NULL;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
-        switch (preparedStmt->result_array[column - 1].buffer_type) {
+        /* printf("sql_type: %s\n",
+           nameOfSqlType(preparedStmt->result_array[column - 1].sql_type)); */
+        switch (preparedStmt->result_array[column - 1].sql_type) {
           case SQL_BIT:
             *numerator = bigFromInt32((int32Type)
                 (*(char *) preparedStmt->result_array[column - 1].buffer) != 0);
@@ -2731,8 +2919,8 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
             break;
           default:
             logError(printf("sqlColumnBigRat: Column " FMT_D " has the unknown type %s.\n",
-                            column, nameOfBufferType(
-                            preparedStmt->result_array[column - 1].buffer_type)););
+                            column, nameOfSqlType(
+                            preparedStmt->result_array[column - 1].sql_type)););
             raise_error(RANGE_ERROR);
             break;
         } /* switch */
@@ -2776,9 +2964,9 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
         columnValue = 0;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
-        switch (preparedStmt->result_array[column - 1].buffer_type) {
+        /* printf("sql_type: %s\n",
+           nameOfSqlType(preparedStmt->result_array[column - 1].sql_type)); */
+        switch (preparedStmt->result_array[column - 1].sql_type) {
           case SQL_CHAR:
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
@@ -2821,8 +3009,8 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
             break;
           default:
             logError(printf("sqlColumnBool: Column " FMT_D " has the unknown type %s.\n",
-                            column, nameOfBufferType(
-                            preparedStmt->result_array[column - 1].buffer_type)););
+                            column, nameOfSqlType(
+                            preparedStmt->result_array[column - 1].sql_type)););
             raise_error(RANGE_ERROR);
             columnValue = 0;
             break;
@@ -2874,12 +3062,13 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
         columnValue = NULL;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
-        switch (preparedStmt->result_array[column - 1].buffer_type) {
+        /* printf("sql_type: %s\n",
+           nameOfSqlType(preparedStmt->result_array[column - 1].sql_type)); */
+        switch (preparedStmt->result_array[column - 1].sql_type) {
           case SQL_BINARY:
           case SQL_VARBINARY:
           case SQL_LONGVARBINARY:
+            /* This might be a blob, which is filled by fetchBlobs(). */
             length = (memSizeType) preparedStmt->result_array[column - 1].length;
             if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, length))) {
               raise_error(MEMORY_ERROR);
@@ -2892,8 +3081,8 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
             break;
           default:
             logError(printf("sqlColumnBStri: Column " FMT_D " has the unknown type %s.\n",
-                            column, nameOfBufferType(
-                            preparedStmt->result_array[column - 1].buffer_type)););
+                            column, nameOfSqlType(
+                            preparedStmt->result_array[column - 1].sql_type)););
             raise_error(RANGE_ERROR);
             columnValue = NULL;
             break;
@@ -2944,9 +3133,9 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         raise_error(DATABASE_ERROR);
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
-        switch (preparedStmt->result_array[column - 1].buffer_type) {
+        /* printf("sql_type: %s\n",
+           nameOfSqlType(preparedStmt->result_array[column - 1].sql_type)); */
+        switch (preparedStmt->result_array[column - 1].sql_type) {
           case SQL_INTERVAL_YEAR:
           case SQL_INTERVAL_MONTH:
           case SQL_INTERVAL_DAY:
@@ -3032,8 +3221,8 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
             break;
           default:
             logError(printf("sqlColumnDuration: Column " FMT_D " has the unknown type %s.\n",
-                            column, nameOfBufferType(
-                            preparedStmt->result_array[column - 1].buffer_type)););
+                            column, nameOfSqlType(
+                            preparedStmt->result_array[column - 1].sql_type)););
             err_info = RANGE_ERROR;
             break;
         } /* switch */
@@ -3042,13 +3231,13 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", "
-                                            F_D(04) "-" F_D(02) "-" F_D(02) " "
-                                            F_D(02) ":" F_D(02) ":" F_D(02) "."
-                                            F_D(06) ") -->\n",
+    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") --> P"
+                                            FMT_D "Y" FMT_D "M" FMT_D "DT"
+                                            FMT_D "H" FMT_D "M%s%lu.%06luS\n",
                        (memSizeType) sqlStatement, column,
-                       *year, *month, *day, *hour, *minute, *second,
-                       *micro_second););
+                       *year, *month, *day, *hour, *minute,
+                       *second < 0 || *micro_second < 0 ? "-" : "",
+                       intAbs(*second), intAbs(*micro_second)););
   } /* sqlColumnDuration */
 
 
@@ -3084,9 +3273,9 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
         columnValue = 0.0;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
-        switch (preparedStmt->result_array[column - 1].buffer_type) {
+        /* printf("sql_type: %s\n",
+           nameOfSqlType(preparedStmt->result_array[column - 1].sql_type)); */
+        switch (preparedStmt->result_array[column - 1].sql_type) {
           case SQL_REAL:
             columnValue = *(float *) preparedStmt->result_array[column - 1].buffer;
             /* printf("sqlColumnFloat: float: %f\n", columnValue); */
@@ -3108,8 +3297,8 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
             break;
           default:
             logError(printf("sqlColumnFloat: Column " FMT_D " has the unknown type %s.\n",
-                            column, nameOfBufferType(
-                            preparedStmt->result_array[column - 1].buffer_type)););
+                            column, nameOfSqlType(
+                            preparedStmt->result_array[column - 1].sql_type)););
             raise_error(RANGE_ERROR);
             columnValue = 0.0;
             break;
@@ -3153,9 +3342,9 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
         columnValue = 0;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
-        switch (preparedStmt->result_array[column - 1].buffer_type) {
+        /* printf("sql_type: %s\n",
+           nameOfSqlType(preparedStmt->result_array[column - 1].sql_type)); */
+        switch (preparedStmt->result_array[column - 1].sql_type) {
           case SQL_BIT:
             columnValue = *(char *) preparedStmt->result_array[column - 1].buffer != 0;
             break;
@@ -3183,8 +3372,8 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
             break;
           default:
             logError(printf("sqlColumnInt: Column " FMT_D " has the unknown type %s.\n",
-                            column, nameOfBufferType(
-                            preparedStmt->result_array[column - 1].buffer_type)););
+                            column, nameOfSqlType(
+                            preparedStmt->result_array[column - 1].sql_type)););
             raise_error(RANGE_ERROR);
             columnValue = 0;
             break;
@@ -3231,19 +3420,17 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
         columnValue = NULL;
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
-        switch (preparedStmt->result_array[column - 1].buffer_type) {
+        /* printf("sql_type: %s\n",
+           nameOfSqlType(preparedStmt->result_array[column - 1].sql_type)); */
+        switch (preparedStmt->result_array[column - 1].sql_type) {
           case SQL_VARCHAR:
           case SQL_LONGVARCHAR:
-          case SQL_WVARCHAR:
-          case SQL_WLONGVARCHAR:
             if (preparedStmt->result_array[column - 1].sql_data_at_exec) {
-              if (preparedStmt->result_array[column - 1].buffer_type == SQL_VARCHAR ||
-                  preparedStmt->result_array[column - 1].buffer_type == SQL_LONGVARCHAR) {
-                columnValue = getClob(preparedStmt, column, &err_info);
-              } else {
-                columnValue = getWClob(preparedStmt, column, &err_info);
+              columnValue = cstri_buf_to_stri(
+                  (cstriType) preparedStmt->result_array[column - 1].buffer,
+                  (memSizeType) preparedStmt->result_array[column - 1].length);
+              if (unlikely(columnValue == NULL)) {
+                err_info = MEMORY_ERROR;
               } /* if */
             } else {
               length = (memSizeType) preparedStmt->result_array[column - 1].length >> 1;
@@ -3252,6 +3439,17 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                   length,
                   &err_info);
             } /* if */
+            if (unlikely(columnValue == NULL)) {
+              raise_error(err_info);
+            } /* if */
+            break;
+          case SQL_WVARCHAR:
+          case SQL_WLONGVARCHAR:
+            length = (memSizeType) preparedStmt->result_array[column - 1].length >> 1;
+            columnValue = wstri_buf_to_stri(
+                (wstriType) preparedStmt->result_array[column - 1].buffer,
+                length,
+                &err_info);
             if (unlikely(columnValue == NULL)) {
               raise_error(err_info);
             } /* if */
@@ -3271,6 +3469,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
           case SQL_BINARY:
           case SQL_VARBINARY:
           case SQL_LONGVARBINARY:
+            /* This might be a blob, which is filled by fetchBlobs(). */
             columnValue = cstri_buf_to_stri(
                 (cstriType) preparedStmt->result_array[column - 1].buffer,
                 (memSizeType) preparedStmt->result_array[column - 1].length);
@@ -3280,8 +3479,8 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
             break;
           default:
             logError(printf("sqlColumnStri: Column " FMT_D " has the unknown type %s.\n",
-                            column, nameOfBufferType(
-                            preparedStmt->result_array[column - 1].buffer_type)););
+                            column, nameOfSqlType(
+                            preparedStmt->result_array[column - 1].sql_type)););
             raise_error(RANGE_ERROR);
             columnValue = NULL;
             break;
@@ -3304,6 +3503,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     SQL_DATE_STRUCT *dateValue;
     SQL_TIME_STRUCT *timeValue;
     SQL_TIMESTAMP_STRUCT *timestampValue;
+    memSizeType length;
+    char datetime2[MAX_DATETIME2_LENGTH + NULL_TERMINATION_LEN];
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlColumnTime */
@@ -3337,9 +3538,9 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
         raise_error(DATABASE_ERROR);
       } else {
         /* printf("length: %ld\n", preparedStmt->result_array[column - 1].length); */
-        /* printf("buffer_type: %s\n",
-           nameOfBufferType(preparedStmt->result_array[column - 1].buffer_type)); */
-        switch (preparedStmt->result_array[column - 1].buffer_type) {
+        /* printf("sql_type: %s\n",
+           nameOfSqlType(preparedStmt->result_array[column - 1].sql_type)); */
+        switch (preparedStmt->result_array[column - 1].sql_type) {
           case SQL_TYPE_DATE:
             dateValue = (SQL_DATE_STRUCT *) preparedStmt->result_array[column - 1].buffer;
             *year         = dateValue->year;
@@ -3374,14 +3575,61 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             *hour         = timestampValue->hour;
             *minute       = timestampValue->minute;
             *second       = timestampValue->second;
-            *micro_second = timestampValue->fraction;
+            *micro_second = timestampValue->fraction / 1000;
             timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
                           time_zone, is_dst);
             break;
+          case SQL_WVARCHAR:
+            length = (memSizeType) preparedStmt->result_array[column - 1].length >> 1;
+            if (unlikely(length > MAX_DATETIME2_LENGTH)) {
+              logError(printf("sqlColumnTime: In column " FMT_D
+                              " the datetime2 length of " FMT_U_MEM " is too long.\n",
+                              column, length););
+              err_info = RANGE_ERROR;
+            } else {
+              err_info = conv_wstri_buf_to_cstri(datetime2,
+                  (wstriType) preparedStmt->result_array[column - 1].buffer,
+                  length);
+              if (unlikely(err_info != OKAY_NO_ERROR)) {
+                logError(printf("sqlColumnTime: In column " FMT_D
+                                " the datetime2 contains characters byond Latin-1.\n",
+                                column););
+              } else {
+                /* printf("sqlColumnTime: Datetime2 = \"%s\"\n", datetime2); */
+                if (length == 19) {
+                  if (unlikely(sscanf(datetime2,
+                                      F_D(04) "-" F_U(02) "-" F_U(02) " "
+                                      F_U(02) ":" F_U(02) ":" F_U(02),
+                                      year, month, day, hour, minute, second) != 6)) {
+                    err_info = RANGE_ERROR;
+                  } else {
+                    *micro_second = 0;
+                  } /* if */
+                } else {
+                  /* printf("datetime2: %s\n", datetime2); */
+                  memset(&datetime2[length], '0', MAX_DATETIME2_LENGTH - length);
+                  datetime2[MAX_DATETIME2_LENGTH] = '\0';
+                  /* printf("datetime2: %s\n", datetime2); */
+                  if (unlikely(sscanf(datetime2,
+                                      F_D(04) "-" F_U(02) "-" F_U(02) " "
+                                      F_U(02) ":" F_U(02) ":" F_U(02) "." F_U(06),
+                                      year, month, day, hour, minute, second,
+                                      micro_second) != 7)) {
+                    err_info = RANGE_ERROR;
+                  } /* if */
+                } /* if */
+              } /* if */
+              if (likely(err_info == OKAY_NO_ERROR)) {
+                /* printf("micro_second: " FMT_D "\n", *micro_second); */
+                timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                              time_zone, is_dst);
+              } /* if */
+            } /* if */
+            break;
           default:
             logError(printf("sqlColumnTime: Column " FMT_D " has the unknown type %s.\n",
-                            column, nameOfBufferType(
-                            preparedStmt->result_array[column - 1].buffer_type)););
+                            column, nameOfSqlType(
+                            preparedStmt->result_array[column - 1].sql_type)););
             err_info = RANGE_ERROR;
             break;
         } /* switch */
@@ -3434,8 +3682,6 @@ static void sqlExecute (sqlStmtType sqlStatement)
       } /* if */
     } /* if */
     preparedStmt->fetchOkay = FALSE;
-    /* showBindVars(preparedStmt); */
-    /* showResultVars(preparedStmt); */
     execute_result = SQLExecute(preparedStmt->ppStmt);
     if (execute_result == SQL_NO_DATA || execute_result == SQL_SUCCESS) {
       preparedStmt->executeSuccessful = TRUE;
@@ -3463,6 +3709,7 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
   {
     preparedStmtType preparedStmt;
     SQLRETURN fetch_result;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlFetch */
     logFunction(printf("sqlFetch(" FMT_U_MEM ")\n",
@@ -3480,9 +3727,17 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
       /* printf("ppStmt: " FMT_U_MEM "\n", (memSizeType) preparedStmt->ppStmt); */
       fetch_result = SQLFetch(preparedStmt->ppStmt);
       if (fetch_result == SQL_SUCCESS) {
-        /* printf("fetch success\n");
-        showResultVars(preparedStmt); */
-        preparedStmt->fetchOkay = TRUE;
+        /* printf("fetch success\n"); */
+        if (preparedStmt->hasBlob) {
+          err_info = fetchBlobs(preparedStmt);
+        } /* if */
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          preparedStmt->fetchOkay = TRUE;
+        } else {
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->fetchFinished = TRUE;
+          raise_error(err_info);
+        } /* if */
       } else if (fetch_result == SQL_NO_DATA) {
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->fetchFinished = TRUE;
@@ -3589,6 +3844,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
             preparedStmt->fetchFinished = TRUE;
             preparedStmt->db = db;
             db->usage_count++;
+            setupParameters(preparedStmt, &err_info);
             setupResult(preparedStmt, &err_info);
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               freePreparedStmt((sqlStmtType) preparedStmt);

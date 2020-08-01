@@ -113,6 +113,7 @@ const string: chkovf_output is "\n\
 const string: chkflt_output is "\n\
   \Comparison of float values works correct.\n\
   \Compare of float values works correct.\n\
+  \Parsing of strings with float literals works correct.\n\
   \Decimal conversion of float works correct.\n\
   \Conversion from integer to float works correct.\n\
   \Truncation of float works correct.\n\

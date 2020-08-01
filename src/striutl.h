@@ -34,6 +34,13 @@
  */
 #define STRLEN(s) (sizeof(s) / sizeof(s[0]) - 1)
 
+#if STRINGIFY_WORKS
+#define STRINGIFY(s) STRINGIFY_HELPER(s)
+#define STRINGIFY_HELPER(s) #s
+#else
+#define STRINGIFY(s) stringify(s)
+#endif
+
 #define CSTRI_LITERAL_TO_STRI(literal) cstri_buf_to_stri(literal, STRLEN(literal))
 
 #define toStri(name) #name
@@ -158,6 +165,9 @@ extern const os_charType emulated_root[];
 
 cstriType striAsUnquotedCStri (const const_striType stri);
 cstriType bstriAsUnquotedCStri (const const_bstriType bstri);
+#if !STRINGIFY_WORKS
+cstriType stringify (int number);
+#endif
 void memcpy_to_strelem (register strElemType *const dest,
                         register const const_ustriType src, memSizeType len);
 void memset_to_strelem (register strElemType *const dest,
@@ -206,6 +216,8 @@ striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
 striType cstri8_or_cstri_to_stri (const_cstriType cstri);
 striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
                             errInfoType *err_info);
+errInfoType conv_wstri_buf_to_cstri (cstriType cstri, const_wstriType wstri,
+                                     memSizeType length);
 striType conv_from_os_stri (const const_os_striType os_stri, memSizeType length);
 os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info);
 striType os_stri_to_stri (const const_os_striType os_stri, errInfoType *err_info);

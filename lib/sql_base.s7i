@@ -124,7 +124,12 @@ const proc: BIND_BIG_RAT (in sqlStatement: statement, in integer: pos,
 const proc: BIND_TIME (in sqlStatement: statement, in integer: pos,
     in integer: year, in integer: month, in integer: day,
     in integer: hour, in integer: minute, in integer: second,
-    in integer: micro_second)                                            is action "SQL_BIND_TIME";
+    in integer: micro_second, in integer: timeZone)                      is action "SQL_BIND_TIME";
+
+const proc: BIND_DURATION (in sqlStatement: statement, in integer: pos,
+    in integer: year, in integer: month, in integer: day,
+    in integer: hour, in integer: minute, in integer: second,
+    in integer: micro_second)                                            is action "SQL_BIND_DURATION";
 
 const proc: COLUMN_BIG_RAT (in sqlStatement: statement, in integer: column,
     inout bigInteger: numerator, inout bigInteger: denominator)          is action "SQL_COLUMN_BIGRAT";
@@ -351,7 +356,26 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in time: timeD
     BIND_TIME(statement, pos,
     timeData.year, timeData.month, timeData.day,
     timeData.hour, timeData.minute, timeData.second,
-    timeData.micro_second);
+    timeData.micro_second, timeData.timeZone);
+  end func;
+
+
+(**
+ *  Bind a duration parameter to a prepared SQL statement.
+ *  @param statement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param durationData Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when ''pos'' is negative or too big or
+ *                         when ''durationData'' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const proc: bind (inout sqlStatement: statement, in integer: pos, in duration: durationData) is func
+  begin
+    BIND_DURATION(statement, pos,
+    getYears(durationData), getMonths(durationData), durationData.day,
+    durationData.hour, durationData.minute, durationData.second,
+    durationData.micro_second);
   end func;
 
 

@@ -69,6 +69,9 @@
 #endif
 #endif
 
+/* Days between 0-01-01 and 1970-01-01 */
+#define DAYS_FROM_0_TO_1970 719162
+
 static const int month_days[2][12] = {
     {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
     {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}};
@@ -95,6 +98,9 @@ time_t mkutc (struct tm *timeptr)
     time_t timestamp;
 
   /* mkutc */
+    logFunction(printf("mkutc([%d, %d, %d, %d, %d, %d])\n",
+                       timeptr->tm_year, timeptr->tm_mon, timeptr->tm_mday,
+                       timeptr->tm_hour, timeptr->tm_min, timeptr->tm_sec););
     real_year = 1900 + timeptr->tm_year;
     if ((real_year % 4 == 0 && real_year % 100 != 0) || real_year % 400 == 0) {
       leap_year = 1;
@@ -111,16 +117,28 @@ time_t mkutc (struct tm *timeptr)
       timestamp = (time_t) -1;
     } else {
       year_before = real_year - 1;
-      timestamp = ((((time_t) year_before * 365 +
-                              year_before / 4 -
-                              year_before / 100 +
-                              year_before / 400 -
-               (time_t) 719162 +
-               year_days[leap_year][timeptr->tm_mon] + timeptr->tm_mday - 1) * 24 +
-               (time_t) timeptr->tm_hour) * 60 +
-               (time_t) timeptr->tm_min) * 60 +
-               (time_t) timeptr->tm_sec;
+      if (year_before < 0) {
+        /* Year_before is divided and truncated towards minus infinite. */
+        /* This is done with: quotient = (dividend + 1) / divisor - 1;  */
+        timestamp = (time_t) year_before * 365 +
+                    ((time_t) real_year / 4 - 1) -
+                    ((time_t) real_year / 100 - 1) +
+                    ((time_t) real_year / 400 - 1);
+      } else {
+        timestamp = (time_t) year_before * 365 +
+                    (time_t) year_before / 4 -
+                    (time_t) year_before / 100 +
+                    (time_t) year_before / 400;
+      } /* if */
+      timestamp = (((timestamp -
+                  (time_t) DAYS_FROM_0_TO_1970 +
+                  year_days[leap_year][timeptr->tm_mon] +
+                  (time_t) timeptr->tm_mday - 1) * 24 +
+                  (time_t) timeptr->tm_hour) * 60 +
+                  (time_t) timeptr->tm_min) * 60 +
+                  (time_t) timeptr->tm_sec;
     } /* if */
+    logFunction(printf("mkutc --> " FMT_T "\n", timestamp););
     return timestamp;
   } /* mkutc */
 
@@ -142,6 +160,9 @@ time_t unchecked_mkutc (struct tm *timeptr)
     time_t timestamp;
 
   /* unchecked_mkutc */
+    logFunction(printf("unchecked_mkutc([%d, %d, %d, %d, %d, %d])\n",
+                       timeptr->tm_year, timeptr->tm_mon, timeptr->tm_mday,
+                       timeptr->tm_hour, timeptr->tm_min, timeptr->tm_sec););
     real_year = 1900 + timeptr->tm_year;
     if ((real_year % 4 == 0 && real_year % 100 != 0) || real_year % 400 == 0) {
       leap_year = 1;
@@ -149,15 +170,27 @@ time_t unchecked_mkutc (struct tm *timeptr)
       leap_year = 0;
     } /* if */
     year_before = real_year - 1;
-    timestamp = ((((time_t) year_before * 365 +
-                            year_before / 4 -
-                            year_before / 100 +
-                            year_before / 400 -
-             (time_t) 719162 +
-             year_days[leap_year][timeptr->tm_mon] + timeptr->tm_mday - 1) * 24 +
-             (time_t) timeptr->tm_hour) * 60 +
-             (time_t) timeptr->tm_min) * 60 +
-             (time_t) timeptr->tm_sec;
+    if (year_before < 0) {
+      /* Year_before is divided and truncated towards minus infinite. */
+      /* This is done with: quotient = (dividend + 1) / divisor - 1;  */
+      timestamp = (time_t) year_before * 365 +
+                  ((time_t) real_year / 4 - 1) -
+                  ((time_t) real_year / 100 - 1) +
+                  ((time_t) real_year / 400 - 1);
+    } else {
+      timestamp = (time_t) year_before * 365 +
+                  (time_t) year_before / 4 -
+                  (time_t) year_before / 100 +
+                  (time_t) year_before / 400;
+    } /* if */
+    timestamp = (((timestamp -
+                (time_t) DAYS_FROM_0_TO_1970 +
+                year_days[leap_year][timeptr->tm_mon] +
+                (time_t) timeptr->tm_mday - 1) * 24 +
+                (time_t) timeptr->tm_hour) * 60 +
+                (time_t) timeptr->tm_min) * 60 +
+                (time_t) timeptr->tm_sec;
+    logFunction(printf("unchecked_mkutc --> " FMT_T "\n", timestamp););
     return timestamp;
   } /* unchecked_mkutc */
 
@@ -240,6 +273,55 @@ void timFromIntTimestamp (intType timestamp,
           year, month, day, hour, min, sec, micro_sec, time_zone, is_dst);
     } /* if */
   } /* timFromIntTimestamp */
+
+
+
+void timUtcFromTimestamp (time_t timestamp,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
+
+  {
+#if defined HAS_GMTIME_R || defined HAS_GMTIME_S
+    struct tm tm_result;
+#endif
+    struct tm *gm_time;
+
+  /* timUtcFromTimestamp */
+    logFunction(printf("timUtcFromTimestamp(" FMT_T ")\n", timestamp););
+#if defined HAS_GMTIME_R
+    gm_time = gmtime_r(&timestamp, &tm_result);
+#elif defined HAS_GMTIME_S
+    if (gmtime_s(&tm_result, &timestamp) != 0) {
+      gm_time = NULL;
+    } else {
+      gm_time = &tm_result;
+    } /* if */
+#else
+    gm_time = gmtime(&timestamp);
+#endif
+    if (unlikely(gm_time == NULL)) {
+      logError(printf("timUtcFromTimestamp(" FMT_T "): "
+                      "One of gmtime/gmtime_r/gmtime_s failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      timestamp, errno, strerror(errno)););
+      raise_error(RANGE_ERROR);
+    } else {
+      *year      = gm_time->tm_year + 1900;
+      *month     = gm_time->tm_mon + 1;
+      *day       = gm_time->tm_mday;
+      *hour      = gm_time->tm_hour;
+      *min       = gm_time->tm_min;
+      *sec       = gm_time->tm_sec;
+      *micro_sec = 0;
+      *time_zone = (intType) (unchecked_mkutc(gm_time) - timestamp) / 60;
+      *is_dst    = gm_time->tm_isdst > 0;
+    } /* if */
+    logFunction(printf("timUtcFromTimestamp(%ld, " F_D(04) "-" F_D(02) "-" F_D(02),
+                       timestamp, *year, *month, *day);
+                printf(" " F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D " %d) -->\n",
+                       *hour, *min, *sec, *micro_sec, *time_zone, *is_dst););
+  } /* timUtcFromTimestamp */
 
 
 

@@ -43,6 +43,11 @@
 #include "striutl.h"
 
 
+#if DO_HEAP_STATISTIC
+size_t sizeof_processRecord = 0;
+#endif
+
+
 
 #if ANY_LOG_ACTIVE
 static void printParameters (const const_rtlArrayType parameters)

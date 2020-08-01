@@ -2665,21 +2665,22 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindDuration */
-    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", "
-                       F_D(04) "-" F_D(02) "-" F_D(02) " "
-                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
+                                          FMT_D "Y" FMT_D "M" FMT_D "DT"
+                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
                        (memSizeType) sqlStatement, pos,
-                       year, month, day,
-                       hour, minute, second, micro_second););
+                       year, month, day, hour, minute,
+                       second < 0 || micro_second < 0 ? "-" : "",
+                       intAbs(second), intAbs(micro_second)););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > UINT32TYPE_MAX)) {
       logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: %u.\n",
                       pos, UINT32TYPE_MAX););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year < INT32TYPE_MIN || year > INT32TYPE_MAX || month < -12 || month > 12 ||
-                        day < -31 || day > 31 || hour < -24 || hour > 24 ||
-                        minute < -60 || minute > 60 || second < -60 || second > 60 ||
-                        micro_second < -1000000 || micro_second > 1000000)) {
+                        day < -31 || day > 31 || hour <= -24 || hour >= 24 ||
+                        minute <= -60 || minute >= 60 || second <= -60 || second >= 60 ||
+                        micro_second <= -1000000 || micro_second >= 1000000)) {
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else if (unlikely(!((year >= 0 && month >= 0 && day >= 0 && hour >= 0 &&
@@ -3064,7 +3065,8 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
 static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
-    intType minute, intType second, intType micro_second)
+    intType minute, intType second, intType micro_second,
+    intType time_zone)
 
   {
     preparedStmtType preparedStmt;
@@ -3073,19 +3075,21 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
   /* sqlBindTime */
     logFunction(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
                        F_D(04) "-" F_D(02) "-" F_D(02) " "
-                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
+                       FMT_D ")\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day,
-                       hour, minute, second, micro_second););
+                       hour, minute, second, micro_second,
+                       time_zone););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > UINT32TYPE_MAX)) {
       logError(printf("sqlBindTime: pos: " FMT_D ", max pos: %u.\n",
                       pos, UINT32TYPE_MAX););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year <= INT16TYPE_MIN || year > INT16TYPE_MAX || month < 1 || month > 12 ||
-                        day < 1 || day > 31 || hour < 0 || hour > 24 ||
-                        minute < 0 || minute > 60 || second < 0 || second > 60 ||
-                        micro_second < 0 || micro_second > 1000000)) {
+                        day < 1 || day > 31 || hour < 0 || hour >= 24 ||
+                        minute < 0 || minute >= 60 || second < 0 || second >= 60 ||
+                        micro_second < 0 || micro_second >= 1000000)) {
       logError(printf("sqlBindTime: Time not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
@@ -3542,13 +3546,13 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", "
-                                            F_D(04) "-" F_D(02) "-" F_D(02) " "
-                                            F_D(02) ":" F_D(02) ":" F_D(02) "."
-                                            F_D(06) ") -->\n",
+    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") -> P"
+                                            FMT_D "Y" FMT_D "M" FMT_D "DT"
+                                            FMT_D "H" FMT_D "M%s%lu.%06luS\n",
                        (memSizeType) sqlStatement, column,
-                       *year, *month, *day, *hour, *minute, *second,
-                       *micro_second););
+                       *year, *month, *day, *hour, *minute,
+                       *second < 0 || *micro_second < 0 ? "-" : "",
+                       intAbs(*second), intAbs(*micro_second)););
   } /* sqlColumnDuration */
 
 

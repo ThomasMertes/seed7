@@ -25,121 +25,160 @@
 $ include "seed7_05.s7i";
   include "sql_base.s7i";
   include "bstring.s7i";
+  include "time.s7i";
+  include "duration.s7i";
 
 
-const func string: int8Type (in dbCategory: driver) is func
+const func string: int8Type (in dbCategory: databaseKind) is func
   result
     var string: int8Type is "";
   begin
-    case driver of
+    case databaseKind of
       when {DB_MYSQL}:      int8Type := "TINYINT";
       when {DB_SQLITE}:     int8Type := "TINYINT";
       when {DB_POSTGRESQL}: int8Type := "SMALLINT";
       when {DB_OCI}:        int8Type := "SMALLINT";
+      when {DB_ODBC}:       int8Type := "TINYINT";
     end case;
   end func;
 
 
-const func string: int64Type (in dbCategory: driver) is func
+const func string: int64Type (in dbCategory: databaseKind) is func
   result
     var string: int64Type is "";
   begin
-    case driver of
+    case databaseKind of
       when {DB_MYSQL}:      int64Type := "BIGINT";
       when {DB_SQLITE}:     int64Type := "BIGINT";
       when {DB_POSTGRESQL}: int64Type := "BIGINT";
       when {DB_OCI}:        int64Type := "INTEGER";
+      when {DB_ODBC}:       int64Type := "BIGINT";
     end case;
   end func;
 
 
-const func string: bigIntType (in dbCategory: driver) is func
+const func string: bigIntType (in dbCategory: databaseKind) is func
   result
     var string: bigIntType is "";
   begin
-    case driver of
+    case databaseKind of
       when {DB_MYSQL}:      bigIntType := "DECIMAL(65)";
       when {DB_SQLITE}:     bigIntType := "DECIMAL";
       when {DB_POSTGRESQL}: bigIntType := "DECIMAL";
       when {DB_OCI}:        bigIntType := "DECIMAL";
+      when {DB_ODBC}:       bigIntType := "DECIMAL(38)";
     end case;
   end func;
 
 
-const func string: floatType (in dbCategory: driver) is func
+const func string: floatType (in dbCategory: databaseKind) is func
   result
     var string: floatType is "";
   begin
-    case driver of
+    case databaseKind of
       when {DB_MYSQL}:      floatType := "FLOAT";
       when {DB_SQLITE}:     floatType := "REAL";
       when {DB_POSTGRESQL}: floatType := "REAL";
       when {DB_OCI}:        floatType := "FLOAT";
+      when {DB_ODBC}:       floatType := "REAL";
     end case;
   end func;
 
 
-const func string: doubleType (in dbCategory: driver) is func
+const func string: doubleType (in dbCategory: databaseKind) is func
   result
     var string: doubleType is "";
   begin
-    case driver of
+    case databaseKind of
       when {DB_MYSQL}:      doubleType := "DOUBLE";
       when {DB_SQLITE}:     doubleType := "DOUBLE";
       when {DB_POSTGRESQL}: doubleType := "DOUBLE PRECISION";
       when {DB_OCI}:        doubleType := "DOUBLE PRECISION";
+      when {DB_ODBC}:       doubleType := "DOUBLE PRECISION";
     end case;
   end func;
 
 
-const func string: bigRatType (in dbCategory: driver) is func
+const func string: bigRatType (in dbCategory: databaseKind) is func
   result
     var string: bigRatType is "";
   begin
-    case driver of
+    case databaseKind of
       when {DB_MYSQL}:      bigRatType := "DECIMAL(65,30)";
       when {DB_SQLITE}:     bigRatType := "NUMBER";
       when {DB_POSTGRESQL}: bigRatType := "DECIMAL";
       when {DB_OCI}:        bigRatType := "NUMBER";
+      when {DB_ODBC}:       bigRatType := "NUMERIC(38,15)";
     end case;
   end func;
 
 
-const func string: varcharType (in dbCategory: driver) is func
+const func string: varcharType (in dbCategory: databaseKind) is func
   result
-    var string: bigRatType is "";
+    var string: varcharType is "";
   begin
-    case driver of
-      when {DB_MYSQL}:      bigRatType := "VARCHAR";
-      when {DB_SQLITE}:     bigRatType := "VARCHAR";
-      when {DB_POSTGRESQL}: bigRatType := "VARCHAR";
-      when {DB_OCI}:        bigRatType := "VARCHAR2";
+    case databaseKind of
+      when {DB_MYSQL}:      varcharType := "VARCHAR";
+      when {DB_SQLITE}:     varcharType := "VARCHAR";
+      when {DB_POSTGRESQL}: varcharType := "VARCHAR";
+      when {DB_OCI}:        varcharType := "VARCHAR2";
+      when {DB_ODBC}:       varcharType := "VARCHAR";
     end case;
   end func;
 
 
-const func string: blobType (in dbCategory: driver) is func
+const func string: blobType (in dbCategory: databaseKind) is func
   result
-    var string: bigRatType is "";
+    var string: blobType is "";
   begin
-    case driver of
-      when {DB_MYSQL}:      bigRatType := "BLOB";
-      when {DB_SQLITE}:     bigRatType := "BLOB";
-      when {DB_POSTGRESQL}: bigRatType := "BYTEA";
-      when {DB_OCI}:        bigRatType := "BLOB";
+    case databaseKind of
+      when {DB_MYSQL}:      blobType := "BLOB";
+      when {DB_SQLITE}:     blobType := "BLOB";
+      when {DB_POSTGRESQL}: blobType := "BYTEA";
+      when {DB_OCI}:        blobType := "BLOB";
+      when {DB_ODBC}:       blobType := "VARBINARY(MAX)";
     end case;
   end func;
 
 
-const func boolean: supportsFloatingDecimals (in dbCategory: driver) is func
+const func string: timeType (in dbCategory: databaseKind) is func
+  result
+    var string: timeType is "";
+  begin
+    case databaseKind of
+      when {DB_MYSQL}:      timeType := "DATETIME";
+      when {DB_SQLITE}:     timeType := "VARCHAR";
+      when {DB_POSTGRESQL}: timeType := "TIMESTAMP";
+      when {DB_OCI}:        timeType := "TIMESTAMP_TZ";
+      when {DB_ODBC}:       timeType := "DATETIME2";
+    end case;
+  end func;
+
+
+const func string: durationType (in dbCategory: databaseKind) is func
+  result
+    var string: durationType is "";
+  begin
+    case databaseKind of
+      when {DB_MYSQL}:      durationType := "DATETIME";
+      when {DB_SQLITE}:     durationType := "VARCHAR(32)";
+      when {DB_POSTGRESQL}: durationType := "INTERVAL";
+      when {DB_OCI}:        durationType := "INTERVAL";
+      when {DB_ODBC}:       durationType := "INTERVAL DAY(3) TO SECOND(6)";
+    end case;
+  end func;
+
+
+const func boolean: supportsFloatingDecimals (in dbCategory: databaseKind) is func
   result
     var boolean: supportsFloatingDecimals is FALSE;
   begin
-    case driver of
+    case databaseKind of
       when {DB_MYSQL}:      supportsFloatingDecimals := FALSE;
       when {DB_SQLITE}:     supportsFloatingDecimals := TRUE;
       when {DB_POSTGRESQL}: supportsFloatingDecimals := TRUE;
       when {DB_OCI}:        supportsFloatingDecimals := TRUE;
+      when {DB_ODBC}:       supportsFloatingDecimals := FALSE;
     end case;
   end func;
 
@@ -236,6 +275,8 @@ DECL_INSERT(float);
 DECL_INSERT(bigRational);
 DECL_INSERT(string);
 DECL_INSERT(bstring);
+DECL_INSERT(time);
+DECL_INSERT(duration);
 
 
 const proc: insert (inout sqlStatement: statement, NULL,
@@ -262,7 +303,7 @@ const proc: insert (inout sqlStatement: statement, NULL,
   end func;
 
 
-const proc: testBooleanField (in database: testDb, in dbCategory: driver) is func
+const proc: testBooleanField (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "booleanTest";
     var array boolean: expect is 0 times FALSE;
@@ -273,7 +314,7 @@ const proc: testBooleanField (in database: testDb, in dbCategory: driver) is fun
     var bigRational: bigRatColumn is 0_/1_;
     var integer: row is 1;
   begin
-    writeln("testBooleanField: " <& driver);
+    writeln("testBooleanField: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
                          " (booleanField CHAR)");
     execute(statement);
@@ -350,7 +391,7 @@ const proc: testBooleanField (in database: testDb, in dbCategory: driver) is fun
   end func;
 
 
-const proc: testInt8Field (in database: testDb, in dbCategory: driver) is func
+const proc: testInt8Field (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "int8Test";
     var array integer: expect is 0 times 0;
@@ -360,9 +401,9 @@ const proc: testInt8Field (in database: testDb, in dbCategory: driver) is func
     var bigRational: bigRatColumn is 0_/1_;
     var integer: row is 1;
   begin
-    writeln("testInt8Field: " <& driver);
+    writeln("testInt8Field: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
-                         " (int8Field " & int8Type(driver) & ")");
+                         " (int8Field " & int8Type(databaseKind) & ")");
     execute(statement);
     block
       statement := prepare(testDb, "INSERT INTO " & tableName &
@@ -427,7 +468,7 @@ const proc: testInt8Field (in database: testDb, in dbCategory: driver) is func
   end func;
 
 
-const proc: testInt16Field (in database: testDb, in dbCategory: driver) is func
+const proc: testInt16Field (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "int16Test";
     var array integer: expect is 0 times 0;
@@ -437,7 +478,7 @@ const proc: testInt16Field (in database: testDb, in dbCategory: driver) is func
     var bigRational: bigRatColumn is 0_/1_;
     var integer: row is 1;
   begin
-    writeln("testInt16Field: " <& driver);
+    writeln("testInt16Field: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
                          " (int16Field SMALLINT)");
     execute(statement);
@@ -504,7 +545,7 @@ const proc: testInt16Field (in database: testDb, in dbCategory: driver) is func
   end func;
 
 
-const proc: testInt32Field (in database: testDb, in dbCategory: driver) is func
+const proc: testInt32Field (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "int32Test";
     var array integer: expect is 0 times 0;
@@ -514,7 +555,7 @@ const proc: testInt32Field (in database: testDb, in dbCategory: driver) is func
     var bigRational: bigRatColumn is 0_/1_;
     var integer: row is 1;
   begin
-    writeln("testInt32Field: " <& driver);
+    writeln("testInt32Field: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
                          " (int32Field INTEGER)");
     execute(statement);
@@ -581,7 +622,7 @@ const proc: testInt32Field (in database: testDb, in dbCategory: driver) is func
   end func;
 
 
-const proc: testInt64Field (in database: testDb, in dbCategory: driver) is func
+const proc: testInt64Field (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "int64Test";
     var array integer: expect is 0 times 0;
@@ -591,9 +632,9 @@ const proc: testInt64Field (in database: testDb, in dbCategory: driver) is func
     var bigRational: bigRatColumn is 0_/1_;
     var integer: row is 1;
   begin
-    writeln("testInt64Field: " <& driver);
+    writeln("testInt64Field: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
-                         " (int64Field " & int64Type(driver) & ")");
+                         " (int64Field " & int64Type(databaseKind) & ")");
     execute(statement);
     block
       statement := prepare(testDb, "INSERT INTO " & tableName &
@@ -658,7 +699,7 @@ const proc: testInt64Field (in database: testDb, in dbCategory: driver) is func
   end func;
 
 
-const proc: testBigIntField (in database: testDb, in dbCategory: driver) is func
+const proc: testBigIntField (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "bigIntTest";
     var array bigInteger: expect is 0 times 0_;
@@ -666,9 +707,9 @@ const proc: testBigIntField (in database: testDb, in dbCategory: driver) is func
     var bigInteger: bigIntColumn is 0_;
     var integer: row is 1;
   begin
-    writeln("testBigIntField: " <& driver);
+    writeln("testBigIntField: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
-                         " (bigIntField " & bigIntType(driver) & ")");
+                         " (bigIntField " & bigIntType(databaseKind) & ")");
     execute(statement);
     block
       statement := prepare(testDb, "INSERT INTO " & tableName &
@@ -723,7 +764,7 @@ const proc: testBigIntField (in database: testDb, in dbCategory: driver) is func
   end func;
 
 
-const proc: testFloatField (in database: testDb, in dbCategory: driver) is func
+const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "floatTest";
     var array float: expect is 0 times 0.0;
@@ -731,9 +772,9 @@ const proc: testFloatField (in database: testDb, in dbCategory: driver) is func
     var float: floatColumn is 0.0;
     var integer: row is 1;
   begin
-    writeln("testFloatField: " <& driver);
+    writeln("testFloatField: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
-                         " (floatField " & floatType(driver) & ")");
+                         " (floatField " & floatType(databaseKind) & ")");
     execute(statement);
     block
       statement := prepare(testDb, "INSERT INTO " & tableName &
@@ -750,6 +791,7 @@ const proc: testFloatField (in database: testDb, in dbCategory: driver) is func
       statement := prepare(testDb, "INSERT INTO " & tableName &
                            " (floatField) VALUES (?)");
       insert(statement,  7_/2_,                     expect &:=  3.5);
+      insert(statement,  5000000_ / 1024_,          expect &:=  4882.8125);
       insert(statement, -9223372036854775808_/1_,   expect &:= -9223372036854775808.0);
       insert(statement,  9223372036854775807_/1_,   expect &:=  9223372036854775807.0);
       insInf(statement, -1_/0_,                     expect &:= -Infinity);
@@ -797,7 +839,7 @@ const proc: testFloatField (in database: testDb, in dbCategory: driver) is func
   end func;
 
 
-const proc: testDoubleField (in database: testDb, in dbCategory: driver) is func
+const proc: testDoubleField (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "doubleTest";
     var array float: expect is 0 times 0.0;
@@ -805,9 +847,9 @@ const proc: testDoubleField (in database: testDb, in dbCategory: driver) is func
     var float: doubleColumn is 0.0;
     var integer: row is 1;
   begin
-    writeln("testDoubleField: " <& driver);
+    writeln("testDoubleField: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
-                         " (doubleField " & doubleType(driver) & ")");
+                         " (doubleField " & doubleType(databaseKind) & ")");
     execute(statement);
     block
       statement := prepare(testDb, "INSERT INTO " & tableName &
@@ -824,6 +866,7 @@ const proc: testDoubleField (in database: testDb, in dbCategory: driver) is func
       statement := prepare(testDb, "INSERT INTO " & tableName &
                            " (doubleField) VALUES (?)");
       insert(statement,  7_/2_,                     expect &:=  3.5);
+      insert(statement,  1234567654321_ / 781250_,  expect &:=  1580246.59753088);
       insert(statement, -9223372036854775808_/1_,   expect &:= -9223372036854775808.0);
       insert(statement,  9223372036854775807_/1_,   expect &:=  9223372036854775807.0);
       insInf(statement, -1_/0_,                     expect &:= -Infinity);
@@ -871,7 +914,7 @@ const proc: testDoubleField (in database: testDb, in dbCategory: driver) is func
   end func;
 
 
-const proc: testBigRatField (in database: testDb, in dbCategory: driver) is func
+const proc: testBigRatField (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "bigRatTest";
     var array bigRational: expect is 0 times 0_/1_;
@@ -880,9 +923,9 @@ const proc: testBigRatField (in database: testDb, in dbCategory: driver) is func
     var integer: row is 1;
     var bigInteger: numerator is 0_;
   begin
-    writeln("testBigRatField: " <& driver);
+    writeln("testBigRatField: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
-                         " (bigRatField " & bigRatType(driver) & ")");
+                         " (bigRatField " & bigRatType(databaseKind) & ")");
     execute(statement);
     block
       statement := prepare(testDb, "INSERT INTO " & tableName &
@@ -1052,7 +1095,7 @@ const proc: testBigRatField (in database: testDb, in dbCategory: driver) is func
              expect &:= -1234567890123456_/100000000000000000000_);
       insert(statement, -123456789012345678901234_/1000000000000000000000000000000_,
              expect &:= -123456789012345678901234_/1000000000000000000000000000000_);
-      if supportsFloatingDecimals(driver) then
+      if supportsFloatingDecimals(databaseKind) then
         insert(statement,  12345678901234567890123456789012345678900000000_/1_,
                expect &:=  12345678901234567890123456789012345678900000000_/1_);
         insert(statement,  1234567890123456789012345678901234567890_/1_,
@@ -1120,7 +1163,7 @@ const proc: testBigRatField (in database: testDb, in dbCategory: driver) is func
   end func;
 
 
-const proc: testChar1Field (in database: testDb, in dbCategory: driver) is func
+const proc: testChar1Field (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "char1Test";
     var array string: expect is 0 times "";
@@ -1128,7 +1171,7 @@ const proc: testChar1Field (in database: testDb, in dbCategory: driver) is func
     var string: stringColumn is "";
     var integer: row is 1;
   begin
-    writeln("testChar1Field: " <& driver);
+    writeln("testChar1Field: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
                          " (char1Field CHAR)");
     execute(statement);
@@ -1181,7 +1224,7 @@ const proc: testChar1Field (in database: testDb, in dbCategory: driver) is func
   end func;
 
 
-const proc: testCharField (in database: testDb, in dbCategory: driver) is func
+const proc: testCharField (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "charTest";
     var array string: expect is 0 times "";
@@ -1189,7 +1232,7 @@ const proc: testCharField (in database: testDb, in dbCategory: driver) is func
     var string: stringColumn is "";
     var integer: row is 1;
   begin
-    writeln("testCharField: " <& driver);
+    writeln("testCharField: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
                          " (charField CHAR(32))");
     execute(statement);
@@ -1248,7 +1291,7 @@ const proc: testCharField (in database: testDb, in dbCategory: driver) is func
   end func;
 
 
-const proc: testVarcharField (in database: testDb, in dbCategory: driver) is func
+const proc: testVarcharField (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "varcharTest";
     var array string: expect is 0 times "";
@@ -1256,9 +1299,9 @@ const proc: testVarcharField (in database: testDb, in dbCategory: driver) is fun
     var string: stringColumn is "";
     var integer: row is 1;
   begin
-    writeln("testVarcharField: " <& driver);
+    writeln("testVarcharField: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
-                         " (varcharField " & varcharType(driver) & "(32))");
+                         " (varcharField " & varcharType(databaseKind) & "(32))");
     execute(statement);
     block
       statement := prepare(testDb, "INSERT INTO " & tableName &
@@ -1315,51 +1358,57 @@ const proc: testVarcharField (in database: testDb, in dbCategory: driver) is fun
   end func;
 
 
-const proc: testBlobField (in database: testDb, in dbCategory: driver) is func
+const proc: testBlobField (in database: testDb, in dbCategory: databaseKind) is func
   local
     const string: tableName is "blobTest";
-    var array bstring: expect is 0 times bstring parse "";
+    var array bstring: expect is 0 times bstring("");
     var sqlStatement: statement is sqlStatement.value;
-    var bstring: bstringColumn is bstring parse "";
+    var bstring: bstringColumn is bstring("");
     var integer: row is 1;
   begin
-    writeln("testBlobField: " <& driver);
+    writeln("testBlobField: " <& databaseKind);
     statement := prepare(testDb, "CREATE TABLE " & tableName &
-                         " (blobField " & blobType(driver) & ")");
+                         " (blobField " & blobType(databaseKind) & ")");
     execute(statement);
     block
       statement := prepare(testDb, "INSERT INTO " & tableName &
                            " (blobField) VALUES (?)");
-      insert(statement, NULL,                       expect &:= bstring parse "");
-      insert(statement, bstring parse "",           expect &:= bstring parse "");
-      insert(statement, bstring parse "X",          expect &:= bstring parse "X");
-      insert(statement, bstring parse "Ab2",        expect &:= bstring parse "Ab2");
-      insert(statement, bstring parse "abcdefghij", expect &:= bstring parse "abcdefghij");
-      insert(statement, bstring parse "ÄäÖöÜüß",    expect &:= bstring parse "ÄäÖöÜüß");
-      insert(statement, bstring parse "µ¹²³¼½«»¬",  expect &:= bstring parse "µ¹²³¼½«»¬");
-      insert(statement, bstring parse "\0;\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+      insert(statement, NULL,                  expect &:= bstring(""));
+      insert(statement, bstring(""),           expect &:= bstring(""));
+      insert(statement, bstring("X"),          expect &:= bstring("X"));
+      insert(statement, bstring("Ab2"),        expect &:= bstring("Ab2"));
+      insert(statement, bstring("abcdefghij"), expect &:= bstring("abcdefghij"));
+      insert(statement, bstring("ÄäÖöÜüß"),    expect &:= bstring("ÄäÖöÜüß"));
+      insert(statement, bstring("µ¹²³¼½«»¬"),  expect &:= bstring("µ¹²³¼½«»¬"));
+      insert(statement, bstring("\0;\1;\2;\3;\4;\5;\6;\7;\8;\9;\
                         \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
-                        \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;",
-                        expect &:= bstring parse "\0;\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+                        \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\127;"),
+                        expect &:= bstring("\0;\1;\2;\3;\4;\5;\6;\7;\8;\9;\
                         \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
-                        \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;");
+                        \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\127;"));
+      insert(statement, bstring("\128;\129;\130;\131;\132;\133;\134;\135;\
+                        \\136;\137;\138;\139;\140;\141;\142;\143;\144;\145;\146;\147;\148;\
+                        \\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\160;"),
+                        expect &:= bstring("\128;\129;\130;\131;\132;\133;\134;\135;\
+                        \\136;\137;\138;\139;\140;\141;\142;\143;\144;\145;\146;\147;\148;\
+                        \\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\160;"));
 (*
       statement := prepare(testDb, "INSERT INTO " & tableName &
                            " (blobField) VALUES (?)");
-      insert(statement, "",           expect &:= bstring parse "");
-      insert(statement, "A",          expect &:= bstring parse "A");
-      insert(statement, "ABC",        expect &:= bstring parse "ABC");
-      insert(statement, "ABCDEFGHIJ", expect &:= bstring parse "ABCDEFGHIJ");
+      insert(statement, "",           expect &:= bstring(""));
+      insert(statement, "A",          expect &:= bstring("A"));
+      insert(statement, "ABC",        expect &:= bstring("ABC"));
+      insert(statement, "ABCDEFGHIJ", expect &:= bstring("ABCDEFGHIJ"));
       statement := prepare(testDb, "INSERT INTO " & tableName &
                            " (blobField) VALUES (?)");
-      insert(statement,          0,   expect &:= bstring parse "0");
-      insert(statement,          1,   expect &:= bstring parse "1");
-      insert(statement, 1234567890,   expect &:= bstring parse "1234567890");
+      insert(statement,          0,   expect &:= bstring("0"));
+      insert(statement,          1,   expect &:= bstring("1"));
+      insert(statement, 1234567890,   expect &:= bstring("1234567890"));
       statement := prepare(testDb, "INSERT INTO " & tableName &
                            " (blobField) VALUES (?)");
-      insert(statement,          0_,  expect &:= bstring parse "0");
-      insert(statement,          1_,  expect &:= bstring parse "1");
-      insert(statement, 1234567890_,  expect &:= bstring parse "1234567890");
+      insert(statement,          0_,  expect &:= bstring("0"));
+      insert(statement,          1_,  expect &:= bstring("1"));
+      insert(statement, 1234567890_,  expect &:= bstring("1234567890"));
 *)
       statement := prepare(testDb, "SELECT * FROM " & tableName);
       execute(statement);
@@ -1388,21 +1437,333 @@ const proc: testBlobField (in database: testDb, in dbCategory: driver) is func
   end func;
 
 
-const proc: testDb (in database: testDb, in dbCategory: driver) is func
+const proc: testTimeField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    const string: tableName is "timeTest";
+    var array time: expect is 0 times time.value;
+    var sqlStatement: statement is sqlStatement.value;
+    var time: timeColumn is time.value;
+    var integer: row is 1;
   begin
-    testBooleanField(testDb, driver);
-    testInt8Field(testDb, driver);
-    testInt16Field(testDb, driver);
-    testInt32Field(testDb, driver);
-    testInt64Field(testDb, driver);
-    testBigIntField(testDb, driver);
-    testFloatField(testDb, driver);
-    testDoubleField(testDb, driver);
-    testBigRatField(testDb, driver);
-    testChar1Field(testDb, driver);
-    testCharField(testDb, driver);
-    testVarcharField(testDb, driver);
-    testBlobField(testDb, driver);
+    writeln("testTimeField: " <& databaseKind);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (timeField " & timeType(databaseKind) & ")");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (timeField) VALUES (?)");
+      insert(statement, NULL,                           expect &:= time.value);
+      insert(statement, time("0-1-1 0:0:0"),            expect &:= time("0-1-1 0:0:0"));
+      insert(statement, time("1900-1-1 0:0:0"),         expect &:= time("1900-1-1 0:0:0"));
+      insert(statement, time("1961-1-9 6:1:0"),         expect &:= time("1961-1-9 6:1:0"));
+      insert(statement, time("1970-1-1 0:0:0"),         expect &:= time("1970-1-1 0:0:0"));
+      insert(statement, time("1980-1-1 0:0:0"),         expect &:= time("1980-1-1 0:0:0"));
+      insert(statement, time("2010-11-12 13:14:15.16"), expect &:= time("2010-11-12 13:14:15.16"));
+      insert(statement, time("2011-11-11 11:11:11.11"), expect &:= time("2011-11-11 11:11:11.11"));
+      insert(statement, time("2012-12-12 12:12:12.12"), expect &:= time("2012-12-12 12:12:12.12"));
+
+      insert(statement, setLocalTZ(time("0-1-1 0:0:0")),            expect &:= setLocalTZ(time("0-1-1 0:0:0")));
+      insert(statement, setLocalTZ(time("1900-1-1 0:0:0")),         expect &:= setLocalTZ(time("1900-1-1 0:0:0")));
+      insert(statement, setLocalTZ(time("1961-1-9 6:1:0")),         expect &:= setLocalTZ(time("1961-1-9 6:1:0")));
+      insert(statement, setLocalTZ(time("1970-1-1 0:0:0")),         expect &:= setLocalTZ(time("1970-1-1 0:0:0")));
+      insert(statement, setLocalTZ(time("1980-1-1 0:0:0")),         expect &:= setLocalTZ(time("1980-1-1 0:0:0")));
+      insert(statement, setLocalTZ(time("2010-11-12 13:14:15.16")), expect &:= setLocalTZ(time("2010-11-12 13:14:15.16")));
+      insert(statement, setLocalTZ(time("2011-11-11 11:11:11.11")), expect &:= setLocalTZ(time("2011-11-11 11:11:11.11")));
+      insert(statement, setLocalTZ(time("2012-12-12 12:12:12.12")), expect &:= setLocalTZ(time("2012-12-12 12:12:12.12")));
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        timeColumn := column(statement, 1, time);
+        if timeColumn <> expect[row] then
+          writeln(" *** testTimeField: Row: " <& row <&
+                  " Expected " <& literal(str(expect[row])) <& " found " <& literal(str(timeColumn)));
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testTimeField: Row: " <& row <&
+                  " Expected NULL found " <& timeColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testDurationField (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    const string: tableName is "durationTest";
+    var array duration: expect is 0 times duration.value;
+    var sqlStatement: statement is sqlStatement.value;
+    var duration: durationColumn is duration.value;
+    var integer: row is 1;
+  begin
+    writeln("testDurationField: " <& databaseKind);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (durationField " & durationType(databaseKind) & ")");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (durationField) VALUES (?)");
+      insert(statement, NULL,                       expect &:= duration.value);
+      insert(statement, duration("P0D"),            expect &:= duration("P0D"));
+      insert(statement, duration("P1Y"),            expect &:= duration("P1Y"));
+      insert(statement, duration("P1M"),            expect &:= duration("P1M"));
+      insert(statement, duration("P1D"),            expect &:= duration("P1D"));
+      insert(statement, duration("PT1H"),           expect &:= duration("PT1H"));
+      insert(statement, duration("PT1M"),           expect &:= duration("PT1M"));
+      insert(statement, duration("PT1S"),           expect &:= duration("PT1S"));
+      insert(statement, duration("PT0.1S"),         expect &:= duration("PT0.1S"));
+      insert(statement, duration("P-1Y"),           expect &:= duration("P-1Y"));
+      insert(statement, duration("P-1M"),           expect &:= duration("P-1M"));
+      insert(statement, duration("P-1D"),           expect &:= duration("P-1D"));
+      insert(statement, duration("PT-1H"),          expect &:= duration("PT-1H"));
+      insert(statement, duration("PT-1M"),          expect &:= duration("PT-1M"));
+      insert(statement, duration("PT-1S"),          expect &:= duration("PT-1S"));
+      insert(statement, duration("PT-0.1S"),        expect &:= duration("PT-0.1S"));
+      insert(statement, duration("P1Y1M"),          expect &:= duration("P1Y1M"));
+      insert(statement, duration("P1Y-1M"),         expect &:= duration("P1Y-1M"));
+      insert(statement, duration("P1Y1D"),          expect &:= duration("P1Y1D"));
+      insert(statement, duration("P1Y-1D"),         expect &:= duration("P1Y-1D"));
+      insert(statement, duration("P1YT1H"),         expect &:= duration("P1YT1H"));
+      insert(statement, duration("P1YT-1H"),        expect &:= duration("P1YT-1H"));
+      insert(statement, duration("P1YT1M"),         expect &:= duration("P1YT1M"));
+      insert(statement, duration("P1YT-1M"),        expect &:= duration("P1YT-1M"));
+      insert(statement, duration("P1YT1S"),         expect &:= duration("P1YT1S"));
+      insert(statement, duration("P1YT-1S"),        expect &:= duration("P1YT-1S"));
+      insert(statement, duration("P1YT0.1S"),       expect &:= duration("P1YT0.1S"));
+      insert(statement, duration("P1YT-0.1S"),      expect &:= duration("P1YT-0.1S"));
+      insert(statement, duration("P-1Y1M"),         expect &:= duration("P-1Y1M"));
+      insert(statement, duration("P-1Y-1M"),        expect &:= duration("P-1Y-1M"));
+      insert(statement, duration("P-1Y1D"),         expect &:= duration("P-1Y1D"));
+      insert(statement, duration("P-1Y-1D"),        expect &:= duration("P-1Y-1D"));
+      insert(statement, duration("P-1YT1H"),        expect &:= duration("P-1YT1H"));
+      insert(statement, duration("P-1YT-1H"),       expect &:= duration("P-1YT-1H"));
+      insert(statement, duration("P-1YT1M"),        expect &:= duration("P-1YT1M"));
+      insert(statement, duration("P-1YT-1M"),       expect &:= duration("P-1YT-1M"));
+      insert(statement, duration("P-1YT1S"),        expect &:= duration("P-1YT1S"));
+      insert(statement, duration("P-1YT-1S"),       expect &:= duration("P-1YT-1S"));
+      insert(statement, duration("P-1YT0.1S"),      expect &:= duration("P-1YT0.1S"));
+      insert(statement, duration("P-1YT-0.1S"),     expect &:= duration("P-1YT-0.1S"));
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        durationColumn := column(statement, 1, duration);
+        if durationColumn <> expect[row] then
+          writeln(" *** testDurationField: Row: " <& row <&
+                  " Expected " <& literal(str(expect[row])) <& " found " <& literal(str(durationColumn)));
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testDurationField: Row: " <& row <&
+                  " Expected NULL found " <& durationColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testBlobField2 (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    const string: tableName is "blobTest";
+    var array bstring: expect is 0 times bstring("");
+    var sqlStatement: statement is sqlStatement.value;
+    var bstring: bstringColumn is bstring("");
+    var string: stringColumn is "";
+    var integer: row is 1;
+  begin
+    writeln("testBlobField2: " <& databaseKind);
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (blobField " & blobType(databaseKind) & ")");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (blobField BLOB)");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (blobField VARBINARY(MAX))");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (blobField VARCHAR(MAX))");
+    # statement := prepare(testDb, "CREATE TABLE blobTest (int32Field INTEGER, blobField BLOB, varcharField VARCHAR(32))");
+    statement := prepare(testDb, "CREATE TABLE " & tableName & " (int32Field INTEGER, blobField " & blobType(databaseKind) & ", varcharField " & varcharType(databaseKind) & "(32))");
+    execute(statement);
+    block
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (NULL)");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (0xfedcba9876543210)");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES ('some text')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (?)"); bind(statement, 1, bstring(""));
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (?)"); bind(statement, 1, bstring("\16#fe;\16#dc;\16#ba;\16#98;\16#76;\16#54;\16#32;\16#10;"));
+       statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (?)"); bind(statement, 1, bstring("abcdefgh" mult 1024 * 1024 * 16));
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (blobField) VALUES (?)"); bind(statement, 1, "abcdefgh" mult 1024 * 1024);
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (int32Field, blobField, varcharField) VALUES (123, 0xfedcba9876543210, 'some text')");
+      execute(statement);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        # writeln(column(statement, 1, bstring));
+        # writeln(column(statement, 1, string));
+        # writeln(column(statement, 1, integer));
+        # writeln(column(statement, 2, bstring));
+        # writeln(column(statement, 3, string));
+        # writeln(length(column(statement, 1, bstring)));
+        writeln(length(column(statement, 1, string)));
+       incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testTimeField2 (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    const string: tableName is "timeTest";
+    var array time: expect is 0 times time.value;
+    var sqlStatement: statement is sqlStatement.value;
+    var integer: row is 1;
+  begin
+    writeln("testTimeField2: " <& databaseKind);
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (timeField TIMESTAMP)");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (timeField TIMESTAMPTZ)");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (timeField DATE)");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (timeField DATETIME)");
+     statement := prepare(testDb, "CREATE TABLE " & tableName & " (timeField DATETIME2(7))");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (timeField TIME)");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (timeField TIMETZ)");
+    execute(statement);
+    block
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES ('0010-11-12 13:14:15 BC')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES ('0001-01-01 00:00:00 BC')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES ('0001-01-01 00:00:00')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES ('2017-03-14')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES ('2017-03-14 15:16:17.18')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES ('1893-04-01 00:00:00.00')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES ('1893-03-31 23:54:38.999999')");  # UTC+1:5 ??
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES ('1893-03-31 23:54:39.00')");      # UTC+1
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES (current_date)");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES (getdate)");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES (current_timestamp)");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES ('16:17:18.19')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES ('2010-11-12 13:14:15.16')");
+       statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES (?)"); bind(statement, 1, time(NOW));
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES (?)"); bind(statement, 1, setLocalTZ(time("2010-11-12 13:14:15.16")));
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES (?)"); bind(statement, 1, setLocalTZ(time("-10-11-12 13:14:15")));
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES (?)"); bind(statement, 1, time("0-1-1 0:0:0"));
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (timeField) VALUES (?)"); bind(statement, 1, setLocalTZ(time("0-1-1 0:0:0")));
+      execute(statement);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        writeln(" *** testTimeField: Row: " <& row <& " Found " <& literal(str(column(statement, 1, time))));
+        # writeln(" *** testTimeField: Row: " <& row <& " Found " <& column(statement, 1, string));
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testDurationField2 (in database: testDb, in dbCategory: databaseKind) is func
+  local
+    const string: tableName is "durationTest";
+    var array duration: expect is 0 times duration.value;
+    var sqlStatement: statement is sqlStatement.value;
+    var duration: durationColumn is duration.value;
+    var integer: row is 1;
+  begin
+    writeln("testDurationField2: " <& databaseKind);
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (durationField TIMESTAMP)");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (durationField TIMESTAMPTZ)");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (durationField DATE)");
+     statement := prepare(testDb, "CREATE TABLE " & tableName & " (durationField DATETIME)");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (durationField TIME)");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (durationField TIMETZ)");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (durationField INTERVAL)");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (durationField VARCHAR(32))");
+    # statement := prepare(testDb, "CREATE TABLE " & tableName & " (durationField INTERVAL DAY(3) TO SECOND(6))");
+    execute(statement);
+    block
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES ('2017-03-14')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES ('2017-03-14 15:16:17.18')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES (current_date)");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES (current_timestamp)");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES ('16:17:18.19')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES ('2010-11-12T13:14:15')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES ('2010-11-12 13:14:15.16')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES ('0010-11-12 13:14:15.16')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES ('P1Y2M3DT4H5M6S')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES ('P1Y2M3DT4H5M6.7S')");
+       statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES ('P1Y2M3DT4H5M6.7890123S')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES ('P-1Y-2M-3DT-4H-5M-6.7S')");
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES (?)"); bind(statement, 1, time(NOW));
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES (?)"); bind(statement, 1, duration("P2010Y11M12DT13H14M15.16S"));
+      # statement := prepare(testDb, "INSERT INTO " & tableName & " (durationField) VALUES (?)"); bind(statement, 1, duration("P10Y11M12DT13H14M15.16S"));
+      execute(statement);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        durationColumn := column(statement, 1, duration);
+        writeln(" *** testDurationField: Row: " <& row <&
+                " Found " <& literal(str(durationColumn)));
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+      catch DATABASE_ERROR:
+        writeln(" *** DATABASE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testDb (in database: testDb, in dbCategory: databaseKind) is func
+  begin
+    testBooleanField(testDb, databaseKind);
+    testInt8Field(testDb, databaseKind);
+    testInt16Field(testDb, databaseKind);
+    testInt32Field(testDb, databaseKind);
+    testInt64Field(testDb, databaseKind);
+    testBigIntField(testDb, databaseKind);
+    testFloatField(testDb, databaseKind);
+    testDoubleField(testDb, databaseKind);
+    testBigRatField(testDb, databaseKind);
+    testChar1Field(testDb, databaseKind);
+    testCharField(testDb, databaseKind);
+    testVarcharField(testDb, databaseKind);
+    testBlobField(testDb, databaseKind);
+    testTimeField(testDb, databaseKind);
+    testDurationField(testDb, databaseKind);
+    # testBlobField2(testDb, databaseKind);
+    # testTimeField2(testDb, databaseKind);
+    # testDurationField2(testDb, databaseKind);
   end func;
 
 
@@ -1424,30 +1785,31 @@ const func boolean: failed (in proc: statement) is func
 
 
 const type: connectData is new struct
-    var dbCategory: driver   is NO_DB;
-    var string:     dbName   is "";
-    var string:     user     is "";
-    var string:     password is "";
-    var dbCategory: database is NO_DB;
+    var dbCategory: driver       is NO_DB;
+    var string:     dbName       is "";
+    var string:     user         is "";
+    var string:     password     is "";
+    var dbCategory: databaseKind is NO_DB;
   end struct;
 
 
 const func connectData: connectData (in dbCategory: driver, in string: dbName,
-    in string: user, in string: password, in dbCategory: database) is func
+    in string: user, in string: password, in dbCategory: databaseKind) is func
   result
     var connectData: connData is connectData.value;
   begin
-    connData.driver   := driver;
-    connData.dbName   := dbName;
-    connData.user     := user;
-    connData.password := password;
-    connData.database := database;
+    connData.driver       := driver;
+    connData.dbName       := dbName;
+    connData.user         := user;
+    connData.password     := password;
+    connData.databaseKind := databaseKind;
   end func;
 
 
 const proc: main is func
   local
     const array connectData: dbConnectData is [] (
+        connectData(DB_ODBC,       "test1",            "", "", DB_ODBC),
         # connectData(DB_MYSQL,      "penguin/test",     "test", "test", DB_MYSQL),
         # connectData(DB_ODBC,       "penguin_mysql",    "test", "test", DB_MYSQL),
         # connectData(DB_POSTGRESQL, "penguin/test",     "test", "test", DB_POSTGRESQL),
@@ -1472,7 +1834,7 @@ const proc: main is func
         writeln(" *** Cannot open database " <& dbConnectData[index].dbName <&
                 " with driver " <& dbConnectData[index].driver);
       else
-        testDb(testDb, dbConnectData[index].database);
+        testDb(testDb, dbConnectData[index].databaseKind);
         close(testDb);
       end if;
     end for;

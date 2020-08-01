@@ -105,7 +105,6 @@ typedef struct {
     boolType       integerDatetimes;
     uintType       stmtNum;
     char           stmtName[30];
-    memSizeType    param_array_capacity;
     memSizeType    param_array_size;
     Oid           *paramTypes;
     cstriType     *paramValues;
@@ -127,8 +126,8 @@ static sqlFuncType sqlFunc = NULL;
 #define MIN_BIND_VAR_NUM 1
 #define MAX_BIND_VAR_NUM 9999
 /* Seconds between 1970-01-01 and 2000-01-01 */
-#define SECONDS_1970_2000 INT64_SUFFIX(946684800)
-
+#define SECONDS_FROM_1970_TO_2000 INT64_SUFFIX(946684800)
+#define DEFAULT_DECIMAL_SCALE 1000
 
 
 #ifdef POSTGRESQL_DLL
@@ -737,8 +736,8 @@ static void setupParametersAndResult (preparedStmtType preparedStmt,
       *err_info = MEMORY_ERROR;
     } else {
       if (PQresultStatus(describe_result) != PGRES_COMMAND_OK) {
-        setDbErrorMsg("setupParameters", "PQdescribePrepared", preparedStmt->connection);
-        logError(printf("setupParameters: PQdescribePrepared returns a status of %s:\n%s",
+        setDbErrorMsg("setupParametersAndResult", "PQdescribePrepared", preparedStmt->connection);
+        logError(printf("setupParametersAndResult: PQdescribePrepared returns a status of %s:\n%s",
                         PQresStatus(PQresultStatus(describe_result)),
                         dbError.message););
         *err_info = DATABASE_ERROR;
@@ -903,39 +902,10 @@ static bigIntType getNumericBigRat (const unsigned char *buffer,
 
 
 
-static void getInterval (int64Type interval,
-    intType *year, intType *month, intType *day, intType *hour,
-    intType *minute, intType *second, intType *micro_second)
+static int64Type getTimestamp1970 (int64Type timestamp, intType *micro_second)
 
-  { /* getInterval */
-    logFunction(printf("getInterval(" FMT_D64 ")\n", interval););
-    *micro_second = interval % 1000000;
-    interval /= 1000000;
-    *second = interval % 60;
-    interval /= 60;
-    *minute = interval % 60;
-    interval /= 60;
-    *hour = interval % 24;
-    interval /= 24;
-    *year = interval / 365;
-    interval %= 365;
-    *month = interval / 30;
-    interval %= 30;
-    *day = interval;
-  } /* getInterval */
-
-
-
-static void getTimestamp (int64Type timestamp,
-    intType *year, intType *month, intType *day, intType *hour,
-    intType *minute, intType *second, intType *micro_second,
-    intType *time_zone, boolType *is_dst)
-
-  {
-    intType dummy_micro_second;
-
-  /* getTimestamp */
-    logFunction(printf("getTimestamp(" FMT_D64 ")\n", timestamp););
+  { /* getTimestamp1970 */
+    logFunction(printf("getTimestamp1970(" FMT_D64 ")\n", timestamp););
     *micro_second = timestamp % 1000000;
     if (timestamp < 0) {
       if (*micro_second != 0) {
@@ -946,19 +916,17 @@ static void getTimestamp (int64Type timestamp,
       timestamp /= 1000000;
     } /* if */
     /* printf("timestamp2000: " FMT_U64 "\n", timestamp); */
-    if (unlikely(timestamp > TIME_T_MAX - SECONDS_1970_2000)) {
+    if (unlikely(timestamp > TIME_T_MAX - SECONDS_FROM_1970_TO_2000)) {
       raise_error(RANGE_ERROR);
     } else {
-      timestamp += SECONDS_1970_2000;
-      /* pprintf("timestamp1970: " FMT_U64 "\n", timestamp); */
+      timestamp += SECONDS_FROM_1970_TO_2000;
+      /* printf("timestamp1970: " FMT_U64 "\n", timestamp); */
       if (unlikely(!inTimeTRange(timestamp))) {
         raise_error(RANGE_ERROR);
-      } else {
-        timFromTimestamp((time_t) timestamp, year, month, day,
-            hour, minute, second, &dummy_micro_second, time_zone, is_dst);
       } /* if */
     } /* if */
-  } /* getTimestamp */
+    return timestamp;
+  } /* getTimestamp1970 */
 
 
 
@@ -1039,7 +1007,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           } /* if */
           break;
         default:
-          logError(printf("sqlBindBigInt: Pos " FMT_D " has the unknown type %s.\n",
+          logError(printf("sqlBindBigInt: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
           raise_error(RANGE_ERROR);
           break;
@@ -1091,7 +1059,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
           break;
         case NUMERICOID:
           decimalNumber = (cstriType) bigRatToDecimal(numerator, denominator,
-                                                1000, &length, &err_info);
+              DEFAULT_DECIMAL_SCALE, &length, &err_info);
           if (unlikely(decimalNumber == NULL)) {
             raise_error(err_info);
           } else if (unlikely(length > INT_MAX)) {
@@ -1104,7 +1072,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
           } /* if */
           break;
         default:
-          logError(printf("sqlBindBigRat: Pos " FMT_D " has the unknown type %s.\n",
+          logError(printf("sqlBindBigRat: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
           raise_error(RANGE_ERROR);
           break;
@@ -1168,7 +1136,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
           preparedStmt->paramFormats[pos - 1] = 0;
           break;
         default:
-          logError(printf("sqlBindBool: Pos " FMT_D " has the unknown type %s.\n",
+          logError(printf("sqlBindBool: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
           raise_error(RANGE_ERROR);
           break;
@@ -1216,7 +1184,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
           } /* if */
           break;
         default:
-          logError(printf("sqlBindBStri: Pos " FMT_D " has the unknown type %s.\n",
+          logError(printf("sqlBindBStri: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
           raise_error(RANGE_ERROR);
           break;
@@ -1234,61 +1202,63 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    int64Type microsecDuration;
 
   /* sqlBindDuration */
-    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", "
-                       F_D(04) "-" F_D(02) "-" F_D(02) " "
-                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
+                                          FMT_D "Y" FMT_D "M" FMT_D "DT"
+                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
                        (memSizeType) sqlStatement, pos,
-                       year, month, day,
-                       hour, minute, second, micro_second););
+                       year, month, day, hour, minute,
+                       second < 0 || micro_second < 0 ? "-" : "",
+                       intAbs(second), intAbs(micro_second)););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year < INT32TYPE_MIN || year > INT32TYPE_MAX || month < -12 || month > 12 ||
-                        day < -31 || day > 31 || hour < -24 || hour > 24 ||
-                        minute < -60 || minute > 60 || second < -60 || second > 60 ||
-                        micro_second < -1000000 || micro_second > 1000000)) {
+                        day < -31 || day > 31 || hour <= -24 || hour >= 24 ||
+                        minute <= -60 || minute >= 60 || second <= -60 || second >= 60 ||
+                        micro_second <= -1000000 || micro_second >= 1000000)) {
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
-      raise_error(RANGE_ERROR);
-    } else if (unlikely(!((year >= 0 && month >= 0 && day >= 0 && hour >= 0 &&
-                           minute >= 0 && second >= 0 && micro_second >= 0) ||
-                          (year <= 0 && month <= 0 && day <= 0 && hour <= 0 &&
-                           minute <= 0 && second <= 0 && micro_second <= 0)))) {
-      logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
       raise_error(RANGE_ERROR);
     } else {
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
-#if 0
         case INTERVALOID:
+          microsecDuration = ((((int64Type) hour) * 60 +
+                                (int64Type) minute) * 60 +
+                                (int64Type) second) * 1000000 +
+                                (int64Type) micro_second;
+          /* printf("microsecDuration: " FMT_D64 "\n", microsecDuration); */
           /* The interval is either an int64Type representing       */
           /* microseconds, or a double representing seconds.        */
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
-            int64Type interval;
-
-            interval = (((((((int64Type) year) * 365 +
-                             (int64Type) month) * 30 +
-                             (int64Type) day) * 24 +
-                             (int64Type) hour) * 60 +
-                             (int64Type) minute) * 60 +
-                             (int64Type) second) * 1000000 +
-                             (int64Type) micro_second;
-
-            getInterval((int64Type) ntohll(*(uint64Type *) buffer),
-                        year, month, day, hour, minute, second, micro_second);
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type) + 2 * sizeof(int32Type));
+            *(int64Type *) preparedStmt->paramValues[pos - 1] =
+                (int64Type) htonll((uint64Type) microsecDuration);
+            preparedStmt->paramLengths[pos - 1] = sizeof(int64Type) + 2 * sizeof(int32Type);
+            preparedStmt->paramFormats[pos - 1] = 1;
           } else {
-            getInterval((int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5),
-                        year, month, day, hour, minute, second, micro_second);
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double) + 2 * sizeof(int32Type));
+            *(double *) preparedStmt->paramValues[pos - 1] =
+                htond((double) microsecDuration / 1000000.0);
+            preparedStmt->paramLengths[pos - 1] = sizeof(double) + 2 * sizeof(int32Type);
+            preparedStmt->paramFormats[pos - 1] = 1;
           } /* if */
-#endif
+          *(int32Type *) &preparedStmt->paramValues[pos - 1][8] =
+              (int32Type) htonl((uint32Type) day);
+          *(int32Type *) &preparedStmt->paramValues[pos - 1][12] =
+              (int32Type) htonl((uint32Type) (12 * year + month));
+          break;
         default:
-          logError(printf("sqlBindDuration: Pos " FMT_D " has the unknown type %s.\n",
+          logError(printf("sqlBindDuration: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
           raise_error(RANGE_ERROR);
           break;
@@ -1332,7 +1302,7 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
           preparedStmt->paramFormats[pos - 1] = 1;
           break;
         default:
-          logError(printf("sqlBindFloat: Pos " FMT_D " has the unknown type %s.\n",
+          logError(printf("sqlBindFloat: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
           raise_error(RANGE_ERROR);
           break;
@@ -1418,7 +1388,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
           preparedStmt->paramFormats[pos - 1] = 0;
           break;
         default:
-          logError(printf("sqlBindInt: Pos " FMT_D " has the unknown type %s.\n",
+          logError(printf("sqlBindInt: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
           raise_error(RANGE_ERROR);
           break;
@@ -1505,7 +1475,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
           } /* if */
           break;
         default:
-          logError(printf("sqlBindStri: Pos " FMT_D " has the unknown type %s.\n",
+          logError(printf("sqlBindStri: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
           raise_error(RANGE_ERROR);
           break;
@@ -1519,32 +1489,168 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
 static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
-    intType minute, intType second, intType micro_second)
+    intType minute, intType second, intType micro_second,
+    intType time_zone)
 
   {
     preparedStmtType preparedStmt;
+    int64Type timestamp;
+    int32Type zone;
 
   /* sqlBindTime */
     logFunction(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
                        F_D(04) "-" F_D(02) "-" F_D(02) " "
-                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
+                       FMT_D ")\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day,
-                       hour, minute, second, micro_second););
+                       hour, minute, second, micro_second,
+                       time_zone););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindTime: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
                       pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year <= INT16TYPE_MIN || year > INT16TYPE_MAX || month < 1 || month > 12 ||
-                        day < 1 || day > 31 || hour < 0 || hour > 24 ||
-                        minute < 0 || minute > 60 || second < 0 || second > 60 ||
-                        micro_second < 0 || micro_second > 1000000)) {
+                        day < 1 || day > 31 || hour < 0 || hour >= 24 ||
+                        minute < 0 || minute >= 60 || second < 0 || second >= 60 ||
+                        micro_second < 0 || micro_second >= 1000000)) {
       logError(printf("sqlBindTime: Time not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
+      switch (preparedStmt->paramTypes[pos - 1]) {
+        case DATEOID:
+          timestamp = timToTimestamp(year, month, day, 0, 0, 0, 0, 0);
+          timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) / (24 * 60 * 60);
+          /* printf("DATEOID timestamp: " FMT_D64 "\n", timestamp); */
+          free(preparedStmt->paramValues[pos - 1]);
+          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int32Type));
+          *(int32Type *) preparedStmt->paramValues[pos - 1] =
+              (int32Type) htonl((uint32Type) timestamp);
+          preparedStmt->paramLengths[pos - 1] = sizeof(int32Type);
+          preparedStmt->paramFormats[pos - 1] = 1;
+          break;
+        case TIMEOID:
+          timestamp = timToTimestamp(2000, 1, 1, hour, minute, second,
+                                     micro_second, 0);
+          /* printf("timestamp1970: " FMT_D64 "\n", timestamp); */
+          timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) * 1000000 + micro_second;
+          /* printf("TIMEOID timestamp: " FMT_D64 "\n", timestamp); */
+          /* The time is either an int64Type representing           */
+          /* microseconds away from 2000-01-01 00:00:00 UTC, or a   */
+          /* double representing seconds away from the same origin. */
+          /* PQparameterStatus(connecton, "integer_datetimes") is   */
+          /* used to determine if an int64Type or a double is used. */
+          if (preparedStmt->integerDatetimes) {
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
+            *(int64Type *) preparedStmt->paramValues[pos - 1] =
+                (int64Type) htonll((uint64Type) timestamp);
+            preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
+            preparedStmt->paramFormats[pos - 1] = 1;
+          } else {
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
+            *(double *) preparedStmt->paramValues[pos - 1] =
+                htond((double) timestamp / 1000000.0);
+            preparedStmt->paramLengths[pos - 1] = sizeof(double);
+            preparedStmt->paramFormats[pos - 1] = 1;
+          } /* if */
+          break;
+        case TIMETZOID:
+          timestamp = timToTimestamp(2000, 1, 1, hour, minute, second,
+                                     micro_second, 0);
+          /* printf("timestamp1970: " FMT_D64 "\n", timestamp); */
+          timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) * 1000000 + micro_second;
+          /* printf("TIMETZOID timestamp: " FMT_D64 "\n", timestamp); */
+          /* The time is either an int64Type representing           */
+          /* microseconds away from 2000-01-01 00:00:00 UTC, or a   */
+          /* double representing seconds away from the same origin. */
+          /* PQparameterStatus(connecton, "integer_datetimes") is   */
+          /* used to determine if an int64Type or a double is used. */
+          if (preparedStmt->integerDatetimes) {
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(
+                sizeof(int64Type) + sizeof(int32Type));
+            *(int64Type *) preparedStmt->paramValues[pos - 1] =
+                (int64Type) htonll((uint64Type) timestamp);
+            preparedStmt->paramLengths[pos - 1] = sizeof(int64Type) + sizeof(int32Type);
+            preparedStmt->paramFormats[pos - 1] = 1;
+          } else {
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(
+                sizeof(double) + sizeof(int32Type));
+            *(double *) preparedStmt->paramValues[pos - 1] =
+                htond((double) timestamp / 1000000.0);
+            preparedStmt->paramLengths[pos - 1] = sizeof(double) + sizeof(int32Type);
+            preparedStmt->paramFormats[pos - 1] = 1;
+          } /* if */
+          /* printf("zone: " FMT_D32 "\n", (int32Type) (-time_zone * 60)); */
+          zone = (int32Type) htonl((uint32Type) (-time_zone * 60));
+          *(int64Type *) &preparedStmt->paramValues[pos - 1][8] = zone;
+          break;
+        case TIMESTAMPOID:
+          timestamp = timToTimestamp(year, month, day, hour, minute, second,
+                                     micro_second, 0);
+          /* printf("timestamp1970: " FMT_U64 "\n", timestamp); */
+          timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) * 1000000 + micro_second;
+          /* printf("TIMESTAMPOID timestamp: " FMT_D64 "\n", timestamp); */
+          /* The timestamp is either an int64Type representing      */
+          /* microseconds away from 2000-01-01 00:00:00 UTC, or a   */
+          /* double representing seconds away from the same origin. */
+          /* PQparameterStatus(connecton, "integer_datetimes") is   */
+          /* used to determine if an int64Type or a double is used. */
+          if (preparedStmt->integerDatetimes) {
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
+            *(int64Type *) preparedStmt->paramValues[pos - 1] =
+                (int64Type) htonll((uint64Type) timestamp);
+            preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
+            preparedStmt->paramFormats[pos - 1] = 1;
+          } else {
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
+            *(double *) preparedStmt->paramValues[pos - 1] =
+                htond((double) timestamp / 1000000.0);
+            preparedStmt->paramLengths[pos - 1] = sizeof(double);
+            preparedStmt->paramFormats[pos - 1] = 1;
+          } /* if */
+          break;
+        case TIMESTAMPTZOID:
+          timestamp = timToTimestamp(year, month, day, hour, minute, second,
+                                     micro_second, time_zone);
+          /* printf("timestamp1970: " FMT_U64 "\n", timestamp); */
+          timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) * 1000000 + micro_second;
+          /* printf("TIMESTAMPTZOID timestamp: " FMT_D64 "\n", timestamp); */
+          /* The timestamp is either an int64Type representing      */
+          /* microseconds away from 2000-01-01 00:00:00 UTC, or a   */
+          /* double representing seconds away from the same origin. */
+          /* PQparameterStatus(connecton, "integer_datetimes") is   */
+          /* used to determine if an int64Type or a double is used. */
+          if (preparedStmt->integerDatetimes) {
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
+            *(int64Type *) preparedStmt->paramValues[pos - 1] =
+                (int64Type) htonll((uint64Type) timestamp);
+            preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
+            preparedStmt->paramFormats[pos - 1] = 1;
+          } else {
+            free(preparedStmt->paramValues[pos - 1]);
+            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
+            *(double *) preparedStmt->paramValues[pos - 1] =
+                htond((double) timestamp / 1000000.0);
+            preparedStmt->paramLengths[pos - 1] = sizeof(double);
+            preparedStmt->paramFormats[pos - 1] = 1;
+          } /* if */
+          break;
+        default:
+          logError(printf("sqlBindTime: Parameter " FMT_D " has the unknown type %s.\n",
+                          pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
+          raise_error(RANGE_ERROR);
+          break;
+      } /* switch */
       preparedStmt->executeSuccessful = FALSE;
       preparedStmt->fetchOkay = FALSE;
     } /* if */
@@ -1971,6 +2077,9 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     int isNull;
     const_cstriType buffer;
     Oid buffer_type;
+    int64Type microsecDuration;
+    int32Type dayDuration;
+    int32Type monthDuration;
 
   /* sqlColumnDuration */
     logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", *)\n",
@@ -2022,35 +2131,45 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
               /* PQparameterStatus(connecton, "integer_datetimes") is   */
               /* used to determine if an int64Type or a double is used. */
               if (preparedStmt->integerDatetimes) {
-                getInterval((int64Type) ntohll(*(uint64Type *) buffer),
-                            year, month, day, hour, minute, second, micro_second);
+                microsecDuration = (int64Type) ntohll(*(uint64Type *) buffer);
               } else {
-                getInterval((int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5),
-                            year, month, day, hour, minute, second, micro_second);
+                microsecDuration = (int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
               } /* if */
-#if 0
-              printf("INTERVALOID: %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u\n",
-                     buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7],
-                     buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[14], buffer[15]);
-              if (sscanf(buffer, "-" FMT_U ":" FMT_U ":" FMT_U,
-                         hour, minute, second) == 3) {
-                *year         = 0;
-                *month        = 0;
-                *day          = 0;
-                *hour         = -*hour;
-                *minute       = -*minute;
-                *second       = -*second;
-                *micro_second = 0;
-              } else if (sscanf(buffer, FMT_D ":" FMT_U ":" FMT_U,
-                         hour, minute, second) == 3) {
-                *year         = 0;
-                *month        = 0;
-                *day          = 0;
-                *micro_second = 0;
+              dayDuration = (int32Type) ntohl(*(uint32Type *) &buffer[8]);
+              monthDuration = (int32Type) ntohl(*(uint32Type *) &buffer[12]);
+              /* printf("microsecDuration: " FMT_D64 "\n", microsecDuration);
+                 printf("dayDuration: " FMT_D32 "\n", dayDuration);
+                 printf("monthDuration: " FMT_D32 "\n", monthDuration); */
+              if (microsecDuration < 0) {
+                microsecDuration = -microsecDuration;
+                *micro_second = -(microsecDuration % 1000000);
+                microsecDuration /= 1000000;
+                *second = -(microsecDuration % 60);
+                microsecDuration /= 60;
+                *minute = -(microsecDuration % 60);
+                microsecDuration /= 60;
+                *hour = -(microsecDuration % 24);
+                microsecDuration /= 24;
+                microsecDuration = -microsecDuration;
               } else {
-                raise_error(RANGE_ERROR);
+                *micro_second = microsecDuration % 1000000;
+                microsecDuration /= 1000000;
+                *second = microsecDuration % 60;
+                microsecDuration /= 60;
+                *minute = microsecDuration % 60;
+                microsecDuration /= 60;
+                *hour = microsecDuration % 24;
+                microsecDuration /= 24;
               } /* if */
-#endif
+              *day = microsecDuration + dayDuration;
+              if (monthDuration < 0) {
+                monthDuration = -monthDuration;
+                *month = -(monthDuration % 12);
+                *year = -(monthDuration / 12);
+              } else {
+                *month = monthDuration % 12;
+                *year = monthDuration / 12;
+              } /* if */
               break;
             default:
               logError(printf("sqlColumnDuration: Column " FMT_D " has the unknown type %s.\n",
@@ -2061,13 +2180,13 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", "
-                                            F_D(04) "-" F_D(02) "-" F_D(02) " "
-                                            F_D(02) ":" F_D(02) ":" F_D(02) "."
-                                            F_D(06) ") -->\n",
+    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") -> P"
+                                            FMT_D "Y" FMT_D "M" FMT_D "DT"
+                                            FMT_D "H" FMT_D "M%s%lu.%06luS\n",
                        (memSizeType) sqlStatement, column,
-                       *year, *month, *day, *hour, *minute, *second,
-                       *micro_second););
+                       *year, *month, *day, *hour, *minute,
+                       *second < 0 || *micro_second < 0 ? "-" : "",
+                       intAbs(*second), intAbs(*micro_second)););
   } /* sqlColumnDuration */
 
 
@@ -2342,6 +2461,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     int isNull;
     const_cstriType buffer;
     Oid buffer_type;
+    int64Type timestamp;
+    intType dummy_micro_second;
 
   /* sqlColumnTime */
     logFunction(printf("sqlColumnTime(" FMT_U_MEM ", " FMT_D ", *)\n",
@@ -2390,13 +2511,77 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
           /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
           switch (buffer_type) {
             case DATEOID:
-              printf("DATEOID: %s\n", buffer);
+              timestamp = (int64Type) ntohl(*(uint32Type *) buffer);
+              /* printf("DATEOID timestamp: " FMT_D64 "\n", timestamp); */
+              timestamp = timestamp * 24 * 60 * 60 + SECONDS_FROM_1970_TO_2000;
+              timUtcFromTimestamp((time_t) timestamp, year, month, day,
+                                  hour, minute, second, micro_second, time_zone, is_dst);
+              timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                            time_zone, is_dst);
               break;
             case TIMEOID:
-              printf("TIMEOID: %s\n", buffer);
+              /* The time is either an int64Type representing           */
+              /* microseconds away from 2000-01-01 00:00:00 UTC, or a   */
+              /* double representing seconds away from the same origin. */
+              /* PQparameterStatus(connecton, "integer_datetimes") is   */
+              /* used to determine if an int64Type or a double is used. */
+              if (preparedStmt->integerDatetimes) {
+                timestamp = (int64Type) ntohll(*(uint64Type *) buffer);
+              } else {
+                timestamp = (int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+              } /* if */
+              /* printf("TIMEOID timestamp: " FMT_D64 "\n", timestamp); */
+              timestamp = getTimestamp1970(timestamp, micro_second);
+              timUtcFromTimestamp((time_t) timestamp, year, month, day,
+                                  hour, minute, second, &dummy_micro_second,
+                                  time_zone, is_dst);
+              timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                            time_zone, is_dst);
+              *year = 0;
+              *month = 1;
+              *day = 1;
+              break;
+            case TIMETZOID:
+              /* The time is either an int64Type representing           */
+              /* microseconds away from 2000-01-01 00:00:00 UTC, or a   */
+              /* double representing seconds away from the same origin. */
+              /* PQparameterStatus(connecton, "integer_datetimes") is   */
+              /* used to determine if an int64Type or a double is used. */
+              if (preparedStmt->integerDatetimes) {
+                timestamp = (int64Type) ntohll(*(uint64Type *) buffer);
+              } else {
+                timestamp = (int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+              } /* if */
+              /* printf("TIMETZOID timestamp: " FMT_D64 "\n", timestamp); */
+              timestamp = getTimestamp1970(timestamp, micro_second);
+              timUtcFromTimestamp((time_t) timestamp, year, month, day,
+                                  hour, minute, second, &dummy_micro_second,
+                                  time_zone, is_dst);
+              /* printf("time_zone: " FMT_D32 "\n",
+                  (int32Type) -ntohl(*(uint32Type *) &buffer[8]) / 60); */
+              *time_zone = -ntohl(*(uint32Type *) &buffer[8]) / 60;
+              *year = 0;
+              *month = 1;
+              *day = 1;
               break;
             case TIMESTAMPOID:
-              printf("TIMESTAMPOID: %s\n", buffer);
+              /* The timestamp is either an int64Type representing      */
+              /* microseconds away from 2000-01-01 00:00:00 UTC, or a   */
+              /* double representing seconds away from the same origin. */
+              /* PQparameterStatus(connecton, "integer_datetimes") is   */
+              /* used to determine if an int64Type or a double is used. */
+              if (preparedStmt->integerDatetimes) {
+                timestamp = (int64Type) ntohll(*(uint64Type *) buffer);
+              } else {
+                timestamp = (int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+              } /* if */
+              /* printf("TIMESTAMPOID timestamp: " FMT_D64 "\n", timestamp); */
+              timestamp = getTimestamp1970(timestamp, micro_second);
+              timUtcFromTimestamp((time_t) timestamp, year, month, day,
+                                  hour, minute, second, &dummy_micro_second,
+                                  time_zone, is_dst);
+              timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
+                            time_zone, is_dst);
               break;
             case TIMESTAMPTZOID:
               /* The timestamp is either an int64Type representing      */
@@ -2405,28 +2590,15 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               /* PQparameterStatus(connecton, "integer_datetimes") is   */
               /* used to determine if an int64Type or a double is used. */
               if (preparedStmt->integerDatetimes) {
-                getTimestamp((int64Type) ntohll(*(uint64Type *) buffer),
-                             year, month, day, hour, minute, second,
-                             micro_second, time_zone, is_dst);
+                timestamp = (int64Type) ntohll(*(uint64Type *) buffer);
               } else {
-                getTimestamp((int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5),
-                             year, month, day, hour, minute, second,
-                             micro_second, time_zone, is_dst);
+                timestamp = (int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
               } /* if */
-#if 0
-              printf("TIMESTAMPTZOID: %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u\n",
-                     buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7],
-                     buffer[8], buffer[9], buffer[10], buffer[11], buffer[12], buffer[13], buffer[14], buffer[15]);
-              if (sscanf(buffer,
-                         FMT_D "-" FMT_U "-" FMT_U " "
-                         FMT_U ":" FMT_U ":" FMT_U "." FMT_U FMT_D,
-                         year, month, day,
-                         hour, minute, second, micro_second, time_zone) == 8) {
-                *is_dst = 0;
-              } else {
-                raise_error(RANGE_ERROR);
-              } /* if */
-#endif
+              /* printf("TIMESTAMPTZOID timestamp: " FMT_D64 "\n", timestamp); */
+              timestamp = getTimestamp1970(timestamp, micro_second);
+              timFromTimestamp((time_t) timestamp, year, month, day,
+                               hour, minute, second, &dummy_micro_second,
+                               time_zone, is_dst);
               break;
             default:
               logError(printf("sqlColumnTime: Column " FMT_D " has the unknown type %s.\n",

@@ -296,6 +296,20 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
 
 
 
+#if !STRINGIFY_WORKS
+cstriType stringify (int number)
+
+  {
+    static char buffer[10];
+
+  /* stringify */
+    sprintf(buffer, "%d", number);
+    return buffer;
+  } /* stringify */
+#endif
+
+
+
 #ifdef USE_DUFFS_UNROLLING
 /**
  *  Copy len bytes to Seed7 characters in a string.
@@ -2061,6 +2075,30 @@ striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
     } /* if */
     return stri;
   } /* wstri_buf_to_stri */
+
+
+
+errInfoType conv_wstri_buf_to_cstri (cstriType cstri, const_wstriType wstri,
+    memSizeType length)
+
+  {
+    ustriType ustri;
+    wcharType ch;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* conv_wstri_buf_to_cstri */
+    ustri = (ustriType) cstri;
+    for (; length > 0; ustri++, wstri++, length--) {
+      ch = *wstri;
+      if (likely(ch <= 0xFF)) {
+        *ustri = (ucharType) ch;
+      } else {
+        err_info = RANGE_ERROR;
+      } /* if */
+    } /* if */
+    *ustri = '\0';
+    return err_info;
+  } /* conv_wstri_buf_to_cstri */
 
 
 

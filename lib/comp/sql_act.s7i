@@ -84,7 +84,7 @@ const proc: sql_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        sqlBindInt (sqlStmtType, intType, intType);");
     declareExtern(c_prog, "void        sqlBindNull (sqlStmtType, intType);");
     declareExtern(c_prog, "void        sqlBindStri (sqlStmtType, intType, striType);");
-    declareExtern(c_prog, "void        sqlBindTime (sqlStmtType, intType, intType, intType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        sqlBindTime (sqlStmtType, intType, intType, intType, intType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        sqlClose (databaseType);");
     declareExtern(c_prog, "bigIntType  sqlColumnBigInt (sqlStmtType, intType);");
     declareExtern(c_prog, "void        sqlColumnBigRat (sqlStmtType, intType, bigIntType *, bigIntType * );");
@@ -300,6 +300,8 @@ const proc: process (SQL_BIND_TIME, in reference: function,
     process_expr(params[8], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[9], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[10], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 

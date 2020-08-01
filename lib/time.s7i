@@ -279,42 +279,47 @@ const func time: (attr time) parse (in var string: stri) is func
   result
     var time: aTime is time.value;
   begin
-    aTime.year := integer parse getint(stri);
+    if stri[1] = '-' then
+      stri := stri[2 ..];
+      aTime.year := -integer(getint(stri));
+    else
+      aTime.year := integer(getint(stri));
+    end if;
     if stri[1] <> '-' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
-    aTime.month := integer parse getint(stri);
+    aTime.month := integer(getint(stri));
     if stri <> "" then
       if stri[1] <> '-' then
         raise RANGE_ERROR;
       end if;
       stri := stri[2 ..];
-      aTime.day := integer parse getint(stri);
+      aTime.day := integer(getint(stri));
       if stri <> "" then
         if stri[1] <> ' ' and stri[1] <> 'T' then
           raise RANGE_ERROR;
         end if;
         stri := stri[2 ..];
-        aTime.hour := integer parse getint(stri);
+        aTime.hour := integer(getint(stri));
         if stri <> "" then
           if stri[1] <> ':' then
             raise RANGE_ERROR;
           end if;
           stri := stri[2 ..];
-          aTime.minute := integer parse getint(stri);
+          aTime.minute := integer(getint(stri));
           if stri <> "" then
             if stri[1] <> ':' then
               raise RANGE_ERROR;
             end if;
             stri := stri[2 ..];
-            aTime.second := integer parse getint(stri);
+            aTime.second := integer(getint(stri));
             if stri <> "" then
               if stri[1] <> '.' then
                 raise RANGE_ERROR;
               end if;
               stri := stri[2 ..];
-              aTime.micro_second := integer parse ((getint(stri) & "00000X")[.. 6]);
+              aTime.micro_second := integer((getint(stri) & "00000X")[.. 6]);
               if stri <> "" then
                 raise RANGE_ERROR;
               end if;
@@ -336,6 +341,20 @@ const func time: (attr time) parse (in var string: stri) is func
 
 
 enable_io(time);
+
+
+(**
+ *  Convert a string in the ISO 8601 date format to a time.
+ *  The accepted ISO 8601 date formats are YYYY-MM, YYYY-MM-DD,
+ *  YYYY-MM-DDTHH, YYYY-MM-DDTHH:MM, YYYY-MM-DDTHH:MM:SS
+ *  Additionally a space is also allowed to seperate the date and the
+ *  time representations: YYYY-MM-DD HH, YYYY-MM-DD HH:MM,
+ *  YYYY-MM-DD HH:MM:SS
+ *  @return the time result of the conversion.
+ *  @exception RANGE_ERROR When stri contains not a valid time value.
+ *)
+const func time: time (in string: stri) is
+    return time parse stri;
 
 
 (**
@@ -856,6 +875,7 @@ const func integer: timestamp1970 (in time: aTime) is func
   result
     var integer: seconds is 0;
   local
+    const integer: DAYS_FROM_0_TO_1970 is 719162; # Days between 0-01-01 and 1970-01-01
     var integer: yearBefore is 0;
   begin
     yearBefore := pred(aTime.year);
@@ -863,7 +883,7 @@ const func integer: timestamp1970 (in time: aTime) is func
                   yearBefore mdiv 4 -
                   yearBefore mdiv 100 +
                   yearBefore mdiv 400 -
-               719162 +
+               DAYS_FROM_0_TO_1970 +
                pred(dayOfYear(aTime))) * 24 +
                aTime.hour) * 60 +
                aTime.minute) * 60 +
@@ -948,6 +968,39 @@ const func time: timestamp1970ToUTC (in integer: timestamp) is func
     aTime.year := year;
   end func;
 *)
+
+
+(**
+ *  Compute pseudo-random time in the range [low, high].
+ *  The random values are uniform distributed.
+ *  @return a random time such that low <= rand(low, high) and
+ *          rand(low, high) <= high holds.
+ *  @exception RANGE_ERROR The range is empty (low > high holds).
+ *)
+const func time: rand (in time: low, in time: high) is func
+  result
+    var time: randomTime is time.value;
+  local
+    var integer: timestampLow is 0;
+    var integer: timestampHigh is 0;
+  begin
+    timestampLow := timestamp1970(low);
+    timestampHigh := timestamp1970(high);
+    randomTime := low;
+    randomTime.second +:= rand(timestampLow, timestampHigh) - timestampLow;
+    if randomTime.second = low.second then
+      if randomTime.second = high.second then
+        randomTime.micro_second := rand(low.micro_second, high.micro_second);
+      else
+        randomTime.micro_second := rand(low.micro_second, 999999);
+      end if;
+    elsif randomTime.second = high.second then
+      randomTime.micro_second := rand(0, high.micro_second);
+    else
+      randomTime.micro_second := rand(0, 999999);
+    end if;
+    NORMALIZE(randomTime);
+  end func;
 
 
 (**

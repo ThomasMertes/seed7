@@ -1,3 +1,61 @@
+20181125:
+- In sql_odbc.c the handling of blobs has been improved. Selects with
+  normal and blob fields work now independend from the order of fields.
+  The functions resizeBindArray() and getClob() have been removed. The
+  functions setupParameters(), getBlob(), getData() and fetchBlobs()
+  have been added and the function getWCLob() has been improved.
+- In sql_odbc.c the handling of time values has been improved to
+  support the sql type datetime2 and times with fractions of a second.
+  The functions sqlBindTime() and sqlColumnTime() have been improved.
+- In sql_odbc.c the binding of bigRational and null values has been
+  improved. The functons sqlBindBigRat() and sqlBindNull() have been
+  improved.
+- In the library duration.s7i the function str() and the operator
+  'parse' have been improved to use P[nY][nM][nD][T[nH][nM][n[.n]S]] as
+  format for the string representation of a duration.
+- In dir_rtl.c the function dirRead() has been improved to use the
+  functions conv_from_os_stri() and os_stri_strlen() instead of
+  os_stri_to_stri(). This reduces the runtime of dirRead() by 2%
+  (measured with gcc and valgrind, when reading 1532 directories).
+- In the compiler (in comp/const.s7i) the actions BST_PARSE, FLT_PARSE
+  and INT_PARSE have been added to the list of special actions.
+- The function duration(), which converts a string to a duration value,
+  has been added to duration.s7i.
+- The function time(), which converts a string to a time value, has
+  been added to time.s7i. Additionally parsing of time literals has
+  been improved to support negative years.
+- The function bstring(), which converts a string to a bstring value,
+  has been added to bstring.s7i.
+- The function rand(), which computes a pseudo-random time in a given
+  range, has been added to time.s7i.
+- Tests for the function float(), which converts a string to a float
+  value, have been added to chkflt.sd7.
+- The program chkccomp.c has been improved to determine INT64_SIZE
+  (the size of __int64), HAS_LLABS, HAS_ABS64, STRINGIFY_WORKS,
+  HAS_GMTIME_R and HAS_GMTIME_S.
+- Documentation comments have been added or improved in sockbase.s7i,
+  fil_rtl.c, fil_unx.c, fil_win.c, soclib.c and soc_rtl.c.
+- In heaputl.c the function growStri() has been improved to have a
+  smarter behavior in the case when malloc() returns NULL.
+- The functions sqlBindDuration and sqlColumnDuration have been
+  improved in sql_lite.c, sql_my.c, sql_oci.c, sql_odbc.c and
+  sql_post.c.
+- The parameter time_zone has been added to the function sqlBindTime()
+  in sqllib.c, sql_rtl.h, sql_rtl.c, sql_drv.h, sql_lite.c, sql_my.c,
+  sql_oci.c, sql_odbc.c, sql_post.c and comp/sql_act.s7i.
+- A function to bind a duration value to a prepared statement has been
+  added to the library sql_base.s7i.
+- The example program chkdb.sd7 has been improved to check inserting
+  and selecting time and duration values into and from a database.
+- In sql_lite.c the function sqlColumnTime() has been improved.
+- In sql_post.c the functions sqlBindTime() and sqlColumnTime() have
+  been improved.
+- The functions stringify() and conv_wstri_buf_to_cstri() have been
+  added to striutl.c.
+- In tim_rtl.c the functions mkutc() and unchecked_mkutc() have been
+  improved to work with negative years.
+- The function timUtcFromTimestamp() has been added to tim_rtl.c.
+
 20181014:
 - Simple function profiling has been added to the compiler. Profiling
   is enabled, when programs are compiled with the option -p. When

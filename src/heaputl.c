@@ -126,19 +126,28 @@ striType growStri (striType stri, memSizeType len)
       } else if (unlikely(newCapacity > MAX_STRI_LEN)) {
         newCapacity = MAX_STRI_LEN;
       } /* if */
-      /* printf("growStri(%lX, %lu) size=%u, capacity=%u, newCapacity=%u, siz_stri=%u, sizeof=%u\n",
-         stri, len, stri->size, stri->capacity, newCapacity, SIZ_STRI(newCapacity), sizeof(striRecord));
+      /* printf("growStri(" FMT_X_MEM ", " FMT_U_MEM
+             ") size=%u, capacity=%u, newCapacity=%u, siz_stri=%lu, sizeof=%lu\n",
+             (memSizeType) stri, len, stri->size, stri->capacity, newCapacity,
+             SIZ_STRI(newCapacity), sizeof(striRecord));
       fflush(stdout); */
       result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
-      if (result == NULL) {
-        newCapacity = len;
-        result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
+      if (unlikely(result == NULL)) {
+        do {
+          newCapacity = (newCapacity + len) / 2;
+          /* printf("newCapacity: %u, siz_stri=%lu\n", newCapacity, SIZ_STRI(newCapacity));
+          fflush(stdout); */
+          result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
+        } while (result == NULL && newCapacity != len);
       } /* if */
-      if (result != NULL) {
+      if (likely(result != NULL)) {
 #if ALLOW_STRITYPE_SLICES
         result->mem = result->mem1;
 #endif
         result->capacity = newCapacity;
+      } else {
+        logError(printf("growStri(" FMT_X_MEM ", " FMT_U_MEM ") failed\n",
+                        (memSizeType) stri, len););
       } /* if */
     } /* if */
     logFunction(printf("growStri --> " FMT_X_MEM "\n", (memSizeType) result);

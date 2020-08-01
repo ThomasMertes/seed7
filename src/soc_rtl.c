@@ -570,6 +570,7 @@ intType socAddrFamily (const const_bstriType address)
  *  "192.0.2.235") and IPv6 addresses return the socketAddress in
  *  colon notation (e.g.: "fe80:0:0:0:202:b3ff:fe1e:8329").
  *  @return the IP address of the specified host.
+ *  @exception RANGE_ERROR The address is neither AF_INET nor AF_INET6.
  */
 striType socAddrNumeric (const const_bstriType address)
 

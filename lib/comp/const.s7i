@@ -32,10 +32,11 @@ const set of category: constantExpressionCategories is {
 
 const set of string: specialActions is
     {"BIN_AND", "BIN_OR", "BIN_XOR", "BLN_ICONV1", "BLN_ICONV3",
-     "BLN_ORD", "CHR_ICONV1", "CHR_ICONV3", "CHR_ORD", "ENU_ICONV2",
-     "ENU_ORD2", "HSH_CONTAINS", "HSH_EXCL", "HSH_INCL", "HSH_KEYS",
-     "INT_ICONV1", "INT_ICONV3", "INT_ODD", "SET_BASELIT", "SET_CONV",
-     "SET_ELEM", "SET_EXCL", "SET_INCL", "SET_NOT_ELEM", "SET_RAND"};
+     "BLN_ORD", "BST_PARSE", "CHR_ICONV1", "CHR_ICONV3", "CHR_ORD",
+     "ENU_ICONV2", "ENU_ORD2", "FLT_PARSE", "HSH_CONTAINS", "HSH_EXCL",
+     "HSH_INCL", "HSH_KEYS", "INT_ICONV1", "INT_ICONV3", "INT_ODD",
+     "INT_PARSE", "SET_BASELIT", "SET_CONV", "SET_ELEM", "SET_EXCL",
+     "SET_INCL", "SET_NOT_ELEM", "SET_RAND"};
 
 
 const func boolean: isPureFunction (in reference: function) is forward;

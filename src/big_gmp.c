@@ -82,8 +82,8 @@ static unsigned int flist_allowed = 100;
 cstriType bigHexCStri (const const_bigIntType big1)
 
   {
-    size_t count;
-    size_t export_count;
+    size_t sizeInBytes;
+    size_t bytesExported;
     size_t pos;
     int sign;
     unsigned int carry;
@@ -95,17 +95,17 @@ cstriType bigHexCStri (const const_bigIntType big1)
 
   /* bigHexCStri */
     if (big1 != NULL) {
-      count = (mpz_sizeinbase(big1, 2) + CHAR_BIT - 1) / CHAR_BIT;
-      buffer = (ustriType) malloc(count);
+      sizeInBytes = (mpz_sizeinbase(big1, 2) + CHAR_BIT - 1) / CHAR_BIT;
+      buffer = (ustriType) malloc(sizeInBytes);
       if (unlikely(buffer == NULL)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        mpz_export(buffer, &export_count, 1, 1, 0, 0, big1);
+        mpz_export(buffer, &bytesExported, 1, 1, 0, 0, big1);
         sign = mpz_sgn(big1);
         if (sign < 0) {
           carry = 1;
-          pos = export_count;
+          pos = bytesExported;
           while (pos > 0) {
             pos--;
             carry += ~buffer[pos] & 0xFF;
@@ -113,7 +113,7 @@ cstriType bigHexCStri (const const_bigIntType big1)
             carry >>= CHAR_BIT;
           } /* while */
         } /* if */
-        result_size = 3 + count * 2;
+        result_size = 3 + sizeInBytes * 2;
         if ((sign > 0 && buffer[0] > BYTE_MAX) ||
             (sign < 0 && buffer[0] <= BYTE_MAX)) {
           result_size += 2;
@@ -137,7 +137,7 @@ cstriType bigHexCStri (const const_bigIntType big1)
                 charIndex += 2;
               } /* if */
             } /* for */
-            for (pos = 0; pos < export_count; pos++) {
+            for (pos = 0; pos < bytesExported; pos++) {
               sprintf(&result[charIndex], "%02x", buffer[pos]);
               charIndex += 2;
             } /* for */
@@ -829,15 +829,15 @@ bigIntType bigGcd (const const_bigIntType big1,
 intType bigHashCode (const const_bigIntType big1)
 
   {
-    size_t count;
+    size_t size;
     intType result;
 
   /* bigHashCode */
-    count = mpz_size(big1);
-    if (count == 0) {
+    size = mpz_size(big1);
+    if (size == 0) {
       result = 0;
     } /* if */
-    result = (intType) (mpz_getlimbn(big1, 0) << 5 ^ count << 3 ^ mpz_getlimbn(big1, count - 1));
+    result = (intType) (mpz_getlimbn(big1, 0) << 5 ^ size << 3 ^ mpz_getlimbn(big1, size - 1));
     return result;
   } /* bigHashCode */
 
@@ -1819,8 +1819,8 @@ bigIntType bigSuccTemp (bigIntType big1)
 bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
 
   {
-    size_t count;
-    size_t export_count;
+    size_t sizeInBytes;
+    size_t bytesExported;
     size_t pos;
     int sign;
     unsigned int carry;
@@ -1830,18 +1830,18 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
     bstriType result;
 
   /* bigToBStriBe */
-    count = (mpz_sizeinbase(big1, 2) + CHAR_BIT - 1) / CHAR_BIT;
-    buffer = (ustriType) malloc(count);
+    sizeInBytes = (mpz_sizeinbase(big1, 2) + CHAR_BIT - 1) / CHAR_BIT;
+    buffer = (ustriType) malloc(sizeInBytes);
     if (unlikely(buffer == NULL)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      mpz_export(buffer, &export_count, 1, 1, 0, 0, big1);
+      mpz_export(buffer, &bytesExported, 1, 1, 0, 0, big1);
       sign = mpz_sgn(big1);
       if (isSigned) {
         if (sign < 0) {
           carry = 1;
-          pos = export_count;
+          pos = bytesExported;
           while (pos > 0) {
             pos--;
             carry += ~buffer[pos] & 0xFF;
@@ -1849,7 +1849,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
             carry >>= CHAR_BIT;
           } /* while */
         } /* if */
-        result_size = count;
+        result_size = sizeInBytes;
         if ((sign > 0 && buffer[0] > BYTE_MAX) ||
             (sign < 0 && buffer[0] <= BYTE_MAX)) {
           result_size++;
@@ -1863,7 +1863,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
           free(buffer);
           return NULL;
         } else {
-          result_size = count;
+          result_size = sizeInBytes;
         } /* if */
       } /* if */
       if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, result_size))) {
@@ -1887,7 +1887,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
               } /* if */
             } /* if */
           } /* if */
-          memcpy(&result->mem[charIndex], buffer, export_count);
+          memcpy(&result->mem[charIndex], buffer, bytesExported);
         } /* if */
       } /* if */
       free(buffer);
@@ -1913,8 +1913,8 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
 bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
 
   {
-    size_t count;
-    size_t export_count;
+    size_t sizeInBytes;
+    size_t bytesExported;
     size_t pos;
     int sign;
     unsigned int carry;
@@ -1923,28 +1923,28 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
     bstriType result;
 
   /* bigToBStriLe */
-    count = (mpz_sizeinbase(big1, 2) + CHAR_BIT - 1) / CHAR_BIT;
-    buffer = (ustriType) malloc(count);
+    sizeInBytes = (mpz_sizeinbase(big1, 2) + CHAR_BIT - 1) / CHAR_BIT;
+    buffer = (ustriType) malloc(sizeInBytes);
     if (unlikely(buffer == NULL)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      mpz_export(buffer, &export_count, -1, 1, 0, 0, big1);
+      mpz_export(buffer, &bytesExported, -1, 1, 0, 0, big1);
       sign = mpz_sgn(big1);
       if (isSigned) {
         if (sign < 0) {
           carry = 1;
           pos = 0;
-          while (pos < export_count) {
+          while (pos < bytesExported) {
             carry += ~buffer[pos] & 0xFF;
             buffer[pos] = (ucharType) (carry & 0xFF);
             carry >>= CHAR_BIT;
             pos++;
           } /* while */
         } /* if */
-        result_size = count;
-        if ((sign > 0 && buffer[export_count - 1] > BYTE_MAX) ||
-            (sign < 0 && buffer[export_count - 1] <= BYTE_MAX)) {
+        result_size = sizeInBytes;
+        if ((sign > 0 && buffer[bytesExported - 1] > BYTE_MAX) ||
+            (sign < 0 && buffer[bytesExported - 1] <= BYTE_MAX)) {
           result_size++;
         } /* if */
       } else {
@@ -1956,7 +1956,7 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
           free(buffer);
           return NULL;
         } else {
-          result_size = count;
+          result_size = sizeInBytes;
         } /* if */
       } /* if */
       if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, result_size))) {
@@ -1966,15 +1966,15 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
         if (sign == 0) {
           result->mem[0] = 0;
         } else {
-          memcpy(result->mem, buffer, export_count);
+          memcpy(result->mem, buffer, bytesExported);
           if (isSigned) {
             if (sign < 0) {
-              if (buffer[export_count - 1] <= BYTE_MAX) {
-                result->mem[export_count] = UBYTE_MAX;
+              if (buffer[bytesExported - 1] <= BYTE_MAX) {
+                result->mem[bytesExported] = UBYTE_MAX;
               } /* if */
             } else {
-              if (buffer[export_count - 1] > BYTE_MAX) {
-                result->mem[export_count] = 0;
+              if (buffer[bytesExported - 1] > BYTE_MAX) {
+                result->mem[bytesExported] = 0;
               } /* if */
             } /* if */
           } /* if */

@@ -1041,6 +1041,7 @@ static void numericSizes (FILE *versionFile)
     int sizeof_int;
     int sizeof_long;
     int sizeof_long_long;
+    int sizeof_int64;
 
   /* numericSizes */
     fprintf(logFile, "Numeric sizes: ");
@@ -1058,12 +1059,16 @@ static void numericSizes (FILE *versionFile)
     sizeof_int       = getSizeof("int");
     sizeof_long      = getSizeof("long");
     sizeof_long_long = getSizeof("long long");
+    sizeof_int64     = getSizeof("__int64");
     fprintf(versionFile, "#define CHAR_SIZE %d\n",        char_bit * sizeof_char);
     fprintf(versionFile, "#define SHORT_SIZE %d\n",       char_bit * sizeof_short);
     fprintf(versionFile, "#define INT_SIZE %d\n",         char_bit * sizeof_int);
     fprintf(versionFile, "#define LONG_SIZE %d\n",        char_bit * sizeof_long);
     if (sizeof_long_long != -1) {
       fprintf(versionFile, "#define LONG_LONG_SIZE %d\n", char_bit * sizeof_long_long);
+    } /* if */
+    if (sizeof_int64 != -1) {
+      fprintf(versionFile, "#define INT64_SIZE %d\n",     char_bit * sizeof_int64);
     } /* if */
     fprintf(versionFile, "#define POINTER_SIZE %d\n",     char_bit * getSizeof("char *"));
     fprintf(versionFile, "#define FLOAT_SIZE %d\n",       char_bit * getSizeof("float"));
@@ -1171,7 +1176,7 @@ static void numericSizes (FILE *versionFile)
                                   "return 0;}\n") && doTest() == 1) {
         int64TypeFormat = "I64";
       } /* if */
-    } else if (getSizeof("__int64") == 8) {
+    } else if (sizeof_int64 == 8) {
       /* The type __int64 is defined and it is a 64-bit type */
       int64TypeStri = "__int64";
       uint64TypeStri = "unsigned __int64";
@@ -1245,6 +1250,22 @@ static void numericSizes (FILE *versionFile)
       fprintf(versionFile, "#define UINT128TYPE %s\n", uint128TypeStri);
       fprintf(versionFile, "#define UINT128TYPE_STRI \"%s\"\n", uint128TypeStri);
     } /* if */
+    fprintf(versionFile, "#define HAS_LLABS %d\n",
+            sizeof_long_long != -1 &&
+            compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                             "int main(int argc, char *argv[])\n"
+                             "{long long a = (long long) -123;\n"
+                             "printf(\"%d\\n\", llabs(a) == (long long) 123);\n"
+                             "return 0;}\n") &&
+            doTest() == 1);
+    fprintf(versionFile, "#define HAS_ABS64 %d\n",
+            sizeof_int64 != -1 &&
+            compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                             "int main(int argc, char *argv[])\n"
+                             "{__int64 a = (__int64) -123;\n"
+                             "printf(\"%d\\n\", _abs64(a) == (__int64) 123);\n"
+                             "return 0;}\n") &&
+            doTest() == 1);
     fprintf(versionFile, "#define INTPTR_T_DEFINED %d\n",
             compileAndLinkOk("#include <stdint.h>\nint main(int argc, char *argv[])"
                              "{intptr_t intptr = &argc;return 0;}\n"));
@@ -2388,6 +2409,38 @@ static void determineStackDirection (FILE *versionFile)
 
 
 
+static void determinePreprocessorProperties (FILE *versionFile)
+
+  { /* determinePreprocessorProperties */
+    if (assertCompAndLnk("#include <stdio.h>\n#include <string.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "printf(\"%d\\n\", strcmp(\"\?\?(\", \"[\") == 0);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define TRIGRAPH_SEQUENCES_ARE_REPLACED %d\n", doTest() == 1);
+    } /* if */
+    fprintf(versionFile, "#define DIGRAPH_SEQUENCES_ARE_REPLACED %d\n",
+        compileAndLinkOk("%:include <stdio.h>\n"
+                         "int main (int argc, char *argv<::>)\n"
+                         "<%printf(\"1\\n\");return 0;%>\n"));
+    fprintf(versionFile, "#define STRINGIFY_WORKS %d\n",
+            compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                             "#define STRINGIFY(s) STRINGIFY_HELPER(s)\n"
+                             "#define STRINGIFY_HELPER(s) #s\n"
+                             "#define TEST1 1\n"
+                             "#define TEST2 2 + 3\n"
+                             "#define TEST3 TEST1 + TEST2\n"
+                             "int main(int argc, char *argv[]){\n"
+                             "printf(\"%d\\n\",\n"
+                             "       strcmp(\"0\", STRINGIFY(0)) == 0 &&\n"
+                             "       strcmp(\"1\", STRINGIFY(TEST1)) == 0 &&\n"
+                             "       strcmp(\"2 + 3\", STRINGIFY(TEST2)) == 0 &&\n"
+                             "       strcmp(\"1 + 2 + 3\", STRINGIFY(TEST3)) == 0);\n"
+                             "return 0;}\n") &&
+            doTest() == 1);
+  } /* determinePreprocessorProperties */
+
+
+
 static void localtimeProperties (FILE *versionFile)
 
   { /* localtimeProperties */
@@ -2426,6 +2479,18 @@ static void localtimeProperties (FILE *versionFile)
       fprintf(versionFile, "#define LOCALTIME_WORKS_SIGNED %d\n", doTest() == 1);
     } /* if */
 #endif
+    if (compileAndLinkOk("#include<time.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{time_t ts;struct tm res;struct tm*lt;\n"
+                         "lt=gmtime_r(&ts,&res);return 0;}\n")) {
+      fputs("#define HAS_GMTIME_R\n", versionFile);
+    } else if (compileAndLinkOk("#include<stdio.h>\n#include<time.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{time_t ts=0;struct tm res;int retval;\n"
+                                "retval=gmtime_s(&res,&ts);\n"
+                                "printf(\"%d\\n\",retval==0);return 0;}\n") && doTest() == 1) {
+      fputs("#define HAS_GMTIME_S\n", versionFile);
+    } /* if */
   } /* localtimeProperties */
 
 
@@ -5093,20 +5158,11 @@ int main (int argc, char **argv)
                           "return 0;}\n")) {
       fputs("#define NO_EMPTY_STRUCTS\n", versionFile);
     } /* if */
-    if (assertCompAndLnk("#include <stdio.h>\n#include <string.h>\n"
-                         "int main(int argc, char *argv[]){\n"
-                         "printf(\"%d\\n\", strcmp(\"\?\?(\", \"[\") == 0);\n"
-                         "return 0;}\n")) {
-      fprintf(versionFile, "#define TRIGRAPH_SEQUENCES_ARE_REPLACED %d\n", doTest() == 1);
-    } /* if */
-    fprintf(versionFile, "#define DIGRAPH_SEQUENCES_ARE_REPLACED %d\n",
-        compileAndLinkOk("%:include <stdio.h>\n"
-                         "int main (int argc, char *argv<::>)\n"
-                         "<%printf(\"1\\n\");return 0;%>\n"));
     checkForLimitedStringLiteralLength(versionFile);
     checkForLimitedArrayLiteralLength(versionFile);
     checkForSwitchWithInt64Type(versionFile);
     determineStackDirection(versionFile);
+    determinePreprocessorProperties(versionFile);
 #ifndef STACK_SIZE
     if (sizeof(char *) == 8) { /* Machine with 64-bit addresses */
       /* Due to alignment some 64-bit machines have huge stack requirements. */

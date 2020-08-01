@@ -75,6 +75,12 @@ static void handleIntSignal (int sig_num)
 
 
 
+/**
+ *  Read a character from 'inFile' and check if ctrl-c is pressed.
+ *  @param inFile File from which the character is read.
+ *  @param sigintReceived Flag indicating if ctrl-c has been pressed.
+ *  @return the character read.
+ */
 int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
 
   {

@@ -908,32 +908,29 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
   {
     preparedStmtType preparedStmt;
     enum enum_field_types buffer_type;
+    int64Type monthDuration;
+    int64Type microsecDuration;
     MYSQL_TIME *timeValue;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindDuration */
-    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", "
-                       F_D(04) "-" F_D(02) "-" F_D(02) " "
-                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+    logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
+                                          FMT_D "Y" FMT_D "M" FMT_D "DT"
+                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
                        (memSizeType) sqlStatement, pos,
-                       year, month, day,
-                       hour, minute, second, micro_second););
+                       year, month, day, hour, minute,
+                       second < 0 || micro_second < 0 ? "-" : "",
+                       intAbs(second), intAbs(micro_second)););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
       logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
                       pos, (memSizeType) MAX_MEM_INDEX););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year < -INT_MAX || year > INT_MAX || month < -12 || month > 12 ||
-                        day < -31 || day > 31 || hour < -24 || hour > 24 ||
-                        minute < -60 || minute > 60 || second < -60 || second > 60 ||
-                        micro_second < -1000000 || micro_second > 1000000)) {
+                        day < -31 || day > 31 || hour <= -24 || hour >= 24 ||
+                        minute <= -60 || minute >= 60 || second <= -60 || second >= 60 ||
+                        micro_second <= -1000000 || micro_second >= 1000000)) {
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
-      raise_error(RANGE_ERROR);
-    } else if (unlikely(!((year >= 0 && month >= 0 && day >= 0 && hour >= 0 &&
-                           minute >= 0 && second >= 0 && micro_second >= 0) ||
-                          (year <= 0 && month <= 0 && day <= 0 && hour <= 0 &&
-                           minute <= 0 && second <= 0 && micro_second <= 0)))) {
-      logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
       raise_error(RANGE_ERROR);
     } else {
       buffer_type = MYSQL_TYPE_DATETIME;
@@ -954,18 +951,62 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
         } else {
-          timeValue = (MYSQL_TIME *) preparedStmt->param_array[pos - 1].buffer;
-          timeValue->year   = (unsigned int) abs((int) year);
-          timeValue->month  = (unsigned int) abs((int) month);
-          timeValue->day    = (unsigned int) abs((int) day);
-          timeValue->hour   = (unsigned int) abs((int) hour);
-          timeValue->minute = (unsigned int) abs((int) minute);
-          timeValue->second = (unsigned int) abs((int) second);
-          timeValue->neg    = year < 0 || month < 0 || day < 0 ||
-                              hour < 0 || minute < 0 || second < 0;
-          timeValue->time_type = MYSQL_TIMESTAMP_DATETIME;
-          preparedStmt->executeSuccessful = FALSE;
-          preparedStmt->fetchOkay = FALSE;
+          monthDuration = (int64Type) year * 12 + (int64Type) month;
+          microsecDuration = (((((int64Type) day) * 24 +
+                                 (int64Type) hour) * 60 +
+                                 (int64Type) minute) * 60 +
+                                 (int64Type) second) * 1000000 +
+                                 (int64Type) micro_second;
+          /* printf("monthDuration: " FMT_D64 "\n", monthDuration);
+             printf("microsecDuration: " FMT_D64 "\n", microsecDuration); */
+          if (unlikely(!((monthDuration >= 0 && microsecDuration >= 0) ||
+                         (monthDuration <= 0 && microsecDuration <= 0)))) {
+            logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
+            raise_error(RANGE_ERROR);
+          } else {
+            if (monthDuration < 0) {
+              monthDuration = -monthDuration;
+              month = -(monthDuration % 12);
+              year = -(monthDuration / 12);
+            } else {
+              month = monthDuration % 12;
+              year = monthDuration / 12;
+            } /* if */
+            if (microsecDuration < 0) {
+              microsecDuration = -microsecDuration;
+              micro_second = -(microsecDuration % 1000000);
+              microsecDuration /= 1000000;
+              second = -(microsecDuration % 60);
+              microsecDuration /= 60;
+              minute = -(microsecDuration % 60);
+              microsecDuration /= 60;
+              hour = -(microsecDuration % 24);
+              day = -(microsecDuration / 24);
+            } else {
+              micro_second = microsecDuration % 1000000;
+              microsecDuration /= 1000000;
+              second = microsecDuration % 60;
+              microsecDuration /= 60;
+              minute = microsecDuration % 60;
+              microsecDuration /= 60;
+              hour = microsecDuration % 24;
+              day = microsecDuration / 24;
+            } /* if */
+            timeValue = (MYSQL_TIME *) preparedStmt->param_array[pos - 1].buffer;
+            timeValue->year   = (unsigned int) abs((int) year);
+            timeValue->month  = (unsigned int) abs((int) month);
+            timeValue->day    = (unsigned int) abs((int) day);
+            timeValue->hour   = (unsigned int) abs((int) hour);
+            timeValue->minute = (unsigned int) abs((int) minute);
+            timeValue->second = (unsigned int) abs((int) second);
+            timeValue->neg    = year < 0 || month < 0 || day < 0 ||
+                hour < 0 || minute < 0 || second < 0 || micro_second < 0;
+            timeValue->second_part = (unsigned long) micro_second;
+            timeValue->time_type = MYSQL_TIMESTAMP_DATETIME;
+            preparedStmt->executeSuccessful = FALSE;
+            preparedStmt->fetchOkay = FALSE;
+            /* printf("timeValue->neg: %d\n", timeValue->neg); */
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
@@ -1146,7 +1187,8 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
 static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
-    intType minute, intType second, intType micro_second)
+    intType minute, intType second, intType micro_second,
+    intType time_zone)
 
   {
     preparedStmtType preparedStmt;
@@ -1157,19 +1199,21 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
   /* sqlBindTime */
     logFunction(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
                        F_D(04) "-" F_D(02) "-" F_D(02) " "
-                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
+                       FMT_D ")\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day,
-                       hour, minute, second, micro_second););
+                       hour, minute, second, micro_second,
+                       time_zone););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
       logError(printf("sqlBindTime: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
                       pos, (memSizeType) MAX_MEM_INDEX););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year < -INT_MAX || year > INT_MAX || month < 1 || month > 12 ||
-                        day < 1 || day > 31 || hour < 0 || hour > 24 ||
-                        minute < 0 || minute > 60 || second < 0 || second > 60 ||
-                        micro_second < 0 || micro_second > 1000000)) {
+                        day < 1 || day > 31 || hour < 0 || hour >= 24 ||
+                        minute < 0 || minute >= 60 || second < 0 || second >= 60 ||
+                        micro_second < 0 || micro_second >= 1000000)) {
       logError(printf("sqlBindTime: Time not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
@@ -1203,6 +1247,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           timeValue->minute = (unsigned int) minute;
           timeValue->second = (unsigned int) second;
           timeValue->neg    = year < 0;
+          timeValue->second_part = (unsigned long) micro_second;
           timeValue->time_type = MYSQL_TIMESTAMP_DATETIME;
           preparedStmt->executeSuccessful = FALSE;
           preparedStmt->fetchOkay = FALSE;
@@ -1580,7 +1625,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
               *hour         = timeValue->hour;
               *minute       = timeValue->minute;
               *second       = timeValue->second;
-              *micro_second = 0;
+              *micro_second = (intType) timeValue->second_part;
               if (timeValue->time_type == MYSQL_TIMESTAMP_DATE ||
                   timeValue->time_type == MYSQL_TIMESTAMP_DATETIME) {
                 *year      = timeValue->year;
@@ -1590,6 +1635,15 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
                 *year      = 0;
                 *month     = 0;
                 *day       = 0;
+              } /* if */
+              if (timeValue->neg) {
+                *year         = -*year;
+                *month        = -*month;
+                *day          = -*day;
+                *hour         = -*hour;
+                *minute       = -*minute;
+                *second       = -*second;
+                *micro_second = -*micro_second;
               } /* if */
             } /* if */
             break;
@@ -1602,13 +1656,13 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
         } /* switch */
       } /* if */
     } /* if */
-    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ", "
-                                            F_D(04) "-" F_D(02) "-" F_D(02) " "
-                                            F_D(02) ":" F_D(02) ":" F_D(02) "."
-                                            F_D(06) ") -->\n",
+    logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") -> P"
+                                            FMT_D "Y" FMT_D "M" FMT_D "DT"
+                                            FMT_D "H" FMT_D "M%s%lu.%06luS\n",
                        (memSizeType) sqlStatement, column,
-                       *year, *month, *day, *hour, *minute, *second,
-                       *micro_second););
+                       *year, *month, *day, *hour, *minute,
+                       *second < 0 || *micro_second < 0 ? "-" : "",
+                       intAbs(*second), intAbs(*micro_second)););
   } /* sqlColumnDuration */
 
 
@@ -1855,7 +1909,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               *hour         = timeValue->hour;
               *minute       = timeValue->minute;
               *second       = timeValue->second;
-              *micro_second = 0;
+              *micro_second = (intType) timeValue->second_part;
               if (timeValue->time_type == MYSQL_TIMESTAMP_DATE ||
                   timeValue->time_type == MYSQL_TIMESTAMP_DATETIME) {
                 *year      = timeValue->year;

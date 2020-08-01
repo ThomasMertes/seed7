@@ -48,7 +48,8 @@ typedef struct {
     void (*sqlBindStri) (sqlStmtType sqlStatement, intType pos, striType stri);
     void (*sqlBindTime) (sqlStmtType sqlStatement, intType pos,
                          intType year, intType month, intType day, intType hour,
-                         intType min, intType sec, intType micro_sec);
+                         intType min, intType sec, intType micro_sec,
+                         intType time_zone);
     void (*sqlClose) (databaseType database);
     bigIntType (*sqlColumnBigInt) (sqlStmtType sqlStatement, intType column);
     void (*sqlColumnBigRat) (sqlStmtType sqlStatement, intType column,

@@ -374,29 +374,34 @@ void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
  */
 void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
-    intType minute, intType second, intType micro_second)
+    intType minute, intType second, intType micro_second,
+    intType time_zone)
 
   { /* sqlBindTime */
     logFunction(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
                        F_D(04) "-" F_D(02) "-" F_D(02) " "
-                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ")\n",
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
+                       FMT_D ")\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day,
-                       hour, minute, second, micro_second););
+                       hour, minute, second, micro_second,
+                       time_zone););
     if (unlikely(sqlStatement == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc == NULL ||
                  ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindTime == NULL)) {
       logError(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
                       F_D(04) "-" F_D(02) "-" F_D(02) " "
-                      F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) "): "
+                      F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) ", "
+                      FMT_D "): "
                       "SQL statement not okay.\n",
                       (memSizeType) sqlStatement, pos,
                       year, month, day,
-                      hour, minute, second, micro_second););
+                      hour, minute, second, micro_second,
+                      time_zone););
       raise_error(RANGE_ERROR);
     } else {
       ((preparedStmtType) sqlStatement)->sqlFunc->sqlBindTime(sqlStatement, pos,
-          year, month, day, hour, minute, second, micro_second);
+          year, month, day, hour, minute, second, micro_second, time_zone);
     } /* if */
   } /* sqlBindTime */
 

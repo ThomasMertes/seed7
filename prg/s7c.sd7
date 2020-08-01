@@ -5516,7 +5516,7 @@ const func string: int64AsTwoInt32 (in bigInteger: number) is func
   end func;
 
 
-const proc: init_bigint_constants (inout expr_type: c_expr) is func
+const proc: init_bigint_constants is func
 
   local
     var bigint_index_hash: bigint_index is bigint_index_hash.EMPTY_HASH;
@@ -5570,7 +5570,7 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: init_win_constants (inout expr_type: c_expr) is func
+const proc: init_win_constants is func
 
   local
     var win_index_hash: win_index is win_index_hash.EMPTY_HASH;
@@ -6479,8 +6479,8 @@ const proc: init_values (inout expr_type: c_expr) is func
       end if;
     end for;
 
-    init_bigint_constants(c_expr);
-    init_win_constants(c_expr);
+    init_bigint_constants;
+    init_win_constants;
     init_string_constants(c_expr);
     init_bstri_constants(c_expr);
     init_set_constants(c_expr);

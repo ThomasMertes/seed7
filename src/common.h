@@ -226,6 +226,22 @@ typedef uint128Type               doubleUintType;
 #endif
 
 
+/* Define intAbs macro that ignores integer overflow. */
+#if INTTYPE_SIZE == INT_SIZE
+#define intAbs(n) abs(n)
+#elif INTTYPE_SIZE == LONG_SIZE
+#define intAbs(n) labs(n)
+#elif defined(LONG_LONG_SIZE) && INTTYPE_SIZE == LONG_LONG_SIZE && HAS_LLABS
+#define intAbs(n) llabs(n)
+#elif defined(INT64_SIZE) && INTTYPE_SIZE == INT64_SIZE && HAS_ABS64
+#define intAbs(n) _abs64(n)
+#else
+/* The unsigned value is negated to avoid a signed integer */
+/* overflow when the smallest signed integer is negated.   */
+#define intAbs(n) ((n) < 0 ? (intType) -(uintType) (n) : (n))
+#endif
+
+
 #define BYTE_MIN  INT8TYPE_MIN
 #define BYTE_MAX  INT8TYPE_MAX
 #define UBYTE_MAX UINT8TYPE_MAX
