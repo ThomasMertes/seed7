@@ -56,32 +56,21 @@ const type: rot_position is new enum
     ROT_1, ROT_2, ROT_3, ROT_4
   end enum;
 
-const type: piece is new struct
-    var integer: line_pos is 0;
-    var integer: column_pos is 0;
-    var rot_position: rot_pos is ROT_1;
-    var boolean: moving is TRUE;
-  end struct;
+const type: tetromino_type is new enum
+    SQUARE_BLOCK, I_BAR, S_ZIGZAG, Z_ZIGZAG, GAMMA_KNEE, L_KNEE, T_BRANCH
+  end enum;
 
-const piece: SQUARE_BLOCK is piece.value;
-const piece: I_BAR is piece.value;
-const piece: S_ZIGZAG is piece.value;
-const piece: Z_ZIGZAG is piece.value;
-const piece: GAMMA_KNEE is piece.value;
-const piece: L_KNEE is piece.value;
-const piece: T_BRANCH is piece.value;
+const func integer: score (ref tetromino_type param) is DYNAMIC;
 
-const func integer: ord (ref piece param) is DYNAMIC;
+const integer: score (SQUARE_BLOCK) is 1;
+const integer: score (I_BAR) is        2;
+const integer: score (S_ZIGZAG) is     3;
+const integer: score (Z_ZIGZAG) is     4;
+const integer: score (GAMMA_KNEE) is   5;
+const integer: score (L_KNEE) is       6;
+const integer: score (T_BRANCH) is     7;
 
-const integer: ord (SQUARE_BLOCK) is 1;
-const integer: ord (I_BAR) is        2;
-const integer: ord (S_ZIGZAG) is     3;
-const integer: ord (Z_ZIGZAG) is     4;
-const integer: ord (GAMMA_KNEE) is   5;
-const integer: ord (L_KNEE) is       6;
-const integer: ord (T_BRANCH) is     7;
-
-const func color: color (ref piece param) is DYNAMIC;
+const func color: color (ref tetromino_type param) is DYNAMIC;
 
 const color: color (SQUARE_BLOCK) is dark_blue;
 const color: color (I_BAR) is        dark_red;
@@ -91,12 +80,12 @@ const color: color (GAMMA_KNEE) is   light_gray;
 const color: color (L_KNEE) is       dark_magenta;
 const color: color (T_BRANCH) is     brown;
 
-var array piece: piece_list is [](SQUARE_BLOCK, I_BAR, S_ZIGZAG, Z_ZIGZAG,
+var array tetromino_type: tetromino_list is [](SQUARE_BLOCK, I_BAR, S_ZIGZAG, Z_ZIGZAG,
     GAMMA_KNEE, L_KNEE, T_BRANCH);
 
 const type: stri_list is array string;
 
-const func stri_list: PATTERN (ref piece param, ref rot_position param) is DYNAMIC;
+const func stri_list: PATTERN (ref tetromino_type param, ref rot_position param) is DYNAMIC;
 
 const stri_list: PATTERN (SQUARE_BLOCK, ROT_1) is [](
     "##  ",
@@ -209,6 +198,14 @@ const stri_list: PATTERN (T_BRANCH, ROT_4) is [](
     " #  ",
     "    ");
 
+const type: piece is new struct
+    var tetromino_type: tetromino is SQUARE_BLOCK;
+    var integer: line_pos is 0;
+    var integer: column_pos is 0;
+    var rot_position: rot_pos is ROT_1;
+    var boolean: moving is TRUE;
+  end struct;
+
 
 const proc: next (inout rot_position: rot_pos) is func
   begin
@@ -237,10 +234,10 @@ const proc: show (in piece: actual_piece) is func
   begin
     for line range 1 to 4 do
       for column range 1 to 4 do
-        if PATTERN(actual_piece, actual_piece.rot_pos)[line][column] <> ' ' then
+        if PATTERN(actual_piece.tetromino, actual_piece.rot_pos)[line][column] <> ' ' then
           rect(FIELD_X_START + ((actual_piece.column_pos + column - 2) * BLOCK_SIZE),
                FIELD_Y_START + ((actual_piece.line_pos + line - 2) * BLOCK_SIZE),
-               BLOCK_SIZE, BLOCK_SIZE, color(actual_piece));
+               BLOCK_SIZE, BLOCK_SIZE, color(actual_piece.tetromino));
         end if;
       end for;
     end for;
@@ -254,7 +251,7 @@ const proc: hide (in piece: actual_piece) is func
   begin
     for line range 1 to 4 do
       for column range 1 to 4 do
-        if PATTERN(actual_piece, actual_piece.rot_pos)[line][column] <> ' ' then
+        if PATTERN(actual_piece.tetromino, actual_piece.rot_pos)[line][column] <> ' ' then
           rect(FIELD_X_START + ((actual_piece.column_pos + column - 2) * BLOCK_SIZE),
                FIELD_Y_START + ((actual_piece.line_pos + line - 2) * BLOCK_SIZE),
                BLOCK_SIZE, BLOCK_SIZE, black);
@@ -273,7 +270,7 @@ const func boolean: is_occupied (in piece: actual_piece) is func
   begin
     for line range 1 to 4 do
       for column range 1 to 4 do
-        if PATTERN(actual_piece, actual_piece.rot_pos)[line][column] <> ' ' and
+        if PATTERN(actual_piece.tetromino, actual_piece.rot_pos)[line][column] <> ' ' and
             occupied[pred(actual_piece.line_pos + line)]
             [actual_piece.column_pos + column + 2] then
           is_occupied := TRUE;
@@ -290,7 +287,7 @@ const proc: do_occupie (in piece: actual_piece) is func
   begin
     for line range 1 to 4 do
       for column range 1 to 4 do
-        if PATTERN(actual_piece, actual_piece.rot_pos)[line][column] <> ' ' then
+        if PATTERN(actual_piece.tetromino, actual_piece.rot_pos)[line][column] <> ' ' then
           occupied[pred(actual_piece.line_pos + line)]
               [actual_piece.column_pos + column + 2] := TRUE;
         end if;
@@ -369,12 +366,14 @@ const proc: drop (inout piece: actual_piece) is func
   end func;
 
 
-const proc: set_piece (inout piece: actual_piece) is func
+const proc: set_piece (in tetromino_type: tetromino) is func
   local
+    var piece: actual_piece is piece.value;
     var time: start_time is time.value;
     var integer: counter is 0;
     var char: command is ' ';
   begin
+    actual_piece.tetromino := tetromino;
     position(actual_piece, 1, 5);
     DRAW_FLUSH;
     if not is_occupied(actual_piece) then
@@ -403,7 +402,7 @@ const proc: set_piece (inout piece: actual_piece) is func
         await(start_time + delta);
         command := busy_getc(KEYBOARD);
       end while;
-      score +:= level + ord(actual_piece);
+      score +:= level + score(actual_piece.tetromino);
       if score > 1000 * level then
         incr(level);
         setPos(info_sheet, 16, 10);
@@ -492,7 +491,7 @@ const proc: main is func
           10 * BLOCK_SIZE, 20 * BLOCK_SIZE, black);
       DRAW_FLUSH;
       repeat
-        set_piece(piece_list[rand(1, length(piece_list))]);
+        set_piece(tetromino_list[rand(1, length(tetromino_list))]);
         remove_full_lines;
       until quit_round;
       setPos(info_sheet, 20, 2);

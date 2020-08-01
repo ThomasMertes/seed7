@@ -31,10 +31,12 @@
 
 #ifdef ANSI_C
 
-void conHScroll (inttype, inttype, inttype, inttype, inttype);
-void conSetpos (inttype, inttype);
-void conVScroll (inttype, inttype, inttype, inttype, inttype);
-void conWrite (const_stritype);
+void conHScroll (inttype startlin, inttype startcol,
+                 inttype stoplin, inttype stopcol, inttype count);
+void conSetpos (inttype lin, inttype col);
+void conVScroll (inttype startlin, inttype startcol,
+                 inttype stoplin, inttype stopcol, inttype count);
+void conWrite (const_stritype stri);
 
 #else
 

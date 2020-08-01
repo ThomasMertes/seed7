@@ -31,9 +31,9 @@
 
 #ifdef ANSI_C
 
-stritype gkbGets (inttype);
-stritype gkbLineRead (chartype *);
-stritype gkbWordRead (chartype *);
+stritype gkbGets (inttype length);
+stritype gkbLineRead (chartype *terminationChar);
+stritype gkbWordRead (chartype *terminationChar);
 
 #else
 

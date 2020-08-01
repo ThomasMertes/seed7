@@ -59,6 +59,7 @@
 FILE *protfile = NULL; /* was: stdout; */
 booltype internal_protocol = FALSE;
 
+/* #define prot_ptr(ptr) */
 #define prot_ptr(ptr) prot_int((inttype) (memsizetype) ptr)
 
 
@@ -472,6 +473,26 @@ settype setValue;
 
 #ifdef ANSI_C
 
+void prot_block (const_blocktype blockValue)
+#else
+
+void prot_block (blockValue)
+blocktype blockValue;
+#endif
+
+  { /* prot_block */
+    if (blockValue == NULL) {
+      prot_cstri(" *NULL_BLOCK* ");
+    } else {
+      prot_cstri("func result ");
+      trace1(blockValue->result.object);
+    } /* if */
+  } /* prot_block */
+
+
+
+#ifdef ANSI_C
+
 void prot_heapsize (void)
 #else
 
@@ -674,12 +695,7 @@ objecttype anyobject;
         prot_cstri("\"");
         break;
       case BLOCKOBJECT:
-        if (anyobject->value.blockvalue == NULL) {
-          prot_cstri(" *NULL_BLOCK* ");
-        } else {
-          prot_cstri("func ");
-          prot_ptr(anyobject->value.blockvalue);
-        } /* if */
+        prot_block(anyobject->value.blockvalue);
         break;
       case WINOBJECT:
         if (anyobject->value.winvalue == NULL) {

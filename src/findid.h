@@ -25,10 +25,10 @@
 /*                                                                  */
 /********************************************************************/
 
-#define STRONGEST_PRIORITY ((prior_type)   0)
-#define SCOL_PRIORITY      ((prior_type)  49)
-#define COM_PRIORITY       ((prior_type)  99)
-#define WEAKEST_PRIORITY   ((prior_type) 127)
+#define STRONGEST_PRIORITY ((prioritytype)   0)
+#define SCOL_PRIORITY      ((prioritytype)  49)
+#define COM_PRIORITY       ((prioritytype)  99)
+#define WEAKEST_PRIORITY   ((prioritytype) 127)
 
 EXTERN identtype current_ident;
 

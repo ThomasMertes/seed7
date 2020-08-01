@@ -98,12 +98,13 @@ int codepage = DEFAULT_CODEPAGE;
 
 
 
+#if defined OS_PATH_HAS_DRIVE_LETTERS || defined EMULATE_ROOT_CWD
 #ifdef ANSI_C
 
-const strelemtype *stri_charpos (const_stritype stri, strelemtype ch)
+static const strelemtype *stri_charpos (const_stritype stri, strelemtype ch)
 #else
 
-strelemtype *stri_charpos (stri, ch)
+static strelemtype *stri_charpos (stri, ch)
 stritype stri;
 strelemtype ch;
 #endif
@@ -122,6 +123,7 @@ strelemtype ch;
     } /* for */
     return NULL;
   } /* stri_charpos */
+#endif
 
 
 
@@ -1174,7 +1176,6 @@ stritype stri;
 #endif
 
   {
-    bstritype resized_bstri;
     bstritype bstri;
 
   /* stri_to_os_bstri */

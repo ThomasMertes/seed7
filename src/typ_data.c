@@ -298,7 +298,7 @@ typetype actual_type;
       table_used++;
       if (table_used > table_size) {
         if (type_table == NULL) {
-          ALLOC_TABLE(type_table, typetype, table_used + TYPE_TABLE_INCREMENT);
+          (void) ALLOC_TABLE(type_table, typetype, table_used + TYPE_TABLE_INCREMENT);
         } else {
           type_table = REALLOC_TABLE(type_table, typetype,
               table_size, table_used + TYPE_TABLE_INCREMENT);

@@ -672,12 +672,12 @@ rtlArraytype xyArray;
 #ifdef ANSI_C
 
 void drwPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, bstritype point_list, inttype col)
+    inttype x, inttype y, bstritype point_list, inttype col)
 #else
 
-void drwPolyLine (actual_window, x1, y1, point_list, col)
+void drwPolyLine (actual_window, x, y, point_list, col)
 wintype actual_window;
-inttype x1, y1;
+inttype x, y;
 const_bstritype point_list;
 inttype col;
 #endif
@@ -690,12 +690,12 @@ inttype col;
 #ifdef ANSI_C
 
 void drwFPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, bstritype point_list, inttype col)
+    inttype x, inttype y, bstritype point_list, inttype col)
 #else
 
-void drwFPolyLine (actual_window, x1, y1, point_list, col)
+void drwFPolyLine (actual_window, x, y, point_list, col)
 wintype actual_window;
-inttype x1, y1;
+inttype x, y;
 const_bstritype point_list;
 inttype col;
 #endif
@@ -708,14 +708,14 @@ inttype col;
 #ifdef ANSI_C
 
 void drwPut (const_wintype actual_window, const_wintype pixmap,
-    inttype x1, inttype y1)
+    inttype x, inttype y)
 #else
 
-void drwPut (actual_window, pixmap, x1, y1)
+void drwPut (actual_window, pixmap, x, y)
 wintype actual_window;
 wintype pixmap;
-inttype x1;
-inttype y1;
+inttype x;
+inttype y;
 #endif
 
   { /* drwPut */
@@ -726,12 +726,12 @@ inttype y1;
 #ifdef ANSI_C
 
 void drwRect (const_wintype actual_window,
-    inttype x1, inttype y1, inttype width, inttype height)
+    inttype x, inttype y, inttype width, inttype height)
 #else
 
-void drwRect (actual_window, x1, y1, width, height)
+void drwRect (actual_window, x, y, width, height)
 wintype actual_window;
-inttype x1, y1, width, height;
+inttype x, y, width, height;
 #endif
 
   { /* drwRect */
@@ -742,12 +742,12 @@ inttype x1, y1, width, height;
 #ifdef ANSI_C
 
 void drwPRect (const_wintype actual_window,
-    inttype x1, inttype y1, inttype width, inttype height, inttype col)
+    inttype x, inttype y, inttype width, inttype height, inttype col)
 #else
 
-void drwPRect (actual_window, x1, y1, width, height, col)
+void drwPRect (actual_window, x, y, width, height, col)
 wintype actual_window;
-inttype x1, y1, width, height;
+inttype x, y, width, height;
 inttype col;
 #endif
 

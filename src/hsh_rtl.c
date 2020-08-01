@@ -165,21 +165,18 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static rtlHashtype new_hash (unsigned int bits, errinfotype *err_info)
+static rtlHashtype new_hash (unsigned int bits)
 #else
 
-static rtlHashtype new_hash (bits, err_info)
+static rtlHashtype new_hash (bits)
 unsigned int bits;
-errinfotype *err_info;
 #endif
 
   {
     rtlHashtype hash;
 
   /* new_hash */
-    if (!ALLOC_RTL_HASH(hash, TABLE_SIZE(bits))) {
-      *err_info = MEMORY_ERROR;
-    } else {
+    if (ALLOC_RTL_HASH(hash, TABLE_SIZE(bits))) {
       hash->bits = bits;
       hash->mask = TABLE_MASK(bits);
       hash->table_size = TABLE_SIZE(bits);
@@ -719,17 +716,14 @@ rtlHashtype hshEmpty ()
 #endif
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
     rtlHashtype result;
 
   /* hshEmpty */
-    result = new_hash(TABLE_BITS, &err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    result = new_hash(TABLE_BITS);
+    if (result == NULL) {
       raise_error(MEMORY_ERROR);
-      return NULL;
-    } else {
-      return result;
     } /* if */
+    return result;
   } /* hshEmpty */
 
 

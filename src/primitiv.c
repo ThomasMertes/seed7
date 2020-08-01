@@ -522,7 +522,6 @@ static primactrecord prim_act_table[] = {
     { "ITF_HASHCODE",            itf_hashcode,            },
     { "ITF_NE",                  itf_ne,                  },
     { "ITF_SELECT",              itf_select,              },
-    { "ITF_TO_HEAP",             itf_to_heap,             },
     { "ITF_TO_INTERFACE",        itf_to_interface,        },
 
     { "KBD_BUSY_GETC",           kbd_busy_getc,           },
@@ -624,7 +623,6 @@ static primactrecord prim_act_table[] = {
     { "REF_ARRMINIDX",           ref_arrminidx,           },
     { "REF_ARRTOLIST",           ref_arrtolist,           },
     { "REF_BODY",                ref_body,                },
-    { "REF_BUILD",               ref_build,               },
     { "REF_CAST",                ref_cast,                },
     { "REF_CATEGORY",            ref_category,            },
     { "REF_CAT_PARSE",           ref_cat_parse,           },
@@ -638,6 +636,7 @@ static primactrecord prim_act_table[] = {
     { "REF_EQ",                  ref_eq,                  },
     { "REF_FILE",                ref_file,                },
     { "REF_FIND",                ref_find,                },
+    { "REF_GETREF",              ref_getref,              },
     { "REF_HASHCODE",            ref_hashcode,            },
     { "REF_HSHDATATOLIST",       ref_hshdatatolist,       },
     { "REF_HSHKEYSTOLIST",       ref_hshkeystolist,       },

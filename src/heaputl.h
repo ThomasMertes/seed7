@@ -344,12 +344,11 @@ EXTERN memsizetype hs;
 
 #ifdef DO_INIT
 flisttype sflist[STRI_FREELIST_ARRAY_SIZE] = {
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL};
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 unsigned int sflist_len[STRI_FREELIST_ARRAY_SIZE] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0};
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #else
 EXTERN flisttype sflist[STRI_FREELIST_ARRAY_SIZE];
 EXTERN unsigned int sflist_len[STRI_FREELIST_ARRAY_SIZE];

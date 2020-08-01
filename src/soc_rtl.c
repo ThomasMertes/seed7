@@ -1003,26 +1003,6 @@ inttype port;
 
 
 
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-bstritype socInetOwnAddr (inttype port)
-#else
-
-bstritype socInetOwnAddr (port)
-inttype port;
-#endif
-
-  {
-    bstritype result;
-
-  /* socInetOwnAddr */
-    return result;
-  } /* socInetOwnAddr */
-#endif
-
-
-
 #ifdef ANSI_C
 
 bstritype socInetServAddr (inttype port)

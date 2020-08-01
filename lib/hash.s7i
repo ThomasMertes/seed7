@@ -105,14 +105,14 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
                                      in integer: hashCode,
                                      in reference: keyCompare)                 is action "HSH_IDX";
 
-      const func baseType: INDEX2 (in hashType param, in keyType param,
-                                   in baseType param, in integer param,
-                                   in reference param, in reference param,
-                                   in reference param)                         is action "HSH_IDX2";
-      const varfunc baseType: INDEX2 (inout hashType param, in keyType param,
-                                      in baseType param, in integer param,
-                                      in reference param, in reference param,
-                                      in reference param)                      is action "HSH_IDX2";
+      const func baseType: INDEX2 (in hashType: aHash, in keyType: aKey,
+                                   in baseType: anElem, in integer: hashCode,
+                                   in reference: keyCompare, in reference: keyCreate,
+                                   in reference: dataCreate)                   is action "HSH_IDX2";
+      const varfunc baseType: INDEX2 (inout hashType: aHash, in keyType: aKey,
+                                      in baseType: anElem, in integer: hashCode,
+                                      in reference: keyCompare, in reference: keyCreate,
+                                      in reference: dataCreate)                is action "HSH_IDX2";
 
       const func ptr baseType: REFINDEX (in hashType param, in keyType param,
                                          in integer param, in reference param) is action "HSH_REFIDX";

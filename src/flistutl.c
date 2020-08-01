@@ -662,7 +662,7 @@ memsizetype heapsize ()
   {
 #ifdef DO_HEAPSIZE_COMPUTATION
     memsizetype flist_bytes;
-    memsizetype num_flist_stri_elems;
+    unsigned long num_flist_stri_elems;
 #endif
     memsizetype result;
 

@@ -428,6 +428,7 @@ int main (int argc, char **argv)
       puts("#define FOPEN_OPENS_DIRECTORIES");
       fclose(aFile);
     } /* if */
+    printf("#define SHORT_SIZE %lu\n",    (long unsigned) (8 * sizeof(short)));
     printf("#define INT_SIZE %lu\n",      (long unsigned) (8 * sizeof(int)));
     printf("#define LONG_SIZE %lu\n",     (long unsigned) (8 * sizeof(long)));
     printf("#define POINTER_SIZE %lu\n",  (long unsigned) (8 * sizeof(char *)));

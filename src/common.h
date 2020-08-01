@@ -200,8 +200,7 @@ typedef uint64type         memsizetype;
 #define MAX_MEM_INDEX      INTTYPE_MAX
 #endif
 
-typedef int8type           smallpriortype;
-typedef int                prior_type;
+typedef int                prioritytype;
 
 typedef unsigned char      uchartype;
 typedef char *             cstritype;
@@ -226,6 +225,7 @@ typedef const unsigned char *  const_ustritype;
 #define MAX_DIV_10 ((inttype) (INTTYPE_MAX / 10))
 #define MAX_REM_10 ((inttype) (INTTYPE_MAX % 10))
 
+/* Maximum value of type sysizetype: */
 #define MAX_SYMB_LENGTH MAX_MEMSIZETYPE
 
 #ifndef CLOCKS_PER_SEC

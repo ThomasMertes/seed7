@@ -26,17 +26,17 @@
 (********************************************************************)
 
 
-$ const $ type: type is                            $ newtype;
+$ const $ type: type   is $ newtype;
 
-$ const type: void is                              $ newtype;
-$ const type: proc is                              $ func void;
-$ const void: empty is                             $ enumlit;
+$ const type: void     is $ newtype;
+$ const type: proc     is $ func void;
+$ const void: empty    is $ enumlit;
 
-$ const type: expr is                              $ newtype;
-$ const type: object is                            $ newtype;
-$ const type: string is                            $ subtype object;
-$ const type: ACTION is                            $ newtype;
-$ const type: f_param is                           $ newtype;
+$ const type: expr     is $ newtype;
+$ const type: object   is $ newtype;
+$ const type: string   is $ subtype object;
+$ const type: ACTION   is $ newtype;
+$ const type: f_param  is $ newtype;
 
 $ system "type" is type;
 $ system "expr" is expr;

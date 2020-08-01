@@ -54,9 +54,11 @@ type_implements_interface(window_file, text);
  *  The ''window_file'' has the given ''height'' and ''width''.
  *  @return the file opened.
  *)
-const func window_file: open_window (ref text: out_fil,
+const func file: open_window (ref text: out_fil,
     in integer: upper, in integer: left, in integer: height, in integer: width) is func
   result
+    var file: newFile is STD_NULL;
+  local
     var window_file: window_fil is window_file.value;
   begin
     window_fil.out_file := out_fil;
@@ -74,6 +76,7 @@ const func window_file: open_window (ref text: out_fil,
     end if;
     window_fil.curr_line := 1;
     window_fil.curr_column := 1;
+    newFile := toInterface(window_fil);
   end func;
 
 

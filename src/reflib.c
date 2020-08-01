@@ -267,25 +267,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype ref_build (listtype arguments)
-#else
-
-objecttype ref_build (arguments)
-listtype arguments;
-#endif
-
-  {
-    objecttype result;
-
-  /* ref_build */
-    result = bld_reference_temp(arg_1(arguments));
-    return result;
-  } /* ref_build */
-
-
-
-#ifdef ANSI_C
-
 objecttype ref_cast (listtype arguments)
 #else
 
@@ -541,15 +522,15 @@ listtype arguments;
 #endif
 
   {
-    objecttype module_object;
+    /* objecttype module_object; */
     objecttype result;
 
   /* ref_find */
     isit_reference(arg_1(arguments));
     isit_reference(arg_3(arguments));
+#ifdef OUT_OF_ORDER
     module_object = take_reference(arg_1(arguments));
 /*  trace2(module_object); */
-#ifdef OUT_OF_ORDER
     if (CATEGORY_OF_OBJ(module_object) == MODULEOBJECT) {
 /*    printf(" is module\n"); */
       result = FIND_OBJECT(module_object->value.DECLVALUE,
@@ -565,6 +546,21 @@ listtype arguments;
 #endif
     return bld_reference_temp(result);
   } /* ref_find */
+
+
+
+#ifdef ANSI_C
+
+objecttype ref_getref (listtype arguments)
+#else
+
+objecttype ref_getref (arguments)
+listtype arguments;
+#endif
+
+  { /* ref_getref */
+    return bld_reference_temp(arg_1(arguments));
+  } /* ref_getref */
 
 
 
@@ -678,7 +674,7 @@ listtype arguments;
 
   { /* ref_itftosct */
     isit_reference(arg_1(arguments));
-    return bld_reference_temp(refItftosct(
+    return bld_reference_temp(refItfToSct(
         take_reference(arg_1(arguments))));
   } /* ref_itftosct */
 
@@ -871,19 +867,10 @@ objecttype ref_resini (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    objecttype result;
-
-  /* ref_resini */
+  { /* ref_resini */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    if (CATEGORY_OF_OBJ(obj_arg1) == BLOCKOBJECT) {
-      result = obj_arg1->value.blockvalue->result.init_value;
-    } else {
-      result = NULL;
-    } /* if */
-    return bld_reference_temp(result);
+    return bld_reference_temp(refResini(
+        take_reference(arg_1(arguments))));
   } /* ref_resini */
 
 
@@ -897,19 +884,10 @@ objecttype ref_result (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    objecttype result;
-
-  /* ref_result */
+  { /* ref_result */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    if (CATEGORY_OF_OBJ(obj_arg1) == BLOCKOBJECT) {
-      result = obj_arg1->value.blockvalue->result.object;
-    } else {
-      result = NULL;
-    } /* if */
-    return bld_reference_temp(result);
+    return bld_reference_temp(refResult(
+        take_reference(arg_1(arguments))));
   } /* ref_result */
 
 

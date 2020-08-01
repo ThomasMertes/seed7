@@ -44,29 +44,22 @@
 #include "itf_rtl.h"
 
 
+
 #ifdef ANSI_C
 
-void itfDestr (const const_rtlInterfacetype old_interface)
+rtlInterfacetype itfCreate (const rtlInterfacetype interface_from)
 #else
 
-void itfDestr (old_interface)
-rtlInterfacetype old_interface;
+rtlInterfacetype itfCreate (interface_from)
+rtlInterfacetype interface_from;
 #endif
 
-  { /* itfDestr */
-#ifdef OUT_OF_ORDER
-    if (old_interface != NULL) {
-      if (old_interface->usage_count != 0) {
-        old_interface->usage_count--;
-        if (old_interface->usage_count == 0) {
-          CLEAR_TEMP_FLAG(old_interface);
-          do_destroy(old_interface, &err_info);
-        } /* if */
-        FREE_OBJECT(old_interface);
-      } /* if */
+  { /* itfCreate */
+    if (interface_from->usage_count != 0) {
+      interface_from->usage_count++;
     } /* if */
-#endif
-  } /* itfDestr */
+    return interface_from;
+  } /* itfCreate */
 
 
 

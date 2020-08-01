@@ -95,7 +95,7 @@ EXTERN freelisttype flist;
 #ifdef WITH_OBJECT_FREELIST
 #define ALLOC_OBJECT(O) (flist.objects != NULL ? POP_OBJ(O) : HEAP_OBJ(O, objectrecord))
 #define FREE_OBJECT(O)  (F_LOG2(O) (O)->value.objvalue = flist.objects, (O)->objcategory = 0, flist.objects = (O))
-/* #define FREE_OBJECT(O)  (F_LOG2(O) check_obj_flist(O), (O)->value.objvalue = flist.objects, flist.objects = (O)) */
+/* #define FREE_OBJECT(O)  (F_LOG2(O) check_obj_flist(O), (O)->value.objvalue = flist.objects, (O)->objcategory = 0, flist.objects = (O)) */
 #else
 #define ALLOC_OBJECT(O) HEAP_OBJ(O, objectrecord)
 #define FREE_OBJECT(O)  FREE_RECORD(O, objectrecord, count.object)

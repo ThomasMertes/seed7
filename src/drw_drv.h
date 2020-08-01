@@ -94,9 +94,9 @@ void drwConvPointList (bstritype pointList, inttype *xy);
 bstritype drwGenPointList (const const_rtlArraytype xyArray);
 inttype drwLngPointList (bstritype point_list);
 void drwPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, bstritype point_list, inttype col);
+    inttype x, inttype y, bstritype point_list, inttype col);
 void drwFPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, bstritype point_list, inttype col);
+    inttype x, inttype y, bstritype point_list, inttype col);
 void drwPut (const_wintype actual_window, const_wintype pixmap,
     inttype x, inttype y);
 void drwRect (const_wintype actual_window,

@@ -1,3 +1,51 @@
+20130317:
+- The FAQ explanations concerning, what kind of programs can be
+  written in Seed7 and the automatic memory management of Seed7, have
+  been improved.
+- The compiler (s7c) has been improved to use the function
+  strConcatN, when three or more strings are concatenated.
+- The compiler has been improved to define and use dynamic (virtual)
+  destructors for interface types. The function itfCreate is used as
+  constructor.
+- In the compiler the function init_string_constants_with_slices has
+  been improved, to store the characters of string constants with
+  more density.
+- The compiler functions prepare_typed_result, process_itf_cpy,
+  process_itf_to_interface and process_ref_trace have been improved.
+- In str_rtl.c the functions strIPos2 and strPos2 have been added.
+  This functions use a modified Boyer–Moore string search algorithm.
+- The performance of the function replace2 (library string.s7i) has
+  been improved.
+- The example programs tetg.sd7 and tet.sd7 have been changed to
+  abstain from using an outdated language feature. Now this programs
+  can be compiled.
+- Parameter names have been added to seed7_05.s7i, pixmap_file.s7i,
+  bitset.s7i, dialog.s7i, hash.s7i, console.s7i and string.s7i.
+- In sctlib.c and itflib.c the functions sct_cpy, sct_create,
+  sct_destr, itf_cpy, itf_cpy2, itf_create, itf_create2, itf_destr
+  and itf_to_interface have been improved to use reference counting
+  (usage_count) for all objects of the category STRUCTOBJECT.
+- The support for the actions ITF_TO_HEAP and REF_BUILD has been
+  removed from the interpreter.
+- Support for the action REF_GETREF has been added to interpreter and
+  compiler.
+- The functions itf_to_heap (in itflib.c) and ref_build (in reflib.c)
+  have been removed.
+- The function refItftosct (in ref_data.c) has been renamed to
+  refItfToSct. The function ref_itftosct (in reflib.c) and the
+  compiler have been changed to use the new function name.
+- The types smallpriortype and prior_type have been replaced by
+  prioritytype in common.h, data.h, expr.c, expr.h, findid.h,
+  syntax.c, token.c and token.h.
+- In itf_rtl.c the function itfCreate has been added and the function
+  itfDestr has been removed.
+- Usages of the function stri_charpos in analyze.c and prclib.c have
+  been replaced by calls of strChPos.
+- In executl.c the function crea_struct has been introduced and the
+  function any_var_initialisation has been replaced by the functions
+  sct_elem_initialisation and arr_elem_initialisation.
+- The function prot_block has been added to traceutl.c.
+
 20130303:
 - The library editline.s7i has been added. This library defines a
   file type for linewise editing with history.

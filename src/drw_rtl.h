@@ -31,9 +31,9 @@
 
 #ifdef ANSI_C
 
-void drwCpy (wintype *, wintype);
-wintype drwCreate (wintype);
-void drwDestr (wintype);
+void drwCpy (wintype *win_to, wintype win_from);
+wintype drwCreate (wintype win_from);
+void drwDestr (wintype old_win);
 wintype drwRtlImage (const const_rtlArraytype image);
 
 #else

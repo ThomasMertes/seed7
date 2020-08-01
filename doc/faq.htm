@@ -487,8 +487,11 @@ Seed7 can be used in various application areas:
    purpose language and programs can be <a class="link" href="#compile">compiled</a> to an executable).</li>
 <li>Scripts that deal with <a class="link" href="manual/os.htm">files and directories</a> (The Seed7 Homepage
    and the Seed7 release are created with Seed7 scripts).</li>
-<li>Tools for networking (There is support for <a class="link" href="manual/file.htm#Sockets">sockets</a>, <a class="link" href="libraries/gethttp.htm">HTTP</a>, <a class="link" href="libraries/ftp.htm">FTP</a> and
-   HTML parsing).</li>
+<li>Tools for networking (There is support for <a class="link" href="manual/file.htm#Sockets">sockets</a>, <a class="link" href="libraries/listener.htm">listeners</a>, <a class="link" href="libraries/gethttp.htm">HTTP</a>, <a class="link" href="libraries/ftp.htm">FTP</a> and
+   HTML parsing). E.g.:<ul>
+<li><a class="link" href="scrshots/ftp7.htm">A ftp file transfer program</a></li>
+<li><a class="link" href="scrshots/ftpserv.htm">A ftp server</a></li>
+<li><a class="link" href="scrshots/comanche.htm">A web server</a></li></ul></li>
 <li>Programs that deal with XML (There is support for XML parsing and
    the possibility to <a class="link" href="libraries/xmldom.htm">read XML</a> into a DOM data structure).</li>
 <li>CGI scripts (A <a class="link" href="libraries/cgi.htm">CGI support library</a> is available and the <a class="link" href="scrshots/comanche.htm">Comanche</a> web server
@@ -515,12 +518,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 190000 lines of Seed7. For version 2013-03-03 the number of lines is:
+than 190000 lines of Seed7. For version 2013-03-17 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">104891</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10326</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">111912</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 82425</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">105128</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 10331</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">112009</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 82442</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1321,6 +1324,9 @@ strategy of automatic memory management is used:
 <li>Strings, arrays, hashes and other containers manage their memory. E.g.:
    When an element is removed from a hash table the memory used by the element
    is freed as well as the hash table internal data.</li>
+<li>A struct value can be referred by one struct variable and by several
+   interface variables. Struct values use a reference counter to free the
+   struct, when no reference to it exists.</li>
 </ul></div>
 
 <div><br /><a name="object_oriented"><h3>Is Seed7 object oriented?

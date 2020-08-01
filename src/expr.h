@@ -27,7 +27,7 @@
 
 #ifdef ANSI_C
 
-objecttype pars_infix_expression (prior_type priority, booltype do_match_expr);
+objecttype pars_infix_expression (prioritytype priority, booltype do_match_expr);
 
 #else
 

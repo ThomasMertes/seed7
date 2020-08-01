@@ -29,17 +29,17 @@
 $ include "syntax.s7i";
 
 (*
-$ const $ type: type is                            $ newtype;
+$ const $ type: type   is $ newtype;
 
-$ const type: void is                              $ newtype;
-$ const type: proc is                              $ func void;
-$ const void: empty is                             $ enumlit;
+$ const type: void     is $ newtype;
+$ const type: proc     is $ func void;
+$ const void: empty    is $ enumlit;
 
-$ const type: expr is                              $ newtype;
-$ const type: object is                            $ newtype;
-$ const type: string is                            $ subtype object;
-$ const type: ACTION is                            $ newtype;
-$ const type: f_param is                           $ newtype;
+$ const type: expr     is $ newtype;
+$ const type: object   is $ newtype;
+$ const type: string   is $ subtype object;
+$ const type: ACTION   is $ newtype;
+$ const type: f_param  is $ newtype;
 *)
 
 $ const $ func type: $ func (ref type param)    is $ action "TYP_FUNC";
@@ -76,9 +76,9 @@ const proc: destroy (ref type param)                         is action "TYP_DEST
 const proc: (inout type: dest) := (ref type: source)         is action "TYP_CPY";
 const proc: (ref func proc param) ::= (ref ACTION param)     is action "ACT_CREATE";
 const proc: (ref varfunc proc param) ::= (ref ACTION param)  is action "ACT_CREATE";
-const func proc: func begin (ref expr param) end func        is action "PRC_BEGIN";
-const func proc: func local (ref proc param)
-                 begin (ref expr param) end func             is action "PRC_LOCAL";
+const func proc: func begin (ref expr: statements) end func  is action "PRC_BEGIN";
+const func proc: func local (ref proc: localDefinitions)
+                 begin (ref expr: statements) end func       is action "PRC_LOCAL";
 const proc: (ref proc param) ::= (ref proc param)            is action "PRC_CREATE";
 const proc: (inout proc: dest) := (ref proc: source)         is action "PRC_CPY";
 const proc: destroy (ref proc param)                         is action "PRC_NOOP";
@@ -198,9 +198,9 @@ const proc: var (ref type: aType) : (ref expr: name) is default is func
     var aType: name is aType.value;
   end func;
 
-const func string: str (in type param)                     is action "TYP_STR";
+const func string: str (in type: aType)                    is action "TYP_STR";
 const func type: gentype                                   is action "TYP_GENTYPE";
-const func type: gensub (in type param)                    is action "TYP_GENSUB";
+const func type: gensub (in type: baseType)                is action "TYP_GENSUB";
 
 const func type: newtype is func
   result
@@ -314,9 +314,9 @@ $ system "range_error"    is RANGE_ERROR;
 $ system "file_error"     is FILE_ERROR;
 $ system "illegal_action" is ILLEGAL_ACTION;
 
-const proc: raise (ref EXCEPTION param)     is action "PRC_RAISE";
+const proc: raise (ref EXCEPTION: anException)     is action "PRC_RAISE";
 
-const func string: str (in ACTION param)    is action "ACT_STR";
+const func string: str (in ACTION: anAction)       is action "ACT_STR";
 
 const ACTION: DYNAMIC is action "PRC_DYNAMIC";
 
@@ -349,26 +349,30 @@ const proc: addInterface (in type param, in type param)        is action "TYP_AD
 (* IF *)
 
 const type: ELSIF_RESULT is newtype;
-const proc: (ref ELSIF_RESULT param) ::= enumlit is  action "ENU_GENLIT";
+const proc: (ref ELSIF_RESULT param) ::= enumlit       is action "ENU_GENLIT";
 const ELSIF_RESULT: ELSIF_EMPTY is enumlit;
-const type: ELSIF_PROC is                            func ELSIF_RESULT;
+const type: ELSIF_PROC                                 is func ELSIF_RESULT;
 # IN_PARAM_IS_REFERENCE(ELSIF_PROC);
 const proc: (ref ELSIF_PROC param) ::= (ref ELSIF_RESULT param) is action "ENU_CREATE";
 
-const proc:       if (in boolean param) then
-                    (in proc param)
-                  end if is                          action "PRC_IF";
-const proc:       if (in boolean param) then
-                    (in proc param)
-                  (in ELSIF_PROC param)
-                  end if is                          action "PRC_IF_ELSIF";
-const ELSIF_PROC: elsif (in boolean param) then
-                    (in proc param) is               action "PRC_IF";
-const ELSIF_PROC: elsif (in boolean param) then
-                    (in proc param)
-                  (in ELSIF_PROC param) is           action "PRC_IF_ELSIF";
+const proc:       if (in boolean: condition) then
+                    (in proc: statements)
+                  end if                               is action "PRC_IF";
+
+const proc:       if (in boolean: condition) then
+                    (in proc: statements)
+                  (in ELSIF_PROC: elsifPart)
+                  end if                               is action "PRC_IF_ELSIF";
+
+const ELSIF_PROC: elsif (in boolean: condition) then
+                    (in proc: statements)              is action "PRC_IF";
+
+const ELSIF_PROC: elsif (in boolean: condition) then
+                    (in proc: statements)
+                  (in ELSIF_PROC: elsifPart)           is action "PRC_IF_ELSIF";
+
 const ELSIF_PROC: else
-                    (in void param) is               ELSIF_EMPTY;
+                    (in void param)                    is ELSIF_EMPTY;
 
 (*
 const proc: if TRUE  then (in void param) end if is                           noop;
@@ -768,7 +772,6 @@ const func type: new interface is func
     const proc: (inout interfaceType: dest) := (ref interfaceType: source)   is action "ITF_CPY";
     const func boolean: (in interfaceType param) = (in interfaceType param)  is action "ITF_EQ";
     const func boolean: (in interfaceType param) <> (in interfaceType param) is action "ITF_NE";
-    const func interfaceType: toInterface (ref interfaceType param)          is action "ITF_TO_HEAP";
   end func;
 
 const func type: sub (in type: baseType) interface is func
@@ -782,7 +785,6 @@ const func type: sub (in type: baseType) interface is func
     const proc: (inout interfaceType: dest) := (ref interfaceType: source)   is action "ITF_CPY";
     const func boolean: (in interfaceType param) = (in interfaceType param)  is action "ITF_EQ";
     const func boolean: (in interfaceType param) <> (in interfaceType param) is action "ITF_NE";
-    const func interfaceType: toInterface (ref interfaceType param)          is action "ITF_TO_HEAP";
   end func;
 
 

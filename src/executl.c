@@ -1275,10 +1275,10 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-booltype any_var_initialisation (typetype dest_type, objecttype obj_to, objecttype obj_from)
+static booltype sct_elem_initialisation (typetype dest_type, objecttype obj_to, objecttype obj_from)
 #else
 
-booltype any_var_initialisation (dest_type, obj_to, obj_from)
+static booltype sct_elem_initialisation (dest_type, obj_to, obj_from)
 typetype dest_type;
 objecttype obj_to;
 objecttype obj_from;
@@ -1287,14 +1287,14 @@ objecttype obj_from;
   {
     errinfotype err_info = OKAY_NO_ERROR;
 
-  /* any_var_initialisation */
+  /* sct_elem_initialisation */
     memcpy(&obj_to->descriptor, &obj_from->descriptor, sizeof(descriptorunion));
     INIT_CATEGORY_OF_VAR(obj_to, DECLAREDOBJECT);
     SET_ANY_FLAG(obj_to, HAS_POSINFO(obj_from));
     obj_to->type_of = dest_type;
     do_create(obj_to, obj_from, &err_info);
     return err_info == OKAY_NO_ERROR;
-  } /* any_var_initialisation */
+  } /* sct_elem_initialisation */
 
 
 
@@ -1332,6 +1332,66 @@ memsizetype old_size;
       old_elem++;
     } /* for */
   } /* destr_struct */
+
+
+
+#ifdef ANSI_C
+
+booltype crea_struct (objecttype elem_to, objecttype elem_from,
+    memsizetype new_size)
+#else
+
+booltype crea_struct (elem_to, elem_from, new_size)
+objecttype elem_to;
+objecttype elem_from;
+memsizetype new_size;
+#endif
+
+  {
+    memsizetype position;
+    booltype okay;
+
+  /* crea_struct */
+    okay = TRUE;
+    position = 0;
+    while (position < new_size && okay) {
+      if (!sct_elem_initialisation(elem_from[position].type_of, &elem_to[position], &elem_from[position])) {
+        /* When one create fails (mostly no memory) all elements */
+        /* created up to this point must be destroyed to recycle */
+        /* the memory correct. */
+        destr_struct(elem_to, position);
+        okay = FALSE;
+      } else {
+        position++;
+      } /* if */
+    } /* for */
+    return okay;
+  } /* crea_struct */
+
+
+
+#ifdef ANSI_C
+
+booltype arr_elem_initialisation (typetype dest_type, objecttype obj_to, objecttype obj_from)
+#else
+
+booltype arr_elem_initialisation (dest_type, obj_to, obj_from)
+typetype dest_type;
+objecttype obj_to;
+objecttype obj_from;
+#endif
+
+  {
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* arr_elem_initialisation */
+    obj_to->descriptor.property = NULL;
+    INIT_CATEGORY_OF_VAR(obj_to, DECLAREDOBJECT);
+    SET_ANY_FLAG(obj_to, HAS_POSINFO(obj_from));
+    obj_to->type_of = dest_type;
+    do_create(obj_to, obj_from, &err_info);
+    return err_info == OKAY_NO_ERROR;
+  } /* arr_elem_initialisation */
 
 
 
@@ -1378,7 +1438,7 @@ memsizetype new_size;
     okay = TRUE;
     position = 0;
     while (position < new_size && okay) {
-      if (!any_var_initialisation(elem_from[position].type_of, &elem_to[position], &elem_from[position])) {
+      if (!arr_elem_initialisation(elem_from[position].type_of, &elem_to[position], &elem_from[position])) {
         /* When one create fails (mostly no memory) all elements */
         /* created up to this point must be destroyed to recycle */
         /* the memory correct. */

@@ -49,14 +49,17 @@
 #ifdef ANSI_C
 
 void free_list (listtype list);
-listtype *append_element_to_list (listtype *, objecttype, errinfotype *);
+listtype *append_element_to_list (listtype *list_insert_place, objecttype object,
+                                  errinfotype *err_info);
 objecttype copy_expression (objecttype object_from, errinfotype *err_info);
 void free_expression (objecttype object);
-void concat_lists (listtype *, listtype);
-void incl_list (listtype *, objecttype, errinfotype *);
-void excl_list (listtype *, const_objecttype);
-void pop_list (listtype *);
-void replace_list_elem (listtype, const_objecttype, objecttype);
+void concat_lists (listtype *list1, listtype list2);
+void incl_list (listtype *list, objecttype element_object,
+                errinfotype *err_info);
+void excl_list (listtype *list, const_objecttype elementobject);
+void pop_list (listtype *list);
+void replace_list_elem (listtype list, const_objecttype elem1,
+                        objecttype elem2);
 listtype copy_list (const_listtype list_from, errinfotype *err_info);
 listtype array_to_list (arraytype arr_from, errinfotype *err_info);
 listtype struct_to_list (structtype stru_from, errinfotype *err_info);

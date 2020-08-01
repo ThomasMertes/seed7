@@ -100,11 +100,11 @@ identtype identifier;
 
 #ifdef ANSI_C
 
-static tokentype new_expr_token (prior_type pri, typetype type_of)
+static tokentype new_expr_token (prioritytype priority, typetype type_of)
 #else
 
-static tokentype new_expr_token (pri, type_of)
-prior_type pri;
+static tokentype new_expr_token (priority, type_of)
+prioritytype priority;
 typetype type_of;
 #endif
 
@@ -121,7 +121,7 @@ typetype type_of;
     created_token->next = NULL;
     created_token->alternative = NULL;
     created_token->token_category = EXPR_TOKEN;
-    created_token->token_value.expr_par.priority = pri;
+    created_token->token_value.expr_par.priority = priority;
     created_token->token_value.expr_par.type_of = type_of;
 #ifdef TRACE_TOKEN
     printf("END new_expr_token\n");
@@ -212,13 +212,13 @@ identtype identifier;
 
 #ifdef ANSI_C
 
-tokentype get_expr_token (tokentype *tokens, prior_type pri,
+tokentype get_expr_token (tokentype *tokens, prioritytype priority,
     typetype type_of)
 #else
 
-tokentype get_expr_token (tokens, pri, type_of)
+tokentype get_expr_token (tokens, priority, type_of)
 tokentype *tokens;
-prior_type pri;
+prioritytype priority;
 typetype type_of;
 #endif
 
@@ -231,7 +231,7 @@ typetype type_of;
     printf("BEGIN get_expr_token\n");
 #endif
     if (*tokens == NULL) {
-      token_found = new_expr_token(pri, type_of);
+      token_found = new_expr_token(priority, type_of);
       *tokens = token_found;
     } else {
       token_found = *tokens;
@@ -243,7 +243,7 @@ typetype type_of;
       } /* while */
       switch (token_found->token_category) {
         case SY_TOKEN:
-          token_found->alternative = new_expr_token(pri, type_of);
+          token_found->alternative = new_expr_token(priority, type_of);
           token_found = token_found->alternative;
           break;
         case EXPR_TOKEN:
@@ -252,11 +252,11 @@ typetype type_of;
         case LIST_WITH_TYPEOF_SYNTAX:
         case SELECT_ELEMENT_FROM_LIST_SYNTAX:
           if (previous_token == NULL) {
-            *tokens = new_expr_token(pri, type_of);
+            *tokens = new_expr_token(priority, type_of);
             (*tokens)->alternative = token_found;
             token_found = *tokens;
           } else {
-            previous_token->alternative = new_expr_token(pri, type_of);
+            previous_token->alternative = new_expr_token(priority, type_of);
             previous_token->alternative->alternative = token_found;
             token_found = previous_token->alternative;
           } /* if */

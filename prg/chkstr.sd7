@@ -3897,6 +3897,10 @@ const proc: check_string_funcs is func
       writeln(" ***** rpos(STRING, 'a') does not work correct");
       okay := FALSE;
     end if;
+    if  replace("abc", "de", "fg") <> "abc" then
+      writeln(" ***** replace(STRING, STRING, STRING) does not work correct");
+      okay := FALSE;
+    end if;
     if  lower(""       ) <> "" or
         lower("a"      ) <> "a" or
         lower("A"      ) <> "a" or

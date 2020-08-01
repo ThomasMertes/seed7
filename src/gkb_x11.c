@@ -121,12 +121,12 @@ Window xWin;
     if (window_hash == NULL) {
       window_hash = hshEmpty();
     } /* if */
-    hshIdxEnterDefault(window_hash, (rtlGenerictype) (memsizetype) xWin,
-                      (rtlGenerictype) (memsizetype) curr_window,
-                      (inttype) ((memsizetype) xWin) >> 6,
-                      (comparetype) &uintCmpGeneric,
-                      (createfunctype) &intCreateGeneric,
-                      (createfunctype) &intCreateGeneric);
+    (void) hshIdxEnterDefault(window_hash, (rtlGenerictype) (memsizetype) xWin,
+                              (rtlGenerictype) (memsizetype) curr_window,
+                              (inttype) ((memsizetype) xWin) >> 6,
+                              (comparetype) &uintCmpGeneric,
+                              (createfunctype) &intCreateGeneric,
+                              (createfunctype) &intCreateGeneric);
   } /* enter_window */
 
 

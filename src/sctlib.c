@@ -77,11 +77,12 @@ listtype arguments;
       if (ALLOC_OBJECT(result)) {
         new_size = take_struct(stru_from)->size;
         if (ALLOC_STRUCT(new_stru, new_size)) {
-          new_stru->usage_count = 0;
+          new_stru->usage_count = 1;
           new_stru->size = new_size;
-          if (!crea_array(new_stru->stru,
+          if (!crea_struct(new_stru->stru,
               take_struct(stru_from)->stru, new_size)) {
             FREE_OBJECT(result);
+            /* printf("FREE_STRUCT 1 %lu\n", new_stru); */
             FREE_STRUCT(new_stru, new_size);
             return raise_exception(SYS_MEM_EXCEPTION);
           } /* if */
@@ -139,9 +140,10 @@ listtype arguments;
       if (!ALLOC_STRUCT(result, result_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-      result->usage_count = 0;
+      result->usage_count = 1;
       result->size = result_size;
-      if (!crea_array(result->stru, stru1->stru, stru1->size)) {
+      if (!crea_struct(result->stru, stru1->stru, stru1->size)) {
+        /* printf("FREE_STRUCT 2 %lu\n", result); */
         FREE_STRUCT(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -149,12 +151,14 @@ listtype arguments;
     if (TEMP_OBJECT(arg_3(arguments))) {
       memcpy(&result->stru[stru1_size], stru2->stru,
           (size_t) (stru2->size * sizeof(objectrecord)));
+      /* printf("FREE_STRUCT 3 %lu\n", stru2); */
       FREE_STRUCT(stru2, stru2->size);
       arg_3(arguments)->value.structvalue = NULL;
     } else {
-      if (!crea_array(&result->stru[stru1_size], stru2->stru,
+      if (!crea_struct(&result->stru[stru1_size], stru2->stru,
           stru2->size)) {
         destr_struct(result->stru, stru1->size);
+        /* printf("FREE_STRUCT 4 %lu\n", result); */
         FREE_STRUCT(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -191,9 +195,10 @@ listtype arguments;
       if (!ALLOC_STRUCT(result_struct, stru1->size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
-      result_struct->usage_count = 0;
+      result_struct->usage_count = 1;
       result_struct->size = stru1->size;
-      if (!crea_array(result_struct->stru, stru1->stru, stru1->size)) {
+      if (!crea_struct(result_struct->stru, stru1->stru, stru1->size)) {
+        /* printf("FREE_STRUCT 5 %lu\n", result_struct); */
         FREE_STRUCT(result_struct, stru1->size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -228,6 +233,7 @@ listtype arguments;
     new_stru = take_struct(stru_to);
     if (TEMP_OBJECT(stru_from)) {
       destr_struct(new_stru->stru, new_stru->size);
+      /* printf("FREE_STRUCT 6 %lu\n", new_stru); */
       FREE_STRUCT(new_stru, new_stru->size);
       stru_to->value.structvalue = take_struct(stru_from);
       stru_from->value.structvalue = NULL;
@@ -237,20 +243,23 @@ listtype arguments;
         if (!ALLOC_STRUCT(new_stru, new_size)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          new_stru->usage_count = 0;
+          new_stru->usage_count = 1;
           new_stru->size = new_size;
-          if (!crea_array(new_stru->stru,
+          if (!crea_struct(new_stru->stru,
               take_struct(stru_from)->stru, new_size)) {
+            /* printf("FREE_STRUCT 7 %lu\n", new_stru); */
             FREE_STRUCT(new_stru, new_size);
             return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
           } /* if */
           destr_struct(take_struct(stru_to)->stru,
               take_struct(stru_to)->size);
+          /* printf("FREE_STRUCT 8 %lu\n", take_struct(stru_to)); */
           FREE_STRUCT(take_struct(stru_to),
               take_struct(stru_to)->size);
           stru_to->value.structvalue = new_stru;
         } /* if */
       } else {
+        /* The usage_count is left unchanged for a deep copy. */
         cpy_array(new_stru->stru, take_struct(stru_from)->stru,
             new_size);
       } /* if */
@@ -285,6 +294,7 @@ listtype arguments;
 printf("create: pointer assignment\n");
 */
       stru_to->value.structvalue = take_struct(stru_from);
+      /* printf("sct_create: usage_count=%u %lu\n", stru_to->value.structvalue->usage_count, (unsigned long) stru_to->value.structvalue); */
       stru_from->value.structvalue = NULL;
     } else {
       new_size = take_struct(stru_from)->size;
@@ -292,11 +302,12 @@ printf("create: pointer assignment\n");
         stru_to->value.structvalue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        new_stru->usage_count = 0;
+        new_stru->usage_count = 1;
         new_stru->size = new_size;
         stru_to->value.structvalue = new_stru;
-        if (!crea_array(new_stru->stru,
+        if (!crea_struct(new_stru->stru,
             take_struct(stru_from)->stru, new_size)) {
+          /* printf("FREE_STRUCT 9 %lu\n", new_stru); */
           FREE_STRUCT(new_stru, new_size);
           stru_to->value.structvalue = NULL;
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -318,16 +329,22 @@ listtype arguments;
 #endif
 
   {
-
     structtype old_struct;
 
   /* sct_destr */
     isit_struct(arg_1(arguments));
     old_struct = take_struct(arg_1(arguments));
     if (old_struct != NULL) {
-      destr_struct(old_struct->stru, old_struct->size);
-      FREE_STRUCT(old_struct, old_struct->size);
-      arg_1(arguments)->value.structvalue = NULL;
+      /* printf("sct_destr: usage_count=%u %lu\n", old_struct->usage_count, (unsigned long) old_struct); */
+      if (old_struct->usage_count != 0) {
+        old_struct->usage_count--;
+        if (old_struct->usage_count == 0) {
+          destr_struct(old_struct->stru, old_struct->size);
+          /* printf("FREE_STRUCT 10 %lu\n", old_struct); */
+          FREE_STRUCT(old_struct, old_struct->size);
+          arg_1(arguments)->value.structvalue = NULL;
+        } /* if */
+      } /* if */
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* sct_destr */
@@ -413,7 +430,7 @@ listtype arguments;
         if (!ALLOC_STRUCT(result, 1)) {
           err_info = MEMORY_ERROR;
         } else {
-          result->usage_count = 0;
+          result->usage_count = 1;
           result->size = 1;
           memcpy(&result->stru[0], current_object, sizeof(objectrecord));
         } /* if */
@@ -446,7 +463,7 @@ listtype arguments;
     if (!ALLOC_STRUCT(result, 0)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
-    result->usage_count = 0;
+    result->usage_count = 1;
     result->size = 0;
     return bld_struct_temp(result);
   } /* sct_empty */
@@ -599,6 +616,7 @@ printf("\n");
                   (memsizetype) (struct_pointer - stru1->stru));
               destr_struct(&struct_pointer[1],
                   (stru1->size - (memsizetype) (struct_pointer - stru1->stru) - 1));
+              /* printf("FREE_STRUCT 11 %lu\n", stru1); */
               FREE_STRUCT(stru1, stru1->size);
               arg_1(arguments)->value.structvalue = NULL;
             } /* if */

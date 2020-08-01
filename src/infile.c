@@ -541,10 +541,10 @@ int next_line ()
 #endif
     SKIP_CR_SP(character);
     INCR_LINE_COUNT(in_file.line);
-    return character;
 #ifdef TRACE_INFILE
     printf("END next_line\n");
 #endif
+    return character;
   } /* next_line */
 #endif
 

@@ -286,7 +286,7 @@ int line;
 #endif
 
   { /* raise_error3 */
-    raise_exception(prog.sys_var[exception_num]);
+    (void) raise_exception(prog.sys_var[exception_num]);
   } /* raise_error3 */
 
 

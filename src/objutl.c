@@ -354,7 +354,7 @@ double temp_float;
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FLOATOBJECT);
-      result->value.floatvalue = temp_float;
+      result->value.floatvalue = (floattype) temp_float;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);

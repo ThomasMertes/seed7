@@ -134,10 +134,10 @@ size_t sizeof_pollrecord = sizeof(select_based_pollrecord);
 #define to_var_read_outFdset(data)  (((select_based_polltype) data)->readTest.outFdset)
 #define to_var_write_outFdset(data) (((select_based_polltype) data)->writeTest.outFdset)
 
-#define ALLOC_FDSET(var,nr)      (ALLOC_HEAP(var,fd_set *,SIZEOF_FD_SET(nr))?CNT1_BYT(SIZEOF_FD_SET(nr)),TRUE:FALSE)
-#define FREE_FDSET(var,nr)       (CNT2_BYT(SIZEOF_FD_SET(nr)) FREE_HEAP(var, SIZEOF_FD_SET(nr)))
+#define ALLOC_FDSET(var,nr)      (ALLOC_HEAP(var, fd_set *, SIZEOF_FD_SET(nr))?CNT(CNT1_BYT(SIZEOF_FD_SET(nr))) TRUE:FALSE)
+#define FREE_FDSET(var,nr)       (CNT(CNT2_BYT(SIZEOF_FD_SET(nr))) FREE_HEAP(var, SIZEOF_FD_SET(nr)))
 #define REALLOC_FDSET(var,nr)    REALLOC_HEAP(var, fd_set *, SIZEOF_FD_SET(nr))
-#define COUNT3_FDSET(nr1,nr2)    CNT3(CNT2_BYT(SIZEOF_FD_SET(nr1)) CNT1_BYT(SIZEOF_FD_SET(nr2)))
+#define COUNT3_FDSET(nr1,nr2)    CNT3(CNT2_BYT(SIZEOF_FD_SET(nr1)), CNT1_BYT(SIZEOF_FD_SET(nr2)))
 
 #else
 

@@ -181,7 +181,7 @@ static INLINE void include_file ()
         if (current_ident != prog.id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
         } /* if */
-        if (stri_charpos(include_file_name, '\\') != NULL) {
+        if (strChPos(include_file_name, (chartype) '\\') != 0) {
           err_stri(WRONG_PATH_DELIMITER, include_file_name);
           scan_symbol();
         } else {
@@ -238,7 +238,7 @@ static void process_pragma ()
       if (strcmp((cstritype) symbol.name, "library") == 0) {
         scan_symbol();
         if (symbol.sycategory == STRILITERAL) {
-          if (stri_charpos(symbol.strivalue, '\\') != NULL) {
+          if (strChPos(symbol.strivalue, (chartype) '\\') != 0) {
             err_warning(WRONG_PATH_DELIMITER);
             scan_symbol();
           } else {
@@ -327,8 +327,6 @@ nodetype objects;
 
   {
     objecttype decl_expression;
-    objecttype decl_matched;
-    objecttype decl_result;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* decl_any */
@@ -372,21 +370,13 @@ nodetype objects;
         fflush(stdout);
 #endif
         if (CATEGORY_OF_OBJ(decl_expression) == EXPROBJECT) {
-          decl_matched = match_expression(decl_expression);
-        } else {
-          decl_matched = decl_expression;
+          match_expression(decl_expression);
         } /* if */
-#ifdef TRACE_DECL_ANY
-        printf("decl_matched ");
-        trace1(decl_matched);
-        printf("<<<\n");
-        fflush(stdout);
-#endif
         if (current_ident != prog.id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
         } /* if */
         fail_flag = FALSE;
-        decl_result = evaluate(decl_expression);
+        evaluate(decl_expression);
         if (fail_flag) {
           err_object(EXCEPTION_RAISED, fail_value);
           fail_flag = FALSE;
@@ -650,7 +640,7 @@ errinfotype *err_info;
       name_len = source_file_argument->size + 4;
       add_extension = TRUE;
     } /* if */
-    if (stri_charpos(source_file_argument, '\\') != NULL) {
+    if (strChPos(source_file_argument, (chartype) '\\') != 0) {
       *err_info = RANGE_ERROR;
     } else if (!ALLOC_STRI_CHECK_SIZE(source_name, name_len)) {
       *err_info = MEMORY_ERROR;

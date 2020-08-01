@@ -809,7 +809,6 @@ filetype aFile;
   {
     int file_no;
     os_fstat_struct stat_buf;
-    errinfotype err_info = OKAY_NO_ERROR;
     inttype result;
 
   /* filFileType */
@@ -891,7 +890,7 @@ inttype length;
         result = NULL;
       } else {
         allocated_size = chars_requested;
-        ALLOC_STRI_SIZE_OK(result, allocated_size);
+        (void) ALLOC_STRI_SIZE_OK(result, allocated_size);
       } /* if */
       if (result == NULL) {
         bytes_there = remainingBytesInFile(inFile);

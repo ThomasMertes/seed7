@@ -158,21 +158,18 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static hashtype new_hash (unsigned int bits, errinfotype *err_info)
+static hashtype new_hash (unsigned int bits)
 #else
 
-static hashtype new_hash (bits, err_info)
+static hashtype new_hash (bits)
 unsigned int bits;
-errinfotype *err_info;
 #endif
 
   {
     hashtype hash;
 
   /* new_hash */
-    if (!ALLOC_HASH(hash, TABLE_SIZE(bits))) {
-      *err_info = MEMORY_ERROR;
-    } else {
+    if (ALLOC_HASH(hash, TABLE_SIZE(bits))) {
       hash->bits = bits;
       hash->mask = TABLE_MASK(bits);
       hash->table_size = TABLE_SIZE(bits);
@@ -913,12 +910,11 @@ listtype arguments;
 #endif
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
     hashtype result;
 
   /* hsh_empty */
-    result = new_hash(TABLE_BITS, &err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    result = new_hash(TABLE_BITS);
+    if (result == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return bld_hash_temp(result);

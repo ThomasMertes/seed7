@@ -96,7 +96,7 @@ tokentype tokens;
 #ifdef ANSI_C
 
 static tokentype def_single_token (const_objecttype statement_token,
-    prior_type token_priority, tokentype *formal_tokens,
+    prioritytype token_priority, tokentype *formal_tokens,
     booltype *after_expr_token, ustritype *name_of_last_sy_token)
 #else
 
@@ -104,7 +104,7 @@ static tokentype def_single_token (statement_token,
     token_priority, formal_tokens, after_expr_token,
     name_of_last_sy_token)
 objecttype statement_token;
-prior_type token_priority;
+prioritytype token_priority;
 tokentype *formal_tokens;
 booltype *after_expr_token;
 ustritype *name_of_last_sy_token;
@@ -213,7 +213,7 @@ listtype statement_tokens;
 #ifdef ANSI_C
 
 static tokentype def_token_list (const_listtype statement_tokens,
-    prior_type right_token_priority, tokentype *formal_tokens,
+    prioritytype right_token_priority, tokentype *formal_tokens,
     ustritype name_of_last_sy_token)
 #else
 
@@ -221,7 +221,7 @@ static tokentype def_token_list (statement_tokens,
     right_token_priority, formal_tokens,
     name_of_last_sy_token)
 listtype statement_tokens;
-prior_type right_token_priority;
+prioritytype right_token_priority;
 tokentype *formal_tokens;
 ustritype name_of_last_sy_token;
 #endif
@@ -312,13 +312,13 @@ ustritype name_of_last_sy_token;
 #ifdef ANSI_C
 
 static INLINE tokentype def_infix_syntax (const_listtype statement_syntax,
-    prior_type statement_priority, assoctype statement_associativity)
+    prioritytype statement_priority, assoctype statement_associativity)
 #else
 
 static INLINE tokentype def_infix_syntax (statement_syntax,
     statement_priority, statement_associativity)
 listtype statement_syntax;
-prior_type statement_priority;
+prioritytype statement_priority;
 assoctype statement_associativity;
 #endif
 
@@ -345,7 +345,7 @@ assoctype statement_associativity;
         identifier->left_token_priority = statement_priority;
       } else {
         identifier->left_token_priority =
-            statement_priority - (prior_type) 1;
+            statement_priority - (prioritytype) 1;
       } /* if */
       if (statement_associativity == XFY ||
           statement_associativity == YFY) {
@@ -354,7 +354,7 @@ assoctype statement_associativity;
             &identifier->infix_token, identifier->name);
       } else {
         token_list_end = def_token_list(statement_syntax->next,
-            (prior_type) (((int) statement_priority) - 1),
+            (prioritytype) (((int) statement_priority) - 1),
             &identifier->infix_token, identifier->name);
       } /* if */
 /*  printf("[%d] %s ", identifier->left_token_priority, identifier->name);
@@ -375,13 +375,13 @@ assoctype statement_associativity;
 #ifdef ANSI_C
 
 static INLINE tokentype def_prefix_syntax (const_listtype statement_syntax,
-    prior_type statement_priority, assoctype statement_associativity)
+    prioritytype statement_priority, assoctype statement_associativity)
 #else
 
 static INLINE tokentype def_prefix_syntax (statement_syntax,
     statement_priority, statement_associativity)
 listtype statement_syntax;
-prior_type statement_priority;
+prioritytype statement_priority;
 assoctype statement_associativity;
 #endif
 
@@ -409,7 +409,7 @@ assoctype statement_associativity;
           &identifier->prefix_token, identifier->name);
     } else {
       token_list_end = def_token_list(statement_syntax->next,
-          (prior_type) (((int) statement_priority) - 1),
+          (prioritytype) (((int) statement_priority) - 1),
           &identifier->prefix_token, identifier->name);
     } /* if */
 /*  printf("%s ", identifier->name);
@@ -426,13 +426,13 @@ assoctype statement_associativity;
 #ifdef ANSI_C
 
 static INLINE tokentype def_statement_syntax (objecttype syntax_expression,
-    prior_type statement_priority, assoctype statement_associativity)
+    prioritytype statement_priority, assoctype statement_associativity)
 #else
 
 static INLINE tokentype def_statement_syntax (syntax_expression,
     statement_priority, statement_associativity)
 objecttype syntax_expression;
-prior_type statement_priority;
+prioritytype statement_priority;
 assoctype statement_associativity;
 #endif
 
@@ -563,7 +563,7 @@ void decl_syntax ()
         scan_symbol();
       } else {
         token_list_end = def_statement_syntax(expression,
-            (prior_type) symbol.intvalue, assoc);
+            (prioritytype) symbol.intvalue, assoc);
         scan_symbol();
         if (token_list_end != NULL) {
           if (current_ident == prog.id_for.lbrack) {

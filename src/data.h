@@ -145,9 +145,9 @@ typedef struct identstruct {
     entitytype entity;
     tokentype prefix_token;
     tokentype infix_token;
-    smallpriortype prefix_priority;
-    smallpriortype infix_priority;
-    smallpriortype left_token_priority;
+    prioritytype prefix_priority;
+    prioritytype infix_priority;
+    prioritytype left_token_priority;
   } identrecord;
 
 typedef struct tokenstruct {
@@ -156,7 +156,7 @@ typedef struct tokenstruct {
     union {
       identtype ident;
       struct {
-        smallpriortype priority;
+        prioritytype priority;
         typetype type_of;
       } expr_par;
       typetype type_of;

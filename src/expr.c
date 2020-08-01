@@ -382,18 +382,18 @@ listtype actual_parameter;
 
 #ifdef ANSI_C
 
-objecttype pars_infix_expression (prior_type priority,
+objecttype pars_infix_expression (prioritytype priority,
     booltype do_match_expr)
 #else
 
 objecttype pars_infix_expression (priority, do_match_expr)
-prior_type priority;
+prioritytype priority;
 booltype do_match_expr;
 #endif
 
 {
     objecttype expression;
-    prior_type expr_prior;
+    prioritytype expr_prior;
     tokentype formal_token;
     listtype helplist;
 

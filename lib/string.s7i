@@ -30,9 +30,9 @@ const proc: (ref string param) ::= (in string param)             is action "STR_
 
 const string: (attr string) . value is "";
 
-const func string: (in string param) mult (in integer param)     is action "STR_MULT";
-
 const proc: (inout string: dest) := (in string: source)          is action "STR_CPY";
+
+const func string: (in string: stri) mult (in integer: factor)   is action "STR_MULT";
 
 
 (**
@@ -367,22 +367,22 @@ const func string: replace2 (in string: mainStri, in string: search1,
     var string: resultStri is "";
   local
     var integer: startPos is 0;
-    var integer: endPos is 0;
+    var integer: endPos is 1;
   begin
-    resultStri := mainStri;
-    startPos := pos(resultStri, search1);
+    startPos := pos(mainStri, search1);
     while startPos <> 0 do
-      endPos := pos(resultStri, search2, startPos + length(search1));
+      resultStri &:= mainStri[endPos .. pred(startPos)];
+      endPos := pos(mainStri, search2, startPos + length(search1));
       if endPos <> 0 then
+        resultStri &:= replacement;
         endPos +:= length(search2);
-        resultStri := resultStri[ .. pred(startPos)] &
-            replacement & resultStri[endPos .. ];
-        endPos := startPos + length(replacement);
-        startPos := pos(resultStri, search1, endPos);
+        startPos := pos(mainStri, search1, endPos);
       else
+        endPos := startPos;
         startPos := 0;
       end if;
     end while;
+    resultStri &:= mainStri[endPos ..];
   end func;
 
 

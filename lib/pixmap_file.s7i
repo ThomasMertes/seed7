@@ -194,7 +194,7 @@ const proc: color (inout pixmapFontFile: fontFile, in color: col, in color: back
   end func;
 
 
-const proc: scale (inout text param, in integer: scale) is DYNAMIC;
+const proc: scale (inout text: aText, in integer: scale) is DYNAMIC;
 
 
 const proc: scale (inout pixmapFontFile: fontFile, in integer: scale) is func

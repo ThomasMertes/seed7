@@ -90,7 +90,7 @@ const proc: setPos (in console_file: aConsoleFile,
     in integer: line, in integer: column)                        is action "CON_SETPOS";
 
 
-const proc: cursor (in console_file param, in boolean param)     is action "CON_CURSOR";
+const proc: cursor (in console_file: aConsoleFile, in boolean param)     is action "CON_CURSOR";
 const proc: clearArea (in console_file: aConsoleFile, in integer: upper,
     in integer: left, in integer: lower, in integer: right)      is action "CON_CLEAR";
 
@@ -117,16 +117,16 @@ const proc: clear (in console_file: aConsoleFile) is func
   end func;
 
 
-const proc: v_scroll (inout console_file param,
-    in integer param, in integer param, in integer param,
-    in integer param, in integer param)                          is action "CON_V_SCL";
-const proc: h_scroll (in console_file param,
-    in integer param, in integer param, in integer param,
-    in integer param, in integer param)                          is action "CON_H_SCL";
+const proc: v_scroll (inout console_file: aConsoleFile,
+    in integer: upper, in integer: left, in integer: lower,
+    in integer: right, in integer: count)                        is action "CON_V_SCL";
+const proc: h_scroll (inout console_file: aConsoleFile,
+    in integer: upper, in integer: left, in integer: lower,
+    in integer: right, in integer: count)                        is action "CON_H_SCL";
 
 
-const proc: color (in console_file param, in color param) is noop;
-const proc: color (in console_file param, in color param, in color param) is noop;
+const proc: color (in console_file: aConsoleFile, in color: foreground) is noop;
+const proc: color (in console_file: aConsoleFile, in color: foreground, in color: background) is noop;
 
 
 (**
@@ -172,5 +172,5 @@ const proc: cursor_off (inout console_file: aConsoleFile) is func
   end func;
 
 
-const proc: box (in console_file param) is noop;
-const proc: clear_box (in console_file param) is noop;
+const proc: box (in console_file: aConsoleFile)       is noop;
+const proc: clear_box (in console_file: aConsoleFile) is noop;

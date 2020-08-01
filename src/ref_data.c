@@ -393,17 +393,17 @@ objecttype obj_arg;
 
 #ifdef ANSI_C
 
-objecttype refItftosct (objecttype obj_arg)
+objecttype refItfToSct (objecttype obj_arg)
 #else
 
-objecttype refItftosct (obj_arg)
+objecttype refItfToSct (obj_arg)
 objecttype obj_arg;
 #endif
 
   {
     objecttype result;
 
-  /* refItftosct */
+  /* refItfToSct */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTERFACEOBJECT ||
         take_reference(obj_arg) == NULL) {
       raise_error(RANGE_ERROR);
@@ -412,7 +412,7 @@ objecttype obj_arg;
       result = take_reference(obj_arg);
     } /* if */
     return result;
-  } /* refItftosct */
+  } /* refItfToSct */
 
 
 

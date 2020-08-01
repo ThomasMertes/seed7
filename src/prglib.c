@@ -306,15 +306,15 @@ listtype arguments;
 #endif
 
   {
-    objecttype module_object;
+    /* objecttype module_object; */
     objecttype result;
 
   /* prg_find */
     isit_reference(arg_1(arguments));
     isit_reference(arg_3(arguments));
+#ifdef OUT_OF_ORDER
     module_object = take_reference(arg_1(arguments));
 /*  trace2(module_object); */
-#ifdef OUT_OF_ORDER
     if (CATEGORY_OF_OBJ(module_object) == MODULEOBJECT) {
 /*    printf(" is module\n"); */
       result = FIND_OBJECT(module_object->value.DECLVALUE,

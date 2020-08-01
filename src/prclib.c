@@ -55,6 +55,7 @@
 #include "libpath.h"
 #include "error.h"
 #include "set_rtl.h"
+#include "str_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -673,7 +674,7 @@ listtype arguments;
   /* prc_include */
     isit_stri(arg_1(arguments));
     include_file_name = take_stri(arg_1(arguments));
-    if (stri_charpos(include_file_name, '\\') != NULL) {
+    if (strChPos(include_file_name, (chartype) '\\') != 0) {
       err_stri(WRONG_PATH_DELIMITER, include_file_name);
     } else {
       find_include_file(include_file_name, &err_info);

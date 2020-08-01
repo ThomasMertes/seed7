@@ -2106,12 +2106,12 @@ bstritype point_list;
 #ifdef ANSI_C
 
 void drwPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, bstritype point_list, inttype col)
+    inttype x, inttype y, bstritype point_list, inttype col)
 #else
 
-void drwPolyLine (actual_window, x1, y1, point_list, col)
+void drwPolyLine (actual_window, x, y, point_list, col)
 wintype actual_window;
-inttype x1, y1;
+inttype x, y;
 const_bstritype point_list;
 inttype col;
 #endif
@@ -2132,19 +2132,19 @@ inttype col;
         raise_error(MEMORY_ERROR);
       } else {
         old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-        MoveToEx(to_hdc(actual_window), x1 + points[0].x, y1 + points[0].y, NULL);
+        MoveToEx(to_hdc(actual_window), x + points[0].x, y + points[0].y, NULL);
         for (pos = 1; pos < npoints; pos ++) {
-          LineTo(to_hdc(actual_window), x1 + points[pos].x, y1 + points[pos].y);
+          LineTo(to_hdc(actual_window), x + points[pos].x, y + points[pos].y);
         } /* for */
-        SetPixel(to_hdc(actual_window), x1 + points[npoints - 1].x, y1 + points[npoints - 1].y, (COLORREF) col);
+        SetPixel(to_hdc(actual_window), x + points[npoints - 1].x, y + points[npoints - 1].y, (COLORREF) col);
         SelectObject(to_hdc(actual_window), old_pen);
         if (to_backup_hdc(actual_window) != 0) {
           old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-          MoveToEx(to_backup_hdc(actual_window), x1 + points[0].x, y1 + points[0].y, NULL);
+          MoveToEx(to_backup_hdc(actual_window), x + points[0].x, y + points[0].y, NULL);
           for (pos = 1; pos < npoints; pos ++) {
-            LineTo(to_backup_hdc(actual_window), x1 + points[pos].x, y1 + points[pos].y);
+            LineTo(to_backup_hdc(actual_window), x + points[pos].x, y + points[pos].y);
           } /* for */
-          SetPixel(to_backup_hdc(actual_window), x1 + points[npoints - 1].x, y1 + points[npoints - 1].y, (COLORREF) col);
+          SetPixel(to_backup_hdc(actual_window), x + points[npoints - 1].x, y + points[npoints - 1].y, (COLORREF) col);
           SelectObject(to_backup_hdc(actual_window), old_pen);
         } /* if */
         DeleteObject(current_pen);
@@ -2157,12 +2157,12 @@ inttype col;
 #ifdef ANSI_C
 
 void drwFPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, bstritype point_list, inttype col)
+    inttype x, inttype y, bstritype point_list, inttype col)
 #else
 
-void drwFPolyLine (actual_window, x1, y1, point_list, col)
+void drwFPolyLine (actual_window, x, y, point_list, col)
 wintype actual_window;
-inttype x1, y1;
+inttype x, y;
 const_bstritype point_list;
 inttype col;
 #endif
@@ -2180,8 +2180,8 @@ inttype col;
     points = (POINT *) point_list->mem;
     npoints = point_list->size / sizeof(POINT);
     for (pos = 0; pos < npoints; pos ++) {
-      points[pos].x += x1;
-      points[pos].y += y1;
+      points[pos].x += x;
+      points[pos].y += y;
     } /* for */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
@@ -2204,8 +2204,8 @@ inttype col;
       DeleteObject(current_brush);
     } /* if */
     for (pos = 0; pos < npoints; pos ++) {
-      points[pos].x -= x1;
-      points[pos].y -= y1;
+      points[pos].x -= x;
+      points[pos].y -= y;
     } /* for */
   } /* drwFPolyLine */
 

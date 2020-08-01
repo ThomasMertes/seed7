@@ -333,6 +333,7 @@ errinfotype *err_info;
     ustritype file_content;
     booltype classic_copy = TRUE;
 #endif
+    char *normal_buffer;
     char *buffer;
     size_t buffer_size;
     char reserve_buffer[SIZE_RESERVE_BUFFER];
@@ -362,7 +363,8 @@ errinfotype *err_info;
         } /* if */
         if (classic_copy) {
 #endif
-          if (ALLOC_BYTES(buffer, SIZE_NORMAL_BUFFER)) {
+          if (ALLOC_BYTES(normal_buffer, SIZE_NORMAL_BUFFER)) {
+            buffer = normal_buffer;
             buffer_size = SIZE_NORMAL_BUFFER;
           } else {
             buffer = reserve_buffer;
@@ -374,8 +376,8 @@ errinfotype *err_info;
               *err_info = FILE_ERROR;
             } /* if */
           } /* while */
-          if (buffer != reserve_buffer) {
-            FREE_BYTES(buffer, SIZE_NORMAL_BUFFER);
+          if (normal_buffer != NULL) {
+            FREE_BYTES(normal_buffer, SIZE_NORMAL_BUFFER);
           } /* if */
 #ifdef USE_MMAP
         } /* if */

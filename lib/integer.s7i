@@ -138,6 +138,10 @@ const func integer: (in integer: dividend) mod (in integer: divisor)   is action
 
 (**
  *  Compute the exponentiation of a integer base by an integer exponent.
+ *   A ** 0  returns 1           for every A, even for A = 0
+ *   1 ** B  returns 1           for B >= 0
+ *   A ** B  returns -(-A) ** B  for A <= 0 and B >= 0 and odd(B)
+ *   A ** B  returns (-A) ** B   for A <= 0 and B >= 0 and not odd(B)
  *  @return the result of the exponentation.
  *  @exception NUMERIC_ERROR When the exponent is negative.
  *)
@@ -295,8 +299,8 @@ const func integer: sqrt (in integer: number)                    is action "INT_
 (**
  *  Compute the truncated base 2 logarithm of an integer number.
  *  The definition of ''log2'' is extended by defining log2(0) = -1.
- *   log2(2 ** A)        returns A       for A >= 0
- *   log2(pred(2 ** A))  returns pred(A) for A >= 0
+ *   log2(2 ** A)        returns A        for A >= 0
+ *   log2(pred(2 ** A))  returns pred(A)  for A >= 0
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  *)

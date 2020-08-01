@@ -143,6 +143,10 @@ const func bigInteger: (in bigInteger: dividend) mod (in bigInteger: divisor)   
 
 (**
  *  Compute the exponentiation of a ''bigInteger'' base by an [[integer]] exponent.
+ *   A ** 0  returns 1_          for every A, even for A = 0_
+ *   1 ** B  returns 1_          for B >= 0
+ *   A ** B  returns -(-A) ** B  for A <= 0_ and B >= 0 and odd(B)
+ *   A ** B  returns (-A) ** B   for A <= 0_ and B >= 0 and not odd(B)
  *  @return the result of the exponentation.
  *  @exception NUMERIC_ERROR When the exponent is negative.
  *)

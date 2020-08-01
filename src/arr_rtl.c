@@ -981,15 +981,23 @@ inttype position;
       memmove(&array_pointer[position - arr1->min_position],
           &array_pointer[position - arr1->min_position + 1],
           (uinttype) (arr1->max_position - position) * sizeof(rtlObjecttype));
-      arr1->max_position--;
       arr1_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
-      resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size + 1, arr1_size);
-      if (resized_arr1 == NULL) {
+      resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - 1);
+      if (unlikely(resized_arr1 == NULL)) {
+        /* A realloc, which shrinks memory, usually succeeds. */
+        /* The probability that this code path is executed is */
+        /* probably zero. The code below restores the old     */
+        /* value of arr1.                                     */
+        memmove(&array_pointer[position - arr1->min_position + 1],
+            &array_pointer[position - arr1->min_position],
+            (uinttype) (arr1->max_position - position) * sizeof(rtlObjecttype));
+        array_pointer[position - arr1->min_position].value.genericvalue = result;
         raise_error(MEMORY_ERROR);
         result = 0;
       } else {
         arr1 = resized_arr1;
-        COUNT3_RTL_ARRAY(arr1_size + 1, arr1_size);
+        COUNT3_RTL_ARRAY(arr1_size, arr1_size - 1);
+        arr1->max_position--;
         *arr_to = arr1;
       } /* if */
     } else {

@@ -81,7 +81,6 @@ extern os_chartype emulated_root[];
 
 #ifdef ANSI_C
 
-const strelemtype *stri_charpos (const_stritype stri, strelemtype ch);
 memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
                           const_ustritype ustri, size_t len);
 memsizetype utf8_bytes_missing (const_ustritype ustri, size_t len);
@@ -121,7 +120,6 @@ stritype relativeToProgramPath (const const_stritype basePath,
 
 #else
 
-strelemtype *stri_charpos ();
 memsizetype utf8_to_stri ();
 memsizetype utf8_bytes_missing ();
 memsizetype stri_to_utf8 ();

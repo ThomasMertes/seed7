@@ -314,7 +314,7 @@ listtype arguments;
       FREE_OBJECT(element);
       arg_3(arguments) = NULL;
     } else {
-      if (!any_var_initialisation(result_element_type, &result->arr[0], element)) {
+      if (!arr_elem_initialisation(result_element_type, &result->arr[0], element)) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -360,7 +360,7 @@ listtype arguments;
       FREE_OBJECT(element);
       arg_4(arguments) = NULL;
     } else {
-      if (!any_var_initialisation(result_element_type, &result->arr[0], element)) {
+      if (!arr_elem_initialisation(result_element_type, &result->arr[0], element)) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -684,7 +684,7 @@ listtype arguments;
       FREE_OBJECT(element);
       arg_3(arguments) = NULL;
     } else {
-      if (!any_var_initialisation(result_element_type, &result->arr[arr1_size], element)) {
+      if (!arr_elem_initialisation(result_element_type, &result->arr[arr1_size], element)) {
         destr_array(result->arr, arr1_size);
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -730,7 +730,7 @@ listtype arguments;
       FREE_OBJECT(element1);
       arg_1(arguments) = NULL;
     } else {
-      if (!any_var_initialisation(result_element_type, &result->arr[0], element1)) {
+      if (!arr_elem_initialisation(result_element_type, &result->arr[0], element1)) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -742,7 +742,7 @@ listtype arguments;
       FREE_OBJECT(element2);
       arg_3(arguments) = NULL;
     } else {
-      if (!any_var_initialisation(result_element_type, &result->arr[1], element2)) {
+      if (!arr_elem_initialisation(result_element_type, &result->arr[1], element2)) {
         destr_array(result->arr, 1);
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -979,7 +979,7 @@ listtype arguments;
         FREE_OBJECT(element);
         arg_3(arguments) = NULL;
       } else {
-        if (!any_var_initialisation(result_element_type, &new_arr->arr[arr_to_size], element)) {
+        if (!arr_elem_initialisation(result_element_type, &new_arr->arr[arr_to_size], element)) {
           arr_to = REALLOC_ARRAY(new_arr, new_size, arr_to_size);
           if (arr_to == NULL) {
             return raise_exception(SYS_MEM_EXCEPTION);
@@ -1078,6 +1078,7 @@ listtype arguments;
 
   {
     arraytype arr1;
+    arraytype resized_arr1;
     inttype position;
     objecttype array_pointer;
     memsizetype arr1_size;
@@ -1095,18 +1096,29 @@ listtype arguments;
         result = raise_exception(SYS_MEM_EXCEPTION);
       } else {
         memcpy(result, &array_pointer[position - arr1->min_position], sizeof(objectrecord));
-        SET_TEMP_FLAG(result);
         memmove(&array_pointer[position - arr1->min_position],
             &array_pointer[position - arr1->min_position + 1],
             (uinttype) (arr1->max_position - position) * sizeof(objectrecord));
-        arr1->max_position--;
         arr1_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
-        arr1 = REALLOC_ARRAY(arr1, arr1_size + 1, arr1_size);
-        if (arr1 == NULL) {
-          return raise_exception(SYS_MEM_EXCEPTION);
+        resized_arr1 = REALLOC_ARRAY(arr1, arr1_size, arr1_size - 1);
+        if (unlikely(resized_arr1 == NULL)) {
+          /* A realloc, which shrinks memory, usually succeeds. */
+          /* The probability that this code path is executed is */
+          /* probably zero. The code below restores the old     */
+          /* value of arr1.                                     */
+          memmove(&array_pointer[position - arr1->min_position + 1],
+              &array_pointer[position - arr1->min_position],
+              (uinttype) (arr1->max_position - position) * sizeof(objectrecord));
+          memcpy(&array_pointer[position - arr1->min_position], result, sizeof(objectrecord));
+          FREE_OBJECT(result);
+          result = raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          arr1 = resized_arr1;
+          COUNT3_ARRAY(arr1_size, arr1_size - 1);
+          arr1->max_position--;
+          arg_1(arguments)->value.arrayvalue = arr1;
+          SET_TEMP_FLAG(result);
         } /* if */
-        COUNT3_ARRAY(arr1_size + 1, arr1_size);
-        arg_1(arguments)->value.arrayvalue = arr1;
       } /* if */
     } else {
       result = raise_exception(SYS_RNG_EXCEPTION);
@@ -1281,14 +1293,14 @@ listtype arguments;
             FREE_OBJECT(element);
             arg_3(arguments) = NULL;
           } else {
-            if (!any_var_initialisation(result_element_type, elem_to, element)) {
+            if (!arr_elem_initialisation(result_element_type, elem_to, element)) {
               FREE_ARRAY(result, result_size);
               return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
             } /* if */
           } /* if */
           position = 1;
           while (position < result_size) {
-            if (!any_var_initialisation(result_element_type, &elem_to[position], elem_to)) {
+            if (!arr_elem_initialisation(result_element_type, &elem_to[position], elem_to)) {
               /* When one create fails (mostly no memory) all elements */
               /* created up to this point must be destroyed to recycle */
               /* the memory correct. */

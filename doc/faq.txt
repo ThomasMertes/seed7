@@ -168,8 +168,11 @@ Seed7 can be used in various application areas:
    purpose language and programs can be compiled to an executable).
  - Scripts that deal with files and directories (The Seed7 Homepage
    and the Seed7 release are created with Seed7 scripts).
- - Tools for networking (There is support for sockets, HTTP, FTP and
-   HTML parsing).
+ - Tools for networking (There is support for sockets, listeners, HTTP, FTP and
+   HTML parsing). E.g.:
+    - A ftp file transfer program
+    - A ftp server
+    - A web server
  - Programs that deal with XML (There is support for XML parsing and
    the possibility to read XML into a DOM data structure).
  - CGI scripts (A CGI support library is available and the Comanche web server
@@ -196,12 +199,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 190000 lines of Seed7. For version 2013-03-03 the number of lines is:
+than 190000 lines of Seed7. For version 2013-03-17 the number of lines is:
 
-  104891  C source files (*.c)
-   10326  C header files (*.h)
-  111912  Seed7 source files (*.sd7)
-   82425  Seed7 library/include files (*.s7i)
+  105128  C source files (*.c)
+   10331  C header files (*.h)
+  112009  Seed7 source files (*.sd7)
+   82442  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1002,6 +1005,9 @@ strategy of automatic memory management is used:
  - Strings, arrays, hashes and other containers manage their memory. E.g.:
    When an element is removed from a hash table the memory used by the element
    is freed as well as the hash table internal data.
+ - A struct value can be referred by one struct variable and by several
+   interface variables. Struct values use a reference counter to free the
+   struct, when no reference to it exists.
 
 
 Is Seed7 object oriented?

@@ -31,10 +31,10 @@
 
 #ifdef ANSI_C
 
-void itfDestr (const const_rtlInterfacetype old_interface);
+rtlInterfacetype itfCreate (const rtlInterfacetype interface_from);
 
 #else
 
-void itfDestr (old_interface);
+rtlInterfacetype itfCreate ();
 
 #endif

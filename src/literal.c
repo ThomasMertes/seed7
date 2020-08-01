@@ -372,10 +372,10 @@ static char lit_escapechar ()
       err_cchar(STRINGESCAPE, in_file.character);
       ch = ' ';
     } /* if */
-    return ch;
 #ifdef TRACE_LITERAL
   printf("END lit_escapechar\n");
 #endif
+    return ch;
   } /* lit_escapechar */
 #endif
 
@@ -445,10 +445,10 @@ static char lit_escapechar ()
     if (read_next_character) {
       in_file.character = next_character();
     } /* if */
-    return ch;
 #ifdef TRACE_LITERAL
   printf("END lit_escapechar\n");
 #endif
+    return ch;
   } /* lit_escapechar */
 #endif
 

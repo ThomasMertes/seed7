@@ -34,6 +34,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 
 #undef WITH_XSHAPE_EXTENSION
 
@@ -275,10 +276,10 @@ XConfigureEvent *xconfigure;
   {
     x11_wintype configure_window;
     Window root;
-    int x, y;
+    /* int x, y;
     unsigned int width, height;
     unsigned int border_width;
-    unsigned int depth;
+    unsigned int depth; */
     Status status;
     int num_events;
     XEvent peekEvent;
@@ -854,7 +855,7 @@ inttype col;
     XSetForeground(mydisplay, mygc, (unsigned) col);
     /* The main window is cleared with the real window size. */
     XFillRectangle(mydisplay, to_window(actual_window), mygc, 0, 0,
-        drwWidth(actual_window), drwHeight(actual_window));
+        (unsigned int) drwWidth(actual_window), (unsigned int) drwHeight(actual_window));
     if (to_backup(actual_window) != 0) {
       XFillRectangle(mydisplay, to_backup(actual_window), mygc, 0, 0,
           to_width(actual_window), to_height(actual_window));
@@ -1139,7 +1140,7 @@ inttype y;
 
   {
     XImage *image;
-    long pixel;
+    inttype pixel;
 
   /* drwGetPixel */
 #ifdef TRACE_X11
@@ -1152,10 +1153,10 @@ inttype y;
       image = XGetImage(mydisplay, to_window(actual_window), x, y, 1, 1,
                         (unsigned long) -1, ZPixmap);
     } /* if */
-    pixel = XGetPixel(image, 0, 0);
+    pixel = (inttype) XGetPixel(image, 0, 0);
     XDestroyImage(image);
     /* printf("drwGetPixel --> %lx\n", pixel); */
-    return (inttype) pixel;
+    return pixel;
   } /* drwGetPixel */
 
 
@@ -1718,6 +1719,8 @@ rtlArraytype xyArray;
   {
     uinttype num_elements;
     memsizetype len;
+    inttype x;
+    inttype y;
     XPoint *points;
     memsizetype pos;
     bstritype result;
@@ -1739,13 +1742,27 @@ rtlArraytype xyArray;
         result->size = len * sizeof(XPoint);
         if (len > 0) {
           points = (XPoint *) result->mem;
-          points[0].x = xyArray->arr[0].value.intvalue;
-          points[0].y = xyArray->arr[1].value.intvalue;
+          x = xyArray->arr[0].value.intvalue;
+          y = xyArray->arr[1].value.intvalue;
+          if (unlikely(x < SHRT_MIN || x > SHRT_MAX || y < SHRT_MIN || y > SHRT_MAX)) {
+            raise_error(RANGE_ERROR);
+            return NULL;
+          } else {
+            points[0].x = (short) x;
+            points[0].y = (short) y;
+          } /* if */
           for (pos = 1; pos < len; pos ++) {
-            points[pos].x = xyArray->arr[ pos << 1     ].value.intvalue -
-                            xyArray->arr[(pos << 1) - 2].value.intvalue;
-            points[pos].y = xyArray->arr[(pos << 1) + 1].value.intvalue -
-                            xyArray->arr[(pos << 1) - 1].value.intvalue;
+            x = xyArray->arr[ pos << 1     ].value.intvalue -
+                xyArray->arr[(pos << 1) - 2].value.intvalue;
+            y = xyArray->arr[(pos << 1) + 1].value.intvalue -
+                xyArray->arr[(pos << 1) - 1].value.intvalue;
+            if (unlikely(x < SHRT_MIN || x > SHRT_MAX || y < SHRT_MIN || y > SHRT_MAX)) {
+              raise_error(RANGE_ERROR);
+              return NULL;
+            } else {
+              points[pos].x = (short) x;
+              points[pos].y = (short) y;
+            } /* if */
           } /* for */
         } /* if */
       } /* if */
@@ -1773,12 +1790,12 @@ bstritype point_list;
 #ifdef ANSI_C
 
 void drwPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, bstritype point_list, inttype col)
+    inttype x, inttype y, bstritype point_list, inttype col)
 #else
 
-void drwPolyLine (actual_window, x1, y1, point_list, col)
+void drwPolyLine (actual_window, x, y, point_list, col)
 wintype actual_window;
-inttype x1, y1;
+inttype x, y;
 const_bstritype point_list;
 inttype col;
 #endif
@@ -1789,17 +1806,21 @@ inttype col;
     XPoint startBackup;
 
   /* drwPolyLine */
-    points = (XPoint *) point_list->mem;
-    npoints = (int) (point_list->size / sizeof(XPoint));
-    memcpy(&startBackup, &points[0], sizeof(XPoint));
-    points[0].x += x1;
-    points[0].y += y1;
-    XSetForeground(mydisplay, mygc, (unsigned) col);
-    XDrawLines(mydisplay, to_window(actual_window), mygc, points, npoints, CoordModePrevious);
-    if (to_backup(actual_window) != 0) {
-      XDrawLines(mydisplay, to_backup(actual_window), mygc, points, npoints, CoordModePrevious);
+    if (unlikely(x < SHRT_MIN || x > SHRT_MAX || y < SHRT_MIN || y > SHRT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      points = (XPoint *) point_list->mem;
+      npoints = (int) (point_list->size / sizeof(XPoint));
+      memcpy(&startBackup, &points[0], sizeof(XPoint));
+      points[0].x += (short) x;
+      points[0].y += (short) y;
+      XSetForeground(mydisplay, mygc, (unsigned) col);
+      XDrawLines(mydisplay, to_window(actual_window), mygc, points, npoints, CoordModePrevious);
+      if (to_backup(actual_window) != 0) {
+        XDrawLines(mydisplay, to_backup(actual_window), mygc, points, npoints, CoordModePrevious);
+      } /* if */
+      memcpy(&points[0], &startBackup, sizeof(XPoint));
     } /* if */
-    memcpy(&points[0], &startBackup, sizeof(XPoint));
   } /* drwPolyLine */
 
 
@@ -1807,12 +1828,12 @@ inttype col;
 #ifdef ANSI_C
 
 void drwFPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, bstritype point_list, inttype col)
+    inttype x, inttype y, bstritype point_list, inttype col)
 #else
 
-void drwFPolyLine (actual_window, x1, y1, point_list, col)
+void drwFPolyLine (actual_window, x, y, point_list, col)
 wintype actual_window;
-inttype x1, y1;
+inttype x, y;
 const_bstritype point_list;
 inttype col;
 #endif
@@ -1823,21 +1844,25 @@ inttype col;
     XPoint startBackup;
 
   /* drwFPolyLine */
-    points = (XPoint *) point_list->mem;
-    npoints = (int) (point_list->size / sizeof(XPoint));
-    memcpy(&startBackup, &points[0], sizeof(XPoint));
-    points[0].x += x1;
-    points[0].y += y1;
-    XSetForeground(mydisplay, mygc, (unsigned) col);
-    XDrawLines(mydisplay, to_window(actual_window), mygc, points, npoints, CoordModePrevious);
-    XFillPolygon(mydisplay, to_window(actual_window), mygc, points, npoints,
-        Nonconvex, CoordModePrevious);
-    if (to_backup(actual_window) != 0) {
-      XDrawLines(mydisplay, to_backup(actual_window), mygc, points, npoints, CoordModePrevious);
-      XFillPolygon(mydisplay, to_backup(actual_window), mygc, points, npoints,
+    if (unlikely(x < SHRT_MIN || x > SHRT_MAX || y < SHRT_MIN || y > SHRT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      points = (XPoint *) point_list->mem;
+      npoints = (int) (point_list->size / sizeof(XPoint));
+      memcpy(&startBackup, &points[0], sizeof(XPoint));
+      points[0].x += (short) x;
+      points[0].y += (short) y;
+      XSetForeground(mydisplay, mygc, (unsigned) col);
+      XDrawLines(mydisplay, to_window(actual_window), mygc, points, npoints, CoordModePrevious);
+      XFillPolygon(mydisplay, to_window(actual_window), mygc, points, npoints,
           Nonconvex, CoordModePrevious);
+      if (to_backup(actual_window) != 0) {
+        XDrawLines(mydisplay, to_backup(actual_window), mygc, points, npoints, CoordModePrevious);
+        XFillPolygon(mydisplay, to_backup(actual_window), mygc, points, npoints,
+            Nonconvex, CoordModePrevious);
+      } /* if */
+      memcpy(&points[0], &startBackup, sizeof(XPoint));
     } /* if */
-    memcpy(&points[0], &startBackup, sizeof(XPoint));
   } /* drwFPolyLine */
 
 
