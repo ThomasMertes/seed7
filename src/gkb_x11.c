@@ -579,7 +579,7 @@ chartype gkbGetc ()
             case XK_Insert:     result = K_INS;         break;
             case XK_Delete:     result = K_DEL;         break;
             case XK_KP_Enter:   result = K_NL;          break;
-            case XK_EuroSign:   result = currentKey;    break;
+            case XK_EuroSign:   result = 0x20ac;        break;
             case XK_Shift_L:
             case XK_Shift_R:
             case XK_Control_L:
@@ -651,7 +651,7 @@ chartype gkbGetc ()
             case XK_KP_5:       result = K_UNDEF;       break;
             case XK_KP_Enter:   result = K_NL;          break;
             case XK_KP_Decimal: result = K_DEL;         break;
-            case XK_EuroSign:   result = currentKey;    break;
+            case XK_EuroSign:   result = 0x20ac;        break;
             case XK_Shift_L:
             case XK_Shift_R:
             case XK_Control_L:

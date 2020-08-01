@@ -2297,6 +2297,26 @@ const func bitmapFont: genStdFont12 is func
         " XX       ",
         " XX       "));
 
+    incl(result.fontPictures, '¶',
+    [] ("           ",
+        "           ",
+        "           ",
+        "   XXXXXXXX",
+        "  XXXXXXXXX",
+        " XXX XX XX ",
+        " XX  XX XX ",
+        " XX  XX XX ",
+        " XXX XX XX ",
+        "  XXXXX XX ",
+        "   XXXX XX ",
+        "     XX XX ",
+        "     XX XX ",
+        "     XX XX ",
+        "     XX XX ",
+        "     XX XX ",
+        "     XX XX ",
+        "     XX XX "));
+
     incl(result.fontPictures, '·',
     [] ("       ",
         "       ",

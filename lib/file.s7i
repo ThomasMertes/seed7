@@ -268,10 +268,7 @@ const proc: copyFile (inout file: source, inout file: dest) is func
    begin
     buffer := gets(source, 1000000);
     while buffer <> "" do
-      # writeln(literal(buffer));
-      # writeln(length(buffer));
       write(dest, buffer);
       buffer := gets(source, 1000000);
     end while;
-    # writeln("finished");
   end func;

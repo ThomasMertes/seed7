@@ -1109,6 +1109,49 @@ inttype port;
 
 
 
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
+#else
+
+booltype socInputReady (sock, seconds, micro_seconds)
+sockettype sock;
+inttype seconds;
+inttype micro_seconds;
+#endif
+
+  {
+    struct pollfd pollFd[1];
+    int poll_result;
+    unsigned char next_char;
+    memsizetype bytes_received;
+    booltype result;
+
+  /* socInputReady */
+    pollFd[0].fd = (int) sock;
+    pollFd[0].events = POLLIN;
+    poll_result = os_poll(pollFd, 1, 0);
+    if (unlikely(poll_result < 0)) {
+      raise_error(FILE_ERROR);
+      result = FALSE;
+    } else {
+      result = poll_result == 1 && (pollFd[0].revents & POLLIN);
+      if (result) {
+        /* Verify that it is really possible to read at least one character */
+        bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&next_char), 1, MSG_PEEK);
+        if (bytes_received != 1) {
+          /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
+          result = FALSE;
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* socInputReady */
+#endif
+
+  
+  
 #ifdef ANSI_C
 
 booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)

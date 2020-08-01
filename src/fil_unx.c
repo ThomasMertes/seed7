@@ -33,13 +33,54 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#ifdef OUT_OF_ORDER
 #include "sys/select.h"
+#endif
+#include "poll.h"
 
 #include "common.h"
+#include "os_decls.h"
 #include "rtl_err.h"
 
 
 
+#ifdef ANSI_C
+
+booltype filInputReady (filetype aFile)
+#else
+
+booltype filInputReady (aFile)
+filetype aFile;
+#endif
+
+  {
+    int file_no;
+    struct pollfd pollFd[1];
+    int poll_result;
+    booltype result;
+
+  /* filInputReady */
+    file_no = fileno(aFile);
+    if (file_no != -1) {
+      pollFd[0].fd = file_no;
+      pollFd[0].events = POLLIN;
+      poll_result = os_poll(pollFd, 1, 0);
+      if (unlikely(poll_result < 0)) {
+        raise_error(FILE_ERROR);
+        result = FALSE;
+      } else {
+        result = poll_result == 1 && (pollFd[0].revents & POLLIN);
+      } /* if */
+    } else {
+      raise_error(FILE_ERROR);
+      result = FALSE;
+    } /* if */
+    return result;
+  } /* filInputReady */
+
+	
+	
+#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 booltype filInputReady (filetype aFile)
@@ -81,3 +122,4 @@ filetype aFile;
     /* printf("filInputReady --> %d\n", result); */
     return result;
   } /* filInputReady */
+#endif

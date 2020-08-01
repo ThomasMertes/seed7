@@ -1,3 +1,18 @@
+20120318:
+- The example program "testfont.sd7" was improved to display more
+  fonts and more characters.
+- The library "vectorfont.s7i", which supports vector fonts, was
+  added.
+- The libraries "cronos16.s7i", "cronos27.s7i" and
+  "vecfont18.s7i", which define the vector fonts cronos16,
+  cronos27 and vecFont18 respectively, were added
+- A standard bitmap font with size 20 was defined in the new
+  library "stdfont20.s7i".
+- The pilcrow character was added to the standard bitmap fonts.
+- Some characters in the standard bitmap fonts were improved.
+- The function 'filInputReady' in "fil_unx.c" was improved to
+  use poll() instead of select().
+
 20120304:
 - The "ftpserv.sd7" example program was improved to support the
   commands RNFR and RNTO and to work correctly, when the listener

@@ -103,6 +103,8 @@ chartype.s7i Character type definitions
 color.s7i    Functions for color processing
 complex.s7i  Complex support library
 console.s7i  Text implementation type for text console/window.
+cronos16.s7i Cronos vector font with capHeight 16.
+cronos27.s7i Cronos vector font with capHeight 27.
 dialog.s7i   Dialog support library
 dir.s7i      Implementation type to read directories as files
 draw.s7i     Portable graphic library
@@ -158,6 +160,7 @@ stdfont12.s7i Standard bitmap font with capHeight 12.
 stdfont14.s7i Standard bitmap font with capHeight 14.
 stdfont16.s7i Standard bitmap font with capHeight 16.
 stdfont18.s7i Standard bitmap font with capHeight 18.
+stdfont20.s7i Standard bitmap font with capHeight 20.
 stdfont24.s7i Standard bitmap font with capHeight 24.
 stdio.s7i    Standard input and output via files
 strifile.s7i Implementation type for files stored in a string
@@ -171,6 +174,8 @@ time.s7i     Time and date library
 upper.s7i    Filter file which turns characters to upper case
 utf16.s7i    File implementation type for UTF-16 files
 utf8.s7i     File implementation type for UTF-8 files
+vecfont18.s7i Standard vector font with capHeight 18.
+vectorfont.s7i Defines the vector font type.
 window.s7i   Filter file for text windows with random access
 wrinum.s7i   Functions to write numbers
 xml_ent.s7i  XML entity handling library
