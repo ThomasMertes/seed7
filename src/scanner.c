@@ -89,6 +89,7 @@ static INLINE void scan_comment ()
 /*        character = next_line(); */
           SKIP_CR_SP(character);
           INCR_LINE_COUNT(in_file.line);
+          symbol.syNumberInLine = 0;
         } /* if */
       } while (character != '*' && character != EOF);
       if (character != EOF) {
@@ -182,6 +183,7 @@ static INLINE void scan_eof ()
         in_file.character = EOF;
         find_eof_ident();
         symbol.sycategory = STOPSYMBOL;
+        symbol.syNumberInLine++;
       } else {
         scan_symbol();
       } /* if */
@@ -216,6 +218,7 @@ void scan_symbol ()
 /*    character = next_line(); */
       SKIP_CR_SP(character);                                    /*  6.43%  8.02% */
       INCR_LINE_COUNT(in_file.line);                            /*  0.26%  0.28% */
+      symbol.syNumberInLine = 0;
     } /* if */
     switch (character) {                                        /*  2.87%  2.55% */
       case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
@@ -254,6 +257,7 @@ void scan_symbol ()
         find_normal_ident(position);                            /*  0.24%  0.25% */
         in_file.character = character;                          /*  0.12%  0.12% */
         symbol.sycategory = NAMESYMBOL;                         /*  0.24%  0.25% */
+        symbol.syNumberInLine++;
         break;                                                  /*  0.12%  0.12% */
       case ' ':  case '\t':  case '\r':
         /* SPACECHAR */
@@ -261,7 +265,7 @@ void scan_symbol ()
         scan_symbol();
         break;
       case '\n':
-        /* NEWLINECHAR: */
+        /* NEWLINECHAR */
         in_file.character = character;
         scan_symbol();
         break;
@@ -286,6 +290,7 @@ void scan_symbol ()
         } /* if */
         in_file.character = character;                          /*  0.05%  0.05% */
         symbol.sycategory = SPECIALSYMBOL;                      /*  0.10%  0.10% */
+        symbol.syNumberInLine++;
         break;                                                  /*  0.05%  0.10% */
       case '(':
         /* LEFTPARENCHAR */
@@ -297,6 +302,7 @@ void scan_symbol ()
 /*        symbol.name[1] = '\0';                                    0.03%  0.03% */
           find_1_ch_ident('(');                                 /*  0.04%  0.09% */
           symbol.sycategory = PARENSYMBOL;                      /*  0.03%  0.03% */
+          symbol.syNumberInLine++;
         } /* if */
         break;                                                  /*         0.01% */
       case ')':
@@ -308,6 +314,7 @@ void scan_symbol ()
         find_1_ch_ident(character);                             /*  0.08%  0.11% */
         in_file.character = next_character();                   /*  0.32%  0.34% */
         symbol.sycategory = PARENSYMBOL;                        /*  0.03%  0.03% */
+        symbol.syNumberInLine++;
         break;                                                  /*         0.02% */
       case '0':  case '1':  case '2':  case '3':  case '4':
       case '5':  case '6':  case '7':  case '8':  case '9':

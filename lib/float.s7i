@@ -92,6 +92,12 @@ const func float: flt (ref integer param) is                       action "FLT_I
 
 
 (**
+ *  Return the conversion of an integer to a float.
+ *)
+const func float: (attr float) conv (ref integer param) is         action "FLT_ICONV";
+
+
+(**
  *  Returns the nearest integer to the argument. Halfway cases are
  *  rounded away from zero.
  *)

@@ -87,6 +87,7 @@ $ syntax expr: .(). ! .() is                      ->  4;
 $ syntax expr: . ! .() is                         ->  4;
 $ syntax expr: . + .() is                        <-   5;
 $ syntax expr: . - .() is                        <-   5;
+$ syntax expr: . conj .() is                     <-   5;
 $ syntax expr: .(). * .() is                      ->  6;
 $ syntax expr: .(). / .() is                      ->  6;
 $ syntax expr: .().div.() is                      ->  6;

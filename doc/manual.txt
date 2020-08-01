@@ -1454,7 +1454,7 @@ CONTENTS
       or        Inclusive logical or
                   ( FALSE or FALSE => FALSE,
                     A or B => TRUE else )
-      boolean conv A   Conversion to boolean
+      boolean conv A   Conversion of integer to boolean
                   ( Type of argument A: integer,
                     boolean conv 0 => FALSE,
                     boolean conv 1 => TRUE )
@@ -1801,9 +1801,9 @@ CONTENTS
                     A >> B => -1_ for A < 0_ and B > ord(log2(-A)),
                     A >> 0 => A,
                     A >> -1 => EXCEPTION NUMERIC_ERROR )
-      bigInteger conv A   Conversion to bigInteger
+      bigInteger conv A   Conversion of integer to bigInteger
                   ( Type of argument A: integer,
-                    bigInteger conv A => A )
+                    bigInteger conv 1 => 1_ )
       bigInteger parse A   Conversion of string to integer
                   ( Type of argument A: string,
                     bigInteger parse "123" => 123_,
@@ -1967,17 +1967,23 @@ CONTENTS
       -         Subtraction
       *         Multiplication
       /         Division
+      /         Create rational from numerator and denominator
+                  ( Type of left operand: integer,
+                    Type of right operand: integer )
       **        Power
                   ( rational ** integer )
+      rational conv A   Conversion of integer to rational
+                  ( Type of argument A: integer,
+                    rational conv 1 => 1 / 1 )
       rational parse A   Conversion of string to rational
                   ( Type of argument A: string )
     Relations:
       =, <>, <, <=, >, >=
     Functions:
       abs(A)    Absolute value
-      rat(A)    Conversion to rational
+      rat(A)    Conversion of integer to rational
                   ( Type of argument A: integer,
-                    rat(1) => 1.0 )
+                    rat(1) => 1 / 1 )
       floor(A)  Truncation towards negative infinity
                   ( Type of result: integer,
                     floor( 1.8)=> 1, floor( 1.0)=> 1,
@@ -2034,20 +2040,26 @@ CONTENTS
       -         Subtraction
       *         Multiplication
       /         Division
-      /         Division of two bigInteger values
-                  ( Left argument: bigInteger,
-                    Right argument: bigInteger )
+      /         Create bigRational from numerator and denominator
+                  ( Type of left argument: bigInteger,
+                    Type of right argument: bigInteger )
       **        Power
                   ( bigRational ** integer )
+      bigRational conv A   Conversion of integer to bigRational
+                  ( Type of argument A: integer,
+                    bigRational conv 1 => 1_ / 1_ )
+      bigRational conv A   Conversion of bigInteger to bigRational
+                  ( Type of argument A: bigInteger,
+                    bigRational conv 1_ => 1_ / 1_ )
       bigRational parse A   Conversion of string to bigRational
                   ( Type of argument A: string )
     Relations:
       =, <>, <, <=, >, >=
     Functions:
       abs(A)    Absolute value
-      rat(A)    Conversion to bigRational
+      rat(A)    Conversion of bigInteger to bigRational
                   ( Type of argument A: bigInteger,
-                    rat(1) => 1.0 )
+                    rat(1_) => 1_ / 1_ )
       floor(A)  Truncation towards negative infinity
                   ( Type of result: bigInteger,
                     floor( 1.8)=> 1, floor( 1.0)=> 1,
@@ -2120,6 +2132,9 @@ CONTENTS
                     0.0 ** B => 0.0 for B > 0,
                     0.0 ** 0 => 1.0,
                     0.0 ** B => Infinity for B < 0 )
+      float conv A   Conversion of integer to float
+                  ( Type of argument A: integer,
+                    float conv 1 => 1.0 )
       digits    Conversion to string with specified precision
                   ( Type of right operand: integer,
                     Type of result: string,
@@ -2133,7 +2148,7 @@ CONTENTS
       =, <>, <, <=, >, >=
     Functions:
       abs(A)    Absolute value
-      flt(A)    Conversion to float
+      flt(A)    Conversion of integer to float
                   ( Type of argument A: integer,
                     flt(1) => 1.0 )
       floor(A)  Truncation towards negative infinity
@@ -2219,6 +2234,7 @@ CONTENTS
     Prefix operators:
       +         Identity
       -         Change sign
+      conj      Complex conjugate
     Infix operators:
       +         Addition
       -         Subtraction
@@ -2233,6 +2249,12 @@ CONTENTS
                     complex(0.0) ** B => complex(0.0) for B > 0,
                     complex(0.0) ** 0 => complex(1.0),
                     complex(0.0) ** B => complex(Infinity, NaN) for B < 0 )
+      complex conv A   Conversion of integer to complex
+                  ( Type of argument A: integer,
+                    complex conv A => complex(flt(A)) )
+      complex conv A   Conversion of float to complex
+                  ( Type of argument A: float,
+                    complex conv A => complex(A) )
       digits    Conversion to string with specified precision
                   ( Type of right operand: integer,
                     Type of result: string,
@@ -2304,7 +2326,7 @@ CONTENTS
   encoded characters.
 
     Infix operators:
-      char conv A   Conversion to char
+      char conv A   Conversion of integer to char
                   ( Type of argument A: integer,
                     char conv 65 => 'A' )
       char parse A   Conversion of string to char
@@ -2314,7 +2336,7 @@ CONTENTS
     Functions:
       ord(A)    Ordinal number
                   ( Type of result: integer )
-      chr(A)    Conversion to char
+      chr(A)    Conversion of integer to char
                   ( Type of argument: integer )
       succ(A)   Successor
                   ( succ(A)=>chr(succ(ord(A))) )
@@ -2532,7 +2554,7 @@ CONTENTS
                   ( Type of argument B: integer,
                     Type of argument C: char,
                     A @:= [B] C =>
-                      A := A[..pred(B)] & str(C) & A[succ(B)..],
+                        A := A[..pred(B)] & str(C) & A[succ(B)..],
                     A @:= [0] 'x' => EXCEPTION RANGE_ERROR,
                     A @:= [succ(length(A))] 'x' => EXCEPTION RANGE_ERROR )
 
@@ -2791,7 +2813,7 @@ CONTENTS
       REFLISTOBJECT, EXPROBJECT, ACTOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT,
       RESULTOBJECT, LOCALVOBJECT, PROGOBJECT
     Infix operators:
-      category conv A   Conversion to category
+      category conv A   Conversion of integer to category
                   ( Type of argument A: integer,
                     category conv ord(INTOBJECT) => INTOBJECT )
       category parse A   Conversion of string to category
@@ -2817,77 +2839,126 @@ CONTENTS
     Relations:
       =, <>
     Functions:
-      category(A)        Get the category of the referenced object
-                  ( Type of result: category )
-      str(A)             Conversion to string
+      category(A) Get the category of the referenced object
+                  ( Type of result: category,
+                    category(NIL) => EXCEPTION RANGE_ERROR )
+      str(A)    Conversion to string
                   ( Type of result: string )
-      getType(A)         Get the type of the referenced object
-                  ( Type of result: type )
-      obj_number(A)      Delivers an unique number for each object
-                  ( Type of result: integer )
-      is_var(A)          Reference to a variable object
-                  ( Type of result: boolean )
-      params(A)          Gets the formal params of a function
+      getType(A) Get the type of the referenced object
+                  ( Type of result: type,
+                    getType(NIL) => EXCEPTION RANGE_ERROR )
+      obj_number(A) Delivers an unique number for each object
+                  ( Type of result: integer,
+                    obj_number(NIL) => 0 )
+      is_var(A) Reference to a variable object
+                  ( Type of result: boolean,
+                    is_var(NIL) => EXCEPTION RANGE_ERROR )
+      params(A) Gets the formal params of a function
                   ( Type of result: ref_list )
-      local_vars(A)      Gets the local variables of a function
-                  ( Type of result: ref_list )
-      local_consts(A)    Gets the local constants of a function
-                  ( Type of result: ref_list )
-      body(A)            Gets the body of a function
-      func_result(A)     Gets the result object of a function
-      func_res_init(A)   Gets the init value of the result
-                         object of a function
-      array_to_list(A)   Return the array elements as list
-                  ( Type of result: ref_list )
+      local_vars(A) Gets the local variables of a function
+                  ( Type of result: ref_list,
+                    local_vars(NIL) => EXCEPTION RANGE_ERROR,
+                    local_vars(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
+      local_consts(A) Gets the local constants of a function
+                  ( Type of result: ref_list,
+                    local_consts(NIL) => EXCEPTION RANGE_ERROR,
+                    local_consts(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
+      body(A)   Gets the body of a function
+                  ( body(NIL) => EXCEPTION RANGE_ERROR,
+                    body(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
+      func_result(A) Gets the result object of a function
+      func_res_init(A) Gets the init value of the result
+                       object of a function
+      array_to_list(A) Return the array elements as list
+                  ( Type of result: ref_list,
+                    array_to_list(NIL) => EXCEPTION RANGE_ERROR,
+                    array_to_list(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
       array_min_index(A) Return the minimal index of an array
-                  ( Type of result: integer )
+                  ( Type of result: integer,
+                    array_min_index(NIL) => EXCEPTION RANGE_ERROR,
+                    array_min_index(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
       array_max_index(A) Return the maximal index of an array
-                  ( Type of result: integer )
-      struct_to_list(A)  Return the struct elements as list
-                  ( Type of result: ref_list )
-      interface_to_struct(A)  Return the struct to which the interface object points.
-      file(A)            File name of the referenced object
+                  ( Type of result: integer,
+                    array_max_index(NIL) => EXCEPTION RANGE_ERROR,
+                    array_max_index(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
+      struct_to_list(A) Return the struct elements as list
+                  ( Type of result: ref_list,
+                    struct_to_list(NIL) => EXCEPTION RANGE_ERROR,
+                    struct_to_list(A) => EXCEPTION RANGE_ERROR for category(A) <> STRUCTOBJECT )
+      interface_to_struct(A) Return the struct to which the interface object points.
+                  ( interface_to_struct(NIL) => EXCEPTION RANGE_ERROR,
+                    interface_to_struct(A) => EXCEPTION RANGE_ERROR for category(A) <> INTERFACEOBJECT )
+      file(A)   File name of the referenced object
                   ( Type of result: string )
-      line(A)            Line number of the referenced object
+      line(A)   Line number of the referenced object
                   ( Type of result: integer )
-      alloc(A)           Create a copy of the object referenced by A
-                         The object value of the copy is set to NULL
-      getValue(A, reference)       Dereference as reference
-                  ( Type of result: reference )
-      getValue(A, ref_list)        Dereference as ref_list
-                  ( Type of result: ref_list )
-      getValue(A, integer)         Dereference as integer
-                  ( Type of result: integer )
-      getValue(A, bigInteger)      Dereference as bigInteger
-                  ( Type of result: bigInteger )
-      getValue(A, float)           Dereference as float
-                  ( Type of result: float )
-      getValue(A, char)            Dereference as char
-                  ( Type of result: char )
-      getValue(A, string)          Dereference as string
-                  ( Type of result: string )
-      getValue(A, bitset)          Dereference as bitset
-                  ( Type of result: bitset )
-      getValue(A, PRIMITIVE_FILE)  Dereference as PRIMITIVE_FILE
-                  ( Type of result: PRIMITIVE_FILE )
-      getValue(A, program)         Dereference as program
-                  ( Type of result: program )
-      getValue(A, ACTION)          Dereference as ACTION
-                  ( Type of result: ACTION )
-      getValue(A, type)            Dereference as type
-                  ( Type of result: type )
+      alloc(A)  Create a copy of the object referenced by A
+                The object value of the copy is set to NULL
+      getValue(A, reference) Dereference as reference
+                  ( Type of result: reference,
+                    getValue(NIL, reference) => EXCEPTION RANGE_ERROR,
+                    getValue(A, reference) => EXCEPTION RANGE_ERROR for
+                        category(A) not in {FWDREFOBJECT, REFOBJECT, REFPARAMOBJECT, RESULTOBJECT,
+                        LOCALVOBJECT, ENUMLITERALOBJECT, CONSTENUMOBJECT, VARENUMOBJECT} )
+      getValue(A, ref_list) Dereference as ref_list
+                  ( Type of result: ref_list,
+                    getValue(NIL, ref_list) => EXCEPTION RANGE_ERROR,
+                    getValue(A, ref_list) => EXCEPTION RANGE_ERROR for
+                        category(A) not in {MATCHOBJECT, CALLOBJECT, REFLISTOBJECT} )
+      getValue(A, integer) Dereference as integer
+                  ( Type of result: integer,
+                    getValue(NIL, integer) => EXCEPTION RANGE_ERROR,
+                    getValue(A, integer) => EXCEPTION RANGE_ERROR for category(A) <> INTOBJECT )
+      getValue(A, bigInteger) Dereference as bigInteger
+                  ( Type of result: bigInteger,
+                    getValue(NIL, bigInteger) => EXCEPTION RANGE_ERROR,
+                    getValue(A, bigInteger) => EXCEPTION RANGE_ERROR for category(A) <> BIGINTOBJECT )
+      getValue(A, float) Dereference as float
+                  ( Type of result: float,
+                    getValue(NIL, float) => EXCEPTION RANGE_ERROR,
+                    getValue(A, float) => EXCEPTION RANGE_ERROR for category(A) <> FLOATOBJECT )
+      getValue(A, char) Dereference as char
+                  ( Type of result: char,
+                    getValue(NIL, char) => EXCEPTION RANGE_ERROR,
+                    getValue(A, char) => EXCEPTION RANGE_ERROR for category(A) <> CHAROBJECT )
+      getValue(A, string) Dereference as string
+                  ( Type of result: string,
+                    getValue(NIL, string) => EXCEPTION RANGE_ERROR,
+                    getValue(A, string) => EXCEPTION RANGE_ERROR for category(A) <> STRIOBJECT )
+      getValue(A, bitset) Dereference as bitset
+                  ( Type of result: bitset,
+                    getValue(NIL, bitset) => EXCEPTION RANGE_ERROR,
+                    getValue(A, bitset) => EXCEPTION RANGE_ERROR for category(A) <> SETOBJECT )
+      getValue(A, PRIMITIVE_FILE) Dereference as PRIMITIVE_FILE
+                  ( Type of result: PRIMITIVE_FILE,
+                    getValue(NIL, PRIMITIVE_FILE) => EXCEPTION RANGE_ERROR,
+                    getValue(A, PRIMITIVE_FILE) => EXCEPTION RANGE_ERROR for category(A) <> FILEOBJECT )
+      getValue(A, program) Dereference as program
+                  ( Type of result: program,
+                    getValue(NIL, program) => EXCEPTION RANGE_ERROR,
+                    getValue(A, program) => EXCEPTION RANGE_ERROR for category(A) <> PROGOBJECT )
+      getValue(A, ACTION) Dereference as ACTION
+                  ( Type of result: ACTION,
+                    getValue(NIL, ACTION) => EXCEPTION RANGE_ERROR,
+                    getValue(A, ACTION) => EXCEPTION RANGE_ERROR for category(A) <> ACTOBJECT )
+      getValue(A, type) Dereference as type
+                  ( Type of result: type,
+                    getValue(NIL, type) => EXCEPTION RANGE_ERROR,
+                    getValue(A, type) => EXCEPTION RANGE_ERROR for category(A) <> TYPEOBJECT )
       compare(A, B) Compare function
                   ( Type of result: integer )
       hashCode(A) Hash function
                   ( Type of result: integer )
     Statements:
-      setCategory(A, B)  Set the category of the referenced object A to B
-                  ( Type of argument B: category )
-      setType(A, B)   Set the type of the referenced object A to B
-                  ( Type of argument B: type )
-      setValue(A, B)  Set the value of the referenced object A to B
+      setCategory(A, B) Set the category of the referenced object A to B
+                  ( Type of argument B: category,
+                    setCategory(NIL, B) => EXCEPTION RANGE_ERROR )
+      setType(A, B) Set the type of the referenced object A to B
+                  ( Type of argument B: type,
+                    setType(NIL, B) => EXCEPTION RANGE_ERROR )
+      setValue(A, B) Set the value of the referenced object A to B
                   ( Type of argument B: ref_list )
-      setParams(A, B)  Set the formal params of a function
+      setParams(A, B) Set the formal params of a function
                   ( Type of argument B: ref_list )
 
 
@@ -2944,7 +3015,11 @@ CONTENTS
                   ( A &:= B => A := A & B )
       A @:= [B] C  Assign C to element B of ref_list A
                   ( Type of argument B: integer,
-                    Type of argument C: reference )
+                    Type of argument C: reference,
+                    A @:= [B] C =>
+                        A := A[..pred(B)] & make_list(C) & A[succ(B)..],
+                    A @:= [0] C => EXCEPTION RANGE_ERROR,
+                    A @:= [succ(length(A))] C => EXCEPTION RANGE_ERROR )
       for A range B do
         C
       end for   Loop over all elements of a ref_list
@@ -2967,18 +3042,20 @@ CONTENTS
                   ( Type of argument A: string )
       evaluate(A, B)  Evaluate the expression B which is part of program A
                   ( Type of result: reference,
-                    Type of argument A: program,
                     Type of argument B: reference )
       sys_var(A, B)  Return a reference of the system var B of program A
                   ( Type of result: reference,
-                    Type of argument A: program,
                     Type of argument B: string )
       error_count(A)  Number of errors in the program A
-                  ( Type of result: integer,
-                    Type of argument A: program )
+                  ( Type of result: integer )
       declared_objects(A)  List of objects declared in the program A
-                  ( Type of result: ref_list,
-                    Type of argument A: program )
+                  ( Type of result: ref_list )
+      syobject(A, B)  Return object with name B in program A
+                  ( Type of result: reference,
+                    Type of argument B: string )
+      match(A, B)  Return object from program A which matches B
+                  ( Type of result: reference,
+                    Type of argument B: ref_list )
     Statements:
       execute(A) Execute the program referred by A
 

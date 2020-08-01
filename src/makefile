@@ -22,8 +22,10 @@ COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 CC = gcc
 
-BIGINT = big_rtl
-# BIGINT = big_gmp
+USE_BIG_RTL_LIBRARY = define
+BIGINT_LIB = big_rtl
+# USE_BIG_RTL_LIBRARY = undef
+# BIGINT_LIB = big_gmp
 
 # SCREEN_OBJ = scr_x11.o
 # SCREEN_SRC = scr_x11.c
@@ -52,7 +54,7 @@ GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
 ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o hsh_rtl.o
 ROBJ2 = int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_rtl.o str_rtl.o ut8_rtl.o heaputl.o
 ROBJ3 = striutl.o
-DOBJ1 = $(BIGINT).o $(SCREEN_OBJ) tim_unx.o drw_x11.o
+DOBJ1 = $(BIGINT_LIB).o $(SCREEN_OBJ) tim_unx.o drw_x11.o
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
@@ -72,7 +74,7 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c hsh_rtl.c
 RSRC2 = int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
 RSRC3 = striutl.c
-DSRC1 = $(BIGINT).c $(SCREEN_SRC) tim_unx.c drw_x11.c
+DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_unx.c drw_x11.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
@@ -150,6 +152,7 @@ version.h:
 	echo "#define USE_LSEEK" >> version.h
 	echo "#define ESCAPE_SPACES_IN_COMMANDS" >> version.h
 	echo "#define USE_SIGSETJMP" >> version.h
+	echo "#$(USE_BIG_RTL_LIBRARY) USE_BIG_RTL_LIBRARY" >> version.h
 	echo "#include \"stdio.h\"" > chkccomp.c
 	echo "int main (int argc, char **argv)" >> chkccomp.c
 	echo "{" >> chkccomp.c
@@ -205,14 +208,14 @@ $(COMPILER_LIB): $(COMPILER_LIB_OBJ)
 	ar r $(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 wc: $(SRC)
-	wc $(GSRC1) $(GSRC2)
-	wc $(ASRC1) $(ASRC2) $(ASRC3)
-	wc $(RSRC1) $(RSRC2) $(RSRC3)
-	wc $(ESRC1)
-	wc $(LSRC1) $(LSRC2) $(LSRC3)
-	wc $(DSRC1)
-	wc $(MSRC1)
+	echo SRC:
 	wc $(SRC)
+	echo SEED7_LIB_SRC:
+	wc $(SEED7_LIB_SRC)
+	echo COMP_DATA_LIB_SRC:
+	wc $(COMP_DATA_LIB_SRC)
+	echo COMPILER_LIB_SRC:
+	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
 	lint -p $(SRC) $(LIBS)

@@ -95,6 +95,7 @@ static objecttype gen_object ()
           atomic_property->entity = atomic_entity;
           atomic_property->file_number = in_file.file_number;
           atomic_property->line = in_file.line;
+          atomic_property->syNumberInLine = symbol.syNumberInLine;
           atomic_object->type_of = NULL;
           atomic_object->descriptor.property = atomic_property;
           INIT_POS(atomic_object, in_file.line, in_file.file_number);
@@ -227,6 +228,7 @@ objecttype read_atom ()
           /* if (HAS_PROPERTY(atomic_object)) {
             atomic_object->descriptor.property->file_number = in_file.file_number;
             atomic_object->descriptor.property->line = in_file.line;
+            atomic_object->descriptor.property->syNumberInLine = symbol.syNumberInLine;
           } $$ if */
           /* printf("read_atom b: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) GET_ENTITY(atomic_object), (unsigned long) atomic_object); */
         } /* if */

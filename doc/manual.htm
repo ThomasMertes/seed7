@@ -1454,7 +1454,7 @@
       <font color=blue>or</font>        Inclusive logical or
                   ( FALSE <font color=blue>or</font> FALSE => FALSE,
                     A <font color=blue>or</font> B => TRUE else )
-      <font color=red>boolean</font> <font color=blue>conv</font> A   Conversion to <font color=red>boolean</font>
+      <font color=red>boolean</font> <font color=blue>conv</font> A   Conversion of <font color=red>integer</font> to <font color=red>boolean</font>
                   ( Type of argument A: <font color=red>integer</font>,
                     <font color=red>boolean</font> <font color=blue>conv</font> 0 => FALSE,
                     <font color=red>boolean</font> <font color=blue>conv</font> 1 => TRUE )
@@ -1801,9 +1801,9 @@
                     A >> B => -1_ for A < 0_ and B > ord(log2(-A)),
                     A >> 0 => A,
                     A >> -1 => EXCEPTION NUMERIC_ERROR )
-      <font color=red>bigInteger</font> <font color=blue>conv</font> A   Conversion to <font color=red>bigInteger</font>
+      <font color=red>bigInteger</font> <font color=blue>conv</font> A   Conversion of <font color=red>integer</font> to <font color=red>bigInteger</font>
                   ( Type of argument A: <font color=red>integer</font>,
-                    <font color=red>bigInteger</font> <font color=blue>conv</font> A => A )
+                    <font color=red>bigInteger</font> <font color=blue>conv</font> 1 => 1_ )
       <font color=red>bigInteger</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>integer</font>
                   ( Type of argument A: <font color=red>string</font>,
                     <font color=red>bigInteger</font> <font color=blue>parse</font> <font color=maroon>"123"</font> => 123_,
@@ -1967,17 +1967,23 @@
       -         Subtraction
       *         Multiplication
       /         Division
+      /         Create <font color=red>rational</font> from numerator and denominator
+                  ( Type of left operand: <font color=red>integer</font>,
+                    Type of right operand: <font color=red>integer</font> )
       **        Power
                   ( <font color=red>rational</font> ** <font color=red>integer</font> )
+      <font color=red>rational</font> <font color=blue>conv</font> A   Conversion of <font color=red>integer</font> to <font color=red>rational</font>
+                  ( Type of argument A: <font color=red>integer</font>,
+                    <font color=red>rational</font> <font color=blue>conv</font> 1 => 1 / 1 )
       <font color=red>rational</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>rational</font>
                   ( Type of argument A: <font color=red>string</font> )
     Relations:
       =, &lt;>, &lt;, &lt;=, >, >=
     Functions:
       abs(A)    Absolute value
-      rat(A)    Conversion to <font color=red>rational</font>
+      rat(A)    Conversion of <font color=red>integer</font> to <font color=red>rational</font>
                   ( Type of argument A: <font color=red>integer</font>,
-                    rat(1) => 1.0 )
+                    rat(1) => 1 / 1 )
       floor(A)  Truncation towards negative infinity
                   ( Type of result: <font color=red>integer</font>,
                     floor( 1.8)=> 1, floor( 1.0)=> 1,
@@ -2034,20 +2040,26 @@
       -         Subtraction
       *         Multiplication
       /         Division
-      /         Division of two bigInteger values
-                  ( Left argument: <font color=red>bigInteger</font>,
-                    Right argument: <font color=red>bigInteger</font> )
+      /         Create <font color=red>bigRational</font> from numerator and denominator
+                  ( Type of left argument: <font color=red>bigInteger</font>,
+                    Type of right argument: <font color=red>bigInteger</font> )
       **        Power
                   ( <font color=red>bigRational</font> ** <font color=red>integer</font> )
+      <font color=red>bigRational</font> <font color=blue>conv</font> A   Conversion of <font color=red>integer</font> to <font color=red>bigRational</font>
+                  ( Type of argument A: <font color=red>integer</font>,
+                    <font color=red>bigRational</font> <font color=blue>conv</font> 1 => 1_ / 1_ )
+      <font color=red>bigRational</font> <font color=blue>conv</font> A   Conversion of <font color=red>bigInteger</font> to <font color=red>bigRational</font>
+                  ( Type of argument A: <font color=red>bigInteger</font>,
+                    <font color=red>bigRational</font> <font color=blue>conv</font> 1_ => 1_ / 1_ )
       <font color=red>bigRational</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>bigRational</font>
                   ( Type of argument A: <font color=red>string</font> )
     Relations:
       =, &lt;>, &lt;, &lt;=, >, >=
     Functions:
       abs(A)    Absolute value
-      rat(A)    Conversion to <font color=red>bigRational</font>
+      rat(A)    Conversion of <font color=red>bigInteger</font> to <font color=red>bigRational</font>
                   ( Type of argument A: <font color=red>bigInteger</font>,
-                    rat(1) => 1.0 )
+                    rat(1_) => 1_ / 1_ )
       floor(A)  Truncation towards negative infinity
                   ( Type of result: <font color=red>bigInteger</font>,
                     floor( 1.8)=> 1, floor( 1.0)=> 1,
@@ -2120,6 +2132,9 @@
                     0.0 ** B => 0.0 for B > 0,
                     0.0 ** 0 => 1.0,
                     0.0 ** B => Infinity for B &lt; 0 )
+      <font color=red>float</font> <font color=blue>conv</font> A   Conversion of <font color=red>integer</font> to <font color=red>float</font>
+                  ( Type of argument A: <font color=red>integer</font>,
+                    <font color=red>float</font> <font color=blue>conv</font> 1 => 1.0 )
       <font color=blue>digits</font>    Conversion to <font color=red>string</font> with specified precision
                   ( Type of right operand: <font color=red>integer</font>,
                     Type of result: <font color=red>string</font>,
@@ -2133,7 +2148,7 @@
       =, &lt;>, &lt;, &lt;=, >, >=
     Functions:
       abs(A)    Absolute value
-      flt(A)    Conversion to <font color=red>float</font>
+      flt(A)    Conversion of <font color=red>integer</font> to <font color=red>float</font>
                   ( Type of argument A: <font color=red>integer</font>,
                     flt(1) => 1.0 )
       floor(A)  Truncation towards negative infinity
@@ -2219,6 +2234,7 @@
     Prefix operators:
       +         Identity
       -         Change sign
+      conj      Complex conjugate
     Infix operators:
       +         Addition
       -         Subtraction
@@ -2233,6 +2249,12 @@
                     complex(0.0) ** B => complex(0.0) for B > 0,
                     complex(0.0) ** 0 => complex(1.0),
                     complex(0.0) ** B => complex(Infinity, NaN) for B &lt; 0 )
+      <font color=red>complex</font> <font color=blue>conv</font> A   Conversion of <font color=red>integer</font> to <font color=red>complex</font>
+                  ( Type of argument A: <font color=red>integer</font>,
+                    <font color=red>complex</font> <font color=blue>conv</font> A => complex(flt(A)) )
+      <font color=red>complex</font> <font color=blue>conv</font> A   Conversion of <font color=red>float</font> to <font color=red>complex</font>
+                  ( Type of argument A: <font color=red>float</font>,
+                    <font color=red>complex</font> <font color=blue>conv</font> A => complex(A) )
       <font color=blue>digits</font>    Conversion to <font color=red>string</font> with specified precision
                   ( Type of right operand: <font color=red>integer</font>,
                     Type of result: <font color=red>string</font>,
@@ -2304,7 +2326,7 @@
   encoded characters.
 </p><pre>
     Infix operators:
-      <font color=red>char</font> <font color=blue>conv</font> A   Conversion to <font color=red>char</font>
+      <font color=red>char</font> <font color=blue>conv</font> A   Conversion of <font color=red>integer</font> to <font color=red>char</font>
                   ( Type of argument A: <font color=red>integer</font>,
                     <font color=red>char</font> <font color=blue>conv</font> 65 => 'A' )
       <font color=red>char</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>char</font>
@@ -2314,7 +2336,7 @@
     Functions:
       ord(A)    Ordinal number
                   ( Type of result: <font color=red>integer</font> )
-      chr(A)    Conversion to <font color=red>char</font>
+      chr(A)    Conversion of <font color=red>integer</font> to <font color=red>char</font>
                   ( Type of argument: <font color=red>integer</font> )
       succ(A)   Successor
                   ( succ(A)=>chr(succ(ord(A))) )
@@ -2532,7 +2554,7 @@
                   ( Type of argument B: <font color=red>integer</font>,
                     Type of argument C: <font color=red>char</font>,
                     A @:= [B] C =>
-                      A := A[..pred(B)] & str(C) & A[succ(B)..],
+                        A := A[..pred(B)] & str(C) & A[succ(B)..],
                     A @:= [0] 'x' => EXCEPTION RANGE_ERROR,
                     A @:= [succ(length(A))] 'x' => EXCEPTION RANGE_ERROR )
 </pre><p></p>
@@ -2791,7 +2813,7 @@
       REFLISTOBJECT, EXPROBJECT, ACTOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT,
       RESULTOBJECT, LOCALVOBJECT, PROGOBJECT
     Infix operators:
-      <font color=red>category</font> <font color=blue>conv</font> A   Conversion to <font color=red>category</font>
+      <font color=red>category</font> <font color=blue>conv</font> A   Conversion of <font color=red>integer</font> to <font color=red>category</font>
                   ( Type of argument A: <font color=red>integer</font>,
                     <font color=red>category</font> <font color=blue>conv</font> ord(INTOBJECT) => INTOBJECT )
       <font color=red>category</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>category</font>
@@ -2817,77 +2839,126 @@
     Relations:
       =, &lt;>
     Functions:
-      category(A)        Get the category of the referenced object
-                  ( Type of result: <font color=red>category</font> )
-      str(A)             Conversion to <font color=red>string</font>
+      category(A) Get the category of the referenced object
+                  ( Type of result: <font color=red>category</font>,
+                    category(NIL) => EXCEPTION RANGE_ERROR )
+      str(A)    Conversion to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
-      getType(A)         Get the type of the referenced object
-                  ( Type of result: <font color=red>type</font> )
-      obj_number(A)      Delivers an unique number for each object
-                  ( Type of result: <font color=red>integer</font> )
-      is_var(A)          Reference to a variable object
-                  ( Type of result: <font color=red>boolean</font> )
-      params(A)          Gets the formal params of a function
+      getType(A) Get the type of the referenced object
+                  ( Type of result: <font color=red>type</font>,
+                    getType(NIL) => EXCEPTION RANGE_ERROR )
+      obj_number(A) Delivers an unique number for each object
+                  ( Type of result: <font color=red>integer</font>,
+                    obj_number(NIL) => 0 )
+      is_var(A) Reference to a variable object
+                  ( Type of result: <font color=red>boolean</font>,
+                    is_var(NIL) => EXCEPTION RANGE_ERROR )
+      params(A) Gets the formal params of a function
                   ( Type of result: <font color=red>ref_list</font> )
-      local_vars(A)      Gets the local variables of a function
-                  ( Type of result: <font color=red>ref_list</font> )
-      local_consts(A)    Gets the local constants of a function
-                  ( Type of result: <font color=red>ref_list</font> )
-      body(A)            Gets the body of a function
-      func_result(A)     Gets the result object of a function
-      func_res_init(A)   Gets the init value of the result
-                         object of a function
-      array_to_list(A)   Return the array elements as list
-                  ( Type of result: <font color=red>ref_list</font> )
+      local_vars(A) Gets the local variables of a function
+                  ( Type of result: <font color=red>ref_list</font>,
+                    local_vars(NIL) => EXCEPTION RANGE_ERROR,
+                    local_vars(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
+      local_consts(A) Gets the local constants of a function
+                  ( Type of result: <font color=red>ref_list</font>,
+                    local_consts(NIL) => EXCEPTION RANGE_ERROR,
+                    local_consts(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
+      body(A)   Gets the body of a function
+                  ( body(NIL) => EXCEPTION RANGE_ERROR,
+                    body(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
+      func_result(A) Gets the result object of a function
+      func_res_init(A) Gets the init value of the result
+                       object of a function
+      array_to_list(A) Return the array elements as list
+                  ( Type of result: <font color=red>ref_list</font>,
+                    array_to_list(NIL) => EXCEPTION RANGE_ERROR,
+                    array_to_list(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
       array_min_index(A) Return the minimal index of an array
-                  ( Type of result: <font color=red>integer</font> )
+                  ( Type of result: <font color=red>integer</font>,
+                    array_min_index(NIL) => EXCEPTION RANGE_ERROR,
+                    array_min_index(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
       array_max_index(A) Return the maximal index of an array
-                  ( Type of result: <font color=red>integer</font> )
-      struct_to_list(A)  Return the struct elements as list
-                  ( Type of result: <font color=red>ref_list</font> )
-      interface_to_struct(A)  Return the struct to which the interface object points.
-      file(A)            File name of the referenced object
+                  ( Type of result: <font color=red>integer</font>,
+                    array_max_index(NIL) => EXCEPTION RANGE_ERROR,
+                    array_max_index(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
+      struct_to_list(A) Return the struct elements as list
+                  ( Type of result: <font color=red>ref_list</font>,
+                    struct_to_list(NIL) => EXCEPTION RANGE_ERROR,
+                    struct_to_list(A) => EXCEPTION RANGE_ERROR for category(A) <> STRUCTOBJECT )
+      interface_to_struct(A) Return the struct to which the interface object points.
+                  ( interface_to_struct(NIL) => EXCEPTION RANGE_ERROR,
+                    interface_to_struct(A) => EXCEPTION RANGE_ERROR for category(A) <> INTERFACEOBJECT )
+      file(A)   File name of the referenced object
                   ( Type of result: <font color=red>string</font> )
-      line(A)            Line number of the referenced object
+      line(A)   Line number of the referenced object
                   ( Type of result: <font color=red>integer</font> )
-      alloc(A)           Create a copy of the object referenced by A
-                         The object value of the copy is set to NULL
-      getValue(A, <font color=red>reference</font>)       Dereference as <font color=red>reference</font>
-                  ( Type of result: <font color=red>reference</font> )
-      getValue(A, <font color=red>ref_list</font>)        Dereference as <font color=red>ref_list</font>
-                  ( Type of result: <font color=red>ref_list</font> )
-      getValue(A, <font color=red>integer</font>)         Dereference as <font color=red>integer</font>
-                  ( Type of result: <font color=red>integer</font> )
-      getValue(A, <font color=red>bigInteger</font>)      Dereference as <font color=red>bigInteger</font>
-                  ( Type of result: <font color=red>bigInteger</font> )
-      getValue(A, <font color=red>float</font>)           Dereference as <font color=red>float</font>
-                  ( Type of result: <font color=red>float</font> )
-      getValue(A, <font color=red>char</font>)            Dereference as <font color=red>char</font>
-                  ( Type of result: <font color=red>char</font> )
-      getValue(A, <font color=red>string</font>)          Dereference as <font color=red>string</font>
-                  ( Type of result: <font color=red>string</font> )
-      getValue(A, <font color=red>bitset</font>)          Dereference as <font color=red>bitset</font>
-                  ( Type of result: <font color=red>bitset</font> )
-      getValue(A, <font color=red>PRIMITIVE_FILE</font>)  Dereference as <font color=red>PRIMITIVE_FILE</font>
-                  ( Type of result: <font color=red>PRIMITIVE_FILE</font> )
-      getValue(A, <font color=red>program</font>)         Dereference as <font color=red>program</font>
-                  ( Type of result: <font color=red>program</font> )
-      getValue(A, <font color=red>ACTION</font>)          Dereference as <font color=red>ACTION</font>
-                  ( Type of result: <font color=red>ACTION</font> )
-      getValue(A, <font color=red>type</font>)            Dereference as <font color=red>type</font>
-                  ( Type of result: <font color=red>type</font> )
+      alloc(A)  Create a copy of the object referenced by A
+                The object value of the copy is set to NULL
+      getValue(A, <font color=red>reference</font>) Dereference as <font color=red>reference</font>
+                  ( Type of result: <font color=red>reference</font>,
+                    getValue(NIL, <font color=red>reference</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>reference</font>) => EXCEPTION RANGE_ERROR for
+                        category(A) not in {FWDREFOBJECT, REFOBJECT, REFPARAMOBJECT, RESULTOBJECT,
+                        LOCALVOBJECT, ENUMLITERALOBJECT, CONSTENUMOBJECT, VARENUMOBJECT} )
+      getValue(A, <font color=red>ref_list</font>) Dereference as <font color=red>ref_list</font>
+                  ( Type of result: <font color=red>ref_list</font>,
+                    getValue(NIL, <font color=red>ref_list</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>ref_list</font>) => EXCEPTION RANGE_ERROR for
+                        category(A) not in {MATCHOBJECT, CALLOBJECT, REFLISTOBJECT} )
+      getValue(A, <font color=red>integer</font>) Dereference as <font color=red>integer</font>
+                  ( Type of result: <font color=red>integer</font>,
+                    getValue(NIL, <font color=red>integer</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>integer</font>) => EXCEPTION RANGE_ERROR for category(A) <> INTOBJECT )
+      getValue(A, <font color=red>bigInteger</font>) Dereference as <font color=red>bigInteger</font>
+                  ( Type of result: <font color=red>bigInteger</font>,
+                    getValue(NIL, <font color=red>bigInteger</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>bigInteger</font>) => EXCEPTION RANGE_ERROR for category(A) <> BIGINTOBJECT )
+      getValue(A, <font color=red>float</font>) Dereference as <font color=red>float</font>
+                  ( Type of result: <font color=red>float</font>,
+                    getValue(NIL, <font color=red>float</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>float</font>) => EXCEPTION RANGE_ERROR for category(A) <> FLOATOBJECT )
+      getValue(A, <font color=red>char</font>) Dereference as <font color=red>char</font>
+                  ( Type of result: <font color=red>char</font>,
+                    getValue(NIL, <font color=red>char</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>char</font>) => EXCEPTION RANGE_ERROR for category(A) <> CHAROBJECT )
+      getValue(A, <font color=red>string</font>) Dereference as <font color=red>string</font>
+                  ( Type of result: <font color=red>string</font>,
+                    getValue(NIL, <font color=red>string</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>string</font>) => EXCEPTION RANGE_ERROR for category(A) <> STRIOBJECT )
+      getValue(A, <font color=red>bitset</font>) Dereference as <font color=red>bitset</font>
+                  ( Type of result: <font color=red>bitset</font>,
+                    getValue(NIL, <font color=red>bitset</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>bitset</font>) => EXCEPTION RANGE_ERROR for category(A) <> SETOBJECT )
+      getValue(A, <font color=red>PRIMITIVE_FILE</font>) Dereference as <font color=red>PRIMITIVE_FILE</font>
+                  ( Type of result: <font color=red>PRIMITIVE_FILE</font>,
+                    getValue(NIL, <font color=red>PRIMITIVE_FILE</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>PRIMITIVE_FILE</font>) => EXCEPTION RANGE_ERROR for category(A) <> FILEOBJECT )
+      getValue(A, <font color=red>program</font>) Dereference as <font color=red>program</font>
+                  ( Type of result: <font color=red>program</font>,
+                    getValue(NIL, <font color=red>program</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>program</font>) => EXCEPTION RANGE_ERROR for category(A) <> PROGOBJECT )
+      getValue(A, <font color=red>ACTION</font>) Dereference as <font color=red>ACTION</font>
+                  ( Type of result: <font color=red>ACTION</font>,
+                    getValue(NIL, <font color=red>ACTION</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>ACTION</font>) => EXCEPTION RANGE_ERROR for category(A) <> ACTOBJECT )
+      getValue(A, <font color=red>type</font>) Dereference as <font color=red>type</font>
+                  ( Type of result: <font color=red>type</font>,
+                    getValue(NIL, <font color=red>type</font>) => EXCEPTION RANGE_ERROR,
+                    getValue(A, <font color=red>type</font>) => EXCEPTION RANGE_ERROR for category(A) <> TYPEOBJECT )
       compare(A, B) Compare function
                   ( Type of result: <font color=red>integer</font> )
       hashCode(A) Hash function
                   ( Type of result: <font color=red>integer</font> )
     Statements:
-      setCategory(A, B)  Set the category of the referenced object A to B
-                  ( Type of argument B: <font color=red>category</font> )
-      setType(A, B)   Set the type of the referenced object A to B
-                  ( Type of argument B: <font color=red>type</font> )
-      setValue(A, B)  Set the value of the referenced object A to B
+      setCategory(A, B) Set the category of the referenced object A to B
+                  ( Type of argument B: <font color=red>category</font>,
+                    setCategory(NIL, B) => EXCEPTION RANGE_ERROR )
+      setType(A, B) Set the type of the referenced object A to B
+                  ( Type of argument B: <font color=red>type</font>,
+                    setType(NIL, B) => EXCEPTION RANGE_ERROR )
+      setValue(A, B) Set the value of the referenced object A to B
                   ( Type of argument B: <font color=red>ref_list</font> )
-      setParams(A, B)  Set the formal params of a function
+      setParams(A, B) Set the formal params of a function
                   ( Type of argument B: <font color=red>ref_list</font> )
 </pre><p></p>
 
@@ -2944,7 +3015,11 @@
                   ( A &:= B => A := A & B )
       A @:= [B] C  Assign C to element B of ref_list A
                   ( Type of argument B: <font color=red>integer</font>,
-                    Type of argument C: <font color=red>reference</font> )
+                    Type of argument C: <font color=red>reference</font>,
+                    A @:= [B] C =>
+                        A := A[..pred(B)] & make_list(C) & A[succ(B)..],
+                    A @:= [0] C => EXCEPTION RANGE_ERROR,
+                    A @:= [succ(length(A))] C => EXCEPTION RANGE_ERROR )
       for A range B do
         C
       end for   Loop over all elements of a ref_list
@@ -2967,18 +3042,20 @@
                   ( Type of argument A: <font color=red>string</font> )
       evaluate(A, B)  Evaluate the expression B which is part of program A
                   ( Type of result: <font color=red>reference</font>,
-                    Type of argument A: <font color=red>program</font>,
                     Type of argument B: <font color=red>reference</font> )
       sys_var(A, B)  Return a reference of the system var B of program A
                   ( Type of result: <font color=red>reference</font>,
-                    Type of argument A: <font color=red>program</font>,
                     Type of argument B: <font color=red>string</font> )
       error_count(A)  Number of errors in the program A
-                  ( Type of result: <font color=red>integer</font>,
-                    Type of argument A: <font color=red>program</font> )
+                  ( Type of result: <font color=red>integer</font> )
       declared_objects(A)  List of objects declared in the program A
-                  ( Type of result: <font color=red>ref_list</font>,
-                    Type of argument A: <font color=red>program</font> )
+                  ( Type of result: <font color=red>ref_list</font> )
+      syobject(A, B)  Return object with name B in program A
+                  ( Type of result: <font color=red>reference</font>,
+                    Type of argument B: <font color=red>string</font> )
+      match(A, B)  Return object from program A which matches B
+                  ( Type of result: <font color=red>reference</font>,
+                    Type of argument B: <font color=red>ref_list</font> )
     Statements:
       execute(A) Execute the program referred by A
 </pre><p></p>

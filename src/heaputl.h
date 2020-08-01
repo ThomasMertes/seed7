@@ -83,6 +83,11 @@ EXTERN counttype count;
 #endif
 #endif
 
+#ifdef USE_BIG_RTL_LIBRARY
+extern SIZE_TYPE sizeof_bigdigittype;
+extern SIZE_TYPE sizeof_rtlBigintrecord;
+#endif
+
 
 /* Some stupid operating systems have under some compilers      */
 /* limitations on how much memory can be requested with malloc. */
@@ -219,13 +224,13 @@ EXTERN memsizetype hs;
 #define SIZ_USTRI(len)   ((len) + 1)
 #define SIZ_CSTRI(len)   ((len) + 1)
 #define SIZ_ID(len)      ((((len) >> 3) + 1) << 3)
-#define SIZ_STRI(len)    ((sizeof(strirecord)   - sizeof(strelemtype))  + (len) * sizeof(strelemtype))
-#define SIZ_BSTRI(len)   ((sizeof(bstrirecord)  - sizeof(uchartype))    + (len) * sizeof(uchartype))
-#define SIZ_ARR(len)     ((sizeof(arrayrecord)  - sizeof(objectrecord)) + (len) * sizeof(objectrecord))
-#define SIZ_HSH(len)     ((sizeof(hashrecord)   - sizeof(helemtype))    + (len) * sizeof(helemtype))
-#define SIZ_SET(len)     ((sizeof(setrecord)    - sizeof(bitsettype))   + (len) * sizeof(bitsettype))
-#define SIZ_SCT(len)     ((sizeof(structrecord) - sizeof(objectrecord)) + (len) * sizeof(objectrecord))
-#define SIZ_BIG(len)     ((sizeof(bigintrecord) - sizeof(bigdigittype)) + (len) * sizeof(bigdigittype))
+#define SIZ_STRI(len)    ((sizeof(strirecord)     - sizeof(strelemtype))  + (len) * sizeof(strelemtype))
+#define SIZ_BSTRI(len)   ((sizeof(bstrirecord)    - sizeof(uchartype))    + (len) * sizeof(uchartype))
+#define SIZ_ARR(len)     ((sizeof(arrayrecord)    - sizeof(objectrecord)) + (len) * sizeof(objectrecord))
+#define SIZ_HSH(len)     ((sizeof(hashrecord)     - sizeof(helemtype))    + (len) * sizeof(helemtype))
+#define SIZ_SET(len)     ((sizeof(setrecord)      - sizeof(bitsettype))   + (len) * sizeof(bitsettype))
+#define SIZ_SCT(len)     ((sizeof(structrecord)   - sizeof(objectrecord)) + (len) * sizeof(objectrecord))
+#define SIZ_BIG(len)     ((sizeof_rtlBigintrecord - sizeof_bigdigittype)  + (len) * sizeof_bigdigittype)
 #define SIZ_REC(rec)     (sizeof(rec))
 #define SIZ_TAB(tp, nr)  (sizeof(tp) * (nr))
 #define SIZ_RTL_L_ELEM   (sizeof(rtlListrecord))

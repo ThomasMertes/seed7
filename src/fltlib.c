@@ -541,6 +541,22 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype flt_iconv (listtype arguments)
+#else
+
+objecttype flt_iconv (arguments)
+listtype arguments;
+#endif
+
+  { /* flt_iconv */
+    isit_int(arg_3(arguments));
+    return(bld_float_temp((double) take_int(arg_3(arguments))));
+  } /* flt_iconv */
+
+
+
+#ifdef ANSI_C
+
 objecttype flt_iflt (listtype arguments)
 #else
 

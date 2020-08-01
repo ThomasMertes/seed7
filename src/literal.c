@@ -93,6 +93,7 @@ unsigned int position;
         } /* if */
         INCR_LINE_COUNT(in_file.line);
       } while (character == '\n');
+      symbol.syNumberInLine = 0;
       if (character == '\\') {
         character = next_character();
       } else {
@@ -116,6 +117,7 @@ unsigned int position;
 #endif
         } /* if */
         INCR_LINE_COUNT(in_file.line);
+        symbol.syNumberInLine = 0;
       } /* while */
       if (character == '\\') {
         character = next_character();
@@ -501,6 +503,7 @@ void lit_char ()
     } /* if */
     find_literal_ident();
     symbol.sycategory = CHARLITERAL;
+    symbol.syNumberInLine++;
 #ifdef WITH_STATISTIC
     literal_count++;
 #endif
@@ -585,6 +588,7 @@ void lit_string ()
     find_literal_ident();                                       /*  0.01% */
     in_file.character = character;                              /*  0.01% */
     symbol.sycategory = STRILITERAL;                            /*  0.01% */
+    symbol.syNumberInLine++;
     symbol.strivalue->size = position;                          /*  0.01% */
 #ifdef WITH_STATISTIC
     literal_count++;
@@ -645,6 +649,7 @@ static void lit_text ()
     in_file.character = character;
     find_literal_ident();
     symbol.sycategory = STRILITERAL;
+    symbol.syNumberInLine++;
 #ifdef WITH_STATISTIC
     literal_count++;
 #endif

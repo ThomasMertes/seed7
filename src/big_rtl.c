@@ -102,6 +102,9 @@ typedef struct rtlBigintstruct {
     bigdigittype bigdigits[1];
   } rtlBigintrecord;
 
+SIZE_TYPE sizeof_bigdigittype = sizeof(bigdigittype);
+SIZE_TYPE sizeof_rtlBigintrecord = sizeof(rtlBigintrecord);
+
 
 #define SIZ_RTLBIG(len)     ((sizeof(rtlBigintrecord) - sizeof(bigdigittype)) + (len) * sizeof(bigdigittype))
 
@@ -3418,7 +3421,7 @@ inttype rshift;
     bigdigittype high_digit;
     const bigdigittype *source_digits;
     bigdigittype *dest_digits;
-    memsizetype count;
+    memsizetype size_reduction;
     memsizetype pos;
     memsizetype result_size;
     rtlBiginttype result;
@@ -3450,20 +3453,20 @@ inttype rshift;
         result_size = big1->size + (lshift >> BIGDIGIT_LOG2_SIZE) + 1;
         digit_lshift = lshift & BIGDIGIT_SIZE_MASK;
         digit_rshift = 8 * sizeof(bigdigittype) - digit_lshift;
-        count = 0;
+        size_reduction = 0;
         low_digit = big1->bigdigits[big1->size - 1];
         if (IS_NEGATIVE(low_digit)) {
           digit_mask = (BIGDIGIT_MASK << (digit_rshift - 1)) & BIGDIGIT_MASK;
           if ((low_digit & digit_mask) == digit_mask) {
             result_size--;
-            count = 1;
+            size_reduction = 1;
           } else {
             low_digit = BIGDIGIT_MASK;
           } /* if */
         } else {
           if (low_digit >> (digit_rshift - 1) == 0) {
             result_size--;
-            count = 1;
+            size_reduction = 1;
           } else {
             low_digit = 0;
           } /* if */
@@ -3473,13 +3476,13 @@ inttype rshift;
         } else {
           result->size = result_size;
           dest_digits = &result->bigdigits[result_size];
-          if (count) {
+          if (size_reduction) {
             source_digits = &big1->bigdigits[big1->size - 1];
           } else {
             source_digits = &big1->bigdigits[big1->size];
           } /* if */
           high_digit = (low_digit << digit_lshift) & BIGDIGIT_MASK;
-          for (pos = big1->size - count; pos != 0; pos--) {
+          for (pos = big1->size - size_reduction; pos != 0; pos--) {
             low_digit = *--source_digits;
             *--dest_digits = high_digit | (low_digit >> digit_rshift);
             high_digit = (low_digit << digit_lshift) & BIGDIGIT_MASK;
@@ -3516,7 +3519,7 @@ inttype lshift;
     bigdigittype high_digit;
     const bigdigittype *source_digits;
     bigdigittype *dest_digits;
-    memsizetype count;
+    memsizetype size_reduction;
     memsizetype pos;
     memsizetype result_size;
     rtlBiginttype result;
@@ -3552,20 +3555,20 @@ inttype lshift;
         result_size = big1->size + (lshift >> BIGDIGIT_LOG2_SIZE) + 1;
         digit_lshift = lshift & BIGDIGIT_SIZE_MASK;
         digit_rshift = 8 * sizeof(bigdigittype) - digit_lshift;
-        count = 0;
+        size_reduction = 0;
         low_digit = big1->bigdigits[big1->size - 1];
         if (IS_NEGATIVE(low_digit)) {
           digit_mask = (BIGDIGIT_MASK << (digit_rshift - 1)) & BIGDIGIT_MASK;
           if ((low_digit & digit_mask) == digit_mask) {
             result_size--;
-            count = 1;
+            size_reduction = 1;
           } else {
             low_digit = BIGDIGIT_MASK;
           } /* if */
         } else {
           if (low_digit >> (digit_rshift - 1) == 0) {
             result_size--;
-            count = 1;
+            size_reduction = 1;
           } else {
             low_digit = 0;
           } /* if */
@@ -3580,13 +3583,13 @@ inttype lshift;
         if (result != NULL) {
           result->size = result_size;
           dest_digits = &result->bigdigits[result_size];
-          if (count) {
+          if (size_reduction) {
             source_digits = &big1->bigdigits[big1->size - 1];
           } else {
             source_digits = &big1->bigdigits[big1->size];
           } /* if */
           high_digit = (low_digit << digit_lshift) & BIGDIGIT_MASK;
-          for (pos = big1->size - count; pos != 0; pos--) {
+          for (pos = big1->size - size_reduction; pos != 0; pos--) {
             low_digit = *--source_digits;
             *--dest_digits = high_digit | (low_digit >> digit_rshift);
             high_digit = (low_digit << digit_lshift) & BIGDIGIT_MASK;

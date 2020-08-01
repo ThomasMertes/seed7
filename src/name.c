@@ -135,6 +135,7 @@ errinfotype *err_info;
         SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
         defined_object->descriptor.property->file_number = file_number;
         defined_object->descriptor.property->line = line;
+        /* defined_object->descriptor.property->syNumberInLine = symbol.syNumberInLine; */
         if (ALLOC_OBJECT(forward_reference)) {
           forward_reference->type_of = NULL;
           forward_reference->descriptor.property = NULL;
@@ -154,6 +155,7 @@ errinfotype *err_info;
           defined_property->entity = ent;
           defined_property->file_number = file_number;
           defined_property->line = line;
+          /* defined_property->syNumberInLine = symbol.syNumberInLine; */
           defined_object->type_of = NULL;
           defined_object->descriptor.property = defined_property;
           INIT_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);

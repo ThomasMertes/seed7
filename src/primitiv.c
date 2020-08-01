@@ -334,6 +334,7 @@ static primactrecord prim_act_table[] = {
     { "FLT_HSIN",            flt_hsin,            },
     { "FLT_HTAN",            flt_htan,            },
     { "FLT_ICAST",           flt_icast,           },
+    { "FLT_ICONV",           flt_iconv,           },
     { "FLT_IFLT",            flt_iflt,            },
     { "FLT_IPOW",            flt_ipow,            },
     { "FLT_ISNAN",           flt_isnan,           },

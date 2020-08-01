@@ -205,14 +205,10 @@ objecttype ref_arrmaxidx (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-
-  /* ref_arrmaxidx */
+  { /* ref_arrmaxidx */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    isit_array(obj_arg1);
-    return(bld_int_temp(take_array(obj_arg1)->max_position));
+    return(bld_int_temp(refArrmaxidx(
+	take_reference(arg_1(arguments)))));
   } /* ref_arrmaxidx */
 
 
@@ -226,14 +222,10 @@ objecttype ref_arrminidx (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-
-  /* ref_arrminidx */
+  { /* ref_arrminidx */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    isit_array(obj_arg1);
-    return(bld_int_temp(take_array(obj_arg1)->min_position));
+    return(bld_int_temp(refArrminidx(
+	take_reference(arg_1(arguments)))));
   } /* ref_arrminidx */
 
 
@@ -247,20 +239,10 @@ objecttype ref_arrtolist (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
-
-  /* ref_arrtolist */
+  { /* ref_arrtolist */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    isit_array(obj_arg1);
-    result = array_to_list(take_array(obj_arg1), &err_info);
-    if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } /* if */
-    return(bld_reflist_temp(result));
+    return(bld_reflist_temp(refArrtolist(
+	take_reference(arg_1(arguments)))));
   } /* ref_arrtolist */
 
 
@@ -274,19 +256,10 @@ objecttype ref_body (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    objecttype result;
-
-  /* ref_body */
-    obj_arg1 = arg_1(arguments);
-    isit_reference(obj_arg1);
-    if (CATEGORY_OF_OBJ(take_reference(obj_arg1)) == BLOCKOBJECT) {
-      result = take_reference(obj_arg1)->value.blockvalue->body;
-    } else {
-      result = NULL;
-    } /* if */
-    return(bld_reference_temp(result));
+  { /* ref_body */
+    isit_reference(arg_1(arguments));
+    return(bld_reference_temp(refBody(
+	take_reference(arg_1(arguments)))));
   } /* ref_body */
 
 
@@ -539,9 +512,10 @@ listtype arguments;
       file_number = GET_FILE_NUM(obj_arg1);
     } else if (HAS_PROPERTY(obj_arg1)) {
       /* trace1(obj_arg1);
-      printf(" %d %d\n",
+      printf(" %u %u %u\n",
           obj_arg1->descriptor.property->file_number,
-          obj_arg1->descriptor.property->line); */
+          obj_arg1->descriptor.property->line,
+          obj_arg1->descriptor.property->syNumberInLine); */
       file_number = obj_arg1->descriptor.property->file_number;
     } else {
       file_number = 0;
@@ -648,13 +622,9 @@ objecttype ref_isvar (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-
-  /* ref_isvar */
-    obj_arg1 = arg_1(arguments);
-    isit_reference(obj_arg1);
-    if (VAR_OBJECT(take_reference(obj_arg1))) {
+  { /* ref_isvar */
+    isit_reference(arg_1(arguments));
+    if (refIsvar(take_reference(arg_1(arguments)))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -672,16 +642,10 @@ objecttype ref_itftosct (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    objecttype result;
-
-  /* ref_itftosct */
+  { /* ref_itftosct */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    isit_interface(obj_arg1);
-    result = take_reference(obj_arg1);
-    return(bld_reference_temp(result));
+    return(bld_reference_temp(refItftosct(
+	take_reference(arg_1(arguments)))));
   } /* ref_itftosct */
 
 
@@ -706,9 +670,10 @@ listtype arguments;
       result = GET_LINE_NUM(obj_arg1);
     } else if (HAS_PROPERTY(obj_arg1)) {
       /* trace1(obj_arg1);
-      printf(" %d %d\n",
+      printf(" %u %u %u\n",
           obj_arg1->descriptor.property->file_number,
-          obj_arg1->descriptor.property->line); */
+          obj_arg1->descriptor.property->line,
+          obj_arg1->descriptor.property->syNumberInLine); */
       result = obj_arg1->descriptor.property->line;
     } else {
       result = 0;
@@ -1028,20 +993,10 @@ objecttype ref_scttolist (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
-
-  /* ref_scttolist */
+  { /* ref_scttolist */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    isit_struct(obj_arg1);
-    result = struct_to_list(take_struct(obj_arg1), &err_info);
-    if (err_info != OKAY_NO_ERROR) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } /* if */
-    return(bld_reflist_temp(result));
+    return(bld_reflist_temp(refScttolist(
+	take_reference(arg_1(arguments)))));
   } /* ref_scttolist */
 
 

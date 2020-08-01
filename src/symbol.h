@@ -31,6 +31,7 @@ typedef enum {STOPSYMBOL, NAMESYMBOL, SPECIALSYMBOL,
 
 typedef struct {
     symbolcategory sycategory;
+    unsigned int syNumberInLine;
     ustritype name;
     unsigned int name_length;
     inttype intvalue;
@@ -42,7 +43,7 @@ typedef struct {
   } symtype;
 
 #ifdef DO_INIT
-symtype symbol = {STOPSYMBOL, NULL, 0,
+symtype symbol = {STOPSYMBOL, 0, NULL, 0,
     (inttype) 0, (biginttype) NULL, (chartype) 0,
     (stritype) NULL, 0, (floattype) 0.0};
 #else

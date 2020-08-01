@@ -71,6 +71,30 @@ const func complex: polar (in float: magnitude, in float: angle) is func
   end func;
 
 
+(**
+ *  Return the conversion of an integer to a complex.
+ *)
+const func complex: (attr complex) conv (in integer: re) is func
+  result
+    var complex: result is complex.value;
+  begin
+    result.re := flt(re);
+    result.im := 0.0;
+  end func;
+
+
+(**
+ *  Return the conversion of a float to a complex.
+ *)
+const func complex: (attr complex) conv (in float: re) is func
+  result
+    var complex: result is complex.value;
+  begin
+    result.re := re;
+    result.im := 0.0;
+  end func;
+
+
 const func boolean: (ref complex: num1) = (ref complex: num2) is
   return num1.re = num2.re and num1.im = num2.im;
 
@@ -99,6 +123,18 @@ const func complex: - (in complex: num1) is func
     var complex: result is complex.value;
   begin
     result.re := -num1.re;
+    result.im := -num1.im;
+  end func;
+
+
+(**
+ *  Return the conjugated value of a complex number.
+ *)
+const func complex: conj (in complex: num1) is func
+  result
+    var complex: result is complex.value;
+  begin
+    result.re := num1.re;
     result.im := -num1.im;
   end func;
 

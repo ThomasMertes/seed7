@@ -438,14 +438,17 @@ void lit_number ()
 #endif
       find_literal_ident();
       symbol.sycategory = FLOATLITERAL;
+      symbol.syNumberInLine++;
     } else if (in_file.character == '_') {
       symbol.bigintvalue = readbiginteger();
       find_literal_ident();
       symbol.sycategory = BIGINTLITERAL;
+      symbol.syNumberInLine++;
     } else {
       symbol.intvalue = readinteger();
       find_literal_ident();
       symbol.sycategory = INTLITERAL;
+      symbol.syNumberInLine++;
 #ifdef WITH_STATISTIC
       literal_count++;
 #endif

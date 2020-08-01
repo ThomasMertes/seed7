@@ -3029,8 +3029,19 @@ const file: (attr file) . value is STD_NULL;
 const proc: write (in null_file param, in string param) is noop;
 const string: gets (in null_file param, in integer param) is "";
 
-const func char: getc (inout null_file: aFile) is
-  return gets(aFile, 1)[1];
+const func char: getc (inout null_file: aFile) is func
+  result
+    var char: ch is ' ';
+  local
+    var string: buffer is "";
+  begin
+    buffer := gets(aFile, 1);
+    if buffer = "" then
+      ch := EOF;
+    else
+      ch := buffer[1];
+    end if;
+  end func;
 
 const func string: getwd (inout null_file: aFile) is func
   result

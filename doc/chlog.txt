@@ -1,3 +1,23 @@
+20080902:
+- The FAQ about development speed and type checking was improved.
+- The chapters about boolean, bigInteger, rational, bigRational, float, char, complex,
+  string, reference, ref_list and program in the manual, were improved.
+- The functions rflTail and rflRange were improved to raise MEMORY_ERROR instead of
+  RANGE_ERROR in out of memory situations.
+- The 'conv' operator was improved to convert an integer to a float, rational, complex
+  or bigRational, to convert a float to a complex and to convert a bigInteger to
+  bigRational.
+- The function getSymbolWithHtmlEntities was added to the scanfile.s7i library.
+- The getc function for the type null_file was improved.
+- The 'conj' operator was added for the type complex.
+- The compiler (comp.sd7) was improved to support the primitive action FLT_ICONV.
+- Several changes were done to support compilation when DO_HEAP_STATISTIC is defined.
+- The documentation file src/read_me.txt was improved.
+- The 'reference' functions category, getType, is_var, local_vars, local_consts, body,
+  array_to_list, array_min_index, array_min_index, struct_to_list, interface_to_struct,
+  getValue, setCategory, setType were improved to raise the exception RANGE_ERROR
+  when a reference is NIL or does not have the required category.
+
 20080817:
 - The FAQ about static type checking was improved and an FAQ about development speed
   and type checking was added.

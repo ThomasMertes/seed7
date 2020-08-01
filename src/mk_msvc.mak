@@ -19,8 +19,10 @@ COMP_DATA_LIB = s7_data.lib
 COMPILER_LIB = s7_comp.lib
 CC = cl
 
-BIGINT = big_rtl
-# BIGINT = big_gmp
+USE_BIG_RTL_LIBRARY = define
+BIGINT_LIB = big_rtl
+# USE_BIG_RTL_LIBRARY = undef
+# BIGINT_LIB = big_gmp
 
 # SCREEN_OBJ = scr_x11.obj
 # SCREEN_SRC = scr_x11.c
@@ -51,7 +53,7 @@ GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
 ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj drw_rtl.obj fil_rtl.obj flt_rtl.obj hsh_rtl.obj
 ROBJ2 = int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj ut8_rtl.obj heaputl.obj
 ROBJ3 = striutl.obj
-DOBJ1 = $(BIGINT).obj $(SCREEN_OBJ) tim_win.obj drw_win.obj dir_win.obj
+DOBJ1 = $(BIGINT_LIB).obj $(SCREEN_OBJ) tim_win.obj drw_win.obj dir_win.obj
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 COMP_DATA_LIB_OBJ = typ_data.obj rfl_data.obj ref_data.obj listutl.obj flistutl.obj typeutl.obj datautl.obj
@@ -71,7 +73,7 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c hsh_rtl.c
 RSRC2 = int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
 RSRC3 = striutl.c
-DSRC1 = $(BIGINT).c $(SCREEN_SRC) tim_win.c drw_win.c
+DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
@@ -153,6 +155,7 @@ version.h:
 	echo #define USE_FSEEKI64 >> version.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define popen _popen >> version.h
+	echo #$(USE_BIG_RTL_LIBRARY) USE_BIG_RTL_LIBRARY >> version.h
 	echo #include "stdio.h" > chkftell.c
 	echo int main (int argc, char **argv) >> chkftell.c
 	echo { >> chkftell.c

@@ -47,6 +47,10 @@ const proc: execute (ref program param) is                                 actio
 const func reference: sys_var (ref program param, in string param) is      action "PRG_SYSVAR";
 const func integer: error_count (ref program param) is                     action "PRG_ERROR_COUNT";
 const func ref_list: declared_objects (ref program param) is               action "PRG_DECL_OBJECTS";
+const func reference: syobject (ref program param, ref string param) is    action "PRG_SYOBJECT";
+
+const func reference: match (ref program param, ref ref_list param) is     action "PRG_MATCH";
+# const func program: get (PROGRAM) is                                       action "PRG_PROG";
 
 
 const type: category is newtype;
@@ -131,11 +135,8 @@ const func ref_list: struct_to_list (ref reference param) is               actio
 const func reference: interface_to_struct (ref reference param) is         action "REF_ITFTOSCT";
 const func string: file (ref reference param) is                           action "REF_FILE";
 const func integer: line (ref reference param) is                          action "REF_LINE";
-const func reference: syobject (ref program param, ref string param) is    action "PRG_SYOBJECT";
 const func reference: alloc (in reference param) is                        action "REF_ALLOC";
 const func integer: obj_number (ref reference param) is                    action "REF_NUM";
-const func integer: type_number (ref type param) is                        action "TYP_NUM";
-const func reference: match_obj (ref type param) is                        action "TYP_MATCHOBJ";
 
 const func integer: getValue (ref reference param, attr integer) is        action "INT_VALUE";
 const func char: getValue (ref reference param, attr char) is              action "CHR_VALUE";
@@ -166,8 +167,7 @@ const func type: type (ref reference: aRef) is
 *)
 const proc: setValue(inout reference param, in ref_list param) is          action "RFL_SETVALUE";
 
-const func reference: match (ref program param, ref ref_list param) is     action "PRG_MATCH";
-
-const func program: get (PROGRAM) is                                       action "PRG_PROG";
+const func integer: type_number (ref type param) is                        action "TYP_NUM";
+const func reference: match_obj (ref type param) is                        action "TYP_MATCHOBJ";
 
 const proc: cmd_sh (in string param) is                                    action "CMD_SH";

@@ -138,14 +138,15 @@ objecttype obj_arg;
     listtype result;
 
   /* refArrtolist */
-    if (CATEGORY_OF_OBJ(obj_arg) == ARRAYOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
       result = array_to_list(take_array(obj_arg), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */
-    } else {
-      result = NULL;
     } /* if */
     return(result);
   } /* refArrtolist */
@@ -165,10 +166,11 @@ objecttype obj_arg;
     objecttype result;
 
   /* refBody */
-    if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
-      result = obj_arg->value.blockvalue->body;
-    } else {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+      raise_error(RANGE_ERROR);
       result = NULL;
+    } else {
+      result = obj_arg->value.blockvalue->body;
     } /* if */
     return(result);
   } /* refBody */
@@ -336,9 +338,10 @@ objecttype obj_arg1;
       file_number = GET_FILE_NUM(obj_arg1);
     } else if (HAS_PROPERTY(obj_arg1)) {
       /* trace1(obj_arg1);
-      printf(" %d %d\n",
+      printf(" %u %u %u\n",
           obj_arg1->descriptor.property->file_number,
-          obj_arg1->descriptor.property->line); */
+          obj_arg1->descriptor.property->line,
+          obj_arg1->descriptor.property->syNumberInLine); */
       file_number = obj_arg1->descriptor.property->file_number;
     } else {
       file_number = 0;
@@ -364,7 +367,12 @@ objecttype obj_arg;
 
   { /* refIsvar */
     /* printf("refIsvar(%lu)\n", obj_arg); */
-    return(VAR_OBJECT(obj_arg) ? TRUE : FALSE);
+    if (obj_arg == NULL) {
+      raise_error(RANGE_ERROR);
+      return(FALSE);
+    } else {
+      return(VAR_OBJECT(obj_arg) ? TRUE : FALSE);
+    } /* if */
   } /* refIsvar */
 
 
@@ -382,7 +390,7 @@ objecttype obj_arg;
     objecttype result;
 
   /* refItftosct */
-    if (CATEGORY_OF_OBJ(obj_arg) != INTERFACEOBJECT ||
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTERFACEOBJECT ||
         take_reference(obj_arg) == NULL) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -411,9 +419,10 @@ objecttype obj_arg;
       result = GET_LINE_NUM(obj_arg);
     } else if (HAS_PROPERTY(obj_arg)) {
       /* trace1(obj_arg);
-      printf(" %d %d\n",
+      printf(" %u %u %u\n",
           obj_arg->descriptor.property->file_number,
-          obj_arg->descriptor.property->line); */
+          obj_arg->descriptor.property->line,
+          obj_arg->descriptor.property->syNumberInLine); */
       result = obj_arg->descriptor.property->line;
     } else {
       result = 0;
@@ -440,7 +449,9 @@ objecttype obj_arg;
 
   /* refLocalConsts */
     result = NULL;
-    if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+      raise_error(RANGE_ERROR);
+    } else {
       list_insert_place = &result;
       local_elem = obj_arg->value.blockvalue->local_consts;
       while (local_elem != NULL) {
@@ -453,8 +464,6 @@ objecttype obj_arg;
         result = NULL;
         raise_error(MEMORY_ERROR);
       } /* if */
-    } else {
-      raise_error(RANGE_ERROR);
     } /* if */
     return(result);
   } /* refLocalConsts */
@@ -478,7 +487,9 @@ objecttype obj_arg;
 
   /* refLocalVars */
     result = NULL;
-    if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+      raise_error(RANGE_ERROR);
+    } else {
       list_insert_place = &result;
       local_elem = obj_arg->value.blockvalue->local_vars;
       while (local_elem != NULL) {
@@ -491,8 +502,6 @@ objecttype obj_arg;
         result = NULL;
         raise_error(MEMORY_ERROR);
       } /* if */
-    } else {
-      raise_error(RANGE_ERROR);
     } /* if */
     return(result);
   } /* refLocalVars */
@@ -639,14 +648,15 @@ objecttype obj_arg;
     listtype result;
 
   /* refScttolist */
-    if (CATEGORY_OF_OBJ(obj_arg) == STRUCTOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != STRUCTOBJECT) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
       result = struct_to_list(take_struct(obj_arg), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */
-    } else {
-      result = NULL;
     } /* if */
     return(result);
   } /* refScttolist */

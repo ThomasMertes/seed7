@@ -279,6 +279,7 @@ void heap_statistic ()
           SIZ_REC(objectrecord));
       bytes_used += count.sct_elems * SIZ_REC(objectrecord);
     } /* if */
+#ifdef USE_BIG_RTL_LIBRARY
     if (count.big != 0) {
       printf("%9lu bytes in %8lu bigIntegers of      %4u bytes\n",
           count.big * SIZ_BIG(0),
@@ -288,11 +289,12 @@ void heap_statistic ()
     } /* if */
     if (count.big_elems != 0) {
       printf("%9lu bytes in %8lu bigdigits of        %4u bytes\n",
-          count.big_elems * SIZ_REC(bigdigittype),
+          count.big_elems * sizeof_bigdigittype,
           count.big_elems,
-          SIZ_REC(bigdigittype));
-      bytes_used += count.big_elems * SIZ_REC(bigdigittype);
+          sizeof_bigdigittype);
+      bytes_used += count.big_elems * sizeof_bigdigittype;
     } /* if */
+#endif
     if (count.ident != 0) {
       printf("%9lu bytes in %8lu ident records of    %4u bytes\n",
           count.ident * SIZ_REC(identrecord),
@@ -475,7 +477,9 @@ void heap_statistic ()
     printf("%9lu bytes total requested\n", bytes_total +
         (memsizetype) (chunk.beyond - chunk.freemem) + chunk.lost_bytes);
 #endif
+#ifdef DO_HEAP_CHECK
     check_heap(0, __FILE__, __LINE__);
+#endif
 #ifdef TRACE_HEAPUTIL
     printf("END heap_statistic\n");
 #endif

@@ -311,9 +311,21 @@ const func integer: hashCode (in rational: rat) is
 
 
 (**
- *  Return a integer number converted to a rational number.
+ *  Return the conversion of an integer to a rational.
  *)
 const func rational: rat (in integer: number) is func
+  result
+    var rational: rat_val is rational.value;
+  begin
+    rat_val.numerator := number;
+    rat_val.denominator := 1;
+  end func;
+
+
+(**
+ *  Return the conversion of an integer to a rational.
+ *)
+const func rational: (attr rational) conv (ref integer: number) is func
   result
     var rational: rat_val is rational.value;
   begin

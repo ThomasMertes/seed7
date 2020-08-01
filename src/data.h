@@ -224,6 +224,7 @@ typedef struct propertystruct {
     entitytype entity;
     filenumtype file_number;
     linenumtype line;
+    unsigned int syNumberInLine;
   } propertyrecord;
 
 typedef union {

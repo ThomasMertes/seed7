@@ -221,16 +221,20 @@ HOW TO USE THE GMP LIBRARY?
     # LIBS = -lX11 -lncurses -lm
     LIBS = -lX11 -lncurses -lm -lgmp
 
-  There are also two lines which define which files contain
+  There are also four lines which define which files contain
   the interface functions for bigInteger:
 
-    BIGINT = big_rtl
-    # BIGINT = big_gmp
+    USE_BIG_RTL_LIBRARY = define
+    BIGINT_LIB = big_rtl
+    # USE_BIG_RTL_LIBRARY = undef
+    # BIGINT_LIB = big_gmp
 
-  This two lines must be changed to
+  This four lines must be changed to
 
-    # BIGINT = big_rtl
-    BIGINT = big_gmp
+    # USE_BIG_RTL_LIBRARY = define
+    # BIGINT_LIB = big_rtl
+    USE_BIG_RTL_LIBRARY = undef
+    BIGINT_LIB = big_gmp
 
   After the makefile changes it is necessary to start the
   compilation process from scratch with (use the corresponding
@@ -286,6 +290,40 @@ THE VERSION.H FILE
                             usually has only one parameter while
                             under unix/linux/bsd mkdir() has two
                             parameters.
+
+  ESCAPE_SPACES_IN_COMMANDS: Depending on the shell/os the C
+                             functions system() and popen() need
+                             to get processed shell commands.
+                             When the macro is defined, a
+                             backslash (\) is added before every
+                             space. When the macro is not
+                             defined (undef), the whole shell
+                             command is surrounded by double
+                             quotes (") when it contains a space.
+
+  USE_BIG_RTL_LIBRARY: Defined when the big_rtl library is used
+                       to implement the bigInteger functions.
+                       Not defined (undef) when the big_gmp
+                       library is used to implement the
+                       bigInteger functions.
+
+  FTELL_WRONG_FOR_PIPE: The ftell() function should return -1
+                        when it is called with a pipe (since a
+                        pipe is not seekable). This macro is
+                        defined when ftell() does not return
+                        -1 for pipes. In this case the function
+                        improved_ftell is used which returns -1
+                        when the check with fstat() does not
+                        verify that the parameter is a regular
+                        file.
+
+  RSHIFT_DOES_SIGN_EXTEND: The C standard specifies that the
+                           right shift of signed integers is
+                           implementation defined, when the
+                           shifted values are negative. This
+                           macro is set when the sign of negative
+                           signed integers is preserved with a
+                           right shift ( -1 >> 1 == -1 ).
 
   OBJECT_FILE_EXTENSION: The extension used by the C compiler for
                          object files (later several object files

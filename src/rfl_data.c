@@ -536,7 +536,7 @@ inttype stop;
       result = NULL;
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      raise_error(RANGE_ERROR);
+      raise_error(MEMORY_ERROR);
       result = NULL;
     } /* if */
     return(result);
@@ -577,7 +577,7 @@ inttype start;
       result = copy_list(list_element, &err_info);
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
-      raise_error(RANGE_ERROR);
+      raise_error(MEMORY_ERROR);
       result = NULL;
     } /* if */
     return(result);

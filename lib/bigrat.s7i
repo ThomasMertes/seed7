@@ -263,9 +263,33 @@ const func integer: hashCode (in bigRational: rat) is
 
 
 (**
- *  Return a bigInteger number converted to a bigRational number.
+ *  Return the conversion of a bigInteger to a bigRational.
  *)
 const func bigRational: rat (in bigInteger: number) is func
+  result
+    var bigRational: rat_val is bigRational.value;
+  begin
+    rat_val.numerator := number;
+    rat_val.denominator := 1_;
+  end func;
+
+
+(**
+ *  Return the conversion of an integer to a bigRational.
+ *)
+const func bigRational: (attr bigRational) conv (in integer: number) is func
+  result
+    var bigRational: rat_val is bigRational.value;
+  begin
+    rat_val.numerator := bigInteger conv number;
+    rat_val.denominator := 1_;
+  end func;
+
+
+(**
+ *  Return the conversion of a bigInteger to a bigRational.
+ *)
+const func bigRational: (attr bigRational) conv (in bigInteger: number) is func
   result
     var bigRational: rat_val is bigRational.value;
   begin

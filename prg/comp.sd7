@@ -5373,6 +5373,15 @@ const proc: process_flt_icast (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_flt_iconv (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(float)(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_flt_iflt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -11039,6 +11048,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_flt_hashcode(params, c_expr);
       elsif action_name = "FLT_ICAST" then
         process_flt_icast(params, c_expr);
+      elsif action_name = "FLT_ICONV" then
+        process_flt_iconv(params, c_expr);
       elsif action_name = "FLT_IFLT" then
         process_flt_iflt(params, c_expr);
       elsif action_name = "FLT_IPOW" then

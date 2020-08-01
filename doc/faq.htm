@@ -528,10 +528,20 @@ All type errors found by a "nitpicking" compiler correspond to runtime type
 errors that can happen in a dynamically typed language under some circumstances.
 That way the compile-time type checks save the time necessary to find and debug
 those errors. The time that a compiler needs to find and flag type errors is
-so small that it can be ignored in this comparison. When comparing compile-time
-and runtime type checking it can be concluded that dynamic typed languages save
-some programming time by omitting type declarations, but this time must be payed
-back with massive interest rates to do the debugging.
+so small that it can be ignored in this comparison.
+</p><p>
+Some people claim, that adding type information to a program is a time consuming
+process. This is only true when the type information is added afterwards, but
+it is wrong when type considerations take place during the program development.
+Every good programmer has some concepts about what values will be hold by
+variables or parameters and what values will be returned by functions. A good
+type system helps to formalize the type concepts which are already in the mind of
+the programmer. That way the ideas of the programmer are also documented.
+</p><p>
+When comparing compile-time and runtime type checking it can be concluded that
+dynamic typed languages save some programming time by omitting type
+declarations, but this time must be payed back with massive interest rates to do
+the debugging.
 </p></p>
 
 <p><br><a name="type_inference"><b>Why does Seed7 not use type inference?

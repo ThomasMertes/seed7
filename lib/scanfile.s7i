@@ -637,16 +637,93 @@ const func string: getSymbol (inout file: inFile) is func
 
 
 (**
+ *  Reads a symbol, where html entities are allowed, from a 'file'.
+ *  Before reading the symbol it skips whitespace characters and
+ *  comments (normal comments and line comments). A symbol can be a
+ *  literal (numeric, character or string), a name, a special symbol
+ *  (sequence of special characters) or a parenthesis. Html entities
+ *  in the file are treated as special characters. When the function
+ *  is called it is assumed that inFile.bufferChar contains a
+ *  whitespace character or the first character of a symbol or
+ *  comment. When the function is left the character after the symbol
+ *  is in inFile.bufferChar.
+ *  @return the symbol or "" when EOF was reached.
+ *)
+const func string: getSymbolWithHtmlEntities (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when name_start_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in name_char do
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when special_char:
+        if inFile.bufferChar = '&' then
+          repeat
+            symbol &:= str(inFile.bufferChar);
+            inFile.bufferChar := getc(inFile);
+          until inFile.bufferChar = ';';
+        end if;
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in special_char do
+          if inFile.bufferChar = '&' then
+            repeat
+              symbol &:= str(inFile.bufferChar);
+              inFile.bufferChar := getc(inFile);
+            until inFile.bufferChar = ';';
+          end if;
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when left_paren_char:
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '*' then
+          skipComment(inFile);
+          symbol := getSymbol(inFile);
+        else
+          symbol := "(";
+        end if;
+      when other_paren_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      when digit_char:
+        symbol := getNumber(inFile);
+      when single_quotation_char:
+        symbol := getCharLiteral(inFile);
+      when double_quotation_char:
+        symbol := getStringLiteral(inFile);
+      when sharp_char:
+        skipLineComment(inFile);
+        symbol := getSymbol(inFile);
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+    end case;
+  end func;
+
+
+(**
  *  Reads a HTML tag, a symbol or a comment from a 'file'.
  *  Before reading the HTML tag, symbol or comment it skips whitespace
  *  characters. A HTML tag starts with < and ends with > . A symbol
  *  can be a literal (numeric, character or string), a name, a special
  *  symbol (sequence of special characters) or a parenthesis.
- *  A comment can be a normal comment or a line comment. When the
- *  function is called it is assumed that inFile.bufferChar contains
- *  a whitespace character, an introducing < of a HTML tag or the
- *  first character of a symbol or a comment. When the function is
- *  left the character after the HTML tag, symbol or comment is in
+ *  A comment can be a normal comment or a line comment. Html entities
+ *  in the file are treated as special characters. When the function
+ *  is called it is assumed that inFile.bufferChar contains a
+ *  whitespace character, an introducing < of a HTML tag or the first
+ *  character of a symbol or a comment. When the function is left the
+ *  character after the HTML tag, symbol or comment is in
  *  inFile.bufferChar.
  *  @return the HTML tag, symbol, comment or "" when EOF was reached.
  *)

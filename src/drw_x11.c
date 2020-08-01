@@ -217,7 +217,7 @@ chartype gkbGetc ()
 #endif
 
   {
-    int count;
+    int lookup_count;
     unsigned char buffer[21];
     chartype result;
 
@@ -271,8 +271,8 @@ chartype gkbGetc ()
         printf("KeyPress\n");
         printf("xkey.state (%o)\n", myevent.xkey.state);
 #endif
-        count = XLookupString(&myevent.xkey, buffer, 20, &mykey, 0);
-        buffer[count] = '\0';
+        lookup_count = XLookupString(&myevent.xkey, buffer, 20, &mykey, 0);
+        buffer[lookup_count] = '\0';
         if (myevent.xkey.state & ShiftMask) {
           switch (mykey) {
             case XK_Return:     result = K_NL;          break;
@@ -324,7 +324,7 @@ chartype gkbGetc ()
             case XK_Num_Lock:
             case XK_Shift_Lock: result = gkbGetc(); break;
             default:
-              if (count == 1) {
+              if (lookup_count == 1) {
                 result = buffer[0];
               } else {
                 printf("1 undef key: %ld %lx\n", (long) mykey, (long) mykey);
@@ -403,7 +403,7 @@ chartype gkbGetc ()
             case XK_Num_Lock:
             case XK_Shift_Lock: result = gkbGetc(); break;
             default:
-              if (count == 1) {
+              if (lookup_count == 1) {
                 result = buffer[0];
               } else {
                 printf("2 undef key: %ld %lx\n", (long) mykey, (long) mykey);
@@ -472,7 +472,7 @@ chartype gkbGetc ()
             case XK_Num_Lock:
             case XK_Shift_Lock: result = gkbGetc(); break;
             default:
-              if (count == 1) {
+              if (lookup_count == 1) {
                 switch (buffer[0]) {
                   case '0':     result = K_ALT_0;       break;
                   case '1':     result = K_ALT_1;       break;
@@ -584,7 +584,7 @@ chartype gkbGetc ()
             case XK_ISO_Level3_Shift:
               result = gkbGetc(); break;
             default:
-              if (count == 1) {
+              if (lookup_count == 1) {
                 result = buffer[0];
               } else {
                 printf("5 undef key: %ld %lx\n", (long) mykey, (long) mykey);
@@ -617,7 +617,7 @@ booltype gkbKeyPressed ()
 
   {
     int num_events;
-    int count;
+    int lookup_count;
     char buffer[21];
     booltype result;
 
@@ -641,8 +641,8 @@ booltype gkbKeyPressed ()
           num_events = XEventsQueued(mydisplay, QueuedAfterReading);
           break;
         case KeyPress:
-          count = XLookupString(&myevent.xkey, buffer, 20, &mykey, 0);
-          buffer[count] = '\0';
+          lookup_count = XLookupString(&myevent.xkey, buffer, 20, &mykey, 0);
+          buffer[lookup_count] = '\0';
           switch (mykey) {
             case XK_Shift_L:
             case XK_Shift_R:

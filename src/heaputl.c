@@ -211,6 +211,7 @@ void rtlHeapStatistic ()
       bytes_used += count.sct_elems * SIZ_REC(objectrecord);
     } /* if */
 #endif
+#ifdef USE_BIG_RTL_LIBRARY
     if (count.big != 0) {
       printf("%9lu bytes in %8lu bigIntegers of      %4d bytes\n",
           count.big * SIZ_BIG(0),
@@ -220,11 +221,12 @@ void rtlHeapStatistic ()
     } /* if */
     if (count.big_elems != 0) {
       printf("%9lu bytes in %8lu bigdigits of        %4d bytes\n",
-          count.big_elems * SIZ_REC(bigdigittype),
+          count.big_elems * sizeof_bigdigittype,
           count.big_elems,
-          SIZ_REC(bigdigittype));
-      bytes_used += count.big_elems * SIZ_REC(bigdigittype);
+          sizeof_bigdigittype);
+      bytes_used += count.big_elems * sizeof_bigdigittype;
     } /* if */
+#endif
     if (count.win != 0) {
       printf("%9lu bytes in %8lu windows of          %4d bytes\n",
           count.win * count.size_winrecord,
