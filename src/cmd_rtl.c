@@ -251,18 +251,15 @@ errinfotype *err_info;
     printf("BEGIN remove_any_file(\"%s\")\n", file_name);
 #endif
     if (os_lstat(file_name, &file_stat) != 0) {
+      /* File does not exist */
       *err_info = FILE_ERROR;
     } else {
-      if (S_ISLNK(file_stat.st_mode)) {
-        if (os_remove(file_name) != 0) {
-          *err_info = FILE_ERROR;
-        } /* if */
-      } else if (S_ISREG(file_stat.st_mode)) {
-        if (os_remove(file_name) != 0) {
-          *err_info = FILE_ERROR;
-        } /* if */
-      } else if (S_ISDIR(file_stat.st_mode)) {
+      if (S_ISDIR(file_stat.st_mode)) {
         remove_dir(file_name, err_info);
+      } else {
+        if (os_remove(file_name) != 0) {
+          *err_info = FILE_ERROR;
+        } /* if */
       } /* if */
     } /* if */
 #ifdef TRACE_CMD_RTL
@@ -491,7 +488,6 @@ errinfotype *err_info;
 
   {
     os_stat_struct from_stat;
-    os_stat_struct to_stat;
     int from_stat_result;
 #ifdef HAS_SYMLINKS
     os_stritype link_destination;
@@ -509,58 +505,64 @@ errinfotype *err_info;
       from_stat_result = os_stat(from_name, &from_stat);
     } /* if */
     if (from_stat_result != 0) {
+      /* Source file does not exist */
       *err_info = FILE_ERROR;
     } else {
-      if (os_stat(to_name, &to_stat) == 0) {
-        /* File exists already */
-        *err_info = FILE_ERROR;
-      } else {
-        if (S_ISLNK(from_stat.st_mode)) {
+      if (S_ISLNK(from_stat.st_mode)) {
 #ifdef HAS_SYMLINKS
-          /* printf("link size=%lu\n", from_stat.st_size); */
-          if (from_stat.st_size > MAX_SYMLINK_PATH_LENGTH || from_stat.st_size < 0) {
-            *err_info = RANGE_ERROR;
+        /* printf("link size=%lu\n", from_stat.st_size); */
+        if (from_stat.st_size > MAX_SYMLINK_PATH_LENGTH || from_stat.st_size < 0) {
+          *err_info = RANGE_ERROR;
+        } else {
+          if (!os_stri_alloc(link_destination, from_stat.st_size)) {
+            *err_info = MEMORY_ERROR;
           } else {
-            if (!os_stri_alloc(link_destination, from_stat.st_size)) {
-              *err_info = MEMORY_ERROR;
-            } else {
-              readlink_result = readlink(from_name, link_destination,
-                                         (size_t) from_stat.st_size);
-              if (readlink_result != -1) {
-                link_destination[readlink_result] = '\0';
-                /* printf("readlink_result=%lu\n", readlink_result);
-                   printf("link=%s\n", link_destination); */
-                if (symlink(link_destination, to_name) != 0) {
-                  *err_info = FILE_ERROR;
-                } /* if */
-              } else {
+            readlink_result = readlink(from_name, link_destination,
+                                       (size_t) from_stat.st_size);
+            if (readlink_result != -1) {
+              link_destination[readlink_result] = '\0';
+              /* printf("readlink_result=%lu\n", readlink_result);
+                 printf("link=%s\n", link_destination); */
+              if (symlink(link_destination, to_name) != 0) {
                 *err_info = FILE_ERROR;
               } /* if */
-              os_stri_free(link_destination);
+            } else {
+              *err_info = FILE_ERROR;
             } /* if */
+            os_stri_free(link_destination);
           } /* if */
-#else
-          *err_info = FILE_ERROR;
-#endif
-        } else if (S_ISREG(from_stat.st_mode)) {
-          copy_file(from_name, to_name, err_info);
-        } else if (S_ISDIR(from_stat.st_mode)) {
-          copy_dir(from_name, to_name, flags, err_info);
         } /* if */
-        if (*err_info == OKAY_NO_ERROR && !S_ISLNK(from_stat.st_mode)) {
-          if (flags & PRESERVE_TIMESTAMPS) {
-            to_utime.actime = from_stat.st_atime;
-            to_utime.modtime = from_stat.st_mtime;
-            /* printf("copy_any_file: st_atime=%ld\n", from_stat.st_atime); */
-            /* printf("copy_any_file: st_mtime=%ld\n", from_stat.st_mtime); */
-            os_utime(to_name, &to_utime);
-          } /* if */
-          if (flags & PRESERVE_MODE) {
-            os_chmod(to_name, from_stat.st_mode);
-          } /* if */
-          if (flags & PRESERVE_OWNERSHIP) {
-            os_chown(to_name, from_stat.st_uid, from_stat.st_gid);
-          } /* if */
+#else
+        *err_info = FILE_ERROR;
+#endif
+      } else if (S_ISREG(from_stat.st_mode)) {
+        copy_file(from_name, to_name, err_info);
+      } else if (S_ISDIR(from_stat.st_mode)) {
+        copy_dir(from_name, to_name, flags, err_info);
+      } else if (S_ISFIFO(from_stat.st_mode)) {
+#ifdef HAS_FIFO_FILES
+        if (mkfifo(to_name, (S_IRWXU | S_IRWXG | S_IRWXO)) != 0) {
+          *err_info = FILE_ERROR;
+        } /* if */
+#else
+        *err_info = FILE_ERROR;
+#endif
+      } else {
+        *err_info = FILE_ERROR;
+      } /* if */
+      if (*err_info == OKAY_NO_ERROR && !S_ISLNK(from_stat.st_mode)) {
+        if (flags & PRESERVE_TIMESTAMPS) {
+          to_utime.actime = from_stat.st_atime;
+          to_utime.modtime = from_stat.st_mtime;
+          /* printf("copy_any_file: st_atime=%ld\n", from_stat.st_atime); */
+          /* printf("copy_any_file: st_mtime=%ld\n", from_stat.st_mtime); */
+          os_utime(to_name, &to_utime);
+        } /* if */
+        if (flags & PRESERVE_MODE) {
+          os_chmod(to_name, from_stat.st_mode);
+        } /* if */
+        if (flags & PRESERVE_OWNERSHIP) {
+          os_chown(to_name, from_stat.st_uid, from_stat.st_gid);
         } /* if */
       } /* if */
     } /* if */
@@ -583,24 +585,30 @@ os_stritype to_name;
 errinfotype *err_info;
 #endif
 
-  { /* move_any_file */
+  {
+    os_stat_struct to_stat;
+
+  /* move_any_file */
 #ifdef TRACE_CMD_RTL
     printf("BEGIN move_any_file(\"%s\", \"%s\")\n", from_name, to_name);
 #endif
-    if (os_rename(from_name, to_name) != 0) {
-      switch (errno) {
-        case EXDEV:
-          copy_any_file(from_name, to_name, PRESERVE_ALL, err_info);
-          if (*err_info == OKAY_NO_ERROR) {
-            remove_any_file(from_name, err_info);
-          } else {
-            remove_any_file(to_name, err_info);
-          } /* if */
-          break;
-        default:
-          *err_info = FILE_ERROR;
-          break;
-      } /* switch */
+    if (os_stat(to_name, &to_stat) == 0) {
+      /* Destination file exists already */
+      *err_info = FILE_ERROR;
+    } else {
+      if (os_rename(from_name, to_name) != 0) {
+        switch (errno) {
+          case EXDEV:
+            copy_any_file(from_name, to_name, PRESERVE_ALL, err_info);
+            if (*err_info == OKAY_NO_ERROR) {
+              remove_any_file(from_name, err_info);
+            } /* if */
+            break;
+          default:
+            *err_info = FILE_ERROR;
+            break;
+        } /* switch */
+      } /* if */
     } /* if */
 #ifdef TRACE_CMD_RTL
     printf("END move_any_file(\"%s\", \"%s\", %d)\n",
@@ -791,6 +799,7 @@ stritype dest_name;
   {
     os_stritype os_source_name;
     os_stritype os_dest_name;
+    os_stat_struct to_stat;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdCloneFile */
@@ -798,7 +807,12 @@ stritype dest_name;
     if (os_source_name != NULL) {
       os_dest_name = cp_to_os_path(dest_name, &err_info);
       if (os_dest_name != NULL) {
-        copy_any_file(os_source_name, os_dest_name, PRESERVE_ALL, &err_info);
+        if (os_stat(os_dest_name, &to_stat) == 0) {
+          /* Destination file exists already */
+          err_info = FILE_ERROR;
+        } else {
+          copy_any_file(os_source_name, os_dest_name, PRESERVE_ALL, &err_info);
+        } /* if */
         os_stri_free(os_dest_name);
       } /* if */
       os_stri_free(os_source_name);
@@ -931,6 +945,7 @@ stritype dest_name;
   {
     os_stritype os_source_name;
     os_stritype os_dest_name;
+    os_stat_struct to_stat;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdCopyFile */
@@ -938,7 +953,12 @@ stritype dest_name;
     if (os_source_name != NULL) {
       os_dest_name = cp_to_os_path(dest_name, &err_info);
       if (os_dest_name != NULL) {
-        copy_any_file(os_source_name, os_dest_name, PRESERVE_NOTHING, &err_info);
+        if (os_stat(os_dest_name, &to_stat) == 0) {
+          /* Destination file exists already */
+          err_info = FILE_ERROR;
+        } else {
+          copy_any_file(os_source_name, os_dest_name, PRESERVE_NOTHING, &err_info);
+        } /* if */
         os_stri_free(os_dest_name);
       } /* if */
       os_stri_free(os_source_name);
@@ -1511,6 +1531,16 @@ stritype link_name;
               result = os_stri_to_stri(link_destination);
               if (result == NULL) {
                 err_info = MEMORY_ERROR;
+#if PATH_DELIMITER != '/'
+              } else {
+                unsigned int pos;
+
+                for (pos = 0; pos < result->size; pos++) {
+                  if (result->mem[pos] == PATH_DELIMITER) {
+                    result->mem[pos] = (strelemtype) '/';
+                  } /* if */
+                } /* for */
+#endif
               } /* if */
             } else {
               err_info = FILE_ERROR;
@@ -1542,17 +1572,45 @@ stritype file_name;
 #endif
 
   {
+#ifdef REMOVE_FAILS_FOR_EMPTY_DIRS
+    os_stat_struct file_stat;
+#endif
     os_stritype os_file_name;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdRemove */
+#ifdef TRACE_CMD_RTL
+    printf("BEGIN cmdRemove(");
+    prot_stri(file_name);
+    printf(")\n");
+#endif
     os_file_name = cp_to_os_path(file_name, &err_info);
-    if (os_file_name == NULL) {
-      raise_error(err_info);
-    } else {
-      os_remove(os_file_name);
+    if (os_file_name != NULL) {
+#ifdef REMOVE_FAILS_FOR_EMPTY_DIRS
+      if (S_ISDIR(file_stat.st_mode)) {
+        if (os_rmdir(os_file_name) != 0) {
+          err_info = FILE_ERROR;
+        } /* if */
+      } else {
+        if (os_remove(os_file_name) != 0) {
+          err_info = FILE_ERROR;
+        } /* if */
+      } /* if */
+#else
+      if (os_remove(os_file_name) != 0) {
+        err_info = FILE_ERROR;
+      } /* if */
+#endif
       os_stri_free(os_file_name);
     } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } /* if */
+#ifdef TRACE_CMD_RTL
+    printf("END cmdRemove(");
+    prot_stri(file_name);
+    printf(")\n");
+#endif
   } /* cmdRemove */
 
 

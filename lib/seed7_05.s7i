@@ -3519,11 +3519,11 @@ const func integer: fileTypeSL (in string param) is             action "CMD_FILE
 const func fileMode: fileMode (in string param) is              action "CMD_FILEMODE";
 const proc: setFileMode (in string param, in fileMode param) is action "CMD_SET_FILEMODE";
 const func array string: read_dir (in string param) is          action "CMD_LS";
-const proc: remove (in string param) is                         action "CMD_REMOVE";
+const proc: removeFile (in string param) is                     action "CMD_REMOVE";
 const proc: removeAnyFile (in string param) is                  action "CMD_REMOVE_ANY_FILE";
-const proc: rename (in string param, in string param) is        action "CMD_MOVE";
-const proc: cloneFile (in string param, in string param) is     action "CMD_CLONE_FILE";
 const proc: copyFile (in string param, in string param) is      action "CMD_COPY_FILE";
+const proc: cloneFile (in string param, in string param) is     action "CMD_CLONE_FILE";
+const proc: moveFile (in string param, in string param) is      action "CMD_MOVE";
 const func string: readlink (in string param) is                action "CMD_READLINK";
 const proc: symlink (in string param, in string param) is       action "CMD_SYMLINK";
 const func string: configValue (in string param) is             action "CMD_CONFIG_VALUE";

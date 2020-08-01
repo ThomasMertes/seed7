@@ -54,61 +54,6 @@ const_cstritype cstri_escape_sequence[] = {
 
 
 
-#ifdef UTF32_STRINGS
-#ifdef ANSI_C
-
-memsizetype stri_to_utf8 (ustritype out_stri, const_stritype in_stri)
-#else
-
-memsizetype stri_to_utf8 (out_stri, in_stri)
-ustritype out_stri;
-stritype in_stri;
-#endif
-
-  {
-    register ustritype ustri;
-    register const strelemtype *stri;
-    memsizetype len;
-
-  /* stri_to_utf8 */
-    ustri = out_stri;
-    stri = in_stri->mem;
-    len = in_stri->size;
-    for (; len > 0; stri++, len--) {
-      if (*stri <= 0x7F) {
-        *ustri++ = (uchartype) *stri;
-      } else if (*stri <= 0x7FF) {
-        *ustri++ = (uchartype) (0xC0 | (*stri >>  6));
-        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
-      } else if (*stri <= 0xFFFF) {
-        *ustri++ = (uchartype) (0xE0 | (*stri >> 12));
-        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
-      } else if (*stri <= 0x1FFFFF) {
-        *ustri++ = (uchartype) (0xF0 | (*stri >> 18));
-        *ustri++ = (uchartype) (0x80 |((*stri >> 12) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
-      } else if (*stri <= 0x3FFFFFF) {
-        *ustri++ = (uchartype) (0xF8 | (*stri >> 24));
-        *ustri++ = (uchartype) (0x80 |((*stri >> 18) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*stri >> 12) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
-      } else {
-        *ustri++ = (uchartype) (0xFC | (*stri >> 30));
-        *ustri++ = (uchartype) (0x80 |((*stri >> 24) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*stri >> 18) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*stri >> 12) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
-      } /* if */
-    } /* for */
-    return((memsizetype) (ustri - out_stri));
-  } /* stri_to_utf8 */
-
-
-
 #ifdef ANSI_C
 
 memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
@@ -285,70 +230,58 @@ size_t len;
 
 
 
-#ifdef OUT_OF_ORDER
+#ifdef UTF32_STRINGS
 #ifdef ANSI_C
 
-void ustri_expand (strelemtype *stri, ustritype ustri, size_t len)
+memsizetype stri_to_utf8 (ustritype out_stri, const_stritype in_stri)
 #else
 
-void ustri_expand (stri, ustri, len)
-strelemtype *stri;
-ustritype ustri;
-size_t len;
+memsizetype stri_to_utf8 (out_stri, in_stri)
+ustritype out_stri;
+stritype in_stri;
 #endif
 
-  { /* ustri_expand */
-    for (; len > 0; len--) {
-      if (*ustri <= 0x7F) {
-        *stri++ = (strelemtype) *ustri++;
-      } else if ((ustri[0] & 0xE0) == 0xC0 && len > 1 &&
-                 (ustri[1] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x1F) << 6 |
-                   ustri[1] & 0x3F;
-        ustri += 2;
-      } else if ((ustri[0] & 0xF0) == 0xE0 && len > 2 &&
-                 (ustri[1] & 0xC0) == 0x80 &&
-                 (ustri[2] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x0F) << 12 |
-                  (ustri[1] & 0x3F) <<  6 |
-                   ustri[2] & 0x3F;
-        ustri += 3;
-      } else if ((ustri[0] & 0xF8) == 0xF0 && len > 3 &&
-                 (ustri[1] & 0xC0) == 0x80 &&
-                 (ustri[2] & 0xC0) == 0x80 &&
-                 (ustri[3] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x07) << 18 |
-                  (ustri[1] & 0x3F) << 12 |
-                  (ustri[2] & 0x3F) <<  6 |
-                   ustri[3] & 0x3F;
-        ustri += 4;
-      } else if ((ustri[0] & 0xFC) == 0xF8 && len > 4 &&
-                 (ustri[1] & 0xC0) == 0x80 &&
-                 (ustri[2] & 0xC0) == 0x80 &&
-                 (ustri[3] & 0xC0) == 0x80 &&
-                 (ustri[4] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x03) << 24 |
-                  (ustri[1] & 0x3F) << 18 |
-                  (ustri[2] & 0x3F) << 12 |
-                  (ustri[3] & 0x3F) <<  6 |
-                   ustri[4] & 0x3F;
-        ustri += 5;
-      } else if ((ustri[0] & 0xFC) == 0xFC && len > 5 &&
-                 (ustri[1] & 0xC0) == 0x80 &&
-                 (ustri[2] & 0xC0) == 0x80 &&
-                 (ustri[3] & 0xC0) == 0x80 &&
-                 (ustri[4] & 0xC0) == 0x80 &&
-                 (ustri[5] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x03) << 30 |
-                  (ustri[1] & 0x3F) << 24 |
-                  (ustri[2] & 0x3F) << 18 |
-                  (ustri[3] & 0x3F) << 12 |
-                  (ustri[4] & 0x3F) <<  6 |
-                   ustri[5] & 0x3F;
-        ustri += 6;
-    } /* while */
-  } /* ustri_expand */
-#endif
+  {
+    register ustritype ustri;
+    register const strelemtype *stri;
+    memsizetype len;
+
+  /* stri_to_utf8 */
+    ustri = out_stri;
+    stri = in_stri->mem;
+    len = in_stri->size;
+    for (; len > 0; stri++, len--) {
+      if (*stri <= 0x7F) {
+        *ustri++ = (uchartype) *stri;
+      } else if (*stri <= 0x7FF) {
+        *ustri++ = (uchartype) (0xC0 | (*stri >>  6));
+        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
+      } else if (*stri <= 0xFFFF) {
+        *ustri++ = (uchartype) (0xE0 | (*stri >> 12));
+        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
+      } else if (*stri <= 0x1FFFFF) {
+        *ustri++ = (uchartype) (0xF0 | (*stri >> 18));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 12) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
+      } else if (*stri <= 0x3FFFFFF) {
+        *ustri++ = (uchartype) (0xF8 | (*stri >> 24));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 18) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 12) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
+      } else {
+        *ustri++ = (uchartype) (0xFC | (*stri >> 30));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 24) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 18) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 12) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
+      } /* if */
+    } /* for */
+    return((memsizetype) (ustri - out_stri));
+  } /* stri_to_utf8 */
 
 
 
@@ -432,6 +365,25 @@ stritype in_stri;
 
 #ifdef ANSI_C
 
+void ustri0_expand (strelemtype *stri, const_ustritype ustri)
+#else
+
+void ustri0_expand (stri, ustri)
+strelemtype *stri;
+ustritype ustri;
+#endif
+
+  { /* ustri0_expand */
+    for (; *ustri != '\0'; stri++, ustri++) {
+      *stri = (strelemtype) *ustri;
+    } /* while */
+  } /* ustri0_expand */
+
+
+
+#ifdef OS_PATH_WCHAR
+#ifdef ANSI_C
+
 static void stri_to_utf16 (wstritype wstri, const_stritype stri,
     errinfotype *err_info)
 #else
@@ -464,6 +416,7 @@ errinfotype *err_info;
     } /* for */
     *wstri = 0;
   } /* stri_to_utf16 */
+#endif
 
 
 
@@ -676,16 +629,48 @@ cstritype cstri;
 
   {
     memsizetype length;
-    stritype stri;
+    stritype result;
 
   /* cstri_to_stri */
     length = strlen(cstri);
-    if (ALLOC_STRI(stri, length)) {
-      stri->size = length;
-      cstri_expand(stri->mem, cstri, (size_t) length);
+    if (ALLOC_STRI(result, length)) {
+      result->size = length;
+      cstri_expand(result->mem, cstri, length);
     } /* if */
-    return(stri);
+    return(result);
   } /* cstri_to_stri */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+stritype cstri_to_stri (const_cstritype cstri)
+#else
+
+stritype cstri_to_stri (cstri)
+cstritype cstri;
+#endif
+
+  {
+    register strelemtype *stri;
+    register const_ustritype ustri;
+    memsizetype length;
+    stritype result;
+
+  /* cstri_to_stri */
+    length = strlen(cstri);
+    if (ALLOC_STRI(result, length)) {
+      result->size = length;
+      stri = result->mem;
+      ustri = (const_ustritype) cstri;
+      for (; *ustri != '\0'; stri++, ustri++) {
+        *stri = (strelemtype) *ustri;
+      } /* while */
+    } /* if */
+    return(result);
+  } /* cstri_to_stri */
+#endif
 
 
 

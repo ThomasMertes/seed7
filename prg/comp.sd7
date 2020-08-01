@@ -447,6 +447,34 @@ const func string: bitsetLiteral (in bitset: aBitset) is func
   end func;
 
 
+const func string: floatLiteral (in float: aFloat) is func
+  result
+    var string: expr is "";
+  begin
+    if isnan(aFloat) then
+      if FLOAT_ZERO_DIV_ERROR then
+        expr := "f_const[0].floatvalue /* 0.0/0.0 */";
+      else
+        expr := "0.0/0.0";
+      end if;
+    elsif aFloat = Infinity then
+      if FLOAT_ZERO_DIV_ERROR then
+        expr := "f_const[1].floatvalue /* 1.0/0.0 */";
+      else
+        expr := "1.0/0.0";
+      end if;
+    elsif aFloat = -Infinity then
+      if FLOAT_ZERO_DIV_ERROR then
+        expr := "f_const[2].floatvalue /* -1.0/0.0 */";
+      else
+        expr := "-1.0/0.0";
+      end if;
+    else
+      expr := str(aFloat);
+    end if;
+  end func;
+
+
 const proc: process_create_declaration (in type: object_type,
     inout expr_type: c_expr) is forward;
 
@@ -4276,6 +4304,25 @@ const proc: process_bst_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param3.temp_frees;
       c_expr.expr &:= "}\n";
     end if;
+  end func;
+
+
+const proc: process_bst_lng (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(inttype)((bstritype)(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= "))->size";
+  end func;
+
+
+const proc: process_bst_value (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "bstValue(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -12410,6 +12457,10 @@ const proc: process_action (in reference: function, in ref_list: params,
     elsif action_prefix = "BST" then
       if action_name = "BST_CPY" then
         process_bst_cpy(params, c_expr);
+      elsif action_name = "BST_LNG" then
+        process_bst_lng(params, c_expr);
+      elsif action_name = "BST_VALUE" then
+        process_bst_value(params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -13609,7 +13660,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_expr.temp_decls &:= c_literal(getValue(object_value, char));
     elsif valueCategory = FLOATOBJECT then
       c_expr.temp_decls &:= "=";
-      c_expr.temp_decls &:= str(getValue(object_value, float));
+      c_expr.temp_decls &:= floatLiteral(getValue(object_value, float));
     elsif valueCategory = STRIOBJECT then
       c_expr.temp_assigns &:= "o_";
       create_name(current_object, c_expr.temp_assigns);
@@ -14297,26 +14348,8 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
       if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
-      elsif isnan(getValue(current_expression, float)) then
-        if FLOAT_ZERO_DIV_ERROR then
-          c_expr.expr &:= "f_const[0].floatvalue /* 0.0/0.0 */";
-        else
-          c_expr.expr &:= "0.0/0.0";
-        end if;
-      elsif getValue(current_expression, float) = Infinity then
-        if FLOAT_ZERO_DIV_ERROR then
-          c_expr.expr &:= "f_const[1].floatvalue /* 1.0/0.0 */";
-        else
-          c_expr.expr &:= "1.0/0.0";
-        end if;
-      elsif getValue(current_expression, float) = -Infinity then
-        if FLOAT_ZERO_DIV_ERROR then
-          c_expr.expr &:= "f_const[2].floatvalue /* -1.0/0.0 */";
-        else
-          c_expr.expr &:= "-1.0/0.0";
-        end if;
       else
-        c_expr.expr &:= str(getValue(current_expression, float));
+        c_expr.expr &:= floatLiteral(getValue(current_expression, float));
       end if;
     elsif exprCategory = CHAROBJECT then
       if isVar(current_expression) then
@@ -14809,7 +14842,7 @@ const proc: process_float_declaration (in reference: current_object,
       c_expr.expr &:= "floattype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= "=";
-      c_expr.expr &:= str(getValue(current_object, float));
+      c_expr.expr &:= floatLiteral(getValue(current_object, float));
       c_expr.expr &:= ";\n\n";
       count_declarations;
     end if;
@@ -17058,6 +17091,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "biginttype  bigRShift (biginttype, inttype);");
     writeln(c_prog, "void        bigRShiftAssign (biginttype *, inttype);");
     writeln(c_prog, "biginttype  bigSbtr (biginttype, biginttype);");
+    writeln(c_prog, "biginttype  bigSbtrTemp (biginttype, biginttype);");
     writeln(c_prog, "void        bigShrink (biginttype *, biginttype);");
     writeln(c_prog, "stritype    bigStr (biginttype);");
     writeln(c_prog, "biginttype  bigSucc (biginttype);");
@@ -17211,6 +17245,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "inttype     prgErrorCount (progtype);");
     writeln(c_prog, "objreftype  prgEval (progtype, objreftype);");
     writeln(c_prog, "progtype    prgFilParse (stritype);");
+    writeln(c_prog, "progtype    prgStrParse (stritype);");
     writeln(c_prog, "objreftype  prgMatch (progtype, listtype);");
     writeln(c_prog, "objreftype  prgMatchExpr (progtype, listtype);");
     writeln(c_prog, "objreftype  prgSyobject (progtype, stritype);");
@@ -17605,27 +17640,7 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= bitsetLiteral(getValue(current_object, bitset));
     elsif objectCategory = FLOATOBJECT then
       c_expr.expr &:= ".value.floatvalue=";
-      if isnan(getValue(current_object, float)) then
-        if FLOAT_ZERO_DIV_ERROR then
-          c_expr.expr &:= "f_const[0].floatvalue /* 0.0/0.0 */";
-        else
-          c_expr.expr &:= "0.0/0.0";
-        end if;
-      elsif getValue(current_object, float) = Infinity then
-        if FLOAT_ZERO_DIV_ERROR then
-          c_expr.expr &:= "f_const[1].floatvalue /* 1.0/0.0 */";
-        else
-          c_expr.expr &:= "1.0/0.0";
-        end if;
-      elsif getValue(current_object, float) = -Infinity then
-        if FLOAT_ZERO_DIV_ERROR then
-          c_expr.expr &:= "f_const[2].floatvalue /* -1.0/0.0 */";
-        else
-          c_expr.expr &:= "-1.0/0.0";
-        end if;
-      else
-        c_expr.expr &:= str(getValue(current_object, float));
-      end if;
+      c_expr.expr &:= floatLiteral(getValue(current_object, float));
     elsif objectCategory = REFOBJECT then
       c_expr.expr &:= ".value.intvalue=";
       if getValue(current_object, reference) = NIL then
@@ -17872,11 +17887,13 @@ const proc: generate_main (in program: prog) is func
 #!    c_expr.expr &:= "inttype heapsize (void) {rtlHeapStatistic(); return(0);}\n";
       c_expr.expr &:= "inttype refType (objreftype a) {printf(\"refType\\n\");}\n";
       c_expr.expr &:= "inttype typValue (objreftype a) {printf(\"typValue\\n\");}\n";
+      c_expr.expr &:= "\n";
     end if;
     if compDataLibraryUsed and not compilerLibraryUsed then
       c_expr.expr &:= "unsigned char *file_name (unsigned int a) {printf(\"file_name\\n\");}\n";
       c_expr.expr &:= "void *get_param_list (listtype a, int *b) {printf(\"get_param_list\\n\");}\n";
       c_expr.expr &:= "void *create_parameter_list (listtype a, int *b) {printf(\"create_parameter_list\\n\");}\n";
+      c_expr.expr &:= "\n";
     end if;
     process_dynamic_decisions(c_expr);
     declare_missing_create_declarations(c_expr);
@@ -18237,7 +18254,9 @@ const proc: pass_3 (in string: source, in program: prog,
   begin
     if okay then
       writeln("Calling the C compiler ...");
-      remove(temp_name(source) & OBJECT_FILE_EXTENSION);
+      if fileType(temp_name(source) & OBJECT_FILE_EXTENSION) = FILE_REGULAR then
+        removeFile(temp_name(source) & OBJECT_FILE_EXTENSION);
+      end if;
       options := " " & INHIBIT_C_WARNINGS;
       if "-O" in compiler_option then
         options &:= " -O" & compiler_option["-O"];
@@ -18252,18 +18271,24 @@ const proc: pass_3 (in string: source, in program: prog,
       writeln(compile_cmd);
       flush(OUT);
       cmd_sh(compile_cmd);
-      if not fileExists(temp_name(source) & OBJECT_FILE_EXTENSION) then
+      if fileType(temp_name(source) & OBJECT_FILE_EXTENSION) <> FILE_REGULAR then
         if fileType(temp_name(source) & ".cerrs") = FILE_REGULAR and
-            fileSize(temp_name(source) & ".cerrs") <> 0 then
+            fileSize(temp_name(source) & ".cerrs") = 0 then
+          removeFile(temp_name(source) & ".cerrs");
+        end if;
+        if fileType(temp_name(source) & ".cerrs") = FILE_REGULAR then
           writeln("*** Errors in " <& literal(temp_name(source) & ".c") <&
               " - see " <& literal(temp_name(source) & ".cerrs"));
         else
           writeln("*** Compilation terminated without error messages");
-          remove(temp_name(source) & ".cerrs");
         end if;
       else
-        remove(temp_name(source) & ".cerrs");
-        remove(source & EXECUTABLE_FILE_EXTENSION);
+        if fileType(temp_name(source) & ".cerrs") = FILE_REGULAR then
+          removeFile(temp_name(source) & ".cerrs");
+        end if;
+        if fileType(source & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+          removeFile(source & EXECUTABLE_FILE_EXTENSION);
+        end if;
         writeln("Calling the linker ...");
         link_cmd := C_COMPILER;
         if LINKER_FLAGS <> "" then
@@ -18284,14 +18309,22 @@ const proc: pass_3 (in string: source, in program: prog,
         writeln(link_cmd);
         flush(OUT);
         cmd_sh(link_cmd);
-        if not fileExists(source & EXECUTABLE_FILE_EXTENSION) then
-          writeln("*** Linker errors with " <&
-              literal(temp_name(source) & OBJECT_FILE_EXTENSION) <&
-              " - see " <& literal(temp_name(source) & ".lerrs"));
-        else
-          remove(temp_name(source) & ".lerrs");
+        if fileType(source & EXECUTABLE_FILE_EXTENSION) <> FILE_REGULAR then
+          if fileType(temp_name(source) & ".lerrs") = FILE_REGULAR and
+              fileSize(temp_name(source) & ".lerrs") = 0 then
+            removeFile(temp_name(source) & ".lerrs");
+          end if;
+          if fileType(temp_name(source) & ".lerrs") = FILE_REGULAR then
+            writeln("*** Linker errors with " <&
+                literal(temp_name(source) & OBJECT_FILE_EXTENSION) <&
+                " - see " <& literal(temp_name(source) & ".lerrs"));
+          else
+            writeln("*** Linking terminated without error messages");
+          end if;
+        elsif fileType(temp_name(source) & ".lerrs") = FILE_REGULAR then
+          removeFile(temp_name(source) & ".lerrs");
         end if;
-        remove(temp_name(source) & OBJECT_FILE_EXTENSION);
+        removeFile(temp_name(source) & OBJECT_FILE_EXTENSION);
       end if;
     end if;
   end func;

@@ -157,6 +157,7 @@ version.h:
 	cmd /S /C "echo #undef  USE_MMAP" >> version.h
 	cmd /S /C "echo #undef  INCL_NCURSES_TERM" >> version.h
 	cmd /S /C "echo #undef  INCL_CURSES_BEFORE_TERM" >> version.h
+	cmd /S /C "echo #define REMOVE_FAILS_FOR_EMPTY_DIRS" >> version.h
 	cmd /S /C "echo #define TURN_OFF_FP_EXCEPTIONS" >> version.h
 	cmd /S /C "echo #define DEFINE_MATHERR_FUNCTION" >> version.h
 	cmd /S /C "echo #define ISNAN_WITH_UNDERLINE" >> version.h

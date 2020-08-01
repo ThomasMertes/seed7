@@ -283,3 +283,54 @@ listtype arguments;
       return(bld_bstri_temp(result));
     } /* if */
   } /* bst_empty */
+
+
+
+#ifdef ANSI_C
+
+objecttype bst_lng (listtype arguments)
+#else
+
+objecttype bst_lng (arguments)
+listtype arguments;
+#endif
+
+  { /* bst_lng */
+    isit_bstri(arg_1(arguments));
+    return(bld_int_temp((inttype) take_bstri(arg_1(arguments))->size));
+  } /* bst_lng */
+
+
+
+#ifdef ANSI_C
+
+objecttype bst_value (listtype arguments)
+#else
+
+objecttype bst_value (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype obj_arg;
+    bstritype str1;
+    bstritype result;
+
+  /* bst_value */
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
+        take_bstri(obj_arg) == NULL) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } else {
+      str1 = take_bstri(obj_arg);
+      if (!ALLOC_BSTRI(result, str1->size)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        result->size = str1->size;
+        memcpy(result->mem, str1->mem,
+            result->size * sizeof(uchartype));
+        return(bld_bstri_temp(result));
+      } /* if */
+    } /* if */
+  } /* bst_value */

@@ -146,6 +146,7 @@ version.h:
 	echo "#define PATH_DELIMITER '/'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define HAS_SYMLINKS" >> version.h
+	echo "#define HAS_FIFO_FILES" >> version.h
 	echo "#define USE_LOCALTIME_R" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#undef  INCL_NCURSES_TERM" >> version.h

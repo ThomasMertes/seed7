@@ -45,13 +45,21 @@ const proc: main is func
       writeln("  latin-1 ISO Latin-1 to utf-8");
       writeln("  latin-9 ISO Latin-9 to utf-8");
       writeln("  437     Codepage 437 to utf-8");
+      writeln("  720     Codepage 720 to utf-8");
       writeln("  737     Codepage 737 to utf-8");
+      writeln("  775     Codepage 775 to utf-8");
       writeln("  850     Codepage 850 to utf-8");
       writeln("  852     Codepage 852 to utf-8");
       writeln("  855     Codepage 855 to utf-8");
       writeln("  857     Codepage 857 to utf-8");
       writeln("  858     Codepage 858 to utf-8");
+      writeln("  860     Codepage 860 to utf-8");
       writeln("  861     Codepage 861 to utf-8");
+      writeln("  862     Codepage 862 to utf-8");
+      writeln("  863     Codepage 863 to utf-8");
+      writeln("  864     Codepage 864 to utf-8");
+      writeln("  865     Codepage 865 to utf-8");
+      writeln("  866     Codepage 866 to utf-8");
       writeln("  869     Codepage 869 to utf-8");
       writeln(" 1250     Codepage 1250 to utf-8");
       writeln(" 1252     Codepage 1252 to utf-8");
@@ -77,8 +85,14 @@ const proc: main is func
           if conv_name = "-437" then
             conv2unicode(stri, cp_437);
             write(out_file, stri);
+          elsif conv_name = "-720" then
+            conv2unicode(stri, cp_720);
+            write(out_file, stri);
           elsif conv_name = "-737" then
             conv2unicode(stri, cp_737);
+            write(out_file, stri);
+          elsif conv_name = "-775" then
+            conv2unicode(stri, cp_775);
             write(out_file, stri);
           elsif conv_name = "-850" then
             conv2unicode(stri, cp_850);
@@ -95,8 +109,26 @@ const proc: main is func
           elsif conv_name = "-858" then
             conv2unicode(stri, cp_858);
             write(out_file, stri);
+          elsif conv_name = "-860" then
+            conv2unicode(stri, cp_860);
+            write(out_file, stri);
           elsif conv_name = "-861" then
             conv2unicode(stri, cp_861);
+            write(out_file, stri);
+          elsif conv_name = "-862" then
+            conv2unicode(stri, cp_862);
+            write(out_file, stri);
+          elsif conv_name = "-863" then
+            conv2unicode(stri, cp_863);
+            write(out_file, stri);
+          elsif conv_name = "-864" then
+            conv2unicode(stri, cp_864);
+            write(out_file, stri);
+          elsif conv_name = "-865" then
+            conv2unicode(stri, cp_865);
+            write(out_file, stri);
+          elsif conv_name = "-866" then
+            conv2unicode(stri, cp_866);
             write(out_file, stri);
           elsif conv_name = "-869" then
             conv2unicode(stri, cp_869);

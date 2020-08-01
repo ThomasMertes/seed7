@@ -177,11 +177,15 @@ const proc: check (in string: progName, in string: referenceOutput) is func
     write(progName);
     flush(OUT);
     interpretedOutput := cmdOutput("./hi -q "   & progName);
-    remove("progName" & EXECUTABLE_FILE_EXTENSION);
+    if fileType("progName" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+      removeFile("progName" & EXECUTABLE_FILE_EXTENSION);
+    end if;
     compilerOutput    := cmdOutput("./hi comp " & progName);
     compiledOutput1   := cmdOutput("./"         & progName);
     if fileExists("comp" & EXECUTABLE_FILE_EXTENSION) then
-      remove("progName" & EXECUTABLE_FILE_EXTENSION);
+      if fileType("progName" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+        removeFile("progName" & EXECUTABLE_FILE_EXTENSION);
+      end if;
       compilerOutput    := cmdOutput("./comp "    & progName);
       compiledOutput2   := cmdOutput("./"         & progName);
       checkWithCompiledCompiler := TRUE;
@@ -214,7 +218,9 @@ const proc: main is func
   local
     var boolean: checkWithCompiledCompiler is TRUE;
   begin
-    remove("comp" & EXECUTABLE_FILE_EXTENSION);
+    if fileType("comp" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+      removeFile("comp" & EXECUTABLE_FILE_EXTENSION);
+    end if;
     write("compiling the compiler");
     flush(OUT);
     ignore(cmdOutput("./hi comp comp"));

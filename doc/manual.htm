@@ -130,18 +130,20 @@
 <li><!--   12.1     --><a href="#Directory_access"><b>Directory access</b></a></li>
 <li><!--   12.2     --><a href="#Other_directory_operations"><b>Other directory operations</b></a></li>
 <li><!--   12.3     --><a href="#fileType"><b>fileType</b></a></li>
-<li><!--   12.4     --><a href="#fileSize"><b>fileSize</b></a></li>
-<li><!--   12.5     --><a href="#getATime"><b>getATime</b></a></li>
-<li><!--   12.6     --><a href="#getCTime"><b>getCTime</b></a></li>
-<li><!--   12.7     --><a href="#getMTime"><b>getMTime</b></a></li>
-<li><!--   12.8     --><a href="#setATime"><b>setATime</b></a></li>
-<li><!--   12.9     --><a href="#setMTime"><b>setMTime</b></a></li>
-<li><!--   12.10    --><a href="#readlink"><b>readlink</b></a></li>
-<li><!--   12.11    --><a href="#symlink"><b>symlink</b></a></li>
-<li><!--   12.12    --><a href="#removeAnyFile"><b>removeAnyFile</b></a></li>
-<li><!--   12.13    --><a href="#Other_functions"><b>Other functions</b></a></li>
-<li><!--   12.14    --><a href="#argv"><b>argv</b></a></li>
-<li><!--   12.15    --><a href="#getenv"><b>getenv</b></a></li></ol></li>
+<li><!--   12.4     --><a href="#fileMode"><b>fileMode</b></a></li>
+<li><!--   12.5     --><a href="#setFileMode"><b>setFileMode</b></a></li>
+<li><!--   12.6     --><a href="#fileSize"><b>fileSize</b></a></li>
+<li><!--   12.7     --><a href="#getATime"><b>getATime</b></a></li>
+<li><!--   12.8     --><a href="#getCTime"><b>getCTime</b></a></li>
+<li><!--   12.9     --><a href="#getMTime"><b>getMTime</b></a></li>
+<li><!--   12.10    --><a href="#setATime"><b>setATime</b></a></li>
+<li><!--   12.11    --><a href="#setMTime"><b>setMTime</b></a></li>
+<li><!--   12.12    --><a href="#readlink"><b>readlink</b></a></li>
+<li><!--   12.13    --><a href="#symlink"><b>symlink</b></a></li>
+<li><!--   12.14    --><a href="#removeAnyFile"><b>removeAnyFile</b></a></li>
+<li><!--   12.15    --><a href="#Other_functions"><b>Other functions</b></a></li>
+<li><!--   12.16    --><a href="#argv"><b>argv</b></a></li>
+<li><!--   12.17    --><a href="#getenv"><b>getenv</b></a></li></ol></li>
 <li><!--   13.    --><a href="#PRIMITIVE_ACTIONS"><big><b>PRIMITIVE ACTIONS</b></big></a><ol>
 <li><!--   13.1     --><a href="#ACTION"><b>Actions for the type ACTION</b></a></li>
 <li><!--   13.2     --><a href="#array"><b>Actions for array types</b></a></li>
@@ -7473,12 +7475,91 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
-          <dd>FilePath is not representable in the system path type.</dd>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
       <dt>FILE_ERROR</dt>
-          <dd>The system returns an error other than ENOENT.</dd>
+          <dd>The system function returns an error other than ENOENT.</dd>
       </dl></dd></dl></p>
 
-<a name="fileSize"><h3>12.4 fileSize</h3></a>
+<a name="fileMode"><h3>12.4 fileMode</h3></a>
+<p>
+    The permissions of a file can determined with <tt>'fileMode'</tt>:
+</p><pre>
+      <font color=blue>const</font> <font color=red>func fileMode</font>: fileMode (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+</pre>
+    <p><dl><dt><p>Returns:</p></dt><dd><p>
+      The <tt>'<font color=red>fileMode</font>'</tt> which is defined as <tt>'<font color=red>set of filePermission</font>'</tt>.
+      </p></dd></dl></p>
+    <p><dl><dt><p>The literal values of <tt>'<font color=red>filePermission</font>'</tt> are:</p></dt><dd>
+      <dl>
+      <dt>EXEC_OTHER</dt>
+          <dd>others have execute permission</dd>
+      <dt>WRITE_OTHER</dt>
+          <dd>others have write permission</dd>
+      <dt>READ_OTHER</dt>
+          <dd>others have read permission</dd>
+      <dt>EXEC_GROUP</dt>
+          <dd>group has execute permission</dd>
+      <dt>WRITE_GROUP</dt>
+          <dd>group has write permission</dd>
+      <dt>READ_GROUP</dt>
+          <dd>group has read permission</dd>
+      <dt>EXEC_USER</dt>
+          <dd>owner has execute permission</dd>
+      <dt>WRITE_USER</dt>
+          <dd>owner has write permission</dd>
+      <dt>READ_USER</dt>
+          <dd>owner has read permission</dd>
+      </dl></dd></dl></p>
+    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
+      <dl>
+      <dt>MEMORY_ERROR</dt>
+          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+      <dt>RANGE_ERROR</dt>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+      <dt>FILE_ERROR</dt>
+          <dd>A system function returns an error.</dd>
+      </dl></dd></dl></p>
+
+<a name="setFileMode"><h3>12.5 setFileMode</h3></a>
+<p>
+    The permissions of a file can changed with <tt>'setFileMode'</tt>:
+</p><pre>
+      <font color=blue>const</font> <font color=red>proc</font>: setFileMode (<font color=blue>in</font> <font color=red>string</font>: filePath, <font color=blue>in</font> <font color=red>fileMode</font>: newFileMode) <font color=blue>is</font> ...
+</pre><p>
+    The type <tt>'<font color=red>fileMode</font>'</tt> is defined as <tt>'<font color=red>set of filePermission</font>'</tt>.
+</p>
+    <p><dl><dt><p>The literal values of <tt>'<font color=red>filePermission</font>'</tt> are:</p></dt><dd>
+      <dl>
+      <dt>EXEC_OTHER</dt>
+          <dd>others have execute permission</dd>
+      <dt>WRITE_OTHER</dt>
+          <dd>others have write permission</dd>
+      <dt>READ_OTHER</dt>
+          <dd>others have read permission</dd>
+      <dt>EXEC_GROUP</dt>
+          <dd>group has execute permission</dd>
+      <dt>WRITE_GROUP</dt>
+          <dd>group has write permission</dd>
+      <dt>READ_GROUP</dt>
+          <dd>group has read permission</dd>
+      <dt>EXEC_USER</dt>
+          <dd>owner has execute permission</dd>
+      <dt>WRITE_USER</dt>
+          <dd>owner has write permission</dd>
+      <dt>READ_USER</dt>
+          <dd>owner has read permission</dd>
+      </dl></dd></dl></p>
+    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
+      <dl>
+      <dt>MEMORY_ERROR</dt>
+          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+      <dt>RANGE_ERROR</dt>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+      <dt>FILE_ERROR</dt>
+          <dd>A system function returns an error.</dd>
+      </dl></dd></dl></p>
+
+<a name="fileSize"><h3>12.6 fileSize</h3></a>
 <p>
     The size of a file can be determined with <tt>'fileSize'</tt> and <tt>'bigFileSize'</tt>:
 </p><pre>
@@ -7497,14 +7578,14 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
-          <dd>FilePath is not representable in the system path type.</dd>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
       <dt>RANGE_ERROR</dt>
           <dd>The file size is not representable as <font color=red>integer</font>.</dd>
       <dt>FILE_ERROR</dt>
           <dd>It was not possible to determine the file size.</dd>
       </dl></dd></dl></p>
 
-<a name="getATime"><h3>12.5 getATime</h3></a>
+<a name="getATime"><h3>12.7 getATime</h3></a>
 <p>
     The access time of a file is returned by the function <tt>'getATime'</tt>:
 </p><pre>
@@ -7515,12 +7596,12 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
-          <dd>FilePath is not representable in the system path type.</dd>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
       <dt>FILE_ERROR</dt>
-          <dd>The system returns an error.</dd>
+          <dd>A system function returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="getCTime"><h3>12.6 getCTime</h3></a>
+<a name="getCTime"><h3>12.8 getCTime</h3></a>
 <p>
     The change time of a file is returned by the function <tt>'getCTime'</tt>:
 </p><pre>
@@ -7531,12 +7612,12 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
-          <dd>FilePath is not representable in the system path type.</dd>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
       <dt>FILE_ERROR</dt>
-          <dd>The system returns an error.</dd>
+          <dd>A system function returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="getMTime"><h3>12.7 getMTime</h3></a>
+<a name="getMTime"><h3>12.9 getMTime</h3></a>
 <p>
     The modification time of a file is returned by the function <tt>'getMTime'</tt>:
 </p><pre>
@@ -7547,12 +7628,12 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
-          <dd>FilePath is not representable in the system path type.</dd>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
       <dt>FILE_ERROR</dt>
-          <dd>The system returns an error.</dd>
+          <dd>A system function returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="setATime"><h3>12.8 setATime</h3></a>
+<a name="setATime"><h3>12.10 setATime</h3></a>
 <p>
     The function <tt>'setATime'</tt> sets the access time of a file:
 </p><pre>
@@ -7563,12 +7644,12 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
-          <dd>FilePath is not representable in the system path type.</dd>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
       <dt>FILE_ERROR</dt>
-          <dd>The system returns an error.</dd>
+          <dd>A system function returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="setMTime"><h3>12.9 setMTime</h3></a>
+<a name="setMTime"><h3>12.11 setMTime</h3></a>
 <p>
     The function <tt>'setMTime'</tt> sets the modification time of a file:
 </p><pre>
@@ -7579,12 +7660,12 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
-          <dd>FilePath is not representable in the system path type.</dd>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
       <dt>FILE_ERROR</dt>
-          <dd>The system returns an error.</dd>
+          <dd>A system function returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="readlink"><h3>12.10 readlink</h3></a>
+<a name="readlink"><h3>12.12 readlink</h3></a>
 <p>
     The function <tt>'readlink'</tt> reads the destination of a symbolic link:
 </p><pre>
@@ -7604,7 +7685,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd>The file described with <tt>'filePath'</tt> does not exist or is not a symbolic link.</dd>
       </dl></dd></dl></p>
 
-<a name="symlink"><h3>12.11 symlink</h3></a>
+<a name="symlink"><h3>12.13 symlink</h3></a>
 <p>
     The function <tt>'symlink'</tt> creates a symbolic link called
     <tt>'dest'</tt> that contains the string referred by <tt>'source'</tt>:
@@ -7628,10 +7709,27 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd><tt>'source'</tt> or <tt>'dest'</tt> is not representable in the
           system path type.</dd>
       <dt>FILE_ERROR</dt>
-          <dd>The system function returns an error.</dd>
+          <dd>A system function returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="removeAnyFile"><h3>12.12 removeAnyFile</h3></a>
+<a name="removeFile"><h3>12.14 removeFile</h3></a>
+<p>
+    The function <tt>'removeFile'</tt> removes a file or
+    empty directory:
+</p><pre>
+      <font color=blue>const</font> <font color=red>proc</font>: removeFile (<font color=blue>in</font> <font color=red>string</font>: filePath) <font color=blue>is</font> ...
+</pre>
+    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
+      <dl>
+      <dt>MEMORY_ERROR</dt>
+          <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
+      <dt>RANGE_ERROR</dt>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+      <dt>FILE_ERROR</dt>
+          <dd>The file does not exist or a system function returns an error.</dd>
+      </dl></dd></dl></p>
+
+<a name="removeAnyFile"><h3>12.15 removeAnyFile</h3></a>
 <p>
     The function <tt>'removeAnyFile'</tt> removes a file independend
     of its file type:
@@ -7643,22 +7741,96 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
-          <dd>FilePath is not representable in the system path type.</dd>
+          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
       <dt>FILE_ERROR</dt>
-          <dd>A system function to remove a file or to read a directory returns an error.</dd>
+          <dd>The file does not exist or a system function returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="Other_functions"><h3>12.13 Other functions</h3></a>
+<a name="copyFile"><h3>12.16 copyFile</h3></a>
 <p>
-    Other functions are:
+    The function <tt>'copyFile'</tt> copies a file or directory
+    tree:
+</p><pre>
+      <font color=blue>const</font> <font color=red>proc</font>: copyFile (<font color=blue>in</font> <font color=red>string</font>: sourcePath, <font color=blue>in</font> <font color=red>string</font>: destPath) <font color=blue>is</font> ...
+</pre><p>
+    Permissions/mode, ownership and timestamps of the destination file are
+    determined undependend of the corresponding source properties.
+    The destination file gets the permissions/mode defined by umask.
+    The user executing the program is the owner of the destination file.
+    The timestamps of the destination file are set to the current time.
+    Symbolic links in sourcePath are always followed.
+    Therefore <tt>'copyFile'</tt> will never create a symbolic link.
+    Note that the cloneFile does not preserve hard
+    links (they are resolved to distinct files).
 </p>
-<pre>
-    remove(<font color=maroon>"file"</font>);
-    rename(<font color=maroon>"old_name"</font>, <font color=maroon>"new_name"</font>);
-    copy(<font color=maroon>"from"</font>, <font color=maroon>"to"</font>);
-</pre>
+    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
+      <dl>
+      <dt>MEMORY_ERROR</dt>
+          <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
+              to the system path type.</dd>
+      <dt>RANGE_ERROR</dt>
+          <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
+              system path type.</dd>
+      <dt>FILE_ERROR</dt>
+          <dd>Source file does not exist, destination file already exists or
+              a system function returns an error.</dd>
+      </dl></dd></dl></p>
 
-<a name="argv"><h3>12.14 argv</h3></a>
+<a name="cloneFile"><h3>12.17 cloneFile</h3></a>
+<p>
+    The function <tt>'cloneFile'</tt> clones a file or directory
+    tree:
+</p><pre>
+      <font color=blue>const</font> <font color=red>proc</font>: cloneFile (<font color=blue>in</font> <font color=red>string</font>: sourcePath, <font color=blue>in</font> <font color=red>string</font>: destPath) <font color=blue>is</font> ...
+</pre><p>
+    Permissions/mode, ownership and timestamps of the original are
+    preserved. Symlinks are not followed. Instead the symlink
+    is copied. Note that the cloneFile does not preserve hard
+    links (they are resolved to distinct files).</p>
+    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
+      <dl>
+      <dt>MEMORY_ERROR</dt>
+          <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
+              to the system path type.</dd>
+      <dt>RANGE_ERROR</dt>
+          <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
+              system path type.</dd>
+      <dt>FILE_ERROR</dt>
+          <dd>Source file does not exist, destination file already exists or
+              a system function returns an error.</dd>
+      </dl></dd></dl></p>
+
+<a name="moveFile"><h3>12.18 moveFile</h3></a>
+<p>
+    The function <tt>'moveFile'</tt> moves and/or renames a
+    file or directory tree:
+</p><pre>
+      <font color=blue>const</font> <font color=red>proc</font>: moveFile (<font color=blue>in</font> <font color=red>string</font>: sourcePath, <font color=blue>in</font> <font color=red>string</font>: destPath) <font color=blue>is</font> ...
+</pre><p>
+    The function uses the C <tt>'rename()'</tt> function.
+    When <tt>'rename()'</tt> fails the file (or directory tree)
+    is cloned with <tt>'cloneFile'</tt> (which preserves
+    permissions/mode, ownership and timestamps) to the new place
+    and with the new name. When <tt>'cloneFile'</tt> succeeds
+    the original file is deleted. When <tt>'cloneFile'</tt> fails (no space on
+    device or other reason) all remains of the failed clone are
+    removed. Note that <tt>'cloneFile'</tt> works for
+    symbolic links but does not preserve hard links (they are
+    resolved to distinct files).</p>
+    <p><dl><dt><p>Possible exceptions:</p></dt><dd>
+      <dl>
+      <dt>MEMORY_ERROR</dt>
+          <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
+              to the system path type.</dd>
+      <dt>RANGE_ERROR</dt>
+          <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
+              system path type.</dd>
+      <dt>FILE_ERROR</dt>
+          <dd>Source file does not exist, destination file already exists or
+              a system function returns an error.</dd>
+      </dl></dd></dl></p>
+
+<a name="argv"><h3>12.19 argv</h3></a>
 <p>
     The function <tt>'argv(PROGRAM)'</tt> returns the argument
     vector of the program as array of strings.
@@ -7669,7 +7841,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       An array of strings containing the argument vector.
       </dd></dl></p>
 
-<a name="getenv"><h3>12.15 getenv</h3></a>
+<a name="getenv"><h3>12.20 getenv</h3></a>
 <p>
     The function <tt>'getenv'</tt> determines the value of an
     environment variable.
@@ -8153,6 +8325,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>CMD_CLONE_FILE</td>      <td>cmd_clone_file</td>      <td>cmdCloneFile</td></tr>
     <tr><td>CMD_CONFIG_VALUE</td>    <td>cmd_config_value</td>    <td>cmdConfigValue</td></tr>
     <tr><td>CMD_COPY_FILE</td>       <td>cmd_copy_file</td>       <td>cmdCopyFile</td></tr>
+    <tr><td>CMD_FILEMODE</td>        <td>cmd_filemode</td>        <td>cmdFileMode</td></tr>
     <tr><td>CMD_FILESIZE</td>        <td>cmd_filesize</td>        <td>cmdFileSize</td></tr>
     <tr><td>CMD_FILETYPE</td>        <td>cmd_filetype</td>        <td>cmdFileType</td></tr>
     <tr><td>CMD_FILETYPE_SL</td>     <td>cmd_filetype_sl</td>     <td>cmdFileTypeSL</td></tr>
@@ -8167,6 +8340,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>CMD_REMOVE</td>          <td>cmd_remove</td>          <td>cmdRemove</td></tr>
     <tr><td>CMD_REMOVE_ANY_FILE</td> <td>cmd_remove_any_file</td> <td>cmdRemoveAnyFile</td></tr>
     <tr><td>CMD_SET_ATIME</td>       <td>cmd_set_atime</td>       <td>cmdSetATime</td></tr>
+    <tr><td>CMD_SET_FILEMODE</td>    <td>cmd_set_filemode</td>    <td>cmdSetFileMode</td></tr>
     <tr><td>CMD_SET_MTIME</td>       <td>cmd_set_mtime</td>       <td>cmdSetMTime</td></tr>
     <tr><td>CMD_SHELL</td>           <td>cmd_shell</td>           <td>cmdShell</td></tr>
     <tr><td>CMD_SYMLINK</td>         <td>cmd_symlink</td>         <td>cmdSymlink</td></tr>
@@ -8221,6 +8395,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DRW_NE</td>              <td>drw_ne</td>              <td>!=</td></tr>
     <tr><td>DRW_NEW_PIXMAP</td>      <td>drw_new_pixmap</td>      <td>drwNewPixmap</td></tr>
     <tr><td>DRW_OPEN</td>            <td>drw_open</td>            <td>drwOpen</td></tr>
+    <tr><td>DRW_OPEN_SUB_WINDOW</td> <td>drw_open_sub_window</td> <td>drwOpenSubWindow</td></tr>
     <tr><td>DRW_PARC</td>            <td>drw_parc</td>            <td>drwPArc</td></tr>
     <tr><td>DRW_PCIRCLE</td>         <td>drw_pcircle</td>         <td>drwPCircle</td></tr>
     <tr><td>DRW_PFARCCHORD</td>      <td>drw_pfarcchord</td>      <td>drwPFArcChord</td></tr>
@@ -8229,17 +8404,20 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DRW_PFELLIPSE</td>       <td>drw_pfellipse</td>       <td>drwPFEllipse</td></tr>
     <tr><td>DRW_PLINE</td>           <td>drw_pline</td>           <td>drwPLine</td></tr>
     <tr><td>DRW_POINT</td>           <td>drw_point</td>           <td>drwPoint</td></tr>
+    <tr><td>DRW_POINTER_XPOS</td>    <td>drw_pointer_xpos</td>    <td>drwPointerXpos</td></tr>
+    <tr><td>DRW_POINTER_YPOS</td>    <td>drw_pointer_ypos</td>    <td>drwPointerYpos</td></tr>
     <tr><td>DRW_POLYLINE</td>        <td>drw_polyLine</td>        <td>drwPolyLine</td></tr>
     <tr><td>DRW_PPOINT</td>          <td>drw_ppoint</td>          <td>drwPPoint</td></tr>
     <tr><td>DRW_PRECT</td>           <td>drw_prect</td>           <td>drwPRect</td></tr>
     <tr><td>DRW_PUT</td>             <td>drw_put</td>             <td>drwPut</td></tr>
     <tr><td>DRW_RECT</td>            <td>drw_rect</td>            <td>drwRect</td></tr>
     <tr><td>DRW_RGBCOL</td>          <td>drw_rgbcol</td>          <td>drwRgbColor</td></tr>
-    <tr><td>DRW_ROT</td>             <td>drw_rot</td>             <td></td></tr>
-    <tr><td>DRW_SCALE</td>           <td>drw_scale</td>           <td></td></tr>
+    <tr><td>DRW_SETPOS</td>          <td>drw_setPos</td>          <td>drwSetPos</td></tr>
     <tr><td>DRW_SETTRANSPARENTCOLOR</td> <td>drw_setTransparentColor</td> <td>drwSetTransparentColor</td></tr>
     <tr><td>DRW_TEXT</td>            <td>drw_text</td>            <td>drwText</td></tr>
     <tr><td>DRW_WIDTH</td>           <td>drw_width</td>           <td>drwWidth</td></tr>
+    <tr><td>DRW_XPOS</td>            <td>drw_xpos</td>            <td>drwXPos</td></tr>
+    <tr><td>DRW_YPOS</td>            <td>drw_ypos</td>            <td>drwYPos</td></tr>
 </table><p></p>
 <a name="enumeration"><h3>13.10 Actions for enumeration types</h3></a>
 <p></p><table border="1">
@@ -8706,7 +8884,6 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>STR_CHSPLIT</td>         <td>str_chsplit</td>         <td>strChSplit</td></tr>
     <tr><td>STR_CLIT</td>            <td>str_clit</td>            <td>strCLit</td></tr>
     <tr><td>STR_CMP</td>             <td>str_cmp</td>             <td>strCompare</td></tr>
-    <tr><td>STR_CNT</td>             <td>act_illegal</td>         <td></td></tr>
     <tr><td>STR_CPY</td>             <td>str_cpy</td>             <td>strCopy</td></tr>
     <tr><td>STR_CREATE</td>          <td>str_create</td>          <td>strCreate</td></tr>
     <tr><td>STR_DESTR</td>           <td>str_destr</td>           <td>strDestr</td></tr>
@@ -8729,6 +8906,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>STR_MULT</td>            <td>str_mult</td>            <td>strMult</td></tr>
     <tr><td>STR_NE</td>              <td>str_ne</td>              <td>a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(strelemtype))==0</td></tr>
     <tr><td>STR_POS</td>             <td>str_pos</td>             <td>strPos</td></tr>
+    <tr><td>STR_PUSH</td>            <td>str_push</td>            <td>strPush</td></tr>
     <tr><td>STR_RANGE</td>           <td>str_range</td>           <td>strRange</td></tr>
     <tr><td>STR_RCHPOS</td>          <td>str_rchpos</td>          <td>strRChPos</td></tr>
     <tr><td>STR_REPL</td>            <td>str_repl</td>            <td>strRepl</td></tr>
@@ -8748,7 +8926,9 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>timlib.c function</td>   <td>tim_unx.c/tim_win.c function</td></tr>
     <tr><td>TIM_AWAIT</td>           <td>tim_await</td>           <td>timAwait</td></tr>
+    <tr><td>TIM_FROM_TIMESTAMP</td>  <td>tim_from_timestamp</td>  <td>timFromTimestamp</td></tr>
     <tr><td>TIM_NOW</td>             <td>tim_now</td>             <td>timNow</td></tr>
+    <tr><td>TIM_SET_LOCAL_TZ</td>    <td>tim_set_local_tz</td>    <td>timSetLocalTZ</td></tr>
 </table><p></p>
 <a name="type"><h3>13.29 Actions for the type type</h3></a>
 <p></p><table border="1">
@@ -8863,37 +9043,40 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   There are various exceptions which can be raised during
   program execution:
 </p><dl><dt>
-    MEMORY_ERROR:</dt><dd>
-      May be raised by various operations of the following types:
-          <font color=red>array</font>, <font color=red>struct</font>, <font color=red>hash</font>, <font color=red>file</font>, <font color=red>func</font>, <font color=red>proc</font>, <font color=red>reference</font>, <font color=red>string</font>.
-      Additionally the interpreter kernel may raise this exception also.</dd><dt>
-    NUMERIC_ERROR:</dt><dd>
-      May be raised from the following <tt>'<font color=red>integer</font>'</tt> operations:
-          !, **, <font color=blue>div</font>, <font color=blue>rem</font>, <font color=blue>mdiv</font>, <font color=blue>mod</font>, ld.
-      May be raised from the following <tt>'<font color=red>bigInteger</font>'</tt> operations:
-          **, <font color=blue>div</font>, <font color=blue>rem</font>, <font color=blue>mdiv</font>, <font color=blue>mod</font>.</dd><dt>
-    RANGE_ERROR:</dt><dd>
-      May be raised from the following <tt>'<font color=red>integer</font>'</tt> operation:
-          <font color=blue>parse</font>, rand.
-      May be raised from the following <tt>'<font color=red>bigInteger</font>'</tt> operation:
-          <font color=blue>parse</font>, rand.
-      May be raised from the following <tt>'<font color=red>float</font>'</tt> operation:
-          <font color=blue>parse</font>, rand.
-      May be raised from the following <tt>'<font color=red>char</font>'</tt> operation:
-          str.
-      May be raised from the following <tt>'<font color=red>string</font>'</tt> operation:
-          @:=, <font color=blue>mult</font>, pos.
-      May be raised from the following <tt>'<font color=red>bitset</font>'</tt> operation:
-          min, max, rand.
-      May be raised from the following <tt>'<font color=red>array</font>'</tt> operation:
-          [ ].
-      May be raised from the following <tt>'<font color=red>hash</font>'</tt> operation:
-          [ ].
-      May be raised from the following <tt>'<font color=red>file</font>'</tt> operation:
-          open, gets, write, seek.</dd><dt>
-    IO_ERROR:</dt><dd>
-      May be raised with the following statement:
-          cp</dd><dt>
+    MEMORY_ERROR:</dt><dd><dl><dt>
+      May be raised by various operations of the following types:</dt><dd>
+          <font color=red>array</font>, <font color=red>struct</font>, <font color=red>hash</font>, <font color=red>file</font>, <font color=red>func</font>, <font color=red>proc</font>, <font color=red>reference</font>, <font color=red>string</font>.</dd><dt>
+      Additionally the interpreter kernel may raise this exception also.</dd><dt></dl></dd><dt>
+    NUMERIC_ERROR:</dt><dd><dl><dt>
+      May be raised from the following <tt>'<font color=red>integer</font>'</tt> operations:</dt><dd>
+          !, **, <font color=blue>div</font>, <font color=blue>rem</font>, <font color=blue>mdiv</font>, <font color=blue>mod</font>, ld.</dd><dt>
+      May be raised from the following <tt>'<font color=red>bigInteger</font>'</tt> operations:</dt><dd>
+          **, <font color=blue>div</font>, <font color=blue>rem</font>, <font color=blue>mdiv</font>, <font color=blue>mod</font>.</dd><dt></dl></dd><dt>
+    RANGE_ERROR:</dt><dd><dl><dt>
+      May be raised from the following <tt>'<font color=red>integer</font>'</tt> operation:</dt><dd>
+          <font color=blue>parse</font>, rand.</dd><dt>
+      May be raised from the following <tt>'<font color=red>bigInteger</font>'</tt> operation:</dt><dd>
+          <font color=blue>parse</font>, rand.</dd><dt>
+      May be raised from the following <tt>'<font color=red>float</font>'</tt> operation:</dt><dd>
+          <font color=blue>parse</font>, rand.</dd><dt>
+      May be raised from the following <tt>'<font color=red>char</font>'</tt> operation:</dt><dd>
+          str.</dd><dt>
+      May be raised from the following <tt>'<font color=red>string</font>'</tt> operation:</dt><dd>
+          @:=, <font color=blue>mult</font>, pos.</dd><dt>
+      May be raised from the following <tt>'<font color=red>bitset</font>'</tt> operation:</dt><dd>
+          min, max, rand.</dd><dt>
+      May be raised from the following <tt>'<font color=red>array</font>'</tt> operation:</dt><dd>
+          [ ].</dd><dt>
+      May be raised from the following <tt>'<font color=red>hash</font>'</tt> operation:</dt><dd>
+          [ ].</dd><dt>
+      May be raised from the following <tt>'<font color=red>file</font>'</tt> operation:</dt><dd>
+          open, gets, write, seek.</dd><dt></dl></dd><dt>
+    FILE_ERROR:</dt><dd><dl><dt>
+      May be raised by the following functions:</dt><dd>
+          fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,
+          read_dir, remove, removeAnyFile, rename, cloneFile, copyFile,
+          readlink, symlink, hasNext, seek, tell, bigTell, setbuf, write,
+          inetSocketAddress, openInetSocket, openInetListener</dd><dt></dl></dd><dt>
     ILLEGAL_ACTION:</dt><dd>
       May be raised by the interpreter kernel when a primitive action
       does not point to any legal action. This check is only done when

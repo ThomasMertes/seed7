@@ -54,19 +54,12 @@ acttype anAction;
 #endif
 
   {
-    const_cstritype stri;
-    memsizetype len;
     stritype result;
 
   /* actStr */
-    stri = get_primact(anAction)->name;
-    len = (memsizetype) strlen(stri);
-    if (!ALLOC_STRI(result, len)) {
+    result = cstri_to_stri(get_primact(anAction)->name);
+    if (result == NULL) {
       raise_error(MEMORY_ERROR);
-      result = NULL;
-    } else {
-      result->size = len;
-      cstri_expand(result->mem, stri, (size_t) len);
     } /* if */
     return(result);
   } /* actStr */

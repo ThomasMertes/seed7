@@ -652,7 +652,6 @@ filetype aFile;
 
   {
     const_cstritype file_name;
-    memsizetype length;
     stritype result;
 
   /* filLit */
@@ -667,15 +666,11 @@ filetype aFile;
     } else {
       file_name = "file";
     } /* if */
-    length = strlen(file_name);
-    if (!ALLOC_STRI(result, length)) {
+    result = cstri_to_stri(file_name);
+    if (result == NULL) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
-      result->size = length;
-      cstri_expand(result->mem, file_name, length);
-      return(result);
     } /* if */
+    return(result);
   } /* filLit */
 
 

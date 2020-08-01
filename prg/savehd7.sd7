@@ -399,7 +399,9 @@ const func boolean: confirmSave (inout stateType: state) is func
                     state.stateFileName);
                 confirmed := FALSE;
               else
-                remove(logFileName);
+                if fileType(logFileName) = FILE_REGULAR then
+                  removeFile(logFileName);
+                end if;
                 state.phase := COPY;
               end if;
             end if;

@@ -35,6 +35,7 @@ extern const_cstritype cstri_escape_sequence[];
 #define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, compr_size(stri));
 #define free_wstri(wstri,stri) free(wstri);
 #define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
+#define cstri0_expand(stri,cstri) ustri0_expand(stri, (const_ustritype) cstri)
 
 #ifdef OS_PATH_WCHAR
 typedef wchar_t          os_chartype;
@@ -59,9 +60,9 @@ typedef cstritype        os_stritype;
 
 #ifdef ANSI_C
 
-memsizetype stri_to_utf8 (ustritype, const_stritype);
 memsizetype utf8_to_stri (strelemtype *, memsizetype *, const_ustritype, size_t);
 memsizetype utf8_bytes_missing (const_ustritype, size_t);
+void ustri0_expand (strelemtype *stri, const_ustritype ustri);
 cstritype cp_to_cstri (const_stritype);
 os_stritype cp_to_os_path (const_stritype, errinfotype *);
 bstritype stri_to_bstri (const_stritype);
@@ -74,9 +75,9 @@ os_stritype cp_to_command (stritype, errinfotype *);
 
 #else
 
-memsizetype stri_to_utf8 ();
 memsizetype utf8_to_stri ();
 memsizetype utf8_bytes_missing ();
+void ustri0_expand ();
 cstritype cp_to_cstri ();
 os_stritype cp_to_os_path ();
 bstritype stri_to_bstri ();
@@ -94,12 +95,14 @@ os_stritype cp_to_command ();
 
 #ifdef ANSI_C
 
-void stri_export (ustritype, const_stritype);
-void ustri_expand (strelemtype *, const_ustritype, size_t);
-void stri_compress (ustritype, const strelemtype *, size_t);
+memsizetype stri_to_utf8 (ustritype, const_stritype);
+void stri_export (ustritype out_stri, const_stritype in_stri);
+void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len);
+void stri_compress (ustritype ustri, const strelemtype *stri, size_t len);
 
 #else
 
+memsizetype stri_to_utf8 ();
 void stri_export ();
 void ustri_expand ();
 void stri_compress ();

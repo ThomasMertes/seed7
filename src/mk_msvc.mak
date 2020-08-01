@@ -147,6 +147,7 @@ version.h:
 	echo #undef  INCL_CURSES_BEFORE_TERM >> version.h
 	echo #define INCLUDE_SYS_UTIME >> version.h
 	echo #define ISNAN_WITH_UNDERLINE >> version.h
+	echo #define REMOVE_FAILS_FOR_EMPTY_DIRS >> version.h
 	echo #define CHECK_INT_DIV_BY_ZERO >> version.h
 	echo #define FLOAT_ZERO_DIV_ERROR >> version.h
 	echo #define USE_MYUNISTD_H >> version.h

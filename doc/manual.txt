@@ -130,18 +130,20 @@ CONTENTS
   12.1    Directory access
   12.2    Other directory operations
   12.3    fileType
-  12.4    fileSize
-  12.5    getATime
-  12.6    getCTime
-  12.7    getMTime
-  12.8    setATime
-  12.9    setMTime
-  12.10   readlink
-  12.11   symlink
-  12.12   removeAnyFile
-  12.13   Other functions
-  12.14   argv
-  12.15   getenv
+  12.4    fileMode
+  12.5    setFileMode
+  12.6    fileSize
+  12.7    getATime
+  12.8    getCTime
+  12.9    getMTime
+  12.10   setATime
+  12.11   setMTime
+  12.12   readlink
+  12.13   symlink
+  12.14   removeAnyFile
+  12.15   Other functions
+  12.16   argv
+  12.17   getenv
   13.   PRIMITIVE ACTIONS
   13.1    Actions for the type ACTION
   13.2    Actions for array types
@@ -7473,12 +7475,91 @@ ont color=blue>is "";
       MEMORY_ERROR
           Not enough memory to convert 'filePath' to the system path type.
       RANGE_ERROR
-          FilePath is not representable in the system path type.
+          'filePath' is not representable in the system path type.
       FILE_ERROR
-          The system returns an error other than ENOENT.
+          The system function returns an error other than ENOENT.
       
 
-12.4 fileSize
+12.4 fileMode
+
+    The permissions of a file can determined with 'fileMode':
+
+      const func fileMode: fileMode (in string: filePath) is ...
+
+    Returns:
+      The 'fileMode' which is defined as 'set of filePermission'.
+      
+    The literal values of 'filePermission' are:
+      
+      EXEC_OTHER
+          others have execute permission
+      WRITE_OTHER
+          others have write permission
+      READ_OTHER
+          others have read permission
+      EXEC_GROUP
+          group has execute permission
+      WRITE_GROUP
+          group has write permission
+      READ_GROUP
+          group has read permission
+      EXEC_USER
+          owner has execute permission
+      WRITE_USER
+          owner has write permission
+      READ_USER
+          owner has read permission
+      
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type.
+      RANGE_ERROR
+          'filePath' is not representable in the system path type.
+      FILE_ERROR
+          A system function returns an error.
+      
+
+12.5 setFileMode
+
+    The permissions of a file can changed with 'setFileMode':
+
+      const proc: setFileMode (in string: filePath, in fileMode: newFileMode) is ...
+
+    The type 'fileMode' is defined as 'set of filePermission'.
+
+    The literal values of 'filePermission' are:
+      
+      EXEC_OTHER
+          others have execute permission
+      WRITE_OTHER
+          others have write permission
+      READ_OTHER
+          others have read permission
+      EXEC_GROUP
+          group has execute permission
+      WRITE_GROUP
+          group has write permission
+      READ_GROUP
+          group has read permission
+      EXEC_USER
+          owner has execute permission
+      WRITE_USER
+          owner has write permission
+      READ_USER
+          owner has read permission
+      
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type.
+      RANGE_ERROR
+          'filePath' is not representable in the system path type.
+      FILE_ERROR
+          A system function returns an error.
+      
+
+12.6 fileSize
 
     The size of a file can be determined with 'fileSize' and 'bigFileSize':
 
@@ -7497,14 +7578,14 @@ ont color=blue>is "";
       MEMORY_ERROR
           Not enough memory to convert 'filePath' to the system path type.
       RANGE_ERROR
-          FilePath is not representable in the system path type.
+          'filePath' is not representable in the system path type.
       RANGE_ERROR
           The file size is not representable as integer.
       FILE_ERROR
           It was not possible to determine the file size.
       
 
-12.5 getATime
+12.7 getATime
 
     The access time of a file is returned by the function 'getATime':
 
@@ -7515,12 +7596,12 @@ ont color=blue>is "";
       MEMORY_ERROR
           Not enough memory to convert 'filePath' to the system path type.
       RANGE_ERROR
-          FilePath is not representable in the system path type.
+          'filePath' is not representable in the system path type.
       FILE_ERROR
-          The system returns an error.
+          A system function returns an error.
       
 
-12.6 getCTime
+12.8 getCTime
 
     The change time of a file is returned by the function 'getCTime':
 
@@ -7531,12 +7612,12 @@ ont color=blue>is "";
       MEMORY_ERROR
           Not enough memory to convert 'filePath' to the system path type.
       RANGE_ERROR
-          FilePath is not representable in the system path type.
+          'filePath' is not representable in the system path type.
       FILE_ERROR
-          The system returns an error.
+          A system function returns an error.
       
 
-12.7 getMTime
+12.9 getMTime
 
     The modification time of a file is returned by the function 'getMTime':
 
@@ -7547,12 +7628,12 @@ ont color=blue>is "";
       MEMORY_ERROR
           Not enough memory to convert 'filePath' to the system path type.
       RANGE_ERROR
-          FilePath is not representable in the system path type.
+          'filePath' is not representable in the system path type.
       FILE_ERROR
-          The system returns an error.
+          A system function returns an error.
       
 
-12.8 setATime
+12.10 setATime
 
     The function 'setATime' sets the access time of a file:
 
@@ -7563,12 +7644,12 @@ ont color=blue>is "";
       MEMORY_ERROR
           Not enough memory to convert 'filePath' to the system path type.
       RANGE_ERROR
-          FilePath is not representable in the system path type.
+          'filePath' is not representable in the system path type.
       FILE_ERROR
-          The system returns an error.
+          A system function returns an error.
       
 
-12.9 setMTime
+12.11 setMTime
 
     The function 'setMTime' sets the modification time of a file:
 
@@ -7579,12 +7660,12 @@ ont color=blue>is "";
       MEMORY_ERROR
           Not enough memory to convert 'filePath' to the system path type.
       RANGE_ERROR
-          FilePath is not representable in the system path type.
+          'filePath' is not representable in the system path type.
       FILE_ERROR
-          The system returns an error.
+          A system function returns an error.
       
 
-12.10 readlink
+12.12 readlink
 
     The function 'readlink' reads the destination of a symbolic link:
 
@@ -7604,7 +7685,7 @@ ont color=blue>is "";
           The file described with 'filePath' does not exist or is not a symbolic link.
       
 
-12.11 symlink
+12.13 symlink
 
     The function 'symlink' creates a symbolic link called
     'dest' that contains the string referred by 'source':
@@ -7628,10 +7709,27 @@ ont color=blue>is "";
           'source' or 'dest' is not representable in the
           system path type.
       FILE_ERROR
-          The system function returns an error.
+          A system function returns an error.
       
 
-12.12 removeAnyFile
+12.14 removeFile
+
+    The function 'removeFile' removes a file or
+    empty directory:
+
+      const proc: removeFile (in string: filePath) is ...
+
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'filePath' to the system path type.
+      RANGE_ERROR
+          'filePath' is not representable in the system path type.
+      FILE_ERROR
+          The file does not exist or a system function returns an error.
+      
+
+12.15 removeAnyFile
 
     The function 'removeAnyFile' removes a file independend
     of its file type:
@@ -7643,22 +7741,96 @@ ont color=blue>is "";
       MEMORY_ERROR
           Not enough memory to convert 'filePath' to the system path type.
       RANGE_ERROR
-          FilePath is not representable in the system path type.
+          'filePath' is not representable in the system path type.
       FILE_ERROR
-          A system function to remove a file or to read a directory returns an error.
+          The file does not exist or a system function returns an error.
       
 
-12.13 Other functions
+12.16 copyFile
 
-    Other functions are:
+    The function 'copyFile' copies a file or directory
+    tree:
 
+      const proc: copyFile (in string: sourcePath, in string: destPath) is ...
 
-    remove("file");
-    rename("old_name", "new_name");
-    copy("from", "to");
+    Permissions/mode, ownership and timestamps of the destination file are
+    determined undependend of the corresponding source properties.
+    The destination file gets the permissions/mode defined by umask.
+    The user executing the program is the owner of the destination file.
+    The timestamps of the destination file are set to the current time.
+    Symbolic links in sourcePath are always followed.
+    Therefore 'copyFile' will never create a symbolic link.
+    Note that the cloneFile does not preserve hard
+    links (they are resolved to distinct files).
 
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'sourcePath' or 'destPath'
+              to the system path type.
+      RANGE_ERROR
+          'sourcePath' or 'destPath' is not representable in the
+              system path type.
+      FILE_ERROR
+          Source file does not exist, destination file already exists or
+              a system function returns an error.
+      
 
-12.14 argv
+12.17 cloneFile
+
+    The function 'cloneFile' clones a file or directory
+    tree:
+
+      const proc: cloneFile (in string: sourcePath, in string: destPath) is ...
+
+    Permissions/mode, ownership and timestamps of the original are
+    preserved. Symlinks are not followed. Instead the symlink
+    is copied. Note that the cloneFile does not preserve hard
+    links (they are resolved to distinct files).
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'sourcePath' or 'destPath'
+              to the system path type.
+      RANGE_ERROR
+          'sourcePath' or 'destPath' is not representable in the
+              system path type.
+      FILE_ERROR
+          Source file does not exist, destination file already exists or
+              a system function returns an error.
+      
+
+12.18 moveFile
+
+    The function 'moveFile' moves and/or renames a
+    file or directory tree:
+
+      const proc: moveFile (in string: sourcePath, in string: destPath) is ...
+
+    The function uses the C 'rename()' function.
+    When 'rename()' fails the file (or directory tree)
+    is cloned with 'cloneFile' (which preserves
+    permissions/mode, ownership and timestamps) to the new place
+    and with the new name. When 'cloneFile' succeeds
+    the original file is deleted. When 'cloneFile' fails (no space on
+    device or other reason) all remains of the failed clone are
+    removed. Note that 'cloneFile' works for
+    symbolic links but does not preserve hard links (they are
+    resolved to distinct files).
+    Possible exceptions:
+      
+      MEMORY_ERROR
+          Not enough memory to convert 'sourcePath' or 'destPath'
+              to the system path type.
+      RANGE_ERROR
+          'sourcePath' or 'destPath' is not representable in the
+              system path type.
+      FILE_ERROR
+          Source file does not exist, destination file already exists or
+              a system function returns an error.
+      
+
+12.19 argv
 
     The function 'argv(PROGRAM)' returns the argument
     vector of the program as array of strings.
@@ -7669,7 +7841,7 @@ ont color=blue>is "";
       An array of strings containing the argument vector.
       
 
-12.15 getenv
+12.20 getenv
 
     The function 'getenv' determines the value of an
     environment variable.
@@ -8153,6 +8325,7 @@ ont color=blue>is "";
     CMD_CLONE_FILE      cmd_clone_file      cmdCloneFile
     CMD_CONFIG_VALUE    cmd_config_value    cmdConfigValue
     CMD_COPY_FILE       cmd_copy_file       cmdCopyFile
+    CMD_FILEMODE        cmd_filemode        cmdFileMode
     CMD_FILESIZE        cmd_filesize        cmdFileSize
     CMD_FILETYPE        cmd_filetype        cmdFileType
     CMD_FILETYPE_SL     cmd_filetype_sl     cmdFileTypeSL
@@ -8167,6 +8340,7 @@ ont color=blue>is "";
     CMD_REMOVE          cmd_remove          cmdRemove
     CMD_REMOVE_ANY_FILE cmd_remove_any_file cmdRemoveAnyFile
     CMD_SET_ATIME       cmd_set_atime       cmdSetATime
+    CMD_SET_FILEMODE    cmd_set_filemode    cmdSetFileMode
     CMD_SET_MTIME       cmd_set_mtime       cmdSetMTime
     CMD_SHELL           cmd_shell           cmdShell
     CMD_SYMLINK         cmd_symlink         cmdSymlink
@@ -8221,6 +8395,7 @@ ont color=blue>is "";
     DRW_NE              drw_ne              !=
     DRW_NEW_PIXMAP      drw_new_pixmap      drwNewPixmap
     DRW_OPEN            drw_open            drwOpen
+    DRW_OPEN_SUB_WINDOW drw_open_sub_window drwOpenSubWindow
     DRW_PARC            drw_parc            drwPArc
     DRW_PCIRCLE         drw_pcircle         drwPCircle
     DRW_PFARCCHORD      drw_pfarcchord      drwPFArcChord
@@ -8229,17 +8404,20 @@ ont color=blue>is "";
     DRW_PFELLIPSE       drw_pfellipse       drwPFEllipse
     DRW_PLINE           drw_pline           drwPLine
     DRW_POINT           drw_point           drwPoint
+    DRW_POINTER_XPOS    drw_pointer_xpos    drwPointerXpos
+    DRW_POINTER_YPOS    drw_pointer_ypos    drwPointerYpos
     DRW_POLYLINE        drw_polyLine        drwPolyLine
     DRW_PPOINT          drw_ppoint          drwPPoint
     DRW_PRECT           drw_prect           drwPRect
     DRW_PUT             drw_put             drwPut
     DRW_RECT            drw_rect            drwRect
     DRW_RGBCOL          drw_rgbcol          drwRgbColor
-    DRW_ROT             drw_rot             
-    DRW_SCALE           drw_scale           
+    DRW_SETPOS          drw_setPos          drwSetPos
     DRW_SETTRANSPARENTCOLOR drw_setTransparentColor drwSetTransparentColor
     DRW_TEXT            drw_text            drwText
     DRW_WIDTH           drw_width           drwWidth
+    DRW_XPOS            drw_xpos            drwXPos
+    DRW_YPOS            drw_ypos            drwYPos
 
 13.10 Actions for enumeration types
 
@@ -8706,7 +8884,6 @@ ont color=blue>is "";
     STR_CHSPLIT         str_chsplit         strChSplit
     STR_CLIT            str_clit            strCLit
     STR_CMP             str_cmp             strCompare
-    STR_CNT             act_illegal         
     STR_CPY             str_cpy             strCopy
     STR_CREATE          str_create          strCreate
     STR_DESTR           str_destr           strDestr
@@ -8729,6 +8906,7 @@ ont color=blue>is "";
     STR_MULT            str_mult            strMult
     STR_NE              str_ne              a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(strelemtype))==0
     STR_POS             str_pos             strPos
+    STR_PUSH            str_push            strPush
     STR_RANGE           str_range           strRange
     STR_RCHPOS          str_rchpos          strRChPos
     STR_REPL            str_repl            strRepl
@@ -8748,7 +8926,9 @@ ont color=blue>is "";
 
     Action name         timlib.c function   tim_unx.c/tim_win.c function
     TIM_AWAIT           tim_await           timAwait
+    TIM_FROM_TIMESTAMP  tim_from_timestamp  timFromTimestamp
     TIM_NOW             tim_now             timNow
+    TIM_SET_LOCAL_TZ    tim_set_local_tz    timSetLocalTZ
 
 13.29 Actions for the type type
 
@@ -8891,9 +9071,12 @@ ont color=blue>is "";
           [ ].
       May be raised from the following 'file' operation:
           open, gets, write, seek.
-    IO_ERROR:
-      May be raised with the following statement:
-          cp
+    FILE_ERROR:
+      May be raised by the following functions:
+          fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,
+          read_dir, remove, removeAnyFile, rename, cloneFile, copyFile,
+          readlink, symlink, hasNext, seek, tell, bigTell, setbuf, write,
+          inetSocketAddress, openInetSocket, openInetListener
     ILLEGAL_ACTION:
       May be raised by the interpreter kernel when a primitive action
       does not point to any legal action. This check is only done when

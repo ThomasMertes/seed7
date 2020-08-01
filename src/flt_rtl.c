@@ -220,15 +220,11 @@ inttype digits_precision;
         } /* if */
       } /* if */
     } /* if */
-    len = strlen(buffer_ptr);
-    if (!ALLOC_STRI(result, len)) {
+    result = cstri_to_stri(buffer_ptr);
+    if (result == NULL) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
-      result->size = len;
-      cstri_expand(result->mem, buffer_ptr, len);
-      return(result);
     } /* if */
+    return(result);
   } /* fltDgts */
 
 

@@ -164,6 +164,8 @@ static primactrecord prim_act_table[] = {
     { "BST_CREATE",          bst_create,          },
     { "BST_DESTR",           bst_destr,           },
     { "BST_EMPTY",           bst_empty,           },
+    { "BST_LNG",             bst_lng,             },
+    { "BST_VALUE",           bst_value,           },
 
     { "CHR_CHR",             chr_chr,             },
     { "CHR_CLIT",            chr_clit,            },

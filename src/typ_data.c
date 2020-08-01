@@ -367,7 +367,6 @@ typetype type_arg;
 
   {
     const_cstritype stri;
-    memsizetype len;
     stritype result;
 
   /* typStr */
@@ -379,15 +378,11 @@ typetype type_arg;
     } else {
       stri = "*ANONYM_TYPE*";
     } /* if */
-    len = (memsizetype) strlen(stri);
-    if (!ALLOC_STRI(result, len)) {
+    result = cstri_to_stri(stri);
+    if (result == NULL) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
-      result->size = len;
-      cstri_expand(result->mem, stri, (size_t) len);
-      return(result);
     } /* if */
+    return(result);
   } /* typStr */
 
 

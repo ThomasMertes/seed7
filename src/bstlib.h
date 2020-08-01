@@ -33,6 +33,8 @@ objecttype bst_cpy (listtype);
 objecttype bst_create (listtype);
 objecttype bst_destr (listtype);
 objecttype bst_empty (listtype);
+objecttype bst_lng (listtype);
+objecttype bst_value (listtype);
 
 #else
 
@@ -42,5 +44,7 @@ objecttype bst_cpy ();
 objecttype bst_create ();
 objecttype bst_destr ();
 objecttype bst_empty ();
+objecttype bst_lng ();
+objecttype bst_value ();
 
 #endif

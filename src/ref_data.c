@@ -241,17 +241,11 @@ inttype aCategory;
 #endif
 
   {
-    const_cstritype name;
-    memsizetype len;
     stritype result;
 
   /* refCatStr */
-    name = category_cstri((objectcategory) aCategory);
-    len = (memsizetype) strlen(name);
-    if (ALLOC_STRI(result, len)) {
-      result->size = len;
-      cstri_expand(result->mem, name, len);
-    } else {
+    result = cstri_to_stri(category_cstri((objectcategory) aCategory));
+    if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
     return(result);
@@ -829,7 +823,6 @@ objecttype obj_arg;
     char *buffer;
     listtype name_elem;
     objecttype param_obj;
-    memsizetype len;
     stritype result;
 
   /* refStr */
@@ -870,19 +863,12 @@ objecttype obj_arg;
         stri = " *UNKNOWN_NAME* ";
       } /* if */
     } /* if */
-    len = (memsizetype) strlen(stri);
-    if (!ALLOC_STRI(result, len)) {
-      if (buffer != NULL) {
-        UNALLOC_CSTRI(buffer, buffer_len);
-      } /* if */
-      raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
-      result->size = len;
-      cstri_expand(result->mem, stri, (size_t) len);
-    } /* if */
+    result = cstri_to_stri(stri);
     if (buffer != NULL) {
       UNALLOC_CSTRI(buffer, buffer_len);
+    } /* if */
+    if (result == NULL) {
+      raise_error(MEMORY_ERROR);
     } /* if */
     return(result);
   } /* refStr */
@@ -953,6 +939,39 @@ objecttype obj_arg;
       return(bigCreate(take_bigint(obj_arg)));
     } /* if */
   } /* bigValue */
+
+
+
+#ifdef ANSI_C
+
+bstritype bstValue (objecttype obj_arg)
+#else
+
+bstritype bstValue (obj_arg)
+objecttype obj_arg;
+#endif
+
+  {
+    bstritype str1;
+    bstritype result;
+
+  /* bstValue */
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
+        take_bstri(obj_arg) == NULL) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      str1 = take_bstri(obj_arg);
+      if (!ALLOC_BSTRI(result, str1->size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = str1->size;
+        memcpy(result->mem, str1->mem,
+            (size_t) (result->size * sizeof(uchartype)));
+      } /* if */
+    } /* if */
+    return(result);
+  } /* bstValue */
 
 
 

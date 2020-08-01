@@ -1858,7 +1858,7 @@ const proc: saveGame is func
   begin
     if fileExists("castle.sav") then
       if isOkay([]("Do you want to overwrite the", "game currently saved?")) then
-        remove("castle.sav");
+        removeFile("castle.sav");
       end if;
     end if;
     if not fileExists("castle.sav") then

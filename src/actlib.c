@@ -138,19 +138,14 @@ listtype arguments;
 #endif
 
   {
-    const_cstritype stri;
-    memsizetype len;
     stritype result;
 
   /* act_str */
     isit_action(arg_1(arguments));
-    stri = get_primact(take_action(arg_1(arguments)))->name;
-    len = (memsizetype) strlen(stri);
-    if (!ALLOC_STRI(result, len)) {
+    result = cstri_to_stri(get_primact(take_action(arg_1(arguments)))->name);
+    if (result == NULL) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      result->size = len;
-      cstri_expand(result->mem, stri, (size_t) len);
       return(bld_stri_temp(result));
     } /* if */
   } /* act_str */

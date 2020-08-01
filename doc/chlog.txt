@@ -1,3 +1,21 @@
+20091206:
+- The chapters explaining operating system access, primitive actions and exceptions
+  in the manual were improved.
+- The codepages 708, 862, 864 and 874 were added to the charsets.s7i library.
+- The functions 'remove' and 'rename' were renamed to 'removeFile' and 'moveFile'
+  in various files.
+- The functionality of 'removeFile' was changed such that removing a nonexisting file
+  raises an exception.
+- The functionality of 'moveFile' was changed such that moving to an existing file
+  raises an exception.
+- The compiler was improved to use the function floatLiteral to write occurrences
+  of float literals to the generated C program.
+- The functions actStr, act_str, filLit, fltDgts, refCatStr, refStr, typStr and
+  typ_str were changed to use cstri_to_stri() instead of cstri_expand().
+- The compiler (comp.sd7) and the interpreter (hi) were improved to support the
+  actions BST_LNG and BST_VALUE.
+- The toutf8.sd7 example program was improved to support more codepages.
+
 20091115:
 - The unicode support for the functions shell, cmd_sh and popen was improved to
   use wide char (UTF-16) functions under windows and normal (UTF-8) functions under

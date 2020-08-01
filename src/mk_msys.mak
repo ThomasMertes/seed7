@@ -144,6 +144,7 @@ version.h:
 	echo "#undef  USE_MMAP" >> version.h
 	echo "#undef  INCL_NCURSES_TERM" >> version.h
 	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
+	echo "#define REMOVE_FAILS_FOR_EMPTY_DIRS" >> version.h
 	echo "#define INT64TYPE long long int" >> version.h
 	echo "#define UINT64TYPE unsigned long long" >> version.h
 	echo "#define INT64TYPE_SUFFIX_LL" >> version.h
