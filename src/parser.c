@@ -91,9 +91,9 @@ errinfotype *err_info;
       SET_CLASS_OF_OBJ(declared_object, TYPEOBJECT);
       declared_object->value.typevalue = generated_type;
       if (generated_type->name == NULL &&
-          declared_object->entity != NULL &&
-          declared_object->entity->ident != NULL) {
-        generated_type->name = declared_object->entity->ident;
+          HAS_DESCRIPTOR_ENTITY(declared_object) &&
+          declared_object->descriptor.entity->ident != NULL) {
+        generated_type->name = declared_object->descriptor.entity->ident;
         /* printf("typ_create: Define ");
         trace1(declared_object);
         printf("\n"); */
@@ -152,9 +152,9 @@ errinfotype *err_info;
           SET_CLASS_OF_OBJ(declared_object, TYPEOBJECT);
           declared_object->value.typevalue = generated_type;
           if (generated_type->name == NULL &&
-              declared_object->entity != NULL &&
-              declared_object->entity->ident != NULL) {
-            generated_type->name = declared_object->entity->ident;
+              HAS_DESCRIPTOR_ENTITY(declared_object) &&
+              declared_object->descriptor.entity->ident != NULL) {
+            generated_type->name = declared_object->descriptor.entity->ident;
             /* printf("typ_create: Define ");
             trace1(declared_object);
             printf("\n"); */
@@ -226,8 +226,9 @@ errinfotype *err_info;
           typeof_object = declared_object;
         } /* if */
 #ifdef OUT_OF_ORDER
-        if (typeof_object->entity != NULL && typeof_object->entity->owner != NULL) {
-          typeof_object = typeof_object->entity->owner->obj;
+        if (HAS_DESCRIPTOR_ENTITY(typeof_object) &&
+            typeof_object->descriptor.entity->owner != NULL) {
+          typeof_object = typeof_object->descriptor.entity->owner->obj;
           /* printf("type after: <%lx> ", typeof_object);
           trace1(typeof_object);
           printf("\n"); */
@@ -389,13 +390,13 @@ errinfotype *err_info;
       declared_object = decl_name(node_level, prog_level, err_info);
       if (*err_info == OKAY_NO_ERROR) {
 /*        printf("decl_name ");
-        trace_entity(declared_object->entity); */
+        trace_entity(declared_object->descriptor.entity); */
 #ifdef OUT_OF_ORDER
         printf("type before: <%lx> ", typeof_object);
         trace1(typeof_object);
         printf("\n");
-        if (typeof_object->entity->objects != NULL) {
-          typeof_object = typeof_object->entity->objects->obj;
+        if (typeof_object->descriptor.entity->objects != NULL) {
+          typeof_object = typeof_object->descriptor.entity->objects->obj;
           printf("type after: <%lx> ", typeof_object);
           trace1(typeof_object);
           printf("\n");

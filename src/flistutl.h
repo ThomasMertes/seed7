@@ -91,7 +91,7 @@ EXTERN flisttype flist;
 #ifdef USE_ALTERNATE_CHUNK_ALLOCS
 #define OLD_CHUNK(var,tp,byt)    (var = (tp) chunk.freemem, chunk.freemem += (byt), TRUE)
 #define NEW_CHUNK(var,tp,byt)    ((var = (tp) heap_chunk(byt)) != NULL)
-#define ALLOC_CHUNK(var,tp,byt)  ((byt) > chunk.byond - chunk.freemem ? NEW_CHUNK(var, tp, byt) : OLD_CHUNK(var, tp, byt))
+#define ALLOC_CHUNK(var,tp,byt)  ((byt) > chunk.beyond - chunk.freemem ? NEW_CHUNK(var, tp, byt) : OLD_CHUNK(var, tp, byt))
 #define FREE_CHUNK(var,byt)      (chunk.lost_bytes += (byt))
 #else
 #define OLD_CHUNK(var,tp,byt)    (var = (tp) chunk.freemem, chunk.freemem += (byt), chunk.size -= (byt), TRUE)

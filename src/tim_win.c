@@ -66,8 +66,8 @@ inttype time_zone;
     FILETIME await_file_time;
     FILETIME current_time;
     ULARGE_INTEGER time_64;
-    time_t await_second;
-    time_t current_second;
+    long await_second;
+    long current_second;
     long current_mycro_sec;
     unsigned long wait_milliseconds;
 
@@ -134,8 +134,8 @@ inttype *time_zone;
     FILETIME local_time;
     SYSTEMTIME time_struct;
     ULARGE_INTEGER time_64;
-    time_t utc_seconds;
-    time_t local_seconds;
+    long utc_seconds;
+    long local_seconds;
 
   /* timNow */
 #ifdef TRACE_TIM_WIN

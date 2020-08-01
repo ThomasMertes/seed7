@@ -236,6 +236,7 @@ inttype blue_val;
 #endif
 
   { /* dra_rgb_color */
+    return(0);
   } /* dra_rgb_color */
 
 

@@ -38,6 +38,8 @@
 #include "version.h"
 #include "common.h"
 #include "scr_drv.h"
+#include "kbd_drv.h"
+
 
 /* #define atexit(x) */
 

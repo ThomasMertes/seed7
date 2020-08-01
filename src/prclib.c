@@ -103,7 +103,7 @@ char **arg_v;
             okay = FALSE;
           } else {
             arg_array->arr[(int) used_array_size].type_of = take_type(SYS_STRI_TYPE);
-            arg_array->arr[(int) used_array_size].entity = NULL;
+            arg_array->arr[(int) used_array_size].descriptor.entity = NULL;
             arg_array->arr[(int) used_array_size].value.strivalue = str1;
             INIT_CLASS_OF_VAR(&arg_array->arr[(int) used_array_size],
                 STRIOBJECT);
@@ -339,7 +339,7 @@ listtype arguments;
         set_value = take_set(when_set);
         if (TEMP_OBJECT(when_set)) {
           when_values->type_of = NULL;
-          when_values->entity = NULL;
+          when_values->descriptor.entity = NULL;
           SET_CLASS_OF_OBJ(when_values, SETOBJECT);
           when_values->value.setvalue = set_value;
         } /* if */
@@ -401,7 +401,7 @@ listtype arguments;
         set_value = take_set(when_set);
         if (TEMP_OBJECT(when_set)) {
           when_values->type_of = NULL;
-          when_values->entity = NULL;
+          when_values->descriptor.entity = NULL;
           SET_CLASS_OF_OBJ(when_values, SETOBJECT);
           when_values->value.setvalue = set_value;
         } /* if */

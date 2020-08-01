@@ -71,7 +71,7 @@ int source_line;
 #ifdef USE_CHUNK_ALLOCS
     printf("%6lu bytes in chunks\n", chunk.total_size);
     printf("%6u unused bytes in last chunk\n",
-        (unsigned) (chunk.byond - chunk.freemem));
+        (unsigned) (chunk.beyond - chunk.freemem));
     printf("%6lu lost bytes in chunks\n", chunk.lost_bytes);
 #endif
     shut_drivers();

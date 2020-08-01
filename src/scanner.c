@@ -102,8 +102,8 @@ static INLINE void scan_comment ()
       } /* if */
     } while (character != ')' && character != EOF);
     if (character == EOF) {
-      err_at_line(COMMENTOPEN, start_line);
       in_file.character = EOF;
+      err_at_line(COMMENTOPEN, start_line);
     } else {
       in_file.character = next_character();
     } /* if */

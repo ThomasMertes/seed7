@@ -85,7 +85,7 @@ objecttype destr_func;
   /* create_array */
     position = 0;
     while (position < new_size && !fail_flag) {
-      elem_to[position].entity = elem_from->entity;
+      elem_to[position].descriptor.entity = elem_from->descriptor.entity;
       INIT_CLASS_OF_VAR(&elem_to[position], DECLAREDOBJECT);
       elem_to[position].type_of = elem_from->type_of;
       param3_call(create_func, &elem_to[position], SYS_CREA_OBJECT, elem_from);

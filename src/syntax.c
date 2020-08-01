@@ -71,15 +71,15 @@ tokentype tokens;
     printf("(");
     while (tokens != NULL) {
       if (tokens->token_class == SY_TOKEN) {
-        printf(" %s", tokens->token_value.IDENT->name);
+        printf(" %s", tokens->token_value.ident->name);
       } else if (tokens->token_class == EXPR_TOKEN) {
         printf(" [%d]", tokens->token_value.priority);
       } else {
         printf(" ##");
       } /* if */
-      if (tokens->ALTERNATIVE != NULL) {
+      if (tokens->alternative != NULL) {
         printf(" ");
-        print_tokens(tokens->ALTERNATIVE);
+        print_tokens(tokens->alternative);
       } /* if */
       tokens = tokens->next;
     } /* while */
@@ -142,7 +142,7 @@ ustritype *name_of_last_sy_token;
       } /* if */
       *after_expr_token = TRUE;
     } else {
-      identifier = statement_token->entity->ident;
+      identifier = statement_token->descriptor.entity->ident;
 /*  printf("  >%s<\n", identifier->name); */
       *name_of_last_sy_token = identifier->name;
       new_token = get_sy_token(formal_tokens,
@@ -330,7 +330,7 @@ ASSOCTYPE statement_associativity;
     printf("BEGIN def_infix_syntax\n");
 #endif
     if (CLASS_OF_OBJ(statement_syntax->obj) != EXPROBJECT) {
-      identifier = statement_syntax->obj->entity->ident;
+      identifier = statement_syntax->obj->descriptor.entity->ident;
       if (identifier->infix_priority == 0) {
         identifier->infix_priority = statement_priority;
       } else {
@@ -392,7 +392,7 @@ ASSOCTYPE statement_associativity;
 #ifdef TRACE_SYNTAX
     printf("BEGIN def_prefix_syntax\n");
 #endif
-    identifier = statement_syntax->obj->entity->ident;
+    identifier = statement_syntax->obj->descriptor.entity->ident;
     if (identifier->prefix_priority == 0) {
       identifier->prefix_priority = statement_priority;
     } else {
@@ -474,7 +474,7 @@ ASSOCTYPE statement_associativity;
       err_warning(DOT_EXPR_REQUESTED);
       token_list_end = NULL;
     } else {
-      identifier = syntax_expression->entity->ident;
+      identifier = syntax_expression->descriptor.entity->ident;
       if (identifier == prog.ident.literal) {
         err_object(IDENT_EXPECTED, syntax_expression);
       } /* if */

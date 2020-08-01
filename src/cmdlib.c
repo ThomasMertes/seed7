@@ -152,7 +152,7 @@ char *dir_name;
               okay = FALSE;
             } else {
               dir_array->arr[(int) used_array_size].type_of = take_type(SYS_STRI_TYPE);
-              dir_array->arr[(int) used_array_size].entity = NULL;
+              dir_array->arr[(int) used_array_size].descriptor.entity = NULL;
               dir_array->arr[(int) used_array_size].value.strivalue = str1;
               INIT_CLASS_OF_VAR(&dir_array->arr[(int) used_array_size],
                   STRIOBJECT);

@@ -128,7 +128,7 @@ errinfotype *err_info;
         SET_CLASS_OF_OBJ(defined_object, DECLAREDOBJECT);
         if (ALLOC_OBJECT(forward_reference)) {
           forward_reference->type_of = NULL;
-          forward_reference->entity = NULL;
+          forward_reference->descriptor.entity = NULL;
           INIT_CLASS_OF_OBJ(forward_reference, FWDREFOBJECT);
           forward_reference->value.objvalue = defined_object;
 	  replace_list_elem(prog.stack_current->local_object_list,
@@ -142,7 +142,7 @@ errinfotype *err_info;
     } else {
       if (ALLOC_OBJECT(defined_object)) {
         defined_object->type_of = NULL;
-        defined_object->entity = ent;
+        defined_object->descriptor.entity = ent;
         INIT_CLASS_OF_OBJ(defined_object, DECLAREDOBJECT);
         defined_object->value.objvalue = NULL;
         push_owner(&ent->owner, defined_object, params, err_info);
@@ -265,7 +265,7 @@ errinfotype *err_info;
 #ifdef TRACE_NAME
     printf("END push_name(");
     printf("%lu ", (unsigned long) defined_object);
-    /* prot_list(defined_object->entity->params); */
+    /* prot_list(defined_object->descriptor.entity->params); */
     printf(")\n");
 #endif
     return(defined_object);
@@ -293,7 +293,7 @@ objecttype obj_to_pop;
     printf(")\n");
     fflush(stdout);
 #endif
-    ent = obj_to_pop->entity;
+    ent = obj_to_pop->descriptor.entity;
     if (ent != NULL) {
       owner = ent->owner;
       if (owner != NULL) {
@@ -618,8 +618,9 @@ errinfotype *err_info;
               name_elem->obj, err_info);
         } /* if */
       } else {
-        if (name_elem->obj->entity != NULL && name_elem->obj->entity->syobject != NULL) {
-          parameter = name_elem->obj->entity->syobject;
+        if (HAS_DESCRIPTOR_ENTITY(name_elem->obj) &&
+            name_elem->obj->descriptor.entity->syobject != NULL) {
+          parameter = name_elem->obj->descriptor.entity->syobject;
         } else {
           parameter = name_elem->obj;
         } /* if */
@@ -694,10 +695,10 @@ errinfotype *err_info;
     trace1(name_object);
     printf(")\n");
 #endif
-    if (name_object->entity == entity.literal) {
+    if (name_object->descriptor.entity == entity.literal) {
       err_object(IDENT_EXPECTED, name_object);
     } /* if */
-    defined_object = get_object(name_object->entity, NULL, err_info);
+    defined_object = get_object(name_object->descriptor.entity, NULL, err_info);
 #ifdef TRACE_NAME
     printf("END inst_object --> ");
     trace1(defined_object);
@@ -867,16 +868,16 @@ errinfotype *err_info;
               CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
             ent = NULL;
           } else {
-            ent = param_obj->entity;
+            ent = param_obj->descriptor.entity;
          } /* if */
         } else {
           ent = NULL;
         } /* if */
       } else {
-        ent = object_name->value.listvalue->obj->entity;
+        ent = object_name->value.listvalue->obj->descriptor.entity;
       } /* if */
     } else {
-      ent = object_name->entity;
+      ent = object_name->descriptor.entity;
     } /* if */
     if (ent != NULL && ent->owner != NULL) {
       defined_object = ent->owner->obj;
@@ -946,16 +947,16 @@ errinfotype *err_info;
               CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
             ent = NULL;
           } else {
-            ent = param_obj->entity;
+            ent = param_obj->descriptor.entity;
          } /* if */
         } else {
           ent = NULL;
         } /* if */
       } else {
-        ent = object_name->value.listvalue->obj->entity;
+        ent = object_name->value.listvalue->obj->descriptor.entity;
       } /* if */
     } else {
-      ent = object_name->entity;
+      ent = object_name->descriptor.entity;
     } /* if */
     if (ent != NULL && ent->owner != NULL) {
       defined_object = ent->owner->obj;
@@ -1001,7 +1002,7 @@ objecttype param_object;
 #endif
     param_descr = param_object->value.listvalue;
     if (param_descr != NULL) {
-      if (param_descr->obj->entity->ident == prog.id_for.ref) {
+      if (param_descr->obj->descriptor.entity->ident == prog.id_for.ref) {
         /* printf("### ref param\n"); */
         if (param_descr->next != NULL) {
           type_of_parameter = param_descr->next->obj;
@@ -1010,7 +1011,7 @@ objecttype param_object;
           } /* if */
           if (param_descr->next->next != NULL) {
             FREE_OBJECT(param_object);
-            if (param_descr->next->next->obj->entity->ident == prog.id_for.colon) {
+            if (param_descr->next->next->obj->descriptor.entity->ident == prog.id_for.colon) {
               param_object = dcl_ref2(param_descr);
             } else {
               param_object = dcl_ref1(param_descr);
@@ -1019,7 +1020,7 @@ objecttype param_object;
           } /* if */
         } /* if */
       } else {
-        err_ident(PARAM_SPECIFIER_EXPECTED, param_descr->obj->entity->ident);
+        err_ident(PARAM_SPECIFIER_EXPECTED, param_descr->obj->descriptor.entity->ident);
       } /* if */
     } /* if */
 #ifdef TRACE_NAME

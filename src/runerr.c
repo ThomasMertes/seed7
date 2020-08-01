@@ -196,7 +196,7 @@ listtype list;
     if (exception == NULL) {
       ALLOC_OBJECT(exception);
       exception->type_of = NULL;
-      exception->entity = NULL;
+      exception->descriptor.entity = NULL;
       INIT_CLASS_OF_TEMP(exception, SYMBOLOBJECT);
       exception->value.intvalue = 0;
     } /* if */

@@ -86,7 +86,7 @@ static objecttype gen_object ()
         atomic_entity->owner = NULL;
         current_ident->entity = atomic_entity;
         atomic_object->type_of = NULL;
-        atomic_object->entity = atomic_entity;
+        atomic_object->descriptor.entity = atomic_entity;
         INIT_POS(atomic_object, in_file.line, in_file.file_number);
         INIT_CLASS_OF_OBJ(atomic_object, SYMBOLOBJECT);
       } /* if */
@@ -128,7 +128,7 @@ objectclass class;
       } else {
         literal_object->type_of = take_type(typeof_object);
       } /* if */
-      literal_object->entity = entity.literal;
+      literal_object->descriptor.entity = entity.literal;
       INIT_CLASS_OF_OBJ(literal_object, class);
     } /* if */
 #ifdef TRACE_OBJECT
@@ -196,12 +196,12 @@ objecttype read_atom ()
       case PARENSYMBOL:
         if (current_ident->entity == NULL) {
           atomic_object = gen_object();
-          /* printf("read_atom a: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) atomic_object->ENTITY, (unsigned long) atomic_object); */
+          /* printf("read_atom a: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) atomic_object->descriptor.entity, (unsigned long) atomic_object); */
         } else if (current_ident->entity->owner != NULL) {
           atomic_object = current_ident->entity->owner->obj;
         } else {
           atomic_object = current_ident->entity->syobject;
-          /* printf("read_atom b: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) atomic_object->ENTITY, (unsigned long) atomic_object); */
+          /* printf("read_atom b: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) atomic_object->descriptor.entity, (unsigned long) atomic_object); */
         } /* if */
         break;
       case INTLITERAL:

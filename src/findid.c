@@ -189,7 +189,7 @@ listtype elem_list;
     printf("BEGIN check_list_of_syntax_elements\n");
 #endif
     while (elem_list != NULL) {
-      if (elem_list->obj->entity == entity.literal) {
+      if (elem_list->obj->descriptor.entity == entity.literal) {
         if (CLASS_OF_OBJ(elem_list->obj) != EXPROBJECT) {
           err_object(IDENT_EXPECTED, elem_list->obj);
         } /* if */

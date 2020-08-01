@@ -894,7 +894,7 @@ inttype col;
 
   { /* drwClear */
 #ifdef TRACE_X11
-    printf("drwClear(%lu, %lx)\n", actual_window, col);
+    printf("drwClear(%lu, %08lx)\n", actual_window, col);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XFillRectangle(mydisplay, to_window(actual_window), mygc, 0, 0,
@@ -1291,7 +1291,7 @@ inttype col;
 
   { /* drwPLine */
 #ifdef TRACE_X11
-    printf("drwPLine(%lu, %ld, %ld, %ld, %ld, %lx)\n", actual_window, x1, y1, x2, y2, col);
+    printf("drwPLine(%lu, %ld, %ld, %ld, %ld, %08lx)\n", actual_window, x1, y1, x2, y2, col);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XDrawLine(mydisplay, to_window(actual_window), mygc, x1, y1, x2, y2);
@@ -1406,21 +1406,21 @@ static void dra_init ()
     } else {
       class_text = "unknown";
     } /* if */
-/*
+#ifdef OUT_OF_ORDER
     printf("visualid:     %lX\n", (unsigned long) default_visual->visualid);
     printf("class:        %s\n",  class_text);
-    printf("red_mask:     %lx\n", default_visual->red_mask);
-    printf("green_mask:   %lx\n", default_visual->green_mask);
-    printf("blue_mask:    %lx\n", default_visual->blue_mask);
+    printf("red_mask:     %08lx\n", default_visual->red_mask);
+    printf("green_mask:   %08lx\n", default_visual->green_mask);
+    printf("blue_mask:    %08lx\n", default_visual->blue_mask);
     printf("bits_per_rgb: %d\n",  default_visual->bits_per_rgb);
     printf("map_entries:  %d\n",  default_visual->map_entries);
-*/
-/*    printf("extension:     %lX\n", (unsigned long) default_visual->extension); */
-/*
+
+    /* printf("extension:     %lX\n", (unsigned long) default_visual->extension); */
+
     printf("highest red bit:   %d\n", get_highest_bit(default_visual->red_mask));
     printf("highest green bit: %d\n", get_highest_bit(default_visual->green_mask));
     printf("highest blue bit:  %d\n", get_highest_bit(default_visual->blue_mask));
-*/
+#endif
     lshift_red   = get_highest_bit(default_visual->red_mask) - 16;
     rshift_red   = -lshift_red;
     lshift_green = get_highest_bit(default_visual->green_mask) - 16;
@@ -1434,14 +1434,14 @@ static void dra_init ()
     rshift_green = rshift_green < 0 ? 0 : rshift_green;
     lshift_blue  = lshift_blue  < 0 ? 0 : lshift_blue;
     rshift_blue  = rshift_blue  < 0 ? 0 : rshift_blue;
-/*
+#ifdef OUT_OF_ORDER
     printf("lshift_red:   %d\n", lshift_red);
     printf("rshift_red:   %d\n", rshift_red);
     printf("lshift_green: %d\n", lshift_green);
     printf("rshift_green: %d\n", rshift_green);
     printf("lshift_blue:  %d\n", lshift_blue);
     printf("rshift_blue:  %d\n", rshift_blue);
-*/
+#endif
     mybackground = WhitePixel(mydisplay, myscreen);
     myforeground = BlackPixel(mydisplay, myscreen);
   } /* dra_init */
@@ -1592,7 +1592,7 @@ inttype col;
 
   { /* drwPPoint */
 #ifdef TRACE_X11
-    printf("drwPPoint(%lu, %ld, %ld, %lx)\n", actual_window, x, y, col); 
+    printf("drwPPoint(%lu, %ld, %ld, %08lx)\n", actual_window, x, y, col); 
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XDrawPoint(mydisplay, to_window(actual_window), mygc, x, y);
@@ -1710,7 +1710,7 @@ inttype col;
 
   { /* drwPRect */
 #ifdef TRACE_X11
-    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %lx)\n", actual_window, x1, y1, length_x, length_y, col);
+    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %08lx)\n", actual_window, x1, y1, length_x, length_y, col);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XFillRectangle(mydisplay, to_window(actual_window), mygc, x1, y1,
@@ -1828,7 +1828,7 @@ inttype blue_val;
         insert_place = &entry->blue_greater;
         entry = entry->blue_greater;
       } else {
-/*        printf("found [%ld, %ld, %ld] color = %lx\n",
+/*        printf("found [%ld, %ld, %ld] color = %08lx\n",
             red_val, green_val, blue_val, entry->pixel); */
         return(entry->pixel);
       } /* if */
@@ -1899,7 +1899,7 @@ inttype blue_val;
       } /* if */
     } else {
       if (nearest_entry != NULL) {
-        printf("nearest_entry [%04lx, %04lx, %04lx] [%04x, %04x, %04x] color = %lx\n",
+        printf("nearest_entry [%04lx, %04lx, %04lx] [%04x, %04x, %04x] color = %08lx\n",
             red_val, green_val, blue_val,
             nearest_entry->red, nearest_entry->green, nearest_entry->blue,
             nearest_entry->pixel);
@@ -1934,7 +1934,7 @@ inttype blue_val;
     } else {
       col.pixel = 0;
     } /* if */
-    printf("allocated [%04lx, %04lx, %04lx] color = %lx\n",
+    printf("allocated [%04lx, %04lx, %04lx] color = %08lx\n",
         red_val, green_val, blue_val, col.pixel);
     return(col.pixel);
   } /* drwRgbColor */
@@ -1981,7 +1981,7 @@ inttype blue_val;
     printf("XParseColor(\"%s\" [%ld, %ld, %ld]) ==> [%ld, %ld, %ld]\n",
            color_string, RED_VAL, GREEN_VAL, BLUE_VAL,
         col.red, col.green, col.blue);
-    printf("rgb color = %lx\n", (long) col.pixel);
+    printf("rgb color = %08lx\n", (long) col.pixel);
     return(col.pixel);
   } /* drwRgbColor */
 #endif

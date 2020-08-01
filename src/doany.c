@@ -91,7 +91,7 @@ listtype list;
     /* printf(".");
        fflush(stdout); */
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
-    expr_object.entity = NULL;
+    expr_object.descriptor.entity = NULL;
     expr_object.value.listvalue = list;
     INIT_CLASS_OF_OBJ(&expr_object, EXPROBJECT);
     if ((object = match_expression(&expr_object)) != NULL) {

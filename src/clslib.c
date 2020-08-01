@@ -286,8 +286,9 @@ printf("selector ");
 trace1(selector);
 printf("\n");
 */
-    if (selector->entity != NULL && selector->entity->syobject != NULL) {
-      selector_syobject = selector->entity->syobject;
+    if (HAS_DESCRIPTOR_ENTITY(selector) &&
+        selector->descriptor.entity->syobject != NULL) {
+      selector_syobject = selector->descriptor.entity->syobject;
       position = stru1->size;
       struct_pointer = stru1->stru;
       while (position > 0) {
@@ -296,8 +297,8 @@ printf("test ");
 trace1(struct_pointer);
 printf("\n");
 */
-        if (struct_pointer->entity != NULL &&
-            struct_pointer->entity->syobject == selector_syobject) {
+        if (HAS_DESCRIPTOR_ENTITY(struct_pointer) &&
+            struct_pointer->descriptor.entity->syobject == selector_syobject) {
           if (TEMP_OBJECT(struct_pointer)) {
             printf("sct_select of TEMP_OBJECT\n");
           } /* if */

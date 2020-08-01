@@ -77,11 +77,11 @@ listtype *end_sorted;
   /* qsort_list */
     key_element = *begin_sorted;
     input_list = key_element->next;
-    key = key_element->obj->entity->ident->name;
+    key = key_element->obj->descriptor.entity->ident->name;
     begin_less = NULL;
     begin_greater = NULL;
     do {
-      if (strcmp((cstritype) input_list->obj->entity->ident->name,
+      if (strcmp((cstritype) input_list->obj->descriptor.entity->ident->name,
           (cstritype) key) < 0) {
         if (begin_less == NULL) {
           begin_less = input_list;
@@ -458,11 +458,11 @@ listtype arguments;
   /* ref_issymb */
     isit_reference(arg_1(arguments));
     symb_object = take_reference(arg_1(arguments));
-    /* printf("ref issymb %lu ", (long unsigned) symb_object->entity);
+    /* printf("ref issymb %lu ", (long unsigned) symb_object->descriptor.entity);
     trace1(symb_object);
     printf(":\n"); */
-    if (symb_object->entity != NULL &&
-        symb_object->entity->syobject != NULL) {
+    if (HAS_DESCRIPTOR_ENTITY(symb_object) &&
+        symb_object->descriptor.entity->syobject != NULL) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -615,10 +615,10 @@ listtype arguments;
     if (obj == NULL) {
       return(bld_reference_temp(NULL));
     } else {
-      if (obj->entity == NULL) {
-        return(bld_reference_temp(NULL));
+      if (HAS_DESCRIPTOR_ENTITY(obj)) {
+        return(bld_reference_temp(obj->descriptor.entity->owner->obj));
       } else {
-        return(bld_reference_temp(obj->entity->owner->obj));
+        return(bld_reference_temp(NULL));
       } /* if */
     } /* if */
   } /* ref_name */
@@ -787,7 +787,7 @@ listtype arguments;
         local_elem = local_elem->next;
       } /* while */
     } else {
-      result = create_parameter_list(obj_arg1->entity->name_list,
+      result = create_parameter_list(obj_arg1->descriptor.entity->name_list,
           &err_info);
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
@@ -972,8 +972,8 @@ printf("selector ");
 trace1(selector);
 printf("\n");
 */
-      if (selector->entity != NULL && selector->entity->syobject != NULL) {
-        selector_syobject = selector->entity->syobject;
+      if (HAS_DESCRIPTOR_ENTITY(selector) && selector->descriptor.entity->syobject != NULL) {
+        selector_syobject = selector->descriptor.entity->syobject;
         position = stru1->size;
         struct_pointer = stru1->stru;
         while (position > 0) {
@@ -982,8 +982,8 @@ printf("test ");
 trace1(struct_pointer);
 printf("\n");
 */
-          if (struct_pointer->entity != NULL &&
-              struct_pointer->entity->syobject == selector_syobject) {
+          if (HAS_DESCRIPTOR_ENTITY(struct_pointer) &&
+              struct_pointer->descriptor.entity->syobject == selector_syobject) {
             if (TEMP_OBJECT(arg_1(arguments))) {
 /*
               printf("ref_select of TEMP_OBJECT\n");
@@ -1045,23 +1045,23 @@ listtype arguments;
     obj_arg1 = take_reference(arg_1(arguments));
     if (obj_arg1 == NULL) {
       stri = " *NULL_OBJECT* ";
-    } else if (obj_arg1->entity == NULL) {
+    } else if (!HAS_DESCRIPTOR_ENTITY(obj_arg1)) {
       stri = " *NULL_ENTITY_OBJECT* ";
-    } else if (obj_arg1->entity->ident != NULL) {
-      stri = id_string(obj_arg1->entity->ident);
+    } else if (obj_arg1->descriptor.entity->ident != NULL) {
+      stri = id_string(obj_arg1->descriptor.entity->ident);
     } else {
       stri = NULL;
-      name_elem = obj_arg1->entity->name_list;
+      name_elem = obj_arg1->descriptor.entity->name_list;
       while (name_elem != NULL && stri == NULL) {
         if (CLASS_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
           param_obj = name_elem->obj->value.objvalue;
           if (CLASS_OF_OBJ(param_obj) != VALUEPARAMOBJECT &&
               CLASS_OF_OBJ(param_obj) != REFPARAMOBJECT &&
               CLASS_OF_OBJ(param_obj) != TYPEOBJECT) {
-            stri = id_string(param_obj->entity->ident);
+            stri = id_string(param_obj->descriptor.entity->ident);
           } /* if */
         } else {
-          stri = id_string(name_elem->obj->entity->ident);
+          stri = id_string(name_elem->obj->descriptor.entity->ident);
         } /* if */
         name_elem = name_elem->next;
       } /* while */
@@ -1097,18 +1097,18 @@ listtype arguments;
   /* ref_symb */
     isit_reference(arg_2(arguments));
     symb_object = take_reference(arg_2(arguments));
-    /* printf("ref symb %lu ", (long unsigned) symb_object->entity);
+    /* printf("ref symb %lu ", (long unsigned) symb_object->descriptor.entity);
     trace1(symb_object);
     printf(":\n"); */
-    if (symb_object->entity != NULL &&
-        symb_object->entity->syobject != NULL) {
-      symb_object = symb_object->entity->syobject;
+    if (HAS_DESCRIPTOR_ENTITY(symb_object) &&
+        symb_object->descriptor.entity->syobject != NULL) {
+      symb_object = symb_object->descriptor.entity->syobject;
     } else {
-      printf("ref symb %lu ", (long unsigned) symb_object->entity);
+      printf("ref symb %lu ", (long unsigned) symb_object->descriptor.entity);
       trace1(symb_object);
       printf(":\n");
     } /* if */
-    /* printf("ref symb %lu ", (long unsigned) symb_object->entity);
+    /* printf("ref symb %lu ", (long unsigned) symb_object->descriptor.entity);
     trace1(symb_object);
     printf(":\n"); */
     return(bld_param_temp(symb_object));

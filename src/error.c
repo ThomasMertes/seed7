@@ -56,13 +56,12 @@
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-static void print_error_line (linenumtype err_line)
+static void print_line (linenumtype err_line)
 #else
 
-static void print_error_line (err_line)
+static void print_line (err_line)
 linenumtype err_line;
 #endif
 
@@ -78,13 +77,19 @@ linenumtype err_line;
     int area_pos;
     int ch;
 
-  /* print_error_line */
-    printf("err_line=%lu\n", err_line);
+  /* print_line */
+    /* printf("err_line=%lu in_file.line=%lu\n", err_line, in_file.line); */
     if (in_file.name != NULL && (current_position = IN_FILE_TELL()) >= 0L) {
+      /* printf("current_position=%lu in_file.character=%d\n",
+         current_position, in_file.character); */
       table_size = in_file.line - err_line + 1;
       if (ALLOC_HEAP(nl_table, long *, table_size * sizeof(long))) {
         CNT1_BYT(table_size * sizeof(long));
-        buffer_start_position = current_position;
+        if (in_file.character == EOF) {
+          buffer_start_position = current_position;
+        } else {
+          buffer_start_position = current_position - 1;
+        } /* if */
         table_pos = 0;
         searching = TRUE;
         do {
@@ -94,7 +99,7 @@ linenumtype err_line;
             area_size = buffer_start_position;
           } /* if */
           buffer_start_position -= area_size;
-          printf("buffer_start_position=%ld\n", buffer_start_position);
+          /* printf("buffer_start_position=%ld\n", buffer_start_position); */
           table_start = table_pos;
           IN_FILE_SEEK(buffer_start_position);
           area_pos = 0;
@@ -126,12 +131,12 @@ linenumtype err_line;
             ch = next_character();
           } /*while */
           fputc('\n', stdout);
+          fputc('\n', stdout);
         } /* if */
       } /* if */
       IN_FILE_SEEK(current_position);
     } /* if */
-  } /* print_error_line */
-#endif
+  } /* print_line */
 
 
 
@@ -328,10 +333,10 @@ listtype params;
               printf(" var ");
             } /* if */
             write_type(formal_param->type_of);
-            if (formal_param->entity == NULL) {
-              printf(" param");
+            if (HAS_DESCRIPTOR_ENTITY(formal_param)) {
+              printf(": %s", formal_param->descriptor.entity->ident->name);
             } else {
-              printf(": %s", formal_param->entity->ident->name);
+              printf(" param");
             } /* if */
             break;
           case REFPARAMOBJECT:
@@ -341,18 +346,18 @@ listtype params;
               printf("ref ");
             } /* if */
             write_type(formal_param->type_of);
-            if (formal_param->entity == NULL) {
-              printf(" param");
+            if (HAS_DESCRIPTOR_ENTITY(formal_param)) {
+              printf(": %s", formal_param->descriptor.entity->ident->name);
             } else {
-              printf(": %s", formal_param->entity->ident->name);
+              printf(" param");
             } /* if */
             break;
           case TYPEOBJECT:
-            if (formal_param->entity == NULL) {
+            if (HAS_DESCRIPTOR_ENTITY(formal_param)) {
+              printf("attr %s", formal_param->descriptor.entity->ident->name);
+            } else {
               printf("attr ");
               write_type(formal_param->value.typevalue);
-            } else {
-              printf("attr %s", formal_param->entity->ident->name);
             } /* if */
             break;
           default:
@@ -369,7 +374,7 @@ listtype params;
         } /* if */
         switch (CLASS_OF_OBJ(params->obj)) {
           case SYMBOLOBJECT:
-            printf("%s", params->obj->entity->ident->name);
+            printf("%s", params->obj->descriptor.entity->ident->name);
             break;
           default:
             printf("unknown param ");
@@ -410,10 +415,10 @@ objecttype anyobject;
             printf(" var ");
           } /* if */
           write_type(anyobject->type_of);
-          if (anyobject->entity == NULL) {
-            printf(" param");
+          if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
+            printf(": %s", anyobject->descriptor.entity->ident->name);
           } else {
-            printf(": %s", anyobject->entity->ident->name);
+            printf(" param");
           } /* if */
           printf(")");
           break;
@@ -425,10 +430,10 @@ objecttype anyobject;
             printf("ref ");
           } /* if */
           write_type(anyobject->type_of);
-          if (anyobject->entity == NULL) {
-            printf(" param");
+          if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
+            printf(": %s", anyobject->descriptor.entity->ident->name);
           } else {
-            printf(": %s", anyobject->entity->ident->name);
+            printf(" param");
           } /* if */
           printf(")");
           break;
@@ -446,10 +451,10 @@ objecttype anyobject;
             printf("constant ");
           } /* if */
           write_type(anyobject->type_of);
-          if (anyobject->entity == NULL) {
-            printvalue(anyobject);
+          if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
+            printf(": %s", anyobject->descriptor.entity->ident->name);
           } else {
-            printf(": %s", anyobject->entity->ident->name);
+            printvalue(anyobject);
           } /* if */
           break;
         case CALLOBJECT:
@@ -463,8 +468,8 @@ objecttype anyobject;
           } /* if */
           break;
         default:
-          if (anyobject->entity != NULL) {
-            printf(id_string(anyobject->entity->ident));
+          if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
+            printf(id_string(anyobject->descriptor.entity->ident));
           } else {
             printf("%d ", CLASS_OF_OBJ(anyobject));
             printf(" *NULL_ENTITY_OBJECT*");
@@ -664,18 +669,27 @@ objecttype obj_found;
 #endif
 
   { /* err_object */
-    place_of_error(err);
+    /* place_of_error(err); */
+    error_count++;
+    if (HAS_POSINFO(obj_found)){
+      printf("*** %s(%1u):%d: ", file_name(GET_FILE_NUM(obj_found)),
+          GET_LINE_NUM(obj_found), ((int) err) + 1);
+    } else if (in_file.name != NULL) {
+      printf("*** %s(%1u):%d: ", in_file.name, in_file.line, ((int) err) + 1);
+    } else {
+      printf("*** ");
+    } /* if */
     switch (err) {
       case OBJTWICEDECLARED:
-        if (obj_found->entity->name_list == NULL) {
-          printf("\"%s\" declared twice\n", obj_found->entity->ident->name);
+        if (obj_found->descriptor.entity->name_list == NULL) {
+          printf("\"%s\" declared twice\n", obj_found->descriptor.entity->ident->name);
         } else {
-          write_name_list(obj_found->entity->name_list);
+          write_name_list(obj_found->descriptor.entity->name_list);
           printf(" declared twice\n");
         } /* if */
         break;
       case OBJUNDECLARED:
-        printf("\"%s\" not declared\n", obj_found->entity->ident->name);
+        printf("\"%s\" not declared\n", obj_found->descriptor.entity->ident->name);
         break;
       case PARAM_DECL_FAILED:
         printf("Declaration of parameter ");
@@ -683,16 +697,16 @@ objecttype obj_found;
         printf(" failed\n");
         break;
       case DECL_FAILED:
-        if (obj_found->entity->name_list == NULL) {
-          printf("Declaration of \"%s\" failed\n", obj_found->entity->ident->name);
+        if (obj_found->descriptor.entity->name_list == NULL) {
+          printf("Declaration of \"%s\" failed\n", obj_found->descriptor.entity->ident->name);
         } else {
           printf("Declaration of ");
-          write_name_list(obj_found->entity->name_list);
+          write_name_list(obj_found->descriptor.entity->name_list);
           printf(" failed\n");
         } /* if */
         break;
       case EXCEPTION_RAISED:
-        printf("Exception \"%s\" raised\n", obj_found->entity->ident->name);
+        printf("Exception \"%s\" raised\n", obj_found->descriptor.entity->ident->name);
         break;
       case IDENT_EXPECTED:
         printf("Identifier expected found \"");
@@ -745,7 +759,11 @@ objecttype obj_found;
         undef_err();
         break;
     } /* switch */
-    print_error_line();
+    if (HAS_POSINFO(obj_found)){
+      print_line(GET_LINE_NUM(obj_found));
+    } else {
+      print_error_line();
+    } /* if */
     display_compilation_info();
   } /* err_object */
 
@@ -821,7 +839,16 @@ objecttype obj_found;
 #endif
 
   { /* err_match */
-    place_of_error(err);
+    /* place_of_error(err); */
+    error_count++;
+    if (HAS_POSINFO(obj_found)){
+      printf("*** %s(%1u):%d: ", file_name(GET_FILE_NUM(obj_found)),
+          GET_LINE_NUM(obj_found), ((int) err) + 1);
+    } else if (in_file.name != NULL) {
+      printf("*** %s(%1u):%d: ", in_file.name, in_file.line, ((int) err) + 1);
+    } else {
+      printf("*** ");
+    } /* if */
     switch (err) {
       case NO_MATCH:
         printf("Match for ");
@@ -832,7 +859,11 @@ objecttype obj_found;
         undef_err();
         break;
     } /* switch */
-    print_error_line();
+    if (HAS_POSINFO(obj_found)){
+      print_line(GET_LINE_NUM(obj_found));
+    } else {
+      print_error_line();
+    } /* if */
     display_compilation_info();
   } /* err_match */
 
@@ -1036,6 +1067,7 @@ linenumtype line;
         undef_err();
         break;
     } /* switch */
+    print_line(line);
     display_compilation_info();
   } /* err_at_line */
 

@@ -146,8 +146,8 @@ objecttype object;
 /*        printf("call object ");
         trace1(object->value.listvalue->obj);
         printf("\n"); */
-        if (object->value.listvalue->obj->entity != NULL) {
-          name_elem = object->value.listvalue->obj->entity->name_list;
+        if (HAS_DESCRIPTOR_ENTITY(object->value.listvalue->obj)) {
+          name_elem = object->value.listvalue->obj->descriptor.entity->name_list;
           expr_list = object->value.listvalue->next;
           while (name_elem != NULL && expr_list != NULL) {
             if (CLASS_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
@@ -212,9 +212,9 @@ objecttype expr_object;
     expr_list = expr_object->value.listvalue;
     while (expr_list != NULL) {
       current_element = expr_list->obj;
-      if (current_element->entity != NULL &&
-          current_element->entity->owner != NULL) {
-        expr_list->obj = current_element->entity->owner->obj;
+      if (HAS_DESCRIPTOR_ENTITY(current_element) &&
+          current_element->descriptor.entity->owner != NULL) {
+        expr_list->obj = current_element->descriptor.entity->owner->obj;
         current_element = expr_list->obj;
       } /* if */
       if (CLASS_OF_OBJ(current_element) == EXPROBJECT) {
@@ -292,7 +292,7 @@ objecttype object;
       case FORWARDOBJECT:
         if (ALLOC_OBJECT(result)) {
           result->type_of = object->type_of;
-          result->entity = entity.literal;
+          result->descriptor.entity = entity.literal;
           result->value.listvalue = NULL;
           SET_CLASS_OF_OBJ(result, CALLOBJECT);
           incl_list(&result->value.listvalue, object, &err_info);
@@ -511,7 +511,7 @@ listtype match_expr;
         current_element = start_node->entity->owner->obj;
         if (trace.match) {
           printf("//ST2//");
-          printclass (CLASS_OF_OBJ(current_element));
+          printclass(CLASS_OF_OBJ(current_element));
           fflush(stdout);
         } /* if */
         incl_list(&expr_object->value.listvalue, current_element, &err_info);
@@ -528,7 +528,8 @@ listtype match_expr;
       current_element = match_expr->obj;
       rest_of_expression = match_expr->next;
       matched_object = NULL;
-      if (current_element->entity != NULL && current_element->entity->syobject != NULL) {
+      if (HAS_DESCRIPTOR_ENTITY(current_element) &&
+          current_element->descriptor.entity->syobject != NULL) {
         /* Symbol */
         if (trace.match) {
           printf("//SY0//");
@@ -536,10 +537,10 @@ listtype match_expr;
           printf("=");
           printf("%ld", (inttype) current_element);
           printf("/");
-          printf("%ld", (inttype) current_element->entity->syobject);
+          printf("%ld", (inttype) current_element->descriptor.entity->syobject);
           fflush(stdout);
         } /* if */
-        node_found = find_node(start_node->symbol, current_element->entity->syobject);
+        node_found = find_node(start_node->symbol, current_element->descriptor.entity->syobject);
         if (node_found != NULL) {
           matched_object = match_subexpr(expr_object, node_found, rest_of_expression);
           if (matched_object != NULL) {
@@ -548,7 +549,7 @@ listtype match_expr;
               trace1(current_element);
               printf("\n");
             } /* if */
-            match_expr->obj = current_element->entity->syobject;
+            match_expr->obj = current_element->descriptor.entity->syobject;
           } /* if */
         } /* if */
       } /* if */

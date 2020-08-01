@@ -64,6 +64,25 @@ const array string: book_pic is [](
   " RRRRRRRRRRRRRRR");
 
 
+const array string: checkmark_pic is [](
+  "             BBB",
+  "             BBB",
+  "            BBB ",
+  "            BBB ",
+  "           BBB  ",
+  "           BBB  ",
+  "          BBB   ",
+  "          BBB   ",
+  "         BBB    ",
+  "         BBB    ",
+  "BBB     BBB     ",
+  " BBB    BBB     ",
+  "  BBB  BBB      ",
+  "   BBB BBB      ",
+  "    BBBBB       ",
+  "     BBBB       ");
+
+
 const array string: crown_pic is [](
   "                ",
   "       YY       ",

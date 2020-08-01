@@ -485,7 +485,7 @@ listtype arguments;
             return(raise_exception(SYS_MEM_EXCEPTION));
           } /* if */
           result->type_of = stru_from->type_of;
-          result->entity = stru_from->entity;
+          result->descriptor.entity = stru_from->descriptor.entity;
           INIT_CLASS_OF_OBJ(result, stru_from->objclass);
           result->value.structvalue = new_stru;
         } else {
@@ -561,8 +561,9 @@ printf("selector ");
 trace1(selector);
 printf("\n");
 */
-    if (selector->entity != NULL && selector->entity->syobject != NULL) {
-      selector_syobject = selector->entity->syobject;
+    if (HAS_DESCRIPTOR_ENTITY(selector) &&
+        selector->descriptor.entity->syobject != NULL) {
+      selector_syobject = selector->descriptor.entity->syobject;
       position = stru1->size;
       struct_pointer = stru1->stru;
       while (position > 0) {
@@ -571,8 +572,8 @@ printf("test ");
 trace1(struct_pointer);
 printf("\n");
 */
-        if (struct_pointer->entity != NULL &&
-            struct_pointer->entity->syobject == selector_syobject) {
+        if (HAS_DESCRIPTOR_ENTITY(struct_pointer) &&
+            struct_pointer->descriptor.entity->syobject == selector_syobject) {
           if (TEMP_OBJECT(arg_1(arguments))) {
 /*
             printf("sct_select of TEMP_OBJECT\n");

@@ -192,9 +192,14 @@ typedef union {
 #endif
   } valueunion;
 
+typedef union {
+    entitytype entity;
+    postype posinfo;
+  } descriptorunion;
+
 typedef struct objectstruct {
     typetype type_of;
-    entitytype entity;
+    descriptorunion descriptor;
     valueunion value;
     classtype objclass;
   } objectrecord;
@@ -329,12 +334,11 @@ typedef struct progstruct {
 
 typedef struct infilstruct {
     FILE *fil;
-    infiltype next;
     ustritype name;
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
     ustritype start;
     ustritype nextch;
-    ustritype byond;
+    ustritype beyond;
     memsizetype buffer_size;
 #else
 #ifdef USE_INFILE_BUFFER
@@ -342,6 +346,9 @@ typedef struct infilstruct {
 #endif
 #endif
     int character;
+    infiltype curr_infile;
+    infiltype up_infile;
+    infiltype next;
     linenumtype line;
     linenumtype next_msg_line;
     filenumtype file_number;
@@ -352,33 +359,42 @@ typedef struct infilstruct {
 extern progrecord prog;
 
 
-#define INIT_POS(O,L,F) (O)->value.pos = ((postype) (L)) | (((postype) (F)) << 20)
-#define GET_LINE_NUM(O) (linenumtype) ((O)->value.pos & 1048575L)
-#define GET_FILE_NUM(O) (filenumtype) (((O)->value.pos & 2146435072L) >> 20)
+#define INIT_POS(O,L,F)     (O)->value.pos = ((postype) (L)) | (((postype) (F)) << 20)
+#define CREATE_POSINFO(L,F) ((postype) (L)) | (((postype) (F)) << 20)
+#define GET_LINE_NUM(O)     (linenumtype) (((long)(O)->descriptor.posinfo) & 1048575L)
+#define GET_FILE_NUM(O)     (filenumtype) ((((long)(O)->descriptor.posinfo) & 2146435072L) >> 20)
 
-#define CLASS_MASK ((classtype)  63)
-#define VAR_MASK   ((classtype)  64)
-#define TEMP_MASK  ((classtype) 128)
-#define TEMP2_MASK ((classtype) 256)
+#define CLASS_MASK   ((classtype)  63)
+#define VAR_MASK     ((classtype)  64)
+#define TEMP_MASK    ((classtype) 128)
+#define TEMP2_MASK   ((classtype) 256)
+#define POSINFO_MASK ((classtype) 512)
 
-#define SET_ANY_FLAG(O,FLAG)         (O)->objclass = (O)->objclass | (FLAG)
+#define SET_ANY_FLAG(O,FLAG)           (O)->objclass = (O)->objclass | (FLAG)
 
-#define INIT_CLASS_OF_OBJ(O,CLASS)   (O)->objclass = (classtype) (CLASS)
-#define SET_CLASS_OF_OBJ(O,CLASS)    (O)->objclass = ((O)->objclass & ~CLASS_MASK) | (classtype) (CLASS)
-#define CLASS_OF_OBJ(O)              ((objectclass) ((O)->objclass & CLASS_MASK))
+#define INIT_CLASS_OF_OBJ(O,CLASS)     (O)->objclass = (classtype) (CLASS)
+#define SET_CLASS_OF_OBJ(O,CLASS)      (O)->objclass = ((O)->objclass & ~CLASS_MASK) | (classtype) (CLASS)
+#define CLASS_OF_OBJ(O)                ((objectclass) ((O)->objclass & CLASS_MASK))
 
-#define INIT_CLASS_OF_VAR(O,CLASS)   (O)->objclass = (classtype) (CLASS) | VAR_MASK
-#define SET_VAR_FLAG(O)              (O)->objclass = (O)->objclass | VAR_MASK
-#define CLEAR_VAR_FLAG(O)            (O)->objclass = (O)->objclass & ~VAR_MASK
-#define VAR_OBJECT(O)                ((O)->objclass & VAR_MASK)
-#define COPY_VAR_FLAG(O1,O2)         (O1)->objclass = ((O1)->objclass & ~VAR_MASK) | ((O2)->objclass & VAR_MASK)
+#define INIT_CLASS_OF_VAR(O,CLASS)     (O)->objclass = (classtype) (CLASS) | VAR_MASK
+#define SET_VAR_FLAG(O)                (O)->objclass = (O)->objclass | VAR_MASK
+#define CLEAR_VAR_FLAG(O)              (O)->objclass = (O)->objclass & ~VAR_MASK
+#define VAR_OBJECT(O)                  ((O)->objclass & VAR_MASK)
+#define COPY_VAR_FLAG(O1,O2)           (O1)->objclass = ((O1)->objclass & ~VAR_MASK) | ((O2)->objclass & VAR_MASK)
 
-#define INIT_CLASS_OF_TEMP(O,CLASS)  (O)->objclass = (classtype) (CLASS) | TEMP_MASK
-#define SET_TEMP_FLAG(O)             (O)->objclass = (O)->objclass | TEMP_MASK
-#define CLEAR_TEMP_FLAG(O)           (O)->objclass = (O)->objclass & ~TEMP_MASK
-#define TEMP_OBJECT(O)               ((O)->objclass & TEMP_MASK)
+#define INIT_CLASS_OF_TEMP(O,CLASS)    (O)->objclass = (classtype) (CLASS) | TEMP_MASK
+#define SET_TEMP_FLAG(O)               (O)->objclass = (O)->objclass | TEMP_MASK
+#define CLEAR_TEMP_FLAG(O)             (O)->objclass = (O)->objclass & ~TEMP_MASK
+#define TEMP_OBJECT(O)                 ((O)->objclass & TEMP_MASK)
 
-#define INIT_CLASS_OF_TEMP2(O,CLASS) (O)->objclass = (classtype) (CLASS) | TEMP2_MASK
-#define SET_TEMP2_FLAG(O)            (O)->objclass = (O)->objclass | TEMP2_MASK
-#define CLEAR_TEMP2_FLAG(O)          (O)->objclass = (O)->objclass & ~TEMP2_MASK
-#define TEMP2_OBJECT(O)              ((O)->objclass & TEMP2_MASK)
+#define INIT_CLASS_OF_TEMP2(O,CLASS)   (O)->objclass = (classtype) (CLASS) | TEMP2_MASK
+#define SET_TEMP2_FLAG(O)              (O)->objclass = (O)->objclass | TEMP2_MASK
+#define CLEAR_TEMP2_FLAG(O)            (O)->objclass = (O)->objclass & ~TEMP2_MASK
+#define TEMP2_OBJECT(O)                ((O)->objclass & TEMP2_MASK)
+
+#define INIT_CLASS_OF_POSINFO(O,CLASS) (O)->objclass = (classtype) (CLASS) | POSINFO_MASK
+#define SET_POSINFO_FLAG(O)            (O)->objclass = (O)->objclass | POSINFO_MASK
+#define CLEAR_POSINFO_FLAG(O)          (O)->objclass = (O)->objclass & ~POSINFO_MASK
+#define HAS_POSINFO(O)                 ((O)->objclass & POSINFO_MASK)
+
+#define HAS_DESCRIPTOR_ENTITY(O)       (!HAS_POSINFO(O) && (O)->descriptor.entity != NULL) 

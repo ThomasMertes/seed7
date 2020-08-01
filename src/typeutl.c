@@ -64,7 +64,7 @@ typetype result_type;
       if (ALLOC_RECORD(created_type, typerecord)) {
         COUNT_RECORD(typerecord, count.type);
         match_obj->type_of = NULL;
-        match_obj->entity = NULL;
+        match_obj->descriptor.entity = NULL;
         match_obj->value.typevalue = created_type;
         INIT_CLASS_OF_OBJ(match_obj, TYPEOBJECT);
         created_type->match_obj = match_obj;

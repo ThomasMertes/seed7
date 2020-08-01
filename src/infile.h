@@ -34,9 +34,9 @@
 /********************************************************************/
 
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
-#define next_character()  (in_file.nextch >= in_file.byond ? fill_buf() : (int) *in_file.nextch++)
-#define FILE_TELL()       (ftell(in_file.fil) + (in_file.nextch - in_file.byond))
-#define FILE_SEEK(POS)    (fseek(in_file.fil, (POS), SEEK_SET), in_file.nextch = in_file.byond)
+#define next_character()  (in_file.nextch >= in_file.beyond ? fill_buf() : (int) *in_file.nextch++)
+#define FILE_TELL()       (ftell(in_file.fil) + (in_file.nextch - in_file.beyond))
+#define FILE_SEEK(POS)    (fseek(in_file.fil, (POS), SEEK_SET), in_file.nextch = in_file.beyond)
 #define MEM_TELL()        (in_file.nextch - in_file.start)
 #define MEM_SEEK(POS)     (in_file.nextch = in_file.start + (POS))
 #ifdef USE_MMAP
@@ -60,15 +60,15 @@
 
 #ifdef DO_INIT
 infilrecord in_file = {
-    NULL, NULL, NULL,
+    NULL, NULL,
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
-    NULL, NULL, NULL, FALSE,
+    NULL, NULL, NULL, 0,
 #else
 #ifdef USE_INFILE_BUFFER
     NULL,
 #endif
 #endif
-    ' ', 0, 0, 0, TRUE};
+    ' ', NULL, NULL, NULL, 0, 0, 0, TRUE};
 #else
 EXTERN infilrecord in_file;
 #endif

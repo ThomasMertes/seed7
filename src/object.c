@@ -35,6 +35,7 @@
 #include "heaputl.h"
 #include "flistutl.h"
 #include "entutl.h"
+#include "infile.h"
 #include "memory.h"
 #include "fatal.h"
 #include "stat.h"
@@ -68,8 +69,8 @@ objecttype typeof_object;
       fatal_memory_error(SOURCE_POSITION(2053));
     } /* if */
     created_list->type_of = take_type(typeof_object);
-    created_list->entity = entity.literal;
-    created_list->objclass = EXPROBJECT;
+    created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
+    INIT_CLASS_OF_POSINFO(created_list, EXPROBJECT);
     created_list->value.listvalue = NULL;
 #ifdef TRACE_OBJECT
     printf("END new_empty_list_object ");
@@ -110,8 +111,8 @@ objecttype typeof_object;
       fatal_memory_error(SOURCE_POSITION(2054));
     } /* if */
     created_list->type_of = take_type(typeof_object);
-    created_list->entity = entity.literal;
-    INIT_CLASS_OF_OBJ(created_list, EXPROBJECT);
+    created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
+    INIT_CLASS_OF_POSINFO(created_list, EXPROBJECT);
     if (!ALLOC_L_ELEM(*list)) {
       fatal_memory_error(SOURCE_POSITION(2055));
     } /* if */
@@ -157,8 +158,8 @@ typetype type_of;
       fatal_memory_error(SOURCE_POSITION(2054));
     } /* if */
     created_list->type_of = type_of;
-    created_list->entity = entity.literal;
-    INIT_CLASS_OF_OBJ(created_list, EXPROBJECT);
+    created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
+    INIT_CLASS_OF_POSINFO(created_list, EXPROBJECT);
     if (!ALLOC_L_ELEM(*list)) {
       fatal_memory_error(SOURCE_POSITION(2055));
     } /* if */

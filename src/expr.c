@@ -398,8 +398,8 @@ booltype do_match_expr;
             &helplist, NULL);
         if (current_ident == prog.id_for.dot) {
           err_num_stri(DOT_EXPR_ILLEGAL,
-              (int) helplist->obj->entity->ident->prefix_priority,
-              (int) STRONGEST_PRIORITY, helplist->obj->entity->ident->name);
+              (int) helplist->obj->descriptor.entity->ident->prefix_priority,
+              (int) STRONGEST_PRIORITY, helplist->obj->descriptor.entity->ident->name);
           expression = read_dot_expression(do_match_expr);
         } else {
           expression = pars_token(expression,

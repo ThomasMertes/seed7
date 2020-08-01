@@ -1012,7 +1012,7 @@ listtype expr_list;
 #endif
     if (ALLOC_OBJECT(match_expr)) {
       match_expr->type_of = take_type(SYS_EXPR_TYPE);
-      match_expr->entity = entity.literal;
+      match_expr->descriptor.entity = entity.literal;
       match_expr->value.listvalue = NULL;
       list_insert_place = &match_expr->value.listvalue;
       INIT_CLASS_OF_OBJ(match_expr, EXPROBJECT);

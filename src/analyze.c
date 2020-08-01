@@ -366,6 +366,7 @@ errinfotype *err_info;
     } else {
       COUNT_RECORD(progrecord, count.prog);
       resultProg->usage_count = 1;
+      resultProg->main_object = NULL;
       memcpy(&prog_backup, &prog, sizeof(progrecord));
       init_idents(&prog, err_info);
       init_findid(err_info);
@@ -386,10 +387,10 @@ errinfotype *err_info;
 /*          printf("main defined as: ");
           trace1(SYS_MAIN_OBJECT);
           printf("\n"); */
-          if (SYS_MAIN_OBJECT->entity != NULL) {
-            if (SYS_MAIN_OBJECT->entity->owner != NULL) {
-              if (SYS_MAIN_OBJECT->entity->owner->obj != NULL) {
-                resultProg->main_object = SYS_MAIN_OBJECT->entity->owner->obj;
+          if (HAS_DESCRIPTOR_ENTITY(SYS_MAIN_OBJECT)) {
+            if (SYS_MAIN_OBJECT->descriptor.entity->owner != NULL) {
+              if (SYS_MAIN_OBJECT->descriptor.entity->owner->obj != NULL) {
+                resultProg->main_object = SYS_MAIN_OBJECT->descriptor.entity->owner->obj;
                 if ((resultProg->main_object = match_object(resultProg->main_object)) != NULL) {
 /*                  printf("main after match_object: ");
                   trace1(resultProg->main_object);
@@ -398,13 +399,13 @@ errinfotype *err_info;
                   printf("*** Main not callobject\n");
                 } /* if */
               } else {
-                printf("SYS_MAIN_OBJECT->entity->objects->obj == NULL\n");
+                printf("SYS_MAIN_OBJECT->descriptor.entity->objects->obj == NULL\n");
               } /* if */
             } else {
-              printf("SYS_MAIN_OBJECT->entity->objects == NULL\n");
+              printf("SYS_MAIN_OBJECT->descriptor.entity->objects == NULL\n");
             } /* if */
           } else {
-            printf("SYS_MAIN_OBJECT->entity == NULL\n");
+            printf("SYS_MAIN_OBJECT->descriptor.entity == NULL\n");
           } /* if */
         } /* if */
         /* close_stack(&prog); * can be used when no matching is done during the runtime */
@@ -418,6 +419,7 @@ errinfotype *err_info;
         memcpy(&resultProg->id_for,   &prog.id_for, sizeof(findidtype));
         memcpy(&resultProg->sys_var,  &prog.sys_var, sizeof(systype));
         resultProg->declaration_root = prog.declaration_root;
+        resultProg->stack_global     = prog.stack_global;
         resultProg->stack_data       = prog.stack_data;
         resultProg->stack_current    = prog.stack_current;
         memcpy(&prog, &prog_backup, sizeof(progrecord));

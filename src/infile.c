@@ -86,7 +86,7 @@ int fill_buf ()
         (chars_read = fread(in_file.start, 1,
         (SIZE_TYPE) in_file.buffer_size, in_file.fil)) != 0) {
       in_file.nextch = in_file.start;
-      in_file.byond = in_file.start + chars_read;
+      in_file.beyond = in_file.start + chars_read;
       result = next_character();
     } else {
       result = EOF;
@@ -174,7 +174,7 @@ static INLINE booltype speedup ()
           PROT_READ, MAP_PRIVATE, fileno(in_file.fil),
           0)) != (ustritype) -1) {
         in_file.nextch = in_file.start;
-        in_file.byond = in_file.start + file_length;
+        in_file.beyond = in_file.start + file_length;
         in_file.buffer_size = 0;
       } else {
         if (ALLOC_BYTES(in_file.start, file_length)) {
@@ -182,7 +182,7 @@ static INLINE booltype speedup ()
           if (fread(in_file.start, 1, file_length, in_file.fil) ==
               file_length) {
             in_file.nextch = in_file.start;
-            in_file.byond = in_file.start + file_length;
+            in_file.beyond = in_file.start + file_length;
             in_file.buffer_size = file_length;
             fseek(in_file.fil, 0, SEEK_SET);
           } else {
@@ -205,13 +205,13 @@ static INLINE booltype speedup ()
     if (ALLOC_BYTES(in_file.start, in_file.buffer_size)) {
       COUNT_BYTES(in_file.buffer_size);
       in_file.nextch = in_file.start + in_file.buffer_size;
-      in_file.byond = in_file.start;
+      in_file.beyond = in_file.start;
     } else {
       in_file.buffer_size = 512;
       if (ALLOC_BYTES(in_file.start, in_file.buffer_size)) {
         COUNT_BYTES(in_file.buffer_size);
         in_file.nextch = in_file.start + in_file.buffer_size;
-        in_file.byond = in_file.start;
+        in_file.beyond = in_file.start;
       } else {
         okay = FALSE;
       } /* if */
@@ -252,10 +252,11 @@ errinfotype *err_info;
     ustritype os_file_name;
     infiltype new_file;
     FILE *in_fil;
+    ustritype in_name;
 
   /* open_infile */
 #ifdef TRACE_INFILE
-    printf("BEGIN open_infile\n");
+    printf("BEGIN open_infile err_info=%u\n", *err_info);
 #endif
     make_os_file_name(source_file_name, &os_file_name, err_info);
     if (*err_info == OKAY_NO_ERROR) {
@@ -266,31 +267,30 @@ errinfotype *err_info;
       if (in_fil == NULL) {
         *err_info = FILE_ERROR;
       } else {
-        new_file = NULL;
-/*      if (in_file.fil != NULL) { */
-        if (!in_file.end_of_file) {
-          if (!ALLOC_FILE(new_file)) {
+        if (!ALLOC_FILE(new_file)) {
+          fclose(in_file.fil);
+          *err_info = MEMORY_ERROR;
+        } else {
+          in_name = cp_to_cstri(source_file_name);
+          if (in_name == NULL) {
+            fclose(in_file.fil);
             *err_info = MEMORY_ERROR;
           } else {
-            memcpy(new_file, &in_file, sizeof(infilrecord));
-            in_file.next = new_file;
-          } /* if */
-        } /* if */
-        if (*err_info == OKAY_NO_ERROR) {
-          in_file.fil = in_fil;
-          if (!speedup()) {
-            fclose(in_file.fil);
-            if (new_file != NULL) {
-              memcpy(&in_file, new_file, sizeof(infilrecord));
-              FREE_FILE(new_file);
-            } else {
-              in_file.fil = NULL;
+            if (in_file.curr_infile != NULL) {
+              memcpy(in_file.curr_infile, &in_file, sizeof(infilrecord));
             } /* if */
-          } else {
-            in_file.name = cp_to_cstri(source_file_name);
-            if (in_file.name == NULL) {
-              *err_info = MEMORY_ERROR;
+            in_file.fil = in_fil;
+            if (!speedup()) {
+              fclose(in_file.fil);
+              free_cstri(in_name, source_file_name);
+              if (in_file.curr_infile != NULL) {
+                memcpy(&in_file, in_file.curr_infile, sizeof(infilrecord));
+              } else {
+                in_file.fil = NULL;
+              } /* if */
+              *err_info = FILE_ERROR;
             } else {
+              in_file.name = in_name;
               in_file.character = next_character();
               in_file.line = 1;
               in_file.next_msg_line = 1 + option.incr_message_line;
@@ -298,13 +298,18 @@ errinfotype *err_info;
               in_file.file_number = file_counter;
               open_compilation_info();
               in_file.end_of_file = FALSE;
+              in_file.up_infile = in_file.curr_infile;
+              in_file.curr_infile = new_file;
+              in_file.next = file_pointer;
+              file_pointer = new_file;
+              memcpy(new_file, &in_file, sizeof(infilrecord));
             } /* if */
           } /* if */
         } /* if */
       } /* if */
     } /* if */
 #ifdef TRACE_INFILE
-    printf("END open_infile\n");
+    printf("END open_infile err_info=%u\n", *err_info);
 #endif
   } /* open_infile */
 
@@ -318,11 +323,7 @@ void close_infile (void)
 void close_infile ()
 #endif
 
-  {
-    infiltype help_file;
-    infilrecord in_file_temp;
-
-  /* close_infile */
+  { /* close_infile */
 #ifdef TRACE_INFILE
     printf("BEGIN close_infile\n");
 #endif
@@ -342,7 +343,7 @@ void close_infile ()
       if (in_file.buffer_size == 0) {
 #ifdef USE_MMAP
         if (in_file.fil != NULL) {
-          munmap(in_file.start, (SIZE_TYPE) (in_file.byond - in_file.start));
+          munmap(in_file.start, (SIZE_TYPE) (in_file.beyond - in_file.start));
         } /* if */
 #endif
       } else {
@@ -363,21 +364,13 @@ void close_infile ()
 #endif
 /*  FREE_USTRI(in_file.name, strlen((cstritype) in_file.name),
         count.fnam, count.fnam_bytes); */
-    if (in_file.next != NULL) {
-      help_file = in_file.next;
-      memcpy(&in_file_temp, &in_file, sizeof(infilrecord));
-      memcpy(&in_file, in_file.next, sizeof(infilrecord));
-      memcpy(help_file, &in_file_temp, sizeof(infilrecord));
-      display_compilation_info();
-    } else {
-      if (!ALLOC_FILE(help_file)) {
-        fatal_memory_error(SOURCE_POSITION(2023));
-      } else {
-        memcpy(help_file, &in_file, sizeof(infilrecord));
-      } /* if */
+    if (in_file.curr_infile != NULL) {
+      memcpy(in_file.curr_infile, &in_file, sizeof(infilrecord));
     } /* if */
-    help_file->next = file_pointer;
-    file_pointer = help_file;
+    if (in_file.up_infile != NULL) {
+      memcpy(&in_file, in_file.up_infile, sizeof(infilrecord));
+      display_compilation_info();
+    } /* if */
     in_file.next_msg_line = in_file.line + option.incr_message_line;
 #ifdef TRACE_INFILE
     printf("END close_infile\n");
@@ -400,40 +393,45 @@ errinfotype *err_info;
     ustritype source_file_name = "STRING";
     infiltype new_file;
     unsigned int name_length;
+    ustritype in_name;
 
   /* open_string */
 #ifdef TRACE_INFILE
     printf("BEGIN open_string\n");
 #endif
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
-/*  if (in_file.fil != NULL) { */
-    if (!in_file.end_of_file) {
+    if (*err_info == OKAY_NO_ERROR) {
       if (!ALLOC_FILE(new_file)) {
         *err_info = MEMORY_ERROR;
       } else {
-        memcpy(new_file, &in_file, sizeof(infilrecord));
-        in_file.next = new_file;
-      } /* if */
-    } /* if */
-    if (*err_info == OKAY_NO_ERROR) {
-      name_length = strlen((cstritype) source_file_name);
-      if (!ALLOC_USTRI(in_file.name, name_length)) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
-        strcpy((cstritype) in_file.name, (cstritype) source_file_name);
-        in_file.fil = NULL;
-        in_file.start = input_string->mem;
-        in_file.nextch = in_file.start;
-        in_file.byond = in_file.start + input_string->size;
-        in_file.buffer_size = 0;
-        in_file.character = next_character();
-        in_file.line = 1;
-        in_file.next_msg_line = 1 + option.incr_message_line;
-        file_counter++;
-        in_file.file_number = file_counter;
-        open_compilation_info();
-        in_file.end_of_file = FALSE;
+       name_length = strlen((cstritype) source_file_name);
+        if (!ALLOC_USTRI(in_name, name_length)) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
+          strcpy((cstritype) in_name, (cstritype) source_file_name);
+          if (in_file.curr_infile != NULL) {
+            memcpy(in_file.curr_infile, &in_file, sizeof(infilrecord));
+          } /* if */
+          in_file.fil = NULL;
+          in_file.name = in_name;
+          in_file.start = input_string->mem;
+          in_file.nextch = in_file.start;
+          in_file.beyond = in_file.start + input_string->size;
+          in_file.buffer_size = 0;
+          in_file.character = next_character();
+          in_file.line = 1;
+          in_file.next_msg_line = 1 + option.incr_message_line;
+          file_counter++;
+          in_file.file_number = file_counter;
+          open_compilation_info();
+          in_file.end_of_file = FALSE;
+          in_file.up_infile = in_file.curr_infile;
+          in_file.curr_infile = new_file;
+          in_file.next = file_pointer;
+          file_pointer = new_file;
+          memcpy(new_file, &in_file, sizeof(infilrecord));
+        } /* if */
       } /* if */
     } /* if */
 #endif

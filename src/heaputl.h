@@ -102,7 +102,7 @@ EXTERN int successful_mallocs;
 typedef struct {
     char *freemem;
     char *start;
-    char *byond;
+    char *beyond;
     unsigned int size;
     memsizetype total_size;
     memsizetype lost_bytes;
