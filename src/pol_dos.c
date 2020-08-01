@@ -58,7 +58,7 @@ void initPollOperations (const createfunctype incrUsageCount,
 
 
 void polAddCheck (const polltype pollData, const sockettype aSocket,
-    inttype eventsToCheck, const rtlGenerictype fileObj)
+    inttype eventsToCheck, const generictype fileObj)
 
   { /* polAddCheck */
   } /* polAddCheck */
@@ -139,7 +139,7 @@ void polIterFindings (const polltype pollData, inttype pollMode)
 
 
 
-rtlGenerictype polNextFile (const polltype pollData, const rtlGenerictype nullFile)
+generictype polNextFile (const polltype pollData, const generictype nullFile)
 
   { /* polNextFile */
     return nullFile;

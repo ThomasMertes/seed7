@@ -575,7 +575,9 @@ void cmdStartProcess (const const_stritype command, const const_rtlArraytype par
           CloseHandle(processInformation.hThread);
         } else {
           /* printf("GetLastError=%d\n", GetLastError());
-             printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND); */
+             printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND);
+             prot_os_stri(os_command_stri);
+             printf("\n"); */
           err_info = FILE_ERROR;
         } /* if */
         /* printf("after CreateProcessW\n"); */

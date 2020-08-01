@@ -339,6 +339,43 @@ void determineMallocAlignment (void)
 
 
 
+void checkForLimitedStringLiteralLength (void)
+  {
+    const char *programStart = "#include <stdio.h>\n#include <string.h>\n"
+                               "int main(int argc, char *argv[]){\n"
+                               "char *stri =\n";
+    const char *line = "\"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\"\n";
+    const char *programEnd = "; printf(\"%d\\n\", strlen(stri) != 0); return 0;}\n";
+    const int repeatCount = 1000; /* Corresponds to a string literal length of 100000. */
+    int lineLength;
+    int totalLength;
+    int count;
+    char *buffer;
+    char *bufPos;
+
+  /* checkForLimitedStringLiteralLength */
+    lineLength = strlen(line);
+    totalLength = strlen(programStart) + lineLength * repeatCount + strlen(programEnd);
+    buffer = (char *) malloc((totalLength + 1) * sizeof(char));
+    strcpy(buffer, programStart);
+    bufPos = &buffer[strlen(buffer)];
+    for (count = 1; count <= repeatCount; count++) {
+      strcpy(bufPos, line);
+      bufPos += lineLength;
+    } /* for */
+    strcpy(bufPos, programEnd);
+    /* printf("%s\n", buffer); */
+    /* Some C compilers limit the maximum string literal length. */
+    /* There are limits of 2,048 bytes and 16,384 (16K) bytes.   */
+    if (!compilationOkay(buffer)) {
+      /* A string literal of size repeatCount * lineLength is not accepted. */
+      puts("#define LIMITED_CSTRI_LITERAL_LEN");
+    } /* if */
+    free(buffer);
+  } /* checkForLimitedStringLiteralLength */
+
+
+
 void detemineStackDirection (void)
 
   {
@@ -371,7 +408,6 @@ int main (int argc, char **argv)
       char           charvalue;
       unsigned long  genericvalue;
     } testUnion;
-    int sigbus_signal_defined = 0;
     int zero_divide_triggers_signal = 0;
     float zero = 0.0;
     float negativeZero;
@@ -606,12 +642,41 @@ int main (int argc, char **argv)
     if (testUnion.charvalue != (char) testUnion.genericvalue) {
       puts("#define CASTING_DOES_NOT_GET_A_UNION_ELEMENT");
     } /* if */
+    if (compilationOkay("#include <stdio.h>\n#include <string.h>\n"
+                        "int main(int argc, char *argv[]){\n"
+                        "printf(\"%d\\n\", strcmp(\"\?\?(\", \"[\") == 0);\n"
+                        "return 0;}\n") && doTest() == 1) {
+      puts("#define TRIGRAPH_SEQUENCES_ARE_REPLACED");
+    } /* if */
+    checkForLimitedStringLiteralLength();
     stack_base = &aVariable;
     detemineStackDirection();
+#ifndef STACK_SIZE
+    if (sizeof(char *) == 8) { /* Machine with 64-bit addresses */
+      /* Due to alignment some 64-bit machines have huge stack requirements. */
+      puts("#define STACK_SIZE 0x1000000"); /* 16777216 bytes */
+    } /* if */
+#endif
+    if (compilationOkay("#include <stdio.h>\n#include <sys/resource.h>\n"
+                        "int main(int argc, char *argv[]){\n"
+                        "struct rlimit rlim;\n"
+                        "printf(\"%d\\n\", getrlimit(RLIMIT_STACK, &rlim) == 0);\n"
+                        "return 0;}\n") && doTest() == 1) {
+      puts("#define HAS_GETRLIMIT");
+    } /* if */
+    if (compilationOkay("#include <stdio.h>\n#include <setjmp.h>\n"
+                        "int main(int argc, char *argv[]){\n"
+                        "sigjmp_buf env; int ret_code; int count = 2;\n"
+                        "if ((ret_code =sigsetjmp(env, 1)) == 0) {\n"
+                        "count--; siglongjmp(env, count);\n"
+                        "} else printf(\"%d\\n\", ret_code);\n"
+                        "return 0;}\n") && doTest() == 1) {
+      puts("#define HAS_SIGSETJMP");
+    } /* if */
 #ifdef INT_DIV_BY_ZERO_POPUP
     puts("#define CHECK_INT_DIV_BY_ZERO");
 #else
-    if (!compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){printf(\"%d\", 1/0);return 0;}\n")) {
+    if (!compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){printf(\"%d\\n\", 1/0);return 0;}\n")) {
       puts("#define CHECK_INT_DIV_BY_ZERO");
     } else if (compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
                                "void handleSig(int sig){puts(\"2\");exit(0);}\n"
@@ -708,7 +773,7 @@ int main (int argc, char **argv)
     } /* if */
     if (nanValue1 == nanValue2 ||
         nanValue1 <  nanValue2 || nanValue1 >  nanValue2 ||
-        nanValue1 <= nanValue2 || nanValue1 <= nanValue2) {
+        nanValue1 <= nanValue2 || nanValue1 >= nanValue2) {
       puts("#define NAN_COMPARISON_WRONG");
     } /* if */
     minusZero = -zero;
@@ -758,17 +823,19 @@ int main (int argc, char **argv)
     } /* if */
 #endif
     determineEnvironDefines();
+#ifdef OS_PATH_HAS_DRIVE_LETTERS
     if (getenv("USERPROFILE") != NULL) {
       /* When USERPROFILE is defined then it is used, even when HOME is defined. */
       puts("#define HOME_DIR_ENV_VAR {'U', 'S', 'E', 'R', 'P', 'R', 'O', 'F', 'I', 'L', 'E', 0}");
     } else if (getenv("HOME") != NULL) {
       puts("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}");
-#ifdef OS_PATH_HAS_DRIVE_LETTERS
     } else {
       puts("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}");
       puts("#define DEFAULT_HOME_DIR {'C', ':', '\\\\', 0}");
-#endif
     } /* if */
+#else
+    puts("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}");
+#endif
     if (compilationOkay("#include<poll.h>\nint main(int argc,char *argv[])"
                         "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n")) {
       puts("#define HAS_POLL");

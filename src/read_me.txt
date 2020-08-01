@@ -776,6 +776,8 @@ THE VERSION.H FILE
              Windows uses the functions getUtf16Argv and
              freeUtf16Argv (both defined in "cmd_win.c").
 
+  USE_WINMAIN: Defined when the main function is named WinMain.
+
   USE_DIRENT: The header file containing the definitions for
               opendir(), readdir() and closedir() has the name
               <dirent.h>. Only one #define of USE_DIRxxx is
@@ -810,17 +812,16 @@ THE VERSION.H FILE
                     allowed.
 
   AWAIT_WITH_SIGACTION: The function timAwait() uses the
-                        functions sigaction(), sigsetjmp(),
-                        setitimer(), pause(), siglongjmp() and
-                        a signal handler function to catch
-                        a SIGALRM signal. Only one #define of
-                        AWAIT_WITH_xxx is allowed.
+                        functions sigaction(), setitimer(),
+                        pause() and a signal handler function to
+                        catch a SIGALRM signal. Only one #define
+                        of AWAIT_WITH_xxx is allowed.
 
   AWAIT_WITH_SIGNAL: The function timAwait() uses the functions
-                     signal(), setjmp(), setitimer(), pause(),
-                     longjmp() and a signal handler function to
-                     catch a SIGALRM signal. Only one #define of
-                     AWAIT_WITH_xxx is allowed.
+                     signal(), setitimer(), pause() and a signal
+                     handler function to catch a SIGALRM signal.
+                     Only one #define of AWAIT_WITH_xxx is
+                     allowed.
 
   OS_STRI_WCHAR: Defined when the system calls (os_...) use
                  wide characters (type wchar_t) for string
@@ -963,11 +964,15 @@ THE VERSION.H FILE
 
   LONG_SIZE: Size of a long int in bits.
 
-  POINTER_SIZE: Size of a pointer in bits.
+  INTTYPE_SIZE: Size of an inttype in bits (either 32 or 64).
 
   FLOAT_SIZE: Size of a float in bits.
 
   DOUBLE_SIZE: Size of a double in bits.
+
+  FLOATTYPE_SIZE: Size of an inttype in bits (either FLOAT_SIZE or DOUBLE_SIZE).
+
+  POINTER_SIZE: Size of a pointer in bits.
 
   OS_OFF_T_SIZE: Size of os_off_t in bits.
 
@@ -1104,6 +1109,14 @@ THE VERSION.H FILE
                                 from unaligned memory positions.
                                 This macro is currently not used.
 
+  HAS_GETRLIMIT: Defined when the functions getrlimit() and
+                 setrlimit() are available.
+
+  HAS_SIGSETJMP: Defined when the functions sigsetjmp() and
+                 siglongjmp() are available. When HAS_SIGSETJMP is
+                 not defined the functions setjmp() and longjmp()
+                 are used instead.
+
   INT_DIV_BY_ZERO_POPUP: Defined when an integer division by zero
                          may trigger a popup window. Consequently
                          chkccomp.c defines CHECK_INT_DIV_BY_ZERO,
@@ -1150,8 +1163,9 @@ THE VERSION.H FILE
                            NaN this function must be defined and
                            it must return 1.
 
-  NAN_COMPARISON_WRONG: Defined when a comparison between two
-                        NaN values is TRUE.
+  NAN_COMPARISON_WRONG: Defined when a comparison between two NaN
+                        values (with  ==  <  >  <=  or  >= )
+                        returns TRUE.
 
   POWER_OF_ZERO_WRONG: Defined when the pow() function does not
                        work correctly, when the base is zero and
@@ -1204,6 +1218,11 @@ THE VERSION.H FILE
 
   LIMITED_CSTRI_LITERAL_LEN: Defined when the C compiler limits
                              the length of string literals.
+
+  CC_SOURCE_UTF8: Defined when the C compiler accepts UTF-8 encoded
+                  file names in #line directives. The file names
+                  from #line directives are used by the debugger to
+                  allow source code debugging.
 
   OBJECT_FILE_EXTENSION: The extension used by the C compiler for
                          object files (Several object files and
@@ -1302,10 +1321,16 @@ THE VERSION.H FILE
                                 SEED7_LIBRARY cannot be determined
                                 at compile time.
 
-  INT32TYPE: A signed integer type that is 32 bits wide.
+  INT32TYPE: Name of a signed integer type that is 32 bits wide.
 
-  UINT32TYPE: An unsigned integer type that is 32 bits wide.
+  UINT32TYPE: Name of an unsigned integer type that is 32 bits wide.
 
-  INT64TYPE: A signed integer type that is 64 bits wide.
+  INT64TYPE: Name of a signed integer type that is 64 bits wide.
 
-  UINT64TYPE: An unsigned integer type that is 64 bits wide.
+  UINT64TYPE: Name of an unsigned integer type that is 64 bits wide.
+
+  INT32TYPE_LITERAL_SUFFIX: The suffix used by the literals of the
+                            32 bits wide integer type.
+
+  INT64TYPE_LITERAL_SUFFIX: The suffix used by the literals of the
+                            64 bits wide integer type.

@@ -66,8 +66,8 @@ wintype find_window (HWND sys_window)
     } else {
       window = (wintype) (memsizetype)
           hshIdxWithDefault(window_hash,
-                            (rtlGenerictype) (memsizetype) sys_window,
-                            (rtlGenerictype) (memsizetype) NULL,
+                            (generictype) (memsizetype) sys_window,
+                            (generictype) (memsizetype) NULL,
                             (inttype) ((memsizetype) sys_window) >> 6,
                             (comparetype) &genericCmp);
     } /* if */
@@ -83,8 +83,8 @@ void enter_window (wintype curr_window, HWND sys_window)
       window_hash = hshEmpty();
     } /* if */
     (void) hshIdxEnterDefault(window_hash,
-                              (rtlGenerictype) (memsizetype) sys_window,
-                              (rtlGenerictype) (memsizetype) curr_window,
+                              (generictype) (memsizetype) sys_window,
+                              (generictype) (memsizetype) curr_window,
                               (inttype) ((memsizetype) sys_window) >> 6,
                               (comparetype) &genericCmp,
                               (createfunctype) &genericCreate,
@@ -97,7 +97,7 @@ void remove_window (HWND sys_window)
 
   { /* remove_window */
     hshExcl(window_hash,
-            (rtlGenerictype) (memsizetype) sys_window,
+            (generictype) (memsizetype) sys_window,
             (inttype) ((memsizetype) sys_window) >> 6,
             (comparetype) &genericCmp,
             (destrfunctype) &genericDestr,

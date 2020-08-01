@@ -396,35 +396,45 @@ statically typed <a class="link" href="#call_by_name">call-by-name</a> parameter
 <div><br /><a name="portable"><h3>Are Seed7 programs portable?
 </h3></a><hr />
 <p>
-Yes. Seed7 spares no effort to support portable programming.
-Several driver libraries assure that the access to operating system
-resources such as files, directories, network, clock, keyboard,
-console and graphics are done in a portable way. Many functions
-are defined to avoid the need to use shell (and cmd.exe) commands.
+Yes. Seed7 spares no effort to support source code portability.
+No changes are necessary, when programs are moved between different
+processors, between 32- and 64-bit systems or between little- and
+big-endian machines. Seed7 source code can also be moved between
+different operating systems. Several driver libraries assure that
+the access to operating system resources such as files, directories,
+network, clock, keyboard, console and graphics is done in a portable
+way. The <a class="link" href="libraries/index.htm">libraries</a> of Seed7 cover many areas. The goal is: There
+should be no need to <a class="link" href="manual/ffi.htm">call foreign C functions</a>, or to <a class="link" href="libraries/shell.htm">execute shell</a>
+(respectively cmd.exe) commands.
 </p><ul>
+<li>Seed7 <a class="link" href="#cmd_config_value">determines the properties</a> of the underlying C compiler and
+   C runtime library and uses code to compensate the differences.</li>
 <li>Different <a class="link" href="#unicode">Unicode</a> encodings (e.g.: UTF-8 or UTF-16) in system
    calls (e.g. fopen()/wopen()) are hidden from the programmer.</li>
-<li>Portable file functions:<ul>
-<li><a class="link" href="manual/os.htm#copyFile">Copying</a>, <a class="link" href="manual/os.htm#moveFile">moving</a> and <a class="link" href="manual/os.htm#removeFile">removing files</a> (and directory trees).</li>
+<li>Portable file functions are provided in the library <a class="lib" href="libraries/osfiles.htm">osfiles.s7i</a>:<ul>
+<li>There are functions to <a class="link" href="manual/os.htm#copyFile">copy</a>, <a class="link" href="manual/os.htm#moveFile">move</a> and <a class="link" href="manual/os.htm#removeFile">remove</a> files (and
+      directory trees).</li>
 <li>File properties such as <a class="link" href="manual/os.htm#fileSize">size</a>, <a class="link" href="manual/os.htm#fileType">type</a>, <a class="link" href="manual/os.htm#getATime">time</a> and <a class="link" href="manual/os.htm#fileMode">mode</a> can be
       obtained and changed.</li>
-<li><a class="link" href="manual/os.htm#readDir">Reading the contents of a directory</a> as array of strings or
+<li><a class="link" href="manual/os.htm#readDir">The contents of a directory</a> can be read as array of strings or
       <a class="link" href="libraries/dir.htm">via the file interface</a>.</li>
 <li>A <a class="link" href="manual/os.htm#Standard_path_representation">standard path representation</a> removes all problems with
       drive letters and different path delimiters.</li></ul></li>
 <li>Differences between Unix sockets and winsockets are hidden and
-   in Seed7 a <tt><a class="type" href="manual/file.htm#Sockets">socket</a></tt> is a <tt><a class="type" href="manual/types.htm#file">file</a></tt> (as in Unix).</li>
+   a Seed7 <tt><a class="type" href="manual/file.htm#Sockets">socket</a></tt> is a <tt><a class="type" href="manual/types.htm#file">file</a></tt> (as in Unix). The type <tt><a class="type" href="libraries/poll.htm#pollData">pollData</a></tt> allows
+   to wait until a socket is ready to read or write data.</li>
 <li>The library <a class="lib" href="libraries/keybd.htm">keybd.s7i</a> defines the file <a class="var" href="manual/file.htm#Keyboard_file">KEYBOARD</a>, which supports
    reading single key presses. The characters read from <a class="var" href="manual/file.htm#Keyboard_file">KEYBOARD</a> are
    not echoed to the console and there is no need to press ENTER.
    There is also a portable way to check, if a <a class="link" href="libraries/keybd.htm#keypressed(in_keyboard_file)">key has been pressed</a>.</li>
-<li><a class="link" href="manual/file.htm#Keyboard_file">Reading keys</a> and key combinations such as ctrl-F1 from a
-   <a class="link" href="libraries/console.htm">text console</a> or a <a class="link" href="libraries/draw.htm">graphic window</a> under different operating
-   systems always delivers the same character code.</li>
-<li>An operating system independent type for <a class="link" href="manual/types.htm#time">times and dates</a>,
-   based on the proleptic Gregorian calendar, is provided in
-   the library <a class="lib" href="libraries/time.htm">time.s7i</a>.</li>
-<li>A <a class="link" href="libraries/console.htm">text console</a> which allows <a class="link" href="libraries/console.htm#setPos(in_console_file,in_integer,in_integer)">cursor positioning</a>.</li>
+<li><a class="link" href="manual/file.htm#Keyboard_file">Reading keys</a> and key combinations such as ctrl-F1 from a <a class="link" href="libraries/console.htm">text
+   console</a> or a <a class="link" href="libraries/draw.htm">graphic window</a> under different operating systems
+   always delivers the same character code.</li>
+<li>There is an access to the <a class="link" href="libraries/console.htm">text console</a>, which allows <a class="link" href="libraries/console.htm#setPos(in_console_file,in_integer,in_integer)">cursor
+   positioning</a>.</li>
+<li>An operating system independent type for <a class="link" href="manual/types.htm#time">times and dates</a>, based
+   on the proleptic Gregorian calendar, is provided in the library
+   <a class="lib" href="libraries/time.htm">time.s7i</a>.</li>
 <li>A <a class="link" href="libraries/draw.htm">portable graphics library</a> allows drawing, image operations,
    windows manipulation and bitmap <a class="link" href="libraries/font.htm">fonts</a>. Events to redraw a window
    and other annoyances are managed in the graphics library.</li>
@@ -512,7 +522,7 @@ Seed7 can be used in various application areas:
 <li><a class="link" href="scrshots/mahjong.htm">Mahjong solitaire</a></li>
 <li><a class="link" href="scrshots/pairs.htm">Pairs</a></li></ul></li>
 <li>Simulations. E.g.:<ul>
-<li><a class="link" href="scrshots/wator.htm">Planet Wator simulation with fish and sharks</a></li>
+<li><a class="link" href="scrshots/wator.htm">Planet Wator Predator-Prey simulation</a></li>
 <li><a class="link" href="scrshots/dnafight.htm">Bacteria which fight against each other</a></li></ul></li>
 <li>Functions to explore mathematics. E.g.:<ul>
 <li><a class="link" href="scrshots/mandelbr.htm">Mandelbrot set</a></li>
@@ -524,12 +534,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-10-27 the number of lines is:
+than 200000 lines of Seed7. For version 2013-11-10 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 94729</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  8153</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">116420</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 95032</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 95097</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  8159</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">116380</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 95527</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -2000,23 +2010,21 @@ also writes preprocessor macros to <tt><span class="stri">"version.h"</span></tt
 #define LITTLE_ENDIAN_INTTYPE
 </pre><p>
 The preprocessor macros used by <tt><span class="stri">"version.h"</span></tt> are described in
-<tt><span class="stri">"seed7/src/read_me.txt"</span></tt>. The function <tt>'cmdConfigValue()'</tt>, which is defined
-in <tt><span class="stri">"cmd_rtl.c"</span></tt>, allows access to several values from <tt><span class="stri">"version.h"</span></tt>. A Seed7
-program, like the <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a>, can obtain this information with the
-function <tt>'configValue'</tt>. The Seed7 function <tt>'configValue'</tt> calls the C function
-<tt>'cmdConfigValue()'</tt>, which returns the requested config value. Configuration
-values are returned as strings. E.g.: <tt>configValue(<span class="stri">"S7_LIB_DIR"</span>)</tt> returns
-<tt><span class="stri">"/home/abc/seed7/bin"</span></tt>. For macros which are either defined or undefined
-<tt>'configValue'</tt> returns <tt><span class="stri">"TRUE"</span></tt> or <tt><span class="stri">"FALSE"</span></tt> respectively. E.g.:
-<tt>configValue(<span class="stri">"TWOS_COMPLEMENT_INTTYPE"</span>)</tt> returns <tt><span class="stri">"TRUE"</span></tt>.
+<tt><span class="stri">"seed7/src/read_me.txt"</span></tt>. The Seed7 library <a class="lib" href="libraries/cc_conf.htm">cc_conf.s7i</a> can be used to access
+values from <tt><span class="stri">"version.h"</span></tt>. This library defines <tt><a class="func" href="libraries/cc_conf.htm#ccConf">ccConf</a></tt>, which is a constant
+of type <tt><a class="type" href="libraries/cc_conf.htm#ccConfigType">ccConfigType</a></tt>. The type <tt><a class="type" href="libraries/cc_conf.htm#ccConfigType">ccConfigType</a></tt> contains elements for various
+configuration values. In our example the element <tt><a class="link" href="libraries/cc_conf.htm#S7_LIB_DIR">S7_LIB_DIR</a></tt> has the value
+<tt><span class="stri">"/home/abc/seed7/bin"</span></tt>. For macros which are either defined or undefined the
+configuration value is <tt><a class="var" href="libraries/boolean.htm#TRUE">TRUE</a></tt> respectively <tt><a class="var" href="libraries/boolean.htm#FALSE">FALSE</a></tt>. In our example the element
+<tt><a class="link" href="libraries/cc_conf.htm#TWOS_COMPLEMENT_INTTYPE">TWOS_COMPLEMENT_INTTYPE</a></tt> has the value <tt><a class="var" href="libraries/boolean.htm#TRUE">TRUE</a></tt>.
 </p><p>
-The <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a> uses the runtime libraries SEED7_LIB, CONSOLE_LIB, DRAW_LIB,
-COMP_DATA_LIB and COMPILER_LIB in the directory S7_LIB_DIR when it links object
-files to an executable. Config values like RSHIFT_DOES_SIGN_EXTEND,
-TWOS_COMPLEMENT_INTTYPE and LITTLE_ENDIAN_INTTYPE are used to control the kind
-of C code produced by the <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a>. The function <tt>'configValue'</tt> can also
-obtain config values that do not come from <tt><span class="stri">"version.h"</span></tt>, but are defined in
-<tt><span class="stri">"seed7/src/config.h"</span></tt>. E.g.:
+The <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a> uses the runtime libraries <tt><a class="link" href="libraries/cc_conf.htm#SEED7_LIB">SEED7_LIB</a></tt>, <tt><a class="link" href="libraries/cc_conf.htm#CONSOLE_LIB">CONSOLE_LIB</a></tt>, <tt><a class="link" href="libraries/cc_conf.htm#DRAW_LIB">DRAW_LIB</a></tt>,
+<tt><a class="link" href="libraries/cc_conf.htm#COMP_DATA_LIB">COMP_DATA_LIB</a></tt> and <tt><a class="link" href="libraries/cc_conf.htm#COMPILER_LIB">COMPILER_LIB</a></tt> in the directory <tt><a class="link" href="libraries/cc_conf.htm#S7_LIB_DIR">S7_LIB_DIR</a></tt> when it links object
+files to an executable. Config values like <tt><a class="link" href="libraries/cc_conf.htm#RSHIFT_DOES_SIGN_EXTEND">RSHIFT_DOES_SIGN_EXTEND</a></tt>,
+<tt><a class="link" href="libraries/cc_conf.htm#TWOS_COMPLEMENT_INTTYPE">TWOS_COMPLEMENT_INTTYPE</a></tt> and <tt><a class="link" href="libraries/cc_conf.htm#LITTLE_ENDIAN_INTTYPE">LITTLE_ENDIAN_INTTYPE</a></tt> are used to control the kind
+of C code produced by the <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a>. The library <a class="lib" href="libraries/cc_conf.htm">cc_conf.s7i</a> provides
+also access to config values that do not come from <tt><span class="stri">"version.h"</span></tt>, but are
+defined in <tt><span class="stri">"seed7/src/config.h"</span></tt>. E.g.:
 </p><pre class="indent">
 #define WITH_STRI_CAPACITY
 #define ALLOW_STRITYPE_SLICES

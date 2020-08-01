@@ -418,8 +418,8 @@ inttype refNum (objecttype obj_arg)
         raise_error(MEMORY_ERROR);
         result = 0;
       } else {
-        result = (inttype) hshIdxEnterDefault(obj_table, (rtlGenerictype) (memsizetype) obj_arg,
-            (rtlGenerictype) next_free_number,
+        result = (inttype) hshIdxEnterDefault(obj_table, (generictype) (memsizetype) obj_arg,
+            (generictype) next_free_number,
             (inttype) (((memsizetype) obj_arg) >> 6), (comparetype) &genericCmp,
             (createfunctype) &genericCreate, (createfunctype) &genericCreate);
         if (result == next_free_number) {

@@ -68,7 +68,7 @@ const func string: hmac (in digestAlgorithm: digestAlg, in var string: cryptoKey
       cryptoKey := msgDigest(digestAlg, cryptoKey);
     end if;
     # Keys shorter than blockSize are zero-padded.
-    cryptoKey := cryptoKey & "\0\" mult (blockSize - length(cryptoKey));
+    cryptoKey &:= "\0\" mult (blockSize - length(cryptoKey));
     o_key_pad := ("\16#5c\" mult blockSize) >< cryptoKey;
     i_key_pad := ("\16#36\" mult blockSize) >< cryptoKey;
     authenticationCode := msgDigest(digestAlg, o_key_pad &

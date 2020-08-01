@@ -26,15 +26,13 @@ $ include "seed7_05.s7i";
   include "stdio.s7i";
   include "osfiles.s7i";
   include "shell.s7i";
-
-const string: OBJECT_FILE_EXTENSION is     configValue("OBJECT_FILE_EXTENSION");
-const string: EXECUTABLE_FILE_EXTENSION is configValue("EXECUTABLE_FILE_EXTENSION");
+  include "cc_conf.s7i";
 
 var string: interpretProgram  is "./s7 -q ";
 var string: interpretCompiler is "./s7 s7c -g ";
 var string: executeCompiler   is "./s7c -g ";
-var string: s7interpreter     is "./s7" & EXECUTABLE_FILE_EXTENSION;
-var string: s7compiler        is "./s7c" & EXECUTABLE_FILE_EXTENSION;
+var string: s7interpreter     is "./s7" & ccConf.EXECUTABLE_FILE_EXTENSION;
+var string: s7compiler        is "./s7c" & ccConf.EXECUTABLE_FILE_EXTENSION;
 var boolean: checkAllFailed is FALSE;
 
 const string: chkint_output is "\n\
@@ -268,11 +266,11 @@ const proc: check (in string: progName, in string: referenceOutput) is func
       writeln(interpretedOutput);
       okay := FALSE;
     end if;
-    if fileType(progName & EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
-      removeFile(progName & EXECUTABLE_FILE_EXTENSION);
+    if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
+      removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
     end if;
     compilerOutput := cmdOutput(interpretCompiler & progName);
-    if fileType(progName & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+    if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       compiledOutput := cmdOutput("./" & progName);
       if compiledOutput <> referenceOutput then
         writeln;
@@ -295,18 +293,19 @@ const proc: check (in string: progName, in string: referenceOutput) is func
         writeln(" *** Errors in " <& literal("tmp1_" & progName & ".c") <&
             " - see " <& literal("tmp1_" & progName & ".cerrs"));
       elsif fileType("tmp_" & progName & ".lerrs") = FILE_REGULAR then
-        if fileType("tmp1_" & progName & OBJECT_FILE_EXTENSION) = FILE_REGULAR then
-          removeFile("tmp1_" & progName & OBJECT_FILE_EXTENSION);
+        if fileType("tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION) = FILE_REGULAR then
+          removeFile("tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION);
         end if;
-        if fileType("tmp_" & progName & OBJECT_FILE_EXTENSION) = FILE_REGULAR then
-          moveFile("tmp_" & progName & OBJECT_FILE_EXTENSION, "tmp1_" & progName & OBJECT_FILE_EXTENSION);
+        if fileType("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION) = FILE_REGULAR then
+          moveFile("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION,
+              "tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION);
         end if;
         if fileType("tmp1_" & progName & ".lerrs") = FILE_REGULAR then
           removeFile("tmp1_" & progName & ".lerrs");
         end if;
         moveFile("tmp_" & progName & ".lerrs", "tmp1_" & progName & ".lerrs");
         writeln(" *** Linker errors with " <&
-            literal("tmp1_" & progName & OBJECT_FILE_EXTENSION) <&
+            literal("tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION) <&
             " - see " <& literal("tmp1_" & progName & ".lerrs"));
       end if;
       okay := FALSE;
@@ -318,11 +317,11 @@ const proc: check (in string: progName, in string: referenceOutput) is func
         end if;
         moveFile("tmp_" & progName & ".c", "tmp1_" & progName & ".c");
       end if;
-      if fileType(progName & EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
-        removeFile(progName & EXECUTABLE_FILE_EXTENSION);
+      if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
+        removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
       end if;
       compilerOutput := cmdOutput(executeCompiler & progName);
-      if fileType(progName & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+      if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
         if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
           if not equalFiles("tmp_" & progName & ".c", "tmp1_" & progName & ".c") then
             writeln;
@@ -331,8 +330,8 @@ const proc: check (in string: progName, in string: referenceOutput) is func
           else
             removeFile("tmp_" & progName & ".c");
             removeFile("tmp1_" & progName & ".c");
-            removeFile("tmp_" & progName & OBJECT_FILE_EXTENSION);
-            removeFile(progName & EXECUTABLE_FILE_EXTENSION);
+            removeFile("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION);
+            removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
           end if;
         end if;
       else
@@ -343,7 +342,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
               " - see " <& literal("tmp_" & progName & ".cerrs"));
         elsif fileType("tmp_" & progName & ".lerrs") = FILE_REGULAR then
           writeln(" *** Linker errors with " <&
-              literal("tmp_" & progName & OBJECT_FILE_EXTENSION) <&
+              literal("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION) <&
               " - see " <& literal("tmp_" & progName & ".lerrs"));
         end if;
         okay := FALSE;
@@ -364,7 +363,7 @@ const proc: main is func
       interpretProgram  := "../bin/s7 -l ../lib -q ";
       interpretCompiler := "../bin/s7 -l ../lib s7c -l ../lib -b ../bin -g ";
       executeCompiler   := "../bin/s7c -l ../lib -b ../bin -g ";
-      s7compiler        := "../bin/s7c" & EXECUTABLE_FILE_EXTENSION;
+      s7compiler        := "../bin/s7c" & ccConf.EXECUTABLE_FILE_EXTENSION;
       write("checking for presence of " <& s7compiler);
       if not fileType(s7compiler) = FILE_REGULAR then
         writeln;

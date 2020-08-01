@@ -49,7 +49,7 @@ EXTERN fileObjectOpType fileObjectOps;
 void initPollOperations (const createfunctype incrUsageCount,
                          const destrfunctype decrUsageCount);
 void polAddCheck (const polltype pollData, const sockettype aSocket,
-                  inttype eventsToCheck, const rtlGenerictype fileObj);
+                  inttype eventsToCheck, const generictype fileObj);
 void polClear (const polltype pollData);
 void polCpy (const polltype poll_to, const const_polltype pollDataFrom);
 polltype polCreate (const const_polltype pollDataFrom);
@@ -60,7 +60,7 @@ inttype polGetFinding (const const_polltype pollData, const sockettype aSocket);
 booltype polHasNext (const polltype pollData);
 void polIterChecks (const polltype pollData, inttype pollMode);
 void polIterFindings (const polltype pollData, inttype pollMode);
-rtlGenerictype polNextFile (const polltype pollData, const rtlGenerictype nullFile);
+generictype polNextFile (const polltype pollData, const generictype nullFile);
 void polPoll (const polltype pollData);
 void polRemoveCheck (const polltype pollData, const sockettype aSocket,
                      inttype eventsToCheck);

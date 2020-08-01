@@ -27,9 +27,11 @@
 
 objecttype act_cpy     (listtype arguments);
 objecttype act_create  (listtype arguments);
+objecttype act_eq      (listtype arguments);
 objecttype act_gen     (listtype arguments);
 objecttype act_iconv   (listtype arguments);
 objecttype act_illegal (listtype arguments);
+objecttype act_ne      (listtype arguments);
 objecttype act_ord     (listtype arguments);
 objecttype act_str     (listtype arguments);
 objecttype act_value   (listtype arguments);

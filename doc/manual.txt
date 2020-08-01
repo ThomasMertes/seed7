@@ -6212,7 +6212,7 @@ CONTENTS
         writeln;
       end func;
 
-  An 'echo_file' checks also for control-C (KEY_CTL_C). When
+  An 'echo_file' checks also for control-C ('KEY_CTL_C'). When
   control-C is typed an 'echo_file' asks if the program should be
   terminated:
 
@@ -10219,14 +10219,21 @@ CONTENTS
   There are also C types without corresponding Seed7 type. They are
   defined in "common.h":
 
-    C type       C definition      Comment
-    cstritype    char *            String type of the C compiler
-    ustritype    unsigned char *   Helpful for unsigned comparisons
-    os_stritype  char *            When the OS uses UTF-8 chars
-                 wchar_t *         When the OS uses UTF-16 chars
-    uinttype     unsigned inttype  Unsigned integer type with the size of inttype
-    memsizetype  uint32type        When C uses 32-bit pointers
-                 uint64type        When C uses 64-bit pointers
+    C type       C definition        Comment
+    cstritype    char *              String type of the C compiler
+    ustritype    unsigned char *     Helpful for unsigned comparisons
+    os_stritype  char *              When the OS uses UTF-8 chars
+                 wchar_t *           When the OS uses UTF-16 chars
+    int32type    int                 When sizeof(int) == 4
+                 long                When sizeof(long) == 4
+    uint32type   unsigned int32type  Unsigned integer type with the size of int32type
+    int64type    long                When sizeof(long) == 8
+                 long long           When sizeof(long long) == 8
+                 __int64             When sizeof(__int64) == 8
+    uint64type   unsigned int64type  Unsigned integer type with the size of int64type
+    uinttype     unsigned inttype    Unsigned integer type with the size of inttype
+    memsizetype  uint32type          When C uses 32-bit pointers
+                 uint64type          When C uses 64-bit pointers
 
 
 14.2 String and path conversions

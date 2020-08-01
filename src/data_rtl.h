@@ -29,11 +29,11 @@
 /*                                                                  */
 /********************************************************************/
 
-/* Since a function cannot return structs by value and */
-/* cannot have struct value parameters rtlGenerictype  */
-/* is used in these cases instead of rtlObjecttype.    */
-/* To work reliably it must be assured that            */
-/* sizeof(rtlGenerictype) == sizeof(rtlObjecttype)     */
+/* In classic C a function cannot return structs by value and */
+/* cannot have struct value parameters. Because of this the   */
+/* unsigned integer type generictype is used, instead of      */
+/* rtlObjecttype. To work reliably it must be assured that    */
+/* sizeof(generictype) == sizeof(rtlObjecttype)               */
 
 #if INTTYPE_SIZE >= POINTER_SIZE
 #if INTTYPE_SIZE >= FLOATTYPE_SIZE
@@ -48,9 +48,9 @@
 #endif
 
 #if   GENERIC_SIZE == 64
-typedef uint64type rtlGenerictype;
+typedef uint64type generictype;
 #elif GENERIC_SIZE == 32
-typedef uint32type rtlGenerictype;
+typedef uint32type generictype;
 #endif
 
 typedef struct rtlTypestruct   *rtlTypetype;
@@ -74,7 +74,7 @@ typedef const void *const_rtlPtrtype;
 typedef union {
   /* Genericvalue must be the first element in the union. */
   /* This allows initialisations of rtlValueunion values. */
-    rtlGenerictype genericvalue;
+    generictype      genericvalue;
 /*    postype          pos;            ** SYMBOLOBJECT */
 /*    nodetype         nodevalue;      ** MDULEOBJECT */
 /*    booltype         boolvalue;      */
@@ -151,13 +151,13 @@ typedef struct rtlHashstruct {
     rtlHelemtype table[1];
   } rtlHashrecord;
 
-typedef inttype (*comparetype) (rtlGenerictype, rtlGenerictype);
-typedef rtlGenerictype (*createfunctype) (rtlGenerictype);
-typedef void (*destrfunctype) (rtlGenerictype);
-typedef void (*copyfunctype) (rtlGenerictype *, rtlGenerictype);
+typedef inttype (*comparetype) (generictype, generictype);
+typedef generictype (*createfunctype) (generictype);
+typedef void (*destrfunctype) (generictype);
+typedef void (*copyfunctype) (generictype *, generictype);
 
 
-inttype genericCmp (const rtlGenerictype value1, const rtlGenerictype value2);
-void genericCpy (rtlGenerictype *const dest, const rtlGenerictype source);
-rtlGenerictype genericCreate (rtlGenerictype source);
-void genericDestr (rtlGenerictype old_value);
+inttype genericCmp (const generictype value1, const generictype value2);
+void genericCpy (generictype *const dest, const generictype source);
+generictype genericCreate (generictype source);
+void genericDestr (generictype old_value);

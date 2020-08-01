@@ -15,7 +15,7 @@ CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -W
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -Wl,--gc-sections,--stack,4194304
+LDFLAGS = -Wl,--gc-sections,--stack,8388608
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm
@@ -166,7 +166,6 @@ version.h: chkccomp.h
 	echo "#define os_environ environ" >> version.h
 	echo "#define APPEND_EXTENSION_TO_EXECUTABLE_PATH" >> version.h
 	echo "#define QUOTE_WHOLE_SHELL_COMMAND" >> version.h
-	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define LIBRARY_FILE_EXTENSION \".a\"" >> version.h

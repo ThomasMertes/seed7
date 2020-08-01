@@ -1,0 +1,498 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  cc_conf.s7i   Configuration values for C compiler and runtime.  *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "shell.s7i";
+
+
+(**
+ *  Structure to describe C compiler and runtime library.
+ *)
+const type: ccConfigType is new struct
+
+    (**
+     *  TRUE, when the Seed7 runtime library uses strings with capacity.
+     *  The capacity of a string can be larger than its size.
+     *  Strings with capacity can be enlarged without calling realloc().
+     *)
+    var boolean: WITH_STRI_CAPACITY         is FALSE;
+
+    (**
+     *  TRUE, when the actual characters of a string can be stored elsewhere.
+     *  This allows string slices without the need to copy characters.
+     *)
+    var boolean: ALLOW_STRITYPE_SLICES      is FALSE;
+
+    (**
+     *  TRUE, when right shifts preserve the sign of negative signed integers.
+     *  The C standard specifies that the right shift of signed integers is
+     *  implementation defined, when the shifted values are negative.
+     *)
+    var boolean: RSHIFT_DOES_SIGN_EXTEND    is FALSE;
+
+    (**
+     *  TRUE, when signed integers are represented as twos complement numbers.
+     *  This allows some simplified range checks in compiled programs.
+     *)
+    var boolean: TWOS_COMPLEMENT_INTTYPE    is FALSE;
+
+    (**
+     *  TRUE, when the byte ordering of integers is little endian.
+     *  With little endian byte ordering it is possible to get the elements
+     *  of a union by casting the union to the desired element type.
+     *)
+    var boolean: LITTLE_ENDIAN_INTTYPE      is FALSE;
+
+    (**
+     *  TRUE, when a comparison between two NaN values returns TRUE.
+     *  Comparison refers to comparisons with  ==  <  >  <=  or  >= .
+     *  If it is TRUE fltEq(), fltGe(), fltGt(), fltLe() and fltLt()
+     *  should be used to do comparisons of float values.
+     *) 
+    var boolean: NAN_COMPARISON_WRONG       is FALSE;
+
+    (**
+     *  TRUE, when pow() works wrong for a zero base and a negative exponent.
+     *  If it is TRUE fltPow() should be used instead of pow().
+     *) 
+    var boolean: POWER_OF_ZERO_WRONG        is FALSE;
+
+    (**
+     *  TRUE, when the functions sigsetjmp() and siglongjmp() are available.
+     *  When it is FALSE the functions setjmp() and longjmp() must
+     *  be used instead.
+     *) 
+    var boolean: HAS_SIGSETJMP              is FALSE;
+
+    (**
+     *  TRUE, when an integer overflow raises the signal SIGILL.
+     *)
+    var boolean: SIGILL_ON_OVERFLOW         is FALSE;
+
+    (**
+     *  TRUE, when floating point divisions by zero cause compilation errors.
+     *  Some C compilers check if the dividend is 0.0 and classify a
+     *  floating point division by zero as fatal error. The generated
+     *  C code should avoid this situation and generate code to
+     *  raise the exception NUMERIC_ERROR instead.
+     *)
+    var boolean: FLOAT_ZERO_DIV_ERROR       is FALSE;
+
+    (**
+     *  TRUE, when _isnan() is defined in the header file instead of isnan().
+     *)
+    var boolean: ISNAN_WITH_UNDERLINE       is FALSE;
+
+    (**
+     *  TRUE, when SIGFPE should be raised with an integer division by zero.
+     *  An integer division by zero should be done instead of just calling
+     *  raise(SIGFPE). Under Windows it is necessary to trigger SIGFPE
+     *  this way to assure that the debugger can catch it. The Seed7 to
+     *  C compiler produces code to raise SIGFPE when an uncaught EXCEPTION
+     *  occurs (when the compiler was called with the option -e).
+     *)
+    var boolean: DO_SIGFPE_WITH_DIV_BY_ZERO is FALSE;
+
+    (**
+     *  TRUE, when integer divisions must be checked for a division by zero.
+     *  This applies to the division operations div, rem, mdiv and mod.
+     *  The generated C code should, when a division by zero occurs,
+     *  raise the exception NUMERIC_ERROR instead of doing the
+     *  illegal divide operation.
+     *)
+    var boolean: CHECK_INT_DIV_BY_ZERO      is FALSE;
+
+    (**
+     *  TRUE, when floating point divisions by zero don't conform to IEEE 754.
+     *  According to IEEE 754 a floating point division by zero should
+     *  return Infinity, -Infinity or NaN. In this case the compiler
+     *  generates C code, which checks all float divisions ( / and /:= )
+     *  for division by zero. The generated C code should, when executed,
+     *  return Infinity, -Infinity or NaN instead of doing the divide
+     *  operation.
+     *)
+    var boolean: CHECK_FLOAT_DIV_BY_ZERO    is FALSE;
+
+    (**
+     *  TRUE, when the C compiler limits the length of string literals.
+     *  Some C compilers limit the maximum string literal length.
+     *  There are limits of 2,048 bytes and 16,384 (16K) bytes.
+     *  The actual limit is not interesting, but the fact that a
+     *  limit exists or does not exist.
+     *)
+    var boolean: LIMITED_CSTRI_LITERAL_LEN  is FALSE;
+
+    (**
+     *  TRUE, when #line directives can use UTF-8 encoded file names.
+     *  The file names from #line directives are used by the debugger to
+     *  allow source code debugging.
+     *)
+    var boolean: CC_SOURCE_UTF8             is FALSE;
+
+    (**
+     *  TRUE, when the main function is named wmain.
+     *  This is a way to support Unicode command line arguments under Windows.
+     *  An alternate way to support Unicode command line arguments under
+     *  Windows uses the functions getUtf16Argv() and freeUtf16Argv() (both
+     *  defined in "cmd_win.c").
+     *)
+    var boolean: USE_WMAIN                  is FALSE;
+
+    (**
+     *  TRUE, when the main function is named WinMain.
+     *)
+    var boolean: USE_WINMAIN                is FALSE;
+
+    (**
+     *  TRUE, when the type ''floattype'' is ''double''.
+     *  When it is FALSE ''floattype'' is ''float''.
+     *)
+    var boolean: FLOATTYPE_DOUBLE           is FALSE;
+
+    (**
+     *  Size of the type ''inttype'' in bits (either 32 or 64).
+     *  A typedef can define ''inttype'' as ''int32type'' respectively
+     *  ''int64type''.
+     *)
+    var integer: INTTYPE_SIZE               is 0;
+
+    (**
+     *  Size of the type ''floattype'' in bits.
+     *)
+    var integer: FLOATTYPE_SIZE             is 0;
+
+    (**
+     *  Size of a pointer in bits.
+     *)
+    var integer: POINTER_SIZE               is 0;
+
+    (**
+     *  The maximum of INTTYPE_SIZE, FLOATTYPE_SIZE and POINTER_SIZE.
+     *  This is also the size in bits of the types ''rtlValueunion'',
+     *  ''rtlObjecttype'' and ''generictype'' (defined in data_rtl.h).
+     *)
+    var integer: GENERIC_SIZE               is 0;
+
+    (**
+     *  Size of the type ''int'' in bits.
+     *)
+    var integer: INT_SIZE                   is 0;
+
+    (**
+     *  Name of a signed integer type that is 32 bits wide.
+     *  The runtime library and the compiler use a typedef to define
+     *  the type ''int32type'' with INT32TYPE.
+     *)
+    var string: INT32TYPE                   is "";
+
+    (**
+     *  Name of an unsigned integer type that is 32 bits wide.
+     *  The runtime library and the compiler use a typedef to define
+     *  the type ''uint32type'' with UINT32TYPE.
+     *)
+    var string: UINT32TYPE                  is "";
+
+    (**
+     *  Name of a signed integer type that is 64 bits wide.
+     *  The runtime library and the compiler use a typedef to define
+     *  the type ''int64type'' with INT32TYPE.
+     *)
+    var string: INT64TYPE                   is "";
+
+    (**
+     *  Name of an unsigned integer type that is 64 bits wide.
+     *  The runtime library and the compiler use a typedef to define
+     *  the type ''uint64type'' with UINT32TYPE.
+     *)
+    var string: UINT64TYPE                  is "";
+
+    (**
+     *  The suffix used by the literals of the 32 bits wide integer type.
+     *)
+    var string: INT32TYPE_LITERAL_SUFFIX    is "";
+
+    (**
+     *  The suffix used by the literals of the 64 bits wide integer type.
+     *)
+    var string: INT64TYPE_LITERAL_SUFFIX    is "";
+
+    (**
+     *  The extension used by the C compiler for object files.
+     *  Several object files and libraries are linked together to
+     *  an executable. Under Linux/Unix/BSD this is usually ".o".
+     *  Under Windows this is ".o" for MinGW and Cygwin,
+     *  but ".obj" for other compilers.
+     *)
+    var string: OBJECT_FILE_EXTENSION       is "";
+
+    (**
+     *  The extension used by the linker for static libraries.
+     *  Several object files can be grouped to a library. Under
+     *  Linux/Unix/BSD this is usually ".a". Under Windows this is
+     *  ".a" for MinGW and Cygwin, but ".lib" for other linkers.
+     *)
+    var string: LIBRARY_FILE_EXTENSION      is "";
+
+    (**
+     *  The extension used by the operating system for executables.
+     *  Since executable extensions are not used under
+     *  Linux/Unix/BSD it is "" for them. Under Windows
+     *  the value ".exe" is used.
+     *)
+    var string: EXECUTABLE_FILE_EXTENSION   is "";
+
+    (**
+     *  Command to call the stand-alone C compiler and linker.
+     *  Most IDEs provide also a stand-alone compiler/linker.
+     *)
+    var string: C_COMPILER                  is "";
+
+    var string: CPLUSPLUS_COMPILER          is "";
+    var string: C_COMPILER_VERSION          is "";
+    var string: GET_CC_VERSION_INFO         is "";
+
+    (**
+     *  C compiler option to add source level debugging information.
+     *  With this option source level debugging information is
+     *  added to the object file.
+     *)
+    var string: CC_OPT_DEBUG_INFO           is "";
+
+    (**
+     *  C compiler option to suppress all warnings.
+     *)
+    var string: CC_OPT_NO_WARNINGS          is "";
+
+    (**
+     *  C compiler flags to be used when C programs are compiled.
+     *)
+    var string: CC_FLAGS                    is "";
+
+    (**
+     *  Command to redirect the errors of the C compiler to a file.
+     *  The MSVC stand-alone C compiler (CL) writes the error
+     *  messages to standard output (redirect command: "2>NUL: >").
+     *  The C compliers of Linux/Unix/BSD and the compilers from
+     *  MinGW and Cygwin write the error messages to the error
+     *  output (redirect command: "2>").
+     *)
+    var string: REDIRECT_C_ERRORS           is "";
+
+    (**
+     *  Linker option to add source level debugging information.
+     *  With this option source level debugging information is
+     *  added to the executable file. (e.g.: "-Z7" or "-v").
+     *  Many compiler/linker combinations don't need this option
+     *  to do source level debugging (use "").
+     *)
+    var string: LINKER_OPT_DEBUG_INFO       is "";
+
+    (**
+     *  Linker option to be used without source level debugging.
+     *  This option can strip debug information (e.g.: "-Wl,--strip-debug").
+     *)
+    var string: LINKER_OPT_NO_DEBUG_INFO    is "";
+
+    (**
+     *  Linker option to provide the output filename (e.g.: "-o ").
+     *  When no such option exists the value of LINKER_OPT_OUTPUT_FILE
+     *  should be "". In this case it is assumed that the linker
+     *  replaces the OBJECT_FILE_EXTENSION of the file with the
+     *  EXECUTABLE_FILE_EXTENSION.
+     *)
+    var string: LINKER_OPT_OUTPUT_FILE      is "";
+
+    (**
+     *  Standard linker options to link a compiled program.
+     *  This is intended for options that specify the stack size or
+     *  similar things (e.g.: "-Wl,--gc-sections,--stack,4194304").
+     *)
+    var string: LINKER_FLAGS                is "";
+
+    (**
+     *  Options to link system libraries to a compiled program.
+     *  This is intended for options to link libraries required by the
+     *  Seed7 runtime library. E.g. libraries for math, socket or
+     *  multiple precision (gmp).
+     *)
+    var string: SYSTEM_LIBS                 is "";
+
+    (**
+     *  Options to link system console libraries to a compiled program.
+     *  This is intended for options to link libraries required by the
+     *  Seed7 console runtime library (e.g.: "-lncurses").
+     *)
+    var string: SYSTEM_CONSOLE_LIBS         is "";
+
+    (**
+     *  Options to link system graphic libraries to a compiled program.
+     *  This is intended for options to link libraries required by the
+     *  Seed7 graphic runtime library (e.g.: "-lX11").
+     *)
+    var string: SYSTEM_DRAW_LIBS            is "";
+
+    (**
+     *  Name of the Seed7 runtime library (e.g.: "seed7_05.a").
+     *)
+    var string: SEED7_LIB                   is "";
+
+    (**
+     *  Name of the Seed7 text console runtime library (e.g.: "s7_con.a").
+     *)
+    var string: CONSOLE_LIB                 is "";
+
+    (**
+     *  Name of the Seed7 graphic runtime library (e.g.: "s7_draw.a").
+     *)
+    var string: DRAW_LIB                    is "";
+
+    (**
+     *  Name of the Seed7 compiler data runtime library (e.g.: "s7_data.a").
+     *)
+    var string: COMP_DATA_LIB               is "";
+
+    (**
+     *  Name of the Seed7 compiler runtime library (e.g.: "s7_comp.a").
+     *)
+    var string: COMPILER_LIB                is "";
+
+    (**
+     *  Directory containing the Seed7 runtime libraries.
+     *  This path uses the standard path representation (a slash is used
+     *  as path separator and instead of a drive letter like "C:" the
+     *  path "/c" is used).
+     *)
+    var string: S7_LIB_DIR                  is "";
+
+    (**
+     *  The suffix used by the literals of the type ''inttype''.
+     *)
+    var string: INTTYPE_LITERAL_SUFFIX      is "";
+  end struct;
+
+
+const func string: configValue (in string: name)             is action "CMD_CONFIG_VALUE";
+
+
+(**
+ *  Determine the built-in (hard-coded) C compiler configuration values.
+ *  @return a structure with the built-in configuration values.
+ *)
+const func ccConfigType: getBuiltInConfig is func
+  result
+    var ccConfigType: conf is ccConfigType.value;
+  begin
+    conf.WITH_STRI_CAPACITY         := boolean parse configValue("WITH_STRI_CAPACITY");
+    conf.ALLOW_STRITYPE_SLICES      := boolean parse configValue("ALLOW_STRITYPE_SLICES");
+    conf.RSHIFT_DOES_SIGN_EXTEND    := boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
+    conf.TWOS_COMPLEMENT_INTTYPE    := boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
+    conf.LITTLE_ENDIAN_INTTYPE      := boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
+    conf.NAN_COMPARISON_WRONG       := boolean parse configValue("NAN_COMPARISON_WRONG");
+    conf.POWER_OF_ZERO_WRONG        := boolean parse configValue("POWER_OF_ZERO_WRONG");
+    conf.HAS_SIGSETJMP              := boolean parse configValue("HAS_SIGSETJMP");
+    conf.SIGILL_ON_OVERFLOW         := boolean parse configValue("SIGILL_ON_OVERFLOW");
+    conf.FLOAT_ZERO_DIV_ERROR       := boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
+    conf.ISNAN_WITH_UNDERLINE       := boolean parse configValue("ISNAN_WITH_UNDERLINE");
+    conf.DO_SIGFPE_WITH_DIV_BY_ZERO := boolean parse configValue("DO_SIGFPE_WITH_DIV_BY_ZERO");
+    conf.CHECK_INT_DIV_BY_ZERO      := boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
+    conf.CHECK_FLOAT_DIV_BY_ZERO    := boolean parse configValue("CHECK_FLOAT_DIV_BY_ZERO");
+    conf.LIMITED_CSTRI_LITERAL_LEN  := boolean parse configValue("LIMITED_CSTRI_LITERAL_LEN");
+    conf.CC_SOURCE_UTF8             := boolean parse configValue("CC_SOURCE_UTF8");
+    conf.USE_WMAIN                  := boolean parse configValue("USE_WMAIN");
+    conf.USE_WINMAIN                := boolean parse configValue("USE_WINMAIN");
+    conf.FLOATTYPE_DOUBLE           := boolean parse configValue("FLOATTYPE_DOUBLE");
+    conf.INTTYPE_SIZE               := integer parse configValue("INTTYPE_SIZE");
+    conf.FLOATTYPE_SIZE             := integer parse configValue("FLOATTYPE_SIZE");
+    conf.POINTER_SIZE               := integer parse configValue("POINTER_SIZE");
+    conf.GENERIC_SIZE               := max({conf.INTTYPE_SIZE, conf.FLOATTYPE_SIZE, conf.POINTER_SIZE});
+    conf.INT_SIZE                   := integer parse configValue("INT_SIZE");
+    conf.INT32TYPE                  := configValue("INT32TYPE");
+    conf.UINT32TYPE                 := configValue("UINT32TYPE");
+    conf.INT64TYPE                  := configValue("INT64TYPE");
+    conf.UINT64TYPE                 := configValue("UINT64TYPE");
+    conf.INT32TYPE_LITERAL_SUFFIX   := configValue("INT32TYPE_LITERAL_SUFFIX");
+    conf.INT64TYPE_LITERAL_SUFFIX   := configValue("INT64TYPE_LITERAL_SUFFIX");
+    conf.OBJECT_FILE_EXTENSION      := configValue("OBJECT_FILE_EXTENSION");
+    conf.LIBRARY_FILE_EXTENSION     := configValue("LIBRARY_FILE_EXTENSION");
+    conf.EXECUTABLE_FILE_EXTENSION  := configValue("EXECUTABLE_FILE_EXTENSION");
+    conf.C_COMPILER                 := configValue("C_COMPILER");
+    conf.CPLUSPLUS_COMPILER         := configValue("CPLUSPLUS_COMPILER");
+    conf.C_COMPILER_VERSION         := configValue("C_COMPILER_VERSION");
+    conf.GET_CC_VERSION_INFO        := configValue("GET_CC_VERSION_INFO");
+    conf.CC_OPT_DEBUG_INFO          := configValue("CC_OPT_DEBUG_INFO");
+    conf.CC_OPT_NO_WARNINGS         := configValue("CC_OPT_NO_WARNINGS");
+    conf.CC_FLAGS                   := configValue("CC_FLAGS");
+    conf.REDIRECT_C_ERRORS          := configValue("REDIRECT_C_ERRORS");
+    conf.LINKER_OPT_DEBUG_INFO      := configValue("LINKER_OPT_DEBUG_INFO");
+    conf.LINKER_OPT_NO_DEBUG_INFO   := configValue("LINKER_OPT_NO_DEBUG_INFO");
+    conf.LINKER_OPT_OUTPUT_FILE     := configValue("LINKER_OPT_OUTPUT_FILE");
+    conf.LINKER_FLAGS               := configValue("LINKER_FLAGS");
+    conf.SYSTEM_LIBS                := configValue("SYSTEM_LIBS");
+    conf.SYSTEM_CONSOLE_LIBS        := configValue("SYSTEM_CONSOLE_LIBS");
+    conf.SYSTEM_DRAW_LIBS           := configValue("SYSTEM_DRAW_LIBS");
+    conf.SEED7_LIB                  := configValue("SEED7_LIB");
+    conf.CONSOLE_LIB                := configValue("CONSOLE_LIB");
+    conf.DRAW_LIB                   := configValue("DRAW_LIB");
+    conf.COMP_DATA_LIB              := configValue("COMP_DATA_LIB");
+    conf.COMPILER_LIB               := configValue("COMPILER_LIB");
+    conf.S7_LIB_DIR                 := configValue("S7_LIB_DIR");
+    if conf.INTTYPE_SIZE = 32 then
+      conf.INTTYPE_LITERAL_SUFFIX := conf.INT32TYPE_LITERAL_SUFFIX;
+    else
+      conf.INTTYPE_LITERAL_SUFFIX := conf.INT64TYPE_LITERAL_SUFFIX;
+    end if;
+  end func;
+
+
+(**
+ *  Structure with configuration values for C compiler and runtime.
+ *)
+const ccConfigType: ccConf is getBuiltInConfig;
+
+
+const func string: determineCCVersion (in string: get_cc_version_info) is func
+  result
+    var string: c_compiler_version is "";
+  local
+    var string: ccVersionFile is "cc_version";
+    var file: aFile is STD_NULL;
+  begin
+    ccVersionFile &:= "_" <& rand(0, 999999990) lpad0 9;
+    cmd_sh(get_cc_version_info & ccVersionFile);
+    aFile := open(ccVersionFile, "r");
+    if aFile <> STD_NULL then
+      c_compiler_version := getln(aFile);
+      close(aFile);
+    end if;
+    if fileType(ccVersionFile) = FILE_REGULAR then
+      removeFile(ccVersionFile);
+    end if;
+  end func;
+
+
+const func boolean: ccVersionIsOkay is
+  return determineCCVersion(ccConf.GET_CC_VERSION_INFO) = ccConf.C_COMPILER_VERSION;

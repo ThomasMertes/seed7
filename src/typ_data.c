@@ -64,7 +64,7 @@ inttype typCmp (const const_typetype type1, const const_typetype type2)
 
 
 
-inttype typCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
+inttype typCmpGeneric (const generictype value1, const generictype value2)
 
   { /* typCmpGeneric */
     return typCmp((const_typetype) ((const_rtlObjecttype *) &value1)->value.typevalue,
@@ -153,8 +153,8 @@ inttype typNum (typetype actual_type)
         raise_error(MEMORY_ERROR);
         result = 0;
       } else {
-        result = (inttype) hshIdxEnterDefault(type_table, (rtlGenerictype) (memsizetype) actual_type,
-            (rtlGenerictype) next_free_number,
+        result = (inttype) hshIdxEnterDefault(type_table, (generictype) (memsizetype) actual_type,
+            (generictype) next_free_number,
             (inttype) (((memsizetype) actual_type) >> 6), (comparetype) &genericCmp,
             (createfunctype) &genericCreate, (createfunctype) &genericCreate);
         if (result == next_free_number) {

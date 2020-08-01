@@ -61,11 +61,11 @@
 
 
 static void rtl_qsort_array (rtlObjecttype *begin_sort, rtlObjecttype *end_sort,
-    inttype cmp_func (rtlGenerictype, rtlGenerictype))
+    inttype cmp_func (generictype, generictype))
 
   {
-    rtlGenerictype compare_elem;
-    rtlGenerictype help_element;
+    generictype compare_elem;
+    generictype help_element;
     rtlObjecttype *middle_elem;
     rtlObjecttype *less_elem;
     rtlObjecttype *greater_elem;
@@ -438,7 +438,7 @@ rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1)
 
 
 
-rtlArraytype arrBaselit (const rtlGenerictype element)
+rtlArraytype arrBaselit (const generictype element)
 
   {
     memsizetype result_size;
@@ -458,7 +458,7 @@ rtlArraytype arrBaselit (const rtlGenerictype element)
 
 
 
-rtlArraytype arrBaselit2 (inttype start_position, const rtlGenerictype element)
+rtlArraytype arrBaselit2 (inttype start_position, const generictype element)
 
   {
     memsizetype result_size;
@@ -516,7 +516,7 @@ rtlArraytype arrCat (rtlArraytype arr1, const rtlArraytype arr2)
 
 
 
-rtlArraytype arrExtend (rtlArraytype arr1, const rtlGenerictype element)
+rtlArraytype arrExtend (rtlArraytype arr1, const generictype element)
 
   {
     memsizetype arr1_size;
@@ -557,7 +557,7 @@ void arrFree (rtlArraytype oldArray)
 
 
 
-rtlArraytype arrGen (const rtlGenerictype element1, const rtlGenerictype element2)
+rtlArraytype arrGen (const generictype element1, const generictype element2)
 
   {
     memsizetype result_size;
@@ -690,13 +690,13 @@ rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop)
  *  @exception RANGE_ERROR When 'position' is less than minIdx(arr) or
  *                         greater than maxIdx(arr)
  */
-rtlGenerictype arrIdxTemp (rtlArraytype *arr_temp, inttype position)
+generictype arrIdxTemp (rtlArraytype *arr_temp, inttype position)
 
   {
     rtlArraytype arr1;
     memsizetype length;
     rtlArraytype resized_arr1;
-    rtlGenerictype result;
+    generictype result;
 
   /* arrIdxTemp */
     arr1 = *arr_temp;
@@ -757,7 +757,7 @@ rtlArraytype arrMalloc (inttype min_position, inttype max_position)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
  */
-void arrPush (rtlArraytype *const arr_variable, const rtlGenerictype element)
+void arrPush (rtlArraytype *const arr_variable, const generictype element)
 
   {
     rtlArraytype arr_to;
@@ -936,14 +936,14 @@ rtlArraytype arrRealloc (rtlArraytype arr, memsizetype oldSize, memsizetype newS
  *  @exception RANGE_ERROR When 'position' is less than minIdx(arr) or
  *                         greater than maxIdx(arr)
  */
-rtlGenerictype arrRemove (rtlArraytype *arr_to, inttype position)
+generictype arrRemove (rtlArraytype *arr_to, inttype position)
 
   {
     rtlArraytype arr1;
     rtlArraytype resized_arr1;
     rtlObjecttype *array_pointer;
     memsizetype arr1_size;
-    rtlGenerictype result;
+    generictype result;
 
   /* arrRemove */
     arr1 = *arr_to;
@@ -981,7 +981,7 @@ rtlGenerictype arrRemove (rtlArraytype *arr_to, inttype position)
 
 
 
-rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (rtlGenerictype, rtlGenerictype))
+rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (generictype, generictype))
 
   { /* arrSort */
     /* printf("arrSort(%lX, %ld, %ld)\n", arr1, arr1->min_position, arr1->max_position); */

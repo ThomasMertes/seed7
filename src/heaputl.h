@@ -406,8 +406,10 @@ EXTERN unsigned int sflist_allowed;
 #define SHRINK_STRI(v1,v2,l1,l2)          HEAP_REALLOC_STRI(v1,v2,l1,l2)
 #endif
 
-#define REALLOC_STRI_SIZE_OK(v1,v2,l1,l2)    HEAP_REALLOC_STRI(v1,v2,l1,l2)
-#define REALLOC_STRI_CHECK_SIZE(v1,v2,l1,l2) if((l2) <= MAX_STRI_LEN){HEAP_REALLOC_STRI(v1,v2,l1,l2)}else v1=NULL;
+#define REALLOC_STRI_SIZE_OK(v1,v2,l1,l2)      HEAP_REALLOC_STRI(v1,v2,l1,l2)
+#define REALLOC_STRI_CHECK_SIZE(v1,v2,l1,l2)   if((l2) <= MAX_STRI_LEN){HEAP_REALLOC_STRI(v1,v2,l1,l2)}else v1=NULL;
+/* The following macro is used when the new size is smaller or equal to the current one. */
+#define REALLOC_STRI_SIZE_SMALLER(v1,v2,l1,l2) HEAP_REALLOC_STRI(v1,v2,l1,l2)
 
 #ifdef ALLOW_STRITYPE_SLICES
 #ifdef WITH_STRI_CAPACITY

@@ -324,6 +324,7 @@ int main (int argc, char **argv)
 #ifdef CHECK_STACK
     stack_base = (char *) &arg_v;
 #endif
+    setupStack();
     set_protfile_name(NULL);
 #ifdef USE_WINMAIN
     arg_v = getArgv(0, NULL, NULL, NULL, &programPath);

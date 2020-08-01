@@ -107,7 +107,7 @@ static void free_hash (const const_rtlHashtype old_hash,
 
 
 
-static rtlHelemtype new_helem (rtlGenerictype key, rtlGenerictype data,
+static rtlHelemtype new_helem (generictype key, generictype data,
     const createfunctype key_create_func, const createfunctype data_create_func,
     errinfotype *err_info)
 
@@ -492,7 +492,7 @@ static void dump_hash (const const_rtlHashtype curr_hash)
  *  @return TRUE when 'aKey' is a member of 'aHashMap',
  *          FALSE otherwise.
  */
-booltype hshContains (const const_rtlHashtype aHashMap, const rtlGenerictype aKey,
+booltype hshContains (const const_rtlHashtype aHashMap, const generictype aKey,
     inttype hashcode, comparetype cmp_func)
 
   {
@@ -616,7 +616,7 @@ rtlHashtype hshEmpty (void)
 /**
  *  Remove the element with the key 'aKey' from the hash map 'aHashMap'.
  */
-void hshExcl (const rtlHashtype aHashMap, const rtlGenerictype aKey,
+void hshExcl (const rtlHashtype aHashMap, const generictype aKey,
     inttype hashcode, comparetype cmp_func, const destrfunctype key_destr_func,
     const destrfunctype data_destr_func)
 
@@ -680,14 +680,14 @@ void hshExcl (const rtlHashtype aHashMap, const rtlGenerictype aKey,
  *  @exception RANGE_ERROR When 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
-rtlGenerictype hshIdx (const const_rtlHashtype aHashMap, const rtlGenerictype aKey,
+generictype hshIdx (const const_rtlHashtype aHashMap, const generictype aKey,
     inttype hashcode, comparetype cmp_func)
 
   {
     rtlHelemtype hashelem;
     rtlHelemtype result_hashelem;
     inttype cmp;
-    rtlGenerictype result;
+    generictype result;
 
   /* hshIdx */
 #ifdef TRACE_HSH_RTL
@@ -717,7 +717,7 @@ rtlGenerictype hshIdx (const const_rtlHashtype aHashMap, const rtlGenerictype aK
     printf("END hshIdx(%lX, %lu, %lu) ==> %lX (%lX)\n",
         (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode,
         (unsigned long) result,
-        (unsigned long) (result != NULL ? *((rtlGenerictype *)result) : 0));
+        (unsigned long) (result != NULL ? *((generictype *)result) : 0));
 #endif
     return result;
   } /* hshIdx */
@@ -731,7 +731,7 @@ rtlGenerictype hshIdx (const const_rtlHashtype aHashMap, const rtlGenerictype aK
  *             with the key 'aKey'.
  */
 rtlObjecttype *hshIdxAddr (const const_rtlHashtype aHashMap,
-    const rtlGenerictype aKey, inttype hashcode, comparetype cmp_func)
+    const generictype aKey, inttype hashcode, comparetype cmp_func)
 
   {
     rtlHelemtype hashelem;
@@ -770,7 +770,7 @@ rtlObjecttype *hshIdxAddr (const const_rtlHashtype aHashMap,
     printf("END hshIdxAddr(%lX, %lu, %lu) ==> %lX (%lX, %f)\n",
         (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode,
         (unsigned long) result,
-        (unsigned long) (result != NULL ? *((rtlGenerictype *)result) : 0),
+        (unsigned long) (result != NULL ? *((generictype *)result) : 0),
         result != NULL ? result->value.floatvalue : 0.0);
 #endif
     return result;
@@ -784,7 +784,7 @@ rtlObjecttype *hshIdxAddr (const const_rtlHashtype aHashMap,
  *          NULL when 'aHashMap' does not have an element with the key 'aKey'.
  */
 rtlObjecttype *hshIdxAddr2 (const const_rtlHashtype aHashMap,
-    const rtlGenerictype aKey, inttype hashcode, comparetype cmp_func)
+    const generictype aKey, inttype hashcode, comparetype cmp_func)
 
   {
     rtlHelemtype hashelem;
@@ -822,15 +822,15 @@ rtlObjecttype *hshIdxAddr2 (const const_rtlHashtype aHashMap,
     printf("END hshIdxAddr(%lX, %lu, %lu) ==> %lX (%lX)\n",
         (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode,
         (unsigned long) result,
-        (unsigned long) (result != NULL ? *((rtlGenerictype *)result) : 0));
+        (unsigned long) (result != NULL ? *((generictype *)result) : 0));
 #endif
     return result;
   } /* hshIdxAddr2 */
 
 
 
-rtlGenerictype hshIdxEnterDefault (const rtlHashtype aHashMap, const rtlGenerictype aKey,
-    const rtlGenerictype defaultData, inttype hashcode, comparetype cmp_func,
+generictype hshIdxEnterDefault (const rtlHashtype aHashMap, const generictype aKey,
+    const generictype defaultData, inttype hashcode, comparetype cmp_func,
     const createfunctype key_create_func, const createfunctype data_create_func)
 
   {
@@ -838,7 +838,7 @@ rtlGenerictype hshIdxEnterDefault (const rtlHashtype aHashMap, const rtlGenerict
     rtlHelemtype result_hashelem;
     inttype cmp;
     errinfotype err_info = OKAY_NO_ERROR;
-    rtlGenerictype result;
+    generictype result;
 
   /* hshIdxEnterDefault */
     /* printf("hshIdxEnterDefault(%lX, %llX, %lld, %llX, %lX, %lx, %lX)\n",
@@ -891,14 +891,14 @@ rtlGenerictype hshIdxEnterDefault (const rtlHashtype aHashMap, const rtlGenerict
 
 
 
-rtlGenerictype hshIdxWithDefault (const const_rtlHashtype aHashMap, const rtlGenerictype aKey,
-    const rtlGenerictype defaultData, inttype hashcode, comparetype cmp_func)
+generictype hshIdxWithDefault (const const_rtlHashtype aHashMap, const generictype aKey,
+    const generictype defaultData, inttype hashcode, comparetype cmp_func)
 
   {
     rtlHelemtype hashelem;
     rtlHelemtype result_hashelem;
     inttype cmp;
-    rtlGenerictype result;
+    generictype result;
 
   /* hshIdxWithDefault */
     result_hashelem = NULL;
@@ -930,8 +930,8 @@ rtlGenerictype hshIdxWithDefault (const const_rtlHashtype aHashMap, const rtlGen
  *  it is overwritten with 'anElem'.
  *  @exception MEMORY_ERROR When there is not enough memory.
  */
-void hshIncl (const rtlHashtype aHashMap, const rtlGenerictype aKey,
-    const rtlGenerictype data, inttype hashcode, comparetype cmp_func,
+void hshIncl (const rtlHashtype aHashMap, const generictype aKey,
+    const generictype data, inttype hashcode, comparetype cmp_func,
     const createfunctype key_create_func, const createfunctype data_create_func,
     const copyfunctype data_copy_func)
 
@@ -1026,15 +1026,15 @@ rtlArraytype hshKeys (const const_rtlHashtype aHashMap,
  *  @return the old element with the key 'aKey' or
  *          the new data value when no old element existed.
  */
-rtlGenerictype hshUpdate (const rtlHashtype aHashMap, const rtlGenerictype aKey,
-    const rtlGenerictype data, inttype hashcode, comparetype cmp_func,
+generictype hshUpdate (const rtlHashtype aHashMap, const generictype aKey,
+    const generictype data, inttype hashcode, comparetype cmp_func,
     const createfunctype key_create_func, const createfunctype data_create_func)
 
   {
     rtlHelemtype hashelem;
     inttype cmp;
     errinfotype err_info = OKAY_NO_ERROR;
-    rtlGenerictype result;
+    generictype result;
 
   /* hshUpdate */
 #ifdef TRACE_HSH_RTL

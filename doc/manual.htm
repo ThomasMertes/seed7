@@ -6195,23 +6195,23 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
     <tr><td><tt>KEY_SFT_F1</tt> to <tt>KEY_SFT_F10</tt></td>  <td>Shifted function keys F1 to F10</td></tr>
     <tr><td><tt>KEY_CTL_F1</tt> to <tt>KEY_CTL_F10</tt></td>  <td>Control function keys F1 to F10</td></tr>
     <tr><td><tt>KEY_ALT_F1</tt> to <tt>KEY_ALT_F10</tt></td>  <td>Alternate function keys F1 to F10</td></tr>
-    <tr><td><tt>KEY_BS</tt></td>                     <td>Backspace (equal to KEY_CTL_H)</td></tr>
-    <tr><td><tt>KEY_TAB</tt></td>                    <td>Horizontal Tab (equal to KEY_CTL_H)</td></tr>
-    <tr><td><tt>KEY_NL</tt></td>                     <td>Newline/enter/return key (equal to KEY_CTL_J)</td></tr>
-    <tr><td><tt>KEY_CR</tt></td>                     <td>Carriage return (equal to KEY_CTL_M)</td></tr>
-    <tr><td><tt>KEY_ESC</tt></td>                    <td>Escape key</td></tr>
-    <tr><td><tt>KEY_NULCHAR</tt></td>                <td>Nul character key</td></tr>
-    <tr><td><tt>KEY_BACKTAB</tt></td>                <td>Horizontal back tab</td></tr>
-    <tr><td><tt>KEY_LEFT</tt></td>                   <td>Cursor left</td></tr>
-    <tr><td><tt>KEY_RIGHT</tt></td>                  <td>Cursor right</td></tr>
-    <tr><td><tt>KEY_UP</tt></td>                     <td>Cursor up</td></tr>
-    <tr><td><tt>KEY_DOWN</tt></td>                   <td>Cursor down</td></tr>
-    <tr><td><tt>KEY_HOME</tt></td>                   <td>Home key</td></tr>
-    <tr><td><tt>KEY_END</tt></td>                    <td>End key</td></tr>
-    <tr><td><tt>KEY_PGUP</tt></td>                   <td>Page up</td></tr>
-    <tr><td><tt>KEY_PGDN</tt></td>                   <td>Page down</td></tr>
-    <tr><td><tt>KEY_INS</tt></td>                    <td>Insert key</td></tr>
-    <tr><td><tt>KEY_DEL</tt></td>                    <td>Delete key</td></tr>
+    <tr><td><tt><a name="file_KEY_BS">KEY_BS</a></tt></td>                     <td>Backspace (equal to KEY_CTL_H)</td></tr>
+    <tr><td><tt><a name="file_KEY_TAB">KEY_TAB</a></tt></td>                    <td>Horizontal Tab (equal to KEY_CTL_H)</td></tr>
+    <tr><td><tt><a name="file_KEY_NL">KEY_NL</a></tt></td>                     <td>Newline/enter/return key (equal to KEY_CTL_J)</td></tr>
+    <tr><td><tt><a name="file_KEY_CR">KEY_CR</a></tt></td>                     <td>Carriage return (equal to KEY_CTL_M)</td></tr>
+    <tr><td><tt><a name="file_KEY_ESC">KEY_ESC</a></tt></td>                    <td>Escape key</td></tr>
+    <tr><td><tt><a name="file_KEY_NULCHAR">KEY_NULCHAR</a></tt></td>                <td>Nul character key</td></tr>
+    <tr><td><tt><a name="file_KEY_BACKTAB">KEY_BACKTAB</a></tt></td>                <td>Horizontal back tab</td></tr>
+    <tr><td><tt><a name="file_KEY_LEFT">KEY_LEFT</a></tt></td>                   <td>Cursor left</td></tr>
+    <tr><td><tt><a name="file_KEY_RIGHT">KEY_RIGHT</a></tt></td>                  <td>Cursor right</td></tr>
+    <tr><td><tt><a name="file_KEY_UP">KEY_UP</a></tt></td>                     <td>Cursor up</td></tr>
+    <tr><td><tt><a name="file_KEY_DOWN">KEY_DOWN</a></tt></td>                   <td>Cursor down</td></tr>
+    <tr><td><tt><a name="file_KEY_HOME">KEY_HOME</a></tt></td>                   <td>Home key</td></tr>
+    <tr><td><tt><a name="file_KEY_END">KEY_END</a></tt></td>                    <td>End key</td></tr>
+    <tr><td><tt><a name="file_KEY_PGUP">KEY_PGUP</a></tt></td>                   <td>Page up</td></tr>
+    <tr><td><tt><a name="file_KEY_PGDN">KEY_PGDN</a></tt></td>                   <td>Page down</td></tr>
+    <tr><td><tt><a name="file_KEY_INS">KEY_INS</a></tt></td>                    <td>Insert key</td></tr>
+    <tr><td><tt><a name="file_KEY_DEL">KEY_DEL</a></tt></td>                    <td>Delete key</td></tr>
     <tr><td><tt>KEY_PAD_CENTER</tt></td>             <td>Numeric keypad center key</td></tr>
     <tr><td><tt>KEY_CTL_LEFT</tt></td>               <td>Control cursor left</td></tr>
     <tr><td><tt>KEY_CTL_RIGHT</tt></td>              <td>Control cursor right</td></tr>
@@ -6238,9 +6238,9 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
     <tr><td><tt>KEY_MOUSE4</tt></td>                 <td>Mouse key 4 (counted from left)</td></tr>
     <tr><td><tt>KEY_MOUSE5</tt></td>                 <td>Mouse key 5 (counted from left)</td></tr>
     <tr><td><tt>KEY_UNDEF</tt></td>                  <td>Undefined key</td></tr>
-    <tr><td><tt>KEY_NONE</tt></td>                   <td>No key pressed (returned by busy_getc)</td></tr>
+    <tr><td><tt><a name="file_KEY_NONE">KEY_NONE</a></tt></td>                   <td>No key pressed (returned by busy_getc)</td></tr>
 </table></dd></dl><p>
-  The following example uses the <tt><a class="type" href="#types_char">char</a></tt> constant <tt>'KEY_UP'</tt>:
+  The following example uses the <tt><a class="type" href="#types_char">char</a></tt> constant <tt><a class="var" href="#file_KEY_UP">KEY_UP</a></tt>:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="stri">"keybd.s7i"</span>;
@@ -6248,7 +6248,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
 <span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     writeln(<span class="stri">"Please press cursor up"</span>);
-    <span class="keywd">while</span> getc(KEYBOARD) &lt;> KEY_UP <span class="keywd">do</span>
+    <span class="keywd">while</span> getc(KEYBOARD) &lt;> <tt><a class="var" href="#file_KEY_UP">KEY_UP</a></tt> <span class="keywd">do</span>
       writeln(<span class="stri">"This was not cursor up"</span>);
     <span class="keywd">end while</span>;
     writeln(<span class="stri">"Cursor up was pressed"</span>);
@@ -6263,7 +6263,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <tt><span class="type">keyboard_file</span></tt>:
 </p><ul>
     <li><tt><span class="func">busy_getc</span></tt>, which delivers the next character
-      from the keyboard or <tt>'KEY_NONE'</tt> if no key has been pressed.</li>
+      from the keyboard or <tt><a class="var" href="#file_KEY_NONE">KEY_NONE</a></tt> if no key has been pressed.</li>
     <li><tt><span class="func">keypressed</span></tt>, which returns TRUE if a character
       is available from the keyboard and FALSE otherwise.</li>
 </ul><p>
@@ -6281,7 +6281,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
 <span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     writeln;
-    <span class="keywd">while</span> busy_getc(KEYBOARD) = KEY_NONE <span class="keywd">do</span>
+    <span class="keywd">while</span> busy_getc(KEYBOARD) = <a class="var" href="#file_KEY_NONE">KEY_NONE</a> <span class="keywd">do</span>
       write(time(NOW) &lt;&amp; <span class="stri">"\r"</span>);
       flush(OUT);
     <span class="keywd">end while</span>;
@@ -6334,7 +6334,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
     writeln;
   <span class="keywd">end func</span>;
 </pre><p>
-  An <tt><span class="type">echo_file</span></tt> checks also for control-C (KEY_CTL_C). When
+  An <tt><span class="type">echo_file</span></tt> checks also for control-C (<tt><span class="var">KEY_CTL_C</span></tt>). When
   control-C is typed an <tt><span class="type">echo_file</span></tt> asks if the program should be
   terminated:
 </p><pre class="indent">
@@ -8433,32 +8433,32 @@ my_dir := homeDir;
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileTypeSL (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
 </pre><p>
   The function <tt><span class="func">fileType</span></tt> does follow symbolic links. Therefore
-  <tt><span class="func">fileType</span></tt> never returns <tt>'FILE_SYMLINK'</tt>. The function <tt><span class="func">fileTypeSL</span></tt>
-  can also return <tt>'FILE_SYMLINK'</tt>, because it does not follow symbolic
+  <tt><span class="func">fileType</span></tt> never returns <tt><a class="var" href="#os_FILE_SYMLINK">FILE_SYMLINK</a></tt>. The function <tt><span class="func">fileTypeSL</span></tt>
+  can also return <tt><a class="var" href="#os_FILE_SYMLINK">FILE_SYMLINK</a></tt>, because it does not follow symbolic
   links. All functions which use a file path, except <tt><span class="func">fileTypeSL</span></tt>
   and <tt><span class="func">readlink</span></tt> follow symbolic links.  A return value of
-  <tt>'FILE_ABSENT'</tt> does not imply that a file with this name can be
+  <tt><a class="var" href="#os_FILE_ABSENT">FILE_ABSENT</a></tt> does not imply that a file with this name can be
   created, since missing directories and illegal file names cause
-  also <tt>'FILE_ABSENT'</tt>.
+  also <tt><a class="var" href="#os_FILE_ABSENT">FILE_ABSENT</a></tt>.
 </p>
   <div><dl><dt><p>Returns:</p></dt><dd><dl>
-    <dt>FILE_ABSENT</dt>
+    <dt><a name="os_FILE_ABSENT">FILE_ABSENT</a></dt>
         <dd>A component of path does not exist.</dd>
-    <dt>FILE_UNKNOWN</dt>
+    <dt><a name="os_FILE_UNKNOWN">FILE_UNKNOWN</a></dt>
         <dd>The file exists but has an unknown type.</dd>
-    <dt>FILE_REGULAR</dt>
+    <dt><a name="os_FILE_REGULAR">FILE_REGULAR</a></dt>
         <dd>The file is a regular file.</dd>
-    <dt>FILE_DIR</dt>
+    <dt><a name="os_FILE_DIR">FILE_DIR</a></dt>
         <dd>The file is a directory.</dd>
-    <dt>FILE_CHAR</dt>
+    <dt><a name="os_FILE_CHAR">FILE_CHAR</a></dt>
         <dd>The file is a character special file.</dd>
-    <dt>FILE_BLOCK</dt>
+    <dt><a name="os_FILE_BLOCK">FILE_BLOCK</a></dt>
         <dd>The file is a block special file.</dd>
-    <dt>FILE_FIFO</dt>
+    <dt><a name="os_FILE_FIFO">FILE_FIFO</a></dt>
         <dd>The file is a pipe or FIFO special file.</dd>
-    <dt>FILE_SYMLINK</dt>
+    <dt><a name="os_FILE_SYMLINK">FILE_SYMLINK</a></dt>
         <dd>The file is a symbolic link.</dd>
-    <dt>FILE_SOCKET</dt>
+    <dt><a name="os_FILE_SOCKET">FILE_SOCKET</a></dt>
         <dd>The file is a socket.</dd>
 </dl></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
@@ -8558,8 +8558,8 @@ my_dir := homeDir;
   <div><dl><dt><p>Returns:</p></dt><dd><p>
     For directories a size of 0 is returned. For other file types
     the operating system functions <tt>'stat()'</tt> and <tt>'seek()'</tt> are
-    used to determine the size of a file. The functions <tt>'fileSize'</tt>
-    and <tt>'bigFileSize'</tt> succeed when at least one strategy to determine
+    used to determine the size of a file. The functions <tt><span class="func">fileSize</span></tt>
+    and <tt><span class="func">bigFileSize</span></tt> succeed when at least one strategy to determine
     the file size succeeds.
 </p></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
@@ -8570,7 +8570,7 @@ my_dir := homeDir;
         or it cannot be converted to the system path type.</dd>
     <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
         <dd>The file size is not representable as <tt><a class="type" href="#types_integer">integer</a></tt>
-        (this exception is not raised by <tt>'bigFileSize'</tt>).</dd>
+        (this exception is not raised by <tt><span class="func">bigFileSize</span></tt>).</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
         <dd>It was not possible to determine the file size.</dd>
 </dl></dd></dl></div><p></p>
@@ -8747,7 +8747,7 @@ my_dir := homeDir;
   The user executing the program is the owner of the destination file.
   The timestamps of the destination file are set to the current time.
   Symbolic links in sourcePath are always followed. Therefore
-  <tt>'copyFile'</tt> will never create a symbolic link. Note that <tt>'copyFile'</tt>
+  <tt><span class="func">copyFile</span></tt> will never create a symbolic link. Note that <tt><span class="func">copyFile</span></tt>
   does not preserve hard links (they are resolved to distinct files).
 </p>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
@@ -8771,7 +8771,7 @@ my_dir := homeDir;
 </pre><p>
   Permissions/mode, ownership and timestamps of the original are
   preserved. Symlinks are not followed. Instead the symlink
-  is copied. Note that <tt>'cloneFile'</tt> does not preserve hard
+  is copied. Note that <tt><span class="func">cloneFile</span></tt> does not preserve hard
   links (they are resolved to distinct files).
 </p>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
@@ -8795,12 +8795,12 @@ my_dir := homeDir;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: moveFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: sourcePath, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: destPath) <span class="keywd">is</span> ...
 </pre><p>
   The function uses the C <tt>'rename()'</tt> function. When <tt>'rename()'</tt> fails
-  the file (or directory tree) is cloned with <tt>'cloneFile'</tt> (which
+  the file (or directory tree) is cloned with <tt><a class="func" href="#os_cloneFile">cloneFile</a></tt> (which
   preserves permissions/mode, ownership and timestamps) to the new
-  place and with the new name. When <tt>'cloneFile'</tt> succeeds the original
-  file is deleted. When <tt>'cloneFile'</tt> fails (no space on device or
+  place and with the new name. When <tt><a class="func" href="#os_cloneFile">cloneFile</a></tt> succeeds the original
+  file is deleted. When <tt><a class="func" href="#os_cloneFile">cloneFile</a></tt> fails (no space on device or
   other reason) all remains of the failed clone are removed. Note
-  that <tt>'cloneFile'</tt> works for symbolic links but does not preserve
+  that <tt><a class="func" href="#os_cloneFile">cloneFile</a></tt> works for symbolic links but does not preserve
   hard links (they are resolved to distinct files).
 </p>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
@@ -8863,7 +8863,7 @@ my_dir := homeDir;
     The function <tt><span class="func">dir(PROGRAM)</span></tt> returns the absolute path of the
   directory containing the program. The function <tt><span class="func">dir(PROGRAM)</span></tt>
   allows placing configuration data in the directory of the program.
-  <tt><span class="func">dir(PROGRAM)</span></tt> is based on <tt><span class="func">path(PROGRAM)</span></tt>.
+  <tt><span class="func">dir(PROGRAM)</span></tt> is based on <tt><a class="func" href="#os_path_PROGRAM">path(PROGRAM)</a></tt>.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: dir (PROGRAM) <span class="keywd">is</span> ...
 </pre>
@@ -8874,7 +8874,7 @@ my_dir := homeDir;
 <a name="os_file_PROGRAM"><h3>12.28 file(PROGRAM)</h3></a>
 <p>
     The function <tt><span class="func">file(PROGRAM)</span></tt> returns the filename of the
-  program without path. <tt><span class="func">file(PROGRAM)</span></tt> is based on <tt><span class="func">path(PROGRAM)</span></tt>.
+  program without path. <tt><span class="func">file(PROGRAM)</span></tt> is based on <tt><a class="func" href="#os_path_PROGRAM">path(PROGRAM)</a></tt>.
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: file (PROGRAM) <span class="keywd">is</span> ...
 </pre>
@@ -10341,14 +10341,21 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   There are also C types without corresponding Seed7 type. They are
   defined in <tt><span class="lib">"common.h"</span></tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
-    <tr><th>C type</th>       <th>C definition</th>      <th>Comment</th></tr>
-    <tr><td><tt><a class="type" name="ffi_cstritype">cstritype</a></tt></td>    <td>char *</td>            <td>String type of the C compiler</td></tr>
-    <tr><td><tt><a class="type" name="ffi_ustritype">ustritype</a></tt></td>    <td>unsigned char *</td>   <td>Helpful for unsigned comparisons</td></tr>
-    <tr><td rowspan="2"><tt><a class="type" name="ffi_os_stritype">os_stritype</a></tt></td>  <td>char *</td>            <td>When the OS uses UTF-8 chars</td></tr>
-    <tr><td>wchar_t *</td>         <td>When the OS uses UTF-16 chars</td></tr>
-    <tr><td><tt><a class="type" name="ffi_uinttype">uinttype</a></tt></td>     <td>unsigned inttype</td>  <td>Unsigned integer type with the size of <a class="type" href="#ffi_inttype">inttype</a></td></tr>
-    <tr><td rowspan="2"><tt><a class="type" name="ffi_memsizetype">memsizetype</a></tt></td>  <td>uint32type</td>        <td>When C uses 32-bit pointers</td></tr>
-    <tr><td>uint64type</td>        <td>When C uses 64-bit pointers</td></tr>
+    <tr><th>C type</th>       <th>C definition</th>        <th>Comment</th></tr>
+    <tr><td><tt><a class="type" name="ffi_cstritype">cstritype</a></tt></td>    <td>char *</td>              <td>String type of the C compiler</td></tr>
+    <tr><td><tt><a class="type" name="ffi_ustritype">ustritype</a></tt></td>    <td>unsigned char *</td>     <td>Helpful for unsigned comparisons</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_os_stritype">os_stritype</a></tt></td>  <td>char *</td>              <td>When the OS uses UTF-8 chars</td></tr>
+    <tr><td>wchar_t *</td>           <td>When the OS uses UTF-16 chars</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_int32type">int32type</a></tt></td>    <td>int</td>                 <td>When sizeof(int) == 4</td></tr>
+    <tr><td>long</td>                <td>When sizeof(long) == 4</td></tr>
+    <tr><td><tt><a class="type" name="ffi_uint32type">uint32type</a></tt></td>   <td>unsigned int32type</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int32type">int32type</a></tt></td></tr>
+    <tr><td rowspan="3"><tt><a class="type" name="ffi_int64type">int64type</a></tt></td>    <td>long</td>                <td>When sizeof(long) == 8</td></tr>
+    <tr><td>long long</td>           <td>When sizeof(long long) == 8</td></tr>
+    <tr><td>__int64</td>             <td>When sizeof(__int64) == 8</td></tr>
+    <tr><td><tt><a class="type" name="ffi_uint64type">uint64type</a></tt></td>   <td>unsigned int64type</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int64type">int64type</a></tt></td></tr>
+    <tr><td><tt><a class="type" name="ffi_uinttype">uinttype</a></tt></td>     <td>unsigned inttype</td>    <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_inttype">inttype</a></tt></td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_memsizetype">memsizetype</a></tt></td>  <td>uint32type</td>          <td>When C uses 32-bit pointers</td></tr>
+    <tr><td>uint64type</td>          <td>When C uses 64-bit pointers</td></tr>
 </table><p></p>
 
 <a name="ffi_String_and_path_conversions"><h3>14.2 String and path conversions</h3></a>

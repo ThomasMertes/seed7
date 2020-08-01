@@ -120,7 +120,7 @@ stritype gkbLineRead (chartype *terminationChar)
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
+      REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
       if (resized_result == NULL) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
@@ -179,7 +179,7 @@ stritype gkbWordRead (chartype *terminationChar)
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
+      REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
       if (resized_result == NULL) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);

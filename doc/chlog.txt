@@ -1,3 +1,43 @@
+20131110:
+- Compiler and runtime library have been improved to work on Sparc
+  64-bit machines under OpenBSD. Thanks go to Brian Callahan, for
+  his support and for providing access to his Sparc 64-bit machine.
+- The FAQ explanation concerning portability has been improved.
+- The new library cc_conf.s7i has been added. This library manages
+  configuration values for C compiler and runtime.
+- The compiler has been improved to use the library cc_conf.s7i.
+- The chapter about the defines used in version.h has been improved
+  in src/read_me.txt.
+- The type rtlGenerictype has been renamed to generictype in the
+  files of the runtime library. Now compiler and runtime library
+  both use the name generictype.
+- The function checkForLimitedStringLiteralLength, a check for
+  trigraph sequences and checks for the presence of getrlimit()
+  and siglongjmp() have been added to chkccomp.c.
+- The function setupStack has been added to cmd_rtl.c. This function
+  tries to raise the stack limit to STACK_SIZE.
+- Usages of USE_SIGSETJMP have been renamed to HAS_SIGSETJMP.
+- The table key_code has been improved in kbd_inf.c and kbd_poll.c.
+  Now the erase char of the terminal interface (VERASE) is always
+  returned as backspace (KEY_BS respectively '\8\'). This improves
+  the behavior under Cygwin.
+- The function utf8_init has been changed in kbd_inf.c and
+  kbd_poll.c to assume UTF-8 mode when no locale environment
+  variable is set.
+- The function msgDigest in msgdigest.s7i has been changed to use
+  in-parameters.
+- The function configValue has been moved from osfiles.s7i to
+  cc_conf.s7i.
+- The macro REALLOC_STRI_SIZE_SMALLER has been added to heaputl.h.
+  Several usages of REALLOC_STRI_SIZE_OK in the runtime library have
+  been changed to usages of REALLOC_STRI_SIZE_SMALLER.
+- The compiler has been improved to initialize boolean and
+  enumeration elements of structs with the values value.boolvalue
+  respectively value.enumvalue. This is necessary to work correctly
+  on big-endian systems.
+- Interpreter and compiler have been improved to support the actions
+  ACT_EQ and ACT_NE.
+
 20131027:
 - Compiler and runtime library have been improved to support
   big-endian systems. Thanks go to Brian Callahan, for his support
@@ -175,7 +215,7 @@
   complement inttype and if casting can be used to get the element
   of a union.
 - Several makefiles have been adjusted to use 'cp -p' instead of
-  'cp -a'. The cp command openBSD does not support -a.
+  'cp -a'. The cp command of openBSD does not support -a.
 - The function bigRand in big_rtl.c has been improved to avoid that
   a random number is outside the required range.
 

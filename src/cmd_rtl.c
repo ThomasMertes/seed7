@@ -53,6 +53,9 @@
 #endif
 #endif
 #include "errno.h"
+#if defined HAS_GETRLIMIT && defined STACK_SIZE
+#include "sys/resource.h"
+#endif
 
 #ifdef UNISTD_H_PRESENT
 #include "unistd.h"
@@ -731,6 +734,35 @@ static rtlArraytype read_dir (const const_stritype dir_name, errinfotype *err_in
 
 
 
+void setupStack (void)
+
+  {
+#if defined HAS_GETRLIMIT && defined STACK_SIZE
+    struct rlimit rlim;
+#endif
+
+  /* setupStack */
+#if defined HAS_GETRLIMIT && defined STACK_SIZE
+    /* printf("STACK_SIZE:      %ld\n", STACK_SIZE); */
+    if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
+      /* printf("old stack limit: %ld/%ld\n", rlim.rlim_cur, rlim.rlim_max); */
+      if (rlim.rlim_cur != RLIM_INFINITY && (rlim_t) STACK_SIZE > rlim.rlim_cur) {
+        if (rlim.rlim_max == RLIM_INFINITY || (rlim_t) STACK_SIZE <= rlim.rlim_max) {
+          rlim.rlim_cur = (rlim_t) STACK_SIZE;
+        } else {
+          rlim.rlim_cur = rlim.rlim_max;
+        } /* if */
+        setrlimit(RLIMIT_STACK, &rlim);
+        /* if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
+          printf("new stack limit: %ld/%ld\n", rlim.rlim_cur, rlim.rlim_max);
+        } ** if */
+      } /* if */
+    } /* if */
+#endif
+  } /* setupStack */
+
+
+
 static rtlArraytype getSearchPath (errinfotype *err_info)
 
   {
@@ -1134,8 +1166,8 @@ stritype cmdConfigValue (const const_stritype name)
 #else
         opt = "FALSE";
 #endif
-      } else if (strcmp(opt_name, "USE_SIGSETJMP") == 0) {
-#ifdef USE_SIGSETJMP
+      } else if (strcmp(opt_name, "HAS_SIGSETJMP") == 0) {
+#ifdef HAS_SIGSETJMP
         opt = "TRUE";
 #else
         opt = "FALSE";
@@ -2720,7 +2752,7 @@ stritype cmdShellEscape (const const_stritype stri)
           result->mem[outPos + 1] = '\"';
           outPos += 2;
         } /* if */
-        REALLOC_STRI_SIZE_OK(resized_result, result, 3 * stri->size + 2, outPos);
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, 3 * stri->size + 2, outPos);
         if (resized_result == NULL) {
           FREE_STRI(result, 3 * stri->size + 2);
           raise_error(MEMORY_ERROR);

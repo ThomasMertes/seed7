@@ -906,7 +906,7 @@ stritype filGets (filetype inFile, inttype length)
         raise_error(err_info);
         result = NULL;
       } else if (num_of_chars_read < result->size) {
-        REALLOC_STRI_SIZE_OK(resized_result, result, result->size, num_of_chars_read);
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, result->size, num_of_chars_read);
         if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, result->size);
           raise_error(MEMORY_ERROR);
@@ -1011,7 +1011,7 @@ stritype filLineRead (filetype inFile, chartype *terminationChar)
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
-        REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
         if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, memlength);
           raise_error(MEMORY_ERROR);
@@ -1395,7 +1395,7 @@ stritype filWordRead (filetype inFile, chartype *terminationChar)
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
-        REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
         if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, memlength);
           raise_error(MEMORY_ERROR);

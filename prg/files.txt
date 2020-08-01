@@ -104,6 +104,7 @@ bstring.s7i  Byte string support library
 bytedata.s7i Convert byte data to and from strings
 cards.s7i    Playing card pictures of a french deck
 category.s7i Category support library
+cc_conf.s7i  Configuration values for C compiler and runtime.
 cgi.s7i      Support for the Common Gateway Interface
 char.s7i     Char support library
 charsets.s7i Code pages for various character sets

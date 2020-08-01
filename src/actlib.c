@@ -82,6 +82,28 @@ objecttype act_create (listtype arguments)
 
 
 
+objecttype act_eq (listtype arguments)
+
+  {
+    acttype action1;
+    acttype action2;
+    objecttype result;
+
+  /* act_eq */
+    isit_action(arg_1(arguments));
+    isit_action(arg_3(arguments));
+    action1 = take_action(arg_1(arguments));
+    action2 = take_action(arg_3(arguments));
+    if (action1 == action2) {
+      result = SYS_TRUE_OBJECT;
+    } else {
+      result = SYS_FALSE_OBJECT;
+    } /* if */
+    return result;
+  } /* act_eq */
+
+
+
 objecttype act_gen (listtype arguments)
 
   {
@@ -122,6 +144,28 @@ objecttype act_illegal (listtype arguments)
   { /* act_illegal */
     return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
   } /* act_illegal */
+
+
+
+objecttype act_ne (listtype arguments)
+
+  {
+    acttype action1;
+    acttype action2;
+    objecttype result;
+
+  /* act_ne */
+    isit_action(arg_1(arguments));
+    isit_action(arg_3(arguments));
+    action1 = take_action(arg_1(arguments));
+    action2 = take_action(arg_3(arguments));
+    if (action1 != action2) {
+      result = SYS_TRUE_OBJECT;
+    } else {
+      result = SYS_FALSE_OBJECT;
+    } /* if */
+    return result;
+  } /* act_ne */
 
 
 

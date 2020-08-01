@@ -97,32 +97,68 @@ static const_cstritype key_table[SIZE_KEY_TABLE];
 static char erase_ch[2];
 
 static chartype key_code[SIZE_KEY_TABLE] = {
-/*   0 */ K_BS,         K_BACKTAB,    K_PAD_CENTER, 0,            0,
-/*   5 */ 0,            K_DEL,        K_DELLN,      K_DOWN,       K_INS,
-/*  10 */ K_END,        K_NL,         0,            0,            K_HOME,
-/*  15 */ 0,            K_F1,         K_F2,         K_F3,         K_F4,
-/*  20 */ K_F5,         K_F6,         K_F7,         K_F8,         K_F9,
-/*  25 */ K_F10,        K_F11,        K_F12,        K_SFT_F1,     K_SFT_F2,
-/*  30 */ K_SFT_F3,     K_SFT_F4,     K_SFT_F5,     K_SFT_F6,     K_SFT_F7,
-/*  35 */ K_SFT_F8,     K_SFT_F9,     K_SFT_F10,    K_SFT_F11,    K_SFT_F12,
-/*  40 */ K_CTL_F1,     K_CTL_F2,     K_CTL_F3,     K_CTL_F4,     K_CTL_F5,
-/*  45 */ K_CTL_F6,     K_CTL_F7,     K_CTL_F8,     K_CTL_F9,     K_CTL_F10,
-/*  50 */ K_CTL_F11,    K_CTL_F12,    0,            0,            0,
+/*   0 */ K_BS,         K_BS,         K_BACKTAB,    K_PAD_CENTER, 0,
+/*   5 */ 0,            0,            K_DEL,        K_DELLN,      K_DOWN,
+/*  10 */ K_INS,        K_END,        K_NL,         0,            0,
+/*  15 */ K_HOME,       0,            K_F1,         K_F2,         K_F3,
+/*  20 */ K_F4,         K_F5,         K_F6,         K_F7,         K_F8,
+/*  25 */ K_F9,         K_F10,        K_F11,        K_F12,        K_SFT_F1,
+/*  30 */ K_SFT_F2,     K_SFT_F3,     K_SFT_F4,     K_SFT_F5,     K_SFT_F6,
+/*  35 */ K_SFT_F7,     K_SFT_F8,     K_SFT_F9,     K_SFT_F10,    K_SFT_F11,
+/*  40 */ K_SFT_F12,    K_CTL_F1,     K_CTL_F2,     K_CTL_F3,     K_CTL_F4,
+/*  45 */ K_CTL_F5,     K_CTL_F6,     K_CTL_F7,     K_CTL_F8,     K_CTL_F9,
+/*  50 */ K_CTL_F10,    K_CTL_F11,    K_CTL_F12,    0,            0,
 /*  55 */ 0,            0,            0,            0,            0,
-/*  60 */ 0,            0,            0,            0,            K_ALT_F1,
-/*  65 */ K_ALT_F2,     K_ALT_F3,     K_ALT_F4,     K_ALT_F5,     K_ALT_F6,
-/*  70 */ K_ALT_F7,     K_ALT_F8,     K_ALT_F9,     K_ALT_F10,    K_ALT_F11,
-/*  75 */ K_ALT_F12,    0,            0,            0,            K_HOME,
-/*  80 */ K_INS,        K_INSLN,      K_LEFT,       K_END,        K_PGDN,
-/*  85 */ K_PGUP,       K_RIGHT,      K_END,        K_SCRLDN,     K_SCRLUP,
-/*  90 */ 0,            K_UP,         K_ALT_A,      K_ALT_B,      K_ALT_C,
-/*  95 */ K_ALT_D,      K_ALT_E,      K_ALT_F,      K_ALT_G,      K_ALT_H,
-/* 100 */ K_ALT_I,      K_ALT_J,      K_ALT_K,      K_ALT_L,      K_ALT_M,
-/* 105 */ K_ALT_N,      K_ALT_O,      K_ALT_P,      K_ALT_Q,      K_ALT_R,
-/* 110 */ K_ALT_S,      K_ALT_T,      K_ALT_U,      K_ALT_V,      K_ALT_W,
-/* 115 */ K_ALT_X,      K_ALT_Y,      K_ALT_Z,      K_ALT_0,      K_ALT_1,
-/* 120 */ K_ALT_2,      K_ALT_3,      K_ALT_4,      K_ALT_5,      K_ALT_6,
-/* 125 */ K_ALT_7,      K_ALT_8,      K_ALT_9,      K_BS,         K_DEL};
+/*  60 */ 0,            0,            0,            0,            0,
+/*  65 */ K_ALT_F1,     K_ALT_F2,     K_ALT_F3,     K_ALT_F4,     K_ALT_F5,
+/*  70 */ K_ALT_F6,     K_ALT_F7,     K_ALT_F8,     K_ALT_F9,     K_ALT_F10,
+/*  75 */ K_ALT_F11,    K_ALT_F12,    0,            0,            0,
+/*  80 */ K_HOME,       K_INS,        K_INSLN,      K_LEFT,       K_END,
+/*  85 */ K_PGDN,       K_PGUP,       K_RIGHT,      K_END,        K_SCRLDN,
+/*  90 */ K_SCRLUP,     0,            K_UP,         K_ALT_A,      K_ALT_B,
+/*  95 */ K_ALT_C,      K_ALT_D,      K_ALT_E,      K_ALT_F,      K_ALT_G,
+/* 100 */ K_ALT_H,      K_ALT_I,      K_ALT_J,      K_ALT_K,      K_ALT_L,
+/* 105 */ K_ALT_M,      K_ALT_N,      K_ALT_O,      K_ALT_P,      K_ALT_Q,
+/* 110 */ K_ALT_R,      K_ALT_S,      K_ALT_T,      K_ALT_U,      K_ALT_V,
+/* 115 */ K_ALT_W,      K_ALT_X,      K_ALT_Y,      K_ALT_Z,      K_ALT_0,
+/* 120 */ K_ALT_1,      K_ALT_2,      K_ALT_3,      K_ALT_4,      K_ALT_5,
+/* 125 */ K_ALT_6,      K_ALT_7,      K_ALT_8,      K_ALT_9,      K_DEL};
+
+
+
+#ifdef OUT_OF_ORDER
+static void show_term_descr (struct termios *curr_term_descr)
+
+  {
+    int pos;
+
+  /* show_term_descr */
+    printf("c_iflag=%x\n", curr_term_descr->c_iflag);      /* input modes */
+    printf("c_oflag=%x\n", curr_term_descr->c_oflag);      /* output modes */
+    printf("c_cflag=%x\n", curr_term_descr->c_cflag);      /* control modes */
+    printf("c_lflag=%x\n", curr_term_descr->c_lflag);      /* local modes */
+    for (pos = 0; pos < NCCS; pos++) {
+      printf("%d ", curr_term_descr->c_cc[pos]);
+    } /* for */
+    printf("\n");
+    printf("ECHO=%d\n", (curr_term_descr->c_lflag & ECHO) != 0);
+    printf("ECHOE=%d\n", (curr_term_descr->c_lflag & ECHOE) != 0);
+    printf("ECHOK=%d\n", (curr_term_descr->c_lflag & ECHOK) != 0);
+    printf("ECHONL=%d\n", (curr_term_descr->c_lflag & ECHONL) != 0);
+    printf("ICANON=%d\n", (curr_term_descr->c_lflag & ICANON) != 0);
+    printf("VINTR=%d\n", curr_term_descr->c_cc[VINTR]);
+    printf("VQUIT=%d\n", curr_term_descr->c_cc[VQUIT]);
+    printf("VSTOP=%d\n", curr_term_descr->c_cc[VSTOP]);
+#ifdef VSTART
+    printf("VSTART=%d\n", curr_term_descr->c_cc[VSTART]);
+#endif
+#ifdef VSUSP
+    printf("VSUSP=%d\n", curr_term_descr->c_cc[VSUSP]);
+#endif
+    printf("VMIN=%d\n", curr_term_descr->c_cc[VMIN]);
+    printf("VTIME=%d\n", curr_term_descr->c_cc[VTIME]);
+  } /* show_term_descr */
+#endif
 
 
 
@@ -290,6 +326,8 @@ static void utf8_init (void)
       if (strstr(s, "UTF-8") || strstr(s, "utf8")) {
         utf8_mode = TRUE;
       } /* if */
+    } else {
+      utf8_mode = TRUE;
     } /* if */
   } /* utf8_init */
 
@@ -304,154 +342,145 @@ static void key_table_init (void)
   /* key_table_init */
     /* fprintf(stderr, "keypad_xmit=\"%s\"\n", keypad_xmit); */
     putcontrol(keypad_xmit); /* keypad_transmit_mode */
-    if (key_backspace != NULL && strcmp(key_backspace, "\177") != 0) {
-      key_table[ 0] = key_backspace; /* K_BS */
+    key_table[ 0] = erase_ch;   /* K_BS */
+    /* printf("erase_ch %d\n", erase_ch[0]); */
+    if (key_backspace != NULL && strcmp(key_backspace, erase_ch) != 0) {
+      /* If the backspace character defined in the terminfo/termcap */
+      /* database is different from the erase character defined by  */
+      /* the terminal device it is defined additionally as K_BS.    */
+      key_table[ 1] = key_backspace; /* K_BS */
     } else {
-      key_table[ 0] = NULL;
+      key_table[ 1] = NULL;
     } /* if */
     /* printf("key_backspace %d\n", key_backspace[0]); */
-    key_table[ 1] = key_btab;   /* K_BACKTAB */
-    key_table[ 2] = key_b2;     /* K_PAD_CENTER */
-    key_table[ 3] = key_catab;
-    key_table[ 4] = key_clear;
-    key_table[ 5] = key_ctab;
-    key_table[ 6] = key_dc;     /* K_DEL */
-    key_table[ 7] = key_dl;     /* K_DELLN */
-    key_table[ 8] = key_down;   /* K_DOWN */
-    key_table[ 9] = key_eic;    /* K_INS */
-    key_table[10] = key_end;    /* K_END */
-    key_table[11] = key_enter;  /* K_NL */
-    key_table[12] = key_eol;
-    key_table[13] = key_eos;
-    key_table[14] = key_home;   /* K_HOME */
-    key_table[15] = key_f0;
-    key_table[16] = key_f1;     /* K_F1 */
-    key_table[17] = key_f2;     /* K_F2 */
-    key_table[18] = key_f3;     /* K_F3 */
-    key_table[19] = key_f4;     /* K_F4 */
-    key_table[20] = key_f5;     /* K_F5 */
-    key_table[21] = key_f6;     /* K_F6 */
-    key_table[22] = key_f7;     /* K_F7 */
-    key_table[23] = key_f8;     /* K_F8 */
-    key_table[24] = key_f9;     /* K_F9 */
-    key_table[25] = key_f10;    /* K_F10 */
-    key_table[26] = key_f11;    /* K_F11 */
-    key_table[27] = key_f12;    /* K_F12 */
-    key_table[28] = key_f13;    /* K_SFT_F1 */
-    key_table[29] = key_f14;    /* K_SFT_F2 */
-    key_table[30] = key_f15;    /* K_SFT_F3 */
-    key_table[31] = key_f16;    /* K_SFT_F4 */
-    key_table[32] = key_f17;    /* K_SFT_F5 */
-    key_table[33] = key_f18;    /* K_SFT_F6 */
-    key_table[34] = key_f19;    /* K_SFT_F7 */
-    key_table[35] = key_f20;    /* K_SFT_F8 */
-    key_table[36] = key_f21;    /* K_SFT_F9 */
-    key_table[37] = key_f22;    /* K_SFT_F10 */
-    key_table[38] = key_f23;    /* K_SFT_F11 */
-    key_table[39] = key_f24;    /* K_SFT_F12 */
-    key_table[40] = key_f25;    /* K_CTL_F1 */
-    key_table[41] = key_f26;    /* K_CTL_F2 */
-    key_table[42] = key_f27;    /* K_CTL_F3 */
-    key_table[43] = key_f28;    /* K_CTL_F4 */
-    key_table[44] = key_f29;    /* K_CTL_F5 */
-    key_table[45] = key_f30;    /* K_CTL_F6 */
-    key_table[46] = key_f31;    /* K_CTL_F7 */
-    key_table[47] = key_f32;    /* K_CTL_F8 */
-    key_table[48] = key_f33;    /* K_CTL_F9 */
-    key_table[49] = key_f34;    /* K_CTL_F10 */
-    key_table[50] = key_f35;    /* K_CTL_F11 */
-    key_table[51] = key_f36;    /* K_CTL_F12 */
-    key_table[52] = key_f37;
-    key_table[53] = key_f38;
-    key_table[54] = key_f39;
-    key_table[55] = key_f40;
-    key_table[56] = key_f41;
-    key_table[57] = key_f42;
-    key_table[58] = key_f43;
-    key_table[59] = key_f44;
-    key_table[60] = key_f45;
-    key_table[61] = key_f46;
-    key_table[62] = key_f47;
-    key_table[63] = key_f48;
-    key_table[64] = key_f49;    /* K_ALT_F1 */
-    key_table[65] = key_f50;    /* K_ALT_F2 */
-    key_table[66] = key_f51;    /* K_ALT_F3 */
-    key_table[67] = key_f52;    /* K_ALT_F4 */
-    key_table[68] = key_f53;    /* K_ALT_F5 */
-    key_table[69] = key_f54;    /* K_ALT_F6 */
-    key_table[70] = key_f55;    /* K_ALT_F7 */
-    key_table[71] = key_f56;    /* K_ALT_F8 */
-    key_table[72] = key_f57;    /* K_ALT_F9 */
-    key_table[73] = key_f58;    /* K_ALT_F10 */
-    key_table[74] = key_f59;    /* K_ALT_F11 */
-    key_table[75] = key_f60;    /* K_ALT_F12 */
-    key_table[76] = key_f61;
-    key_table[77] = key_f62;
-    key_table[78] = key_f63;
-    key_table[79] = key_find;   /* K_HOME */
-    key_table[80] = key_ic;     /* K_INS */
-    key_table[81] = key_il;     /* K_INSLN */
-    key_table[82] = key_left;   /* K_LEFT */
-    key_table[83] = key_ll;     /* K_END */
-    key_table[84] = key_npage;  /* K_PGDN */
-    key_table[85] = key_ppage;  /* K_PGUP */
-    key_table[86] = key_right;  /* K_RIGHT */
-    key_table[87] = key_select; /* K_END */
-    key_table[88] = key_sf;     /* K_SCRLDN */
-    key_table[89] = key_sr;     /* K_SCRLUP */
-    key_table[90] = key_stab;
-    key_table[91] = key_up;     /* K_UP */
-    key_table[92] = "\033a";    /* K_ALT_A */
-    key_table[93] = "\033b";    /* K_ALT_B */
-    key_table[94] = "\033c";    /* K_ALT_C */
-    key_table[95] = "\033d";    /* K_ALT_D */
-    key_table[96] = "\033e";    /* K_ALT_E */
-    key_table[97] = "\033f";    /* K_ALT_F */
-    key_table[98] = "\033g";    /* K_ALT_G */
-    key_table[99] = "\033h";    /* K_ALT_H */
-    key_table[100] = "\033i";   /* K_ALT_I */
-    key_table[101] = "\033j";   /* K_ALT_J */
-    key_table[102] = "\033k";   /* K_ALT_K */
-    key_table[103] = "\033l";   /* K_ALT_L */
-    key_table[104] = "\033m";   /* K_ALT_M */
-    key_table[105] = "\033n";   /* K_ALT_N */
-    key_table[106] = "\033o";   /* K_ALT_O */
-    key_table[107] = "\033p";   /* K_ALT_P */
-    key_table[108] = "\033q";   /* K_ALT_Q */
-    key_table[109] = "\033r";   /* K_ALT_R */
-    key_table[110] = "\033s";   /* K_ALT_S */
-    key_table[111] = "\033t";   /* K_ALT_T */
-    key_table[112] = "\033u";   /* K_ALT_U */
-    key_table[113] = "\033v";   /* K_ALT_V */
-    key_table[114] = "\033w";   /* K_ALT_W */
-    key_table[115] = "\033x";   /* K_ALT_X */
-    key_table[116] = "\033y";   /* K_ALT_Y */
-    key_table[117] = "\033z";   /* K_ALT_Z */
-    key_table[118] = "\0330";   /* K_ALT_0 */
-    key_table[119] = "\0331";   /* K_ALT_1 */
-    key_table[120] = "\0332";   /* K_ALT_2 */
-    key_table[121] = "\0333";   /* K_ALT_3 */
-    key_table[122] = "\0334";   /* K_ALT_4 */
-    key_table[123] = "\0335";   /* K_ALT_5 */
-    key_table[124] = "\0336";   /* K_ALT_6 */
-    key_table[125] = "\0337";   /* K_ALT_7 */
-    key_table[126] = "\0338";   /* K_ALT_8 */
-    key_table[127] = "\0339";   /* K_ALT_9 */
-    /* If the erase character of the terminal device is different   */
-    /* from the one defined in the terminfo/termcap database it is  */
-    /* defined additional here.                                     */
-    if (erase_ch[0] != '\010' && erase_ch[0] != '\177' &&
-        key_backspace != NULL && strcmp(erase_ch, key_backspace) != 0 &&
-        key_dc != NULL && strcmp(erase_ch, key_dc) != 0) {
-      key_table[128] = erase_ch; /* K_BS */
-      /* printf("set erase ch 1\n"); */
-    } else if (key_table[0] == NULL && erase_ch[0] == '\177') {
-      key_table[128] = erase_ch; /* K_BS */
-      /* printf("set erase ch 2\n"); */
-    } else {
-      key_table[128] = NULL;
-    } /* if */
-    key_table[129] = "\177"; /* K_DEL */
+    key_table[ 2] = key_btab;   /* K_BACKTAB */
+    key_table[ 3] = key_b2;     /* K_PAD_CENTER */
+    key_table[ 4] = key_catab;
+    key_table[ 5] = key_clear;
+    key_table[ 6] = key_ctab;
+    key_table[ 7] = key_dc;     /* K_DEL */
+    key_table[ 8] = key_dl;     /* K_DELLN */
+    key_table[ 9] = key_down;   /* K_DOWN */
+    key_table[10] = key_eic;    /* K_INS */
+    key_table[11] = key_end;    /* K_END */
+    key_table[12] = key_enter;  /* K_NL */
+    key_table[13] = key_eol;
+    key_table[14] = key_eos;
+    key_table[15] = key_home;   /* K_HOME */
+    key_table[16] = key_f0;
+    key_table[17] = key_f1;     /* K_F1 */
+    key_table[18] = key_f2;     /* K_F2 */
+    key_table[19] = key_f3;     /* K_F3 */
+    key_table[20] = key_f4;     /* K_F4 */
+    key_table[21] = key_f5;     /* K_F5 */
+    key_table[22] = key_f6;     /* K_F6 */
+    key_table[23] = key_f7;     /* K_F7 */
+    key_table[24] = key_f8;     /* K_F8 */
+    key_table[25] = key_f9;     /* K_F9 */
+    key_table[26] = key_f10;    /* K_F10 */
+    key_table[27] = key_f11;    /* K_F11 */
+    key_table[28] = key_f12;    /* K_F12 */
+    key_table[29] = key_f13;    /* K_SFT_F1 */
+    key_table[30] = key_f14;    /* K_SFT_F2 */
+    key_table[31] = key_f15;    /* K_SFT_F3 */
+    key_table[32] = key_f16;    /* K_SFT_F4 */
+    key_table[33] = key_f17;    /* K_SFT_F5 */
+    key_table[34] = key_f18;    /* K_SFT_F6 */
+    key_table[35] = key_f19;    /* K_SFT_F7 */
+    key_table[36] = key_f20;    /* K_SFT_F8 */
+    key_table[37] = key_f21;    /* K_SFT_F9 */
+    key_table[38] = key_f22;    /* K_SFT_F10 */
+    key_table[39] = key_f23;    /* K_SFT_F11 */
+    key_table[40] = key_f24;    /* K_SFT_F12 */
+    key_table[41] = key_f25;    /* K_CTL_F1 */
+    key_table[42] = key_f26;    /* K_CTL_F2 */
+    key_table[43] = key_f27;    /* K_CTL_F3 */
+    key_table[44] = key_f28;    /* K_CTL_F4 */
+    key_table[45] = key_f29;    /* K_CTL_F5 */
+    key_table[46] = key_f30;    /* K_CTL_F6 */
+    key_table[47] = key_f31;    /* K_CTL_F7 */
+    key_table[48] = key_f32;    /* K_CTL_F8 */
+    key_table[49] = key_f33;    /* K_CTL_F9 */
+    key_table[50] = key_f34;    /* K_CTL_F10 */
+    key_table[51] = key_f35;    /* K_CTL_F11 */
+    key_table[52] = key_f36;    /* K_CTL_F12 */
+    key_table[53] = key_f37;
+    key_table[54] = key_f38;
+    key_table[55] = key_f39;
+    key_table[56] = key_f40;
+    key_table[57] = key_f41;
+    key_table[58] = key_f42;
+    key_table[59] = key_f43;
+    key_table[60] = key_f44;
+    key_table[61] = key_f45;
+    key_table[62] = key_f46;
+    key_table[63] = key_f47;
+    key_table[64] = key_f48;
+    key_table[65] = key_f49;    /* K_ALT_F1 */
+    key_table[66] = key_f50;    /* K_ALT_F2 */
+    key_table[67] = key_f51;    /* K_ALT_F3 */
+    key_table[68] = key_f52;    /* K_ALT_F4 */
+    key_table[69] = key_f53;    /* K_ALT_F5 */
+    key_table[70] = key_f54;    /* K_ALT_F6 */
+    key_table[71] = key_f55;    /* K_ALT_F7 */
+    key_table[72] = key_f56;    /* K_ALT_F8 */
+    key_table[73] = key_f57;    /* K_ALT_F9 */
+    key_table[74] = key_f58;    /* K_ALT_F10 */
+    key_table[75] = key_f59;    /* K_ALT_F11 */
+    key_table[76] = key_f60;    /* K_ALT_F12 */
+    key_table[77] = key_f61;
+    key_table[78] = key_f62;
+    key_table[79] = key_f63;
+    key_table[80] = key_find;   /* K_HOME */
+    key_table[81] = key_ic;     /* K_INS */
+    key_table[82] = key_il;     /* K_INSLN */
+    key_table[83] = key_left;   /* K_LEFT */
+    key_table[84] = key_ll;     /* K_END */
+    key_table[85] = key_npage;  /* K_PGDN */
+    key_table[86] = key_ppage;  /* K_PGUP */
+    key_table[87] = key_right;  /* K_RIGHT */
+    key_table[88] = key_select; /* K_END */
+    key_table[89] = key_sf;     /* K_SCRLDN */
+    key_table[90] = key_sr;     /* K_SCRLUP */
+    key_table[91] = key_stab;
+    key_table[92] = key_up;     /* K_UP */
+    key_table[93] = "\033a";    /* K_ALT_A */
+    key_table[94] = "\033b";    /* K_ALT_B */
+    key_table[95] = "\033c";    /* K_ALT_C */
+    key_table[96] = "\033d";    /* K_ALT_D */
+    key_table[97] = "\033e";    /* K_ALT_E */
+    key_table[98] = "\033f";    /* K_ALT_F */
+    key_table[99] = "\033g";    /* K_ALT_G */
+    key_table[100] = "\033h";    /* K_ALT_H */
+    key_table[101] = "\033i";   /* K_ALT_I */
+    key_table[102] = "\033j";   /* K_ALT_J */
+    key_table[103] = "\033k";   /* K_ALT_K */
+    key_table[104] = "\033l";   /* K_ALT_L */
+    key_table[105] = "\033m";   /* K_ALT_M */
+    key_table[106] = "\033n";   /* K_ALT_N */
+    key_table[107] = "\033o";   /* K_ALT_O */
+    key_table[108] = "\033p";   /* K_ALT_P */
+    key_table[109] = "\033q";   /* K_ALT_Q */
+    key_table[110] = "\033r";   /* K_ALT_R */
+    key_table[111] = "\033s";   /* K_ALT_S */
+    key_table[112] = "\033t";   /* K_ALT_T */
+    key_table[113] = "\033u";   /* K_ALT_U */
+    key_table[114] = "\033v";   /* K_ALT_V */
+    key_table[115] = "\033w";   /* K_ALT_W */
+    key_table[116] = "\033x";   /* K_ALT_X */
+    key_table[117] = "\033y";   /* K_ALT_Y */
+    key_table[118] = "\033z";   /* K_ALT_Z */
+    key_table[119] = "\0330";   /* K_ALT_0 */
+    key_table[120] = "\0331";   /* K_ALT_1 */
+    key_table[121] = "\0332";   /* K_ALT_2 */
+    key_table[122] = "\0333";   /* K_ALT_3 */
+    key_table[123] = "\0334";   /* K_ALT_4 */
+    key_table[124] = "\0335";   /* K_ALT_5 */
+    key_table[125] = "\0336";   /* K_ALT_6 */
+    key_table[126] = "\0337";   /* K_ALT_7 */
+    key_table[127] = "\0338";   /* K_ALT_8 */
+    key_table[128] = "\0339";   /* K_ALT_9 */
+    key_table[129] = "\177";    /* K_DEL */
     /* Some function key definitions start with a printable         */
     /* character. This makes absolutly no sense and confuses the    */
     /* function key recognition. Therefore such definitions are     */

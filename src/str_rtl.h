@@ -51,6 +51,7 @@ void strAppend (stritype *const destination, const_stritype stri_from);
 void strAppendTemp (stritype *const destination, const stritype stri_from);
 inttype strChIPos (const const_stritype main_stri, const chartype searched,
     const inttype from_index);
+stritype strChMult (const chartype ch, const inttype factor);
 inttype strChPos (const const_stritype main_stri, const chartype searched);
 /* rtlArraytype strChSplit (const const_stritype main_stri,
     const chartype delimiter); */

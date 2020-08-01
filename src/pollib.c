@@ -49,7 +49,7 @@
 
 
 
-static rtlGenerictype incrUsageCount (const rtlGenerictype pollFile)
+static generictype incrUsageCount (const generictype pollFile)
 
   {
     objecttype fileObject;
@@ -84,12 +84,12 @@ static rtlGenerictype incrUsageCount (const rtlGenerictype pollFile)
         } /* if */
       } /* if */
     } /* if */
-    return (rtlGenerictype) (memsizetype) fileObject;
+    return (generictype) (memsizetype) fileObject;
   } /* incrUsageCount */
 
 
 
-static void decrUsageCount (const rtlGenerictype pollFile)
+static void decrUsageCount (const generictype pollFile)
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
@@ -123,7 +123,7 @@ objecttype pol_addCheck (listtype arguments)
     polAddCheck(take_poll(arg_1(arguments)),
                 take_socket(arg_2(arguments)),
                 take_int(arg_3(arguments)),
-                (rtlGenerictype) (memsizetype) take_interface(arg_4(arguments)));
+                (generictype) (memsizetype) take_interface(arg_4(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* pol_addCheck */
 
@@ -293,7 +293,7 @@ objecttype pol_nextFile (listtype arguments)
     isit_struct(take_interface(arg_2(arguments)));
     nextFile = (objecttype) (memsizetype)
                polNextFile(take_poll(arg_1(arguments)),
-                           (rtlGenerictype) (memsizetype) take_interface(arg_2(arguments)));
+                           (generictype) (memsizetype) take_interface(arg_2(arguments)));
     isit_struct(nextFile);
     if (nextFile->value.structvalue->usage_count != 0) {
       nextFile->value.structvalue->usage_count++;

@@ -78,6 +78,9 @@ void prot_flush (void)
         memcpy(&trace, &trace_backup, sizeof(tracerecord));
       } /* if */
     } else {
+      if (protfile == NULL) {
+        protfile = stdout;
+      } /* if */
       fflush(protfile);
     } /* if */
   } /* prot_flush */
@@ -98,6 +101,9 @@ void prot_nl (void)
         memcpy(&trace, &trace_backup, sizeof(tracerecord));
       } /* if */
     } else {
+      if (protfile == NULL) {
+        protfile = stdout;
+      } /* if */
       fputs("\n", protfile);
     } /* if */
   } /* prot_nl */
@@ -117,10 +123,15 @@ void prot_cstri (const_cstritype stri)
         do_wrcstri(SYS_PROT_OUTFILE_OBJECT, stri);
         memcpy(&trace, &trace_backup, sizeof(tracerecord));
       } /* if */
-    } else if (stri == NULL) {
-      fputs("*NULL*", protfile);
     } else {
-      fputs(stri, protfile);
+      if (protfile == NULL) {
+        protfile = stdout;
+      } /* if */
+      if (stri == NULL) {
+        fputs("*NULL*", protfile);
+      } else {
+        fputs(stri, protfile);
+      } /* if */
     } /* if */
   } /* prot_cstri */
 

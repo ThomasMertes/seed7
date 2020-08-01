@@ -68,10 +68,16 @@ int pause (void);
 #endif
 
 
-#if defined AWAIT_WITH_SIGACTION
+#if defined AWAIT_WITH_SIGACTION || defined AWAIT_WITH_SIGNAL
+#ifdef HAS_SIGSETJMP
+#define do_setjmp(env)        sigsetjmp(env, 1)
+#define do_longjmp(env, val)  siglongjmp(env, val);
 sigjmp_buf wait_finished;
-#elif defined AWAIT_WITH_SIGNAL
+#else
+#define do_setjmp(env)        setjmp(env)
+#define do_longjmp(env, val)  longjmp(env, val);
 jmp_buf wait_finished;
+#endif
 #endif
 
 
@@ -281,7 +287,7 @@ static void alarm_signal_handler (int sig_num)
 #ifdef TRACE_TIM_UNX
     printf("BEGIN alarm_signal_handler\n");
 #endif
-    siglongjmp(wait_finished, 1);
+    do_longjmp(wait_finished, 1);
 #ifdef TRACE_TIM_UNX
     printf("END alarm_signal_handler\n");
 #endif
@@ -349,7 +355,7 @@ void timAwait (inttype year, inttype month, inttype day, inttype hour,
         sigemptyset(&action.sa_mask);
         action.sa_flags = 0;
         if (sigaction(SIGALRM, &action, NULL) == 0) {
-          if (sigsetjmp(wait_finished, 1) == 0) {
+          if (do_setjmp(wait_finished) == 0) {
             if (setitimer(ITIMER_REAL, &timer_value, NULL) == 0) {
               pause();
             } /* if */
@@ -374,7 +380,7 @@ static void alarm_signal_handler (int sig_num)
 #ifdef TRACE_TIM_UNX
     printf("BEGIN alarm_signal_handler\n");
 #endif
-    longjmp(wait_finished, 1);
+    do_longjmp(wait_finished, 1);
 #ifdef TRACE_TIM_UNX
     printf("END alarm_signal_handler\n");
 #endif
@@ -438,7 +444,7 @@ void timAwait (inttype year, inttype month, inttype day, inttype hour,
         timer_value.it_interval.tv_sec = 0;
         timer_value.it_interval.tv_usec = 0;
         if (signal(SIGALRM, alarm_signal_handler) != SIG_ERR) {
-          if (setjmp(wait_finished) == 0) {
+          if (do_setjmp(wait_finished) == 0) {
             if (setitimer(ITIMER_REAL, &timer_value, NULL) == 0) {
               pause();
             } /* if */

@@ -78,7 +78,7 @@ typedef enum {
 
 typedef struct {
     sockettype fd;
-    rtlGenerictype file;
+    generictype file;
   } fdAndFileType;
 
 typedef struct {
@@ -357,7 +357,7 @@ static booltype replaceFdSet (testType *test, memsizetype capacity)
 
 
 static void addCheck (testType *test, const sockettype aSocket,
-    const rtlGenerictype fileObj)
+    const generictype fileObj)
 
   {
     memsizetype pos;
@@ -377,7 +377,7 @@ static void addCheck (testType *test, const sockettype aSocket,
     } /* if */
 #endif
     pos = (memsizetype) hshIdxEnterDefault(test->indexHash,
-        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
+        (generictype) (memsizetype) aSocket, (generictype) test->size,
         (inttype) (memsizetype) aSocket, (comparetype) &genericCmp,
         (createfunctype) &genericCreate, (createfunctype) &genericCreate);
     if (pos == test->size) {
@@ -420,7 +420,7 @@ static void removeCheck (testType *test, const sockettype aSocket)
   /* removeCheck */
     /* printf("removeCheck(..., %u)\n", aSocket); */
     pos = (memsizetype) hshIdxWithDefault(test->indexHash,
-        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
+        (generictype) (memsizetype) aSocket, (generictype) test->size,
         (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
     if (pos != test->size) {
       fileObjectOps.decrUsageCount(test->files[pos].file);
@@ -430,9 +430,9 @@ static void removeCheck (testType *test, const sockettype aSocket)
           memcpy(&test->files[pos],
                  &test->files[test->iterPos], sizeof(fdAndFileType));
           hshIdxAddr(test->indexHash,
-                     (rtlGenerictype) (memsizetype) test->files[pos].fd,
+                     (generictype) (memsizetype) test->files[pos].fd,
                      (inttype) (memsizetype) test->files[pos].fd,
-                     (comparetype) &genericCmp)->value.genericvalue = (rtlGenerictype) pos;
+                     (comparetype) &genericCmp)->value.genericvalue = (generictype) pos;
           pos = test->iterPos;
         } /* if */
       } /* if */
@@ -441,11 +441,11 @@ static void removeCheck (testType *test, const sockettype aSocket)
         memcpy(&test->files[pos],
                &test->files[test->size], sizeof(fdAndFileType));
         hshIdxAddr(test->indexHash,
-                   (rtlGenerictype) (memsizetype) test->files[pos].fd,
+                   (generictype) (memsizetype) test->files[pos].fd,
                    (inttype) (memsizetype) test->files[pos].fd,
-                   (comparetype) &genericCmp)->value.genericvalue = (rtlGenerictype) pos;
+                   (comparetype) &genericCmp)->value.genericvalue = (generictype) pos;
       } /* if */
-      hshExcl(test->indexHash, (rtlGenerictype) (memsizetype) aSocket,
+      hshExcl(test->indexHash, (generictype) (memsizetype) aSocket,
               (inttype) (memsizetype) aSocket, (comparetype) &genericCmp,
               (destrfunctype) &genericDestr, (destrfunctype) &genericDestr);
 #ifdef USE_PREPARED_FD_SET
@@ -543,7 +543,7 @@ static booltype isChecked (const testType *test, const sockettype aSocket)
 
   /* isChecked */
     pos = (memsizetype) hshIdxWithDefault(test->indexHash,
-        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
+        (generictype) (memsizetype) aSocket, (generictype) test->size,
         (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
     result = pos != test->size;
     /* printf("isChecked: sock=%d, pos=%d, fd=%d\n",
@@ -561,7 +561,7 @@ static booltype isReady (const testType *test, const sockettype aSocket)
 
   /* isReady */
     pos = (memsizetype) hshIdxWithDefault(test->indexHash,
-        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
+        (generictype) (memsizetype) aSocket, (generictype) test->size,
         (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
     if (pos == test->size) {
       result = FALSE;
@@ -609,12 +609,12 @@ static booltype hasNextFinding (testType *test, memsizetype iterEvents)
 
 
 
-static rtlGenerictype nextCheck (testType *test,
-    const rtlGenerictype nullFile)
+static generictype nextCheck (testType *test,
+    const generictype nullFile)
 
   {
     memsizetype pos;
-    rtlGenerictype checkFile;
+    generictype checkFile;
 
   /* nextCheck */
     pos = test->iterPos;
@@ -632,13 +632,13 @@ static rtlGenerictype nextCheck (testType *test,
 
 
 
-static rtlGenerictype nextFinding (testType *test,
-    memsizetype *iterEvents, const rtlGenerictype nullFile)
+static generictype nextFinding (testType *test,
+    memsizetype *iterEvents, const generictype nullFile)
 
   {
     memsizetype pos;
     fd_set *fdSet;
-    rtlGenerictype resultFile;
+    generictype resultFile;
 
   /* nextFinding */
     if (*iterEvents == 0) {
@@ -674,7 +674,7 @@ static rtlGenerictype nextFinding (testType *test,
  *  when the iterator returns files in 'pollData'.
  */
 void polAddCheck (const polltype pollData, const sockettype aSocket,
-    inttype eventsToCheck, const rtlGenerictype fileObj)
+    inttype eventsToCheck, const generictype fileObj)
 
   { /* polAddCheck */
     switch (eventsToCheck) {
@@ -1194,10 +1194,10 @@ void polIterFindings (const polltype pollData, inttype pollMode)
 
 
 
-rtlGenerictype polNextFile (const polltype pollData, const rtlGenerictype nullFile)
+generictype polNextFile (const polltype pollData, const generictype nullFile)
 
   {
-    rtlGenerictype nextFile;
+    generictype nextFile;
 
   /* polNextFile */
     switch (conv(pollData)->iteratorMode) {

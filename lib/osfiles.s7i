@@ -494,9 +494,6 @@ const proc: cloneFile (in string: sourcePath, in string: destPath) is action "CM
 const proc: moveFile (in string: sourcePath, in string: destPath)  is action "CMD_MOVE";
 
 
-const func string: configValue (in string: name)             is action "CMD_CONFIG_VALUE";
-
-
 const func string: convDosPath (in string: path) is func
   result
     var string: stdPath is "";

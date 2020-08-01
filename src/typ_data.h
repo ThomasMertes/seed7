@@ -26,7 +26,7 @@
 /********************************************************************/
 
 inttype typCmp (const const_typetype type1, const const_typetype type2);
-inttype typCmpGeneric (rtlGenerictype type1, rtlGenerictype type2);
+inttype typCmpGeneric (generictype type1, generictype type2);
 typetype typFunc (typetype basic_type);
 booltype typIsDerived (typetype any_type);
 booltype typIsFunc (typetype any_type);

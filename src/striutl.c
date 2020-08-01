@@ -650,7 +650,7 @@ stritype conv_from_os_stri (const const_os_stritype os_stri,
       stri_size = wstri_expand(stri->mem, os_stri, length);
       stri->size = stri_size;
       if (stri_size != length) {
-        REALLOC_STRI_SIZE_OK(resized_stri, stri, length, stri_size);
+        REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
         if (resized_stri == NULL) {
           FREE_STRI(stri, length);
           stri = NULL;
@@ -790,7 +790,7 @@ stritype conv_from_os_stri (const const_os_stritype os_stri,
   /* conv_from_os_stri */
     if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
       if (utf8_to_stri(stri->mem, &stri_size, (const_ustritype) os_stri, length) == 0) {
-        REALLOC_STRI_SIZE_OK(resized_stri, stri, length, stri_size);
+        REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
         if (resized_stri == NULL) {
           FREE_STRI(stri, length);
           stri = NULL;
@@ -1083,7 +1083,7 @@ stritype cstri8_to_stri (const_cstritype cstri)
     length = strlen(cstri);
     if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
       if (utf8_to_stri(stri->mem, &stri_size, (const_ustritype) cstri, length) == 0) {
-        REALLOC_STRI_SIZE_OK(resized_stri, stri, length, stri_size);
+        REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
         if (resized_stri == NULL) {
           FREE_STRI(stri, length);
           stri = NULL;

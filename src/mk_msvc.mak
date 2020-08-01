@@ -135,7 +135,6 @@ version.h: chkccomp.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define INT_DIV_BY_ZERO_POPUP >> version.h
 	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO >> version.h
-	echo #define LIMITED_CSTRI_LITERAL_LEN >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
 	echo #define os_chdir _wchdir >> version.h

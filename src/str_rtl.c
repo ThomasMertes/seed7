@@ -45,6 +45,8 @@
 #define EXTERN
 #include "str_rtl.h"
 
+#undef TRACE_STR_RTL
+
 
 #define CHAR_DELTA_BEYOND 128
 
@@ -697,11 +699,13 @@ stritype concat_path (const const_stritype absolutePath,
     stritype result;
 
   /* concat_path */
-    /* printf("concat_path(");
+#ifdef TRACE_STR_RTL
+    printf("concat_path(");
     prot_stri(absolutePath);
     printf(", ");
     prot_stri(relativePath);
-    printf(")\n"); */
+    printf(")\n");
+#endif
     /* absolutePath->mem[0] is always '/'. */
     if (absolutePath->size == 1) {
       abs_path_length = 0;
@@ -755,7 +759,7 @@ stritype concat_path (const const_stritype absolutePath,
         } else {
           result_size = (memsizetype) (abs_path_end - result->mem);
         } /* if */
-        REALLOC_STRI_SIZE_OK(resized_result, result, estimated_result_size, result_size);
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, estimated_result_size, result_size);
         if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, estimated_result_size);
           result = NULL;
@@ -766,9 +770,11 @@ stritype concat_path (const const_stritype absolutePath,
         } /* if */
       } /* if */
     } /* if */
-    /* printf("concat_path --> ");
+#ifdef TRACE_STR_RTL
+    printf("concat_path --> ");
     prot_stri(result);
-    printf("\n"); */
+    printf("\n");
+#endif
     return result;
   } /* concat_path */
 
@@ -791,6 +797,14 @@ void strAppend (stritype *const destination, const_stritype extension)
     const strelemtype *extension_origin;
 
   /* strAppend */
+#ifdef TRACE_STR_RTL
+    printf("strAppend(");
+    prot_stri(*destination);
+    printf(", ");
+    prot_stri(extension);
+    printf(")");
+    prot_flush();
+#endif
     stri_dest = *destination;
     extension_size = extension->size;
     extension_mem = extension->mem;
@@ -861,6 +875,11 @@ void strAppend (stritype *const destination, const_stritype extension)
       } /* if */
 #endif
     } /* if */
+#ifdef TRACE_STR_RTL
+    printf(" --> ");
+    prot_stri(*destination);
+    printf("\n");
+#endif
   } /* strAppend */
 
 #else
@@ -880,6 +899,14 @@ void strAppend (stritype *const destination, const_stritype extension)
     stritype new_stri;
 
   /* strAppend */
+#ifdef TRACE_STR_RTL
+    printf("strAppend(");
+    prot_stri(*destination);
+    printf(", ");
+    prot_stri(extension);
+    printf(")");
+    prot_flush();
+#endif
     stri_dest = *destination;
     if (unlikely(stri_dest->size > MAX_STRI_LEN - extension->size)) {
       /* number of bytes does not fit into memsizetype */
@@ -926,6 +953,11 @@ void strAppend (stritype *const destination, const_stritype extension)
       } /* if */
 #endif
     } /* if */
+#ifdef TRACE_STR_RTL
+    printf(" --> ");
+    prot_stri(*destination);
+    printf("\n");
+#endif
   } /* strAppend */
 
 #endif
@@ -946,8 +978,14 @@ void strAppendTemp (stritype *const destination, const stritype extension)
     stritype stri_dest;
 
   /* strAppendTemp */
-    /* printf("strAppendTemp(dest->size=%lu, from->size=%lu)\n",
-       (*destination)->size, extension->size); */
+#ifdef TRACE_STR_RTL
+    printf("strAppendTemp(");
+    prot_stri(*destination);
+    printf(", ");
+    prot_stri(extension);
+    printf(")");
+    prot_flush();
+#endif
     stri_dest = *destination;
     if (unlikely(stri_dest->size > MAX_STRI_LEN - extension->size)) {
       /* number of bytes does not fit into memsizetype */
@@ -1001,7 +1039,11 @@ void strAppendTemp (stritype *const destination, const stritype extension)
       } /* if */
 #endif
     } /* if */
-    /* printf("strAppendTemp() => dest->size=%lu\n", (*destination)->size); */
+#ifdef TRACE_STR_RTL
+    printf(" --> ");
+    prot_stri(*destination);
+    printf("\n");
+#endif
   } /* strAppendTemp */
 
 
@@ -1118,6 +1160,38 @@ inttype strChIPos (const const_stritype mainStri, const chartype searched,
 
 
 
+stritype strChMult (const chartype ch, const inttype factor)
+
+  {
+    inttype number;
+    strelemtype *result_pointer;
+    stritype result;
+
+  /* strChMult */
+#ifdef TRACE_STR_RTL
+    printf("strChMult(%lu, %ld)\n", ch, factor);
+#endif
+    if (unlikely(factor < 0)) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      if (unlikely((uinttype) factor > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memsizetype) factor))) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result->size = (memsizetype) factor;
+        result_pointer = result->mem;
+        for (number = factor; number > 0; number--) {
+          *result_pointer++ = (strelemtype) ch;
+        } /* for */
+      } /* if */
+    } /* if */
+    return result;
+  } /* strChMult */
+
+
+
 /**
  *  Determine leftmost position of char 'searched' in 'mainStri'.
  *  The first character in a string has the position 1.
@@ -1211,6 +1285,11 @@ stritype strCLit (const const_stritype stri)
     stritype result;
 
   /* strCLit */
+#ifdef TRACE_STR_RTL
+    printf("strCLit(");
+    prot_stri(stri);
+    printf(")\n");
+#endif
     striSize = stri->size;
     if (unlikely(striSize > (MAX_STRI_LEN - 2) / 4 ||
                  !ALLOC_STRI_SIZE_OK(result, 4 * striSize + 2))) {
@@ -1221,15 +1300,23 @@ stritype strCLit (const const_stritype stri)
     pos = 1;
     for (position = 0; position < striSize; position++) {
       character = stri->mem[position];
-      /* The following comparison uses 255 instead of '\377',       */
-      /* because chars might be signed and this can produce wrong   */
-      /* code when '\377' is sign extended.                         */
+      /* The following comparisons use int literals like 255      */
+      /* instead of char literals like '\377'. When char literals */
+      /* are signed (this is C implementation dependent) the      */
+      /* integral promotion (conversion to int) triggers a sign   */
+      /* extension. In this case the sign extension of '\377'     */
+      /* leads to the int value -1 instead of the desired 255.    */
       if (character < ' ') {
         len = strlen(cstri_escape_sequence[character]);
         cstri_expand(&result->mem[pos],
             cstri_escape_sequence[character], len);
         pos += len;
+#ifdef TRIGRAPH_SEQUENCES_ARE_REPLACED
+      } else if (character == '\\' || character == '\"' ||
+                 character == '?') {
+#else
       } else if (character == '\\' || character == '\"') {
+#endif
         result->mem[pos] = (strelemtype) '\\';
         result->mem[pos + 1] = (strelemtype) character;
         pos += 2;
@@ -1249,7 +1336,7 @@ stritype strCLit (const const_stritype stri)
     } /* for */
     result->mem[pos] = (strelemtype) '"';
     result->size = pos + 1;
-    REALLOC_STRI_SIZE_OK(resized_result, result, 4 * striSize + 2, pos + 1);
+    REALLOC_STRI_SIZE_SMALLER(resized_result, result, 4 * striSize + 2, pos + 1);
     if (unlikely(resized_result == NULL)) {
       FREE_STRI(result, 4 * striSize + 2);
       raise_error(MEMORY_ERROR);
@@ -1295,9 +1382,9 @@ inttype strCompare (const const_stritype stri1, const const_stritype stri2)
  *  Reinterpret the generic parameters as stritype and call strCompare.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(rtlGenerictype) != sizeof(stritype).
+ *  when sizeof(generictype) != sizeof(stritype).
  */
-inttype strCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
+inttype strCmpGeneric (const generictype value1, const generictype value2)
 
   { /* strCmpGeneric */
     return strCompare(((const_rtlObjecttype *) &value1)->value.strivalue,
@@ -1352,7 +1439,9 @@ stritype strConcatN (const const_stritype striArray[], memsizetype arraySize)
     stritype result;
 
   /* strConcatN */
-    /* printf("strConcatN(%lu)\n", arraySize); */
+#ifdef TRACE_STR_RTL
+    printf("strConcatN(%lu)\n", arraySize);
+#endif
     for (pos = 0; pos < arraySize; pos++) {
       /* printf("arr[%lu]->size=%lu\n", pos, striArray[pos]->size);
       printf("arr[%lu]=(%08lx) ", pos, striArray[pos]);
@@ -1377,9 +1466,11 @@ stritype strConcatN (const const_stritype striArray[], memsizetype arraySize)
         result_size += striArray[pos]->size;
       } /* for */
     } /* if */
-    /* printf("strConcatN -> (%08lx) ", result);
+#ifdef TRACE_STR_RTL
+    printf("strConcatN -> (%08lx) ", result);
     prot_stri(result);
-    printf("\n"); */
+    printf("\n");
+#endif
     return result;
   } /* strConcatN */
 
@@ -1453,9 +1544,15 @@ void strCopy (stritype *const stri_to, const const_stritype stri_from)
 #endif
 
   /* strCopy */
-    /* printf("begin strCopy(");
-    filWrite(stdout, *stri_to);
-    printf(", %ld)\n", stri_from->size); */
+#ifdef TRACE_STR_RTL
+    printf("strCopy(");
+    prot_stri(*stri_to);
+    printf(", ");
+    prot_stri(stri_from);
+    printf(")");
+    prot_flush();
+#endif
+    /* printf("stri_to=%lu, stri_from=%lu\n", stri_to, stri_from); */
     stri_dest = *stri_to;
     new_size = stri_from->size;
 #ifdef WITH_STRI_CAPACITY
@@ -1512,6 +1609,11 @@ void strCopy (stritype *const stri_to, const const_stritype stri_from)
         *stri_to = stri_dest;
       } /* if */
     } /* if */
+#ifdef TRACE_STR_RTL
+    printf(" --> ");
+    prot_stri(*stri_to);
+    printf("\n");
+#endif
   } /* strCopy */
 
 #else
@@ -1524,6 +1626,14 @@ void strCopy (stritype *const stri_to, const const_stritype stri_from)
     stritype stri_dest;
 
   /* strCopy */
+#ifdef TRACE_STR_RTL
+    printf("strCopy(");
+    prot_stri(*stri_to);
+    printf(", ");
+    prot_stri(stri_from);
+    printf(")");
+    prot_flush();
+#endif
     /* printf("stri_to=%lu, stri_from=%lu\n", stri_to, stri_from); */
     stri_dest = *stri_to;
     /* printf("stri_dest=%lu\n", stri_dest); */
@@ -1562,13 +1672,18 @@ void strCopy (stritype *const stri_to, const const_stritype stri_from)
     /* Therefore memmove() is used instead of memcpy().     */
     memmove(stri_dest->mem, stri_from->mem,
         new_size * sizeof(strelemtype));
+#ifdef TRACE_STR_RTL
+    printf(" --> ");
+    prot_stri(*stri_to);
+    printf("\n");
+#endif
   } /* strCopy */
 
 #endif
 
 
 
-void strCpyGeneric (rtlGenerictype *const dest, const rtlGenerictype source)
+void strCpyGeneric (generictype *const dest, const generictype source)
 
   { /* strCpyGeneric */
     strCopy(&((rtlObjecttype *) dest)->value.strivalue,
@@ -1602,9 +1717,9 @@ stritype strCreate (const const_stritype stri_from)
  *  Generic Create function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(rtlGenerictype) != sizeof(stritype).
+ *  when sizeof(generictype) != sizeof(stritype).
  */
-rtlGenerictype strCreateGeneric (const rtlGenerictype from_value)
+generictype strCreateGeneric (const generictype from_value)
 
   {
     rtlObjecttype result;
@@ -1632,9 +1747,9 @@ void strDestr (const const_stritype old_string)
  *  Generic Destr function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(rtlGenerictype) != sizeof(stritype).
+ *  when sizeof(generictype) != sizeof(stritype).
  */
-void strDestrGeneric (const rtlGenerictype old_value)
+void strDestrGeneric (const generictype old_value)
 
   { /* strDestrGeneric */
     strDestr(((const_rtlObjecttype *) &old_value)->value.strivalue);
@@ -1733,6 +1848,14 @@ void strHeadSlice (const const_stritype stri, const inttype stop, stritype slice
     memsizetype striSize;
 
   /* strHeadSlice */
+#ifdef TRACE_STR_RTL
+    printf("strHeadSlice(");
+    prot_stri(stri);
+    printf(", ");
+    prot_int(stop);
+    printf(")");
+    prot_flush();
+#endif
     striSize = stri->size;
     if (stop >= 1 && striSize >= 1) {
       SET_SLICE_CAPACITY(slice, 0);
@@ -1747,6 +1870,11 @@ void strHeadSlice (const const_stritype stri, const inttype stop, stritype slice
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
+#ifdef TRACE_STR_RTL
+    printf(" --> ");
+    prot_stri(slice);
+    printf("\n");
+#endif
   } /* strHeadSlice */
 
 #else
@@ -2054,7 +2182,7 @@ stritype strLit (const const_stritype stri)
       } /* for */
       result->mem[pos] = (strelemtype) '"';
       result->size = pos + 1;
-      REALLOC_STRI_SIZE_OK(resized_result, result, 12 * striSize + 2, pos + 1);
+      REALLOC_STRI_SIZE_SMALLER(resized_result, result, 12 * striSize + 2, pos + 1);
       if (unlikely(resized_result == NULL)) {
         FREE_STRI(result, 12 * striSize + 2);
         raise_error(MEMORY_ERROR);
@@ -2361,7 +2489,9 @@ stritype strMult (const const_stritype stri, const inttype factor)
     stritype result;
 
   /* strMult */
-    /* printf("strMult(stri->size=%lu, %ld)\n", stri->size, factor); */
+#ifdef TRACE_STR_RTL
+    printf("strMult(stri->size=%lu, %ld)\n", stri->size, factor);
+#endif
     if (unlikely(factor < 0)) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -2582,6 +2712,16 @@ void strRangeSlice (const const_stritype stri, inttype start, inttype stop, stri
     memsizetype striSize;
 
   /* strRangeSlice */
+#ifdef TRACE_STR_RTL
+    printf("strRangeSlice(");
+    prot_stri(stri);
+    printf(", ");
+    prot_int(start);
+    printf(", ");
+    prot_int(stop);
+    printf(")");
+    prot_flush();
+#endif
     striSize = stri->size;
     if (unlikely(start < 1)) {
       start = 1;
@@ -2598,6 +2738,11 @@ void strRangeSlice (const const_stritype stri, inttype start, inttype stop, stri
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
+#ifdef TRACE_STR_RTL
+    printf(" --> ");
+    prot_stri(slice);
+    printf("\n");
+#endif
   } /* strRangeSlice */
 
 #else
@@ -2870,7 +3015,7 @@ stritype strRepl (const const_stritype mainStri,
       } /* if */
       /* printf("result=%lu, guessed_result_size=%ld, result_size=%ld\n",
          result, guessed_result_size, result_size); */
-      REALLOC_STRI_SIZE_OK(resized_result, result, guessed_result_size, result_size);
+      REALLOC_STRI_SIZE_SMALLER(resized_result, result, guessed_result_size, result_size);
       if (unlikely(resized_result == NULL)) {
         FREE_STRI(result, guessed_result_size);
         raise_error(MEMORY_ERROR);
@@ -3378,6 +3523,16 @@ void strSubstrSlice (const const_stritype stri, inttype start, inttype length, s
     memsizetype striSize;
 
   /* strSubstrSlice */
+#ifdef TRACE_STR_RTL
+    printf("strSubstrSlice(");
+    prot_stri(stri);
+    printf(", ");
+    prot_int(start);
+    printf(", ");
+    prot_int(length);
+    printf(")");
+    prot_flush();
+#endif
     striSize = stri->size;
     if (unlikely(start < 1)) {
       if (length >= 1 && start > 1 - length) {
@@ -3399,6 +3554,11 @@ void strSubstrSlice (const const_stritype stri, inttype start, inttype length, s
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
+#ifdef TRACE_STR_RTL
+    printf(" --> ");
+    prot_stri(slice);
+    printf("\n");
+#endif
   } /* strSubstrSlice */
 
 #else
@@ -3468,6 +3628,14 @@ void strTailSlice (const const_stritype stri, inttype start, stritype slice)
     memsizetype striSize;
 
   /* strTailSlice */
+#ifdef TRACE_STR_RTL
+    printf("strTailSlice(");
+    prot_stri(stri);
+    printf(", ");
+    prot_int(start);
+    printf(")");
+    prot_flush();
+#endif
     striSize = stri->size;
     if (unlikely(start < 1)) {
       start = 1;
@@ -3481,6 +3649,11 @@ void strTailSlice (const const_stritype stri, inttype start, stritype slice)
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
+#ifdef TRACE_STR_RTL
+    printf(" --> ");
+    prot_stri(slice);
+    printf("\n");
+#endif
   } /* strTailSlice */
 
 #else
@@ -3583,7 +3756,7 @@ stritype strToUtf8 (const const_stritype stri)
         } /* if */
       } /* for */
       result_size = (memsizetype) (dest - result->mem);
-      REALLOC_STRI_SIZE_OK(resized_result, result, max_utf8_size(stri->size), result_size);
+      REALLOC_STRI_SIZE_SMALLER(resized_result, result, max_utf8_size(stri->size), result_size);
       if (unlikely(resized_result == NULL)) {
         FREE_STRI(result, max_utf8_size(stri->size));
         raise_error(MEMORY_ERROR);
@@ -3757,7 +3930,7 @@ stritype strUtf8ToStri (const_stritype stri8)
         } /* if */
       } /* for */
       if (likely(okay)) {
-        REALLOC_STRI_SIZE_OK(resized_result, result, stri8->size, pos);
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, stri8->size, pos);
         if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, stri8->size);
           raise_error(MEMORY_ERROR);

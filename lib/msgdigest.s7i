@@ -594,14 +594,14 @@ const type: digestAlgorithm is new enum
  *  @return the message digest of the ''message''.
  *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255\'.
  *)
-const func string: msgDigest (in digestAlgorithm: digestAlg, in var string: message) is DYNAMIC;
+const func string: msgDigest (in digestAlgorithm: digestAlg, in string: message) is DYNAMIC;
 
-const func string: msgDigest (NO_DIGEST, in var string: message) is return "";
-const func string: msgDigest (MD4, in var string: message)       is return md4(message);
-const func string: msgDigest (MD5, in var string: message)       is return md5(message);
-const func string: msgDigest (SHA1, in var string: message)      is return sha1(message);
-const func string: msgDigest (SHA224, in var string: message)    is return sha224(message);
-const func string: msgDigest (SHA256, in var string: message)    is return sha256(message);
+const func string: msgDigest (NO_DIGEST, in string: message) is return "";
+const func string: msgDigest (MD4, in string: message)       is return md4(message);
+const func string: msgDigest (MD5, in string: message)       is return md5(message);
+const func string: msgDigest (SHA1, in string: message)      is return sha1(message);
+const func string: msgDigest (SHA224, in string: message)    is return sha224(message);
+const func string: msgDigest (SHA256, in string: message)    is return sha256(message);
 
 
 (**

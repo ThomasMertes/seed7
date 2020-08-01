@@ -506,7 +506,7 @@ stritype ut8Gets (filetype inFile, inttype length)
         raise_error(err_info);
         result = NULL;
       } else if (num_of_chars_read < result->size) {
-        REALLOC_STRI_SIZE_OK(resized_result, result, result->size, num_of_chars_read);
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, result->size, num_of_chars_read);
         if (resized_result == NULL) {
           FREE_STRI(result, result->size);
           raise_error(MEMORY_ERROR);

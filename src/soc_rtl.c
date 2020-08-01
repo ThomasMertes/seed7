@@ -618,7 +618,7 @@ stritype socGets (sockettype inSocket, inttype length, chartype *const eofIndica
             if (result_size == 0) {
               *eofIndicator = (chartype) EOF;
             } /* if */
-            REALLOC_STRI_SIZE_OK(resized_result, result, bytes_requested, result_size);
+            REALLOC_STRI_SIZE_SMALLER(resized_result, result, bytes_requested, result_size);
             if (unlikely(resized_result == NULL)) {
               FREE_STRI(result, bytes_requested);
               raise_error(MEMORY_ERROR);

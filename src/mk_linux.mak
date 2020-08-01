@@ -176,7 +176,6 @@ version.h: chkccomp.h
 	echo "#define os_environ environ" >> version.h
 	echo "#define USE_GETADDRINFO" >> version.h
 	echo "#define ESCAPE_SHELL_COMMANDS" >> version.h
-	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define LIBRARY_FILE_EXTENSION \".a\"" >> version.h
