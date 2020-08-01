@@ -144,8 +144,8 @@ static sqlFuncType sqlFunc = NULL;
 
 
 #ifdef OCI_DLL
-sword (*ptr_OCIAttrGet) (const void  *trgthndlp, ub4 trghndltyp, 
-                         void  *attributep, ub4 *sizep, ub4 attrtype, 
+sword (*ptr_OCIAttrGet) (const void  *trgthndlp, ub4 trghndltyp,
+                         void  *attributep, ub4 *sizep, ub4 attrtype,
                          OCIError *errhp);
 sword (*ptr_OCIAttrSet) (void  *trgthndlp, ub4 trghndltyp, void  *attributep,
                          ub4 size, ub4 attrtype, OCIError *errhp);
@@ -156,20 +156,20 @@ sword (*ptr_OCIBindByPos) (OCIStmt *stmtp, OCIBind **bindp, OCIError *errhp,
 sword (*ptr_OCIDateTimeConstruct) (void *hndl,OCIError *err,OCIDateTime *datetime,
                                    sb2 yr,ub1 mnth,ub1 dy,ub1 hr,ub1 mm,ub1 ss,ub4 fsec,
                                    OraText *timezone,size_t timezone_length);
-sword (*ptr_OCIDateTimeGetDate) (void  *hndl, OCIError *err,  const OCIDateTime *date, 
+sword (*ptr_OCIDateTimeGetDate) (void  *hndl, OCIError *err,  const OCIDateTime *date,
                                  sb2 *yr, ub1 *mnth, ub1 *dy);
-sword (*ptr_OCIDateTimeGetTime) (void  *hndl, OCIError *err, OCIDateTime *datetime, 
+sword (*ptr_OCIDateTimeGetTime) (void  *hndl, OCIError *err, OCIDateTime *datetime,
                                  ub1 *hr, ub1 *mm, ub1 *ss, ub4 *fsec);
 sword (*ptr_OCIDefineByPos) (OCIStmt *stmtp, OCIDefine **defnp, OCIError *errhp,
                              ub4 position, void  *valuep, sb4 value_sz, ub2 dty,
                              void  *indp, ub2 *rlenp, ub2 *rcodep, ub4 mode);
 sword (*ptr_OCIDefineDynamic) (OCIDefine *defnp, OCIError *errhp, void  *octxp,
                                OCICallbackDefine ocbfp);
-sword (*ptr_OCIDefineObject) (OCIDefine *defnp, OCIError *errhp, 
-                              const OCIType *type, void  **pgvpp, 
+sword (*ptr_OCIDefineObject) (OCIDefine *defnp, OCIError *errhp,
+                              const OCIType *type, void  **pgvpp,
                               ub4 *pvszsp, void  **indpp, ub4 *indszp);
-sword (*ptr_OCIDescriptorAlloc) (const void  *parenth, void  **descpp, 
-                                 const ub4 type, const size_t xtramem_sz, 
+sword (*ptr_OCIDescriptorAlloc) (const void  *parenth, void  **descpp,
+                                 const ub4 type, const size_t xtramem_sz,
                                  void  **usrmempp);
 sword (*ptr_OCIDescriptorFree) (void  *descp, const ub4 type);
 sword (*ptr_OCIEnvCreate) (OCIEnv **envp, ub4 mode, void  *ctxp,
@@ -185,7 +185,7 @@ sword (*ptr_OCIEnvNlsCreate) (OCIEnv **envp, ub4 mode, void  *ctxp,
                               ub2 charset, ub2 ncharset);
 sword (*ptr_OCIErrorGet) (void  *hndlp, ub4 recordno, OraText *sqlstate,
                           sb4 *errcodep, OraText *bufp, ub4 bufsiz, ub4 type);
-sword (*ptr_OCIHandleAlloc) (const void  *parenth, void  **hndlpp, const ub4 type, 
+sword (*ptr_OCIHandleAlloc) (const void  *parenth, void  **hndlpp, const ub4 type,
                              const size_t xtramem_sz, void  **usrmempp);
 sword (*ptr_OCIHandleFree) (void  *hndlp, const ub4 type);
 sword (*ptr_OCIIntervalSetDaySecond) (void  *hndl, OCIError *err, sb4 dy, sb4 hr,
@@ -207,7 +207,7 @@ sword (*ptr_OCILobCreateTemporary) (OCISvcCtx *svchp,
 sword (*ptr_OCILobFreeTemporary) (OCISvcCtx *svchp,
                                   OCIError *errhp,
                                   OCILobLocator *locp);
-sword (*ptr_OCILobGetLength2) (OCISvcCtx *svchp, OCIError *errhp, 
+sword (*ptr_OCILobGetLength2) (OCISvcCtx *svchp, OCIError *errhp,
                                OCILobLocator *locp, oraub8 *lenp);
 sword (*ptr_OCILobIsTemporary) (OCIEnv *envp,
                                 OCIError *errhp,
@@ -221,15 +221,15 @@ sword (*ptr_OCILobTrim2) (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp
                           oraub8 newlen);
 sword (*ptr_OCILobWrite2) (OCISvcCtx *svchp, OCIError *errhp, OCILobLocator *locp,
                            oraub8 *byte_amtp, oraub8 *char_amtp, oraub8 offset,
-                           void  *bufp, oraub8 buflen, ub1 piece, void  *ctxp, 
+                           void  *bufp, oraub8 buflen, ub1 piece, void  *ctxp,
                            OCICallbackLobWrite2 cbfp, ub2 csid, ub1 csfrm);
 ub2 (*ptr_OCINlsCharSetNameToId) (void  *envhp, const oratext *name);
 sword (*ptr_OCINumberToReal) (OCIError *err, const OCINumber *number,
                               uword rsl_length, void  *rsl);
-sword (*ptr_OCIParamGet) (const void  *hndlp, ub4 htype, OCIError *errhp, 
+sword (*ptr_OCIParamGet) (const void  *hndlp, ub4 htype, OCIError *errhp,
                           void  **parmdpp, ub4 pos);
 ub4 (*ptr_OCIRefHexSize) (OCIEnv *env, const OCIRef *ref);
-sword (*ptr_OCIRefToHex) (OCIEnv *env, OCIError *err, const OCIRef *ref, 
+sword (*ptr_OCIRefToHex) (OCIEnv *env, OCIError *err, const OCIRef *ref,
                           oratext *hex, ub4 *hex_length);
 sword (*ptr_OCIRowidToChar) (OCIRowid *rowidDesc, OraText *outbfp, ub2 *outbflp,
                              OCIError *errhp);
@@ -238,12 +238,12 @@ sword (*ptr_OCIServerAttach) (OCIServer *srvhp, OCIError *errhp,
 sword (*ptr_OCIServerDetach) (OCIServer *srvhp, OCIError *errhp, ub4 mode);
 sword (*ptr_OCISessionBegin) (OCISvcCtx *svchp, OCIError *errhp, OCISession *usrhp,
                               ub4 credt, ub4 mode);
-sword (*ptr_OCISessionEnd) (OCISvcCtx *svchp, OCIError *errhp, OCISession *usrhp, 
+sword (*ptr_OCISessionEnd) (OCISvcCtx *svchp, OCIError *errhp, OCISession *usrhp,
                             ub4 mode);
-sword (*ptr_OCIStmtExecute) (OCISvcCtx *svchp, OCIStmt *stmtp, OCIError *errhp, 
-                             ub4 iters, ub4 rowoff, const OCISnapshot *snap_in, 
+sword (*ptr_OCIStmtExecute) (OCISvcCtx *svchp, OCIStmt *stmtp, OCIError *errhp,
+                             ub4 iters, ub4 rowoff, const OCISnapshot *snap_in,
                              OCISnapshot *snap_out, ub4 mode);
-sword (*ptr_OCIStmtFetch2) (OCIStmt *stmtp, OCIError *errhp, ub4 nrows, 
+sword (*ptr_OCIStmtFetch2) (OCIStmt *stmtp, OCIError *errhp, ub4 nrows,
                             ub2 orientation, sb4 scrollOffset, ub4 mode);
 sword (*ptr_OCIStmtPrepare) (OCIStmt *stmtp, OCIError *errhp, const OraText *stmt,
                              ub4 stmt_len, ub4 language, ub4 mode);
@@ -1033,7 +1033,7 @@ static const char *nameOfBufferType (uint16Type buffer_type)
     static const char *const typeName[] = {
       "0",           "SQLT_CHR",    "SQLT_NUM",    "SQLT_INT",    "SQLT_FLT",
       "SQLT_STR",    "SQLT_VNU",    "SQLT_PDN",    "SQLT_LNG",    "SQLT_VCS",
-      "SQLT_NON",    "SQLT_RID",    "SQLT_DAT",    "13",          "14",      
+      "SQLT_NON",    "SQLT_RID",    "SQLT_DAT",    "13",          "14",
       "SQLT_VBI",    "16",          "17",          "18",          "19",
       "20",          "SQLT_BFLOAT", "SQLT_BDOUBLE","SQLT_BIN",    "SQLT_LBI",
       "25",  "26",   "27",  "28",   "29",  "30",   "31",  "32",   "33",  "34",
@@ -1438,7 +1438,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
       if (*err_info == OKAY_NO_ERROR) {
         if (strategy == USE_DESCRIPTOR) {
           if (OCIDescriptorAlloc(preparedStmt->oci_environment,
-                                 &resultData->descriptor, 
+                                 &resultData->descriptor,
                                  descriptor_type,
                                  0, NULL) != OCI_SUCCESS) {
             logError(printf("setupResultColumn: OCIDescriptorAlloc: Error\n"););
@@ -1460,7 +1460,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
         /* printf("Define column %u: %s, len %lu\n", column_num,
                nameOfBufferType(resultData->buffer_type),
                resultData->buffer_length); */
-        if (OCIDefineByPos(preparedStmt->ppStmt, 
+        if (OCIDefineByPos(preparedStmt->ppStmt,
                            &resultData->define_handle,
                            preparedStmt->oci_error,
                            column_num,
@@ -1482,7 +1482,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           /* printf("OCIDefineDynamic\n"); */
           if (OCIDefineDynamic(resultData->define_handle,
                                preparedStmt->oci_error,
-                               resultData, 
+                               resultData,
                                longCallback) != OCI_SUCCESS) {
             logError(printf("setupResultColumn: OCIDefineDynamic:\n");
                      printError(preparedStmt->oci_error););
@@ -1611,17 +1611,17 @@ static void showBindVars (preparedStmtType preparedStmt)
       } else {
         if (preparedStmt->param_array[pos].buffer_type == SQLT_TIMESTAMP_TZ) {
           OCIDateTimeGetDate(preparedStmt->oci_environment,
-                             preparedStmt->oci_error, 
+                             preparedStmt->oci_error,
                              (OCIDateTime *) preparedStmt->param_array[pos].buffer,
-                             &year, 
-                             &month, 
+                             &year,
+                             &month,
                              &day);
           OCIDateTimeGetTime(preparedStmt->oci_environment,
-                             preparedStmt->oci_error, 
+                             preparedStmt->oci_error,
                              (OCIDateTime *) preparedStmt->param_array[pos].buffer,
                              &hour,
-                             &min, 
-                             &sec, 
+                             &min,
+                             &sec,
                              &fsec);
           printf("%d-%02u-%02u %02u:%02u:%02u.%06u", year, month, day, hour, min, sec, fsec);
         } else {
@@ -1856,7 +1856,7 @@ static striType getRef (preparedStmtType preparedStmt, OCIRef *ref,
     if (unlikely(!ALLOC_STRI_CHECK_SIZE(stri, length))) {
       *err_info = MEMORY_ERROR;
     } else if (OCIRefToHex(preparedStmt->oci_environment,
-                           preparedStmt->oci_error, 
+                           preparedStmt->oci_error,
                            ref, (OraText *) stri->mem, &length) != OCI_SUCCESS) {
       logError(printf("getRef: OCIRefToHex:\n");
                printError(preparedStmt->oci_error););
@@ -2145,7 +2145,7 @@ static boolType setBlob (preparedStmtType preparedStmt,
                      &byte_amount,
                      NULL,
                      1,  /* Offsets should be greater than or equal to one. */
-                     (dvoid *) bstri->mem, 
+                     (dvoid *) bstri->mem,
                      (oraub8) bstri->size,
                      OCI_ONE_PIECE, NULL, NULL,
                      preparedStmt->charSetId, SQLCS_IMPLICIT) != OCI_SUCCESS) {
@@ -2211,7 +2211,7 @@ static int setFloat (const void *buffer, const float floatValue,
         if (scale > INT_MAX) {
           *err_info = MEMORY_ERROR;
         } else {
-	  length = sqltNumberFromDecimalInt((uint8Type *) buffer, stri, (int) scale, err_info);
+          length = sqltNumberFromDecimalInt((uint8Type *) buffer, stri, (int) scale, err_info);
         } /* if */
         FREE_STRI(stri, savedSize);
       } /* if */
@@ -3298,11 +3298,11 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
             printf("SQLT_INTERVAL_DS\n");
             if (OCIIntervalGetDaySecond(preparedStmt->oci_environment,
                                         preparedStmt->oci_error,
-                                        &ociDay, 
+                                        &ociDay,
                                         &ociHour,
-                                        &ociMinute, 
-                                        &ociSecond, 
-                                        &ociFsec, 
+                                        &ociMinute,
+                                        &ociSecond,
+                                        &ociFsec,
                                         (OCIInterval *) preparedStmt->result_array[column - 1].descriptor) != OCI_SUCCESS) {
               logError(printf("sqlColumnDuration: OCIIntervalGetDaySecond:\n");
                        printError(preparedStmt->oci_error););
@@ -3665,8 +3665,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             OCIDateTimeGetDate(preparedStmt->oci_environment,
                                preparedStmt->oci_error,
                                (OCIDateTime *) preparedStmt->result_array[column - 1].descriptor,
-                               &ociYear, 
-                               &ociMonth, 
+                               &ociYear,
+                               &ociMonth,
                                &ociDay);
             if (ociYear <= -1) {
               /* In the proleptic Gregorian calendar the year preceding 1 is 0. */
@@ -3770,7 +3770,7 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
     } else if (!preparedStmt->fetchFinished) {
       /* printf("ppStmt: %lx\n", (unsigned long) preparedStmt->ppStmt); */
       fetch_result = OCIStmtFetch2(preparedStmt->ppStmt,
-                                   preparedStmt->oci_error, 
+                                   preparedStmt->oci_error,
                                    1, /* Number of rows */
                                    OCI_FETCH_NEXT,
                                    0, /* Fetch offset */
@@ -4177,7 +4177,7 @@ databaseType sqlOpenOci (const const_striType dbName,
               err_info = FILE_ERROR;
               sqlClose((databaseType) &db);
               database = NULL;
-            } else if (OCIAttrSet(db.oci_service_context, OCI_HTYPE_SVCCTX, 
+            } else if (OCIAttrSet(db.oci_service_context, OCI_HTYPE_SVCCTX,
                                   db.oci_server, (ub4) 0,
                                   OCI_ATTR_SERVER, db.oci_error) != OCI_SUCCESS) {
               logError(printf("sqlOpenOci: OCIAttrSet OCI_ATTR_SERVER:\n");
@@ -4208,7 +4208,7 @@ databaseType sqlOpenOci (const const_striType dbName,
               err_info = FILE_ERROR;
               sqlClose((databaseType) &db);
               database = NULL;
-            } else if (OCIAttrSet(db.oci_service_context, OCI_HTYPE_SVCCTX, 
+            } else if (OCIAttrSet(db.oci_service_context, OCI_HTYPE_SVCCTX,
                                   db.oci_session, (ub4) 0,
                                   OCI_ATTR_SESSION, db.oci_error) != OCI_SUCCESS) {
               logError(printf("sqlOpenOci: OCIAttrSet OCI_ATTR_SESSION:\n");

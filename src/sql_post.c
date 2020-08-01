@@ -925,7 +925,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
         case VARCHAROID:
           free(preparedStmt->paramValues[pos - 1]);
           preparedStmt->paramValues[pos - 1] = (cstriType)
-	      bigIntToDecimal(value, &length, &err_info);
+              bigIntToDecimal(value, &length, &err_info);
           if (err_info != OKAY_NO_ERROR) {
             raise_error(err_info);
           } else if (length > INT_MAX) {

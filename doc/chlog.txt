@@ -1,3 +1,23 @@
+20141019:
+- The compiler s7c has been improved to process the semicolon
+  operator with reduced stack usage. Thanks go to Pietro Cerutti
+  for pointing out problems with the available stack size under
+  FreeBSD.
+- In drw_x11.c the function redraw has been improved to ignore
+  expose events when backing store is active. Thanks go to Brian
+  Callahan for reporting problems with activated backing store
+  under OpenBSD.
+- The library makedata.s7i has been improved. Now conditional
+  makefile parts with ifdef and ifndef are allowed. Now it is
+  possible to use the ?= operator to assign a value to a variable.
+  Now the value of a variable is taken from the environment, when
+  it has not been defined in the makefile.
+- The function setupStack has been moved from cmd_rtl.c to
+  heaputl.c.
+- The self extracting Seed7 installer for windows has been
+  improved to allow downloading the latest Seed7 release.
+- Tabs in various files have been replaced with spaces.
+
 20141005:
 - The example program sql7.sd7 has been improved to write help
   information, when it is called with the option -? .
@@ -8,7 +28,7 @@
   POSTGRESQL_LIBRARY_PATH, ODBC_LIBRARY_PATH and OCI_LIBRARY_PATH.
 - The makefile mk_freebsd.mk has been improved to allow database
   connections under FreeBSD.
-- The makefils mk_mingw.mak, mk_msvc.mak, mk_bcc32.mak and
+- The makefiles mk_mingw.mak, mk_msvc.mak, mk_bcc32.mak and
   mk_bccv5.mak have been improved to support the SQLite database.
 - The database driver sql_ite.c has been improved such that it can
   also work with a DLL that is loaded at runtime.

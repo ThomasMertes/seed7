@@ -1045,7 +1045,7 @@ void detemineMySqlDefines (FILE *versionFile,
             appendOption(system_db_libs, buffer);
           } /* if */
 #endif
-	} /* if */
+        } /* if */
       } /* if */
     } /* if */
   } /* detemineMySqlDefines */
@@ -1341,7 +1341,7 @@ void deteminePostgresDefines (FILE *versionFile,
             appendOption(system_db_libs, buffer);
           } /* if */
 #endif
-	} /* if */
+        } /* if */
       } /* if */
     } /* if */
   } /* deteminePostgresDefines */
@@ -1361,8 +1361,8 @@ void detemineOdbcDefines (FILE *versionFile,
 #else
     includeOption[0] = '\0';
 #endif
-	if (compileAndLinkWithOptionsOk("#include <windows.h>\n#include <sql.h>\n"
-	                                "int main(int argc,char *argv[]){return 0;}\n",
+    if (compileAndLinkWithOptionsOk("#include <windows.h>\n#include <sql.h>\n"
+                                    "int main(int argc,char *argv[]){return 0;}\n",
                                     includeOption)) {
       fputs("#define WINDOWS_ODBC\n", versionFile);
       odbc_present = 1;
@@ -1704,6 +1704,8 @@ int main (int argc, char **argv)
     if (sizeof(char *) == 8) { /* Machine with 64-bit addresses */
       /* Due to alignment some 64-bit machines have huge stack requirements. */
       fputs("#define STACK_SIZE 0x1000000\n", versionFile); /* 16777216 bytes */
+    } else {
+      fputs("#define STACK_SIZE 0x800000\n", versionFile); /* 8388608 bytes */
     } /* if */
 #endif
     numericProperties(versionFile);
@@ -1771,6 +1773,28 @@ int main (int argc, char **argv)
                          "printf(\"%d\\n\", getrlimit(RLIMIT_STACK, &rlim) == 0);\n"
                          "return 0;}\n") && doTest() == 1) {
       fputs("#define HAS_GETRLIMIT\n", versionFile);
+      if (compileAndLinkOk("#include <stdio.h>\n#include <sys/resource.h>\n"
+                           "int main(int argc, char *argv[]){\n"
+                           "struct rlimit rlim;\n"
+                           "getrlimit(RLIMIT_STACK, &rlim);"
+                           "if (rlim.rlim_cur == RLIM_INFINITY)\n"
+                           "printf(\"0\\n\");\n"
+                           "else\n"
+                           "printf(\"%d\\n\", rlim.rlim_cur / 1024);\n"
+                           "return 0;}\n")) {
+        fprintf(versionFile, "#define SOFT_STACK_LIMIT %lu\n", (unsigned long) doTest() * 1024);
+      } /* if */
+      if (compileAndLinkOk("#include <stdio.h>\n#include <sys/resource.h>\n"
+                           "int main(int argc, char *argv[]){\n"
+                           "struct rlimit rlim;\n"
+                           "getrlimit(RLIMIT_STACK, &rlim);"
+                           "if (rlim.rlim_max == RLIM_INFINITY)\n"
+                           "printf(\"0\\n\");\n"
+                           "else\n"
+                           "printf(\"%d\\n\", rlim.rlim_max / 1024);\n"
+                           "return 0;}\n")) {
+        fprintf(versionFile, "#define HARD_STACK_LIMIT %lu\n", (unsigned long) doTest() * 1024);
+      } /* if */
     } /* if */
     if (compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"
                          "int main(int argc, char *argv[]){\n"

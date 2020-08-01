@@ -120,13 +120,13 @@ const proc: setPosXY (inout text: aText, in integer: xPos, in integer: yPos) is 
 (**
  *  Set the ''line'' of the current position of ''aText''.
  *)
-const proc: setLine (in text: aText, in integer: line) is DYNAMIC;
+const proc: setLine (inout text: aText, in integer: line) is DYNAMIC;
 
 
 (**
  *  Set the ''column'' of the current position of ''aText''.
  *)
-const proc: setColumn (in text: aText, in integer: column) is DYNAMIC;
+const proc: setColumn (inout text: aText, in integer: column) is DYNAMIC;
 
 
 const proc: cursor (ref text param, ref boolean param) is DYNAMIC;

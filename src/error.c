@@ -1122,7 +1122,7 @@ void err_undeclared (errorType err, fileNumType file_num,
       case OBJUNDECLARED:
         prot_cstri("\"");
         prot_ustri(stri);
-	prot_cstri("\" not declared");
+        prot_cstri("\" not declared");
         prot_nl();
         break;
       default:

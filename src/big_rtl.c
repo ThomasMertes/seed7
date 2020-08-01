@@ -729,7 +729,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
           bigDigit |= (doubleBigDigitType) digitval << bigDigitShift;
           bigDigitShift += shift;
           if (bigDigitShift >= BIGDIGIT_SIZE) {
-	    /* printf("result->bigdigits[%lu] = " F_X_DIG(08) "\n",
+            /* printf("result->bigdigits[%lu] = " F_X_DIG(08) "\n",
                bigDigitPos, (bigDigitType) (bigDigit & BIGDIGIT_MASK)); */
             result->bigdigits[bigDigitPos] = (bigDigitType) (bigDigit & BIGDIGIT_MASK);
             bigDigitPos++;
@@ -744,7 +744,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
         } else {
           result->size = result_size;
           while (bigDigitPos < result_size) {
-	    /* printf("result->bigdigits[%lu] = " F_X_DIG(08) "\n",
+            /* printf("result->bigdigits[%lu] = " F_X_DIG(08) "\n",
                bigDigitPos, (bigDigitType) (bigDigit & BIGDIGIT_MASK)); */
             result->bigdigits[bigDigitPos] = (bigDigitType) (bigDigit & BIGDIGIT_MASK);
             bigDigitPos++;
@@ -4460,7 +4460,7 @@ bigIntType bigLog10 (const const_bigIntType big1)
           bigGrowSignedDigit(&logarithm,
               (intType) (largeDecimalBlockCount * QUINARY_DIGITS_IN_BIGDIGIT));
 #endif
-	  /* printf("digit: " FMT_U_DIG "\n", digit); */
+          /* printf("digit: " FMT_U_DIG "\n", digit); */
           digit /= 10;
           while (digit != 0) {
             bigIncr(&logarithm);

@@ -492,6 +492,7 @@ EXTERN unsigned int sflist_allowed;
 #define COUNT3_TABLE(tp,nr1,nr2)    CNT3(CNT2_BYT(SIZ_TAB(tp, nr1)), CNT1_BYT(SIZ_TAB(tp, nr2)))
 
 
+void setupStack (void);
 #ifdef WITH_STRI_CAPACITY
 striType growStri (striType stri, memSizeType len);
 striType shrinkStri (striType stri, memSizeType len);

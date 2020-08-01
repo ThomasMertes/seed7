@@ -53,9 +53,6 @@
 #endif
 #endif
 #include "errno.h"
-#if defined HAS_GETRLIMIT && defined STACK_SIZE
-#include "sys/resource.h"
-#endif
 
 #ifdef UNISTD_H_PRESENT
 #include "unistd.h"
@@ -644,7 +641,7 @@ static void move_with_copy (const const_os_striType from_name,
           remove_any_file(temp_name, err_info);
         } else {
           /* Rename back to the original name. */
-	  if (os_rename(temp_name, from_name) != 0) {
+          if (os_rename(temp_name, from_name) != 0) {
             logError(printf(" *** move_with_copy: os_rename(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
                             "errno=%d\nerror: %s\n",
                             temp_name, from_name, errno, strerror(errno)););
@@ -856,35 +853,6 @@ static rtlArrayType read_dir (const const_striType dir_name, errInfoType *err_in
     } /* if */
     return dir_array;
   } /* read_dir */
-
-
-
-void setupStack (void)
-
-  {
-#if defined HAS_GETRLIMIT && defined STACK_SIZE
-    struct rlimit rlim;
-#endif
-
-  /* setupStack */
-#if defined HAS_GETRLIMIT && defined STACK_SIZE
-    /* printf("STACK_SIZE:      %ld\n", STACK_SIZE); */
-    if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
-      /* printf("old stack limit: %ld/%ld\n", rlim.rlim_cur, rlim.rlim_max); */
-      if (rlim.rlim_cur != RLIM_INFINITY && (rlim_t) STACK_SIZE > rlim.rlim_cur) {
-        if (rlim.rlim_max == RLIM_INFINITY || (rlim_t) STACK_SIZE <= rlim.rlim_max) {
-          rlim.rlim_cur = (rlim_t) STACK_SIZE;
-        } else {
-          rlim.rlim_cur = rlim.rlim_max;
-        } /* if */
-        setrlimit(RLIMIT_STACK, &rlim);
-        /* if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
-          printf("new stack limit: %ld/%ld\n", rlim.rlim_cur, rlim.rlim_max);
-        } ** if */
-      } /* if */
-    } /* if */
-#endif
-  } /* setupStack */
 
 
 

@@ -646,7 +646,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
             printf("Precision radix: %ld\n", precisionRadix);
           }
           }
-	  {
+          {
             SQLSMALLINT   NameLength;
             SQLSMALLINT   DataType;
             SQLULEN       ColumnSize;
@@ -706,7 +706,7 @@ static void setupResultColumn (preparedStmtType preparedStmt,
             column_size = (SQLULEN) precision;
           } /* if */
           /* Place for sign, decimal point and zero byte. */
-	  column_size += 3;
+          column_size += 3;
 #if 0
           if (precision < 0) {
             logError(printf("setupResultColumn: Precision negative: %ld\n",
@@ -1450,7 +1450,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
       resizeBindArray(preparedStmt, (memSizeType) pos);
       if (preparedStmt->param_array != NULL) {
         if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          preparedStmt->param_array[pos - 1].buffer_length = 
+          preparedStmt->param_array[pos - 1].buffer_length =
               setBigInt(&preparedStmt->param_array[pos - 1].buffer,
                         &preparedStmt->param_array[pos - 1].buffer_capacity,
                         value, &err_info);
@@ -1463,7 +1463,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
 #endif
           err_info = RANGE_ERROR;
         } else {
-          preparedStmt->param_array[pos - 1].buffer_length = 
+          preparedStmt->param_array[pos - 1].buffer_length =
               setBigInt(&preparedStmt->param_array[pos - 1].buffer,
                         &preparedStmt->param_array[pos - 1].buffer_capacity,
                         value, &err_info);
@@ -1523,7 +1523,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
       resizeBindArray(preparedStmt, (memSizeType) pos);
       if (preparedStmt->param_array != NULL) {
         if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          preparedStmt->param_array[pos - 1].buffer_length = 
+          preparedStmt->param_array[pos - 1].buffer_length =
               setBigRat(&preparedStmt->param_array[pos - 1].buffer,
                         numerator, denominator, &err_info);
 #ifdef ENCODE_NUMERIC_STRUCT
@@ -1535,7 +1535,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
 #endif
           err_info = RANGE_ERROR;
         } else {
-          preparedStmt->param_array[pos - 1].buffer_length = 
+          preparedStmt->param_array[pos - 1].buffer_length =
               setBigRat(&preparedStmt->param_array[pos - 1].buffer,
                         numerator, denominator, &err_info);
         } /* if */

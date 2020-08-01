@@ -185,7 +185,7 @@ dirType dirOpen (const const_striType path)
  *  Consecutive calls return all file names in the directory.
  *  The file names . and .. are skipped. Only filenames can be
  *  read from the directory strem. Additional information must
- *  be obtained with other calls. 
+ *  be obtained with other calls.
  *  @param directory The directory stream from which file names
  *         are read.
  *  @return the file name read or NULL on reaching the end of the

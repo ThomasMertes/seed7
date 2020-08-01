@@ -70,7 +70,7 @@ const func string: noCtrlChars (in string: stri) is func
     end for;
   end func;
 
-    
+
 const func boolean: failed (in proc: statement) is func
   result
     var boolean: failed is FALSE;

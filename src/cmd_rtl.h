@@ -29,7 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-void setupStack (void);
 #ifdef HAS_SYMLINKS
 striType followLink (striType path);
 #endif

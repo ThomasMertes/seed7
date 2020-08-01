@@ -280,12 +280,12 @@ static const char *nameOfBufferType (int buffer_type)
       case MYSQL_TYPE_BLOB:        typeName = "MYSQL_TYPE_BLOB"; break;
       case MYSQL_TYPE_MEDIUM_BLOB: typeName = "MYSQL_TYPE_MEDIUM_BLOB"; break;
       case MYSQL_TYPE_LONG_BLOB:   typeName = "MYSQL_TYPE_LONG_BLOB"; break;
-      case MYSQL_TYPE_BIT:	   typeName = "MYSQL_TYPE_BIT"; break;
-      case MYSQL_TYPE_YEAR:	   typeName = "MYSQL_TYPE_YEAR"; break;
-      case MYSQL_TYPE_SET:	   typeName = "MYSQL_TYPE_SET"; break;
-      case MYSQL_TYPE_ENUM:	   typeName = "MYSQL_TYPE_ENUM"; break;
-      case MYSQL_TYPE_GEOMETRY:	   typeName = "MYSQL_TYPE_GEOMETRY"; break;
-      case MYSQL_TYPE_NULL:	   typeName = "MYSQL_TYPE_NULL"; break;
+      case MYSQL_TYPE_BIT:         typeName = "MYSQL_TYPE_BIT"; break;
+      case MYSQL_TYPE_YEAR:        typeName = "MYSQL_TYPE_YEAR"; break;
+      case MYSQL_TYPE_SET:         typeName = "MYSQL_TYPE_SET"; break;
+      case MYSQL_TYPE_ENUM:        typeName = "MYSQL_TYPE_ENUM"; break;
+      case MYSQL_TYPE_GEOMETRY:    typeName = "MYSQL_TYPE_GEOMETRY"; break;
+      case MYSQL_TYPE_NULL:        typeName = "MYSQL_TYPE_NULL"; break;
       default:
         sprintf(buffer, "%d", buffer_type);
         typeName = buffer;
@@ -298,7 +298,7 @@ static const char *nameOfBufferType (int buffer_type)
 
 
 static void setupResultColumn (preparedStmtType preparedStmt,
-    unsigned int column_num, MYSQL_RES *result_metadata, 
+    unsigned int column_num, MYSQL_RES *result_metadata,
     MYSQL_BIND *resultData, errInfoType *err_info)
 
   {
@@ -860,7 +860,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       raise_error(RANGE_ERROR);
     } else if (!((year >= 0 && month >= 0 && day >= 0 && hour >= 0 &&
                   minute >= 0 && second >= 0 && micro_second >= 0) ||
-	         (year <= 0 && month <= 0 && day <= 0 && hour <= 0 &&
+                 (year <= 0 && month <= 0 && day <= 0 && hour <= 0 &&
                   minute <= 0 && second <= 0 && micro_second <= 0))) {
       logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
       raise_error(RANGE_ERROR);

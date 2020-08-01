@@ -780,9 +780,31 @@ const proc: process (PRC_HSIZE,in reference: function,
 
 const proc: process_prc_semicol (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: statement is NIL;
+    var ref_list: semicolParams is ref_list.EMPTY;
+    var boolean: finished is FALSE;
   begin
     process_expr(params[1], c_expr);
-    process_expr(params[3], c_expr);
+    statement := params[3];
+    repeat
+      if category(statement) = CALLOBJECT then
+        semicolParams := getValue(statement, ref_list);
+        if length(semicolParams) = 4 and
+            category(semicolParams[1]) = ACTOBJECT and
+            str(getValue(semicolParams[1], ACTION)) = "PRC_NOOP" and
+            str(semicolParams[3]) = ";" then
+          process_expr(semicolParams[2], c_expr);
+          statement := semicolParams[4];
+        else
+          process_expr(statement, c_expr);
+          finished := TRUE;
+        end if;
+      else
+        process_expr(statement, c_expr);
+        finished := TRUE;
+      end if;
+    until finished;
   end func;
 
 

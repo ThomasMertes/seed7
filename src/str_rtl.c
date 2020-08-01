@@ -2293,7 +2293,7 @@ striType strLpad (const const_striType stri, const intType pad_size)
         result->size = (memSizeType) pad_size;
 #if LPAD_WITH_MEMSET_TO_STRELEM
         memset_to_strelem(result->mem, ' ', (memSizeType) pad_size - striSize);
-#else	
+#else
         {
           strElemType *elem = result->mem;
           memSizeType idx = (memSizeType) pad_size - striSize - 1;
@@ -2301,7 +2301,7 @@ striType strLpad (const const_striType stri, const intType pad_size)
           do {
             elem[idx] = (strElemType) ' ';
           } while (idx-- != 0);
-	}
+        }
 #endif
         memcpy(&result->mem[(memSizeType) pad_size - striSize], stri->mem,
             striSize * sizeof(strElemType));

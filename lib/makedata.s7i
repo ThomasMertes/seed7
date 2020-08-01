@@ -347,6 +347,9 @@ const func string: applyMacros (in stringHash: macros, in string: stri,
             if name in macros then
               macroValue := applyMacros(macros, macros[name], leaveUndefMacros);
               done := TRUE;
+            else
+              macroValue := getenv(name);
+              done := macroValue <> "";
             end if;
           elsif parameter[1] = ':' then
             if name in macros then
@@ -607,6 +610,21 @@ const proc: execIfeq (inout file: makefile, in stringHash: macros, in boolean: e
   end func;
 
 
+const proc: execIfdef (inout file: makefile, in stringHash: macros, in boolean: equal) is func
+  local
+    var string: name is "";
+  begin
+    # writeln("ifdef");
+    name := getTargetName(makefile);
+    skipLine(makefile);
+    makefile.bufferChar := getc(makefile);
+    if (name in macros or getenv(name) <> "") <> equal then
+      # writeln("skip");
+      find_endif_or_else(makefile);
+    end if;
+  end func;
+
+
 const func string: getDependency (inout string: stri) is func
   result
     var string: symbol is "";
@@ -733,27 +751,13 @@ const proc: readMakefile (inout makeDataType: makeData) is func
       elsif makefile.bufferChar in target_name_char then
         name := getTargetName(makefile);
         # writeln(name);
-        skipSpace(makefile);
+        skipSpaceOrTab(makefile);
         if makefile.bufferChar = '=' then
           makefile.bufferChar := getc(makefile);
           skipSpace(makefile);
           makeData.macros @:= [name] getLine(makeData);
           # writeln(name <& " = " <& data);
           makefile.bufferChar := getc(makefile);
-        elsif makefile.bufferChar = '+' then
-          makefile.bufferChar := getc(makefile);
-          if makefile.bufferChar = '=' then
-            makefile.bufferChar := getc(makefile);
-            skipSpace(makefile);
-            data := applyMacros(makeData.macros, getLine(makeData), TRUE);
-            if name in makeData.macros then
-              makeData.macros @:= [name] makeData.macros[name] & data;
-            else
-              makeData.macros @:= [name] data;
-            end if;
-            # writeln(name <& " = " <& data);
-            makefile.bufferChar := getc(makefile);
-          end if;
         elsif makefile.bufferChar = ':' then
           makefile.bufferChar := getc(makefile);
           if makefile.bufferChar = '=' then
@@ -767,10 +771,40 @@ const proc: readMakefile (inout makeDataType: makeData) is func
             name := applyMacros(makeData.macros, name, TRUE);
             readRule(makeData, name);
           end if;
+        elsif makefile.bufferChar = '?' then
+          makefile.bufferChar := getc(makefile);
+          if makefile.bufferChar = '=' then
+            makefile.bufferChar := getc(makefile);
+            skipSpace(makefile);
+            data := getLine(makeData);
+            if name not in makeData.macros and getenv(name) = "" then
+              makeData.macros @:= [name] data;
+            end if;
+            # writeln(name <& " ?= " <& data);
+            makefile.bufferChar := getc(makefile);
+          end if;
+        elsif makefile.bufferChar = '+' then
+          makefile.bufferChar := getc(makefile);
+          if makefile.bufferChar = '=' then
+            makefile.bufferChar := getc(makefile);
+            skipSpace(makefile);
+            data := applyMacros(makeData.macros, getLine(makeData), TRUE);
+            if name in makeData.macros then
+              makeData.macros @:= [name] makeData.macros[name] & data;
+            else
+              makeData.macros @:= [name] data;
+            end if;
+            # writeln(name <& " += " <& data);
+            makefile.bufferChar := getc(makefile);
+          end if;
         elsif name = "ifeq" then
           execIfeq(makefile, makeData.macros, TRUE);
         elsif name = "ifneq" then
           execIfeq(makefile, makeData.macros, FALSE);
+        elsif name = "ifdef" then
+          execIfdef(makefile, makeData.macros, TRUE);
+        elsif name = "ifndef" then
+          execIfdef(makefile, makeData.macros, FALSE);
         elsif name = "else" then
           skipLine(makefile);
           makefile.bufferChar := getc(makefile);

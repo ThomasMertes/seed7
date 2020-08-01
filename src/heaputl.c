@@ -33,6 +33,9 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#if defined HAS_GETRLIMIT && defined STACK_SIZE
+#include "sys/resource.h"
+#endif
 
 #include "common.h"
 #include "data_rtl.h"
@@ -49,6 +52,35 @@
 #ifdef STACK_SIZE_DEFINITION
 STACK_SIZE_DEFINITION;
 #endif
+
+
+
+void setupStack (void)
+
+  {
+#if defined HAS_GETRLIMIT && defined STACK_SIZE
+    struct rlimit rlim;
+#endif
+
+  /* setupStack */
+#if defined HAS_GETRLIMIT && defined STACK_SIZE
+    /* printf("STACK_SIZE:      %ld\n", STACK_SIZE); */
+    if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
+      /* printf("old stack limit: %ld/%ld\n", rlim.rlim_cur, rlim.rlim_max); */
+      if (rlim.rlim_cur != RLIM_INFINITY && (rlim_t) STACK_SIZE > rlim.rlim_cur) {
+        if (rlim.rlim_max == RLIM_INFINITY || (rlim_t) STACK_SIZE <= rlim.rlim_max) {
+          rlim.rlim_cur = (rlim_t) STACK_SIZE;
+        } else {
+          rlim.rlim_cur = rlim.rlim_max;
+        } /* if */
+        setrlimit(RLIMIT_STACK, &rlim);
+        /* if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
+          printf("new stack limit: %ld/%ld\n", rlim.rlim_cur, rlim.rlim_max);
+        } ** if */
+      } /* if */
+    } /* if */
+#endif
+  } /* setupStack */
 
 
 

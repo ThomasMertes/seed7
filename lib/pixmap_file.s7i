@@ -181,6 +181,26 @@ const proc: setPosXY (inout pixmapFontFile: fontFile, in integer: xPos, in integ
 
 
 (**
+ *  Set the ''line'' of the current position of ''fontFile''.
+ *)
+const proc: setLine (inout pixmapFontFile: fontFile, in integer: line) is func
+  begin
+    fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(line);
+    fontFile.useBaseY := FALSE;
+  end func;
+
+
+(**
+ *  Set the ''column'' of the current position of ''fontFile''.
+ *)
+const proc: setColumn (inout pixmapFontFile: fontFile, in integer: column) is func
+  begin
+    fontFile.lineStartX := fontFile.min_x;
+    fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(column);
+  end func;
+
+
+(**
  *  Set the current foreground color of ''fontFile''.
  *)
 const proc: color (inout pixmapFontFile: fontFile, in color: col) is func

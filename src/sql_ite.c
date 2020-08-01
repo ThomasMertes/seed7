@@ -505,7 +505,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
       if (unlikely(bstri->size > INT_MAX ||
                    !ALLOC_CSTRI(blob, bstri->size))) {
         raise_error(MEMORY_ERROR);
-      } else { 
+      } else {
         memcpy(blob, bstri->mem, bstri->size);
         if (sqlite3_bind_blob(preparedStmt->ppStmt,
                               (int) pos,

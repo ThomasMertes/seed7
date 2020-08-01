@@ -158,52 +158,54 @@ void redraw (winType redraw_window, int xPos, int yPos, int width, int height)
     /* XFlush(mydisplay);
        XSync(mydisplay, 0);
        getchar(); */
-    XCopyArea(mydisplay, expose_window->backup,
-        expose_window->window, mygc, xPos, yPos,
-        width, height, xPos, yPos);
-    /* printf("xPos + width=%d, to_width(expose_window)=%d\n",
-           xPos + width, to_width(expose_window));
-       printf("yPos + height=%d, to_height(expose_window)=%d\n",
-           yPos + height, to_height(expose_window)); */
-    if (xPos + width > to_width(expose_window)) {
-      XSetForeground(mydisplay, mygc, to_clear_col(redraw_window));
-      if (xPos >= to_width(expose_window)) {
-        xClear = xPos;
-        clearWidth = width;
-      } else {
-        xClear = to_width(expose_window);
-        clearWidth = xPos + width - to_width(expose_window);
-        if (yPos + height > to_height(expose_window)) {
-          if (yPos >= to_height(expose_window)) {
-            yClear = yPos;
-            clearHeight = height;
-          } else {
-            yClear = to_height(expose_window);
-            clearHeight = yPos + height - to_height(expose_window);
+    if (expose_window->backup != 0) {
+      XCopyArea(mydisplay, expose_window->backup,
+          expose_window->window, mygc, xPos, yPos,
+          width, height, xPos, yPos);
+      /* printf("xPos + width=%d, to_width(expose_window)=%d\n",
+             xPos + width, to_width(expose_window));
+         printf("yPos + height=%d, to_height(expose_window)=%d\n",
+             yPos + height, to_height(expose_window)); */
+      if (xPos + width > to_width(expose_window)) {
+        XSetForeground(mydisplay, mygc, to_clear_col(redraw_window));
+        if (xPos >= to_width(expose_window)) {
+          xClear = xPos;
+          clearWidth = width;
+        } else {
+          xClear = to_width(expose_window);
+          clearWidth = xPos + width - to_width(expose_window);
+          if (yPos + height > to_height(expose_window)) {
+            if (yPos >= to_height(expose_window)) {
+              yClear = yPos;
+              clearHeight = height;
+            } else {
+              yClear = to_height(expose_window);
+              clearHeight = yPos + height - to_height(expose_window);
+            } /* if */
+            /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
+                xPos, yClear, to_width(expose_window) - xPos, clearHeight); */
+            XFillRectangle(mydisplay, to_window(expose_window), mygc,
+                xPos, yClear, to_width(expose_window) - xPos, clearHeight);
           } /* if */
-          /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
-              xPos, yClear, to_width(expose_window) - xPos, clearHeight); */
-          XFillRectangle(mydisplay, to_window(expose_window), mygc,
-              xPos, yClear, to_width(expose_window) - xPos, clearHeight);
         } /* if */
+        /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
+            xClear, yPos, clearWidth, height); */
+        XFillRectangle(mydisplay, to_window(expose_window), mygc,
+            xClear, yPos, clearWidth, height);
+      } else if (yPos + height > to_height(expose_window)) {
+        XSetForeground(mydisplay, mygc, to_clear_col(redraw_window));
+        if (yPos >= to_height(expose_window)) {
+          yClear = yPos;
+          clearHeight = height;
+        } else {
+          yClear = to_height(expose_window);
+          clearHeight = yPos + height - to_height(expose_window);
+        } /* if */
+        /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
+            xPos, yClear, width, clearHeight); */
+        XFillRectangle(mydisplay, to_window(expose_window), mygc,
+            xPos, yClear, width, clearHeight);
       } /* if */
-      /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
-          xClear, yPos, clearWidth, height); */
-      XFillRectangle(mydisplay, to_window(expose_window), mygc,
-          xClear, yPos, clearWidth, height);
-    } else if (yPos + height > to_height(expose_window)) {
-      XSetForeground(mydisplay, mygc, to_clear_col(redraw_window));
-      if (yPos >= to_height(expose_window)) {
-        yClear = yPos;
-        clearHeight = height;
-      } else {
-        yClear = to_height(expose_window);
-        clearHeight = yPos + height - to_height(expose_window);
-      } /* if */
-      /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
-          xPos, yClear, width, clearHeight); */
-      XFillRectangle(mydisplay, to_window(expose_window), mygc,
-          xPos, yClear, width, clearHeight);
     } /* if */
 #ifdef TRACE_X11
     printf("end redraw\n");

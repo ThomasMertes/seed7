@@ -75,6 +75,37 @@ const func string: commandPath (in string: command) is func
   end func;
 
 
+const func string: commandDir (in string: command) is func
+  result
+    var string: cmdDir is "";
+  local
+    var string: path is "";
+    var string: filePath is "";
+    var boolean: searching is TRUE;
+    var integer: lastSlashPos is 0;
+  begin
+    if pos(command, '/') = 0 then
+      for path range getSearchPath do
+        filePath := path & "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
+        if searching and fileType(filePath) = FILE_REGULAR and
+            fileMode(filePath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} <> fileMode.value then
+          searching := FALSE;
+          cmdDir := path;
+        end if;
+      end for;
+    elsif startsWith(command, "/") then
+      lastSlashPos := rpos(command, '/');
+      if lastSlashPos = 1 then
+        cmdDir := "/";
+      else
+        cmdDir := command[.. pred(lastSlashPos)];
+      end if;
+    else
+      cmdDir := getcwd;
+    end if;
+  end func;
+
+
 const proc: pipe2 (in string: command, in array string: parameters,
     inout clib_file: primitiveChildStdin,
     inout clib_file: primitiveChildStdout) is action "CMD_PIPE2";
