@@ -1433,6 +1433,26 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype str_rchipos (listtype arguments)
+#else
+
+objecttype str_rchipos (arguments)
+listtype arguments;
+#endif
+
+  { /* str_rchipos */
+    isit_stri(arg_1(arguments));
+    isit_char(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    return(bld_int_temp(
+        strRChIpos(take_stri(arg_1(arguments)), take_char(arg_2(arguments)),
+                   take_int(arg_3(arguments)))));
+  } /* str_rchipos */
+
+
+
+#ifdef ANSI_C
+
 objecttype str_rchpos (listtype arguments)
 #else
 

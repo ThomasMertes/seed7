@@ -67,6 +67,8 @@ stritype strMult (const const_stritype stri, const inttype factor);
 inttype strPos (const const_stritype main_stri, const const_stritype searched);
 void strPush (stritype *const stri_to, const chartype char_from);
 stritype strRange (const const_stritype stri, inttype start, inttype stop);
+inttype strRChIpos (const const_stritype main_stri, const chartype searched,
+    inttype from_index);
 inttype strRChPos (const const_stritype main_stri, const chartype searched);
 stritype strRepl (const const_stritype main_stri,
     const const_stritype searched, const const_stritype replace);
@@ -117,6 +119,7 @@ booltype strLt ();
 stritype strMult ();
 inttype strPos ();
 stritype strRange ();
+inttype strRChIpos ();
 inttype strRChPos ();
 stritype strRepl ();
 stritype strRpad ();

@@ -1837,6 +1837,43 @@ inttype stop;
 
 #ifdef ANSI_C
 
+inttype strRChIpos (const const_stritype main_stri, const chartype searched,
+    inttype from_index)
+#else
+
+inttype strRChIpos (main_stri, searched, from_index)
+stritype main_stri;
+chartype searched;
+inttype from_index;
+#endif
+
+  {
+    const strelemtype *main_mem;
+    const strelemtype *found_pos;
+
+  /* strRChIpos */
+    if (from_index <= 0) {
+      raise_error(RANGE_ERROR);
+    } else {
+      if (main_stri->size >= 1) {
+        if (from_index > main_stri->size) {
+          from_index = main_stri->size;
+        } /* if */
+        main_mem = main_stri->mem;
+        found_pos = rsearch_strelem(&main_mem[from_index - 1], searched,
+            from_index);
+        if (found_pos != NULL) {
+          return ((inttype) (found_pos - main_mem)) + 1;
+        } /* if */
+      } /* if */
+    } /* if */
+    return 0;
+  } /* strRChIpos */
+
+
+
+#ifdef ANSI_C
+
 inttype strRChPos (const const_stritype main_stri, const chartype searched)
 #else
 

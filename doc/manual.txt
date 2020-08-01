@@ -3354,6 +3354,14 @@ CONTENTS
 5.21 time
 
     The type 'time' describes times and dates.
+  For dates the proleptic Gregorian calendar is used (which assumes
+  that the Gregorian calendar was even in effect at dates preceding
+  its official introduction). This convention is used according to
+  ISO 8601 which also defines that positive and negative years exist
+  and that the year preceding 1 is 0. Time is measured in hours,
+  minutes, seconds and mycro seconds. Additionally information about
+  the difference to UTC and a flag indicating daylight saving time
+  is maintained also.
 
     Elements:
       var integer: year is 0;

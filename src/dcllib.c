@@ -48,6 +48,10 @@
 #include "match.h"
 #include "error.h"
 
+#undef EXTERN
+#define EXTERN
+#include "dcllib.h"
+
 #undef TRACE_DCL
 
 

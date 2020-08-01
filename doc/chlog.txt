@@ -1,3 +1,15 @@
+20100905:
+- The chapter explaining the type 'time' in the manual was improved.
+- The support for source level debugging in the compiler (comp.sd7) was
+  improved. Now the option -g generates better #line directives and the 'main'
+  function was arranged such that the current line shown by a debugger is
+  correct when the program is started.
+- In the "seed7_05.s7i" library the function "rpos" was overloaded to do a
+  reverse search for a character in a string starting from a given position.
+- The files "str_rtl.c", "strlib.c", "primitiv.c" and the compiler were
+  improved to support the primitive action STR_RCHIPOS (which implements the
+  new overloaded 'rpos' function).
+
 20100822:
 - A new example program (dragon.sd7), which draws a dragon curve, was added.
 - A new example program (fractree.sd7), which draws a fractal tree, was added.

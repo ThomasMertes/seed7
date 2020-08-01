@@ -744,6 +744,7 @@ static primactrecord prim_act_table[] = {
     { "STR_POS",             str_pos,             },
     { "STR_PUSH",            str_push,            },
     { "STR_RANGE",           str_range,           },
+    { "STR_RCHIPOS",         str_rchipos,         },
     { "STR_RCHPOS",          str_rchpos,          },
     { "STR_REPL",            str_repl,            },
     { "STR_RPAD",            str_rpad,            },

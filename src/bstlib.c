@@ -45,7 +45,7 @@
 
 #undef EXTERN
 #define EXTERN
-#include "strlib.h"
+#include "bstlib.h"
 
 
 

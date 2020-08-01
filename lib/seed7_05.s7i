@@ -159,6 +159,7 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     const func varfunc aType: (attr aType) return var (ref varfunc aType param) is action "PRC_VARFUNC2";
     const func varfunc aType: (attr aType) return var (inout aType param)       is action "PRC_VARFUNC2";
 
+    const func f_param: in (attr func aType) : (ref expr param)       is action "DCL_REF2";
   end func;
 
 BASIC_TYPE_DECLS(type);
@@ -491,8 +492,8 @@ const proc: addInterface (in type param, in type param) is    action "TYP_ADDINT
 const type: ELSIF_RESULT is newtype;
 const proc: (ref ELSIF_RESULT param) ::= enumlit is  action "ENU_GENLIT";
 const ELSIF_RESULT: ELSIF_EMPTY is enumlit;
-const type: ELSIF_PROC is                            (func ELSIF_RESULT);
-IN_PARAM_IS_REFERENCE(ELSIF_PROC);
+const type: ELSIF_PROC is                            func ELSIF_RESULT;
+# IN_PARAM_IS_REFERENCE(ELSIF_PROC);
 const proc: (ref ELSIF_PROC param) ::= (ref ELSIF_RESULT param) is action "ENU_CREATE";
 
 const proc:       if (in boolean param) then
@@ -672,6 +673,8 @@ const func integer: pos (in string param, in char param,
                          in integer param) is                     action "STR_CHIPOS";
 const func integer: rpos (in string param, in string param) is    action "STR_RPOS";
 const func integer: rpos (in string param, in char param) is      action "STR_RCHPOS";
+const func integer: rpos (in string param, in char param,
+                          in integer param) is                    action "STR_RCHIPOS";
 (* const proc: count (in string param, in string param) is        action "STR_CNT"; *)
 const func string: replace (in string param, in string param, in string param) is action "STR_REPL";
 const func string: upper (in string param) is                     action "STR_UP";
