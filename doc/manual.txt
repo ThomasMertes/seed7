@@ -187,12 +187,17 @@ CONTENTS
   13.29   Actions for the type time
   13.30   Actions for the type type
   13.31   Actions for the type utf8_file
-  14.   ERRORS
-  14.1    Compile time errors
-  14.2    Exceptions
-  14.3    Handlers
-  14.4    Stack trace
-  14.5    Other errors and warnings
+  14.   FOREIGN FUNCTION INTERFACE
+  14.1    C types used by the implementation
+  14.2    String and path conversions
+  14.3    Macros to access the action parameters
+  14.4    Functions to create action results
+  15.   ERRORS
+  15.1    Compile time errors
+  15.2    Exceptions
+  15.3    Handlers
+  15.4    Stack trace
+  15.5    Other errors and warnings
 
 
 
@@ -485,7 +490,7 @@ CONTENTS
 
   You get information about the Seed7 interpreter and
   the output of the world.sd7 program:
-<pre class="indent">
+
     hello world
 
   The the option -q can be used to suppress the line
@@ -1608,27 +1613,38 @@ CONTENTS
 
   Table for the behavior of different boolean expressions:
 
-                               Result when the    Result when the
-    Expression                  first operand      first operand
-                             evaluates to FALSE  evaluates to TRUE
-
-    not A                           TRUE               FALSE
-    A and B  respectively
-      not((not A)or(not B))         FALSE                B
-    A or  B  respectively
-      not((not A)and(not B))          B                TRUE
-    A >  B  respectively
-      A and(not B)                  FALSE              not B
-    A >= B  respectively
-      A or(not B)                   not B              TRUE
-    A <  B  respectively
-      (not A)and B                    B                FALSE
-    A <= B  respectively
-      (not A)or B                   TRUE                 B
-    not (A and B)  respectively
-      (not A)or(not B)              TRUE               not B
-    not (A or B)  respectively
-      (not A)and(not B)             not B              FALSE
+    +-----------------------------+-------------------------+
+    | Expression                  |  Result when the first  |
+    |                             |  operand evaluates to   |
+    |                             +------------+------------+
+    |                             |   FALSE    |    TRUE    |
+    +-----------------------------+------------+------------+
+    | not A                       |    TRUE    |   FALSE    |
+    +-----------------------------+------------+------------+
+    | A and B  respectively       |            |            |
+    | not((not A)or(not B))       |   FALSE    |     B      |
+    +-----------------------------+------------+------------+
+    | A or  B  respectively       |            |            |
+    | not((not A)and(not B))      |     B      |    TRUE    |
+    +-----------------------------+------------+------------+
+    | A >  B  respectively        |            |            |
+    | A and(not B)                |   FALSE    |   not B    |
+    +-----------------------------+------------+------------+
+    | A >= B  respectively        |            |            |
+    | A or(not B)                 |   not B    |    TRUE    |
+    +-----------------------------+------------+------------+
+    | A <  B  respectively        |            |            |
+    | (not A)and B                |     B      |   FALSE    |
+    +-----------------------------+------------+------------+
+    | A <= B  respectively        |            |            |
+    | (not A)or B                 |    TRUE    |     B      |
+    +-----------------------------+------------+------------+
+    | not (A and B)  respectively |            |            |
+    | (not A)or(not B)            |    TRUE    |   not B    |
+    +-----------------------------+------------+------------+
+    | not (A or B)  respectively  |            |            |
+    | (not A)and(not B)           |   not B    |   FALSE    |
+    +-----------------------------+------------+------------+
 
 
   Optimizing boolean expressions:
@@ -1838,35 +1854,39 @@ CONTENTS
                                sign or A rem B = 0 holds.
 
 
-  Table for the behavior of 'div', 'rem', 'mdiv' and 'mod':
+  Tables for the behavior of 'div', 'rem', 'mdiv' and 'mod':
 
-     A    B   A div B   A rem B   A mdiv B  A mod B
+    +-----+-----+---------+---------+----------+---------+
+    |  A  |  B  | A div B | A rem B | A mdiv B | A mod B |
+    +-----+-----+---------+---------+----------+---------+
+    |  5  |  3  |    1    |    2    |     1    |    2    |
+    |  4  |  3  |    1    |    1    |     1    |    1    |
+    |  3  |  3  |    1    |    0    |     1    |    0    |
+    |  2  |  3  |    0    |    2    |     0    |    2    |
+    |  1  |  3  |    0    |    1    |     0    |    1    |
+    |  0  |  3  |    0    |    0    |     0    |    0    |
+    | -1  |  3  |    0    |   -1    |    -1    |    2    |
+    | -2  |  3  |    0    |   -2    |    -1    |    1    |
+    | -3  |  3  |   -1    |    0    |    -1    |    0    |
+    | -4  |  3  |   -1    |   -1    |    -2    |    2    |
+    | -5  |  3  |   -1    |   -2    |    -2    |    1    |
+    +-----+-----+---------+---------+----------+---------+
 
-     5    3      1         2         1         2
-     4    3      1         1         1         1
-     3    3      1         0         1         0
-     2    3      0         2         0         2
-     1    3      0         1         0         1
-     0    3      0         0         0         0
-    -1    3      0        -1        -1         2
-    -2    3      0        -2        -1         1
-    -3    3     -1         0        -1         0
-    -4    3     -1        -1        -2         2
-    -5    3     -1        -2        -2         1
-
-     A    B   A div B   A rem B   A mdiv B  A mod B
-
-     5   -3     -1         2        -2        -1
-     4   -3     -1         1        -2        -2
-     3   -3     -1         0        -1         0
-     2   -3      0         2        -1        -1
-     1   -3      0         1        -1        -2
-     0   -3      0         0         0         0
-    -1   -3      0        -1         0        -1
-    -2   -3      0        -2         0        -2
-    -3   -3      1         0         1         0
-    -4   -3      1        -1         1        -1
-    -5   -3      1        -2         1        -2
+    +-----+-----+---------+---------+----------+---------+
+    |  A  |  B  | A div B | A rem B | A mdiv B | A mod B |
+    +-----+-----+---------+---------+----------+---------+
+    |  5  | -3  |   -1    |    2    |    -2    |   -1    |
+    |  4  | -3  |   -1    |    1    |    -2    |   -2    |
+    |  3  | -3  |   -1    |    0    |    -1    |    0    |
+    |  2  | -3  |    0    |    2    |    -1    |   -1    |
+    |  1  | -3  |    0    |    1    |    -1    |   -2    |
+    |  0  | -3  |    0    |    0    |     0    |    0    |
+    | -1  | -3  |    0    |   -1    |     0    |   -1    |
+    | -2  | -3  |    0    |   -2    |     0    |   -2    |
+    | -3  | -3  |    1    |    0    |     1    |    0    |
+    | -4  | -3  |    1    |   -1    |     1    |   -1    |
+    | -5  | -3  |    1    |   -2    |     1    |   -2    |
+    +-----+-----+---------+---------+----------+---------+
 
 
   For the 'sqrt' function holds (when A >= 0):
@@ -2043,35 +2063,39 @@ CONTENTS
                                sign or A rem B = 0_ holds.
 
 
-  Table for the behavior of 'div', 'rem', 'mdiv' and 'mod':
+  Tables for the behavior of 'div', 'rem', 'mdiv' and 'mod':
 
-     A    B   A div B   A rem B   A mdiv B  A mod B
+    +-----+-----+---------+---------+----------+---------+
+    |  A  |  B  | A div B | A rem B | A mdiv B | A mod B |
+    +-----+-----+---------+---------+----------+---------+
+    |  5_ |  3_ |    1_   |    2_   |     1_   |    2_   |
+    |  4_ |  3_ |    1_   |    1_   |     1_   |    1_   |
+    |  3_ |  3_ |    1_   |    0_   |     1_   |    0_   |
+    |  2_ |  3_ |    0_   |    2_   |     0_   |    2_   |
+    |  1_ |  3_ |    0_   |    1_   |     0_   |    1_   |
+    |  0_ |  3_ |    0_   |    0_   |     0_   |    0_   |
+    | -1_ |  3_ |    0_   |   -1_   |    -1_   |    2_   |
+    | -2_ |  3_ |    0_   |   -2_   |    -1_   |    1_   |
+    | -3_ |  3_ |   -1_   |    0_   |    -1_   |    0_   |
+    | -4_ |  3_ |   -1_   |   -1_   |    -2_   |    2_   |
+    | -5_ |  3_ |   -1_   |   -2_   |    -2_   |    1_   |
+    +-----+-----+---------+---------+----------+---------+
 
-     5_   3_     1_        2_        1_        2_
-     4_   3_     1_        1_        1_        1_
-     3_   3_     1_        0_        1_        0_
-     2_   3_     0_        2_        0_        2_
-     1_   3_     0_        1_        0_        1_
-     0_   3_     0_        0_        0_        0_
-    -1_   3_     0_       -1_       -1_        2_
-    -2_   3_     0_       -2_       -1_        1_
-    -3_   3_    -1_        0_       -1_        0_
-    -4_   3_    -1_       -1_       -2_        2_
-    -5_   3_    -1_       -2_       -2_        1_
-
-     A    B   A div B   A rem B   A mdiv B  A mod B
-
-     5_  -3_    -1_        2_       -2_       -1_
-     4_  -3_    -1_        1_       -2_       -2_
-     3_  -3_    -1_        0_       -1_        0_
-     2_  -3_     0_        2_       -1_       -1_
-     1_  -3_     0_        1_       -1_       -2_
-     0_  -3_     0_        0_        0_        0_
-    -1_  -3_     0_       -1_        0_       -1_
-    -2_  -3_     0_       -2_        0_       -2_
-    -3_  -3_     1_        0_        1_        0_
-    -4_  -3_     1_       -1_        1_       -1_
-    -5_  -3_     1_       -2_        1_       -2_
+    +-----+-----+---------+---------+----------+---------+
+    |  A  |  B  | A div B | A rem B | A mdiv B | A mod B |
+    +-----+-----+---------+---------+----------+---------+
+    |  5_ | -3_ |   -1_   |    2_   |    -2_   |   -1_   |
+    |  4_ | -3_ |   -1_   |    1_   |    -2_   |   -2_   |
+    |  3_ | -3_ |   -1_   |    0_   |    -1_   |    0_   |
+    |  2_ | -3_ |    0_   |    2_   |    -1_   |   -1_   |
+    |  1_ | -3_ |    0_   |    1_   |    -1_   |   -2_   |
+    |  0_ | -3_ |    0_   |    0_   |     0_   |    0_   |
+    | -1_ | -3_ |    0_   |   -1_   |     0_   |   -1_   |
+    | -2_ | -3_ |    0_   |   -2_   |     0_   |   -2_   |
+    | -3_ | -3_ |    1_   |    0_   |     1_   |    0_   |
+    | -4_ | -3_ |    1_   |   -1_   |     1_   |   -1_   |
+    | -5_ | -3_ |    1_   |   -2_   |     1_   |   -2_   |
+    +-----+-----+---------+---------+----------+---------+
 
 
   For the 'sqrt' function holds (when A >= 0_):
@@ -2469,14 +2493,20 @@ CONTENTS
   characters and certain printable characters the following
   escape sequences may be used.
 
-    audible alert    BEL      \a    backslash    (\)   \\
-    backspace        BS       \b    apostrophe   (')   \'
-    escape           ESC      \e    double quote (")   \"
+    audible alert    BEL      \a
+    backspace        BS       \b
+    escape           ESC      \e
     formfeed         FF       \f
-    newline          NL (LF)  \n    control-A          \A
-    carriage return  CR       \r      ...
-    horizontal tab   HT       \t    control-Z          \Z
+    newline          NL (LF)  \n
+    carriage return  CR       \r
+    horizontal tab   HT       \t
     vertical tab     VT       \v
+    backslash        (\)      \\
+    apostrophe       (')      \'
+    double quote     (")      \"
+    control-A                 \A
+      ...
+    control-Z                 \Z
 
   Additionally the following escape sequence can be used:
 
@@ -4399,11 +4429,11 @@ CONTENTS
     END IF;
 
   Semantics:
-  Symbol parameters must be defined in a syntax definition and in
-  a corresponding semantic definition. In the semantic definition
-  symbol parameters are written outside of the parentheses.
-  In the actual parameter list the corresponding symbol of the
-  formal parameter list must be written.
+    Symbol parameters must be defined in a syntax definition and in
+    a corresponding semantic definition. In the semantic definition
+    symbol parameters are written outside of the parentheses.
+    In the actual parameter list the corresponding symbol of the
+    formal parameter list must be written.
 
 
   Syntax:
@@ -4441,10 +4471,10 @@ CONTENTS
       end func;
 
   Semantics:
-  The actual parameter which corresponds to an 'attr' parameter
-  must be the type mentioned in the declaration of the 'attr' parameter.
-  An 'attr' parameter does not declare a formal parameter
-  variable which could be used inside a function.
+    The actual parameter which corresponds to an 'attr' parameter
+    must be the type mentioned in the declaration of the 'attr' parameter.
+    An 'attr' parameter does not declare a formal parameter
+    variable which could be used inside a function.
 
 
   Syntax:
@@ -6631,7 +6661,7 @@ CONTENTS
 
   would be legal as it contains the required keywords
 
-   loop  until  do  end  loop
+    loop  until  do  end  loop
 
   and the expressions
 
@@ -6732,22 +6762,25 @@ CONTENTS
   The first interpretation is usually preferred by mathematicians
   and is described with the associativity -> . Generally four
   associativities are possible:
-                                                   Symbol
 
-    Binding from left to right                       ->
-
-    Binding from right to left                       <-
-
-    Neither the left nor the right parameter
-    are allowed to have the same priority            <->
-
-    At the left side there is a binding from
-    left to right and at the right side there
-    is a binding from right to left                 -><-
+    +-------------------------------------------+--------+
+    | Associativity                             | Symbol |
+    +-------------------------------------------+--------+
+    | Binding from left to right                |   ->   |
+    +-------------------------------------------+--------+
+    | Binding from right to left                |   <-   |
+    +-------------------------------------------+--------+
+    | Neither the left nor the right parameter  |        |
+    | are allowed to have the same priority     |   <->  |
+    +-------------------------------------------+--------+
+    | At the left side there is a binding from  |        |
+    | left to right and at the right side there |        |
+    | is a binding from right to left           |  -><-  |
+    +-------------------------------------------+--------+
 
   The last two possibilities give no legal interpretation in the
   subtraction example. The third kind of associativity ( <-> ) is
-  used by the equal operator ( = ) of Pascal because there a
+  used by the equal operator ( = ) of Pascal because there an
   expression like
 
     A = B = C
@@ -6755,7 +6788,7 @@ CONTENTS
   is not legal.
 
   There is a second way to describe the associativity. The
-  associativity describes if an operand must have a stronger
+  associativity describes, if an operand must have a stronger
   priority than the priority of the operator. For example:
 
                              -                     7
@@ -6892,7 +6925,7 @@ CONTENTS
   To explain priority and associativity we use the basic arithmetic
   operations (+,-,*,/). To describe them with EBNF we can write:
 
-    factor :=
+    factor ::=
       number | name .
 
     expression_5 ::=
@@ -7250,11 +7283,13 @@ CONTENTS
   We must keep in mind that alternative rules for expression_25 are
   also possible and that for every priority level a rule like
 
-    expression_127 ::= expression_126 .
+    expression_127 ::=
+      expression_126 .
 
   is defined. Additionally the following rules are defined:
 
-    expression_0 ::= token | parentheses_expression |
+    expression_0 ::=
+      token | parentheses_expression |
       call_expression | dot_expression .
 
     token ::=
@@ -7527,14 +7562,20 @@ CONTENTS
   printable characters the following escape sequences may be
   used.
 
-    audible alert    BEL      \a    backslash    (\)   \\
-    backspace        BS       \b    apostrophe   (')   \'
-    escape           ESC      \e    double quote (")   \"
+    audible alert    BEL      \a
+    backspace        BS       \b
+    escape           ESC      \e
     formfeed         FF       \f
-    newline          NL (LF)  \n    control-A          \A
-    carriage return  CR       \r      ...
-    horizontal tab   HT       \t    control-Z          \Z
+    newline          NL (LF)  \n
+    carriage return  CR       \r
+    horizontal tab   HT       \t
     vertical tab     VT       \v
+    backslash        (\)      \\
+    apostrophe       (')      \'
+    double quote     (")      \"
+    control-A                 \A
+      ...
+    control-Z                 \Z
 
   Additionally there are the following possibilities:
 
@@ -8321,7 +8362,7 @@ CONTENTS
   function allows placing configuration data in the directory
   of the program.
 
-      const func string: dir (PROGRAM) is ...
+    const func string: dir (PROGRAM) is ...
 
   Returns:
     The absolute path of the directory containing the program.
@@ -8386,7 +8427,7 @@ CONTENTS
   instead of a subroutine call. Since Seed7 has no 'goto'
   statement, this is not an option. Instead the primitive
   action PRC_WHILE can be used. The while-statement is
-  defined in the basic Seed7 library 'seed7_05.s7i' with:
+  defined in the basic Seed7 library "seed7_05.s7i" with:
 
     const proc: while (in func boolean param) do
         (in proc param) end while is action "PRC_WHILE";
@@ -8399,7 +8440,7 @@ CONTENTS
   parameters of the hard coded actions and the corresponding
   definitions in Seed7 must match. If you are interested in
   the Seed7 definitions of primitive actions just look into
-  the file 'seed7_05.s7i'.
+  the file "seed7_05.s7i".
 
     Currently there are several hundred primitive actions
   predefined in the interpreter. They all have names in upper
@@ -8502,7 +8543,7 @@ CONTENTS
 
   The C functions which implement primitive actions have
   lowercase names. E.g.: The action 'PRC_WHILE' is implemented
-  with the C function 'prc_while()' in the file 'prclib.c'.
+  with the C function 'prc_while()' in the file "prclib.c".
   The parameter list for all C action functions is identical.
   Every *lib.c file has a corresponding *lib.h file which
   contains the prototypes for the action functions.
@@ -8517,7 +8558,7 @@ CONTENTS
   To execute an action a corresponding C function must
   be present in the hi interpreter. The function for the
   action 'INT_ADD' is 'int_add()'. The function 'int_add()'
-  is defined in the file 'intlib.c' with:
+  is defined in the file "intlib.c" with:
 
     #ifdef ANSI_C
 
@@ -8531,14 +8572,14 @@ CONTENTS
       { /* int_add */
         isit_int(arg_1(arguments));
         isit_int(arg_3(arguments));
-        return(bld_int_temp(
+        return bld_int_temp(
             take_int(arg_1(arguments)) +
-            take_int(arg_3(arguments))));
+            take_int(arg_3(arguments)));
       } /* int_add */
 
   The action functions use ANSI C prototypes and K&R function headers.
   The function 'int_add()' adds the first and the third argument (the
-  second argument contains the + symbol. The file 'objutl.h'
+  second argument contains the + symbol. The file "objutl.h"
   contains several macros and functions which help to handle the
   arguments (parameter list) of a C primitive action function.
 
@@ -8556,24 +8597,24 @@ CONTENTS
       value of an argument (E.g.: 'take_int(arg_1(arguments))' ).
 
     - The functions 'bld_int_temp', 'bld_array_temp',
-      'bld_win_temp', etc. can be used to create the (objecttype)
-      result of a primitive action (E.g.: 'return(bld_int_temp(0))' ).
+      'bld_win_temp', etc. can be used to create the ('objecttype')
+      result of a primitive action (E.g.: 'return bld_int_temp(0);' ).
 
-  The file 'intlib.h' contains the prototype for the 'int_add()'
+  The file "intlib.h" contains the prototype for the 'int_add()'
   function:
 
-    objecttype int_add (listtype);
+    objecttype int_add (listtype arguments);
 
   and also a definition for the K&R C language:
 
     objecttype int_add ();
 
   Additionally every primitive action is registered in the file
-  'primitive.c'. The line which incorporates 'INT_ADD' is:
+  "primitive.c". The line which incorporates 'INT_ADD' is:
 
     { "INT_ADD",             int_add,             },
 
-  The entries of the primitive action in the file 'primitive.c' are
+  The entries of the primitive action in the file "primitive.c" are
   sorted alphabetically. With this definitions the hi interpreter
   understands a primitive action.
 
@@ -8599,7 +8640,7 @@ CONTENTS
   Some primitive actions are more complicated and inline code would
   not be the best solution for it. In this case an additional helper
   function is used. The action 'INT_LOG2' is such an action. The
-  definition of the function 'int_log2()' in the file 'intlib.c' is:
+  definition of the function 'int_log2()' in the file "intlib.c" is:
 
     #ifdef ANSI_C
 
@@ -8618,7 +8659,7 @@ CONTENTS
 
   The main work for the primitive action 'INT_LOG2' is done in
   the helper function 'intLog2()'. The helper function 'intLog2()'
-  can be found in the file 'int_rtl.c':
+  can be found in the file "int_rtl.c":
 
     /**
      *  Compute the truncated base 2 logarithm of an integer number.
@@ -8647,7 +8688,7 @@ CONTENTS
         return result;
       } /* intLog2 */
 
-  The file 'int_rtl.h' contains a prototype definition for the
+  The file "int_rtl.h" contains a prototype definition for the
   'intLog2()' helper function:
 
     inttype intLog2 (inttype number);
@@ -8672,76 +8713,18 @@ CONTENTS
 
     declareExtern("inttype     intLog2 (inttype);");
 
-  Several Seed7 types correspond to simple C types, which are
-  defined in 'common.h':
-
-    Seed7 type       C type     Comment
-    boolean          booltype   int
-    integer          inttype    32- or 64-bit signed int
-    float            floattype  float (or double)
-    char             chartype   32-bit unsigned int
-    clib_file   filetype   FILE *
-    PRIMITIVE_SOCKET sockettype int or unsigned int
-
-  Other Seed7 types correspond to C pointers, which point to a struct.
-  Some of this structs are used in all situations: In the interpreter
-  and in the compiler and under different operation systems and with
-  different runtime libraries. This invariant structs are defined
-  in 'common.h':
-
-    Seed7 type       C type    C struct           Comment
-    string           stritype  struct stristruct  UTF-32 encoded, can contain null chars
-    set              settype   struct setstruct
-    bstring          bstritype struct bstristruct Byte sequence, can contain null bytes
-
-  Other Seed7 types also correspond to struct pointers, but the structs
-  are different in interpreted and compiled Seed7 programs. The
-  structs for interpreted programs are defined in 'data.h' and
-  the structs for compiled programs are defined in 'data_rtl.h':
-
-    Seed7 type  C type (interpreted)  C struct (interpreted)  C type (compiled)  C struct (compiled)
-    array       arraytype             struct stristruct       rtlArraytype       struct rtlArraystruct
-    hash        hashtype              struct hashstruct       rtlHashtype        struct rtlHashstruct
-    struct      structtype            struct structstruct     rtlStructtype      struct rtlStructstruct
-
-  Because interpreter and compiler use different structs the
-  functions from e.g. 'arrlib.c' cannot use functions
-  from 'arr_rtl.c'.
-
-  Finally some Seed7 types depend on the operating system or runtime
-  library used:
-
-    Seed7 type       C type      Defined as                        Sourcefile  Comment
-    bigInteger       biginttype  struct bigintstruct *             big_rtl.c   The built-in bigInteger library
-                     biginttype  mpz_ptr                           big_gmp.c   The GNU Multiple Precision Arithmetic Library
-    pollData         polltype    struct select_based_pollstruct *  pol_sel.c   Functions cast it to implementation dependent struct
-                     polltype    struct poll_based_pollstruct *    pol_unx.c   Functions cast it to implementation dependent struct
-    PRIMITIVE_WINDOW wintype     struct x11_winstruct *            drw_x11.c   Functions cast from winstruct * to x11_winstruct *
-                     wintype     struct win_winstruct *            drw_win.c   Functions cast from winstruct * to win_winstruct *
-
-  Seed7 strings are UTF-32 encoded and C strings are zero
-  terminated byte sequences. To convert between the different
-  representations, 'striutl.h' defines conversion functions
-  like 'cp_to_cstri8', 'stri_to_bstri', 'stri_to_bstri8',
-  'cstri_to_stri', 'cstri8_to_stri' and 'cstri8_or_cstri_to_stri'.
-  Operating systems disagree in their Unicode encoding (UTF-8
-  or UTF-16). To cope with this, 'striutl.h' defines the
-  type 'os_stritype' and the functions 'stri_to_os_stri'
-  and 'os_stri_to_stri'. The different concepts to
-  represent a file path (path delimiter and drive letter) are
-  handled with 'cp_to_os_path' and 'cp_from_os_path'.
-
   All the *lib.c files containing primitive actions and various
   other files with their functions are grouped together in the
-  's7_comp.a' library (Licensed under GPL). Furthermore the C
+  "s7_comp.a" library (Licensed under GPL). Furthermore the C
   primitive action functions (E.g.: int_parse) of the *lib.c
   files may use corresponding functions (E.g.: intParse) which
-  can be found in *_rtl.c files (E.g.: 'int_rtl.c'). The *_rtl.c
-  files are grouped together in the 'seed7_05.a' library
+  can be found in *_rtl.c files (E.g.: "int_rtl.c"). The *_rtl.c
+  files are grouped together in the "seed7_05.a" library
   (Licensed under LGPL). When a Seed7 program is compiled with
   the Seed7 compiler (comp.sd7) inline code is generated for
   many primitive actions. To implement the remaining primitive
-  actions the functions of the 'seed7_05.a' library are used.
+  actions the functions of the "seed7_05.a" library are used.
+
 
 13.1 Actions for the type ACTION
 
@@ -8752,6 +8735,7 @@ CONTENTS
     ACT_GEN             act_gen
     ACT_STR             act_str             actStr
     ACT_VALUE           act_value           actValue
+
 
 13.2 Actions for array types
 
@@ -8780,6 +8764,7 @@ CONTENTS
     ARR_SORT            arr_sort            arrSort
     ARR_TAIL            arr_tail            arrTail
     ARR_TIMES           arr_times           times_ ...
+
 
 13.3 Actions for the type bigInteger
 
@@ -8830,6 +8815,7 @@ CONTENTS
     BIG_SUCC            big_succ            bigSucc
     BIG_VALUE           big_value           bigValue
 
+
 13.4 Actions for the type boolean
 
     Action name         blnlib.c function   bln_rtl.c function
@@ -8844,6 +8830,7 @@ CONTENTS
     BLN_NOT             bln_not             !
     BLN_OR              bln_or              ||
     BLN_ORD             bln_ord             (inttype)
+
 
 13.5 Actions for byte strings
 
@@ -8863,6 +8850,7 @@ CONTENTS
     BST_PARSE           bst_parse           bstParse
     BST_STR             bst_str             bstStr
     BST_VALUE           bst_value           bstValue
+
 
 13.6 Actions for the type char
 
@@ -8890,6 +8878,7 @@ CONTENTS
     CHR_SUCC            chr_succ            +1
     CHR_UP              chr_up              chrUp
     CHR_VALUE           chr_value           chrValue
+
 
 13.7 Actions for various directory, file and other commands
 
@@ -8926,6 +8915,7 @@ CONTENTS
     CMD_SYMLINK         cmd_symlink         cmdSymlink
     CMD_TO_OS_PATH      cmd_to_os_path      cmdToOsPath
 
+
 13.8 Actions for text (console) screen output
 
     Action name         scrlib.c function   con_inf.c/con_rtl.c/con_win.c function
@@ -8939,6 +8929,7 @@ CONTENTS
     CON_V_SCL           con_v_scl           conVScroll
     CON_WIDTH           con_width           conWidth
     CON_WRITE           con_write           conWrite
+
 
 13.9 Actions for declarations
 
@@ -8962,6 +8953,7 @@ CONTENTS
     DCL_VAL1            dcl_val1
     DCL_VAL2            dcl_val2
     DCL_VAR             dcl_var
+
 
 13.10 Actions to do graphic output
 
@@ -9023,6 +9015,7 @@ CONTENTS
     DRW_XPOS            drw_xpos            drwXPos
     DRW_YPOS            drw_ypos            drwYPos
 
+
 13.11 Actions for enumeration types
 
     Action name         enulib.c function
@@ -9035,6 +9028,7 @@ CONTENTS
     ENU_NE              enu_ne              !=
     ENU_ORD2            enu_ord2            (noop)
     ENU_VALUE           enu_value           enuValue
+
 
 13.12 Actions for the type clib_file
 
@@ -9070,6 +9064,7 @@ CONTENTS
     FIL_VALUE           fil_value           filValue
     FIL_WORD_READ       fil_word_read       filWordRead
     FIL_WRITE           fil_write           filWrite
+
 
 13.13 Actions for the type float
 
@@ -9128,6 +9123,7 @@ CONTENTS
     FLT_TRUNC           flt_trunc           (inttype)
     FLT_VALUE           flt_value           fltValue
 
+
 13.14 Actions to support the graphic keyboard
 
     Action name         drwlib.c function   kbd_rtl.c/drw_x11.c/drw_win.c function
@@ -9142,6 +9138,7 @@ CONTENTS
     GKB_RAW_GETC        gkb_raw_getc        gkbRawGetc
     GKB_WINDOW          gkb_window          gkbWindow
     GKB_WORD_READ       gkb_word_read       gkbWordRead
+
 
 13.15 Actions for hash types
 
@@ -9162,6 +9159,7 @@ CONTENTS
     HSH_LNG             hsh_lng             a->size
     HSH_REFIDX          hsh_refidx
     HSH_VALUES          hsh_values          hshValues
+
 
 13.16 Actions for the type integer
 
@@ -9204,8 +9202,10 @@ CONTENTS
     INT_PRED            int_pred            --
     INT_RAND            int_rand            intRand
     INT_REM             int_rem             %
-    INT_RSHIFT          int_rshift          a>>b<br />a<0?~(~a>>b):a>>b
-    INT_RSHIFT_ASSIGN   int_rshift_assign   a>>=b<br />if (a<0) a= ~(~a>>b); else a>>=b;
+    INT_RSHIFT          int_rshift          a>>b /* C with arithmetic shift */
+                                            a<0?~(~a>>b):a>>b /* C with logical shift */
+    INT_RSHIFT_ASSIGN   int_rshift_assign   a>>=b /* C with arithmetic shift */
+                                            if (a<0) a= ~(~a>>b); else a>>=b; /* C with logical shift */
     INT_SBTR            int_sbtr            -
     INT_SHRINK          int_shrink          -=
     INT_SQRT            int_sqrt            intSqrt
@@ -9213,6 +9213,7 @@ CONTENTS
     INT_STR_BASED       int_str_based       intStrBased
     INT_SUCC            int_succ            +1
     INT_VALUE           int_value           intValue
+
 
 13.17 Actions for interface types
 
@@ -9229,6 +9230,7 @@ CONTENTS
     ITF_TO_HEAP         itf_to_heap
     ITF_TO_INTERFACE    itf_to_interface
 
+
 13.18 Actions to support the text (console) screen keyboard
 
     Action name         kbdlib.c function   kbd_rtl.c/kbd_inf.c function
@@ -9239,6 +9241,7 @@ CONTENTS
     KBD_LINE_READ       kbd_line_read       kbdLineRead
     KBD_RAW_GETC        kbd_raw_getc        kbdRawGetc
     KBD_WORD_READ       kbd_word_read       kbdWordRead
+
 
 13.19 Actions for the list type
 
@@ -9256,6 +9259,7 @@ CONTENTS
     LST_LNG             lst_lng
     LST_RANGE           lst_range
     LST_TAIL            lst_tail
+
 
 13.20 Actions for the type pollData
 
@@ -9275,6 +9279,7 @@ CONTENTS
     POL_POLL            pol_poll            polPoll
     POL_REMOVE_CHECK    pol_removeCheck     polRemoveCheck
     POL_VALUE           pol_value           polValue
+
 
 13.21 Actions for proc operations and statements
 
@@ -9311,6 +9316,7 @@ CONTENTS
     PRC_VARFUNC2        prc_varfunc2
     PRC_WHILE           prc_while           while
 
+
 13.22 Actions for the type program
 
     Action name         prglib.c function   prg_comp.c function
@@ -9336,6 +9342,7 @@ CONTENTS
     PRG_SYOBJECT        prg_syobject        prgSyobject
     PRG_SYSVAR          prg_sysvar          prgSysvar
     PRG_VALUE           prg_value           prgValue
+
 
 13.23 Actions for the type reference
 
@@ -9390,6 +9397,7 @@ CONTENTS
     REF_TYPE            ref_type            refType
     REF_VALUE           ref_value           refValue
 
+
 13.24 Actions for the type ref_list
 
     Action name         rfllib.c function   rfl_data.c function
@@ -9421,6 +9429,7 @@ CONTENTS
     RFL_TRACE           rfl_trace
     RFL_VALUE           rfl_value           rflValue
 
+
 13.25 Actions for struct types
 
     Action name         sctlib.c function
@@ -9436,6 +9445,7 @@ CONTENTS
     SCT_LNG             sct_lng
     SCT_REFIDX          sct_refidx
     SCT_SELECT          sct_select          a->stru[b]
+
 
 13.26 Actions for set types
 
@@ -9473,6 +9483,7 @@ CONTENTS
     SET_UNION           set_union           setUnion
     SET_VALUE           set_value           setValue
 
+
 13.27 Actions for the type PRIMITIVE_SOCKET
 
     Action name         strlib.c function   str_rtl.c function
@@ -9506,6 +9517,7 @@ CONTENTS
     SOC_SOCKET          soc_socket          socSocket
     SOC_WORD_READ       soc_word_read       socWordRead
     SOC_WRITE           soc_write           socWrite
+
 
 13.28 Actions for the type string
 
@@ -9557,6 +9569,7 @@ CONTENTS
     STR_UTF8TOSTRI      str_utf8tostri      strUtf8ToStri
     STR_VALUE           str_value           strValue
 
+
 13.29 Actions for the type time
 
     Action name         timlib.c function   tim_unx.c/tim_win.c function
@@ -9564,6 +9577,7 @@ CONTENTS
     TIM_FROM_TIMESTAMP  tim_from_timestamp  timFromTimestamp
     TIM_NOW             tim_now             timNow
     TIM_SET_LOCAL_TZ    tim_set_local_tz    timSetLocalTZ
+
 
 13.30 Actions for the type type
 
@@ -9593,6 +9607,7 @@ CONTENTS
     TYP_VARCONV         typ_varconv
     TYP_VARFUNC         typ_varfunc         typVarfunc
 
+
 13.31 Actions for the type utf8_file
 
     Action name         ut8lib.c function   ut8_rtl.c function
@@ -9605,10 +9620,632 @@ CONTENTS
 
 
 
-14. ERRORS
+14. FOREIGN FUNCTION INTERFACE
+==============================
+
+    Foreign functions cannot be called directly. It is necessary to
+  write wrapper functions. Several things must be done to call a
+  foreign function:
+
+    - The C types used by Seed7 must be converted to the C types used
+      by the foreign function (E.g.: 'string' and path conversions).
+      The result of the foreign function and parameters, which return
+      a value, must be converted back. This conversions are usually
+      done in a wrapper function.
+    - A function with the action prototype (a function with a
+      'listtype' parameter and an 'objecttype' result) must be
+      defined. Predefined macros help to access the action arguments
+      and to create result values. The action function must be
+      registered in the file "primitiv.c".
+    - The new action must be introduced to Seed7. This is usually
+      done in an *.s7i library file, which introduces an action
+      definition.
+
+  In general two functions are needed: A wrapper function and an
+  action function. The corresponding function definitions can be
+  placed in two *.c files. Corresponding *.h files contain prototypes.
+  Assume, we have the library "superlib" and the function 'doWurx1'
+  from "superlib" should be called from a Seed7 program. The three
+  letter abbreveation sup is used to determine the file and function
+  names for wrapper and action. The following files and functions are
+  used:
+
+  File         | Function    | Comment
+  -------------+-------------+------------------------------------------
+  superlib.a   | doWurx1     | External library (the extension may vary)
+  superlib.h   | doWurx1     | Prototype of the external C function
+  sup_rtl.c    | supDoWurx1  | Wrapper function
+  sup_rtl.h    | supDoWurx1  | Prototype of the wrapper function
+  suplib.c     | sup_doWurx1 | Action function
+  suplib.h     | sup_doWurx1 | Prototype of the action function
+  primitiv.c   |             | Alphabetical list of all primitive actions
+  makefile     |             | Makefile name depends on operating system and compiler
+  superlib.s7i | doWurx1     | Introduces the external function to a Seed7 program
+
+  The C prototype of 'doWurx1' is defined in the file "superlib.h":
+
+    int doWurx1 (char *name);
+
+  This function accepts an UTF-8 'name' and it returns 0 on success.
+  Every other return value indicates that the string is too long. In
+  this case the exception RANGE_ERROR should be raised. The wrapper
+  function is defined in the file "sup_rtl.c" with:
+
+    #include "version.h"
+    #include "stdio.h"
+    #include "superlib.h"
+    #include "common.h"
+    #include "striutl.h"
+    #include "rtl_err.h"
+
+    void supDoWurx1 (const stritype name)
+      {
+        cstritype cName;
+        int wurxResult;
+
+        cName = cp_to_cstri8(name);
+        if (cName == NULL) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          wurxResult = doWurx1(cName);
+          free_cstri(cName);
+          if (wurxResult != 0) {
+            raise_error(RANGE_ERROR);
+          }
+        }
+      }
+
+  The prototype of 'supDoWurx1' is defined in the file "sup_rtl.h" with:
+
+    void supDoWurx1 (const stritype name);
+
+  The action function for 'supDoWurx1' is defined in the file
+  "suplib.c" with:
+
+    #include "version.h"
+    #include "stdio.h"
+    #include "common.h"
+    #include "data.h"
+    #include "syvarutl.h"
+    #include "objutl.h"
+    #include "sup_rtl.h"
+
+    objecttype sup_doWurx1 (listtype arguments)
+      {
+        isit_stri(arg_1(arguments));
+        supDoWurx1(take_stri(arg_1(arguments)));
+        return SYS_EMPTY_OBJECT;
+      }
+
+  The prototype of 'sup_doWurx1' is defined in the file "suplib.h" with:
+
+    objecttype sup_doWurx1 (listtype arguments);
+
+  The action is introduced to the interpreter, by changing the file
+  "primitiv.c". An include directive for "suplib.h" must be added:
+
+    #include "strlib.h"
+    #include "suplib.h"
+    #include "timlib.h"
+
+  The file "primitiv.c" contains a list of alphabetically sorted primitive
+  actions. Each action entry takes a line. It is important to add the new
+  action "SUP_DO_WURX" at the correct place:
+
+    { "STR_VALUE",               str_value,               },
+
+    { "SUP_DO_WURX",             sup_doWurx1,             },
+
+    { "TIM_AWAIT",               tim_await,               },
+
+  The new files must be added to the makefile. Depending on C compiler and
+  operating system Seed7 uses several makefiles. In the correct "makefile"
+  suplib and sup_rtl must be added to lists of source
+  and object files. Adding the suplib object file results in:
+
+    LOBJ1 = actlib.o arrlib.o biglib.o blnlib.o bstlib.o chrlib.o cmdlib.o conlib.o dcllib.o drwlib.o
+    LOBJ2 = enulib.o fillib.o fltlib.o hshlib.o intlib.o itflib.o kbdlib.o lstlib.o pollib.o prclib.o
+    LOBJ3 = prglib.o reflib.o rfllib.o sctlib.o setlib.o soclib.o strlib.o suplib.o timlib.o typlib.o ut8lib.o
+
+  Adding the "suplib" source file results in:
+
+    LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c drwlib.c
+    LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c prclib.c
+    LSRC3 = prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c suplib.c timlib.c typlib.c ut8lib.c
+
+  and object files. Adding the sup_rtl object file results in:
+
+    ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o
+    ROBJ2 = flt_rtl.o hsh_rtl.o int_rtl.o set_rtl.o soc_rtl.o str_rtl.o sup_rtl.o tim_rtl.o ut8_rtl.o
+    ROBJ3 = heaputl.o striutl.o
+
+  Adding the "sup_rtl" source file results in:
+
+    RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
+    RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c set_rtl.c soc_rtl.c str_rtl.c sup_rtl.c tim_rtl.c ut8_rtl.c
+    RSRC3 = heaputl.c striutl.c
+
+  The external library "superlib" itself is added with:
+
+    SYSTEM_LIBS = -lm superlib.a
+
+  The interpreter must be compiled, so the changes can take effect.
+  To actually call the new function it must be introduced in a Seed7
+  library. This is done with the library "super.s7i":
+
+    const proc: doWurx1 (in string: name) is action "SUP_DO_WURX";
+
+
+14.1 C types used by the implementation
+
+  Several Seed7 types correspond to simple C types, which are
+  defined in "common.h":
+
+    Seed7 type       C type     Comment
+    boolean          booltype   int
+    integer          inttype    32- or 64-bit signed int
+    float            floattype  float (or double)
+    char             chartype   32-bit unsigned int
+    clib_file        filetype   FILE *
+    PRIMITIVE_SOCKET sockettype int or unsigned int
+
+  Other Seed7 types correspond to C pointers, which point to a struct.
+  Some of this structs are used in all situations: In the interpreter
+  and in the compiler and under different operation systems and with
+  different runtime libraries. This invariant structs are defined
+  in "common.h" and in "data.h":
+
+    Seed7 type       C type    C struct           Comment
+    string           stritype    struct stristruct    UTF-32 encoded, can contain null chars
+    set              settype     struct setstruct
+    bstring          bstritype   struct bstristruct   Byte sequence, can contain null bytes
+    reference        objecttype  struct objectstruct  Interpreter type for Seed7 objects
+    ref_list         listtype    struct liststruct    Interpreter type for Seed7 object lists
+
+  Other Seed7 types also correspond to struct pointers, but the structs
+  are different in interpreted and compiled Seed7 programs. The structs
+  for interpreted programs are defined in "data.h" and the structs for
+  compiled programs are defined in "data_rtl.h":
+
+    Seed7 type  C type (interpreted)  C struct (interpreted)  C type (compiled)  C struct (compiled)
+    array       arraytype             struct stristruct       rtlArraytype       struct rtlArraystruct
+    hash        hashtype              struct hashstruct       rtlHashtype        struct rtlHashstruct
+    struct      structtype            struct structstruct     rtlStructtype      struct rtlStructstruct
+
+  Because interpreter and compiler use different structs the
+  functions from e.g. "arrlib.c" cannot use functions
+  from "arr_rtl.c".
+
+  Some Seed7 types depend on the operating system or runtime
+  library used:
+
+    Seed7 type       C type      Defined as                        Sourcefile  Comment
+    bigInteger       biginttype  struct bigintstruct *             big_rtl.c   The built-in bigInteger library
+                     biginttype  mpz_ptr                           big_gmp.c   The GNU Multiple Precision Arithmetic Library
+    pollData         polltype    struct select_based_pollstruct *  pol_sel.c   Functions cast it to implementation dependent struct
+                     polltype    struct poll_based_pollstruct *    pol_unx.c   Functions cast it to implementation dependent struct
+    PRIMITIVE_WINDOW wintype     struct x11_winstruct *            drw_x11.c   Functions cast from winstruct * to x11_winstruct *
+                     wintype     struct win_winstruct *            drw_win.c   Functions cast from winstruct * to win_winstruct *
+
+  There are also C types without corresponding Seed7 type. They are
+  defined in "common.h":
+
+    C type     C definition     Comment
+    cstritype    char *            String type of the C compiler
+    ustritype    unsigned char *   Helpful for unsigned comparisons
+    os_stritype  char *            When the OS uses UTF-8 chars
+                 wchar_t *         When the OS uses UTF-16 chars
+    uinttype     unsigned inttype  Unsigned integer type with the size of inttype
+
+
+14.2 String and path conversions
+
+  Seed7 strings are UTF-32 encoded and C strings are zero terminated
+  byte sequences. To convert between the different representations,
+  "striutl.h" defines conversion functions like cp_to_cstri8,
+  stri_to_bstri, stri_to_bstri8, cstri_to_stri, cstri8_to_stri
+  and cstri8_or_cstri_to_stri. Operating systems disagree in their
+  Unicode encoding (UTF-8 or UTF-16). To cope with this, "striutl.h"
+  defines the type 'os_stritype' and the functions stri_to_os_stri
+  and os_stri_to_stri. The different concepts to represent a file
+  path (path delimiter and drive letter) are handled with cp_to_os_path
+  and cp_from_os_path.
+
+
+  Function Summary
+
+    cstritype cp_to_cstri8 (const_stritype stri)
+      Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
+
+    bstritype stri_to_bstri (const_stritype stri)
+      Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.
+
+    bstritype stri_to_bstri8 (const_stritype stri)
+      Create an UTF-8 encoded bstring from a Seed7 UTF-32 string.
+
+    stritype cstri_to_stri (const_cstritype cstri)
+      Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
+
+    stritype cstri8_to_stri (const_cstritype cstri)
+      Copy an UTF-8 encoded C string to a Seed7 string.
+
+    stritype cstri8_or_cstri_to_stri (const_cstritype cstri)
+      Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
+
+    os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
+      Convert a Seed7 UTF-32 string to a string used by system calls.
+
+    stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info)
+      Convert a string returned by a system call to a Seed7 UTF-32 string.
+
+    os_stritype cp_to_os_path (const_stritype stri, int *path_info, errinfotype *err_info)
+      Convert a Seed7 UTF-32 string to a string used by system calls.
+
+    stritype cp_from_os_path (const_os_stritype os_stri, errinfotype *err_info)
+      Convert a path returned by a system call to a Seed7 standard path.
+
+
+  Function Detail
+
+  cp_to_cstri8
+
+    cstritype cp_to_cstri8 (const_stritype stri)
+
+      Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
+      The memory for the zero byte terminated C string is allocated.
+      The C string result must be freed with the macro free_cstri().
+      This function is intended to create temporary strings, that
+      are used as parameters. To get good performance the allocated
+      memory for the C string is oversized. No special action is
+      done, when the UTF-32 string contains a null character.
+
+      Returns:
+        an UTF-8 encoded null terminated C string or NULL, when the memory allocation failed.
+
+
+  stri_to_bstri
+
+    bstritype stri_to_bstri (const_stritype stri)
+
+      Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.
+      The memory for the bstring is allocated. No zero byte is added
+      to the end of the bstring. No special action is done, when the
+      UTF-32 string contains a null character. When the UTF-32 string
+      contains a character byond ISO-8859-1 the bstring will end with
+      the last ISO-8859-1 character. When the first UTF-32 character
+      is byond ISO-8859-1 an empty bstring is returned. The conversion
+      was successful, when the bstring has the same size as the UTF-32
+      string.
+
+      Returns:
+        an ISO-8859-1 encoded bstring or
+        NULL, when the memory allocation failed.
+
+
+  stri_to_bstri8
+
+    bstritype stri_to_bstri8 (const_stritype stri)
+
+      Create an UTF-8 encoded bstring from a Seed7 UTF-32 string.
+      The memory for the bstring is allocated. No zero byte is added
+      to the end of the bstring. No special action is done, when
+      the original string contains a null character.
+
+      Returns:
+        an UTF-8 encoded bstring or
+        NULL, when the memory allocation failed.
+
+
+  cstri_to_stri
+
+    stritype cstri_to_stri (const_cstritype cstri)
+
+      Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
+      The memory for the UTF-32 encoded Seed7 string is allocated.
+
+      Returns:
+        an UTF-32 encoded Seed7 string or
+        NULL, when the memory allocation failed.
+
+
+  cstri8_to_stri
+
+    stritype cstri8_to_stri (const_cstritype cstri)
+
+      Copy an UTF-8 encoded C string to a Seed7 string.
+      The memory for the UTF-32 encoded Seed7 string is allocated.
+
+      Returns:
+        an UTF-32 encoded Seed7 string or
+        NULL, when the memory allocation failed or
+        when illegal UTF-8 encodings are used.
+
+
+  cstri8_or_cstri_to_stri
+
+    stritype cstri8_or_cstri_to_stri (const_cstritype cstri)
+
+      Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
+      The memory for the UTF-32 encoded Seed7 string is allocated.
+
+      Returns:
+        an UTF-32 encoded Seed7 string or
+        NULL, when the memory allocation failed.
+
+
+  stri_to_os_stri
+
+    os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
+
+      Convert a Seed7 UTF-32 string to a string used by system calls.
+      System calls are defined in "version.h" and "os_decls.h". They are
+      prefixed with os_ and use strings of the type os_stritype. Depending
+      on the operating system os_stritype can be either an UTF-8 or an
+      UTF-16 encoded null terminated string.
+
+      Parameters:
+        err_info - unchanged when the function succceeds or
+                   MEMORY_ERROR when the memory allocation failed or
+                   RANGE_ERROR when the conversion failed.
+
+      Returns:
+        a null terminated os_stritype value used by system calls or
+        NULL, when an error occurred.
+
+
+  os_stri_to_stri
+
+    stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info)
+
+      Convert a string returned by a system call to a Seed7 UTF-32 string.
+      System calls are defined in "version.h" and "os_decls.h". They are
+      prefixed with os_ and use strings of the type os_stritype. Depending
+      on the operating system os_stritype can be either an UTF-8 or an
+      UTF-16 encoded null terminated string.
+
+      Parameters:
+        err_info - unchanged when the function succceeds or
+                   MEMORY_ERROR when the memory allocation failed.
+
+      Returns:
+        a Seed7 UTF-32 string or
+        NULL, when an error occurred.
+
+
+  cp_to_os_path
+
+    os_stritype cp_to_os_path (const_stritype stri, int *path_info, errinfotype *err_info)
+
+      Convert a Seed7 standard path to a path used by system calls.
+      System calls are defined in "version.h" and "os_decls.h". They are
+      prefixed with os_ and use system paths of the type os_stritype.
+      Depending on the operating system os_stritype can be either an UTF-8
+      or an UTF-16 encoded null terminated string. Beyond the conversion to
+      os_stritype a mapping to drive letters might take place on some
+      operating systems.
+
+    Parameters:
+        path_info - unchanged when the function succceeds or
+                    PATH_IS_EMULATED_ROOT when the path is "/".
+                    PATH_NOT_MAPPED when the path cannot be mapped.
+        err_info - unchanged when the function succceeds or
+                   MEMORY_ERROR when the memory allocation failed or
+                   RANGE_ERROR when the path is not a standard path.
+
+      Returns:
+        a null terminated os_stritype path used by system calls or
+        NULL, when an error occurred.
+
+
+  cp_from_os_path
+
+    stritype cp_from_os_path (const_os_stritype os_stri, errinfotype *err_info)
+
+      Convert a path returned by a system call to a Seed7 standard path.
+      System calls are defined in "version.h" and "os_decls.h". They are
+      prefixed with os_ and use system paths of the type os_stritype.
+      Depending on the operating system os_stritype can be either an UTF-8
+      or an UTF-16 encoded null terminated string. Beyond the conversion from
+      os_stritype a mapping from drive letters might take place on some
+      operating systems.
+
+      Parameters:
+        err_info - unchanged when the function succceeds or
+                   MEMORY_ERROR when the memory allocation failed.
+
+      Returns:
+        an UTF-32 encoded Seed7 standard path or
+        NULL, when the memory allocation failed.
+
+
+
+14.3 Macros to access the action parameters
+
+  A primitive action function has one parameter named 'arguments'. The
+  'arguments' parameter has the type 'listtype' and contains a list of
+  objects. Macros like 'arg_1', 'arg_2', 'arg_3', etc. get a specific
+  object from the 'arguments'.
+
+
+  Functions (macros) to get a Seed7 object from a list
+
+    objecttype arg_1 (listtype arguments)
+      Take the first object from the list.
+
+    objecttype arg_2 (listtype arguments)
+      Take the second object from the list.
+
+    objecttype arg_3 (listtype arguments)
+      Take the third object from the list.
+
+    . . . . . .
+
+
+    objecttype arg_12 (listtype arguments)
+      Take the twelveth object from the list.
+
+  An object value contains a specific C implementation type. Macros like
+  'isit_char' and 'isit_set' check if an object has the requested type.
+  When the object has not the requested C implementation type and error
+  message is written.
+
+
+  Functions (macros) to check the C type of Seed7 objects
+
+    void isit_array (objecttype arg)
+      Check if the object type is arraytype.
+
+    void isit_bigint (objecttype arg)
+      Check if the object type is biginttype.
+
+    void isit_bool (objecttype arg)
+      Check if the object type is booltype.
+
+    void isit_bstri (objecttype arg)
+      Check if the object type is bstritype.
+
+    void isit_char (objecttype arg)
+      Check if the object type is chartype.
+
+    void isit_file (objecttype arg)
+      Check if the object type is filetype.
+
+    void isit_float (objecttype arg)
+      Check if the object type is floattype.
+
+    void isit_hash (objecttype arg)
+      Check if the object type is hashtype.
+
+    void isit_int (objecttype arg)
+      Check if the object type is inttype.
+
+    void isit_poll (objecttype arg)
+      Check if the object type is polltype.
+
+    void isit_set (objecttype arg)
+      Check if the object type is settype.
+
+    void isit_socket (objecttype arg)
+      Check if the object type is sockettype.
+
+    void isit_stri (objecttype arg)
+      Check if the object type is stritype.
+
+    void isit_struct (objecttype arg)
+      Check if the object type is structtype.
+
+    void isit_win (objecttype arg)
+      Check if the object type is wintype.
+
+  Macros like 'take_bool' and 'take_file' return a value with the requested
+  C implementation type.
+
+
+  Functions (macros) to get the C values of Seed7 objects
+
+    arraytype take_array (objecttype arg)
+      Take the array value from an object.
+
+    biginttype take_bigint (objecttype arg)
+      Take the bigInteger value from an object.
+
+    booltype take_bool (objecttype arg)
+      Take the boolean value from an object.
+
+    bstritype take_bstri (objecttype arg)
+      Take the bstring value from an object.
+
+    chartype take_char (objecttype arg)
+      Take the char value from an object.
+
+    filetype take_file (objecttype arg)
+      Take the file value from an object.
+
+    floattype take_float (objecttype arg)
+      Take the float value from an object.
+
+    hashtype take_hash (objecttype arg)
+      Take the hash table value from an object.
+
+    inttype take_int (objecttype arg)
+      Take the integer value from an object.
+
+    polltype take_poll (objecttype arg)
+      Take the poll data value from an object.
+
+    settype take_set (objecttype arg)
+      Take the set value from an object.
+
+    sockettype take_socket (objecttype arg)
+      Take the socket value from an object.
+
+    stritype take_stri (objecttype arg)
+      Take the string value from an object.
+
+    structtype take_struct (objecttype arg)
+      Take the struct value from an object.
+
+    wintype take_win (objecttype arg)
+      Take the struct value from an object.
+
+
+14.4 Functions to create action results
+
+  A primitive action function has a result of type 'objecttype'. Functions
+  like 'bld_bigint_temp' and 'bld_stri_temp' create an object with the
+  specified type.
+
+
+  Functions to create Seed7 objects with a C value
+
+    objecttype bld_array_temp (arraytype temp_array)
+      Create an object with an arraytype value.
+
+    objecttype bld_bigint_temp (biginttype temp_bigint)
+      Create an object with a biginttype value.
+
+    objecttype bld_bstri_temp (bstritype temp_bstri)
+      Create an object with a bstritype value.
+
+    objecttype bld_char_temp (chartype temp_char)
+      Create an object with a chartype value.
+
+    objecttype bld_file_temp (filetype temp_file)
+      Create an object with a filetype value.
+
+    objecttype bld_float_temp (floattype temp_float)
+      Create an object with a floattype value.
+
+    objecttype bld_hash_temp (hashtype temp_hash)
+      Create an object with a hashtype value.
+
+    objecttype bld_int_temp (inttype temp_int)
+      Create an object with an inttype value.
+
+    objecttype bld_poll_temp (polltype temp_poll)
+      Create an object with a polltype value.
+
+    objecttype bld_set_temp (settype temp_set)
+      Create an object with a settype value.
+
+    objecttype bld_socket_temp (sockettype temp_socket)
+      Create an object with a sockettype value.
+
+    objecttype bld_stri_temp (stritype temp_stri)
+      Create an object with a stritype value.
+
+    objecttype bld_struct_temp (structtype temp_struct)
+      Create an object with a structtype value.
+
+    objecttype bld_win_temp (wintype temp_win)
+      Create an object with a wintype value.
+
+
+
+15. ERRORS
 ==========
 
-14.1 Compile time errors
+15.1 Compile time errors
 
   The compile time errors are not fatal (the program can
   execute) except for the error 1 (Out of heap space) which
@@ -9674,7 +10311,7 @@ CONTENTS
         Undefined error
 
 
-14.2 Exceptions
+15.2 Exceptions
 
   There are various exceptions which can be raised during
   program execution:
@@ -9725,7 +10362,7 @@ CONTENTS
     raise RANGE_ERROR;
 
 
-14.3 Handlers
+15.3 Handlers
 
   To catch an EXCEPTION the following handler construct can be used:
 
@@ -9746,7 +10383,7 @@ CONTENTS
     end block;
 
 
-14.4 Stack trace
+15.4 Stack trace
 
   When an EXCEPTION is not caught the program is terminated and the hi
   interpreter writes a stack trace:
@@ -9797,7 +10434,7 @@ CONTENTS
 
     Program received signal SIGFPE, Arithmetic exception.
     0x08068518 in o_2541_init_display () at lander.sd7:840
-    840	    fuel_gauge := 40 * rocket.fuel div fuel_max;
+    840         fuel_gauge := 40 * rocket.fuel div fuel_max;
     (gdb) bt
     #0  0x08068518 in o_2541_init_display () at lander.sd7:840
     #1  0x08068c21 in o_2546_setup () at lander.sd7:909
@@ -9817,7 +10454,7 @@ CONTENTS
 
     Program received signal SIGFPE, Arithmetic exception.
     0x08068518 in o_2541_init_display () at tmp_lander.c:19727
-    19727	o_2428_fuel_gauge=((40) * (((structtype)(o_2338_rocket))->stru[10].value.intvalue/*->o_2336_fuel*/)) / (o_2431_fuel_max);
+    19727   o_2428_fuel_gauge=((40) * (((structtype)(o_2338_rocket))->stru[10].value.intvalue/*->o_2336_fuel*/)) / (o_2431_fuel_max);
     (gdb) bt
     #0  0x08068518 in o_2541_init_display () at tmp_lander.c:19727
     #1  0x08068c21 in o_2546_setup () at tmp_lander.c:19864
@@ -9830,7 +10467,7 @@ CONTENTS
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.
 
 
-14.5 Other errors and warnings
+15.5 Other errors and warnings
 
   No more memory. Program terminated.
     This error message is displayed after the compile time error 1

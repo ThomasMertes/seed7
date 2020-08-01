@@ -343,7 +343,7 @@ const func array string: readDir (inout file: inFile, in var string: dirPath) is
     while head.name <> "" and head.magic = TMAGIC do
       if startsWith(head.name, dirPath) then
         fileName := head.name[succ(length(dirPath)) ..];
-		if startsWith(fileName, "/") then
+        if startsWith(fileName, "/") then
           fileName := fileName[2 ..];
         end if;
         slashPos := pos(fileName, '/');

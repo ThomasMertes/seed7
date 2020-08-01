@@ -988,13 +988,27 @@ THE VERSION.H FILE
                            NaN this function must be defined and
                            it must return 1.
 
+  NAN_COMPARISON_WRONG: Defined when a comparison between two
+                        NaN values is TRUE.
+
+  POWER_OF_ZERO_WRONG: Defined when the pow() function does not
+                       work correctly, when the base is zero and
+                       and the exponent is negative.
+
   CHECK_INT_DIV_BY_ZERO: Instruct the Seed7 to C compiler to
                          generate C code which checks all integer
                          divisions (div, rem, mdiv and mod) for
                          division by zero. The generated C code
                          should, when executed, raise the
-                         exception MEMORY_ERROR instead of doing
+                         exception NUMERIC_ERROR instead of doing
                          the illegal divide operation.
+
+  FLOAT_ZERO_DIV_ERROR: Defined when the C compiler classifies a
+                        floating point division by zero as fatal
+                        error.
+
+  LIMITED_CSTRI_LITERAL_LEN: Defined when the C compiler limits
+                             the length of string literals.
 
   OBJECT_FILE_EXTENSION: The extension used by the C compiler for
                          object files (Several object files and

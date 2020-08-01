@@ -23443,13 +23443,13 @@ const proc: cCharLiteral (in char: ch, inout string: c_stri) is func
       c_stri &:= "\\" <& str(ord(ch), 8) lpad0 3;
     elsif ch = '"' then
       c_stri &:= "\\\"";
-	elsif ch = '\\' then
+    elsif ch = '\\' then
       c_stri &:= "\\\\";
-	else
-      c_stri &:= str(ch);
+    else
+      c_stri &:= ch;
     end if;
   end func;
-	
+
 
 const func string: int32AsFourInt8Chars (in integer: number) is func
   result

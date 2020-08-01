@@ -81,7 +81,7 @@ const proc: put (in integer: xPos, in integer: yPos, in PRIMITIVE_WINDOW: pixmap
   begin
     aCard.suit := suit;
     aCard.rank := rank;
-	aCard.name := str(rank) <& " of " <& str(suit);
+    aCard.name := str(rank) <& " of " <& str(suit);
     aCard.window := openSubWindow(curr_win, xPos, yPos, width(pixmap), height(pixmap));
     put(aCard.window, 0, 0, pixmap, PSET);
     anImage := malloc(aCard);
@@ -126,7 +126,7 @@ const func image: select_card is func
     win := buttonWindow(KEYBOARD);
     if win in imageHash then
       result := imageHash[win];
-	  # writeln(str(result));
+      # writeln(str(result));
     end if;
   end func;
 

@@ -195,9 +195,9 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-08-06 the number of lines is:
+than 150000 lines of Seed7. For version 2012-08-26 the number of lines is:
 
-   101338  C source files (*.c)
+   101433  C source files (*.c)
     10093  C header files (*.h)
    110416  Seed7 source files (*.sd7)
     80009  Seed7 library/include files (*.s7i)
@@ -784,7 +784,7 @@ Why does Seed7 not use type inference?
 Seed7 has a basic principle that would break if type
 inference would be used:
 
-   For every expression (and sub expression) you know its type at <br />
+   For every expression (and sub expression) you know its type at
    compile time without knowing where this expression is used.
 
 It is exactly the violation of this principle that makes type
@@ -839,7 +839,7 @@ No, it is not possible to overload functions (operators, statements) which have
 the same parameter types and just differ in the result type. This type of overloading
 has a big advantage:
 
-   For every expression (and sub expression) you know its type at <br />
+   For every expression (and sub expression) you know its type at
    compile time without knowing where this expression is used.
 
 Therefore it is not possible to overload something which has no parameters (like

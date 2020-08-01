@@ -837,7 +837,7 @@ os_stritype os_stri;
 /**
  *  Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
  *  The memory for the zero byte terminated C string is allocated.
- *  The C string result must be freed with the macro free_cstri(). 
+ *  The C string result must be freed with the macro free_cstri().
  *  This function is intended to create temporary strings, that
  *  are used as parameters. To get good performance the allocated
  *  memory for the C string is oversized. No special action is
@@ -1040,7 +1040,7 @@ stritype stri;
 
 /**
  *  Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
- *  The memory for the UTF-32 encoded Seed7 string is allocated. 
+ *  The memory for the UTF-32 encoded Seed7 string is allocated.
  *  @return an UTF-32 encoded Seed7 string or
  *          NULL, when the memory allocation failed.
  */
@@ -1100,6 +1100,13 @@ cstritype cstri;
 
 
 
+/**
+ *  Copy an UTF-8 encoded C string to a Seed7 string.
+ *  The memory for the UTF-32 encoded Seed7 string is allocated.
+ *  @return an UTF-32 encoded Seed7 string or
+ *          NULL, when the memory allocation failed or when
+ *          illegal UTF-8 encodings are used.
+ */
 #ifdef ANSI_C
 
 static stritype cstri8_to_stri (const_cstritype cstri)
@@ -1138,6 +1145,12 @@ cstritype cstri;
 
 
 
+/**
+ *  Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
+ *  The memory for the UTF-32 encoded Seed7 string is allocated.
+ *  @return an UTF-32 encoded Seed7 string or
+ *          NULL, when the memory allocation failed.
+ */
 #ifdef ANSI_C
 
 stritype cstri8_or_cstri_to_stri (const_cstritype cstri)
@@ -1164,6 +1177,18 @@ cstritype cstri;
 
 
 
+/**
+ *  Convert a Seed7 UTF-32 string to a string used by system calls.
+ *  System calls are defined in "version.h" and "os_decls.h". They are
+ *  prefixed with os_ and use strings of the type os_stritype. Depending
+ *  on the operating system os_stritype can be either an UTF-8 or an
+ *  UTF-16 encoded null terminated string.
+ *  @param err_info unchanged when the function succceeds or
+ *                  MEMORY_ERROR when the memory allocation failed or
+ *                  RANGE_ERROR when the conversion failed.
+ *  @return a null terminated os_stritype value used by system calls or
+ *          NULL, when an error occurred.
+ */
 #ifdef ANSI_C
 
 os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
@@ -1199,6 +1224,18 @@ errinfotype *err_info;
 
 
 
+/**
+ *  Convert a Seed7 UTF-32 string to a string used by system calls.
+ *  System calls are defined in "version.h" and "os_decls.h". They are
+ *  prefixed with os_ and use strings of the type os_stritype. Depending
+ *  on the operating system os_stritype can be either an UTF-8 or an
+ *  UTF-16 encoded null terminated string.
+ *  @param err_info unchanged when the function succceeds or
+ *                  MEMORY_ERROR when the memory allocation failed or
+ *                  RANGE_ERROR when the conversion failed.
+ *  @return a null terminated os_stritype value used by system calls or
+ *          NULL, when an error occurred.
+ */
 #ifdef ANSI_C
 
 os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
@@ -1230,6 +1267,17 @@ errinfotype *err_info;
 
 
 
+/**
+ *  Convert a string returned by a system call to a Seed7 UTF-32 string.
+ *  System calls are defined in "version.h" and "os_decls.h". They are
+ *  prefixed with os_ and use strings of the type os_stritype. Depending
+ *  on the operating system os_stritype can be either an UTF-8 or an
+ *  UTF-16 encoded null terminated string.
+ *  @param err_info unchanged when the function succceeds or
+ *                  MEMORY_ERROR when the memory allocation failed.
+ *  @return a Seed7 UTF-32 string or
+ *          NULL, when an error occurred.
+ */
 #ifdef ANSI_C
 
 stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info)
@@ -1304,6 +1352,19 @@ stritype stri;
 
 
 
+/**
+ *  Convert a path returned by a system call to a Seed7 standard path.
+ *  System calls are defined in "version.h" and "os_decls.h". They are
+ *  prefixed with os_ and use system paths of the type os_stritype.
+ *  Depending on the operating system os_stritype can be either an UTF-8
+ *  or an UTF-16 encoded null terminated string. Beyond the conversion from
+ *  os_stritype a mapping from drive letters might take place on some
+ *  operating systems.
+ *  @param err_info unchanged when the function succceeds or
+ *                  MEMORY_ERROR when the memory allocation failed.
+ *  @return an UTF-32 encoded Seed7 standard path or
+ *          NULL, when the memory allocation failed.
+ */
 #ifdef ANSI_C
 
 stritype cp_from_os_path (const_os_stritype os_stri, errinfotype *err_info)
@@ -1554,6 +1615,23 @@ errinfotype *err_info;
 
 
 
+/**
+ *  Convert a Seed7 standard path to a path used by system calls.
+ *  System calls are defined in "version.h" and "os_decls.h". They are
+ *  prefixed with os_ and use system paths of the type os_stritype.
+ *  Depending on the operating system os_stritype can be either an UTF-8
+ *  or an UTF-16 encoded null terminated string. Beyond the conversion to
+ *  os_stritype a mapping to drive letters might take place on some
+ *  operating systems.
+ *  @param path_info unchanged when the function succceeds or
+ *                   PATH_IS_EMULATED_ROOT when the path is "/".
+ *                   PATH_NOT_MAPPED when the path cannot be mapped.
+ *  @param err_info unchanged when the function succceeds or
+ *                  MEMORY_ERROR when the memory allocation failed or
+ *                  RANGE_ERROR when the path is not a standard path.
+ *  @return a null terminated os_stritype path used by system calls or
+ *          NULL, when an error occurred.
+ */
 #ifdef ANSI_C
 
 os_stritype cp_to_os_path (const_stritype stri, int *path_info,
@@ -1643,6 +1721,23 @@ errinfotype *err_info;
 
 
 
+/**
+ *  Convert a Seed7 standard path to a path used by system calls.
+ *  System calls are defined in "version.h" and "os_decls.h". They are
+ *  prefixed with os_ and use system paths of the type os_stritype.
+ *  Depending on the operating system os_stritype can be either an UTF-8
+ *  or an UTF-16 encoded null terminated string. Beyond the conversion to
+ *  os_stritype a mapping to drive letters might take place on some
+ *  operating systems.
+ *  @param path_info unchanged when the function succceeds or
+ *                   PATH_IS_EMULATED_ROOT when the path is "/".
+ *                   PATH_NOT_MAPPED when the path cannot be mapped.
+ *  @param err_info unchanged when the function succceeds or
+ *                  MEMORY_ERROR when the memory allocation failed or
+ *                  RANGE_ERROR when the path is not a standard path.
+ *  @return a null terminated os_stritype path used by system calls or
+ *          NULL, when an error occurred.
+ */
 #ifdef ANSI_C
 
 os_stritype cp_to_os_path (const_stritype stri, int *path_info,

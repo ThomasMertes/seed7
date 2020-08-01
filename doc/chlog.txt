@@ -1,3 +1,12 @@
+20120826:
+- A chapter, which explains the foreign function interface, was added
+  to the manual.
+- Syntax descriptions, code examples and tables in the HTML version
+  of the manual were improved.
+- Documentation comments were added to the file "striutl.c".
+- A description of several C preprocessor macros used in "version.h"
+  was added to the file "src/read_me.txt".
+
 20120806:
 - The new library image.s7i was added. The contents of this library
   was extracted from the program "carddemo.sd7".

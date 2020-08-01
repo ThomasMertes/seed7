@@ -36,7 +36,7 @@ const proc: main is func
     var optionHash: make_option is optionHash.value;
     var string: makefile is "";
     var string: target is "";
-	var makeFlags: flags is makeFlags.value;
+    var makeFlags: flags is makeFlags.value;
     var boolean: okay is TRUE;
   begin
     number := 1;
