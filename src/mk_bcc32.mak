@@ -161,7 +161,13 @@ version.h:
 	cmd /S /C "echo #define USE_MYUNISTD_H" >> version.h
 	cmd /S /C "echo #define INT64TYPE __int64" >> version.h
 	cmd /S /C "echo #define UINT64TYPE unsigned __int64" >> version.h
-	cmd /S /C "echo #define USE_WFOPEN" >> version.h
+	cmd /S /C "echo #define WCHAR_OS_PATH" >> version.h
+	cmd /S /C "echo #define os_chdir _wchdir" >> version.h
+	cmd /S /C "echo #define os_mkdir(path,mode) _wmkdir(path)" >> version.h
+	cmd /S /C "echo #define os_fstat _fstat" >> version.h
+	cmd /S /C "echo #define os_stat _wstat" >> version.h
+	cmd /S /C "echo #define os_stat_struct struct _stat" >> version.h
+	cmd /S /C "echo #define wide_fopen _wfopen" >> version.h
 	cmd /S /C "echo #define USE_WOPENDIR" >> version.h
 	cmd /S /C "echo #define WDIR wDIR" >> version.h
 	cmd /S /C "echo #define USE_WINSOCK" >> version.h

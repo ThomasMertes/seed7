@@ -145,6 +145,23 @@ dirtype directory;
 
 #ifdef ANSI_C
 
+objecttype cmd_big_filesize (listtype arguments)
+#else
+
+objecttype cmd_big_filesize (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_big_filesize */
+    isit_stri(arg_1(arguments));
+    return(bld_bigint_temp(
+        cmdBigFileSize(take_stri(arg_1(arguments)))));
+  } /* cmd_big_filesize */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_chdir (listtype arguments)
 #else
 
@@ -196,6 +213,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype cmd_filesize (listtype arguments)
+#else
+
+objecttype cmd_filesize (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_filesize */
+    isit_stri(arg_1(arguments));
+    return(bld_int_temp(
+        cmdFileSize(take_stri(arg_1(arguments)))));
+  } /* cmd_filesize */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_filetype (listtype arguments)
 #else
 
@@ -223,23 +257,6 @@ listtype arguments;
   { /* cmd_getcwd */
     return(bld_stri_temp(cmdGetcwd()));
   } /* cmd_getcwd */
-
-
-
-#ifdef ANSI_C
-
-objecttype cmd_lng (listtype arguments)
-#else
-
-objecttype cmd_lng (arguments)
-listtype arguments;
-#endif
-
-  { /* cmd_lng */
-    isit_stri(arg_1(arguments));
-    return(bld_int_temp(
-        cmdLng(take_stri(arg_1(arguments)))));
-  } /* cmd_lng */
 
 
 
@@ -287,20 +304,9 @@ objecttype cmd_mkdir (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype str1;
-    cstritype dir_name;
-
-  /* cmd_mkdir */
+  { /* cmd_mkdir */
     isit_stri(arg_1(arguments));
-    str1 = take_stri(arg_1(arguments));
-    dir_name = cp_to_cstri(str1);
-    if (dir_name == NULL) {
-      return(raise_exception(SYS_MEM_EXCEPTION));
-    } else {
-      mkdir(dir_name, 0777);
-      free_cstri(dir_name, str1);
-    } /* if */
+    cmdMkdir(take_stri(arg_1(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* cmd_mkdir */
 

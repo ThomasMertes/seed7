@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_rtl.c     Functions for bigInteger without helping library. */
-/*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_rtl.c                                       */
-/*  Changes: 2005, 2006, 2008  Thomas Mertes                        */
+/*  Changes: 2005, 2006, 2008, 2009  Thomas Mertes                  */
 /*  Content: Functions for bigInteger without helping library.      */
 /*                                                                  */
 /********************************************************************/
@@ -2848,6 +2848,38 @@ rtlBiginttype big2;
 
 
 
+#ifdef ANSI_C
+
+rtlBiginttype bigFromInt32 (int32type number)
+#else
+
+rtlBiginttype bigFromInt32 (number)
+int32type number;
+#endif
+
+  {
+    memsizetype pos;
+    memsizetype result_size;
+    rtlBiginttype result;
+
+  /* bigFromInt32 */
+    result_size = sizeof(int32type) / sizeof(bigdigittype);
+    if (!ALLOC_BIG(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      result->size = result_size;
+      for (pos = 0; pos < result_size; pos++) {
+        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+        number >>= 8 * sizeof(bigdigittype);
+      } /* for */
+      result = normalize(result);
+      return(result);
+    } /* if */
+  } /* bigFromInt32 */
+
+
+
 #ifdef INT64TYPE
 #ifdef ANSI_C
 
@@ -2903,10 +2935,11 @@ uint32type number;
       return(NULL);
     } else {
       result->size = result_size;
-      for (pos = 0; pos < result->size; pos++) {
+      for (pos = 0; pos < result_size - 1; pos++) {
         result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
         number >>= 8 * sizeof(bigdigittype);
       } /* for */
+      result->bigdigits[result_size - 1] = (bigdigittype) 0;
       result = normalize(result);
       return(result);
     } /* if */
@@ -2936,10 +2969,11 @@ uint64type number;
       return(NULL);
     } else {
       result->size = result_size;
-      for (pos = 0; pos < result->size; pos++) {
+      for (pos = 0; pos < result_size - 1; pos++) {
         result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
         number >>= 8 * sizeof(bigdigittype);
       } /* for */
+      result->bigdigits[result_size - 1] = (bigdigittype) 0;
       result = normalize(result);
       return(result);
     } /* if */
@@ -3148,38 +3182,6 @@ rtlBiginttype big1;
     result = big1->bigdigits[0] << 5 ^ big1->size << 3 ^ big1->bigdigits[big1->size - 1];
     return(result);
   } /* bigHashCode */
-
-
-
-#ifdef ANSI_C
-
-rtlBiginttype bigIConv (inttype number)
-#else
-
-rtlBiginttype bigIConv (number)
-inttype number;
-#endif
-
-  {
-    memsizetype pos;
-    memsizetype result_size;
-    rtlBiginttype result;
-
-  /* bigIConv */
-    result_size = sizeof(inttype) / sizeof(bigdigittype);
-    if (!ALLOC_BIG(result, result_size)) {
-      raise_error(MEMORY_ERROR);
-      return(NULL);
-    } else {
-      result->size = result_size;
-      for (pos = 0; pos < result_size; pos++) {
-        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
-        number >>= 8 * sizeof(bigdigittype);
-      } /* for */
-      result = normalize(result);
-      return(result);
-    } /* if */
-  } /* bigIConv */
 
 
 
@@ -4158,37 +4160,6 @@ rtlBiginttype big1;
   { /* bigOdd */
     return(big1->bigdigits[0] & 1);
   } /* bigOdd */
-
-
-
-#ifdef ANSI_C
-
-inttype bigOrd (const const_rtlBiginttype big1)
-#else
-
-inttype bigOrd (big1)
-rtlBiginttype big1;
-#endif
-
-  {
-    memsizetype pos;
-    inttype result;
-
-  /* bigOrd */
-    if (big1->size > sizeof(inttype) / sizeof(bigdigittype)) {
-      raise_error(RANGE_ERROR);
-      return(0);
-    } else {
-      pos = big1->size - 1;
-      result = big1->bigdigits[pos];
-      while (pos > 0) {
-        pos--;
-        result <<= 8 * sizeof(bigdigittype);
-        result |= (inttype) big1->bigdigits[pos];
-      } /* while */
-      return(result);
-    } /* if */
-  } /* bigOrd */
 
 
 

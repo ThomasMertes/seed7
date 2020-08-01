@@ -515,7 +515,7 @@ inttype pad_size;
       return(NULL);
     } else {
       result->size = result_size;
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       {
         strelemtype *elem = result->mem;
         memsizetype len0 = result_size - length;

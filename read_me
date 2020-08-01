@@ -51,7 +51,8 @@ HOW TO COMPILE THE INTERPRETER?
     make
 
   After the compilation the interpreter is linked to the prg/hi
-  file.
+  file. The file seed7/src/read_me.txt contains a detailed
+  explanation of the compilation process.
 
 
 HOW TO EXECUTE A PROGRAM?

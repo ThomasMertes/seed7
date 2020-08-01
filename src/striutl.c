@@ -44,7 +44,7 @@
 
 
 
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
 #ifdef ANSI_C
 
 memsizetype stri_to_utf8 (ustritype out_stri, const_stritype in_stri)
@@ -430,7 +430,7 @@ stritype stri;
 
 
 
-#ifdef USE_WFOPEN
+#ifdef WCHAR_OS_PATH
 #ifdef ANSI_C
 
 wchar_t *cp_to_wstri (stritype stri)
@@ -482,7 +482,7 @@ stritype stri;
   /* stri_to_bstri */
     if (ALLOC_BSTRI(bstri, stri->size)) {
       bstri->size = stri->size;
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       for (str = stri->mem, ustri = bstri->mem, len = stri->size;
           len > 0; str++, ustri++, len--) {
         if (*str >= 256) {
@@ -523,7 +523,7 @@ stritype stri;
 
   /* stri_to_bstri8 */
     if (ALLOC_BSTRI(bstri, compr_size(stri))) {
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       bstri->size = stri_to_utf8(bstri->mem, stri);
 #else
       memcpy(bstri->mem, stri->mem, stri->size);

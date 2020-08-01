@@ -4838,9 +4838,9 @@ const func file: basicOpen (in var string: filePath, in string: access) is func
       end if;
       for number range startElem to length(pathElems) do
         # writeln(log, literal(path) <& " " <& literal(pathElems[number]));
-        if file_type(path & "/" & pathElems[number]) <> FILE_UNKNOWN then
+        if fileType(path & "/" & pathElems[number]) <> FILE_UNKNOWN then
           path &:= "/" & pathElems[number];
-        elsif file_type(path) = FILE_DIR then
+        elsif fileType(path) = FILE_DIR then
           directoryContent := read_dir(path);
           foundTwice := FALSE;
           foundElement := "";
@@ -4854,7 +4854,7 @@ const func file: basicOpen (in var string: filePath, in string: access) is func
             end if;
           end for;
           if foundElement <> "" and not foundTwice and
-              file_type(path & "/" & foundElement) <> FILE_UNKNOWN then
+              fileType(path & "/" & foundElement) <> FILE_UNKNOWN then
             path &:= "/" & foundElement;
           elsif access[1 len 1] <> "r" then
             path &:= "/" & pathElems[number];

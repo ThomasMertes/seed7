@@ -15,7 +15,12 @@
 #define USE_MYUNISTD_H
 #define INT64TYPE __int64
 #define UINT64TYPE unsigned __int64
-#define USE_WFOPEN
+#define WCHAR_OS_PATH
+#define os_chdir _wchdir
+#define os_mkdir(path,mode) _wmkdir(path)
+#define os_stat _wstati64
+#define os_stat_struct struct _stati64
+#define wide_fopen _wfopen
 #define USE_WOPENDIR
 #define USE_FSEEKI64
 #define USE_WINSOCK

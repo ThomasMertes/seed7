@@ -2517,7 +2517,7 @@ inttype bkcol;
 #ifdef TRACE_X11
     printf("text(%lu, %ld, %ld, ...)\n", actual_window, x, y); 
 #endif
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
     {
       XChar2b *stri_buffer;
       XChar2b *wstri;

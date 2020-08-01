@@ -60,7 +60,7 @@ typedef int booltype;
 #undef  DO_HEAP_STATISTIC
 #undef  DO_HEAP_LOG
 #undef  DO_HEAP_CHECK
-#define WIDE_CHAR_STRINGS
+#define UTF32_STRINGS
 #define WITH_STRI_CAPACITY
 #undef  INTTYPE_64BIT
 
@@ -83,11 +83,13 @@ typedef UINT64TYPE         uint64type;
 #ifdef INT64TYPE
 typedef int64type          inttype;
 typedef uint64type         uinttype;
+#define MAX_INTEGER 9223372036854775807
 #define INTTYPE_LITERAL_SUFFIX "LL"
 #endif
 #else
 typedef int32type          inttype;
 typedef uint32type         uinttype;
+#define MAX_INTEGER 2147483647
 #define INTTYPE_LITERAL_SUFFIX "L"
 #endif
 
@@ -96,7 +98,7 @@ typedef uint32type         chartype;
 typedef int32type          schartype;
 typedef uinttype           bitsettype;
 
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
 typedef uint32type         strelemtype;
 #else
 typedef unsigned char      strelemtype;
@@ -116,8 +118,6 @@ typedef int                sockettype;
 typedef const char *           const_cstritype;
 typedef const unsigned char *  const_ustritype;
 typedef const uint16type *     const_wstritype;
-
-#define MAX_INTEGER 2147483647
 
 #define MAX_DIV_10 ((inttype) (MAX_INTEGER / 10))
 #define MAX_REM_10 ((inttype) (MAX_INTEGER % 10))
@@ -155,6 +155,23 @@ typedef int errinfotype;
 #define DESTROY_ERROR 6
 #define COPY_ERROR    7
 #define IN_ERROR      8
+
+
+#ifndef os_chdir
+#define os_chdir chdir
+#endif
+#ifndef os_mkdir
+#define os_mkdir mkdir
+#endif
+#ifndef os_fstat
+#define os_fstat fstat
+#endif
+#ifndef os_stat
+#define os_stat stat
+#endif
+#ifndef os_stat_struct
+#define os_stat_struct struct stat
+#endif
 
 
 typedef struct setstruct     *settype;

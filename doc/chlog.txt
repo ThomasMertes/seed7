@@ -1,3 +1,22 @@
+20090118:
+- The savehd7.sd7 example program, which can be used to save a potentially damaged
+  harddisk partition to an image file, was improved.
+- A FAQ about compiling the Seed7 interpreter was added.
+- The function bigFileSize was added to the bigfile.s7i library.
+- The functions file_size and file_type were renamed to fileSize and fileType in the
+  seed7_05.s7i library.
+- The driver functions cmdBigFileSize, cmdChdir, cmdFileType cmdFileSize, cmdMkdir were
+  improved to use wide char (UTF-16) functions under windows and normal (UTF-8) functions
+  under UNIX/Linux/BSD.
+- In the files big_rtl.c and big_gmp.c the function bigFromInt32 was added and the
+  functions bigIConv and bigOrd were removed.
+- In the file big_drv.h the macros bigIConv and bigOrd were added.
+- In the file big_rtl.c the functions bigFromUInt32 and bigFromUInt64 were fixed.
+- The feature test makro WIDE_CHAR_STRINGS was renamed to UTF32_STRINGS in various files.
+- The primitive action CMD_LNG was renamed to CMD_FILESIZE.
+- Several makefiles were improved to create defines for os_chdir, os_mkdir, os_fstat,
+  os_stat and os_stat_struct in the file version.h .
+
 20090104:
 - A new example program (savehd7.sd7), which can be used to save a partially damaged
   harddisk partition to an image file, was added.

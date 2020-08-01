@@ -50,7 +50,7 @@
 
 
 
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
 #ifdef ANSI_C
 
 static INLINE int strelem_memcmp (strelemtype *mem1, strelemtype *mem2,
@@ -1042,7 +1042,7 @@ listtype arguments;
     } else {
       result->size = length;
       for (pos = 0; pos < length; pos++) {
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
         if (((int) stri->mem[pos]) >= 'A' && ((int) stri->mem[pos]) <= 'Z') {
           result->mem[pos] = (strelemtype) (((int) stri->mem[pos]) - 'A' + 'a');
         } else {
@@ -1086,7 +1086,7 @@ listtype arguments;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       result->size = f_size;
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       {
         strelemtype *elem = result->mem;
         memsizetype len = f_size - length;
@@ -1146,7 +1146,7 @@ listtype arguments;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       result->size = f_size;
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       {
         strelemtype *elem = result->mem;
         memsizetype len = f_size - length;
@@ -1445,7 +1445,7 @@ listtype arguments;
       result->size = f_size;
       memcpy(result->mem, stri->mem,
           (SIZE_TYPE) length * sizeof(strelemtype));
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       {
         strelemtype *elem = &result->mem[length];
         memsizetype len = f_size - length;
@@ -1764,7 +1764,7 @@ listtype arguments;
     } else {
       result->size = length;
       for (pos = 0; pos < length; pos++) {
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
         if (((int) stri->mem[pos]) >= 'a' && ((int) stri->mem[pos]) <= 'z') {
           result->mem[pos] = (strelemtype) (((int) stri->mem[pos]) - 'a' + 'A');
         } else {

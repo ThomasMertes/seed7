@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_drv.h     Driver functions for the bigInteger type.         */
-/*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_drv.h                                       */
-/*  Changes: 2005, 2006, 2008  Thomas Mertes                        */
+/*  Changes: 2005, 2006, 2008, 2009  Thomas Mertes                  */
 /*  Content: Driver functions for the bigInteger type.              */
 /*                                                                  */
 /********************************************************************/
@@ -32,6 +32,14 @@
 #ifndef INT64TYPE
 #define bigFromUInt64(x) 0
 #define bigToInt64(x) 0
+#endif
+
+#ifdef INTTYPE_64BIT
+#define bigIConv bigFromInt64
+#define bigOrd   bigToInt64
+#else
+#define bigIConv bigFromInt32
+#define bigOrd   bigToInt32
 #endif
 
 
@@ -51,17 +59,17 @@ void bigDecr (biginttype *const);
 void bigDestr (const biginttype);
 biginttype bigDiv (const const_biginttype, const const_biginttype);
 booltype bigEq (const const_biginttype, const const_biginttype);
+biginttype bigFromInt32 (int32type number);
 #ifdef INT64TYPE
-  biginttype bigFromInt64 (int64type);
+  biginttype bigFromInt64 (int64type number);
 #endif
-biginttype bigFromUInt32 (uinttype);
+biginttype bigFromUInt32 (uint32type number);
 #ifdef INT64TYPE
-  biginttype bigFromUInt64 (uint64type);
+  biginttype bigFromUInt64 (uint64type number);
 #endif
 biginttype bigGcd (const const_biginttype, const const_biginttype);
 void bigGrow (biginttype *const, const const_biginttype);
 inttype bigHashCode (const const_biginttype);
-biginttype bigIConv (inttype);
 void bigIncr (biginttype *const);
 biginttype bigIPow (const const_biginttype, inttype);
 biginttype bigLog2 (const const_biginttype);
@@ -75,7 +83,6 @@ biginttype bigMult (const_biginttype, const_biginttype);
 void bigMultAssign (biginttype *const, const_biginttype);
 booltype bigNe (const const_biginttype, const const_biginttype);
 booltype bigOdd (const const_biginttype big1);
-inttype bigOrd (const const_biginttype);
 biginttype bigParse (const const_stritype);
 biginttype bigPred (const const_biginttype);
 biginttype bigRand (const const_biginttype, const const_biginttype);
@@ -108,6 +115,7 @@ void bigDecr ();
 void bigDestr ();
 biginttype bigDiv ();
 booltype bigEq ();
+biginttype bigFromInt32 ();
 #ifdef INT64TYPE
   biginttype bigFromInt64 ();
 #endif
@@ -118,7 +126,6 @@ biginttype bigFromUInt32 ();
 biginttype bigGcd ();
 void bigGrow ();
 inttype bigHashCode ();
-biginttype bigIConv ();
 void bigIncr ();
 biginttype bigIPow ();
 biginttype bigLog2 ();
@@ -132,7 +139,6 @@ biginttype bigMult ();
 void bigMultAssign ();
 booltype bigNe ();
 booltype bigOdd ();
-inttype bigOrd ();
 biginttype bigParse ();
 biginttype bigPred ();
 biginttype bigRand ();

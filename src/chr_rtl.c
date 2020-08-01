@@ -131,7 +131,7 @@ chartype ch;
     stritype result;
 
   /* chrStr */
-#ifndef WIDE_CHAR_STRINGS
+#ifndef UTF32_STRINGS
     if (ch > (chartype) 255) {
       raise_error(RANGE_ERROR);
       return(NULL);
@@ -145,7 +145,7 @@ chartype ch;
         result->mem[0] = (strelemtype) ch;
         return(result);
       } /* if */
-#ifndef WIDE_CHAR_STRINGS
+#ifndef UTF32_STRINGS
     } /* if */
 #endif
   } /* chrStr */

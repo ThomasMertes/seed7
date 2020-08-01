@@ -235,7 +235,7 @@ inttype length;
       } /* if */
       result_size = (memsizetype) recv(sock, result->mem,
           (SIZE_TYPE) bytes_requested, 0);
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       if (result_size > 0) {
         uchartype *from = &((uchartype *) result->mem)[result_size - 1];
         strelemtype *to = &result->mem[result_size - 1];
@@ -536,7 +536,7 @@ inttype flags;
       } /* if */
       new_stri_size = (memsizetype) recv(sock, (*stri)->mem,
           (SIZE_TYPE) bytes_requested, flags);
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       if (new_stri_size > 0) {
         uchartype *from = &((uchartype *) (*stri)->mem)[new_stri_size - 1];
         strelemtype *to = &(*stri)->mem[new_stri_size - 1];
@@ -638,7 +638,7 @@ bstritype *address;
           } /* if */
         } /* if */
       } /* if */
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       if (stri_size > 0) {
         uchartype *from = &((uchartype *) (*stri)->mem)[stri_size - 1];
         strelemtype *to = &(*stri)->mem[stri_size - 1];

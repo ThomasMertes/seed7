@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  cmd_rtl.h     Primitive actions for various commands.           */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_rtl.h                                       */
-/*  Changes: 1994, 2006  Thomas Mertes                              */
+/*  Changes: 1994, 2006, 2009  Thomas Mertes                        */
 /*  Content: Primitive actions for various commands.                */
 /*                                                                  */
 /********************************************************************/
@@ -35,12 +35,13 @@
 
 #ifdef ANSI_C
 
+biginttype cmdBigFileSize (stritype file_name);
 void cmdChdir (stritype dir_name);
 stritype cmdConfigValue (stritype name);
 void cmdCopy (stritype source_name, stritype dest_name);
+inttype cmdFileSize (stritype file_name);
 inttype cmdFileType (stritype file_name);
 stritype cmdGetcwd (void);
-inttype cmdLng (stritype file_name);
 void cmdMkdir (stritype dir_name);
 void cmdMove (stritype source_name, stritype dest_name);
 stritype cmdReadlink (stritype link_name);
@@ -53,12 +54,13 @@ long improved_ftell (FILE *stream);
 
 #else
 
+biginttype cmdBigFileSize ();
 void cmdChdir ();
 stritype cmdConfigValue ();
 void cmdCopy ();
+inttype cmdFileSize ();
 inttype cmdFileType ();
 stritype cmdGetcwd ();
-inttype cmdLng ();
 void cmdMkdir ();
 void cmdMove ();
 stritype cmdReadlink ();

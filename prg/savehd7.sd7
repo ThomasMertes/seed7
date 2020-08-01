@@ -29,36 +29,59 @@ $ include "seed7_05.s7i";
   include "bigrat.s7i";
   include "line.s7i";
 
-
 const string: dataFileName is "savehd7.dat";
 const string: logFileName is "savehd7.log";
-const integer: normalBlockSize is 2 ** 20;
-const integer: smallBlockSize is 512;
-const string: emptySmallBlock is "\0\" mult smallBlockSize;
 
 var file: log is STD_NULL;
 
-const type: blockHashType is hash [bigInteger] bigInteger;
+const type: phaseType is new enum
+    NONE, COPY, REREAD, IMPROVE, FIX, DONE
+  end enum;
+
+const array string: phaseTypeStr is []
+    ("none", "copy", "reread", "improve", "fix", "done");
+
+const func string: str (in phaseType: phase) is
+  return phaseTypeStr[succ(ord(phase))];
+
+const func phaseType: (attr phaseType) parse (in string: stri) is func
+  result
+    var phaseType: result is phaseType.first;
+  begin
+    while str(result) <> stri do
+      incr(result);
+    end while;
+  end func;
+
+enable_io(phaseType);
+
+const type: areaHashType is hash [bigInteger] bigInteger;
 
 const type: stateType is new struct
     var string: stateFileName is "";
     var string: inFileName is "";
     var bigInteger: inFileSize is -1_;
     var string: outFileName is "";
-    var bigInteger: verifyPosition is 0_;
-    var integer: verifyRunsToDo is 1;
+    var phaseType: phase is NONE;
+    var integer: skipSize is 2 ** 20;
+    var integer: chunkSize is 2 ** 14;
+    var integer: blockSize is 512;
+    var bigInteger: rereadPosition is 1_;
+    var integer: rereadRunsToDo is 0;
     var bigInteger: maximumOfBadBytes is 0_;
-    var bigInteger: badBlockToFix is 0_;
-    var bigInteger: sizeOfBadBlockToFix is 0_;
-    var bigInteger: smallBadBlockToFix is 0_;
-    var blockHashType: badBlocks is blockHashType.value;
+    var bigInteger: badBytesToProcess is 0_;
+    var bigInteger: badAreaToProcess is 0_;
+    var bigInteger: sizeOfBadAreaToProcess is 0_;
+    var bigInteger: blockToProcess is 0_;
+    var areaHashType: badAreas is areaHashType.value;
     var bigInteger: sumOfBadBytes is 0_;
+    var bigInteger: badBytesInAreasForward is 0_;
+    var string: emptyBlock is "";
   end struct;
 
 
-const proc: showProgress (in stateType: state, in string: pass,
-    in bigInteger: bytesToProcess, in bigInteger: bytesProcessed,
-    in bigInteger: bytesDone) is func
+const proc: showProgress (in stateType: state, in bigInteger: bytesToProcess,
+    in bigInteger: bytesProcessed, in bigInteger: bytesDone) is func
   local
     var bigRational: percentProgress is 0_/1_;
     var bigRational: percentDone is 0_/1_;
@@ -71,7 +94,7 @@ const proc: showProgress (in stateType: state, in string: pass,
     if state.maximumOfBadBytes <> 0_ then
       percentFixed := (state.maximumOfBadBytes - state.sumOfBadBytes) * 100_ / state.maximumOfBadBytes;
     end if;
-    write(pass rpad 6 <& " ");
+    write(state.phase rpad 7 <& " ");
     write(percentProgress  digits 4 lpad  9 <& "% ");
     write(percentDone      digits 4 lpad  9 <& "% ");
     write(percentBadBlocks digits 4 lpad  9 <& "% ");
@@ -81,7 +104,7 @@ const proc: showProgress (in stateType: state, in string: pass,
     # writeln(log, "bytesToProcess=" <& bytesToProcess <&
     #              " bytesProcessed=" <& bytesProcessed <&
     #              " bytesDone=" <& bytesDone);
-    # write(log, pass rpad 6 <& " ");
+    # write(log, state.phase rpad 7 <& " ");
     # write(log, percentProgress  digits 4 lpad  9 <& "% ");
     # write(log, percentDone      digits 4 lpad  9 <& "% ");
     # write(log, percentBadBlocks digits 4 lpad  9 <& "% ");
@@ -97,28 +120,33 @@ const func stateType: loadState (in string: stateFileName) is func
     var file: stateFile is STD_NULL;
     var string: headerLine is "";
     var bigInteger: position is 0_;
-    var bigInteger: blockSize is 0_;
+    var bigInteger: badAreaSize is 0_;
   begin
     stateFile := open(stateFileName, "r");
     if stateFile <> STD_NULL then
       headerLine := getln(stateFile);
-      if headerLine = "Savehd7 Version 2.0" then
+      if headerLine = "Savehd7 Version 2.1" then
         state.stateFileName := stateFileName;
         state.inFileName := getln(stateFile);
         state.outFileName := getln(stateFile);
-        readln(stateFile, state.verifyPosition);
-        readln(stateFile, state.verifyRunsToDo);
+        readln(stateFile, state.phase);
+        readln(stateFile, state.skipSize);
+        readln(stateFile, state.chunkSize);
+        readln(stateFile, state.blockSize);
+        readln(stateFile, state.rereadPosition);
+        readln(stateFile, state.rereadRunsToDo);
         readln(stateFile, state.maximumOfBadBytes);
-        readln(stateFile, state.badBlockToFix);
-        readln(stateFile, state.sizeOfBadBlockToFix);
-        readln(stateFile, state.smallBadBlockToFix);
+        readln(stateFile, state.badBytesToProcess);
+        readln(stateFile, state.badAreaToProcess);
+        readln(stateFile, state.sizeOfBadAreaToProcess);
+        readln(stateFile, state.blockToProcess);
         read(stateFile, position);
         while io_ok(stateFile) do
-          readln(stateFile, blockSize);
+          readln(stateFile, badAreaSize);
           # writeln(literal(getln(stateFile)));
-          state.badBlocks @:= [position] blockSize;
-          # writeln(position <& " " <& blockSize);
-          state.sumOfBadBytes +:= blockSize;
+          state.badAreas @:= [position] badAreaSize;
+          # writeln(position <& " " <& badAreaSize);
+          state.sumOfBadBytes +:= badAreaSize;
           read(stateFile, position);
         end while;
       end if;
@@ -131,22 +159,27 @@ const proc: saveState (in stateType: state) is func
   local
     var file: stateFile is STD_NULL;
     var bigInteger: position is 0_;
-    var bigInteger: blockSize is 0_;
+    var bigInteger: badAreaSize is 0_;
   begin
     stateFile := open(state.stateFileName, "w");
     if stateFile <> STD_NULL then
-      writeln(stateFile, "Savehd7 Version 2.0");
+      writeln(stateFile, "Savehd7 Version 2.1");
       writeln(stateFile, state.inFileName);
       writeln(stateFile, state.outFileName);
-      writeln(stateFile, state.verifyPosition);
-      writeln(stateFile, state.verifyRunsToDo);
+      writeln(stateFile, state.phase);
+      writeln(stateFile, state.skipSize);
+      writeln(stateFile, state.chunkSize);
+      writeln(stateFile, state.blockSize);
+      writeln(stateFile, state.rereadPosition);
+      writeln(stateFile, state.rereadRunsToDo);
       writeln(stateFile, state.maximumOfBadBytes);
-      writeln(stateFile, state.badBlockToFix);
-      writeln(stateFile, state.sizeOfBadBlockToFix);
-      writeln(stateFile, state.smallBadBlockToFix);
-      for position range sort(keys(state.badBlocks)) do
-        blockSize := state.badBlocks[position];
-        writeln(stateFile, position <& " " <& blockSize);
+      writeln(stateFile, state.badBytesToProcess);
+      writeln(stateFile, state.badAreaToProcess);
+      writeln(stateFile, state.sizeOfBadAreaToProcess);
+      writeln(stateFile, state.blockToProcess);
+      for position range sort(keys(state.badAreas)) do
+        badAreaSize := state.badAreas[position];
+        writeln(stateFile, position <& " " <& badAreaSize);
       end for;
       close(stateFile);
     end if;
@@ -155,11 +188,11 @@ const proc: saveState (in stateType: state) is func
 
 const proc: checkSumOfBadBytes (in stateType: state) is func
   local
-    var bigInteger: blockSize is 0_;
+    var bigInteger: badAreaSize is 0_;
     var bigInteger: sumOfBadBytes is 0_;
   begin
-    for blockSize range state.badBlocks do
-      sumOfBadBytes +:= blockSize;
+    for badAreaSize range state.badAreas do
+      sumOfBadBytes +:= badAreaSize;
     end for;
     if sumOfBadBytes <> state.sumOfBadBytes then
       writeln(log, "  ***** SumOfBadBytes " <& state.sumOfBadBytes <&
@@ -182,30 +215,30 @@ const func bigInteger: getBigFileLength (in string: fileName) is func
   end func;
 
 
-const func bigInteger: countBadBytesForward (in stateType: state,
+const func bigInteger: countBadBytesInAreasForward (in stateType: state,
     in bigInteger: startPosition) is func
   result
     var bigInteger: result is 0_;
   local
     var bigInteger: position is 0_;
-    var bigInteger: blockSize is 0_;
+    var bigInteger: badAreaSize is 0_;
   begin
-    for blockSize key position range state.badBlocks do
+    for badAreaSize key position range state.badAreas do
       if position >= startPosition then
-        result +:= blockSize;
+        result +:= badAreaSize;
       end if;
     end for;
   end func;
 
 
-const proc: listBadBlocks (in stateType: state) is func
+const proc: listBadAreas (in stateType: state) is func
   local
     var bigInteger: position is 0_;
-    var bigInteger: blockSize is 0_;
+    var bigInteger: badAreaSize is 0_;
   begin
-    for position range sort(keys(state.badBlocks)) do
-      blockSize := state.badBlocks[position];
-      writeln("  " <& position <& " " <& blockSize);
+    for position range sort(keys(state.badAreas)) do
+      badAreaSize := state.badAreas[position];
+      writeln("  " <& position <& " " <& badAreaSize);
     end for;
   end func;
 
@@ -222,19 +255,21 @@ const func boolean: confirmSave (inout stateType: state) is func
   begin
     if state.stateFileName <> "" then
       writeln;
-      state.inFileSize := getBigFileLength(state.inFileName);
-      outFileSize := getBigFileLength(state.outFileName);
       writeln("Conditions to save the partition:");
       writeln("  Input file name:  " <& state.inFileName);
-      if state.inFileSize <> -1_ then
+      if fileExists(state.inFileName) then
+        state.inFileSize := bigFileSize(state.inFileName);
         writeln("  Input file size:  " <& state.inFileSize);
+      else
+        state.inFileSize := -1_;
       end if;
       writeln("  Output file name: " <& state.outFileName);
-      if outFileSize <> -1_ then
+      if fileExists(state.outFileName) then
+        outFileSize := bigFileSize(state.outFileName);
         writeln("  Output file size: " <& outFileSize);
       end if;
-      if state.verifyPosition <> 0_ then
-        writeln("  Verified size:    " <& pred(state.verifyPosition));
+      if state.phase >= REREAD and state.rereadPosition > 1_ then
+        writeln("  Rereaded:         " <& pred(state.rereadPosition));
       end if;
       if state.inFileSize = -1_ then
         writeln("  ***** Input file not existing or not accessable");
@@ -242,38 +277,52 @@ const func boolean: confirmSave (inout stateType: state) is func
         # writeln("outFileSize=" <& outFileSize <& " inFileSize=" <& state.inFileSize);
         write("  State:            ");
         if outFileSize = -1_ then
-          writeln("Nothing copied");
-        elsif state.inFileSize <> outFileSize then
+          writeln("Nothing saved");
+          state.phase := COPY;
+        elsif state.phase = COPY or state.inFileSize <> outFileSize then
           writeln("Copy - " <&
               outFileSize * 100_ / state.inFileSize digits 4 <& "% done");
-        elsif state.verifyRunsToDo <> 0 then
-          writeln("Verify #" <& state.verifyRunsToDo <& " - " <&
-              pred(state.verifyPosition) * 100_ / state.inFileSize digits 4 <& "% done");
-        elsif state.badBlockToFix <= state.inFileSize then
-          if state.maximumOfBadBytes <> 0_ then
-            bytesProcessed := state.maximumOfBadBytes -
-                (countBadBytesForward(state, state.badBlockToFix + state.sizeOfBadBlockToFix) +
-                (state.smallBadBlockToFix - state.badBlockToFix));
-            writeln("Fix holes - " <&
-                bytesProcessed * 100_ / state.maximumOfBadBytes digits 4 <& "% done");
+          state.phase := COPY;
+        elsif state.phase = REREAD then
+          writeln("Reread #" <& state.rereadRunsToDo <& " - " <&
+              pred(state.rereadPosition) * 100_ / state.inFileSize digits 4 <& "% done");
+          state.phase := REREAD;
+        elsif state.phase = IMPROVE or state.phase = FIX then
+          if state.badAreaToProcess <= state.inFileSize and state.badBytesToProcess <> 0_ then
+            state.badBytesInAreasForward := countBadBytesInAreasForward(state,
+                state.badAreaToProcess + state.sizeOfBadAreaToProcess);
+            if state.blockToProcess >= state.badAreaToProcess then
+              bytesProcessed := state.badBytesToProcess -
+                  (state.badBytesInAreasForward +
+                  (state.blockToProcess - state.badAreaToProcess) +
+                  bigInteger conv (state.blockSize));
+            else
+              bytesProcessed := state.badBytesToProcess - state.badBytesInAreasForward;
+            end if;
+            if state.phase = IMPROVE then
+              write("Improve - ");
+            else
+              write("Fix - ");
+            end if;
+            writeln(bytesProcessed * 100_ / state.badBytesToProcess digits 4 <& "% done");
           else
-            writeln("Finished");
+            writeln("Done");
             finished := TRUE;
           end if;
         else
-          writeln("Finished");
+          writeln("Done");
           finished := TRUE;
         end if;
         if state.sumOfBadBytes <> 0_ then
-          writeln("  Total bad blocks: " <& state.sumOfBadBytes);
+          writeln("  Total bad bytes:  " <& state.sumOfBadBytes);
           writeln;
-          write("Should the bad blocks be listed (Y/N/Q)? ");
+          write("Should the bad areas be listed (Y/N/Q)? ");
           command := upper(getln(IN));
           if command = "Y" then
             writeln;
-            writeln("List of bad blocks:");
+            writeln("List of bad areas:");
             writeln("   position   size");
-            listBadBlocks(state);
+            listBadAreas(state);
           elsif command = "Q" then
             proceed := FALSE;
           end if;
@@ -288,8 +337,11 @@ const func boolean: confirmSave (inout stateType: state) is func
           end if;
           write(" (type 'Yes' to confirm)? ");
           command := getln(IN);
-          confirmed := command = "Yes";
-          proceed := upper(command) <> "Q"
+          proceed := upper(command) <> "Q";
+          if command = "Yes" then
+            confirmed := TRUE;
+            state.emptyBlock := "\0\" mult state.blockSize;
+          end if;
         end if;
       end if;
     end if;
@@ -309,8 +361,13 @@ const func boolean: confirmSave (inout stateType: state) is func
         write("  Input file name:  ");
         state.inFileName := getln(IN);
         if state.inFileName <> "" then
-          write("  Output file name: ");
-          state.outFileName := getln(IN);
+          repeat
+            write("  Output file name: ");
+            state.outFileName := getln(IN);
+            if fileExists(state.outFileName) then
+              writeln("  ***** Output file already exists");
+            end if;
+          until state.outFileName = "" or not fileExists(state.outFileName);
           if state.outFileName <> "" then
             confirmed := confirmSave(state);
             if confirmed then
@@ -321,6 +378,7 @@ const func boolean: confirmSave (inout stateType: state) is func
                 confirmed := FALSE;
               else
                 remove(logFileName);
+                state.phase := COPY;
               end if;
             end if;
           end if;
@@ -330,18 +388,36 @@ const func boolean: confirmSave (inout stateType: state) is func
   end func;
 
 
-const func bigInteger: afterMaximumBadBlock (in stateType: state) is func
-  result
-    var bigInteger: result is 0_
-  local
-    var bigInteger: position is 0_;
-    var bigInteger: blockSize is 0_;
+const proc: nextPhase (inout stateType: state) is func
   begin
-    for blockSize key position range state.badBlocks do
-      if position + blockSize > result then
-        result := position + blockSize;
+    case state.phase of
+      when {COPY}:
+        incr(state.phase);
+      when {REREAD}:
+        decr(state.rereadRunsToDo);
+      when {IMPROVE}:
+        incr(state.phase);
+      when {FIX}:
+        incr(state.phase);
+    end case;
+    if state.phase = REREAD then
+      if state.rereadRunsToDo > 0 then
+        state.rereadPosition := 1_;
+      else
+        incr(state.phase);
       end if;
-    end for;
+    end if;
+    case state.phase of
+      when {IMPROVE, FIX}:
+        state.badBytesToProcess := state.sumOfBadBytes;
+        state.badAreaToProcess := 0_;
+        state.sizeOfBadAreaToProcess := 0_;
+        state.blockToProcess := 0_;
+      when {DONE}:
+        writeln(state.phase rpad 7 <& " ");
+        writeln;
+        writeln("Saving finished");
+    end case;    
   end func;
 
 
@@ -349,16 +425,178 @@ const func bigInteger: bigLength (in string: stri) is
   return bigInteger conv length(stri);
 
 
+const func bigInteger: afterMaximumBadArea (in stateType: state) is func
+  result
+    var bigInteger: result is 0_
+  local
+    var bigInteger: position is 0_;
+    var bigInteger: badAreaSize is 0_;
+  begin
+    for badAreaSize key position range state.badAreas do
+      if position + badAreaSize > result then
+        result := position + badAreaSize;
+      end if;
+    end for;
+  end func;
+
+
+const func bigInteger: searchPossibleAreaCombine (in stateType: state,
+    in bigInteger: newAreaPosition, in bigInteger: newAreaSize) is func
+  result
+    var bigInteger: positionFound is -1_;
+  local
+    var bigInteger: position is 0_;
+    var bigInteger: badAreaSize is 0_;
+  begin
+    for badAreaSize key position range state.badAreas do
+      if (position <> newAreaPosition or badAreaSize <> newAreaSize) and
+          newAreaPosition + newAreaSize >= position and
+          newAreaPosition <= position + badAreaSize then
+        positionFound := position;
+      end if;
+    end for;
+  end func;
+
+
+const proc: combineBadAreas (inout stateType: state, in bigInteger: oldAreaPosition,
+    inout bigInteger: newAreaPosition, inout bigInteger: newAreaSize) is func
+  local
+    var bigInteger: badAreaSize is 0_;
+  begin
+    badAreaSize := state.badAreas[oldAreaPosition];
+    if newAreaPosition < oldAreaPosition then
+      excl(state.badAreas, oldAreaPosition);
+      state.sumOfBadBytes -:= badAreaSize;
+      if newAreaPosition + newAreaSize <= oldAreaPosition + badAreaSize then
+        newAreaSize := badAreaSize + (oldAreaPosition - newAreaPosition);
+      end if;
+      state.badAreas @:= [newAreaPosition] newAreaSize;
+      state.sumOfBadBytes +:= newAreaSize;
+      writeln(log, "Bad area at " <& oldAreaPosition <&
+                   " enlarged to new position " <& newAreaPosition <&
+                   " with new size " <& newAreaSize);
+    elsif newAreaPosition + newAreaSize > oldAreaPosition + badAreaSize then
+      state.sumOfBadBytes -:= badAreaSize;
+      newAreaSize +:= newAreaPosition - oldAreaPosition;
+      newAreaPosition := oldAreaPosition;
+      state.badAreas[oldAreaPosition] := newAreaSize;
+      state.sumOfBadBytes +:= newAreaSize;
+      writeln(log, "Bad area at " <& oldAreaPosition <&
+                   " enlarged to size " <& newAreaSize);
+    else
+      writeln(log, "  ***** Bad area at " <& newAreaPosition <&
+                   " with size " <& newAreaSize <& " not handled");
+    end if;
+  end func;
+
+
+const proc: addBadArea (inout stateType: state,
+    in var bigInteger: newAreaPosition, in var bigInteger: newAreaSize) is func
+  local
+    var bigInteger: positionFound is 0_;
+  begin
+    positionFound := searchPossibleAreaCombine(state, newAreaPosition, newAreaSize);
+    if positionFound <> -1_ then
+      repeat
+        combineBadAreas(state, positionFound, newAreaPosition, newAreaSize);
+        positionFound := searchPossibleAreaCombine(state, newAreaPosition, newAreaSize);
+      until positionFound = -1_;
+    elsif newAreaPosition not in state.badAreas then
+      state.badAreas @:= [newAreaPosition] newAreaSize;
+      state.sumOfBadBytes +:= newAreaSize;
+      writeln(log, "New bad area found at " <& newAreaPosition <&
+                   " with size " <& newAreaSize);
+    else
+      writeln(log, "Bad area at " <& newAreaPosition <&
+                   " with size " <& newAreaSize <& " already present");
+    end if;
+    if state.sumOfBadBytes > state.maximumOfBadBytes then
+      state.maximumOfBadBytes := state.sumOfBadBytes;
+    end if;
+  end func;
+
+
+const func bigInteger: searchPossibleAreaShrink (in stateType: state,
+    in bigInteger: okayAreaPosition, in bigInteger: okayAreaSize) is func
+  result
+    var bigInteger: positionFound is -1_;
+  local
+    var bigInteger: position is 0_;
+    var bigInteger: badAreaSize is 0_;
+  begin
+    for badAreaSize key position range state.badAreas do
+      if okayAreaPosition + okayAreaSize > position and
+          okayAreaPosition < position + badAreaSize then
+        positionFound := position;
+      end if;
+    end for;
+  end func;
+
+
+const proc: shrinkBadAreas (inout stateType: state, in bigInteger: oldAreaPosition,
+    in bigInteger: okayAreaPosition, in bigInteger: okayAreaSize) is func
+  local
+    var bigInteger: badAreaSize is 0_;
+    var bigInteger: badAreaSizeReduction is 0_;
+  begin
+    badAreaSize := state.badAreas[oldAreaPosition];
+    if okayAreaPosition <= oldAreaPosition then
+      excl(state.badAreas, oldAreaPosition);
+      state.sumOfBadBytes -:= badAreaSize;
+      badAreaSizeReduction := okayAreaPosition - oldAreaPosition + okayAreaSize;
+      if badAreaSize > badAreaSizeReduction then
+        badAreaSize -:= badAreaSizeReduction;
+        state.badAreas @:= [okayAreaPosition + okayAreaSize] badAreaSize;
+        state.sumOfBadBytes +:= badAreaSize;
+        writeln(log, "Bad area at " <& oldAreaPosition <&
+                     " shrinked to new position " <& okayAreaPosition + okayAreaSize <&
+                     " with new size " <& badAreaSize);
+      else
+        writeln(log, "Bad area at " <& oldAreaPosition <&
+                     " with size " <& badAreaSize <& " removed");
+      end if;
+    else
+      state.badAreas[oldAreaPosition] := okayAreaPosition - oldAreaPosition;
+      if okayAreaPosition + okayAreaSize < oldAreaPosition + badAreaSize then
+        state.badAreas @:= [okayAreaPosition + okayAreaSize]
+            oldAreaPosition - okayAreaPosition + badAreaSize - okayAreaSize;
+        state.sumOfBadBytes -:= okayAreaSize;
+        writeln(log, "Bad area at " <& oldAreaPosition <&
+                     " splited to area with size " <& state.badAreas[oldAreaPosition] <&
+                     " and area at " <& okayAreaPosition + okayAreaSize <&
+                     " with size " <& state.badAreas[okayAreaPosition + okayAreaSize]);
+      else
+        state.sumOfBadBytes -:= oldAreaPosition + badAreaSize - okayAreaPosition;
+        writeln(log, "Bad area at " <& oldAreaPosition <&
+                     " with size " <& badAreaSize <&
+                     " shrinked to size " <& state.badAreas[oldAreaPosition]);
+      end if; 
+    end if;
+  end func;
+
+
+const proc: removeBadArea (inout stateType: state,
+    in bigInteger: okayAreaPosition, in bigInteger: okayAreaSize) is func
+  local
+    var bigInteger: positionFound is 0_;
+  begin
+    positionFound := searchPossibleAreaShrink(state, okayAreaPosition, okayAreaSize);
+    if positionFound <> -1_ then
+      repeat
+        shrinkBadAreas(state, positionFound, okayAreaPosition, okayAreaSize);
+        positionFound := searchPossibleAreaShrink(state, okayAreaPosition, okayAreaSize);
+      until positionFound = -1_;
+    end if;
+  end func;
+
+
 const proc: copyFile (inout stateType: state) is func
   local
-    const bigInteger: blockSize is bigInteger conv normalBlockSize;
     var file: inFile is STD_NULL;
     var file: outFile is STD_NULL;
-    var bigInteger: inFileSize is 0_;
     var bigInteger: currPosition is 1_;
-    var bigInteger: lastBadBlockPosition is 0_;
-    var string: blockContent is "";
-    var bigInteger: missingBytesInBlock is 0_;
+    var string: chunkContent is "";
+    var bigInteger: missingBytes is 0_;
   begin
     inFile := open(state.inFileName, "r");
     outFile := open(state.outFileName, "r+");
@@ -367,56 +605,56 @@ const proc: copyFile (inout stateType: state) is func
     end if;
     if inFile <> STD_NULL and outFile <> STD_NULL then
       writeln(log, "Start copy from " <& state.inFileName <& " to " <& state.outFileName);
-      inFileSize := bigLength(inFile);
       currPosition := bigLength(outFile) + 1_;
-      if afterMaximumBadBlock(state) > currPosition then
-        currPosition := afterMaximumBadBlock(state);
+      if afterMaximumBadArea(state) > currPosition then
+        currPosition := afterMaximumBadArea(state);
       end if;
-      showProgress(state, "copy", inFileSize, pred(currPosition), pred(currPosition));
-      while currPosition <= inFileSize and not keypressed(KEYBOARD) do
+      showProgress(state, state.inFileSize, pred(currPosition), pred(currPosition));
+      while currPosition <= state.inFileSize and not keypressed(KEYBOARD) do
         seek(inFile, currPosition);
-        blockContent := gets(inFile, normalBlockSize);
-        if length(blockContent) <> 0 then
+        chunkContent := gets(inFile, state.chunkSize);
+        if length(chunkContent) <> 0 then
           seek(outFile, currPosition);
-          write(outFile, blockContent);
+          write(outFile, chunkContent);
         end if;
-        if length(blockContent) <> normalBlockSize and
-            currPosition + bigLength(blockContent) <= inFileSize then
-          if currPosition + blockSize > inFileSize then
-            missingBytesInBlock := succ(inFileSize) - currPosition - bigLength(blockContent);
+        if length(chunkContent) <> state.chunkSize and
+            currPosition + bigLength(chunkContent) <= state.inFileSize then
+          if currPosition + bigInteger conv (state.chunkSize) > state.inFileSize then
+            missingBytes := succ(state.inFileSize) - currPosition - bigLength(chunkContent);
           else
-            missingBytesInBlock := blockSize - bigLength(blockContent);
+            missingBytes := bigInteger conv (state.chunkSize) - bigLength(chunkContent);
           end if;
-          seek(outFile, currPosition + bigLength(blockContent));
-          write(outFile, "\0\" mult ord(missingBytesInBlock));
-          if length(blockContent) = 0 and lastBadBlockPosition <> 0_ and
-              lastBadBlockPosition + state.badBlocks[lastBadBlockPosition] = currPosition then
-            state.badBlocks[lastBadBlockPosition] +:= missingBytesInBlock;
-            state.sumOfBadBytes +:= missingBytesInBlock;
-            state.maximumOfBadBytes := state.sumOfBadBytes;
-            writeln(log, "Bad block at " <& lastBadBlockPosition <&
-                         " enlarged to size " <& state.badBlocks[lastBadBlockPosition]);
+          seek(outFile, currPosition + bigLength(chunkContent));
+          write(outFile, "\0\" mult ord(missingBytes));
+          addBadArea(state, currPosition + bigLength(chunkContent), missingBytes);
+          if state.skipSize > state.chunkSize then
+            if currPosition + bigInteger conv (state.skipSize) > state.inFileSize then
+              missingBytes := succ(state.inFileSize) - currPosition;
+            else
+              missingBytes := bigInteger conv (state.skipSize);
+            end if;
+            missingBytes -:= bigInteger conv (state.chunkSize);
+            if missingBytes > 0_ then
+              seek(outFile, currPosition + bigInteger conv (state.chunkSize));
+              write(outFile, "\0\" mult ord(missingBytes));
+              addBadArea(state, currPosition + bigInteger conv (state.chunkSize), missingBytes);
+            end if;
+            currPosition +:= bigInteger conv (state.skipSize);
           else
-            lastBadBlockPosition := currPosition + bigLength(blockContent);
-            state.badBlocks @:= [lastBadBlockPosition] missingBytesInBlock;
-            state.sumOfBadBytes +:= missingBytesInBlock;
-            state.maximumOfBadBytes := state.sumOfBadBytes;
-            writeln(log, "Bad block found at " <& lastBadBlockPosition <&
-                         " with size " <& state.badBlocks[lastBadBlockPosition]);
+            currPosition +:= bigInteger conv (state.chunkSize);
           end if;
+          showProgress(state, state.inFileSize, pred(currPosition), pred(currPosition));
           saveState(state);
+        else
+          currPosition +:= bigInteger conv (state.chunkSize);
+          showProgress(state, state.inFileSize, pred(currPosition), pred(currPosition));
         end if;
-        currPosition +:= blockSize;
-        showProgress(state, "copy", inFileSize, pred(currPosition), pred(currPosition));
       end while;
 
-      if currPosition > inFileSize then
-        currPosition := inFileSize + 1_;
-        if state.verifyPosition = 0_ then
-          state.verifyPosition := 1_;
-        end if;
-        showProgress(state, "copy", inFileSize, pred(currPosition), pred(currPosition));
+      if currPosition > state.inFileSize then
+        showProgress(state, state.inFileSize, state.inFileSize, state.inFileSize);
         writeln(log, "Stop copy from " <& state.inFileName <& " to " <& state.outFileName);
+        nextPhase(state);
       else
         writeln;
         writeln;
@@ -429,364 +667,227 @@ const proc: copyFile (inout stateType: state) is func
   end func;
 
 
-const func bigInteger: searchPossibleCombine (in stateType: state,
-    in bigInteger: newBlockPosition, in bigInteger: newBlockSize) is func
+const func string: repairBlock (inout stateType: state, in bigInteger: blockPosition,
+    in string: sourceBlock, in string: destinationBlock) is func
   result
-    var bigInteger: positionFound is -1_;
-  local
-    var bigInteger: position is 0_;
-    var bigInteger: blockSize is 0_;
+    var string: repairedBlock is "";
   begin
-    for blockSize key position range state.badBlocks do
-      if newBlockPosition + newBlockSize >= position and
-          newBlockPosition <= position + blockSize then
-        positionFound := position;
+    repairedBlock := destinationBlock;
+    if sourceBlock = destinationBlock then
+      removeBadArea(state, blockPosition, bigLength(sourceBlock));
+      if destinationBlock <> state.emptyBlock then
+        writeln(log, "fix block " <& blockPosition <&
+            " (length " <& length(sourceBlock) <& "), which was not empty before");
       end if;
-    end for;
-  end func;
-
-
-const proc: combineBadBlocks (inout stateType: state, in bigInteger: oldBlockPosition,
-    inout bigInteger: newBlockPosition, inout bigInteger: newBlockSize) is func
-  local
-    var bigInteger: blockSize is 0_;
-  begin
-    blockSize := state.badBlocks[oldBlockPosition];
-    if newBlockPosition < oldBlockPosition then
-      excl(state.badBlocks, oldBlockPosition);
-      state.sumOfBadBytes -:= blockSize;
-      if newBlockPosition + newBlockSize <= oldBlockPosition + blockSize then
-        newBlockSize := blockSize + (oldBlockPosition - newBlockPosition);
-      end if;
-      state.badBlocks @:= [newBlockPosition] newBlockSize;
-      state.sumOfBadBytes +:= newBlockSize;
-      writeln(log, "Bad block at " <& oldBlockPosition <&
-                   " enlarged to new position " <& newBlockPosition <&
-                   " with new size " <& newBlockSize);
-    elsif newBlockPosition + newBlockSize > oldBlockPosition + blockSize then
-      state.sumOfBadBytes -:= blockSize;
-      newBlockSize +:= newBlockPosition - oldBlockPosition;
-      newBlockPosition := oldBlockPosition;
-      state.badBlocks[oldBlockPosition] := newBlockSize;
-      state.sumOfBadBytes +:= newBlockSize;
-      writeln(log, "Bad block at " <& oldBlockPosition <&
-                   " enlarged to size " <& newBlockSize);
+    elsif destinationBlock = state.emptyBlock then
+      repairedBlock := sourceBlock &
+          "\0\" mult (length(destinationBlock) - length(sourceBlock));
+      removeBadArea(state, blockPosition, bigLength(sourceBlock));
+      writeln(log, "fix block " <& blockPosition <&
+          " (length " <& length(sourceBlock) <& "), which was empty before");
+    elsif sourceBlock = "" then
+      writeln(log, "leave block " <& blockPosition <&
+          " (length " <& length(sourceBlock) <& ") unchanged, which is empty now");
     else
-      writeln(log, "  ***** Bad block at " <& newBlockPosition <&
-                   " with size " <& newBlockSize <& " not handled");
-    end if;
-  end func;
-
-
-const proc: addBadBlock (inout stateType: state,
-    in var bigInteger: newBlockPosition, in var bigInteger: newBlockSize) is func
-  local
-    var bigInteger: positionFound is 0_;
-  begin
-    positionFound := searchPossibleCombine(state, newBlockPosition, newBlockSize);
-    if positionFound <> -1_ then
-      repeat
-        combineBadBlocks(state, positionFound, newBlockPosition, newBlockSize);
-        positionFound := searchPossibleCombine(state, newBlockPosition, newBlockSize);
-      until positionFound = -1_;
-    else
-      state.badBlocks @:= [newBlockPosition] newBlockSize;
-      state.sumOfBadBytes +:= newBlockSize;
-      writeln(log, "New bad block found at " <& newBlockPosition <&
-                   " with size " <& newBlockSize);
-    end if;
-    if state.sumOfBadBytes > state.maximumOfBadBytes then
-      state.maximumOfBadBytes := state.sumOfBadBytes;
-    end if;
-  end func;
-
-
-const func bigInteger: searchPossibleShrink (in stateType: state,
-    in bigInteger: newBlockPosition, in bigInteger: newBlockSize) is func
-  result
-    var bigInteger: positionFound is -1_;
-  local
-    var bigInteger: position is 0_;
-    var bigInteger: blockSize is 0_;
-  begin
-    for blockSize key position range state.badBlocks do
-      if newBlockPosition + newBlockSize > position and
-          newBlockPosition < position + blockSize then
-        positionFound := position;
-      end if;
-    end for;
-  end func;
-
-
-const proc: shrinkBadBlocks (inout stateType: state, in bigInteger: oldBlockPosition,
-    in bigInteger: newBlockPosition, in bigInteger: newBlockSize) is func
-  local
-    var bigInteger: blockSize is 0_;
-  begin
-    blockSize := state.badBlocks[oldBlockPosition];
-    if newBlockPosition <= oldBlockPosition then
-      excl(state.badBlocks, oldBlockPosition);
-      state.sumOfBadBytes -:= blockSize;
-      blockSize -:= newBlockPosition - oldBlockPosition + newBlockSize;
-      if blockSize > 0_ then
-        state.badBlocks @:= [newBlockPosition + newBlockSize] blockSize;
-        state.sumOfBadBytes +:= blockSize;
-        writeln(log, "Bad block at " <& oldBlockPosition <&
-                     " shrinked to new position " <& newBlockPosition + newBlockSize <&
-                     " with new size " <& blockSize);
-      else
-        writeln(log, "Bad block at " <& oldBlockPosition <&
-                     " with size " <& blockSize <& " removed");
-      end if;
-    else
-      state.badBlocks[oldBlockPosition] := newBlockPosition - oldBlockPosition;
-      if newBlockPosition + newBlockSize < oldBlockPosition + blockSize then
-        state.badBlocks @:= [newBlockPosition + newBlockSize]
-            oldBlockPosition - newBlockPosition + blockSize - newBlockSize;
-        state.sumOfBadBytes -:= newBlockSize;
-        writeln(log, "Bad block at " <& oldBlockPosition <&
-                     " splited to block with size " <& state.badBlocks[oldBlockPosition] <&
-                     " and block at " <& newBlockPosition + newBlockSize <&
-                     " with size " <& state.badBlocks[newBlockPosition + newBlockSize]);
-      else
-        state.sumOfBadBytes -:= oldBlockPosition + blockSize - newBlockPosition;
-        writeln(log, "Bad block at " <& oldBlockPosition <&
-                     " with size " <& blockSize <&
-                     " shrinked to size " <& state.badBlocks[oldBlockPosition]);
-      end if; 
-    end if;
-  end func;
-
-
-const proc: removeBadBlock (inout stateType: state,
-    in bigInteger: newBlockPosition, in bigInteger: newBlockSize) is func
-  local
-    var bigInteger: positionFound is 0_;
-  begin
-    positionFound := searchPossibleShrink(state, newBlockPosition, newBlockSize);
-    if positionFound <> -1_ then
-      repeat
-        shrinkBadBlocks(state, positionFound, newBlockPosition, newBlockSize);
-        positionFound := searchPossibleShrink(state, newBlockPosition, newBlockSize);
-      until positionFound = -1_;
-    else
-      writeln(log, "  ***** Block " <& newBlockPosition <& " (length " <& newBlockSize <&
-                   ") not found in bad block list");
-    end if;
-  end func;
-
-
-const func string: repairSmallBlock (inout stateType: state, in bigInteger: currPosition,
-    in string: smallOriginalBlock, in string: smallBlockToBeVerified) is func
-  result
-    var string: result is "";
-  begin
-    result := smallBlockToBeVerified;
-    if smallOriginalBlock = smallBlockToBeVerified then
-      removeBadBlock(state, currPosition, bigLength(smallOriginalBlock));
-    else
-      if smallBlockToBeVerified = emptySmallBlock then
-        result := smallOriginalBlock;
-        removeBadBlock(state, currPosition, bigLength(smallOriginalBlock));
-        writeln(log, "fix block " <& currPosition <&
-            " (length " <& length(smallOriginalBlock) <& ") which was empty before");
-      elsif smallOriginalBlock = emptySmallBlock then
-        writeln(log, "ignore block " <& currPosition <&
-            " (length " <& length(smallOriginalBlock) <& ") which is empty now");
-      else
-        writeln("log block " <& currPosition <&
-            " (length " <& length(smallOriginalBlock) <& ") different and not empty in both cases");
-        addBadBlock(state, currPosition, bigLength(smallOriginalBlock));
-      end if;
+      writeln(log, "block " <& blockPosition <&
+          " (length " <& length(sourceBlock) <& ") different and not empty in both cases");
+      addBadArea(state, blockPosition, bigLength(sourceBlock));
     end if;
     # checkSumOfBadBytes(state);
   end func;
 
 
-const proc: repairBlock (inout stateType: state, inout file: outFile,
-    in bigInteger: currPosition,
-    in string: originalBlock, in string: blockToBeVerified) is func
+const proc: repairChunk (inout stateType: state, inout file: outFile,
+    in bigInteger: chunkPosition, in string: sourceChunk,
+    in string: destinationChunk) is func
   local
-    var string: blockToBeVerified2 is "";
+    var string: repairedChunk is "";
     var integer: index is 0;
-    var string: smallOriginalBlock is "";
-    var string: smallBlockToBeVerified is "";
+    var string: sourceBlock is "";
+    var string: destinationBlock is "";
   begin
-    blockToBeVerified2 := blockToBeVerified;
-    for index range 1 to pred(length(originalBlock) - smallBlockSize) step smallBlockSize do
-      smallOriginalBlock := originalBlock[index len smallBlockSize];
-      smallBlockToBeVerified := blockToBeVerified2[index len smallBlockSize];
-      smallBlockToBeVerified := repairSmallBlock(state,
-          currPosition + bigInteger conv index - 1_,
-          smallOriginalBlock, smallBlockToBeVerified);
-      blockToBeVerified2 := blockToBeVerified2[.. pred(index)] &
-          smallBlockToBeVerified & blockToBeVerified2[index + smallBlockSize ..];
+    repairedChunk := destinationChunk;
+    for index range 1 to length(sourceChunk) step state.blockSize do
+      sourceBlock := sourceChunk[index len state.blockSize];
+      destinationBlock := repairedChunk[index len state.blockSize];
+      destinationBlock := repairBlock(state,
+          chunkPosition + bigInteger conv index - 1_,
+          sourceBlock, destinationBlock);
+      repairedChunk := repairedChunk[.. pred(index)] &
+          destinationBlock & repairedChunk[index + state.blockSize ..];
     end for;
-    if blockToBeVerified2 <> blockToBeVerified then
-      seek(outFile, currPosition);
-      write(outFile, blockToBeVerified2);
+    if repairedChunk <> destinationChunk then
+      seek(outFile, chunkPosition);
+      write(outFile, repairedChunk);
     end if;
-    state.verifyPosition := currPosition + bigLength(originalBlock);
+    state.rereadPosition := chunkPosition + bigLength(sourceChunk);
     # checkSumOfBadBytes(state);
     saveState(state);
   end func;
 
 
-const proc: verifyFile (inout stateType: state) is func
+const proc: rereadFile (inout stateType: state) is func
   local
     var file: inFile is STD_NULL;
     var file: outFile is STD_NULL;
-    var bigInteger: inFileSize is 0_;
     var bigInteger: currPosition is 1_;
-    var string: originalBlock is "";
-    var string: blockToBeVerified is "";
+    var string: sourceChunk is "";
+    var string: destinationChunk is "";
   begin
     inFile := open(state.inFileName, "r");
     outFile := open(state.outFileName, "r+");
     if inFile <> STD_NULL and outFile <> STD_NULL then
-      writeln(log, "Start verify from " <& state.inFileName <& " to " <& state.outFileName);
-      inFileSize := bigLength(inFile);
-      currPosition := state.verifyPosition;
-      showProgress(state, "verify", inFileSize, pred(currPosition), inFileSize);
-      while currPosition <= inFileSize and not keypressed(KEYBOARD) do
+      writeln(log, "Start reread from " <& state.inFileName <& " to " <& state.outFileName);
+      currPosition := state.rereadPosition;
+      showProgress(state, state.inFileSize, pred(currPosition), state.inFileSize);
+      while currPosition <= state.inFileSize and not keypressed(KEYBOARD) do
         seek(inFile, currPosition);
-        originalBlock := gets(inFile, normalBlockSize);
-        if length(originalBlock) <> 0 then
+        sourceChunk := gets(inFile, state.chunkSize);
+        if length(sourceChunk) <> 0 then
           seek(outFile, currPosition);
-          blockToBeVerified := gets(outFile, length(originalBlock));
+          destinationChunk := gets(outFile, length(sourceChunk));
         else
-          blockToBeVerified := "";
+          destinationChunk := "";
         end if;
-        if length(originalBlock) <> normalBlockSize and
-            currPosition + bigLength(originalBlock) <= inFileSize then
-          if originalBlock <> blockToBeVerified then
-            repairBlock(state, outFile, currPosition, originalBlock, blockToBeVerified);
-          end if;
-        elsif originalBlock <> blockToBeVerified then
-          repairBlock(state, outFile, currPosition, originalBlock, blockToBeVerified);
+        if sourceChunk <> destinationChunk then
+          repairChunk(state, outFile, currPosition, sourceChunk, destinationChunk);
+          currPosition +:= bigInteger conv (state.skipSize);
+        else
+          currPosition +:= bigInteger conv (state.chunkSize);
         end if;
-        currPosition +:= bigInteger conv normalBlockSize;
-        showProgress(state, "verify", inFileSize, pred(currPosition), inFileSize);
+        showProgress(state, state.inFileSize, pred(currPosition), state.inFileSize);
       end while;
 
-      if currPosition > inFileSize then
-        currPosition := inFileSize + 1_;
-        if state.verifyRunsToDo > 0 then
-          decr(state.verifyRunsToDo);
-          if state.verifyRunsToDo > 0 then
-            currPosition := 1_;
-          end if;
-        end if;
-        showProgress(state, "verify", inFileSize, pred(currPosition), inFileSize);
-        writeln(log, "Stop verify from " <& state.inFileName <& " to " <& state.outFileName);
+      if currPosition > state.inFileSize then
+        state.rereadPosition := state.inFileSize + 1_;
+        showProgress(state, state.inFileSize, state.inFileSize, state.inFileSize);
+        writeln(log, "Stop reread from " <& state.inFileName <& " to " <& state.outFileName);
+        nextPhase(state);
       else
+        state.rereadPosition := currPosition;
         writeln;
         writeln;
-        writeln("Verify paused - To continue restart the program");
-        writeln(log, "Pause verify from " <& state.inFileName <& " to " <& state.outFileName);
+        writeln("Reread paused - To continue restart the program");
+        writeln(log, "Pause reread from " <& state.inFileName <& " to " <& state.outFileName);
       end if;
-      state.verifyPosition := currPosition;
       close(inFile);
       close(outFile);
     end if;
   end func;
 
 
-const proc: fixHoles (inout stateType: state) is func
+const proc: determineBadAreaToProcess (inout stateType: state) is func
+  local
+    var bigInteger: position is 0_;
+    var bigInteger: currBadArea is 0_;
+    var bigInteger: badAreaSize is 0_;
+  begin
+    currBadArea := state.inFileSize + 1_;
+    for badAreaSize key position range state.badAreas do
+      if position >= state.badAreaToProcess and position < currBadArea then
+        currBadArea := position;
+      end if;
+    end for;
+    if currBadArea <= state.inFileSize then
+      badAreaSize := state.badAreas[currBadArea];
+      if currBadArea <> state.badAreaToProcess then
+        state.badAreaToProcess := currBadArea;
+        state.sizeOfBadAreaToProcess := badAreaSize;
+      end if;
+    else
+      state.badAreaToProcess := state.inFileSize + 1_;
+      state.sizeOfBadAreaToProcess := 0_;
+    end if;
+  end func;
+
+
+const proc: processAreaBackward (inout stateType: state,
+    inout file: inFile, inout file: outFile) is func
+  local
+    var string: sourceBlock is "";
+    var string: destinationBlock is "";
+    var string: repairedBlock is "";
+  begin
+    showProgress(state, state.badBytesToProcess, state.badBytesToProcess -
+        (state.badBytesInAreasForward + (state.blockToProcess - state.badAreaToProcess) +
+        bigInteger conv (state.blockSize)), state.inFileSize);
+    saveState(state);
+    while state.blockToProcess >= state.badAreaToProcess and not keypressed(KEYBOARD) do
+      seek(inFile, state.blockToProcess);
+      sourceBlock := gets(inFile, state.blockSize);
+      if length(sourceBlock) <> 0 then
+        seek(outFile, state.blockToProcess);
+        destinationBlock := gets(outFile, length(sourceBlock));
+        repairedBlock := repairBlock(state, state.blockToProcess,
+            sourceBlock, destinationBlock);
+        if repairedBlock <> destinationBlock then
+          seek(outFile, state.blockToProcess);
+          write(outFile, repairedBlock);
+        end if;
+      end if;
+      if length(sourceBlock) = state.blockSize or state.phase = FIX then
+        state.blockToProcess -:= bigInteger conv (state.blockSize);
+      else
+        state.blockToProcess := state.badAreaToProcess - bigInteger conv (state.blockSize);
+      end if;
+      showProgress(state, state.badBytesToProcess, state.badBytesToProcess -
+          (state.badBytesInAreasForward + (state.blockToProcess - state.badAreaToProcess) +
+          bigInteger conv (state.blockSize)), state.inFileSize);
+      saveState(state);
+    end while;
+  end func;
+
+
+const proc: fixOrImproveFile (inout stateType: state) is func
   local
     var file: inFile is STD_NULL;
     var file: outFile is STD_NULL;
-    var bigInteger: inFileSize is 0_;
-    var bigInteger: position is 0_;
-    var bigInteger: currBadBlock is 0_;
-    var bigInteger: blockSize is 0_;
-    var bigInteger: badBytesForward is 0_;
-    var bigInteger: smallBlockPosition is 0_;
-    var string: smallOriginalBlock is "";
-    var string: smallBlockToBeVerified is "";
-    var string: smallVerifiedBlock is "";
+    var bigInteger: blockPosition is 0_;
   begin
     inFile := open(state.inFileName, "r");
     outFile := open(state.outFileName, "r+");
     if inFile <> STD_NULL and outFile <> STD_NULL then
-      writeln(log, "Start fix from " <& state.inFileName <& " to " <& state.outFileName);
-      inFileSize := bigLength(inFile);
+      writeln(log, "Start " <& state.phase <& " from " <& state.inFileName <&
+          " to " <& state.outFileName);
 
-      while state.badBlockToFix <= inFileSize and not keypressed(KEYBOARD) do
-        currBadBlock := inFileSize + 1_;
-        for blockSize key position range state.badBlocks do
-          if position >= state.badBlockToFix and position < currBadBlock then
-            currBadBlock := position;
+      while state.badAreaToProcess <= state.inFileSize and not keypressed(KEYBOARD) do
+        determineBadAreaToProcess(state);
+        if state.badAreaToProcess <= state.inFileSize then
+          state.badBytesInAreasForward := countBadBytesInAreasForward(state,
+              state.badAreaToProcess + state.sizeOfBadAreaToProcess);
+          blockPosition := state.badAreaToProcess + state.sizeOfBadAreaToProcess -
+              bigInteger conv (state.blockSize);
+          if state.blockToProcess < state.badAreaToProcess or
+              state.blockToProcess >= blockPosition then
+            state.blockToProcess := blockPosition;
           end if;
-        end for;
-        if currBadBlock <= inFileSize then
-          blockSize := state.badBlocks[currBadBlock];
-          if state.badBlockToFix <> currBadBlock then
-            state.badBlockToFix := currBadBlock;
-            state.sizeOfBadBlockToFix := blockSize;
-          end if;
-          badBytesForward := countBadBytesForward(state,
-              state.badBlockToFix + state.sizeOfBadBlockToFix);
-          smallBlockPosition := currBadBlock + blockSize - bigInteger conv smallBlockSize;
-          if state.smallBadBlockToFix >= currBadBlock and
-              state.smallBadBlockToFix < smallBlockPosition then
-            smallBlockPosition := state.smallBadBlockToFix;
-          else
-            state.smallBadBlockToFix := smallBlockPosition;
-          end if;
-          showProgress(state, "fix", state.maximumOfBadBytes,
-              state.maximumOfBadBytes - (badBytesForward + (smallBlockPosition - currBadBlock)),
-              inFileSize);
-          saveState(state);
-          while smallBlockPosition >= currBadBlock and not keypressed(KEYBOARD) do
-            seek(inFile, smallBlockPosition);
-            smallOriginalBlock := gets(inFile, smallBlockSize);
-            if length(smallOriginalBlock) <> 0 then
-              seek(outFile, smallBlockPosition);
-              smallBlockToBeVerified := gets(outFile, length(smallOriginalBlock));
-              smallVerifiedBlock := repairSmallBlock(state, smallBlockPosition,
-                  smallOriginalBlock, smallBlockToBeVerified);
-              if smallVerifiedBlock <> smallBlockToBeVerified then
-                seek(outFile, smallBlockPosition);
-                write(outFile, smallBlockToBeVerified);
-              end if;
-              showProgress(state, "fix", state.maximumOfBadBytes,
-                  state.maximumOfBadBytes - (badBytesForward + (smallBlockPosition - currBadBlock)),
-                  inFileSize);
-            else
-              showProgress(state, "fix", state.maximumOfBadBytes,
-                  state.maximumOfBadBytes - (badBytesForward + (smallBlockPosition - currBadBlock)),
-                  inFileSize);
-            end if;
-            smallBlockPosition -:= bigInteger conv smallBlockSize;
-            state.smallBadBlockToFix := smallBlockPosition;
-            saveState(state);
-          end while;
-          if smallBlockPosition < currBadBlock then
-            state.badBlockToFix +:= state.sizeOfBadBlockToFix;
-            state.sizeOfBadBlockToFix := 0_;
+          processAreaBackward(state, inFile, outFile);
+          if state.blockToProcess < state.badAreaToProcess then
+            state.badAreaToProcess +:= state.sizeOfBadAreaToProcess;
+            state.sizeOfBadAreaToProcess := 0_;
             saveState(state);
           end if;
-        else
-          state.badBlockToFix := currBadBlock;
         end if;
       end while;
 
-      if state.badBlockToFix > inFileSize then
-        if state.maximumOfBadBytes <> 0_ then
-          showProgress(state, "fix", state.maximumOfBadBytes,
-              state.maximumOfBadBytes - (badBytesForward + (smallBlockPosition - currBadBlock)),
-              inFileSize);
+      if state.badAreaToProcess > state.inFileSize then
+        state.blockToProcess := state.inFileSize + 1_;
+        if state.badBytesToProcess <> 0_ then
+          showProgress(state, state.badBytesToProcess, state.badBytesToProcess, state.inFileSize);
         end if;
-        writeln;
-        writeln;
-        writeln("Saving finished");
-        writeln(log, "Stop fix from " <& state.inFileName <& " to " <& state.outFileName);
+        writeln(log, "Stop " <& state.phase <& " from " <& state.inFileName <&
+            " to " <& state.outFileName);
+        nextPhase(state);
       else
         writeln;
         writeln;
-        writeln("Fix paused - To continue restart the program");
-        writeln(log, "Pause fix from " <& state.inFileName <& " to " <& state.outFileName);
+        if state.phase = FIX then
+          writeln("Fix paused - To continue restart the program");
+        else
+          writeln("Improve paused - To continue restart the program");
+        end if;
+        writeln(log, "Pause " <& state.phase <& " from " <& state.inFileName <&
+            " to " <& state.outFileName);
       end if;
       close(inFile);
       close(outFile);
@@ -797,37 +898,36 @@ const proc: fixHoles (inout stateType: state) is func
 const proc: writeHelp is func
   begin
     writeln;
-    writeln("The Savehd7 utility can be used to save a partially damaged harddisk");
-    writeln("partition to an image file.");
+    writeln("The Savehd7 utility can be used to save a potentially damaged harddisk");
+    writeln("partition to an image file. Savehd7 works for all filesystems.");
     writeln;
     writeln("The Savehd7 program is designed to copy from a device file to a disk");
-    writeln("image file even when read errors occur. It will try to copy as much");
-    writeln("as possible and leave the unreadable blocks filled with zero bytes.");
-    writeln("The file system checker can fix the saved disk image afterwards.");
-    writeln("Finally the saved and repaired disk image file can be mounted with");
-    writeln("the loop mount feature (which can mount a file as if it is a device).");
+    writeln("image file even when read errors occur. It will try to copy as much as");
+    writeln("possible and leave the unreadable blocks filled with zero bytes. The");
+    writeln("file system checker can fix the saved disk image afterwards. Finally the");
+    writeln("saved and repaired disk image file can be mounted with the loop mount");
+    writeln("feature (which can mount a file as if it is a device).");
     writeln;
-    writeln("A harddisk partition is saved by copying from the corresponding");
-    writeln("device file. Operating systems without device files are not");
-    writeln("supported. To get access to the device file the Savehd7 program needs");
-    writeln("to be started as superuser. While Savehd7 is running no filesystem");
-    writeln("should be mounted on this device file. Other programs which possibly");
-    writeln("change the device file, such as a filesystem checker, should not run");
-    writeln("in parallel to Savehd7. It must be also ensured that the destination");
-    writeln("device has enough free space to copy the whole harddisk partition.");
+    writeln("Several conditions must be fulfilled to use Savehd7:");
+    writeln("- Operating systems without device files are not supported.");
+    writeln("- To get access to the device file Savehd7 must be started as superuser.");
+    writeln("- Nothing should be mounted on the device file processed by Savehd7.");
+    writeln("- Programs which possibly change the device file such as filesystem");
+    writeln("  checkers should not run in parallel to Savehd7.");
+    writeln("- There must be enough free space on the destination device to copy the");
+    writeln("  whole partition.");
     writeln;
-    writeln("When operating systems encounter a bad block they usually retry the");
-    writeln("'read' operation again and again in the hope to succeed finally.");
-    writeln("Therefore copying from a damaged harddisk can take very long (many");
-    writeln("hours even up to whole days). When Savehd7 is processing it can be");
-    writeln("interrupted by pressing a key. Since the OS is spending so much time");
-    writeln("to read bad blocks it may take some time until Savehd7 has a chance");
-    writeln("to save the processing state and exit afterwards. When Savehd7 is");
-    writeln("started again it can continue at the place where it was interrupted.");
-    writeln("Savehd7 should not be interrupted with control-C or some other");
-    writeln("signal, since this does not allow to save the processing state. The");
-    writeln("file \"savehd7.dat\" is used to maintain the processing state.");
-    writeln("Savehd7 writes also logging information to the file \"savehd7.log\".");
+    writeln("Operating systems usually retry to read bad blocks again and again in");
+    writeln("the hope to succeed finally. Therefore copying from a damaged harddisk");
+    writeln("can take very long (many hours even up to several days). When Savehd7 is");
+    writeln("processing it can be interrupted by pressing any key. Since the OS");
+    writeln("spends so much time reading bad blocks it may take some time until");
+    writeln("Savehd7 has a chance to save the processing state and exit afterwards.");
+    writeln("Savehd7 should not be interrupted with control-C or some other signal,");
+    writeln("since this prevents saving the processing state. When Savehd7 is");
+    writeln("restarted it can continue at the position where it was interrupted. The");
+    writeln("file \"savehd7.dat\" is used to maintain the processing state. Savehd7");
+    writeln("writes also logging information to the file \"savehd7.log\".");
     writeln;
   end func;
 
@@ -836,7 +936,7 @@ const proc: main is func
   local
     var stateType: state is stateType.value;
   begin
-    writeln("Savehd7 Version 2.0 - Save a possibly damaged harddisk partition");
+    writeln("Savehd7 Version 2.1 - Save a potentially damaged harddisk partition");
     writeln("Copyright (C) 2006, 2009 Thomas Mertes");
     writeln("This is free software; see the source for copying conditions.  There is NO");
     writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
@@ -855,14 +955,19 @@ const proc: main is func
           log := open_line(log);
           writeln;
           writeln("Processing - Press any key to pause (may take some time to react)");
-          writeln("        progress:      done:  bad blks:     fixed:   bad bytes:");
-          copyFile(state);
-          if state.verifyPosition <> 0_ and not keypressed(KEYBOARD) then
-            verifyFile(state);
+          writeln("         progress:      okay:  bad blks:     fixed:   bad bytes:");
+          if state.phase = COPY then
+            copyFile(state);
           end if;
-          if state.verifyRunsToDo = 0 and not keypressed(KEYBOARD) then
-            fixHoles(state);
-          end if;
+          while state.phase = REREAD and not keypressed(KEYBOARD) do
+            rereadFile(state);
+          end while;
+          while state.phase = IMPROVE and not keypressed(KEYBOARD) do
+            fixOrImproveFile(state);
+          end while;
+          while state.phase = FIX and not keypressed(KEYBOARD) do
+            fixOrImproveFile(state);
+          end while;
           saveState(state);
         end if;
       end if;

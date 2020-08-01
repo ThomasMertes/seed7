@@ -153,7 +153,13 @@ version.h:
 	echo #define USE_MYUNISTD_H >> version.h
 	echo #define INT64TYPE __int64 >> version.h
 	echo #define UINT64TYPE unsigned __int64 >> version.h
-	echo #define USE_WFOPEN >> version.h
+	echo #define WCHAR_OS_PATH >> version.h
+	echo #define os_chdir _wchdir >> version.h
+	echo #define os_mkdir(path,mode) _wmkdir(path) >> version.h
+	echo #define os_fstat _fstati64 >> version.h
+	echo #define os_stat _wstati64 >> version.h
+	echo #define os_stat_struct struct _stati64 >> version.h
+	echo #define wide_fopen _wfopen >> version.h
 	echo #define USE_WOPENDIR >> version.h
 	echo #define USE_FSEEKI64 >> version.h
 	echo #define USE_WINSOCK >> version.h

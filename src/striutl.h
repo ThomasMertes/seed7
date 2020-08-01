@@ -34,13 +34,24 @@
 #define free_wstri(wstri,stri) free(wstri);
 #define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
 
+#ifdef WCHAR_OS_PATH
+typedef wchar_t *os_path_stri;
+#define cp_to_os_path cp_to_wstri
+#define free_os_path  free_wstri
+#else
+typedef cstritype os_path_stri;
+#define cp_to_os_path cp_to_cstri
+#define free_os_path  free_cstri
+#endif
+
+
 #ifdef ANSI_C
 
 memsizetype stri_to_utf8 (ustritype, const_stritype);
 memsizetype utf8_to_stri (strelemtype *, memsizetype *, const_ustritype, SIZE_TYPE);
 memsizetype utf8_bytes_missing (const_ustritype, SIZE_TYPE);
 cstritype cp_to_cstri (const_stritype);
-#ifdef USE_WFOPEN
+#ifdef WCHAR_OS_PATH
 wchar_t *cp_to_wstri (stritype);
 #endif
 bstritype stri_to_bstri (stritype);
@@ -57,7 +68,7 @@ memsizetype stri_to_utf8 ();
 memsizetype utf8_to_stri ();
 memsizetype utf8_bytes_missing ();
 cstritype cp_to_cstri ();
-#ifdef USE_WFOPEN
+#ifdef WCHAR_OS_PATH
 wchar_t *cp_to_wstri ();
 #endif
 bstritype stri_to_bstri ();
@@ -71,7 +82,7 @@ cstritype cp_to_command ();
 #endif
 
 
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
 
 #ifdef ANSI_C
 

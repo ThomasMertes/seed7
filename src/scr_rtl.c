@@ -131,7 +131,7 @@ stritype stri;
   /* must be done with this function.                               */
 
   { /* scrWrite */
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
     if (stri->size <= 256) {
       memsizetype size;
       uchartype stri_buffer[6 * 256];

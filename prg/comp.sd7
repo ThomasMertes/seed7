@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  comp.sd7      Compiler from Seed7 to C                          *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2008  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2009  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -4022,6 +4022,16 @@ const proc: process_chr_value (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_cmd_big_filesize (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "cmdBigFileSize(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_cmd_chdir (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -4052,6 +4062,15 @@ const proc: process_cmd_copy (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_cmd_filesize (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdFileSize(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_cmd_filetype (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -4065,15 +4084,6 @@ const proc: process_cmd_getcwd (in ref_list: params, inout expr_type: c_expr) is
 
   begin
     c_expr.expr &:= "cmdGetcwd()";
-  end func;
-
-
-const proc: process_cmd_lng (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "cmdLng(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ")";
   end func;
 
 
@@ -11310,18 +11320,20 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "CMD" then
-      if action_name = "CMD_CHDIR" then
+      if action_name = "CMD_BIG_FILESIZE" then
+        process_cmd_big_filesize(params, c_expr);
+      elsif action_name = "CMD_CHDIR" then
         process_cmd_chdir(params, c_expr);
       elsif action_name = "CMD_CONFIG_VALUE" then
         process_cmd_config_value(params, c_expr);
       elsif action_name = "CMD_COPY" then
         process_cmd_copy(params, c_expr);
+      elsif action_name = "CMD_FILESIZE" then
+        process_cmd_filesize(params, c_expr);
       elsif action_name = "CMD_FILETYPE" then
         process_cmd_filetype(params, c_expr);
       elsif action_name = "CMD_GETCWD" then
         process_cmd_getcwd(params, c_expr);
-      elsif action_name = "CMD_LNG" then
-        process_cmd_lng(params, c_expr);
       elsif action_name = "CMD_LS" then
         process_cmd_ls(params, c_expr);
       elsif action_name = "CMD_MKDIR" then
@@ -15826,6 +15838,13 @@ const proc: write_prototypes is func
     writeln(c_prog, "biginttype  bigDiv (biginttype, biginttype);");
     writeln(c_prog, "booltype    bigEq (biginttype, biginttype);");
     writeln(c_prog, "void        bigGrow (biginttype *, biginttype);");
+    if INTTYPE_64BIT then
+      writeln(c_prog, "biginttype  bigFromInt64 (inttype);");
+      writeln(c_prog, "#define bigIConv bigFromInt64");
+    else
+      writeln(c_prog, "biginttype  bigFromInt32 (inttype);");
+      writeln(c_prog, "#define bigIConv bigFromInt32");
+    end if;
     writeln(c_prog, "void        bigIncr (biginttype *);");
     writeln(c_prog, "biginttype  bigIPow (biginttype, inttype);");
     writeln(c_prog, "biginttype  bigLog2 (biginttype);");
@@ -15835,6 +15854,13 @@ const proc: write_prototypes is func
     writeln(c_prog, "biginttype  bigMod (biginttype, biginttype);");
     writeln(c_prog, "biginttype  bigMult (biginttype, biginttype);");
     writeln(c_prog, "booltype    bigNe (biginttype, biginttype);");
+    if INTTYPE_64BIT then
+      writeln(c_prog, "inttype bigToInt64 (biginttype);");
+      writeln(c_prog, "#define bigOrd   bigToInt64");
+    else
+      writeln(c_prog, "inttype bigToInt32 (biginttype);");
+      writeln(c_prog, "#define bigOrd   bigToInt32");
+    end if;
     writeln(c_prog, "inttype     bigOrd (biginttype);");
     writeln(c_prog, "biginttype  bigParse (stritype);");
     writeln(c_prog, "void        blnCpy (booltype *, booltype);");
@@ -15845,9 +15871,10 @@ const proc: write_prototypes is func
     writeln(c_prog, "chartype    chrLow (chartype);");
     writeln(c_prog, "stritype    chrStr (chartype);");
     writeln(c_prog, "chartype    chrUp (chartype);");
+    writeln(c_prog, "biginttype  cmdBigFileSize (stritype);");
     writeln(c_prog, "void        cmdCopy (stritype, stritype);");
+    writeln(c_prog, "inttype     cmdFileSize (stritype);");
     writeln(c_prog, "stritype    cmdGetcwd (void);");
-    writeln(c_prog, "inttype     cmdLng (stritype);");
     writeln(c_prog, "arraytype   cmdLs (stritype);");
     writeln(c_prog, "void        cmdMove (stritype, stritype);");
     writeln(c_prog, "void        cmdRemove (stritype);");
@@ -17011,7 +17038,7 @@ const proc: main is func
     var boolean: okay is TRUE;
 
   begin
-    writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1990-2008 Thomas Mertes");
+    writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1990-2009 Thomas Mertes");
     if length(argv(PROGRAM)) >= 1 then
       number := 1;
       while number <= length(argv(PROGRAM)) do

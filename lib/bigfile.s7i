@@ -26,25 +26,28 @@
 (********************************************************************)
 
 
+const func bigInteger: bigFileSize (in string param) is action "CMD_BIG_FILESIZE";
+
+
 (* PRIMITIVE_FILE *)
 
-const func bigInteger: bigLength (ref PRIMITIVE_FILE param) is        action "FIL_BIG_LNG";
-const proc: seek (ref PRIMITIVE_FILE param, ref bigInteger param) is  action "FIL_BIG_SEEK";
-const func bigInteger: bigTell (ref PRIMITIVE_FILE param) is          action "FIL_BIG_TELL";
+const func bigInteger: bigLength (ref PRIMITIVE_FILE param)       is action "FIL_BIG_LNG";
+const proc: seek (ref PRIMITIVE_FILE param, ref bigInteger param) is action "FIL_BIG_SEEK";
+const func bigInteger: bigTell (ref PRIMITIVE_FILE param)         is action "FIL_BIG_TELL";
 
 
 (* file *)
 
-const func bigInteger: bigLength (ref file param) is DYNAMIC;
+const func bigInteger: bigLength (ref file param)       is DYNAMIC;
 const proc: seek (ref file param, ref bigInteger param) is DYNAMIC;
-const func bigInteger: bigTell (ref file param) is DYNAMIC;
+const func bigInteger: bigTell (ref file param)         is DYNAMIC;
 
 
 (* null_file *)
 
-const bigInteger: bigLength (ref null_file param) is 0_;
+const bigInteger: bigLength (ref null_file param)            is 0_;
 const proc: seek (ref null_file param, ref bigInteger param) is noop;
-const bigInteger: bigTell (ref null_file param) is 1_;
+const bigInteger: bigTell (ref null_file param)              is 1_;
 
 
 (* external_file *)

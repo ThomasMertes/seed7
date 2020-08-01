@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_gmp.c     Functions for bigInteger using the gmp library.   */
-/*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_gmp.c                                       */
-/*  Changes: 2008  Thomas Mertes                                    */
+/*  Changes: 2008, 2009  Thomas Mertes                              */
 /*  Content: Functions for bigInteger using the gmp library.        */
 /*                                                                  */
 /********************************************************************/
@@ -474,6 +474,52 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
+gmpBiginttype bigFromInt32 (int32type number)
+#else
+
+gmpBiginttype bigFromInt32 (number)
+int32type number;
+#endif
+
+  {
+    gmpBiginttype result;
+
+  /* bigFromInt32 */
+    result = malloc(sizeof(__mpz_struct));
+    mpz_init_set_si(result, number);
+    return(result);
+  } /* bigFromInt32 */
+
+
+
+#ifdef INT64TYPE
+#ifdef ANSI_C
+
+gmpBiginttype bigFromInt64 (int64type number)
+#else
+
+gmpBiginttype bigFromInt64 (number)
+int64type number;
+#endif
+
+  {
+    mpz_t help;
+    gmpBiginttype result;
+
+  /* bigFromInt64 */
+    result = malloc(sizeof(__mpz_struct));
+    mpz_init_set_si(result, number >> 32);
+    mpz_mul_2exp(result, result, 32);
+    mpz_init_set_ui(help, number);
+    mpz_ior(result, result, help);
+    return(result);
+  } /* bigFromInt64 */
+#endif
+
+
+
+#ifdef ANSI_C
+
 gmpBiginttype bigFromUInt32 (uint32type number)
 #else
 
@@ -581,26 +627,6 @@ gmpBiginttype big1;
       result = mpz_getlimbn(big1, 0) << 5 ^ count << 3 ^ mpz_getlimbn(big1, count - 1);
     return(result);
   } /* bigHashCode */
-
-
-
-#ifdef ANSI_C
-
-gmpBiginttype bigIConv (inttype number)
-#else
-
-gmpBiginttype bigIConv (number)
-inttype number;
-#endif
-
-  {
-    gmpBiginttype result;
-
-  /* bigIConv */
-    result = malloc(sizeof(__mpz_struct));
-    mpz_init_set_si(result, number);
-    return(result);
-  } /* bigIConv */
 
 
 
@@ -957,26 +983,6 @@ gmpBiginttype big1;
   { /* bigOdd */
     return(mpz_odd_p(big1));
   } /* bigOdd */
-
-
-
-#ifdef ANSI_C
-
-inttype bigOrd (const const_gmpBiginttype big1)
-#else
-
-inttype bigOrd (big1)
-gmpBiginttype big1;
-#endif
-
-  { /* bigOrd */
-    if (!mpz_fits_slong_p(big1)) {
-      raise_error(RANGE_ERROR);
-      return(0);
-    } else {
-      return(mpz_get_si(big1));
-    } /* if */
-  } /* bigOrd */
 
 
 

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  cmd_rtl.c     Primitive actions for various commands.           */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_rtl.c                                       */
-/*  Changes: 1994, 2006  Thomas Mertes                              */
+/*  Changes: 1994, 2006, 2009  Thomas Mertes                        */
 /*  Content: Primitive actions for various commands.                */
 /*                                                                  */
 /********************************************************************/
@@ -44,7 +44,9 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "str_rtl.h"
+#include "fil_rtl.h"
 #include "dir_rtl.h"
+#include "big_drv.h"
 #include "rtl_err.h"
 
 #ifdef USE_MYUNISTD_H
@@ -62,120 +64,8 @@
 #include "cmd_rtl.h"
 
 
-#undef TRACE_CMD_RTL
-
-
 #ifndef PATH_MAX
 #define PATH_MAX 2048
-#endif
-
-
-#ifndef S_ISLNK
-#ifdef S_IFLNK
-#define S_ISLNK(mode) (((mode) & S_IFMT) == S_IFLNK)
-#else
-#define S_ISLNK(mode) FALSE
-#endif
-#endif
-
-#ifndef S_ISSOCK
-#ifdef S_IFSOCK
-#define S_ISSOCK(mode) (((mode) & S_IFMT) == S_IFSOCK)
-#else
-#define S_ISSOCK(mode) FALSE
-#endif
-#endif
-
-#ifndef S_ISCHR
-#ifdef S_IFCHR
-#define S_ISCHR(mode) (((mode) & S_IFMT) == S_IFCHR)
-#else
-#define S_ISCHR(mode) FALSE
-#endif
-#endif
-
-#ifndef S_ISBLK
-#ifdef S_IFBLK
-#define S_ISBLK(mode) (((mode) & S_IFMT) == S_IFBLK)
-#else
-#define S_ISBLK(mode) FALSE
-#endif
-#endif
-
-#ifndef S_ISFIFO
-#ifdef S_IFFIFO
-#define S_ISFIFO(mode) (((mode) & S_IFMT) == S_IFFIFO)
-#else
-#define S_ISFIFO(mode) FALSE
-#endif
-#endif
-
-#ifndef S_ISDIR
-#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
-#endif
-
-#ifndef S_ISREG
-#define S_ISREG(mode) (((mode) & S_IFMT) == S_IFREG)
-#endif
-
-#ifndef S_IRUSR
-#ifdef S_IREAD
-#define S_IRUSR S_IREAD
-#else
-#define S_IRUSR 0000400
-#endif
-#endif
-
-#ifndef S_IWUSR
-#ifdef S_IREAD
-#define S_IWUSR S_IWRITE
-#else
-#define S_IWUSR 0000200
-#endif
-#endif
-
-#ifndef S_IXUSR
-#ifdef S_IREAD
-#define S_IXUSR S_IEXEC
-#else
-#define S_IXUSR 0000100
-#endif
-#endif
-
-#ifndef S_IRGRP
-#define S_IRGRP 0000040
-#endif
-
-#ifndef S_IWGRP
-#define S_IWGRP 0000020
-#endif
-
-#ifndef S_IXGRP
-#define S_IXGRP 0000010
-#endif
-
-#ifndef S_IROTH
-#define S_IROTH 0000004
-#endif
-
-#ifndef S_IWOTH
-#define S_IWOTH 0000002
-#endif
-
-#ifndef S_IXOTH
-#define S_IXOTH 0000001
-#endif
-
-#ifndef S_IRWXU
-#define S_IRWXU (S_IRUSR | S_IWUSR | S_IXUSR)
-#endif
-
-#ifndef S_IRWXG
-#define S_IRWXG (S_IRGRP | S_IWGRP | S_IXGRP)
-#endif
-
-#ifndef S_IRWXO
-#define S_IRWXO (S_IROTH | S_IWOTH | S_IXOTH)
 #endif
 
 
@@ -638,6 +528,62 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
+biginttype cmdBigFileSize (stritype file_name)
+#else
+
+biginttype cmdBigFileSize (file_name)
+stritype file_name;
+#endif
+
+  {
+    os_path_stri os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
+    filetype aFile;
+    errinfotype err_info = OKAY_NO_ERROR;
+    biginttype result;
+
+  /* cmdBigFileSize */
+    os_path = cp_to_os_path(file_name);
+    if (os_path == NULL) {
+      err_info = MEMORY_ERROR;
+      result = 0;
+    } else {
+      stat_result = os_stat(os_path, &stat_buf);
+      if (stat_result == 0 && S_ISREG(stat_buf.st_mode)) {
+        if (sizeof(stat_buf.st_size) == 8) {
+          result = bigFromUInt64(stat_buf.st_size);
+        } else {
+          result = bigFromUInt32(stat_buf.st_size);
+        } /* if */
+      } else if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
+        result = bigIConv(0);
+      } else {
+#ifdef WCHAR_OS_PATH
+        aFile = wide_fopen(os_path, L"r");
+#else
+        aFile = fopen(os_path, "r");
+#endif
+        if (aFile == NULL) {
+          err_info = FILE_ERROR;
+          result = 0;
+        } else {
+          result = getBigFileLengthUsingSeek(aFile);
+          fclose(aFile);
+        } /* if */
+      } /* if */
+      free_os_path(os_path, file_name);
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } /* if */
+    return(result);
+  } /* cmdBigFileSize */
+
+
+
+#ifdef ANSI_C
+
 void cmdChdir (stritype dir_name)
 #else
 
@@ -646,18 +592,18 @@ stritype dir_name;
 #endif
 
   {
-    cstritype os_dir_name;
+    os_path_stri os_path;
+    int chdir_result;
 
   /* cmdChdir */
-    os_dir_name = cp_to_cstri(dir_name);
-    if (os_dir_name == NULL) {
+    os_path = cp_to_os_path(dir_name);
+    if (os_path == NULL) {
       raise_error(MEMORY_ERROR);
     } else {
-      if (chdir(os_dir_name) != 0) {
-        free_cstri(os_dir_name, dir_name);
+      chdir_result = os_chdir(os_path);
+      free_os_path(os_path, dir_name);
+      if (chdir_result != 0) {
         raise_error(FILE_ERROR);
-      } else {
-        free_cstri(os_dir_name, dir_name);
       } /* if */
     } /* if */
   } /* cmdChdir */
@@ -817,26 +763,85 @@ stritype file_name;
 #endif
 
   {
-    cstritype os_file_name;
-    struct stat stat_buf;
+    os_path_stri os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
     inttype result;
 
   /* cmdFileCTime */
-    os_file_name = cp_to_cstri(file_name);
-    if (os_file_name == NULL) {
+    os_path = cp_to_os_path(file_name);
+    if (os_path == NULL) {
       raise_error(MEMORY_ERROR);
       return(0);
     } else {
-      if (stat(os_file_name, &stat_buf) == 0) {
+      stat_result = os_stat(os_path, &stat_buf);
+      free_os_path(os_path, dir_name);
+      if (stat_result == 0) {
         stat_buf.st_ctime;
       } else {
         result = 0;
       } /* if */
-      free_cstri(os_file_name, file_name);
     } /* if */
     return(result);
   } /* cmdFileCTime */
 #endif
+
+
+
+#ifdef ANSI_C
+
+inttype cmdFileSize (stritype file_name)
+#else
+
+inttype cmdFileSize (file_name)
+stritype file_name;
+#endif
+
+  {
+    os_path_stri os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
+    filetype aFile;
+    errinfotype err_info = OKAY_NO_ERROR;
+    inttype result;
+
+  /* cmdFileSize */
+    os_path = cp_to_os_path(file_name);
+    if (os_path == NULL) {
+      err_info = MEMORY_ERROR;
+      result = 0;
+    } else {
+      stat_result = os_stat(os_path, &stat_buf);
+      if (stat_result == 0 && S_ISREG(stat_buf.st_mode)) {
+        if (stat_buf.st_size > MAX_INTEGER || stat_buf.st_size < 0) {
+          err_info = RANGE_ERROR;
+          result = 0;
+        } else {
+          result = (inttype) stat_buf.st_size;
+        } /* if */
+      } else if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
+        result = 0;
+      } else {
+#ifdef WCHAR_OS_PATH
+        aFile = wide_fopen(os_path, L"r");
+#else
+        aFile = fopen(os_path, "r");
+#endif
+        if (aFile == NULL) {
+          err_info = FILE_ERROR;
+          result = 0;
+        } else {
+          result = getFileLengthUsingSeek(aFile);
+          fclose(aFile);
+        } /* if */
+      } /* if */
+      free_os_path(os_path, file_name);
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } /* if */
+    return(result);
+  } /* cmdFileSize */
 
 
 
@@ -850,17 +855,20 @@ stritype file_name;
 #endif
 
   {
-    cstritype os_file_name;
-    struct stat stat_buf;
+    os_path_stri os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
     inttype result;
 
   /* cmdFileType */
-    os_file_name = cp_to_cstri(file_name);
-    if (os_file_name == NULL) {
+    os_path = cp_to_os_path(file_name);
+    if (os_path == NULL) {
       raise_error(MEMORY_ERROR);
       return(0);
     } else {
-      if (stat(os_file_name, &stat_buf) == 0) {
+      stat_result = os_stat(os_path, &stat_buf);
+      free_os_path(os_path, dir_name);
+      if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
           result = 1;
         } else if (S_ISDIR(stat_buf.st_mode)) {
@@ -881,7 +889,6 @@ stritype file_name;
       } else {
         result = 0;
       } /* if */
-      free_cstri(os_file_name, file_name);
     } /* if */
     return(result);
   } /* cmdFileType */
@@ -915,38 +922,6 @@ stritype cmdGetcwd ()
       } /* if */
     } /* if */
   } /* cmdGetcwd */
-
-
-
-#ifdef ANSI_C
-
-inttype cmdLng (stritype file_name)
-#else
-
-inttype cmdLng (file_name)
-stritype file_name;
-#endif
-
-  {
-    cstritype os_file_name;
-    struct stat stat_buf;
-    inttype result;
-
-  /* cmdLng */
-    os_file_name = cp_to_cstri(file_name);
-    if (os_file_name == NULL) {
-      raise_error(MEMORY_ERROR);
-      return(0);
-    } else {
-      if (stat(os_file_name, &stat_buf) == 0) {
-        result = (inttype) stat_buf.st_size;
-      } else {
-        result = 0;
-      } /* if */
-      free_cstri(os_file_name, file_name);
-    } /* if */
-    return(result);
-  } /* cmdLng */
 
 
 
@@ -987,18 +962,18 @@ stritype dir_name;
 #endif
 
   {
-    cstritype os_dir_name;
+    os_path_stri os_path;
+    int mkdir_result;
 
   /* cmdMkdir */
-    os_dir_name = cp_to_cstri(dir_name);
-    if (os_dir_name == NULL) {
+    os_path = cp_to_os_path(dir_name);
+    if (os_path == NULL) {
       raise_error(MEMORY_ERROR);
     } else {
-      if (mkdir(os_dir_name, 0777) != 0) {
-        free_cstri(os_dir_name, dir_name);
+      mkdir_result = os_mkdir(os_path, 0777);
+      free_os_path(os_path, dir_name);
+      if (mkdir_result != 0) {
         raise_error(FILE_ERROR);
-      } else {
-        free_cstri(os_dir_name, dir_name);
       } /* if */
     } /* if */
   } /* cmdMkdir */
@@ -1190,12 +1165,12 @@ FILE *stream;
 
   {
     int file_no;
-    struct stat stat_buf;
+    os_stat_struct stat_buf;
     int result;
 
   /* improved_ftell */
     file_no = fileno(stream);
-    if (file_no != -1 && fstat(file_no, &stat_buf) == 0 &&
+    if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
         S_ISREG(stat_buf.st_mode)) {
       result = ftell(stream);
     } else {

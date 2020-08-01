@@ -268,7 +268,7 @@ listtype arguments;
   /* scr_write */
     isit_stri(arg_2(arguments));
     stri = take_stri(arg_2(arguments));
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
     if (stri->size <= 256) {
       memsizetype size;
       uchartype stri_buffer[6 * 256];

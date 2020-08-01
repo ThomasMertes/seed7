@@ -222,7 +222,7 @@ const proc: status (in string: stri, inout header: head) is func
     head.mode :=     33261; (*!!*)
     head.uid :=      100;
     head.gid :=      100;
-    head.size :=     file_size(stri);
+    head.size :=     fileSize(stri);
     head.mtime :=    0;
     head.chksum :=   0;
     head.typeflag := '0';

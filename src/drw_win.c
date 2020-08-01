@@ -2005,7 +2005,7 @@ inttype bkcol;
 #endif
 
   { /* drwText */
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
     {
       WORD *stri_buffer;
       WORD *wstri;

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_rtl.c     Primitive actions for the primitive file type.    */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/fil_rtl.c                                       */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Changes: 1992, 1993, 1994, 2009  Thomas Mertes                  */
 /*  Content: Primitive actions for the primitive file type.         */
 /*                                                                  */
 /********************************************************************/
@@ -161,6 +161,140 @@ stritype file_mode;
 
 #ifdef ANSI_C
 
+inttype getFileLengthUsingSeek (filetype aFile)
+#else
+
+inttype getFileLengthUsingSeek (aFile)
+filetype aFile;
+#endif
+
+  {
+    offsettype current_file_position;
+    offsettype file_length;
+    inttype result;
+
+  /* getFileLengthUsingSeek */
+#ifdef myLseek
+    fflush(aFile);
+    current_file_position = myLseek(fileno(aFile), (offsettype) 0, SEEK_CUR);
+    if (current_file_position == (offsettype) -1) {
+      raise_error(FILE_ERROR);
+      result = 0;
+    } else {
+      file_length = myLseek(fileno(aFile), (offsettype) 0, SEEK_END);
+      if (file_length == (offsettype) -1) {
+        raise_error(FILE_ERROR);
+        result = 0;
+      } else {
+        if (myLseek(fileno(aFile), current_file_position, SEEK_SET) == (offsettype) -1) {
+          raise_error(FILE_ERROR);
+          result = 0;
+        } else {
+          if (file_length > MAX_INTEGER || file_length < (offsettype) 0) {
+            raise_error(RANGE_ERROR);
+            result = 0;
+          } else {
+            result = (inttype) file_length;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+#else
+    current_file_position = myFtell(aFile);
+    if (current_file_position == -1) {
+      raise_error(FILE_ERROR);
+      result = 0;
+    } else if (myFseek(aFile, (offsettype) 0, SEEK_END) != 0) {
+      raise_error(FILE_ERROR);
+      result = 0;
+    } else {
+      file_length = myFtell(aFile);
+      if (file_length == -1) {
+        raise_error(FILE_ERROR);
+        result = 0;
+      } else if (myFseek(aFile, current_file_position, SEEK_SET) != 0) {
+        raise_error(FILE_ERROR);
+        result = 0;
+      } else {
+        if (file_length > MAX_INTEGER || file_length < (offsettype) 0) {
+          raise_error(RANGE_ERROR);
+          result = 0;
+        } else {
+          result = (inttype) file_length;
+        } /* if */
+      } /* if */
+    } /* if */
+#endif
+    return(result);
+  } /* getFileLengthUsingSeek */
+
+
+
+#ifdef ANSI_C
+
+biginttype getBigFileLengthUsingSeek (filetype aFile)
+#else
+
+biginttype getBigFileLengthUsingSeek (aFile)
+filetype aFile;
+#endif
+
+  {
+    offsettype current_file_position;
+    offsettype file_length;
+    biginttype result;
+
+  /* getBigFileLengthUsingSeek */
+#ifdef myLseek
+    fflush(aFile);
+    current_file_position = myLseek(fileno(aFile), (offsettype) 0, SEEK_CUR);
+    if (current_file_position == (offsettype) -1) {
+      raise_error(FILE_ERROR);
+      result = NULL;
+    } else {
+      file_length = myLseek(fileno(aFile), (offsettype) 0, SEEK_END);
+      if (file_length == (offsettype) -1) {
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else if (myLseek(fileno(aFile), current_file_position, SEEK_SET) == (offsettype) -1) {
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else if (sizeof(offsettype) == 8) {
+        result = bigFromUInt64(file_length);
+      } else {
+        result = bigFromUInt32(file_length);
+      } /* if */
+    } /* if */
+#else
+    current_file_position = myFtell(aFile);
+    if (current_file_position == -1) {
+      raise_error(FILE_ERROR);
+      result = NULL;
+    } else if (myFseek(aFile, (offsettype) 0, SEEK_END) != 0) {
+      raise_error(FILE_ERROR);
+      result = NULL;
+    } else {
+      file_length = myFtell(aFile);
+      if (file_length == -1) {
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else if (myFseek(aFile, current_file_position, SEEK_SET) != 0) {
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else if (sizeof(offsettype) == 8) {
+        result = bigFromUInt64(file_length);
+      } else {
+        result = bigFromUInt32(file_length);
+      } /* if */
+    } /* if */
+#endif
+    return(result);
+  } /* getBigFileLengthUsingSeek */
+
+
+
+#ifdef ANSI_C
+
 biginttype filBigLng (filetype aFile)
 #else
 
@@ -169,53 +303,23 @@ filetype aFile;
 #endif
 
   {
-    offsettype current_file_position;
-    offsettype file_length;
+    int file_no;
+    os_stat_struct stat_buf;
+    biginttype result;
 
   /* filBigLng */
-#ifdef myLseek
-    fflush(aFile);
-    current_file_position = myLseek(fileno(aFile), (offsettype) 0, SEEK_CUR);
-    if (current_file_position == (offsettype) -1) {
-      raise_error(FILE_ERROR);
-      return(NULL);
-    } else {
-      file_length = myLseek(fileno(aFile), (offsettype) 0, SEEK_END);
-      if (file_length == (offsettype) -1) {
-        raise_error(FILE_ERROR);
-        return(NULL);
-      } else if (myLseek(fileno(aFile), current_file_position, SEEK_SET) == (offsettype) -1) {
-        raise_error(FILE_ERROR);
-        return(NULL);
-      } else if (sizeof(offsettype) == 8) {
-        return(bigFromUInt64(file_length));
+    file_no = fileno(aFile);
+    if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
+        S_ISREG(stat_buf.st_mode)) {
+      if (sizeof(stat_buf.st_size) == 8) {
+        result = bigFromUInt64(stat_buf.st_size);
       } else {
-        return(bigFromUInt32(file_length));
+        result = bigFromUInt32(stat_buf.st_size);
       } /* if */
-    } /* if */
-#else
-    current_file_position = myFtell(aFile);
-    if (current_file_position == -1) {
-      raise_error(FILE_ERROR);
-      return(NULL);
-    } else if (myFseek(aFile, (offsettype) 0, SEEK_END) != 0) {
-      raise_error(FILE_ERROR);
-      return(NULL);
     } else {
-      file_length = myFtell(aFile);
-      if (file_length == -1) {
-        raise_error(FILE_ERROR);
-        return(NULL);
-      } else if (myFseek(aFile, current_file_position, SEEK_SET) != 0) {
-        raise_error(FILE_ERROR);
-        return(NULL);
-      } else if (sizeof(offsettype) == 8) {
-        return(bigFromUInt64(file_length));
-      } else {
-        return(bigFromUInt32(file_length));
-      } /* if */
+      result = getBigFileLengthUsingSeek(aFile);
     } /* if */
-#endif
+    return(result);
   } /* filBigLng */
 
 
@@ -391,7 +495,7 @@ inttype length;
           } /* while */
         } /* if */
       } /* if */
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       if (result_size > 0) {
         uchartype *from = &((uchartype *) result->mem)[result_size - 1];
         strelemtype *to = &result->mem[result_size - 1];
@@ -566,61 +670,24 @@ filetype aFile;
 #endif
 
   {
-    offsettype current_file_position;
-    offsettype file_length;
+    int file_no;
+    os_stat_struct stat_buf;
+    inttype result;
 
   /* filLng */
-#ifdef myLseek
-    fflush(aFile);
-    current_file_position = myLseek(fileno(aFile), (offsettype) 0, SEEK_CUR);
-    if (current_file_position == (offsettype) -1) {
-      raise_error(FILE_ERROR);
-      return(0);
-    } else {
-      file_length = myLseek(fileno(aFile), (offsettype) 0, SEEK_END);
-      if (file_length == (offsettype) -1) {
-        raise_error(FILE_ERROR);
-        return(0);
+    file_no = fileno(aFile);
+    if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
+        S_ISREG(stat_buf.st_mode)) {
+      if (stat_buf.st_size > MAX_INTEGER || stat_buf.st_size < 0) {
+        raise_error(RANGE_ERROR);
+        result = 0;
       } else {
-        if (myLseek(fileno(aFile), current_file_position, SEEK_SET) == (offsettype) -1) {
-          raise_error(FILE_ERROR);
-          return(0);
-        } else {
-          if (file_length > MAX_INTEGER || file_length < (offsettype) 0) {
-            raise_error(RANGE_ERROR);
-            return(0);
-          } else {
-            return(file_length);
-          } /* if */
-        } /* if */
+        result = (inttype) stat_buf.st_size;
       } /* if */
-    } /* if */
-#else
-    current_file_position = myFtell(aFile);
-    if (current_file_position == -1) {
-      raise_error(FILE_ERROR);
-      return(0);
-    } else if (myFseek(aFile, (offsettype) 0, SEEK_END) != 0) {
-      raise_error(FILE_ERROR);
-      return(0);
     } else {
-      file_length = myFtell(aFile);
-      if (file_length == -1) {
-        raise_error(FILE_ERROR);
-        return(0);
-      } else if (myFseek(aFile, current_file_position, SEEK_SET) != 0) {
-        raise_error(FILE_ERROR);
-        return(0);
-      } else {
-        if (file_length > MAX_INTEGER || file_length < (offsettype) 0) {
-          raise_error(RANGE_ERROR);
-          return(0);
-        } else {
-          return(file_length);
-        } /* if */
-      } /* if */
+      result = getFileLengthUsingSeek(aFile);
     } /* if */
-#endif
+    return(result);
   } /* filLng */
 
 
@@ -636,42 +703,35 @@ stritype file_mode;
 #endif
 
   {
-#ifdef USE_WFOPEN
-    wchar_t *name;
-    wchar_t wide_mode[4];
-#else
-    cstritype name;
-#endif
+    os_path_stri os_path;
     char mode[4];
+#ifdef WCHAR_OS_PATH
+    wchar_t wide_mode[4];
+#endif
     filetype result;
 
   /* filOpen */
-#ifdef USE_WFOPEN
-    name = cp_to_wstri(file_name);
-#else
-    name = cp_to_cstri(file_name);
-#endif
+    os_path = cp_to_os_path(file_name);
     get_mode(mode, file_mode);
     if (mode[0] == '\0') {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (name == NULL) {
+      if (os_path == NULL) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-#ifdef USE_WFOPEN
+#ifdef WCHAR_OS_PATH
         wide_mode[0] = mode[0];
         wide_mode[1] = mode[1];
         wide_mode[2] = mode[2];
         wide_mode[3] = mode[3];
-        result = _wfopen(name, wide_mode);
-        free_wstri(name, file_name);
+        result = wide_fopen(os_path, wide_mode);
 #else
-        result = fopen(name, mode);
-        free_cstri(name, file_name);
+        result = fopen(os_path, mode);
 #endif
       } /* if */
+      free_os_path(os_path, file_name);
     } /* if */
     return(result);
   } /* filOpen */
@@ -891,7 +951,7 @@ stritype stri;
 #endif
 
   { /* filWrite */
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
     {
       register strelemtype *str;
       memsizetype len;

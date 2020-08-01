@@ -66,7 +66,7 @@ static char *cstri_escape_sequence[] = {
 
 
 
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
 #ifdef ANSI_C
 
 static INLINE int strelem_memcmp (const strelemtype *mem1,
@@ -1058,7 +1058,7 @@ stritype stri;
     } else {
       result->size = length;
       for (pos = 0; pos < length; pos++) {
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
         if (((int) stri->mem[pos]) >= 'A' && ((int) stri->mem[pos]) <= 'Z') {
           result->mem[pos] = (strelemtype) (((int) stri->mem[pos]) - 'A' + 'a');
         } else {
@@ -1088,7 +1088,7 @@ stritype stri;
 
   /* strLowTemp */
     for (pos = 0; pos < stri->size; pos++) {
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
         if (((int) stri->mem[pos]) >= 'A' && ((int) stri->mem[pos]) <= 'Z') {
           stri->mem[pos] = (strelemtype) (((int) stri->mem[pos]) - 'A' + 'a');
         } else {
@@ -1126,7 +1126,7 @@ inttype pad_size;
         raise_error(MEMORY_ERROR);
       } else {
         result->size = f_size;
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
         {
           strelemtype *elem = result->mem;
           memsizetype len = f_size - length;
@@ -1178,7 +1178,7 @@ inttype pad_size;
         raise_error(MEMORY_ERROR);
       } else {
         result->size = f_size;
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
         {
           strelemtype *elem = result->mem;
           memsizetype len = f_size - length;
@@ -1230,7 +1230,7 @@ inttype pad_size;
         raise_error(MEMORY_ERROR);
       } else {
         result->size = f_size;
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
         {
           strelemtype *elem = result->mem;
           memsizetype len = f_size - length;
@@ -1351,7 +1351,7 @@ inttype factor;
       } else {
         result->size = result_size;
         if (len == 1) {
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
           ch = stri->mem[0];
           result_pointer = result->mem;
           for (number = factor; number > 0; number--) {
@@ -1433,7 +1433,7 @@ chartype char_from;
     stritype stri_dest;
 
   /* strPush */
-#ifndef WIDE_CHAR_STRINGS
+#ifndef UTF32_STRINGS
     if (char_from > (chartype) 255) {
       raise_error(RANGE_ERROR);
       return(NULL);
@@ -1450,7 +1450,7 @@ chartype char_from;
         stri_dest->size = new_size;
         *stri_to = stri_dest;
       } /* if */
-#ifndef WIDE_CHAR_STRINGS
+#ifndef UTF32_STRINGS
     } /* if */
 #endif
   } /* strPush */
@@ -1649,7 +1649,7 @@ inttype pad_size;
       result->size = f_size;
       memcpy(result->mem, stri->mem,
           (SIZE_TYPE) length * sizeof(strelemtype));
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       {
         strelemtype *elem = &result->mem[length];
         memsizetype len = f_size - length;
@@ -2169,7 +2169,7 @@ stritype stri;
     } else {
       result->size = length;
       for (pos = 0; pos < length; pos++) {
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
         if (((int) stri->mem[pos]) >= 'a' && ((int) stri->mem[pos]) <= 'z') {
           result->mem[pos] = (strelemtype) (((int) stri->mem[pos]) - 'a' + 'A');
         } else {
@@ -2199,7 +2199,7 @@ stritype stri;
 
   /* strUpTemp */
     for (pos = 0; pos < stri->size; pos++) {
-#ifdef WIDE_CHAR_STRINGS
+#ifdef UTF32_STRINGS
       if (((int) stri->mem[pos]) >= 'a' && ((int) stri->mem[pos]) <= 'z') {
         stri->mem[pos] = (strelemtype) (((int) stri->mem[pos]) - 'a' + 'A');
       } else {

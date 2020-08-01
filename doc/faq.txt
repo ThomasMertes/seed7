@@ -106,6 +106,51 @@ Under windows you can use the 7-Zip compression/decompression utility
 available at: www.7-zip.org.
 
 
+How do I compile the Seed7 interpreter?
+=======================================
+
+The way to compile the interpreter is dependend on the
+operating system and the development tools used. You need a
+stand alone C compiler and a make utility to compile the
+interpreter. A C compiler which is only usable from an IDE
+is not so useful, since some Seed7 programs (e.g. The
+Seed7 to C compiler comp.sd7) need to call the C compiler
+as well. To compile the interpreter under Linux just go to
+the 'src' directory and type:
+
+    make depend
+    make
+
+For other cases several makefiles are prepared vor various
+combinations of operating system, make utility, C compiler
+and shell:
+
+  makefile name|operating system |make prog|compiler|shell
+  -------------+-----------------+---------+--------+--------
+  mk_linux.mak | linux/unix/bsd  | (g)make | gcc    | sh
+  mk_cygw.mak  | windows (Cygwin)| (g)make | gcc    | sh
+  mk_msys.mak  | windows (MinGW) | (g)make | gcc    | sh
+  mk_mingw.mak | windows (MinGW) | (g)make | gcc    | cmd.exe
+  mk_nmake.mak | windows (MinGW) | nmake   | gcc    | cmd.exe
+  mk_msvc.mak  | windows (MSVC)  | nmake   | cl     | cmd.exe
+  mk_bcc32.mak | windows (bcc32) | make    | bcc32  | cmd.exe
+  mk_osx.mak   | Mac OS X (Xcode)| make    | gcc    | sh
+
+  In the optimal case you just copy one of this files to
+  'makefile' and do:
+
+    make depend
+    make
+
+  If you try different makefiles in succession you need to do
+
+    make clean
+
+  before you start a new attempt. More details about the
+  compilation process can be found in the file
+  'seed7/src/read_me.txt'.
+
+
 I got errors when compiling Seed7. What should I do?
 ====================================================
 

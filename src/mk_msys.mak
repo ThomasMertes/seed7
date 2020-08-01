@@ -148,7 +148,13 @@ version.h:
 	echo "#undef  CHMOD_MISSING" >> version.h
 	echo "#define INT64TYPE long long int" >> version.h
 	echo "#define UINT64TYPE unsigned long long" >> version.h
-	echo "#define USE_WFOPEN" >> version.h
+	echo "#define WCHAR_OS_PATH" >> version.h
+	echo "#define os_chdir _wchdir" >> version.h
+	echo "#define os_mkdir(path,mode) _wmkdir(path)" >> version.h
+	echo "#define os_fstat _fstati64" >> version.h
+	echo "#define os_stat _wstati64" >> version.h
+	echo "#define os_stat_struct struct _stati64" >> version.h
+	echo "#define wide_fopen _wfopen" >> version.h
 	echo "#define USE_WOPENDIR" >> version.h
 	echo "#define WDIR _WDIR" >> version.h
 	echo "#define wdirent _wdirent" >> version.h

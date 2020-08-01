@@ -18,6 +18,9 @@ On which operating systems does Seed7 run?
 <li><a href="#uncompress"><b>
 How do I uncompress the *.tgz file from the release?
 </b></a></li>
+<li><a href="#compile_interpreter"><b>
+How do I compile the Seed7 interpreter?
+</b></a></li>
 <li><a href="#errors"><b>
 I got errors when compiling Seed7. What should I do?
 </b></a></li>
@@ -203,8 +206,8 @@ the BDS (bcc32.exe). For other operating systems it might be necessary to
 write driver modules for screen (=text console), graphics, time or other
 aspects of Seed7. The package contains various older driver modules
 which are not up to date, but can be used as base to write such driver
-modules. For more detailed information look at the files 'seed7/read_me'
-and 'seed7/src/read_me.txt'.
+modules. For more detailed information look at the files <nobr>'seed7/read_me'</nobr>
+and <nobr>'seed7/src/read_me.txt'</nobr>.
 </p></p>
 
 <p><br><a name="uncompress"><b>How do I uncompress the *.tgz file from the release?
@@ -230,6 +233,51 @@ an alternative you can also use <tt>'zcat'</tt>:
 Under windows you can use the 7-Zip compression/decompression utility
 (there is no relationship to Seed7). 7-Zip is open source software and is
 available at: <a href="http://www.7-zip.org">www.7-zip.org</a>.
+</p></p>
+
+<p><br><a name="compile_interpreter"><b>How do I compile the Seed7 interpreter?
+</b></a><hr><!-- ======================================= -->
+<p>
+The way to compile the interpreter is dependend on the
+operating system and the development tools used. You need a
+stand alone C compiler and a make utility to compile the
+interpreter. A C compiler which is only usable from an IDE
+is not so useful, since some Seed7 programs (e.g. The
+Seed7 to C compiler comp.sd7) need to call the C compiler
+as well. To compile the interpreter under Linux just go to
+the 'src' directory and type:
+</p><pre>
+    make depend
+    make
+</pre><p>
+For other cases several makefiles are prepared vor various
+combinations of operating system, make utility, C compiler
+and shell:
+</p><pre>
+  makefile name|operating system |make prog|compiler|shell
+  -------------+-----------------+---------+--------+--------
+  mk_linux.mak | linux/unix/bsd  | (g)make | gcc    | sh
+  mk_cygw.mak  | windows (Cygwin)| (g)make | gcc    | sh
+  mk_msys.mak  | windows (MinGW) | (g)make | gcc    | sh
+  mk_mingw.mak | windows (MinGW) | (g)make | gcc    | cmd.exe
+  mk_nmake.mak | windows (MinGW) | nmake   | gcc    | cmd.exe
+  mk_msvc.mak  | windows (MSVC)  | nmake   | cl     | cmd.exe
+  mk_bcc32.mak | windows (bcc32) | make    | bcc32  | cmd.exe
+  mk_osx.mak   | Mac OS X (Xcode)| make    | gcc    | sh
+</pre><p>
+  In the optimal case you just copy one of this files to
+  'makefile' and do:
+</p><pre>
+    make depend
+    make
+</pre><p>
+  If you try different makefiles in succession you need to do
+</p><pre>
+    make clean
+</pre><p>
+  before you start a new attempt. More details about the
+  compilation process can be found in the file
+  <nobr>'seed7/src/read_me.txt'</nobr>.
 </p></p>
 
 <p><br><a name="errors"><b>I got errors when compiling Seed7. What should I do?
@@ -1015,7 +1063,7 @@ Actions are used to call a corresponding C function in the interpreter.
 For example:
 </p><p>
 The action "INT_ADD" corresponds to the function 'int_add' in the file
-seed7/src/intlib.c .
+<nobr>seed7/src/intlib.c</nobr> .
 </p><p>
 In the interpreter all action functions get the parameters as list.
 The action functions take the parameters they need from the list, perform

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2004  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -440,7 +440,7 @@ listtype arguments;
 
   /* chr_str */
     isit_char(arg_1(arguments));
-#ifndef WIDE_CHAR_STRINGS
+#ifndef UTF32_STRINGS
     if (take_char(arg_1(arguments)) > (chartype) 255) {
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
@@ -452,7 +452,7 @@ listtype arguments;
         result->mem[0] = (strelemtype) take_char(arg_1(arguments));
         return(bld_stri_temp(result));
       } /* if */
-#ifndef WIDE_CHAR_STRINGS
+#ifndef UTF32_STRINGS
     } /* if */
 #endif
   } /* chr_str */
