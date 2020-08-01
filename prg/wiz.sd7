@@ -66,7 +66,7 @@ const commandtype: STATUS      is 17;
 const commandtype: OPEN        is 18;
 const commandtype: READ        is 19;
 const commandtype: GAZE        is 20;
-const commandtype: BEAM        is 21;
+const commandtype: TELEPORT    is 21;
 const commandtype: DRINK       is 22;
 const commandtype: SELL        is 23;
 const commandtype: BUY         is 24;
@@ -150,9 +150,9 @@ const integer: ord (ORBOFZOT)  is 11;
 const func integer: ord (in objecttype param) is DYNAMIC;
 const string: str (NOOBJECT)  is "nothing";
 const string: str (LAMP)      is "lamp";
-const string: str (RUBY)      is "mystic ruby";
+const string: str (RUBY)      is "ruby red";
 const string: str (NORNSTONE) is "norn Stone";
-const string: str (PEARL)     is "black pearl";
+const string: str (PEARL)     is "pale pearl";
 const string: str (OPAL)      is "opal Eye";
 const string: str (GREENGEM)  is "green Gem";
 const string: str (BLUEFLAME) is "blue Flame";
@@ -185,9 +185,9 @@ const func integer: ord (in objecttype: obj) is func
 
 NOOBJECT->name   := "nothing";
 LAMP->name       := "lamp";
-RUBY->name       := "mystic ruby";
+RUBY->name       := "ruby red";
 NORNSTONE->name  := "norn Stone";
-PEARL->name      := "black pearl";
+PEARL->name      := "pale pearl";
 OPAL->name       := "opal Eye";
 GREENGEM->name   := "green Gem";
 BLUEFLAME->name  := "blue Flame";
@@ -377,18 +377,18 @@ const proc: execute (HELP) is func
     writeln;
     writeln("H/ELP       N/ORTH      S/OUTH      E/AST       W/EST       U/P         D/OWN");
     writeln("L/OOK       I/NVENTORY  M/AP        ST/ATUS     A/TTACK     F/LARE      LA/AMP");
-    writeln("O/PEN       R/EAD       G/AZE       BE/AM       DR/INK      SE/LL       B/UY");
+    writeln("O/PEN       R/EAD       G/AZE       T/ELEPORT   DR/INK      SE/LL       B/UY");
     writeln("BR/IBE      Q/UIT");
     writeln;
     writeln("The contents of rooms are as follows:");
     writeln;
-    writeln(". = EMPTY ROOM   U = STAIRS UP    D = STAIRS DOWN  B = BOOK         C = CHEST");
-    writeln("O = CRYSTAL ORB  P = MAGIC POOL   W = WARP         S = SINKHOLE     E = EXIT");
-    writeln("M = MONSTER      V = VENDOR       T = TREASURE");
+    writeln(". = EMPTY ROOM   D = STAIRS DOWN  O = CRYSTAL ORB  T = TREASURE     V = VENDOR");
+    writeln("B = BOOK         E = EXIT         P = MAGIC POOL   U = STAIRS UP    W = WARP");
+    writeln("C = CHEST        M = MONSTER      S = SINKHOLE");
     writeln;
     writeln("The benefits of having treasures are:");
     writeln;
-    writeln("mystic ruby - AVOID LETHARGY     black pearl - AVOID LEECH");
+    writeln("ruby red -    AVOID LETHARGY     pale pearl -  AVOID LEECH");
     writeln("green gem -   AVOID FORGETTING   opal eye -    CURES BLINDNESS");
     writeln("blue flame -  DISSOLVES BOOKS    norn stone -  NO BENEFIT");
     writeln("palantir -    NO BENEFIT         silmaril -    NO BENEFIT");
@@ -2969,12 +2969,12 @@ const proc: readCoordinate (in char: coordname, inout integer: coordinate) is fu
   end func; (* readCoordinate *)
 
 
-const proc: execute (BEAM) is func
+const proc: execute (TELEPORT) is func
   local
     var integer: x1 is 0;
     var integer: y1 is 0;
     var integer: z1 is 0;
-  begin (* execute (BEAM) *)
+  begin (* execute (TELEPORT) *)
     if RUNESTAFF->place <> PLAYER then
       writeln;
       writeln("** You can't teleport without the Runestaff!");
@@ -3001,7 +3001,7 @@ const proc: execute (BEAM) is func
         enterRoom();
       end if;
     end if;
-  end func; (* execute (BEAM) *)
+  end func; (* execute (TELEPORT) *)
 
 
 const proc: go (in directtype: direction) is func
@@ -3168,8 +3168,6 @@ const func commandtype: readCommand is func
           when {'B'}:
             if (ch2 = ' ') or (ch2 = 'U') then
               current_command := BUY;
-            elsif ch2 = 'E' then
-              current_command := BEAM;
             elsif ch2 = 'R' then
               current_command := BRIBE;
             else
@@ -3215,7 +3213,7 @@ const func commandtype: readCommand is func
             else
               current_command := ILLEGAL;
             end if;
-          when {'T'}:   current_command := ILLEGAL;
+          when {'T'}:   current_command := TELEPORT;
           when {'U'}:   current_command := GO_UP;
           when {'V'}:   current_command := ILLEGAL;
           when {'W'}:   current_command := GO_WEST;
@@ -3256,7 +3254,7 @@ const proc: executeCommand is func
       when {OPEN}:        execute(OPEN);
       when {READ}:        execute(READ);
       when {GAZE}:        execute(GAZE);
-      when {BEAM}:        execute(BEAM);
+      when {TELEPORT}:    execute(TELEPORT);
       when {DRINK}:       execute(DRINK);
       when {SELL}:        execute(SELL);
       when {BUY}:         execute(BUY);
@@ -3383,12 +3381,12 @@ const proc: curesAndDissolves is func
     end if;
     if haveLeech and (PEARL->place = PLAYER) then
       writeln;
-      writeln("The black pearl fixes the leech in your pocket.");
+      writeln("The pale pearl fixes the leech in your pocket.");
       haveLeech := FALSE;
     end if;
     if lethargic and (RUBY->place = PLAYER) then
       writeln;
-      writeln("The mystic ruby stops your lethargy.");
+      writeln("The ruby red stops your lethargy.");
       lethargic := FALSE;
     end if;
     if forgetting and (GREENGEM->place = PLAYER) then

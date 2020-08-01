@@ -25,10 +25,11 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/dir_win.c                                       */
 /*  Changes: 1993, 1994, 2007, 2008  Thomas Mertes                  */
-/*  Content: Directory access using _findfirst and _findnext.       */
+/*  Content: Directory access using FindFirstFile and FindNextFile. */
 /*                                                                  */
 /*  Implements opendir, readdir and closedir in the way it is       */
-/*  defined in unix.                                                */
+/*  defined in unix. Additionally wopendir, wreaddir and wclosedir  */
+/*  are defined which use wchar_t instead of char.                  */
 /*                                                                  */
 /********************************************************************/
 

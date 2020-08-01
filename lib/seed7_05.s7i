@@ -2704,6 +2704,7 @@ const proc: CASE_DECLS (in type: aType) is func
 
 CASE_DECLS(integer);
 CASE_DECLS(char);
+CASE_DECLS(boolean);
 (* CASE_DECLS(string); *)
 
 const func ref_list: expr_to_list (ref expr: elem_expr) is action "RFL_EXPR";

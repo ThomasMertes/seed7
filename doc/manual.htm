@@ -30,7 +30,10 @@
 <li><!--   2.4      --><a href="#Parameters"><b>Parameters</b></a></li>
 <li><!--   2.5      --><a href="#Declare_a_statement"><b>Declare a statement</b></a></li>
 <li><!--   2.6      --><a href="#Template_declaring_a_statement"><b>Template declaring a statement</b></a></li></ol></li>
-<li><!--   3.     --><a href="#SYNTAX"><big><b>SYNTAX</b></big></a></li>
+<li><!--   3.     --><a href="#DECLARATIONS"><big><b>DECLARATIONS</b></big></a><ol>
+<li><!--   3.1      --><a href="#Normal_declarations"><b>Normal declarations</b></a></li>
+<li><!--   3.2      --><a href="#Syntax_declarations"><b>Syntax declarations</b></a></li>
+<li><!--   3.3      --><a href="#System_declarations"><b>System declarations</b></a></li></ol></li>
 <li><!--   4.     --><a href="#PREDEFINED_STATEMENTS"><big><b>PREDEFINED STATEMENTS</b></big></a><ol>
 <li><!--   4.1      --><a href="#Assignment"><b>Assignment</b></a></li>
 <li><!--   4.2      --><a href="#while-statement"><b>while-statement</b></a></li>
@@ -93,10 +96,14 @@
 <li><!--   8.5      --><a href="#Standard_input_and_output_files"><b>Standard input and output files</b></a></li>
 <li><!--   8.6      --><a href="#Access_to_operating_system_files"><b>Access to operating system files</b></a></li>
 <li><!--   8.7      --><a href="#User_defined_file_types"><b>User defined file types</b></a></li></ol></li>
-<li><!--   9.     --><a href="#DECLARATIONS"><big><b>DECLARATIONS</b></big></a><ol>
-<li><!--   9.1      --><a href="#System_declarations"><b>System declarations</b></a></li>
-<li><!--   9.2      --><a href="#Syntax_declarations"><b>Syntax declarations</b></a></li>
-<li><!--   9.3      --><a href="#Semantic_declarations"><b>Semantic declarations</b></a></li></ol></li>
+<li><!--   9.     --><a href="#STRUCTURED_SYNTAX_DEFINITION"><big><b>STRUCTURED SYNTAX DEFINITION</b></big></a><ol>
+<li><!--   9.1      --><a href="#The_Extended_Backus-Naur_Form"><b>The Extended Backus-Naur Form</b></a></li>
+<li><!--   9.2      --><a href="#The_syntax_of_a_statement"><b>The syntax of a statement</b></a></li>
+<li><!--   9.3      --><a href="#Priority_and_assoziativity"><b>Priority and assoziativity</b></a></li>
+<li><!--   9.4      --><a href="#The_syntax_of_operators"><b>The syntax of operators</b></a></li>
+<li><!--   9.5      --><a href="#Syntax_of_predefined_statements"><b>Syntax of predefined statements</b></a></li>
+<li><!--   9.6      --><a href="#Advanced_syntax_definitions"><b>Advanced syntax definitions</b></a></li>
+<li><!--   9.7      --><a href="#Comparison_of_EBNF_and_S7SSD"><b>Comparison of EBNF and S7SSD</b></a></li></ol></li>
 <li><!--   10.    --><a href="#TOKENS"><big><b>TOKENS</b></big></a><ol>
 <li><!--   10.1     --><a href="#White_space"><b>White space</b></a><ol>
 <li><!--   10.1.1     --><a href="#Spaces"><b><i>Spaces</i></b></a></li>
@@ -356,25 +363,31 @@
   In this case you are interested in how the statements look like,
   which types are available, which operators are predefined, how
   to declare variables and procedures and other things like these.
-  The statements and the predefined types are described in chapter
-  4 and 5 and the declaration mechanism is described in chapter 8.
+  The statements and the predefined types are described in <a href="stats.htm">chapter
+  4 (Predefined statements)</a> and <a href="types.htm">chapter 5 (Predefined types)</a> and the
+  declaration mechanism is described in <a href="decls.htm">chapter 3 (Declarations)</a>.
 </p><p>
   But Seed7 is also an object oriented programming language.
   In this case you are interested in how to define new classes,
   how instances are generated, the method calling mechanism,
   the predefined class hierarchy and other things like these.
-  A good example for classes and instances are the Files which are
-  described in chapter 7.
+  The object orientation of Seed7 is described in <a href="objects.htm">chapter 7
+  (Object orientation)</a>. A good example for classes and instances
+  is the file system which is described in <a href="file.htm">chapter 8 (The file
+  system)</a>.
 </p><p>
   And Seed7 is also an extensible programming language.
   In this case you are interested in how to declare new
   statements, how to define new operators, assigning a priority
   and an associativity to operators and other things like these.
-  How syntax declarations are done is described in chapter 3
-  and chapter 4 contains various examples of syntax and semantic
-  declarations. The primary parts of the syntax are described in
-  the chapters 9 and 10.
-</p><hr>
+  An overview about syntax declarations can be found in
+  <a href="decls.htm#Syntax_declarations">Chapter 3.2 (Syntax declarations)</a>. A detailed description
+  of the Seed7 syntax definitons can be found in <a href="s7ssd.htm">chapter 9
+  (Structured syntax definition)</a>. <a href="stats.htm">Chapter 4 (Predefined
+  statements)</a> contains various examples of syntax and semantic
+  declarations. The basic parts of the syntax are described in
+  <a href="tokens.htm">chapter 10 (Tokens)</a> and <a href="expr.htm">chapter 11 (Expressions)</a>.
+</p>
 
 <p></p>
 <a name="TUTORIAL"><big><b>2. TUTORIAL</b></big></a>
@@ -756,216 +769,224 @@
   <font color=red>char</font> and <font color=red>boolean</font> as parameter creates corresponding declarations
   of <tt>'<font color=blue>for</font>'</tt> statements. The example above is a simplified part of
   the standard Seed7 library <font color=maroon>"seed7_05.s7i"</font>.
-</p><hr>
+</p>
 
 <p></p>
-<a name="SYNTAX"><big><b>3. SYNTAX</b></big></a>
-<!-- ========= -->
+<a name="DECLARATIONS"><big><b>3. DECLARATIONS</b></big></a>
+<!-- =============== -->
 <p>
-    A syntax declaration defines the way a usage of a statement
-  or operator must be written. For example a call of the
-  <tt>'<font color=blue>not</font>'</tt> operator looks like:
-</p><pre>
-    <font color=blue>not</font> okay
-</pre><p>
-  To describe the syntax of the <tt>'<font color=blue>not</font>'</tt> operator we write:
-</p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: .not.() <font color=blue>is</font> &lt;- 13;
-</pre><p>
-  This means that a <tt>'<font color=blue>not</font>'</tt> expression is constructed with the
-  symbol <tt>'<font color=blue>not</font>'</tt> followed by a parameter. The place of the
-  parameter is marked with the () sign. The syntax description
-  contains no information about the types of the parameters. At
-  the syntax level a parameter may be anything. With <tt>'&lt;-'</tt> the
-  associativity of the <tt>'<font color=blue>not</font>'</tt> operator is specified as right
-  associative. This means that the right operand is allowed to
-  have the same priority as the operator symbol. So the
-  expression
-</p><pre>
-    <font color=blue>not not</font> okay
-</pre><p>
-  is legal and means
-</p><pre>
-    <font color=blue>not</font> (<font color=blue>not</font> okay)
-</pre><p>
-  When the associativity of the <tt>'<font color=blue>not</font>'</tt> operator is specified with
-  <tt>'->'</tt> instead of <tt>'&lt;-'</tt> the <tt>'<font color=blue>not not</font>'</tt> expression above is not legal.
-  With 13 the priority of the whole <tt>'<font color=blue>not</font>'</tt> operator is determined.
-  As convention priorities from 1 to 20 are used by operators
-  and priority 25 is used by statements. Arithmetic operators
-  have priorities from 1 to 11 and comparisons have priority 12.
-</p><p>
-  To define the <tt>'<font color=blue>not</font>'</tt> operator completely there must be also
-  a semantic definition which is as follows:
-</p><pre>
-    <font color=blue>const</font> <font color=red>func boolean</font>: not (<font color=blue>in</font> <font color=red>boolean</font>: aBool) <font color=blue>is func</font>
-      <font color=blue>result</font>
-        <font color=blue>var</font> <font color=red>boolean</font>: result <font color=blue>is</font> FALSE;
-      <font color=blue>begin</font>
-        <font color=blue>if</font> aBool <font color=blue>then</font>
-          result := FALSE;
-        <font color=blue>else</font>
-          result := TRUE;
-        <font color=blue>end if</font>;
-      <font color=blue>end func</font>;
-</pre><p>
-  In the declaration the <tt>'<font color=blue>not</font>'</tt> operator is written exactly
-  in the same way it is written when it is called. The syntax
-  definition is used at both places: declaration and call.
-  The syntax and semantic declarations define precisely how
-  the <tt>'<font color=blue>not</font>'</tt> operator works.
-</p><p>
-    As next example we try an infix operator like the <tt>'<font color=blue>and</font>'</tt> operator.
-  A call of the <tt>'<font color=blue>and</font>'</tt> operator may look like:
-</p><pre>
-    okay <font color=blue>and not</font> error
-</pre><p>
-  To describe the syntax of the <tt>'<font color=blue>and</font>'</tt> operator we write:
-</p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: ().and.() <font color=blue>is</font>     -> 14;
-</pre><p>
-  This means that an <tt>'<font color=blue>and</font>'</tt> expression is constructed with the
-  symbol <tt>'<font color=blue>and</font>'</tt> surrounded by parameters. The <tt>'->'</tt> defines the
-  <tt>'<font color=blue>and</font>'</tt> operator as left associative. This means that an expression
-  like
-</p><pre>
-    A <font color=blue>and</font> B <font color=blue>and</font> C
-</pre><p>
-  is interpreted as
-</p><pre>
-    (A <font color=blue>and</font> B) <font color=blue>and</font></font> C
-</pre><p>
-  With 14 the priority of the whole <tt>'<font color=blue>and</font>'</tt> operator is determined.
-  Since priority 14 is weaker than the priority of the <tt>'<font color=blue>not</font>'</tt> operator
-  which is 13 the example expression is evaluated as:
-</p><pre>
-    okay <font color=blue>and</font> (<font color=blue>not</font> error)
-</pre><p>
-  Note that the expression
-</p><pre>
-    okay <font color=blue>and not</font> error
-</pre><p>
-  makes no sense when the <tt>'<font color=blue>and</font>'</tt> operator has priority 12 instead of 14.
-</p><p>
-    As next let's try the syntax declaration of a statement.
-  For example a call of the while-statement looks like:
-</p><pre>
-    <font color=blue>while</font> element_index > 0 <font color=blue>and</font> okay <font color=blue>do</font>
-      processElement;
-      write(<font color=maroon>"."</font>);
-    <font color=blue>end while</font>;
-</pre><p>
-  To describe the syntax of the while-statement we write:
-</p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: while.().do.().end.while <font color=blue>is</font> -> 25;
-</pre><p>
-  This means that the while-statement is an expression with the
-  symbols <tt>'<font color=blue>while</font>'</tt>, <tt>'<font color=blue>do</font>'</tt>, <tt>'<font color=blue>end</font>'</tt> and <tt>'<font color=blue>while</font>'</tt>. With <tt>'->'</tt> the
-  associativity of the while-statement is specified as left
-  associative. The associativity has no meaning for the
-  while-statement since there is no parameter before the first
-  symbol or after the last symbol. With 25 the priority of the
-  whole while-statement is determined.
-</p><p>
-  The semantic definition of the while-statement is as follows:
-</p><pre>
-    <font color=blue>const</font> <font color=red>proc</font>: while (<font color=blue>ref</font> func <font color=red>boolean</font>: condition) do
-        (<font color=blue>ref</font> <font color=red>proc</font>: statement) end while <font color=blue>is func</font>
-      <font color=blue>begin</font>
-        <font color=blue>if</font> condition <font color=blue>then</font>
-          statement;
-          <font color=blue>while</font> condition <font color=blue>do</font>
-            statement;
-          <font color=blue>end while</font>;
-        <font color=blue>end if</font>;
-      <font color=blue>end func</font>;
-</pre><p>
-  The syntax definition is used at the declaration and at the call.
-  This declaration defines precisely how the while-statement
-  works. It is based on the if-statement and uses recursion
-  to emulate the repetition of the loop body.
-  Another example for a syntax description is the
-  repeat-statement
-</p><pre>
-    <font color=blue>repeat</font>
-      processElement;
-      write(<font color=maroon>"."</font>);
-    <font color=blue>until</font> element_index = 0 <font color=blue>or not</font> okay;
-</pre><p>
-  which has the following syntax description:
-</p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: repeat.().until.() <font color=blue>is</font> -> 25;
-</pre><p>
-  This means that the repeat-statement is an expression with
-  the symbols <tt>'<font color=blue>repeat</font>'</tt> and <tt>'<font color=blue>until</font>'</tt> and a parameter between
-  <tt>'<font color=blue>repeat</font>'</tt> and <tt>'<font color=blue>until</font>'</tt> and after <tt>'<font color=blue>until</font>'</tt>. With 25 the priority
-  of the whole repeat-statement is determined. With <tt>'->'</tt> the
-  associativity of the repeat-statement is specified as left
-  associative. This allows priorities from 0 to 24 for the
-  parameter after <tt>'<font color=blue>until</font>'</tt>. Since statements have priority 25
-  it is not possible to write a statement direct behind <tt>'<font color=blue>until</font>'</tt>.
-</p><p>
-  As next let's take a more complex statement: The if-statement.
-  A usage of the if-statement might be:
-</p><pre>
-    <font color=blue>if</font> okay <font color=blue>then</font>
-      writeln(<font color=maroon>"okay"</font>);
-    <font color=blue>else</font>
-      writeln(<font color=maroon>"not okay"</font>);
-    <font color=blue>end if</font>;
-</pre><p>
-  As syntax description we use
-</p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: .if.().then.().end.if <font color=blue>is</font>            -> 25;
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: .if.().then.().else.().end.if <font color=blue>is</font>    -> 25;
-</pre><p>
-  Note that this description allows if-statements with and
-  without else-parts. As semantic description we use
-</p><pre>
-    <font color=blue>const</font> <font color=red>proc</font>: if (<font color=blue>in</font> <font color=red>boolean</font>: condition) then
-                  (<font color=blue>in</font> <font color=red>proc</font>: statement)
-                end if <font color=blue>is func</font>
-      <font color=blue>begin</font>
-        <font color=blue>case</font> condition <font color=blue>of</font>
-          <font color=blue>when</font> {TRUE}: statement;
-        <font color=blue>end case</font>;
-      <font color=blue>end func</font>;
+    A declaration specifies the identifier, type, and other
+  aspects of language elements such as variables, constants
+  and functions. In Seed7 everything must be declared before
+  it is used. Seed7 uses three kinds of declarations:
+</p><ul>
+    <li><!-- -  -->Normal declarations</li>
+    <li><!-- -  -->Syntax declarations</li>
+    <li><!-- -  -->System declarations</li>
+</ul><p>
+  which are described in detail in the following subchapters.
+</p>
 
-    <font color=blue>const</font> proc: if (<font color=blue>in</font> <font color=red>boolean</font>: condition) then
-                  (<font color=blue>in</font> <font color=red>proc</font>: statement1)
-                else
-                  (<font color=blue>in</font> <font color=red>proc</font>: statement2)
-                end if <font color=blue>is func</font>
+<a name="Normal_declarations"><b>3.1 Normal declarations</b></a>
+<p>
+    Normal declarations are the most commonly used form of
+  declarations. To contrast them to the syntax declarations normal
+  declarations are sometimes called semantic declarations. Seed7
+  uses uniform looking declaration constructs to declare variables,
+  constants, types, functions and parameters. For example:
+</p><pre>
+    <font color=blue>const</font> <font color=red>integer</font>: ONE <font color=blue>is</font> 1;
+</pre><p>
+  declares the <tt>'<font color=red>integer</font>'</tt> constant <tt>'ONE'</tt> which is initialized with the
+  value 1. Variable declarations are also possible. For example:
+</p><pre>
+    <font color=blue>var</font> <font color=red>integer</font>: number <font color=blue>is</font> 0;
+</pre><p>
+  declares the <tt>'<font color=red>integer</font>'</tt> variable <tt>'number'</tt> which is initialized with
+  the value 0. Type declarations are done as constant declarations
+  where the type of the declared constant is <tt>'<font color=red>type</font>'</tt>:
+</p><pre>
+    <font color=blue>const</font> <font color=red>type</font>: myChar <font color=blue>is</font> <font color=red>char</font>;
+</pre><p>
+  Function declarations are also a form of constant declaration:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func boolean</font>: flipCoin <font color=blue>is</font>
+      <font color=blue>return</font> rand(FALSE, TRUE);
+</pre><p>
+  Each object declared with a <tt>'<font color=blue>const</font>'</tt> or <tt>'<font color=blue>var</font>'</tt> declaration obtains
+  an initial value. It is not possible to use <tt>'<font color=blue>const</font>'</tt> or <tt>'<font color=blue>var</font>'</tt>
+  declarations without initial value. Declarations with
+  initialisation expressions are also possible. For example
+</p><pre>
+    <font color=blue>var</font> <font color=red>string</font>: fileName <font color=blue>is</font> NAME & <font color=maroon>".txt"</font>;
+</pre><p>
+  The expression is evaluated and the result is assigned to
+  the new object. This is done in the analyze phase of the
+  interpreter or compiler, before the execution of the program
+  starts. The initialisation expressions may contain any
+  function (or operator) call. That way user defined functions
+  can also be used to initialize a constant or variable:
+</p><pre>
+    <font color=blue>const</font> <font color=red>boolean</font>: maybe <font color=blue>is</font> flipCoin;
+</pre><p>
+  Constant and variable declarations can be global or local.
+  The mechanism to define a parameter like <tt>'x'</tt> is similar to the
+  <tt>'<font color=blue>const</font>'</tt> or <tt>'<font color=blue>var</font>'</tt> declarations:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func float</font>: inverse (<font color=blue>in</font> <font color=red>float</font>: x) <font color=blue>is</font>
+      <font color=blue>return</font> 1/x;
+</pre><p>
+  Function parameters, such as the parameter <tt>'statement'</tt> in
+  the example below, act as closures:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: possiblyDo (<font color=blue>in</font> <font color=red>proc</font>: statement) <font color=blue>is func</font>
       <font color=blue>begin</font>
-        <font color=blue>case</font> condition of
-          <font color=blue>when</font> {TRUE}:  statement1;
-          <font color=blue>when</font> {FALSE}: statement2;
-        <font color=blue>end case</font>;
+        <font color=blue>if</font> flipCoin <font color=blue>then</font>
+          statement;
+        <font color=blue>end if</font>;
       <font color=blue>end func</font>;
 </pre><p>
-  We define the two forms of the if statement based on the
-  case statement. A more complex if-statement can be:
+  Abstract data types such as <tt>'<font color=red>subtype</font>'</tt>, <tt>'<font color=red>struct</font>'</tt>, <tt>'<font color=red>subrange</font>'</tt>, <tt>'<font color=red>array</font>'</tt>, <tt>'<font color=red>hash</font>'</tt>, <tt>'<font color=red>set</font>'</tt>,
+  <tt>'<font color=red>interface</font>'</tt> and <tt>'<font color=red>enum</font>'</tt> are realized as
+  functions which return a type. E.g.: The type <tt>'<font color=red>array</font>'</tt> is defined in the
+  <font color=maroon>"seed7_05.s7i"</font> library with the following header:
 </p><pre>
-    <font color=blue>if</font> number &lt; 0 <font color=blue>then</font>
-      write(<font color=maroon>"less"</font>);
-    <font color=blue>elsif</font> number = 0 <font color=blue>then</font>
-      write(<font color=maroon>"equal"</font>);
-    <font color=blue>else</font>
-      write(<font color=maroon>"greater"</font>);
-    <font color=blue>end if</font>;
+    <font color=blue>const</font> <font color=red>func type</font>: array (<font color=blue>in</font> <font color=red>type</font>: baseType) <font color=blue>is func</font>
 </pre><p>
+  User defined abstract data types are also possible.
+</p><p>
+  The initialisation uses the creation operation ( ::= ).
+  Explicit calls of the create operation are not needed.
+</p><p>
+  The lifetime of an object goes like this:
+</p><ol><li>
+  <!-- 1.  -->Memory is reserved for the new object (stack or heap memory
+     make no difference here).
+</li><li>
+  <!-- 2.  -->The content of the new memory is undefined (It may contain
+     garbage), therefore a create statement is necessary instead of
+     an assignment.
+</li><li>
+  <!-- 3.  -->The create statements copies the right expression to the left
+     expression taking into account that the left expression is
+     undefined.
+</li><li>
+  <!-- 4.  -->If the object is variable other values can be assigned using
+     the assign statement ( := ). The assignment can assume that the
+     left expression contains a legal value. This allows that for
+     strings (and some other types which are just references to a
+     memory area) the memory containing the old string value (and
+     not the memory of the object itself) can be freed when
+     necessary.
+</li><li>
+  <!-- 5.  -->At the end of the lifetime of an object the destroy statement
+     is executed. For strings (and some other types which are just
+     references to a memory area) the memory containing the string
+     value (and not the memory of the object itself) is freed.
+</li><li>
+  <!-- 6.  -->The memory of the object is freed.
+</li></ol><p>
+  The first three steps are usually hidden in the declaration
+  statement. The expression
+</p><pre>
+    ONE . ::= . 1
+</pre><p>
+  is executed to assign 1 to the object ONE. There are two
+  reasons to use ::= instead of := to assign the initialisation
+  value.
+</p><ol><li>
+  <!-- 1.  -->The assignment ( := ) can only be used to assign a value
+    to a variable and initialisation is also needed for
+    constants.
+</li><li>
+  <!-- 2.  -->Sometimes some initialisations are needed for the new
+    object in addition to the pure assignment.
+</li></ol><p>
+  For all predefined types the creation operator ( ::= )
+  is already defined. To allow the declaration of objects of a
+  new user defined type the constructor operation for this type
+  must be defined.
+</p>
+
+<a name="Syntax_declarations"><b>3.2 Syntax declarations</b></a>
+<p>
+    Syntax declaratins are used to specify the syntax, priority
+  and associativity of operators, statements, declarations and
+  other constructs. A syntax declarations which defines the
+  <tt>'+'</tt> operator is:
+</p><pre>
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). + .()   <font color=blue>is</font> ->  7;
+</pre><p>
+  Most syntax definitions can be found in the file <font color=maroon>"syntax.s7i"</font>.
+  A detailed description of the syntax declarations can be
+  found in <a href="syntax.htm">chapter 9 (Structured syntax definition)</a>
+  There is also a hadcoded syntax for function calls with
+  a parenthesis enclosed parameter list where the parameters
+  are separated by commas. The hardcoded syntax is described
+  in <a href="expr.htm">chapter 11 (Expressions)</a>.
   Here we use a more complex syntax description:
+</p>
+
+<a name="System_declarations"><b>3.3 System declarations</b></a>
+<p>
+    With system declarations the analyzer and the interpreter
+  are informed about which objects should be used for various system
+  internal purposes. An example of a system declaration is
 </p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: .if.().then.().end.if <font color=blue>is</font>            -> 25;
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: .if.().then.().().end.if <font color=blue>is</font>         -> 25;
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: .elsif.().then.() <font color=blue>is</font>                &lt;- 60;
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: .elsif.().then.().() <font color=blue>is</font>             &lt;- 60;
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: .else.() <font color=blue>is</font>                         &lt;- 60;
+    $ <font color=blue>system</font> <font color=maroon>"integer"</font> <font color=blue>is </font><font color=red>integer</font>;
 </pre><p>
-  Note that the second line of syntax description is different
-  to the syntax description of the previous example. The 'else'
-  is taken out to form an expression of its own.
-</p><hr>
+  This defines that the type of all integer literals is <tt>'<font color=red>integer</font>'</tt>.
+  Additionally <tt>'<font color=red>integer</font>'</tt> is used as type for all integers generated
+  by primitive actions.
+  There are different objects which are defined by a
+  system declaration
+</p><ul>
+    <li><!-- -  -->The types of literals and simple expressions for example:
+        <tt>'<font color=red>string</font>'</tt> for strings and <tt>'<font color=red>integer</font>'</tt> for integers</li>
+
+    <li><!-- -  -->Which objects should be used as result values for
+      primitive actions for example:<pre>
+        TRUE, FALSE and empty</pre></li>
+
+    <li><!-- -  -->The EXCEPTIONS which are to be raised by
+      primitive actions for example:<pre>
+        NUMERIC_ERROR and MEMORY_ERROR</pre></li>
+
+    <li><!-- -  -->Which objects should be used for several implicit
+      actions for example:<pre>
+        := ::= <tt>'destroy'</tt> <tt>'write'</tt> and <tt>'flush'</tt></pre></li>
+</ul><p>
+  The following system declarations exist
+</p><pre>
+    $ <font color=blue>system</font> <font color=maroon>"type"</font> <font color=blue>is</font> <font color=red>type</font>;
+    $ <font color=blue>system</font> <font color=maroon>"expr"</font> <font color=blue>is</font> <font color=red>expr</font>;
+    $ <font color=blue>system</font> <font color=maroon>"integer"</font> <font color=blue>is</font> <font color=red>integer</font>;
+    $ <font color=blue>system</font> <font color=maroon>"char"</font> <font color=blue>is</font> <font color=red>char</font>;
+    $ <font color=blue>system</font> <font color=maroon>"string"</font> <font color=blue>is</font> <font color=red>string</font>;
+    $ <font color=blue>system</font> <font color=maroon>"proc"</font> <font color=blue>is</font> <font color=red>proc</font>;
+    $ <font color=blue>system</font> <font color=maroon>"float"</font> <font color=blue>is</font> <font color=red>float</font>;
+
+    $ <font color=blue>system</font> <font color=maroon>"true"</font> <font color=blue>is</font> TRUE;
+    $ <font color=blue>system</font> <font color=maroon>"false"</font> <font color=blue>is</font> FALSE;
+    $ <font color=blue>system</font> <font color=maroon>"empty"</font> <font color=blue>is</font> empty;
+
+    $ <font color=blue>system</font> <font color=maroon>"memory_error"</font> <font color=blue>is</font> MEMORY_ERROR;
+    $ <font color=blue>system</font> <font color=maroon>"numeric_error"</font> <font color=blue>is</font> NUMERIC_ERROR;
+    $ <font color=blue>system</font> <font color=maroon>"range_error"</font> <font color=blue>is</font> RANGE_ERROR;
+    $ <font color=blue>system</font> <font color=maroon>"io_error"</font> <font color=blue>is</font> IO_ERROR;
+    $ <font color=blue>system</font> <font color=maroon>"illegal_action"</font> <font color=blue>is</font> ILLEGAL_ACTION;
+
+    $ <font color=blue>system</font> <font color=maroon>"assign"</font> <font color=blue>is</font> := ;
+    $ <font color=blue>system</font> <font color=maroon>"create"</font> <font color=blue>is</font> ::= ;
+    $ <font color=blue>system</font> <font color=maroon>"destroy"</font> <font color=blue>is</font> destroy;
+    $ <font color=blue>system</font> <font color=maroon>"ord"</font> <font color=blue>is</font> ord;
+    $ <font color=blue>system</font> <font color=maroon>"in"</font> <font color=blue>is</font> <font color=blue>in</font>;
+    $ <font color=blue>system</font> <font color=maroon>"prot_outfile"</font> <font color=blue>is</font> PROT_OUTFILE;
+    $ <font color=blue>system</font> <font color=maroon>"flush"</font> <font color=blue>is</font> flush;
+    $ <font color=blue>system</font> <font color=maroon>"write"</font> <font color=blue>is</font> write;
+    $ <font color=blue>system</font> <font color=maroon>"writeln"</font> <font color=blue>is</font> writeln;
+    $ <font color=blue>system</font> <font color=maroon>"main"</font> <font color=blue>is</font> main;
+</pre><p></p>
 
 <p></p>
 <a name="PREDEFINED_STATEMENTS"><big><b>4. PREDEFINED STATEMENTS</b></big></a>
@@ -1455,7 +1476,7 @@
 
     CASE_DECLS(<font color=red>integer</font>);
     CASE_DECLS(<font color=red>char</font>);
-</pre><p></p><hr>
+</pre><p></p>
 
 <p></p>
 <a name="PREDEFINED_TYPES"><big><b>5. PREDEFINED TYPES</b></big></a>
@@ -3706,7 +3727,7 @@
     Functions:
       WRITE_EXPR(A)
                 Write expr A to FILE OUT
-</pre><p></p><hr>
+</pre><p></p>
 
 <p></p>
 <a name="PARAMETERS"><big><b>6. PARAMETERS</b></big></a>
@@ -4074,7 +4095,7 @@
 </p><pre>
     attr_parameter ::=
       '<font color=blue>attr</font>' type_expression .
-</pre><p></p><hr>
+</pre><p></p>
 
 <p></p>
 <a name="OBJECT_ORIENTATION"><big><b>7. OBJECT ORIENTATION</b></big></a>
@@ -5564,117 +5585,239 @@
         inFile.bufferChar := character;
       <font color=blue>end</font> <font color=blue>func</font>; <font color=green># skipLineComment</font>
 </pre><p>
-</p><hr>
-
-<p></p>
-<a name="DECLARATIONS"><big><b>9. DECLARATIONS</b></big></a>
-<!-- =============== -->
-<p>
-  Seed7 has three kinds of declarations:
-</p><ul>
-    <li><!-- -  -->System declarations</li>
-    <li><!-- -  -->Syntax declarations</li>
-    <li><!-- -  -->Semantic declarations</li>
-</ul><p>
-  which are described in detail in the following subchapters.
 </p>
 
-<a name="System_declarations"><b>9.1 System declarations</b></a>
+<p></p>
+<a name="STRUCTURED_SYNTAX_DEFINITION"><big><b>9. STRUCTURED SYNTAX DEFINITION</b></big></a>
+<!-- =============================== -->
 <p>
-    With system declarations the analyzer and the interpreter
-  are informed about which objects should be used for various system
-  internal purposes. An example of a system declaration is
-</p><pre>
-    $ <font color=blue>system</font> <font color=maroon>"integer"</font> <font color=blue>is </font><font color=red>integer</font>;
-</pre><p>
-  This defines that the type of all integer literals is <tt>'<font color=red>integer</font>'</tt>.
-  Additionally <tt>'<font color=red>integer</font>'</tt> is used as type for all integers generated
-  by primitive actions.
-  There are different objects which are defined by a
-  system declaration
+    Many languages have predefined constructs like statements and
+  operators. This constructs have fixed syntax and semantics. A
+  natural language or some meta language is used to describe the
+  syntax and semantics of the constructs. Mostly the programmers
+  are not allowed to define new syntactic constructs. But sometimes
+  a full description of the syntax and semantics of a construct
+  written in the programming language itself is helpful. This
+  avoids the need to use ambiguous natural language descriptions
+  and it is also unnecessary to learn an additional meta language.
+  A formal description of new constructs in the language itself
+  gives also the opportunity to define new constructs. Note that a
+  compiler-compiler does not offer this opportunity and has also a
+  meta language.
+</p><p>
+    There are different notations to specify the syntax of
+  programming languages. The syntax statements of Seed7 use a
+  notation called Seed7 Structured Syntax Description (abbreviated
+  with S7SSD). The Backus-Naur Form (BNF) and its variants like the
+  Extended Backus-Naur Form (EBNF) are another example of such a
+  syntax specification. Since it is easier to understand new
+  concepts when they are compared to well known concepts, the EBNF
+  will be used as base to explain the S7SSD.
+</p>
+
+<a name="The_Extended_Backus-Naur_Form"><b>9.1 The Extended Backus-Naur Form</b></a>
+<p>
+    As the name says the Extended Backus-Naur Form is an extension
+  of the BNF. The extensions allow the definition of repetitions and
+  optional parts without the use of recursive definitons. The EBNF
+  has the following elements:
 </p><ul>
-    <li><!-- -  -->The types of literals and simple expressions for example:
-        <tt>'<font color=red>string</font>'</tt> for strings and <tt>'<font color=red>integer</font>'</tt> for integers</li>
-
-    <li><!-- -  -->Which objects should be used as result values for
-      primitive actions for example:<pre>
-        TRUE, FALSE and empty</pre></li>
-
-    <li><!-- -  -->The EXCEPTIONS which are to be raised by
-      primitive actions for example:<pre>
-        NUMERIC_ERROR and MEMORY_ERROR</pre></li>
-
-    <li><!-- -  -->Which objects should be used for several implicit
-      actions for example:<pre>
-        := ::= <tt>'destroy'</tt> <tt>'write'</tt> and <tt>'flush'</tt></pre></li>
-</ul><p>
-  The following system declarations exist
+    <li><!--  -  -->Nonterminal symbols consist of lower case letters and
+       underline characters.</li>
+    <li><!--  -  -->Terminal symbols are quoted strings or names in upper case
+       characters which describe unprintable characters (control
+       characters).</li>
+    <li><!--  -  -->The concatenation of nonterminal and/or terminal symbols is
+       described by writing them in sequence.</li>
+    <li><!--  -  -->With | two alternatives can be separated.</li>
+    <li><!--  -  -->Expressions of the extended Backus-Naur form can be put under
+       parenthesis.</li>
+    <li><!--  -  -->When a subexpression is optional it is enclosed in squared
+       brackets [ ... ] .</li>
+    <li><!--  -  -->When a subexpression may be omitted or repeated it is
+       enclosed in curly braces { ... } .</li>
+</ul></p>
+  The syntax of the extended Backus-Naur form can be described with
+  extended Backus-Naur form.
 </p><pre>
-    $ <font color=blue>system</font> <font color=maroon>"type"</font> <font color=blue>is</font> <font color=red>type</font>;
-    $ <font color=blue>system</font> <font color=maroon>"expr"</font> <font color=blue>is</font> <font color=red>expr</font>;
-    $ <font color=blue>system</font> <font color=maroon>"integer"</font> <font color=blue>is</font> <font color=red>integer</font>;
-    $ <font color=blue>system</font> <font color=maroon>"char"</font> <font color=blue>is</font> <font color=red>char</font>;
-    $ <font color=blue>system</font> <font color=maroon>"string"</font> <font color=blue>is</font> <font color=red>string</font>;
-    $ <font color=blue>system</font> <font color=maroon>"proc"</font> <font color=blue>is</font> <font color=red>proc</font>;
-    $ <font color=blue>system</font> <font color=maroon>"float"</font> <font color=blue>is</font> <font color=red>float</font>;
+    syntax_description ::=
+      { statement } .
 
-    $ <font color=blue>system</font> <font color=maroon>"true"</font> <font color=blue>is</font> TRUE;
-    $ <font color=blue>system</font> <font color=maroon>"false"</font> <font color=blue>is</font> FALSE;
-    $ <font color=blue>system</font> <font color=maroon>"empty"</font> <font color=blue>is</font> empty;
+    statement ::=
+      identifier '::=' expression '.' .
 
-    $ <font color=blue>system</font> <font color=maroon>"memory_error"</font> <font color=blue>is</font> MEMORY_ERROR;
-    $ <font color=blue>system</font> <font color=maroon>"numeric_error"</font> <font color=blue>is</font> NUMERIC_ERROR;
-    $ <font color=blue>system</font> <font color=maroon>"range_error"</font> <font color=blue>is</font> RANGE_ERROR;
-    $ <font color=blue>system</font> <font color=maroon>"io_error"</font> <font color=blue>is</font> IO_ERROR;
-    $ <font color=blue>system</font> <font color=maroon>"illegal_action"</font> <font color=blue>is</font> ILLEGAL_ACTION;
+    expression ::=
+      term { '|' term } .
 
-    $ <font color=blue>system</font> <font color=maroon>"assign"</font> <font color=blue>is</font> := ;
-    $ <font color=blue>system</font> <font color=maroon>"create"</font> <font color=blue>is</font> ::= ;
-    $ <font color=blue>system</font> <font color=maroon>"destroy"</font> <font color=blue>is</font> destroy;
-    $ <font color=blue>system</font> <font color=maroon>"ord"</font> <font color=blue>is</font> ord;
-    $ <font color=blue>system</font> <font color=maroon>"in"</font> <font color=blue>is</font> <font color=blue>in</font>;
-    $ <font color=blue>system</font> <font color=maroon>"prot_outfile"</font> <font color=blue>is</font> PROT_OUTFILE;
-    $ <font color=blue>system</font> <font color=maroon>"flush"</font> <font color=blue>is</font> flush;
-    $ <font color=blue>system</font> <font color=maroon>"write"</font> <font color=blue>is</font> write;
-    $ <font color=blue>system</font> <font color=maroon>"writeln"</font> <font color=blue>is</font> writeln;
-    $ <font color=blue>system</font> <font color=maroon>"main"</font> <font color=blue>is</font> main;
+    term ::=
+      factor factor .
+
+    factor ::=
+      identifier | string | '(' expression ')' |
+      '[' expression ']' | '{' expression '}' .
 </pre><p></p>
 
-<a name="Syntax_declarations"><b>9.2 Syntax declarations</b></a>
+<a name="The_syntax_of_a_statement"><b>9.2 The syntax of a statement</b></a>
 <p>
-    In many languages exist predefined constructs like statements
-  and operators. This constructs have fixed syntax and semantics
-  defined in a natural language or in some meta language. Further
-  more no programmer is allowed to define new such constructs.
-  But sometimes a full description of the syntax and semantics
-  of a construct written in the programming language itself is
-  helpful. This avoids the need to use ambiguous natural language
-  descriptions and to learn an additional meta language. Also
-  this gives the opportunity to define new constructs. Note that
-  a compiler-compiler does not offer this opportunity and has
-  also a meta language.
+    To explain the Seed7 Structured Syntax Description we propose
+  that a new statement, the <tt>'<font color=blue>loop</font>'</tt> statement, should be defined. A
+  <tt>'<font color=blue>loop</font>'</tt> statement is similar to <tt>'<font color=blue>while</font>'</tt> and <tt>'<font color=blue>repeat</font>'</tt> loops but
+  instead of having the conditional exit at the beginning or at the
+  end it's conditional exit is in the middle of the loop. This
+  middle conditional exit is part of the <tt>'<font color=blue>loop</font>'</tt> statement. Therefore
+  it should not be confused with the <tt>'<font color=blue>exit</font>'</tt> statement that exists in
+  some programming languages. An example of the <tt>'<font color=blue>loop</font>'</tt> statement is:
+<p><pre>
+    <font color=blue>loop</font>
+      ch := getc(inFile);
+    <font color=blue>until</font> ch = <font color=maroon>'\n'</font> <font color=blue>do</font>
+      stri &:= str(ch);
+    <font color=blue>end loop</font>;
+</pre><p>
+  The <tt>'<font color=blue>loop</font>'</tt> example above reads characters from a file and
+  concatenates them to a string until the character <tt><font color=maroon>'\n'</font></tt> is read.
+  The <tt><font color=maroon>'\n'</font></tt> ends the loop. Hence it is not added to the string.
+  An equivalent solution without the usage of the <tt>'<font color=blue>loop</font>'</tt> statement
+  would be:
+<p><pre>
+    <font color=blue>repeat</font>
+      ch := getc(inFile);
+      <font color=blue>if</font> ch <> <font color=maroon>'\n'</font> <font color=blue>then</font>
+        stri &:= str(ch);
+      <font color=blue>end if</font>;
+    <font color=blue>until</font> ch = <font color=maroon>'\n'</font>;
+</pre><p>
+  The S7SSD of the <tt>'<font color=blue>loop</font>'</tt> statement is:
+</p><pre>
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .loop.().until.().do.().end.loop   <font color=blue>is</font> -> 25;
+</pre><p>
+  The details of the S7SSD <tt>'<font color=blue>syntax</font>'</tt> definition will be explained
+  later. For now we concentrate at the heart of the S7SSD, the
+  expression:
+</p><pre>
+    .loop.().until.().do.().end.loop
+</pre><p>
+  For the purpose of the syntax description we can just remove the
+  dots, which gives:
+</p><pre>
+     loop () until () do () end loop
+</pre><p>
+  This are the keywords used in a <tt>'<font color=blue>loop</font>'</tt> statement. The symbol <tt>()</tt>
+  acts as placeholder for an expression.
+  With EBNF the <tt>'<font color=blue>loop</font>'</tt> statement can be described as:
+</p><pre>
+    loop_statement ::=
+      'loop'
+        statement
+      'until' expression 'do'
+        statement
+      'end' 'loop' .
+</pre><p>
+  An EBNF description may use many nonterminal symbols such as
+  <tt>'statement'</tt> or <tt>'expression'</tt>. The S7SSD does not distinguish
+  between different nonterminal symbols. Instead the S7SSD only
+  knows one nonterminal symbol: <tt>()</tt>
 </p><p>
-    When a syntax construct has parameters before the first
-  symbol or after the last symbol the priority and the
-  associativity of the construct are significant. Constructs
-  with stronger priority bind their parameters earlier than
-  constructs with weaker priority. The priority is described
-  by a natural number (inclusive 0). The strongest priority
-  is 0. Weaker priorities are described by larger numbers.
-  What bind means is can be declared with an example:
+  Therefore the S7SSD cannot distinguish between <tt>'statement'</tt>,
+  <tt>'expression'</tt> or something else. At the syntax level any kind of
+  expression can by substituted for a S7SSD nonterminal symbol <tt>()</tt>.
+  With EBNF it is possible to describe constraints such as the type
+  of an expression. The S7SSD relies on semantic checks to verify
+  such constraints. Given the S7SSD of the <tt>'<font color=blue>loop</font>'</tt> statement an
+  expression like
+</p><pre>
+    <font color=blue>loop</font>
+      <font color=maroon>"X"</font>
+    <font color=blue>until</font> 1+2 <font color=blue>do</font>
+      <font color=red>integer</font>
+    <font color=blue>end loop</font>
+</pre><p>
+  would be legal as it contains the required keywords
+</p><pre>
+   <font color=blue>loop</font>  <font color=blue>until</font>  <font color=blue>do</font>  <font color=blue>end</font>  <font color=blue>loop</font>
+</pre><p>
+  and the expressions
+</p><pre>
+    <font color=maroon>"X"</font>  1+2  <font color=red>integer</font>
+</pre><p>
+  at the places of the <tt>()</tt> symbols. This is exactly what the syntax
+  definition specifies, but it would be not be considered correct
+  given the description of the <tt>'<font color=blue>loop</font>'</tt> statement at the beginning of
+  the chapter. To determine which types of expressions are allowed
+  at the places of the <tt>()</tt> symbol, a semantic definition of the
+  <tt>'<font color=blue>loop</font>'</tt> statement is necessary. A semantic definition is just a
+  function definition which uses the keywords and parameters from
+  the syntax definition. The definition of the <tt>'<font color=blue>loop</font>'</tt> function
+  (semantic definition of the <tt>'<font color=blue>loop</font>'</tt> statement) is:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: loop
+                  (<font color=blue>in</font> <font color=red>proc</font>: statements1)
+                until (<font color=blue>ref</font> <font color=red>func boolean</font>: condition) do
+                  (<font color=blue>in</font> <font color=red>proc</font>: statements2)
+                end loop <font color=blue>is func</font>
+      <font color=blue>local</font>
+        <font color=blue>var</font> <font color=red>boolean</font>: exitLoop <font color=blue>is</font> FALSE;
+      <font color=blue>begin</font>
+        <font color=blue>repeat</font>
+          statements1;
+          <font color=blue>if not</font> condition <font color=blue>then</font>
+            statements2;
+          <font color=blue>else</font>
+            exitLoop := TRUE;
+          <font color=blue>end if</font>;
+        <font color=blue>until</font> exitLoop;
+      <font color=blue>end func</font>;
+</pre><p>
+  This definition determines the types of the expressions accepted
+  between the keywords. Besides that the semantic definition of the
+  <tt>'<font color=blue>loop</font>'</tt> statement is just a normal function definition. Note that
+  the sequence of keywords and parameters in the header of this
+  function definition is determined by the corresponding syntax
+  definition.
+</p><p>
+  The parameters <tt>'statements1'</tt>, <tt>'condition'</tt> and <tt>'statements2'</tt> are
+  closures. A closure is a function without parameters. Function
+  types such as <tt>'<font color=red>proc</font>'</tt> or <tt>'<font color=red>func boolean</font>'</tt> are used as type of formal
+  closure parameters. An expression with the correct type is allowed
+  as actual closure parameter. This actual parameter expression is
+  not evaluated when the function is called. Instead the closure
+  expression is evaluated every time the formal closure parameter
+  is used. This way <tt>'statements1'</tt>, <tt>'condition'</tt> and <tt>'statements2'</tt> are
+  not executed when the <tt>'<font color=blue>loop</font>'</tt> function is called. Inside the body
+  of the <tt>'<font color=blue>loop</font>'</tt> function the closures are executed at some places.
+</p><p>
+  The <tt>'<font color=blue>loop</font>'</tt> function uses a <tt>'<font color=blue>repeat</font>'</tt> and an <tt>'<font color=blue>if</font>'</tt> statement to
+  implement the desired behaviour. When necessary the closures are
+  executed several times.
+</p><p>
+  For the <tt>'<font color=blue>loop</font>'</tt> example with the semantic errors (see above) we
+  would get an error message like:
+</p><pre>
+    *** chkloop.sd7(35):51: Match for {loop "X" until {1 + 2 } do integer end loop } failed
+</pre><p></p>
+
+<a name="Priority_and_assoziativity"><b>9.3 Priority and assoziativity</b></a>
+<p>
+    When a syntax construct has parameters before the first symbol
+  or after the last symbol the priority and the associativity of the
+  construct are significant. Constructs with stronger priority bind
+  their parameters earlier than constructs with weaker priority. The
+  priority is described by a natural number (inclusive 0). The
+  strongest priority is 0. Weaker priorities are described by larger
+  numbers. What bind means is can be explained with an example:
 </p><pre>
                                        =
     A + B = C * D                    /   \
                                     /     \
-    * priority 4                   +       *
-    + priority 5                 /   \   /   \
-    = priority 8                A     B C     D
+    * priority  6                  +       *
+    + priority  7                /   \   /   \
+    = priority 12               A     B C     D
 </pre><p>
-  First the * takes its parameters, then the + and at last
-  the = follows.
+  First the * takes its parameters, then the + and at last the =
+  follows.
 </p><p>
-  The associativity describes, in which order constructs
-  with equal priority bind their parameters. For example
+  The associativity describes, in which order constructs with equal
+  priority bind their parameters. For example
 </p><pre>
     A - B - C
 </pre><p>
@@ -5682,7 +5825,9 @@
 </p><pre>
     (A - B) - C    or   A - (B - C)
 </pre><p>
-  There are four associativities possible:</p><pre>
+  The first interpretation is usually preferred by mathematicians
+  and is described with the associativity -> . Generally four
+  associativities are possible:</p><pre>
                                                    Symbol
 
     Binding from left to right                       ->
@@ -5696,35 +5841,34 @@
     left to right and at the right side there
     is a binding from right to left                 ->&lt;-
 </pre><p>
-  The last two possibilities give no legal interpretation
-  in the subtraction example.
-  The third kind of assiciativity ( &lt;-> ) is used by the
-  equal operator ( = ) of Pascal because there a expression
-  like
+  The last two possibilities give no legal interpretation in the
+  subtraction example. The third kind of assiciativity ( &lt;-> ) is
+  used by the equal operator ( = ) of Pascal because there a
+  expression like
 </p><pre>
     A = B = C
 </pre><p>
   is not legal.
 </p><p>
-  There is a second way to describe the associativity.
-  The associativity describes if an operand must have a stronger
+  There is a second way to describe the associativity. The
+  associativity describes if an operand must have a stronger
   priority than the priority of the operator. For example:
 </p><pre>
-                             -                     3
+                             -                     7
     A - B - C              /   \                 /   \
-                          /     \           &lt;=3 /     \ &lt;3
-    - priority 3 ->      /       \             /       \
-                        -         C           3         0
+                          /     \           &lt;=7 /     \ &lt;7
+    - priority 7 ->      /       \             /       \
+                        -         C           7         0
                       /   \                 /   \
-                     /     \           &lt;=3 /     \ &lt;3
+                     /     \           &lt;=7 /     \ &lt;7
                     /       \             /       \
                    A         B           0         0
 </pre><p>
-  The numbers in the nodes of the right tree show the priority
-  of each sub expression (sub tree). With &lt; and &lt;= the required
+  The numbers in the nodes of the right tree show the priority of
+  each sub expression (sub tree). With &lt; and &lt;= the required
   condition for the priority of an operand is described. An
-  interpretation is legal if all this conditions are met.
-  If there are more than one legal interpretations or no legal
+  interpretation is legal if all this conditions are met. If there
+  are more than one legal interpretations or no legal
   interpretation the expression is illegal.
 </p><p>
   Table for the possibilities of associativity:
@@ -5752,48 +5896,482 @@
   Middle operands can have any priority.
 </p>
 
-<a name="Semantic_declarations"><b>9.3 Semantic declarations</b></a>
+<a name="The_syntax_of_operators"><b>9.4 The syntax of operators</b></a>
 <p>
-    A semantic declaration declares an object in the database.
-  For example
+    A syntax definition specifies the way a usage of a statement
+  or operator must be written. For example a call of the
+  <tt>'<font color=blue>not</font>'</tt> operator looks like:
 </p><pre>
-    <font color=blue>const</font> <font color=red>integer</font>: ONE <font color=blue>is</font> 1;
+    <font color=blue>not</font> okay
 </pre><p>
-  declares the <tt>'<font color=red>integer</font>'</tt> constant ONE which is initialized with the
-  value 1. Variable declarations are also possible. For example
+  To describe the syntax of the <tt>'<font color=blue>not</font>'</tt> operator we write:
 </p><pre>
-    <font color=blue>var</font> <font color=red>integer</font>: NUMBER <font color=blue>is</font> 0;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .not.() <font color=blue>is</font> &lt;- 13;
 </pre><p>
-  declares the <tt>'<font color=red>integer</font>'</tt> variable NUMBER which is initialized with
-  the value 0. With each declaration the new declared object
-  obtains an initial value. Note that it is not possible to declare
-  an object without an initial value. Declarations with initialisation
-  expressions are also possible. For example
+  This means that a <tt>'<font color=blue>not</font>'</tt> expression is constructed with the
+  symbol <tt>'<font color=blue>not</font>'</tt> followed by a parameter. The place of the
+  parameter is marked with the () sign. The syntax description
+  contains no information about the types of the parameters. At
+  the syntax level a parameter may be anything. With <tt>'&lt;-'</tt> the
+  associativity of the <tt>'<font color=blue>not</font>'</tt> operator is specified as right
+  associative. This means that the right operand is allowed to
+  have the same priority as the operator symbol. So the
+  expression
 </p><pre>
-    <font color=blue>var</font> <font color=red>string</font>: FILE_NAME <font color=blue>is</font> NAME & <font color=maroon>".txt"</font>;
+    <font color=blue>not not</font> okay
 </pre><p>
-  The expression is evaluated and the result is assigned to the
-  new object using the creation operation ( ::= ). For example
-  the expression
+  is legal and means
 </p><pre>
-    ONE . ::= . 1
+    <font color=blue>not</font> (<font color=blue>not</font> okay)
 </pre><p>
-  is executed to assign 1 to the object ONE. There are two
-  reasons to use ::= instead of := to assign the initialisation
-  value.
-</p><ol><li>
-  <!-- 1.  -->The assignment ( := ) can only be used to assign a value
-    to a variable and initialisation is also needed for
-    constants.
-</li><li>
-  <!-- 2.  -->Sometimes some initialisations are needed for the new
-    object in addition to the pure assignment.
-</li></ol><p>
-  For all predefined types the creation operator ( ::= )
-  is already defined. To allow the declaration of objects of a
-  new user defined type the constructor operation for this type
-  must be defined.
-</p><hr>
+  When the associativity of the <tt>'<font color=blue>not</font>'</tt> operator is specified with
+  <tt>'->'</tt> instead of <tt>'&lt;-'</tt> the <tt>'<font color=blue>not not</font>'</tt> expression above is not legal.
+  With 13 the priority of the whole <tt>'<font color=blue>not</font>'</tt> operator is determined.
+  As convention priorities from 1 to 20 are used by operators
+  and priority 25 is used by statements. Arithmetic operators
+  have priorities from 1 to 11 and comparisons have priority 12.
+</p><p>
+  To define the <tt>'<font color=blue>not</font>'</tt> operator completely there must be also
+  a semantic definition which is as follows:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func boolean</font>: not (<font color=blue>in</font> <font color=red>boolean</font>: aBool) <font color=blue>is func</font>
+      <font color=blue>result</font>
+        <font color=blue>var</font> <font color=red>boolean</font>: result <font color=blue>is</font> FALSE;
+      <font color=blue>begin</font>
+        <font color=blue>if</font> aBool <font color=blue>then</font>
+          result := FALSE;
+        <font color=blue>else</font>
+          result := TRUE;
+        <font color=blue>end if</font>;
+      <font color=blue>end func</font>;
+</pre><p>
+  In the declaration the <tt>'<font color=blue>not</font>'</tt> operator is written exactly
+  in the same way it is written when it is called. The syntax
+  definition is used at both places: declaration and call.
+  The syntax and semantic declarations define precisely how
+  the <tt>'<font color=blue>not</font>'</tt> operator works.
+</p><p>
+    As next example we try an infix operator like the <tt>'<font color=blue>and</font>'</tt> operator.
+  A call of the <tt>'<font color=blue>and</font>'</tt> operator may look like:
+</p><pre>
+    okay <font color=blue>and not</font> error
+</pre><p>
+  To describe the syntax of the <tt>'<font color=blue>and</font>'</tt> operator we write:
+</p><pre>
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: ().and.() <font color=blue>is</font>     -> 14;
+</pre><p>
+  This means that an <tt>'<font color=blue>and</font>'</tt> expression is constructed with the
+  symbol <tt>'<font color=blue>and</font>'</tt> surrounded by parameters. The <tt>'->'</tt> defines the
+  <tt>'<font color=blue>and</font>'</tt> operator as left associative. This means that an expression
+  like
+</p><pre>
+    A <font color=blue>and</font> B <font color=blue>and</font> C
+</pre><p>
+  is interpreted as
+</p><pre>
+    (A <font color=blue>and</font> B) <font color=blue>and</font></font> C
+</pre><p>
+  With 14 the priority of the whole <tt>'<font color=blue>and</font>'</tt> operator is determined.
+  Since priority 14 is weaker than the priority of the <tt>'<font color=blue>not</font>'</tt> operator
+  which is 13 the example expression is evaluated as:
+</p><pre>
+    okay <font color=blue>and</font> (<font color=blue>not</font> error)
+</pre><p>
+  Note that the expression
+</p><pre>
+    okay <font color=blue>and not</font> error
+</pre><p>
+  makes no sense when the <tt>'<font color=blue>and</font>'</tt> operator has priority 12 instead of 14.
+</p><p>
+  The S7SSD treats everything as operator description. Operators
+  have priority and assoziativity. The priority and associativity
+  determine in which succession the S7SSD syntax rules get applied.
+  To explain priority and assoziativity we use the basic arithmetic
+  operations (+,-,*,/). To describe them with EBNF we can write:
+</p><pre>
+    factor :=
+      number | name .
+
+    expression_5 ::=
+      factor |
+      ( '+' expression_5 ) |
+      ( '-' expression_5 ) .
+
+    expression_6 ::=
+      expression_5 |
+      ( expression_6 '*' expression_7 ) |
+      ( expression_6 '/' expression_7 ) .
+
+    expression_7 ::=
+      expression_6 |
+      ( expression_7 '+' expression_6 ) |
+      ( expression_7 '-' expression_6 ) .
+</pre><p>
+  This describes the following things:
+</p><ul>
+    <li><!--  -  -->The operators have different priorities:<ul>
+       <li><!--  -  -->Plus and minus signs are executed first</li>
+       <li><!--  -  -->Multiplication and division are executed second.</li>
+       <li><!--  -  -->Addition and subtraction are executed last.</li></ul></li>
+    <li><!--  -  -->This priorities are exactly what we expect from an
+       arithmetic expression.</li>
+    <li><!--  -  -->Additionally we see that ++2 is allowed and interpreted as
+       +(+(2)) which means that the plus sign is a right-associative
+       operator.</li>
+    <li><!--  -  -->We can also see that a*b*c is allowed and interpreted as
+       (a*b)*c which means that the multiplication is a
+       left-associative operator.</li>
+</ul></p>
+  All this things can also be described with S7SSD:
+</p><pre>
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: . + .()      is &lt;-  5;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: . - .()      is &lt;-  5;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). * .()   is  -> 6;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). / .()   is  -> 6;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). + .()   is  -> 7;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). - .()   is  -> 7;
+</pre><p>
+  As we can see the S7SSD is shorter as the description with EBNF.
+  A syntax statement is expained as follows:
+</p><ul>
+    <li><!--  -  -->The $ is used to introduce all hardcoded statements.</li>
+    <li><!--  -  -->The keyword <tt>'<font color=blue>syntax</font>'</tt> introduces a structured syntax
+       description.</li>
+    <li><!--  -  -->The result of the recognized expression will have
+       the type <tt>'<font color=red>expr</font>'</tt>. The type <tt>'<font color=red>expr</font>'</tt> is used between the syntax
+       and the semantic analysis. The type <tt>'<font color=red>expr</font>'</tt> describes
+       expressions which are syntactically analyzed but not
+       semantically analyzed. After the semantic analysis (and
+       during the runtime) the type <tt>'<font color=red>expr</font>'</tt> is not used.</li>
+    <li><!--  -  -->The colon ':' is used as separator between type and syntax
+       description.</li>
+    <li><!--  -  -->A dot expression like <tt>'.(). * .()'</tt> is introduced (as can
+       probably be guessed by the name) with a dot. For the purpose
+       of the syntax description we can just remove the dots in
+       our mind: <tt>'() * ()'</tt></li>
+    <li><!--  -  -->The symbol <tt>'<font color=blue>is</font>'</tt> is used in all Seed7 declarations as
+       separator between the name and the value.</li>
+    <li><!--  -  -->The associativity is described with one of the symbols
+       <tt>-></tt> (left-associative), <tt>&lt;-</tt> (right-associative),
+       <tt>&lt;-></tt> (not associative) and <tt>->&lt;-</tt> (both associativitys).
+       When there are no left or right operands, as it is the case
+       for the <tt>'<font color=blue>loop</font>'</tt> statement, the associativity is irrelevant.</li>
+    <li><!--  -  -->Finally the priority of the syntax construct is defined with
+       a integer literal like <tt>'6'</tt>. The priority <tt>'6'</tt> is used for the
+       operators <tt>'*'</tt>, <tt>'/'</tt>, <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>.</li>
+</ul><p></p>
+
+<a name="Syntax_of_predefined_statements"><b>9.5 Syntax of predefined statements</b></a>
+<p>
+    Predefined statements can also be defined with the S7SSD.
+  E.g.: The <tt>'<font color=blue>while</font>'</tt> statement. A use of the <tt>'<font color=blue>while</font>'</tt> statement is:
+</p><pre>
+    <font color=blue>while</font> element_index > 0 <font color=blue>and</font> okay <font color=blue>do</font>
+      processElement;
+      write(<font color=maroon>"."</font>);
+    <font color=blue>end while</font>;
+</pre><p>
+  To describe the syntax of the <tt>'<font color=blue>while</font>'</tt> statement we write:
+</p><pre>
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: while.().do.().end.while <font color=blue>is</font> -> 25;
+</pre><p>
+  This means that the <tt>'<font color=blue>while</font>'</tt> statement is an expression with the
+  symbols <tt>'<font color=blue>while</font>'</tt>, <tt>'<font color=blue>do</font>'</tt>, <tt>'<font color=blue>end</font>'</tt> and <tt>'<font color=blue>while</font>'</tt>. With <tt>'->'</tt> the
+  associativity of the <tt>'<font color=blue>while</font>'</tt> statement is specified as left
+  associative. The associativity has no meaning for the
+  <tt>'<font color=blue>while</font>'</tt> statement since there is no parameter before the first
+  symbol or after the last symbol. With 25 the priority of the
+  whole <tt>'<font color=blue>while</font>'</tt> statement is determined.
+</p><p>
+  The semantic definition of the <tt>'<font color=blue>while</font>'</tt> statement is as follows:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: while (<font color=blue>ref</font> func <font color=red>boolean</font>: condition) do
+        (<font color=blue>ref</font> <font color=red>proc</font>: statement) end while <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        <font color=blue>if</font> condition <font color=blue>then</font>
+          statement;
+          <font color=blue>while</font> condition <font color=blue>do</font>
+            statement;
+          <font color=blue>end while</font>;
+        <font color=blue>end if</font>;
+      <font color=blue>end func</font>;
+</pre><p>
+  The syntax definition is used for the declaration and for the call.
+  This declaration defines precisely how the <tt>'<font color=blue>while</font>'</tt> statement
+  works. It is based on the <tt>'<font color=blue>if</font>'</tt> statement and uses recursion
+  to emulate the repetition of the loop body.
+  Another example for a syntax description is the
+  <tt>'<font color=blue>repeat</font>'</tt> statement
+</p><pre>
+    <font color=blue>repeat</font>
+      processElement;
+      write(<font color=maroon>"."</font>);
+    <font color=blue>until</font> element_index = 0 <font color=blue>or not</font> okay;
+</pre><p>
+  which has the following syntax description:
+</p><pre>
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: repeat.().until.() <font color=blue>is</font> -> 25;
+</pre><p>
+  This means that the <tt>'<font color=blue>repeat</font>'</tt> statement is an expression with
+  the symbols <tt>'<font color=blue>repeat</font>'</tt> and <tt>'<font color=blue>until</font>'</tt> and a parameter between
+  <tt>'<font color=blue>repeat</font>'</tt> and <tt>'<font color=blue>until</font>'</tt> and after <tt>'<font color=blue>until</font>'</tt>. With 25 the priority
+  of the whole <tt>'<font color=blue>repeat</font>'</tt> statement is determined. With <tt>'->'</tt> the
+  associativity of the <tt>'<font color=blue>repeat</font>'</tt> statement is specified as left
+  associative. This allows priorities from 0 to 24 for the
+  parameter after <tt>'<font color=blue>until</font>'</tt>. Since statements have priority 25
+  it is not possible to write a statement direct behind <tt>'<font color=blue>until</font>'</tt>.
+</p><p>
+  A simple <tt>'<font color=blue>if</font>'</tt> statement, without
+  <tt>'<font color=blue>elsif</font>'</tt> part, is the next example.
+  A usage of this <tt>'<font color=blue>if</font>'</tt> statement might be:
+</p><pre>
+    <font color=blue>if</font> okay <font color=blue>then</font>
+      writeln(<font color=maroon>"okay"</font>);
+    <font color=blue>else</font>
+      writeln(<font color=maroon>"not okay"</font>);
+    <font color=blue>end if</font>;
+</pre><p>
+  As syntax description we use
+</p><pre>
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .if.().then.().end.if <font color=blue>is</font>            -> 25;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .if.().then.().else.().end.if <font color=blue>is</font>    -> 25;
+</pre><p>
+  Note that this description allows <tt>'<font color=blue>if</font>'</tt> statements with and
+  without <tt>'<font color=blue>else</font>'</tt> parts. As semantic description we use
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: if (<font color=blue>in</font> <font color=red>boolean</font>: condition) then
+                  (<font color=blue>in</font> <font color=red>proc</font>: statement)
+                end if <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        <font color=blue>case</font> condition <font color=blue>of</font>
+          <font color=blue>when</font> {TRUE}: statement;
+        <font color=blue>end case</font>;
+      <font color=blue>end func</font>;
+
+    <font color=blue>const</font> proc: if (<font color=blue>in</font> <font color=red>boolean</font>: condition) then
+                  (<font color=blue>in</font> <font color=red>proc</font>: statement1)
+                else
+                  (<font color=blue>in</font> <font color=red>proc</font>: statement2)
+                end if <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        <font color=blue>case</font> condition of
+          <font color=blue>when</font> {TRUE}:  statement1;
+          <font color=blue>when</font> {FALSE}: statement2;
+        <font color=blue>end case</font>;
+      <font color=blue>end func</font>;
+</pre><p>
+  The two forms of the <tt>'<font color=blue>if</font>'</tt> statement are based on the
+  <tt>'<font color=blue>case</font>'</tt> statement. A more complex <tt>'<font color=blue>if</font>'</tt> statement with <tt>'<font color=blue>elsif</font>'</tt>
+  parts can be:
+</p><pre>
+    <font color=blue>if</font> number &lt; 0 <font color=blue>then</font>
+      write(<font color=maroon>"less"</font>);
+    <font color=blue>elsif</font> number = 0 <font color=blue>then</font>
+      write(<font color=maroon>"equal"</font>);
+    <font color=blue>else</font>
+      write(<font color=maroon>"greater"</font>);
+    <font color=blue>end if</font>;
+</pre><p>
+  How to define the syntax and the semantic for this statement
+  is described in the next chapter.
+</p>
+
+<a name="Advanced_syntax_definitions"><b>9.6 Advanced syntax definitions</b></a>
+<p>
+  When we want to use some special syntax which should be only
+  allowed at some place we do the following:
+</p><ul>
+    <li><!--  -  -->Define the special syntax with S7SSD in a way that does not
+       contradict with the rest of the syntax definitions.</li>
+    <li><!--  -  -->Use semantic definitions to make sure that this syntax
+       construct can only be used at the place desired.</li>
+</ul><p>
+  The EBNF of the <tt>'<font color=blue>if</font>'</tt> statement with <tt>'<font color=blue>elsif</font>'</tt> parts is:
+</p><pre>
+    if_statement ::=
+      'if' expression 'then'
+        statement
+      { 'elsif' expression 'then'
+        statement }
+      [ 'else'
+        statement ]
+      'end' 'if' .
+</pre><p>
+  The S7SSD of this <tt>'<font color=blue>if</font>'</tt> statement is:
+</p><pre>
+    $ <font color=blue>syntax</font> <font color=red>expr</font> : .if.().then.().end.if           <font color=blue>is</font> -> 25;
+    $ <font color=blue>syntax</font> <font color=red>expr</font> : .if.().then.().().end.if        <font color=blue>is</font> -> 25;
+
+    $ <font color=blue>syntax</font> <font color=red>expr</font> : .elsif.().then.()               <font color=blue>is</font> <- 60;
+    $ <font color=blue>syntax</font> <font color=red>expr</font> : .elsif.().then.().()            <font color=blue>is</font> <- 60;
+    $ <font color=blue>syntax</font> <font color=red>expr</font> : .else.()                        <font color=blue>is</font> <- 60;
+</pre><p>
+  Instead of one rule (as EBNF does) the rule is broken into several
+  S7SSD rules. This is necessary because S7SSD does not support the
+  [ ] and { } notations. They are not supported for good reasons:
+  They complicate the parameter lists and they are also not so easy
+  to implement. On the other hand, the BNF like rules of the S7SSD
+  lead to semantic constructs which are easy to parse and easy to
+  compile. The broken down S7SSD rules of the <tt>'<font color=blue>if</font>'</tt> statement
+  correspond to the following EBNF description:
+</p><pre>
+    if_statement ::=
+      'if' expression 'then'
+        statement
+      'end' 'if' .
+
+    if_statement ::=
+      'if' expression 'then'
+        statement
+        elseif_or_else_part
+      'end' 'if' .
+
+    elseif_or_else_part ::=
+      'elsif' expression 'then'
+        statement .
+
+    elseif_or_else_part ::=
+      'elsif' expression 'then'
+        statement
+        elseif_or_else_part .
+
+    elseif_or_else_part ::=
+      'else'
+        statement .
+</pre><p>
+  Since the S7SSD uses only one nonterminal symbol <tt>'()'</tt> it is the job
+  of the semantic level to make sure that only the right nonterminal
+  symbol can be used. This is done by introducing the type
+  <tt>'<font color=red>ELSIF_PROC</font>'</tt> (which corresponds to the nonterminal symbol
+  <tt>'elseif_or_else_part'</tt> of the EBNF) and the type
+  <tt>'<font color=red>ELSIF_RESULT</font>'</tt> (which is the result
+  of the a <tt>'<font color=red>ELSIF_PROC</font>'</tt>).
+</p><p>
+  Normally a syntax declaration can be used in many semantic
+  declarations. E.g.: The syntax of the <tt>'+'</tt> operator is defined
+  once and the semantic of the <tt>'+'</tt> operator is defined for the types
+  <tt>'<font color=red>integer</font>'</tt>, <tt>'<font color=red>bigInteger</font>'</tt>, <tt>'<font color=red>float</font>'</tt>, <tt>'<font color=red>complex</font>'</tt>, ... This possibility
+  is not needed for the <tt>'<font color=blue>if</font>'</tt> statement. For each of the five
+  S7SSD syntax rules of the <tt>'<font color=blue>if</font>'</tt> statement just one
+  corresponding semantic declaration is done:
+</p><pre>
+    <font color=green># Semantic for the syntax: .if.().then.().end.if</font>
+    <font color=blue>const</font> <font color=red>proc</font>: if (<font color=blue>in</font> <font color=red>boolean</font>: condition) then
+                  (<font color=blue>in</font> <font color=red>proc</font>: statements)
+                end if                                    <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        <font color=blue>case</font> condition <font color=blue>of</font>
+          <font color=blue>when</font> {TRUE}: statements;
+        <font color=blue>end case</font>;
+      <font color=blue>end func</font>;
+
+    <font color=green># Semantic for the syntax: .if.().then.().().end.if</font>
+    <font color=blue>const</font> <font color=red>proc</font>: if (<font color=blue>in</font> <font color=red>boolean</font>: condition) then
+                  (<font color=blue>in</font> <font color=red>proc</font>: statements)
+                (<font color=blue>in</font> <font color=red>ELSIF_PROC</font>: elsifPart)
+                end if                                    <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        <font color=blue>case</font> condition <font color=blue>of</font>
+          <font color=blue>when</font> {TRUE}: statements;
+          <font color=blue>when</font> {FALSE}: elsifPart;
+        <font color=blue>end case</font>;
+      <font color=blue>end func</font>;
+
+    <font color=green># Semantic for the syntax: .elsif.().then.()</font>
+    <font color=blue>const</font> <font color=red>ELSIF_PROC</font>: elsif (<font color=blue>in</font> <font color=red>boolean</font>: condition) then
+                        (<font color=blue>in</font> <font color=red>proc</font>: statements)             <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        <font color=blue>case</font> condition <font color=blue>of</font>
+          <font color=blue>when</font> {TRUE}: statements;
+        <font color=blue>end case</font>;
+      <font color=blue>end func</font>;
+
+    <font color=green># Semantic for the syntax: .elsif.().then.().()</font>
+    <font color=blue>const</font> <font color=red>ELSIF_PROC</font>: elsif (<font color=blue>in</font> <font color=red>boolean</font>: condition) then
+                        (<font color=blue>in</font> <font color=red>proc</font>: statements)
+                      (<font color=blue>in</font> <font color=red>ELSIF_PROC</font>: elsifPart)          <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        <font color=blue>case</font> condition <font color=blue>of</font>
+          <font color=blue>when</font> {TRUE}: statements;
+          <font color=blue>when</font> {FALSE}: elsifPart;
+        <font color=blue>end case</font>;
+      <font color=blue>end func</font>;
+
+    <font color=green># Semantic for the syntax: .else.()</font>
+    <font color=blue>const</font> <font color=red>ELSIF_PROC</font>: else
+                        (<font color=blue>ref</font> <font color=red>void</font>: voidValue)        <font color=blue>is</font> ELSIF_EMPTY;
+</pre><p>
+  Since no other functions of type <tt>'<font color=red>ELSIF_PROC</font>'</tt> are defined only
+  legal <tt>'<font color=blue>if</font>'</tt> statements can be written.
+</p>
+
+<a name="Comparison_of_EBNF_and_S7SSD"><b>9.7 Comparison of EBNF and S7SSD</b></a>
+<p>
+  In the S7SSD of the <tt>'<font color=blue>loop</font>'</tt> statement
+</p><pre>
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .loop.().until.().do.().end.loop <font color=blue>is</font> -> 25;
+</pre><p>
+  are no nonterminal expressions <tt>'()'</tt> before the first keyword or
+  after the last keyword. Therefore the assoziativity does not play
+  any role. The nonterminal expressions <tt>'()'</tt> of the <tt>'<font color=blue>loop</font>'</tt> statement
+  are all surrounded by keywords and therefore they can have any
+  priority. As priority of the <tt>'<font color=blue>loop</font>'</tt> 25 is choosen just because
+  most other statements have also priority 25. The assignments
+  (:= +:= *:= ...) have priority 20 and all operators used in
+  arithmetic, boolean and string expressions have priorities less
+  than 20. BTW: The semicolon operator (;) is defined with the
+  priority 50. Operators with a priority of 0 get their parameters
+  before operators with priority 1 and so on.
+</p><p>
+  The corresponding EBNF description of the <tt>'<font color=blue>loop</font>'</tt> statement would
+  be:
+</p><pre>
+    expression_25 ::=
+      'loop'
+        expression_127
+      'until' expression_127 'do'
+        expression_127
+      'end' 'loop' .
+</pre><p>
+  We must keep in mind that alternative rules for expression_25 are
+  also possible and that for every priority level a rule like
+</p><pre>
+    expression_127 ::= expression_126 .
+</pre><p>
+  is defined. Additionally the following rules are defined:
+</p><pre>
+    expression_0 ::= token | parentheses_expression |
+      call_expression | dot_expression .
+
+    token ::=
+      identifier | literal .
+
+    parentheses_expression ::=
+      '(' expression_127 ')' .
+
+    call_expression ::=
+      expression_127 [ '('
+      [ expression_127 { ',' expression_127 } ]
+      ')' ] .
+
+    dot_expression ::=
+      [ '.' ] call_expression { '.' call_expression } .
+</pre><p>
+  There are some things which are out of the scope of the S7SSD.
+  The syntax of tokens (whitespace, comments, identifiers and
+  literals) and expressions (parentheses, function calls and dot
+  expressions) is hardcoded. The hardcoded constructs are described
+  in <a href="tokens.htm">chapter 10 (Tokens)</a> and <a href="expr.htm">chapter 11 (Expressions)</a>.
+</p><p>
+  For the reasons mentioned above it is not possible to transform
+  every EBNF syntax description into S7SSD. Transforming S7SSD
+  descriptions to EBNF is always possible.
+</p><p>
+  The advantage of the S7SSD lies in its simplicity and that a fast
+  automated syntax recognition algorithm can be easily implemented.
+  It is exactly the combination of hardcoded syntax recognition and
+  flexible syntax rules that make it successful.
+</p>
 
 <p></p>
 <a name="TOKENS"><big><b>10. TOKENS</b></big></a>
@@ -6092,7 +6670,7 @@
       '\a' | '\b' | '\e' | '\f' | '\n' | '\r' | '\t' | '\v' |
       '\\' | '\''' | '\"' | '\' upper_case_letter |
       '\' { space } '\' | '\' integer_literal '\' .
-</pre><p></p><hr>
+</pre><p></p>
 
 <p></p>
 <a name="EXPRESSIONS"><big><b>11. EXPRESSIONS</b></big></a>
@@ -6103,8 +6681,9 @@
   predefined syntax rules. On the other side there are expressions
   which are constructed according to syntax rules defined with
   syntax declarations. Here we describe only simple expressions.
-  How syntax declarations work is described in the Chapters 3 and
-  8.2. There are only few fixed predefined syntax rules:
+  How syntax declarations work is described in <a href="decls.htm#Syntax_declarations">Chapter 3.2
+  (Syntax declarations)</a> and <a href="s7ssd.htm">chapter 9 (Structured syntax
+  definition)</a>. There are only few fixed predefined syntax rules:
 </p>
 
 <a name="EXPRESSION_Parentheses"><b>11.1 Parentheses</b></a>
@@ -6195,7 +6774,7 @@
 </p><pre>
     dot_expression ::=
       [ '.' ] call_expression { '.' call_expression } .
-</pre><p></p><hr>
+</pre><p></p>
 
 <p></p>
 <a name="OPERATING_SYSTEM_ACCESS"><big><b>12. OPERATING SYSTEM ACCESS</b></big></a>
@@ -6280,7 +6859,7 @@
     remove(<font color=maroon>"file"</font>);
     rename(<font color=maroon>"old_name"</font>, <font color=maroon>"new_name"</font>);
     copy(<font color=maroon>"from"</font>, <font color=maroon>"to"</font>);
-</pre><p></p><hr>
+</pre><p></p>
 
 <p></p>
 <a name="PRIMITIVE_ACTIONS"><big><b>13. PRIMITIVE ACTIONS</b></big></a>
@@ -7371,7 +7950,6 @@
     <tr><td>UT8_WORD_READ</td>       <td>ut8_word_read</td>       <td>ut8WordRead</td></tr>
     <tr><td>UT8_WRITE</td>           <td>ut8_write</td>           <td>ut8Write</td></tr>
 </table><p></p>
-<hr>
 
 <p></p>
 <a name="ERRORS"><big><b>14. ERRORS</b></big></a>
@@ -7546,4 +8124,4 @@
     this error can only happen when the basic libraries are defined
     wrong. Principally this error is possible with the following
     operations: :=, incr, decr, wrd_rd, lin_rd</dd><dt>
-</dl></p><hr>
+</dl></p>

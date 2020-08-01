@@ -1,3 +1,10 @@
+20081208:
+- A new chapter about the Seed7 structured syntax definition was added to the manual.
+- The chapter about declarations in the manual was improved.
+- The function getValueOfHeaderAttribute was added to the scanstri.s7i library.
+- The seed7_05.s7i library was improved to support case statements for the type boolean.
+- The wiz.sd7 example program was improved.
+
 20081116:
 - The support for compilation with the bcc32 C compiler from BDS was improved such that
   the chk_all.sd7 check program succeeds.

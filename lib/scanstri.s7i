@@ -941,3 +941,21 @@ const func string: getHttpSymbol (inout string: stri) is func
       stri := "";
     end if;
   end func;
+
+
+const func string: getValueOfHeaderAttribute (in var string: headerLine, in string: attribute) is func
+  result
+    var string: result is "";
+  local
+    var string: symbol is "";
+  begin
+    repeat
+      symbol := getHttpSymbol(headerLine);
+    until symbol = attribute or symbol = "";
+    if symbol = attribute then
+      symbol := getHttpSymbol(headerLine);
+      if symbol = "=" then
+        result := getHttpSymbol(headerLine);
+      end if;
+    end if;
+  end func;
