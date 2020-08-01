@@ -84,6 +84,7 @@ const proc: processHttpRequest (inout file: sock) is func
     var string: contentType is "";
   begin
     line := getln(sock);
+    # writeln(literal(line));
     while line <> "" do
       # writeln(line);
       if startsWith(line, "GET") then

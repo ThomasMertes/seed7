@@ -4043,11 +4043,11 @@ const proc: exec_next (inout string: symbol, inout string: line) is func
             variable_name := "";
           else
             error_marker;
-            writeln(err, "NEXT - NO MATCHING FOR FOUND");
+            writeln(err, "NEXT " <& param1 <& " - NO MATCHING FOR FOUND");
             while not endOfStatement(symbol) do
               symbol := get_symbol(line);
             end while;
-            variable_name := "";
+            variable_name := param1;
           end if;
         end if;
       end if;

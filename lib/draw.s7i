@@ -687,54 +687,8 @@ const func PRIMITIVE_WINDOW: read_bmp (in string: file_name) is func
         bits :=   get_uint16_le(bmp_file);
         stri :=   gets(bmp_file, 26);
         padding := -(3 * width) mod 4;
-(*
-        write("size: ");    writeln(size);
-        write("offset: ");  writeln(offset);
-        write("width: ");   writeln(width);
-        write("height: ");  writeln(height);
-        write("planes: ");  writeln(planes);
-        write("bits: ");    writeln(bits);
-        write("padding: "); writeln(padding);
-
-        for width range 15 to 20 do
-          write(width lpad 3);
-          write(":");
-          write(3 * width lpad 4);
-          write((3 * width) div 4 * 4 + 4 lpad 4);
-          write(-(3 * width) mod 4 lpad 4);
-          write(-((3 * width) mod -4) lpad 4);
-          writeln;
-        end for;
-        for line range 50 to 60 do
-          write(line lpad 3);
-          write(":");
-          write(line div   4 lpad 4);
-          write(line rem   4 lpad 4);
-          write(line div  -4 lpad 4);
-          write(line rem  -4 lpad 4);
-          write(line mdiv  4 lpad 4);
-          write(line mod   4 lpad 4);
-          write(line mdiv -4 lpad 4);
-          write(line mod  -4 lpad 4);
-          writeln;
-        end for;
-        for line range -60 to -50 do
-          write(line lpad 3);
-          write(":");
-          write(line div   4 lpad 4);
-          write(line rem   4 lpad 4);
-          write(line div  -4 lpad 4);
-          write(line rem  -4 lpad 4);
-          write(line mdiv  4 lpad 4);
-          write(line mod   4 lpad 4);
-          write(line mdiv -4 lpad 4);
-          write(line mod  -4 lpad 4);
-          writeln;
-        end for;
-*)
         image := newPixmap(width, height);
         seek(bmp_file, offset + 1);
-
         for line range pred(height) downto 0 do
           for column range 0 to pred(width) do
             stri := gets(bmp_file, 3);

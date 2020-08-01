@@ -1,3 +1,15 @@
+20100307:
+- The functions in the gethttp.s7i library were improved to allow the specification
+  of a port number as part of the location (e.g.: localhost:1080/index.htm).
+- The tarx.sd7 (tar archiving utility) example program was renamed to tar7.sd7 .
+- The codepage 8859_11 was added to the charsets.s7i library.
+- The bas7.sd7 (basic interpreter) example program was improved.
+- The toutf8.sd7 example program was improved to write an explanation and to
+  support several IANA/MIME charset names.
+- An explanation what to do, when the path of the bcc32 C compiler contains a space,
+  was added to 'src/read_me.txt'.
+- Documentation comments were added to the charsets.s7i library.
+
 20100221:
 - The generation of '#line' directives in the compiler (comp.sd7) was improved.
   This allows better references to Seed7 source lines during debugging sessions.

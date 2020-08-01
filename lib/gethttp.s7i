@@ -44,10 +44,11 @@ const proc: setProxy (in string: serverName, in integer: portNumber) is func
 
 
 const proc: splitHttpLocation (in string: location, inout string: hostname,
-    inout string: path, inout string: params) is func
+    inout integer: portNumber, inout string: path, inout string: params) is func
   local
     var integer: slashPos is 0;
     var integer: questionMarkPos is 0;
+    var integer: colonPos is 0;
   begin
     slashPos := pos(location, "/");
     questionMarkPos := pos(location, "?");
@@ -75,6 +76,13 @@ const proc: splitHttpLocation (in string: location, inout string: hostname,
         path     := "";
         params   := location[succ(questionMarkPos) ..];
       end if;
+    end if;
+    colonPos := pos(hostname, ":");
+    if colonPos <> 0 and isDigitString(hostname[succ(colonPos) ..]) then
+      portNumber := integer parse (hostname[succ(colonPos) ..]);
+      hostname := hostname[.. pred(colonPos)];
+    else
+      portNumber := 80;
     end if;
   end func;
 
@@ -114,17 +122,15 @@ const func file: openHttp (in string: serverName, in integer: portNumber,
     var string: address is "";
   begin
     # writeln(literal(serverName) <& " " <& portNumber);
+    # writeln(hostname <& ":" <& portNumber <& "/" <& path);
     sock := openInetSocket(serverName, portNumber);
     if sock <> STD_NULL then
-      address := hostname;
-      if path <> "" then
-        address &:= "/" & path;
-      end if;
+      address := "/" & path;
       if params <> "" then
         address &:= "?" & params;
       end if;
       # writeln(literal(address));
-      writeln(sock, "GET http://" <& address <& " HTTP/1.1");
+      writeln(sock, "GET " <& address <& " HTTP/1.1");
       writeln(sock, "Host: " <& hostname);
       writeln(sock, "User-Agent: BlackHole");
 #     writeln(sock, "Accept-Encoding: gzip");
@@ -135,20 +141,18 @@ const func file: openHttp (in string: serverName, in integer: portNumber,
   end func;
 
 
-const func file: openHttp (in string: hostname, in string: path, in string: params) is
-  return openHttp(hostname, 80, hostname, path, params);
-
-
-const func file: openHttp (in string: serverName, in integer: portNumber, in string: location) is func
+const func file: openHttp (in string: serverName, in integer: serverPortNumber,
+    in string: location) is func
   result
     var file: sock is STD_NULL;
   local
     var string: hostname is "";
+    var integer: portNumber is 0;
     var string: path is "";
     var string: params is "";
   begin
-    splitHttpLocation(location, hostname, path, params);
-    sock := openHttp(serverName, portNumber, hostname, path, params);
+    splitHttpLocation(location, hostname, portNumber, path, params);
+    sock := openHttp(serverName, serverPortNumber, hostname, path, params);
   end func;
 
 
@@ -157,11 +161,12 @@ const func file: openHttp (in string: location) is func
     var file: sock is STD_NULL;
   local
     var string: hostname is "";
+    var integer: portNumber is 0;
     var string: path is "";
     var string: params is "";
   begin
-    splitHttpLocation(location, hostname, path, params);
-    sock := openHttp(hostname, path, params);
+    splitHttpLocation(location, hostname, portNumber, path, params);
+    sock := openHttp(hostname, portNumber, hostname, path, params);
   end func;
 
 

@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  tarx.sd7      Simple tar program                                *)
+(*  tar7.sd7      Tar archiving utility                             *)
 (*  Copyright (C) 1994, 2004, 2005, 2010  Thomas Mertes             *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
@@ -228,13 +228,13 @@ const proc: readHead (inout file: in_file, inout header: head) is func
     var string: fileName is "";
   begin
     readHeadBlock(in_file, head);
-    check(STD_OUT, head);
+    # check(STD_OUT, head);
     if head.name <> "" and head.magic = TMAGIC and
         head.typeflag = LONGNAMETYPE and head.size <> 0 then
       fileName := gets0(in_file, head.size);
       seek(in_file, tell(in_file) - head.size + succ(pred(head.size) div 512) * 512);
       readHeadBlock(in_file, head);
-      check(STD_OUT, head);
+      # check(STD_OUT, head);
       head.name := fileName;
     end if;
   end func;
@@ -392,7 +392,7 @@ const proc: tar_tell (in string: in_file_name, in boolean: do_view,
     if in_file <> STD_NULL then
       tar_tell(in_file, do_view, arg_list);
     else
-      write("tarx: Cannot open \"");
+      write("tar7: Cannot open \"");
       write(in_file_name);
       writeln("\".");
     end if;
@@ -449,7 +449,7 @@ const proc: tar_xtract (in string: in_file_name, in boolean: do_view,
     if in_file <> STD_NULL then
       tar_xtract(in_file, do_view, arg_list);
     else
-      write("tarx: Cannot open \"");
+      write("tar7: Cannot open \"");
       write(in_file_name);
       writeln("\".");
     end if;
@@ -549,7 +549,7 @@ const proc: main is func
             file_name := argv(PROGRAM)[2];
             arg_list := argv(PROGRAM)[3 .. ];
           else
-            writeln("tarx: The option 'f' needs a file name.");
+            writeln("tar7: The option 'f' needs a file name.");
             command := ' ';
           end if;
         else
@@ -565,11 +565,18 @@ const proc: main is func
             tar_create(file_name, do_view, arg_list);
         end case;
       else
-        write("tarx: Illegal option '");
+        write("tar7: Illegal option '");
         write(command);
         writeln("'. Legal options are 't', 'x' or 'c'.");
       end if;
     else
-      writeln("tarx: One of the options 't', 'x' or 'c' must be specified.");
+      writeln("Tar7 Version 1.0 - Tar archiving utility");
+      writeln("Copyright (C) 1994, 2004, 2005, 2010 Thomas Mertes");
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Comanche is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.sourceforge.net");
+      writeln;
+      writeln("tar7: One of the options 't', 'x' or 'c' must be specified.");
     end if;
   end func;

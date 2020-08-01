@@ -36,6 +36,7 @@
 #include "string.h"
 #ifdef USE_WINSOCK
 #include "winsock2.h"
+/* #include "Ws2tcpip.h" ** for getaddrinfo() */
 #else
 #include "netdb.h"
 #include "sys/types.h"
@@ -299,6 +300,29 @@ inttype port;
         result = NULL;
         raise_error(MEMORY_ERROR);
       } else {
+#ifdef OUT_OF_ORDER
+        {
+          struct addrinfo *res;
+          int getaddrinfo_result;
+          getaddrinfo_result = getaddrinfo(name, NULL, NULL, &res);
+          if (getaddrinfo_result == 0) {
+            printf("ai_flags=%d\n",    res->ai_flags);
+            printf("ai_family=%d  (AF_INET=%d, AF_INET6=%d)\n",   res->ai_family, AF_INET, AF_INET6);
+            printf("ai_socktype=%d\n", res->ai_socktype);
+            printf("ai_protocol=%d\n", res->ai_protocol);
+          } else {
+            printf("getaddrinfo(\"%s\") -> %d\n", name, getaddrinfo_result);
+            printf("EAI_AGAIN=%d  EAI_BADFLAGS=%d  EAI_FAIL=%d  EAI_FAMILY=%d  EAI_MEMORY=%d\n",
+                EAI_AGAIN, EAI_BADFLAGS, EAI_FAIL, EAI_FAMILY, EAI_MEMORY);
+            printf("EAI_NONAME=%d  EAI_SERVICE=%d  EAI_SOCKTYPE=%d\n",
+                EAI_NONAME, EAI_SERVICE, EAI_SOCKTYPE);
+            printf("EAI_SYSTEM=%d  EAI_OVERFLOW=%d\n",
+		EAI_SYSTEM, EAI_OVERFLOW);
+            /* printf("EAI_ADDRFAMILY=%d  EAI_NODATA=%d\n",
+	        EAI_ADDRFAMILY, EAI_NODATA); */
+          }
+        }
+#endif
         host_ent = gethostbyname(name);
         if (host_ent == NULL && h_errno == TRY_AGAIN) {
           /*
@@ -313,7 +337,9 @@ inttype port;
         } /* if */
         if (host_ent == NULL) {
           result = NULL;
-          /* printf("***** h_errno=%d\n", h_errno); */
+/*        printf("***** gethostbyname(\"%s\"): h_errno=%d\n", name, h_errno);
+          printf("HOST_NOT_FOUND=%d  NO_DATA=%d  NO_RECOVERY=%d  TRY_AGAIN=%d\n",
+              HOST_NOT_FOUND, NO_DATA, NO_RECOVERY, TRY_AGAIN); */
           raise_error(RANGE_ERROR);
         } else {
           /*
@@ -325,11 +351,8 @@ inttype port;
           printf("Address length: %d\n", sizeof(struct sockaddr_in));
           printf("IP Address:     %s\n", inet_ntoa(*((struct in_addr *)host_ent->h_addr)));
           */
-          if (host_ent->h_addrtype != AF_INET ||
-              host_ent->h_length != sizeof(inet_address->sin_addr.s_addr)) {
-            result = NULL;
-            raise_error(FILE_ERROR);
-          } else {
+          if (host_ent->h_addrtype == AF_INET &&
+              host_ent->h_length == sizeof(inet_address->sin_addr.s_addr)) {
             if (!ALLOC_BSTRI(result, sizeof(struct sockaddr_in))) {
               raise_error(MEMORY_ERROR);
             } else {
@@ -340,6 +363,9 @@ inttype port;
               memcpy(&inet_address->sin_addr.s_addr, host_ent->h_addr, (size_t) host_ent->h_length);
               memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
             } /* if */
+          } else {
+            result = NULL;
+            raise_error(FILE_ERROR);
           } /* if */
         } /* if */
       } /* if */

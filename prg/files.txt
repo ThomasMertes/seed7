@@ -67,11 +67,11 @@ sokoban.sd7  Sokoban puzzle game
 startrek.sd7 Classical startrek game                           
 sudoku7.sd7  Sudoku program                                    
 tak.sd7      Little benchmark computing tak(18, 12, 6)         
-tarx.sd7     Simple tar program                                
+tar7.sd7     Tar archiving utility                             
 tch.sd7      The hitchhikers guide ...                         
 tet.sd7      Tetris game with text output                      
 tetg.sd7     Tetris game with graphical output                 
-toutf8.sd7   Convert file to utf-8                             
+toutf8.sd7   Convert a file to UTF-8                           
 tst_cli.sd7  Test client to demonstrate a socket client        
 tst_srv.sd7  Test server to demonstrate a socket server        
 wator.sd7    Planet Wator simulation with fish and sharks      
@@ -84,7 +84,7 @@ wumpus.sd7   Hunt the Wumpus game
 bigfile.s7i  bigInteger versions of seek, tell and length      
 bigint.s7i   bigInteger point support library                  
 bigrat.s7i   Big rational number support library               
-binary.s7i   2009  Thomas Mertes                               
+binary.s7i   Functions to read binary data from string or file 
 cards.s7i    Playing card pictures of a french deck            
 cgi.s7i      Support for the Common Gateway Interface          
 charsets.s7i Codepages for various character sets              

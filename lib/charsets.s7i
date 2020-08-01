@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  charsets.s7i  Codepages for various character sets              *)
-(*  Copyright (C) 2006, 2008, 2009  Thomas Mertes                   *)
+(*  Copyright (C) 2006, 2008, 2009, 2010  Thomas Mertes             *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -22,6 +22,8 @@
 (*  Public License along with this program; if not, write to the    *)
 (*  Free Software Foundation, Inc., 51 Franklin Street,             *)
 (*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(*  This file contains UTF-8 characters.                            *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -1070,6 +1072,24 @@ const string: iso_8859_10 is "\
     \āáâãäåæįčéęëėíîï\
     \ðņōóôõöũøųúûüýþĸ";
 
+const string: iso_8859_11 is "\
+    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127\\
+    \\128\\129\\130\\131\\132\\133\\134\\135\\136\\137\\138\\139\\140\\141\\142\\143\\
+    \\144\\145\\146\\147\\148\\149\\150\\151\\152\\153\\154\\155\\156\\157\\158\\159\\
+    \\160\กขฃคฅฆงจฉชซฌญฎฏ\
+    \ฐฑฒณดตถทธนบปผฝพฟ\
+    \ภมยรฤลฦวศษสหฬอฮฯ\
+    \ะัาำิีึืฺุู????฿\
+    \เแโใไๅๆ็่้๊๋์ํ๎๏\
+    \๐๑๒๓๔๕๖๗๘๙๚๛????";
+
 const string: iso_8859_13 is "\
     \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
     \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
@@ -1439,6 +1459,12 @@ const string: cp_1047 is "\
     \0123456789³ÛÜÙÚ ";
 
 
+(**
+ *  Converts a string from a codepage encoding to UTF-32.
+ *  When the function is called 'stri' is assumed to be a string
+ *  of bytes encoded with the specified codepage. When the function
+ *  is left 'stri' contains an UTF-32 unicode string.
+ *)
 const proc: conv2unicode (inout string: stri, in string: codepage) is func
   local
     var integer: index is 0;
@@ -1449,6 +1475,12 @@ const proc: conv2unicode (inout string: stri, in string: codepage) is func
   end func;
 
 
+(**
+ *  Converts a string from an UTF-16BE encoding to UTF-32.
+ *  When the function is called 'stri' is assumed to be a string
+ *  of bytes encoded with UTF-16 in big endian byte order. When
+ *  the function is left 'stri' contains an UTF-32 unicode string.
+ *)
 const func string: utf16beToStri (in string: stri) is func
   result
     var string: result is "";
@@ -1479,6 +1511,12 @@ const func string: utf16beToStri (in string: stri) is func
   end func;
 
 
+(**
+ *  Converts a string from an UTF-16LE encoding to UTF-32.
+ *  When the function is called 'stri' is assumed to be a string
+ *  of bytes encoded with UTF-16 in little endian byte order. When
+ *  the function is left 'stri' contains an UTF-32 unicode string.
+ *)
 const func string: utf16leToStri (in string: stri) is func
   result
     var string: result is "";
@@ -1541,6 +1579,12 @@ const func string: removeUtf16SurrogatePairs (in string: stri) is func
   end func;
 
 
+(**
+ *  Converts a string from an UTF-7 encoding to UTF-32.
+ *  When the function is called 'stri' is assumed to be a string
+ *  of bytes encoded with UTF-7. When the function is left 'stri'
+ *  contains an UTF-32 unicode string.
+ *)
 const func string: utf7ToStri (in string: stri) is func
   result
     var string: result is "";
@@ -1620,6 +1664,15 @@ const func string: utf7ToStri (in string: stri) is func
   end func;
 
 
+(**
+ *  Converts a string from a charset encoding to UTF-32.
+ *  When the function is called 'stri' is assumed to be a string
+ *  of bytes encoded with the specified charset. When the function
+ *  is left 'stri' contains an UTF-32 unicode string. The
+ *  'charset' encoding is specified with an IANA/MIME charset name.
+ *  This way the function can be used to convert encoded data for
+ *  internet protocols such as NNTP.
+ *)
 const proc: conv2unicodeByName (inout string: stri,
     in var string: charset) is func
   begin
@@ -1661,23 +1714,23 @@ const proc: conv2unicodeByName (inout string: stri,
     elsif charset =     "ISO-8859-16" then
       conv2unicode(stri, iso_8859_16);
     elsif charset = "WINDOWS-1250" then
-      conv2unicode(stri, cp_1250);
+      conv2unicode(stri,  cp_1250);
     elsif charset = "WINDOWS-1251" then
-      conv2unicode(stri, cp_1251);
+      conv2unicode(stri,  cp_1251);
     elsif charset = "WINDOWS-1252" then
-      conv2unicode(stri, cp_1252);
+      conv2unicode(stri,  cp_1252);
     elsif charset = "WINDOWS-1253" then
-      conv2unicode(stri, cp_1253);
+      conv2unicode(stri,  cp_1253);
     elsif charset = "WINDOWS-1254" then
-      conv2unicode(stri, cp_1254);
+      conv2unicode(stri,  cp_1254);
     elsif charset = "WINDOWS-1255" then
-      conv2unicode(stri, cp_1255);
+      conv2unicode(stri,  cp_1255);
     elsif charset = "WINDOWS-1256" then
-      conv2unicode(stri, cp_1256);
+      conv2unicode(stri,  cp_1256);
     elsif charset = "WINDOWS-1257" then
-      conv2unicode(stri, cp_1257);
+      conv2unicode(stri,  cp_1257);
     elsif charset = "WINDOWS-1258" then
-      conv2unicode(stri, cp_1258);
+      conv2unicode(stri,  cp_1258);
     elsif charset =     "IBM437" or
           charset =     "CP437" then
       conv2unicode(stri, cp_437);
@@ -1704,7 +1757,7 @@ const proc: conv2unicodeByName (inout string: stri,
       stri := utf16beToStri(stri);
     elsif charset =     "UTF-16LE" then
       stri := utf16leToStri(stri);
-    elsif charset = "UTF-7" then
+    elsif charset =     "UTF-7" then
       stri := utf7ToStri(stri);
     else
       writeln("Unknown charset: " <& literal(charset));

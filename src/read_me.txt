@@ -229,6 +229,20 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   indicate that you forgot to run 'make depend' before running
   'make'. Since such an attempt produces several unneeded files it
   is necessary now to run 'make clean', 'make depend' and 'make'.
+  When using bcc32 an error like
+
+    Error E2194: Could not find file 'Studio\7.0\bin\bcc32.exe'
+
+  can happen. This indicates that the search path where bcc32.exe
+  is found contains a space and the 'make' program is not capable
+  to handle spaces in a search path. Creating the batch file
+  'src\bcc32.bat' with the content
+
+    bcc32.exe %*
+
+  helps. As alternate solution 'bcc32.exe' and 'bcc32.cfg' can
+  be copied to the 'src' directory (this solution should be
+  avoided, since it does not consider updates of bcc32).
 
   When you got other errors I would like to know about. Please
   send a mail with detailed information (name and version) of
