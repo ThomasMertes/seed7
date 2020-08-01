@@ -2244,6 +2244,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
     var time: time_now is time.value;
     var duration: since_midnight is duration.value;
     var string: func_name is "";
+    var file: aFile is STD_NULL;
   begin
     case symbol of
       when {""}:
@@ -2405,8 +2406,9 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect("(", symbol, line);
         index1 := round(exec_expr(symbol, line));
         expect(")", symbol, line);
-        if getFileValue(index1) <> STD_NULL then
-          if hasNext(getFileValue(index1)) then
+        aFile := getFileValue(index1);
+        if aFile <> STD_NULL then
+          if hasNext(aFile) then
             exprResult := 0.0;
           else
             exprResult := -1.0;
@@ -2549,8 +2551,9 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect("(", symbol, line);
         index1 := round(exec_expr(symbol, line));
         expect(")", symbol, line);
-        if getFileValue(index1) <> STD_NULL then
-          exprResult := flt(length(getFileValue(index1)));
+        aFile := getFileValue(index1);
+        if aFile <> STD_NULL then
+          exprResult := flt(length(aFile));
           writeln(log, "LOF(" <& index1 <& ") -> " <& exprResult);
         else
           error_marker;

@@ -157,6 +157,21 @@ const type: arRegisterType is hash [string] integer;
 const type: arCatalogType is hash [string] arHeader;
 
 
+(**
+ *  [[filesys#fileSys|FileSys]] implementation type to access a AR archive.
+ *  File paths in a ar archive can be absolute (they start with a slash)
+ *  or relative (they do not start with a slash). The ar file system does
+ *  not support the concept of a current working directory. The functions
+ *  chdir and getcwd are not supported by the ar file system. Absolute
+ *  and relative paths in a ar archive can be accessed directly.
+ *  Since "/" is just a normal path in a ar archive the root path of a
+ *  ar file system is "". Possible usages of ar file system functions are:
+ *    getMTime(aArFile, "src/drivers")   # Relative path in the archive.
+ *    fileType(aArFile, "/usr/include")  # Absolute path in the archive.
+ *    fileSize(aArFile, "/image")        # Absolute path in the archive.
+ *    readDir(aArFile, "")               # Return e.g.: "src" and "/"
+ *    readDir(aArFile, "/")              # Return e.g.: "usr" and "image"
+ *)
 const type: arArchive is sub emptyFileSys struct
     var file: arFile is STD_NULL;
     var string: longNames is "";

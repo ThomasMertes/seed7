@@ -239,11 +239,11 @@ const func string: gets (in utf16le_file: inFile, in integer: maxLength) is func
       elsif length(stri) <> 2 * charsMissing then
         partialRead := TRUE;
       end if;
-      for index range 1 to length(stri) div 2 do
+      for index range 1 to length(stri) mdiv 2 do
         ch1 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
         if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
           # ch1 introduces a surrogate pair
-          if index = length(stri) div 2 then
+          if index = length(stri) mdiv 2 then
             surrogate_part := gets(inFile.ext_file, 2);
             if length(surrogate_part) = 2 then
               ch2 := chr(ord(surrogate_part[2]) * 256 + ord(surrogate_part[1]));
@@ -387,11 +387,11 @@ const func string: gets (in utf16be_file: inFile, in integer: maxLength) is func
       elsif length(stri) <> 2 * charsMissing then
         partialRead := TRUE;
       end if;
-      for index range 1 to length(stri) div 2 do
+      for index range 1 to length(stri) mdiv 2 do
         ch1 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
         if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
           # ch1 introduces a surrogate pair
-          if index = length(stri) div 2 then
+          if index = length(stri) mdiv 2 then
             surrogate_part := gets(inFile.ext_file, 2);
             if length(surrogate_part) = 2 then
               ch2 := chr(ord(surrogate_part[1]) * 256 + ord(surrogate_part[2]));

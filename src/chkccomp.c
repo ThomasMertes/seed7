@@ -149,6 +149,10 @@
 #define LIBRARY_TYPE UNIX_LIBRARIES
 #endif
 
+#ifndef CC_OPT_TRAP_OVERFLOW
+#define CC_OPT_TRAP_OVERFLOW ""
+#endif
+
 #ifndef CC_FLAGS
 #define CC_FLAGS ""
 #endif
@@ -1643,7 +1647,7 @@ static void numericProperties (FILE *versionFile)
                     "signal(SIGILL,handleSigill);\nsignal(SIGABRT,handleSigabrt);\n"
                     "printf(\"%%d\\n\",a+b==0x8000000000000000 && a*c== -2);return 0;}\n",
                     int64TypeStri);
-    if (compileAndLinkOk(buffer)) {
+    if (compileAndLinkWithOptionsOk(buffer, CC_OPT_TRAP_OVERFLOW, "")) {
       switch (doTest()) {
         case 2:
           fputs("#define OVERFLOW_SIGNAL SIGILL\n", versionFile);

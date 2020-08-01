@@ -90,14 +90,13 @@ const proc: process_action (in reference: function, in ref_list: params,
     inout expr_type: c_expr) is func
 
   local
-    var ACTION: current_action is action "PRC_NOOP";
-    var string: action_name is "";
-    var string: action_prefix is "";
+    var ACTION: currentAction is action "PRC_NOOP";
+    var string: actionName is "";
   begin
-    current_action := getValue(function, ACTION);
-    action_name := str(current_action);
-    # c_expr.expr &:= "/* " <& action_name <& " */\n";
-    case action_name of
+    currentAction := getValue(function, ACTION);
+    actionName := str(currentAction);
+    # c_expr.expr &:= "/* " <& actionName <& " */\n";
+    case actionName of
       when {"ACT_CPY"}:
         process(ACT_CPY, function, params, c_expr);
       when {"ACT_EQ"}:
@@ -1808,6 +1807,6 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"UT8_WRITE"}:
         process(UT8_WRITE, function, params, c_expr);
       otherwise:
-        process_unknown_action(action_name, c_expr);
+        process_unknown_action(actionName, c_expr);
     end case;
   end func;

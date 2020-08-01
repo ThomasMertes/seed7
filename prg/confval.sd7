@@ -104,6 +104,7 @@ const proc: main is func
     writeln("CC_OPT_OPTIMIZE_1:          " <& join(noEmptyArray(ccConf.CC_OPT_OPTIMIZE_1), " "));
     writeln("CC_OPT_OPTIMIZE_2:          " <& join(noEmptyArray(ccConf.CC_OPT_OPTIMIZE_2), " "));
     writeln("CC_OPT_OPTIMIZE_3:          " <& join(noEmptyArray(ccConf.CC_OPT_OPTIMIZE_3), " "));
+    writeln("CC_OPT_TRAP_OVERFLOW:       " <& ccConf.CC_OPT_TRAP_OVERFLOW);
     writeln("CC_FLAGS:                   " <& join(noEmptyArray(ccConf.CC_FLAGS), " "));
     writeln("CC_ERROR_FILDES:            " <& ccConf.CC_ERROR_FILDES);
     writeln("LINKER_OPT_DEBUG_INFO:      " <& ccConf.LINKER_OPT_DEBUG_INFO);

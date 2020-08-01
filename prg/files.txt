@@ -203,6 +203,7 @@ line.s7i     Filter file which reads the input linewise
 listener.s7i Support for inet listener
 logfile.s7i  Interface type describing log files.
 lower.s7i    Filter file which turns characters to lower case
+lzma.s7i     LZMA compression support library
 lzw.s7i      Lempel-Ziv-Welch compression support library
 mahjng32.s7i Pictures of mahjong tiles in the size 32 x 24
 make.s7i     Make library to manage the compilation process
@@ -281,5 +282,6 @@ wrinum.s7i   Functions to write numbers
 x509cert.s7i Support for X.509 public key certificates.
 xml_ent.s7i  XML entity handling library
 xmldom.s7i   Simple XML dom parser
+xz.s7i       XZ compression support library
 zip.s7i      Zip compression support library
 dna_base.s7i Bacterial dna fight programming game interface

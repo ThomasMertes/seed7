@@ -813,7 +813,7 @@ const func array bin32: setAesKey (in string: aesKey) is func
       otherwise: raise RANGE_ERROR;
     end case;
     encryptKey := encryptKeyLength times bin32.value;
-    for keyIdx range 1 to length(aesKey) div 4 do
+    for keyIdx range 1 to length(aesKey) mdiv 4 do
       encryptKey[keyIdx] := bin32(bytes2Int(aesKey[4 * keyIdx - 3 len 4], UNSIGNED, BE));
     end for;
     case length(aesKey) of
@@ -875,7 +875,7 @@ const func aesState: setAesKey (in string: aesKey, in string: initializationVect
   result
     var aesState: state is aesState.value;
   begin
-    state.rounds := length(aesKey) div 4 + 6;
+    state.rounds := length(aesKey) mdiv 4 + 6;
     state.encryptionSubKey := setAesKey(aesKey);
     state.decryptionSubKey := genAesDecryptKey(state.encryptionSubKey, state.rounds);
     state.cipherBlock := initializationVector;
@@ -915,7 +915,7 @@ const func string: encodeAesBlock (in array bin32: subKey, in integer: rounds, i
     s4 := bin32(bytes2Int(inData[13 len 4], UNSIGNED, BE)) >< subKey[4];
 
     # Full rounds except last round:
-    countRounds := rounds div 2;
+    countRounds := rounds mdiv 2;
     repeat
       t1 := Te[1][(ord(s1) >> 24) mod 256] ><
             Te[2][(ord(s2) >> 16) mod 256] ><
@@ -1015,7 +1015,7 @@ const func string: decodeAesBlock (in array bin32: subKey, in integer: rounds, i
     s4 := bin32(bytes2Int(inData[13 len 4], UNSIGNED, BE)) >< subKey[4];
 
     # Full rounds except last round:
-    countRounds := rounds div 2;
+    countRounds := rounds mdiv 2;
     repeat
       t1 := Td[1][(ord(s1) >> 24) mod 256] ><
             Td[2][(ord(s4) >> 16) mod 256] ><

@@ -94,7 +94,7 @@ const func string: md4 (in var string: message) is func
           g := index;
         elsif index <= 32 then
           f := bin32(ord(b & (c | d) | (c & d)) + 16#5a827999);
-          g := (4 * index + 7) mod 15 + (index div 32) * 15 + 1;
+          g := (4 * index + 7) mod 15 + (index mdiv 32) * 15 + 1;
         else
           f := bin32(ord(b >< c >< d) + 16#6ed9eba1);
           g := idx[index - 32];

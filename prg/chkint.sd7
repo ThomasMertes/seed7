@@ -35,12 +35,20 @@ const integer: INT64_MIN is pred(-9223372036854775807);
 const integer: INT64_MAX is 9223372036854775807;
 
 
+const func integer: intExpr (in integer: number) is
+  return number + length(str(rand(1, 9))[2 ..]);
+
+
 const func string: striExpr (in string: stri) is
   return stri & str(rand(1, 9))[2 ..];
 
 
-const func integer: intExpr (in integer: number) is
-  return number + length(str(rand(1, 9))[2 ..]);
+const func char: charExpr (in char: ch) is
+  return chr(ord(ch) + length(str(rand(1, 9))[2 ..]));
+
+
+const func boolean: boolExpr (ref boolean: value) is
+  return value and str(rand(1, 9))[2 ..] = "";
 
 
 const func boolean: raisesRangeError (ref func string: expression) is func
@@ -2254,6 +2262,548 @@ const proc: check_negation is func
   end func;
 
 
+(**
+ *  Tests for the compiler optimization to reduce overflow checking
+ *  for addition and subtraction.
+ *)
+const func boolean: check_reduced_overflow_checking_for_sums is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  intExpr( integer.last) div integer.first +        integer.first <>        integer.first or
+        intExpr(integer.first) div integer.first +        integer.first <> -9223372036854775807 or
+        intExpr( integer.last) div -integer.last + -9223372036854775807 <>        integer.first or
+        intExpr(integer.first) div -integer.last + -9223372036854775807 <> -9223372036854775806 or
+        intExpr( integer.last) div  -34359738368 + -9223372036586340353 <>        integer.first or
+        intExpr(integer.first) div  -34359738368 + -9223372036586340353 <> -9223372036317904897 or
+        intExpr( integer.last) div   -1234567890 + -9223372029383844391 <>        integer.first or
+        intExpr(integer.first) div   -1234567890 + -9223372029383844391 <> -9223372021912912974 or
+        intExpr( integer.last) div            -2 + -4611686018427387905 <>        integer.first or
+        intExpr(integer.first) div            -2 + -4611686018427387905 <>                   -1 or
+        intExpr( integer.last) div            -1 +                   -1 <>        integer.first or
+        intExpr(integer.first) div             1 +                    0 <>        integer.first or
+        intExpr(integer.first) div             2 + -4611686018427387904 <>        integer.first or
+        intExpr( integer.last) div             2 + -4611686018427387904 <>                   -1 or
+        intExpr(integer.first) div    1234567890 + -9223372029383844391 <>        integer.first or
+        intExpr( integer.last) div    1234567890 + -9223372029383844391 <> -9223372021912912974 or
+        intExpr(integer.first) div   34359738368 + -9223372036586340352 <>        integer.first or
+        intExpr( integer.last) div   34359738368 + -9223372036586340352 <> -9223372036317904897 or
+        intExpr(integer.first) div  integer.last + -9223372036854775807 <>        integer.first or
+        intExpr( integer.last) div  integer.last + -9223372036854775807 <> -9223372036854775806 then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum division result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(integer.first) div integer.first +  9223372036854775806 <>         integer.last or
+        intExpr( integer.last) div integer.first +  9223372036854775806 <>  9223372036854775806 or
+        intExpr(integer.first) div -integer.last +  9223372036854775806 <>         integer.last or
+        intExpr( integer.last) div -integer.last +  9223372036854775806 <>  9223372036854775805 or
+        intExpr(integer.first) div  -34359738368 +  9223372036586340351 <>         integer.last or
+        intExpr(integer.first) div  -34359738368 +  9223372036586340351 <>  9223372036854775807 or
+        intExpr(integer.first) div   -1234567890 +  9223372029383844390 <>         integer.last or
+        intExpr( integer.last) div   -1234567890 +  9223372029383844390 <>  9223372021912912973 or
+        intExpr(integer.first) div            -2 +  4611686018427387903 <>         integer.last or
+        intExpr( integer.last) div            -2 +  4611686018427387903 <>                    0 or
+        intExpr( integer.last) div             1 +                    0 <>         integer.last or
+        intExpr( integer.last) div             2 +  4611686018427387904 <>         integer.last or
+        intExpr(integer.first) div             2 +  4611686018427387904 <>                    0 or
+        intExpr( integer.last) div    1234567890 +  9223372029383844390 <>         integer.last or
+        intExpr(integer.first) div    1234567890 +  9223372029383844390 <>  9223372021912912973 or
+        intExpr( integer.last) div   34359738368 +  9223372036586340352 <>         integer.last or
+        intExpr(integer.first) div   34359738368 +  9223372036586340352 <>  9223372036317904896 or
+        intExpr( integer.last) div  integer.last +  9223372036854775806 <>         integer.last or
+        intExpr(integer.first) div  integer.last +  9223372036854775806 <>  9223372036854775805 then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum division result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if         integer.first div intExpr( 1) +                    0 <>        integer.first or
+        -9223372036854775807 div intExpr( 1) +                   -1 <>        integer.first or
+        -9223372036854775807 div intExpr(-1) +                   -1 <>  9223372036854775806 or
+        -9223372036854775806 div intExpr( 1) +                   -2 <>        integer.first or
+        -9223372036854775806 div intExpr(-1) +                   -2 <>  9223372036854775804 or
+        -4611686018427387904 div intExpr( 1) + -4611686018427387904 <>        integer.first or
+        -4611686018427387904 div intExpr(-1) + -4611686018427387904 <>                    0 or
+                 -1234567890 div intExpr( 1) + -9223372035620207918 <>        integer.first or
+                 -1234567890 div intExpr(-1) + -9223372035620207918 <> -9223372034385640028 or
+                          -1 div intExpr( 1) + -9223372036854775807 <>        integer.first or
+                          -1 div intExpr(-1) + -9223372036854775807 <> -9223372036854775806 or
+                           1 div intExpr(-1) + -9223372036854775807 <>        integer.first or
+                           1 div intExpr( 1) + -9223372036854775807 <> -9223372036854775806 or
+                  1234567890 div intExpr(-1) + -9223372035620207918 <>        integer.first or
+                  1234567890 div intExpr( 1) + -9223372035620207918 <> -9223372034385640028 or
+         4611686018427387904 div intExpr(-1) + -4611686018427387904 <>        integer.first or
+         4611686018427387904 div intExpr( 1) + -4611686018427387904 <>                    0 or
+         9223372036854775806 div intExpr(-1) +                   -2 <>        integer.first or
+         9223372036854775806 div intExpr( 1) +                   -2 <>  9223372036854775804 or
+         9223372036854775807 div intExpr(-1) +                   -1 <>        integer.first or
+         9223372036854775807 div intExpr( 1) +                   -1 <>  9223372036854775806 then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum division result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  -9223372036854775807 div intExpr(-1) +                    0 <>         integer.last or
+        -9223372036854775807 div intExpr( 1) +                    0 <> -9223372036854775807 or
+        -9223372036854775806 div intExpr(-1) +                    1 <>         integer.last or
+        -9223372036854775806 div intExpr( 1) +                    1 <> -9223372036854775805 or
+        -4611686018427387904 div intExpr(-1) +  4611686018427387903 <>         integer.last or
+        -4611686018427387904 div intExpr( 1) +  4611686018427387903 <>                   -1 or
+                 -1234567890 div intExpr(-1) +  9223372035620207917 <>         integer.last or
+                 -1234567890 div intExpr( 1) +  9223372035620207917 <>  9223372034385640027 or
+                          -1 div intExpr(-1) +  9223372036854775806 <>         integer.last or
+                          -1 div intExpr( 1) +  9223372036854775806 <>  9223372036854775805 or
+                           1 div intExpr( 1) +  9223372036854775806 <>         integer.last or
+                           1 div intExpr(-1) +  9223372036854775806 <>  9223372036854775805 or
+                  1234567890 div intExpr( 1) +  9223372035620207917 <>         integer.last or
+                  1234567890 div intExpr(-1) +  9223372035620207917 <>  9223372034385640027 or
+         4611686018427387904 div intExpr( 1) +  4611686018427387903 <>         integer.last or
+         4611686018427387904 div intExpr(-1) +  4611686018427387903 <>                   -1 or
+         9223372036854775806 div intExpr( 1) +                    1 <>         integer.last or
+         9223372036854775806 div intExpr(-1) +                    1 <> -9223372036854775805 or
+         9223372036854775807 div intExpr( 1) +                    0 <>         integer.last or
+         9223372036854775807 div intExpr(-1) +                    0 <> -9223372036854775807 then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum division result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(       -integer.last) rem        integer.first +                   -1 <>        integer.first or
+        intExpr(        integer.last) rem        integer.first +                   -1 <>  9223372036854775806 or
+        intExpr(       -integer.last) rem -4611686018427387904 + -4611686018427387905 <>        integer.first or
+        intExpr(        integer.last) rem -4611686018427387904 + -4611686018427387905 <>                   -2 or
+        intExpr(       -integer.last) rem         -34359738368 + -9223372002495037441 <>        integer.first or
+        intExpr(        integer.last) rem         -34359738368 + -9223372002495037441 <> -9223371968135299074 or
+        intExpr(         -6172839449) rem          -1234567890 + -9223372035620207919 <>        integer.first or
+        intExpr(          6172839449) rem          -1234567890 + -9223372035620207919 <> -9223372034385640030 or
+        intExpr(       -123456789123) rem                   -2 + -9223372036854775807 <>        integer.first or
+        intExpr(        123456789123) rem                   -2 + -9223372036854775807 <> -9223372036854775806 or
+        intExpr(              -12345) rem                   -1 +        integer.first <>        integer.first or
+        intExpr(               12345) rem                    1 +        integer.first <>        integer.first or
+        intExpr(       -123456789123) rem                    2 + -9223372036854775807 <>        integer.first or
+        intExpr(        123456789123) rem                    2 + -9223372036854775807 <> -9223372036854775806 or
+        intExpr(         -6172839449) rem           1234567890 + -9223372035620207919 <>        integer.first or
+        intExpr(          6172839449) rem           1234567890 + -9223372035620207919 <> -9223372034385640030 or
+        intExpr(       -integer.last) rem          34359738368 + -9223372002495037441 <>        integer.first or
+        intExpr(        integer.last) rem          34359738368 + -9223372002495037441 <> -9223371968135299074 or
+        intExpr(       -integer.last) rem  4611686018427387904 + -4611686018427387905 <>        integer.first or
+        intExpr(        integer.last) rem  4611686018427387904 + -4611686018427387905 <>                   -2 or
+        intExpr(-9223372036854775806) rem         integer.last +                   -2 <>        integer.first or
+        intExpr( 9223372036854775806) rem         integer.last +                   -2 <>  9223372036854775804 then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum remainder result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(        integer.last) rem        integer.first +                    0 <>         integer.last or
+        intExpr(       -integer.last) rem        integer.first +                    0 <> -9223372036854775807 or
+        intExpr(        integer.last) rem -4611686018427387904 +  4611686018427387904 <>         integer.last or
+        intExpr(       -integer.last) rem -4611686018427387904 +  4611686018427387904 <>                    1 or
+        intExpr(        integer.last) rem         -34359738368 +  9223372002495037440 <>         integer.last or
+        intExpr(       -integer.last) rem         -34359738368 +  9223372002495037440 <>  9223371968135299073 or
+        intExpr(          6172839449) rem          -1234567890 +  9223372035620207918 <>         integer.last or
+        intExpr(         -6172839449) rem          -1234567890 +  9223372035620207918 <>  9223372034385640029 or
+        intExpr(        123456789123) rem                   -2 +  9223372036854775806 <>         integer.last or
+        intExpr(       -123456789123) rem                   -2 +  9223372036854775806 <>  9223372036854775805 or
+        intExpr(               12345) rem                   -1 +         integer.last <>         integer.last or
+        intExpr(              -12345) rem                    1 +         integer.last <>         integer.last or
+        intExpr(        123456789123) rem                    2 +  9223372036854775806 <>         integer.last or
+        intExpr(       -123456789123) rem                    2 +  9223372036854775806 <>  9223372036854775805 or
+        intExpr(          6172839449) rem           1234567890 +  9223372035620207918 <>         integer.last or
+        intExpr(         -6172839449) rem           1234567890 +  9223372035620207918 <>  9223372034385640029 or
+        intExpr(        integer.last) rem          34359738368 +  9223372002495037440 <>         integer.last or
+        intExpr(       -integer.last) rem          34359738368 +  9223372002495037440 <>  9223371968135299073 or
+        intExpr(        integer.last) rem  4611686018427387904 +  4611686018427387904 <>         integer.last or
+        intExpr(       -integer.last) rem  4611686018427387904 +  4611686018427387904 <>                    1 or
+        intExpr( 9223372036854775806) rem         integer.last +                    1 <>         integer.last or
+        intExpr(-9223372036854775806) rem         integer.last +                    1 <> -9223372036854775805 then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum remainder result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  -9223372036854775807 rem intExpr(      integer.first) +                   -1 <>        integer.first or
+        -9223372036854775807 rem intExpr(9223372036854775807) +                   -1 <>                   -1 or
+                 -1234567890 rem intExpr(         2345678901) + -9223372035620207918 <>        integer.first or
+                 -1234567890 rem intExpr(                  1) + -9223372035620207918 <> -9223372035620207918 or
+                          -1 rem intExpr(                  2) + -9223372036854775807 <>        integer.first or
+                          -1 rem intExpr(                  1) + -9223372036854775807 <> -9223372036854775807 or
+                           0 rem intExpr(         1234567890) +        integer.first <>        integer.first or
+                           1 rem intExpr(                  1) +        integer.first <>        integer.first or
+                           1 rem intExpr(                  2) +        integer.first <> -9223372036854775807 or
+                  1234567890 rem intExpr(                  1) +        integer.first <>        integer.first or
+                  1234567890 rem intExpr(         2345678901) +        integer.first <> -9223372035620207918 or
+         9223372036854775807 rem intExpr(9223372036854775807) +        integer.first <>        integer.first or
+         9223372036854775807 rem intExpr(      integer.first) +        integer.first <>                   -1 then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum remainder result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  -9223372036854775807 rem intExpr(9223372036854775807) +         integer.last <>         integer.last or
+        -9223372036854775807 rem intExpr(      integer.first) +         integer.last <>                    0 or
+                 -1234567890 rem intExpr(                  1) +         integer.last <>         integer.last or
+                 -1234567890 rem intExpr(         2345678901) +         integer.last <>  9223372035620207917 or
+                          -1 rem intExpr(                  1) +         integer.last <>         integer.last or
+                          -1 rem intExpr(                  2) +         integer.last <>  9223372036854775806 or
+                           0 rem intExpr(         1234567890) +         integer.last <>         integer.last or
+                           1 rem intExpr(                  2) +  9223372036854775806 <>         integer.last or
+                           1 rem intExpr(                  1) +  9223372036854775806 <>  9223372036854775806 or
+                  1234567890 rem intExpr(         2345678901) +  9223372035620207917 <>         integer.last or
+                  1234567890 rem intExpr(                  1) +  9223372035620207917 <>  9223372035620207917 or
+         9223372036854775807 rem intExpr(      integer.first) +                    0 <>         integer.last or
+         9223372036854775807 rem intExpr(9223372036854775807) +                    0 <>                    0 then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum remainder result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  intExpr( integer.last) mdiv integer.first + -9223372036854775807 <>        integer.first or
+        intExpr(integer.first) mdiv integer.first + -9223372036854775807 <> -9223372036854775806 or
+        intExpr( integer.last) mdiv  -34359738368 + -9223372036586340352 <>        integer.first or
+        intExpr(integer.first) mdiv  -34359738368 + -9223372036586340352 <> -9223372036317904896 or
+        intExpr( integer.last) mdiv   -1234567890 + -9223372029383844390 <>        integer.first or
+        intExpr(integer.first) mdiv   -1234567890 + -9223372029383844390 <> -9223372021912912973 or
+        intExpr( integer.last) mdiv            -2 + -4611686018427387904 <>        integer.first or
+        intExpr(integer.first) mdiv            -2 + -4611686018427387904 <>                    0 or
+        intExpr( integer.last) mdiv            -1 +                   -1 <>        integer.first or
+        intExpr(integer.first) mdiv             1 +                    0 <>        integer.first or
+        intExpr(integer.first) mdiv             2 + -4611686018427387904 <>        integer.first or
+        intExpr( integer.last) mdiv             2 + -4611686018427387904 <>                   -1 or
+        intExpr(integer.first) mdiv    1234567890 + -9223372029383844390 <>        integer.first or
+        intExpr( integer.last) mdiv    1234567890 + -9223372029383844390 <> -9223372021912912973 or
+        intExpr(integer.first) mdiv   34359738368 + -9223372036586340352 <>        integer.first or
+        intExpr( integer.last) mdiv   34359738368 + -9223372036586340352 <> -9223372036317904897 or
+        intExpr(integer.first) mdiv  integer.last + -9223372036854775806 <>        integer.first or
+        intExpr( integer.last) mdiv  integer.last + -9223372036854775806 <> -9223372036854775805 then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum mdiv division result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(integer.first) mdiv integer.first +  9223372036854775806 <>         integer.last or
+        intExpr( integer.last) mdiv integer.first +  9223372036854775806 <>  9223372036854775805 or
+        intExpr(integer.first) mdiv  -34359738368 +  9223372036586340351 <>         integer.last or
+        intExpr( integer.last) mdiv  -34359738368 +  9223372036586340351 <>  9223372036317904895 or
+        intExpr(integer.first) mdiv   -1234567890 +  9223372029383844390 <>         integer.last or
+        intExpr( integer.last) mdiv   -1234567890 +  9223372029383844390 <>  9223372021912912972 or
+        intExpr(integer.first) mdiv            -2 +  4611686018427387903 <>         integer.last or
+        intExpr( integer.last) mdiv            -2 +  4611686018427387903 <>                   -1 or
+        intExpr( integer.last) mdiv             1 +                    0 <>         integer.last or
+        intExpr( integer.last) mdiv             2 +  4611686018427387904 <>         integer.last or
+        intExpr(integer.first) mdiv             2 +  4611686018427387904 <>                    0 or
+        intExpr( integer.last) mdiv    1234567890 +  9223372029383844390 <>         integer.last or
+        intExpr(integer.first) mdiv    1234567890 +  9223372029383844390 <>  9223372021912912972 or
+        intExpr( integer.last) mdiv   34359738368 +  9223372036586340352 <>         integer.last or
+        intExpr(integer.first) mdiv   34359738368 +  9223372036586340352 <>  9223372036317904896 or
+        intExpr( integer.last) mdiv  integer.last +  9223372036854775806 <>         integer.last or
+        intExpr(integer.first) mdiv  integer.last +  9223372036854775806 <>  9223372036854775804 then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum mdiv division result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if         integer.first mdiv intExpr( 1) +                    0 <>        integer.first or
+        -9223372036854775807 mdiv intExpr( 1) +                   -1 <>        integer.first or
+        -9223372036854775807 mdiv intExpr(-1) +                   -1 <>  9223372036854775806 or
+        -9223372036854775806 mdiv intExpr( 1) +                   -2 <>        integer.first or
+        -9223372036854775806 mdiv intExpr(-1) +                   -2 <>  9223372036854775804 or
+        -4611686018427387904 mdiv intExpr( 1) + -4611686018427387904 <>        integer.first or
+        -4611686018427387904 mdiv intExpr(-1) + -4611686018427387904 <>                    0 or
+                 -1234567890 mdiv intExpr( 1) + -9223372035620207918 <>        integer.first or
+                 -1234567890 mdiv intExpr(-1) + -9223372035620207918 <> -9223372034385640028 or
+                          -1 mdiv intExpr( 1) + -9223372036854775807 <>        integer.first or
+                          -1 mdiv intExpr(-1) + -9223372036854775807 <> -9223372036854775806 or
+                           1 mdiv intExpr(-1) + -9223372036854775807 <>        integer.first or
+                           1 mdiv intExpr( 1) + -9223372036854775807 <> -9223372036854775806 or
+                  1234567890 mdiv intExpr(-1) + -9223372035620207918 <>        integer.first or
+                  1234567890 mdiv intExpr( 1) + -9223372035620207918 <> -9223372034385640028 or
+         4611686018427387904 mdiv intExpr(-1) + -4611686018427387904 <>        integer.first or
+         4611686018427387904 mdiv intExpr( 1) + -4611686018427387904 <>                    0 or
+         9223372036854775806 mdiv intExpr(-1) +                   -2 <>        integer.first or
+         9223372036854775806 mdiv intExpr( 1) +                   -2 <>  9223372036854775804 or
+         9223372036854775807 mdiv intExpr(-1) +                   -1 <>        integer.first or
+         9223372036854775807 mdiv intExpr( 1) +                   -1 <>  9223372036854775806 then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum mdiv division result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  -9223372036854775807 mdiv intExpr(-1) +                    0 <>         integer.last or
+        -9223372036854775807 mdiv intExpr( 1) +                    0 <> -9223372036854775807 or
+        -9223372036854775806 mdiv intExpr(-1) +                    1 <>         integer.last or
+        -9223372036854775806 mdiv intExpr( 1) +                    1 <> -9223372036854775805 or
+        -4611686018427387904 mdiv intExpr(-1) +  4611686018427387903 <>         integer.last or
+        -4611686018427387904 mdiv intExpr( 1) +  4611686018427387903 <>                   -1 or
+                 -1234567890 mdiv intExpr(-1) +  9223372035620207917 <>         integer.last or
+                 -1234567890 mdiv intExpr( 1) +  9223372035620207917 <>  9223372034385640027 or
+                          -1 mdiv intExpr(-1) +  9223372036854775806 <>         integer.last or
+                          -1 mdiv intExpr( 1) +  9223372036854775806 <>  9223372036854775805 or
+                           1 mdiv intExpr( 1) +  9223372036854775806 <>         integer.last or
+                           1 mdiv intExpr(-1) +  9223372036854775806 <>  9223372036854775805 or
+                  1234567890 mdiv intExpr( 1) +  9223372035620207917 <>         integer.last or
+                  1234567890 mdiv intExpr(-1) +  9223372035620207917 <>  9223372034385640027 or
+         4611686018427387904 mdiv intExpr( 1) +  4611686018427387903 <>         integer.last or
+         4611686018427387904 mdiv intExpr(-1) +  4611686018427387903 <>                   -1 or
+         9223372036854775806 mdiv intExpr( 1) +                    1 <>         integer.last or
+         9223372036854775806 mdiv intExpr(-1) +                    1 <> -9223372036854775805 or
+         9223372036854775807 mdiv intExpr( 1) +                    0 <>         integer.last or
+         9223372036854775807 mdiv intExpr(-1) +                    0 <> -9223372036854775807 then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum mdiv division result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(       -integer.last) mod        integer.first +                   -1 <>        integer.first or
+        intExpr(       integer.first) mod        integer.first +                   -1 <>                   -1 or
+        intExpr( 4611686018427387905) mod -4611686018427387904 + -4611686018427387905 <>        integer.first or
+        intExpr( 4611686018427387904) mod -4611686018427387904 + -4611686018427387905 <> -4611686018427387905 or
+        intExpr( 9223372002495037441) mod         -34359738368 + -9223372002495037441 <>        integer.first or
+        intExpr( 9223372002495037440) mod         -34359738368 + -9223372002495037441 <> -9223372002495037441 or
+        intExpr(          6172839451) mod          -1234567890 + -9223372035620207919 <>        integer.first or
+        intExpr(          6172839450) mod          -1234567890 + -9223372035620207919 <> -9223372035620207919 or
+        intExpr(        123456789123) mod                   -2 + -9223372036854775807 <>        integer.first or
+        intExpr(        123456789122) mod                   -2 + -9223372036854775807 <> -9223372036854775807 or
+        intExpr(        integer.last) mod                   -1 +        integer.first <>        integer.first or
+        intExpr(        integer.last) mod                    1 +        integer.first <>        integer.first or
+        intExpr(        123456789124) mod                    2 +        integer.first <>        integer.first or
+        intExpr(        123456789123) mod                    2 +        integer.first <> -9223372036854775807 or
+        intExpr(          6172839450) mod           1234567890 +        integer.first <>        integer.first or
+        intExpr(          6172839449) mod           1234567890 +        integer.first <> -9223372035620207919 or
+        intExpr( 9223372002495037440) mod          34359738368 +        integer.first <>        integer.first or
+        intExpr( 9223372002495037439) mod          34359738368 +        integer.first <> -9223372002495037441 or
+        intExpr( 4611686018427387904) mod  4611686018427387904 +        integer.first <>        integer.first or
+        intExpr(        integer.last) mod  4611686018427387904 +        integer.first <> -4611686018427387905 or
+        intExpr(        integer.last) mod         integer.last +        integer.first <>        integer.first or
+        intExpr( 9223372036854775806) mod         integer.last +        integer.first <>                   -2 then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum modulo result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(       integer.first) mod        integer.first +         integer.last <>         integer.last or
+        intExpr(       -integer.last) mod        integer.first +         integer.last <>                    0 or
+        intExpr( 4611686018427387904) mod -4611686018427387904 +         integer.last <>         integer.last or
+        intExpr( 4611686018427387905) mod -4611686018427387904 +         integer.last <>  4611686018427387904 or
+        intExpr( 9223372002495037440) mod         -34359738368 +         integer.last <>         integer.last or
+        intExpr( 9223372002495037441) mod         -34359738368 +         integer.last <>  9223372002495037440 or
+        intExpr(          6172839450) mod          -1234567890 +         integer.last <>         integer.last or
+        intExpr(          6172839451) mod          -1234567890 +         integer.last <>  9223372035620207918 or
+        intExpr(        123456789122) mod                   -2 +         integer.last <>         integer.last or
+        intExpr(        123456789123) mod                   -2 +         integer.last <>  9223372036854775806 or
+        intExpr(        integer.last) mod                   -1 +         integer.last <>         integer.last or
+        intExpr(        integer.last) mod                    1 +         integer.last <>         integer.last or
+        intExpr(        123456789123) mod                    2 +  9223372036854775806 <>         integer.last or
+        intExpr(        123456789124) mod                    2 +  9223372036854775806 <>  9223372036854775806 or
+        intExpr(          6172839449) mod           1234567890 +  9223372035620207918 <>         integer.last or
+        intExpr(          6172839450) mod           1234567890 +  9223372035620207918 <>  9223372035620207918 or
+        intExpr( 9223372002495037439) mod          34359738368 +  9223372002495037440 <>         integer.last or
+        intExpr( 9223372002495037440) mod          34359738368 +  9223372002495037440 <>  9223372002495037440 or
+        intExpr(        integer.last) mod  4611686018427387904 +  4611686018427387904 <>         integer.last or
+        intExpr( 4611686018427387904) mod  4611686018427387904 +  4611686018427387904 <>  4611686018427387904 or
+        intExpr( 9223372036854775806) mod         integer.last +                    1 <>         integer.last or
+        intExpr(        integer.last) mod         integer.last +                    1 <>                    1 then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum modulo result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if         integer.first mod intExpr(-4611686018427387905) + -4611686018427387905 <>        integer.first or
+               integer.first mod intExpr(        integer.last) + -4611686018427387905 <>  4611686018427387901 or
+        -9223372036854775807 mod intExpr(       integer.first) +                   -1 <>        integer.first or
+        -9223372036854775807 mod intExpr( 9223372036854775806) +                   -1 <>  9223372036854775804 or
+        -7654321098765432109 mod intExpr(-7654321098765432110) + -1569050938089343699 <>        integer.first or
+        -7654321098765432109 mod intExpr( 7654321098765432108) + -1569050938089343699 <>  6085270160676088408 or
+        -4611686018427387906 mod intExpr(-4611686018427387907) + -4611686018427387902 <>        integer.first or
+        -4611686018427387906 mod intExpr( 4611686018427387905) + -4611686018427387902 <>                    2 or
+        -4611686018427387905 mod intExpr(-4611686018427387906) + -4611686018427387903 <>        integer.first or
+        -4611686018427387905 mod intExpr( 4611686018427387904) + -4611686018427387903 <>                    0 or
+        -4611686018427387904 mod intExpr(-4611686018427387905) + -4611686018427387904 <>        integer.first or
+        -4611686018427387904 mod intExpr(        integer.last) + -4611686018427387904 <>                   -1 or
+                 -1234567890 mod intExpr(         -1234567891) + -9223372035620207918 <>        integer.first or
+                 -1234567890 mod intExpr(        integer.last) + -9223372035620207918 <>                   -1 or
+                          -1 mod intExpr(                  -2) + -9223372036854775807 <>        integer.first or
+                          -1 mod intExpr(        integer.last) + -9223372036854775807 <>                   -1 or
+                           0 mod intExpr(          1234567890) +        integer.first <>        integer.first or
+                           1 mod intExpr(       integer.first) +                   -1 <>        integer.first or
+                           1 mod intExpr(                   2) +                   -1 <>                    0 or
+                  1234567890 mod intExpr(       integer.first) +          -1234567890 <>        integer.first or
+                  1234567890 mod intExpr(          1234567891) +          -1234567890 <>                    0 or
+         4611686018427387904 mod intExpr(       integer.first) + -4611686018427387904 <>        integer.first or
+         4611686018427387904 mod intExpr( 4611686018427387905) + -4611686018427387904 <>                    0 or
+         4611686018427387905 mod intExpr(-4611686018427387904) + -4611686018427387905 <>        integer.first or
+         4611686018427387905 mod intExpr( 4611686018427387906) + -4611686018427387905 <>                    0 or
+         4611686018427387906 mod intExpr(-4611686018427387905) + -4611686018427387904 <>        integer.first or
+         4611686018427387906 mod intExpr( 4611686018427387907) + -4611686018427387904 <>                    2 or
+         7654321098765432109 mod intExpr(-7654321098765432108) + -1569050938089343701 <>        integer.first or
+         7654321098765432109 mod intExpr( 7654321098765432110) + -1569050938089343701 <>  6085270160676088408 or
+         9223372036854775806 mod intExpr(-9223372036854775805) +                   -4 <>        integer.first or
+         9223372036854775806 mod intExpr( 9223372036854775807) +                   -4 <>  9223372036854775802 or
+                integer.last mod intExpr(-9223372036854775806) +                   -3 <>        integer.first or
+                integer.last mod intExpr( 4611686018427387904) +                   -3 <>  4611686018427387900 then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum modulo result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if         integer.first mod intExpr(        integer.last) +                    1 <>         integer.last or
+               integer.first mod intExpr(-4611686018427387905) +                    1 <> -4611686018427387902 or
+        -9223372036854775807 mod intExpr( 9223372036854775806) +                    2 <>         integer.last or
+        -9223372036854775807 mod intExpr(       integer.first) +                    2 <> -9223372036854775805 or
+        -7654321098765432109 mod intExpr( 7654321098765432108) +  1569050938089343700 <>         integer.last or
+        -7654321098765432109 mod intExpr(-7654321098765432110) +  1569050938089343700 <> -6085270160676088409 or
+        -4611686018427387906 mod intExpr( 4611686018427387905) +  4611686018427387903 <>         integer.last or
+        -4611686018427387906 mod intExpr(-4611686018427387907) +  4611686018427387903 <>                   -3 or
+        -4611686018427387905 mod intExpr( 4611686018427387904) +  4611686018427387904 <>         integer.last or
+        -4611686018427387905 mod intExpr(-4611686018427387906) +  4611686018427387904 <>                   -1 or
+        -4611686018427387904 mod intExpr(        integer.last) +  4611686018427387904 <>         integer.last or
+        -4611686018427387904 mod intExpr(-4611686018427387905) +  4611686018427387904 <>                    0 or
+                 -1234567890 mod intExpr(        integer.last) +           1234567890 <>         integer.last or
+                 -1234567890 mod intExpr(         -1234567891) +           1234567890 <>                    0 or
+                          -1 mod intExpr(        integer.last) +                    1 <>         integer.last or
+                          -1 mod intExpr(                  -2) +                    1 <>                    0 or
+                           0 mod intExpr(          1234567890) +         integer.last <>         integer.last or
+                           1 mod intExpr(                   2) +  9223372036854775806 <>         integer.last or
+                           1 mod intExpr(       integer.first) +  9223372036854775806 <>                   -1 or
+                  1234567890 mod intExpr(          1234567891) +  9223372035620207917 <>         integer.last or
+                  1234567890 mod intExpr(       integer.first) +  9223372035620207917 <>                   -1 or
+         4611686018427387904 mod intExpr( 4611686018427387905) +  4611686018427387903 <>         integer.last or
+         4611686018427387904 mod intExpr(       integer.first) +  4611686018427387903 <>                   -1 or
+         4611686018427387905 mod intExpr( 4611686018427387906) +  4611686018427387902 <>         integer.last or
+         4611686018427387905 mod intExpr(-4611686018427387904) +  4611686018427387902 <>                   -1 or
+         4611686018427387906 mod intExpr( 4611686018427387907) +  4611686018427387901 <>         integer.last or
+         4611686018427387906 mod intExpr(-4611686018427387905) +  4611686018427387901 <>                   -3 or
+         7654321098765432109 mod intExpr( 7654321098765432110) +  1569050938089343698 <>         integer.last or
+         7654321098765432109 mod intExpr(-7654321098765432108) +  1569050938089343698 <> -6085270160676088409 or
+         9223372036854775806 mod intExpr( 9223372036854775807) +                    1 <>         integer.last or
+         9223372036854775806 mod intExpr(-9223372036854775805) +                    1 <> -9223372036854775803 or
+                integer.last mod intExpr( 4611686018427387904) +  4611686018427387904 <>         integer.last or
+                integer.last mod intExpr(-9223372036854775806) +  4611686018427387904 <> -4611686018427387901 then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum modulo result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  (intExpr(integer.first) >>  0) +                    0 <>        integer.first or
+        (intExpr(integer.first) >>  1) + -4611686018427387904 <>        integer.first or
+        (intExpr( integer.last) >>  1) + -4611686018427387904 <>                   -1 or
+        (intExpr(integer.first) >> 30) + -9223372028264841216 <>        integer.first or
+        (intExpr( integer.last) >> 30) + -9223372028264841216 <> -9223372019674906625 or
+        (intExpr(integer.first) >> 62) + -9223372036854775806 <>        integer.first or
+        (intExpr( integer.last) >> 62) + -9223372036854775806 <> -9223372036854775805 or
+        (intExpr(integer.first) >> 63) + -9223372036854775807 <>        integer.first or
+        (intExpr( integer.last) >> 63) + -9223372036854775807 <> -9223372036854775807 then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum rshift result if the shift amount is known.");
+      okay := FALSE;
+    end if;
+
+    if  (intExpr( integer.last) >>  0) +                    0 <>         integer.last or
+        (intExpr( integer.last) >>  1) +  4611686018427387904 <>         integer.last or
+        (intExpr(integer.first) >>  1) +  4611686018427387904 <>                    0 or
+        (intExpr( integer.last) >> 30) +  9223372028264841216 <>         integer.last or
+        (intExpr(integer.first) >> 30) +  9223372028264841216 <>  9223372019674906624 or
+        (intExpr( integer.last) >> 62) +  9223372036854775806 <>         integer.last or
+        (intExpr(integer.first) >> 62) +  9223372036854775806 <>  9223372036854775804 or
+        (intExpr( integer.last) >> 63) +         integer.last <>         integer.last or
+        (intExpr(integer.first) >> 63) +         integer.last <>  9223372036854775806 then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum rshift result if the shift amount is known.");
+      okay := FALSE;
+    end if;
+
+    if  (       integer.first >> intExpr( 0)) +                    0 <>        integer.first or
+        (       integer.first >> intExpr(63)) +                    0 <>                   -1 or
+        (       -integer.last >> intExpr( 0)) +                   -1 <>        integer.first or
+        (       -integer.last >> intExpr(63)) +                   -1 <>                   -2 or
+        (-9012345678901234567 >> intExpr( 0)) +  -211026357953541241 <>        integer.first or
+        (-9012345678901234567 >> intExpr(63)) +  -211026357953541241 <>  -211026357953541242 or
+        (-4611686018427387904 >> intExpr( 0)) + -4611686018427387904 <>        integer.first or
+        (-4611686018427387904 >> intExpr(62)) + -4611686018427387904 <> -4611686018427387905 or
+        (         -1234567890 >> intExpr( 0)) + -9223372035620207918 <>        integer.first or
+        (         -1234567890 >> intExpr(31)) + -9223372035620207918 <> -9223372035620207919 or
+        (                  -2 >> intExpr( 0)) + -9223372036854775806 <>        integer.first or
+        (                  -2 >> intExpr( 1)) + -9223372036854775806 <> -9223372036854775807 or
+        (                  -1 >> intExpr( 0)) + -9223372036854775807 <>        integer.first or
+        (                   0 >> intExpr( 0)) +        integer.first <>        integer.first or
+        (                   1 >> intExpr( 1)) +        integer.first <>        integer.first or
+        (                   1 >> intExpr( 0)) +        integer.first <> -9223372036854775807 or
+        (                   2 >> intExpr( 2)) +        integer.first <>        integer.first or
+        (                   2 >> intExpr( 0)) +        integer.first <> -9223372036854775806 or
+        (          1234567890 >> intExpr(31)) +        integer.first <>        integer.first or
+        (          1234567890 >> intExpr( 0)) +        integer.first <> -9223372035620207918 or
+        ( 4611686018427387903 >> intExpr(62)) +        integer.first <>        integer.first or
+        ( 4611686018427387903 >> intExpr( 0)) +        integer.first <> -4611686018427387905 or
+        ( 9012345678901234567 >> intExpr(63)) +        integer.first <>        integer.first or
+        ( 9012345678901234567 >> intExpr( 0)) +        integer.first <>  -211026357953541241 or
+        ( 9223372036854775806 >> intExpr(63)) +        integer.first <>        integer.first or
+        ( 9223372036854775806 >> intExpr( 0)) +        integer.first <>                   -2 or
+        (        integer.last >> intExpr(63)) +        integer.first <>        integer.first or
+        (        integer.last >> intExpr( 0)) +        integer.first <>                   -1 then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum rshift result if the shifted value is known.");
+      okay := FALSE;
+    end if;
+
+    if  (                   0 >> intExpr( 0)) +         integer.last <>         integer.last or
+        (                   1 >> intExpr( 0)) +  9223372036854775806 <>         integer.last or
+        (                   1 >> intExpr( 1)) +  9223372036854775806 <>  9223372036854775806 or
+        (                   2 >> intExpr( 0)) +  9223372036854775805 <>         integer.last or
+        (                   2 >> intExpr( 2)) +  9223372036854775805 <>  9223372036854775805 or
+        (          1234567890 >> intExpr( 0)) +  9223372035620207917 <>         integer.last or
+        (          1234567890 >> intExpr(31)) +  9223372035620207917 <>  9223372035620207917 or
+        ( 4611686018427387903 >> intExpr( 0)) +  4611686018427387904 <>         integer.last or
+        ( 4611686018427387903 >> intExpr(62)) +  4611686018427387904 <>  4611686018427387904 or
+        ( 9012345678901234567 >> intExpr( 0)) +   211026357953541240 <>         integer.last or
+        ( 9012345678901234567 >> intExpr(63)) +   211026357953541240 <>   211026357953541240 or
+        ( 9223372036854775806 >> intExpr( 0)) +                    1 <>         integer.last or
+        ( 9223372036854775806 >> intExpr(63)) +                    1 <>                    1 or
+        (        integer.last >> intExpr( 0)) +                    0 <>         integer.last or
+        (        integer.last >> intExpr(63)) +                    0 <>                    0 then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum rshift result if the shifted value is known.");
+      okay := FALSE;
+    end if;
+
+    if  abs(         intExpr(            0)) +        integer.first <> integer.first or
+        abs(         intExpr( integer.last)) +                    0 <>  integer.last or
+        log2(        intExpr(            0)) + -9223372036854775807 <> integer.first or
+        log2(        intExpr( integer.last)) +  9223372036854775745 <>  integer.last or
+        log10(       intExpr(            0)) + -9223372036854775807 <> integer.first or
+        log10(       intExpr( integer.last)) +  9223372036854775789 <>  integer.last or
+        sqrt(        intExpr(            0)) +        integer.first <> integer.first or
+        sqrt(        intExpr( integer.last)) +  9223372033817775308 <>  integer.last or
+        bitLength(   intExpr(            0)) +        integer.first <> integer.first or
+        bitLength(   intExpr( integer.last)) +  9223372036854775744 <>  integer.last or
+        lowestSetBit(intExpr(            0)) + -9223372036854775807 <> integer.first or
+        lowestSetBit(intExpr(integer.first)) +  9223372036854775744 <>  integer.last or
+        rand(        -1234567890,  intExpr(-1234567890)) + -9223372035620207918 <> integer.first or
+        rand(intExpr( 1234567890),          1234567890 ) +  9223372035620207917 <>  integer.last or
+        compare(intExpr(0), intExpr(1)) + -9223372036854775807 <> integer.first or
+        compare(intExpr(1), intExpr(0)) +  9223372036854775806 <>  integer.last then
+      writeln(" ***** Reduced overflow check for sums failed: Various integer functions.");
+      okay := FALSE;
+    end if;
+
+    if  ord(boolExpr(FALSE)) +       integer.first <>        integer.first or
+        ord(boolExpr( TRUE)) +       integer.first <> -9223372036854775807 or
+        ord(boolExpr( TRUE)) + 9223372036854775806 <>         integer.last or
+        ord(boolExpr(FALSE)) + 9223372036854775806 <>  9223372036854775806 or
+        ord(charExpr(char(-2147483648) )) + -9223372034707292160 <>        integer.first or
+        ord(charExpr(    '\2147483647;')) + -9223372034707292160 <> -9223372032559808513 or
+        ord(charExpr(    '\2147483647;')) +  9223372034707292160 <>         integer.last or
+        ord(charExpr(char(-2147483648) )) +  9223372034707292160 <>  9223372032559808512 then
+      writeln(" ***** Reduced overflow check for sums failed: Ord functions.");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr(""), striExpr(""))  + integer.first <>        integer.first or
+        pos("",           striExpr(""))  + integer.first <>        integer.first or
+        pos("a",          striExpr(""))  + integer.first <>        integer.first or
+        pos("a",          striExpr("a")) + integer.first <> -9223372036854775807 or
+        pos("ab",         striExpr(""))  + integer.first <>        integer.first or
+        pos("ab",         striExpr("b")) + integer.first <> -9223372036854775806 or
+        pos("abc",        striExpr(""))  + integer.first <>        integer.first or
+        pos("abc",        striExpr("c")) + integer.first <> -9223372036854775805 then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum pos result if the main string is known.");
+      okay := FALSE;
+    end if;
+
+    if  pos("",    striExpr(""))  +        integer.last <>        integer.last or
+        pos("a",   striExpr("a")) + 9223372036854775806 <>        integer.last or
+        pos("a",   striExpr(""))  + 9223372036854775806 <> 9223372036854775806 or
+        pos("ab",  striExpr("b")) + 9223372036854775805 <>        integer.last or
+        pos("ab",  striExpr(""))  + 9223372036854775805 <> 9223372036854775805 or
+        pos("abc", striExpr("c")) + 9223372036854775804 <>        integer.last or
+        pos("abc", striExpr(""))  + 9223372036854775804 <> 9223372036854775804 then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum pos result if the main string is known.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_add is func
   local
     var boolean: okay is TRUE;
@@ -2866,6 +3416,10 @@ const proc: check_add is func
         pred(intExpr(2)  + intExpr(8)) + intExpr(16)  <> 25 or
         pred(intExpr(2)  + intExpr(8)  + intExpr(16)) <> 25 then
       writeln(" ***** Addition of summands and use of pred() does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if not check_reduced_overflow_checking_for_sums then
       okay := FALSE;
     end if;
 
@@ -4474,6 +5028,115 @@ const proc: check_decr is func
   end func;
 
 
+(**
+ *  Tests for the compiler optimization to reduce overflow checking
+ *  for multiplication.
+ *)
+const func boolean: check_reduced_overflow_checking_for_mult is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  intExpr( integer.last) div        integer.first *        integer.first <>                    0 or
+        intExpr( integer.last) div        -integer.last *        -integer.last <>         integer.last or
+        intExpr( integer.last) div -4611686018427387905 *        -integer.last <>         integer.last or
+        intExpr( integer.last) div -3074457345618258602 * -3074457345618258602 <>  9223372036854775806 or
+        intExpr( integer.last) div -1317624576693539401 * -1317624576693539401 <>         integer.last or
+        intExpr( integer.last) div         -60247241209 *         -60247241209 <>         integer.last or
+        intExpr( integer.last) div         -34359738369 *         -34359738496 <>  9223372036854775680 or
+        intExpr( integer.last) div          -1234567890 *          -1234567890 <>  9223372035820400130 or
+        intExpr( integer.last) div                   -7 *                   -7 <>         integer.last or
+        intExpr( integer.last) div                   -3 *                   -3 <>  9223372036854775806 or
+        intExpr(integer.first) div                    2 *                   -1 <>  4611686018427387904 or
+        intExpr(integer.first) div                    3 *                   -3 <>  9223372036854775806 or
+        intExpr(integer.first) div                    7 *                   -7 <>         integer.last or
+        intExpr(integer.first) div           1234567890 *          -1234567890 <>  9223372035820400130 or
+        intExpr(integer.first) div          34359738368 *         -34359738367 <>  9223372036586340352 or
+        intExpr(integer.first) div          34359738369 *         -34359738496 <>  9223372036854775680 or
+        intExpr(integer.first) div          60247241209 *         -60247241209 <>         integer.last or
+        intExpr(integer.first) div  1317624576693539401 * -1317624576693539401 <>         integer.last or
+        intExpr(integer.first) div  4611686018427387904 * -4611686018427387903 <>  9223372036854775806 or
+        intExpr(integer.first) div  9223372036854775806 *        -integer.last <>         integer.last or
+        intExpr(integer.first) div         integer.last *        -integer.last <>         integer.last then
+      writeln(" ***** Reduced overflow check for mult failed: Minimum division result if the divisor is known. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr( integer.last) div        integer.first *         integer.last <>                    0 or
+        intExpr( integer.last) div        -integer.last *         integer.last <>        -integer.last or
+        intExpr( integer.last) div -4611686018427387905 *         integer.last <>        -integer.last or
+        intExpr( integer.last) div -3074457345618258602 *  3074457345618258602 <> -9223372036854775806 or
+        intExpr( integer.last) div -1317624576693539401 *  1317624576693539401 <>        -integer.last or
+        intExpr( integer.last) div         -60247241209 *          60247241209 <>        -integer.last or
+        intExpr( integer.last) div         -34359738369 *          34359738496 <> -9223372036854775680 or
+        intExpr( integer.last) div          -1234567890 *           1234567890 <> -9223372035820400130 or
+        intExpr( integer.last) div                   -7 *                    7 <>        -integer.last or
+        intExpr( integer.last) div                   -3 *                    3 <> -9223372036854775806 or
+        intExpr(integer.first) div                    2 *                    2 <>        integer.first or
+        intExpr(integer.first) div                    3 *                    3 <> -9223372036854775806 or
+        intExpr(integer.first) div                    7 *                    7 <>        -integer.last or
+        intExpr(integer.first) div           1234567890 *           1234567890 <> -9223372035820400130 or
+        intExpr(integer.first) div          34359738368 *          34359738368 <>        integer.first or
+        intExpr(integer.first) div          34359738369 *          34359738496 <> -9223372036854775680 or
+        intExpr(integer.first) div          60247241209 *          60247241209 <>        -integer.last or
+        intExpr(integer.first) div  1317624576693539401 *  1317624576693539401 <>        -integer.last or
+        intExpr(integer.first) div  4611686018427387904 *  4611686018427387904 <>        integer.first or
+        intExpr(integer.first) div  9223372036854775806 *         integer.last <>        -integer.last or
+        intExpr(integer.first) div         integer.last *         integer.last <>        -integer.last then
+      writeln(" ***** Reduced overflow check for mult failed: Minimum division result if the divisor is known. (2)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(integer.first) div        integer.first *        integer.first <>        integer.first or
+        intExpr(integer.first) div -4611686018427387904 * -4611686018427387903 <> -9223372036854775806 or
+        intExpr(integer.first) div -1317624576693539401 * -1317624576693539401 <>        -integer.last or
+        intExpr(integer.first) div         -60247241209 *         -60247241209 <>        -integer.last or
+        intExpr(integer.first) div         -34359738369 *         -34359738496 <> -9223372036854775680 or
+        intExpr(integer.first) div         -34359738368 *         -34359738367 <> -9223372036586340352 or
+        intExpr(integer.first) div          -1234567890 *          -1234567890 <> -9223372035820400130 or
+        intExpr(integer.first) div                   -7 *                   -7 <>        -integer.last or
+        intExpr(integer.first) div                   -3 *                   -2 <> -6148914691236517204 or
+        intExpr(integer.first) div                   -2 *                   -1 <> -4611686018427387904 or
+        intExpr( integer.last) div                    3 *                   -3 <> -9223372036854775806 or
+        intExpr( integer.last) div                    7 *                   -7 <>        -integer.last or
+        intExpr( integer.last) div           1234567890 *          -1234567890 <> -9223372035820400130 or
+        intExpr( integer.last) div          34359738367 *         -34359738367 <> -9223372036586340352 or
+        intExpr( integer.last) div          60247241209 *         -60247241209 <>        -integer.last or
+        intExpr( integer.last) div  1317624576693539401 * -1317624576693539401 <>        -integer.last or
+        intExpr( integer.last) div  4611686018427387903 * -4611686018427387903 <> -9223372036854775806 then
+      writeln(" ***** Reduced overflow check for mult failed: Maximum division result if the divisor is known. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(integer.first) div        integer.first *         integer.last <>         integer.last or
+        intExpr(integer.first) div        -integer.last *         integer.last <>         integer.last or
+        intExpr(integer.first) div -4611686018427387905 *         integer.last <>         integer.last or
+        intExpr(integer.first) div -4611686018427387904 *  4611686018427387903 <>  9223372036854775806 or
+        intExpr(integer.first) div -1317624576693539401 *  1317624576693539401 <>         integer.last or
+        intExpr(integer.first) div         -60247241209 *          60247241209 <>         integer.last or
+        intExpr(integer.first) div         -34359738369 *          34359738496 <>  9223372036854775680 or
+        intExpr(integer.first) div         -34359738368 *          34359738367 <>  9223372036586340352 or
+        intExpr(integer.first) div          -1234567890 *           1234567890 <>  9223372035820400130 or
+        intExpr(integer.first) div                   -7 *                    7 <>         integer.last or
+        intExpr(integer.first) div                   -3 *                    2 <>  6148914691236517204 or
+        intExpr(integer.first) div                   -2 *                    1 <>  4611686018427387904 or
+        intExpr( integer.last) div                    1 *                    1 <>         integer.last or
+        intExpr( integer.last) div                    2 *                    2 <>  9223372036854775806 or
+        intExpr( integer.last) div                    3 *                    3 <>  9223372036854775806 or
+        intExpr( integer.last) div                    7 *                    7 <>         integer.last or
+        intExpr( integer.last) div           1234567890 *           1234567890 <>  9223372035820400130 or
+        intExpr( integer.last) div          34359738367 *          34359738367 <>  9223372036586340352 or
+        intExpr( integer.last) div          34359738368 *          34359738496 <>  9223372036854775680 or
+        intExpr( integer.last) div          60247241209 *          60247241209 <>         integer.last or
+        intExpr( integer.last) div  1317624576693539401 *  1317624576693539401 <>         integer.last or
+        intExpr( integer.last) div  4611686018427387903 *  4611686018427387903 <>  9223372036854775806 or
+        intExpr( integer.last) div  9223372036854775806 *         integer.last <>         integer.last or
+        intExpr( integer.last) div         integer.last *         integer.last <>         integer.last then
+      writeln(" ***** Reduced overflow check for mult failed: Maximum division result if the divisor is known. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_mult is func
   local
     var boolean: okay is TRUE;
@@ -4879,6 +5542,10 @@ const proc: check_mult is func
         intExpr(                   2) * intExpr( 4611686018427387903) <>  9223372036854775806 or
         intExpr(                   1) * intExpr( 9223372036854775807) <>  9223372036854775807 then
       writeln(" ***** Multiplication with big products does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if not check_reduced_overflow_checking_for_mult then
       okay := FALSE;
     end if;
 
@@ -8781,6 +9448,788 @@ const proc: check_mdiv is func
   end func;
 
 
+const func boolean: check_mod_by_power_of_two_optimization is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  (intExpr(-1234567890123456789) <<  1) mod                   2 <>                   0 or
+        (intExpr(                  -1) << 61) mod                   2 <>                   0 or
+        (intExpr(                  -2) << 62) mod                   2 <>                   0 or
+        (intExpr(                  -1) << 63) mod                   2 <>                   0 or
+        (intExpr(-1234567890123456789) <<  1) mod                   4 <>                   2 or
+        (intExpr(-1234567890123456789) <<  2) mod                   4 <>                   0 or
+        (intExpr(                  -1) << 61) mod                   4 <>                   0 or
+        (intExpr(                  -2) << 62) mod                   4 <>                   0 or
+        (intExpr(                  -1) << 63) mod                   4 <>                   0 or
+        (intExpr(-1234567890123456789) <<  1) mod            16#20000 <>               64982 or
+        (intExpr( -123456789012345678) <<  4) mod            16#20000 <>               52000 or
+        (intExpr(  -12345678901234567) <<  7) mod            16#20000 <>               15488 or
+        (intExpr(   -1234567890123456) << 10) mod            16#20000 <>               65536 or
+        (intExpr(    -123456789012345) << 14) mod            16#20000 <>              114688 or
+        (intExpr(    -123456789012345) << 16) mod            16#20000 <>               65536 or
+        (intExpr(     -12345678901234) << 17) mod            16#20000 <>                   0 or
+        (intExpr(         -1234567890) << 31) mod            16#20000 <>                   0 or
+        (intExpr(             -123456) << 45) mod            16#20000 <>                   0 or
+        (intExpr(                  -1) << 61) mod            16#20000 <>                   0 or
+        (intExpr(                  -2) << 62) mod            16#20000 <>                   0 or
+        (intExpr(                  -1) << 63) mod            16#20000 <>                   0 or
+        (intExpr(-1234567890123456789) <<  1) mod        16#100000000 <>            70057430 or
+        (intExpr( -123456789012345678) <<  4) mod        16#100000000 <>          2633026336 or
+        (intExpr(  -12345678901234567) <<  8) mod        16#100000000 <>          2494855424 or
+        (intExpr(   -1234567890123456) << 12) mod        16#100000000 <>          1414791168 or
+        (intExpr(    -123456789012345) << 16) mod        16#100000000 <>           545718272 or
+        (intExpr(      -1234567890123) << 20) mod        16#100000000 <>          3008364544 or
+        (intExpr(       -123456789012) << 24) mod        16#100000000 <>          3959422976 or
+        (intExpr(         -1234567890) << 30) mod        16#100000000 <>          2147483648 or
+        (intExpr(         -1234567890) << 31) mod        16#100000000 <>                   0 or
+        (intExpr(             -123456) << 45) mod        16#100000000 <>                   0 or
+        (intExpr(                  -1) << 61) mod        16#100000000 <>                   0 or
+        (intExpr(                  -2) << 62) mod        16#100000000 <>                   0 or
+        (intExpr(                  -1) << 63) mod        16#100000000 <>                   0 or
+        (intExpr(-1234567890123456789) <<  1) mod 16#4000000000000000 <> 2142550238180474326 or
+        (intExpr( -123456789012345678) <<  5) mod 16#4000000000000000 <>  661068770032326208 or
+        (intExpr(   -1234567890123456) << 11) mod 16#4000000000000000 <> 2083290979454550016 or
+        (intExpr(     -12345678901234) << 17) mod 16#4000000000000000 <> 2993513193484845056 or
+        (intExpr(       -123456789012) << 23) mod 16#4000000000000000 <> 3576055410467012608 or
+        (intExpr(        -12345678901) << 29) mod 16#4000000000000000 <> 2595336146015748096 or
+        (intExpr(           -12345678) << 37) mod 16#4000000000000000 <> 2914908954205093888 or
+        (intExpr(              -12345) << 47) mod 16#4000000000000000 <> 2874281724680863744 or
+        (intExpr(                -123) << 53) mod 16#4000000000000000 <> 3503800510094245888 or
+        (intExpr(                  -1) << 61) mod 16#4000000000000000 <> 2305843009213693952 or
+        (intExpr(                  -2) << 62) mod 16#4000000000000000 <>                   0 or
+        (intExpr(                  -1) << 63) mod 16#4000000000000000 <>                   0 then
+      writeln(" ***** mod of left shifted negative values does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  (intExpr(1234567890123456789) <<  1) mod                   2 <>                   0 or
+        (intExpr(                  1) << 61) mod                   2 <>                   0 or
+        (intExpr(                  1) << 62) mod                   2 <>                   0 or
+        (intExpr(1234567890123456789) <<  1) mod                   4 <>                   2 or
+        (intExpr(1234567890123456789) <<  2) mod                   4 <>                   0 or
+        (intExpr(                  1) << 61) mod                   4 <>                   0 or
+        (intExpr(                  1) << 62) mod                   4 <>                   0 or
+        (intExpr(1234567890123456789) <<  1) mod            16#20000 <>               66090 or
+        (intExpr( 123456789012345678) <<  4) mod            16#20000 <>               79072 or
+        (intExpr(  12345678901234567) <<  7) mod            16#20000 <>              115584 or
+        (intExpr(   1234567890123456) << 10) mod            16#20000 <>               65536 or
+        (intExpr(    123456789012345) << 14) mod            16#20000 <>               16384 or
+        (intExpr(    123456789012345) << 16) mod            16#20000 <>               65536 or
+        (intExpr(     12345678901234) << 17) mod            16#20000 <>                   0 or
+        (intExpr(         1234567890) << 31) mod            16#20000 <>                   0 or
+        (intExpr(             123456) << 45) mod            16#20000 <>                   0 or
+        (intExpr(                  1) << 61) mod            16#20000 <>                   0 or
+        (intExpr(                  1) << 62) mod            16#20000 <>                   0 or
+        (intExpr(1234567890123456789) <<  1) mod        16#100000000 <>          4224909866 or
+        (intExpr( 123456789012345678) <<  4) mod        16#100000000 <>          1661940960 or
+        (intExpr(  12345678901234567) <<  8) mod        16#100000000 <>          1800111872 or
+        (intExpr(   1234567890123456) << 12) mod        16#100000000 <>          2880176128 or
+        (intExpr(    123456789012345) << 16) mod        16#100000000 <>          3749249024 or
+        (intExpr(      1234567890123) << 20) mod        16#100000000 <>          1286602752 or
+        (intExpr(       123456789012) << 24) mod        16#100000000 <>           335544320 or
+        (intExpr(         1234567890) << 30) mod        16#100000000 <>          2147483648 or
+        (intExpr(         1234567890) << 31) mod        16#100000000 <>                   0 or
+        (intExpr(             123456) << 45) mod        16#100000000 <>                   0 or
+        (intExpr(                  1) << 61) mod        16#100000000 <>                   0 or
+        (intExpr(                  1) << 62) mod        16#100000000 <>                   0 or
+        (intExpr(5678901234567890123) <<  0) mod 16#4000000000000000 <> 1067215216140502219 or
+        (intExpr(3456789012345678901) <<  1) mod 16#4000000000000000 <> 2301892006263969898 or
+        (intExpr( 234567890123456789) <<  5) mod 16#4000000000000000 <> 2894486465523229344 or
+        (intExpr(   3456789012345678) << 11) mod 16#4000000000000000 <> 2467817878856560640 or
+        (intExpr(     45678901234567) << 17) mod 16#4000000000000000 <> 1375538924189777920 or
+        (intExpr(       678901234567) << 23) mod 16#4000000000000000 <> 1083350309071224832 or
+        (intExpr(        12345678901) << 29) mod 16#4000000000000000 <> 2016349872411639808 or
+        (intExpr(           45678901) << 37) mod 16#4000000000000000 <> 1666374330763706368 or
+        (intExpr(              56789) << 47) mod 16#4000000000000000 <> 3380655207783333888 or
+        (intExpr(                890) << 53) mod 16#4000000000000000 <> 3404721318292094976 or
+        (intExpr(                  3) << 61) mod 16#4000000000000000 <> 2305843009213693952 or
+        (intExpr(                  1) << 62) mod 16#4000000000000000 <>                   0 then
+      writeln(" ***** mod of left shifted positive values does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  (        1234567890123456789  +         1234567890123456789 ) mod                   4 <>                   2 or
+        (        1234567890123456789  + intExpr(1234567890123456789)) mod                   4 <>                   2 or
+        (intExpr(1234567890123456789) +         1234567890123456789 ) mod                   4 <>                   2 or
+        (intExpr(1234567890123456789) + intExpr(1234567890123456789)) mod                   4 <>                   2 or
+        (        1234567890123456789  -          987654321098765432 ) mod                   4 <>                   1 or
+        (        1234567890123456789  - intExpr( 987654321098765432)) mod                   4 <>                   1 or
+        (intExpr(1234567890123456789) -          987654321098765432 ) mod                   4 <>                   1 or
+        (intExpr(1234567890123456789) - intExpr( 987654321098765432)) mod                   4 <>                   1 or
+        (        1234567890123456789  -         1987654321098765432 ) mod                   4 <>                   1 or
+        (        1234567890123456789  - intExpr(1987654321098765432)) mod                   4 <>                   1 or
+        (intExpr(1234567890123456789) -         1987654321098765432 ) mod                   4 <>                   1 or
+        (intExpr(1234567890123456789) - intExpr(1987654321098765432)) mod                   4 <>                   1 or
+        (        1234567890123456789  +         1234567890123456789 ) mod            16#20000 <>               66090 or
+        (        1234567890123456789  + intExpr(1234567890123456789)) mod            16#20000 <>               66090 or
+        (intExpr(1234567890123456789) +         1234567890123456789 ) mod            16#20000 <>               66090 or
+        (intExpr(1234567890123456789) + intExpr(1234567890123456789)) mod            16#20000 <>               66090 or
+        (        1234567890123456789  -          987654321098765432 ) mod            16#20000 <>               52381 or
+        (        1234567890123456789  - intExpr( 987654321098765432)) mod            16#20000 <>               52381 or
+        (intExpr(1234567890123456789) -          987654321098765432 ) mod            16#20000 <>               52381 or
+        (intExpr(1234567890123456789) - intExpr( 987654321098765432)) mod            16#20000 <>               52381 or
+        (        1234567890123456789  -         1987654321098765432 ) mod            16#20000 <>               52381 or
+        (        1234567890123456789  - intExpr(1987654321098765432)) mod            16#20000 <>               52381 or
+        (intExpr(1234567890123456789) -         1987654321098765432 ) mod            16#20000 <>               52381 or
+        (intExpr(1234567890123456789) - intExpr(1987654321098765432)) mod            16#20000 <>               52381 or
+        (        1234567890123456789  +         1234567890123456789 ) mod        16#100000000 <>          4224909866 or
+        (        1234567890123456789  + intExpr(1234567890123456789)) mod        16#100000000 <>          4224909866 or
+        (intExpr(1234567890123456789) +         1234567890123456789 ) mod        16#100000000 <>          4224909866 or
+        (intExpr(1234567890123456789) + intExpr(1234567890123456789)) mod        16#100000000 <>          4224909866 or
+        (        1234567890123456789  -          987654321098765432 ) mod        16#100000000 <>           871419037 or
+        (        1234567890123456789  - intExpr( 987654321098765432)) mod        16#100000000 <>           871419037 or
+        (intExpr(1234567890123456789) -          987654321098765432 ) mod        16#100000000 <>           871419037 or
+        (intExpr(1234567890123456789) - intExpr( 987654321098765432)) mod        16#100000000 <>           871419037 or
+        (        1234567890123456789  -         1987654321098765432 ) mod        16#100000000 <>          2358037661 or
+        (        1234567890123456789  - intExpr(1987654321098765432)) mod        16#100000000 <>          2358037661 or
+        (intExpr(1234567890123456789) -         1987654321098765432 ) mod        16#100000000 <>          2358037661 or
+        (intExpr(1234567890123456789) - intExpr(1987654321098765432)) mod        16#100000000 <>          2358037661 or
+        (        2345678901234567890  +         2345678901234567890 ) mod 16#4000000000000000 <>   79671784041747876 or
+        (        2345678901234567890  + intExpr(2345678901234567890)) mod 16#4000000000000000 <>   79671784041747876 or
+        (intExpr(2345678901234567890) +         2345678901234567890 ) mod 16#4000000000000000 <>   79671784041747876 or
+        (intExpr(2345678901234567890) + intExpr(2345678901234567890)) mod 16#4000000000000000 <>   79671784041747876 or
+        (        5678901234567890123  -          987654321098765432 ) mod 16#4000000000000000 <>   79560895041736787 or
+        (        5678901234567890123  - intExpr( 987654321098765432)) mod 16#4000000000000000 <>   79560895041736787 or
+        (intExpr(5678901234567890123) -          987654321098765432 ) mod 16#4000000000000000 <>   79560895041736787 or
+        (intExpr(5678901234567890123) - intExpr( 987654321098765432)) mod 16#4000000000000000 <>   79560895041736787 or
+        (        1234567890123456789  -         1987654321098765432 ) mod 16#4000000000000000 <> 3858599587452079261 or
+        (        1234567890123456789  - intExpr(1987654321098765432)) mod 16#4000000000000000 <> 3858599587452079261 or
+        (intExpr(1234567890123456789) -         1987654321098765432 ) mod 16#4000000000000000 <> 3858599587452079261 or
+        (intExpr(1234567890123456789) - intExpr(1987654321098765432)) mod 16#4000000000000000 <> 3858599587452079261 then
+      writeln(" ***** mod of sum does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  (        1  +         2  +         3  +         4 ) mod 4 <> 2 or
+        (        1  +         2  +         3  + intExpr(4)) mod 4 <> 2 or
+        (        1  +         2  + intExpr(3) +         4 ) mod 4 <> 2 or
+        (        1  +         2  + intExpr(3) + intExpr(4)) mod 4 <> 2 or
+        (        1  + intExpr(2) +         3  +         4 ) mod 4 <> 2 or
+        (        1  + intExpr(2) +         3  + intExpr(4)) mod 4 <> 2 or
+        (        1  + intExpr(2) + intExpr(3) +         4 ) mod 4 <> 2 or
+        (        1  + intExpr(2) + intExpr(3) + intExpr(4)) mod 4 <> 2 or
+        (intExpr(1) +         2  +         3  +         4 ) mod 4 <> 2 or
+        (intExpr(1) +         2  +         3  + intExpr(4)) mod 4 <> 2 or
+        (intExpr(1) +         2  + intExpr(3) +         4 ) mod 4 <> 2 or
+        (intExpr(1) +         2  + intExpr(3) + intExpr(4)) mod 4 <> 2 or
+        (intExpr(1) + intExpr(2) +         3  +         4 ) mod 4 <> 2 or
+        (intExpr(1) + intExpr(2) +         3  + intExpr(4)) mod 4 <> 2 or
+        (intExpr(1) + intExpr(2) + intExpr(3) +         4 ) mod 4 <> 2 or
+        (intExpr(1) + intExpr(2) + intExpr(3) + intExpr(4)) mod 4 <> 2 then
+      writeln(" ***** mod of sum does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  (        2  *         3  +         5  *         7 ) mod 32 <> 9 or
+        (        2  *         3  +         5  * intExpr(7)) mod 32 <> 9 or
+        (        2  *         3  + intExpr(5) *         7 ) mod 32 <> 9 or
+        (        2  *         3  + intExpr(5) * intExpr(7)) mod 32 <> 9 or
+        (        2  *         3  + intExpr(5  *         7)) mod 32 <> 9 or
+        (        2  * intExpr(3) +         5  *         7 ) mod 32 <> 9 or
+        (        2  * intExpr(3) +         5  * intExpr(7)) mod 32 <> 9 or
+        (        2  * intExpr(3) + intExpr(5) *         7 ) mod 32 <> 9 or
+        (        2  * intExpr(3) + intExpr(5) * intExpr(7)) mod 32 <> 9 or
+        (        2  * intExpr(3) + intExpr(5  *         7)) mod 32 <> 9 or
+        (intExpr(2) *         3  +         5  *         7 ) mod 32 <> 9 or
+        (intExpr(2) *         3  +         5  * intExpr(7)) mod 32 <> 9 or
+        (intExpr(2) *         3  + intExpr(5) *         7 ) mod 32 <> 9 or
+        (intExpr(2) *         3  + intExpr(5) * intExpr(7)) mod 32 <> 9 or
+        (intExpr(2) *         3  + intExpr(5  *         7)) mod 32 <> 9 or
+        (intExpr(2) * intExpr(3) +         5  *         7 ) mod 32 <> 9 or
+        (intExpr(2) * intExpr(3) +         5  * intExpr(7)) mod 32 <> 9 or
+        (intExpr(2) * intExpr(3) + intExpr(5) *         7 ) mod 32 <> 9 or
+        (intExpr(2) * intExpr(3) + intExpr(5) * intExpr(7)) mod 32 <> 9 or
+        (intExpr(2) * intExpr(3) + intExpr(5  *         7)) mod 32 <> 9 or
+        (intExpr(2  *         3) +         5  *         7 ) mod 32 <> 9 or
+        (intExpr(2  *         3) +         5  * intExpr(7)) mod 32 <> 9 or
+        (intExpr(2  *         3) + intExpr(5) *         7 ) mod 32 <> 9 or
+        (intExpr(2  *         3) + intExpr(5) * intExpr(7)) mod 32 <> 9 or
+        (intExpr(2  *         3) + intExpr(5  *         7)) mod 32 <> 9 then
+      writeln(" ***** mod of sum does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  ((        7  <<         5 ) + (        3  <<         2 )) mod 32 <> 12 or
+        ((        7  <<         5 ) + (        3  << intExpr(2))) mod 32 <> 12 or
+        ((        7  <<         5 ) + (intExpr(3) <<         2 )) mod 32 <> 12 or
+        ((        7  <<         5 ) + (intExpr(3) << intExpr(2))) mod 32 <> 12 or
+        ((        7  <<         5 ) +  intExpr(3  <<         2) ) mod 32 <> 12 or
+        ((        7  << intExpr(5)) + (        3  <<         2 )) mod 32 <> 12 or
+        ((        7  << intExpr(5)) + (        3  << intExpr(2))) mod 32 <> 12 or
+        ((        7  << intExpr(5)) + (intExpr(3) <<         2 )) mod 32 <> 12 or
+        ((        7  << intExpr(5)) + (intExpr(3) << intExpr(2))) mod 32 <> 12 or
+        ((        7  << intExpr(5)) +  intExpr(3  <<         2) ) mod 32 <> 12 or
+        ((intExpr(7) <<         5 ) + (        3  <<         2 )) mod 32 <> 12 or
+        ((intExpr(7) <<         5 ) + (        3  << intExpr(2))) mod 32 <> 12 or
+        ((intExpr(7) <<         5 ) + (intExpr(3) <<         2 )) mod 32 <> 12 or
+        ((intExpr(7) <<         5 ) + (intExpr(3) << intExpr(2))) mod 32 <> 12 or
+        ((intExpr(7) <<         5 ) +  intExpr(3  <<         2) ) mod 32 <> 12 or
+        ((intExpr(7) << intExpr(5)) + (        3  <<         2 )) mod 32 <> 12 or
+        ((intExpr(7) << intExpr(5)) + (        3  << intExpr(2))) mod 32 <> 12 or
+        ((intExpr(7) << intExpr(5)) + (intExpr(3) <<         2 )) mod 32 <> 12 or
+        ((intExpr(7) << intExpr(5)) + (intExpr(3) << intExpr(2))) mod 32 <> 12 or
+        ((intExpr(7) << intExpr(5)) +  intExpr(3  <<         2) ) mod 32 <> 12 or
+        ( intExpr(7  <<         5)  + (        3  <<         2 )) mod 32 <> 12 or
+        ( intExpr(7  <<         5)  + (        3  << intExpr(2))) mod 32 <> 12 or
+        ( intExpr(7  <<         5)  + (intExpr(3) <<         2 )) mod 32 <> 12 or
+        ( intExpr(7  <<         5)  + (intExpr(3) << intExpr(2))) mod 32 <> 12 or
+        ( intExpr(7  <<         5)  +  intExpr(3  <<         2) ) mod 32 <> 12 then
+      writeln(" ***** mod of sum does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if (        integer.first  + (        0  <<         63 )) mod 64 <>  0 or
+       (        integer.first  + (        0  << intExpr(63))) mod 64 <>  0 or
+       (        integer.first  + (intExpr(0) <<         63 )) mod 64 <>  0 or
+       (        integer.first  + (intExpr(0) << intExpr(63))) mod 64 <>  0 or
+       (        integer.first  + (intExpr(0  <<         63))) mod 64 <>  0 or
+       (intExpr(integer.first) + (        0  <<         63 )) mod 64 <>  0 or
+       (intExpr(integer.first) + (        0  << intExpr(63))) mod 64 <>  0 or
+       (intExpr(integer.first) + (intExpr(0) <<         63 )) mod 64 <>  0 or
+       (intExpr(integer.first) + (intExpr(0) << intExpr(63))) mod 64 <>  0 or
+       (intExpr(integer.first) + (intExpr(0  <<         63))) mod 64 <>  0 or
+       (        integer.last   + (        0  <<         63 )) mod 64 <> 63 or
+       (        integer.last   + (        0  << intExpr(63))) mod 64 <> 63 or
+       (        integer.last   + (intExpr(0) <<         63 )) mod 64 <> 63 or
+       (        integer.last   + (intExpr(0) << intExpr(63))) mod 64 <> 63 or
+       (        integer.last   + (intExpr(0  <<         63))) mod 64 <> 63 or
+       (intExpr(integer.last)  + (        0  <<         63 )) mod 64 <> 63 or
+       (intExpr(integer.last)  + (        0  << intExpr(63))) mod 64 <> 63 or
+       (intExpr(integer.last)  + (intExpr(0) <<         63 )) mod 64 <> 63 or
+       (intExpr(integer.last)  + (intExpr(0) << intExpr(63))) mod 64 <> 63 or
+       (intExpr(integer.last)  + (intExpr(0  <<         63))) mod 64 <> 63 then
+      writeln(" ***** mod of sum does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  pred(-5678901234567890123) mod 16#4000000000000000 <> 3544470802286885684 or
+        succ(-5678901234567890123) mod 16#4000000000000000 <> 3544470802286885686 or
+        succ(-4611686018427387906) mod 16#4000000000000000 <> 4611686018427387903 or
+        succ(-4611686018427387905) mod 16#4000000000000000 <>                   0 or
+        pred(-4611686018427387904) mod 16#4000000000000000 <> 4611686018427387903 or
+        pred(-4611686018427387903) mod 16#4000000000000000 <>                   0 or
+        succ( 4611686018427387902) mod 16#4000000000000000 <> 4611686018427387903 or
+        succ( 4611686018427387903) mod 16#4000000000000000 <>                   0 or
+        pred( 4611686018427387904) mod 16#4000000000000000 <> 4611686018427387903 or
+        pred( 4611686018427387905) mod 16#4000000000000000 <>                   0 or
+        pred( 5678901234567890123) mod 16#4000000000000000 <> 1067215216140502218 or
+        succ( 5678901234567890123) mod 16#4000000000000000 <> 1067215216140502220 or
+        pred(intExpr(-5678901234567890123)) mod 16#4000000000000000 <> 3544470802286885684 or
+        succ(intExpr(-5678901234567890123)) mod 16#4000000000000000 <> 3544470802286885686 or
+        succ(intExpr(-4611686018427387906)) mod 16#4000000000000000 <> 4611686018427387903 or
+        succ(intExpr(-4611686018427387905)) mod 16#4000000000000000 <>                   0 or
+        pred(intExpr(-4611686018427387904)) mod 16#4000000000000000 <> 4611686018427387903 or
+        pred(intExpr(-4611686018427387903)) mod 16#4000000000000000 <>                   0 or
+        succ(intExpr( 4611686018427387902)) mod 16#4000000000000000 <> 4611686018427387903 or
+        succ(intExpr( 4611686018427387903)) mod 16#4000000000000000 <>                   0 or
+        pred(intExpr( 4611686018427387904)) mod 16#4000000000000000 <> 4611686018427387903 or
+        pred(intExpr( 4611686018427387905)) mod 16#4000000000000000 <>                   0 or
+        pred(intExpr( 5678901234567890123)) mod 16#4000000000000000 <> 1067215216140502218 or
+        succ(intExpr( 5678901234567890123)) mod 16#4000000000000000 <> 1067215216140502220 then
+      writeln(" ***** mod of succ() and pred() does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if           1234567890  *          6789012345  mod            16#20000 <>               97090 or
+                 1234567890  * intExpr( 6789012345) mod            16#20000 <>               97090 or
+        intExpr( 1234567890) *          6789012345  mod            16#20000 <>               97090 or
+        intExpr( 1234567890) * intExpr( 6789012345) mod            16#20000 <>               97090 or
+                 1234567890  *         -6789012345  mod            16#20000 <>               33982 or
+                 1234567890  * intExpr(-6789012345) mod            16#20000 <>               33982 or
+        intExpr( 1234567890) *         -6789012345  mod            16#20000 <>               33982 or
+        intExpr( 1234567890) * intExpr(-6789012345) mod            16#20000 <>               33982 or
+                -1234567890  *          6789012345  mod            16#20000 <>               33982 or
+                -1234567890  * intExpr( 6789012345) mod            16#20000 <>               33982 or
+        intExpr(-1234567890) *          6789012345  mod            16#20000 <>               33982 or
+        intExpr(-1234567890) * intExpr( 6789012345) mod            16#20000 <>               33982 or
+                -1234567890  *         -6789012345  mod            16#20000 <>               97090 or
+                -1234567890  * intExpr(-6789012345) mod            16#20000 <>               97090 or
+        intExpr(-1234567890) *         -6789012345  mod            16#20000 <>               97090 or
+        intExpr(-1234567890) * intExpr(-6789012345) mod            16#20000 <>               97090 or
+                 1234567890  *          6789012345  mod        16#100000000 <>          3691215682 or
+                 1234567890  * intExpr( 6789012345) mod        16#100000000 <>          3691215682 or
+        intExpr( 1234567890) *          6789012345  mod        16#100000000 <>          3691215682 or
+        intExpr( 1234567890) * intExpr( 6789012345) mod        16#100000000 <>          3691215682 or
+                 1234567890  *         -6789012345  mod        16#100000000 <>           603751614 or
+                 1234567890  * intExpr(-6789012345) mod        16#100000000 <>           603751614 or
+        intExpr( 1234567890) *         -6789012345  mod        16#100000000 <>           603751614 or
+        intExpr( 1234567890) * intExpr(-6789012345) mod        16#100000000 <>           603751614 or
+                -1234567890  *          6789012345  mod        16#100000000 <>           603751614 or
+                -1234567890  * intExpr( 6789012345) mod        16#100000000 <>           603751614 or
+        intExpr(-1234567890) *          6789012345  mod        16#100000000 <>           603751614 or
+        intExpr(-1234567890) * intExpr( 6789012345) mod        16#100000000 <>           603751614 or
+                -1234567890  *         -6789012345  mod        16#100000000 <>          3691215682 or
+                -1234567890  * intExpr(-6789012345) mod        16#100000000 <>          3691215682 or
+        intExpr(-1234567890) *         -6789012345  mod        16#100000000 <>          3691215682 or
+        intExpr(-1234567890) * intExpr(-6789012345) mod        16#100000000 <>          3691215682 or
+                 1234567890  *          6789012345  mod 16#4000000000000000 <> 3769810627523214146 or
+                 1234567890  * intExpr( 6789012345) mod 16#4000000000000000 <> 3769810627523214146 or
+        intExpr( 1234567890) *          6789012345  mod 16#4000000000000000 <> 3769810627523214146 or
+        intExpr( 1234567890) * intExpr( 6789012345) mod 16#4000000000000000 <> 3769810627523214146 or
+                 1234567890  *         -6789012345  mod 16#4000000000000000 <>  841875390904173758 or
+                 1234567890  * intExpr(-6789012345) mod 16#4000000000000000 <>  841875390904173758 or
+        intExpr( 1234567890) *         -6789012345  mod 16#4000000000000000 <>  841875390904173758 or
+        intExpr( 1234567890) * intExpr(-6789012345) mod 16#4000000000000000 <>  841875390904173758 or
+                -1234567890  *          6789012345  mod 16#4000000000000000 <>  841875390904173758 or
+                -1234567890  * intExpr( 6789012345) mod 16#4000000000000000 <>  841875390904173758 or
+        intExpr(-1234567890) *          6789012345  mod 16#4000000000000000 <>  841875390904173758 or
+        intExpr(-1234567890) * intExpr( 6789012345) mod 16#4000000000000000 <>  841875390904173758 or
+                -1234567890  *         -6789012345  mod 16#4000000000000000 <> 3769810627523214146 or
+                -1234567890  * intExpr(-6789012345) mod 16#4000000000000000 <> 3769810627523214146 or
+        intExpr(-1234567890) *         -6789012345  mod 16#4000000000000000 <> 3769810627523214146 or
+        intExpr(-1234567890) * intExpr(-6789012345) mod 16#4000000000000000 <> 3769810627523214146 then
+      writeln(" ***** mod of product does not work correct.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_mod_by_computed_power_of_two_optimization is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  5678901234567890123 mod (1 <<  0) <>                   0 or
+        5678901234567890123 mod (1 <<  1) <>                   1 or
+        5678901234567890123 mod (1 <<  3) <>                   3 or
+        5678901234567890123 mod (1 <<  7) <>                  75 or
+        5678901234567890123 mod (1 << 11) <>                1227 or
+        5678901234567890123 mod (1 << 17) <>               17611 or
+        5678901234567890123 mod (1 << 23) <>             7488715 or
+        5678901234567890123 mod (1 << 29) <>           284312779 or
+        5678901234567890123 mod (1 << 37) <>         93162980555 or
+        5678901234567890123 mod (1 << 41) <>        642918794443 or
+        5678901234567890123 mod (1 << 47) <>       2841942049995 or
+        5678901234567890123 mod (1 << 53) <>    4365704081065163 or
+        5678901234567890123 mod (1 << 59) <>  490754463837078731 or
+        5678901234567890123 mod (1 << 62) <> 1067215216140502219 or
+        5678901234567890123 mod (1 << intExpr( 0)) <>                   0 or
+        5678901234567890123 mod (1 << intExpr( 1)) <>                   1 or
+        5678901234567890123 mod (1 << intExpr( 3)) <>                   3 or
+        5678901234567890123 mod (1 << intExpr( 7)) <>                  75 or
+        5678901234567890123 mod (1 << intExpr(11)) <>                1227 or
+        5678901234567890123 mod (1 << intExpr(17)) <>               17611 or
+        5678901234567890123 mod (1 << intExpr(23)) <>             7488715 or
+        5678901234567890123 mod (1 << intExpr(29)) <>           284312779 or
+        5678901234567890123 mod (1 << intExpr(37)) <>         93162980555 or
+        5678901234567890123 mod (1 << intExpr(41)) <>        642918794443 or
+        5678901234567890123 mod (1 << intExpr(47)) <>       2841942049995 or
+        5678901234567890123 mod (1 << intExpr(53)) <>    4365704081065163 or
+        5678901234567890123 mod (1 << intExpr(59)) <>  490754463837078731 or
+        5678901234567890123 mod (1 << intExpr(62)) <> 1067215216140502219 or
+        intExpr(5678901234567890123) mod (1 <<  0) <>                   0 or
+        intExpr(5678901234567890123) mod (1 <<  1) <>                   1 or
+        intExpr(5678901234567890123) mod (1 <<  3) <>                   3 or
+        intExpr(5678901234567890123) mod (1 <<  7) <>                  75 or
+        intExpr(5678901234567890123) mod (1 << 11) <>                1227 or
+        intExpr(5678901234567890123) mod (1 << 17) <>               17611 or
+        intExpr(5678901234567890123) mod (1 << 23) <>             7488715 or
+        intExpr(5678901234567890123) mod (1 << 29) <>           284312779 or
+        intExpr(5678901234567890123) mod (1 << 37) <>         93162980555 or
+        intExpr(5678901234567890123) mod (1 << 41) <>        642918794443 or
+        intExpr(5678901234567890123) mod (1 << 47) <>       2841942049995 or
+        intExpr(5678901234567890123) mod (1 << 53) <>    4365704081065163 or
+        intExpr(5678901234567890123) mod (1 << 59) <>  490754463837078731 or
+        intExpr(5678901234567890123) mod (1 << 62) <> 1067215216140502219 or
+        intExpr(5678901234567890123) mod (1 << intExpr( 0)) <>                   0 or
+        intExpr(5678901234567890123) mod (1 << intExpr( 1)) <>                   1 or
+        intExpr(5678901234567890123) mod (1 << intExpr( 3)) <>                   3 or
+        intExpr(5678901234567890123) mod (1 << intExpr( 7)) <>                  75 or
+        intExpr(5678901234567890123) mod (1 << intExpr(11)) <>                1227 or
+        intExpr(5678901234567890123) mod (1 << intExpr(17)) <>               17611 or
+        intExpr(5678901234567890123) mod (1 << intExpr(23)) <>             7488715 or
+        intExpr(5678901234567890123) mod (1 << intExpr(29)) <>           284312779 or
+        intExpr(5678901234567890123) mod (1 << intExpr(37)) <>         93162980555 or
+        intExpr(5678901234567890123) mod (1 << intExpr(41)) <>        642918794443 or
+        intExpr(5678901234567890123) mod (1 << intExpr(47)) <>       2841942049995 or
+        intExpr(5678901234567890123) mod (1 << intExpr(53)) <>    4365704081065163 or
+        intExpr(5678901234567890123) mod (1 << intExpr(59)) <>  490754463837078731 or
+        intExpr(5678901234567890123) mod (1 << intExpr(62)) <> 1067215216140502219 then
+      writeln(" ***** mod by computed power of two does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  (        5  *         7 ) mod (1 << 5) <> 3 or
+        (        5  * intExpr(7)) mod (1 << 5) <> 3 or
+        (intExpr(5) *         7 ) mod (1 << 5) <> 3 or
+        (intExpr(5) * intExpr(7)) mod (1 << 5) <> 3 or
+        (        5  *         7 ) mod (1 << intExpr(5)) <> 3 or
+        (        5  * intExpr(7)) mod (1 << intExpr(5)) <> 3 or
+        (intExpr(5) *         7 ) mod (1 << intExpr(5)) <> 3 or
+        (intExpr(5) * intExpr(7)) mod (1 << intExpr(5)) <> 3 then
+      writeln(" ***** mod by computed power of two does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  (        13  +         5  *         7 ) mod (1 << 5) <> 16 or
+        (        13  +         5  * intExpr(7)) mod (1 << 5) <> 16 or
+        (        13  + intExpr(5) *         7 ) mod (1 << 5) <> 16 or
+        (        13  + intExpr(5) * intExpr(7)) mod (1 << 5) <> 16 or
+        (        13  +         5  *         7 ) mod (1 << intExpr(5)) <> 16 or
+        (        13  +         5  * intExpr(7)) mod (1 << intExpr(5)) <> 16 or
+        (        13  + intExpr(5) *         7 ) mod (1 << intExpr(5)) <> 16 or
+        (        13  + intExpr(5) * intExpr(7)) mod (1 << intExpr(5)) <> 16 or
+        (intExpr(13) +         5  *         7 ) mod (1 << 5) <> 16 or
+        (intExpr(13) +         5  * intExpr(7)) mod (1 << 5) <> 16 or
+        (intExpr(13) + intExpr(5) *         7 ) mod (1 << 5) <> 16 or
+        (intExpr(13) + intExpr(5) * intExpr(7)) mod (1 << 5) <> 16 or
+        (intExpr(13) +         5  *         7 ) mod (1 << intExpr(5)) <> 16 or
+        (intExpr(13) +         5  * intExpr(7)) mod (1 << intExpr(5)) <> 16 or
+        (intExpr(13) + intExpr(5) *         7 ) mod (1 << intExpr(5)) <> 16 or
+        (intExpr(13) + intExpr(5) * intExpr(7)) mod (1 << intExpr(5)) <> 16 then
+      writeln(" ***** mod by computed power of two does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  (        7  <<         3 ) mod (1 << 5) <> 24 or
+        (        7  << intExpr(3)) mod (1 << 5) <> 24 or
+        (intExpr(7) <<         3 ) mod (1 << 5) <> 24 or
+        (intExpr(7) << intExpr(3)) mod (1 << 5) <> 24 or
+        (        7  <<         3 ) mod (1 << intExpr(5)) <> 24 or
+        (        7  << intExpr(3)) mod (1 << intExpr(5)) <> 24 or
+        (intExpr(7) <<         3 ) mod (1 << intExpr(5)) <> 24 or
+        (intExpr(7) << intExpr(3)) mod (1 << intExpr(5)) <> 24 or
+        (        1  <<         62 ) mod (1 << 62) <> 0 or
+        (        1  << intExpr(62)) mod (1 << 62) <> 0 or
+        (intExpr(1) <<         62 ) mod (1 << 62) <> 0 or
+        (intExpr(1) << intExpr(62)) mod (1 << 62) <> 0 or
+        (        1  <<         62 ) mod (1 << intExpr(62)) <> 0 or
+        (        1  << intExpr(62)) mod (1 << intExpr(62)) <> 0 or
+        (intExpr(1) <<         62 ) mod (1 << intExpr(62)) <> 0 or
+        (intExpr(1) << intExpr(62)) mod (1 << intExpr(62)) <> 0 then
+      writeln(" ***** mod by computed power of two does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  (        11  + (        7  <<         3 )) mod (1 << 5) <> 3 or
+        (        11  + (        7  << intExpr(3))) mod (1 << 5) <> 3 or
+        (        11  + (intExpr(7) <<         3 )) mod (1 << 5) <> 3 or
+        (        11  + (intExpr(7) << intExpr(3))) mod (1 << 5) <> 3 or
+        (        11  + (        7  <<         3 )) mod (1 << intExpr(5)) <> 3 or
+        (        11  + (        7  << intExpr(3))) mod (1 << intExpr(5)) <> 3 or
+        (        11  + (intExpr(7) <<         3 )) mod (1 << intExpr(5)) <> 3 or
+        (        11  + (intExpr(7) << intExpr(3))) mod (1 << intExpr(5)) <> 3 or
+        (        11  + (        1  <<         62 )) mod (1 << 62) <> 11 or
+        (        11  + (        1  << intExpr(62))) mod (1 << 62) <> 11 or
+        (        11  + (intExpr(1) <<         62 )) mod (1 << 62) <> 11 or
+        (        11  + (intExpr(1) << intExpr(62))) mod (1 << 62) <> 11 or
+        (        11  + (        1  <<         62 )) mod (1 << intExpr(62)) <> 11 or
+        (        11  + (        1  << intExpr(62))) mod (1 << intExpr(62)) <> 11 or
+        (        11  + (intExpr(1) <<         62 )) mod (1 << intExpr(62)) <> 11 or
+        (        11  + (intExpr(1) << intExpr(62))) mod (1 << intExpr(62)) <> 11 or
+        (intExpr(11) + (        7  <<         3 )) mod (1 << 5) <> 3 or
+        (intExpr(11) + (        7  << intExpr(3))) mod (1 << 5) <> 3 or
+        (intExpr(11) + (intExpr(7) <<         3 )) mod (1 << 5) <> 3 or
+        (intExpr(11) + (intExpr(7) << intExpr(3))) mod (1 << 5) <> 3 or
+        (intExpr(11) + (        7  <<         3 )) mod (1 << intExpr(5)) <> 3 or
+        (intExpr(11) + (        7  << intExpr(3))) mod (1 << intExpr(5)) <> 3 or
+        (intExpr(11) + (intExpr(7) <<         3 )) mod (1 << intExpr(5)) <> 3 or
+        (intExpr(11) + (intExpr(7) << intExpr(3))) mod (1 << intExpr(5)) <> 3 or
+        (intExpr(11) + (        1  <<         62 )) mod (1 << 62) <> 11 or
+        (intExpr(11) + (        1  << intExpr(62))) mod (1 << 62) <> 11 or
+        (intExpr(11) + (intExpr(1) <<         62 )) mod (1 << 62) <> 11 or
+        (intExpr(11) + (intExpr(1) << intExpr(62))) mod (1 << 62) <> 11 or
+        (intExpr(11) + (        1  <<         62 )) mod (1 << intExpr(62)) <> 11 or
+        (intExpr(11) + (        1  << intExpr(62))) mod (1 << intExpr(62)) <> 11 or
+        (intExpr(11) + (intExpr(1) <<         62 )) mod (1 << intExpr(62)) <> 11 or
+        (intExpr(11) + (intExpr(1) << intExpr(62))) mod (1 << intExpr(62)) <> 11 then
+      writeln(" ***** mod by computed power of two does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  (        2  +         3  *         5  + (        7  <<         5 )) mod (1 << 7) <> 113 or
+        (        2  +         3  *         5  + (        7  << intExpr(5))) mod (1 << 7) <> 113 or
+        (        2  +         3  *         5  + (intExpr(7) <<         5 )) mod (1 << 7) <> 113 or
+        (        2  +         3  *         5  + (intExpr(7) << intExpr(5))) mod (1 << 7) <> 113 or
+        (        2  +         3  * intExpr(5) + (        7  <<         5 )) mod (1 << 7) <> 113 or
+        (        2  +         3  * intExpr(5) + (        7  << intExpr(5))) mod (1 << 7) <> 113 or
+        (        2  +         3  * intExpr(5) + (intExpr(7) <<         5 )) mod (1 << 7) <> 113 or
+        (        2  +         3  * intExpr(5) + (intExpr(7) << intExpr(5))) mod (1 << 7) <> 113 or
+        (        2  + intExpr(3) *         5  + (        7  <<         5 )) mod (1 << 7) <> 113 or
+        (        2  + intExpr(3) *         5  + (        7  << intExpr(5))) mod (1 << 7) <> 113 or
+        (        2  + intExpr(3) *         5  + (intExpr(7) <<         5 )) mod (1 << 7) <> 113 or
+        (        2  + intExpr(3) *         5  + (intExpr(7) << intExpr(5))) mod (1 << 7) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (        7  <<         5 )) mod (1 << 7) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (        7  << intExpr(5))) mod (1 << 7) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (intExpr(7) <<         5 )) mod (1 << 7) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (intExpr(7) << intExpr(5))) mod (1 << 7) <> 113 or
+        (intExpr(2) +         3  *         5  + (        7  <<         5 )) mod (1 << 7) <> 113 or
+        (intExpr(2) +         3  *         5  + (        7  << intExpr(5))) mod (1 << 7) <> 113 or
+        (intExpr(2) +         3  *         5  + (intExpr(7) <<         5 )) mod (1 << 7) <> 113 or
+        (intExpr(2) +         3  *         5  + (intExpr(7) << intExpr(5))) mod (1 << 7) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (        7  <<         5 )) mod (1 << 7) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (        7  << intExpr(5))) mod (1 << 7) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (intExpr(7) <<         5 )) mod (1 << 7) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (intExpr(7) << intExpr(5))) mod (1 << 7) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (        7  <<         5 )) mod (1 << 7) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (        7  << intExpr(5))) mod (1 << 7) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (intExpr(7) <<         5 )) mod (1 << 7) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (intExpr(7) << intExpr(5))) mod (1 << 7) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (        7  <<         5 )) mod (1 << 7) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (        7  << intExpr(5))) mod (1 << 7) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (intExpr(7) <<         5 )) mod (1 << 7) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (intExpr(7) << intExpr(5))) mod (1 << 7) <> 113 or
+        (        2  +         3  *         5  + (        7  <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (        2  +         3  *         5  + (        7  << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (        2  +         3  *         5  + (intExpr(7) <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (        2  +         3  *         5  + (intExpr(7) << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (        2  +         3  * intExpr(5) + (        7  <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (        2  +         3  * intExpr(5) + (        7  << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (        2  +         3  * intExpr(5) + (intExpr(7) <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (        2  +         3  * intExpr(5) + (intExpr(7) << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (        2  + intExpr(3) *         5  + (        7  <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (        2  + intExpr(3) *         5  + (        7  << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (        2  + intExpr(3) *         5  + (intExpr(7) <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (        2  + intExpr(3) *         5  + (intExpr(7) << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (        7  <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (        7  << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (intExpr(7) <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (intExpr(7) << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) +         3  *         5  + (        7  <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) +         3  *         5  + (        7  << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) +         3  *         5  + (intExpr(7) <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) +         3  *         5  + (intExpr(7) << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (        7  <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (        7  << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (intExpr(7) <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (intExpr(7) << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (        7  <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (        7  << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (intExpr(7) <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (intExpr(7) << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (        7  <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (        7  << intExpr(5))) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (intExpr(7) <<         5 )) mod (1 << intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (intExpr(7) << intExpr(5))) mod (1 << intExpr(7)) <> 113 then
+      writeln(" ***** mod by computed power of two does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  5678901234567890123 mod (2 **  0) <>                   0 or
+        5678901234567890123 mod (2 **  1) <>                   1 or
+        5678901234567890123 mod (2 **  3) <>                   3 or
+        5678901234567890123 mod (2 **  7) <>                  75 or
+        5678901234567890123 mod (2 ** 11) <>                1227 or
+        5678901234567890123 mod (2 ** 17) <>               17611 or
+        5678901234567890123 mod (2 ** 23) <>             7488715 or
+        5678901234567890123 mod (2 ** 29) <>           284312779 or
+        5678901234567890123 mod (2 ** 37) <>         93162980555 or
+        5678901234567890123 mod (2 ** 41) <>        642918794443 or
+        5678901234567890123 mod (2 ** 47) <>       2841942049995 or
+        5678901234567890123 mod (2 ** 53) <>    4365704081065163 or
+        5678901234567890123 mod (2 ** 59) <>  490754463837078731 or
+        5678901234567890123 mod (2 ** 62) <> 1067215216140502219 or
+        5678901234567890123 mod (2 ** intExpr( 0)) <>                   0 or
+        5678901234567890123 mod (2 ** intExpr( 1)) <>                   1 or
+        5678901234567890123 mod (2 ** intExpr( 3)) <>                   3 or
+        5678901234567890123 mod (2 ** intExpr( 7)) <>                  75 or
+        5678901234567890123 mod (2 ** intExpr(11)) <>                1227 or
+        5678901234567890123 mod (2 ** intExpr(17)) <>               17611 or
+        5678901234567890123 mod (2 ** intExpr(23)) <>             7488715 or
+        5678901234567890123 mod (2 ** intExpr(29)) <>           284312779 or
+        5678901234567890123 mod (2 ** intExpr(37)) <>         93162980555 or
+        5678901234567890123 mod (2 ** intExpr(41)) <>        642918794443 or
+        5678901234567890123 mod (2 ** intExpr(47)) <>       2841942049995 or
+        5678901234567890123 mod (2 ** intExpr(53)) <>    4365704081065163 or
+        5678901234567890123 mod (2 ** intExpr(59)) <>  490754463837078731 or
+        5678901234567890123 mod (2 ** intExpr(62)) <> 1067215216140502219 or
+        intExpr(5678901234567890123) mod (2 **  0) <>                   0 or
+        intExpr(5678901234567890123) mod (2 **  1) <>                   1 or
+        intExpr(5678901234567890123) mod (2 **  3) <>                   3 or
+        intExpr(5678901234567890123) mod (2 **  7) <>                  75 or
+        intExpr(5678901234567890123) mod (2 ** 11) <>                1227 or
+        intExpr(5678901234567890123) mod (2 ** 17) <>               17611 or
+        intExpr(5678901234567890123) mod (2 ** 23) <>             7488715 or
+        intExpr(5678901234567890123) mod (2 ** 29) <>           284312779 or
+        intExpr(5678901234567890123) mod (2 ** 37) <>         93162980555 or
+        intExpr(5678901234567890123) mod (2 ** 41) <>        642918794443 or
+        intExpr(5678901234567890123) mod (2 ** 47) <>       2841942049995 or
+        intExpr(5678901234567890123) mod (2 ** 53) <>    4365704081065163 or
+        intExpr(5678901234567890123) mod (2 ** 59) <>  490754463837078731 or
+        intExpr(5678901234567890123) mod (2 ** 62) <> 1067215216140502219 or
+        intExpr(5678901234567890123) mod (2 ** intExpr( 0)) <>                   0 or
+        intExpr(5678901234567890123) mod (2 ** intExpr( 1)) <>                   1 or
+        intExpr(5678901234567890123) mod (2 ** intExpr( 3)) <>                   3 or
+        intExpr(5678901234567890123) mod (2 ** intExpr( 7)) <>                  75 or
+        intExpr(5678901234567890123) mod (2 ** intExpr(11)) <>                1227 or
+        intExpr(5678901234567890123) mod (2 ** intExpr(17)) <>               17611 or
+        intExpr(5678901234567890123) mod (2 ** intExpr(23)) <>             7488715 or
+        intExpr(5678901234567890123) mod (2 ** intExpr(29)) <>           284312779 or
+        intExpr(5678901234567890123) mod (2 ** intExpr(37)) <>         93162980555 or
+        intExpr(5678901234567890123) mod (2 ** intExpr(41)) <>        642918794443 or
+        intExpr(5678901234567890123) mod (2 ** intExpr(47)) <>       2841942049995 or
+        intExpr(5678901234567890123) mod (2 ** intExpr(53)) <>    4365704081065163 or
+        intExpr(5678901234567890123) mod (2 ** intExpr(59)) <>  490754463837078731 or
+        intExpr(5678901234567890123) mod (2 ** intExpr(62)) <> 1067215216140502219 then
+      writeln(" ***** mod by computed power of two does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    if  (        5  *         7 ) mod (2 ** 5) <> 3 or
+        (        5  * intExpr(7)) mod (2 ** 5) <> 3 or
+        (intExpr(5) *         7 ) mod (2 ** 5) <> 3 or
+        (intExpr(5) * intExpr(7)) mod (2 ** 5) <> 3 or
+        (        5  *         7 ) mod (2 ** intExpr(5)) <> 3 or
+        (        5  * intExpr(7)) mod (2 ** intExpr(5)) <> 3 or
+        (intExpr(5) *         7 ) mod (2 ** intExpr(5)) <> 3 or
+        (intExpr(5) * intExpr(7)) mod (2 ** intExpr(5)) <> 3 then
+      writeln(" ***** mod by computed power of two does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    if  (        13  +         5  *         7 ) mod (2 ** 5) <> 16 or
+        (        13  +         5  * intExpr(7)) mod (2 ** 5) <> 16 or
+        (        13  + intExpr(5) *         7 ) mod (2 ** 5) <> 16 or
+        (        13  + intExpr(5) * intExpr(7)) mod (2 ** 5) <> 16 or
+        (        13  +         5  *         7 ) mod (2 ** intExpr(5)) <> 16 or
+        (        13  +         5  * intExpr(7)) mod (2 ** intExpr(5)) <> 16 or
+        (        13  + intExpr(5) *         7 ) mod (2 ** intExpr(5)) <> 16 or
+        (        13  + intExpr(5) * intExpr(7)) mod (2 ** intExpr(5)) <> 16 or
+        (intExpr(13) +         5  *         7 ) mod (2 ** 5) <> 16 or
+        (intExpr(13) +         5  * intExpr(7)) mod (2 ** 5) <> 16 or
+        (intExpr(13) + intExpr(5) *         7 ) mod (2 ** 5) <> 16 or
+        (intExpr(13) + intExpr(5) * intExpr(7)) mod (2 ** 5) <> 16 or
+        (intExpr(13) +         5  *         7 ) mod (2 ** intExpr(5)) <> 16 or
+        (intExpr(13) +         5  * intExpr(7)) mod (2 ** intExpr(5)) <> 16 or
+        (intExpr(13) + intExpr(5) *         7 ) mod (2 ** intExpr(5)) <> 16 or
+        (intExpr(13) + intExpr(5) * intExpr(7)) mod (2 ** intExpr(5)) <> 16 then
+      writeln(" ***** mod by computed power of two does not work correct. (9)");
+      okay := FALSE;
+    end if;
+
+    if  (        7  <<         3 ) mod (2 ** 5) <> 24 or
+        (        7  << intExpr(3)) mod (2 ** 5) <> 24 or
+        (intExpr(7) <<         3 ) mod (2 ** 5) <> 24 or
+        (intExpr(7) << intExpr(3)) mod (2 ** 5) <> 24 or
+        (        7  <<         3 ) mod (2 ** intExpr(5)) <> 24 or
+        (        7  << intExpr(3)) mod (2 ** intExpr(5)) <> 24 or
+        (intExpr(7) <<         3 ) mod (2 ** intExpr(5)) <> 24 or
+        (intExpr(7) << intExpr(3)) mod (2 ** intExpr(5)) <> 24 or
+        (        1  <<         62 ) mod (2 ** 62) <> 0 or
+        (        1  << intExpr(62)) mod (2 ** 62) <> 0 or
+        (intExpr(1) <<         62 ) mod (2 ** 62) <> 0 or
+        (intExpr(1) << intExpr(62)) mod (2 ** 62) <> 0 or
+        (        1  <<         62 ) mod (2 ** intExpr(62)) <> 0 or
+        (        1  << intExpr(62)) mod (2 ** intExpr(62)) <> 0 or
+        (intExpr(1) <<         62 ) mod (2 ** intExpr(62)) <> 0 or
+        (intExpr(1) << intExpr(62)) mod (2 ** intExpr(62)) <> 0 then
+      writeln(" ***** mod by computed power of two does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    if  (        11  + (        7  <<         3 )) mod (2 ** 5) <> 3 or
+        (        11  + (        7  << intExpr(3))) mod (2 ** 5) <> 3 or
+        (        11  + (intExpr(7) <<         3 )) mod (2 ** 5) <> 3 or
+        (        11  + (intExpr(7) << intExpr(3))) mod (2 ** 5) <> 3 or
+        (        11  + (        7  <<         3 )) mod (2 ** intExpr(5)) <> 3 or
+        (        11  + (        7  << intExpr(3))) mod (2 ** intExpr(5)) <> 3 or
+        (        11  + (intExpr(7) <<         3 )) mod (2 ** intExpr(5)) <> 3 or
+        (        11  + (intExpr(7) << intExpr(3))) mod (2 ** intExpr(5)) <> 3 or
+        (        11  + (        1  <<         62 )) mod (2 ** 62) <> 11 or
+        (        11  + (        1  << intExpr(62))) mod (2 ** 62) <> 11 or
+        (        11  + (intExpr(1) <<         62 )) mod (2 ** 62) <> 11 or
+        (        11  + (intExpr(1) << intExpr(62))) mod (2 ** 62) <> 11 or
+        (        11  + (        1  <<         62 )) mod (2 ** intExpr(62)) <> 11 or
+        (        11  + (        1  << intExpr(62))) mod (2 ** intExpr(62)) <> 11 or
+        (        11  + (intExpr(1) <<         62 )) mod (2 ** intExpr(62)) <> 11 or
+        (        11  + (intExpr(1) << intExpr(62))) mod (2 ** intExpr(62)) <> 11 or
+        (intExpr(11) + (        7  <<         3 )) mod (2 ** 5) <> 3 or
+        (intExpr(11) + (        7  << intExpr(3))) mod (2 ** 5) <> 3 or
+        (intExpr(11) + (intExpr(7) <<         3 )) mod (2 ** 5) <> 3 or
+        (intExpr(11) + (intExpr(7) << intExpr(3))) mod (2 ** 5) <> 3 or
+        (intExpr(11) + (        7  <<         3 )) mod (2 ** intExpr(5)) <> 3 or
+        (intExpr(11) + (        7  << intExpr(3))) mod (2 ** intExpr(5)) <> 3 or
+        (intExpr(11) + (intExpr(7) <<         3 )) mod (2 ** intExpr(5)) <> 3 or
+        (intExpr(11) + (intExpr(7) << intExpr(3))) mod (2 ** intExpr(5)) <> 3 or
+        (intExpr(11) + (        1  <<         62 )) mod (2 ** 62) <> 11 or
+        (intExpr(11) + (        1  << intExpr(62))) mod (2 ** 62) <> 11 or
+        (intExpr(11) + (intExpr(1) <<         62 )) mod (2 ** 62) <> 11 or
+        (intExpr(11) + (intExpr(1) << intExpr(62))) mod (2 ** 62) <> 11 or
+        (intExpr(11) + (        1  <<         62 )) mod (2 ** intExpr(62)) <> 11 or
+        (intExpr(11) + (        1  << intExpr(62))) mod (2 ** intExpr(62)) <> 11 or
+        (intExpr(11) + (intExpr(1) <<         62 )) mod (2 ** intExpr(62)) <> 11 or
+        (intExpr(11) + (intExpr(1) << intExpr(62))) mod (2 ** intExpr(62)) <> 11 then
+      writeln(" ***** mod by computed power of two does not work correct. (11)");
+      okay := FALSE;
+    end if;
+
+    if  (        2  +         3  *         5  + (        7  <<         5 )) mod (2 ** 7) <> 113 or
+        (        2  +         3  *         5  + (        7  << intExpr(5))) mod (2 ** 7) <> 113 or
+        (        2  +         3  *         5  + (intExpr(7) <<         5 )) mod (2 ** 7) <> 113 or
+        (        2  +         3  *         5  + (intExpr(7) << intExpr(5))) mod (2 ** 7) <> 113 or
+        (        2  +         3  * intExpr(5) + (        7  <<         5 )) mod (2 ** 7) <> 113 or
+        (        2  +         3  * intExpr(5) + (        7  << intExpr(5))) mod (2 ** 7) <> 113 or
+        (        2  +         3  * intExpr(5) + (intExpr(7) <<         5 )) mod (2 ** 7) <> 113 or
+        (        2  +         3  * intExpr(5) + (intExpr(7) << intExpr(5))) mod (2 ** 7) <> 113 or
+        (        2  + intExpr(3) *         5  + (        7  <<         5 )) mod (2 ** 7) <> 113 or
+        (        2  + intExpr(3) *         5  + (        7  << intExpr(5))) mod (2 ** 7) <> 113 or
+        (        2  + intExpr(3) *         5  + (intExpr(7) <<         5 )) mod (2 ** 7) <> 113 or
+        (        2  + intExpr(3) *         5  + (intExpr(7) << intExpr(5))) mod (2 ** 7) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (        7  <<         5 )) mod (2 ** 7) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (        7  << intExpr(5))) mod (2 ** 7) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (intExpr(7) <<         5 )) mod (2 ** 7) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (intExpr(7) << intExpr(5))) mod (2 ** 7) <> 113 or
+        (intExpr(2) +         3  *         5  + (        7  <<         5 )) mod (2 ** 7) <> 113 or
+        (intExpr(2) +         3  *         5  + (        7  << intExpr(5))) mod (2 ** 7) <> 113 or
+        (intExpr(2) +         3  *         5  + (intExpr(7) <<         5 )) mod (2 ** 7) <> 113 or
+        (intExpr(2) +         3  *         5  + (intExpr(7) << intExpr(5))) mod (2 ** 7) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (        7  <<         5 )) mod (2 ** 7) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (        7  << intExpr(5))) mod (2 ** 7) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (intExpr(7) <<         5 )) mod (2 ** 7) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (intExpr(7) << intExpr(5))) mod (2 ** 7) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (        7  <<         5 )) mod (2 ** 7) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (        7  << intExpr(5))) mod (2 ** 7) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (intExpr(7) <<         5 )) mod (2 ** 7) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (intExpr(7) << intExpr(5))) mod (2 ** 7) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (        7  <<         5 )) mod (2 ** 7) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (        7  << intExpr(5))) mod (2 ** 7) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (intExpr(7) <<         5 )) mod (2 ** 7) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (intExpr(7) << intExpr(5))) mod (2 ** 7) <> 113 or
+        (        2  +         3  *         5  + (        7  <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (        2  +         3  *         5  + (        7  << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (        2  +         3  *         5  + (intExpr(7) <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (        2  +         3  *         5  + (intExpr(7) << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (        2  +         3  * intExpr(5) + (        7  <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (        2  +         3  * intExpr(5) + (        7  << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (        2  +         3  * intExpr(5) + (intExpr(7) <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (        2  +         3  * intExpr(5) + (intExpr(7) << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (        2  + intExpr(3) *         5  + (        7  <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (        2  + intExpr(3) *         5  + (        7  << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (        2  + intExpr(3) *         5  + (intExpr(7) <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (        2  + intExpr(3) *         5  + (intExpr(7) << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (        7  <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (        7  << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (intExpr(7) <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (        2  + intExpr(3) * intExpr(5) + (intExpr(7) << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) +         3  *         5  + (        7  <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) +         3  *         5  + (        7  << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) +         3  *         5  + (intExpr(7) <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) +         3  *         5  + (intExpr(7) << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (        7  <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (        7  << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (intExpr(7) <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) +         3  * intExpr(5) + (intExpr(7) << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (        7  <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (        7  << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (intExpr(7) <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) *         5  + (intExpr(7) << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (        7  <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (        7  << intExpr(5))) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (intExpr(7) <<         5 )) mod (2 ** intExpr(7)) <> 113 or
+        (intExpr(2) + intExpr(3) * intExpr(5) + (intExpr(7) << intExpr(5))) mod (2 ** intExpr(7)) <> 113 then
+      writeln(" ***** mod by computed power of two does not work correct. (12)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(        5678901234567890123  mod (2 **        (-1))) or
+        not raisesNumericError(        5678901234567890123  mod (2 ** intExpr(-1))) or
+        not raisesNumericError(intExpr(5678901234567890123) mod (2 **        (-1))) or
+        not raisesNumericError(intExpr(5678901234567890123) mod (2 ** intExpr(-1))) then
+      writeln(" ***** mod by computed power of two does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_mod is func
   local
     var boolean: okay is TRUE;
@@ -10038,6 +11487,14 @@ const proc: check_mod is func
         intExpr(INT64_MAX) mod intExpr(4611686018427387905) <> 4611686018427387902 or
         intExpr(INT64_MAX) mod intExpr(          INT64_MAX) <>                   0 then
       writeln(" ***** mod with maximum values does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if not check_mod_by_power_of_two_optimization then
+      okay := FALSE;
+    end if;
+
+    if not check_mod_by_computed_power_of_two_optimization then
       okay := FALSE;
     end if;
 
@@ -13228,6 +14685,54 @@ const proc: check_power is func
       okay := FALSE;
     end if;
 
+    if  not raisesNumericError(integer.first **        (-1)) or
+        not raisesNumericError(         (-7) **        (-1)) or
+        not raisesNumericError(         (-4) **        (-1)) or
+        not raisesNumericError(         (-2) **        (-1)) or
+        not raisesNumericError(         (-1) **        (-1)) or
+        not raisesNumericError(            0 **        (-1)) or
+        not raisesNumericError(            1 **        (-1)) or
+        not raisesNumericError(            2 **        (-1)) or
+        not raisesNumericError(            4 **        (-1)) or
+        not raisesNumericError(            7 **        (-1)) or
+        not raisesNumericError( integer.last **        (-1)) or
+        not raisesNumericError(integer.first ** intExpr(-1)) or
+        not raisesNumericError(         (-7) ** intExpr(-1)) or
+        not raisesNumericError(         (-4) ** intExpr(-1)) or
+        not raisesNumericError(         (-2) ** intExpr(-1)) or
+        not raisesNumericError(         (-1) ** intExpr(-1)) or
+        not raisesNumericError(            0 ** intExpr(-1)) or
+        not raisesNumericError(            1 ** intExpr(-1)) or
+        not raisesNumericError(            2 ** intExpr(-1)) or
+        not raisesNumericError(            4 ** intExpr(-1)) or
+        not raisesNumericError(            7 ** intExpr(-1)) or
+        not raisesNumericError( integer.last ** intExpr(-1)) or
+        not raisesNumericError(intExpr(integer.first) **        (-1)) or
+        not raisesNumericError(intExpr(         (-7)) **        (-1)) or
+        not raisesNumericError(intExpr(         (-4)) **        (-1)) or
+        not raisesNumericError(intExpr(         (-2)) **        (-1)) or
+        not raisesNumericError(intExpr(         (-1)) **        (-1)) or
+        not raisesNumericError(intExpr(            0) **        (-1)) or
+        not raisesNumericError(intExpr(            1) **        (-1)) or
+        not raisesNumericError(intExpr(            2) **        (-1)) or
+        not raisesNumericError(intExpr(            4) **        (-1)) or
+        not raisesNumericError(intExpr(            7) **        (-1)) or
+        not raisesNumericError(intExpr( integer.last) **        (-1)) or
+        not raisesNumericError(intExpr(integer.first) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(         (-7)) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(         (-4)) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(         (-2)) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(         (-1)) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(            0) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(            1) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(            2) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(            4) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(            7) ** intExpr(-1)) or
+        not raisesNumericError(intExpr( integer.last) ** intExpr(-1)) then
+      writeln(" ***** Computing power with negative exponent does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Power works correct for selected values.");
     else
@@ -14013,6 +15518,76 @@ const proc: check_log10 is func
   end func;
 
 
+(**
+ *  Tests for the compiler optimization to reduce overflow checking
+ *  for lshift.
+ *)
+const func boolean: check_reduced_overflow_checking_for_lshift is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  (intExpr(integer.first) >>  0) <<  0 <>       integer.first or
+        (intExpr(integer.first) >>  1) <<  1 <>       integer.first or
+        (intExpr(integer.first) >> 30) << 30 <>       integer.first or
+        (intExpr(integer.first) >> 62) << 62 <>       integer.first or
+        (intExpr(integer.first) >> 63) << 63 <>       integer.first then
+      writeln(" ***** Reduced overflow check for lshift failed: Minimum rshift result if the shift amount is known.");
+      okay := FALSE;
+    end if;
+
+    if  (intExpr( integer.last) >>  0) <<  0 <>        integer.last or
+        (intExpr( integer.last) >>  1) <<  1 <> 9223372036854775806 or
+        (intExpr( integer.last) >> 30) << 30 <> 9223372035781033984 or
+        (intExpr( integer.last) >> 62) << 62 <> 4611686018427387904 or
+        (intExpr( integer.last) >> 63) << 63 <>                   0 then
+      writeln(" ***** Reduced overflow check for lshift failed: Maximum rshift result if the shift amount is known.");
+      okay := FALSE;
+    end if;
+
+    if  (       integer.first >> intExpr( 0)) <<  0 <>        integer.first or
+        (       integer.first >> intExpr(63)) <<  0 <>                   -1 or
+        (       -integer.last >> intExpr( 0)) <<  0 <>        -integer.last or
+        (       -integer.last >> intExpr(63)) <<  0 <>                   -1 or
+        (-4611686018427387905 >> intExpr( 0)) <<  0 <> -4611686018427387905 or
+        (-4611686018427387905 >> intExpr(63)) <<  0 <>                   -1 or
+        (-4611686018427387904 >> intExpr( 0)) <<  1 <>        integer.first or
+        (-4611686018427387904 >> intExpr(62)) <<  1 <>                   -2 or
+        (         -8589934593 >> intExpr( 0)) << 29 <> -4611686018964258816 or
+        (         -8589934593 >> intExpr(34)) << 29 <>           -536870912 or
+        (         -8589934592 >> intExpr( 0)) << 30 <>        integer.first or
+        (         -8589934592 >> intExpr(33)) << 30 <>          -1073741824 or
+        (         -1234567890 >> intExpr( 0)) << 32 <> -5302428712241725440 or
+        (         -1234567890 >> intExpr(31)) << 32 <>          -4294967296 or
+        (                  -2 >> intExpr( 0)) << 62 <>        integer.first or
+        (                  -2 >> intExpr( 1)) << 62 <> -4611686018427387904 or
+        (                  -1 >> intExpr( 0)) << 63 <>        integer.first then
+      writeln(" ***** Reduced overflow check for lshift failed: Minimum rshift result if the shifted value is known.");
+      okay := FALSE;
+    end if;
+
+    if  (                   0 >> intExpr( 0)) << 63 <>                    0 or
+        (                   1 >> intExpr( 0)) << 62 <>  4611686018427387904 or
+        (                   1 >> intExpr( 1)) << 62 <>                    0 or
+        (                   2 >> intExpr( 0)) << 61 <>  4611686018427387904 or
+        (                   2 >> intExpr( 2)) << 61 <>                    0 or
+        (          1234567890 >> intExpr( 0)) << 32 <>  5302428712241725440 or
+        (          1234567890 >> intExpr(31)) << 32 <>                    0 or
+        (          8589934591 >> intExpr( 0)) << 30 <>  9223372035781033984 or
+        (          8589934591 >> intExpr(33)) << 30 <>                    0 or
+        (          8589934592 >> intExpr( 0)) << 29 <>  4611686018427387904 or
+        (          8589934592 >> intExpr(34)) << 29 <>                    0 or
+        ( 4611686018427387903 >> intExpr( 0)) <<  1 <>  9223372036854775806 or
+        ( 4611686018427387903 >> intExpr(62)) <<  1 <>                    0 or
+        ( 4611686018427387904 >> intExpr( 0)) <<  0 <>  4611686018427387904 or
+        ( 4611686018427387904 >> intExpr(63)) <<  0 <>                    0 or
+        (        integer.last >> intExpr( 0)) <<  0 <>         integer.last or
+        (        integer.last >> intExpr(63)) <<  0 <>                    0 then
+      writeln(" ***** Reduced overflow check for lshift failed: Maximum rshift result if the shifted value is known.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const func boolean: chkLShift (in integer: number, in integer: lshift,
     in integer: checkValue) is func
   result
@@ -14453,6 +16028,10 @@ const proc: check_lShift is func
         intExpr( 2305843009213693952) << intExpr( 1) <>  4611686018427387904 or
         intExpr( 4611686018427387904) << intExpr( 0) <>  4611686018427387904 then
       writeln(" ***** Left shift with result of the biggest power of two does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if not check_reduced_overflow_checking_for_lshift then
       okay := FALSE;
     end if;
 

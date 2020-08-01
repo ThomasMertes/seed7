@@ -30,6 +30,8 @@
 include "tar.s7i";
 include "osfiles.s7i";
 include "gzip.s7i";
+include "lzma.s7i";
+include "xz.s7i";
 
 
 const proc: setUpHead (in string: basePath, in string: filePath,
@@ -109,14 +111,22 @@ const proc: tarTell (in string: inFileName, in array string: arg_list,
   begin
     inFile := open(inFileName, "r");
     if inFile <> STD_NULL then
-      magicBytes := gets(inFile, 2);
-      seek(inFile, 1);
-      if magicBytes = "\31;\139;" then
+      magicBytes := gets(inFile, length(GZIP_MAGIC));
+      if magicBytes = GZIP_MAGIC then
+        seek(inFile, 1);
         inFile := openGunzipFile(inFile);
-      elsif do_unzip then
-        write("tar7: File \"");
-        write(inFileName);
-        writeln("\" not in gzip format.");
+      else
+        magicBytes &:= gets(inFile, length(XZ_MAGIC) - length(GZIP_MAGIC));
+        seek(inFile, 1);
+        if magicBytes = XZ_MAGIC then
+          inFile := openXzFile(inFile);
+        elsif endsWith(inFileName, ".lzma") then
+          inFile := openLzmaFile(inFile);
+        elsif do_unzip then
+          write("tar7: File \"");
+          write(inFileName);
+          writeln("\" not in gzip format.");
+        end if;
       end if;
     end if;
     if inFile <> STD_NULL then
@@ -201,14 +211,22 @@ const proc: tarXtract (in string: inFileName, in array string: arg_list,
   begin
     inFile := open(inFileName, "r");
     if inFile <> STD_NULL then
-      magicBytes := gets(inFile, 2);
-      seek(inFile, 1);
-      if magicBytes = "\31;\139;" then
+      magicBytes := gets(inFile, length(GZIP_MAGIC));
+      if magicBytes = GZIP_MAGIC then
+        seek(inFile, 1);
         inFile := openGunzipFile(inFile);
-      elsif do_unzip then
-        write("tar7: File \"");
-        write(inFileName);
-        writeln("\" not in gzip format.");
+      else
+        magicBytes &:= gets(inFile, length(XZ_MAGIC) - length(GZIP_MAGIC));
+        seek(inFile, 1);
+        if magicBytes = XZ_MAGIC then
+          inFile := openXzFile(inFile);
+        elsif endsWith(inFileName, ".lzma") then
+          inFile := openLzmaFile(inFile);
+        elsif do_unzip then
+          write("tar7: File \"");
+          write(inFileName);
+          writeln("\" not in gzip format.");
+        end if;
       end if;
     end if;
     if inFile <> STD_NULL then

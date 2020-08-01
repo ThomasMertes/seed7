@@ -127,6 +127,9 @@ static unsigned int escape_sequence (unsigned int position)
       if (symbol.sycategory != INTLITERAL) {
         err_string(CARD_EXPECTED, symbol.name);
         symbol.charValue = ' ';
+      } else if (symbol.intValue > INT32TYPE_MAX) {
+        err_integer(NUMERICAL_ESCAPE_TOO_BIG, symbol.intValue);
+        symbol.charValue = ' ';
       } else {
         symbol.charValue = (charType) symbol.intValue;
       } /* if */

@@ -278,6 +278,19 @@ static void write_curr_position (listType list)
 
 
 
+void write_exception_info (void)
+
+  { /* write_exception_info */
+    prot_nl();
+    prot_cstri("*** EXCEPTION ");
+    printobject(fail_value);
+    prot_cstri(" raised");
+    write_curr_position(fail_expression);
+    prot_nl();
+  } /* write_exception_info */
+
+
+
 objectType raise_with_arguments (objectType exception, listType list)
 
   {

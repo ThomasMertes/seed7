@@ -59,6 +59,8 @@ const func string: toCsvLine (in array string: data, in char: separator) is func
  *  or the beginning or the end of the CSV line. A CSV field might be
  *  enclosed in double quotes ("). A double quoted CSV field might contain
  *  ''separator'' characters, double quotes (") or linefeed characters.
+ *  Double quotes inside a double quoted field are represented by doubling
+ *  them (e.g.: The double quoted field "a""b" has the value a"b ).
  *  This function is intended to be used, if the CSV line is already in
  *  a [[string]]. To read CSV lines from a file the function
  *  [[#readCsvLine(inout_file,in_char)|readCsvLine]] should be used
@@ -129,6 +131,8 @@ const func array string: fromCsvLine (in string: csvLine, in char: separator) is
  *  with '\n', "\r\n" or [[char#EOF|EOF]]. A CSV field might be enclosed
  *  in double quotes ("). A double quoted CSV field might contain
  *  ''separator'' characters, double quotes (") or linefeed characters.
+ *  Double quotes inside a double quoted field are represented by doubling
+ *  them (e.g.: The double quoted field "a""b" has the value a"b ).
  *  This function works also for UTF-8 encoded data. In this case the
  *  function [[unicode#utf8ToStri(in_string)|utf8ToStri]] must be used,
  *  to convert each CSV field from the result array.

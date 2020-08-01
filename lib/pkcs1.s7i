@@ -135,8 +135,8 @@ const func rsaKeyPair: genRsaKeyPair (in integer: keyLength, in bigInteger: expo
     var bigInteger: phiOfModulus is 0_;    # φ(n)
     var bigInteger: privateExponent is 0_; # d
   begin
-    p := getProbablyPrime(keyLength div 2, numTests);
-    q := getProbablyPrime(keyLength div 2, numTests);
+    p := getProbablyPrime(keyLength mdiv 2, numTests);
+    q := getProbablyPrime(keyLength mdiv 2, numTests);
     modulus := p * q;
     phiOfModulus := pred(p) * pred(q);
     keyPair.publicKey := rsaKey(modulus, exponent);

@@ -50,6 +50,7 @@ $ include "seed7_05.s7i";
   include "comp/inline.s7i";
   include "comp/const.s7i";
   include "comp/literal.s7i";
+  include "comp/intrange.s7i";
   include "comp/error.s7i";
   include "comp/library.s7i";
   include "comp/action.s7i";
@@ -2311,6 +2312,20 @@ const proc: process_main_declaration (in reference: current_object,
     main_epilog &:= "    printf(\" at %s(%d)\", error_file, error_line);\n";
     main_epilog &:= "  }\n";
     main_epilog &:= "  printf(\"\\n\");\n";
+    if databaseLibraryUsed then
+      main_epilog &:= "  if (fail_value == 6 /*DATABASE_ERROR*/) {\n";
+      main_epilog &:= "    striType message;\n";
+      main_epilog &:= "    message = sqlErrMessage();\n";
+      main_epilog &:= "    printf(\"\\nMessage from the DATABASE_ERROR exception:\\n\");\n";
+      if consoleLibraryUsed then
+        main_epilog &:= "    conWrite(message);\n";
+      else
+        main_epilog &:= "    ut8Write(stdout, message);\n";
+      end if;
+      main_epilog &:= "    printf(\"\\n\");\n";
+      main_epilog &:= "    strDestr(message);\n";
+      main_epilog &:= "  }\n";
+    end if;
     main_epilog &:= "  return 1;\n";
     main_epilog &:= "}\n";
     main_epilog &:= "}\n";
@@ -6618,7 +6633,7 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
       c_expr.expr &:= "  int ch;\n";
       c_expr.expr &:= "  if (catch_stack_pos == 0) {\n";
       c_expr.expr &:= "    printf(\"\\n*** Uncaught EXCEPTION \");\n";
-      c_expr.expr &:= "    } else {\n";
+      c_expr.expr &:= "  } else {\n";
       c_expr.expr &:= "    printf(\"\\n*** Caught EXCEPTION \");\n";
       c_expr.expr &:= "  }\n";
       c_expr.expr &:= "  if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
@@ -6865,6 +6880,7 @@ const proc: pass_1 (in string: source, inout program: prog,
       if "-o" in compiler_option and compiler_option["-o"] in {"c0", "c1", "c2", "c3"} then
         evaluate_const_expr := integer(compiler_option["-o"][2 ..]);
       end if;
+      setOptimizationSettings(evaluate_const_expr);
       if "-s" in compiler_option then
         if pos(compiler_option["-s"], 'r') <> 0 then
           array_range_check := FALSE;
@@ -7167,6 +7183,9 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
           otherwise:
             writeln("*** Ignore unsupported option: -O" <& compiler_option["-O"]);
         end case;
+      end if;
+      if integer_overflow_check and ccConf.CC_OPT_TRAP_OVERFLOW <> "" then
+        compileParams &:= ccConf.CC_OPT_TRAP_OVERFLOW;
       end if;
       if "-g" in compiler_option then
         compileParams &:= ccConf.CC_OPT_DEBUG_INFO;

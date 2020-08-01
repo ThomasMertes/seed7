@@ -35,8 +35,10 @@ var boolean: trace_signal            is FALSE;
 var boolean: profile_function        is FALSE;
 var boolean: signal_exception        is FALSE;
 var integer: evaluate_const_expr     is 1;
-var boolean: inlineFunctions         is TRUE;
-var boolean: structFreelist          is TRUE;
+var boolean: inlineFunctions         is FALSE;
+var boolean: structFreelist          is FALSE;
+var boolean: modDividendOptimization is FALSE;
+var boolean: reduceOverflowChecks    is FALSE;
 var boolean: declare_with_extern_c   is FALSE;
 var boolean: generate_c_plus_plus    is FALSE;
 
@@ -44,6 +46,15 @@ var boolean: check_int_arithmetic_overflow is FALSE;
 var boolean: check_int_division_overflow   is FALSE;
 var boolean: check_int_abs_overflow        is FALSE;
 var boolean: check_int_shift_overflow      is FALSE;
+
+
+const proc: setOptimizationSettings (in integer: evaluate_const_expr) is func
+  begin
+    inlineFunctions         := evaluate_const_expr >= 1;
+    structFreelist          := evaluate_const_expr >= 1;
+    modDividendOptimization := evaluate_const_expr >= 3;
+    reduceOverflowChecks    := evaluate_const_expr >= 3;
+  end func;
 
 
 const proc: setIntegerOverflowCheck (in boolean: check) is func

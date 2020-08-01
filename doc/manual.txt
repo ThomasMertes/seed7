@@ -9323,6 +9323,8 @@ CONTENTS
 
     currDb := openDatabase(DB_MYSQL, "www.example.org:1234/testDb", "testUser", "testPassword");
 
+    currDb := openDatabase(DB_MYSQL, "[1234:feed::dead:beef]:1234/testDb", "testUser", "testPassword");
+
     currDb := openDatabase(DB_POSTGRESQL, "192.0.2.235/testDb", "testUser", "testPassword");
 
     currDb := openDatabase(DB_POSTGRESQL, "testDb", "testUser", "testPassword");
@@ -10864,16 +10866,22 @@ CONTENTS
     SQL_ERR_MESSAGE     sql_err_message     sqlErrMessage
     SQL_EXECUTE         sql_execute         sqlExecute
     SQL_FETCH           sql_fetch           sqlFetch
+    SQL_GET_AUTO_COMMIT sql_get_auto_commit sqlGetAutoCommit
     SQL_IS_NULL         sql_is_null         sqlIsNull
     SQL_NE_DB           sql_ne_db           !=
     SQL_NE_STMT         sql_ne_stmt         !=
+    SQL_OPEN_DB2        sql_open_db2        sqlOpenDb2
     SQL_OPEN_FIRE       sql_open_fire       sqlOpenFire
     SQL_OPEN_LITE       sql_open_lite       sqlOpenLite
     SQL_OPEN_MY         sql_open_my         sqlOpenMy
     SQL_OPEN_OCI        sql_open_oci        sqlOpenOci
     SQL_OPEN_ODBC       sql_open_odbc       sqlOpenOdbc
     SQL_OPEN_POST       sql_open_post       sqlOpenPost
+    SQL_OPEN_SQLSRV     sql_open_sqlsrv     sqlOpenSqlServer
+    SQL_OPEN_TDS        sql_open_tds        sqlOpenTds
     SQL_PREPARE         sql_prepare         sqlPrepare
+    SQL_ROLLBACK        sql_rollback        sqlRollback
+    SQL_SET_AUTO_COMMIT sql_set_auto_commit sqlSetAutoCommit
     SQL_STMT_COLUMN_COUNT sql_stmt_column_count sqlStmtColumnCount
     SQL_STMT_COLUMN_NAME  sql_stmt_column_name  sqlStmtColumnName
 
@@ -12294,6 +12302,7 @@ CONTENTS
     61: Unexpected UTF-8 continuation byte found "%s" (U+%04x)
     62: Solitary UTF-8 start byte found "%s" (U+%04x)
     63: UTF-16 byte order mark found "%s" (U+%04x)
+    64: The numerical escape sequence "\%u;" is too big
         Undefined error
 
 

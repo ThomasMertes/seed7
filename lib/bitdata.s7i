@@ -169,7 +169,7 @@ const func integer: getBitsLsb (in string: stri, inout integer: bytePos,
   begin
     bitsInByte := 8 - bitPos;
     if bitsInByte > bitWidth then
-      resultBits := (ord(stri[bytePos]) >> bitPos) rem (1 << bitWidth);
+      resultBits := (ord(stri[bytePos]) >> bitPos) mod (1 << bitWidth);
       bitPos +:= bitWidth;
     else
       resultBits := ord(stri[bytePos]) mod 256 >> bitPos;
@@ -185,7 +185,7 @@ const func integer: getBitsLsb (in string: stri, inout integer: bytePos,
           bitsInResult +:= 8;
         end while;
         if bitWidth <> 0 then
-          resultBits +:= ord(stri[bytePos]) rem (1 << bitWidth) << bitsInResult;
+          resultBits +:= ord(stri[bytePos]) mod (1 << bitWidth) << bitsInResult;
           bitPos := bitWidth;
         end if;
       end if;
@@ -210,7 +210,7 @@ const proc: putBitLsb (inout string: stri, inout integer: bitPos, in integer: bi
       bitPos := 1;
     else
       stri @:= [length(stri)] chr(ord(stri[length(stri)]) + (bit << bitPos));
-      bitPos := succ(bitPos) rem 8;
+      bitPos := succ(bitPos) mod 8;
     end if;
   end func;
 
@@ -253,12 +253,12 @@ const proc: putBitsLsb (inout string: stri, inout integer: bitPos, in var intege
       # ----bitWidth------|-bitPos-|
       #   |---bitsFree----|        |
       if bitPos <> 0 then
-        stri @:= [length(stri)] chr(ord(stri[length(stri)]) + ((bits rem (1 << bitsFree)) << bitPos));
+        stri @:= [length(stri)] chr(ord(stri[length(stri)]) + ((bits mod (1 << bitsFree)) << bitPos));
         bits >>:= bitsFree;
         bitWidth -:= bitsFree;
       end if;
       while bitWidth >= 8 do
-        stri &:= chr(bits rem 256);
+        stri &:= chr(bits mod 256);
         bits >>:= 8;
         bitWidth -:= 8;
       end while;
@@ -328,7 +328,7 @@ const func integer: getBitsMsb (in string: stri, inout integer: bytePos,
         # |-bitPos-|--bitWidth--|  |
         # |        |--bitsInByte---|
         resultBits <<:= bitWidth;
-        resultBits +:= (ord(stri[bytePos]) >> (bitsInByte - bitWidth)) rem (1 << bitWidth);
+        resultBits +:= (ord(stri[bytePos]) >> (bitsInByte - bitWidth)) mod (1 << bitWidth);
         bitPos +:= bitWidth;
         bitWidth := 0;
       else
@@ -336,7 +336,7 @@ const func integer: getBitsMsb (in string: stri, inout integer: bytePos,
         # |-bitPos-|----bitWidth-----
         # |        |--bitsInByte---|
         resultBits <<:= bitsInByte;
-        resultBits +:= ord(stri[bytePos]) rem (1 << bitsInByte);
+        resultBits +:= ord(stri[bytePos]) mod (1 << bitsInByte);
         bitWidth -:= bitsInByte;
         incr(bytePos);
         bitPos := 0;
@@ -362,7 +362,7 @@ const proc: putBitMsb (inout string: stri, inout integer: bitPos, in integer: bi
       bitPos := 1;
     else
       stri @:= [length(stri)] chr(ord(stri[length(stri)]) + (bit << (7 - bitPos)));
-      bitPos := succ(bitPos) rem 8;
+      bitPos := succ(bitPos) mod 8;
     end if;
   end func;
 
@@ -407,12 +407,12 @@ const proc: putBitsMsb (inout string: stri, inout integer: bitPos, in var intege
       if bitPos <> 0 then
         bitWidth -:= bitsFree;
         stri @:= [length(stri)] chr(ord(stri[length(stri)]) + (bits >> bitWidth));
-        bits := bits rem (1 << bitWidth);
+        bits := bits mod (1 << bitWidth);
       end if;
       while bitWidth >= 8 do
         bitWidth -:= 8;
         stri &:= chr(bits >> bitWidth);
-        bits := bits rem (1 << bitWidth);
+        bits := bits mod (1 << bitWidth);
       end while;
       if bitWidth >= 1 then
         stri &:= chr(bits << (8 - bitWidth));
@@ -476,7 +476,7 @@ const func integer: getBitsLsb (inout file: inFile, inout integer: bitPos,
     end if;
     bitsInByte := 8 - bitPos;
     if bitsInByte >= bitWidth then
-      resultBits := (ord(inFile.bufferChar) >> bitPos) rem (1 << bitWidth);
+      resultBits := (ord(inFile.bufferChar) >> bitPos) mod (1 << bitWidth);
       bitPos +:= bitWidth;
     else
       resultBits := ord(inFile.bufferChar) mod 256 >> bitPos;
@@ -489,7 +489,7 @@ const func integer: getBitsLsb (inout file: inFile, inout integer: bitPos,
         bitWidth -:= 8;
         bitsInResult +:= 8;
       end while;
-      resultBits +:= ord(inFile.bufferChar) rem (1 << bitWidth) << bitsInResult;
+      resultBits +:= ord(inFile.bufferChar) mod (1 << bitWidth) << bitsInResult;
       bitPos := bitWidth;
     end if;
   end func;
@@ -541,11 +541,11 @@ const proc: putBitsLsb (inout file: outFile, inout integer: bitPos, in var integ
       outFile.bufferChar := chr(ord(outFile.bufferChar) + (bits << bitPos));
       bitPos +:= bitWidth;
     else
-      write(outFile, chr(ord(outFile.bufferChar) + ((bits rem (1 << bitsFree)) << bitPos)));
+      write(outFile, chr(ord(outFile.bufferChar) + ((bits mod (1 << bitsFree)) << bitPos)));
       bits >>:= bitsFree;
       bitWidth -:= bitsFree;
       while bitWidth >= 8 do
-        write(outFile, chr(bits rem 256));
+        write(outFile, chr(bits mod 256));
         bits >>:= 8;
         bitWidth -:= 8;
       end while;
@@ -611,10 +611,10 @@ const func integer: getBitsMsb (inout file: inFile, inout integer: bitPos,
     end if;
     bitsInByte := 8 - bitPos;
     if bitsInByte >= bitWidth then
-      resultBits := (ord(inFile.bufferChar) >> (bitsInByte - bitWidth)) rem (1 << bitWidth);
+      resultBits := (ord(inFile.bufferChar) >> (bitsInByte - bitWidth)) mod (1 << bitWidth);
       bitPos +:= bitWidth;
     else
-      resultBits := ord(inFile.bufferChar) rem (1 << bitsInByte);
+      resultBits := ord(inFile.bufferChar) mod (1 << bitsInByte);
       inFile.bufferChar := getc(inFile);
       bitWidth -:= bitsInByte;
       while bitWidth > 8 do
@@ -678,11 +678,11 @@ const proc: putBitsMsb (inout file: outFile, inout integer: bitPos, in var integ
     else
       bitWidth -:= bitsFree;
       write(outFile, chr(ord(outFile.bufferChar) + (bits >> bitWidth)));
-      bits := bits rem (1 << bitWidth);
+      bits := bits mod (1 << bitWidth);
       while bitWidth >= 8 do
         bitWidth -:= 8;
         write(outFile, chr(bits >> bitWidth));
-        bits := bits rem (1 << bitWidth);
+        bits := bits mod (1 << bitWidth);
       end while;
       if bitWidth >= 1 then
         outFile.bufferChar := chr(bits << (8 - bitWidth));

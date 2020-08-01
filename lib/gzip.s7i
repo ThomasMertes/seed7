@@ -258,18 +258,18 @@ const func char: getc (inout gunzipFile: inFile) is func
  *  Read a string with maximum length from a ''gunzipFile''.
  *  @return the string read.
  *)
-const func string: gets (inout gunzipFile: inFile, in var integer: leng) is func
+const func string: gets (inout gunzipFile: inFile, in integer: length) is func
   result
     var string: striRead is "";
   begin
-    while pred(inFile.position + leng) > length(inFile.uncompressed) and
+    while pred(inFile.position + length) > length(inFile.uncompressed) and
         not inFile.bfinal do
       processCompressedBlock(inFile.compressed, inFile.bitPos,
           inFile.uncompressed, inFile.bfinal);
     end while;
-    if pred(inFile.position + leng) <= length(inFile.uncompressed) then
-      striRead := inFile.uncompressed[inFile.position len leng];
-      inFile.position +:= leng;
+    if pred(inFile.position + length) <= length(inFile.uncompressed) then
+      striRead := inFile.uncompressed[inFile.position len length];
+      inFile.position +:= length;
     else
       striRead := inFile.uncompressed[inFile.position ..];
       inFile.position := succ(length(inFile.uncompressed));

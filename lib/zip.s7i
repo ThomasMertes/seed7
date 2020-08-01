@@ -36,19 +36,21 @@ include "crc32.s7i";
 include "filesys.s7i";
 
 
-const string: CENTRAL_HEADER_SIGNATURE           is "PK\1;\2;";
-const string: LOCAL_HEADER_SIGNATURE             is "PK\3;\4;";
-const string: END_OF_CENTRAL_DIRECTORY_SIGNATURE is "PK\5;\6;";
-const string: DATA_DESCRIPTOR_SIGNATURE          is "PK\7;\8;";
+const string: ZIP_CENTRAL_HEADER_SIGNATURE           is "PK\1;\2;";
+const string: ZIP_LOCAL_HEADER_SIGNATURE             is "PK\3;\4;";
+const string: ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE is "PK\5;\6;";
+const string: ZIP_DATA_DESCRIPTOR_SIGNATURE          is "PK\7;\8;";
 
-const integer: CENTRAL_HEADER_FIXED_SIZE           is 46;
-const integer: LOCAL_HEADER_FIXED_SIZE             is 30;
-const integer: END_OF_CENTRAL_DIRECTORY_FIXED_SIZE is 22;
+const integer: ZIP_CENTRAL_HEADER_FIXED_SIZE           is 46;
+const integer: ZIP_LOCAL_HEADER_FIXED_SIZE             is 30;
+const integer: ZIP_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE is 22;
 
 # Bits of the general_purpose_bit_flag:
-const bin32: HAS_DATA_DESCRIPTOR is bin32(2#1000);
-const bin32: DATA_DESCRIPTOR_SIGNATURE_VALUE is
-    bin32(bytes2Int(DATA_DESCRIPTOR_SIGNATURE, UNSIGNED, LE));
+const bin32: ZIP_HAS_DATA_DESCRIPTOR is bin32(16#0008);
+const bin32: ZIP_FILE_NAME_IS_UTF8   is bin32(16#0800);
+
+const bin32: ZIP_DATA_DESCRIPTOR_SIGNATURE_VALUE is
+    bin32(bytes2Int(ZIP_DATA_DESCRIPTOR_SIGNATURE, UNSIGNED, LE));
 
 
 const func integer: rposOfMagic (inout file: inFile, in string: magic,
@@ -95,6 +97,23 @@ const func zipExtraFieldType: getExtraFieldMap (in string: field) is func
   end func;
 
 
+const proc: writeExtraField (in string: field) is func
+  local
+    var integer: pos is 1;
+    var integer: id is 0;
+    var integer: length is 0;
+    var string: value is "";
+  begin
+    while pos <= length(field) - 3 do
+      id := ord(field[pos]) + ord(field[succ(pos)]) * 256;
+      length := ord(field[pos + 2]) + ord(field[pos + 3]) * 256;
+      value := field[pos + 4 len length];
+      writeln("field: " <& id radix 16 lpad0 4 <& " " <& length <& " " <& literal(value));
+      pos +:= 4 + length;
+    end while;
+  end func;
+
+
 const type: local_file_header is new struct
     var string:  signature                  is "";       # 4 bytes ("PK\3;\4;")
     var integer: version_needed_to_extract  is 0;        # 2 bytes
@@ -113,16 +132,35 @@ const type: local_file_header is new struct
   end struct;
 
 
+const proc: write (in local_file_header: header) is func
+  begin
+    writeln("signature: "                 rpad 45 <& literal(header.signature) lpad 16);
+    writeln("version_needed_to_extract: " rpad 45 <& header.version_needed_to_extract lpad 16);
+    writeln("general_purpose_bit_flag: "  rpad 45 <& header.general_purpose_bit_flag radix 2 lpad0 16);
+    writeln("compression_method: "        rpad 45 <& header.compression_method lpad 16);
+    writeln("last_mod_file_time: "        rpad 45 <& header.last_mod_file_time lpad 16);
+    writeln("last_mod_file_date: "        rpad 45 <& header.last_mod_file_date lpad 16);
+    writeln("crc_32: "                    rpad 45 <& header.crc_32 lpad 16);
+    writeln("compressed_size: "           rpad 45 <& header.compressed_size lpad 16);
+    writeln("uncompressed_size: "         rpad 45 <& header.uncompressed_size lpad 16);
+    writeln("file_name_length: "          rpad 45 <& header.file_name_length lpad 16);
+    writeln("extra_field_length: "        rpad 45 <& header.extra_field_length lpad 16);
+    writeln("file_name: "                 rpad 45 <& literal(header.file_name) lpad 16);
+    writeln("extra_field: "                       <& literal(header.extra_field) lpad 16);
+    writeExtraField(header.extra_field);
+  end func;
+
+
 const func local_file_header: get_local_header (inout file: inFile) is func
   result
     var local_file_header: header is local_file_header.value;
   local
     var string: stri is "";
   begin
-    stri := gets(inFile, LOCAL_HEADER_FIXED_SIZE);
-    if length(stri) = LOCAL_HEADER_FIXED_SIZE and
-        stri[.. 4] = LOCAL_HEADER_SIGNATURE then
-      header.signature := LOCAL_HEADER_SIGNATURE;
+    stri := gets(inFile, ZIP_LOCAL_HEADER_FIXED_SIZE);
+    if length(stri) = ZIP_LOCAL_HEADER_FIXED_SIZE and
+        stri[.. 4] = ZIP_LOCAL_HEADER_SIGNATURE then
+      header.signature := ZIP_LOCAL_HEADER_SIGNATURE;
       header.version_needed_to_extract       := bytes2Int(stri[ 5 len 2], UNSIGNED, LE);
       header.general_purpose_bit_flag  := bin32(bytes2Int(stri[ 7 len 2], UNSIGNED, LE));
       header.compression_method              := bytes2Int(stri[ 9 len 2], UNSIGNED, LE);
@@ -136,43 +174,15 @@ const func local_file_header: get_local_header (inout file: inFile) is func
       header.file_name                       := gets(inFile, header.file_name_length);
       header.extra_field                     := gets(inFile, header.extra_field_length);
       header.extraFieldMap := getExtraFieldMap(header.extra_field);
+      if header.general_purpose_bit_flag & ZIP_FILE_NAME_IS_UTF8 <> bin32(0) then
+        block
+          header.file_name := utf8ToStri(header.file_name);
+        exception
+          catch RANGE_ERROR: noop;
+        end block;
+      end if;
+      # write(header);
     end if;
-  end func;
-
-
-const proc: writeExtraField (in string: field) is func
-  local
-    var integer: pos is 1;
-    var integer: id is 0;
-    var integer: length is 0;
-    var string: value is "";
-  begin
-    while pos <= length(field) - 3 do
-      id := ord(field[pos]) + ord(field[succ(pos)]) * 256;
-      length := ord(field[pos + 2]) + ord(field[pos + 3]) * 256;
-      value := field[pos + 4 len length];
-      writeln("field: " <& id radix 16 lpad0 4 <& " " <& length <& " " <& literal(value));
-      pos +:= 4 + length;
-    end while;
-  end func;
-
-
-const proc: write (in local_file_header: header) is func
-  begin
-    writeln("signature: "                 rpad 50 <& literal(header.signature) lpad 10);
-    writeln("version_needed_to_extract: " rpad 50 <& header.version_needed_to_extract lpad 10);
-    writeln("general_purpose_bit_flag: "  rpad 50 <& header.general_purpose_bit_flag radix 2 lpad0 16);
-    writeln("compression_method: "        rpad 50 <& header.compression_method lpad 10);
-    writeln("last_mod_file_time: "        rpad 50 <& header.last_mod_file_time lpad 10);
-    writeln("last_mod_file_date: "        rpad 50 <& header.last_mod_file_date lpad 10);
-    writeln("crc_32: "                    rpad 50 <& header.crc_32 lpad 10);
-    writeln("compressed_size: "           rpad 50 <& header.compressed_size lpad 10);
-    writeln("uncompressed_size: "         rpad 50 <& header.uncompressed_size lpad 10);
-    writeln("file_name_length: "          rpad 50 <& header.file_name_length lpad 10);
-    writeln("extra_field_length: "        rpad 50 <& header.extra_field_length lpad 10);
-    writeln("file_name: "                 rpad 50 <& literal(header.file_name) lpad 10);
-    writeln("extra_field: "               rpad 50 <& literal(header.extra_field) lpad 10);
-    writeExtraField(header.extra_field);
   end func;
 
 
@@ -189,16 +199,30 @@ const type: end_of_central_directory is new struct
   end struct;
 
 
+const proc: write (in end_of_central_directory: endOfCentDir) is func
+  begin
+    writeln("signature: "                                   rpad 45 <& literal(endOfCentDir.signature) lpad 16);
+    writeln("number_of_this_disk: "                         rpad 45 <& endOfCentDir.number_of_this_disk lpad 16);
+    writeln("disk_number_with_start_of_central_directory: " rpad 45 <& endOfCentDir.disk_number_with_start_of_central_directory lpad 16);
+    writeln("entries_in_central_directory_on_this_disk: "   rpad 45 <& endOfCentDir.entries_in_central_directory_on_this_disk lpad 16);
+    writeln("entries_in_central_directory: "                rpad 45 <& endOfCentDir.entries_in_central_directory lpad 16);
+    writeln("size_of_central_directory: "                   rpad 45 <& endOfCentDir.size_of_central_directory lpad 16);
+    writeln("offset_of_start_of_central_directory: "        rpad 45 <& endOfCentDir.offset_of_start_of_central_directory lpad 16);
+    writeln("file_comment_length: "                         rpad 45 <& endOfCentDir.file_comment_length lpad 16);
+    writeln("file_comment: "                                rpad 45 <& literal(endOfCentDir.file_comment) lpad 16);
+  end func;
+
+
 const func end_of_central_directory: get_end_of_central_directory (inout file: inFile) is func
   result
     var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
   local
     var string: stri is "";
   begin
-    stri := gets(inFile, END_OF_CENTRAL_DIRECTORY_FIXED_SIZE);
-    if length(stri) = END_OF_CENTRAL_DIRECTORY_FIXED_SIZE and
-        stri[.. 4] = END_OF_CENTRAL_DIRECTORY_SIGNATURE then
-      endOfCentDir.signature := END_OF_CENTRAL_DIRECTORY_SIGNATURE;
+    stri := gets(inFile, ZIP_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE);
+    if length(stri) = ZIP_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE and
+        stri[.. 4] = ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE then
+      endOfCentDir.signature := ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE;
       endOfCentDir.number_of_this_disk                         := bytes2Int(stri[ 5 len 2], UNSIGNED, LE);
       endOfCentDir.disk_number_with_start_of_central_directory := bytes2Int(stri[ 7 len 2], UNSIGNED, LE);
       endOfCentDir.entries_in_central_directory_on_this_disk   := bytes2Int(stri[ 9 len 2], UNSIGNED, LE);
@@ -211,20 +235,6 @@ const func end_of_central_directory: get_end_of_central_directory (inout file: i
   end func;
 
 
-const proc: write (in end_of_central_directory: endOfCentDir) is func
-  begin
-    writeln("signature: "                                   rpad 50 <& literal(endOfCentDir.signature) lpad 10);
-    writeln("number_of_this_disk: "                         rpad 50 <& endOfCentDir.number_of_this_disk lpad 10);
-    writeln("disk_number_with_start_of_central_directory: " rpad 50 <& endOfCentDir.disk_number_with_start_of_central_directory lpad 10);
-    writeln("entries_in_central_directory_on_this_disk: "   rpad 50 <& endOfCentDir.entries_in_central_directory_on_this_disk lpad 10);
-    writeln("entries_in_central_directory: "                rpad 50 <& endOfCentDir.entries_in_central_directory lpad 10);
-    writeln("size_of_central_directory: "                   rpad 50 <& endOfCentDir.size_of_central_directory lpad 10);
-    writeln("offset_of_start_of_central_directory: "        rpad 50 <& endOfCentDir.offset_of_start_of_central_directory lpad 10);
-    writeln("file_comment_length: "                         rpad 50 <& endOfCentDir.file_comment_length lpad 10);
-    writeln("file_comment: "                                rpad 50 <& literal(endOfCentDir.file_comment) lpad 10);
-  end func;
-
-
 const func end_of_central_directory: read_end_of_central_directory (inout file: inFile) is func
   result
     var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
@@ -233,7 +243,7 @@ const func end_of_central_directory: read_end_of_central_directory (inout file: 
     const integer: MAX_RECORD_LEN is MIN_RECORD_LEN + 2**16 - 1;
     var integer: pos is 0;
   begin
-    pos := rposOfMagic(inFile, END_OF_CENTRAL_DIRECTORY_SIGNATURE, MIN_RECORD_LEN, MAX_RECORD_LEN);
+    pos := rposOfMagic(inFile, ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE, MIN_RECORD_LEN, MAX_RECORD_LEN);
     if pos <> 0 then
       seek(inFile, pos);
       endOfCentDir := get_end_of_central_directory(inFile);
@@ -271,16 +281,42 @@ const type: central_file_header is new struct
   end struct;
 
 
+const proc: write (in central_file_header: header) is func
+  begin
+    writeln("signature: "                       rpad 45 <& literal(header.signature) lpad 16);
+    writeln("version_made_by: "                 rpad 45 <& (header.version_made_by radix 16 lpad0 4) lpad 16);
+    writeln("version_needed_to_extract: "       rpad 45 <& header.version_needed_to_extract lpad 16);
+    writeln("general_purpose_bit_flag: "        rpad 45 <& header.general_purpose_bit_flag radix 2 lpad0 16);
+    writeln("compression_method: "              rpad 45 <& header.compression_method lpad 16);
+    writeln("last_mod_file_time: "              rpad 45 <& header.last_mod_file_time lpad 16);
+    writeln("last_mod_file_date: "              rpad 45 <& header.last_mod_file_date lpad 16);
+    writeln("crc_32: "                          rpad 45 <& header.crc_32 lpad 16);
+    writeln("compressed_size: "                 rpad 45 <& header.compressed_size lpad 16);
+    writeln("uncompressed_size: "               rpad 45 <& header.uncompressed_size lpad 16);
+    writeln("file_name_length: "                rpad 45 <& header.file_name_length lpad 16);
+    writeln("extra_field_length: "              rpad 45 <& header.extra_field_length lpad 16);
+    writeln("file_comment_length: "             rpad 45 <& header.file_comment_length lpad 16);
+    writeln("disk_number_start: "               rpad 45 <& header.disk_number_start lpad 16);
+    writeln("internal_file_attributes: "        rpad 45 <& header.internal_file_attributes lpad 16);
+    writeln("external_file_attributes: "        rpad 45 <& header.external_file_attributes radix 16 lpad 16);
+    writeln("relative_offset_of_local_header: " rpad 45 <& header.relative_offset_of_local_header lpad 16);
+    writeln("file_name: "                       rpad 45 <& literal(header.file_name) lpad 16);
+    writeln("extra_field: "                             <& literal(header.extra_field) lpad 16);
+    writeExtraField(header.extra_field);
+    writeln("file_comment: "                    rpad 45 <& literal(header.file_comment) lpad 16);
+  end func;
+
+
 const func central_file_header: get_central_header (inout file: inFile) is func
   result
     var central_file_header: header is central_file_header.value;
   local
     var string: stri is "";
   begin
-    stri := gets(inFile, CENTRAL_HEADER_FIXED_SIZE);
-    if length(stri) = CENTRAL_HEADER_FIXED_SIZE and
-        stri[.. 4] = CENTRAL_HEADER_SIGNATURE then
-      header.signature := CENTRAL_HEADER_SIGNATURE;
+    stri := gets(inFile, ZIP_CENTRAL_HEADER_FIXED_SIZE);
+    if length(stri) = ZIP_CENTRAL_HEADER_FIXED_SIZE and
+        stri[.. 4] = ZIP_CENTRAL_HEADER_SIGNATURE then
+      header.signature := ZIP_CENTRAL_HEADER_SIGNATURE;
       header.version_made_by                 := bytes2Int(stri[ 5 len 2], UNSIGNED, LE);
       header.version_needed_to_extract       := bytes2Int(stri[ 7 len 2], UNSIGNED, LE);
       header.general_purpose_bit_flag  := bin32(bytes2Int(stri[ 9 len 2], UNSIGNED, LE));
@@ -301,33 +337,15 @@ const func central_file_header: get_central_header (inout file: inFile) is func
       header.extra_field                     := gets(inFile, header.extra_field_length);
       header.file_comment                    := gets(inFile, header.file_comment_length);
       header.extraFieldMap := getExtraFieldMap(header.extra_field);
+      if header.general_purpose_bit_flag & ZIP_FILE_NAME_IS_UTF8 <> bin32(0) then
+        block
+          header.file_name := utf8ToStri(header.file_name);
+        exception
+          catch RANGE_ERROR: noop;
+        end block;
+      end if;
+       write(header);
     end if;
-  end func;
-
-
-const proc: write (in central_file_header: header) is func
-  begin
-    writeln("signature: "                       rpad 50 <& literal(header.signature) lpad 10);
-    writeln("version_made_by: "                 rpad 50 <& header.version_made_by radix 16 lpad0 4);
-    writeln("version_needed_to_extract: "       rpad 50 <& header.version_needed_to_extract lpad 10);
-    writeln("general_purpose_bit_flag: "        rpad 50 <& header.general_purpose_bit_flag radix 2 lpad0 16);
-    writeln("compression_method: "              rpad 50 <& header.compression_method lpad 10);
-    writeln("last_mod_file_time: "              rpad 50 <& header.last_mod_file_time lpad 10);
-    writeln("last_mod_file_date: "              rpad 50 <& header.last_mod_file_date lpad 10);
-    writeln("crc_32: "                          rpad 50 <& header.crc_32 lpad 10);
-    writeln("compressed_size: "                 rpad 50 <& header.compressed_size lpad 10);
-    writeln("uncompressed_size: "               rpad 50 <& header.uncompressed_size lpad 10);
-    writeln("file_name_length: "                rpad 50 <& header.file_name_length lpad 10);
-    writeln("extra_field_length: "              rpad 50 <& header.extra_field_length lpad 10);
-    writeln("file_comment_length: "             rpad 50 <& header.file_comment_length lpad 10);
-    writeln("disk_number_start: "               rpad 50 <& header.disk_number_start lpad 10);
-    writeln("internal_file_attributes: "        rpad 50 <& header.internal_file_attributes lpad 10);
-    writeln("external_file_attributes: "        rpad 50 <& header.external_file_attributes radix 16 lpad 10);
-    writeln("relative_offset_of_local_header: " rpad 50 <& header.relative_offset_of_local_header lpad 10);
-    writeln("file_name: "                       rpad 50 <& literal(header.file_name) lpad 10);
-    writeln("extra_field: "                     rpad 50 <& literal(header.extra_field) lpad 10);
-    writeExtraField(header.extra_field);
-    writeln("file_comment: "                    rpad 50 <& literal(header.file_comment) lpad 10);
   end func;
 
 
@@ -336,20 +354,28 @@ const func string: get_central_header_file_name (inout file: inFile) is func
     var string: file_name is "";
   local
     var string: stri is "";
+    var bin32: general_purpose_bit_flag is bin32(0);
     var integer: file_name_length is 0;
     var integer: extra_field_length is 0;
     var integer: file_comment_length is 0;
   begin
-    stri := gets(inFile, CENTRAL_HEADER_FIXED_SIZE);
-    if length(stri) = CENTRAL_HEADER_FIXED_SIZE and
-        stri[.. 4] = CENTRAL_HEADER_SIGNATURE then
-      file_name_length    := bytes2Int(stri[29 len 2], UNSIGNED, LE);
-      extra_field_length  := bytes2Int(stri[31 len 2], UNSIGNED, LE);
-      file_comment_length := bytes2Int(stri[33 len 2], UNSIGNED, LE);
+    stri := gets(inFile, ZIP_CENTRAL_HEADER_FIXED_SIZE);
+    if length(stri) = ZIP_CENTRAL_HEADER_FIXED_SIZE and
+        stri[.. 4] = ZIP_CENTRAL_HEADER_SIGNATURE then
+      general_purpose_bit_flag  := bin32(bytes2Int(stri[ 9 len 2], UNSIGNED, LE));
+      file_name_length                := bytes2Int(stri[29 len 2], UNSIGNED, LE);
+      extra_field_length              := bytes2Int(stri[31 len 2], UNSIGNED, LE);
+      file_comment_length             := bytes2Int(stri[33 len 2], UNSIGNED, LE);
       file_name := gets(inFile, file_name_length);
       # seek(inFile, tell(inFile) + extra_field_length + file_comment_length);
-      ignore(gets(inFile, extra_field_length));
-      ignore(gets(inFile, file_comment_length));
+      ignore(gets(inFile, extra_field_length + file_comment_length));
+      if general_purpose_bit_flag & ZIP_FILE_NAME_IS_UTF8 <> bin32(0) then
+        block
+          file_name := utf8ToStri(file_name);
+        exception
+          catch RANGE_ERROR: noop;
+        end block;
+      end if;
       if file_name <> "/" and endsWith(file_name, "/") then
         file_name := file_name[.. pred(length(file_name))];
       end if;
@@ -390,7 +416,7 @@ const func fileSys: openZip (inout file: zipFile) is func
   begin
     if zipFile <> STD_NULL then
       endOfCentDir := read_end_of_central_directory(zipFile);
-      if endOfCentDir.signature = END_OF_CENTRAL_DIRECTORY_SIGNATURE then
+      if endOfCentDir.signature = ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE then
         zip.zipFile := zipFile;
         # write(endOfCentDir);
         centralHeaderPos := succ(endOfCentDir.offset_of_start_of_central_directory);
@@ -804,12 +830,12 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
         fileData := gets(zip.zipFile, localHeader.compressed_size);
       elsif localHeader.compression_method = 8 then
         # The file is Deflated.
-        if localHeader.general_purpose_bit_flag & HAS_DATA_DESCRIPTOR <> bin32(0) then
+        if localHeader.general_purpose_bit_flag & ZIP_HAS_DATA_DESCRIPTOR <> bin32(0) then
           # The fields crc_32, compressed_size and uncompressed_size are 0.
           # Instead there is a data descriptor after the compressed data.
           fileData := inflate(zip.zipFile);
           localHeader.crc_32            := bin32(getUInt32Le(zip.zipFile));
-          if localHeader.crc_32 = DATA_DESCRIPTOR_SIGNATURE_VALUE then
+          if localHeader.crc_32 = ZIP_DATA_DESCRIPTOR_SIGNATURE_VALUE then
             # Optional signature value for the data descriptor record.
             localHeader.crc_32          := bin32(getUInt32Le(zip.zipFile));
           end if;

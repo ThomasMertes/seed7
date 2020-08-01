@@ -117,7 +117,7 @@ const proc: showExtensions (in string: stri, inout integer: pos) is func
         when {CERT_TYPE}:                              writeln("cert_type");
         when {ELLIPTIC_CURVES}:                        writeln("elliptic_curves");
           dataPos := 1;
-          write(bytes2Int(data[dataPos len 2], UNSIGNED, BE) div 2 <& " curve numbers:");
+          write(bytes2Int(data[dataPos len 2], UNSIGNED, BE) mdiv 2 <& " curve numbers:");
           dataPos +:= 2;
           while dataPos < length(data) do
             write(" " <& bytes2Int(data[dataPos len 2], UNSIGNED, BE));
@@ -129,7 +129,7 @@ const proc: showExtensions (in string: stri, inout integer: pos) is func
         when {SRP}:                                    writeln("srp");
         when {SIGNATURE_ALGORITHMS}:                   writeln("signature_algorithms");
           dataPos := 1;
-          write(bytes2Int(data[dataPos len 2], UNSIGNED, BE) div 2 <& " signature algorithms:");
+          write(bytes2Int(data[dataPos len 2], UNSIGNED, BE) mdiv 2 <& " signature algorithms:");
           dataPos +:= 2;
           while dataPos < length(data) do
             write(" " <& bytes2Int(data[dataPos len 2], UNSIGNED, BE) radix 16 lpad0 4);
@@ -215,7 +215,7 @@ const proc: showClientHello (in string: stri, inout integer: pos) is func
     incr(pos);
     writeln("SessionId: " <& hex(stri[pos len vectorLen]));
     pos +:= vectorLen;
-    vectorLen := bytes2Int(stri[pos len 2], UNSIGNED, BE) div 2;
+    vectorLen := bytes2Int(stri[pos len 2], UNSIGNED, BE) mdiv 2;
     writeln("Number of Ciphers: " <& vectorLen);
     pos +:= 2;
     for index range 1 to vectorLen do

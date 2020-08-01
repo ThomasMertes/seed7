@@ -32,6 +32,7 @@ include "filesys.s7i";
 include "filebits.s7i";
 include "bytedata.s7i";
 include "gzip.s7i";
+include "xz.s7i";
 include "cpio.s7i";
 
 
@@ -890,7 +891,7 @@ const proc: getArchive (inout rpmArchive: rpm) is func
       # writeln("compressor: " <& compressor);
       case compressor of
         when {"gzip"}: payload := openGunzipFile(rpm.rpmFile);
-        # when {"xz"}: payload := openXzFile(rpm.rpmFile);
+        when {"xz"}:   payload := openXzFile(rpm.rpmFile);
       end case;
     end if;
     if payload <> STD_NULL then

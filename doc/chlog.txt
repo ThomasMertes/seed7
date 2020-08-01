@@ -1,3 +1,72 @@
+20200405:
+- The new library xz.s7i has been added. This library supports XZ
+  compressed files.
+- The new library lzma.s7i has been added. This library supports LZMA
+  compressed files.
+- The library rpm.s7i has been improved to support an XZ compressed
+  payload.
+- The library tar_cmds.s7i and the program tar7.s7i have been improved
+  to support XZ and LZMA compressed tar archives.
+- The library zip.s7i has been improved to support Unicode file names.
+- As suggested by Zachary Menzies a detection of modifier keys has been
+  added. E.g. buttonPressed(KEYBOARD, KEY_SHIFT). Additionally several
+  new key combinations such as KEY_SFT_MOUSE1 and KEY_CTL_PAD_CENTER
+  have been added to keybd.s7i.
+- The program gkbd.sd7 has been improved to show the new capabilies of
+  the keybord interface.
+- Interpreter and compiler have been improved, to write a compile time
+  error, if a numerical escape sequence in a string or char literal
+  is too big.
+- The compiler has been improved to omit overflow checks for the
+  dividend of the mod operator, if the divisor is a power of two. This
+  reduces the runtime of the xz (lzma2) decompression by 2.3% (measured
+  with gcc and valgrind, when decompressing a binary Seed7 package).
+- The compiler file comp/intrange.s7i has been added. This file defines
+  the function getIntRange(), which computes the range of possible
+  results for several operators (e.g.: div, rem, mdiv, mod, >>) and
+  functions (e.g.: sqrt, length, pos, rand, log).
+- The compiler has been improved to use the function getIntRange() to
+  omit overflow checks for addition, subtraction, multiplication and
+  left shift of integer values. This reduces the runtime of the xz
+  (lzma2) decompression by 0.4% (measured with gcc and valgrind, when
+  decompressing a binary Seed7 package).
+- In the compiler the code generation for the operators div, rem, mdiv,
+  mod, * and << has been improved to work without catching the
+  exception OVERFLOW_ERROR.
+- The compiler has been improved to do a range check for the action
+  FLT_BITS2SINGLE (convert integer to single precision float value).
+- The compiler has been improved to generate code that writes the error
+  message of a DATABASE_ERROR, if the exception is uncatched.
+- The compiler has been improved to suppress the usage of the C
+  compiler option CC_OPT_TRAP_OVERFLOW (-ftrapv), if the Seed7 compiler
+  option -so (suppress overflow checks) is used.
+- The makefiles mk_clang.mak, mk_clangw.mak and mk_osxcl.mak have been
+  improved to define CC_OPT_TRAP_OVERFLOW with the value -ftrapv.
+- The functions check_mod_by_power_of_two_optimization() and
+  check_mod_by_computed_power_of_two_optimization() have been added
+  to chkint.sd7. This functions check the mod operator regarding
+  the new compiler optimization for the mod dividend.
+- The functions check_reduced_overflow_checking_for_sums(),
+  check_reduced_overflow_checking_for_mult() and
+  check_reduced_overflow_checking_for_lshift() have been added to
+  chkint.sd7 and chkovf.sd7. This functions test the compiler
+  optimization to reduce overflow checking with getIntRange().
+- The libraries aes.s7i, bitdata.s7i, color.s7i, deflate.s7i, draw.s7i,
+  ico.s7i, msgdigest.s7i, pkcs1.s7i, showtls.s7i and utf16.s7i have
+  been improved to use the division operators 'mdiv' and 'mod' instead
+  of 'div' and 'rem'.
+- The configuration value CC_OPT_TRAP_OVERFLOW has been introduced in
+  cc_conf.s7i, confval.sd7, s7c.sd7, chkccomp.c, cmd_rtl.c and
+  read_me.txt.
+- The function write_exception_info() has been added to runerr.c. This
+  function is called in executl.c.
+- The keyboard drivers gkb_win.c and gkb_x11.c have been improved to
+  support modifier keys and more key combinations.
+- Definitions for 31 new key compinations and 9 modifier keys have
+  been added to keybd.s7i and keydescr.s7i.
+- Documentation comments have been improved in ar.s7i, cc_conf.s7i
+  and csv.s7i.
+
 20200308:
 - The new library cpio.s7i has been added. This library supports cpio
   archive files.

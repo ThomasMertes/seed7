@@ -64,9 +64,9 @@ const func color: (in color: col1) + (in color: col2) is func
   result
     var color: sum is color.value;
   begin
-    sum.redLight :=   (col1.redLight   + col2.redLight)   div 2;
-    sum.greenLight := (col1.greenLight + col2.greenLight) div 2;
-    sum.blueLight :=  (col1.blueLight  + col2.blueLight)  div 2;
+    sum.redLight :=   (col1.redLight   + col2.redLight)   mdiv 2;
+    sum.greenLight := (col1.greenLight + col2.greenLight) mdiv 2;
+    sum.blueLight :=  (col1.blueLight  + col2.blueLight)  mdiv 2;
   end func;
 
 

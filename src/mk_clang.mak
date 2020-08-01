@@ -196,7 +196,8 @@ version.h: chkccomp.h
 	echo "#define CC_SOURCE_UTF8" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
-	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections -ftrapv\"" >> version.h
+	echo "#define CC_OPT_TRAP_OVERFLOW \"-ftrapv\"" >> version.h
+	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections\"" >> version.h
 	echo "#define CC_ERROR_FILDES 2" >> version.h
 	echo "#define LINKER_OPT_NO_DEBUG_INFO \"-Wl,--strip-debug\"" >> version.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h

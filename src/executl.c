@@ -408,8 +408,7 @@ static void old_do_create (objectType destination, objectType source,
     crea_expr[2].obj = source;
     if (exec1(crea_expr) != SYS_EMPTY_OBJECT) {
       if (trace.exceptions) {
-        uncaught_exception();
-        prot_nl();
+        write_exception_info();
       } /* if */
       set_fail_flag(FALSE);
       *err_info = CREATE_ERROR;
@@ -482,8 +481,7 @@ void do_create (objectType destination, objectType source,
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
           if (trace.exceptions) {
-            uncaught_exception();
-            prot_nl();
+            write_exception_info();
           } /* if */
           set_fail_flag(FALSE);
           *err_info = CREATE_ERROR;
@@ -566,8 +564,7 @@ void do_destroy (objectType old_obj, errInfoType *err_info)
          fflush(stdout); */
       if (call_result != SYS_EMPTY_OBJECT) {
         if (trace.exceptions) {
-          uncaught_exception();
-          prot_nl();
+          write_exception_info();
         } /* if */
         set_fail_flag(FALSE);
         *err_info = DESTROY_ERROR;
@@ -611,8 +608,7 @@ printf("\n");
     copy_expr[2].obj = source;
     if (exec1(copy_expr) != SYS_EMPTY_OBJECT) {
       if (trace.exceptions) {
-        uncaught_exception();
-        prot_nl();
+        write_exception_info();
       } /* if */
       set_fail_flag(FALSE);
       *err_info = CREATE_ERROR;
@@ -671,8 +667,7 @@ static void do_copy (objectType destination, objectType source,
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
           if (trace.exceptions) {
-            uncaught_exception();
-            prot_nl();
+            write_exception_info();
           } /* if */
           set_fail_flag(FALSE);
           *err_info = COPY_ERROR;

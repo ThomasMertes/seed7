@@ -141,7 +141,7 @@ const func char: getc (inout bufferFile: inBufferFile) is func
  *  Read a [[string]] with maximum length from ''inBufferFile''.
  *  @return the string read.
  *)
-const func string: gets (inout bufferFile: inBufferFile, in var integer: maxLength) is func
+const func string: gets (inout bufferFile: inBufferFile, in integer: maxLength) is func
   result
     var string: striRead is "";
   local

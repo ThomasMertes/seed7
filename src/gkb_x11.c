@@ -1108,18 +1108,28 @@ charType gkbGetc (void)
           } else {
             result = K_UNDEF;
           } /* if */
+          if (result != K_UNDEF) {
+            if (currentEvent.xkey.state & ShiftMask) {
+              result += K_SFT_MOUSE1 - K_MOUSE1;
+            } else if (currentEvent.xkey.state & ControlMask) {
+              result += K_CTL_MOUSE1 - K_MOUSE1;
+            } else if (currentEvent.xkey.state & Mod1Mask) { /* Left ALT modifier */
+              result += K_ALT_MOUSE1 - K_MOUSE1;
+            } /* if */
+          } /* if */
           break;
 
         case KeyPress:
-          traceEvent(printf("KeyPress key.state (%o)\n", currentEvent.xkey.state););
           lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
                                        20, &currentKey, 0);
           buffer[lookup_count] = '\0';
+          traceEvent(printf("KeyPress key.state: %x, currentKey %lx\n",
+                            currentEvent.xkey.state, currentKey););
           if (currentEvent.xkey.state & ShiftMask) {
             /* printf("ShiftMask\n"); */
             switch (currentKey) {
-              case XK_Return:     result = K_NL;          break;
-              case XK_BackSpace:  result = K_BS;          break;
+              case XK_Return:     result = K_SFT_NL;      break;
+              case XK_BackSpace:  result = K_SFT_BS;      break;
               case XK_ISO_Left_Tab:
               case XK_Tab:        result = K_BACKTAB;     break;
               case XK_Linefeed:   result = K_NL;          break;
@@ -1157,8 +1167,19 @@ charType gkbGetc (void)
               case XK_KP_Insert:  result = K_INS;         break;
               case XK_KP_Delete:  result = K_DEL;         break;
               case XK_KP_Begin:   result = K_PAD_CENTER;  break;
-              case XK_KP_Enter:   result = K_NL;          break;
+              case XK_KP_Enter:   result = K_SFT_NL;      break;
               case XK_KP_Decimal: result = K_DEL;         break;
+              case XK_KP_0:       result = '0';           break;
+              case XK_KP_1:       result = '1';           break;
+              case XK_KP_2:       result = '2';           break;
+              case XK_KP_3:       result = '3';           break;
+              case XK_KP_4:       result = '4';           break;
+              case XK_KP_5:       result = '5';           break;
+              case XK_KP_6:       result = '6';           break;
+              case XK_KP_7:       result = '7';           break;
+              case XK_KP_8:       result = '8';           break;
+              case XK_KP_9:       result = '9';           break;
+              case XK_Menu:       result = K_MENU;        break;
               case XK_Shift_L:
               case XK_Shift_R:
               case XK_Control_L:
@@ -1185,10 +1206,10 @@ charType gkbGetc (void)
             /* printf("ControlMask\n"); */
             switch (currentKey) {
               case XK_Return:     result = K_CTL_NL;      break;
-              case XK_BackSpace:  result = K_UNDEF;       break;
-              case XK_Tab:        result = K_UNDEF;       break;
+              case XK_BackSpace:  result = K_CTL_BS;      break;
+              case XK_Tab:        result = K_CTL_TAB;     break;
               case XK_Linefeed:   result = K_CTL_NL;      break;
-              case XK_Escape:     result = K_UNDEF;       break;
+              case XK_Escape:     result = K_ESC;         break;
               case XK_F1:         result = K_CTL_F1;      break;
               case XK_F2:         result = K_CTL_F2;      break;
               case XK_F3:         result = K_CTL_F3;      break;
@@ -1221,7 +1242,7 @@ charType gkbGetc (void)
               case XK_KP_Next:    result = K_CTL_PGDN;    break;
               case XK_KP_Insert:  result = K_CTL_INS;     break;
               case XK_KP_Delete:  result = K_CTL_DEL;     break;
-              case XK_KP_Begin:   result = K_UNDEF;       break;
+              case XK_KP_Begin:   result = K_CTL_PAD_CENTER; break;
               case XK_KP_4:       result = K_CTL_LEFT;    break;
               case XK_KP_6:       result = K_CTL_RIGHT;   break;
               case XK_KP_8:       result = K_CTL_UP;      break;
@@ -1231,7 +1252,7 @@ charType gkbGetc (void)
               case XK_KP_9:       result = K_CTL_PGUP;    break;
               case XK_KP_3:       result = K_CTL_PGDN;    break;
               case XK_KP_0:       result = K_CTL_INS;     break;
-              case XK_KP_5:       result = K_UNDEF;       break;
+              case XK_KP_5:       result = K_CTL_PAD_CENTER; break;
               case XK_KP_Enter:   result = K_CTL_NL;      break;
               case XK_KP_Decimal: result = K_CTL_DEL;     break;
               case XK_0:          result = '0';           break;
@@ -1244,6 +1265,7 @@ charType gkbGetc (void)
               case XK_7:          result = '7';           break;
               case XK_8:          result = '8';           break;
               case XK_9:          result = '9';           break;
+              case XK_Menu:       result = K_MENU;        break;
               case XK_Shift_L:
               case XK_Shift_R:
               case XK_Control_L:
@@ -1266,14 +1288,15 @@ charType gkbGetc (void)
                 } /* if */
                 break;
             } /* switch */
-          } else if (currentEvent.xkey.state & Mod1Mask) { /* Left ALT modifier */
-            /* printf("Mod1Mask\n"); */
+          } else if (currentEvent.xkey.state & Mod1Mask || /* Left ALT modifier */
+                     currentEvent.xkey.state & Mod5Mask) { /* ALT GR modifier */
+            /* printf("Mod1Mask or Mod5Mask\n"); */
             switch (currentKey) {
-              case XK_Return:     result = K_UNDEF;       break;
-              case XK_BackSpace:  result = K_UNDEF;       break;
-              case XK_Tab:        result = K_UNDEF;       break;
+              case XK_Return:     result = K_ALT_NL;      break;
+              case XK_BackSpace:  result = K_ALT_BS;      break;
+              case XK_Tab:        result = K_ALT_TAB;     break;
               case XK_Linefeed:   result = K_UNDEF;       break;
-              case XK_Escape:     result = K_UNDEF;       break;
+              case XK_Escape:     result = K_ESC;         break;
               case XK_F1:         result = K_ALT_F1;      break;
               case XK_F2:         result = K_ALT_F2;      break;
               case XK_F3:         result = K_ALT_F3;      break;
@@ -1296,17 +1319,17 @@ charType gkbGetc (void)
               case XK_Next:       result = K_PGDN;        break;
               case XK_Insert:     result = K_INS;         break;
               case XK_Delete:     result = K_DEL;         break;
-              case XK_KP_Left:    result = K_LEFT;        break;
-              case XK_KP_Right:   result = K_RIGHT;       break;
-              case XK_KP_Up:      result = K_UP;          break;
-              case XK_KP_Down:    result = K_DOWN;        break;
-              case XK_KP_Home:    result = K_HOME;        break;
-              case XK_KP_End:     result = K_END;         break;
-              case XK_KP_Prior:   result = K_PGUP;        break;
-              case XK_KP_Next:    result = K_PGDN;        break;
-              case XK_KP_Insert:  result = K_INS;         break;
-              case XK_KP_Delete:  result = K_DEL;         break;
-              case XK_KP_Begin:   result = K_PAD_CENTER;  break;
+              case XK_KP_Left:    result = K_ALT_4;       break;
+              case XK_KP_Right:   result = K_ALT_6;       break;
+              case XK_KP_Up:      result = K_ALT_8;       break;
+              case XK_KP_Down:    result = K_ALT_2;       break;
+              case XK_KP_Home:    result = K_ALT_7;       break;
+              case XK_KP_End:     result = K_ALT_1;       break;
+              case XK_KP_Prior:   result = K_ALT_9;       break;
+              case XK_KP_Next:    result = K_ALT_3;       break;
+              case XK_KP_Insert:  result = K_ALT_0;       break;
+              case XK_KP_Delete:  result = K_ALT_DECIMAL; break;
+              case XK_KP_Begin:   result = K_ALT_5;       break;
               case XK_KP_0:       result = K_ALT_0;       break;
               case XK_KP_1:       result = K_ALT_1;       break;
               case XK_KP_2:       result = K_ALT_2;       break;
@@ -1317,8 +1340,10 @@ charType gkbGetc (void)
               case XK_KP_7:       result = K_ALT_7;       break;
               case XK_KP_8:       result = K_ALT_8;       break;
               case XK_KP_9:       result = K_ALT_9;       break;
-              case XK_KP_Enter:   result = K_NL;          break;
-              case XK_KP_Decimal: result = K_UNDEF;       break;
+              case XK_KP_Separator:
+              case XK_KP_Decimal: result = K_ALT_DECIMAL; break;
+              case XK_KP_Enter:   result = K_ALT_NL;      break;
+              case XK_Menu:       result = K_MENU;        break;
               case XK_Shift_L:
               case XK_Shift_R:
               case XK_Control_L:
@@ -1412,6 +1437,7 @@ charType gkbGetc (void)
               case XK_Insert:     result = K_INS;         break;
               case XK_Delete:     result = K_DEL;         break;
               case XK_KP_Enter:   result = K_NL;          break;
+              case XK_Menu:       result = K_MENU;        break;
               case XK_Shift_L:
               case XK_Shift_R:
               case XK_Control_L:
@@ -1436,6 +1462,7 @@ charType gkbGetc (void)
                 break;
             } /* switch */
           } else {
+            /* printf("no mask\n"); */
             switch (currentKey) {
               case XK_Return:     result = K_NL;          break;
               case XK_BackSpace:  result = K_BS;          break;
@@ -1487,6 +1514,7 @@ charType gkbGetc (void)
               case XK_KP_5:       result = K_UNDEF;       break;
               case XK_KP_Enter:   result = K_NL;          break;
               case XK_KP_Decimal: result = K_DEL;         break;
+              case XK_Menu:       result = K_MENU;        break;
               case XK_Shift_L:
               case XK_Shift_R:
               case XK_Control_L:
@@ -1724,17 +1752,23 @@ static boolType keyboardButtonPressed (KeySym sym)
       byteindex = code >> 3;
       bitindex = code & 0x7;
       XQueryKeymap(mydisplay, key_vector);
-      /* {
+      /*
+      {
         unsigned int idx;
 
         printf("sym=%lx, code=%d, byteindex=%d, bitindex=%d\n", sym, code, byteindex, bitindex);
         for (idx = 0; idx < 32; idx++) {
-          printf("%02x", key_vector[idx]);
+          printf("%02x", (unsigned char) key_vector[idx]);
+        }
+        for (idx = 0; idx < 32; idx++) {
+          if (key_vector[idx] != 0) printf("  byteindex: %d, value: %x", idx, key_vector[idx]);
         }
         printf("\n");
-      } */
+      } 
+      */
       result = 1 & (key_vector[byteindex] >> bitindex);
     } /* if */
+    /* printf("keyboardButtonPressed -> %d\n", result); */
     return result;
   } /* keyboardButtonPressed */
 
@@ -1819,7 +1853,7 @@ boolType gkbButtonPressed (charType button)
       case K_ESC:                 sym1 = XK_Escape;                break;
       case K_PAD_CENTER:          sym1 = XK_KP_Begin;              break;
       case K_BS:                  sym1 = XK_BackSpace; sym2 = 'H'; break;
-      case K_NL:                  sym1 = XK_Return;    sym2 = 'J'; sym3 = XK_KP_Enter; break;
+      case K_NL:                  sym1 = XK_Return;    sym2 = 'J'; sym3 = XK_Mode_switch; break;
       case K_TAB: case K_BACKTAB: sym1 = XK_Tab;       sym2 = 'I'; break;
 
       case '*': sym1 = '*'; sym2 = XK_KP_Multiply; break;
@@ -1845,18 +1879,40 @@ boolType gkbButtonPressed (charType button)
       case K_CTL_NL:
       case K_NULLCMD:
       case K_REDRAW:
-      case K_NEWWINDOW:
+      case K_MENU:
       case K_UNDEF:
       case K_NONE:
 
       case K_NULCHAR:
       */
 
-      case K_MOUSE1: button_mask = Button1Mask; break;
-      case K_MOUSE2: button_mask = Button2Mask; break;
-      case K_MOUSE3: button_mask = Button3Mask; break;
-      case K_MOUSE4: button_mask = Button4Mask; break;
-      case K_MOUSE5: button_mask = Button5Mask; break;
+      case K_MOUSE1: case K_SFT_MOUSE1: case K_CTL_MOUSE1: case K_ALT_MOUSE1:
+        button_mask = Button1Mask; break;
+      case K_MOUSE2: case K_SFT_MOUSE2: case K_CTL_MOUSE2: case K_ALT_MOUSE2:
+        button_mask = Button2Mask; break;
+      case K_MOUSE3: case K_SFT_MOUSE3: case K_CTL_MOUSE3: case K_ALT_MOUSE3:
+        button_mask = Button3Mask; break;
+      case K_MOUSE4: case K_SFT_MOUSE4: case K_CTL_MOUSE4: case K_ALT_MOUSE4:
+        button_mask = Button4Mask; break;
+      case K_MOUSE5: case K_SFT_MOUSE5: case K_CTL_MOUSE5: case K_ALT_MOUSE5:
+        button_mask = Button5Mask; break;
+
+      /*
+      case K_MOUSE_FWD:      case K_SFT_MOUSE_FWD:
+      case K_CTL_MOUSE_FWD:  case K_ALT_MOUSE_FWD:  button_mask = Button5Mask; break;
+      case K_MOUSE_BACK:     case K_SFT_MOUSE_BACK:
+      case K_CTL_MOUSE_BACK: case K_ALT_MOUSE_BACK: button_mask = Button5Mask; break;
+      */
+
+      case K_SHIFT:          sym1 = XK_Shift_L; sym2 = XK_Shift_R; break;
+      case K_LEFT_SHIFT:     sym1 = XK_Shift_L; break;
+      case K_RIGHT_SHIFT:    sym1 = XK_Shift_R; break;
+      case K_CONTROL:        sym1 = XK_Control_L; sym2 = XK_Control_R; break;
+      case K_LEFT_CONTROL:   sym1 = XK_Control_L; break;
+      case K_RIGHT_CONTROL:  sym1 = XK_Control_R; break;
+      case K_ALT:            sym1 = XK_Alt_L; sym2 = XK_Alt_R; sym3 = XK_ISO_Level3_Shift; break;
+      case K_LEFT_ALT:       sym1 = XK_Alt_L; break;
+      case K_RIGHT_ALT:      sym1 = XK_Alt_R; sym2 = XK_ISO_Level3_Shift; break;
 
       default:
         if (button <= 0xff) {

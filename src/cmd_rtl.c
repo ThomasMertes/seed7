@@ -103,6 +103,9 @@
 #ifndef EXECUTABLE_FILE_EXTENSION
 #define EXECUTABLE_FILE_EXTENSION ""
 #endif
+#ifndef CC_OPT_TRAP_OVERFLOW
+#define CC_OPT_TRAP_OVERFLOW ""
+#endif
 #ifndef CC_ENVIRONMENT_INI
 #define CC_ENVIRONMENT_INI ""
 #endif
@@ -1633,6 +1636,8 @@ striType cmdConfigValue (const const_striType name)
       opt = CC_OPT_OPTIMIZE_2;
     } else if (strcmp(opt_name, "CC_OPT_OPTIMIZE_3") == 0) {
       opt = CC_OPT_OPTIMIZE_3;
+    } else if (strcmp(opt_name, "CC_OPT_TRAP_OVERFLOW") == 0) {
+      opt = CC_OPT_TRAP_OVERFLOW;
     } else if (strcmp(opt_name, "CC_ENVIRONMENT_INI") == 0) {
       opt = CC_ENVIRONMENT_INI;
     } else if (strcmp(opt_name, "CC_FLAGS") == 0) {

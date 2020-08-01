@@ -50,19 +50,19 @@ const proc: putLength (inout string: stri, inout integer: bitPos, in integer: le
       putLiteralOrLength(stri, bitPos, 254 + length);
     elsif length <= 18 then
       putLiteralOrLength(stri, bitPos, 265 + ((length - 11) >> 1));
-      putBitLsb(stri, bitPos, (length - 11) rem 2);
+      putBitLsb(stri, bitPos, (length - 11) mod 2);
     elsif length <= 34 then
       putLiteralOrLength(stri, bitPos, 269 + ((length - 19) >> 2));
-      putBitsLsb(stri, bitPos, (length - 19) rem 4, 2);
+      putBitsLsb(stri, bitPos, (length - 19) mod 4, 2);
     elsif length <= 66 then
       putLiteralOrLength(stri, bitPos, 273 + ((length - 35) >> 3));
-      putBitsLsb(stri, bitPos, (length - 35) rem 8, 3);
+      putBitsLsb(stri, bitPos, (length - 35) mod 8, 3);
     elsif length <= 130 then
       putLiteralOrLength(stri, bitPos, 277 + ((length - 67) >> 4));
-      putBitsLsb(stri, bitPos, (length - 67) rem 16, 4);
+      putBitsLsb(stri, bitPos, (length - 67) mod 16, 4);
     elsif length <= 257 then
       putLiteralOrLength(stri, bitPos, 281 + ((length - 131) >> 5));
-      putBitsLsb(stri, bitPos, (length - 131) rem 32, 5);
+      putBitsLsb(stri, bitPos, (length - 131) mod 32, 5);
     elsif length = 258 then
       putLiteralOrLength(stri, bitPos, 285);
     else
@@ -77,43 +77,43 @@ const proc: putDistance (inout string: stri, inout integer: bitPos, in integer: 
       putBitsLsb(stri, bitPos, reverseBits[5][pred(distance)], 5);
     elsif distance <= 8 then
       putBitsLsb(stri, bitPos, reverseBits[5][4 + ((distance - 5) >> 1)], 5);
-      putBitLsb(stri, bitPos, (distance - 5) rem 2);
+      putBitLsb(stri, bitPos, (distance - 5) mod 2);
     elsif distance <= 16 then
       putBitsLsb(stri, bitPos, reverseBits[5][6 + ((distance - 9) >> 2)], 5);
-      putBitsLsb(stri, bitPos, (distance - 9) rem 4, 2);
+      putBitsLsb(stri, bitPos, (distance - 9) mod 4, 2);
     elsif distance <= 32 then
       putBitsLsb(stri, bitPos, reverseBits[5][8 + ((distance - 17) >> 3)], 5);
-      putBitsLsb(stri, bitPos, (distance - 17) rem 8, 3);
+      putBitsLsb(stri, bitPos, (distance - 17) mod 8, 3);
     elsif distance <= 64 then
       putBitsLsb(stri, bitPos, reverseBits[5][10 + ((distance - 33) >> 4)], 5);
-      putBitsLsb(stri, bitPos, (distance - 33) rem 16, 4);
+      putBitsLsb(stri, bitPos, (distance - 33) mod 16, 4);
     elsif distance <= 128 then
       putBitsLsb(stri, bitPos, reverseBits[5][12 + ((distance - 65) >> 5)], 5);
-      putBitsLsb(stri, bitPos, (distance - 65) rem 32, 5);
+      putBitsLsb(stri, bitPos, (distance - 65) mod 32, 5);
     elsif distance <= 256 then
       putBitsLsb(stri, bitPos, reverseBits[5][14 + ((distance - 129) >> 6)], 5);
-      putBitsLsb(stri, bitPos, (distance - 129) rem 64, 6);
+      putBitsLsb(stri, bitPos, (distance - 129) mod 64, 6);
     elsif distance <= 512 then
       putBitsLsb(stri, bitPos, reverseBits[5][16 + ((distance - 257) >> 7)], 5);
-      putBitsLsb(stri, bitPos, (distance - 257) rem 128, 7);
+      putBitsLsb(stri, bitPos, (distance - 257) mod 128, 7);
     elsif distance <= 1024 then
       putBitsLsb(stri, bitPos, reverseBits[5][18 + ((distance - 513) >> 8)], 5);
-      putBitsLsb(stri, bitPos, (distance - 513) rem 256, 8);
+      putBitsLsb(stri, bitPos, (distance - 513) mod 256, 8);
     elsif distance <= 2048 then
       putBitsLsb(stri, bitPos, reverseBits[5][20 + ((distance - 1025) >> 9)], 5);
-      putBitsLsb(stri, bitPos, (distance - 1025) rem 512, 9);
+      putBitsLsb(stri, bitPos, (distance - 1025) mod 512, 9);
     elsif distance <= 4096 then
       putBitsLsb(stri, bitPos, reverseBits[5][22 + ((distance - 2049) >> 10)], 5);
-      putBitsLsb(stri, bitPos, (distance - 2049) rem 1024, 10);
+      putBitsLsb(stri, bitPos, (distance - 2049) mod 1024, 10);
     elsif distance <= 8192 then
       putBitsLsb(stri, bitPos, reverseBits[5][24 + ((distance - 4097) >> 11)], 5);
-      putBitsLsb(stri, bitPos, (distance - 4097) rem 2048, 11);
+      putBitsLsb(stri, bitPos, (distance - 4097) mod 2048, 11);
     elsif distance <= 16384 then
       putBitsLsb(stri, bitPos, reverseBits[5][26 + ((distance - 8193) >> 12)], 5);
-      putBitsLsb(stri, bitPos, (distance - 8193) rem 4096, 12);
+      putBitsLsb(stri, bitPos, (distance - 8193) mod 4096, 12);
     elsif distance <= 32768 then
       putBitsLsb(stri, bitPos, reverseBits[5][28 + ((distance - 16385) >> 13)], 5);
-      putBitsLsb(stri, bitPos, (distance - 16385) rem 8192, 13);
+      putBitsLsb(stri, bitPos, (distance - 16385) mod 8192, 13);
     else
       raise RANGE_ERROR;
     end if;

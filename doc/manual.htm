@@ -9469,6 +9469,8 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_ODBC</span
 </p><pre class="indent">
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_MYSQL</span>, <span class="stri">"www.example.org:1234/testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_MYSQL</span>, <span class="stri">"[1234:feed::dead:beef]:1234/testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_POSTGRESQL</span>, <span class="stri">"192.0.2.235/testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
 
 currDb := <span class="func">openDatabase</span>(<span class="var">DB_POSTGRESQL</span>, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
@@ -11010,16 +11012,22 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SQL_ERR_MESSAGE</td>     <td>sql_err_message</td>     <td>sqlErrMessage</td></tr>
     <tr><td>SQL_EXECUTE</td>         <td>sql_execute</td>         <td>sqlExecute</td></tr>
     <tr><td>SQL_FETCH</td>           <td>sql_fetch</td>           <td>sqlFetch</td></tr>
+    <tr><td>SQL_GET_AUTO_COMMIT</td> <td>sql_get_auto_commit</td> <td>sqlGetAutoCommit</td></tr>
     <tr><td>SQL_IS_NULL</td>         <td>sql_is_null</td>         <td>sqlIsNull</td></tr>
     <tr><td>SQL_NE_DB</td>           <td>sql_ne_db</td>           <td>!=</td></tr>
     <tr><td>SQL_NE_STMT</td>         <td>sql_ne_stmt</td>         <td>!=</td></tr>
+    <tr><td>SQL_OPEN_DB2</td>        <td>sql_open_db2</td>        <td>sqlOpenDb2</td></tr>
     <tr><td>SQL_OPEN_FIRE</td>       <td>sql_open_fire</td>       <td>sqlOpenFire</td></tr>
     <tr><td>SQL_OPEN_LITE</td>       <td>sql_open_lite</td>       <td>sqlOpenLite</td></tr>
     <tr><td>SQL_OPEN_MY</td>         <td>sql_open_my</td>         <td>sqlOpenMy</td></tr>
     <tr><td>SQL_OPEN_OCI</td>        <td>sql_open_oci</td>        <td>sqlOpenOci</td></tr>
     <tr><td>SQL_OPEN_ODBC</td>       <td>sql_open_odbc</td>       <td>sqlOpenOdbc</td></tr>
     <tr><td>SQL_OPEN_POST</td>       <td>sql_open_post</td>       <td>sqlOpenPost</td></tr>
+    <tr><td>SQL_OPEN_SQLSRV</td>     <td>sql_open_sqlsrv</td>     <td>sqlOpenSqlServer</td></tr>
+    <tr><td>SQL_OPEN_TDS</td>        <td>sql_open_tds</td>        <td>sqlOpenTds</td></tr>
     <tr><td>SQL_PREPARE</td>         <td>sql_prepare</td>         <td>sqlPrepare</td></tr>
+    <tr><td>SQL_ROLLBACK</td>        <td>sql_rollback</td>        <td>sqlRollback</td></tr>
+    <tr><td>SQL_SET_AUTO_COMMIT</td> <td>sql_set_auto_commit</td> <td>sqlSetAutoCommit</td></tr>
     <tr><td>SQL_STMT_COLUMN_COUNT</td> <td>sql_stmt_column_count</td> <td>sqlStmtColumnCount</td></tr>
     <tr><td>SQL_STMT_COLUMN_NAME</td>  <td>sql_stmt_column_name</td>  <td>sqlStmtColumnName</td></tr>
 </table><p></p>
@@ -12440,6 +12448,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right">61:</td> <td width="10"></td><td>Unexpected UTF-8 continuation byte found "%s" (U+%04x)</td></tr>
     <tr><td align="right">62:</td> <td width="10"></td><td>Solitary UTF-8 start byte found "%s" (U+%04x)</td></tr>
     <tr><td align="right">63:</td> <td width="10"></td><td>UTF-16 byte order mark found "%s" (U+%04x)</td></tr>
+    <tr><td align="right">64:</td> <td width="10"></td><td>The numerical escape sequence "\%u;" is too big</td></tr>
     <tr><td align="right">   </td> <td width="10"></td><td>Undefined error</td></tr>
 </table></dd></dl><p></p>
 

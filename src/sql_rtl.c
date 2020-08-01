@@ -1313,26 +1313,6 @@ sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
 
 
 /**
- *  Set the auto-commit mode for the specified database 'database'.
- */
-void sqlSetAutoCommit (databaseType database, boolType autoCommit)
-
-  { /* sqlSetAutoCommit */
-    logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
-                       (memSizeType) database, autoCommit););
-    if (unlikely(database == NULL ||
-                 ((dbType) database)->sqlFunc == NULL ||
-                 ((dbType) database)->sqlFunc->sqlSetAutoCommit == NULL)) {
-      raise_error(RANGE_ERROR);
-    } else {
-      ((dbType) database)->sqlFunc->sqlSetAutoCommit(database, autoCommit);
-    } /* if */
-    logFunction(printf("sqlSetAutoCommit --> %d\n", fetchOkay););
-  } /* sqlSetAutoCommit */
-
-
-
-/**
  *  Execute a rollback statement for the specified database 'database'.
  */
 void sqlRollback (databaseType database)
@@ -1351,6 +1331,26 @@ void sqlRollback (databaseType database)
     } /* if */
     logFunction(printf("sqlRollback -->\n"););
   } /* sqlRollback */
+
+
+
+/**
+ *  Set the auto-commit mode for the specified database 'database'.
+ */
+void sqlSetAutoCommit (databaseType database, boolType autoCommit)
+
+  { /* sqlSetAutoCommit */
+    logFunction(printf("sqlSetAutoCommit(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) database, autoCommit););
+    if (unlikely(database == NULL ||
+                 ((dbType) database)->sqlFunc == NULL ||
+                 ((dbType) database)->sqlFunc->sqlSetAutoCommit == NULL)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      ((dbType) database)->sqlFunc->sqlSetAutoCommit(database, autoCommit);
+    } /* if */
+    logFunction(printf("sqlSetAutoCommit --> %d\n", fetchOkay););
+  } /* sqlSetAutoCommit */
 
 
 

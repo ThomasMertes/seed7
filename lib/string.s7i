@@ -615,12 +615,12 @@ const func string: getint (inout string: stri) is func
   end func;
 
 
-const func string: gets (inout string: stri, in integer: leng) is func
+const func string: gets (inout string: stri, in integer: length) is func
   result
     var string: striRead is "";
   begin
-    striRead := stri[.. leng];
-    stri := stri[succ(leng) ..];
+    striRead := stri[.. length];
+    stri := stri[succ(length) ..];
   end func;
 
 

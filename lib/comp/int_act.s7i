@@ -667,6 +667,7 @@ const proc: process_const_int_add (in reference: summand1, in integer: summand2,
 
   local
     var reference: evaluatedParam is NIL;
+    var intRange: summand1_range is intRange.value;
     var string: summand1_name is "";
   begin
     if getConstant(summand1, INTOBJECT, evaluatedParam) then
@@ -683,11 +684,22 @@ const proc: process_const_int_add (in reference: summand1, in integer: summand2,
       process_expr(summand1, c_expr);
     elsif check_int_arithmetic_overflow then
       incr(countOptimizations);
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      summand1_name := getParameterAsVariable("intType", "tmp_", summand1, c_expr);
-      const_int_add_with_overflow_check(summand1_name, summand2, c_expr);
-      c_expr.expr &:= ")";
+      summand1_range := getIntRange(summand1);
+      if summand1_range <> intRange.value and
+          ((summand2 > 0 and summand1_range.maxValue <= integer.last - summand2) or
+           (summand2 < 0 and summand1_range.minValue >= integer.first - summand2)) then
+        # This addition cannot overflow
+        c_expr.expr &:= "/*no_overflow_check_add*/(";
+        process_expr(summand1, c_expr);
+        c_expr.expr &:= ") + ";
+        c_expr.expr &:= integerLiteral(summand2);
+      else
+        incr(countOverflowChecks);
+        c_expr.expr &:= "(";
+        summand1_name := getParameterAsVariable("intType", "tmp_", summand1, c_expr);
+        const_int_add_with_overflow_check(summand1_name, summand2, c_expr);
+        c_expr.expr &:= ")";
+      end if;
     else
       c_expr.expr &:= "(";
       process_expr(summand1, c_expr);
@@ -1317,6 +1329,7 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
 
   local
     var reference: evaluatedDividend is NIL;
+    var integer: dividend_value is 0;
     var string: dividend_name is "";
   begin
     if divisor = 0 then
@@ -1325,13 +1338,13 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
       c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
     elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
       incr(countOptimizations);
-      block
-        c_expr.expr &:= integerLiteral(getValue(evaluatedDividend, integer) div divisor);
-      exception
-        catch OVERFLOW_ERROR:
-          warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      end block;
+      dividend_value := getValue(evaluatedDividend, integer);
+      if dividend_value = integer.first and divisor = -1 then
+        warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      else
+        c_expr.expr &:= integerLiteral(dividend_value div divisor);
+      end if;
     elsif divisor = 1 then
       incr(countOptimizations);
       c_expr.expr &:= "(";
@@ -1676,6 +1689,8 @@ const proc: process_const_int_lshift (in reference: number, in integer: lshift,
 
   local
     var reference: evaluatedNumber is NIL;
+    var integer: number_value is 0;
+    var intRange: number_range is intRange.value;
     var string: number_name is "";
   begin
     if lshift < 0 or lshift >= ccConf.INTTYPE_SIZE then
@@ -1684,31 +1699,43 @@ const proc: process_const_int_lshift (in reference: number, in integer: lshift,
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
     elsif getConstant(number, INTOBJECT, evaluatedNumber) then
       incr(countOptimizations);
-      block
-        c_expr.expr &:= integerLiteral(getValue(evaluatedNumber, integer) << lshift);
-      exception
-        catch OVERFLOW_ERROR:
-          warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      end block;
+      number_value := getValue(evaluatedNumber, integer);
+      if number_value < integer.first >> lshift or
+          number_value > integer.last >> lshift then
+        warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      else
+        c_expr.expr &:= integerLiteral(number_value << lshift);
+      end if;
     elsif lshift = 0 then
       incr(countOptimizations);
       process_expr(number, c_expr);
     elsif check_int_shift_overflow then
       incr(countOptimizations);
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
-      c_expr.expr &:= "ovfChk(";
-      checkIfOutsideRange(number_name, integer.first >> lshift,
-                          integer.last >> lshift, c_expr);
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= " << ";
-      c_expr.expr &:= integerLiteral(lshift);
-      c_expr.expr &:= ")";
+      number_range := getIntRange(number);
+      if number_range <> intRange.value and
+          number_range.minValue >= integer.first >> lshift and
+          number_range.maxValue <= integer.last >> lshift then
+        # This lshift cannot overflow
+        c_expr.expr &:= "/*no_overflow_check_lshift*/(";
+        process_expr(number, c_expr);
+        c_expr.expr &:= ") << ";
+        c_expr.expr &:= integerLiteral(lshift);
+      else
+        incr(countOverflowChecks);
+        c_expr.expr &:= "(";
+        number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
+        c_expr.expr &:= "ovfChk(";
+        checkIfOutsideRange(number_name, integer.first >> lshift,
+                            integer.last >> lshift, c_expr);
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        c_expr.expr &:= ":";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= " << ";
+        c_expr.expr &:= integerLiteral(lshift);
+        c_expr.expr &:= ")";
+      end if;
     else
       c_expr.expr &:= "(";
       process_expr(number, c_expr);
@@ -1734,15 +1761,23 @@ const proc: process_const_int_lshift (in integer: number, in reference: lshift,
       c_expr.expr &:= ")?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= integerLiteral(number);
-      c_expr.expr &:= " << ";
-      c_expr.expr &:= lshift_name;
+      if number = 0 then
+        c_expr.expr &:= integerLiteral(0);
+      else
+        c_expr.expr &:= integerLiteral(number);
+        c_expr.expr &:= " << ";
+        c_expr.expr &:= lshift_name;
+      end if;
       c_expr.expr &:= ")";
     else
-      c_expr.expr &:= integerLiteral(number);
-      c_expr.expr &:= " << (";
-      process_expr(lshift, c_expr);
-      c_expr.expr &:= ")";
+      if number = 0 then
+        c_expr.expr &:= integerLiteral(0);
+      else
+        c_expr.expr &:= integerLiteral(number);
+        c_expr.expr &:= " << (";
+        process_expr(lshift, c_expr);
+        c_expr.expr &:= ")";
+      end if;
     end if;
   end func;
 
@@ -1917,6 +1952,7 @@ const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
 
   local
     var reference: evaluatedDividend is NIL;
+    var integer: dividend_value is 0;
     var string: dividend_name is "";
   begin
     incr(countOptimizations);
@@ -1924,13 +1960,13 @@ const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
     elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
-      block
-        c_expr.expr &:= integerLiteral(getValue(evaluatedDividend, integer) mdiv divisor);
-      exception
-        catch OVERFLOW_ERROR:
-          warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      end block;
+      dividend_value := getValue(evaluatedDividend, integer);
+      if dividend_value = integer.first and divisor = -1 then
+        warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      else
+        c_expr.expr &:= integerLiteral(dividend_value mdiv divisor);
+      end if;
     elsif divisor = 1 then
       c_expr.expr &:= "(";
       process_expr(dividend, c_expr);
@@ -2163,11 +2199,286 @@ const proc: process (INT_MDIV, in reference: function,
   end func;
 
 
+const proc: optimize_mod_of_left_shifted_value (in reference: argument,
+    in integer: lshift, in integer: bitsToMask, inout expr_type: c_expr) is func
+
+  begin
+    if lshift < 0 then
+      warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+    elsif lshift >= bitsToMask then
+      c_expr.expr &:= "0";
+    else
+      c_expr.expr &:= "/*mod_of_lshift*/ ((";
+      process_expr(argument, c_expr);
+      c_expr.expr &:= ")&";
+      c_expr.expr &:= integerLiteral(pred(2 ** (bitsToMask - lshift)));
+      c_expr.expr &:= ")<<";
+      c_expr.expr &:= integerLiteral(lshift);
+    end if;
+  end func;
+
+
+const proc: optimize_mod_of_left_shifted_value (in reference: argument,
+    in reference: lshift, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var integer: lshift_value is 0;
+    var string: lshift_name is "";
+  begin
+    if getConstant(lshift, INTOBJECT, evaluatedParam) then
+      lshift_value := getValue(evaluatedParam, integer);
+      if lshift_value < 0 then
+        warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      elsif lshift_value >= pred(ccConf.INTTYPE_SIZE) then
+        c_expr.expr &:= "(uintType)0";
+      else
+        c_expr.expr &:= "((uintType)(";
+        process_expr(argument, c_expr);
+        c_expr.expr &:= ") << ";
+        c_expr.expr &:= integerLiteral(lshift_value);
+        c_expr.expr &:= ")";
+      end if;
+    elsif check_int_shift_overflow then
+      incr(countOverflowChecks);
+      c_expr.expr &:= "(";
+      lshift_name := getParameterAsVariable("intType", "tmp_", lshift, c_expr);
+      c_expr.expr &:= "ovfChk(";
+      checkRangeFromZero(lshift_name,
+          integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
+      c_expr.expr &:= ")?";
+      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      c_expr.expr &:= ":";
+      c_expr.expr &:= "((uintType)(";
+      process_expr(argument, c_expr);
+      c_expr.expr &:= ") << ";
+      c_expr.expr &:= lshift_name;
+      c_expr.expr &:= "))";
+    else
+      c_expr.expr &:= "((uintType)(";
+      process_expr(argument, c_expr);
+      c_expr.expr &:= ") << (";
+      process_expr(lshift, c_expr);
+      c_expr.expr &:= "))";
+    end if;
+  end func;
+
+
+const proc: optimize_mod_of_product (in reference: factor1,
+    in reference: factor2, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(uintType)(";
+    process_expr(factor1, c_expr);
+    c_expr.expr &:= ")*(uintType)(";
+    process_expr(factor2, c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: optimize_mod_of_sum (in addSubIntListType: addSubParamList,
+    inout expr_type: c_expr) is func
+
+  local
+    var integer: index is 1;
+    var bigInteger: constSummand is 0_;
+    var reference: summand is NIL;
+    var integer: lshift is 0;
+  begin
+    for key index range addSubParamList do
+      if addSubParamList[index].summand = NIL then
+        if addSubParamList[index].doAdd then
+          constSummand +:= bigInteger(addSubParamList[index].constSummand);
+        else
+          constSummand -:= bigInteger(addSubParamList[index].constSummand);
+        end if;
+      end if;
+    end for;
+    c_expr.expr &:= "/*mod_of_sum*/ ((intType) (";
+    for key index range addSubParamList do
+      if addSubParamList[index].summand <> NIL then
+        if addSubParamList[index].doAdd then
+          c_expr.expr &:= "+";
+        else
+          c_expr.expr &:= "-";
+        end if;
+        summand := addSubParamList[index].summand;
+        if isActionExpression(summand, "INT_MULT") then
+          optimize_mod_of_product(getValue(summand, ref_list)[2],
+              getValue(summand, ref_list)[4], c_expr);
+        elsif isActionExpression(summand, "INT_LSHIFT") then
+          optimize_mod_of_left_shifted_value(getValue(summand, ref_list)[2],
+              getValue(summand, ref_list)[4], c_expr);
+        else
+          c_expr.expr &:= "(uintType)(";
+          process_expr(summand, c_expr);
+          c_expr.expr &:= ")";
+        end if;
+      end if;
+    end for;
+    if constSummand >= 0_ then
+      constSummand := constSummand mod (2_ ** 63);
+      if constSummand <> 0_ then
+        c_expr.expr &:= "+(uintType)(";
+        c_expr.expr &:= integerLiteral(ord(constSummand));
+        c_expr.expr &:= ")";
+      end if;
+    else
+      constSummand := -constSummand mod (2_ ** 63);
+      if constSummand <> 0_ then
+        c_expr.expr &:= "-(uintType)(";
+        c_expr.expr &:= integerLiteral(ord(constSummand));
+        c_expr.expr &:= ")";
+      end if;
+    end if;
+    c_expr.expr &:= "))";
+  end func;
+
+
+const proc: optimize_mod_of_sum (in ref_list: params, in boolean: doAdd,
+    inout expr_type: c_expr) is func
+
+  local
+    var addSubIntListType: addSubParamList is 0 times addSubIntElementType.value;
+  begin
+    addSubParamList := getAddSubParamList(params, doAdd);
+    evaluateConstants(addSubParamList);
+    optimize_mod_of_sum(addSubParamList, c_expr);
+  end func;
+
+
+const proc: optimize_mod_of_sum (in reference: summand1, in integer: summand2,
+    inout expr_type: c_expr) is func
+
+  local
+    var addSubIntListType: addSubParamList is 0 times addSubIntElementType.value;
+  begin
+    addSubParamList := getAddSubParamList(summand1, summand2);
+    evaluateConstants(addSubParamList);
+    optimize_mod_of_sum(addSubParamList, c_expr);
+  end func;
+
+
+const proc: optimize_mod_dividend (in reference: dividend, inout expr_type: c_expr) is func
+
+  begin
+    if isActionExpression(dividend, "INT_MULT") then
+      c_expr.expr &:= "/*mod_of_product*/ ((intType) (";
+      optimize_mod_of_product(getValue(dividend, ref_list)[2],
+          getValue(dividend, ref_list)[4], c_expr);
+      c_expr.expr &:= "))";
+    elsif isActionExpression(dividend, "INT_LSHIFT") then
+      c_expr.expr &:= "/*mod_of_lshift*/ ((intType) (";
+      optimize_mod_of_left_shifted_value(getValue(dividend, ref_list)[2],
+          getValue(dividend, ref_list)[4], c_expr);
+      c_expr.expr &:= "))";
+    elsif isActionExpression(dividend, "INT_ADD") then
+      optimize_mod_of_sum(getValue(dividend, ref_list)[2 ..], TRUE, c_expr)
+    elsif isActionExpression(dividend, "INT_SBTR") then
+      optimize_mod_of_sum(getValue(dividend, ref_list)[2 ..], FALSE, c_expr)
+    elsif isActionExpression(dividend, "INT_SUCC") then
+      optimize_mod_of_sum(getValue(dividend, ref_list)[2], 1, c_expr);
+    elsif isActionExpression(dividend, "INT_PRED") then
+      optimize_mod_of_sum(getValue(dividend, ref_list)[2], -1, c_expr);
+    else
+      c_expr.expr &:= "(";
+      process_expr(dividend, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: optimize_mod_by_power_of_two (in reference: dividend, in reference: lshift,
+    in boolean: powerOperator, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var integer: lshift_value is 0;
+    var string: lshift_name is "";
+  begin
+    incr(countOptimizations);
+    c_expr.expr &:= "/*mod_by_power_of_two*/ ";
+    if getConstant(lshift, INTOBJECT, evaluatedParam) then
+      lshift_value := getValue(evaluatedParam, integer);
+      if lshift_value < 0 then
+        if powerOperator then
+          warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
+          c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+        else
+          warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        end if;
+      elsif lshift_value >= pred(ccConf.INTTYPE_SIZE) then
+        warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      elsif lshift_value = 0 then
+        c_expr.expr &:= "0";
+      else
+        optimize_mod_dividend(dividend, c_expr);
+        c_expr.expr &:= "&";
+        c_expr.expr &:= integerLiteral(pred(1 << lshift_value));
+      end if;
+    elsif check_int_shift_overflow then
+      incr(countOverflowChecks);
+      c_expr.expr &:= "(";
+      lshift_name := getParameterAsVariable("intType", "lshift_", lshift, c_expr);
+      if powerOperator then
+        c_expr.expr &:= "numChk(";
+        c_expr.expr &:= lshift_name;
+        c_expr.expr &:= "<0)?";
+        c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ":ovfChk(";
+        c_expr.expr &:= lshift_name;
+        c_expr.expr &:= ">=";
+        c_expr.expr &:= integerLiteral(pred(ccConf.INTTYPE_SIZE));
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      else
+        c_expr.expr &:= "ovfChk(";
+        checkRangeFromZero(lshift_name, integerLiteral(pred(ccConf.INTTYPE_SIZE)), c_expr);
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      end if;
+      c_expr.expr &:= ":";
+      optimize_mod_dividend(dividend, c_expr);
+      c_expr.expr &:= "&((";
+      c_expr.expr &:= integerLiteral(1);
+      c_expr.expr &:= "<<(";
+      c_expr.expr &:= lshift_name;
+      c_expr.expr &:= "))-1))";
+    elsif powerOperator then
+      c_expr.expr &:= "(";
+      lshift_name := getParameterAsVariable("intType", "lshift_", lshift, c_expr);
+      c_expr.expr &:= "numChk(";
+      c_expr.expr &:= lshift_name;
+      c_expr.expr &:= "<0)?";
+      c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
+      optimize_mod_dividend(dividend, c_expr);
+      c_expr.expr &:= "&((";
+      c_expr.expr &:= integerLiteral(1);
+      c_expr.expr &:= "<<(";
+      c_expr.expr &:= lshift_name;
+      c_expr.expr &:= "))-1))";
+    else
+      optimize_mod_dividend(dividend, c_expr);
+      c_expr.expr &:= "&((";
+      c_expr.expr &:= integerLiteral(1);
+      c_expr.expr &:= "<<(";
+      process_expr(lshift, c_expr);
+      c_expr.expr &:= "))-1)";
+    end if;
+  end func;
+
+
 const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
     inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedDividend is NIL;
+    var integer: dividend_value is 0;
     var string: dividend_name is "";
     var string: remainder_name is "";
   begin
@@ -2178,13 +2489,13 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
     elsif divisor = 1 then
       c_expr.expr &:= "0";
     elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
-      block
-        c_expr.expr &:= integerLiteral(getValue(evaluatedDividend, integer) mod divisor);
-      exception
-        catch OVERFLOW_ERROR:
-          warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      end block;
+      dividend_value := getValue(evaluatedDividend, integer);
+      if dividend_value = integer.first and divisor = -1 then
+        warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      else
+        c_expr.expr &:= integerLiteral(dividend_value mod divisor);
+      end if;
     elsif divisor = -1 then
       if check_int_division_overflow then
         incr(countOverflowChecks);
@@ -2202,10 +2513,26 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
       end if;
     elsif divisor > 0 and 2 ** log2(divisor) = divisor then
       # Divisor is a power of two.
-      c_expr.expr &:= "(";
-      process_expr(dividend, c_expr);
-      c_expr.expr &:= ")&";
-      c_expr.expr &:= integerLiteral(pred(divisor));
+      incr(countOptimizations);
+      if modDividendOptimization then
+        if isActionExpression(dividend, "INT_LSHIFT") and
+            category(getValue(dividend, ref_list)[4]) = INTOBJECT and
+            not isVar(getValue(dividend, ref_list)[4]) then
+          optimize_mod_of_left_shifted_value(getValue(dividend, ref_list)[2],
+              getValue(getValue(dividend, ref_list)[4], integer),
+              log2(divisor), c_expr);
+        else
+          optimize_mod_dividend(dividend, c_expr);
+          c_expr.expr &:= "&";
+          c_expr.expr &:= integerLiteral(pred(divisor));
+        end if;
+      else
+        c_expr.expr &:= "(";
+        process_expr(dividend, c_expr);
+        c_expr.expr &:= ")";
+        c_expr.expr &:= "&";
+        c_expr.expr &:= integerLiteral(pred(divisor));
+      end if;
     elsif divisor < 0 and bitLength(divisor) = lowestSetBit(divisor) then
       # Divisor is a negative power of two.
       # The check above is (almost) equivalent to:
@@ -2337,7 +2664,21 @@ const proc: process (INT_MOD, in reference: function,
     var string: divisor_name is "";
     var string: remainder_name is "";
   begin
-    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+    if modDividendOptimization and
+        isActionExpression(params[3], "INT_LSHIFT") and
+        category(getValue(params[3], ref_list)[2]) = INTOBJECT and
+        not isVar(getValue(params[3], ref_list)[2]) and
+        getValue(getValue(params[3], ref_list)[2], integer) = 1 then
+      optimize_mod_by_power_of_two(params[1], getValue(params[3], ref_list)[4],
+          FALSE, c_expr);
+    elsif modDividendOptimization and
+        isActionExpression(params[3], "INT_POW") and
+        category(getValue(params[3], ref_list)[2]) = INTOBJECT and
+        not isVar(getValue(params[3], ref_list)[2]) and
+        getValue(getValue(params[3], ref_list)[2], integer) = 2 then
+      optimize_mod_by_power_of_two(params[1], getValue(params[3], ref_list)[4],
+          TRUE, c_expr);
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_mod(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
       process_const_int_mod(getValue(evaluatedParam, integer), params[3], c_expr);
@@ -2349,18 +2690,6 @@ const proc: process (INT_MOD, in reference: function,
       c_expr.expr &:= ")==0)?";
       c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
       c_expr.expr &:= ":0)";
-(*
-    elsif isActionExpression(params[3], "INT_LSHIFT") and
-        category(getValue(params[3], ref_list)[2]) = INTOBJECT and
-        not isVar(getValue(params[3], ref_list)[2]) and
-        getValue(getValue(params[3], ref_list)[2], integer) = 1 then
-      incr(countOptimizations);
-      c_expr.expr &:= "/* mask lower bits */ (";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ")&((1<<(";
-      process_expr(getValue(params[3], ref_list)[4], c_expr);
-      c_expr.expr &:= "))-1)";
-*)
     else
       c_expr.expr &:= "(";
       dividend_name := getParameterAsVariable("intType", "tmp_a_", params[1], c_expr);
@@ -2415,17 +2744,24 @@ const proc: process_const_int_mult (in reference: factor1, in integer: factor2,
 
   local
     var reference: evaluatedParam is NIL;
+    var integer: factor1_value is 0;
+    var intRange: factor1_range is intRange.value;
     var string: factor1_name is "";
+    var boolean: noOverflowCheck is FALSE;
   begin
     if getConstant(factor1, INTOBJECT, evaluatedParam) then
       incr(countOptimizations);
-      block
-        c_expr.expr &:= integerLiteral(getValue(evaluatedParam, integer) * factor2);
-      exception
-        catch OVERFLOW_ERROR:
-          warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      end block;
+      factor1_value := getValue(evaluatedParam, integer);
+      if  (factor2 = -1 and  factor1_value = integer.first) or
+          (factor2 < -1 and (factor1_value < integer.last div factor2 or
+                             factor1_value > integer.first div factor2)) or
+          (factor2 >  1 and (factor1_value < integer.first div factor2 or
+                             factor1_value > integer.last div factor2)) then
+        warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      else
+        c_expr.expr &:= integerLiteral(factor1_value * factor2);
+      end if;
     elsif factor2 = 0 then
       incr(countOptimizations);
       c_expr.expr &:= "0";
@@ -2434,27 +2770,68 @@ const proc: process_const_int_mult (in reference: factor1, in integer: factor2,
       process_expr(factor1, c_expr);
     elsif factor2 = -1 then
       incr(countOptimizations);
-      negate(factor1, c_expr);
+      factor1_range := getIntRange(factor1);
+      if factor1_range.minValue <> integer.first then
+        # This negation cannot overflow
+        c_expr.expr &:= "/*no_overflow_check_negate*/(";
+        process_expr(factor1, c_expr);
+        c_expr.expr &:= ") * ";
+        c_expr.expr &:= integerLiteral(factor2);
+      else
+        negate(factor1, c_expr);
+      end if;
     elsif check_int_arithmetic_overflow then
       incr(countOptimizations);
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      factor1_name := getParameterAsVariable("intType", "tmp_", factor1, c_expr);
-      c_expr.expr &:= "ovfChk(";
-      if factor2 < 0 then
-        checkIfOutsideRange(factor1_name, integer.last div factor2,
-                            integer.first div factor2, c_expr);
-      else
-        checkIfOutsideRange(factor1_name, integer.first div factor2,
-                            integer.last div factor2, c_expr);
+      factor1_range := getIntRange(factor1);
+      if factor1_range <> intRange.value then
+        if factor2 < -1 then
+          if factor1_range.minValue < 0 then
+            noOverflowCheck := factor1_range.minValue >= integer.last div factor2;
+            if factor1_range.maxValue >= 0 then
+              noOverflowCheck := noOverflowCheck and
+                                 factor1_range.maxValue <= integer.first div factor2;
+            end if;
+          elsif factor1_range.maxValue >= 0 then
+            noOverflowCheck := factor1_range.maxValue <= integer.first div factor2;
+          end if;
+        else  # factor2 > 1 because -1, 0 and 1 are handled above.
+          if factor1_range.minValue < 0 then
+            noOverflowCheck := factor1_range.minValue >= integer.first div factor2;
+            if factor1_range.maxValue >= 0 then
+              noOverflowCheck := noOverflowCheck and
+                                 factor1_range.maxValue <= integer.last div factor2;
+            end if;
+          elsif factor1_range.maxValue >= 0 then
+            noOverflowCheck := factor1_range.maxValue <= integer.last div factor2;
+          end if;
+        end if;
       end if;
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":";
-      c_expr.expr &:= factor1_name;
-      c_expr.expr &:= " * ";
-      c_expr.expr &:= integerLiteral(factor2);
-      c_expr.expr &:= ")";
+      if noOverflowCheck then
+        # This multiplication cannot overflow
+        c_expr.expr &:= "/*no_overflow_check_mult*/(";
+        process_expr(factor1, c_expr);
+        c_expr.expr &:= ") * ";
+        c_expr.expr &:= integerLiteral(factor2);
+      else
+        incr(countOverflowChecks);
+        c_expr.expr &:= "(";
+        factor1_name := getParameterAsVariable("intType", "tmp_", factor1, c_expr);
+        c_expr.expr &:= "ovfChk(";
+        if factor2 < 0 then
+          checkIfOutsideRange(factor1_name, integer.last div factor2,
+                              integer.first div factor2, c_expr);
+        else  # factor2 > 0 because factor2 = 0 has been checked above.
+          checkIfOutsideRange(factor1_name, integer.first div factor2,
+                              integer.last div factor2, c_expr);
+        end if;
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        c_expr.expr &:= ":";
+        c_expr.expr &:= factor1_name;
+        c_expr.expr &:= " * ";
+        c_expr.expr &:= integerLiteral(factor2);
+        c_expr.expr &:= ")";
+      end if;
     else
       c_expr.expr &:= "(";
       process_expr(factor1, c_expr);
@@ -3306,6 +3683,7 @@ const proc: process_const_int_rem (in reference: dividend, in integer: divisor,
 
   local
     var reference: evaluatedDividend is NIL;
+    var integer: dividend_value is 0;
     var string: dividend_name is "";
   begin
     if divisor = 0 then
@@ -3317,13 +3695,13 @@ const proc: process_const_int_rem (in reference: dividend, in integer: divisor,
       c_expr.expr &:= "0";
     elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
       incr(countOptimizations);
-      block
-        c_expr.expr &:= integerLiteral(getValue(evaluatedDividend, integer) rem divisor);
-      exception
-        catch OVERFLOW_ERROR:
-          warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      end block;
+      dividend_value := getValue(evaluatedDividend, integer);
+      if dividend_value = integer.first and divisor = -1 then
+        warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      else
+        c_expr.expr &:= integerLiteral(dividend_value rem divisor);
+      end if;
     elsif divisor = -1 then
       if check_int_division_overflow then
         incr(countOverflowChecks);
@@ -3489,13 +3867,8 @@ const proc: process_const_int_rshift (in reference: number, in integer: rshift,
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
     elsif getConstant(number, INTOBJECT, evaluatedNumber) then
       incr(countOptimizations);
-      block
-        c_expr.expr &:= integerLiteral(getValue(evaluatedNumber, integer) >> rshift);
-      exception
-        catch OVERFLOW_ERROR:
-          warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
-          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      end block;
+      # Right shift does never trigger OVERFLOW_ERROR.
+      c_expr.expr &:= integerLiteral(getValue(evaluatedNumber, integer) >> rshift);
     elsif rshift = 0 then
       incr(countOptimizations);
       process_expr(number, c_expr);
@@ -3683,6 +4056,7 @@ const proc: process_const_int_sbtr (in reference: minuend, in integer: subtrahen
 
   local
     var reference: evaluatedParam is NIL;
+    var intRange: minuend_range is intRange.value;
     var string: minuend_name is "";
   begin
     if getConstant(minuend, INTOBJECT, evaluatedParam) then
@@ -3699,11 +4073,22 @@ const proc: process_const_int_sbtr (in reference: minuend, in integer: subtrahen
       process_expr(minuend, c_expr);
     elsif check_int_arithmetic_overflow then
       incr(countOptimizations);
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      minuend_name := getParameterAsVariable("intType", "tmp_", minuend, c_expr);
-      const_int_sbtr_with_overflow_check(minuend_name, subtrahend, c_expr);
-      c_expr.expr &:= ")";
+      minuend_range := getIntRange(minuend);
+      if minuend_range <> intRange.value and
+          ((subtrahend < 0 and minuend_range.maxValue <= integer.last + subtrahend) or
+           (subtrahend > 0 and minuend_range.minValue >= integer.first + subtrahend)) then
+        # This subtraction cannot overflow
+        c_expr.expr &:= "/*no_overflow_check_sbtr*/(";
+        process_expr(minuend, c_expr);
+        c_expr.expr &:= ") - ";
+        c_expr.expr &:= integerLiteral(subtrahend);
+      else
+        incr(countOverflowChecks);
+        c_expr.expr &:= "(";
+        minuend_name := getParameterAsVariable("intType", "tmp_", minuend, c_expr);
+        const_int_sbtr_with_overflow_check(minuend_name, subtrahend, c_expr);
+        c_expr.expr &:= ")";
+      end if;
     else
       c_expr.expr &:= "(";
       process_expr(minuend, c_expr);
@@ -3718,36 +4103,49 @@ const proc: process_const_int_sbtr (in integer: minuend, in reference: subtrahen
 
   local
     var reference: evaluatedParam is NIL;
+    var intRange: subtrahend_range is intRange.value;
     var string: subtrahend_name is "";
   begin
     if minuend = 0 then
       negate(subtrahend, c_expr);
     elsif check_int_arithmetic_overflow then
       incr(countOptimizations);
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      subtrahend_name := getParameterAsVariable("intType", "tmp_", subtrahend, c_expr);
-      c_expr.expr &:= "ovfChk(";
-      c_expr.expr &:= subtrahend_name;
-      if minuend < 0 then
-        c_expr.expr &:= ">";
-        c_expr.expr &:= integerLiteral(-(integer.first - minuend));
-      elsif minuend = 0 then
-        c_expr.expr &:= "==";
-        c_expr.expr &:= integerLiteral(integer.first);
-      else
-        c_expr.expr &:= "<";
-        c_expr.expr &:= integerLiteral(-(integer.last - minuend));
-      end if;
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":";
-      if minuend <> 0 then
+      subtrahend_range := getIntRange(subtrahend);
+      if subtrahend_range <> intRange.value and
+          ((minuend < 0 and subtrahend_range.maxValue <= minuend - integer.first) or
+           (minuend > 0 and subtrahend_range.minValue >= minuend - integer.last)) then
+        # This subtraction cannot overflow
+        c_expr.expr &:= "/*no_overflow_check_sbtr*/ ";
         c_expr.expr &:= integerLiteral(minuend);
+        c_expr.expr &:= " - (";
+        process_expr(subtrahend, c_expr);
+        c_expr.expr &:= ")";
+      else
+        incr(countOverflowChecks);
+        c_expr.expr &:= "(";
+        subtrahend_name := getParameterAsVariable("intType", "tmp_", subtrahend, c_expr);
+        c_expr.expr &:= "ovfChk(";
+        c_expr.expr &:= subtrahend_name;
+        if minuend < 0 then
+          c_expr.expr &:= ">";
+          c_expr.expr &:= integerLiteral(-(integer.first - minuend));
+        elsif minuend = 0 then
+          c_expr.expr &:= "==";
+          c_expr.expr &:= integerLiteral(integer.first);
+        else
+          c_expr.expr &:= "<";
+          c_expr.expr &:= integerLiteral(-(integer.last - minuend));
+        end if;
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        c_expr.expr &:= ":";
+        if minuend <> 0 then
+          c_expr.expr &:= integerLiteral(minuend);
+        end if;
+        c_expr.expr &:= " - ";
+        c_expr.expr &:= subtrahend_name;
+        c_expr.expr &:= ")";
       end if;
-      c_expr.expr &:= " - ";
-      c_expr.expr &:= subtrahend_name;
-      c_expr.expr &:= ")";
     else
       c_expr.expr &:= integerLiteral(minuend);
       c_expr.expr &:= " - (";

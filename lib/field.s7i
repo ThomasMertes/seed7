@@ -186,13 +186,13 @@ const func char: getc (inout field_file: field_fil) is func
   end func;
 
 
-const func string: gets (inout field_file: field_fil, in integer: leng) is func
+const func string: gets (inout field_file: field_fil, in integer: length) is func
   result
     var string: stri is "";
   begin
-    while length(field_fil.field) < leng do
+    while length(field_fil.field) < length do
       field_fil.field &:= getln(field_fil) & "\n";
     end while;
-    stri := field_fil.field[ .. leng];
-    field_fil.field := field_fil.field[succ(leng) .. ];
+    stri := field_fil.field[ .. length];
+    field_fil.field := field_fil.field[succ(length) .. ];
   end func;

@@ -37,6 +37,7 @@ const integer: xSpeed is 2;
 
 const proc: main is func
   local
+    const array [boolean] color: buttonColor is [boolean] (light_blue, light_red);
     var char: ch is ' ';
     var char: lastChar is ' ';
     var integer: xPos is 10;
@@ -71,11 +72,16 @@ const proc: main is func
         xIncr := xSpeed;
       end if;
       xPos +:= xIncr;
-      if buttonPressed(KEYBOARD, lastChar) then
-        rect(xPos, 10, 10, 10, light_red);
-      else
-        rect(xPos, 10, 10, 10, light_blue);
-      end if;
+      rect(xPos, 10, 10, 10, buttonColor[buttonPressed(KEYBOARD, lastChar)]);
+      rect(240, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_SHIFT)]);
+      rect(10, 50, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_SHIFT)]);
+      rect(590, 50, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_SHIFT)]);
+      rect(300, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_CONTROL)]);
+      rect(10, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_CONTROL)]);
+      rect(590, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_CONTROL)]);
+      rect(360, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_ALT)]);
+      rect(60, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_ALT)]);
+      rect(540, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_ALT)]);
       DRAW_FLUSH;
       await(waitTime);
     until lastChar = '!';

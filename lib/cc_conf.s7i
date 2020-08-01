@@ -383,9 +383,11 @@ const type: ccConfigType is new struct
     var string: MACRO_DEFS                   is "";
 
     (**
-     *  Name of the signal that is raised if an integer overflow
-     *  occurs. Empty string if integer overflow does not raise
-     *  a signal.
+     *  Name of the signal that is raised if a signed integer overflow
+     *  occurs. OVERFLOW_SIGNAL is an empty string, if a signed integer
+     *  overflow does not raise a signal. The C compiler option
+     *  CC_OPT_TRAP_OVERFLOW is used to generate traps for signed
+     *  integer overflow.
      *)
     var string: OVERFLOW_SIGNAL              is "";
 
@@ -472,6 +474,15 @@ const type: ccConfigType is new struct
      *  C compiler option to optimize with a level of -O3.
      *)
     var array string: CC_OPT_OPTIMIZE_3      is 0 times "";
+
+    (**
+     *  C compiler option to generate traps for signed integer overflow.
+     *  An integer overflow in the compiled program will trigger the
+     *  signal defined with OVERFLOW_SIGNAL. CC_OPT_TRAP_OVERFLOW is
+     *  an empty string, if the C compiler does not support such an
+     *  option or if traps would not lead to a performance advantage.
+     *)
+    var string: CC_OPT_TRAP_OVERFLOW         is "";
 
     (**
      *  C compiler flags to be used if C programs are compiled.
@@ -695,6 +706,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.CC_OPT_OPTIMIZE_1          := noEmptyStrings(split(configValue("CC_OPT_OPTIMIZE_1"), ' '));
     conf.CC_OPT_OPTIMIZE_2          := noEmptyStrings(split(configValue("CC_OPT_OPTIMIZE_2"), ' '));
     conf.CC_OPT_OPTIMIZE_3          := noEmptyStrings(split(configValue("CC_OPT_OPTIMIZE_3"), ' '));
+    conf.CC_OPT_TRAP_OVERFLOW       := configValue("CC_OPT_TRAP_OVERFLOW");
     conf.CC_FLAGS                   := noEmptyStrings(split(configValue("CC_FLAGS"), ' '));
     conf.CC_ERROR_FILDES            := integer(configValue("CC_ERROR_FILDES"));
     conf.LINKER_OPT_DEBUG_INFO      := configValue("LINKER_OPT_DEBUG_INFO");

@@ -1220,6 +1220,12 @@ void err_integer (errorType err, intType number)
         prot_cstri("\" too big");
         prot_nl();
         break;
+      case NUMERICAL_ESCAPE_TOO_BIG:
+        prot_cstri("The numerical escape sequence \"\\");
+        prot_int(number);
+        prot_cstri(";\" is too big");
+        prot_nl();
+        break;
       default:
         undef_err();
         break;

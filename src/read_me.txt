@@ -1262,6 +1262,15 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
   CC_OPT_NO_WARNINGS: Contains the C compiler option to suppress
                       all warnings.
 
+  CC_OPT_TRAP_OVERFLOW: C compiler option to generate traps for
+                        signed integer overflow. An integer overflow
+                        in the compiled program will trigger the
+                        signal defined with OVERFLOW_SIGNAL.
+                        CC_OPT_TRAP_OVERFLOW is not defined, if the
+                        C compiler does not support such an option
+                        or if traps would not lead to a performance
+                        advantage.
+
   CC_FLAGS: Contains C compiler flags, which should be used when
             C programs are compiled.
 

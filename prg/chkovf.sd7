@@ -37,6 +37,18 @@ const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
 
 
+const func string: striExpr (in string: stri) is
+  return stri & str(rand(1, 9))[2 ..];
+
+
+const func char: charExpr (in char: ch) is
+  return chr(ord(ch) + length(str(rand(1, 9))[2 ..]));
+
+
+const func boolean: boolExpr (ref boolean: value) is
+  return value and str(rand(1, 9))[2 ..] = "";
+
+
 const func boolean: raisesOverflowError (ref func integer: expression) is func
   result
     var boolean: raisesOverflowError is FALSE;
@@ -124,6 +136,302 @@ const proc: check_negation is func
       writeln("Overflow checking of negation works correct.");
     else
       writeln(" ***** Overflow checking of negation does not work correct.");
+    end if;
+  end func;
+
+
+(**
+ *  Tests for the compiler optimization to reduce overflow checking
+ *  for addition and subtraction.
+ *)
+const func boolean: check_reduced_overflow_checking_for_sums is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not raisesOverflowError(intExpr( integer.last) div -integer.last +        integer.first) or
+        not raisesOverflowError(intExpr( integer.last) div  -34359738368 + -9223372036586340354) or
+        not raisesOverflowError(intExpr( integer.last) div   -1234567890 + -9223372029383844392) or
+        not raisesOverflowError(intExpr( integer.last) div            -2 + -4611686018427387906) or
+        not raisesOverflowError(intExpr( integer.last) div            -1 +                   -2) or
+        not raisesOverflowError(intExpr(integer.first) div             1 +                   -1) or
+        not raisesOverflowError(intExpr(integer.first) div             2 + -4611686018427387905) or
+        not raisesOverflowError(intExpr(integer.first) div    1234567890 + -9223372029383844392) or
+        not raisesOverflowError(intExpr(integer.first) div   34359738368 + -9223372036586340353) or
+        not raisesOverflowError(intExpr(integer.first) div  integer.last +        integer.first) then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum division result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(integer.first) div integer.first +  9223372036854775807) or
+        not raisesOverflowError(intExpr(integer.first) div -integer.last +  9223372036854775807) or
+        not raisesOverflowError(intExpr(integer.first) div  -34359738368 +  9223372036586340352) or
+        not raisesOverflowError(intExpr(integer.first) div   -1234567890 +  9223372029383844392) or
+        not raisesOverflowError(intExpr(integer.first) div            -2 +  4611686018427387904) or
+        not raisesOverflowError(intExpr( integer.last) div             1 +                    1) or
+        not raisesOverflowError(intExpr( integer.last) div             2 +  4611686018427387905) or
+        not raisesOverflowError(intExpr( integer.last) div    1234567890 +  9223372029383844391) or
+        not raisesOverflowError(intExpr( integer.last) div   34359738368 +  9223372036586340353) or
+        not raisesOverflowError(intExpr( integer.last) div  integer.last +  9223372036854775807) then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum division result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(       integer.first div intExpr( 1) +                   -1) or
+        not raisesOverflowError(-9223372036854775807 div intExpr( 1) +                   -2) or
+        not raisesOverflowError(-9223372036854775806 div intExpr( 1) +                   -3) or
+        not raisesOverflowError(-4611686018427387904 div intExpr( 1) + -4611686018427387905) or
+        not raisesOverflowError(         -1234567890 div intExpr( 1) + -9223372035620207919) or
+        not raisesOverflowError(                  -1 div intExpr( 1) +        integer.first) or
+        not raisesOverflowError(                   1 div intExpr(-1) +        integer.first) or
+        not raisesOverflowError(          1234567890 div intExpr(-1) + -9223372035620207919) or
+        not raisesOverflowError( 4611686018427387904 div intExpr(-1) + -4611686018427387905) or
+        not raisesOverflowError( 9223372036854775806 div intExpr(-1) +                   -3) or
+        not raisesOverflowError( 9223372036854775807 div intExpr(-1) +                   -2) then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum division result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(-9223372036854775807 div intExpr(-1) +                    1) or
+        not raisesOverflowError(-9223372036854775806 div intExpr(-1) +                    2) or
+        not raisesOverflowError(-4611686018427387904 div intExpr(-1) +  4611686018427387904) or
+        not raisesOverflowError(         -1234567890 div intExpr(-1) +  9223372035620207918) or
+        not raisesOverflowError(                  -1 div intExpr(-1) +  9223372036854775807) or
+        not raisesOverflowError(                   1 div intExpr( 1) +  9223372036854775807) or
+        not raisesOverflowError(          1234567890 div intExpr( 1) +  9223372035620207918) or
+        not raisesOverflowError( 4611686018427387904 div intExpr( 1) +  4611686018427387904) or
+        not raisesOverflowError( 9223372036854775806 div intExpr( 1) +                    2) or
+        not raisesOverflowError( 9223372036854775807 div intExpr( 1) +                    1) then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum division result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(       -integer.last) rem        integer.first +                   -2) or
+        not raisesOverflowError(intExpr(       -integer.last) rem -4611686018427387904 + -4611686018427387906) or
+        not raisesOverflowError(intExpr(       -integer.last) rem         -34359738368 + -9223372002495037442) or
+        not raisesOverflowError(intExpr(         -6172839449) rem          -1234567890 + -9223372035620207920) or
+        not raisesOverflowError(intExpr(       -123456789123) rem                   -2 +        integer.first) or
+        not raisesOverflowError(intExpr(       -123456789123) rem                    2 +        integer.first) or
+        not raisesOverflowError(intExpr(         -6172839449) rem           1234567890 + -9223372035620207920) or
+        not raisesOverflowError(intExpr(       -integer.last) rem          34359738368 + -9223372002495037442) or
+        not raisesOverflowError(intExpr(       -integer.last) rem  4611686018427387904 + -4611686018427387906) or
+        not raisesOverflowError(intExpr(-9223372036854775806) rem         integer.last +                   -3) then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum remainder result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(        integer.last) rem        integer.first +                    1) or
+        not raisesOverflowError(intExpr(        integer.last) rem -4611686018427387904 +  4611686018427387905) or
+        not raisesOverflowError(intExpr(        integer.last) rem         -34359738368 +  9223372002495037441) or
+        not raisesOverflowError(intExpr(          6172839449) rem          -1234567890 +  9223372035620207919) or
+        not raisesOverflowError(intExpr(        123456789123) rem                   -2 +  9223372036854775807) or
+        not raisesOverflowError(intExpr(        123456789123) rem                    2 +  9223372036854775807) or
+        not raisesOverflowError(intExpr(          6172839449) rem           1234567890 +  9223372035620207919) or
+        not raisesOverflowError(intExpr(        integer.last) rem          34359738368 +  9223372002495037441) or
+        not raisesOverflowError(intExpr(        integer.last) rem  4611686018427387904 +  4611686018427387905) or
+        not raisesOverflowError(intExpr( 9223372036854775806) rem         integer.last +                    2) then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum remainder result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(-9223372036854775807 rem intExpr(      integer.first) +                   -2) or
+        not raisesOverflowError(         -1234567890 rem intExpr(         2345678901) + -9223372035620207919) or
+        not raisesOverflowError(                  -1 rem intExpr(                  2) +        integer.first) then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum remainder result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(                   1 rem intExpr(                  2) +  9223372036854775807) or
+        not raisesOverflowError(          1234567890 rem intExpr(         2345678901) +  9223372035620207918) or
+        not raisesOverflowError( 9223372036854775807 rem intExpr(      integer.first) +                    1) then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum remainder result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr( integer.last) mdiv integer.first +        integer.first) or
+        not raisesOverflowError(intExpr( integer.last) mdiv  -34359738368 + -9223372036586340353) or
+        not raisesOverflowError(intExpr( integer.last) mdiv   -1234567890 + -9223372029383844391) or
+        not raisesOverflowError(intExpr( integer.last) mdiv            -2 + -4611686018427387905) or
+        not raisesOverflowError(intExpr( integer.last) mdiv            -1 +                   -2) or
+        not raisesOverflowError(intExpr(integer.first) mdiv             1 +                   -1) or
+        not raisesOverflowError(intExpr(integer.first) mdiv             2 + -4611686018427387905) or
+        not raisesOverflowError(intExpr(integer.first) mdiv    1234567890 + -9223372029383844391) or
+        not raisesOverflowError(intExpr(integer.first) mdiv   34359738368 + -9223372036586340353) or
+        not raisesOverflowError(intExpr(integer.first) mdiv  integer.last + -9223372036854775807) then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum mdiv division result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(integer.first) mdiv integer.first +  9223372036854775807) or
+        not raisesOverflowError(intExpr(integer.first) mdiv  -34359738368 +  9223372036586340352) or
+        not raisesOverflowError(intExpr(integer.first) mdiv   -1234567890 +  9223372029383844392) or
+        not raisesOverflowError(intExpr(integer.first) mdiv            -2 +  4611686018427387904) or
+        not raisesOverflowError(intExpr( integer.last) mdiv             1 +                    1) or
+        not raisesOverflowError(intExpr( integer.last) mdiv             2 +  4611686018427387905) or
+        not raisesOverflowError(intExpr( integer.last) mdiv    1234567890 +  9223372029383844391) or
+        not raisesOverflowError(intExpr( integer.last) mdiv   34359738368 +  9223372036586340353) or
+        not raisesOverflowError(intExpr( integer.last) mdiv  integer.last +  9223372036854775807) then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum mdiv division result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+        # Test 
+    if  not raisesOverflowError(       integer.first mdiv intExpr( 1) +                   -1) or
+        not raisesOverflowError(-9223372036854775807 mdiv intExpr( 1) +                   -2) or
+        not raisesOverflowError(-9223372036854775806 mdiv intExpr( 1) +                   -3) or
+        not raisesOverflowError(-4611686018427387904 mdiv intExpr( 1) + -4611686018427387905) or
+        not raisesOverflowError(         -1234567890 mdiv intExpr( 1) + -9223372035620207919) or
+        not raisesOverflowError(                  -1 mdiv intExpr( 1) +        integer.first) or
+        not raisesOverflowError(                   1 mdiv intExpr(-1) +        integer.first) or
+        not raisesOverflowError(          1234567890 mdiv intExpr(-1) + -9223372035620207919) or
+        not raisesOverflowError( 4611686018427387904 mdiv intExpr(-1) + -4611686018427387905) or
+        not raisesOverflowError( 9223372036854775806 mdiv intExpr(-1) +                   -3) or
+        not raisesOverflowError( 9223372036854775807 mdiv intExpr(-1) +                   -2) then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum mdiv division result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(-9223372036854775807 mdiv intExpr(-1) +                    1) or
+        not raisesOverflowError(-9223372036854775806 mdiv intExpr(-1) +                    2) or
+        not raisesOverflowError(-4611686018427387904 mdiv intExpr(-1) +  4611686018427387904) or
+        not raisesOverflowError(         -1234567890 mdiv intExpr(-1) +  9223372035620207918) or
+        not raisesOverflowError(                  -1 mdiv intExpr(-1) +  9223372036854775807) or
+        not raisesOverflowError(                   1 mdiv intExpr( 1) +  9223372036854775807) or
+        not raisesOverflowError(          1234567890 mdiv intExpr( 1) +  9223372035620207918) or
+        not raisesOverflowError( 4611686018427387904 mdiv intExpr( 1) +  4611686018427387904) or
+        not raisesOverflowError( 9223372036854775806 mdiv intExpr( 1) +                    2) or
+        not raisesOverflowError( 9223372036854775807 mdiv intExpr( 1) +                    1) then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum mdiv division result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(       -integer.last) mod        integer.first +                   -2) or
+        not raisesOverflowError(intExpr( 4611686018427387905) mod -4611686018427387904 + -4611686018427387906) or
+        not raisesOverflowError(intExpr( 9223372002495037441) mod         -34359738368 + -9223372002495037442) or
+        not raisesOverflowError(intExpr(          6172839451) mod          -1234567890 + -9223372035620207920) or
+        not raisesOverflowError(intExpr(        123456789123) mod                   -2 +        integer.first) then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum modulo result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(        123456789123) mod                    2 +  9223372036854775807) or
+        not raisesOverflowError(intExpr(          6172839449) mod           1234567890 +  9223372035620207919) or
+        not raisesOverflowError(intExpr( 9223372002495037439) mod          34359738368 +  9223372002495037442) or
+        not raisesOverflowError(intExpr(        integer.last) mod  4611686018427387904 +  4611686018427387905) or
+        not raisesOverflowError(intExpr( 9223372036854775806) mod         integer.last +                    2) then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum modulo result if the divisor is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(       integer.first mod intExpr(-4611686018427387905) + -4611686018427387906) or
+        not raisesOverflowError(-9223372036854775807 mod intExpr(       integer.first) +                   -2) or
+        not raisesOverflowError(-7654321098765432109 mod intExpr(-7654321098765432110) + -1569050938089343700) or
+        not raisesOverflowError(-4611686018427387906 mod intExpr(-4611686018427387907) + -4611686018427387903) or
+        not raisesOverflowError(-4611686018427387905 mod intExpr(-4611686018427387906) + -4611686018427387904) or
+        not raisesOverflowError(-4611686018427387904 mod intExpr(-4611686018427387905) + -4611686018427387905) or
+        not raisesOverflowError(         -1234567890 mod intExpr(         -1234567891) + -9223372035620207919) or
+        not raisesOverflowError(                  -1 mod intExpr(                  -2) +        integer.first) or
+        not raisesOverflowError(                   1 mod intExpr(       integer.first) +                   -2) or
+        not raisesOverflowError(          1234567890 mod intExpr(       integer.first) +          -1234567891) or
+        not raisesOverflowError( 4611686018427387904 mod intExpr(       integer.first) + -4611686018427387905) or
+        not raisesOverflowError( 4611686018427387905 mod intExpr(-4611686018427387904) + -4611686018427387906) or
+        not raisesOverflowError( 4611686018427387906 mod intExpr(-4611686018427387905) + -4611686018427387905) or
+        not raisesOverflowError( 7654321098765432109 mod intExpr(-7654321098765432108) + -1569050938089343702) or
+        not raisesOverflowError( 9223372036854775806 mod intExpr(-9223372036854775805) +                   -5) or
+        not raisesOverflowError(        integer.last mod intExpr(-9223372036854775806) +                   -4) then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum modulo result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(       integer.first mod intExpr(        integer.last) +                    2) or
+        not raisesOverflowError(-9223372036854775807 mod intExpr( 9223372036854775806) +                    3) or
+        not raisesOverflowError(-7654321098765432109 mod intExpr( 7654321098765432108) +  1569050938089343701) or
+        not raisesOverflowError(-4611686018427387906 mod intExpr( 4611686018427387905) +  4611686018427387904) or
+        not raisesOverflowError(-4611686018427387905 mod intExpr( 4611686018427387904) +  4611686018427387905) or
+        not raisesOverflowError(-4611686018427387904 mod intExpr(        integer.last) +  4611686018427387905) or
+        not raisesOverflowError(         -1234567890 mod intExpr(        integer.last) +           1234567891) or
+        not raisesOverflowError(                  -1 mod intExpr(        integer.last) +                    2) or
+        not raisesOverflowError(                   1 mod intExpr(                   2) +  9223372036854775807) or
+        not raisesOverflowError(          1234567890 mod intExpr(          1234567891) +  9223372035620207918) or
+        not raisesOverflowError( 4611686018427387904 mod intExpr( 4611686018427387905) +  4611686018427387904) or
+        not raisesOverflowError( 4611686018427387905 mod intExpr( 4611686018427387906) +  4611686018427387903) or
+        not raisesOverflowError( 4611686018427387906 mod intExpr( 4611686018427387907) +  4611686018427387902) or
+        not raisesOverflowError( 7654321098765432109 mod intExpr( 7654321098765432110) +  1569050938089343699) or
+        not raisesOverflowError( 9223372036854775806 mod intExpr( 9223372036854775807) +                    2) or
+        not raisesOverflowError(        integer.last mod intExpr( 4611686018427387904) +  4611686018427387905) then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum modulo result if the dividend is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError((intExpr(integer.first) >>  0) +                   -1) or
+        not raisesOverflowError((intExpr(integer.first) >>  1) + -4611686018427387905) or
+        not raisesOverflowError((intExpr(integer.first) >> 30) + -9223372028264841217) or
+        not raisesOverflowError((intExpr(integer.first) >> 62) + -9223372036854775807) or
+        not raisesOverflowError((intExpr(integer.first) >> 63) +        integer.first) then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum rshift result if the shift amount is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError((intExpr( integer.last) >>  0) +                    1) or
+        not raisesOverflowError((intExpr( integer.last) >>  1) +  4611686018427387905) or
+        not raisesOverflowError((intExpr( integer.last) >> 30) +  9223372028264841217) or
+        not raisesOverflowError((intExpr( integer.last) >> 62) +  9223372036854775807) then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum rshift result if the shift amount is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError((       integer.first >> intExpr( 0)) +                   -1) or
+        not raisesOverflowError((       -integer.last >> intExpr( 0)) +                   -2) or
+        not raisesOverflowError((-9012345678901234567 >> intExpr( 0)) +  -211026357953541242) or
+        not raisesOverflowError((-4611686018427387904 >> intExpr( 0)) + -4611686018427387905) or
+        not raisesOverflowError((         -1234567890 >> intExpr( 0)) + -9223372035620207919) or
+        not raisesOverflowError((                  -2 >> intExpr( 0)) + -9223372036854775807) or
+        not raisesOverflowError((                  -1 >> intExpr( 0)) +        integer.first) then
+      writeln(" ***** Reduced overflow check for sums failed: Minimum rshift result if the shifted value is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError((                   1 >> intExpr( 0)) +  9223372036854775807) or
+        not raisesOverflowError((                   2 >> intExpr( 0)) +  9223372036854775806) or
+        not raisesOverflowError((          1234567890 >> intExpr( 0)) +  9223372035620207918) or
+        not raisesOverflowError(( 4611686018427387903 >> intExpr( 0)) +  4611686018427387905) or
+        not raisesOverflowError(( 9012345678901234567 >> intExpr( 0)) +   211026357953541241) or
+        not raisesOverflowError(( 9223372036854775806 >> intExpr( 0)) +                    2) or
+        not raisesOverflowError((        integer.last >> intExpr( 0)) +                    1) then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum rshift result if the shifted value is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(abs(         intExpr( integer.last)) +                    1) or
+        not raisesOverflowError(log2(        intExpr(            0)) +        integer.first) or
+        not raisesOverflowError(log2(        intExpr( integer.last)) +  9223372036854775746) or
+        not raisesOverflowError(log10(       intExpr(            0)) +        integer.first) or
+        not raisesOverflowError(log10(       intExpr( integer.last)) +  9223372036854775790) or
+        not raisesOverflowError(sqrt(        intExpr( integer.last)) +  9223372033817775309) or
+        not raisesOverflowError(bitLength(   intExpr( integer.last)) +  9223372036854775745) or
+        not raisesOverflowError(lowestSetBit(intExpr(            0)) +        integer.first) or
+        not raisesOverflowError(lowestSetBit(intExpr(integer.first)) +  9223372036854775745) or
+
+        not raisesOverflowError(rand(        -1234567890,  intExpr(-1234567890)) + -9223372035620207919) or
+        not raisesOverflowError(rand(intExpr( 1234567890),          1234567890 ) +  9223372035620207918) or
+
+        not raisesOverflowError(compare(intExpr(0), intExpr(1)) +        integer.first) or
+        not raisesOverflowError(compare(intExpr(1), intExpr(0)) +  9223372036854775807) then
+      writeln(" ***** Reduced overflow check for sums failed: Various integer functions.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(ord(boolExpr( TRUE)) + 9223372036854775807) or
+        not raisesOverflowError(ord(charExpr(char(-2147483648) )) + -9223372034707292161) or
+        not raisesOverflowError(ord(charExpr(    '\2147483647;')) +  9223372034707292161) then
+      writeln(" ***** Reduced overflow check for sums failed: Ord functions.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(pos("a",   striExpr("a")) + 9223372036854775807) or
+        not raisesOverflowError(pos("ab",  striExpr("b")) + 9223372036854775806) or
+        not raisesOverflowError(pos("abc", striExpr("c")) + 9223372036854775805) then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum pos result if the main string is known.");
+      okay := FALSE;
     end if;
   end func;
 
@@ -537,6 +845,10 @@ const proc: check_add is func
         not raisesOverflowError(intExpr(9223372036854775806) + intExpr(9223372036854775807)) or
         not raisesOverflowError(intExpr(9223372036854775806) + intExpr(9223372036854775806)) then
       writeln(" ***** Addition overflow does not raise OVERFLOW_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not check_reduced_overflow_checking_for_sums then
       okay := FALSE;
     end if;
 
@@ -1922,6 +2234,111 @@ const proc: check_decr is func
   end func;
 
 
+(**
+ *  Tests for the compiler optimization to reduce overflow checking
+ *  for multiplication.
+ *)
+const func boolean: check_reduced_overflow_checking_for_mult is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not raisesOverflowError(intExpr( integer.last) div        -integer.last *        integer.first) or
+        not raisesOverflowError(intExpr( integer.last) div -4611686018427387905 *        integer.first) or
+        not raisesOverflowError(intExpr( integer.last) div -3074457345618258602 * -3074457345618258603) or
+        not raisesOverflowError(intExpr( integer.last) div -1317624576693539401 * -1317624576693539402) or
+        not raisesOverflowError(intExpr( integer.last) div         -60247241209 *         -60247241210) or
+        not raisesOverflowError(intExpr( integer.last) div         -34359738369 *         -34359738497) or
+        not raisesOverflowError(intExpr( integer.last) div          -1234567890 *          -1234567891) or
+        not raisesOverflowError(intExpr( integer.last) div                   -7 *                   -8) or
+        not raisesOverflowError(intExpr( integer.last) div                   -3 *                   -4) or
+        not raisesOverflowError(intExpr(integer.first) div                    2 *                   -2) or
+        not raisesOverflowError(intExpr(integer.first) div                    3 *                   -4) or
+        not raisesOverflowError(intExpr(integer.first) div                    7 *                   -8) or
+        not raisesOverflowError(intExpr(integer.first) div           1234567890 *          -1234567891) or
+        not raisesOverflowError(intExpr(integer.first) div          34359738368 *         -34359738368) or
+        not raisesOverflowError(intExpr(integer.first) div          34359738369 *         -34359738497) or
+        not raisesOverflowError(intExpr(integer.first) div          60247241209 *         -60247241210) or
+        not raisesOverflowError(intExpr(integer.first) div  1317624576693539401 * -1317624576693539402) or
+        not raisesOverflowError(intExpr(integer.first) div  4611686018427387904 * -4611686018427387904) or
+        not raisesOverflowError(intExpr(integer.first) div  9223372036854775806 *        integer.first) or
+        not raisesOverflowError(intExpr(integer.first) div         integer.last *        integer.first) then
+      writeln(" ***** Reduced overflow check for mult failed: Minimum division result if the divisor is known. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr( integer.last) div -3074457345618258602 *  3074457345618258603) or
+        not raisesOverflowError(intExpr( integer.last) div -1317624576693539401 *  1317624576693539402) or
+        not raisesOverflowError(intExpr( integer.last) div         -60247241209 *          60247241210) or
+        not raisesOverflowError(intExpr( integer.last) div         -34359738369 *          34359738497) or
+        not raisesOverflowError(intExpr( integer.last) div          -1234567890 *           1234567891) or
+        not raisesOverflowError(intExpr( integer.last) div                   -7 *                    8) or
+        not raisesOverflowError(intExpr( integer.last) div                   -3 *                    4) or
+        not raisesOverflowError(intExpr(integer.first) div                    2 *                    3) or
+        not raisesOverflowError(intExpr(integer.first) div                    3 *                    4) or
+        not raisesOverflowError(intExpr(integer.first) div                    7 *                    8) or
+        not raisesOverflowError(intExpr(integer.first) div           1234567890 *           1234567891) or
+        not raisesOverflowError(intExpr(integer.first) div          34359738368 *          34359738369) or
+        not raisesOverflowError(intExpr(integer.first) div          34359738369 *          34359738497) or
+        not raisesOverflowError(intExpr(integer.first) div          60247241209 *          60247241210) or
+        not raisesOverflowError(intExpr(integer.first) div  1317624576693539401 *  1317624576693539402) or
+        not raisesOverflowError(intExpr(integer.first) div  4611686018427387904 *  4611686018427387905) then
+      writeln(" ***** Reduced overflow check for mult failed: Minimum division result if the divisor is known. (2)");
+      okay := FALSE;
+    end if;
+
+    if      raisesOverflowError(intExpr(integer.first) div -4611686018427387904 * -4611686018427387904) or
+        not raisesOverflowError(intExpr(integer.first) div -4611686018427387904 * -4611686018427387905) or
+        not raisesOverflowError(intExpr(integer.first) div -1317624576693539401 * -1317624576693539402) or
+        not raisesOverflowError(intExpr(integer.first) div         -60247241209 *         -60247241210) or
+        not raisesOverflowError(intExpr(integer.first) div         -34359738369 *         -34359738497) or
+            raisesOverflowError(intExpr(integer.first) div         -34359738368 *         -34359738368) or
+        not raisesOverflowError(intExpr(integer.first) div         -34359738368 *         -34359738369) or
+        not raisesOverflowError(intExpr(integer.first) div          -1234567890 *          -1234567891) or
+        not raisesOverflowError(intExpr(integer.first) div                   -7 *                   -8) or
+            raisesOverflowError(intExpr(integer.first) div                   -3 *                   -3) or
+        not raisesOverflowError(intExpr(integer.first) div                   -3 *                   -4) or
+            raisesOverflowError(intExpr(integer.first) div                   -2 *                   -2) or
+        not raisesOverflowError(intExpr(integer.first) div                   -2 *                   -3) or
+        not raisesOverflowError(intExpr( integer.last) div                    3 *                   -4) or
+        not raisesOverflowError(intExpr( integer.last) div                    7 *                   -8) or
+        not raisesOverflowError(intExpr( integer.last) div           1234567890 *          -1234567891) or
+            raisesOverflowError(intExpr( integer.last) div          34359738367 *         -34359738368) or
+        not raisesOverflowError(intExpr( integer.last) div          34359738367 *         -34359738369) or
+        not raisesOverflowError(intExpr( integer.last) div          60247241209 *         -60247241210) or
+        not raisesOverflowError(intExpr( integer.last) div  1317624576693539401 * -1317624576693539402) or
+            raisesOverflowError(intExpr( integer.last) div  4611686018427387903 * -4611686018427387904) or
+        not raisesOverflowError(intExpr( integer.last) div  4611686018427387903 * -4611686018427387905) then
+      writeln(" ***** Reduced overflow check for mult failed: Maximum division result if the divisor is known. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(integer.first) div -4611686018427387904 *  4611686018427387904) or
+        not raisesOverflowError(intExpr(integer.first) div -1317624576693539401 *  1317624576693539402) or
+        not raisesOverflowError(intExpr(integer.first) div         -60247241209 *          60247241210) or
+        not raisesOverflowError(intExpr(integer.first) div         -34359738369 *          34359738497) or
+        not raisesOverflowError(intExpr(integer.first) div         -34359738368 *          34359738368) or
+        not raisesOverflowError(intExpr(integer.first) div          -1234567890 *           1234567891) or
+        not raisesOverflowError(intExpr(integer.first) div                   -7 *                    8) or
+            raisesOverflowError(intExpr(integer.first) div                   -3 *                    3) or
+        not raisesOverflowError(intExpr(integer.first) div                   -3 *                    4) or
+        not raisesOverflowError(intExpr(integer.first) div                   -2 *                    2) or
+        not raisesOverflowError(intExpr( integer.last) div                    1 *                    2) or
+        not raisesOverflowError(intExpr( integer.last) div                    2 *                    3) or
+        not raisesOverflowError(intExpr( integer.last) div                    3 *                    4) or
+        not raisesOverflowError(intExpr( integer.last) div                    7 *                    8) or
+        not raisesOverflowError(intExpr( integer.last) div           1234567890 *           1234567891) or
+        not raisesOverflowError(intExpr( integer.last) div          34359738367 *          34359738368) or
+        not raisesOverflowError(intExpr( integer.last) div          34359738368 *          34359738497) or
+        not raisesOverflowError(intExpr( integer.last) div          60247241209 *          60247241210) or
+        not raisesOverflowError(intExpr( integer.last) div  1317624576693539401 *  1317624576693539402) or
+            raisesOverflowError(intExpr( integer.last) div  4611686018427387903 *  4611686018427387903) or
+        not raisesOverflowError(intExpr( integer.last) div  4611686018427387903 *  4611686018427387904) then
+      writeln(" ***** Reduced overflow check for mult failed: Maximum division result if the divisor is known. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_mult is func
   local
     var boolean: okay is TRUE;
@@ -2615,6 +3032,10 @@ const proc: check_mult is func
         not raisesOverflowError(intExpr(                   3) * intExpr( 4611686018427387903)) or
         not raisesOverflowError(intExpr(                   2) * intExpr( 4611686018427387904)) then
       writeln(" ***** Overflow when computing multiplication does not raise OVERFLOW_ERROR. (4)");
+      okay := FALSE;
+    end if;
+
+    if not check_reduced_overflow_checking_for_mult then
       okay := FALSE;
     end if;
 
@@ -3467,10 +3888,86 @@ const proc: check_mod is func
       okay := FALSE;
     end if;
 
+    if  not raisesOverflowError((1          <<         -1 ) mod 32) or
+        not raisesOverflowError((1          << intExpr(-1)) mod 32) or
+        not raisesOverflowError((intExpr(1) <<         -1 ) mod 32) or
+        not raisesOverflowError((intExpr(1) << intExpr(-1)) mod 32) or
+        not raisesOverflowError((intExpr(1  <<         -1)) mod 32) then
+      writeln(" ***** Computing (1 << -1) mod 32 does not raise OVERFLOW_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(succ(1          <<         -1 ) mod 32) or
+        not raisesOverflowError(succ(1          << intExpr(-1)) mod 32) or
+        not raisesOverflowError(succ(intExpr(1) <<         -1 ) mod 32) or
+        not raisesOverflowError(succ(intExpr(1) << intExpr(-1)) mod 32) or
+        not raisesOverflowError(succ(intExpr(1  <<         -1)) mod 32) then
+      writeln(" ***** Computing succ(1 << -1) mod 32 does not raise OVERFLOW_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(        5678901234567890123  mod (1 <<         -1 )) or
+        not raisesOverflowError(        5678901234567890123  mod (1 << intExpr(-1))) or
+        not raisesOverflowError(intExpr(5678901234567890123) mod (1 <<         -1 )) or
+        not raisesOverflowError(intExpr(5678901234567890123) mod (1 << intExpr(-1))) then
+      writeln(" ***** mod by computed power of two does not raise OVERFLOW_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Overflow checking of mod operator works correct.");
     else
       writeln(" ***** Overflow checking of mod operator does not work correct.");
+    end if;
+  end func;
+
+
+(**
+ *  Tests for the compiler optimization to reduce overflow checking
+ *  for lshift.
+ *)
+const func boolean: check_reduced_overflow_checking_for_lshift is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  not raisesOverflowError((intExpr(integer.first) >>  0) <<  1) or
+        not raisesOverflowError((intExpr(integer.first) >>  1) <<  2) or
+        not raisesOverflowError((intExpr(integer.first) >> 30) << 31) or
+        not raisesOverflowError((intExpr(integer.first) >> 62) << 63) then
+      writeln(" ***** Reduced overflow check for lshift failed: Minimum rshift result if the shift amount is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError((intExpr( integer.last) >>  0) <<  1) or
+        not raisesOverflowError((intExpr( integer.last) >>  1) <<  2) or
+        not raisesOverflowError((intExpr( integer.last) >> 30) << 31) or
+        not raisesOverflowError((intExpr( integer.last) >> 62) << 63) then
+      writeln(" ***** Reduced overflow check for lshift failed: Maximum rshift result if the shift amount is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError((       integer.first >> intExpr( 0)) <<  1) or
+        not raisesOverflowError((       -integer.last >> intExpr( 0)) <<  1) or
+        not raisesOverflowError((-4611686018427387905 >> intExpr( 0)) <<  1) or
+        not raisesOverflowError((-4611686018427387904 >> intExpr( 0)) <<  2) or
+        not raisesOverflowError((         -8589934593 >> intExpr( 0)) << 30) or
+        not raisesOverflowError((         -8589934592 >> intExpr( 0)) << 31) or
+        not raisesOverflowError((         -1234567890 >> intExpr( 0)) << 33) or
+        not raisesOverflowError((                  -2 >> intExpr( 0)) << 63) then
+      writeln(" ***** Reduced overflow check for lshift failed: Minimum rshift result if the shifted value is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError((                   1 >> intExpr( 0)) << 63) or
+        not raisesOverflowError((                   2 >> intExpr( 0)) << 62) or
+        not raisesOverflowError((          1234567890 >> intExpr( 0)) << 33) or
+        not raisesOverflowError((          8589934591 >> intExpr( 0)) << 31) or
+        not raisesOverflowError((          8589934592 >> intExpr( 0)) << 30) or
+        not raisesOverflowError(( 4611686018427387903 >> intExpr( 0)) <<  2) or
+        not raisesOverflowError(( 4611686018427387904 >> intExpr( 0)) <<  1) or
+        not raisesOverflowError((        integer.last >> intExpr( 0)) <<  1)  then
+      writeln(" ***** Reduced overflow check for lshift failed: Maximum rshift result if the shifted value is known.");
+      okay := FALSE;
     end if;
   end func;
 
@@ -3779,87 +4276,123 @@ const proc: check_lShift is func
       okay := FALSE;
     end if;
 
-    if  not raisesOverflowError(-16111 << -999) or
-        not raisesOverflowError(-16111 <<  -63) or
-        not raisesOverflowError(-16111 <<   -1) or
-        not raisesOverflowError(-16111 <<   64) or
-        not raisesOverflowError(-16111 <<  999) or
-        not raisesOverflowError(    -1 << -999) or
-        not raisesOverflowError(    -1 <<  -63) or
-        not raisesOverflowError(    -1 <<   -1) or
-        not raisesOverflowError(    -1 <<   64) or
-        not raisesOverflowError(    -1 <<  999) or
-        not raisesOverflowError(     0 << -999) or
-        not raisesOverflowError(     0 <<  -63) or
-        not raisesOverflowError(     0 <<   -1) or
-        not raisesOverflowError(     0 <<   64) or
-        not raisesOverflowError(     0 <<  999) or
-        not raisesOverflowError( 16111 << -999) or
-        not raisesOverflowError( 16111 <<  -63) or
-        not raisesOverflowError( 16111 <<   -1) or
-        not raisesOverflowError( 16111 <<   64) or
-        not raisesOverflowError( 16111 <<  999) or
-        not raisesOverflowError(intExpr(-16111) << -999) or
-        not raisesOverflowError(intExpr(-16111) <<  -63) or
-        not raisesOverflowError(intExpr(-16111) <<   -1) or
-        not raisesOverflowError(intExpr(-16111) <<   64) or
-        not raisesOverflowError(intExpr(-16111) <<  999) or
-        not raisesOverflowError(intExpr(    -1) << -999) or
-        not raisesOverflowError(intExpr(    -1) <<  -63) or
-        not raisesOverflowError(intExpr(    -1) <<   -1) or
-        not raisesOverflowError(intExpr(    -1) <<   64) or
-        not raisesOverflowError(intExpr(    -1) <<  999) or
-        not raisesOverflowError(intExpr(     0) << -999) or
-        not raisesOverflowError(intExpr(     0) <<  -63) or
-        not raisesOverflowError(intExpr(     0) <<   -1) or
-        not raisesOverflowError(intExpr(     0) <<   64) or
-        not raisesOverflowError(intExpr(     0) <<  999) or
-        not raisesOverflowError(intExpr( 16111) << -999) or
-        not raisesOverflowError(intExpr( 16111) <<  -63) or
-        not raisesOverflowError(intExpr( 16111) <<   -1) or
-        not raisesOverflowError(intExpr( 16111) <<   64) or
-        not raisesOverflowError(intExpr( 16111) <<  999) or
-        not raisesOverflowError(-16111 << intExpr(-999)) or
-        not raisesOverflowError(-16111 << intExpr( -63)) or
-        not raisesOverflowError(-16111 << intExpr(  -1)) or
-        not raisesOverflowError(-16111 << intExpr(  64)) or
-        not raisesOverflowError(-16111 << intExpr( 999)) or
-        not raisesOverflowError(    -1 << intExpr(-999)) or
-        not raisesOverflowError(    -1 << intExpr( -63)) or
-        not raisesOverflowError(    -1 << intExpr(  -1)) or
-        not raisesOverflowError(    -1 << intExpr(  64)) or
-        not raisesOverflowError(    -1 << intExpr( 999)) or
-        not raisesOverflowError(     0 << intExpr(-999)) or
-        not raisesOverflowError(     0 << intExpr( -63)) or
-        not raisesOverflowError(     0 << intExpr(  -1)) or
-        not raisesOverflowError(     0 << intExpr(  64)) or
-        not raisesOverflowError(     0 << intExpr( 999)) or
-        not raisesOverflowError( 16111 << intExpr(-999)) or
-        not raisesOverflowError( 16111 << intExpr( -63)) or
-        not raisesOverflowError( 16111 << intExpr(  -1)) or
-        not raisesOverflowError( 16111 << intExpr(  64)) or
-        not raisesOverflowError( 16111 << intExpr( 999)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr(-999)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr( -63)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr(  -1)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr(  64)) or
-        not raisesOverflowError(intExpr(-16111) << intExpr( 999)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr(-999)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr( -63)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr(  -1)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr(  64)) or
-        not raisesOverflowError(intExpr(    -1) << intExpr( 999)) or
-        not raisesOverflowError(intExpr(     0) << intExpr(-999)) or
-        not raisesOverflowError(intExpr(     0) << intExpr( -63)) or
-        not raisesOverflowError(intExpr(     0) << intExpr(  -1)) or
-        not raisesOverflowError(intExpr(     0) << intExpr(  64)) or
-        not raisesOverflowError(intExpr(     0) << intExpr( 999)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr(-999)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr( -63)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr(  -1)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr(  64)) or
-        not raisesOverflowError(intExpr( 16111) << intExpr( 999)) then
+    if  not raisesOverflowError(-16111 << integer.first) or
+        not raisesOverflowError(-16111 <<          -999) or
+        not raisesOverflowError(-16111 <<           -63) or
+        not raisesOverflowError(-16111 <<            -1) or
+        not raisesOverflowError(-16111 <<            64) or
+        not raisesOverflowError(-16111 <<           999) or
+        not raisesOverflowError(-16111 <<  integer.last) or
+        not raisesOverflowError(    -1 << integer.first) or
+        not raisesOverflowError(    -1 <<          -999) or
+        not raisesOverflowError(    -1 <<           -63) or
+        not raisesOverflowError(    -1 <<            -1) or
+        not raisesOverflowError(    -1 <<            64) or
+        not raisesOverflowError(    -1 <<           999) or
+        not raisesOverflowError(    -1 <<  integer.last) or
+        not raisesOverflowError(     0 << integer.first) or
+        not raisesOverflowError(     0 <<          -999) or
+        not raisesOverflowError(     0 <<           -63) or
+        not raisesOverflowError(     0 <<            -1) or
+        not raisesOverflowError(     0 <<            64) or
+        not raisesOverflowError(     0 <<           999) or
+        not raisesOverflowError(     0 <<  integer.last) or
+        not raisesOverflowError( 16111 << integer.first) or
+        not raisesOverflowError( 16111 <<          -999) or
+        not raisesOverflowError( 16111 <<           -63) or
+        not raisesOverflowError( 16111 <<            -1) or
+        not raisesOverflowError( 16111 <<            64) or
+        not raisesOverflowError( 16111 <<           999) or
+        not raisesOverflowError( 16111 <<  integer.last) or
+        not raisesOverflowError(intExpr(-16111) << integer.first) or
+        not raisesOverflowError(intExpr(-16111) <<          -999) or
+        not raisesOverflowError(intExpr(-16111) <<           -63) or
+        not raisesOverflowError(intExpr(-16111) <<            -1) or
+        not raisesOverflowError(intExpr(-16111) <<            64) or
+        not raisesOverflowError(intExpr(-16111) <<           999) or
+        not raisesOverflowError(intExpr(-16111) <<  integer.last) or
+        not raisesOverflowError(intExpr(    -1) << integer.first) or
+        not raisesOverflowError(intExpr(    -1) <<          -999) or
+        not raisesOverflowError(intExpr(    -1) <<           -63) or
+        not raisesOverflowError(intExpr(    -1) <<            -1) or
+        not raisesOverflowError(intExpr(    -1) <<            64) or
+        not raisesOverflowError(intExpr(    -1) <<           999) or
+        not raisesOverflowError(intExpr(    -1) <<  integer.last) or
+        not raisesOverflowError(intExpr(     0) << integer.first) or
+        not raisesOverflowError(intExpr(     0) <<          -999) or
+        not raisesOverflowError(intExpr(     0) <<           -63) or
+        not raisesOverflowError(intExpr(     0) <<            -1) or
+        not raisesOverflowError(intExpr(     0) <<            64) or
+        not raisesOverflowError(intExpr(     0) <<           999) or
+        not raisesOverflowError(intExpr(     0) <<  integer.last) or
+        not raisesOverflowError(intExpr( 16111) << integer.first) or
+        not raisesOverflowError(intExpr( 16111) <<          -999) or
+        not raisesOverflowError(intExpr( 16111) <<           -63) or
+        not raisesOverflowError(intExpr( 16111) <<            -1) or
+        not raisesOverflowError(intExpr( 16111) <<            64) or
+        not raisesOverflowError(intExpr( 16111) <<           999) or
+        not raisesOverflowError(intExpr( 16111) <<  integer.last) or
+        not raisesOverflowError(-16111 << intExpr(integer.first)) or
+        not raisesOverflowError(-16111 << intExpr(         -999)) or
+        not raisesOverflowError(-16111 << intExpr(          -63)) or
+        not raisesOverflowError(-16111 << intExpr(           -1)) or
+        not raisesOverflowError(-16111 << intExpr(           64)) or
+        not raisesOverflowError(-16111 << intExpr(          999)) or
+        not raisesOverflowError(-16111 << intExpr( integer.last)) or
+        not raisesOverflowError(    -1 << intExpr(integer.first)) or
+        not raisesOverflowError(    -1 << intExpr(         -999)) or
+        not raisesOverflowError(    -1 << intExpr(          -63)) or
+        not raisesOverflowError(    -1 << intExpr(           -1)) or
+        not raisesOverflowError(    -1 << intExpr(           64)) or
+        not raisesOverflowError(    -1 << intExpr(          999)) or
+        not raisesOverflowError(    -1 << intExpr( integer.last)) or
+        not raisesOverflowError(     0 << intExpr(integer.first)) or
+        not raisesOverflowError(     0 << intExpr(         -999)) or
+        not raisesOverflowError(     0 << intExpr(          -63)) or
+        not raisesOverflowError(     0 << intExpr(           -1)) or
+        not raisesOverflowError(     0 << intExpr(           64)) or
+        not raisesOverflowError(     0 << intExpr(          999)) or
+        not raisesOverflowError(     0 << intExpr( integer.last)) or
+        not raisesOverflowError( 16111 << intExpr(integer.first)) or
+        not raisesOverflowError( 16111 << intExpr(         -999)) or
+        not raisesOverflowError( 16111 << intExpr(          -63)) or
+        not raisesOverflowError( 16111 << intExpr(           -1)) or
+        not raisesOverflowError( 16111 << intExpr(           64)) or
+        not raisesOverflowError( 16111 << intExpr(          999)) or
+        not raisesOverflowError( 16111 << intExpr( integer.last)) or
+        not raisesOverflowError(intExpr(-16111) << intExpr(integer.first)) or
+        not raisesOverflowError(intExpr(-16111) << intExpr(         -999)) or
+        not raisesOverflowError(intExpr(-16111) << intExpr(          -63)) or
+        not raisesOverflowError(intExpr(-16111) << intExpr(           -1)) or
+        not raisesOverflowError(intExpr(-16111) << intExpr(           64)) or
+        not raisesOverflowError(intExpr(-16111) << intExpr(          999)) or
+        not raisesOverflowError(intExpr(-16111) << intExpr( integer.last)) or
+        not raisesOverflowError(intExpr(    -1) << intExpr(integer.first)) or
+        not raisesOverflowError(intExpr(    -1) << intExpr(         -999)) or
+        not raisesOverflowError(intExpr(    -1) << intExpr(          -63)) or
+        not raisesOverflowError(intExpr(    -1) << intExpr(           -1)) or
+        not raisesOverflowError(intExpr(    -1) << intExpr(           64)) or
+        not raisesOverflowError(intExpr(    -1) << intExpr(          999)) or
+        not raisesOverflowError(intExpr(    -1) << intExpr( integer.last)) or
+        not raisesOverflowError(intExpr(     0) << intExpr(integer.first)) or
+        not raisesOverflowError(intExpr(     0) << intExpr(         -999)) or
+        not raisesOverflowError(intExpr(     0) << intExpr(          -63)) or
+        not raisesOverflowError(intExpr(     0) << intExpr(           -1)) or
+        not raisesOverflowError(intExpr(     0) << intExpr(           64)) or
+        not raisesOverflowError(intExpr(     0) << intExpr(          999)) or
+        not raisesOverflowError(intExpr(     0) << intExpr( integer.last)) or
+        not raisesOverflowError(intExpr( 16111) << intExpr(integer.first)) or
+        not raisesOverflowError(intExpr( 16111) << intExpr(         -999)) or
+        not raisesOverflowError(intExpr( 16111) << intExpr(          -63)) or
+        not raisesOverflowError(intExpr( 16111) << intExpr(           -1)) or
+        not raisesOverflowError(intExpr( 16111) << intExpr(           64)) or
+        not raisesOverflowError(intExpr( 16111) << intExpr(          999)) or
+        not raisesOverflowError(intExpr( 16111) << intExpr( integer.last)) then
       writeln(" ***** Left shift with illegal shift count does not raise OVERFLOW_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if not check_reduced_overflow_checking_for_lshift then
       okay := FALSE;
     end if;
 
@@ -4277,86 +4810,118 @@ const proc: check_rShift is func
   local
     var boolean: okay is TRUE;
   begin
-    if  not raisesOverflowError(-16111 >> -999) or
-        not raisesOverflowError(-16111 >>  -63) or
-        not raisesOverflowError(-16111 >>   -1) or
-        not raisesOverflowError(-16111 >>   64) or
-        not raisesOverflowError(-16111 >>  999) or
-        not raisesOverflowError(    -1 >> -999) or
-        not raisesOverflowError(    -1 >>  -63) or
-        not raisesOverflowError(    -1 >>   -1) or
-        not raisesOverflowError(    -1 >>   64) or
-        not raisesOverflowError(    -1 >>  999) or
-        not raisesOverflowError(     0 >> -999) or
-        not raisesOverflowError(     0 >>  -63) or
-        not raisesOverflowError(     0 >>   -1) or
-        not raisesOverflowError(     0 >>   64) or
-        not raisesOverflowError(     0 >>  999) or
-        not raisesOverflowError( 16111 >> -999) or
-        not raisesOverflowError( 16111 >>  -63) or
-        not raisesOverflowError( 16111 >>   -1) or
-        not raisesOverflowError( 16111 >>   64) or
-        not raisesOverflowError( 16111 >>  999) or
-        not raisesOverflowError(intExpr(-16111) >> -999) or
-        not raisesOverflowError(intExpr(-16111) >>  -63) or
-        not raisesOverflowError(intExpr(-16111) >>   -1) or
-        not raisesOverflowError(intExpr(-16111) >>   64) or
-        not raisesOverflowError(intExpr(-16111) >>  999) or
-        not raisesOverflowError(intExpr(    -1) >> -999) or
-        not raisesOverflowError(intExpr(    -1) >>  -63) or
-        not raisesOverflowError(intExpr(    -1) >>   -1) or
-        not raisesOverflowError(intExpr(    -1) >>   64) or
-        not raisesOverflowError(intExpr(    -1) >>  999) or
-        not raisesOverflowError(intExpr(     0) >> -999) or
-        not raisesOverflowError(intExpr(     0) >>  -63) or
-        not raisesOverflowError(intExpr(     0) >>   -1) or
-        not raisesOverflowError(intExpr(     0) >>   64) or
-        not raisesOverflowError(intExpr(     0) >>  999) or
-        not raisesOverflowError(intExpr( 16111) >> -999) or
-        not raisesOverflowError(intExpr( 16111) >>  -63) or
-        not raisesOverflowError(intExpr( 16111) >>   -1) or
-        not raisesOverflowError(intExpr( 16111) >>   64) or
-        not raisesOverflowError(intExpr( 16111) >>  999) or
-        not raisesOverflowError(-16111 >> intExpr(-999)) or
-        not raisesOverflowError(-16111 >> intExpr( -63)) or
-        not raisesOverflowError(-16111 >> intExpr(  -1)) or
-        not raisesOverflowError(-16111 >> intExpr(  64)) or
-        not raisesOverflowError(-16111 >> intExpr( 999)) or
-        not raisesOverflowError(    -1 >> intExpr(-999)) or
-        not raisesOverflowError(    -1 >> intExpr( -63)) or
-        not raisesOverflowError(    -1 >> intExpr(  -1)) or
-        not raisesOverflowError(    -1 >> intExpr(  64)) or
-        not raisesOverflowError(    -1 >> intExpr( 999)) or
-        not raisesOverflowError(     0 >> intExpr(-999)) or
-        not raisesOverflowError(     0 >> intExpr( -63)) or
-        not raisesOverflowError(     0 >> intExpr(  -1)) or
-        not raisesOverflowError(     0 >> intExpr(  64)) or
-        not raisesOverflowError(     0 >> intExpr( 999)) or
-        not raisesOverflowError( 16111 >> intExpr(-999)) or
-        not raisesOverflowError( 16111 >> intExpr( -63)) or
-        not raisesOverflowError( 16111 >> intExpr(  -1)) or
-        not raisesOverflowError( 16111 >> intExpr(  64)) or
-        not raisesOverflowError( 16111 >> intExpr( 999)) or
-        not raisesOverflowError(intExpr(-16111) >> intExpr(-999)) or
-        not raisesOverflowError(intExpr(-16111) >> intExpr( -63)) or
-        not raisesOverflowError(intExpr(-16111) >> intExpr(  -1)) or
-        not raisesOverflowError(intExpr(-16111) >> intExpr(  64)) or
-        not raisesOverflowError(intExpr(-16111) >> intExpr( 999)) or
-        not raisesOverflowError(intExpr(    -1) >> intExpr(-999)) or
-        not raisesOverflowError(intExpr(    -1) >> intExpr( -63)) or
-        not raisesOverflowError(intExpr(    -1) >> intExpr(  -1)) or
-        not raisesOverflowError(intExpr(    -1) >> intExpr(  64)) or
-        not raisesOverflowError(intExpr(    -1) >> intExpr( 999)) or
-        not raisesOverflowError(intExpr(     0) >> intExpr(-999)) or
-        not raisesOverflowError(intExpr(     0) >> intExpr( -63)) or
-        not raisesOverflowError(intExpr(     0) >> intExpr(  -1)) or
-        not raisesOverflowError(intExpr(     0) >> intExpr(  64)) or
-        not raisesOverflowError(intExpr(     0) >> intExpr( 999)) or
-        not raisesOverflowError(intExpr( 16111) >> intExpr(-999)) or
-        not raisesOverflowError(intExpr( 16111) >> intExpr( -63)) or
-        not raisesOverflowError(intExpr( 16111) >> intExpr(  -1)) or
-        not raisesOverflowError(intExpr( 16111) >> intExpr(  64)) or
-        not raisesOverflowError(intExpr( 16111) >> intExpr( 999)) then
+    if  not raisesOverflowError(-16111 >> integer.first) or
+        not raisesOverflowError(-16111 >>          -999) or
+        not raisesOverflowError(-16111 >>           -63) or
+        not raisesOverflowError(-16111 >>            -1) or
+        not raisesOverflowError(-16111 >>            64) or
+        not raisesOverflowError(-16111 >>           999) or
+        not raisesOverflowError(-16111 >>  integer.last) or
+        not raisesOverflowError(    -1 >> integer.first) or
+        not raisesOverflowError(    -1 >>          -999) or
+        not raisesOverflowError(    -1 >>           -63) or
+        not raisesOverflowError(    -1 >>            -1) or
+        not raisesOverflowError(    -1 >>            64) or
+        not raisesOverflowError(    -1 >>           999) or
+        not raisesOverflowError(    -1 >>  integer.last) or
+        not raisesOverflowError(     0 >> integer.first) or
+        not raisesOverflowError(     0 >>          -999) or
+        not raisesOverflowError(     0 >>           -63) or
+        not raisesOverflowError(     0 >>            -1) or
+        not raisesOverflowError(     0 >>            64) or
+        not raisesOverflowError(     0 >>           999) or
+        not raisesOverflowError(     0 >>  integer.last) or
+        not raisesOverflowError( 16111 >> integer.first) or
+        not raisesOverflowError( 16111 >>          -999) or
+        not raisesOverflowError( 16111 >>           -63) or
+        not raisesOverflowError( 16111 >>            -1) or
+        not raisesOverflowError( 16111 >>            64) or
+        not raisesOverflowError( 16111 >>           999) or
+        not raisesOverflowError( 16111 >>  integer.last) or
+        not raisesOverflowError(intExpr(-16111) >> integer.first) or
+        not raisesOverflowError(intExpr(-16111) >>          -999) or
+        not raisesOverflowError(intExpr(-16111) >>           -63) or
+        not raisesOverflowError(intExpr(-16111) >>            -1) or
+        not raisesOverflowError(intExpr(-16111) >>            64) or
+        not raisesOverflowError(intExpr(-16111) >>           999) or
+        not raisesOverflowError(intExpr(-16111) >>  integer.last) or
+        not raisesOverflowError(intExpr(    -1) >> integer.first) or
+        not raisesOverflowError(intExpr(    -1) >>          -999) or
+        not raisesOverflowError(intExpr(    -1) >>           -63) or
+        not raisesOverflowError(intExpr(    -1) >>            -1) or
+        not raisesOverflowError(intExpr(    -1) >>            64) or
+        not raisesOverflowError(intExpr(    -1) >>           999) or
+        not raisesOverflowError(intExpr(    -1) >>  integer.last) or
+        not raisesOverflowError(intExpr(     0) >> integer.first) or
+        not raisesOverflowError(intExpr(     0) >>          -999) or
+        not raisesOverflowError(intExpr(     0) >>           -63) or
+        not raisesOverflowError(intExpr(     0) >>            -1) or
+        not raisesOverflowError(intExpr(     0) >>            64) or
+        not raisesOverflowError(intExpr(     0) >>           999) or
+        not raisesOverflowError(intExpr(     0) >>  integer.last) or
+        not raisesOverflowError(intExpr( 16111) >> integer.first) or
+        not raisesOverflowError(intExpr( 16111) >>          -999) or
+        not raisesOverflowError(intExpr( 16111) >>           -63) or
+        not raisesOverflowError(intExpr( 16111) >>            -1) or
+        not raisesOverflowError(intExpr( 16111) >>            64) or
+        not raisesOverflowError(intExpr( 16111) >>           999) or
+        not raisesOverflowError(intExpr( 16111) >>  integer.last) or
+        not raisesOverflowError(-16111 >> intExpr(integer.first)) or
+        not raisesOverflowError(-16111 >> intExpr(         -999)) or
+        not raisesOverflowError(-16111 >> intExpr(          -63)) or
+        not raisesOverflowError(-16111 >> intExpr(           -1)) or
+        not raisesOverflowError(-16111 >> intExpr(           64)) or
+        not raisesOverflowError(-16111 >> intExpr(          999)) or
+        not raisesOverflowError(-16111 >> intExpr( integer.last)) or
+        not raisesOverflowError(    -1 >> intExpr(integer.first)) or
+        not raisesOverflowError(    -1 >> intExpr(         -999)) or
+        not raisesOverflowError(    -1 >> intExpr(          -63)) or
+        not raisesOverflowError(    -1 >> intExpr(           -1)) or
+        not raisesOverflowError(    -1 >> intExpr(           64)) or
+        not raisesOverflowError(    -1 >> intExpr(          999)) or
+        not raisesOverflowError(    -1 >> intExpr( integer.last)) or
+        not raisesOverflowError(     0 >> intExpr(integer.first)) or
+        not raisesOverflowError(     0 >> intExpr(         -999)) or
+        not raisesOverflowError(     0 >> intExpr(          -63)) or
+        not raisesOverflowError(     0 >> intExpr(           -1)) or
+        not raisesOverflowError(     0 >> intExpr(           64)) or
+        not raisesOverflowError(     0 >> intExpr(          999)) or
+        not raisesOverflowError(     0 >> intExpr( integer.last)) or
+        not raisesOverflowError( 16111 >> intExpr(integer.first)) or
+        not raisesOverflowError( 16111 >> intExpr(         -999)) or
+        not raisesOverflowError( 16111 >> intExpr(          -63)) or
+        not raisesOverflowError( 16111 >> intExpr(           -1)) or
+        not raisesOverflowError( 16111 >> intExpr(           64)) or
+        not raisesOverflowError( 16111 >> intExpr(          999)) or
+        not raisesOverflowError( 16111 >> intExpr( integer.last)) or
+        not raisesOverflowError(intExpr(-16111) >> intExpr(integer.first)) or
+        not raisesOverflowError(intExpr(-16111) >> intExpr(         -999)) or
+        not raisesOverflowError(intExpr(-16111) >> intExpr(          -63)) or
+        not raisesOverflowError(intExpr(-16111) >> intExpr(           -1)) or
+        not raisesOverflowError(intExpr(-16111) >> intExpr(           64)) or
+        not raisesOverflowError(intExpr(-16111) >> intExpr(          999)) or
+        not raisesOverflowError(intExpr(-16111) >> intExpr( integer.last)) or
+        not raisesOverflowError(intExpr(    -1) >> intExpr(integer.first)) or
+        not raisesOverflowError(intExpr(    -1) >> intExpr(         -999)) or
+        not raisesOverflowError(intExpr(    -1) >> intExpr(          -63)) or
+        not raisesOverflowError(intExpr(    -1) >> intExpr(           -1)) or
+        not raisesOverflowError(intExpr(    -1) >> intExpr(           64)) or
+        not raisesOverflowError(intExpr(    -1) >> intExpr(          999)) or
+        not raisesOverflowError(intExpr(    -1) >> intExpr( integer.last)) or
+        not raisesOverflowError(intExpr(     0) >> intExpr(integer.first)) or
+        not raisesOverflowError(intExpr(     0) >> intExpr(         -999)) or
+        not raisesOverflowError(intExpr(     0) >> intExpr(          -63)) or
+        not raisesOverflowError(intExpr(     0) >> intExpr(           -1)) or
+        not raisesOverflowError(intExpr(     0) >> intExpr(           64)) or
+        not raisesOverflowError(intExpr(     0) >> intExpr(          999)) or
+        not raisesOverflowError(intExpr(     0) >> intExpr( integer.last)) or
+        not raisesOverflowError(intExpr( 16111) >> intExpr(integer.first)) or
+        not raisesOverflowError(intExpr( 16111) >> intExpr(         -999)) or
+        not raisesOverflowError(intExpr( 16111) >> intExpr(          -63)) or
+        not raisesOverflowError(intExpr( 16111) >> intExpr(           -1)) or
+        not raisesOverflowError(intExpr( 16111) >> intExpr(           64)) or
+        not raisesOverflowError(intExpr( 16111) >> intExpr(          999)) or
+        not raisesOverflowError(intExpr( 16111) >> intExpr( integer.last)) then
       writeln(" ***** Right shift with illegal shift count does not raise OVERFLOW_ERROR.");
       okay := FALSE;
     end if;
@@ -4473,86 +5038,118 @@ const proc: check_ulShift is func
   local
     var boolean: okay is TRUE;
   begin
-    if  not raisesOverflowError(bin32(-16111) << -999) or
-        not raisesOverflowError(bin32(-16111) <<  -63) or
-        not raisesOverflowError(bin32(-16111) <<   -1) or
-        not raisesOverflowError(bin32(-16111) <<   64) or
-        not raisesOverflowError(bin32(-16111) <<  999) or
-        not raisesOverflowError(bin32(    -1) << -999) or
-        not raisesOverflowError(bin32(    -1) <<  -63) or
-        not raisesOverflowError(bin32(    -1) <<   -1) or
-        not raisesOverflowError(bin32(    -1) <<   64) or
-        not raisesOverflowError(bin32(    -1) <<  999) or
-        not raisesOverflowError(bin32(     0) << -999) or
-        not raisesOverflowError(bin32(     0) <<  -63) or
-        not raisesOverflowError(bin32(     0) <<   -1) or
-        not raisesOverflowError(bin32(     0) <<   64) or
-        not raisesOverflowError(bin32(     0) <<  999) or
-        not raisesOverflowError(bin32( 16111) << -999) or
-        not raisesOverflowError(bin32( 16111) <<  -63) or
-        not raisesOverflowError(bin32( 16111) <<   -1) or
-        not raisesOverflowError(bin32( 16111) <<   64) or
-        not raisesOverflowError(bin32( 16111) <<  999) or
-        not raisesOverflowError(bin32(intExpr(-16111)) << -999) or
-        not raisesOverflowError(bin32(intExpr(-16111)) <<  -63) or
-        not raisesOverflowError(bin32(intExpr(-16111)) <<   -1) or
-        not raisesOverflowError(bin32(intExpr(-16111)) <<   64) or
-        not raisesOverflowError(bin32(intExpr(-16111)) <<  999) or
-        not raisesOverflowError(bin32(intExpr(    -1)) << -999) or
-        not raisesOverflowError(bin32(intExpr(    -1)) <<  -63) or
-        not raisesOverflowError(bin32(intExpr(    -1)) <<   -1) or
-        not raisesOverflowError(bin32(intExpr(    -1)) <<   64) or
-        not raisesOverflowError(bin32(intExpr(    -1)) <<  999) or
-        not raisesOverflowError(bin32(intExpr(     0)) << -999) or
-        not raisesOverflowError(bin32(intExpr(     0)) <<  -63) or
-        not raisesOverflowError(bin32(intExpr(     0)) <<   -1) or
-        not raisesOverflowError(bin32(intExpr(     0)) <<   64) or
-        not raisesOverflowError(bin32(intExpr(     0)) <<  999) or
-        not raisesOverflowError(bin32(intExpr( 16111)) << -999) or
-        not raisesOverflowError(bin32(intExpr( 16111)) <<  -63) or
-        not raisesOverflowError(bin32(intExpr( 16111)) <<   -1) or
-        not raisesOverflowError(bin32(intExpr( 16111)) <<   64) or
-        not raisesOverflowError(bin32(intExpr( 16111)) <<  999) or
-        not raisesOverflowError(bin32(-16111) << intExpr(-999)) or
-        not raisesOverflowError(bin32(-16111) << intExpr( -63)) or
-        not raisesOverflowError(bin32(-16111) << intExpr(  -1)) or
-        not raisesOverflowError(bin32(-16111) << intExpr(  64)) or
-        not raisesOverflowError(bin32(-16111) << intExpr( 999)) or
-        not raisesOverflowError(bin32(    -1) << intExpr(-999)) or
-        not raisesOverflowError(bin32(    -1) << intExpr( -63)) or
-        not raisesOverflowError(bin32(    -1) << intExpr(  -1)) or
-        not raisesOverflowError(bin32(    -1) << intExpr(  64)) or
-        not raisesOverflowError(bin32(    -1) << intExpr( 999)) or
-        not raisesOverflowError(bin32(     0) << intExpr(-999)) or
-        not raisesOverflowError(bin32(     0) << intExpr( -63)) or
-        not raisesOverflowError(bin32(     0) << intExpr(  -1)) or
-        not raisesOverflowError(bin32(     0) << intExpr(  64)) or
-        not raisesOverflowError(bin32(     0) << intExpr( 999)) or
-        not raisesOverflowError(bin32( 16111) << intExpr(-999)) or
-        not raisesOverflowError(bin32( 16111) << intExpr( -63)) or
-        not raisesOverflowError(bin32( 16111) << intExpr(  -1)) or
-        not raisesOverflowError(bin32( 16111) << intExpr(  64)) or
-        not raisesOverflowError(bin32( 16111) << intExpr( 999)) or
-        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr(-999)) or
-        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr( -63)) or
-        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr(  -1)) or
-        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr(  64)) or
-        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr( 999)) or
-        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr(-999)) or
-        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr( -63)) or
-        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr(  -1)) or
-        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr(  64)) or
-        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr( 999)) or
-        not raisesOverflowError(bin32(intExpr(     0)) << intExpr(-999)) or
-        not raisesOverflowError(bin32(intExpr(     0)) << intExpr( -63)) or
-        not raisesOverflowError(bin32(intExpr(     0)) << intExpr(  -1)) or
-        not raisesOverflowError(bin32(intExpr(     0)) << intExpr(  64)) or
-        not raisesOverflowError(bin32(intExpr(     0)) << intExpr( 999)) or
-        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr(-999)) or
-        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr( -63)) or
-        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr(  -1)) or
-        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr(  64)) or
-        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr( 999)) then
+    if  not raisesOverflowError(bin32(-16111) << integer.first) or
+        not raisesOverflowError(bin32(-16111) <<          -999) or
+        not raisesOverflowError(bin32(-16111) <<           -63) or
+        not raisesOverflowError(bin32(-16111) <<            -1) or
+        not raisesOverflowError(bin32(-16111) <<            64) or
+        not raisesOverflowError(bin32(-16111) <<           999) or
+        not raisesOverflowError(bin32(-16111) <<  integer.last) or
+        not raisesOverflowError(bin32(    -1) << integer.first) or
+        not raisesOverflowError(bin32(    -1) <<          -999) or
+        not raisesOverflowError(bin32(    -1) <<           -63) or
+        not raisesOverflowError(bin32(    -1) <<            -1) or
+        not raisesOverflowError(bin32(    -1) <<            64) or
+        not raisesOverflowError(bin32(    -1) <<           999) or
+        not raisesOverflowError(bin32(    -1) <<  integer.last) or
+        not raisesOverflowError(bin32(     0) << integer.first) or
+        not raisesOverflowError(bin32(     0) <<          -999) or
+        not raisesOverflowError(bin32(     0) <<           -63) or
+        not raisesOverflowError(bin32(     0) <<            -1) or
+        not raisesOverflowError(bin32(     0) <<            64) or
+        not raisesOverflowError(bin32(     0) <<           999) or
+        not raisesOverflowError(bin32(     0) <<  integer.last) or
+        not raisesOverflowError(bin32( 16111) << integer.first) or
+        not raisesOverflowError(bin32( 16111) <<          -999) or
+        not raisesOverflowError(bin32( 16111) <<           -63) or
+        not raisesOverflowError(bin32( 16111) <<            -1) or
+        not raisesOverflowError(bin32( 16111) <<            64) or
+        not raisesOverflowError(bin32( 16111) <<           999) or
+        not raisesOverflowError(bin32( 16111) <<  integer.last) or
+        not raisesOverflowError(bin32(intExpr(-16111)) << integer.first) or
+        not raisesOverflowError(bin32(intExpr(-16111)) <<          -999) or
+        not raisesOverflowError(bin32(intExpr(-16111)) <<           -63) or
+        not raisesOverflowError(bin32(intExpr(-16111)) <<            -1) or
+        not raisesOverflowError(bin32(intExpr(-16111)) <<            64) or
+        not raisesOverflowError(bin32(intExpr(-16111)) <<           999) or
+        not raisesOverflowError(bin32(intExpr(-16111)) <<  integer.last) or
+        not raisesOverflowError(bin32(intExpr(    -1)) << integer.first) or
+        not raisesOverflowError(bin32(intExpr(    -1)) <<          -999) or
+        not raisesOverflowError(bin32(intExpr(    -1)) <<           -63) or
+        not raisesOverflowError(bin32(intExpr(    -1)) <<            -1) or
+        not raisesOverflowError(bin32(intExpr(    -1)) <<            64) or
+        not raisesOverflowError(bin32(intExpr(    -1)) <<           999) or
+        not raisesOverflowError(bin32(intExpr(    -1)) <<  integer.last) or
+        not raisesOverflowError(bin32(intExpr(     0)) << integer.first) or
+        not raisesOverflowError(bin32(intExpr(     0)) <<          -999) or
+        not raisesOverflowError(bin32(intExpr(     0)) <<           -63) or
+        not raisesOverflowError(bin32(intExpr(     0)) <<            -1) or
+        not raisesOverflowError(bin32(intExpr(     0)) <<            64) or
+        not raisesOverflowError(bin32(intExpr(     0)) <<           999) or
+        not raisesOverflowError(bin32(intExpr(     0)) <<  integer.last) or
+        not raisesOverflowError(bin32(intExpr( 16111)) << integer.first) or
+        not raisesOverflowError(bin32(intExpr( 16111)) <<          -999) or
+        not raisesOverflowError(bin32(intExpr( 16111)) <<           -63) or
+        not raisesOverflowError(bin32(intExpr( 16111)) <<            -1) or
+        not raisesOverflowError(bin32(intExpr( 16111)) <<            64) or
+        not raisesOverflowError(bin32(intExpr( 16111)) <<           999) or
+        not raisesOverflowError(bin32(intExpr( 16111)) <<  integer.last) or
+        not raisesOverflowError(bin32(-16111) << intExpr(integer.first)) or
+        not raisesOverflowError(bin32(-16111) << intExpr(         -999)) or
+        not raisesOverflowError(bin32(-16111) << intExpr(          -63)) or
+        not raisesOverflowError(bin32(-16111) << intExpr(           -1)) or
+        not raisesOverflowError(bin32(-16111) << intExpr(           64)) or
+        not raisesOverflowError(bin32(-16111) << intExpr(          999)) or
+        not raisesOverflowError(bin32(-16111) << intExpr( integer.last)) or
+        not raisesOverflowError(bin32(    -1) << intExpr(integer.first)) or
+        not raisesOverflowError(bin32(    -1) << intExpr(         -999)) or
+        not raisesOverflowError(bin32(    -1) << intExpr(          -63)) or
+        not raisesOverflowError(bin32(    -1) << intExpr(           -1)) or
+        not raisesOverflowError(bin32(    -1) << intExpr(           64)) or
+        not raisesOverflowError(bin32(    -1) << intExpr(          999)) or
+        not raisesOverflowError(bin32(    -1) << intExpr( integer.last)) or
+        not raisesOverflowError(bin32(     0) << intExpr(integer.first)) or
+        not raisesOverflowError(bin32(     0) << intExpr(         -999)) or
+        not raisesOverflowError(bin32(     0) << intExpr(          -63)) or
+        not raisesOverflowError(bin32(     0) << intExpr(           -1)) or
+        not raisesOverflowError(bin32(     0) << intExpr(           64)) or
+        not raisesOverflowError(bin32(     0) << intExpr(          999)) or
+        not raisesOverflowError(bin32(     0) << intExpr( integer.last)) or
+        not raisesOverflowError(bin32( 16111) << intExpr(integer.first)) or
+        not raisesOverflowError(bin32( 16111) << intExpr(         -999)) or
+        not raisesOverflowError(bin32( 16111) << intExpr(          -63)) or
+        not raisesOverflowError(bin32( 16111) << intExpr(           -1)) or
+        not raisesOverflowError(bin32( 16111) << intExpr(           64)) or
+        not raisesOverflowError(bin32( 16111) << intExpr(          999)) or
+        not raisesOverflowError(bin32( 16111) << intExpr( integer.last)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr(integer.first)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr(         -999)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr(          -63)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr(           -1)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr(           64)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr(          999)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) << intExpr( integer.last)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr(integer.first)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr(         -999)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr(          -63)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr(           -1)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr(           64)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr(          999)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) << intExpr( integer.last)) or
+        not raisesOverflowError(bin32(intExpr(     0)) << intExpr(integer.first)) or
+        not raisesOverflowError(bin32(intExpr(     0)) << intExpr(         -999)) or
+        not raisesOverflowError(bin32(intExpr(     0)) << intExpr(          -63)) or
+        not raisesOverflowError(bin32(intExpr(     0)) << intExpr(           -1)) or
+        not raisesOverflowError(bin32(intExpr(     0)) << intExpr(           64)) or
+        not raisesOverflowError(bin32(intExpr(     0)) << intExpr(          999)) or
+        not raisesOverflowError(bin32(intExpr(     0)) << intExpr( integer.last)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr(integer.first)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr(         -999)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr(          -63)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr(           -1)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr(           64)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr(          999)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) << intExpr( integer.last)) then
       writeln(" ***** Unsigned left shift with illegal shift count does not raise OVERFLOW_ERROR.");
       okay := FALSE;
     end if;
@@ -4669,86 +5266,118 @@ const proc: check_urShift is func
   local
     var boolean: okay is TRUE;
   begin
-    if  not raisesOverflowError(bin32(-16111) >> -999) or
-        not raisesOverflowError(bin32(-16111) >>  -63) or
-        not raisesOverflowError(bin32(-16111) >>   -1) or
-        not raisesOverflowError(bin32(-16111) >>   64) or
-        not raisesOverflowError(bin32(-16111) >>  999) or
-        not raisesOverflowError(bin32(    -1) >> -999) or
-        not raisesOverflowError(bin32(    -1) >>  -63) or
-        not raisesOverflowError(bin32(    -1) >>   -1) or
-        not raisesOverflowError(bin32(    -1) >>   64) or
-        not raisesOverflowError(bin32(    -1) >>  999) or
-        not raisesOverflowError(bin32(     0) >> -999) or
-        not raisesOverflowError(bin32(     0) >>  -63) or
-        not raisesOverflowError(bin32(     0) >>   -1) or
-        not raisesOverflowError(bin32(     0) >>   64) or
-        not raisesOverflowError(bin32(     0) >>  999) or
-        not raisesOverflowError(bin32( 16111) >> -999) or
-        not raisesOverflowError(bin32( 16111) >>  -63) or
-        not raisesOverflowError(bin32( 16111) >>   -1) or
-        not raisesOverflowError(bin32( 16111) >>   64) or
-        not raisesOverflowError(bin32( 16111) >>  999) or
-        not raisesOverflowError(bin32(intExpr(-16111)) >> -999) or
-        not raisesOverflowError(bin32(intExpr(-16111)) >>  -63) or
-        not raisesOverflowError(bin32(intExpr(-16111)) >>   -1) or
-        not raisesOverflowError(bin32(intExpr(-16111)) >>   64) or
-        not raisesOverflowError(bin32(intExpr(-16111)) >>  999) or
-        not raisesOverflowError(bin32(intExpr(    -1)) >> -999) or
-        not raisesOverflowError(bin32(intExpr(    -1)) >>  -63) or
-        not raisesOverflowError(bin32(intExpr(    -1)) >>   -1) or
-        not raisesOverflowError(bin32(intExpr(    -1)) >>   64) or
-        not raisesOverflowError(bin32(intExpr(    -1)) >>  999) or
-        not raisesOverflowError(bin32(intExpr(     0)) >> -999) or
-        not raisesOverflowError(bin32(intExpr(     0)) >>  -63) or
-        not raisesOverflowError(bin32(intExpr(     0)) >>   -1) or
-        not raisesOverflowError(bin32(intExpr(     0)) >>   64) or
-        not raisesOverflowError(bin32(intExpr(     0)) >>  999) or
-        not raisesOverflowError(bin32(intExpr( 16111)) >> -999) or
-        not raisesOverflowError(bin32(intExpr( 16111)) >>  -63) or
-        not raisesOverflowError(bin32(intExpr( 16111)) >>   -1) or
-        not raisesOverflowError(bin32(intExpr( 16111)) >>   64) or
-        not raisesOverflowError(bin32(intExpr( 16111)) >>  999) or
-        not raisesOverflowError(bin32(-16111) >> intExpr(-999)) or
-        not raisesOverflowError(bin32(-16111) >> intExpr( -63)) or
-        not raisesOverflowError(bin32(-16111) >> intExpr(  -1)) or
-        not raisesOverflowError(bin32(-16111) >> intExpr(  64)) or
-        not raisesOverflowError(bin32(-16111) >> intExpr( 999)) or
-        not raisesOverflowError(bin32(    -1) >> intExpr(-999)) or
-        not raisesOverflowError(bin32(    -1) >> intExpr( -63)) or
-        not raisesOverflowError(bin32(    -1) >> intExpr(  -1)) or
-        not raisesOverflowError(bin32(    -1) >> intExpr(  64)) or
-        not raisesOverflowError(bin32(    -1) >> intExpr( 999)) or
-        not raisesOverflowError(bin32(     0) >> intExpr(-999)) or
-        not raisesOverflowError(bin32(     0) >> intExpr( -63)) or
-        not raisesOverflowError(bin32(     0) >> intExpr(  -1)) or
-        not raisesOverflowError(bin32(     0) >> intExpr(  64)) or
-        not raisesOverflowError(bin32(     0) >> intExpr( 999)) or
-        not raisesOverflowError(bin32( 16111) >> intExpr(-999)) or
-        not raisesOverflowError(bin32( 16111) >> intExpr( -63)) or
-        not raisesOverflowError(bin32( 16111) >> intExpr(  -1)) or
-        not raisesOverflowError(bin32( 16111) >> intExpr(  64)) or
-        not raisesOverflowError(bin32( 16111) >> intExpr( 999)) or
-        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr(-999)) or
-        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr( -63)) or
-        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr(  -1)) or
-        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr(  64)) or
-        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr( 999)) or
-        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr(-999)) or
-        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr( -63)) or
-        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr(  -1)) or
-        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr(  64)) or
-        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr( 999)) or
-        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr(-999)) or
-        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr( -63)) or
-        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr(  -1)) or
-        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr(  64)) or
-        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr( 999)) or
-        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr(-999)) or
-        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr( -63)) or
-        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr(  -1)) or
-        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr(  64)) or
-        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr( 999)) then
+    if  not raisesOverflowError(bin32(-16111) >> integer.first) or
+        not raisesOverflowError(bin32(-16111) >>          -999) or
+        not raisesOverflowError(bin32(-16111) >>           -63) or
+        not raisesOverflowError(bin32(-16111) >>            -1) or
+        not raisesOverflowError(bin32(-16111) >>            64) or
+        not raisesOverflowError(bin32(-16111) >>           999) or
+        not raisesOverflowError(bin32(-16111) >>  integer.last) or
+        not raisesOverflowError(bin32(    -1) >> integer.first) or
+        not raisesOverflowError(bin32(    -1) >>          -999) or
+        not raisesOverflowError(bin32(    -1) >>           -63) or
+        not raisesOverflowError(bin32(    -1) >>            -1) or
+        not raisesOverflowError(bin32(    -1) >>            64) or
+        not raisesOverflowError(bin32(    -1) >>           999) or
+        not raisesOverflowError(bin32(    -1) >>  integer.last) or
+        not raisesOverflowError(bin32(     0) >> integer.first) or
+        not raisesOverflowError(bin32(     0) >>          -999) or
+        not raisesOverflowError(bin32(     0) >>           -63) or
+        not raisesOverflowError(bin32(     0) >>            -1) or
+        not raisesOverflowError(bin32(     0) >>            64) or
+        not raisesOverflowError(bin32(     0) >>           999) or
+        not raisesOverflowError(bin32(     0) >>  integer.last) or
+        not raisesOverflowError(bin32( 16111) >> integer.first) or
+        not raisesOverflowError(bin32( 16111) >>          -999) or
+        not raisesOverflowError(bin32( 16111) >>           -63) or
+        not raisesOverflowError(bin32( 16111) >>            -1) or
+        not raisesOverflowError(bin32( 16111) >>            64) or
+        not raisesOverflowError(bin32( 16111) >>           999) or
+        not raisesOverflowError(bin32( 16111) >>  integer.last) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >> integer.first) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >>          -999) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >>           -63) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >>            -1) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >>            64) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >>           999) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >>  integer.last) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >> integer.first) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >>          -999) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >>           -63) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >>            -1) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >>            64) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >>           999) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >>  integer.last) or
+        not raisesOverflowError(bin32(intExpr(     0)) >> integer.first) or
+        not raisesOverflowError(bin32(intExpr(     0)) >>          -999) or
+        not raisesOverflowError(bin32(intExpr(     0)) >>           -63) or
+        not raisesOverflowError(bin32(intExpr(     0)) >>            -1) or
+        not raisesOverflowError(bin32(intExpr(     0)) >>            64) or
+        not raisesOverflowError(bin32(intExpr(     0)) >>           999) or
+        not raisesOverflowError(bin32(intExpr(     0)) >>  integer.last) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >> integer.first) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >>          -999) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >>           -63) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >>            -1) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >>            64) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >>           999) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >>  integer.last) or
+        not raisesOverflowError(bin32(-16111) >> intExpr(integer.first)) or
+        not raisesOverflowError(bin32(-16111) >> intExpr(         -999)) or
+        not raisesOverflowError(bin32(-16111) >> intExpr(          -63)) or
+        not raisesOverflowError(bin32(-16111) >> intExpr(           -1)) or
+        not raisesOverflowError(bin32(-16111) >> intExpr(           64)) or
+        not raisesOverflowError(bin32(-16111) >> intExpr(          999)) or
+        not raisesOverflowError(bin32(-16111) >> intExpr( integer.last)) or
+        not raisesOverflowError(bin32(    -1) >> intExpr(integer.first)) or
+        not raisesOverflowError(bin32(    -1) >> intExpr(         -999)) or
+        not raisesOverflowError(bin32(    -1) >> intExpr(          -63)) or
+        not raisesOverflowError(bin32(    -1) >> intExpr(           -1)) or
+        not raisesOverflowError(bin32(    -1) >> intExpr(           64)) or
+        not raisesOverflowError(bin32(    -1) >> intExpr(          999)) or
+        not raisesOverflowError(bin32(    -1) >> intExpr( integer.last)) or
+        not raisesOverflowError(bin32(     0) >> intExpr(integer.first)) or
+        not raisesOverflowError(bin32(     0) >> intExpr(         -999)) or
+        not raisesOverflowError(bin32(     0) >> intExpr(          -63)) or
+        not raisesOverflowError(bin32(     0) >> intExpr(           -1)) or
+        not raisesOverflowError(bin32(     0) >> intExpr(           64)) or
+        not raisesOverflowError(bin32(     0) >> intExpr(          999)) or
+        not raisesOverflowError(bin32(     0) >> intExpr( integer.last)) or
+        not raisesOverflowError(bin32( 16111) >> intExpr(integer.first)) or
+        not raisesOverflowError(bin32( 16111) >> intExpr(         -999)) or
+        not raisesOverflowError(bin32( 16111) >> intExpr(          -63)) or
+        not raisesOverflowError(bin32( 16111) >> intExpr(           -1)) or
+        not raisesOverflowError(bin32( 16111) >> intExpr(           64)) or
+        not raisesOverflowError(bin32( 16111) >> intExpr(          999)) or
+        not raisesOverflowError(bin32( 16111) >> intExpr( integer.last)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr(integer.first)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr(         -999)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr(          -63)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr(           -1)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr(           64)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr(          999)) or
+        not raisesOverflowError(bin32(intExpr(-16111)) >> intExpr( integer.last)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr(integer.first)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr(         -999)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr(          -63)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr(           -1)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr(           64)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr(          999)) or
+        not raisesOverflowError(bin32(intExpr(    -1)) >> intExpr( integer.last)) or
+        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr(integer.first)) or
+        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr(         -999)) or
+        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr(          -63)) or
+        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr(           -1)) or
+        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr(           64)) or
+        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr(          999)) or
+        not raisesOverflowError(bin32(intExpr(     0)) >> intExpr( integer.last)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr(integer.first)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr(         -999)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr(          -63)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr(           -1)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr(           64)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr(          999)) or
+        not raisesOverflowError(bin32(intExpr( 16111)) >> intExpr( integer.last)) then
       writeln(" ***** Unsigned right shift with illegal shift count does not raise OVERFLOW_ERROR.");
       okay := FALSE;
     end if;

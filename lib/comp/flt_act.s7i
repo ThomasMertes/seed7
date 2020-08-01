@@ -258,22 +258,33 @@ const proc: process (FLT_BITS2SINGLE, in reference: function,
     var string: temp_name is "";
     var string: union_name is "";
   begin
-    c_expr.expr &:= "(";
-    temp_name := getTempVariable("intType", "tmp_", params[1], c_expr);
-    union_name := defineTempVariable("float2BitsUnion", "conv_", c_expr);
-    c_expr.expr &:= "rngChk(";
-    c_expr.expr &:= temp_name;
-    c_expr.expr &:= ">";
-    c_expr.expr &:= integerLiteral(pred(2**32));
-    c_expr.expr &:= ")?";
-    c_expr.expr &:= intRaiseError("RANGE_ERROR");
-    c_expr.expr &:= ":(";
-    c_expr.expr &:= union_name;
-    c_expr.expr &:= ".bits=(uint32Type)(";
-    c_expr.expr &:= temp_name;
-    c_expr.expr &:= "),";
-    c_expr.expr &:= union_name;
-    c_expr.expr &:= ".aFloat))";
+    if conversion_range_check then
+      c_expr.expr &:= "(";
+      temp_name := getTempVariable("intType", "tmp_", params[1], c_expr);
+      union_name := defineTempVariable("float2BitsUnion", "conv_", c_expr);
+      c_expr.expr &:= "rngChk(";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= ">";
+      c_expr.expr &:= integerLiteral(pred(2**32));
+      c_expr.expr &:= ")?";
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
+      c_expr.expr &:= ":(";
+      c_expr.expr &:= union_name;
+      c_expr.expr &:= ".bits=(uint32Type)(";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= "),";
+      c_expr.expr &:= union_name;
+      c_expr.expr &:= ".aFloat))";
+    else
+      c_expr.expr &:= "(";
+      union_name := defineTempVariable("float2BitsUnion", "conv_", c_expr);
+      c_expr.expr &:= union_name;
+      c_expr.expr &:= ".bits=(uint32Type)(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= "),";
+      c_expr.expr &:= union_name;
+      c_expr.expr &:= ".aFloat)";
+    end if;
   end func;
 
 
