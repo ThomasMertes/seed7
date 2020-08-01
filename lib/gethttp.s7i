@@ -35,6 +35,16 @@ include "charsets.s7i";
 var string: proxyServer is "";
 var integer: proxyHttpPort is 0;
 const integer: httpDefaultPort is 80;
+const integer: httpsDefaultPort is 443;
+
+
+const type: httpLocation is new struct
+    var string: serverName is "";
+    var integer: portNumber is 0;
+    var string: hostName is "";
+    var string: path is "";
+    var string: params is "";
+  end struct;
 
 
 (**
@@ -47,49 +57,50 @@ const proc: setProxy (in string: serverName, in integer: portNumber) is func
   end func;
 
 
-const proc: splitHttpLocation (in string: location, inout string: hostname,
-    inout integer: portNumber, inout string: path, inout string: params,
-    in integer: defaultPortNumber) is func
+const func httpLocation: getHttpLocation (in string: location, in integer: defaultPortNumber) is func
+  result
+    var httpLocation: locationData is httpLocation.value;
   local
     var integer: slashPos is 0;
     var integer: questionMarkPos is 0;
     var integer: colonPos is 0;
   begin
-    # writeln("splitHttpLocation: " <& location);
+    # writeln("getHttpLocation: " <& location);
     slashPos := pos(location, "/");
     questionMarkPos := pos(location, "?");
     if slashPos = 0 then
       if questionMarkPos = 0 then
-        hostname := location;
-        path     := "";
-        params   := "";
+        locationData.hostName := location;
+        locationData.path     := "";
+        locationData.params   := "";
       else
-        hostname := location[.. pred(questionMarkPos)];
-        path     := "";
-        params   := location[succ(questionMarkPos) ..];
+        locationData.hostName := location[.. pred(questionMarkPos)];
+        locationData.path     := "";
+        locationData.params   := location[succ(questionMarkPos) ..];
       end if;
     else
       if questionMarkPos = 0 then
-        hostname := location[.. pred(slashPos)];
-        path     := location[succ(slashPos) ..];
-        params   := "";
+        locationData.hostName := location[.. pred(slashPos)];
+        locationData.path     := location[succ(slashPos) ..];
+        locationData.params   := "";
       elsif slashPos < questionMarkPos then
-        hostname := location[.. pred(slashPos)];
-        path     := location[succ(slashPos) .. pred(questionMarkPos)];
-        params   := location[succ(questionMarkPos) ..];
+        locationData.hostName := location[.. pred(slashPos)];
+        locationData.path     := location[succ(slashPos) .. pred(questionMarkPos)];
+        locationData.params   := location[succ(questionMarkPos) ..];
       else
-        hostname := location[.. pred(questionMarkPos)];
-        path     := "";
-        params   := location[succ(questionMarkPos) ..];
+        locationData.hostName := location[.. pred(questionMarkPos)];
+        locationData.path     := "";
+        locationData.params   := location[succ(questionMarkPos) ..];
       end if;
     end if;
-    colonPos := pos(hostname, ":");
-    if colonPos <> 0 and isDigitString(hostname[succ(colonPos) ..]) then
-      portNumber := integer parse (hostname[succ(colonPos) ..]);
-      hostname := hostname[.. pred(colonPos)];
+    colonPos := pos(locationData.hostName, ":");
+    if colonPos <> 0 and isDigitString(locationData.hostName[succ(colonPos) ..]) then
+      locationData.portNumber := integer parse (locationData.hostName[succ(colonPos) ..]);
+      locationData.hostName := locationData.hostName[.. pred(colonPos)];
     else
-      portNumber := defaultPortNumber;
+      locationData.portNumber := defaultPortNumber;
     end if;
+    locationData.serverName := locationData.hostName;
   end func;
 
 
@@ -119,42 +130,39 @@ const func string: toHttpAscii (in string: stri) is func
   end func;
 
 
-const proc: sendGet (inout file: sock, in string: hostname, in string: path,
-    in string: params) is func
+const proc: sendGet (inout file: sock, in httpLocation: location) is func
   local
     var string: address is "";
   begin
-    address := "/" & path;
-    if params <> "" then
-      address &:= "?" & params;
+    address := "/" & location.path;
+    if location.params <> "" then
+      address &:= "?" & location.params;
     end if;
     # writeln("sendGet: ");
     # writeln(literal(address));
     # writeln("GET " <& address <& " HTTP/1.1");
-    # writeln("Host: " <& hostname);
+    # writeln("Host: " <& location.hostName);
     # writeln("User-Agent: BlackHole");
-    # writeln(sock, "OPTIONS " <& address <& " HTTP/1.1");
-    writeln(sock, "GET " <& address <& " HTTP/1.1");
-    writeln(sock, "Host: " <& hostname);
-    writeln(sock, "User-Agent: BlackHole");
-    # writeln(sock, "Accept-Encoding: gzip");
-    # writeln(sock, "Accept-Encoding: gzip,deflate");
-    # writeln(sock, "Accept-Charset: utf-8");
-    writeln(sock);
+    write(sock, "GET " <& address <& " HTTP/1.1" <& "\r\n");
+    write(sock, "Host: " <& location.hostName <& "\r\n");
+    write(sock, "User-Agent: BlackHole" <& "\r\n");
+    # write(sock, "Accept-Encoding: gzip\r\n");
+    # write(sock, "Accept-Encoding: gzip,deflate\r\n");
+    # write(sock, "Accept-Charset: utf-8\r\n");
+    write(sock, "\r\n");
   end func;
 
 
-const func file: openHttp (in string: serverName, in integer: portNumber,
-    in string: hostname, in string: path, in string: params) is func
+const func file: openHttp (in httpLocation: locationData) is func
   result
     var file: sock is STD_NULL;
   begin
-    # writeln(literal(serverName) <& " " <& portNumber);
-    # writeln(hostname <& ":" <& portNumber <& "/" <& path);
-    # writeln("params=" <& params);
-    sock := openInetSocket(serverName, portNumber);
+    # writeln("openHttp: " <& literal(locationData.serverName) <& " " <& locationData.portNumber);
+    # writeln(locationData.hostName <& ":" <& locationData.portNumber <& "/" <& locationData.path);
+    # writeln("params=" <& locationData.params);
+    sock := openInetSocket(locationData.serverName, locationData.portNumber);
     if sock <> STD_NULL then
-      sendGet(sock, hostname, path, params);
+      sendGet(sock, locationData);
     end if;
   end func;
 
@@ -164,13 +172,12 @@ const func file: openHttp (in string: serverName, in integer: serverPortNumber,
   result
     var file: sock is STD_NULL;
   local
-    var string: hostname is "";
-    var integer: portNumber is 0;
-    var string: path is "";
-    var string: params is "";
+    var httpLocation: locationData is httpLocation.value;
   begin
-    splitHttpLocation(location, hostname, portNumber, path, params, httpDefaultPort);
-    sock := openHttp(serverName, serverPortNumber, hostname, path, params);
+    locationData := getHttpLocation(location, httpDefaultPort);
+    locationData.serverName := serverName;
+    locationData.portNumber := serverPortNumber;
+    sock := openHttp(locationData);
   end func;
 
 
@@ -178,13 +185,14 @@ const func file: openHttp (in string: location) is func
   result
     var file: sock is STD_NULL;
   local
-    var string: hostname is "";
-    var integer: portNumber is 0;
-    var string: path is "";
-    var string: params is "";
+    var httpLocation: locationData is httpLocation.value;
   begin
-    splitHttpLocation(location, hostname, portNumber, path, params, httpDefaultPort);
-    sock := openHttp(hostname, portNumber, hostname, path, params);
+    locationData := getHttpLocation(location, httpDefaultPort);
+    if proxyServer <> "" then
+      locationData.serverName := proxyServer;
+      locationData.portNumber := proxyHttpPort;
+    end if;
+    sock := openHttp(locationData);
   end func;
 
 
@@ -193,6 +201,7 @@ const func string: getHttp (inout file: sock) is func
     var string: data is "";
   local
     var string: line is "";
+    var string: lowerCaseLine is "";
     var array string: header is 0 times "";
     var string: transferEncoding is "";
     var string: contentType is "";
@@ -206,15 +215,16 @@ const func string: getHttp (inout file: sock) is func
     line := getln(sock);
     while line <> "" do
       # writeln(line);
-      if startsWith(line, "Transfer-Encoding") then
-        transferEncoding := lower(trim(line[succ(pos(line, ":")) ..]));
-      elsif startsWith(line, "Content-Type") then
+      lowerCaseLine := lower(line);
+      if startsWith(lowerCaseLine, "transfer-encoding") then
+        transferEncoding := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
+      elsif startsWith(lowerCaseLine, "content-type") then
         contentType := trim(line[succ(pos(line, ":")) ..]);
         charset := getValueOfHeaderAttribute(contentType, "charset");
-      elsif startsWith(line, "Content-Encoding") then
-        contentEncoding := lower(trim(line[succ(pos(line, ":")) ..]));
-      elsif startsWith(line, "Content-Length") then
-        contentLengthStri := trim(line[succ(pos(line, ":")) ..]);
+      elsif startsWith(lowerCaseLine, "content-encoding") then
+        contentEncoding := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
+      elsif startsWith(lowerCaseLine, "content-length") then
+        contentLengthStri := trim(lowerCaseLine[succ(pos(lowerCaseLine, ":")) ..]);
         block
           contentLength := integer parse contentLengthStri;
         exception
@@ -286,25 +296,41 @@ const func string: getHttpStatusCode (inout file: sock) is func
   end func;
 
 
-const func string: getHttpLocation (inout file: sock) is func
+const func httpLocation: getHttpLocation (in httpLocation: currentLocationData,
+    inout file: sock) is func
   result
-    var string: location is "";
+    var httpLocation: locationData is httpLocation.value;
   local
     var string: line is "";
+    var string: lowerCaseLine is "";
+    var string: location is "";
   begin
     line := getln(sock);
     while line <> "" do
       # writeln(literal(line));
-      if startsWith(line, "Location") then
+      lowerCaseLine := lower(line);
+      if startsWith(lowerCaseLine, "location") then
         location := trim(line[succ(pos(line, ":")) ..]);
         if startsWith(location, "http:") then
           location := trim(location[6 ..]);
+          while startsWith(location, "/") do
+            location := location[2 ..];
+          end while;
+          locationData := getHttpLocation(location, httpDefaultPort);
         elsif startsWith(location, "https:") then
           location := trim(location[7 ..]);
+          while startsWith(location, "/") do
+            location := location[2 ..];
+          end while;
+          locationData := getHttpLocation(location, httpsDefaultPort);
+        else
+          if not startsWith(location, "/") then
+            location := currentLocationData.path & "/" & location;
+          end if;
+          locationData := getHttpLocation(location, currentLocationData.portNumber);
+          locationData.serverName := currentLocationData.serverName;
+          locationData.hostName := currentLocationData.hostName;
         end if;
-        while startsWith(location, "/") do
-          location := location[2 ..];
-        end while;
       end if;
       line := getln(sock);
     end while;
@@ -315,23 +341,25 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
   result
     var string: data is "";
   local
+    var httpLocation: locationData is httpLocation.value;
     var file: sock is STD_NULL;
     var string: statusCode is "";
     var string: location is "";
     var boolean: okay is TRUE;
     var integer: repeatCount is 0;
   begin
-    location := url;
+    locationData := getHttpLocation(url, httpDefaultPort);
+    locationData.serverName := serverName;
+    locationData.portNumber := portNumber;
     repeat
       okay := TRUE;
-      # writeln(location);
-      sock := openHttp(serverName, portNumber, location);
+      sock := openHttp(locationData);
       if sock <> STD_NULL then
         statusCode := getHttpStatusCode(sock);
         # writeln("statusCode: " <& statusCode);
         if statusCode = "301" or statusCode = "302" or
             statusCode = "303" or statusCode = "307" then
-          location := getHttpLocation(sock);
+          locationData := getHttpLocation(locationData, sock);
           close(sock);
           sock := STD_NULL;
           okay := FALSE;
@@ -354,27 +382,26 @@ const func string: getHttp (in string: url) is func
   result
     var string: data is "";
   local
+    var httpLocation: locationData is httpLocation.value;
     var file: sock is STD_NULL;
     var string: statusCode is "";
-    var string: location is "";
     var boolean: okay is TRUE;
     var integer: repeatCount is 0;
   begin
-    location := url;
+    locationData := getHttpLocation(url, httpDefaultPort);
+    if proxyServer <> "" then
+      locationData.serverName := proxyServer;
+      locationData.portNumber := proxyHttpPort;
+    end if;
     repeat
       okay := TRUE;
-      # writeln(location);
-      if proxyServer = "" then
-        sock := openHttp(location);
-      else
-        sock := openHttp(proxyServer, proxyHttpPort, location);
-      end if;
+      sock := openHttp(locationData);
       if sock <> STD_NULL then
         statusCode := getHttpStatusCode(sock);
         # writeln("statusCode: " <& statusCode);
         if statusCode = "301" or statusCode = "302" or
             statusCode = "303" or statusCode = "307" then
-          location := getHttpLocation(sock);
+          locationData := getHttpLocation(locationData, sock);
           close(sock);
           sock := STD_NULL;
           okay := FALSE;

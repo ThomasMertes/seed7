@@ -99,7 +99,7 @@ void conWrite (const_stritype stri)
   /* conWrite */
     if (stri->size <= 256) {
 #ifdef CONSOLE_UTF8
-      uchartype stri_buffer[MAX_UTF8_EXPANSION_FACTOR * 256];
+      uchartype stri_buffer[max_utf8_size(256)];
 
       size = stri_to_utf8(stri_buffer, stri->mem, stri->size);
 #elif defined CONSOLE_WCHAR

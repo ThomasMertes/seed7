@@ -64,8 +64,9 @@ objecttype bln_and (listtype arguments)
       result = evaluate(arg_3(arguments));
       if (!fail_flag) {
         isit_bool(result);
+        result = take_bool(result);
       } /* if */
-      return result ;
+      return result;
     } /* if */
   } /* bln_and */
 
@@ -249,6 +250,7 @@ objecttype bln_or (listtype arguments)
       result = evaluate(arg_3(arguments));
       if (!fail_flag) {
         isit_bool(result);
+        result = take_bool(result);
       } /* if */
       return result;
     } /* if */

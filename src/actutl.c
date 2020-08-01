@@ -48,6 +48,7 @@
 
 
 #undef USE_BSEARCH
+#define MAX_STRI_EXPORT_LEN 40
 
 
 static primacttype *action_ptr_table = NULL;
@@ -164,14 +165,14 @@ static booltype search_action (ustritype stri, acttype *action_found)
 booltype find_action (const const_stritype action_name, acttype *action_found)
 
   {
-    uchartype act_name[250];
+    uchartype act_name[max_utf8_size(MAX_STRI_EXPORT_LEN) + 1];
     booltype result;
 
  /* find_action */
 #ifdef TRACE_ACTUTIL
     printf("BEGIN find_action\n");
 #endif
-    if (action_name->size >= 250 / MAX_UTF8_EXPANSION_FACTOR) {
+    if (action_name->size > MAX_STRI_EXPORT_LEN) {
       if (act_table.primitive != NULL) {
         *action_found = act_table.primitive[0].action;
       } else {

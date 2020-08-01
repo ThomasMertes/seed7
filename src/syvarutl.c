@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -39,6 +39,10 @@
 #define EXTERN
 #include "syvarutl.h"
 
+#undef TRACE_SYSVAR
+
+
+#define MAX_STRI_EXPORT_LEN 25
 
 static const_cstritype sys_name[NUMBER_OF_SYSVARS] = {
     "empty",
@@ -75,13 +79,13 @@ int find_sysvar (const_stritype stri)
 
   {
     int result;
-    char sysvar_name[151];
+    char sysvar_name[max_utf8_size(MAX_STRI_EXPORT_LEN) + 1];
 
   /* find_sysvar */
 #ifdef TRACE_SYSVAR
     printf("BEGIN find_sysvar\n");
 #endif
-    if (stri->size >= 151 / MAX_UTF8_EXPANSION_FACTOR) {
+    if (stri->size > MAX_STRI_EXPORT_LEN) {
       result = -1;
     } else {
       stri_export_utf8((ustritype) sysvar_name, stri);
@@ -90,9 +94,10 @@ int find_sysvar (const_stritype stri)
           strcmp(sysvar_name, sys_name[result]) != 0) {
         result--;
       } /* while */
+      /* printf("find_sysvar: %s -> %d\n", sysvar_name, result); */
     } /* if */
 #ifdef TRACE_SYSVAR
-    printf("END find_sysvar\n");
+    printf("END find_sysvar -> %d\n", result);
 #endif
     return result;
   } /* find_sysvar */

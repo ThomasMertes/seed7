@@ -50,7 +50,7 @@
 
 
 
-static INLINE int strelem_memcmp (const strelemtype *mem1,
+static inline int strelem_memcmp (const strelemtype *mem1,
     const strelemtype *mem2, size_t number)
 
   { /* strelem_memcmp */
@@ -64,7 +64,7 @@ static INLINE int strelem_memcmp (const strelemtype *mem1,
 
 
 
-static INLINE const strelemtype *search_strelem (const strelemtype *mem,
+static inline const strelemtype *search_strelem (const strelemtype *mem,
     const strelemtype ch, size_t number)
 
   { /* search_strelem */

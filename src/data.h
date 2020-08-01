@@ -87,10 +87,10 @@ typedef enum {
     SELECT_ELEMENT_FROM_LIST_SYNTAX
   } tokencategory;
 
-typedef unsigned long      postype;
+typedef uint32type         postype;
 typedef unsigned int       linenumtype;
 typedef unsigned int       filenumtype;
-typedef unsigned int       categorytype;
+typedef uint16type         categorytype;
 
 typedef struct identstruct    *identtype;
 typedef struct tokenstruct    *tokentype;
@@ -452,40 +452,40 @@ extern progrecord prog;
 #define MATCH_ERR_MASK ((categorytype) 1024)
 #define UNUSED_MASK    ((categorytype) 2048)
 
-#define SET_ANY_FLAG(O,FLAG)            (O)->objcategory = (O)->objcategory | (FLAG)
+#define SET_ANY_FLAG(O,FLAG)            (O)->objcategory = (categorytype) ((O)->objcategory | (FLAG))
 
 #define INIT_CATEGORY_OF_OBJ(O,CAT)     (O)->objcategory = (categorytype) (CAT)
-#define SET_CATEGORY_OF_OBJ(O,CAT)      (O)->objcategory = ((O)->objcategory & ~CATEGORY_MASK) | (categorytype) (CAT)
+#define SET_CATEGORY_OF_OBJ(O,CAT)      (O)->objcategory = (categorytype) (((O)->objcategory & ~CATEGORY_MASK) | (categorytype) (CAT))
 #define CATEGORY_OF_OBJ(O)              ((objectcategory) ((O)->objcategory & CATEGORY_MASK))
 
-#define INIT_CATEGORY_OF_VAR(O,CAT)     (O)->objcategory = (categorytype) (CAT) | VAR_MASK
-#define SET_VAR_FLAG(O)                 (O)->objcategory = (O)->objcategory | VAR_MASK
-#define CLEAR_VAR_FLAG(O)               (O)->objcategory = (O)->objcategory & ~VAR_MASK
+#define INIT_CATEGORY_OF_VAR(O,CAT)     (O)->objcategory = (categorytype) ((CAT) | VAR_MASK)
+#define SET_VAR_FLAG(O)                 (O)->objcategory = (categorytype) ((O)->objcategory | VAR_MASK)
+#define CLEAR_VAR_FLAG(O)               (O)->objcategory = (categorytype) ((O)->objcategory & ~VAR_MASK)
 #define VAR_OBJECT(O)                   ((O)->objcategory & VAR_MASK)
-#define COPY_VAR_FLAG(O1,O2)            (O1)->objcategory = ((O1)->objcategory & ~VAR_MASK) | ((O2)->objcategory & VAR_MASK)
+#define COPY_VAR_FLAG(O1,O2)            (O1)->objcategory = (categorytype) (((O1)->objcategory & ~VAR_MASK) | ((O2)->objcategory & VAR_MASK))
 
-#define INIT_CATEGORY_OF_TEMP(O,CAT)    (O)->objcategory = (categorytype) (CAT) | TEMP_MASK
-#define SET_TEMP_FLAG(O)                (O)->objcategory = (O)->objcategory | TEMP_MASK
-#define CLEAR_TEMP_FLAG(O)              (O)->objcategory = (O)->objcategory & ~TEMP_MASK
+#define INIT_CATEGORY_OF_TEMP(O,CAT)    (O)->objcategory = (categorytype) ((CAT) | TEMP_MASK)
+#define SET_TEMP_FLAG(O)                (O)->objcategory = (categorytype) ((O)->objcategory | TEMP_MASK)
+#define CLEAR_TEMP_FLAG(O)              (O)->objcategory = (categorytype) ((O)->objcategory & ~TEMP_MASK)
 #define TEMP_OBJECT(O)                  ((O)->objcategory & TEMP_MASK)
 
-#define INIT_CATEGORY_OF_TEMP2(O,CAT)   (O)->objcategory = (categorytype) (CAT) | TEMP2_MASK
-#define SET_TEMP2_FLAG(O)               (O)->objcategory = (O)->objcategory | TEMP2_MASK
-#define CLEAR_TEMP2_FLAG(O)             (O)->objcategory = (O)->objcategory & ~TEMP2_MASK
+#define INIT_CATEGORY_OF_TEMP2(O,CAT)   (O)->objcategory = (categorytype) ((CAT) | TEMP2_MASK)
+#define SET_TEMP2_FLAG(O)               (O)->objcategory = (categorytype) ((O)->objcategory | TEMP2_MASK)
+#define CLEAR_TEMP2_FLAG(O)             (O)->objcategory = (categorytype) ((O)->objcategory & ~TEMP2_MASK)
 #define TEMP2_OBJECT(O)                 ((O)->objcategory & TEMP2_MASK)
 
-#define INIT_CATEGORY_OF_POSINFO(O,CAT) (O)->objcategory = (categorytype) (CAT) | POSINFO_MASK
-#define SET_POSINFO_FLAG(O)             (O)->objcategory = (O)->objcategory | POSINFO_MASK
-#define CLEAR_POSINFO_FLAG(O)           (O)->objcategory = (O)->objcategory & ~POSINFO_MASK
+#define INIT_CATEGORY_OF_POSINFO(O,CAT) (O)->objcategory = (categorytype) ((CAT) | POSINFO_MASK)
+#define SET_POSINFO_FLAG(O)             (O)->objcategory = (categorytype) ((O)->objcategory | POSINFO_MASK)
+#define CLEAR_POSINFO_FLAG(O)           (O)->objcategory = (categorytype) ((O)->objcategory & ~POSINFO_MASK)
 #define HAS_POSINFO(O)                  ((O)->objcategory & POSINFO_MASK)
-#define COPY_POSINFO_FLAG(O1,O2)        (O1)->objcategory = ((O1)->objcategory & ~POSINFO_MASK) | ((O2)->objcategory & POSINFO_MASK)
+#define COPY_POSINFO_FLAG(O1,O2)        (O1)->objcategory = (categorytype) (((O1)->objcategory & ~POSINFO_MASK) | ((O2)->objcategory & POSINFO_MASK))
 
-#define SET_MATCH_ERR_FLAG(O)           (O)->objcategory = (O)->objcategory | MATCH_ERR_MASK
-#define CLEAR_MATCH_ERR_FLAG(O)         (O)->objcategory = (O)->objcategory & ~MATCH_ERR_MASK
+#define SET_MATCH_ERR_FLAG(O)           (O)->objcategory = (categorytype) ((O)->objcategory | MATCH_ERR_MASK)
+#define CLEAR_MATCH_ERR_FLAG(O)         (O)->objcategory = (categorytype) ((O)->objcategory & ~MATCH_ERR_MASK)
 #define HAS_MATCH_ERR(O)                ((O)->objcategory & MATCH_ERR_MASK)
 
-#define SET_UNUSED_FLAG(O)              (O)->objcategory = (O)->objcategory | UNUSED_MASK
-#define CLEAR_UNUSED_FLAG(O)            (O)->objcategory = (O)->objcategory & ~UNUSED_MASK
+#define SET_UNUSED_FLAG(O)              (O)->objcategory = (categorytype) ((O)->objcategory | UNUSED_MASK)
+#define CLEAR_UNUSED_FLAG(O)            (O)->objcategory = (categorytype) ((O)->objcategory & ~UNUSED_MASK)
 #define IS_UNUSED(O)                    ((O)->objcategory & UNUSED_MASK)
 
 #define HAS_PROPERTY(O)                 (!HAS_POSINFO(O) && (O)->descriptor.property != NULL)

@@ -96,7 +96,7 @@ int fill_buf (void)
 
 
 
-static INLINE booltype speedup (void)
+static inline booltype speedup (void)
 
   {
     booltype okay;

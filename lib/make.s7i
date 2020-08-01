@@ -275,7 +275,7 @@ const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLo
         overwriteExisting := TRUE;
       elsif parameter = "-n" then
         overwriteExisting := FALSE;
-      elsif parameter = "-a" then
+      elsif parameter = "-a" or parameter = "-p" then
         archive := TRUE;
       else
         parameter := convDosPath(parameter);

@@ -46,6 +46,7 @@
 #include "symbol.h"
 #include "object.h"
 #include "error.h"
+#include "infile.h"
 
 #undef EXTERN
 #define EXTERN
@@ -53,7 +54,7 @@
 
 
 
-static INLINE identtype id_generation (ustritype name, sysizetype length)
+static inline identtype id_generation (ustritype name, sysizetype length)
 
   {
     register identtype created_ident;
@@ -247,7 +248,9 @@ static void wri_binary_ident_tree (const_identtype actual_ident)
       if (actual_ident->entity != NULL &&
           actual_ident->entity->syobject != NULL) {
         if (CATEGORY_OF_OBJ(actual_ident->entity->syobject) == SYMBOLOBJECT) {
-          printf(" %ld", actual_ident->entity->syobject->value.pos);
+          printf(" %s(%lu)",
+                 get_file_name_ustri(GET_POS_FILE_NUM(actual_ident->entity->syobject)),
+                 (long unsigned) GET_POS_LINE_NUM(actual_ident->entity->syobject));
         } /* if */
       } /* if */
       printf("\n");
@@ -282,7 +285,9 @@ void write_idents (void)
         if (prog.ident.table1[character]->entity != NULL &&
             prog.ident.table1[character]->entity->syobject != NULL) {
           if (CATEGORY_OF_OBJ(prog.ident.table1[character]->entity->syobject) == SYMBOLOBJECT) {
-            printf(" %ld", prog.ident.table1[character]->entity->syobject->value.pos);
+            printf(" %s(%lu)",
+                   get_file_name_ustri(GET_POS_FILE_NUM(prog.ident.table1[character]->entity->syobject)),
+                   (long unsigned) GET_POS_LINE_NUM(prog.ident.table1[character]->entity->syobject));
           } /* if */
         } /* if */
         printf("\n");

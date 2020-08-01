@@ -164,19 +164,19 @@ What kind of programs can be written in Seed7?
 
 Seed7 can be used in various application areas:
 
- - Applications, like an Excel look-alike (Seed7 is a general
-   purpose language and programs can be compiled to an executable).
+ - Applications, like an Excel look-alike (Seed7 is a general purpose
+   language and programs can be compiled to an executable).
  - Scripts that deal with files and directories (The Seed7 Homepage
    and the Seed7 release are created with Seed7 scripts).
- - Tools for networking (There is support for sockets, listeners, HTTP, FTP and
-   HTML parsing). E.g.:
+ - Tools for networking (There is support for sockets, TLS/SSL, listeners,
+   HTTP, HTTPS, FTP and HTML parsing). E.g.:
     - A ftp file transfer program
     - A ftp server
     - A web server
  - Programs that deal with XML (There is support for XML parsing and
    the possibility to read XML into a DOM data structure).
- - CGI scripts (A CGI support library is available and the Comanche web server
-   can be used to test CGI scripts).
+ - CGI scripts (A CGI support library is available and the Comanche
+   web server can be used to test CGI scripts).
  - As language to describe algorithms.
  - Command line utilities. E.g.:
     - A make utility capable to process Unix and Windows makefiles
@@ -199,12 +199,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-09-29 the number of lines is:
+than 200000 lines of Seed7. For version 2013-10-13 the number of lines is:
 
-   93894  C source files (*.c)
+   94237  C source files (*.c)
     8140  C header files (*.h)
-  116213  Seed7 source files (*.sd7)
-   91411  Seed7 library/include files (*.s7i)
+  116220  Seed7 source files (*.sd7)
+   95007  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -228,7 +228,7 @@ Seed7 runs on the following operating systems:
    Linux)
  - Unix (I used Seed7 also under various Unix variants, so it is probably
    easy to port Seed7 to a Unix variant)
- - BSD (there is a FreeBSD port)
+ - BSD (there is a FreeBSD port and an OpenBSD port)
  - Windows is supported with several compilers:
     - MinGW GCC (the binary Windows release of Seed7 uses MinGW)
     - Cygwin GCC (the X11 graphics needs Cygwin/X)
@@ -1132,11 +1132,11 @@ is assigned to 'result'.
 Is there a garbage collection?
 ==============================
 
-There is no garbage collection process, that interrupts normal processing.
-There is no situation, where a garbage collection needs to "stop the world".
-The automatic memory management of Seed7 uses different mechanisms. Memory usage
-can be categorized and for every category a specific strategy of automatic
-memory management is used:
+There is automatic memory management, but there is no garbage collection
+process, that interrupts normal processing. There is no situation, where a
+garbage collection needs to "stop the world". The automatic memory management
+of Seed7 uses different mechanisms. Memory usage can be categorized and for
+every category a specific strategy of automatic memory management is used:
 
  - Memory used by local variables and parameters is automatically freed, when
    a function is left. The interpreter maintains a list of local values and

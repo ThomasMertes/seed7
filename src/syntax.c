@@ -156,7 +156,7 @@ static tokentype def_single_token (const_objecttype statement_token,
 
 
 
-static INLINE int count_inner_tokens (const_listtype statement_tokens)
+static inline int count_inner_tokens (const_listtype statement_tokens)
 
   {
     int number_of_inner_tokens;
@@ -270,7 +270,7 @@ static tokentype def_token_list (const_listtype statement_tokens,
 
 
 
-static INLINE tokentype def_infix_syntax (const_listtype statement_syntax,
+static inline tokentype def_infix_syntax (const_listtype statement_syntax,
     prioritytype statement_priority, assoctype statement_associativity)
 
   {
@@ -323,7 +323,7 @@ static INLINE tokentype def_infix_syntax (const_listtype statement_syntax,
 
 
 
-static INLINE tokentype def_prefix_syntax (const_listtype statement_syntax,
+static inline tokentype def_prefix_syntax (const_listtype statement_syntax,
     prioritytype statement_priority, assoctype statement_associativity)
 
   {
@@ -364,7 +364,7 @@ static INLINE tokentype def_prefix_syntax (const_listtype statement_syntax,
 
 
 
-static INLINE tokentype def_statement_syntax (objecttype syntax_expression,
+static inline tokentype def_statement_syntax (objecttype syntax_expression,
     prioritytype statement_priority, assoctype statement_associativity)
 
   {

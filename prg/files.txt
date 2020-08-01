@@ -89,7 +89,9 @@ wrinum.sd7   Write numbers as english text
 wumpus.sd7   Hunt the Wumpus game
 
   Seed7 include files:
+arc4.s7i     Support for ARC4 (Alleged RC4) stream cipher.
 array.s7i    Support for arrays with integer index
+asn1.s7i     Support for Abstract Syntax Notation One (ASN.1).
 bigfile.s7i  bigInteger versions of seek, tell and length
 bigint.s7i   Unlimited precision integer support library
 bigrat.s7i   Big rational number support library
@@ -106,6 +108,7 @@ cgi.s7i      Support for the Common Gateway Interface
 char.s7i     Char support library
 charsets.s7i Code pages for various character sets
 chartype.s7i Character type definitions
+cipher.s7i   Generic support for TLS bulk cipher algorithms.
 clib_file.s7i Type for FILE * files from the C runtime library
 color.s7i    Functions for color processing
 complex.s7i  Complex support library
@@ -134,12 +137,14 @@ forloop.s7i  For-loop and templates to define for-loop
 ftp.s7i      Support for FTP (file transfer protocol)
 getf.s7i     Read and write whole files into and from strings
 gethttp.s7i  Support to get data with the HTTP protocol
+gethttps.s7i Support to get data with the HTTPS protocol
 graph.s7i    Basic graphic library
 graph_file.s7i Implementation type to display graphic text
 gtkserver.s7i Gtk-server connection library
 gzip.s7i     Gzip compression support library
 hash.s7i     Hash map support library
 hashsetof.s7i Support for hashsets of a base type
+hmac.s7i     Hash-based message authentication code functions.
 html.s7i     Support functions for html
 html_ent.s7i HTML entity handling library
 idxarray.s7i Support for arrays with non-integer index
@@ -158,7 +163,7 @@ makedata.s7i Function and data structure to read makefiles
 math.s7i     Mathematical functions and constants
 modern27.s7i Modern vector font with capHeight 27.
 more.s7i     Filter file which shows another file screenwise
-msgdigest.s7i Message digest and secure hash algorithms
+msgdigest.s7i Message digest and secure hash algorithms.
 multiscr.s7i Demonstration for several file filters
 null_file.s7i Base implementation type for all files
 osfiles.s7i  Functions to handle operating system files
@@ -166,6 +171,7 @@ pic16.s7i    Pictures in the size 16 x 16
 pic32.s7i    Pictures in the size 32 x 32
 pixmap_file.s7i Text implementation type to use a pixmap font
 pixmapfont.s7i Defines pixmapFontType and the font cache
+pkcs1.s7i    RSA public-key cryptography standard #1 support.
 poll.s7i     Support for pollData and the poll function
 progs.s7i    Program handling support library
 propertyfile.s7i Read key value pairs from a property file
@@ -202,6 +208,7 @@ tar.s7i      Tar archive library
 tee.s7i      Filter file which emulates the tee functionality
 text.s7i     Interface type for line/column oriented files
 time.s7i     Time and date library
+tls.s7i      Support for Transport Layer Security (TLS/SSL).
 upper.s7i    Filter file which turns characters to upper case
 utf16.s7i    File implementation type for UTF-16 files
 utf8.s7i     File implementation type for UTF-8 files
@@ -210,6 +217,7 @@ vecfont18.s7i Standard vector font with capHeight 18.
 vectorfont.s7i Defines the vector font type.
 window.s7i   Filter file for text windows with random access
 wrinum.s7i   Functions to write numbers
+x509cert.s7i Support for X.509 public key certificates.
 xml_ent.s7i  XML entity handling library
 xmldom.s7i   Simple XML dom parser
 zip.s7i      Zip compression support library

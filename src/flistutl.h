@@ -48,6 +48,7 @@ EXTERN freelisttype flist;
 #endif
 
 #ifdef USE_CHUNK_ALLOCS
+#define ALIGN(size)              (((((size) - 1) >> MALLOC_ALIGNMENT) + 1) << MALLOC_ALIGNMENT)
 #ifdef USE_ALTERNATE_CHUNK_ALLOCS
 #define OLD_CHUNK(var,tp,byt)    (var = (tp) chunk.freemem, chunk.freemem += (byt), TRUE)
 #define NEW_CHUNK(var,tp,byt)    ((var = (tp) heap_chunk(byt)) != NULL)
@@ -64,8 +65,8 @@ EXTERN freelisttype flist;
 
 
 #ifdef USE_CHUNK_ALLOCS
-#define ALLOC_ID_NAME(var,len)     ALLOC_CHUNK(var, ustritype, SIZ_ID(len))
-#define FREE_ID_NAME(var,len)      (CNT(CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes)) FREE_CHUNK(var, SIZ_ID(len)))
+#define ALLOC_ID_NAME(var,len)     ALLOC_CHUNK(var, ustritype, ALIGN(SIZ_USTRI(len)))
+#define FREE_ID_NAME(var,len)      (CNT(CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes)) FREE_CHUNK(var, ALIGN(SIZ_USTRI(len))))
 #else
 #define ALLOC_ID_NAME(var,len)     ALLOC_HEAP(var, ustritype, SIZ_USTRI(len))
 #define FREE_ID_NAME(var,len)      (CNT(CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes)) FREE_HEAP(var, SIZ_USTRI(len)))
@@ -73,7 +74,7 @@ EXTERN freelisttype flist;
 #define COUNT_ID_NAME(len)         CNT1_USTRI((len), SIZ_USTRI(len), count.idt, count.idt_bytes)
 
 #ifdef USE_CHUNK_ALLOCS
-#define ALLOC_FLISTELEM(var,rec)   ALLOC_CHUNK(var, rec *, SIZ_REC(rec))
+#define ALLOC_FLISTELEM(var,rec)   ALLOC_CHUNK(var, rec *, ALIGN(SIZ_REC(rec)))
 #else
 #define ALLOC_FLISTELEM(var,rec)   ALLOC_HEAP(var, rec *, SIZ_REC(rec))
 #endif

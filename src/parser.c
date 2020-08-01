@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -60,7 +60,6 @@
 #define EXTERN
 #include "parser.h"
 
-
 #undef TRACE_PARSER
 
 
@@ -97,7 +96,7 @@ static void init_dollar_type (objecttype declared_object,
 
 
 
-static INLINE void init_dollar (objecttype declared_object,
+static inline void init_dollar (objecttype declared_object,
     errinfotype *err_info)
 
   {

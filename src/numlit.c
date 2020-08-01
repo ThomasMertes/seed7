@@ -106,7 +106,7 @@ static inttype decimalValue (ustritype digits)
 
 
 
-static INLINE inttype basedValue (inttype base, ustritype digits)
+static inline inttype basedValue (inttype base, ustritype digits)
 
   {
     inttype intvalue;
@@ -152,7 +152,7 @@ static INLINE inttype basedValue (inttype base, ustritype digits)
 
 
 
-static INLINE booltype readBased (void)
+static inline booltype readBased (void)
 
   {
     register sysizetype position;
@@ -182,7 +182,7 @@ static INLINE booltype readBased (void)
 
 
 
-static INLINE biginttype readBigBased (inttype base)
+static inline biginttype readBigBased (inttype base)
 
   {
     memsizetype pos;
@@ -220,7 +220,7 @@ static INLINE biginttype readBigBased (inttype base)
 
 
 
-static INLINE void basedInteger (inttype intvalue)
+static inline void basedInteger (inttype intvalue)
 
   { /* basedInteger */
     if (intvalue < 2 || intvalue > 36) {
@@ -243,7 +243,7 @@ static INLINE void basedInteger (inttype intvalue)
 
 
 
-static INLINE void intExponent (inttype *ivalue)
+static inline void intExponent (inttype *ivalue)
 
   {
     inttype intvalue;
@@ -286,7 +286,7 @@ static INLINE void intExponent (inttype *ivalue)
 
 
 
-static INLINE biginttype readBigInteger (void)
+static inline biginttype readBigInteger (void)
 
   {
     memsizetype pos;
@@ -310,7 +310,7 @@ static INLINE biginttype readBigInteger (void)
 
 
 
-static INLINE floattype readFloat (void)
+static inline floattype readFloat (void)
 
   {
     register sysizetype position;

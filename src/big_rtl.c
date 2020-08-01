@@ -401,7 +401,7 @@ static biginttype alloc_positive_copy_of_negative_big (const const_biginttype bi
  *  the result. This function works for unsigned big integers.
  *  It is assumed that big1 contains enough memory.
  */
-static INLINE void uBigMultByPowerOf10AndAdd (const biginttype big1, doublebigdigittype carry)
+static inline void uBigMultByPowerOf10AndAdd (const biginttype big1, doublebigdigittype carry)
 
   {
     memsizetype pos;
@@ -427,7 +427,7 @@ static INLINE void uBigMultByPowerOf10AndAdd (const biginttype big1, doublebigdi
  *  the result. This function works for unsigned big integers.
  *  It is assumed that big1 contains enough memory.
  */
-static INLINE void uBigMultiplyAndAdd (const biginttype big1, bigdigittype factor,
+static inline void uBigMultiplyAndAdd (const biginttype big1, bigdigittype factor,
     doublebigdigittype carry)
 
   {
@@ -453,7 +453,7 @@ static INLINE void uBigMultiplyAndAdd (const biginttype big1, bigdigittype facto
  *  Divides the unsigned big integer big1 by POWER_OF_10_IN_BIGDIGIT
  *  and returns the remainder.
  */
-static INLINE bigdigittype uBigDivideByPowerOf10 (const biginttype big1)
+static inline bigdigittype uBigDivideByPowerOf10 (const biginttype big1)
 
   {
     memsizetype pos;
@@ -2903,7 +2903,7 @@ booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
 
 
 
-static INLINE biginttype bigFromByteBufferBe (const memsizetype size,
+static inline biginttype bigFromByteBufferBe (const memsizetype size,
     const const_ustritype buffer, const booltype withSign)
 
   {
@@ -2984,7 +2984,7 @@ static INLINE biginttype bigFromByteBufferBe (const memsizetype size,
 
 
 
-static INLINE biginttype bigFromByteBufferLe (const memsizetype size,
+static inline biginttype bigFromByteBufferLe (const memsizetype size,
     const const_ustritype buffer, const booltype withSign)
 
   {

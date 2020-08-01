@@ -40,6 +40,16 @@
 
 
 
+/**
+ *  Create a new accepted connection socket for a listener socket.
+ *  The function waits until at least one connection request is
+ *  in the sockets queue of pending connections. Then it extracts
+ *  the first connection request from the sockets queue. This
+ *  request is accepted and a connection socket is created for it.
+ *  @return the accepted connection socket.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
 objecttype soc_accept (listtype arguments)
 
   { /* soc_accept */
@@ -63,6 +73,13 @@ objecttype soc_addr_family (listtype arguments)
 
 
 
+/**
+ *  Get the numeric (IP) address of the host at a socket address.
+ *  IPv4 addresses return the socketAddress in dot notation (e.g.:
+ *  "192.0.2.235") and IPv6 addresses return the socketAddress in
+ *  colon notation (e.g.: "fe80:0:0:0:202:b3ff:fe1e:8329").
+ *  @return the IP address of the specified host.
+ */
 objecttype soc_addr_numeric (listtype arguments)
 
   { /* soc_addr_numeric */
@@ -83,6 +100,10 @@ objecttype soc_addr_service (listtype arguments)
 
 
 
+/**
+ *  Assign an internet listener socket address to a listener socket.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype soc_bind (listtype arguments)
 
   { /* soc_bind */
@@ -94,6 +115,9 @@ objecttype soc_bind (listtype arguments)
 
 
 
+/**
+ *  Close a socket.
+ */
 objecttype soc_close (listtype arguments)
 
   { /* soc_close */
@@ -104,6 +128,10 @@ objecttype soc_close (listtype arguments)
 
 
 
+/**
+ *  Connect a socket to an address.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype soc_connect (listtype arguments)
 
   { /* soc_connect */
@@ -165,6 +193,10 @@ objecttype soc_eq (listtype arguments)
 
 
 
+/**
+ *  Read a character from a socket.
+ *  @return the character read.
+ */
 objecttype soc_getc (listtype arguments)
 
   {
@@ -182,6 +214,12 @@ objecttype soc_getc (listtype arguments)
 
 
 
+/**
+ *  Read a string with a maximum length from a socket.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The length is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype soc_gets (listtype arguments)
 
   {
@@ -219,6 +257,13 @@ objecttype soc_get_hostname (listtype arguments)
 
 
 
+/**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a socket to be handled like an iterator.
+ *  Since socHasNext peeks the next character from the socket
+ *  it may block.
+ *  @return FALSE if socGetc would return EOF, TRUE otherwise.
+ */
 objecttype soc_has_next (listtype arguments)
 
   { /* soc_has_next */
@@ -281,6 +326,15 @@ objecttype soc_input_ready (listtype arguments)
 
 
 
+/**
+ *  Read a line from a socket.
+ *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The line ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains '\n' or EOF.
+ *  @return the line read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype soc_line_read (listtype arguments)
 
   {
@@ -297,6 +351,12 @@ objecttype soc_line_read (listtype arguments)
 
 
 
+/**
+ *  Listen for socket connections and limit the incoming queue.
+ *  The function also sets the maximum length to which the queue
+ *  of pending connections for a listener socket may grow.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype soc_listen (listtype arguments)
 
   { /* soc_listen */
@@ -459,6 +519,17 @@ objecttype soc_socket (listtype arguments)
 
 
 
+/**
+ *  Read a word from a socket.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  The word ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains ' ', '\t', '\n' or
+ *  EOF.
+ *  @return the word read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objecttype soc_word_read (listtype arguments)
 
   {
@@ -475,6 +546,13 @@ objecttype soc_word_read (listtype arguments)
 
 
 
+/**
+ *  Write a string to a socket.
+ *  @exception FILE_ERROR The system function is not able to write
+ *             all characters of the string.
+ *  @exception RANGE_ERROR The string contains a character that does
+ *             not fit into a byte.
+ */
 objecttype soc_write (listtype arguments)
 
   { /* soc_write */

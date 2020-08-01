@@ -63,7 +63,7 @@ typedef struct {
 
 
 
-static INLINE void bytes_to_strelements (ustritype buffer, memsizetype bytes_in_buffer,
+static inline void bytes_to_strelements (ustritype buffer, memsizetype bytes_in_buffer,
     strelemtype *stri_dest, read_state *state, errinfotype *err_info)
 
   { /* bytes_to_strelements */
@@ -723,7 +723,7 @@ void ut8Write (filetype outFile, const const_stritype stri)
     strelemtype *str;
     memsizetype len;
     memsizetype size;
-    uchartype stri_buffer[MAX_UTF8_EXPANSION_FACTOR * 512];
+    uchartype stri_buffer[max_utf8_size(512)];
 
   /* ut8Write */
 #ifdef FWRITE_WRONG_FOR_READ_ONLY_FILES

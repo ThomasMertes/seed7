@@ -155,13 +155,15 @@ void append_to_lib_path (const_stritype path, errinfotype *err_info)
       *err_info = MEMORY_ERROR;
     } else {
       resized_lib_path = REALLOC_RTL_ARRAY(lib_path,
-          (memsizetype) lib_path->max_position, (memsizetype) (lib_path->max_position + 1));
+          (memsizetype) lib_path->max_position,
+          (memsizetype) (lib_path->max_position + 1));
       if (resized_lib_path == NULL) {
         FREE_STRI(stri, stri_len);
         *err_info = MEMORY_ERROR;
       } else {
         lib_path = resized_lib_path;
-        COUNT3_RTL_ARRAY((memsizetype) lib_path->max_position, (memsizetype) (lib_path->max_position + 1));
+        COUNT3_RTL_ARRAY((memsizetype) lib_path->max_position,
+            (memsizetype) (lib_path->max_position + 1));
         stri->size = stri_len;
         for (position = 0; position < path->size; position++) {
           if (path->mem[position] == '\\') {

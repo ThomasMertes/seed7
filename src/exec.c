@@ -160,7 +160,7 @@ objecttype exec_object (register objecttype object)
  *  When a TEMP2 parameter is used for a deeper function call
  *  The TEMP2 flag is cleared to avoid unwanted effects.
  */
-static INLINE void par_init (loclisttype form_param_list,
+static inline void par_init (loclisttype form_param_list,
     listtype *backup_form_params, listtype act_param_list,
     listtype *evaluated_act_params)
 
@@ -258,7 +258,7 @@ static INLINE void par_init (loclisttype form_param_list,
 
 
 
-static INLINE void par_restore (const_loclisttype form_param,
+static inline void par_restore (const_loclisttype form_param,
     const_listtype backup_form_params, const_listtype evaluated_act_params)
 
   {
@@ -373,7 +373,7 @@ static void loc_restore (const_loclisttype loc_var, const_listtype backup_loc_va
 
 
 
-static INLINE booltype res_init (const_locobjtype block_result,
+static inline booltype res_init (const_locobjtype block_result,
     objecttype *backup_block_result)
 
   {
@@ -402,7 +402,7 @@ static INLINE booltype res_init (const_locobjtype block_result,
 
 
 
-static INLINE void res_restore (const_locobjtype block_result,
+static inline void res_restore (const_locobjtype block_result,
     objecttype backup_block_result, objecttype *result)
 
   {
@@ -543,25 +543,35 @@ static objecttype exec_lambda (const_blocktype block,
 
 
 
-static listtype eval_arg_list (register listtype act_param_list)
+static listtype eval_arg_list (register listtype act_param_list, uint32type *temp_bits_ptr)
 
   {
     listtype evaluated_act_params;
+    register objecttype evaluated_object;
     register listtype *evaluated_insert_place;
+    uint32type temp_bits;
+    int param_num = 0;
 
   /* eval_arg_list */
     evaluated_act_params = NULL;
     evaluated_insert_place = &evaluated_act_params;
+    temp_bits = 0;
     while (act_param_list != NULL && !fail_flag) {
-      append_to_list(evaluated_insert_place, exec_object(act_param_list->obj), act_param_list);
+      evaluated_object = exec_object(act_param_list->obj);
+      append_to_list(evaluated_insert_place, evaluated_object, act_param_list);
+      if (evaluated_object != NULL && TEMP_OBJECT(evaluated_object)) {
+        temp_bits |= (uint32type) 1 << param_num;
+      } /* if */
       act_param_list = act_param_list->next;
+      param_num++;
     } /* while */
+    *temp_bits_ptr = temp_bits;
     return evaluated_act_params;
   } /* eval_arg_list */
 
 
 
-static void dump_arg_list (listtype evaluated_act_params)
+static void dump_arg_list (listtype evaluated_act_params, uint32type temp_bits)
 
   {
     register listtype list_end;
@@ -570,12 +580,13 @@ static void dump_arg_list (listtype evaluated_act_params)
     if (evaluated_act_params != NULL) {
       list_end = evaluated_act_params;
       while (list_end->next != NULL) {
-        if (list_end->obj != NULL && TEMP_OBJECT(list_end->obj)) {
+        if (list_end->obj != NULL && temp_bits & 1 && TEMP_OBJECT(list_end->obj)) {
           dump_any_temp(list_end->obj);
         } /* if */
         list_end = list_end->next;
+        temp_bits >>= 1;
       } /* while */
-      if (list_end->obj != NULL && TEMP_OBJECT(list_end->obj)) {
+      if (list_end->obj != NULL && temp_bits & 1 && TEMP_OBJECT(list_end->obj)) {
         dump_any_temp(list_end->obj);
       } /* if */
       free_list2(evaluated_act_params, list_end);
@@ -589,6 +600,7 @@ static objecttype exec_action (const_objecttype act_object,
 
   {
     listtype evaluated_act_params;
+    uint32type temp_bits;
     objecttype result;
 
   /* exec_action */
@@ -596,7 +608,7 @@ static objecttype exec_action (const_objecttype act_object,
     printf("BEGIN exec_action(%s)\n",
         get_primact(act_object->value.actvalue)->name);
 #endif
-    evaluated_act_params = eval_arg_list(act_param_list);
+    evaluated_act_params = eval_arg_list(act_param_list, &temp_bits);
     if (fail_flag) {
       free_list(evaluated_act_params);
       result = fail_value;
@@ -676,7 +688,7 @@ static objecttype exec_action (const_objecttype act_object,
 #ifdef WITH_PROTOCOL
       } /* if */
 #endif
-      dump_arg_list(evaluated_act_params);
+      dump_arg_list(evaluated_act_params, temp_bits);
     } /* if */
 #ifdef TRACE_EXEC
     printf("END exec_action fail_flag=%d\n", fail_flag);

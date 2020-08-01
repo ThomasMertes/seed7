@@ -164,8 +164,7 @@ objecttype chr_decr (listtype arguments)
     ch_variable = arg_1(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    ch_variable->value.charvalue =
-        (chartype) (((int) take_char(ch_variable)) - 1);
+    ch_variable->value.charvalue = take_char(ch_variable) - 1;
     return SYS_EMPTY_OBJECT;
   } /* chr_decr */
 
@@ -239,8 +238,8 @@ objecttype chr_hashcode (listtype arguments)
 
   { /* chr_hashcode */
     isit_char(arg_1(arguments));
-    return bld_int_temp((inttype)
-        ((schartype) take_char(arg_1(arguments))));
+    return bld_int_temp((inttype) (
+        (schartype) take_char(arg_1(arguments))));
   } /* chr_hashcode */
 
 
@@ -274,8 +273,7 @@ objecttype chr_incr (listtype arguments)
     ch_variable = arg_1(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    ch_variable->value.charvalue =
-        (chartype) (((int) take_char(ch_variable)) + 1);
+    ch_variable->value.charvalue = take_char(ch_variable) + 1;
     return SYS_EMPTY_OBJECT;
   } /* chr_incr */
 
@@ -370,8 +368,8 @@ objecttype chr_ord (listtype arguments)
 
   { /* chr_ord */
     isit_char(arg_1(arguments));
-    return bld_int_temp((inttype)
-        ((schartype) take_char(arg_1(arguments))));
+    return bld_int_temp((inttype) (
+        (schartype) take_char(arg_1(arguments))));
   } /* chr_ord */
 
 
@@ -384,8 +382,7 @@ objecttype chr_pred (listtype arguments)
 
   { /* chr_pred */
     isit_char(arg_1(arguments));
-    return bld_char_temp((chartype)
-        (((int) take_char(arg_1(arguments))) - 1));
+    return bld_char_temp(take_char(arg_1(arguments)) - 1);
   } /* chr_pred */
 
 
@@ -420,8 +417,7 @@ objecttype chr_succ (listtype arguments)
 
   { /* chr_succ */
     isit_char(arg_1(arguments));
-    return bld_char_temp((chartype)
-        (((int) take_char(arg_1(arguments))) + 1));
+    return bld_char_temp(take_char(arg_1(arguments)) + 1);
   } /* chr_succ */
 
 

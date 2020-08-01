@@ -86,6 +86,8 @@
 #undef TRACE_CMD_RTL
 
 
+#define MAX_STRI_EXPORT_LEN 40
+
 #ifndef CPLUSPLUS_COMPILER
 #define CPLUSPLUS_COMPILER C_COMPILER
 #endif
@@ -1029,13 +1031,13 @@ void cmdCloneFile (const const_stritype sourcePath, const const_stritype destPat
 stritype cmdConfigValue (const const_stritype name)
 
   {
-    char opt_name[250];
+    char opt_name[max_utf8_size(MAX_STRI_EXPORT_LEN) + 1];
     const_cstritype opt;
     char buffer[4];
     stritype result;
 
   /* cmdConfigValue */
-    if (name->size >= 250 / MAX_UTF8_EXPANSION_FACTOR) {
+    if (name->size > MAX_STRI_EXPORT_LEN) {
       opt = "";
     } else {
       stri_export_utf8((ustritype) opt_name, name);

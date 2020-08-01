@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -99,7 +99,7 @@ static void init_analyze (void)
 
 
 
-static INLINE void system_var (void)
+static inline void system_var (void)
 
   {
     int index_found;
@@ -126,6 +126,9 @@ static INLINE void system_var (void)
       err_ident(EXPECTED_SYMBOL, prog.id_for.is);
     } /* if */
     sys_object = read_atom();
+    /* printf("sys_var[%d] = ", index_found);
+        trace1(sys_object);
+        printf("\n"); */
     if (index_found != -1) {
       prog.sys_var[index_found] = sys_object;
     } /* if */
@@ -141,7 +144,7 @@ static INLINE void system_var (void)
 
 
 
-static INLINE void include_file (void)
+static inline void include_file (void)
 
   {
     stritype include_file_name;
@@ -292,7 +295,7 @@ static void process_pragma (void)
 
 
 
-static INLINE void decl_any (nodetype objects)
+static inline void decl_any (nodetype objects)
 
   {
     objecttype decl_expression;
@@ -663,7 +666,9 @@ progtype analyze_string (const const_stritype input_string, uinttype options,
       if (input_bstri == NULL) {
         *err_info = MEMORY_ERROR;
       } else {
-        open_string(input_bstri, options & WRITE_LIBRARY_NAMES, options & WRITE_LINE_NUMBERS, err_info);
+        open_string(input_bstri,
+                    (options & WRITE_LIBRARY_NAMES) != 0,
+                    (options & WRITE_LINE_NUMBERS) != 0, err_info);
         if (*err_info == OKAY_NO_ERROR) {
           resultProg = analyze_prog(source_file_argument, source_file_argument,
                                     options, libraryDirs, prot_file_name, err_info);

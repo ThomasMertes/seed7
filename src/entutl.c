@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -42,6 +42,8 @@
 #define EXTERN
 #include "entutl.h"
 
+#undef TRACE_ENTITY
+
 
   /* The macro PTR_LESS is used to generate a less than comparison  */
   /* for pointers. Since the comparison is used to build a binary   */
@@ -63,9 +65,6 @@
 
 /* #define PTR_LESS(P1,P2) (((long) (P1) & 0177400L) < ((long) (P2) & 0177400L)) */
 /* #define PTR_LESS(P1,P2) ((P1) < (P2)) */
-
-
-#undef TRACE_ENTITY
 
 
 
@@ -117,21 +116,25 @@ static nodetype new_node (objecttype obj)
       created_node->attr = NULL;
     } /* if */
 #ifdef TRACE_ENTITY
-    printf("END new_node\n");
+    printf("END new_node --> ");
+    trace_node(created_node);
+    printf("\n");
 #endif
     return created_node;
   } /* new_node */
 
 
 
+/**
+ *  Searches for a node matching the object object_searched in the
+ *  specified node_tree. If a node is found it is returned. If no
+ *  matching node is found a new node is generated and entered
+ *  into the node_tree. In this case the new node is returned.
+ *  @return the node found or the new generated node or
+ *          NULL, if a memory error occoured.
+ */
 static nodetype get_node (nodetype *node_tree,
     register objecttype object_searched)
-
-  /* Searches for a node matching the object object_searched in the */
-  /* specified node_tree. If a node is found it is returned. If no  */
-  /* matching node is found a new node is generated and entered     */
-  /* into the node_tree. In this case the new node is returned.     */
-  /* If a memory error occours NULL is returned.                    */
 
   {
     register nodetype search_node;
@@ -178,7 +181,7 @@ static nodetype get_node (nodetype *node_tree,
     } /* if */
 /* printf("get_node >%s<\n", object_searched->entity->ident->name); */
 #ifdef TRACE_ENTITY
-    printf("END get_node ==> ");
+    printf("END get_node --> ");
     trace_node(node_found);
     printf("\n");
 #endif
@@ -187,12 +190,14 @@ static nodetype get_node (nodetype *node_tree,
 
 
 
+/**
+ *  Searches for a node matching the object object_searched in the
+ *  specified node_tree. If a node is found it is returned. If no
+ *  matching node is found NULL is returned.
+ *  @return the node found or NULL if no matching node is found.
+ */
 nodetype find_node (register nodetype node_tree,
     register objecttype object_searched)
-
-  /* Searches for a node matching the object object_searched in the */
-  /* specified node_tree. If a node is found it is returned. If no  */
-  /* matching node is found NULL is returned.                       */
 
   {
     nodetype node_found;
@@ -235,12 +240,18 @@ nodetype find_node (register nodetype node_tree,
 
 
 
+/**
+ *  Searches for a node matching the object object_searched in the
+ *  specified node_tree. If a node is found its usage_count is
+ *  decremented. If the node is unused now it is removed and NULL
+ *  is returned. If the node is still in use it is returned. If no
+ *  matching node is found NULL is returned.
+ *  @return a node that is still in use after it has been popped, or
+ *          NULL when the last usage of a node has been removed, or
+ *          NULL when no matching node has been found.
+ */
 static nodetype pop_node (register nodetype node_tree,
     register objecttype object_searched)
-
-  /* Searches for a node matching the object object_searched in the */
-  /* specified node_tree. If a node is found it is returned. If no  */
-  /* matching node is found NULL is returned.                       */
 
   {
     nodetype node_found;
@@ -504,7 +515,8 @@ printf("\n"); */
       } /* if */
     } /* if */
 #ifdef TRACE_ENTITY
-    printf("END get_entity\n");
+    printf("END get_entity -->\n");
+    trace_entity(entity_found);
 #endif
     return entity_found;
   } /* get_entity */
@@ -573,7 +585,8 @@ printf("\n"); */
       entity_found = NULL;
     } /* if */
 #ifdef TRACE_ENTITY
-    printf("END find_entity\n");
+    printf("END find_entity -->\n");
+    trace_entity(entity_found);
 #endif
     return entity_found;
   } /* find_entity */
@@ -683,7 +696,7 @@ void pop_entity (nodetype declaration_base, const_entitytype entity)
 #ifdef TRACE_ENTITY
     printf("BEGIN pop_entity\n");
 #endif
-    /* trace_entity(ent); */
+    /* trace_entity(entity); */
     name_elem = entity->fparam_list;
     if (name_elem != NULL) {
       curr_node = declaration_base;

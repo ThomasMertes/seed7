@@ -1,0 +1,524 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  x509cert.s7i  Support for X.509 public key certificates.        *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "asn1.s7i";
+include "pkcs1.s7i";
+include "msgdigest.s7i";
+include "time.s7i";
+
+
+const type: algorithmIdentifierType is new struct
+    var string: algorithm is "";     # OBJECT IDENTIFIER
+    var string: parameters is "";    # ANY DEFINED BY algorithm OPTIONAL
+  end struct;
+
+const type: nameType is hash [string] string;
+
+const type: validityType is new struct
+    var time: notBefore is time.value;
+    var time: notAfter is time.value;
+  end struct;
+
+const type: subjectPublicKeyInfoType is new struct
+    var algorithmIdentifierType: algorithm is algorithmIdentifierType.value;
+    var string: subjectPublicKey is "";  # BIT STRING
+    var rsaKey: publicRsaKey is rsaKey.value;
+  end struct;
+
+const type: tbsCertificateType is new struct
+    var integer: version is 0;  # v1
+    var string: serialNumber is "";  # INTEGER (up to 20 octets in length)
+    var algorithmIdentifierType: signature is algorithmIdentifierType.value;
+    var nameType: issuer is nameType.value;
+    var validityType: validity is validityType.value;
+    var nameType: subject is nameType.value;
+    var subjectPublicKeyInfoType: subjectPublicKeyInfo is subjectPublicKeyInfoType.value;
+(*
+        issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL,
+                             -- If present, version shall be v2 or v3
+        subjectUniqueID [2]  IMPLICIT UniqueIdentifier OPTIONAL,
+                             -- If present, version shall be v2 or v3
+        extensions      [3]  EXPLICIT Extensions OPTIONAL
+                             -- If present, version shall be v3
+*)
+  end struct;
+
+const type: x509cert is new struct
+    var tbsCertificateType:      tbsCertificate     is tbsCertificateType.value;
+    var algorithmIdentifierType: signatureAlgorithm is algorithmIdentifierType.value;
+    var string:                  signatureValue     is "";
+    var string:                  messageDigest      is "";
+  end struct;
+
+
+const string: ALIASED_ENTRY_NAME_OID        is encodeObjectIdentifier([] (2, 5, 4, 1));   # "U\4\\1\"
+const string: KNOWLEDGE_INFORMATION_OID     is encodeObjectIdentifier([] (2, 5, 4, 2));   # "U\4\\2\"
+const string: COMMON_NAME_OID               is encodeObjectIdentifier([] (2, 5, 4, 3));   # "U\4\\3\"
+const string: SURNAME_OID                   is encodeObjectIdentifier([] (2, 5, 4, 4));   # "U\4\\4\"
+const string: SERIAL_NUMBER_OID             is encodeObjectIdentifier([] (2, 5, 4, 5));   # "U\4\\5\"
+const string: COUNTRY_NAME_OID              is encodeObjectIdentifier([] (2, 5, 4, 6));   # "U\4\\6\"
+const string: LOCALITY_NAME_OID             is encodeObjectIdentifier([] (2, 5, 4, 7));   # "U\4\\a"
+const string: STATE_OR_OR_PROVINCE_NAME_OID is encodeObjectIdentifier([] (2, 5, 4, 8));   # "U\4\\b"
+const string: STREET_ADDRESS_OID            is encodeObjectIdentifier([] (2, 5, 4, 9));   # "U\4\\t"
+const string: ORGANIZATION_NAME_OID         is encodeObjectIdentifier([] (2, 5, 4, 10));  # "U\4\\n"
+const string: ORGANIZATION_UNIT_NAME_OID    is encodeObjectIdentifier([] (2, 5, 4, 11));  # "U\4\\v"
+const string: TITLE_OID                     is encodeObjectIdentifier([] (2, 5, 4, 12));  # "U\4\\f"
+
+const string: SUBJECT_KEY_IDENTIFIER_OID    is encodeObjectIdentifier([] (2, 5, 29, 14));  # "U\29\\14\"
+const string: KEY_USAGE_OID                 is encodeObjectIdentifier([] (2, 5, 29, 15));  # "U\29\\15\"
+const string: SUBJECT_ALT_NAME              is encodeObjectIdentifier([] (2, 5, 29, 17));  # "U\29\\17\"
+const string: BASIC_CONSTRAINTS_OID         is encodeObjectIdentifier([] (2, 5, 29, 19));  # "U\29\\19\"
+const string: CRLD_DISTRIBUTION_POINTS_OID  is encodeObjectIdentifier([] (2, 5, 29, 31));  # "U\29\\31\"
+const string: CERTIFICATE_POLICIES_OID      is encodeObjectIdentifier([] (2, 5, 29, 32));  # "U\29\ "
+const string: AUTHORITY_KEY_IDENTIFIER_OID  is encodeObjectIdentifier([] (2, 5, 29, 35));  # "U\29\#"
+const string: EXT_KEY_USAGE_OID             is encodeObjectIdentifier([] (2, 5, 29, 37));  # "U\29\%"
+
+const string: CERT_TYPE_OID                 is encodeObjectIdentifier([] (2, 16, 840, 1, 113730, 1, 1));  # "`\134\H\1\\134\�B\1\\1\"
+
+# iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) 1
+const string: PKCS_1 is  encodeObjectIdentifier([] (1, 2, 840, 113549, 1, 1));  # "*\134\H\134\\247\\r\1\\1\";
+const string: RSA_ENCRYPTION_OID         is PKCS_1 & "\1\";
+const string: MD2_WITH_RSA_ENCRYPTION    is PKCS_1 & "\2\";
+const string: MD5_WITH_RSA_ENCRYPTION    is PKCS_1 & "\4\";
+const string: SHA1_WITH_RSA_ENCRYPTION   is PKCS_1 & "\5\";
+const string: RSAES_OAEP_OID             is PKCS_1 & "\7\";
+const string: MGF1_OID                   is PKCS_1 & "\8\";
+const string: P_SPECIFIED_OID            is PKCS_1 & "\9\";
+const string: RSASSA_PSS_OID             is PKCS_1 & "\10\";
+const string: SHA256_WITH_RSA_ENCRYPTION is PKCS_1 & "\11\";
+const string: SHA384_WITH_RSA_ENCRYPTION is PKCS_1 & "\12\";
+const string: SHA512_WITH_RSA_ENCRYPTION is PKCS_1 & "\13\";
+
+const string: SHA1_OID is encodeObjectIdentifier([] (1, 3, 14, 3, 2, 26));  # "+\14\\3\\2\\26\"
+
+
+const func algorithmIdentifierType: getAlgorithmIdentifier (in string: stri, inout integer: pos) is func
+  result
+    var algorithmIdentifierType: algId is algorithmIdentifierType.value;
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+  begin
+    dataElem := getAsn1DataElement(stri, pos);
+    # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagCategory)]);
+    if dataElem.tagCategory = tagSequence then
+      dataElem := getAsn1DataElement(stri, pos);
+      # writeln("in getAlgorithmIdentifier " <& classTagName[ord(dataElem.tagCategory)]);
+      if dataElem.tagCategory = tagObjectIdentifier then
+        algId.algorithm := getData(stri, pos, dataElem);
+      end if;
+      dataElem := getAsn1DataElement(stri, pos);
+      if dataElem.tagCategory = tagNull then
+        algId.parameters := "";
+      else
+        algId.parameters := getData(stri, pos, dataElem);
+      end if;
+    end if;
+  end func;
+
+
+const func string: genX509AlgorithmIdentifier (in algorithmIdentifierType: algId) is func
+  result
+    var string: stri is "";
+  begin
+    stri := genAsn1Element(tagObjectIdentifier, algId.algorithm);
+    if algId.parameters = "" then
+      stri &:= genAsn1Element(tagNull, "");
+    else
+      stri &:= genAsn1Element(tagOctetString, algId.parameters);
+    end if;
+    stri := genAsn1Sequence(stri);
+  end func;
+
+
+const func rsaKey: getRsaKey (in string: stri) is func
+  result
+    var rsaKey: anRsaKey is rsaKey.value;
+  local
+    var integer: pos is 1;
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var bigInteger: modulus is 0_;
+    var bigInteger: exponent is 0_;
+  begin
+    dataElem := getAsn1DataElement(stri, pos);
+    if dataElem.tagCategory = tagSequence then
+      dataElem := getAsn1DataElement(stri, pos);
+      if dataElem.tagCategory = tagInteger then
+        modulus := bytesBe2BigInt(getData(stri, pos, dataElem));
+        dataElem := getAsn1DataElement(stri, pos);
+        if dataElem.tagCategory = tagInteger then
+          exponent := bytesBe2BigInt(getData(stri, pos, dataElem));
+          anRsaKey := rsaKey(modulus, exponent);
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func string: genX509RsaKey (in rsaKey: anRsaKey) is func
+  result
+    var string: stri is "";
+  begin
+    stri := genAsn1Integer(bytesBe(anRsaKey.modulus));
+    stri &:= genAsn1Integer(bytesBe(anRsaKey.exponent));
+    stri := genAsn1Sequence(stri);
+  end func;
+
+
+const func subjectPublicKeyInfoType: getPublicKeyInfo (in string: stri, inout integer: pos) is func
+  result
+    var subjectPublicKeyInfoType: keyInfo is subjectPublicKeyInfoType.value;
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+  begin
+    # writeln("in getPublicKeyInfo " <& pos);
+    dataElem := getAsn1DataElement(stri, pos);
+    # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
+    if dataElem.tagCategory = tagSequence then
+      keyInfo.algorithm := getAlgorithmIdentifier(stri, pos);
+      dataElem := getAsn1DataElement(stri, pos);
+      if dataElem.tagCategory = tagBitString then
+        # The initial octet of a bit-string encodes
+        # the number of unused bits in the final octet.
+        keyInfo.subjectPublicKey := getData(stri, pos, dataElem)[2 ..];
+        # writeln("algorithm:          " <& literal(keyInfo.algorithm.algorithm));
+        # writeln("RSA_ENCRYPTION_OID: " <& literal(RSA_ENCRYPTION_OID));
+        # writeln("algorithm:          " <& ord(keyInfo.algorithm.algorithm[5]));
+        # writeln("RSA_ENCRYPTION_OID: " <& ord(RSA_ENCRYPTION_OID[5]));
+        if keyInfo.algorithm.algorithm = RSA_ENCRYPTION_OID then
+          keyInfo.publicRsaKey := getRsaKey(keyInfo.subjectPublicKey);
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func string: genX509PublicKeyInfo (in subjectPublicKeyInfoType: keyInfo) is func
+  result
+    var string: stri is "";
+  local
+    var string: subjectPublicKey is "";
+  begin
+    stri := genX509AlgorithmIdentifier(keyInfo.algorithm);
+    if keyInfo.subjectPublicKey <> "" then
+      subjectPublicKey := keyInfo.subjectPublicKey;
+    else
+      subjectPublicKey := genX509RsaKey(keyInfo.publicRsaKey);
+    end if;
+    # The initial octet of a bit-string encodes
+    # the number of unused bits in the final octet.
+    stri &:= genAsn1Element(tagBitString, "\0\" & subjectPublicKey);
+    stri := genAsn1Sequence(stri);
+  end func;
+
+
+const func nameType: getName (in string: stri, inout integer: pos) is func
+  result
+    var nameType: name is nameType.value;
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var integer: posAfterwards is 0;
+    var string: attrKey is "";
+    var string: attrValue is "";
+  begin
+    # writeln("in getName");
+    dataElem := getAsn1DataElement(stri, pos);
+    if dataElem.tagCategory = tagSequence then
+      posAfterwards := pos + dataElem.length;
+      while pos < posAfterwards do
+        dataElem := getAsn1DataElement(stri, pos);
+        if dataElem.tagCategory = tagSet then
+          dataElem := getAsn1DataElement(stri, pos);
+          if dataElem.tagCategory = tagSequence then
+            dataElem := getAsn1DataElement(stri, pos);
+            if dataElem.tagCategory = tagObjectIdentifier then
+              attrKey := getData(stri, pos, dataElem);
+            end if;
+            dataElem := getAsn1DataElement(stri, pos);
+            attrValue := getData(stri, pos, dataElem);
+            name @:= [attrKey] attrValue;
+            # writeln("getName: " <& objectIdentifier(attrKey) <& ": " <& literal(attrValue));
+          end if;
+        end if;
+      end while;
+    end if;
+  end func;
+
+
+const func string: genX509Name (in nameType: name) is func
+  result
+    var string: stri is "";
+  local
+    var string: attrKey is "";
+    var string: attrValue is "";
+    var string: setElement is "";
+  begin
+    for attrValue key attrKey range name do
+      setElement := genAsn1Element(tagObjectIdentifier, attrKey);
+      setElement &:= genAsn1Element(tagPrintableString, attrValue);
+      setElement := genAsn1Sequence(setElement);
+      stri &:= genAsn1Set(setElement);
+    end for;
+    stri := genAsn1Sequence(stri);
+  end func;
+
+
+const func time: getTime_yymmddhhmmssZ (in string: stri) is func
+  result
+    var time: aTime is time.value;
+  local
+    var integer: yearInCentury is 0;
+    var integer: referenceYear is 0;
+    var integer: referenceCentury is 0;
+    var integer: possibleYear1 is 0;
+    var integer: possibleYear2 is 0;
+    var integer: possibleYear3 is 0;
+    var integer: diffToYear1 is 0;
+    var integer: diffToYear2 is 0;
+    var integer: diffToYear3 is 0;
+    var integer: year is 0;
+  begin
+    yearInCentury := integer parse (stri[.. 2]);
+    referenceYear := time(NOW).year;
+    referenceCentury := referenceYear mdiv 100;
+    possibleYear1 := pred(referenceCentury) * 100 + yearInCentury;
+    possibleYear2 :=      referenceCentury  * 100 + yearInCentury;
+    possibleYear3 := succ(referenceCentury) * 100 + yearInCentury;
+    diffToYear1 := abs(referenceYear - possibleYear1);
+    diffToYear2 := abs(referenceYear - possibleYear2);
+    diffToYear3 := abs(referenceYear - possibleYear3);
+    # writeln("possibleYear1: " <& possibleYear1 <& " diff: " <& diffToYear1);
+    # writeln("possibleYear2: " <& possibleYear2 <& " diff: " <& diffToYear2);
+    # writeln("possibleYear3: " <& possibleYear3 <& " diff: " <& diffToYear3);
+    if  diffToYear1 < diffToYear2 and diffToYear1 < diffToYear3 then
+      year := possibleYear1;
+    elsif diffToYear3 < diffToYear1 and diffToYear3 < diffToYear2 then
+      year := possibleYear3;
+    else
+      year := possibleYear2;
+    end if;
+    aTime := time(year,
+                  integer parse (stri[ 3 len 2]),  # month
+                  integer parse (stri[ 5 len 2]),  # day
+                  integer parse (stri[ 7 len 2]),  # hour
+                  integer parse (stri[ 9 len 2]),  # minute
+                  integer parse (stri[11 len 2])); # second
+    # writeln("getTime_yymmddhhmmssZ(" <& literal(stri) <& ") --> " <& aTime);
+  end func;
+
+
+const func validityType: getValidity (in string: stri, inout integer: pos) is func
+  result
+    var validityType: validity is validityType.value;
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+  begin
+    dataElem := getAsn1DataElement(stri, pos);
+    if dataElem.tagCategory = tagSequence then
+      dataElem := getAsn1DataElement(stri, pos);
+      if dataElem.tagCategory = tagUTCTime then
+        validity.notBefore := getTime_yymmddhhmmssZ(getData(stri, pos, dataElem));
+      end if;
+      dataElem := getAsn1DataElement(stri, pos);
+      if dataElem.tagCategory = tagUTCTime then
+        validity.notAfter := getTime_yymmddhhmmssZ(getData(stri, pos, dataElem));
+      end if;
+    end if;
+  end func;
+
+
+const func string: genX509Validity (in validityType: validity) is func
+  result
+    var string: stri is "";
+  begin
+    stri := genAsn1Element(tagUTCTime, str_yy_mm_dd(validity.notBefore, "") &
+                                       str_hh_mm_ss(validity.notBefore, "") & "Z");
+    stri &:= genAsn1Element(tagUTCTime, str_yy_mm_dd(validity.notAfter, "") &
+                                        str_hh_mm_ss(validity.notAfter, "") & "Z");
+    stri := genAsn1Sequence(stri);
+  end func;
+
+
+const func tbsCertificateType: getTbsCertificate (in string: stri, inout integer: pos) is func
+  result
+    var tbsCertificateType: tbsCertificate is tbsCertificateType.value;
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var integer: byond is 0;
+  begin
+    dataElem := getAsn1DataElement(stri, pos);
+    # writeln("getTbsCertificate: tagCategory=" <& ord(dataElem.tagCategory));
+    if dataElem.tagCategory = tagSequence then
+      byond := pos + dataElem.length;
+      dataElem := getAsn1DataElement(stri, pos);
+      if dataElem.tagClass = contextSpecificTagClass and dataElem.constructed then
+        dataElem := getAsn1DataElement(stri, pos);
+        if dataElem.tagCategory = tagInteger then
+          tbsCertificate.version := bytesBe2Int(getData(stri, pos, dataElem));
+        end if;
+        dataElem := getAsn1DataElement(stri, pos);
+        if dataElem.tagCategory = tagInteger then
+          tbsCertificate.serialNumber := getData(stri, pos, dataElem);
+        end if;
+      elsif dataElem.tagCategory = tagInteger then
+        # Some certificates don't have an explicit tag and a serial number.
+        tbsCertificate.version := bytesBe2Int(getData(stri, pos, dataElem));
+      end if;
+      tbsCertificate.signature := getAlgorithmIdentifier(stri, pos);
+      tbsCertificate.issuer := getName(stri, pos);
+      tbsCertificate.validity := getValidity(stri, pos);
+      tbsCertificate.subject := getName(stri, pos);
+      tbsCertificate.subjectPublicKeyInfo := getPublicKeyInfo(stri, pos);
+      # writeln("pos=" <& pos);
+      # writeln("byond=" <& byond);
+      if pos < byond then
+        dataElem := getAsn1DataElement(stri, pos);
+        if dataElem.constructed and ord(dataElem.tagCategory) = 3 then
+          # EXPLICIT TAG 3
+          skipData(pos, dataElem);
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func string: genX509TbsCertificate (in tbsCertificateType: tbsCertificate) is func
+  result
+    var string: stri is "";
+  local
+    var string: version is "";
+  begin
+    version := genAsn1Integer(str(chr(tbsCertificate.version)));
+    stri := genAsn1Tag(0, version);
+    stri &:= genAsn1Integer(tbsCertificate.serialNumber);
+    stri &:= genX509AlgorithmIdentifier(tbsCertificate.signature);
+    stri &:= genX509Name(tbsCertificate.issuer);
+    stri &:= genX509Validity(tbsCertificate.validity);
+    stri &:= genX509Name(tbsCertificate.subject);
+    stri &:= genX509PublicKeyInfo(tbsCertificate.subjectPublicKeyInfo);
+    stri := genAsn1Sequence(stri);
+  end func;
+
+
+(**
+ *  Read a X.509 public key certificate from ''stri''.
+ *  @return the X.509 public key certificate.
+ *)
+const func x509cert: getX509Cert (in string: stri) is func
+  result
+    var x509cert: cert is x509cert.value;
+  local
+    var integer: pos is 1;
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var integer: tbsCertificatePos is 1;
+    var integer: posAfterTbsCertificate is 1;
+  begin
+    dataElem := getAsn1DataElement(stri, pos);
+    # writeln("getX509Cert: tagCategory=" <& classTagName[ord(dataElem.tagCategory)]);
+    if dataElem.tagCategory = tagSequence then
+      tbsCertificatePos := pos;
+      cert.tbsCertificate := getTbsCertificate(stri, pos);
+      posAfterTbsCertificate := pos;
+    end if;
+    cert.signatureAlgorithm := getAlgorithmIdentifier(stri, pos);
+    dataElem := getAsn1DataElement(stri, pos);
+    if dataElem.tagCategory = tagBitString then
+      # The initial octet of a bit-string encodes
+      # the number of unused bits in the final octet.
+      cert.signatureValue := getData(stri, pos, dataElem)[2 ..];
+      # writeln("messageDigest start: " <& tbsCertificatePos);
+      # writeln("messageDigest end:   " <& pred(posAfterTbsCertificate));
+      if cert.signatureAlgorithm.algorithm = MD5_WITH_RSA_ENCRYPTION then
+        cert.messageDigest := md5(stri[tbsCertificatePos .. pred(posAfterTbsCertificate)]);
+      elsif cert.signatureAlgorithm.algorithm = SHA1_WITH_RSA_ENCRYPTION then
+        cert.messageDigest := sha1(stri[tbsCertificatePos .. pred(posAfterTbsCertificate)]);
+      end if;
+    end if;
+    # writeln("end getX509Cert");
+  end func;
+
+
+const func string: genX509Cert (inout x509cert: cert, in rsaKey: encryptionKey) is func
+  result
+    var string: stri is "";
+  local
+    var string: signature is "";
+    var algorithmIdentifierType: signatureAlgorithmIdentifier is algorithmIdentifierType.value;
+  begin
+    stri := genX509TbsCertificate(cert.tbsCertificate);
+    if cert.signatureAlgorithm.algorithm = MD5_WITH_RSA_ENCRYPTION then
+      cert.messageDigest := md5(stri);
+    elsif cert.signatureAlgorithm.algorithm = SHA1_WITH_RSA_ENCRYPTION then
+      cert.messageDigest := sha1(stri);
+    end if;
+    signature := genX509AlgorithmIdentifier(cert.signatureAlgorithm);
+    signature &:= genAsn1Element(tagOctetString, cert.messageDigest);
+    signature := genAsn1Sequence(signature);
+    cert.signatureValue := rsaEncryptBytes(encryptionKey, signature);
+    stri &:= genX509AlgorithmIdentifier(cert.signatureAlgorithm);
+    stri &:= genAsn1Element(tagBitString, "\0\" & cert.signatureValue);
+    stri := genAsn1Sequence(stri);
+  end func;
+
+
+(**
+ *  Validate the signature of a X.509 certificate ''cert'' with ''publicKey''.
+ *  @return TRUE if the certificate can be validated,
+ *          FALSE otherwise.
+ *)
+const func boolean: validateSignature (in x509cert: cert, in rsaKey: publicKey) is func
+  result
+    var boolean: okay is FALSE;
+  local
+    var string: decrypted is "";
+    var integer: pos is 1;
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var algorithmIdentifierType: digestAlgorithmIdentifier is algorithmIdentifierType.value;
+    var string: digest is "";
+  begin
+    # writeln("in validateSignature: algorithm=" <& literal(cert.signatureAlgorithm.algorithm));
+    if cert.signatureAlgorithm.algorithm = MD5_WITH_RSA_ENCRYPTION or
+        cert.signatureAlgorithm.algorithm = SHA1_WITH_RSA_ENCRYPTION then
+      # writeln("-------------");
+      # writeln("length(messageDigest): " <& length(cert.messageDigest));
+      # writeln("messageDigest: " <& literal(cert.messageDigest));
+      decrypted := rsaDecryptBytes(publicKey, cert.signatureValue);
+      # writeln("length(decrypted):     " <& length(decrypted));
+      # writeln("decrypted:     " <& literal(decrypted));
+      printAsn1(decrypted);
+      dataElem := getAsn1DataElement(decrypted, pos);
+      if dataElem.tagCategory = tagSequence then
+        digestAlgorithmIdentifier := getAlgorithmIdentifier(decrypted, pos);
+        dataElem := getAsn1DataElement(decrypted, pos);
+        if dataElem.tagCategory = tagOctetString then
+          digest := getData(decrypted, pos, dataElem);
+          # writeln("digest: " <& literal(digest));
+          okay := cert.messageDigest = digest;
+        end if;
+      end if;
+    end if;
+  end func;

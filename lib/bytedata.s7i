@@ -55,6 +55,27 @@ const func string: getAsciiz (in string: stri, inout integer: currPos) is func
 
 
 (**
+ *  Convert a [[string]] of bytes to its hexadecimal representation.
+ *  Each byte is represented by two hexadecimal digits.
+ *  @return the hexadecimal representation of the given [[string]].
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *)
+const func string: hex (in string: stri) is func
+  result
+    var string: hex is "";
+  local
+    var char: ch is ' ';
+  begin
+    for ch range stri do
+      if ch > '\255\' then
+        raise RANGE_ERROR;
+      end if;
+      hex &:= ord(ch) radix 16 lpad0 2;
+    end for;
+  end func;
+
+
+(**
  *  Convert 16 lower bits of an integer into two little-endian chars.
  *  @return a string of length two with the little-endian representation.
  *)
@@ -212,7 +233,7 @@ const func string: bytesBe (in integer: number) is
 
 
 (**
- *  Convert a [[bstring]] (interpreted as little-endian) to a [[bigInteger]].
+ *  Convert a [[bstring]] (interpreted as little-endian) to a [[bigint|bigInteger]].
  *  The ''byteStri'' is interpreted as twos-complement representation
  *  with a base of 256. The result is negative when the most significant
  *  byte (the last byte) has an ordinal >= 128.
@@ -222,7 +243,7 @@ const func bigInteger: bStriLe2BigInt (in bstring: byteStri)  is action "BIG_FRO
 
 
 (**
- *  Convert a [[string]] of bytes (interpreted as little-endian) to a [[bigInteger]].
+ *  Convert a [[string]] of bytes (interpreted as little-endian) to a [[bigint|bigInteger]].
  *  The ''byteStri'' is interpreted as twos-complement representation
  *  with a base of 256. The result is negative when the most significant
  *  byte (the last byte) has an ordinal >= 128.
@@ -234,7 +255,7 @@ const func bigInteger: bytesLe2BigInt (in string: byteStri) is
 
 
 (**
- *  Convert a [[bstring]] (interpreted as big-endian) to a [[bigInteger]].
+ *  Convert a [[bstring]] (interpreted as big-endian) to a [[bigint|bigInteger]].
  *  The ''byteStri'' is interpreted as twos-complement representation
  *  with a base of 256. The result is negative when the most significant
  *  byte (the first byte) has an ordinal >= 128.
@@ -244,7 +265,7 @@ const func bigInteger: bStriBe2BigInt (in bstring: byteStri)  is action "BIG_FRO
 
 
 (**
- *  Convert a [[string]] of bytes (interpreted as big-endian) to a [[bigInteger]].
+ *  Convert a [[string]] of bytes (interpreted as big-endian) to a [[bigint|bigInteger]].
  *  The ''byteStri'' is interpreted as twos-complement representation
  *  with a base of 256. The result is negative when the most significant
  *  byte (the first byte) has an ordinal >= 128.
@@ -256,7 +277,7 @@ const func bigInteger: bytesBe2BigInt (in string: byteStri) is
 
 
 (**
- *  Convert a [[bigInteger]] into a little-endian [[bstring]].
+ *  Convert a [[bigint|bigInteger]] into a little-endian [[bstring]].
  *  The result uses a twos-complement representation with a base of 256.
  *  For a negative ''number'' the most significant byte of the result
  *  (the last byte) has an ordinal >= 128.
@@ -266,7 +287,7 @@ const func bstring: bStriLe (in bigInteger: number)          is action "BIG_TO_B
 
 
 (**
- *  Convert a [[bigInteger]] into a little-endian [[string]].
+ *  Convert a [[bigint|bigInteger]] into a little-endian [[string]].
  *  The result uses a twos-complement representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  For a negative ''number'' the most significant byte of the result
@@ -278,7 +299,7 @@ const func string: bytesLe (in bigInteger: number) is
 
 
 (**
- *  Convert a [[bigInteger]] into a big-endian [[bstring]].
+ *  Convert a [[bigint|bigInteger]] into a big-endian [[bstring]].
  *  The result uses a twos-complement representation with a base of 256.
  *  For a negative ''number'' the most significant byte of the result
  *  (the first byte) has an ordinal >= 128.
@@ -288,7 +309,7 @@ const func bstring: bStriBe (in bigInteger: number)          is action "BIG_TO_B
 
 
 (**
- *  Convert a [[bigInteger]] into a big-endian [[string]].
+ *  Convert a [[bigint|bigInteger]] into a big-endian [[string]].
  *  The result uses a twos-complement representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  For a negative ''number'' the most significant byte of the result

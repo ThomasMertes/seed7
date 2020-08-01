@@ -1,0 +1,81 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  cipher.s7i    Generic support for TLS bulk cipher algorithms.   *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Enumeration of cipher algorithms.
+ *)
+const type: cipherAlgorithm is new enum
+    NO_CIPHER, RC4, RC2, DES, _3DES, DES40
+  end enum;
+
+
+const type: cipherState is sub object interface;
+
+
+(**
+ *  Set key and initialization vector for the given [[cipher#cipherAlgorithm|cipherAlgorithm]].
+ *  @param cipherAlg The [[cipher#cipherAlgorithm|cipherAlgorithm]] to be used.
+ *  @return the ''cipherState'' of the ''cipherAlgorithm''
+ *)
+const func cipherState: setCipherKey (in cipherAlgorithm: cipherAlg,
+    in string: cipherKey, in string: initializationVector) is DYNAMIC;
+
+
+(**
+ *  Encode a string with the ''state'' of the selected cipher algorithm.
+ *  @return the encoded string.
+ *)
+const func string: encode (inout cipherState: state, in string: plaintext) is DYNAMIC;
+
+
+(* NO_CIPHER *)
+
+
+const type: noCipherState is new struct
+  end struct;
+
+
+type_implements_interface(noCipherState, cipherState);
+
+
+const cipherState: (attr cipherState) . value is noCipherState.value;
+
+
+const func cipherState: setCipherKey (NO_CIPHER, in string: cipherKey,
+    in string: initializationVector) is func
+  result
+    var cipherState: state is cipherState.value;
+  local
+    var noCipherState: new_state is noCipherState.value;
+  begin
+    state := toInterface(new_state);
+  end func;
+
+
+const func string: encode (inout noCipherState: state, in string: plaintext) is
+  return plaintext;

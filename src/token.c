@@ -40,12 +40,14 @@
 #define EXTERN
 #include "token.h"
 
+#undef TRACE_TOKEN
+
 
 
 void free_tokens (tokentype token)
 
   { /* free_tokens */
-#ifdef TRACE_ENTITY
+#ifdef TRACE_TOKEN
     printf("BEGIN free_tokens\n");
 #endif
     if (token != NULL) {
@@ -53,7 +55,7 @@ void free_tokens (tokentype token)
       free_tokens(token->alternative);
       FREE_RECORD(token, tokenrecord, count.token);
     } /* if */
-#ifdef TRACE_ENTITY
+#ifdef TRACE_TOKEN
     printf("END free_tokens\n");
 #endif
   } /* free_tokens */

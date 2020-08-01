@@ -103,7 +103,7 @@ stritype chrCLit (chartype character)
  *          respectively less than, equal to, or greater than the
  *          second.
  */
-INLINE inttype chrCmp (chartype char1, chartype char2)
+inline inttype chrCmp (chartype char1, chartype char2)
 
   { /* chrCmp */
     if (char1 < char2) {

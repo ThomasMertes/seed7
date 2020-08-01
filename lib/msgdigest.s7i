@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  msgdigest.s7i  Message digest and secure hash algorithms        *)
+(*  msgdigest.s7i  Message digest and secure hash algorithms.       *)
 (*  Copyright (C) 2013  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -72,7 +72,7 @@ const func string: md4 (in var string: message) is func
     # Append the bit '1' to the message.
     message &:= '\16#80\';
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
-    message &:= "\0\" mult 64 - (length + 9) mod 64;
+    message &:= "\0\" mult 63 - (length + 8) mod 64;
     # Append length of message (before pre-processing), in bits, as 64-bit little-endian integer.
     message &:= int64AsEightBytesLe(8 * length);
 
@@ -175,7 +175,7 @@ const func string: md5 (in var string: message) is func
     # Append the bit '1' to the message.
     message &:= '\16#80\';
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
-    message &:= "\0\" mult 64 - (length + 9) mod 64;
+    message &:= "\0\" mult 63 - (length + 8) mod 64;
     # Append length of message (before pre-processing), in bits, as 64-bit little-endian integer.
     message &:= int64AsEightBytesLe(8 * length);
 
@@ -262,7 +262,7 @@ const func string: sha1 (in var string: message) is func
     # Append the bit '1' to the message.
     message &:= '\16#80\';
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
-    message &:= "\0\" mult 64 - (length + 9) mod 64;
+    message &:= "\0\" mult 63 - (length + 8) mod 64;
     # Append length of message (before pre-processing), in bits, as 64-bit big-endian integer.
     message &:= int64AsEightBytesBe(8 * length);
 
@@ -381,7 +381,7 @@ const func string: sha224 (in var string: message) is func
     # Append the bit '1' to the message.
     message &:= '\16#80\';
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
-    message &:= "\0\" mult 64 - (length + 9) mod 64;
+    message &:= "\0\" mult 63 - (length + 8) mod 64;
     # Append length of message (before pre-processing), in bits, as 64-bit big-endian integer.
     message &:= int64AsEightBytesBe(8 * length);
 
@@ -507,7 +507,7 @@ const func string: sha256 (in var string: message) is func
     # Append the bit '1' to the message.
     message &:= '\16#80\';
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
-    message &:= "\0\" mult 64 - (length + 9) mod 64;
+    message &:= "\0\" mult 63 - (length + 8) mod 64;
     # Append length of message (before pre-processing), in bits, as 64-bit big-endian integer.
     message &:= int64AsEightBytesBe(8 * length);
 
@@ -577,3 +577,56 @@ const func string: sha256 (in var string: message) is func
               int32AsFourBytesBe(h6) &
               int32AsFourBytesBe(h7);
   end func;
+
+
+(**
+ *  Enumeration of message digest algorithms.
+ *  Defines: NO_DIGEST, MD4, MD5, SHA1, SHA224 and SHA256.
+ *)
+const type: digestAlgorithm is new enum
+    NO_DIGEST, MD4, MD5, SHA1, SHA224, SHA256
+  end enum;
+
+
+(**
+ *  Compute a message digest with the given [[msgdigest#digestAlgorithm|digestAlgorithm]].
+ *  @param digestAlg The [[msgdigest#digestAlgorithm|digestAlgorithm]] to be used.
+ *  @return the message digest of the ''message''.
+ *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255\'.
+ *)
+const func string: msgDigest (in digestAlgorithm: digestAlg, in var string: message) is DYNAMIC;
+
+const func string: msgDigest (NO_DIGEST, in var string: message) is return "";
+const func string: msgDigest (MD4, in var string: message)       is return md4(message);
+const func string: msgDigest (MD5, in var string: message)       is return md5(message);
+const func string: msgDigest (SHA1, in var string: message)      is return sha1(message);
+const func string: msgDigest (SHA224, in var string: message)    is return sha224(message);
+const func string: msgDigest (SHA256, in var string: message)    is return sha256(message);
+
+
+(**
+ *  Block size used by the given [[msgdigest#digestAlgorithm|digestAlgorithm]].
+ *  @return the block size used by the message digest algorithm.
+ *)
+const func integer: blockSize (in digestAlgorithm: digestAlg) is DYNAMIC;
+
+const func integer: blockSize (NO_DIGEST) is  0;
+const func integer: blockSize (MD4)       is 64;
+const func integer: blockSize (MD5)       is 64;
+const func integer: blockSize (SHA1)      is 64;
+const func integer: blockSize (SHA224)    is 64;
+const func integer: blockSize (SHA256)    is 64;
+
+
+(**
+ *  Size of a message digest computed with the given [[msgdigest#digestAlgorithm|digestAlgorithm]].
+ *  @return the size of a message digest.
+ *)
+const func integer: digestSize (in digestAlgorithm: digestAlg) is DYNAMIC;
+
+const func integer: digestSize (NO_DIGEST) is  0;
+const func integer: digestSize (MD4)       is 16;
+const func integer: digestSize (MD5)       is 16;
+const func integer: digestSize (SHA1)      is 20;
+const func integer: digestSize (SHA224)    is 28;
+const func integer: digestSize (SHA256)    is 32;

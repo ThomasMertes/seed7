@@ -394,7 +394,7 @@ memsizetype stri_to_wstri (wstritype out_wstri, register const strelemtype *stre
 
 
 
-static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
+static inline void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
     memsizetype len, errinfotype *err_info)
 
   {
@@ -481,7 +481,7 @@ static unsigned char map_to_850_9472[] = {
 
 
 
-static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
+static inline void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
     memsizetype len, errinfotype *err_info)
 
   {
@@ -562,7 +562,7 @@ static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *stre
 
 
 
-static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
+static inline void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
     memsizetype len, errinfotype *err_info)
 
   {
@@ -577,7 +577,7 @@ static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *stre
 
 
 
-static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
+static inline void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
     memsizetype len, errinfotype *err_info)
 
   { /* conv_to_os_stri */
@@ -632,8 +632,8 @@ static memsizetype wstri_expand (strelemtype *dest_stri, const_wstritype wstri, 
  *  with os_ and use strings of the type os_stritype. Depending on the
  *  operating system os_stritype can describe byte or wide char strings.
  *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
- *  @param os_stri possibly binary string (may contain null characters).
- *  @param length length of os_stri.
+ *  @param os_stri Possibly binary string (may contain null characters).
+ *  @param length Length of os_stri.
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
  */
@@ -732,8 +732,8 @@ static strelemtype map_from_850[] = {
  *  with os_ and use strings of the type os_stritype. Depending on the
  *  operating system os_stritype can describe byte or wide char strings.
  *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
- *  @param os_stri possibly binary string (may contain null characters).
- *  @param length length of os_stri.
+ *  @param os_stri Possibly binary string (may contain null characters).
+ *  @param length Length of os_stri.
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
  */
@@ -774,8 +774,8 @@ stritype conv_from_os_stri (const const_os_stritype os_stri,
  *  with os_ and use strings of the type os_stritype. Depending on the
  *  operating system os_stritype can describe byte or wide char strings.
  *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
- *  @param os_stri possibly binary string (may contain null characters).
- *  @param length length of os_stri.
+ *  @param os_stri Possibly binary string (may contain null characters).
+ *  @param length Length of os_stri.
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
  */
@@ -818,8 +818,8 @@ stritype conv_from_os_stri (const const_os_stritype os_stri,
  *  with os_ and use strings of the type os_stritype. Depending on the
  *  operating system os_stritype can describe byte or wide char strings.
  *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
- *  @param os_stri possibly binary string (may contain null characters).
- *  @param length length of os_stri.
+ *  @param os_stri Possibly binary string (may contain null characters).
+ *  @param length Length of os_stri.
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
  */
@@ -1017,7 +1017,7 @@ bstritype stri_to_os_bstri (const_stritype stri)
 /**
  *  Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
- *  @param cstri null terminated ISO-8859-1 encoded C string.
+ *  @param cstri Null terminated ISO-8859-1 encoded C string.
  *  @return an UTF-32 encoded Seed7 string or
  *          NULL, when the memory allocation failed.
  */
@@ -1066,7 +1066,7 @@ stritype cstri_to_stri (const_cstritype cstri)
 /**
  *  Copy an UTF-8 encoded C string to a Seed7 string.
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
- *  @param cstri null terminated UTF-8 encoded C string.
+ *  @param cstri Null terminated UTF-8 encoded C string.
  *  @return an UTF-32 encoded Seed7 string or
  *          NULL, when the memory allocation failed or when
  *          illegal UTF-8 encodings are used.
@@ -1105,7 +1105,7 @@ stritype cstri8_to_stri (const_cstritype cstri)
 /**
  *  Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
- *  @param cstri null terminated UTF-8 or ISO-8859-1 encoded C string.
+ *  @param cstri Null terminated UTF-8 or ISO-8859-1 encoded C string.
  *  @return an UTF-32 encoded Seed7 string or
  *          NULL, when the memory allocation failed.
  */
@@ -1135,7 +1135,7 @@ stritype cstri8_or_cstri_to_stri (const_cstritype cstri)
  *  wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
  *  it can use a code page.
  *  @param stri Seed7 UTF-32 string to be converted.
- *  @param err_info unchanged when the function succceeds or
+ *  @param err_info Unchanged when the function succceeds or
  *                  MEMORY_ERROR when the memory allocation failed or
  *                  RANGE_ERROR when the conversion failed.
  *  @return a null terminated os_stritype value used by system calls or
@@ -1176,7 +1176,7 @@ os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
  *  operating system os_stritype can describe byte or wide char strings.
  *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
  *  @param os_stri null terminated os_stritype string to be converted.
- *  @param err_info unchanged when the function succceeds or
+ *  @param err_info Unchanged when the function succceeds or
  *                  MEMORY_ERROR when the memory allocation failed.
  *  @return a Seed7 UTF-32 string or
  *          NULL, when an error occurred.
@@ -1244,7 +1244,7 @@ stritype stri_to_standard_path (stritype stri)
  *  mapping from drive letters might take place on some operating
  *  systems.
  *  @param os_path null terminated os_stritype path to be converted.
- *  @param err_info unchanged when the function succceeds or
+ *  @param err_info Unchanged when the function succceeds or
  *                  MEMORY_ERROR when the memory allocation failed.
  *  @return an UTF-32 encoded Seed7 standard path or
  *          NULL, when the memory allocation failed.
@@ -1474,10 +1474,10 @@ static os_stritype map_to_drive_letter (const strelemtype *const pathChars,
  *  it can use a code page. Beyond the conversion to os_stritype a
  *  mapping to drive letters might take place on some operating systems.
  *  @param std_path UTF-32 encoded Seed7 standard path to be converted.
- *  @param path_info unchanged when the function succceeds or
+ *  @param path_info Unchanged when the function succceeds or
  *                   PATH_IS_EMULATED_ROOT when the path is "/".
  *                   PATH_NOT_MAPPED when the path cannot be mapped.
- *  @param err_info unchanged when the function succceeds or
+ *  @param err_info Unchanged when the function succceeds or
  *                  MEMORY_ERROR when the memory allocation failed or
  *                  RANGE_ERROR when the path is not a standard path.
  *  @return a null terminated os_stritype path used by system calls or
@@ -1578,10 +1578,10 @@ os_stritype cp_to_os_path (const_stritype std_path, int *path_info,
  *  it can use a code page. Beyond the conversion to os_stritype a
  *  mapping to drive letters might take place on some operating systems.
  *  @param std_path UTF-32 encoded Seed7 standard path to be converted.
- *  @param path_info unchanged when the function succceeds or
+ *  @param path_info Unchanged when the function succceeds or
  *                   PATH_IS_EMULATED_ROOT when the path is "/".
  *                   PATH_NOT_MAPPED when the path cannot be mapped.
- *  @param err_info unchanged when the function succceeds or
+ *  @param err_info Unchanged when the function succceeds or
  *                  MEMORY_ERROR when the memory allocation failed or
  *                  RANGE_ERROR when the path is not a standard path.
  *  @return a null terminated os_stritype path used by system calls or

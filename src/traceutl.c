@@ -1194,7 +1194,6 @@ void trace_node (const_nodetype anynode)
         prot_cstri(" *NULL_ENTITY* ");
       } /* if */
     } /* if */
-    prot_nl();
 #ifdef TRACE_TRACE
     printf("END trace_node\n");
 #endif

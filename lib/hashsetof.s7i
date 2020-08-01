@@ -260,6 +260,62 @@ const func type: hashset (in type: baseType) is func
         return not set1 = set2;
 
       (**
+       *  Determine if ''set1'' is a proper subset of ''set2''.
+       *  ''set1'' is a proper subset of ''set2'' when
+       *   set1 <= set2 and set1 <> set2
+       *  holds.
+       *  @return TRUE if ''set1'' is a proper subset of ''set2'',
+       *          FALSE otherwise.
+       *)
+      const func boolean: (in setType: set1) < (in setType: set2) is func
+        result
+          var boolean: isProperSubset is TRUE;
+        local
+          var baseType: element is baseType.value;
+          var boolean: isEqual is TRUE;
+        begin
+          for element range set1 do
+            if element not in set2 then
+              isProperSubset := FALSE;
+            end if;
+          end for;
+          for element range set2 do
+            if element not in set1 then
+              isEqual := FALSE;
+            end if;
+          end for;
+          isProperSubset := isProperSubset and not isEqual;
+        end func;
+
+      (**
+       *  Determine if ''set1'' is a proper superset of ''set2''.
+       *  ''set1'' is a proper superset of ''set2'' when
+       *   set1 >= set2 and set1 <> set2
+       *  holds.
+       *  @return TRUE if ''set1'' is a proper superset of ''set2'',
+       *          FALSE otherwise.
+       *)
+      const func boolean: (in setType: set1) > (in setType: set2) is func
+        result
+          var boolean: isProperSuperset is TRUE;
+        local
+          var baseType: element is baseType.value;
+          var boolean: isEqual is TRUE;
+        begin
+          for element range set2 do
+            if element not in set1 then
+              isProperSuperset := FALSE;
+            end if;
+          end for;
+          for element range set1 do
+            if element not in set2 then
+              isEqual := FALSE;
+            end if;
+          end for;
+          isProperSuperset := isProperSuperset and not isEqual;
+        end func;
+
+      (**
        *  Determine if ''set1'' is a subset of ''set2''.
        *  ''set1'' is a subset of ''set2'' when no element X exists for which
        *   X in set1 and X not in set2
@@ -269,13 +325,13 @@ const func type: hashset (in type: baseType) is func
        *)
       const func boolean: (in setType: set1) <= (in setType: set2) is func
         result
-          var boolean: isLessEqual is TRUE;
+          var boolean: isSubset is TRUE;
         local
           var baseType: element is baseType.value;
         begin
           for element range set1 do
             if element not in set2 then
-              isLessEqual := FALSE;
+              isSubset := FALSE;
             end if;
           end for;
         end func;
@@ -290,13 +346,13 @@ const func type: hashset (in type: baseType) is func
        *)
       const func boolean: (in setType: set1) >= (in setType: set2) is func
         result
-          var boolean: isGreaterEqual is TRUE;
+          var boolean: isSuperset is TRUE;
         local
           var baseType: element is baseType.value;
         begin
           for element range set2 do
             if element not in set1 then
-              isGreaterEqual := FALSE;
+              isSuperset := FALSE;
             end if;
           end for;
         end func;

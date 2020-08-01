@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -52,7 +52,6 @@
 #define EXTERN
 #include "name.h"
 
-
 #undef TRACE_NAME
 
 
@@ -99,6 +98,9 @@ static void free_params (listtype params)
     objecttype param;
 
   /* free_params */
+#ifdef TRACE_NAME
+    printf("BEGIN free_params\n");
+#endif
     param_elem = params;
     while (param_elem != NULL) {
       param = param_elem->obj;
@@ -115,6 +117,9 @@ static void free_params (listtype params)
       param_elem = param_elem->next;
     } /* while */
     free_list(params);
+#ifdef TRACE_NAME
+    printf("END free_params\n");
+#endif
   } /* free_params */
 
 
@@ -259,6 +264,9 @@ static void free_name_list (listtype name_list, booltype freeActualParams)
     objecttype param_obj;
 
   /* free_name_list */
+#ifdef TRACE_NAME
+    printf("BEGIN free_name_list\n");
+#endif
     name_elem = name_list;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
@@ -286,6 +294,9 @@ static void free_name_list (listtype name_list, booltype freeActualParams)
       name_elem = name_elem->next;
     } /* while */
     free_list(name_list);
+#ifdef TRACE_NAME
+    printf("END free_name_list\n");
+#endif
   } /* free_name_list */
 
 
@@ -372,6 +383,9 @@ static void disconnect_entity (const objecttype anObject)
     listtype old_elem;
 
   /* disconnect_entity */
+#ifdef TRACE_NAME
+    printf("BEGIN disconnect_entity\n");
+#endif
     entity = GET_ENTITY(anObject);
     if (entity->data.owner != NULL && entity->data.owner->obj == anObject) {
       /* printf("disconnect_entity ");
@@ -398,6 +412,9 @@ static void disconnect_entity (const objecttype anObject)
       FREE_RECORD(anObject->descriptor.property, propertyrecord, count.property);
       anObject->descriptor.property = NULL;
     } /* if */
+#ifdef TRACE_NAME
+    printf("END disconnect_entity\n");
+#endif
   } /* disconnect_entity */
 
 
@@ -409,9 +426,11 @@ void disconnect_param_entities (const const_objecttype objWithParams)
     objecttype param_obj;
 
   /* disconnect_param_entities */
-    /* printf("disconnect_param_entities: ");
-       trace1(objWithParams);
-       printf("\n"); */
+#ifdef TRACE_NAME
+    printf("BEGIN disconnect_param_entities(");
+    trace1(objWithParams);
+    printf(")\n");
+#endif
     if (FALSE && HAS_PROPERTY(objWithParams)) {
       param_elem = objWithParams->descriptor.property->params;
       while (param_elem != NULL) {
@@ -425,6 +444,9 @@ void disconnect_param_entities (const const_objecttype objWithParams)
         param_elem = param_elem->next;
       } /* while */
     } /* if */
+#ifdef TRACE_NAME
+    printf("END disconnect_param_entities\n");
+#endif
   } /* disconnect_param_entities */
 
 

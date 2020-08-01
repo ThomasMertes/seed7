@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -37,10 +37,14 @@
 #include "listutl.h"
 #include "identutl.h"
 #include "entutl.h"
+#include "traceutl.h"
 
 #undef EXTERN
 #define EXTERN
 #include "typeutl.h"
+
+#undef TRACE_TYPEUTIL
+#undef TRACE_FUNC_TYPE
 
 
 
@@ -53,7 +57,11 @@ typetype new_type (progtype owningProg, typetype meta_type, typetype result_type
 
   /* new_type */
 #ifdef TRACE_TYPEUTIL
-    printf("BEGIN new_type\n");
+    printf("BEGIN new_type(");
+    printtype(meta_type);
+    printf(", ");
+    printtype(result_type);
+    printf(")\n");
 #endif
     if (ALLOC_OBJECT(match_obj)) {
       if (ALLOC_L_ELEM(list_elem)) {
@@ -94,7 +102,9 @@ typetype new_type (progtype owningProg, typetype meta_type, typetype result_type
       created_type = NULL;
     } /* if */
 #ifdef TRACE_TYPEUTIL
-    printf("END new_type\n");
+    printf("END new_type --> ");
+    printtype(created_type);
+    printf("\n");
 #endif
     return created_type;
   } /* new_type */
@@ -109,7 +119,9 @@ static void free_type (typetype old_type)
 
   /* free_type */
 #ifdef TRACE_TYPEUTIL
-    printf("BEGIN free_type\n");
+    printf("BEGIN free_type(");
+    printtype(old_type);
+    printf(")\n");
 #endif
     FREE_OBJECT(old_type->match_obj);
     typelist_elem = old_type->interfaces;
@@ -133,6 +145,9 @@ void close_type (progtype currentProg)
     listtype next_elem;
 
   /* close_type */
+#ifdef TRACE_TYPEUTIL
+    printf("BEGIN close_type\n");
+#endif
     type_elem = currentProg->types;
     while (type_elem != NULL) {
       next_elem = type_elem->next;
@@ -140,6 +155,9 @@ void close_type (progtype currentProg)
       type_elem = next_elem;
     } /* while */
     free_list(currentProg->types);
+#ifdef TRACE_TYPEUTIL
+    printf("END close_type\n");
+#endif
   } /* close_type */
 
 
@@ -150,12 +168,24 @@ typetype get_func_type (typetype meta_type, typetype basic_type)
     typetype func_type;
 
   /* get_func_type */
+#ifdef TRACE_FUNC_TYPE
+    printf("BEGIN get_func_type(");
+    printtype(meta_type);
+    printf(", ");
+    printtype(basic_type);
+    printf(")\n");
+#endif
     if (basic_type->func_type != NULL) {
       func_type = basic_type->func_type;
     } else {
       func_type = new_type(basic_type->owningProg, meta_type, basic_type);
       basic_type->func_type = func_type;
     } /* if */
+#ifdef TRACE_FUNC_TYPE
+    printf("END get_func_type --> ");
+    printtype(func_type);
+    printf("\n");
+#endif
     return func_type;
   } /* get_func_type */
 
@@ -167,6 +197,13 @@ typetype get_varfunc_type (typetype meta_type, typetype basic_type)
     typetype varfunc_type;
 
   /* get_varfunc_type */
+#ifdef TRACE_FUNC_TYPE
+    printf("BEGIN get_varfunc_type(");
+    printtype(meta_type);
+    printf(", ");
+    printtype(basic_type);
+    printf(")\n");
+#endif
     if (basic_type->varfunc_type != NULL) {
       varfunc_type = basic_type->varfunc_type;
     } else {
@@ -174,6 +211,11 @@ typetype get_varfunc_type (typetype meta_type, typetype basic_type)
       varfunc_type->is_varfunc_type = TRUE;
       basic_type->varfunc_type = varfunc_type;
     } /* if */
+#ifdef TRACE_FUNC_TYPE
+    printf("END get_varfunc_type --> ");
+    printtype(varfunc_type);
+    printf("\n");
+#endif
     return varfunc_type;
   } /* get_varfunc_type */
 
@@ -186,6 +228,13 @@ void add_interface (typetype basic_type, typetype interface_type)
     typelisttype current_elem;
 
   /* add_interface */
+#ifdef TRACE_TYPEUTIL
+    printf("BEGIN add_interface(");
+    printtype(basic_type);
+    printf(", ");
+    printtype(interface_type);
+    printf(")\n");
+#endif
     if (ALLOC_RECORD(typelist_elem, typelistrecord, count.typelist_elems)) {
       typelist_elem->next = NULL;
       typelist_elem->type_elem = interface_type;
@@ -199,6 +248,9 @@ void add_interface (typetype basic_type, typetype interface_type)
         current_elem->next = typelist_elem;
       } /* if */
     } /* if */
+#ifdef TRACE_TYPEUTIL
+    printf("END add_interface\n");
+#endif
   } /* add_interface */
 
 

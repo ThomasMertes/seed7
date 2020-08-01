@@ -44,20 +44,20 @@ const socketAddress: (attr socketAddress) . value                           is _
 const func boolean: (ref socketAddress: addr1) = (ref socketAddress: addr2) is action "BST_EQ";
 const func boolean: (ref socketAddress: addr1) <> (ref socketAddress: addr2) is action "BST_NE";
 
-const func integer: addrFamily (in socketAddress: sockAddr)                 is action "SOC_ADDR_FAMILY";
+const func integer: addrFamily (in socketAddress: address)                  is action "SOC_ADDR_FAMILY";
 
 
 (**
- *  Get the numeric (IP) address of the host at ''sockAddr''.
+ *  Get the numeric (IP) address of the host at ''address''.
  *  IPv4 addresses return the socketAddress in dot notation (e.g.:
  *  "192.0.2.235") and IPv6 addresses return the socketAddress in
  *  colon notation (e.g.: "fe80:0:0:0:202:b3ff:fe1e:8329").
  *  @return the IP address of the specified host.
  *)
-const func string: numericAddress (in socketAddress: sockAddr)              is action "SOC_ADDR_NUMERIC";
+const func string: numericAddress (in socketAddress: address)               is action "SOC_ADDR_NUMERIC";
 
 
-const func string: service (in socketAddress: sockAddr)                     is action "SOC_ADDR_SERVICE";
+const func string: service (in socketAddress: address)                      is action "SOC_ADDR_SERVICE";
 
 
 (**
@@ -145,11 +145,48 @@ const func integer: sendto (in PRIMITIVE_SOCKET: outSocket, in string: stri,
 const func PRIMITIVE_SOCKET: PRIMITIVE_SOCKET (in integer: domain,
                                                in integer: sockType,
                                                in integer: protocol)        is action "SOC_SOCKET";
-const func PRIMITIVE_SOCKET: accept (in PRIMITIVE_SOCKET: aSocket,
-                                     inout socketAddress: address)          is action "SOC_ACCEPT";
-const proc: bind (in PRIMITIVE_SOCKET: aSocket, in socketAddress: address)  is action "SOC_BIND";
+
+
+(**
+ *  Connect ''aSocket'' to the given ''address''.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
 const proc: connect (in PRIMITIVE_SOCKET: aSocket,
                      in socketAddress: address)                             is action "SOC_CONNECT";
-const proc: listen (in PRIMITIVE_SOCKET: aSocket, in integer: backlog)      is action "SOC_LISTEN";
+
+
+(**
+ *  Create a new accepted connection socket for ''listenerSocket''.
+ *  The function waits until at least one connection request is
+ *  in the sockets queue of pending connections. Then it extracts
+ *  the first connection request from the sockets queue. This
+ *  request is accepted and a connection socket is created for it.
+ *  @return the accepted connection socket.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func PRIMITIVE_SOCKET: accept (in PRIMITIVE_SOCKET: listenerSocket,
+                                     inout socketAddress: address)          is action "SOC_ACCEPT";
+
+
+(**
+ *  Assign the specified ''address'' to the ''listenerSocket''.
+ *  @param address An internet listener socket address.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: bind (in PRIMITIVE_SOCKET: listenerSocket,
+                  in socketAddress: address)                                is action "SOC_BIND";
+
+
+(**
+ *  Listen for socket connections and limit the incoming queue.
+ *  The ''backlog'' argument defines the maximum length to which
+ *  the queue of pending connections for ''listenerSocket'' may grow.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: listen (in PRIMITIVE_SOCKET: listenerSocket,
+                    in integer: backlog)                                    is action "SOC_LISTEN";
+
+
 const func boolean: inputReady (in PRIMITIVE_SOCKET: inSocket, in integer: seconds,
                                 in integer: microSeconds)                   is action "SOC_INPUT_READY";

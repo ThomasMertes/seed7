@@ -122,7 +122,7 @@ void activate_signal_handlers (void)
     signal(SIGSEGV, handle_signals);
     signal(SIGTERM, handle_term_signal);
 #ifdef SIGPIPE
-    signal(SIGPIPE, handle_signals);
+    signal(SIGPIPE, SIG_IGN);
 #endif
   } /* activate_signal_handlers */
 #endif

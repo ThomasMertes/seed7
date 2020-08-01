@@ -55,7 +55,7 @@
 
 
 
-static INLINE void scan_comment (void)
+static inline void scan_comment (void)
 
   {
     register int character;
@@ -105,7 +105,7 @@ static INLINE void scan_comment (void)
 
 
 
-static INLINE void scan_line_comment (void)
+static inline void scan_line_comment (void)
 
   {
     register int character;
@@ -181,7 +181,7 @@ static void scan_illegal (void)
 
 
 
-static INLINE void scan_eof (void)
+static inline void scan_eof (void)
 
   { /* scan_eof */
 #ifdef TRACE_SCANNER

@@ -83,7 +83,7 @@ listtype rflCat (listtype list1, const listtype list2)
 
 
 
-INLINE inttype rflCmp (const_listtype list1, const_listtype list2)
+inline inttype rflCmp (const_listtype list1, const_listtype list2)
 
   {
     inttype result;

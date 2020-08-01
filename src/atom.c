@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -53,6 +53,7 @@
 #include "atom.h"
 
 #undef TRACE_OBJECT
+#undef TRACE_ATOM
 
 
 
@@ -152,10 +153,12 @@ static objecttype gen_literal_object (const_objecttype typeof_object,
 
 
 
-static INLINE stritype new_string (void)
-
-  /* Allocates memory for a new string and assigns the current      */
-  /* string symbol to it.                                           */
+/**
+ *  Allocates memory for a new string and assigns the current
+ *  string symbol to it.
+ *  @return the created string.
+ */
+static inline stritype new_string (void)
 
   {
     stritype stri_created;

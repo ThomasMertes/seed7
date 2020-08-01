@@ -494,7 +494,7 @@ booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
 
 
 
-static INLINE biginttype bigFromByteBufferBe (const memsizetype size,
+static inline biginttype bigFromByteBufferBe (const memsizetype size,
     const const_ustritype buffer, const booltype withSign)
 
   {
@@ -528,7 +528,7 @@ static INLINE biginttype bigFromByteBufferBe (const memsizetype size,
 
 
 
-static INLINE biginttype bigFromByteBufferLe (const memsizetype size,
+static inline biginttype bigFromByteBufferLe (const memsizetype size,
     const const_ustritype buffer, const booltype withSign)
 
   {

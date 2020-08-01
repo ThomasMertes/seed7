@@ -1870,6 +1870,23 @@ const func monsterType: searchMonster (in integer: xPos, in integer: yPos) is fu
   end func;
 
 
+const func monsterType: hitMonster (in integer: xPos, in integer: yPos) is func
+  result
+    var monsterType: monsterMet is NO_MONSTER;
+  local
+    var monsterType: monster_ident is NO_MONSTER;
+  begin
+    for monster_ident range MIN_MONSTER to MAX_MONSTER do
+      if monster[monster_ident].room_num = player.room and monster[monster_ident].living then
+        if abs(xPos - monster[monster_ident].xPos) < PIXMAP_SIZE and
+            abs(yPos - monster[monster_ident].yPos) < PIXMAP_SIZE then
+          monsterMet := monster_ident;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
 const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, in integer: invSize) is func
   result
     var itemType: itemSelected is NO_ITEM;
@@ -1995,7 +2012,11 @@ const proc: dropItem (in itemType: item_ident) is func
         column := player.xPos               div PIXMAP_SIZE;
         direction := NORTH;
       end if;
-    until room[player.room].data[line][column] = ' ' or direction = player.direction;
+    until line >= 1 and line <= ROOM_LINES and
+        column >= 1 and column <= ROOM_COLUMNS and
+        room[player.room].data[line][column] = ' ' and
+        hitMonster(pred(column) * PIXMAP_SIZE, pred(line) * PIXMAP_SIZE) = NO_MONSTER or
+        direction = player.direction;
     if room[player.room].data[line][column] = ' ' then
       item[item_ident].xPos := pred(column) * PIXMAP_SIZE;
       item[item_ident].yPos := pred(line)   * PIXMAP_SIZE;
@@ -2634,23 +2655,6 @@ const func boolean: hitPlayer (in graphObj: obj1, in graphObj: obj2) is func
         abs(obj1.yPos - obj2.yPos) < PIXMAP_SIZE then
       hit := TRUE;
     end if;
-  end func;
-
-
-const func monsterType: hitMonster (in integer: xPos, in integer: yPos) is func
-  result
-    var monsterType: monsterMet is NO_MONSTER;
-  local
-    var monsterType: monster_ident is NO_MONSTER;
-  begin
-    for monster_ident range MIN_MONSTER to MAX_MONSTER do
-      if monster[monster_ident].room_num = player.room and monster[monster_ident].living then
-        if abs(xPos - monster[monster_ident].xPos) < PIXMAP_SIZE and
-            abs(yPos - monster[monster_ident].yPos) < PIXMAP_SIZE then
-          monsterMet := monster_ident;
-        end if;
-      end if;
-    end for;
   end func;
 
 

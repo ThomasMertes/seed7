@@ -1,3 +1,48 @@
+20131013:
+- Libraries for TLS (Transport Layer Security), SSL (Secure Sockets
+  Layer) and HTTPS (HyperText Transfer Protocol Secure) support have
+  been added. The new libraries are: arc4.s7i, asn1.s7i, cipher.s7i,
+  gethttps.s7i, hmac.s7i, pkcs1.s7i, tls.s7i and x509cert.s7i.
+- Comparison operators for < (proper subset) and > (proper superset)
+  have been added to hashsetof.s7i.
+- The type digestAlgorithm and the functions msgDigest, blockSize
+  and digestSize have been added to msgdigest.s7i.
+- The function hex has been added to bytedata.s7i.
+- The example program castle.sd7 has been improved to avoid, that
+  an item can be dropped on an illegal place.
+- The library make.s7i has been improved to accept the option -p for
+  the cp command.
+- Documentation comments have been added to sockbase.s7i,
+  socket.s7i, atom.c, entutl.c, soclib.c, soc_rtl.c and striutl.c.
+- The padding in the message digest functions of msgdigest.s7i has
+  been corrected. Now the functions pad nothing instead of 64 bytes,
+  when the message length is 55 (mod 64).
+- The function getHttp in gethttp.s7i has been improved to use
+  a case-insensitive comparison for HTTP header field names.
+- In exec.c the functions eval_arg_list and dump_arg_list have been
+  improved to avoid reading from freed memory. This occured in very
+  rare cases.
+- The functions find_action (in actutl.c), fltParse (in flt_rtl.c),
+  cmdConfigValue (in cmd_rtl.c) and find_sysvar (in syvarutl.c)
+  have been improved to use the macros MAX_STRI_EXPORT_LEN and
+  max_utf8_size.
+- Interpreter and runtime library have been improved to ignore the
+  signal SIGPIPE. Writing to a broken pipe or socket raises the
+  exception FILE_ERROR instead.
+- The functions bln_and and bln_or in blnlib.c have been improved
+  to return either SYS_TRUE_OBJECT or SYS_FALSE_OBJECT.
+- The program chkccomp.c has been improved to determine the
+  alignment used by malloc and whether an access to unaligned memory
+  succeeds.
+- Usages of ALLOC_CHUNK in flistutl.h have been improved to allocate
+  aligned memory the same way as malloc returns aligned memory.
+- The program chkccomp.c has been improved to define the macro
+  'inline', when the C compiler does not support the keyword inline.
+- Occurances of 'INLINE' have been replaced with 'inline' in the
+  files analyze.c, atom.c, big_gmp.c, big_rtl.c, chr_rtl.c, exec.c,
+  findid.c, infile.c, int_rtl.c, numlit.c, parser.c, rfl_data.c,
+  scanner.c, striutl.c, strlib.c, str_rtl.c, syntax.c and ut8_rtl.c.
+
 20130929:
 - The functions bStriLe, bytesLe, bStriBe and bytesBe have been
   added to bytedata.s7i. This functions convert an integer to a

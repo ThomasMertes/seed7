@@ -23484,6 +23484,9 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "    signal(SIGINT, handle_signals);");
     writeln(c_prog, "    signal(SIGSEGV, handle_signals);");
     writeln(c_prog, "    signal(SIGTERM, handle_term_signal);");
+    writeln(c_prog, "#ifdef SIGPIPE");
+    writeln(c_prog, "    signal(SIGPIPE, SIG_IGN);");
+    writeln(c_prog, "#endif");
     writeln(c_prog, "  }");
     writeln(c_prog);
     writeln(c_prog);

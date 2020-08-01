@@ -112,6 +112,13 @@
 
 char c_compiler[1024];
 
+static const int alignmentTable[] = {
+    6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+    4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+    5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+    4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+  };
+
 
 
 #ifdef DEFINE_MATHERR_FUNCTION
@@ -309,6 +316,27 @@ void determineEnvironDefines (void)
 
 
 
+void determineMallocAlignment (void)
+
+  {
+    int count;
+    unsigned long malloc_result;
+    int alignment;
+    int minAlignment = 7;
+
+  /* determineMallocAlignment */
+    for (count = 1; count <= 64; count++) {
+      malloc_result = (unsigned long) malloc(count);
+      alignment = alignmentTable[malloc_result & 0x3f];
+      if (alignment < minAlignment) {
+        minAlignment = alignment;
+      } /* if */
+    } /* for */
+    printf("#define MALLOC_ALIGNMENT %d\n", minAlignment);
+  } /* determineMallocAlignment */
+
+
+
 /**
  *  Program to Check properties of C compiler and runtime.
  */
@@ -361,11 +389,9 @@ int main (int argc, char **argv)
     if (compilationOkay("#include <unistd.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
       puts("#define UNISTD_H_PRESENT");
     } /* if */
-    if (compilationOkay("static inline int test(int a){return 2*a;}\n"
+    if (!compilationOkay("static inline int test(int a){return 2*a;}\n"
                         "int main(int argc,char *argv[]){return test(argc);}\n")) {
-      puts("#define INLINE inline");
-    } else {
-      puts("#define INLINE");
+      puts("#define inline");
     } /* if */
     if (compilationOkay("#include <stdio.h>\nint main(int argc,char *argv[])\n"
                         "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");return 0;}\n")) {
@@ -533,6 +559,14 @@ int main (int argc, char **argv)
       puts("#define LITTLE_ENDIAN_INTTYPE");
     } else {
       puts("#define BIG_ENDIAN_INTTYPE");
+    } /* if */
+    determineMallocAlignment();
+    if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                        "{int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
+                        "printf(\"1\\n\"); return 0;}\n") && doTest() == 1) {
+      puts("#define UNALIGNED_MEMORY_ACCESS_OKAY");
+    } else {
+      puts("#define UNALIGNED_MEMORY_ACCESS_FAILS");
     } /* if */
     memset(&testUnion, 0, sizeof(testUnion));
     testUnion.charvalue = 'X';

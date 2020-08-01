@@ -197,6 +197,10 @@ const proc: flush (in socket: outSocket) is func
 
 (**
  *  Write the [[string]] ''stri'' to ''outSocket''.
+ *  @exception FILE_ERROR The system function is not able to write
+ *             all characters of the string.
+ *  @exception RANGE_ERROR The string contains a character that does
+ *             not fit into a byte.
  *)
 const proc: write (in socket: outSocket, in string: stri) is func
   begin
@@ -207,10 +211,14 @@ const proc: write (in socket: outSocket, in string: stri) is func
 (**
  *  Write a [[string]] followed by end-of-line to ''outSocket''.
  *  This function assures that string and '\n' are sent together.
+ *  @exception FILE_ERROR The system function is not able to write
+ *             all characters of the string.
+ *  @exception RANGE_ERROR The string contains a character that does
+ *             not fit into a byte.
  *)
 const proc: writeln (in socket: outSocket, in string: stri) is func
   begin
-    write(outSocket.sock, stri <& "\n");
+    write(outSocket.sock, stri & "\n");
   end func;
 
 

@@ -59,7 +59,7 @@ static const_cstritype stri_escape_sequence[] = {
 
 
 
-static INLINE int strelem_memcmp (const strelemtype *mem1,
+static inline int strelem_memcmp (const strelemtype *mem1,
     const strelemtype *mem2, size_t number)
 
   { /* strelem_memcmp */
@@ -73,7 +73,7 @@ static INLINE int strelem_memcmp (const strelemtype *mem1,
 
 
 
-static INLINE const strelemtype *search_strelem (const strelemtype *mem,
+static inline const strelemtype *search_strelem (const strelemtype *mem,
     const strelemtype ch, const strelemtype *beyond)
 
   { /* search_strelem */
@@ -87,7 +87,7 @@ static INLINE const strelemtype *search_strelem (const strelemtype *mem,
 
 
 
-static INLINE const strelemtype *search_strelem2 (const strelemtype *mem,
+static inline const strelemtype *search_strelem2 (const strelemtype *mem,
     const strelemtype ch, const strelemtype *beyond, const memsizetype charDelta[])
 
   { /* search_strelem2 */
@@ -105,7 +105,7 @@ static INLINE const strelemtype *search_strelem2 (const strelemtype *mem,
 
 
 
-static INLINE const strelemtype *rsearch_strelem (const strelemtype *mem,
+static inline const strelemtype *rsearch_strelem (const strelemtype *mem,
     const strelemtype ch, size_t number)
 
   { /* rsearch_strelem */
@@ -119,7 +119,7 @@ static INLINE const strelemtype *rsearch_strelem (const strelemtype *mem,
 
 
 
-static INLINE const strelemtype *rsearch_strelem2 (const strelemtype *mem,
+static inline const strelemtype *rsearch_strelem2 (const strelemtype *mem,
     const strelemtype ch, const strelemtype *beyond, const memsizetype charDelta[])
 
   { /* rsearch_strelem2 */

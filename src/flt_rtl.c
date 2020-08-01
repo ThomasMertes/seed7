@@ -50,6 +50,7 @@
 
 
 #define USE_STRTOD
+#define MAX_STRI_EXPORT_LEN 25
 #define IPOW_EXPONENTIATION_BY_SQUARING
 
 #ifdef FLOAT_ZERO_DIV_ERROR
@@ -477,7 +478,7 @@ floattype fltParse (const const_stritype stri)
   {
     booltype okay;
 #ifdef USE_STRTOD
-    char buffer[150];
+    char buffer[max_utf8_size(MAX_STRI_EXPORT_LEN) + 1];
     char *next_ch;
 #else
     memsizetype position;
@@ -488,7 +489,7 @@ floattype fltParse (const const_stritype stri)
   /* fltParse */
     okay = TRUE;
 #ifdef USE_STRTOD
-    if (stri->size < 150 / MAX_UTF8_EXPANSION_FACTOR) {
+    if (stri->size <= MAX_STRI_EXPORT_LEN) {
       stri_export_utf8((ustritype) buffer, stri);
 /*    result = (floattype) atof(buffer); */
       result = (floattype) strtod(buffer, &next_ch);

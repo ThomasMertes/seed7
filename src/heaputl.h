@@ -230,7 +230,6 @@ EXTERN memsizetype hs;
 #define SIZ_USTRI(len)   ((len) + 1)
 #define SIZ_CSTRI(len)   ((len) + 1)
 #define SIZ_WSTRI(len)   (sizeof(wchar_t) * ((len) + 1))
-#define SIZ_ID(len)      ((((len) >> 3) + 1) << 3)
 #define SIZ_STRI(len)    ((sizeof(strirecord)     - sizeof(strelemtype))  + (len) * sizeof(strelemtype))
 #define SIZ_BSTRI(len)   ((sizeof(bstrirecord)    - sizeof(uchartype))    + (len) * sizeof(uchartype))
 #define SIZ_ARR(len)     ((sizeof(arrayrecord)    - sizeof(objectrecord)) + (len) * sizeof(objectrecord))
