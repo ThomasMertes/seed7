@@ -139,6 +139,9 @@ errinfotype *err_info;
     rtlHelemtype helem;
 
   /* new_helem */
+    /* printf("new_helem(%llX, %llX)\n",
+        (unsigned long long) key,
+        (unsigned long long) data); */
     if (!ALLOC_RECORD(helem, rtlHelemrecord, count.helem)) {
       *err_info = MEMORY_ERROR;
     } else {
@@ -146,6 +149,9 @@ errinfotype *err_info;
       helem->data.value.genericvalue = data_create_func(data);
       helem->next_less = NULL;
       helem->next_greater = NULL;
+      /* printf("new_helem(%llX, %llX)\n",
+          (unsigned long long) helem->key.value.genericvalue,
+          (unsigned long long) helem->data.value.genericvalue); */
     } /* if */
     return(helem);
   } /* new_helem */
@@ -498,7 +504,7 @@ comparetype cmp_func;
 
   /* hshContains */
 #ifdef TRACE_HSH_RTL
-    printf("BEGIN hshContains(%lu, %lu, %lu)\n",
+    printf("BEGIN hshContains(%lX, %lu, %lu)\n",
         (long unsigned) hash1, (long unsigned) key, (long unsigned) hashcode);
 #endif
     result_hashelem = NULL;
@@ -515,7 +521,7 @@ comparetype cmp_func;
       } /* if */
     } /* while */
 #ifdef TRACE_HSH_RTL
-    printf("END hshContains(%lu, %lu, %lu) ==> %d\n",
+    printf("END hshContains(%lX, %lu, %lu) ==> %d\n",
         (long unsigned) hash1, (long unsigned) key, (long unsigned) hashcode,
         result_hashelem != NULL);
 #endif
@@ -760,13 +766,16 @@ comparetype cmp_func;
 
   /* hshIdxAddr */
 #ifdef TRACE_HSH_RTL
-    printf("BEGIN hshIdxAddr(%lu, %lu, %lu)\n",
+    printf("BEGIN hshIdxAddr(%lX, %lu, %lu)\n",
         (unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode);
 #endif
     result_hashelem = NULL;
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
       cmp = cmp_func(hashelem->key.value.genericvalue, key);
+      /* printf(". %llu %llu cmp=%d\n",
+          (unsigned long long) hashelem->key.value.genericvalue,
+          (unsigned long long) key, cmp); */
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (cmp == 0) {
@@ -783,9 +792,10 @@ comparetype cmp_func;
       result = NULL;
     } /* if */
 #ifdef TRACE_HSH_RTL
-    printf("END hshIdxAddr(%lu, %lu, %lu) ==> %lu (%lu)\n",
+    printf("END hshIdxAddr(%lX, %lu, %lu) ==> %lX (%lX)\n",
         (unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode,
-        result != NULL ? *((rtlGenerictype *)result) : 0);
+	(unsigned long) result,
+        (unsigned long) (result != NULL ? *((rtlGenerictype *)result) : 0));
 #endif
     return(result);
   } /* hshIdxAddr */
@@ -895,14 +905,21 @@ copyfunctype data_copy_func;
 
   /* hshIncl */
 #ifdef TRACE_HSH_RTL
-    printf("BEGIN hshIncl(%lu, %lu, %lu, %lu)\n",
-        (unsigned long) hash1, (unsigned long) key,
-        (unsigned long) data, (unsigned long) hashcode);
+    printf("BEGIN hshIncl(%lX, %llu, %lu, %lu) size=%lu\n",
+        (unsigned long) hash1, (unsigned long long) key,
+        (unsigned long) data, (unsigned long) hashcode, hash1->size);
 #endif
     hashelem = hash1->table[hashcode & hash1->mask];
     if (hashelem == NULL) {
       hash1->table[hashcode & hash1->mask] = new_helem(key, data,
           key_create_func, data_create_func, &err_info);
+      /*
+      hashelem = hash1->table[hashcode & hash1->mask];
+      printf("key=%llX\n", (unsigned long long) key);
+      printf("new hashelem: key=%llX, data=%llX\n",
+          hashelem->key.value.intvalue, hashelem->data.value.intvalue);
+      printf("cmp = %d\n", (int) cmp_func(hashelem->key.value.genericvalue, key));
+      */
       hash1->size++;
     } else {
       do {
@@ -936,9 +953,9 @@ copyfunctype data_copy_func;
       raise_error(MEMORY_ERROR);
     } /* if */
 #ifdef TRACE_HSH_RTL
-    printf("END hshIncl(%lu, %lu, %lu, %lu)\n",
+    printf("END hshIncl(%lX, %lu, %lu, %lu) size=%lu\n",
         (unsigned long) hash1, (unsigned long) key,
-        (unsigned long) data, (unsigned long) hashcode);
+        (unsigned long) data, (unsigned long) hashcode, hash1->size);
 #endif
   } /* hshIncl */
 

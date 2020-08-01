@@ -13849,6 +13849,23 @@ const proc: object_address (in reference: current_object, inout expr_type: c_exp
   end func;
 
 
+const func boolean: useFunctype (in reference: current_object) is func
+
+  result
+    var boolean: okay is TRUE;
+  local
+    var reference: curr_expr is NIL;
+    var category: exprCategory is category.value;
+  begin
+    curr_expr := getValue(current_object, reference);
+    if curr_expr <> NIL then
+      exprCategory := category(curr_expr);
+      okay := exprCategory = ACTOBJECT or
+              exprCategory = BLOCKOBJECT;
+    end if;
+  end func;
+
+
 const proc: process_reference_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
@@ -13857,7 +13874,11 @@ const proc: process_reference_declaration (in reference: current_object,
     var category: exprCategory is category.value;
   begin
     (* if isVar(current_object) then *)
-      c_expr.expr &:= "objreftype o_";
+      if useFunctype(current_object) then
+        c_expr.expr &:= "intfunctype o_";
+      else
+        c_expr.expr &:= "objreftype o_";
+      end if;
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= "=";
       object_address(current_object, c_expr);
@@ -15689,6 +15710,7 @@ const proc: write_file_head is func
     writeln(c_prog, "} rtlObjecttype;");
     writeln(c_prog, "typedef FILE *filetype;");
     writeln(c_prog, "typedef int sockettype;");
+    writeln(c_prog, "typedef inttype (*intfunctype)();");
     writeln(c_prog, "typedef inttype objreftype;");
     writeln(c_prog, "typedef struct list {");
     writeln(c_prog, "  struct list *next;");

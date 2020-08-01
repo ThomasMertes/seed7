@@ -86,8 +86,9 @@
 <li><!--   7.1      --><a href="#interface_and_implementation"><b>Interface and implementation</b></a></li>
 <li><!--   7.2      --><a href="#dynamic_dispatch"><b>Dynamic dispatch</b></a></li>
 <li><!--   7.3      --><a href="#inheritance"><b>Inheritance</b></a></li>
-<li><!--   7.4      --><a href="#multiple_dispatch"><b>Multiple dispatch</b></a></li>
-<li><!--   7.5      --><a href="#replacing_pointers"><b>Replacing pointers with interface types</b></a></li></ol></li>
+<li><!--   7.4      --><a href="#class_methods"><b>Class methods</b></a></li>
+<li><!--   7.5      --><a href="#multiple_dispatch"><b>Multiple dispatch</b></a></li>
+<li><!--   7.6      --><a href="#replacing_pointers"><b>Replacing pointers with interface types</b></a></li></ol></li>
 <li><!--   8.     --><a href="#THE_FILE_SYSTEM"><big><b>THE FILE SYSTEM</b></big></a><ol>
 <li><!--   8.1      --><a href="#Conversion_to_strings_and_back"><b>Conversion to strings and back</b></a></li>
 <li><!--   8.2      --><a href="#Basic_input_and_output_operations"><b>Basic input and output operations</b></a></li>
@@ -3607,7 +3608,7 @@
     The type <tt>'<font color=red>void</font>'</tt> describes the empty type.
 </p><pre>
     Value:
-      empty     This is the only value of the type <tt>'<font color=red>void</font>'</tt>.
+      empty     This is the only value of the type '<font color=red>void</font>'.
 </pre><p></p>
 
 <a name="proc"><b>5.28 proc</b></a>
@@ -3656,7 +3657,7 @@
       <font color=red>string</font>, <font color=red>reference</font>, <font color=red>ref_list</font>, <font color=red>color</font>, <font color=red>time</font>, <font color=red>duration</font>
       <font color=red>file</font>, <font color=red>proc</font>, <font color=red>type</font>, ...
                 Every type declared with <font color=blue>const</font> <font color=red>type</font>: ... is a value
-                The type <tt>'<font color=red>void</font>'</tt> is used as empty type.
+                The type '<font color=red>void</font>' is used as empty type.
     Prefix operators:
       func      Function type
                   ( <font color=red>func char</font> => Function which returns a <font color=red>char</font> )
@@ -3682,13 +3683,24 @@
                   ( Type of argument A: Defined for all types,
                     typeof(1) => <font color=red>integer</font>,
                     typeof(<font color=maroon>"asdf"</font>) => <font color=red>string</font> )
-      result_type(A)  Get the result type of a function type
-                  ( result_type(func char) => <font color=red>char</font> )
+      is_func(A)  Is this type a '<font color=red>func</font>' type
+                  ( Type of result: <font color=red>boolean</font>,
+                    is_func(<font color=red>func char</font>) => TRUE,
+                    is_func(<font color=red>varfunc char</font>) => FALSE )
+                    is_func(<font color=red>char</font>) => FALSE )
+      is_varfunc(A)  Is this type a '<font color=red>varfunc</font>' type
+                  ( Type of result: <font color=red>boolean</font>,
+                    is_varfunc(<font color=red>func char</font>) => FALSE,
+                    is_varfunc(<font color=red>varfunc char</font>) => TRUE,
+                    is_varfunc(<font color=red>char</font>) => FALSE )
+      result_type(A)  Get the result type of a '<font color=red>func</font>' or '<font color=red>varfunc</font>' type
+                  ( result_type(<font color=red>func char</font>) => <font color=red>char</font>,
+                    result_type(<font color=red>char</font>) => EXCEPTION RANGE_ERROR )
       base_type(A)  Get the base type of an array, pointer or
                     set type
-                  ( base_type(array char) => <font color=red>char</font>,
-                    base_type(ptr string) => <font color=red>string</font>,
-                    base_type(set of <font color=red>integer</font>) => <font color=red>integer</font> )                    
+                  ( base_type(<font color=red>array char</font>) => <font color=red>char</font>,
+                    base_type(<font color=red>ptr string</font>) => <font color=red>string</font>,
+                    base_type(<font color=red>set of integer</font>) => <font color=red>integer</font> )                    
       type_number(A)  Get an unique number for a type
                   ( Type of result: <font color=red>integer</font> )
       match_obj(A)  Get the match object of a type
@@ -4384,7 +4396,54 @@
   called is-a relation).
 </p>
 
-<a name="multiple_dispatch"><b>7.4 Multiple dispatch</b></a>
+<a name="class_methods"><b>7.4 Class methods</b></a>
+<p>
+    Many object-oriented programming languages support methods
+  that are associated with a class instead of an instanciated
+  object. Such methods are called class methods or static
+  methods. Seed7 supports class methods via attribute (<tt>'<font color=blue>attr</font>'</tt>)
+  parameters which allow that a function is attached to a type:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func circle</font>: create (<font color=blue>attr</font> <font color=red>circle</font>, <font color=blue>in</font> <font color=red>integer</font>: radius) <font color=blue>is</font>
+      <font color=blue>return</font> circle(radius);
+</pre><p>
+  This <tt>'create'</tt> function is attached to the type <tt>'<font color=red>circle</font>'</tt> and can be called with
+</p><pre>
+    create(<font color=red>circle</font>, 10)
+</pre><p>
+  Many languages require that the class name must precede the
+  method name when a class method is called (E.g. <tt>'circle::create(10)'</tt>
+  in C++). In contrast to that <tt>'<font color=blue>attr</font>'</tt> parameters are not
+  restricted to a specific parameter position. They can be used
+  in any parameter position as in the following example:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func circle</font>: create (<font color=blue>in</font> <font color=red>integer</font>: radius, <font color=blue>attr</font> <font color=red>circle</font>) <font color=blue>is</font>
+      <font color=blue>return</font> circle(radius);
+</pre><p>
+  This function can be called with
+</p><pre>
+    create(10, <font color=red>circle</font>)
+</pre><p>
+  Attribute parameters can be used for any type not just for
+  interface and implementation types. Objects which do not
+  have a function type such as a character constant can also
+  be attached to a type:
+</p><pre>
+    <font color=blue>const</font> <font color=red>char</font>: (<font color=blue>attr</font> <font color=red>char</font>) . value <font color=blue>is</font> <font color=maroon>' '</font>;
+</pre><p>
+  This way attributes can be used to specify propertys
+  of a type such as its default <tt>'value'</tt>.
+  Programming languages such as Seed7 which support function
+  definitions outside a class can also use normal functions
+  instead of class methods. It is a matter of tast if a
+  function should be grouped to a type or if it should
+  exist stand alone and is called with:
+</p><pre>
+    circle(10)
+</pre><p>
+</p>
+
+<a name="multiple_dispatch"><b>7.5 Multiple dispatch</b></a>
 <p>
     The Seed7 object system allows multiple dispatch (not to
   be confused with multiple inheritance). The methods are
@@ -4461,7 +4520,7 @@
   to have distinct types for different purposes.
 </p>
 
-<a name="replacing_pointers"><b>7.5 Replacing pointers with interface types</b></a>
+<a name="replacing_pointers"><b>7.6 Replacing pointers with interface types</b></a>
 <p>
     Many languages have the concept of a pointer. It is possible
   to implement data structures, such as lists and trees, with

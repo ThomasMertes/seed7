@@ -106,12 +106,12 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-inttype typCmp (typetype type1, typetype type2)
+inttype typCmp (genericdatatype type1, genericdatatype type2)
 #else
 
 inttype typCmp (type1, type2)
-typetype type1;
-typetype type2;
+genericdatatype type1;
+genericdatatype type2;
 #endif
 
   {
@@ -134,12 +134,12 @@ typetype type2;
 
 #ifdef ANSI_C
 
-void typCpy (typetype *dest, typetype source)
+void typCpy (genericdatatype *dest, genericdatatype source)
 #else
 
 void typCpy (dest, source)
-typetype *dest;
-typetype source;
+genericdatatype *dest;
+genericdatatype source;
 #endif
 
   { /* typCpy */
@@ -150,11 +150,11 @@ typetype source;
 
 #ifdef ANSI_C
 
-typetype typCreate (typetype type_from)
+genericdatatype typCreate (genericdatatype type_from)
 #else
 
-typetype typCreate (type_from)
-typetype type_from;
+genericdatatype typCreate (type_from)
+genericdatatype type_from;
 #endif
 
   { /* typCreate */

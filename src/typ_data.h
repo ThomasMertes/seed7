@@ -25,11 +25,13 @@
 /*                                                                  */
 /********************************************************************/
 
+typedef inttype genericdatatype;
+
 #ifdef ANSI_C
 
-inttype typCmp (typetype type1, typetype type2);
-void typCpy (typetype *dest, typetype source);
-typetype typCreate (typetype type_from);
+inttype typCmp (genericdatatype type1, genericdatatype type2);
+void typCpy (genericdatatype *dest, genericdatatype source);
+genericdatatype typCreate (genericdatatype type_from);
 void typDestr (typetype old_type);
 typetype typFunc (typetype basic_type);
 booltype typIsDerived (typetype any_type);
@@ -46,7 +48,7 @@ typetype typVarfunc (typetype basic_type);
 
 inttype typCmp ();
 void typCpy ();
-typetype typCreate ();
+genericdatatype typCreate ();
 void typDestr ();
 typetype typFunc ();
 booltype typIsDerived ();

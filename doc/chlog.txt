@@ -1,3 +1,10 @@
+20090201:
+- A new saving phase was added to the savehd7.sd7 example program. Savehd7 can be used
+  to save a potentially damaged harddisk partition to an image file.
+- A new chapter about class methods was added to the manual.
+- The chapter about the type 'type' in the manual, was improved.
+- A check for NULL pointers was added to the function raise_with_arguments.
+
 20090118:
 - The savehd7.sd7 example program, which can be used to save a potentially damaged
   harddisk partition to an image file, was improved.

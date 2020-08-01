@@ -86,8 +86,9 @@ CONTENTS
   7.1     Interface and implementation
   7.2     Dynamic dispatch
   7.3     Inheritance
-  7.4     Multiple dispatch
-  7.5     Replacing pointers with interface types
+  7.4     Class methods
+  7.5     Multiple dispatch
+  7.6     Replacing pointers with interface types
   8.    THE FILE SYSTEM
   8.1     Conversion to strings and back
   8.2     Basic input and output operations
@@ -3682,8 +3683,19 @@ CONTENTS
                   ( Type of argument A: Defined for all types,
                     typeof(1) => integer,
                     typeof("asdf") => string )
-      result_type(A)  Get the result type of a function type
-                  ( result_type(func char) => char )
+      is_func(A)  Is this type a 'func' type
+                  ( Type of result: boolean,
+                    is_func(func char) => TRUE,
+                    is_func(varfunc char) => FALSE )
+                    is_func(char) => FALSE )
+      is_varfunc(A)  Is this type a 'varfunc' type
+                  ( Type of result: boolean,
+                    is_varfunc(func char) => FALSE,
+                    is_varfunc(varfunc char) => TRUE,
+                    is_varfunc(char) => FALSE )
+      result_type(A)  Get the result type of a 'func' or 'varfunc' type
+                  ( result_type(func char) => char,
+                    result_type(char) => EXCEPTION RANGE_ERROR )
       base_type(A)  Get the base type of an array, pointer or
                     set type
                   ( base_type(array char) => char,
@@ -4384,7 +4396,54 @@ CONTENTS
   called is-a relation).
 
 
-7.4 Multiple dispatch
+7.4 Class methods
+
+    Many object-oriented programming languages support methods
+  that are associated with a class instead of an instanciated
+  object. Such methods are called class methods or static
+  methods. Seed7 supports class methods via attribute ('attr')
+  parameters which allow that a function is attached to a type:
+
+    const func circle: create (attr circle, in integer: radius) is
+      return circle(radius);
+
+  This 'create' function is attached to the type 'circle' and can be called with
+
+    create(circle, 10)
+
+  Many languages require that the class name must precede the
+  method name when a class method is called (E.g. 'circle::create(10)'
+  in C++). In contrast to that 'attr' parameters are not
+  restricted to a specific parameter position. They can be used
+  in any parameter position as in the following example:
+
+    const func circle: create (in integer: radius, attr circle) is
+      return circle(radius);
+
+  This function can be called with
+
+    create(10, circle)
+
+  Attribute parameters can be used for any type not just for
+  interface and implementation types. Objects which do not
+  have a function type such as a character constant can also
+  be attached to a type:
+
+    const char: (attr char) . value is ' ';
+
+  This way attributes can be used to specify propertys
+  of a type such as its default 'value'.
+  Programming languages such as Seed7 which support function
+  definitions outside a class can also use normal functions
+  instead of class methods. It is a matter of tast if a
+  function should be grouped to a type or if it should
+  exist stand alone and is called with:
+
+    circle(10)
+
+
+
+7.5 Multiple dispatch
 
     The Seed7 object system allows multiple dispatch (not to
   be confused with multiple inheritance). The methods are
@@ -4461,7 +4520,7 @@ CONTENTS
   to have distinct types for different purposes.
 
 
-7.5 Replacing pointers with interface types
+7.6 Replacing pointers with interface types
 
     Many languages have the concept of a pointer. It is possible
   to implement data structures, such as lists and trees, with

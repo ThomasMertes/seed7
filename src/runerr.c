@@ -164,7 +164,7 @@ listtype list;
   /* raise_with_arguments */
 #ifdef WITH_PROTOCOL
     if (list == curr_argument_list) {
-      if (curr_exec_object != NULL) {
+      if (curr_exec_object != NULL && curr_exec_object->value.listvalue != NULL) {
         curr_action_object = curr_exec_object->value.listvalue->obj;
         incl_list(&fail_stack, curr_action_object, &err_info);
       } /* if */
