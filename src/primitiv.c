@@ -100,6 +100,7 @@ static const actEntryRecord actEntryTable[] = {
     { "ARR_GEN",                 arr_gen,                 },
     { "ARR_HEAD",                arr_head,                },
     { "ARR_IDX",                 arr_idx,                 },
+    { "ARR_INSERT",              arr_insert,              },
     { "ARR_LNG",                 arr_lng,                 },
     { "ARR_MAXIDX",              arr_maxidx,              },
     { "ARR_MINIDX",              arr_minidx,              },

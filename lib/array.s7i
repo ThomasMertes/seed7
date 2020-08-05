@@ -137,6 +137,14 @@ const func type: array (in type: baseType) is func
       const func baseType: remove (inout arrayType: arr, in integer: index)   is action "ARR_REMOVE";
 
       (**
+       *  Insert ''element'' at ''index'' into ''arr''.
+       *  @exception INDEX_ERROR If ''index'' is less than minIdx(arr) or
+       *                         greater than succ(maxIdx(arr))
+       *)
+      const proc: insert (inout arrayType: arr, in integer: index,
+                          in baseType: element)                               is action "ARR_INSERT";
+
+      (**
        *  Determine the length of the array ''arr''.
        *  @return the length of the array.
        *)
@@ -366,15 +374,6 @@ const func type: array (in type: baseType) is func
        *)
       const func baseType: rand (in arrayType: arr) is
         return arr[rand(minIdx(arr), maxIdx(arr))];
-
-      const proc: insert (inout arrayType: arr, in integer: index, in baseType: element) is func
-        begin
-          if index >= minIdx(arr) and index <= succ(maxIdx(arr)) then
-            arr := arr[.. pred(index)] & [] (element) & arr[index ..];
-          else
-            raise RANGE_ERROR;
-          end if;
-        end func;
 
       const proc: insert (inout arrayType: arr, in integer: index, in arrayType: elements) is func
         begin

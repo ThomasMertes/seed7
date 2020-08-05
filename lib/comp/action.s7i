@@ -143,6 +143,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(ARR_HEAD, function, params, c_expr);
       when {"ARR_IDX"}:
         process(ARR_IDX, function, params, c_expr);
+      when {"ARR_INSERT"}:
+        process(ARR_INSERT, function, params, c_expr);
       when {"ARR_LNG"}:
         process(ARR_LNG, function, params, c_expr);
       when {"ARR_MAXIDX"}:

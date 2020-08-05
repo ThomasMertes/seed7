@@ -487,6 +487,54 @@ const proc: getGenericValueOfVariableObject (in reference: variableObject,
   end func;
 
 
+const proc: getCreatedValueAsGeneric (in type: param_type, in expr_type: c_param,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: temp_name is "";
+  begin
+    if param_type in typeCategory and typeCategory[param_type] = FLOATOBJECT or
+        not ccConf.LITTLE_ENDIAN_INTTYPE then
+      incr(c_expr.temp_num);
+      temp_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "rtlValueUnion ";
+      c_expr.temp_decls &:= temp_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= ".";
+      c_expr.expr &:= raw_type_value(param_type);
+      c_expr.expr &:= "=";
+      if c_param.result_expr <> "" then
+        c_expr.expr &:= c_param.result_expr;
+      else
+        process_create_declaration(param_type, global_c_expr);
+        process_create_call(param_type, c_param.expr, c_expr.expr);
+      end if;
+      c_expr.expr &:= ",";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= ".genericValue)";
+    elsif c_param.result_expr <> "" then
+      c_expr.expr &:= c_param.result_expr;
+    else
+      process_create_declaration(param_type, global_c_expr);
+      process_create_call(param_type, c_param.expr, c_expr.expr);
+    end if;
+  end func;
+
+
+const proc: getCreatedValueAsGeneric (in reference: aParam, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param is expr_type.value;
+    var type: param_type is void;
+  begin
+    param_type := getExprResultType(aParam);
+    prepareAnyParamTemporarys(aParam, c_param, c_expr);
+    getCreatedValueAsGeneric(param_type, c_param, c_expr);
+  end func;
+
+
 const proc: getGenericValueToResultExpr (in reference: current_expression,
     inout expr_type: c_expr) is func
 

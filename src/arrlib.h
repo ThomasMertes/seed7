@@ -40,6 +40,7 @@ objectType arr_extend   (listType arguments);
 objectType arr_gen      (listType arguments);
 objectType arr_head     (listType arguments);
 objectType arr_idx      (listType arguments);
+objectType arr_insert   (listType arguments);
 objectType arr_lng      (listType arguments);
 objectType arr_maxidx   (listType arguments);
 objectType arr_minidx   (listType arguments);

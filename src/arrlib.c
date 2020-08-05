@@ -875,6 +875,71 @@ objectType arr_idx (listType arguments)
 
 
 /**
+ *  Insert 'element' at 'position' into 'arr1'.
+ *  @exception INDEX_ERROR If 'position' is less than minIdx(arr1) or
+ *                         greater than succ(maxIdx(arr1))
+ */
+objectType arr_insert (listType arguments)
+
+  {
+    arrayType arr1;
+    arrayType resized_arr1;
+    intType position;
+    typeType element_type;
+    objectType element;
+    objectRecord elementStore;
+    objectType array_pointer;
+    memSizeType arr1_size;
+    objectType result;
+
+  /* arr_insert */
+    logFunction(printf("arr_insert\n"););
+    isit_array(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    is_variable(arg_1(arguments));
+    arr1 = take_array(arg_1(arguments));
+    position = take_int(arg_2(arguments));
+    element = arg_3(arguments);
+    if (unlikely(position < arr1->min_position ||
+                 position > arr1->max_position + 1)) {
+      logError(printf("arr_insert(arr1, " FMT_D "): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position + 1););
+      result = raise_exception(SYS_IDX_EXCEPTION);
+    } else {
+      /* The element type is the type of the 3rd formal parameter */
+      element_type = curr_exec_object->value.listValue->obj->
+                     descriptor.property->params->next->next->obj->type_of;
+      if (unlikely(!arr_elem_initialisation(element_type,
+                                            &elementStore, element))) {
+        result = raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        arr1_size = arraySize(arr1);
+        resized_arr1 = REALLOC_ARRAY(arr1, arr1_size, arr1_size + 1);
+        if (unlikely(resized_arr1 == NULL)) {
+          result = raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          arr1 = resized_arr1;
+          COUNT3_ARRAY(arr1_size, arr1_size - 1);
+          array_pointer = arr1->arr;
+          memmove(&array_pointer[position - arr1->min_position + 1],
+                  &array_pointer[position - arr1->min_position],
+                  arraySize2(position, arr1->max_position) * sizeof(objectRecord));
+          memcpy(&array_pointer[position - arr1->min_position], &elementStore,
+                 sizeof(objectRecord));
+          arr1->max_position++;
+          arg_1(arguments)->value.arrayValue = arr1;
+          result = SYS_EMPTY_OBJECT;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("arr_insert -->\n"););
+    return result;
+  } /* arr_insert */
+
+
+
+/**
  *  Determine the length of the array 'arr'.
  *  @return the length of the array.
  */

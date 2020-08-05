@@ -38,6 +38,7 @@ const ACTION: ARR_EXTEND    is action "ARR_EXTEND";
 const ACTION: ARR_GEN       is action "ARR_GEN";
 const ACTION: ARR_HEAD      is action "ARR_HEAD";
 const ACTION: ARR_IDX       is action "ARR_IDX";
+const ACTION: ARR_INSERT    is action "ARR_INSERT";
 const ACTION: ARR_LNG       is action "ARR_LNG";
 const ACTION: ARR_MAXIDX    is action "ARR_MAXIDX";
 const ACTION: ARR_MINIDX    is action "ARR_MINIDX";
@@ -64,6 +65,7 @@ const proc: arr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "arrayType   arrHead (const const_arrayType, intType);");
     declareExtern(c_prog, "arrayType   arrHeadTemp (arrayType *, intType);");
     declareExtern(c_prog, "genericType arrIdxTemp (arrayType *, intType);");
+    declareExtern(c_prog, "void        arrInsert (arrayType *, intType, genericType);");
     declareExtern(c_prog, "arrayType   arrMalloc (intType, intType);");
     declareExtern(c_prog, "void        arrPush (arrayType *const, const genericType);");
     declareExtern(c_prog, "arrayType   arrRange (const const_arrayType, intType, intType);");
@@ -723,6 +725,81 @@ const proc: process (ARR_IDX, in reference: function,
           c_expr.expr &:= "))";
         end if;
       end if;
+    end if;
+  end func;
+
+
+const proc: process (ARR_INSERT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: param_type is void;
+    var reference: evaluatedParam is NIL;
+    var string: array_name is "";
+    var string: position_name is "";
+  begin
+    param_type := getExprResultType(params[1]);
+    if valueIsAtHeap(array_element[param_type]) then
+      if array_index_check then
+        incr(countIndexChecks);
+        incr(c_expr.temp_num);
+        c_expr.expr &:= "{\n";
+        array_name := normalVariable(params[1], c_expr);
+        if getConstant(params[2], INTOBJECT, evaluatedParam) then
+          position_name := integerLiteral(getValue(evaluatedParam, integer));
+        else
+          position_name := "pos_" & str(c_expr.temp_num);
+          setDiagnosticLine(c_expr);
+          c_expr.expr &:= "intType ";
+          c_expr.expr &:= position_name;
+          c_expr.expr &:= " = ";
+          process_expr(params[2], c_expr);
+          c_expr.expr &:= ";\n";
+        end if;
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "if (idxChk(";
+        c_expr.expr &:= position_name;
+        c_expr.expr &:= " < ";
+        c_expr.expr &:= array_name;
+        c_expr.expr &:= "->min_position || ";
+        c_expr.expr &:= position_name;
+        c_expr.expr &:= " > ";
+        c_expr.expr &:= array_name;
+        c_expr.expr &:= "->max_position + 1)) {\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= raiseError("INDEX_ERROR");
+        c_expr.expr &:= "\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "} else {\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "arrInsert(&(";
+        c_expr.expr &:= array_name;
+        c_expr.expr &:= "), ";
+        c_expr.expr &:= position_name;
+        c_expr.expr &:= ", (genericType)(";
+        getCreatedValueAsGeneric(params[3], c_expr);
+        c_expr.expr &:= "));\n";
+        c_expr.expr &:= "}\n";
+        c_expr.expr &:= "}\n";
+      else
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "arrInsert(&(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= "), ";
+        process_expr(params[2], c_expr);
+        c_expr.expr &:= ", (genericType)(";
+        getCreatedValueAsGeneric(params[3], c_expr);
+        c_expr.expr &:= "));\n";
+      end if;
+    else
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "arrInsert(&(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= "), ";
+      process_expr(params[2], c_expr);
+      c_expr.expr &:= ", ";
+      getGenericValue(params[3], c_expr);
+      c_expr.expr &:= ");\n";
     end if;
   end func;
 

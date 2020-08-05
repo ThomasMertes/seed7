@@ -1009,6 +1009,51 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
 
 
 /**
+ *  Insert 'element' at 'position' into 'arr_to'.
+ *  @exception INDEX_ERROR If 'position' is less than minIdx(arr) or
+ *                         greater than succ(maxIdx(arr))
+ */
+void arrInsert (rtlArrayType *arr_to, intType position, genericType element)
+
+  {
+    rtlArrayType arr1;
+    rtlArrayType resized_arr1;
+    rtlObjectType *array_pointer;
+    memSizeType arr1_size;
+
+  /* arrInsert */
+    arr1 = *arr_to;
+    logFunction(printf("arrInsert(" FMT_U_MEM " (size=" FMT_U_MEM "), "
+                       FMT_D ", " FMT_U "))\n",
+                       arr1, arraySize(arr1), position, element););
+    if (unlikely(position < arr1->min_position ||
+                 position > arr1->max_position + 1)) {
+      logError(printf("arrInsert(arr1, " FMT_D ", *): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position + 1););
+      raise_error(INDEX_ERROR);
+    } else {
+      arr1_size = arraySize(arr1);
+      resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size + 1);
+      if (unlikely(resized_arr1 == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        arr1 = resized_arr1;
+        COUNT3_RTL_ARRAY(arr1_size, arr1_size + 1);
+        array_pointer = arr1->arr;
+        memmove(&array_pointer[position - arr1->min_position + 1],
+            &array_pointer[position - arr1->min_position],
+            arraySize2(position, arr1->max_position) * sizeof(rtlObjectType));
+        array_pointer[position - arr1->min_position].value.genericValue = element;
+        arr1->max_position++;
+        *arr_to = arr1;
+      } /* if */
+    } /* if */
+  } /* arrInsert */
+
+
+
+/**
  *  Allocate memory for an array with given min and max positions.
  *  The min and max positions of the created array are set.
  *  @return A reference to the memory suitable for the array.
@@ -1261,6 +1306,8 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
 
   /* arrRemove */
     arr1 = *arr_to;
+    logFunction(printf("arrRemove(" FMT_U_MEM " (size=" FMT_U_MEM "), " FMT_D "))\n",
+                       arr1, arraySize(arr1), position););
     if (unlikely(position < arr1->min_position ||
                  position > arr1->max_position)) {
       logError(printf("arrRemove(arr1, " FMT_D "): "
