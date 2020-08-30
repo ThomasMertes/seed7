@@ -443,7 +443,7 @@ const func boolean: canTakeAddress (in reference: an_expression) is func
         not isVar(an_expression) then
       canTakeAddress := FALSE;
     end if;
-    if isFunc(getType(an_expression)) then
+    if isFunc(getType(an_expression)) or isVarfunc(getType(an_expression)) then
       canTakeAddress := FALSE;
     end if;
     if exprCategory = CALLOBJECT then
@@ -1486,7 +1486,8 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
     elsif exprCategory = REFPARAMOBJECT then
       if current_expression in funcparam_data then
         c_expr.expr &:= funcparam_data[current_expression];
-      elsif isFunc(getType(current_expression)) then
+      elsif isFunc(getType(current_expression)) or
+          isVarfunc(getType(current_expression)) then
         if current_expression in inlineParam then
           process_inline_param(current_expression, c_expr);
         else
@@ -1791,7 +1792,7 @@ const proc: process_param_declaration (in reference: formal_param, inout expr_ty
   begin
     param_type := getType(formal_param);
     if isPointerParam(formal_param) then
-      if isFunc(param_type) then
+      if isFunc(param_type) or isVarfunc(param_type) then
         c_expr.expr &:= type_name(param_type);
         c_expr.expr &:= " o_";
         create_name(formal_param, c_expr.expr);
@@ -5275,52 +5276,51 @@ const func boolean: identical_values (in reference: object1, in reference: objec
   result
     var boolean: isIdentical is FALSE;
   local
-    var category: objectCategory is category.value;
     var reference: element1 is NIL;
     var ref_list: element_list2 is ref_list.EMPTY;
     var integer: index2 is 0;
   begin
-    objectCategory := category(object1);
-    if objectCategory = INTOBJECT then
-      isIdentical := getValue(object1, integer) = getValue(object2, integer);
-    elsif objectCategory = BIGINTOBJECT then
-      isIdentical := getValue(object1, bigInteger) = getValue(object2, bigInteger);
-    elsif objectCategory = CHAROBJECT then
-      isIdentical := getValue(object1, char) = getValue(object2, char);
-    elsif objectCategory = STRIOBJECT then
-      isIdentical := getValue(object1, string) = getValue(object2, string);
-    elsif objectCategory = BSTRIOBJECT then
-      isIdentical := getValue(object1, bstring) = getValue(object2, bstring);
-    elsif objectCategory = SETOBJECT then
-      isIdentical := getValue(object1, bitset) = getValue(object2, bitset);
-    elsif objectCategory = FLOATOBJECT then
-      isIdentical := getValue(object1, float) = getValue(object2, float);
-    elsif objectCategory = REFOBJECT then
-      isIdentical := getValue(object1, reference) = getValue(object2, reference);
-    elsif objectCategory = FILEOBJECT then
-      isIdentical := getValue(object1, clib_file) = getValue(object2, clib_file);
-    elsif objectCategory = CONSTENUMOBJECT or objectCategory = VARENUMOBJECT then
-      isIdentical := getValue(object1, reference) = getValue(object2, reference);
-    elsif objectCategory = ARRAYOBJECT then
-      if arrayMinIdx(object1) = arrayMinIdx(object2) and
-          arrayMaxIdx(object1) = arrayMaxIdx(object2) then
+    case category(object1) of
+      when {INTOBJECT}:
+        isIdentical := getValue(object1, integer) = getValue(object2, integer);
+      when {BIGINTOBJECT}:
+        isIdentical := getValue(object1, bigInteger) = getValue(object2, bigInteger);
+      when {CHAROBJECT}:
+        isIdentical := getValue(object1, char) = getValue(object2, char);
+      when {STRIOBJECT}:
+        isIdentical := getValue(object1, string) = getValue(object2, string);
+      when {BSTRIOBJECT}:
+        isIdentical := getValue(object1, bstring) = getValue(object2, bstring);
+      when {SETOBJECT}:
+        isIdentical := getValue(object1, bitset) = getValue(object2, bitset);
+      when {FLOATOBJECT}:
+        isIdentical := getValue(object1, float) = getValue(object2, float);
+      when {REFOBJECT}:
+        isIdentical := getValue(object1, reference) = getValue(object2, reference);
+      when {FILEOBJECT}:
+        isIdentical := getValue(object1, clib_file) = getValue(object2, clib_file);
+      when {CONSTENUMOBJECT, VARENUMOBJECT}:
+        isIdentical := getValue(object1, reference) = getValue(object2, reference);
+      when {ARRAYOBJECT}:
+        if arrayMinIdx(object1) = arrayMinIdx(object2) and
+            arrayMaxIdx(object1) = arrayMaxIdx(object2) then
+          isIdentical := TRUE;
+          element_list2 := arrayToList(object2);
+          index2 := 1;
+          for element1 range arrayToList(object1) until not isIdentical do
+            isIdentical := identical_values(element1, element_list2[index2]);
+            incr(index2);
+          end for;
+        end if;
+      when {STRUCTOBJECT}:
         isIdentical := TRUE;
-        element_list2 := arrayToList(object2);
+        element_list2 := structToList(object2);
         index2 := 1;
-        for element1 range arrayToList(object1) until not isIdentical do
+        for element1 range structToList(object1) until not isIdentical do
           isIdentical := identical_values(element1, element_list2[index2]);
           incr(index2);
         end for;
-      end if;
-    elsif objectCategory = STRUCTOBJECT then
-      isIdentical := TRUE;
-      element_list2 := structToList(object2);
-      index2 := 1;
-      for element1 range structToList(object1) until not isIdentical do
-        isIdentical := identical_values(element1, element_list2[index2]);
-        incr(index2);
-      end for;
-    end if;
+    end case;
   end func;
 
 

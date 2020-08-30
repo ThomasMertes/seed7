@@ -1406,7 +1406,7 @@ intType setRand (const const_setType aSet)
 /**
  *  Create set with all values from 'lowValue' to 'highValue' inclusive.
  *  @param lowValue lowest value to be added to the result set.
- *  @param highValue higest value to be added to the result set.
+ *  @param highValue highest value to be added to the result set.
  *  @return set with all values from 'lowValue' to 'highValue' inclusive, or
  *          an empty set if 'lowValue' is greater than 'highValue'.
  */

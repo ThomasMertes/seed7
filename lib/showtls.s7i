@@ -352,7 +352,8 @@ const proc: showCertificate (in string: stri, inout integer: pos) is func
       pos +:= 3;
       writeln("ASN.1Cert-" <& index <& " length: " <& certLen);
       writeln("ASN.1Cert-" <& index <& ": " <& literal(stri[pos len certLen]));
-      printAsn1(stri[pos len certLen]);
+      # Activate if details of the ASN should be printed:
+      # printAsn1(stri[pos len certLen]);
       cert := getX509Cert(stri[pos len certLen]);
       showX509Cert(cert);
       certList &:= cert;

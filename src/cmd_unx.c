@@ -585,9 +585,10 @@ void cmdSetGroup (const const_striType filePath, striType group)
                           os_path, (long) gid, errno, strerror(errno)););
           os_stri_free(os_path);
           raise_error(FILE_ERROR);
+        } else {
+          os_stri_free(os_path);
         } /* if */
       } /* if */
-      os_stri_free(os_path);
     } /* if */
   } /* cmdSetGroup */
 
@@ -622,9 +623,10 @@ void cmdSetOwner (const const_striType filePath, striType owner)
                           os_path, (long) uid, errno, strerror(errno)););
           os_stri_free(os_path);
           raise_error(FILE_ERROR);
+        } else {
+          os_stri_free(os_path);
         } /* if */
       } /* if */
-      os_stri_free(os_path);
     } /* if */
   } /* cmdSetOwner */
 

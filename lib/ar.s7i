@@ -52,7 +52,7 @@ const type: arHeader is new struct
     var integer: fileSize is 0;
     var boolean: okay is FALSE;
     # A longNameStart of zero means: The filePath is in header.name.
-    # Values greate than zero indicate an index into ar.longNames.
+    # Values greater than zero indicate an index into ar.longNames.
     # Note that longNameStart is one more than the value used in the file.
     var integer: longNameStart is 0;
     var string: filePath is "";

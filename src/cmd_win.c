@@ -579,7 +579,7 @@ striType cmdGetGroup (const const_striType filePath)
       group = getNameFromSid(pSidGroup);
       /* The SID referenced by pSidOwner is located */
       /* inside of the PSECURITY_DESCRIPTOR pSD.    */
-      /* Therefore it is freed toghether with pSD.  */
+      /* Therefore it is freed together with pSD.   */
       LocalFree(pSD);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(group)););
@@ -624,7 +624,7 @@ striType cmdGetOwner (const const_striType filePath)
       owner = getNameFromSid(pSidOwner);
       /* The SID referenced by pSidOwner is located */
       /* inside of the PSECURITY_DESCRIPTOR pSD.    */
-      /* Therefore it is freed toghether with pSD.  */
+      /* Therefore it is freed together with pSD.   */
       LocalFree(pSD);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(owner)););

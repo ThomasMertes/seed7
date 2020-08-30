@@ -751,8 +751,9 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">end func</span>;
 </pre><p>
   There can be zero or more <tt><span class="keywd">elsif</span></tt> parts, and the <tt><span class="keywd">else</span></tt> part
-  is optional. Alternatively we can use a loop to insist on
-  entering a name:
+  is optional. As you can see the equaliy of strings is checked with <tt><span class="op_no_ul">=</span></tt>.
+  An if-statement is one way to improve the greeting program.
+  Alternatively we can use a loop to insist on entering a name:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
@@ -763,12 +764,12 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
       <span class="func_no_ul">write</span>(<span class="stri">"What's your name? "</span>);
       <span class="func_no_ul">readln</span>(name);
-    <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> name <span class="op_no_ul">(in_string)">&lt;&gt;</span> <span class="stri">""</span>;
+    <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> name <span class="op_no_ul">&lt;&gt;</span> <span class="stri">""</span>;
     <span class="func_no_ul">writeln</span>(<span class="stri">"Hi "</span> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <span class="stri">"!"</span>);
   <span class="keywd">end func</span>;
 </pre><p>
   The <tt><span class="keywd">repeat</span> ... <span class="keywd">until</span></tt> loop repeats the statements
-  between the two keywords until the condition <tt><span class="op">(in_string)">&lt;&gt;</span> <span class="stri">""</span></tt> is true.
+  between the two keywords until the condition <tt><span class="op">&lt;&gt;</span> <span class="stri">""</span></tt> is true.
   Note that the statements in the <tt><a class="keywd" href="#stats_repeat-statement">repeat</a></tt> loop are executed
   at least once. A solution with a <tt><a class="keywd" href="#stats_while-statement">while</a></tt> loop is:
 </p><pre class="indent">
@@ -3427,31 +3428,41 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     <span class="stri">"abcde"</span>[6] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> A .. B ] Access a substring from position A to B
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a>,
+                    S [A .. B] is okay for A >= 1 and B >= pred(A),
                     <span class="stri">"abcde"</span>[2 .. 4] <b>&rArr;</b> <span class="stri">"bcd"</span>,
                     <span class="stri">"abcde"</span>[2 .. 7] <b>&rArr;</b> <span class="stri">"bcde"</span>,
-                    <span class="stri">"abcde"</span>[4 .. 2] <b>&rArr;</b> <span class="stri">""</span>,
+                    <span class="stri">"abcde"</span>[4 .. 3] <b>&rArr;</b> <span class="stri">""</span>,
+                    <span class="stri">"abcde"</span>[4 .. 2] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
                     <span class="stri">"abcde"</span>[6 .. 8] <b>&rArr;</b> <span class="stri">""</span>,
-                    <span class="stri">"abcde"</span>[-3 .. 4] <b>&rArr;</b> <span class="stri">"abcd"</span>,
-                    <span class="stri">"abcde"</span>[-3 .. 7] <b>&rArr;</b> <span class="stri">"abcde"</span>,
-                    <span class="stri">"abcde"</span>[-3 .. 0] <b>&rArr;</b> <span class="stri">""</span> )
+                    <span class="stri">"abcde"</span>[1 .. 3] <b>&rArr;</b> <span class="stri">"abc"</span>,
+                    <span class="stri">"abcde"</span>[0 .. 3] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    <span class="stri">"abcde"</span>[1 .. 0] <b>&rArr;</b> <span class="stri">""</span>,
+                    <span class="stri">"abcde"</span>[1 .. -1] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> A <span class="keywd">len</span> B ] Access a substring from position A with length B
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a>,
+                    S [A len B] is okay for A >= 1 and B >= 0,
                     <span class="stri">"abcde"</span>[2 <span class="keywd">len</span> 3] <b>&rArr;</b> <span class="stri">"bcd"</span>,
                     <span class="stri">"abcde"</span>[2 <span class="keywd">len</span> 5] <b>&rArr;</b> <span class="stri">"bcde"</span>,
-                    <span class="stri">"abcde"</span>[-3 <span class="keywd">len</span> 8] <b>&rArr;</b> <span class="stri">"abcd"</span>,
-                    <span class="stri">"abcde"</span>[-1 <span class="keywd">len</span> 9] <b>&rArr;</b> <span class="stri">"abcde"</span> )
+                    <span class="stri">"abcde"</span>[3 <span class="keywd">len</span> 0] <b>&rArr;</b> <span class="stri">""</span>,
+                    <span class="stri">"abcde"</span>[3 <span class="keywd">len</span> -1] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    <span class="stri">"abcde"</span>[1 <span class="keywd">len</span> 2] <b>&rArr;</b> <span class="stri">"ab"</span>,
+                    <span class="stri">"abcde"</span>[0 <span class="keywd">len</span> 2] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> A .. ]  Access a substring beginning at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
+                    S [A ..] is okay for A >= 1,
                     <span class="stri">"abcde"</span>[3 ..] <b>&rArr;</b> <span class="stri">"cde"</span>,
                     <span class="stri">"abcde"</span>[6 ..] <b>&rArr;</b> <span class="stri">""</span>,
-                    <span class="stri">"abcde"</span>[-3 ..] <b>&rArr;</b> <span class="stri">"abcde"</span>,
-                    <span class="stri">""</span>[1 ..] <b>&rArr;</b> <span class="stri">""</span> )
+                    <span class="stri">""</span>[1 ..] <b>&rArr;</b> <span class="stri">""</span>,
+                    <span class="stri">"abcde"</span>[1 ..] <b>&rArr;</b> <span class="stri">"abcde"</span>,
+                    <span class="stri">"abcde"</span>[0 ..] <b>&rArr;</b>  EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> .. A ]  Access a substring ending at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
+                    S [.. A] is okay for A >= 0,
                     <span class="stri">"abcde"</span>[.. 4] <b>&rArr;</b> <span class="stri">"abcd"</span>,
                     <span class="stri">"abcde"</span>[.. 6] <b>&rArr;</b> <span class="stri">"abcde"</span>,
-                    <span class="stri">"abcde"</span>[.. -3] <b>&rArr;</b> <span class="stri">""</span>,
-                    <span class="stri">""</span>[.. 5] <b>&rArr;</b> <span class="stri">""</span> )
+                    <span class="stri">""</span>[.. 5] <b>&rArr;</b> <span class="stri">""</span>,
+                    <span class="stri">"abcde"</span>[.. 0] <b>&rArr;</b> <span class="stri">""</span>,
+                    <span class="stri">"abcde"</span>[.. -1] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>, <span class="op">&lt;</span>, <span class="op">&lt;=</span>, <span class="op">></span>, <span class="op">>=</span>
     Functions:
@@ -3595,9 +3606,23 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 <p>
     The type <tt><a class="type" href="#types_array">array</a> <span class="type">baseType</span></tt> describes sequences of <tt><span class="type">baseType</span></tt>
   elements (including the empty sequence).
-</p><dl>
-    <dt></dt><dd>For example: <tt><a class="type" href="#types_array">array</a> <a class="type" href="#types_integer">integer</a></tt> describes arrays of integer elements.</dd>
-</dl><p>
+  Examples of array type declarations are:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: striArrayType <span class="keywd">is</span> <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>;
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: structArrayType <span class="keywd">is</span> <a class="type" href="#types_array">array</a> <span class="type">aStructType</span>;
+</pre><p>
+  This defines <tt><span class="type">striArrayType</span></tt> as an array type with <tt><a class="type" href="#types_string">string</a></tt> elements. The
+  second line defines <tt><span class="type">structArrayType</span></tt> as an array type with <span class="type">aStructType</span>
+  elements. Variables of these types are declared with:
+</p><pre class="indent">
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr1 <span class="keywd">is</span> <span class="type">striArrayType</span>.value;
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr2 <span class="keywd">is</span> 0 <span class="op">times</span> <span class="stri">""</span>;
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr3 <span class="keywd">is</span> [] (<span class="stri">"one"</span>, <span class="stri">"two"</span>);
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr4 <span class="keywd">is</span> [0] (<span class="stri">"zero"</span>, <span class="stri">"one"</span>);
+<span class="keywd">var</span> <span class="type">structArrayType</span>: structArr1 <span class="keywd">is</span> <span class="type">structArrayType</span>.value;
+<span class="keywd">var</span> <span class="type">structArrayType</span>: structArr2 <span class="keywd">is</span> 10 <span class="op">times</span> <span class="type">aStructType</span>.value;
+<span class="keywd">var</span> <span class="type">structArrayType</span>: structArr3 <span class="keywd">is</span> [42 .. 365] <span class="op">times</span> <span class="type">aStructType</span>.value;
+</pre><p>
   An element of an array can be accessed with an <tt><a class="type" href="#types_integer">integer</a></tt> index.
   The minimal and maximal indices of an array are part of the value
   and can be obtained with the functions <tt><span class="func">minIdx</span></tt> and <tt><span class="func">maxIdx</span></tt>.
@@ -3605,8 +3630,18 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
   index of 1 and other functions which generate arrays with the minimal
   index taken from a parameter. The <tt><span class="type">array</span></tt> functions are defined
   in the library <span class="stri">"<span class="lib">array.s7i</span>"</span>. Arrays with non-integer index are defined
-  in the library <span class="stri">"<span class="lib">idxarray.s7i</span>"</span>.
-</p><pre class="tt">
+  in the library <span class="stri">"<span class="lib">idxarray.s7i</span>"</span>. An array type with <tt><a class="type" href="#types_char">char</a></tt> index and
+  <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> elements is defined as:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: charIndexArray <span class="keywd">is</span> <a class="type" href="#types_array">array</a> [<a class="type" href="#types_char">char</a>] <a class="type" href="#types_bigInteger">bigInteger</a>;
+</pre><p>
+  Variables of this type are declared with:
+</p><pre class="indent">
+<span class="keywd">var</span> <span class="type">charIndexArray</span>: bigArr1 <span class="keywd">is</span> <span class="type">charIndexArray</span>.value;
+<span class="keywd">var</span> <span class="type">charIndexArray</span>: bigArr2 <span class="keywd">is</span> <a class="type" href="#types_char">char</a> <span class="op">times</span> 42_;
+<span class="keywd">var</span> <span class="type">charIndexArray</span>: bigArr3 <span class="keywd">is</span> [<a class="type" href="#types_char">char</a>] (0_, 1_, 2_);
+<span class="keywd">var</span> <span class="type">charIndexArray</span>: bigArr4 <span class="keywd">is</span> [<span class="stri">' '</span>] (32_, 33_, 34_);
+</pre><pre class="tt">
     Literal:
       [] (elem1, elem2)  Create an array with the given elements
                     The starting index of the array is 1.
@@ -3637,13 +3672,23 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     A[pred(minIdx(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
                     A[succ(maxIdx(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> A .. B ]  Get a sub array from the position A to the position B
-                  ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a> )
+                  ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a>,
+                    X <span class="op">[</span> A .. B ] is okay for A >= <span class="func">minIdx</span>(X) and B >= <span class="func">pred</span>(A),
+                    anArray[<span class="func">pred</span>(<span class="func">minIdx</span>(anArray)) .. n] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    anArray[n .. n - 2] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> A <span class="keywd">len</span> B ]  Get a sub array from the position A with maximum length B
-                  ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a> )
+                  ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a>,
+                    X <span class="op">[</span> A <span class="keywd">len</span> B ] is okay for A >= <span class="func">minIdx</span>(X) and B >= 0,
+                    anArray[<span class="func">pred</span>(<span class="func">minIdx</span>(anArray)) len n] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
+                    anArray[n len -1] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> A .. ]  Get a sub array beginning at position A
-                  ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
+                  ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
+                    X <span class="op">[</span> A .. ] is okay for A >= <span class="func">minIdx</span>(X),
+                    anArray[<span class="func">pred</span>(<span class="func">minIdx</span>(anArray)) ..] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <span class="op">[</span> .. A ]  Get a sub array ending at position A
-                  ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
+                  ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
+                    X <span class="op">[</span> .. A ] is okay for A >= <span class="func">pred</span>(<span class="func">minIdx</span>(X)),
+                    anArray[.. <span class="func">minIdx</span>(anArray) - 2] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
     Relations:
       =, &lt;>
     Functions:
@@ -3666,7 +3711,17 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                   return the removed element
                   ( Type of argument B: <a class="type" href="#types_integer">integer</a>,
                     Type of result: <span class="type">baseType</span>,
-                    remove(0 <span class="op">times</span> <span class="var">TRUE</span>, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
+                    <span class="func">remove</span>(A,B) is okay for B >= <span class="func">minIdx</span>(A) and B &lt;= <span class="func">maxIdx</span>(A),
+                    <span class="func">remove</span>(anArray, 0) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> for <span class="func">minIdx</span>(anArray) = 1,
+                    <span class="func">remove</span>(anArray, 5) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> for <span class="func">maxIdx</span>(anArray) = 4 )
+      <span class="func">remove</span>(A,B,C) Remove the sub-array with with index B and length C from array A and
+                  return the removed sub-array
+                  ( Type of argument B: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument C: <a class="type" href="#types_integer">integer</a>,
+                    <span class="func">remove</span>(A,B,C) is okay for B >= <span class="func">minIdx</span>(A) and B &lt;= <span class="func">maxIdx</span>(A) and C >= 0,
+                    <span class="func">remove</span>(anArray, 0, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> for <span class="func">minIdx</span>(anArray) = 1,
+                    <span class="func">remove</span>(anArray, 6, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> for <span class="func">maxIdx</span>(anArray) = 4,
+                    <span class="func">remove</span>(anArray, 1, -1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> )
       <a class="func" href="#types_..">sort</a>(A)   Sort array using the compare(<span class="type">baseType</span>, <span class="type">baseType</span>) function
     Statements:
       A <span class="op">&amp;:=</span> B   Append B to A
@@ -3679,9 +3734,17 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="keywd">end for</span>   Loop over all elements of an array
                   ( Type of argument A: <span class="type">baseType</span>,
                     Type of argument C: <a class="type" href="#types_proc">proc</a> )
-      insert(A, B, C) Insert C to the array A at position B
+      <span class="func">insert</span>(A,B,C) Insert element C into array A at index B
                   ( Type of argument B: <a class="type" href="#types_integer">integer</a>,
-                    Type of argument C: <span class="type">baseType</span> )
+                    Type of argument C: <span class="type">baseType</span>,
+                    <span class="func">insert</span>(A,B,C) is okay for B >= <span class="func">minIdx</span>(A) and B &lt;= <span class="func">succ</span>(<span class="func">maxIdx</span>(A)),
+                    <span class="func">insert</span>(anArray, 0, anElement) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> for <span class="func">minIdx</span>(anArray) = 1,
+                    <span class="func">insert</span>(anArray, 6, anElement) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> for <span class="func">maxIdx</span>(anArray) = 4 )
+      <span class="func">insert</span>(A,B,C) Insert array C into array A at index B
+                  ( Type of argument B: <a class="type" href="#types_integer">integer</a>,
+                    <span class="func">insert</span>(A,B,C) is okay for B >= <span class="func">minIdx</span>(A) and B &lt;= <span class="func">succ</span>(<span class="func">maxIdx</span>(A)),
+                    <span class="func">insert</span>(anArray, 0, anotherAnarry) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> for <span class="func">minIdx</span>(anArray) = 1,
+                    <span class="func">insert</span>(anArray, 6, anotherAnarry) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a> for <span class="func">maxIdx</span>(anArray) = 4 )
       insert(A, B) Insert B into the sorted array A
                   ( Type of argument C: <span class="type">baseType</span> )
 </pre><p></p>
@@ -3690,11 +3753,17 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 <p>
     The type <tt><a class="type" href="#types_hash">hash</a> <span class="type">[keyType]</span> <span class="type">baseType</span></tt> describes hash tables with
   elements of <tt><span class="type">baseType</span></tt>. The elements can be accessed with an index
-  of <tt><span class="type">keyType</span></tt>.
-</p><dl>
-    <dt></dt><dd>For example: <tt><a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_string">string</a><span class="type">]</span> <a class="type" href="#types_integer">integer</a></tt> describes hash tables with
-    <tt><a class="type" href="#types_integer">integer</a></tt> elements and <tt><a class="type" href="#types_string">string</a></tt> keys.</dd>
-</dl><p>
+  of <tt><span class="type">keyType</span></tt>. An example of a hash type declaration is:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: aHashType <span class="keywd">is</span> <a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_string">string</a><span class="type">]</span> <a class="type" href="#types_integer">integer</a>;
+</pre><p>
+  This defines <tt><span class="type">aHashType</span></tt> as a hash type with <tt><a class="type" href="#types_integer">integer</a></tt> elements and
+  <tt><a class="type" href="#types_string">string</a></tt> keys. Variables of this type are declared with:
+</p><pre class="indent">
+<span class="keywd">var</span> <span class="type">aHashType</span>: aHashTable <span class="keywd">is</span> <span class="type">aHashType</span>.value;
+</pre><p>
+  The expressions <tt><span class="type">aHashType</span>.value</tt> and <tt><span class="type">aHashType</span>.EMPTY_HASH</tt> describe
+  empty hash tables. Beside them there are no hash table literals.
   The <tt><span class="type">keyType</span></tt> of a hash needs to provide the functions <tt><span class="func">hashCode</span></tt>
   and <tt><span class="func">compare</span></tt>. Besides this the <tt><span class="type">keyType</span></tt> can be any type. The
   <tt><span class="type">hash</span></tt> functions are defined in the library <span class="stri">"<span class="lib">hash.s7i</span>"</span>.
@@ -3752,7 +3821,18 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 <a name="types_set"><h3>5.12 set</h3></a>
 <p>
     The type <tt><a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">baseType</span></tt> describes a set of elements of a
-  <tt><span class="type">baseType</span></tt>. (including the empty set). The type <tt><a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">baseType</span></tt> is
+  <tt><span class="type">baseType</span></tt>. (including the empty set). An example of a set type
+  declaration is:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: aSetType <span class="keywd">is</span> <a class="type" href="#types_set">set</a> <span class="type">of</span> <a class="type" href="#types_integer">integer</a>;
+</pre><p>
+  This defines <tt><span class="type">aSetType</span></tt> as a set type with <tt><a class="type" href="#types_integer">integer</a></tt> elements.
+  Variables of this type are declared with:
+</p><pre class="indent">
+<span class="keywd">var</span> <span class="type">aSetType</span>: aSet <span class="keywd">is</span> <span class="type">aSetType</span>.value;
+<span class="keywd">var</span> <span class="type">aSetType</span>: aSet <span class="keywd">is</span> {1, 2, 3};
+</pre><p>
+  The type <tt><a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">baseType</span></tt> is
   defined in the library <span class="stri">"<span class="lib">set.s7i</span>"</span>. This abstract data type decides
   about the implementation of the set. When <tt><span class="type">baseType</span></tt> values can be
   mapped to <tt><a class="type" href="#types_integer">integer</a></tt> with the <tt><span class="func">ord</span></tt> function and <tt><span class="func">ord</span></tt> does never
@@ -3862,7 +3942,20 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 
 <a name="types_struct"><h3>5.13 struct</h3></a>
 <p>
-    The type <tt><a class="type" href="#types_struct">struct</a></tt> describes all structured types.
+    The type <tt><a class="type" href="#types_struct">struct</a></tt> describes all structured types. An example of a
+  struct type declaration is:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: aStructType <span class="keywd">is</span> <span class="keywd">new struct</span>
+    <span class="keywd">var</span> <a class="type" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
+  <span class="keywd">end struct</span>
+</pre><p>
+  Variables of this type are declared with:
+</p><pre class="indent">
+<span class="keywd">var</span> <span class="type">aStructType</span>: aStructVariable <span class="keywd">is</span> <span class="type">aStructType</span>.value;
+</pre><p>
+  In <tt><span class="type">aStructType</span>.value</tt> all elements have the initialisation values from
+  the struct declaration of <tt><span class="type">aStructType</span></tt>. Besides <tt><span class="type">aStructType</span>.value</tt>
+  there are no struct literals.
 </p><pre class="tt">
     Type generators:
       <span class="keywd">new struct</span>
@@ -4852,8 +4945,13 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 
 <a name="types_type"><h3>5.29 type</h3></a>
 <p>
-    The type <tt><a class="type" href="#types_type">type</a></tt> describes all types.
-</p><pre class="tt">
+    The type <tt><a class="type" href="#types_type">type</a></tt> describes all types. Examples of type declarations are:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: intArrayType <span class="keywd">is</span> <a class="type" href="#types_array">array</a> <a class="type" href="#types_integer">integer</a>;
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: arrayIndexChar <span class="keywd">is</span> <a class="type" href="#types_array">array</a> [<a class="type" href="#types_char">char</a>] <a class="type" href="#types_string">string</a>;
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: hashType <span class="keywd">is</span> <a class="type" href="#types_hash">hash</a> [<a class="type" href="#types_string">string</a>] <span class="type">intArrayType</span>;
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: setType <span class="keywd">is</span> <a class="type" href="#types_set">set</a> <span class="type">of</span> <a class="type" href="#types_char">char</a>;
+</pre><pre class="tt">
     Values:
       <a class="type" href="#types_void">void</a>, <a class="type" href="#types_boolean">boolean</a>, <a class="type" href="#types_integer">integer</a>, <a class="type" href="#types_rational">rational</a>, <a class="type" href="#types_float">float</a>, <a class="type" href="#types_char">char</a>,
       <a class="type" href="#types_string">string</a>, <a class="type" href="#types_reference">reference</a>, <a class="type" href="#types_ref_list">ref_list</a>, <a class="type" href="#types_color">color</a>, <a class="type" href="#types_time">time</a>, <a class="type" href="#types_duration">duration</a>
@@ -6855,7 +6953,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
     <span class="keywd">end while</span>;
   <span class="keywd">end func</span>;
 </pre><p>
-  The current position of the mouse curser, which is independend
+  The current position of the mouse cursor, which is independent
   from key presses can be retrieved with the following functions:
 </p><ul>
     <li><tt><span class="func">pointerXPos</span></tt>, which returns the actual X position of the
@@ -12895,9 +12993,9 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
   <tt><span class="type">bstring</span></tt> or <tt><a class="type" href="#types_ref_list">ref_list</a></tt> with a negative or zero index raises also <tt><span class="exception">INDEX_ERROR</span></tt>.
 </p><dl><dt>
     It may be raised from the following <tt><a class="type" href="#types_array">array</a></tt> operations:</dt><dd>
-        <span class="op">[index]</span>, <span class="func">remove</span>.</dd><dt>
+        <span class="op">[index]</span>, <span class="op">[index ..]</span>, <span class="op">[.. index]</span>, <span class="op">[start .. stop]</span>, <span class="op">[index len length]</span>, <span class="func">insert</span>, <span class="func">remove</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_string">string</a></tt> operations:</dt><dd>
-        <span class="op">[index]</span>, <span class="op">@:= [index] char</span>, <span class="op">@:= [index] string</span>.</dd><dt>
+        <span class="op">[index]</span>, <span class="op">[index ..]</span>, <span class="op">[.. index]</span>, <span class="op">[start .. stop]</span>, <span class="op">[index len length]</span>, <span class="op">@:= [index] char</span>, <span class="op">@:= [index] string</span>.</dd><dt>
     It may be raised from the following <tt><span class="type">bstring</span></tt> operation:</dt><dd>
         <span class="op">[index]</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations:</dt><dd>

@@ -101,6 +101,7 @@ const func char: (in string: stri) [ (in integer: index) ]       is action "STR_
  *  Get a substring beginning at a start position.
  *  The first character in a ''string'' has the position 1.
  *  @return the substring beginning at the start position.
+ *  @exception INDEX_ERROR The start position is negative or zero.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in string: stri) [ (in integer: start) .. ]  is action "STR_TAIL";
@@ -110,6 +111,7 @@ const func string: (in string: stri) [ (in integer: start) .. ]  is action "STR_
  *  Get a substring ending at a stop position.
  *  The first character in a ''string'' has the position 1.
  *  @return the substring ending at the stop position.
+ *  @exception INDEX_ERROR The stop position is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in string: stri) [ .. (in integer: stop) ]   is action "STR_HEAD";
@@ -119,6 +121,8 @@ const func string: (in string: stri) [ .. (in integer: stop) ]   is action "STR_
  *  Get a substring from a start position to a stop position.
  *  The first character in a ''string'' has the position 1.
  *  @return the substring from position start to stop.
+ *  @exception INDEX_ERROR The start position is negative or zero, or
+ *                         the stop position is less than pred(start).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in string: stri) [ (in integer: start) ..
@@ -129,6 +133,8 @@ const func string: (in string: stri) [ (in integer: start) ..
  *  Get a substring from a start position with a given length.
  *  The first character in a ''string'' has the position 1.
  *  @return the substring from the start position with a given length.
+ *  @exception INDEX_ERROR The start position is negative or zero, or
+ *                         the length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in string: stri) [ (in integer: start) len
@@ -267,7 +273,8 @@ const func boolean: startsWith (in string: stri, in string: prefix) is
  *          FALSE otherwise.
  *)
 const func boolean: endsWith (in string: stri, in string: suffix) is
-  return stri[succ(length(stri) - length(suffix)) ..] = suffix;
+  return length(stri) >= length(suffix) and
+         stri[succ(length(stri) - length(suffix)) ..] = suffix;
 
 
 (**

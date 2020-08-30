@@ -4330,7 +4330,7 @@ static void determineEnvironDefines (FILE *versionFile)
                            "    GetEnvironmentVariableW(L\"AsDfGhJkL\", buf2, 10) == 0);\n"
                            "return 0;}\n") && doTest() == 1) {
         /* Either define_wgetenv is already active or os_getenv_stri() */
-        /* is not able to recieve the correct result after */
+        /* is not able to receive the correct result after */
         /* SetEnvironmentVariableW() has been called. */
         define_wgetenv = 1;
         os_getenv_stri = "wgetenv";
@@ -4502,7 +4502,7 @@ static void determineEnvironDefines (FILE *versionFile)
 #endif
                       "return 0;}\n", os_putenv_stri, os_getenv_stri);
       if (assertCompAndLnk(buffer)) {
-        /* There are two posible implementations of putenv():   */
+        /* There are two possible implementations of putenv():  */
         /* 1. Putenv inserts its argument into the environment. */
         /*    In this case the argument of putenv() must not be */
         /*    changed afterwards.                               */

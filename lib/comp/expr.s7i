@@ -110,7 +110,7 @@ const proc: declare_type_if_necessary (in type: aType, inout expr_type: c_expr) 
               end if;
             end if;
           end if;
-        elsif isFunc(aType) then
+        elsif isFunc(aType) or isVarfunc(aType) then
           declare_type_if_necessary(resultType(aType), c_expr);
           defineVarFuncType(aType, c_expr);
           typeCategory @:= [aType] BLOCKOBJECT;

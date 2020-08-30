@@ -3209,7 +3209,7 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
         ord(boolExpr( TRUE)) - abs(intExpr(1)) + -9223372036854775807 <> -9223372036854775807 or
         ord(boolExpr( TRUE)) - abs(intExpr(1)) +         integer.last <>         integer.last or
         ord(boolExpr(FALSE)) - abs(intExpr(1)) +         integer.last <>  9223372036854775806 then
-      writeln(" ***** Reduced overflow check for sums failed: ord(booolean)");
+      writeln(" ***** Reduced overflow check for sums failed: ord(boolean)");
       okay := FALSE;
     end if;
 

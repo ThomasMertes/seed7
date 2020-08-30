@@ -730,7 +730,9 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkbin ........... okay
     chkchr ........... okay
     chkstr ........... okay
+    chkidx ........... okay
     chkbst ........... okay
+    chkarr ........... okay
     chkprc ........... okay
     chkbig ........... okay
     chkbool ........... okay

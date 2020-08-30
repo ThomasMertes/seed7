@@ -101,6 +101,7 @@ const func type: array (in type: baseType) is func
       (**
        *  Get a sub array beginning at the position ''start''.
        *  @return the sub array beginning at the start position.
+       *  @exception INDEX_ERROR The start position is less than minIdx(arr).
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in arrayType: arr) [ (in integer: start) .. ]    is action "ARR_TAIL";
@@ -108,6 +109,7 @@ const func type: array (in type: baseType) is func
       (**
        *  Get a sub array ending at the position ''stop''.
        *  @return the sub array ending at the stop position.
+       *  @exception INDEX_ERROR The stop position is less than pred(minIdx(arr)).
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in arrayType: arr) [ .. (in integer: stop) ]     is action "ARR_HEAD";
@@ -115,6 +117,8 @@ const func type: array (in type: baseType) is func
       (**
        *  Get a sub array from the position ''start'' to the position ''stop''.
        *  @return the sub array from position ''start'' to ''stop''.
+       *  @exception INDEX_ERROR The start position is less than minIdx(arr1), or
+       *                         the stop position is less than pred(start).
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in arrayType: arr) [ (in integer: start) ..
@@ -123,10 +127,28 @@ const func type: array (in type: baseType) is func
       (**
        *  Get a sub array from the position ''start'' with maximum length ''len''.
        *  @return the sub array from position ''start'' with maximum length ''len''.
+       *  @exception INDEX_ERROR The start position is less than minIdx(arr), or
+       *                         the length is negative.
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in arrayType: arr) [ (in integer: start) len
                                                   (in integer: length) ]      is action "ARR_SUBARR";
+
+      (**
+       *  Insert ''element'' at ''index'' into ''arr''.
+       *  @exception INDEX_ERROR If ''index'' is less than minIdx(arr) or
+       *                         greater than succ(maxIdx(arr))
+       *)
+      const proc: insert (inout arrayType: arr, in integer: index,
+                          in baseType: element)                               is action "ARR_INSERT";
+
+      (**
+       *  Insert ''elements'' at ''index'' into ''arr''.
+       *  @exception INDEX_ERROR If ''index'' is less than minIdx(arr) or
+       *                         greater than succ(maxIdx(arr))
+       *)
+      const proc: insert (inout arrayType: arr, in integer: index,
+                          in arrayType: elements)                             is action "ARR_INSERT_ARRAY";
 
       (**
        *  Remove the element with ''index'' from ''arr'' and return the removed element.
@@ -137,12 +159,13 @@ const func type: array (in type: baseType) is func
       const func baseType: remove (inout arrayType: arr, in integer: index)   is action "ARR_REMOVE";
 
       (**
-       *  Insert ''element'' at ''index'' into ''arr''.
-       *  @exception INDEX_ERROR If ''index'' is less than minIdx(arr) or
-       *                         greater than succ(maxIdx(arr))
+       *  Remove the sub-array with ''index'' and ''length'' from ''arr''.
+       *  @return the removed sub-array.
+       *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
+       *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
        *)
-      const proc: insert (inout arrayType: arr, in integer: index,
-                          in baseType: element)                               is action "ARR_INSERT";
+      const func arrayType: remove (inout arrayType: arr, in integer: index,
+                                    in integer: length)                       is action "ARR_REMOVE_ARRAY";
 
       (**
        *  Determine the length of the array ''arr''.
@@ -374,15 +397,6 @@ const func type: array (in type: baseType) is func
        *)
       const func baseType: rand (in arrayType: arr) is
         return arr[rand(minIdx(arr), maxIdx(arr))];
-
-      const proc: insert (inout arrayType: arr, in integer: index, in arrayType: elements) is func
-        begin
-          if index >= minIdx(arr) and index <= succ(maxIdx(arr)) then
-            arr := arr[.. pred(index)] & elements & arr[index ..];
-          else
-            raise RANGE_ERROR;
-          end if;
-        end func;
 
       if getobj((in baseType: element1) = (in baseType: element2)) <> NIL and
           getobj((in baseType: element1) <> (in baseType: element2)) <> NIL then

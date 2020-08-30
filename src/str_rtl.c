@@ -53,7 +53,7 @@
 
 #define CHAR_DELTA_BEYOND  128
 #define INITIAL_ARRAY_SIZE 256
-#define ARRAY_SIZE_DELTA   256
+#define ARRAY_SIZE_FACTOR    2
 #define BOYER_MOORE_SEARCHED_STRI_THRESHOLD    2
 #define BOYER_MOORE_MAIN_STRI_THRESHOLD     1400
 
@@ -675,18 +675,18 @@ static rtlArrayType addCopiedStriToRtlArray (const strElemType *const stri_elems
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems, length * sizeof(strElemType));
       if (used_max_position >= work_array->max_position) {
-        if (unlikely(work_array->max_position > MAX_RTL_ARR_INDEX - ARRAY_SIZE_DELTA ||
+        if (unlikely(work_array->max_position > MAX_RTL_ARR_INDEX / ARRAY_SIZE_FACTOR ||
             (resized_work_array = REALLOC_RTL_ARRAY(work_array,
                 (uintType) work_array->max_position,
-                (uintType) work_array->max_position + ARRAY_SIZE_DELTA)) == NULL)) {
+                (uintType) work_array->max_position * ARRAY_SIZE_FACTOR)) == NULL)) {
           FREE_STRI(new_stri, new_stri->size);
           freeRtlStriArray(work_array, used_max_position);
           work_array = NULL;
         } else {
           work_array = resized_work_array;
           COUNT3_RTL_ARRAY((uintType) work_array->max_position,
-                           (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
-          work_array->max_position += ARRAY_SIZE_DELTA;
+                           (uintType) work_array->max_position * ARRAY_SIZE_FACTOR);
+          work_array->max_position *= ARRAY_SIZE_FACTOR;
           work_array->arr[used_max_position].value.striValue = new_stri;
         } /* if */
       } else {
@@ -2244,6 +2244,7 @@ intType strHashCode (const const_striType stri)
  *  The first character in a string has the position 1.
  *  This function is used by the compiler to avoid copying string data.
  *  The 'slice' is initialized to refer to the head of 'stri'
+ *  @exception INDEX_ERROR The stop position is negative.
  */
 void strHeadSlice (const const_striType stri, const intType stop, striType slice)
 
@@ -2263,6 +2264,9 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
       } else {
         slice->size = (memSizeType) stop;
       } /* if */
+    } else if (unlikely(stop < 0)) {
+      logError(printf("strHeadSlice: Stop negative."););
+      raise_error(INDEX_ERROR);
     } else {
       SET_SLICE_CAPACITY(slice, 0);
       slice->mem = NULL;
@@ -2279,6 +2283,7 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
  *  Get a substring ending at a stop position.
  *  The first character in a string has the position 1.
  *  @return the substring ending at the stop position.
+ *  @exception INDEX_ERROR The stop position is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType strHead (const const_striType stri, const intType stop)
@@ -2305,6 +2310,10 @@ striType strHead (const const_striType stri, const intType stop)
         head->size = headSize;
         memcpy(head->mem, stri->mem, headSize * sizeof(strElemType));
       } /* if */
+    } else if (unlikely(stop < 0)) {
+      logError(printf("strHead: Stop negative."););
+      raise_error(INDEX_ERROR);
+      head = NULL;
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(head, (memSizeType) 0))) {
         raise_error(MEMORY_ERROR);
@@ -2324,6 +2333,7 @@ striType strHead (const const_striType stri, const intType stop)
  *  StrHeadTemp is used by the compiler if 'stri' is temporary
  *  value that can be reused.
  *  @return the substring ending at the stop position.
+ *  @exception INDEX_ERROR The stop position is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType strHeadTemp (const striType stri, const intType stop)
@@ -2341,6 +2351,11 @@ striType strHeadTemp (const striType stri, const intType stop)
       } else {
         headSize = (memSizeType) stop;
       } /* if */
+    } else if (unlikely(stop < 0)) {
+      logError(printf("strHeadTemp: Stop negative."););
+      FREE_STRI(stri, stri->size);
+      raise_error(INDEX_ERROR);
+      return NULL;
     } else {
       headSize = 0;
     } /* if */
@@ -2756,6 +2771,7 @@ striType strLpadTemp (const striType stri, const intType padSize)
     if (padSize > 0 && (uintType) padSize > striSize) {
       if (unlikely((uintType) padSize > MAX_STRI_LEN ||
                    !ALLOC_STRI_SIZE_OK(result, (memSizeType) padSize))) {
+        FREE_STRI(stri, striSize);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -2852,6 +2868,7 @@ striType strLpad0Temp (const striType stri, const intType padSize)
     if (padSize > 0 && (uintType) padSize > striSize) {
       if (unlikely((uintType) padSize > MAX_STRI_LEN ||
                    !ALLOC_STRI_SIZE_OK(result, (memSizeType) padSize))) {
+        FREE_STRI(stri, striSize);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -3180,6 +3197,8 @@ void strPush (striType *const destination, const charType extension)
  *  The first character in a string has the position 1.
  *  This function is used by the compiler to avoid copying string data.
  *  The 'slice' is initialized to refer to the range of 'stri'
+ *  @exception INDEX_ERROR The start position is negative or zero, or
+ *                         the stop position is less than pred(start).
  */
 void strRangeSlice (const const_striType stri, intType start, intType stop, striType slice)
 
@@ -3192,17 +3211,21 @@ void strRangeSlice (const const_striType stri, intType start, intType stop, stri
                 fflush(stdout););
     striSize = stri->size;
     if (unlikely(start < 1)) {
-      start = 1;
-    } /* if */
-    SET_SLICE_CAPACITY(slice, 0);
-    if (stop >= start && (uintType) start <= striSize) {
+      logError(printf("strRangeSlice: Start negative or zero."););
+      raise_error(INDEX_ERROR);
+    } else if (stop >= start && (uintType) start <= striSize) {
+      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = &stri->mem[start - 1];
       if ((uintType) stop > striSize) {
         slice->size = striSize - (memSizeType) start + 1;
       } else {
         slice->size = (memSizeType) stop - (memSizeType) start + 1;
       } /* if */
+    } else if (unlikely(stop < start - 1)) {
+      logError(printf("strRangeSlice: Stop less then pred(start)."););
+      raise_error(INDEX_ERROR);
     } else {
+      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
@@ -3217,6 +3240,8 @@ void strRangeSlice (const const_striType stri, intType start, intType stop, stri
  *  Get a substring from a start position to a stop position.
  *  The first character in a string has the position 1.
  *  @return the substring from position start to stop.
+ *  @exception INDEX_ERROR The start position is negative or zero, or
+ *                         the stop position is less than pred(start).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType strRange (const const_striType stri, intType start, intType stop)
@@ -3229,9 +3254,10 @@ striType strRange (const const_striType stri, intType start, intType stop)
   /* strRange */
     striSize = stri->size;
     if (unlikely(start < 1)) {
-      start = 1;
-    } /* if */
-    if (stop >= start && (uintType) start <= striSize) {
+      logError(printf("strRange: Start negative or zero."););
+      raise_error(INDEX_ERROR);
+      result = NULL;
+    } else if (stop >= start && (uintType) start <= striSize) {
       if ((uintType) stop > striSize) {
         result_size = striSize - (memSizeType) start + 1;
       } else {
@@ -3250,6 +3276,10 @@ striType strRange (const const_striType stri, intType start, intType stop)
       memcpy(result->mem, &stri->mem[start - 1],
              result_size * sizeof(strElemType));
       result->size = result_size;
+    } else if (unlikely(stop < start - 1)) {
+      logError(printf("strRange: Stop less then pred(start)."););
+      raise_error(INDEX_ERROR);
+      result = NULL;
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         raise_error(MEMORY_ERROR);
@@ -3920,6 +3950,8 @@ rtlArrayType strSplit (const const_striType mainStri,
  *  The first character in a string has the position 1.
  *  This function is used by the compiler to avoid copying string data.
  *  The 'slice' is initialized to refer to the substring of 'stri'
+ *  @exception INDEX_ERROR The start position is negative or zero, or
+ *                         the length is negative.
  */
 void strSubstrSlice (const const_striType stri, intType start, intType length, striType slice)
 
@@ -3930,26 +3962,23 @@ void strSubstrSlice (const const_striType stri, intType start, intType length, s
     logFunction(printf("strSubstrSlice(\"%s\", " FMT_D ", " FMT_D ")",
                        striAsUnquotedCStri(stri), start, length);
                 fflush(stdout););
-    striSize = stri->size;
-    if (unlikely(start < 1)) {
-      if (length >= 1 && start > 1 - length) {
-        length += start - 1;
-        start = 1;
-      } else {
-        length = 0;
-      } /* if */
-    } /* if */
-    SET_SLICE_CAPACITY(slice, 0);
-    if (length >= 1 && (uintType) start <= striSize) {
-      slice->mem = &stri->mem[start - 1];
-      if ((uintType) length > striSize - (memSizeType) start + 1) {
-        slice->size = striSize - (memSizeType) start + 1;
-      } else {
-        slice->size = (memSizeType) length;
-      } /* if */
+    if (unlikely(start < 1 || length < 0)) {
+      logError(printf("strSubstrSlice: Start negative or zero or length negative."););
+      raise_error(INDEX_ERROR);
     } else {
-      slice->mem = NULL;
-      slice->size = 0;
+      striSize = stri->size;
+      SET_SLICE_CAPACITY(slice, 0);
+      if (length != 0 && (uintType) start <= striSize) {
+        slice->mem = &stri->mem[start - 1];
+        if ((uintType) length > striSize - (memSizeType) start + 1) {
+          slice->size = striSize - (memSizeType) start + 1;
+        } else {
+          slice->size = (memSizeType) length;
+        } /* if */
+      } else {
+        slice->mem = NULL;
+        slice->size = 0;
+      } /* if */
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strSubstrSlice */
@@ -3962,6 +3991,8 @@ void strSubstrSlice (const const_striType stri, intType start, intType length, s
  *  Get a substring from a start position with a given length.
  *  The first character in a string has the position 1.
  *  @return the substring from the start position with a given length.
+ *  @exception INDEX_ERROR The start position is negative or zero, or
+ *                         the length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType strSubstr (const const_striType stri, intType start, intType length)
@@ -3972,33 +4003,31 @@ striType strSubstr (const const_striType stri, intType start, intType length)
     striType result;
 
   /* strSubstr */
-    striSize = stri->size;
-    if (unlikely(start < 1)) {
-      if (length >= 1 && start > 1 - length) {
-        length += start - 1;
-        start = 1;
-      } else {
-        length = 0;
-      } /* if */
-    } /* if */
-    if (length >= 1 && (uintType) start <= striSize) {
-      if ((uintType) length > striSize - (memSizeType) start + 1) {
-        result_size = striSize - (memSizeType) start + 1;
-      } else {
-        result_size = (memSizeType) length;
-      } /* if */
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
-        raise_error(MEMORY_ERROR);
-        return NULL;
-      } /* if */
-      memcpy(result->mem, &stri->mem[start - 1],
-             result_size * sizeof(strElemType));
-      result->size = result_size;
+    if (unlikely(start < 1 || length < 0)) {
+      logError(printf("strSubstr: Start negative or zero or length negative."););
+      raise_error(INDEX_ERROR);
+      result = NULL;
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
-        raise_error(MEMORY_ERROR);
+      striSize = stri->size;
+      if (length != 0 && (uintType) start <= striSize) {
+        if ((uintType) length > striSize - (memSizeType) start + 1) {
+          result_size = striSize - (memSizeType) start + 1;
+        } else {
+          result_size = (memSizeType) length;
+        } /* if */
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
+          raise_error(MEMORY_ERROR);
+          return NULL;
+        } /* if */
+        memcpy(result->mem, &stri->mem[start - 1],
+               result_size * sizeof(strElemType));
+        result->size = result_size;
       } else {
-        result->size = 0;
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = 0;
+        } /* if */
       } /* if */
     } /* if */
     return result;
@@ -4012,6 +4041,7 @@ striType strSubstr (const const_striType stri, intType start, intType length)
  *  The first character in a 'string' has the position 1.
  *  This function is used by the compiler to avoid copying string data.
  *  The 'slice' is initialized to refer to the tail of 'stri'
+ *  @exception INDEX_ERROR The start position is negative or zero.
  */
 void strTailSlice (const const_striType stri, intType start, striType slice)
 
@@ -4024,9 +4054,9 @@ void strTailSlice (const const_striType stri, intType start, striType slice)
                 fflush(stdout););
     striSize = stri->size;
     if (unlikely(start < 1)) {
-      start = 1;
-    } /* if */
-    if ((uintType) start <= striSize && striSize >= 1) {
+      logError(printf("strTailSlice: Start negative or zero."););
+      raise_error(INDEX_ERROR);
+    } else if ((uintType) start <= striSize && striSize >= 1) {
       SET_SLICE_CAPACITY(slice, 0);
       slice->mem = &stri->mem[start - 1];
       slice->size = striSize - (memSizeType) start + 1;
@@ -4046,6 +4076,7 @@ void strTailSlice (const const_striType stri, intType start, striType slice)
  *  Get a substring beginning at a start position.
  *  The first character in a 'string' has the position 1.
  *  @return the substring beginning at the start position.
+ *  @exception INDEX_ERROR The start position is negative or zero.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType strTail (const const_striType stri, intType start)
@@ -4058,9 +4089,10 @@ striType strTail (const const_striType stri, intType start)
   /* strTail */
     striSize = stri->size;
     if (unlikely(start < 1)) {
-      start = 1;
-    } /* if */
-    if ((uintType) start <= striSize && striSize >= 1) {
+      logError(printf("strTail: Start negative or zero."););
+      raise_error(INDEX_ERROR);
+      tail = NULL;
+    } else if ((uintType) start <= striSize && striSize >= 1) {
       tailSize = striSize - (memSizeType) start + 1;
       if (unlikely(!ALLOC_STRI_SIZE_OK(tail, tailSize))) {
         raise_error(MEMORY_ERROR);
@@ -4084,6 +4116,74 @@ striType strTail (const const_striType stri, intType start)
     } /* if */
     return tail;
   } /* strTail */
+
+
+
+/**
+ *  Get a substring beginning at a start position.
+ *  The first character in a 'string' has the position 1.
+ *  StrTailTemp is used by the compiler if 'stri' is temporary
+ *  value that can be reused.
+ *  @return the substring beginning at the start position.
+ *  @exception INDEX_ERROR The start position is negative or zero.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType strTailTemp (const striType stri, intType start)
+
+  {
+    memSizeType striSize;
+    memSizeType tailSize;
+    striType tail;
+
+  /* strTailTemp */
+    if (start <= 1) {
+      if (unlikely(start < 1)) {
+        logError(printf("strTailTemp: Start negative or zero."););
+        FREE_STRI(stri, stri->size);
+        raise_error(INDEX_ERROR);
+        tail = NULL;
+      } else {
+        tail = stri;
+      } /* if */
+    } else {
+      striSize = stri->size;
+      if ((uintType) start <= striSize && striSize >= 1) {
+        tailSize = striSize - (memSizeType) start + 1;
+        memmove(stri->mem, &stri->mem[start - 1],
+                tailSize * sizeof(strElemType));
+      } else {
+        tailSize = 0;
+      } /* if */
+      stri->size = tailSize;
+#if WITH_STRI_CAPACITY
+      if (!SHRINK_REASON(stri, tailSize)) {
+        COUNT_GROW2_STRI(striSize, tailSize);
+        tail = stri;
+      } else {
+        tail = shrinkStri(stri, tailSize);
+        if (unlikely(tail == NULL)) {
+          /* Theoretical shrinking a memory area should never fail.  */
+          /* For the strange case that it fails we keep stri intact  */
+          /* with the oversized capacity.                            */
+          tail = stri;
+        } else {
+          COUNT_SHRINK_STRI(striSize, tailSize);
+        } /* if */
+      } /* if */
+#else
+      SHRINK_STRI(tail, stri, striSize, tailSize);
+      if (unlikely(tail == NULL)) {
+        /* Theoretical shrinking a memory area should never fail.  */
+        /* For the strange case that it fails we keep stri intact  */
+        /* with the oversized memory usage.                        */
+        tail = stri;
+      } else {
+        COUNT_SHRINK_STRI(striSize, tailSize);
+      } /* if */
+#endif
+    } /* if */
+    return tail;
+  } /* strTailTemp */
 
 
 

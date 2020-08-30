@@ -748,6 +748,7 @@ objectType arr_gen (listType arguments)
 /**
  *  Get a sub array ending at the position 'stop'.
  *  @return the sub array ending at the stop position.
+ *  @exception INDEX_ERROR The stop position is less than pred(minIdx(arr1)).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType arr_head (listType arguments)
@@ -755,7 +756,7 @@ objectType arr_head (listType arguments)
   {
     arrayType arr1;
     intType stop;
-    memSizeType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     arrayType resized_result;
     arrayType result;
@@ -765,8 +766,8 @@ objectType arr_head (listType arguments)
     isit_int(arg_4(arguments));
     arr1 = take_array(arg_1(arguments));
     stop = take_int(arg_4(arguments));
-    length = arraySize(arr1);
-    if (stop >= arr1->min_position && length >= 1) {
+    arr1_size = arraySize(arr1);
+    if (stop >= arr1->min_position && arr1_size >= 1) {
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
@@ -774,15 +775,15 @@ objectType arr_head (listType arguments)
       if (TEMP_OBJECT(arg_1(arguments))) {
         result = arr1;
         arg_1(arguments)->value.arrayValue = NULL;
-        destr_array(&result->arr[result_size], length - result_size);
-        resized_result = REALLOC_ARRAY(result, length, result_size);
+        destr_array(&result->arr[result_size], arr1_size - result_size);
+        resized_result = REALLOC_ARRAY(result, arr1_size, result_size);
         if (unlikely(resized_result == NULL)) {
           destr_array(result->arr, result_size);
-          FREE_ARRAY(result, length);
+          FREE_ARRAY(result, arr1_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
         result = resized_result;
-        COUNT3_ARRAY(length, result_size);
+        COUNT3_ARRAY(arr1_size, result_size);
         result->max_position = stop;
       } else {
         if (unlikely(!ALLOC_ARRAY(result, result_size))) {
@@ -795,10 +796,12 @@ objectType arr_head (listType arguments)
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
+    } else if (unlikely(stop < arr1->min_position - 1)) {
+      return raise_exception(SYS_IDX_EXCEPTION);
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arr_head(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      length, stop););
+                      arr1_size, stop););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       if (unlikely(!ALLOC_ARRAY(result, 0))) {
@@ -940,6 +943,110 @@ objectType arr_insert (listType arguments)
 
 
 /**
+ *  Insert 'elements' at 'position' into 'arr1'.
+ *  @exception INDEX_ERROR If 'position' is less than minIdx(arr1) or
+ *                         greater than succ(maxIdx(arr1))
+ */
+objectType arr_insert_array (listType arguments)
+
+  {
+    objectType arr_variable;
+    arrayType arr1;
+    arrayType resized_arr1;
+    intType position;
+    arrayType elements;
+    objectType array_pointer;
+    memSizeType new_size;
+    memSizeType arr1_size;
+    memSizeType elements_size;
+    boolType restore = FALSE;
+
+  /* arr_insert_array */
+    logFunction(printf("arr_insert_array\n"););
+    arr_variable = arg_1(arguments);
+    isit_array(arr_variable);
+    is_variable(arr_variable);
+    arr1 = take_array(arr_variable);
+    isit_int(arg_2(arguments));
+    isit_array(arg_3(arguments));
+    position = take_int(arg_2(arguments));
+    elements = take_array(arg_3(arguments));
+    elements_size = arraySize(elements);
+    if (unlikely(position < arr1->min_position ||
+                 position > arr1->max_position + 1)) {
+      logError(printf("arr_insert(arr1, " FMT_D "): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position + 1););
+      return raise_exception(SYS_IDX_EXCEPTION);
+    } else if (elements_size != 0) {
+      arr1_size = arraySize(arr1);
+      if (unlikely(arr1_size > MAX_ARR_LEN - elements_size ||
+                   arr1->max_position > (intType) (MAX_MEM_INDEX - elements_size))) {
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        new_size = arr1_size + elements_size;
+        resized_arr1 = REALLOC_ARRAY(arr1, arr1_size, new_size);
+        if (unlikely(resized_arr1 == NULL)) {
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          COUNT3_ARRAY(arr1_size, new_size);
+          arr_variable->value.arrayValue = resized_arr1;
+          array_pointer = resized_arr1->arr;
+          memmove(&array_pointer[arrayIndex(resized_arr1, position) + elements_size],
+                  &array_pointer[arrayIndex(resized_arr1, position)],
+                  arraySize2(position, resized_arr1->max_position) * sizeof(objectRecord));
+          if (TEMP_OBJECT(arg_3(arguments))) {
+            memcpy(&array_pointer[arrayIndex(resized_arr1, position)], elements->arr,
+                   (size_t) (elements_size * sizeof(objectRecord)));
+            resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position, new_size);
+            FREE_ARRAY(elements, elements_size);
+            arg_3(arguments)->value.arrayValue = NULL;
+          } else {
+            /* It is possible that arr1 == elements holds. */
+            /* In this case the new hole in arr1 must be   */
+            /* considered.                                   */
+            if (unlikely(arr1 == elements)) {
+              if (unlikely(!crea_array(&array_pointer[arrayIndex(resized_arr1, position)],
+                                       array_pointer, arrayIndex(resized_arr1, position)))) {
+                restore = TRUE;
+              } else {
+                if (unlikely(!crea_array(&array_pointer[2 * arrayIndex(resized_arr1, position)],
+                                         &array_pointer[arrayIndex(resized_arr1, position) + elements_size],
+                                         elements_size - arrayIndex(resized_arr1, position)))) {
+                  destr_array(&array_pointer[arrayIndex(resized_arr1, position)],
+                              arrayIndex(resized_arr1, position));
+                  restore = TRUE;
+                } /* if */
+              } /* if */
+            } else if (unlikely(!crea_array(&array_pointer[arrayIndex(resized_arr1, position)],
+                                            elements->arr, elements_size))) {
+              restore = TRUE;
+            } /* if */
+            if (unlikely(restore)) {
+              memmove(&array_pointer[arrayIndex(resized_arr1, position)],
+                      &array_pointer[arrayIndex(resized_arr1, position) + elements_size],
+                      arraySize2(position, resized_arr1->max_position) * sizeof(objectRecord));
+              arr1 = REALLOC_ARRAY(resized_arr1, new_size, arr1_size);
+              if (unlikely(arr1 == NULL)) {
+                return raise_exception(SYS_MEM_EXCEPTION);
+              } /* if */
+              COUNT3_ARRAY(new_size, arr1_size);
+              arr_variable->value.arrayValue = arr1;
+              return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+            } else {
+              resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position, new_size);
+            } /* if */
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("arr_insert_array -->\n"););
+    return SYS_EMPTY_OBJECT;
+  } /* arr_insert_array */
+
+
+
+/**
  *  Determine the length of the array 'arr'.
  *  @return the length of the array.
  */
@@ -1060,6 +1167,8 @@ objectType arr_push (listType arguments)
 /**
  *  Get a sub array from the position 'start' to the position 'stop'.
  *  @return the sub array from position 'start' to 'stop'.
+ *  @exception INDEX_ERROR The start position is less than minIdx(arr1), or
+ *                         the stop position is less than pred(start).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType arr_range (listType arguments)
@@ -1068,7 +1177,7 @@ objectType arr_range (listType arguments)
     arrayType arr1;
     intType start;
     intType stop;
-    memSizeType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     memSizeType start_idx;
     memSizeType stop_idx;
@@ -1081,12 +1190,10 @@ objectType arr_range (listType arguments)
     arr1 = take_array(arg_1(arguments));
     start = take_int(arg_3(arguments));
     stop = take_int(arg_5(arguments));
-    length = arraySize(arr1);
-    if (stop >= start && start <= arr1->max_position &&
-        stop >= arr1->min_position && length >= 1) {
-      if (start < arr1->min_position) {
-        start = arr1->min_position;
-      } /* if */
+    arr1_size = arraySize(arr1);
+    if (unlikely(start < arr1->min_position)) {
+      return raise_exception(SYS_IDX_EXCEPTION);
+    } else if (stop >= start && start <= arr1->max_position && arr1_size >= 1) {
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
@@ -1102,8 +1209,8 @@ objectType arr_range (listType arguments)
         memcpy(result->arr, &arr1->arr[start_idx],
                (size_t) (result_size * sizeof(objectRecord)));
         destr_array(arr1->arr, start_idx);
-        destr_array(&arr1->arr[stop_idx + 1], length - stop_idx - 1);
-        FREE_ARRAY(arr1, length);
+        destr_array(&arr1->arr[stop_idx + 1], arr1_size - stop_idx - 1);
+        FREE_ARRAY(arr1, arr1_size);
         arg_1(arguments)->value.arrayValue = NULL;
       } else {
         if (unlikely(!crea_array(result->arr,
@@ -1112,10 +1219,12 @@ objectType arr_range (listType arguments)
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
+    } else if (unlikely(stop < start - 1)) {
+      return raise_exception(SYS_IDX_EXCEPTION);
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arr_range(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      length, start, stop););
+                      arr1_size, start, stop););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       if (unlikely(!ALLOC_ARRAY(result, 0))) {
@@ -1197,6 +1306,91 @@ objectType arr_remove (listType arguments)
 
 
 
+/**
+ *  Remove the sub-array with 'position' and 'length' from 'arr1'.
+ *  @return the removed sub-array.
+ *  @exception INDEX_ERROR If 'position' is less than arr_minidx(arr2) or
+ *                         greater than arr_maxidx(arr2)
+ */
+objectType arr_remove_array (listType arguments)
+
+  {
+    arrayType arr1;
+    arrayType resized_arr1;
+    intType position;
+    intType length;
+    objectType array_pointer;
+    memSizeType arr1_size;
+    memSizeType result_size;
+    arrayType result;
+
+  /* arr_remove_array */
+    logFunction(printf("arr_remove_array\n"););
+    isit_array(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    is_variable(arg_1(arguments));
+    arr1 = take_array(arg_1(arguments));
+    position = take_int(arg_2(arguments));
+    length = take_int(arg_3(arguments));
+    if (unlikely(length < 0)) {
+      logError(printf("arr_remove_array(arr1, " FMT_D ", " FMT_D "): "
+                      "Length is negative.\n", position, length););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else if (unlikely(position < arr1->min_position ||
+                        position > arr1->max_position)) {
+      logError(printf("arr_remove_array(arr1, " FMT_D "): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position););
+      return raise_exception(SYS_IDX_EXCEPTION);
+    } else {
+      arr1_size = arraySize(arr1);
+      if (length > MAX_ARR_LEN) {
+        result_size = MAX_ARR_LEN;
+      } else {
+        result_size = (memSizeType) (uintType) (length);
+      } /* if */
+      if (result_size > arraySize2(position, arr1->max_position)) {
+        result_size = arraySize2(position, arr1->max_position);
+      } /* if */
+      if (unlikely(!ALLOC_ARRAY(result, result_size))) {
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        result->min_position = arr1->min_position;
+        result->max_position = arrayMaxPos(arr1->min_position, result_size);
+        array_pointer = arr1->arr;
+        memcpy(result->arr, &array_pointer[arrayIndex(arr1, position)],
+               result_size * sizeof(objectRecord));
+        memmove(&array_pointer[arrayIndex(arr1, position)],
+                &array_pointer[arrayIndex(arr1, position) + result_size],
+                (arraySize2(position, arr1->max_position) - result_size) * sizeof(objectRecord));
+        arr1_size = arraySize(arr1);
+        resized_arr1 = REALLOC_ARRAY(arr1, arr1_size, arr1_size - result_size);
+        if (unlikely(resized_arr1 == NULL)) {
+          /* A realloc, which shrinks memory, usually succeeds. */
+          /* The probability that this code path is executed is */
+          /* probably zero. The code below restores the old     */
+          /* value of arr1.                                     */
+          memmove(&array_pointer[arrayIndex(arr1, position) + result_size],
+                  &array_pointer[arrayIndex(arr1, position)],
+                  (arraySize2(position, arr1->max_position) - result_size) * sizeof(objectRecord));
+          memcpy(&array_pointer[arrayIndex(arr1, position)], result->arr,
+                 result_size * sizeof(objectRecord));
+          FREE_ARRAY(result, result_size);
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          arr1 = resized_arr1;
+          COUNT3_ARRAY(arr1_size, arr1_size - result_size);
+          arr1->max_position = arrayMaxPos(arr1->min_position, arr1_size - result_size);
+          arg_1(arguments)->value.arrayValue = arr1;
+        } /* if */
+      } /* if */
+    } /* if */
+    return bld_array_temp(result);
+  } /* arr_remove_array */
+
+
+
 objectType arr_sort (listType arguments)
 
   {
@@ -1235,8 +1429,10 @@ objectType arr_sort (listType arguments)
 
 
 /**
- *  Get a sub array from the position 'start' with maximum length 'len'.
- *  @return the sub array from position 'start' with maximum length 'len'.
+ *  Get a sub array from the position 'start' with maximum length 'length'.
+ *  @return the sub array from position 'start' with maximum length 'length'.
+ *  @exception INDEX_ERROR The start position is less than minIdx(arr1), or
+ *                         the length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType arr_subarr (listType arguments)
@@ -1244,8 +1440,8 @@ objectType arr_subarr (listType arguments)
   {
     arrayType arr1;
     intType start;
-    intType len;
-    memSizeType length;
+    intType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     memSizeType start_idx;
     memSizeType stop_idx;
@@ -1257,32 +1453,29 @@ objectType arr_subarr (listType arguments)
     isit_int(arg_5(arguments));
     arr1 = take_array(arg_1(arguments));
     start = take_int(arg_3(arguments));
-    len = take_int(arg_5(arguments));
-    length = arraySize(arr1);
-    if (len >= 1 && start <= arr1->max_position  && length >= 1 &&
-        (start >= arr1->min_position ||
-        (uintType) len > (uintType) (arr1->min_position - start))) {
-      if (start < arr1->min_position) {
-        start = arr1->min_position;
-        len -= arr1->min_position - start;
+    length = take_int(arg_5(arguments));
+    if (unlikely(start < arr1->min_position || length < 0)) {
+      return raise_exception(SYS_IDX_EXCEPTION);
+    } /* if */
+    arr1_size = arraySize(arr1);
+    if (length != 0 && start <= arr1->max_position && arr1_size >= 1) {
+      if (length - 1 > arr1->max_position - start) {
+        length = arr1->max_position - start + 1;
       } /* if */
-      if (len - 1 > arr1->max_position - start) {
-        len = arr1->max_position - start + 1;
-      } /* if */
-      result_size = (memSizeType) (uintType) (len);
+      result_size = (memSizeType) (uintType) (length);
       if (unlikely(!ALLOC_ARRAY(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result->min_position = arr1->min_position;
       result->max_position = arrayMaxPos(arr1->min_position, result_size);
       start_idx = arrayIndex(arr1, start);
-      stop_idx = arrayIndex(arr1, start + len - 1);
+      stop_idx = arrayIndex(arr1, start + length - 1);
       if (TEMP_OBJECT(arg_1(arguments))) {
         memcpy(result->arr, &arr1->arr[start_idx],
                (size_t) (result_size * sizeof(objectRecord)));
         destr_array(arr1->arr, start_idx);
-        destr_array(&arr1->arr[stop_idx + 1], length - stop_idx - 1);
-        FREE_ARRAY(arr1, length);
+        destr_array(&arr1->arr[stop_idx + 1], arr1_size - stop_idx - 1);
+        FREE_ARRAY(arr1, arr1_size);
         arg_1(arguments)->value.arrayValue = NULL;
       } else {
         if (unlikely(!crea_array(result->arr,
@@ -1294,7 +1487,7 @@ objectType arr_subarr (listType arguments)
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arr_subarr(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      length, start, len););
+                      arr1_size, start, length););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       if (unlikely(!ALLOC_ARRAY(result, 0))) {
@@ -1311,6 +1504,7 @@ objectType arr_subarr (listType arguments)
 /**
  *  Get a sub array beginning at the position 'start'.
  *  @return the sub array beginning at the start position.
+ *  @exception INDEX_ERROR The start position is less than minIdx(arr1).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType arr_tail (listType arguments)
@@ -1318,7 +1512,7 @@ objectType arr_tail (listType arguments)
   {
     arrayType arr1;
     intType start;
-    memSizeType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     arrayType result;
 
@@ -1327,11 +1521,10 @@ objectType arr_tail (listType arguments)
     isit_int(arg_3(arguments));
     arr1 = take_array(arg_1(arguments));
     start = take_int(arg_3(arguments));
-    length = arraySize(arr1);
-    if (start <= arr1->max_position && length >= 1) {
-      if (start < arr1->min_position) {
-        start = arr1->min_position;
-      } /* if */
+    arr1_size = arraySize(arr1);
+    if (unlikely(start < arr1->min_position)) {
+      return raise_exception(SYS_IDX_EXCEPTION);
+    } else if (start <= arr1->max_position && arr1_size >= 1) {
       result_size = arraySize2(start, arr1->max_position);
       if (unlikely(!ALLOC_ARRAY(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
@@ -1342,7 +1535,7 @@ objectType arr_tail (listType arguments)
         memcpy(result->arr, &arr1->arr[start - arr1->min_position],
                (size_t) (result_size * sizeof(objectRecord)));
         destr_array(arr1->arr, arraySize2(arr1->min_position, start) - 1);
-        FREE_ARRAY(arr1, length);
+        FREE_ARRAY(arr1, arr1_size);
         arg_1(arguments)->value.arrayValue = NULL;
         /* code to avoid destr_array:
         arr1->max_position = start - 1; */
@@ -1356,7 +1549,7 @@ objectType arr_tail (listType arguments)
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arr_tail(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      length, start););
+                      arr1_size, start););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       if (unlikely(!ALLOC_ARRAY(result, 0))) {

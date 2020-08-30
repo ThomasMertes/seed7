@@ -34,8 +34,8 @@ programming languages:
    different language.
 
 
-What are the design principles Seed7?
-=====================================
+What are the design principles of Seed7?
+========================================
 
 The design principles are:
 
@@ -75,10 +75,8 @@ The design principles are:
    overloading of operators.
 
  - Performance:
-   The Seed7 compiler is written in Seed7. It creates C and calls
-   the C compiler, which generates machine code. The generated C
-   program is adapted for the configured C compiler and operating
-   system.
+   Seed7 is designed to allow compilation to efficient machine
+   code. Several high level optimizations are done also.
 
  - No virtual machine:
    Seed7 is based on the executables of the operating system.
@@ -89,10 +87,10 @@ The design principles are:
    reads 400000 lines per second or more.
 
  - No artificial restrictions:
-   There is no limit for length of an identifier or string, for
-   the number of variables or number of nesting levels, etc.
-   Nowadays this is no problem, but old programming languages
-   have lots of these limits.
+   Historic programming languages have a lot of artificial
+   restrictions. In Seed7 there is no limit for length of an
+   identifier or string, for the number of variables or number
+   of nesting levels, etc.
 
  - Independent of databases:
    The database drivers of Seed7 consist of 30000 lines of C.
@@ -278,10 +276,11 @@ Several features of Seed7 are missing in Java:
   Stand alone functions                     | Singletons must be used instead
   Call-by-reference parameters              | All parameters are call-by-value
   Call-by-name parameters                   | All parameters are call-by-value
-  Operator overloading                      | No possibility to use + for BigInteger values
+  Operator overloading                      | In Java it is necessary to write a.add(b.multiply(c)) instead of a + b * c.
   User defined operators                    | -
   User defined statements                   | -
   User defined syntax                       | -
+  One operator to check for equality        | For POD types Java uses '==' and for strings name.equals("").
   Elegant way to express data structures    | Property files and XML must be used instead
   User defined functions to initialize data | -
   Multiple dispatch                         | -
@@ -334,12 +333,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-07-27 the number of lines is:
+than 300000 lines of Seed7. For version 2020-08-30 the number of lines is:
 
-  159445  C source files (*.c)
-   12642  C header files (*.h)
-  180506  Seed7 source files (*.sd7)
-  159775  Seed7 library/include files (*.s7i)
+  160115  C source files (*.c)
+   12650  C header files (*.h)
+  190227  Seed7 source files (*.sd7)
+  160146  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -646,7 +645,9 @@ information from the interpreter):
   chkbin ........... okay
   chkchr ........... okay
   chkstr ........... okay
+  chkidx ........... okay
   chkbst ........... okay
+  chkarr ........... okay
   chkprc ........... okay
   chkbig ........... okay
   chkbool ........... okay
@@ -928,6 +929,54 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
         otherwise:
           result = 0;
       end case;
+
+
+Why is the type: name declaration syntax used?
+==============================================
+
+Many languages of the ALGOL and C family define variables this way:
+
+      int x
+
+If a variable is initialized something like
+
+      int x = 888;
+
+is used. Constant declarations often look like this:
+
+      const int x = 888;
+
+The Seed7 declaration syntax is oriented towards these examples. Variable
+declarations are introduced with 'var' and constant declarations are
+introduced with 'const'. The equals sign is replaced with 'is'. This
+would lead to:
+
+      const integer x is 42;
+
+As separator between type and name a colon is used:
+
+      const integer: x is 42;
+
+Writing the type before the name offers the opportunity to have a type
+declaration that is easy to recognize and uses the same syntax:
+
+      const type: stack is array integer;
+
+It is also easy to recognize function declarations although they use
+the same syntax:
+
+      const func integer: computeSomething is ...
+
+In a block with several declarations the type can be recognized easily:
+
+      var integer: index is 1;
+      var integer: paramValue is 0;
+      var bigInteger: bigSum is 0_;
+
+The colon confuses many programmers with a background from dynamically
+typed languages. In these languages optional type specifications have been
+introduced later and they use name: type. In Seed7 the specification
+of the type is not optional but mandatory.
 
 
 Isn't the code unreadable if everybody invents new statements?
@@ -1307,9 +1356,91 @@ is switched off by default and must be activated with the pragma:
 
   $ names unicode;
 
-This pragma allows variables with e.g. german umlauts or cyrillic letters.
+This pragma allows variables with e.g. German umlauts or Cyrillic letters.
 This way beginners can use variable and function names from their native
 language.
+
+
+Why are the strings in Seed7 mutable?
+=====================================
+
+Java, C# and several other languages use immutable strings. But immutable strings
+have not only advantages. They have also disadvantages. Okay, assigning immutable
+strings is cheap (just the pointer is assigned), but almost everything else becomes
+more expensive. Every time immutable strings are changed the whole string content
+must be copied. If you want to change a string a lot, this becomes very costly.
+For that reason Java introduced the mutable string class StringBuffer (and later
+StringBuilder). Maintaining the string data of immutable strings is also an
+overhead that costs time, as it requires bookkeeping and a garbage collection.
+
+The string handling of mutable strings can be optimized, such that copying the
+string content can be avoided in many cases. This is done by the Seed7 interpreter
+and compiler. You get cheap string parameter passing, string slicing and assignment
+without being bothered with immutable and mutable string types (which is essentially
+an implementation detail). Mutable strings give us also consistent language
+semantics (strings are not handled different than other objects).
+
+
+Why are strings indexed from one?
+=================================
+
+Here is a little list to explain that. Please read the second line from the list:
+
+ - You probably forgot that you should just read the second line.
+ - This is the second line from the list.
+ - You probably also count your partners starting from zero.
+ - Next time read the instructions more carefully.
+
+This example makes it clear. The number one has been invented as starting point
+to count something. The first character in this sentence is T not h. So the
+question is: Why does everybody think that in computer science the first character
+has the index 0? Basically this comes from C. Arrays and strings in C are viewed
+as pointer + offset. So it is natural that the first offset is 0. From C this
+concept spread to many other programming languages. Seed7 breaks with this
+tradition as it uses the number one again for the purpose it has been invented,
+thousands of years ago, long before zero has been invented.
+
+
+How are comparisons done in Seed7?
+==================================
+
+In Seed7 the operators = (equal) and <> (not equal) are defined for all types.
+Additionally many types define also the operators < (less than), <= (less than or
+equal to), > (greater than) and >= (greater than or equal to). These operators do
+exactly what the corresponding type considers as the correct comparison.
+
+In Java and other languages you are discouraged to use the normal equality
+comparison operator ('==') for string comparisons. Instead you need to use an
+expression like name.equals(""). The '==' operator just compares references,
+which is almost never the desired operation. Seed7 is much more consistent in
+this regard, because the '=' operator is generally used to check for equality.
+It is just not necessary to tell every newcomer that '==' is used to compare
+integers, but that it should never be used to compare strings.
+
+Most types define also the function compare(A, B), which returns -1 (if A is
+less than B), 0 (if A equals B) or 1 (if A is greater than B). This function
+defines a total order over the values of a type even if < has not been defined
+or if < does not define a total order. E.g.:
+
+  +------------+----------------+---------+----------------------------------------+
+  | type       | comparisons    | compare | comment                                |
+  +------------+----------------+---------+----------------------------------------+
+  | float      | = <> < <= > >= | compare | According to IEEE 754 a NaN is neither |
+  |            |                |         | less than, equal to, nor greater than  |
+  |            |                |         | any value, including itself.           |
+  |            |                |         | Float compare(A, B) considers all      |
+  |            |                |         | NaN values as greater than Infinity.   |
+  +------------+----------------+---------+----------------------------------------+
+  | complex    | = <>           | compare | Compares real and imaginary part.      |
+  +------------+----------------+---------+----------------------------------------+
+  | bitset     | = <> < <= > >= | compare | The comparisons < <= > >= check for    |
+  |            |                |         | subsets and supersets.                 |
+  |            |                |         | Bitset compare(A, B) compares by       |
+  |            |                |         | determining the biggest element that   |
+  |            |                |         | is not present or absent in both sets. |
+  +------------+----------------+---------+----------------------------------------+
+
+Hash tables use compare(A, B) to manage their elements.
 
 
 Can Seed7 access databases?
@@ -1590,7 +1721,7 @@ off with the compiler option -so.
 Is there a garbage collection?
 ==============================
 
-There is automatic memory management, but there is no garbage collection
+There is an automatic memory management, but there is no garbage collection
 process, that interrupts normal processing. There is no situation, where a
 garbage collection needs to "stop the world". The automatic memory management
 of Seed7 uses different mechanisms. Memory usage can be categorized and for
@@ -1611,9 +1742,14 @@ every category a specific strategy of automatic memory management is used:
    intermediate result and just assign it to the variable. This way it is not
    always necessary to copy arbitrary complex values. All this things can be
    decided by the compiler.
- - Strings, arrays, hashes and other containers manage their memory. E.g.:
-   When an element is removed from a hash table the memory used by the element
-   is freed as well as the hash table internal data.
+ - The memory of strings, bigIntegers, bitsets, arrays and hashes is referenced
+   just once. These types do not need reference counting.
+ - Arrays, hashes and other containers manage their memory. E.g.: When an
+   element is removed from a hash table the memory used by the element is
+   freed as well as the hash table internal data. If the container itself is
+   removed all its elements are removed as well.
+ - Windows, processes, databases, sql statements and programs use a reference
+   counter to free the data.
  - A struct value can be referred by one struct variable and by several
    interface variables. Struct values use a reference counter to free the
    struct, if no reference to it exists.
@@ -1990,6 +2126,30 @@ as the C++ template functions. The explicit calls of template functions make it
 obvious what it is going on. This way the program is easier to read.
 
 
+What restrictions does Seed7 have?
+==================================
+
+Historic compilers used fixed size memory areas to store the data of the compiled
+program. Limitations like source line length, identifier length, string length or
+number of nesting levels can be found in language manuals. If you reach such a
+limit an otherwise correct program will not compile. In Seed7 restrictions of
+other languages have been released:
+
+ - There is no limitation in the length of an identifier and
+   all characters of an identifier are significant.
+ - Statements and parentheses can be nested without limitation
+   in depth.
+ - The number of parameters and local variables is not
+   limited.
+ - Strings can contain any characters (also the NUL character)
+   This allows holding binary information in strings.
+ - Although strings are not NUL terminated they have
+   no size limitation. (Except there is no more memory)
+ - String literals can have any length.
+ - There is no limitation in the length of a source line.
+ - There is no level limitation for nesting includes.
+
+
 What means the term undefined behavior?
 =======================================
 
@@ -2001,6 +2161,21 @@ NULL or a signed integer overflow all trigger undefined behavior.
 Seed7 has a well defined behavior in all situations. Even in
 situations where the language specification of C refers to
 undefined behavior.
+
+
+How to define break and continue?
+=================================
+
+The context of 'break' and 'continue' determines what they do. In this regard
+they are not statements on their own, but part of a surrounding statement.
+Just as 'goto' statements they violate the concept of structured programming.
+Seed7 can define the syntax and semantic of all structured statements easily.
+E.g.: You can define a structured loop statement with an exit in the middle.
+Since 'break' and 'continue' are not structured statements there is no
+straightforward way to implement them. But they could be implemented with
+exceptions. Often 'break' and 'continue' are seen as trick to get more
+performance. Exceptions would not deliver that. For that reason and to promote
+structured programming 'break', 'continue' and 'goto' are not supported.
 
 
 Are there exceptions?
@@ -2106,12 +2281,55 @@ Interpreter and compiler use the same strategy to determine the directory with
 predefined include libraries.
 
 
+What happens during make depend?
+================================
+
+The instructions how to compile the interpreter clearify that you need
+a makefile that is specific for your combination of operating system,
+make utility, C compiler and shell. When you use the command
+
+  make depend
+
+your specific makefile writes three configuration files:
+
+  +-------------+-------------+-----------+
+  | config file | included by | copied to |
+  +-------------+-------------+-----------+
+  | chkccomp.h  | chkccomp.c  |           |
+  | base.h      | chkccomp.c  | version.h |
+  | settings.h  |             | version.h |
+  +-------------+-------------+-----------+
+
+These files contain C preprocessor macros with configuration values
+that are specific for the OS and the C compiler. The command make depend
+also compiles 'chkccomp.c'. This program includes 'base.h' and 'chkccomp.h'.
+After the compilation 'chkccomp' is executed with:
+
+  ./chkccomp version.h
+
+When 'chkccomp' runs it copies the files 'base.h' and 'settings.h' to
+'version.h'. Then it tests the properties of the OS and the C compiler
+with various small test programs. The results of these tests are also
+written to 'version.h'.
+
+Afterwards the program 'setpaths.c' is compiled and then executed with:
+
+  ./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
+
+This appends further information to 'version.h' (which includes the
+absolute path to the seed7 directory). The environment variables S7_LIB_DIR
+and SEED7_LIBRARY allow the specification of the final path to the
+Seed7 directory. If the seed7 directory will not move afterwards these
+variables can be left empty.
+
+
 How does the Seed7 compiler get information about C compiler and runtime?
 =========================================================================
 
 The Seed7 compiler needs detailed information about the C compiler and its runtime
 library. This information is created when the Seed7 interpreter is compiled. The
-command 'make depend' writes C preprocessor macros to 'seed7/src/version.h'. E.g.:
+command 'make depend' compiles and executes the program "chkccomp.c", which
+writes configuration values as C preprocessor macros to 'version.h'. E.g.:
 
   #define CC_SOURCE_UTF8
   #define SEED7_LIB "seed7_05.a"
@@ -2122,8 +2340,8 @@ command 'make depend' writes C preprocessor macros to 'seed7/src/version.h'. E.g
   #define COMPILER_LIB "s7_comp.a"
   #define S7_LIB_DIR "/home/abc/seed7/bin"
 
-The command 'make depend' compiles and executes the program "chkccomp.c", which
-also writes preprocessor macros to "version.h". E.g.:
+Many of the preprocessor macros of "version.h" are determined with
+test programs. E.g.:
 
   #define RSHIFT_DOES_SIGN_EXTEND 1
   #define TWOS_COMPLEMENT_INTTYPE 1

@@ -1652,6 +1652,7 @@ const func file: openTlsSocket (inout file: sock, in clientSession: session) is 
           tlsSock := negotiateSecurityParameters(new_file);
         else
           getTlsMsgRecord(new_file.sock, new_file.parseState);
+          # showTlsMsg(new_file.parseState.message);
           if new_file.parseState.contentType = CHANGE_CIPHER_SPEC then
             processChangeCipherSpec(new_file.parameters, new_file.parseState);
             new_file.parameters.master_secret := session.master_secret;

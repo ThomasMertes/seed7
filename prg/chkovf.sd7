@@ -457,7 +457,7 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
         not raisesOverflowError(ord(boolExpr( TRUE)) - sqrt(intExpr(           0)) +         integer.last) or
         not raisesOverflowError(ord(boolExpr( TRUE)) + abs(intExpr(1)) +  9223372036854775806) or
         not raisesOverflowError(ord(boolExpr(FALSE)) - abs(intExpr(1)) +        integer.first) then
-      writeln(" ***** Reduced overflow check for sums failed: ord(booolean)");
+      writeln(" ***** Reduced overflow check for sums failed: ord(boolean)");
       okay := FALSE;
     end if;
 

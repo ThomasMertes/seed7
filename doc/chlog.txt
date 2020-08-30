@@ -1,3 +1,60 @@
+20200830:
+- Spelling corrections have been done in several files. Many thanks go
+  to Jens Schleusener, for sending a source code misspelling report
+  from Fossies.
+- The file README.md, which uses the markdown format, has been added.
+- Answers to seven new questions have been added to the FAQ.
+- Descriptions of array, hash, set and struct in the manual have been
+  improved to contain examples of type declaration and usage.
+- In array.s7i the functions remove() and insert() have been improved
+  to avoid copying whole elements.
+- The string slice functions have been changed to raise INDEX_ERROR for
+  negative indices or lengths.
+- The array slice functions have been changed to raise INDEX_ERROR for
+  negative indices or lengths.
+- In chkstr.sd7 the tests for string slices have been adjusted to the
+  new behavior.
+- The example program chkidx.sd7 has been added. This program checks
+  if INDEX_ERROR is correctly raised for string operations.
+- The example program chkarr.sd7 has been added. This program checks
+  if array operations work correct.
+- The program chk_all.sd7 has been improved to call and check the new
+  programs chkidx.sd7 and chkarr.sd7.
+- Compiler and interpreter have been improved to support the actions
+  ARR_INSERT, ARR_INSERT_ARRAY and ARR_REMOVE_ARRAY.
+- The compiler has been improved to support name parameters with
+  varfunc instead of func.
+- The file comp/arr_act.s7i has been improved to support ARR_INSERT,
+  ARR_INSERT_ARRAY and ARR_REMOVE_ARRAY.
+- The file comp/str_act.s7i has been improved to support the changed
+  string slice functions.
+- The functions arr_insert(), arr_insert_array() and arr_remove_array()
+  have been added to arrlib.c. These functions work without copying
+  whole elements. Instead a memmove() is used on a part of the array to
+  move object records.
+- The functions arrInsert(), arrInsertArray() and arrRemoveArray() have
+  been added to arr_rtl.c. These functions work without copying whole
+  elements. Instead a memmove() is used on a part of the array to move
+  64-bit elements.
+- The functions addCopiedStriToArray() and addCopiedStriToRtlArray()
+  in strlib.c respectively str_rtl.c have been improved to scale
+  better. Now these functions double the array size every time a
+  realloc() is necessary. In the end the size is reduced to the actual
+  array size.
+- In strlib.c the functions str_head(), str_range(), str_substr() and
+  str_tail() have been improved to check for INDEX_ERROR.
+- In str_rtl.c the function strHeadSlice(), strHead(), strHeadTemp(),
+  strRangeSlice(), strRange(), strSubstrSlice(), strSubstr(),
+  strTailSlice() and strTail() have been improved to check for
+  INDEX_ERROR.
+- The function strTailTemp() has been added to str_rtl.c. This function
+  is used by the compiler to optimize expressions like: s := s[n ..];
+- In cmd_rtl.c the functions cmdMkdir(), cmdRemoveFile(),
+  cmdRemoveTree(), cmdSetATime(), cmdSetFileMode(), cmdSetMTime() and
+  cmdSymlink() have been improved.
+- In cmd_unx.c the memory management of cmdSetGroup() and cmdSetOwner()
+  has been improved.
+
 20200727:
 - In ut8_rtl.c the function ut8Seek() has been improved such that
   a call of ut8Seek() can be directly followed by a statement to write
@@ -201,7 +258,7 @@
   push_inline_func_param) to add a "const" for a parameter definition.
   This avoids a compilation error with g++.
 - The keyboard driver gkb_x11.c has been improved to to support the
-  ALT modifier also unter macOS.
+  ALT modifier also under macOS.
 - Code in sql_tds.c has been refactored. Unused struct fields have been
   removed. The function sqlColumnDuration() has been improved.
 - In tim_dos.c the function timAwait() has been improved to use
@@ -230,7 +287,7 @@
 - Documentation comments have been added or improved in array.s7i,
   bigint.s7i, integer.s7i, progs.s7i, string.s7i, flt_rtl.c,
   ref_data.c, reflib.c, setlib.c, set_rtl.c, sigutl.c and tim_rtl.c.
-- Occurrances of the words minimal and maximal have been replaced with
+- Occurrences of the words minimal and maximal have been replaced with
   minimum and maximum in several files.
 
 20200502:
@@ -242,8 +299,8 @@
   KEY_ALT_LEFT and KEY_SFT_MENU have been added to keybd.s7i. Existing
   definitions in keybd.s7i have been refactored. Key names in
   keydescr.s7i have been updated.
-- The program gkbd.sd7 has been improved to show the new capabilies of
-  the keybord interface.
+- The program gkbd.sd7 has been improved to show the new capabilities
+  of the keyboard interface.
 - The bas7.sd7 (basic interpreter) example program has been improved.
   Support for the predefined subprograms CHAR, CLEAR, COLOR, HCHAR,
   KEY, SCREEN and VCHAR and for the function SEG$ has been added.
@@ -331,8 +388,8 @@
   added. E.g. buttonPressed(KEYBOARD, KEY_SHIFT). Additionally several
   new key combinations such as KEY_SFT_MOUSE1 and KEY_CTL_PAD_CENTER
   have been added to keybd.s7i.
-- The program gkbd.sd7 has been improved to show the new capabilies of
-  the keybord interface.
+- The program gkbd.sd7 has been improved to show the new capabilities
+  of the keyboard interface.
 - Interpreter and compiler have been improved, to write a compile time
   error, if a numerical escape sequence in a string or char literal
   is too big.
@@ -356,7 +413,7 @@
   suppressed with -sr for the action FLT_BITS2SINGLE (convert integer
   to single precision float value).
 - The compiler has been improved to generate code that writes the error
-  message of a DATABASE_ERROR, if the exception is uncatched.
+  message of a DATABASE_ERROR, if the exception is uncaught.
 - The compiler has been improved to suppress the usage of the C
   compiler option CC_OPT_TRAP_OVERFLOW (-ftrapv), if the Seed7 compiler
   option -so (suppress overflow checks) is used.
@@ -442,7 +499,7 @@
   accept more variants of the ISO 8601 time and date format including
   variants with a time zone.
 - The interpreter (s7) has been improved to write the error message of
-  a DATABASE_ERROR, if the exception is not catched.
+  a DATABASE_ERROR, if the exception is not caught.
 - In tim_rtl.c the function timUtcFromTimestamp() has been improved to
   work without calling gmtime() or gmtime_r() or gmtime_s(). Now the
   function always works with a 64-bit signed timestamp. Gmtime() uses
@@ -451,7 +508,7 @@
 - In tim_rtl.c the function timToTimestamp() has been improved to work
   without calling mkutc(). This way the function always works with a
   64-bit signed timestamp. Mkutc() is also defined in tim_rtl.c and it
-  uses the system dependend type time_t.
+  uses the system dependent type time_t.
 - In tim_rtl.c the functions timToOsTimestamp(), assignTime() and
   dateFromDaysSince1900() have been added and the functions
   timFromBigTimestamp() and timToBigTimestamp() have been removed.

@@ -54,7 +54,7 @@
 
 
 #define INITIAL_ARRAY_SIZE 256
-#define ARRAY_SIZE_DELTA   256
+#define ARRAY_SIZE_FACTOR    2
 
 
 
@@ -108,18 +108,18 @@ static arrayType addCopiedStriToArray (const strElemType *stri_elems,
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems, length * sizeof(strElemType));
       if (used_max_position >= work_array->max_position) {
-        if (unlikely(work_array->max_position >= MAX_ARR_INDEX - ARRAY_SIZE_DELTA ||
+        if (unlikely(work_array->max_position >= MAX_ARR_INDEX / ARRAY_SIZE_FACTOR ||
             (resized_work_array = REALLOC_ARRAY(work_array,
                 (uintType) work_array->max_position,
-                (uintType) work_array->max_position + ARRAY_SIZE_DELTA)) == NULL)) {
+                (uintType) work_array->max_position * ARRAY_SIZE_FACTOR)) == NULL)) {
           FREE_STRI(new_stri, new_stri->size);
           freeStriArray(work_array, used_max_position);
           work_array = NULL;
         } else {
           work_array = resized_work_array;
           COUNT3_ARRAY((uintType) work_array->max_position,
-                       (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
-          work_array->max_position += ARRAY_SIZE_DELTA;
+                       (uintType) work_array->max_position * ARRAY_SIZE_FACTOR);
+          work_array->max_position *= ARRAY_SIZE_FACTOR;
         } /* if */
       } /* if */
       if (likely(work_array != NULL)) {
@@ -852,6 +852,7 @@ objectType str_hashcode (listType arguments)
  *  Get a substring ending at a stop position.
  *  The first character in a string has the position 1.
  *  @return the substring ending at the stop position.
+ *  @exception INDEX_ERROR The stop position is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType str_head (listType arguments)
@@ -891,6 +892,8 @@ objectType str_head (listType arguments)
         memcpy(result->mem, stri->mem,
                result_size * sizeof(strElemType));
       } /* if */
+    } else if (unlikely(stop < 0)) {
+      return raise_exception(SYS_IDX_EXCEPTION);
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         return raise_exception(SYS_MEM_EXCEPTION);
@@ -1377,6 +1380,8 @@ objectType str_push (listType arguments)
  *  Get a substring from a start position to a stop position.
  *  The first character in a string has the position 1.
  *  @return the substring from position start to stop.
+ *  @exception INDEX_ERROR The start position is negative or zero, or
+ *                         the stop position is less than pred(start).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType str_range (listType arguments)
@@ -1397,10 +1402,9 @@ objectType str_range (listType arguments)
     start = take_int(arg_3(arguments));
     stop = take_int(arg_5(arguments));
     striSize = stri->size;
-    if (start < 1) {
-      start = 1;
-    } /* if */
-    if (stop >= start && (uintType) start <= striSize) {
+    if (unlikely(start < 1)) {
+      return raise_exception(SYS_IDX_EXCEPTION);
+    } else if (stop >= start && (uintType) start <= striSize) {
       if ((uintType) stop > striSize) {
         result_size = striSize - (memSizeType) start + 1;
       } else {
@@ -1418,6 +1422,8 @@ objectType str_range (listType arguments)
       memcpy(result->mem, &stri->mem[start - 1],
              result_size * sizeof(strElemType));
       result->size = result_size;
+    } else if (unlikely(stop < start - 1)) {
+      return raise_exception(SYS_IDX_EXCEPTION);
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         return raise_exception(SYS_MEM_EXCEPTION);
@@ -1666,6 +1672,8 @@ objectType str_str (listType arguments)
  *  Get a substring from a start position with a given length.
  *  The first character in a string has the position 1.
  *  @return the substring from the start position with a given length.
+ *  @exception INDEX_ERROR The start position is negative or zero, or
+ *                         the length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType str_substr (listType arguments)
@@ -1685,16 +1693,11 @@ objectType str_substr (listType arguments)
     stri = take_stri(arg_1(arguments));
     start = take_int(arg_3(arguments));
     length = take_int(arg_5(arguments));
-    striSize = stri->size;
-    if (unlikely(start < 1)) {
-      if (length >= 1 && start > 1 - length) {
-        length += start - 1;
-        start = 1;
-      } else {
-        length = 0;
-      } /* if */
+    if (unlikely(start < 1 || length < 0)) {
+      return raise_exception(SYS_IDX_EXCEPTION);
     } /* if */
-    if (length >= 1 && (uintType) start <= striSize) {
+    striSize = stri->size;
+    if (length != 0 && (uintType) start <= striSize) {
       if ((uintType) length > striSize - (memSizeType) start + 1) {
         result_size = striSize - (memSizeType) start + 1;
       } else {
@@ -1724,6 +1727,7 @@ objectType str_substr (listType arguments)
  *  Get a substring beginning at a start position.
  *  The first character in a 'string' has the position 1.
  *  @return the substring beginning at the start position.
+ *  @exception INDEX_ERROR The start position is negative or zero.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType str_tail (listType arguments)
@@ -1741,10 +1745,9 @@ objectType str_tail (listType arguments)
     stri = take_stri(arg_1(arguments));
     start = take_int(arg_3(arguments));
     striSize = stri->size;
-    if (start < 1) {
-      start = 1;
-    } /* if */
-    if ((uintType) start <= striSize && striSize >= 1) {
+    if (unlikely(start < 1)) {
+      return raise_exception(SYS_IDX_EXCEPTION);
+    } else if ((uintType) start <= striSize && striSize >= 1) {
       result_size = striSize - (memSizeType) start + 1;
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         return raise_exception(SYS_MEM_EXCEPTION);

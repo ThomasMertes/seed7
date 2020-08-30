@@ -12,6 +12,7 @@ cat.sd7      Concatenate and print files
 cellauto.sd7 Simulate a one-dimensional cellular automaton
 celsius.sd7  Print a Fahrenheit-Celsius table
 chk_all.sd7  Runs interpreted and compiled checks.
+chkarr.sd7   Checks arrays and array operations
 chkbig.sd7   Checks bigInteger literals and operations
 chkbin.sd7   Checks bin32 and bin64 operations.
 chkbitdata.sd7 Checks functions from the bitdata.s7i library.
@@ -25,6 +26,7 @@ chkfil.sd7   Checks file operations
 chkflt.sd7   Checks float literals and operations
 chkhent.sd7  Checks the HTML entity handling functions
 chkhsh.sd7   Checks hash table operations
+chkidx.sd7   Checks the exception INDEX_ERROR.
 chkint.sd7   Checks integer literals and operations
 chkovf.sd7   Checks catching of integer overflows.
 chkprc.sd7   Checks procedures and statements

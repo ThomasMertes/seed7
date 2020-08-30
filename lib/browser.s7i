@@ -51,6 +51,7 @@ const func string: processHttpRequest (inout browserConnection: browser, inout p
     var string: requestCommand is "";
     var string: requestPath is "";
     var string: hostName is "";
+    var integer: spacePos is 0;
     var integer: questionMarkPos is 0;
     var string: queryParams is "";
     var string: postParams is "";
@@ -67,11 +68,17 @@ const func string: processHttpRequest (inout browserConnection: browser, inout p
       if startsWith(line, "GET") then
         requestCommand := "GET";
         requestPath := trim(line[4 ..]);
-        requestPath := requestPath[.. pred(pos(requestPath, ' '))];
+        spacePos := pos(requestPath, ' ');
+        if spacePos <> 0 then
+          requestPath := requestPath[.. pred(spacePos)];
+        end if;
       elsif startsWith(line, "POST") then
         requestCommand := "POST";
         requestPath := trim(line[5 ..]);
-        requestPath := requestPath[.. pred(pos(requestPath, ' '))];
+        spacePos := pos(requestPath, ' ');
+        if spacePos <> 0 then
+          requestPath := requestPath[.. pred(spacePos)];
+        end if;
       elsif startsWith(line, "Host") then
         hostName := trim(line[succ(pos(line, ":")) ..]);
       elsif startsWith(line, "Connection") then

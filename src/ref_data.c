@@ -1378,6 +1378,9 @@ striType strValue (const const_objectType aReference)
     striType result;
 
   /* strValue */
+    logFunction(printf("strValue(");
+                trace1(aReference);
+                printf(")\n"););
     if (unlikely(aReference == NULL ||
                  CATEGORY_OF_OBJ(aReference) != STRIOBJECT ||
                  (stri = take_stri(aReference)) == NULL)) {
@@ -1392,11 +1395,47 @@ striType strValue (const const_objectType aReference)
       } else {
         result->size = stri->size;
         memcpy(result->mem, stri->mem,
-            (size_t) (result->size * sizeof(strElemType)));
+               (size_t) (result->size * sizeof(strElemType)));
       } /* if */
     } /* if */
+    logFunction(printf("strValue --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* strValue */
+
+
+
+/**
+ *  Get 'string' value of the object referenced by 'aReference'.
+ *  @return the 'string' value of the referenced object.
+ *  @exception RANGE_ERROR If 'aReference' is NIL or
+ *             category(aReference) <> STRIOBJECT holds.
+ */
+const_striType strValueRef (const const_objectType aReference)
+
+  {
+    striType stri;
+    striType result;
+
+  /* strValueRef */
+    logFunction(printf("strValueRef(");
+                trace1(aReference);
+                printf(")\n"););
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != STRIOBJECT ||
+                 (stri = take_stri(aReference)) == NULL)) {
+      logError(printf("strValueRef(");
+               trace1(aReference);
+               printf("): Category is not STRIOBJECT.\n"););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      result = stri;
+    } /* if */
+    logFunction(printf("strValueRef --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
+    return result;
+  } /* strValueRef */
 
 
 

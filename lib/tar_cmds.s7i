@@ -193,7 +193,8 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
           if aFile <> STD_NULL then
             bytesCopied := copyFile(inFile, aFile, header.fileSize);
             close(aFile);
-            setFileMode(header.filePath, header.mode);
+            # Just take the permission bits of the file mode.
+            setFileMode(header.filePath, fileMode(integer(header.mode) mod 8#1000));
             modTime := timestamp1970ToTime(header.mtime);
             setMTime(header.filePath, modTime);
             # Skip bytes up to header.fileSize and then up to a multiple of TAR_BLOCK_SIZE.
@@ -213,7 +214,8 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
       readHead(inFile, header);
     end while;
     for index range length(dirHeaderList) downto 1 do
-      setFileMode(dirHeaderList[index].filePath, dirHeaderList[index].mode);
+      # Just take the permission bits of the file mode.
+      setFileMode(dirHeaderList[index].filePath, fileMode(integer(dirHeaderList[index].mode) mod 8#1000));
       modTime := timestamp1970ToTime(dirHeaderList[index].mtime);
       setMTime(dirHeaderList[index].filePath, modTime);
     end for;

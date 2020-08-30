@@ -855,18 +855,19 @@ rtlArrayType arrGen (const genericType element1, const genericType element2)
 /**
  *  Get a sub array ending at the position 'stop'.
  *  @return the sub array ending at the stop position.
+ *  @exception INDEX_ERROR The stop position is less than pred(minIdx(arr1)).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
 
   {
-    memSizeType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     rtlArrayType result;
 
   /* arrHead */
-    length = arraySize(arr1);
-    if (stop >= arr1->min_position && length >= 1) {
+    arr1_size = arraySize(arr1);
+    if (stop >= arr1->min_position && arr1_size >= 1) {
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
@@ -879,10 +880,16 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
         memcpy(result->arr, arr1->arr,
                (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
+    } else if (unlikely(stop < arr1->min_position - 1)) {
+      logError(printf("arrHead(arr1 (minIdx=" FMT_D "), " FMT_D "): "
+                      "Stop less than pred(minIdx(arr1)).\n",
+                      arr1->min_position, stop););
+      raise_error(INDEX_ERROR);
+      result = NULL;
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrHead(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      length, stop););
+                      arr1_size, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -903,49 +910,56 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
  *  ArrHeadTemp is used by the compiler if 'arr_temp' is a temporary
  *  value that can be reused.
  *  @return the sub array ending at the stop position.
+ *  @exception INDEX_ERROR The stop position is less than pred(minIdx(arr1)).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
 
   {
     rtlArrayType arr1;
-    memSizeType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     rtlArrayType new_arr1;
     rtlArrayType result;
 
   /* arrHeadTemp */
     arr1 = *arr_temp;
-    length = arraySize(arr1);
-    if (stop >= arr1->min_position && length >= 1) {
+    arr1_size = arraySize(arr1);
+    if (stop >= arr1->min_position && arr1_size >= 1) {
       if (stop >= arr1->max_position) {
         result = arr1;
         *arr_temp = NULL;
       } else {
         result_size = arraySize2(arr1->min_position, stop);
-        if (unlikely(!ALLOC_RTL_ARRAY(new_arr1, length - result_size))) {
+        if (unlikely(!ALLOC_RTL_ARRAY(new_arr1, arr1_size - result_size))) {
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
           new_arr1->min_position = stop + 1;
           new_arr1->max_position = arr1->max_position;
           memcpy(new_arr1->arr, &arr1->arr[result_size],
-                 (size_t) ((length - result_size) * sizeof(rtlObjectType)));
-          result = REALLOC_RTL_ARRAY(arr1, length, result_size);
+                 (size_t) ((arr1_size - result_size) * sizeof(rtlObjectType)));
+          result = REALLOC_RTL_ARRAY(arr1, arr1_size, result_size);
           if (unlikely(result == NULL)) {
-            FREE_RTL_ARRAY(new_arr1, length - result_size);
+            FREE_RTL_ARRAY(new_arr1, arr1_size - result_size);
             raise_error(MEMORY_ERROR);
           } else {
-            COUNT3_RTL_ARRAY(length, result_size);
+            COUNT3_RTL_ARRAY(arr1_size, result_size);
             result->max_position = stop;
             *arr_temp = new_arr1;
           } /* if */
         } /* if */
       } /* if */
+    } else if (unlikely(stop < arr1->min_position - 1)) {
+      logError(printf("arrHeadTemp(arr1 (minIdx=" FMT_U_MEM "), " FMT_D "): "
+                      "Stop less than pred(minIdx(arr1)).\n",
+                      arr1->min_position, stop););
+      raise_error(INDEX_ERROR);
+      result = NULL;
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrHeadTemp(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      length, stop););
+                      arr1_size, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -974,7 +988,7 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
 
   {
     rtlArrayType arr1;
-    memSizeType length;
+    memSizeType arr1_size;
     rtlArrayType resized_arr1;
     genericType result;
 
@@ -988,17 +1002,17 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
       raise_error(INDEX_ERROR);
       result = 0;
     } else {
-      length = arraySize(arr1);
+      arr1_size = arraySize(arr1);
       result = arr1->arr[position - arr1->min_position].value.genericValue;
       if (position != arr1->max_position) {
         arr1->arr[position - arr1->min_position].value.genericValue =
-            arr1->arr[length - 1].value.genericValue;
+            arr1->arr[arr1_size - 1].value.genericValue;
       } /* if */
-      resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - 1);
+      resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - 1);
       if (unlikely(resized_arr1 == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
-        COUNT3_RTL_ARRAY(length, length - 1);
+        COUNT3_RTL_ARRAY(arr1_size, arr1_size - 1);
         resized_arr1->max_position--;
         *arr_temp = resized_arr1;
       } /* if */
@@ -1050,6 +1064,74 @@ void arrInsert (rtlArrayType *arr_to, intType position, genericType element)
       } /* if */
     } /* if */
   } /* arrInsert */
+
+
+
+/**
+ *  Insert 'elements' at 'position' into 'arr1'.
+ *  @exception INDEX_ERROR If 'position' is less than minIdx(arr1) or
+ *                         greater than succ(maxIdx(arr1))
+ */
+void arrInsertArray (rtlArrayType *arr_to, intType position,
+    rtlArrayType elements)
+
+  {
+    rtlArrayType arr1;
+    rtlArrayType resized_arr1;
+    rtlObjectType *array_pointer;
+    memSizeType new_size;
+    memSizeType arr1_size;
+    memSizeType elements_size;
+
+  /* arrInsertArray */
+    logFunction(printf("arrInsertArray\n"););
+    arr1 = *arr_to;
+    if (unlikely(position < arr1->min_position ||
+                 position > arr1->max_position + 1)) {
+      logError(printf("arrInsert(arr1, " FMT_D ", *): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position + 1););
+      raise_error(INDEX_ERROR);
+    } else {
+      elements_size = arraySize(elements);
+      if (elements_size != 0) {
+        arr1_size = arraySize(arr1);
+        if (unlikely(arr1_size > MAX_RTL_ARR_LEN - elements_size ||
+                     arr1->max_position > (intType) (MAX_MEM_INDEX - elements_size))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          new_size = arr1_size + elements_size;
+          resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, new_size);
+          if (unlikely(resized_arr1 == NULL)) {
+            raise_error(MEMORY_ERROR);
+          } else {
+            COUNT3_RTL_ARRAY(arr1_size, new_size);
+            *arr_to = resized_arr1;
+            array_pointer = resized_arr1->arr;
+            memmove(&array_pointer[arrayIndex(resized_arr1, position) + elements_size],
+                    &array_pointer[arrayIndex(resized_arr1, position)],
+                    arraySize2(position, resized_arr1->max_position) * sizeof(rtlObjectType));
+            /* It is possible that arr1 == elements holds. */
+            /* In this case the new hole in arr1 must be   */
+            /* considered.                                   */
+            if (unlikely(arr1 == elements)) {
+              memcpy(&array_pointer[arrayIndex(resized_arr1, position)],
+                     array_pointer, arrayIndex(resized_arr1, position) * sizeof(rtlObjectType));
+              memcpy(&array_pointer[2 * arrayIndex(resized_arr1, position)],
+                     &array_pointer[arrayIndex(resized_arr1, position) + elements_size],
+                     (elements_size - arrayIndex(resized_arr1, position)) * sizeof(rtlObjectType));
+            } else {
+              memcpy(&array_pointer[arrayIndex(resized_arr1, position)],
+                     elements->arr, elements_size * sizeof(rtlObjectType));
+            } /* if */
+            resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position, new_size);
+            FREE_RTL_ARRAY(elements, elements_size);
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("arrInsertArray -->\n"););
+  } /* arrInsertArray */
 
 
 
@@ -1133,23 +1215,25 @@ void arrPush (rtlArrayType *const arr_variable, const genericType element)
 /**
  *  Get a sub array from the position 'start' to the position 'stop'.
  *  @return the sub array from position 'start' to 'stop'.
+ *  @exception INDEX_ERROR The start position is less than minIdx(arr1), or
+ *                         the stop position is less than pred(start).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType stop)
 
   {
-    memSizeType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     memSizeType start_idx;
     rtlArrayType result;
 
   /* arrRange */
-    length = arraySize(arr1);
-    if (stop >= start && start <= arr1->max_position &&
-        stop >= arr1->min_position && length >= 1) {
-      if (start < arr1->min_position) {
-        start = arr1->min_position;
-      } /* if */
+    arr1_size = arraySize(arr1);
+    if (unlikely(start < arr1->min_position)) {
+      raise_error(INDEX_ERROR);
+      result = NULL;
+    } else if (stop >= start && start <= arr1->max_position &&
+        stop >= arr1->min_position && arr1_size >= 1) {
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
@@ -1163,10 +1247,13 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
         memcpy(result->arr, &arr1->arr[start_idx],
                (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
+    } else if (unlikely(stop < start - 1)) {
+      raise_error(INDEX_ERROR);
+      result = NULL;
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrRange(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      length, start, stop););
+                      arr1_size, start, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1187,13 +1274,15 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
  *  ArrRangeTemp is used by the compiler if 'arr_temp' is a temporary
  *  value that can be reused.
  *  @return the sub array from position 'start' to 'stop'.
+ *  @exception INDEX_ERROR The start position is less than minIdx(arr1), or
+ *                         the stop position is less than pred(start).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
 
   {
     rtlArrayType arr1;
-    memSizeType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     memSizeType start_idx;
     memSizeType stop_idx;
@@ -1202,17 +1291,16 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
 
   /* arrRangeTemp */
     arr1 = *arr_temp;
-    length = arraySize(arr1);
-    if (stop >= start && start <= arr1->max_position &&
-        stop >= arr1->min_position && length >= 1) {
-      if (start < arr1->min_position) {
-        start = arr1->min_position;
-      } /* if */
+    arr1_size = arraySize(arr1);
+    if (unlikely(start < arr1->min_position)) {
+      raise_error(INDEX_ERROR);
+      result = NULL;
+    } else if (stop >= start && start <= arr1->max_position && arr1_size >= 1) {
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
       result_size = arraySize2(start, stop);
-      if (result_size == length) {
+      if (result_size == arr1_size) {
         result = arr1;
         *arr_temp = NULL;
       } else {
@@ -1226,26 +1314,29 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
           memcpy(result->arr, &arr1->arr[start_idx],
                  (size_t) (result_size * sizeof(rtlObjectType)));
           memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
-                  (size_t) ((length - stop_idx - 1) * sizeof(rtlObjectType)));
-          resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
+                  (size_t) ((arr1_size - stop_idx - 1) * sizeof(rtlObjectType)));
+          resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - result_size);
           if (unlikely(resized_arr1 == NULL)) {
-            memcpy(&arr1->arr[length - result_size], result->arr,
+            memcpy(&arr1->arr[arr1_size - result_size], result->arr,
                    (size_t) (result_size * sizeof(rtlObjectType)));
             FREE_RTL_ARRAY(result, result_size);
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
-            COUNT3_RTL_ARRAY(length, length - result_size);
+            COUNT3_RTL_ARRAY(arr1_size, arr1_size - result_size);
             resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position,
-                                                     length - result_size);
+                                                     arr1_size - result_size);
             *arr_temp = resized_arr1;
           } /* if */
         } /* if */
       } /* if */
+    } else if (unlikely(stop < start - 1)) {
+      raise_error(INDEX_ERROR);
+      result = NULL;
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrRangeTemp(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      length, start, stop););
+                      arr1_size, start, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1346,6 +1437,89 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
 
 
 
+/**
+ *  Remove the sub-array with 'position' and 'length' from 'arr1'.
+ *  @return the removed sub-array.
+ *  @exception INDEX_ERROR If 'position' is less than arr_minidx(arr2) or
+ *                         greater than arr_maxidx(arr2)
+ */
+rtlArrayType arrRemoveArray (rtlArrayType *arr_to, intType position, intType length)
+
+  {
+    rtlArrayType arr1;
+    rtlArrayType resized_arr1;
+    rtlObjectType *array_pointer;
+    memSizeType arr1_size;
+    memSizeType result_size;
+    rtlArrayType result;
+
+  /* arrRemoveArray */
+    arr1 = *arr_to;
+    logFunction(printf("arrRemoveArray(" FMT_U_MEM " (size=" FMT_U_MEM "), "
+                       FMT_D ", " FMT_D "))\n",
+                       arr1, arraySize(arr1), position, length););
+    if (unlikely(length < 0)) {
+      logError(printf("arrRemoveArray(arr1, " FMT_D ", " FMT_D "): "
+                      "Length is negative.\n", position, length););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (unlikely(position < arr1->min_position ||
+                        position > arr1->max_position)) {
+      logError(printf("arrRemoveArray(arr1, " FMT_D "): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position););
+      raise_error(INDEX_ERROR);
+      result = NULL;
+    } else {
+      arr1_size = arraySize(arr1);
+      if (length > MAX_RTL_ARR_LEN) {
+        result_size = MAX_RTL_ARR_LEN;
+      } else {
+        result_size = (memSizeType) (uintType) (length);
+      } /* if */
+      if (result_size > arraySize2(position, arr1->max_position)) {
+        result_size = arraySize2(position, arr1->max_position);
+      } /* if */
+      if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } else {
+        result->min_position = arr1->min_position;
+        result->max_position = arrayMaxPos(arr1->min_position, result_size);
+        array_pointer = arr1->arr;
+        memcpy(result->arr, &array_pointer[arrayIndex(arr1, position)],
+               result_size * sizeof(rtlObjectType));
+        memmove(&array_pointer[arrayIndex(arr1, position)],
+                &array_pointer[arrayIndex(arr1, position) + result_size],
+                (arraySize2(position, arr1->max_position) - result_size) * sizeof(rtlObjectType));
+        arr1_size = arraySize(arr1);
+        resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - result_size);
+        if (unlikely(resized_arr1 == NULL)) {
+          /* A realloc, which shrinks memory, usually succeeds. */
+          /* The probability that this code path is executed is */
+          /* probably zero. The code below restores the old     */
+          /* value of arr1.                                     */
+          memmove(&array_pointer[arrayIndex(arr1, position) + result_size],
+                  &array_pointer[arrayIndex(arr1, position)],
+                  (arraySize2(position, arr1->max_position) - result_size) * sizeof(rtlObjectType));
+          memcpy(&array_pointer[arrayIndex(arr1, position)], result->arr,
+                 result_size * sizeof(rtlObjectType));
+          FREE_RTL_ARRAY(result, result_size);
+          raise_error(MEMORY_ERROR);
+          return NULL;
+        } else {
+          arr1 = resized_arr1;
+          COUNT3_RTL_ARRAY(arr1_size, arr1_size - result_size);
+          arr1->max_position = arrayMaxPos(arr1->min_position, arr1_size - result_size);
+          *arr_to = arr1;
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* arrRemoveArray */
+
+
+
 rtlArrayType arrSort (rtlArrayType arr1, compareType cmp_func)
 
   { /* arrSort */
@@ -1357,52 +1531,53 @@ rtlArrayType arrSort (rtlArrayType arr1, compareType cmp_func)
 
 
 /**
- *  Get a sub array from the position 'start' with maximum length 'len'.
- *  @return the sub array from position 'start' with maximum length 'len'.
+ *  Get a sub array from the position 'start' with maximum length 'length'.
+ *  @return the sub array from position 'start' with maximum length 'length'.
+ *  @exception INDEX_ERROR The start position is less than minIdx(arr1), or
+ *                         the length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType len)
+rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType length)
 
   {
-    memSizeType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     memSizeType start_idx;
     rtlArrayType result;
 
   /* arrSubarr */
-    length = arraySize(arr1);
-    if (len >= 1 && start <= arr1->max_position && length >= 1 &&
-        (start >= arr1->min_position ||
-        (uintType) len > (uintType) (arr1->min_position - start))) {
-      if (start < arr1->min_position) {
-        start = arr1->min_position;
-        len -= arr1->min_position - start;
-      } /* if */
-      if (len - 1 > arr1->max_position - start) {
-        len = arr1->max_position - start + 1;
-      } /* if */
-      result_size = (memSizeType) (uintType) (len);
-      if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->min_position = arr1->min_position;
-        result->max_position = arrayMaxPos(arr1->min_position, result_size);
-        start_idx = arrayIndex(arr1, start);
-        memcpy(result->arr, &arr1->arr[start_idx],
-               (size_t) (result_size * sizeof(rtlObjectType)));
-      } /* if */
-    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-      logError(printf("arrSubarr(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
-                      "Cannot create empty array with minimum index.\n",
-                      length, start, len););
-      raise_error(RANGE_ERROR);
+    if (unlikely(start < arr1->min_position || length < 0)) {
+      raise_error(INDEX_ERROR);
       result = NULL;
     } else {
-      if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
-        raise_error(MEMORY_ERROR);
+      arr1_size = arraySize(arr1);
+      if (length != 0 && start <= arr1->max_position && arr1_size >= 1) {
+        if (length - 1 > arr1->max_position - start) {
+          length = arr1->max_position - start + 1;
+        } /* if */
+        result_size = (memSizeType) (uintType) (length);
+        if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->min_position = arr1->min_position;
+          result->max_position = arrayMaxPos(arr1->min_position, result_size);
+          start_idx = arrayIndex(arr1, start);
+          memcpy(result->arr, &arr1->arr[start_idx],
+                 (size_t) (result_size * sizeof(rtlObjectType)));
+        } /* if */
+      } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
+        logError(printf("arrSubarr(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
+                        "Cannot create empty array with minimum index.\n",
+                        arr1_size, start, length););
+        raise_error(RANGE_ERROR);
+        result = NULL;
       } else {
-        result->min_position = arr1->min_position;
-        result->max_position = arr1->min_position - 1;
+        if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->min_position = arr1->min_position;
+          result->max_position = arr1->min_position - 1;
+        } /* if */
       } /* if */
     } /* if */
     return result;
@@ -1411,17 +1586,19 @@ rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType le
 
 
 /**
- *  Get a sub array from the position 'start' with maximum length 'len'.
+ *  Get a sub array from the position 'start' with maximum length 'length'.
  *  ArrSubarrTemp is used by the compiler if 'arr_temp' is a temporary
  *  value that can be reused.
- *  @return the sub array from position 'start' with maximum length 'len'.
+ *  @return the sub array from position 'start' with maximum length 'length'.
+ *  @exception INDEX_ERROR The start position is less than minIdx(arr1), or
+ *                         the length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len)
+rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType length)
 
   {
     rtlArrayType arr1;
-    memSizeType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     memSizeType start_idx;
     memSizeType stop_idx;
@@ -1430,60 +1607,59 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len)
 
   /* arrSubarrTemp */
     arr1 = *arr_temp;
-    length = arraySize(arr1);
-    if (len >= 1 && start <= arr1->max_position && length >= 1 &&
-        (start >= arr1->min_position ||
-        (uintType) len > (uintType) (arr1->min_position - start))) {
-      if (start < arr1->min_position) {
-        start = arr1->min_position;
-        len -= arr1->min_position - start;
-      } /* if */
-      if (len - 1 > arr1->max_position - start) {
-        len = arr1->max_position - start + 1;
-      } /* if */
-      result_size = (memSizeType) (uintType) (len);
-      if (result_size == length) {
-        result = arr1;
-        *arr_temp = NULL;
+    if (unlikely(start < arr1->min_position || length < 0)) {
+      raise_error(INDEX_ERROR);
+      result = NULL;
+    } else {
+      arr1_size = arraySize(arr1);
+      if (length >= 1 && start <= arr1->max_position && arr1_size >= 1) {
+        if (length - 1 > arr1->max_position - start) {
+          length = arr1->max_position - start + 1;
+        } /* if */
+        result_size = (memSizeType) (uintType) (length);
+        if (result_size == arr1_size) {
+          result = arr1;
+          *arr_temp = NULL;
+        } else {
+          if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
+            raise_error(MEMORY_ERROR);
+          } else {
+            result->min_position = arr1->min_position;
+            result->max_position = arrayMaxPos(arr1->min_position, result_size);
+            start_idx = arrayIndex(arr1, start);
+            stop_idx = arrayIndex(arr1, start + length - 1);
+            memcpy(result->arr, &arr1->arr[start_idx],
+                   (size_t) (result_size * sizeof(rtlObjectType)));
+            memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
+                    (size_t) ((arr1_size - stop_idx - 1) * sizeof(rtlObjectType)));
+            resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - result_size);
+            if (unlikely(resized_arr1 == NULL)) {
+              memcpy(&arr1->arr[arr1_size - result_size], result->arr,
+                     (size_t) (result_size * sizeof(rtlObjectType)));
+              FREE_RTL_ARRAY(result, result_size);
+              raise_error(MEMORY_ERROR);
+              result = NULL;
+            } else {
+              COUNT3_RTL_ARRAY(arr1_size, arr1_size - result_size);
+              resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position,
+                                                       arr1_size - result_size);
+              *arr_temp = resized_arr1;
+            } /* if */
+          } /* if */
+        } /* if */
+      } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
+        logError(printf("arrSubarrTemp(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
+                        "Cannot create empty array with minimum index.\n",
+                        arr1_size, start, length););
+        raise_error(RANGE_ERROR);
+        result = NULL;
       } else {
-        if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
+        if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->min_position = arr1->min_position;
-          result->max_position = arrayMaxPos(arr1->min_position, result_size);
-          start_idx = arrayIndex(arr1, start);
-          stop_idx = arrayIndex(arr1, start + len - 1);
-          memcpy(result->arr, &arr1->arr[start_idx],
-                 (size_t) (result_size * sizeof(rtlObjectType)));
-          memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
-                  (size_t) ((length - stop_idx - 1) * sizeof(rtlObjectType)));
-          resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-          if (unlikely(resized_arr1 == NULL)) {
-            memcpy(&arr1->arr[length - result_size], result->arr,
-                   (size_t) (result_size * sizeof(rtlObjectType)));
-            FREE_RTL_ARRAY(result, result_size);
-            raise_error(MEMORY_ERROR);
-            result = NULL;
-          } else {
-            COUNT3_RTL_ARRAY(length, length - result_size);
-            resized_arr1->max_position = arrayMaxPos(resized_arr1->min_position,
-                                                     length - result_size);
-            *arr_temp = resized_arr1;
-          } /* if */
+          result->max_position = arr1->min_position - 1;
         } /* if */
-      } /* if */
-    } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
-      logError(printf("arrSubarrTemp(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
-                      "Cannot create empty array with minimum index.\n",
-                      length, start, len););
-      raise_error(RANGE_ERROR);
-      result = NULL;
-    } else {
-      if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->min_position = arr1->min_position;
-        result->max_position = arr1->min_position - 1;
       } /* if */
     } /* if */
     return result;
@@ -1494,22 +1670,26 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len)
 /**
  *  Get a sub array beginning at the position 'start'.
  *  @return the sub array beginning at the start position.
+ *  @exception INDEX_ERROR The start position is less than minIdx(arr1).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
 
   {
-    memSizeType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     memSizeType start_idx;
     rtlArrayType result;
 
   /* arrTail */
-    length = arraySize(arr1);
-    if (start <= arr1->max_position && length >= 1) {
-      if (start < arr1->min_position) {
-        start = arr1->min_position;
-      } /* if */
+    arr1_size = arraySize(arr1);
+    if (unlikely(start < arr1->min_position)) {
+      logError(printf("arrTail(arr1 (minIdx=" FMT_D "), " FMT_D "): "
+                      "Start less than minIdx(arr1).\n",
+                      arr1->min_position, start););
+      raise_error(INDEX_ERROR);
+      result = NULL;
+    } else if (start <= arr1->max_position && arr1_size >= 1) {
       result_size = arraySize2(start, arr1->max_position);
       if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
         raise_error(MEMORY_ERROR);
@@ -1523,7 +1703,7 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrTail(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      length, start););
+                      arr1_size, start););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1544,13 +1724,14 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
  *  ArrTailTemp is used by the compiler if 'arr_temp' is a temporary
  *  value that can be reused.
  *  @return the sub array beginning at the start position.
+ *  @exception INDEX_ERROR The start position is less than minIdx(arr1).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
 
   {
     rtlArrayType arr1;
-    memSizeType length;
+    memSizeType arr1_size;
     memSizeType result_size;
     memSizeType start_idx;
     rtlArrayType resized_arr1;
@@ -1558,37 +1739,43 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
 
   /* arrTailTemp */
     arr1 = *arr_temp;
-    length = arraySize(arr1);
-    if (start <= arr1->max_position && length >= 1) {
-      if (start <= arr1->min_position) {
+    arr1_size = arraySize(arr1);
+    if (start <= arr1->min_position) {
+      if (unlikely(start < arr1->min_position)) {
+        logError(printf("arrTailTemp(arr1 (minIdx=" FMT_D "), " FMT_D "): "
+                        "Start less than minIdx(arr1).\n",
+                        arr1->min_position, start););
+        raise_error(INDEX_ERROR);
+        result = NULL;
+      } else {
         result = arr1;
         *arr_temp = NULL;
+      } /* if */
+    } else if (start <= arr1->max_position && arr1_size >= 1) {
+      result_size = arraySize2(start, arr1->max_position);
+      if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
+        raise_error(MEMORY_ERROR);
       } else {
-        result_size = arraySize2(start, arr1->max_position);
-        if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
+        result->min_position = arr1->min_position;
+        result->max_position = arrayMaxPos(arr1->min_position, result_size);
+        start_idx = arrayIndex(arr1, start);
+        memcpy(result->arr, &arr1->arr[start_idx],
+               (size_t) (result_size * sizeof(rtlObjectType)));
+        resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - result_size);
+        if (unlikely(resized_arr1 == NULL)) {
+          FREE_RTL_ARRAY(result, result_size);
           raise_error(MEMORY_ERROR);
+          result = NULL;
         } else {
-          result->min_position = arr1->min_position;
-          result->max_position = arrayMaxPos(arr1->min_position, result_size);
-          start_idx = arrayIndex(arr1, start);
-          memcpy(result->arr, &arr1->arr[start_idx],
-                 (size_t) (result_size * sizeof(rtlObjectType)));
-          resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-          if (unlikely(resized_arr1 == NULL)) {
-            FREE_RTL_ARRAY(result, result_size);
-            raise_error(MEMORY_ERROR);
-            result = NULL;
-          } else {
-            COUNT3_RTL_ARRAY(length, length - result_size);
-            resized_arr1->max_position = start - 1;
-            *arr_temp = resized_arr1;
-          } /* if */
+          COUNT3_RTL_ARRAY(arr1_size, arr1_size - result_size);
+          resized_arr1->max_position = start - 1;
+          *arr_temp = resized_arr1;
         } /* if */
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrTailTemp(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
                       "Cannot create empty array with minimum index.\n",
-                      length, start););
+                      arr1_size, start););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {

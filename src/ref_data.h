@@ -75,4 +75,5 @@ listType rflValue (const const_objectType aReference);
 void rflSetValue (objectType dest, listType source);
 setType setValue (const const_objectType aReference);
 striType strValue (const const_objectType aReference);
+const_striType strValueRef (const const_objectType aReference);
 typeType typValue (const const_objectType aReference);

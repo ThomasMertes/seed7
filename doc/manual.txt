@@ -585,8 +585,9 @@ CONTENTS
       end func;
 
   There can be zero or more 'elsif' parts, and the 'else' part
-  is optional. Alternatively we can use a loop to insist on
-  entering a name:
+  is optional. As you can see the equaliy of strings is checked with '='.
+  An if-statement is one way to improve the greeting program.
+  Alternatively we can use a loop to insist on entering a name:
 
     $ include "seed7_05.s7i";
 
@@ -597,12 +598,12 @@ CONTENTS
         repeat
           write("What's your name? ");
           readln(name);
-        until name (in_string)"><> "";
+        until name <> "";
         writeln("Hi " <& name <& "!");
       end func;
 
   The repeat ... until loop repeats the statements
-  between the two keywords until the condition (in_string)"><> "" is true.
+  between the two keywords until the condition <> "" is true.
   Note that the statements in the repeat loop are executed
   at least once. A solution with a while loop is:
 
@@ -3261,31 +3262,41 @@ CONTENTS
                     "abcde"[6] => EXCEPTION INDEX_ERROR )
       [ A .. B ] Access a substring from position A to B
                   ( Type of arguments A and B: integer,
+                    S [A .. B] is okay for A >= 1 and B >= pred(A),
                     "abcde"[2 .. 4] => "bcd",
                     "abcde"[2 .. 7] => "bcde",
-                    "abcde"[4 .. 2] => "",
+                    "abcde"[4 .. 3] => "",
+                    "abcde"[4 .. 2] => EXCEPTION INDEX_ERROR,
                     "abcde"[6 .. 8] => "",
-                    "abcde"[-3 .. 4] => "abcd",
-                    "abcde"[-3 .. 7] => "abcde",
-                    "abcde"[-3 .. 0] => "" )
+                    "abcde"[1 .. 3] => "abc",
+                    "abcde"[0 .. 3] => EXCEPTION INDEX_ERROR,
+                    "abcde"[1 .. 0] => "",
+                    "abcde"[1 .. -1] => EXCEPTION INDEX_ERROR )
       [ A len B ] Access a substring from position A with length B
                   ( Type of arguments A and B: integer,
+                    S [A len B] is okay for A >= 1 and B >= 0,
                     "abcde"[2 len 3] => "bcd",
                     "abcde"[2 len 5] => "bcde",
-                    "abcde"[-3 len 8] => "abcd",
-                    "abcde"[-1 len 9] => "abcde" )
+                    "abcde"[3 len 0] => "",
+                    "abcde"[3 len -1] => EXCEPTION INDEX_ERROR,
+                    "abcde"[1 len 2] => "ab",
+                    "abcde"[0 len 2] => EXCEPTION INDEX_ERROR )
       [ A .. ]  Access a substring beginning at position A
                   ( Type of argument A: integer,
+                    S [A ..] is okay for A >= 1,
                     "abcde"[3 ..] => "cde",
                     "abcde"[6 ..] => "",
-                    "abcde"[-3 ..] => "abcde",
-                    ""[1 ..] => "" )
+                    ""[1 ..] => "",
+                    "abcde"[1 ..] => "abcde",
+                    "abcde"[0 ..] =>  EXCEPTION INDEX_ERROR )
       [ .. A ]  Access a substring ending at position A
                   ( Type of argument A: integer,
+                    S [.. A] is okay for A >= 0,
                     "abcde"[.. 4] => "abcd",
                     "abcde"[.. 6] => "abcde",
-                    "abcde"[.. -3] => "",
-                    ""[.. 5] => "" )
+                    ""[.. 5] => "",
+                    "abcde"[.. 0] => "",
+                    "abcde"[.. -1] => EXCEPTION INDEX_ERROR )
     Relations:
       =, <>, <, <=, >, >=
     Functions:
@@ -3429,8 +3440,22 @@ CONTENTS
 
     The type 'array baseType' describes sequences of 'baseType'
   elements (including the empty sequence).
+  Examples of array type declarations are:
 
-    For example: 'array integer' describes arrays of integer elements.
+    const type: striArrayType is array string;
+    const type: structArrayType is array aStructType;
+
+  This defines 'striArrayType' as an array type with 'string' elements. The
+  second line defines 'structArrayType' as an array type with aStructType
+  elements. Variables of these types are declared with:
+
+    var striArrayType: striArr1 is striArrayType.value;
+    var striArrayType: striArr2 is 0 times "";
+    var striArrayType: striArr3 is [] ("one", "two");
+    var striArrayType: striArr4 is [0] ("zero", "one");
+    var structArrayType: structArr1 is structArrayType.value;
+    var structArrayType: structArr2 is 10 times aStructType.value;
+    var structArrayType: structArr3 is [42 .. 365] times aStructType.value;
 
   An element of an array can be accessed with an 'integer' index.
   The minimal and maximal indices of an array are part of the value
@@ -3439,7 +3464,17 @@ CONTENTS
   index of 1 and other functions which generate arrays with the minimal
   index taken from a parameter. The 'array' functions are defined
   in the library "array.s7i". Arrays with non-integer index are defined
-  in the library "idxarray.s7i".
+  in the library "idxarray.s7i". An array type with 'char' index and
+  'bigInteger' elements is defined as:
+
+    const type: charIndexArray is array [char] bigInteger;
+
+  Variables of this type are declared with:
+
+    var charIndexArray: bigArr1 is charIndexArray.value;
+    var charIndexArray: bigArr2 is char times 42_;
+    var charIndexArray: bigArr3 is [char] (0_, 1_, 2_);
+    var charIndexArray: bigArr4 is [' '] (32_, 33_, 34_);
 
     Literal:
       [] (elem1, elem2)  Create an array with the given elements
@@ -3471,13 +3506,23 @@ CONTENTS
                     A[pred(minIdx(A))] => EXCEPTION INDEX_ERROR,
                     A[succ(maxIdx(A))] => EXCEPTION INDEX_ERROR )
       [ A .. B ]  Get a sub array from the position A to the position B
-                  ( Type of arguments A and B: integer )
+                  ( Type of arguments A and B: integer,
+                    X [ A .. B ] is okay for A >= minIdx(X) and B >= pred(A),
+                    anArray[pred(minIdx(anArray)) .. n] => EXCEPTION INDEX_ERROR,
+                    anArray[n .. n - 2] => EXCEPTION INDEX_ERROR )
       [ A len B ]  Get a sub array from the position A with maximum length B
-                  ( Type of arguments A and B: integer )
+                  ( Type of arguments A and B: integer,
+                    X [ A len B ] is okay for A >= minIdx(X) and B >= 0,
+                    anArray[pred(minIdx(anArray)) len n] => EXCEPTION INDEX_ERROR,
+                    anArray[n len -1] => EXCEPTION INDEX_ERROR )
       [ A .. ]  Get a sub array beginning at position A
-                  ( Type of argument A: integer )
+                  ( Type of argument A: integer,
+                    X [ A .. ] is okay for A >= minIdx(X),
+                    anArray[pred(minIdx(anArray)) ..] => EXCEPTION INDEX_ERROR )
       [ .. A ]  Get a sub array ending at position A
-                  ( Type of argument A: integer )
+                  ( Type of argument A: integer,
+                    X [ .. A ] is okay for A >= pred(minIdx(X)),
+                    anArray[.. minIdx(anArray) - 2] => EXCEPTION INDEX_ERROR )
     Relations:
       =, <>
     Functions:
@@ -3500,7 +3545,17 @@ CONTENTS
                   return the removed element
                   ( Type of argument B: integer,
                     Type of result: baseType,
-                    remove(0 times TRUE, 1) => EXCEPTION INDEX_ERROR )
+                    remove(A,B) is okay for B >= minIdx(A) and B <= maxIdx(A),
+                    remove(anArray, 0) => EXCEPTION INDEX_ERROR for minIdx(anArray) = 1,
+                    remove(anArray, 5) => EXCEPTION INDEX_ERROR for maxIdx(anArray) = 4 )
+      remove(A,B,C) Remove the sub-array with with index B and length C from array A and
+                  return the removed sub-array
+                  ( Type of argument B: integer,
+                    Type of argument C: integer,
+                    remove(A,B,C) is okay for B >= minIdx(A) and B <= maxIdx(A) and C >= 0,
+                    remove(anArray, 0, 1) => EXCEPTION INDEX_ERROR for minIdx(anArray) = 1,
+                    remove(anArray, 6, 1) => EXCEPTION INDEX_ERROR for maxIdx(anArray) = 4,
+                    remove(anArray, 1, -1) => EXCEPTION INDEX_ERROR )
       sort(A)   Sort array using the compare(baseType, baseType) function
     Statements:
       A &:= B   Append B to A
@@ -3513,9 +3568,17 @@ CONTENTS
       end for   Loop over all elements of an array
                   ( Type of argument A: baseType,
                     Type of argument C: proc )
-      insert(A, B, C) Insert C to the array A at position B
+      insert(A,B,C) Insert element C into array A at index B
                   ( Type of argument B: integer,
-                    Type of argument C: baseType )
+                    Type of argument C: baseType,
+                    insert(A,B,C) is okay for B >= minIdx(A) and B <= succ(maxIdx(A)),
+                    insert(anArray, 0, anElement) => EXCEPTION INDEX_ERROR for minIdx(anArray) = 1,
+                    insert(anArray, 6, anElement) => EXCEPTION INDEX_ERROR for maxIdx(anArray) = 4 )
+      insert(A,B,C) Insert array C into array A at index B
+                  ( Type of argument B: integer,
+                    insert(A,B,C) is okay for B >= minIdx(A) and B <= succ(maxIdx(A)),
+                    insert(anArray, 0, anotherAnarry) => EXCEPTION INDEX_ERROR for minIdx(anArray) = 1,
+                    insert(anArray, 6, anotherAnarry) => EXCEPTION INDEX_ERROR for maxIdx(anArray) = 4 )
       insert(A, B) Insert B into the sorted array A
                   ( Type of argument C: baseType )
 
@@ -3524,11 +3587,17 @@ CONTENTS
 
     The type 'hash [keyType] baseType' describes hash tables with
   elements of 'baseType'. The elements can be accessed with an index
-  of 'keyType'.
+  of 'keyType'. An example of a hash type declaration is:
 
-    For example: 'hash [string] integer' describes hash tables with
-    'integer' elements and 'string' keys.
+    const type: aHashType is hash [string] integer;
 
+  This defines 'aHashType' as a hash type with 'integer' elements and
+  'string' keys. Variables of this type are declared with:
+
+    var aHashType: aHashTable is aHashType.value;
+
+  The expressions 'aHashType.value' and 'aHashType.EMPTY_HASH' describe
+  empty hash tables. Beside them there are no hash table literals.
   The 'keyType' of a hash needs to provide the functions 'hashCode'
   and 'compare'. Besides this the 'keyType' can be any type. The
   'hash' functions are defined in the library "hash.s7i".
@@ -3586,7 +3655,18 @@ CONTENTS
 5.12 set
 
     The type 'set of baseType' describes a set of elements of a
-  'baseType'. (including the empty set). The type 'set of baseType' is
+  'baseType'. (including the empty set). An example of a set type
+  declaration is:
+
+    const type: aSetType is set of integer;
+
+  This defines 'aSetType' as a set type with 'integer' elements.
+  Variables of this type are declared with:
+
+    var aSetType: aSet is aSetType.value;
+    var aSetType: aSet is {1, 2, 3};
+
+  The type 'set of baseType' is
   defined in the library "set.s7i". This abstract data type decides
   about the implementation of the set. When 'baseType' values can be
   mapped to 'integer' with the 'ord' function and 'ord' does never
@@ -3696,7 +3776,20 @@ CONTENTS
 
 5.13 struct
 
-    The type 'struct' describes all structured types.
+    The type 'struct' describes all structured types. An example of a
+  struct type declaration is:
+
+    const type: aStructType is new struct
+        var string: name is "";
+      end struct
+
+  Variables of this type are declared with:
+
+    var aStructType: aStructVariable is aStructType.value;
+
+  In 'aStructType.value' all elements have the initialisation values from
+  the struct declaration of 'aStructType'. Besides 'aStructType.value'
+  there are no struct literals.
 
     Type generators:
       new struct
@@ -4686,7 +4779,12 @@ CONTENTS
 
 5.29 type
 
-    The type 'type' describes all types.
+    The type 'type' describes all types. Examples of type declarations are:
+
+    const type: intArrayType is array integer;
+    const type: arrayIndexChar is array [char] string;
+    const type: hashType is hash [string] intArrayType;
+    const type: setType is set of char;
 
     Values:
       void, boolean, integer, rational, float, char,
@@ -6689,7 +6787,7 @@ CONTENTS
         end while;
       end func;
 
-  The current position of the mouse curser, which is independend
+  The current position of the mouse cursor, which is independent
   from key presses can be retrieved with the following functions:
 
     - 'pointerXPos', which returns the actual X position of the
@@ -12729,9 +12827,9 @@ CONTENTS
   'bstring' or 'ref_list' with a negative or zero index raises also INDEX_ERROR.
 
     It may be raised from the following 'array' operations:
-        [index], remove.
+        [index], [index ..], [.. index], [start .. stop], [index len length], insert, remove.
     It may be raised from the following 'string' operations:
-        [index], @:= [index] char, @:= [index] string.
+        [index], [index ..], [.. index], [start .. stop], [index len length], @:= [index] char, @:= [index] string.
     It may be raised from the following 'bstring' operation:
         [index].
     It may be raised from the following 'ref_list' operations:

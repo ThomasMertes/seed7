@@ -117,6 +117,7 @@ striType strSubstr (const const_striType stri, intType start, intType len);
 void strTailSlice (const const_striType stri, intType start, striType slice);
 #endif
 striType strTail (const const_striType stri, intType start);
+striType strTailTemp (const striType stri, intType start);
 striType strToUtf8 (const const_striType stri);
 striType strTrim (const const_striType stri);
 striType strUp (const const_striType stri);

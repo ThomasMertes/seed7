@@ -145,6 +145,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(ARR_IDX, function, params, c_expr);
       when {"ARR_INSERT"}:
         process(ARR_INSERT, function, params, c_expr);
+      when {"ARR_INSERT_ARRAY"}:
+        process(ARR_INSERT_ARRAY, function, params, c_expr);
       when {"ARR_LNG"}:
         process(ARR_LNG, function, params, c_expr);
       when {"ARR_MAXIDX"}:
@@ -157,6 +159,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(ARR_RANGE, function, params, c_expr);
       when {"ARR_REMOVE"}:
         process(ARR_REMOVE, function, params, c_expr);
+      when {"ARR_REMOVE_ARRAY"}:
+        process(ARR_REMOVE_ARRAY, function, params, c_expr);
       when {"ARR_SORT"}:
         process(ARR_SORT, function, params, c_expr);
       when {"ARR_SUBARR"}:

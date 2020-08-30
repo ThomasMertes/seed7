@@ -85,7 +85,7 @@ const integer: RPM_STRING_ARRAY_TYPE is 8;  # Variable, vector of NULL-terminate
 const integer: RPM_I18NSTRING_TYPE   is 9;  # Variable, vector of NULL-terminated strings
 
 const integer: RPMTAG_HEADERIMMUTABLE    is   63;  # BIN          Optional
-const integer: RPMTAG_HEADERI18NTABLE    is  100;  # STRING_ARRAY Required  Constains a list of locales for which strings are provided
+const integer: RPMTAG_HEADERI18NTABLE    is  100;  # STRING_ARRAY Required  Contains a list of locales for which strings are provided
 const integer: RPMTAG_NAME               is 1000;  # STRING       Required  Name of package
 const integer: RPMTAG_VERSION            is 1001;  # STRING       Required  Version of package
 const integer: RPMTAG_RELEASE            is 1002;  # STRING       Required  Release of package

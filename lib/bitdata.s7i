@@ -763,14 +763,14 @@ const func integer: getBits (inout reverseBitStream: bitStream, in integer: bitW
         bitsLeftInHighestByte := succ(bitStream.offset mod 8);
 
         if bitWidth < bitsLeftInHighestByte then
-          # Can satisfy with bits from the higest byte
+          # Can satisfy with bits from the highest byte
           keepBitsInHighestByte := bitsLeftInHighestByte - bitWidth;  # Number of bits that are preserved.
           resultBits := (ord(bitStream.data[indexOfHighestByte]) >> keepBitsInHighestByte) mod (1 << bitWidth);
         else
           # take bits from highest byte
           valueFromHighestByte := ord(bitStream.data[indexOfHighestByte]) mod (1 << bitsLeftInHighestByte);
           if bitWidth = bitsLeftInHighestByte then
-            # Can satisfy with bits from the higest byte
+            # Can satisfy with bits from the highest byte
             resultBits := valueFromHighestByte;
           else
             spanningFullBytes  := (bitWidth - bitsLeftInHighestByte) mdiv 8;

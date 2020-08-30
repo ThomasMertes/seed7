@@ -176,7 +176,7 @@ General
 Why a new programming language?
 </b></a></li>
 <li><a class="link" href="#faq_design_principles"><b>
-What are the design principles Seed7?
+What are the design principles of Seed7?
 </b></a></li>
 <li><a class="link" href="#faq_extensible_programming"><b>
 What is an extensible programming language?
@@ -244,6 +244,9 @@ How is the syntax of Seed7 defined?
 <li><a class="link" href="#faq_statements"><b>
 Why does Seed7 not use the C statements like C++ and Java?
 </b></a></li>
+<li><a class="link" href="#faq_declaration_syntax"><b>
+Why is the <tt>type: name</tt> declaration syntax used?
+</b></a></li>
 <li><a class="link" href="#faq_everybody_invents_statements"><b>
 Isn't the code unreadable if everybody invents new statements?
 </b></a></li>
@@ -285,6 +288,15 @@ Why is it necessary to initialize all variables?
 </b></a></li>
 <li><a class="link" href="#faq_unicode"><b>
 Is Unicode supported?
+</b></a></li>
+<li><a class="link" href="#faq_mutable_strings"><b>
+Why are the strings in Seed7 mutable?
+</b></a></li>
+<li><a class="link" href="#faq_indexed_from_one"><b>
+Why are strings indexed from one?
+</b></a></li>
+<li><a class="link" href="#faq_comparisons"><b>
+How are comparisons done in Seed7?
 </b></a></li>
 <li><a class="link" href="#faq_database_access"><b>
 Can Seed7 access databases?
@@ -358,8 +370,14 @@ Are there static methods / class methods?
 <li><a class="link" href="#faq_generics"><b>
 Are there generics / templates?
 </b></a></li>
+<li><a class="link" href="#faq_no_artificial_restrictions"><b>
+What restrictions does Seed7 have?
+</b></a></li>
 <li><a class="link" href="#faq_undefined_behavior"><b>
 What means the term undefined behavior?
+</b></a></li>
+<li><a class="link" href="#faq_break_and_continue"><b>
+How to define break and continue?
 </b></a></li>
 <li><a class="link" href="#faq_exceptions"><b>
 Are there exceptions?
@@ -375,6 +393,9 @@ Where does the interpreter look for include libraries?
 </b></a></li>
 <li><a class="link" href="#faq_predefined_include_libraries"><b>
 How is the directory of the predefined include libraries determined?
+</b></a></li>
+<li><a class="link" href="#faq_make_depend"><b>
+What happens during <tt>make depend</tt>?
 </b></a></li>
 <li><a class="link" href="#faq_cmd_config_value"><b>
 How does the Seed7 compiler get information about C compiler and runtime?
@@ -439,7 +460,7 @@ programming languages:
    different language.</li>
 </ul></div>
 
-<div><br /><a name="faq_design_principles"><h3>What are the design principles Seed7?
+<div><br /><a name="faq_design_principles"><h3>What are the design principles of Seed7?
 </h3></a><hr />
 <p>
 The design principles are:
@@ -480,10 +501,8 @@ The design principles are:
    overloading of operators.</dd>
 
 <dt>Performance:</dt><dd>
-   The Seed7 <a class="link" href="#faq_compile">compiler</a> is written in Seed7. It creates C and calls
-   the C compiler, which generates machine code. The generated C
-   program is adapted for the configured C compiler and operating
-   system.</dd>
+   Seed7 is designed to allow <a class="link" href="#faq_compile">compilation</a> to efficient machine
+   code. Several high level <span class="link">optimizations</span> are done also.</dd>
 
 <dt>No virtual machine:</dt><dd>
    Seed7 is based on the executables of the operating system.
@@ -494,10 +513,10 @@ The design principles are:
    reads 400000 lines per second or more.</dd>
 
 <dt>No artificial restrictions:</dt><dd>
-   There is no limit for length of an identifier or string, for
-   the number of variables or number of nesting levels, etc.
-   Nowadays this is no problem, but old programming languages
-   have lots of these limits.</dd>
+   Historic programming languages have a lot of artificial
+   <a class="link" href="#faq_no_artificial_restrictions">restrictions</a>. In Seed7 there is no limit for length of an
+   identifier or string, for the number of variables or number
+   of nesting levels, etc.</dd>
 
 <dt>Independent of databases:</dt><dd>
    The <a class="link" href="#faq_database_access">database</a> drivers of Seed7 consist of 30000 lines of C.
@@ -683,10 +702,11 @@ Several features of Seed7 are missing in Java:
   <tr><td>Stand alone functions                     </td><td> Singletons must be used instead </td></tr>
   <tr><td>Call-by-reference parameters              </td><td> All parameters are call-by-value </td></tr>
   <tr><td><a class="link" href="#faq_call_by_name">Call-by-name</a> parameters                   </td><td> All parameters are call-by-value </td></tr>
-  <tr><td><a class="link" href="#faq_overloading">Operator overloading</a>                      </td><td> No possibility to use <tt>+</tt> for <tt>BigInteger</tt> values </td></tr>
+  <tr><td><a class="link" href="#faq_overloading">Operator overloading</a>                      </td><td> In Java it is necessary to write <tt>a.add(b.multiply(c))</tt> instead of <tt>a <span class="op_no_ul">+</span> b <span class="op_no_ul">*</span> c</tt>. </td></tr>
   <tr><td>User defined operators                    </td><td> - </td></tr>
   <tr><td>User defined statements                   </td><td> - </td></tr>
   <tr><td>User defined syntax                       </td><td> - </td></tr>
+  <tr><td><a class="link" href="#faq_comparisons">One operator to check for equality</a>        </td><td> For POD types Java uses <tt><span class="op">==</span></tt> and for strings <tt>name.equals(<span class="stri">""</span>)</tt>.</td></tr>
   <tr><td><a class="link" href="#faq_initialize_data">Elegant way to express data structures</a>    </td><td> Property files and XML must be used instead </td></tr>
   <tr><td><a class="link" href="#faq_initialize_data">User defined functions to initialize data</a> </td><td> - </td></tr>
   <tr><td><a class="link" href="#faq_multiple_dispatch">Multiple dispatch</a>                         </td><td> - </td></tr>
@@ -739,12 +759,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-07-27 the number of lines is:
+than 300000 lines of Seed7. For version 2020-08-30 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">159445</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12642</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">180506</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">159775</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">160115</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12650</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">190227</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">160146</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1051,7 +1071,9 @@ chkflt ........... okay
 chkbin ........... okay
 chkchr ........... okay
 chkstr ........... okay
+chkidx ........... okay
 chkbst ........... okay
+chkarr ........... okay
 chkprc ........... okay
 chkbig ........... okay
 chkbool ........... okay
@@ -1334,6 +1356,54 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
     result = 0;
 <span class="keywd">end case</span>;
 </pre></li></ol></div>
+
+<div><br /><a name="faq_declaration_syntax"><h3>Why is the <tt>type: name</tt> declaration syntax used?
+</h3></a><hr />
+<p>
+Many languages of the ALGOL and C family define variables this way:
+</p><pre class="indent">
+<span class="type">int</span> x
+</pre><p>
+If a variable is initialized something like
+</p><pre class="indent">
+<span class="type">int</span> x = 888;
+</pre><p>
+is used. Constant declarations often look like this:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">int</span> x = 888;
+</pre><p>
+The Seed7 declaration syntax is oriented towards these examples. Variable
+declarations are introduced with <tt><span class="keywd">var</span></tt> and constant declarations are
+introduced with <tt><span class="keywd">const</span></tt>. The equals sign is replaced with <tt><span class="keywd">is</span></tt>. This
+would lead to:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type_no_ul">integer</span> x <span class="keywd">is</span> 42;
+</pre><p>
+As separator between type and name a colon is used:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type_no_ul">integer</span>: x <span class="keywd">is</span> 42;
+</pre><p>
+Writing the type before the name offers the opportunity to have a type
+declaration that is easy to recognize and uses the same syntax:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type_no_ul">type</span>: stack <span class="keywd">is</span> <span class="type_no_ul">array</span> <span class="type_no_ul">integer</span>;
+</pre><p>
+It is also easy to recognize function declarations although they use
+the same syntax:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">integer</span>: computeSomething <span class="keywd">is</span> ...
+</pre><p>
+In a block with several declarations the type can be recognized easily:
+</p><pre class="indent">
+<span class="keywd">var</span> <span class="type_no_ul">integer</span>: index <span class="keywd">is</span> 1;
+<span class="keywd">var</span> <span class="type_no_ul">integer</span>: paramValue <span class="keywd">is</span> 0;
+<span class="keywd">var</span> <span class="type_no_ul">bigInteger</span>: bigSum <span class="keywd">is</span> 0_;
+</pre><p>
+The colon confuses many programmers with a background from dynamically
+typed languages. In these languages optional type specifications have been
+introduced later and they use <tt>name: type</tt>. In Seed7 the specification
+of the type is not optional but mandatory. 
+</p></div>
 
 <div><br /><a name="faq_everybody_invents_statements"><h3>Isn't the code unreadable if everybody invents new statements?
 </h3></a><hr />
@@ -1712,9 +1782,91 @@ is switched off by default and must be activated with the pragma:
 </p><pre class="indent">
 $ names unicode;
 </pre><p>
-This pragma allows variables with e.g. german umlauts or cyrillic letters.
+This pragma allows variables with e.g. German umlauts or Cyrillic letters.
 This way beginners can use variable and function names from their native
 language.
+</p></div>
+
+<div><br /><a name="faq_mutable_strings"><h3>Why are the strings in Seed7 mutable?
+</h3></a><hr />
+<p>
+Java, C# and several other languages use immutable strings. But immutable strings
+have not only advantages. They have also disadvantages. Okay, assigning immutable
+strings is cheap (just the pointer is assigned), but almost everything else becomes
+more expensive. Every time immutable strings are changed the whole string content
+must be copied. If you want to change a string a lot, this becomes very costly.
+For that reason Java introduced the mutable string class StringBuffer (and later
+StringBuilder). Maintaining the string data of immutable strings is also an
+overhead that costs time, as it requires bookkeeping and a garbage collection.
+</p><p>
+The string handling of mutable strings can be optimized, such that copying the
+string content can be avoided in many cases. This is done by the Seed7 interpreter
+and compiler. You get cheap string parameter passing, string slicing and assignment
+without being bothered with immutable and mutable string types (which is essentially
+an implementation detail). Mutable strings give us also consistent language
+semantics (strings are not handled different than other objects).
+</p></div>
+
+<div><br /><a name="faq_indexed_from_one"><h3>Why are strings indexed from one?
+</h3></a><hr />
+<p>
+Here is a little list to explain that. Please read the second line from the list:
+</p><ul>
+<li>You probably forgot that you should just read the second line.</li>
+<li>This is the second line from the list.</li>
+<li>You probably also count your partners starting from zero.</li>
+<li>Next time read the instructions more carefully.</li>
+</ul><p>
+This example makes it clear. The number one has been invented as starting point
+to count something. The first character in this sentence is T not h. So the
+question is: Why does everybody think that in computer science the first character
+has the index 0? Basically this comes from C. Arrays and strings in C are viewed
+as pointer + offset. So it is natural that the first offset is 0. From C this
+concept spread to many other programming languages. Seed7 breaks with this
+tradition as it uses the number one again for the purpose it has been invented,
+thousands of years ago, long before zero has been invented.
+</p></div>
+
+<div><br /><a name="faq_comparisons"><h3>How are comparisons done in Seed7?
+</h3></a><hr />
+<p>
+In Seed7 the operators <tt><span class="op">=</span></tt> (equal) and <tt><span class="op">&lt;&gt;</span></tt> (not equal) are defined for all types.
+Additionally many types define also the operators <tt><span class="op">&lt;</span></tt> (less than), <tt><span class="op">&lt;=</span></tt> (less than or
+equal to), <tt><span class="op">&gt;</span></tt> (greater than) and <tt><span class="op">&gt;=</span></tt> (greater than or equal to). These operators do
+exactly what the corresponding type considers as the correct comparison.
+</p><p>
+In Java and other languages you are discouraged to use the normal equality
+comparison operator (<tt><span class="op">==</span></tt>) for string comparisons. Instead you need to use an
+expression like <tt>name.equals(<span class="stri">""</span>)</tt>. The <tt><span class="op">==</span></tt> operator just compares references,
+which is almost never the desired operation. Seed7 is much more consistent in
+this regard, because the <tt><span class="op">=</span></tt> operator is generally used to check for equality.
+It is just not necessary to tell every newcomer that <tt><span class="op">==</span></tt> is used to compare
+integers, but that it should never be used to compare strings.
+</p><p>
+Most types define also the function <tt><span class="func">compare</span>(A, B)</tt>, which returns -1 (if A is
+less than B), 0 (if A equals B) or 1 (if A is greater than B). This function
+defines a total order over the values of a type even if <tt><span class="op">&lt;</span></tt> has not been defined
+or if <tt><span class="op">&lt;</span></tt> does not define a total order. E.g.:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> type       </th><th> comparisons    </th><th> compare </th><th> comment                                </th></tr>
+  
+  <tr><td> <tt><span class="type">float</span></tt>      </td><td align="center"> <tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt> <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> </td><td> <tt><span class="func">compare</span></tt> </td><td> According to IEEE 754 a <tt><span class="var">NaN</span></tt> is neither 
+                                        less than, equal to, nor greater than  
+                                        any value, including itself.           
+                                        Float <tt><span class="func">compare</span>(A, B)</tt> considers all      
+                                        <tt><span class="var">NaN</span></tt> values as greater than <tt><span class="var">Infinity</span></tt>.   </td></tr>
+  
+  <tr><td> <tt><span class="type">complex</span></tt>    </td><td align="center"> <tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt>           </td><td> <tt><span class="func">compare</span></tt> </td><td> Compares real and imaginary part.      </td></tr>
+  
+  <tr><td> <tt><span class="type">bitset</span></tt>     </td><td align="center"> <tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt> <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> </td><td> <tt><span class="func">compare</span></tt> </td><td> The comparisons <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> check for    
+                                        subsets and supersets.                 
+                                        Bitset <tt><span class="func">compare</span>(A, B)</tt> compares by       
+                                        determining the biggest element that   
+                                        is not present or absent in both sets. </td></tr>
+  
+</table></dd></dl><p>
+Hash tables use <tt><span class="func">compare</span>(A, B)</tt> to manage their elements.
 </p></div>
 
 <div><br /><a name="faq_database_access"><h3>Can Seed7 access databases?
@@ -1995,7 +2147,7 @@ off with the <span class="link">compiler</span> option <a class="link" href="#fa
 <div><br /><a name="faq_garbage_collection"><h3>Is there a garbage collection?
 </h3></a><hr />
 <p>
-There is automatic memory management, but there is no garbage collection
+There is an automatic memory management, but there is no garbage collection
 process, that interrupts normal processing. There is no situation, where a
 garbage collection needs to "stop the world". The automatic memory management
 of Seed7 uses different mechanisms. Memory usage can be categorized and for
@@ -2016,9 +2168,14 @@ every category a specific strategy of automatic memory management is used:
    intermediate result and just assign it to the variable. This way it is not
    always necessary to copy arbitrary complex values. All this things can be
    decided by the compiler.</li>
-<li><span class="link">Strings</span>, <span class="link">arrays</span>, <span class="link">hashes</span> and other containers manage their memory. E.g.:
-   When an element is removed from a hash table the memory used by the element
-   is freed as well as the hash table internal data.</li>
+<li>The memory of <span class="link">strings</span>, <span class="link">bigIntegers</span>, <span class="link">bitsets</span>, <span class="link">arrays</span> and <span class="link">hashes</span> is referenced
+   just once. These types do not need reference counting.</li>
+<li><span class="link">Arrays</span>, <span class="link">hashes</span> and other containers manage their memory. E.g.: When an
+   element is removed from a hash table the memory used by the element is
+   freed as well as the hash table internal data. If the container itself is
+   removed all its elements are removed as well.</li>
+<li>Windows, <span class="link">processes</span>, <span class="link">databases</span>, <span class="link">sql statements</span> and <span class="link">programs</span> use a reference
+   counter to free the data.</li>
 <li>A struct value can be referred by one struct variable and by several
    interface variables. Struct values use a reference counter to free the
    struct, if no reference to it exists.</li>
@@ -2395,6 +2552,30 @@ as the C++ template functions. The explicit calls of template functions make it
 obvious what it is going on. This way the program is easier to read.
 </p></div>
 
+<div><br /><a name="faq_no_artificial_restrictions"><h3>What restrictions does Seed7 have?
+</h3></a><hr />
+<p>
+Historic compilers used fixed size memory areas to store the data of the compiled
+program. Limitations like source line length, identifier length, string length or
+number of nesting levels can be found in language manuals. If you reach such a
+limit an otherwise correct program will not compile. In Seed7 restrictions of
+other languages have been released:
+</p><ul>
+<li>There is no limitation in the length of an identifier and
+   all characters of an identifier are significant.</li>
+<li>Statements and parentheses can be nested without limitation
+   in depth.</li>
+<li>The number of parameters and local variables is not
+   limited.</li>
+<li><span class="link">Strings</span> can contain any characters (also the NUL character)
+   This allows holding binary information in strings.</li>
+<li>Although strings are not NUL terminated they have
+   no size limitation. (Except there is no more memory)</li>
+<li><span class="link">String literals</span> can have any length.</li>
+<li>There is no limitation in the length of a source line.</li>
+<li>There is no level limitation for nesting includes.</li>
+</ul></div>
+
 <div><br /><a name="faq_undefined_behavior"><h3>What means the term undefined behavior?
 </h3></a><hr />
 <p>
@@ -2406,6 +2587,21 @@ NULL or a signed integer overflow all trigger undefined behavior.
 Seed7 has a well defined behavior in all situations. Even in
 situations where the language specification of C refers to
 undefined behavior.
+</p></div>
+
+<div><br /><a name="faq_break_and_continue"><h3>How to define break and continue?
+</h3></a><hr />
+<p>
+The context of <tt>break</tt> and <tt>continue</tt> determines what they do. In this regard
+they are not statements on their own, but part of a surrounding statement.
+Just as <tt>goto</tt> statements they violate the concept of structured programming.
+Seed7 can define the syntax and semantic of all structured statements easily.
+E.g.: You can define a structured <span class="link">loop statement with an exit in the middle</span>.
+Since <tt>break</tt> and <tt>continue</tt> are not structured statements there is no
+straightforward way to implement them. But they could be implemented with
+<a class="link" href="#faq_exceptions">exceptions</a>. Often <tt>break</tt> and <tt>continue</tt> are seen as trick to get more
+performance. <a class="link" href="#faq_exceptions">Exceptions</a> would not deliver that. For that reason and to promote
+structured programming <tt>break</tt>, <tt>continue</tt> and <tt>goto</tt> are not supported.
 </p></div>
 
 <div><br /><a name="faq_exceptions"><h3>Are there exceptions?
@@ -2498,7 +2694,7 @@ possible to set the environment variable <tt>SEED7_LIBRARY</tt> to the absolute 
 <p>
 The directory of the predefined include libraries is hard-coded in the interpreter.
 This information is determined when the Seed7 interpreter is compiled. The command
-<tt>'make depend'</tt> writes a line, which defines the C preprocessor variable
+<a class="link" href="#faq_make_depend">make depend</a> writes a line, which defines the C preprocessor variable
 SEED7_LIBRARY, to the file <nobr><span class="lib">seed7/src/version.h</span></nobr>. E.g.: The file <nobr><span class="lib">version.h</span></nobr>
 contains the line:
 </p><pre class="indent">
@@ -2511,12 +2707,55 @@ Interpreter and compiler use the same strategy to determine the directory with
 predefined include libraries.
 </p></div>
 
+<div><br /><a name="faq_make_depend"><h3>What happens during <tt>make depend</tt>?
+</h3></a><hr />
+<p>
+The instructions how to <a class="link" href="#faq_compile_interpreter">compile the interpreter</a> clearify that you need
+a makefile that is specific for your combination of operating system,
+make utility, C compiler and shell. When you use the command
+</p><pre class="indent">
+make depend
+</pre><p>
+your specific makefile writes three configuration files:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> config file </th><th> included by </th><th> copied to </th></tr>
+  
+  <tr><td> <span class="lib">chkccomp.h</span>  </td><td align="center"> chkccomp.c  </td><td>           </td></tr>
+  <tr><td> <span class="lib">base.h</span>      </td><td align="center"> chkccomp.c  </td><td> version.h </td></tr>
+  <tr><td> <span class="lib">settings.h</span>  </td><td align="center">             </td><td> version.h </td></tr>
+  
+</table></dd></dl><p>
+These files contain C preprocessor macros with configuration values
+that are specific for the OS and the C compiler. The command <tt>make depend</tt>
+also compiles <span class="lib">chkccomp.c</span>. This program includes <span class="lib">base.h</span> and <span class="lib">chkccomp.h</span>.
+After the compilation <span class="lib">chkccomp</span> is executed with:
+</p><pre class="indent">
+./chkccomp version.h
+</pre><p>
+When <span class="lib">chkccomp</span> runs it copies the files <span class="lib">base.h</span> and <span class="lib">settings.h</span> to
+<span class="lib">version.h</span>. Then it tests the properties of the OS and the C compiler
+with various small test programs. The results of these tests are also
+written to <span class="lib">version.h</span>.
+</p><p>
+Afterwards the program <span class="lib">setpaths.c</span> is compiled and then executed with:
+</p><pre class="indent">
+./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
+</pre><p>
+This appends further information to <span class="lib">version.h</span> (which includes the
+absolute path to the seed7 directory). The environment variables <tt><span class="link">S7_LIB_DIR</span></tt>
+and <tt><span class="link">SEED7_LIBRARY</span></tt> allow the specification of the final path to the
+Seed7 directory. If the seed7 directory will not move afterwards these
+variables can be left empty.
+</p></div>
+
 <div><br /><a name="faq_cmd_config_value"><h3>How does the Seed7 compiler get information about C compiler and runtime?
 </h3></a><hr />
 <p>
 The <span class="link">Seed7 compiler</span> needs detailed information about the C compiler and its runtime
 library. This information is created when the Seed7 interpreter is compiled. The
-command <tt>'make depend'</tt> writes C preprocessor macros to <nobr><span class="lib">seed7/src/version.h</span></nobr>. E.g.:
+command <a class="link" href="#faq_make_depend">make depend</a> compiles and executes the program <tt><span class="stri">"chkccomp.c"</span></tt>, which
+writes configuration values as C preprocessor macros to <span class="lib">version.h</span>. E.g.:
 </p><pre class="indent">
 #define CC_SOURCE_UTF8
 #define SEED7_LIB <span class="stri">"seed7_05.a"</span>
@@ -2527,8 +2766,8 @@ command <tt>'make depend'</tt> writes C preprocessor macros to <nobr><span class
 #define COMPILER_LIB <span class="stri">"s7_comp.a"</span>
 #define S7_LIB_DIR <span class="stri">"/home/abc/seed7/bin"</span>
 </pre><p>
-The command <tt>'make depend'</tt> compiles and executes the program <tt><span class="stri">"chkccomp.c"</span></tt>, which
-also writes preprocessor macros to <tt><span class="stri">"version.h"</span></tt>. E.g.:
+Many of the preprocessor macros of <tt><span class="stri">"version.h"</span></tt> are determined with
+test programs. E.g.:
 </p><pre class="indent">
 #define RSHIFT_DOES_SIGN_EXTEND 1
 #define TWOS_COMPLEMENT_INTTYPE 1
@@ -2583,7 +2822,7 @@ The table below shows the suggested directories for Linux/Unix/BSD:
   
 </table></dd></dl><p>
 The macros must be defined, when the interpreter is compiled. This can be done
-by calling <tt>'make depend'</tt> with:
+by calling <a class="link" href="#faq_make_depend">make depend</a> with:
 </p><pre class="indent">
 make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend
 </pre><p>
