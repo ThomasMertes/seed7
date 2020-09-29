@@ -12,7 +12,7 @@
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 # CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv -fsanitize=address,integer,undefined,dataflow,alignment,bool,bounds,enum,shift,integer-divide-by-zero -fno-sanitize=unsigned-integer-overflow
 # CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv -fsanitize=address,integer,undefined
-CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
+CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) $(CC_OPT_LINK_TIME_OPTIMIZATION) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
 # CFLAGS = -O2 -g -x c++ -Wall -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
 # CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -40,6 +40,7 @@ COMPILER_LIB = s7_comp$(LIB_EXT)
 ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(DATABASE_LIB) ..\bin\$(SEED7_LIB)
 # CC = g++
 CC = clang
+AR = ..\bin\call_lib
 CC_ENVIRONMENT_INI = clangenv.ini
 
 MOBJ = s7.o
@@ -175,6 +176,7 @@ strip:
 
 chkccomp.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" > chkccomp.h
+	echo #define CC_OPT_LINK_TIME_OPTIMIZATION "-flto" >> chkccomp.h
 	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
 
 base.h:
@@ -190,6 +192,8 @@ base.h:
 	echo #define CC_ERROR_FILEDES 2 >> base.h
 	echo #define CC_VERSION_INFO_FILEDES 1 >> base.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> base.h
+	echo #define ARCHIVER "$(AR)" >> base.h
+	echo #define ARCHIVER_OPT_REPLACE "/out:" >> base.h
 	echo #define INT_DIV_BY_ZERO_POPUP >> base.h
 	echo #define FILENO_WORKS_FOR_NULL 0 >> base.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
@@ -245,22 +249,22 @@ level.h:
 	..\bin\s7 -l ..\lib level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	..\bin\call_lib /out:..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
+	$(AR) /out:..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
 ..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
-	..\bin\call_lib /out:..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
+	$(AR) /out:..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
 
 ..\bin\$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
-	..\bin\call_lib /out:..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
+	$(AR) /out:..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
 ..\bin\$(DATABASE_LIB): $(DATABASE_LIB_OBJ)
-	..\bin\call_lib /out:..\bin\$(DATABASE_LIB) $(DATABASE_LIB_OBJ)
+	$(AR) /out:..\bin\$(DATABASE_LIB) $(DATABASE_LIB_OBJ)
 
 ..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	..\bin\call_lib /out:..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+	$(AR) /out:..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	..\bin\call_lib /out:..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+	$(AR) /out:..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 ..\bin\bas7.exe: ..\prg\bas7.sd7 ..\bin\s7c.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\bas7

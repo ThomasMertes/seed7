@@ -451,3 +451,4 @@ const func string: (in complex: number) sci (in integer: precision) is func
 
 
 enable_io(complex);
+DECLARE_TERNARY(complex);

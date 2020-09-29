@@ -104,7 +104,7 @@ const type: parseOptions is set of singleParseOption;
 
 
 (**
- *  Parse the file with the name ''fileName''.
+ *  Parse the file with the given ''fileName'', ''options'', ''libraryDirs'' and ''protFileName''.
  *  @return the parsed program.
  *  @exception RANGE_ERROR ''fileName'' does not use the standard path
  *             representation or ''fileName'' is not representable in
@@ -116,21 +116,45 @@ const func program: parseFile (in string: fileName, in parseOptions: options,
                                in string: protFileName)                  is action "PRG_FIL_PARSE";
 
 
+(**
+ *  Parse the file with the given ''fileName'', ''options'' and ''libraryDirs''.
+ *  @return the parsed program.
+ *  @exception RANGE_ERROR ''fileName'' does not use the standard path
+ *             representation or ''fileName'' is not representable in
+ *             the system path type.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
 const func program: parseFile (in string: fileName, in parseOptions: options,
                                in array string: libraryDirs) is
   return parseFile(fileName, options, libraryDirs, "");
 
 
+(**
+ *  Parse the file with the given ''fileName'' and ''options''.
+ *  @return the parsed program.
+ *  @exception RANGE_ERROR ''fileName'' does not use the standard path
+ *             representation or ''fileName'' is not representable in
+ *             the system path type.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
 const func program: parseFile (in string: fileName, in parseOptions: options) is
   return parseFile(fileName, options, 0 times "", "");
 
 
+(**
+ *  Parse the file with the given ''fileName''.
+ *  @return the parsed program.
+ *  @exception RANGE_ERROR ''fileName'' does not use the standard path
+ *             representation or ''fileName'' is not representable in
+ *             the system path type.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
 const func program: parseFile (in string: fileName) is
   return parseFile(fileName, parseOptions.value, 0 times "", "");
 
 
 (**
- *  Parse the given ''string''.
+ *  Parse the given ''string'' with ''options', ''libraryDirs'' and ''protFileName''.
  *  @return the parsed program.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  *)
@@ -139,15 +163,30 @@ const func program: parseStri (in string: stri, in parseOptions: options,
                                in string: protFileName)                  is action "PRG_STR_PARSE";
 
 
+(**
+ *  Parse the given ''string'' with ''options' and ''libraryDirs''.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
 const func program: parseStri (in string: stri, in parseOptions: options,
                                in array string: libraryDirs) is
   return parseStri(stri, options, libraryDirs, "");
 
 
+(**
+ *  Parse the given ''string'' with ''options'.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
 const func program: parseStri (in string: stri, in parseOptions: options) is
   return parseStri(stri, options, 0 times "", "");
 
 
+(**
+ *  Parse the given ''string''.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
 const func program: parseStri (in string: stri) is
   return parseStri(stri, parseOptions.value, 0 times "", "");
 
@@ -161,13 +200,16 @@ const func reference: evaluate (in program: aProgram,
 
 
 (**
- *  Execute the program referred by ''aProgram''.
+ *  Execute ''aProgram'' with the given ''parameters'', ''options'' and ''protFileName''.
  *)
 const proc: execute (in program: aProgram, in array string: parameters,
                      in parseOptions: options,
                      in string: protFileName)                            is action "PRG_EXEC";
 
 
+(**
+ *  Execute ''aProgram'' with the given ''parameters'' and ''options''.
+ *)
 const proc: execute (in program: aProgram, in array string: parameters,
                      in parseOptions: options) is func
   begin
@@ -175,12 +217,18 @@ const proc: execute (in program: aProgram, in array string: parameters,
   end func;
 
 
+(**
+ *  Execute ''aProgram'' with the given ''parameters''.
+ *)
 const proc: execute (in program: aProgram, in array string: parameters) is func
   begin
     execute(aProgram, parameters, parseOptions.value, "");
   end func;
 
 
+(**
+ *  Execute ''aProgram'' with an empty parameter list.
+ *)
 const proc: execute (in program: aProgram) is func
   begin
     execute(aProgram, 0 times "", parseOptions.value, "");

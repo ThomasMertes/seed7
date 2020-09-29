@@ -39,6 +39,10 @@ const func char: charExpr (in char: ch) is
   return chr(ord(ch) + length(str(rand(1, 9))[2 ..]));
 
 
+const func boolean: boolExpr (in boolean: okay) is
+  return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
+
+
 const func boolean: raisesRangeError (ref proc: statement) is func
   result
     var boolean: raisesRangeError is FALSE;
@@ -19147,6 +19151,61 @@ const proc: check_string_for is func
   end func;
 
 
+const proc: check_string_ternary is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
+    if  ( TRUE ?  "thenValue" : "elseValue") <> "thenValue" or
+        (FALSE ?  "thenValue" : "elseValue") <> "elseValue" or
+        ( TRUE ?  "thenValue" : striExpr("elseValue")) <> "thenValue" or
+        (FALSE ?  "thenValue" : striExpr("elseValue")) <> "elseValue" or
+        ( TRUE ?  striExpr("thenValue") : "elseValue") <> "thenValue" or
+        (FALSE ?  striExpr("thenValue") : "elseValue") <> "elseValue" or
+        ( TRUE ?  striExpr("thenValue") : striExpr("elseValue")) <> "thenValue" or
+        (FALSE ?  striExpr("thenValue") : striExpr("elseValue")) <> "elseValue" or
+        (boolExpr( TRUE) ?  "thenValue" : "elseValue") <> "thenValue" or
+        (boolExpr(FALSE) ?  "thenValue" : "elseValue") <> "elseValue" or
+        (boolExpr( TRUE) ?  "thenValue" : striExpr("elseValue")) <> "thenValue" or
+        (boolExpr(FALSE) ?  "thenValue" : striExpr("elseValue")) <> "elseValue" or
+        (boolExpr( TRUE) ?  striExpr("thenValue") : "elseValue") <> "thenValue" or
+        (boolExpr(FALSE) ?  striExpr("thenValue") : "elseValue") <> "elseValue" or
+        (boolExpr( TRUE) ?  striExpr("thenValue") : striExpr("elseValue")) <> "thenValue" or
+        (boolExpr(FALSE) ?  striExpr("thenValue") : striExpr("elseValue")) <> "elseValue" then
+      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    stri :=  TRUE ?  "thenValue" : "elseValue"; ok := ok and stri = "thenValue";
+    stri := FALSE ?  "thenValue" : "elseValue"; ok := ok and stri = "elseValue";
+    stri :=  TRUE ?  "thenValue" : striExpr("elseValue"); ok := ok and stri = "thenValue";
+    stri := FALSE ?  "thenValue" : striExpr("elseValue"); ok := ok and stri = "elseValue";
+    stri :=  TRUE ?  striExpr("thenValue") : "elseValue"; ok := ok and stri = "thenValue";
+    stri := FALSE ?  striExpr("thenValue") : "elseValue"; ok := ok and stri = "elseValue";
+    stri :=  TRUE ?  striExpr("thenValue") : striExpr("elseValue"); ok := ok and stri = "thenValue";
+    stri := FALSE ?  striExpr("thenValue") : striExpr("elseValue"); ok := ok and stri = "elseValue";
+    stri := boolExpr( TRUE) ?  "thenValue" : "elseValue"; ok := ok and stri = "thenValue";
+    stri := boolExpr(FALSE) ?  "thenValue" : "elseValue"; ok := ok and stri = "elseValue";
+    stri := boolExpr( TRUE) ?  "thenValue" : striExpr("elseValue"); ok := ok and stri = "thenValue";
+    stri := boolExpr(FALSE) ?  "thenValue" : striExpr("elseValue"); ok := ok and stri = "elseValue";
+    stri := boolExpr( TRUE) ?  striExpr("thenValue") : "elseValue"; ok := ok and stri = "thenValue";
+    stri := boolExpr(FALSE) ?  striExpr("thenValue") : "elseValue"; ok := ok and stri = "elseValue";
+    stri := boolExpr( TRUE) ?  striExpr("thenValue") : striExpr("elseValue"); ok := ok and stri = "thenValue";
+    stri := boolExpr(FALSE) ?  striExpr("thenValue") : striExpr("elseValue"); ok := ok and stri = "elseValue";
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The ternary operator ? : works correct for string.");
+    else
+      writeln(" ***** The ternary operator ? : does not work correct.");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   local
@@ -19178,4 +19237,5 @@ const proc: main is func
     check_string_append;
     check_string_assign_at;
     check_string_for;
+    check_string_ternary;
   end func;

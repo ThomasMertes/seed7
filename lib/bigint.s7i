@@ -814,3 +814,6 @@ const func bigInteger: max (in bigInteger: value1, in bigInteger: value2) is fun
 
 # Allows 'array bigInteger' everywhere without extra type definition.
 const type: _bigIntegerArray is array bigInteger;
+
+
+DECLARE_TERNARY(bigInteger);

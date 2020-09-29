@@ -1,3 +1,44 @@
+20200929:
+- Support for link time optimization has been added. It is available if
+  Seed7 is compiled with gcc or clang. The Seed7 compiler option -flto
+  can be used to activate link time optimization.
+- Answers to six new questions have been added to the FAQ.
+- A chapter about for-loops and containers has been added to the
+  tutorial.
+- The ternary operator a ? b : c has been defined for integer, float,
+  complex, rational, bigInteger, bigRational, char, string, bstring,
+  boolean, bin32 and bin64.
+- Tests for the ternary operator have been added to chkbig.sd7,
+  chkbin.sd7, chkbool.sd7, chkbst.sd7, chkchr.sd7, chkflt.sd7,
+  chkint.sd7 and chkstr.sd7.
+- The function rand(low, high) for float has been changed to return a
+  number in the range [low, high) instead of [low, high]. The range
+  [low, high) is commonly used by float random number generators.
+- Tests for the rand() function have been added to chkflt.sd7.
+- The Seed7 compiler has been improved to inline code for the action
+  FLT_RAND, if the option -oc3 is used and both bounds are constant.
+- Definitions of FLOATTYPE_MANTISSA_BITS, FLOATTYPE_EXPONENT_OFFSET,
+  STMT_BLOCK_IN_PARENTHESES_OK, RAND_MULTIPLIER, RAND_INCREMENT,
+  CC_OPT_LINK_TIME_OPTIMIZATION and LINKER_OPT_LTO_MANDATORY have been
+  added to cc_conf.s7i.
+- The files confval.sd7 and cmd_rtl.c have been improved to use the new
+  configuration values.
+- Interpreter and compiler have been improved to support the action
+  BLN_TERNARY.
+- In comp/int_act.s7i the functions uintRand(), uintRandMantissa() and
+  uintRandLimited() are defined as macros now, if the Seed7 compiler
+  has been called with -oc3.
+- In name.c the function close_stack() has been improved to dump the
+  values of BLOCKOBJECT objects after the values of other objects have
+  been dumped.
+- The program chkccomp.c has been improved to determine the values
+  FLOAT_EXPONENT_OFFSET, STMT_BLOCK_IN_PARENTHESES_OK,
+  CC_OPT_LINK_TIME_OPTIMIZATION and LINKER_OPT_LTO_MANDATORY.
+- In progs.s7i documentation comments for parseFile(), parseStri() and
+  execute() have been improved.
+- The program chk_all.sd7 has been adjusted to the changes in the
+  check programs.
+
 20200830:
 - Spelling corrections have been done in several files. Many thanks go
   to Jens Schleusener, for sending a source code misspelling report
@@ -22,8 +63,8 @@
   programs chkidx.sd7 and chkarr.sd7.
 - Compiler and interpreter have been improved to support the actions
   ARR_INSERT, ARR_INSERT_ARRAY and ARR_REMOVE_ARRAY.
-- The compiler has been improved to support name parameters with
-  varfunc instead of func.
+- The compiler has been improved to support call by name parameters
+  with varfunc instead of func.
 - The file comp/arr_act.s7i has been improved to support ARR_INSERT,
   ARR_INSERT_ARRAY and ARR_REMOVE_ARRAY.
 - The file comp/str_act.s7i has been improved to support the changed
@@ -78,7 +119,7 @@
   chkbst.sd7 and chkfil.sd7. It also has been adjusted to the changes
   in the check programs.
 - In strifile.s7i the function write() has been improved to use @:=
-  if a file is overwritten. This is much quicker that the previous
+  if a file is overwritten. This is much quicker than the previous
   approach, that used several string concatenations.
 - The function openTarFileWithMagic() has been added to tar_cmds.s7i.
   This function is used by tarTell() and tarXtract().

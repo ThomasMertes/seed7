@@ -31,6 +31,10 @@ const func char: charExpr (in char: ch) is
   return chr(ord(ch) + length(str(rand(1, 9))[2 ..]));
 
 
+const func boolean: boolExpr (in boolean: okay) is
+  return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
+
+
 const proc: check_isLetter is func
   local
     var boolean: success is TRUE;
@@ -2390,6 +2394,61 @@ const proc: check_literal_functions is func
   end func;
 
 
+const proc: check_ternary is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var char: ch is ' ';
+  begin
+    if  ( TRUE ?  'a' : 'b') <> 'a' or
+        (FALSE ?  'a' : 'b') <> 'b' or
+        ( TRUE ?  'a' : charExpr('b')) <> 'a' or
+        (FALSE ?  'a' : charExpr('b')) <> 'b' or
+        ( TRUE ?  charExpr('a') : 'b') <> 'a' or
+        (FALSE ?  charExpr('a') : 'b') <> 'b' or
+        ( TRUE ?  charExpr('a') : charExpr('b')) <> 'a' or
+        (FALSE ?  charExpr('a') : charExpr('b')) <> 'b' or
+        (boolExpr( TRUE) ?  'a' : 'b') <> 'a' or
+        (boolExpr(FALSE) ?  'a' : 'b') <> 'b' or
+        (boolExpr( TRUE) ?  'a' : charExpr('b')) <> 'a' or
+        (boolExpr(FALSE) ?  'a' : charExpr('b')) <> 'b' or
+        (boolExpr( TRUE) ?  charExpr('a') : 'b') <> 'a' or
+        (boolExpr(FALSE) ?  charExpr('a') : 'b') <> 'b' or
+        (boolExpr( TRUE) ?  charExpr('a') : charExpr('b')) <> 'a' or
+        (boolExpr(FALSE) ?  charExpr('a') : charExpr('b')) <> 'b' then
+      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    ch :=  TRUE ?  'a' : 'b'; ok := ok and ch = 'a';
+    ch := FALSE ?  'a' : 'b'; ok := ok and ch = 'b';
+    ch :=  TRUE ?  'a' : charExpr('b'); ok := ok and ch = 'a';
+    ch := FALSE ?  'a' : charExpr('b'); ok := ok and ch = 'b';
+    ch :=  TRUE ?  charExpr('a') : 'b'; ok := ok and ch = 'a';
+    ch := FALSE ?  charExpr('a') : 'b'; ok := ok and ch = 'b';
+    ch :=  TRUE ?  charExpr('a') : charExpr('b'); ok := ok and ch = 'a';
+    ch := FALSE ?  charExpr('a') : charExpr('b'); ok := ok and ch = 'b';
+    ch := boolExpr( TRUE) ?  'a' : 'b'; ok := ok and ch = 'a';
+    ch := boolExpr(FALSE) ?  'a' : 'b'; ok := ok and ch = 'b';
+    ch := boolExpr( TRUE) ?  'a' : charExpr('b'); ok := ok and ch = 'a';
+    ch := boolExpr(FALSE) ?  'a' : charExpr('b'); ok := ok and ch = 'b';
+    ch := boolExpr( TRUE) ?  charExpr('a') : 'b'; ok := ok and ch = 'a';
+    ch := boolExpr(FALSE) ?  charExpr('a') : 'b'; ok := ok and ch = 'b';
+    ch := boolExpr( TRUE) ?  charExpr('a') : charExpr('b'); ok := ok and ch = 'a';
+    ch := boolExpr(FALSE) ?  charExpr('a') : charExpr('b'); ok := ok and ch = 'b';
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The ternary operator ? : works correct for char.");
+    else
+      writeln(" ***** The ternary operator ? : does not work correct.");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -2397,4 +2456,5 @@ const proc: main is func
     check_isLetter();
     check_width();
     check_literal_functions();
+    check_ternary();
   end func;

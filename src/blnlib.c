@@ -346,6 +346,32 @@ objectType bln_ord (listType arguments)
 
 
 /**
+ *  Ternary operator condition/arg_1 ? thenValue/arg_3 : elseValue/arg_5
+ *  @return thenValue/arg_3 if condition/arg_1 is TRUE, and
+ *          elseValue/arg_5 if condition/arg_1 is FALSE.
+ */
+objectType bln_ternary (listType arguments)
+
+  {
+    objectType result;
+
+  /* bln_ternary */
+    isit_bool(arg_1(arguments));
+    if (take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT) {
+      result = evaluate(arg_3(arguments));
+    } else {
+      result = evaluate(arg_5(arguments));
+    } /* if */
+    if (CATEGORY_OF_OBJ(result) == CONSTENUMOBJECT ||
+        CATEGORY_OF_OBJ(result) == VARENUMOBJECT) {
+      result = result->value.objValue;
+    } /* if */
+    return result;
+  } /* bln_ternary */
+
+
+
+/**
  *  Get 'boolean' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'boolean' value of the referenced object.
  *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or

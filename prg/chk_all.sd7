@@ -81,7 +81,8 @@ const string: chkint_output is "\n\
   \Integer parse does work correct.\n\
   \Integer lpad0 does work correct.\n\
   \Integer bitLength does work correct.\n\
-  \Integer lowestSetBit does work correct.\n";
+  \Integer lowestSetBit does work correct.\n\
+  \The ternary operator ? : works correct for integer.\n";
 
 const string: chkovf_output is "\n\
   \Overflow checking of negation works correct.\n\
@@ -133,7 +134,8 @@ const string: chkflt_output is "\n\
   \Infinity works correct for selected values.\n\
   \NaN works correct for selected values.\n\
   \Rand works correct for selected values.\n\
-  \Decompose works correct for selected values.\n";
+  \Decompose works correct for selected values.\n\
+  \The ternary operator ? : works correct for float.\n";
 
 const string: chkbin_output is "\n\
   \Converting float to bin32 and bin64 values works correct.\n\
@@ -142,12 +144,14 @@ const string: chkbin_output is "\n\
   \mbfBits2Float works correct for bin32 and bin64 values.\n\
   \bin64(aBigInteger mod 2_**y) works correct.\n\
   \Bin32 and bin64 str works correct.\n\
-  \Bin32 and bin64 radix does work correct.\n";
+  \Bin32 and bin64 radix does work correct.\n\
+  \The ternary operator ? : works correct for bin32 and bin64.\n";
 
 const string: chkchr_output is "\n\
   \isLetter function works correctly.\n\
   \width function works correctly.\n\
-  \Char literal functions work correct.\n";
+  \Char literal functions work correct.\n\
+  \The ternary operator ? : works correct for char.\n";
 
 const string: chkstr_output is "\n\
   \String literals work correct.\n\
@@ -174,7 +178,8 @@ const string: chkstr_output is "\n\
   \String assignment works correct.\n\
   \String append works correct.\n\
   \@:= for strings works correct.\n\
-  \String for loops work correct.\n";
+  \String for loops work correct.\n\
+  \The ternary operator ? : works correct for string.\n";
 
 const string: chkidx_output is "\n\
   \Index checking for string indexing works correct.\n\
@@ -189,7 +194,8 @@ const string: chkbst_output is "\n\
   \Bstring assignment works correct.\n\
   \Bstring append works correct.\n\
   \Bstring comparisons work correct.\n\
-  \String indices work correct.\n";
+  \String indices work correct.\n\
+  \The ternary operator ? : works correct for bstring.\n";
 
 const string: chkarr_output is "\n\
   \Array comparison works correct.\n\
@@ -260,7 +266,8 @@ const string: chkbig_output is "\n\
   \The bigInteger >> and >>:= works correct.\n\
   \The bigInteger square root works correct.\n\
   \The bigInteger constants work correct.\n\
-  \BigInteger assignment works correct.\n";
+  \BigInteger assignment works correct.\n\
+  \The ternary operator ? : works correct for bigInteger.\n";
 
 const string: chkbool_output is "\n\
   \Boolean not works correct.\n\
@@ -274,7 +281,8 @@ const string: chkbool_output is "\n\
   \Boolean <= works correct.\n\
   \Boolean compare works correct.\n\
   \Boolean ord() works correct.\n\
-  \Boolean str() works correct.\n";
+  \Boolean str() works correct.\n\
+  \The ternary operator ? : works correct for boolean.\n";
 
 const string:chkbitdata_output is "\n\
   \getBitLsb works correct.\n\

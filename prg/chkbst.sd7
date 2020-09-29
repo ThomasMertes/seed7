@@ -37,6 +37,10 @@ const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
 
 
+const func boolean: boolExpr (in boolean: okay) is
+  return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
+
+
 const func boolean: raisesIndexError (ref func char: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
@@ -513,6 +517,63 @@ const proc: check_bstring_index is func
   end func;
 
 
+const proc: check_bstring_ternary is func
+  local
+    const bstring: thenValue is bstring("thenValue");
+    const bstring: elseValue is bstring("elseValue");
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var bstring: bstri is bstring.value;
+  begin
+    if  ( TRUE ?  thenValue : elseValue) <> thenValue or
+        (FALSE ?  thenValue : elseValue) <> elseValue or
+        ( TRUE ?  thenValue : bstriExpr(elseValue)) <> thenValue or
+        (FALSE ?  thenValue : bstriExpr(elseValue)) <> elseValue or
+        ( TRUE ?  bstriExpr(thenValue) : elseValue) <> thenValue or
+        (FALSE ?  bstriExpr(thenValue) : elseValue) <> elseValue or
+        ( TRUE ?  bstriExpr(thenValue) : bstriExpr(elseValue)) <> thenValue or
+        (FALSE ?  bstriExpr(thenValue) : bstriExpr(elseValue)) <> elseValue or
+        (boolExpr( TRUE) ?  thenValue : elseValue) <> thenValue or
+        (boolExpr(FALSE) ?  thenValue : elseValue) <> elseValue or
+        (boolExpr( TRUE) ?  thenValue : bstriExpr(elseValue)) <> thenValue or
+        (boolExpr(FALSE) ?  thenValue : bstriExpr(elseValue)) <> elseValue or
+        (boolExpr( TRUE) ?  bstriExpr(thenValue) : elseValue) <> thenValue or
+        (boolExpr(FALSE) ?  bstriExpr(thenValue) : elseValue) <> elseValue or
+        (boolExpr( TRUE) ?  bstriExpr(thenValue) : bstriExpr(elseValue)) <> thenValue or
+        (boolExpr(FALSE) ?  bstriExpr(thenValue) : bstriExpr(elseValue)) <> elseValue then
+      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    bstri :=  TRUE ?  thenValue : elseValue; ok := ok and bstri = thenValue;
+    bstri := FALSE ?  thenValue : elseValue; ok := ok and bstri = elseValue;
+    bstri :=  TRUE ?  thenValue : bstriExpr(elseValue); ok := ok and bstri = thenValue;
+    bstri := FALSE ?  thenValue : bstriExpr(elseValue); ok := ok and bstri = elseValue;
+    bstri :=  TRUE ?  bstriExpr(thenValue) : elseValue; ok := ok and bstri = thenValue;
+    bstri := FALSE ?  bstriExpr(thenValue) : elseValue; ok := ok and bstri = elseValue;
+    bstri :=  TRUE ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok := ok and bstri = thenValue;
+    bstri := FALSE ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok := ok and bstri = elseValue;
+    bstri := boolExpr( TRUE) ?  thenValue : elseValue; ok := ok and bstri = thenValue;
+    bstri := boolExpr(FALSE) ?  thenValue : elseValue; ok := ok and bstri = elseValue;
+    bstri := boolExpr( TRUE) ?  thenValue : bstriExpr(elseValue); ok := ok and bstri = thenValue;
+    bstri := boolExpr(FALSE) ?  thenValue : bstriExpr(elseValue); ok := ok and bstri = elseValue;
+    bstri := boolExpr( TRUE) ?  bstriExpr(thenValue) : elseValue; ok := ok and bstri = thenValue;
+    bstri := boolExpr(FALSE) ?  bstriExpr(thenValue) : elseValue; ok := ok and bstri = elseValue;
+    bstri := boolExpr( TRUE) ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok := ok and bstri = thenValue;
+    bstri := boolExpr(FALSE) ?  bstriExpr(thenValue) : bstriExpr(elseValue); ok := ok and bstri = elseValue;
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The ternary operator ? : works correct for bstring.");
+    else
+      writeln(" ***** The ternary operator ? : does not work correct.");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -522,4 +583,5 @@ const proc: main is func
     check_bstring_append;
     check_bstring_comparisons;
     check_bstring_index;
+    check_bstring_ternary;
   end func;

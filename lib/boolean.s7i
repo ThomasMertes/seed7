@@ -271,6 +271,28 @@ const func boolean: boolean (in string: stri) is
 const func boolean: rand (in boolean: low, in boolean: high) is forward;
 
 
+const proc: DECLARE_TERNARY (in type: aType) is func
+  begin
+
+    (**
+     *  Ternary operator ''condition'' ? ''thenValue'' : ''elseValue''
+     *  @return ''thenValue'' if ''condition'' is TRUE, and
+     *          ''elseValue'' if ''condition'' is FALSE.
+     *)
+    const func aType: (in boolean: condition) ? (ref func aType: thenValue) : (ref func aType: elseValue) is action "BLN_TERNARY";
+    
+    const func aType: (in boolean: condition) ? (ref func aType: thenValue) : (in aType: elseValue)       is action "BLN_TERNARY";
+    
+    const func aType: (in boolean: condition) ? (in aType: thenValue) : (ref func aType: elseValue)       is action "BLN_TERNARY";
+    
+    const func aType: (in boolean: condition) ? (in aType: thenValue) : (in aType: elseValue)             is action "BLN_TERNARY";
+    
+  end func;
+
+
+DECLARE_TERNARY(boolean);
+
+
 (*
 const func boolean: not (attr TRUE) is          FALSE;
 const func boolean: not (attr FALSE) is         TRUE;

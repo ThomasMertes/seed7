@@ -214,3 +214,4 @@ const func bstring: bStriLe (in bigInteger: number,
 
 
 enable_io(bstring);
+DECLARE_TERNARY(bstring);

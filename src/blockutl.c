@@ -129,9 +129,7 @@ static void free_loclist (locListType loclist)
 void free_block (blockType block)
 
   { /* free_block */
-    /* prot_heapsize();
-    prot_cstri(" free_block");
-    prot_nl(); */
+    logFunction(printf("free_block(" FMT_U_MEM ")\n", (memSizeType) block););
     free_expression(block->body);
     free_loclist(block->params);
     free_locobj(&block->result);
@@ -150,7 +148,7 @@ blockType new_block (locListType block_params, const_locObjType block_result,
     register blockType created_block;
 
   /* new_block */
-    logFunction(printf("new_block\n"););
+    logFunction(printf("new_block(" FMT_U_MEM ")\n", (memSizeType) block_params););
     if (ALLOC_RECORD(created_block, blockRecord, count.block)) {
       created_block->params = block_params;
       if (block_result == NULL) {
@@ -168,7 +166,7 @@ blockType new_block (locListType block_params, const_locObjType block_result,
       created_block->local_consts = block_local_consts;
       created_block->body = block_body;
     } /* if */
-    logFunction(printf("new_block -->\n"););
+    logFunction(printf("new_block --> " FMT_U_MEM "\n", (memSizeType) created_block););
     return created_block;
   } /* new_block */
 

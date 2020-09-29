@@ -6923,6 +6923,16 @@ const proc: pass_1 (in string: source, inout program: prog,
         generate_c_plus_plus := compiler_option["-c"] = "++";
         declare_with_extern_c := generate_c_plus_plus;
       end if;
+      if "-f" in compiler_option then
+        case compiler_option["-f"] of
+          when {"lto"}:
+            if ccConf.CC_OPT_LINK_TIME_OPTIMIZATION <> "" then
+              enable_link_time_optimization := TRUE;
+            end if;
+          otherwise:
+            writeln("*** Ignore unsupported option: -f" <& compiler_option["-f"]);
+        end case;
+      end if;
       block
         prog := parseFile(source, parseOptions.value, libraryDirs);
       exception
@@ -7206,6 +7216,9 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
         compile_cmd := ccConf.C_COMPILER;
       end if;
       compileParams &:= ccConf.CC_OPT_NO_WARNINGS;
+      if enable_link_time_optimization then
+        compileParams &:= ccConf.CC_OPT_LINK_TIME_OPTIMIZATION;
+      end if;
       if "-O" in compiler_option then
         case compiler_option["-O"] of
           when {"", "1"}:
@@ -7304,6 +7317,9 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             else
               link_cmd := ccConf.C_COMPILER;
             end if;
+            if enable_link_time_optimization or ccConf.LINKER_OPT_LTO_MANDATORY then
+              linkParams &:= ccConf.CC_OPT_LINK_TIME_OPTIMIZATION;
+            end if;
             if "-g" in compiler_option then
               if ccConf.LINKER_OPT_DEBUG_INFO <> "" then
                 linkParams &:= ccConf.LINKER_OPT_DEBUG_INFO;
@@ -7397,6 +7413,7 @@ const proc: writeHelp is func
     writeln("  -b   Specify the directory of the Seed7 runtime libraries (e.g.: -b ../bin).");
     writeln("  -e   Generate code which sends a signal, if an uncaught exception occurs.");
     writeln("       This option allows debuggers to handle uncaught Seed7 exceptions.");
+    writeln("  -flto Enable link time optimization.");
     writeln("  -g   Tell the C compiler to generate an executable with debug information.");
     writeln("       This way the debugger will refer to Seed7 source files and line numbers.");
     writeln("       To generate debug information which refers to the temporary C program");
@@ -7456,7 +7473,7 @@ const proc: main is func
           elsif curr_arg in {"-l"} and index < length(argv(PROGRAM)) then
             incr(index);
             libraryDirs &:= convDosPath(argv(PROGRAM)[index]);
-          elsif curr_arg[.. 2] in {"-?", "-b", "-c", "-e", "-g", "-o", "-p", "-s", "-t", "-O"} then
+          elsif curr_arg[.. 2] in {"-?", "-b", "-c", "-e", "-f", "-g", "-o", "-p", "-s", "-t", "-O"} then
             if curr_arg[.. 2] in compiler_option then
               writeln("*** Option " <& curr_arg[.. 2] <&
                       " specified twice. Ignore option: " <& curr_arg);

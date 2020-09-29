@@ -39,6 +39,7 @@ COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(CONSOLE_LIB) ../bin/$(DATABASE_LIB) ../bin/$(SEED7_LIB)
 # CC = icpc
 CC = icc
+AR = ar
 
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
@@ -234,22 +235,22 @@ level.h:
 	../bin/s7 -l ../lib level
 
 ../bin/$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	ar r ../bin/$(SEED7_LIB) $(SEED7_LIB_OBJ)
+	$(AR) r ../bin/$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
 ../bin/$(DRAW_LIB): $(DRAW_LIB_OBJ)
-	ar r ../bin/$(DRAW_LIB) $(DRAW_LIB_OBJ)
+	$(AR) r ../bin/$(DRAW_LIB) $(DRAW_LIB_OBJ)
 
 ../bin/$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
-	ar r ../bin/$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
+	$(AR) r ../bin/$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
 ../bin/$(DATABASE_LIB): $(DATABASE_LIB_OBJ)
-	ar r ../bin/$(DATABASE_LIB) $(DATABASE_LIB_OBJ)
+	$(AR) r ../bin/$(DATABASE_LIB) $(DATABASE_LIB_OBJ)
 
 ../bin/$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	ar r ../bin/$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+	$(AR) r ../bin/$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
 ../bin/$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	ar r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+	$(AR) r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 ../bin/%: ../prg/%.sd7 ../bin/s7c
 	../bin/s7c -l ../lib -b ../bin -O2 $<

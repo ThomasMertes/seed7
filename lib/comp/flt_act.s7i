@@ -142,6 +142,7 @@ const proc: flt_prototypes (inout file: c_prog) is func
       declareExtern(c_prog, "floatType   fltPow (floatType, floatType);");
     end if;
     declareExtern(c_prog, "floatType   fltRand (floatType, floatType);");
+    declareExtern(c_prog, "floatType   fltRandNoChk (floatType, floatType);");
     if ccConf.FMOD_FUNCTION_OKAY then
       writeln(c_prog, "#define     fltRem(dividend, divisor) fmod(dividend, divisor)");
     else
@@ -1812,15 +1813,136 @@ const proc: process (FLT_POW, in reference: function,
   end func;
 
 
+const proc: process_const_flt_rand (in float: low, in float: high,
+    inout expr_type: c_expr) is func
+
+  local
+    # The predecessor of 1.0 is needed to estimate if a loop is necessary.
+    # To get the predecessor the binary representation of 1.0 is reduced by 1.
+    # This switches all mantissa bits from 0 to 1 and reduces the exponent by 1.
+    # Conversions between float and integer must be done via bin64.
+    const float: justBelow1 is float(bin64(pred(integer(bin64(1.0)))));
+    var float: delta is 0.0;
+    var string: randName is "";
+    var string: union_name is "";
+    var integer: binaryExponent is 0;
+  begin
+    if low >= high then
+      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
+    else
+      delta := high - low;
+      if isNaN(delta) then
+        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+      elsif delta = Infinity then
+        c_expr.expr &:= "fltRand(";
+        c_expr.expr &:= floatLiteral(low);
+        c_expr.expr &:= ", ";
+        c_expr.expr &:= floatLiteral(high);
+        c_expr.expr &:= ")";
+      elsif inlineFunctions then
+        if delta > 0.0 and 2.0 ** floor(log2(delta)) = delta then
+          # Delta is a power of two.
+          binaryExponent := trunc(log2(delta));
+          union_name := defineTempVariable("double2BitsUnion", "conv_", c_expr);
+          c_expr.expr &:= "(";
+          c_expr.expr &:= union_name;
+          c_expr.expr &:= ".bits=uintRandMantissa() | ";
+          c_expr.expr &:= integerLiteral((ccConf.FLOATTYPE_EXPONENT_OFFSET +
+              binaryExponent) << ccConf.FLOATTYPE_MANTISSA_BITS);
+          c_expr.expr &:= ", ";
+          c_expr.expr &:= union_name;
+          c_expr.expr &:= ".aDouble - ";
+          c_expr.expr &:= floatLiteral(delta - low);
+          c_expr.expr &:= ")";
+        elsif justBelow1 * delta + low < high then
+          union_name := defineTempVariable("double2BitsUnion", "conv_", c_expr);
+          c_expr.expr &:= "(";
+          c_expr.expr &:= union_name;
+          c_expr.expr &:= ".bits=uintRandMantissa() | ";
+          c_expr.expr &:= integerLiteral(integer(bin64(1.0)));
+          c_expr.expr &:= ",(";
+          c_expr.expr &:= union_name;
+          c_expr.expr &:= ".aDouble - 1.0)";
+          # The expression above is a random number in the range [0.0, 1.0).
+          if delta <> 1.0 then
+            c_expr.expr &:= " * ";
+            c_expr.expr &:= floatLiteral(delta);
+          end if;
+          if low <> 0.0 then
+            c_expr.expr &:= " + ";
+            c_expr.expr &:= floatLiteral(low);
+          end if;
+          c_expr.expr &:= ")";
+        elsif ccConf.STMT_BLOCK_IN_PARENTHESES_OK then
+          incr(c_expr.temp_num);
+          union_name := "conv_" <& c_expr.temp_num;
+          c_expr.expr &:= "({double2BitsUnion ";
+          c_expr.expr &:= union_name;
+          c_expr.expr &:= "; do {";
+          c_expr.expr &:= union_name;
+          c_expr.expr &:= ".bits=uintRandMantissa() | ";
+          c_expr.expr &:= integerLiteral(integer(bin64(1.0)));
+          c_expr.expr &:= ";";
+          c_expr.expr &:= union_name;
+          c_expr.expr &:= ".aDouble=(";
+          c_expr.expr &:= union_name;
+          c_expr.expr &:= ".aDouble - 1.0)";
+          # The expression above is a random number in the range [0.0, 1.0).
+          if delta <> 1.0 then
+            c_expr.expr &:= " * ";
+            c_expr.expr &:= floatLiteral(delta);
+          end if;
+          if low <> 0.0 then
+            c_expr.expr &:= " + ";
+            c_expr.expr &:= floatLiteral(low);
+          end if;
+          c_expr.expr &:= ";} while (";
+          c_expr.expr &:= union_name;
+          c_expr.expr &:= ".aDouble";
+          c_expr.expr &:= ">=";
+          c_expr.expr &:= floatLiteral(high);
+          c_expr.expr &:= "); ";
+          c_expr.expr &:= union_name;
+          c_expr.expr &:= ".aDouble";
+          c_expr.expr &:= ";})";
+        else
+          c_expr.expr &:= "fltRandNoChk(";
+          c_expr.expr &:= floatLiteral(low);
+          c_expr.expr &:= ", ";
+          c_expr.expr &:= floatLiteral(high);
+          c_expr.expr &:= ")";
+        end if;
+      else
+        c_expr.expr &:= "fltRandNoChk(";
+        c_expr.expr &:= floatLiteral(low);
+        c_expr.expr &:= ", ";
+        c_expr.expr &:= floatLiteral(high);
+        c_expr.expr &:= ")";
+      end if;
+    end if;
+  end func;
+
+
 const proc: process (FLT_RAND, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedLowerBound is NIL;
+    var reference: evaluatedUpperBound is NIL;
   begin
-    c_expr.expr &:= "fltRand(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
+    if  getConstant(params[1], FLOATOBJECT, evaluatedLowerBound) and
+        getConstant(params[2], FLOATOBJECT, evaluatedUpperBound) then
+      process_const_flt_rand(getValue(evaluatedLowerBound, float),
+                             getValue(evaluatedUpperBound, float), c_expr);
+    else
+      c_expr.expr &:= "fltRand(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[2], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 

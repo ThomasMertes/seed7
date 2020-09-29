@@ -1067,10 +1067,10 @@ objectType flt_pow (listType arguments)
 
 
 /**
- *  Compute pseudo-random number in the range [low, high].
+ *  Compute pseudo-random number in the range [low, high).
  *  The random values are uniform distributed.
  *  @return the computed pseudo-random number.
- *  @exception RANGE_ERROR The range is empty (low > high holds).
+ *  @exception RANGE_ERROR The range is empty (low >= high holds).
  */
 objectType flt_rand (listType arguments)
 

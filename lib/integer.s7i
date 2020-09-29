@@ -619,3 +619,6 @@ const func integer: max (in integer: value1, in integer: value2) is func
       maximum := value2;
     end if;
   end func;
+
+
+DECLARE_TERNARY(integer);

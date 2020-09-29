@@ -485,16 +485,8 @@ const func boolean: (attr boolean) parse (in string: stri) is func
 
 const string: str (in void: aVoid) is "empty";
 
-const func string: str (in boolean: aBool) is func
-  result
-    var string: stri is "";
-  begin
-    if aBool then
-      stri := "TRUE";
-    else
-      stri := "FALSE";
-    end if;
-  end func;
+const func string: str (in boolean: aBool) is
+    return aBool ? "TRUE" : "FALSE";
 
 const func string: literal (in boolean: aBool) is
     return str(aBool);

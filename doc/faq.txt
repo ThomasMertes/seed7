@@ -40,9 +40,9 @@ What are the design principles of Seed7?
 The design principles are:
 
  - Error prevention:
-   Seed7 is statically typed, variables must always have a value,
-   there is no NULL and all errors, inclusive integer overflow,
-   trigger an exception.
+   Seed7 is statically typed, memory safe, variables must always
+   have a value, there are no pointers and there is no NULL. All
+   errors, inclusive integer overflow, trigger an exception.
 
  - Source code portability:
    Most programming languages claim to be source code portable, but
@@ -83,8 +83,8 @@ The design principles are:
    This removes another dependency.
 
  - An interpreter that starts quickly:
-   This allows a quick edit-test cycle. Often the interpreter
-   reads 400000 lines per second or more.
+   This allows a quick edit-test cycle. It can do up to
+   400000 lines per second or more.
 
  - No artificial restrictions:
    Historic programming languages have a lot of artificial
@@ -119,7 +119,7 @@ The design principles are:
 
  - Reliable solutions:
    Simple and reliable solutions are preferred over complex
-   solutions, that may fail for various reasons.
+   ones that may fail for various reasons.
 
 
 What is an extensible programming language?
@@ -333,12 +333,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-08-30 the number of lines is:
+than 300000 lines of Seed7. For version 2020-09-29 the number of lines is:
 
-  160115  C source files (*.c)
-   12650  C header files (*.h)
-  190227  Seed7 source files (*.sd7)
-  160146  Seed7 library/include files (*.s7i)
+  160515  C source files (*.c)
+   12672  C header files (*.h)
+  191361  Seed7 source files (*.sd7)
+  160514  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -767,6 +767,7 @@ Possible options are
   -b   Specify the directory of the Seed7 runtime libraries (e.g.: -b ../bin).
   -e   Generate code which sends a signal, if an uncaught exception occurs.
        This option allows debuggers to handle uncaught Seed7 exceptions.
+  -flto Enable link time optimization.
   -g   Tell the C compiler to generate an executable with debug information.
        This way the debugger will refer to Seed7 source files and line numbers.
        To generate debug information which refers to the temporary C program
@@ -948,12 +949,8 @@ is used. Constant declarations often look like this:
 
 The Seed7 declaration syntax is oriented towards these examples. Variable
 declarations are introduced with 'var' and constant declarations are
-introduced with 'const'. The equals sign is replaced with 'is'. This
-would lead to:
-
-      const integer x is 42;
-
-As separator between type and name a colon is used:
+introduced with 'const'. The equals sign is replaced with 'is' and
+a colon is used as separator between type and name. This leads to:
 
       const integer: x is 42;
 
@@ -962,8 +959,8 @@ declaration that is easy to recognize and uses the same syntax:
 
       const type: stack is array integer;
 
-It is also easy to recognize function declarations although they use
-the same syntax:
+It is also easy to recognize function declarations, they use the same
+syntax:
 
       const func integer: computeSomething is ...
 
@@ -973,10 +970,10 @@ In a block with several declarations the type can be recognized easily:
       var integer: paramValue is 0;
       var bigInteger: bigSum is 0_;
 
-The colon confuses many programmers with a background from dynamically
-typed languages. In these languages optional type specifications have been
-introduced later and they use name: type. In Seed7 the specification
-of the type is not optional but mandatory.
+Programmers used to dynamically typed languages may be confused by the
+colon. Those languages use something like name: type with the type
+annotation being optional. In Seed7 the specification of the type is
+mandatory.
 
 
 Isn't the code unreadable if everybody invents new statements?
@@ -1169,6 +1166,32 @@ of the program needs to use this algorithm also every time he/she reads the
 program. And that is very bad since a program is more often read than written.
 
 
+Why does a local type declaration trigger an error?
+===================================================
+
+  A 'local' declaration block is parsed completely before it is executed.
+  This causes that 'type' declarations inside of a 'local' declaration block
+  are not defined during the parsing. If the locally defined type is used in
+  the same declaration block an error like
+
+    *** tst249.sd7(6):51: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
+        var intArrayType: arr is [](1, 2);
+
+  will be triggered. This errors are avoided, if all 'type' declarations are
+  made at the top level. E.g.:
+
+    $ include "seed7_05.s7i";
+
+    const type: intArrayType is array integer;
+
+    const proc: main is func
+      local
+        var intArrayType: arr is [](1, 2);
+      begin
+        writeln(length(arr));
+      end func;
+
+
 Are there automatic casts to the right type?
 ============================================
 
@@ -1304,12 +1327,12 @@ encodings are also available.
 
 The usage of UTF-32 for strings in a program has several advantages:
 
- - With UTF-32 it is not necessary to distinguish character-length from
-   byte-length. The character-length of an UTF-8 or UTF-16 string must be
-   computed by processing the whole string. The character-length of an
-   UTF-32 string does not need such an effort.
- - Accessing a character with an index in an UTF-32 string is also simple.
-   With UTF-8 and UTF-16 it is necessary to process all characters up
+ - With UTF-32 it is not necessary to distinguish the normal length of a
+   string from its byte-length. In an UTF-8 or UTF-16 string the number
+   of code points must be computed by processing the whole string.
+   Computing the length of an UTF-32 string does not need such an effort.
+ - Accessing a code point with an index in an UTF-32 string is also simple.
+   With UTF-8 and UTF-16 it is necessary to process all code points up
    to the index. It has been argued, that most strings are processed
    sequentially. UTF-32 strings can be processed sequentially, but if
    the processing is not sequentially UTF-32 has a big advantage.
@@ -1338,6 +1361,15 @@ The usage of UTF-32 for strings in a program has several advantages:
    possibility to hold all this encodings is an advantage that only UTF-32
    offers.
 
+Sometimes it is argued that UTF-32 encodes code points and that an actual
+character might consist of several code points (e.g. by using combining
+characters). This is not only a problem of UTF-32. Practically all
+programs that use Unicode assume that a code point is a character. Unicode
+contains many precomposed characters, so that most of the time a code
+point is in fact a character. Most of the programs have no problem with
+that simplification. If a program needs to handle combining characters it
+must check for that, independent of the code point encoding.
+
 In a Seed7 program all operations with strings can be done with the type
 string. Having just one string type simplifies things.
 
@@ -1361,44 +1393,48 @@ This way beginners can use variable and function names from their native
 language.
 
 
-Why are the strings in Seed7 mutable?
-=====================================
+Why are strings in Seed7 mutable?
+=================================
 
-Java, C# and several other languages use immutable strings. But immutable strings
-have not only advantages. They have also disadvantages. Okay, assigning immutable
-strings is cheap (just the pointer is assigned), but almost everything else becomes
-more expensive. Every time immutable strings are changed the whole string content
-must be copied. If you want to change a string a lot, this becomes very costly.
-For that reason Java introduced the mutable string class StringBuffer (and later
-StringBuilder). Maintaining the string data of immutable strings is also an
-overhead that costs time, as it requires bookkeeping and a garbage collection.
+Java, C# and several other languages use immutable strings which allow
+for simple and quick assignments (just a pointer is assigned). But they
+have also disadvantages. Almost everything else besides assignments becomes
+more expensive. Every time immutable strings are changed, the whole string
+content must be copied. If you want to change a string often, this becomes
+very costly. For that reason Java introduced the mutable string class
+StringBuffer (and later StringBuilder). Maintaining the string data of
+immutable strings is also an overhead that costs time, as it requires
+bookkeeping and garbage collection.
 
-The string handling of mutable strings can be optimized, such that copying the
-string content can be avoided in many cases. This is done by the Seed7 interpreter
-and compiler. You get cheap string parameter passing, string slicing and assignment
-without being bothered with immutable and mutable string types (which is essentially
-an implementation detail). Mutable strings give us also consistent language
-semantics (strings are not handled different than other objects).
+The string handling of mutable strings can be optimized, such that copying
+the string content can be avoided in many cases. This is done by the Seed7
+interpreter and compiler. You get cheap string parameter passing, string
+slicing and assignment without being bothered with immutable and mutable
+string types (which is essentially an implementation detail). Mutable
+strings give us also consistent language semantics (strings are not handled
+different than other objects).
 
 
 Why are strings indexed from one?
 =================================
 
-Here is a little list to explain that. Please read the second line from the list:
+Here is a little example to explain that. Please read the second line from the
+following list:
 
  - You probably forgot that you should just read the second line.
  - This is the second line from the list.
  - You probably also count your partners starting from zero.
  - Next time read the instructions more carefully.
 
-This example makes it clear. The number one has been invented as starting point
+It should be obvious: The number one has been invented as starting point
 to count something. The first character in this sentence is T not h. So the
-question is: Why does everybody think that in computer science the first character
-has the index 0? Basically this comes from C. Arrays and strings in C are viewed
-as pointer + offset. So it is natural that the first offset is 0. From C this
-concept spread to many other programming languages. Seed7 breaks with this
-tradition as it uses the number one again for the purpose it has been invented,
-thousands of years ago, long before zero has been invented.
+question is: Why does everybody believe that in computer science the first
+character has the index 0? Basically this origins in the language C. Arrays
+and strings in C are viewed as pointer + offset. So it is natural that the
+first offset is 0. From C this concept spread to many other programming
+languages. Seed7 breaks with this tradition as it uses the number one again
+for the purpose it has been invented, thousands of years ago, long before
+zero has been introduced.
 
 
 How are comparisons done in Seed7?
@@ -1417,7 +1453,7 @@ this regard, because the '=' operator is generally used to check for equality.
 It is just not necessary to tell every newcomer that '==' is used to compare
 integers, but that it should never be used to compare strings.
 
-Most types define also the function compare(A, B), which returns -1 (if A is
+Most types of Seed7 also define the function compare(A, B), which returns -1 (if A is
 less than B), 0 (if A equals B) or 1 (if A is greater than B). This function
 defines a total order over the values of a type even if < has not been defined
 or if < does not define a total order. E.g.:
@@ -1481,9 +1517,9 @@ Are there regular expressions?
 ==============================
 
 Regular expressions are a powerful feature. Unfortunately they lead also
-to code, that is hard to maintain. The regular expression language is
+to code that is hard to maintain. The regular expression language is
 usually embedded in a surrounding programming language. As with other
-language in language features this leads to maintenance problems. There
+language-in-language features this leads to maintenance problems. There
 are also other difficulties. Regular expressions work typeless but Seed7
 does not. For this reasons regular expressions are currently not supported,
 but there is an alternative (see below).
@@ -2126,6 +2162,57 @@ as the C++ template functions. The explicit calls of template functions make it
 obvious what it is going on. This way the program is easier to read.
 
 
+Is the parser part of the run-time library?
+===========================================
+
+Yes, the library progs.s7i defines the type 'program', which describes a Seed7
+program. The functions parseFile, and parseStri can be used to parse a file
+respectively string. The function execute can be used to execute a program. E.g.:
+
+  $ include "seed7_05.s7i";
+    include "progs.s7i";
+
+  const proc: main is func
+    local
+      var program: aProg is program.value;
+    begin
+      if length(argv(PROGRAM)) =(in_integer)">>= 1 then
+        aProg := parseFile(argv(PROGRAM)[1]);
+        if aProg (in_program)"><> program.value then
+          execute(aProg, argv(PROGRAM)[2 ..]);
+        end if;
+      end if;
+    end func;
+
+
+Can I access the abstract syntax tree (AST)?
+============================================
+
+Yes, but you cannot access the AST of the program that currently runs. Instead
+you can parse a program and access its AST. The functions parseFile, and parseStri
+return a 'program' object. The type 'program' provides access to an enriched AST,
+the call-code. You can get the list of globally declared objects as 'ref_list'.
+A 'ref_list' is a list of references to objects. The type 'reference' describes
+a reference to an object. The program below writes the names of all global objects
+in the program panic.sd7:
+
+  $ include "seed7_05.s7i";
+    include "progs.s7i";
+
+  const proc: main is func
+    local
+      var program: aProg is program.value;
+      var reference: aRef is NIL;
+    begin
+      aProg := parseFile("panic.sd7");
+      if aProg (in_program)"><> program.value then
+        for aRef range globalObjects(aProg) do
+          writeln(str(aRef));
+        end for;
+      end if;
+    end func;
+
+
 What restrictions does Seed7 have?
 ==================================
 
@@ -2133,34 +2220,57 @@ Historic compilers used fixed size memory areas to store the data of the compile
 program. Limitations like source line length, identifier length, string length or
 number of nesting levels can be found in language manuals. If you reach such a
 limit an otherwise correct program will not compile. In Seed7 restrictions of
-other languages have been released:
+other languages have been removed:
 
- - There is no limitation in the length of an identifier and
+ - There is no limitation for the length of an identifier and
    all characters of an identifier are significant.
  - Statements and parentheses can be nested without limitation
    in depth.
  - The number of parameters and local variables is not
    limited.
- - Strings can contain any characters (also the NUL character)
+ - Strings can contain any characters (also the NUL character).
    This allows holding binary information in strings.
  - Although strings are not NUL terminated they have
-   no size limitation. (Except there is no more memory)
+   no size limitation. (Except when memory is exceeded)
  - String literals can have any length.
  - There is no limitation in the length of a source line.
  - There is no level limitation for nesting includes.
 
 
-What means the term undefined behavior?
-=======================================
+What does the term undefined behavior mean?
+===========================================
 
 Undefined behavior is a term used in the language specification
 of C and in other programming languages. Undefined behavior usually
 means that the behavior of the program is unpredictable. In C
 dividing by zero, accessing an array out of bounds, dereferencing
-NULL or a signed integer overflow all trigger undefined behavior.
+NULL or a signed integer overflow all triggers undefined behavior.
 Seed7 has a well defined behavior in all situations. Even in
-situations where the language specification of C refers to
+situations where the language specification of C would refer to
 undefined behavior.
+
+
+What does the term memory safety mean?
+======================================
+
+Memory safety is the state of being protected from various software
+bugs and security vulnerabilities when dealing with memory access.
+This means that in all possible executions of a program, there is
+no access to invalid memory. The violations include:
+
+ - buffer overflow
+ - buffer over-read
+ - use after free
+ - null pointer dereference
+ - using uninitialized memory
+ - double free
+
+In Seed7 there is no possibility to access memory outside of the
+defined datatypes. For all accesses to containers like 'array' and
+'string' the indices are checked to be inside the allowed range.
+In Seed7 there are no pointers that can access arbitary memory
+areas. All computations of memory sizes are protected against
+integer overflow.
 
 
 How to define break and continue?
@@ -2173,7 +2283,7 @@ Seed7 can define the syntax and semantic of all structured statements easily.
 E.g.: You can define a structured loop statement with an exit in the middle.
 Since 'break' and 'continue' are not structured statements there is no
 straightforward way to implement them. But they could be implemented with
-exceptions. Often 'break' and 'continue' are seen as trick to get more
+exceptions. Often 'break' and 'continue' are seen as a trick to get more
 performance. Exceptions would not deliver that. For that reason and to promote
 structured programming 'break', 'continue' and 'goto' are not supported.
 
@@ -2225,6 +2335,57 @@ if the exception is not related to floating point operations.
 
 Chapter 16.4 (Stack trace) of the manual contains a detailed description how to
 debug compiled Seed7 programs.
+
+
+How is Seed7 parsed?
+====================
+
+The scanner (tokenizer) uses simple hard coded rules to read tokens. Whitespace
+and comments are skipped by the scanner and identifiers are looked up in a table
+of defined symbols.
+
+Based on the scanner the syntax analysis uses a recursive descent LL(1) parser.
+This means that a lookup of one symbol is used to do syntactic decisions. The rules
+for parsing parentheses, call expressions and dot expressions are hard coded. For
+all other expressions the recursive descent parser is data driven. The data which
+drives the parser is actually a syntax description tree. Syntax descriptions like
+
+  $ syntax expr: .while.().do.().end.while   is -> 25;
+
+are used to create the syntax description tree. The result of the syntax analysis
+is an abstract syntax tree (AST).
+
+The AST is processed again to add semantic information. All things of the program
+that have been defined and that are currently available are maintained in a
+dictionary. For overloaded functions and statements this dictionary has the form
+of a tree. The expressions from the AST are matched with the dictionary. If a
+match fails, because a corresponding declaration is not found, you will get
+an error like:
+
+    *** chkloop.sd7(35):51: Match for {while "X" do {1 + 2 } end while } failed
+
+If all expressions are found in the dictionary the matching process leads to an
+enriched AST, the call-code. Call-code can be executed by the interpreter.
+Alternatively the compiler can generate C code from it.
+
+
+What is link time optimization?
+===============================
+
+Traditionally C source files are compiled separately into object files. These
+object files are later linked together into one executable file. Optimizations
+regarding two object files cannot be done. Link time optimization (LTO) allows
+also these optimizations. Gcc and clang support LTO, by writing their intermediate
+representations to the object files. This way interprocedural optimizations can
+be done when the object files are linked. C compiler, linker and archiver need
+to support LTO.
+
+When Seed7 is compiled the program 'chkccomp.c' checks if all involved components
+(C compiler, linker and archiver) support LTO. Currently this check is only done
+for gcc and clang.
+
+The Seed7 compiler supports the option -flto, which triggers the necessary steps
+to do LTO. If LTO is not supported the option -flto has no effect.
 
 
 Where does the interpreter look for include libraries?
@@ -2284,7 +2445,7 @@ predefined include libraries.
 What happens during make depend?
 ================================
 
-The instructions how to compile the interpreter clearify that you need
+The instructions how to compile the interpreter state that you need
 a makefile that is specific for your combination of operating system,
 make utility, C compiler and shell. When you use the command
 

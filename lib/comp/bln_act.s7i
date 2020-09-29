@@ -24,20 +24,21 @@
 (********************************************************************)
 
 
-const ACTION: BLN_AND    is action "BLN_AND";
-const ACTION: BLN_CPY    is action "BLN_CPY";
-const ACTION: BLN_EQ     is action "BLN_EQ";
-const ACTION: BLN_GE     is action "BLN_GE";
-const ACTION: BLN_GT     is action "BLN_GT";
-const ACTION: BLN_ICONV1 is action "BLN_ICONV1";
-const ACTION: BLN_ICONV3 is action "BLN_ICONV3";
-const ACTION: BLN_LE     is action "BLN_LE";
-const ACTION: BLN_LT     is action "BLN_LT";
-const ACTION: BLN_NE     is action "BLN_NE";
-const ACTION: BLN_NOT    is action "BLN_NOT";
-const ACTION: BLN_OR     is action "BLN_OR";
-const ACTION: BLN_ORD    is action "BLN_ORD";
-const ACTION: BLN_VALUE  is action "BLN_VALUE";
+const ACTION: BLN_AND     is action "BLN_AND";
+const ACTION: BLN_CPY     is action "BLN_CPY";
+const ACTION: BLN_EQ      is action "BLN_EQ";
+const ACTION: BLN_GE      is action "BLN_GE";
+const ACTION: BLN_GT      is action "BLN_GT";
+const ACTION: BLN_ICONV1  is action "BLN_ICONV1";
+const ACTION: BLN_ICONV3  is action "BLN_ICONV3";
+const ACTION: BLN_LE      is action "BLN_LE";
+const ACTION: BLN_LT      is action "BLN_LT";
+const ACTION: BLN_NE      is action "BLN_NE";
+const ACTION: BLN_NOT     is action "BLN_NOT";
+const ACTION: BLN_OR      is action "BLN_OR";
+const ACTION: BLN_ORD     is action "BLN_ORD";
+const ACTION: BLN_TERNARY is action "BLN_TERNARY";
+const ACTION: BLN_VALUE   is action "BLN_VALUE";
 
 
 const proc: bln_prototypes (inout file: c_prog) is func
@@ -225,6 +226,74 @@ const proc: process (BLN_ORD, in reference: function,
     c_expr.expr &:= "(intType)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_TERNARY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: thenParam is expr_type.value;
+    var expr_type: elseParam is expr_type.value;
+    var type: paramType is void;
+  begin
+    if getConstant(params[1], ENUMLITERALOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      if getValue(evaluatedParam, boolean) then
+        process_call_by_name_expr(params[3], c_expr);
+      else
+        process_call_by_name_expr(params[5], c_expr);
+      end if;
+    else
+      prepareCallByNameParamTemporarys(params[3], thenParam, c_expr);
+      prepareCallByNameParamTemporarys(params[5], elseParam, c_expr);
+      if thenParam.expr <> "" and elseParam.expr <> "" then
+        c_expr.expr &:= "((";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ")?(";
+        c_expr.expr &:= thenParam.expr;
+        c_expr.expr &:= "):(";
+        c_expr.expr &:= elseParam.expr;
+        c_expr.expr &:= "))";
+      elsif thenParam.expr = "" then
+        c_expr.result_name := thenParam.result_name;
+        c_expr.result_decl := thenParam.result_decl;
+        c_expr.result_free := thenParam.result_free;
+        c_expr.result_to_null := thenParam.result_to_null;
+        c_expr.result_intro := thenParam.result_intro;
+        c_expr.result_finish := thenParam.result_finish;
+        c_expr.result_expr &:= "((";
+        getStdParamToResultExpr(params[1], c_expr);
+        c_expr.result_expr &:= ")?(";
+        c_expr.result_expr &:= thenParam.result_expr;
+        c_expr.result_expr &:= "):(";
+        if elseParam.expr = "" then
+          c_expr.result_expr &:= elseParam.result_expr;
+        else
+          paramType := getExprResultType(params[5]);
+          process_create_declaration(paramType, global_c_expr);
+          process_create_call(paramType, elseParam.expr, c_expr.result_expr);
+        end if;
+        c_expr.result_expr &:= "))";
+      elsif elseParam.expr = "" then
+        c_expr.result_name := elseParam.result_name;
+        c_expr.result_decl := elseParam.result_decl;
+        c_expr.result_free := elseParam.result_free;
+        c_expr.result_to_null := elseParam.result_to_null;
+        c_expr.result_intro := elseParam.result_intro;
+        c_expr.result_finish := elseParam.result_finish;
+        c_expr.result_expr &:= "((";
+        getStdParamToResultExpr(params[1], c_expr);
+        c_expr.result_expr &:= ")?(";
+        paramType := getExprResultType(params[3]);
+        process_create_declaration(paramType, global_c_expr);
+        process_create_call(paramType, thenParam.expr, c_expr.result_expr);
+        c_expr.result_expr &:= "):(";
+        c_expr.result_expr &:= elseParam.result_expr;
+        c_expr.result_expr &:= "))";
+      end if;
+    end if;
   end func;
 
 

@@ -20118,6 +20118,61 @@ const proc: check_lowestSetBit is func
   end func;
 
 
+const proc: check_ternary is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var integer: number is 0;
+  begin
+    if  ( TRUE ?  1 : 2) <> 1 or
+        (FALSE ?  1 : 2) <> 2 or
+        ( TRUE ?  1 : intExpr(2)) <> 1 or
+        (FALSE ?  1 : intExpr(2)) <> 2 or
+        ( TRUE ?  intExpr(1) : 2) <> 1 or
+        (FALSE ?  intExpr(1) : 2) <> 2 or
+        ( TRUE ?  intExpr(1) : intExpr(2)) <> 1 or
+        (FALSE ?  intExpr(1) : intExpr(2)) <> 2 or
+        (boolExpr( TRUE) ?  1 : 2) <> 1 or
+        (boolExpr(FALSE) ?  1 : 2) <> 2 or
+        (boolExpr( TRUE) ?  1 : intExpr(2)) <> 1 or
+        (boolExpr(FALSE) ?  1 : intExpr(2)) <> 2 or
+        (boolExpr( TRUE) ?  intExpr(1) : 2) <> 1 or
+        (boolExpr(FALSE) ?  intExpr(1) : 2) <> 2 or
+        (boolExpr( TRUE) ?  intExpr(1) : intExpr(2)) <> 1 or
+        (boolExpr(FALSE) ?  intExpr(1) : intExpr(2)) <> 2 then
+      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    number :=  TRUE ?  1 : 2; ok := ok and number = 1;
+    number := FALSE ?  1 : 2; ok := ok and number = 2;
+    number :=  TRUE ?  1 : intExpr(2); ok := ok and number = 1;
+    number := FALSE ?  1 : intExpr(2); ok := ok and number = 2;
+    number :=  TRUE ?  intExpr(1) : 2; ok := ok and number = 1;
+    number := FALSE ?  intExpr(1) : 2; ok := ok and number = 2;
+    number :=  TRUE ?  intExpr(1) : intExpr(2); ok := ok and number = 1;
+    number := FALSE ?  intExpr(1) : intExpr(2); ok := ok and number = 2;
+    number := boolExpr( TRUE) ?  1 : 2; ok := ok and number = 1;
+    number := boolExpr(FALSE) ?  1 : 2; ok := ok and number = 2;
+    number := boolExpr( TRUE) ?  1 : intExpr(2); ok := ok and number = 1;
+    number := boolExpr(FALSE) ?  1 : intExpr(2); ok := ok and number = 2;
+    number := boolExpr( TRUE) ?  intExpr(1) : 2; ok := ok and number = 1;
+    number := boolExpr(FALSE) ?  intExpr(1) : 2; ok := ok and number = 2;
+    number := boolExpr( TRUE) ?  intExpr(1) : intExpr(2); ok := ok and number = 1;
+    number := boolExpr(FALSE) ?  intExpr(1) : intExpr(2); ok := ok and number = 2;
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The ternary operator ? : works correct for integer.");
+    else
+      writeln(" ***** The ternary operator ? : does not work correct.");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -20163,4 +20218,5 @@ const proc: main is func
     check_lpad0;
     check_bitLength;
     check_lowestSetBit;
+    check_ternary;
   end func;

@@ -45,6 +45,10 @@ const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
 
 
+const func boolean: boolExpr (in boolean: okay) is
+  return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
+
+
 const func boolean: raisesRangeError (ref func string: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
@@ -12701,12 +12705,66 @@ const proc: check_rand is func
     var boolean: negativePresent is FALSE;
     var boolean: positivePresent is FALSE;
     var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
   begin
-    if  rand(          0.0,            0.0 ) <> 0.0 or
-        rand(          0.0,  floatExpr(0.0)) <> 0.0 or
-        rand(floatExpr(0.0),           0.0 ) <> 0.0 or
-        rand(floatExpr(0.0), floatExpr(0.0)) <> 0.0 then
-      writeln(" ***** rand(0.0, 0.0) does not work correct.");
+    number := rand(-Infinity,      -2.0); ok := ok and number >= -Infinity and number < -2.0;
+    number := rand(-Infinity,      -1.0); ok := ok and number >= -Infinity and number < -1.0;
+    number := rand(-Infinity,       0.0); ok := ok and number >= -Infinity and number <  0.0;
+    number := rand(-Infinity,       1.0); ok := ok and number >= -Infinity and number <  1.0;
+    number := rand(-Infinity,       2.0); ok := ok and number >= -Infinity and number <  2.0;
+    number := rand(-Infinity,  Infinity); ok := ok and number >= -Infinity and number <= Infinity;
+    number := rand(     -2.0,      -1.0); ok := ok and number >= -2.0 and number < -1.0;
+    number := rand(     -2.0,       0.0); ok := ok and number >= -2.0 and number <  0.0;
+    number := rand(     -2.0,       1.0); ok := ok and number >= -2.0 and number <  1.0;
+    number := rand(     -2.0,       2.0); ok := ok and number >= -2.0 and number <  2.0;
+    number := rand(     -2.0,  Infinity); ok := ok and number >= -2.0 and number <= Infinity;
+    number := rand(     -1.0,       0.0); ok := ok and number >= -1.0 and number < 0.0;
+    number := rand(     -1.0,       1.0); ok := ok and number >= -1.0 and number < 1.0;
+    number := rand(     -1.0,       2.0); ok := ok and number >= -1.0 and number < 2.0;
+    number := rand(     -1.0,  Infinity); ok := ok and number >= -1.0 and number <= Infinity;
+    number := rand(      0.0,       1.0); ok := ok and number >= 0.0 and number < 1.0;
+    number := rand(      0.0,       2.0); ok := ok and number >= 0.0 and number < 2.0;
+    number := rand(      0.0,  Infinity); ok := ok and number >= 0.0 and number <= Infinity;
+    number := rand(      1.0,       2.0); ok := ok and number >= 1.0 and number < 2.0;
+    number := rand(      1.0,  Infinity); ok := ok and number >= 1.0 and number <= Infinity;
+    number := rand(      2.0,  Infinity); ok := ok and number >= 2.0 and number <= Infinity;
+    if not ok then
+      writeln(" ***** rand(a, b) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    number := rand(0.0, 2.0 ** 1000); ok := ok and number >= 0.0 and number < 2.0 ** 1000;
+    number := rand(0.0, 2.0 **  500); ok := ok and number >= 0.0 and number < 2.0 **  500;
+    number := rand(0.0, 2.0 **  200); ok := ok and number >= 0.0 and number < 2.0 **  200;
+    number := rand(0.0, 1267650600228229401496703205376.0); ok := ok and number >= 0.0 and number < 1267650600228229401496703205376.0;
+    number := rand(0.0,             1152921504606846976.0); ok := ok and number >= 0.0 and number < 1152921504606846976.0;
+    number := rand(0.0,                   1099511627776.0); ok := ok and number >= 0.0 and number < 1099511627776.0;
+    number := rand(0.0,                      1073741824.0); ok := ok and number >= 0.0 and number < 1073741824.0;
+    number := rand(0.0,                         1048576.0); ok := ok and number >= 0.0 and number < 1048576.0;
+    number := rand(0.0,                           65536.0); ok := ok and number >= 0.0 and number < 65536.0;
+    number := rand(0.0,                            1024.0); ok := ok and number >= 0.0 and number < 1024.0;
+    number := rand(0.0,                               4.0); ok := ok and number >= 0.0 and number < 4.0;
+    number := rand(0.0,                               2.0); ok := ok and number >= 0.0 and number < 2.0;
+    number := rand(0.0,                               1.0); ok := ok and number >= 0.0 and number < 1.0;
+    number := rand(0.0, 0.5);                           ok := ok and number >= 0.0 and number < 0.5;
+    number := rand(0.0, 0.25);                          ok := ok and number >= 0.0 and number < 0.25;
+    number := rand(0.0, 0.125);                         ok := ok and number >= 0.0 and number < 0.125;
+    number := rand(0.0, 0.0625);                        ok := ok and number >= 0.0 and number < 0.0625;
+    number := rand(0.0, 0.03125);                       ok := ok and number >= 0.0 and number < 0.03125;
+    number := rand(0.0, 0.015625);                      ok := ok and number >= 0.0 and number < 0.015625;
+    number := rand(0.0, 0.0078125);                     ok := ok and number >= 0.0 and number < 0.0078125;
+    number := rand(0.0, 0.0009765625);                  ok := ok and number >= 0.0 and number < 0.0009765625;
+    number := rand(0.0, 0.000030517578125);             ok := ok and number >= 0.0 and number < 0.000030517578125;
+    number := rand(0.0, 0.00000095367431640625);        ok := ok and number >= 0.0 and number < 0.00000095367431640625;
+    number := rand(0.0, 0.000000000931322574615479);    ok := ok and number >= 0.0 and number < 0.000000000931322574615479;
+    number := rand(0.0, 0.000000000000909494701772928); ok := ok and number >= 0.0 and number < 0.000000000000909494701772928;
+    number := rand(0.0, 2.0 ** ( -100)); ok := ok and number >= 0.0 and number < 2.0 ** ( -100);
+    number := rand(0.0, 2.0 ** ( -200)); ok := ok and number >= 0.0 and number < 2.0 ** ( -200);
+    number := rand(0.0, 2.0 ** ( -500)); ok := ok and number >= 0.0 and number < 2.0 ** ( -500);
+    number := rand(0.0, 2.0 ** (-1000)); ok := ok and number >= 0.0 and number < 2.0 ** (-1000);
+    if not ok then
+      writeln(" ***** rand(0.0, upper) does not work correct if upper is a power of two.");
       okay := FALSE;
     end if;
 
@@ -12734,11 +12792,59 @@ const proc: check_rand is func
       okay := FALSE;
     end if;
 
+    if  not raisesRangeError(rand(          -Infinity,            -Infinity )) or
+        not raisesRangeError(rand(          -Infinity,  floatExpr(-Infinity))) or
+        not raisesRangeError(rand(floatExpr(-Infinity),           -Infinity )) or
+        not raisesRangeError(rand(floatExpr(-Infinity), floatExpr(-Infinity))) or
+        not raisesRangeError(rand(               -2.0,                 -2.0 )) or
+        not raisesRangeError(rand(               -2.0,  floatExpr(     -2.0))) or
+        not raisesRangeError(rand(floatExpr(     -2.0),                -2.0 )) or
+        not raisesRangeError(rand(floatExpr(     -2.0), floatExpr(     -2.0))) or
+        not raisesRangeError(rand(               -1.0,                 -1.0 )) or
+        not raisesRangeError(rand(               -1.0,  floatExpr(     -1.0))) or
+        not raisesRangeError(rand(floatExpr(     -1.0),                -1.0 )) or
+        not raisesRangeError(rand(floatExpr(     -1.0), floatExpr(     -1.0))) or
+        not raisesRangeError(rand(                0.0,                  0.0 )) or
+        not raisesRangeError(rand(                0.0,  floatExpr(      0.0))) or
+        not raisesRangeError(rand(floatExpr(      0.0),                 0.0 )) or
+        not raisesRangeError(rand(floatExpr(      0.0), floatExpr(      0.0))) or
+        not raisesRangeError(rand(                1.0,                  1.0 )) or
+        not raisesRangeError(rand(                1.0,  floatExpr(      1.0))) or
+        not raisesRangeError(rand(floatExpr(      1.0),                 1.0 )) or
+        not raisesRangeError(rand(floatExpr(      1.0), floatExpr(      1.0))) or
+        not raisesRangeError(rand(                2.0,                  2.0 )) or
+        not raisesRangeError(rand(                2.0,  floatExpr(      2.0))) or
+        not raisesRangeError(rand(floatExpr(      2.0),                 2.0 )) or
+        not raisesRangeError(rand(floatExpr(      2.0), floatExpr(      2.0))) or
+        not raisesRangeError(rand(           Infinity,             Infinity )) or
+        not raisesRangeError(rand(           Infinity,  floatExpr( Infinity))) or
+        not raisesRangeError(rand(floatExpr( Infinity),            Infinity )) or
+        not raisesRangeError(rand(floatExpr( Infinity), floatExpr( Infinity))) then
+      writeln(" ***** rand(0.0, 0.0) does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
     if  not raisesRangeError(rand(          1.0,            0.0 )) or
         not raisesRangeError(rand(          1.0,  floatExpr(0.0))) or
         not raisesRangeError(rand(floatExpr(1.0),           0.0 )) or
         not raisesRangeError(rand(floatExpr(1.0), floatExpr(0.0))) then
       writeln(" ***** rand(1.0, 0.0) does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(rand(          0.0,            NaN )) or
+        not raisesRangeError(rand(          NaN,            1.0 )) or
+        not raisesRangeError(rand(          NaN,            NaN )) or
+        not raisesRangeError(rand(          0.0,  floatExpr(NaN))) or
+        not raisesRangeError(rand(          NaN,  floatExpr(1.0))) or
+        not raisesRangeError(rand(          NaN,  floatExpr(NaN))) or
+        not raisesRangeError(rand(floatExpr(0.0),           NaN )) or
+        not raisesRangeError(rand(floatExpr(NaN),           1.0 )) or
+        not raisesRangeError(rand(floatExpr(NaN),           NaN )) or
+        not raisesRangeError(rand(floatExpr(0.0), floatExpr(NaN))) or
+        not raisesRangeError(rand(floatExpr(NaN), floatExpr(1.0))) or
+        not raisesRangeError(rand(floatExpr(NaN), floatExpr(NaN))) then
+      writeln(" ***** rand with NaN as upper or lower bound does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 
@@ -12795,6 +12901,61 @@ const proc: check_decompose is func
   end func;
 
 
+const proc: check_ternary is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var float: number is 0.0;
+  begin
+    if  ( TRUE ?  1.0 : 2.0) <> 1.0 or
+        (FALSE ?  1.0 : 2.0) <> 2.0 or
+        ( TRUE ?  1.0 : floatExpr(2.0)) <> 1.0 or
+        (FALSE ?  1.0 : floatExpr(2.0)) <> 2.0 or
+        ( TRUE ?  floatExpr(1.0) : 2.0) <> 1.0 or
+        (FALSE ?  floatExpr(1.0) : 2.0) <> 2.0 or
+        ( TRUE ?  floatExpr(1.0) : floatExpr(2.0)) <> 1.0 or
+        (FALSE ?  floatExpr(1.0) : floatExpr(2.0)) <> 2.0 or
+        (boolExpr( TRUE) ?  1.0 : 2.0) <> 1.0 or
+        (boolExpr(FALSE) ?  1.0 : 2.0) <> 2.0 or
+        (boolExpr( TRUE) ?  1.0 : floatExpr(2.0)) <> 1.0 or
+        (boolExpr(FALSE) ?  1.0 : floatExpr(2.0)) <> 2.0 or
+        (boolExpr( TRUE) ?  floatExpr(1.0) : 2.0) <> 1.0 or
+        (boolExpr(FALSE) ?  floatExpr(1.0) : 2.0) <> 2.0 or
+        (boolExpr( TRUE) ?  floatExpr(1.0) : floatExpr(2.0)) <> 1.0 or
+        (boolExpr(FALSE) ?  floatExpr(1.0) : floatExpr(2.0)) <> 2.0 then
+      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    number :=  TRUE ?  1.0 : 2.0; ok := ok and number = 1.0;
+    number := FALSE ?  1.0 : 2.0; ok := ok and number = 2.0;
+    number :=  TRUE ?  1.0 : floatExpr(2.0); ok := ok and number = 1.0;
+    number := FALSE ?  1.0 : floatExpr(2.0); ok := ok and number = 2.0;
+    number :=  TRUE ?  floatExpr(1.0) : 2.0; ok := ok and number = 1.0;
+    number := FALSE ?  floatExpr(1.0) : 2.0; ok := ok and number = 2.0;
+    number :=  TRUE ?  floatExpr(1.0) : floatExpr(2.0); ok := ok and number = 1.0;
+    number := FALSE ?  floatExpr(1.0) : floatExpr(2.0); ok := ok and number = 2.0;
+    number := boolExpr( TRUE) ?  1.0 : 2.0; ok := ok and number = 1.0;
+    number := boolExpr(FALSE) ?  1.0 : 2.0; ok := ok and number = 2.0;
+    number := boolExpr( TRUE) ?  1.0 : floatExpr(2.0); ok := ok and number = 1.0;
+    number := boolExpr(FALSE) ?  1.0 : floatExpr(2.0); ok := ok and number = 2.0;
+    number := boolExpr( TRUE) ?  floatExpr(1.0) : 2.0; ok := ok and number = 1.0;
+    number := boolExpr(FALSE) ?  floatExpr(1.0) : 2.0; ok := ok and number = 2.0;
+    number := boolExpr( TRUE) ?  floatExpr(1.0) : floatExpr(2.0); ok := ok and number = 1.0;
+    number := boolExpr(FALSE) ?  floatExpr(1.0) : floatExpr(2.0); ok := ok and number = 2.0;
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The ternary operator ? : works correct for float.");
+    else
+      writeln(" ***** The ternary operator ? : does not work correct.");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -12821,4 +12982,5 @@ const proc: main is func
     check_nan;
     check_rand;
     check_decompose;
+    check_ternary;
   end func;

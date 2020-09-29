@@ -49,6 +49,10 @@ const func string: striExpr (in string: stri) is
   return stri & str(rand(1, 9))[2 ..];
 
 
+const func boolean: boolExpr (in boolean: okay) is
+  return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
+
+
 const func boolean: raisesRangeError (ref func string: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
@@ -21529,6 +21533,61 @@ const proc: chkAssign is func
   end func;
 
 
+const proc: checkTernary is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var bigInteger: big1 is 0_;
+  begin
+    if  ( TRUE ?  1_ : 2_) <> 1_ or
+        (FALSE ?  1_ : 2_) <> 2_ or
+        ( TRUE ?  1_ : bigintExpr(2_)) <> 1_ or
+        (FALSE ?  1_ : bigintExpr(2_)) <> 2_ or
+        ( TRUE ?  bigintExpr(1_) : 2_) <> 1_ or
+        (FALSE ?  bigintExpr(1_) : 2_) <> 2_ or
+        ( TRUE ?  bigintExpr(1_) : bigintExpr(2_)) <> 1_ or
+        (FALSE ?  bigintExpr(1_) : bigintExpr(2_)) <> 2_ or
+        (boolExpr( TRUE) ?  1_ : 2_) <> 1_ or
+        (boolExpr(FALSE) ?  1_ : 2_) <> 2_ or
+        (boolExpr( TRUE) ?  1_ : bigintExpr(2_)) <> 1_ or
+        (boolExpr(FALSE) ?  1_ : bigintExpr(2_)) <> 2_ or
+        (boolExpr( TRUE) ?  bigintExpr(1_) : 2_) <> 1_ or
+        (boolExpr(FALSE) ?  bigintExpr(1_) : 2_) <> 2_ or
+        (boolExpr( TRUE) ?  bigintExpr(1_) : bigintExpr(2_)) <> 1_ or
+        (boolExpr(FALSE) ?  bigintExpr(1_) : bigintExpr(2_)) <> 2_ then
+      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    big1 :=  TRUE ?  1_ : 2_; ok := ok and big1 = 1_;
+    big1 := FALSE ?  1_ : 2_; ok := ok and big1 = 2_;
+    big1 :=  TRUE ?  1_ : bigintExpr(2_); ok := ok and big1 = 1_;
+    big1 := FALSE ?  1_ : bigintExpr(2_); ok := ok and big1 = 2_;
+    big1 :=  TRUE ?  bigintExpr(1_) : 2_; ok := ok and big1 = 1_;
+    big1 := FALSE ?  bigintExpr(1_) : 2_; ok := ok and big1 = 2_;
+    big1 :=  TRUE ?  bigintExpr(1_) : bigintExpr(2_); ok := ok and big1 = 1_;
+    big1 := FALSE ?  bigintExpr(1_) : bigintExpr(2_); ok := ok and big1 = 2_;
+    big1 := boolExpr( TRUE) ?  1_ : 2_; ok := ok and big1 = 1_;
+    big1 := boolExpr(FALSE) ?  1_ : 2_; ok := ok and big1 = 2_;
+    big1 := boolExpr( TRUE) ?  1_ : bigintExpr(2_); ok := ok and big1 = 1_;
+    big1 := boolExpr(FALSE) ?  1_ : bigintExpr(2_); ok := ok and big1 = 2_;
+    big1 := boolExpr( TRUE) ?  bigintExpr(1_) : 2_; ok := ok and big1 = 1_;
+    big1 := boolExpr(FALSE) ?  bigintExpr(1_) : 2_; ok := ok and big1 = 2_;
+    big1 := boolExpr( TRUE) ?  bigintExpr(1_) : bigintExpr(2_); ok := ok and big1 = 1_;
+    big1 := boolExpr(FALSE) ?  bigintExpr(1_) : bigintExpr(2_); ok := ok and big1 = 2_;
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The ternary operator ? : works correct for bigInteger.");
+    else
+      writeln(" ***** The ternary operator ? : does not work correct.");
+    end if;
+  end func;
+
+
 const func string: randDigitStri (in integer: length) is func
   result
     var string: digitStri is "";
@@ -21617,5 +21676,6 @@ const proc: main is func
     chkSqrt;
     chkConstants;
     chkAssign;
+    checkTernary;
     # testConversion(10);
   end func;

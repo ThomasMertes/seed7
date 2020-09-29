@@ -86,8 +86,37 @@ const proc: int_prototypes (inout file: c_prog) is func
 
   begin
     declareExtern(c_prog, "void        setupRand (void);");
-    declareExtern(c_prog, "uintType    uintRand (void);");
-    declareExtern(c_prog, "uintType    uintRandLimited (uintType);");
+    if inlineFunctions and
+        (ccConf.INTTYPE_SIZE = 32 and ccConf.UINT64TYPE <> "") or
+        (ccConf.INTTYPE_SIZE = 64 and ccConf.UINT128TYPE <> "") then
+      if ccConf.INTTYPE_SIZE = 32 then
+        declareExtern(c_prog, ccConf.UINT64TYPE <& " seed;");
+      elsif ccConf.INTTYPE_SIZE = 64 then
+        declareExtern(c_prog, ccConf.UINT128TYPE <& " seed;");
+      end if;
+      writeln(c_prog, "#define            RAND_MULTIPLIER " <& ccConf.RAND_MULTIPLIER);
+      writeln(c_prog, "#define            RAND_INCREMENT " <& ccConf.RAND_INCREMENT);
+      writeln(c_prog, "#define            uintRand() \
+                      \(seed = seed * RAND_MULTIPLIER + RAND_INCREMENT, \
+                      \(uintType) (seed >> " <&
+                      ccConf.INTTYPE_SIZE <& "))");
+      writeln(c_prog, "#define            uintRandMantissa() \
+                      \(seed = seed * RAND_MULTIPLIER + RAND_INCREMENT, \
+                      \(uintType) (seed >> " <&
+                      2 * ccConf.INTTYPE_SIZE - ccConf.FLOATTYPE_MANTISSA_BITS <& "))");
+      if ccConf.STMT_BLOCK_IN_PARENTHESES_OK then
+        writeln(c_prog, "#define            uintRandLimited(rand_max) \
+                        \({uintType rand_val; \
+                        \do {rand_val = uintRand();} while (rand_val > (rand_max)); \
+                        \rand_val;})");
+      else
+        declareExtern(c_prog, "uintType    uintRandLimited (uintType);");
+     end if;
+    else
+      declareExtern(c_prog, "uintType    uintRand (void);");
+      declareExtern(c_prog, "uintType    uintRandMantissa (void);");
+      declareExtern(c_prog, "uintType    uintRandLimited (uintType);");
+    end if;
     declareExtern(c_prog, "intType     intBinom (intType, intType);");
     declareExtern(c_prog, "uintType    uintBinomNoChk (uintType, intType);");
     declareExtern(c_prog, "intType     intBitLength (intType);");

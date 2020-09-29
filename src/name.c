@@ -468,12 +468,26 @@ void close_stack (progType currentProg)
     } /* if */
     list_element = reversed_list;
     while (list_element != NULL) {
-      /* printf("%lx ", (unsigned long int) list_element->obj);
-      trace1(list_element->obj);
-      printf("\n"); */
-      dump_temp_value(list_element->obj);
-      /* memset(&list_element->obj->value, 0, sizeof(valueUnion)); */
-      pop_object(currentProg, list_element->obj);
+      if (CATEGORY_OF_OBJ(list_element->obj) != BLOCKOBJECT) {
+        /* printf("%lx ", (unsigned long int) list_element->obj);
+        trace1(list_element->obj);
+        printf("\n"); */
+        dump_temp_value(list_element->obj);
+        /* memset(&list_element->obj->value, 0, sizeof(valueUnion)); */
+        pop_object(currentProg, list_element->obj);
+      } /* if */
+      list_element = list_element->next;
+    } /* while */
+    list_element = reversed_list;
+    while (list_element != NULL) {
+      if (CATEGORY_OF_OBJ(list_element->obj) == BLOCKOBJECT) {
+        /* printf("%lx ", (unsigned long int) list_element->obj);
+        trace1(list_element->obj);
+        printf("\n"); */
+        dump_temp_value(list_element->obj);
+        /* memset(&list_element->obj->value, 0, sizeof(valueUnion)); */
+        pop_object(currentProg, list_element->obj);
+      } /* if */
       list_element = list_element->next;
     } /* while */
     list_element = reversed_list;

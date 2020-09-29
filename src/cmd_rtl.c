@@ -76,6 +76,7 @@
 #include "striutl.h"
 #include "str_rtl.h"
 #include "chr_rtl.h"
+#include "int_rtl.h"
 #include "fil_rtl.h"
 #include "dir_drv.h"
 #include "dir_rtl.h"
@@ -103,6 +104,12 @@
 #endif
 #ifndef EXECUTABLE_FILE_EXTENSION
 #define EXECUTABLE_FILE_EXTENSION ""
+#endif
+#ifndef CC_OPT_LINK_TIME_OPTIMIZATION
+#define CC_OPT_LINK_TIME_OPTIMIZATION ""
+#endif
+#ifndef LINKER_OPT_LTO_MANDATORY
+#define LINKER_OPT_LTO_MANDATORY 0
 #endif
 #ifndef CC_OPT_TRAP_OVERFLOW
 #define CC_OPT_TRAP_OVERFLOW ""
@@ -1654,6 +1661,10 @@ striType cmdConfigValue (const const_striType name)
       opt = C_COMPILER_VERSION;
     } else if (strcmp(opt_name, "CC_OPT_DEBUG_INFO") == 0) {
       opt = CC_OPT_DEBUG_INFO;
+    } else if (strcmp(opt_name, "CC_OPT_LINK_TIME_OPTIMIZATION") == 0) {
+      opt = CC_OPT_LINK_TIME_OPTIMIZATION;
+    } else if (strcmp(opt_name, "LINKER_OPT_LTO_MANDATORY") == 0) {
+      opt = LINKER_OPT_LTO_MANDATORY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CC_OPT_NO_WARNINGS") == 0) {
       opt = CC_OPT_NO_WARNINGS;
     } else if (strcmp(opt_name, "CC_OPT_OPTIMIZE_1") == 0) {
@@ -1743,6 +1754,12 @@ striType cmdConfigValue (const const_striType name)
       opt = STRINGIFY(INT_SIZE);
     } else if (strcmp(opt_name, "LONG_SIZE") == 0) {
       opt = STRINGIFY(LONG_SIZE);
+    } else if (strcmp(opt_name, "FLOATTYPE_MANTISSA_BITS") == 0) {
+      sprintf(buffer, "%d", FLOATTYPE_MANTISSA_BITS);
+      opt = buffer;
+    } else if (strcmp(opt_name, "FLOATTYPE_EXPONENT_OFFSET") == 0) {
+      sprintf(buffer, "%d", FLOATTYPE_EXPONENT_OFFSET);
+      opt = buffer;
     } else if (strcmp(opt_name, "INT_RANGE_IN_FLOATTYPE_MAX") == 0) {
       sprintf(buffer, FMT_D, INT_RANGE_IN_FLOATTYPE_MAX);
       opt = buffer;
@@ -1758,6 +1775,10 @@ striType cmdConfigValue (const const_striType name)
 #else
       opt = "";
 #endif
+    } else if (strcmp(opt_name, "RAND_MULTIPLIER") == 0) {
+      opt = STRINGIFY(RAND_MULTIPLIER);
+    } else if (strcmp(opt_name, "RAND_INCREMENT") == 0) {
+      opt = STRINGIFY(RAND_INCREMENT);
     } else if (strcmp(opt_name, "MACRO_DEFS") == 0) {
       /* Use string literal concatenation: */
       opt = MACRO_DEFS  OS_ISNAN_DEFINITION;
@@ -1827,6 +1848,8 @@ striType cmdConfigValue (const const_striType name)
       opt = LIMITED_CSTRI_LITERAL_LEN ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "SWITCH_WORKS_FOR_INT64TYPE") == 0) {
       opt = SWITCH_WORKS_FOR_INT64TYPE ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "STMT_BLOCK_IN_PARENTHESES_OK") == 0) {
+      opt = STMT_BLOCK_IN_PARENTHESES_OK ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CC_SOURCE_UTF8") == 0) {
 #ifdef CC_SOURCE_UTF8
       opt = "TRUE";

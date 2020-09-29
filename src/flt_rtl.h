@@ -115,7 +115,8 @@ floatType fltParse (const const_striType stri);
 floatType fltPow (floatType base, floatType exponent);
 #endif
 
-floatType fltRand (floatType lower_limit, floatType upper_limit);
+floatType fltRand (floatType low, floatType high);
+floatType fltRandNoChk (floatType low, floatType high);
 
 #if FMOD_FUNCTION_OKAY
 #define fltRem(dividend, divisor) fmod(dividend, divisor)

@@ -33,8 +33,16 @@ const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
 
 
+const func bin32: bin32Expr (in bin32: aBin32) is
+  return bin32(ord(aBin32) + length(str(rand(1, 9))[2 ..]));
+
+
 const func bin64: bin64Expr (in bin64: aBin64) is
   return bin64(ord(aBin64) + length(str(rand(1, 9))[2 ..]));
+
+
+const func boolean: boolExpr (in boolean: okay) is
+  return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
 
 
 const func bigInteger: bigintExpr (in bigInteger: number) is func
@@ -1342,6 +1350,107 @@ const proc: checkRadix is func
   end func;
 
 
+const proc: checkTernary is func
+  local
+    const bin32: thenValue32 is bin32(1);
+    const bin32: elseValue32 is bin32(2);
+    const bin64: thenValue64 is bin64(1);
+    const bin64: elseValue64 is bin64(2);
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var bin32: aBin32 is bin32.value;
+    var bin64: aBin64 is bin64.value;
+  begin
+    if  ( TRUE ?  thenValue32 : elseValue32) <> thenValue32 or
+        (FALSE ?  thenValue32 : elseValue32) <> elseValue32 or
+        ( TRUE ?  thenValue32 : bin32Expr(elseValue32)) <> thenValue32 or
+        (FALSE ?  thenValue32 : bin32Expr(elseValue32)) <> elseValue32 or
+        ( TRUE ?  bin32Expr(thenValue32) : elseValue32) <> thenValue32 or
+        (FALSE ?  bin32Expr(thenValue32) : elseValue32) <> elseValue32 or
+        ( TRUE ?  bin32Expr(thenValue32) : bin32Expr(elseValue32)) <> thenValue32 or
+        (FALSE ?  bin32Expr(thenValue32) : bin32Expr(elseValue32)) <> elseValue32 or
+        (boolExpr( TRUE) ?  thenValue32 : elseValue32) <> thenValue32 or
+        (boolExpr(FALSE) ?  thenValue32 : elseValue32) <> elseValue32 or
+        (boolExpr( TRUE) ?  thenValue32 : bin32Expr(elseValue32)) <> thenValue32 or
+        (boolExpr(FALSE) ?  thenValue32 : bin32Expr(elseValue32)) <> elseValue32 or
+        (boolExpr( TRUE) ?  bin32Expr(thenValue32) : elseValue32) <> thenValue32 or
+        (boolExpr(FALSE) ?  bin32Expr(thenValue32) : elseValue32) <> elseValue32 or
+        (boolExpr( TRUE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32)) <> thenValue32 or
+        (boolExpr(FALSE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32)) <> elseValue32 then
+      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    aBin32 :=  TRUE ?  thenValue32 : elseValue32; ok := ok and aBin32 = thenValue32;
+    aBin32 := FALSE ?  thenValue32 : elseValue32; ok := ok and aBin32 = elseValue32;
+    aBin32 :=  TRUE ?  thenValue32 : bin32Expr(elseValue32); ok := ok and aBin32 = thenValue32;
+    aBin32 := FALSE ?  thenValue32 : bin32Expr(elseValue32); ok := ok and aBin32 = elseValue32;
+    aBin32 :=  TRUE ?  bin32Expr(thenValue32) : elseValue32; ok := ok and aBin32 = thenValue32;
+    aBin32 := FALSE ?  bin32Expr(thenValue32) : elseValue32; ok := ok and aBin32 = elseValue32;
+    aBin32 :=  TRUE ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok := ok and aBin32 = thenValue32;
+    aBin32 := FALSE ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok := ok and aBin32 = elseValue32;
+    aBin32 := boolExpr( TRUE) ?  thenValue32 : elseValue32; ok := ok and aBin32 = thenValue32;
+    aBin32 := boolExpr(FALSE) ?  thenValue32 : elseValue32; ok := ok and aBin32 = elseValue32;
+    aBin32 := boolExpr( TRUE) ?  thenValue32 : bin32Expr(elseValue32); ok := ok and aBin32 = thenValue32;
+    aBin32 := boolExpr(FALSE) ?  thenValue32 : bin32Expr(elseValue32); ok := ok and aBin32 = elseValue32;
+    aBin32 := boolExpr( TRUE) ?  bin32Expr(thenValue32) : elseValue32; ok := ok and aBin32 = thenValue32;
+    aBin32 := boolExpr(FALSE) ?  bin32Expr(thenValue32) : elseValue32; ok := ok and aBin32 = elseValue32;
+    aBin32 := boolExpr( TRUE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok := ok and aBin32 = thenValue32;
+    aBin32 := boolExpr(FALSE) ?  bin32Expr(thenValue32) : bin32Expr(elseValue32); ok := ok and aBin32 = elseValue32;
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  ( TRUE ?  thenValue64 : elseValue64) <> thenValue64 or
+        (FALSE ?  thenValue64 : elseValue64) <> elseValue64 or
+        ( TRUE ?  thenValue64 : bin64Expr(elseValue64)) <> thenValue64 or
+        (FALSE ?  thenValue64 : bin64Expr(elseValue64)) <> elseValue64 or
+        ( TRUE ?  bin64Expr(thenValue64) : elseValue64) <> thenValue64 or
+        (FALSE ?  bin64Expr(thenValue64) : elseValue64) <> elseValue64 or
+        ( TRUE ?  bin64Expr(thenValue64) : bin64Expr(elseValue64)) <> thenValue64 or
+        (FALSE ?  bin64Expr(thenValue64) : bin64Expr(elseValue64)) <> elseValue64 or
+        (boolExpr( TRUE) ?  thenValue64 : elseValue64) <> thenValue64 or
+        (boolExpr(FALSE) ?  thenValue64 : elseValue64) <> elseValue64 or
+        (boolExpr( TRUE) ?  thenValue64 : bin64Expr(elseValue64)) <> thenValue64 or
+        (boolExpr(FALSE) ?  thenValue64 : bin64Expr(elseValue64)) <> elseValue64 or
+        (boolExpr( TRUE) ?  bin64Expr(thenValue64) : elseValue64) <> thenValue64 or
+        (boolExpr(FALSE) ?  bin64Expr(thenValue64) : elseValue64) <> elseValue64 or
+        (boolExpr( TRUE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64)) <> thenValue64 or
+        (boolExpr(FALSE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64)) <> elseValue64 then
+      writeln(" ***** The ternary operator ? : does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    aBin64 :=  TRUE ?  thenValue64 : elseValue64; ok := ok and aBin64 = thenValue64;
+    aBin64 := FALSE ?  thenValue64 : elseValue64; ok := ok and aBin64 = elseValue64;
+    aBin64 :=  TRUE ?  thenValue64 : bin64Expr(elseValue64); ok := ok and aBin64 = thenValue64;
+    aBin64 := FALSE ?  thenValue64 : bin64Expr(elseValue64); ok := ok and aBin64 = elseValue64;
+    aBin64 :=  TRUE ?  bin64Expr(thenValue64) : elseValue64; ok := ok and aBin64 = thenValue64;
+    aBin64 := FALSE ?  bin64Expr(thenValue64) : elseValue64; ok := ok and aBin64 = elseValue64;
+    aBin64 :=  TRUE ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok := ok and aBin64 = thenValue64;
+    aBin64 := FALSE ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok := ok and aBin64 = elseValue64;
+    aBin64 := boolExpr( TRUE) ?  thenValue64 : elseValue64; ok := ok and aBin64 = thenValue64;
+    aBin64 := boolExpr(FALSE) ?  thenValue64 : elseValue64; ok := ok and aBin64 = elseValue64;
+    aBin64 := boolExpr( TRUE) ?  thenValue64 : bin64Expr(elseValue64); ok := ok and aBin64 = thenValue64;
+    aBin64 := boolExpr(FALSE) ?  thenValue64 : bin64Expr(elseValue64); ok := ok and aBin64 = elseValue64;
+    aBin64 := boolExpr( TRUE) ?  bin64Expr(thenValue64) : elseValue64; ok := ok and aBin64 = thenValue64;
+    aBin64 := boolExpr(FALSE) ?  bin64Expr(thenValue64) : elseValue64; ok := ok and aBin64 = elseValue64;
+    aBin64 := boolExpr( TRUE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok := ok and aBin64 = thenValue64;
+    aBin64 := boolExpr(FALSE) ?  bin64Expr(thenValue64) : bin64Expr(elseValue64); ok := ok and aBin64 = elseValue64;
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The ternary operator ? : works correct for bin32 and bin64.");
+    else
+      writeln(" ***** The ternary operator ? : does not work correct.");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -1353,4 +1462,5 @@ const proc: main is func
     checkBinBinaryWithBigMod;
     checkStr;
     checkRadix;
+    checkTernary;
   end func;

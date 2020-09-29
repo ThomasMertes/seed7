@@ -1392,43 +1392,76 @@ floatType fltPow (floatType base, floatType exponent)
 
 
 /**
- *  Compute pseudo-random number in the range [low, high].
+ *  Compute pseudo-random number in the range [low, high).
  *  The random values are uniform distributed.
  *  @return the computed pseudo-random number.
- *  @exception RANGE_ERROR The range is empty (low > high holds).
+ *  @exception RANGE_ERROR The range is empty (low >= high holds).
  */
 floatType fltRand (floatType low, floatType high)
 
   {
-    double factor;
+    double delta;
     rtlValueUnion conv;
     floatType randomNumber;
 
   /* fltRand */
     logFunction(printf("fltRand(" FMT_E ", " FMT_E ")\n", low, high););
-    if (unlikely(low > high)) {
+    if (unlikely(low >= high)) {
       logError(printf("fltRand(" FMT_E ", " FMT_E "): "
                       "The range is empty (low > high holds).\n",
                       low, high););
       raise_error(RANGE_ERROR);
       randomNumber = 0.0;
     } else {
-      factor = high - low;
-      if (factor == POSITIVE_INFINITY) {
+      delta = high - low;
+      if (unlikely(os_isnan(delta))) {
+        logError(printf("fltRand(" FMT_E ", " FMT_E "): "
+                        "NaN as upper or lower bound.\n",
+                        low, high););
+        raise_error(RANGE_ERROR);
+        randomNumber = 0.0;
+      } else if (delta == POSITIVE_INFINITY) {
         do {
           conv.binaryValue = uintRand();
           randomNumber = conv.floatValue;
-        } while (os_isnan(randomNumber) || randomNumber < low || randomNumber > high);
+        } while (os_isnan(randomNumber) || randomNumber < low || randomNumber >= high);
       } else {
         do {
-          randomNumber = ((floatType) uintRand()) / ((floatType) UINTTYPE_MAX);
-          randomNumber = low + factor * randomNumber;
-        } while (randomNumber < low || randomNumber > high);
+          conv.binaryValue = uintRandMantissa() |
+              ((uintType) FLOATTYPE_EXPONENT_OFFSET << FLOATTYPE_MANTISSA_BITS);
+          randomNumber = (conv.floatValue - 1.0) * delta + low;
+        } while (randomNumber >= high);
       } /* if */
     } /* if */
     logFunction(printf("fltRand --> " FMT_E "\n", randomNumber););
     return randomNumber;
   } /* fltRand */
+
+
+
+/**
+ *  Compute pseudo-random number in the range [low, high).
+ *  The random values are uniform distributed.
+ *  @return the computed pseudo-random number.
+ */
+floatType fltRandNoChk (floatType low, floatType high)
+
+  {
+    double delta;
+    rtlValueUnion conv;
+    floatType randomNumber;
+
+  /* fltRandNoChk */
+    logFunction(printf("fltRandNoChk(" FMT_E ", " FMT_E ")\n", low, high););
+    delta = high - low;
+    do {
+      conv.binaryValue = uintRandMantissa() |
+          ((uintType) FLOATTYPE_EXPONENT_OFFSET << FLOATTYPE_MANTISSA_BITS);
+      randomNumber = (conv.floatValue - 1.0) * delta + low;
+    } while (randomNumber >= high);
+    logFunction(printf("fltRandNoChk --> " FMT_E "\n", randomNumber););
+    return randomNumber;
+  } /* fltRandNoChk */
 
 
 

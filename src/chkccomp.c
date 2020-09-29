@@ -164,6 +164,18 @@
 #endif
 #endif
 
+#ifndef ARCHIVER
+#define ARCHIVER "ar"
+#endif
+
+#ifndef ARCHIVER_OPT_REPLACE
+#define ARCHIVER_OPT_REPLACE "r "
+#endif
+
+#ifndef LIBRARY_FILE_EXTENSION
+#define LIBRARY_FILE_EXTENSION ".a"
+#endif
+
 #define UNIX_LIBRARIES 1
 #define MACOS_LIBRARIES 2
 #define WINDOWS_LIBRARIES 3
@@ -571,6 +583,168 @@ static void cleanUpCompilation (int testNumber)
     sprintf(fileName, "ctest%d.out", testNumber);
     doRemove(fileName);
   } /* cleanUpCompilation */
+
+
+
+static int doCompile (const char *compilerOptions, int testNumber)
+
+  {
+    char command[COMMAND_SIZE];
+    int len;
+    char fileName[NAME_SIZE];
+    int returncode;
+    int okay = 0;
+
+  /* doCompile */
+    fprintf(logFile, "*");
+    fflush(logFile);
+    sprintf(command, "%s %s %s -c ctest%d.c",
+            c_compiler, compilerOptions, CC_FLAGS, testNumber);
+    replaceNLBySpace(command);
+#ifdef CC_ERROR_FILEDES
+    /* A missing CC_ERROR_FILEDES or an CC_ERROR_FILEDES of zero means: Do not redirect. */
+    if (CC_ERROR_FILEDES == 1) {
+      sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
+              REDIRECT_FILEDES_1, testNumber, REDIRECT_FILEDES_2, nullDevice);
+    } else if (CC_ERROR_FILEDES == 2) {
+      sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
+              REDIRECT_FILEDES_2, testNumber, REDIRECT_FILEDES_1, nullDevice);
+    } /* if */
+#endif
+#ifdef QUOTE_WHOLE_SHELL_COMMAND
+    if (command[0] == '\"') {
+      len = strlen(command);
+      memmove(&command[1], command, len);
+      command[0] = '\"';
+      command[len + 1] = '\"';
+      command[len + 2] = '\0';
+    } /* if */
+#endif
+    /* fprintf(logFile, "command: %s\n", command); */
+    returncode = system(command);
+    sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+    if (fileIsRegular(fileName)) {
+      if (returncode == 0) {
+        okay = 1;
+      } else {
+        /* fprintf(logFile, "\n *** The compiler %s fails, but creates an executable.\n", c_compiler); */
+      } /* if */
+    } else {
+      /* fprintf(logFile, "\n *** The compiler %s produces no executable: %s\n", c_compiler, fileName); */
+    } /* if */
+#ifdef DEBUG_CHKCCOMP
+    fprintf(logFile, "command: %s\n", command);
+    fprintf(logFile, "returncode: %d\n", returncode);
+    if (returncode == -1) {
+      fprintf(logFile, "errno: %d\nerror: %s\n", errno, strerror(errno));
+    } /* if */
+    fprintf(logFile, "okay: %d\n", okay);
+#endif
+    fprintf(logFile, "\b.");
+    fflush(logFile);
+    return okay;
+  } /* doCompile */
+
+
+
+static int compileWithOptionsOk (const char *content, const char *compilerOptions)
+
+  {
+    char fileName[NAME_SIZE];
+    FILE *testFile;
+    int okay = 0;
+
+  /* compileWithOptionsOk */
+    /* fprintf(logFile, "compileWithOptionsOk(%s)\n", content); */
+    cleanUpCompilation(testNumber);
+    testNumber++;
+    cleanUpCompilation(testNumber);
+    sprintf(fileName, "ctest%d.c", testNumber);
+    testFile = fopen(fileName, "w");
+    if (testFile != NULL) {
+      fprintf(testFile, "%s", content);
+      fclose(testFile);
+      okay = doCompile(compilerOptions, testNumber);
+    } /* if */
+#ifdef DEBUG_CHKCCOMP
+    fprintf(logFile, "content: %s\n", content);
+#endif
+    /* fprintf(logFile, "compileWithOptionsOk --> %d\n", okay); */
+    return okay;
+  } /* compileWithOptionsOk */
+
+
+
+static int doLink (const char *objectOrLibraryName, const char *linkerOptions)
+
+  {
+    char command[COMMAND_SIZE];
+    int len;
+    char fileName[NAME_SIZE];
+    int returncode;
+    int okay = 0;
+
+  /* doLink */
+    fprintf(logFile, "*");
+    fflush(logFile);
+#ifdef LINKER
+    sprintf(command, "%s %s %s %sctest%d%s",
+            LINKER, objectOrLibraryName, linkerOptions,
+            LINKER_OPT_OUTPUT_FILE, testNumber, LINKED_PROGRAM_EXTENSION);
+#else
+    sprintf(command, "%s %s %s",
+            c_compiler, objectOrLibraryName, linkerOptions);
+    replaceNLBySpace(command);
+#if defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
+    sprintf(&command[strlen(command)], " %sctest%d%s",
+            LINKER_OPT_OUTPUT_FILE, testNumber, LINKED_PROGRAM_EXTENSION);
+#endif
+#endif
+#ifdef CC_ERROR_FILEDES
+    /* A missing CC_ERROR_FILEDES or an CC_ERROR_FILEDES of zero means: Do not redirect. */
+    if (CC_ERROR_FILEDES == 1) {
+      sprintf(&command[strlen(command)], " %sctest%d.lerrs %s%s",
+              REDIRECT_FILEDES_1, testNumber, REDIRECT_FILEDES_2, nullDevice);
+    } else if (CC_ERROR_FILEDES == 2) {
+      sprintf(&command[strlen(command)], " %sctest%d.lerrs %s%s",
+              REDIRECT_FILEDES_2, testNumber, REDIRECT_FILEDES_1, nullDevice);
+    } /* if */
+#endif
+#ifdef QUOTE_WHOLE_SHELL_COMMAND
+    if (command[0] == '\"') {
+      len = strlen(command);
+      memmove(&command[1], command, len);
+      command[0] = '\"';
+      command[len + 1] = '\"';
+      command[len + 2] = '\0';
+    } /* if */
+#endif
+    /* fprintf(logFile, "command: %s\n", command); */
+    returncode = system(command);
+    /* fprintf(logFile, "returncode: %d\n", returncode); */
+    sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
+    /* fprintf(logFile, "fileName: \"%s\"\n", fileName); */
+    if (fileIsRegular(fileName)) {
+      if (returncode == 0) {
+        okay = 1;
+      } else {
+        /* fprintf(logFile, "\n *** The compiler %s fails, but creates an executable.\n", c_compiler); */
+      } /* if */
+    } else {
+      /* fprintf(logFile, "\n *** The compiler %s produces no executable: %s\n", c_compiler, fileName); */
+    } /* if */
+#ifdef DEBUG_CHKCCOMP
+    fprintf(logFile, "command: %s\n", command);
+    fprintf(logFile, "returncode: %d\n", returncode);
+    if (returncode == -1) {
+      fprintf(logFile, "errno: %d\nerror: %s\n", errno, strerror(errno));
+    } /* if */
+    fprintf(logFile, "okay: %d\n", okay);
+#endif
+    fprintf(logFile, "\b.");
+    fflush(logFile);
+    return okay;
+  } /* doLink */
 
 
 
@@ -2718,32 +2892,42 @@ static void numericProperties (FILE *versionFile)
         fprintf(versionFile, "#define FLOAT_TO_INT_OVERFLOW_GARBAGE %d\n", testResult);
       } /* if */
     } /* if */
-    if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
-                         "double dblPower(double base, int exponent){\n"
-                         "double power;\n"
-                         "for(power=1.0;exponent>0;exponent--)power*=base;\n"
-                         "return power;}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "int floatRadixFactor;\n"
-                         "double power;\n"
+    strcpy(buffer,
+           "#include<stdio.h>\n#include<float.h>\n"
+           "double dblPower(double base, int exponent){\n"
+           "double power;\n"
+           "for(power=1.0;exponent>0;exponent--)power*=base;\n"
+           "return power;}\n"
+           "int main(int argc,char *argv[]){\n"
+           "int floatRadixFactor;\n"
+           "double power;\n");
+    defineTransferUnions(buffer);
+    strcat(buffer,
 #ifdef TURN_OFF_FP_EXCEPTIONS
-                         "_control87(MCW_EM, MCW_EM);\n"
+           "_control87(MCW_EM, MCW_EM);\n"
 #endif
-                         "if (FLT_RADIX == 2) floatRadixFactor = 1;\n"
-                         "else if (FLT_RADIX == 4) floatRadixFactor = 2;\n"
-                         "else if (FLT_RADIX == 8) floatRadixFactor = 3;\n"
-                         "else if (FLT_RADIX == 16) floatRadixFactor = 4;\n"
-                         "power = dblPower((double) FLT_RADIX, FLT_MANT_DIG);\n"
-                         "printf(\"#define INT_RANGE_IN_FLOAT_MAX %0.0f\\n\", power);\n"
-                         "printf(\"#define FLOAT_MANTISSA_FACTOR %0.1f\\n\", power);\n"
-                         "printf(\"#define FLOAT_MANTISSA_SHIFT %u\\n\", "
-                                 "FLT_MANT_DIG * floatRadixFactor);\n"
-                         "power = dblPower((double) FLT_RADIX, DBL_MANT_DIG);\n"
-                         "printf(\"#define INT_RANGE_IN_DOUBLE_MAX %0.0f\\n\", power);\n"
-                         "printf(\"#define DOUBLE_MANTISSA_FACTOR %0.1f\\n\", power);\n"
-                         "printf(\"#define DOUBLE_MANTISSA_SHIFT %u\\n\", "
-                                 "DBL_MANT_DIG * floatRadixFactor);\n"
-                         "return 0;}\n")) {
+           "if (FLT_RADIX == 2) floatRadixFactor = 1;\n"
+           "else if (FLT_RADIX == 4) floatRadixFactor = 2;\n"
+           "else if (FLT_RADIX == 8) floatRadixFactor = 3;\n"
+           "else if (FLT_RADIX == 16) floatRadixFactor = 4;\n"
+           "power = dblPower((double) FLT_RADIX, FLT_MANT_DIG);\n"
+           "printf(\"#define INT_RANGE_IN_FLOAT_MAX %0.0f\\n\", power);\n"
+           "printf(\"#define FLOAT_MANTISSA_FACTOR %0.1f\\n\", power);\n"
+           "printf(\"#define FLOAT_MANTISSA_SHIFT %u\\n\", "
+                   "FLT_MANT_DIG * floatRadixFactor);\n"
+           "fltTransfer.f = 1.0;\n"
+           "printf(\"#define FLOAT_EXPONENT_OFFSET %d\\n\", "
+                   "fltTransfer.i >> (FLT_MANT_DIG * floatRadixFactor - 1));\n"
+           "power = dblPower((double) FLT_RADIX, DBL_MANT_DIG);\n"
+           "printf(\"#define INT_RANGE_IN_DOUBLE_MAX %0.0f\\n\", power);\n"
+           "printf(\"#define DOUBLE_MANTISSA_FACTOR %0.1f\\n\", power);\n"
+           "printf(\"#define DOUBLE_MANTISSA_SHIFT %u\\n\", "
+                   "DBL_MANT_DIG * floatRadixFactor);\n"
+           "dblTransfer.f = 1.0;\n"
+           "printf(\"#define DOUBLE_EXPONENT_OFFSET %d\\n\", "
+                   "dblTransfer.i >> (DBL_MANT_DIG * floatRadixFactor - 1));\n"
+           "return 0;}\n");
+    if (assertCompAndLnk(buffer)) {
       testOutputToVersionFile(versionFile);
     } /* if */
     sprintf(buffer,
@@ -3093,6 +3277,20 @@ static void determineStackDirection (FILE *versionFile)
       fprintf(versionFile, "#define STACK_GROWS_UPWARD %d\n", stackGrowsUpward);
     } /* if */
   } /* determineStackDirection */
+
+
+
+static void determineLanguageProperties (FILE *versionFile)
+
+  { /* determineLanguageProperties */
+    fprintf(versionFile, "#define STMT_BLOCK_IN_PARENTHESES_OK %d\n",
+            compileAndLinkOk("#include <stdio.h>\n"
+                             "int main (int argc, char *argv[]){\n"
+                             "int j = ({int x = 3; x+5;});\n"
+                             "printf(\"%d\\n\", j == 8);\n"
+                             "return 0;}\n") &&
+            doTest() == 1);
+  } /* determineLanguageProperties */
 
 
 
@@ -5143,6 +5341,91 @@ static void appendToFile (const char *fileName, const char *data)
       fclose(outFile);
     } /* if */
   } /* appendToFile */
+
+
+
+static void determineOptionForLinkTimeOptimization (FILE *versionFile)
+
+  {
+    char command[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE];
+    char libraryName[NAME_SIZE];
+    char executableName[NAME_SIZE];
+    int returncode;
+    int canDoLinkTimeOptimization = 0;
+    int linkerOptLtoMandatory = 0;
+    int canDoNoLinkTimeOptimization = 0;
+
+  /* determineOptionForLinkTimeOptimization */
+    fprintf(logFile, "Check for link time optimization: ");
+#ifdef CC_OPT_LINK_TIME_OPTIMIZATION
+    if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
+                                    "int main (int argc, char *argv[]) {\n"
+                                    "printf(\"%d\\n\", 1);\n"
+                                    "return 0; }\n",
+                                    CC_OPT_LINK_TIME_OPTIMIZATION,
+                                    CC_OPT_LINK_TIME_OPTIMIZATION) &&
+        doTest() == 1) {
+      if (compileWithOptionsOk("#include <stdio.h>\n"
+                               "int main (int argc, char *argv[]) {\n"
+                               "printf(\"%d\\n\", 1);\n"
+                               "return 0; }\n",
+                               CC_OPT_LINK_TIME_OPTIMIZATION)) {
+        sprintf(libraryName, "ctest%d%s", testNumber, LIBRARY_FILE_EXTENSION);
+        doRemove(libraryName);
+        sprintf(command, "%s %s%s ctest%d%s",
+                ARCHIVER, ARCHIVER_OPT_REPLACE, libraryName,
+                testNumber, OBJECT_FILE_EXTENSION);
+        sprintf(&command[strlen(command)], " %s%s %s%s",
+                REDIRECT_FILEDES_1, nullDevice, REDIRECT_FILEDES_2, nullDevice);
+        /* fprintf(logFile, "command: %s\n", command); */
+        returncode = system(command);
+        /* fprintf(logFile, "returncode: %d\n", returncode); */
+        if (fileIsRegular(libraryName)) {
+          /* fprintf(logFile, " Library present.\n"); */
+          if (doLink(libraryName, "")) {
+            canDoLinkTimeOptimization = doTest() == 1;
+          } else if (doLink(libraryName, CC_OPT_LINK_TIME_OPTIMIZATION)) {
+            if (doTest() == 1) {
+              canDoLinkTimeOptimization = 1;
+              linkerOptLtoMandatory = 1;
+            } /* if */
+          } /* if */
+#ifdef LINKER_OPT_NO_LTO
+          if (canDoLinkTimeOptimization) {
+            sprintf(executableName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
+            doRemove(executableName);
+            if (doLink(libraryName, LINKER_OPT_NO_LTO)) {
+              canDoNoLinkTimeOptimization = doTest() == 1;
+            } /* if */
+          } /* if */
+#endif
+          doRemove(libraryName);
+        } /* if */
+      } /* if */
+    } /* if */
+    if (canDoLinkTimeOptimization) {
+      fprintf(logFile, " Done with the option: %s\n", CC_OPT_LINK_TIME_OPTIMIZATION);
+      fprintf(versionFile, "#define CC_OPT_LINK_TIME_OPTIMIZATION \"%s\"\n",
+              CC_OPT_LINK_TIME_OPTIMIZATION);
+      sprintf(buffer, "CC_OPT_LINK_TIME_OPTIMIZATION = %s\n",
+              CC_OPT_LINK_TIME_OPTIMIZATION);
+      appendToFile("macros", buffer);
+      fprintf(versionFile, "#define LINKER_OPT_LTO_MANDATORY %d\n", linkerOptLtoMandatory);
+#ifdef LINKER_OPT_NO_LTO
+      if (canDoNoLinkTimeOptimization) {
+        fprintf(versionFile, "#define LINKER_OPT_NO_LTO \"%s\"\n", LINKER_OPT_NO_LTO);
+        sprintf(buffer, "LINKER_OPT_NO_LTO = %s\n", LINKER_OPT_NO_LTO);
+        appendToFile("macros", buffer);
+      } /* if */
+#endif
+    } else {
+      fprintf(logFile, " Not available.\n");
+    } /* if */
+#else
+    fprintf(logFile, "Not available.\n");
+#endif
+  } /* determineOptionForLinkTimeOptimization */
 
 
 
@@ -7441,13 +7724,14 @@ int main (int argc, char **argv)
     prepareCompileCommand();
     determineCompilerVersion(versionFile);
     fprintf(logFile, "done\n");
+    determineOptionForLinkTimeOptimization(versionFile);
     numericSizes(versionFile);
     fprintf(logFile, "General settings: ");
     determineNullDevice(versionFile);
     determineCallingConventions(versionFile);
     fprintf(versionFile, "#define LINE_DIRECTIVE_ACCEPTS_UTF8 %d\n",
             compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
-                             "int main (int argc, char *argv[]) {\n"
+                             "int main(int argc, char *argv[]) {\n"
                              "#line 1 \"\303\244\303\266\303\274.c\"\n"
                              "printf(\"%d\\n\", strcmp(__FILE__,\n"
                              "    \"\\303\\244\\303\\266\\303\\274.c\") == 0);\n"
@@ -7598,6 +7882,7 @@ int main (int argc, char **argv)
     checkForLimitedArrayLiteralLength(versionFile);
     checkForSwitchWithInt64Type(versionFile);
     determineStackDirection(versionFile);
+    determineLanguageProperties(versionFile);
     determinePreprocessorProperties(versionFile);
 #ifndef STACK_SIZE
     if (sizeof(char *) == 8) { /* Machine with 64-bit addresses */

@@ -29,12 +29,21 @@
 /*                                                                  */
 /********************************************************************/
 
+#if INTTYPE_SIZE == 32
+#define RAND_MULTIPLIER           1103515245
+#define RAND_INCREMENT                 12345
+#elif INTTYPE_SIZE == 64
+#define RAND_MULTIPLIER  6364136223846793005
+#define RAND_INCREMENT   1442695040888963407
+#endif
+
 extern const const_ustriType digitTable[];
 
 
 void setupRand (void);
 uintType uintMult (uintType factor1, uintType factor2, uintType *product_high);
 uintType uintRand (void);
+uintType uintRandMantissa (void);
 uintType uintRandLimited (uintType rand_max);
 int uint8MostSignificantBit (uint8Type number);
 int uint16MostSignificantBit (uint16Type number);

@@ -473,3 +473,4 @@ const type: _bin64Array is array bin64;
 enable_output(bin64);
 
 CASE_DECLS(bin64);
+DECLARE_TERNARY(bin64);

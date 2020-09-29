@@ -203,6 +203,7 @@ static const actEntryRecord actEntryTable[] = {
     { "BLN_NOT",                 bln_not,                 },
     { "BLN_OR",                  bln_or,                  },
     { "BLN_ORD",                 bln_ord,                 },
+    { "BLN_TERNARY",             bln_ternary,             },
     { "BLN_VALUE",               bln_value,               },
 
     { "BST_APPEND",              bst_append,              },

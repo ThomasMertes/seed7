@@ -666,3 +666,6 @@ const func string: string (in string: stri) is
  *)
 const func string: (attr string) parse (in string: stri) is
   return stri;
+
+
+DECLARE_TERNARY(string);

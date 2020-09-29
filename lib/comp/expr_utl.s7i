@@ -331,6 +331,20 @@ const proc: prepareAnyParamTemporarys (in reference: aParam,
   end func;
 
 
+const proc: prepareCallByNameParamTemporarys (in reference: aParam,
+    inout expr_type: c_param, inout expr_type: c_expr) is func
+
+  begin
+    c_param.temp_num := c_expr.temp_num;
+    process_call_by_name_expr(aParam, c_param);
+    c_expr.temp_num := c_param.temp_num;
+    c_expr.temp_decls &:= c_param.temp_decls;
+    c_expr.temp_assigns &:= c_param.temp_assigns;
+    c_expr.temp_frees &:= c_param.temp_frees;
+    c_expr.temp_to_null &:= c_param.temp_to_null;
+  end func;
+
+
 const proc: getAnyParamToExpr (in expr_type: c_param, inout expr_type: c_expr) is func
 
   begin

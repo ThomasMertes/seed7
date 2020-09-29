@@ -215,16 +215,8 @@ const const_ustriType digitTable[] = {
     (const_ustriType) "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
   };
 
-#if INTTYPE_SIZE == 32
-#define RAND_MULTIPLIER           1103515245
-#define RAND_INCREMENT                 12345
-#elif INTTYPE_SIZE == 64
-#define RAND_MULTIPLIER  6364136223846793005
-#define RAND_INCREMENT   1442695040888963407
-#endif
-
 #ifdef HAS_DOUBLE_INTTYPE
-static doubleUintType seed;
+doubleUintType seed;
 #else
 static uintType low_seed;
 static uintType high_seed;
@@ -345,6 +337,18 @@ uintType uintRand (void)
                        (uintType) (seed >> INTTYPE_SIZE)););
     return (uintType) (seed >> INTTYPE_SIZE);
   } /* uintRand */
+
+
+
+uintType uintRandMantissa (void)
+
+  { /* uintRandMantissa */
+    logFunction(printf("uintRandMantissa\n"););
+    seed = seed * RAND_MULTIPLIER + RAND_INCREMENT;
+    logFunction(printf("uintRandMantissa --> " F_X(016) "\n",
+                       (uintType) (seed >> INTTYPE_SIZE + FLOATTYPE_EXPONENT_AND_SIGN_BITS)););
+    return (uintType) (seed >> (INTTYPE_SIZE + FLOATTYPE_EXPONENT_AND_SIGN_BITS));
+  } /* uintRandMantissa */
 
 #else
 
@@ -469,6 +473,22 @@ uintType uintRand (void)
     logFunction(printf("uintRand --> " F_X(016) "\n", high_seed););
     return high_seed;
   } /* uintRand */
+
+
+
+uintType uintRandMantissa (void)
+
+  { /* uintRandMantissa */
+    logFunction(printf("uintRandMantissa\n"););
+    /* SEED = SEED * RAND_MULTIPLIER + RAND_INCREMENT */
+    low_seed = uint2Mult(high_seed, low_seed, (uintType) INT_SUFFIX(0),
+                         (uintType) INT_SUFFIX(RAND_MULTIPLIER), &high_seed);
+    low_seed = uint2Add(high_seed, low_seed, (uintType) INT_SUFFIX(0),
+                        (uintType) INT_SUFFIX(RAND_INCREMENT), &high_seed);
+    logFunction(printf("uintRandMantissa --> " F_X(016) "\n",
+                       high_seed >> DOUBLE_EXPONENT_AND_SIGN_BITS););
+    return high_seed >> DOUBLE_EXPONENT_AND_SIGN_BITS;
+  } /* uintRandMantissa */
 #endif
 
 

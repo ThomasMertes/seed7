@@ -149,7 +149,7 @@ static inline void systemVar (void)
 
 
 
-static inline void includeFile (void)
+static void includeFile (void)
 
   {
     striType includeFileName;

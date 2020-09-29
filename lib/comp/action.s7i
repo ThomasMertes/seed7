@@ -337,6 +337,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BLN_OR, function, params, c_expr);
       when {"BLN_ORD"}:
         process(BLN_ORD, function, params, c_expr);
+      when {"BLN_TERNARY"}:
+        process(BLN_TERNARY, function, params, c_expr);
       when {"BLN_VALUE"}:
         process(BLN_VALUE, function, params, c_expr);
       when {"BST_APPEND"}:

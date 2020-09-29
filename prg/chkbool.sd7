@@ -1549,6 +1549,538 @@ const proc: check_str is func
   end func;
 
 
+const proc: check_ternary is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  not ( TRUE ?  TRUE : FALSE) or
+            ( TRUE ? FALSE :  TRUE) or
+            (FALSE ?  TRUE : FALSE) or
+        not (FALSE ? FALSE :  TRUE) or
+        not ( TRUE ?  TRUE : false_var) or
+            ( TRUE ? FALSE :  true_var) or
+            (FALSE ?  TRUE : false_var) or
+        not (FALSE ? FALSE :  true_var) or
+        not ( TRUE ?  TRUE : false_const) or
+            ( TRUE ? FALSE :  true_const) or
+            (FALSE ?  TRUE : false_const) or
+        not (FALSE ? FALSE :  true_const) or
+        not ( TRUE ?  TRUE : FALSE or FALSE) or
+            ( TRUE ? FALSE :  TRUE and TRUE) or
+            (FALSE ?  TRUE : FALSE or FALSE) or
+        not (FALSE ? FALSE :  TRUE and TRUE) or
+        not ( TRUE ?  TRUE : false_var or false_var) or
+            ( TRUE ? FALSE :  true_var and true_var) or
+            (FALSE ?  TRUE : false_var or false_var) or
+        not (FALSE ? FALSE :  true_var and true_var) or
+        not ( TRUE ?  true_var : FALSE) or
+            ( TRUE ? false_var :  TRUE) or
+            (FALSE ?  true_var : FALSE) or
+        not (FALSE ? false_var :  TRUE) or
+        not ( TRUE ?  true_var : false_var) or
+            ( TRUE ? false_var :  true_var) or
+            (FALSE ?  true_var : false_var) or
+        not (FALSE ? false_var :  true_var) or
+        not ( TRUE ?  true_var : false_const) or
+            ( TRUE ? false_var :  true_const) or
+            (FALSE ?  true_var : false_const) or
+        not (FALSE ? false_var :  true_const) or
+        not ( TRUE ?  true_var : FALSE or FALSE) or
+            ( TRUE ? false_var :  TRUE and TRUE) or
+            (FALSE ?  true_var : FALSE or FALSE) or
+        not (FALSE ? false_var :  TRUE and TRUE) or
+        not ( TRUE ?  true_var : false_var or false_var) or
+            ( TRUE ? false_var :  true_var and true_var) or
+            (FALSE ?  true_var : false_var or false_var) or
+        not (FALSE ? false_var :  true_var and true_var) or
+        not ( TRUE ?  true_const : FALSE) or
+            ( TRUE ? false_const :  TRUE) or
+            (FALSE ?  true_const : FALSE) or
+        not (FALSE ? false_const :  TRUE) or
+        not ( TRUE ?  true_const : false_var) or
+            ( TRUE ? false_const :  true_var) or
+            (FALSE ?  true_const : false_var) or
+        not (FALSE ? false_const :  true_var) or
+        not ( TRUE ?  true_const : false_const) or
+            ( TRUE ? false_const :  true_const) or
+            (FALSE ?  true_const : false_const) or
+        not (FALSE ? false_const :  true_const) or
+        not ( TRUE ?  true_const : FALSE or FALSE) or
+            ( TRUE ? false_const :  TRUE and TRUE) or
+            (FALSE ?  true_const : FALSE or FALSE) or
+        not (FALSE ? false_const :  TRUE and TRUE) or
+        not ( TRUE ?  true_const : false_var or false_var) or
+            ( TRUE ? false_const :  true_var and true_var) or
+            (FALSE ?  true_const : false_var or false_var) or
+        not (FALSE ? false_const :  true_var and true_var) or
+        not ( TRUE ?  TRUE and TRUE : FALSE) or
+            ( TRUE ? FALSE or FALSE :  TRUE) or
+            (FALSE ?  TRUE and TRUE : FALSE) or
+        not (FALSE ? FALSE or FALSE :  TRUE) or
+        not ( TRUE ?  TRUE and TRUE : false_var) or
+            ( TRUE ? FALSE or FALSE :  true_var) or
+            (FALSE ?  TRUE and TRUE : false_var) or
+        not (FALSE ? FALSE or FALSE :  true_var) or
+        not ( TRUE ?  TRUE and TRUE : false_const) or
+            ( TRUE ? FALSE or FALSE :  true_const) or
+            (FALSE ?  TRUE and TRUE : false_const) or
+        not (FALSE ? FALSE or FALSE :  true_const) or
+        not ( TRUE ?  TRUE and TRUE : FALSE or FALSE) or
+            ( TRUE ? FALSE or FALSE :  TRUE and TRUE) or
+            (FALSE ?  TRUE and TRUE : FALSE or FALSE) or
+        not (FALSE ? FALSE or FALSE :  TRUE and TRUE) or
+        not ( TRUE ?  TRUE and TRUE : false_var or false_var) or
+            ( TRUE ? FALSE or FALSE :  true_var and true_var) or
+            (FALSE ?  TRUE and TRUE : false_var or false_var) or
+        not (FALSE ? FALSE or FALSE :  true_var and true_var) or
+        not ( TRUE ?  true_var and true_var : FALSE) or
+            ( TRUE ? false_var or false_var :  TRUE) or
+            (FALSE ?  true_var and true_var : FALSE) or
+        not (FALSE ? false_var or false_var :  TRUE) or
+        not ( TRUE ?  true_var and true_var : false_var) or
+            ( TRUE ? false_var or false_var :  true_var) or
+            (FALSE ?  true_var and true_var : false_var) or
+        not (FALSE ? false_var or false_var :  true_var) or
+        not ( TRUE ?  true_var and true_var : false_const) or
+            ( TRUE ? false_var or false_var :  true_const) or
+            (FALSE ?  true_var and true_var : false_const) or
+        not (FALSE ? false_var or false_var :  true_const) or
+        not ( TRUE ?  true_var and true_var : FALSE or FALSE) or
+            ( TRUE ? false_var or false_var :  TRUE and TRUE) or
+            (FALSE ?  true_var and true_var : FALSE or FALSE) or
+        not (FALSE ? false_var or false_var :  TRUE and TRUE) or
+        not ( TRUE ?  true_var and true_var : false_var or false_var) or
+            ( TRUE ? false_var or false_var :  true_var and true_var) or
+            (FALSE ?  true_var and true_var : false_var or false_var) or
+        not (FALSE ? false_var or false_var :  true_var and true_var) then
+      writeln(" ***** The ternary operator ? : does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not ( true_var ?  TRUE : FALSE) or
+            ( true_var ? FALSE :  TRUE) or
+            (false_var ?  TRUE : FALSE) or
+        not (false_var ? FALSE :  TRUE) or
+        not ( true_var ?  TRUE : false_var) or
+            ( true_var ? FALSE :  true_var) or
+            (false_var ?  TRUE : false_var) or
+        not (false_var ? FALSE :  true_var) or
+        not ( true_var ?  TRUE : false_const) or
+            ( true_var ? FALSE :  true_const) or
+            (false_var ?  TRUE : false_const) or
+        not (false_var ? FALSE :  true_const) or
+        not ( true_var ?  TRUE : FALSE or FALSE) or
+            ( true_var ? FALSE :  TRUE and TRUE) or
+            (false_var ?  TRUE : FALSE or FALSE) or
+        not (false_var ? FALSE :  TRUE and TRUE) or
+        not ( true_var ?  TRUE : false_var or false_var) or
+            ( true_var ? FALSE :  true_var and true_var) or
+            (false_var ?  TRUE : false_var or false_var) or
+        not (false_var ? FALSE :  true_var and true_var) or
+        not ( true_var ?  true_var : FALSE) or
+            ( true_var ? false_var :  TRUE) or
+            (false_var ?  true_var : FALSE) or
+        not (false_var ? false_var :  TRUE) or
+        not ( true_var ?  true_var : false_var) or
+            ( true_var ? false_var :  true_var) or
+            (false_var ?  true_var : false_var) or
+        not (false_var ? false_var :  true_var) or
+        not ( true_var ?  true_var : false_const) or
+            ( true_var ? false_var :  true_const) or
+            (false_var ?  true_var : false_const) or
+        not (false_var ? false_var :  true_const) or
+        not ( true_var ?  true_var : FALSE or FALSE) or
+            ( true_var ? false_var :  TRUE and TRUE) or
+            (false_var ?  true_var : FALSE or FALSE) or
+        not (false_var ? false_var :  TRUE and TRUE) or
+        not ( true_var ?  true_var : false_var or false_var) or
+            ( true_var ? false_var :  true_var and true_var) or
+            (false_var ?  true_var : false_var or false_var) or
+        not (false_var ? false_var :  true_var and true_var) or
+        not ( true_var ?  true_const : FALSE) or
+            ( true_var ? false_const :  TRUE) or
+            (false_var ?  true_const : FALSE) or
+        not (false_var ? false_const :  TRUE) or
+        not ( true_var ?  true_const : false_var) or
+            ( true_var ? false_const :  true_var) or
+            (false_var ?  true_const : false_var) or
+        not (false_var ? false_const :  true_var) or
+        not ( true_var ?  true_const : false_const) or
+            ( true_var ? false_const :  true_const) or
+            (false_var ?  true_const : false_const) or
+        not (false_var ? false_const :  true_const) or
+        not ( true_var ?  true_const : FALSE or FALSE) or
+            ( true_var ? false_const :  TRUE and TRUE) or
+            (false_var ?  true_const : FALSE or FALSE) or
+        not (false_var ? false_const :  TRUE and TRUE) or
+        not ( true_var ?  true_const : false_var or false_var) or
+            ( true_var ? false_const :  true_var and true_var) or
+            (false_var ?  true_const : false_var or false_var) or
+        not (false_var ? false_const :  true_var and true_var) or
+        not ( true_var ?  TRUE and TRUE : FALSE) or
+            ( true_var ? FALSE or FALSE :  TRUE) or
+            (false_var ?  TRUE and TRUE : FALSE) or
+        not (false_var ? FALSE or FALSE :  TRUE) or
+        not ( true_var ?  TRUE and TRUE : false_var) or
+            ( true_var ? FALSE or FALSE :  true_var) or
+            (false_var ?  TRUE and TRUE : false_var) or
+        not (false_var ? FALSE or FALSE :  true_var) or
+        not ( true_var ?  TRUE and TRUE : false_const) or
+            ( true_var ? FALSE or FALSE :  true_const) or
+            (false_var ?  TRUE and TRUE : false_const) or
+        not (false_var ? FALSE or FALSE :  true_const) or
+        not ( true_var ?  TRUE and TRUE : FALSE or FALSE) or
+            ( true_var ? FALSE or FALSE :  TRUE and TRUE) or
+            (false_var ?  TRUE and TRUE : FALSE or FALSE) or
+        not (false_var ? FALSE or FALSE :  TRUE and TRUE) or
+        not ( true_var ?  TRUE and TRUE : false_var or false_var) or
+            ( true_var ? FALSE or FALSE :  true_var and true_var) or
+            (false_var ?  TRUE and TRUE : false_var or false_var) or
+        not (false_var ? FALSE or FALSE :  true_var and true_var) or
+        not ( true_var ?  true_var and true_var : FALSE) or
+            ( true_var ? false_var or false_var :  TRUE) or
+            (false_var ?  true_var and true_var : FALSE) or
+        not (false_var ? false_var or false_var :  TRUE) or
+        not ( true_var ?  true_var and true_var : false_var) or
+            ( true_var ? false_var or false_var :  true_var) or
+            (false_var ?  true_var and true_var : false_var) or
+        not (false_var ? false_var or false_var :  true_var) or
+        not ( true_var ?  true_var and true_var : false_const) or
+            ( true_var ? false_var or false_var :  true_const) or
+            (false_var ?  true_var and true_var : false_const) or
+        not (false_var ? false_var or false_var :  true_const) or
+        not ( true_var ?  true_var and true_var : FALSE or FALSE) or
+            ( true_var ? false_var or false_var :  TRUE and TRUE) or
+            (false_var ?  true_var and true_var : FALSE or FALSE) or
+        not (false_var ? false_var or false_var :  TRUE and TRUE) or
+        not ( true_var ?  true_var and true_var : false_var or false_var) or
+            ( true_var ? false_var or false_var :  true_var and true_var) or
+            (false_var ?  true_var and true_var : false_var or false_var) or
+        not (false_var ? false_var or false_var :  true_var and true_var) then
+      writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not ( true_const ?  TRUE : FALSE) or
+            ( true_const ? FALSE :  TRUE) or
+            (false_const ?  TRUE : FALSE) or
+        not (false_const ? FALSE :  TRUE) or
+        not ( true_const ?  TRUE : false_var) or
+            ( true_const ? FALSE :  true_var) or
+            (false_const ?  TRUE : false_var) or
+        not (false_const ? FALSE :  true_var) or
+        not ( true_const ?  TRUE : false_const) or
+            ( true_const ? FALSE :  true_const) or
+            (false_const ?  TRUE : false_const) or
+        not (false_const ? FALSE :  true_const) or
+        not ( true_const ?  TRUE : FALSE or FALSE) or
+            ( true_const ? FALSE :  TRUE and TRUE) or
+            (false_const ?  TRUE : FALSE or FALSE) or
+        not (false_const ? FALSE :  TRUE and TRUE) or
+        not ( true_const ?  TRUE : false_var or false_var) or
+            ( true_const ? FALSE :  true_var and true_var) or
+            (false_const ?  TRUE : false_var or false_var) or
+        not (false_const ? FALSE :  true_var and true_var) or
+        not ( true_const ?  true_var : FALSE) or
+            ( true_const ? false_var :  TRUE) or
+            (false_const ?  true_var : FALSE) or
+        not (false_const ? false_var :  TRUE) or
+        not ( true_const ?  true_var : false_var) or
+            ( true_const ? false_var :  true_var) or
+            (false_const ?  true_var : false_var) or
+        not (false_const ? false_var :  true_var) or
+        not ( true_const ?  true_var : false_const) or
+            ( true_const ? false_var :  true_const) or
+            (false_const ?  true_var : false_const) or
+        not (false_const ? false_var :  true_const) or
+        not ( true_const ?  true_var : FALSE or FALSE) or
+            ( true_const ? false_var :  TRUE and TRUE) or
+            (false_const ?  true_var : FALSE or FALSE) or
+        not (false_const ? false_var :  TRUE and TRUE) or
+        not ( true_const ?  true_var : false_var or false_var) or
+            ( true_const ? false_var :  true_var and true_var) or
+            (false_const ?  true_var : false_var or false_var) or
+        not (false_const ? false_var :  true_var and true_var) or
+        not ( true_const ?  true_const : FALSE) or
+            ( true_const ? false_const :  TRUE) or
+            (false_const ?  true_const : FALSE) or
+        not (false_const ? false_const :  TRUE) or
+        not ( true_const ?  true_const : false_var) or
+            ( true_const ? false_const :  true_var) or
+            (false_const ?  true_const : false_var) or
+        not (false_const ? false_const :  true_var) or
+        not ( true_const ?  true_const : false_const) or
+            ( true_const ? false_const :  true_const) or
+            (false_const ?  true_const : false_const) or
+        not (false_const ? false_const :  true_const) or
+        not ( true_const ?  true_const : FALSE or FALSE) or
+            ( true_const ? false_const :  TRUE and TRUE) or
+            (false_const ?  true_const : FALSE or FALSE) or
+        not (false_const ? false_const :  TRUE and TRUE) or
+        not ( true_const ?  true_const : false_var or false_var) or
+            ( true_const ? false_const :  true_var and true_var) or
+            (false_const ?  true_const : false_var or false_var) or
+        not (false_const ? false_const :  true_var and true_var) or
+        not ( true_const ?  TRUE and TRUE : FALSE) or
+            ( true_const ? FALSE or FALSE :  TRUE) or
+            (false_const ?  TRUE and TRUE : FALSE) or
+        not (false_const ? FALSE or FALSE :  TRUE) or
+        not ( true_const ?  TRUE and TRUE : false_var) or
+            ( true_const ? FALSE or FALSE :  true_var) or
+            (false_const ?  TRUE and TRUE : false_var) or
+        not (false_const ? FALSE or FALSE :  true_var) or
+        not ( true_const ?  TRUE and TRUE : false_const) or
+            ( true_const ? FALSE or FALSE :  true_const) or
+            (false_const ?  TRUE and TRUE : false_const) or
+        not (false_const ? FALSE or FALSE :  true_const) or
+        not ( true_const ?  TRUE and TRUE : FALSE or FALSE) or
+            ( true_const ? FALSE or FALSE :  TRUE and TRUE) or
+            (false_const ?  TRUE and TRUE : FALSE or FALSE) or
+        not (false_const ? FALSE or FALSE :  TRUE and TRUE) or
+        not ( true_const ?  TRUE and TRUE : false_var or false_var) or
+            ( true_const ? FALSE or FALSE :  true_var and true_var) or
+            (false_const ?  TRUE and TRUE : false_var or false_var) or
+        not (false_const ? FALSE or FALSE :  true_var and true_var) or
+        not ( true_const ?  true_var and true_var : FALSE) or
+            ( true_const ? false_var or false_var :  TRUE) or
+            (false_const ?  true_var and true_var : FALSE) or
+        not (false_const ? false_var or false_var :  TRUE) or
+        not ( true_const ?  true_var and true_var : false_var) or
+            ( true_const ? false_var or false_var :  true_var) or
+            (false_const ?  true_var and true_var : false_var) or
+        not (false_const ? false_var or false_var :  true_var) or
+        not ( true_const ?  true_var and true_var : false_const) or
+            ( true_const ? false_var or false_var :  true_const) or
+            (false_const ?  true_var and true_var : false_const) or
+        not (false_const ? false_var or false_var :  true_const) or
+        not ( true_const ?  true_var and true_var : FALSE or FALSE) or
+            ( true_const ? false_var or false_var :  TRUE and TRUE) or
+            (false_const ?  true_var and true_var : FALSE or FALSE) or
+        not (false_const ? false_var or false_var :  TRUE and TRUE) or
+        not ( true_const ?  true_var and true_var : false_var or false_var) or
+            ( true_const ? false_var or false_var :  true_var and true_var) or
+            (false_const ?  true_var and true_var : false_var or false_var) or
+        not (false_const ? false_var or false_var :  true_var and true_var) then
+      writeln(" ***** The ternary operator ? : does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not ( TRUE and TRUE ?  TRUE : FALSE) or
+            ( TRUE and TRUE ? FALSE :  TRUE) or
+            (FALSE or FALSE ?  TRUE : FALSE) or
+        not (FALSE or FALSE ? FALSE :  TRUE) or
+        not ( TRUE and TRUE ?  TRUE : false_var) or
+            ( TRUE and TRUE ? FALSE :  true_var) or
+            (FALSE or FALSE ?  TRUE : false_var) or
+        not (FALSE or FALSE ? FALSE :  true_var) or
+        not ( TRUE and TRUE ?  TRUE : false_const) or
+            ( TRUE and TRUE ? FALSE :  true_const) or
+            (FALSE or FALSE ?  TRUE : false_const) or
+        not (FALSE or FALSE ? FALSE :  true_const) or
+        not ( TRUE and TRUE ?  TRUE : FALSE or FALSE) or
+            ( TRUE and TRUE ? FALSE :  TRUE and TRUE) or
+            (FALSE or FALSE ?  TRUE : FALSE or FALSE) or
+        not (FALSE or FALSE ? FALSE :  TRUE and TRUE) or
+        not ( TRUE and TRUE ?  TRUE : false_var or false_var) or
+            ( TRUE and TRUE ? FALSE :  true_var and true_var) or
+            (FALSE or FALSE ?  TRUE : false_var or false_var) or
+        not (FALSE or FALSE ? FALSE :  true_var and true_var) or
+        not ( TRUE and TRUE ?  true_var : FALSE) or
+            ( TRUE and TRUE ? false_var :  TRUE) or
+            (FALSE or FALSE ?  true_var : FALSE) or
+        not (FALSE or FALSE ? false_var :  TRUE) or
+        not ( TRUE and TRUE ?  true_var : false_var) or
+            ( TRUE and TRUE ? false_var :  true_var) or
+            (FALSE or FALSE ?  true_var : false_var) or
+        not (FALSE or FALSE ? false_var :  true_var) or
+        not ( TRUE and TRUE ?  true_var : false_const) or
+            ( TRUE and TRUE ? false_var :  true_const) or
+            (FALSE or FALSE ?  true_var : false_const) or
+        not (FALSE or FALSE ? false_var :  true_const) or
+        not ( TRUE and TRUE ?  true_var : FALSE or FALSE) or
+            ( TRUE and TRUE ? false_var :  TRUE and TRUE) or
+            (FALSE or FALSE ?  true_var : FALSE or FALSE) or
+        not (FALSE or FALSE ? false_var :  TRUE and TRUE) or
+        not ( TRUE and TRUE ?  true_var : false_var or false_var) or
+            ( TRUE and TRUE ? false_var :  true_var and true_var) or
+            (FALSE or FALSE ?  true_var : false_var or false_var) or
+        not (FALSE or FALSE ? false_var :  true_var and true_var) or
+        not ( TRUE and TRUE ?  true_const : FALSE) or
+            ( TRUE and TRUE ? false_const :  TRUE) or
+            (FALSE or FALSE ?  true_const : FALSE) or
+        not (FALSE or FALSE ? false_const :  TRUE) or
+        not ( TRUE and TRUE ?  true_const : false_var) or
+            ( TRUE and TRUE ? false_const :  true_var) or
+            (FALSE or FALSE ?  true_const : false_var) or
+        not (FALSE or FALSE ? false_const :  true_var) or
+        not ( TRUE and TRUE ?  true_const : false_const) or
+            ( TRUE and TRUE ? false_const :  true_const) or
+            (FALSE or FALSE ?  true_const : false_const) or
+        not (FALSE or FALSE ? false_const :  true_const) or
+        not ( TRUE and TRUE ?  true_const : FALSE or FALSE) or
+            ( TRUE and TRUE ? false_const :  TRUE and TRUE) or
+            (FALSE or FALSE ?  true_const : FALSE or FALSE) or
+        not (FALSE or FALSE ? false_const :  TRUE and TRUE) or
+        not ( TRUE and TRUE ?  true_const : false_var or false_var) or
+            ( TRUE and TRUE ? false_const :  true_var and true_var) or
+            (FALSE or FALSE ?  true_const : false_var or false_var) or
+        not (FALSE or FALSE ? false_const :  true_var and true_var) or
+        not ( TRUE and TRUE ?  TRUE and TRUE : FALSE) or
+            ( TRUE and TRUE ? FALSE or FALSE :  TRUE) or
+            (FALSE or FALSE ?  TRUE and TRUE : FALSE) or
+        not (FALSE or FALSE ? FALSE or FALSE :  TRUE) or
+        not ( TRUE and TRUE ?  TRUE and TRUE : false_var) or
+            ( TRUE and TRUE ? FALSE or FALSE :  true_var) or
+            (FALSE or FALSE ?  TRUE and TRUE : false_var) or
+        not (FALSE or FALSE ? FALSE or FALSE :  true_var) or
+        not ( TRUE and TRUE ?  TRUE and TRUE : false_const) or
+            ( TRUE and TRUE ? FALSE or FALSE :  true_const) or
+            (FALSE or FALSE ?  TRUE and TRUE : false_const) or
+        not (FALSE or FALSE ? FALSE or FALSE :  true_const) or
+        not ( TRUE and TRUE ?  TRUE and TRUE : FALSE or FALSE) or
+            ( TRUE and TRUE ? FALSE or FALSE :  TRUE and TRUE) or
+            (FALSE or FALSE ?  TRUE and TRUE : FALSE or FALSE) or
+        not (FALSE or FALSE ? FALSE or FALSE :  TRUE and TRUE) or
+        not ( TRUE and TRUE ?  TRUE and TRUE : false_var or false_var) or
+            ( TRUE and TRUE ? FALSE or FALSE :  true_var and true_var) or
+            (FALSE or FALSE ?  TRUE and TRUE : false_var or false_var) or
+        not (FALSE or FALSE ? FALSE or FALSE :  true_var and true_var) or
+        not ( TRUE and TRUE ?  true_var and true_var : FALSE) or
+            ( TRUE and TRUE ? false_var or false_var :  TRUE) or
+            (FALSE or FALSE ?  true_var and true_var : FALSE) or
+        not (FALSE or FALSE ? false_var or false_var :  TRUE) or
+        not ( TRUE and TRUE ?  true_var and true_var : false_var) or
+            ( TRUE and TRUE ? false_var or false_var :  true_var) or
+            (FALSE or FALSE ?  true_var and true_var : false_var) or
+        not (FALSE or FALSE ? false_var or false_var :  true_var) or
+        not ( TRUE and TRUE ?  true_var and true_var : false_const) or
+            ( TRUE and TRUE ? false_var or false_var :  true_const) or
+            (FALSE or FALSE ?  true_var and true_var : false_const) or
+        not (FALSE or FALSE ? false_var or false_var :  true_const) or
+        not ( TRUE and TRUE ?  true_var and true_var : FALSE or FALSE) or
+            ( TRUE and TRUE ? false_var or false_var :  TRUE and TRUE) or
+            (FALSE or FALSE ?  true_var and true_var : FALSE or FALSE) or
+        not (FALSE or FALSE ? false_var or false_var :  TRUE and TRUE) or
+        not ( TRUE and TRUE ?  true_var and true_var : false_var or false_var) or
+            ( TRUE and TRUE ? false_var or false_var :  true_var and true_var) or
+            (FALSE or FALSE ?  true_var and true_var : false_var or false_var) or
+        not (FALSE or FALSE ? false_var or false_var :  true_var and true_var) then
+      writeln(" ***** The ternary operator ? : does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not ( true_var and true_var ?  TRUE : FALSE) or
+            ( true_var and true_var ? FALSE :  TRUE) or
+            (false_var or false_var ?  TRUE : FALSE) or
+        not (false_var or false_var ? FALSE :  TRUE) or
+        not ( true_var and true_var ?  TRUE : false_var) or
+            ( true_var and true_var ? FALSE :  true_var) or
+            (false_var or false_var ?  TRUE : false_var) or
+        not (false_var or false_var ? FALSE :  true_var) or
+        not ( true_var and true_var ?  TRUE : false_const) or
+            ( true_var and true_var ? FALSE :  true_const) or
+            (false_var or false_var ?  TRUE : false_const) or
+        not (false_var or false_var ? FALSE :  true_const) or
+        not ( true_var and true_var ?  TRUE : FALSE or FALSE) or
+            ( true_var and true_var ? FALSE :  TRUE and TRUE) or
+            (false_var or false_var ?  TRUE : FALSE or FALSE) or
+        not (false_var or false_var ? FALSE :  TRUE and TRUE) or
+        not ( true_var and true_var ?  TRUE : false_var or false_var) or
+            ( true_var and true_var ? FALSE :  true_var and true_var) or
+            (false_var or false_var ?  TRUE : false_var or false_var) or
+        not (false_var or false_var ? FALSE :  true_var and true_var) or
+        not ( true_var and true_var ?  true_var : FALSE) or
+            ( true_var and true_var ? false_var :  TRUE) or
+            (false_var or false_var ?  true_var : FALSE) or
+        not (false_var or false_var ? false_var :  TRUE) or
+        not ( true_var and true_var ?  true_var : false_var) or
+            ( true_var and true_var ? false_var :  true_var) or
+            (false_var or false_var ?  true_var : false_var) or
+        not (false_var or false_var ? false_var :  true_var) or
+        not ( true_var and true_var ?  true_var : false_const) or
+            ( true_var and true_var ? false_var :  true_const) or
+            (false_var or false_var ?  true_var : false_const) or
+        not (false_var or false_var ? false_var :  true_const) or
+        not ( true_var and true_var ?  true_var : FALSE or FALSE) or
+            ( true_var and true_var ? false_var :  TRUE and TRUE) or
+            (false_var or false_var ?  true_var : FALSE or FALSE) or
+        not (false_var or false_var ? false_var :  TRUE and TRUE) or
+        not ( true_var and true_var ?  true_var : false_var or false_var) or
+            ( true_var and true_var ? false_var :  true_var and true_var) or
+            (false_var or false_var ?  true_var : false_var or false_var) or
+        not (false_var or false_var ? false_var :  true_var and true_var) or
+        not ( true_var and true_var ?  true_const : FALSE) or
+            ( true_var and true_var ? false_const :  TRUE) or
+            (false_var or false_var ?  true_const : FALSE) or
+        not (false_var or false_var ? false_const :  TRUE) or
+        not ( true_var and true_var ?  true_const : false_var) or
+            ( true_var and true_var ? false_const :  true_var) or
+            (false_var or false_var ?  true_const : false_var) or
+        not (false_var or false_var ? false_const :  true_var) or
+        not ( true_var and true_var ?  true_const : false_const) or
+            ( true_var and true_var ? false_const :  true_const) or
+            (false_var or false_var ?  true_const : false_const) or
+        not (false_var or false_var ? false_const :  true_const) or
+        not ( true_var and true_var ?  true_const : FALSE or FALSE) or
+            ( true_var and true_var ? false_const :  TRUE and TRUE) or
+            (false_var or false_var ?  true_const : FALSE or FALSE) or
+        not (false_var or false_var ? false_const :  TRUE and TRUE) or
+        not ( true_var and true_var ?  true_const : false_var or false_var) or
+            ( true_var and true_var ? false_const :  true_var and true_var) or
+            (false_var or false_var ?  true_const : false_var or false_var) or
+        not (false_var or false_var ? false_const :  true_var and true_var) or
+        not ( true_var and true_var ?  TRUE and TRUE : FALSE) or
+            ( true_var and true_var ? FALSE or FALSE :  TRUE) or
+            (false_var or false_var ?  TRUE and TRUE : FALSE) or
+        not (false_var or false_var ? FALSE or FALSE :  TRUE) or
+        not ( true_var and true_var ?  TRUE and TRUE : false_var) or
+            ( true_var and true_var ? FALSE or FALSE :  true_var) or
+            (false_var or false_var ?  TRUE and TRUE : false_var) or
+        not (false_var or false_var ? FALSE or FALSE :  true_var) or
+        not ( true_var and true_var ?  TRUE and TRUE : false_const) or
+            ( true_var and true_var ? FALSE or FALSE :  true_const) or
+            (false_var or false_var ?  TRUE and TRUE : false_const) or
+        not (false_var or false_var ? FALSE or FALSE :  true_const) or
+        not ( true_var and true_var ?  TRUE and TRUE : FALSE or FALSE) or
+            ( true_var and true_var ? FALSE or FALSE :  TRUE and TRUE) or
+            (false_var or false_var ?  TRUE and TRUE : FALSE or FALSE) or
+        not (false_var or false_var ? FALSE or FALSE :  TRUE and TRUE) or
+        not ( true_var and true_var ?  TRUE and TRUE : false_var or false_var) or
+            ( true_var and true_var ? FALSE or FALSE :  true_var and true_var) or
+            (false_var or false_var ?  TRUE and TRUE : false_var or false_var) or
+        not (false_var or false_var ? FALSE or FALSE :  true_var and true_var) or
+        not ( true_var and true_var ?  true_var and true_var : FALSE) or
+            ( true_var and true_var ? false_var or false_var :  TRUE) or
+            (false_var or false_var ?  true_var and true_var : FALSE) or
+        not (false_var or false_var ? false_var or false_var :  TRUE) or
+        not ( true_var and true_var ?  true_var and true_var : false_var) or
+            ( true_var and true_var ? false_var or false_var :  true_var) or
+            (false_var or false_var ?  true_var and true_var : false_var) or
+        not (false_var or false_var ? false_var or false_var :  true_var) or
+        not ( true_var and true_var ?  true_var and true_var : false_const) or
+            ( true_var and true_var ? false_var or false_var :  true_const) or
+            (false_var or false_var ?  true_var and true_var : false_const) or
+        not (false_var or false_var ? false_var or false_var :  true_const) or
+        not ( true_var and true_var ?  true_var and true_var : FALSE or FALSE) or
+            ( true_var and true_var ? false_var or false_var :  TRUE and TRUE) or
+            (false_var or false_var ?  true_var and true_var : FALSE or FALSE) or
+        not (false_var or false_var ? false_var or false_var :  TRUE and TRUE) or
+        not ( true_var and true_var ?  true_var and true_var : false_var or false_var) or
+            ( true_var and true_var ? false_var or false_var :  true_var and true_var) or
+            (false_var or false_var ?  true_var and true_var : false_var or false_var) or
+        not (false_var or false_var ? false_var or false_var :  true_var and true_var) then
+      writeln(" ***** The ternary operator ? : does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The ternary operator ? : works correct for boolean.");
+    else
+      writeln(" ***** The ternary operator ? : does not work correct.");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -1560,4 +2092,5 @@ const proc: main is func
     check_compare;
     check_ord();
     check_str();
+    check_ternary();
   end func;

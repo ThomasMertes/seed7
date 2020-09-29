@@ -29,9 +29,10 @@ CONTENTS
   2.2     Greeting
   2.3     Local declarations and expressions
   2.4     For loop and float expressions
-  2.5     Parameters
-  2.6     Declare a statement
-  2.7     Template declaring a statement
+  2.5     For loop and containers
+  2.6     Parameters
+  2.7     Declare a statement
+  2.8     Template declaring a statement
   3.    DECLARATIONS
   3.1     Normal declarations
   3.2     Syntax declarations
@@ -543,7 +544,8 @@ CONTENTS
 
   After you entered your name and pressed enter it will greet you.
   This program uses the variable 'name' to store the name you entered.
-  Variables must be defined. This happens after the keyword local with:
+  Variables must be defined. The place to to define and initialize
+  all variables of a function is after the keyword local.
 
         var string: name is "";
 
@@ -603,7 +605,7 @@ CONTENTS
       end func;
 
   The repeat ... until loop repeats the statements
-  between the two keywords until the condition <> "" is true.
+  between the two keywords until the condition name <> "" is TRUE.
   Note that the statements in the repeat loop are executed
   at least once. A solution with a while loop is:
 
@@ -622,8 +624,10 @@ CONTENTS
         writeln("Hi " <& name <& "!");
       end func;
 
-  If a non-empty name is entered for the first time the while loop
-  is not entered at all.
+  The while loop repeats the statements between the keywords
+  'do' and 'end' as long as the condition name = "" is TRUE.
+  Note that the statements in a while loop might not be executed at all.
+  In the example above this happens if a non-empty name is entered after the question: What's your name?
 
 
 2.3 Local declarations and expressions
@@ -647,24 +651,19 @@ CONTENTS
         fahr := lower;
         while fahr <= upper do
           celsius := 5 * (fahr - 32) div 9;
-          write(fahr);
-          write(" ");
-          writeln(celsius);
-          fahr := fahr + increment;
+          writeln(fahr <& " " <& celsius);
+          fahr +:= increment;
         end while;
       end func;
 
-  Everything between (* and *) is a comment, which is ignored.
-  This program contains local constants and variables of the
-  type 'integer'. The constants and variables must be
-  initialized when they are declared. This program contains
-  also an assignment, a while-statement and the expression to
-  compute the 'celsius' value. Note that the statements inside
-  the while-loop are between 'do' and 'end while'. The
-  expression to compute the 'celsius' value uses an integer
-  division ('div'). The 'write' statement can be used to write
-  strings and integers without a newline character. The output
-  produced by this program is
+  Everything between (* and *) is a comment, which is ignored. This
+  program contains local constants and variables of the type 'integer'.
+  The constants and variables must be initialized when they are declared.
+  This program contains also an assignment (:=), a while-statement and
+  the expression to compute the 'celsius' value. The variable 'fahr' is
+  incremented with the '+:=' operator. The expression to compute the
+  'celsius' value uses an integer division ('div'). The output produced
+  by this program is
 
     0 -17
     20 -6
@@ -706,27 +705,23 @@ CONTENTS
         end for;
       end func;
 
-  To use the type 'float' it is necessary to include
-  "float.s7i". The 'float' variable 'celsius' must be
-  initialized with 0.0 (instead of 0). The for-loop is
-  written as:
+  To use the type 'float' it is necessary to include "float.s7i".
+  The 'float' variable 'celsius' must be initialized with 0.0
+  (instead of 0). The for-loop executes the loop body with
+  different values of 'fahr' (0, 20, 40 .. 280, 300). Omitting
+  the 'step' part corrensponds to a step of 1:
 
-    for ... range ... to ... step ... do
-      ...
-    end for
+    for fahr range lower to upper do
+      celsius := flt(5 * (fahr - 32)) / 9.0;
+      writeln(fahr lpad 3 <& " " <& celsius digits 2 lpad 6);
+    end for;
 
-  To specify a lower and an upper limit together with a step
-  value. For a step value of 1 the for-loop it is written as:
+  The keyword 'downto' can be used to run the for-loop backward:
 
-    for ... range ... to ... do
-      ...
-    end for
-
-  And for a step value of -1 it can be written as:
-
-    for ... range ... downto ... do
-      ...
-    end for
+    for fahr range upper downto lower do
+      celsius := flt(5 * (fahr - 32)) / 9.0;
+      writeln(fahr lpad 3 <& " " <& celsius digits 2 lpad 6);
+    end for;
 
   Since Seed7 is strong typed 'integer' and 'float' values
   cannot be mixed in expressions. Therefore the 'integer'
@@ -743,7 +738,78 @@ CONTENTS
   of 6.
 
 
-2.5 Parameters
+2.5 For loop and containers
+
+    A for-loop can be used to iterate over an 'array':
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        var integer: number is 0;
+      begin
+        for number range [] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100) do
+          write(number <& " ");
+        end for;
+        writeln;
+      end func;
+
+  In the example above '[] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)'
+  is an array literal. For-loops can also interate over the elements
+  of a 'set':
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        var string: innerPlanet is "";
+      begin
+        for innerPlanet range {"Mercury", "Venus", "Earth", "Mars"} do
+          write(innerPlanet <& " ");
+        end for;
+        writeln;
+      end func;
+
+  In the example above '{"Mercury", "Venus", "Earth", "Mars"}' is a set
+  literal. For-loops can interate over the characters of a 'string':
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        const set of char: vowels is {'a', 'e', 'i', 'o', 'u'};
+        var char: letter is ' ';
+      begin
+        for letter range "the quick brown fox jumps over the lazy dog" do
+          if letter not in vowels then
+            write(letter);
+          end if;
+        end for;
+        writeln;
+      end func;
+
+  All loops that iterate over a container can be combined with an 'until' condition:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        var string: testText is "";
+        var char: ch is ' ';
+        var boolean: controlCharFound is FALSE;
+      begin
+        write("Enter text: ");
+        readln(testText);
+        for ch range testText until controlCharFound do
+          controlCharFound := ord(ch) < 32;
+        end for;
+        if controlCharFound then
+          writeln("The text contains control chars.");
+        end if;
+      end func;
+
+
+2.6 Parameters
 
     Most parameters are not changed inside a function. Seed7
   uses 'in' parameters to describe this situation:
@@ -871,7 +937,7 @@ CONTENTS
   over an explicit 'val' and 'ref' parameter.
 
 
-2.6 Declare a statement
+2.7 Declare a statement
 
     This example program writes its arguments
 
@@ -914,7 +980,7 @@ CONTENTS
   Because of these powerful features Seed7 does not need iterators.
 
 
-2.7 Template declaring a statement
+2.8 Template declaring a statement
 
   Templates are just normal functions with types as parameters.
   The following template function declares for-statements:
@@ -1761,6 +1827,9 @@ CONTENTS
       or        Inclusive logical or
                   ( FALSE or FALSE => FALSE,
                     A or B => TRUE else )
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       boolean conv A   Conversion of integer to boolean
                   ( Type of argument A: integer,
                     boolean conv 0 => FALSE,
@@ -1949,6 +2018,10 @@ CONTENTS
                     n ! k => 0 for n >= 0 and k > n,
                     n ! k => !n div (!k * !(n - k)) for k >= 0 and k <= n,
                     n ! k => (-1) ** k * (n + k - 1 ! k) for n < 0 and k >= 0 )
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       A radix B  Convert the integer A to a string. The conversion
                  uses the numeral system with the base B.
                   ( Type of result: string,
@@ -2287,6 +2360,10 @@ CONTENTS
                     n ! k => 0_ for n >= 0_ and k > n,
                     n ! k => !n div (!k * !(n - k)) for k >= 0_ and k <= n,
                     n ! k => (-1) ** k * (n + k - 1 ! k) for n < 0_ and k >= 0_ )
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       A radix B  Convert the bigInteger A to a string. The conversion
                  uses the numeral system with the base B.
                   ( Type of result: string,
@@ -2566,6 +2643,10 @@ CONTENTS
                     Type of right operand: integer )
       **        Power
                   ( rational ** integer )
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       rational conv A   Conversion of integer to rational
                   ( Type of argument A: integer,
                     rational conv 1 => 1 / 1 )
@@ -2698,6 +2779,10 @@ CONTENTS
                     Type of right argument: bigInteger )
       **        Power
                   ( bigRational ** integer )
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       bigRational conv A   Conversion of integer to bigRational
                   ( Type of argument A: integer,
                     bigRational conv 1 => 1_ / 1_ )
@@ -2869,6 +2954,10 @@ CONTENTS
                     0.0 ** B => Infinity for B < 0,
                     (-0.0) ** B => -Infinity for B < 0 and odd(B),
                     A ** B => 1.0 / A ** (-B) for B < 0 )
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       float conv A   Conversion of integer to float
                   ( Type of argument A: integer,
                     float conv 1 => 1.0 )
@@ -2980,11 +3069,11 @@ CONTENTS
       sinh(A)   Hyperbolic sine
       cosh(A)   Hyperbolic cosine
       tanh(A)   Hyperbolic tangent
-      rand(A, B) Random number in the range [A, B]
+      rand(A, B) Random number in the range [A, B)
                  The random values are uniform distributed.
                   ( rand(A, B) returns a random number such that
-                    A <= rand(A, B) and rand(A, B) <= B holds.
-                    rand(A, A) => A,
+                    A <= rand(A, B) and rand(A, B) < B holds.
+                    rand(A, A) => EXCEPTION RANGE_ERROR,
                     rand(1.0, 0.0) => EXCEPTION RANGE_ERROR )
       min(A, B) Minimum of two numbers.
                   ( min(2.5, 4.5) => 2.5 )
@@ -3036,6 +3125,10 @@ CONTENTS
                     complex(0.0) ** B => complex(0.0) for B > 0,
                     complex(0.0) ** 0 => complex(1.0),
                     complex(0.0) ** B => complex(Infinity, NaN) for B < 0 )
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       complex conv A   Conversion of integer to complex
                   ( Type of argument A: integer,
                     complex conv A => complex(flt(A)) )
@@ -3126,6 +3219,10 @@ CONTENTS
   the library "char.s7i".
 
     Infix operators:
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       char conv A   Conversion of integer to char
                   ( Type of argument A: integer,
                     char conv 65 => 'A' )
@@ -3227,6 +3324,10 @@ CONTENTS
                     "LA" mult 3 => "LALALA",
                     "WORD" mult 0 => "",
                     "ANY" mult -1 => EXCEPTION RANGE_ERROR )
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       lpad      Left padding with spaces
                   ( Type of right operand: integer,
                     "HELLO" lpad  8 => "   HELLO",
@@ -4785,6 +4886,28 @@ CONTENTS
     const type: arrayIndexChar is array [char] string;
     const type: hashType is hash [string] intArrayType;
     const type: setType is set of char;
+
+  Note that type declarations should always be made at the top level. E.g.:
+
+    $ include "seed7_05.s7i";
+
+    const type: intArrayType is array integer;
+
+    const proc: main is func
+      local
+        var intArrayType: arr is [](1, 2);
+      begin
+        writeln(length(arr));
+      end func;
+
+  If the type declaration of 'intArrayType' would be inside of the 'local'
+  declaration block you would receive an error:
+
+    *** tst249.sd7(6):51: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
+        var intArrayType: arr is [](1, 2);
+
+  A 'local' declaration block is parsed completely before it is executed.
+  This causes that 'intArrayType' is not defined during the parsing.
 
     Values:
       void, boolean, integer, rational, float, char,
@@ -12823,8 +12946,8 @@ CONTENTS
 
   An INDEX_ERROR occurs if an index is used to access an 'array', 'string',
   'bstring' or 'ref_list' element beyond the elements that actually exist.
-  An attempt to get an element of a 'string',
-  'bstring' or 'ref_list' with a negative or zero index raises also INDEX_ERROR.
+  E.g. An attempt to get an element of a 'string',
+  'bstring' or 'ref_list' with a negative or zero index raises INDEX_ERROR.
 
     It may be raised from the following 'array' operations:
         [index], [index ..], [.. index], [start .. stop], [index len length], insert, remove.

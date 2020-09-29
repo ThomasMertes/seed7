@@ -323,3 +323,6 @@ const func string: trimValue (attr char, in string: stri) is forward;
  *  @return the character literal of ''ch''.
  *)
 const func string: literal (in char: ch) is forward;
+
+
+DECLARE_TERNARY(char);

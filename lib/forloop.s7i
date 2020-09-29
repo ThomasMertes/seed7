@@ -256,7 +256,7 @@ const proc: for (in integer: numRepeats) do
   local
     var integer: count is 0;
   begin
-    for count range 1 to numRepeats do
+    for count range numRepeats downto 1 do
       statements;
     end for;
   end func;

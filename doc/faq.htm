@@ -265,6 +265,9 @@ How can static type checking work if types are first-class objects?
 <li><a class="link" href="#faq_type_inference"><b>
 Why does Seed7 not use type inference?
 </b></a></li>
+<li><a class="link" href="#faq_local_type_declaration"><b>
+Why does a local type declaration trigger an error?
+</b></a></li>
 <li><a class="link" href="#faq_automatic_casts"><b>
 Are there automatic casts to the right type?
 </b></a></li>
@@ -290,7 +293,7 @@ Why is it necessary to initialize all variables?
 Is Unicode supported?
 </b></a></li>
 <li><a class="link" href="#faq_mutable_strings"><b>
-Why are the strings in Seed7 mutable?
+Why are strings in Seed7 mutable?
 </b></a></li>
 <li><a class="link" href="#faq_indexed_from_one"><b>
 Why are strings indexed from one?
@@ -370,11 +373,20 @@ Are there static methods / class methods?
 <li><a class="link" href="#faq_generics"><b>
 Are there generics / templates?
 </b></a></li>
+<li><a class="link" href="#faq_parser_in_library"><b>
+Is the parser part of the run-time library?
+</b></a></li>
+<li><a class="link" href="#faq_access_AST"><b>
+Can I access the abstract syntax tree (AST)?
+</b></a></li>
 <li><a class="link" href="#faq_no_artificial_restrictions"><b>
 What restrictions does Seed7 have?
 </b></a></li>
 <li><a class="link" href="#faq_undefined_behavior"><b>
-What means the term undefined behavior?
+What does the term undefined behavior mean?
+</b></a></li>
+<li><a class="link" href="#faq_memory_safety"><b>
+What does the term memory safety mean?
 </b></a></li>
 <li><a class="link" href="#faq_break_and_continue"><b>
 How to define break and continue?
@@ -388,6 +400,12 @@ What happens if an exception is not caught?
 </ul><h2>
 Implementation
 </h2><ul>
+<li><a class="link" href="#faq_how_parsed"><b>
+How is Seed7 parsed?
+</b></a></li>
+<li><a class="link" href="#faq_lto"><b>
+What is link time optimization?
+</b></a></li>
 <li><a class="link" href="#faq_lib_path"><b>
 Where does the interpreter look for include libraries?
 </b></a></li>
@@ -466,9 +484,9 @@ programming languages:
 The design principles are:
 </p><dl>
 <dt>Error prevention:</dt><dd>
-   Seed7 is <a class="link" href="#faq_static_type_checking">statically typed</a>, variables must always have a value,
-   there is no NULL and all errors, inclusive <a class="link" href="#faq_integer_overflow">integer overflow</a>,
-   trigger an exception.</dd>
+   Seed7 is <a class="link" href="#faq_static_type_checking">statically typed</a>, <a class="link" href="#faq_memory_safety">memory safe</a>, variables must <a class="link" href="#faq_initialize_variables">always
+   have a value</a>, there are no pointers and there is no NULL. All
+   errors, inclusive <a class="link" href="#faq_integer_overflow">integer overflow</a>, trigger an exception.</dd>
 
 <dt>Source code portability:</dt><dd>
    Most programming languages claim to be source code portable, but
@@ -509,8 +527,8 @@ The design principles are:
    This removes another dependency.</dd>
 
 <dt>An interpreter that starts quickly:</dt><dd>
-   This allows a quick edit-test cycle. Often the interpreter
-   reads 400000 lines per second or more.</dd>
+   This allows a quick edit-test cycle. It can do up to
+   400000 lines per second or more.</dd>
 
 <dt>No artificial restrictions:</dt><dd>
    Historic programming languages have a lot of artificial
@@ -545,7 +563,7 @@ The design principles are:
 
 <dt>Reliable solutions:</dt><dd>
    Simple and reliable solutions are preferred over complex
-   solutions, that may fail for various reasons.</dd>
+   ones that may fail for various reasons.</dd>
 </dl></div>
 
 <div><br /><a name="faq_extensible_programming"><h3>What is an extensible programming language?
@@ -759,12 +777,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-08-30 the number of lines is:
+than 300000 lines of Seed7. For version 2020-09-29 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">160115</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12650</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">190227</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">160146</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">160515</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12672</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">191361</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">160514</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1193,6 +1211,7 @@ Possible options are
   <li><a name="faq_compiler_option-b"><b>-b</b></a>   Specify the directory of the Seed7 runtime libraries (e.g.: <b>-b</b><tt> <span class="lib">../bin</span></tt>).</li>
   <li><a name="faq_compiler_option-e"><b>-e</b></a>   Generate code which sends a signal, if an uncaught exception occurs.
        This option allows debuggers to handle uncaught Seed7 exceptions.</li>
+  <li><a name="faq_compiler_option-flto"><b>-flto</b></a> Enable <a class="link" href="#faq_lto">link time optimization</a>.</li>
   <li><a name="faq_compiler_option-g"><b>-g</b></a>   Tell the C compiler to generate an executable with debug information.
        This way the debugger will refer to Seed7 source files and line numbers.
        To generate debug information which refers to the temporary C program
@@ -1374,12 +1393,8 @@ is used. Constant declarations often look like this:
 </pre><p>
 The Seed7 declaration syntax is oriented towards these examples. Variable
 declarations are introduced with <tt><span class="keywd">var</span></tt> and constant declarations are
-introduced with <tt><span class="keywd">const</span></tt>. The equals sign is replaced with <tt><span class="keywd">is</span></tt>. This
-would lead to:
-</p><pre class="indent">
-<span class="keywd">const</span> <span class="type_no_ul">integer</span> x <span class="keywd">is</span> 42;
-</pre><p>
-As separator between type and name a colon is used:
+introduced with <tt><span class="keywd">const</span></tt>. The equals sign is replaced with <tt><span class="keywd">is</span></tt> and
+a colon is used as separator between type and name. This leads to:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type_no_ul">integer</span>: x <span class="keywd">is</span> 42;
 </pre><p>
@@ -1388,8 +1403,8 @@ declaration that is easy to recognize and uses the same syntax:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type_no_ul">type</span>: stack <span class="keywd">is</span> <span class="type_no_ul">array</span> <span class="type_no_ul">integer</span>;
 </pre><p>
-It is also easy to recognize function declarations although they use
-the same syntax:
+It is also easy to recognize function declarations, they use the same
+syntax:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type_no_ul">func</span> <span class="type_no_ul">integer</span>: computeSomething <span class="keywd">is</span> ...
 </pre><p>
@@ -1399,10 +1414,10 @@ In a block with several declarations the type can be recognized easily:
 <span class="keywd">var</span> <span class="type_no_ul">integer</span>: paramValue <span class="keywd">is</span> 0;
 <span class="keywd">var</span> <span class="type_no_ul">bigInteger</span>: bigSum <span class="keywd">is</span> 0_;
 </pre><p>
-The colon confuses many programmers with a background from dynamically
-typed languages. In these languages optional type specifications have been
-introduced later and they use <tt>name: type</tt>. In Seed7 the specification
-of the type is not optional but mandatory. 
+Programmers used to dynamically typed languages may be confused by the
+colon. Those languages use something like <tt>name: type</tt> with the type
+annotation being optional. In Seed7 the specification of the type is
+mandatory. 
 </p></div>
 
 <div><br /><a name="faq_everybody_invents_statements"><h3>Isn't the code unreadable if everybody invents new statements?
@@ -1595,6 +1610,32 @@ of the program needs to use this algorithm also every time he/she reads the
 program. And that is very bad since a program is more often read than written.
 </p></div>
 
+<div><br /><a name="faq_local_type_declaration"><h3>Why does a local type declaration trigger an error?
+</h3></a><hr />
+<p>
+  A <tt><span class="keywd">local</span></tt> declaration block is parsed completely before it is executed.
+  This causes that <tt><span class="type">type</span></tt> declarations inside of a <tt><span class="keywd">local</span></tt> declaration block
+  are not defined during the parsing. If the locally defined type is used in
+  the same declaration block an error like
+</p><pre class="indent">
+*** tst249.sd7(6):51: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
+    var intArrayType: arr is [](1, 2);
+</pre><p>
+  will be triggered. This errors are avoided, if all <tt><span class="type">type</span></tt> declarations are
+  made at the top level. E.g.:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <span class="type">type</span>: intArrayType <span class="keywd">is</span> <span class="type">array</span> <span class="type">integer</span>;
+
+<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <span class="type">intArrayType</span>: arr <span class="keywd">is</span> [](1, 2);
+  <span class="keywd">begin</span>
+    <span class="func">writeln</span>(<span class="func">length</span>(arr));
+  <span class="keywd">end func</span>;
+</pre></div>
+
 <div><br /><a name="faq_automatic_casts"><h3>Are there automatic casts to the right type?
 </h3></a><hr />
 <p>
@@ -1730,12 +1771,12 @@ encodings are also available.
 </p><p>
 The usage of UTF-32 for strings in a program has several advantages:
 </p><ul>
-<li>With UTF-32 it is not necessary to distinguish character-length from
-   byte-length. The character-length of an UTF-8 or UTF-16 string must be
-   computed by processing the whole string. The character-length of an
-   UTF-32 string does not need such an effort.</li>
-<li>Accessing a character with an index in an UTF-32 string is also simple.
-   With UTF-8 and UTF-16 it is necessary to process all characters up
+<li>With UTF-32 it is not necessary to distinguish the normal length of a
+   string from its byte-length. In an UTF-8 or UTF-16 string the number
+   of code points must be computed by processing the whole string.
+   Computing the length of an UTF-32 string does not need such an effort.</li>
+<li>Accessing a code point with an index in an UTF-32 string is also simple.
+   With UTF-8 and UTF-16 it is necessary to process all code points up
    to the index. It has been argued, that most strings are processed
    sequentially. UTF-32 strings can be processed sequentially, but if
    the processing is not sequentially UTF-32 has a big advantage.</li>
@@ -1764,6 +1805,15 @@ The usage of UTF-32 for strings in a program has several advantages:
    possibility to hold all this encodings is an advantage that only UTF-32
    offers.</li>
 </ul><p>
+Sometimes it is argued that UTF-32 encodes code points and that an actual
+character might consist of several code points (e.g. by using combining
+characters). This is not only a problem of UTF-32. Practically all
+programs that use Unicode assume that a code point is a character. Unicode
+contains many precomposed characters, so that most of the time a code
+point is in fact a character. Most of the programs have no problem with
+that simplification. If a program needs to handle combining characters it
+must check for that, independent of the code point encoding.
+</p><p>
 In a Seed7 program all operations with strings can be done with the type
 <tt><span class="type">string</span></tt>. Having just one <tt><span class="type">string</span></tt> type simplifies things.
 </p><p>
@@ -1787,44 +1837,48 @@ This way beginners can use variable and function names from their native
 language.
 </p></div>
 
-<div><br /><a name="faq_mutable_strings"><h3>Why are the strings in Seed7 mutable?
+<div><br /><a name="faq_mutable_strings"><h3>Why are strings in Seed7 mutable?
 </h3></a><hr />
 <p>
-Java, C# and several other languages use immutable strings. But immutable strings
-have not only advantages. They have also disadvantages. Okay, assigning immutable
-strings is cheap (just the pointer is assigned), but almost everything else becomes
-more expensive. Every time immutable strings are changed the whole string content
-must be copied. If you want to change a string a lot, this becomes very costly.
-For that reason Java introduced the mutable string class StringBuffer (and later
-StringBuilder). Maintaining the string data of immutable strings is also an
-overhead that costs time, as it requires bookkeeping and a garbage collection.
+Java, C# and several other languages use immutable strings which allow
+for simple and quick assignments (just a pointer is assigned). But they
+have also disadvantages. Almost everything else besides assignments becomes
+more expensive. Every time immutable strings are changed, the whole string
+content must be copied. If you want to change a string often, this becomes
+very costly. For that reason Java introduced the mutable string class
+StringBuffer (and later StringBuilder). Maintaining the string data of
+immutable strings is also an overhead that costs time, as it requires
+bookkeeping and garbage collection.
 </p><p>
-The string handling of mutable strings can be optimized, such that copying the
-string content can be avoided in many cases. This is done by the Seed7 interpreter
-and compiler. You get cheap string parameter passing, string slicing and assignment
-without being bothered with immutable and mutable string types (which is essentially
-an implementation detail). Mutable strings give us also consistent language
-semantics (strings are not handled different than other objects).
+The string handling of mutable strings can be optimized, such that copying
+the string content can be avoided in many cases. This is done by the Seed7
+interpreter and compiler. You get cheap string parameter passing, string
+slicing and assignment without being bothered with immutable and mutable
+string types (which is essentially an implementation detail). Mutable
+strings give us also consistent language semantics (strings are not handled
+different than other objects).
 </p></div>
 
 <div><br /><a name="faq_indexed_from_one"><h3>Why are strings indexed from one?
 </h3></a><hr />
 <p>
-Here is a little list to explain that. Please read the second line from the list:
+Here is a little example to explain that. Please read the second line from the
+following list:
 </p><ul>
 <li>You probably forgot that you should just read the second line.</li>
 <li>This is the second line from the list.</li>
 <li>You probably also count your partners starting from zero.</li>
 <li>Next time read the instructions more carefully.</li>
 </ul><p>
-This example makes it clear. The number one has been invented as starting point
+It should be obvious: The number one has been invented as starting point
 to count something. The first character in this sentence is T not h. So the
-question is: Why does everybody think that in computer science the first character
-has the index 0? Basically this comes from C. Arrays and strings in C are viewed
-as pointer + offset. So it is natural that the first offset is 0. From C this
-concept spread to many other programming languages. Seed7 breaks with this
-tradition as it uses the number one again for the purpose it has been invented,
-thousands of years ago, long before zero has been invented.
+question is: Why does everybody believe that in computer science the first
+character has the index 0? Basically this origins in the language C. Arrays
+and strings in C are viewed as pointer + offset. So it is natural that the
+first offset is 0. From C this concept spread to many other programming
+languages. Seed7 breaks with this tradition as it uses the number one again
+for the purpose it has been invented, thousands of years ago, long before
+zero has been introduced.
 </p></div>
 
 <div><br /><a name="faq_comparisons"><h3>How are comparisons done in Seed7?
@@ -1843,7 +1897,7 @@ this regard, because the <tt><span class="op">=</span></tt> operator is generall
 It is just not necessary to tell every newcomer that <tt><span class="op">==</span></tt> is used to compare
 integers, but that it should never be used to compare strings.
 </p><p>
-Most types define also the function <tt><span class="func">compare</span>(A, B)</tt>, which returns -1 (if A is
+Most types of Seed7 also define the function <tt><span class="func">compare</span>(A, B)</tt>, which returns -1 (if A is
 less than B), 0 (if A equals B) or 1 (if A is greater than B). This function
 defines a total order over the values of a type even if <tt><span class="op">&lt;</span></tt> has not been defined
 or if <tt><span class="op">&lt;</span></tt> does not define a total order. E.g.:
@@ -1907,9 +1961,9 @@ In the manual there is a chapter about the <span class="link">database abstracti
 </h3></a><hr />
 <p>
 Regular expressions are a powerful feature. Unfortunately they lead also
-to code, that is hard to maintain. The regular expression language is
+to code that is hard to maintain. The regular expression language is
 usually embedded in a surrounding programming language. As with other
-language in language features this leads to maintenance problems. There
+language-in-language features this leads to maintenance problems. There
 are also other difficulties. Regular expressions work typeless but Seed7
 does not. For this reasons regular expressions are currently not supported,
 but there is an alternative (see below).
@@ -2552,6 +2606,57 @@ as the C++ template functions. The explicit calls of template functions make it
 obvious what it is going on. This way the program is easier to read.
 </p></div>
 
+<div><br /><a name="faq_parser_in_library"><h3>Is the parser part of the run-time library?
+</h3></a><hr />
+<p>
+Yes, the library <span class="lib">progs.s7i</span> defines the type <tt><span class="type">program</span></tt>, which describes a Seed7
+program. The functions <span class="func">parseFile</span>, and <span class="func">parseStri</span> can be used to parse a file
+respectively string. The function <span class="func">execute</span> can be used to execute a program. E.g.:
+</p><pre class="indent">
+$ include <span class="lib">"seed7_05.s7i"</span>;
+  include <span class="lib">"progs.s7i"</span>;
+
+<span class="keywd">const</span> proc: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <span class="type">program</span>: aProg <span class="keywd">is</span> <span class="type">program</span>.value;
+  <span class="keywd">begin</span>
+    <span class="keywd">if</span> <span class="func">length</span>(<span class="func">argv</span>(PROGRAM)) <span class="op_no_ul">=(in_integer)">&gt;=</span> 1 <span class="keywd">then</span>
+      aProg := <span class="func">parseFile</span>(<span class="func">argv</span>(PROGRAM)<span class="op_no_ul">[1]</span>);
+      <span class="keywd">if</span> aProg <span class="op_no_ul">(in_program)">&lt;&gt;</span> <span class="type">program</span>.value <span class="keywd">then</span>
+        <span class="func">execute</span>(aProg, <span class="func">argv</span>(PROGRAM)<span class="op_no_ul">[2 ..]</span>);
+      <span class="keywd">end if</span>;
+    <span class="keywd">end if</span>;
+  <span class="keywd">end func</span>;
+</pre></div>
+
+<div><br /><a name="faq_access_AST"><h3>Can I access the abstract syntax tree (AST)?
+</h3></a><hr />
+<p>
+Yes, but you cannot access the AST of the program that currently runs. Instead
+you can <span class="link">parse</span> a program and access its AST. The functions <span class="func">parseFile</span>, and <span class="func">parseStri</span>
+return a <tt><span class="type">program</span></tt> object. The type <tt><span class="type">program</span></tt> provides access to an enriched AST,
+the <a class="link" href="#faq_bytecode">call-code</a>. You can get the list of <span class="link">globally declared objects</span> as <tt><span class="type">ref_list</span></tt>.
+A <tt><span class="type">ref_list</span></tt> is a list of references to objects. The type <tt><span class="type">reference</span></tt> describes
+a reference to an object. The program below writes the names of all global objects
+in the program panic.sd7:
+</p><pre class="indent">
+$ include <span class="lib">"seed7_05.s7i"</span>;
+  include <span class="lib">"progs.s7i"</span>;
+
+<span class="keywd">const</span> proc: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <span class="type">program</span>: aProg <span class="keywd">is</span> <span class="type">program</span>.value;
+    <span class="keywd">var</span> <span class="type">reference</span>: aRef <span class="keywd">is</span> <span class="var">NIL</span>;
+  <span class="keywd">begin</span>
+    aProg := <span class="func">parseFile</span>(<span class="stri">"panic.sd7"</span>);
+    <span class="keywd">if</span> aProg <span class="op_no_ul">(in_program)">&lt;&gt;</span> <span class="type">program</span>.value <span class="keywd">then</span>
+      <span class="keywd">for</span> aRef <span class="keywd">range</span> <span class="func">globalObjects</span>(aProg) <span class="keywd">do</span>
+        <span class="func">writeln</span>(<span class="func">str</span>(aRef));
+      <span class="keywd">end for</span>;
+    <span class="keywd">end if</span>;
+  <span class="keywd">end func</span>;
+</pre></div>
+
 <div><br /><a name="faq_no_artificial_restrictions"><h3>What restrictions does Seed7 have?
 </h3></a><hr />
 <p>
@@ -2559,34 +2664,57 @@ Historic compilers used fixed size memory areas to store the data of the compile
 program. Limitations like source line length, identifier length, string length or
 number of nesting levels can be found in language manuals. If you reach such a
 limit an otherwise correct program will not compile. In Seed7 restrictions of
-other languages have been released:
+other languages have been removed:
 </p><ul>
-<li>There is no limitation in the length of an identifier and
+<li>There is no limitation for the length of an identifier and
    all characters of an identifier are significant.</li>
 <li>Statements and parentheses can be nested without limitation
    in depth.</li>
 <li>The number of parameters and local variables is not
    limited.</li>
-<li><span class="link">Strings</span> can contain any characters (also the NUL character)
+<li><span class="link">Strings</span> can contain any characters (also the NUL character).
    This allows holding binary information in strings.</li>
 <li>Although strings are not NUL terminated they have
-   no size limitation. (Except there is no more memory)</li>
+   no size limitation. (Except when memory is exceeded)</li>
 <li><span class="link">String literals</span> can have any length.</li>
 <li>There is no limitation in the length of a source line.</li>
 <li>There is no level limitation for nesting includes.</li>
 </ul></div>
 
-<div><br /><a name="faq_undefined_behavior"><h3>What means the term undefined behavior?
+<div><br /><a name="faq_undefined_behavior"><h3>What does the term undefined behavior mean?
 </h3></a><hr />
 <p>
 Undefined behavior is a term used in the language specification
 of C and in other programming languages. Undefined behavior usually
 means that the behavior of the program is unpredictable. In C
 dividing by zero, accessing an array out of bounds, dereferencing
-NULL or a signed integer overflow all trigger undefined behavior.
+NULL or a signed integer overflow all triggers undefined behavior.
 Seed7 has a well defined behavior in all situations. Even in
-situations where the language specification of C refers to
+situations where the language specification of C would refer to
 undefined behavior.
+</p></div>
+
+<div><br /><a name="faq_memory_safety"><h3>What does the term memory safety mean?
+</h3></a><hr />
+<p>
+Memory safety is the state of being protected from various software
+bugs and security vulnerabilities when dealing with memory access.
+This means that in all possible executions of a program, there is
+no access to invalid memory. The violations include:
+</p><ul>
+<li>buffer overflow</li>
+<li>buffer over-read</li>
+<li>use after free</li>
+<li>null pointer dereference</li>
+<li>using uninitialized memory</li>
+<li>double free</li>
+</ul><p>
+In Seed7 there is no possibility to access memory outside of the
+defined datatypes. For all accesses to containers like <tt><span class="type">array</span></tt> and
+<tt><span class="type">string</span></tt> the <span class="link">indices are checked</span> to be inside the allowed range.
+In Seed7 there are no pointers that can access arbitary memory
+areas. All computations of memory sizes are protected against
+<a class="link" href="#faq_integer_overflow">integer overflow</a>.
 </p></div>
 
 <div><br /><a name="faq_break_and_continue"><h3>How to define break and continue?
@@ -2599,7 +2727,7 @@ Seed7 can define the syntax and semantic of all structured statements easily.
 E.g.: You can define a structured <span class="link">loop statement with an exit in the middle</span>.
 Since <tt>break</tt> and <tt>continue</tt> are not structured statements there is no
 straightforward way to implement them. But they could be implemented with
-<a class="link" href="#faq_exceptions">exceptions</a>. Often <tt>break</tt> and <tt>continue</tt> are seen as trick to get more
+<a class="link" href="#faq_exceptions">exceptions</a>. Often <tt>break</tt> and <tt>continue</tt> are seen as a trick to get more
 performance. <a class="link" href="#faq_exceptions">Exceptions</a> would not deliver that. For that reason and to promote
 structured programming <tt>break</tt>, <tt>continue</tt> and <tt>goto</tt> are not supported.
 </p></div>
@@ -2651,6 +2779,57 @@ if the exception is not related to floating point operations.
 </p><p>
 <span class="link">Chapter 16.4 (Stack trace)</span> of the manual contains a detailed description how to
 debug compiled Seed7 programs.
+</p></div>
+
+<div><br /><a name="faq_how_parsed"><h3>How is Seed7 parsed?
+</h3></a><hr />
+<p>
+The scanner (tokenizer) uses simple hard coded rules to read <span class="link">tokens</span>. <span class="link">Whitespace
+and comments</span> are skipped by the scanner and <span class="link">identifiers</span> are looked up in a table
+of defined symbols.
+</p><p>
+Based on the scanner the syntax analysis uses a recursive descent LL(1) parser.
+This means that a lookup of one symbol is used to do syntactic decisions. The rules
+for parsing <span class="link">parentheses</span>, <span class="link">call expressions</span> and <span class="link">dot expressions</span> are hard coded. For
+all other expressions the recursive descent parser is data driven. The data which
+drives the parser is actually a syntax description tree. <a class="link" href="#faq_syntax">Syntax descriptions</a> like
+</p><pre class="indent">
+$ syntax expr: .while.().do.().end.while   is -> 25;
+</pre><p>
+are used to create the syntax description tree. The result of the syntax analysis
+is an abstract syntax tree (AST).
+</p><p>
+The AST is processed again to add semantic information. All things of the program
+that have been defined and that are currently available are maintained in a
+dictionary. For overloaded functions and statements this dictionary has the form
+of a tree. The expressions from the AST are matched with the dictionary. If a
+match fails, because a corresponding declaration is not found, you will get
+an error like:
+</p><pre class="indent">
+*** chkloop.sd7(35):51: Match for {while "X" do {1 + 2 } end while } failed
+</pre><p>
+If all expressions are found in the dictionary the matching process leads to an
+enriched AST, the <a class="link" href="#faq_bytecode">call-code</a>. Call-code can be executed by the <a class="link" href="#faq_interpreter">interpreter</a>.
+Alternatively the <a class="link" href="#faq_compile">compiler</a> can generate C code from it.
+</p></div>
+
+<div><br /><a name="faq_lto"><h3>What is link time optimization?
+</h3></a><hr />
+<p>
+Traditionally C source files are compiled separately into object files. These
+object files are later linked together into one executable file. Optimizations
+regarding two object files cannot be done. Link time optimization (LTO) allows
+also these optimizations. Gcc and clang support LTO, by writing their intermediate
+representations to the object files. This way interprocedural optimizations can
+be done when the object files are linked. C compiler, linker and archiver need
+to support LTO.
+</p><p>
+When Seed7 is compiled the program <span class="lib">chkccomp.c</span> checks if all involved components
+(C compiler, linker and archiver) support LTO. Currently this check is only done
+for gcc and clang.
+</p><p>
+The <span class="link">Seed7 compiler</span> supports the option <a href="#faq_compiler_option-flto"><b>-flto</b></a>, which triggers the necessary steps
+to do LTO. If LTO is not supported the option <a href="#faq_compiler_option-flto"><b>-flto</b></a> has no effect.
 </p></div>
 
 <div><br /><a name="faq_lib_path"><h3>Where does the interpreter look for include libraries?
@@ -2710,7 +2889,7 @@ predefined include libraries.
 <div><br /><a name="faq_make_depend"><h3>What happens during <tt>make depend</tt>?
 </h3></a><hr />
 <p>
-The instructions how to <a class="link" href="#faq_compile_interpreter">compile the interpreter</a> clearify that you need
+The instructions how to <a class="link" href="#faq_compile_interpreter">compile the interpreter</a> state that you need
 a makefile that is specific for your combination of operating system,
 make utility, C compiler and shell. When you use the command
 </p><pre class="indent">
