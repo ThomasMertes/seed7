@@ -164,8 +164,8 @@ const func keyDescriptionType: genKeyDescription is func
       keyDescription @:= [chr(pred(ord(KEY_SHIFT)) + index)] description;
     end for;
     for description key index range [](
-        "KEY_UNDEF", "KEY_NONE") do
-      keyDescription @:= [chr(pred(ord(KEY_UNDEF)) + index)] description;
+        "KEY_CLOSE", "KEY_UNDEF", "KEY_NONE") do
+      keyDescription @:= [chr(pred(ord(KEY_CLOSE)) + index)] description;
     end for;
   end func;
 

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  shisen.sd7    Shisen game                                       *)
-(*  Copyright (C) 2005  Thomas Mertes                               *)
+(*  Copyright (C) 2005, 2007, 2012, 2013, 2020  Thomas Mertes       *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -28,6 +28,7 @@ $ include "seed7_05.s7i";
   include "draw.s7i";
   include "pic_util.s7i";
   include "keybd.s7i";
+  include "dialog.s7i";
   include "time.s7i";
   include "duration.s7i";
   include "pic32.s7i";
@@ -1079,14 +1080,30 @@ const func boolean: find_way (in var integer: line1, in var integer: column1,
   end func;
 
 
-const proc: help is func
+const proc: readHelpCommand (inout char: command) is func
+  local
+    var boolean: doQuit is FALSE;
+  begin
+    DRAW_FLUSH;
+    command := upper(getc(KEYBOARD));
+    while command = KEY_ESC do
+      bossMode(doQuit);
+      if doQuit then
+        command := 'Q';
+      else
+        command := upper(getc(KEYBOARD));
+      end if;
+    end while;
+  end func;
+
+
+const proc: help (inout char: command) is func
   local
     var integer: line1 is 0;
     var integer: column1 is 0;
     var integer: line2 is 0;
     var integer: column2 is 0;
     var boolean: found is FALSE;
-    var char: command is ' ';
   begin
     for line1 range 1 to FIELD_LINES do
       for column1 range 1 to FIELD_COLUMNS do
@@ -1099,8 +1116,7 @@ const proc: help is func
               if find_way(line1, column1, line1, column2, light_red) then
                 mark(line1, column1);
                 mark(line1, column2);
-                DRAW_FLUSH;
-                command := upper(getc(KEYBOARD));
+                readHelpCommand(command);
                 if command <> 'H' then
                   found := TRUE;
                 end if;
@@ -1128,8 +1144,7 @@ const proc: help is func
                 if find_way(line1, column1, line2, column2, light_red) then
                   mark(line1, column1);
                   mark(line2, column2);
-                  DRAW_FLUSH;
-                  command := upper(getc(KEYBOARD));
+                  readHelpCommand(command);
                   if command <> 'H' then
                     found := TRUE;
                   end if;
@@ -1152,6 +1167,9 @@ const proc: help is func
         end if;
       end for;
     end for;
+    if command <> 'Q' and command <> KEY_CLOSE and command <> KEY_ESC then
+      command := KEY_NONE;
+    end if;
   end func;
 
 
@@ -1166,7 +1184,20 @@ const proc: playerMove (inout integer: line1, inout integer: column1,
     repeat
       command := upper(getc(KEYBOARD));
       if command = 'H' then
-        help;
+        help(command);
+        if command = 'Q' or command = KEY_CLOSE then
+          moveFinished := TRUE;
+        elsif command = KEY_ESC then
+          bossMode(moveFinished);
+          if moveFinished then
+            command := 'Q';
+          end if;
+        end if;
+      elsif command = KEY_ESC then
+        bossMode(moveFinished);
+        if moveFinished then
+          command := 'Q';
+        end if;
       elsif command <> KEY_MOUSE1 then
         moveFinished := TRUE;
       else
@@ -1341,13 +1372,14 @@ const proc: main is func
     var char: command is ' ';
   begin
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+    setCloseAction(curr_win, RETURN_KEY);
     clear(curr_win, white);
     KEYBOARD := GRAPH_KEYBOARD;
     screen := openPixmapFontFile(curr_win);
     setFont(screen, vecFont10);
     color(screen, black, white);
     writeCentered(screen, 22, "S H I S E N");
-    writeCentered(screen, 38, "Copyright (C) 2005  Thomas Mertes");
+    writeCentered(screen, 38, "Copyright (C) 2005, 2007, 2012, 2013, 2020  Thomas Mertes");
     writeCentered(screen, 54, "This program is free software under the terms of the GNU General Public License");
     writeCentered(screen, 652, "Shisen is written in the Seed7 programming language");
     writeCentered(screen, 668, "Homepage:    http://seed7.sourceforge.net");
@@ -1367,17 +1399,19 @@ const proc: main is func
     dealCards;
     writeCentered(screen, 696, "Press any key to start game");
     command := upper(getc(KEYBOARD));
-    rect(0, 0, WINDOW_WIDTH, UPPER_BORDER, white);
-    rect(0, WINDOW_HEIGHT - UPPER_BORDER, WINDOW_WIDTH, UPPER_BORDER, white);
-    while command <> 'Q' do
-      repeat
-        playerTurn(command);
-      until countCards = 0 or command = 'N' or command = 'Q';
-      if command <> 'N' and command <> 'Q' then
-        command := upper(getc(KEYBOARD));
-      end if;
-      if command <> 'Q' then
-        dealCards;
-      end if;
-    end while;
+    if command <> KEY_ESC then
+      rect(0, 0, WINDOW_WIDTH, UPPER_BORDER, white);
+      rect(0, WINDOW_HEIGHT - UPPER_BORDER, WINDOW_WIDTH, UPPER_BORDER, white);
+      while command <> 'Q' and command <> KEY_CLOSE do
+        repeat
+          playerTurn(command);
+        until countCards = 0 or command = 'N' or command = 'Q' or command = KEY_CLOSE;
+        if command <> 'N' and command <> 'Q' and command <> KEY_CLOSE then
+          command := upper(getc(KEYBOARD));
+        end if;
+        if command <> 'Q' and command <> KEY_CLOSE then
+          dealCards;
+        end if;
+      end while;
+    end if;
   end func;

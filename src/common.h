@@ -543,12 +543,13 @@ typedef int errInfoType;
 #define INDEX_ERROR     5
 #define FILE_ERROR      6
 #define DATABASE_ERROR  7
-#define ACTION_ERROR    8
-#define CREATE_ERROR    8
-#define DESTROY_ERROR   8
-#define COPY_ERROR      8
-#define IN_ERROR        8
-#define VALUE_ERROR     8
+#define CLOSE_ERROR     8
+#define ACTION_ERROR    9
+#define CREATE_ERROR    9
+#define DESTROY_ERROR   9
+#define COPY_ERROR      9
+#define IN_ERROR        9
+#define VALUE_ERROR     9
 
 
 #if HAS_SIGSETJMP

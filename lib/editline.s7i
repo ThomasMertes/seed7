@@ -218,7 +218,7 @@ const func string: getln (inout editLineFile: inEditLine) is func
           moveLeft(inEditLine.outFile, line[succ(pos) ..]);
           incr(pos);
         end if;
-      until ch = KEY_NL or ch = EOF;
+      until ch = KEY_NL or ch = EOF or ch = KEY_CLOSE;
       writeln(inEditLine.outFile);
       inEditLine.bufferChar := ch;
       if length(inEditLine.history) = 0 or

@@ -1,3 +1,54 @@
+20201208:
+- Answers to two new questions have been added to the FAQ. Answers to
+  three existing questions have been improved.
+- In dialog.s7i the function messageWindow() has been added and the
+  function isOkay() has been improved. Dialog windows are placed now at
+  the center of the main window (or screen if there is no main window).
+- The functions screenHeight(), screenWidth(), getBorder() and
+  setCloseAction() have been added to graph.s7i.
+- Definitions of while- and repeat-loops with empty loop body have been
+  added to seed7_05.s7i and syntax.s7i.
+- In seed7_05.s7i the new exception CLOSE_ERROR has been introduced and
+  enumeration types have been improved to support the function rand().
+- The calc7 example program has been improved to support the functions
+  getHttp() and getHttps().
+- In sokoban.sd7 the function to read a level number has been improved.
+- The programs castle.sd7, gkbd.sd7, klondike.sd7, lander.sd7,
+  mahjong.sd7, mandelbr.sd7, pairs.sd7, panic.sd7, planets.sd7,
+  shisen.sd7, sokoban.sd7, sudoku7.sd7, tetg.sd7 and wator.sd7 have
+  been improved to handle the close button (from the window title bar).
+- A boss mode has been added to the castle.sd7, sokoban.sd7, pairs.sd7
+  and shisen.sd7 example programs.
+- Tests for while- and repeat-loops have been added to chkprc.sd7.
+- Cosmetic improvements have been done in planets.sd7 and sl.sd7.
+- The key KEY_CLOSE has been added to keybd.s7i and keydescr.s7i.
+- The support for function types (func aType and proc) in the Seed7
+  compiler has been improved.
+- In drw_win.c the function drwOpen() has been improved to place the
+  window at the requested position.
+- In drw_x11.c the functions drwXPos() and drwYPos() have been improved
+  to return the position relative to the screen (instead of relative to
+  the parent window).
+- The functions drwBorder(), drwScreenHeight(), drwScreenWidth() and
+  drwSetCloseAction() have been added to drw_win.c, drw_x11.c and
+  drw_dos.c.
+- In gkb_win.c and gkb_x11.c the function gkbGetc() has been improved
+  to recognize the close button from the window title bar.
+- In gkb_win.c the function gkbKeyPressed() has been improved to handle
+  the close button from the window title bar.
+- The program chkccomp.c has been improved to determine the value
+  FREAD_WRONG_FOR_WRITE_ONLY_FILES.
+- The function XQueryTree has been added to fwd_x11.c and x11_x.h.
+- An explanation about C compiler warnings about "passing argument with
+  different width due to prototype" has been added to src/read_me.txt.
+- Documentation comments have been added or improved in dialog.s7i,
+  graph.s7i, sl.sd7, drwlib.c, drw_win.c and drw_x11.c.
+- In several files casts have been introduced to reduce the number of
+  warnings that are flagged with a historic version of gcc.
+- Interpreter and compiler have been improved to support the actions
+  DRW_BORDER, DRW_SCREEN_HEIGHT, DRW_SCREEN_WIDTH, DRW_SETCLOSEACTION,
+  PRC_REPEAT_NOOP, PRC_RETURN and PRC_WHILE_NOOP.
+
 20200929:
 - Support for link time optimization has been added. It is available if
   Seed7 is compiled with gcc or clang. The Seed7 compiler option -flto

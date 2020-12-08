@@ -36,29 +36,30 @@
 #define IDX_EXCEPTION(prog)         (prog)->sys_var[ 5]
 #define FIL_EXCEPTION(prog)         (prog)->sys_var[ 6]
 #define DB_EXCEPTION(prog)          (prog)->sys_var[ 7]
-#define ACT_ILLEGAL_EXCEPTION(prog) (prog)->sys_var[ 8]
-#define FALSE_OBJECT(prog)          (prog)->sys_var[ 9]
-#define TRUE_OBJECT(prog)           (prog)->sys_var[10]
-#define TYPE_TYPE(prog)             (prog)->sys_var[11]
-#define EXPR_TYPE(prog)             (prog)->sys_var[12]
-#define INT_TYPE(prog)              (prog)->sys_var[13]
-#define BIGINT_TYPE(prog)           (prog)->sys_var[14]
-#define CHAR_TYPE(prog)             (prog)->sys_var[15]
-#define STRI_TYPE(prog)             (prog)->sys_var[16]
-#define PROC_TYPE(prog)             (prog)->sys_var[17]
-#define FLT_TYPE(prog)              (prog)->sys_var[18]
-#define ASSIGN_OBJECT(prog)         (prog)->sys_var[19]
-#define CREA_OBJECT(prog)           (prog)->sys_var[20]
-#define DESTR_OBJECT(prog)          (prog)->sys_var[21]
-#define ORD_OBJECT(prog)            (prog)->sys_var[22]
-#define IN_OBJECT(prog)             (prog)->sys_var[23]
-#define DOT_OBJECT(prog)            (prog)->sys_var[24]
-#define VALUE_OBJECT(prog)          (prog)->sys_var[25]
-#define PROT_OUTFILE_OBJECT(prog)   (prog)->sys_var[26]
-#define FLUSH_OBJECT(prog)          (prog)->sys_var[27]
-#define WRITE_OBJECT(prog)          (prog)->sys_var[28]
-#define WRLN_OBJECT(prog)           (prog)->sys_var[29]
-#define MAIN_OBJECT(prog)           (prog)->sys_var[30]
+#define CLOSE_EXCEPTION(prog)       (prog)->sys_var[ 8]
+#define ACT_ILLEGAL_EXCEPTION(prog) (prog)->sys_var[ 9]
+#define FALSE_OBJECT(prog)          (prog)->sys_var[10]
+#define TRUE_OBJECT(prog)           (prog)->sys_var[11]
+#define TYPE_TYPE(prog)             (prog)->sys_var[12]
+#define EXPR_TYPE(prog)             (prog)->sys_var[13]
+#define INT_TYPE(prog)              (prog)->sys_var[14]
+#define BIGINT_TYPE(prog)           (prog)->sys_var[15]
+#define CHAR_TYPE(prog)             (prog)->sys_var[16]
+#define STRI_TYPE(prog)             (prog)->sys_var[17]
+#define PROC_TYPE(prog)             (prog)->sys_var[18]
+#define FLT_TYPE(prog)              (prog)->sys_var[19]
+#define ASSIGN_OBJECT(prog)         (prog)->sys_var[20]
+#define CREA_OBJECT(prog)           (prog)->sys_var[21]
+#define DESTR_OBJECT(prog)          (prog)->sys_var[22]
+#define ORD_OBJECT(prog)            (prog)->sys_var[23]
+#define IN_OBJECT(prog)             (prog)->sys_var[24]
+#define DOT_OBJECT(prog)            (prog)->sys_var[25]
+#define VALUE_OBJECT(prog)          (prog)->sys_var[26]
+#define PROT_OUTFILE_OBJECT(prog)   (prog)->sys_var[27]
+#define FLUSH_OBJECT(prog)          (prog)->sys_var[28]
+#define WRITE_OBJECT(prog)          (prog)->sys_var[29]
+#define WRLN_OBJECT(prog)           (prog)->sys_var[30]
+#define MAIN_OBJECT(prog)           (prog)->sys_var[31]
 
 #define SYS_EMPTY_OBJECT          EMPTY_OBJECT(prog)
 #define SYS_MEM_EXCEPTION         MEM_EXCEPTION(prog)
@@ -68,6 +69,7 @@
 #define SYS_IDX_EXCEPTION         IDX_EXCEPTION(prog)
 #define SYS_FIL_EXCEPTION         FIL_EXCEPTION(prog)
 #define SYS_DB_EXCEPTION          DB_EXCEPTION(prog)
+#define SYS_CLOSE_EXCEPTION       CLOSE_EXCEPTION(prog)
 #define SYS_ACT_ILLEGAL_EXCEPTION ACT_ILLEGAL_EXCEPTION(prog)
 #define SYS_FALSE_OBJECT          FALSE_OBJECT(prog)
 #define SYS_TRUE_OBJECT           TRUE_OBJECT(prog)

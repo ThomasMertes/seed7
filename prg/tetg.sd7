@@ -388,7 +388,7 @@ const proc: set_piece (in tetromino_type: tetromino) is func
           rotate(actual_piece);
         elsif command = KEY_DOWN or command = KEY_PAD_CENTER then
           drop(actual_piece);
-        elsif command = 'q' or command = 'Q' then
+        elsif command = 'q' or command = 'Q' or command = KEY_CLOSE then
           actual_piece.moving := FALSE;
           quit_round := TRUE;
         end if;
@@ -448,6 +448,7 @@ const proc: main is func
     var char: ch is ' ';
   begin
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+    setCloseAction(curr_win, RETURN_KEY);
     clear(curr_win, white);
     color(white, black);
     KEYBOARD := GRAPH_KEYBOARD;
@@ -492,8 +493,8 @@ const proc: main is func
       write(info_sheet, "Another round? ");
       repeat
         ch := upper(getc(KEYBOARD));
-      until ch = 'Y' or ch = 'N';
+      until ch = 'Y' or ch = 'N' or ch = KEY_CLOSE;
       setPos(info_sheet, 20, 2);
       write(info_sheet, "               ");
-    until ch = 'N';
+    until ch = 'N' or ch = KEY_CLOSE;
   end func;

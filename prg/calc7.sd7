@@ -70,6 +70,8 @@ const proc: main is func
           \include \"msgdigest.s7i\";\n\
           \include \"osfiles.s7i\";\n\
           \include \"getf.s7i\";\n\
+          \include \"gethttp.s7i\";\n\
+          \include \"gethttps.s7i\";\n\
           \include \"keybd.s7i\";\n\
           \\n\
           \const proc: main is func\n\

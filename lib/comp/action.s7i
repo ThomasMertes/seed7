@@ -538,6 +538,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_BACKGROUND"}:
         drawLibraryUsed := TRUE;
         process(DRW_BACKGROUND, function, params, c_expr);
+      when {"DRW_BORDER"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_BORDER, function, params, c_expr);
       when {"DRW_CIRCLE"}:
         drawLibraryUsed := TRUE;
         process(DRW_CIRCLE, function, params, c_expr);
@@ -670,6 +673,15 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_RGBCOL"}:
         drawLibraryUsed := TRUE;
         process(DRW_RGBCOL, function, params, c_expr);
+      when {"DRW_SCREEN_HEIGHT"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_SCREEN_HEIGHT, function, params, c_expr);
+      when {"DRW_SCREEN_WIDTH"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_SCREEN_WIDTH, function, params, c_expr);
+      when {"DRW_SETCLOSEACTION"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_SETCLOSEACTION, function, params, c_expr);
       when {"DRW_SETCONTENT"}:
         drawLibraryUsed := TRUE;
         process(DRW_SETCONTENT, function, params, c_expr);
@@ -1222,8 +1234,14 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(PRC_RAISE, function, params, c_expr);
       when {"PRC_REPEAT"}:
         process(PRC_REPEAT, function, params, c_expr);
+      when {"PRC_REPEAT_NOOP"}:
+        process(PRC_REPEAT_NOOP, function, params, c_expr);
+      when {"PRC_RETURN"}:
+        process(PRC_RETURN, function, params, c_expr);
       when {"PRC_WHILE"}:
         process(PRC_WHILE, function, params, c_expr);
+      when {"PRC_WHILE_NOOP"}:
+        process(PRC_WHILE_NOOP, function, params, c_expr);
       when {"PRG_CPY"}:
         process(PRG_CPY, function, params, c_expr);
       when {"PRG_EQ"}:

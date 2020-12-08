@@ -44,7 +44,8 @@ const integer: centerY is 345;
 const integer: panoramaHorizont is 700;
 const integer: panoramaXMin is 62;
 const float:   sizePanorama is 900.0;
-const integer: screenHeight is 768;
+const integer: windowWidth is 1024;
+const integer: windowHeight is 768;
 const float:   screenAspect is 1.0;
 const integer: scaleForInnerPlanets is 210;
 const integer: scaleForOuterPlanets is 9;
@@ -466,18 +467,18 @@ const proc: plotPlanet (in integer: planetNumber, in integer: scale) is func
             centerY;
     newX := round(flt(scale) * planet.radiusVector * cosD(planet.heliocentricLongitude) *
             screenAspect) + centerX;
-    fcircle(newX, screenHeight - newY, 3, light_cyan);
-    setPosXY(scr, newX + 4, screenHeight - newY);
+    fcircle(newX, windowHeight - newY, 3, light_cyan);
+    setPosXY(scr, newX + 4, windowHeight - newY);
     write(scr, orbitDescr[planetNumber].name);
 
     newX := centerX + round(computeRadiusVector(planet, 0) * flt(scale) * screenAspect);
-    newY := screenHeight - centerY;
+    newY := windowHeight - centerY;
     for angle range 1 to 60 do
       oldX := newX;
       oldY := newY;
       newX := round(computeRadiusVector(planet, angle * 6) * flt(scale) * screenAspect
               * cosD(flt(angle * 6))) + centerX;
-      newY := screenHeight -
+      newY := windowHeight -
               (round(computeRadiusVector(planet, angle * 6) * flt(scale) * sinD(flt(angle * 6)))
               + centerY);
       lineTo(oldX, oldY, newX, newY, light_cyan);
@@ -575,8 +576,8 @@ const proc: plotInnerPlanets is func
     writeln(win, "  Select time step");
     writeln(win, "Vertical cursor keys:");
     write(win,   "  Add or subtract a time step");
-    fcircle(centerX, screenHeight - centerY, 3, light_cyan);
-    setPosXY(scr, centerX + 4, screenHeight - centerY);
+    fcircle(centerX, windowHeight - centerY, 3, light_cyan);
+    setPosXY(scr, centerX + 4, windowHeight - centerY);
     write(scr, "Sun");
     for planetNumber range 1 to 4 do
       plotPlanet(planetNumber, scaleForInnerPlanets);
@@ -600,7 +601,7 @@ const proc: plotOuterPlanets is func
     writeln(win, "  Select time step");
     writeln(win, "Vertical cursor keys:");
     write(win,   "  Add or subtract a time step");
-    point(centerX, screenHeight - centerY, light_cyan);
+    point(centerX, windowHeight - centerY, light_cyan);
     plotPlanet(3, scaleForOuterPlanets);
     for planetNumber range 5 to 9 do
       plotPlanet(planetNumber, scaleForOuterPlanets);
@@ -917,7 +918,7 @@ const proc: drawStars is func
         xPos := panoramaXPos(horizontalCoordinate.azimuth);
         yPos := panoramaYPos(horizontalCoordinate.altitude);
         writePoint(xPos, yPos, stars[index].magnitude);
-        if xPos + round(sizePanorama) < 1024 then
+        if xPos + round(sizePanorama) < windowWidth then
           writePoint(xPos + round(sizePanorama), yPos, stars[index].magnitude);
         end if;
         if xPos - round(sizePanorama) >= 0 then
@@ -1090,8 +1091,8 @@ const proc: locatePlanet (in integer: planetNumber) is func
         write(win, "  Azimuth ");
         write(win, angleAsDegrees(azimuthOfSet));
 
-        line(panoramaXPos(azimuthOfRise), panoramaHorizont - 2, 0, 4, light_cyan);
-        line(panoramaXPos(azimuthOfSet), panoramaHorizont - 2, 0, 4, light_cyan);
+        line(panoramaXPos(azimuthOfRise), panoramaHorizont - 4, 0, 4, light_red);
+        line(panoramaXPos(azimuthOfSet), panoramaHorizont - 4, 0, 4, light_red);
       end if;
 
 
@@ -1181,7 +1182,7 @@ const proc: showName is func
           selectedStar := index;
           minDelta := delta;
         end if;
-        if xPos + round(sizePanorama) < 1024 then
+        if xPos + round(sizePanorama) < windowWidth then
           delta := (mouseXPos - xPos - round(sizePanorama)) ** 2 + (mouseYPos - yPos) ** 2;
           if selectedStar = 0 or delta < minDelta then
             selectedStar := index;
@@ -1251,7 +1252,7 @@ const proc: showName is func
     if minDelta <= 900 then
       setPosXY(scr, xPos + 4, yPos);
       write(name);
-      if xPos + round(sizePanorama) < 1024 then
+      if xPos + round(sizePanorama) < windowWidth then
         setPosXY(scr, xPos + round(sizePanorama) + 4, yPos);
         write(name);
       end if;
@@ -1408,7 +1409,8 @@ const proc: main is func
     var char: command is 'M';
     var char: old_command is 'M';
   begin
-    screen(1024, 768);
+    screen(windowWidth, windowHeight);
+    setCloseAction(curr_win, RETURN_KEY);
     clear(curr_win, black);
     KEYBOARD := GRAPH_KEYBOARD;
     scr := open(curr_win);
@@ -1478,5 +1480,5 @@ const proc: main is func
       end case;
       setPos(scr, 58, 1);
       write(scr, "(M)enu (I)nner (O)uter (D)ate (L)ong (Q)uit  (1-9) Planet");
-    until ch = 'Q' or ch = 'q';
+    until ch = 'Q' or ch = 'q' or ch = KEY_CLOSE;
   end func;

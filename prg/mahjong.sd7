@@ -494,6 +494,8 @@ const func char: getCommand is func
       if doQuit then
         command := 'Q';
       end if;
+    elsif command = KEY_CLOSE then
+      command := 'Q';
     end if;
   end func;
 
@@ -1787,6 +1789,7 @@ const proc: main is func
     var char: command is ' ';
   begin
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+    setCloseAction(curr_win, RETURN_KEY);
     clear(curr_win, BACKGROUND);
     KEYBOARD := GRAPH_KEYBOARD;
     screen := openPixmapFontFile(curr_win);

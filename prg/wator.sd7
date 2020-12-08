@@ -567,6 +567,7 @@ const proc: main is func
     var integer: newSharkGraph is 0;
   begin
     screen(640, 480);
+    setCloseAction(curr_win, RETURN_KEY);
     clear(black);
     scr := openPixmapFontFile(curr_win, 35, 10);
     setFont(scr, stdFont9);
@@ -578,7 +579,7 @@ const proc: main is func
     IN := openEditLine(KEYBOARD, info);
     introduction;
     inchar := upper(getc(KEYBOARD));
-    while inchar <> 'Q' and inchar <> KEY_ESC do
+    while inchar <> 'Q' and inchar <> KEY_CLOSE and inchar <> KEY_ESC do
       clear(black);
       initialize;
       oldFishGraph := GRAPH_BOTTOM - sumContent[FISH] div SCALE_FISH;
@@ -599,7 +600,7 @@ const proc: main is func
       erase(info, " N to start a new simulation");
       writeln(info);
       erase(info, " Q to Quit");
-      while inchar not in {'N', 'Q', KEY_ESC} do
+      while inchar not in {'N', 'Q', KEY_CLOSE, KEY_ESC} do
         moveAllFish;
         moveAllSharks;
         display;

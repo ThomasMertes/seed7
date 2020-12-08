@@ -682,6 +682,12 @@ WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
      critical paths of the program. At places that are not
      performance critical I do some of this "unnecessary"
      initializations just to avoid such warnings.
+   - Warnings about passing argument with different width due to
+     prototype: Some compilers write such warnings for formal
+     boolean (boolType) parameters and actual boolean arguments.
+     Since the types of parameter and argument are identical and
+     a prototype is specified this warning can be considered as
+     false alarm.
 
 
 WHAT TO DO WITH ERRORS TRIGGERED BY SEED7 PROGRAMS?

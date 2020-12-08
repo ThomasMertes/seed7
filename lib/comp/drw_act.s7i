@@ -27,6 +27,7 @@
 const ACTION: DRW_ARC                  is action "DRW_ARC";
 const ACTION: DRW_ARC2                 is action "DRW_ARC2";
 const ACTION: DRW_BACKGROUND           is action "DRW_BACKGROUND";
+const ACTION: DRW_BORDER               is action "DRW_BORDER";
 const ACTION: DRW_CIRCLE               is action "DRW_CIRCLE";
 const ACTION: DRW_CLEAR                is action "DRW_CLEAR";
 const ACTION: DRW_CMP                  is action "DRW_CMP";
@@ -71,6 +72,9 @@ const ACTION: DRW_PRECT                is action "DRW_PRECT";
 const ACTION: DRW_PUT                  is action "DRW_PUT";
 const ACTION: DRW_RECT                 is action "DRW_RECT";
 const ACTION: DRW_RGBCOL               is action "DRW_RGBCOL";
+const ACTION: DRW_SCREEN_HEIGHT        is action "DRW_SCREEN_HEIGHT";
+const ACTION: DRW_SCREEN_WIDTH         is action "DRW_SCREEN_WIDTH";
+const ACTION: DRW_SETCLOSEACTION       is action "DRW_SETCLOSEACTION";
 const ACTION: DRW_SETCONTENT           is action "DRW_SETCONTENT";
 const ACTION: DRW_SETPOS               is action "DRW_SETPOS";
 const ACTION: DRW_SETTRANSPARENTCOLOR  is action "DRW_SETTRANSPARENTCOLOR";
@@ -91,6 +95,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwArc (const_winType, intType, intType, intType, floatType, floatType);");
     declareExtern(c_prog, "void        drwArc2 (const_winType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwBackground (intType);");
+    declareExtern(c_prog, "arrayType   drwBorder (const_winType);");
     declareExtern(c_prog, "void        drwCircle (const_winType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwClear (winType, intType);");
     declareExtern(c_prog, "void        drwColor (intType);");
@@ -119,6 +124,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "winType     drwNewPixmap (intType, intType);");
     declareExtern(c_prog, "winType     drwOpen (intType, intType, intType, intType, const const_striType);");
     declareExtern(c_prog, "winType     drwOpenSubWindow (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwSetCloseAction (winType, intType);");
     declareExtern(c_prog, "void        drwPArc (const_winType, intType, intType, intType, floatType, floatType, intType);");
     declareExtern(c_prog, "void        drwPCircle (const_winType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwPFArcChord (const_winType, intType, intType, intType, floatType, floatType, intType);");
@@ -136,6 +142,8 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwRect (const_winType, intType, intType, intType, intType);");
     declareExtern(c_prog, "intType     drwRgbColor (intType, intType, intType);");
     declareExtern(c_prog, "winType     drwRtlImage (const_arrayType);");
+    declareExtern(c_prog, "intType     drwScreenHeight (void);");
+    declareExtern(c_prog, "intType     drwScreenWidth (void);");
     declareExtern(c_prog, "void        drwSetContent (const_winType, const_winType);");
     declareExtern(c_prog, "void        drwSetPos (const_winType, intType, intType);");
     declareExtern(c_prog, "void        drwSetTransparentColor (winType, intType);");
@@ -199,6 +207,20 @@ const proc: process (DRW_BACKGROUND, in reference: function,
     c_expr.expr &:= "drwBackground(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_BORDER, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: result_type is void;
+  begin
+    result_type := resultType(getType(function));
+    prepare_typed_result(result_type, c_expr);
+    c_expr.result_expr := "drwBorder(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ");\n";
   end func;
 
 
@@ -960,6 +982,35 @@ const proc: process (DRW_RGBCOL, in reference: function,
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_SCREEN_HEIGHT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwScreenHeight()";
+  end func;
+
+
+const proc: process (DRW_SCREEN_WIDTH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwScreenWidth()";
+  end func;
+
+
+const proc: process (DRW_SETCLOSEACTION, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwSetCloseAction(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
   end func;
 
 

@@ -46,7 +46,10 @@ const ACTION: PRC_IF_ELSIF         is action "PRC_IF_ELSIF";
 const ACTION: PRC_NOOP             is action "PRC_NOOP";
 const ACTION: PRC_RAISE            is action "PRC_RAISE";
 const ACTION: PRC_REPEAT           is action "PRC_REPEAT";
+const ACTION: PRC_REPEAT_NOOP      is action "PRC_REPEAT_NOOP";
+const ACTION: PRC_RETURN           is action "PRC_RETURN";
 const ACTION: PRC_WHILE            is action "PRC_WHILE";
+const ACTION: PRC_WHILE_NOOP       is action "PRC_WHILE_NOOP";
 
 
 const proc: prc_prototypes (inout file: c_prog) is func
@@ -367,6 +370,34 @@ const proc: process (PRC_WHILE, in reference: function,
   end func;
 
 
+const proc: process (PRC_WHILE_NOOP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_condition is expr_type.value;
+  begin
+    c_condition.temp_num := c_expr.temp_num;
+    process_call_by_name_expr(params[2], c_condition);
+    c_expr.temp_num := c_condition.temp_num;
+    if c_condition.temp_decls <> "" then
+      c_expr.expr &:= "{\n";
+      appendWithDiagnostic(c_condition.temp_decls, c_expr);
+      appendWithDiagnostic(c_condition.temp_assigns, c_expr);
+    end if;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "while (";
+    c_expr.expr &:= c_condition.expr;
+    c_expr.expr &:= ") {\n";
+    c_expr.expr &:= "}\n";
+    if c_condition.temp_decls <> "" then
+      c_expr.currentFile := file(params[2]);
+      c_expr.currentLine := line(params[2]);
+      appendWithDiagnostic(c_condition.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
 const proc: process (PRC_REPEAT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -397,6 +428,51 @@ const proc: process (PRC_REPEAT, in reference: function,
       appendWithDiagnostic(c_condition.temp_frees, c_expr);
       c_expr.expr &:= "}\n";
     end if;
+  end func;
+
+
+const proc: process (PRC_REPEAT_NOOP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_condition is expr_type.value;
+  begin
+    c_condition.temp_num := c_expr.temp_num;
+    process_call_by_name_expr(params[3], c_condition);
+    c_expr.temp_num := c_condition.temp_num;
+    if c_condition.temp_decls <> "" then
+      c_expr.expr &:= "{\n";
+      appendWithDiagnostic(c_condition.temp_decls, c_expr);
+      appendWithDiagnostic(c_condition.temp_assigns, c_expr);
+    end if;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "do {\n";
+    c_expr.expr &:= diagnosticLine(params[3]);
+    c_expr.expr &:= "} while (!(";
+    c_expr.expr &:= c_condition.expr;
+    c_expr.expr &:= "));\n";
+    if c_condition.temp_decls <> "" then
+      c_expr.currentFile := file(params[3]);
+      c_expr.currentLine := line(params[3]);
+      appendWithDiagnostic(c_condition.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: processFuncValue (in string: valueName, in type: genericFuncType,
+    in reference: closure, inout expr_type: c_expr) is forward;
+
+
+const proc: process (PRC_RETURN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: valueName is "";
+  begin
+    create_name(params[2], objNumber(params[2]), valueName);
+    processFuncValue(valueName, getType(params[2]), params[2], c_expr);
+    c_expr.result_expr := c_expr.expr;
   end func;
 
 
@@ -1117,10 +1193,6 @@ const proc: process (PRC_ARGS, in reference: function, in ref_list: params,
   end func;
 
 
-const proc: processFuncValue (in string: valueName, in type: genericFuncType,
-    in reference: closure, inout expr_type: c_expr) is forward;
-
-
 const proc: process (PRC_CPY, in reference: function, in ref_list: params,
     inout expr_type: c_expr) is func
 
@@ -1129,40 +1201,28 @@ const proc: process (PRC_CPY, in reference: function, in ref_list: params,
     var string: valueName is "";
   begin
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "/* prc_cpy */ ";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= " = ";
     if isVar(params[3]) then
-      # c_expr.expr &:= "o_";
-      # create_name(params[1], c_expr.expr);
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= " = o_";
+      c_expr.expr &:= "o_";
       create_name(params[3], c_expr.expr);
-      c_expr.expr &:= ";\n";
-    elsif isFunc(getType(params[3])) and getType(params[1]) = resultType(getType(params[3])) then
-      c_expr.expr &:= "/* call func */ ";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= " = ";
+    elsif getType(params[1]) = resultType(getType(params[3])) then
       process_expr(params[3], c_expr);
-      c_expr.expr &:= ";\n";
+    elsif getType(params[1]) = getType(params[3]) then
+      create_name(params[3], objNumber(params[3]), valueName);
+      processFuncValue(valueName, getType(params[3]), params[3], c_expr);
     else
       paramCategory := category(params[3]);
       if paramCategory = MATCHOBJECT or paramCategory = CALLOBJECT or
           paramCategory = BLOCKOBJECT then
-        # c_expr.expr &:= "o_";
-        # create_name(params[1], c_expr.expr);
-        process_expr(params[1], c_expr);
-        c_expr.expr &:= " = ";
         create_name(params[3], objNumber(params[3]), valueName);
         processFuncValue(valueName, getType(params[3]), params[3], c_expr);
-        c_expr.expr &:= ";\n";
       else
-        # c_expr.expr &:= "o_";
-        # create_name(params[1], c_expr.expr);
-        process_expr(params[1], c_expr);
-        c_expr.expr &:= " = o_";
+        c_expr.expr &:= "o_";
         create_name(params[3], c_expr.expr);
-        c_expr.expr &:= ";\n";
       end if;
     end if;
+    c_expr.expr &:= ";\n";
   end func;
 
 

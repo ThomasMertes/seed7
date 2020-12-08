@@ -26,6 +26,8 @@
 (********************************************************************)
 
 
+include "draw.s7i";
+include "keybd.s7i";
 include "graph_file.s7i";
 
 
@@ -52,18 +54,20 @@ const proc: writeButton (inout text: messageFile,
 
 
 (**
- *  Returns the answer (yes or no) of the user to 'messagText'.
- *  A popup window with the 'messagText' and two buttons (yes and no)
+ *  Returns the answer (yes or no) of the user to 'messageText'.
+ *  A popup window with the 'messageText' and two buttons (yes and no)
  *  is displayed. The user can use the keyboard or the mouse to
  *  respond.
  *  @return TRUE if 'yes' was pressed and FALSE if 'no' was pressed.
  *)
-const func boolean: isOkay (in array string: messagText) is func
+const func boolean: isOkay (in array string: messageText) is func
   result
     var boolean: okay is FALSE;
   local
     const integer: charHeight is 16;
     const integer: charWidth  is  8;
+    var integer: windowXPos is 0;
+    var integer: windowYPos is 0;
     var integer: windowHeight is 0;
     var integer: windowWidth is 0;
     var PRIMITIVE_WINDOW: popupWindow is PRIMITIVE_WINDOW.value;
@@ -79,16 +83,24 @@ const func boolean: isOkay (in array string: messagText) is func
     var integer: yPos is 0;
     var char: ch is ' ';
   begin
-    windowHeight := 84 + length(messagText) * charHeight;
+    windowHeight := 84 + length(messageText) * charHeight;
     windowWidth := 200;
-    for number range 1 to length(messagText) do
-      if length(messagText[number]) * charWidth > windowWidth then
-        windowWidth := length(messagText[number]) * charWidth;
+    for number range 1 to length(messageText) do
+      if length(messageText[number]) * charWidth > windowWidth then
+        windowWidth := length(messageText[number]) * charWidth;
       end if;
     end for;
-    popupWindow := PRIMITIVE_GRAPHIC_OPEN(0, 0, windowWidth, windowHeight, "Yes or No");
+    if curr_win <> PRIMITIVE_WINDOW.value then
+      windowXPos := xPos(curr_win) + (width(curr_win) - windowWidth) mdiv 2;
+      windowYPos := yPos(curr_win) + (height(curr_win) - windowHeight) mdiv 2;
+    else
+      windowXPos := (screenWidth() - windowWidth) mdiv 2;
+      windowYPos := (screenHeight() - windowHeight) mdiv 2;
+    end if;
+    popupWindow := PRIMITIVE_GRAPHIC_OPEN(windowXPos, windowYPos, windowWidth, windowHeight, "Yes or No");
+    setCloseAction(popupWindow, RETURN_KEY);
     clear(popupWindow, light_gray);
-    if odd(length(messagText)) then
+    if odd(length(messageText)) then
       messageFile := open(popupWindow);
     else
       messageFile := open(popupWindow, 0, charHeight div 2);
@@ -96,10 +108,10 @@ const func boolean: isOkay (in array string: messagText) is func
     buttonTextFile := open(popupWindow);
     color(messageFile, black, light_gray);
     color(buttonTextFile, black, light_gray);
-    for number range 1 to length(messagText) do
-      setPos(messageFile, height(messageFile) div 3 - length(messagText) div 2 + number,
-          width(messageFile) div 2 - length(messagText[number]) div 2);
-      writeln(messageFile, messagText[number]);
+    for number range 1 to length(messageText) do
+      setPos(messageFile, height(messageFile) div 3 - length(messageText) div 2 + number,
+          width(messageFile) div 2 - length(messageText[number]) div 2);
+      writeln(messageFile, messageText[number]);
     end for;
     yesButtonXPos := width(popupWindow) div 4;
     noButtonXPos := width(popupWindow) div 4 * 3 - 40;
@@ -111,11 +123,11 @@ const func boolean: isOkay (in array string: messagText) is func
     else
       box(popupWindow, pred(noButtonXPos), pred(buttonYPos), 43, 23, black);
     end if;
-    ch := upper(getc(KEYBOARD));
+    ch := upper(getc(GRAPH_KEYBOARD));
     while not finished do
-      if ch = KEY_MOUSE1 and buttonWindow(KEYBOARD) = popupWindow then
-        xPos := getxpos(KEYBOARD);
-        yPos := getypos(KEYBOARD);
+      if ch = KEY_MOUSE1 and buttonWindow(GRAPH_KEYBOARD) = popupWindow then
+        xPos := getxpos(GRAPH_KEYBOARD);
+        yPos := getypos(GRAPH_KEYBOARD);
         if yPos >= buttonYPos  and yPos <= buttonYPos + 20 then
           if xPos >= yesButtonXPos and xPos <= yesButtonXPos + 40 then
             okay := TRUE;
@@ -136,16 +148,120 @@ const func boolean: isOkay (in array string: messagText) is func
       elsif ch = KEY_NL then
         okay := yesButtonActive;
         finished := TRUE;
-      elsif ch = 'Y' or ch = 'N' then
+      elsif ch = 'Y' or ch = 'N' or
+          ch = KEY_CLOSE and buttonWindow(GRAPH_KEYBOARD) = popupWindow then
         okay := ch = 'Y';
         finished := TRUE;
       end if;
       if not finished then
-        ch := upper(getc(KEYBOARD));
+        toTop(popupWindow);
+        ch := upper(getc(GRAPH_KEYBOARD));
       end if;
     end while;
     close(messageFile);
     close(buttonTextFile);
+  end func;
+
+
+(**
+ *  Returns the answer (yes or no) of the user to 'messageText'.
+ *  A popup window with the 'messageText' and two buttons (yes and no)
+ *  is displayed. The user can use the keyboard or the mouse to
+ *  respond.
+ *  @return TRUE if 'yes' was pressed and FALSE if 'no' was pressed.
+ *)
+const func boolean: isOkay (in string: messageText) is
+  return isOkay([] (messageText));
+
+
+(**
+ *  Display a popup window with the 'messageText' and a ok button.
+ *  The user can use the keyboard or the mouse to respond.
+ *)
+const proc: messageWindow (in array string: messageText) is func
+  local
+    const integer: charHeight is 16;
+    const integer: charWidth  is  8;
+    var integer: windowXPos is 0;
+    var integer: windowYPos is 0;
+    var integer: windowHeight is 0;
+    var integer: windowWidth is 0;
+    var PRIMITIVE_WINDOW: popupWindow is PRIMITIVE_WINDOW.value;
+    var text: messageFile is STD_NULL;
+    var text: buttonTextFile is STD_NULL;
+    var integer: number is 0;
+    var integer: okButtonXPos is 0;
+    var integer: okButtonYPos is 0;
+    var boolean: finished is FALSE;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var char: ch is ' ';
+  begin
+    windowHeight := 84 + length(messageText) * charHeight;
+    windowWidth := 200;
+    for number range 1 to length(messageText) do
+      if length(messageText[number]) * charWidth > windowWidth then
+        windowWidth := length(messageText[number]) * charWidth;
+      end if;
+    end for;
+    if curr_win <> PRIMITIVE_WINDOW.value then
+      windowXPos := xPos(curr_win) + (width(curr_win) - windowWidth) mdiv 2;
+      windowYPos := yPos(curr_win) + (height(curr_win) - windowHeight) mdiv 2;
+    else
+      windowXPos := (screenWidth() - windowWidth) mdiv 2;
+      windowYPos := (screenHeight() - windowHeight) mdiv 2;
+    end if;
+    popupWindow := PRIMITIVE_GRAPHIC_OPEN(windowXPos, windowYPos, windowWidth, windowHeight, "Message");
+    setCloseAction(popupWindow, RETURN_KEY);
+    clear(popupWindow, light_gray);
+    if odd(length(messageText)) then
+      messageFile := open(popupWindow);
+    else
+      messageFile := open(popupWindow, 0, charHeight div 2);
+    end if;
+    buttonTextFile := open(popupWindow);
+    color(messageFile, black, light_gray);
+    color(buttonTextFile, black, light_gray);
+    for number range 1 to length(messageText) do
+      setPos(messageFile, height(messageFile) div 3 - length(messageText) div 2 + number,
+          width(messageFile) div 2 - length(messageText[number]) div 2);
+      writeln(messageFile, messageText[number]);
+    end for;
+    okButtonXPos := width(popupWindow) div 4 * 3 - 40;
+    okButtonYPos := height(popupWindow) div 3 * 2 - 10;
+    writeButton(buttonTextFile, okButtonXPos, okButtonYPos, "OK");
+    box(popupWindow, pred(okButtonXPos), pred(okButtonYPos), 43, 23, black);
+    ch := upper(getc(GRAPH_KEYBOARD));
+    while not finished do
+      if ch = KEY_MOUSE1 and buttonWindow(GRAPH_KEYBOARD) = popupWindow then
+        xPos := getxpos(GRAPH_KEYBOARD);
+        yPos := getypos(GRAPH_KEYBOARD);
+        if yPos >= okButtonYPos  and yPos <= okButtonYPos + 20 then
+          if xPos >= okButtonXPos and xPos <= okButtonXPos + 40 then
+            finished := TRUE;
+          end if;
+        end if;
+      elsif ch = KEY_NL or ch = ' ' or
+          ch = KEY_CLOSE and buttonWindow(GRAPH_KEYBOARD) = popupWindow then
+        finished := TRUE;
+      end if;
+      if not finished then
+        toTop(popupWindow);
+        ch := upper(getc(GRAPH_KEYBOARD));
+      end if;
+    end while;
+    close(messageFile);
+    close(buttonTextFile);
+  end func;
+
+
+(**
+ *  Display a popup window with the 'messageText' and a ok button.
+ *  The user can use the keyboard or the mouse to respond.
+ *)
+const proc: messageWindow (in string: messageText) is func
+  begin
+    messageWindow([] (messageText));
   end func;
 
 
@@ -177,7 +293,7 @@ const proc: bossMode (inout boolean: doQuit) is func
     writeln(txt, "That way the user has the possibility to continue or to quit the program.");
     repeat
       cmd := getc(KEYBOARD);
-      if cmd in {'Q', 'q'} then
+      if cmd in {'Q', 'q', KEY_CLOSE} then
         doQuit := TRUE;
       elsif cmd in {'P', 'p'} then
         put(0, 0, savedWindow, PSET);

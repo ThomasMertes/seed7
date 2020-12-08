@@ -41,6 +41,7 @@
 #include "common.h"
 #include "data_rtl.h"
 #include "hsh_rtl.h"
+#include "rtl_err.h"
 #include "kbd_drv.h"
 
 
@@ -61,6 +62,8 @@ static const charType map_1252_to_unicode[] = {
 /* 136 */ 0x02C6, 0x2030, 0x0160, 0x2039, 0x0152,    '?', 0x017D,    '?',
 /* 144 */    '?', 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
 /* 152 */ 0x02DC, 0x2122, 0x0161, 0x203A, 0x0153,    '?', 0x017E, 0x0178};
+
+extern int getCloseAction (winType actual_window);
 
 #ifdef DMC_GKB_WIN_DEFINES
 #define WM_MOUSEWHEEL                   0x020A
@@ -630,11 +633,24 @@ charType gkbGetc (void)
                             "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
                             msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
                             GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
-          TranslateMessage(&msg);
-          DispatchMessage(&msg);
-          if (msg.wParam == HTCLOSE && !IsWindow(msg.hwnd)) {
+          if (msg.wParam == HTCLOSE && IsWindow(msg.hwnd)) {
             /* printf("HTCLOSE\n"); */
-            exit(1);
+            switch (getCloseAction(find_window(msg.hwnd))) {
+              case CLOSE_BUTTON_CLOSES_PROGRAM:
+                exit(0);
+                break;
+              case CLOSE_BUTTON_RETURNS_KEY:
+                result = K_CLOSE;
+                button_window = msg.hwnd;
+                break;
+              case CLOSE_BUTTON_RAISES_EXCEPTION:
+                raise_error(CLOSE_ERROR);
+                result = K_CLOSE;
+                break;
+            } /* switch */
+          } else {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
           } /* if */
         } else if (msg.message == WM_CHAR) {
           traceEvent(printf("WM_CHAR hwnd=%lu, msg.wParam=%d, lParam=%x\n",
@@ -712,23 +728,25 @@ boolType gkbKeyPressed (void)
           break;
         case WM_NCLBUTTONDOWN:
           /* printf("gkbKeyPressed WM_NCLBUTTONDOWN\n"); */
-          bRet = GetMessage(&msg, NULL, 0, 0);
-          if (bRet == 0) {
-            logError(printf("x GetMessage(&msg, NULL, 0, 0)=0\n"););
-          } else if (bRet == -1) {
-            logError(printf("x GetMessage(&msg, NULL, 0, 0)=-1\n"););
+          if (msg.wParam == HTCLOSE && IsWindow(msg.hwnd)) {
+            /* printf("HTCLOSE\n"); */
+            msg_present = 0;
+            result = TRUE;
           } else {
-            /* printf("x message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-            TranslateMessage(&msg);
-            /* printf("x translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-            DispatchMessage(&msg);
-            /* printf("x after DispatchMessage\n"); */
-            if (msg.wParam == HTCLOSE && !IsWindow(msg.hwnd)) {
-              /* printf("HTCLOSE\n"); */
-              exit(1);
+            bRet = GetMessage(&msg, NULL, 0, 0);
+            if (bRet == 0) {
+              logError(printf("x GetMessage(&msg, NULL, 0, 0)=0\n"););
+            } else if (bRet == -1) {
+              logError(printf("x GetMessage(&msg, NULL, 0, 0)=-1\n"););
+            } else {
+              /* printf("x message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+              TranslateMessage(&msg);
+              /* printf("x translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+              DispatchMessage(&msg);
+              /* printf("x dispatched message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             } /* if */
+            msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
           } /* if */
-          msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;
         case WM_SYSKEYUP:
           /* printf("gkbKeyPressed WM_SYSKEYUP\n"); */
@@ -923,6 +941,22 @@ charType gkbRawGetc (void)
 
 
 
+intType gkbButtonXpos (void)
+
+  { /* gkbButtonXpos */
+    return button_x;
+  } /* gkbButtonXpos */
+
+
+
+intType gkbButtonYpos (void)
+
+  { /* gkbButtonYpos */
+    return button_y;
+  } /* gkbButtonYpos */
+
+
+
 winType gkbWindow (void)
 
   {
@@ -937,19 +971,3 @@ winType gkbWindow (void)
     logFunction(printf("gkbWindow -> " FMT_U_MEM "\n", (memSizeType) result););
     return result;
   } /* gkbWindow */
-
-
-
-intType gkbButtonXpos (void)
-
-  { /* gkbButtonXpos */
-    return button_x;
-  } /* gkbButtonXpos */
-
-
-
-intType gkbButtonYpos (void)
-
-  { /* gkbButtonYpos */
-    return button_y;
-  } /* gkbButtonYpos */

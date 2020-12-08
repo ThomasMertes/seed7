@@ -87,7 +87,7 @@ const func file: openTarFileWithMagic (in string: inFileName, in boolean: do_unz
           elsif do_unzip then
             write("tar7: File \"");
             write(inFileName);
-            writeln("\" not in gzip format.");
+            writeln("\" not in gzip, xz, zstd or lzma format.");
           end if;
         end if;
       end if;

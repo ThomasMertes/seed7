@@ -468,7 +468,7 @@ const proc: welcome is func
     setPos(screen, 32, 9);
     write(screen, " Press any key to start the game. ");
     ch := getc(KEYBOARD);
-    if ch in {KEY_ESC, 'Q', 'q'} then
+    if ch in {KEY_ESC, 'Q', 'q', KEY_CLOSE} then
       quit_program := TRUE;
     end if;
   end func; (* welcome *)
@@ -523,7 +523,7 @@ const proc: pause_game (in boolean: blankWindow) is func
     end if;
     while not (exitPause or quit_program) do
       cmd := getc(KEYBOARD);
-      if cmd in {'Q', 'q'} then
+      if cmd in {'Q', 'q', KEY_CLOSE} then
         flying := FALSE;
         quit_program := TRUE;
       elsif cmd = KEY_ESC then
@@ -583,7 +583,7 @@ const proc: check_keyboard is func
           pause_game(FALSE);
         when {KEY_ESC}:
           pause_game(TRUE);
-        when {'Q', 'q'}:
+        when {'Q', 'q', KEY_CLOSE}:
           nosound;
           flying := FALSE;
           quit_program := TRUE;
@@ -1268,7 +1268,7 @@ const proc: anounceAdvancedLander is func
           pause_game(FALSE);
         when {KEY_ESC}:
           pause_game(TRUE);
-        when {'Q', 'q'}:
+        when {'Q', 'q', KEY_CLOSE}:
           quit_program := TRUE;
       end case;
     until ch not in {'P', 'p', KEY_ESC} or quit_program;
@@ -1298,7 +1298,7 @@ const proc: end_of_flight is func
           pause_game(FALSE);
         when {KEY_ESC}:
           pause_game(TRUE);
-        when {'Q', 'q'}:
+        when {'Q', 'q', KEY_CLOSE}:
           quit_program := TRUE;
         when {'S', 's'}:
           sound_on := not sound_on;
@@ -1525,6 +1525,7 @@ const proc: crash_test is func
 const proc: main is func
   begin (* main *)
     screen(640, 480);
+    setCloseAction(curr_win, RETURN_KEY);
     clear(curr_win, black);
     color(white, black);
     KEYBOARD := GRAPH_KEYBOARD;

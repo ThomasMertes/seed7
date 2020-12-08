@@ -54,7 +54,8 @@ The design principles are:
    operating systems.
 
  - Readability:
-   Programs are more often read than written.
+   Programs are more often read than written. Seed7 uses several
+   approaches to improve readability.
 
  - Well defined behavior:
    Seed7 has a well defined behavior in all situations.
@@ -333,12 +334,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-09-29 the number of lines is:
+than 300000 lines of Seed7. For version 2020-12-08 the number of lines is:
 
-  160515  C source files (*.c)
-   12672  C header files (*.h)
-  191361  Seed7 source files (*.sd7)
-  160514  Seed7 library/include files (*.s7i)
+  161168  C source files (*.c)
+   12696  C header files (*.h)
+  191533  Seed7 source files (*.sd7)
+  160844  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -976,6 +977,42 @@ annotation being optional. In Seed7 the specification of the type is
 mandatory.
 
 
+What makes code readable?
+=========================
+
+People often mistake familiarity with a certain kind of syntax for good
+readability. E.g.: If you prefer statements with braces it is harder to read
+statements using keywords instead and vice versa. But you can accustom
+to such syntactic things and then they don't hinder readability any more.
+
+On the other hand there are things that lead to spaghetti code and being
+accustomed to the syntax does not help. Generally the term spaghetti code
+can be used for code where information is scattered and the reader needs
+considerable time to gather this information. E.g.:
+
+ - In dynamically typed programming languages it is often hard to determine
+   the data structures used, since they are not specified. Seed7 variables
+   and types must be declared explicitely. This improves readability.
+ - Compilers that do type inference spend most of their time for type
+   checking. This means that a human reader needs also to spend most of the
+   time to understand the types in use. That way type inference makes
+   writing easier and reading harder. The omission of type inference in
+   Seed7 simplifies reading code.
+
+Beyond that, reduced complexity also helps readability:
+
+ - Integers and strings follow the "one size fits all" principle. There are
+   no integer types of various sizes and there is just one string type.
+ - There is no need to distinguish between mutable and unmutable strings.
+ - Comparisons are always done with simple operators (= <> < <= > >=).
+ - There is no NULL, so no necessity to check for NULL.
+ - There is no inlining of code written in a different language. With inlined
+   foreign code you need to know both languages to understand such a program.
+ - Code that uses exceptions has better readability than code where the
+   result of every function must be checked for eventual errors.
+ - There are no implicit casts that may make reading harder.
+
+
 Isn't the code unreadable if everybody invents new statements?
 ==============================================================
 
@@ -1315,6 +1352,37 @@ to errors. To avoid errors caused by uninitialized variables in Seed7 each varia
 must be initialized when it is declared.
 
 
+Are there types like byte, small and long?
+==========================================
+
+Seed7 follows the "one size fits all" principle for fixed size integers. The
+type integer is 64-bit signed, smaller integer types do not exist. Today's
+computers have 64-bit processors. On such computers smaller integers must be
+converted into 64-bit integers in order to do computations. So programs that
+use smaller integers might actually be slower because of this. Today
+computers' memory covers many gigabytes, so the pressure to save memory is
+also gone.
+
+Support for shorter integers is only needed, when reading or writing files
+that contain binary integers of smaller sizes. In C it is possible to write
+or read data structures directly to or from a file. Such C code is unportable,
+as it assumes that the file format uses the same endianess (little- or
+big-endian) as the processor. Seed7 does not support writing or reading
+structures directly to or from a file. Instead the library bytedata.s7i
+defines several functions to convert integers into and from signed and
+unsigned representations of various sizes. These functions allow also that
+the endianess is specified explicit.
+
+Message digest and compression algorithms do bitwise operations on 32- or
+64-bit data. Bitwise operations are not supported by integer. To do that the
+types bin32 and bin64 have been introduced. These types support bitwise AND,
+OR and XOR operations, but no integer arithmetic. Conversions between integer
+and bin64 (respectively bin32) cause no additional costs in compiled programs.
+
+If the 64-bit signed integer type is not sufficient the type bigInteger can be
+used.
+
+
 Is Unicode supported?
 =====================
 
@@ -1526,11 +1594,29 @@ but there is an alternative (see below).
 
 Seed7 has support for lexical scanner functions. Scanner functions use the
 LL(1) approach, which is used in compilers. Practically no compiler uses
-regular expressions to parse a program. Scanner functions work strictly
-from left to right. They examine one character and do decisions based on
-this character. How scanner functions work is described in the manual.
-Scanner functions for strings are defined in scanstri.s7i and scanner
-functions for files are defined in scanfile.s7i.
+regular expressions to parse a program. The example below uses scanner
+functions to read a key-value pair from a file:
+
+  const proc: getKeyValuePair (inout file: inFile,
+      inout string: propertyName, inout string: propertyValue) is func
+    begin
+      skipWhiteSpace(inFile);
+      propertyName := getName(inFile);
+      skipWhiteSpace(inFile);
+      if inFile.bufferChar = '=' then
+        inFile.bufferChar := getc(inFile);
+        propertyValue := getLine(inFile);
+      else
+        propertyValue := "";
+        skipLine(inFile);
+      end if;
+    end func;
+
+Scanner functions work strictly from left to right. They examine one
+character and do decisions based on this character. How scanner
+functions work is described in the manual. Scanner functions for strings
+are defined in scanstri.s7i and scanner functions for files are
+defined in scanfile.s7i.
 
 
 Why is the div operator used for integer divisions?
@@ -2176,9 +2262,9 @@ respectively string. The function execute can be used to execute a program. E.g.
     local
       var program: aProg is program.value;
     begin
-      if length(argv(PROGRAM)) =(in_integer)">>= 1 then
+      if length(argv(PROGRAM)) >= 1 then
         aProg := parseFile(argv(PROGRAM)[1]);
-        if aProg (in_program)"><> program.value then
+        if aProg <> program.value then
           execute(aProg, argv(PROGRAM)[2 ..]);
         end if;
       end if;
@@ -2205,7 +2291,7 @@ in the program panic.sd7:
       var reference: aRef is NIL;
     begin
       aProg := parseFile("panic.sd7");
-      if aProg (in_program)"><> program.value then
+      if aProg <> program.value then
         for aRef range globalObjects(aProg) do
           writeln(str(aRef));
         end for;
@@ -2291,8 +2377,43 @@ structured programming 'break', 'continue' and 'goto' are not supported.
 Are there exceptions?
 =====================
 
-Yes, Seed7 has exceptions which are similar to Ada exceptions. Chapter 16.2
-(Exceptions) of the manual contains a detailed description of the Seed7 exceptions.
+Yes, Seed7 has exceptions which are similar to Ada exceptions. In chapter 16.2
+(Exceptions) of the manual you will find a detailed description of the Seed7
+exceptions. The use of exceptions improves also readability. E.g.:
+
+  doA();
+  doB();
+  doC();
+
+In this example the normal flow of control can be seen easily. If doA(), doB()
+or doC() trigger an exception the program is terminated. The program is safe
+without the need to do something.
+
+Let's assume that exceptions are not supported and that the functions doA(),
+doB() and doC() will return error codes. In C you can ignore function results,
+so this would be legal C code. But in this case the code is unsafe since
+the error codes get ignored. In a language without exceptions, it is necessary
+to change the code to check for errors. E.g.:
+
+  if (doA() == ERRORVALUE_A) {
+
+    ... handling of errors triggered by doA() ...
+
+  } else if (doB() == ERRORVALUE_B) {
+
+    ... handling of errors triggered by doB() ...
+
+  } else if ((errorVar = doC()) == ERROR_X || errorVar == ERROR_Y) {
+
+    ... handling of errors triggered by doC() ...
+
+  } else {
+
+    ... code that follows doC() ...
+
+  }
+
+This can lead to horrible code where it is easy to overlook a bug.
 
 
 What happens if an exception is not caught?

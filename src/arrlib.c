@@ -735,7 +735,7 @@ objectType arr_gen (listType arguments)
     } else {
       if (unlikely(!arr_elem_initialisation(result_element_type,
                                             &result->arr[1], element2))) {
-        destr_array(result->arr, 1);
+        destr_array(result->arr, (memSizeType) 1);
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */

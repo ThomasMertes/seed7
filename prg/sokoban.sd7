@@ -33,6 +33,7 @@ $ include "seed7_05.s7i";
   include "editline.s7i";
   include "echo.s7i";
   include "line.s7i";
+  include "dialog.s7i";
   include "sokoban1.s7i";
 
 
@@ -336,8 +337,9 @@ const proc: loadPixmaps is func
   end func;
 
 
-const proc: readLevel is func
+const proc: readLevel (inout char: keyChar) is func
   local
+    var string: numberStri is "";
     var integer: newLevel is 0;
     var boolean: okay is FALSE;
     var integer: tries is 0;
@@ -346,14 +348,24 @@ const proc: readLevel is func
     write(win, "Indicate which level to play (1-" <& length(levels) <& ") ");
     repeat
       incr(tries);
-      read(newLevel);
-      if newLevel >= 1 and newLevel <= length(levels) then
-        levelNumber := newLevel;
-        okay := TRUE;
-      else
-        write(win, "This is not a correct level. Try again ");
+      readln(numberStri);
+      if IN.bufferChar = KEY_CLOSE then
+        keyChar := KEY_CLOSE;
+      elsif numberStri <> "" then
+        block
+          newLevel := integer(numberStri);
+          if newLevel >= 1 and newLevel <= length(levels) then
+            levelNumber := newLevel;
+            okay := TRUE;
+          else
+            raise RANGE_ERROR;
+          end if;
+        exception
+          catch RANGE_ERROR:
+            write(win, "This is not a correct level. Try again ");
+        end block;
       end if;
-    until okay or tries >= 2;
+    until okay or numberStri = "" or tries >= 2 or keyChar = KEY_CLOSE;
   end func;
 
 
@@ -702,7 +714,7 @@ const proc: playLevel is func
       end case;
       writeStatus;
       drawMap;
-      if keyChar = 'q' then
+      if keyChar = 'q' or keyChar = KEY_CLOSE then
         levelFinished := TRUE;
       elsif keyChar = 'u' then
         if savedPackets = numberOfPackets then
@@ -725,7 +737,7 @@ const proc: playLevel is func
       elsif keyChar = 's' then
         levelFinished := TRUE;
       elsif keyChar = 'l' then
-        readLevel;
+        readLevel(keyChar);
         levelFinished := TRUE;
       elsif keyChar = 'n' then
         while levelNumber < length(levels) and keyChar = 'n' do
@@ -739,6 +751,11 @@ const proc: playLevel is func
           levelFinished := TRUE;
           keyChar := busy_getc(KEYBOARD);
         end while;
+      elsif keyChar = KEY_ESC then
+        bossMode(levelFinished);
+        if levelFinished then
+          keyChar := 'q';
+        end if;
       end if;
       if savedPackets = numberOfPackets then
         setPos(win, 31, 1);
@@ -758,6 +775,7 @@ const proc: playLevel is func
 const proc: main is func
   begin
     screen(992, 544);
+    setCloseAction(curr_win, RETURN_KEY);
     KEYBOARD := GRAPH_KEYBOARD;
     win := openPixmapFontFile(curr_win, 650, 4);
     setFont(win, stdFont9);
@@ -768,5 +786,5 @@ const proc: main is func
     repeat
       readLevelMap(levelNumber);
       playLevel;
-    until keyChar = 'q';
+    until keyChar = 'q' or keyChar = KEY_CLOSE;
   end func;

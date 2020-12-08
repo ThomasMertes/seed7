@@ -122,7 +122,7 @@ objectType con_flush (listType arguments)
 objectType con_height (listType arguments)
 
   { /* con_height */
-    return bld_int_temp(conHeight());
+    return bld_int_temp((intType) conHeight());
   } /* con_height */
 
 
@@ -232,7 +232,7 @@ objectType con_v_scl (listType arguments)
 objectType con_width (listType arguments)
 
   { /* con_width */
-    return bld_int_temp(conWidth());
+    return bld_int_temp((intType) conWidth());
   } /* con_width */
 
 

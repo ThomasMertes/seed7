@@ -7776,6 +7776,14 @@ int main (int argc, char **argv)
                          "printf(\"%d\\n\",canWrite);return 0;}\n")) {
       fprintf(versionFile, "#define FWRITE_WRONG_FOR_READ_ONLY_FILES %d\n", doTest() == 1);
     } /* if */
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                         "{int canRead=0;FILE *aFile;char buffer[5];\n"
+                         "if((aFile=fopen(\"tmp_test_file\",\"w\"))!=NULL){\n"
+                         " canRead=fread(buffer,1,4,aFile)!=0||!ferror(aFile);fclose(aFile);\n"
+                         " remove(\"tmp_test_file\");}\n"
+                         "printf(\"%d\\n\",canRead);return 0;}\n")) {
+      fprintf(versionFile, "#define FREAD_WRONG_FOR_WRITE_ONLY_FILES %d\n", doTest() == 1);
+    } /* if */
     checkRemoveDir(makeDirDefinition, versionFile);
     if (compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n#include <ctype.h>\n"
                          "int main(int argc, char *argv[])\n"

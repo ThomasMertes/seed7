@@ -173,6 +173,14 @@ void drwArc2 (const_winType actual_window,
 
 
 
+rtlArrayType drwBorder (const const_bstriType pointList)
+
+  { /* drwBorder */
+    return NULL;
+  } /* drwBorder */
+
+
+
 void drwCircle (const_winType actual_window,
     intType x, intType y, intType radius)
 
@@ -352,6 +360,13 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
 
 
 
+void drwSetCloseAction (winType actual_window, intType closeAction)
+
+  { /* drwSetCloseAction */
+  } /* drwSetCloseAction */
+
+
+
 void drwPoint (const_winType actual_window, intType x, intType y)
 
   { /* drwPoint */
@@ -451,6 +466,22 @@ void drwColor (intType col)
 
   { /* drwColor */
   } /* drwColor */
+
+
+
+intType drwScreenHeight (void)
+
+  { /* drwScreenHeight */
+    return 0;
+  } /* drwScreenHeight */
+
+
+
+intType drwScreenWidth (void)
+
+  { /* drwScreenWidth */
+    return 0;
+  } /* drwScreenWidth */
 
 
 

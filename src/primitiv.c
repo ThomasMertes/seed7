@@ -323,6 +323,7 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_ARC",                 drw_arc,                 },
     { "DRW_ARC2",                drw_arc2,                },
     { "DRW_BACKGROUND",          drw_background,          },
+    { "DRW_BORDER",              drw_border,              },
     { "DRW_CIRCLE",              drw_circle,              },
     { "DRW_CLEAR",               drw_clear,               },
     { "DRW_CMP",                 drw_cmp,                 },
@@ -372,6 +373,9 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_RGBCOL",              drw_rgbcol,              },
  /* { "DRW_ROT",                 drw_rot,                 }, */
  /* { "DRW_SCALE",               drw_scale,               }, */
+    { "DRW_SCREEN_HEIGHT",       drw_screen_height,       },
+    { "DRW_SCREEN_WIDTH",        drw_screen_width,        },
+    { "DRW_SETCLOSEACTION",      drw_setCloseAction,      },
     { "DRW_SETCONTENT",          drw_setContent,          },
     { "DRW_SETPOS",              drw_setPos,              },
     { "DRW_SETTRANSPARENTCOLOR", drw_setTransparentColor, },
@@ -688,6 +692,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_NOOP",                prc_noop,                },
     { "PRC_RAISE",               prc_raise,               },
     { "PRC_REPEAT",              prc_repeat,              },
+    { "PRC_REPEAT_NOOP",         prc_repeat_noop,         },
     { "PRC_RES_BEGIN",           prc_res_begin,           },
     { "PRC_RES_LOCAL",           prc_res_local,           },
     { "PRC_RETURN",              prc_return,              },
@@ -697,6 +702,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRC_VARFUNC",             prc_varfunc,             },
     { "PRC_VARFUNC2",            prc_varfunc2,            },
     { "PRC_WHILE",               prc_while,               },
+    { "PRC_WHILE_NOOP",          prc_while_noop,          },
 
     { "PRG_CPY",                 prg_cpy,                 },
     { "PRG_CREATE",              prg_create,              },

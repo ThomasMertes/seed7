@@ -170,6 +170,10 @@ typedef Bool (*tp_XQueryPointer) (Display *display, Window window,
                                   int *root_x_return, int *root_y_return,
                                   int *win_x_return, int *win_y_return,
                                   unsigned int *mask_return);
+typedef Status (*tp_XQueryTree) (Display *display, Window window,
+                                 Window *root_return, Window *parent_return,
+                                 Window **children_return,
+                                 unsigned int *nchildren_return);
 typedef int (*tp_XRaiseWindow) (Display *display, Window window);
 typedef int (*tp_XRefreshKeyboardMapping) (XMappingEvent *event_map);
 typedef Screen *(*tp_XScreenOfDisplay) (Display *display, int screen_number);
@@ -243,6 +247,7 @@ static tp_XPutImage               ptr_XPutImage;
 static tp_XQueryColor             ptr_XQueryColor;
 static tp_XQueryKeymap            ptr_XQueryKeymap;
 static tp_XQueryPointer           ptr_XQueryPointer;
+static tp_XQueryTree              ptr_XQueryTree;
 static tp_XRaiseWindow            ptr_XRaiseWindow;
 static tp_XRefreshKeyboardMapping ptr_XRefreshKeyboardMapping;
 static tp_XScreenOfDisplay        ptr_XScreenOfDisplay;
@@ -320,6 +325,7 @@ static boolType setupDll (const char *dllName)
             (ptr_XQueryColor             = (tp_XQueryColor)             dllFunc(x11Dll, "XQueryColor"))             == NULL ||
             (ptr_XQueryKeymap            = (tp_XQueryKeymap)            dllFunc(x11Dll, "XQueryKeymap"))            == NULL ||
             (ptr_XQueryPointer           = (tp_XQueryPointer)           dllFunc(x11Dll, "XQueryPointer"))           == NULL ||
+            (ptr_XQueryTree              = (tp_XQueryTree)              dllFunc(x11Dll, "XQueryTree"))              == NULL ||
             (ptr_XRaiseWindow            = (tp_XRaiseWindow)            dllFunc(x11Dll, "XRaiseWindow"))            == NULL ||
             (ptr_XRefreshKeyboardMapping = (tp_XRefreshKeyboardMapping) dllFunc(x11Dll, "XRefreshKeyboardMapping")) == NULL ||
             (ptr_XScreenOfDisplay        = (tp_XScreenOfDisplay)        dllFunc(x11Dll, "XScreenOfDisplay"))        == NULL ||
@@ -1216,6 +1222,30 @@ Bool XQueryPointer (Display *display, Window window,
                        *win_x_return, *win_y_return, *mask_return, okay););
     return okay;
   } /* XQueryPointer */
+
+
+
+Status XQueryTree (Display *display, Window window,
+                   Window *root_return, Window *parent_return,
+                   Window **children_return,
+                   unsigned int *nchildren_return)
+
+  {
+    Status status;
+
+  /* XQueryTree */
+    logFunction(printf("XQueryTree(" FMT_U_MEM ", " FMT_U_XID
+                       ", *, *, *, *, *, *, *)\n",
+                       (memSizeType) display, window););
+    status = ptr_XQueryTree(display, window, root_return,
+                            parent_return, children_return, nchildren_return);
+    logFunction(printf("XQueryTree(" FMT_U_MEM ", " FMT_U_XID ", " FMT_U_XID
+                       ", " FMT_U_XID ", "FMT_U_MEM", %u) --> %d\n",
+                       (memSizeType) display, window, *root_return,
+                       *parent_return, (memSizeType) *children_return,
+                       *nchildren_return););
+    return status;
+  } /* XQueryTree */
 
 
 

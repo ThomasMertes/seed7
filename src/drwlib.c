@@ -265,6 +265,21 @@ objectType drw_background (listType arguments)
 
 
 
+/**
+ *  Determine the border widths of a window in pixels.
+ *  These are the widths of the window decorations in the succession
+ *  top, right, bottom, left.
+ *  @return an array with border widths (top, right, bottom, left).
+ */
+objectType drw_border (listType arguments)
+
+  { /* drw_border */
+    isit_win(arg_1(arguments));
+    return toIntArray(drwBorder(take_win(arg_1(arguments))));
+  } /* drw_border */
+
+
+
 objectType drw_circle (listType arguments)
 
   {
@@ -737,6 +752,11 @@ objectType drw_hashcode (listType arguments)
 
 
 
+/**
+ *  Determine the height of the window drawing area in pixels.
+ *  This excludes window decorations at top and bottom. Add top and bottom
+ *  border widths to get the height inclusive window decorations.
+ */
 objectType drw_height (listType arguments)
 
   { /* drw_height */
@@ -1300,6 +1320,39 @@ objectType drw_scale (listType arguments)
 
 
 
+/**
+ *  Determine the height of the screen in pixels.
+ */
+objectType drw_screen_height (listType arguments)
+
+  { /* drw_screen_height */
+    return bld_int_temp(drwScreenHeight());
+  } /* drw_screen_height */
+
+
+
+/**
+ *  Determine the width of the screen in pixels.
+ */
+objectType drw_screen_width (listType arguments)
+
+  { /* drw_screen_width */
+    return bld_int_temp(drwScreenWidth());
+  } /* drw_screen_width */
+
+
+
+objectType drw_setCloseAction (listType arguments)
+
+  { /* drw_setCloseAction */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    drwSetCloseAction(take_win(arg_1(arguments)), take_int(arg_2(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* drw_setCloseAction */
+
+
+
 objectType drw_setContent (listType arguments)
 
   { /* drw_setContent */
@@ -1311,6 +1364,12 @@ objectType drw_setContent (listType arguments)
 
 
 
+/**
+ *  Move a window to the coordinates x/y.
+ *  Afterwards the top left corner of the window will be at the position x/y.
+ *  If window decorations are present the top left corner of the
+ *  window decorations will be at the position x/y.
+ */
 objectType drw_setPos (listType arguments)
 
   { /* drw_setPos */
@@ -1363,6 +1422,9 @@ objectType drw_text (listType arguments)
 
 
 
+/**
+ *  Lower a window to the bottom so that it does not obscure any other window.
+ */
 objectType drw_toBottom (listType arguments)
 
   { /* drw_toBottom */
@@ -1373,6 +1435,9 @@ objectType drw_toBottom (listType arguments)
 
 
 
+/**
+ *  Raise a window to the top so that no other window obscures it.
+ */
 objectType drw_toTop (listType arguments)
 
   { /* drw_toTop */
@@ -1409,6 +1474,11 @@ objectType drw_value (listType arguments)
 
 
 
+/**
+ *  Determine the width of the window drawing area in pixels.
+ *  This excludes window declarations left and right. Add left and right
+ *  border widths to get the width inclusive window decorations.
+ */
 objectType drw_width (listType arguments)
 
   { /* drw_width */
@@ -1419,6 +1489,11 @@ objectType drw_width (listType arguments)
 
 
 
+/**
+ *  Determine the X position of the top left corner of a window in pixels.
+ *  If window decorations are present this uses the top left corner of
+ *  the window decorations.
+ */
 objectType drw_xpos (listType arguments)
 
   { /* drw_xpos */
@@ -1429,6 +1504,11 @@ objectType drw_xpos (listType arguments)
 
 
 
+/**
+ *  Determine the Y position of the top left corner of a window in pixels.
+ *  If window decorations are present this uses the top left corner of
+ *  the window decorations.
+ */
 objectType drw_ypos (listType arguments)
 
   { /* drw_ypos */

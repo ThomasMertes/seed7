@@ -194,15 +194,18 @@ void init_idents (progType currentProg, errInfoType *err_info)
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
-        if ((currentProg->ident.table1[(int) character] = new_ident(&character, 1)) == NULL) {
+        if ((currentProg->ident.table1[(int) character] =
+             new_ident(&character, (sySizeType) 1)) == NULL) {
           *err_info = MEMORY_ERROR;
         } /* if */
       } /* if */
     } /* for */
-    if ((currentProg->ident.literal = new_ident((const_ustriType) " *SIMPLE_IDENT* ", 16)) == NULL) {
+    if ((currentProg->ident.literal =
+         new_ident((const_ustriType) " *SIMPLE_IDENT* ", (sySizeType) 16)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
-    if ((currentProg->ident.end_of_file = new_ident((const_ustriType) "END OF FILE", 11)) == NULL) {
+    if ((currentProg->ident.end_of_file =
+         new_ident((const_ustriType) "END OF FILE", (sySizeType) 11)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
     if (*err_info != OKAY_NO_ERROR) {

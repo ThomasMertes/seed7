@@ -29,6 +29,7 @@ $ include "seed7_05.s7i";
   include "stdfont9.s7i";
   include "pixmap_file.s7i";
   include "keybd.s7i";
+  include "dialog.s7i";
   include "chartype.s7i";
   include "time.s7i";
   include "duration.s7i";
@@ -1787,9 +1788,14 @@ const proc: playerMove (inout boolean: hit) is func
     hit := FALSE;
     repeat
       command := getc(KEYBOARD);
-      if upper(command) = 'Q' then
+      if upper(command) = 'Q' or command = KEY_CLOSE then
         moveFinished := TRUE;
         game.quit := TRUE;
+      elsif command = KEY_ESC then
+        bossMode(game.quit);
+        if game.quit then
+          moveFinished := TRUE;
+        end if;
       elsif command in digit_char then
         game.currLevel := ord(command) - ord('0');
         put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel], PSET);
@@ -1815,9 +1821,6 @@ const proc: playerMove (inout boolean: hit) is func
       else
         hideAll;
         moveFinished := TRUE;
-        if upper(command) = 'Q' then
-          game.quit := TRUE;
-        end if;
       end if;
     until moveFinished;
   end func;
@@ -1867,9 +1870,14 @@ const proc: selectSize is func
     end for;
     repeat
       command := getc(KEYBOARD);
-      if upper(command) = 'Q' then
+      if upper(command) = 'Q' or command = KEY_CLOSE then
         selected := TRUE;
         game.quit := TRUE;
+      elsif command = KEY_ESC then
+        bossMode(game.quit);
+        if game.quit then
+          selected := TRUE;
+        end if;
       elsif command = KEY_MOUSE1 then
         line := getypos(KEYBOARD);
         column := getxpos(KEYBOARD);
@@ -1898,6 +1906,7 @@ const proc: main is func
     var integer: index is 0;
   begin
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+    setCloseAction(curr_win, RETURN_KEY);
     clear(curr_win, white);
     scr := openPixmapFontFile(curr_win, 250, 0);
     setFont(scr, stdFont9);

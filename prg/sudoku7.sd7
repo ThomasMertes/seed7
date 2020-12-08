@@ -2412,7 +2412,7 @@ const proc: processCommand is func
             column := 1;
           when {KEY_PGDN}:
             column := 9;
-          when {'q'}:
+          when {'q', 'Q', KEY_CLOSE}:
             quit := TRUE;
           when {KEY_ESC}:
             bossMode(quit);
@@ -2597,6 +2597,7 @@ const proc: writeCentered (inout text: screen, in integer: yPos, in string: stri
 const proc: main is func
   begin
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+    setCloseAction(curr_win, RETURN_KEY);
     clear(BACKGROUND);
     info := openPixmapFontFile(curr_win, 630, 0);
     setFont(info, stdFont9);

@@ -90,28 +90,34 @@ typedef struct {
     Pixmap backup;
     Pixmap clip_mask;
     boolType is_pixmap;
+    boolType is_managed;
     unsigned int width;
     unsigned int height;
     intType clear_col;
+    int close_action;
   } x11_winRecord, *x11_winType;
 
 typedef const x11_winRecord *const_x11_winType;
 
-#define to_window(win)    (((const_x11_winType) win)->window)
-#define to_backup(win)    (((const_x11_winType) win)->backup)
-#define to_clip_mask(win) (((const_x11_winType) win)->clip_mask)
-#define is_pixmap(win)    (((const_x11_winType) win)->is_pixmap)
-#define to_width(win)     (((const_x11_winType) win)->width)
-#define to_height(win)    (((const_x11_winType) win)->height)
-#define to_clear_col(win) (((const_x11_winType) win)->clear_col)
+#define to_window(win)       (((const_x11_winType) win)->window)
+#define to_backup(win)       (((const_x11_winType) win)->backup)
+#define to_clip_mask(win)    (((const_x11_winType) win)->clip_mask)
+#define is_pixmap(win)       (((const_x11_winType) win)->is_pixmap)
+#define is_managed(win)      (((const_x11_winType) win)->is_managed)
+#define to_width(win)        (((const_x11_winType) win)->width)
+#define to_height(win)       (((const_x11_winType) win)->height)
+#define to_clear_col(win)    (((const_x11_winType) win)->clear_col)
+#define to_close_action(win) (((const_x11_winType) win)->close_action)
 
-#define to_var_window(win)    (((x11_winType) win)->window)
-#define to_var_backup(win)    (((x11_winType) win)->backup)
-#define to_var_clip_mask(win) (((x11_winType) win)->clip_mask)
-#define is_var_pixmap(win)    (((x11_winType) win)->is_pixmap)
-#define to_var_width(win)     (((x11_winType) win)->width)
-#define to_var_height(win)    (((x11_winType) win)->height)
-#define to_var_clear_col(win) (((x11_winType) win)->clear_col)
+#define to_var_window(win)       (((x11_winType) win)->window)
+#define to_var_backup(win)       (((x11_winType) win)->backup)
+#define to_var_clip_mask(win)    (((x11_winType) win)->clip_mask)
+#define is_var_pixmap(win)       (((x11_winType) win)->is_pixmap)
+#define is_var_managed(win)      (((x11_winType) win)->is_managed)
+#define to_var_width(win)        (((x11_winType) win)->width)
+#define to_var_height(win)       (((x11_winType) win)->height)
+#define to_var_clear_col(win)    (((x11_winType) win)->clear_col)
+#define to_var_close_action(win) (((x11_winType) win)->close_action)
 
 static Visual *default_visual;
 
@@ -146,6 +152,35 @@ static const int highest_bit[16] = {
 winType find_window (Window sys_window);
 void enter_window (winType curr_window, Window sys_window);
 void remove_window (Window sys_window);
+
+
+
+int getCloseAction (winType actual_window)
+
+  { /* getCloseAction */
+    return to_close_action(actual_window);
+  } /* getCloseAction */
+
+
+
+Window getWindowParent (Window window)
+
+  {
+    Window root;
+    Window parent;
+    Window *children = NULL;
+    unsigned int num_children;
+
+  /* getWindowParent */
+    if(XQueryTree(mydisplay, window, &root, &parent, &children, &num_children) == 0) {
+      parent = 0;
+    } else if (children != NULL) {
+      XFree((char *) children);
+    } /* if */
+    logFunction(printf("getWindowParent(" FMT_U_MEM ") --> " FMT_U_MEM "\n",
+                       window, parent););
+    return parent;
+  } /* getWindowParent */
 
 
 
@@ -681,6 +716,94 @@ void drwArc2 (const_winType actual_window,
 
 
 
+/**
+ *  Determine the border widths of a window in pixels.
+ *  These are the widths of the window decorations in the succession
+ *  top, right, bottom, left.
+ *  @return an array with border widths (top, right, bottom, left).
+ */
+rtlArrayType drwBorder (const_winType actual_window)
+
+  {
+    Window window;
+    Window root;
+    int x, y;
+    unsigned int width, height;
+    unsigned int innerWidth, innerHeight;
+    unsigned int border_width;
+    unsigned int depth;
+    int leftBorder, topBorder;
+    rtlArrayType border;
+
+  /* drwBorder */
+    logFunction(printf("drwBorder(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
+    window = to_window(actual_window);
+    if (is_pixmap(actual_window)) {
+      raise_error(RANGE_ERROR);
+      border = NULL;
+    } else if (is_managed(actual_window)) {
+      if (unlikely(XGetGeometry(mydisplay, window, &root, &x, &y,
+                                &innerWidth, &innerHeight, &border_width, &depth) == 0)) {
+        raise_error(FILE_ERROR);
+        border = NULL;
+      } else {
+        window = getWindowParent(window);
+        width = 0;
+        height = 0;
+        leftBorder = 0;
+        topBorder = 0;
+        while (window != root && window != 0) {
+          leftBorder += x;
+          topBorder += y;
+          if (unlikely(XGetGeometry(mydisplay, window, &root,
+                       &x, &y, &width, &height, &border_width, &depth) == 0)) {
+            raise_error(FILE_ERROR);
+            window = 0;
+            border = NULL;
+          } else {
+            window = getWindowParent(window);
+          } /* if */
+        } /* while */
+        if (unlikely(!ALLOC_RTL_ARRAY(border, 4))) {
+          raise_error(MEMORY_ERROR);
+          border = NULL;
+        } else {
+          border->min_position = 1;
+          border->max_position = 4;
+          border->arr[0].value.intValue = (intType) topBorder;
+          border->arr[1].value.intValue = (intType) ((int) (width - innerWidth) - leftBorder);
+          border->arr[2].value.intValue = (intType) ((int) (height - innerHeight) - topBorder);
+          border->arr[3].value.intValue = (intType) leftBorder;
+        } /* if */
+      } /* if */
+    } else if (unlikely(XGetGeometry(mydisplay, window, &root,
+                        &x, &y, &width, &height, &border_width, &depth) == 0)) {
+      raise_error(FILE_ERROR);
+      border = NULL;
+    } else if (unlikely(!ALLOC_RTL_ARRAY(border, 4))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      border->min_position = 1;
+      border->max_position = 4;
+      border->arr[0].value.intValue = (intType) border_width;
+      border->arr[1].value.intValue = (intType) border_width;
+      border->arr[2].value.intValue = (intType) border_width;
+      border->arr[3].value.intValue = (intType) border_width;
+    } /* if */
+    logFunction(printf("drwBorder(" FMT_U_MEM ") -->"
+                       " %s[" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D "]\n",
+                       (memSizeType) actual_window,
+                       border != NULL ? "" : "NULL ",
+                       border != NULL ? border->arr[0].value.intValue : 0,
+                       border != NULL ? border->arr[1].value.intValue : 0,
+                       border != NULL ? border->arr[2].value.intValue : 0,
+                       border != NULL ? border->arr[3].value.intValue : 0););
+    return border;
+  } /* drwBorder */
+
+
+
 void drwCircle (const_winType actual_window,
     intType x, intType y, intType radius)
 
@@ -891,6 +1014,7 @@ winType drwEmpty (void)
       result->backup = 0;
       result->clip_mask = 0;
       result->is_pixmap = TRUE;
+      result->is_managed = FALSE;
       result->width = 0;
       result->height = 0;
     } /* if */
@@ -951,6 +1075,7 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
       result->backup = 0;
       result->clip_mask = 0;
       result->is_pixmap = TRUE;
+      result->is_managed = FALSE;
       result->width = (unsigned int) width;
       result->height = (unsigned int) height;
       if (to_backup(actual_window) != 0) {
@@ -1042,6 +1167,11 @@ intType drwGetPixel (const_winType actual_window, intType x, intType y)
 
 
 
+/**
+ *  Determine the height of the window drawing area in pixels.
+ *  This excludes window decorations at top and bottom. Add top and bottom
+ *  border widths to get the height inclusive window decorations.
+ */
 intType drwHeight (const_winType actual_window)
 
   {
@@ -1058,7 +1188,7 @@ intType drwHeight (const_winType actual_window)
       height = to_height(actual_window);
     } else if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
                         &x, &y, &width, &height, &border_width, &depth) == 0)) {
-      raise_error(RANGE_ERROR);
+      raise_error(FILE_ERROR);
       height = 0;
     } /* if */
     logFunction(printf("drwHeight(" FMT_U_MEM ") --> %u\n",
@@ -1105,6 +1235,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
             result->backup = 0;
             result->clip_mask = 0;
             result->is_pixmap = TRUE;
+            result->is_managed = FALSE;
             result->width = (unsigned int) width;
             result->height = (unsigned int) height;
             XPutImage(mydisplay, result->window, mygc, image, 0, 0, 0, 0,
@@ -1186,6 +1317,7 @@ winType drwNewPixmap (intType width, intType height)
           result->backup = 0;
           result->clip_mask = 0;
           result->is_pixmap = TRUE;
+          result->is_managed = FALSE;
           result->width = (unsigned int) width;
           result->height = (unsigned int) height;
         } /* if */
@@ -1219,6 +1351,7 @@ winType drwNewBitmap (const_winType actual_window, intType width, intType height
       result->backup = 0;
       result->clip_mask = 0;
       result->is_pixmap = TRUE;
+      result->is_managed = FALSE;
       result->width = (unsigned int) width;
       result->height = (unsigned int) height;
     } /* if */
@@ -1285,6 +1418,7 @@ winType drwOpen (intType xPos, intType yPos,
             result->backup = 0;
             result->clip_mask = 0;
             result->is_pixmap = FALSE;
+            result->is_managed = TRUE;
             result->width = (unsigned int) width;
             result->height = (unsigned int) height;
 
@@ -1375,6 +1509,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
           result->backup = 0;
           result->clip_mask = 0;
           result->is_pixmap = FALSE;
+          result->is_managed = FALSE;
           result->width = (unsigned int) width;
           result->height = (unsigned int) height;
 
@@ -1411,6 +1546,18 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
                        result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwOpenSubWindow */
+
+
+
+void drwSetCloseAction (winType actual_window, intType closeAction)
+
+  { /* drwSetCloseAction */
+    if (closeAction < 0 || closeAction > 2) {
+      raise_error(RANGE_ERROR);
+    } else {
+      to_var_close_action(actual_window) = (int) closeAction;
+    } /* if */
+  } /* drwSetCloseAction */
 
 
 
@@ -1951,13 +2098,67 @@ void drwColor (intType col)
 
 
 
+/**
+ *  Determine the height of the screen in pixels.
+ */
+intType drwScreenHeight (void)
+
+  {
+    Window root;
+    int x, y;
+    unsigned int width, height;
+    unsigned int border_width;
+    unsigned int depth;
+
+  /* drwScreenHeight */
+    logFunction(printf("drwScreenHeight()\n"););
+    if (mydisplay == NULL) {
+      drawInit();
+    } /* if */
+    if (unlikely(XGetGeometry(mydisplay, DefaultRootWindow(mydisplay), &root,
+                              &x, &y, &width, &height, &border_width, &depth) == 0)) {
+      raise_error(FILE_ERROR);
+      height = 0;
+    } /* if */
+    logFunction(printf("drwScreenHeight() --> %u\n", height););
+    return (intType) height;
+  } /* drwScreenHeight */
+
+
+
+/**
+ *  Determine the width of the screen in pixels.
+ */
+intType drwScreenWidth (void)
+
+  {
+    Window root;
+    int x, y;
+    unsigned int width, height;
+    unsigned int border_width;
+    unsigned int depth;
+
+  /* drwScreenWidth */
+    logFunction(printf("drwScreenWidth()\n"););
+    if (mydisplay == NULL) {
+      drawInit();
+    } /* if */
+    if (unlikely(XGetGeometry(mydisplay, DefaultRootWindow(mydisplay), &root,
+                              &x, &y, &width, &height, &border_width, &depth) == 0)) {
+      raise_error(FILE_ERROR);
+      width = 0;
+    } /* if */
+    logFunction(printf("drwScreenWidth() --> %u\n", width););
+    return (intType) width;
+  } /* drwScreenWidth */
+
+
+
 void drwSetContent (const_winType actual_window, const_winType pixmap)
 
   { /* drwSetContent */
     logFunction(printf("drwSetContent(" FMT_U_MEM ", " FMT_U_MEM ")\n",
                        (memSizeType) actual_window, (memSizeType) pixmap););
-    /* printf("begin drwSetContent(%lu, %lu)\n",
-        to_window(actual_window), to_window(pixmap)); */
     if (pixmap != NULL) {
 #ifdef WITH_XSHAPE_EXTENSION
       if (to_clip_mask(pixmap) != 0) {
@@ -1978,11 +2179,17 @@ void drwSetContent (const_winType actual_window, const_winType pixmap)
 
 
 
+/**
+ *  Move a window to the coordinates x/y.
+ *  Afterwards the top left corner of the window will be at the position x/y.
+ *  If window decorations are present the top left corner of the
+ *  window decorations will be at the position x/y.
+ */
 void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
   { /* drwSetPos */
-    /* printf("begin drwSetPos(%lu, %ld, %ld)\n",
-        to_window(actual_window), xPos, yPos); */
+    logFunction(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, xPos, yPos););
     XMoveWindow(mydisplay, to_window(actual_window), castToInt(xPos), castToInt(yPos));
     /* printf("end drwSetPos(%lu, %ld, %ld)\n",
         to_window(actual_window), xPos, yPos); */
@@ -2088,26 +2295,41 @@ void drwText (const_winType actual_window, intType x, intType y,
 
 
 
+/**
+ *  Lower a window to the bottom so that it does not obscure any other window.
+ */
 void drwToBottom (const_winType actual_window)
 
   { /* drwToBottom */
-    /* printf("begin drwRaise(%lu)\n", to_window(actual_window)); */
+    logFunction(printf("drwToBottom(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
     XLowerWindow(mydisplay, to_window(actual_window));
-    /* printf("end drwRaise(%lu)\n", to_window(actual_window)); */
+    logFunction(printf("drwToBottom(" FMT_U_MEM ") -->\n",
+                       (memSizeType) actual_window););
   } /* drwToBottom */
 
 
 
+/**
+ *  Raise a window to the top so that no other window obscures it.
+ */
 void drwToTop (const_winType actual_window)
 
   { /* drwToTop */
-    /* printf("begin drwRaise(%lu)\n", to_window(actual_window)); */
+    logFunction(printf("drwToTop(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
     XRaiseWindow(mydisplay, to_window(actual_window));
-    /* printf("end drwRaise(%lu)\n", to_window(actual_window)); */
+    logFunction(printf("drwToTop(" FMT_U_MEM ") -->\n",
+                       (memSizeType) actual_window););
   } /* drwToTop */
 
 
 
+/**
+ *  Determine the width of the window drawing area in pixels.
+ *  This excludes window declarations left and right. Add left and right
+ *  border widths to get the width inclusive window decorations.
+ */
 intType drwWidth (const_winType actual_window)
 
   {
@@ -2124,7 +2346,7 @@ intType drwWidth (const_winType actual_window)
       width = to_width(actual_window);
     } else if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
                         &x, &y, &width, &height, &border_width, &depth) == 0)) {
-      raise_error(RANGE_ERROR);
+      raise_error(FILE_ERROR);
       width = 0;
     } /* if */
     logFunction(printf("drwWidth(" FMT_U_MEM ") --> %u\n",
@@ -2134,48 +2356,92 @@ intType drwWidth (const_winType actual_window)
 
 
 
+/**
+ *  Determine the X position of the top left corner of a window in pixels.
+ *  If window decorations are present this uses the top left corner of
+ *  the window decorations.
+ */
 intType drwXPos (const_winType actual_window)
 
   {
+    Window window;
     Window root;
-    int x, y;
+    int y;
     unsigned int width, height;
     unsigned int border_width;
     unsigned int depth;
+    int xPos;
 
   /* drwXPos */
     logFunction(printf("drwXPos(" FMT_U_MEM ")\n",
                        (memSizeType) actual_window););
-    if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
-                 &x, &y, &width, &height, &border_width, &depth) == 0)) {
+    window = to_window(actual_window);
+    if (is_pixmap(actual_window)) {
       raise_error(RANGE_ERROR);
-      x = 0;
+      xPos = 0;
+    } else if (is_managed(actual_window)) {
+      do {
+        if (unlikely(XGetGeometry(mydisplay, window, &root, &xPos, &y,
+                     &width, &height, &border_width, &depth) == 0)) {
+          raise_error(FILE_ERROR);
+          window = 0;
+          xPos = 0;
+        } else {
+          window = getWindowParent(window);
+        } /* if */
+      } while (window != root && window != 0);
+    } else if (unlikely(XGetGeometry(mydisplay, window, &root, &xPos, &y,
+                        &width, &height, &border_width, &depth) == 0)) {
+      raise_error(FILE_ERROR);
+      xPos = 0;
     } /* if */
     logFunction(printf("drwXPos(" FMT_U_MEM ") --> %d\n",
-                       (memSizeType) actual_window, x););
-    return (intType) x;
+                       (memSizeType) actual_window, xPos););
+    return (intType) xPos;
   } /* drwXPos */
 
 
 
+/**
+ *  Determine the Y position of the top left corner of a window in pixels.
+ *  If window decorations are present this uses the top left corner of
+ *  the window decorations.
+ */
 intType drwYPos (const_winType actual_window)
 
   {
+    Window window;
     Window root;
-    int x, y;
+    int x;
     unsigned int width, height;
     unsigned int border_width;
     unsigned int depth;
+    int yPos;
 
   /* drwYPos */
     logFunction(printf("drwYPos(" FMT_U_MEM ")\n",
                        (memSizeType) actual_window););
-    if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
-                 &x, &y, &width, &height, &border_width, &depth) == 0)) {
+    window = to_window(actual_window);
+    if (is_pixmap(actual_window)) {
       raise_error(RANGE_ERROR);
-      y = 0;
+      yPos = 0;
+    } else if (is_managed(actual_window)) {
+      do {
+        if (unlikely(XGetGeometry(mydisplay, window, &root, &x, &yPos,
+                     &width, &height, &border_width, &depth) == 0)) {
+          raise_error(FILE_ERROR);
+          window = 0;
+          yPos = 0;
+        } else {
+          window = getWindowParent(window);
+        } /* if */
+      } while (window != root && window != 0);
+    } else if (unlikely(XGetGeometry(mydisplay, window, &root, &x, &yPos,
+                        &width, &height, &border_width, &depth) == 0)) {
+      raise_error(FILE_ERROR);
+      yPos = 0;
     } /* if */
     logFunction(printf("drwYPos(" FMT_U_MEM ") --> %d\n",
-                       (memSizeType) actual_window, y););
-    return (intType) y;
+                       (memSizeType) actual_window, yPos););
+    return (intType) yPos;
   } /* drwYPos */

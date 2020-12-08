@@ -10240,7 +10240,7 @@ const proc: main is func
       end if;
     else
       writeln("Bas7 Version 1.0 - Basic interpreter");
-      writeln("Copyright (C) 1994, 2001, 2004 - 2010, 2013, 2016 - 2018 Thomas Mertes");
+      writeln("Copyright (C) 1994, 2001, 2004 - 2010, 2013, 2016 - 2020 Thomas Mertes");
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
       writeln("Bas7 is written in the Seed7 programming language");

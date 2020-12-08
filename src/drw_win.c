@@ -76,6 +76,7 @@ typedef struct {
     unsigned int brutto_width_delta;
     unsigned int brutto_height_delta;
     intType clear_col;
+    int close_action;
   } win_winRecord, *win_winType;
 
 #define to_hwnd(win)                 (((win_winType) win)->hWnd)
@@ -92,6 +93,7 @@ typedef struct {
 #define to_brutto_width_delta(win)   (((win_winType) win)->brutto_width_delta)
 #define to_brutto_height_delta(win)  (((win_winType) win)->brutto_height_delta)
 #define to_clear_col(win)            (((win_winType) win)->clear_col)
+#define to_close_action(win)         (((win_winType) win)->close_action)
 
 #ifndef WM_NCMOUSELEAVE
 #define WM_NCMOUSELEAVE 674
@@ -105,6 +107,14 @@ static pGetConsoleWindowType pGetConsoleWindow = NULL;
 winType find_window (HWND sys_window);
 void enter_window (winType curr_window, HWND sys_window);
 void remove_window (HWND sys_window);
+
+
+
+int getCloseAction (winType actual_window)
+
+  { /* getCloseAction */
+    return to_close_action(actual_window);
+  } /* getCloseAction */
 
 
 
@@ -293,11 +303,11 @@ intType drwPointerXpos (const_winType actual_window)
   /* drwPointerXpos */
     logFunction(printf("drwPointerXpos\n"););
     if (unlikely(GetCursorPos(&point) == 0)) {
-      raise_error(RANGE_ERROR);
+      raise_error(FILE_ERROR);
       result = 0;
     } else {
       if (unlikely(ScreenToClient(to_hwnd(actual_window), &point) == 0)) {
-        raise_error(RANGE_ERROR);
+        raise_error(FILE_ERROR);
         result = 0;
       } else {
         result = point.x;
@@ -318,11 +328,11 @@ intType drwPointerYpos (const_winType actual_window)
   /* drwPointerYpos */
     logFunction(printf("drwPointerYpos\n"););
     if (unlikely(GetCursorPos(&point) == 0)) {
-      raise_error(RANGE_ERROR);
+      raise_error(FILE_ERROR);
       result = 0;
     } else {
       if (unlikely(ScreenToClient(to_hwnd(actual_window), &point) == 0)) {
-        raise_error(RANGE_ERROR);
+        raise_error(FILE_ERROR);
         result = 0;
       } else {
         result = point.y;
@@ -463,6 +473,68 @@ void drwArc2 (const_winType actual_window,
 
   { /* drwArc2 */
   } /* drwArc2 */
+
+
+
+/**
+ *  Determine the border widths of a window in pixels.
+ *  These are the widths of the window decorations in the succession
+ *  top, right, bottom, left.
+ *  @return an array with border widths (top, right, bottom, left).
+ */
+rtlArrayType drwBorder (const_winType actual_window)
+
+  {
+    HWND hWnd;
+    RECT windowRect;
+    RECT clientRect;
+    POINT clientTopLeft;
+    POINT clientBottomRight;
+    rtlArrayType border;
+
+  /* drwBorder */
+    logFunction(printf("drwBorder(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
+    hWnd = to_hwnd(actual_window);
+    if (is_pixmap(actual_window)) {
+      raise_error(RANGE_ERROR);
+      border = NULL;
+    } else if (unlikely(GetWindowRect(hWnd, &windowRect) == 0 ||
+                 GetClientRect(hWnd, &clientRect) == 0)) {
+      raise_error(FILE_ERROR);
+      border = NULL;
+    } else {
+      clientTopLeft.x = clientRect.left;
+      clientTopLeft.y = clientRect.top;
+      clientBottomRight.x = clientRect.right;
+      clientBottomRight.y = clientRect.bottom;
+      if (unlikely(ClientToScreen(hWnd, &clientTopLeft) == 0 ||
+	           ClientToScreen(hWnd, &clientBottomRight) == 0)) {
+        raise_error(FILE_ERROR);
+        border = NULL;
+      } else {
+        if (unlikely(!ALLOC_RTL_ARRAY(border, 4))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          border->min_position = 1;
+          border->max_position = 4;
+          border->arr[0].value.intValue = (intType) (clientTopLeft.y - windowRect.top);
+          border->arr[1].value.intValue = (intType) (windowRect.right - clientBottomRight.x);
+          border->arr[2].value.intValue = (intType) (windowRect.bottom - clientBottomRight.y);
+          border->arr[3].value.intValue = (intType) (clientTopLeft.x - windowRect.left);
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("drwBorder(" FMT_U_MEM ") -->"
+                       " %s[" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D "]\n",
+                       (memSizeType) actual_window,
+                       border != NULL ? "" : "NULL ",
+                       border != NULL ? border->arr[0].value.intValue : 0,
+                       border != NULL ? border->arr[1].value.intValue : 0,
+                       border != NULL ? border->arr[2].value.intValue : 0,
+                       border != NULL ? border->arr[3].value.intValue : 0););
+    return border;
+  } /* drwBorder */
 
 
 
@@ -815,6 +887,11 @@ intType drwGetPixel (const_winType actual_window, intType x, intType y)
 
 
 
+/**
+ *  Determine the height of the window drawing area in pixels.
+ *  This excludes window decorations at top and bottom. Add top and bottom
+ *  border widths to get the height inclusive window decorations.
+ */
 intType drwHeight (const_winType actual_window)
 
   {
@@ -823,16 +900,15 @@ intType drwHeight (const_winType actual_window)
 
   /* drwHeight */
     logFunction(printf("drwHeight(" FMT_U_MEM "), usage=" FMT_U "\n",
-                       actual_window,
+                       (memSizeType) actual_window,
                        actual_window != 0 ? actual_window->usage_count: 0););
     if (is_pixmap(actual_window) ||
-        GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
+        GetClientRect(to_hwnd(actual_window), &rect) == 0) {
       height = to_height(actual_window);
     } else {
-      height = (intType) ((unsigned int) (rect.bottom - rect.top) -
-                         to_brutto_height_delta(actual_window));
+      height = (intType) ((unsigned int) (rect.bottom - rect.top));
     } /* if */
-    logFunction(printf("drwHeight(" FMT_U_MEM ") --> %u\n",
+    logFunction(printf("drwHeight(" FMT_U_MEM ") --> " FMT_D "\n",
                        (memSizeType) actual_window, height););
     return height;
   } /* drwHeight */
@@ -969,7 +1045,7 @@ winType drwNewBitmap (const_winType actual_window, intType width, intType height
     win_winType result;
 
   /* drwNewBitmap */
-    logFunction(printf("drwNewBitmap(%ld, %ld)\n", width, height););
+    logFunction(printf("drwNewBitmap(" FMT_D ", " FMT_D ")\n", width, height););
     result = NULL;
     logFunction(printf("drwNewBitmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
                        (memSizeType) result,
@@ -1064,7 +1140,8 @@ winType drwOpen (intType xPos, intType yPos,
             result->brutto_width_delta = (unsigned int) brutto_width_delta;
             result->brutto_height_delta = (unsigned int) brutto_height_delta;
             result->hWnd = CreateWindow(windowClass, win_name,
-                WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT,
+                WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
+                (int) xPos, (int) yPos,
                 (int) width + brutto_width_delta,
                 (int) height + brutto_height_delta,
                 (HWND) NULL, (HMENU) NULL, NULL, NULL);
@@ -1190,6 +1267,18 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
                        result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwOpenSubWindow */
+
+
+
+void drwSetCloseAction (winType actual_window, intType closeAction)
+
+  { /* drwSetCloseAction */
+    if (closeAction < 0 || closeAction > 2) {
+      raise_error(RANGE_ERROR);
+    } else {
+      to_close_action(actual_window) = (int) closeAction;
+    } /* if */
+  } /* drwSetCloseAction */
 
 
 
@@ -1503,7 +1592,8 @@ void drwPRect (const_winType actual_window,
 intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
 
   { /* drwRgbColor */
-    logFunction(printf("drwRgbColor(%lu, %ld, %ld)\n", redLight, greenLight, blueLight););
+    logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       redLight, greenLight, blueLight););
     return (intType) RGB(((uintType) redLight) >> 8,
                          ((uintType) greenLight) >> 8,
                          ((uintType) blueLight) >> 8);
@@ -1536,6 +1626,40 @@ void drwColor (intType col)
 
 
 
+/**
+ *  Determine the height of the screen in pixels.
+ */
+intType drwScreenHeight (void)
+
+  {
+    int height;
+
+  /* drwScreenHeight */
+    logFunction(printf("drwScreenHeight()\n"););
+    height = GetSystemMetrics(SM_CYSCREEN);
+    logFunction(printf("drwScreenHeight() --> %u\n", height););
+    return (intType) height;
+  } /* drwScreenHeight */
+
+
+
+/**
+ *  Determine the width of the screen in pixels.
+ */
+intType drwScreenWidth (void)
+
+  {
+    int width;
+
+  /* drwScreenWidth */
+    logFunction(printf("drwScreenWidth()\n"););
+    width = GetSystemMetrics(SM_CXSCREEN);
+    logFunction(printf("drwScreenWidth() --> %u\n", width););
+    return (intType) width;
+  } /* drwScreenWidth */
+
+
+
 void drwSetContent (const_winType actual_window, const_winType pixmap)
 
   { /* drwSetContent */
@@ -1557,6 +1681,12 @@ void drwSetContent (const_winType actual_window, const_winType pixmap)
 
 
 
+/**
+ *  Move a window to the coordinates x/y.
+ *  Afterwards the top left corner of the window will be at the position x/y.
+ *  If window decorations are present the top left corner of the
+ *  window decorations will be at the position x/y.
+ */
 void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
   { /* drwSetPos */
@@ -1625,6 +1755,9 @@ void drwText (const_winType actual_window, intType x, intType y,
 
 
 
+/**
+ *  Lower a window to the bottom so that it does not obscure any other window.
+ */
 void drwToBottom (const_winType actual_window)
 
   { /* drwToBottom */
@@ -1636,6 +1769,9 @@ void drwToBottom (const_winType actual_window)
 
 
 
+/**
+ *  Raise a window to the top so that no other window obscures it.
+ */
 void drwToTop (const_winType actual_window)
 
   { /* drwToTop */
@@ -1647,6 +1783,11 @@ void drwToTop (const_winType actual_window)
 
 
 
+/**
+ *  Determine the width of the window drawing area in pixels.
+ *  This excludes window declarations left and right. Add left and right
+ *  border widths to get the width inclusive window decorations.
+ */
 intType drwWidth (const_winType actual_window)
 
   {
@@ -1655,38 +1796,41 @@ intType drwWidth (const_winType actual_window)
 
   /* drwWidth */
     logFunction(printf("drwWidth(" FMT_U_MEM "), usage=" FMT_U "\n",
-                       actual_window,
+                       (memSizeType) actual_window,
                        actual_window != 0 ? actual_window->usage_count: 0););
     if (is_pixmap(actual_window) ||
-        GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
+        GetClientRect(to_hwnd(actual_window), &rect) == 0) {
       width = to_width(actual_window);
     } else {
-      width = (intType) ((unsigned int) (rect.right - rect.left) -
-                        to_brutto_width_delta(actual_window));
+      width = (intType) ((unsigned int) (rect.right - rect.left));
     } /* if */
-    logFunction(printf("drwWidth(" FMT_U_MEM ") --> %u\n",
+    logFunction(printf("drwWidth(" FMT_U_MEM ") --> " FMT_D "\n",
                        (memSizeType) actual_window, width););
     return width;
   } /* drwWidth */
 
 
 
+/**
+ *  Determine the X position of the top left corner of a window in pixels.
+ *  If window decorations are present this uses the top left corner of
+ *  the window decorations.
+ */
 intType drwXPos (const_winType actual_window)
 
   {
     RECT rect;
-    POINT point;
     intType xPos;
 
   /* drwXPos */
-    if (unlikely(GetWindowRect(to_hwnd(actual_window), &rect) == 0)) {
+    if (is_pixmap(actual_window)) {
       raise_error(RANGE_ERROR);
       xPos = 0;
+    } else if (unlikely(GetWindowRect(to_hwnd(actual_window), &rect) == 0)) {
+      raise_error(FILE_ERROR);
+      xPos = 0;
     } else {
-      point.x = rect.left;
-      point.y = rect.top;
-      ScreenToClient(GetParent(to_hwnd(actual_window)), &point);
-      xPos = point.x;
+      xPos = rect.left;
     } /* if */
     logFunction(printf("drwXPos(" FMT_U_MEM ") --> " FMT_D "\n",
                        (memSizeType) actual_window, xPos););
@@ -1695,22 +1839,26 @@ intType drwXPos (const_winType actual_window)
 
 
 
+/**
+ *  Determine the Y position of the top left corner of a window in pixels.
+ *  If window decorations are present this uses the top left corner of
+ *  the window decorations.
+ */
 intType drwYPos (const_winType actual_window)
 
   {
     RECT rect;
-    POINT point;
     intType yPos;
 
   /* drwYPos */
-    if (unlikely(GetWindowRect(to_hwnd(actual_window), &rect) == 0)) {
+    if (is_pixmap(actual_window)) {
       raise_error(RANGE_ERROR);
       yPos = 0;
+    } else if (unlikely(GetWindowRect(to_hwnd(actual_window), &rect) == 0)) {
+      raise_error(FILE_ERROR);
+      yPos = 0;
     } else {
-      point.x = rect.left;
-      point.y = rect.top;
-      ScreenToClient(GetParent(to_hwnd(actual_window)), &point);
-      yPos = point.y;
+      yPos = rect.top;
     } /* if */
     logFunction(printf("drwYPos(" FMT_U_MEM ") --> " FMT_D "\n",
                        (memSizeType) actual_window, yPos););

@@ -29,13 +29,13 @@
 /*                                                                  */
 /********************************************************************/
 
+boolType gkbButtonPressed (charType button);
+intType gkbButtonXpos (void);
+intType gkbButtonYpos (void);
 charType gkbGetc (void);
 boolType gkbKeyPressed (void);
 charType gkbRawGetc (void);
 winType gkbWindow (void);
-boolType gkbButtonPressed (charType button);
-intType gkbButtonXpos (void);
-intType gkbButtonYpos (void);
 intType drwPointerXpos (const_winType actual_window);
 intType drwPointerYpos (const_winType actual_window);
 void drwArc (const_winType actual_window, intType x, intType y,
@@ -52,6 +52,7 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col);
 void drwArc2 (const_winType actual_window,
     intType x1, intType y1, intType x2, intType y2, intType radius);
+rtlArrayType drwBorder (const_winType actual_window);
 void drwCircle (const_winType actual_window,
     intType x, intType y, intType radius);
 void drwPCircle (const_winType actual_window,
@@ -90,6 +91,7 @@ winType drwOpen (intType xPos, intType yPos,
     intType width, intType height, const const_striType window_name);
 winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPos,
     intType width, intType height);
+void drwSetCloseAction (winType actual_window, intType closeAction);
 void drwPoint (const_winType actual_window, intType x, intType y);
 void drwPPoint (const_winType actual_window, intType x, intType y, intType col);
 bstriType drwGenPointList (const const_rtlArrayType xyArray);
@@ -106,6 +108,8 @@ void drwPRect (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col);
 intType drwRgbColor (intType redLight, intType greenLight, intType blueLight);
 void drwBackground (intType col);
+intType drwScreenHeight (void);
+intType drwScreenWidth (void);
 void drwSetContent (const_winType actual_window, const_winType pixmap);
 void drwSetPos (const_winType actual_window, intType xPos, intType yPos);
 void drwSetTransparentColor (winType pixmap, intType col);

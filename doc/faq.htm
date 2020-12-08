@@ -4,6 +4,39 @@
 Seed7 FAQ</title>
 <style type="text/css">
 <!--
+div.top_image {
+  position:fixed;
+  width:100%;
+  height:68px;
+  white-space:nowrap;
+}
+
+div.space_below_top_image {
+  position: fixed;
+  top: 68px;
+  left: 0;
+  width: 100%;
+  height:15px;
+}
+
+div.menu {
+  position:fixed;
+  top:85px;
+  left:10px;
+  bottom:10px;
+  width:145px;
+  overflow-y:auto;
+}
+
+div.content {
+  position:fixed;
+  top:85px;
+  left:165px;
+  right:0;
+  bottom:10px;
+  overflow-y:scroll;
+}
+
 a.link:visited { color: mediumblue; text-decoration: none }
 a.link:link    { color: blue; text-decoration: none }
 a.link:hover   { color: blue; text-decoration: underline }
@@ -247,6 +280,9 @@ Why does Seed7 not use the C statements like C++ and Java?
 <li><a class="link" href="#faq_declaration_syntax"><b>
 Why is the <tt>type: name</tt> declaration syntax used?
 </b></a></li>
+<li><a class="link" href="#faq_readability"><b>
+What makes code readable?
+</b></a></li>
 <li><a class="link" href="#faq_everybody_invents_statements"><b>
 Isn't the code unreadable if everybody invents new statements?
 </b></a></li>
@@ -288,6 +324,9 @@ Is there an elegant way to initialize data?
 </b></a></li>
 <li><a class="link" href="#faq_initialize_variables"><b>
 Why is it necessary to initialize all variables?
+</b></a></li>
+<li><a class="link" href="#faq_byte_small_long"><b>
+Are there types like byte, small and long?
 </b></a></li>
 <li><a class="link" href="#faq_unicode"><b>
 Is Unicode supported?
@@ -498,7 +537,8 @@ The design principles are:
    operating systems.</dd>
 
 <dt>Readability:</dt><dd>
-   Programs are more often read than written.</dd>
+   Programs are more often read than written. Seed7 uses several
+   approaches to improve <a class="link" href="#faq_readability">readability</a>.</dd>
 
 <dt>Well defined behavior:</dt><dd>
    Seed7 has a well defined behavior in all situations.
@@ -777,12 +817,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-09-29 the number of lines is:
+than 300000 lines of Seed7. For version 2020-12-08 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">160515</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12672</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">191361</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">160514</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">161168</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12696</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">191533</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">160844</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1420,6 +1460,42 @@ annotation being optional. In Seed7 the specification of the type is
 mandatory. 
 </p></div>
 
+<div><br /><a name="faq_readability"><h3>What makes code readable?
+</h3></a><hr />
+<p>
+People often mistake familiarity with a certain kind of syntax for good
+readability. E.g.: If you prefer statements with braces it is harder to read
+statements using keywords instead and vice versa. But you can accustom
+to such syntactic things and then they don't hinder readability any more.
+</p><p>
+On the other hand there are things that lead to spaghetti code and being
+accustomed to the syntax does not help. Generally the term spaghetti code
+can be used for code where information is scattered and the reader needs
+considerable time to gather this information. E.g.:
+</p><ul>
+<li>In dynamically typed programming languages it is often hard to determine
+   the data structures used, since they are not specified. Seed7 variables
+   and types must be declared explicitely. This improves readability.</li>
+<li>Compilers that do type inference spend most of their time for type
+   checking. This means that a human reader needs also to spend most of the
+   time to understand the types in use. That way type inference makes
+   writing easier and reading harder. The omission of type inference in
+   Seed7 simplifies reading code.</li>
+</ul><p>
+Beyond that, reduced complexity also helps readability:
+</p><ul>
+<li>Integers and strings follow the "one size fits all" principle. There are
+   <a class="link" href="#faq_byte_small_long">no integer types of various sizes</a> and there is just <a class="link" href="#faq_unicode">one string type</a>.</li>
+<li>There is no need to distinguish between <a class="link" href="#faq_mutable_strings">mutable and unmutable strings</a>.</li>
+<li><a class="link" href="#faq_comparisons">Comparisons</a> are always done with simple operators (<tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt> <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt>).</li>
+<li>There is no NULL, so no necessity to check for NULL.</li>
+<li>There is no inlining of code written in a different language. With inlined
+   foreign code you need to know both languages to understand such a program.</li>
+<li>Code that uses <a class="link" href="#faq_exceptions">exceptions</a> has better readability than code where the
+   result of every function must be checked for eventual errors.</li>
+<li>There are no implicit casts that may make reading harder.</li>
+</ul></div>
+
 <div><br /><a name="faq_everybody_invents_statements"><h3>Isn't the code unreadable if everybody invents new statements?
 </h3></a><hr />
 <p>
@@ -1759,6 +1835,37 @@ to errors. To avoid errors caused by uninitialized variables in Seed7 each varia
 must be initialized when it is declared.
 </p></div>
 
+<div><br /><a name="faq_byte_small_long"><h3>Are there types like byte, small and long?
+</h3></a><hr />
+<p>
+Seed7 follows the "one size fits all" principle for fixed size integers. The
+type <span class="type">integer</span> is 64-bit signed, smaller integer types do not exist. Today's
+computers have 64-bit processors. On such computers smaller integers must be
+converted into 64-bit integers in order to do computations. So programs that
+use smaller integers might actually be slower because of this. Today
+computers' memory covers many gigabytes, so the pressure to save memory is
+also gone.
+</p><p>
+Support for shorter integers is only needed, when reading or writing files
+that contain binary integers of smaller sizes. In C it is possible to write
+or read data structures directly to or from a file. Such C code is unportable,
+as it assumes that the file format uses the same endianess (little- or
+big-endian) as the processor. Seed7 does not support writing or reading
+structures directly to or from a file. Instead the library <span class="link">bytedata.s7i</span>
+defines several functions to convert integers into and from signed and
+unsigned representations of various sizes. These functions allow also that
+the endianess is specified explicit.
+</p><p>
+Message digest and compression algorithms do bitwise operations on 32- or
+64-bit data. Bitwise operations are not supported by <span class="type">integer</span>. To do that the
+types <span class="type">bin32</span> and <span class="type">bin64</span> have been introduced. These types support bitwise <span class="link">AND</span>,
+<span class="link">OR</span> and <span class="link">XOR</span> operations, but no integer arithmetic. Conversions between <span class="type">integer</span>
+and <span class="type">bin64</span> (respectively <span class="type">bin32</span>) cause no additional costs in compiled programs.
+</p><p>
+If the 64-bit signed <span class="type">integer</span> type is not sufficient the type <span class="type">bigInteger</span> can be
+used.
+</p></div>
+
 <div><br /><a name="faq_unicode"><h3>Is Unicode supported?
 </h3></a><hr />
 <p>
@@ -1970,11 +2077,29 @@ but there is an alternative (see below).
 </p><p>
 Seed7 has support for lexical scanner functions. Scanner functions use the
 LL(1) approach, which is used in compilers. Practically no compiler uses
-regular expressions to parse a program. Scanner functions work strictly
-from left to right. They examine one character and do decisions based on
-this character. How scanner functions work is described in <span class="link">the manual</span>.
-Scanner functions for strings are defined in <span class="lib">scanstri.s7i</span> and scanner
-functions for files are defined in <span class="lib">scanfile.s7i</span>.
+regular expressions to parse a program. The example below uses scanner
+functions to read a key-value pair from a file:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">proc</span>: getKeyValuePair (<span class="keywd">inout</span> <span class="type">file</span>: inFile,
+    <span class="keywd">inout</span> <span class="type">string</span>: propertyName, <span class="keywd">inout</span> <span class="type">string</span>: propertyValue) <span class="keywd">is</span> <span class="keywd">func</span>
+  <span class="keywd">begin</span>
+    <span class="func">skipWhiteSpace</span>(inFile);
+    propertyName := <span class="func">getName</span>(inFile);
+    <span class="func">skipWhiteSpace</span>(inFile);
+    <span class="keywd">if</span> inFile.bufferChar = '=' <span class="keywd">then</span>
+      inFile.bufferChar := getc(inFile);
+      propertyValue := <span class="func">getLine</span>(inFile);
+    <span class="keywd">else</span>
+      propertyValue := "";
+      <span class="func">skipLine</span>(inFile);
+    <span class="keywd">end</span> <span class="keywd">if</span>;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+Scanner functions work strictly from left to right. They examine one
+character and do decisions based on this character. How scanner
+functions work is described in <span class="link">the manual</span>. Scanner functions for strings
+are defined in <span class="lib">scanstri.s7i</span> and scanner functions for files are
+defined in <span class="lib">scanfile.s7i</span>.
 </p></div>
 
 <div><br /><a name="faq_div_operator"><h3>Why is the div operator used for integer divisions?
@@ -2620,9 +2745,9 @@ $ include <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">program</span>: aProg <span class="keywd">is</span> <span class="type">program</span>.value;
   <span class="keywd">begin</span>
-    <span class="keywd">if</span> <span class="func">length</span>(<span class="func">argv</span>(PROGRAM)) <span class="op_no_ul">=(in_integer)">&gt;=</span> 1 <span class="keywd">then</span>
+    <span class="keywd">if</span> <span class="func">length</span>(<span class="func">argv</span>(PROGRAM)) <span class="op_no_ul">&gt;=</span> 1 <span class="keywd">then</span>
       aProg := <span class="func">parseFile</span>(<span class="func">argv</span>(PROGRAM)<span class="op_no_ul">[1]</span>);
-      <span class="keywd">if</span> aProg <span class="op_no_ul">(in_program)">&lt;&gt;</span> <span class="type">program</span>.value <span class="keywd">then</span>
+      <span class="keywd">if</span> aProg <span class="op_no_ul">&lt;&gt;</span> <span class="type">program</span>.value <span class="keywd">then</span>
         <span class="func">execute</span>(aProg, <span class="func">argv</span>(PROGRAM)<span class="op_no_ul">[2 ..]</span>);
       <span class="keywd">end if</span>;
     <span class="keywd">end if</span>;
@@ -2649,7 +2774,7 @@ $ include <span class="lib">"seed7_05.s7i"</span>;
     <span class="keywd">var</span> <span class="type">reference</span>: aRef <span class="keywd">is</span> <span class="var">NIL</span>;
   <span class="keywd">begin</span>
     aProg := <span class="func">parseFile</span>(<span class="stri">"panic.sd7"</span>);
-    <span class="keywd">if</span> aProg <span class="op_no_ul">(in_program)">&lt;&gt;</span> <span class="type">program</span>.value <span class="keywd">then</span>
+    <span class="keywd">if</span> aProg <span class="op_no_ul">&lt;&gt;</span> <span class="type">program</span>.value <span class="keywd">then</span>
       <span class="keywd">for</span> aRef <span class="keywd">range</span> <span class="func">globalObjects</span>(aProg) <span class="keywd">do</span>
         <span class="func">writeln</span>(<span class="func">str</span>(aRef));
       <span class="keywd">end for</span>;
@@ -2735,8 +2860,43 @@ structured programming <tt>break</tt>, <tt>continue</tt> and <tt>goto</tt> are n
 <div><br /><a name="faq_exceptions"><h3>Are there exceptions?
 </h3></a><hr />
 <p>
-Yes, Seed7 has exceptions which are similar to Ada exceptions. <span class="link">Chapter 16.2
-(Exceptions)</span> of the manual contains a detailed description of the Seed7 exceptions.
+Yes, Seed7 has exceptions which are similar to Ada exceptions. In <span class="link">chapter 16.2
+(Exceptions)</span> of the manual you will find a detailed description of the Seed7
+exceptions. The use of exceptions improves also readability. E.g.:
+</p><pre class="indent">
+doA();
+doB();
+doC();
+</pre><p>
+In this example the normal flow of control can be seen easily. If doA(), doB()
+or doC() trigger an exception the program is terminated. The program is safe
+without the need to do something.
+</p><p>
+Let's assume that exceptions are not supported and that the functions doA(),
+doB() and doC() will return error codes. In C you can ignore function results,
+so this would be legal C code. But in this case the code is unsafe since
+the error codes get ignored. In a language without exceptions, it is necessary
+to change the code to check for errors. E.g.:
+</p><pre class="indent">
+<span class="keywd">if</span> (doA() == ERRORVALUE_A) {
+
+  ... handling of errors triggered by doA() ...
+
+} <span class="keywd">else if</span> (doB() == ERRORVALUE_B) {
+
+  ... handling of errors triggered by doB() ...
+
+} <span class="keywd">else if</span> ((errorVar = doC()) == ERROR_X || errorVar == ERROR_Y) {
+
+  ... handling of errors triggered by doC() ...
+
+} <span class="keywd">else</span> {
+
+  ... code that follows doC() ...
+
+}
+</pre><p>
+This can lead to horrible code where it is easy to overlook a bug.
 </p></div>
 
 <div><br /><a name="faq_stack_trace"><h3>What happens if an exception is not caught?

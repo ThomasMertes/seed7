@@ -106,7 +106,7 @@ const proc: process (CON_HEIGHT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "conHeight()";
+    c_expr.expr &:= "(intType) conHeight()";
   end func;
 
 
@@ -181,7 +181,7 @@ const proc: process (CON_WIDTH, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "conWidth()";
+    c_expr.expr &:= "(intType) conWidth()";
   end func;
 
 

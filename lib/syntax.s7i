@@ -183,7 +183,9 @@ $ syntax: . -><- .()   is  -> 25;
 
 (* STATEMENTS *)
 $ syntax expr: .while.().do.().end.while                         is  -> 25;
+$ syntax expr: .while.().do.end.while                            is  -> 25;
 $ syntax expr: .repeat.().until.()                               is  -> 25;
+$ syntax expr: .repeat.until.()                                  is  -> 25;
 
 $ syntax expr: .for.().range.().to.().do.().end.for              is  -> 25;
 $ syntax expr: .for.().range.().downto.().do.().end.for          is  -> 25;

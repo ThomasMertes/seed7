@@ -752,6 +752,12 @@ extern Bool XQueryPointer (Display *display,
                            int *win_x_return,
                            int *win_y_return,
                            unsigned int *mask_return);
+extern Status XQueryTree (Display *display,
+                          Window window,
+                          Window *root_return,
+                          Window *parent_return,
+                          Window **children_return,
+                          unsigned int *nchildren_return);
 extern int XRaiseWindow (Display *display,
                          Window window);
 extern int XRefreshKeyboardMapping (XMappingEvent *event_map);

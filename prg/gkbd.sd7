@@ -45,6 +45,7 @@ const proc: main is func
     var time: waitTime is time.value;
   begin
     screen(640, 480);
+    setCloseAction(curr_win, RETURN_KEY);
     OUT := STD_CONSOLE;
     writeln("Keyboard test program. Type ! to terminate the program");
     KEYBOARD := GRAPH_KEYBOARD;

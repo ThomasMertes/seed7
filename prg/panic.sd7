@@ -816,7 +816,7 @@ const proc: pause_game (in boolean: blankWindow, in boolean: exitWithAnyKey) is 
     end if;
     while not (exitPause or game.quit) do
       cmd := getc(KEYBOARD);
-      if cmd in {'Q', 'q'} then
+      if cmd in {'Q', 'q', KEY_CLOSE} then
         game.quit := TRUE;
       elsif cmd = KEY_ESC then
         bossMode(game.quit);
@@ -842,7 +842,7 @@ const proc: game_command (in char: cmd) is func
       when {KEY_CTL_R}:
         game.round_finished := TRUE;
         game.restart := TRUE;
-      when {'Q', 'q'}:
+      when {'Q', 'q', KEY_CLOSE}:
         game.quit := TRUE;
       when {'Y', 'y'}:
         writeln(heapsize(PROGRAM));
@@ -2441,6 +2441,7 @@ const proc: main is func
     var char: cmd is ' ';
   begin
     screen(WIN_WIDTH, WIN_HEIGHT);
+    setCloseAction(curr_win, RETURN_KEY);
     clear(curr_win, black);
     KEYBOARD := GRAPH_KEYBOARD;
     scr := openPixmapFontFile(curr_win);
@@ -2485,7 +2486,7 @@ const proc: main is func
     writeCentered(scr, 378, "Press any key to start game");
     DRAW_FLUSH;
     cmd := getc(KEYBOARD);
-    if cmd in {'Q', 'q'} then
+    if cmd in {'Q', 'q', KEY_CLOSE} then
       game.quit := TRUE;
     elsif cmd = KEY_ESC then
       pause_game(TRUE, TRUE);

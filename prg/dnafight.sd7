@@ -819,7 +819,7 @@ const proc: InitAnimates is func
     playerSet:= colorSet.EMPTY_SET;
     animates:= 0 times microbe.value;
     command := readCommand(line, column);
-    while command <> 'q' and command <> KEY_F1 do
+    while upper(command) <> 'Q' and command <> KEY_CLOSE and command <> KEY_F1 do
       case command of
         when {'2', KEY_DOWN}:
           if line < MAX_LINE then
@@ -1214,12 +1214,10 @@ const proc: generation is func
 const proc: main is func
 
   local
+    var char: command is ' ';
     var time: turnTime is time.value;
 
   begin (* main *)
-(*
-    scr := open(SCREEN);
-*)
     screen(640, 480);
     clear(curr_win, white);
     color(black, white);
@@ -1273,7 +1271,8 @@ const proc: main is func
         \programming skills.");
     setPos(scr, 36, 41);
     writeln(scr, "Press any key to start game");
-    if upper(getc(KEYBOARD)) <> 'Q' then
+    command := upper(getc(KEYBOARD));
+    if command <> 'Q' and command <> KEY_CLOSE then
       clear(curr_win, white);
       setPos(scr, 1, 1);
       write(scr, "DNAFIGHT V");

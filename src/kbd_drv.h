@@ -29,6 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
+#define CLOSE_BUTTON_CLOSES_PROGRAM   0
+#define CLOSE_BUTTON_RETURNS_KEY      1
+#define CLOSE_BUTTON_RAISES_EXCEPTION 2
+
 #define K_CTL_A        1
 #define K_CTL_B        2
 #define K_CTL_C        3
@@ -267,6 +271,7 @@
 #define K_NUM_LOCK_ON    (KEYCODE_BASE + 380)
 #define K_SCROLL_LOCK    (KEYCODE_BASE + 381)
 #define K_SCROLL_LOCK_ON (KEYCODE_BASE + 382)
+#define K_CLOSE          (KEYCODE_BASE + 385)
 #define K_UNDEF          (KEYCODE_BASE + 386)
 #define K_NONE           (KEYCODE_BASE + 387)
 

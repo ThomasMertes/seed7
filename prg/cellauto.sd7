@@ -80,5 +80,5 @@ const proc: main is func
       drawGeneration(generationNumber, currentGeneration);
     end for;
     DRAW_FLUSH;
-    readln(KEYBOARD);
+    ignore(getc(KEYBOARD));
   end func;

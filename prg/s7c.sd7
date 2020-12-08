@@ -98,7 +98,7 @@ var ref_list: dynamic_functions is ref_list.EMPTY;
 var interface_hash: interfaceOfType is interface_hash.EMPTY_HASH;
 var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
 var params_added_hash: params_added is params_added_hash.EMPTY_HASH;
-var setOfString: definedActualFuncParams is setOfString.value;
+var boolean_obj_hash: definedActualFuncParams is boolean_obj_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_data is funcparam_data_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_reference is funcparam_data_hash.EMPTY_HASH;
 var element_repeat_count_hash: element_repeat_count is element_repeat_count_hash.EMPTY_HASH;
@@ -952,6 +952,7 @@ const proc: defineActualFuncParam (in string: valueName, in reference: actual_pa
     c_expr.expr &:= valueName;
     c_expr.expr &:= ")\n";
     c_expr.expr &:= "{\n";
+    c_func_body.demand := REQUIRE_RESULT;
     if category(actual_param) = BLOCKOBJECT then
       process_call_by_name_expr(body(actual_param), c_func_body);
     else
@@ -1052,13 +1053,15 @@ const proc: processFuncValue (in string: valueName, in type: genericFuncType,
   begin
     declare_type_if_necessary(genericFuncType, global_c_expr);
     data_list := determineDataForActualFuncParam(closure);
-    if valueName not in definedActualFuncParams then
+    if closure not in definedActualFuncParams then
+      function_c_expr.currentFile := file(closure);
+      function_c_expr.currentLine := line(closure);
       defineActualFuncParam(valueName, closure, data_list, function_c_expr);
-      incl(definedActualFuncParams, valueName);
+      global_c_expr.expr  &:= function_c_expr.temp_decls;
+      global_init.expr    &:= function_c_expr.temp_assigns;
+      global_c_expr.expr  &:= function_c_expr.expr;
+      definedActualFuncParams @:= [closure] TRUE;
     end if;
-    global_c_expr.expr  &:= function_c_expr.temp_decls;
-    global_init.expr    &:= function_c_expr.temp_assigns;
-    global_c_expr.expr  &:= function_c_expr.expr;
     defineFuncValue(valueName, genericFuncType, data_list, c_expr);
     if data_list <> ref_list.EMPTY then
       c_expr.expr &:= "(";
@@ -1242,18 +1245,30 @@ const proc: process_const_func_call (in reference: function,
 const proc: process_func_call (in reference: function,
     in ref_list: actual_params, inout expr_type: c_expr) is func
 
+  local
+    var type: result_type is void;
   begin
     if isVar(function) then
       if getType(function) = proctype then
         setDiagnosticLine(c_expr);
       end if;
-      c_expr.expr &:= "o_";
-      create_name(function, c_expr.expr);
-      c_expr.expr &:= "->func(o_";
-      create_name(function, c_expr.expr);
-      c_expr.expr &:= ")";
-      if getType(function) = proctype then
-        c_expr.expr &:= ";\n";
+      result_type := resultType(getType(function));
+      if valueIsAtHeap(result_type) then
+        prepare_typed_result(result_type, c_expr);
+        c_expr.result_expr &:= "o_";
+        create_name(function, c_expr.result_expr);
+        c_expr.result_expr &:= "->func(o_";
+        create_name(function, c_expr.result_expr);
+        c_expr.result_expr &:= ")";
+      else
+        c_expr.expr &:= "o_";
+        create_name(function, c_expr.expr);
+        c_expr.expr &:= "->func(o_";
+        create_name(function, c_expr.expr);
+        c_expr.expr &:= ")";
+        if getType(function) = proctype then
+          c_expr.expr &:= ";\n";
+        end if;
       end if;
     else
       process_const_func_call(function, actual_params, c_expr);
@@ -5424,7 +5439,8 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
           sorted_list &:= make_list(struct_of_interface);
         end if;
         sorted_list &:= make_list(current_object);
-      elsif objectCategory = MATCHOBJECT or objectCategory = ACTOBJECT then
+      elsif objectCategory = MATCHOBJECT or objectCategory = ACTOBJECT or
+          objectCategory = BLOCKOBJECT then
         if current_object not in const_table then
           const_table @:= [current_object] length(const_table);
         end if;
@@ -5554,7 +5570,8 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= ".value.interfaceValue=itfCreate(itf[";
       c_expr.expr &:= str(const_table[current_object]);
       c_expr.expr &:= "])";
-    elsif objectCategory = MATCHOBJECT or objectCategory = ACTOBJECT then
+    elsif objectCategory = MATCHOBJECT or objectCategory = ACTOBJECT or
+        objectCategory = BLOCKOBJECT then
       c_expr.expr &:= ".value.genericValue=";
       process_func_literal(current_object, c_expr);
     else
@@ -6580,7 +6597,9 @@ const proc: init_values (inout expr_type: c_expr) is func
     writeln("after walk_const_list");
 
     for const_object range sorted_list do
-      if category(const_object) = MATCHOBJECT or category(const_object) = ACTOBJECT then
+      # writeln(str(category(const_object)) <& ": " <& create_name(const_object));
+      if category(const_object) = MATCHOBJECT or category(const_object) = ACTOBJECT or
+          category(const_object) = BLOCKOBJECT then
         prepare_func_literal(const_object, c_expr);
       end if;
     end for;

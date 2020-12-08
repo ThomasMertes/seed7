@@ -3090,7 +3090,8 @@ const proc: playGame is func
         when {KEY_RIGHT}: move(EAST);
         when {KEY_UP}:    move(NORTH);
         when {KEY_DOWN}:  move(SOUTH);
-        when {KEY_ESC, 'Q', 'q'}: quitGame;
+        when {KEY_ESC}:   bossMode(exitGame);
+        when {'Q', 'q', KEY_CLOSE}: quitGame;
         when {KEY_MOUSE1}:
           xPos := getxpos(KEYBOARD);
           yPos := getypos(KEYBOARD);
@@ -3139,13 +3140,14 @@ const proc: main is func
     var char: command is ' ';
   begin
     screen(1024, 768);
+    setCloseAction(curr_win, RETURN_KEY);
     clear(curr_win, white);
     screen := open(curr_win, 16);
     KEYBOARD := GRAPH_KEYBOARD;
     initGame;
     welcomeScreen;
     command := getc(KEYBOARD);
-    if upper(command) <> 'Q' then
+    if upper(command) <> 'Q' and command <> KEY_CLOSE and command <> KEY_ESC then
       playGame;
     end if;
   end func;

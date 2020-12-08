@@ -79,6 +79,8 @@ const proc: (ref varfunc proc param) ::= (ref ACTION param)  is action "ACT_CREA
 const func proc: func begin (ref expr: statements) end func  is action "PRC_BEGIN";
 const func proc: func local (ref proc: localDefinitions)
                  begin (ref expr: statements) end func       is action "PRC_LOCAL";
+const func proc: return (ref void: statement)                is action "PRC_RETURN";
+const func proc: return (ref proc: statement)                is action "PRC_RETURN";
 const proc: (ref proc param) ::= (ref proc param)            is action "PRC_CREATE";
 const proc: (inout proc: dest) := (ref proc: source)         is action "PRC_CPY";
 const proc: destroy (ref proc param)                         is action "GEN_DESTR";
@@ -309,6 +311,7 @@ const EXCEPTION: RANGE_ERROR    is enumlit;
 const EXCEPTION: INDEX_ERROR    is enumlit;
 const EXCEPTION: FILE_ERROR     is enumlit;
 const EXCEPTION: DATABASE_ERROR is enumlit;
+const EXCEPTION: CLOSE_ERROR    is enumlit;
 const EXCEPTION: ILLEGAL_ACTION is enumlit;
 const EXCEPTION: CREATE_ERROR   is enumlit;
 const EXCEPTION: DESTROY_ERROR  is enumlit;
@@ -322,6 +325,7 @@ $ system "range_error"    is RANGE_ERROR;
 $ system "index_error"    is INDEX_ERROR;
 $ system "file_error"     is FILE_ERROR;
 $ system "database_error" is DATABASE_ERROR;
+$ system "close_error"    is CLOSE_ERROR;
 $ system "illegal_action" is ILLEGAL_ACTION;
 
 const proc: raise (ref EXCEPTION: anException)     is action "PRC_RAISE";
@@ -418,11 +422,19 @@ const ELSIF_PROC: elsif FALSE then (in proc param) (in ELSIF_RESULT param) is EL
 
 const proc: while (ref func boolean: condition) do (in proc: statement) end while     is action "PRC_WHILE";
 const proc: while (ref varfunc boolean: condition) do (in proc: statement) end while  is action "PRC_WHILE";
-const proc: while (in boolean: condition)  do (in proc: statement) end while          is action "PRC_WHILE";
+const proc: while (in boolean: condition) do (in proc: statement) end while           is action "PRC_WHILE";
+
+const proc: while (ref func boolean: condition) do end while     is action "PRC_WHILE_NOOP";
+const proc: while (ref varfunc boolean: condition) do end while  is action "PRC_WHILE_NOOP";
+const proc: while (in boolean: condition) do end while           is action "PRC_WHILE_NOOP";
 
 const proc: repeat (in proc: statement) until (ref func boolean: condition)     is action "PRC_REPEAT";
 const proc: repeat (in proc: statement) until (ref varfunc boolean: condition)  is action "PRC_REPEAT";
 const proc: repeat (in proc: statement) until (in boolean: condition)           is action "PRC_REPEAT";
+
+const proc: repeat until (ref func boolean: condition)     is action "PRC_REPEAT_NOOP";
+const proc: repeat until (ref varfunc boolean: condition)  is action "PRC_REPEAT_NOOP";
+const proc: repeat until (in boolean: condition)           is action "PRC_REPEAT_NOOP";
 
 
 (* integer *)
@@ -1118,6 +1130,9 @@ const func type: new enum (ref expr: elem_expr) end enum is func
       begin
         enum_val := pred(enum_val);
       end func;
+
+    const func enumType: rand (in enumType: low, in enumType: high) is
+      return enumType conv rand(ord(low), ord(high));
 
     const func boolean: (in enumType: enum_val1) < (in enumType: enum_val2) is
       return ord(enum_val1) < ord(enum_val2);

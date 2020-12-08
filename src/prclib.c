@@ -1037,6 +1037,30 @@ objectType prc_repeat (listType arguments)
 
 
 
+objectType prc_repeat_noop (listType arguments)
+
+  {
+    objectType condition;
+    objectType cond_value;
+    boolType cond;
+
+  /* prc_repeat_noop */
+    condition = arg_3(arguments);
+    do {
+      cond_value = evaluate(condition);
+      if (likely(!fail_flag)) {
+        isit_bool(cond_value);
+        cond = (boolType) (take_bool(cond_value) == SYS_FALSE_OBJECT);
+        if (TEMP_OBJECT(cond_value)) {
+          dump_any_temp(cond_value);
+        } /* if */
+      } /* if */
+    } while (!fail_flag && cond);
+    return SYS_EMPTY_OBJECT;
+  } /* prc_repeat_noop */
+
+
+
 objectType prc_res_begin (listType arguments)
 
   {
@@ -1430,3 +1454,27 @@ objectType prc_while (listType arguments)
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* prc_while */
+
+
+
+objectType prc_while_noop (listType arguments)
+
+  {
+    objectType condition;
+    objectType cond_value;
+    boolType cond;
+
+  /* prc_while_noop */
+    condition = arg_2(arguments);
+    do {
+      cond_value = evaluate(condition);
+      if (likely(!fail_flag)) {
+        isit_bool(cond_value);
+        cond = (boolType) (take_bool(cond_value) == SYS_TRUE_OBJECT);
+        if (TEMP_OBJECT(cond_value)) {
+          dump_any_temp(cond_value);
+        } /* if */
+      } /* if */
+    } while (cond && !fail_flag);
+    return SYS_EMPTY_OBJECT;
+  } /* prc_while_noop */

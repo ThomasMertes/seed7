@@ -160,14 +160,8 @@ const proc: SET_TRANSPARENTCOLOR (in PRIMITIVE_WINDOW: pixmap,
 const func integer: hashCode (in PRIMITIVE_WINDOW: aWindow) is action "DRW_HASHCODE";
 const func integer: compare (in PRIMITIVE_WINDOW: window1,
                              in PRIMITIVE_WINDOW: window2)  is action "DRW_CMP";
-const func integer: height (in PRIMITIVE_WINDOW: aWindow)   is action "DRW_HEIGHT";
-const func integer: width (in PRIMITIVE_WINDOW: aWindow)    is action "DRW_WIDTH";
-const func integer: xPos (in PRIMITIVE_WINDOW: aWindow)     is action "DRW_XPOS";
-const func integer: yPos (in PRIMITIVE_WINDOW: aWindow)     is action "DRW_YPOS";
 const proc: setContent (inout PRIMITIVE_WINDOW: aWindow,
     in PRIMITIVE_WINDOW: pixmap)                            is action "DRW_SETCONTENT";
-const proc: setPos (in PRIMITIVE_WINDOW: aWindow,
-    in integer: xPos, in integer: yPos)                     is action "DRW_SETPOS";
 const func pixel: rgbPixel (ref integer: red,
     ref integer: green, ref integer: blue)          is action "DRW_RGBCOL";
 const proc: DRAW_PIXEL_TO_RGB (
@@ -178,8 +172,71 @@ const proc: SET_BACKGROUND (ref pixel: aWindow)     is action "DRW_BACKGROUND";
 const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW: aWindow,
     ref integer: x, ref integer: y, in string: stri,
     ref pixel: col, ref pixel: bkcol)               is action "DRW_TEXT";
+
+(**
+ *  Determine the height of the screen in pixels.
+ *)
+const func integer: screenHeight                    is action "DRW_SCREEN_HEIGHT";
+
+(**
+ *  Determine the width of the screen in pixels.
+ *)
+const func integer: screenWidth                     is action "DRW_SCREEN_WIDTH";
+
+(**
+ *  Determine the height of the window drawing area in pixels.
+ *  This excludes window decorations at top and bottom. Add top and bottom
+ *  border widths to get the height inclusive window decorations.
+ *)
+const func integer: height (in PRIMITIVE_WINDOW: aWindow)   is action "DRW_HEIGHT";
+
+(**
+ *  Determine the width of the window drawing area in pixels.
+ *  This excludes window declarations left and right. Add left and right
+ *  border widths to get the width inclusive window decorations.
+ *)
+const func integer: width (in PRIMITIVE_WINDOW: aWindow)    is action "DRW_WIDTH";
+
+(**
+ *  Determine the X position of the top left corner of a window in pixels.
+ *  If window decorations are present this uses the top left corner of
+ *  the window decorations.
+ *)
+const func integer: xPos (in PRIMITIVE_WINDOW: aWindow)     is action "DRW_XPOS";
+
+(**
+ *  Determine the Y position of the top left corner of a window in pixels.
+ *  If window decorations are present this uses the top left corner of
+ *  the window decorations.
+ *)
+const func integer: yPos (in PRIMITIVE_WINDOW: aWindow)     is action "DRW_YPOS";
+
+(**
+ *  Move a window to the coordinates x/y.
+ *  Afterwards the top left corner of the window will be at the position x/y.
+ *  If window decorations are present the top left corner of the
+ *  window decorations will be at the position x/y.
+ *)
+const proc: setPos (in PRIMITIVE_WINDOW: aWindow,
+    in integer: xPos, in integer: yPos)                     is action "DRW_SETPOS";
+
+(**
+ *  Lower a window to the bottom so that it does not obscure any other window.
+ *)
 const proc: toBottom (in PRIMITIVE_WINDOW: aWindow) is action "DRW_TOBOTTOM";
+
+(**
+ *  Raise a window to the top so that no other window obscures it.
+ *)
 const proc: toTop (in PRIMITIVE_WINDOW: aWindow)    is action "DRW_TOTOP";
+
+(**
+ *  Determine the border widths of a window in pixels.
+ *  These are the widths of the window decorations in the succession
+ *  top, right, bottom, left.
+ *  @return an array with border widths (top, right, bottom, left).
+ *)
+const func array integer: getBorder (in PRIMITIVE_WINDOW: aWindow) is action "DRW_BORDER";
 
 (**
  *  Determine the actual X position of the mouse pointer.
@@ -194,6 +251,16 @@ const func integer: pointerXPos (in PRIMITIVE_WINDOW: aWindow) is action "DRW_PO
  *  to move something with the cursor (e.g.: drag and drop).
  *)
 const func integer: pointerYPos (in PRIMITIVE_WINDOW: aWindow) is action "DRW_POINTER_YPOS";
+
+
+const proc: SET_CLOSE_ACTION (in PRIMITIVE_WINDOW: aWindow, in integer: closeAction) is action "DRW_SETCLOSEACTION"; 
+
+const type: windowCloseAction is new enum
+    CLOSE_PROGRAM, RETURN_KEY, RAISE_EXCEPTION
+  end enum;
+
+const proc: setCloseAction(in PRIMITIVE_WINDOW: aWindow, in windowCloseAction: closeAction) is
+  return SET_CLOSE_ACTION(aWindow, ord(closeAction));
 
 
 const type: pointList is newtype;

@@ -53,6 +53,7 @@
 #include "common.h"
 #include "data_rtl.h"
 #include "hsh_rtl.h"
+#include "rtl_err.h"
 #include "kbd_drv.h"
 
 
@@ -91,6 +92,7 @@ struct modifierState {
 
 static struct modifierState modState = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
 
+extern int getCloseAction (winType actual_window);
 extern void redraw (winType redraw_window, int xPos, int yPos, int width, int height);
 extern void doFlush (void);
 extern void flushBeforeRead (void);
@@ -1221,8 +1223,20 @@ charType gkbGetc (void)
         case ClientMessage:
           traceEvent(printf("ClientMessage\n"););
           if ((Atom) currentEvent.xclient.data.l[0] == wm_delete_window) {
-            /* printf("do exit\n"); */
-            exit(1);
+            /* printf("wm_delete_window\n"); */
+            switch (getCloseAction(find_window(currentEvent.xclient.window))) {
+              case CLOSE_BUTTON_CLOSES_PROGRAM:
+                exit(0);
+                break;
+              case CLOSE_BUTTON_RETURNS_KEY:
+                result = K_CLOSE;
+                button_window = currentEvent.xclient.window;
+                break;
+              case CLOSE_BUTTON_RAISES_EXCEPTION:
+                raise_error(CLOSE_ERROR);
+                result = K_CLOSE;
+                break;
+            } /* switch */
           } /* if */
           break;
 

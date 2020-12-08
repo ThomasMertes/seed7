@@ -807,7 +807,9 @@ const proc: victoryAnimation (inout stateType: state) is func
   end func;
 
 
-const proc: playGame is func
+const func boolean: playGame is func
+  result
+    var boolean: quit is FALSE;
   local
     var char: command is ' ';
     var boolean: playing is TRUE;
@@ -825,8 +827,16 @@ const proc: playGame is func
           createSolution(state);
           state.finished := TRUE;
           playing := FALSE;
-        when {'q', 'Q'}:
+        when {'n', 'N'}:
           playing := FALSE;
+        when {'q', 'Q', KEY_CLOSE}:
+          playing := FALSE;
+          quit := TRUE;
+        when {KEY_ESC}:
+          bossMode(quit);
+          if quit then
+            playing := FALSE;
+          end if;
       end case;
       if playing and not state.finished then
         command := getc(KEYBOARD);
@@ -839,11 +849,14 @@ const proc: playGame is func
 
 
 const proc: main is func
+  local
+    var boolean: quit is FALSE;
   begin
     screen(2 * LEFT_MARGIN + 6 * DELTA_X + CARD_WIDTH,
            2 * TOP_MARGIN + DELTA_Y + 19 * PILE_DELTA_Y + CARD_HEIGHT);
+    setCloseAction(curr_win, RETURN_KEY);
     KEYBOARD := GRAPH_KEYBOARD;
     repeat
-      playGame;
-    until FALSE;
+      quit := playGame;
+    until quit;
   end func;

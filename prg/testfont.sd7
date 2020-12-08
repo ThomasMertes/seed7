@@ -90,5 +90,5 @@ const proc: main is func
           width(fontList[index], "àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ€"), yPos);
       write(screen, "àáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ€");
     end for;
-    readln(KEYBOARD);
+    ignore(getc(KEYBOARD));
   end func;

@@ -157,7 +157,7 @@ const proc: doCommand (inout char: ch) is func
         savedWindow := getPixmap(curr_win);
         showHelp;
         ch := getc(KEYBOARD);
-        if ch not in {'q', 'Q', KEY_ESC} then
+        if ch not in {'q', 'Q', KEY_ESC, KEY_CLOSE} then
           put(0, 0, savedWindow, PSET);
           ch := getc(KEYBOARD);
           doCommand(ch);
@@ -173,6 +173,7 @@ const proc: main is func
     var integer: col is 0;
   begin
     screen(num_pix, num_pix);
+    setCloseAction(curr_win, RETURN_KEY);
     clear(curr_win, black);
     screen := openPixmapFontFile(curr_win);
     setFont(screen, stdFont8);
@@ -216,13 +217,13 @@ const proc: main is func
       showHelp;
       ch := getc(KEYBOARD);
     end if;
-    if ch not in {'q', 'Q', KEY_ESC} then
+    if ch not in {'q', 'Q', KEY_ESC, KEY_CLOSE} then
       if ch not in {KEY_MOUSE1, KEY_MOUSE2, KEY_MOUSE3} then
         put(0, 0, startWindow, PSET);
         ch := getc(KEYBOARD);
       end if;
       doCommand(ch);
-      while ch not in {'q', 'Q', KEY_ESC} do
+      while ch not in {'q', 'Q', KEY_ESC, KEY_CLOSE} do
         if ch in {'r', 'R', KEY_MOUSE1, KEY_MOUSE2, KEY_MOUSE3} then
           displayMandelbrotSet(center, zoom);
           DRAW_FLUSH;
