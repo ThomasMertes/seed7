@@ -807,17 +807,17 @@ const proc: initDecodeTables (inout file: compressed,
       when {ZSTD_RLE_MODE}:
         byteToRepeat := ord(getc(compressed));
         blockState.sequencesSection.literalLengthsFseDecoding :=
-	    repeatingFseDecodingTable(zstdLiteralLengthBaseValueTranslation[byteToRepeat],
+            repeatingFseDecodingTable(zstdLiteralLengthBaseValueTranslation[byteToRepeat],
                                       zstdLiteralLengthExtraBits[byteToRepeat]);
       when {ZSTD_FSE_COMPRESSED_MODE}:
         fseData := getFseCompressedHuffmanWeights(compressed);
         blockState.sequencesSection.literalLengthsFseDecoding := buildDecodingTable(fseData);
-	symbolTranslation(blockState.sequencesSection.literalLengthsFseDecoding.decodingTable,
+        symbolTranslation(blockState.sequencesSection.literalLengthsFseDecoding.decodingTable,
             zstdLiteralLengthBaseValueTranslation, zstdLiteralLengthExtraBits);
       when {ZSTD_REPEAT_MODE}:
         if length(blockState.sequencesSection.literalLengthsFseDecoding.decodingTable) = 0 then
           raise RANGE_ERROR;
-	end if;
+        end if;
     end case;
 
     case header.offsetsMode of

@@ -33,6 +33,8 @@ objectType dcl_fwdvar     (listType arguments);
 objectType dcl_getfunc    (listType arguments);
 objectType dcl_getobj     (listType arguments);
 objectType dcl_global     (listType arguments);
+objectType dcl_in1        (listType arguments);
+objectType dcl_in2        (listType arguments);
 objectType dcl_in1var     (listType arguments);
 objectType dcl_in2var     (listType arguments);
 objectType dcl_inout1     (listType arguments);

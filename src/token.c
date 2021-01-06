@@ -220,7 +220,7 @@ tokenType get_syntax_description (tokenType *tokens)
       while (token_found->alternative != NULL) {
         token_found = token_found->alternative;
       } /* while */
-      if (token_found->token_category != LIST_WITH_TYPEOF_SYNTAX ||
+      if (token_found->token_category != LIST_WITH_TYPEOF_SYNTAX &&
           token_found->token_category != SELECT_ELEMENT_FROM_LIST_SYNTAX) {
         token_found->alternative = new_syntax_description();
         token_found = token_found->alternative;

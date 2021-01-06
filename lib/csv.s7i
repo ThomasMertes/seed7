@@ -28,6 +28,12 @@
 
 (**
  *  Convert an array of [[string]]s to a CSV line.
+ *  In a CSV line the fields are separated by the ''separator'' character.
+ *  Fields that contain ''separator'' characters, linefeeds or carriage
+ *  returns are enclosed in double quotes ("). Fields that start or end
+ *  with double quotes are also enclosed in double quotes. Double quotes
+ *  inside a double quoted field are represented by doubling them
+ *  (e.g.: The double quoted field "a""b" has the value a"b ).
  *  @param data String array to be converted.
  *  @param separator Separator character to be used in the CSV line.
  *  @return the CSV line created from ta data array.
@@ -133,9 +139,13 @@ const func array string: fromCsvLine (in string: csvLine, in char: separator) is
  *  ''separator'' characters, double quotes (") or linefeed characters.
  *  Double quotes inside a double quoted field are represented by doubling
  *  them (e.g.: The double quoted field "a""b" has the value a"b ).
- *  This function works also for UTF-8 encoded data. In this case the
- *  function [[unicode#utf8ToStri(in_string)|utf8ToStri]] must be used,
- *  to convert each CSV field from the result array.
+ *  For UTF-8 encoded CSV files there are two possibilities:
+ *  * If the CSV file has been opened with [[utf8#openUtf8(in_string,in_string)|openUtf8]] \
+ *    the CSV fields will contain Unicode data.
+ *  * If the file has been opend with [[external_file#open(in_string,in_string)|open]] the CSV fields will \
+ *    contain UTF-8 encoded data. In this case the function \
+ *    [[unicode#utf8ToStri(in_string)|utf8ToStri]] must be used, \
+ *    to convert each CSV field from the result array.
  *  @param inFile File from which the CSV line is read.
  *  @param separator Separator character used in the CSV line.
  *  @return the array of CSV fields from the CSV line.

@@ -27,7 +27,6 @@
 
 
 $ system "integer" is integer;
-IN_PARAM_IS_VALUE(integer);
 
 const proc: (ref integer: dest) ::= (ref integer: source)           is action "INT_CREATE";
 

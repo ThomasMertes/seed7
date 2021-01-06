@@ -120,6 +120,11 @@ const proc: declare_type_if_necessary (in type: aType, inout expr_type: c_expr) 
           c_expr.expr &:= ";\n\n";
         end if;
         incl(declared_types, type_obj);
+      elsif typeCategory[aType] = BLOCKOBJECT and
+          (isFunc(aType) or isVarfunc(aType)) then
+        declare_type_if_necessary(resultType(aType), c_expr);
+        defineVarFuncType(aType, c_expr);
+        incl(declared_types, type_obj);
       # else
       #   writeln(type_name2(aType) & " in typeCategory " & str(typeCategory[aType]));
       #   c_expr.expr &:= "/* " & type_name2(aType) & " in typeCategory " & str(typeCategory[aType]) & " */\n";

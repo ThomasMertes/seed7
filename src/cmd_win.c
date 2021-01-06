@@ -500,7 +500,7 @@ static striType getNameFromSid (PSID sid)
 
 
 
-static PSID getSidFromName (striType name, errInfoType *err_info)
+static PSID getSidFromName (const const_striType name, errInfoType *err_info)
 
   {
     os_striType accountName;
@@ -633,7 +633,7 @@ striType cmdGetOwner (const const_striType filePath)
 
 
 
-void cmdSetGroup (const const_striType filePath, striType group)
+void cmdSetGroup (const const_striType filePath, const const_striType group)
 
   {
     os_striType os_path;
@@ -658,7 +658,7 @@ void cmdSetGroup (const const_striType filePath, striType group)
       } else {
         SetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
                               GROUP_SECURITY_INFORMATION, NULL,
-			      pSidGroup, NULL, NULL);
+                              pSidGroup, NULL, NULL);
         free(pSidGroup);
         os_stri_free(os_path);
       } /* if */
@@ -667,7 +667,7 @@ void cmdSetGroup (const const_striType filePath, striType group)
 
 
 
-void cmdSetOwner (const const_striType filePath, striType owner)
+void cmdSetOwner (const const_striType filePath, const const_striType owner)
 
   {
     os_striType os_path;

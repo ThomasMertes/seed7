@@ -151,7 +151,7 @@ const func boolean: check_file_io_1 is func
   begin
     aFile := open("qwerty", "w");
     if aFile = STD_NULL then
-      writeln(" ***** Could not open file \"qwerty\" for writing");
+      writeln(" ***** Could not open file \"qwerty\" for writing. (1)");
       okay := FALSE;
     else
       writeln(aFile, "qwertyuiop");
@@ -202,7 +202,7 @@ const func boolean: check_file_io_1 is func
           okay := FALSE;
         end if;
         if hasNext(aFile) then
-          writeln("hasNext(file) does return TRUE after reading the last character of the file. (1)");
+          writeln("hasNext(file) does return TRUE after reading the last character of the file. (2)");
           okay := FALSE;
         end if;
         if not eof(aFile) then
@@ -210,10 +210,14 @@ const func boolean: check_file_io_1 is func
           okay := FALSE;
         end if;
         seek(aFile, 1);
+        if eof(aFile) then
+          writeln("Seek does not clear the EOF flag of a file (eof(file) returns TRUE). (1)");
+          okay := FALSE;
+        end if;
         if not hasNext(aFile) then
           writeln("hasNext(file) does not return TRUE at the beginning of an non-empty file. (1)");
           okay := FALSE;
-        end if;            
+        end if;
         if  not raisesRangeError(gets(aFile, integer.first)) or
             not raisesRangeError(gets(aFile, -1)) then
           writeln("gets with negative number does not raise RANGE_ERROR. (1)");
@@ -259,7 +263,7 @@ const func boolean: check_file_io_2 is func
   begin
     aFile := open("qwerty", "w");
     if aFile = STD_NULL then
-      writeln(" ***** Could not open file \"qwerty\" for writing");
+      writeln(" ***** Could not open file \"qwerty\" for writing. (2)");
       okay := FALSE;
     else
       writeln(aFile, "qwertyuiop\r");
@@ -274,73 +278,77 @@ const func boolean: check_file_io_2 is func
       close(aFile);
       aFile := open("qwerty", "r");
       if aFile = STD_NULL then
-        writeln(" ***** Could not open file \"qwerty\" for reading. (1)");
+        writeln(" ***** Could not open file \"qwerty\" for reading. (2)");
         okay := FALSE;
       else
         read(aFile, stri);
         if stri <> "qwertyuiop" then
-          writeln("read(file, string) does not work correct. (1)");
+          writeln("read(file, string) does not work correct. (2)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := getln(aFile);
         if stri <> "qwertyuiop" then
-          writeln("getln(file) does not work correct. (1)");
+          writeln("getln(file) does not work correct. (2)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := getwd(aFile);
         if stri <> "qwertyuiop" then
-          writeln("getwd(file) does not work correct. (1)");
+          writeln("getwd(file) does not work correct. (2)");
           okay := FALSE;
         end if;
         stri := "";
         if hasNext(aFile) then
-          writeln("hasNext(file) does return TRUE after reading the last character of the file. (1)");
+          writeln("hasNext(file) does return TRUE after reading the last character of the file. (3)");
           okay := FALSE;
         end if;
         if eof(aFile) then
-          writeln("eof(file) does return TRUE after reading the last character of the file. (1)");
+          writeln("eof(file) does return TRUE after reading the last character of the file. (2)");
           okay := FALSE;
         end if;
         if getc(aFile) <> EOF then
-          writeln("getc(file) does not return EOF when reading beyond the last character of the file. (1)");
+          writeln("getc(file) does not return EOF when reading beyond the last character of the file. (2)");
           okay := FALSE;
         end if;
         if hasNext(aFile) then
-          writeln("hasNext(file) does return TRUE after reading the last character of the file. (1)");
+          writeln("hasNext(file) does return TRUE after reading the last character of the file. (4)");
           okay := FALSE;
         end if;
         if not eof(aFile) then
-          writeln("eof(file) does return FALSE after reading the EOF marker of the file. (1)");
+          writeln("eof(file) does return FALSE after reading the EOF marker of the file. (2)");
           okay := FALSE;
         end if;
         seek(aFile, 1);
-        if not hasNext(aFile) then
-          writeln("hasNext(file) does not return TRUE at the beginning of an non-empty file. (1)");
+        if eof(aFile) then
+          writeln("Seek does not clear the EOF flag of a file (eof(file) returns TRUE). (2)");
           okay := FALSE;
-        end if;            
+        end if;
+        if not hasNext(aFile) then
+          writeln("hasNext(file) does not return TRUE at the beginning of an non-empty file. (2)");
+          okay := FALSE;
+        end if;
         if  not raisesRangeError(gets(aFile, integer.first)) or
             not raisesRangeError(gets(aFile, -1)) then
-          writeln("gets with negative number does not raise RANGE_ERROR. (1)");
+          writeln("gets with negative number does not raise RANGE_ERROR. (2)");
           okay := FALSE;
         end if;
         if gets(aFile, 0) <> ""  then
-          writeln("gets(file, 0) does not work correct. (1)");
+          writeln("gets(file, 0) does not work correct. (2)");
           okay := FALSE;
         end if;
         stri := gets(aFile, 10);
         if stri <> "qwertyuiop" then
-          writeln("gets(file, 10) does not work correct. (1)");
+          writeln("gets(file, 10) does not work correct. (2)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := gets(aFile, 999999999);
         if stri <> "qwertyuiop\r\n" then
-          writeln("gets(file, 999999999) does not work correct. (1)");
+          writeln("gets(file, 999999999) does not work correct. (2)");
           okay := FALSE;
         end if;
         if length(aFile) <> 12 then
@@ -367,7 +375,7 @@ const func boolean: check_file_io_3 is func
   begin
     aFile := open("qwerty", "w");
     if aFile = STD_NULL then
-      writeln(" ***** Could not open file \"qwerty\" for writing");
+      writeln(" ***** Could not open file \"qwerty\" for writing. (3)");
       okay := FALSE;
     else
       writeln(aFile, testString);
@@ -384,73 +392,77 @@ const func boolean: check_file_io_3 is func
       close(aFile);
       aFile := open("qwerty", "r");
       if aFile = STD_NULL then
-        writeln(" ***** Could not open file \"qwerty\" for reading. (2)");
+        writeln(" ***** Could not open file \"qwerty\" for reading. (3)");
         okay := FALSE;
       else
         read(aFile, stri);
         if stri <> testString then
-          writeln("read(file, string) does not work correct. (2)");
+          writeln("read(file, string) does not work correct. (3)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := getln(aFile);
         if stri <> testString then
-          writeln("getln(file) does not work correct. (2)");
+          writeln("getln(file) does not work correct. (3)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := getwd(aFile);
         if stri <> testString then
-          writeln("getwd(file) does not work correct. (2)");
+          writeln("getwd(file) does not work correct. (3)");
           okay := FALSE;
         end if;
         stri := "";
         if hasNext(aFile) then
-          writeln("hasNext(file) does return TRUE after reading the last character of the file. (2)");
+          writeln("hasNext(file) does return TRUE after reading the last character of the file. (5)");
           okay := FALSE;
         end if;
         if eof(aFile) then
-          writeln("eof(file) does return TRUE after reading the last character of the file. (2)");
+          writeln("eof(file) does return TRUE after reading the last character of the file. (3)");
           okay := FALSE;
         end if;
         if getc(aFile) <> EOF then
-          writeln("getc(file) does not return EOF when reading beyond the last character of the file. (2)");
+          writeln("getc(file) does not return EOF when reading beyond the last character of the file. (3)");
           okay := FALSE;
         end if;
         if hasNext(aFile) then
-          writeln("hasNext(file) does return TRUE after reading the last character of the file. (2)");
+          writeln("hasNext(file) does return TRUE after reading the last character of the file. (6)");
           okay := FALSE;
         end if;
         if not eof(aFile) then
-          writeln("eof(file) does return FALSE after reading the EOF marker of the file. (2)");
+          writeln("eof(file) does return FALSE after reading the EOF marker of the file. (3)");
           okay := FALSE;
         end if;
         seek(aFile, 1);
-        if not hasNext(aFile) then
-          writeln("hasNext(file) does not return TRUE at the beginning of an non-empty file. (2)");
+        if eof(aFile) then
+          writeln("Seek does not clear the EOF flag of a file (eof(file) returns TRUE). (3)");
           okay := FALSE;
-        end if;            
+        end if;
+        if not hasNext(aFile) then
+          writeln("hasNext(file) does not return TRUE at the beginning of an non-empty file. (3)");
+          okay := FALSE;
+        end if;
         if  not raisesRangeError(gets(aFile, integer.first)) or
             not raisesRangeError(gets(aFile, -1)) then
-          writeln("gets with negative number does not raise RANGE_ERROR. (2)");
+          writeln("gets with negative number does not raise RANGE_ERROR. (3)");
           okay := FALSE;
         end if;
         if gets(aFile, 0) <> ""  then
-          writeln("gets(file, 0) does not work correct. (2)");
+          writeln("gets(file, 0) does not work correct. (3)");
           okay := FALSE;
         end if;
         stri := gets(aFile, length(testString));
         if stri <> testString then
-          writeln("gets(file, 10) does not work correct. (2)");
+          writeln("gets(file, 10) does not work correct. (3)");
           okay := FALSE;
         end if;
         stri := "";
         seek(aFile, 1);
         stri := gets(aFile, 999999999);
         if stri <> testString & "\n" then
-          writeln("gets(file, 999999999) does not work correct. (2)");
+          writeln("gets(file, 999999999) does not work correct. (3)");
           okay := FALSE;
         end if;
         if length(aFile) <> succ(length(testString)) then
@@ -570,17 +582,17 @@ const proc: check_seek is func
           seek(aFile, END_MARKER_POS);
           stri := gets(aFile, 999999999);
           if stri <> SEEK_TEST_END_MARKER & "\n" then
-            writeln("gets(file, 999999999) does not work correct.");
+            writeln("gets(file, 999999999) does not work correct. (4)");
             okay := FALSE;
           end if;
           if length(aFile) <> SEEK_TEST_FILE_SIZE then
             writeln("length(aFile) returns " <& length(aFile) <&
-                    " instead of " <& SEEK_TEST_FILE_SIZE <& ".");
+                    " instead of " <& SEEK_TEST_FILE_SIZE <& ". (1)");
             okay := FALSE;
           end if;
           if bigLength(aFile) <> bigInteger(SEEK_TEST_FILE_SIZE) then
             writeln("bigLength(aFile) returns " <& bigLength(aFile) <&
-                    " instead of " <& SEEK_TEST_FILE_SIZE <& ".");
+                    " instead of " <& SEEK_TEST_FILE_SIZE <& ". (1)");
             okay := FALSE;
           end if;
           close(aFile);
@@ -597,7 +609,7 @@ const proc: check_seek is func
         end if;
 
       else
-        writeln(" ***** Could not open file \"qwerty\" for writing");
+        writeln(" ***** Could not open file \"qwerty\" for writing. (4)");
       end if;
     else
       writeln(" ***** File \"qwerty\" already exists");
@@ -623,43 +635,43 @@ const proc: check_utf8_io is func
         if aFile <> STD_NULL then
           read(aFile, stri);
           if stri <> "qwertyuiop" then
-            writeln("read(file, string) does not work correct.");
+            writeln("read(file, string) does not work correct. (4)");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, 1);
           stri := getln(aFile);
           if stri <> "qwertyuiop" then
-            writeln("getln(file) does not work correct.");
+            writeln("getln(file) does not work correct. (4)");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, 1);
           stri := getwd(aFile);
           if stri <> "qwertyuiop" then
-            writeln("getwd(file) does not work correct.");
+            writeln("getwd(file) does not work correct. (4)");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, 1);
           stri := gets(aFile, 10);
           if stri <> "qwertyuiop" then
-            writeln("gets(file, 10) does not work correct.");
+            writeln("gets(file, 10) does not work correct. (4)");
             okay := FALSE;
           end if;
           stri := "";
           seek(aFile, 1);
           stri := gets(aFile, 999999999);
           if stri <> "qwertyuiop\n" then
-            writeln("gets(file, 999999999) does not work correct.");
+            writeln("gets(file, 999999999) does not work correct. (5)");
             okay := FALSE;
           end if;
           if length(aFile) <> 11 then
-            writeln("length(aFile) returns " <& length(aFile) <& " instead of 11.");
+            writeln("length(aFile) returns " <& length(aFile) <& " instead of 11. (3)");
             okay := FALSE;
           end if;
           if bigLength(aFile) <> 11_ then
-            writeln("bigLength(aFile) returns " <& bigLength(aFile) <& " instead of 11.");
+            writeln("bigLength(aFile) returns " <& bigLength(aFile) <& " instead of 11. (3)");
             okay := FALSE;
           end if;
           close(aFile);
@@ -750,17 +762,17 @@ const proc: check_utf8_seek is func
           seek(aFile, END_MARKER_POS);
           stri := gets(aFile, 999999999);
           if stri <> SEEK_TEST_END_MARKER & "\n" then
-            writeln("gets(file, 999999999) does not work correct.");
+            writeln("gets(file, 999999999) does not work correct. (6)");
             okay := FALSE;
           end if;
           if length(aFile) <> SEEK_TEST_FILE_SIZE then
             writeln("length(aFile) returns " <& length(aFile) <&
-                    " instead of " <& SEEK_TEST_FILE_SIZE <& ".");
+                    " instead of " <& SEEK_TEST_FILE_SIZE <& ". (2)");
             okay := FALSE;
           end if;
           if bigLength(aFile) <> bigInteger(SEEK_TEST_FILE_SIZE) then
             writeln("bigLength(aFile) returns " <& bigLength(aFile) <&
-                    " instead of " <& SEEK_TEST_FILE_SIZE <& ".");
+                    " instead of " <& SEEK_TEST_FILE_SIZE <& ". (2)");
             okay := FALSE;
           end if;
           close(aFile);

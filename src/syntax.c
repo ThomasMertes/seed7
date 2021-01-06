@@ -467,7 +467,9 @@ void decl_syntax (void)
             (priorityType) symbol.intValue, assoc);
         scan_symbol();
         if (token_list_end != NULL) {
-          if (current_ident == prog->id_for.lbrack) {
+          if (token_list_end->token_category != UNDEF_SYNTAX) {
+            err_warning(SYNTAX_DECLARED_TWICE);
+          } else if (current_ident == prog->id_for.lbrack) {
             scan_symbol();
             if (symbol.sycategory != INTLITERAL) {
               err_string(CARD_EXPECTED, symbol.name);

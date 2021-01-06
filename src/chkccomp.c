@@ -136,6 +136,8 @@
  *            #define LIST_DIRECTORY_CONTENTS "dir"
  *  LINKER_OPT_STATIC_LINKING: (optional)
  *      Contains the linker option to force static linking (e.g.: "-static").
+ *  CC_OPT_LINK_TIME_OPTIMIZATION (optional)
+ *      Contains the compiler option for link time optimization (e.g.: "-flto").
  *  SUPPORTS_PARTIAL_LINKING: (optional)
  *      Defined if partial/incremental linking is prossible.
  *      In this case source code can be compiled with the options -r -c.
@@ -3969,6 +3971,23 @@ static void determineFseekFunctions (FILE *versionFile, const char *fileno)
       fprintf(versionFile, "#define os_off_t %s\n", os_off_t_stri);
       fprintf(versionFile, "#define os_fseek %s\n", os_fseek_stri);
       fprintf(versionFile, "#define os_ftell %s\n", os_ftell_stri);
+      sprintf(buffer,
+              "#include <stdio.h>\n#include <string.h>\n"
+              "int main(int argc,char *argv[])\n"
+              "{FILE *aFile;\n"
+              "int eofResult = -1;\n"
+              "aFile = fopen(\"tst_vers.h\", \"rb\");\n"
+              "if (aFile != NULL) {\n"
+              "  while (getc(aFile) != EOF) ;\n"
+              "  if (%s(aFile, (%s) 0, SEEK_SET) == 0) {\n"
+              "    eofResult = feof(aFile);\n"
+              "  }\n"
+              "  fclose(aFile);\n"
+              "}\n"
+              "printf(\"%%d\\n\", eofResult == 0);\n"
+              "return 0;}\n", os_fseek_stri, os_off_t_stri);
+      fprintf(versionFile, "#define OS_FSEEK_RESETS_EOF_FLAG %d\n",
+              compileAndLinkOk(buffer) && doTest() == 1);
     } else {
       fprintf(logFile, "\n *** Cannot define os_fseek and os_ftell.\n");
     } /* if */
@@ -4364,8 +4383,13 @@ static void determineEnvironDefines (FILE *versionFile)
     } /* if */
 #endif
 #ifdef EMULATE_ENVIRONMENT
+#ifdef EMULATE_NODE_ENVIRONMENT
+    os_setenv_stri = "setenvForNodeJs";
+    os_unsetenv_stri = "unsetenvForNodeJs";
+#else
     os_setenv_stri = "setenv7";
     os_unsetenv_stri = "unsetenv7";
+#endif
     getenv_is_case_sensitive = 1;
 #elif defined OS_STRI_WCHAR
     if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
@@ -7971,6 +7995,11 @@ int main (int argc, char **argv)
                          "                  wcsnlen(str1, 4) == 3 &&\n"
                          "                  wcsnlen(str1, 3) == 3 &&\n"
                          "                  wcsnlen(str1, 2) == 2);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_STRNCASECMP %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <strings.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "printf(\"%d\\n\", strncasecmp(\"abc\", \"abcd\", 3) == 0);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_GETGRGID_R %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"

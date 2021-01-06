@@ -4236,7 +4236,7 @@ const func boolean: check_string_range_func_1 is func
         not raisesIndexError(rangeFunction("",  integer.last,             5)) or
         not raisesIndexError(rangeFunction("",  integer.last,             6)) or
         not raisesIndexError(rangeFunction("",  integer.last,            15)) or
- 
+
         not raisesIndexError(rangeFunction("1", integer.first, integer.first)) or
         not raisesIndexError(rangeFunction("1", integer.first,            -9)) or
         not raisesIndexError(rangeFunction("1", integer.first,            -5)) or

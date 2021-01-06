@@ -1,3 +1,96 @@
+20210106:
+- The declaration of in-parameters has been changed to work the same
+  way as all other parameter declarations (val-, ref-, inout-, attr-
+  and in-var-parameters). Many thanks go to Zachary Menzies for
+  pointing out a problem with in-parameters and for providing a test
+  program. The new in-parameters fix this problem.
+- The support for function types (func aType and proc) in interpreter
+  and compiler has been improved.
+- The support for Emscripten (a C compiler that generates JavaScript
+  and WebAssembly) has been improved. The support of Emscripten is
+  experimental (see also src/read_me.txt).
+- The library http_response.s7i has been improved to set the correct
+  content-type for more file types (css, javascript, wasm, gif, bmp,
+  pdf). This way the comanche webserver also works better.
+- The function getCgiParameters() in cgi.s7i has been improved to
+  accept also elements wihout equals sign (in this case value is
+  assumed to be "").
+- The function readPropertyFile8() has been added to the library
+  propertyfile.s7i. This function processes an UTF-8 encoded property
+  file.
+- In propertyfile.s7i the function readPropertyNameOrValue() has been
+  changed to work correct for unicode escapes (\u) and for escaped
+  newlines. An extended unicode escape (\U) has been added also.
+- Testcases that check if seek() does clear the EOF flag have been
+  added to chkfil.sd7.
+- The Seed7 parser (used by interpreter and compiler) has been
+  improved, to recognize if the same syntax is declared twice. In this
+  case a compile-time error is written.
+- The FAQ has been improved to explain the simple profiling of the
+  Seed7 compiler.
+- The simple profiling of the compiler has been improved to recognize,
+  if a function has been left without taking profiling into account.
+- The compiler has been improved to recognize if a raise statement
+  leaves a function and generates code to make the profiling work
+  correct (if it has been enabled).
+- The recognition of constant expressions in the compiler has been
+  improved to consider variable functions as variable. The changes
+  are in comp/const.s7i in two functions named isConstantCall().
+- Changes have been done in seed7_05.s7i and integer.s7i such that the
+  new in-parameters work as expected.
+- The interpreter has been improved to support the actions DCL_IN1,
+  DCL_IN2, TYP_SET_IN_PARAM_REF and TYP_SET_IN_PARAM_VALUE.
+- The functions dcl_in1() and dcl_in2() have been added to dcllib.c.
+- The functions typ_set_in_param_ref() and typ_set_in_param_value()
+  have been added to typlib.c.
+- Changes in syntax.c and token.c make sure that the new error
+  SYNTAX_DECLARED_TWICE is recognized.
+- In prclib.c the function prc_cpy() has been improved to take into
+  account that MATCHOBJECT is constant (and the underlaying object
+  is variable).
+- In cmd_unx.c the function setenv7() has been improved to work
+  correct, if a value is enlarged.
+- In cmd_unx.c the functions getenv7(), setenv7() and unsetenv7() have
+  been improved to optionally work case insensitive.
+- Changes in cmd_drv.h, cmd_rtl.c and fil_unx.c allow that some
+  operating system properties are determined at run-time. This is used
+  for Emscripten.
+- The functions setenvForNodeJs() and unsetenvForNodeJs() have been
+  added to cmd_unx.c. Now setenv() and unsetenv() have also an effect
+  on the environment used by Node.
+- The file drw_emc.c has been added. This file provides graphic access
+  using browser capabilities. It is used if Seed7 is compiled with
+  emcc.
+- The file pre_js.js has been added. This JavaScript code is included
+  by Emscripten. It sets up program path and arguments, if the program
+  runs in the browser.
+- In cmd_rtl.c the function systemForNodeJs() has been improved to
+  return -1, if the command cannot be executed.
+- The makefiles mk_emccl.mak and mk_emccw.mak have been improved to
+  store the environment variables in seed7/bin/emcc_env.ini. The macro
+  CC_ENVIRONMENT_INI, which defines the path of seed7/bin/emcc_env.ini,
+  is now written to version.h. This way the Seed7 compiler can be used
+  without setting up Emscripten.
+- Changes have been done in error.c and error.h to introduce the new
+  errors SYNTAX_DECLARED_TWICE and KIND_OF_IN_PARAM_UNDEFINED. The
+  error UNEXPECTED_SYMBOL has been replaced with EXPECTED_SYMBO.
+- The functions increaseLevelOfCatchedExceptions() and
+  decreaseLevelOfCatchedExceptions() have been added to comp/error.s7i.
+  These functions are used in comp/prc_act.s7i.
+- In comp/expr.s7i the function declare_type_if_necessary() has been
+  improved to take a existing typeCategory of BLOCKOBJECT into account.
+- In comp/type.s7i the function getExprResultType() has been improved
+  to check that the category is a CALLOBJECT.
+- Definitions of LINKER_OPT_SPECIAL_LIB and SPECIAL_LIB have been added
+  to cc_conf.s7i.
+- The files s7c.sd7, confval.sd7, cmd_rtl.c, mk_emccl.mak and
+  mk_emccw.mak have been improved to use the new configuration values.
+- The parameter list of the functions cmdSetGroup() and cmdSetOwner()
+  has been changed in comp/cmd_act.s7i, cmd_drv.h, cmd_unx.c and
+  cmd_win.c. Now group and owner are constant strings.
+- Documentation comments have been added or improved in cc_conf.s7i,
+  cgi.s7i, csv.s7i, propertyfile.s7i and graph.s7i.
+
 20201208:
 - Answers to two new questions have been added to the FAQ. Answers to
   three existing questions have been improved.

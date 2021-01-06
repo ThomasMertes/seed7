@@ -132,6 +132,9 @@
 #ifndef LINKER_OPT_OUTPUT_FILE
 #define LINKER_OPT_OUTPUT_FILE ""
 #endif
+#ifndef LINKER_OPT_SPECIAL_LIB
+#define LINKER_OPT_SPECIAL_LIB ""
+#endif
 #ifndef LINKER_FLAGS
 #define LINKER_FLAGS ""
 #endif
@@ -141,6 +144,9 @@
 #else
 #define LINKED_PROGRAM_EXTENSION ""
 #endif
+#endif
+#ifndef SPECIAL_LIB
+#define SPECIAL_LIB ""
 #endif
 #ifndef SYSTEM_LIBS
 #define SYSTEM_LIBS ""
@@ -212,6 +218,53 @@ extern os_striType *os_environ;
 #endif
 
 static const os_charType path_variable[] = {'P', 'A', 'T', 'H', 0};
+
+
+#define driveLetterPathWrong(standardPath) \
+    (standardPath->size >= 2 && \
+     (standardPath->mem[standardPath->size - 1] == '/' || \
+      (standardPath->mem[1] == ':' && \
+      ((standardPath->mem[0] >= 'a' && standardPath->mem[0] <= 'z') || \
+       (standardPath->mem[0] >= 'A' && standardPath->mem[0] <= 'Z')))))
+
+#define standardPathWrong(standardPath) \
+    (standardPath->size >= 2 && \
+     standardPath->mem[standardPath->size - 1] == '/')
+
+
+#ifdef DETERMINE_OS_PROPERTIES_AT_RUNTIME
+
+char *nullDevice;
+unsigned char shellPathDelimiter;
+boolType shellUsesDriveLetters;
+#define NULL_DEVICE_FOR_SCRIPTS nullDevice
+#define SHELL_PATH_DELIMITER shellPathDelimiter
+#define if_pathDelimiterNotSlash(thenPart) if (shellPathDelimiter != '/') thenPart
+#define pathIsWrong(standardPath) (shellUsesDriveLetters && driveLetterPathWrong(standardPath)) || \
+                                  (!shellUsesDriveLetters && standardPathWrong(standardPath))
+#define if_mapAbsoluteShellPathToDriveLetters(cond, thenPart, elsePart) \
+    if (shellUsesDriveLetters && (cond)) thenPart else elsePart
+
+#else
+
+#define NULL_DEVICE_FOR_SCRIPTS NULL_DEVICE
+#define SHELL_PATH_DELIMITER PATH_DELIMITER
+
+#if PATH_DELIMITER != '/'
+#define if_pathDelimiterNotSlash(thenPart) thenPart
+#else
+#define if_pathDelimiterNotSlash(thenPart)
+#endif
+
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#define pathIsWrong(standardPath) driveLetterPathWrong(standardPath)
+#define if_mapAbsoluteShellPathToDriveLetters(cond, thenPart, elsePart) if (cond) thenPart else elsePart
+#else
+#define pathIsWrong(standardPath) standardPathWrong(standardPath)
+#define if_mapAbsoluteShellPathToDriveLetters(cond, thenPart, elsePart) elsePart
+#endif
+
+#endif
 
 
 
@@ -937,6 +990,7 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
           } /* if */
         } /* if */
       } /* if */
+      /* printf("getenv7(\"%s\"): \"%s\"\n", env_name, os_getenv(env_name)); */
       os_stri_free(env_name);
     } /* if */
     logFunction(printf("setEnvironmentVariable -->\n"););
@@ -1345,12 +1399,15 @@ void initEmulatedCwd (errInfoType *err_info)
 #ifdef DEFINE_SYSTEM_FUNCTION
 static int systemForNodeJs (const char *command)
 
-  { /* systemForNodeJs */
+  {
+    int result;
+
+  /* systemForNodeJs */
     logFunction(printf("systemForNodeJs(\"%s\")\n", command););
-    EM_ASM_({
+    result = EM_ASM_INT({
       var cmd = Module.UTF8ToString($0);
       // console.log('I received: ' + cmd);
-      if (typeof require === "function") {
+      if (typeof require === 'function') {
         var child_process;
         try {
           child_process = require('child_process');
@@ -1359,7 +1416,7 @@ static int systemForNodeJs (const char *command)
         }
         if (child_process !== null) {
           var bslash = String.fromCharCode(92);
-          var currDir = process.cwd().replace(new RegExp(bslash + bslash, "g"), '/');
+          var currDir = process.cwd().replace(new RegExp(bslash + bslash, 'g'), '/');
           var newDir = FS.cwd();
           // console.log('emcc cwd: ' + newDir);
           // console.log('node cwd: ' + currDir);
@@ -1375,12 +1432,17 @@ static int systemForNodeJs (const char *command)
           } catch (e) {
             // console.log('chdir: ' + e);
           }
-          var exec_result = child_process.execSync(cmd);
-          // console.log('exec_result: ' + exec_result);
+          try {
+            child_process.execSync(cmd);
+            return 0;
+          } catch (e) {
+            return -1;
+          }
         }
       }
+      return -1;
     }, command);
-    return 1;
+    return result;
   } /* systemForNodeJs */
 
 #ifdef os_system
@@ -1691,6 +1753,8 @@ striType cmdConfigValue (const const_striType name)
       opt = LINKER_OPT_NO_DEBUG_INFO;
     } else if (strcmp(opt_name, "LINKER_OPT_OUTPUT_FILE") == 0) {
       opt = LINKER_OPT_OUTPUT_FILE;
+    } else if (strcmp(opt_name, "LINKER_OPT_SPECIAL_LIB") == 0) {
+      opt = LINKER_OPT_SPECIAL_LIB;
     } else if (strcmp(opt_name, "LINKER_FLAGS") == 0) {
       opt = LINKER_FLAGS;
     } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
@@ -1715,6 +1779,8 @@ striType cmdConfigValue (const const_striType name)
       opt = COMP_DATA_LIB;
     } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
       opt = COMPILER_LIB;
+    } else if (strcmp(opt_name, "SPECIAL_LIB") == 0) {
+      opt = SPECIAL_LIB;
     } else if (strcmp(opt_name, "S7_LIB_DIR") == 0) {
       opt = S7_LIB_DIR;
     } else if (strcmp(opt_name, "REDIRECT_FILEDES_1") == 0) {
@@ -1722,7 +1788,7 @@ striType cmdConfigValue (const const_striType name)
     } else if (strcmp(opt_name, "REDIRECT_FILEDES_2") == 0) {
       opt = REDIRECT_FILEDES_2;
     } else if (strcmp(opt_name, "NULL_DEVICE") == 0) {
-      opt = NULL_DEVICE;
+      opt = NULL_DEVICE_FOR_SCRIPTS;
     } else if (strcmp(opt_name, "BOOLTYPE") == 0) {
       opt = BOOLTYPE_STRI;
     } else if (strcmp(opt_name, "INT32TYPE") == 0) {
@@ -2779,7 +2845,14 @@ rtlArrayType cmdGetSearchPath (void)
 striType cmdHomeDir (void)
 
   {
+#ifdef DETERMINE_OS_PROPERTIES_AT_RUNTIME
+    static const os_charType home_dir_env_var_unx[] = {'H', 'O', 'M', 'E', 0};
+    static const os_charType home_dir_env_var_win[] = {'U', 'S', 'E', 'R',
+                                                       'P', 'R', 'O', 'F', 'I', 'L', 'E', 0};
+    const os_charType *home_dir_env_var;
+#else
     static const os_charType home_dir_env_var[] = HOME_DIR_ENV_VAR;
+#endif
     os_striType os_home_dir;
 #ifdef DEFAULT_HOME_DIR
     static const os_charType default_home_dir[] = DEFAULT_HOME_DIR;
@@ -2789,6 +2862,13 @@ striType cmdHomeDir (void)
 
   /* cmdHomeDir */
     logFunction(printf("cmdHomeDir\n"););
+#ifdef DETERMINE_OS_PROPERTIES_AT_RUNTIME
+    if (shellUsesDriveLetters) {
+      home_dir_env_var = home_dir_env_var_win;
+    } else {
+      home_dir_env_var = home_dir_env_var_unx;
+    } /* if */
+#endif
     os_home_dir = os_getenv(home_dir_env_var);
     /* printf("os_getenv(\"" FMT_S_OS "\") returns: " FMT_S_OS "\n",
         home_dir_env_var, os_home_dir); */
@@ -3875,31 +3955,14 @@ striType cmdToOsPath (const const_striType standardPath)
   /* cmdToOsPath */
     logFunction(printf("cmdToOsPath(\"%s\")", striAsUnquotedCStri(standardPath));
                 fflush(stdout););
-#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#if FORBID_DRIVE_LETTERS
-    if (unlikely(standardPath->size >= 2 &&
-                 (standardPath->mem[standardPath->size - 1] == '/' ||
-                  (standardPath->mem[1] == ':' &&
-                  ((standardPath->mem[0] >= 'a' && standardPath->mem[0] <= 'z') ||
-                   (standardPath->mem[0] >= 'A' && standardPath->mem[0] <= 'Z')))))) {
-#else
-    if (unlikely(standardPath->size >= 2 &&
-                 standardPath->mem[standardPath->size - 1] == '/')) {
-#endif
-#else
-    if (unlikely(standardPath->size >= 2 &&
-                 standardPath->mem[standardPath->size - 1] == '/' &&
-                 (standardPath->size != 3 || standardPath->mem[1] != ':' ||
-                 ((standardPath->mem[0] < 'a' || standardPath->mem[0] > 'z') &&
-                  (standardPath->mem[0] < 'A' || standardPath->mem[0] > 'Z'))))) {
-#endif
+    if (unlikely(pathIsWrong(standardPath))) {
       logError(printf("cmdToOsPath: "
                       "\"%s\" uses a drive letter or ends with slash.\n",
                       striAsUnquotedCStri(standardPath)););
       err_info = RANGE_ERROR;
     } else {
-#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (standardPath->size >= 1 && standardPath->mem[0] == '/') {
+      if_mapAbsoluteShellPathToDriveLetters(
+          standardPath->size >= 1 && standardPath->mem[0] == '/', {
         /* Absolute path: Try to map the path to a drive letter */
         if (unlikely(standardPath->size == 1)) {
           /* "/"    cannot be mapped to a drive letter */
@@ -3944,30 +4007,28 @@ striType cmdToOsPath (const const_striType standardPath)
                           striAsUnquotedCStri(standardPath)););
           err_info = RANGE_ERROR;
         } /* if */
-      } else
-#endif
-      {
+      }, /* else */ {
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, standardPath->size))) {
           err_info = MEMORY_ERROR;
         } else {
           result->size = standardPath->size;
           memcpy(result->mem, standardPath->mem, standardPath->size * sizeof(strElemType));
         } /* if */
-      }
+      });
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
       result = NULL;
     } else {
-#if PATH_DELIMITER != '/'
-      memSizeType position;
+      if_pathDelimiterNotSlash({
+        memSizeType position;
 
-      for (position = 0; position < result->size; position++) {
-        if (result->mem[position] == '/') {
-          result->mem[position] = PATH_DELIMITER;
-        } /* if */
-      } /* for */
-#endif
+        for (position = 0; position < result->size; position++) {
+          if (result->mem[position] == '/') {
+            result->mem[position] = SHELL_PATH_DELIMITER;
+          } /* if */
+        } /* for */
+      });
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;

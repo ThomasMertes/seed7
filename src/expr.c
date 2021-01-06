@@ -267,7 +267,7 @@ static objectType pars_token (objectType expression,
             if (formal_token->alternative != NULL) {
               formal_token = formal_token->alternative;
             } else {
-              err_string(UNEXPECTED_SYMBOL,
+              err_string(EXPECTED_SYMBOL,
                   formal_token->token_value.ident->name);
               scan_symbol();
               formal_token = formal_token->next;

@@ -173,7 +173,7 @@ void drwArc2 (const_winType actual_window,
 
 
 
-rtlArrayType drwBorder (const const_bstriType pointList)
+rtlArrayType drwBorder (const_winType actual_window)
 
   { /* drwBorder */
     return NULL;

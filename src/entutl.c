@@ -438,7 +438,7 @@ trace1(param_obj);
 printf("\n"); */
           curr_node = get_node(&curr_node->inout_param, param_obj->type_of->match_obj);
         } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-            CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+                   CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
 /* printf("value or ref param ");
 trace1(param_obj);
 printf("\n"); */
@@ -520,7 +520,7 @@ trace1(param_obj);
 printf("\n"); */
           curr_node = find_node(curr_node->inout_param, param_obj->type_of->match_obj);
         } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-            CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+                   CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
 /* printf("value or ref param ");
 trace1(param_obj);
 printf("\n"); */
@@ -599,7 +599,7 @@ printf("\n"); */
               object_type = object_type->meta;
             } while (object_type != NULL && entity_found == NULL);
           } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+                     CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
 /* printf("value or ref param ");
 trace1(param_obj);
 printf("\n"); */
@@ -669,7 +669,7 @@ void pop_entity (nodeType declaration_base, const_entityType entity)
           if (CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
             curr_node = pop_node(curr_node->inout_param, param_obj->type_of->match_obj);
           } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+                     CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
             curr_node = pop_node(curr_node->other_param, param_obj->type_of->match_obj);
           } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
             curr_node = pop_node(curr_node->attr, param_obj->value.typeValue->match_obj);

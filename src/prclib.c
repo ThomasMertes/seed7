@@ -602,18 +602,32 @@ objectType prc_cpy (listType arguments)
   /* prc_cpy */
     dest = arg_1(arguments);
     isit_proc(dest);
-    is_variable(dest);
+    /* is_variable(dest); */
     isit_proc(arg_3(arguments));
     source = arg_3(arguments);
-    /* printf("\nsrc: ");
+    /* printf("\nprc_cpy src (" FMT_U_MEM "): ", (memSizeType) source);
     trace1(source);
+    printf("\n");
+    printf("prc_cpy dst (" FMT_U_MEM "): ", (memSizeType) dest);
+    trace1(dest);
     printf("\n"); */
+    if (CATEGORY_OF_OBJ(dest) == MATCHOBJECT) {
+      if (unlikely(dest->value.listValue->next != 0)) {
+        return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
+      } else {
+        dest = dest->value.listValue->obj;
+      } /* if */
+    } /* if */
+    is_variable(dest);
     if (CATEGORY_OF_OBJ(source) == BLOCKOBJECT) {
       if (likely(ALLOC_OBJECT(block_value))) {
         memcpy(block_value, source, sizeof(objectRecord));
         SET_CATEGORY_OF_OBJ(dest, MATCHOBJECT);
         dest->value.listValue = NULL;
         incl_list(&dest->value.listValue, block_value, &err_info);
+        if (TEMP_OBJECT(source)) {
+          source->value.blockValue = NULL;
+        } /* if */
       } else {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
@@ -621,7 +635,7 @@ objectType prc_cpy (listType arguments)
       SET_CATEGORY_OF_OBJ(dest, CATEGORY_OF_OBJ(source));
       dest->value = source->value;
     } /* if */
-    /* printf("dst: ");
+    /* printf("prc_cpy dst (" FMT_U_MEM "): ", (memSizeType) dest);
     trace1(dest);
     printf("\n"); */
     return SYS_EMPTY_OBJECT;
@@ -644,12 +658,18 @@ objectType prc_create (listType arguments)
   /* prc_create */
     dest = arg_1(arguments);
     source = arg_3(arguments);
+    /* printf("\nprc_create src (" FMT_U_MEM "): ", (memSizeType) source);
+    trace1(source);
+    printf("\n"); */
     isit_proc(source);
     SET_CATEGORY_OF_OBJ(dest, CATEGORY_OF_OBJ(source));
     dest->value = source->value;
     if (TEMP_OBJECT(source)) {
       source->value.blockValue = NULL;
     } /* if */
+    /* printf("prc_create dst (" FMT_U_MEM "): ", (memSizeType) dest);
+    trace1(dest);
+    printf("\n"); */
     return SYS_EMPTY_OBJECT;
   } /* prc_create */
 

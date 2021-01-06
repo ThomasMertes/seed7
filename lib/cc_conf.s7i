@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  cc_conf.s7i   Configuration values for C compiler and runtime.  *)
-(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*  Copyright (C) 2013 - 2020  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -530,14 +530,9 @@ const type: ccConfigType is new struct
 
     (**
      *  C compiler option to do link time optimization.
+     *  If it is "" the C compiler does not support link time optimization.
      *)
     var string: CC_OPT_LINK_TIME_OPTIMIZATION is "";
-
-    (**
-     *  TRUE if linking always requires the option
-     *  CC_OPT_LINK_TIME_OPTIMIZATION.
-     *)
-    var boolean: LINKER_OPT_LTO_MANDATORY     is FALSE;
 
     (**
      *  C compiler option to suppress all warnings.
@@ -603,6 +598,12 @@ const type: ccConfigType is new struct
     var string: LINKER_OPT_DEBUG_INFO         is "";
 
     (**
+     *  TRUE if linking always requires the option
+     *  CC_OPT_LINK_TIME_OPTIMIZATION.
+     *)
+    var boolean: LINKER_OPT_LTO_MANDATORY     is FALSE;
+
+    (**
      *  Linker option to be used without source level debugging.
      *  This option can strip debug information (e.g.: "-Wl,--strip-debug").
      *)
@@ -616,6 +617,12 @@ const type: ccConfigType is new struct
      *  LINKED_PROGRAM_EXTENSION.
      *)
     var string: LINKER_OPT_OUTPUT_FILE        is "";
+
+    (**
+     *  Linker option that needs to precede the special library.
+     *  If no special library exists LINKER_OPT_SPECIAL_LIB is "".
+     *)
+    var string: LINKER_OPT_SPECIAL_LIB        is "";
 
     (**
      *  Standard linker options to link a compiled program.
@@ -690,6 +697,11 @@ const type: ccConfigType is new struct
     var string: COMPILER_LIB                  is "";
 
     (**
+     *  Name of the special library (e.g.: "pre_js.js").
+     *)
+    var string: SPECIAL_LIB                   is "";
+
+    (**
      *  Directory containing the Seed7 runtime libraries.
      *  This path uses the standard path representation (a slash is used
      *  as path separator and instead of a drive letter like "C:" the
@@ -714,7 +726,7 @@ const type: ccConfigType is new struct
     var string: REDIRECT_FILEDES_2            is "";
 
     (**
-     *  Name of the NULL device.
+     *  Name of the NULL device to be used in shell command redirections.
      *  Under Linux/Unix/BSD this is "/dev/null".
      *  Under Windows this is "NUL:".
      *)
@@ -824,6 +836,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.LINKER_OPT_LTO_MANDATORY      := boolean(configValue("LINKER_OPT_LTO_MANDATORY"));
     conf.LINKER_OPT_NO_DEBUG_INFO      := configValue("LINKER_OPT_NO_DEBUG_INFO");
     conf.LINKER_OPT_OUTPUT_FILE        := configValue("LINKER_OPT_OUTPUT_FILE");
+    conf.LINKER_OPT_SPECIAL_LIB        := configValue("LINKER_OPT_SPECIAL_LIB");
     conf.LINKER_FLAGS                  := noEmptyStrings(split(configValue("LINKER_FLAGS"), ' '));
     conf.SYSTEM_LIBS                   := noEmptyStrings(split(configValue("SYSTEM_LIBS"), ' '));
     conf.SYSTEM_DRAW_LIBS              := noEmptyStrings(split(configValue("SYSTEM_DRAW_LIBS"), ' '));
@@ -836,6 +849,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.DATABASE_LIB                  := configValue("DATABASE_LIB");
     conf.COMP_DATA_LIB                 := configValue("COMP_DATA_LIB");
     conf.COMPILER_LIB                  := configValue("COMPILER_LIB");
+    conf.SPECIAL_LIB                   := configValue("SPECIAL_LIB");
     conf.S7_LIB_DIR                    := configValue("S7_LIB_DIR");
     conf.REDIRECT_FILEDES_1            := configValue("REDIRECT_FILEDES_1");
     conf.REDIRECT_FILEDES_2            := configValue("REDIRECT_FILEDES_2");

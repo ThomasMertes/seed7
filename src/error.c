@@ -519,9 +519,10 @@ static void write_name_list (const_listType params)
         formal_param = params->obj->value.objValue;
         switch (CATEGORY_OF_OBJ(formal_param)) {
           case VALUEPARAMOBJECT:
-            prot_cstri("in ");
             if (VAR_OBJECT(formal_param)) {
-              prot_cstri(" var ");
+              prot_cstri("in var ");
+            } else {
+              prot_cstri("val ");
             } /* if */
             write_type(formal_param->type_of);
             if (HAS_ENTITY(formal_param)) {
@@ -597,9 +598,11 @@ static void write_object (objectType anyobject)
           write_type(anyobject->value.typeValue);
           break;
         case VALUEPARAMOBJECT:
-          prot_cstri("parameter (in ");
+          prot_cstri("parameter (");
           if (VAR_OBJECT(anyobject)) {
-            prot_cstri(" var ");
+            prot_cstri("in var ");
+          } else {
+            prot_cstri("val ");
           } /* if */
           write_type(anyobject->type_of);
           if (HAS_ENTITY(anyobject)) {
@@ -730,6 +733,10 @@ void err_warning (errorType err)
         break;
       case EMPTY_SYNTAX:
         prot_cstri("Empty syntax declaration");
+        prot_nl();
+        break;
+      case SYNTAX_DECLARED_TWICE:
+        prot_cstri("Syntax declared twice");
         prot_nl();
         break;
       case DOT_EXPR_REQUESTED:
@@ -1016,6 +1023,12 @@ void err_type (errorType err, const_typeType type_found)
         prot_cstri(" expression");
         prot_nl();
         break;
+      case KIND_OF_IN_PARAM_UNDEFINED:
+        prot_cstri("Kind of in-parameter (val or ref) unspecified for type \"");
+        write_type(type_found);
+        prot_cstri("\"");
+        prot_nl();
+        break;
       default:
         undef_err();
         break;
@@ -1138,7 +1151,7 @@ void err_string (errorType err, const_ustriType stri)
   { /* err_string */
     place_of_error(err);
     switch (err) {
-      case UNEXPECTED_SYMBOL:
+      case EXPECTED_SYMBOL:
         prot_cstri("\"");
         prot_ustri(stri);
         prot_cstri("\" expected found");

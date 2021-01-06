@@ -334,12 +334,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-12-08 the number of lines is:
+than 300000 lines of Seed7. For version 2021-01-06 the number of lines is:
 
-  161168  C source files (*.c)
-   12696  C header files (*.h)
-  191533  Seed7 source files (*.sd7)
-  160844  Seed7 library/include files (*.s7i)
+  162686  C source files (*.c)
+   12721  C header files (*.h)
+  191628  Seed7 source files (*.sd7)
+  161011  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -441,6 +441,12 @@ Other source code releases can be found in the directory seed7.
 It is strongly recommended to use the latest version.
 An installer for Windows can be found in the directory bin.
 Other executables are also in the bin directory.
+
+Seed7 is now also available at GitHub. You can use the command:
+
+  git clone https://github.com/ThomasMertes/seed7.git
+
+to clone the Seed7 repository.
 
 
 How do I uncompress the *.tgz file from the release?
@@ -816,6 +822,17 @@ Yes, Eclipse can be easily configured to work with Seed7:
   Select the C project you created.
   In the Arguments tab you can set program arguments and current working directory.
   Press the Debug button to start the program.
+
+
+Can I profile Seed7 programs?
+=============================
+
+You can use tools that profile executables such as Valgrind. Additionally the
+Seed7 compiler supports simple function profiling. You just need to compile a
+program with the option -p. If you execute this program it writes profiling
+data to the file "profile_out", when it is finished. In "profile_out" you find
+a tab-separated table with microseconds, number of calls, place of the function
+and function name.
 
 
 What are the reserved words of Seed7?

@@ -76,6 +76,14 @@ const proc: sendHttpResponse (inout file: sock, in string: content,
       response &:= "Content-Type: " <& contentType <& "\r\n";
     elsif startsWith(content, "\137;PNG") then
       response &:= "Content-Type: image/png\r\n";
+    elsif startsWith(content, "GIF87a") or startsWith(content, "GIF89a") then
+      response &:= "Content-Type: image/gif\r\n";
+    elsif startsWith(content, "BM") then
+      response &:= "Content-Type: image/bmp\r\n";
+    elsif startsWith(content, "%PDF-") then
+      response &:= "Content-Type: application/pdf\r\n";
+    elsif startsWith(content, "\0;asm") then
+      response &:= "Content-Type: application/wasm\r\n";
     elsif pos(content, "<html") = 0 then
       response &:= "Content-Type: text/html\r\n";
     else
@@ -229,6 +237,10 @@ const proc: processGet (inout httpResposeData: responseData,
       if buffer <> "" then
         if endsWith(filePath, ".htm") or endsWith(filePath, ".html") then
           contentType := "text/html";
+        elsif endsWith(filePath, ".css") then
+          contentType := "text/css";
+        elsif endsWith(filePath, ".js") then
+          contentType := "text/javascript";
         end if;
         sendHttpResponse(request.sock, buffer, contentType, 0 times "");
       end if;

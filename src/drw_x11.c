@@ -566,7 +566,7 @@ void drwFArcChord (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwFArcChord */
-    logFunction(printf("drwPArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
+    logFunction(printf("drwFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
                        (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
     XSetArcMode(mydisplay, mygc, ArcChord);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
@@ -1372,12 +1372,11 @@ winType drwOpen (intType xPos, intType yPos,
     XWMHints mywmhint;
     XSetWindowAttributes attributes;
     errInfoType err_info = OKAY_NO_ERROR;
-    x11_winType result;
+    x11_winType result = NULL;
 
   /* drwOpen */
     logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        xPos, yPos, width, height););
-    result = NULL;
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
@@ -1632,7 +1631,8 @@ bstriType drwGenPointList (const const_rtlArrayType xyArray)
     bstriType result;
 
   /* drwGenPointList */
-    /* printf("drwGenPointList(%ld .. %ld)\n", xyArray->min_position, xyArray->max_position); */
+    logFunction(printf("drwGenPointList(" FMT_D " .. " FMT_D ")\n",
+                       xyArray->min_position, xyArray->max_position););
     num_elements = arraySize(xyArray);
     if (unlikely(num_elements & 1)) {
       raise_error(RANGE_ERROR);
@@ -1693,7 +1693,7 @@ void drwPolyLine (const_winType actual_window,
 
   {
     XPoint *points;
-    int npoints;
+    int numPoints;
     XPoint startBackup;
 
   /* drwPolyLine */
@@ -1701,14 +1701,14 @@ void drwPolyLine (const_winType actual_window,
       raise_error(RANGE_ERROR);
     } else {
       points = (XPoint *) point_list->mem;
-      npoints = (int) (point_list->size / sizeof(XPoint));
+      numPoints = (int) (point_list->size / sizeof(XPoint));
       memcpy(&startBackup, &points[0], sizeof(XPoint));
       points[0].x += castToShort(x);
       points[0].y += castToShort(y);
       XSetForeground(mydisplay, mygc, (unsigned long) col);
-      XDrawLines(mydisplay, to_window(actual_window), mygc, points, npoints, CoordModePrevious);
+      XDrawLines(mydisplay, to_window(actual_window), mygc, points, numPoints, CoordModePrevious);
       if (to_backup(actual_window) != 0) {
-        XDrawLines(mydisplay, to_backup(actual_window), mygc, points, npoints, CoordModePrevious);
+        XDrawLines(mydisplay, to_backup(actual_window), mygc, points, numPoints, CoordModePrevious);
       } /* if */
       memcpy(&points[0], &startBackup, sizeof(XPoint));
     } /* if */
@@ -1721,7 +1721,7 @@ void drwFPolyLine (const_winType actual_window,
 
   {
     XPoint *points;
-    int npoints;
+    int numPoints;
     XPoint startBackup;
 
   /* drwFPolyLine */
@@ -1729,17 +1729,17 @@ void drwFPolyLine (const_winType actual_window,
       raise_error(RANGE_ERROR);
     } else {
       points = (XPoint *) point_list->mem;
-      npoints = (int) (point_list->size / sizeof(XPoint));
+      numPoints = (int) (point_list->size / sizeof(XPoint));
       memcpy(&startBackup, &points[0], sizeof(XPoint));
       points[0].x += castToShort(x);
       points[0].y += castToShort(y);
       XSetForeground(mydisplay, mygc, (unsigned long) col);
-      XDrawLines(mydisplay, to_window(actual_window), mygc, points, npoints, CoordModePrevious);
-      XFillPolygon(mydisplay, to_window(actual_window), mygc, points, npoints,
+      XDrawLines(mydisplay, to_window(actual_window), mygc, points, numPoints, CoordModePrevious);
+      XFillPolygon(mydisplay, to_window(actual_window), mygc, points, numPoints,
           Nonconvex, CoordModePrevious);
       if (to_backup(actual_window) != 0) {
-        XDrawLines(mydisplay, to_backup(actual_window), mygc, points, npoints, CoordModePrevious);
-        XFillPolygon(mydisplay, to_backup(actual_window), mygc, points, npoints,
+        XDrawLines(mydisplay, to_backup(actual_window), mygc, points, numPoints, CoordModePrevious);
+        XFillPolygon(mydisplay, to_backup(actual_window), mygc, points, numPoints,
             Nonconvex, CoordModePrevious);
       } /* if */
       memcpy(&points[0], &startBackup, sizeof(XPoint));

@@ -104,6 +104,7 @@ const proc: main is func
     writeln("LIBRARY_FILE_EXTENSION:        " <& ccConf.LIBRARY_FILE_EXTENSION);
     writeln("EXECUTABLE_FILE_EXTENSION:     " <& ccConf.EXECUTABLE_FILE_EXTENSION);
     writeln("LINKED_PROGRAM_EXTENSION:      " <& ccConf.LINKED_PROGRAM_EXTENSION);
+    writeln("CC_ENVIRONMENT_INI:            " <& ccConf.CC_ENVIRONMENT_INI);
     writeln("C_COMPILER:                    " <& ccConf.C_COMPILER);
     writeln("CPLUSPLUS_COMPILER:            " <& ccConf.CPLUSPLUS_COMPILER);
     writeln("CALL_C_COMPILER_FROM_SHELL:    " <& ccConf.CALL_C_COMPILER_FROM_SHELL);
@@ -123,6 +124,7 @@ const proc: main is func
     writeln("LINKER_OPT_LTO_MANDATORY:      " <& ccConf.LINKER_OPT_LTO_MANDATORY);
     writeln("LINKER_OPT_NO_DEBUG_INFO:      " <& ccConf.LINKER_OPT_NO_DEBUG_INFO);
     writeln("LINKER_OPT_OUTPUT_FILE:        " <& ccConf.LINKER_OPT_OUTPUT_FILE);
+    writeln("LINKER_OPT_SPECIAL_LIB:        " <& ccConf.LINKER_OPT_SPECIAL_LIB);
     writeln("LINKER_FLAGS:                  " <& join(noEmptyArray(ccConf.LINKER_FLAGS),    " "));
     writeln("SYSTEM_LIBS:                   " <& join(noEmptyArray(ccConf.SYSTEM_LIBS),    " "));
     writeln("SYSTEM_DRAW_LIBS:              " <& join(noEmptyArray(ccConf.SYSTEM_DRAW_LIBS),    " "));
@@ -135,6 +137,7 @@ const proc: main is func
     writeln("DATABASE_LIB:                  " <& ccConf.DATABASE_LIB);
     writeln("COMP_DATA_LIB:                 " <& ccConf.COMP_DATA_LIB);
     writeln("COMPILER_LIB:                  " <& ccConf.COMPILER_LIB);
+    writeln("SPECIAL_LIB:                   " <& ccConf.SPECIAL_LIB);
     writeln("S7_LIB_DIR:                    " <& ccConf.S7_LIB_DIR);
     writeln("REDIRECT_FILEDES_1:            " <& ccConf.REDIRECT_FILEDES_1);
     writeln("REDIRECT_FILEDES_2:            " <& ccConf.REDIRECT_FILEDES_2);
