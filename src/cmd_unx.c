@@ -43,6 +43,9 @@
 #include "sys/stat.h"
 #include "fcntl.h"
 #include "signal.h"
+#ifdef EMULATE_NODE_ENVIRONMENT
+#include "emscripten.h"
+#endif
 #include "errno.h"
 
 #if UNISTD_H_PRESENT
@@ -79,6 +82,10 @@
 
 #ifdef EMULATE_ENVIRONMENT
 char **environ7 = NULL;
+
+#ifndef DETERMINE_OS_PROPERTIES_AT_RUNTIME
+#define environmenStrncmp strncmp
+#endif
 #endif
 
 
@@ -150,17 +157,18 @@ striType getExecutablePath (const const_striType arg_0)
 char *getenv7 (const char *name)
 
   {
-    size_t len;
+    size_t nameLen;
     char **p, *c;
 
   /* getenv7 */
     if (name == NULL || environ7 == NULL || strchr(name, '=') != NULL) {
       return NULL;
     } else {
-      len = strlen(name);
+      nameLen = strlen(name);
       for (p = environ7; (c = *p) != NULL; ++p) {
-        if (strncmp(c, name, len) == 0 && c[len] == '=') {
-          return &c[len + 1];
+        if (environmenStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
+          /* printf("getenv7(\"%s\") --> \"%s\"\n", name, &c[nameLen + 1]); */
+          return &c[nameLen + 1];
         } /* if */
       } /* for */
       return NULL;
@@ -172,26 +180,28 @@ char *getenv7 (const char *name)
 int setenv7 (const char *name, const char *value, int overwrite)
 
   {
-    size_t len;
+    size_t nameLen;
     char **p, *c;
     size_t nameCount = 0;
 
   /* setenv7 */
+    logFunction(printf("setenv7(\"%s\", \"%s\", %d)\n", name, value, overwrite););
     if (name == NULL || name[0] == '\0' || strchr(name, '=') != NULL) {
       errno = EINVAL;
       return -1;
     } else {
-      len = strlen(name);
+      nameLen = strlen(name);
       if (environ7 != NULL) {
         for (p = environ7; (c = *p) != NULL; ++p) {
           nameCount++;
-          if (strncmp(c, name, len) == 0 && c[len] == '=') {
+          if (environmenStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
             if (overwrite) {
-              if ((*p = realloc(*p, len + strlen(value) + 2)) == NULL) {
+              if ((c = realloc(*p, nameLen + strlen(value) + 2)) == NULL) {
                 errno = ENOMEM;
                 return -1;
               } else {
-                strcpy(&c[len + 1], value);
+                *p = c;
+                strcpy(&c[nameLen + 1], value);
               } /* if */
             } /* if **/
             return 0;
@@ -199,13 +209,13 @@ int setenv7 (const char *name, const char *value, int overwrite)
         } /* for */
       } /* if */
       if ((environ7 = realloc(environ7, sizeof(char *) * (nameCount + 2))) == NULL ||
-          (c = malloc(len + strlen(value) + 2)) == NULL) {
+          (c = malloc(nameLen + strlen(value) + 2)) == NULL) {
         errno = ENOMEM;
         return -1;
       } else {
-        memcpy(c, name, len);
-        c[len] = '=';
-        strcpy(&c[len + 1], value);
+        memcpy(c, name, nameLen);
+        c[nameLen] = '=';
+        strcpy(&c[nameLen + 1], value);
         environ7[nameCount] = c;
         environ7[nameCount + 1] = NULL;
         return 0;
@@ -218,7 +228,7 @@ int setenv7 (const char *name, const char *value, int overwrite)
 int unsetenv7 (const char *name)
 
   {
-    size_t len;
+    size_t nameLen;
     char **p, *c;
     char **found = NULL;
     size_t nameCount = 0;
@@ -228,11 +238,11 @@ int unsetenv7 (const char *name)
       errno = EINVAL;
       return -1;
     } else {
-      len = strlen(name);
+      nameLen = strlen(name);
       if (environ7 != NULL) {
         for (p = environ7; (c = *p) != NULL; ++p) {
           nameCount++;
-          if (found == NULL && strncmp(c, name, len) == 0 && c[len] == '=') {
+          if (found == NULL && environmenStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
             found = p;
           } /* if */
         } /* for */
@@ -250,6 +260,56 @@ int unsetenv7 (const char *name)
       return 0;
     } /* if */
   } /* unsetenv7 */
+
+
+
+#ifdef EMULATE_NODE_ENVIRONMENT
+int setenvForNodeJs (const char *name, const char *value, int overwrite)
+
+  {
+    int result;
+
+  /* setenvForNodeJs */
+    result = setenv7(name, value, overwrite);
+    if (result == 0) {
+      EM_ASM({
+        var key = Module.UTF8ToString($0);
+        var value = Module.UTF8ToString($1);
+        var overwrite = $2;
+        if (typeof process !== 'undefined') {
+          if (key in process.env) {
+            if (overwrite) {
+              process.env[key] = value;
+            }
+          } else {
+            process.env[key] = value;
+          }
+        }
+      }, name, value, overwrite);
+    } /* if */
+    return result;
+  } /* setenvForNodeJs */
+
+
+
+int unsetenvForNodeJs (const char *name)
+
+  {
+    int result;
+
+  /* unsetenvForNodeJs */
+    result = unsetenv7(name);
+    if (result == 0) {
+      EM_ASM({
+        var key = Module.UTF8ToString($0);
+        if (typeof process !== 'undefined') {
+          delete process.env[key];
+        }
+      }, name);
+    } /* if */
+    return result;
+  } /* unsetenvForNodeJs */
+#endif
 #endif
 
 
@@ -298,7 +358,7 @@ static striType getGroupFromGid (gid_t gid)
 
 
 
-static gid_t getGidFromGroup (striType group, errInfoType *err_info)
+static gid_t getGidFromGroup (const const_striType group, errInfoType *err_info)
 
   {
     os_striType os_group;
@@ -408,7 +468,7 @@ static striType getUserFromUid (uid_t uid)
 
 
 
-static uid_t getUidFromUser (striType user, errInfoType *err_info)
+static uid_t getUidFromUser (const const_striType user, errInfoType *err_info)
 
   {
     os_striType os_user;
@@ -556,7 +616,7 @@ striType cmdGetOwner (const const_striType filePath)
 
 
 
-void cmdSetGroup (const const_striType filePath, striType group)
+void cmdSetGroup (const const_striType filePath, const const_striType group)
 
   {
     os_striType os_path;
@@ -594,7 +654,7 @@ void cmdSetGroup (const const_striType filePath, striType group)
 
 
 
-void cmdSetOwner (const const_striType filePath, striType owner)
+void cmdSetOwner (const const_striType filePath, const const_striType owner)
 
   {
     os_striType os_path;

@@ -6954,7 +6954,7 @@ const func boolean: check_string_substr_assign_1 is func
     stri := "1234567890" [ intExpr(            1) len intExpr(           11) ]; ok := ok and stri = "1234567890";
     stri := "1234567890" [ intExpr(            1) len intExpr(           15) ]; ok := ok and stri = "1234567890";
     stri := "1234567890" [ intExpr(            1) len intExpr( integer.last) ]; ok := ok and stri = "1234567890";
- 
+
     stri := "1234567890" [ intExpr(            2) len intExpr(            0) ]; ok := ok and stri = "";
     stri := "1234567890" [ intExpr(            2) len intExpr(            1) ]; ok := ok and stri = "2";
     stri := "1234567890" [ intExpr(            2) len intExpr(            2) ]; ok := ok and stri = "23";

@@ -26,9 +26,11 @@ CONSOLE_LIB = s7_con.a
 DATABASE_LIB = s7_db.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
+SPECIAL_LIB = pre_js.js
 ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(CONSOLE_LIB) ../bin/$(DATABASE_LIB) ../bin/$(SEED7_LIB)
 # CC = em++
 CC = emcc
+CC_ENVIRONMENT_INI = emcc_env.ini
 
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
@@ -49,7 +51,7 @@ DOBJ = big_rtl.o big_gmp.o cmd_unx.o dir_win.o dll_unx.o fil_unx.o pcs_unx.o pol
        tim_unx.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
-DRAW_LIB_OBJ = gkb_rtl.o drw_dos.o gkb_x11.o
+DRAW_LIB_OBJ = gkb_rtl.o drw_emc.o
 CONSOLE_LIB_OBJ = kbd_rtl.o con_emc.o
 DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o \
                    sql_post.o sql_srv.o sql_tds.o
@@ -75,7 +77,7 @@ DSRC = big_rtl.c big_gmp.c cmd_unx.c dir_win.c dll_unx.c fil_unx.c pcs_unx.c pol
        tim_unx.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
-DRAW_LIB_SRC = gkb_rtl.c drw_dos.c gkb_x11.c
+DRAW_LIB_SRC = gkb_rtl.c drw_emc.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_emc.c
 DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c \
                             sql_post.c sql_tds.c
@@ -94,8 +96,8 @@ s7c: ../bin/s7c.js ../prg/s7c.js
 	@echo "  Use 'make test' (with your make command) to check Seed7."
 	@echo
 
-../bin/s7.js: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ../bin/s7.js
+../bin/s7.js: $(OBJ) $(ALL_S7_LIBS) ../bin/$(SPECIAL_LIB)
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) --pre-js ../bin/$(SPECIAL_LIB) -o ../bin/s7.js
 
 ../prg/s7.js: ../bin/s7.js
 	ln -s ../bin/s7.js ../prg
@@ -105,7 +107,7 @@ s7c: ../bin/s7c.js ../prg/s7c.js
 	cp -p ../prg/s7c.js ../bin
 	cp -p ../prg/s7c.wasm ../bin
 
-../prg/s7c.js: ../prg/s7c.sd7 $(ALL_S7_LIBS)
+../prg/s7c.js: ../prg/s7c.sd7 $(ALL_S7_LIBS) ../bin/$(SPECIAL_LIB)
 	node --stack-size=2048 ../bin/s7.js -l ../lib ../prg/s7c -l ../lib -b ../bin -O2 ../prg/s7c
 
 sql_%.o: sql_%.c
@@ -123,7 +125,7 @@ sql_srv.o: sql_srv.c
 clear: clean
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7.js ../bin/s7.wasm ../bin/s7c.js ../bin/s7c.wasm
+	rm -f *.o ../bin/*.a ../bin/s7.js ../bin/s7.wasm ../bin/$(CC_ENVIRONMENT_INI) ../bin/s7c.js ../bin/s7c.wasm ../bin/$(SPECIAL_LIB)
 	rm -f ../prg/s7.js ../prg/s7.wasm ../prg/s7c.js ../prg/s7c.wasm
 	rm -f depend macros chkccomp.h base.h settings.h version.h setwpath wrdepend sudo
 	@echo
@@ -166,6 +168,8 @@ base.h:
 	echo "#define LINKED_PROGRAM_EXTENSION \".js\"" >> base.h
 	echo "#define INTERPRETER_FOR_LINKED_PROGRAM \"node\"" >> base.h
 	echo "#define EMULATE_ENVIRONMENT" >> base.h
+	echo "#define EMULATE_NODE_ENVIRONMENT" >> base.h
+	echo "#define DETERMINE_OS_PROPERTIES_AT_RUNTIME" >> base.h
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> base.h
 
 settings.h:
@@ -183,6 +187,7 @@ settings.h:
 	echo "#define CPLUSPLUS_COMPILER \"em++\"" >> settings.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> settings.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> settings.h
+	echo "#define LINKER_OPT_SPECIAL_LIB \"--pre-js\"" >> settings.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> settings.h
 	echo "#define SEED7_LIB \"$(SEED7_LIB)\"" >> settings.h
 	echo "#define DRAW_LIB \"$(DRAW_LIB)\"" >> settings.h
@@ -190,14 +195,16 @@ settings.h:
 	echo "#define DATABASE_LIB \"$(DATABASE_LIB)\"" >> settings.h
 	echo "#define COMP_DATA_LIB \"$(COMP_DATA_LIB)\"" >> settings.h
 	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> settings.h
+	echo "#define SPECIAL_LIB \"$(SPECIAL_LIB)\"" >> settings.h
 
 version.h: chkccomp.h base.h settings.h
 	gcc chkccomp.c -o chkccomp
 	./chkccomp version.h
 	rm chkccomp
 	rm -f ctest*.wasm
+	env > ../bin/$(CC_ENVIRONMENT_INI)
 	gcc -o setpaths setpaths.c
-	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
+	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" "CC_ENVIRONMENT_INI=$(CC_ENVIRONMENT_INI)" >> version.h
 	rm setpaths
 	gcc wrdepend.c -o wrdepend
 	cp version.h vers_emccl.h
@@ -236,6 +243,9 @@ level.h:
 
 ../bin/$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
 	emar r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+
+../bin/$(SPECIAL_LIB): pre_js.js
+	cp pre_js.js ../bin/$(SPECIAL_LIB)
 
 make7: ../bin/make7
 

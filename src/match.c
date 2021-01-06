@@ -198,7 +198,7 @@ void substitute_params (const_objectType expr_object)
       if (CATEGORY_OF_OBJ(current_element) == EXPROBJECT) {
         substitute_params(current_element);
       } else if (CATEGORY_OF_OBJ(current_element) == VALUEPARAMOBJECT ||
-          CATEGORY_OF_OBJ(current_element) == REFPARAMOBJECT) {
+                 CATEGORY_OF_OBJ(current_element) == REFPARAMOBJECT) {
         if (current_element->value.objValue != NULL) {
 #if TRACE_SUBSTITUTE_PARAMS
           if (HAS_POSINFO(expr_object)) {

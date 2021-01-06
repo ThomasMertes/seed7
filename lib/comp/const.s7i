@@ -72,42 +72,44 @@ const func boolean: isConstantCall (in reference: current_expression,
     actual_params := getValue(current_expression, ref_list);
     function := actual_params[1];
     actual_params := actual_params[2 ..];
-    if category(function) in constantExpressionCategories then
-      isConstantCall := TRUE;
-    elsif isPureFunction(function) then
-      # write(" {isPureFunction(" <& str(function) <& ")}");
-      isConstantCall := TRUE;
-      formal_params := formalParams(function);
-      for number range 1 to length(actual_params) do
-        formal_param := formal_params[number];
-        actual_param := actual_params[number];
-        paramCategory := category(formal_param);
-        if paramCategory <> SYMBOLOBJECT and paramCategory <> TYPEOBJECT then
-          if not isConstant(actual_param, local_objects) then
-            # write(" [not isConstant(" <& str(actual_param) <& ") " <& str(category(actual_param)) <& "]");
-            isConstantCall := FALSE;
-          end if;
-        end if;
-      end for;
-    else
-      # write(" [not isPureFunction(" <& str(function) <& ") " <& str(category(function)) <& "]");
-      if category(function) = ACTOBJECT then
-        # write(" [" <& str(getValue(function, ACTION)) <& "]");
-        action_name := str(getValue(function, ACTION));
-        if action_name = "PRC_NOOP" then
-          isConstantCall := TRUE;
-          for actual_param range actual_params until not isConstantCall do
+    if not isVar(function) then
+      if category(function) in constantExpressionCategories then
+        isConstantCall := TRUE;
+      elsif isPureFunction(function) then
+        # write(" {isPureFunction(" <& str(function) <& ")}");
+        isConstantCall := TRUE;
+        formal_params := formalParams(function);
+        for number range 1 to length(actual_params) do
+          formal_param := formal_params[number];
+          actual_param := actual_params[number];
+          paramCategory := category(formal_param);
+          if paramCategory <> SYMBOLOBJECT and paramCategory <> TYPEOBJECT then
             if not isConstant(actual_param, local_objects) then
               # write(" [not isConstant(" <& str(actual_param) <& ") " <& str(category(actual_param)) <& "]");
               isConstantCall := FALSE;
             end if;
-          end for;
-        elsif action_name in copyActions then
-          # writeln(str(actual_params[1]) <& " := ...");
-          noop;
+          end if;
+        end for;
+      else
+        # write(" [not isPureFunction(" <& str(function) <& ") " <& str(category(function)) <& "]");
+        if category(function) = ACTOBJECT then
+          # write(" [" <& str(getValue(function, ACTION)) <& "]");
+          action_name := str(getValue(function, ACTION));
+          if action_name = "PRC_NOOP" then
+            isConstantCall := TRUE;
+            for actual_param range actual_params until not isConstantCall do
+              if not isConstant(actual_param, local_objects) then
+                # write(" [not isConstant(" <& str(actual_param) <& ") " <& str(category(actual_param)) <& "]");
+                isConstantCall := FALSE;
+              end if;
+            end for;
+          elsif action_name in copyActions then
+            # writeln(str(actual_params[1]) <& " := ...");
+            noop;
+          end if;
         end if;
+        # writeln;
       end if;
-      # writeln;
     end if;
     # writeln("isConstantCall: " <& file(current_expression) <& "(" <& line(current_expression) <& ") --> " <& isConstantCall);
   end func;
@@ -281,15 +283,17 @@ const func boolean: isConstantCall (in reference: current_expression) is func
     params := getValue(current_expression, ref_list);
     function := params[1];
     params := params[2 ..];
-    if isPureFunction(function) then
-      isConstantCall := TRUE;
-      for obj range params until not isConstantCall do
-        if not isConstant(obj) then
-          isConstantCall := FALSE;
-        end if;
-      end for;
-    elsif category(function) in constantExpressionCategories then
-      isConstantCall := TRUE;
+    if not isVar(function) then
+      if category(function) in constantExpressionCategories then
+        isConstantCall := TRUE;
+      elsif isPureFunction(function) then
+        isConstantCall := TRUE;
+        for obj range params until not isConstantCall do
+          if not isConstant(obj) then
+            isConstantCall := FALSE;
+          end if;
+        end for;
+      end if;
     end if;
     # writeln("isConstantCall --> " <& isConstantCall);
   end func;

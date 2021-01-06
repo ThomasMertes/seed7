@@ -158,10 +158,17 @@ const func type: getExprResultType (in reference: aReference) is func
   result
     var type: resultType is void;
   begin
+    # write("getExprResultType: ");
+    # TRACE_OBJ(aReference);
+    # writeln;
     resultType := getType(aReference);
-    while isFunc(resultType) or isVarfunc(resultType) do
-      resultType := resultType(resultType);
-    end while;
+    if category(aReference) = CALLOBJECT then
+      while isFunc(resultType) or isVarfunc(resultType) do
+        # writeln("isFunc(" <& str(resultType) <& "): " <& str(category(aReference)));
+        resultType := resultType(resultType);
+      end while;
+    end if;
+    # writeln("getExprResultType --> " <& str(resultType));
   end func;
 
 

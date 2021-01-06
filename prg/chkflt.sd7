@@ -4497,16 +4497,16 @@ const proc: check_trunc is func
         not raisesRangeError(trunc(              1.0e37  )) or
         not raisesRangeError(trunc(           FLOAT_MAX  )) or
         not raisesRangeError(trunc(            Infinity  )) or
-        not raisesRangeError(trunc(                 NaN  )) or
-        not raisesRangeError(trunc(floatExpr(           -Infinity  ))) or
-        not raisesRangeError(trunc(floatExpr(          -FLOAT_MAX  ))) or
-        not raisesRangeError(trunc(floatExpr(             -1.0e37  ))) or
-        not raisesRangeError(trunc(floatExpr(-9223372036854777000.0))) then
+        not raisesRangeError(trunc(                 NaN  )) then
       writeln(" ***** Truncation of float does not work correct. (1)");
       okay := FALSE;
     end if;
 
-    if  trunc(floatExpr(-9223372036854775808.0)) <>        integer.first or
+    if  not raisesRangeError(trunc(floatExpr(           -Infinity  ))) or
+        not raisesRangeError(trunc(floatExpr(          -FLOAT_MAX  ))) or
+        not raisesRangeError(trunc(floatExpr(             -1.0e37  ))) or
+        not raisesRangeError(trunc(floatExpr(-9223372036854777000.0))) or
+        trunc(floatExpr(-9223372036854775808.0)) <>        integer.first or
         trunc(floatExpr(-4611686018427387904.0)) <> -4611686018427387904 or
         trunc(floatExpr(-2305843009213693952.0)) <> -2305843009213693952 or
         trunc(floatExpr(-1152921504606846976.0)) <> -1152921504606846976 or
@@ -4759,16 +4759,16 @@ const proc: check_round is func
         not raisesRangeError(round(              1.0e37  )) or
         not raisesRangeError(round(           FLOAT_MAX  )) or
         not raisesRangeError(round(            Infinity  )) or
-        not raisesRangeError(round(                 NaN  )) or
-        not raisesRangeError(round(floatExpr(           -Infinity  ))) or
-        not raisesRangeError(round(floatExpr(          -FLOAT_MAX  ))) or
-        not raisesRangeError(round(floatExpr(             -1.0e37  ))) or
-        not raisesRangeError(round(floatExpr(-9223372036854777000.0))) then
+        not raisesRangeError(round(                 NaN  )) then
       writeln(" ***** Rounding of float does not work correct. (1)");
       okay := FALSE;
     end if;
 
-    if  round(floatExpr(-9223372036854775808.0)) <>        integer.first or
+    if  not raisesRangeError(round(floatExpr(           -Infinity  ))) or
+        not raisesRangeError(round(floatExpr(          -FLOAT_MAX  ))) or
+        not raisesRangeError(round(floatExpr(             -1.0e37  ))) or
+        not raisesRangeError(round(floatExpr(-9223372036854777000.0))) or
+        round(floatExpr(-9223372036854775808.0)) <>        integer.first or
         round(floatExpr(-4611686018427387904.0)) <> -4611686018427387904 or
         round(floatExpr(-2305843009213693952.0)) <> -2305843009213693952 or
         round(floatExpr(-1152921504606846976.0)) <> -1152921504606846976 or

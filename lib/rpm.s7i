@@ -383,7 +383,7 @@ const integer: RPMSIGTAG_SHA1HEADER       is 1010;  # STRING Optional
 const integer: RPMSIGTAG_DSAHEADER        is 1011;  # BIN    Optional
 const integer: RPMSIGTAG_RSAHEADER        is 1012;  # BIN    Optional
 const integer: RPMSIGTAG_SHA1             is  269;  # STRING
-const integer: RPMSIGTAG_SHA256HEADER     is  273;  # STRING 
+const integer: RPMSIGTAG_SHA256HEADER     is  273;  # STRING
 
 const integer: RPM_DIGESTALGO_MD5         is  1;
 const integer: RPM_DIGESTALGO_SHA1        is  2;
@@ -888,9 +888,9 @@ const proc: read (inout file: rpmFile, inout rpmHeader: header) is func
 const func string: str (in rpmHeader: header) is
   return header.magic <&
          chr(header.version) <&
-	 "\0;" mult 4 <&
+         "\0;" mult 4 <&
          int32AsFourBytesBe(header.indexCount) <&
-	 int32AsFourBytesBe(header.storeSize);
+         int32AsFourBytesBe(header.storeSize);
 
 
 const proc: read (inout file: rpmFile, inout rpmIndexEntry: indexEntry) is func
@@ -1372,13 +1372,13 @@ const proc: updateHeader (inout rpmArchive: rpm) is func
           catalogEntry.baseName := catalogEntry.filePath;
         end if;
         dirIndex := findDirIndex(rpm.dirNameList, dirName);
-	if dirIndex = 0 then
+        if dirIndex = 0 then
           rpm.dirNameList &:= dirName;
           dirIndex := length(rpm.dirNameList);
-	end if;
+        end if;
         catalogEntry.dirIndex := dirIndex;
         rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
-        updateHeader(rpm, catalogEntry);     
+        updateHeader(rpm, catalogEntry);
       end if;
     end for;
   end func;
@@ -1482,21 +1482,21 @@ const proc: updateStore (inout rpmSection: section) is func
           store &:= indexEntry.striValue;
         when {RPM_INT16_TYPE}:
           # Align to 2 bytes
-	  if odd(length(store)) then
+          if odd(length(store)) then
             store &:= "\0;";
           end if;
           indexEntry.offset := length(store);
           store &:= indexEntry.striValue;
         when {RPM_INT32_TYPE}:
           # Align to 4 bytes
-	  if length(store) mod 4 <> 0 then
+          if length(store) mod 4 <> 0 then
             store &:= "\0;" mult (4 - length(store) mod 4);
           end if;
           indexEntry.offset := length(store);
           store &:= indexEntry.striValue;
         when {RPM_INT64_TYPE}:
           # Align to 8 bytes
-	  if length(store) mod 8 <> 0 then
+          if length(store) mod 8 <> 0 then
             store &:= "\0;" mult (8 - length(store) mod 4);
           end if;
           indexEntry.offset := length(store);

@@ -141,7 +141,7 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    strUpTemp (const striType);");
     declareExtern(c_prog, "striType    strUtf8ToStri (const const_striType);");
     declareExtern(c_prog, "striType    strValue (const const_objRefType);");
-    declareExtern(c_prog, "const_striType strValueRef (const const_objectType);");
+    declareExtern(c_prog, "const_striType strValueRef (const const_objRefType);");
     declareExtern(c_prog, "striType    strZero (const intType);");
   end func;
 
@@ -2828,7 +2828,7 @@ const proc: process_str_range_of_empty_string (in ref_list: params,
           else
             incr(countNoIndexChecks);
           end if;
-	end if;
+        end if;
         c_expr.expr &:= stringLiteral("");
       end if;
     end if;

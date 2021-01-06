@@ -61,14 +61,15 @@ const proc: var   (ref type param) : (ref expr param) is forward            is a
 const func f_param: ref (ref type param) : (ref expr param)     is action "DCL_REF2";
 const func f_param: val (ref type param) param                  is action "DCL_VAL1";
 const func f_param: val (ref type param) : (ref expr param)     is action "DCL_VAL2";
+const func f_param: in (ref type param) param                   is action "DCL_IN1";
+const func f_param: in (ref type param) : (ref expr param)      is action "DCL_IN2";
 const func f_param: in var (ref type param) param               is action "DCL_IN1VAR";
 const func f_param: in var (ref type param) : (ref expr param)  is action "DCL_IN2VAR";
 const func f_param: inout (ref type param) param                is action "DCL_INOUT1";
 const func f_param: inout (ref type param) : (ref expr param)   is action "DCL_INOUT2";
-const func f_param: in (ref type param) param                   is action "DCL_REF1";
 const func f_param: attr (ref type param)                       is action "DCL_ATTR";
 const func f_param: attr (ref f_param param)                    is action "DCL_PARAM_ATTR";
-const proc: global (in proc param) end global                   is action "DCL_GLOBAL";
+const proc: global (ref proc param) end global                  is action "DCL_GLOBAL";
 
 const proc: (ref type param) ::= (ref type param)            is action "TYP_CREATE";
 const proc: destroy (ref type param)                         is action "TYP_DESTR";
@@ -89,21 +90,13 @@ const proc: (ref void: statement1) ; (ref void: statement2)  is noop;
 
 const proc: PRINT (ref string: stri)                         is action "FIL_PRINT";
 
-const proc: IN_PARAM_IS_VALUE (ref type: aType) is func
-  begin
-    const func f_param: in (attr aType) param                is action "DCL_VAL1";
-    const func f_param: in (attr aType) : (ref expr param)   is action "DCL_VAL2";
-  end func;
-
-const proc: IN_PARAM_IS_REFERENCE (ref type: aType) is func
-  begin
-    const func f_param: in (attr aType) param                is action "DCL_REF1";
-    const func f_param: in (attr aType) : (ref expr param)   is action "DCL_REF2";
-  end func;
+const proc: IN_PARAM_IS_VALUE (ref type: aType)              is action "TYP_SET_IN_PARAM_VALUE";
+const proc: IN_PARAM_IS_REFERENCE (ref type: aType)          is action "TYP_SET_IN_PARAM_REF";
 
 IN_PARAM_IS_VALUE(type);
 IN_PARAM_IS_VALUE(void);
 IN_PARAM_IS_REFERENCE(proc);
+IN_PARAM_IS_REFERENCE(expr);
 IN_PARAM_IS_REFERENCE(object);
 IN_PARAM_IS_REFERENCE(string);
 IN_PARAM_IS_REFERENCE(ACTION);
@@ -171,8 +164,6 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     const func func aType: (attr aType) return (ref func aType param)           is action "PRC_RETURN2";
     const func varfunc aType: (attr aType) return var (inout aType param)       is action "PRC_VARFUNC2";
     const func varfunc aType: (attr aType) return var (ref varfunc aType param) is action "PRC_VARFUNC2";
-
-    const func f_param: in (attr func aType) : (ref expr param)                 is action "DCL_REF2";
 
     const func func func aType: return (ref func func aType param)              is action "PRC_RETURN";
     const func func func aType: (attr aType) return (ref func func aType param) is action "PRC_RETURN2";
@@ -285,6 +276,7 @@ const type: EXCEPTION      is newtype;
 
 const type: DISCRETE       is subtype object;
 const type: integer        is subtype DISCRETE;
+IN_PARAM_IS_VALUE(integer);
 const type: ENUMERATION    is subtype DISCRETE;
 IN_PARAM_IS_VALUE(ENUMERATION);
 const type: INDEXABLE      is subtype object;
@@ -374,7 +366,7 @@ const type: ELSIF_RESULT is newtype;
 const proc: (ref ELSIF_RESULT: dest) ::= enumlit       is action "ENU_GENLIT";
 const ELSIF_RESULT: ELSIF_EMPTY is enumlit;
 const type: ELSIF_PROC                                 is func ELSIF_RESULT;
-# IN_PARAM_IS_REFERENCE(ELSIF_PROC);
+IN_PARAM_IS_REFERENCE(ELSIF_PROC);
 const proc: (ref ELSIF_PROC: dest) ::= (ref ELSIF_RESULT: source) is action "ENU_CREATE";
 
 const proc:       if (in boolean: condition) then

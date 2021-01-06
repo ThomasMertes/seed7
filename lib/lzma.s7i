@@ -788,7 +788,7 @@ const func boolean: hasNext (inout lzmaFile: inFile) is func
       if inFile.position - length(inFile.lzmaDec.uncompressed) <=
           integer.last - BUFFER_SIZE then
         # The number of missing characters can be computed without integer overflow.
-	missing := inFile.position - length(inFile.lzmaDec.uncompressed) + BUFFER_SIZE;
+        missing := inFile.position - length(inFile.lzmaDec.uncompressed) + BUFFER_SIZE;
       end if;
       inFile.decodeResult := decodePacket(inFile.lzmaDec, TRUE, missing);
     end if;

@@ -24,6 +24,64 @@
 (********************************************************************)
 
 
+var type: catchExceptionLevelType is hash [string] integer;
+
+var catchExceptionLevelType: catchExceptionLevel is catchExceptionLevelType.value;
+var integer: catchAllExceptionsLevel is 0;
+
+
+const proc: increaseLevelOfCatchedExceptions (in var reference: current_catch) is func
+
+  local
+    var ref_list: catch_expr is ref_list.EMPTY;
+    var string: exceptionName is "";
+  begin
+    catch_expr := getValue(current_catch, ref_list);
+    while current_catch <> NIL and
+        category(current_catch) = MATCHOBJECT and
+        length(catch_expr) >= 5 do
+      exceptionName := str(catch_expr[3]);
+      if exceptionName in catchExceptionLevel then
+        incr(catchExceptionLevel[exceptionName]);
+      else
+        catchExceptionLevel @:= [exceptionName] 0;
+      end if;
+      if length(catch_expr) >= 6 then
+         current_catch := catch_expr[6];
+        catch_expr := getValue(current_catch, ref_list);
+      else
+        current_catch := NIL;
+      end if;
+    end while;
+  end func;
+
+
+const proc: decreaseLevelOfCatchedExceptions (in var reference: current_catch) is func
+
+  local
+    var ref_list: catch_expr is ref_list.EMPTY;
+    var string: exceptionName is "";
+  begin
+    catch_expr := getValue(current_catch, ref_list);
+    while current_catch <> NIL and
+        category(current_catch) = MATCHOBJECT and
+        length(catch_expr) >= 5 do
+      exceptionName := str(catch_expr[3]);
+      if exceptionName in catchExceptionLevel then
+        decr(catchExceptionLevel[exceptionName]);
+      else
+        raise RANGE_ERROR;
+      end if;
+      if length(catch_expr) >= 6 then
+         current_catch := catch_expr[6];
+        catch_expr := getValue(current_catch, ref_list);
+      else
+        current_catch := NIL;
+      end if;
+    end while;
+  end func;
+
+
 const func string: raiseError (in string: exceptionName) is func
 
   result

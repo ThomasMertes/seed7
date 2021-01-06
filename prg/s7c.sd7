@@ -94,6 +94,7 @@ var boolean_type_hash: generic_destr_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: generic_cmp_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_obj_hash: return_ref_to_value is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: function_declared is boolean_obj_hash.EMPTY_HASH;
+var boolean_obj_hash: function_var_declared is boolean_obj_hash.EMPTY_HASH;
 var ref_list: dynamic_functions is ref_list.EMPTY;
 var interface_hash: interfaceOfType is interface_hash.EMPTY_HASH;
 var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
@@ -805,6 +806,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_expr.temp_frees   &:= c_value.temp_frees;
       c_expr.temp_to_null &:= c_value.temp_to_null;
       function_declared @:= [object_value] TRUE;
+      function_var_declared @:= [current_object] TRUE;
     elsif valueCategory = ACTOBJECT then
       c_declaration.temp_decls &:= "=NULL";
     else
@@ -849,8 +851,10 @@ const proc: determineDataForActualFuncParam (in reference: current_expression,
       for aParam range params do
         determineDataForActualFuncParam(aParam, data_list);
       end for;
-    elsif paramCategory = LOCALVOBJECT or paramCategory = VALUEPARAMOBJECT or
-        paramCategory = REFPARAMOBJECT or paramCategory = RESULTOBJECT then
+    elsif paramCategory = LOCALVOBJECT or
+          paramCategory = VALUEPARAMOBJECT or
+          paramCategory = REFPARAMOBJECT or
+          paramCategory = RESULTOBJECT then
       if current_expression not in data_list then
         data_list &:= make_list(current_expression);
       end if;
@@ -929,14 +933,12 @@ const proc: defineFunctype (in string: valueName, in reference: actual_param,
   end func;
 
 
-const proc: defineActualFuncParam (in string: valueName, in reference: actual_param,
-    in ref_list: data_list, inout expr_type: c_expr) is func
+const proc: defineActualFuncParam (in type: resultType, in string: valueName,
+    in reference: actual_param, in ref_list: data_list, inout expr_type: c_expr) is func
 
   local
     var funcparam_data_hash: funcparam_data_backup is funcparam_data_hash.EMPTY_HASH;
     var funcparam_data_hash: funcparam_reference_backup is funcparam_data_hash.EMPTY_HASH;
-    var reference: dataItem is NIL;
-    var string: data_value is "";
     var expr_type: c_func_body is expr_type.value;
   begin
     funcparam_data_backup := funcparam_data;
@@ -945,7 +947,7 @@ const proc: defineActualFuncParam (in string: valueName, in reference: actual_pa
       defineFunctype(valueName, actual_param, data_list, c_expr);
     end if;
     c_expr.expr &:= "static ";
-    c_expr.expr &:= type_name(resultType(getType(actual_param)));
+    c_expr.expr &:= type_name(resultType);
     c_expr.expr &:= " func_";
     c_expr.expr &:= valueName;
     c_expr.expr &:= " (void *data_";
@@ -965,7 +967,7 @@ const proc: defineActualFuncParam (in string: valueName, in reference: actual_pa
       appendWithDiagnostic(c_func_body.temp_frees, c_expr);
     else
       if c_func_body.temp_frees <> "" then
-        c_expr.expr &:= type_name(resultType(getType(actual_param)));
+        c_expr.expr &:= type_name(resultType);
         c_expr.expr &:= " result=";
       else
         c_expr.expr &:= diagnosticLine(actual_param);
@@ -973,6 +975,9 @@ const proc: defineActualFuncParam (in string: valueName, in reference: actual_pa
       end if;
       if c_func_body.result_expr <> "" then
         c_expr.expr &:= c_func_body.result_expr;
+      elsif valueIsAtHeap(resultType) then
+        process_create_declaration(resultType, global_c_expr);
+        process_create_call(resultType, c_func_body.expr, c_expr.expr);
       else
         c_expr.expr &:= c_func_body.expr;
       end if;
@@ -1056,7 +1061,8 @@ const proc: processFuncValue (in string: valueName, in type: genericFuncType,
     if closure not in definedActualFuncParams then
       function_c_expr.currentFile := file(closure);
       function_c_expr.currentLine := line(closure);
-      defineActualFuncParam(valueName, closure, data_list, function_c_expr);
+      defineActualFuncParam(resultType(genericFuncType), valueName, closure,
+                            data_list, function_c_expr);
       global_c_expr.expr  &:= function_c_expr.temp_decls;
       global_init.expr    &:= function_c_expr.temp_assigns;
       global_c_expr.expr  &:= function_c_expr.expr;
@@ -1134,9 +1140,24 @@ const proc: call_params (in ref_list: formal_params,
               c_expr.expr &:= "&(";
               process_expr(actual_param, c_expr);
               c_expr.expr &:= ")";
-            elsif category(actual_param) = MATCHOBJECT or
-                category(actual_param) = BLOCKOBJECT then
-              processFuncParam(formal_param, actual_param, c_expr);
+            elsif category(actual_param) = MATCHOBJECT then
+              if getValue(actual_param, ref_list)[1] in function_var_declared then
+                c_expr.expr &:= "o_";
+                create_name(getValue(actual_param, ref_list)[1], c_expr.expr);
+              else
+                processFuncParam(formal_param, actual_param, c_expr);
+              end if;
+            elsif category(actual_param) = BLOCKOBJECT then
+              if actual_param in function_var_declared then
+                c_expr.expr &:= "o_";
+                create_name(actual_param, c_expr.expr);
+              else
+                processFuncParam(formal_param, actual_param, c_expr);
+              end if;
+            elsif category(actual_param) = LOCALVOBJECT and
+                actual_param in function_var_declared then
+              c_expr.expr &:= "o_";
+              create_name(actual_param, c_expr.expr);
             else
               c_expr.expr &:= "/* ";
               c_expr.expr &:= str(category(actual_param));
@@ -1288,13 +1309,15 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
   begin
     c_expr.currentFile := file(current_expression);
     c_expr.currentLine := line(current_expression);
-    # c_expr.expr &:= "/* ";
-    # c_expr.expr &:= str(current_expression);
-    # c_expr.expr &:= " */";
     params := getValue(current_expression, ref_list);
     function := params[1];
     params := params[2 ..];
     functionCategory := category(function);
+    # c_expr.expr &:= "/* process_call ";
+    # c_expr.expr &:= str(current_expression);
+    # c_expr.expr &:= " ";
+    # c_expr.expr &:= str(function);
+    # c_expr.expr &:= " */";
     if functionCategory = ACTOBJECT then
       process_action(function, params, c_expr);
     elsif functionCategory = BLOCKOBJECT then
@@ -1309,8 +1332,28 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     elsif functionCategory = CONSTENUMOBJECT then
       (* process_constenumobject(function, params, c_expr); *)
       process_expr(function, c_expr);
+    elsif functionCategory = REFPARAMOBJECT then
+      if isFunc(getType(function)) or
+          isVarfunc(getType(function)) then
+        if function in inlineParam then
+          process_inline_param(function, c_expr);
+        else
+          if getType(function) = proctype then
+            setDiagnosticLine(c_expr);
+          end if;
+          c_expr.expr &:= "o_";
+          create_name(function, c_expr.expr);
+          c_expr.expr &:= "->func(o_";
+          create_name(function, c_expr.expr);
+          c_expr.expr &:= ")";
+          if getType(function) = proctype then
+            c_expr.expr &:= ";\n";
+          end if;
+        end if;
+      else
+        process_expr(function, c_expr);
+      end if;
     elsif functionCategory = VALUEPARAMOBJECT or
-          functionCategory = REFPARAMOBJECT or
           functionCategory = INTOBJECT or
           functionCategory = BIGINTOBJECT or
           functionCategory = FLOATOBJECT or
@@ -1372,7 +1415,7 @@ const proc: process_match (in reference: current_expression, inout expr_type: c_
   begin
     c_expr.currentFile := file(current_expression);
     c_expr.currentLine := line(current_expression);
-    # c_expr.expr &:= "/* ";
+    # c_expr.expr &:= "/* process_match ";
     # c_expr.expr &:= str(current_expression);
     # c_expr.expr &:= " */";
     params := getValue(current_expression, ref_list);
@@ -1764,6 +1807,13 @@ const proc: process_call_by_name_expr (in var reference: current_expression, ino
     exprCategory := category(current_expression);
     if exprCategory = MATCHOBJECT then
       process_call(current_expression, c_expr);
+    elsif exprCategory = LOCALVOBJECT then
+      if isFunc(getType(current_expression)) or
+          isVarfunc(getType(current_expression)) then
+        process_func_call(current_expression, ref_list.EMPTY, c_expr);
+      else
+        process_expr(current_expression, c_expr);
+      end if;
     elsif exprCategory = BLOCKOBJECT then
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
@@ -1972,6 +2022,7 @@ const proc: process_const_func_declaration (in reference: function,
     inout expr_type: c_expr) is func
 
   local
+    var expr_type: c_local_consts is expr_type.value;
     var expr_type: c_param_list is expr_type.value;
     var expr_type: c_result is expr_type.value;
     var expr_type: c_local_vars is expr_type.value;
@@ -1994,7 +2045,12 @@ const proc: process_const_func_declaration (in reference: function,
       # decide if the function declaration should be written
       function_declared @:= [function] TRUE;
       declare_types_of_params(param_list, global_c_expr);
-      process_local_consts(function, c_expr);
+      c_local_consts.currentFile := c_expr.currentFile;
+      c_local_consts.currentLine := c_expr.currentLine;
+      process_local_consts(function, c_local_consts);
+      global_c_expr.expr  &:= c_local_consts.temp_decls;
+      global_init.expr    &:= c_local_consts.temp_assigns;
+      global_c_expr.expr  &:= c_local_consts.expr;
       c_expr.expr &:= diagnosticLine(function);
       c_expr.expr &:= "static ";
       c_expr.expr &:= type_name(result_type);
@@ -2014,6 +2070,7 @@ const proc: process_const_func_declaration (in reference: function,
           write_object_declaration := FALSE;
         end if;
         c_func_body.demand := REQUIRE_RESULT;
+        currentProfiledFunction := function;
         process_expr(body(function), c_func_body);
         if c_param_list.temp_decls <> "" or c_func_body.temp_decls <> "" or
             trace_function or profile_function then
@@ -2098,6 +2155,7 @@ const proc: process_const_func_declaration (in reference: function,
         result_init := resultInitValue(function);
         process_result_declaration(result_object, result_init, c_result);
         process_local_var_declaration(function, c_local_vars);
+        currentProfiledFunction := function;
         process_expr(body(function), c_func_body);
         c_expr.currentFile := file(function);
         c_expr.currentLine := line(function);
@@ -2208,8 +2266,10 @@ const proc: process_main_declaration (in reference: current_object,
       function_declared @:= [current_object] TRUE;
       process_local_consts(current_object, c_expr);
       process_local_var_declaration(current_object, c_local_vars);
+      currentProfiledFunction := main_object;
       process_expr(body(current_object), c_func_body);
     elsif category(current_object) = ACTOBJECT then
+      currentProfiledFunction := main_object;
       process_expr(current_object, c_func_body);
     end if;
     c_expr.currentFile := file(current_object);
@@ -2305,10 +2365,17 @@ const proc: process_main_declaration (in reference: current_object,
       main_epilog &:= "    fprintf(profile_file, \"usecs\\tcalls\\tplace\\tname\\n\");\n";
       main_epilog &:= "    for (index = 0; index < profile_size; index++) {\n";
       main_epilog &:= "      if (profile[index].count != 0) {\n";
-      main_epilog &:= "        fprintf(profile_file, \"%ld\\t%ld\\t%s(%lu)\\t%s\\n\",\n";
-      main_epilog &:= "                (long) profile[index].time, (long) profile[index].count,\n";
-      main_epilog &:= "                profile[index].file, (long unsigned) profile[index].line,\n";
-      main_epilog &:= "                profile[index].name);\n";
+      main_epilog &:= "        if (profile[index].depth == 0) {\n";
+      main_epilog &:= "          fprintf(profile_file, \"%ld\\t%ld\\t%s(%lu)\\t%s\\n\",\n";
+      main_epilog &:= "                  (long) profile[index].time, (long) profile[index].count,\n";
+      main_epilog &:= "                  profile[index].file, (long unsigned) profile[index].line,\n";
+      main_epilog &:= "                  profile[index].name);\n";
+      main_epilog &:= "        } else {\n";
+      main_epilog &:= "          fprintf(profile_file, \"*%ld\\t%ld\\t%s(%lu)\\t%s\\n\",\n";
+      main_epilog &:= "                  (long) (profile[index].time + timMicroSec()), (long) profile[index].count,\n";
+      main_epilog &:= "                  profile[index].file, (long unsigned) profile[index].line,\n";
+      main_epilog &:= "                  profile[index].name);\n";
+      main_epilog &:= "        }\n";
       main_epilog &:= "      }\n";
       main_epilog &:= "    }\n";
       main_epilog &:= "    fclose(profile_file);\n";
@@ -2378,6 +2445,7 @@ const proc: process_var_func_declaration (in reference: function,
     c_expr.expr &:= c_value.expr;
     c_expr.expr &:= ";\n\n";
     function_declared @:= [function] TRUE;
+    function_var_declared @:= [function] TRUE;
   end func;
 
 
@@ -4501,8 +4569,10 @@ const proc: replaceLocalsFromOutside (in reference: local_function,
       if paramCategory = MATCHOBJECT or paramCategory = CALLOBJECT then
         replaceLocalsFromOutside(local_function, aParam, local_objects,
             additional_act_params, additional_form_params);
-      elsif paramCategory = LOCALVOBJECT or paramCategory = VALUEPARAMOBJECT or
-          paramCategory = REFPARAMOBJECT or paramCategory = RESULTOBJECT then
+      elsif paramCategory = LOCALVOBJECT or
+            paramCategory = VALUEPARAMOBJECT or
+            paramCategory = REFPARAMOBJECT or
+            paramCategory = RESULTOBJECT then
         if aParam not in local_objects then
           if aParam in additional_act_params then
             formalRefParam := additional_form_params[pos(additional_act_params, aParam)];
@@ -7169,6 +7239,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
     var string: database_lib   is "";
     var string: comp_data_lib  is "";
     var string: compiler_lib   is "";
+    var string: special_lib    is "";
     var string: cwd            is "";
     var string: workDir        is "";
     var string: sourceFile     is "";
@@ -7199,6 +7270,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
       database_lib  := s7_lib_dir & "/" & ccConf.DATABASE_LIB;
       comp_data_lib := s7_lib_dir & "/" & ccConf.COMP_DATA_LIB;
       compiler_lib  := s7_lib_dir & "/" & ccConf.COMPILER_LIB;
+      special_lib   := s7_lib_dir & "/" & ccConf.SPECIAL_LIB;
       cwd := getcwd();
       if rpos(sourcePath, "/") = 0 then
         sourceFile := sourcePath;
@@ -7319,6 +7391,10 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
           writeln("*** Compiler data library " <& literal(comp_data_lib) <& " missing");
           okay := FALSE;
         end if;
+        if ccConf.LINKER_OPT_SPECIAL_LIB <> "" and fileType(special_lib) <> FILE_REGULAR then
+          writeln("*** Special library " <& literal(compiler_lib) <& " missing");
+          okay := FALSE;
+        end if;
         if okay and not compileLibrary then
           if fileType(linkedProgram) = FILE_REGULAR then
             block
@@ -7375,6 +7451,10 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
               linkParams &:= toOsPath(database_lib);
             end if;
             linkParams &:= toOsPath(seed7_lib);
+            if ccConf.LINKER_OPT_SPECIAL_LIB <> "" then
+              linkParams &:= ccConf.LINKER_OPT_SPECIAL_LIB;
+              linkParams &:= toOsPath(special_lib);
+            end if;
             if drawLibraryUsed then
               linkParams &:= ccConf.SYSTEM_DRAW_LIBS;
             end if;

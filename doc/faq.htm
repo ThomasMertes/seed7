@@ -265,6 +265,9 @@ Is it possible to compile Seed7 programs?
 <li><a class="link" href="#faq_debug_with_eclipse"><b>
 Can I debug Seed7 programs with Eclipse?
 </b></a></li>
+<li><a class="link" href="#faq_profile_programs"><b>
+Can I profile Seed7 programs?
+</b></a></li>
 </ul><h2>
 Language
 </h2><ul>
@@ -817,12 +820,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-12-08 the number of lines is:
+than 300000 lines of Seed7. For version 2021-01-06 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">161168</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12696</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">191533</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">160844</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">162686</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12721</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">191628</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">161011</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -924,6 +927,12 @@ Other source code releases can be found in the directory <tt>seed7</tt>.
 It is strongly recommended to use the latest version.
 An <a class="link" href="#faq_installer">installer for Windows</a> can be found in the directory <tt>bin</tt>.
 Other executables are also in the <tt>bin</tt> directory.
+</p><p>
+Seed7 is now also <span class="link">available at GitHub</span>. You can use the command:
+</p><pre class="indent">
+git clone https://github.com/ThomasMertes/seed7.git
+</pre><p>
+to clone the Seed7 repository.
 </p></div>
 
 <div><br /><a name="faq_uncompress"><h3>How do I uncompress the *.tgz file from the release?
@@ -1263,7 +1272,7 @@ Possible options are
          <li><b>1</b> Use literals and named constants to simplify expressions (default).</li>
          <li><b>2</b> Evaluate constant parameter expressions to simplify expressions.</li>
          <li><b>3</b> Like <b>-oc2</b> and additionally evaluate all constant expressions.</li></ul></li>
-  <li><b>-p</b>   Activate simple function profiling.</li>
+  <li><a name="faq_compiler_option-p"><b>-p</b></a>   Activate simple function profiling.</li>
   <li><a name="faq_compiler_option-s"><b>-s</b><span class="keywd">x</span></a>  <span class="link">Suppress checks</span> specified with <span class="keywd">x</span>. E.g.: <b>-sr</b> or <b>-sro</b>
        The checks <span class="keywd">x</span> are specified with letters from the following list:<ul>
          <li><b>d</b> Suppress the generation of checks for <span class="link">integer division by zero</span>.</li>
@@ -1300,6 +1309,17 @@ Yes, Eclipse can be easily configured to work with Seed7:
   <li>In the Arguments tab you can set program arguments and current working directory.</li>
   <li>Press the Debug button to start the program.</li>
 </ul></div>
+
+<div><br /><a name="faq_profile_programs"><h3>Can I profile Seed7 programs?
+</h3></a><hr />
+<p>
+You can use tools that profile executables such as Valgrind. Additionally the
+<span class="link">Seed7 compiler</span> supports simple function profiling. You just need to compile a
+program with the option <a class="link" href="#faq_compiler_option-p"><tt><b>-p</b></tt></a>. If you execute this program it writes profiling
+data to the file <tt>profile_out</tt>, when it is finished. In "profile_out" you find
+a tab-separated table with microseconds, number of calls, place of the function
+and function name.
+</p></div>
 
 <div><br /><a name="faq_reserved_words"><h3>What are the reserved words of Seed7?
 </h3></a><hr />

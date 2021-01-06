@@ -316,16 +316,17 @@ COMPILING WITH EMCC FROM EMSCRIPTEN
   Due to limitations of Emscripten and missing Seed7 driver
   libraries several things do not work as they should:
 
-    - Under Windows only files with relative paths can be
-      opened.
+    - In Emscripten stdout is always line buffered.
     - Reading from stdin is not possible (EOF is reached
       immediately).
-    - When executing with node.js the environment variables
-      of the computer are not available (Only a fake
-      environment is present).
+    - JavaScript and Wasm currently do not support
+      synchronous I/O.
     - Processes cannot be started.
     - Sockets cannot be used.
-    - Graphics is currently not supported.
+    - Graphics is supported from the browser, but
+      without synchronous I/O its usage is limited.
+    - Graphics from node.js would need libraries that
+      access win32 or X11 via native calls.
 
   When you execute
 
@@ -1312,6 +1313,10 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
   LINKER_OPT_STATIC_LINKING: Contains the linker option to force
                              static linking (e.g.: "-static").
 
+  CC_OPT_LINK_TIME_OPTIMIZATION: Contains the compiler option for
+                                 link time optimization (e.g.:
+                                 "-flto").
+
   LINKER_FLAGS: Contains options for the stand-alone linker to link
                 a compiled Seed7 program.
 
@@ -1320,22 +1325,26 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                libraries required by the Seed7 runtime library.
                E.g. libraries for math or socket.
 
+  SYSTEM_DRAW_LIBS: Options to link system graphic libraries to a
+                    compiled program. This is intended for options
+                    to link libraries required by the Seed7 graphic
+                    runtime library (e.g.: "-lX11").
+
   SYSTEM_CONSOLE_LIBS: Options to link system console libraries to
                        a compiled program. This is intended for
                        options to link libraries required by the
                        Seed7 console runtime library
                        (e.g.: "-lncurses").
 
-  SYSTEM_DRAW_LIBS: Options to link system graphic libraries to a
-                    compiled program. This is intended for options
-                    to link libraries required by the Seed7 graphic
-                    runtime library (e.g.: "-lX11").
+  SYSTEM_DATABASE_LIBS: Options to link system database libraries
+                        to a compiled program. This is intended for
+                        options to link libraries required by the
+                        Seed7 database runtime libraries
+                        (e.g.: "-lmysqlclient").
 
   ADDITIONAL_SYSTEM_LIBS: Options to link additional libraries to
                           a compiled program. This is intended for
                           options to link libraries required by the
-                          Seed7 database runtime libraries
-                          (e.g.: "-lmysqlclient") or the
                           multiprecision library (e.g.: "-lgmp").
 
   DEFINE_COMMAND_LINE_TO_ARGV_W: Defined if the function
@@ -2043,8 +2052,17 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   SEED7_LIB: Contains the name of the Seed7 runtime library.
 
-  CONSOLE_LIB, DRAW_LIB, COMP_DATA_LIB, COMPILER_LIB: Contain names
-               of other Seed7 runtime libraries.
+  DRAW_LIB, CONSOLE_LIB, DATABASE_LIB, COMP_DATA_LIB, COMPILER_LIB:
+               Contain names of other Seed7 runtime libraries.
+
+  CC_ENVIRONMENT_INI: Path to an INI file with the environment for
+                      the C compiler. If it is "" the C compiler
+                      does not need environment settings. The INI
+                      file contains a snapshot of the environment
+                      variables at the time Seed7 is compiled. As
+                      snapshot it contains also environment
+                      variables that are not necessary for the C
+                      compiler.
 
   S7_LIB_DIR: Directory containing the Seed7 runtime libraries.
               This path uses the standard path representation

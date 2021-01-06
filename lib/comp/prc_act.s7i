@@ -52,6 +52,9 @@ const ACTION: PRC_WHILE            is action "PRC_WHILE";
 const ACTION: PRC_WHILE_NOOP       is action "PRC_WHILE_NOOP";
 
 
+var reference: currentProfiledFunction is NIL;
+
+
 const proc: prc_prototypes (inout file: c_prog) is func
 
   begin
@@ -471,7 +474,7 @@ const proc: process (PRC_RETURN, in reference: function,
     var string: valueName is "";
   begin
     create_name(params[2], objNumber(params[2]), valueName);
-    processFuncValue(valueName, getType(params[2]), params[2], c_expr);
+    processFuncValue(valueName, resultType(getType(function)), params[2], c_expr);
     c_expr.result_expr := c_expr.expr;
   end func;
 
@@ -889,7 +892,9 @@ const proc: process (PRC_BLOCK, in reference: function,
     c_expr.expr &:= "}\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (likely((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0)) {\n";
+    increaseLevelOfCatchedExceptions(params[4]);
     process_call_by_name_expr(params[2], c_expr);
+    decreaseLevelOfCatchedExceptions(params[4]);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
     current_catch := params[4];
@@ -950,7 +955,9 @@ const proc: process (PRC_BLOCK_CATCH_ALL, in reference: function,
     c_expr.expr &:= "}\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (likely((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0)) {\n";
+    incr(catchAllExceptionsLevel);
     process_call_by_name_expr(params[2], c_expr);
+    decr(catchAllExceptionsLevel);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
     setDiagnosticLine(c_expr);
@@ -988,7 +995,11 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
     c_expr.expr &:= "}\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (likely((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0)) {\n";
+    increaseLevelOfCatchedExceptions(params[4]);
+    incr(catchAllExceptionsLevel);
     process_call_by_name_expr(params[2], c_expr);
+    decreaseLevelOfCatchedExceptions(params[4]);
+    decr(catchAllExceptionsLevel);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
     current_catch := params[4];
@@ -1230,6 +1241,19 @@ const proc: process (PRC_RAISE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    if profile_function and catchAllExceptionsLevel = 0 and
+        (str(params[2]) not in catchExceptionLevel or catchExceptionLevel[str(params[2])] = 0) then
+      c_expr.expr &:= "profile[";
+      c_expr.expr &:= str(objNumber(currentProfiledFunction));
+      c_expr.expr &:= "].depth--;\n";
+      c_expr.expr &:= "if (profile[";
+      c_expr.expr &:= str(objNumber(currentProfiledFunction));
+      c_expr.expr &:= "].depth == 0) {\n";
+      c_expr.expr &:= "  profile[";
+      c_expr.expr &:= str(objNumber(currentProfiledFunction));
+      c_expr.expr &:= "].time += timMicroSec();\n";
+      c_expr.expr &:= "}\n";
+    end if;
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "rtlRaiseError(";
     getAnyParamToExpr(params[2], c_expr);

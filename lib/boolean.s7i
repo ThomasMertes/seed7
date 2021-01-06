@@ -280,13 +280,13 @@ const proc: DECLARE_TERNARY (in type: aType) is func
      *          ''elseValue'' if ''condition'' is FALSE.
      *)
     const func aType: (in boolean: condition) ? (ref func aType: thenValue) : (ref func aType: elseValue) is action "BLN_TERNARY";
-    
+
     const func aType: (in boolean: condition) ? (ref func aType: thenValue) : (in aType: elseValue)       is action "BLN_TERNARY";
-    
+
     const func aType: (in boolean: condition) ? (in aType: thenValue) : (ref func aType: elseValue)       is action "BLN_TERNARY";
-    
+
     const func aType: (in boolean: condition) ? (in aType: thenValue) : (in aType: elseValue)             is action "BLN_TERNARY";
-    
+
   end func;
 
 

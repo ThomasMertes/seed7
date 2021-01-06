@@ -113,15 +113,15 @@ const proc: checkFloat2Bits is func
         bin32( 2.0)                     <> bin32(16#40000000) or
         bin32(-2.0)                     <> bin32(16#c0000000) or
         bin32( 5.0e-324)                <> bin32(16#00000000) or  # Min subnormal positive double.
-        bin32( 2.2250738585072009e-308) <> bin32(16#00000000) or  # Max subnormal positive double
-        bin32( 2.2250738585072014e-308) <> bin32(16#00000000) or  # Min normalized positive double
+        bin32( 2.2250738585072009e-308) <> bin32(16#00000000) or  # Max subnormal positive double.
+        bin32( 2.2250738585072014e-308) <> bin32(16#00000000) or  # Min normalized positive double.
         bin32( 1.4012984643248171e-45)  <> bin32(16#00000001) or  # Min subnormal positive single.
         bin32( 2.9387358770557188e-39)  <> bin32(16#00200000) or  # Min MBF positive single.
-        bin32( 1.1754942106924411e-38)  <> bin32(16#007fffff) or  # Max subnormal positive single
+        bin32( 1.1754942106924411e-38)  <> bin32(16#007fffff) or  # Max subnormal positive single.
         bin32( 1.1754943508222875e-38)  <> bin32(16#00800000) or  # Min normalized positive single.
         bin32( 1.7014117331926443e+38)  <> bin32(16#7effffff) or  # Max MBF positive single.
         bin32( 3.4028234663852886e+38)  <> bin32(16#7f7fffff) or  # Max finite positive single.
-        bin32( 1.7976931348623157e+308) <> bin32(16#7f800000) or  # Max finite positive double
+        bin32( 1.7976931348623157e+308) <> bin32(16#7f800000) or  # Max finite positive double.
         bin32( Infinity)                <> bin32(16#7f800000) or
         bin32(-Infinity)                <> bin32(16#ff800000) or
         bin32( 0.3333333432674408)      <> bin32(16#3eaaaaab) or
@@ -150,15 +150,15 @@ const proc: checkFloat2Bits is func
         bin64( 2.0)                     <> bin64(16#4000000000000000_) or
         bin64(-2.0)                     <> bin64(16#c000000000000000_) or
         bin64( 5.0e-324)                <> bin64(16#0000000000000001_) or  # Min subnormal positive double.
-        bin64( 2.2250738585072009e-308) <> bin64(16#000fffffffffffff_) or  # Max subnormal positive double
-        bin64( 2.2250738585072014e-308) <> bin64(16#0010000000000000_) or  # Min normalized positive double
+        bin64( 2.2250738585072009e-308) <> bin64(16#000fffffffffffff_) or  # Max subnormal positive double.
+        bin64( 2.2250738585072014e-308) <> bin64(16#0010000000000000_) or  # Min normalized positive double.
         bin64( 1.4012984643248171e-45)  <> bin64(16#36a0000000000000_) or  # Min subnormal positive single.
         bin64( 2.9387358770557188e-39)  <> bin64(16#37f0000000000000_) or  # Min MBF positive double.
-        bin64( 1.1754942106924411e-38)  <> bin64(16#380fffffc0000000_) or  # Max subnormal positive single
+        bin64( 1.1754942106924411e-38)  <> bin64(16#380fffffc0000000_) or  # Max subnormal positive single.
         bin64( 1.1754943508222875e-38)  <> bin64(16#3810000000000000_) or  # Min normalized positive single.
         bin64( 1.7014118346046923e+38)  <> bin64(16#47e0000000000000_) or  # Max MBF positive double.
         bin64( 3.4028234663852886e+38)  <> bin64(16#47efffffe0000000_) or  # Max finite positive single.
-        bin64( 1.7976931348623157e+308) <> bin64(16#7fefffffffffffff_) or  # Max finite positive double
+        bin64( 1.7976931348623157e+308) <> bin64(16#7fefffffffffffff_) or  # Max finite positive double.
         bin64( Infinity)                <> bin64(16#7ff0000000000000_) or
         bin64(-Infinity)                <> bin64(16#fff0000000000000_) or
         bin64( 1.0 / 3.0)               <> bin64(16#3fd5555555555555_) or

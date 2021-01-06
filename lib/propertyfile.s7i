@@ -27,6 +27,7 @@
 
 
 include "scanfile.s7i";
+include "utf8.s7i";
 
 const set of char: propertyWhiteSpace is {' ', '\t', '\f'};
 
@@ -40,30 +41,38 @@ const type: propertyDataType is hash [string] string;
 const func string: readPropertyNameOrValue (inout file: inFile, in set of char: terminatorChars) is func
   result
     var string: nameOrValue is "";
+  local
+    var boolean: readNextChar is FALSE;
   begin
     while inFile.bufferChar not in terminatorChars do
       if inFile.bufferChar = '\\' then
         inFile.bufferChar := getc(inFile);
+        readNextChar := TRUE;
         case inFile.bufferChar of
           when {'t'}: nameOrValue &:= '\t';
           when {'n'}: nameOrValue &:= '\n';
           when {'f'}: nameOrValue &:= '\f';
           when {'r'}: nameOrValue &:= '\r';
           when {'u'}: nameOrValue &:= chr(integer(gets(inFile, 4), 16));
-                      inFile.bufferChar := getc(inFile);
+          when {'U'}: nameOrValue &:= chr(integer(gets(inFile, 6), 16));
           when {'\r'}: inFile.bufferChar := getc(inFile);
                        if inFile.bufferChar = '\n' then
                          inFile.bufferChar := getc(inFile);
                        end if;
                        skipWhiteSpace(inFile, propertyWhiteSpace);
+                       readNextChar := FALSE;
           when {'\n'}: inFile.bufferChar := getc(inFile);
                        skipWhiteSpace(inFile, propertyWhiteSpace);
+                       readNextChar := FALSE;
           otherwise: nameOrValue &:= inFile.bufferChar;
         end case;
+        if readNextChar then
+          inFile.bufferChar := getc(inFile);
+        end if;
       else
         nameOrValue &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
       end if;
-      inFile.bufferChar := getc(inFile);
     end while;
   end func;
 
@@ -111,7 +120,7 @@ const func propertyDataType: readPropertyFile (inout file: inFile) is func
 
 
 (**
- *  Reads a property file with the given name and returns its propertyDataType value.
+ *  Read a property file with the given name.
  *)
 const func propertyDataType: readPropertyFile (in string: fileName) is func
   result
@@ -120,6 +129,23 @@ const func propertyDataType: readPropertyFile (in string: fileName) is func
     var file: inFile is STD_NULL;
   begin
     inFile := open(fileName, "r");
+    if inFile <> STD_NULL then
+      propertyData := readPropertyFile(inFile);
+      close(inFile);
+    end if;
+  end func;
+
+
+(**
+ *  Read an UTF-8 encoded property file with the given name.
+ *)
+const func propertyDataType: readPropertyFile8 (in string: fileName) is func
+  result
+    var propertyDataType: propertyData is propertyDataType.value;
+  local
+    var file: inFile is STD_NULL;
+  begin
+    inFile := openUtf8(fileName, "r");
     if inFile <> STD_NULL then
       propertyData := readPropertyFile(inFile);
       close(inFile);

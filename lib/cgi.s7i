@@ -33,14 +33,17 @@ include "encoding.s7i";
 
 
 (**
- *  Read the CGI parameters from the given paramStri.
- *  The parameter paramStri is assumed to consist of of name=value
- *  pairs separated with ampersands. Name and value may be
- *  percent-encoded. Both are decoded before they are entered into
- *  the hash table. A CGI script can use the environment variable
- *  QUERY_STRING as actual parameter for paramStri. Web servers
- *  usually assign the URL part after the '?' character to
- *  QUERY_STRING.
+ *  Read the CGI parameters from the given ''paramStri''.
+ *  The parameter ''paramStri'' is assumed to consist of of elements
+ *  separated with ampersands. Individual elements can have the
+ *  form name=value or just name without = sign (in this case value
+ *  is assumed to be ""). Name and value may be percent-encoded.
+ *  Both are decoded and afterwards possible UTF-8 encodings are
+ *  also decoded. The final values are entered into the hash table.
+ *  A CGI script can use the environment variable QUERY_STRING
+ *  as actual parameter for ''paramStri''. Web servers usually assign
+ *  the URL part after the '?' character to QUERY_STRING.
+ *  @param paramStri Percent encoded query string.
  *  @return a hash table containing CGI parameters as key, value pairs.
  *)
 const func hash [string] string: getCgiParameters (in string: paramStri) is func
@@ -48,43 +51,44 @@ const func hash [string] string: getCgiParameters (in string: paramStri) is func
     var hash [string] string: cgiParameters is (hash [string] string).value;
   local
     var array string: paramArray is 0 times "";
-    var integer: index is 0;
-    var string: nameValuePair is "";
+    var string: element is "";
     var integer: pos is 0;
     var string: name is "";
     var string: value is "";
   begin
     paramArray := split(paramStri, '&');
-    for index range 1 to length(paramArray) do
-      nameValuePair := paramArray[index];
-      pos := pos(nameValuePair, '=');
+    for element range paramArray do
+      pos := pos(element, '=');
       if pos <> 0 then
-        name := nameValuePair[.. pred(pos)];
-        value := nameValuePair[succ(pos) ..];
-        name := fromUrlEncoded(name);
+        name := element[.. pred(pos)];
+        value := element[succ(pos) ..];
         value := fromUrlEncoded(value);
-        block
-          name := utf8ToStri(name);
-        exception
-          catch RANGE_ERROR:
-            noop;
-        end block;
         block
           value := utf8ToStri(value);
         exception
           catch RANGE_ERROR:
             noop;
         end block;
-        cgiParameters @:= [name] value;
+      else
+        name := element;
+        value := "";
       end if;
+      name := fromUrlEncoded(name);
+      block
+        name := utf8ToStri(name);
+      exception
+        catch RANGE_ERROR:
+          noop;
+      end block;
+      cgiParameters @:= [name] value;
     end for;
   end func;
 
 
 (**
- *  Read the CGI parameters from the given file inFile.
+ *  Read the CGI parameters from the given file ''inFile''.
  *  The standard input file IN can be used as actual parameter for
- *  inFile.
+ *  ''inFile''.
  *  @return a hash table containing CGI parameters as key, value pairs.
  *)
 const func hash [string] string: getCgiParameters (inout file: inFile) is func

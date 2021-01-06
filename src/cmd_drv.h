@@ -35,6 +35,15 @@
 #define C
 #endif
 
+#ifdef DETERMINE_OS_PROPERTIES_AT_RUNTIME
+extern char *nullDevice;
+extern unsigned char shellPathDelimiter;
+extern boolType shellUsesDriveLetters;
+#ifdef EMULATE_ENVIRONMENT
+extern int (*environmenStrncmp) (const char *s1, const char *s2, size_t n);
+#endif
+#endif
+
 os_striType *getUtf16Argv (int *w_argc);
 void freeUtf16Argv (os_striType *w_argv);
 striType getExecutablePath (const const_striType arg_0);
@@ -46,6 +55,10 @@ void freeEnvironment (os_striType *environment);
 char *getenv7 (const char *name);
 int setenv7 (const char *name, const char *value, int overwrite);
 int unsetenv7 (const char *name);
+#ifdef EMULATE_NODE_ENVIRONMENT
+int setenvForNodeJs (const char *name, const char *value, int overwrite);
+int unsetenvForNodeJs (const char *name);
+#endif
 #endif
 #ifdef DEFINE_WGETENV
 os_striType wgetenv (const const_os_striType name);
@@ -59,5 +72,5 @@ int wunsetenv (const const_os_striType name);
 #endif
 striType cmdGetGroup (const const_striType filePath);
 striType cmdGetOwner (const const_striType filePath);
-void cmdSetGroup (const const_striType filePath, striType group);
-void cmdSetOwner (const const_striType filePath, striType owner);
+void cmdSetGroup (const const_striType filePath, const const_striType group);
+void cmdSetOwner (const const_striType filePath, const const_striType owner);

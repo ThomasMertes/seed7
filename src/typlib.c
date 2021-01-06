@@ -497,6 +497,26 @@ objectType typ_result (listType arguments)
 
 
 
+objectType typ_set_in_param_ref (listType arguments)
+
+  { /* typ_set_in_param_ref */
+    isit_type(arg_1(arguments));
+    take_type(arg_1(arguments))->in_param_type = PARAM_REF;
+    return SYS_EMPTY_OBJECT;
+  } /* typ_set_in_param_ref */
+
+
+
+objectType typ_set_in_param_value (listType arguments)
+
+  { /* typ_set_in_param_value */
+    isit_type(arg_1(arguments));
+    take_type(arg_1(arguments))->in_param_type = PARAM_VALUE;
+    return SYS_EMPTY_OBJECT;
+  } /* typ_set_in_param_value */
+
+
+
 objectType typ_str (listType arguments)
 
   { /* typ_str */

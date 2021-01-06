@@ -12781,31 +12781,32 @@ CONTENTS
     37: Statement priority "%s" too big
     38: Syntax with two parameters before operator is illegal
     39: Empty syntax declaration
-    40: Dot expression requested as syntax description
-    41: "%s" redeclared with infix priority %d not %d
-    42: "%s" redeclared with prefix priority %d not %d
-    43: Priority %d required for parameter after "%s" not %d
-    44: Priority <= %d expected found "%s" with priority %d
-    45: "%s" must have priority %d not %d for dot expression
-    46: "%s" expected found "%s"
+    40: Syntax declared twice
+    41: Dot expression requested as syntax description
+    42: "%s" redeclared with infix priority %d not %d
+    43: "%s" redeclared with prefix priority %d not %d
+    44: Priority %d required for parameter after "%s" not %d
+    45: Priority <= %d expected found "%s" with priority %d
+    46: "%s" must have priority %d not %d for dot expression
     47: "%s" expected found "%s"
     48: Undefined type for literal "%s"
-    49: "newtype", "subtype", "func", "enumlit" or "action" expected found "%s"
-    50: "func" or "type" expected found "%s"
-    51: Match for %s failed
-    52: Variable expected in %s found %s
-    53: Type expected found %s
-    54: Procedure expected found %s expression
-    55: Parameter specifier expected found "%s"
-    56: Evaluate type expression %s failed
-    57: Overlong UTF-8 encoding used for character "%s" (U+%04x)
-    58: UTF-16 surrogate character found in UTF-8 encoding "%s" (U+%04x)
-    59: Non Unicode character found "%s" (U+%04x)
-    60: UTF-8 continuation byte expected found "%s" (U+%04x)
-    61: Unexpected UTF-8 continuation byte found "%s" (U+%04x)
-    62: Solitary UTF-8 start byte found "%s" (U+%04x)
-    63: UTF-16 byte order mark found "%s" (U+%04x)
-    64: The numerical escape sequence "\%u;" is too big
+    49: Kind of in-parameter (val or ref) unspecified for type "%s"
+    50: "newtype", "subtype", "func", "enumlit" or "action" expected found "%s"
+    51: "func" or "type" expected found "%s"
+    52: Match for %s failed
+    53: Variable expected in %s found %s
+    54: Type expected found %s
+    55: Procedure expected found %s expression
+    56: Parameter specifier expected found "%s"
+    57: Evaluate type expression %s failed
+    58: Overlong UTF-8 encoding used for character "%s" (U+%04x)
+    59: UTF-16 surrogate character found in UTF-8 encoding "%s" (U+%04x)
+    60: Non Unicode character found "%s" (U+%04x)
+    61: UTF-8 continuation byte expected found "%s" (U+%04x)
+    62: Unexpected UTF-8 continuation byte found "%s" (U+%04x)
+    63: Solitary UTF-8 start byte found "%s" (U+%04x)
+    64: UTF-16 byte order mark found "%s" (U+%04x)
+    65: The numerical escape sequence "\%u;" is too big
         Undefined error
 
 

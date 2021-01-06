@@ -260,6 +260,12 @@ typedef struct typeListStruct {
     typeType type_elem;
   } typeListRecord;
 
+typedef enum {
+    PARAM_UNDEFINED,
+    PARAM_VALUE,
+    PARAM_REF
+  } parameterType;
+
 typedef struct typeStruct {
     objectType match_obj;
     typeType meta;
@@ -267,6 +273,7 @@ typedef struct typeStruct {
     typeType varfunc_type;
     typeType result_type;
     boolType is_varfunc_type;
+    parameterType in_param_type;
     typeListType interfaces;
     identType name;
     progType owningProg;
