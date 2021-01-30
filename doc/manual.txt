@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  manual.txt                                                      *)
 (*                                                                  *)
-(*  Copyright (C) 1989 - 2019  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2021  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
 (*  Documentation: Manual for the Seed7 programming language        *)
@@ -37,6 +37,7 @@ CONTENTS
   3.1     Normal declarations
   3.2     Syntax declarations
   3.3     System declarations
+  3.4     Pragmas
   4.    PREDEFINED STATEMENTS
   4.1     Assignment
   4.2     while-statement
@@ -218,21 +219,22 @@ CONTENTS
   15.7    Basic conversion functions
   15.8    Error handling
   16.   ERRORS
-  16.1    Compile time errors
-  16.2    Exceptions
-  16.2.1  MEMORY_ERROR
-  16.2.2  NUMERIC_ERROR
-  16.2.3  OVERFLOW_ERROR
-  16.2.4  INDEX_ERROR
-  16.2.5  RANGE_ERROR
-  16.2.6  FILE_ERROR
-  16.2.7  DATABASE_ERROR
-  16.2.8  ILLEGAL_ACTION
-  16.3    Handlers
-  16.4    Stack trace
-  16.5    Suppressing exception checks
-  16.6    Signals
-  16.7    Other errors and warnings
+  16.1    Parsing errors
+  16.2    Compilation errors
+  16.3    Exceptions
+  16.3.1  MEMORY_ERROR
+  16.3.2  NUMERIC_ERROR
+  16.3.3  OVERFLOW_ERROR
+  16.3.4  INDEX_ERROR
+  16.3.5  RANGE_ERROR
+  16.3.6  FILE_ERROR
+  16.3.7  DATABASE_ERROR
+  16.3.8  ILLEGAL_ACTION
+  16.4    Handlers
+  16.5    Stack trace
+  16.6    Suppressing exception checks
+  16.7    Signals
+  16.8    Other errors and warnings
 
 
 
@@ -627,7 +629,8 @@ CONTENTS
   The while loop repeats the statements between the keywords
   'do' and 'end' as long as the condition name = "" is TRUE.
   Note that the statements in a while loop might not be executed at all.
-  In the example above this happens if a non-empty name is entered after the question: What's your name?
+  In the example above this happens if a non-empty name is entered
+  after the question: What's your name?
 
 
 2.3 Local declarations and expressions
@@ -836,9 +839,9 @@ CONTENTS
         num2 := 0;
       end func;
 
-  results in a compile time error:
+  results in a parsing error:
 
-    *** tst77.sd7(5):52: Variable expected in {num2 := 0 } found parameter (in integer: num2)
+    *** tst77.sd7(5):53: Variable expected in {num2 := 0 } found parameter (in integer: num2)
         num2 := 0;
 
   When a function wants to change the value of the actual
@@ -858,9 +861,9 @@ CONTENTS
 
     reset(8);
 
-  results in a compile time error
+  results in a parsing error:
 
-    *** tst77.sd7(12):52: Variable expected in {8 reset } found constant integer: 8
+    *** tst77.sd7(12):53: Variable expected in {8 reset } found constant integer: 8
         reset(8);
 
   Sometimes an 'in' parameter is needed, but you need to change
@@ -1200,7 +1203,6 @@ CONTENTS
 
   The following system declarations exist
 
-    $ system "type" is type;
     $ system "expr" is expr;
     $ system "integer" is integer;
     $ system "bigInteger" is bigInteger;
@@ -1232,6 +1234,69 @@ CONTENTS
     $ system "write" is write;
     $ system "writeln" is writeln;
     $ system "main" is main;
+
+
+3.4 Pragmas
+
+    Pragmas specify how a program is processed. Like
+  system declarations pragmas are introduced with a dollar
+  sign ($) followed by the name of the pragma. The following
+  pragmas exist:
+
+  +-----------+------------------+----------------------------------------------+
+  | pragma    | parameter        | comment                                      |
+  +-----------+------------------+----------------------------------------------+
+  | $ library | string           | Specify additional direcory for *.s7i files. |
+  | $ message | string           | Writes a message during parsing.             |
+  | $ info    | on or off        | Switch compilation info on or off.           |
+  | $ trace   | string           | Sets compile-time tracing flags.             |
+  | $ decls   | -                | Traces the declarations.                     |
+  | $ names   | unicode or ascii | Allows Unicode (or Ascii) identifiers.       |
+  +-----------+------------------+----------------------------------------------+
+
+  An unknown pragma results in a parsing error:
+
+    *** pragma.sd7(1):7: Illegal pragma "unknownPragma"
+    $ unknownPragma
+    ---------------^
+
+  The pragma message can be used to write a message during
+  parsing. To write "hello world" during parsing use:
+
+    $ message "hello world";
+
+  The pragma info can be used to change the verbosity level of
+  the parsing phase. This overrules the -vn option of the
+  interpreter. With
+
+    $ info on;
+
+  the parser writes information about library names and the
+  number of the line currently processed. With
+
+    $ info off;
+
+  no such information is written.
+
+  The pragma trace can be used to turn interpreter tracing
+  on or off during the parsing of the program. This
+  overrules the -dx option of the interpreter. The string
+  parameter of the trace pragma allows a sequence of the
+  characters +, -, a, c, d, e, h, m, u, s and *. These
+  characters have the following meaning:
+
+    + Turn the following flags on (default)
+    - Turn the following flags off
+    a Trace primitive actions
+    c Do action check
+    d Trace dynamic calls
+    e Trace exceptions and handlers
+    h Trace heap size (in combination with 'a')
+    m Trace matching of expressions
+    u Trace exec utility functions
+    s Trace signals
+    * All flags
+
 
 
 
@@ -4901,9 +4966,9 @@ CONTENTS
       end func;
 
   If the type declaration of 'intArrayType' would be inside of the 'local'
-  declaration block you would receive an error:
+  declaration block you would receive a parsing error:
 
-    *** tst249.sd7(6):51: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
+    *** tst249.sd7(6):52: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
         var intArrayType: arr is [](1, 2);
 
   A 'local' declaration block is parsed completely before it is executed.
@@ -5206,17 +5271,11 @@ CONTENTS
     $ syntax expr: .in.().param       is -> 40;
     $ syntax expr: .in.(). : .(expr)  is -> 40;
 
-    const func f_param: in (ref type param) param                is action "DCL_REF1";
+    const func f_param: in (ref type param) param               is action "DCL_IN1";
+    const func f_param: in (ref type param) : (ref expr param)  is action "DCL_IN2";
 
-    const proc: IN_PARAM_IS_VALUE (ref type: aType) is func
-      begin
-        const func f_param: in (attr aType) : (ref expr param)   is action "DCL_VAL2";
-      end func;
-
-    const proc: IN_PARAM_IS_REFERENCE (ref type: aType) is func
-      begin
-        const func f_param: in (attr aType) : (ref expr param)   is action "DCL_REF2";
-      end func;
+    const proc: IN_PARAM_IS_VALUE (ref type: aType)             is action "TYP_SET_IN_PARAM_VALUE";
+    const proc: IN_PARAM_IS_REFERENCE (ref type: aType)         is action "TYP_SET_IN_PARAM_REF";
 
 
 6.4 'in var' parameter
@@ -5880,6 +5939,7 @@ CONTENTS
   Pointers and interface types are not always the best solution.
   Abstract data types like dynamic arrays, hash tables, struct
   types and set types can also be used to declare data structures.
+
 
 
 8. FILE INPUT AND OUTPUT
@@ -7522,7 +7582,6 @@ CONTENTS
 
 
 
-
 9. STRUCTURED SYNTAX DEFINITION
 ===============================
 
@@ -8450,6 +8509,12 @@ CONTENTS
       CAN | EM  | SUB | ESC | FS  | GS  | RS  | US  |
       DEL .
 
+  If a comment is not closed at the end of the main file a parsing error
+  is triggered:
+
+    *** tst256.sd7(2):6: Unclosed comment
+    (* Unclosed comment
+
 
 10.1.3 Line comments
 
@@ -8615,6 +8680,34 @@ CONTENTS
     extended_digit ::=
       letter | digit .
 
+  If an integer literal cannot be read a parsing error
+  is triggered:
+
+    *** tst256.sd7(2):10: Integer "12345678901234567890" too big
+    const integer: tooBig is 12345678901234567890;
+    ---------------------------------------------^
+    *** tst256.sd7(3):11: Negative exponent in integer literal
+    const integer: negativeExponent is 1e-1;
+    -------------------------------------^
+    *** tst256.sd7(4):12: Digit expected found ";"
+    const integer: digitExpected is 1e;
+    ----------------------------------^
+    *** tst256.sd7(5):13: Integer "1E20" too big
+    const integer: integerWithExponentTooBig is 1e20;
+    ------------------------------------------------^
+    *** tst256.sd7(6):14: Integer base "37" not between 2 and 36
+    const integer: baseNotBetween2To36 is 37#0;
+    ----------------------------------------^
+    *** tst256.sd7(7):15: Extended digit expected found ";"
+    const integer: extendedDigitExpected is 16#;
+    -------------------------------------------^
+    *** tst256.sd7(8):16: Illegal digit "G" in based integer "16#G"
+    const integer: illegalBasedDigit is 16#G;
+    ----------------------------------------^
+    *** tst256.sd7(9):17: Based integer "16#ffffffffffffffff" too big
+    const integer: basedIntegerTooBig is 16#ffffffffffffffff;
+    --------------------------------------------------------^
+
 
 10.3.2 BigInteger literals
 
@@ -8719,6 +8812,31 @@ CONTENTS
     apostrophe ::=
       ''' .
 
+  If an string literal cannot be read a parsing error
+  is triggered:
+
+    *** tst256.sd7(2):20: Use \" instead of "" to represent " in a string
+    const string: wrongQuotationRepresentation is "double "" quotations";
+    -------------------------------------------------------^
+    *** tst256.sd7(3):21: Illegal string escape "\z"
+    const string: illegalStringEscape is "\z";
+    ---------------------------------------^
+    *** tst256.sd7(4):22: Numerical escape sequences should end with ";" not "x"
+    const string: wrongNumericEscape is "\1234xyz";
+    ------------------------------------------^
+    *** tst256.sd7(5):23: The numerical escape sequence "\1234678123467892346;" is too big
+    const string: numericEscapeTooBig is "asd\1234678123467892346;dfdfg";
+    -------------------------------------------------------------^
+    *** tst256.sd7(6):24: String continuations should end with "\" not "c"
+    const string: backslashExpected is "string \      continuation";
+    --------------------------------------------------^
+    *** tst256.sd7(7):25: String literal exceeds source line
+    const string: exceedsSourceLine is "abc
+    ---------------------------------------^
+    *** tst256.sd7(8):27: Integer literal expected found "1.5"
+    const string: integerExpected is "\1.5;";
+    --------------------------------------^
+
 
 10.3.5 Character literals
 
@@ -8738,6 +8856,16 @@ CONTENTS
 
     char_literal_element ::=
       simple_literal_character | escape_sequence | apostrophe | '"' .
+
+  If an char literal cannot be read a parsing error
+  is triggered:
+
+    *** tst256.sd7(2):18: "'" expected found ";"
+    const char: apostropheExpected is 'x;
+    ------------------------------------^
+    *** tst256.sd7(3):19: Character literal exceeds source line
+    const char: charExceeds is '
+    ----------------------------^
 
 
 
@@ -10128,8 +10256,8 @@ CONTENTS
   duration    | duration.value
   float       | 0.0
   integer     | 0
+  string      | ""
   time        | time.value
-
 
 
 
@@ -10234,10 +10362,12 @@ CONTENTS
     ACT_  actlib.c  'ACTION' operations
     ARR_  arrlib.c  'array' operations
     BIG_  biglib.c  'bigInteger' operations
+    BIN_  binlib.c  'bin32' and 'bin64' operations
     BLN_  blnlib.c  'boolean' operations
     BST_  bstlib.c  Operations for byte strings
     CHR_  chrlib.c  'char' operations
     CMD_  cmdlib.c  Various directory, file and other commands
+    CON_  conlib.c  'console_file' operations
     DCL_  dcllib.c  Declaration operations
     DRW_  drwlib.c  Drawing operations
     ENU_  enulib.c  Enumeration operations
@@ -10248,14 +10378,16 @@ CONTENTS
     ITF_  itflib.c  Operations for interface types
     KBD_  kbdlib.c  Keyboard operations
     LST_  lstlib.c  List operations
+    PCS_  pcslib.c  'process' operations
+    POL_  pollib.c  'pollData' operations
     PRC_  prclib.c  'proc' operations and statements
     PRG_  prglib.c  Program operations
     REF_  reflib.c  'reference' operations
     RFL_  rfllib.c  'ref_list' operations
-    SCR_  scrlib.c  Screen operations
     SCT_  sctlib.c  'struct' operations
     SET_  setlib.c  'set' operations
     SOC_  soclib.c  'PRIMITIVE_SOCKET' operations
+    SQL_  sqllib.c  'database' operations
     STR_  strlib.c  'string' operations
     TIM_  timlib.c  'time' and 'duration' operations
     TYP_  typlib.c  'type' operations
@@ -10453,12 +10585,15 @@ CONTENTS
     ARR_GEN             arr_gen             arrGen
     ARR_HEAD            arr_head            arrHead
     ARR_IDX             arr_idx             a->arr[b-a->min_position]
+    ARR_INSERT          arr_insert          arrInsert
+    ARR_INSERT_ARRAY    arr_insert_array    arrInsertArray
     ARR_LNG             arr_lng             a->max_position-a->min_position + 1
     ARR_MAXIDX          arr_maxidx          a->max_position
     ARR_MINIDX          arr_minidx          a->min_position
     ARR_PUSH            arr_push            arrPush
     ARR_RANGE           arr_range           arrRange
     ARR_REMOVE          arr_remove          arrRemove
+    ARR_REMOVE_ARRAY    arr_remove_array    arrRemoveArray
     ARR_SORT            arr_sort            arrSort
     ARR_SUBARR          arr_subarr          arrSubarr, arrSubarrTemp
     ARR_TAIL            arr_tail            arrTail
@@ -10565,6 +10700,7 @@ CONTENTS
     BLN_NOT             bln_not             !
     BLN_OR              bln_or              ||
     BLN_ORD             bln_ord             (intType)
+    BLN_TERNARY         bln_ternary         ((cond)?(thenExpr):(elseExpr))
     BLN_VALUE           bln_value           blnValue
 
 
@@ -10635,7 +10771,9 @@ CONTENTS
     CMD_GETENV          cmd_getenv          cmdGetenv
     CMD_GET_ATIME       cmd_get_atime       cmdGetATime
     CMD_GET_CTIME       cmd_get_ctime       cmdGetCTime
+    CMD_GET_GROUP       cmd_get_group       cmdGetGroup
     CMD_GET_MTIME       cmd_get_mtime       cmdGetMTime
+    CMD_GET_OWNER       cmd_get_owner       cmdGetOwner
     CMD_GET_SEARCH_PATH cmd_getSearchPath   cmdGetSearchPath
     CMD_HOME_DIR        cmd_homeDir         cmdHomeDir
     CMD_LS              cmd_ls              cmdLs
@@ -10647,12 +10785,15 @@ CONTENTS
     CMD_SETENV          cmd_setenv          cmdSetenv
     CMD_SET_ATIME       cmd_set_atime       cmdSetATime
     CMD_SET_FILEMODE    cmd_set_filemode    cmdSetFileMode
+    CMD_SET_GROUP       cmd_set_group       cmdSetGroup
     CMD_SET_MTIME       cmd_set_mtime       cmdSetMTime
+    CMD_SET_OWNER       cmd_set_owner       cmdSetOwner
     CMD_SET_SEARCH_PATH cmd_setSearchPath   cmdSetSearchPath
     CMD_SHELL           cmd_shell           cmdShell
     CMD_SHELL_ESCAPE    cmd_shell_escape    cmdShellEscape
     CMD_SYMLINK         cmd_symlink         cmdSymlink
     CMD_TO_OS_PATH      cmd_to_os_path      cmdToOsPath
+    CMD_UNSETENV        cmd_unsetenv        cmdUnsetenv
 
 
 14.9 Actions for text (console) screen output
@@ -10683,7 +10824,9 @@ CONTENTS
     DCL_GETFUNC         dcl_getfunc
     DCL_GETOBJ          dcl_getobj
     DCL_GLOBAL          dcl_global
+    DCL_IN1             dcl_in1
     DCL_IN1VAR          dcl_in1var
+    DCL_IN2             dcl_in2
     DCL_IN2VAR          dcl_in2var
     DCL_INOUT1          dcl_inout1
     DCL_INOUT2          dcl_inout2
@@ -10702,6 +10845,8 @@ CONTENTS
     DRW_ARC             drw_arc             drwArc
     DRW_ARC2            drw_arc2            drwArc2
     DRW_BACKGROUND      drw_background      drwBackground
+    DRW_BORDER          drw_border          drwBorder
+    DRW_CAPTURE         drw_capture         drwCapture
     DRW_CIRCLE          drw_circle          drwCircle
     DRW_CLEAR           drw_clear           drwClear
     DRW_CMP             drw_cmp             uintCmpGeneric((genericType)(a))
@@ -10749,6 +10894,9 @@ CONTENTS
     DRW_PUT             drw_put             drwPut
     DRW_RECT            drw_rect            drwRect
     DRW_RGBCOL          drw_rgbcol          drwRgbColor
+    DRW_SCREEN_HEIGHT   drw_screen_height   drwScreenHeight
+    DRW_SCREEN_WIDTH    drw_screen_width    drwScreenWidth
+    DRW_SETCLOSEACTION  drw_setCloseAction  drwSetCloseAction
     DRW_SETCONTENT      drw_setContent      drwSetContent
     DRW_SETPOS          drw_setPos          drwSetPos
     DRW_SETTRANSPARENTCOLOR drw_setTransparentColor drwSetTransparentColor
@@ -10807,6 +10955,7 @@ CONTENTS
     FIL_SEEK            fil_seek            filSeek
     FIL_SETBUF          fil_setbuf          filSetbuf
     FIL_TELL            fil_tell            filTell
+    FIL_TRUNCATE        fil_truncate        filTruncate
     FIL_VALUE           fil_value           filValue
     FIL_WORD_READ       fil_word_read       filWordRead
     FIL_WRITE           fil_write           filWrite
@@ -11105,7 +11254,8 @@ CONTENTS
     PRC_LOCAL           prc_local
     PRC_NOOP            prc_noop            prcNoop
     PRC_RAISE           prc_raise           raise_error
-    PRC_REPEAT          prc_repeat          do
+    PRC_REPEAT          prc_repeat          do {stmts} while (!(cond));
+    PRC_REPEAT_NOOP     prc_repeat_noop     do {} while (!(cond));
     PRC_RES_BEGIN       prc_res_begin
     PRC_RES_LOCAL       prc_res_local
     PRC_RETURN          prc_return
@@ -11114,7 +11264,8 @@ CONTENTS
     PRC_TRACE           prc_trace
     PRC_VARFUNC         prc_varfunc
     PRC_VARFUNC2        prc_varfunc2
-    PRC_WHILE           prc_while           while
+    PRC_WHILE           prc_while           while (cond) {stmts}
+    PRC_WHILE_NOOP      prc_while_noop      while (cond) {}
 
 
 14.24 Actions for the type program
@@ -11477,6 +11628,8 @@ CONTENTS
     TYP_NE              typ_ne              !=
     TYP_NUM             typ_num             typNum
     TYP_RESULT          typ_result          typResult
+    TYP_SET_IN_PARAM_REF   typ_set_in_param_ref
+    TYP_SET_IN_PARAM_VALUE typ_set_in_param_value
     TYP_STR             typ_str             typStr
     TYP_VALUE           typ_value           typValue
     TYP_VARCONV         typ_varconv
@@ -11534,7 +11687,7 @@ CONTENTS
   suplib.c     | sup_doWurx1 | Action function
   suplib.h     | sup_doWurx1 | Prototype of the action function
   primitiv.c   |             | Alphabetical list of all primitive actions
-  makefile     |             | Makefile name depends on operating system and compiler
+  makefile     |             | Makefile name depends on operating system and C compiler
   superlib.s7i | doWurx1     | Introduces the external function to a Seed7 program
 
   The C prototype of 'doWurx1' is defined in the file "superlib.h":
@@ -12735,12 +12888,15 @@ CONTENTS
 16. ERRORS
 ==========
 
-16.1 Compile time errors
+16.1 Parsing errors
 
-  The compile time errors are not fatal (the program can
-  execute) except for the error 1 (Out of heap space) which
-  terminates the compilation process and no execution occurs.
-  The following compile time errors exist:
+  Parsing errors are triggered by interpreter and compiler. The checks
+  for these errors are done before the program is executed respectively
+  compiled. The errors do not terminate parsing except for error 1
+  (Out of heap space). If there are errors the program cannot
+  be interpreted respectively compiled. The interpreter option
+  -x can be used to execute even if the program contains
+  errors. The following parsing errors exist:
 
      1: Fatal Error: Out of heap space
      2: File "%s" not found
@@ -12762,9 +12918,9 @@ CONTENTS
     18: "'" expected found "%s"
     19: Character literal exceeds source line
     20: Use \" instead of "" to represent " in a string
-    21: Use / instead of \\ as path delimiter
-    22: Illegal string escape "\%s"
-    23: Numerical escape sequences should end with ";" not "%s"
+    21: Illegal string escape "\%s"
+    22: Numerical escape sequences should end with ";" not "%s"
+    23: The numerical escape sequence "\%u;" is too big
     24: String continuations should end with "\" not "%s"
     25: String literal exceeds source line
     26: Name expected found "%s"
@@ -12806,25 +12962,38 @@ CONTENTS
     62: Unexpected UTF-8 continuation byte found "%s" (U+%04x)
     63: Solitary UTF-8 start byte found "%s" (U+%04x)
     64: UTF-16 byte order mark found "%s" (U+%04x)
-    65: The numerical escape sequence "\%u;" is too big
+    65: Use / instead of \\ as path delimiter
         Undefined error
 
 
-16.2 Exceptions
+16.2 Compilation errors
+
+  The compiler does checks when generating code. As a result of
+  the checks some errors might be triggered:
+
+    Expression raises "%s".
+    Catch of "%s" although the checks are suppressed.
+    Catch of otherwise although the checks for %s are suppressed.
+    When values "%s" do overlap.
+    Forward defined function called.
+    Forward definition of the called function.
+
+
+16.3 Exceptions
 
   An exception is an anomalous event that arises during program execution.
   Exceptions change the normal flow of program execution. An exception
   transfers the execution to a corresponding exception handler. If no
   corresponding exception handler exists the program is terminated.
   There are various exceptions, which can be raised: MEMORY_ERROR,
-  NUMERIC_ERROR, OVERFLOW_ERROR, RANGE_ERROR, FILE_ERROR and
-  ILLEGAL_ACTION. A program can raise an exception with the 'raise'
-  statement. For example:
+  NUMERIC_ERROR, OVERFLOW_ERROR, INDEX_ERROR, RANGE_ERROR, FILE_ERROR,
+  DATABASE_ERROR and ILLEGAL_ACTION. A program can raise an exception
+  with the 'raise' statement. For example:
 
     raise RANGE_ERROR;
 
 
-16.2.1 MEMORY_ERROR
+16.3.1 MEMORY_ERROR
 
   The exception MEMORY_ERROR is raised if there is not enough memory
   to store some data. This error can be raised from the run-time library
@@ -12837,7 +13006,7 @@ CONTENTS
     Additionally the interpreter kernel may raise this exception also.
 
 
-16.2.2 NUMERIC_ERROR
+16.3.2 NUMERIC_ERROR
 
   The exception NUMERIC_ERROR is raised if a numeric operation
   cannot deliver a correct result. This includes several things that
@@ -12867,7 +13036,7 @@ CONTENTS
        positive arguments. E.g.: sqrt(-1) raises NUMERIC_ERROR.
 
 
-16.2.3 OVERFLOW_ERROR
+16.3.3 OVERFLOW_ERROR
 
   An integer overflow occurs if a calculation produces a result that
   cannot be stored in an 'integer' variable. This happens if the result
@@ -12943,7 +13112,7 @@ CONTENTS
   result.
 
 
-16.2.4 INDEX_ERROR
+16.3.4 INDEX_ERROR
 
   An INDEX_ERROR occurs if an index is used to access an 'array', 'string',
   'bstring' or 'ref_list' element beyond the elements that actually exist.
@@ -12967,7 +13136,7 @@ CONTENTS
   (see chapter 16.6 Suppressing exception checks).
 
 
-16.2.5 RANGE_ERROR
+16.3.5 RANGE_ERROR
 
   Many functions define a range of valid arguments and raise RANGE_ERROR
   if this range is violated.
@@ -13008,7 +13177,7 @@ CONTENTS
         open, write, gets, length, seek, tell.
 
 
-16.2.6 FILE_ERROR
+16.3.6 FILE_ERROR
 
   A FILE_ERROR occurs if an illegal operation with a file is done.
 
@@ -13019,7 +13188,7 @@ CONTENTS
         inetSocketAddress, inetListenerAddress, openInetSocket, openInetListener.
 
 
-16.2.7 DATABASE_ERROR
+16.3.7 DATABASE_ERROR
 
   The exception DATABASE_ERROR may be raised by database
   functions. If a DATABASE_ERROR is caught it is possible
@@ -13037,7 +13206,7 @@ CONTENTS
   be used to specify the place of the connector library.
 
 
-16.2.8 ILLEGAL_ACTION
+16.3.8 ILLEGAL_ACTION
 
   The exception ILLEGAL_ACTION may be raised by the interpreter
   kernel, if a primitive action does not point to any legal action.
@@ -13046,7 +13215,7 @@ CONTENTS
   is also raised if the primitive action ACT_ILLEGAL is executed.
 
 
-16.3 Handlers
+16.4 Handlers
 
   To catch an EXCEPTION the following handler construct can be used:
 
@@ -13057,7 +13226,7 @@ CONTENTS
         number := 1;
     end block;
 
-  It is also possible to catch several EXCEPTIONS:
+  It is also possible to catch several exceptions:
 
     block
       doSomething(someValue);
@@ -13066,7 +13235,7 @@ CONTENTS
       catch NUMERIC_ERROR: writeln("NUMERIC_ERROR");
     end block;
 
-  An 'otherwise' handler catches EXCEPTIONs, that are not caught
+  An 'otherwise' handler catches exceptions, that are not caught
   by the other handlers:
 
     block
@@ -13077,12 +13246,12 @@ CONTENTS
     end block;
 
 
-16.4 Stack trace
+16.5 Stack trace
 
-  If an EXCEPTION is not caught the program is terminated and the s7
+  If an exception is not caught the program is terminated and the s7
   interpreter writes a stack trace:
 
-    *** Uncaught EXCEPTION NUMERIC_ERROR raised with
+    *** Uncaught exception NUMERIC_ERROR raised with
     {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
     Stack:
@@ -13100,7 +13269,7 @@ CONTENTS
 
   A compiled program creates a much shorter crash message:
 
-    *** Uncaught EXCEPTION NUMERIC_ERROR raised at sigutl.c(218)
+    *** Uncaught exception NUMERIC_ERROR raised at sigutl.c(218)
 
   To get more information there are two possibilities:
 
@@ -13135,8 +13304,8 @@ CONTENTS
     #2  0x0000000000421fe1 in main (argc=1, argv=0x7fffffffdf28) at lander.sd7:1541
 
   Sometimes it is helpful to debug the generated C program instead of
-  the Seed7 source. The option -g-debug_c creates debug
-  information, which refers to the C program generated by the Seed7 compiler:
+  the Seed7 source. The option -g-debug_c creates debug information,
+  which refers to the C program generated by the Seed7 compiler:
 
     ./s7 s7c -g-debug_c -e lander
     gdb ./lander
@@ -13161,7 +13330,7 @@ CONTENTS
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.
 
 
-16.5 Suppressing exception checks
+16.6 Suppressing exception checks
 
   A Seed7 program can be compiled with the option -sx, to suppress the
   generation of checks for exceptions. The suppressed checks x are
@@ -13205,7 +13374,7 @@ CONTENTS
   necessary to decide about the omission of exception checking.
 
 
-16.6 Signals
+16.7 Signals
 
   A signal is an asynchronous notification of an event. The event
   can come from outside such as a request to terminate the program.
@@ -13217,7 +13386,7 @@ CONTENTS
   handled by Seed7:
 
   Signal  | Special handler      | Behavior without -ts   | Behavior with -ts
-  --------+------------------------+------------------------+-----------------------
+  --------+----------------------+------------------------+-----------------------
   SIGABRT | raise OVERFLOW_ERROR | Raises exception       | Dialog to decide
   SIGILL  | raise OVERFLOW_ERROR | Raises exception       | Dialog to decide
   SIGINT  | -                    | Terminate with message | Dialog to decide
@@ -13257,11 +13426,11 @@ CONTENTS
   must be executed with a debugger to get a stack trace.
 
 
-16.7 Other errors and warnings
+16.8 Other errors and warnings
 
-  No more memory. Program terminated.
+  No more memory. Parsing terminated.
     This error message is displayed after the compile time error 1
-    (Out of heap space) . The file name and line number of the
+    (Out of heap space). The file name and line number of the
     analyzer source code where this happens is displayed together
     with internal heap information.
 
@@ -13269,19 +13438,24 @@ CONTENTS
     Each program must contain a system declaration that describes
     which procedure to start as first one.
 
-  EXCEPTION %s raised with
+  Exception %s raised with
     If your trace level specifies exception tracing exceptions
     and handlers are displayed with this messages and the user
     must type the ENTER-key to accept.
 
-  ACTION $%s REQUIRES %s NOT %s
+  Action $%s requires %s not %s
     This error can happen if an action tries to do something
     with the wrong primitive value. For example adding an
     integer to a string with INT_ADD. Since the analyze phase
     checks for the right types this error can only happen if the
     basic libraries are defined wrong.
 
-  ACTION $%s REQUIRES VARIABLE %s NOT %s
+  Action $%s with empty value
+    This error can happen if an action tries to do something
+    with NULL and NULL is not allowed as value. If parsing works
+    correct this should never happen.
+
+  Action $%s requires variable %s not constant
     This error can happen with actions which assign a value to
     a constant. Since the analyze phase checks for variable objects
     this error can only happen if the basic libraries are defined

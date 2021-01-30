@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  cmd_unx.c     Command functions which call the Unix API.        */
-/*  Copyright (C) 1989 - 2016, 2018 - 2020  Thomas Mertes           */
+/*  Copyright (C) 1989 - 2016, 2018 - 2021  Thomas Mertes           */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_unx.c                                       */
-/*  Changes: 2010 - 2016, 2018 - 2020  Thomas Mertes                */
+/*  Changes: 2010 - 2016, 2018 - 2021  Thomas Mertes                */
 /*  Content: Command functions which call the Unix API.             */
 /*                                                                  */
 /********************************************************************/
@@ -101,12 +101,12 @@ striType getExecutablePath (const const_striType arg_0)
 #if HAS_SYMBOLIC_LINKS
     os_charType buffer[PATH_MAX];
     ssize_t readlink_result;
-    errInfoType err_info = OKAY_NO_ERROR;
 #ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
     striType exeExtension;
 #endif
 #endif
     striType cwd;
+    errInfoType err_info = OKAY_NO_ERROR;
     striType executablePath;
 
   /* getExecutablePath */
@@ -132,15 +132,23 @@ striType getExecutablePath (const const_striType arg_0)
       } else if (arg_0->size >= 1 && arg_0->mem[0] == (charType) '/') {
         executablePath = strCreate(arg_0);
       } else {
-        cwd = cmdGetcwd();
-        executablePath = concatPath(cwd, arg_0);
-        FREE_STRI(cwd, cwd->size);
+        cwd = doGetCwd(&err_info);
+        if (unlikely(cwd == NULL)) {
+          raise_error(err_info);
+          executablePath = NULL;
+        } else {
+          executablePath = concatPath(cwd, arg_0);
+          FREE_STRI(cwd, cwd->size);
+        } /* if */
       } /* if */
       if (unlikely(executablePath == NULL)) {
         raise_error(MEMORY_ERROR);
 #if HAS_SYMBOLIC_LINKS
       } else {
-        executablePath = followLink(executablePath);
+        executablePath = followLink(executablePath, &err_info);
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          raise_error(err_info);
+        } /* if */
 #endif
       } /* if */
 #if HAS_SYMBOLIC_LINKS
@@ -273,9 +281,9 @@ int setenvForNodeJs (const char *name, const char *value, int overwrite)
     result = setenv7(name, value, overwrite);
     if (result == 0) {
       EM_ASM({
-        var key = Module.UTF8ToString($0);
-        var value = Module.UTF8ToString($1);
-        var overwrite = $2;
+        let key = Module.UTF8ToString($0);
+        let value = Module.UTF8ToString($1);
+        let overwrite = $2;
         if (typeof process !== 'undefined') {
           if (key in process.env) {
             if (overwrite) {
@@ -301,7 +309,7 @@ int unsetenvForNodeJs (const char *name)
     result = unsetenv7(name);
     if (result == 0) {
       EM_ASM({
-        var key = Module.UTF8ToString($0);
+        let key = Module.UTF8ToString($0);
         if (typeof process !== 'undefined') {
           delete process.env[key];
         }

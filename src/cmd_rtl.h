@@ -44,7 +44,7 @@
 #define FILE_SOCKET   8
 
 #if HAS_SYMBOLIC_LINKS
-striType followLink (striType path);
+striType followLink (striType path, errInfoType *err_info);
 #endif
 #if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
 void adjustCwdForShell (errInfoType *err_info);
@@ -52,6 +52,7 @@ void adjustCwdForShell (errInfoType *err_info);
 #if EMULATE_ROOT_CWD
 void initEmulatedCwd (errInfoType *err_info);
 #endif
+striType doGetCwd (errInfoType *err_info);
 bigIntType cmdBigFileSize (const const_striType file_name);
 void cmdChdir (const const_striType dir_name);
 void cmdCloneFile (const const_striType source_name, const const_striType dest_name);

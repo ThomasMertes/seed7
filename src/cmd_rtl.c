@@ -2,7 +2,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  cmd_rtl.c     Directory, file and other system functions.       */
-/*  Copyright (C) 1989 - 2016, 2018 - 2020  Thomas Mertes           */
+/*  Copyright (C) 1989 - 2016, 2018 - 2021  Thomas Mertes           */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -25,7 +25,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_rtl.c                                       */
-/*  Changes: 1994, 2006, 2009, 2018 - 2020  Thomas Mertes           */
+/*  Changes: 1994, 2006, 2009, 2018 - 2021  Thomas Mertes           */
 /*  Content: Directory, file and other system functions.            */
 /*                                                                  */
 /********************************************************************/
@@ -74,6 +74,7 @@
 #include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "level.h"
 #include "str_rtl.h"
 #include "chr_rtl.h"
 #include "int_rtl.h"
@@ -1242,40 +1243,214 @@ static void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
 
 
 
-#if HAS_SYMBOLIC_LINKS
-striType followLink (striType path)
+static intType getFileTypeSL (const const_striType filePath, errInfoType *err_info)
 
   {
-    striType startPath;
+    os_striType os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
+    int path_info = PATH_IS_NORMAL;
+    int saved_errno;
+    intType type_of_file;
+
+  /* getFileTypeSL */
+    logFunction(printf("getFileTypeSL(\"%s\")\n",
+                       striAsUnquotedCStri(filePath)););
+    os_path = cp_to_os_path(filePath, &path_info, err_info);
+    if (unlikely(os_path == NULL)) {
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (path_info == PATH_IS_EMULATED_ROOT) {
+        type_of_file = FILE_DIR;
+      } else if (path_info == PATH_NOT_MAPPED) {
+        type_of_file = FILE_ABSENT;
+      } else
+#endif
+      {
+        logError(printf("getFileTypeSL: cp_to_os_path(\"%s\", *, *) failed:\n"
+                        "path_info=%d, err_info=%d\n",
+                        striAsUnquotedCStri(filePath), path_info, *err_info););
+        type_of_file = FILE_ABSENT;
+      }
+    } else {
+      stat_result = os_lstat(os_path, &stat_buf);
+      saved_errno = errno;
+      /* printf("lstat(\"" FMT_S_OS "\") returns: %d, errno=%d\n",
+          os_path, stat_result, saved_errno); */
+      if (stat_result == 0) {
+        if (S_ISREG(stat_buf.st_mode)) {
+          type_of_file = FILE_REGULAR;
+        } else if (S_ISDIR(stat_buf.st_mode)) {
+          type_of_file = FILE_DIR;
+        } else if (S_ISCHR(stat_buf.st_mode)) {
+          type_of_file = FILE_CHAR;
+        } else if (S_ISBLK(stat_buf.st_mode)) {
+          type_of_file = FILE_BLOCK;
+        } else if (S_ISFIFO(stat_buf.st_mode)) {
+          type_of_file = FILE_FIFO;
+        } else if (S_ISLNK(stat_buf.st_mode)) {
+          type_of_file = FILE_SYMLINK;
+        } else if (S_ISSOCK(stat_buf.st_mode)) {
+          type_of_file = FILE_SOCKET;
+        } else {
+          type_of_file = FILE_UNKNOWN;
+        } /* if */
+      } else {
+        type_of_file = FILE_ABSENT;
+        if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
+            saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG)) {
+          logError(printf("getFileTypeSL: os_lstat(\"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, saved_errno, strerror(saved_errno)););
+          /* printf("filePath->size=%lu\n", filePath->size); */
+          /* printf("strlen(os_path)=%d\n", os_stri_strlen(os_path)); */
+          *err_info = FILE_ERROR;
+        } /* if */
+      } /* if */
+      os_stri_free(os_path);
+    } /* if */
+    logFunction(printf("getFileTypeSL(\"%s\") --> " FMT_D " (err_info=%d)\n",
+                       striAsUnquotedCStri(filePath),
+                       type_of_file, *err_info););
+    return type_of_file;
+  } /* getFileTypeSL */
+
+
+
+#if HAS_READLINK
+/**
+ *  Reads the destination of a symbolic link.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed, and
+ *                  RANGE_ERROR if the conversion to the system path failed, and
+ *                  FILE_ERROR if the file does not exist or is not a symbolic link.
+ *  @return The destination referred by the symbolic link, or
+ *          NULL if an error occurred.
+ */
+static striType doReadLink (const const_striType filePath, errInfoType *err_info)
+
+  {
+    os_striType os_filePath;
+    os_stat_struct link_stat;
+    os_striType link_destination;
+    ssize_t readlink_result;
+    int path_info;
+    striType destination = NULL;
+
+  /* doReadLink */
+    logFunction(printf("doReadLink(\"%s\", %d)\n",
+                       striAsUnquotedCStri(filePath), *err_info););
+    os_filePath = cp_to_os_path(filePath, &path_info, err_info);
+    if (unlikely(os_filePath == NULL)) {
+      logError(printf("cmdReadlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, *err_info););
+    } else {
+      if (unlikely(os_lstat(os_filePath, &link_stat) != 0)) {
+        logError(printf("cmdReadlink: os_lstat(" FMT_S_OS ", *) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_filePath, errno, strerror(errno)););
+        *err_info = FILE_ERROR;
+      } else if (unlikely(!S_ISLNK(link_stat.st_mode))) {
+        logError(printf("cmdReadlink: "
+                        "The file " FMT_S_OS " is not a symbolic link.\n",
+                        os_filePath););
+        *err_info = FILE_ERROR;
+      } else {
+        /* printf("link size=%lu\n", link_stat.st_size); */
+        if (unlikely(link_stat.st_size < 0 ||
+                     (unsigned_os_off_t) link_stat.st_size > MAX_OS_STRI_LEN)) {
+          *err_info = FILE_ERROR;
+        } else {
+          if (unlikely(!os_stri_alloc(link_destination,
+                                      (memSizeType) link_stat.st_size))) {
+            *err_info = MEMORY_ERROR;
+          } else {
+            readlink_result = readlink(os_filePath, link_destination,
+                                       (size_t) link_stat.st_size);
+            if (unlikely(readlink_result == -1)) {
+              logError(printf("cmdReadlink: "
+                              "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
+                              "errno=%d\nerror: %s\n",
+                              os_filePath, (memSizeType) link_stat.st_size,
+                              errno, strerror(errno)););
+              *err_info = FILE_ERROR;
+            } else {
+              link_destination[readlink_result] = '\0';
+              destination = cp_from_os_path(link_destination, err_info);
+              if (unlikely(destination == NULL)) {
+                logError(printf("cmdReadlink: "
+                                "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                                "err_info=%d\n",
+                                link_destination, *err_info););
+              } /* if */
+            } /* if */
+            os_stri_free(link_destination);
+          } /* if */
+        } /* if */
+      } /* if */
+      os_stri_free(os_filePath);
+    } /* if */
+    logFunction(printf("doReadLink(\"%s\", %d) --> \"%s\"\n",
+                       striAsUnquotedCStri(filePath), *err_info,
+                       striAsUnquotedCStri(destination)););
+    return destination;
+  } /* doReadLink */
+#endif
+
+
+
+#if HAS_SYMBOLIC_LINKS
+striType followLink (striType startPath, errInfoType *err_info)
+
+  {
     striType helpPath;
     int number_of_links_followed = 5;
+    striType path;
 
   /* followLink */
-    logFunction(printf("followLink(\"%s\")\n", striAsUnquotedCStri(path)););
-    if (cmdFileTypeSL(path) == FILE_SYMLINK) {
-      startPath = path;
-      path = cmdReadlink(startPath);
-      while (cmdFileTypeSL(path) == FILE_SYMLINK &&
+    logFunction(printf("followLink(\"%s\")\n", striAsUnquotedCStri(startPath)););
+    if (getFileTypeSL(startPath, err_info) == FILE_SYMLINK) {
+      path = doReadLink(startPath, err_info);
+      while (path != NULL &&
+             getFileTypeSL(path, err_info) == FILE_SYMLINK &&
              number_of_links_followed != 0) {
         helpPath = path;
-        path = cmdReadlink(helpPath);
+        path = doReadLink(helpPath, err_info);
         FREE_STRI(helpPath, helpPath->size);
         number_of_links_followed--;
-      } /* if */
-      if (number_of_links_followed == 0) {
+      } /* while */
+      if (path == NULL) {
+        path = startPath;
+      } else if (number_of_links_followed == 0) {
         FREE_STRI(path, path->size);
         path = startPath;
       } else {
         FREE_STRI(startPath, startPath->size);
       } /* if */
+    } else {
+      path = startPath;
     } /* if */
-    logFunction(printf("followLink --> \"%s\"\n", striAsUnquotedCStri(path)););
+    logFunction(printf("followLink --> \"%s\" (err_info=%d)\n",
+                       striAsUnquotedCStri(path), *err_info););
     return path;
   } /* followLink */
 #endif
 
 
 
+/**
+ *  Return the absolute path of the current working directory.
+ *  If the size of the provided 'buffer' is not sufficient a buffer
+ *  with sufficient size is allocated. The allocated buffer must be
+ *  freed afterwards with FREE_OS_STRI().
+ *  @param buffer Buffer to be used if its size is sufficient.
+ *  @param buffer_size Size of 'buffer'.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed, and
+ *                  FILE_ERROR if the operating system function failed.
+ *  @return the 'buffer' or an allocated buffer with a null terminated
+ *          operating system string.
+ */
 static os_striType getOsCwd (const os_striType buffer, memSizeType buffer_size,
     errInfoType *err_info)
 
@@ -1396,6 +1571,116 @@ void initEmulatedCwd (errInfoType *err_info)
 
 
 
+#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
+/**
+ *  Determine the current working directory of the calling process.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed, and
+ *                  FILE_ERROR if the system function returns an error.
+ *  @return The absolute path of the current working directory, or
+ *          NULL if an error occurred.
+ */
+striType doGetCwd (errInfoType *err_info)
+
+  {
+    struct striStruct stri1_buffer;
+    striType dotStri;
+    os_striType os_cwd;
+    int path_info = PATH_IS_NORMAL;
+    striType cwd;
+
+  /* doGetCwd */
+    logFunction(printf("doGetCwd\n"););
+    dotStri = chrStrMacro('.', stri1_buffer);
+    os_cwd = cp_to_os_path(dotStri, &path_info, err_info);
+    if (unlikely(os_cwd == NULL)) {
+#if EMULATE_ROOT_CWD
+      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
+        cwd = cp_from_os_path(current_emulated_cwd, err_info);
+        if (unlikely(cwd == NULL)) {
+          logError(printf("doGetCwd: "
+                          "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                          "err_info=%d\n",
+                          current_emulated_cwd, *err_info););
+        } /* if */
+      } else
+#endif
+      {
+        logError(printf("doGetCwd: Cannot get current_emulated_cwd.\n"););
+        cwd = NULL;
+      }
+    } else {
+      cwd = cp_from_os_path(os_cwd, err_info);
+      if (unlikely(cwd == NULL)) {
+        logError(printf("doGetCwd: "
+                        "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                        "err_info=%d\n",
+                        os_cwd, *err_info););
+      } /* if */
+      os_stri_free(os_cwd);
+    } /* if */
+    logFunction(printf("doGetCwd --> \"%s\" (err_info=%d)\n",
+                       striAsUnquotedCStri(cwd), *err_info););
+    return cwd;
+  } /* doGetCwd */
+
+#else
+
+
+
+/**
+ *  Determine the current working directory of the calling process.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed, and
+ *                  FILE_ERROR if the system function returns an error.
+ *  @return The absolute path of the current working directory, or
+ *          NULL if an error occurred.
+ */
+striType doGetCwd (errInfoType *err_info)
+
+  {
+    os_charType buffer[PATH_MAX];
+    os_striType os_cwd;
+    striType cwd;
+
+  /* doGetCwd */
+    logFunction(printf("doGetCwd\n"););
+#if EMULATE_ROOT_CWD
+    if (IS_EMULATED_ROOT(current_emulated_cwd)) {
+      cwd = cp_from_os_path(current_emulated_cwd, err_info);
+      if (unlikely(cwd == NULL)) {
+        logError(printf("doGetCwd: "
+                        "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                        "err_info=%d\n",
+                        current_emulated_cwd, *err_info););
+      } /* if */
+    } else
+#endif
+    {
+      if (unlikely((os_cwd = getOsCwd(buffer, PATH_MAX, err_info)) == NULL)) {
+        cwd = NULL;
+      } else {
+        cwd = cp_from_os_path(os_cwd, err_info);
+        if (unlikely(cwd == NULL)) {
+          logError(printf("doGetCwd: "
+                          "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                          "err_info=%d\n",
+                          os_cwd, *err_info););
+        } /* if */
+        if (os_cwd != buffer) {
+          FREE_OS_STRI(os_cwd);
+        } /* if */
+      } /* if */
+    }
+    logFunction(printf("doGetCwd --> \"%s\" (err_info=%d)\n",
+                       striAsUnquotedCStri(cwd), *err_info););
+    return cwd;
+  } /* doGetCwd */
+
+#endif
+
+
+
 #ifdef DEFINE_SYSTEM_FUNCTION
 static int systemForNodeJs (const char *command)
 
@@ -1405,7 +1690,7 @@ static int systemForNodeJs (const char *command)
   /* systemForNodeJs */
     logFunction(printf("systemForNodeJs(\"%s\")\n", command););
     result = EM_ASM_INT({
-      var cmd = Module.UTF8ToString($0);
+      let cmd = Module.UTF8ToString($0);
       // console.log('I received: ' + cmd);
       if (typeof require === 'function') {
         var child_process;
@@ -1415,9 +1700,9 @@ static int systemForNodeJs (const char *command)
           child_process = null;
         }
         if (child_process !== null) {
-          var bslash = String.fromCharCode(92);
-          var currDir = process.cwd().replace(new RegExp(bslash + bslash, 'g'), '/');
-          var newDir = FS.cwd();
+          let bslash = String.fromCharCode(92);
+          let currDir = process.cwd().replace(new RegExp(bslash + bslash, 'g'), '/');
+          let newDir = FS.cwd();
           // console.log('emcc cwd: ' + newDir);
           // console.log('node cwd: ' + currDir);
           if (currDir.charAt(1) === ':' && currDir.charAt(2) === '/') {
@@ -1783,6 +2068,8 @@ striType cmdConfigValue (const const_striType name)
       opt = SPECIAL_LIB;
     } else if (strcmp(opt_name, "S7_LIB_DIR") == 0) {
       opt = S7_LIB_DIR;
+    } else if (strcmp(opt_name, "VERSION_REVISION_LEVEL") == 0) {
+      opt = STRINGIFY(LEVEL);
     } else if (strcmp(opt_name, "REDIRECT_FILEDES_1") == 0) {
       opt = REDIRECT_FILEDES_1;
     } else if (strcmp(opt_name, "REDIRECT_FILEDES_2") == 0) {
@@ -2366,72 +2653,15 @@ intType cmdFileType (const const_striType filePath)
 intType cmdFileTypeSL (const const_striType filePath)
 
   {
-    os_striType os_path;
-    os_stat_struct stat_buf;
-    int stat_result;
-    int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
-    int saved_errno;
     intType type_of_file;
 
   /* cmdFileTypeSL */
     logFunction(printf("cmdFileTypeSL(\"%s\")", striAsUnquotedCStri(filePath));
                 fflush(stdout););
-    os_path = cp_to_os_path(filePath, &path_info, &err_info);
-    if (unlikely(os_path == NULL)) {
-#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (path_info == PATH_IS_EMULATED_ROOT) {
-        type_of_file = FILE_DIR;
-      } else if (path_info == PATH_NOT_MAPPED) {
-        type_of_file = FILE_ABSENT;
-      } else
-#endif
-      {
-        logError(printf("cmdFileTypeSL: cp_to_os_path(\"%s\", *, *) failed:\n"
-                        "path_info=%d, err_info=%d\n",
-                        striAsUnquotedCStri(filePath), path_info, err_info););
-        raise_error(err_info);
-        type_of_file = FILE_ABSENT;
-      }
-    } else {
-      stat_result = os_lstat(os_path, &stat_buf);
-      saved_errno = errno;
-      /* printf("lstat(\"" FMT_S_OS "\") returns: %d, errno=%d\n",
-          os_path, stat_result, saved_errno); */
-      if (stat_result == 0) {
-        if (S_ISREG(stat_buf.st_mode)) {
-          type_of_file = FILE_REGULAR;
-        } else if (S_ISDIR(stat_buf.st_mode)) {
-          type_of_file = FILE_DIR;
-        } else if (S_ISCHR(stat_buf.st_mode)) {
-          type_of_file = FILE_CHAR;
-        } else if (S_ISBLK(stat_buf.st_mode)) {
-          type_of_file = FILE_BLOCK;
-        } else if (S_ISFIFO(stat_buf.st_mode)) {
-          type_of_file = FILE_FIFO;
-        } else if (S_ISLNK(stat_buf.st_mode)) {
-          type_of_file = FILE_SYMLINK;
-        } else if (S_ISSOCK(stat_buf.st_mode)) {
-          type_of_file = FILE_SOCKET;
-        } else {
-          type_of_file = FILE_UNKNOWN;
-        } /* if */
-      } else {
-        type_of_file = FILE_ABSENT;
-        if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
-            saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG)) {
-          logError(printf("cmdFileTypeSL: os_lstat(\"" FMT_S_OS "\") failed:\n"
-                          "errno=%d\nerror: %s\n",
-                          os_path, saved_errno, strerror(saved_errno)););
-          /* printf("filePath->size=%lu\n", filePath->size); */
-          /* printf("strlen(os_path)=%d\n", os_stri_strlen(os_path)); */
-          err_info = FILE_ERROR;
-        } /* if */
-      } /* if */
-      os_stri_free(os_path);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        raise_error(err_info);
-      } /* if */
+    type_of_file = getFileTypeSL(filePath, &err_info);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
     } /* if */
     logFunctionResult(printf("" FMT_D "\n", type_of_file););
     return type_of_file;
@@ -2439,7 +2669,6 @@ intType cmdFileTypeSL (const const_striType filePath)
 
 
 
-#if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
 /**
  *  Determine the current working directory of the calling process.
  *  @return The absolute path of the current working directory.
@@ -2450,112 +2679,20 @@ intType cmdFileTypeSL (const const_striType filePath)
 striType cmdGetcwd (void)
 
   {
-    struct striStruct stri1_buffer;
-    striType dotStri;
-    os_striType os_cwd;
-    int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     striType cwd;
 
   /* cmdGetcwd */
     logFunction(printf("cmdGetcwd\n"););
-    dotStri = chrStrMacro('.', stri1_buffer);
-    os_cwd = cp_to_os_path(dotStri, &path_info, &err_info);
-    if (unlikely(os_cwd == NULL)) {
-#if EMULATE_ROOT_CWD
-      if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
-        cwd = cp_from_os_path(current_emulated_cwd, &err_info);
-        if (unlikely(cwd == NULL)) {
-          logError(printf("cmdGetcwd: "
-                          "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
-                          "err_info=%d\n",
-                          current_emulated_cwd, err_info););
-          raise_error(err_info);
-        } /* if */
-      } else
-#endif
-      {
-        logError(printf("cmdGetcwd: Cannot get current_emulated_cwd.\n"););
-        raise_error(err_info);
-        cwd = NULL;
-      }
-    } else {
-      cwd = cp_from_os_path(os_cwd, &err_info);
-      if (unlikely(cwd == NULL)) {
-        logError(printf("cmdGetcwd: "
-                        "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
-                        "err_info=%d\n",
-                        os_cwd, err_info););
-        os_stri_free(os_cwd);
-        raise_error(err_info);
-      } else {
-        os_stri_free(os_cwd);
-      } /* if */
+    cwd = doGetCwd(&err_info);
+    if (unlikely(cwd == NULL)) {
+      logError(printf("cmdGetcwd: doGetCwd() failed:\n"
+                      "err_info=%d\n", err_info););
+      raise_error(err_info);
     } /* if */
     logFunction(printf("cmdGetcwd --> \"%s\"\n", striAsUnquotedCStri(cwd)););
     return cwd;
   } /* cmdGetcwd */
-
-#else
-
-
-
-/**
- *  Determine the current working directory of the calling process.
- *  @return The absolute path of the current working directory.
- *  @exception MEMORY_ERROR Not enough memory to represent the
- *             result string.
- *  @exception FILE_ERROR The system function returns an error.
- */
-striType cmdGetcwd (void)
-
-  {
-    os_charType buffer[PATH_MAX];
-    os_striType os_cwd;
-    errInfoType err_info = OKAY_NO_ERROR;
-    striType cwd;
-
-  /* cmdGetcwd */
-    logFunction(printf("cmdGetcwd\n"););
-#if EMULATE_ROOT_CWD
-    if (IS_EMULATED_ROOT(current_emulated_cwd)) {
-      cwd = cp_from_os_path(current_emulated_cwd, &err_info);
-      if (unlikely(cwd == NULL)) {
-        logError(printf("cmdGetcwd: "
-                        "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
-                        "err_info=%d\n",
-                        current_emulated_cwd, err_info););
-        raise_error(err_info);
-      } /* if */
-    } else
-#endif
-    {
-      if (unlikely((os_cwd = getOsCwd(buffer, PATH_MAX, &err_info)) == NULL)) {
-        raise_error(err_info);
-        cwd = NULL;
-      } else {
-        cwd = cp_from_os_path(os_cwd, &err_info);
-        if (unlikely(cwd == NULL)) {
-          logError(printf("cmdGetcwd: "
-                          "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
-                          "err_info=%d\n",
-                          os_cwd, err_info););
-          if (os_cwd != buffer) {
-            FREE_OS_STRI(os_cwd);
-          } /* if */
-          raise_error(err_info);
-        } else {
-          if (os_cwd != buffer) {
-            FREE_OS_STRI(os_cwd);
-          } /* if */
-        } /* if */
-      } /* if */
-    }
-    logFunction(printf("cmdGetcwd --> \"%s\"\n", striAsUnquotedCStri(cwd)););
-    return cwd;
-  } /* cmdGetcwd */
-
-#endif
 
 
 
@@ -3046,80 +3183,24 @@ void cmdMove (const const_striType sourcePath, const const_striType destPath)
 striType cmdReadlink (const const_striType filePath)
 
   {
-#if HAS_READLINK
-    os_striType os_filePath;
-    os_stat_struct link_stat;
-    os_striType link_destination;
-    ssize_t readlink_result;
-    int path_info;
-#endif
     errInfoType err_info = OKAY_NO_ERROR;
-    striType result = NULL;
+    striType destination;
 
   /* cmdReadlink */
     logFunction(printf("cmdReadlink(\"%s\")\n",
                        striAsUnquotedCStri(filePath)););
 #if HAS_READLINK
-    os_filePath = cp_to_os_path(filePath, &path_info, &err_info);
-    if (unlikely(os_filePath == NULL)) {
-      logError(printf("cmdReadlink: cp_to_os_path(\"%s\", *, *) failed:\n"
-                      "path_info=%d, err_info=%d\n",
-                      striAsUnquotedCStri(filePath), path_info, err_info););
-    } else {
-      if (unlikely(os_lstat(os_filePath, &link_stat) != 0)) {
-        logError(printf("cmdReadlink: os_lstat(" FMT_S_OS ", *) failed:\n"
-                        "errno=%d\nerror: %s\n",
-                        os_filePath, errno, strerror(errno)););
-        err_info = FILE_ERROR;
-      } else if (unlikely(!S_ISLNK(link_stat.st_mode))) {
-        logError(printf("cmdReadlink: "
-                        "The file " FMT_S_OS " is not a symbolic link.\n",
-                        os_filePath););
-        err_info = FILE_ERROR;
-      } else {
-        /* printf("link size=%lu\n", link_stat.st_size); */
-        if (unlikely(link_stat.st_size < 0 ||
-                     (unsigned_os_off_t) link_stat.st_size > MAX_OS_STRI_LEN)) {
-          err_info = RANGE_ERROR;
-        } else {
-          if (unlikely(!os_stri_alloc(link_destination,
-                                      (memSizeType) link_stat.st_size))) {
-            err_info = MEMORY_ERROR;
-          } else {
-            readlink_result = readlink(os_filePath, link_destination,
-                                       (size_t) link_stat.st_size);
-            if (unlikely(readlink_result == -1)) {
-              logError(printf("cmdReadlink: "
-                              "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
-                              "errno=%d\nerror: %s\n",
-                              os_filePath, (memSizeType) link_stat.st_size,
-                              errno, strerror(errno)););
-              err_info = FILE_ERROR;
-            } else {
-              link_destination[readlink_result] = '\0';
-              result = cp_from_os_path(link_destination, &err_info);
-              if (unlikely(result == NULL)) {
-                logError(printf("cmdReadlink: "
-                                "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
-                                "err_info=%d\n",
-                                link_destination, err_info););
-              } /* if */
-            } /* if */
-            os_stri_free(link_destination);
-          } /* if */
-        } /* if */
-      } /* if */
-      os_stri_free(os_filePath);
-    } /* if */
-#else
-    err_info = FILE_ERROR;
-#endif
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
+    destination = doReadLink(filePath, &err_info);
+    if (unlikely(destination == NULL)) {
       raise_error(err_info);
     } /* if */
+#else
+    raise_error(FILE_ERROR);
+    destination = NULL;
+#endif
     logFunction(printf("cmdReadlink --> \"%s\"\n",
-                       striAsUnquotedCStri(result)););
-    return result;
+                       striAsUnquotedCStri(destination)););
+    return destination;
   } /* cmdReadlink */
 
 

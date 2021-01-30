@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2020  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2021  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/traceutl.c                                      */
-/*  Changes: 1990 - 1994, 2008, 2010 - 2020  Thomas Mertes          */
+/*  Changes: 1990 - 1994, 2008, 2010 - 2021  Thomas Mertes          */
 /*  Content: Tracing and protocol procedures.                       */
 /*                                                                  */
 /********************************************************************/
@@ -841,6 +841,31 @@ static void printparam (const_objectType aParam)
 
 
 
+void printLocObj (const_locObjType locObj)
+
+  { /* printlocobj */
+    if (locObj == NULL) {
+      prot_cstri("***NULL_LOCOBJ***");
+    } else {
+      prot_cstri("locObj:");
+      prot_nl();
+      prot_cstri("object: ");
+      printobject(locObj->object);
+      prot_nl();
+      prot_cstri("init_value: ");
+      printobject(locObj->init_value);
+      prot_nl();
+      prot_cstri("create_call_obj: ");
+      printobject(locObj->create_call_obj);
+      prot_nl();
+      prot_cstri("destroy_call_obj: ");
+      printobject(locObj->destroy_call_obj);
+      prot_nl();
+    } /* if */
+  } /* printlocobj */
+
+
+
 void prot_list_limited (const_listType list, int limit)
 
   {
@@ -853,6 +878,8 @@ void prot_list_limited (const_listType list, int limit)
     while (list != NULL && number <= 50) {
       if (list->obj == NULL) {
         prot_cstri("*NULL_OBJECT*");
+      } else if (!LEGAL_CATEGORY_FIELD(list->obj)) {
+        prot_cstri("*CORRUPT_CATEGORY_FIELD*");
       } else {
         /* printcategory(CATEGORY_OF_OBJ(list->obj)); fflush(stdout); */
         switch (CATEGORY_OF_OBJ(list->obj)) {
@@ -1373,6 +1400,12 @@ void trace1 (const_objectType traceobject)
     logFunction(printf("trace1\n"););
     if (traceobject == NULL) {
       prot_cstri("*NULL_OBJECT*");
+    } else if (!LEGAL_CATEGORY_FIELD(traceobject)) {
+      prot_cstri("*CORRUPT_CATEGORY_FIELD*");
+    } else if (CATEGORY_OF_OBJ(traceobject) > PROGOBJECT) {
+      prot_cstri("*ILLEGAL_CATEGORY_");
+      printcategory(CATEGORY_OF_OBJ(traceobject));
+      prot_cstri("*");
     } else {
       if (VAR_OBJECT(traceobject)) {
         prot_cstri("var");

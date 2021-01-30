@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  pre_js.js     JavaScript part to be included by Emscripten.     */
-/*  Copyright (C) 2020  Thomas Mertes                               */
+/*  Copyright (C) 2020, 2021  Thomas Mertes                         */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/pre_js.js                                       */
-/*  Changes: 2020  Thomas Mertes                                    */
+/*  Changes: 2020, 2021  Thomas Mertes                              */
 /*  Content: JavaScript part to be included by Emscripten.          */
 /*                                                                  */
 /********************************************************************/
@@ -34,20 +34,20 @@ var mapIdToCanvas = {};
 var mapIdToContext = {};
 var currentWindowId = 0;  
 if (typeof document !== "undefined") {
-  var scripts = document.getElementsByTagName('script');
-  var index = scripts.length - 1;
-  var myScript = scripts[index];
-  var src = myScript.src;
-  var bslash = String.fromCharCode(92);
-  var n = src.search(bslash + '?');
-  var programPath = myScript.src;
-  var queryString = '';
-  if (n !== -1) {
-    queryString = programPath.substring(n + 1);
-    programPath = programPath.substring(0, n);
+  let scripts = document.getElementsByTagName('script');
+  let index = scripts.length - 1;
+  let myScript = scripts[index];
+  let src = myScript.src;
+  let bslash = String.fromCharCode(92);
+  let questionMarkPos = src.search(bslash + '?');
+  let programPath = myScript.src;
+  let queryString = '';
+  if (questionMarkPos !== -1) {
+    queryString = programPath.substring(questionMarkPos + 1);
+    programPath = programPath.substring(0, questionMarkPos);
   }
-  var arguments = queryString.split('&');
-  for (var i = 0; i < arguments.length; i++) {
+  let arguments = queryString.split('&');
+  for (let i = 0; i < arguments.length; i++) {
     arguments[i] = decodeURIComponent(arguments[i])
   }
   var Module = {

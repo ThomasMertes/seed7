@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_x11.c     Graphic access using the X11 capabilities.        */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2017, 2019 - 2021  Thomas Mertes           */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,8 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_x11.c                                       */
-/*  Changes: 1994, 2000 - 2011, 2013  Thomas Mertes                 */
+/*  Changes: 1994, 2000 - 2011, 2013 - 2017  Thomas Mertes          */
+/*           2019 - 2021  Thomas Mertes                             */
 /*  Content: Graphic access using the X11 capabilities.             */
 /*                                                                  */
 /********************************************************************/
@@ -47,6 +48,7 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/Xatom.h>
 #ifdef WITH_XSHAPE_EXTENSION
 #include <X11/extensions/shape.h>
 #endif
@@ -78,6 +80,9 @@ boolType findX11Dll (void);
 
 Display *mydisplay = NULL;
 Atom wm_delete_window;
+Atom motifWmHintsProperty;
+Atom net_wm_state;
+Atom net_wm_state_skip_taskbar;
 static unsigned long myforeground;
 static unsigned long mybackground;
 static GC mygc;
@@ -427,6 +432,9 @@ static void drawInit (void)
       XSetForeground(mydisplay, mygc, myforeground);
 
       wm_delete_window = XInternAtom(mydisplay, "WM_DELETE_WINDOW", False);
+      motifWmHintsProperty = XInternAtom(mydisplay, "_MOTIF_WM_HINTS", True);
+      net_wm_state = XInternAtom(mydisplay, "_NET_WM_STATE", False);
+      net_wm_state_skip_taskbar = XInternAtom(mydisplay, "_NET_WM_STATE_SKIP_TASKBAR", False);
     } /* if */
     logFunction(printf("drawInit -->\n"););
   } /* drawInit */
@@ -468,42 +476,72 @@ static void setupBackup (x11_winType result)
 
 
 
+/**
+ *  Return the X position of the pointer relative to the specified window.
+ *  The point of origin is the top left corner of the drawing area
+ *  of the given 'actual_window' (inside of the window decorations).
+ *  If 'actual_window' is the empty window the pointer X position is
+ *  relative to the top left corner of the screen.
+ */
 intType drwPointerXpos (const_winType actual_window)
 
   {
+    Window window;
     Window root;
     Window child;
     int root_x, root_y;
-    int win_x, win_y;
+    int xPos, yPos;
     unsigned int keys_buttons;
 
   /* drwPointerXpos */
-    XQueryPointer(mydisplay, to_window(actual_window), &root, &child,
-                  &root_x, &root_y, &win_x, &win_y, &keys_buttons);
+    logFunction(printf("drwPointerXpos(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
+    window = to_window(actual_window);
+    if (window == 0) {
+      window = DefaultRootWindow(mydisplay);
+    } /* if */
+    XQueryPointer(mydisplay, window, &root, &child,
+                  &root_x, &root_y, &xPos, &yPos, &keys_buttons);
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
-       root, child, root_x, root_y, win_x, win_y, keys_buttons); */
-    /* printf("drwPointerXpos --> %ld\n", win_x); */
-    return win_x;
+       root, child, root_x, root_y, xPos, yPos, keys_buttons); */
+    logFunction(printf("drwPointerXpos(" FMT_U_MEM ") --> " FMT_D "\n",
+                       (memSizeType) actual_window, xPos););
+    return xPos;
   } /* drwPointerXpos */
 
 
 
+/**
+ *  Return the Y position of the pointer relative to the specified window.
+ *  The point of origin is the top left corner of the drawing area
+ *  of the given 'actual_window' (inside of the window decorations).
+ *  If 'actual_window' is the empty window the pointer Y position is
+ *  relative to the top left corner of the screen.
+ */
 intType drwPointerYpos (const_winType actual_window)
 
   {
+    Window window;
     Window root;
     Window child;
     int root_x, root_y;
-    int win_x, win_y;
+    int xPos, yPos;
     unsigned int keys_buttons;
 
   /* drwPointerYpos */
-    XQueryPointer(mydisplay, to_window(actual_window), &root, &child,
-                  &root_x, &root_y, &win_x, &win_y, &keys_buttons);
+    logFunction(printf("drwPointerYpos(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
+    window = to_window(actual_window);
+    if (window == 0) {
+      window = DefaultRootWindow(mydisplay);
+    } /* if */
+    XQueryPointer(mydisplay, window, &root, &child,
+                  &root_x, &root_y, &xPos, &yPos, &keys_buttons);
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
-       root, child, root_x, root_y, win_x, win_y, keys_buttons); */
-    /* printf("drwPointerYpos --> %ld\n", win_y); */
-    return win_y;
+       root, child, root_x, root_y, xPos, yPos, keys_buttons); */
+    logFunction(printf("drwPointerYpos(" FMT_U_MEM ") --> " FMT_D "\n",
+                       (memSizeType) actual_window, yPos););
+    return yPos;
   } /* drwPointerYpos */
 
 
@@ -859,6 +897,19 @@ void drwClear (winType actual_window, intType col)
 
 
 
+/**
+ *  Copy a rectangular area from 'src_window' to 'dest_window'.
+ *  Coordinates are measured relative to the top left corner of the
+ *  corresponding window drawing area (inside of the window decorations).
+ *  @param src_window Source window.
+ *  @param dest_window Destination window.
+ *  @param src_x X-position of the top left corner of the source area.
+ *  @param src_y Y-position of the top left corner of the source area.
+ *  @param width Width of the rectangular area.
+ *  @param height Height of the rectangular area.
+ *  @param dest_x X-position of the top left corner of the destination area.
+ *  @param dest_y Y-position of the top left corner of the destination area.
+ */
 void drwCopyArea (const_winType src_window, const_winType dest_window,
     intType src_x, intType src_y, intType width, intType height,
     intType dest_x, intType dest_y)
@@ -1001,27 +1052,27 @@ void drwPFEllipse (const_winType actual_window,
 winType drwEmpty (void)
 
   {
-    x11_winType result;
+    x11_winType emptyWindow;
 
   /* drwEmpty */
     logFunction(printf("drwEmpty()\n"););
-    if (unlikely(!ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes))) {
+    if (unlikely(!ALLOC_RECORD2(emptyWindow, x11_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
-      memset(result, 0, sizeof(x11_winRecord));
-      result->usage_count = 0;  /* Will not be freed by reference counting. */
-      result->window = 0;
-      result->backup = 0;
-      result->clip_mask = 0;
-      result->is_pixmap = TRUE;
-      result->is_managed = FALSE;
-      result->width = 0;
-      result->height = 0;
+      memset(emptyWindow, 0, sizeof(x11_winRecord));
+      emptyWindow->usage_count = 0;  /* Do not use reference counting (will not be freed). */
+      emptyWindow->window = 0;
+      emptyWindow->backup = 0;
+      emptyWindow->clip_mask = 0;
+      emptyWindow->is_pixmap = TRUE;
+      emptyWindow->is_managed = FALSE;
+      emptyWindow->width = 0;
+      emptyWindow->height = 0;
     } /* if */
     logFunction(printf("drwEmpty --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) emptyWindow,
+                       emptyWindow != NULL ? emptyWindow->usage_count : (uintType) 0););
+    return (winType) emptyWindow;
   } /* drwEmpty */
 
 
@@ -1050,54 +1101,136 @@ void drwFree (winType old_window)
 
 
 
-winType drwGet (const_winType actual_window, intType left, intType upper,
+/**
+ *  Create a new pixmap with the given 'width' and 'height'.
+ *  A rectangle with the upper left corner at (left, upper) and the given
+ *  'width' and 'height' is copied from 'source_window' to the new pixmap.
+ *  @exception RANGE_ERROR If 'height' or 'width' are negative.
+ *  @return the new pixmap.
+ */
+winType drwGet (const_winType source_window, intType left, intType upper,
     intType width, intType height)
 
   {
-    x11_winType result;
+    x11_winType pixmap;
 
   /* drwGet */
     logFunction(printf("drwGet(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, left, upper, width, height););
+                       (memSizeType) source_window, left, upper, width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
-      result = NULL;
-    } else if (unlikely(!ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes))) {
+      pixmap = NULL;
+    } else if (unlikely(!ALLOC_RECORD2(pixmap, x11_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
-      memset(result, 0, sizeof(x11_winRecord));
-      result->usage_count = 1;
-      result->window = XCreatePixmap(mydisplay,
-          to_window(actual_window), (unsigned int) width, (unsigned int) height,
+      memset(pixmap, 0, sizeof(x11_winRecord));
+      pixmap->usage_count = 1;
+      pixmap->window = XCreatePixmap(mydisplay, to_window(source_window),
+          (unsigned int) width, (unsigned int) height,
           (unsigned int) DefaultDepth(mydisplay, myscreen));
-      result->backup = 0;
-      result->clip_mask = 0;
-      result->is_pixmap = TRUE;
-      result->is_managed = FALSE;
-      result->width = (unsigned int) width;
-      result->height = (unsigned int) height;
-      if (to_backup(actual_window) != 0) {
-        XCopyArea(mydisplay, to_backup(actual_window),
-            result->window, mygc, (int) left, (int) upper,
+      pixmap->backup = 0;
+      pixmap->clip_mask = 0;
+      pixmap->is_pixmap = TRUE;
+      pixmap->is_managed = FALSE;
+      pixmap->width = (unsigned int) width;
+      pixmap->height = (unsigned int) height;
+      if (to_backup(source_window) != 0) {
+        XCopyArea(mydisplay, to_backup(source_window),
+            pixmap->window, mygc, (int) left, (int) upper,
             (unsigned int) width, (unsigned int) height, 0, 0);
       } else {
-        XCopyArea(mydisplay, to_window(actual_window),
-            result->window, mygc, (int) left, (int) upper,
+        XCopyArea(mydisplay, to_window(source_window),
+            pixmap->window, mygc, (int) left, (int) upper,
             (unsigned int) width, (unsigned int) height, 0, 0);
       } /* if */
       /* printf("XCopyArea(%ld, %ld, %ld, %ld)\n", left, upper, width, height); */
     } /* if */
     logFunction(printf("drwGet --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
   } /* drwGet */
 
 
 
-bstriType drwGetImage (const_winType actual_window)
+/**
+ *  Capture a rectangular area from the screen.
+ *  The function takes a screenshot of the rectangular area.
+ *  The 'left' and 'upper' coordinates are measured relative to
+ *  the top left corner of the screen.
+ *  @param left X-position of the upper left corner of the capture area.
+ *  @param upper Y-position of the upper left corner of the capture area.
+ *  @param widht Width of the capture area.
+ *  @param height Height of the capture area.
+ *  @return the content of the rectangular screen area as pixmap.
+ *  @exception RANGE_ERROR If 'height' or 'width' are negative.
+ */
+winType drwCapture (intType left, intType upper,
+    intType width, intType height)
+
+  {
+    Window root;
+    int x, y;
+    unsigned int screenWidth, screenHeight;
+    unsigned int border_width;
+    unsigned int depth;
+    XImage *image;
+    x11_winType pixmap;
+
+  /* drwCapture */
+    logFunction(printf("drwCapture(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       left, upper, width, height););
+    if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 width < 1 || height < 1)) {
+      raise_error(RANGE_ERROR);
+      pixmap = NULL;
+    } else if (unlikely(XGetGeometry(mydisplay, DefaultRootWindow(mydisplay), &root,
+                              &x, &y, &screenWidth, &screenHeight, &border_width, &depth) == 0)) {
+      raise_error(FILE_ERROR);
+      pixmap = NULL;
+    } else {
+      image = XGetImage(mydisplay, DefaultRootWindow(mydisplay),
+                        0, 0, screenWidth, screenHeight,
+                        (unsigned long) -1, ZPixmap);
+      if (unlikely(image == NULL)) {
+        logFunction(printf("drwCapture(" FMT_D ", " FMT_D ", "
+                           FMT_D ", " FMT_D "): XGetImage failed\n",
+                           left, upper, width, height););
+        raise_error(FILE_ERROR);
+        pixmap = NULL;
+      } else {
+        if (unlikely(!ALLOC_RECORD2(pixmap, x11_winRecord, count.win, count.win_bytes))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          memset(pixmap, 0, sizeof(x11_winRecord));
+          pixmap->usage_count = 1;
+          pixmap->window = XCreatePixmap(mydisplay, DefaultRootWindow(mydisplay),
+              (unsigned int) width, (unsigned int) height,
+              (unsigned int) DefaultDepth(mydisplay, myscreen));
+          pixmap->backup = 0;
+          pixmap->clip_mask = 0;
+          pixmap->is_pixmap = TRUE;
+          pixmap->is_managed = FALSE;
+          pixmap->width = (unsigned int) width;
+          pixmap->height = (unsigned int) height;
+          XPutImage(mydisplay, pixmap->window, mygc, image, (int) left, (int) upper, 0, 0,
+              (unsigned int) width, (unsigned int) height);
+        } /* if */
+      } /* if */
+      XDestroyImage(image);
+    } /* if */
+    logFunction(printf("drwCapture --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
+  } /* drwCapture */
+
+
+
+bstriType drwGetImage (const_winType source_window)
 
   {
     XImage *image;
@@ -1108,32 +1241,37 @@ bstriType drwGetImage (const_winType actual_window)
     bstriType result;
 
   /* drwGetImage */
-    logFunction(printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) actual_window););
-    if (to_backup(actual_window) != 0) {
-      image = XGetImage(mydisplay, to_backup(actual_window),
-                        0, 0, to_width(actual_window), to_height(actual_window),
+    logFunction(printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) source_window););
+    if (to_backup(source_window) != 0) {
+      image = XGetImage(mydisplay, to_backup(source_window),
+                        0, 0, to_width(source_window), to_height(source_window),
                         (unsigned long) -1, ZPixmap);
-    } else if (to_window(actual_window) != 0) {
-      image = XGetImage(mydisplay, to_window(actual_window),
-                        0, 0, to_width(actual_window), to_height(actual_window),
+    } else if (to_window(source_window) != 0) {
+      image = XGetImage(mydisplay, to_window(source_window),
+                        0, 0, to_width(source_window), to_height(source_window),
                         (unsigned long) -1, ZPixmap);
     } else {
       image = NULL;
     } /* if */
-    result_size = to_width(actual_window) * to_height(actual_window) * sizeof(int32Type);
-    if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
-      raise_error(MEMORY_ERROR);
+    if (unlikely(image == NULL)) {
+      logError(printf("drwGetImage(" FMT_U_MEM "): XGetImage failed\n",
+                      (memSizeType) source_window););
+      raise_error(FILE_ERROR);
+      result = NULL;
     } else {
-      result->size = result_size;
-      image_data = (int32Type *) result->mem;
-      for (yPos = 0; yPos < to_height(actual_window); yPos++) {
-        for (xPos = 0; xPos < to_width(actual_window); xPos++) {
-          image_data[yPos * to_width(actual_window) + xPos] =
-              (int32Type) XGetPixel(image, (int) xPos, (int) yPos);
+      result_size = to_width(source_window) * to_height(source_window) * sizeof(int32Type);
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = result_size;
+        image_data = (int32Type *) result->mem;
+        for (yPos = 0; yPos < to_height(source_window); yPos++) {
+          for (xPos = 0; xPos < to_width(source_window); xPos++) {
+            image_data[yPos * to_width(source_window) + xPos] =
+                (int32Type) XGetPixel(image, (int) xPos, (int) yPos);
+          } /* for */
         } /* for */
-      } /* for */
-    } /* if */
-    if (image != NULL) {
+      } /* if */
       XDestroyImage(image);
     } /* if */
     return result;
@@ -1141,7 +1279,7 @@ bstriType drwGetImage (const_winType actual_window)
 
 
 
-intType drwGetPixel (const_winType actual_window, intType x, intType y)
+intType drwGetPixel (const_winType source_window, intType x, intType y)
 
   {
     XImage *image;
@@ -1149,13 +1287,13 @@ intType drwGetPixel (const_winType actual_window, intType x, intType y)
 
   /* drwGetPixel */
     logFunction(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x, y););
-    if (to_backup(actual_window) != 0) {
-      image = XGetImage(mydisplay, to_backup(actual_window),
+                       (memSizeType) source_window, x, y););
+    if (to_backup(source_window) != 0) {
+      image = XGetImage(mydisplay, to_backup(source_window),
                         castToInt(x), castToInt(y), 1, 1,
                         (unsigned long) -1, ZPixmap);
     } else {
-      image = XGetImage(mydisplay, to_window(actual_window),
+      image = XGetImage(mydisplay, to_window(source_window),
                         castToInt(x), castToInt(y), 1, 1,
                         (unsigned long) -1, ZPixmap);
     } /* if */
@@ -1202,14 +1340,14 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
 
   {
     XImage *image;
-    x11_winType result;
+    x11_winType pixmap;
 
   /* drwImage */
     logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height););
     if (unlikely(width < 1 || width > UINT_MAX ||
                  height < 1 || height > UINT_MAX)) {
       raise_error(RANGE_ERROR);
-      result = NULL;
+      pixmap = NULL;
     } else {
       if (mydisplay == NULL) {
         drawInit();
@@ -1217,28 +1355,28 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
       if (unlikely(mydisplay == NULL)) {
         logError(printf("drwImage: drawInit() failed to open a display.\n"););
         raise_error(FILE_ERROR);
-        result = NULL;
+        pixmap = NULL;
       } else {
         image = XCreateImage(mydisplay, default_visual,
             (unsigned int) DefaultDepth(mydisplay, myscreen),
             ZPixmap, 0, (char *) image_data,
             (unsigned int) width, (unsigned int) height, 32, 0);
         if (image == NULL) {
-          result = NULL;
+          pixmap = NULL;
         } else {
-          if (ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes)) {
-            memset(result, 0, sizeof(x11_winRecord));
-            result->usage_count = 1;
-            result->window = XCreatePixmap(mydisplay,
-                DefaultRootWindow(mydisplay), (unsigned int) width, (unsigned int) height,
+          if (ALLOC_RECORD2(pixmap, x11_winRecord, count.win, count.win_bytes)) {
+            memset(pixmap, 0, sizeof(x11_winRecord));
+            pixmap->usage_count = 1;
+            pixmap->window = XCreatePixmap(mydisplay, DefaultRootWindow(mydisplay),
+                (unsigned int) width, (unsigned int) height,
                 (unsigned int) DefaultDepth(mydisplay, myscreen));
-            result->backup = 0;
-            result->clip_mask = 0;
-            result->is_pixmap = TRUE;
-            result->is_managed = FALSE;
-            result->width = (unsigned int) width;
-            result->height = (unsigned int) height;
-            XPutImage(mydisplay, result->window, mygc, image, 0, 0, 0, 0,
+            pixmap->backup = 0;
+            pixmap->clip_mask = 0;
+            pixmap->is_pixmap = TRUE;
+            pixmap->is_managed = FALSE;
+            pixmap->width = (unsigned int) width;
+            pixmap->height = (unsigned int) height;
+            XPutImage(mydisplay, pixmap->window, mygc, image, 0, 0, 0, 0,
                 (unsigned int) width, (unsigned int) height);
           } /* if */
           XFree(image);
@@ -1246,9 +1384,9 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
       } /* if */
     } /* if */
     logFunction(printf("drwImage --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
   } /* drwImage */
 
 
@@ -1289,14 +1427,14 @@ void drwPLine (const_winType actual_window,
 winType drwNewPixmap (intType width, intType height)
 
   {
-    x11_winType result;
+    x11_winType pixmap;
 
   /* drwNewPixmap */
     logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
     if (unlikely(!inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
-      result = NULL;
+      pixmap = NULL;
     } else {
       if (mydisplay == NULL) {
         drawInit();
@@ -1304,29 +1442,29 @@ winType drwNewPixmap (intType width, intType height)
       if (unlikely(mydisplay == NULL)) {
         logError(printf("drwNewPixmap: drawInit() failed to open a display.\n"););
         raise_error(FILE_ERROR);
-        result = NULL;
+        pixmap = NULL;
       } else {
-        if (unlikely(!ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes))) {
+        if (unlikely(!ALLOC_RECORD2(pixmap, x11_winRecord, count.win, count.win_bytes))) {
           raise_error(MEMORY_ERROR);
         } else {
-          memset(result, 0, sizeof(x11_winRecord));
-          result->usage_count = 1;
-          result->window = XCreatePixmap(mydisplay,
-              DefaultRootWindow(mydisplay), (unsigned int) width, (unsigned int) height,
+          memset(pixmap, 0, sizeof(x11_winRecord));
+          pixmap->usage_count = 1;
+          pixmap->window = XCreatePixmap(mydisplay, DefaultRootWindow(mydisplay),
+              (unsigned int) width, (unsigned int) height,
               (unsigned int) DefaultDepth(mydisplay, myscreen));
-          result->backup = 0;
-          result->clip_mask = 0;
-          result->is_pixmap = TRUE;
-          result->is_managed = FALSE;
-          result->width = (unsigned int) width;
-          result->height = (unsigned int) height;
+          pixmap->backup = 0;
+          pixmap->clip_mask = 0;
+          pixmap->is_pixmap = TRUE;
+          pixmap->is_managed = FALSE;
+          pixmap->width = (unsigned int) width;
+          pixmap->height = (unsigned int) height;
         } /* if */
       } /* if */
     } /* if */
     logFunction(printf("drwNewPixmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
   } /* drwNewPixmap */
 
 
@@ -1334,31 +1472,31 @@ winType drwNewPixmap (intType width, intType height)
 winType drwNewBitmap (const_winType actual_window, intType width, intType height)
 
   {
-    x11_winType result;
+    x11_winType pixmap;
 
   /* drwNewBitmap */
-    logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
+    logFunction(printf("drwNewBitmap(" FMT_D ", " FMT_D ")\n", width, height););
     if (unlikely(width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
-      result = NULL;
-    } else if (unlikely(!ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes))) {
+      pixmap = NULL;
+    } else if (unlikely(!ALLOC_RECORD2(pixmap, x11_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
-      memset(result, 0, sizeof(x11_winRecord));
-      result->usage_count = 1;
-      result->window = XCreatePixmap(mydisplay,
-          to_window(actual_window), (unsigned int) width, (unsigned int) height, 1);
-      result->backup = 0;
-      result->clip_mask = 0;
-      result->is_pixmap = TRUE;
-      result->is_managed = FALSE;
-      result->width = (unsigned int) width;
-      result->height = (unsigned int) height;
+      memset(pixmap, 0, sizeof(x11_winRecord));
+      pixmap->usage_count = 1;
+      pixmap->window = XCreatePixmap(mydisplay, to_window(actual_window),
+          (unsigned int) width, (unsigned int) height, 1);
+      pixmap->backup = 0;
+      pixmap->clip_mask = 0;
+      pixmap->is_pixmap = TRUE;
+      pixmap->is_managed = FALSE;
+      pixmap->width = (unsigned int) width;
+      pixmap->height = (unsigned int) height;
     } /* if */
     logFunction(printf("drwNewBitmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
   } /* drwNewBitmap */
 
 
@@ -1405,8 +1543,6 @@ winType drwOpen (intType xPos, intType yPos,
             myhint.width = (int) width;
             myhint.height = (int) height;
             myhint.flags = PPosition | PSize;
-            mywmhint.flags = InputHint;
-            mywmhint.input = True;
 
             result->window = XCreateSimpleWindow(mydisplay,
                 DefaultRootWindow(mydisplay),
@@ -1424,6 +1560,9 @@ winType drwOpen (intType xPos, intType yPos,
             XSetStandardProperties(mydisplay, result->window,
                 win_name, win_name,
                 None, /* argv, argc, */ NULL, 0, &myhint);
+
+            mywmhint.flags = InputHint;
+            mywmhint.input = True;
             XSetWMHints(mydisplay, result->window, &mywmhint);
 
             XSetWMProtocols(mydisplay, result->window, &wm_delete_window, 1);
@@ -1462,12 +1601,70 @@ winType drwOpen (intType xPos, intType yPos,
 
 
 
+static void omitWindowDecorationsAndTaskbarEntry (x11_winType aWindow)
+
+  {
+    XWMHints mywmhint;
+    typedef struct {
+      unsigned long   flags;
+      unsigned long   functions;
+      unsigned long   decorations;
+      long            inputMode;
+      unsigned long   status;
+    } motifHintType;
+    motifHintType motifHints;
+    Atom states[1];
+
+  /* omitWindowDecorationsAndTaskbarEntry */
+    aWindow->is_managed = TRUE;
+
+    mywmhint.flags = InputHint;
+    mywmhint.input = True;
+    XSetWMHints(mydisplay, aWindow->window, &mywmhint);
+
+    XSetWMProtocols(mydisplay, aWindow->window, &wm_delete_window, 1);
+
+    /* Make sure that the window does not have decorations. */
+    memset(&motifHints, 0, sizeof(motifHintType));
+    motifHints.flags = 2;
+    motifHints.decorations = 0;
+    XChangeProperty(mydisplay, aWindow->window, motifWmHintsProperty,
+                    motifWmHintsProperty, 32, PropModeReplace,
+                    (unsigned char *) &motifHints, 5);
+
+    states[0] = net_wm_state_skip_taskbar;
+    XChangeProperty(mydisplay, aWindow->window, net_wm_state,
+                    XA_ATOM, 32, PropModeReplace,
+                    (unsigned char*) &states, 1);
+
+    XMapWindow(mydisplay, aWindow->window);
+  } /* omitWindowDecorationsAndTaskbarEntry */
+
+
+
+/**
+ *  Create a sub window inside of 'parent_window'.
+ *  The new sub window has no window decorations and is not managed by
+ *  the window manager. If the empty window is used as 'parent_window'
+ *  an unmanaged top level window without window decorations is generated.
+ *  The coordinates 'xPos' and 'yPos' are measured relative to the top
+ *  left corner of the 'parent_window' drawing area (inside of the window
+ *  decorations). If the empty window is used as 'parent_window' the
+ *  coordinates 'xPos' and 'yPos' are measured relative to the top left
+ *  corner of the screen.
+ *  @param parent-window Parent window (can be the empty window).
+ *  @param xPos X-position of the left corner of the new window.
+ *  @param yPos Y-position of the left corner of the new window.
+ *  @param width Width of the new window.
+ *  @param height Height of the new window.
+ *  @return the new generated window.
+ */
 winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPos,
     intType width, intType height)
 
   {
+    Window parent;
     XSizeHints myhint;
-    /* XWMHints mywmhint; */
     XSetWindowAttributes attributes;
     x11_winType result;
 
@@ -1496,11 +1693,12 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
           myhint.width = (int) width;
           myhint.height = (int) height;
           myhint.flags = PPosition | PSize;
-          /* mywmhint.flags = InputHint;
-             mywmhint.input = True; */
 
-          result->window = XCreateSimpleWindow(mydisplay,
-              to_window(parent_window),
+          parent = to_window(parent_window);
+          if (parent == 0) {
+            parent = DefaultRootWindow(mydisplay);
+          } /* if */
+          result->window = XCreateSimpleWindow(mydisplay, parent,
               (int) xPos, (int) yPos, (unsigned) width, (unsigned) height,
               0, myforeground, mybackground);
           enter_window((winType) result, result->window);
@@ -1515,7 +1713,11 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
           XSetStandardProperties(mydisplay, result->window,
               "", "",
               None, /* argv, argc, */ NULL, 0, &myhint);
-          /* XSetWMHints(mydisplay, result->window, &mywmhint); */
+
+          if (to_window(parent_window) == 0) {
+            /* The parent of this window is the empty window (root window). */
+            omitWindowDecorationsAndTaskbarEntry(result);
+        } /* if */
 
           setupBackup(result);
 
@@ -2180,10 +2382,12 @@ void drwSetContent (const_winType actual_window, const_winType pixmap)
 
 
 /**
- *  Move a window to the coordinates x/y.
- *  Afterwards the top left corner of the window will be at the position x/y.
+ *  Move the top left corner of a window to the coordinates x/y.
  *  If window decorations are present the top left corner of the
- *  window decorations will be at the position x/y.
+ *  window decorations will be at the position x/y. For a sub window
+ *  the position is relative to the top left corner of the parent window
+ *  drawing area (inside of the window decorations). For top level windows
+ *  the position is relative to the top left corner of the screen.
  */
 void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
@@ -2359,7 +2563,11 @@ intType drwWidth (const_winType actual_window)
 /**
  *  Determine the X position of the top left corner of a window in pixels.
  *  If window decorations are present this uses the top left corner of
- *  the window decorations.
+ *  the window decorations. For a sub window the X position is relative
+ *  to the top left corner of the parent window drawing area (inside of
+ *  the window decorations). For top level windows the X position is
+ *  relative to the top left corner of the screen.
+ *  @exception RANGE_ERROR If 'actual_window' is a pixmap.
  */
 intType drwXPos (const_winType actual_window)
 
@@ -2405,7 +2613,11 @@ intType drwXPos (const_winType actual_window)
 /**
  *  Determine the Y position of the top left corner of a window in pixels.
  *  If window decorations are present this uses the top left corner of
- *  the window decorations.
+ *  the window decorations. For a sub window the Y position is relative
+ *  to the top left corner of the parent window drawing area (inside of
+ *  the window decorations). For top level windows the Y position is
+ *  relative to the top left corner of the screen.
+ *  @exception RANGE_ERROR If 'actual_window' is a pixmap.
  */
 intType drwYPos (const_winType actual_window)
 

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  levelup.c     Increment the revision level in level.h.          */
+/*  Copyright (C) 2021  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -18,27 +18,42 @@
 /*  Free Software Foundation, Inc., 51 Franklin Street,             */
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
-/*  Module: Interpreter                                             */
-/*  File: seed7/src/exec.h                                          */
-/*  Changes: 1999  Thomas Mertes                                    */
-/*  Content: Main interpreter procedures.                           */
+/*  Module: Chkccomp                                                */
+/*  File: seed7/src/levelup.c                                       */
+/*  Changes: 2021  Thomas Mertes                                    */
+/*  Content: Increment the revision level in level.h.               */
 /*                                                                  */
 /********************************************************************/
 
-#ifdef DO_INIT
-volatile boolType interrupt_flag = FALSE;
-#else
-EXTERN volatile boolType interrupt_flag;
-#endif
-EXTERN volatile int signal_number;
+#include "stdio.h"
 
 
-void doSuspendInterpreter (int signalNum);
-objectType exec_object (register objectType object);
-objectType exec_call (objectType object);
-objectType do_exec_call (objectType object, errInfoType *err_info);
-objectType evaluate (objectType object);
-objectType eval_expression (objectType object);
-objectType exec_dynamic (listType expr_list);
-objectType exec_expr (const progType currentProg, objectType object,
-                      errInfoType *err_info);
+
+int main (int argc, char *argv[])
+
+  {
+    FILE *levelFile;
+    char buffer1[16];
+    char buffer2[16];
+    long currentLevel;
+
+  /* main */
+    levelFile = fopen("level.h", "r");
+    if (levelFile != NULL) {
+      fscanf(levelFile, "%15s %15s %ld\n", buffer1, buffer2, &currentLevel);
+      fclose(levelFile);
+    } else {
+      printf("Create \"level.h\".\n");
+      currentLevel = 0;
+    } /* if */
+    levelFile = fopen("level.h", "w");
+    if (levelFile != NULL) {
+      currentLevel++;
+      fprintf(levelFile, "#define LEVEL %ld\n", currentLevel);
+      fclose(levelFile);
+      printf("Current level is %ld\n", currentLevel);
+    } else {
+      printf("*** Cannot write to \"level.h\".\n");
+    } /* if */
+    return 0;
+  } /* main */

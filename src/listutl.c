@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2008, 2013  Thomas Mertes            */
+/*                2015 - 2018, 2021  Thomas Mertes                  */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,8 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/listutl.c                                       */
-/*  Changes: 1990, 1991, 1992, 1993, 1994, 2002  Thomas Mertes      */
+/*  Changes: 1990 - 1994, 2002, 2008, 2013  Thomas Mertes           */
+/*           2015 - 2018, 2021  Thomas Mertes                       */
 /*  Content: Procedures to maintain objects of type listType.       */
 /*                                                                  */
 /********************************************************************/
@@ -107,7 +109,7 @@ listType *append_element_to_list (listType *list_insert_place, objectType object
   /* append_element_to_list */
     if (unlikely(!ALLOC_L_ELEM(help_element))) {
       *err_info = MEMORY_ERROR;
-      return NULL;
+      return list_insert_place;
     } else {
       help_element->next = NULL;
       help_element->obj = object;

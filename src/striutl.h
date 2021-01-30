@@ -34,6 +34,8 @@
  */
 #define STRLEN(s) (sizeof(s) / sizeof(s[0]) - 1)
 
+#define MEMCPY_STRING(dest, src) memcpy(dest, src, STRLEN(src));
+
 /* Maximum escape sequence length in string literal: */
 #define ESC_SEQUENCE_MAX_LEN STRLEN("\\4294967295;")
 

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_emc.c     Graphic access using browser capabilities.        */
-/*  Copyright (C) 2020  Thomas Mertes                               */
+/*  Copyright (C) 2020, 2021  Thomas Mertes                         */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_emc.c                                       */
-/*  Changes: 2020  Thomas Mertes                                    */
+/*  Changes: 2020, 2021  Thomas Mertes                              */
 /*  Content: Graphic access using browser capabilities.             */
 /*                                                                  */
 /********************************************************************/
@@ -55,6 +55,7 @@ typedef struct {
     /* Up to here the structure is identical to struct winStruct */
     int window;
     boolType is_pixmap;
+    boolType is_subwindow;
     int width;
     int height;
   } emc_winRecord, *emc_winType;
@@ -63,11 +64,13 @@ typedef const emc_winRecord *const_emc_winType;
 
 #define to_window(win)       (((const_emc_winType) win)->window)
 #define is_pixmap(win)       (((const_emc_winType) win)->is_pixmap)
+#define is_subwindow(win)    (((const_emc_winType) win)->is_subwindow)
 #define to_width(win)        (((const_emc_winType) win)->width)
 #define to_height(win)       (((const_emc_winType) win)->height)
 
 #define to_var_window(win)       (((emc_winType) win)->window)
 #define is_var_pixmap(win)       (((emc_winType) win)->is_pixmap)
+#define is_var_subwindow(win)    (((emc_winType) win)->is_subwindow)
 #define to_var_width(win)        (((emc_winType) win)->width)
 #define to_var_height(win)       (((emc_winType) win)->height)
 
@@ -208,12 +211,64 @@ void drwArc2 (const_winType actual_window,
 
 
 
+/**
+ *  Determine the border widths of a window in pixels.
+ *  These are the widths of the window decorations in the succession
+ *  top, right, bottom, left.
+ *  @return an array with border widths (top, right, bottom, left).
+ */
 rtlArrayType drwBorder (const_winType actual_window)
 
-  { /* drwBorder */
+  {
+    int twoBorders;
+    rtlArrayType border;
+
+  /* drwBorder */
     logFunction(printf("drwBorder(" FMT_U_MEM ")\n",
                        (memSizeType) actual_window););
-    return NULL;
+    if (is_pixmap(actual_window)) {
+      raise_error(RANGE_ERROR);
+      border = NULL;
+    } else {
+      twoBorders = EM_ASM_INT({
+        if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
+          let windowObject = mapIdToWindow[$0];
+          let rightBottomLeftBorder = windowObject.outerWidth - windowObject.innerWidth;
+          let topBorder = windowObject.outerHeight - windowObject.innerHeight - rightBottomLeftBorder;
+          if (rightBottomLeftBorder <= 32767 && topBorder <= 65535) {
+            return rightBottomLeftBorder << 16 | topBorder;
+          } else {
+            return -1;
+          }
+        } else {
+          console.log('windowId not found: ' + $0);
+          return -1;
+        }
+      }, to_window(actual_window));
+      if (unlikely(twoBorders == -1)) {
+        raise_error(FILE_ERROR);
+        border = NULL;
+      } else if (unlikely(!ALLOC_RTL_ARRAY(border, 4))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        border->min_position = 1;
+        border->max_position = 4;
+        border->arr[0].value.intValue = (intType) (twoBorders & 0xffff);
+        twoBorders >>= 16;
+        border->arr[1].value.intValue = (intType) twoBorders;
+        border->arr[2].value.intValue = (intType) twoBorders;
+        border->arr[3].value.intValue = (intType) twoBorders;
+      } /* if */
+    } /* if */
+    logFunction(printf("drwBorder(" FMT_U_MEM ") -->"
+                       " %s[" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D "]\n",
+                       (memSizeType) actual_window,
+                       border != NULL ? "" : "NULL ",
+                       border != NULL ? border->arr[0].value.intValue : 0,
+                       border != NULL ? border->arr[1].value.intValue : 0,
+                       border != NULL ? border->arr[2].value.intValue : 0,
+                       border != NULL ? border->arr[3].value.intValue : 0););
+    return border;
   } /* drwBorder */
 
 
@@ -236,7 +291,7 @@ void drwPCircle (const_winType actual_window,
                        (memSizeType) actual_window, x, y, radius, col););
     EM_ASM({
       if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
-        var context = mapIdToContext[$0];
+        let context = mapIdToContext[$0];
         context.strokeStyle = '#' + ('000000' + $4.toString(16)).slice(-6);
         context.beginPath();
         context.arc($1, $2, $3, 0, 2 * Math.PI);
@@ -257,7 +312,7 @@ void drwClear (winType actual_window, intType col)
                        (memSizeType) actual_window, col););
     EM_ASM({
       if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
-        var context = mapIdToContext[$0];
+        let context = mapIdToContext[$0];
         context.fillStyle = '#' + ('000000' + $1.toString(16)).slice(-6);
         context.fillRect(0, 0, context.canvas.width, context.canvas.height);
       } else {
@@ -299,7 +354,7 @@ void drwPFCircle (const_winType actual_window,
                        (memSizeType) actual_window, x, y, radius, col););
     EM_ASM({
       if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
-        var context = mapIdToContext[$0];
+        let context = mapIdToContext[$0];
         context.fillStyle = '#' + ('000000' + $4.toString(16)).slice(-6);
         context.beginPath();
         context.arc($1, $2, $3, 0, 2 * Math.PI);
@@ -343,24 +398,25 @@ void drwFlush (void)
 winType drwEmpty (void)
 
   {
-    emc_winType result;
+    emc_winType emptyWindow;
 
   /* drwEmpty */
     logFunction(printf("drwEmpty()\n"););
-    if (unlikely(!ALLOC_RECORD2(result, emc_winRecord, count.win, count.win_bytes))) {
+    if (unlikely(!ALLOC_RECORD2(emptyWindow, emc_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
-      memset(result, 0, sizeof(emc_winRecord));
-      result->usage_count = 0;  /* Will not be freed by reference counting. */
-      result->window = 0;
-      result->is_pixmap = TRUE;
-      result->width = 0;
-      result->height = 0;
+      memset(emptyWindow, 0, sizeof(emc_winRecord));
+      emptyWindow->usage_count = 0;  /* Do not use reference counting (will not be freed). */
+      emptyWindow->window = 0;
+      emptyWindow->is_pixmap = TRUE;
+      emptyWindow->is_subwindow = FALSE;
+      emptyWindow->width = 0;
+      emptyWindow->height = 0;
     } /* if */
     logFunction(printf("drwEmpty --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) emptyWindow,
+                       emptyWindow != NULL ? emptyWindow->usage_count : (uintType) 0););
+    return (winType) emptyWindow;
   } /* drwEmpty */
 
 
@@ -376,38 +432,45 @@ void drwFree (winType old_window)
 
 
 
-winType drwGet (const_winType actual_window, intType left, intType upper,
+/**
+ *  Create a new pixmap with the given 'width' and 'height'.
+ *  A rectangle with the upper left corner at (left, upper) and the given
+ *  'width' and 'height' is copied from 'source_window' to the new pixmap.
+ *  @exception RANGE_ERROR If 'height' or 'width' are negative.
+ *  @return the new pixmap.
+ */
+winType drwGet (const_winType source_window, intType left, intType upper,
     intType width, intType height)
 
   {
-    emc_winType result;
+    emc_winType pixmap;
 
   /* drwGet */
     logFunction(printf("drwGet(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, left, upper, width, height););
+                       (memSizeType) source_window, left, upper, width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
-      result = NULL;
-    } else if (unlikely(!ALLOC_RECORD2(result, emc_winRecord, count.win, count.win_bytes))) {
+      pixmap = NULL;
+    } else if (unlikely(!ALLOC_RECORD2(pixmap, emc_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
-      memset(result, 0, sizeof(emc_winRecord));
-      result->usage_count = 1;
+      memset(pixmap, 0, sizeof(emc_winRecord));
+      pixmap->usage_count = 1;
 
-      result->window = EM_ASM_INT({
+      pixmap->window = EM_ASM_INT({
         if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
-          var sourceContext = mapIdToContext[$0];
-          var left = $1;
-          var upper = $2;
-          var width = $3;
-          var height = $4;
-          var canvas = document.createElement('canvas');
+          let sourceContext = mapIdToContext[$0];
+          let left = $1;
+          let upper = $2;
+          let width = $3;
+          let height = $4;
+          let canvas = document.createElement('canvas');
           canvas.width = width;
           canvas.height = height;
-          var context = canvas.getContext('2d');
-          var imageData = sourceContext.getImageData($1, $2, $3, $4);
+          let context = canvas.getContext('2d');
+          let imageData = sourceContext.getImageData($1, $2, $3, $4);
           context.putImageData(imageData, 0, 0);
           currentWindowId++;
           mapIdToCanvas[currentWindowId] = canvas;
@@ -416,22 +479,32 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
         } else {
           console.log('windowId not found: ' + $0);
         }
-      }, to_window(actual_window), castToInt(left), castToInt(upper),
+      }, to_window(source_window), castToInt(left), castToInt(upper),
           castToInt(width), castToInt(height));
 
-      result->is_pixmap = TRUE;
-      result->width = (int) width;
-      result->height = (int) height;
+      pixmap->is_pixmap = TRUE;
+      pixmap->is_subwindow = FALSE;
+      pixmap->width = (int) width;
+      pixmap->height = (int) height;
     } /* if */
     logFunction(printf("drwGet --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
   } /* drwGet */
 
 
 
-bstriType drwGetImage (const_winType actual_window)
+winType drwCapture (intType left, intType upper,
+    intType width, intType height)
+
+  { /* drwCapture */
+    return NULL;
+  } /* drwCapture */
+
+
+
+bstriType drwGetImage (const_winType source_window)
 
   {
     bstriType result;
@@ -447,7 +520,7 @@ bstriType drwGetImage (const_winType actual_window)
 
 
 
-intType drwGetPixel (const_winType actual_window, intType x, intType y)
+intType drwGetPixel (const_winType source_window, intType x, intType y)
 
   {
     intType col;
@@ -455,17 +528,17 @@ intType drwGetPixel (const_winType actual_window, intType x, intType y)
   /* drwGetPixel */
     col = (intType) EM_ASM_INT({
       if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
-        var context = mapIdToContext[$0];
-        var canvasColor = context.getImageData(x, y, 1, 1).data; // rgba e [0,255]
-        var r = canvasColor[0];
-        var g = canvasColor[1];
-        var b = canvasColor[2];
+        let context = mapIdToContext[$0];
+        let canvasColor = context.getImageData(x, y, 1, 1).data; // rgba e [0,255]
+        let r = canvasColor[0];
+        let g = canvasColor[1];
+        let b = canvasColor[2];
         return canvasColor[0] << 16 | canvasColor[1] << 8 | canvasColor[2]
       } else {
         console.log('windowId not found: ' + $0);
         return 0;
       }
-    }, to_window(actual_window), castToInt(x), castToInt(y));
+    }, to_window(source_window), castToInt(x), castToInt(y));
     return col;
   } /* drwGetPixel */
 
@@ -483,8 +556,8 @@ intType drwHeight (const_winType actual_window)
       height = to_height(actual_window);
     } else {
       height = EM_ASM_INT({
-        if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
-          return mapIdToWindow[$0].innerHeight;
+        if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
+          return mapIdToCanvas[$0].height;
         } else {
           console.log('windowId not found: ' + $0);
           return -1;
@@ -526,7 +599,7 @@ void drwPLine (const_winType actual_window,
                        (memSizeType) actual_window, x1, y1, x2, y2, col););
     EM_ASM({
       if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
-        var context = mapIdToContext[$0];
+        let context = mapIdToContext[$0];
         context.strokeStyle = '#' + ('000000' + $5.toString(16)).slice(-6);
         context.beginPath();
         context.moveTo($1, $2);
@@ -544,29 +617,29 @@ void drwPLine (const_winType actual_window,
 winType drwNewPixmap (intType width, intType height)
 
   {
-    emc_winType result;
+    emc_winType pixmap;
 
   /* drwNewPixmap */
     logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
     if (unlikely(!inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
-      result = NULL;
+      pixmap = NULL;
     } else {
-      if (unlikely(!ALLOC_RECORD2(result, emc_winRecord, count.win, count.win_bytes))) {
+      if (unlikely(!ALLOC_RECORD2(pixmap, emc_winRecord, count.win, count.win_bytes))) {
         raise_error(MEMORY_ERROR);
       } else {
-        memset(result, 0, sizeof(emc_winRecord));
-        result->usage_count = 1;
+        memset(pixmap, 0, sizeof(emc_winRecord));
+        pixmap->usage_count = 1;
 
-        result->window = EM_ASM_INT({
+        pixmap->window = EM_ASM_INT({
           if (typeof window !== 'undefined') {
-            var width = $0;
-            var height = $1;
-            var canvas = document.createElement('canvas');
+            let width = $0;
+            let height = $1;
+            let canvas = document.createElement('canvas');
             canvas.width = width;
             canvas.height = height;
-            var context = canvas.getContext('2d');
+            let context = canvas.getContext('2d');
             currentWindowId++;
             mapIdToCanvas[currentWindowId] = canvas;
             mapIdToContext[currentWindowId] = context;
@@ -576,15 +649,16 @@ winType drwNewPixmap (intType width, intType height)
           }
         }, (int) width, (int) height);
 
-        result->is_pixmap = TRUE;
-        result->width = (int) width;
-        result->height = (int) height;
+        pixmap->is_pixmap = TRUE;
+        pixmap->is_subwindow = FALSE;
+        pixmap->width = (int) width;
+        pixmap->height = (int) height;
       } /* if */
     } /* if */
     logFunction(printf("drwNewPixmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
   } /* drwNewPixmap */
 
 
@@ -618,14 +692,14 @@ winType drwOpen (intType xPos, intType yPos,
 
           result->window = EM_ASM_INT({
             if (typeof window !== 'undefined') {
-              var left = $0;
-              var top = $1;
-              var width = $2;
-              var height = $3;
-              var windowName = Module.UTF8ToString($4);
-              var windowFeatures = 'toolbar=no,menubar=no,left=' + left + ',top=' + top +
+              let left = $0;
+              let top = $1;
+              let width = $2;
+              let height = $3;
+              let windowName = Module.UTF8ToString($4);
+              let windowFeatures = 'toolbar=no,menubar=no,left=' + left + ',top=' + top +
                                    ',width=' + width + ',height=' + height;
-              var windowObject = window.open("", windowName, windowFeatures);
+              let windowObject = window.open("", windowName, windowFeatures);
               if (windowObject == null) {
                 return 0;
               } else {
@@ -634,8 +708,8 @@ winType drwOpen (intType xPos, intType yPos,
                 title.appendChild(titleText);
                 windowObject.document.head.appendChild(title);
                 windowObject.document.body.style.margin = 0;
-                var canvas = windowObject.document.createElement('canvas');
-                var context = canvas.getContext('2d');
+                let canvas = windowObject.document.createElement('canvas');
+                let context = canvas.getContext('2d');
                 canvas.width  = windowObject.innerWidth;
                 canvas.height = windowObject.innerHeight;
                 context.fillStyle = '#000000';
@@ -652,6 +726,7 @@ winType drwOpen (intType xPos, intType yPos,
             }
           }, (int) xPos, (int) yPos, (int) width, (int) height, win_name);
           result->is_pixmap = FALSE;
+          result->is_subwindow = FALSE;
           result->width = (int) width;
           result->height = (int) height;
         } /* if */
@@ -666,6 +741,23 @@ winType drwOpen (intType xPos, intType yPos,
 
 
 
+/**
+ *  Create a sub window inside of 'parent_window'.
+ *  The new sub window has no window decorations and is not managed by
+ *  the window manager. If the empty window is used as 'parent_window'
+ *  an unmanaged top level window without window decorations is generated.
+ *  The coordinates 'xPos' and 'yPos' are measured relative to the top
+ *  left corner of the 'parent_window' drawing area (inside of the window
+ *  decorations). If the empty window is used as 'parent_window' the
+ *  coordinates 'xPos' and 'yPos' are measured relative to the top left
+ *  corner of the screen.
+ *  @param parent-window Parent window (can be the empty window).
+ *  @param xPos X-position of the left corner of the new window.
+ *  @param yPos Y-position of the left corner of the new window.
+ *  @param width Width of the new window.
+ *  @param height Height of the new window.
+ *  @return the new generated window.
+ */
 winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPos,
     intType width, intType height)
 
@@ -686,18 +778,18 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
 
         result->window = EM_ASM_INT({
           if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
-            var windowObject = mapIdToWindow[$0];
-            var left = $1;
-            var top = $2;
-            var width = $3;
-            var height = $4;
-            var canvas = windowObject.document.createElement('canvas');
+            let windowObject = mapIdToWindow[$0];
+            let left = $1;
+            let top = $2;
+            let width = $3;
+            let height = $4;
+            let canvas = windowObject.document.createElement('canvas');
             canvas.width = width;
             canvas.height = height;
             canvas.style.left = left;
             canvas.style.top = top;
             canvas.style.position = 'absolute';
-            var context = canvas.getContext('2d');
+            let context = canvas.getContext('2d');
             windowObject.document.body.appendChild(canvas);
             currentWindowId++;
             mapIdToCanvas[currentWindowId] = canvas;
@@ -708,7 +800,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
           }
         }, to_window(parent_window), (int) xPos, (int) yPos, (int) width, (int) height);
 
-        result->is_pixmap = TRUE;
+        result->is_pixmap = FALSE;
+        result->is_subwindow = TRUE;
         result->width = (int) width;
         result->height = (int) height;
       } /* if */
@@ -742,7 +835,7 @@ void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
                        (memSizeType) actual_window, x, y, col););
     EM_ASM({
       if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
-        var context = mapIdToContext[$0];
+        let context = mapIdToContext[$0];
         context.fillStyle = '#' + ('000000' + $3.toString(16)).slice(-6);
         context.fillRect($1, $2, 1, 1);
       } else {
@@ -842,12 +935,12 @@ void drwPolyLine (const_winType actual_window,
       if (numCoords >= 4) {
         EM_ASM({
           if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
-            var context = mapIdToContext[$0];
+            let context = mapIdToContext[$0];
             context.lineWidth = 1;
             context.strokeStyle = '#' + ('000000' + $5.toString(16)).slice(-6);
             context.beginPath();
             context.moveTo($1 + HEAP32[$4 >> 2], $2 + HEAP32[($4 >> 2) + 1]);
-            for (var i = 2; i < $3; i += 2) {
+            for (let i = 2; i < $3; i += 2) {
               context.lineTo($1 + HEAP32[($4 >> 2) + i], $2 + HEAP32[($4 >> 2) + i + 1]);
             }
             context.stroke();
@@ -877,12 +970,12 @@ void drwFPolyLine (const_winType actual_window,
       if (numCoords >= 4) {
         EM_ASM({
           if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
-            var context = mapIdToContext[$0];
+            let context = mapIdToContext[$0];
             context.lineWidth = 1;
             context.strokeStyle = '#' + ('000000' + $5.toString(16)).slice(-6);
             context.beginPath();
             context.moveTo($1 + HEAP32[$4 >> 2], $2 + HEAP32[($4 >> 2) + 1]);
-            for (var i = 2; i < $3; i += 2) {
+            for (let i = 2; i < $3; i += 2) {
               context.lineTo($1 + HEAP32[($4 >> 2) + i], $2 + HEAP32[($4 >> 2) + i + 1]);
             }
             context.closePath();
@@ -931,7 +1024,7 @@ void drwPRect (const_winType actual_window,
                        (memSizeType) actual_window, x, y, width, height, col););
     EM_ASM({
       if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
-        var context = mapIdToContext[$0];
+        let context = mapIdToContext[$0];
         context.fillStyle = '#' + ('000000' + $5.toString(16)).slice(-6);
         context.fillRect($1, $2, $3, $4);
       } else {
@@ -1034,16 +1127,56 @@ void drwSetContent (const_winType actual_window, const_winType pixmap)
 
 
 
+/**
+ *  Move the top left corner of a window to the coordinates x/y.
+ *  If window decorations are present the top left corner of the
+ *  window decorations will be at the position x/y. For a sub window
+ *  the position is relative to the top left corner of the parent window
+ *  drawing area (inside of the window decorations). For top level windows
+ *  the position is relative to the top left corner of the screen.
+ */
 void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
-  { /* drwSetPos */
+  {
+    int okay;
+
+  /* drwSetPos */
     logFunction(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) actual_window, xPos, yPos););
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
-        mapIdToWindow[$0].moveTo($1, $2);
-      }
-    }, to_window(actual_window), castToInt(xPos), castToInt(yPos));
+    if (unlikely(!inIntRange(xPos) || !inIntRange(yPos))) {
+      raise_error(RANGE_ERROR);
+    } else if (is_pixmap(actual_window)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      if (is_subwindow(actual_window)) {
+        okay = EM_ASM_INT({
+          if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
+            let canvas = mapIdToCanvas[$0];
+            canvas.style.left = $1;
+            canvas.style.top = $2;
+            return 1;
+          } else {
+            console.log('windowId not found: ' + $0);
+            return 0;
+          }
+        }, to_window(actual_window), (int) xPos, (int) yPos);
+      } else {
+        okay = EM_ASM_INT({
+          if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
+            let windowObject = mapIdToWindow[$0];
+            windowObject.screenX = $1;
+            windowObject.screenY = $2;
+            return 1;
+          } else {
+            console.log('windowId not found: ' + $0);
+            return 0;
+          }
+        }, to_window(actual_window), (int) xPos, (int) yPos);
+      } /* if */
+      if (unlikely(!okay)) {
+	raise_error(FILE_ERROR);
+      } /* if */
+    } /* if */
   } /* drwSetPos */
 
 
@@ -1089,8 +1222,8 @@ intType drwWidth (const_winType actual_window)
       width = to_width(actual_window);
     } else {
       width = EM_ASM_INT({
-        if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
-          return mapIdToWindow[$0].innerWidth;
+        if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
+          return mapIdToCanvas[$0].width;
         } else {
           console.log('windowId not found: ' + $0);
           return -1;
@@ -1108,6 +1241,15 @@ intType drwWidth (const_winType actual_window)
 
 
 
+/**
+ *  Determine the X position of the top left corner of a window in pixels.
+ *  If window decorations are present this uses the top left corner of
+ *  the window decorations. For a sub window the X position is relative
+ *  to the top left corner of the parent window drawing area (inside of
+ *  the window decorations). For top level windows the X position is
+ *  relative to the top left corner of the screen.
+ *  @exception RANGE_ERROR If 'actual_window' is a pixmap.
+ */
 intType drwXPos (const_winType actual_window)
 
   {
@@ -1120,14 +1262,25 @@ intType drwXPos (const_winType actual_window)
       raise_error(RANGE_ERROR);
       xPos = 0;
     } else {
-      xPos = EM_ASM_INT({
-        if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
-          return mapIdToWindow[$0].screenX;
-        } else {
-          console.log('windowId not found: ' + $0);
-          return -2147483648;
-        }
-      }, to_window(actual_window));
+      if (is_subwindow(actual_window)) {
+        xPos = EM_ASM_INT({
+          if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
+            return mapIdToCanvas[$0].style.left;
+          } else {
+            console.log('windowId not found: ' + $0);
+            return -2147483648;
+          }
+        }, to_window(actual_window));
+      } else {
+        xPos = EM_ASM_INT({
+          if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
+            return mapIdToWindow[$0].screenX;
+          } else {
+            console.log('windowId not found: ' + $0);
+            return -2147483648;
+          }
+        }, to_window(actual_window));
+      } /* if */
       if (unlikely(xPos == -2147483648)) {
         raise_error(FILE_ERROR);
         xPos = 0;
@@ -1140,6 +1293,15 @@ intType drwXPos (const_winType actual_window)
 
 
 
+/**
+ *  Determine the Y position of the top left corner of a window in pixels.
+ *  If window decorations are present this uses the top left corner of
+ *  the window decorations. For a sub window the Y position is relative
+ *  to the top left corner of the parent window drawing area (inside of
+ *  the window decorations). For top level windows the Y position is
+ *  relative to the top left corner of the screen.
+ *  @exception RANGE_ERROR If 'actual_window' is a pixmap.
+ */
 intType drwYPos (const_winType actual_window)
 
   {
@@ -1152,14 +1314,25 @@ intType drwYPos (const_winType actual_window)
       raise_error(RANGE_ERROR);
       yPos = 0;
     } else {
-      yPos = EM_ASM_INT({
-        if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
-          return mapIdToWindow[$0].screenY;
-        } else {
-          console.log('windowId not found: ' + $0);
-          return -2147483648;
-        }
-      }, to_window(actual_window));
+      if (is_subwindow(actual_window)) {
+        yPos = EM_ASM_INT({
+          if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
+            return mapIdToCanvas[$0].style.top;
+          } else {
+            console.log('windowId not found: ' + $0);
+            return -2147483648;
+          }
+        }, to_window(actual_window));
+      } else {
+        yPos = EM_ASM_INT({
+          if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
+            return mapIdToWindow[$0].screenY;
+          } else {
+            console.log('windowId not found: ' + $0);
+            return -2147483648;
+          }
+        }, to_window(actual_window));
+      } /* if */
       if (unlikely(yPos == -2147483648)) {
         raise_error(FILE_ERROR);
         yPos = 0;

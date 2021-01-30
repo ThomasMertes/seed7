@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019, 2021  Thomas Mertes                  */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,6 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/flistutl.c                                      */
 /*  Changes: 1993, 1994, 2010, 2013, 2015, 2019  Thomas Mertes      */
+/*           2021  Thomas Mertes                                    */
 /*  Content: Procedures for free memory list maintenance.           */
 /*                                                                  */
 /*  This file contains the heapsize procedure which calculates      */
@@ -795,11 +796,13 @@ void *heap_chunk (size_t size)
 #endif
     } else {
       if (chunk.start != NULL) {
-#ifdef RESIZE_CHUNKS
-        if (realloc(chunk.start, (size_t) (chunk.freemem - chunk.start)) != chunk.start) {
-          no_memory(SOURCE_POSITION(1000));
-        } /* if */
-#else
+        /* There might be unused memory in the old chunk. A realloc() */
+        /* of the old chunk could be dangerous. Realloc() could move  */
+        /* the memory area of the chunk. Such a move would invalidate */
+        /* all pointers into the old chunk. Instead remaining unused  */
+        /* memory from the old chunk is used as free list elements.   */
+        /* Elements of listRecord have been choosen, because they are */
+        /* common and the free list elements with the smallest size.  */
         while (sizeof(listRecord) <= (memSizeType) (chunk.beyond - chunk.freemem)) {
           if (OLD_CHUNK(list_elem, listType, sizeof(listRecord))) {
             COUNT_FLISTELEM(listRecord, count.list_elem);
@@ -807,7 +810,6 @@ void *heap_chunk (size_t size)
           } /* if */
         } /* while */
         chunk.lost_bytes += (memSizeType) (chunk.beyond - chunk.freemem);
-#endif
       } /* if */
       chunk.size = chunk_size[index];
       chunk.total_size += chunk.size;

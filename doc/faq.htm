@@ -820,12 +820,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2021-01-06 the number of lines is:
+than 300000 lines of Seed7. For version 2021-01-30 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">162686</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12721</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">191628</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">161011</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">164047</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12736</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">191759</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">161121</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1203,7 +1203,7 @@ The following options are recognized by s7:
 </p><ul>
   <li><b>-?</b>   Write Seed7 interpreter usage.</li>
   <li><b>-a</b>   Analyze only and suppress the execution phase.</li>
-  <li><b>-d</b><span class="keywd">x</span>  Set compile time trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
+  <li><a name="faq_interpreter_option-d"><b>-d</b><span class="keywd">x</span></a>  Set compile time trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
          <li><b>a</b> Trace primitive actions</li>
          <li><b>c</b> Do action check</li>
@@ -1218,7 +1218,7 @@ The following options are recognized by s7:
   <li><b>-q</b>   Compile quiet. Line and file information and compilation
        statistics are suppressed.</li>
   <li><b>-s</b>   Deactivate signal handlers.</li>
-  <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
+  <li><a name="faq_interpreter_option-t"><b>-t</b><span class="keywd">x</span></a>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
          <li><b>a</b> Trace primitive actions</li>
          <li><b>c</b> Do action check</li>
@@ -1227,14 +1227,14 @@ The following options are recognized by s7:
          <li><b>h</b> Trace heap size (in combination with 'a')</li>
          <li><b>s</b> Trace signals</li></ul></li>
   <li><b>-t</b>   Equivalent to <b>-ta</b></li>
-  <li><b>-v</b><span class="keywd">n</span>  Set verbosity level of analyse phase to <span class="keywd">n</span>. Where <span class="keywd">n</span> is one
+  <li><a name="faq_interpreter_option-v"><b>-v</b><span class="keywd">n</span></a>  Set verbosity level of analyse phase to <span class="keywd">n</span>. Where <span class="keywd">n</span> is one
        of the following characters:<ul>
          <li><b>0</b> Compile quiet (equivalent to <b>-q</b>)</li>
          <li><b>1</b> Write just the header with version information (default)</li>
          <li><b>2</b> Write a list of include libraries</li>
          <li><b>3</b> Write line numbers, while analyzing</li></ul></li>
   <li><b>-v</b>   Equivalent to <b>-v2</b></li>
-  <li><b>-x</b>   Execute even if the program contains errors.</li>
+  <li><a name="faq_interpreter_option-x"><b>-x</b></a>   Execute even if the program contains errors.</li>
 </ul><p>
   In the program the <tt>'parameters'</tt> can be accessed via <tt><span class="func">argv</span>(PROGRAM)</tt>.
   The function <tt><span class="func">argv</span>(PROGRAM)</tt> delivers an array of strings. The number
@@ -1266,7 +1266,7 @@ Possible options are
        To generate debug information which refers to the temporary C program
        the option <b>-g-debug_c</b> can be used.</li>
   <li><a name="faq_compiler_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
-  <li><b>-oc</b><span class="keywd">n</span> Optimize constants with level <span class="keywd">n</span>. E.g.: <b>-oc3</b>
+  <li><a name="faq_compiler_option-oc"><b>-oc</b><span class="keywd">n</span></a> Optimize constants with level <span class="keywd">n</span>. E.g.: <b>-oc3</b>
        The level <span class="keywd">n</span> is a digit between 0 and 3:<ul>
          <li><b>0</b> Do no optimizations with constants.</li>
          <li><b>1</b> Use literals and named constants to simplify expressions (default).</li>
@@ -1279,7 +1279,7 @@ Possible options are
          <li><b>i</b> Suppress the generation of <span class="link">index checks</span> (e.g. string, array).</li>
          <li><b>o</b> Suppress the generation of <span class="link">integer overflow</span> checks.</li>
          <li><b>r</b> Suppress the generation of range checks.</li></ul></li>
-  <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
+  <li><a name="faq_compiler_option-t"><b>-t</b><span class="keywd">x</span></a>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
          <li><b>e</b> Trace exceptions and handlers</li>
          <li><b>f</b> Trace functions</li>
@@ -1360,18 +1360,18 @@ symbols. Instead it only knows one nonterminal symbol: <i>()</i> . S7SSD syntax 
 not define named nonterminal symbols (EBNF rules define named nonterminal symbols).
 S7SSD syntax rules are introduced with:
 </p><pre class="indent">
-$ syntax
+$ <span class="keywd">syntax</span>
 </pre><p>
 S7SSD syntax rules define a pattern of terminal and nonterminal symbols separated
 by dots. A S7SSD syntax rule defines also a priority and associativity. The syntax
 of the + operator is:
 </p><pre class="indent">
-$ syntax expr: .(). + .()   is -> 7;
+$ <span class="keywd">syntax</span> <span class="type">expr</span>: .(). + .()   is -> 7;
 </pre><p>
 The syntax of statements and other constructs is defined as if they were also
 operators:
 </p><pre class="indent">
-$ syntax expr: .while.().do.().end.while   is -> 25;
+$ <span class="keywd">syntax</span> <span class="type">expr</span>: .while.().do.().end.while   is -> 25;
 </pre><p>
 S7SSD is a simple syntax description that can be used by humans and compilers
 respectively interpreters. The syntax of a Seed7 program is defined in the library
@@ -1957,7 +1957,7 @@ with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be us
 There is also support for Unicode names. The support for Unicode names
 is switched off by default and must be activated with the pragma:
 </p><pre class="indent">
-$ names unicode;
+$ <span class="keywd">names</span> unicode;
 </pre><p>
 This pragma allows variables with e.g. German umlauts or Cyrillic letters.
 This way beginners can use variable and function names from their native
@@ -2880,7 +2880,7 @@ structured programming <tt>break</tt>, <tt>continue</tt> and <tt>goto</tt> are n
 <div><br /><a name="faq_exceptions"><h3>Are there exceptions?
 </h3></a><hr />
 <p>
-Yes, Seed7 has exceptions which are similar to Ada exceptions. In <span class="link">chapter 16.2
+Yes, Seed7 has exceptions which are similar to Ada exceptions. In <span class="link">chapter 16.3
 (Exceptions)</span> of the manual you will find a detailed description of the Seed7
 exceptions. The use of exceptions improves also readability. E.g.:
 </p><pre class="indent">
@@ -2922,10 +2922,10 @@ This can lead to horrible code where it is easy to overlook a bug.
 <div><br /><a name="faq_stack_trace"><h3>What happens if an exception is not caught?
 </h3></a><hr />
 <p>
-If an EXCEPTION is not caught the program is terminated and the s7 interpreter
+If an exception is not caught the program is terminated and the s7 interpreter
 writes a stack trace:
 </p><pre class="box">
-  *** Uncaught EXCEPTION NUMERIC_ERROR raised with
+  *** Uncaught exception NUMERIC_ERROR raised with
   {integer: &lt;SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
   Stack:
@@ -2941,7 +2941,7 @@ stack traces work.
 </p><p>
   A compiled program creates a much shorter crash message:
 </p><pre class="box">
-  *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(764)
+  *** Uncaught exception NUMERIC_ERROR raised at tmp_lander.c(764)
 </pre><p>
 In this case the mentioned file name and line number refers to the temporary
 C file or the Seed7 runtime library. To get useful information there are two
@@ -2957,7 +2957,7 @@ signal, if an uncaught exception occurs. This option allows debuggers to handle
 uncaught Seed7 exceptions. Note that <a class="link" href="#faq_compiler_option-e"><tt><b>-e</b></tt></a> sends the signal SIGFPE. This is done even
 if the exception is not related to floating point operations.
 </p><p>
-<span class="link">Chapter 16.4 (Stack trace)</span> of the manual contains a detailed description how to
+<span class="link">Chapter 16.5 (Stack trace)</span> of the manual contains a detailed description how to
 debug compiled Seed7 programs.
 </p></div>
 
@@ -2974,7 +2974,7 @@ for parsing <span class="link">parentheses</span>, <span class="link">call expre
 all other expressions the recursive descent parser is data driven. The data which
 drives the parser is actually a syntax description tree. <a class="link" href="#faq_syntax">Syntax descriptions</a> like
 </p><pre class="indent">
-$ syntax expr: .while.().do.().end.while   is -> 25;
+$ <span class="keywd">syntax</span> <span class="type">expr</span>: .while.().do.().end.while   is -> 25;
 </pre><p>
 are used to create the syntax description tree. The result of the syntax analysis
 is an abstract syntax tree (AST).

@@ -1,0 +1,130 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  mirror.sd7    Mirror a rectangular screen area in a window.     *)
+(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "draw.s7i";
+  include "dialog.s7i";
+  include "time.s7i";
+  include "duration.s7i";
+
+
+const type: rectangularArea is new struct
+    var integer: topLeftX is 0;
+    var integer: topLeftY is 0;
+    var integer: bottomRightX is 0;
+    var integer: bottomRightY is 0;
+  end struct;
+
+
+const func rectangularArea: selectArea is func
+  result
+    var rectangularArea: area is rectangularArea.value;
+  local
+    var PRIMITIVE_WINDOW: screenPixmap is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: wholeScreen is PRIMITIVE_WINDOW.value;
+    var integer: oldBottomRightX is 0;
+    var integer: oldBottomRightY is 0;
+  begin
+    screenPixmap := capturePixmap(0, 0, screenWidth, screenHeight);
+    wholeScreen := openSubWindow(PRIMITIVE_WINDOW.value, 0, 0, screenWidth, screenHeight);
+    put(wholeScreen, 0, 0, screenPixmap, PSET);
+    if getc(KEYBOARD) = KEY_MOUSE1 then
+      area.topLeftX := pointerXPos(PRIMITIVE_WINDOW.value);
+      area.topLeftY := pointerYPos(PRIMITIVE_WINDOW.value);
+      point(wholeScreen, area.topLeftX, area.topLeftY, light_red);
+      oldBottomRightX := area.topLeftX;
+      oldBottomRightY := area.topLeftY;
+      repeat
+        area.bottomRightX := pointerXPos(PRIMITIVE_WINDOW.value);
+        area.bottomRightY := pointerYPos(PRIMITIVE_WINDOW.value);
+        if area.bottomRightX <> oldBottomRightX or area.bottomRightY <> oldBottomRightY then
+          if area.bottomRightX < area.topLeftX then
+            area.bottomRightX := area.topLeftX;
+          end if;
+          if area.bottomRightY < area.topLeftY then
+            area.bottomRightY := area.topLeftY;
+          end if;
+          copyArea(screenPixmap, wholeScreen, area.topLeftX, area.topLeftY,
+                   oldBottomRightX - area.topLeftX + 1, 1,
+                   area.topLeftX, area.topLeftY);
+          copyArea(screenPixmap, wholeScreen, area.topLeftX, area.topLeftY,
+                   1, oldBottomRightY - area.topLeftY + 1,
+                   area.topLeftX, area.topLeftY);
+          copyArea(screenPixmap, wholeScreen, area.topLeftX, oldBottomRightY,
+                   oldBottomRightX - area.topLeftX + 1, 1,
+                   area.topLeftX, oldBottomRightY);
+          copyArea(screenPixmap, wholeScreen, oldBottomRightX, area.topLeftY,
+                   1, oldBottomRightY - area.topLeftY + 1,
+                   oldBottomRightX, area.topLeftY);
+          lineTo(wholeScreen, area.topLeftX, area.topLeftY,
+                 area.topLeftX, area.bottomRightY, light_red);
+          lineTo(wholeScreen, area.topLeftX, area.topLeftY,
+                 area.bottomRightX, area.topLeftY, light_red);
+          lineTo(wholeScreen, area.topLeftX, area.bottomRightY,
+                 area.bottomRightX, area.bottomRightY, light_red);
+          lineTo(wholeScreen, area.bottomRightX, area.topLeftY,
+                 area.bottomRightX, area.bottomRightY, light_red);
+          oldBottomRightX := area.bottomRightX;
+          oldBottomRightY := area.bottomRightY;
+        end if;
+        wait(30000 . MICRO_SECONDS);
+      until not buttonPressed(KEYBOARD, KEY_MOUSE1);
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    const integer: width is 1000;
+    const integer: height is 500;
+    var rectangularArea: area is rectangularArea.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  begin
+    KEYBOARD := GRAPH_KEYBOARD;
+    if isOkay("This program shows the content of a rectangular screen area in a mirror window.\n\
+              \To select the area move the mouse to the top left position of the area, press\n\
+              \the left mouse button and keep it pressed. Then move the mouse to the bottom\n\
+              \right position of the area. The area is shown in red. If you are satisfied with\n\
+              \with your selection release the left mouse button. After that the mirror window\n\
+              \will show up. The mirror window is updated every 30 milliseconds. To exit the\n\
+              \program just click on the mirror window. Are you ready to select the area?") then
+      DRAW_FLUSH;
+      # Wait until the message window has vanished.
+      wait(300000 . MICRO_SECONDS);
+      area := selectArea;
+      DRAW_FLUSH;
+      if area.topLeftX <> 0 or area.topLeftY <> 0 or area.bottomRightX <> 0 or area.bottomRightY <> 0 then
+        curr_win := PRIMITIVE_GRAPHIC_OPEN(250, 200,
+            area.bottomRightX - area.topLeftX + 1,
+            area.bottomRightY - area.topLeftY + 1, "mirror");
+        repeat
+          pixmap := capturePixmap(area.topLeftX, area.topLeftY,
+              area.bottomRightX - area.topLeftX + 1,
+              area.bottomRightY - area.topLeftY + 1);
+          put(curr_win, 0, 0, pixmap, PSET);
+          wait(30000 . MICRO_SECONDS);
+        until keypressed(KEYBOARD);
+      end if;
+    end if;
+  end func;

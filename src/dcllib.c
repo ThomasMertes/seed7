@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2005, 2008, 2013, 2015  Thomas Mertes      */
+/*                2019, 2021  Thomas Mertes                         */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/dcllib.c                                        */
-/*  Changes: 1999  Thomas Mertes                                    */
+/*  Changes: 1999, 2008, 2013, 2015, 2019, 2021  Thomas Mertes      */
 /*  Content: Primitive actions to for simple declarations.          */
 /*                                                                  */
 /********************************************************************/
@@ -329,11 +330,7 @@ objectType dcl_getfunc (listType arguments)
     trace1(name_expr);
     printf("\n");
 #endif
-    grow_stack(&err_info);
-    if (err_info == OKAY_NO_ERROR) {
-      object_found = search_name(prog->declaration_root, name_expr, &err_info);
-      shrink_stack();
-    } /* if */
+    object_found = search_name(prog->declaration_root, name_expr, &err_info);
 #if TRACE_DCL
     printf("entity=%lu ", (unsigned long) GET_ENTITY(object_found));
     printf("%lu ", (unsigned long) object_found);
@@ -494,6 +491,7 @@ objectType dcl_in2 (listType arguments)
       return bld_param_temp(created_object);
     } /* if */
   } /* dcl_in2 */
+
 
 
 objectType dcl_in1var (listType arguments)

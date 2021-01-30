@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2012, 2013, 2015  Thomas Mertes      */
+/*                2021  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,7 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/identutl.c                                      */
-/*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
+/*  Changes: 1991 - 1994, 2012, 2013, 2015, 2021  Thomas Mertes     */
 /*  Content: Procedures to maintain objects of type identType.      */
 /*                                                                  */
 /********************************************************************/
@@ -207,9 +208,6 @@ void init_idents (progType currentProg, errInfoType *err_info)
     if ((currentProg->ident.end_of_file =
          new_ident((const_ustriType) "END OF FILE", (sySizeType) 11)) == NULL) {
       *err_info = MEMORY_ERROR;
-    } /* if */
-    if (*err_info != OKAY_NO_ERROR) {
-      close_idents(currentProg);
     } /* if */
     logFunction(printf("init_ident -->\n"););
   } /* init_idents */

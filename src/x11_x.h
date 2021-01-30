@@ -49,6 +49,8 @@
 #define WhenMapped  1
 #define Always      2
 
+#define PropModeReplace  0
+
 #define XYBitmap  0
 #define XYPixmap  1
 #define ZPixmap   2
@@ -534,6 +536,8 @@ typedef struct {
     int global_auto_repeat;
     char auto_repeats[32];
   } XKeyboardState;
+
+#define XA_ATOM ((Atom) 4)
 
 
 #define BlackPixel(dpy, scr)      XBlackPixel(dpy, scr)

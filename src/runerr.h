@@ -35,6 +35,7 @@ EXTERN listType fail_expression;
 EXTERN listType fail_stack;
 
 #define set_fail_flag(failValue) interrupt_flag = (failValue); fail_flag = (failValue);
+/* printf("set_fail_flag(%d) at %s(%d)\n", failValue, __FILE__, __LINE__); */
 
 typedef struct {
     boolType fail_flag;

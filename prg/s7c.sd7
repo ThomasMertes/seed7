@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  s7c.sd7       Seed7 compiler - Compiles Seed7 to C              *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2020  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2021  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -2309,14 +2309,14 @@ const proc: process_main_declaration (in reference: current_object,
     end if;
     main_prolog &:= "catch_stack = (catch_type *)(malloc(max_catch_stack * sizeof(catch_type)));\n";
     main_prolog &:= "if ((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
+    main_prolog &:= "setupStack();\n";
+    main_prolog &:= "setupRand();\n";
+    main_prolog &:= "setupFiles();\n";
     if ccConf.USE_WINMAIN then
       main_prolog &:= "arg_v = getArgv(0, NULL, &arg_0, &programName, &programPath);\n";
     else
       main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &programName, &programPath);\n";
     end if;
-    main_prolog &:= "setupStack();\n";
-    main_prolog &:= "setupFiles();\n";
-    main_prolog &:= "setupRand();\n";
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "setupBig();\n";
     main_prolog &:= "init_values();\n";
@@ -2388,7 +2388,7 @@ const proc: process_main_declaration (in reference: current_object,
     end if;
     main_epilog &:= "return 0;\n";
     main_epilog &:= "} else {\n";
-    main_epilog &:= "  printf(\"\\n*** Uncaught EXCEPTION \");\n";
+    main_epilog &:= "  printf(\"\\n*** Uncaught exception \");\n";
     main_epilog &:= "  if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
     main_epilog &:= "    printf(\"%s\", exception_name[fail_value]);\n";
     main_epilog &:= "  } else {\n";
@@ -6730,9 +6730,9 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
     if trace_exception then
       c_expr.expr &:= "  int ch;\n";
       c_expr.expr &:= "  if (catch_stack_pos == 0) {\n";
-      c_expr.expr &:= "    printf(\"\\n*** Uncaught EXCEPTION \");\n";
+      c_expr.expr &:= "    printf(\"\\n*** Uncaught exception \");\n";
       c_expr.expr &:= "  } else {\n";
-      c_expr.expr &:= "    printf(\"\\n*** Caught EXCEPTION \");\n";
+      c_expr.expr &:= "    printf(\"\\n*** Caught exception \");\n";
       c_expr.expr &:= "  }\n";
       c_expr.expr &:= "  if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
       c_expr.expr &:= "    printf(\"%s\", exception_name[fail_value]);\n";
@@ -6755,7 +6755,7 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
     c_expr.expr &:= "  error_line = line_number;\n";
     if signal_exception then
       c_expr.expr &:= "  if (catch_stack_pos == 0) {\n";
-      c_expr.expr &:= "    printf(\"\\n*** Uncaught EXCEPTION \");\n";
+      c_expr.expr &:= "    printf(\"\\n*** Uncaught exception \");\n";
       c_expr.expr &:= "    if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
       c_expr.expr &:= "      printf(\"%s\", exception_name[fail_value]);\n";
       c_expr.expr &:= "    } else {\n";
@@ -6789,9 +6789,9 @@ const proc: declare_raise_error2 (inout expr_type: c_expr) is func
       if trace_exception then
         c_expr.expr &:= "    int ch;\n";
         c_expr.expr &:= "    if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
-        c_expr.expr &:= "      printf(\"*** EXCEPTION %s\", exception_name[fail_value]);\n";
+        c_expr.expr &:= "      printf(\"*** Exception %s\", exception_name[fail_value]);\n";
         c_expr.expr &:= "    } else {\n";
-        c_expr.expr &:= "      printf(\"*** EXCEPTION %d\", fail_value);\n";
+        c_expr.expr &:= "      printf(\"*** Exception %d\", fail_value);\n";
         c_expr.expr &:= "    }\n";
         c_expr.expr &:= "    printf(\" raised at %s(%d)\\n\", file_name, line_number);\n";
         c_expr.expr &:= "    printf(\"\\n*** The following commands are possible:\\n\"\n";
@@ -6847,7 +6847,6 @@ const proc: process_global_declarations (in program: prog) is func
       declareExtern("striType get_file_name (unsigned int a) {return " <& stringLiteral("") <& ";}");
       declareExtern("const unsigned char *get_file_name_ustri (unsigned int a) {return (unsigned char *) \"?\";}");
       declareExtern("void *get_param_list (const_listType a, int *b) {printf(\"get_param_list\\n\"); return NULL;}");
-      declareExtern("void *create_parameter_list (listType a, int *b) {printf(\"create_parameter_list\\n\"); return NULL;}");
       writeln(c_prog);
     end if;
     declare_rtlRaiseError(c_expr);
@@ -7025,11 +7024,11 @@ const proc: pass_1 (in string: source, inout program: prog,
       block
         prog := parseFile(source, parseOptions.value, libraryDirs);
       exception
-        catch RANGE_ERROR:
+        otherwise:
           prog := program.EMPTY;
       end block;
       if prog = program.EMPTY then
-        writeln("*** File " <& literal(source) <& " not found");
+        writeln("*** File " <& literal(source) <& " not found or a memory error occurred.");
         okay := FALSE;
       elsif errorCount(prog) <> 0 then
         write(errorCount(prog) <& " error");
@@ -7551,7 +7550,8 @@ const proc: main is func
 
   begin
     OUT := STD_UTF8_OUT;
-    writeln("SEED7 COMPILER Version 3.0  Copyright (c) 1990-2020 Thomas Mertes");
+    writeln("SEED7 COMPILER Version 3.1." <& ccConf.VERSION_REVISION_LEVEL <&
+            " Copyright (c) 1990-2021 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");

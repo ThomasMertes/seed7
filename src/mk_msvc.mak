@@ -97,8 +97,9 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	@echo Use 'make test' (with your make command) to check Seed7.
 	@echo.
 
-..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
+..\bin\s7.exe: levelup.exe next_lvl $(OBJ) $(ALL_S7_LIBS)
 	$(CC) -Z7 $(LDFLAGS) -o ..\bin\s7.exe $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	del next_lvl
 
 ..\prg\s7.exe: ..\bin\s7.exe
 	copy ..\bin\s7.exe ..\prg /Y
@@ -108,6 +109,13 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 
 ..\prg\s7c.exe: ..\prg\s7c.sd7 $(ALL_S7_LIBS)
 	..\bin\s7 -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
+
+levelup.exe: levelup.c
+	$(CC) levelup.c -o levelup
+
+next_lvl: levelup.exe
+	.\levelup.exe
+	echo X > next_lvl
 
 sql_db2.obj: sql_db2.c
 	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) sql_db2.c
@@ -138,6 +146,8 @@ clean:
 	del version.h
 	del setwpath.exe
 	del sudo.exe
+	del levelup.exe
+	del next_lvl
 	@echo.
 	@echo Use 'make depend' (with your make command) to create the dependencies.
 	@echo.
@@ -223,9 +233,6 @@ depend: version.h
 	@echo.
 	@echo Use 'make' (with your make command) to create the interpreter.
 	@echo.
-
-level.h:
-	..\bin\s7 -l ..\lib level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	lib /out:..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)

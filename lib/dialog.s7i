@@ -115,7 +115,7 @@ const func boolean: isOkay (in array string: messageText) is func
     end for;
     yesButtonXPos := width(popupWindow) div 4;
     noButtonXPos := width(popupWindow) div 4 * 3 - 40;
-    buttonYPos := height(popupWindow) div 3 * 2 - 10;
+    buttonYPos := height(popupWindow) - 44;
     writeButton(buttonTextFile, yesButtonXPos, buttonYPos, "Yes");
     writeButton(buttonTextFile, noButtonXPos, buttonYPos, "No");
     if yesButtonActive then
@@ -171,7 +171,7 @@ const func boolean: isOkay (in array string: messageText) is func
  *  @return TRUE if 'yes' was pressed and FALSE if 'no' was pressed.
  *)
 const func boolean: isOkay (in string: messageText) is
-  return isOkay([] (messageText));
+  return isOkay(split(messageText, '\n'));
 
 
 (**
@@ -228,7 +228,7 @@ const proc: messageWindow (in array string: messageText) is func
       writeln(messageFile, messageText[number]);
     end for;
     okButtonXPos := width(popupWindow) div 4 * 3 - 40;
-    okButtonYPos := height(popupWindow) div 3 * 2 - 10;
+    okButtonYPos := height(popupWindow) - 44;
     writeButton(buttonTextFile, okButtonXPos, okButtonYPos, "OK");
     box(popupWindow, pred(okButtonXPos), pred(okButtonYPos), 43, 23, black);
     ch := upper(getc(GRAPH_KEYBOARD));
@@ -261,7 +261,7 @@ const proc: messageWindow (in array string: messageText) is func
  *)
 const proc: messageWindow (in string: messageText) is func
   begin
-    messageWindow([] (messageText));
+    messageWindow(split(messageText, '\n'));
   end func;
 
 

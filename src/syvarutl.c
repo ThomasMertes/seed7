@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2015, 2021  Thomas Mertes                  */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/syvarutl.c                                      */
-/*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
+/*  Changes: 1991 - 1994, 2010, 2013, - 2015, 2021  Thomas Mertes   */
 /*  Content: Maintains the interpreter system variables.            */
 /*                                                                  */
 /********************************************************************/
@@ -58,7 +58,6 @@ static const const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
     "illegal_action",
     "false",
     "true",
-    "type",
     "expr",
     "integer",
     "bigInteger",
@@ -79,6 +78,8 @@ static const const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
     "writeln",
     "main",
   };
+
+static objectRecord dummy_expr_type;
 
 
 
@@ -126,5 +127,12 @@ void init_sysvar (progType aProgram)
     for (number = 0; number < NUMBER_OF_SYSVARS; number++) {
       aProgram->sys_var[number] = NULL;
     } /* for */
+    /* Initialize SYS_EXPR_TYPE (EXPR_TYPE) to avoid an */
+    /* error, if the source has no include directive.   */
+    dummy_expr_type.type_of = NULL;
+    dummy_expr_type.descriptor.property = NULL;
+    INIT_CATEGORY_OF_OBJ(&dummy_expr_type, TYPEOBJECT);
+    dummy_expr_type.value.typeValue = NULL;
+    EXPR_TYPE(aProgram) = &dummy_expr_type;
     logFunction(printf("init_sysvar -->\n"););
   } /* init_sysvar */

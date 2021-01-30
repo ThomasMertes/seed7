@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013, 2015, 2021  Thomas Mertes            */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/atom.c                                          */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*  Changes: 1990 - 1994, 2013, 2015, 2021  Thomas Mertes           */
 /*  Content: Read the next object from the source file.             */
 /*                                                                  */
 /********************************************************************/
@@ -69,15 +69,15 @@ static objectType gen_object (void)
 
   /* gen_object */
     logFunction(printf("gen_object\n"););
-    if (!ALLOC_OBJECT(atomic_object)) {
+    if (unlikely(!ALLOC_OBJECT(atomic_object))) {
       fatal_memory_error(SOURCE_POSITION(2051));
     } else {
-      if (!ALLOC_RECORD(atomic_property, propertyRecord, count.property)) {
+      if (unlikely(!ALLOC_RECORD(atomic_property, propertyRecord, count.property))) {
         FREE_OBJECT(atomic_object);
         atomic_object = NULL;
         fatal_memory_error(SOURCE_POSITION(2052));
       } else {
-        if (!ALLOC_RECORD(atomic_entity, entityRecord, count.entity)) {
+        if (unlikely(!ALLOC_RECORD(atomic_entity, entityRecord, count.entity))) {
           FREE_RECORD(atomic_property, propertyRecord, count.property);
           FREE_OBJECT(atomic_object);
           atomic_object = NULL;
@@ -118,10 +118,10 @@ static objectType gen_literal_object (const_objectType typeof_object,
 
   /* gen_literal_object */
     logFunction(printf("gen_literal_object\n"););
-    if (!ALLOC_OBJECT(literal_object)) {
+    if (unlikely(!ALLOC_OBJECT(literal_object))) {
       fatal_memory_error(SOURCE_POSITION(2054));
     } else {
-      if (!ALLOC_L_ELEM(list_elem)) {
+      if (unlikely(!ALLOC_L_ELEM(list_elem))) {
         FREE_OBJECT(literal_object);
         literal_object = NULL;
         fatal_memory_error(SOURCE_POSITION(2055));
@@ -165,15 +165,15 @@ static inline striType new_string (void)
       REALLOC_STRI_SIZE_OK(stri_created, symbol.striValue,
           symbol.stri_max, stri_created_size);
     }
-    if (stri_created == NULL) {
+    if (unlikely(stri_created == NULL)) {
       fatal_memory_error(SOURCE_POSITION(2056));
     } /* if */
     COUNT3_STRI(symbol.stri_max, stri_created->size);
-    if (!ALLOC_STRI_SIZE_OK(symbol.striValue, symbol.stri_max)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(symbol.striValue, symbol.stri_max))) {
       fatal_memory_error(SOURCE_POSITION(2057));
     } /* if */
 #else
-    if (!ALLOC_STRI_SIZE_OK(stri_created, symbol.striValue->size)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(stri_created, symbol.striValue->size))) {
       fatal_memory_error(SOURCE_POSITION(2058));
     } /* if */
     stri_created->size = symbol.striValue->size;
@@ -190,6 +190,7 @@ static inline striType new_string (void)
 objectType read_atom (void)
 
   {
+    striType stri_created;
     register objectType atomic_object;
 
   /* read_atom */
@@ -211,17 +212,28 @@ objectType read_atom (void)
         atomic_object->value.intValue = symbol.intValue;
         break;
       case BIGINTLITERAL:
-        atomic_object = gen_literal_object(SYS_BIGINT_TYPE, BIGINTOBJECT);
-        atomic_object->value.bigIntValue = symbol.bigIntValue;
-        symbol.bigIntValue = NULL;
+        if (unlikely(symbol.bigIntValue == NULL)) {
+          fatal_memory_error(SOURCE_POSITION(2059));
+          atomic_object = NULL;
+        } else {
+          atomic_object = gen_literal_object(SYS_BIGINT_TYPE, BIGINTOBJECT);
+          atomic_object->value.bigIntValue = symbol.bigIntValue;
+          symbol.bigIntValue = NULL;
+        } /* if */
         break;
       case CHARLITERAL:
         atomic_object = gen_literal_object(SYS_CHAR_TYPE, CHAROBJECT);
         atomic_object->value.charValue = symbol.charValue;
         break;
       case STRILITERAL:
+        /* Because new_string() may trigger a fatal memory error   */
+        /* gen_literal_object() is called after it. Otherwise a    */
+        /* literal STRIOBJECT without initialized striValue could  */
+        /* be created. This would trigger an invalid pointer error */
+        /* when prgDestr() calls dump_list(old_prog->literals).    */
+        stri_created = new_string();
         atomic_object = gen_literal_object(SYS_STRI_TYPE, STRIOBJECT);
-        atomic_object->value.striValue = new_string();
+        atomic_object->value.striValue = stri_created;
         break;
 #if WITH_FLOAT
       case FLOATLITERAL:

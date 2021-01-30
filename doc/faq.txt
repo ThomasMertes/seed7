@@ -334,12 +334,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2021-01-06 the number of lines is:
+than 300000 lines of Seed7. For version 2021-01-30 the number of lines is:
 
-  162686  C source files (*.c)
-   12721  C header files (*.h)
-  191628  Seed7 source files (*.sd7)
-  161011  Seed7 library/include files (*.s7i)
+  164047  C source files (*.c)
+   12736  C header files (*.h)
+  191759  Seed7 source files (*.sd7)
+  161121  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -2394,7 +2394,7 @@ structured programming 'break', 'continue' and 'goto' are not supported.
 Are there exceptions?
 =====================
 
-Yes, Seed7 has exceptions which are similar to Ada exceptions. In chapter 16.2
+Yes, Seed7 has exceptions which are similar to Ada exceptions. In chapter 16.3
 (Exceptions) of the manual you will find a detailed description of the Seed7
 exceptions. The use of exceptions improves also readability. E.g.:
 
@@ -2436,10 +2436,10 @@ This can lead to horrible code where it is easy to overlook a bug.
 What happens if an exception is not caught?
 ===========================================
 
-If an EXCEPTION is not caught the program is terminated and the s7 interpreter
+If an exception is not caught the program is terminated and the s7 interpreter
 writes a stack trace:
 
-  *** Uncaught EXCEPTION NUMERIC_ERROR raised with
+  *** Uncaught exception NUMERIC_ERROR raised with
   {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
   Stack:
@@ -2455,7 +2455,7 @@ stack traces work.
 
   A compiled program creates a much shorter crash message:
 
-  *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(764)
+  *** Uncaught exception NUMERIC_ERROR raised at tmp_lander.c(764)
 
 In this case the mentioned file name and line number refers to the temporary
 C file or the Seed7 runtime library. To get useful information there are two
@@ -2471,7 +2471,7 @@ signal, if an uncaught exception occurs. This option allows debuggers to handle
 uncaught Seed7 exceptions. Note that -e sends the signal SIGFPE. This is done even
 if the exception is not related to floating point operations.
 
-Chapter 16.4 (Stack trace) of the manual contains a detailed description how to
+Chapter 16.5 (Stack trace) of the manual contains a detailed description how to
 debug compiled Seed7 programs.
 
 

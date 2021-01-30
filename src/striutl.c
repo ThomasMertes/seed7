@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  striutl.c     Procedures to work with wide char strings.        */
-/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2021  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/striutl.c                                       */
-/*  Changes: 1991 - 1994, 2005 - 2015  Thomas Mertes                */
+/*  Changes: 1991 - 1994, 2005 - 2021  Thomas Mertes                */
 /*  Content: Procedures to work with wide char strings.             */
 /*                                                                  */
 /********************************************************************/
@@ -206,7 +206,7 @@ cstriType striAsUnquotedCStri (const const_striType stri)
         pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, stri->size);
       } /* if */
     } else {
-      strcpy(buffer, null_string_marker);
+      MEMCPY_STRING(buffer, null_string_marker);
       pos = STRLEN(null_string_marker);
     } /* if */
     buffer[pos] = '\0';
@@ -287,7 +287,7 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
         pos += (memSizeType) sprintf(&buffer[pos], AND_SO_ON_TEXT FMT_U_MEM, bstri->size);
       } /* if */
     } else {
-      strcpy(buffer, null_byte_string_marker);
+      MEMCPY_STRING(buffer, null_byte_string_marker);
       pos = STRLEN(null_byte_string_marker);
     } /* if */
     buffer[pos] = '\0';

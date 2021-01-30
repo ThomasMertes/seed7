@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2004  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2004, 2011 - 2015, 2017  Thomas Mertes     */
+/*                2019 - 2021  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,8 @@
 /*                                                                  */
 /*  Module: Interpreter                                             */
 /*  File: seed7/src/exec.c                                          */
-/*  Changes: 1999, 2000, 2004  Thomas Mertes                        */
+/*  Changes: 1999, 2000, 2004, 2011 - 2015, 2017  Thomas Mertes     */
+/*           2019 - 2021  Thomas Mertes                             */
 /*  Content: Main interpreter procedures.                           */
 /*                                                                  */
 /********************************************************************/
@@ -119,6 +121,7 @@ objectType exec_object (register objectType object)
       case BIGINTOBJECT:
       case CHAROBJECT:
       case STRIOBJECT:
+      case BSTRIOBJECT:
       case ARRAYOBJECT:
       case HASHOBJECT:
       case STRUCTOBJECT:
@@ -530,16 +533,14 @@ static objectType exec_lambda (const_blockType block,
 static listType eval_arg_list (register listType act_param_list, uint32Type *temp_bits_ptr)
 
   {
-    listType evaluated_act_params;
+    listType evaluated_act_params = NULL;
     register objectType evaluated_object;
     register listType *evaluated_insert_place;
-    uint32Type temp_bits;
+    uint32Type temp_bits = 0;
     int param_num = 0;
 
   /* eval_arg_list */
-    evaluated_act_params = NULL;
     evaluated_insert_place = &evaluated_act_params;
-    temp_bits = 0;
     while (act_param_list != NULL && !fail_flag) {
       evaluated_object = exec_object(act_param_list->obj);
       append_to_list(evaluated_insert_place, evaluated_object, act_param_list);
@@ -837,6 +838,59 @@ objectType exec_call (objectType object)
 
 
 
+static errInfoType getErrInfoFromFailValue (objectType failValue)
+
+  {
+    errInfoType err_info;
+
+  /* getErrInfoFromFailValue */
+    if (failValue == SYS_MEM_EXCEPTION) {
+      err_info = MEMORY_ERROR;
+    } else if (failValue == SYS_NUM_EXCEPTION) {
+      err_info = NUMERIC_ERROR;
+    } else if (failValue == SYS_OVF_EXCEPTION) {
+      err_info = OVERFLOW_ERROR;
+    } else if (failValue == SYS_RNG_EXCEPTION) {
+      err_info = RANGE_ERROR;
+    } else if (failValue == SYS_IDX_EXCEPTION) {
+      err_info = INDEX_ERROR;
+    } else if (failValue == SYS_FIL_EXCEPTION) {
+      err_info = FILE_ERROR;
+    } else if (failValue == SYS_DB_EXCEPTION) {
+      err_info = DATABASE_ERROR;
+    } else if (failValue == SYS_CLOSE_EXCEPTION) {
+      err_info = CLOSE_ERROR;
+    } else {  /* if (failValue == SYS_ACT_ILLEGAL_EXCEPTION) { */
+      err_info = ACTION_ERROR;
+    } /* if */
+    return err_info;
+  } /* getErrInfoFromFailValue */
+
+
+
+objectType do_exec_call (objectType object, errInfoType *err_info)
+
+  {
+    objectType result;
+
+  /* do_exec_call */
+    result = exec_call(object);
+    if (unlikely(fail_flag || result == NULL)) {
+      set_fail_flag(FALSE);
+      *err_info = getErrInfoFromFailValue(fail_value);
+    } /* if */
+    return result;
+  } /* do_exec_call */
+
+
+
+/**
+ *  Evaluate a call-by-name parameter.
+ *  An actual call-by-name parameter is not evaluated before a function
+ *  is called. Call-by-name parameters are used for the conditions of loops,
+ *  the statements in loop bodies, the right parameter of the ternary
+ *  operator, etc.
+ */
 objectType evaluate (objectType object)
 
   {
@@ -868,10 +922,15 @@ objectType evaluate (objectType object)
       case STRIOBJECT:
       case BSTRIOBJECT:
       case ARRAYOBJECT:
+      case HASHOBJECT:
       case STRUCTOBJECT:
+      case FILEOBJECT:
 #if WITH_FLOAT
       case FLOATOBJECT:
 #endif
+      case WINOBJECT:
+      case REFOBJECT:
+      case REFLISTOBJECT:
       case ENUMLITERALOBJECT:
         result = object;
         break;
@@ -1076,6 +1135,7 @@ objectType exec_expr (const progType currentProg, objectType object,
 
   {
     progType progBackup;
+    boolType backup_interpreter_exception;
     objectType result;
 
   /* exec_expr */
@@ -1089,9 +1149,10 @@ objectType exec_expr (const progType currentProg, objectType object,
       set_protfile_name(NULL);
       prog->option_flags = 0;
       set_trace(prog->option_flags);
+      backup_interpreter_exception = interpreter_exception;
       interpreter_exception = TRUE;
       result = exec_object(object);
-      interpreter_exception = FALSE;
+      interpreter_exception = backup_interpreter_exception;
       if (fail_flag) {
         /*
         printf("\n*** Uncaught EXCEPTION ");
@@ -1100,21 +1161,7 @@ objectType exec_expr (const progType currentProg, objectType object,
         prot_list(fail_expression);
         printf("\n");
         */
-        if (fail_value == SYS_MEM_EXCEPTION) {
-          *err_info = MEMORY_ERROR;
-        } else if (fail_value == SYS_NUM_EXCEPTION) {
-          *err_info = NUMERIC_ERROR;
-        } else if (fail_value == SYS_OVF_EXCEPTION) {
-          *err_info = OVERFLOW_ERROR;
-        } else if (fail_value == SYS_RNG_EXCEPTION) {
-          *err_info = RANGE_ERROR;
-        } else if (fail_value == SYS_FIL_EXCEPTION) {
-          *err_info = FILE_ERROR;
-        } else if (fail_value == SYS_DB_EXCEPTION) {
-          *err_info = DATABASE_ERROR;
-        } else if (fail_value == SYS_ACT_ILLEGAL_EXCEPTION) {
-          *err_info = ACTION_ERROR;
-        } /* if */
+        *err_info = getErrInfoFromFailValue(fail_value);
         set_fail_flag(FALSE);
         fail_value = NULL;
         fail_expression = NULL;

@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2008, 2010, 2013, 2015  Thomas Mertes      */
+/*                2018, 2019, 2021  Thomas Mertes                   */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,8 @@
 /*                                                                  */
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/match.c                                         */
-/*  Changes: 1995, 1999, 2000, 2007  Thomas Mertes                  */
+/*  Changes: 1995, 1999, 2000, 2007, 2008, 2010  Thomas Mertes      */
+/*           2013, 2015, 2018, 2019, 2021  Thomas Mertes            */
 /*  Content: Procedures to do static match on expressions.          */
 /*                                                                  */
 /********************************************************************/
@@ -841,7 +843,8 @@ static objectType match_subexpr (objectType expr_object,
       fflush(stdout);
     } /* if */
     if (match_expr == NULL) {
-      if (start_node->entity == NULL) {
+      if (start_node->entity == NULL ||
+          start_node->entity->data.owner == NULL) {
         if (trace.match) {
           printf("//ST0//");
           fflush(stdout);

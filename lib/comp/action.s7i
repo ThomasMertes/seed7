@@ -541,6 +541,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_BORDER"}:
         drawLibraryUsed := TRUE;
         process(DRW_BORDER, function, params, c_expr);
+      when {"DRW_CAPTURE"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_CAPTURE, function, params, c_expr);
       when {"DRW_CIRCLE"}:
         drawLibraryUsed := TRUE;
         process(DRW_CIRCLE, function, params, c_expr);

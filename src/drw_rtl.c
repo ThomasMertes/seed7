@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_rtl.c     Platform idependent drawing functions.            */
-/*  Copyright (C) 1989 - 2013, 2015 - 2018 Thomas Mertes            */
+/*  Copyright (C) 1989 - 2013, 2015 - 2018  Thomas Mertes           */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_rtl.c                                       */
-/*  Changes: 2007, 2013  Thomas Mertes                              */
+/*  Changes: 2007, 2013, 2015 - 2018  Thomas Mertes                 */
 /*  Content: Platform idependent drawing functions.                 */
 /*                                                                  */
 /********************************************************************/

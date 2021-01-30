@@ -339,7 +339,7 @@ typedef struct structStruct {
     objectRecord stru[1];
   } structRecord;
 
-#define NUMBER_OF_SYSVARS 32
+#define NUMBER_OF_SYSVARS 31
 
 typedef objectType sysType[NUMBER_OF_SYSVARS];
 
@@ -463,6 +463,9 @@ extern progType prog;
 #define POSINFO_MASK   ((categoryType)  512)
 #define MATCH_ERR_MASK ((categoryType) 1024)
 #define UNUSED_MASK    ((categoryType) 2048)
+
+#define MAX_CATEGORY_FIELD_VALUE ((categoryType) 4095)
+#define LEGAL_CATEGORY_FIELD(O)  ((objectCategory) ((O)->objcategory <= MAX_CATEGORY_FIELD_VALUE))
 
 #define SET_ANY_FLAG(O,FLAG)            (O)->objcategory = (categoryType) ((O)->objcategory | (FLAG))
 

@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2002  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2002, 2012, 2013, 2015  Thomas Mertes      */
+/*                2016, 2019, 2021  Thomas Mertes                   */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,8 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/sctlib.c                                        */
-/*  Changes: 1993, 1994, 2002  Thomas Mertes                        */
+/*  Changes: 1993, 1994, 2002, 2012, 2013, 2015  Thomas Mertes      */
+/*           2016, 2019, 2021  Thomas Mertes                        */
 /*  Content: All primitive actions for structure types.             */
 /*                                                                  */
 /********************************************************************/
@@ -136,7 +138,7 @@ objectType sct_cat (listType arguments)
       } /* if */
       result->usage_count = 1;
       result->size = result_size;
-      if (!crea_struct(result->stru, stru1->stru, stru1->size)) {
+      if (!crea_struct(result->stru, stru1->stru, stru1_size)) {
         /* printf("FREE_STRUCT 2 %lu\n", result); */
         FREE_STRUCT(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -151,7 +153,7 @@ objectType sct_cat (listType arguments)
     } else {
       if (!crea_struct(&result->stru[stru1_size], stru2->stru,
           stru2->size)) {
-        destr_struct(result->stru, stru1->size);
+        destr_struct(result->stru, stru1_size);
         /* printf("FREE_STRUCT 4 %lu\n", result); */
         FREE_STRUCT(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -375,7 +377,12 @@ objectType sct_elem (listType arguments)
     printf("\n");
 #endif
     grow_stack(&err_info);
-    grow_stack(&err_info);
+    if (err_info == OKAY_NO_ERROR) {
+      grow_stack(&err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        shrink_stack();
+      } /* if */
+    } /* if */
     if (err_info == OKAY_NO_ERROR) {
       if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
           value_expr->value.listValue != NULL &&

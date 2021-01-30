@@ -68,6 +68,7 @@ void printcategory (objectCategory category);
 void printtype (const_typeType anytype);
 void printvalue (const_objectType anyobject);
 void printobject (const_objectType anyobject);
+void printLocObj (const_locObjType locObj);
 void prot_list (const_listType list);
 void prot_params (const_listType list);
 void prot_name (const_listType list);

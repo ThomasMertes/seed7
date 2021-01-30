@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013, 2015, 2021  Thomas Mertes            */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/typeutl.c                                       */
-/*  Changes: 1999  Thomas Mertes                                    */
+/*  Changes: 1999, 2013, 2015, 2021  Thomas Mertes                  */
 /*  Content: Procedures to maintain objects of type typeType.       */
 /*                                                                  */
 /********************************************************************/
@@ -196,7 +196,9 @@ typeType get_varfunc_type (typeType meta_type, typeType basic_type)
       varfunc_type = basic_type->varfunc_type;
     } else {
       varfunc_type = new_type(basic_type->owningProg, meta_type, basic_type);
-      varfunc_type->is_varfunc_type = TRUE;
+      if (varfunc_type != NULL) {
+        varfunc_type->is_varfunc_type = TRUE;
+      } /* if */
       basic_type->varfunc_type = varfunc_type;
     } /* if */
     logFunction(printf("get_varfunc_type --> ");

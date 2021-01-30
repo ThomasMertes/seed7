@@ -202,7 +202,7 @@ pre.indent {
 (*                                                                  *)
 (*  manual.txt                                                      *)
 (*                                                                  *)
-(*  Copyright (C) 1989 - 2019  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2021  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
 (*  Documentation: Manual for the Seed7 programming language        *)
@@ -235,7 +235,8 @@ pre.indent {
 <li><a class="link" href="#decls_file_start"><big><b>DECLARATIONS</b></big></a><ol>
 <li><a class="link" href="#decls_Normal_declarations"><b>Normal declarations</b></a></li>
 <li><a class="link" href="#decls_Syntax_declarations"><b>Syntax declarations</b></a></li>
-<li><a class="link" href="#decls_System_declarations"><b>System declarations</b></a></li></ol></li>
+<li><a class="link" href="#decls_System_declarations"><b>System declarations</b></a></li>
+<li><a class="link" href="#decls_Pragmas"><b>Pragmas</b></a></li></ol></li>
 <li><a class="link" href="#stats_file_start"><big><b>PREDEFINED STATEMENTS</b></big></a><ol>
 <li><a class="link" href="#stats_Assignment"><b>Assignment</b></a></li>
 <li><a class="link" href="#stats_while-statement"><b>while-statement</b></a></li>
@@ -417,7 +418,8 @@ pre.indent {
 <li><a class="link" href="#ffi_Basic_conversion_functions"><b>Basic conversion functions</b></a></li>
 <li><a class="link" href="#ffi_Error_handling"><b>Error handling</b></a></li></ol></li>
 <li><a class="link" href="#errors_file_start"><big><b>ERRORS</b></big></a><ol>
-<li><a class="link" href="#errors_Compile_time_errors"><b>Compile time errors</b></a></li>
+<li><a class="link" href="#errors_Parsing_errors"><b>Parsing errors</b></a></li>
+<li><a class="link" href="#errors_Compilation_errors"><b>Compilation errors</b></a></li>
 <li><a class="link" href="#errors_Exceptions"><b>Exceptions</b></a><ol>
 <li><a class="link" href="#errors_MEMORY_ERROR"><b><i>MEMORY_ERROR</i></b></a></li>
 <li><a class="link" href="#errors_NUMERIC_ERROR"><b><i>NUMERIC_ERROR</i></b></a></li>
@@ -826,7 +828,8 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   The <tt><a class="keywd" href="#stats_while-statement">while</a></tt> loop repeats the statements between the keywords
   <tt><span class="keywd">do</span></tt> and <tt><span class="keywd">end</span></tt> as long as the condition <tt>name <span class="op">=</span> <span class="stri">""</span></tt> is <tt><span class="var">TRUE</span></tt>.
   Note that the statements in a <tt><a class="keywd" href="#stats_while-statement">while</a></tt> loop might not be executed at all.
-  In the example above this happens if a non-empty name is entered after the question: What's your name?
+  In the example above this happens if a non-empty name is entered
+  after the question: What's your name?
 </p>
 
 <a name="tutorial_Local_declarations_and_expressions"><h3>2.3 Local declarations and expressions</h3></a>
@@ -1035,9 +1038,9 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     num2 := 0;
   <span class="keywd">end func</span>;
 </pre><p>
-  results in a compile time error:
+  results in a <a class="link" href="#errors_Parsing_errors">parsing error</a>:
 </p><pre class="indent">
-*** tst77.sd7(5):52: Variable expected in {num2 := 0 } found parameter (in integer: num2)
+*** tst77.sd7(5):53: <a class="link" href="#errors_WRONGACCESSRIGHT">Variable expected in {num2 := 0 } found parameter (in integer: num2)</a>
     num2 := 0;
 </pre><p>
   When a function wants to change the value of the actual
@@ -1057,9 +1060,9 @@ reset(number);
 </p><pre class="indent">
 reset(8);
 </pre><p>
-  results in a compile time error
+  results in a <a class="link" href="#errors_Parsing_errors">parsing error</a>:
 </p><pre class="indent">
-*** tst77.sd7(12):52: Variable expected in {8 reset } found constant integer: 8
+*** tst77.sd7(12):53: <a class="link" href="#errors_WRONGACCESSRIGHT">Variable expected in {8 reset } found constant integer: 8</a>
     reset(8);
 </pre><p>
   Sometimes an <tt>'<span class="keywd">in</span>'</tt> parameter is needed, but you need to change
@@ -1387,7 +1390,7 @@ $ <span class="keywd">system</span> <span class="stri">"integer"</span> <span cl
 
     <li>Which objects should be used as result values for
       primitive actions for example:<dl><dd>
-        <tt>TRUE</tt>, <tt>FALSE</tt> and <tt>empty</tt></dd></dl></li>
+        <tt><span class="var">TRUE</span></tt>, <tt><span class="var">FALSE</span></tt> and <tt><a class="var" href="#types_void">empty</a></tt></dd></dl></li>
 
     <li>The EXCEPTIONS which are to be raised by
       primitive actions for example:<dl><dd>
@@ -1399,7 +1402,6 @@ $ <span class="keywd">system</span> <span class="stri">"integer"</span> <span cl
 </ul><p>
   The following system declarations exist
 </p><pre class="indent">
-$ <span class="keywd">system</span> <span class="stri">"type"</span> <span class="keywd">is</span> <a class="type" href="#types_type">type</a>;
 $ <span class="keywd">system</span> <span class="stri">"expr"</span> <span class="keywd">is</span> <a class="type" href="#types_expr">expr</a>;
 $ <span class="keywd">system</span> <span class="stri">"integer"</span> <span class="keywd">is</span> <a class="type" href="#types_integer">integer</a>;
 $ <span class="keywd">system</span> <span class="stri">"bigInteger"</span> <span class="keywd">is</span> <a class="type" href="#types_bigInteger">bigInteger</a>;
@@ -1410,7 +1412,7 @@ $ <span class="keywd">system</span> <span class="stri">"float"</span> <span clas
 
 $ <span class="keywd">system</span> <span class="stri">"true"</span> <span class="keywd">is</span> <span class="var">TRUE</span>;
 $ <span class="keywd">system</span> <span class="stri">"false"</span> <span class="keywd">is</span> <span class="var">FALSE</span>;
-$ <span class="keywd">system</span> <span class="stri">"empty"</span> <span class="keywd">is</span> empty;
+$ <span class="keywd">system</span> <span class="stri">"empty"</span> <span class="keywd">is</span> <a class="var" href="#types_void">empty</a>;
 
 $ <span class="keywd">system</span> <span class="stri">"memory_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a>;
 $ <span class="keywd">system</span> <span class="stri">"numeric_error"</span> <span class="keywd">is</span> <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a>;
@@ -1431,7 +1433,70 @@ $ <span class="keywd">system</span> <span class="stri">"flush"</span> <span clas
 $ <span class="keywd">system</span> <span class="stri">"write"</span> <span class="keywd">is</span> write;
 $ <span class="keywd">system</span> <span class="stri">"writeln"</span> <span class="keywd">is</span> writeln;
 $ <span class="keywd">system</span> <span class="stri">"main"</span> <span class="keywd">is</span> main;
-</pre><p></p>
+</pre>
+
+<a name="decls_Pragmas"><h3>3.4 Pragmas</h3></a>
+<p>
+    Pragmas specify how a program is processed. Like
+  <a class="link" href="#decls_System_declarations">system declarations</a> pragmas are introduced with a dollar
+  sign ($) followed by the name of the pragma. The following
+  pragmas exist:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> pragma    </th><th> parameter        </th><th> comment                                      </th></tr>
+  
+  <tr><td> <tt>$ <span class="keywd">library</span></tt> </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Specify additional direcory for *.s7i files. </td></tr>
+  <tr><td> <tt>$ <span class="keywd">message</span></tt> </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Writes a message during parsing.             </td></tr>
+  <tr><td> <tt>$ <span class="keywd">info</span></tt>    </td><td> <tt><span class="keywd">on</span></tt> or <tt><span class="keywd">off</span></tt>        </td><td> Switch compilation info on or off.           </td></tr>
+  <tr><td> <tt>$ <span class="keywd">trace</span></tt>   </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Sets compile-time tracing flags.             </td></tr>
+  <tr><td> <tt>$ <span class="keywd">decls</span></tt>   </td><td> -                </td><td> Traces the declarations.                     </td></tr>
+  <tr><td> <tt>$ <span class="keywd">names</span></tt>   </td><td> <tt><span class="keywd">unicode</span></tt> or <tt><span class="keywd">ascii</span></tt> </td><td> Allows Unicode (or Ascii) identifiers.       </td></tr>
+  
+</table></dd></dl><p>
+  An unknown pragma results in a <a class="link" href="#errors_Parsing_errors">parsing error</a>:
+</p><pre class="indent">
+*** pragma.sd7(1):7: <a class="link" href="#errors_ILLEGALPRAGMA">Illegal pragma "unknownPragma"</a>
+$ unknownPragma
+---------------^
+</pre><p>
+  The pragma <tt><span class="keywd">message</span></tt> can be used to write a message during
+  parsing. To write <tt><span class="stri">"hello world"</span></tt> during parsing use:
+</p><pre class="indent">
+$ <span class="keywd">message</span> <span class="stri">"hello world"</span>;
+</pre><p>
+  The pragma <tt><span class="keywd">info</span></tt> can be used to change the verbosity level of
+  the parsing phase. This overrules the <span class="link"><tt><b>-v</b><span class="keywd">n</span></tt></span> option of the
+  <span class="link">interpreter</span>. With
+</p><pre class="indent">
+$ <span class="keywd">info</span> <span class="keywd">on</span>;
+</pre><p>
+  the parser writes information about library names and the
+  number of the line currently processed. With
+</p><pre class="indent">
+$ <span class="keywd">info</span> <span class="keywd">off</span>;
+</pre><p>
+  no such information is written.
+</p><p>
+  The pragma <tt><span class="keywd">trace</span></tt> can be used to turn interpreter tracing
+  on or off during the parsing of the program. This
+  overrules the <span class="link"><tt><b>-d</b><span class="keywd">x</span></tt></span> option of the <span class="link">interpreter</span>. The <tt><a class="type" href="#types_string">string</a></tt>
+  parameter of the <tt><span class="keywd">trace</span></tt> pragma allows a sequence of the
+  characters <tt><span class="keywd">+</span></tt>, <tt><span class="keywd">-</span></tt>, <tt><span class="keywd">a</span></tt>, <tt><span class="keywd">c</span></tt>, <tt><span class="keywd">d</span></tt>, <tt><span class="keywd">e</span></tt>, <tt><span class="keywd">h</span></tt>, <tt><span class="keywd">m</span></tt>, <tt><span class="keywd">u</span></tt>, <tt><span class="keywd">s</span></tt> and <tt><span class="keywd">*</span></tt>. These
+  characters have the following meaning:
+</p><ul>
+    <li><b>+</b> Turn the following flags on (default)</li>
+    <li><b>-</b> Turn the following flags off</li>
+    <li><b>a</b> Trace primitive actions</li>
+    <li><b>c</b> Do action check</li>
+    <li><b>d</b> Trace dynamic calls</li>
+    <li><b>e</b> Trace exceptions and handlers</li>
+    <li><b>h</b> Trace heap size (in combination with 'a')</li>
+    <li><b>m</b> Trace matching of expressions</li>
+    <li><b>u</b> Trace exec utility functions</li>
+    <li><b>s</b> Trace signals</li>
+    <li><b>*</b> All flags</li></ul></li>
+</ul><p>
+</p>
 
 <a name="stats_file_start"></a><p></p>
 <a name="stats_PREDEFINED_STATEMENTS"><h2>4. PREDEFINED STATEMENTS</h2></a>
@@ -5100,9 +5165,9 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">end func</span>;
 </pre><p>
   If the type declaration of <tt><span class="type">intArrayType</span></tt> would be inside of the <tt><span class="keywd">local</span></tt>
-  declaration block you would receive an error:
+  declaration block you would receive a <a class="link" href="#errors_Parsing_errors">parsing error</a>:
 </p><pre class="indent">
-*** tst249.sd7(6):51: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
+*** tst249.sd7(6):52: <a class="link" href="#errors_NO_MATCH">Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed</a>
     var intArrayType: arr is [](1, 2);
 </pre><p>
   A <tt><span class="keywd">local</span></tt> declaration block is parsed completely before it is executed.
@@ -5405,17 +5470,11 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .in.().param       <span class="keywd">is</span> -> 40;
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .in.(). : .(<a class="type" href="#types_expr">expr</a>)  <span class="keywd">is</span> -> 40;
 
-<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">f_param</span>: in (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a> <span class="keywd">param</span>) param                <span class="keywd">is action</span> <span class="stri">"DCL_REF1"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">f_param</span>: in (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a> <span class="keywd">param</span>) <span class="keywd">param</span>               <span class="keywd">is action</span> <span class="stri">"DCL_IN1"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">f_param</span>: in (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a> <span class="keywd">param</span>) : (<span class="keywd">ref</span> <a class="type" href="#types_expr">expr</a> <span class="keywd">param</span>)  <span class="keywd">is action</span> <span class="stri">"DCL_IN2"</span>;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: IN_PARAM_IS_VALUE (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
-  <span class="keywd">begin</span>
-    <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">f_param</span>: in (<span class="keywd">attr</span> <span class="type">aType</span>) : (<span class="keywd">ref</span> <a class="type" href="#types_expr">expr</a> <span class="keywd">param</span>)   <span class="keywd">is action</span> <span class="stri">"DCL_VAL2"</span>;
-  <span class="keywd">end func</span>;
-
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: IN_PARAM_IS_REFERENCE (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
-  <span class="keywd">begin</span>
-    <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">f_param</span>: in (<span class="keywd">attr</span> <span class="type">aType</span>) : (<span class="keywd">ref</span> <a class="type" href="#types_expr">expr</a> <span class="keywd">param</span>)   <span class="keywd">is action</span> <span class="stri">"DCL_REF2"</span>;
-  <span class="keywd">end func</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: IN_PARAM_IS_VALUE (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a>: aType)             <span class="keywd">is action</span> <span class="stri">"TYP_SET_IN_PARAM_VALUE"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: IN_PARAM_IS_REFERENCE (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a>: aType)         <span class="keywd">is action</span> <span class="stri">"TYP_SET_IN_PARAM_REF"</span>;
 </pre><p></p>
 
 <a name="params_in_var_parameter"><h3>6.4 'in var' parameter</h3></a>
@@ -6080,6 +6139,7 @@ type_implements_interface(<span class="type">treeElement</span>, <span class="ty
   Abstract data types like dynamic arrays, hash tables, struct
   types and set types can also be used to declare data structures.
 </p>
+
 <a name="file_file_start"></a><p></p>
 <a name="file_FILE_INPUT_AND_OUTPUT"><h2>8. FILE INPUT AND OUTPUT</h2></a>
 
@@ -7718,8 +7778,7 @@ currSymbol := getSymbol(inFile);
     <span class="keywd">until</span> character = <span class="stri">'\n'</span> <span class="keywd">or</span> character = EOF;
     inFile.bufferChar := character;
   <span class="keywd">end</span> <span class="keywd">func</span>; <span class="comment"># skipLineComment</span>
-</pre><p>
-</p>
+</pre><p></p>
 
 <a name="syntax_file_start"></a><p></p>
 <a name="syntax_STRUCTURED_SYNTAX_DEFINITION"><h2>9. STRUCTURED SYNTAX DEFINITION</h2></a>
@@ -8648,7 +8707,13 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
       DLE | DC1 | DC2 | DC3 | DC4 | NAK | SYN | ETB |<br />
       CAN | EM&nbsp; | SUB | ESC | FS&nbsp; | GS&nbsp; | RS&nbsp; | US&nbsp; |<br />
       DEL .</dd>
-</dl></tt></dd></dl><p></p>
+</dl></tt></dd></dl><p>
+  If a comment is not closed at the end of the main file a <a class="link" href="#errors_Parsing_errors">parsing error</a>
+  is triggered:
+</p><pre class="indent">
+*** tst256.sd7(2):6: <a class="link" href="#errors_COMMENTOPEN">Unclosed comment</a>
+(* Unclosed comment
+</pre>
 
 <a name="tokens_Line_comments"><h4>10.1.3 Line comments</h4></a>
 <p>
@@ -8813,7 +8878,35 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
 <dt><br /></dt>
     <dt><a name="tokens_ebnf_extended_digit">extended_digit</a> ::=</dt><dd>
       <a class="ebnf" href="#tokens_ebnf_letter">letter</a> | <a class="ebnf" href="#tokens_ebnf_digit">digit</a> .</dd>
-</dl></tt></dd></dl><p></p>
+</dl></tt></dd></dl><p>
+  If an integer literal cannot be read a <a class="link" href="#errors_Parsing_errors">parsing error</a>
+  is triggered:
+</p><pre class="indent">
+*** tst256.sd7(2):10: <a class="link" href="#errors_CARD_DECIMAL_TOO_BIG">Integer "12345678901234567890" too big</a>
+const integer: tooBig is 12345678901234567890;
+---------------------------------------------^
+*** tst256.sd7(3):11: <a class="link" href="#errors_NEGATIVEEXPONENT">Negative exponent in integer literal</a>
+const integer: negativeExponent is 1e-1;
+-------------------------------------^
+*** tst256.sd7(4):12: <a class="link" href="#errors_DIGITEXPECTED">Digit expected found ";"</a>
+const integer: digitExpected is 1e;
+----------------------------------^
+*** tst256.sd7(5):13: <a class="link" href="#errors_CARD_WITH_EXPONENT_TOO_BIG">Integer "1E20" too big</a>
+const integer: integerWithExponentTooBig is 1e20;
+------------------------------------------------^
+*** tst256.sd7(6):14: <a class="link" href="#errors_BASE2TO36ALLOWED">Integer base "37" not between 2 and 36</a>
+const integer: baseNotBetween2To36 is 37#0;
+----------------------------------------^
+*** tst256.sd7(7):15: <a class="link" href="#errors_EXTDIGITEXPECTED">Extended digit expected found ";"</a>
+const integer: extendedDigitExpected is 16#;
+-------------------------------------------^
+*** tst256.sd7(8):16: <a class="link" href="#errors_ILLEGALBASEDDIGIT">Illegal digit "G" in based integer "16#G"</a>
+const integer: illegalBasedDigit is 16#G;
+----------------------------------------^
+*** tst256.sd7(9):17: <a class="link" href="#errors_CARD_BASED_TOO_BIG">Based integer "16#ffffffffffffffff" too big</a>
+const integer: basedIntegerTooBig is 16#ffffffffffffffff;
+--------------------------------------------------------^
+</pre>
 
 <a name="tokens_BigInteger_literals"><h4>10.3.2 BigInteger literals</h4></a>
 <p>
@@ -8917,7 +9010,32 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
 <dt><br /></dt>
     <dt><a name="tokens_ebnf_apostrophe">apostrophe</a> ::=</dt><dd>
       ''' .</dd>
-</dl></tt></dd></dl><p></p>
+</dl></tt></dd></dl><p>
+  If an string literal cannot be read a <a class="link" href="#errors_Parsing_errors">parsing error</a>
+  is triggered:
+</p><pre class="indent">
+*** tst256.sd7(2):20: <a class="link" href="#errors_WRONG_QUOTATION_REPRESENTATION">Use \" instead of "" to represent " in a string</a>
+const string: wrongQuotationRepresentation is "double "" quotations";
+-------------------------------------------------------^
+*** tst256.sd7(3):21: <a class="link" href="#errors_STRINGESCAPE">Illegal string escape "\z"</a>
+const string: illegalStringEscape is "\z";
+---------------------------------------^
+*** tst256.sd7(4):22: <a class="link" href="#errors_WRONGNUMERICALESCAPE">Numerical escape sequences should end with ";" not "x"</a>
+const string: wrongNumericEscape is "\1234xyz";
+------------------------------------------^
+*** tst256.sd7(5):23: <a class="link" href="#errors_NUMERICAL_ESCAPE_TOO_BIG">The numerical escape sequence "\1234678123467892346;" is too big</a>
+const string: numericEscapeTooBig is "asd\1234678123467892346;dfdfg";
+-------------------------------------------------------------^
+*** tst256.sd7(6):24: <a class="link" href="#errors_BACKSLASHEXPECTED">String continuations should end with "\" not "c"</a>
+const string: backslashExpected is "string \      continuation";
+--------------------------------------------------^
+*** tst256.sd7(7):25: <a class="link" href="#errors_STRINGEXCEEDS">String literal exceeds source line</a>
+const string: exceedsSourceLine is "abc
+---------------------------------------^
+*** tst256.sd7(8):27: <a class="link" href="#errors_CARD_EXPECTED">Integer literal expected found "1.5"</a>
+const string: integerExpected is "\1.5;";
+--------------------------------------^
+</pre>
 
 <a name="tokens_Character_literals"><h4>10.3.5 Character literals</h4></a>
 <p>
@@ -8937,7 +9055,17 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
 <dt><br /></dt>
     <dt><a name="tokens_ebnf_char_literal_element">char_literal_element</a> ::=</dt><dd>
       <a class="ebnf" href="#tokens_ebnf_simple_literal_character">simple_literal_character</a> | <a class="ebnf" href="#tokens_ebnf_escape_sequence">escape_sequence</a> | <a class="ebnf" href="#tokens_ebnf_apostrophe">apostrophe</a> | '"' .</dd>
-</dl></tt></dd></dl><p></p>
+</dl></tt></dd></dl><p>
+  If an char literal cannot be read a <a class="link" href="#errors_Parsing_errors">parsing error</a>
+  is triggered:
+</p><pre class="indent">
+*** tst256.sd7(2):18: <a class="link" href="#errors_APOSTROPHEXPECTED">"'" expected found ";"</a>
+const char: apostropheExpected is 'x;
+------------------------------------^
+*** tst256.sd7(3):19: <a class="link" href="#errors_CHAREXCEEDS">Character literal exceeds source line</a>
+const char: charExceeds is '
+----------------------------^
+</pre>
 
 <a name="expr_file_start"></a><p></p>
 <a name="expr_EXPRESSIONS"><h2>11. EXPRESSIONS</h2></a>
@@ -10327,9 +10455,9 @@ end while;
   <tr><td><tt><a class="type" href="#types_duration">duration</a></tt>    </td><td> <tt><a class="type" href="#types_duration">duration</a>.value</tt></td></tr>
   <tr><td><tt><a class="type" href="#types_float">float</a></tt>       </td><td> <tt>0.0</tt></td></tr>
   <tr><td><tt><a class="type" href="#types_integer">integer</a></tt>     </td><td> <tt>0</tt></td></tr>
+  <tr><td><tt><a class="type" href="#types_string">string</a></tt>      </td><td> <tt><span class="stri">""</span></tt></td></tr>
   <tr><td><tt><a class="type" href="#types_time">time</a></tt>        </td><td> <tt><a class="type" href="#types_time">time</a>.value</tt></td></tr>
-</table></dd></dl><p>
-</p>
+</table></dd></dl><p></p>
 
 <a name="actions_file_start"></a><p></p>
 <a name="actions_PRIMITIVE_ACTIONS"><h2>14. PRIMITIVE ACTIONS</h2></a>
@@ -10433,10 +10561,12 @@ TYPE_ACTION
     <tr><td>ACT_  <td width="20"></td><td>actlib.c  <td width="20"></td><td><tt><span class="type">ACTION</span></tt> operations</td></tr>
     <tr><td>ARR_  <td width="20"></td><td>arrlib.c  <td width="20"></td><td><tt><a class="type" href="#types_array">array</a></tt> operations</td></tr>
     <tr><td>BIG_  <td width="20"></td><td>biglib.c  <td width="20"></td><td><tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations</td></tr>
+    <tr><td>BIN_  <td width="20"></td><td>binlib.c  <td width="20"></td><td><tt><span class="type">bin32</span></tt> and <tt><span class="type">bin64</span></tt> operations</td></tr>
     <tr><td>BLN_  <td width="20"></td><td>blnlib.c  <td width="20"></td><td><tt><a class="type" href="#types_boolean">boolean</a></tt> operations</td></tr>
     <tr><td>BST_  <td width="20"></td><td>bstlib.c  <td width="20"></td><td>Operations for byte strings</td></tr>
     <tr><td>CHR_  <td width="20"></td><td>chrlib.c  <td width="20"></td><td><tt><a class="type" href="#types_char">char</a></tt> operations</td></tr>
     <tr><td>CMD_  <td width="20"></td><td>cmdlib.c  <td width="20"></td><td>Various directory, file and other commands</td></tr>
+    <tr><td>CON_  <td width="20"></td><td>conlib.c  <td width="20"></td><td><tt><span class="type">console_file</span></tt> operations</td></tr>
     <tr><td>DCL_  <td width="20"></td><td>dcllib.c  <td width="20"></td><td>Declaration operations</td></tr>
     <tr><td>DRW_  <td width="20"></td><td>drwlib.c  <td width="20"></td><td>Drawing operations</td></tr>
     <tr><td>ENU_  <td width="20"></td><td>enulib.c  <td width="20"></td><td>Enumeration operations</td></tr>
@@ -10447,14 +10577,16 @@ TYPE_ACTION
     <tr><td>ITF_  <td width="20"></td><td>itflib.c  <td width="20"></td><td>Operations for interface types</td></tr>
     <tr><td>KBD_  <td width="20"></td><td>kbdlib.c  <td width="20"></td><td>Keyboard operations</td></tr>
     <tr><td>LST_  <td width="20"></td><td>lstlib.c  <td width="20"></td><td>List operations</td></tr>
+    <tr><td>PCS_  <td width="20"></td><td>pcslib.c  <td width="20"></td><td><tt><span class="type">process</span></tt> operations</td></tr>
+    <tr><td>POL_  <td width="20"></td><td>pollib.c  <td width="20"></td><td><tt><span class="type">pollData</span></tt> operations</td></tr>
     <tr><td>PRC_  <td width="20"></td><td>prclib.c  <td width="20"></td><td><tt><a class="type" href="#types_proc">proc</a></tt> operations and statements</td></tr>
     <tr><td>PRG_  <td width="20"></td><td>prglib.c  <td width="20"></td><td>Program operations</td></tr>
     <tr><td>REF_  <td width="20"></td><td>reflib.c  <td width="20"></td><td><tt><a class="type" href="#types_reference">reference</a></tt> operations</td></tr>
     <tr><td>RFL_  <td width="20"></td><td>rfllib.c  <td width="20"></td><td><tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations</td></tr>
-    <tr><td>SCR_  <td width="20"></td><td>scrlib.c  <td width="20"></td><td>Screen operations</td></tr>
     <tr><td>SCT_  <td width="20"></td><td>sctlib.c  <td width="20"></td><td><tt><a class="type" href="#types_struct">struct</a></tt> operations</td></tr>
     <tr><td>SET_  <td width="20"></td><td>setlib.c  <td width="20"></td><td><tt><a class="type" href="#types_set">set</a></tt> operations</td></tr>
     <tr><td>SOC_  <td width="20"></td><td>soclib.c  <td width="20"></td><td><tt><span class="type">PRIMITIVE_SOCKET</span></tt> operations</td></tr>
+    <tr><td>SQL_  <td width="20"></td><td>sqllib.c  <td width="20"></td><td><tt><span class="type">database</span></tt> operations</td></tr>
     <tr><td>STR_  <td width="20"></td><td>strlib.c  <td width="20"></td><td><tt><a class="type" href="#types_string">string</a></tt> operations</td></tr>
     <tr><td>TIM_  <td width="20"></td><td>timlib.c  <td width="20"></td><td><tt><a class="type" href="#types_time">time</a></tt> and <tt><a class="type" href="#types_duration">duration</a></tt> operations</td></tr>
     <tr><td>TYP_  <td width="20"></td><td>typlib.c  <td width="20"></td><td><tt><a class="type" href="#types_type">type</a></tt> operations</td></tr>
@@ -10652,12 +10784,15 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>ARR_GEN</td>             <td>arr_gen</td>             <td>arrGen</td></tr>
     <tr><td>ARR_HEAD</td>            <td>arr_head</td>            <td>arrHead</td></tr>
     <tr><td>ARR_IDX</td>             <td>arr_idx</td>             <td>a-&gt;arr[b-a-&gt;min_position]</td></tr>
+    <tr><td>ARR_INSERT</td>          <td>arr_insert</td>          <td>arrInsert</td></tr>
+    <tr><td>ARR_INSERT_ARRAY</td>    <td>arr_insert_array</td>    <td>arrInsertArray</td></tr>
     <tr><td>ARR_LNG</td>             <td>arr_lng</td>             <td>a->max_position-a->min_position + 1</td></tr>
     <tr><td>ARR_MAXIDX</td>          <td>arr_maxidx</td>          <td>a->max_position</td></tr>
     <tr><td>ARR_MINIDX</td>          <td>arr_minidx</td>          <td>a->min_position</td></tr>
     <tr><td>ARR_PUSH</td>            <td>arr_push</td>            <td>arrPush</td></tr>
     <tr><td>ARR_RANGE</td>           <td>arr_range</td>           <td>arrRange</td></tr>
     <tr><td>ARR_REMOVE</td>          <td>arr_remove</td>          <td>arrRemove</td></tr>
+    <tr><td>ARR_REMOVE_ARRAY</td>    <td>arr_remove_array</td>    <td>arrRemoveArray</td></tr>
     <tr><td>ARR_SORT</td>            <td>arr_sort</td>            <td>arrSort</td></tr>
     <tr><td>ARR_SUBARR</td>          <td>arr_subarr</td>          <td>arrSubarr, arrSubarrTemp</td></tr>
     <tr><td>ARR_TAIL</td>            <td>arr_tail</td>            <td>arrTail</td></tr>
@@ -10764,6 +10899,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BLN_NOT</td>             <td>bln_not</td>             <td>!</td></tr>
     <tr><td>BLN_OR</td>              <td>bln_or</td>              <td>||</td></tr>
     <tr><td>BLN_ORD</td>             <td>bln_ord</td>             <td>(intType)</td></tr>
+    <tr><td>BLN_TERNARY</td>         <td>bln_ternary</td>         <td>((cond)?(thenExpr):(elseExpr))</td></tr>
     <tr><td>BLN_VALUE</td>           <td>bln_value</td>           <td>blnValue</td></tr>
 </table><p></p>
 
@@ -10834,7 +10970,9 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>CMD_GETENV</td>          <td>cmd_getenv</td>          <td>cmdGetenv</td></tr>
     <tr><td>CMD_GET_ATIME</td>       <td>cmd_get_atime</td>       <td>cmdGetATime</td></tr>
     <tr><td>CMD_GET_CTIME</td>       <td>cmd_get_ctime</td>       <td>cmdGetCTime</td></tr>
+    <tr><td>CMD_GET_GROUP</td>       <td>cmd_get_group</td>       <td>cmdGetGroup</td></tr>
     <tr><td>CMD_GET_MTIME</td>       <td>cmd_get_mtime</td>       <td>cmdGetMTime</td></tr>
+    <tr><td>CMD_GET_OWNER</td>       <td>cmd_get_owner</td>       <td>cmdGetOwner</td></tr>
     <tr><td>CMD_GET_SEARCH_PATH</td> <td>cmd_getSearchPath</td>   <td>cmdGetSearchPath</td></tr>
     <tr><td>CMD_HOME_DIR</td>        <td>cmd_homeDir</td>         <td>cmdHomeDir</td></tr>
     <tr><td>CMD_LS</td>              <td>cmd_ls</td>              <td>cmdLs</td></tr>
@@ -10846,12 +10984,15 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>CMD_SETENV</td>          <td>cmd_setenv</td>          <td>cmdSetenv</td></tr>
     <tr><td>CMD_SET_ATIME</td>       <td>cmd_set_atime</td>       <td>cmdSetATime</td></tr>
     <tr><td>CMD_SET_FILEMODE</td>    <td>cmd_set_filemode</td>    <td>cmdSetFileMode</td></tr>
+    <tr><td>CMD_SET_GROUP</td>       <td>cmd_set_group</td>       <td>cmdSetGroup</td></tr>
     <tr><td>CMD_SET_MTIME</td>       <td>cmd_set_mtime</td>       <td>cmdSetMTime</td></tr>
+    <tr><td>CMD_SET_OWNER</td>       <td>cmd_set_owner</td>       <td>cmdSetOwner</td></tr>
     <tr><td>CMD_SET_SEARCH_PATH</td> <td>cmd_setSearchPath</td>   <td>cmdSetSearchPath</td></tr>
     <tr><td>CMD_SHELL</td>           <td>cmd_shell</td>           <td>cmdShell</td></tr>
     <tr><td>CMD_SHELL_ESCAPE</td>    <td>cmd_shell_escape</td>    <td>cmdShellEscape</td></tr>
     <tr><td>CMD_SYMLINK</td>         <td>cmd_symlink</td>         <td>cmdSymlink</td></tr>
     <tr><td>CMD_TO_OS_PATH</td>      <td>cmd_to_os_path</td>      <td>cmdToOsPath</td></tr>
+    <tr><td>CMD_UNSETENV</td>        <td>cmd_unsetenv</td>        <td>cmdUnsetenv</td></tr>
 </table><p></p>
 
 <a name="actions_console_output"><h3>14.9 Actions for text (console) screen output</h3></a>
@@ -10882,7 +11023,9 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DCL_GETFUNC</td>         <td>dcl_getfunc</td></tr>
     <tr><td>DCL_GETOBJ</td>          <td>dcl_getobj</td></tr>
     <tr><td>DCL_GLOBAL</td>          <td>dcl_global</td></tr>
+    <tr><td>DCL_IN1</td>             <td>dcl_in1</td></tr>
     <tr><td>DCL_IN1VAR</td>          <td>dcl_in1var</td></tr>
+    <tr><td>DCL_IN2</td>             <td>dcl_in2</td></tr>
     <tr><td>DCL_IN2VAR</td>          <td>dcl_in2var</td></tr>
     <tr><td>DCL_INOUT1</td>          <td>dcl_inout1</td></tr>
     <tr><td>DCL_INOUT2</td>          <td>dcl_inout2</td></tr>
@@ -10901,6 +11044,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_ARC</td>             <td>drw_arc</td>             <td>drwArc</td></tr>
     <tr><td>DRW_ARC2</td>            <td>drw_arc2</td>            <td>drwArc2</td></tr>
     <tr><td>DRW_BACKGROUND</td>      <td>drw_background</td>      <td>drwBackground</td></tr>
+    <tr><td>DRW_BORDER</td>          <td>drw_border</td>          <td>drwBorder</td></tr>
+    <tr><td>DRW_CAPTURE</td>         <td>drw_capture</td>         <td>drwCapture</td></tr>
     <tr><td>DRW_CIRCLE</td>          <td>drw_circle</td>          <td>drwCircle</td></tr>
     <tr><td>DRW_CLEAR</td>           <td>drw_clear</td>           <td>drwClear</td></tr>
     <tr><td>DRW_CMP</td>             <td>drw_cmp</td>             <td>uintCmpGeneric((genericType)(a))</td></tr>
@@ -10948,6 +11093,9 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_PUT</td>             <td>drw_put</td>             <td>drwPut</td></tr>
     <tr><td>DRW_RECT</td>            <td>drw_rect</td>            <td>drwRect</td></tr>
     <tr><td>DRW_RGBCOL</td>          <td>drw_rgbcol</td>          <td>drwRgbColor</td></tr>
+    <tr><td>DRW_SCREEN_HEIGHT</td>   <td>drw_screen_height</td>   <td>drwScreenHeight</td></tr>
+    <tr><td>DRW_SCREEN_WIDTH</td>    <td>drw_screen_width</td>    <td>drwScreenWidth</td></tr>
+    <tr><td>DRW_SETCLOSEACTION</td>  <td>drw_setCloseAction</td>  <td>drwSetCloseAction</td></tr>
     <tr><td>DRW_SETCONTENT</td>      <td>drw_setContent</td>      <td>drwSetContent</td></tr>
     <tr><td>DRW_SETPOS</td>          <td>drw_setPos</td>          <td>drwSetPos</td></tr>
     <tr><td>DRW_SETTRANSPARENTCOLOR</td> <td>drw_setTransparentColor</td> <td>drwSetTransparentColor</td></tr>
@@ -11006,6 +11154,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FIL_SEEK</td>            <td>fil_seek</td>            <td>filSeek</td></tr>
     <tr><td>FIL_SETBUF</td>          <td>fil_setbuf</td>          <td>filSetbuf</td></tr>
     <tr><td>FIL_TELL</td>            <td>fil_tell</td>            <td>filTell</td></tr>
+    <tr><td>FIL_TRUNCATE</td>        <td>fil_truncate</td>        <td>filTruncate</td></tr>
     <tr><td>FIL_VALUE</td>           <td>fil_value</td>           <td>filValue</td></tr>
     <tr><td>FIL_WORD_READ</td>       <td>fil_word_read</td>       <td>filWordRead</td></tr>
     <tr><td>FIL_WRITE</td>           <td>fil_write</td>           <td>filWrite</td></tr>
@@ -11304,7 +11453,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>PRC_LOCAL</td>           <td>prc_local</td>           <td>&nbsp;</td></tr>
     <tr><td>PRC_NOOP</td>            <td>prc_noop</td>            <td>prcNoop</td></tr>
     <tr><td>PRC_RAISE</td>           <td>prc_raise</td>           <td>raise_error</td></tr>
-    <tr><td>PRC_REPEAT</td>          <td>prc_repeat</td>          <td>do</td></tr>
+    <tr><td>PRC_REPEAT</td>          <td>prc_repeat</td>          <td>do {stmts} while (!(cond));</td></tr>
+    <tr><td>PRC_REPEAT_NOOP</td>     <td>prc_repeat_noop</td>     <td>do {} while (!(cond));</td></tr>
     <tr><td>PRC_RES_BEGIN</td>       <td>prc_res_begin</td>       <td>&nbsp;</td></tr>
     <tr><td>PRC_RES_LOCAL</td>       <td>prc_res_local</td>       <td>&nbsp;</td></tr>
     <tr><td>PRC_RETURN</td>          <td>prc_return</td>          <td>&nbsp;</td></tr>
@@ -11313,7 +11463,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>PRC_TRACE</td>           <td>prc_trace</td>           <td>&nbsp;</td></tr>
     <tr><td>PRC_VARFUNC</td>         <td>prc_varfunc</td>         <td>&nbsp;</td></tr>
     <tr><td>PRC_VARFUNC2</td>        <td>prc_varfunc2</td>        <td>&nbsp;</td></tr>
-    <tr><td>PRC_WHILE</td>           <td>prc_while</td>           <td>while</td></tr>
+    <tr><td>PRC_WHILE</td>           <td>prc_while</td>           <td>while (cond) {stmts}</td></tr>
+    <tr><td>PRC_WHILE_NOOP</td>      <td>prc_while_noop</td>      <td>while (cond) {}</td></tr>
 </table><p></p>
 
 <a name="actions_program"><h3>14.24 Actions for the type program</h3></a>
@@ -11603,9 +11754,9 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>STR_DESTR</td>           <td>str_destr</td>           <td>strDestr</td></tr>
     <tr><td>STR_ELEMCPY</td>         <td>str_elemcpy</td>         <td>a-&gt;mem[b-1]=c</td></tr>
     <tr><td>STR_EQ</td>              <td>str_eq</td>              <td>a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(strElemType))==0</td></tr>
-    <tr><td>STR_FOR</td>             <td>str_for</tr>             <td>for</td></tr>
-    <tr><td>STR_FOR_KEY</td>         <td>str_for_key</tr>         <td>for</td></tr>
-    <tr><td>STR_FOR_VAR_KEY</td>     <td>str_for_var_key</tr>     <td>for</td></tr>
+    <tr><td>STR_FOR</td>             <td>str_for</td>             <td>for</td></tr>
+    <tr><td>STR_FOR_KEY</td>         <td>str_for_key</td>         <td>for</td></tr>
+    <tr><td>STR_FOR_VAR_KEY</td>     <td>str_for_var_key</td>     <td>for</td></tr>
     <tr><td>STR_GE</td>              <td>str_ge</td>              <td>strGe</td></tr>
     <tr><td>STR_GT</td>              <td>str_gt</td>              <td>strGt</td></tr>
     <tr><td>STR_HASHCODE</td>        <td>str_hashcode</td>        <td>strHashCode</td></tr>
@@ -11676,6 +11827,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>TYP_NE</td>              <td>typ_ne</td>              <td>!=</td></tr>
     <tr><td>TYP_NUM</td>             <td>typ_num</td>             <td>typNum</td></tr>
     <tr><td>TYP_RESULT</td>          <td>typ_result</td>          <td>typResult</td></tr>
+    <tr><td>TYP_SET_IN_PARAM_REF</td>   <td>typ_set_in_param_ref</td>    <td>&nbsp;</td></tr>
+    <tr><td>TYP_SET_IN_PARAM_VALUE</td> <td>typ_set_in_param_value</td>  <td>&nbsp;</td></tr>
     <tr><td>TYP_STR</td>             <td>typ_str</td>             <td>typStr</td></tr>
     <tr><td>TYP_VALUE</td>           <td>typ_value</td>           <td>typValue</td></tr>
     <tr><td>TYP_VARCONV</td>         <td>typ_varconv</td>         <td>&nbsp;</td></tr>
@@ -11733,7 +11886,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
   <tr><td>suplib.c     </td><td> <tt><a class="func" href="#ffi_sup_doWurx1">sup_doWurx1</a></tt> </td><td> Action function</td></tr>
   <tr><td>suplib.h     </td><td> <tt><a class="func" href="#ffi_sup_doWurx1">sup_doWurx1</a></tt> </td><td> Prototype of the action function</td></tr>
   <tr><td>primitiv.c   </td><td> &nbsp;           </td><td> Alphabetical list of all primitive actions</td></tr>
-  <tr><td>makefile     </td><td> &nbsp;           </td><td> Makefile name depends on operating system and compiler</td></tr>
+  <tr><td>makefile     </td><td> &nbsp;           </td><td> Makefile name depends on operating system and C compiler</td></tr>
   <tr><td>superlib.s7i </td><td> <tt>doWurx1</tt>     </td><td> Introduces the external function to a Seed7 program</td></tr>
 </table></dd></dl><p>
   The C prototype of <tt><a class="func" href="#ffi_doWurx1">doWurx1</a></tt> is defined in the file <tt><span class="lib">"superlib.h"</span></tt>:
@@ -12934,96 +13087,112 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <a name="errors_ERRORS"><h2>16. ERRORS</h2></a>
 
 <p></p>
-<a name="errors_Compile_time_errors"><h3>16.1 Compile time errors</h3></a>
+<a name="errors_Parsing_errors"><h3>16.1 Parsing errors</h3></a>
 <p>
-  The compile time errors are not fatal (the program can
-  execute) except for the error 1 (Out of heap space) which
-  terminates the compilation process and no execution occurs.
-  The following compile time errors exist:
+  Parsing errors are triggered by interpreter and compiler. The checks
+  for these errors are done before the program is executed respectively
+  compiled. The errors do not terminate parsing except for error 1
+  (Out of heap space). If there are errors the program cannot
+  be interpreted respectively compiled. The interpreter option
+  <span class="link"><tt><b>-x</b></tt></span> can be used to execute even if the program contains
+  errors. The following parsing errors exist:
 </p><dl><dd><table border="0" cellspacing="0">
-    <tr><td align="right"> 1:</td> <td width="10"></td><td>Fatal Error: Out of heap space</td></tr>
-    <tr><td align="right"> 2:</td> <td width="10"></td><td>File "%s" not found</td></tr>
-    <tr><td align="right"> 3:</td> <td width="10"></td><td>Include file "%s" not found</td></tr>
-    <tr><td align="right"> 4:</td> <td width="10"></td><td>"END OF FILE" encountered</td></tr>
-    <tr><td align="right"> 5:</td> <td width="10"></td><td>Illegal character in text "%s"</td></tr>
-    <tr><td align="right"> 6:</td> <td width="10"></td><td>Unclosed comment</td></tr>
-    <tr><td align="right"> 7:</td> <td width="10"></td><td>Illegal pragma "%s"</td></tr>
-    <tr><td align="right"> 8:</td> <td width="10"></td><td>Illegal action "%s"</td></tr>
-    <tr><td align="right"> 9:</td> <td width="10"></td><td>Illegal system declaration "%s"</td></tr>
-    <tr><td align="right">10:</td> <td width="10"></td><td>Integer "%s" too big</td></tr>
-    <tr><td align="right">11:</td> <td width="10"></td><td>Negative exponent in integer literal</td></tr>
-    <tr><td align="right">12:</td> <td width="10"></td><td>Digit expected found "%s"</td></tr>
-    <tr><td align="right">13:</td> <td width="10"></td><td>Integer "%dE%s" too big</td></tr>
-    <tr><td align="right">14:</td> <td width="10"></td><td>Integer base "%ld" not between 2 and 36</td></tr>
-    <tr><td align="right">15:</td> <td width="10"></td><td>Extended digit expected found "%s"</td></tr>
-    <tr><td align="right">16:</td> <td width="10"></td><td>Illegal digit "%c" in based integer "%d#%s"</td></tr>
-    <tr><td align="right">17:</td> <td width="10"></td><td>Based integer "%d#%s" too big</td></tr>
-    <tr><td align="right">18:</td> <td width="10"></td><td>"'" expected found "%s"</td></tr>
-    <tr><td align="right">19:</td> <td width="10"></td><td>Character literal exceeds source line</td></tr>
-    <tr><td align="right">20:</td> <td width="10"></td><td>Use \" instead of "" to represent " in a string</td></tr>
-    <tr><td align="right">21:</td> <td width="10"></td><td>Use / instead of \\ as path delimiter</td></tr>
-    <tr><td align="right">22:</td> <td width="10"></td><td>Illegal string escape "\%s"</td></tr>
-    <tr><td align="right">23:</td> <td width="10"></td><td>Numerical escape sequences should end with ";" not "%s"</td></tr>
-    <tr><td align="right">24:</td> <td width="10"></td><td>String continuations should end with "\" not "%s"</td></tr>
-    <tr><td align="right">25:</td> <td width="10"></td><td>String literal exceeds source line</td></tr>
-    <tr><td align="right">26:</td> <td width="10"></td><td>Name expected found "%s"</td></tr>
-    <tr><td align="right">27:</td> <td width="10"></td><td>Integer literal expected found "%s"</td></tr>
-    <tr><td align="right">28:</td> <td width="10"></td><td>String literal expected found "%s"</td></tr>
-    <tr><td align="right">29:</td> <td width="10"></td><td>Identifier expected found "%s"</td></tr>
-    <tr><td align="right">30:</td> <td width="10"></td><td>Expression expected found "%s"</td></tr>
-    <tr><td align="right">31:</td> <td width="10"></td><td>Declaration of parameter %s failed</td></tr>
-    <tr><td align="right">32:</td> <td width="10"></td><td>Declaration of "%s" failed</td></tr>
-    <tr><td align="right">33:</td> <td width="10"></td><td>Exception "%s" raised</td></tr>
-    <tr><td align="right">34:</td> <td width="10"></td><td>"%s" declared twice</td></tr>
-    <tr><td align="right">35:</td> <td width="10"></td><td>"%s" not declared</td></tr>
-    <tr><td align="right">36:</td> <td width="10"></td><td>Associativity expected found "%s"</td></tr>
-    <tr><td align="right">37:</td> <td width="10"></td><td>Statement priority "%s" too big</td></tr>
-    <tr><td align="right">38:</td> <td width="10"></td><td>Syntax with two parameters before operator is illegal</td></tr>
-    <tr><td align="right">39:</td> <td width="10"></td><td>Empty syntax declaration</td></tr>
-    <tr><td align="right">40:</td> <td width="10"></td><td>Syntax declared twice</td></tr>
-    <tr><td align="right">41:</td> <td width="10"></td><td>Dot expression requested as syntax description</td></tr>
-    <tr><td align="right">42:</td> <td width="10"></td><td>"%s" redeclared with infix priority %d not %d</td></tr>
-    <tr><td align="right">43:</td> <td width="10"></td><td>"%s" redeclared with prefix priority %d not %d</td></tr>
-    <tr><td align="right">44:</td> <td width="10"></td><td>Priority %d required for parameter after "%s" not %d</td></tr>
-    <tr><td align="right">45:</td> <td width="10"></td><td>Priority &lt;= %d expected found "%s" with priority %d</td></tr>
-    <tr><td align="right">46:</td> <td width="10"></td><td>"%s" must have priority %d not %d for dot expression</td></tr>
-    <tr><td align="right">47:</td> <td width="10"></td><td>"%s" expected found "%s"</td></tr>
-    <tr><td align="right">48:</td> <td width="10"></td><td>Undefined type for literal "%s"</td></tr>
-    <tr><td align="right">49:</td> <td width="10"></td><td>Kind of in-parameter (val or ref) unspecified for type "%s"</td></tr>
-    <tr><td align="right">50:</td> <td width="10"></td><td>"newtype", "subtype", "func", "enumlit" or "action" expected found "%s"</td></tr>
-    <tr><td align="right">51:</td> <td width="10"></td><td>"func" or "type" expected found "%s"</td></tr>
-    <tr><td align="right">52:</td> <td width="10"></td><td>Match for %s failed</td></tr>
-    <tr><td align="right">53:</td> <td width="10"></td><td>Variable expected in %s found %s</td></tr>
-    <tr><td align="right">54:</td> <td width="10"></td><td>Type expected found %s</td></tr>
-    <tr><td align="right">55:</td> <td width="10"></td><td>Procedure expected found %s expression</td></tr>
-    <tr><td align="right">56:</td> <td width="10"></td><td>Parameter specifier expected found "%s"</td></tr>
-    <tr><td align="right">57:</td> <td width="10"></td><td>Evaluate type expression %s failed</td></tr>
-    <tr><td align="right">58:</td> <td width="10"></td><td>Overlong UTF-8 encoding used for character "%s" (U+%04x)</td></tr>
-    <tr><td align="right">59:</td> <td width="10"></td><td>UTF-16 surrogate character found in UTF-8 encoding "%s" (U+%04x)</td></tr>
-    <tr><td align="right">60:</td> <td width="10"></td><td>Non Unicode character found "%s" (U+%04x)</td></tr>
-    <tr><td align="right">61:</td> <td width="10"></td><td>UTF-8 continuation byte expected found "%s" (U+%04x)</td></tr>
-    <tr><td align="right">62:</td> <td width="10"></td><td>Unexpected UTF-8 continuation byte found "%s" (U+%04x)</td></tr>
-    <tr><td align="right">63:</td> <td width="10"></td><td>Solitary UTF-8 start byte found "%s" (U+%04x)</td></tr>
-    <tr><td align="right">64:</td> <td width="10"></td><td>UTF-16 byte order mark found "%s" (U+%04x)</td></tr>
-    <tr><td align="right">65:</td> <td width="10"></td><td>The numerical escape sequence "\%u;" is too big</td></tr>
+    <tr><td align="right"> 1:</td> <td width="10"></td><td><a name="errors_OUT_OF_HEAP_SPACE"                >Fatal Error: Out of heap space</a></td></tr>
+    <tr><td align="right"> 2:</td> <td width="10"></td><td><a name="errors_NO_SOURCEFILE"                    >File "%s" not found</a></td></tr>
+    <tr><td align="right"> 3:</td> <td width="10"></td><td><a name="errors_FILENOTFOUND"                     >Include file "%s" not found</a></td></tr>
+    <tr><td align="right"> 4:</td> <td width="10"></td><td><a name="errors_EOF_ENCOUNTERED"                  >"END OF FILE" encountered</a></td></tr>
+    <tr><td align="right"> 5:</td> <td width="10"></td><td><a name="errors_CHAR_ILLEGAL"                     >Illegal character in text "%s"</a></td></tr>
+    <tr><td align="right"> 6:</td> <td width="10"></td><td><a name="errors_COMMENTOPEN"                      >Unclosed comment</a></td></tr>
+    <tr><td align="right"> 7:</td> <td width="10"></td><td><a name="errors_ILLEGALPRAGMA"                    >Illegal pragma "%s"</a></td></tr>
+    <tr><td align="right"> 8:</td> <td width="10"></td><td><a name="errors_WRONGACTION"                      >Illegal action "%s"</a></td></tr>
+    <tr><td align="right"> 9:</td> <td width="10"></td><td><a name="errors_WRONGSYSTEM"                      >Illegal system declaration "%s"</a></td></tr>
+    <tr><td align="right">10:</td> <td width="10"></td><td><a name="errors_CARD_DECIMAL_TOO_BIG"             >Integer "%s" too big</a></td></tr>
+    <tr><td align="right">11:</td> <td width="10"></td><td><a name="errors_NEGATIVEEXPONENT"                 >Negative exponent in integer literal</a></td></tr>
+    <tr><td align="right">12:</td> <td width="10"></td><td><a name="errors_DIGITEXPECTED"                    >Digit expected found "%s"</a></td></tr>
+    <tr><td align="right">13:</td> <td width="10"></td><td><a name="errors_CARD_WITH_EXPONENT_TOO_BIG"       >Integer "%dE%s" too big</a></td></tr>
+    <tr><td align="right">14:</td> <td width="10"></td><td><a name="errors_BASE2TO36ALLOWED"                 >Integer base "%ld" not between 2 and 36</a></td></tr>
+    <tr><td align="right">15:</td> <td width="10"></td><td><a name="errors_EXTDIGITEXPECTED"                 >Extended digit expected found "%s"</a></td></tr>
+    <tr><td align="right">16:</td> <td width="10"></td><td><a name="errors_ILLEGALBASEDDIGIT"                >Illegal digit "%c" in based integer "%d#%s"</a></td></tr>
+    <tr><td align="right">17:</td> <td width="10"></td><td><a name="errors_CARD_BASED_TOO_BIG"               >Based integer "%d#%s" too big</a></td></tr>
+    <tr><td align="right">18:</td> <td width="10"></td><td><a name="errors_APOSTROPHEXPECTED"                >"'" expected found "%s"</a></td></tr>
+    <tr><td align="right">19:</td> <td width="10"></td><td><a name="errors_CHAREXCEEDS"                      >Character literal exceeds source line</a></td></tr>
+    <tr><td align="right">20:</td> <td width="10"></td><td><a name="errors_WRONG_QUOTATION_REPRESENTATION"   >Use \" instead of "" to represent " in a string</a></td></tr>
+    <tr><td align="right">21:</td> <td width="10"></td><td><a name="errors_STRINGESCAPE"                     >Illegal string escape "\%s"</a></td></tr>
+    <tr><td align="right">22:</td> <td width="10"></td><td><a name="errors_WRONGNUMERICALESCAPE"             >Numerical escape sequences should end with ";" not "%s"</a></td></tr>
+    <tr><td align="right">23:</td> <td width="10"></td><td><a name="errors_NUMERICAL_ESCAPE_TOO_BIG"         >The numerical escape sequence "\%u;" is too big</a></td></tr>
+    <tr><td align="right">24:</td> <td width="10"></td><td><a name="errors_BACKSLASHEXPECTED"                >String continuations should end with "\" not "%s"</a></td></tr>
+    <tr><td align="right">25:</td> <td width="10"></td><td><a name="errors_STRINGEXCEEDS"                    >String literal exceeds source line</a></td></tr>
+    <tr><td align="right">26:</td> <td width="10"></td><td><a name="errors_NAMEEXPECTED"                     >Name expected found "%s"</a></td></tr>
+    <tr><td align="right">27:</td> <td width="10"></td><td><a name="errors_CARD_EXPECTED"                    >Integer literal expected found "%s"</a></td></tr>
+    <tr><td align="right">28:</td> <td width="10"></td><td><a name="errors_STRI_EXPECTED"                    >String literal expected found "%s"</a></td></tr>
+    <tr><td align="right">29:</td> <td width="10"></td><td><a name="errors_IDENT_EXPECTED"                   >Identifier expected found "%s"</a></td></tr>
+    <tr><td align="right">30:</td> <td width="10"></td><td><a name="errors_EXPR_EXPECTED"                    >Expression expected found "%s"</a></td></tr>
+    <tr><td align="right">31:</td> <td width="10"></td><td><a name="errors_PARAM_DECL_FAILED"                >Declaration of parameter %s failed</a></td></tr>
+    <tr><td align="right">32:</td> <td width="10"></td><td><a name="errors_DECL_FAILED"                      >Declaration of "%s" failed</a></td></tr>
+    <tr><td align="right">33:</td> <td width="10"></td><td><a name="errors_EXCEPTION_RAISED"                 >Exception "%s" raised</a></td></tr>
+    <tr><td align="right">34:</td> <td width="10"></td><td><a name="errors_OBJTWICEDECLARED"                 >"%s" declared twice</a></td></tr>
+    <tr><td align="right">35:</td> <td width="10"></td><td><a name="errors_OBJUNDECLARED"                    >"%s" not declared</a></td></tr>
+    <tr><td align="right">36:</td> <td width="10"></td><td><a name="errors_ILLEGAL_ASSOCIATIVITY"            >Associativity expected found "%s"</a></td></tr>
+    <tr><td align="right">37:</td> <td width="10"></td><td><a name="errors_ILLEGAL_PRIORITY"                 >Statement priority "%s" too big</a></td></tr>
+    <tr><td align="right">38:</td> <td width="10"></td><td><a name="errors_TWO_PARAMETER_SYNTAX"             >Syntax with two parameters before operator is illegal</a></td></tr>
+    <tr><td align="right">39:</td> <td width="10"></td><td><a name="errors_EMPTY_SYNTAX"                     >Empty syntax declaration</a></td></tr>
+    <tr><td align="right">40:</td> <td width="10"></td><td><a name="errors_SYNTAX_DECLARED_TWICE"            >Syntax declared twice</a></td></tr>
+    <tr><td align="right">41:</td> <td width="10"></td><td><a name="errors_DOT_EXPR_REQUESTED"               >Dot expression requested as syntax description</a></td></tr>
+    <tr><td align="right">42:</td> <td width="10"></td><td><a name="errors_FALSE_INFIX_PRIORITY"             >"%s" redeclared with infix priority %d not %d</a></td></tr>
+    <tr><td align="right">43:</td> <td width="10"></td><td><a name="errors_FALSE_PREFIX_PRIORITY"            >"%s" redeclared with prefix priority %d not %d</a></td></tr>
+    <tr><td align="right">44:</td> <td width="10"></td><td><a name="errors_WRONG_EXPR_PARAM_PRIORITY"        >Priority %d required for parameter after "%s" not %d</a></td></tr>
+    <tr><td align="right">45:</td> <td width="10"></td><td><a name="errors_WRONG_PREFIX_PRIORITY"            >Priority &lt;= %d expected found "%s" with priority %d</a></td></tr>
+    <tr><td align="right">46:</td> <td width="10"></td><td><a name="errors_DOT_EXPR_ILLEGAL"                 >"%s" must have priority %d not %d for dot expression</a></td></tr>
+    <tr><td align="right">47:</td> <td width="10"></td><td><a name="errors_EXPECTED_SYMBOL"                  >"%s" expected found "%s"</a></td></tr>
+    <tr><td align="right">48:</td> <td width="10"></td><td><a name="errors_LITERAL_TYPE_UNDEFINED"           >Undefined type for literal "%s"</a></td></tr>
+    <tr><td align="right">49:</td> <td width="10"></td><td><a name="errors_KIND_OF_IN_PARAM_UNDEFINED"       >Kind of in-parameter (val or ref) unspecified for type "%s"</a></td></tr>
+    <tr><td align="right">50:</td> <td width="10"></td><td><a name="errors_DOLLAR_VALUE_WRONG"               >"newtype", "subtype", "func", "enumlit" or "action" expected found "%s"</a></td></tr>
+    <tr><td align="right">51:</td> <td width="10"></td><td><a name="errors_DOLLAR_TYPE_WRONG"                >"func" or "type" expected found "%s"</a></td></tr>
+    <tr><td align="right">52:</td> <td width="10"></td><td><a name="errors_NO_MATCH"                         >Match for %s failed</a></td></tr>
+    <tr><td align="right">53:</td> <td width="10"></td><td><a name="errors_WRONGACCESSRIGHT"                 >Variable expected in %s found %s</a></td></tr>
+    <tr><td align="right">54:</td> <td width="10"></td><td><a name="errors_TYPE_EXPECTED"                    >Type expected found %s</a></td></tr>
+    <tr><td align="right">55:</td> <td width="10"></td><td><a name="errors_PROC_EXPECTED"                    >Procedure expected found %s expression</a></td></tr>
+    <tr><td align="right">56:</td> <td width="10"></td><td><a name="errors_PARAM_SPECIFIER_EXPECTED"         >Parameter specifier expected found "%s"</a></td></tr>
+    <tr><td align="right">57:</td> <td width="10"></td><td><a name="errors_EVAL_TYPE_FAILED"                 >Evaluate type expression %s failed</a></td></tr>
+    <tr><td align="right">58:</td> <td width="10"></td><td><a name="errors_OVERLONG_UTF8_ENCODING"           >Overlong UTF-8 encoding used for character "%s" (U+%04x)</a></td></tr>
+    <tr><td align="right">59:</td> <td width="10"></td><td><a name="errors_UTF16_SURROGATE_CHAR_FOUND"       >UTF-16 surrogate character found in UTF-8 encoding "%s" (U+%04x)</a></td></tr>
+    <tr><td align="right">60:</td> <td width="10"></td><td><a name="errors_CHAR_NOT_UNICODE"                 >Non Unicode character found "%s" (U+%04x)</a></td></tr>
+    <tr><td align="right">61:</td> <td width="10"></td><td><a name="errors_UTF8_CONTINUATION_BYTE_EXPECTED"  >UTF-8 continuation byte expected found "%s" (U+%04x)</a></td></tr>
+    <tr><td align="right">62:</td> <td width="10"></td><td><a name="errors_UNEXPECTED_UTF8_CONTINUATION_BYTE">Unexpected UTF-8 continuation byte found "%s" (U+%04x)</a></td></tr>
+    <tr><td align="right">63:</td> <td width="10"></td><td><a name="errors_SOLITARY_UTF8_START_BYTE"         >Solitary UTF-8 start byte found "%s" (U+%04x)</a></td></tr>
+    <tr><td align="right">64:</td> <td width="10"></td><td><a name="errors_UTF16_BYTE_ORDER_MARK_FOUND"      >UTF-16 byte order mark found "%s" (U+%04x)</a></td></tr>
+    <tr><td align="right">65:</td> <td width="10"></td><td><a name="errors_WRONG_PATH_DELIMITER"             >Use / instead of \\ as path delimiter</a></td></tr>
     <tr><td align="right">   </td> <td width="10"></td><td>Undefined error</td></tr>
 </table></dd></dl><p></p>
 
-<a name="errors_Exceptions"><h3>16.2 Exceptions</h3></a>
+<a name="errors_Compilation_errors"><h3>16.2 Compilation errors</h3></a>
+<p>
+  The compiler does checks when generating code. As a result of
+  the checks some errors might be triggered:
+</p><dl><dd><table border="0" cellspacing="0">
+    <tr><td>Expression raises "%s".</td></tr>
+    <tr><td>Catch of "%s" although the checks are suppressed.</td></tr>
+    <tr><td>Catch of otherwise although the checks for %s are suppressed.</td></tr>
+    <tr><td>When values "%s" do overlap.</td></tr>
+    <tr><td>Forward defined function called.</td></tr>
+    <tr><td>Forward definition of the called function.</td></tr>
+</table></dd></dl><p></p>
+
+<a name="errors_Exceptions"><h3>16.3 Exceptions</h3></a>
 <p>
   An exception is an anomalous event that arises during program execution.
   Exceptions change the normal flow of program execution. An exception
   transfers the execution to a corresponding exception <a class="link" href="#errors_Handlers">handler</a>. If no
   corresponding exception <a class="link" href="#errors_Handlers">handler</a> exists the program is terminated.
   There are various exceptions, which can be raised: <tt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></tt>,
-  <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>, <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>, <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, <tt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></tt> and
-  <tt><a class="exception" href="#errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a></tt>. A program can raise an exception with the <tt><span class="keywd">raise</span></tt>
-  statement. For example:
+  <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>, <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>, <tt><a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a></tt>, <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, <tt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></tt>,
+  <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt> and <tt><a class="exception" href="#errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a></tt>. A program can raise an exception
+  with the <tt><span class="keywd">raise</span></tt> statement. For example:
 </p><pre class="indent">
-<span class="keywd">raise</span> RANGE_ERROR;
+<span class="keywd">raise</span> <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>;
 </pre><p></p>
 
-<a name="errors_MEMORY_ERROR"><h4>16.2.1 MEMORY_ERROR</h4></a>
+<a name="errors_MEMORY_ERROR"><h4>16.3.1 MEMORY_ERROR</h4></a>
 <p>
   The exception <tt><span class="exception">MEMORY_ERROR</span></tt> is raised if there is not enough memory
   to store some data. This error can be raised from the run-time library
@@ -13036,7 +13205,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     Additionally the interpreter kernel may raise this exception also.
 </dd></dl><p></p>
 
-<a name="errors_NUMERIC_ERROR"><h4>16.2.2 NUMERIC_ERROR</h4></a>
+<a name="errors_NUMERIC_ERROR"><h4>16.3.2 NUMERIC_ERROR</h4></a>
 <p>
   The exception <tt><span class="exception">NUMERIC_ERROR</span></tt> is raised if a numeric operation
   cannot deliver a correct result. This includes several things that
@@ -13066,7 +13235,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
        positive arguments. E.g.: <tt><span class="func">sqrt</span>(-1)</tt> raises <tt><span class="exception">NUMERIC_ERROR</span></tt>.</li>
 </ul><p></p>
 
-<a name="errors_OVERFLOW_ERROR"><h4>16.2.3 OVERFLOW_ERROR</h4></a>
+<a name="errors_OVERFLOW_ERROR"><h4>16.3.3 OVERFLOW_ERROR</h4></a>
 <p>
   An integer overflow occurs if a calculation produces a result that
   cannot be stored in an <tt><a class="type" href="#types_integer">integer</a></tt> variable. This happens if the result
@@ -13108,9 +13277,9 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </ul><p>
   The interpreter checks always for an integer overflow. By default the
   <span class="link">compiler</span> generates code to check for an integer overflow. The option
-  <b>-so</b> can be used to suppress the generation of integer overflow checks.
+  <span class="link"><tt><b>-so</b></tt></span> can be used to suppress the generation of integer overflow checks.
   If an overflow situation occurs, although overflow checking has been
-  switched off (with <b>-so</b>), the behavior is undefined (see chapter
+  switched off (with <span class="link"><tt><b>-so</b></tt></span>), the behavior is undefined (see chapter
   <a class="link" href="#errors_Suppressing_exception_checks">16.6 Suppressing exception checks</a>).
 </p><p>
   The separate overflow exception allows easy recognition of overflow
@@ -13119,7 +13288,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   overflow concept of Seed7 has been designed to allow, that simple
   C code is generated, if the overflow checks are switched off.
 </p><p>
-  <span class="link">Compiler</span> optimizations (e.g. with <b>-oc2</b> or <b>-oc3</b>) can reduce the
+  <span class="link">Compiler</span> optimizations (e.g. with <span class="link"><tt><b>-oc2</b></tt></span> or <span class="link"><tt><b>-oc3</b></tt></span>) can reduce the
   potential of overflow. In an optimized program an expression might
   be rephrased, such that an overflow is avoided and the correct
   result is computed instead. Consider the expression:
@@ -13142,7 +13311,7 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
   result.
 </p>
 
-<a name="errors_INDEX_ERROR"><h4>16.2.4 INDEX_ERROR</h4></a>
+<a name="errors_INDEX_ERROR"><h4>16.3.4 INDEX_ERROR</h4></a>
 <p>
   An <tt><span class="exception">INDEX_ERROR</span></tt> occurs if an index is used to access an <tt><a class="type" href="#types_array">array</a></tt>, <tt><a class="type" href="#types_string">string</a></tt>,
   <tt><span class="type">bstring</span></tt> or <tt><a class="type" href="#types_ref_list">ref_list</a></tt> element beyond the elements that actually exist.
@@ -13160,13 +13329,13 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
 <p>
   The interpreter checks always if an index refers to an existing element.
   By default the <span class="link">compiler</span> generates code to check if indices refer to an
-  existing element. The option <b>-si</b> can be used to suppress the generation
+  existing element. The option <span class="link"><tt><b>-si</b></tt></span> can be used to suppress the generation
   of index checks. If a nonexisting element is referred, although index
-  checking has been switched off (with <b>-si</b>), the behavior is undefined
+  checking has been switched off (with <span class="link"><tt><b>-si</b></tt></span>), the behavior is undefined
   (see chapter <a class="link" href="#errors_Suppressing_exception_checks">16.6 Suppressing exception checks</a>).
 </p>
 
-<a name="errors_RANGE_ERROR"><h4>16.2.5 RANGE_ERROR</h4></a>
+<a name="errors_RANGE_ERROR"><h4>16.3.5 RANGE_ERROR</h4></a>
 <p>
   Many functions define a range of valid arguments and raise <tt><span class="exception">RANGE_ERROR</span></tt>
   if this range is violated.
@@ -13207,7 +13376,7 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
         <span class="func">open</span>, <span class="func">write</span>, <span class="func">gets</span>, <span class="func">length</span>, <span class="func">seek</span>, <span class="func">tell</span>.</dd></dl>
 <p></p>
 
-<a name="errors_FILE_ERROR"><h4>16.2.6 FILE_ERROR</h4></a>
+<a name="errors_FILE_ERROR"><h4>16.3.6 FILE_ERROR</h4></a>
 <p>
   A <tt><span class="exception">FILE_ERROR</span></tt> occurs if an illegal operation with a file is done.
 </p><dl><dt>
@@ -13218,7 +13387,7 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
         <span class="func">inetSocketAddress</span>, <span class="func">inetListenerAddress</span>, <span class="func">openInetSocket</span>, <span class="func">openInetListener</span>.</dd></dl>
 <p></p>
 
-<a name="errors_DATABASE_ERROR"><h4>16.2.7 DATABASE_ERROR</h4></a>
+<a name="errors_DATABASE_ERROR"><h4>16.3.7 DATABASE_ERROR</h4></a>
 <p>
   The exception <tt><span class="exception">DATABASE_ERROR</span></tt> may be raised by database
   functions. If a <tt><span class="exception">DATABASE_ERROR</span></tt> is caught it is possible
@@ -13236,7 +13405,7 @@ Searching for dynamic libraries failed: libclntsh.so
   be used to specify the place of the connector library.
 </p>
 
-<a name="errors_ILLEGAL_ACTION"><h4>16.2.8 ILLEGAL_ACTION</h4></a>
+<a name="errors_ILLEGAL_ACTION"><h4>16.3.8 ILLEGAL_ACTION</h4></a>
 <p>
   The exception <tt><span class="exception">ILLEGAL_ACTION</span></tt> may be raised by the interpreter
   kernel, if a primitive action does not point to any legal action.
@@ -13245,7 +13414,7 @@ Searching for dynamic libraries failed: libclntsh.so
   is also raised if the primitive action ACT_ILLEGAL is executed.
 </p>
 
-<a name="errors_Handlers"><h3>16.3 Handlers</h3></a>
+<a name="errors_Handlers"><h3>16.4 Handlers</h3></a>
 <p>
   To catch an EXCEPTION the following handler construct can be used:
 </p><pre class="indent">
@@ -13256,7 +13425,7 @@ Searching for dynamic libraries failed: libclntsh.so
     number := 1;
 <span class="keywd">end block</span>;
 </pre><p>
-  It is also possible to catch several EXCEPTIONS:
+  It is also possible to catch several exceptions:
 </p><pre class="indent">
 <span class="keywd">block</span>
   doSomething(someValue);
@@ -13265,7 +13434,7 @@ Searching for dynamic libraries failed: libclntsh.so
   <span class="keywd">catch</span> <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a>: writeln(<span class="stri">"NUMERIC_ERROR"</span>);
 <span class="keywd">end block</span>;
 </pre><p>
-  An <tt><span class="keywd">otherwise</span></tt> handler catches EXCEPTIONs, that are not caught
+  An <tt><span class="keywd">otherwise</span></tt> handler catches exceptions, that are not caught
   by the other handlers:
 </p><pre class="indent">
 <span class="keywd">block</span>
@@ -13276,12 +13445,12 @@ Searching for dynamic libraries failed: libclntsh.so
 <span class="keywd">end block</span>;
 </pre><p></p>
 
-<a name="errors_Stack_trace"><h3>16.4 Stack trace</h3></a>
+<a name="errors_Stack_trace"><h3>16.5 Stack trace</h3></a>
 <p>
-  If an EXCEPTION is not caught the program is terminated and the s7
+  If an exception is not caught the program is terminated and the s7
   interpreter writes a stack trace:
 </p><pre class="indent">
-*** Uncaught EXCEPTION NUMERIC_ERROR raised with
+*** Uncaught exception NUMERIC_ERROR raised with
 {integer: &lt;SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
 Stack:
@@ -13299,20 +13468,20 @@ in main at lander.sd7(1541)
 </p><p>
   A compiled program creates a much shorter crash message:
 </p><pre class="indent">
-*** Uncaught EXCEPTION NUMERIC_ERROR raised at sigutl.c(218)
+*** Uncaught exception NUMERIC_ERROR raised at sigutl.c(218)
 </pre><p>
   To get more information there are two possibilities:
 </p><ul>
     <li>Start the program in the interpreter instead.</li>
-    <li>Compile the program with the options <tt><b>-g</b></tt> <tt><b>-e</b></tt> and start it
+    <li>Compile the program with the options <span class="link"><tt><b>-g</b></tt></span> <span class="link"><tt><b>-e</b></tt></span> and start it
        from a debugger.</li>
 </ul><p>
-  If <span class="link">s7c</span> is called with the option <tt><b>-g</b></tt> it instructs the
+  If <span class="link">s7c</span> is called with the option <span class="link"><tt><b>-g</b></tt></span> it instructs the
   C compiler to generate debugging information. This way a debugger
   like gdb can run the program and provide information. The option
-  <tt><b>-e</b></tt> tells the compiler to generate code which sends a signal,
+  <span class="link"><tt><b>-e</b></tt></span> tells the compiler to generate code which sends a signal,
   if an uncaught exception occurs. This option allows debuggers
-  to handle uncaught Seed7 exceptions. Note that <tt><b>-e</b></tt> sends the
+  to handle uncaught Seed7 exceptions. Note that <span class="link"><tt><b>-e</b></tt></span> sends the
   signal SIGFPE. This is done even if the exception is not
   related to floating point operations.
 </p><pre class="indent">
@@ -13334,8 +13503,8 @@ Program received signal SIGFPE, Arithmetic exception.
 #2  0x0000000000421fe1 in main (argc=1, argv=0x7fffffffdf28) at lander.sd7:1541
 </pre><p>
   Sometimes it is helpful to debug the generated C program instead of
-  the Seed7 source. The option <tt><b>-g-debug_c</b></tt> creates debug
-  information, which refers to the C program generated by the Seed7 compiler:
+  the Seed7 source. The option <span class="link"><tt><b>-g-debug_c</b></tt></span> creates debug information,
+  which refers to the C program generated by the Seed7 compiler:
 </p><pre class="indent">
 ./s7 s7c -g-debug_c -e lander
 gdb ./lander
@@ -13354,15 +13523,15 @@ Program received signal SIGFPE, Arithmetic exception.
 #2  0x0806c304 in main (argc=1, argv=0xbffff324) at tmp_lander.c:21188
 </pre><p>
   Some Seed7 exceptions do not send signals. This hinders the debugger
-  to recognize that an uncaught exception occurred. The compiler option <tt><b>-e</b></tt>
+  to recognize that an uncaught exception occurred. The compiler option <span class="link"><tt><b>-e</b></tt></span>
   can help in this situation. It instructs the compiler to generate
   code which sends a signal if an uncaught exception occurs. This
   allows the debugger to show a backtrace for uncaught Seed7 exceptions.
 </p>
 
-<a name="errors_Suppressing_exception_checks"><h3>16.5 Suppressing exception checks</h3></a>
+<a name="errors_Suppressing_exception_checks"><h3>16.6 Suppressing exception checks</h3></a>
 <p>
-  A Seed7 program can be <span class="link">compiled</span> with the option <b>-s</b><span class="keywd">x</span>, to suppress the
+  A Seed7 program can be <span class="link">compiled</span> with the option <span class="link"><tt><b>-s</b><span class="keywd">x</span></tt></span>, to suppress the
   generation of checks for exceptions. The suppressed checks <span class="keywd">x</span> are
   specified with letters from the following list:
 </p><ul>
@@ -13372,7 +13541,7 @@ Program received signal SIGFPE, Arithmetic exception.
     <li><b>r</b> Suppress the generation of <a class="link" href="#errors_RANGE_ERROR">range</a> checks.</li>
 </ul><p>
   If an exception situation occurs, although exception checking has
-  been switched off (with <b>-s</b>), the behavior is undefined. In this
+  been switched off (with <span class="link"><tt><b>-s</b></tt></span>), the behavior is undefined. In this
   case the following things can happen:
 </p><ul>
     <li>The exception is still raised.</li>
@@ -13392,7 +13561,7 @@ Program received signal SIGFPE, Arithmetic exception.
   undefined behavior.
 </p><p>
   A <a class="link" href="#errors_Handlers">handler</a> for an exception can only work reliable if the checks
-  for the exception are done. The <span class="link">compiler</span> warns if <b>-s</b> is used
+  for the exception are done. The <span class="link">compiler</span> warns if <span class="link"><tt><b>-s</b></tt></span> is used
   and there is a <a class="link" href="#errors_Handlers">handler</a> for an exception. e.g.:
 </p><pre class="indent">
 *** example.sd7(123): Catch of <span class="exception">OVERFLOW_ERROR</span> although the checks are suppressed.
@@ -13404,18 +13573,18 @@ Program received signal SIGFPE, Arithmetic exception.
   necessary to decide about the omission of exception checking.
 </p><p>
 
-<a name="errors_Signals"><h3>16.6 Signals</h3></a>
+<a name="errors_Signals"><h3>16.7 Signals</h3></a>
 <p>
   A signal is an asynchronous notification of an event. The event
   can come from outside such as a request to terminate the program.
   The event can also come from the program itself such as a memory
   access violation (segfault). Several signals are handled by the
   Seed7 run-time library. The interpreter respectively compiler
-  option <tt>-ts</tt> can be used to influence the behavior, if a signal
+  option <span class="link"><tt><b>-ts</b></tt></span> can be used to influence the behavior, if a signal
   is sent to a Seed7 program (see below). The following signals are
   handled by Seed7:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  <tr><th>Signal  </th><th> Special handler      </th><th> Behavior without -ts   </th><th> Behavior with -ts</th></tr>
+  <tr><th>Signal  </th><th> Special handler      </th><th> Behavior without <span class="link"><tt><b>-ts</b></tt></span>   </th><th> Behavior with <span class="link"><tt><b>-ts</b></tt></span></th></tr>
   
   <tr><td><a name="errors_SIGABRT">SIGABRT</a> </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
   <tr><td><a name="errors_SIGILL">SIGILL  </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
@@ -13431,7 +13600,7 @@ Program received signal SIGFPE, Arithmetic exception.
   signals SIGABRT or SIGILL might be used to raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>
   and the signal SIGFPE might be used to raise <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>.
 </p><p>
-  If the interpreter respectively compiler option <tt>-ts</tt> has been
+  If the interpreter respectively compiler option <span class="link"><tt><b>-ts</b></tt></span> has been
   used some signals (see table above) trigger a dialog at the
   console. E.g.:
 </p><pre class="indent">
@@ -13456,11 +13625,11 @@ re-enter input>
   must be executed with a debugger to get a stack trace.
 </p>
 
-<a name="errors_Other_errors_and_warnings"><h3>16.7 Other errors and warnings</h3></a>
+<a name="errors_Other_errors_and_warnings"><h3>16.8 Other errors and warnings</h3></a>
 <p><dl><dt>
-  No more memory. Program terminated.</dt><dd>
+  No more memory. Parsing terminated.</dt><dd>
     This error message is displayed after the compile time error 1
-    (Out of heap space) . The file name and line number of the
+    (<a class="link" href="#errors_OUT_OF_HEAP_SPACE">Out of heap space</a>). The file name and line number of the
     analyzer source code where this happens is displayed together
     with internal heap information.</dd><dt>
 
@@ -13468,19 +13637,24 @@ re-enter input>
     Each program must contain a system declaration that describes
     which procedure to start as first one.</dd><dt>
 
-  EXCEPTION %s raised with</dt><dd>
+  Exception %s raised with</dt><dd>
     If your trace level specifies exception tracing exceptions
     and handlers are displayed with this messages and the user
     must type the ENTER-key to accept.</dd><dt>
 
-  ACTION $%s REQUIRES %s NOT %s</dt><dd>
+  Action $%s requires %s not %s</dt><dd>
     This error can happen if an action tries to do something
     with the wrong primitive value. For example adding an
     integer to a string with INT_ADD. Since the analyze phase
     checks for the right types this error can only happen if the
     basic libraries are defined wrong.</dd><dt>
 
-  ACTION $%s REQUIRES VARIABLE %s NOT %s</dt><dd>
+  Action $%s with empty value</dt><dd>
+    This error can happen if an action tries to do something
+    with NULL and NULL is not allowed as value. If parsing works
+    correct this should never happen.</dd><dt>
+
+  Action $%s requires variable %s not constant</dt><dd>
     This error can happen with actions which assign a value to
     a constant. Since the analyze phase checks for variable objects
     this error can only happen if the basic libraries are defined

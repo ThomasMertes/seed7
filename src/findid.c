@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2012, 2013, 2015  Thomas Mertes      */
+/*                2021  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,7 @@
 /*                                                                  */
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/findid.c                                        */
-/*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
+/*  Changes: 1991 - 1994, 2012, 2013, 2015, 2021  Thomas Mertes     */
 /*  Content: Procedures to maintain the identifier table.           */
 /*                                                                  */
 /********************************************************************/
@@ -188,7 +189,7 @@ static void clean_ident_tree (identType actual_ident)
 
 
 
-void clean_idents (void)
+void clean_idents (progType currentProg)
 
   {
     int position;
@@ -198,17 +199,19 @@ void clean_idents (void)
   /* clean_idents */
     logFunction(printf("clean_idents\n"););
     for (position = 0; position < ID_TABLE_SIZE; position++) {
-      clean_ident_tree(prog->ident.table[position]);
+      clean_ident_tree(currentProg->ident.table[position]);
     } /* for */
     for (character = '!'; character <= '~'; character++) {
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
-        actual_ident = prog->ident.table1[character];
-        free_tokens(actual_ident->prefix_token);
-        actual_ident->prefix_token = NULL;
-        free_tokens(actual_ident->infix_token);
-        actual_ident->infix_token = NULL;
+        actual_ident = currentProg->ident.table1[character];
+        if (actual_ident != NULL) {
+          free_tokens(actual_ident->prefix_token);
+          actual_ident->prefix_token = NULL;
+          free_tokens(actual_ident->infix_token);
+          actual_ident->infix_token = NULL;
+        } /* if */
       } /* if */
     } /* for */
     logFunction(printf("clean_idents -->\n"););
@@ -242,11 +245,12 @@ static void wri_binary_ident_tree (const_identType actual_ident)
 
 
 
-void write_idents (void)
+void write_idents (progType currentProg)
 
   {
     int position;
     int character;
+    identType actual_ident;
 
   /* write_idents */
     logFunction(printf("write_idents\n"););
@@ -254,25 +258,28 @@ void write_idents (void)
       prot_cstri(" ====== ");
       prot_int((intType) position);
       prot_cstri(" ======\n");
-      wri_binary_ident_tree(prog->ident.table[position]);
+      wri_binary_ident_tree(currentProg->ident.table[position]);
     } /* for */
     for (character = '!'; character <= '~'; character++) {
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
-        prot_cstri8(id_string(prog->ident.table1[character]));
-        prot_cstri(" ");
-        if (prog->ident.table1[character]->entity != NULL &&
-            prog->ident.table1[character]->entity->syobject != NULL) {
-          if (CATEGORY_OF_OBJ(prog->ident.table1[character]->entity->syobject) == SYMBOLOBJECT) {
-            prot_cstri(" ");
-            prot_string(get_file_name(GET_POS_FILE_NUM(prog->ident.table1[character]->entity->syobject)));
-            prot_cstri("(");
-            prot_int((intType) GET_POS_LINE_NUM(prog->ident.table1[character]->entity->syobject));
-            prot_cstri(")");
+        actual_ident = currentProg->ident.table1[character];
+        if (actual_ident != NULL) {
+          prot_cstri8(id_string(actual_ident));
+          prot_cstri(" ");
+          if (actual_ident->entity != NULL &&
+              actual_ident->entity->syobject != NULL) {
+            if (CATEGORY_OF_OBJ(actual_ident->entity->syobject) == SYMBOLOBJECT) {
+              prot_cstri(" ");
+              prot_string(get_file_name(GET_POS_FILE_NUM(actual_ident->entity->syobject)));
+              prot_cstri("(");
+              prot_int((intType) GET_POS_LINE_NUM(actual_ident->entity->syobject));
+              prot_cstri(")");
+            } /* if */
           } /* if */
+          prot_nl();
         } /* if */
-        prot_nl();
       } /* if */
     } /* for */
     logFunction(printf("write_idents -->\n"););

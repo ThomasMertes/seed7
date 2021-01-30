@@ -139,6 +139,7 @@ const proc: main is func
     writeln("COMPILER_LIB:                  " <& ccConf.COMPILER_LIB);
     writeln("SPECIAL_LIB:                   " <& ccConf.SPECIAL_LIB);
     writeln("S7_LIB_DIR:                    " <& ccConf.S7_LIB_DIR);
+    writeln("VERSION_REVISION_LEVEL:        " <& ccConf.VERSION_REVISION_LEVEL);
     writeln("REDIRECT_FILEDES_1:            " <& ccConf.REDIRECT_FILEDES_1);
     writeln("REDIRECT_FILEDES_2:            " <& ccConf.REDIRECT_FILEDES_2);
     writeln("NULL_DEVICE:                   " <& ccConf.NULL_DEVICE);

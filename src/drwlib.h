@@ -40,6 +40,7 @@ objectType drw_arc                 (listType arguments);
 objectType drw_arc2                (listType arguments);
 objectType drw_background          (listType arguments);
 objectType drw_border              (listType arguments);
+objectType drw_capture             (listType arguments);
 objectType drw_circle              (listType arguments);
 objectType drw_clear               (listType arguments);
 objectType drw_cmp                 (listType arguments);

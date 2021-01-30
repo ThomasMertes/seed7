@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.c     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2021  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/str_rtl.c                                       */
-/*  Changes: 1991 - 1994, 2005, 2008 - 2018  Thomas Mertes          */
+/*  Changes: 1991 - 1994, 2005, 2008 - 2021  Thomas Mertes          */
 /*  Content: Primitive actions for the string type.                 */
 /*                                                                  */
 /********************************************************************/
@@ -60,6 +60,12 @@
 /* memset_to_strelem is not used because it is */
 /* only better for lengths greater than 7.     */
 #define LPAD_WITH_MEMSET_TO_STRELEM 0
+
+#if WITH_STRI_FREELIST
+#define RESIZE_THRESHOLD MAX_STRI_LEN_IN_FREELIST
+#else
+#define RESIZE_THRESHOLD 8
+#endif
 
 
 
@@ -736,7 +742,7 @@ static inline rtlArrayType completeRtlStriArray (rtlArrayType work_array,
  *  @param relativePath Relative path in the standard path
  *         representation.
  *  @return the concatenated absolute path in the standard path
- *          representation.
+ *          representation, or NULL if the memory allocation failed.
  */
 striType concatPath (const const_striType absolutePath,
     const const_striType relativePath)
@@ -966,7 +972,7 @@ void strAppendN (striType *const destination,
     new_size = MAX_STRI_LEN - size_limit;
 #if WITH_STRI_CAPACITY
     if (new_size > stri_dest->capacity) {
-      if (new_size <= MAX_STRI_LEN_IN_FREELIST) {
+      if (new_size <= RESIZE_THRESHOLD) {
         if (unlikely(!ALLOC_STRI_SIZE_OK(new_stri, new_size))) {
           raise_error(MEMORY_ERROR);
         } else {

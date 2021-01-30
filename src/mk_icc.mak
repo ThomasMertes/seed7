@@ -105,8 +105,9 @@ s7c: ../bin/s7c ../prg/s7c
 	@echo "  Use 'make test' (with your make command) to check Seed7."
 	@echo
 
-../bin/s7: $(OBJ) $(ALL_S7_LIBS)
+../bin/s7: levelup next_lvl $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ../bin/s7
+	rm next_lvl
 
 ../prg/s7:
 	ln -s ../bin/s7 ../prg
@@ -116,6 +117,13 @@ s7c: ../bin/s7c ../prg/s7c
 
 ../prg/s7c: ../prg/s7c.sd7 $(ALL_S7_LIBS)
 	../bin/s7 -l ../lib ../prg/s7c -l ../lib -b ../bin -O2 ../prg/s7c
+
+levelup: levelup.c
+	$(CC) levelup.c -o levelup
+
+next_lvl: levelup
+	./levelup
+	echo "X" > next_lvl
 
 OBJCOPY_PARAMS = \
        -L SQLAllocHandle -L SQLBindCol -L SQLBindParameter -L SQLBrowseConnectW -L SQLColAttributeW \
@@ -139,7 +147,7 @@ all: depend
 clear: clean
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h base.h settings.h version.h wrdepend
+	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h base.h settings.h version.h wrdepend levelup next_lvl
 	@echo
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo
@@ -227,12 +235,12 @@ depend: version.h
 	./wrdepend OPTION=SQL_SERVER_INCLUDE_OPTION $(CFLAGS) -M sql_srv.c ">> depend"
 	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
 	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
+	$(CC) warn.c -o warn
+	@./warn
+	@rm warn
 	@echo
 	@echo "  Use 'make' (with your make command) to create the interpreter."
 	@echo
-
-level.h:
-	../bin/s7 -l ../lib level
 
 ../bin/$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	$(AR) r ../bin/$(SEED7_LIB) $(SEED7_LIB_OBJ)

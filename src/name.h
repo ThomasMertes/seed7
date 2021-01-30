@@ -26,7 +26,6 @@
 /********************************************************************/
 
 void disconnect_param_entities (const const_objectType objWithParams);
-listType create_parameter_list (listType name_list, errInfoType *err_info);
 void init_stack (progType currentProg, errInfoType *err_info);
 void close_stack (progType currentProg);
 void grow_stack (errInfoType *err_info);

@@ -130,14 +130,50 @@ const func PRIMITIVE_WINDOW: PRIMITIVE_GRAPHIC_OPEN (
     ref integer: xPos, ref integer: yPos,
     ref integer: width, ref integer: height,
     ref string: window_name)                        is action "DRW_OPEN";
+
+(**
+ *  Create a sub window inside of ''parent_window''.
+ *  The new sub window has no window decorations and is not managed by
+ *  the window manager. If the empty window is used as ''parent_window''
+ *  an unmanaged top level window without window decorations is generated.
+ *  The coordinates ''xPos'' and ''yPos'' are measured relative to the top
+ *  left corner of the ''parent_window'' drawing area (inside of the window
+ *  decorations). If the empty window is used as ''parent_window'' the
+ *  coordinates ''xPos'' and ''yPos'' are measured relative to the top left
+ *  corner of the screen.
+ *  @param parent-window Parent window (can be the empty window).
+ *  @param xPos X-position of the left corner of the new window.
+ *  @param yPos Y-position of the left corner of the new window.
+ *  @param width Width of the new window.
+ *  @param height Height of the new window.
+ *  @return the new generated window.
+ *)
 const func PRIMITIVE_WINDOW: openSubWindow (
     in PRIMITIVE_WINDOW: aWindow,
     ref integer: xPos, ref integer: yPos,
     ref integer: width, ref integer: height)        is action "DRW_OPEN_SUB_WINDOW";
+
 const func PRIMITIVE_WINDOW: DRAW_GET (
     in PRIMITIVE_WINDOW: aWindow,
     ref integer: left, ref integer: upper,
     ref integer: width, ref integer: height)        is action "DRW_GET";
+
+(**
+ *  Capture a rectangular area from the screen.
+ *  The function takes a screenshot of the rectangular area.
+ *  The ''left'' and ''upper'' coordinates are measured relative to
+ *  the top left corner of the screen.
+ *  @param left X-position of the upper left corner of the capture area.
+ *  @param upper Y-position of the upper left corner of the capture area.
+ *  @param widht Width of the capture area.
+ *  @param height Height of the capture area.
+ *  @return the content of the rectangular screen area as pixmap.
+ *  @exception RANGE_ERROR If ''height'' or ''width'' are negative.
+ *)
+const func PRIMITIVE_WINDOW: capturePixmap (
+    ref integer: left, ref integer: upper,
+    ref integer: width, ref integer: height)        is action "DRW_CAPTURE";
+
 const func bstring: getImage (
     in PRIMITIVE_WINDOW: aWindow)                   is action "DRW_GETIMAGE";
 const func pixel: getPixel (
@@ -150,11 +186,26 @@ const func pixel: getPixel (
 const proc: DRAW_PUT (
     inout PRIMITIVE_WINDOW: aWindow, in PRIMITIVE_WINDOW: pixmap,
     ref integer: x, ref integer: y)                 is action "DRW_PUT";
-const proc: copyArea(in PRIMITIVE_WINDOW: destWindow,
-    inout PRIMITIVE_WINDOW: sourceWindow,
+
+(**
+ *  Copy a rectangular area from ''sourceWindow'' to ''destWindow''.
+ *  Coordinates are measured relative to the top left corner of the
+ *  corresponding window drawing area (inside of the window decorations).
+ *  @param sourceWindow Source window.
+ *  @param destWindow Destination window.
+ *  @param src_x X-position of the top left corner of the source area.
+ *  @param src_y Y-position of the top left corner of the source area.
+ *  @param width Width of the rectangular area.
+ *  @param height Height of the rectangular area.
+ *  @param dest_x X-position of the top left corner of the destination area.
+ *  @param dest_y Y-position of the top left corner of the destination area.
+ *)
+const proc: copyArea (in PRIMITIVE_WINDOW: sourceWindow,
+    inout PRIMITIVE_WINDOW: destWindow,
     ref integer: src_x, ref integer: src_y,
     ref integer: width, ref integer: height,
     ref integer: dest_x, ref integer: dest_y)       is action "DRW_COPYAREA";
+
 const proc: SET_TRANSPARENTCOLOR (in PRIMITIVE_WINDOW: pixmap,
     ref pixel: col)                                 is action "DRW_SETTRANSPARENTCOLOR";
 const func integer: hashCode (in PRIMITIVE_WINDOW: aWindow) is action "DRW_HASHCODE";
@@ -200,22 +251,32 @@ const func integer: width (in PRIMITIVE_WINDOW: aWindow)    is action "DRW_WIDTH
 (**
  *  Determine the X position of the top left corner of a window in pixels.
  *  If window decorations are present this uses the top left corner of
- *  the window decorations.
+ *  the window decorations. For a sub window the X position is relative
+ *  to the top left corner of the parent window drawing area (inside of
+ *  the window decorations). For top level windows the X position is
+ *  relative to the top left corner of the screen.
+ *  @exception RANGE_ERROR If ''actual_window'' is a pixmap.
  *)
 const func integer: xPos (in PRIMITIVE_WINDOW: aWindow)     is action "DRW_XPOS";
 
 (**
  *  Determine the Y position of the top left corner of a window in pixels.
  *  If window decorations are present this uses the top left corner of
- *  the window decorations.
+ *  the window decorations. For a sub window the Y position is relative
+ *  to the top left corner of the parent window drawing area (inside of
+ *  the window decorations). For top level windows the Y position is
+ *  relative to the top left corner of the screen.
+ *  @exception RANGE_ERROR If ''actual_window'' is a pixmap.
  *)
 const func integer: yPos (in PRIMITIVE_WINDOW: aWindow)     is action "DRW_YPOS";
 
 (**
- *  Move a window to the coordinates x/y.
- *  Afterwards the top left corner of the window will be at the position x/y.
+ *  Move the top left corner of a window to the coordinates x/y.
  *  If window decorations are present the top left corner of the
- *  window decorations will be at the position x/y.
+ *  window decorations will be at the position x/y. For a sub window
+ *  the position is relative to the top left corner of the parent window
+ *  drawing area (inside of the window decorations). For top level windows
+ *  the position is relative to the top left corner of the screen.
  *)
 const proc: setPos (in PRIMITIVE_WINDOW: aWindow,
     in integer: xPos, in integer: yPos)                     is action "DRW_SETPOS";
@@ -239,16 +300,20 @@ const proc: toTop (in PRIMITIVE_WINDOW: aWindow)    is action "DRW_TOTOP";
 const func array integer: getBorder (in PRIMITIVE_WINDOW: aWindow) is action "DRW_BORDER";
 
 (**
- *  Determine the actual X position of the mouse pointer.
- *  The functions pointerXPos and pointerYPos can be used
- *  to move something with the cursor (e.g.: drag and drop).
+ *  Return the X position of the pointer relative to the specified window.
+ *  The point of origin is the top left corner of the drawing area
+ *  of the given 'actual_window' (inside of the window decorations).
+ *  If 'actual_window' is the empty window the pointer X position is
+ *  relative to the top left corner of the screen.
  *)
 const func integer: pointerXPos (in PRIMITIVE_WINDOW: aWindow) is action "DRW_POINTER_XPOS";
 
 (**
- *  Determine the actual Y position of the mouse pointer.
- *  The functions pointerXPos and pointerYPos can be used
- *  to move something with the cursor (e.g.: drag and drop).
+ *  Return the Y position of the pointer relative to the specified window.
+ *  The point of origin is the top left corner of the drawing area
+ *  of the given 'actual_window' (inside of the window decorations).
+ *  If 'actual_window' is the empty window the pointer Y position is
+ *  relative to the top left corner of the screen.
  *)
 const func integer: pointerYPos (in PRIMITIVE_WINDOW: aWindow) is action "DRW_POINTER_YPOS";
 
@@ -271,7 +336,7 @@ const type: windowCloseAction is new enum
  *  @param aWindow Window for which the close action is specified.
  *  @param closeAction Action to execute if the close button is pressed.
  *)
-const proc: setCloseAction(in PRIMITIVE_WINDOW: aWindow, in windowCloseAction: closeAction) is
+const proc: setCloseAction (in PRIMITIVE_WINDOW: aWindow, in windowCloseAction: closeAction) is
   return SET_CLOSE_ACTION(aWindow, ord(closeAction));
 
 

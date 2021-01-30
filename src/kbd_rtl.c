@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  kbd_rtl.c     Platform idependent console keyboard support.     */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2012, 2021  Thomas Mertes                  */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,10 +24,13 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/kbd_rtl.c                                       */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Changes: 1992 - 1994, 2006, 2010 - 2012, 2021  Thomas Mertes    */
 /*  Content: Platform idependent console keyboard support.          */
 /*                                                                  */
 /********************************************************************/
+
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
 
 #include "version.h"
 
@@ -62,9 +65,11 @@ striType kbdGets (intType length)
     striType result;
 
   /* kbdGets */
+    logFunction(printf("kbdGets(" FMT_D ")\n", length););
     if (length < 0) {
+      logError(printf("kbdGets(" FMT_D "): Negative length.\n", length););
       raise_error(RANGE_ERROR);
-      return NULL;
+      result = NULL;
     } else {
       if ((uintType) length > MAX_MEMSIZETYPE) {
         bytes_requested = MAX_MEMSIZETYPE;
@@ -73,15 +78,16 @@ striType kbdGets (intType length)
       } /* if */
       if (!ALLOC_STRI_CHECK_SIZE(result, bytes_requested)) {
         raise_error(MEMORY_ERROR);
-        return NULL;
       } else {
         for (position = 0; position < bytes_requested; position++) {
           result->mem[position] = (strElemType) kbdGetc();
         } /* for */
         result->size = bytes_requested;
-        return result;
       } /* if */
     } /* if */
+    logFunction(printf("kbdGets(" FMT_D ") --> \"%s\"\n",
+                       length, striAsUnquotedCStri(result)););
+    return result;
   } /* kbdGets */
 
 
@@ -106,6 +112,7 @@ striType kbdLineRead (charType *terminationChar)
     striType result;
 
   /* kbdLineRead */
+    logFunction(printf("kbdLineRead('\\" FMT_U32 ";')\n", *terminationChar););
     memlength = READ_STRI_INIT_SIZE;
     if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
       raise_error(MEMORY_ERROR);
@@ -143,6 +150,8 @@ striType kbdLineRead (charType *terminationChar)
         *terminationChar = ch;
       } /* if */
     } /* if */
+    logFunction(printf("kbdLineRead('\\" FMT_U32 ";') --> \"%s\"\n",
+                       *terminationChar, striAsUnquotedCStri(result)););
     return result;
   } /* kbdLineRead */
 
@@ -170,6 +179,7 @@ striType kbdWordRead (charType *terminationChar)
     striType result;
 
   /* kbdWordRead */
+    logFunction(printf("kbdWordRead('\\" FMT_U32 ";')\n", *terminationChar););
     memlength = READ_STRI_INIT_SIZE;
     if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
       raise_error(MEMORY_ERROR);
@@ -212,5 +222,7 @@ striType kbdWordRead (charType *terminationChar)
         *terminationChar = ch;
       } /* if */
     } /* if */
+    logFunction(printf("kbdWordRead('\\" FMT_U32 ";') --> \"%s\"\n",
+                       *terminationChar, striAsUnquotedCStri(result)););
     return result;
   } /* kbdWordRead */

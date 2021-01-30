@@ -710,6 +710,16 @@ const type: ccConfigType is new struct
     var string: S7_LIB_DIR                    is "";
 
     (**
+     *  The current version revision level of interpreter and compiler.
+     *  The versioning of Seed7 interpreter and compiler use the
+     *  pattern major.minor.revision (e.g.: 5.1.4). The revision
+     *  level is incremented automatically with every compilation
+     *  of the Seed7 interpreter. This configuration value allows
+     *  that interpreter and compiler share the same revision.
+     *)
+    var integer: VERSION_REVISION_LEVEL          is 0;
+
+    (**
      *  Shell parameter to redirect to the file descriptor 1.
      *  Under Linux/Unix/BSD and Windows this is ">".
      *  The file to which the standard output should be
@@ -851,6 +861,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.COMPILER_LIB                  := configValue("COMPILER_LIB");
     conf.SPECIAL_LIB                   := configValue("SPECIAL_LIB");
     conf.S7_LIB_DIR                    := configValue("S7_LIB_DIR");
+    conf.VERSION_REVISION_LEVEL        := integer(configValue("VERSION_REVISION_LEVEL"));
     conf.REDIRECT_FILEDES_1            := configValue("REDIRECT_FILEDES_1");
     conf.REDIRECT_FILEDES_2            := configValue("REDIRECT_FILEDES_2");
     conf.NULL_DEVICE                   := configValue("NULL_DEVICE");

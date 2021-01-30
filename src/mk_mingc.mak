@@ -92,8 +92,9 @@ s7: ..\bin\s7.exe ..\prg\s7.exe
 
 s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 
-..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
+..\bin\s7.exe: levelup.exe next_lvl $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ..\bin\s7
+	del next_lvl
 
 ..\prg\s7.exe: ..\bin\s7.exe
 	copy ..\bin\s7.exe ..\prg /Y
@@ -103,6 +104,13 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 
 ..\prg\s7c.exe: ..\prg\s7c.sd7 $(ALL_S7_LIBS)
 	..\bin\s7 -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
+
+levelup.exe: levelup.c
+	$(CC) levelup.c -w -o levelup
+
+next_lvl: levelup.exe
+	.\levelup.exe
+	echo X > next_lvl
 
 sql_db2.o: sql_db2.c
 	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $<
@@ -131,6 +139,8 @@ clean:
 	del setwpath.exe
 	del wrdepend.exe
 	del sudo.exe
+	del levelup.exe
+	del next_lvl
 
 distclean: clean
 	copy level_bk.h level.h /Y
@@ -170,7 +180,7 @@ base.h:
 	echo #define CC_ERROR_FILEDES 2 >> base.h
 	echo #define CC_VERSION_INFO_FILEDES 1 >> base.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> base.h
-	echo #define ARCHIVER "$(AR)" >> base.h
+	echo #define ARCHIVER "..\\bin\\call_ar" >> base.h
 	echo #define ARCHIVER_OPT_REPLACE "r " >> base.h
 	echo #define FORMAT_LL_TRIGGERS_WARNINGS 1 >> base.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
@@ -197,7 +207,7 @@ version.h: chkccomp.h base.h settings.h
 	$(CC) chkccomp.c -w -o chkccomp
 	.\chkccomp.exe version.h
 	del chkccomp.exe
-	$(CC) -o setpaths setpaths.c
+	$(CC) setpaths.c -w -o setpaths
 	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	del setpaths.exe
 	$(CC) setwpath.c -w -o setwpath
@@ -215,9 +225,6 @@ depend: version.h
 	.\wrdepend.exe OPTION=SQL_SERVER_INCLUDE_OPTION $(CFLAGS) -M sql_srv.c ">> depend"
 	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
 	.\wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
-
-level.h:
-	..\bin\s7 -l ..\lib level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	$(AR) r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)

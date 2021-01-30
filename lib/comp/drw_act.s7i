@@ -28,6 +28,7 @@ const ACTION: DRW_ARC                  is action "DRW_ARC";
 const ACTION: DRW_ARC2                 is action "DRW_ARC2";
 const ACTION: DRW_BACKGROUND           is action "DRW_BACKGROUND";
 const ACTION: DRW_BORDER               is action "DRW_BORDER";
+const ACTION: DRW_CAPTURE              is action "DRW_CAPTURE";
 const ACTION: DRW_CIRCLE               is action "DRW_CIRCLE";
 const ACTION: DRW_CLEAR                is action "DRW_CLEAR";
 const ACTION: DRW_CMP                  is action "DRW_CMP";
@@ -96,6 +97,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwArc2 (const_winType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwBackground (intType);");
     declareExtern(c_prog, "arrayType   drwBorder (const_winType);");
+    declareExtern(c_prog, "winType     drwCapture (intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwCircle (const_winType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwClear (winType, intType);");
     declareExtern(c_prog, "void        drwColor (intType);");
@@ -220,7 +222,24 @@ const proc: process (DRW_BORDER, in reference: function,
     prepare_typed_result(result_type, c_expr);
     c_expr.result_expr := "drwBorder(";
     getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ");\n";
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_CAPTURE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_win_result(c_expr);
+    c_expr.result_expr := "drwCapture(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -287,7 +306,7 @@ const proc: process (DRW_CONVPOINTLIST, in reference: function,
     prepare_typed_result(result_type, c_expr);
     c_expr.result_expr := "drwConvPointList(";
     getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ");\n";
+    c_expr.result_expr &:= ")";
   end func;
 
 

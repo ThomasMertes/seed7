@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2021  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,7 +21,7 @@
 /*  Module: Library                                                 */
 /*  File: seed7/src/prclib.c                                        */
 /*  Changes: 1991 - 1994, 2007, 2009, 2010, 2012  Thomas Mertes     */
-/*           2013, 2015 - 2018  Thomas Mertes                       */
+/*           2013, 2015 - 2021  Thomas Mertes                       */
 /*  Content: Primitive actions to implement simple statements.      */
 /*                                                                  */
 /********************************************************************/
@@ -199,20 +199,23 @@ objectType prc_begin (listType arguments)
       block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
-    push_stack();
-    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
-      update_owner(block_body);
-      block_body = match_expression(block_body);
-    } /* if */
-    if (block_body != NULL) {
-      block_body = match_object(block_body);
-      fix_posinfo(block_body, block_body_list);
-    } /* if */
-    pop_stack();
-    if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
-      err_type(PROC_EXPECTED, block_body->type_of);
+    if (err_info == OKAY_NO_ERROR) {
+      push_stack();
+      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
+        update_owner(block_body);
+        block_body = match_expression(block_body);
+      } /* if */
+      if (block_body != NULL) {
+        block_body = match_object(block_body);
+        fix_posinfo(block_body, block_body_list);
+      } /* if */
+      pop_stack();
+      if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
+        err_type(PROC_EXPECTED, block_body->type_of);
+      } /* if */
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR ||
+                 block_body == NULL ||
                  (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
@@ -350,6 +353,7 @@ objectType prc_case (listType arguments)
       when_values = arg_3(current_when->value.listValue);
       if (CATEGORY_OF_OBJ(when_values) != SETOBJECT) {
         when_set = exec_object(when_values);
+        isit_not_null(when_set);
         isit_set(when_set);
         set_value = take_set(when_set);
         if (TEMP_OBJECT(when_set)) {
@@ -418,6 +422,7 @@ objectType prc_case_def (listType arguments)
       when_values = arg_3(current_when->value.listValue);
       if (CATEGORY_OF_OBJ(when_values) != SETOBJECT) {
         when_set = exec_object(when_values);
+        isit_not_null(when_set);
         isit_set(when_set);
         set_value = take_set(when_set);
         if (TEMP_OBJECT(when_set)) {
@@ -486,6 +491,7 @@ objectType prc_case_hashset (listType arguments)
       when_values = arg_3(current_when->value.listValue);
       if (CATEGORY_OF_OBJ(when_values) != HASHOBJECT) {
         when_set = exec_object(when_values);
+        isit_not_null(when_set);
         isit_hash(when_set);
         hashMap_value = take_hash(when_set);
         if (TEMP_OBJECT(when_set)) {
@@ -548,6 +554,7 @@ objectType prc_case_hashset_def (listType arguments)
       when_values = arg_3(current_when->value.listValue);
       if (CATEGORY_OF_OBJ(when_values) != HASHOBJECT) {
         when_set = exec_object(when_values);
+        isit_not_null(when_set);
         isit_hash(when_set);
         hashMap_value = take_hash(when_set);
         if (TEMP_OBJECT(when_set)) {
@@ -976,32 +983,35 @@ objectType prc_local (listType arguments)
       block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
-    push_stack();
-    local_object_insert_place = get_local_object_insert_place();
-    decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
-    if (decl_res != SYS_EMPTY_OBJECT) {
-      printf("eval local decls --> ");
-      trace1(decl_res);
-      printf("\n");
-      trace1(SYS_EMPTY_OBJECT);
-      printf("\n");
-      err_object(PROC_EXPECTED, decl_res);
-    } /* if */
-    local_vars = get_local_var_list(*local_object_insert_place, &err_info);
-    local_consts = get_local_const_list(*local_object_insert_place, &err_info);
-    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
-      update_owner(block_body);
-      block_body = match_expression(block_body);
-    } /* if */
-    if (block_body != NULL) {
-      block_body = match_object(block_body);
-      fix_posinfo(block_body, block_body_list);
-    } /* if */
-    pop_stack();
-    if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
-      err_type(PROC_EXPECTED, block_body->type_of);
+    if (err_info == OKAY_NO_ERROR) {
+      push_stack();
+      local_object_insert_place = get_local_object_insert_place();
+      decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
+      if (decl_res != SYS_EMPTY_OBJECT) {
+        /* printf("eval local decls --> ");
+        trace1(decl_res);
+        printf("\n");
+        trace1(SYS_EMPTY_OBJECT);
+        printf("\n"); */
+        err_object(PROC_EXPECTED, decl_res);
+      } /* if */
+      local_vars = get_local_var_list(*local_object_insert_place, &err_info);
+      local_consts = get_local_const_list(*local_object_insert_place, &err_info);
+      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
+        update_owner(block_body);
+        block_body = match_expression(block_body);
+      } /* if */
+      if (block_body != NULL) {
+        block_body = match_object(block_body);
+        fix_posinfo(block_body, block_body_list);
+      } /* if */
+      pop_stack();
+      if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
+        err_type(PROC_EXPECTED, block_body->type_of);
+      } /* if */
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR ||
+                 block_body == NULL ||
                  (block = new_block(NULL, NULL, local_vars, local_consts, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
@@ -1106,48 +1116,51 @@ objectType prc_res_begin (listType arguments)
       block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
-    push_stack();
-/*    printf("result_type ");
-    trace1(result_type->match_obj);
-    printf("\n");
-    printf("result_var_name ");
-    trace1(result_var_name);
-    printf("\n"); */
-    /* printf("result_init %lu ", (long unsigned) result_init);
-    trace1(result_init);
-    printf("\n"); */
-    grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
-      shrink_stack();
-    } /* if */
-    if (err_info == OKAY_NO_ERROR) {
-      get_result_var(&result_var, result_type, result_init, &err_info);
-/*      printf("result_var.object ");
-      trace1(result_var.object);
+      push_stack();
+      /* printf("result_type ");
+      trace1(result_type->match_obj);
       printf("\n");
-      printf("result_var.init_value ");
-      trace1(result_var.init_value);
+      printf("result_var_name ");
+      trace1(result_var_name);
       printf("\n"); */
-      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
-        update_owner(block_body);
-        block_body = match_expression(block_body);
+      /* printf("result_init %lu ", (long unsigned) result_init);
+      trace1(result_init);
+      printf("\n"); */
+      grow_stack(&err_info);
+      if (err_info == OKAY_NO_ERROR) {
+        result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
+        shrink_stack();
       } /* if */
-      if (block_body != NULL) {
-        block_body = match_object(block_body);
-        fix_posinfo(block_body, block_body_list);
+      if (err_info == OKAY_NO_ERROR) {
+        get_result_var(&result_var, result_type, result_init, &err_info);
+        /* printf("result_var.object ");
+        trace1(result_var.object);
+        printf("\n");
+        printf("result_var.init_value ");
+        trace1(result_var.init_value);
+        printf("\n"); */
+        if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
+          update_owner(block_body);
+          block_body = match_expression(block_body);
+        } /* if */
+        if (block_body != NULL) {
+          block_body = match_object(block_body);
+          fix_posinfo(block_body, block_body_list);
+        } /* if */
+        if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
+          err_type(PROC_EXPECTED, block_body->type_of);
+        } /* if */
       } /* if */
       pop_stack();
-      if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
-        err_type(PROC_EXPECTED, block_body->type_of);
-      } /* if */
-      if ((block = new_block(NULL, &result_var, NULL, NULL, block_body)) == NULL) {
-        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
-      } else {
-        return bld_block_temp(block);
-      } /* if */
     } /* if */
-    return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+    if (unlikely(err_info != OKAY_NO_ERROR ||
+                 block_body == NULL ||
+                 (block = new_block(NULL, &result_var, NULL, NULL, block_body)) == NULL)) {
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+    } else {
+      return bld_block_temp(block);
+    } /* if */
   } /* prc_res_begin */
 
 
@@ -1183,45 +1196,48 @@ objectType prc_res_local (listType arguments)
       block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
-    push_stack();
-    grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
-      shrink_stack();
-    } /* if */
-    if (err_info == OKAY_NO_ERROR) {
-      get_result_var(&result_var, result_type, result_init, &err_info);
-      local_object_insert_place = get_local_object_insert_place();
-      decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
-      if (decl_res != SYS_EMPTY_OBJECT) {
-        printf("eval local decls --> ");
-        trace1(decl_res);
-        printf("\n");
-        trace1(SYS_EMPTY_OBJECT);
-        printf("\n");
-        err_object(PROC_EXPECTED, decl_res);
+      push_stack();
+      grow_stack(&err_info);
+      if (err_info == OKAY_NO_ERROR) {
+        result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
+        shrink_stack();
       } /* if */
-      local_vars = get_local_var_list(*local_object_insert_place, &err_info);
-      local_consts = get_local_const_list(*local_object_insert_place, &err_info);
-      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
-        update_owner(block_body);
-        block_body = match_expression(block_body);
-      } /* if */
-      if (block_body != NULL) {
-        block_body = match_object(block_body);
-        fix_posinfo(block_body, block_body_list);
+      if (err_info == OKAY_NO_ERROR) {
+        get_result_var(&result_var, result_type, result_init, &err_info);
+        local_object_insert_place = get_local_object_insert_place();
+        decl_res = evaluate_local_decls(local_decls, local_object_insert_place, &err_info);
+        if (decl_res != SYS_EMPTY_OBJECT) {
+          /* printf("eval local decls --> ");
+          trace1(decl_res);
+          printf("\n");
+          trace1(SYS_EMPTY_OBJECT);
+          printf("\n"); */
+          err_object(PROC_EXPECTED, decl_res);
+        } /* if */
+        local_vars = get_local_var_list(*local_object_insert_place, &err_info);
+        local_consts = get_local_const_list(*local_object_insert_place, &err_info);
+        if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
+          update_owner(block_body);
+          block_body = match_expression(block_body);
+        } /* if */
+        if (block_body != NULL) {
+          block_body = match_object(block_body);
+          fix_posinfo(block_body, block_body_list);
+        } /* if */
+        if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
+          err_type(PROC_EXPECTED, block_body->type_of);
+        } /* if */
       } /* if */
       pop_stack();
-      if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
-        err_type(PROC_EXPECTED, block_body->type_of);
-      } /* if */
-      if ((block = new_block(NULL, &result_var, local_vars, local_consts, block_body)) == NULL) {
-        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
-      } else {
-        return bld_block_temp(block);
-      } /* if */
     } /* if */
-    return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+    if (unlikely(err_info != OKAY_NO_ERROR ||
+                 block_body == NULL ||
+                 (block = new_block(NULL, &result_var, local_vars, local_consts, block_body)) == NULL)) {
+      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
+    } else {
+      return bld_block_temp(block);
+    } /* if */
   } /* prc_res_local */
 
 
@@ -1245,36 +1261,39 @@ objectType prc_return (listType arguments)
       block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
-    push_stack();
-    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
-      update_owner(block_body);
-      block_body = match_expression(block_body);
-    } /* if */
-    if (block_body != NULL) {
-      block_body = match_object(block_body);
-      fix_posinfo(block_body, block_body_list);
-    } /* if */
-    pop_stack();
-#ifdef OUT_OF_ORDER
-    printf("prc_return block_body=");
-    trace1(block_body);
-    printf("\n");
-#endif
-    if (block_body != NULL) {
-      return_type = block_body->type_of;
-      if (return_type->result_type != NULL) {
-        return_type = return_type->result_type;
+    if (err_info == OKAY_NO_ERROR) {
+      push_stack();
+      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
+        update_owner(block_body);
+        block_body = match_expression(block_body);
       } /* if */
-    } else {
-      return_type = NULL;
-    } /* if */
+      if (block_body != NULL) {
+        block_body = match_object(block_body);
+        fix_posinfo(block_body, block_body_list);
+      } /* if */
+      pop_stack();
 #ifdef OUT_OF_ORDER
-    printf("return_type=");
-    trace1(return_type->match_obj);
-    printf("\n");
+      printf("prc_return block_body=");
+      trace1(block_body);
+      printf("\n");
 #endif
-    get_return_var(&return_var, return_type, &err_info);
+      if (block_body != NULL) {
+        return_type = block_body->type_of;
+        if (return_type->result_type != NULL) {
+          return_type = return_type->result_type;
+        } /* if */
+      } else {
+        return_type = NULL;
+      } /* if */
+#ifdef OUT_OF_ORDER
+      printf("return_type=");
+      trace1(return_type->match_obj);
+      printf("\n");
+#endif
+      get_return_var(&return_var, return_type, &err_info);
+    } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR ||
+                 block_body == NULL ||
                  (block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
@@ -1303,36 +1322,39 @@ objectType prc_return2 (listType arguments)
       block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
-    push_stack();
-    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
-      update_owner(block_body);
-      block_body = match_expression(block_body);
-    } /* if */
-    if (block_body != NULL) {
-      block_body = match_object(block_body);
-      fix_posinfo(block_body, block_body_list);
-    } /* if */
-    pop_stack();
-#ifdef OUT_OF_ORDER
-    printf("prc_return2 block_body=");
-    trace1(block_body);
-    printf("\n");
-#endif
-    if (block_body != NULL) {
-      return_type = block_body->type_of;
-      if (return_type->result_type != NULL) {
-        return_type = return_type->result_type;
+    if (err_info == OKAY_NO_ERROR) {
+      push_stack();
+      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
+        update_owner(block_body);
+        block_body = match_expression(block_body);
       } /* if */
-    } else {
-      return_type = NULL;
-    } /* if */
+      if (block_body != NULL) {
+        block_body = match_object(block_body);
+        fix_posinfo(block_body, block_body_list);
+      } /* if */
+      pop_stack();
 #ifdef OUT_OF_ORDER
-    printf("return_type=");
-    trace1(return_type->match_obj);
-    printf("\n");
+      printf("prc_return2 block_body=");
+      trace1(block_body);
+      printf("\n");
 #endif
-    get_return_var(&return_var, return_type, &err_info);
+      if (block_body != NULL) {
+        return_type = block_body->type_of;
+        if (return_type->result_type != NULL) {
+          return_type = return_type->result_type;
+        } /* if */
+      } else {
+        return_type = NULL;
+      } /* if */
+#ifdef OUT_OF_ORDER
+      printf("return_type=");
+      trace1(return_type->match_obj);
+      printf("\n");
+#endif
+      get_return_var(&return_var, return_type, &err_info);
+    } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR ||
+                 block_body == NULL ||
                  (block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
@@ -1383,17 +1405,20 @@ objectType prc_varfunc (listType arguments)
       block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
-    push_stack();
-    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
-      update_owner(block_body);
-      block_body = match_expression(block_body);
+    if (err_info == OKAY_NO_ERROR) {
+      push_stack();
+      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
+        update_owner(block_body);
+        block_body = match_expression(block_body);
+      } /* if */
+      if (block_body != NULL) {
+        block_body = match_object(block_body);
+        fix_posinfo(block_body, block_body_list);
+      } /* if */
+      pop_stack();
     } /* if */
-    if (block_body != NULL) {
-      block_body = match_object(block_body);
-      fix_posinfo(block_body, block_body_list);
-    } /* if */
-    pop_stack();
     if (unlikely(err_info != OKAY_NO_ERROR ||
+                 block_body == NULL ||
                  (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
@@ -1420,17 +1445,20 @@ objectType prc_varfunc2 (listType arguments)
       block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
-    push_stack();
-    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
-      update_owner(block_body);
-      block_body = match_expression(block_body);
+    if (err_info == OKAY_NO_ERROR) {
+      push_stack();
+      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
+        update_owner(block_body);
+        block_body = match_expression(block_body);
+      } /* if */
+      if (block_body != NULL) {
+        block_body = match_object(block_body);
+        fix_posinfo(block_body, block_body_list);
+      } /* if */
+      pop_stack();
     } /* if */
-    if (block_body != NULL) {
-      block_body = match_object(block_body);
-      fix_posinfo(block_body, block_body_list);
-    } /* if */
-    pop_stack();
     if (unlikely(err_info != OKAY_NO_ERROR ||
+                 block_body == NULL ||
                  (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {

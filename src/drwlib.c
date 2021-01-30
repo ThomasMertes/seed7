@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013, 2016, 2017, 2020  Thomas Mertes      */
+/*                2021  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,8 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/drwlib.c                                        */
-/*  Changes: 1992, 1993, 1994, 2013  Thomas Mertes                  */
+/*  Changes: 1992 - 1994, 2013, 2016, 2017, 2020  Thomas Mertes     */
+/*           2021  Thomas Mertes                                    */
 /*  Content: All primitive actions to do graphic output.            */
 /*                                                                  */
 /********************************************************************/
@@ -277,6 +279,29 @@ objectType drw_border (listType arguments)
     isit_win(arg_1(arguments));
     return toIntArray(drwBorder(take_win(arg_1(arguments))));
   } /* drw_border */
+
+
+
+objectType drw_capture (listType arguments)
+
+  {
+    intType x1;
+    intType y1;
+    intType width;
+    intType height;
+
+  /* drw_capture */
+    isit_int(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    x1 = take_int(arg_1(arguments));
+    y1 = take_int(arg_2(arguments));
+    width = take_int(arg_3(arguments));
+    height = take_int(arg_4(arguments));
+    return bld_win_temp(
+        drwCapture(x1, y1, width, height));
+  } /* drw_capture */
 
 
 

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2015, 2021  Thomas Mertes            */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer - Utility                                      */
 /*  File: seed7/src/object.c                                        */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*  Changes: 1990 - 1994, 2015, 2021  Thomas Mertes                 */
 /*  Content: Procedures to maintain objects and lists.              */
 /*                                                                  */
 /********************************************************************/
@@ -158,13 +158,13 @@ objectType new_expression_object (listType *list)
     list_count++;
 #endif
     if (!ALLOC_OBJECT(created_list)) {
-      fatal_memory_error(SOURCE_POSITION(2034));
+      fatal_memory_error(SOURCE_POSITION(2036));
     } /* if */
     created_list->type_of = NULL;
     created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
     INIT_CATEGORY_OF_POSINFO(created_list, EXPROBJECT);
     if (!ALLOC_L_ELEM(*list)) {
-      fatal_memory_error(SOURCE_POSITION(2035));
+      fatal_memory_error(SOURCE_POSITION(2037));
     } /* if */
     (*list)->next = NULL;
     (*list)->obj = NULL;
@@ -194,7 +194,7 @@ listType add_element_to_list (listType list, objectType object)
       list->next = help_element;
       return help_element;
     } else {
-      fatal_memory_error(SOURCE_POSITION(2036));
+      fatal_memory_error(SOURCE_POSITION(2038));
       return NULL;
     } /* if */
     logFunction(printf("add_element_to_list --> ");

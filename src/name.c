@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013, 2015, 2020, 2021  Thomas Mertes      */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer                                                */
 /*  File: seed7/src/name.c                                          */
-/*  Changes: 1994  Thomas Mertes                                    */
+/*  Changes: 1994, 2011, 2013, 2015, 2020, 2021  Thomas Mertes      */
 /*  Content: Enter an object in a specified declaration level.      */
 /*                                                                  */
 /********************************************************************/
@@ -62,7 +62,7 @@ static int depth = 0;
 
 
 static void push_owner (ownerType *owner, objectType obj_to_push,
-    errInfoType *err_info)
+    stackType decl_level, errInfoType *err_info)
 
   {
     ownerType created_owner;
@@ -74,7 +74,7 @@ static void push_owner (ownerType *owner, objectType obj_to_push,
                 printf("\n"););
     if (ALLOC_RECORD(created_owner, ownerRecord, count.owner)) {
       created_owner->obj = obj_to_push;
-      created_owner->decl_level = prog->stack_current;
+      created_owner->decl_level = decl_level;
       created_owner->next = *owner;
       *owner = created_owner;
     } else {
@@ -88,7 +88,22 @@ static void push_owner (ownerType *owner, objectType obj_to_push,
 
 
 
-static void free_params (listType params)
+static void pop_owner (ownerType *owner)
+
+  {
+    ownerType old_owner;
+
+  /* pop_owner */
+    logFunction(printf("pop_owner\n"););
+    old_owner = *owner;
+    *owner = old_owner->next;
+    FREE_RECORD(old_owner, ownerRecord, count.owner);
+    logFunction(printf("pop_owner -->\n"););
+  } /* pop_owner */
+
+
+
+static void free_params (progType currentProg, listType params)
 
   {
     listType param_elem;
@@ -104,7 +119,7 @@ static void free_params (listType params)
         /* printf("free_params %lx: ", (unsigned long int) param);
         trace1(param);
         printf("\n"); */
-        if (HAS_PROPERTY(param) && param->descriptor.property != prog->property.literal) {
+        if (HAS_PROPERTY(param) && param->descriptor.property != currentProg->property.literal) {
           FREE_RECORD(param->descriptor.property, propertyRecord, count.property);
         } /* if */
         FREE_OBJECT(param);
@@ -117,8 +132,9 @@ static void free_params (listType params)
 
 
 
-static objectType get_object (entityType entity, listType params,
-    fileNumType file_number, lineNumType line, errInfoType *err_info)
+static objectType get_object (progType currentProg, entityType entity,
+    listType params, fileNumType file_number, lineNumType line,
+    errInfoType *err_info)
 
   {
     objectType defined_object;
@@ -128,7 +144,7 @@ static objectType get_object (entityType entity, listType params,
   /* get_object */
     logFunction(printf("get_object\n"););
     if (entity->data.owner != NULL &&
-        entity->data.owner->decl_level == prog->stack_current) {
+        entity->data.owner->decl_level == currentProg->stack_current) {
       defined_object = entity->data.owner->obj;
       if (CATEGORY_OF_OBJ(defined_object) != FORWARDOBJECT) {
         err_object(OBJTWICEDECLARED, entity->data.owner->obj);
@@ -136,7 +152,7 @@ static objectType get_object (entityType entity, listType params,
       } else {
         SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
         /* The old parameter names could be checked against the new ones. */
-        free_params(defined_object->descriptor.property->params);
+        free_params(currentProg, defined_object->descriptor.property->params);
         defined_object->descriptor.property->params = params;
         defined_object->descriptor.property->file_number = file_number;
         defined_object->descriptor.property->line = line;
@@ -146,10 +162,15 @@ static objectType get_object (entityType entity, listType params,
           forward_reference->descriptor.property = NULL;
           INIT_CATEGORY_OF_OBJ(forward_reference, FWDREFOBJECT);
           forward_reference->value.objValue = defined_object;
-          replace_list_elem(prog->stack_current->local_object_list,
-              defined_object, forward_reference);
-          prog->stack_current->object_list_insert_place = append_element_to_list(
-              prog->stack_current->object_list_insert_place, defined_object, err_info);
+          replace_list_elem(currentProg->stack_current->local_object_list,
+                            defined_object, forward_reference);
+          currentProg->stack_current->object_list_insert_place = append_element_to_list(
+              currentProg->stack_current->object_list_insert_place, defined_object, err_info);
+          if (*err_info != OKAY_NO_ERROR) {
+            replace_list_elem(currentProg->stack_current->local_object_list,
+                              forward_reference, defined_object);
+            FREE_OBJECT(forward_reference);
+          } /* if */
         } else {
           *err_info = MEMORY_ERROR;
         } /* if */
@@ -166,18 +187,31 @@ static objectType get_object (entityType entity, listType params,
           defined_object->descriptor.property = defined_property;
           INIT_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
           defined_object->value.objValue = NULL;
-          push_owner(&entity->data.owner, defined_object, err_info);
-          prog->stack_current->object_list_insert_place = append_element_to_list(
-              prog->stack_current->object_list_insert_place, defined_object, err_info);
+          push_owner(&entity->data.owner, defined_object, currentProg->stack_current, err_info);
+          if (*err_info == OKAY_NO_ERROR) {
+            currentProg->stack_current->object_list_insert_place = append_element_to_list(
+                currentProg->stack_current->object_list_insert_place, defined_object, err_info);
+            if (*err_info != OKAY_NO_ERROR) {
+              pop_owner(&entity->data.owner);
+              FREE_RECORD(defined_property, propertyRecord, count.property);
+              FREE_OBJECT(defined_object);
+              defined_object = NULL;
+            } /* if */
+          } else {
+            FREE_RECORD(defined_property, propertyRecord, count.property);
+            FREE_OBJECT(defined_object);
+            defined_object = NULL;
+          } /* if */
         } else {
           FREE_OBJECT(defined_object);
           *err_info = MEMORY_ERROR;
+          defined_object = NULL;
         } /* if */
       } else {
         *err_info = MEMORY_ERROR;
       } /* if */
     } /* if */
-    logFunction(printf("get_object " FMT_U_MEM ", ",
+    logFunction(printf("get_object --> " FMT_U_MEM ", ",
                        (memSizeType) defined_object);
                 trace1(defined_object);
                 printf("\n"););
@@ -186,7 +220,7 @@ static objectType get_object (entityType entity, listType params,
 
 
 
-listType create_parameter_list (listType name_list, errInfoType *err_info)
+static listType create_parameter_list (listType name_list, errInfoType *err_info)
 
   {
     listType name_elem;
@@ -257,20 +291,29 @@ static void free_name_list (listType name_list, boolType freeParamObject)
         trace1(name_elem->obj);
         printf("\n"); */
         param_obj = name_elem->obj->value.objValue;
-        if (freeParamObject && !HAS_PROPERTY(param_obj)) {
+        if (freeParamObject) {
           if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
               CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
             /* printf("formparam: ");
             trace1(name_elem->obj);
-            printf("\n");
-            printf("free param_obj %lx %d: ", (unsigned long int) param_obj, HAS_PROPERTY(param_obj));
-            trace1(param_obj);
             printf("\n"); */
-            /* if (HAS_PROPERTY(param_obj) && param_obj->descriptor.property != prog->property.literal) {
-              * free_params(param_obj->descriptor.property->params); *
-              FREE_RECORD(param_obj->descriptor.property, propertyRecord, count.property);
+            /* printf("free param_obj %lx %d: ", (unsigned long int) param_obj, HAS_PROPERTY(param_obj));
+            trace1(param_obj);
+            printf("\n");
+            fflush(stdout); */
+            /* if (HAS_ENTITY(param_obj)) {
+              printf("name: \"%s\"\n", GET_ENTITY(param_obj)->ident == NULL ? "*NULL_IDENT*" : (char *) GET_ENTITY(param_obj)->ident->name);
+              printf("owner: " FMT_U_MEM "\n", (memSizeType) GET_ENTITY(param_obj)->data.owner);
+            } else {
+              printf("no entity: " FMT_U_MEM "\n", (memSizeType) param_obj);
             } * if */
+#if 0
+            if (HAS_PROPERTY(param_obj) && param_obj->descriptor.property != prog->property.literal) {
+              /* free_params(prog, param_obj->descriptor.property->params); */
+              FREE_RECORD(param_obj->descriptor.property, propertyRecord, count.property);
+            } /* if */
             FREE_OBJECT(param_obj);
+#endif
           } /* if */
         } /* if */
         FREE_OBJECT(name_elem->obj);
@@ -283,7 +326,7 @@ static void free_name_list (listType name_list, boolType freeParamObject)
 
 
 
-static objectType push_name (nodeType declaration_base,
+static objectType push_name (progType currentProg, nodeType declaration_base,
     listType name_list, fileNumType file_number, lineNumType line,
     errInfoType *err_info)
 
@@ -298,16 +341,27 @@ static objectType push_name (nodeType declaration_base,
                 prot_list(name_list);
                 printf(")\n"););
     params = create_parameter_list(name_list, err_info);
-    entity = get_entity(declaration_base, name_list);
-    if (entity == NULL) {
-      *err_info = MEMORY_ERROR;
+    if (*err_info != OKAY_NO_ERROR) {
+      free_list(params);
       defined_object = NULL;
     } else {
-      defined_object = get_object(entity, params,
-          file_number, line, err_info);
-      if (entity->fparam_list != name_list) {
-        /* An existing entity is used */
-        free_name_list(name_list, FALSE);
+      entity = get_entity(declaration_base, name_list);
+      if (entity == NULL) {
+        *err_info = MEMORY_ERROR;
+        defined_object = NULL;
+      } else {
+        defined_object = get_object(currentProg, entity, params,
+            file_number, line, err_info);
+        if (*err_info != OKAY_NO_ERROR) {
+          if (entity->fparam_list == name_list) {
+            /* A new entity has been created by get_entity. */
+            pop_entity(declaration_base, entity);
+            FREE_RECORD(entity, entityRecord, count.entity);
+          } /* if */
+        } else if (entity->fparam_list != name_list) {
+          /* An existing entity is used */
+          free_name_list(name_list, FALSE);
+        } /* if */
       } /* if */
     } /* if */
     /* prot_list(GET_ENTITY(defined_object)->params); */
@@ -443,15 +497,15 @@ void init_stack (progType currentProg, errInfoType *err_info)
 
 
 
-void close_stack (progType currentProg)
+static void close_current_stack (progType currentProg)
 
   {
     listType reversed_list = NULL;
     listType next_elem;
     listType list_element;
 
-  /* close_stack */
-    logFunction(printf("close_stack %d\n", data_depth););
+  /* close_current_stack */
+    logFunction(printf("close_current_stack %d\n", data_depth););
     /* The list of objects is reversed to free the objects in    */
     /* the opposite way of their definition.                     */
     list_element = currentProg->stack_data->local_object_list;
@@ -499,7 +553,7 @@ void close_stack (progType currentProg)
           list_element->obj->descriptor.property != currentProg->property.literal) {
         /* Properties are removed here because itf_destr uses    */
         /* !HAS_PROPERTY to determine if an object can be freed. */
-        free_params(list_element->obj->descriptor.property->params);
+        free_params(currentProg, list_element->obj->descriptor.property->params);
         FREE_RECORD(list_element->obj->descriptor.property, propertyRecord, count.property);
         /* list_element->obj->descriptor.property = NULL; */
       } /* if */
@@ -508,7 +562,25 @@ void close_stack (progType currentProg)
     } /* while */
     free_list(reversed_list);
     currentProg->stack_current->local_object_list = NULL;
-    logFunction(printf("close_stack %d -->\n", data_depth););
+    logFunction(printf("close_current_stack %d -->\n", data_depth););
+  } /* close_current_stack */
+
+
+
+void close_stack (progType currentProg)
+
+  { /* close_stack */
+    logFunction(printf("close_stack %d\n", data_depth););
+    /*
+    printf("stack_global:   " FMT_U_MEM "\n", (memSizeType) currentProg->stack_global);
+    printf("stack_data:     " FMT_U_MEM "\n", (memSizeType) currentProg->stack_data);
+    printf("stack_current:  " FMT_U_MEM "\n", (memSizeType) currentProg->stack_current);
+    printf("stack_upward:   " FMT_U_MEM "\n", (memSizeType) currentProg->stack_current->upward);
+    printf("stack_downward: " FMT_U_MEM "\n", (memSizeType) currentProg->stack_current->downward);
+    */
+    if (currentProg->stack_current != NULL) {
+      close_current_stack(currentProg);
+    } /* if */
   } /* close_stack */
 
 
@@ -667,13 +739,15 @@ static listType eval_name_list (listType raw_name_list, errInfoType *err_info)
     list_insert_place = &name_list;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == MATCHOBJECT) {
-        if ((parameter = evaluate(name_elem->obj)) != NULL) {
+        parameter = do_exec_call(name_elem->obj, err_info);
+        if (*err_info != OKAY_NO_ERROR) {
+          err_object(PARAM_DECL_FAILED, name_elem->obj);
+        } else if (CATEGORY_OF_OBJ(parameter) != FORMPARAMOBJECT) {
+          err_object(PARAM_DECL_FAILED, name_elem->obj);
+          *err_info = CREATE_ERROR;
+        } else {
           list_insert_place = append_element_to_list(list_insert_place,
               parameter, err_info);
-        } else {
-          err_object(PARAM_DECL_FAILED, name_elem->obj);
-          list_insert_place = append_element_to_list(list_insert_place,
-              name_elem->obj, err_info);
         } /* if */
       } else {
         if (HAS_ENTITY(name_elem->obj) &&
@@ -687,6 +761,10 @@ static listType eval_name_list (listType raw_name_list, errInfoType *err_info)
       } /* if */
       name_elem = name_elem->next;
     } /* while */
+    if (*err_info != OKAY_NO_ERROR) {
+      free_name_list(name_list, FALSE);
+      name_list = NULL;
+    } /* if */
     logFunction(printf("eval_name_list -->\n"););
     return name_list;
   } /* eval_name_list */
@@ -709,8 +787,12 @@ static objectType inst_list (nodeType declaration_base, const_objectType object_
     push_stack();
     name_list = eval_name_list(object_name->value.listValue, err_info);
     down_stack();
-    defined_object = push_name(declaration_base, name_list,
-        GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+    if (*err_info == OKAY_NO_ERROR) {
+      defined_object = push_name(prog, declaration_base, name_list,
+          GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+    } else {
+      defined_object = NULL;
+    } /* if */
     logFunction(printf("inst_list --> ");
                 trace1(defined_object);
                 printf("\n"););
@@ -732,7 +814,7 @@ static objectType inst_object (const_nodeType declaration_base, objectType name_
     if (name_object->descriptor.property == prog->property.literal) {
       err_object(IDENT_EXPECTED, name_object);
     } /* if */
-    defined_object = get_object(GET_ENTITY(name_object), NULL,
+    defined_object = get_object(prog, GET_ENTITY(name_object), NULL,
         file_number, line, err_info);
     logFunction(printf("inst_object --> ");
                 trace1(defined_object);
@@ -748,42 +830,43 @@ static objectType inst_object_expr (const_nodeType declaration_base,
   {
     listType name_list;
     objectType param_obj;
-    objectType defined_object;
+    objectType defined_object = NULL;
 
   /* inst_object_expr */
     logFunction(printf("inst_object_expr(" FMT_U_MEM ", ",
                        (memSizeType) declaration_base);
                 trace1(object_name);
                 printf(")\n"););
-    defined_object = NULL;
     match_name_list(object_name->value.listValue);
     push_stack();
     name_list = eval_name_list(object_name->value.listValue, err_info);
     down_stack();
-    /* printf("name_list ");
-    prot_list(name_list);
-    printf("\n");
-    fflush(stdout);
-    printf("name_list->obj ");
-    trace1(name_list->obj);
-    printf("\n");
-    fflush(stdout); */
-    if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
-      param_obj = name_list->obj->value.objValue;
-      if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-          CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
-          CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-        err_object(IDENT_EXPECTED, object_name);
+    if (*err_info == OKAY_NO_ERROR) {
+      /* printf("name_list ");
+      prot_list(name_list);
+      printf("\n");
+      fflush(stdout);
+      printf("name_list->obj ");
+      trace1(name_list->obj);
+      printf("\n");
+      fflush(stdout); */
+      if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+        param_obj = name_list->obj->value.objValue;
+        if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+            CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
+            CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
+          err_object(IDENT_EXPECTED, object_name);
+        } else {
+          /* printf("param_obj ");
+          trace1(param_obj);
+          printf("\n"); */
+          defined_object = inst_object(declaration_base, param_obj, 0, 0, err_info);
+        } /* if */
       } else {
-        /* printf("param_obj ");
-        trace1(param_obj);
-        printf("\n"); */
-        defined_object = inst_object(declaration_base, param_obj, 0, 0, err_info);
+        err_object(IDENT_EXPECTED, object_name);
       } /* if */
-    } else {
-      err_object(IDENT_EXPECTED, object_name);
+      free_name_list(name_list, FALSE);
     } /* if */
-    free_name_list(name_list, FALSE);
     logFunction(printf("inst_object_expr --> ");
                 trace1(defined_object);
                 printf("\n"););
@@ -848,47 +931,54 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
                        (memSizeType) declaration_base);
                 trace1(object_name);
                 printf(")\n"););
-    grow_stack(err_info);
-    if (*err_info == OKAY_NO_ERROR) {
-      if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
+      grow_stack(err_info);
+      if (*err_info == OKAY_NO_ERROR) {
         if (object_name->value.listValue->next != NULL) {
           match_name_list(object_name->value.listValue);
           push_stack();
           name_list = eval_name_list(object_name->value.listValue, err_info);
           down_stack();
-          entity = find_entity(declaration_base, name_list);
+          if (*err_info == OKAY_NO_ERROR) {
+            entity = find_entity(declaration_base, name_list);
+          } else {
+            entity = NULL;
+          } /* if */
           shrink_stack();
-          free_name_list(name_list, TRUE);
+          free_name_list(name_list, entity == NULL);
         } else if (CATEGORY_OF_OBJ(object_name->value.listValue->obj) == EXPROBJECT ||
             CATEGORY_OF_OBJ(object_name->value.listValue->obj) == MATCHOBJECT) {
           match_name_list(object_name->value.listValue);
           push_stack();
           name_list = eval_name_list(object_name->value.listValue, err_info);
           down_stack();
-          if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
-            param_obj = name_list->obj->value.objValue;
-            if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-                CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
-                CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-              entity = NULL;
+          if (*err_info == OKAY_NO_ERROR) {
+            if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+              param_obj = name_list->obj->value.objValue;
+              if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+                  CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
+                  CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
+                entity = NULL;
+              } else {
+                entity = GET_ENTITY(param_obj);
+              } /* if */
             } else {
-              entity = GET_ENTITY(param_obj);
+              entity = NULL;
             } /* if */
           } else {
             entity = NULL;
           } /* if */
           shrink_stack();
-          free_name_list(name_list, FALSE);
+          free_name_list(name_list, entity == NULL);
         } else {
           entity = GET_ENTITY(object_name->value.listValue->obj);
           shrink_stack();
         } /* if */
       } else {
-        entity = GET_ENTITY(object_name);
-        shrink_stack();
+        entity = NULL;
       } /* if */
     } else {
-      entity = NULL;
+      entity = GET_ENTITY(object_name);
     } /* if */
     if (entity != NULL && entity->data.owner != NULL) {
       defined_object = entity->data.owner->obj;
@@ -924,36 +1014,50 @@ objectType search_name (const_nodeType declaration_base,
                 trace1(object_name);
                 printf(")\n"););
     if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
-      if (object_name->value.listValue->next != NULL) {
-        match_name_list(object_name->value.listValue);
-        push_stack();
-        name_list = eval_name_list(object_name->value.listValue, err_info);
-        down_stack();
-        entity = search_entity(declaration_base, name_list);
-        /* printf("search_name: free_name_list\n"); */
-        free_name_list(name_list, TRUE);
-        /* free_list(name_list); */
-      } else if (CATEGORY_OF_OBJ(object_name->value.listValue->obj) == EXPROBJECT ||
-          CATEGORY_OF_OBJ(object_name->value.listValue->obj) == MATCHOBJECT) {
-        match_name_list(object_name->value.listValue);
-        push_stack();
-        name_list = eval_name_list(object_name->value.listValue, err_info);
-        down_stack();
-        if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
-          param_obj = name_list->obj->value.objValue;
-          if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
-              CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-            entity = NULL;
+      grow_stack(err_info);
+      if (*err_info == OKAY_NO_ERROR) {
+        if (object_name->value.listValue->next != NULL) {
+          match_name_list(object_name->value.listValue);
+          push_stack();
+          name_list = eval_name_list(object_name->value.listValue, err_info);
+          down_stack();
+          if (*err_info == OKAY_NO_ERROR) {
+            entity = search_entity(declaration_base, name_list);
           } else {
-            entity = GET_ENTITY(param_obj);
+            entity = NULL;
           } /* if */
+          shrink_stack();
+          free_name_list(name_list, entity == NULL);
+        } else if (CATEGORY_OF_OBJ(object_name->value.listValue->obj) == EXPROBJECT ||
+            CATEGORY_OF_OBJ(object_name->value.listValue->obj) == MATCHOBJECT) {
+          match_name_list(object_name->value.listValue);
+          push_stack();
+          name_list = eval_name_list(object_name->value.listValue, err_info);
+          down_stack();
+          if (*err_info == OKAY_NO_ERROR) {
+            if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+              param_obj = name_list->obj->value.objValue;
+              if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+                  CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
+                  CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
+                entity = NULL;
+              } else {
+                entity = GET_ENTITY(param_obj);
+              } /* if */
+            } else {
+              entity = NULL;
+            } /* if */
+          } else {
+            entity = NULL;
+          } /* if */
+          shrink_stack();
+          free_name_list(name_list, entity == NULL);
         } else {
-          entity = NULL;
+          entity = GET_ENTITY(object_name->value.listValue->obj);
+          shrink_stack();
         } /* if */
-        free_name_list(name_list, FALSE);
       } else {
-        entity = GET_ENTITY(object_name->value.listValue->obj);
+        entity = NULL;
       } /* if */
     } else {
       entity = GET_ENTITY(object_name);
@@ -977,7 +1081,8 @@ objectType search_name (const_nodeType declaration_base,
 
 
 
-static objectType dollar_parameter (objectType param_object)
+static objectType dollar_parameter (objectType param_object,
+    errInfoType *err_info)
 
   {
     listType param_descr;
@@ -994,14 +1099,20 @@ static objectType dollar_parameter (objectType param_object)
         if (param_descr->next != NULL) {
           type_of_parameter = param_descr->next->obj;
           if (CATEGORY_OF_OBJ(type_of_parameter) == EXPROBJECT) {
-            param_descr->next->obj = eval_expression(type_of_parameter);
+            type_of_parameter = eval_expression(type_of_parameter);
+            if (type_of_parameter != NULL) {
+              param_descr->next->obj = type_of_parameter;
+            } /* if */
           } /* if */
-          if (param_descr->next->next != NULL) {
+          if (param_descr->next->next != NULL && type_of_parameter != NULL) {
             FREE_OBJECT(param_object);
             if (GET_ENTITY(param_descr->next->next->obj)->ident == prog->id_for.colon) {
               param_object = dcl_ref2(param_descr);
             } else {
               param_object = dcl_ref1(param_descr);
+            } /* if */
+            if (param_object == NULL) {
+              *err_info = MEMORY_ERROR;
             } /* if */
             free_list(param_descr);
           } /* if */
@@ -1033,13 +1144,17 @@ static objectType dollar_inst_list (nodeType declaration_base,
     name_elem = object_name->value.listValue;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == EXPROBJECT) {
-        name_elem->obj = dollar_parameter(name_elem->obj);
+        name_elem->obj = dollar_parameter(name_elem->obj, err_info);
       } /* if */
       name_elem = name_elem->next;
     } /* while */
-    defined_object = push_name(declaration_base,
-        object_name->value.listValue,
-        GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+    if (*err_info == OKAY_NO_ERROR) {
+      defined_object = push_name(prog, declaration_base,
+          object_name->value.listValue,
+          GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
+    } else {
+      defined_object = NULL;
+    } /* if */
     logFunction(printf("dollar_inst_list -->\n"););
     return defined_object;
   } /* dollar_inst_list */

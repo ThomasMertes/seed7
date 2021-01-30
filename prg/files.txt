@@ -72,6 +72,7 @@ mahjong.sd7  Mahjong solitaire game
 make7.sd7    Make utility to manage the compilation process
 mandelbr.sd7 Display the Mandelbrot set
 mind.sd7     Guess a four digit number game
+mirror.sd7   Mirror a rectangular screen area in a window.
 ms.sd7       Mine sweeper game
 nicoma.sd7   Puzzle from arithmetica of Nicomachus (A.D. 90)!
 pac.sd7      Pacman game

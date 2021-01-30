@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2020  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2021  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Main                                                    */
 /*  File: seed7/src/primitiv.c                                      */
-/*  Changes: 1992, 1993, 1994, 2004 - 2020  Thomas Mertes           */
+/*  Changes: 1992, 1993, 1994, 2004 - 2021  Thomas Mertes           */
 /*  Content: Table definitions for all primitive actions.           */
 /*                                                                  */
 /********************************************************************/
@@ -326,6 +326,7 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_ARC2",                drw_arc2,                },
     { "DRW_BACKGROUND",          drw_background,          },
     { "DRW_BORDER",              drw_border,              },
+    { "DRW_CAPTURE",             drw_capture,             },
     { "DRW_CIRCLE",              drw_circle,              },
     { "DRW_CLEAR",               drw_clear,               },
     { "DRW_CMP",                 drw_cmp,                 },

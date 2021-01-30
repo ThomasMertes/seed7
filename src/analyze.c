@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2016, 2018, 2019, 2021  Thomas Mertes      */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,8 @@
 /*                                                                  */
 /*  Module: Analyzer - Main                                         */
 /*  File: seed7/src/analyze.c                                       */
-/*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
+/*  Changes: 1991 - 1994, 2010, 2012 - 2016, 2018  Thomas Mertes    */
+/*           2019, 2021  Thomas Mertes                              */
 /*  Content: Main procedure of the analyzing phase.                 */
 /*                                                                  */
 /********************************************************************/
@@ -33,6 +34,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "setjmp.h"
 
 #include "common.h"
 #include "sigutl.h"
@@ -70,6 +72,7 @@
 #include "cmd_rtl.h"
 #include "str_rtl.h"
 #include "ut8_rtl.h"
+#include "prg_comp.h"
 
 #undef EXTERN
 #define EXTERN
@@ -77,6 +80,11 @@
 
 #define TRACE_DECL_ANY 0
 
+
+/* The long jump position memoryErrorOcurred is */
+/* only used during the analyze phase (parsing). */
+extern boolType currentlyAnalyzing;
+extern longjmpPosition memoryErrorOcurred;
 
 /* If the analyzer is used from a compiled program this */
 /* flag decides which exception handler should be called: */
@@ -399,10 +407,16 @@ static striType getProgramName (const const_striType sourceFileArgument)
 
 
 
+/**
+ *  Get the absolute source file path in the standard path representation.
+ *  @return the absolute source file path in the standard path
+ *          representation, or NULL if the memory allocation failed.
+ */
 static striType getProgramPath (const const_striType sourceFilePath)
 
   {
     striType cwd;
+    errInfoType err_info = OKAY_NO_ERROR;
     striType program_path;
 
   /* getProgramPath */
@@ -412,9 +426,13 @@ static striType getProgramPath (const const_striType sourceFilePath)
         sourceFilePath->mem[0] == (charType) '/') {
       program_path = strCreate(sourceFilePath);
     } else {
-      cwd = cmdGetcwd();
-      program_path = concatPath(cwd, sourceFilePath);
-      FREE_STRI(cwd, cwd->size);
+      cwd = doGetCwd(&err_info);
+      if (unlikely(cwd == NULL)) {
+        program_path = NULL;
+      } else {
+        program_path = concatPath(cwd, sourceFilePath);
+        FREE_STRI(cwd, cwd->size);
+      } /* if */
     } /* if */
     logFunction(printf("getProgramPath --> \"%s\"\n",
                        striAsUnquotedCStri(program_path)););
@@ -423,14 +441,22 @@ static striType getProgramPath (const const_striType sourceFilePath)
 
 
 
+/**
+ *  Basic function to parse a program.
+ *  All program parsing is done via this function.
+ *  The function assumes that the infile is already open.
+ *  After parsing the infile is closed by this function.
+ */
 static progType analyzeProg (const const_striType sourceFileArgument,
     const const_striType sourceFilePath, uintType options,
     const const_rtlArrayType libraryDirs, const const_striType protFileName,
     errInfoType *err_info)
 
   {
-    striType sourceFileArgumentCopy;
+    boolType backup_interpreter_exception;
     traceRecord traceBackup;
+    objectType backup_curr_exec_object;
+    listType backup_curr_argument_list;
     progType progBackup;
     progType resultProg;
 
@@ -443,83 +469,62 @@ static progType analyzeProg (const const_striType sourceFileArgument,
                        striAsUnquotedCStri(protFileName)););
     if (!ALLOC_RECORD(resultProg, progRecord, count.prog)) {
       *err_info = MEMORY_ERROR;
-    } else if (!ALLOC_STRI_SIZE_OK(sourceFileArgumentCopy, sourceFileArgument->size)) {
-      *err_info = MEMORY_ERROR;
-      FREE_RECORD(resultProg, progRecord, count.prog);
-      resultProg = NULL;
     } else {
-      /* printf("analyzeProg: new progRecord: %lx\n", resultProg); */
-      sourceFileArgumentCopy->size = sourceFileArgument->size;
-      memcpy(sourceFileArgumentCopy->mem, sourceFileArgument->mem,
-             sourceFileArgument->size * sizeof(strElemType));
+      memset(resultProg, 0, sizeof(progRecord));
+      backup_interpreter_exception = interpreter_exception;
+      interpreter_exception = TRUE;
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
       resultProg->types = NULL;
       in_file.owningProg = resultProg;
       init_lib_path(sourceFileArgument, libraryDirs, err_info);
+      init_symbol(err_info);
       init_idents(resultProg, err_info);
       init_findid(resultProg, err_info);
       init_entity(resultProg, err_info);
       init_sysvar(resultProg);
       init_declaration_root(resultProg, err_info);
       init_stack(resultProg, err_info);
-      init_symbol(err_info);
       reset_statistic();
       resultProg->error_count = 0;
       resultProg->types = NULL;
       resultProg->literals = NULL;
-      if (*err_info == OKAY_NO_ERROR) {
-        resultProg->arg0         = sourceFileArgumentCopy;
-        resultProg->program_name = getProgramName(sourceFileArgument);
-        resultProg->program_path = getProgramPath(sourceFilePath);
-        resultProg->arg_v        = NULL;
-        memcpy(&traceBackup, &trace, sizeof(traceRecord));
+      resultProg->arg0         = strCreate(sourceFileArgument);
+      resultProg->program_name = getProgramName(sourceFileArgument);
+      resultProg->program_path = getProgramPath(sourceFilePath);
+      if (resultProg->arg0 == NULL ||
+          resultProg->program_name == NULL ||
+          resultProg->program_path == NULL) {
+        *err_info = MEMORY_ERROR;
+      } /* if */
+      resultProg->arg_v = NULL;
+      backup_curr_exec_object = curr_exec_object;
+      backup_curr_argument_list = curr_argument_list;
+      memcpy(&traceBackup, &trace, sizeof(traceRecord));
+      progBackup = prog;
+      if (*err_info == OKAY_NO_ERROR &&
+          do_setjmp(memoryErrorOcurred) == 0) {
+        currentlyAnalyzing = TRUE;
         resultProg->option_flags = options;
         set_trace(resultProg->option_flags);
         set_protfile_name(protFileName);
-        progBackup = prog;
         prog = resultProg;
         declAny(resultProg->declaration_root);
-        if (SYS_MAIN_OBJECT == NULL) {
-          resultProg->error_count++;
-          printf("*** System declaration for main missing\n");
-        } else if (CATEGORY_OF_OBJ(SYS_MAIN_OBJECT) != FORWARDOBJECT) {
-/*          printf("main defined as: ");
-          trace1(SYS_MAIN_OBJECT);
-          printf("\n"); */
-          if (HAS_ENTITY(SYS_MAIN_OBJECT)) {
-            if (GET_ENTITY(SYS_MAIN_OBJECT)->data.owner != NULL) {
-              if (GET_ENTITY(SYS_MAIN_OBJECT)->data.owner->obj != NULL) {
-                resultProg->main_object = GET_ENTITY(SYS_MAIN_OBJECT)->data.owner->obj;
-                if ((resultProg->main_object = match_object(resultProg->main_object)) != NULL) {
-/*                  printf("main after match_object: ");
-                  trace1(resultProg->main_object);
-                  printf("\n"); */
-                } else {
-                  prog->error_count++;
-                  printf("*** Main not callobject\n");
-                } /* if */
-              } else {
-                prog->error_count++;
-                printf("*** GET_ENTITY(SYS_MAIN_OBJECT)->objects->obj == NULL\n");
-              } /* if */
-            } else {
-              prog->error_count++;
-              printf("*** GET_ENTITY(SYS_MAIN_OBJECT)->objects == NULL\n");
-            } /* if */
-          } else {
-            prog->error_count++;
-            printf("*** GET_ENTITY(SYS_MAIN_OBJECT) == NULL\n");
-          } /* if */
-        } /* if */
-        if (options & SHOW_IDENT_TABLE) {
-          write_idents();
-        } /* if */
-        clean_idents();
         prog = progBackup;
+        if (MAIN_OBJECT(resultProg) == NULL) {
+          resultProg->error_count++;
+          prot_cstri("*** System declaration for main missing");
+          prot_nl();
+        } else {
+          resultProg->main_object = MAIN_OBJECT(resultProg);
+        } /* if */
+        /* To get a nice list of files with the option -v close_infile() */
+        /* is executed before write_idents() and show_statistic().       */
         close_infile();
-        close_symbol();
-        free_lib_path();
+        if (options & SHOW_IDENT_TABLE) {
+          write_idents(resultProg);
+        } /* if */
+        clean_idents(resultProg);
         if (options & SHOW_STATISTICS) {
           show_statistic();
           if (resultProg->error_count >= 1) {
@@ -529,15 +534,26 @@ static progType analyzeProg (const const_striType sourceFileArgument,
           } /* if */
         } /* if */
         /* trace_list(resultProg->stack_current->local_object_list); */
-        memcpy(&trace, &traceBackup, sizeof(traceRecord));
+        currentlyAnalyzing = FALSE;
       } else {
-        FREE_RECORD(resultProg, progRecord, count.prog);
-        FREE_STRI(sourceFileArgumentCopy, sourceFileArgumentCopy->size);
+        prog = progBackup;
+        close_infile();
+        clean_idents(resultProg);
+        /* heapStatistic(); */
+        prgDestr(resultProg);
         resultProg = NULL;
+        *err_info = MEMORY_ERROR;
       } /* if */
+      curr_exec_object = backup_curr_exec_object;
+      curr_argument_list = backup_curr_argument_list;
+      memcpy(&trace, &traceBackup, sizeof(traceRecord));
+      close_symbol();
+      free_lib_path();
+      leaveExceptionHandling();
+      interpreter_exception = backup_interpreter_exception;
     } /* if */
-    logFunction(printf("analyzeProg --> " FMT_U_MEM "\n",
-                       (memSizeType) resultProg););
+    logFunction(printf("analyzeProg --> " FMT_U_MEM " (err_info=%d)\n",
+                       (memSizeType) resultProg, *err_info););
     return resultProg;
   } /* analyzeProg */
 
@@ -551,16 +567,14 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
     striType sourceFilePath;
     memSizeType nameLen;
     boolType add_extension;
-    progType resultProg;
+    progType resultProg = NULL;
 
   /* analyzeFile */
     logFunction(printf("analyzeFile(\"%s\", 0x" F_X(016) ", *, ",
                        striAsUnquotedCStri(sourceFileArgument), options);
                 printf("\"%s\", *)\n",
                        striAsUnquotedCStri(protFileName)););
-    interpreter_exception = TRUE;
     initAnalyze();
-    resultProg = NULL;
     if (sourceFileArgument->size > STRLEN(".sd7") &&
         sourceFileArgument->mem[sourceFileArgument->size - 4] == '.' &&
         sourceFileArgument->mem[sourceFileArgument->size - 3] == 's' &&
@@ -597,7 +611,7 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
                     (options & WRITE_LINE_NUMBERS) != 0, err_info);
       } /* if */
 #if HAS_SYMBOLIC_LINKS
-      sourceFilePath = followLink(sourceFilePath);
+      sourceFilePath = followLink(sourceFilePath, err_info);
 #endif
       if (*err_info == OKAY_NO_ERROR) {
         scan_byte_order_mark();
@@ -606,11 +620,12 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
       } else if (*err_info == FILE_ERROR) {
         *err_info = OKAY_NO_ERROR;
       } /* if */
-      FREE_STRI(sourceFilePath, nameLen);
+      if (sourceFilePath != NULL) {
+        FREE_STRI(sourceFilePath, nameLen);
+      } /* if */
     } /* if */
-    interpreter_exception = FALSE;
-    logFunction(printf("analyzeFile --> " FMT_U_MEM "\n",
-                       (memSizeType) resultProg););
+    logFunction(printf("analyzeFile --> " FMT_U_MEM " (err_info=%d)\n",
+                       (memSizeType) resultProg, *err_info););
     return resultProg;
   } /* analyzeFile */
 
@@ -631,7 +646,9 @@ progType analyze (const const_striType sourceFileArgument, uintType options,
     resultProg = analyzeFile(sourceFileArgument, options,
                              libraryDirs, protFileName, &err_info);
     if (err_info == MEMORY_ERROR) {
-      err_warning(OUT_OF_HEAP_SPACE);
+      /* err_warning(OUT_OF_HEAP_SPACE); */
+      prot_cstri("No more memory");
+      prot_nl();
     } else if (resultProg == NULL || err_info != OKAY_NO_ERROR) {
       err_message(NO_SOURCEFILE, sourceFileArgument);
     } /* if */
@@ -656,7 +673,6 @@ progType analyzeString (const const_striType input_string, uintType options,
                        striAsUnquotedCStri(input_string), options);
                 printf("\"%s\", *)\n",
                        striAsUnquotedCStri(protFileName)););
-    interpreter_exception = TRUE;
     initAnalyze();
     resultProg = NULL;
     sourceFileArgument = CSTRI_LITERAL_TO_STRI("STRING");
@@ -678,7 +694,6 @@ progType analyzeString (const const_striType input_string, uintType options,
       } /* if */
       FREE_STRI(sourceFileArgument, sourceFileArgument->size);
     } /* if */
-    interpreter_exception = FALSE;
     logFunction(printf("analyzeString --> " FMT_U_MEM "\n",
                        (memSizeType) resultProg););
     return resultProg;

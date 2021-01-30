@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2015, 2019, 2021  Thomas Mertes            */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,13 +20,16 @@
 /*                                                                  */
 /*  Module: Analyzer - Error                                        */
 /*  File: seed7/src/error.c                                         */
-/*  Changes: 1990 - 1994, 2014, 2015  Thomas Mertes                 */
+/*  Changes: 1990 - 1994, 2014, 2015, 2019, 2021  Thomas Mertes     */
 /*  Content: Submit normal compile time error messages.             */
 /*                                                                  */
 /*  Normal compile time error messages do not terminate the         */
 /*  program.                                                        */
 /*                                                                  */
 /********************************************************************/
+
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
 
 #include "version.h"
 
@@ -64,40 +67,61 @@
 
 
 
+/**
+ *  Read a line from infile.
+ *  The reading stops, at the end of the line or when there is no more memory.
+ *  @param line_length Place to return the length of the line (in bytes).
+ *  @return a line as sequence of bytes (not null terminated), or
+ *          NULL if there is no more memory.
+ */
 static ustriType read_ustri8_line (memSizeType *line_len)
 
   {
     int ch;
+    memSizeType chars_read = 0;
     memSizeType buffer_len = 0;
     ustriType resized_line;
     ustriType line = NULL;
 
   /* read_ustri8_line */
-    *line_len = 0;
+    logFunction(printf("read_ustri8_line(*)\n"););
+    chars_read = 0;
     if ((ch = next_character()) == '\r') {
       ch = next_character();
     } /* if */
     while (ch != '\r' && ch != '\n' && ch != EOF) {
-      if (*line_len >= buffer_len &&
+      if (chars_read >= buffer_len &&
           (resized_line = REALLOC_USTRI(line, buffer_len,
                                         buffer_len + LINE_SIZE_INCREMENT)) != NULL) {
         line = resized_line;
         buffer_len += LINE_SIZE_INCREMENT;
       } /* if */
-      if (*line_len >= buffer_len) {
+      if (chars_read >= buffer_len) {
+        /* The realloc failed: Assume that the line ends. */
         ch = EOF;
       } else {
-        line[*line_len] = (ucharType) ch;
-        (*line_len)++;
+        line[chars_read] = (ucharType) ch;
+        chars_read++;
         ch = next_character();
       } /* if */
     } /* while */
-    line = REALLOC_USTRI(line, buffer_len, *line_len);
+    resized_line = REALLOC_USTRI(line, buffer_len, chars_read);
+    if (resized_line != NULL) {
+      line = resized_line;
+    } /* if */
+    *line_len = chars_read;
+    logFunction(printf("read_ustri8_line(" FMT_U_MEM ") --> " FMT_U_MEM "\n",
+                       *line_len, (memSizeType) line););
     return line;
   } /* read_ustri8_line */
 
 
 
+/**
+ *  Convert 'length' UTF-8 encoded bytes in 'ustri' to a string.
+ *  Bytes that are not UTF-8 encoded are left as is.
+ *  @return the converted string or NULL, if a memory error occurred.
+ */
 static striType ustri8_buffer_to_stri (const const_ustriType ustri,
     const memSizeType length)
 
@@ -110,8 +134,12 @@ static striType ustri8_buffer_to_stri (const const_ustriType ustri,
     striType stri;
 
   /* ustri8_buffer_to_stri */
-    unconverted = length;
-    if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
+    logFunction(printf("ustri8_buffer_to_stri(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) ustri, length););
+    if (ustri == NULL) {
+      stri = NULL;
+    } else if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
+      unconverted = length;
       do {
         unconverted = utf8_to_stri(&stri->mem[stri_size], &converted_size,
                                    &ustri[length - unconverted], unconverted);
@@ -146,6 +174,8 @@ static striType ustri8_buffer_to_stri (const const_ustriType ustri,
         stri->size = stri_size;
       } /* if */
     } /* if */
+    logFunction(printf("ustri8_buffer_to_stri(" FMT_U_MEM ", " FMT_U_MEM ") --> \"%s\"\n",
+                       (memSizeType) ustri, length, striAsUnquotedCStri(stri)););
     return stri;
   } /* ustri8_buffer_to_stri */
 
@@ -161,6 +191,8 @@ static memSizeType calculate_output_length (striType stri)
     memSizeType output_length = 0;
 
   /* calculate_output_length */
+    logFunction(printf("calculate_output_length(\"%s\")\n",
+                       striAsUnquotedCStri(stri)););
     for (pos = 0; pos < stri->size; pos++) {
       ch = stri->mem[pos];
       if ((ch >= 0xd800 && ch <= 0xdfff) || ch > 0x10ffff) {
@@ -182,6 +214,8 @@ static memSizeType calculate_output_length (striType stri)
         } /* if */
       } /* if */
     } /* for */
+    logFunction(printf("calculate_output_length(\"%s\") --> " FMT_U_MEM "\n",
+                       striAsUnquotedCStri(stri), output_length););
     return output_length;
   } /* calculate_output_length */
 
@@ -200,6 +234,7 @@ static void print_stri (striType stri)
     char tabBuffer[TAB_POSITION + NULL_TERMINATION_LEN];
 
   /* print_stri */
+    logFunction(printf("print_stri(\"%s\")\n", striAsUnquotedCStri(stri)););
     for (pos = 0; pos < stri->size; pos++) {
       ch = stri->mem[pos];
       if ((ch >= 0xd800 && ch <= 0xdfff) || ch > 0x10ffff) {
@@ -229,6 +264,7 @@ static void print_stri (striType stri)
         } /* if */
       } /* if */
     } /* for */
+    logFunction(printf("print_stri -->\n"););
   } /* print_stri */
 
 
@@ -237,26 +273,37 @@ static void read_and_print_line (long line_start_position, long current_position
 
   {
     ustriType line = NULL;
-    memSizeType line_len = 0;
+    memSizeType line_len;
     memSizeType part1_len = 0;
     striType part1;
     memSizeType error_column;
     striType lineStri;
 
   /* read_and_print_line */
+    logFunction(printf("read_and_print_line(%ld, %ld)\n",
+                       line_start_position, current_position););
     line = read_ustri8_line(&line_len);
     if (line_start_position <= current_position) {
       if (line_start_position + 1 < current_position) {
         part1_len = (memSizeType) (current_position - line_start_position - 1);
+        if (part1_len > line_len) {
+          part1_len = line_len;
+        } /* if */
         part1 = ustri8_buffer_to_stri(line, part1_len);
-        error_column = calculate_output_length(part1);
-        FREE_STRI(part1, part1->size);
+        if (part1 != NULL) {
+          error_column = calculate_output_length(part1);
+          FREE_STRI(part1, part1->size);
+        } else {
+          error_column = part1_len;
+        } /* if */
       } else {
         error_column = 0;
       } /* if */
       lineStri = ustri8_buffer_to_stri(line, line_len);
-      print_stri(lineStri);
-      FREE_STRI(lineStri, lineStri->size);
+      if (lineStri != NULL) {
+        print_stri(lineStri);
+        FREE_STRI(lineStri, lineStri->size);
+      } /* if */
       prot_nl();
       for (; error_column > 0; error_column--) {
         prot_cstri("-");
@@ -264,12 +311,16 @@ static void read_and_print_line (long line_start_position, long current_position
       prot_cstri("^");
     } else {
       lineStri = ustri8_buffer_to_stri(line, line_len);
-      print_stri(lineStri);
-      FREE_STRI(lineStri, lineStri->size);
+      if (lineStri != NULL) {
+        print_stri(lineStri);
+        FREE_STRI(lineStri, lineStri->size);
+      } /* if */
       prot_nl();
     } /* if */
     prot_nl();
     UNALLOC_USTRI(line, line_len);
+    logFunction(printf("read_and_print_line(%ld, %ld) -->\n",
+                       line_start_position, current_position););
   } /* read_and_print_line */
 
 
@@ -288,7 +339,7 @@ static void print_line (lineNumType err_line)
     int area_pos;
 
   /* print_line */
-    /* printf("err_line=%lu in_file.line=%lu\n", err_line, in_file.line); */
+    logFunction(printf("print_line(%u) in_file.line=%u\n", err_line, in_file.line););
     if (in_file.name != NULL && in_file.curr_infile != NULL &&
         (current_position = IN_FILE_TELL()) >= 0L) {
       /* printf("current_position=%lu in_file.character=%d\n",
@@ -333,6 +384,7 @@ static void print_line (lineNumType err_line)
       } /* if */
       IN_FILE_SEEK(current_position);
     } /* if */
+    logFunction(printf("print_line -->\n"););
   } /* print_line */
 
 
@@ -351,6 +403,7 @@ static void print_error_line (void)
     int ch;
 
   /* print_error_line */
+    logFunction(printf("print_error_line\n"););
     if (in_file.name != NULL && in_file.curr_infile != NULL &&
         (current_position = IN_FILE_TELL()) >= 0L) {
       if (current_position >= BUFFER_SIZE + 1) {
@@ -395,6 +448,7 @@ static void print_error_line (void)
       read_and_print_line(line_start_position, current_position);
       IN_FILE_SEEK(current_position);
     } /* if */
+    logFunction(printf("print_error_line -->\n"););
   } /* print_error_line */
 
 
@@ -569,7 +623,11 @@ static void write_name_list (const_listType params)
         } /* if */
         switch (CATEGORY_OF_OBJ(params->obj)) {
           case SYMBOLOBJECT:
-            prot_ustri(GET_ENTITY(params->obj)->ident->name);
+            if (HAS_ENTITY(params->obj)) {
+              prot_ustri(GET_ENTITY(params->obj)->ident->name);
+            } else {
+              prot_cstri("*symbol*");
+            } /* if */
             break;
           default:
             prot_cstri("unknown param ");
@@ -891,7 +949,7 @@ void err_object (errorType err, const_objectType obj_found)
     if (prog != NULL) {
       prog->error_count++;
     } /* if */
-    if (HAS_POSINFO(obj_found)){
+    if (obj_found != NULL && HAS_POSINFO(obj_found)){
       write_place(err, get_file_name(GET_FILE_NUM(obj_found)),
           GET_LINE_NUM(obj_found));
     } else if (in_file.name != NULL) {
@@ -936,7 +994,7 @@ void err_object (errorType err, const_objectType obj_found)
         prot_nl();
         break;
       case EXCEPTION_RAISED:
-        if (HAS_ENTITY(obj_found)) {
+        if (obj_found != NULL && HAS_ENTITY(obj_found)) {
           prot_cstri("Exception \"");
           prot_ustri(GET_ENTITY(obj_found)->ident->name);
           prot_cstri("\" raised");
@@ -1002,7 +1060,7 @@ void err_object (errorType err, const_objectType obj_found)
         undef_err();
         break;
     } /* switch */
-    if (HAS_POSINFO(obj_found)){
+    if (obj_found != NULL && HAS_POSINFO(obj_found)){
       print_line(GET_LINE_NUM(obj_found));
     } else {
       print_error_line();

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2021  Thomas Mertes                  */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer - Scanner                                      */
 /*  File: seed7/src/symbol.c                                        */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*  Changes: 1990, 1991, 1992, 1993, 1994, 2021  Thomas Mertes      */
 /*  Content: Maintains the current symbol of the scanner.           */
 /*                                                                  */
 /*  Every time a longer symbol.name is needed it is extended by     */
@@ -111,10 +111,14 @@ void init_symbol (errInfoType *err_info)
 void close_symbol (void)
 
   { /* close_symbol */
-    FREE_USTRI(symbol.name, symbol.name_length, count.symb, count.symb_bytes);
+    if (symbol.name != NULL) {
+      FREE_USTRI(symbol.name, symbol.name_length, count.symb, count.symb_bytes);
+    } /* if */
     symbol.name = NULL;
     symbol.name_length = 0;
-    FREE_STRI(symbol.striValue, symbol.stri_max);
+    if (symbol.striValue != NULL) {
+      FREE_STRI(symbol.striValue, symbol.stri_max);
+    } /* if */
     symbol.striValue = NULL;
     symbol.stri_max = 0;
   } /* close_symbol */

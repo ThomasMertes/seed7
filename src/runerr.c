@@ -1,8 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000, 2010 - 2011, 2014 - 2017             */
-/*                Thomas Mertes                                     */
+/*  Copyright (C) 1990 - 2000, 2010 - 2011  Thomas Mertes           */
+/*                2014 - 2017, 2020, 2021  Thomas Mertes            */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,7 +21,8 @@
 /*                                                                  */
 /*  Module: Runtime                                                 */
 /*  File: seed7/src/runerr.c                                        */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*  Changes: 1990 - 1994, 2010 - 2011, 2014 - 2017   Thomas Mertes  */
+/*           2020, 2021   Thomas Mertes                             */
 /*  Content: Runtime error and exception handling procedures.       */
 /*                                                                  */
 /********************************************************************/
@@ -113,24 +114,38 @@ static void write_position_info (objectType currObject, boolType writeNoInfo)
 
   { /* write_position_info */
     logFunction(printf("write_position_info\n"););
-    if (currObject != NULL) {
-      if (HAS_POSINFO(currObject)) {
-        prot_cstri("at ");
-        prot_string(get_file_name(GET_FILE_NUM(currObject)));
-        prot_cstri("(");
-        prot_int((intType) GET_LINE_NUM(currObject));
-        prot_cstri(")");
-      } else if (HAS_PROPERTY(currObject) &&
-          currObject->descriptor.property->line != 0) {
-        prot_cstri("at ");
-        prot_string(get_file_name(currObject->descriptor.property->file_number));
-        prot_cstri("(");
-        prot_int((intType) currObject->descriptor.property->line);
-        prot_cstri(")");
+    if (currObject != NULL &&
+        LEGAL_CATEGORY_FIELD(currObject)) {
+      if (CATEGORY_OF_OBJ(currObject) == CALLOBJECT ||
+          CATEGORY_OF_OBJ(currObject) == MATCHOBJECT ||
+          CATEGORY_OF_OBJ(currObject) == SYMBOLOBJECT ||
+          CATEGORY_OF_OBJ(currObject) == ACTOBJECT ||
+          CATEGORY_OF_OBJ(currObject) == DECLAREDOBJECT) {
+        if (HAS_POSINFO(currObject)) {
+          prot_cstri("at ");
+          prot_string(get_file_name(GET_FILE_NUM(currObject)));
+          prot_cstri("(");
+          prot_int((intType) GET_LINE_NUM(currObject));
+          prot_cstri(")");
+        } else if (HAS_PROPERTY(currObject) &&
+            currObject->descriptor.property->line != 0) {
+          prot_cstri("at ");
+          prot_string(get_file_name(currObject->descriptor.property->file_number));
+          prot_cstri("(");
+          prot_int((intType) currObject->descriptor.property->line);
+          prot_cstri(")");
+        } else if (writeNoInfo) {
+          prot_cstri("no POSITION INFORMATION ");
+          /* printcategory(CATEGORY_OF_OBJ(currObject)); */
+          /* trace1(currObject); */
+        } /* if */
       } else if (writeNoInfo) {
         prot_cstri("no POSITION INFORMATION ");
+        /* printcategory(CATEGORY_OF_OBJ(currObject)); */
         /* trace1(currObject); */
       } /* if */
+    } else if (writeNoInfo) {
+      prot_cstri("no POSITION INFORMATION ");
     } /* if */
     logFunction(printf("write_position_info -->\n"););
   } /* write_position_info */
@@ -145,33 +160,51 @@ static void write_call_stack_element (const_listType stack_elem)
   /* write_call_stack_element */
     logFunction(printf("write_call_stack_element(" FMT_U_MEM ")\n",
                        (memSizeType) stack_elem););
-    if (stack_elem->obj != NULL) {
+    if (stack_elem->obj != NULL &&
+        LEGAL_CATEGORY_FIELD(stack_elem->obj)) {
       if (stack_elem->next != NULL) {
         if (CATEGORY_OF_OBJ(stack_elem->obj) == CALLOBJECT ||
             CATEGORY_OF_OBJ(stack_elem->obj) == MATCHOBJECT) {
           func_object = stack_elem->obj->value.listValue->obj;
+        } else if (CATEGORY_OF_OBJ(stack_elem->obj) == FWDREFOBJECT) {
+          /* prot_cstri("(");
+          printcategory(CATEGORY_OF_OBJ(stack_elem->obj));
+          prot_cstri(") "); */
+          func_object = stack_elem->obj->value.objValue;
         } else {
+          /* prot_cstri("(");
+          printcategory(CATEGORY_OF_OBJ(stack_elem->obj));
+          prot_cstri(") "); */
           func_object = stack_elem->obj;
         } /* if */
-        if (HAS_ENTITY(func_object)) {
-          prot_cstri("in ");
-          if (GET_ENTITY(func_object)->ident != NULL) {
-            prot_cstri8(id_string(GET_ENTITY(func_object)->ident));
-            prot_cstri(" ");
-          } else if (func_object->descriptor.property->params != NULL) {
-            prot_params(func_object->descriptor.property->params);
-            prot_cstri(" ");
-          } else if (GET_ENTITY(func_object)->fparam_list != NULL) {
-            prot_name(GET_ENTITY(func_object)->fparam_list);
+        if (func_object != NULL &&
+            LEGAL_CATEGORY_FIELD(func_object)) {
+          if (CATEGORY_OF_OBJ(func_object) == ACTOBJECT ||
+              CATEGORY_OF_OBJ(func_object) == BLOCKOBJECT) {
+            if (HAS_ENTITY(func_object)) {
+              prot_cstri("in ");
+              if (GET_ENTITY(func_object)->ident != NULL) {
+                prot_cstri8(id_string(GET_ENTITY(func_object)->ident));
+                prot_cstri(" ");
+              } else if (func_object->descriptor.property->params != NULL) {
+                prot_params(func_object->descriptor.property->params);
+                prot_cstri(" ");
+              } else if (GET_ENTITY(func_object)->fparam_list != NULL) {
+                prot_name(GET_ENTITY(func_object)->fparam_list);
+                prot_cstri(" ");
+              } /* if */
+            } /* if */
+          } else {
+            prot_cstri("in ");
+            printcategory(CATEGORY_OF_OBJ(func_object));
             prot_cstri(" ");
           } /* if */
+        } else {
+          prot_cstri("in *NULL* ");
         } /* if */
         write_position_info(stack_elem->next->obj, TRUE);
         prot_nl();
       } /* if */
-    } else {
-      prot_cstri("NULL");
-      prot_nl();
     } /* if */
     logFunction(printf("write_call_stack_element(" FMT_U_MEM ") -->\n",
                        (memSizeType) stack_elem););
@@ -179,8 +212,17 @@ static void write_call_stack_element (const_listType stack_elem)
 
 
 
-#if HAS_SIGACTION || HAS_SIGNAL
-static void sigsegv_handler (int sig_num)
+#if HAS_SIGACTION
+
+static void sigsegv_handler (int sig, siginfo_t *info, void *context)
+
+  { /* sigsegv_handler */
+    do_longjmp(sigsegvOccurred, 1);
+  } /* sigsegv_handler */
+
+#elif HAS_SIGNAL
+
+static void sigsegv_handler (int sig)
 
   { /* sigsegv_handler */
 #if SIGNAL_RESETS_HANDLER
@@ -188,7 +230,43 @@ static void sigsegv_handler (int sig_num)
 #endif
     do_longjmp(sigsegvOccurred, 1);
   } /* sigsegv_handler */
+
 #endif
+
+
+
+void write_fail_expression (listType failExpression)
+
+  {
+#if HAS_SIGACTION
+    struct sigaction sigAct;
+    struct sigaction oldSigAct;
+#elif HAS_SIGNAL
+    void (*oldSigHandler) (int sig);
+#endif
+
+  /* write_fail_expression */
+#if HAS_SIGACTION
+    sigAct.sa_sigaction = sigsegv_handler;
+    sigemptyset(&sigAct.sa_mask);
+    sigAct.sa_flags = SA_SIGINFO;
+    if (sigaction(SIGSEGV, &sigAct, &oldSigAct) == 0) {
+#elif HAS_SIGNAL
+    if ((oldSigHandler = signal(SIGSEGV, sigsegv_handler)) != SIG_ERR) {
+#endif
+      if (do_setjmp(sigsegvOccurred) == 0) {
+        prot_list(failExpression);
+      } else {
+        prot_cstri("unaccessable expression");
+      } /* if */
+#if HAS_SIGACTION
+      sigaction(SIGSEGV, &oldSigAct, NULL);
+    } /* if */
+#elif HAS_SIGNAL
+      signal(SIGSEGV, oldSigHandler);
+    } /* if */
+#endif
+  } /* write_fail_expression */
 
 
 
@@ -199,7 +277,7 @@ void write_call_stack (const_listType stack_elem)
     struct sigaction sigAct;
     struct sigaction oldSigAct;
 #elif HAS_SIGNAL
-    void (*oldSigHandler) (int sig_num);
+    void (*oldSigHandler) (int sig);
 #endif
 
   /* write_call_stack */
@@ -208,9 +286,9 @@ void write_call_stack (const_listType stack_elem)
     if (stack_elem != NULL) {
       write_call_stack(stack_elem->next);
 #if HAS_SIGACTION
-      sigAct.sa_handler = &sigsegv_handler;
+      sigAct.sa_sigaction = sigsegv_handler;
       sigemptyset(&sigAct.sa_mask);
-      sigAct.sa_flags = 0;
+      sigAct.sa_flags = SA_SIGINFO;
       if (sigaction(SIGSEGV, &sigAct, &oldSigAct) == 0) {
 #elif HAS_SIGNAL
       if ((oldSigHandler = signal(SIGSEGV, sigsegv_handler)) != SIG_ERR) {
@@ -239,11 +317,11 @@ void uncaught_exception (void)
 
   { /* uncaught_exception */
     prot_nl();
-    prot_cstri("*** Uncaught EXCEPTION ");
+    prot_cstri("*** Uncaught exception ");
     printobject(fail_value);
     prot_cstri(" raised with");
     prot_nl();
-    prot_list(fail_expression);
+    write_fail_expression(fail_expression);
     prot_nl();
     prot_nl();
     prot_cstri("Stack:\n");
@@ -264,7 +342,7 @@ static void write_curr_position (listType list)
       write_position_info(curr_exec_object, FALSE);
       prot_nl();
       if (curr_action_object->value.actValue != NULL) {
-        prot_cstri("*** ACTION \"");
+        prot_cstri("*** Action \"");
         prot_cstri(getActEntry(curr_action_object->value.actValue)->name);
         prot_cstri("\"");
         prot_nl();
@@ -282,7 +360,7 @@ void write_exception_info (void)
 
   { /* write_exception_info */
     prot_nl();
-    prot_cstri("*** EXCEPTION ");
+    prot_cstri("*** Exception ");
     printobject(fail_value);
     prot_cstri(" raised");
     write_curr_position(fail_expression);
@@ -299,14 +377,16 @@ objectType raise_with_arguments (objectType exception, listType list)
   /* raise_with_arguments */
 #ifdef WITH_PROTOCOL
     if (list == curr_argument_list) {
-      if (curr_exec_object != NULL && curr_exec_object->value.listValue != NULL) {
+      if (curr_exec_object != NULL &&
+          CATEGORY_OF_OBJ(curr_exec_object) == CALLOBJECT &&
+          curr_exec_object->value.listValue != NULL) {
         curr_action_object = curr_exec_object->value.listValue->obj;
         incl_list(&fail_stack, curr_action_object, &err_info);
       } /* if */
     } /* if */
     if (trace.exceptions) {
       prot_nl();
-      prot_cstri("*** EXCEPTION ");
+      prot_cstri("*** Exception ");
       printobject(exception);
       prot_cstri(" raised");
       write_curr_position(list);
@@ -330,6 +410,9 @@ objectType raise_with_arguments (objectType exception, listType list)
     if (!fail_flag || fail_value == NULL) {
       fail_value = exception;
       fail_expression = copy_list(list, &err_info);
+      /* printf("New fail_expression: ");
+      prot_list(fail_expression);
+      prot_nl(); */
     } /* if */
     set_fail_flag(TRUE);
     return NULL;
@@ -412,27 +495,34 @@ void run_error (objectCategory required, objectType argument)
 
   { /* run_error */
     if (!fail_flag) {
-      if (curr_exec_object != NULL) {
-        curr_action_object = curr_exec_object->value.listValue->obj;
+#ifdef WITH_PROTOCOL
+      if (trace.exceptions) {
+        if (curr_exec_object != NULL &&
+            CATEGORY_OF_OBJ(curr_exec_object) == CALLOBJECT &&
+            curr_exec_object->value.listValue != NULL) {
+          curr_action_object = curr_exec_object->value.listValue->obj;
+        } /* if */
+        printf("\n*** Action $");
+        if (curr_action_object->value.actValue != NULL) {
+          printf("%s", getActEntry(curr_action_object->value.actValue)->name);
+        } else {
+          printf("NULL");
+        } /* if */
+        prot_cstri(" ");
+        write_position_info(curr_action_object, FALSE);
+        printf(" requires ");
+        printcategory(required);
+        printf(" not ");
+        printcategory(CATEGORY_OF_OBJ(argument));
+        printf("\n");
+        trace1(argument);
+        printf("\n");
+        prot_list(curr_argument_list);
+        printf("\n");
+        continue_question(NULL);
       } /* if */
-      printf("\n*** ACTION $");
-      if (curr_action_object->value.actValue != NULL) {
-        printf("%s", getActEntry(curr_action_object->value.actValue)->name);
-      } else {
-        printf("NULL");
-      } /* if */
-      prot_cstri(" ");
-      write_position_info(curr_action_object, FALSE);
-      printf(" requires ");
-      printcategory(required);
-      printf(" not ");
-      printcategory(CATEGORY_OF_OBJ(argument));
-      printf("\n");
-      trace1(argument);
-      printf("\n");
-      prot_list(curr_argument_list);
-      continue_question(NULL);
-      raise_error(RANGE_ERROR);
+#endif
+      raise_error(ACTION_ERROR);
     } /* if */
   } /* run_error */
 
@@ -442,21 +532,28 @@ void empty_value (objectType argument)
 
   { /* empty_value */
     if (!fail_flag) {
-      if (curr_exec_object != NULL) {
-        curr_action_object = curr_exec_object->value.listValue->obj;
+#ifdef WITH_PROTOCOL
+      if (trace.exceptions) {
+        if (curr_exec_object != NULL &&
+            CATEGORY_OF_OBJ(curr_exec_object) == CALLOBJECT &&
+            curr_exec_object->value.listValue != NULL) {
+          curr_action_object = curr_exec_object->value.listValue->obj;
+        } /* if */
+        printf("\n*** Action $");
+        if (curr_action_object->value.actValue != NULL) {
+          printf("%s", getActEntry(curr_action_object->value.actValue)->name);
+        } else {
+          printf("NULL");
+        } /* if */
+        printf(" with empty value\n");
+        trace1(argument);
+        /* printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument); */
+        prot_list(curr_argument_list);
+        printf("\n");
+        continue_question(NULL);
       } /* if */
-      printf("\n*** ACTION $");
-      if (curr_action_object->value.actValue != NULL) {
-        printf("%s", getActEntry(curr_action_object->value.actValue)->name);
-      } else {
-        printf("NULL");
-      } /* if */
-      printf(" WITH EMPTY VALUE\n");
-      trace1(argument);
-      printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument);
-      prot_list(curr_argument_list);
-      continue_question(NULL);
-      raise_error(RANGE_ERROR);
+#endif
+      raise_error(ACTION_ERROR);
     } /* if */
   } /* empty_value */
 
@@ -466,22 +563,29 @@ void var_required (objectType argument)
 
   { /* var_required */
     if (!fail_flag) {
-      if (curr_exec_object != NULL) {
-        curr_action_object = curr_exec_object->value.listValue->obj;
+#ifdef WITH_PROTOCOL
+      if (trace.exceptions) {
+        if (curr_exec_object != NULL &&
+            CATEGORY_OF_OBJ(curr_exec_object) == CALLOBJECT &&
+            curr_exec_object->value.listValue != NULL) {
+          curr_action_object = curr_exec_object->value.listValue->obj;
+        } /* if */
+        printf("\n*** Action $");
+        if (curr_action_object->value.actValue != NULL) {
+          printf("%s", getActEntry(curr_action_object->value.actValue)->name);
+        } else {
+          printf("NULL");
+        } /* if */
+        printf(" requires variable ");
+        printcategory(CATEGORY_OF_OBJ(argument));
+        printf(" not constant\n");
+        trace1(argument);
+        /* printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument); */
+        prot_list(curr_argument_list);
+        printf("\n");
+        continue_question(NULL);
       } /* if */
-      printf("\n*** ACTION $");
-      if (curr_action_object->value.actValue != NULL) {
-        printf("%s", getActEntry(curr_action_object->value.actValue)->name);
-      } else {
-        printf("NULL");
-      } /* if */
-      printf(" REQUIRES VARIABLE ");
-      printcategory(CATEGORY_OF_OBJ(argument));
-      printf(" NOT CONSTANT\n");
-      trace1(argument);
-      printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument);
-      prot_list(curr_argument_list);
-      continue_question(NULL);
-      raise_error(RANGE_ERROR);
+#endif
+      raise_error(ACTION_ERROR);
     } /* if */
   } /* var_required */

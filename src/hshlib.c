@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2019, 2021  Thomas Mertes                  */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/hshlib.c                                        */
-/*  Changes: 2005, 2013, 2016, 2018  Thomas Mertes                  */
+/*  Changes: 2005, 2013, 2016, 2018, 2021  Thomas Mertes            */
 /*  Content: All primitive actions for hash types.                  */
 /*                                                                  */
 /********************************************************************/
@@ -563,6 +563,7 @@ objectType hsh_contains_element (hashType aHashMap, objectType aKey,
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+      isit_not_null(cmp_obj);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -607,10 +608,12 @@ objectType hsh_contains (listType arguments)
     aKey     =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
+    isit_not_null(cmp_func);
     result = SYS_FALSE_OBJECT;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+      isit_not_null(cmp_obj);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -696,6 +699,10 @@ objectType hsh_cpy (listType arguments)
       key_destr_func   = take_reference(arg_4(arguments));
       data_create_func = take_reference(arg_5(arguments));
       data_destr_func  = take_reference(arg_6(arguments));
+      isit_not_null(key_create_func);
+      isit_not_null(key_destr_func);
+      isit_not_null(data_create_func);
+      isit_not_null(data_destr_func);
       free_hash(hsh_dest, key_destr_func, data_destr_func);
       if (TEMP2_OBJECT(source)) {
         dest->value.hashValue = hsh_source;
@@ -743,6 +750,10 @@ objectType hsh_create (listType arguments)
     key_destr_func   = take_reference(arg_4(arguments));
     data_create_func = take_reference(arg_5(arguments));
     data_destr_func  = take_reference(arg_6(arguments));
+    isit_not_null(key_create_func);
+    isit_not_null(key_destr_func);
+    isit_not_null(data_create_func);
+    isit_not_null(data_destr_func);
     /* printf("hsh_create(%lX, %lX, %lX, %lX, %lX, %lX)\n",
         dest, source, key_create_func, key_destr_func,
         data_create_func, data_destr_func); */
@@ -782,6 +793,8 @@ objectType hsh_destr (listType arguments)
     old_hash        =      take_hash(arg_1(arguments));
     key_destr_func  = take_reference(arg_2(arguments));
     data_destr_func = take_reference(arg_3(arguments));
+    isit_not_null(key_destr_func);
+    isit_not_null(data_destr_func);
     free_hash(old_hash, key_destr_func, data_destr_func);
     arg_1(arguments)->value.hashValue = NULL;
     SET_UNUSED_FLAG(arg_1(arguments));
@@ -840,10 +853,14 @@ objectType hsh_excl (listType arguments)
     cmp_func        = take_reference(arg_4(arguments));
     key_destr_func  = take_reference(arg_5(arguments));
     data_destr_func = take_reference(arg_6(arguments));
+    isit_not_null(cmp_func);
+    isit_not_null(key_destr_func);
+    isit_not_null(data_destr_func);
     delete_pos = &aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+      isit_not_null(cmp_obj);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -897,6 +914,7 @@ objectType hsh_for (listType arguments)
     aHashMap = take_hash(arg_2(arguments));
     statement = arg_3(arguments);
     data_copy_func = take_reference(arg_4(arguments));
+    isit_not_null(data_copy_func);
     for_hash(for_variable, aHashMap, statement, data_copy_func);
     return SYS_EMPTY_OBJECT;
   } /* hsh_for */
@@ -924,6 +942,8 @@ objectType hsh_for_data_key (listType arguments)
     statement = arg_4(arguments);
     data_copy_func = take_reference(arg_5(arguments));
     key_copy_func = take_reference(arg_6(arguments));
+    isit_not_null(data_copy_func);
+    isit_not_null(key_copy_func);
     for_data_key_hash(for_variable, key_variable, aHashMap, statement,
         data_copy_func, key_copy_func);
     return SYS_EMPTY_OBJECT;
@@ -948,6 +968,7 @@ objectType hsh_for_key (listType arguments)
     aHashMap = take_hash(arg_2(arguments));
     statement = arg_3(arguments);
     key_copy_func = take_reference(arg_4(arguments));
+    isit_not_null(key_copy_func);
     for_key_hash(key_variable, aHashMap, statement, key_copy_func);
     return SYS_EMPTY_OBJECT;
   } /* hsh_for_key */
@@ -981,6 +1002,7 @@ objectType hsh_idx (listType arguments)
     aKey     =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
+    isit_not_null(cmp_func);
     logFunction(printf("hsh_idx(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U ", " FMT_X_MEM ")\n",
                        (memSizeType) aHashMap, (memSizeType) aKey, hashcode,
                        (memSizeType) cmp_func););
@@ -988,6 +1010,7 @@ objectType hsh_idx (listType arguments)
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+      isit_not_null(cmp_obj);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -1067,6 +1090,8 @@ objectType hsh_idx2 (listType arguments)
     defaultValue     =                arg_4(arguments);
     cmp_func         = take_reference(arg_5(arguments));
     data_create_func = take_reference(arg_6(arguments));
+    isit_not_null(cmp_func);
+    isit_not_null(data_create_func);
     logFunction(printf("hsh_idx2(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U ", " FMT_X_MEM ")\n",
                        (memSizeType) aHashMap, (memSizeType) aKey, hashcode,
                        (memSizeType) cmp_func););
@@ -1074,6 +1099,7 @@ objectType hsh_idx2 (listType arguments)
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+      isit_not_null(cmp_obj);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -1162,10 +1188,14 @@ objectType hsh_idx2 (listType arguments)
     cmp_func         = take_reference(arg_5(arguments));
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
+    isit_not_null(cmp_func);
+    isit_not_null(key_create_func);
+    isit_not_null(data_create_func);
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+      isit_not_null(cmp_obj);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -1246,6 +1276,10 @@ objectType hsh_incl (listType arguments)
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
     data_copy_func   = take_reference(arg_8(arguments));
+    isit_not_null(cmp_func);
+    isit_not_null(key_create_func);
+    isit_not_null(data_create_func);
+    isit_not_null(data_copy_func);
     logFunction(printf("hsh_incl(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_X_MEM ", "
                        FMT_U ", " FMT_X_MEM ", " FMT_X_MEM ", " FMT_X_MEM ", "
                        FMT_X_MEM ")\n",
@@ -1263,6 +1297,7 @@ objectType hsh_incl (listType arguments)
     } else {
       do {
         cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+        isit_not_null(cmp_obj);
         isit_int(cmp_obj);
         cmp = take_int(cmp_obj);
         FREE_OBJECT(cmp_obj);
@@ -1317,6 +1352,8 @@ objectType hsh_keys (listType arguments)
     aHashMap = take_hash(arg_1(arguments));
     key_create_func = take_reference(arg_2(arguments));
     key_destr_func = take_reference(arg_3(arguments));
+    isit_not_null(key_create_func);
+    isit_not_null(key_destr_func);
     key_array = keys_hash(aHashMap, key_create_func, key_destr_func);
     return bld_array_temp(key_array);
   } /* hsh_keys */
@@ -1416,10 +1453,12 @@ objectType hsh_refidx (listType arguments)
     aKey     =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
+    isit_not_null(cmp_func);
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
       cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+      isit_not_null(cmp_obj);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -1482,6 +1521,9 @@ objectType hsh_update (listType arguments)
     cmp_func         = take_reference(arg_5(arguments));
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
+    isit_not_null(cmp_func);
+    isit_not_null(key_create_func);
+    isit_not_null(data_create_func);
     logFunction(printf("hsh_update(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_X_MEM ", "
                        FMT_U ", " FMT_X_MEM ", " FMT_X_MEM ", " FMT_X_MEM ")\n",
                        (memSizeType) aHashMap, (memSizeType) aKey, (memSizeType) data,
@@ -1498,6 +1540,7 @@ objectType hsh_update (listType arguments)
     } else {
       do {
         cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+        isit_not_null(cmp_obj);
         isit_int(cmp_obj);
         cmp = take_int(cmp_obj);
         FREE_OBJECT(cmp_obj);
@@ -1556,6 +1599,8 @@ objectType hsh_values (listType arguments)
     aHashMap = take_hash(arg_1(arguments));
     value_create_func = take_reference(arg_2(arguments));
     value_destr_func = take_reference(arg_3(arguments));
+    isit_not_null(value_create_func);
+    isit_not_null(value_destr_func);
     value_array = values_hash(aHashMap, value_create_func, value_destr_func);
     return bld_array_temp(value_array);
   } /* hsh_values */

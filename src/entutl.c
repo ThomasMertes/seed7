@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2015, 2021  Thomas Mertes                  */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/entutl.c                                        */
-/*  Changes: 2000  Thomas Mertes                                    */
+/*  Changes: 2000, 2013 - 2015, 2021  Thomas Mertes                 */
 /*  Content: Procedures to maintain objects of type entityType.     */
 /*                                                                  */
 /********************************************************************/
@@ -69,6 +69,9 @@
 
 
 
+/**
+ *  Frees all nodes below the root 'node'.
+ */
 static void free_nodes (nodeType node)
 
   { /* free_nodes */
@@ -90,6 +93,10 @@ static void free_nodes (nodeType node)
 
 
 
+/**
+ *  Create a new node with the given match_obj 'obj'.
+ *  @return the new node or NULL, if a memory error occurred.
+ */
 static nodeType new_node (objectType obj)
 
   {
@@ -187,7 +194,7 @@ nodeType find_node (register nodeType node_tree,
     register objectType object_searched)
 
   {
-    nodeType node_found;
+    nodeType node_found = NULL;
 
   /* find_node */
     logFunction(printf("find_node({ ");
@@ -196,12 +203,12 @@ nodeType find_node (register nodeType node_tree,
                 trace1(object_searched);
                 printf("=" FMT_U_MEM ")\n",
                        (memSizeType) object_searched););
-    node_found = NULL;
     while (node_tree != NULL) {
       if (PTR_LESS(object_searched, node_tree->match_obj)) {
         node_tree = node_tree->next1;
       } else if (object_searched == node_tree->match_obj) {
         if (node_tree->usage_count > 0) {
+          /* Just consider nodes that are in use now. */
           node_found = node_tree;
         } /* if */
         node_tree = NULL;
@@ -223,12 +230,16 @@ nodeType find_node (register nodeType node_tree,
 
 
 /**
- *  Decrement the usage count of object_searched, if it is found.
- *  Searches node_tree for a node matching object_searched.
- *  If a node is found its usage_count is decremented. If the
- *  node is unused now it is removed and NULL is returned.
- *  If the node is still in use it is returned. If no matching
- *  node is found NULL is returned.
+ *  Search node_tree for object_searched and decrement node usage count.
+ *  Searches node_tree for a node matching object_searched. If a node
+ *  is found its usage_count is decremented. If the node is unused now
+ *  it is kept, but its symbol, inout, other and attr subnode trees are
+ *  removed and set to NULL. For an unused node the next1 and next2
+ *  subnodes and the match_obj are kept intact and the function returns
+ *  NULL. The function find_node() ignores nodes with usage_count zero
+ *  and the function get_node() just reactivates such a node. If the
+ *  node found is still in use it is returned. If no matching node is
+ *  found NULL is returned.
  *  @return a node that is still in use after it has been popped, or
  *          NULL if the last usage of a node has been removed, or
  *          NULL if no matching node has been found.
@@ -237,7 +248,7 @@ static nodeType pop_node (register nodeType node_tree,
     register objectType object_searched)
 
   {
-    nodeType node_found;
+    nodeType node_found = NULL;
 
   /* pop_node */
     logFunction(printf("pop_node({ ");
@@ -246,12 +257,12 @@ static nodeType pop_node (register nodeType node_tree,
                 trace1(object_searched);
                 printf("=" FMT_U_MEM ")\n",
                        (memSizeType) object_searched););
-    node_found = NULL;
     while (node_tree != NULL) {
       if (PTR_LESS(object_searched, node_tree->match_obj)) {
         node_tree = node_tree->next1;
       } else if (object_searched == node_tree->match_obj) {
         if (node_tree->usage_count > 0) {
+          /* Just consider nodes that are in use now. */
           node_tree->usage_count--;
           if (node_tree->usage_count == 0) {
             node_tree->entity = NULL;
@@ -290,6 +301,9 @@ void init_declaration_root (progType currentProg, errInfoType *err_info)
   { /* init_declaration_root */
     logFunction(printf("init_declaration_root\n"););
     currentProg->declaration_root = new_node(NULL);
+    if (currentProg->declaration_root == NULL) {
+      *err_info = MEMORY_ERROR;
+    } /* if */
     logFunction(printf("init_declaration_root -->\n"););
   } /* init_declaration_root */
 
@@ -346,6 +360,10 @@ void free_entity (const_progType currentProg, entityType old_entity)
 
 
 
+/**
+ *  Create a new entity with the given 'id'.
+ *  @return the new entity or NULL, if a memory error occurred.
+ */
 static entityType new_entity (identType id)
 
   {
@@ -367,42 +385,164 @@ static entityType new_entity (identType id)
 
 
 
-static listType copy_params (listType name_list)
+/**
+ *  Copy formal value and reference parameter objects.
+ *  The parameters are allocated first in a list and later assigned.
+ *  This way everything can be cleaned up and name_list is unchanged,
+ *  if a memory error occurs.
+ */
+static errInfoType copy_params (listType name_list)
 
   {
     listType name_elem;
     objectType param_obj;
     objectType copied_param;
+    listType copied_param_list = NULL;
+    listType *list_insert_place;
+    listType curr_param;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* copy_params */
     logFunction(printf("copy_params\n"););
+    list_insert_place = &copied_param_list;
     name_elem = name_list;
-    while (name_elem != NULL) {
+    while (name_elem != NULL && err_info == OKAY_NO_ERROR) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
         param_obj = name_elem->obj->value.objValue;
         if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
             CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
-          /* printf("copy_params: ");
-          trace1(param_obj);
-          printf("\n"); */
           if (ALLOC_OBJECT(copied_param)) {
             INIT_CATEGORY_OF_OBJ(copied_param, CATEGORY_OF_OBJ(param_obj));
             COPY_VAR_FLAG(copied_param, param_obj);
             copied_param->type_of = param_obj->type_of;
             copied_param->descriptor.property = NULL;
             copied_param->value.objValue = NULL;
-            /* memcpy(copied_param, param_obj, sizeof(objectRecord)); */
-            name_elem->obj->value.objValue = copied_param;
+            list_insert_place = append_element_to_list(list_insert_place,
+                                                       copied_param, &err_info);
+            if (err_info != OKAY_NO_ERROR) {
+              FREE_OBJECT(copied_param);
+            } /* if */
           } else {
-            name_list = NULL;
+            err_info = MEMORY_ERROR;
           } /* if */
         } /* if */
       } /* if */
       name_elem = name_elem->next;
     } /* while */
-    logFunction(printf("copy_params -->\n"););
-    return name_list;
+    if (err_info == OKAY_NO_ERROR) {
+      curr_param = copied_param_list;
+      name_elem = name_list;
+      while (name_elem != NULL) {
+        if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+          param_obj = name_elem->obj->value.objValue;
+          if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+            name_elem->obj->value.objValue = curr_param->obj;
+            curr_param = curr_param->next;
+          } /* if */
+        } /* if */
+        name_elem = name_elem->next;
+      } /* while */
+    } else {
+      curr_param = copied_param_list;
+      while (curr_param != NULL) {
+        FREE_OBJECT(curr_param->obj);
+        curr_param = curr_param->next;
+      } /* while */
+    } /* if */
+    free_list(copied_param_list);
+    logFunction(printf("copy_params --> %d\n", err_info););
+    return err_info;
   } /* copy_params */
+
+
+
+static void pop_name_list (nodeType declaration_base, listType name_list)
+
+  {
+    listType name_elem;
+    objectType param_obj;
+    nodeType curr_node;
+
+  /* pop_name_list */
+    logFunction(printf("pop_name_list\n"););
+    name_elem = name_list;
+    curr_node = declaration_base;
+    while (name_elem != NULL && curr_node != NULL) {
+      if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+        param_obj = name_elem->obj->value.objValue;
+        if (CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
+          curr_node = pop_node(curr_node->inout_param, param_obj->type_of->match_obj);
+        } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+                   CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+          curr_node = pop_node(curr_node->other_param, param_obj->type_of->match_obj);
+        } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
+          curr_node = pop_node(curr_node->attr, param_obj->value.typeValue->match_obj);
+        } else if (CATEGORY_OF_OBJ(param_obj) == FORMPARAMOBJECT) {
+          curr_node = pop_node(curr_node->attr, param_obj);
+        } else {
+          curr_node = pop_node(curr_node->symbol, param_obj);
+        } /* if */
+      } else {
+        curr_node = pop_node(curr_node->symbol, name_elem->obj);
+      } /* if */
+      name_elem = name_elem->next;
+    } /* while */
+    logFunction(printf("pop_name_list -->\n"););
+  } /* pop_name_list */
+
+
+
+/**
+ *  Searches declaration_base for a node matching name_list.
+ *  If a node is found it is returned. If no matching node is
+ *  found new nodes are generated and entered into declaration_base.
+ *  In this case the new node at the bottom is returned.
+ *  @return the node found or the new generated node or
+ *          NULL, if a memory error occurred.
+ */
+static nodeType get_entity_node (nodeType declaration_base, listType name_list)
+
+  {
+    listType name_elem;
+    objectType param_obj;
+    nodeType curr_node;
+
+  /* get_entity_node */
+    logFunction(printf("get_entity_node(");
+                prot_list(name_list);
+                printf(")\n"););
+    name_elem = name_list;
+    curr_node = declaration_base;
+    while (name_elem != NULL && curr_node != NULL) {
+      if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+        param_obj = name_elem->obj->value.objValue;
+        if (CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
+          curr_node = get_node(&curr_node->inout_param, param_obj->type_of->match_obj);
+        } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+                   CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+          curr_node = get_node(&curr_node->other_param, param_obj->type_of->match_obj);
+        } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
+          curr_node = get_node(&curr_node->attr, param_obj->value.typeValue->match_obj);
+        } else if (CATEGORY_OF_OBJ(param_obj) == FORMPARAMOBJECT) {
+          curr_node = get_node(&curr_node->attr, param_obj);
+        } else {
+          curr_node = get_node(&curr_node->symbol, param_obj);
+        } /* if */
+      } else {
+        curr_node = get_node(&curr_node->symbol, name_elem->obj);
+      } /* if */
+      name_elem = name_elem->next;
+    } /* while */
+    logFunction(printf("get_entity_node --> ");
+                if (curr_node != NULL) {
+                  trace1(curr_node->match_obj);
+                  printf("\n");
+                } else {
+                  printf("*NULL_NODE*\n");
+                });
+    return curr_node;
+  } /* get_entity_node */
 
 
 
@@ -417,72 +557,32 @@ static listType copy_params (listType name_list)
 entityType get_entity (nodeType declaration_base, listType name_list)
 
   {
-    listType name_elem;
-    objectType param_obj;
-    nodeType curr_node;
+    nodeType node_found;
     entityType entity_found;
 
   /* get_entity */
     logFunction(printf("get_entity(");
                 prot_list(name_list);
                 printf(")\n"););
-    name_elem = name_list;
-    curr_node = declaration_base;
-    while (name_elem != NULL && curr_node != NULL) {
-      if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
-/* printf("paramobject x\n"); */
-        param_obj = name_elem->obj->value.objValue;
-        if (CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
-/* printf("inout param ");
-trace1(param_obj);
-printf("\n"); */
-          curr_node = get_node(&curr_node->inout_param, param_obj->type_of->match_obj);
-        } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-                   CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
-/* printf("value or ref param ");
-trace1(param_obj);
-printf("\n"); */
-          curr_node = get_node(&curr_node->other_param, param_obj->type_of->match_obj);
-        } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-/* printf("attr param ");
-trace1(param_obj);
-printf("\n"); */
-          curr_node = get_node(&curr_node->attr, param_obj->value.typeValue->match_obj);
-        } else if (CATEGORY_OF_OBJ(param_obj) == FORMPARAMOBJECT) {
-/* printf("attr param attr ");
-trace1(param_obj);
-printf("\n"); */
-          curr_node = get_node(&curr_node->attr, param_obj);
-        } else {
-/* printf("symbol param ");
-trace1(param_obj);
-printf("\n"); */
-          curr_node = get_node(&curr_node->symbol, param_obj);
-        } /* if */
-      } else {
-/* printf("symbol param ");
-trace1(name_elem->obj);
-printf("\n"); */
-        curr_node = get_node(&curr_node->symbol, name_elem->obj);
-/* printf("after symbol param\n"); */
-      } /* if */
-      name_elem = name_elem->next;
-    } /* while */
-    if (curr_node == NULL) {
+    node_found = get_entity_node(declaration_base, name_list);
+    if (node_found == NULL) {
+      /* A memory error occurred. */
+      pop_name_list(declaration_base, name_list);
       entity_found = NULL;
+    } else if (node_found->entity != NULL) {
+      entity_found = node_found->entity;
     } else {
-      if (curr_node->entity == NULL) {
-        if ((entity_found = new_entity(NULL)) != NULL) {
-          entity_found->fparam_list = copy_params(name_list);
-          if (entity_found->fparam_list == NULL) {
-            FREE_RECORD(entity_found, entityRecord, count.entity);
-            entity_found = NULL;
-          } else {
-            curr_node->entity = entity_found;
-          } /* if */
-        } /* if */
+      if ((entity_found = new_entity(NULL)) == NULL) {
+        pop_name_list(declaration_base, name_list);
       } else {
-        entity_found = curr_node->entity;
+        if (copy_params(name_list) != OKAY_NO_ERROR) {
+          pop_name_list(declaration_base, name_list);
+          FREE_RECORD(entity_found, entityRecord, count.entity);
+          entity_found = NULL;
+        } else {
+          entity_found->fparam_list = name_list;
+          node_found->entity = entity_found;
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("get_entity -->\n");
@@ -512,41 +612,21 @@ entityType find_entity (nodeType declaration_base, listType name_list)
     curr_node = declaration_base;
     while (name_elem != NULL && curr_node != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
-/* printf("paramobject x\n"); */
         param_obj = name_elem->obj->value.objValue;
         if (CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
-/* printf("inout param ");
-trace1(param_obj);
-printf("\n"); */
           curr_node = find_node(curr_node->inout_param, param_obj->type_of->match_obj);
         } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
                    CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
-/* printf("value or ref param ");
-trace1(param_obj);
-printf("\n"); */
           curr_node = find_node(curr_node->other_param, param_obj->type_of->match_obj);
         } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-/* printf("attr param ");
-trace1(param_obj);
-printf("\n"); */
           curr_node = find_node(curr_node->attr, param_obj->value.typeValue->match_obj);
         } else if (CATEGORY_OF_OBJ(param_obj) == FORMPARAMOBJECT) {
-/* printf("attr param attr ");
-trace1(param_obj);
-printf("\n"); */
           curr_node = find_node(curr_node->attr, param_obj);
         } else {
-/* printf("symbol param ");
-trace1(param_obj);
-printf("\n"); */
           curr_node = find_node(curr_node->symbol, param_obj);
         } /* if */
       } else {
-/* printf("symbol param ");
-trace1(name_elem->obj);
-printf("\n"); */
         curr_node = find_node(curr_node->symbol, name_elem->obj);
-/* printf("after symbol param\n"); */
       } /* if */
       name_elem = name_elem->next;
     } /* while */
@@ -652,34 +732,10 @@ printf("\n"); */
 
 void pop_entity (nodeType declaration_base, const_entityType entity)
 
-  {
-    listType name_elem;
-    objectType param_obj;
-    nodeType curr_node;
-
-  /* pop_entity */
+  { /* pop_entity */
     logFunction(printf("pop_entity\n"););
     /* trace_entity(entity); */
-    name_elem = entity->fparam_list;
-    if (name_elem != NULL) {
-      curr_node = declaration_base;
-      while (name_elem != NULL && curr_node != NULL) {
-        if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
-          param_obj = name_elem->obj->value.objValue;
-          if (CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
-            curr_node = pop_node(curr_node->inout_param, param_obj->type_of->match_obj);
-          } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-                     CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
-            curr_node = pop_node(curr_node->other_param, param_obj->type_of->match_obj);
-          } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-            curr_node = pop_node(curr_node->attr, param_obj->value.typeValue->match_obj);
-          } /* if */
-        } else {
-          curr_node = pop_node(curr_node->symbol, name_elem->obj);
-        } /* if */
-        name_elem = name_elem->next;
-      } /* while */
-    } /* if */
+    pop_name_list(declaration_base, entity->fparam_list);
     logFunction(printf("pop_entity -->\n"););
   } /* pop_entity */
 
@@ -715,11 +771,12 @@ void init_entity (progType aProg, errInfoType *err_info)
     } /* if */
     if (!ALLOC_RECORD(aProg->property.literal, propertyRecord, count.property)) {
       *err_info = MEMORY_ERROR;
+    } else {
+      aProg->property.literal->entity = aProg->entity.literal;
+      aProg->property.literal->params = NULL;
+      aProg->property.literal->file_number = 0;
+      aProg->property.literal->line = 0;
+      aProg->property.literal->syNumberInLine = 0;
     } /* if */
-    aProg->property.literal->entity = aProg->entity.literal;
-    aProg->property.literal->params = NULL;
-    aProg->property.literal->file_number = 0;
-    aProg->property.literal->line = 0;
-    aProg->property.literal->syNumberInLine = 0;
     logFunction(printf("init_entity -->\n"););
   } /* init_entity */

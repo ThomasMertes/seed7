@@ -1,8 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000, 2011 - 2013, 2015 - 2017             */
-/*                Thomas Mertes                                     */
+/*  Copyright (C) 1990 - 2000, 2011 - 2013  Thomas Mertes           */
+/*                2015 - 2017, 2020, 2021  Thomas Mertes            */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -21,7 +21,8 @@
 /*                                                                  */
 /*  Module: Interpreter                                             */
 /*  File: seed7/src/executl.c                                       */
-/*  Changes: 1993, 1994  Thomas Mertes                              */
+/*  Changes: 1993, 1994, 2011 - 2013, 2015 - 2017  Thomas Mertes    */
+/*           2020, 2021  Thomas Mertes                              */
 /*  Content: Initialization operation procedures used at runtime.   */
 /*                                                                  */
 /********************************************************************/
@@ -505,68 +506,72 @@ void do_destroy (objectType old_obj, errInfoType *err_info)
     objectType call_result;
 
   /* do_destroy */
-    if (old_obj->type_of->destroy_call_obj == NULL) {
-      /* prot_cstri("do_destroy ");
-      trace1(old_obj);
-      prot_nl(); */
-      old_obj->type_of->destroy_call_obj =
-          get_destroy_call_obj(old_obj, err_info);
-      /* prot_cstri("is ");
-      trace1(old_obj->type_of->destroy_call_obj);
-      prot_nl(); */
-    } /* if */
-    if (old_obj->type_of->destroy_call_obj != NULL) {
-      call_object.type_of = NULL;
-      call_object.descriptor.property = NULL;
-      call_object.value.listValue = call_list;
-      INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
-
-      /* prot_cstri("old_obj=[");
-      prot_int((intType) old_obj);
-      prot_cstri("] ");
-      prot_flush();
-      trace1(old_obj);
-      prot_nl(); */
-
-      call_list[0].next = &call_list[1];
-      call_list[1].next = &call_list[2];
-      call_list[2].next = NULL;
-      call_list[0].obj = old_obj->type_of->destroy_call_obj;
-      call_list[1].obj = old_obj;
-      call_list[2].obj = SYS_DESTR_OBJECT;
-
-      /* prot_cstri("call_list[0].obj=[");
-      prot_int((intType) call_list[0].obj);
-      prot_cstri("] ");
-      prot_flush();
-      trace1(call_list[0].obj);
-      prot_nl();
-      prot_cstri("call_list[1].obj=[");
-      prot_int((intType) call_list[0].obj);
-      prot_cstri("] ");
-      prot_flush();
-      trace1(call_list[1].obj);
-      prot_nl();
-      prot_cstri("call_list[2].obj=[");
-      prot_int((intType) call_list[0].obj);
-      prot_cstri("] ");
-      prot_flush();
-      trace1(call_list[2].obj);
-      prot_nl(); */
-      /* printf("do_destroy: before exec_call\n");
-         fflush(stdout);
-      if (TEMP_OBJECT(old_obj)) {
-        prot_cstri("is temp ");
+    if (old_obj->type_of != NULL) {
+      if (old_obj->type_of->destroy_call_obj == NULL) {
+        /* prot_cstri("do_destroy ");
         trace1(old_obj);
-      } */
-      call_result = exec_call(&call_object);
-      /* printf("do_destroy: after exec_call\n");
-         fflush(stdout); */
-      if (call_result != SYS_EMPTY_OBJECT) {
-        if (trace.exceptions) {
-          write_exception_info();
+        prot_nl(); */
+        old_obj->type_of->destroy_call_obj =
+            get_destroy_call_obj(old_obj, err_info);
+        /* prot_cstri("is ");
+        trace1(old_obj->type_of->destroy_call_obj);
+        prot_nl(); */
+      } /* if */
+      if (old_obj->type_of->destroy_call_obj != NULL) {
+        call_object.type_of = NULL;
+        call_object.descriptor.property = NULL;
+        call_object.value.listValue = call_list;
+        INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
+
+        /* prot_cstri("old_obj=[");
+        prot_int((intType) old_obj);
+        prot_cstri("] ");
+        prot_flush();
+        trace1(old_obj);
+        prot_nl(); */
+
+        call_list[0].next = &call_list[1];
+        call_list[1].next = &call_list[2];
+        call_list[2].next = NULL;
+        call_list[0].obj = old_obj->type_of->destroy_call_obj;
+        call_list[1].obj = old_obj;
+        call_list[2].obj = SYS_DESTR_OBJECT;
+
+        /* prot_cstri("call_list[0].obj=[");
+        prot_int((intType) call_list[0].obj);
+        prot_cstri("] ");
+        prot_flush();
+        trace1(call_list[0].obj);
+        prot_nl();
+        prot_cstri("call_list[1].obj=[");
+        prot_int((intType) call_list[0].obj);
+        prot_cstri("] ");
+        prot_flush();
+        trace1(call_list[1].obj);
+        prot_nl();
+        prot_cstri("call_list[2].obj=[");
+        prot_int((intType) call_list[0].obj);
+        prot_cstri("] ");
+        prot_flush();
+        trace1(call_list[2].obj);
+        prot_nl(); */
+        /* printf("do_destroy: before exec_call\n");
+           fflush(stdout);
+        if (TEMP_OBJECT(old_obj)) {
+          prot_cstri("is temp ");
+          trace1(old_obj);
+        } */
+        call_result = exec_call(&call_object);
+        /* printf("do_destroy: after exec_call\n");
+           fflush(stdout); */
+        if (call_result != SYS_EMPTY_OBJECT) {
+          if (trace.exceptions) {
+            write_exception_info();
+          } /* if */
+          set_fail_flag(FALSE);
+          *err_info = DESTROY_ERROR;
         } /* if */
-        set_fail_flag(FALSE);
+      } else {
         *err_info = DESTROY_ERROR;
       } /* if */
     } else {
@@ -611,7 +616,7 @@ printf("\n");
         write_exception_info();
       } /* if */
       set_fail_flag(FALSE);
-      *err_info = CREATE_ERROR;
+      *err_info = COPY_ERROR;
     } /* if */
     logFunction(printf("old_do_copy --> err_info=%d\n", *err_info););
   } /* old_do_copy */
@@ -982,7 +987,17 @@ objectType create_return_object (const_locObjType local, objectType init_value,
     objectType call_result;
 
   /* create_return_object */
-    if (ALLOC_OBJECT(new_object)) {
+    logFunction(printf("create_return_object(");
+                trace1(local->object);
+                printf(", ");
+                trace1(init_value);
+                printf(")\n"););
+    if (local->create_call_obj == NULL) {
+      *err_info = CREATE_ERROR;
+      new_object = NULL;
+    } else if (!ALLOC_OBJECT(new_object)) {
+      *err_info = MEMORY_ERROR;
+    } else {
       new_object->type_of = init_value->type_of;
       new_object->descriptor.property = NULL;
       if (VAR_OBJECT(init_value)) {
@@ -1014,10 +1029,8 @@ objectType create_return_object (const_locObjType local, objectType init_value,
         set_fail_flag(FALSE);
         *err_info = CREATE_ERROR;
       } /* if */
-    } else {
-      set_fail_flag(FALSE);
-      *err_info = MEMORY_ERROR;
     } /* if */
+    logFunction(printf("create_return_object -->\n"););
     return new_object;
   } /* create_return_object */
 
@@ -1038,7 +1051,11 @@ void create_local_object (const_locObjType local, objectType init_value,
                 printf(", ");
                 trace1(init_value);
                 printf(")\n"););
-    if (ALLOC_OBJECT(new_object)) {
+    if (local->create_call_obj == NULL) {
+      *err_info = CREATE_ERROR;
+    } else if (!ALLOC_OBJECT(new_object)) {
+      *err_info = MEMORY_ERROR;
+    } else {
       new_object->type_of = local->object->type_of;
       new_object->descriptor.property = NULL;
       if (VAR_OBJECT(local->object)) {
@@ -1072,9 +1089,6 @@ void create_local_object (const_locObjType local, objectType init_value,
       } /* if */
 
       local->object->value.objValue = new_object;
-    } else {
-      set_fail_flag(FALSE);
-      *err_info = MEMORY_ERROR;
     } /* if */
     logFunction(printf("create_local_object -->\n"););
   } /* create_local_object */
@@ -1093,63 +1107,67 @@ void destroy_local_object (const_locObjType local, boolType ignoreError)
     logFunction(printf("destroy_local_object(");
                /* trace1(local->object); */
                printf(", %d)\n", ignoreError););
-    switch (CATEGORY_OF_OBJ(local->object->value.objValue)) {
-      case INTOBJECT:
-      case CHAROBJECT:
-      case FILEOBJECT:
-      case FLOATOBJECT:
-      case REFOBJECT:
-      case ACTOBJECT:
-      case CONSTENUMOBJECT:
-      case VARENUMOBJECT:
-      case ENUMLITERALOBJECT:
-        SET_UNUSED_FLAG(local->object->value.objValue);
-        break;
-      default:
-        call_object.type_of = NULL;
-        call_object.descriptor.property = NULL;
-        call_object.value.listValue = call_list;
-        INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
+    if (local->object->value.objValue != NULL) {
+      switch (CATEGORY_OF_OBJ(local->object->value.objValue)) {
+        case INTOBJECT:
+        case CHAROBJECT:
+        case FILEOBJECT:
+        case FLOATOBJECT:
+        case REFOBJECT:
+        case ACTOBJECT:
+        case CONSTENUMOBJECT:
+        case VARENUMOBJECT:
+        case ENUMLITERALOBJECT:
+          SET_UNUSED_FLAG(local->object->value.objValue);
+          break;
+        default:
+          if (local->destroy_call_obj != NULL) {
+            call_object.type_of = NULL;
+            call_object.descriptor.property = NULL;
+            call_object.value.listValue = call_list;
+            INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
-        call_list[0].next = &call_list[1];
-        call_list[1].next = &call_list[2];
-        call_list[2].next = NULL;
-        call_list[0].obj = local->destroy_call_obj;
-        call_list[1].obj = local->object->value.objValue;
-        call_list[2].obj = SYS_DESTR_OBJECT;
+            call_list[0].next = &call_list[1];
+            call_list[1].next = &call_list[2];
+            call_list[2].next = NULL;
+            call_list[0].obj = local->destroy_call_obj;
+            call_list[1].obj = local->object->value.objValue;
+            call_list[2].obj = SYS_DESTR_OBJECT;
 
-        /* printf("destroy_local_object: local->destroy_call_obj ");
-        trace1(local->destroy_call_obj);
-        printf("\n");
-        printf("destroy_local_object: local->object ");
+            /* printf("destroy_local_object: local->destroy_call_obj ");
+            trace1(local->destroy_call_obj);
+            printf("\n");
+            printf("destroy_local_object: local->object ");
+            trace1(local->object);
+            printf("\n");
+            printf("destroy_local_object: before exec_call ");
+            trace1(&call_object);
+            printf("\n");
+            fflush(stdout); */
+            call_result = exec_call(&call_object);
+            /* printf("destroy_local_object: after exec_call\n");
+               fflush(stdout); */
+            if (unlikely(call_result != SYS_EMPTY_OBJECT)) {
+              okay = FALSE;
+              if (ignoreError) {
+                leaveExceptionHandling();
+              /* } else if (!fail_flag) {
+                 raise_error(DESTROY_ERROR); */
+              } /* if */
+            } /* if */
+          } /* if */
+          break;
+      } /* switch */
+      if (IS_UNUSED(local->object->value.objValue)) {
+        FREE_OBJECT(local->object->value.objValue);
+      } else if (unlikely(okay &&
+          CATEGORY_OF_OBJ(local->object->value.objValue) != STRUCTOBJECT)) {
+        printf("loc not dumped: ");
         trace1(local->object);
         printf("\n");
-        printf("destroy_local_object: before exec_call ");
-        trace1(&call_object);
+        trace1(local->object->value.objValue);
         printf("\n");
-        fflush(stdout); */
-        call_result = exec_call(&call_object);
-        /* printf("destroy_local_object: after exec_call\n");
-           fflush(stdout); */
-        if (unlikely(call_result != SYS_EMPTY_OBJECT)) {
-          okay = FALSE;
-          if (ignoreError) {
-            leaveExceptionHandling();
-          /* } else if (!fail_flag) {
-             raise_error(DESTROY_ERROR); */
-          } /* if */
-        } /* if */
-        break;
-    } /* switch */
-    if (IS_UNUSED(local->object->value.objValue)) {
-      FREE_OBJECT(local->object->value.objValue);
-    } else if (unlikely(okay &&
-        CATEGORY_OF_OBJ(local->object->value.objValue) != STRUCTOBJECT)) {
-      printf("loc not dumped: ");
-      trace1(local->object);
-      printf("\n");
-      trace1(local->object->value.objValue);
-      printf("\n");
+      } /* if */
     } /* if */
     logFunction(printf("destroy_local_object -->\n"););
   } /* destroy_local_object */
@@ -1164,6 +1182,9 @@ void destroy_local_init_value (const_locObjType local, errInfoType *err_info)
     objectType call_result;
 
   /* destroy_local_init_value */
+    logFunction(printf("destroy_local_init_value(");
+               /* trace1(local->object); */
+               printf(")\n"););
     switch (CATEGORY_OF_OBJ(local->init_value)) {
       case INTOBJECT:
       case CHAROBJECT:
@@ -1176,37 +1197,42 @@ void destroy_local_init_value (const_locObjType local, errInfoType *err_info)
       case ENUMLITERALOBJECT:
         break;
       default:
-        call_object.type_of = NULL;
-        call_object.descriptor.property = NULL;
-        call_object.value.listValue = call_list;
-        INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
+        if (local->destroy_call_obj != NULL) {
+          call_object.type_of = NULL;
+          call_object.descriptor.property = NULL;
+          call_object.value.listValue = call_list;
+          INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
-        call_list[0].next = &call_list[1];
-        call_list[1].next = &call_list[2];
-        call_list[2].next = NULL;
-        call_list[0].obj = local->destroy_call_obj;
-        call_list[1].obj = local->init_value;
-        call_list[2].obj = SYS_DESTR_OBJECT;
+          call_list[0].next = &call_list[1];
+          call_list[1].next = &call_list[2];
+          call_list[2].next = NULL;
+          call_list[0].obj = local->destroy_call_obj;
+          call_list[1].obj = local->init_value;
+          call_list[2].obj = SYS_DESTR_OBJECT;
 
-        /* printf("destroy_local_init_value: local->destroy_call_obj ");
-        trace1(local->destroy_call_obj);
-        printf("\n");
-        printf("destroy_local_init_value: local->object ");
-        trace1(local->object);
-        printf("\n");
-        printf("destroy_local_init_value: before exec_call ");
-        trace1(&call_object);
-        printf("\n");
-        fflush(stdout); */
-        call_result = exec_call(&call_object);
-        /* printf("destroy_local_init_value: after exec_call\n");
-           fflush(stdout); */
-        if (call_result != SYS_EMPTY_OBJECT) {
-          set_fail_flag(FALSE);
-          *err_info = CREATE_ERROR;
+          /* printf("destroy_local_init_value: local->destroy_call_obj ");
+          trace1(local->destroy_call_obj);
+          printf("\n");
+          printf("destroy_local_init_value: local->object ");
+          trace1(local->object);
+          printf("\n");
+          printf("destroy_local_init_value: before exec_call ");
+          trace1(&call_object);
+          printf("\n");
+          fflush(stdout); */
+          call_result = exec_call(&call_object);
+          /* printf("destroy_local_init_value: after exec_call\n");
+             fflush(stdout); */
+          if (call_result != SYS_EMPTY_OBJECT) {
+            set_fail_flag(FALSE);
+            *err_info = DESTROY_ERROR;
+          } /* if */
+        } else {
+          *err_info = DESTROY_ERROR;
         } /* if */
         break;
     } /* switch */
+    logFunction(printf("destroy_local_init_value -->\n"););
   } /* destroy_local_init_value */
 
 

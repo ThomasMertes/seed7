@@ -96,8 +96,9 @@ s7c: ../bin/s7c.js ../prg/s7c.js
 	@echo "  Use 'make test' (with your make command) to check Seed7."
 	@echo
 
-../bin/s7.js: $(OBJ) $(ALL_S7_LIBS) ../bin/$(SPECIAL_LIB)
+../bin/s7.js: levelup next_lvl $(OBJ) $(ALL_S7_LIBS) ../bin/$(SPECIAL_LIB)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) --pre-js ../bin/$(SPECIAL_LIB) -o ../bin/s7.js
+	rm next_lvl
 
 ../prg/s7.js: ../bin/s7.js
 	ln -s ../bin/s7.js ../prg
@@ -109,6 +110,13 @@ s7c: ../bin/s7c.js ../prg/s7c.js
 
 ../prg/s7c.js: ../prg/s7c.sd7 $(ALL_S7_LIBS) ../bin/$(SPECIAL_LIB)
 	node --stack-size=2048 ../bin/s7.js -l ../lib ../prg/s7c -l ../lib -b ../bin -O2 ../prg/s7c
+
+levelup: levelup.c
+	gcc levelup.c -o levelup
+
+next_lvl: levelup
+	./levelup
+	echo "X" > next_lvl
 
 sql_%.o: sql_%.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) -c $< -o $@
@@ -127,7 +135,7 @@ clear: clean
 clean:
 	rm -f *.o ../bin/*.a ../bin/s7.js ../bin/s7.wasm ../bin/$(CC_ENVIRONMENT_INI) ../bin/s7c.js ../bin/s7c.wasm ../bin/$(SPECIAL_LIB)
 	rm -f ../prg/s7.js ../prg/s7.wasm ../prg/s7c.js ../prg/s7c.wasm
-	rm -f depend macros chkccomp.h base.h settings.h version.h setwpath wrdepend sudo
+	rm -f depend macros chkccomp.h base.h settings.h version.h setwpath wrdepend levelup next_lvl
 	@echo
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo
@@ -203,7 +211,7 @@ version.h: chkccomp.h base.h settings.h
 	rm chkccomp
 	rm -f ctest*.wasm
 	env > ../bin/$(CC_ENVIRONMENT_INI)
-	gcc -o setpaths setpaths.c
+	gcc setpaths.c -o setpaths
 	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" "CC_ENVIRONMENT_INI=$(CC_ENVIRONMENT_INI)" >> version.h
 	rm setpaths
 	gcc wrdepend.c -o wrdepend
@@ -222,9 +230,6 @@ depend: version.h
 	@echo
 	@echo "  Use 'make' (with your make command) to create the interpreter."
 	@echo
-
-level.h:
-	node ../bin/s7.js -l ../lib level
 
 ../bin/$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	emar r ../bin/$(SEED7_LIB) $(SEED7_LIB_OBJ)

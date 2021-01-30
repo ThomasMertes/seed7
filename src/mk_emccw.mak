@@ -96,8 +96,9 @@ s7c: ..\bin\s7c.js ..\prg\s7c.js
 	@echo Use 'make test' (with your make command) to check Seed7.
 	@echo.
 
-..\bin\s7.js: $(OBJ) $(ALL_S7_LIBS) ..\bin\$(SPECIAL_LIB)
+..\bin\s7.js: levelup.exe next_lvl $(OBJ) $(ALL_S7_LIBS) ..\bin\$(SPECIAL_LIB)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) --pre-js ..\bin\$(SPECIAL_LIB) -o ..\bin\s7.js
+	del next_lvl
 
 ..\prg\s7.js: ..\bin\s7.js
 	copy ..\bin\s7.js ..\prg /Y
@@ -109,6 +110,13 @@ s7c: ..\bin\s7c.js ..\prg\s7c.js
 
 ..\prg\s7c.js: ..\prg\s7c.sd7 $(ALL_S7_LIBS) ..\bin\$(SPECIAL_LIB)
 	node --stack-size=2048 ..\bin\s7.js -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
+
+levelup.exe: levelup.c
+	gcc levelup.c -o levelup
+
+next_lvl: levelup.exe
+	.\levelup.exe
+	echo X > next_lvl
 
 sql_%.o: sql_%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) $< -o $@
@@ -146,6 +154,8 @@ clean:
 	del setwpath.exe
 	del wrdepend.exe
 	del sudo.exe
+	del levelup.exe
+	del next_lvl
 	@echo.
 	@echo Use 'make depend' (with your make command) to create the dependencies.
 	@echo.
@@ -226,7 +236,7 @@ version.h: chkccomp.h base.h settings.h
 	del chkccomp.exe
 	del ctest*.wasm
 	set > ..\bin\$(CC_ENVIRONMENT_INI)
-	gcc -o setpaths setpaths.c
+	gcc setpaths.c -o setpaths
 	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" "CC_ENVIRONMENT_INI=$(CC_ENVIRONMENT_INI)" >> version.h
 	del setpaths.exe
 	gcc setwpath.c -o setwpath
@@ -247,9 +257,6 @@ depend: version.h
 	@echo.
 	@echo Use 'make' (with your make command) to create the interpreter.
 	@echo.
-
-level.h:
-	node ../bin/s7.js -l ../lib level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	emar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)

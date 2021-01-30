@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2005, 2011, 2013 - 2015  Thomas Mertes     */
+/*                2021  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,7 @@
 /*                                                                  */
 /*  Module: Runtime                                                 */
 /*  File: seed7/src/objutl.c                                        */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Changes: 1992 - 1994, 2011, 2013 - 2015, 2021  Thomas Mertes    */
 /*  Content: isit_.. and bld_.. functions for primitive data types. */
 /*                                                                  */
 /********************************************************************/
@@ -661,6 +662,7 @@ void dump_temp_value (objectType object)
       case FWDREFOBJECT:
       case TYPEOBJECT:
       case DECLAREDOBJECT:
+      case FORWARDOBJECT:
         SET_UNUSED_FLAG(object);
         break;
       case BIGINTOBJECT:
@@ -758,7 +760,8 @@ void dump_temp_value (objectType object)
         SET_UNUSED_FLAG(object);
         break;
       case WINOBJECT:
-        if (object->value.winValue != NULL) {
+        if (object->value.winValue != NULL &&
+            object->value.winValue->usage_count != 0) {
           object->value.winValue->usage_count--;
           if (object->value.winValue->usage_count == 0) {
             drwFree(object->value.winValue);

@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2000, 2013, 2016, 2020  Thomas Mertes      */
+/*                2021  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +21,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/blnlib.c                                        */
-/*  Changes: 1999  Thomas Mertes                                    */
+/*  Changes: 1999, 2013, 2016, 2020, 2021  Thomas Mertes            */
 /*  Content: All primitive actions for the boolean type.            */
 /*                                                                  */
 /********************************************************************/
@@ -362,8 +363,9 @@ objectType bln_ternary (listType arguments)
     } else {
       result = evaluate(arg_5(arguments));
     } /* if */
-    if (CATEGORY_OF_OBJ(result) == CONSTENUMOBJECT ||
-        CATEGORY_OF_OBJ(result) == VARENUMOBJECT) {
+    if (result != NULL &&
+        (CATEGORY_OF_OBJ(result) == CONSTENUMOBJECT ||
+         CATEGORY_OF_OBJ(result) == VARENUMOBJECT)) {
       result = result->value.objValue;
     } /* if */
     return result;

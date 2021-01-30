@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013, 2015, 2016, 2021  Thomas Mertes      */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,8 @@
 /*                                                                  */
 /*  Module: Seed7 compiler library                                  */
 /*  File: seed7/src/prg_comp.c                                      */
-/*  Changes: 1991 - 1994, 2008, 2013  Thomas Mertes                 */
+/*  Changes: 1991 - 1994, 2008, 2013, 2015, 2016 Thomas Mertes      */
+/*           2021  Thomas Mertes                                    */
 /*  Content: Primitive actions for the program type.                */
 /*                                                                  */
 /********************************************************************/
@@ -55,6 +56,7 @@
 #include "match.h"
 #include "objutl.h"
 #include "runerr.h"
+#include "str_rtl.h"
 #include "set_rtl.h"
 #include "rtl_err.h"
 
@@ -137,6 +139,7 @@ void interpret (const progType currentProg, const const_rtlArrayType argv,
 
   {
     progType progBackup;
+    boolType backup_interpreter_exception;
 
   /* interpret */
     logFunction(printf("interpret(\"%s\")\n",
@@ -175,9 +178,10 @@ void interpret (const progType currentProg, const const_rtlArrayType argv,
             prot_nl();
           } /* if */
 #endif
+          backup_interpreter_exception = interpreter_exception;
           interpreter_exception = TRUE;
-          exec_call(prog->main_object);
-          interpreter_exception = FALSE;
+          evaluate(prog->main_object);
+          interpreter_exception = backup_interpreter_exception;
 #ifdef WITH_PROTOCOL
           if (trace.actions) {
             if (trace.heapsize) {
@@ -283,15 +287,19 @@ void prgDestr (progType old_prog)
         remove_prog_files(old_prog);
         dump_list(old_prog->literals);
         free_entity(old_prog, old_prog->entity.literal);
-        FREE_RECORD(old_prog->property.literal, propertyRecord, count.property);
+        if (old_prog->property.literal != NULL) {
+          FREE_RECORD(old_prog->property.literal, propertyRecord, count.property);
+        } /* if */
         prog = progBackup;
-        FREE_STRI(old_prog->arg0, old_prog->arg0->size);
-        FREE_STRI(old_prog->program_name, old_prog->program_name->size);
-        FREE_STRI(old_prog->program_path, old_prog->program_path->size);
+        strDestr(old_prog->arg0);
+        strDestr(old_prog->program_name);
+        strDestr(old_prog->program_path);
         if (old_prog->arg_v != NULL) {
           free_args(old_prog->arg_v);
         } /* if */
-        FREE_RECORD(old_prog->stack_global, stackRecord, count.stack);
+        if (old_prog->stack_global != NULL) {
+          FREE_RECORD(old_prog->stack_global, stackRecord, count.stack);
+        } /* if */
         FREE_RECORD(old_prog, progRecord, count.prog);
         /* printf("heapsize: %ld\n", heapsize()); */
         /* heapStatistic(); */
@@ -385,20 +393,22 @@ progType prgFilParse (const const_striType fileName, const const_setType options
   {
     uintType int_options;
     errInfoType err_info = OKAY_NO_ERROR;
-    progType result;
+    progType resultProg;
 
   /* prgFilParse */
     logFunction(printf("prgFilParse(\"%s\")\n", striAsUnquotedCStri(fileName)););
     int_options = (uintType) setSConv(options);
-    /* printf("options: %03x\n", int_options); */
-    result = analyzeFile(fileName, int_options, libraryDirs, protFileName, &err_info);
+    /* printf("options: 0x" F_X(016) "\n", int_options); */
+    resultProg = analyzeFile(fileName, int_options, libraryDirs, protFileName, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("prgFilParse(\"%s\"): analyzeFile() failed:\n"
-                      "int_options=" F_X(03) "\nerr_info=%d\n",
+                      "int_options=0x" F_X(016) "\nerr_info=%d\n",
                       striAsUnquotedCStri(fileName), int_options, err_info););
       raise_error(err_info);
     } /* if */
-    return result;
+    logFunction(printf("prgFilParse --> " FMT_U_MEM "\n",
+                       (memSizeType) resultProg););
+    return resultProg;
   } /* prgFilParse */
 
 

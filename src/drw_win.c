@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_win.c     Graphic access using the windows capabilities.    */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2017, 2019 - 2021  Thomas Mertes           */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_win.c                                       */
-/*  Changes: 2005 - 2007, 2013  Thomas Mertes                       */
+/*  Changes: 2005 - 2007, 2013 - 2017, 2019 - 2021  Thomas Mertes   */
 /*  Content: Graphic access using the windows capabilities.         */
 /*                                                                  */
 /********************************************************************/
@@ -97,6 +97,10 @@ typedef struct {
 
 #ifndef WM_NCMOUSELEAVE
 #define WM_NCMOUSELEAVE 674
+#endif
+
+#ifndef WS_EX_NOACTIVATE
+#define WS_EX_NOACTIVATE 0x08000000L
 #endif
 
 typedef HWND (WINAPI *pGetConsoleWindowType)(void);
@@ -294,52 +298,74 @@ static void dra_init (void)
 
 
 
+/**
+ *  Return the X position of the pointer relative to the specified window.
+ *  The point of origin is the top left corner of the drawing area
+ *  of the given 'actual_window' (inside of the window decorations).
+ *  If 'actual_window' is the empty window the pointer X position is
+ *  relative to the top left corner of the screen.
+ */
 intType drwPointerXpos (const_winType actual_window)
 
   {
     POINT point;
-    intType result;
+    intType xPos;
 
   /* drwPointerXpos */
-    logFunction(printf("drwPointerXpos\n"););
+    logFunction(printf("drwPointerXpos(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
     if (unlikely(GetCursorPos(&point) == 0)) {
       raise_error(FILE_ERROR);
-      result = 0;
+      xPos = 0;
+    } else if (to_width(actual_window) == 0 && to_height(actual_window) == 0) {
+      xPos = point.x;
     } else {
       if (unlikely(ScreenToClient(to_hwnd(actual_window), &point) == 0)) {
         raise_error(FILE_ERROR);
-        result = 0;
+        xPos = 0;
       } else {
-        result = point.x;
+        xPos = point.x;
       } /* if */
     } /* if */
-    logFunction(printf("drwPointerXpos --> " FMT_D "\n", result););
-    return result;
+    logFunction(printf("drwPointerXpos(" FMT_U_MEM ") --> " FMT_D "\n",
+                       (memSizeType) actual_window, xPos););
+    return xPos;
   } /* drwPointerXpos */
 
 
 
+/**
+ *  Return the Y position of the pointer relative to the specified window.
+ *  The point of origin is the top left corner of the drawing area
+ *  of the given 'actual_window' (inside of the window decorations).
+ *  If 'actual_window' is the empty window the pointer Y position is
+ *  relative to the top left corner of the screen.
+ */
 intType drwPointerYpos (const_winType actual_window)
 
   {
     POINT point;
-    intType result;
+    intType yPos;
 
   /* drwPointerYpos */
-    logFunction(printf("drwPointerYpos\n"););
+    logFunction(printf("drwPointerYpos(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
     if (unlikely(GetCursorPos(&point) == 0)) {
       raise_error(FILE_ERROR);
-      result = 0;
+      yPos = 0;
+    } else if (to_width(actual_window) == 0 && to_height(actual_window) == 0) {
+      yPos = point.y;
     } else {
       if (unlikely(ScreenToClient(to_hwnd(actual_window), &point) == 0)) {
         raise_error(FILE_ERROR);
-        result = 0;
+        yPos = 0;
       } else {
-        result = point.y;
+        yPos = point.y;
       } /* if */
     } /* if */
-    logFunction(printf("drwPointerYpos --> " FMT_D "\n", result););
-    return result;
+    logFunction(printf("drwPointerYpos(" FMT_U_MEM ") --> " FMT_D "\n",
+                       (memSizeType) actual_window, yPos););
+    return yPos;
   } /* drwPointerYpos */
 
 
@@ -615,6 +641,19 @@ void drwClear (winType actual_window, intType col)
 
 
 
+/**
+ *  Copy a rectangular area from 'src_window' to 'dest_window'.
+ *  Coordinates are measured relative to the top left corner of the
+ *  corresponding window drawing area (inside of the window decorations).
+ *  @param src_window Source window.
+ *  @param dest_window Destination window.
+ *  @param src_x X-position of the top left corner of the source area.
+ *  @param src_y Y-position of the top left corner of the source area.
+ *  @param width Width of the rectangular area.
+ *  @param height Height of the rectangular area.
+ *  @param dest_x X-position of the top left corner of the destination area.
+ *  @param dest_y Y-position of the top left corner of the destination area.
+ */
 void drwCopyArea (const_winType src_window, const_winType dest_window,
     intType src_x, intType src_y, intType width, intType height,
     intType dest_x, intType dest_y)
@@ -741,33 +780,33 @@ winType drwEmpty (void)
 
   {
     HDC screenDC;
-    win_winType result;
+    win_winType emptyWindow;
 
   /* drwEmpty */
     logFunction(printf("drwEmpty()\n"););
     if (init_called == 0) {
       dra_init();
     } /* if */
-    if (unlikely(!ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes))) {
+    if (unlikely(!ALLOC_RECORD2(emptyWindow, win_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
-      memset(result, 0, sizeof(win_winRecord));
-      result->usage_count = 0;  /* Will not be freed by reference counting. */
+      memset(emptyWindow, 0, sizeof(win_winRecord));
+      emptyWindow->usage_count = 0;  /* Do not use reference counting (will not be freed). */
       screenDC = GetDC(NULL);
-      result->hdc = CreateCompatibleDC(screenDC);
-      result->hBitmap = CreateCompatibleBitmap(screenDC, 0, 0);
+      emptyWindow->hdc = CreateCompatibleDC(screenDC);
+      emptyWindow->hBitmap = CreateCompatibleBitmap(screenDC, 0, 0);
       ReleaseDC(NULL, screenDC);
-      result->oldBitmap = (HBITMAP) SelectObject(result->hdc, result->hBitmap);
-      result->hasTransparentPixel = FALSE;
-      result->transparentPixel = 0;
-      result->is_pixmap = TRUE;
-      result->width = 0;
-      result->height = 0;
+      emptyWindow->oldBitmap = (HBITMAP) SelectObject(emptyWindow->hdc, emptyWindow->hBitmap);
+      emptyWindow->hasTransparentPixel = FALSE;
+      emptyWindow->transparentPixel = 0;
+      emptyWindow->is_pixmap = TRUE;
+      emptyWindow->width = 0;
+      emptyWindow->height = 0;
     } /* if */
     logFunction(printf("drwEmpty --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) emptyWindow,
+                       emptyWindow != NULL ? emptyWindow->usage_count : (uintType) 0););
+    return (winType) emptyWindow;
   } /* drwEmpty */
 
 
@@ -801,56 +840,121 @@ void drwFree (winType old_window)
 
 
 
-winType drwGet (const_winType actual_window, intType left, intType upper,
+/**
+ *  Create a new pixmap with the given 'width' and 'height'.
+ *  A rectangle with the upper left corner at (left, upper) and the given
+ *  'width' and 'height' is copied from 'source_window' to the new pixmap.
+ *  @exception RANGE_ERROR If 'height' or 'width' are negative.
+ *  @return the new pixmap.
+ */
+winType drwGet (const_winType source_window, intType left, intType upper,
     intType width, intType height)
 
   {
-    win_winType result;
+    win_winType pixmap;
 
   /* drwGet */
     logFunction(printf("drwGet(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, left, upper, width, height););
+                       (memSizeType) source_window, left, upper, width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
-      result = NULL;
-    } else if (unlikely(!ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes))) {
+      pixmap = NULL;
+    } else if (unlikely(!ALLOC_RECORD2(pixmap, win_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
     } else {
-      memset(result, 0, sizeof(win_winRecord));
-      result->usage_count = 1;
-      result->hdc = CreateCompatibleDC(to_hdc(actual_window));
-      result->hBitmap = CreateCompatibleBitmap(to_hdc(actual_window), (int) width, (int) height);
-      if (unlikely(result->hBitmap == NULL)) {
-        free(result);
-        result = NULL;
+      memset(pixmap, 0, sizeof(win_winRecord));
+      pixmap->usage_count = 1;
+      pixmap->hdc = CreateCompatibleDC(to_hdc(source_window));
+      pixmap->hBitmap = CreateCompatibleBitmap(to_hdc(source_window), (int) width, (int) height);
+      if (unlikely(pixmap->hBitmap == NULL)) {
+        free(pixmap);
+        pixmap = NULL;
         raise_error(MEMORY_ERROR);
       } else {
-        result->oldBitmap = (HBITMAP) SelectObject(result->hdc, result->hBitmap);
-        result->hasTransparentPixel = FALSE;
-        result->transparentPixel = 0;
-        result->is_pixmap = TRUE;
-        result->width = (unsigned int) width;
-        result->height = (unsigned int) height;
-        if (to_backup_hdc(actual_window) != 0) {
-          BitBlt(result->hdc, 0, 0, (int) width, (int) height,
-              to_backup_hdc(actual_window), (int) left, (int) upper, SRCCOPY);
+        pixmap->oldBitmap = (HBITMAP) SelectObject(pixmap->hdc, pixmap->hBitmap);
+        pixmap->hasTransparentPixel = FALSE;
+        pixmap->transparentPixel = 0;
+        pixmap->is_pixmap = TRUE;
+        pixmap->width = (unsigned int) width;
+        pixmap->height = (unsigned int) height;
+        if (to_backup_hdc(source_window) != 0) {
+          BitBlt(pixmap->hdc, 0, 0, (int) width, (int) height,
+              to_backup_hdc(source_window), (int) left, (int) upper, SRCCOPY);
         } else {
-          BitBlt(result->hdc, 0, 0, (int) width, (int) height,
-              to_hdc(actual_window), (int) left, (int) upper, SRCCOPY);
+          BitBlt(pixmap->hdc, 0, 0, (int) width, (int) height,
+              to_hdc(source_window), (int) left, (int) upper, SRCCOPY);
         } /* if */
       } /* if */
     } /* if */
     logFunction(printf("drwGet --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
   } /* drwGet */
 
 
 
-bstriType drwGetImage (const_winType actual_window)
+/**
+ *  Capture a rectangular area from the screen.
+ *  The function takes a screenshot of the rectangular area.
+ *  The 'left' and 'upper' coordinates are measured relative to
+ *  the top left corner of the screen.
+ *  @param left X-position of the upper left corner of the capture area.
+ *  @param upper Y-position of the upper left corner of the capture area.
+ *  @param widht Width of the capture area.
+ *  @param height Height of the capture area.
+ *  @return the content of the rectangular screen area as pixmap.
+ *  @exception RANGE_ERROR If 'height' or 'width' are negative.
+ */
+winType drwCapture (intType left, intType upper,
+    intType width, intType height)
+
+  {
+    HDC hScreenDC;
+    win_winType pixmap;
+
+  /* drwCapture */
+    logFunction(printf("drwCapture(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       left, upper, width, height););
+    if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 width < 1 || height < 1)) {
+      raise_error(RANGE_ERROR);
+      pixmap = NULL;
+    } else if (unlikely(!ALLOC_RECORD2(pixmap, win_winRecord, count.win, count.win_bytes))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memset(pixmap, 0, sizeof(win_winRecord));
+      pixmap->usage_count = 1;
+      hScreenDC = GetDC(NULL);
+      pixmap->hdc = CreateCompatibleDC(hScreenDC);
+      pixmap->hBitmap = CreateCompatibleBitmap(hScreenDC, (int) width, (int) height);
+      if (unlikely(pixmap->hBitmap == NULL)) {
+        free(pixmap);
+        pixmap = NULL;
+        raise_error(MEMORY_ERROR);
+      } else {
+        pixmap->oldBitmap = (HBITMAP) SelectObject(pixmap->hdc, pixmap->hBitmap);
+        pixmap->hasTransparentPixel = FALSE;
+        pixmap->transparentPixel = 0;
+        pixmap->is_pixmap = TRUE;
+        pixmap->width = (unsigned int) width;
+        pixmap->height = (unsigned int) height;
+        BitBlt(pixmap->hdc, 0, 0, (int) width, (int) height,
+            hScreenDC, (int) left, (int) upper, SRCCOPY);
+      } /* if */
+    } /* if */
+    logFunction(printf("drwGet --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
+  } /* drwCapture */
+
+
+
+bstriType drwGetImage (const_winType source_window)
 
   {
     unsigned int xPos;
@@ -860,17 +964,17 @@ bstriType drwGetImage (const_winType actual_window)
     bstriType result;
 
   /* drwGetImage */
-    logFunction(printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) actual_window););
-    result_size = to_width(actual_window) * to_height(actual_window) * sizeof(uint32Type);
+    logFunction(printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) source_window););
+    result_size = to_width(source_window) * to_height(source_window) * sizeof(uint32Type);
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
       image_data = (uint32Type *) result->mem;
-      for (yPos = 0; yPos < to_height(actual_window); yPos++) {
-        for (xPos = 0; xPos < to_width(actual_window); xPos++) {
-          image_data[yPos * to_width(actual_window) + xPos] =
-              (uint32Type) GetPixel(to_hdc(actual_window), (int) xPos, (int) yPos);
+      for (yPos = 0; yPos < to_height(source_window); yPos++) {
+        for (xPos = 0; xPos < to_width(source_window); xPos++) {
+          image_data[yPos * to_width(source_window) + xPos] =
+              (uint32Type) GetPixel(to_hdc(source_window), (int) xPos, (int) yPos);
         } /* for */
       } /* for */
     } /* if */
@@ -879,10 +983,10 @@ bstriType drwGetImage (const_winType actual_window)
 
 
 
-intType drwGetPixel (const_winType actual_window, intType x, intType y)
+intType drwGetPixel (const_winType source_window, intType x, intType y)
 
   { /* drwGetPixel */
-    return (intType) GetPixel(to_hdc(actual_window), castToInt(x), castToInt(y));
+    return (intType) GetPixel(to_hdc(source_window), castToInt(x), castToInt(y));
   } /* drwGetPixel */
 
 
@@ -921,32 +1025,32 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
     intType xPos;
     intType yPos;
     intType yStart;
-    winType result;
+    winType pixmap;
 
   /* drwImage */
     logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height););
     if (unlikely(width < 1 || width > INTTYPE_MAX ||
                  height < 1 || height > INTTYPE_MAX)) {
       raise_error(RANGE_ERROR);
-      result = NULL;
+      pixmap = NULL;
     } else {
       if (init_called == 0) {
         dra_init();
       } /* if */
-      result = drwNewPixmap((intType) width, (intType) height);
-      if (result != NULL) {
+      pixmap = drwNewPixmap((intType) width, (intType) height);
+      if (pixmap != NULL) {
         for (yPos = 0, yStart = 0; yPos < (intType) height;
              yPos++, yStart += (intType) width) {
           for (xPos = 0; xPos < (intType) width; xPos++) {
-            drwPPoint(result, xPos, yPos, image_data[yStart + xPos]);
+            drwPPoint(pixmap, xPos, yPos, image_data[yStart + xPos]);
           } /* for */
         } /* for */
       } /* if */
     } /* if */
     logFunction(printf("drwImage --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return result;
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return pixmap;
   } /* drwImage */
 
 
@@ -1002,39 +1106,39 @@ winType drwNewPixmap (intType width, intType height)
 
   {
     HDC screenDC;
-    win_winType result;
+    win_winType pixmap;
 
   /* drwNewPixmap */
     logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
     if (unlikely(!inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
-      result = NULL;
+      pixmap = NULL;
     } else {
       if (init_called == 0) {
         dra_init();
       } /* if */
-      if (unlikely(!ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes))) {
+      if (unlikely(!ALLOC_RECORD2(pixmap, win_winRecord, count.win, count.win_bytes))) {
         raise_error(MEMORY_ERROR);
       } else {
-        memset(result, 0, sizeof(win_winRecord));
-        result->usage_count = 1;
+        memset(pixmap, 0, sizeof(win_winRecord));
+        pixmap->usage_count = 1;
         screenDC = GetDC(NULL);
-        result->hdc = CreateCompatibleDC(screenDC);
-        result->hBitmap = CreateCompatibleBitmap(screenDC, (int) width, (int) height);
+        pixmap->hdc = CreateCompatibleDC(screenDC);
+        pixmap->hBitmap = CreateCompatibleBitmap(screenDC, (int) width, (int) height);
         ReleaseDC(NULL, screenDC);
-        result->oldBitmap = (HBITMAP) SelectObject(result->hdc, result->hBitmap);
-        result->hasTransparentPixel = FALSE;
-        result->transparentPixel = 0;
-        result->is_pixmap = TRUE;
-        result->width = (unsigned int) width;
-        result->height = (unsigned int) height;
+        pixmap->oldBitmap = (HBITMAP) SelectObject(pixmap->hdc, pixmap->hBitmap);
+        pixmap->hasTransparentPixel = FALSE;
+        pixmap->transparentPixel = 0;
+        pixmap->is_pixmap = TRUE;
+        pixmap->width = (unsigned int) width;
+        pixmap->height = (unsigned int) height;
       } /* if */
     } /* if */
     logFunction(printf("drwNewPixmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
   } /* drwNewPixmap */
 
 
@@ -1179,6 +1283,23 @@ winType drwOpen (intType xPos, intType yPos,
 
 
 
+/**
+ *  Create a sub window inside of 'parent_window'.
+ *  The new sub window has no window decorations and is not managed by
+ *  the window manager. If the empty window is used as 'parent_window'
+ *  an unmanaged top level window without window decorations is generated.
+ *  The coordinates 'xPos' and 'yPos' are measured relative to the top
+ *  left corner of the 'parent_window' drawing area (inside of the window
+ *  decorations). If the empty window is used as 'parent_window' the
+ *  coordinates 'xPos' and 'yPos' are measured relative to the top left
+ *  corner of the screen.
+ *  @param parent-window Parent window (can be the empty window).
+ *  @param xPos X-position of the left corner of the new window.
+ *  @param yPos Y-position of the left corner of the new window.
+ *  @param width Width of the new window.
+ *  @param height Height of the new window.
+ *  @return the new generated window.
+ */
 winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPos,
     intType width, intType height)
 
@@ -1224,16 +1345,17 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
 
           result->brutto_width_delta = 0;
           result->brutto_height_delta = 0;
-          result->hWnd = CreateWindow(windowClass, "",
-              WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-              (int) xPos, (int) yPos, (int) width, (int) height,
-              to_hwnd(parent_window), (HMENU) NULL, NULL, NULL);
-#ifdef OUT_OF_ORDER
-          result->hWnd = CreateWindowEx(0, windowClass, "",
-              (WS_VISIBLE | WS_SYSMENU /* | WS_THICKFRAME */),
-              (int) xPos, (int) yPos, (int) width, (int) height,
-              to_hwnd(parent_window), NULL, NULL /* hInstance */, NULL);
-#endif
+          if (to_width(parent_window) == 0 && to_height(parent_window) == 0) {
+            result->hWnd = CreateWindowEx(WS_EX_NOACTIVATE, windowClass, "",
+                WS_POPUP,
+                (int) xPos, (int) yPos, (int) width, (int) height,
+                (HWND) NULL, (HMENU) NULL, NULL, NULL);
+          } else {
+            result->hWnd = CreateWindow(windowClass, "",
+                WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+                (int) xPos, (int) yPos, (int) width, (int) height,
+                to_hwnd(parent_window), (HMENU) NULL, NULL, NULL);
+          } /* if */
           enter_window((winType) result, result->hWnd);
           /* printf("hWnd=%lu\n", result->hWnd); */
           if (result->hWnd != NULL) {
@@ -1681,10 +1803,12 @@ void drwSetContent (const_winType actual_window, const_winType pixmap)
 
 
 /**
- *  Move a window to the coordinates x/y.
- *  Afterwards the top left corner of the window will be at the position x/y.
+ *  Move the top left corner of a window to the coordinates x/y.
  *  If window decorations are present the top left corner of the
- *  window decorations will be at the position x/y.
+ *  window decorations will be at the position x/y. For a sub window
+ *  the position is relative to the top left corner of the parent window
+ *  drawing area (inside of the window decorations). For top level windows
+ *  the position is relative to the top left corner of the screen.
  */
 void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
@@ -1813,7 +1937,11 @@ intType drwWidth (const_winType actual_window)
 /**
  *  Determine the X position of the top left corner of a window in pixels.
  *  If window decorations are present this uses the top left corner of
- *  the window decorations.
+ *  the window decorations. For a sub window the X position is relative
+ *  to the top left corner of the parent window drawing area (inside of
+ *  the window decorations). For top level windows the X position is
+ *  relative to the top left corner of the screen.
+ *  @exception RANGE_ERROR If 'actual_window' is a pixmap.
  */
 intType drwXPos (const_winType actual_window)
 
@@ -1841,7 +1969,11 @@ intType drwXPos (const_winType actual_window)
 /**
  *  Determine the Y position of the top left corner of a window in pixels.
  *  If window decorations are present this uses the top left corner of
- *  the window decorations.
+ *  the window decorations. For a sub window the Y position is relative
+ *  to the top left corner of the parent window drawing area (inside of
+ *  the window decorations). For top level windows the Y position is
+ *  relative to the top left corner of the screen.
+ *  @exception RANGE_ERROR If 'actual_window' is a pixmap.
  */
 intType drwYPos (const_winType actual_window)
 

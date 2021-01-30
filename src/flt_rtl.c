@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  flt_rtl.c     Primitive actions for the float type.             */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2021  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/flt_rtl.c                                       */
-/*  Changes: 1993, 1994, 2005, 2010 - 2018  Thomas Mertes           */
+/*  Changes: 1993, 1994, 2005, 2009 - 2021  Thomas Mertes           */
 /*  Content: Primitive actions for the float type.                  */
 /*                                                                  */
 /********************************************************************/
@@ -213,8 +213,8 @@ double setMantissaAndExponent (int64Type intMantissa, int binaryExponent)
     double doubleValue;
 
   /* setMantissaAndExponent */
-    mantissa = (double) intMantissa / DOUBLE_MANTISSA_FACTOR;
-    exponent = binaryExponent + DOUBLE_MANTISSA_SHIFT;
+    mantissa = (double) intMantissa;
+    exponent = binaryExponent;
     doubleValue = fltLdexp(mantissa, exponent);
     return doubleValue;
   } /* setMantissaAndExponent */

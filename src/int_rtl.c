@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  int_rtl.c     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019, 2021  Thomas Mertes                  */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,8 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/int_rtl.c                                       */
-/*  Changes: 1992 - 1994, 2000, 2005, 2009 - 2018  Thomas Mertes    */
+/*  Changes: 1992 - 1994, 2000, 2005, 2009 - 2019  Thomas Mertes    */
+/*           2021  Thomas Mertes                                    */
 /*  Content: Primitive actions for the integer type.                */
 /*                                                                  */
 /********************************************************************/
@@ -346,7 +347,7 @@ uintType uintRandMantissa (void)
     logFunction(printf("uintRandMantissa\n"););
     seed = seed * RAND_MULTIPLIER + RAND_INCREMENT;
     logFunction(printf("uintRandMantissa --> " F_X(016) "\n",
-                       (uintType) (seed >> INTTYPE_SIZE + FLOATTYPE_EXPONENT_AND_SIGN_BITS)););
+                       (uintType) (seed >> (INTTYPE_SIZE + FLOATTYPE_EXPONENT_AND_SIGN_BITS))););
     return (uintType) (seed >> (INTTYPE_SIZE + FLOATTYPE_EXPONENT_AND_SIGN_BITS));
   } /* uintRandMantissa */
 

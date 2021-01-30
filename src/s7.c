@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2020  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2021  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,8 @@
 /*                                                                  */
 /*  Module: Main                                                    */
 /*  File: seed7/src/s7.c                                            */
-/*  Changes: 1990 - 1994, 2010, 2011  Thomas Mertes                 */
+/*  Changes: 1990 - 1994, 2010, 2011, 2013, 2015  Thomas Mertes     */
+/*           2021  Thomas Mertes                                    */
 /*  Content: Main program of the Seed7 interpreter.                 */
 /*                                                                  */
 /********************************************************************/
@@ -57,6 +58,7 @@
 #include "flt_rtl.h"
 #include "arr_rtl.h"
 #include "cmd_rtl.h"
+#include "str_rtl.h"
 #include "sql_rtl.h"
 #include "con_rtl.h"
 #include "con_drv.h"
@@ -70,7 +72,7 @@ typedef struct {
 typedef HINSTANCE__ *HINSTANCE;
 #endif
 
-#define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2020 Thomas Mertes\n"
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.1.%d  Copyright (c) 1990-2021 Thomas Mertes\n"
 
 
 
@@ -78,7 +80,11 @@ void raise_error2 (int exception_num, const_cstriType filename, int line)
 
   { /* raise_error2 */
     /* printf("raise_error2(%d, %s, %d)\n", exception_num, filename, line); */
-    (void) raise_exception(prog->sys_var[exception_num]);
+    if (prog != NULL) {
+      (void) raise_exception(prog->sys_var[exception_num]);
+    } else {
+      (void) raise_with_arguments(NULL, NULL);
+    } /* if */
   } /* raise_error2 */
 
 
@@ -168,6 +174,33 @@ static void printOptions (const optionType option)
     printf("argvStart:          " FMT_U_MEM "\n", option->argvStart);
   } /* printOptions */
 #endif
+
+
+
+void freeOptions (optionType option)
+
+  {
+    memSizeType arraySize;
+    memSizeType pos;
+
+  /* freeOptions */
+    strDestr(option->sourceFileArgument);
+    strDestr(option->protFileName);
+    if (option->libraryDirs != NULL) {
+      arraySize = arraySize(option->libraryDirs);
+      for (pos = 0; pos < arraySize; pos++) {
+        strDestr(option->libraryDirs->arr[pos].value.striValue);
+      } /* for */
+      FREE_RTL_ARRAY(option->libraryDirs, arraySize);
+    } /* if */
+    if (option->argv != NULL) {
+      arraySize = arraySize(option->argv);
+      for (pos = 0; pos < arraySize; pos++) {
+        strDestr(option->argv->arr[pos].value.striValue);
+      } /* for */
+      FREE_RTL_ARRAY(option->argv, arraySize);
+    } /* if */
+  } /* freeOptions */
 
 
 
@@ -374,6 +407,7 @@ int main (int argc, char **argv)
   /* main */
     logFunction(printf("main\n"););
     setupStack();
+    setupRand();
     setupFiles();
     set_protfile_name(NULL);
 #ifdef USE_WINMAIN
@@ -401,7 +435,6 @@ int main (int argc, char **argv)
         } else if (option.writeHelp) {
           writeHelp();
         } else {
-          setupRand();
           setupFloat();
           setupBig();
           /* printf("sourceFileArgument: \"");
@@ -425,24 +458,25 @@ int main (int argc, char **argv)
                 interpret(currentProg, option.argv, option.argvStart,
                           option.execOptions, option.protFileName);
               } /* if */
-              /* prgDestr(currentProg); */
-              /* heapStatistic(); */
-            } /* if */
-            if (fail_flag) {
-              uncaught_exception();
-              if (fail_value == DB_EXCEPTION(currentProg)) {
-                striType message;
+              if (fail_flag) {
+                uncaught_exception();
+                if (fail_value == DB_EXCEPTION(currentProg)) {
+                  striType message;
 
-                message = sqlErrMessage();
-                printf("\nMessage from the DATABASE_ERROR exception:\n");
-                conWrite(message);
-                printf("\n");
-                FREE_STRI(message, message->size);
+                  message = sqlErrMessage();
+                  printf("\nMessage from the DATABASE_ERROR exception:\n");
+                  conWrite(message);
+                  printf("\n");
+                  FREE_STRI(message, message->size);
+                } /* if */
               } /* if */
+              /* heapStatistic(); */
+              /* prgDestr(currentProg); */
             } /* if */
           } /* if */
         } /* if */
         shutDrivers();
+        freeOptions(&option);
       } /* if */
     } /* if */
     /* getchar(); */

@@ -38,7 +38,6 @@ $ const type: string   is $ subtype object;
 $ const type: ACTION   is $ newtype;
 $ const type: f_param  is $ newtype;
 
-$ system "type"         is type;
 $ system "expr"         is expr;
 $ system "string"       is string;
 $ system "empty"        is empty;
@@ -47,7 +46,6 @@ $ system "empty"        is empty;
 # $ system "integer"      is integer;
 # $ system "char"         is char;
 # $ system "string"       is string;
-# $ system "type"         is type;
 $ system "proc"         is proc;
 $ system "assign"       is := ;
 $ system "create"       is ::= ;

@@ -284,7 +284,7 @@ const proc: prepare_win_result (inout expr_type: c_expr) is func
     c_expr.result_decl := "winType tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
     c_expr.result_decl &:= " = NULL;\n";
-    c_expr.result_free := "winDestr(tmp_";
+    c_expr.result_free := "drwDestr(tmp_";
     c_expr.result_free &:= str(c_expr.temp_num);
     c_expr.result_free &:= ");\n";
     c_expr.result_to_null := c_expr.result_name;

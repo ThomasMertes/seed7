@@ -1,3 +1,155 @@
+20210130:
+- The parser (used by interpreter and compiler to read a program) has
+  been improved to work correct, if seed7_05.s7i is not included.
+  Many thanks go to Domingo Alvarez Duarte for pointing out that a
+  missing seed7_05.s7i include statement causes a parser error.
+- The example program mirror.sd7 has been added. This program mirrors
+  a rectangular screen area in a window.
+- The function capturePixmap has been added to graph.s7i. This
+  function can be used to capture rectangular areas from the screen.
+- In the library graph.s7i the function openSubWindow() has been
+  improved to allow top level windows without window decorations.
+  This can be done by using the empty window as parent window.
+- Chapters about pragmas and compilation errors have been added to the
+  manual.
+- The parser has been improved to work reliable in out of memory
+  situations. Now the fatal parser error "Out of heap space" does not
+  terminate the program.
+- The minor versions of interpreter and compiler have been increased.
+  Now interpreter and compiler share the same revision level. Every
+  compilation of the Seed7 interpreter increases the revision level.
+- A definition of VERSION_REVISION_LEVEL has been added to
+  cc_conf.s7i. This is used in confval.sd7 and s7c.sd7.
+- Interpreter and compiler have been improved to support the new
+  action DRW_CAPTURE.
+- In analyze.c the function analyzeProg() has been improved to
+  catch the "Out of heap space" error and to clean up memory in out
+  of memory situations. Now the old values of the global variables
+  prog, interpreter_exception curr_exec_object, curr_argument_list and
+  trace are restored, when the function is left.
+- In analyze.c the functions analyzeFile() and analyzeString() have
+  been improved to work without setting interpreter_exception. Now
+  these functions work the same in interpreted and compiled programs.
+- In atom.c the function read_atom() has been improved to keep the
+  data structure consistent in out of memory situations.
+- The functions pop_owner() and close_current_stack() have been added
+  to name.c.
+- In name.c the functions free_params(), get_object() and push_name()
+  have been improved to have an additional 'currentProg' parameter.
+- In name.c the function get_object() has been improved to reverse its
+  changes in case of an error.
+- In name.c the handling of errors has been improved in push_name(),
+  eval_name_list(), inst_list(), inst_object_expr(), find_name(),
+  search_name(), dollar_parameter() and dollar_inst_list(). In error
+  situations changes are reversed, memory is freed and stack growing
+  and shrinking is now done in a consistent way.
+- In entutl.c the function copy_params() has been improved to allocate
+  the parameters first in a list and to assign them later.
+- The new functions pop_name_list() and get_entity_node() have been
+  added to entutl.c.
+- In entutl.c the function get_entity() has been improved to handle
+  error situations (out of memory).
+- In entutl.c in the function init_entity() dereferencing NULL is
+  avoided now, if the memory allocation fails.
+- In blnlib.c the function bln_ternary() has been improved to work
+  correct, if evaluate() returns NULL. This happens if an exception
+  is triggered inside evaluate().
+- Implementations of drwBorder() and drwSetPos() have been added to
+  drw_emc.c. The functions drwXPos() and drwYPos() have been improved.
+- The function drwCapture() has been added to drw_x11.c and drw_win.c.
+- The function drwOpenSubWindow() has been improved in drw_x11.c and
+  drw_win.c to support the creation of unmanaged top level windows
+  without window decorations (if the parent window is empty).
+- The function omitWindowDecorationsAndTaskbarEntry() has been added
+  to drw_x11.c.
+- In flt_rtl.c the function setMantissaAndExponent has been improved
+  to work without division by DOUBLE_MANTISSA_FACTOR.
+- The program chkccomp.c has been improved to write an error message,
+  if executing a test program fails.
+- In error.c the functions read_ustri8_line(), read_and_print_line()
+  and ustri8_buffer_to_stri() have been improved to work reliable in
+  out of memory situations.
+- In fatal.c the function no_memory() has been improved to do a long
+  jump to analyzeProg().
+- In listutl.c the function append_element_to_list() has been improved
+  to keep the list_insert_place unchanged in out of memory situations.
+- In sctlib.c in the function sct_cat() the code to handle an error
+  has been improved, to avoid using a pointer that might be invalid
+  because of a previous realloc(). The function sct_elem() has been
+  improved to consider that grow_stack() might fail.
+- In typeutl.c the function get_varfunc_type() has been improved to
+  work correct, if new_type() returns NULL. This can happen in out of
+  memory situations.
+- In findid.c the functions clean_idents() and write_idents() have
+  been refactored to use a progType parameter and to allow NULL
+  values in the ident tables.
+- In flistutl.c the function heap_chunk() has been improved to never
+  do a realloc() on a memory chunk and to explain why this is done.
+- In flistutl.h the macros HEAP_OBJ(), HEAP_L_E(), HEAP_NODE() and
+  HEAP_FILE() have been fixed to return FALSE in out of memory
+  situations.
+- In hshlib.c the macro isit_not_null() has been added to several
+  functions to assert that function references and compare results are
+  not NULL.
+- In prclib.c the functions prc_begin(), prc_local(), prc_res_begin(),
+  prc_res_local(), prc_return(), prc_return2(), prc_varfunc() and
+  prc_varfunc2() have been improved to handle error situations (out of
+  memory).
+- In prclib.c the macro isit_not_null() has been added to prc_case(),
+  prc_case_def(), prc_case_hashset() and prc_case_hashset_def(). This
+  macro checks that the sets after the keyword 'when' are not NULL.
+- In identutl.c the function init_idents() has been changed to leave
+  a failed initialisation as is (this is cleaned up later).
+- In prg_comp.c the function prgDestr() has been improved to allow
+  NULL for elements of the program structure. The function interpret()
+  has been improved to restore the global variable
+  interpreter_exception.
+- In exec.c the functions getErrInfoFromFailValue() and do_exec_call()
+  have been added. The function exec_expr() has been improved to
+  restore the global variable interpreter_exception.
+- In executl.c the functions do_destroy(), create_return_object(),
+  create_local_object(), destroy_local_object() and
+  destroy_local_init_value() have been improved to handle error
+  situations (out of memory).
+- In match.c the function match_subexpr() has been improved to
+  handle out of memory situations.
+- In runerr.c the functions write_position_info() and
+  write_call_stack_element() have been improved to recognize valid
+  data better.
+- In runerr.c the functions run_error(), empty_value() and
+  var_required() have been improved to write the error message only,
+  if exception tracing is switched on. Now these functions raise
+  ACTION_ERROR instead of RANGE_ERROR.
+- The function freeOptions() has been added to s7.c. The function
+  raise_error2() has been improved to handle an out of memory
+  situation.
+- In symbol.c the function close_symbol() has been improved to allow
+  NULL for symbol.name and symbol.striValue.
+- In syvarutl.c the function init_sysvar() has been improved to
+  define a dummy value for SYS_EXPR_TYPE (EXPR_TYPE). This avoids an
+  error, if the source has no include directive.
+- The function printLocObj() has been added to traceutl.c. The
+  functions prot_list_limited() and trace1() have been improved to
+  recognize corrupt category fields.
+- In cmd_rtl.c code has been moved from cmdReadlink(), cmdFileTypeSL()
+  and cmdGetcwd() to the new functions doReadLink(), getFileTypeSL()
+  and doGetCwd() respectively. The new functions use err_info to
+  report errors instead of raising an exception. The old functions
+  have been refactored to call the new functions.
+- In cmd_rtl.c the function followLink() has been refactored to call
+  getFileTypeSL() and doReadLink().
+- The program levelup.c has been added. This program is called by the
+  makefile to increase the revision level of interpreter and compiler.
+- In comp/expr_utl.s7i the function prepare_win_result() has been
+  fixed to use drwDestr() instead of winDestr().
+- The system declaration for "type" hase been removed from syntax.s7i.
+- The makefiles have been adjusted to increase the revision level
+  (stored in level.h) before the interpreter is compiled. This way
+  interpreter and compiler get the same revision level.
+- Documentation comments have been improved in array.s7i, graph.s7i,
+  leb128.s7i, analyze.c, cmd_rtl.c, drw_emc.c, drw_win.c, drw_x11.c,
+  entutl.c, error.c and exec.c.
+
 20210106:
 - The declaration of in-parameters has been changed to work the same
   way as all other parameter declarations (val-, ref-, inout-, attr-
@@ -13,7 +165,7 @@
   content-type for more file types (css, javascript, wasm, gif, bmp,
   pdf). This way the comanche webserver also works better.
 - The function getCgiParameters() in cgi.s7i has been improved to
-  accept also elements wihout equals sign (in this case value is
+  accept also elements without equals sign (in this case value is
   assumed to be "").
 - The function readPropertyFile8() has been added to the library
   propertyfile.s7i. This function processes an UTF-8 encoded property
@@ -73,7 +225,7 @@
   without setting up Emscripten.
 - Changes have been done in error.c and error.h to introduce the new
   errors SYNTAX_DECLARED_TWICE and KIND_OF_IN_PARAM_UNDEFINED. The
-  error UNEXPECTED_SYMBOL has been replaced with EXPECTED_SYMBO.
+  error UNEXPECTED_SYMBOL has been replaced with EXPECTED_SYMBOL.
 - The functions increaseLevelOfCatchedExceptions() and
   decreaseLevelOfCatchedExceptions() have been added to comp/error.s7i.
   These functions are used in comp/prc_act.s7i.

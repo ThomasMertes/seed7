@@ -70,7 +70,7 @@
 #define take_process(arg)   (arg)->value.processValue
 
 #if WITH_TYPE_CHECK
-#define run_exception(c,arg) { run_error(c, arg); return(NULL); }
+#define run_exception(c,arg) { run_error(c, arg); return NULL; }
 #define hasCategory(arg,cat)             if (unlikely(CATEGORY_OF_OBJ(arg) != (cat))) run_exception(cat, arg)
 #define hasCategory2(arg,cat1,cat2)      if (unlikely(CATEGORY_OF_OBJ(arg) != (cat1) && \
                                                       CATEGORY_OF_OBJ(arg) != (cat2))) run_exception(cat1, arg)
@@ -79,7 +79,7 @@
                                                       CATEGORY_OF_OBJ(arg) != (cat3))) run_exception(cat1, arg)
 #define isit_action(arg)    hasCategory(take_act_obj(arg), ACTOBJECT)
 #define isit_array(arg)     hasCategory(arg, ARRAYOBJECT); \
-                            if (unlikely(take_array(arg) == NULL))      { empty_value(arg); return(NULL); }
+                            if (unlikely(take_array(arg) == NULL))      { empty_value(arg); return NULL; }
 #define isit_binary(arg)    hasCategory(arg, INTOBJECT)
 #define isit_bigint(arg)    hasCategory(arg, BIGINTOBJECT)
 #define isit_block(arg)     hasCategory(arg, BLOCKOBJECT)
@@ -88,17 +88,17 @@
                               run_exception(ENUMLITERALOBJECT, arg); \
                             }
 #define isit_bstri(arg)     hasCategory(arg, BSTRIOBJECT); \
-                            if (unlikely(take_bstri(arg) == NULL))      { empty_value(arg); return(NULL); }
+                            if (unlikely(take_bstri(arg) == NULL))      { empty_value(arg); return NULL; }
 #define isit_call(arg)      hasCategory(arg, CALLOBJECT)
 #define isit_char(arg)      hasCategory(arg, CHAROBJECT)
 #define isit_database(arg)  hasCategory(arg, DATABASEOBJECT)
 #define isit_interface(arg) hasCategory2(arg, INTERFACEOBJECT, STRUCTOBJECT); \
-                            if (unlikely(take_interface(arg) == NULL))  { empty_value(arg); return(NULL); }
+                            if (unlikely(take_interface(arg) == NULL))  { empty_value(arg); return NULL; }
 /*      isit_enum(arg)      */
 #define isit_file(arg)      hasCategory(arg, FILEOBJECT)
 #define isit_float(arg)     hasCategory(arg, FLOATOBJECT)
 #define isit_hash(arg)      hasCategory(arg, HASHOBJECT); \
-                            if (unlikely(take_hash(arg) == NULL))       { empty_value(arg); return(NULL); }
+                            if (unlikely(take_hash(arg) == NULL))       { empty_value(arg); return NULL; }
 #define isit_int(arg)       hasCategory(arg, INTOBJECT)
 /*      isit_list(arg)      */
 #define isit_param(arg)     hasCategory(arg, FORMPARAMOBJECT)
@@ -106,22 +106,23 @@
 #define isit_proc(arg)      hasCategory3(arg, BLOCKOBJECT, MATCHOBJECT, ACTOBJECT)
 #define isit_prog(arg)      hasCategory(arg, PROGOBJECT)
 #define isit_reference(arg) hasCategory(arg, REFOBJECT)
+#define isit_not_null(arg)  if (unlikely(arg == NULL))                  { empty_value(arg); return NULL; }
 #define isit_reflist(arg)   hasCategory3(arg, REFLISTOBJECT, MATCHOBJECT, CALLOBJECT)
 #define isit_set(arg)       hasCategory(arg, SETOBJECT); \
-                            if (unlikely(take_set(arg) == NULL))        { empty_value(arg); return(NULL); }
+                            if (unlikely(take_set(arg) == NULL))        { empty_value(arg); return NULL; }
 #define isit_socket(arg)    hasCategory(arg, SOCKETOBJECT)
 #define isit_sqlstmt(arg)   hasCategory(arg, SQLSTMTOBJECT)
 #define isit_stri(arg)      hasCategory(arg, STRIOBJECT); \
-                            if (unlikely(take_stri(arg) == NULL))       { empty_value(arg); return(NULL); }
+                            if (unlikely(take_stri(arg) == NULL))       { empty_value(arg); return NULL; }
 #define isit_struct(arg)    hasCategory(arg, STRUCTOBJECT); \
-                            if (unlikely(take_struct(arg) == NULL))     { empty_value(arg); return(NULL); }
+                            if (unlikely(take_struct(arg) == NULL))     { empty_value(arg); return NULL; }
 #define isit_type(arg)      hasCategory(arg, TYPEOBJECT)
 #define isit_win(arg)       hasCategory(arg, WINOBJECT)
 #define isit_process(arg)   hasCategory(arg, PROCESSOBJECT)
-#define is_variable(arg)    if (unlikely(!VAR_OBJECT(arg)))             { var_required(arg); return(NULL); }
+#define is_variable(arg)    if (unlikely(!VAR_OBJECT(arg)))             { var_required(arg); return NULL; }
 #define isit_int2(arg)      if (unlikely(CATEGORY_OF_OBJ(arg) != INTOBJECT)) run_error(INTOBJECT, arg)
 #define just_interface(arg) hasCategory(arg, INTERFACEOBJECT); \
-                            if (unlikely(take_interface(arg) == NULL))  { empty_value(arg); return(NULL); }
+                            if (unlikely(take_interface(arg) == NULL))  { empty_value(arg); return NULL; }
 #else
 #define isit_action(arg)
 #define isit_array(arg)
@@ -143,6 +144,7 @@
 #define isit_proc(arg)
 #define isit_prog(arg)
 #define isit_reference(arg)
+#define isit_not_null(arg)
 #define isit_reflist(arg)
 #define isit_set(arg)
 #define isit_socket(arg)

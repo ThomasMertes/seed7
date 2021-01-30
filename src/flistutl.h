@@ -82,10 +82,10 @@ EXTERN freeListRootType flist;
 #define COUNT_FLISTELEM(rec,cnt)   CNT1_REC(SIZ_REC(rec), cnt)
 
 
-#define HEAP_OBJ(O,T)   (!ALLOC_FLISTELEM(O, T) ? FALSE : CNT(COUNT_FLISTELEM(T, count.object))    TRUE)
-#define HEAP_L_E(L,T)   (!ALLOC_FLISTELEM(L, T) ? FALSE : CNT(COUNT_FLISTELEM(T, count.list_elem)) TRUE)
-#define HEAP_NODE(N,T)  (!ALLOC_FLISTELEM(N, T) ? FALSE : CNT(COUNT_FLISTELEM(T, count.node))      TRUE)
-#define HEAP_FILE(F,T)  (!ALLOC_FLISTELEM(F, T) ? FALSE : CNT(COUNT_FLISTELEM(T, count.infil))     TRUE)
+#define HEAP_OBJ(O,T)   (!ALLOC_FLISTELEM(O, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.object))    TRUE))
+#define HEAP_L_E(L,T)   (!ALLOC_FLISTELEM(L, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.list_elem)) TRUE))
+#define HEAP_NODE(N,T)  (!ALLOC_FLISTELEM(N, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.node))      TRUE))
+#define HEAP_FILE(F,T)  (!ALLOC_FLISTELEM(F, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.infil))     TRUE))
 
 #define POP_OBJ(O)      (O = flist.objects,    flist.objects = flist.objects->value.objValue, F_LOG1(O) TRUE)
 #define POP_L_E(L)      (L = flist.list_elems, flist.list_elems = flist.list_elems->next,     F_LOG1(L) TRUE)
