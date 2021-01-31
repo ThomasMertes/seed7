@@ -4489,10 +4489,13 @@ const proc: check_trunc is func
         trunc( 1152921504606846976.0) <>  1152921504606846976 or
         trunc( 2305843009213693952.0) <>  2305843009213693952 or
         trunc( 4611686018427387904.0) <>  4611686018427387904 or
+        trunc( 9223372036854773760.0) <>  9223372036854773760 or
         trunc( 9223372036854774784.0) <>  9223372036854774784 or
             raisesRangeError(trunc( 9223372036854775295.0)) or
-        not raisesRangeError(trunc( 9223372036854775297.0)) or
-        not raisesRangeError(trunc( 9223372036854775807.0)) or
+        not raisesRangeError(trunc( 9223372036854775297.0)) and
+                             trunc( 9223372036854775297.0) <> 9223372036854775807 or
+        not raisesRangeError(trunc( 9223372036854775807.0)) and
+                             trunc( 9223372036854775807.0) <> 9223372036854775807 or
         not raisesRangeError(trunc( 9223372036854777000.0)) or
         not raisesRangeError(trunc(              1.0e37  )) or
         not raisesRangeError(trunc(           FLOAT_MAX  )) or
@@ -4580,10 +4583,13 @@ const proc: check_trunc is func
         trunc(floatExpr( 1152921504606846976.0)) <>  1152921504606846976 or
         trunc(floatExpr( 2305843009213693952.0)) <>  2305843009213693952 or
         trunc(floatExpr( 4611686018427387904.0)) <>  4611686018427387904 or
+        trunc(floatExpr( 9223372036854773760.0)) <>  9223372036854773760 or
         trunc(floatExpr( 9223372036854774784.0)) <>  9223372036854774784 or
             raisesRangeError(trunc(floatExpr( 9223372036854775295.0))) or
-        not raisesRangeError(trunc(floatExpr( 9223372036854775297.0))) or
-        not raisesRangeError(trunc(floatExpr( 9223372036854775807.0))) or
+        not raisesRangeError(trunc(floatExpr( 9223372036854775297.0))) and
+                             trunc(floatExpr( 9223372036854775297.0)) <> 9223372036854775807 or
+        not raisesRangeError(trunc(floatExpr( 9223372036854775807.0))) and
+                             trunc(floatExpr( 9223372036854775807.0)) <> 9223372036854775807 or
         not raisesRangeError(trunc(floatExpr( 9223372036854777000.0))) or
         not raisesRangeError(trunc(floatExpr(              1.0e37  ))) or
         not raisesRangeError(trunc(floatExpr(           FLOAT_MAX  ))) or
@@ -4751,10 +4757,13 @@ const proc: check_round is func
         round( 1152921504606846976.0) <>  1152921504606846976 or
         round( 2305843009213693952.0) <>  2305843009213693952 or
         round( 4611686018427387904.0) <>  4611686018427387904 or
+        round( 9223372036854773760.0) <>  9223372036854773760 or
         round( 9223372036854774784.0) <>  9223372036854774784 or
             raisesRangeError(round( 9223372036854775295.0)) or
-        not raisesRangeError(round( 9223372036854775297.0)) or
-        not raisesRangeError(round( 9223372036854775807.0)) or
+        not raisesRangeError(round( 9223372036854775297.0)) and
+                             round( 9223372036854775297.0) <> 9223372036854775807 or
+        not raisesRangeError(round( 9223372036854775807.0)) and
+                             round( 9223372036854775807.0) <> 9223372036854775807 or
         not raisesRangeError(round( 9223372036854777000.0)) or
         not raisesRangeError(round(              1.0e37  )) or
         not raisesRangeError(round(           FLOAT_MAX  )) or
@@ -4910,10 +4919,13 @@ const proc: check_round is func
         round(floatExpr( 1152921504606846976.0)) <>  1152921504606846976 or
         round(floatExpr( 2305843009213693952.0)) <>  2305843009213693952 or
         round(floatExpr( 4611686018427387904.0)) <>  4611686018427387904 or
+        round(floatExpr( 9223372036854773760.0)) <>  9223372036854773760 or
         round(floatExpr( 9223372036854774784.0)) <>  9223372036854774784 or
             raisesRangeError(round(floatExpr( 9223372036854775295.0))) or
-        not raisesRangeError(round(floatExpr( 9223372036854775297.0))) or
-        not raisesRangeError(round(floatExpr( 9223372036854775807.0))) or
+        not raisesRangeError(round(floatExpr( 9223372036854775297.0))) and
+                             round(floatExpr( 9223372036854775297.0)) <> 9223372036854775807 or
+        not raisesRangeError(round(floatExpr( 9223372036854775807.0))) and
+                             round(floatExpr( 9223372036854775807.0)) <> 9223372036854775807 or
         not raisesRangeError(round(floatExpr( 9223372036854777000.0))) or
         not raisesRangeError(round(floatExpr(              1.0e37  ))) or
         not raisesRangeError(round(floatExpr(           FLOAT_MAX  ))) or
