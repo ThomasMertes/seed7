@@ -79,6 +79,9 @@ typedef Status (*tp_XAllocColorCells) (Display *display, Colormap colormap, Bool
                                        unsigned int npixels);
 typedef unsigned long (*tp_XBlackPixel) (Display *display,
                                          int screen_number);
+typedef int (*tp_XChangeProperty) (Display *display, Window window, Atom property,
+                                   Atom type, int format, int mode,
+                                   const unsigned char *data, int nelements);
 typedef int (*tp_XChangeWindowAttributes) (Display *display, Window window,
                                            unsigned long valuemask,
                                            XSetWindowAttributes *attributes);
@@ -155,6 +158,7 @@ typedef int (*tp_XLookupString) (XKeyEvent *event_struct, char *buffer_return,
                                  XComposeStatus *status_in_out);
 typedef int (*tp_XLowerWindow) (Display *display, Window window);
 typedef int (*tp_XMapRaised) (Display *display, Window window);
+typedef int (*tp_XMapWindow) (Display *display, Window window);
 typedef int (*tp_XMoveWindow) (Display *display, Window window, int x, int y);
 typedef int (*tp_XNextEvent) (Display *display, XEvent *event_return);
 typedef Display *(*tp_XOpenDisplay) (const char *display_name);
@@ -202,6 +206,7 @@ typedef unsigned long (*tp_XWhitePixel) (Display *display,
 static tp_XAllocColor             ptr_XAllocColor;
 static tp_XAllocColorCells        ptr_XAllocColorCells;
 static tp_XBlackPixel             ptr_XBlackPixel;
+static tp_XChangeProperty         ptr_XChangeProperty;
 static tp_XChangeWindowAttributes ptr_XChangeWindowAttributes;
 static tp_XCopyArea               ptr_XCopyArea;
 static tp_XCopyPlane              ptr_XCopyPlane;
@@ -240,6 +245,7 @@ static tp_XKeysymToKeycode        ptr_XKeysymToKeycode;
 static tp_XLookupString           ptr_XLookupString;
 static tp_XLowerWindow            ptr_XLowerWindow;
 static tp_XMapRaised              ptr_XMapRaised;
+static tp_XMapWindow              ptr_XMapWindow;
 static tp_XMoveWindow             ptr_XMoveWindow;
 static tp_XNextEvent              ptr_XNextEvent;
 static tp_XOpenDisplay            ptr_XOpenDisplay;
@@ -280,6 +286,7 @@ static boolType setupDll (const char *dllName)
         if ((ptr_XAllocColor             = (tp_XAllocColor)             dllFunc(x11Dll, "XAllocColor"))             == NULL ||
             (ptr_XAllocColorCells        = (tp_XAllocColorCells)        dllFunc(x11Dll, "XAllocColorCells"))        == NULL ||
             (ptr_XBlackPixel             = (tp_XBlackPixel)             dllFunc(x11Dll, "XBlackPixel"))             == NULL ||
+            (ptr_XChangeProperty         = (tp_XChangeProperty)         dllFunc(x11Dll, "XChangeProperty"))         == NULL ||
             (ptr_XChangeWindowAttributes = (tp_XChangeWindowAttributes) dllFunc(x11Dll, "XChangeWindowAttributes")) == NULL ||
             (ptr_XCopyArea               = (tp_XCopyArea)               dllFunc(x11Dll, "XCopyArea"))               == NULL ||
             (ptr_XCopyPlane              = (tp_XCopyPlane)              dllFunc(x11Dll, "XCopyPlane"))              == NULL ||
@@ -318,6 +325,7 @@ static boolType setupDll (const char *dllName)
             (ptr_XLookupString           = (tp_XLookupString )          dllFunc(x11Dll, "XLookupString"))           == NULL ||
             (ptr_XLowerWindow            = (tp_XLowerWindow)            dllFunc(x11Dll, "XLowerWindow"))            == NULL ||
             (ptr_XMapRaised              = (tp_XMapRaised)              dllFunc(x11Dll, "XMapRaised"))              == NULL ||
+            (ptr_XMapWindow              = (tp_XMapWindow)              dllFunc(x11Dll, "XMapWindow"))              == NULL ||
             (ptr_XMoveWindow             = (tp_XMoveWindow)             dllFunc(x11Dll, "XMoveWindow"))             == NULL ||
             (ptr_XNextEvent              = (tp_XNextEvent)              dllFunc(x11Dll, "XNextEvent"))              == NULL ||
             (ptr_XOpenDisplay            = (tp_XOpenDisplay)            dllFunc(x11Dll, "XOpenDisplay"))            == NULL ||
@@ -424,6 +432,26 @@ unsigned long XBlackPixel (Display *display, int screen_number)
     logFunction(printf("XBlackPixel --> %lu\n", blackPixel););
     return blackPixel;
   } /* XBlackPixel */
+
+
+
+int XChangeProperty (Display *display, Window window, Atom property,
+                     Atom type, int format, int mode,
+                     const unsigned char *data, int nelements)
+
+  {
+    int funcResult;
+
+  /* XChangeProperty */
+    logFunction(printf("XChangeProperty(" FMT_U_MEM ", " FMT_U_XID
+                       ", %ld, %ld, %d, %d " FMT_U_MEM ", %d)\n",
+                       (memSizeType) display, window, property,
+                       type, format, mode, (memSizeType) data, nelements););
+    funcResult = ptr_XChangeProperty(display, window, property, type,
+                                     format, mode, data, nelements);
+    logFunction(printf("XChangeProperty --> %d\n", funcResult););
+    return funcResult;
+  } /* XChangeProperty */
 
 
 
@@ -1095,6 +1123,21 @@ int XMapRaised (Display *display, Window window)
     logFunction(printf("XMapRaised --> %d\n", funcResult););
     return funcResult;
   } /* XMapRaised */
+
+
+
+int XMapWindow (Display *display, Window window)
+
+  {
+    int funcResult;
+
+  /* XMapWindow */
+    logFunction(printf("XMapWindow(" FMT_U_MEM ", " FMT_U_XID ")\n",
+                       (memSizeType) display, window););
+    funcResult = ptr_XMapWindow(display, window);
+    logFunction(printf("XMapWindow --> %d\n", funcResult););
+    return funcResult;
+  } /* XMapWindow */
 
 
 

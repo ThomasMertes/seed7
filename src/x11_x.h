@@ -562,6 +562,14 @@ extern Status XAllocColorCells (Display *display,
                                 unsigned int npixels);
 extern unsigned long XBlackPixel (Display *display,
                                   int screen_number);
+extern int XChangeProperty (Display *display,
+                            Window window,
+                            Atom property,
+                            Atom type,
+                            int format,
+                            int mode,
+                            const unsigned char *data,
+                            int nelements);
 extern int XChangeWindowAttributes (Display *display,
                                     Window window,
                                     unsigned long valuemask,
@@ -726,6 +734,8 @@ extern int XLookupString (XKeyEvent *event_struct, char *buffer_return,
 extern int XLowerWindow (Display *display,
                          Window window);
 extern int XMapRaised (Display *display,
+                       Window window);
+extern int XMapWindow (Display *display,
                        Window window);
 extern int XMoveWindow (Display *display,
                         Window window,
