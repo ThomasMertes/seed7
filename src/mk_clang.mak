@@ -184,6 +184,7 @@ chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" > chkccomp.h
 	echo "#define CC_OPT_LINK_TIME_OPTIMIZATION \"-flto\"" >> chkccomp.h
 	echo "#define SUPPORTS_PARTIAL_LINKING" >> chkccomp.h
+	echo "#define ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS" >> chkccomp.h
 
 base.h:
 	echo "#define PATH_DELIMITER '/'" > base.h
