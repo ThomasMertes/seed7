@@ -36,48 +36,56 @@ int main (int argc, char **argv)
   { /* main */
 #if defined X11_INCLUDE || defined TERM_INCLUDE
     printf("\n");
-    printf("   **********************************************************************\n");
-    printf("   *                                                                    *\n");
-    printf("   *                *****     A T T E N T I O N     *****               *\n");
-    printf("   *                                                                    *\n");
-    printf("   *         ESSENTIAL HEADER FILES ARE MISSING ON YOUR COMPUTER        *\n");
-    printf("   *                                                                    *\n");
+    printf("************************************************\n");
+    printf("*                                              *\n");
+    printf("*    *****      A T T E N T I O N      *****   *\n");
+    printf("*                                              *\n");
+    printf("*      ESSENTIAL HEADER FILES ARE MISSING      *\n");
+    printf("*                                              *\n");
 #if defined X11_INCLUDE && defined TERM_INCLUDE
-    printf("   *  The header files for X11 and ncurses are missing.                 *\n");
-    printf("   *  You need to install the development packages of X11 and ncurses.  *\n");
+    printf("* The header files for X11 and ncurses are     *\n");
+    printf("* missing. You need to install the development *\n");
+    printf("* packages of X11 and ncurses.                 *\n");
 #elif defined X11_INCLUDE
-    printf("   *  The header files for X11 are missing.                             *\n");
-    printf("   *  You need to install the development package of X11.               *\n");
+    printf("* The header files for X11 are missing. You    *\n");
+    printf("* need to install the development package of   *\n");
+    printf("* X11.                                         *\n");
 #elif defined TERM_INCLUDE
-    printf("   *  The header files for ncurses are missing.                         *\n");
-    printf("   *  You need to install the development package of ncurses.           *\n");
+    printf("* The header files for ncurses are missing.    *\n");
+    printf("* You need to install the development package  *\n");
+    printf("* of ncurses.                                  *\n");
 #endif
 #if defined X11_INCLUDE
-    printf("   *  Search with your package manager for a package with a name like   *\n");
-    printf("   *  libx11-dev and install it.                                        *\n");
+    printf("* Search with your package manager for a       *\n");
+    printf("* package with a name like libx11-dev and      *\n");
+    printf("* install it.                                  *\n");
 #endif
 #if defined TERM_INCLUDE
-    printf("   *  Search with your package manager for a package with a name like   *\n");
-    printf("   *  libncurses-devel or libncurses5-dev and install it.               *\n");
+    printf("* Search with your package manager for a       *\n");
+    printf("* package with a name like libncurses-devel or *\n");
+    printf("* libncurses5-dev and install it.              *\n");
 #endif
-    printf("   *                                                                    *\n");
-    printf("   *  To use your package manager your probably need superuser rights.  *\n");
-    printf("   *  Hopefully you succeed in installing these packages. Afterwards    *\n");
-    printf("   *  you need to start the build from scratch (with your make command  *\n");
-    printf("   *  and your makefile):                                               *\n");
-    printf("   *                                                                    *\n");
-    printf("   *    make clean                                                      *\n");
-    printf("   *                                                                    *\n");
-    printf("   *  After the cleanup you can again do:                               *\n");
-    printf("   *                                                                    *\n");
-    printf("   *    make depend                                                     *\n");
-    printf("   *                                                                    *\n");
-    printf("   *  Seed7 provides its own header files for X11 and ncurses so you    *\n");
-    printf("   *  might succeed in proceeding the build without installing the      *\n");
-    printf("   *  development packages. This should only be done, if it is not      *\n");
-    printf("   *  possible to install the development packages.                     *\n");
-    printf("   *                                                                    *\n");
-    printf("   **********************************************************************\n");
+    printf("*                                              *\n");
+    printf("* To use your package manager your probably    *\n");
+    printf("* need superuser rights. Hopefully you succeed *\n");
+    printf("* in installing these packages. Afterwards you *\n");
+    printf("* need to start the build from scratch (with   *\n");
+    printf("* your make command and your makefile):        *\n");
+    printf("*                                              *\n");
+    printf("*   make clean                                 *\n");
+    printf("*                                              *\n");
+    printf("* After the cleanup you can again do:          *\n");
+    printf("*                                              *\n");
+    printf("*   make depend                                *\n");
+    printf("*                                              *\n");
+    printf("* Seed7 provides its own header files for X11  *\n");
+    printf("* and ncurses so you might succeed in          *\n");
+    printf("* proceeding the build without installing the  *\n");
+    printf("* development packages. This should only be    *\n");
+    printf("* done, if it is not possible to install the   *\n");
+    printf("* development packages.                        *\n");
+    printf("*                                              *\n");
+    printf("************************************************\n");
 #endif
     return 0;
   } /* main */
