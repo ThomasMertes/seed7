@@ -1947,6 +1947,7 @@ intType drwXPos (const_winType actual_window)
 
   {
     RECT rect;
+    POINT point;
     intType xPos;
 
   /* drwXPos */
@@ -1957,7 +1958,10 @@ intType drwXPos (const_winType actual_window)
       raise_error(FILE_ERROR);
       xPos = 0;
     } else {
-      xPos = rect.left;
+      point.x = rect.left;
+      point.y = rect.top;
+      ScreenToClient(GetParent(to_hwnd(actual_window)), &point);
+      xPos = point.x;
     } /* if */
     logFunction(printf("drwXPos(" FMT_U_MEM ") --> " FMT_D "\n",
                        (memSizeType) actual_window, xPos););
@@ -1979,6 +1983,7 @@ intType drwYPos (const_winType actual_window)
 
   {
     RECT rect;
+    POINT point;
     intType yPos;
 
   /* drwYPos */
@@ -1989,7 +1994,10 @@ intType drwYPos (const_winType actual_window)
       raise_error(FILE_ERROR);
       yPos = 0;
     } else {
-      yPos = rect.top;
+      point.x = rect.left;
+      point.y = rect.top;
+      ScreenToClient(GetParent(to_hwnd(actual_window)), &point);
+      yPos = point.y;
     } /* if */
     logFunction(printf("drwYPos(" FMT_U_MEM ") --> " FMT_D "\n",
                        (memSizeType) actual_window, yPos););
