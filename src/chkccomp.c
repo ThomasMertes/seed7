@@ -2031,9 +2031,14 @@ static void numericProperties (FILE *versionFile)
                     "#include<signal.h>\n"
                     "void handleSigill(int sig){puts(\"2\");exit(0);}\n"
                     "void handleSigabrt(int sig){puts(\"3\");exit(0);}\n"
+                    "void handleSigtrap(int sig){puts(\"4\");exit(0);}\n"
                     "int main(int argc,char *argv[]){\n"
                     "%s a=0x7fffffffffffffff,b=1,c=2;\n"
-                    "signal(SIGILL,handleSigill);\nsignal(SIGABRT,handleSigabrt);\n"
+                    "signal(SIGILL,handleSigill);\n"
+                    "signal(SIGABRT,handleSigabrt);\n"
+                    "#ifdef SIGTRAP\n"
+                    "signal(SIGTRAP,handleSigtrap);\n"
+                    "#endif\n"
                     "printf(\"%%d\\n\",a+b==0x8000000000000000 && a*c== -2);return 0;}\n",
                     int64TypeStri);
     if (compileAndLinkWithOptionsOk(buffer, CC_OPT_TRAP_OVERFLOW, "")) {
@@ -2045,6 +2050,10 @@ static void numericProperties (FILE *versionFile)
         case 3:
           fputs("#define OVERFLOW_SIGNAL SIGABRT\n", versionFile);
           fputs("#define OVERFLOW_SIGNAL_STR \"SIGABRT\"\n", versionFile);
+          break;
+        case 4:
+          fputs("#define OVERFLOW_SIGNAL SIGTRAP\n", versionFile);
+          fputs("#define OVERFLOW_SIGNAL_STR \"SIGTRAP\"\n", versionFile);
           break;
         default:
           fputs("#define OVERFLOW_SIGNAL 0\n", versionFile);
