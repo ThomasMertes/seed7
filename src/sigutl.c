@@ -47,12 +47,7 @@
 typedef void (*signalHandlerType) (int signalNum);
 
 #if HAS_SIGACTION || HAS_SIGNAL
-static const int normalSignals[] = {
-    SIGABRT, SIGILL, SIGINT, SIGFPE,
-#ifdef SIGTRAP
-    SIGTRAP
-#endif
-  };
+static const int normalSignals[] = {SIGABRT, SIGILL, SIGINT, SIGFPE};
 #endif
 volatile static suspendInterprType suspendInterpreter;
 
@@ -221,7 +216,7 @@ static boolType signalDecision (int signalNum, boolType inHandler)
  *  Signal handler that is used if tracing signals as been activated.
  *  Tracing signals is activated in interpreter and compiler with the
  *  option -ts. This signal handler is used for normalSignals
- *  (e.g.: SIGABRT, SIGILL, SIGINT, SIGFPE, SIGTRAP).
+ *  (e.g.: SIGABRT, SIGILL, SIGINT, SIGFPE).
  */
 static void handleTracedSignals (int signalNum)
 
@@ -276,7 +271,7 @@ static void handleOverflowError (int signalNum)
 /**
  *  Signal handler for signals that terminate the program.
  *  This signal handler is used for SIGTERM and for normalSignals
- *  (e.g.: SIGABRT, SIGILL, SIGINT, SIGFPE, SIGTRAP).
+ *  (e.g.: SIGABRT, SIGILL, SIGINT, SIGFPE).
  */
 static void handleTermSignal (int signalNum)
 
@@ -361,6 +356,10 @@ void setupSignalHandlers (boolType handleSignals,
         } /* if */
         okay = okay && sigaction(signalNum, &sigAct, NULL) == 0;
       } /* for */
+#if OVERFLOW_SIGNAL && defined SIGTRAP && OVERFLOW_SIGNAL == SIGTRAP
+      sigAct.sa_handler = handleOverflowError;
+      okay = okay && sigaction(SIGTRAP, &sigAct, NULL) == 0;
+#endif
       sigAct.sa_handler = handleTermSignal;
       okay = okay && sigaction(SIGTERM,  &sigAct, NULL) == 0;
       if (traceSignals) {
@@ -416,6 +415,9 @@ void setupSignalHandlers (boolType handleSignals,
         } /* if */
         okay = okay && signal(signalNum, sigHandler) != SIG_ERR;
       } /* for */
+#if OVERFLOW_SIGNAL && defined SIGTRAP && OVERFLOW_SIGNAL == SIGTRAP
+      okay = okay && signal(SIGTRAP, handleOverflowError) != SIG_ERR;
+#endif
       okay = okay && signal(SIGTERM, handleTermSignal) != SIG_ERR;
       if (traceSignals) {
         sigHandler = handleSegvSignal;
