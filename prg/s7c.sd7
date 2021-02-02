@@ -5179,7 +5179,7 @@ const proc: write_file_head is func
     writeln(c_prog, "  }\\");
     writeln(c_prog, "}");
     if ccConf.HAS_SIGSETJMP then
-      writeln(c_prog, "#define do_setjmp(jump_buf) sigsetjmp(jump_buf, -1)");
+      writeln(c_prog, "#define do_setjmp(jump_buf) sigsetjmp(jump_buf, 1)");
       writeln(c_prog, "typedef sigjmp_buf catch_type;");
     else
       writeln(c_prog, "#define do_setjmp(jump_buf) setjmp(jump_buf)");
