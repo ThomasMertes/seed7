@@ -40,7 +40,7 @@ const type: ruleType is new struct
     var string: name is "";
     var array string: dependencies is 0 times "";
     var array string: commands is 0 times "";
-    var boolean: commandsDone is FALSE;
+    var boolean: ruleProcessed is FALSE;
   end struct;
 
 const type: ruleHash is hash [string] ruleType;

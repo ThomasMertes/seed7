@@ -224,7 +224,6 @@ const proc: processCommands (in makeDataType: makeData, inout ruleType: rule) is
         end if;
       end if;
     end for;
-    rule.commandsDone := TRUE;
   end func;
 
 
@@ -265,10 +264,10 @@ const proc: processRule (inout makeDataType: makeData, inout ruleType: rule) is 
         write(" " <& dependency);
       end for;
       writeln; *)
-    for dependency range rule.dependencies do
-      processRule(makeData, dependency);
-    end for;
-    if makeData.executeCommands or not rule.commandsDone then
+    if not rule.ruleProcessed then
+      for dependency range rule.dependencies do
+        processRule(makeData, dependency);
+      end for;
       ruleFile := convDosPath(rule.name);
       if fileType(ruleFile) = FILE_ABSENT then
         processCommands(makeData, rule);
@@ -277,10 +276,12 @@ const proc: processRule (inout makeDataType: makeData, inout ruleType: rule) is 
         for dependency range rule.dependencies do
           dependencyFile := convDosPath(applyMacros(makeData.macros, dependency, FALSE));
           if dependencyFile <> "" then
-            if not makeData.executeCommands then
-              commandsNecessary := TRUE;
-            elsif fileType(dependencyFile) = FILE_ABSENT then
-              writeln(" *** File " <& dependencyFile <& " missing");
+            if fileType(dependencyFile) = FILE_ABSENT then
+              if makeData.executeCommands then
+                writeln(" *** File " <& dependencyFile <& " missing");
+              else
+                commandsNecessary := TRUE;
+              end if;
             elsif getMTime(dependencyFile) > targetTime then
               commandsNecessary := TRUE;
             end if;
@@ -290,6 +291,7 @@ const proc: processRule (inout makeDataType: makeData, inout ruleType: rule) is 
           processCommands(makeData, rule);
         end if;
       end if;
+      rule.ruleProcessed := TRUE;
     end if;
   end func;
 
