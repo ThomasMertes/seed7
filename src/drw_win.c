@@ -903,7 +903,7 @@ winType drwGet (const_winType source_window, intType left, intType upper,
  *  the top left corner of the screen.
  *  @param left X-position of the upper left corner of the capture area.
  *  @param upper Y-position of the upper left corner of the capture area.
- *  @param widht Width of the capture area.
+ *  @param width Width of the capture area.
  *  @param height Height of the capture area.
  *  @return the content of the rectangular screen area as pixmap.
  *  @exception RANGE_ERROR If 'height' or 'width' are negative.
@@ -913,6 +913,10 @@ winType drwCapture (intType left, intType upper,
 
   {
     HDC hScreenDC;
+    int horizRes;
+    int vertRes;
+    int desktopHorizRes;
+    int desktopVertRes;
     win_winType pixmap;
 
   /* drwCapture */
@@ -942,8 +946,20 @@ winType drwCapture (intType left, intType upper,
         pixmap->is_pixmap = TRUE;
         pixmap->width = (unsigned int) width;
         pixmap->height = (unsigned int) height;
-        BitBlt(pixmap->hdc, 0, 0, (int) width, (int) height,
-            hScreenDC, (int) left, (int) upper, SRCCOPY);
+        horizRes = GetDeviceCaps(hScreenDC, HORZRES);
+        vertRes = GetDeviceCaps(hScreenDC, VERTRES);
+        desktopHorizRes = GetDeviceCaps(hScreenDC, DESKTOPHORZRES);
+        desktopVertRes = GetDeviceCaps(hScreenDC, DESKTOPVERTRES);
+        if (horizRes == desktopHorizRes && vertRes == desktopVertRes) {
+          BitBlt(pixmap->hdc, 0, 0, (int) width, (int) height,
+                 hScreenDC, (int) left, (int) upper, SRCCOPY);
+        } else {
+          StretchBlt(pixmap->hdc, 0, 0, (int) width, (int) height, hScreenDC,
+                     (int) (left * desktopHorizRes / horizRes),
+                     (int) (upper * desktopVertRes / vertRes),
+                     (int) (width * desktopHorizRes / horizRes),
+                     (int) (height * desktopVertRes / vertRes), SRCCOPY);
+        } /* if */
       } /* if */
     } /* if */
     logFunction(printf("drwGet --> " FMT_U_MEM " (usage=" FMT_U ")\n",
