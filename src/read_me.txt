@@ -435,6 +435,35 @@ COMPILING UNDER MAC OS X
   that directory.
 
 
+COMPILING UNDER ANDROID
+
+    To compile under Android you need to install the termux
+  app on the Android device. Afterwards use the following
+  commands:
+
+    pkg install clang
+    pkg install make
+    pkg install git
+    git clone https://github.com/ThomasMertes/seed7.git
+    cd seed7/src
+
+  Under termux the command gcc refers also to clang. There are
+  two ways to compile Seed7 with termux. The first way uses
+  the makefile mk_clang.mak. To compile with mk_clang.mak use
+  the following commands:
+
+    make -f mk_clang.mak depend
+    make -f mk_clang.mak
+    make -f mk_clang.mak s7c
+
+  The second way to compile Seed7 uses makefile. To compile
+  with makefile use the following commands:
+
+    make depend
+    make
+    make s7c
+
+
 PACKAGES FOR DATABASES UNDER LINUX
 
     Seed7 supports database access. Therefore the client library
