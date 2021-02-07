@@ -70,6 +70,7 @@ typedef struct {
     HBITMAP oldBitmap;
     boolType hasTransparentPixel;
     UINT transparentPixel;
+    HBITMAP maskBitmap;
     boolType is_pixmap;
     unsigned int width;  /* Always <= INT_MAX: Cast to int is safe. */
     unsigned int height; /* Always <= INT_MAX: Cast to int is safe. */
@@ -88,6 +89,7 @@ typedef struct {
 #define is_pixmap(win)               (((win_winType) win)->is_pixmap)
 #define to_hasTransparentPixel(win)  (((win_winType) win)->hasTransparentPixel)
 #define to_transparentPixel(win)     (((win_winType) win)->transparentPixel)
+#define to_maskBitmap(win)           (((win_winType) win)->maskBitmap)
 #define to_width(win)                (((win_winType) win)->width)
 #define to_height(win)               (((win_winType) win)->height)
 #define to_brutto_width_delta(win)   (((win_winType) win)->brutto_width_delta)
@@ -912,7 +914,7 @@ winType drwCapture (intType left, intType upper,
     intType width, intType height)
 
   {
-    HDC hScreenDC;
+    HDC screenDC;
     int horizRes;
     int vertRes;
     int desktopHorizRes;
@@ -932,9 +934,9 @@ winType drwCapture (intType left, intType upper,
     } else {
       memset(pixmap, 0, sizeof(win_winRecord));
       pixmap->usage_count = 1;
-      hScreenDC = GetDC(NULL);
-      pixmap->hdc = CreateCompatibleDC(hScreenDC);
-      pixmap->hBitmap = CreateCompatibleBitmap(hScreenDC, (int) width, (int) height);
+      screenDC = GetDC(NULL);
+      pixmap->hdc = CreateCompatibleDC(screenDC);
+      pixmap->hBitmap = CreateCompatibleBitmap(screenDC, (int) width, (int) height);
       if (unlikely(pixmap->hBitmap == NULL)) {
         free(pixmap);
         pixmap = NULL;
@@ -946,15 +948,15 @@ winType drwCapture (intType left, intType upper,
         pixmap->is_pixmap = TRUE;
         pixmap->width = (unsigned int) width;
         pixmap->height = (unsigned int) height;
-        horizRes = GetDeviceCaps(hScreenDC, HORZRES);
-        vertRes = GetDeviceCaps(hScreenDC, VERTRES);
-        desktopHorizRes = GetDeviceCaps(hScreenDC, DESKTOPHORZRES);
-        desktopVertRes = GetDeviceCaps(hScreenDC, DESKTOPVERTRES);
+        horizRes = GetDeviceCaps(screenDC, HORZRES);
+        vertRes = GetDeviceCaps(screenDC, VERTRES);
+        desktopHorizRes = GetDeviceCaps(screenDC, DESKTOPHORZRES);
+        desktopVertRes = GetDeviceCaps(screenDC, DESKTOPVERTRES);
         if (horizRes == desktopHorizRes && vertRes == desktopVertRes) {
           BitBlt(pixmap->hdc, 0, 0, (int) width, (int) height,
-                 hScreenDC, (int) left, (int) upper, SRCCOPY);
+                 screenDC, (int) left, (int) upper, SRCCOPY);
         } else {
-          StretchBlt(pixmap->hdc, 0, 0, (int) width, (int) height, hScreenDC,
+          StretchBlt(pixmap->hdc, 0, 0, (int) width, (int) height, screenDC,
                      (int) (left * desktopHorizRes / horizRes),
                      (int) (upper * desktopVertRes / vertRes),
                      (int) (width * desktopHorizRes / horizRes),
@@ -1611,27 +1613,34 @@ void drwFPolyLine (const_winType actual_window,
 void drwPut (const_winType actual_window, const_winType pixmap,
     intType x, intType y)
 
-  { /* drwPut */
+  {
+    HDC hdcMem;
+
+  /* drwPut */
     if (pixmap != NULL) {
-#ifdef USE_TRANSPARENTBLT
       if (to_hasTransparentPixel(pixmap)) {
-        TransparentBlt(to_hdc(actual_window), x, y, to_width(pixmap), to_height(pixmap),
-            to_hdc(pixmap), 0, 0, to_width(pixmap), to_height(pixmap), to_transparentPixel(pixmap));
+        hdcMem = CreateCompatibleDC(0);
+        SelectObject(hdcMem, to_maskBitmap(pixmap));
+        BitBlt(to_hdc(actual_window), castToInt(x), castToInt(y),
+               (int) to_width(pixmap), (int) to_height(pixmap), hdcMem, 0, 0, SRCAND);
+        BitBlt(to_hdc(actual_window), castToInt(x), castToInt(y),
+               (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCPAINT);
         if (to_backup_hdc(actual_window) != 0) {
-          TransparentBlt(to_backup_hdc(actual_window), x, y, to_width(pixmap), to_height(pixmap),
-              to_hdc(pixmap), 0, 0, to_width(pixmap), to_height(pixmap), to_transparentPixel(pixmap));
+          SelectObject(hdcMem, to_maskBitmap(pixmap));
+          BitBlt(to_backup_hdc(actual_window), castToInt(x), castToInt(y),
+                 (int) to_width(pixmap), (int) to_height(pixmap), hdcMem, 0, 0, SRCAND);
+          BitBlt(to_backup_hdc(actual_window), castToInt(x), castToInt(y),
+                 (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCPAINT);
         } /* if */
+        DeleteDC(hdcMem);
       } else {
-#endif
         BitBlt(to_hdc(actual_window), castToInt(x), castToInt(y),
                (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCCOPY);
         if (to_backup_hdc(actual_window) != 0) {
           BitBlt(to_backup_hdc(actual_window), castToInt(x), castToInt(y),
                  (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCCOPY);
         } /* if */
-#ifdef USE_TRANSPARENTBLT
       } /* if */
-#endif
     } /* if */
   } /* drwPut */
 
@@ -1840,11 +1849,44 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
 
 
+static HBITMAP createMaskBitmap (HDC pixmapHdc, int width, int height,
+    COLORREF transparentColor)
+
+  {
+    HDC maskHdc;
+    COLORREF oldBackgroundColor;
+    HBITMAP maskBitmap;
+
+  /* createMaskBitmap */
+    /* Create monochrome (1 bit) maskBitmap. */
+    maskBitmap = CreateBitmap(width, height, 1, 1, NULL);
+    maskHdc = CreateCompatibleDC(0);
+    SelectObject(maskHdc, maskBitmap);
+    oldBackgroundColor = SetBkColor(pixmapHdc, transparentColor);
+    /* Copy the bits from pixmapHdc to the B+W mask. */
+    /* Everything with the background colour ends up */
+    /* white and everythig else ends up black.       */
+    BitBlt(maskHdc, 0, 0, width, height, pixmapHdc, 0, 0, SRCCOPY);
+    /* Take the new mask and use it to turn the      */
+    /* transparent colour in the pixmapHdc image to  */
+    /* black so the transparency effect works right. */
+    BitBlt(pixmapHdc, 0, 0, width, height, maskHdc, 0, 0, SRCINVERT);
+    DeleteDC(maskHdc);
+    SetBkColor(pixmapHdc, oldBackgroundColor);
+    return maskBitmap;
+  } /* createMaskBitmap */
+
+
+
 void drwSetTransparentColor (winType pixmap, intType col)
 
   { /* drwSetTransparentColor */
+    logFunction(printf("drwSetTransparentColor(" FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) pixmap, col););
     to_hasTransparentPixel(pixmap) = TRUE;
     to_transparentPixel(pixmap) = (UINT) col;
+    to_maskBitmap(pixmap) = createMaskBitmap(to_hdc(pixmap),
+        (int) to_width(pixmap), (int) to_height(pixmap), (COLORREF) col);
   } /* drwSetTransparentColor */
 
 
