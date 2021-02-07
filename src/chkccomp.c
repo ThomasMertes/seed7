@@ -635,7 +635,7 @@ static int doCompile (const char *compilerOptions, int testNumber)
       /* fprintf(logFile, "\n *** The compiler %s produces no executable: %s\n", c_compiler, fileName); */
     } /* if */
 #ifdef DEBUG_CHKCCOMP
-    fprintf(logFile, "command: %s\n", command);
+    fprintf(logFile, "doCompile command: %s\n", command);
     fprintf(logFile, "returncode: %d\n", returncode);
     if (returncode == -1) {
       fprintf(logFile, "errno: %d\nerror: %s\n", errno, strerror(errno));
@@ -736,7 +736,7 @@ static int doLink (const char *objectOrLibraryName, const char *linkerOptions)
       /* fprintf(logFile, "\n *** The compiler %s produces no executable: %s\n", c_compiler, fileName); */
     } /* if */
 #ifdef DEBUG_CHKCCOMP
-    fprintf(logFile, "command: %s\n", command);
+    fprintf(logFile, "doLink command: %s\n", command);
     fprintf(logFile, "returncode: %d\n", returncode);
     if (returncode == -1) {
       fprintf(logFile, "errno: %d\nerror: %s\n", errno, strerror(errno));
@@ -816,7 +816,7 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
       /* fprintf(logFile, "\n *** The compiler %s produces no executable: %s\n", c_compiler, fileName); */
     } /* if */
 #ifdef DEBUG_CHKCCOMP
-    fprintf(logFile, "command: %s\n", command);
+    fprintf(logFile, "doCompileAndLink command: %s\n", command);
     fprintf(logFile, "returncode: %d\n", returncode);
     if (returncode == -1) {
       fprintf(logFile, "errno: %d\nerror: %s\n", errno, strerror(errno));
@@ -5676,6 +5676,55 @@ static void listDynamicLibs (char *scopeName, const char *baseDir,
 
 
 
+static void listDynamicLibsInSameDir (char *scopeName, const char *baseDllPath,
+    const char **dllNameList, size_t dllNameListLength, FILE *versionFile)
+
+  {
+    char *slashPos;
+    char *backslashPos;
+    char *dirPathEnd;
+    int nameIndex;
+    char dirPath[BUFFER_SIZE];
+    char filePath[BUFFER_SIZE];
+
+  /* listDynamicLibsInSameDir */
+    slashPos = strrchr(baseDllPath, '/');
+    backslashPos = strrchr(baseDllPath, '\\');
+    if (slashPos != NULL || backslashPos != NULL) {
+      if (slashPos != NULL) {
+        if (backslashPos != NULL) {
+          if (slashPos > backslashPos) {
+            dirPathEnd = slashPos;
+          } else {
+            dirPathEnd = backslashPos;
+	  } /* if */
+        } else {
+	  dirPathEnd = slashPos;
+        } /* if */
+      } else {
+	dirPathEnd = backslashPos;
+      } /* if */
+      memcpy(dirPath, baseDllPath, dirPathEnd - baseDllPath);
+      dirPath[dirPathEnd - baseDllPath] = '\0';
+      for (nameIndex = 0;
+           nameIndex < dllNameListLength;
+           nameIndex++) {
+        sprintf(filePath, "%s/%s", dirPath, dllNameList[nameIndex]);
+        /* printf("filePath: %s\n", filePath); */
+        if (fileIsRegular(filePath)) {
+          /* printf("fileIsRegular(%s)\n", filePath); */
+          fprintf(logFile, "\r%s: DLL / Shared library: %s\n",
+                  scopeName, filePath);
+          fprintf(versionFile, " \"");
+          escapeString(versionFile, filePath);
+          fprintf(versionFile, "\",");
+        } /* if */
+      } /* for */
+    } /* if */
+  } /* listDynamicLibsInSameDir */
+
+
+
 static void determineX11Defines (FILE *versionFile, char *include_options)
 
   {
@@ -6407,7 +6456,7 @@ static void determinePostgresDefines (FILE *versionFile,
     char *include_options, char *system_database_libs)
 
   {
-    const char *dbVersion[] = {"12", "11", "10",
+    const char *dbVersion[] = {"13", "12", "11", "10",
                                "9.6", "9.5", "9.4", "9.3",
                                "9.2", "9.1", "9.0", "8.4", "8.3"};
 #ifdef POSTGRESQL_LIBS
@@ -6631,6 +6680,10 @@ static void determinePostgresDefines (FILE *versionFile,
                         dllDirList, sizeof(dllDirList) / sizeof(char *),
                         libIntlDllList, sizeof(libIntlDllList) / sizeof(char *), versionFile);
       } /* if */
+      for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
+        listDynamicLibsInSameDir("PostgreSQL", dllNameList[nameIndex], libIntlDllList,
+                                 sizeof(libIntlDllList) / sizeof(char *), versionFile);
+      } /* for */
       for (nameIndex = 0; nameIndex < sizeof(libIntlDllList) / sizeof(char *); nameIndex++) {
         fprintf(logFile, "\rPostgreSQL: DLL / Shared library: %s\n", libIntlDllList[nameIndex]);
         fprintf(versionFile, " \"%s\",", libIntlDllList[nameIndex]);
@@ -6642,6 +6695,10 @@ static void determinePostgresDefines (FILE *versionFile,
                         dllDirList, sizeof(dllDirList) / sizeof(char *),
                         libeay32DllList, sizeof(libeay32DllList) / sizeof(char *), versionFile);
       } /* if */
+      for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
+        listDynamicLibsInSameDir("PostgreSQL", dllNameList[nameIndex], libeay32DllList,
+                                 sizeof(libeay32DllList) / sizeof(char *), versionFile);
+      } /* for */
       for (nameIndex = 0; nameIndex < sizeof(libeay32DllList) / sizeof(char *); nameIndex++) {
         fprintf(logFile, "\rPostgreSQL: DLL / Shared library: %s\n", libeay32DllList[nameIndex]);
         fprintf(versionFile, " \"%s\",", libeay32DllList[nameIndex]);
