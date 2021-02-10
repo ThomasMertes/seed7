@@ -5697,12 +5697,12 @@ static void listDynamicLibsInSameDir (char *scopeName, const char *baseDllPath,
             dirPathEnd = slashPos;
           } else {
             dirPathEnd = backslashPos;
-	  } /* if */
+          } /* if */
         } else {
-	  dirPathEnd = slashPos;
+          dirPathEnd = slashPos;
         } /* if */
       } else {
-	dirPathEnd = backslashPos;
+        dirPathEnd = backslashPos;
       } /* if */
       memcpy(dirPath, baseDllPath, dirPathEnd - baseDllPath);
       dirPath[dirPathEnd - baseDllPath] = '\0';
@@ -5722,6 +5722,36 @@ static void listDynamicLibsInSameDir (char *scopeName, const char *baseDllPath,
       } /* for */
     } /* if */
   } /* listDynamicLibsInSameDir */
+
+
+
+static void defineLibraryMacro (char *scopeName, int dbHomeExists,
+    char *dbHome, char *macroName, const char **dllDirList,
+    size_t dllDirListLength, const char **baseDllNameList,
+    size_t baseDllNameListLength, const char **dllNameList,
+    size_t dllNameListLength, FILE *versionFile)
+
+  {
+    int nameIndex;
+
+  /* defineLibraryMacro */
+    fprintf(versionFile, "#define %s", macroName);
+    if (dbHomeExists) {
+      listDynamicLibs(scopeName, dbHome,
+                      dllDirList, dllDirListLength,
+                      dllNameList, dllNameListLength, versionFile);
+    } /* if */
+    for (nameIndex = 0; nameIndex < baseDllNameListLength; nameIndex++) {
+      listDynamicLibsInSameDir(scopeName, baseDllNameList[nameIndex], dllNameList,
+                               dllNameListLength, versionFile);
+    } /* for */
+    for (nameIndex = 0; nameIndex < dllNameListLength; nameIndex++) {
+      fprintf(logFile, "\r%s: DLL / Shared library: %s\n",
+              scopeName, dllNameList[nameIndex]);
+      fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
+    } /* for */
+    fprintf(versionFile, "\n");
+  } /* defineLibraryMacro */
 
 
 
@@ -6479,6 +6509,8 @@ static void determinePostgresDefines (FILE *versionFile,
     const char *dllDirList[] = {"/lib", "/bin"};
     const char *libIntlDllList[] = {"libintl.dll", "libintl-8.dll", "libintl-9.dll"};
     const char *libeay32DllList[] = {"libeay32.dll"};
+    const char *libcryptoDllList[] = {"libcrypto-1_1-x64.dll"};
+    const char *libsslDllList[] = {"libssl-1_1-x64.dll"};
     int dirIndex;
     int nameIndex;
     int searchForLib = 1;
@@ -6674,36 +6706,26 @@ static void determinePostgresDefines (FILE *versionFile,
         fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
       } /* for */
       fprintf(versionFile, "\n");
-      fprintf(versionFile, "#define LIBINTL_DLL");
-      if (dbHomeExists) {
-        listDynamicLibs("PostgreSQL", dbHome,
-                        dllDirList, sizeof(dllDirList) / sizeof(char *),
-                        libIntlDllList, sizeof(libIntlDllList) / sizeof(char *), versionFile);
-      } /* if */
-      for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-        listDynamicLibsInSameDir("PostgreSQL", dllNameList[nameIndex], libIntlDllList,
-                                 sizeof(libIntlDllList) / sizeof(char *), versionFile);
-      } /* for */
-      for (nameIndex = 0; nameIndex < sizeof(libIntlDllList) / sizeof(char *); nameIndex++) {
-        fprintf(logFile, "\rPostgreSQL: DLL / Shared library: %s\n", libIntlDllList[nameIndex]);
-        fprintf(versionFile, " \"%s\",", libIntlDllList[nameIndex]);
-      } /* for */
-      fprintf(versionFile, "\n");
-      fprintf(versionFile, "#define LIBEAY32_DLL");
-      if (dbHomeExists) {
-        listDynamicLibs("PostgreSQL", dbHome,
-                        dllDirList, sizeof(dllDirList) / sizeof(char *),
-                        libeay32DllList, sizeof(libeay32DllList) / sizeof(char *), versionFile);
-      } /* if */
-      for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-        listDynamicLibsInSameDir("PostgreSQL", dllNameList[nameIndex], libeay32DllList,
-                                 sizeof(libeay32DllList) / sizeof(char *), versionFile);
-      } /* for */
-      for (nameIndex = 0; nameIndex < sizeof(libeay32DllList) / sizeof(char *); nameIndex++) {
-        fprintf(logFile, "\rPostgreSQL: DLL / Shared library: %s\n", libeay32DllList[nameIndex]);
-        fprintf(versionFile, " \"%s\",", libeay32DllList[nameIndex]);
-      } /* for */
-      fprintf(versionFile, "\n");
+      defineLibraryMacro("PostgreSQL", dbHomeExists, dbHome, "LIBINTL_DLL",
+                         dllDirList, sizeof(dllDirList) / sizeof(char *),
+                         dllNameList, sizeof(dllNameList) / sizeof(char *),
+                         libIntlDllList, sizeof(libIntlDllList) / sizeof(char *),
+                         versionFile);
+      defineLibraryMacro("PostgreSQL", dbHomeExists, dbHome, "LIBEAY32_DLL",
+                         dllDirList, sizeof(dllDirList) / sizeof(char *),
+                         dllNameList, sizeof(dllNameList) / sizeof(char *),
+                         libeay32DllList, sizeof(libeay32DllList) / sizeof(char *),
+                         versionFile);
+      defineLibraryMacro("PostgreSQL", dbHomeExists, dbHome, "LIBCRYPTO_DLL",
+                         dllDirList, sizeof(dllDirList) / sizeof(char *),
+                         dllNameList, sizeof(dllNameList) / sizeof(char *),
+                         libcryptoDllList, sizeof(libcryptoDllList) / sizeof(char *),
+                         versionFile);
+      defineLibraryMacro("PostgreSQL", dbHomeExists, dbHome, "LIBSSL_DLL",
+                         dllDirList, sizeof(dllDirList) / sizeof(char *),
+                         dllNameList, sizeof(dllNameList) / sizeof(char *),
+                         libsslDllList, sizeof(libsslDllList) / sizeof(char *),
+                         versionFile);
     } /* if */
   } /* determinePostgresDefines */
 

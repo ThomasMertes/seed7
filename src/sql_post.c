@@ -257,6 +257,28 @@ static boolType setupDll (const char *dllName)
         } /* for */
       }
 #endif
+#ifdef LIBCRYPTO_DLL
+      {
+        const char *libcryptoDllList[] = { LIBCRYPTO_DLL };
+        unsigned int pos;
+        boolType found = FALSE;
+
+        for (pos = 0; pos < sizeof(libcryptoDllList) / sizeof(char *) && !found; pos++) {
+          found = dllOpen(libcryptoDllList[pos]) != NULL;
+        } /* for */
+      }
+#endif
+#ifdef LIBSSL_DLL
+      {
+        const char *libsslDllList[] = { LIBSSL_DLL };
+        unsigned int pos;
+        boolType found = FALSE;
+
+        for (pos = 0; pos < sizeof(libsslDllList) / sizeof(char *) && !found; pos++) {
+          found = dllOpen(libsslDllList[pos]) != NULL;
+        } /* for */
+      }
+#endif
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
         if ((PQclear              = (tp_PQclear)              dllFunc(dbDll, "PQclear"))              == NULL ||
