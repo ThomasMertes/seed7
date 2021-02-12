@@ -254,7 +254,7 @@ static void handleNumericError (int signalNum)
 
 #if OVERFLOW_SIGNAL
 /**
- *  Signal handler for the OVERFLOW_SIGNAL (SIGILL or SIGABRT).
+ *  Signal handler for the OVERFLOW_SIGNAL (SIGILL, SIGABRT or SIGTRAP).
  */
 static void handleOverflowError (int signalNum)
 
@@ -357,8 +357,13 @@ void setupSignalHandlers (boolType handleSignals,
         okay = okay && sigaction(signalNum, &sigAct, NULL) == 0;
       } /* for */
 #if OVERFLOW_SIGNAL && defined SIGTRAP && OVERFLOW_SIGNAL == SIGTRAP
-      sigAct.sa_handler = handleOverflowError;
-      okay = okay && sigaction(SIGTRAP, &sigAct, NULL) == 0;
+      if (overflowSigError) {
+        sigAct.sa_handler = handleOverflowError;
+        okay = okay && sigaction(SIGTRAP, &sigAct, NULL) == 0;
+      } else if (traceSignals) {
+        sigAct.sa_handler = handleTracedSignals;
+        okay = okay && sigaction(SIGTRAP, &sigAct, NULL) == 0;
+      } /* if */
 #endif
       sigAct.sa_handler = handleTermSignal;
       okay = okay && sigaction(SIGTERM,  &sigAct, NULL) == 0;
@@ -416,7 +421,11 @@ void setupSignalHandlers (boolType handleSignals,
         okay = okay && signal(signalNum, sigHandler) != SIG_ERR;
       } /* for */
 #if OVERFLOW_SIGNAL && defined SIGTRAP && OVERFLOW_SIGNAL == SIGTRAP
-      okay = okay && signal(SIGTRAP, handleOverflowError) != SIG_ERR;
+      if (overflowSigError) {
+        okay = okay && signal(SIGTRAP, handleOverflowError) != SIG_ERR;
+      } else if (traceSignals) {
+        okay = okay && signal(SIGTRAP, handleTracedSignals) != SIG_ERR;
+      } /* if */
 #endif
       okay = okay && signal(SIGTERM, handleTermSignal) != SIG_ERR;
       if (traceSignals) {
