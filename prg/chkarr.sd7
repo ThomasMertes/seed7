@@ -180,6 +180,21 @@ const func boolean: raisesIndexError (ref func string: expression) is func
   end func;
 
 
+const func boolean: raisesIndexError (ref func bitset: expression) is func
+  result
+    var boolean: raisesIndexError is FALSE;
+  local
+    var bitset: exprResult is {};
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch INDEX_ERROR:
+        raisesIndexError := TRUE;
+    end block;
+  end func;
+
+
 const func boolean: raisesIndexError (ref varfunc integer: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
@@ -270,6 +285,21 @@ const func boolean: raisesIndexError (ref varfunc string: expression) is func
   end func;
 
 
+const func boolean: raisesIndexError (ref varfunc bitset: expression) is func
+  result
+    var boolean: raisesIndexError is FALSE;
+  local
+    var bitset: exprResult is {};
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch INDEX_ERROR:
+        raisesIndexError := TRUE;
+    end block;
+  end func;
+
+
 const func boolean: raisesIndexError (ref func array integer: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
@@ -350,6 +380,21 @@ const func boolean: raisesIndexError (ref func array string: expression) is func
     var boolean: raisesIndexError is FALSE;
   local
     var array string: exprResult is 0 times "";
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch INDEX_ERROR:
+        raisesIndexError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesIndexError (ref func array bitset: expression) is func
+  result
+    var boolean: raisesIndexError is FALSE;
+  local
+    var array bitset: exprResult is 0 times {};
   begin
     block
       exprResult := expression;
@@ -493,6 +538,7 @@ const proc: testCompare is func
         complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
     var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
     var array integer: intArr2 is [] (1, 2, 3, 4, 5, 6, 7);
     var array bigInteger: bigArr2 is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
     var array float: fltArr2 is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
@@ -500,6 +546,7 @@ const proc: testCompare is func
         complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
     var array char: chrArr2 is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
     var array string: strArr2 is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bitset: setArr2 is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
     const array integer: intArrConst is [] (1, 2, 3, 4, 5, 6, 7);
     const array bigInteger: bigArrConst is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
     const array float: fltArrConst is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
@@ -507,6 +554,7 @@ const proc: testCompare is func
         complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
     const array char: chrArrConst is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
     const array string: strArrConst is [] ("one", "two", "three", "four", "five", "six", "seven");
+    const array bitset: setArrConst is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
   begin
     if intArr <> intArr then
       writeln(" ***** Comparison of integer arrays failed. (1)");
@@ -716,6 +764,40 @@ const proc: testCompare is func
       okay := FALSE;
     end if;
 
+    if setArr <> setArr then
+      writeln(" ***** Comparison of bitset arrays failed. (1)");
+      okay := FALSE;
+    end if;
+    if setArr <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}) then
+      writeln(" ***** Comparison of bitset arrays failed. (2)");
+      okay := FALSE;
+    end if;
+    if [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}) <> setArr then
+      writeln(" ***** Comparison of bitset arrays failed. (3)");
+      okay := FALSE;
+    end if;
+    if  [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}) <>
+        [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}) then
+      writeln(" ***** Comparison of bitset arrays failed. (4)");
+      okay := FALSE;
+    end if;
+    if setArr <> setArr2 then
+      writeln(" ***** Comparison of bitset arrays failed. (5)");
+      okay := FALSE;
+    end if;
+    if setArr <> setArrConst then
+      writeln(" ***** Comparison of bitset arrays failed. (6)");
+      okay := FALSE;
+    end if;
+    if setArrConst <> setArr then
+      writeln(" ***** Comparison of bitset arrays failed. (7)");
+      okay := FALSE;
+    end if;
+    if setArrConst <> setArrConst then
+      writeln(" ***** Comparison of bitset arrays failed. (8)");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Array comparison works correct.");
     end if;
@@ -732,6 +814,7 @@ const proc: testAssign is func
         complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
     var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
   begin
     intArr := intArr;
     if intArr <> [] (1, 2, 3, 4, 5, 6, 7) then
@@ -771,6 +854,12 @@ const proc: testAssign is func
       okay := FALSE;
     end if;
 
+    setArr := setArr;
+    if setArr <> [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}) then
+      writeln(" ***** array assignment for 'array bitset' does not work correct");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Array assignment works correct.");
     end if;
@@ -787,6 +876,7 @@ const proc: testAppend is func
         complex(4.0, 4.0));
     var array char: chrArr is [] ('a', 'b', 'c', 'd');
     var array string: strArr is [] ("one", "two", "three", "four");
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4});
   begin
     intArr &:= intArr;
     if intArr <> [] (1, 2, 3, 4, 1, 2, 3, 4) then
@@ -826,6 +916,12 @@ const proc: testAppend is func
       okay := FALSE;
     end if;
 
+    setArr &:= setArr;
+    if setArr <> [] ({1}, {2}, {3}, {4}, {1}, {2}, {3}, {4}) then
+      writeln(" ***** array append ( &:= ) for 'array bitset' does not work correct");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Array append ( &:= ) works correct.");
     end if;
@@ -842,12 +938,14 @@ const proc: testIndex is func
         complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
     var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
     var integer: intElem is 0;
     var bigInteger: bigElem is 0_;
     var float: fltElem is 0.0;
     var complex: cpxElem is complex(0.0, 0.0);
     var char: chrElem is ' ';
     var string: strElem is "";
+    var bitset: setElem is {};
   begin
     if length(intArr) <> 7 or intArr[1] <> 1 or intArr[2] <> 2 or intArr[3] <> 3 or
             intArr[4] <> 4 or intArr[5] <> 5 or intArr[6] <> 6 or intArr[7] <> 7 then
@@ -918,30 +1016,46 @@ const proc: testIndex is func
       okay := FALSE;
     end if;
 
+    if length(setArr) <> 7 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+                              setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or
+                              setArr[7] <> {7} then
+      writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (1)");
+      okay := FALSE;
+    end if;
+    setElem := (setArr & setArr)[8];
+    if setElem <> {1} then
+      writeln(" ***** ARRAY [ INDEX ] for bitset array failed. (2)");
+      okay := FALSE;
+    end if;
+
     if  not raisesIndexError(intArr[integer.first]) or
         not raisesIndexError(bigArr[integer.first]) or
         not raisesIndexError(fltArr[integer.first]) or
         not raisesIndexError(cpxArr[integer.first]) or
         not raisesIndexError(chrArr[integer.first]) or
         not raisesIndexError(strArr[integer.first]) or
+        not raisesIndexError(setArr[integer.first]) or
         not raisesIndexError(intArr[0]) or
         not raisesIndexError(bigArr[0]) or
         not raisesIndexError(fltArr[0]) or
         not raisesIndexError(cpxArr[0]) or
         not raisesIndexError(chrArr[0]) or
         not raisesIndexError(strArr[0]) or
+        not raisesIndexError(setArr[0]) or
         not raisesIndexError(intArr[8]) or
         not raisesIndexError(bigArr[8]) or
         not raisesIndexError(fltArr[8]) or
         not raisesIndexError(cpxArr[8]) or
         not raisesIndexError(chrArr[8]) or
         not raisesIndexError(strArr[8]) or
+        not raisesIndexError(setArr[8]) or
         not raisesIndexError(intArr[integer.last]) or
         not raisesIndexError(bigArr[integer.last]) or
         not raisesIndexError(fltArr[integer.last]) or
         not raisesIndexError(cpxArr[integer.last]) or
         not raisesIndexError(chrArr[integer.last]) or
-        not raisesIndexError(strArr[integer.last]) then
+        not raisesIndexError(strArr[integer.last]) or
+        not raisesIndexError(setArr[integer.last]) then
       writeln(" ***** Index access with index out of range does not raise INDEX_ERROR. (1)");
       okay := FALSE;
     end if;
@@ -952,24 +1066,28 @@ const proc: testIndex is func
         not raisesIndexError((cpxArr & cpxArr)[integer.first]) or
         not raisesIndexError((chrArr & chrArr)[integer.first]) or
         not raisesIndexError((strArr & strArr)[integer.first]) or
+        not raisesIndexError((setArr & setArr)[integer.first]) or
         not raisesIndexError((intArr & intArr)[0]) or
         not raisesIndexError((bigArr & bigArr)[0]) or
         not raisesIndexError((fltArr & fltArr)[0]) or
         not raisesIndexError((cpxArr & cpxArr)[0]) or
         not raisesIndexError((chrArr & chrArr)[0]) or
         not raisesIndexError((strArr & strArr)[0]) or
+        not raisesIndexError((setArr & setArr)[0]) or
         not raisesIndexError((intArr & intArr)[15]) or
         not raisesIndexError((bigArr & bigArr)[15]) or
         not raisesIndexError((fltArr & fltArr)[15]) or
         not raisesIndexError((cpxArr & cpxArr)[15]) or
         not raisesIndexError((chrArr & chrArr)[15]) or
         not raisesIndexError((strArr & strArr)[15]) or
+        not raisesIndexError((setArr & setArr)[15]) or
         not raisesIndexError((intArr & intArr)[integer.last]) or
         not raisesIndexError((bigArr & bigArr)[integer.last]) or
         not raisesIndexError((fltArr & fltArr)[integer.last]) or
         not raisesIndexError((cpxArr & cpxArr)[integer.last]) or
         not raisesIndexError((chrArr & chrArr)[integer.last]) or
-        not raisesIndexError((strArr & strArr)[integer.last]) then
+        not raisesIndexError((strArr & strArr)[integer.last]) or
+        not raisesIndexError((setArr & setArr)[integer.last]) then
       writeln(" ***** Index access with index out of range does not raise INDEX_ERROR. (2)");
       okay := FALSE;
     end if;
@@ -1050,12 +1168,14 @@ const proc: testHead is func
         complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
     var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
     var array integer: intHead is 0 times 0;
     var array bigInteger: bigHead is 0 times 0_;
     var array float: fltHead is 0 times 0.0;
     var array complex: cpxHead is 0 times complex(0.0, 0.0);
     var array char: chrHead is 0 times ' ';
     var array string: strHead is 0 times "";
+    var array bitset: setHead is 0 times {};
   begin
     intHead := intArr[.. 7];
     if length(intHead) <> 7 or intHead[1] <> 1 or intHead[2] <> 2 or intHead[3] <> 3 or
@@ -1472,30 +1592,101 @@ const proc: testHead is func
       okay := FALSE;
     end if;
 
+    setHead := setArr[.. 7];
+    if length(setHead) <> 7 or setHead[1] <> {1} or setHead[2] <> {2} or setHead[3] <> {3} or
+            setHead[4] <> {4} or setHead[5] <> {5} or setHead[6] <> {6} or setHead[7] <> {7} then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (1)");
+      okay := FALSE;
+    end if;
+    setHead := setArr[.. intExpr(7)];
+    if length(setHead) <> 7 or setHead[1] <> {1} or setHead[2] <> {2} or setHead[3] <> {3} or
+            setHead[4] <> {4} or setHead[5] <> {5} or setHead[6] <> {6} or setHead[7] <> {7} then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (2)");
+      okay := FALSE;
+    end if;
+    setHead := setArr[.. intExpr(6)];
+    if length(setHead) <> 6 or setHead[1] <> {1} or setHead[2] <> {2} or setHead[3] <> {3} or
+                               setHead[4] <> {4} or setHead[5] <> {5} or setHead[6] <> {6} then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (3)");
+      okay := FALSE;
+    end if;
+    setHead := setArr[.. 0];
+    if length(setHead) <> 0 then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (4)");
+      okay := FALSE;
+    end if;
+    setHead := setArr[.. intExpr(0)];
+    if length(setHead) <> 0 then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (5)");
+      okay := FALSE;
+    end if;
+    setHead := setArr[.. intExpr(1)];
+    if length(setHead) <> 1 or setHead[1] <> {1} then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (6)");
+      okay := FALSE;
+    end if;
+    setHead := setArr[.. intExpr(2)];
+    if length(setHead) <> 2 or setHead[1] <> {1} or setHead[2] <> {2} then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (7)");
+      okay := FALSE;
+    end if;
+    setHead := ([]({1}, {2}) & []({3}, {4}))[.. 3];
+    if length(setHead) <> 3 or setHead[1] <> {1} or setHead[2] <> {2} or setHead[3] <> {3} then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (8)");
+      okay := FALSE;
+    end if;
+    setHead := (setHead & []({3}, {4}))[.. 3];
+    if length(setHead) <> 3 or setHead[1] <> {1} or setHead[2] <> {2} or setHead[3] <> {3} then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (9)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[.. 7];
+    if length(setArr) <> 7 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+            setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or setArr[7] <> {7} then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (10)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[.. intExpr(7)];
+    if length(setArr) <> 7 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+            setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or setArr[7] <> {7} then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (11)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[.. intExpr(6)];
+    if length(setArr) <> 6 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+                              setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} then
+      writeln(" ***** ARRAY [ INDEX .. ] for bitset array failed. (12)");
+      okay := FALSE;
+    end if;
+
     if  not raisesIndexError(intArr[.. integer.first]) or
         not raisesIndexError(bigArr[.. integer.first]) or
         not raisesIndexError(fltArr[.. integer.first]) or
         not raisesIndexError(cpxArr[.. integer.first]) or
         not raisesIndexError(chrArr[.. integer.first]) or
         not raisesIndexError(strArr[.. integer.first]) or
+        not raisesIndexError(setArr[.. integer.first]) or
         not raisesIndexError(intArr[.. -1]) or
         not raisesIndexError(bigArr[.. -1]) or
         not raisesIndexError(fltArr[.. -1]) or
         not raisesIndexError(cpxArr[.. -1]) or
         not raisesIndexError(chrArr[.. -1]) or
-        not raisesIndexError(strArr[.. -1]) (* or
+        not raisesIndexError(strArr[.. -1]) or
+        not raisesIndexError(setArr[.. -1]) (* or
         not raisesIndexError(intArr[.. 7]) or
         not raisesIndexError(bigArr[.. 7]) or
         not raisesIndexError(fltArr[.. 7]) or
         not raisesIndexError(cpxArr[.. 7]) or
         not raisesIndexError(chrArr[.. 7]) or
         not raisesIndexError(strArr[.. 7]) or
+        not raisesIndexError(setArr[.. 7]) or
         not raisesIndexError(intArr[.. integer.last]) or
         not raisesIndexError(bigArr[.. integer.last]) or
         not raisesIndexError(fltArr[.. integer.last]) or
         not raisesIndexError(cpxArr[.. integer.last]) or
         not raisesIndexError(chrArr[.. integer.last]) or
-        not raisesIndexError(strArr[.. integer.last]) *) then
+        not raisesIndexError(strArr[.. integer.last]) or
+        not raisesIndexError(setArr[.. integer.last]) *) then
       writeln(" ***** ARRAY [ INDEX .. ] with index out of range does not raise INDEX_ERROR. (1)");
       okay := FALSE;
     end if;
@@ -1507,13 +1698,15 @@ const proc: testHead is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[.. integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [.. integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [.. integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [.. integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [.. -1]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [.. -1]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [.. -1]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[.. -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [.. -1]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [.. -1]) (* or
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [.. -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [.. -1]) (* or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [.. 7]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [.. 7]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [.. 7]) or
@@ -1521,13 +1714,15 @@ const proc: testHead is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[.. 7]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [.. 7]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [.. 7]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [.. 7]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [.. integer.last]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [.. integer.last]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [.. integer.last]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[.. integer.last]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [.. integer.last]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [.. integer.last]) *) then
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [.. integer.last]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [.. integer.last]) *) then
       writeln(" ***** ARRAY [ INDEX .. ] with index out of range does not raise INDEX_ERROR. (2)");
       okay := FALSE;
     end if;
@@ -1548,12 +1743,14 @@ const proc: testTail is func
         complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0), complex(7.0, 7.0));
     var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
     var array integer: intTail is 0 times 0;
     var array bigInteger: bigTail is 0 times 0_;
     var array float: fltTail is 0 times 0.0;
     var array complex: cpxTail is 0 times complex(0.0, 0.0);
     var array char: chrTail is 0 times ' ';
     var array string: strTail is 0 times "";
+    var array bitset: setTail is 0 times {};
   begin
     intTail := intArr[1 ..];
     if length(intTail) <> 7 or intTail[1] <> 1 or intTail[2] <> 2 or intTail[3] <> 3 or
@@ -1848,30 +2045,81 @@ const proc: testTail is func
       okay := FALSE;
     end if;
 
+    setTail := setArr[1 ..];
+    if length(setTail) <> 7 or setTail[1] <> {1} or setTail[2] <> {2} or setTail[3] <> {3} or
+            setTail[4] <> {4} or setTail[5] <> {5} or setTail[6] <> {6} or setTail[7] <> {7} then
+      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (1)");
+      okay := FALSE;
+    end if;
+    setTail := setArr[intExpr(1) ..];
+    if length(setTail) <> 7 or setTail[1] <> {1} or setTail[2] <> {2} or setTail[3] <> {3} or
+            setTail[4] <> {4} or setTail[5] <> {5} or setTail[6] <> {6} or setTail[7] <> {7} then
+      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (2)");
+      okay := FALSE;
+    end if;
+    setTail := setArr[intExpr(2) ..];
+    if length(setTail) <> 6 or setTail[1] <> {2} or setTail[2] <> {3} or setTail[3] <> {4} or
+                               setTail[4] <> {5} or setTail[5] <> {6} or setTail[6] <> {7} then
+      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (3)");
+      okay := FALSE;
+    end if;
+    setTail := setArr[intExpr(7) ..];
+    if length(setTail) <> 1 or setTail[1] <> {7} then
+      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (4)");
+      okay := FALSE;
+    end if;
+    setTail := ([] ({1}, {2}) & [] ({3}, {4}))[2 ..];
+    if length(setTail) <> 3 or setTail[1] <> {2} or setTail[2] <> {3} or setTail[3] <> {4} then
+      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (5)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[1 ..];
+    if length(setArr) <> 7 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+            setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or setArr[7] <> {7} then
+      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (6)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[intExpr(1) ..];
+    if length(setArr) <> 7 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+            setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or setArr[7] <> {7} then
+      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (7)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[intExpr(2) ..];
+    if length(setArr) <> 6 or setArr[1] <> {2} or setArr[2] <> {3} or setArr[3] <> {4} or
+                              setArr[4] <> {5} or setArr[5] <> {6} or setArr[6] <> {7} then
+      writeln(" ***** ARRAY [ .. INDEX ] for bitset array failed. (8)");
+      okay := FALSE;
+    end if;
+
     if  not raisesIndexError(intArr[integer.first ..]) or
         not raisesIndexError(bigArr[integer.first ..]) or
         not raisesIndexError(fltArr[integer.first ..]) or
         not raisesIndexError(cpxArr[integer.first ..]) or
         not raisesIndexError(chrArr[integer.first ..]) or
         not raisesIndexError(strArr[integer.first ..]) or
+        not raisesIndexError(setArr[integer.first ..]) or
         not raisesIndexError(intArr[0 ..]) or
         not raisesIndexError(bigArr[0 ..]) or
         not raisesIndexError(fltArr[0 ..]) or
         not raisesIndexError(cpxArr[0 ..]) or
         not raisesIndexError(chrArr[0 ..]) or
-        not raisesIndexError(strArr[0 ..]) (* or
+        not raisesIndexError(strArr[0 ..]) or
+        not raisesIndexError(setArr[0 ..]) (* or
         not raisesIndexError(intArr[7 ..]) or
         not raisesIndexError(bigArr[7 ..]) or
         not raisesIndexError(fltArr[7 ..]) or
         not raisesIndexError(cpxArr[7 ..]) or
         not raisesIndexError(chrArr[7 ..]) or
         not raisesIndexError(strArr[7 ..]) or
+        not raisesIndexError(setArr[7 ..]) or
         not raisesIndexError(intArr[integer.last ..]) or
         not raisesIndexError(bigArr[integer.last ..]) or
         not raisesIndexError(fltArr[integer.last ..]) or
         not raisesIndexError(cpxArr[integer.last ..]) or
         not raisesIndexError(chrArr[integer.last ..]) or
-        not raisesIndexError(strArr[integer.last ..]) *) then
+        not raisesIndexError(strArr[integer.last ..]) or
+        not raisesIndexError(setArr[integer.last ..]) *) then
       writeln(" ***** ARRAY [ .. INDEX ] with index out of range does not raise INDEX_ERROR. (1)");
       okay := FALSE;
     end if;
@@ -1883,13 +2131,15 @@ const proc: testTail is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.first ..]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.first ..]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.first ..]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.first ..]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [0 ..]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [0 ..]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [0 ..]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[0 ..]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [0 ..]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [0 ..]) (* or
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [0 ..]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [0 ..]) (* or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [7 ..]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [7 ..]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [7 ..]) or
@@ -1897,13 +2147,15 @@ const proc: testTail is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[7 ..]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [7 ..]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [7 ..]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [7 ..]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [integer.last ..]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [integer.last ..]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [integer.last ..]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.last ..]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.last ..]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last ..]) *) then
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last ..]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.last ..]) *) then
       writeln(" ***** ARRAY [ .. INDEX ] with index out of range does not raise INDEX_ERROR. (2)");
       okay := FALSE;
     end if;
@@ -1926,12 +2178,14 @@ const proc: testRange is func
     var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i');
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven",
         "eight", "nine");
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9});
     var array integer: intRange is 0 times 0;
     var array bigInteger: bigRange is 0 times 0_;
     var array float: fltRange is 0 times 0.0;
     var array complex: cpxRange is 0 times complex(0.0, 0.0);
     var array char: chrRange is 0 times ' ';
     var array string: strRange is 0 times "";
+    var array bitset: setRange is 0 times {};
   begin
     intRange := intArr[1 .. 9];
     if length(intRange) <> 9 or intRange[1] <> 1 or intRange[2] <> 2 or intRange[3] <> 3 or
@@ -2375,25 +2629,25 @@ const proc: testRange is func
 
     strRange := strArr[1 .. 9];
     if length(strRange) <> 9 or strRange[1] <> "one"   or strRange[2] <> "two"   or
-                                 strRange[3] <> "three" or strRange[4] <> "four"  or
-                                 strRange[5] <> "five"  or strRange[6] <> "six"   or
-                                 strRange[7] <> "seven" or strRange[8] <> "eight" or
-                                 strRange[9] <> "nine" then
+                                strRange[3] <> "three" or strRange[4] <> "four"  or
+                                strRange[5] <> "five"  or strRange[6] <> "six"   or
+                                strRange[7] <> "seven" or strRange[8] <> "eight" or
+                                strRange[9] <> "nine" then
       writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (1)");
       okay := FALSE;
     end if;
     strRange := strArr[intExpr(1) .. 8];
     if length(strRange) <> 8 or strRange[1] <> "one"   or strRange[2] <> "two"   or
-                                 strRange[3] <> "three" or strRange[4] <> "four"  or
-                                 strRange[5] <> "five"  or strRange[6] <> "six"   or
-                                 strRange[7] <> "seven" or strRange[8] <> "eight" then
+                                strRange[3] <> "three" or strRange[4] <> "four"  or
+                                strRange[5] <> "five"  or strRange[6] <> "six"   or
+                                strRange[7] <> "seven" or strRange[8] <> "eight" then
       writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (2)");
       okay := FALSE;
     end if;
     strRange := strArr[intExpr(2) .. 7];
     if length(strRange) <> 6 or strRange[1] <> "two"  or strRange[2] <> "three" or
-                                 strRange[3] <> "four" or strRange[4] <> "five"  or
-                                 strRange[5] <> "six"  or strRange[6] <> "seven" then
+                                strRange[3] <> "four" or strRange[4] <> "five"  or
+                                strRange[5] <> "six"  or strRange[6] <> "seven" then
       writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (3)");
       okay := FALSE;
     end if;
@@ -2409,7 +2663,7 @@ const proc: testRange is func
     end if;
     strRange := ([]("one") & strRange)[intExpr(1) .. 3];
     if length(strRange) <> 3 or strRange[1] <> "one" or strRange[2] <> "two" or
-                                 strRange[3] <> "three" then
+                                strRange[3] <> "three" then
       writeln(" ***** ARRAY [ START .. STOP ] for string array failed. (6)");
       okay := FALSE;
     end if;
@@ -2464,54 +2718,153 @@ const proc: testRange is func
       okay := FALSE;
     end if;
 
+    setRange := setArr[1 .. 9];
+    if length(setRange) <> 9 or setRange[1] <> {1} or setRange[2] <> {2} or
+                                setRange[3] <> {3} or setRange[4] <> {4} or
+                                setRange[5] <> {5} or setRange[6] <> {6} or
+                                setRange[7] <> {7} or setRange[8] <> {8} or
+                                setRange[9] <> {9} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (1)");
+      okay := FALSE;
+    end if;
+    setRange := setArr[intExpr(1) .. 8];
+    if length(setRange) <> 8 or setRange[1] <> {1} or setRange[2] <> {2} or
+                                setRange[3] <> {3} or setRange[4] <> {4} or
+                                setRange[5] <> {5} or setRange[6] <> {6} or
+                                setRange[7] <> {7} or setRange[8] <> {8} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (2)");
+      okay := FALSE;
+    end if;
+    setRange := setArr[intExpr(2) .. 7];
+    if length(setRange) <> 6 or setRange[1] <> {2} or setRange[2] <> {3} or
+                                setRange[3] <> {4} or setRange[4] <> {5} or
+                                setRange[5] <> {6} or setRange[6] <> {7} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (3)");
+      okay := FALSE;
+    end if;
+    setRange := setArr[intExpr(3) .. 4];
+    if length(setRange) <> 2 or setRange[1] <> {3} or setRange[2] <> {4} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (4)");
+      okay := FALSE;
+    end if;
+    setRange := ([]({1}, {2}) & setRange)[2 .. 3];
+    if length(setRange) <> 2 or setRange[1] <> {2} or setRange[2] <> {3} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (5)");
+      okay := FALSE;
+    end if;
+    setRange := ([]({1}) & setRange)[intExpr(1) .. 3];
+    if length(setRange) <> 3 or setRange[1] <> {1} or setRange[2] <> {2} or
+                                 setRange[3] <> {3} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (6)");
+      okay := FALSE;
+    end if;
+    setRange := (setRange & []({1}))[4 .. intExpr(3)];
+    if length(setRange) <> 0 then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (7)");
+      okay := FALSE;
+    end if;
+    setRange := (setRange & []({1}))[1 .. 0];
+    if length(setRange) <> 0 then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (8)");
+      okay := FALSE;
+    end if;
+    setRange := setArr[intExpr(7) .. 7];
+    if length(setRange) <> 1 or setRange[1] <> {7} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (9)");
+      okay := FALSE;
+    end if;
+    setRange := setArr[intExpr(1) .. 0];
+    if length(setRange) <> 0 then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (10)");
+      okay := FALSE;
+    end if;
+    setRange := setArr[intExpr(10) .. 9];
+    if length(setRange) <> 0 then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (11)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[1 .. 9];
+    if length(setArr) <> 9 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+                              setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or
+                              setArr[7] <> {7} or setArr[8] <> {8} or setArr[9] <> {9} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (12)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[intExpr(1) .. 8];
+    if length(setArr) <> 8 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+                              setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or
+                              setArr[7] <> {7} or setArr[8] <> {8} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (13)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[intExpr(2) .. 7];
+    if length(setArr) <> 6 or setArr[1] <> {2} or setArr[2] <> {3} or setArr[3] <> {4} or
+                              setArr[4] <> {5} or setArr[5] <> {6} or setArr[6] <> {7} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (14)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[intExpr(3) .. 5];
+    if length(setArr) <> 3 or setArr[1] <> {4} or setArr[2] <> {5} or setArr[3] <> {6} then
+      writeln(" ***** ARRAY [ START .. STOP ] for bitset array failed. (15)");
+      okay := FALSE;
+    end if;
+
     if  not raisesIndexError(intArr[integer.first .. integer.first]) or
         not raisesIndexError(bigArr[integer.first .. integer.first]) or
         not raisesIndexError(fltArr[integer.first .. integer.first]) or
         not raisesIndexError(cpxArr[integer.first .. integer.first]) or
         not raisesIndexError(chrArr[integer.first .. integer.first]) or
         not raisesIndexError(strArr[integer.first .. integer.first]) or
+        not raisesIndexError(setArr[integer.first .. integer.first]) or
         not raisesIndexError(intArr[-1 .. integer.first]) or
         not raisesIndexError(bigArr[-1 .. integer.first]) or
         not raisesIndexError(fltArr[-1 .. integer.first]) or
         not raisesIndexError(cpxArr[-1 .. integer.first]) or
         not raisesIndexError(chrArr[-1 .. integer.first]) or
         not raisesIndexError(strArr[-1 .. integer.first]) or
+        not raisesIndexError(setArr[-1 .. integer.first]) or
         not raisesIndexError(intArr[0 .. integer.first]) or
         not raisesIndexError(bigArr[0 .. integer.first]) or
         not raisesIndexError(fltArr[0 .. integer.first]) or
         not raisesIndexError(cpxArr[0 .. integer.first]) or
         not raisesIndexError(chrArr[0 .. integer.first]) or
         not raisesIndexError(strArr[0 .. integer.first]) or
+        not raisesIndexError(setArr[0 .. integer.first]) or
         not raisesIndexError(intArr[1 .. integer.first]) or
         not raisesIndexError(bigArr[1 .. integer.first]) or
         not raisesIndexError(fltArr[1 .. integer.first]) or
         not raisesIndexError(cpxArr[1 .. integer.first]) or
         not raisesIndexError(chrArr[1 .. integer.first]) or
         not raisesIndexError(strArr[1 .. integer.first]) or
+        not raisesIndexError(setArr[1 .. integer.first]) or
         not raisesIndexError(intArr[3 .. integer.first]) or
         not raisesIndexError(bigArr[3 .. integer.first]) or
         not raisesIndexError(fltArr[3 .. integer.first]) or
         not raisesIndexError(cpxArr[3 .. integer.first]) or
         not raisesIndexError(chrArr[3 .. integer.first]) or
         not raisesIndexError(strArr[3 .. integer.first]) or
+        not raisesIndexError(setArr[3 .. integer.first]) or
         not raisesIndexError(intArr[4 .. integer.first]) or
         not raisesIndexError(bigArr[4 .. integer.first]) or
         not raisesIndexError(fltArr[4 .. integer.first]) or
         not raisesIndexError(cpxArr[4 .. integer.first]) or
         not raisesIndexError(chrArr[4 .. integer.first]) or
         not raisesIndexError(strArr[4 .. integer.first]) or
+        not raisesIndexError(setArr[4 .. integer.first]) or
         not raisesIndexError(intArr[5 .. integer.first]) or
         not raisesIndexError(bigArr[5 .. integer.first]) or
         not raisesIndexError(fltArr[5 .. integer.first]) or
         not raisesIndexError(cpxArr[5 .. integer.first]) or
         not raisesIndexError(chrArr[5 .. integer.first]) or
         not raisesIndexError(strArr[5 .. integer.first]) or
+        not raisesIndexError(setArr[5 .. integer.first]) or
         not raisesIndexError(intArr[integer.last .. integer.first]) or
         not raisesIndexError(bigArr[integer.last .. integer.first]) or
         not raisesIndexError(fltArr[integer.last .. integer.first]) or
         not raisesIndexError(cpxArr[integer.last .. integer.first]) or
         not raisesIndexError(chrArr[integer.last .. integer.first]) or
-        not raisesIndexError(strArr[integer.last .. integer.first]) then
+        not raisesIndexError(strArr[integer.last .. integer.first]) or
+        not raisesIndexError(setArr[integer.last .. integer.first]) then
       writeln(" ***** ARRAY [ START .. STOP ] with index out of range does not raise INDEX_ERROR. (1)");
       okay := FALSE;
     end if;
@@ -2522,48 +2875,56 @@ const proc: testRange is func
         not raisesIndexError(cpxArr[integer.first .. -1]) or
         not raisesIndexError(chrArr[integer.first .. -1]) or
         not raisesIndexError(strArr[integer.first .. -1]) or
+        not raisesIndexError(setArr[integer.first .. -1]) or
         not raisesIndexError(intArr[-1 .. -1]) or
         not raisesIndexError(bigArr[-1 .. -1]) or
         not raisesIndexError(fltArr[-1 .. -1]) or
         not raisesIndexError(cpxArr[-1 .. -1]) or
         not raisesIndexError(chrArr[-1 .. -1]) or
         not raisesIndexError(strArr[-1 .. -1]) or
+        not raisesIndexError(setArr[-1 .. -1]) or
         not raisesIndexError(intArr[0 .. -1]) or
         not raisesIndexError(bigArr[0 .. -1]) or
         not raisesIndexError(fltArr[0 .. -1]) or
         not raisesIndexError(cpxArr[0 .. -1]) or
         not raisesIndexError(chrArr[0 .. -1]) or
         not raisesIndexError(strArr[0 .. -1]) or
+        not raisesIndexError(setArr[0 .. -1]) or
         not raisesIndexError(intArr[1 .. -1]) or
         not raisesIndexError(bigArr[1 .. -1]) or
         not raisesIndexError(fltArr[1 .. -1]) or
         not raisesIndexError(cpxArr[1 .. -1]) or
         not raisesIndexError(chrArr[1 .. -1]) or
         not raisesIndexError(strArr[1 .. -1]) or
+        not raisesIndexError(setArr[1 .. -1]) or
         not raisesIndexError(intArr[3 .. 1]) or
         not raisesIndexError(bigArr[3 .. 1]) or
         not raisesIndexError(fltArr[3 .. 1]) or
         not raisesIndexError(cpxArr[3 .. 1]) or
         not raisesIndexError(chrArr[3 .. 1]) or
         not raisesIndexError(strArr[3 .. 1]) or
+        not raisesIndexError(setArr[3 .. 1]) or
         not raisesIndexError(intArr[4 .. 2]) or
         not raisesIndexError(bigArr[4 .. 2]) or
         not raisesIndexError(fltArr[4 .. 2]) or
         not raisesIndexError(cpxArr[4 .. 2]) or
         not raisesIndexError(chrArr[4 .. 2]) or
         not raisesIndexError(strArr[4 .. 2]) or
+        not raisesIndexError(setArr[4 .. 2]) or
         not raisesIndexError(intArr[5 .. 3]) or
         not raisesIndexError(bigArr[5 .. 3]) or
         not raisesIndexError(fltArr[5 .. 3]) or
         not raisesIndexError(cpxArr[5 .. 3]) or
         not raisesIndexError(chrArr[5 .. 3]) or
         not raisesIndexError(strArr[5 .. 3]) or
+        not raisesIndexError(setArr[5 .. 3]) or
         not raisesIndexError(intArr[integer.last .. -1]) or
         not raisesIndexError(bigArr[integer.last .. -1]) or
         not raisesIndexError(fltArr[integer.last .. -1]) or
         not raisesIndexError(cpxArr[integer.last .. -1]) or
         not raisesIndexError(chrArr[integer.last .. -1]) or
-        not raisesIndexError(strArr[integer.last .. -1]) then
+        not raisesIndexError(strArr[integer.last .. -1]) or
+        not raisesIndexError(setArr[integer.last .. -1]) then
       writeln(" ***** ARRAY [ START .. STOP ] with index out of range does not raise INDEX_ERROR. (2)");
       okay := FALSE;
     end if;
@@ -2574,30 +2935,35 @@ const proc: testRange is func
         not raisesIndexError(cpxArr[integer.first .. 0]) or
         not raisesIndexError(chrArr[integer.first .. 0]) or
         not raisesIndexError(strArr[integer.first .. 0]) or
+        not raisesIndexError(setArr[integer.first .. 0]) or
         not raisesIndexError(intArr[-1 .. 0]) or
         not raisesIndexError(bigArr[-1 .. 0]) or
         not raisesIndexError(fltArr[-1 .. 0]) or
         not raisesIndexError(cpxArr[-1 .. 0]) or
         not raisesIndexError(chrArr[-1 .. 0]) or
         not raisesIndexError(strArr[-1 .. 0]) or
+        not raisesIndexError(setArr[-1 .. 0]) or
         not raisesIndexError(intArr[0 .. 0]) or
         not raisesIndexError(bigArr[0 .. 0]) or
         not raisesIndexError(fltArr[0 .. 0]) or
         not raisesIndexError(cpxArr[0 .. 0]) or
         not raisesIndexError(chrArr[0 .. 0]) or
-        not raisesIndexError(strArr[0 .. 0]) (* or
+        not raisesIndexError(strArr[0 .. 0]) or
+        not raisesIndexError(setArr[0 .. 0]) (* or
         not raisesIndexError(intArr[7 .. 0]) or
         not raisesIndexError(bigArr[7 .. 0]) or
         not raisesIndexError(fltArr[7 .. 0]) or
         not raisesIndexError(cpxArr[7 .. 0]) or
         not raisesIndexError(chrArr[7 .. 0]) or
         not raisesIndexError(strArr[7 .. 0]) or
+        not raisesIndexError(setArr[7 .. 0]) or
         not raisesIndexError(intArr[integer.last .. 0]) or
         not raisesIndexError(bigArr[integer.last .. 0]) or
         not raisesIndexError(fltArr[integer.last .. 0]) or
         not raisesIndexError(cpxArr[integer.last .. 0]) or
         not raisesIndexError(chrArr[integer.last .. 0]) or
-        not raisesIndexError(strArr[integer.last .. 0]) *) then
+        not raisesIndexError(strArr[integer.last .. 0]) or
+        not raisesIndexError(setArr[integer.last .. 0]) *) then
       writeln(" ***** ARRAY [ START .. STOP ] with index out of range does not raise INDEX_ERROR. (3)");
       okay := FALSE;
     end if;
@@ -2609,6 +2975,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.first .. integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.first .. integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.first .. integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.first .. integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [-1 .. integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [-1 .. integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [-1 .. integer.first]) or
@@ -2616,6 +2983,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[-1 .. integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [-1 .. integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [-1 .. integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [-1 .. integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [0 .. integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [0 .. integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [0 .. integer.first]) or
@@ -2623,6 +2991,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[0 .. integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [0 .. integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [0 .. integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [0 .. integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [3 .. integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [3 .. integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [3 .. integer.first]) or
@@ -2630,6 +2999,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[3 .. integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [3 .. integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [3 .. integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [3 .. integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [4 .. integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [4 .. integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [4 .. integer.first]) or
@@ -2637,6 +3007,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[4 .. integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [4 .. integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [4 .. integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [4 .. integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [5 .. integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [5 .. integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [5 .. integer.first]) or
@@ -2644,13 +3015,15 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[5 .. integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [5 .. integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [5 .. integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [5 .. integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [integer.last .. integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [integer.last .. integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [integer.last .. integer.first]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.last .. integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.last .. integer.first]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last .. integer.first]) then
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last .. integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.last .. integer.first]) then
       writeln(" ***** ARRAY [ START .. STOP ] with index out of range does not raise INDEX_ERROR. (4)");
       okay := FALSE;
     end if;
@@ -2662,6 +3035,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.first .. -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.first .. -1]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.first .. -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.first .. -1]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [-1 .. -1]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [-1 .. -1]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [-1 .. -1]) or
@@ -2669,6 +3043,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[-1 .. -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [-1 .. -1]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [-1 .. -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [-1 .. -1]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [0 .. -1]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [0 .. -1]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [0 .. -1]) or
@@ -2676,6 +3051,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[0 .. -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [0 .. -1]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [0 .. -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [0 .. -1]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [3 .. 1]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [3 .. 1]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [3 .. 1]) or
@@ -2683,6 +3059,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[3 .. 1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [3 .. 1]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [3 .. 1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [3 .. 1]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [4 .. 2]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [4 .. 2]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [4 .. 2]) or
@@ -2690,6 +3067,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[4 .. 2]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [4 .. 2]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [4 .. 2]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [4 .. 2]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [5 .. 3]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [5 .. 3]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [5 .. 3]) or
@@ -2697,13 +3075,15 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[5 .. 3]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [5 .. 3]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [5 .. 3]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [5 .. 3]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [integer.last .. -1]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [integer.last .. -1]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [integer.last .. -1]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.last .. -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.last .. -1]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last .. -1]) then
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last .. -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.last .. -1]) then
       writeln(" ***** ARRAY [ START .. STOP ] with index out of range does not raise INDEX_ERROR. (5)");
       okay := FALSE;
     end if;
@@ -2715,6 +3095,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.first .. 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.first .. 0]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.first .. 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.first .. 0]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [-1 .. 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [-1 .. 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [-1 .. 0]) or
@@ -2722,13 +3103,15 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[-1 .. 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [-1 .. 0]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [-1 .. 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [-1 .. 0]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [0 .. 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [0 .. 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [0 .. 0]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[0 .. 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [0 .. 0]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [0 .. 0]) (* or
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [0 .. 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [0 .. 0]) (* or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [3 .. 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [3 .. 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [3 .. 0]) or
@@ -2736,6 +3119,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[3 .. 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [3 .. 0]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [3 .. 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [3 .. 0]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [4 .. 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [4 .. 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [4 .. 0]) or
@@ -2743,6 +3127,7 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[4 .. 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [4 .. 0]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [4 .. 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [4 .. 0]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [5 .. 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [5 .. 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [5 .. 0]) or
@@ -2750,13 +3135,15 @@ const proc: testRange is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[5 .. 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [5 .. 0]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [5 .. 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [5 .. 0]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [integer.last .. 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [integer.last .. 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [integer.last .. 0]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.last .. 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.last .. 0]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last .. 0]) *) then
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last .. 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.last .. 0]) *) then
       writeln(" ***** ARRAY [ START .. STOP ] with index out of range does not raise INDEX_ERROR. (6)");
       okay := FALSE;
     end if;
@@ -2779,12 +3166,14 @@ const proc: testSubarr is func
     var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i');
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven",
         "eight", "nine");
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9});
     var array integer: intSubarr is 0 times 0;
     var array bigInteger: bigSubarr is 0 times 0_;
     var array float: fltSubarr is 0 times 0.0;
     var array complex: cpxSubarr is 0 times complex(0.0, 0.0);
     var array char: chrSubarr is 0 times ' ';
     var array string: strSubarr is 0 times "";
+    var array bitset: setSubarr is 0 times {};
   begin
     intSubarr := intArr[1 len 9];
     if length(intSubarr) <> 9 or intSubarr[1] <> 1 or intSubarr[2] <> 2 or intSubarr[3] <> 3 or
@@ -3317,54 +3706,153 @@ const proc: testSubarr is func
       okay := FALSE;
     end if;
 
+    setSubarr := setArr[1 len 9];
+    if length(setSubarr) <> 9 or setSubarr[1] <> {1} or setSubarr[2] <> {2} or
+                                 setSubarr[3] <> {3} or setSubarr[4] <> {4} or
+                                 setSubarr[5] <> {5} or setSubarr[6] <> {6} or
+                                 setSubarr[7] <> {7} or setSubarr[8] <> {8} or
+                                 setSubarr[9] <> {9} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (1)");
+      okay := FALSE;
+    end if;
+    setSubarr := setArr[intExpr(1) len 8];
+    if length(setSubarr) <> 8 or setSubarr[1] <> {1} or setSubarr[2] <> {2} or
+                                 setSubarr[3] <> {3} or setSubarr[4] <> {4} or
+                                 setSubarr[5] <> {5} or setSubarr[6] <> {6} or
+                                 setSubarr[7] <> {7} or setSubarr[8] <> {8} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (2)");
+      okay := FALSE;
+    end if;
+    setSubarr := setArr[intExpr(2) len 6];
+    if length(setSubarr) <> 6 or setSubarr[1] <> {2} or setSubarr[2] <> {3} or
+                                 setSubarr[3] <> {4} or setSubarr[4] <> {5} or
+                                 setSubarr[5] <> {6} or setSubarr[6] <> {7} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (3)");
+      okay := FALSE;
+    end if;
+    setSubarr := setArr[intExpr(3) len 2];
+    if length(setSubarr) <> 2 or setSubarr[1] <> {3} or setSubarr[2] <> {4} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (4)");
+      okay := FALSE;
+    end if;
+    setSubarr := ([]({1}, {2}) & setSubarr)[2 len 2];
+    if length(setSubarr) <> 2 or setSubarr[1] <> {2} or setSubarr[2] <> {3} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (5)");
+      okay := FALSE;
+    end if;
+    setSubarr := ([]({1}) & setSubarr)[intExpr(1) len 3];
+    if length(setSubarr) <> 3 or setSubarr[1] <> {1} or setSubarr[2] <> {2} or
+                                 setSubarr[3] <> {3} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (6)");
+      okay := FALSE;
+    end if;
+    setSubarr := (setSubarr & []({1}))[4 len intExpr(0)];
+    if length(setSubarr) <> 0 then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (7)");
+      okay := FALSE;
+    end if;
+    setSubarr := (setSubarr & []({1}))[1 len 0];
+    if length(setSubarr) <> 0 then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (8)");
+      okay := FALSE;
+    end if;
+    setSubarr := setArr[intExpr(7) len 1];
+    if length(setSubarr) <> 1 or setSubarr[1] <> {7} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (9)");
+      okay := FALSE;
+    end if;
+    setSubarr := setArr[intExpr(1) len 0];
+    if length(setSubarr) <> 0 then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (10)");
+      okay := FALSE;
+    end if;
+    setSubarr := setArr[intExpr(10) len 0];
+    if length(setSubarr) <> 0 then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (11)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[1 len 9];
+    if length(setArr) <> 9 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+                              setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or
+                              setArr[7] <> {7} or setArr[8] <> {8} or setArr[9] <> {9} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (12)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[intExpr(1) len 8];
+    if length(setArr) <> 8 or setArr[1] <> {1} or setArr[2] <> {2} or setArr[3] <> {3} or
+                              setArr[4] <> {4} or setArr[5] <> {5} or setArr[6] <> {6} or
+                              setArr[7] <> {7} or setArr[8] <> {8} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (13)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[intExpr(2) len 6];
+    if length(setArr) <> 6 or setArr[1] <> {2} or setArr[2] <> {3} or setArr[3] <> {4} or
+                              setArr[4] <> {5} or setArr[5] <> {6} or setArr[6] <> {7} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (14)");
+      okay := FALSE;
+    end if;
+    setArr := setArr[intExpr(3) len 3];
+    if length(setArr) <> 3 or setArr[1] <> {4} or setArr[2] <> {5} or setArr[3] <> {6} then
+      writeln(" ***** ARRAY [ START len LENGTH ] for bitset array failed. (15)");
+      okay := FALSE;
+    end if;
+
     if  not raisesIndexError(intArr[integer.first len integer.first]) or
         not raisesIndexError(bigArr[integer.first len integer.first]) or
         not raisesIndexError(fltArr[integer.first len integer.first]) or
         not raisesIndexError(cpxArr[integer.first len integer.first]) or
         not raisesIndexError(chrArr[integer.first len integer.first]) or
         not raisesIndexError(strArr[integer.first len integer.first]) or
+        not raisesIndexError(setArr[integer.first len integer.first]) or
         not raisesIndexError(intArr[-1 len integer.first]) or
         not raisesIndexError(bigArr[-1 len integer.first]) or
         not raisesIndexError(fltArr[-1 len integer.first]) or
         not raisesIndexError(cpxArr[-1 len integer.first]) or
         not raisesIndexError(chrArr[-1 len integer.first]) or
         not raisesIndexError(strArr[-1 len integer.first]) or
+        not raisesIndexError(setArr[-1 len integer.first]) or
         not raisesIndexError(intArr[0 len integer.first]) or
         not raisesIndexError(bigArr[0 len integer.first]) or
         not raisesIndexError(fltArr[0 len integer.first]) or
         not raisesIndexError(cpxArr[0 len integer.first]) or
         not raisesIndexError(chrArr[0 len integer.first]) or
         not raisesIndexError(strArr[0 len integer.first]) or
+        not raisesIndexError(setArr[0 len integer.first]) or
         not raisesIndexError(intArr[1 len integer.first]) or
         not raisesIndexError(bigArr[1 len integer.first]) or
         not raisesIndexError(fltArr[1 len integer.first]) or
         not raisesIndexError(cpxArr[1 len integer.first]) or
         not raisesIndexError(chrArr[1 len integer.first]) or
         not raisesIndexError(strArr[1 len integer.first]) or
+        not raisesIndexError(setArr[1 len integer.first]) or
         not raisesIndexError(intArr[3 len integer.first]) or
         not raisesIndexError(bigArr[3 len integer.first]) or
         not raisesIndexError(fltArr[3 len integer.first]) or
         not raisesIndexError(cpxArr[3 len integer.first]) or
         not raisesIndexError(chrArr[3 len integer.first]) or
         not raisesIndexError(strArr[3 len integer.first]) or
+        not raisesIndexError(setArr[3 len integer.first]) or
         not raisesIndexError(intArr[4 len integer.first]) or
         not raisesIndexError(bigArr[4 len integer.first]) or
         not raisesIndexError(fltArr[4 len integer.first]) or
         not raisesIndexError(cpxArr[4 len integer.first]) or
         not raisesIndexError(chrArr[4 len integer.first]) or
         not raisesIndexError(strArr[4 len integer.first]) or
+        not raisesIndexError(setArr[4 len integer.first]) or
         not raisesIndexError(intArr[5 len integer.first]) or
         not raisesIndexError(bigArr[5 len integer.first]) or
         not raisesIndexError(fltArr[5 len integer.first]) or
         not raisesIndexError(cpxArr[5 len integer.first]) or
         not raisesIndexError(chrArr[5 len integer.first]) or
         not raisesIndexError(strArr[5 len integer.first]) or
+        not raisesIndexError(setArr[5 len integer.first]) or
         not raisesIndexError(intArr[integer.last len integer.first]) or
         not raisesIndexError(bigArr[integer.last len integer.first]) or
         not raisesIndexError(fltArr[integer.last len integer.first]) or
         not raisesIndexError(cpxArr[integer.last len integer.first]) or
         not raisesIndexError(chrArr[integer.last len integer.first]) or
-        not raisesIndexError(strArr[integer.last len integer.first]) then
+        not raisesIndexError(strArr[integer.last len integer.first]) or
+        not raisesIndexError(setArr[integer.last len integer.first]) then
       writeln(" ***** ARRAY [ START len LENGTH ] with index out of range does not raise INDEX_ERROR. (1)");
       okay := FALSE;
     end if;
@@ -3375,48 +3863,56 @@ const proc: testSubarr is func
         not raisesIndexError(cpxArr[integer.first len -1]) or
         not raisesIndexError(chrArr[integer.first len -1]) or
         not raisesIndexError(strArr[integer.first len -1]) or
+        not raisesIndexError(setArr[integer.first len -1]) or
         not raisesIndexError(intArr[-1 len -1]) or
         not raisesIndexError(bigArr[-1 len -1]) or
         not raisesIndexError(fltArr[-1 len -1]) or
         not raisesIndexError(cpxArr[-1 len -1]) or
         not raisesIndexError(chrArr[-1 len -1]) or
         not raisesIndexError(strArr[-1 len -1]) or
+        not raisesIndexError(setArr[-1 len -1]) or
         not raisesIndexError(intArr[0 len -1]) or
         not raisesIndexError(bigArr[0 len -1]) or
         not raisesIndexError(fltArr[0 len -1]) or
         not raisesIndexError(cpxArr[0 len -1]) or
         not raisesIndexError(chrArr[0 len -1]) or
         not raisesIndexError(strArr[0 len -1]) or
+        not raisesIndexError(setArr[0 len -1]) or
         not raisesIndexError(intArr[1 len -1]) or
         not raisesIndexError(bigArr[1 len -1]) or
         not raisesIndexError(fltArr[1 len -1]) or
         not raisesIndexError(cpxArr[1 len -1]) or
         not raisesIndexError(chrArr[1 len -1]) or
         not raisesIndexError(strArr[1 len -1]) or
+        not raisesIndexError(setArr[1 len -1]) or
         not raisesIndexError(intArr[3 len -1]) or
         not raisesIndexError(bigArr[3 len -1]) or
         not raisesIndexError(fltArr[3 len -1]) or
         not raisesIndexError(cpxArr[3 len -1]) or
         not raisesIndexError(chrArr[3 len -1]) or
         not raisesIndexError(strArr[3 len -1]) or
+        not raisesIndexError(setArr[3 len -1]) or
         not raisesIndexError(intArr[4 len -1]) or
         not raisesIndexError(bigArr[4 len -1]) or
         not raisesIndexError(fltArr[4 len -1]) or
         not raisesIndexError(cpxArr[4 len -1]) or
         not raisesIndexError(chrArr[4 len -1]) or
         not raisesIndexError(strArr[4 len -1]) or
+        not raisesIndexError(setArr[4 len -1]) or
         not raisesIndexError(intArr[5 len -1]) or
         not raisesIndexError(bigArr[5 len -1]) or
         not raisesIndexError(fltArr[5 len -1]) or
         not raisesIndexError(cpxArr[5 len -1]) or
         not raisesIndexError(chrArr[5 len -1]) or
         not raisesIndexError(strArr[5 len -1]) or
+        not raisesIndexError(setArr[5 len -1]) or
         not raisesIndexError(intArr[integer.last len -1]) or
         not raisesIndexError(bigArr[integer.last len -1]) or
         not raisesIndexError(fltArr[integer.last len -1]) or
         not raisesIndexError(cpxArr[integer.last len -1]) or
         not raisesIndexError(chrArr[integer.last len -1]) or
-        not raisesIndexError(strArr[integer.last len -1]) then
+        not raisesIndexError(strArr[integer.last len -1]) or
+        not raisesIndexError(setArr[integer.last len -1]) then
       writeln(" ***** ARRAY [ START len LENGTH ] with index out of range does not raise INDEX_ERROR. (2)");
       okay := FALSE;
     end if;
@@ -3427,30 +3923,35 @@ const proc: testSubarr is func
         not raisesIndexError(cpxArr[integer.first len 0]) or
         not raisesIndexError(chrArr[integer.first len 0]) or
         not raisesIndexError(strArr[integer.first len 0]) or
+        not raisesIndexError(setArr[integer.first len 0]) or
         not raisesIndexError(intArr[-1 len 0]) or
         not raisesIndexError(bigArr[-1 len 0]) or
         not raisesIndexError(fltArr[-1 len 0]) or
         not raisesIndexError(cpxArr[-1 len 0]) or
         not raisesIndexError(chrArr[-1 len 0]) or
         not raisesIndexError(strArr[-1 len 0]) or
+        not raisesIndexError(setArr[-1 len 0]) or
         not raisesIndexError(intArr[0 len 0]) or
         not raisesIndexError(bigArr[0 len 0]) or
         not raisesIndexError(fltArr[0 len 0]) or
         not raisesIndexError(cpxArr[0 len 0]) or
         not raisesIndexError(chrArr[0 len 0]) or
-        not raisesIndexError(strArr[0 len 0]) (* or
+        not raisesIndexError(strArr[0 len 0]) or
+        not raisesIndexError(setArr[0 len 0]) (* or
         not raisesIndexError(intArr[7 len 0]) or
         not raisesIndexError(bigArr[7 len 0]) or
         not raisesIndexError(fltArr[7 len 0]) or
         not raisesIndexError(cpxArr[7 len 0]) or
         not raisesIndexError(chrArr[7 len 0]) or
         not raisesIndexError(strArr[7 len 0]) or
+        not raisesIndexError(setArr[7 len 0]) or
         not raisesIndexError(intArr[integer.last len 0]) or
         not raisesIndexError(bigArr[integer.last len 0]) or
         not raisesIndexError(fltArr[integer.last len 0]) or
         not raisesIndexError(cpxArr[integer.last len 0]) or
         not raisesIndexError(chrArr[integer.last len 0]) or
-        not raisesIndexError(strArr[integer.last len 0]) *) then
+        not raisesIndexError(strArr[integer.last len 0]) or
+        not raisesIndexError(setArr[integer.last len 0]) *) then
       writeln(" ***** ARRAY [ START len LENGTH ] with index out of range does not raise INDEX_ERROR. (3)");
       okay := FALSE;
     end if;
@@ -3462,6 +3963,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.first len integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.first len integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.first len integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.first len integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [-1 len integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [-1 len integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [-1 len integer.first]) or
@@ -3469,6 +3971,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[-1 len integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [-1 len integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [-1 len integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [-1 len integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [0 len integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [0 len integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [0 len integer.first]) or
@@ -3476,6 +3979,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[0 len integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [0 len integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [0 len integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [0 len integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [3 len integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [3 len integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [3 len integer.first]) or
@@ -3483,6 +3987,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[3 len integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [3 len integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [3 len integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [3 len integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [4 len integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [4 len integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [4 len integer.first]) or
@@ -3490,6 +3995,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[4 len integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [4 len integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [4 len integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [4 len integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [5 len integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [5 len integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [5 len integer.first]) or
@@ -3497,13 +4003,15 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[5 len integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [5 len integer.first]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [5 len integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [5 len integer.first]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [integer.last len integer.first]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [integer.last len integer.first]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [integer.last len integer.first]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.last len integer.first]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.last len integer.first]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last len integer.first]) then
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last len integer.first]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.last len integer.first]) then
       writeln(" ***** ARRAY [ START len LENGTH ] with index out of range does not raise INDEX_ERROR. (4)");
       okay := FALSE;
     end if;
@@ -3515,6 +4023,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.first len -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.first len -1]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.first len -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.first len -1]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [-1 len -1]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [-1 len -1]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [-1 len -1]) or
@@ -3522,6 +4031,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[-1 len -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [-1 len -1]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [-1 len -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [-1 len -1]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [0 len -1]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [0 len -1]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [0 len -1]) or
@@ -3529,6 +4039,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[0 len -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [0 len -1]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [0 len -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [0 len -1]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [3 len -1]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [3 len -1]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [3 len -1]) or
@@ -3536,6 +4047,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[3 len -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [3 len -1]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [3 len -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [3 len -1]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [4 len -1]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [4 len -1]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [4 len -1]) or
@@ -3543,6 +4055,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[4 len -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [4 len -1]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [4 len -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [4 len -1]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [5 len -1]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [5 len -1]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [5 len -1]) or
@@ -3550,13 +4063,15 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[5 len -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [5 len -1]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [5 len -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [5 len -1]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [integer.last len -1]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [integer.last len -1]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [integer.last len -1]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.last len -1]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.last len -1]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last len -1]) then
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last len -1]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.last len -1]) then
       writeln(" ***** ARRAY [ START len LENGTH ] with index out of range does not raise INDEX_ERROR. (5)");
       okay := FALSE;
     end if;
@@ -3568,6 +4083,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.first len 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.first len 0]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.first len 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.first len 0]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [-1 len 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [-1 len 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [-1 len 0]) or
@@ -3575,13 +4091,15 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[-1 len 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [-1 len 0]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [-1 len 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [-1 len 0]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [0 len 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [0 len 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [0 len 0]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[0 len 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [0 len 0]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [0 len 0]) (* or
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [0 len 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [0 len 0]) (* or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [3 len 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [3 len 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [3 len 0]) or
@@ -3589,6 +4107,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[3 len 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [3 len 0]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [3 len 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [3 len 0]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [4 len 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [4 len 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [4 len 0]) or
@@ -3596,6 +4115,7 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[4 len 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [4 len 0]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [4 len 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [4 len 0]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [5 len 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [5 len 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [5 len 0]) or
@@ -3603,13 +4123,15 @@ const proc: testSubarr is func
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[5 len 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [5 len 0]) or
         not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [5 len 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [5 len 0]) or
         not raisesIndexError(([] (1, 2) & [] (3, 4))                    [integer.last len 0]) or
         not raisesIndexError(([] (1_, 2_) & [] (3_, 4_))                [integer.last len 0]) or
         not raisesIndexError(([] (1.0, 2.0) & [] (3.0, 4.0))            [integer.last len 0]) or
         not raisesIndexError(([] (complex(1.0, 1.0), complex(2.0, 2.0)) &
                               [] (complex(3.0, 3.0), complex(4.0, 4.0)))[integer.last len 0]) or
         not raisesIndexError(([] ('a', 'b') & [] ('c', 'd'))            [integer.last len 0]) or
-        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last len 0]) *) then
+        not raisesIndexError(([] ("one", "two") & [] ("three", "four")) [integer.last len 0]) or
+        not raisesIndexError(([] ({1}, {2}) & [] ({3}, {4}))            [integer.last len 0]) *) then
       writeln(" ***** ARRAY [ START len LENGTH ] with index out of range does not raise INDEX_ERROR. (6)");
       okay := FALSE;
     end if;
