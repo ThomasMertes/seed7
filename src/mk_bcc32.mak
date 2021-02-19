@@ -197,7 +197,9 @@ base.h:
 	echo ^#define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
 
 settings.h:
-	echo ^#define SEARCH_PATH_DELIMITER ';' > settings.h
+	echo ^#define MAKE_UTILITY_NAME "$(MAKE)" > settings.h
+	echo ^#define MAKEFILE_NAME "mk_bcc32.mak" >> settings.h
+	echo ^#define SEARCH_PATH_DELIMITER ';' >> settings.h
 	echo ^#define UTIME_ORIG_BUGGY_FOR_FAT_FILES >> settings.h
 	echo ^#define DEFINE__MATHERR_FUNCTION >> settings.h
 	echo ^#define CONSOLE_WCHAR >> settings.h

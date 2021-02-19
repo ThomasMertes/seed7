@@ -197,7 +197,9 @@ base.h:
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> base.h
 
 settings.h:
-	echo "#define SEARCH_PATH_DELIMITER ':'" > settings.h
+	echo "#define MAKE_UTILITY_NAME \"$(MAKE)\"" > settings.h
+	echo "#define MAKEFILE_NAME \"mk_cygw.mak\"" >> settings.h
+	echo "#define SEARCH_PATH_DELIMITER ':'" >> settings.h
 	echo "#define AWAIT_WITH_SIGACTION" >> settings.h
 	echo "#define INCL_NCURSES_TERM" >> settings.h
 	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> settings.h

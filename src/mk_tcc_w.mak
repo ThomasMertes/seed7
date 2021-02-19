@@ -186,7 +186,9 @@ base.h:
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
 
 settings.h:
-	echo #define SEARCH_PATH_DELIMITER ';' > settings.h
+	echo #define MAKE_UTILITY_NAME "$(MAKE)" > settings.h
+	echo #define MAKEFILE_NAME "mk_tcc_w.mak" >> settings.h
+	echo #define SEARCH_PATH_DELIMITER ';' >> settings.h
 	echo #define DEFINE_COMMAND_LINE_TO_ARGV_W >> settings.h
 	echo #define CONSOLE_WCHAR >> settings.h
 	echo #define os_getch getch >> settings.h

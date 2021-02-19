@@ -179,7 +179,9 @@ base.h:
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> base.h
 
 settings.h:
-	echo "#define SEARCH_PATH_DELIMITER ':'" > settings.h
+	echo "#define MAKE_UTILITY_NAME \"$(MAKE)\"" > settings.h
+	echo "#define MAKEFILE_NAME \"mk_tcc_l.mak\"" >> settings.h
+	echo "#define SEARCH_PATH_DELIMITER ':'" >> settings.h
 	echo "#define AWAIT_WITH_SELECT" >> settings.h
 	echo "#define DEFINE_DSO_HANDLE" >> settings.h
 	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> settings.h

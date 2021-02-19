@@ -181,7 +181,9 @@ base.h:
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> base.h
 
 settings.h:
-	echo "#define SEARCH_PATH_DELIMITER 0" > settings.h
+	echo "#define MAKE_UTILITY_NAME \"$(MAKE)\"" > settings.h
+	echo "#define MAKEFILE_NAME \"mk_emccl.mak\"" >> settings.h
+	echo "#define SEARCH_PATH_DELIMITER 0" >> settings.h
 	echo "#define AWAIT_WITH_NANOSLEEP" >> settings.h
 	echo "#define IMPLEMENT_PTY_WITH_PIPE2" >> settings.h
 	echo "#define USE_EGL" >> settings.h

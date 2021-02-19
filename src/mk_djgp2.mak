@@ -162,7 +162,9 @@ base.h:
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
 
 settings.h:
-	echo #define SEARCH_PATH_DELIMITER ';' > settings.h
+	echo #define MAKE_UTILITY_NAME "$(MAKE)" > settings.h
+	echo #define MAKEFILE_NAME "mk_djgp2.mak" >> settings.h
+	echo #define SEARCH_PATH_DELIMITER ';' >> settings.h
 	echo #define AWAIT_WITH_SELECT >> settings.h
 	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> settings.h
 	echo #define OS_STRI_USES_CODE_PAGE >> settings.h
