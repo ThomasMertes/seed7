@@ -1060,7 +1060,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
         for (yPos = 0, yStart = 0; yPos < (intType) height;
              yPos++, yStart += (intType) width) {
           for (xPos = 0; xPos < (intType) width; xPos++) {
-            drwPPoint(pixmap, xPos, yPos, image_data[yStart + xPos]);
+            SetPixel(to_hdc(pixmap), xPos, yPos, (COLORREF) image_data[yStart + xPos]);
           } /* for */
         } /* for */
       } /* if */
