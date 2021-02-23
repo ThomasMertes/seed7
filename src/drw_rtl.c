@@ -48,6 +48,74 @@
 #include "drw_rtl.h"
 
 
+#define USE_DUFFS_UNROLLING 1
+
+
+
+#if USE_DUFFS_UNROLLING
+static void memcpy_pixel (register int32Type *const dest,
+    register const intType *const src, memSizeType len)
+
+  {
+    register memSizeType pos;
+
+  /* memcpy_pixel */
+    if (len != 0) {
+      pos = (len + 31) & ~(memSizeType) 31;
+      switch (len & 31) {
+        do {
+          case  0: dest[pos -  1] = (int32Type) src[pos -  1];
+          case 31: dest[pos -  2] = (int32Type) src[pos -  2];
+          case 30: dest[pos -  3] = (int32Type) src[pos -  3];
+          case 29: dest[pos -  4] = (int32Type) src[pos -  4];
+          case 28: dest[pos -  5] = (int32Type) src[pos -  5];
+          case 27: dest[pos -  6] = (int32Type) src[pos -  6];
+          case 26: dest[pos -  7] = (int32Type) src[pos -  7];
+          case 25: dest[pos -  8] = (int32Type) src[pos -  8];
+          case 24: dest[pos -  9] = (int32Type) src[pos -  9];
+          case 23: dest[pos - 10] = (int32Type) src[pos - 10];
+          case 22: dest[pos - 11] = (int32Type) src[pos - 11];
+          case 21: dest[pos - 12] = (int32Type) src[pos - 12];
+          case 20: dest[pos - 13] = (int32Type) src[pos - 13];
+          case 19: dest[pos - 14] = (int32Type) src[pos - 14];
+          case 18: dest[pos - 15] = (int32Type) src[pos - 15];
+          case 17: dest[pos - 16] = (int32Type) src[pos - 16];
+          case 16: dest[pos - 17] = (int32Type) src[pos - 17];
+          case 15: dest[pos - 18] = (int32Type) src[pos - 18];
+          case 14: dest[pos - 19] = (int32Type) src[pos - 19];
+          case 13: dest[pos - 20] = (int32Type) src[pos - 20];
+          case 12: dest[pos - 21] = (int32Type) src[pos - 21];
+          case 11: dest[pos - 22] = (int32Type) src[pos - 22];
+          case 10: dest[pos - 23] = (int32Type) src[pos - 23];
+          case  9: dest[pos - 24] = (int32Type) src[pos - 24];
+          case  8: dest[pos - 25] = (int32Type) src[pos - 25];
+          case  7: dest[pos - 26] = (int32Type) src[pos - 26];
+          case  6: dest[pos - 27] = (int32Type) src[pos - 27];
+          case  5: dest[pos - 28] = (int32Type) src[pos - 28];
+          case  4: dest[pos - 29] = (int32Type) src[pos - 29];
+          case  3: dest[pos - 30] = (int32Type) src[pos - 30];
+          case  2: dest[pos - 31] = (int32Type) src[pos - 31];
+          case  1: dest[pos - 32] = (int32Type) src[pos - 32];
+        } while ((pos -= 32) != 0);
+      } /* switch */
+    } /* if */
+  } /* memcpy_pixel */
+
+#else
+
+
+
+static void memcpy_pixel (register int32Type *dest,
+    register const intType *src, memSizeType len)
+
+  { /* memcpy_pixel */
+    for (; len > 0; len--, src++, dest++) {
+      *dest = (int32Type) *src;
+    } /* for */
+  } /* memcpy_pixel */
+#endif
+
+
 
 /**
  *  Assign source to *dest.
@@ -212,13 +280,11 @@ winType drwRtlImage (const const_rtlArrayType image)
 
   {
     const_rtlObjectType *curr_line;
-    const_rtlObjectType *curr_column;
     rtlArrayType arr_line;
     int32Type *pixel_elem;
     memSizeType height;
     memSizeType width;
     memSizeType line;
-    memSizeType column;
     int32Type *image_data;
     winType result;
 
@@ -246,11 +312,8 @@ winType drwRtlImage (const const_rtlArrayType image)
           pixel_elem = image_data;
           for (line = height; line > 0; line--, curr_line++) {
             arr_line = curr_line->value.arrayValue;
-            curr_column = &arr_line->arr[0];
-            for (column = width; column > 0; column--, curr_column++) {
-              *pixel_elem = (int32Type) curr_column->value.intValue;
-              pixel_elem++;
-            } /* for */
+            memcpy_pixel(pixel_elem, (intType *) arr_line->arr, width);
+            pixel_elem += width;
           } /* for */
           result = drwImage(image_data, width, height);
           free(image_data);

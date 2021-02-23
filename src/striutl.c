@@ -80,7 +80,7 @@ const_os_striType current_emulated_cwd = NULL;
 const os_charType emulated_root[] = {'/', '\0'};
 #endif
 
-#define USE_DUFFS_UNROLLING
+#define USE_DUFFS_UNROLLING 1
 #define STACK_ALLOC_SIZE    1000
 
 /** Strings longer than the AND_SO_ON_LIMIT are truncated. */
@@ -310,7 +310,7 @@ cstriType stringify (int number)
 
 
 
-#ifdef USE_DUFFS_UNROLLING
+#if USE_DUFFS_UNROLLING
 /**
  *  Copy len bytes to Seed7 characters in a string.
  *  This function works also correct if 'src' and 'dest' point

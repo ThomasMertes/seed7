@@ -52,6 +52,7 @@ objectType ref_hshdatatolist (listType arguments);
 objectType ref_hshkeystolist (listType arguments);
 objectType ref_hshlength     (listType arguments);
 objectType ref_issymb        (listType arguments);
+objectType ref_istemp        (listType arguments);
 objectType ref_isvar         (listType arguments);
 objectType ref_itftosct      (listType arguments);
 objectType ref_line          (listType arguments);

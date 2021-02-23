@@ -1325,6 +1325,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(REF_HSHKEYSTOLIST, function, params, c_expr);
       when {"REF_HSHLENGTH"}:
         process(REF_HSHLENGTH, function, params, c_expr);
+      when {"REF_ISTEMP"}:
+        process(REF_ISTEMP, function, params, c_expr);
       when {"REF_ISVAR"}:
         process(REF_ISVAR, function, params, c_expr);
       when {"REF_ITFTOSCT"}:

@@ -6,7 +6,7 @@ bifurk.sd7   Display the bifurcation diagram
 bigfiles.sd7 Utility to search for big files.
 brainf7.sd7  Brainfuck interpreter
 calc7.sd7    Calculator
-carddemo.sd7 Demonstate the playing cards of the french deck
+carddemo.sd7 Demonstrate the playing cards of the french deck.
 castle.sd7   Castle Adventure
 cat.sd7      Concatenate and print files
 cellauto.sd7 Simulate a one-dimensional cellular automaton
@@ -229,6 +229,7 @@ pic_util.s7i Picture utility functions
 pixmap_file.s7i Text implementation type to use a pixmap font
 pixmapfont.s7i Defines pixmapFontType and the font cache
 pkcs1.s7i    RSA public-key cryptography standard #1 support.
+png.s7i      Support for the PNG image file format.
 poll.s7i     Support for pollData and the poll function
 process.s7i  Support for creating processes
 progs.s7i    Program handling support library

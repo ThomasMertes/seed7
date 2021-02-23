@@ -328,7 +328,8 @@ pre.indent {
 <li><a class="link" href="#tokens_BigInteger_literals"><b><i>BigInteger literals</i></b></a></li>
 <li><a class="link" href="#tokens_Float_literals"><b><i>Float literals</i></b></a></li>
 <li><a class="link" href="#tokens_String_literals"><b><i>String literals</i></b></a></li>
-<li><a class="link" href="#tokens_Character_literals"><b><i>Character literals</i></b></a></li></ol></li></ol></li>
+<li><a class="link" href="#tokens_Character_literals"><b><i>Character literals</i></b></a></li></ol></li>
+<li><a class="link" href="#tokens_Unicode_characters"><b><i>Unicode characters</b></a></li></ol></li>
 <li><a class="link" href="#expr_file_start"><big><b>EXPRESSIONS</b></big></a><ol>
 <li><a class="link" href="#expr_EXPRESSION_Parentheses"><b>Parentheses</b></a></li>
 <li><a class="link" href="#expr_Call_expressions"><b>Call expressions</b></a></li>
@@ -911,7 +912,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   The <tt><a class="type" href="#types_float">float</a></tt> variable <tt>'celsius'</tt> must be initialized with 0.0
   (instead of 0). The <tt><a class="link" href="#stats_for-statement">for-loop</a></tt> executes the loop body with
   different values of <tt>fahr</tt> (0, 20, 40 .. 280, 300). Omitting
-  the <tt><span class="keywd">step</span></tt> part corrensponds to a step of 1:
+  the <tt><span class="keywd">step</span></tt> part corresponds to a step of 1:
 </p><pre class="indent">
 <span class="keywd">for</span> fahr <span class="keywd">range</span> lower <span class="keywd">to</span> upper <span class="keywd">do</span>
   celsius := <span class="func_no_ul">flt</span>(5 <span class="op_no_ul">*</span> (fahr <span class="op_no_ul">-</span> 32)) <span class="op_no_ul">/</span> 9.0;
@@ -957,7 +958,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">end func</span>;
 </pre><p>
   In the example above <tt>[] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)</tt>
-  is an array literal. <tt><span class="link">For-loops</span></tt> can also interate over the elements
+  is an array literal. <tt><span class="link">For-loops</span></tt> can also iterate over the elements
   of a <tt><a class="type" href="#types_set">set</a></tt>:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
@@ -973,7 +974,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">end func</span>;
 </pre><p>
   In the example above <tt>{<span class="stri">"Mercury"</span>, <span class="stri">"Venus"</span>, <span class="stri">"Earth"</span>, <span class="stri">"Mars"</span>}</tt> is a set
-  literal. <tt><a class="link" href="#stats_for-each-statement">For-loops</a></tt> can interate over the characters of a <tt><a class="type" href="#types_string">string</a></tt>:
+  literal. <tt><a class="link" href="#stats_for-each-statement">For-loops</a></tt> can iterate over the characters of a <tt><a class="type" href="#types_string">string</a></tt>:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
@@ -1443,14 +1444,14 @@ $ <span class="keywd">system</span> <span class="stri">"main"</span> <span class
   pragmas exist:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   
-  <tr><th> pragma    </th><th> parameter        </th><th> comment                                      </th></tr>
+  <tr><th> pragma    </th><th> parameter        </th><th> comment                                       </th></tr>
   
-  <tr><td> <tt>$ <span class="keywd">library</span></tt> </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Specify additional direcory for *.s7i files. </td></tr>
-  <tr><td> <tt>$ <span class="keywd">message</span></tt> </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Writes a message during parsing.             </td></tr>
-  <tr><td> <tt>$ <span class="keywd">info</span></tt>    </td><td> <tt><span class="keywd">on</span></tt> or <tt><span class="keywd">off</span></tt>        </td><td> Switch compilation info on or off.           </td></tr>
-  <tr><td> <tt>$ <span class="keywd">trace</span></tt>   </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Sets compile-time tracing flags.             </td></tr>
-  <tr><td> <tt>$ <span class="keywd">decls</span></tt>   </td><td> -                </td><td> Traces the declarations.                     </td></tr>
-  <tr><td> <tt>$ <span class="keywd">names</span></tt>   </td><td> <tt><span class="keywd">unicode</span></tt> or <tt><span class="keywd">ascii</span></tt> </td><td> Allows Unicode (or Ascii) identifiers.       </td></tr>
+  <tr><td> <tt>$ <span class="keywd">library</span></tt> </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Specify additional directory for *.s7i files. </td></tr>
+  <tr><td> <tt>$ <span class="keywd">message</span></tt> </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Writes a message during parsing.              </td></tr>
+  <tr><td> <tt>$ <span class="keywd">info</span></tt>    </td><td> <tt><span class="keywd">on</span></tt> or <tt><span class="keywd">off</span></tt>        </td><td> Switch compilation info on or off.            </td></tr>
+  <tr><td> <tt>$ <span class="keywd">trace</span></tt>   </td><td> <tt><a class="type" href="#types_string">string</a></tt>           </td><td> Sets compile-time tracing flags.              </td></tr>
+  <tr><td> <tt>$ <span class="keywd">decls</span></tt>   </td><td> -                </td><td> Traces the declarations.                      </td></tr>
+  <tr><td> <tt>$ <span class="keywd">names</span></tt>   </td><td> <tt><span class="keywd">unicode</span></tt> or <tt><span class="keywd">ascii</span></tt> </td><td> Allows Unicode (or Ascii) identifiers.        </td></tr>
   
 </table></dd></dl><p>
   An unknown pragma results in a <a class="link" href="#errors_Parsing_errors">parsing error</a>:
@@ -8647,7 +8648,14 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 <dt><br /></dt>
     <dt><a name="tokens_ebnf_token">token</a> ::=</dt><dd>
       <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> | <a class="ebnf" href="#tokens_ebnf_literal">literal</a> .</dd>
-</dl></tt></dd></dl><p></p>
+</dl></tt></dd></dl><p>
+  Characters that introduce neither white_space nor a token trigger a
+  <a class="link" href="#errors_Parsing_errors">parsing error</a>:
+</p><pre class="indent">
+*** tst255.sd7(1):5: <a class="link" href="#errors_CHAR_ILLEGAL">Illegal character in text "\8;" (U+0008)</a>
+(* Illegal character *) \b
+------------------------^
+</pre>
 
 <a name="tokens_White_space"><h3>10.1 White space</h3></a>
 <p>
@@ -8879,8 +8887,7 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
     <dt><a name="tokens_ebnf_extended_digit">extended_digit</a> ::=</dt><dd>
       <a class="ebnf" href="#tokens_ebnf_letter">letter</a> | <a class="ebnf" href="#tokens_ebnf_digit">digit</a> .</dd>
 </dl></tt></dd></dl><p>
-  If an integer literal cannot be read a <a class="link" href="#errors_Parsing_errors">parsing error</a>
-  is triggered:
+  If an integer literal cannot be read a <a class="link" href="#errors_Parsing_errors">parsing error</a> is triggered:
 </p><pre class="indent">
 *** tst256.sd7(2):10: <a class="link" href="#errors_CARD_DECIMAL_TOO_BIG">Integer "12345678901234567890" too big</a>
 const integer: tooBig is 12345678901234567890;
@@ -9011,8 +9018,7 @@ const integer: basedIntegerTooBig is 16#ffffffffffffffff;
     <dt><a name="tokens_ebnf_apostrophe">apostrophe</a> ::=</dt><dd>
       ''' .</dd>
 </dl></tt></dd></dl><p>
-  If an string literal cannot be read a <a class="link" href="#errors_Parsing_errors">parsing error</a>
-  is triggered:
+  If a string literal cannot be read a <a class="link" href="#errors_Parsing_errors">parsing error</a> is triggered:
 </p><pre class="indent">
 *** tst256.sd7(2):20: <a class="link" href="#errors_WRONG_QUOTATION_REPRESENTATION">Use \" instead of "" to represent " in a string</a>
 const string: wrongQuotationRepresentation is "double "" quotations";
@@ -9056,8 +9062,7 @@ const string: integerExpected is "\1.5;";
     <dt><a name="tokens_ebnf_char_literal_element">char_literal_element</a> ::=</dt><dd>
       <a class="ebnf" href="#tokens_ebnf_simple_literal_character">simple_literal_character</a> | <a class="ebnf" href="#tokens_ebnf_escape_sequence">escape_sequence</a> | <a class="ebnf" href="#tokens_ebnf_apostrophe">apostrophe</a> | '"' .</dd>
 </dl></tt></dd></dl><p>
-  If an char literal cannot be read a <a class="link" href="#errors_Parsing_errors">parsing error</a>
-  is triggered:
+  If a char literal cannot be read a <a class="link" href="#errors_Parsing_errors">parsing error</a> is triggered:
 </p><pre class="indent">
 *** tst256.sd7(2):18: <a class="link" href="#errors_APOSTROPHEXPECTED">"'" expected found ";"</a>
 const char: apostropheExpected is 'x;
@@ -9065,6 +9070,42 @@ const char: apostropheExpected is 'x;
 *** tst256.sd7(3):19: <a class="link" href="#errors_CHAREXCEEDS">Character literal exceeds source line</a>
 const char: charExceeds is '
 ----------------------------^
+</pre>
+
+<a name="tokens_Unicode_characters"><h3>10.4 Unicode characters</h3></a>
+<p>
+    Seed7 source code may containg UTF-8 encoded Unicode characters.
+  Unicode is allowed in <a class="link" href="#tokens_String_literals">string</a> and <a class="link" href="#tokens_Character_literals">char</a> literals. The <a class="link" href="#decls_Pragmas">pragma</a> <tt><span class="keywd">names</span></tt>
+  can be used to allow Unicode in <a class="link" href="#tokens_Name_identifiers">name identifiers</a>:
+</p><pre class="indent">
+$ <span class="keywd">names</span> <span class="keywd">unicode</span>;
+</pre><p>
+  <a class="link" href="#tokens_Comments">Comments</a> and <a class="link" href="#tokens_Line_comments">line comments</a> may also contain Unicode, but they are
+  not checked for valid UTF-8. This way code parts with illegal
+  UTF-8 can be commented out. Illegal UTF-8 encodings in <a class="link" href="#tokens_Identifiers">identifiers</a>
+  and <a class="link" href="#tokens_Literals">literals</a> trigger a <a class="link" href="#errors_Parsing_errors">parsing error</a>:
+</p><pre class="indent">
+*** err.sd7(90):58: <a class="link" href="#errors_OVERLONG_UTF8_ENCODING">Overlong UTF-8 encoding used for character "\0;" (U+0000)</a>
+ignore("\0;");
+-----------^
+*** err.sd7(91):59: <a class="link" href="#errors_UTF16_SURROGATE_CHAR_FOUND">UTF-16 surrogate character found in UTF-8 encoding "\55296;" (U+d800)</a>
+ignore("\55296;");
+---------------^
+*** err.sd7(92):60: <a class="link" href="#errors_CHAR_NOT_UNICODE">Non Unicode character found "\1114112;" (U+110000)</a>
+"\1114112;");
+----------^
+*** err.sd7(93):61: <a class="link" href="#errors_UTF8_CONTINUATION_BYTE_EXPECTED">UTF-8 continuation byte expected found "A"</a>
+ignore("í\128;A");
+--------------^
+*** err.sd7(94):62: <a class="link" href="#errors_UNEXPECTED_UTF8_CONTINUATION_BYTE">Unexpected UTF-8 continuation byte found "\128;" (U+0080)</a>
+ignore("\128;");
+--------^
+*** err.sd7(95):63: <a class="link" href="#errors_SOLITARY_UTF8_START_BYTE">Solitary UTF-8 start byte found "\237;" (U+00ed)</a>
+ignore("íA");
+---------^
+*** bom16(1):64: <a class="link" href="#errors_UTF16_BYTE_ORDER_MARK_FOUND">UTF-16 byte order mark found "\65279;" (U+feff)</a>
+þÿ
+-^
 </pre>
 
 <a name="expr_file_start"></a><p></p>
@@ -13033,7 +13074,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </ul><p>
   C code can check the value of the <tt><span class="var">err_info</span></tt> variable, or check if a
   function returns NULL. In case of error it is possible to do some
-  cleaning up. An error situation can be propergated this way over
+  cleaning up. An error situation can be propagated this way over
   several function levels. It is important to assure that an existing
   error situation (<tt><span class="var">err_info</span></tt> has a value not equal to <tt><span class="exception">OKAY_NO_ERROR</span></tt>)
   is not reset to a situation that no error occurred.
@@ -13587,18 +13628,20 @@ Program received signal SIGFPE, Arithmetic exception.
   <tr><th>Signal  </th><th> Special handler      </th><th> Behavior without <span class="link"><tt><b>-ts</b></tt></span>   </th><th> Behavior with <span class="link"><tt><b>-ts</b></tt></span></th></tr>
   
   <tr><td><a name="errors_SIGABRT">SIGABRT</a> </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
-  <tr><td><a name="errors_SIGILL">SIGILL  </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
-  <tr><td><a name="errors_SIGINT">SIGINT  </td><td> -                    </td><td> Terminate with message </td><td> Dialog to decide</td></tr>
-  <tr><td><a name="errors_SIGFPE">SIGFPE  </td><td> raise <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>  </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
-  <tr><td><a name="errors_SIGTERM">SIGTERM </td><td> -                    </td><td> Terminate with message </td><td> Terminate with message</td></tr>
-  <tr><td><a name="errors_SIGSEGV">SIGSEGV </td><td> -                    </td><td> Terminate program      </td><td> Terminate with message</td></tr>
-  <tr><td><a name="errors_SIGPIPE">SIGPIPE </td><td> -                    </td><td> Ignored                </td><td> Ignored</td></tr>
-  <tr><td><a name="errors_SIGWINCH">SIGWINCH</td><td> Resize console       </td><td> -                      </td><td> -</td></tr>
-  <tr><td><a name="errors_SIGALRM">SIGALRM </td><td> Wait for some time   </td><td> -                      </td><td> -</td></tr>
+  <tr><td><a name="errors_SIGILL">SIGILL</a>  </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
+  <tr><td><a name="errors_SIGTRAP">SIGTRAP</a> </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
+  <tr><td><a name="errors_SIGINT">SIGINT</a>  </td><td> -                    </td><td> Terminate with message </td><td> Dialog to decide</td></tr>
+  <tr><td><a name="errors_SIGFPE">SIGFPE</a>  </td><td> raise <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>  </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
+  <tr><td><a name="errors_SIGTERM">SIGTERM</a> </td><td> -                    </td><td> Terminate with message </td><td> Terminate with message</td></tr>
+  <tr><td><a name="errors_SIGSEGV">SIGSEGV</a> </td><td> -                    </td><td> Terminate program      </td><td> Terminate with message</td></tr>
+  <tr><td><a name="errors_SIGPIPE">SIGPIPE</a> </td><td> -                    </td><td> Ignored                </td><td> Ignored</td></tr>
+  <tr><td><a name="errors_SIGWINCH">SIGWINCH</a></td><td> Resize console       </td><td> -                      </td><td> -</td></tr>
+  <tr><td><a name="errors_SIGALRM">SIGALRM</a> </td><td> Wait for some time   </td><td> -                      </td><td> -</td></tr>
 </table></dd></dl><p>
   Depending on the actual C compiler and operating system the
-  signals SIGABRT or SIGILL might be used to raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>
-  and the signal SIGFPE might be used to raise <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>.
+  signals SIGABRT, SIGILL or SIGTRAP might be used to raise
+  <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> and the signal SIGFPE might be used to raise
+  <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>.
 </p><p>
   If the interpreter respectively compiler option <span class="link"><tt><b>-ts</b></tt></span> has been
   used some signals (see table above) trigger a dialog at the
@@ -13628,7 +13671,7 @@ re-enter input>
 <a name="errors_Other_errors_and_warnings"><h3>16.8 Other errors and warnings</h3></a>
 <p><dl><dt>
   No more memory. Parsing terminated.</dt><dd>
-    This error message is displayed after the compile time error 1
+    This error message is displayed after the parsing error 1
     (<a class="link" href="#errors_OUT_OF_HEAP_SPACE">Out of heap space</a>). The file name and line number of the
     analyzer source code where this happens is displayed together
     with internal heap information.</dd><dt>

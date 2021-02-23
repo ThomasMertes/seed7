@@ -281,6 +281,14 @@ const func reference: matchExpr (in program: aProgram, in ref_list: expression) 
 
 
 (**
+ *  Determine if the referenced object is temporary.
+ *  @return TRUE if ''aReference'' is temporary, FALSE otherwise.
+ *  @exception RANGE_ERROR If ''aReference'' is NIL.
+ *)
+const func boolean: isTemp (in reference: aReference)                    is action "REF_ISTEMP";
+
+
+(**
  *  Determine if the referenced object is variable.
  *  @return TRUE if ''aReference'' is a variable, FALSE otherwise.
  *  @exception RANGE_ERROR If ''aReference'' is NIL.

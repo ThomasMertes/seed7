@@ -1,0 +1,664 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  png.s7i       Support for the PNG image file format.            *)
+(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bytedata.s7i";
+include "bin32.s7i";
+include "crc32.s7i";
+include "draw.s7i";
+include "gzip.s7i";
+
+
+const string: PNG_MAGIC is "\137;PNG\r\n\26;\n";
+
+const type: pngImageType is array array pixel;
+
+const type: pngHeader is new struct
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: bitDepth is 0;
+    var integer: colorType is 0;
+    var integer: compressionMethod is 0;
+    var integer: filterMethod is 0;
+    var integer: interlaceMethod is 0;
+    var integer: bytesPerPixel is 0;
+    var integer: bytesPerScanline is 0;
+  end struct;
+
+
+const proc: showHeader (in pngHeader: header) is func
+  begin
+    writeln("width: " <& header.width);
+    writeln("height: " <& header.height);
+    writeln("bitDepth: " <& header.bitDepth);
+    writeln("colorType: " <& header.colorType);
+    writeln("compressionMethod: " <& header.compressionMethod);
+    writeln("filterMethod: " <& header.filterMethod);
+    writeln("interlaceMethod: " <& header.interlaceMethod);
+    writeln("bytesPerPixel: " <& header.bytesPerPixel);
+    writeln("bytesPerScanline: " <& header.bytesPerScanline);
+  end func;
+
+
+const func pngHeader: pngHeader (in string: stri) is func
+  result
+    var pngHeader: header is pngHeader.value;
+  begin
+    if length(stri) = 13 then
+      header.width := bytes2Int(stri[1 len 4], UNSIGNED, BE);
+      header.height := bytes2Int(stri[5 len 4], UNSIGNED, BE);
+      header.bitDepth := ord(stri[9]);
+      header.colorType := ord(stri[10]);
+      header.compressionMethod := ord(stri[11]);
+      header.filterMethod := ord(stri[12]);
+      header.interlaceMethod := ord(stri[13]);
+      # showHeader(header);
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: str (in pngHeader: header) is
+  return int32AsFourBytesBe(header.width) &
+         int32AsFourBytesBe(header.height) &
+         str(char(header.bitDepth)) &
+         str(char(header.colorType)) &
+         str(char(header.compressionMethod)) &
+         str(char(header.filterMethod)) &
+         str(char(header.interlaceMethod));
+
+
+const func boolean: isOkay (in pngHeader: header) is
+  return (header.colorType = 0 or header.colorType = 2 or header.colorType = 4 or header.colorType = 6) and
+         (header.bitDepth = 8 or header.bitDepth = 16) or
+         (header.colorType = 0 or header.colorType = 3) and
+         (header.bitDepth = 1 or header.bitDepth = 2 or header.bitDepth = 4 or header.bitDepth = 8);
+
+
+const proc: computeBytesPerPixel (inout pngHeader: header) is func
+  begin
+    if header.colorType = 0 then
+      header.bytesPerPixel := 1;
+    elsif header.colorType = 2 then
+      header.bytesPerPixel := 3;
+    elsif header.colorType = 3 then
+      header.bytesPerPixel := 1;
+    elsif header.colorType = 4 then
+      header.bytesPerPixel := 2;
+    else # if header.colorType = 6 then
+      header.bytesPerPixel := 4;
+    end if;
+    if header.bitDepth = 16 then
+      header.bytesPerPixel *:= 2;
+    end if;
+  end func;
+
+
+const proc: computeBytesPerScanline (inout pngHeader: header) is func
+  begin
+    if header.bitDepth = 1 then
+      header.bytesPerScanline := succ((header.width + 7) div 8);
+    elsif header.bitDepth = 2 then
+      header.bytesPerScanline := succ((header.width + 3) div 4);
+    elsif header.bitDepth = 4 then
+      header.bytesPerScanline := succ(succ(header.width) div 2);
+    else
+      header.bytesPerScanline := succ(header.width * header.bytesPerPixel);
+    end if;
+  end func;
+
+
+const func string: readPngChunk (inout file: pngFile, inout string: chunkType) is func
+  result
+    var string: chunkData is "";
+  local
+    var integer: length is 0;
+    var integer: crc is 0;
+  begin
+    length := bytes2Int(gets(pngFile, 4), UNSIGNED, BE);
+    chunkType := gets(pngFile, 4);
+    chunkData := gets(pngFile, length);
+    crc := bytes2Int(gets(pngFile, 4), UNSIGNED, BE);
+    if bin32(crc) <> crc32(chunkType & chunkData) then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func string: genPngChunk (in string: chunkType, in string: chunkData) is
+  return int32AsFourBytesBe(length(chunkData)) &
+         chunkType & chunkData &
+         int32AsFourBytesBe(integer(crc32(chunkType & chunkData)));
+
+
+const func integer: paethPredictor (in integer: a, in integer: b, in integer: c) is func
+  result
+    var integer: predicted is 0;
+  local
+    var integer: pa is 0;
+    var integer: pb is 0;
+    var integer: pc is 0;
+  begin
+    # p := a + b - c;
+    pa := abs(b - c);          # pa := abs(p - a);
+    pb := abs(a - c);          # pb := abs(p - b);
+    pc := abs(a + b - 2 * c);  # pc := abs(p - c);
+    if pa <= pb and pa <= pc then
+      predicted := a;
+    elsif pb <= pc then
+      predicted := b;
+    else
+      predicted := c;
+    end if;
+  end func;
+
+
+const proc: filterPngData (in pngHeader: header, inout string: uncompressed) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 1;
+    var integer: filterType is 0;
+    var integer: deltaUpLeft is 0;
+  begin
+    for line range 0 to pred(header.height) do
+      byteIndex := succ(line * header.bytesPerScanline);
+      filterType := ord(uncompressed[byteIndex]);
+      # writeln("filterType: " <& filterType);
+      incr(byteIndex);
+      case filterType of
+        when {0}:
+          noop;
+        when {1}:
+          for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
+            uncompressed @:= [column] chr((ord(uncompressed[column]) +
+                                           ord(uncompressed[column - header.bytesPerPixel])) mod 256);
+          end for;
+        when {2}:
+          if line <> 0 then
+            for column range byteIndex to byteIndex + header.bytesPerScanline - 2 do
+              uncompressed @:= [column] chr((ord(uncompressed[column]) +
+                                             ord(uncompressed[column - header.bytesPerScanline])) mod 256);
+            end for;
+          end if;
+        when {3}:
+          if line = 0 then
+            for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
+              uncompressed @:= [column] chr((ord(uncompressed[column]) +
+                                             ord(uncompressed[column - header.bytesPerPixel]) div 2) mod 256);
+            end for;
+          else
+            for column range byteIndex to byteIndex + header.bytesPerPixel - 1 do
+              uncompressed @:= [column] chr((ord(uncompressed[column]) +
+                                             ord(uncompressed[column - header.bytesPerScanline]) div 2) mod 256);
+            end for;
+            for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
+              uncompressed @:= [column] chr((ord(uncompressed[column]) +
+                                            (ord(uncompressed[column - header.bytesPerPixel]) +
+                                             ord(uncompressed[column - header.bytesPerScanline])) div 2) mod 256);
+            end for;
+          end if;
+        when {4}:
+          if line = 0 then
+            for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
+              uncompressed @:= [column] chr((ord(uncompressed[column]) +
+                                             paethPredictor(ord(uncompressed[column - header.bytesPerPixel]),
+                                                            0, 0)) mod 256);
+            end for;
+          else
+            for column range byteIndex to byteIndex + header.bytesPerPixel - 1 do
+              uncompressed @:= [column] chr((ord(uncompressed[column]) +
+                                             paethPredictor(0,
+                                                            ord(uncompressed[column - header.bytesPerScanline]),
+                                                            0)) mod 256);
+            end for;
+            deltaUpLeft := header.bytesPerScanline + header.bytesPerPixel;
+            for column range byteIndex + header.bytesPerPixel to byteIndex + header.bytesPerScanline - 2 do
+              uncompressed @:= [column] chr((ord(uncompressed[column]) +
+                                             paethPredictor(ord(uncompressed[column - header.bytesPerPixel]),
+                                                            ord(uncompressed[column - header.bytesPerScanline]),
+                                                            ord(uncompressed[column - deltaUpLeft]))) mod 256);
+            end for;
+          end if;
+      end case;
+    end for;
+  end func;
+
+
+const proc: fillPngImage1Bit (inout array array pixel: image, in string: pixelData,
+    in array pixel: palette, in integer: height, in integer: width) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 1;
+    var integer: currentByte is 0;
+    var integer: rshift is 0;
+  begin
+    for line range 1 to height do
+      incr(byteIndex);
+      for column range 1 to (width - 7) step 8 do
+        currentByte := ord(pixelData[byteIndex]);
+        image[line][column]       := palette[ currentByte >> 7];
+        image[line][succ(column)] := palette[(currentByte >> 6) mod 2];
+        image[line][column + 2]   := palette[(currentByte >> 5) mod 2];
+        image[line][column + 3]   := palette[(currentByte >> 4) mod 2];
+        image[line][column + 4]   := palette[(currentByte >> 3) mod 2];
+        image[line][column + 5]   := palette[(currentByte >> 2) mod 2];
+        image[line][column + 6]   := palette[(currentByte >> 1) mod 2];
+        image[line][column + 7]   := palette[ currentByte       mod 2];
+        incr(byteIndex);
+      end for;
+      if width mod 8 <> 0 then
+        currentByte := ord(pixelData[byteIndex]);
+        rshift := 7;
+        for column range succ(width - width mod 8) to width do
+          image[line][column] := palette[(currentByte >> rshift) mod 2];
+          decr(rshift);
+        end for;
+        incr(byteIndex);
+      end if;
+    end for;
+  end func;
+
+
+const proc: fillPngImage2Bit (inout array array pixel: image, in string: pixelData,
+    in array pixel: palette, in integer: height, in integer: width) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 1;
+    var integer: currentByte is 0;
+    var integer: rshift is 0;
+  begin
+    for line range 1 to height do
+      incr(byteIndex);
+      for column range 1 to (width - 3) step 4 do
+        currentByte := ord(pixelData[byteIndex]);
+        image[line][column]       := palette[ currentByte >> 6];
+        image[line][succ(column)] := palette[(currentByte >> 4) mod 4];
+        image[line][column + 2]   := palette[(currentByte >> 2) mod 4];
+        image[line][column + 3]   := palette[ currentByte       mod 4];
+        incr(byteIndex);
+      end for;
+      if width mod 4 <> 0 then
+        currentByte := ord(pixelData[byteIndex]);
+        rshift := 6;
+        for column range succ(width - width mod 4) to width do
+          image[line][column] := palette[(currentByte >> rshift) mod 4];
+          rshift -:= 2;
+        end for;
+        incr(byteIndex);
+      end if;
+    end for;
+  end func;
+
+
+const proc: fillPngImage4Bit (inout array array pixel: image, in string: pixelData,
+    in array pixel: palette, in integer: height, in integer: width) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 1;
+    var integer: currentByte is 0;
+  begin
+    for line range 1 to height do
+      incr(byteIndex);
+      for column range 1 to pred(width) step 2 do
+        currentByte := ord(pixelData[byteIndex]);
+        image[line][column]       := palette[currentByte >> 4];
+        image[line][succ(column)] := palette[currentByte mod 16];
+        incr(byteIndex);
+      end for;
+      if odd(width) then
+        image[line][width] := palette[ord(pixelData[byteIndex]) >> 4];
+        incr(byteIndex);
+      end if;
+    end for;
+  end func;
+
+
+const proc: fillPngImage8Bit (inout array array pixel: image, in string: pixelData,
+    in array pixel: palette, in integer: height, in integer: width) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 1;
+  begin
+    for line range 1 to height do
+      incr(byteIndex);
+      for column range 1 to width do
+        image[line][column] := palette[ord(pixelData[byteIndex])];
+        incr(byteIndex);
+      end for;
+    end for;
+  end func;
+
+
+const proc: fillPngImage8Bit (inout array array pixel: image, in string: pixelData,
+    in integer: bytesPerPixel, in integer: height, in integer: width) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 1;
+    var integer: grayIntensity is 0;
+  begin
+    for line range 1 to height do
+      incr(byteIndex);
+      for column range 1 to width do
+        grayIntensity := ord(pixelData[byteIndex]) * 256;
+        image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+        byteIndex +:= bytesPerPixel;
+      end for;
+    end for;
+  end func;
+
+
+const proc: fillPngImage16Bit (inout array array pixel: image, in string: pixelData,
+    in integer: bytesPerPixel, in integer: height, in integer: width) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 1;
+    var integer: grayIntensity is 0;
+  begin
+    for line range 1 to height do
+      incr(byteIndex);
+      for column range 1 to width do
+        grayIntensity := ord(pixelData[byteIndex]) * 256 + ord(pixelData[byteIndex + 1]);
+        image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+        byteIndex +:= bytesPerPixel;
+      end for;
+    end for;
+  end func;
+
+
+const proc: fillPngImage24Bit (inout array array pixel: image, in string: pixelData,
+    in integer: bytesPerPixel, in integer: height, in integer: width) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 1;
+  begin
+    for line range 1 to height do
+      incr(byteIndex);
+      for column range 1 to width do
+        image[line][column] := rgbPixel(ord(pixelData[byteIndex]) * 256,
+                                        ord(pixelData[byteIndex + 1]) * 256,
+                                        ord(pixelData[byteIndex + 2]) * 256);
+        byteIndex +:= bytesPerPixel;
+      end for;
+    end for;
+  end func;
+
+
+const proc: fillPngImage48Bit (inout array array pixel: image, in string: pixelData,
+    in integer: bytesPerPixel, in integer: height, in integer: width) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 1;
+  begin
+    for line range 1 to height do
+      incr(byteIndex);
+      for column range 1 to width do
+        image[line][column] := rgbPixel(ord(pixelData[byteIndex]) * 256 + ord(pixelData[byteIndex + 1]),
+                                        ord(pixelData[byteIndex + 2]) * 256 + ord(pixelData[byteIndex + 3]),
+                                        ord(pixelData[byteIndex + 4]) * 256 + ord(pixelData[byteIndex + 5]));
+        byteIndex +:= bytesPerPixel;
+      end for;
+    end for;
+  end func;
+
+
+const func pngImageType: pixelDataToImage (in pngHeader: header,
+    in string: pixelData, in array pixel: palette) is func
+  result
+    var pngImageType: image is 0 times 0 times pixel.value;
+  local
+    var array pixel: grayscalePalette is 0 times pixel.value;
+  begin
+    image := header.height times header.width times pixel.value;
+    if header.colorType = 0 or header.colorType = 4 then
+      if header.bitDepth = 1 then
+        grayscalePalette := [0 .. 1] times pixel.value;
+        grayscalePalette[0] := rgbPixel(    0,     0,     0);
+        grayscalePalette[1] := rgbPixel(65535, 65535, 65535);
+        fillPngImage1Bit(image, pixelData, grayscalePalette, header.height, header.width);
+      elsif header.bitDepth = 2 then
+        grayscalePalette := [0 .. 3] times pixel.value;
+        grayscalePalette[0] := rgbPixel(    0,     0,     0);
+        grayscalePalette[1] := rgbPixel(21845, 21845, 21845);
+        grayscalePalette[2] := rgbPixel(43690, 43690, 43690);
+        grayscalePalette[3] := rgbPixel(65535, 65535, 65535);
+        fillPngImage2Bit(image, pixelData, grayscalePalette, header.height, header.width);
+      elsif header.bitDepth = 4 then
+        grayscalePalette := [0 .. 15] times pixel.value;
+        grayscalePalette[ 0] := rgbPixel(    0,     0,     0);
+        grayscalePalette[ 1] := rgbPixel( 4369,  4369,  4369);
+        grayscalePalette[ 2] := rgbPixel( 8738,  8738,  8738);
+        grayscalePalette[ 3] := rgbPixel(13107, 13107, 13107);
+        grayscalePalette[ 4] := rgbPixel(17476, 17476, 17476);
+        grayscalePalette[ 5] := rgbPixel(21845, 21845, 21845);
+        grayscalePalette[ 6] := rgbPixel(26214, 26214, 26214);
+        grayscalePalette[ 7] := rgbPixel(30583, 30583, 30583);
+        grayscalePalette[ 8] := rgbPixel(34952, 34952, 34952);
+        grayscalePalette[ 9] := rgbPixel(39321, 39321, 39321);
+        grayscalePalette[10] := rgbPixel(43690, 43690, 43690);
+        grayscalePalette[11] := rgbPixel(48059, 48059, 48059);
+        grayscalePalette[12] := rgbPixel(52428, 52428, 52428);
+        grayscalePalette[13] := rgbPixel(56797, 56797, 56797);
+        grayscalePalette[14] := rgbPixel(61166, 61166, 61166);
+        grayscalePalette[15] := rgbPixel(65535, 65535, 65535);
+        fillPngImage4Bit(image, pixelData, grayscalePalette, header.height, header.width);
+      elsif header.bitDepth = 8 then
+        fillPngImage8Bit(image, pixelData, header.bytesPerPixel, header.height, header.width);
+      else
+        fillPngImage16Bit(image, pixelData, header.bytesPerPixel, header.height, header.width);
+      end if;
+    elsif header.colorType = 2 or header.colorType = 6 then
+      if header.bitDepth = 8 then
+        fillPngImage24Bit(image, pixelData, header.bytesPerPixel, header.height, header.width);
+      else
+        fillPngImage48Bit(image, pixelData, header.bytesPerPixel, header.height, header.width);
+      end if;
+    elsif header.colorType = 3 then
+      if header.bitDepth = 1 then
+        fillPngImage1Bit(image, pixelData, palette, header.height, header.width);
+      elsif header.bitDepth = 2 then
+        fillPngImage2Bit(image, pixelData, palette, header.height, header.width);
+      elsif header.bitDepth = 4 then
+        fillPngImage4Bit(image, pixelData, palette, header.height, header.width);
+      else
+        fillPngImage8Bit(image, pixelData, palette, header.height, header.width);
+      end if;
+    end if;
+  end func;
+
+
+const func pngImageType: interlaceToImage (in pngHeader: header,
+    in string: pixelData, in array pixel: palette) is func
+  result
+    var pngImageType: image is 0 times 0 times pixel.value;
+  local
+    var integer: pass is 0;
+    var pngHeader: passHeader is pngHeader.value;
+    var integer: passStartPos is 1;
+    var string: passData is "";
+    var pngImageType: passImage is 0 times 0 times pixel.value;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: passLine is 0;
+    var integer: passColumn is 0;
+    var integer: startLine is 0;
+    var integer: startColumn is 0;
+    var integer: lineDelta is 0;
+    var integer: columnDelta is 0;
+  begin
+    image := header.height times header.width times pixel.value;
+    for pass range 1 to 7 do
+      case pass of
+        when {1}:
+          startLine := 1;
+          startColumn := 1;
+          lineDelta := 8;
+          columnDelta := 8;
+        when {2}:
+          startLine := 1;
+          startColumn := 5;
+          lineDelta := 8;
+          columnDelta := 8;
+        when {3}:
+          startLine := 5;
+          startColumn := 1;
+          lineDelta := 8;
+          columnDelta := 4;
+        when {4}:
+          startLine := 1;
+          startColumn := 3;
+          lineDelta := 4;
+          columnDelta := 4;
+        when {5}:
+          startLine := 3;
+          startColumn := 1;
+          lineDelta := 4;
+          columnDelta := 2;
+        when {6}:
+          startLine := 1;
+          startColumn := 2;
+          lineDelta := 2;
+          columnDelta := 2;
+        when {7}:
+          startLine := 2;
+          startColumn := 1;
+          lineDelta := 2;
+          columnDelta := 1;
+      end case;
+      passHeader.width := (header.width + columnDelta - startColumn) div columnDelta;
+      passHeader.height := (header.height + lineDelta - startLine) div lineDelta;
+      passHeader.bitDepth := header.bitDepth;
+      passHeader.colorType := header.colorType;
+      passHeader.bytesPerPixel := header.bytesPerPixel;
+      computeBytesPerScanline(passHeader);
+      passData := pixelData[passStartPos ..];
+      filterPngData(passHeader, passData);
+      passImage := pixelDataToImage(passHeader, passData, palette);
+      line := startLine;
+      for passLine range 1 to passHeader.height do
+        column := startColumn;
+        for passColumn range 1 to passHeader.width do
+          image[line][column] := passImage[passLine][passColumn];
+          column +:= columnDelta;
+        end for;
+        line +:= lineDelta;
+      end for;
+      passStartPos +:= passHeader.height * passHeader.bytesPerScanline;
+    end for;
+  end func;
+
+
+(**
+ *  Reads a PNG file into a pixmap.
+ *  @param pngFile File that contains a PNG image.
+ *  @result A pixmap with the PNG image.
+ *  @exception RANGE_ERROR The file is not in the PNG file format.
+ *)
+const func PRIMITIVE_WINDOW: readPng (inout file: pngFile) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var string: magic is "";
+    var string: chunkType is "";
+    var string: chunkData is "";
+    var pngHeader: header is pngHeader.value;
+    var string: compressed is "";
+    var string: uncompressed is "";
+    var integer: paletteIndex is 0;
+    var integer: byteIndex is 1;
+    var array pixel: palette is 0 times pixel.value;
+    var array array pixel: image is 0 times 0 times pixel.value;
+  begin
+    magic := gets(pngFile, length(PNG_MAGIC));
+    if magic = PNG_MAGIC then
+      pixmap := newPixmap(1, 1); # Initialize graphic
+      repeat
+        chunkData := readPngChunk(pngFile, chunkType);
+        # write("chunkType: " <& literal(chunkType));
+        # writeln(", isCritical: " <& chunkType[1] in {'A' .. 'Z'} lpad 5 <&
+        #         ", length: " <& length(chunkData) lpad 6);
+        case chunkType of
+          when {"IHDR"}:
+            header := pngHeader(chunkData);
+          when {"PLTE"}:
+            palette := [0 .. pred(length(chunkData) div 3)] times pixel.value;
+            byteIndex := 1;
+            for paletteIndex range 0 to pred(length(chunkData) div 3) do
+              palette[paletteIndex] := rgbPixel(ord(chunkData[byteIndex]) * 256,
+                                                ord(chunkData[byteIndex + 1]) * 256,
+                                                ord(chunkData[byteIndex + 2]) * 256);
+              byteIndex +:= 3;
+            end for;
+          when {"IDAT"}:
+            compressed &:= chunkData;
+        end case;
+      until chunkType = "IEND";
+      if isOkay(header) then
+        computeBytesPerPixel(header);
+        computeBytesPerScanline(header);
+        uncompressed := gzuncompress(compressed);
+        if header.interlaceMethod = 0 then
+          filterPngData(header, uncompressed);
+          image := pixelDataToImage(header, uncompressed, palette);
+        else
+          image := interlaceToImage(header, uncompressed, palette);
+        end if;
+        pixmap := imagePixmap(image);
+      else
+        raise RANGE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a PNG file with the given ''pngFileName'' into a pixmap.
+ *  @param pngFileName Name of the PNG file.
+ *  @result A pixmap with the PNG image.
+ *  @exception RANGE_ERROR The file is not in the PNG file format.
+ *)
+const func PRIMITIVE_WINDOW: readPng (in string: pngFileName) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var file: pngFile is STD_NULL;
+   begin
+    pngFile := open(pngFileName, "r");
+    if pngFile <> STD_NULL then
+      pixmap := readPng(pngFile);
+      close(pngFile);
+    end if;
+  end func;

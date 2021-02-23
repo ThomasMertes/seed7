@@ -142,7 +142,7 @@ const func array string: fromCsvLine (in string: csvLine, in char: separator) is
  *  For UTF-8 encoded CSV files there are two possibilities:
  *  * If the CSV file has been opened with [[utf8#openUtf8(in_string,in_string)|openUtf8]] \
  *    the CSV fields will contain Unicode data.
- *  * If the file has been opend with [[external_file#open(in_string,in_string)|open]] the CSV fields will \
+ *  * If the file has been opened with [[external_file#open(in_string,in_string)|open]] the CSV fields will \
  *    contain UTF-8 encoded data. In this case the function \
  *    [[unicode#utf8ToStri(in_string)|utf8ToStri]] must be used, \
  *    to convert each CSV field from the result array.

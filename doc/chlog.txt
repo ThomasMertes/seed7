@@ -1,3 +1,78 @@
+20210223:
+- Spelling corrections have been done in several files. Many thanks go
+  to Jens Schleusener, for sending a source code misspelling report
+  from Fossies.
+- The new library png.s7i has been added. This library supports the
+  PNG image file format.
+- Seed7 has been improved to compile under Android with termux. This
+  is described in src/read_me.txt.
+- A chapter about Unicode characters has been added to the manual.
+- The make7.sd7 example program has been improved. The processing of
+  makefiles in make.s7i has been improved to process every rule just
+  once. The handling of the option -n (don't execute commands) has
+  been improved to work in the same way as in other make tools.
+- The test program chkbin.sd7 has been improved to to allow two
+  possible NaN values as result of 0.0 / 0.0.
+- The test program chkflt.sd7 has been improved to allow that for some
+  test cases trunc() and round() either return the correct value
+  (integer.last) or raise RANGE_ERROR.
+- Tests for array bitset have been added to chkarr.sd7.
+- Tests for conversion and cardinality have been added to chkset.sd7.
+- The functions XChangeProperty() and XMapWindow() have been added to
+  fwd_x11.c and x11_x.h.
+- The makefile mk_clang.mak has been improved to allow the replacement
+  of system headers (x11_x.h and fwd_term.h). This way compilation
+  works also without the original headers.
+- The warning box created by warn.c had too much width to be readable
+  in termux. So this width has been reduced.
+- In drw_win.c the functions drwXPos() and drwYPos() have been fixed
+  to return coordinates relative to the parent window.
+- The checks for the C compiler option -ftrapv in chkccomp.c have
+  been improved. Now it is recognized, if integer overflow raises the
+  signal SIGTRAP. Clang at the ARM processor uses SIGTRAP.
+- Changes have been done in sigutl.c to handle SIGTRAP and to raise
+  OVERFLOW_ERROR in the signal handler (if chkccomp.c has recognized
+  that an integer overflow raises SIGTRAP).
+- Changes have been done in chkccomp.c to support PostgreSQL version
+  13. Additionally the logic to search for PostgreSQL dlls has been
+  improved. Now it searches also for the libraries libcrypto and
+  libssl. Now POSTGRESQL_DLL can be specified, with an absolute path
+  of libpq.dll, in the makefile (which should echo it to chkccomp.h).
+- In the compiler (s7c.sd7) the handling of actual parameters for
+  formal inout parameters has been improved. Now a struct element can
+  be used as actual parameter for a formal inout parameter.
+- The compiler has been improved to reduce range checks for the
+  expressions char(number), chr(number) and card(bitset(number)).
+- Interpreter and compiler have been improved to support the action
+  REF_ISTEMP. The function isTemp() has been added to progs.s7i.
+- In comp/intrange.s7i the function getIntRange() has been improved
+  to determine result ranges for INT_ADD and integer constants.
+- The compiler has been improved to assure that sigsetjmp() is not
+  called with a value other than 0 or 1 for the second parameter
+  (savesigs). According to the specification of sigsetjmp() all
+  integer values are allowed for the second parameter (savesigs)
+  and a non-zero value triggers a save of the current signal mask.
+  ARM / Android / termux decided that just 0 and 1 are valid values
+  and that any other value triggers a termination of the program
+  (with SIGABRT).
+- The function drwCapture() in drw_win.c has been improved to work
+  correct, if the screen has been scaled.
+- In drw_win.c the functions drwPut() and drwSetTransparentColor()
+  have been improved such that images with a transparent color work.
+- The runtime of drwRgbColor() in drw_x11.c has been reduced by 31%
+  (measured with gcc and valgrind, when reading a PNG image). This
+  takes effect if a true color display is used.
+- The runtime of drwRtlImage in drw_rtl.c has been reduced by 63%
+  (measured with gcc and valgrind, when reading a PNG image). The
+  function memcpy_pixel() uses loop unrolling inspired by Duff's
+  device.
+- The program chkccomp.c has been improved to determing the macro
+  rgbToPixel() (if X11 graphics is used).
+- In exec.c the function exec_expr() has been improved to clear
+  the TEMP flag for all results.
+- The makefiles have been improved to write the name of the make
+  utility and the name of the makefile to version.h.
+
 20210130:
 - The parser (used by interpreter and compiler to read a program) has
   been improved to work correct, if seed7_05.s7i is not included.
@@ -198,7 +273,7 @@
 - Changes in syntax.c and token.c make sure that the new error
   SYNTAX_DECLARED_TWICE is recognized.
 - In prclib.c the function prc_cpy() has been improved to take into
-  account that MATCHOBJECT is constant (and the underlaying object
+  account that MATCHOBJECT is constant (and the underlying object
   is variable).
 - In cmd_unx.c the function setenv7() has been improved to work
   correct, if a value is enlarged.
@@ -500,7 +575,7 @@
 - Chapters about the exception RANGE_ERROR and about the suppresson
   of exception checks have been added to the manual.
 - Several things in the compiler have been improved:
-  - Index checks can now be suppresed with the option -si.
+  - Index checks can now be suppressed with the option -si.
   - The generation of warnings, for a catch with suppressed exception
     checks, has been improved.
   - Code for the actions INT_BYTES_BE_2_UINT and INT_BYTES_LE_2_UINT
@@ -2920,7 +2995,7 @@
   have been added to tar.s7i and zip.s7i. This is work in progress, so
   the API might change.
 - The compiler has been improved to work correctly with a C++ compiler
-  back end (Now it uses strRaiseError insead of intRaiseError) for the
+  back end (Now it uses strRaiseError instead of intRaiseError) for the
   code generated for BIN_RADIX and INT_RADIX.
 - The compiler has been improved to use sigaction(), when available
   (HAS_SIGACTION is TRUE).
@@ -9390,7 +9465,7 @@
 20060520:
 - The performance of the interpreter was raised by circa 8% with
   an improved free list management.
-- The graphic and keyborad drivers for Windows have been improved.
+- The graphic and keyboard drivers for Windows have been improved.
 - A new primitive action (set_arrlit) was defined to create sets from
   integer arrays.
 - The bas (basic interpreter) example program was improved to support do loops.

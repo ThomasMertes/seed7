@@ -801,7 +801,7 @@ void *heap_chunk (size_t size)
         /* the memory area of the chunk. Such a move would invalidate */
         /* all pointers into the old chunk. Instead remaining unused  */
         /* memory from the old chunk is used as free list elements.   */
-        /* Elements of listRecord have been choosen, because they are */
+        /* Elements of listRecord have been chosen, because they are  */
         /* common and the free list elements with the smallest size.  */
         while (sizeof(listRecord) <= (memSizeType) (chunk.beyond - chunk.freemem)) {
           if (OLD_CHUNK(list_elem, listType, sizeof(listRecord))) {

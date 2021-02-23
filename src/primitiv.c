@@ -756,6 +756,7 @@ static const actEntryRecord actEntryTable[] = {
     { "REF_HSHKEYSTOLIST",       ref_hshkeystolist,       },
     { "REF_HSHLENGTH",           ref_hshlength,           },
     { "REF_ISSYMB",              ref_issymb,              },
+    { "REF_ISTEMP",              ref_istemp,              },
     { "REF_ISVAR",               ref_isvar,               },
     { "REF_ITFTOSCT",            ref_itftosct,            },
     { "REF_LINE",                ref_line,                },

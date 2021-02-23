@@ -279,6 +279,7 @@ void prgDestr (progType old_prog)
         prog = old_prog;
         /* printf("heapsize: %ld\n", heapsize()); */
         /* heapStatistic(); */
+        dump_list(old_prog->exec_expr_temp_results);
         close_stack(old_prog);
         close_declaration_root(old_prog);
         close_entity(old_prog);

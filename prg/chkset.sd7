@@ -352,10 +352,30 @@ const proc: check_card is func
     end for;
 
     number := -1;
+    if  card(bitset(1)) <> 1 or
+        card(bitset(10)) <> 2 or
+        card(bitset(abs(number))) <> 1 or
+        card(bitset conv 1) <> 1 or
+        card(bitset conv 10) <> 2 or
+        card(bitset conv abs(number)) <> 1 or
+        card(bitset(intExpr(1))) <> 1 or
+        card(bitset(intExpr(10))) <> 2 or
+        card(bitset(intExpr(abs(number)))) <> 1 or
+        card(bitset conv intExpr(1)) <> 1 or
+        card(bitset conv intExpr(10)) <> 2 or
+        card(bitset conv intExpr(abs(number))) <> 1 then
+      writeln("card(bitset(1)) does not return 1.");
+      okay := FALSE;
+    end if;
+
     if  not raisesRangeError(bitset(-1)) or
         not raisesRangeError(bitset(number)) or
         not raisesRangeError(bitset conv (-1)) or
-        not raisesRangeError(bitset conv number) then
+        not raisesRangeError(bitset conv number) or
+        not raisesRangeError(bitset(intExpr(-1))) or
+        not raisesRangeError(bitset(intExpr(number))) or
+        not raisesRangeError(bitset conv intExpr(-1)) or
+        not raisesRangeError(bitset conv intExpr(number)) then
       writeln("bitset(-1) does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
@@ -363,7 +383,11 @@ const proc: check_card is func
     if  not raisesRangeError(card(bitset(-1))) or
         not raisesRangeError(card(bitset(number))) or
         not raisesRangeError(card(bitset conv (-1))) or
-        not raisesRangeError(card(bitset conv number)) then
+        not raisesRangeError(card(bitset conv number)) or
+        not raisesRangeError(card(bitset(intExpr(-1)))) or
+        not raisesRangeError(card(bitset(intExpr(number)))) or
+        not raisesRangeError(card(bitset conv intExpr(-1))) or
+        not raisesRangeError(card(bitset conv intExpr(number))) then
       writeln("card(bitset(-1)) does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;

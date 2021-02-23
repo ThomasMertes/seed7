@@ -165,7 +165,7 @@ const func PRIMITIVE_WINDOW: DRAW_GET (
  *  the top left corner of the screen.
  *  @param left X-position of the upper left corner of the capture area.
  *  @param upper Y-position of the upper left corner of the capture area.
- *  @param widht Width of the capture area.
+ *  @param width Width of the capture area.
  *  @param height Height of the capture area.
  *  @return the content of the rectangular screen area as pixmap.
  *  @exception RANGE_ERROR If ''height'' or ''width'' are negative.

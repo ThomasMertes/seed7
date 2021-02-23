@@ -820,12 +820,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2021-01-30 the number of lines is:
+than 300000 lines of Seed7. For version 2021-02-23 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">164047</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12736</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">191759</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">161121</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">164495</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12749</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">192323</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">161881</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1495,7 +1495,7 @@ considerable time to gather this information. E.g.:
 </p><ul>
 <li>In dynamically typed programming languages it is often hard to determine
    the data structures used, since they are not specified. Seed7 variables
-   and types must be declared explicitely. This improves readability.</li>
+   and types must be declared explicitly. This improves readability.</li>
 <li>Compilers that do type inference spend most of their time for type
    checking. This means that a human reader needs also to spend most of the
    time to understand the types in use. That way type inference makes
@@ -1714,7 +1714,7 @@ program. And that is very bad since a program is more often read than written.
   are not defined during the parsing. If the locally defined type is used in
   the same declaration block an error like
 </p><pre class="indent">
-*** tst249.sd7(6):51: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
+*** tst249.sd7(6):51: <span class="link">Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed</span>
     var intArrayType: arr is [](1, 2);
 </pre><p>
   will be triggered. This errors are avoided, if all <tt><span class="type">type</span></tt> declarations are
@@ -1869,12 +1869,12 @@ also gone.
 Support for shorter integers is only needed, when reading or writing files
 that contain binary integers of smaller sizes. In C it is possible to write
 or read data structures directly to or from a file. Such C code is unportable,
-as it assumes that the file format uses the same endianess (little- or
+as it assumes that the file format uses the same endianness (little- or
 big-endian) as the processor. Seed7 does not support writing or reading
 structures directly to or from a file. Instead the library <span class="link">bytedata.s7i</span>
 defines several functions to convert integers into and from signed and
 unsigned representations of various sizes. These functions allow also that
-the endianess is specified explicit.
+the endianness is specified explicit.
 </p><p>
 Message digest and compression algorithms do bitwise operations on 32- or
 64-bit data. Bitwise operations are not supported by <span class="type">integer</span>. To do that the
@@ -2857,7 +2857,7 @@ no access to invalid memory. The violations include:
 In Seed7 there is no possibility to access memory outside of the
 defined datatypes. For all accesses to containers like <tt><span class="type">array</span></tt> and
 <tt><span class="type">string</span></tt> the <span class="link">indices are checked</span> to be inside the allowed range.
-In Seed7 there are no pointers that can access arbitary memory
+In Seed7 there are no pointers that can access arbitrary memory
 areas. All computations of memory sizes are protected against
 <a class="link" href="#faq_integer_overflow">integer overflow</a>.
 </p></div>
@@ -2986,7 +2986,7 @@ of a tree. The expressions from the AST are matched with the dictionary. If a
 match fails, because a corresponding declaration is not found, you will get
 an error like:
 </p><pre class="indent">
-*** chkloop.sd7(35):51: Match for {while "X" do {1 + 2 } end while } failed
+*** chkloop.sd7(35):51: <span class="link">Match for {while "X" do {1 + 2 } end while } failed</span>
 </pre><p>
 If all expressions are found in the dictionary the matching process leads to an
 enriched AST, the <a class="link" href="#faq_bytecode">call-code</a>. Call-code can be executed by the <a class="link" href="#faq_interpreter">interpreter</a>.

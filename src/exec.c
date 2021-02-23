@@ -1152,7 +1152,6 @@ objectType exec_expr (const progType currentProg, objectType object,
       backup_interpreter_exception = interpreter_exception;
       interpreter_exception = TRUE;
       result = exec_object(object);
-      interpreter_exception = backup_interpreter_exception;
       if (fail_flag) {
         /*
         printf("\n*** Uncaught EXCEPTION ");
@@ -1162,10 +1161,14 @@ objectType exec_expr (const progType currentProg, objectType object,
         printf("\n");
         */
         *err_info = getErrInfoFromFailValue(fail_value);
-        set_fail_flag(FALSE);
-        fail_value = NULL;
-        fail_expression = NULL;
+        leaveExceptionHandling();
+      } else {
+        if (TEMP_OBJECT(result)) {
+          CLEAR_TEMP_FLAG(result);
+          incl_list(&currentProg->exec_expr_temp_results, result, err_info);
+	} /* if */
       } /* if */
+      interpreter_exception = backup_interpreter_exception;
       prog = progBackup;
     } else {
       result = NULL;

@@ -126,6 +126,10 @@ typedef const x11_winRecord *const_x11_winType;
 
 static Visual *default_visual;
 
+#ifdef rgbToPixel
+static int useRgbToPixel = 0;
+#endif
+
 static int lshift_red;
 static int rshift_red;
 static int lshift_green;
@@ -402,6 +406,9 @@ static void drawInit (void)
       printf("highest red bit:   %d\n", get_highest_bit(default_visual->red_mask));
       printf("highest green bit: %d\n", get_highest_bit(default_visual->green_mask));
       printf("highest blue bit:  %d\n", get_highest_bit(default_visual->blue_mask));
+#endif
+#ifdef rgbToPixel
+      useRgbToPixel = default_visual->c_class == TrueColor;
 #endif
       lshift_red   = get_highest_bit(default_visual->red_mask) - 16;
       rshift_red   = -lshift_red;
@@ -1162,7 +1169,7 @@ winType drwGet (const_winType source_window, intType left, intType upper,
  *  the top left corner of the screen.
  *  @param left X-position of the upper left corner of the capture area.
  *  @param upper Y-position of the upper left corner of the capture area.
- *  @param widht Width of the capture area.
+ *  @param width Width of the capture area.
  *  @param height Height of the capture area.
  *  @return the content of the rectangular screen area as pixmap.
  *  @exception RANGE_ERROR If 'height' or 'width' are negative.
@@ -2033,6 +2040,11 @@ intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
 
   /* drwRgbColor */
     logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ")\n", redLight, greenLight, blueLight););
+#ifdef rgbToPixel
+    if (useRgbToPixel) {
+      return (intType) rgbToPixel(redLight, greenLight, blueLight);
+    } else
+#endif
     if (default_visual->c_class == TrueColor) {
       col.pixel =
           ((((unsigned long) redLight)   << lshift_red   >> rshift_red)   & default_visual->red_mask)   |

@@ -208,69 +208,69 @@ const proc: process_const_chr_iconv (in integer: number, inout expr_type: c_expr
   end func;
 
 
-const proc: process (CHR_ICONV1, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_chr_iconv (in reference: number, inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
+    var intRange: number_range is intRange.value;
     var string: number_name is "";
   begin
-    if getConstant(params[1], INTOBJECT, evaluatedParam) then
+    if getConstant(number, INTOBJECT, evaluatedParam) then
       process_const_chr_iconv(getValue(evaluatedParam, integer), c_expr);
     elsif conversion_range_check and ccConf.INTTYPE_SIZE > 32 then
-      incr(countRangeChecks);
-      c_expr.expr &:= "(";
-      number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
-      c_expr.expr &:= "rngChk(";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= "<INT32TYPE_MIN||";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= ">INT32TYPE_MAX)?";
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-      c_expr.expr &:= ":(charType)";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= ")";
+      number_range := getIntRange(number);
+      if number_range.minValue >= -2147483648 and
+          number_range.maxValue <= 2147483647 then
+        # This conversion cannot overflow
+        c_expr.expr &:= "/*no_range_check_conversion*/(charType)(";
+        process_expr(number, c_expr);
+        c_expr.expr &:= ")";
+      else
+        incr(countRangeChecks);
+        c_expr.expr &:= "(";
+        number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
+        c_expr.expr &:= "rngChk(";
+        if number_range.minValue < -2147483648 then
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= "<INT32TYPE_MIN";
+          if number_range.maxValue > 2147483647 then
+            c_expr.expr &:= "||";
+          end if;
+        end if;
+        if number_range.maxValue > 2147483647 then
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= ">INT32TYPE_MAX";
+        end if;
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+        c_expr.expr &:= ":(charType)";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= ")";
+      end if;
     else
       if ccConf.INTTYPE_SIZE > 32 then
         incr(countNoRangeChecks);
       end if;
       c_expr.expr &:= "(charType)(";
-      process_expr(params[1], c_expr);
+      process_expr(number, c_expr);
       c_expr.expr &:= ")";
     end if;
+  end func;
+
+
+const proc: process (CHR_ICONV1, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_chr_iconv(params[1], c_expr);
   end func;
 
 
 const proc: process (CHR_ICONV3, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
-  local
-    var reference: evaluatedParam is NIL;
-    var string: number_name is "";
   begin
-    if getConstant(params[3], INTOBJECT, evaluatedParam) then
-      process_const_chr_iconv(getValue(evaluatedParam, integer), c_expr);
-    elsif conversion_range_check and ccConf.INTTYPE_SIZE > 32 then
-      incr(countRangeChecks);
-      c_expr.expr &:= "(";
-      number_name := getParameterAsVariable("intType", "tmp_", params[3], c_expr);
-      c_expr.expr &:= "rngChk(";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= "<INT32TYPE_MIN||";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= ">INT32TYPE_MAX)?";
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-      c_expr.expr &:= ":(charType)";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= ")";
-    else
-      if ccConf.INTTYPE_SIZE > 32 then
-        incr(countNoRangeChecks);
-      end if;
-      c_expr.expr &:= "(charType)(";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ")";
-    end if;
+    process_chr_iconv(params[3], c_expr);
   end func;
 
 

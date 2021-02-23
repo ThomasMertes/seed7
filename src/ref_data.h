@@ -42,6 +42,7 @@ striType refFile (const const_objectType aReference1);
 listType refHshDataToList (const const_objectType aReference);
 listType refHshKeysToList (const const_objectType aReference);
 intType refHshLength (const const_objectType aReference);
+boolType refIsTemp (const const_objectType aReference);
 boolType refIsVar (const const_objectType aReference);
 objectType refItfToSct (const const_objectType aReference);
 intType refLine (const const_objectType aReference);

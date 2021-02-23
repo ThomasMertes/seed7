@@ -509,7 +509,7 @@ const proc: moveAllSharks is func
                 killFish(field[line][column], field[down_line][column]);
             end case;
           elsif field[line][column].starve < slife then
-            (* If no meals in vicinity, look for an empty sqare to move to *)
+            (* If no meals in vicinity, look for an empty square to move to *)
             nmoves := 0;
             if field[line][left_column].content = EMPTY then
               incr(nmoves);
@@ -536,7 +536,7 @@ const proc: moveAllSharks is func
               end if;
               incr(field[line][column].starve);
             else
-              (* If there is a move to make pick one from the available sqares *)
+              (* If there is a move to make pick one from the available squares *)
               case moveopts[rand(1, nmoves)] of
                 when {1}:
                   moveShark(field[line][column], field[line][left_column])

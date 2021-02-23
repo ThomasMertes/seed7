@@ -154,35 +154,52 @@ const proc: process (SET_CARD, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: argument is NIL;
+    var intRange: argumentRange is intRange.value;
     var string: argumentName is "";
   begin
     if evaluate_const_expr >= 1 and
         (isActionExpression(params[1], "SET_ICONV1") or
          isActionExpression(params[1], "SET_ICONV3")) then
       incr(countOptimizations);
-      c_expr.expr &:= "(";
       if isActionExpression(params[1], "SET_ICONV1") then
-        argumentName := getTempVariable("intType", "tmp_",
-            getActionParameter(params[1], 1), c_expr);
+        argument := getActionParameter(params[1], 1);
       else
-        argumentName := getTempVariable("intType", "tmp_",
-            getActionParameter(params[1], 3), c_expr);
+        argument := getActionParameter(params[1], 3);
       end if;
-      if function_range_check then
-        incr(countRangeChecks);
-        c_expr.expr &:= "rngChk(";
-        c_expr.expr &:= argumentName;
-        c_expr.expr &:= " < ";
-        c_expr.expr &:= integerLiteral(0);
-        c_expr.expr &:= ") ? ";
+      argumentRange := getIntRange(argument);
+      if argumentRange.maxValue < 0 then
+        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
-        c_expr.expr &:= " : ";
+      elsif argumentRange.minValue = argumentRange.maxValue then
+        c_expr.expr &:= integerLiteral(card(bitset(argumentRange.minValue)));
+      elsif function_range_check then
+        if argumentRange.minValue >= 0 then
+          # This computation cannot overflow
+          c_expr.expr &:= "/*no_range_check_cardinality*/uintCard((uintType) (";
+          process_expr(argument, c_expr);
+          c_expr.expr &:= "))";
+        else
+          incr(countRangeChecks);
+          c_expr.expr &:= "(";
+          argumentName := getTempVariable("intType", "tmp_", argument, c_expr);
+          c_expr.expr &:= "rngChk(";
+          c_expr.expr &:= argumentName;
+          c_expr.expr &:= " < ";
+          c_expr.expr &:= integerLiteral(0);
+          c_expr.expr &:= ") ? ";
+          c_expr.expr &:= intRaiseError("RANGE_ERROR");
+          c_expr.expr &:= " : ";
+          c_expr.expr &:= "uintCard((uintType) (";
+          c_expr.expr &:= argumentName;
+          c_expr.expr &:= ")))";
+        end if;
       else
         incr(countNoRangeChecks);
+        c_expr.expr &:= "uintCard((uintType) (";
+        process_expr(argument, c_expr);
+        c_expr.expr &:= "))";
       end if;
-      c_expr.expr &:= "uintCard((uintType) (";
-      c_expr.expr &:= argumentName;
-      c_expr.expr &:= ")))";
     else
       c_expr.expr &:= "setCard(";
       getAnyParamToExpr(params[1], c_expr);

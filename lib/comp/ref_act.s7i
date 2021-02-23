@@ -46,6 +46,7 @@ const ACTION: REF_HASHCODE       is action "REF_HASHCODE";
 const ACTION: REF_HSHDATATOLIST  is action "REF_HSHDATATOLIST";
 const ACTION: REF_HSHKEYSTOLIST  is action "REF_HSHKEYSTOLIST";
 const ACTION: REF_HSHLENGTH      is action "REF_HSHLENGTH";
+const ACTION: REF_ISTEMP         is action "REF_ISTEMP";
 const ACTION: REF_ISVAR          is action "REF_ISVAR";
 const ACTION: REF_ITFTOSCT       is action "REF_ITFTOSCT";
 const ACTION: REF_LINE           is action "REF_LINE";
@@ -86,6 +87,7 @@ const proc: ref_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "listType    refHshDataToList (const const_objRefType);");
     declareExtern(c_prog, "listType    refHshKeysToList (const const_objRefType);");
     declareExtern(c_prog, "intType     refHshLength (const const_objRefType);");
+    declareExtern(c_prog, "boolType    refIsTemp (const const_objRefType);");
     declareExtern(c_prog, "boolType    refIsVar (const const_objRefType);");
     declareExtern(c_prog, "objRefType  refItfToSct (const const_objRefType);");
     declareExtern(c_prog, "intType     refLine (const const_objRefType);");
@@ -360,6 +362,17 @@ const proc: process (REF_HSHLENGTH, in reference: function,
   begin
     compDataLibraryUsed := TRUE;
     c_expr.expr &:= "refHshLength(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (REF_ISTEMP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refIsTemp(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;

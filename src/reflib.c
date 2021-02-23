@@ -538,6 +538,24 @@ objectType ref_issymb (listType arguments)
 
 
 /**
+ *  Determine if the referenced object is temporary.
+ *  @return TRUE if aReference/arg_1 is temporary, FALSE otherwise.
+ *  @exception RANGE_ERROR If aReference/arg_1 is NIL.
+ */
+objectType ref_istemp (listType arguments)
+
+  { /* ref_istemp */
+    isit_reference(arg_1(arguments));
+    if (refIsTemp(take_reference(arg_1(arguments)))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* ref_istemp */
+
+
+
+/**
  *  Determine if the referenced object is variable.
  *  @return TRUE if aReference/arg_1 is a variable, FALSE otherwise.
  *  @exception RANGE_ERROR If aReference/arg_1 is NIL.

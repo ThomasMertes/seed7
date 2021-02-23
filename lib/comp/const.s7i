@@ -414,7 +414,7 @@ const func boolean: canEvaluateSpecialAction (in reference: current_expression,
         end if;
       end if;
     end if;
-    # writeln("isExprCallingSpecialAction --> " <& isConstantExpr);
+    # writeln("canEvaluateSpecialAction --> " <& okay);
   end func;
 
 

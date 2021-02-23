@@ -446,6 +446,27 @@ intType refHshLength (const const_objectType aReference)
 
 
 /**
+ *  Determine if the referenced object is temporary.
+ *  @return TRUE if ''aReference'' is temporary, FALSE otherwise.
+ *  @exception RANGE_ERROR If ''aReference'' is NIL.
+ */
+boolType refIsTemp (const const_objectType aReference)
+
+  { /* refIsTemp */
+    logFunction(printf("refIsTemp(" FMT_U_MEM ")\n",
+                       (memSizeType) aReference););
+    if (unlikely(aReference == NULL)) {
+      logError(printf("refIsTemp(NULL): Object is NULL.\n"););
+      raise_error(RANGE_ERROR);
+      return FALSE;
+    } else {
+      return TEMP_OBJECT(aReference) ? TRUE : FALSE;
+    } /* if */
+  } /* refIsTemp */
+
+
+
+/**
  *  Determine if the referenced object is variable.
  *  @return TRUE if ''aReference'' is a variable, FALSE otherwise.
  *  @exception RANGE_ERROR If ''aReference'' is NIL.

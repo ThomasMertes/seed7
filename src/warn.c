@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  warn.c        Warn if essential header files are missing.       */
-/*  Copyright (C) 2019  Thomas Mertes                               */
+/*  Copyright (C) 2019, 2021  Thomas Mertes                         */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Chkccomp                                                */
 /*  File: seed7/src/warn.c                                          */
-/*  Changes: 2019  Thomas Mertes                                    */
+/*  Changes: 2019, 2021  Thomas Mertes                              */
 /*  Content: Warn if essential header files are missing.            */
 /*                                                                  */
 /********************************************************************/

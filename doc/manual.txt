@@ -130,6 +130,7 @@ CONTENTS
   10.3.3    Float literals
   10.3.4    String literals
   10.3.5    Character literals
+  10.4    Unicode characters
   11.   EXPRESSIONS
   11.1    Parentheses
   11.2    Call expressions
@@ -712,7 +713,7 @@ CONTENTS
   The 'float' variable 'celsius' must be initialized with 0.0
   (instead of 0). The for-loop executes the loop body with
   different values of 'fahr' (0, 20, 40 .. 280, 300). Omitting
-  the 'step' part corrensponds to a step of 1:
+  the 'step' part corresponds to a step of 1:
 
     for fahr range lower to upper do
       celsius := flt(5 * (fahr - 32)) / 9.0;
@@ -758,7 +759,7 @@ CONTENTS
       end func;
 
   In the example above '[] (0, 1, 2, 3, 5, 8, 13, 20, 40, 100)'
-  is an array literal. For-loops can also interate over the elements
+  is an array literal. For-loops can also iterate over the elements
   of a 'set':
 
     $ include "seed7_05.s7i";
@@ -774,7 +775,7 @@ CONTENTS
       end func;
 
   In the example above '{"Mercury", "Venus", "Earth", "Mars"}' is a set
-  literal. For-loops can interate over the characters of a 'string':
+  literal. For-loops can iterate over the characters of a 'string':
 
     $ include "seed7_05.s7i";
 
@@ -1243,16 +1244,16 @@ CONTENTS
   sign ($) followed by the name of the pragma. The following
   pragmas exist:
 
-  +-----------+------------------+----------------------------------------------+
-  | pragma    | parameter        | comment                                      |
-  +-----------+------------------+----------------------------------------------+
-  | $ library | string           | Specify additional direcory for *.s7i files. |
-  | $ message | string           | Writes a message during parsing.             |
-  | $ info    | on or off        | Switch compilation info on or off.           |
-  | $ trace   | string           | Sets compile-time tracing flags.             |
-  | $ decls   | -                | Traces the declarations.                     |
-  | $ names   | unicode or ascii | Allows Unicode (or Ascii) identifiers.       |
-  +-----------+------------------+----------------------------------------------+
+  +-----------+------------------+-----------------------------------------------+
+  | pragma    | parameter        | comment                                       |
+  +-----------+------------------+-----------------------------------------------+
+  | $ library | string           | Specify additional directory for *.s7i files. |
+  | $ message | string           | Writes a message during parsing.              |
+  | $ info    | on or off        | Switch compilation info on or off.            |
+  | $ trace   | string           | Sets compile-time tracing flags.              |
+  | $ decls   | -                | Traces the declarations.                      |
+  | $ names   | unicode or ascii | Allows Unicode (or Ascii) identifiers.        |
+  +-----------+------------------+-----------------------------------------------+
 
   An unknown pragma results in a parsing error:
 
@@ -8449,6 +8450,13 @@ CONTENTS
     token ::=
       identifier | literal .
 
+  Characters that introduce neither white_space nor a token trigger a
+  parsing error:
+
+    *** tst255.sd7(1):5: Illegal character in text "\8;" (U+0008)
+    (* Illegal character *) \b
+    ------------------------^
+
 
 10.1 White space
 
@@ -8680,8 +8688,7 @@ CONTENTS
     extended_digit ::=
       letter | digit .
 
-  If an integer literal cannot be read a parsing error
-  is triggered:
+  If an integer literal cannot be read a parsing error is triggered:
 
     *** tst256.sd7(2):10: Integer "12345678901234567890" too big
     const integer: tooBig is 12345678901234567890;
@@ -8812,8 +8819,7 @@ CONTENTS
     apostrophe ::=
       ''' .
 
-  If an string literal cannot be read a parsing error
-  is triggered:
+  If a string literal cannot be read a parsing error is triggered:
 
     *** tst256.sd7(2):20: Use \" instead of "" to represent " in a string
     const string: wrongQuotationRepresentation is "double "" quotations";
@@ -8857,8 +8863,7 @@ CONTENTS
     char_literal_element ::=
       simple_literal_character | escape_sequence | apostrophe | '"' .
 
-  If an char literal cannot be read a parsing error
-  is triggered:
+  If a char literal cannot be read a parsing error is triggered:
 
     *** tst256.sd7(2):18: "'" expected found ";"
     const char: apostropheExpected is 'x;
@@ -8866,6 +8871,42 @@ CONTENTS
     *** tst256.sd7(3):19: Character literal exceeds source line
     const char: charExceeds is '
     ----------------------------^
+
+
+10.4 Unicode characters
+
+    Seed7 source code may containg UTF-8 encoded Unicode characters.
+  Unicode is allowed in string and char literals. The pragma 'names'
+  can be used to allow Unicode in name identifiers:
+
+    $ names unicode;
+
+  Comments and line comments may also contain Unicode, but they are
+  not checked for valid UTF-8. This way code parts with illegal
+  UTF-8 can be commented out. Illegal UTF-8 encodings in identifiers
+  and literals trigger a parsing error:
+
+    *** err.sd7(90):58: Overlong UTF-8 encoding used for character "\0;" (U+0000)
+    ignore("\0;");
+    -----------^
+    *** err.sd7(91):59: UTF-16 surrogate character found in UTF-8 encoding "\55296;" (U+d800)
+    ignore("\55296;");
+    ---------------^
+    *** err.sd7(92):60: Non Unicode character found "\1114112;" (U+110000)
+    "\1114112;");
+    ----------^
+    *** err.sd7(93):61: UTF-8 continuation byte expected found "A"
+    ignore("í\128;A");
+    --------------^
+    *** err.sd7(94):62: Unexpected UTF-8 continuation byte found "\128;" (U+0080)
+    ignore("\128;");
+    --------^
+    *** err.sd7(95):63: Solitary UTF-8 start byte found "\237;" (U+00ed)
+    ignore("íA");
+    ---------^
+    *** bom16(1):64: UTF-16 byte order mark found "\65279;" (U+feff)
+    þÿ
+    -^
 
 
 
@@ -12834,7 +12875,7 @@ CONTENTS
 
   C code can check the value of the 'err_info' variable, or check if a
   function returns NULL. In case of error it is possible to do some
-  cleaning up. An error situation can be propergated this way over
+  cleaning up. An error situation can be propagated this way over
   several function levels. It is important to assure that an existing
   error situation ('err_info' has a value not equal to 'OKAY_NO_ERROR')
   is not reset to a situation that no error occurred.
@@ -13389,6 +13430,7 @@ CONTENTS
   --------+----------------------+------------------------+-----------------------
   SIGABRT | raise OVERFLOW_ERROR | Raises exception       | Dialog to decide
   SIGILL  | raise OVERFLOW_ERROR | Raises exception       | Dialog to decide
+  SIGTRAP | raise OVERFLOW_ERROR | Raises exception       | Dialog to decide
   SIGINT  | -                    | Terminate with message | Dialog to decide
   SIGFPE  | raise NUMERIC_ERROR  | Raises exception       | Dialog to decide
   SIGTERM | -                    | Terminate with message | Terminate with message
@@ -13398,8 +13440,9 @@ CONTENTS
   SIGALRM | Wait for some time   | -                      | -
 
   Depending on the actual C compiler and operating system the
-  signals SIGABRT or SIGILL might be used to raise OVERFLOW_ERROR
-  and the signal SIGFPE might be used to raise NUMERIC_ERROR.
+  signals SIGABRT, SIGILL or SIGTRAP might be used to raise
+  OVERFLOW_ERROR and the signal SIGFPE might be used to raise
+  NUMERIC_ERROR.
 
   If the interpreter respectively compiler option -ts has been
   used some signals (see table above) trigger a dialog at the
@@ -13429,7 +13472,7 @@ CONTENTS
 16.8 Other errors and warnings
 
   No more memory. Parsing terminated.
-    This error message is displayed after the compile time error 1
+    This error message is displayed after the parsing error 1
     (Out of heap space). The file name and line number of the
     analyzer source code where this happens is displayed together
     with internal heap information.

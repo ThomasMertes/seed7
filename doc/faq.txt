@@ -334,12 +334,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2021-01-30 the number of lines is:
+than 300000 lines of Seed7. For version 2021-02-23 the number of lines is:
 
-  164047  C source files (*.c)
-   12736  C header files (*.h)
-  191759  Seed7 source files (*.sd7)
-  161121  Seed7 library/include files (*.s7i)
+  164495  C source files (*.c)
+   12749  C header files (*.h)
+  192323  Seed7 source files (*.sd7)
+  161881  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1009,7 +1009,7 @@ considerable time to gather this information. E.g.:
 
  - In dynamically typed programming languages it is often hard to determine
    the data structures used, since they are not specified. Seed7 variables
-   and types must be declared explicitely. This improves readability.
+   and types must be declared explicitly. This improves readability.
  - Compilers that do type inference spend most of their time for type
    checking. This means that a human reader needs also to spend most of the
    time to understand the types in use. That way type inference makes
@@ -1383,12 +1383,12 @@ also gone.
 Support for shorter integers is only needed, when reading or writing files
 that contain binary integers of smaller sizes. In C it is possible to write
 or read data structures directly to or from a file. Such C code is unportable,
-as it assumes that the file format uses the same endianess (little- or
+as it assumes that the file format uses the same endianness (little- or
 big-endian) as the processor. Seed7 does not support writing or reading
 structures directly to or from a file. Instead the library bytedata.s7i
 defines several functions to convert integers into and from signed and
 unsigned representations of various sizes. These functions allow also that
-the endianess is specified explicit.
+the endianness is specified explicit.
 
 Message digest and compression algorithms do bitwise operations on 32- or
 64-bit data. Bitwise operations are not supported by integer. To do that the
@@ -2371,7 +2371,7 @@ no access to invalid memory. The violations include:
 In Seed7 there is no possibility to access memory outside of the
 defined datatypes. For all accesses to containers like 'array' and
 'string' the indices are checked to be inside the allowed range.
-In Seed7 there are no pointers that can access arbitary memory
+In Seed7 there are no pointers that can access arbitrary memory
 areas. All computations of memory sizes are protected against
 integer overflow.
 

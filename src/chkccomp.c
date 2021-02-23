@@ -5755,6 +5755,84 @@ static void defineLibraryMacro (char *scopeName, int dbHomeExists,
 
 
 
+static void defineX11rgbToPixelMacro (FILE *versionFile, const char *x11IncludeCommand,
+    const char *includeOption, const char *systemDrawLibs)
+
+  {
+    const char *colorNames[] = {"red", "green", "blue"};
+    char testProgram[BUFFER_SIZE];
+    char macroPart[BUFFER_SIZE];
+    char macroBody[BUFFER_SIZE];
+    int colorIndex;
+    int testResult;
+    int highestMaskBit;
+    int lowZeroBitsInMask;
+    unsigned long colorMask;
+    int okay = 1;
+
+  /* defineX11rgbToPixelMacro */
+    macroBody[0] = '\0';
+    for (colorIndex = 0; colorIndex < 3; colorIndex++) {
+      sprintf(testProgram, "#include<stdio.h>\n%s"
+                           "int getHighestSetBit(unsigned long number)\n"
+                           "{ int result = 0;\n"
+                           "while (number != 0) {\n"
+                           "  number >>= 1;\n"
+                           "  result++;\n"
+                           "} return result; }\n"
+                           "int countLowestZeroBits(unsigned long number)\n"
+                           "{ int result = 0;\n"
+                           "while (number != 0 && (number & 1) == 0) {\n"
+                           "  number >>= 1;\n"
+                           "  result++;\n"
+                           "} return result; }\n"
+                           "int main(int argc,char *argv[]){\n"
+                           "Display *display;\n"
+                           "int screen;\n"
+                           "Visual *defaultVisual;\n"
+                           "display = XOpenDisplay(\"\");\n"
+                           "if (display != NULL) {\n"
+                           "  screen = DefaultScreen(display);\n"
+                           "  defaultVisual = XDefaultVisual(display, screen);\n"
+                           "  printf(\"%%d\\n\", getHighestSetBit(defaultVisual->%s_mask) << 8 |\n"
+                           "          countLowestZeroBits(defaultVisual->%s_mask));\n"
+                           "} else { printf(\"0\\n\"); }\n"
+                           "return 0;}\n",
+              x11IncludeCommand, colorNames[colorIndex], colorNames[colorIndex]);
+      if (compileAndLinkWithOptionsOk(testProgram, includeOption, systemDrawLibs)) {
+        testResult = doTest();
+        if (testResult > 0) {
+          highestMaskBit = testResult >> 8;
+          lowZeroBitsInMask = testResult & 0xff;
+          colorMask = ~((~(unsigned int) 0) << (highestMaskBit - lowZeroBitsInMask)) << lowZeroBitsInMask;
+          if (highestMaskBit > 16) {
+            sprintf(macroPart, "((((unsigned long) (%s)) << %d) & 0x%lx)",
+                    colorNames[colorIndex], highestMaskBit - 16, colorMask);
+          } else if (highestMaskBit < 16) {
+            sprintf(macroPart, "((((unsigned long) (%s)) >> %d) & 0x%lx)",
+                    colorNames[colorIndex], 16 - highestMaskBit, colorMask);
+          } else {
+            sprintf(macroPart, "(((unsigned long) (%s)) & 0x%lx)",
+                    colorNames[colorIndex], colorMask);
+          } /* if */
+          if (macroBody[0] != '\0') {
+            strcat(macroBody, " | ");
+          } /* if */
+          strcat(macroBody, macroPart);
+        } else {
+          okay = 0;
+        } /* if */
+      } else {
+        okay = 0;
+      } /* if */
+    } /* for */
+    if (okay) {
+      fprintf(versionFile, "#define rgbToPixel(red, green, blue) (%s)\n", macroBody);
+    } /* if */
+  } /* defineX11rgbToPixelMacro */
+
+
+
 static void determineX11Defines (FILE *versionFile, char *include_options)
 
   {
@@ -5886,6 +5964,9 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
         } /* if */
       } /* if */
 #endif
+      if (!searchForLib) {
+        defineX11rgbToPixelMacro(versionFile, x11IncludeCommand, includeOption, system_draw_libs);
+      } /* if */
       fprintf(versionFile, "#define FORWARD_X11_CALLS %d\n", searchForLib);
       if (searchForLib) {
         fprintf(versionFile, "#define SYSTEM_DRAW_LIBS \"\"\n");

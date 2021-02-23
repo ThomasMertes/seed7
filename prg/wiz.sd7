@@ -2937,7 +2937,7 @@ const proc: execute (OPEN) is func
   begin (* execute (OPEN) *)
     writeln;
     if currentRoom->contents <> CLOSEDCHEST then
-      writeln("** The only thing opend, was your big mouth!");
+      writeln("** The only thing opened, was your big mouth!");
     else
       openChest();
     end if;

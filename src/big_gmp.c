@@ -1219,7 +1219,7 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
 
 /**
  * Shift one left by 'lshift' bits.
- * If 'lshift' is positive or zero this corresponts to
+ * If 'lshift' is positive or zero this corresponds to
  * the computation of a power of two:
  *  bigLShiftOne(lshift)  corresponds to  2_ ** lshift
  * If 'lshift' is negative the result is zero.

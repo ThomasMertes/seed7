@@ -65,10 +65,14 @@
 #if !ACLAPI_H_PRESENT
 #define SE_FILE_OBJECT 1
 DWORD GetNamedSecurityInfoW (LPCWSTR pObjectName,
-    int ObjectType, SECURITY_INFORMATION SecurityInfo,
+    int objectType, SECURITY_INFORMATION securityInfo,
     PSID *ppsidOwner, PSID *ppsidGroup,
     PACL *ppDacl, PACL *ppSacl,
     PSECURITY_DESCRIPTOR *ppSecurityDescriptor);
+DWORD SetNamedSecurityInfoW (LPWSTR pObjectName,
+    int objectType, SECURITY_INFORMATION securityInfo,
+    PSID psidOwner, PSID psidGroup,
+    PACL pDacl, PACL pSacl);
 #endif
 
 
