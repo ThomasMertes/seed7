@@ -341,7 +341,8 @@ static void write_curr_position (listType list)
       prot_cstri(" ");
       write_position_info(curr_exec_object, FALSE);
       prot_nl();
-      if (curr_action_object->value.actValue != NULL) {
+      if (curr_action_object != NULL &&
+          curr_action_object->value.actValue != NULL) {
         prot_cstri("*** Action \"");
         prot_cstri(getActEntry(curr_action_object->value.actValue)->name);
         prot_cstri("\"");
