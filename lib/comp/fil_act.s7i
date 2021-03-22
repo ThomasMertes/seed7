@@ -51,6 +51,7 @@ const ACTION: FIL_PIPE             is action "FIL_PIPE";
 const ACTION: FIL_POPEN            is action "FIL_POPEN";
 const ACTION: FIL_PRINT            is action "FIL_PRINT";
 const ACTION: FIL_SEEK             is action "FIL_SEEK";
+const ACTION: FIL_SEEKABLE         is action "FIL_SEEKABLE";
 const ACTION: FIL_SETBUF           is action "FIL_SETBUF";
 const ACTION: FIL_TELL             is action "FIL_TELL";
 const ACTION: FIL_VALUE            is action "FIL_VALUE";
@@ -82,6 +83,7 @@ const proc: fil_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "fileType    filPopen (const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "void        filPrint (const const_striType);");
     declareExtern(c_prog, "void        filSeek (fileType, intType);");
+    declareExtern(c_prog, "boolType    filSeekable (fileType);");
     declareExtern(c_prog, "void        filSetbuf (fileType, intType, intType);");
     declareExtern(c_prog, "intType     filTell (fileType);");
     declareExtern(c_prog, "void        filTruncate (fileType, intType);");
@@ -385,6 +387,16 @@ const proc: process (FIL_SEEK, in reference: function,
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (FIL_SEEKABLE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "filSeekable(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 

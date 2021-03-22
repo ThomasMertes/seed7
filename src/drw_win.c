@@ -1040,10 +1040,10 @@ intType drwHeight (const_winType actual_window)
 winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
 
   {
-    intType xPos;
-    intType yPos;
-    intType yStart;
-    winType pixmap;
+    memSizeType pos;
+    int32Type color;
+    HDC screenDC;
+    win_winType pixmap;
 
   /* drwImage */
     logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height););
@@ -1055,20 +1055,33 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
       if (init_called == 0) {
         dra_init();
       } /* if */
-      pixmap = drwNewPixmap((intType) width, (intType) height);
-      if (pixmap != NULL) {
-        for (yPos = 0, yStart = 0; yPos < (intType) height;
-             yPos++, yStart += (intType) width) {
-          for (xPos = 0; xPos < (intType) width; xPos++) {
-            SetPixel(to_hdc(pixmap), xPos, yPos, (COLORREF) image_data[yStart + xPos]);
-          } /* for */
-        } /* for */
+      if (unlikely(!ALLOC_RECORD2(pixmap, win_winRecord, count.win, count.win_bytes))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        memset(pixmap, 0, sizeof(win_winRecord));
+        pixmap->usage_count = 1;
+        pos = height * width;
+        do {
+          pos--;
+          color = image_data[pos];
+          image_data[pos] = (GetRValue(color) << 16) | (GetGValue(color) << 8) | GetBValue(color);
+        } while (pos != 0);
+        screenDC = GetDC(NULL);
+        pixmap->hdc = CreateCompatibleDC(screenDC);
+        pixmap->hBitmap = CreateBitmap((int) width, (int) height, 1, 32, image_data);
+        ReleaseDC(NULL, screenDC);
+        pixmap->oldBitmap = (HBITMAP) SelectObject(pixmap->hdc, pixmap->hBitmap);
+        pixmap->hasTransparentPixel = FALSE;
+        pixmap->transparentPixel = 0;
+        pixmap->is_pixmap = TRUE;
+        pixmap->width = (unsigned int) width;
+        pixmap->height = (unsigned int) height;
       } /* if */
     } /* if */
     logFunction(printf("drwImage --> " FMT_U_MEM " (usage=" FMT_U ")\n",
                        (memSizeType) pixmap,
                        pixmap != NULL ? pixmap->usage_count : (uintType) 0););
-    return pixmap;
+    return (winType) pixmap;
   } /* drwImage */
 
 

@@ -1894,6 +1894,99 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
 
 
 /**
+ *  Concatenate a character to a string.
+ *  @return the result of the concatenation.
+ */
+striType strConcatChar (const const_striType stri1, const charType aChar)
+
+  {
+    memSizeType result_size;
+    striType result;
+
+  /* strConcatChar */
+    logFunction(printf("strConcatChar(\"%s\", '\\" FMT_U32 ";')",
+                       striAsUnquotedCStri(stri1), aChar);
+                fflush(stdout););
+    if (unlikely(stri1->size > MAX_STRI_LEN - 1)) {
+      /* number of bytes does not fit into memSizeType */
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      result_size = stri1->size + 1;
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = result_size;
+        memcpy(result->mem, stri1->mem,
+               stri1->size * sizeof(strElemType));
+        result->mem[stri1->size] = aChar;
+      } /* if */
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    return result;
+  } /* strConcatChar */
+
+
+
+/**
+ *  Concatenate a character to a string.
+ *  The parameter 'stri1' is resized and aChar is copied to the
+ *  enlarged area of 'stri1'. StrConcatCharTemp is used by the compiler
+ *  if 'stri1' is temporary value that can be reused.
+ *  @return the resized parameter 'stri1.
+ */
+striType strConcatCharTemp (striType stri1, const charType aChar)
+
+  {
+    memSizeType result_size;
+    striType resized_stri1;
+
+  /* strConcatCharTemp */
+    logFunction(printf("strConcatCharTemp(\"%s\", '\\" FMT_U32 ";')",
+                       striAsUnquotedCStri(stri1), aChar);
+                fflush(stdout););
+    if (unlikely(stri1->size > MAX_STRI_LEN - 1)) {
+      /* number of bytes does not fit into memSizeType */
+      FREE_STRI(stri1, stri1->size);
+      raise_error(MEMORY_ERROR);
+      stri1 = NULL;
+    } else {
+      result_size = stri1->size + 1;
+#if WITH_STRI_CAPACITY
+      if (result_size > stri1->capacity) {
+        resized_stri1 = growStri(stri1, result_size);
+        if (unlikely(resized_stri1 == NULL)) {
+          FREE_STRI(stri1, stri1->size);
+          raise_error(MEMORY_ERROR);
+          return NULL;
+        } else {
+          stri1 = resized_stri1;
+        } /* if */
+      } /* if */
+      COUNT_GROW_STRI(stri1->size, result_size);
+      stri1->mem[stri1->size] = aChar;
+      stri1->size = result_size;
+#else
+      GROW_STRI(resized_stri1, stri1, stri1->size, result_size);
+      if (unlikely(resized_stri1 == NULL)) {
+        FREE_STRI(stri1, stri1->size);
+        raise_error(MEMORY_ERROR);
+        stri1 = NULL;
+      } else {
+        stri1 = resized_stri1;
+        COUNT_GROW_STRI(stri1->size, result_size);
+        stri1->mem[stri1->size] = aChar;
+        stri1->size = result_size;
+      } /* if */
+#endif
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(stri1)););
+    return stri1;
+  } /* strConcatCharTemp */
+
+
+
+/**
  *  Concatenate an arbitrary number of strings.
  *  StrConcatN is used by the compiler to optimize the concatenation of
  *  three or more strings.

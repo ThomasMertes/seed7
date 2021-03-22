@@ -64,6 +64,8 @@ striType strChRepl (const const_striType mainStri,
 striType strCLit (const const_striType stri);
 intType strCompare (const const_striType stri1, const const_striType stri2);
 striType strConcat (const const_striType stri1, const const_striType stri2);
+striType strConcatChar (const const_striType stri1, const charType aChar);
+striType strConcatCharTemp (striType stri1, const charType aChar);
 striType strConcatN (const const_striType striArray[], memSizeType arraySize);
 striType strConcatTemp (striType stri1, const const_striType stri2);
 void strCopy (striType *const dest, const const_striType source);

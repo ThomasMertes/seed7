@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  intrange.s7i  Handle ranges of possible values for expressions. *)
-(*  Copyright (C) 2020  Thomas Mertes                               *)
+(*  Copyright (C) 2020, 2021  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -36,6 +36,128 @@ const func boolean: (ref intRange: range1) = (ref intRange: range2) is
 
 const func boolean: (ref intRange: range1) <> (ref intRange: range2) is
   return range1.minValue <> range2.minValue or range1.maxValue <> range2.maxValue;
+
+
+const func intRange: getIntRange (in reference: intExpression) is forward;
+
+
+const func intRange: getIntLshiftRange (in reference: number, in reference: lshift) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var intRange: numberRange is intRange.value;
+    var intRange: lshiftRange is intRange.value;
+  begin
+    numberRange := getIntRange(number);
+    lshiftRange := getIntRange(lshift);
+    if lshiftRange.maxValue < 0 or
+        lshiftRange.minValue > bitLength(integer.last) then
+      valueRange.minValue := 0;
+      valueRange.maxValue := -1;
+    elsif numberRange.minValue < 0 then
+      if lshiftRange.maxValue <= bitLength(integer.last) then
+        if numberRange.minValue >= integer.first >> lshiftRange.maxValue then
+          valueRange.minValue := numberRange.minValue << lshiftRange.maxValue;
+        else
+          valueRange.minValue := integer.first;
+        end if;
+      else
+        valueRange.minValue := integer.first;
+      end if;
+    elsif numberRange.minValue > 0 then
+      if lshiftRange.minValue >= 0 then
+        if numberRange.minValue <= integer.last >> lshiftRange.minValue then
+          valueRange.minValue := numberRange.minValue << lshiftRange.minValue;
+        else
+          valueRange.minValue := integer.last;
+        end if;
+      else
+        valueRange.minValue := numberRange.minValue;
+      end if;
+    else
+      valueRange.minValue := 0;
+    end if;
+    if numberRange.maxValue < 0 then
+      if lshiftRange.minValue >= 0 then
+        if numberRange.maxValue >= integer.first >> lshiftRange.minValue then
+          valueRange.maxValue := numberRange.maxValue << lshiftRange.minValue;
+        else
+          valueRange.maxValue := integer.first;
+        end if;
+      else
+        valueRange.maxValue := numberRange.maxValue;
+      end if;
+    elsif numberRange.maxValue > 0 then
+      if lshiftRange.maxValue <= bitLength(integer.last) then
+        if numberRange.maxValue <= integer.last >> lshiftRange.maxValue then
+          valueRange.maxValue := numberRange.maxValue << lshiftRange.maxValue;
+        else
+          valueRange.maxValue := integer.last;
+        end if;
+      else
+        valueRange.maxValue := integer.last;
+      end if;
+    else
+      valueRange.maxValue := 0;
+    end if;
+    if valueRange.minValue > valueRange.maxValue then
+      valueRange.minValue := 0;
+      valueRange.maxValue := -1;
+    end if;
+  end func;
+
+
+const func intRange: getIntModRange (in reference: dividend, in reference: divisor) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var intRange: divisorRange is intRange.value;
+    var reference: evaluatedParam is NIL;
+    var integer: dividendValue is 0;
+    var intRange: valueRange2 is intRange.value;
+  begin
+    divisorRange := getIntRange(divisor);
+    if divisorRange.minValue > 0 then
+      valueRange.minValue := 0;
+      valueRange.maxValue := pred(divisorRange.maxValue);
+    elsif divisorRange.maxValue < 0 then
+      valueRange.minValue := succ(divisorRange.minValue);
+      valueRange.maxValue := 0;
+    end if;
+    if getConstant(dividend, INTOBJECT, evaluatedParam) then
+      dividendValue := getValue(evaluatedParam, integer);
+      if dividendValue = integer.first then
+        valueRange2.minValue := succ(integer.first) div 2;
+        valueRange2.maxValue := -2 - integer.first;
+      elsif dividendValue = integer.last then
+        valueRange2.minValue := 2 - integer.last;
+        valueRange2.maxValue := pred(integer.last) div 2;
+      elsif dividendValue > 0 then
+        if integer.first + dividendValue <= 2 - dividendValue then
+          valueRange2.minValue := integer.first + dividendValue;
+        else
+          valueRange2.minValue := 2 - dividendValue;
+        end if;
+        valueRange2.maxValue := dividendValue;
+      elsif dividendValue = 0 then
+        valueRange2.minValue := 0;
+        valueRange2.maxValue := 0;
+      else # dividendValue < 0 then
+        valueRange2.minValue := dividendValue;
+        if integer.last + dividendValue >= -(dividendValue + 2) then
+          valueRange2.maxValue := integer.last + dividendValue;
+        else
+          valueRange2.maxValue := -(dividendValue + 2);
+        end if;
+      end if;
+      valueRange.minValue := max(valueRange.minValue, valueRange2.minValue);
+      valueRange.maxValue := min(valueRange.maxValue, valueRange2.maxValue);
+    end if;
+    if valueRange.minValue > valueRange.maxValue then
+      valueRange.minValue := 0;
+      valueRange.maxValue := -1;
+    end if;
+  end func;
 
 
 const func intRange: getIntRange (in reference: intExpression) is func
@@ -189,6 +311,8 @@ const func intRange: getIntRange (in reference: intExpression) is func
             when {"INT_LOWEST_SET_BIT"}:
               valueRange.minValue := -1;
               valueRange.maxValue := pred(ccConf.INTTYPE_SIZE);
+            when {"INT_LSHIFT"}:
+              valueRange := getIntLshiftRange(params[1], params[3]);
             when {"INT_NEGATE"}:
               argument1Range := getIntRange(params[2]);
               if argument1Range <> intRange.value then
@@ -225,42 +349,7 @@ const func intRange: getIntRange (in reference: intExpression) is func
                 end if;
               end if;
             when {"INT_MOD"}:
-              if getConstant(params[3], INTOBJECT, evaluatedParam) then
-                number := getValue(evaluatedParam, integer);
-                if number > 0 then
-                  valueRange.minValue := 0;
-                  valueRange.maxValue := pred(number);
-                elsif number < 0 then
-                  valueRange.minValue := succ(number);
-                  valueRange.maxValue := 0;
-                end if;
-              elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
-                number := getValue(evaluatedParam, integer);
-                if number = integer.first then
-                  valueRange.minValue := succ(integer.first) div 2;
-                  valueRange.maxValue := -2 - integer.first;
-                elsif number = integer.last then
-                  valueRange.minValue := 2 - integer.last;
-                  valueRange.maxValue := pred(integer.last) div 2;
-                elsif number > 0 then
-                  if integer.first + number <= 2 - number then
-                    valueRange.minValue := integer.first + number;
-                  else
-                    valueRange.minValue := 2 - number;
-                  end if;
-                  valueRange.maxValue := number;
-                elsif number = 0 then
-                  valueRange.minValue := 0;
-                  valueRange.maxValue := 0;
-                else # number < 0 then
-                  valueRange.minValue := number;
-                  if integer.last + number >= -(number + 2) then
-                    valueRange.maxValue := integer.last + number;
-                  else
-                    valueRange.maxValue := -(number + 2);
-                  end if;
-                end if;
-              end if;
+              valueRange := getIntModRange(params[1], params[3]);
             when {"INT_RAND"}:
               if getConstant(params[1], INTOBJECT, evaluatedParam) then
                 valueRange.minValue := getValue(evaluatedParam, integer);

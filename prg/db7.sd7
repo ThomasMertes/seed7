@@ -26,6 +26,7 @@ $ include "seed7_05.s7i";
   include "cgidialog.s7i";
   include "browser.s7i";
   include "pic32.s7i";
+  include "bmp.s7i";
   include "sql_base.s7i";
 
 

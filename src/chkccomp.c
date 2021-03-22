@@ -4010,6 +4010,52 @@ static void determineFseekFunctions (FILE *versionFile, const char *fileno)
 
 
 
+static void determineLseekFunction (FILE *versionFile)
+
+  { /* determineLseekFunction */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", lseeki64(0, 0, SEEK_CUR) != -1);\n"
+                         "return 0;}\n")) {
+      fputs("#define LSEEK_INCLUDE_IO_H\n", versionFile);
+      fprintf(versionFile, "#define os_lseek lseeki64\n");
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _lseeki64(0, 0, SEEK_CUR) != -1);\n"
+                         "return 0;}\n")) {
+      fputs("#define LSEEK_INCLUDE_IO_H\n", versionFile);
+      fprintf(versionFile, "#define os_lseek _lseeki64\n");
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", lseek(0, 0, SEEK_CUR) != -1);\n"
+                         "return 0;}\n")) {
+      fputs("#define LSEEK_INCLUDE_IO_H\n", versionFile);
+      fprintf(versionFile, "#define os_lseek lseek\n");
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _lseek(0, 0, SEEK_CUR) != -1);\n"
+                         "return 0;}\n")) {
+      fputs("#define LSEEK_INCLUDE_IO_H\n", versionFile);
+      fprintf(versionFile, "#define os_lseek _lseek\n");
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
+                         "#include <unistd.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", lseek(0, 0, SEEK_CUR) != -1);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define os_lseek lseek\n");
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
+                         "#include <unistd.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _lseek(0, 0, SEEK_CUR) != -1);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define os_lseek _lseek\n");
+    } else {
+      fprintf(logFile, "\n *** Cannot define os_lseek.\n");
+    } /* if */
+  } /* determineLseekFunction */
+
+
+
 static void determineFtruncate (FILE *versionFile, const char *fileno)
 
   {
@@ -5268,6 +5314,7 @@ static void determineOsFunctions (FILE *versionFile)
     determineSocketLib(versionFile);
     determineOsDirAccess(versionFile);
     determineFseekFunctions(versionFile, fileno);
+    determineLseekFunction(versionFile);
     determineFtruncate(versionFile, fileno);
 #if defined OS_STRI_WCHAR
     determineOsWCharFunctions(versionFile);

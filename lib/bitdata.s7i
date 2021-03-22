@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bitdata.s7i   Read and write bits to and from strings           *)
-(*  Copyright (C) 2015, 2017, 2019  Thomas Mertes                   *)
+(*  Copyright (C) 2015, 2017, 2019 - 2021  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -160,36 +160,74 @@ const func integer: getBitLsb (in string: stri, inout integer: bytePos,
  *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
  *)
 const func integer: getBitsLsb (in string: stri, inout integer: bytePos,
-    inout integer: bitPos, in var integer: bitWidth) is func
+    inout integer: bitPos, in integer: bitWidth) is func
   result
     var integer: resultBits is 0;
   local
-    var integer: bitsInByte is 0;
-    var integer: bitsInResult is 0;
+    var integer: lshiftMax is 0;
+    var integer: lshift is 8;
   begin
-    bitsInByte := 8 - bitPos;
-    if bitsInByte > bitWidth then
-      resultBits := (ord(stri[bytePos]) >> bitPos) mod (1 << bitWidth);
-      bitPos +:= bitWidth;
-    else
-      resultBits := ord(stri[bytePos]) mod 256 >> bitPos;
-      bitPos := 0;
+    resultBits := ord(stri[bytePos]);
+    lshiftMax := bitWidth - (8 - bitPos) + 8;
+    while lshift < lshiftMax do
       incr(bytePos);
-      if bitsInByte <> bitWidth then
-        bitWidth -:= bitsInByte;
-        bitsInResult := bitsInByte;
-        while bitWidth >= 8 do
-          resultBits +:= ord(stri[bytePos]) << bitsInResult;
-          incr(bytePos);
-          bitWidth -:= 8;
-          bitsInResult +:= 8;
-        end while;
-        if bitWidth <> 0 then
-          resultBits +:= ord(stri[bytePos]) mod (1 << bitWidth) << bitsInResult;
-          bitPos := bitWidth;
-        end if;
-      end if;
+      resultBits +:= ord(stri[bytePos]) << lshift;
+      lshift +:= 8;
+    end while;
+    resultBits := (resultBits >> bitPos) mod (1 << bitWidth);
+    bitPos := (bitPos + bitWidth) mod 8;
+    if bitPos = 0 then
+      incr(bytePos);
     end if;
+  end func;
+
+
+(**
+ *  Peek ''bitWidth'' bits in LSB-First order from ''stri''.
+ *  The bits are read at the current byte and bit position. Byte
+ *  and bit position remain unchanged. The read direction is from
+ *  LSB (least significant bit) to MSB (most significant bit).
+ *  If bits from the next byte(s) are read a byte order of little-endian
+ *  is used.
+ *   stri := "\2#01101011;\2#1101;";
+ *   #           011          101
+ *   #       lower bits    higher bits
+ *   #        of result     of result
+ *   peekBitsLsb(stri, 1, 5, 6)  returns  2#101011
+ *  @param stri String of bytes from which the bits are read.
+ *  @param bytePos Current byte position in ''stri''.
+ *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
+ *  @param bitWidth Number of bits requested.
+ *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
+ *)
+const func integer: peekBitsLsb (in string: stri, in var integer: bytePos,
+    in integer: bitPos, in integer: bitWidth) is func
+  result
+    var integer: resultBits is 0;
+  local
+    var integer: lshiftMax is 0;
+    var integer: lshift is 8;
+  begin
+    resultBits := ord(stri[bytePos]);
+    lshiftMax := bitWidth - (8 - bitPos) + 8;
+    while lshift < lshiftMax do
+      incr(bytePos);
+      resultBits +:= ord(stri[bytePos]) << lshift;
+      lshift +:= 8;
+    end while;
+    resultBits := (resultBits >> bitPos) mod (1 << bitWidth);
+  end func;
+
+
+(**
+ *  Advance byte and bit position by ''bitWidth'' bits.
+ *)
+const proc: skipBitsLsb (inout integer: bytePos, inout integer: bitPos,
+    in integer: bitWidth) is func
+  begin
+    bitPos +:= bitWidth;
+    bytePos +:= bitPos mdiv 8;
+    bitPos := bitPos mod 8;
   end func;
 
 
@@ -315,33 +353,71 @@ const func integer: getBitMsb (in string: stri, inout integer: bytePos,
  *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
  *)
 const func integer: getBitsMsb (in string: stri, inout integer: bytePos,
-    inout integer: bitPos, in var integer: bitWidth) is func
+    inout integer: bitPos, in integer: bitWidth) is func
   result
     var integer: resultBits is 0;
   local
-    var integer: bitsInByte is 0;
+    var integer: numBits is 0;
   begin
-    repeat
-      bitsInByte := 8 - bitPos;
-      if bitWidth < bitsInByte then
-        # |---------8 bits---------|
-        # |-bitPos-|--bitWidth--|  |
-        # |        |--bitsInByte---|
-        resultBits <<:= bitWidth;
-        resultBits +:= (ord(stri[bytePos]) >> (bitsInByte - bitWidth)) mod (1 << bitWidth);
-        bitPos +:= bitWidth;
-        bitWidth := 0;
-      else
-        # |---------8 bits---------|
-        # |-bitPos-|----bitWidth-----
-        # |        |--bitsInByte---|
-        resultBits <<:= bitsInByte;
-        resultBits +:= ord(stri[bytePos]) mod (1 << bitsInByte);
-        bitWidth -:= bitsInByte;
-        incr(bytePos);
-        bitPos := 0;
-      end if;
-    until bitWidth = 0;
+    resultBits := ord(stri[bytePos]);
+    numBits := bitWidth - (8 - bitPos);
+    while numBits > 0 do
+      incr(bytePos);
+      resultBits := (resultBits << 8) + ord(stri[bytePos]);
+      numBits -:= 8;
+    end while;
+    resultBits := (resultBits >> -numBits) mod (1 << bitWidth);
+    if numBits = 0 then
+      incr(bytePos);
+    end if;
+    bitPos := (bitPos + bitWidth) mod 8;
+  end func;
+
+
+(**
+ *  Peek ''bitWidth'' bits in MSB-First order from ''stri''.
+ *  The bits are read at the current byte and bit position. Byte
+ *  and bit position remain unchanged. The read direction is from
+ *  MSB (most significant bit) to LSB (least significant bit).
+ *  If bits from the next byte(s) are read a byte order of big-endian is used.
+ *   stri := "\2#01011100;\2#11010110;";
+ *   #                100    110
+ *   #         higher bits  lower bits
+ *   #          of result    of result
+ *   peekBitsMsb(stri, 1, 5, 6)  returns  2#100110
+ *  @param stri String of bytes from which the bits are read.
+ *  @param bytePos Current byte position in ''stri''.
+ *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
+ *  @param bitWidth Number of bits requested.
+ *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
+ *)
+const func integer: peekBitsMsb (in string: stri, in var integer: bytePos,
+    in integer: bitPos, in integer: bitWidth) is func
+  result
+    var integer: resultBits is 0;
+  local
+    var integer: numBits is 0;
+  begin
+    resultBits := ord(stri[bytePos]);
+    numBits := bitWidth - (8 - bitPos);
+    while numBits > 0 do
+      incr(bytePos);
+      resultBits := (resultBits << 8) + ord(stri[bytePos]);
+      numBits -:= 8;
+    end while;
+    resultBits := (resultBits >> -numBits) mod (1 << bitWidth);
+  end func;
+
+
+(**
+ *  Advance byte and bit position by ''bitWidth'' bits.
+ *)
+const proc: skipBitsMsb (inout integer: bytePos, inout integer: bitPos,
+    in integer: bitWidth) is func
+  begin
+    bitPos +:= bitWidth;
+    bytePos +:= bitPos mdiv 8;
+    bitPos := bitPos mod 8;
   end func;
 
 

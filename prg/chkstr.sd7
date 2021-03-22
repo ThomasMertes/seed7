@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  chkstr.sd7    Checks string literals and operations             *)
 (*  Copyright (C) 1992 - 1994, 2004, 2007 - 2009 Thomas Mertes      *)
-(*                2011 - 2020 Thomas Mertes                         *)
+(*                2011 - 2021 Thomas Mertes                         *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -8900,6 +8900,56 @@ const proc: check_string_concat is func
       writeln(" ***** STRING & STRING does not work correct.");
       okay := FALSE;
     end if;
+
+    if           ""    & str(         'a')  <> "a" or
+        striExpr("")   & str(         'a')  <> "a" or
+                 ""    & str(charExpr('a')) <> "a" or
+        striExpr("")   & str(charExpr('a')) <> "a" or
+                 "a"   & str(         'b')  <> "ab" or
+        striExpr("a")  & str(         'b')  <> "ab" or
+                 "a"   & str(charExpr('b')) <> "ab" or
+        striExpr("a")  & str(charExpr('b')) <> "ab" or
+                 "ab"  & str(         'c')  <> "abc" or
+        striExpr("ab") & str(         'c')  <> "abc" or
+                 "ab"  & str(charExpr('c')) <> "abc" or
+        striExpr("ab") & str(charExpr('c')) <> "abc" or
+
+                 ""  &          ""  & str(         'e')  <> "e" or
+        striExpr("") &          ""  & str(         'e')  <> "e" or
+                 ""  & striExpr("") & str(         'e')  <> "e" or
+        striExpr("") & striExpr("") & str(         'e')  <> "e" or
+                 ""  &          ""  & str(charExpr('e')) <> "e" or
+        striExpr("") &          ""  & str(charExpr('e')) <> "e" or
+                 ""  & striExpr("") & str(charExpr('e')) <> "e" or
+        striExpr("") & striExpr("") & str(charExpr('e')) <> "e" or
+                 ""  &          "cd"  & str(         'e')  <> "cde" or
+        striExpr("") &          "cd"  & str(         'e')  <> "cde" or
+                 ""  & striExpr("cd") & str(         'e')  <> "cde" or
+        striExpr("") & striExpr("cd") & str(         'e')  <> "cde" or
+                 ""  &          "cd"  & str(charExpr('e')) <> "cde" or
+        striExpr("") &          "cd"  & str(charExpr('e')) <> "cde" or
+                 ""  & striExpr("cd") & str(charExpr('e')) <> "cde" or
+        striExpr("") & striExpr("cd") & str(charExpr('e')) <> "cde" or
+                 "ab"  &          ""  & str(         'e')  <> "abe" or
+        striExpr("ab") &          ""  & str(         'e')  <> "abe" or
+                 "ab"  & striExpr("") & str(         'e')  <> "abe" or
+        striExpr("ab") & striExpr("") & str(         'e')  <> "abe" or
+                 "ab"  &          ""  & str(charExpr('e')) <> "abe" or
+        striExpr("ab") &          ""  & str(charExpr('e')) <> "abe" or
+                 "ab"  & striExpr("") & str(charExpr('e')) <> "abe" or
+        striExpr("ab") & striExpr("") & str(charExpr('e')) <> "abe" or
+                 "ab"  &          "cd"  & str(         'e')  <> "abcde" or
+        striExpr("ab") &          "cd"  & str(         'e')  <> "abcde" or
+                 "ab"  & striExpr("cd") & str(         'e')  <> "abcde" or
+        striExpr("ab") & striExpr("cd") & str(         'e')  <> "abcde" or
+                 "ab"  &          "cd"  & str(charExpr('e')) <> "abcde" or
+        striExpr("ab") &          "cd"  & str(charExpr('e')) <> "abcde" or
+                 "ab"  & striExpr("cd") & str(charExpr('e')) <> "abcde" or
+        striExpr("ab") & striExpr("cd") & str(charExpr('e')) <> "abcde" then
+      writeln(" ***** STRING & str(CHAR) does not work correct.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("String concatenation works correct.");
     end if;

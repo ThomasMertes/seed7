@@ -31,6 +31,7 @@ $ include "seed7_05.s7i";
   include "getf.s7i";
   include "process.s7i";
   include "draw.s7i";
+  include "bmp.s7i";
   include "pic32.s7i";
 
 var label: progName is label("");

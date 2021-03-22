@@ -90,6 +90,8 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     strCmpGeneric (const genericType, const genericType);");
     declareExtern(c_prog, "intType     strCompare (const const_striType, const const_striType);");
     declareExtern(c_prog, "striType    strConcat (const const_striType, const const_striType);");
+    declareExtern(c_prog, "striType    strConcatChar (const const_striType, const charType);");
+    declareExtern(c_prog, "striType    strConcatCharTemp (striType, const charType);");
     declareExtern(c_prog, "striType    strConcatN (const const_striType[], memSizeType);");
     declareExtern(c_prog, "striType    strConcatTemp (striType, const const_striType);");
     declareExtern(c_prog, "striType    strCLit (const const_striType);");
@@ -502,15 +504,28 @@ const proc: optimize_str_cat (in ref_list: params, inout expr_type: c_expr) is f
     elsif length(concatNParamList) = 2 then
       prepare_stri_result(c_expr);
       prepareAnyParamTemporarys(concatNParamList[1], c_param1, c_expr);
-      if c_param1.expr <> "" then
-        c_expr.result_expr := "strConcat(";
-        c_expr.result_expr &:= c_param1.expr;
+      if isActionExpression(concatNParamList[2], "CHR_STR") then
+        incr(countOptimizations);
+        if c_param1.expr <> "" then
+          c_expr.result_expr := "strConcatChar(";
+          c_expr.result_expr &:= c_param1.expr;
+        else
+          c_expr.result_expr := "strConcatCharTemp(";
+          c_expr.result_expr &:= c_param1.result_expr;
+        end if;
+        c_expr.result_expr &:= ", ";
+        getAnyParamToResultExpr(getActionParameter(concatNParamList[2], 1), c_expr);
       else
-        c_expr.result_expr := "strConcatTemp(";
-        c_expr.result_expr &:= c_param1.result_expr;
+        if c_param1.expr <> "" then
+          c_expr.result_expr := "strConcat(";
+          c_expr.result_expr &:= c_param1.expr;
+        else
+          c_expr.result_expr := "strConcatTemp(";
+          c_expr.result_expr &:= c_param1.result_expr;
+        end if;
+        c_expr.result_expr &:= ", ";
+        getAnyParamToResultExpr(concatNParamList[2], c_expr);
       end if;
-      c_expr.result_expr &:= ", ";
-      getAnyParamToResultExpr(concatNParamList[2], c_expr);
       c_expr.result_expr &:= ")";
     elsif length(concatNParamList) = 1 then
       incr(countOptimizations);

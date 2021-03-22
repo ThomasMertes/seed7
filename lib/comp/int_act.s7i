@@ -1513,38 +1513,76 @@ const proc: process (INT_ADD_ASSIGN, in reference: function,
     var reference: evaluatedParam is NIL;
     var string: variable_name is "";
     var string: delta_name is "";
+    var intRange: deltaRange is intRange.value;
     var expr_type: statement is expr_type.value;
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_add_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif check_int_arithmetic_overflow then
       incr(countOverflowChecks);
-      variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
-      delta_name := getParameterAsVariable("intType", "tmp_", params[3], statement);
-      statement.expr &:= "ovfChk(";
-      statement.expr &:= delta_name;
-      statement.expr &:= "<0&&";
-      statement.expr &:= variable_name;
-      statement.expr &:= "<";
-      statement.expr &:= integerLiteral(integer.first);
-      statement.expr &:= "-";
-      statement.expr &:= delta_name;
-      statement.expr &:= " || ";
-      statement.expr &:= delta_name;
-      statement.expr &:= ">=0&&";
-      statement.expr &:= variable_name;
-      statement.expr &:= ">";
-      statement.expr &:= integerLiteral(integer.last);
-      statement.expr &:= "-";
-      statement.expr &:= delta_name;
-      statement.expr &:= ")?";
-      statement.expr &:= intRaiseError("OVERFLOW_ERROR");
-      statement.expr &:= ":(";
-      statement.expr &:= variable_name;
-      statement.expr &:= "+=";
-      statement.expr &:= delta_name;
-      statement.expr &:= ");\n";
-      doLocalDeclsOfStatement(statement, c_expr);
+      deltaRange := getIntRange(params[3]);
+      if deltaRange.minValue = 0 and deltaRange.maxValue = 0 then
+        c_expr.expr &:= "/* ignore integer +:= 0; */\n";
+      else
+        variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
+        if ccConf.BUILTIN_ADD_OVERFLOW <> "" then
+          statement.expr &:= "ovfChk(";
+          statement.expr &:= ccConf.BUILTIN_ADD_OVERFLOW;
+          statement.expr &:= "(";
+          statement.expr &:= variable_name;
+          statement.expr &:= ", ";
+          process_expr(params[3], statement);
+          statement.expr &:= ", &(";
+          statement.expr &:= variable_name;
+          statement.expr &:= ")))?";
+          statement.expr &:= intRaiseError("OVERFLOW_ERROR");
+          statement.expr &:= ":0;";
+        else
+          delta_name := getParameterAsVariable("intType", "delta_", params[3], statement);
+          if deltaRange.minValue < 0 or deltaRange.maxValue > 0 then
+            statement.expr &:= "ovfChk(";
+            if deltaRange.minValue < 0 and deltaRange.maxValue > 0 then
+              statement.expr &:= delta_name;
+              statement.expr &:= "<0&&";
+              statement.expr &:= variable_name;
+              statement.expr &:= "<";
+              statement.expr &:= integerLiteral(integer.first);
+              statement.expr &:= "-";
+              statement.expr &:= delta_name;
+              statement.expr &:= " || ";
+              statement.expr &:= delta_name;
+              # The comparison >= 0 supports optimizations by the C compiler.
+              statement.expr &:= ">=0&&";
+              statement.expr &:= variable_name;
+              statement.expr &:= ">";
+              statement.expr &:= integerLiteral(integer.last);
+              statement.expr &:= "-";
+              statement.expr &:= delta_name;
+            elsif deltaRange.minValue < 0 then
+              statement.expr &:= variable_name;
+              statement.expr &:= "<";
+              statement.expr &:= integerLiteral(integer.first);
+              statement.expr &:= "-";
+              statement.expr &:= delta_name;
+            else # deltaRange.maxValue > 0
+              statement.expr &:= variable_name;
+              statement.expr &:= ">";
+              statement.expr &:= integerLiteral(integer.last);
+              statement.expr &:= "-";
+              statement.expr &:= delta_name;
+            end if;
+            statement.expr &:= ")?";
+            statement.expr &:= intRaiseError("OVERFLOW_ERROR");
+            statement.expr &:= ":";
+          end if;
+          statement.expr &:= "(";
+          statement.expr &:= variable_name;
+          statement.expr &:= "+=";
+          statement.expr &:= delta_name;
+          statement.expr &:= ");\n";
+        end if;
+        doLocalDeclsOfStatement(statement, c_expr);
+      end if;
     else
       process_expr(params[1], statement);
       statement.expr &:= "+=";
@@ -4881,38 +4919,76 @@ const proc: process (INT_SBTR_ASSIGN, in reference: function,
     var reference: evaluatedParam is NIL;
     var string: variable_name is "";
     var string: delta_name is "";
+    var intRange: deltaRange is intRange.value;
     var expr_type: statement is expr_type.value;
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_sbtr_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif check_int_arithmetic_overflow then
       incr(countOverflowChecks);
-      variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
-      delta_name := getParameterAsVariable("intType", "tmp_", params[3], statement);
-      statement.expr &:= "ovfChk(";
-      statement.expr &:= delta_name;
-      statement.expr &:= "<0&&";
-      statement.expr &:= variable_name;
-      statement.expr &:= ">";
-      statement.expr &:= integerLiteral(integer.last);
-      statement.expr &:= "+";
-      statement.expr &:= delta_name;
-      statement.expr &:= " || ";
-      statement.expr &:= delta_name;
-      statement.expr &:= ">=0&&";
-      statement.expr &:= variable_name;
-      statement.expr &:= "<";
-      statement.expr &:= integerLiteral(integer.first);
-      statement.expr &:= "+";
-      statement.expr &:= delta_name;
-      statement.expr &:= ")?";
-      statement.expr &:= intRaiseError("OVERFLOW_ERROR");
-      statement.expr &:= ":(";
-      statement.expr &:= variable_name;
-      statement.expr &:= "-=";
-      statement.expr &:= delta_name;
-      statement.expr &:= ");\n";
-      doLocalDeclsOfStatement(statement, c_expr);
+      deltaRange := getIntRange(params[3]);
+      if deltaRange.minValue = 0 and deltaRange.maxValue = 0 then
+        c_expr.expr &:= "/* ignore integer -:= 0; */\n";
+      else
+        variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
+        if ccConf.BUILTIN_SUB_OVERFLOW <> "" then
+          statement.expr &:= "ovfChk(";
+          statement.expr &:= ccConf.BUILTIN_SUB_OVERFLOW;
+          statement.expr &:= "(";
+          statement.expr &:= variable_name;
+          statement.expr &:= ", ";
+          process_expr(params[3], statement);
+          statement.expr &:= ", &(";
+          statement.expr &:= variable_name;
+          statement.expr &:= ")))?";
+          statement.expr &:= intRaiseError("OVERFLOW_ERROR");
+          statement.expr &:= ":0;";
+        else
+          delta_name := getParameterAsVariable("intType", "delta_", params[3], statement);
+          if deltaRange.minValue < 0 or deltaRange.maxValue > 0 then
+            statement.expr &:= "ovfChk(";
+            if deltaRange.minValue < 0 and deltaRange.maxValue > 0 then
+              statement.expr &:= delta_name;
+              statement.expr &:= "<0&&";
+              statement.expr &:= variable_name;
+              statement.expr &:= ">";
+              statement.expr &:= integerLiteral(integer.last);
+              statement.expr &:= "+";
+              statement.expr &:= delta_name;
+              statement.expr &:= " || ";
+              statement.expr &:= delta_name;
+              # The comparison >= 0 supports optimizations by the C compiler.
+              statement.expr &:= ">=0&&";
+              statement.expr &:= variable_name;
+              statement.expr &:= "<";
+              statement.expr &:= integerLiteral(integer.first);
+              statement.expr &:= "+";
+              statement.expr &:= delta_name;
+            elsif deltaRange.minValue < 0 then
+              statement.expr &:= variable_name;
+              statement.expr &:= ">";
+              statement.expr &:= integerLiteral(integer.last);
+              statement.expr &:= "+";
+              statement.expr &:= delta_name;
+            else # deltaRange.maxValue > 0
+              statement.expr &:= variable_name;
+              statement.expr &:= "<";
+              statement.expr &:= integerLiteral(integer.first);
+              statement.expr &:= "+";
+              statement.expr &:= delta_name;
+            end if;
+            statement.expr &:= ")?";
+            statement.expr &:= intRaiseError("OVERFLOW_ERROR");
+            statement.expr &:= ":";
+          end if;
+          statement.expr &:= "(";
+          statement.expr &:= variable_name;
+          statement.expr &:= "-=";
+          statement.expr &:= delta_name;
+          statement.expr &:= ");\n";
+        end if;
+        doLocalDeclsOfStatement(statement, c_expr);
+      end if;
     else
       process_expr(params[1], statement);
       statement.expr &:= "-=";

@@ -53,6 +53,7 @@ objectType fil_pipe             (listType arguments);
 objectType fil_popen            (listType arguments);
 objectType fil_print            (listType arguments);
 objectType fil_seek             (listType arguments);
+objectType fil_seekable         (listType arguments);
 objectType fil_setbuf           (listType arguments);
 objectType fil_tell             (listType arguments);
 objectType fil_truncate         (listType arguments);

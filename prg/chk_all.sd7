@@ -287,10 +287,12 @@ const string: chkbool_output is "\n\
 const string:chkbitdata_output is "\n\
   \getBitLsb works correct.\n\
   \getBitsLsb works correct.\n\
+  \peekBitsLsb works correct.\n\
   \putBitLsb works correct.\n\
   \putBitsLsb works correct.\n\
   \getBitMsb works correct.\n\
   \getBitsMsb works correct.\n\
+  \peekBitsMsb works correct.\n\
   \putBitMsb works correct.\n\
   \putBitMsb works correct.\n";
 

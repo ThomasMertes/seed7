@@ -1174,7 +1174,7 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
         }, to_window(actual_window), (int) xPos, (int) yPos);
       } /* if */
       if (unlikely(!okay)) {
-	raise_error(FILE_ERROR);
+        raise_error(FILE_ERROR);
       } /* if */
     } /* if */
   } /* drwSetPos */

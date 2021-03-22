@@ -232,6 +232,15 @@ const func integer: length (in null_file: aFile) is func
 
 
 (**
+ *  Determine if the file ''aFile'' is seekable.
+ *  If a file is seekable the functions ''seek'' and ''tell''
+ *  can be used to set and and obtain the current file position.
+ *  @return FALSE, since a ''null_file'' is not seekable.
+ *)
+const boolean: seekable (in null_file: aFile) is FALSE;
+
+
+(**
  *  Set the current file position.
  *  A ''null_file'' is not seekable, therefore FILE_ERROR is raised.
  *  If a derived type is seekable it needs to override this function.

@@ -1166,7 +1166,7 @@ objectType exec_expr (const progType currentProg, objectType object,
         if (TEMP_OBJECT(result)) {
           CLEAR_TEMP_FLAG(result);
           incl_list(&currentProg->exec_expr_temp_results, result, err_info);
-	} /* if */
+        } /* if */
       } /* if */
       interpreter_exception = backup_interpreter_exception;
       prog = progBackup;

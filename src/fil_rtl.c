@@ -44,7 +44,7 @@
 #if UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
-#if defined ISATTY_INCLUDE_IO_H || defined FTRUNCATE_INCLUDE_IO_H
+#if defined ISATTY_INCLUDE_IO_H || defined FTRUNCATE_INCLUDE_IO_H || defined LSEEK_INCLUDE_IO_H
 #include "io.h"
 #endif
 #include "errno.h"
@@ -1749,6 +1749,37 @@ void filSeek (fileType aFile, intType position)
       raise_error(FILE_ERROR);
     } /* if */
   } /* filSeek */
+
+
+
+/**
+ *  Determine if the file 'aFile' is seekable.
+ *  If a file is seekable the functions filSeek() and filTell()
+ *  can be used to set and and obtain the current file position.
+ *  @return TRUE, if 'aFile' is seekable, FALSE otherwise.
+ */
+boolType filSeekable (fileType aFile)
+
+  {
+    int file_no;
+    os_fstat_struct stat_buf;
+    boolType seekable;
+
+  /* filSeekable */
+    file_no = fileno(aFile);
+    if (file_no != -1) {
+      if (os_fstat(file_no, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+        seekable = TRUE;
+      } else if (os_lseek(file_no, (off_t) 0, SEEK_CUR) != (off_t) -1) {
+        seekable = TRUE;
+      } else {
+        seekable = FALSE;
+      } /* if */
+    } else {
+      seekable = FALSE;
+    } /* if */
+    return seekable;
+  } /* filSeekable */
 
 
 

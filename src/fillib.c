@@ -576,6 +576,25 @@ objectType fil_seek (listType arguments)
 
 
 
+/**
+ *  Determine if the file aFile/arg_1 is seekable.
+ *  If a file is seekable the functions filSeek() and filTell()
+ *  can be used to set and and obtain the current file position.
+ *  @return TRUE, if aFile/arg_1 is seekable, FALSE otherwise.
+ */
+objectType fil_seekable (listType arguments)
+
+  { /* fil_seekable */
+    isit_file(arg_1(arguments));
+    if (filSeekable(take_file(arg_1(arguments)))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* fil_seekable */
+
+
+
 objectType fil_setbuf (listType arguments)
 
   { /* fil_setbuf */

@@ -783,6 +783,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FIL_PRINT, function, params, c_expr);
       when {"FIL_SEEK"}:
         process(FIL_SEEK, function, params, c_expr);
+      when {"FIL_SEEKABLE"}:
+        process(FIL_SEEKABLE, function, params, c_expr);
       when {"FIL_SETBUF"}:
         process(FIL_SETBUF, function, params, c_expr);
       when {"FIL_TELL"}:

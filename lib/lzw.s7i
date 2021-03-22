@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  lzw.s7i       Lempel-Ziv-Welch compression support library      *)
-(*  Copyright (C) 2015  Thomas Mertes                               *)
+(*  Copyright (C) 2015, 2021  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -30,39 +30,193 @@ include "bitdata.s7i";
 
 
 (**
- *  Encode a string with the Lempel-Ziv-Welch (LZW) compression method.
- *  The packing order of bits in bytes is is MSB-First (Most Significant
- *  Bit First). Encoding starts with 9 bits per coding point and goes
- *  up to 12 bits per coding point. The code points 0 to 255 correspond
- *  to ISO-8859-1 (Latin-1) characters. Code 256 starts a new block with
- *  a new table and 9 bits per code point. Code 257 marks the end of the
- *  compressed data. This compression is used in TIFF and PDF files.
+ *  Compress a string with the Lempel-Ziv-Welch (LZW) compression method.
+ *  The packing order of bits in bytes is LSB-First (Least Significant
+ *  Bit First). This compression method is used for GIF files. Compressing
+ *  starts with succ(''codeSize'') bits per coding point and goes up to
+ *  12 bits per coding point. The code points 0 to pred(2 ** ''codeSize'')
+ *  correspond to unchanged data. Code 2 ** ''codeSize'' starts a new
+ *  block with a new table and succ(''codeSize'') bits per code point.
+ *  Code succ(2 ** ''codeSize'') marks the end of the compressed data.
+ *  @param uncompressed Data to be compressed
+ *  @param codeSize Number of bits used by the uncompressed data.
+ *  @return Compressed byte string of the ''uncompressed'' data.
  *)
-const func string: lzwEncodeMsb (in string: uncompressed) is func
+const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize) is func
   result
     var string: compressed is "";
   local
-    var integer: code is 4095;
+    var integer: clearCode is 0;
+    var integer: endOfInformationCode is 0;
+    var integer: code is 0;
     var char: ch is ' ';
     var hash [string] integer: mydict is (hash [string] integer).value;
     var string: buffer is "";
     var string: xstr is "";
     var integer: bitPos is 0;
-    var integer: bitsToWrite is 9;
+    var integer: bitsToWrite is 0;
+    var integer: moreBitsNeeded is 0;
   begin
+    bitsToWrite := succ(codeSize);
+    clearCode := 1 << codeSize;
+    endOfInformationCode := succ(clearCode);
+    for code range 0 to pred(clearCode) do
+      mydict @:= [str(char(code))] code;
+    end for;
+    putBitsLsb(compressed, bitPos, clearCode, bitsToWrite);
+    bitsToWrite := succ(codeSize);
+    moreBitsNeeded := 1 << bitsToWrite;
     for ch range uncompressed do
-      if code = 4095 then
-        if buffer <> "" then
-          putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+      xstr := buffer & str(ch);
+      if xstr in mydict then
+        buffer &:= str(ch)
+      else
+        putBitsLsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+        code := length(mydict) + 2;
+        mydict @:= [xstr] code;
+        if code = moreBitsNeeded then
+          if bitsToWrite = 12 then
+            mydict := (hash [string] integer).value;
+            for code range 0 to pred(clearCode) do
+              mydict @:= [str(char(code))] code;
+            end for;
+            putBitsLsb(compressed, bitPos, clearCode, bitsToWrite);
+            bitsToWrite := succ(codeSize);
+          else
+            incr(bitsToWrite);
+          end if;
+          moreBitsNeeded := 1 << bitsToWrite;
         end if;
-        mydict := (hash [string] integer).value;
-        for code range 0 to 255 do
-          mydict @:= [str(chr(code))] code;
-        end for;
-        putBitsMsb(compressed, bitPos, 256, bitsToWrite);
-        bitsToWrite := 9;
-        buffer := "";
+        buffer := str(ch);
       end if;
+    end for;
+    if buffer <> "" then
+      putBitsLsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+    end if;
+    putBitsLsb(compressed, bitPos, endOfInformationCode, bitsToWrite);
+  end func;
+
+
+(**
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  The packing order of bits in bytes is LSB-First (Least Significant
+ *  Bit First). This compression method is used for GIF files. Decompressing
+ *  starts with succ(''codeSize'') bits per coding point and goes up to
+ *  12 bits per coding point. The code points 0 to pred(2 ** ''codeSize'')
+ *  correspond to unchanged data. Code 2 ** ''codeSize'' starts a new
+ *  block with a new table and succ(''codeSize'') bits per code point.
+ *  Code succ(2 ** ''codeSize'') marks the end of the compressed data.
+ *  @param compressed Byte string to be decompressed.
+ *  @param codeSize Number of bits used by the decompressed data.
+ *  @return Decompressed version of the ''compressed'' data.
+ *)
+const func string: lzwDecompressLsb (in string: compressed, in integer: codeSize) is func
+  result
+    var string: decompressed is "";
+  local
+    const integer: maxTableIndex is 4095;
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: bitsToRead is 0;
+    var integer: clearCode is 0;
+    var integer: endOfInformationCode is 0;
+    var integer: code is 0;
+    var integer: previousCode is 0;
+    var array string: table is [0 .. maxTableIndex] times "";
+    var integer: nextTableIndex is 0;
+    var integer: moreBitsNeeded is 0;
+  begin
+    bitsToRead := succ(codeSize);
+    clearCode := 1 << codeSize;
+    for code range 0 to pred(clearCode) do
+      table[code] := str(char(code));
+    end for;
+    endOfInformationCode := succ(clearCode);
+    nextTableIndex := succ(endOfInformationCode);
+    moreBitsNeeded := 1 << bitsToRead;
+    previousCode := clearCode;
+    code := getBitsLsb(compressed, bytePos, bitPos, bitsToRead);
+    while code <> endOfInformationCode do
+      if code = clearCode then
+        bitsToRead := succ(codeSize);
+        nextTableIndex := succ(endOfInformationCode);
+        moreBitsNeeded := 1 << bitsToRead;
+      elsif previousCode = clearCode then
+        if code < nextTableIndex then
+          decompressed &:= table[code];
+        else
+          raise RANGE_ERROR;
+        end if;
+      else
+        if code < nextTableIndex then
+          if nextTableIndex <= maxTableIndex then
+            table[nextTableIndex] := table[previousCode] & str(table[code][1]);
+            incr(nextTableIndex);
+          end if;
+          decompressed &:= table[code];
+        elsif code = nextTableIndex then
+          if nextTableIndex <= maxTableIndex then
+            table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
+            incr(nextTableIndex);
+            decompressed &:= table[code];
+          else
+            decompressed &:= table[previousCode] & str(table[previousCode][1]);
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+        if nextTableIndex = moreBitsNeeded then
+          incr(bitsToRead);
+          if bitsToRead < 12 then
+            moreBitsNeeded := 1 << bitsToRead;
+          end if;
+        end if;
+      end if;
+      previousCode := code;
+      code := getBitsLsb(compressed, bytePos, bitPos, bitsToRead);
+    end while;
+  end func;
+
+
+(**
+ *  Compress a string with the Lempel-Ziv-Welch (LZW) compression method.
+ *  The packing order of bits in bytes is MSB-First (Most Significant
+ *  Bit First). This compression method is used in PDF files.
+ *  Compressing starts with succ(''codeSize'') bits per coding point and
+ *  goes up to 12 bits per coding point. The code points 0 to
+ *  pred(2 ** ''codeSize'') correspond to unchanged data. Code
+ *  2 ** ''codeSize'' starts a new a new block with a new table and
+ *  succ(''codeSize'') bits per code point. Code succ(2 ** ''codeSize'')
+ *  marks the end of the compressed data.
+ *  @param uncompressed Data to be compressed
+ *  @param codeSize Number of bits used by the uncompressed data.
+ *  @return Compressed byte string of the ''uncompressed'' data.
+ *)
+const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize) is func
+  result
+    var string: compressed is "";
+  local
+    var integer: clearCode is 0;
+    var integer: endOfInformationCode is 0;
+    var integer: code is 0;
+    var char: ch is ' ';
+    var hash [string] integer: mydict is (hash [string] integer).value;
+    var string: buffer is "";
+    var string: xstr is "";
+    var integer: bitPos is 0;
+    var integer: bitsToWrite is 0;
+    var integer: moreBitsNeeded is 0;
+  begin
+    bitsToWrite := succ(codeSize);
+    clearCode := 1 << codeSize;
+    endOfInformationCode := succ(clearCode);
+    for code range 0 to pred(clearCode) do
+      mydict @:= [str(char(code))] code;
+    end for;
+    putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
+    bitsToWrite := succ(codeSize);
+    moreBitsNeeded := 1 << bitsToWrite;
+    for ch range uncompressed do
       xstr := buffer & str(ch);
       if xstr in mydict then
         buffer &:= str(ch)
@@ -70,12 +224,18 @@ const func string: lzwEncodeMsb (in string: uncompressed) is func
         putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
         code := length(mydict) + 2;
         mydict @:= [xstr] code;
-        if code = 511 then
-          bitsToWrite := 10;
-        elsif code = 1023 then
-          bitsToWrite := 11;
-        elsif code = 2047 then
-          bitsToWrite := 12;
+        if code = moreBitsNeeded then
+          if bitsToWrite = 12 then
+            mydict := (hash [string] integer).value;
+            for code range 0 to pred(clearCode) do
+              mydict @:= [str(char(code))] code;
+            end for;
+            putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
+            bitsToWrite := succ(codeSize);
+          else
+            incr(bitsToWrite);
+          end if;
+          moreBitsNeeded := 1 << bitsToWrite;
         end if;
         buffer := str(ch);
       end if;
@@ -83,67 +243,250 @@ const func string: lzwEncodeMsb (in string: uncompressed) is func
     if buffer <> "" then
       putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
     end if;
-    putBitsMsb(compressed, bitPos, 257, bitsToWrite);
+    putBitsMsb(compressed, bitPos, endOfInformationCode, bitsToWrite);
   end func;
 
 
 (**
- *  Decode an Lempel-Ziv-Welch (LZW) compressed string.
- *  The packing order of bits in bytes is is MSB-First (Most Significant
- *  Bit First). Decoding starts with 9 bits per coding point and goes
- *  up to 12 bits per coding point. The code points 0 to 255 correspond
- *  to ISO-8859-1 (Latin-1) characters. Code 256 starts a new block with
- *  a new table and 9 bits per code point. Code 257 marks the end of the
- *  compressed data. This compression is used in TIFF and PDF files.
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  The packing order of bits in bytes is MSB-First (Most Significant
+ *  Bit First). This compression  method is used in PDF files.
+ *  Decompressing starts with succ(''codeSize'') bits per coding point and
+ *  goes up to 12 bits per coding point. The code points 0 to
+ *  pred(2 ** ''codeSize'') correspond to unchanged data. Code
+ *  2 ** ''codeSize'' starts a new block with a new table and
+ *  succ(''codeSize'') bits per code point. Code succ(2 ** ''codeSize'')
+ *  marks the end of the compressed data.
+ *  @param compressed Byte string to be decompressed.
+ *  @param codeSize Number of bits used by the decompressed data.
+ *  @return Decompressed version of the ''compressed'' data.
  *)
-const func string: lzwDecodeMsb (in string: compressed) is func
+const func string: lzwDecompressMsb (in string: compressed, in integer: codeSize) is func
   result
     var string: decompressed is "";
   local
+    const integer: maxTableIndex is 4095;
     var integer: bytePos is 1;
     var integer: bitPos is 0;
-    var integer: bitsNeeded is 9;
+    var integer: bitsToRead is 0;
+    var integer: clearCode is 0;
+    var integer: endOfInformationCode is 0;
     var integer: code is 0;
-    var array string: table is [0 .. 4095] times "";
+    var integer: previousCode is 0;
+    var array string: table is [0 .. maxTableIndex] times "";
     var integer: nextTableIndex is 0;
-    var string: previous is "";
-    var string: current is "";
+    var integer: moreBitsNeeded is 0;
   begin
-    for code range 0 to 255 do
-      table[code] := str(chr(code));
+    bitsToRead := succ(codeSize);
+    clearCode := 1 << codeSize;
+    for code range 0 to pred(clearCode) do
+      table[code] := str(char(code));
     end for;
-    code := getBitsMsb(compressed, bytePos, bitPos, bitsNeeded);
-    while code <> 257 do
-      if code = 256 then
-        nextTableIndex := 258;
-        previous := "";
-        bitsNeeded := 9;
-      elsif previous = "" then
-        current := table[code];
-        decompressed &:= current;
-        previous := current;
-      else
+    endOfInformationCode := succ(clearCode);
+    nextTableIndex := succ(endOfInformationCode);
+    moreBitsNeeded := 1 << bitsToRead;
+    previousCode := clearCode;
+    code := getBitsMsb(compressed, bytePos, bitPos, bitsToRead);
+    while code <> endOfInformationCode do
+      if code = clearCode then
+        bitsToRead := succ(codeSize);
+        nextTableIndex := succ(endOfInformationCode);
+        moreBitsNeeded := 1 << bitsToRead;
+      elsif previousCode = clearCode then
         if code < nextTableIndex then
-          current := table[code];
-          table[nextTableIndex] := previous & current[.. 1];
-          incr(nextTableIndex);
-        elsif code = nextTableIndex then
-          current := previous & previous[.. 1];
-          table[nextTableIndex] := current;
-          incr(nextTableIndex);
+          decompressed &:= table[code];
         else
           raise RANGE_ERROR;
         end if;
-        if nextTableIndex = 511 then
-          bitsNeeded := 10;
-        elsif nextTableIndex = 1023 then
-          bitsNeeded := 11;
-        elsif nextTableIndex = 2047 then
-          bitsNeeded := 12;
+      else
+        if code < nextTableIndex then
+          if nextTableIndex <= maxTableIndex then
+            table[nextTableIndex] := table[previousCode] & str(table[code][1]);
+            incr(nextTableIndex);
+          end if;
+          decompressed &:= table[code];
+        elsif code = nextTableIndex then
+          if nextTableIndex <= maxTableIndex then
+            table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
+            incr(nextTableIndex);
+            decompressed &:= table[code];
+          else
+            decompressed &:= table[previousCode] & str(table[previousCode][1]);
+          end if;
+        else
+          raise RANGE_ERROR;
         end if;
-        decompressed &:= current;
-        previous := current;
+        if nextTableIndex = moreBitsNeeded then
+          incr(bitsToRead);
+          if bitsToRead < 12 then
+            moreBitsNeeded := 1 << bitsToRead;
+          end if;
+        end if;
       end if;
-      code := getBitsMsb(compressed, bytePos, bitPos, bitsNeeded);
+      previousCode := code;
+      code := getBitsMsb(compressed, bytePos, bitPos, bitsToRead);
     end while;
   end func;
+
+
+(**
+ *  Compress a string with the Lempel-Ziv-Welch (LZW) compression method.
+ *  The packing order of bits in bytes is MSB-First (Most Significant
+ *  Bit First). This compression method is used in TIFF and PDF files.
+ *  EarlyChange means that the encoding width changes one code too early.
+ *  Compressing starts with succ(''codeSize'') bits per coding point and
+ *  goes up to 12 bits per coding point. The code points 0 to
+ *  pred(2 ** ''codeSize'') correspond to unchanged data. Code
+ *  2 ** ''codeSize'' starts a new a new block with a new table and
+ *  succ(''codeSize'') bits per code point. Code succ(2 ** ''codeSize'')
+ *  marks the end of the compressed data.
+ *  @param uncompressed Data to be compressed
+ *  @param codeSize Number of bits used by the uncompressed data.
+ *  @return Compressed byte string of the ''uncompressed'' data.
+ *)
+const func string: lzwCompressMsbEarlyChange (in string: uncompressed, in integer: codeSize) is func
+  result
+    var string: compressed is "";
+  local
+    var integer: clearCode is 0;
+    var integer: endOfInformationCode is 0;
+    var integer: code is 0;
+    var char: ch is ' ';
+    var hash [string] integer: mydict is (hash [string] integer).value;
+    var string: buffer is "";
+    var string: xstr is "";
+    var integer: bitPos is 0;
+    var integer: bitsToWrite is 0;
+    var integer: moreBitsNeeded is 0;
+  begin
+    bitsToWrite := succ(codeSize);
+    clearCode := 1 << codeSize;
+    endOfInformationCode := succ(clearCode);
+    for code range 0 to pred(clearCode) do
+      mydict @:= [str(char(code))] code;
+    end for;
+    putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
+    bitsToWrite := succ(codeSize);
+    moreBitsNeeded := pred(1 << bitsToWrite);
+    for ch range uncompressed do
+      xstr := buffer & str(ch);
+      if xstr in mydict then
+        buffer &:= str(ch)
+      else
+        putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+        code := length(mydict) + 2;
+        mydict @:= [xstr] code;
+        if code = moreBitsNeeded then
+          if bitsToWrite = 12 then
+            mydict := (hash [string] integer).value;
+            for code range 0 to pred(clearCode) do
+              mydict @:= [str(char(code))] code;
+            end for;
+            putBitsMsb(compressed, bitPos, clearCode, bitsToWrite);
+            bitsToWrite := succ(codeSize);
+          else
+            incr(bitsToWrite);
+          end if;
+          moreBitsNeeded := pred(1 << bitsToWrite);
+        end if;
+        buffer := str(ch);
+      end if;
+    end for;
+    if buffer <> "" then
+      putBitsMsb(compressed, bitPos, mydict[buffer], bitsToWrite);
+    end if;
+    putBitsMsb(compressed, bitPos, endOfInformationCode, bitsToWrite);
+  end func;
+
+
+# The function lzwEncodeMsb() is deprecated. Use lzwCompressMsbEarlyChange() instead.
+const func string: lzwEncodeMsb (in string: uncompressed) is
+    return lzwCompressMsbEarlyChange(uncompressed, 8);
+
+
+(**
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  The packing order of bits in bytes is MSB-First (Most Significant
+ *  Bit First). This compression  method is used in TIFF and PDF files.
+ *  EarlyChange means that the encoding width changes one code too early.
+ *  Decompressing starts with succ(''codeSize'') bits per coding point and
+ *  goes up to 12 bits per coding point. The code points 0 to
+ *  pred(2 ** ''codeSize'') correspond to unchanged data. Code
+ *  2 ** ''codeSize'' starts a new block with a new table and
+ *  succ(''codeSize'') bits per code point. Code succ(2 ** ''codeSize'')
+ *  marks the end of the compressed data.
+ *  @param compressed Byte string to be decompressed.
+ *  @param codeSize Number of bits used by the decompressed data.
+ *  @return Decompressed version of the ''compressed'' data.
+ *)
+const func string: lzwDecompressMsbEarlyChange (in string: compressed, in integer: codeSize) is func
+  result
+    var string: decompressed is "";
+  local
+    const integer: maxTableIndex is 4095;
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: bitsToRead is 0;
+    var integer: clearCode is 0;
+    var integer: endOfInformationCode is 0;
+    var integer: code is 0;
+    var integer: previousCode is 0;
+    var array string: table is [0 .. maxTableIndex] times "";
+    var integer: nextTableIndex is 0;
+    var integer: moreBitsNeeded is 0;
+  begin
+    bitsToRead := succ(codeSize);
+    clearCode := 1 << codeSize;
+    for code range 0 to pred(clearCode) do
+      table[code] := str(char(code));
+    end for;
+    endOfInformationCode := succ(clearCode);
+    nextTableIndex := succ(endOfInformationCode);
+    moreBitsNeeded := pred(1 << bitsToRead);
+    previousCode := clearCode;
+    code := getBitsMsb(compressed, bytePos, bitPos, bitsToRead);
+    while code <> endOfInformationCode do
+      if code = clearCode then
+        bitsToRead := succ(codeSize);
+        nextTableIndex := succ(endOfInformationCode);
+        moreBitsNeeded := pred(1 << bitsToRead);
+      elsif previousCode = clearCode then
+        if code < nextTableIndex then
+          decompressed &:= table[code];
+        else
+          raise RANGE_ERROR;
+        end if;
+      else
+        if code < nextTableIndex then
+          if nextTableIndex <= maxTableIndex then
+            table[nextTableIndex] := table[previousCode] & str(table[code][1]);
+            incr(nextTableIndex);
+          end if;
+          decompressed &:= table[code];
+        elsif code = nextTableIndex then
+          if nextTableIndex <= maxTableIndex then
+            table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
+            incr(nextTableIndex);
+            decompressed &:= table[code];
+          else
+            decompressed &:= table[previousCode] & str(table[previousCode][1]);
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+        if nextTableIndex = moreBitsNeeded then
+          incr(bitsToRead);
+          if bitsToRead < 12 then
+            moreBitsNeeded := pred(1 << bitsToRead);
+          end if;
+        end if;
+      end if;
+      previousCode := code;
+      code := getBitsMsb(compressed, bytePos, bitPos, bitsToRead);
+    end while;
+  end func;
+
+
+# The function lzwDecodeMsb() is deprecated. Use lzwDecompressMsbEarlyChange() instead.
+const func string: lzwDecodeMsb (in string: compressed) is
+    return lzwDecompressMsbEarlyChange(compressed, 8);

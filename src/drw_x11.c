@@ -2039,9 +2039,12 @@ intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
     int okay;
 
   /* drwRgbColor */
-    logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ")\n", redLight, greenLight, blueLight););
+    logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       redLight, greenLight, blueLight););
 #ifdef rgbToPixel
     if (useRgbToPixel) {
+      logFunction(printf("drwRgbColor --> " FMT_D "\n",
+                         (intType) rgbToPixel(redLight, greenLight, blueLight)););
       return (intType) rgbToPixel(redLight, greenLight, blueLight);
     } else
 #endif

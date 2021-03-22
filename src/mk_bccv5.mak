@@ -108,7 +108,7 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	..\bin\s7 -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
 
 levelup.exe: levelup.c
-	$(CC) levelup.c -o levelup
+	$(CC) levelup.c
 
 next_lvl: levelup.exe
 	.\levelup.exe

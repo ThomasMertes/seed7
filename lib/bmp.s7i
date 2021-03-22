@@ -1,0 +1,190 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bmp.s7i       Support for the BMP image file format.            *)
+(*  Copyright (C) 2001, 2005, 2007, 2013, 2021  Thomas Mertes       *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "draw.s7i";
+
+
+const string: BMP_MAGIC is "BM";
+
+
+(**
+ *  Reads a BMP file into a pixmap.
+ *  @param bmpFile File that contains a BMP image.
+ *  @result A pixmap with the BMP image.
+ *  @exception RANGE_ERROR The file is not in the BMP file format.
+ *)
+const func PRIMITIVE_WINDOW: readBmp (inout file: bmpFile) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var string: magic is "";
+    var string: stri is "";
+    var integer: bmpFileSize is 0;
+    var integer: dibHeaderSize is 0;
+    var integer: offset is 0;
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: planes is 0;
+    var integer: bits is 0;
+    var integer: padding is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 0;
+    var integer: grayIntensity is 0;
+    var array array pixel: image is 0 times 0 times pixel.value;
+  begin
+    magic := gets(bmpFile, 2);
+    if magic = BMP_MAGIC then
+      pixmap := newPixmap(1, 1); # Initialize graphic
+      stri := gets(bmpFile, 16);
+      bmpFileSize := bytes2Int(stri[1 len 4], UNSIGNED, LE);
+      # 4 reserved bytes.
+      offset := bytes2Int(stri[9 len 4], UNSIGNED, LE);
+      dibHeaderSize := bytes2Int(stri[13 len 4], UNSIGNED, LE);
+      if dibHeaderSize <> 40 then
+        raise RANGE_ERROR;
+      else
+        stri := gets(bmpFile, dibHeaderSize - 4);
+        width := bytes2Int(stri[1 len 4], UNSIGNED, LE);
+        height := bytes2Int(stri[5 len 4], UNSIGNED, LE);
+        planes := bytes2Int(stri[9 len 2], UNSIGNED, LE);
+        bits := bytes2Int(stri[11 len 2], UNSIGNED, LE);
+        image := height times width times pixel.value;
+        seek(bmpFile, offset + 1);
+        if bits = 24 then
+          padding := -(3 * width) mod 4;
+          for line range height downto 1 do
+            stri := gets(bmpFile, 3 * width + padding);
+            byteIndex := 1;
+            for column range 1 to width do
+              image[line][column] := rgbPixel(ord(stri[byteIndex + 2]) * 256,
+                                              ord(stri[byteIndex + 1]) * 256,
+                                              ord(stri[byteIndex]) * 256);
+              byteIndex +:= 3;
+            end for;
+          end for;
+        elsif bits = 16 then
+          padding := -(2 * width) mod 4;
+          for line range height downto 1 do
+            stri := gets(bmpFile, 2 * width + padding);
+            byteIndex := 1;
+            for column range 1 to width do
+              image[line][column] := rgbPixel(((ord(stri[byteIndex + 1]) >> 2) mod 32) * 2114,
+                                              (((ord(stri[byteIndex + 1]) << 3) +
+                                                (ord(stri[byteIndex]) >> 5)) mod 32) * 2114,
+                                              (ord(stri[byteIndex]) mod 32) * 2114);
+              byteIndex +:= 2;
+            end for;
+          end for;
+        elsif bits = 8 then
+          padding := -width mod 4;
+          for line range height downto 1 do
+            stri := gets(bmpFile, width + padding);
+            byteIndex := 1;
+            for column range 1 to width do
+              grayIntensity := ord(stri[byteIndex]) * 256;
+              image[line][column] := rgbPixel(grayIntensity,
+                                              grayIntensity,
+                                              grayIntensity);
+              incr(byteIndex);
+            end for;
+          end for;
+        else
+          raise RANGE_ERROR;
+        end if;
+        pixmap := imagePixmap(image);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a BMP file with the given ''bmpFileName'' into a pixmap.
+ *  @param bmpFileName Name of the BMP file.
+ *  @result A pixmap with the BMP image.
+ *  @exception RANGE_ERROR The file is not in the BMP file format.
+ *)
+const func PRIMITIVE_WINDOW: readBmp (in string: bmpFileName) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var file: bmpFile is STD_NULL;
+   begin
+    bmpFile := open(bmpFileName, "r");
+    if bmpFile <> STD_NULL then
+      pixmap := readBmp(bmpFile);
+      close(bmpFile);
+    end if;
+  end func;
+
+
+(**
+ *  Converts an image into a string in BMP format.
+ *)
+const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
+  result
+    var string: stri is BMP_MAGIC;
+  local
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: padding is 0;
+    var integer: rawDataSize is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var bstring: bImage is bstring.value;
+    var color: col is color.value;
+  begin
+    width := width(image);
+    height := height(image);
+    padding := -(3 * width) mod 4;
+    rawDataSize := height * (3 * width + padding);
+    stri &:= int32AsFourBytesLe(rawDataSize + 54);
+    stri &:= "\0;" mult 4;               # reserved1, reserved2
+    stri &:= int32AsFourBytesLe(54);     # offset to pixel array
+    stri &:= int32AsFourBytesLe(40);     # header size
+    stri &:= int32AsFourBytesLe(width);
+    stri &:= int32AsFourBytesLe(height);
+    stri &:= int16AsTwoBytesLe(1);       # color planes
+    stri &:= int16AsTwoBytesLe(24);      # bits per pixel
+    stri &:= int32AsFourBytesLe(0);      # compression
+    stri &:= int32AsFourBytesLe(rawDataSize);
+    stri &:= int32AsFourBytesLe(2835);   # horizontal resolution
+    stri &:= int32AsFourBytesLe(2835);   # vertical resolution
+    stri &:= int32AsFourBytesLe(0);      # palette colors
+    stri &:= int32AsFourBytesLe(0);      # important colors (0 means all colors are important)
+    bImage := getImage(image);
+    for line range pred(height) downto 0 do
+      for column range 0 to pred(width) do
+        col := getPixelColor(bImage, width, height, column, line);
+        stri &:= chr(col.blueLight  mdiv 256);
+        stri &:= chr(col.greenLight mdiv 256);
+        stri &:= chr(col.redLight   mdiv 256);
+      end for;
+      stri &:= "\0;" mult padding;
+    end for;
+  end func;

@@ -1,3 +1,60 @@
+20210322:
+- Some missleading tests have been removed from chkflt.sd7. Many
+  thanks go to Zachary Menzies for pointing out problems with the
+  tests for trunc() and round().
+- The new library gif.s7i has been added. This library supports the
+  GIF image file format.
+- The new library bmp.s7i has been added. This library supports the
+  BMP image file format. The functions readBmp() and str(BMP) have
+  been moved from draw.s7i to the new library bmp.s7i. The performance
+  and functionality of readBmp() has been improved. The deprecated
+  function read_bmp() has been removed (the function readBmp() can be
+  used instead).
+- In bitdata.s7i the performance of getBitsLsb() and getBitsMsb() has
+  been improved.
+- The functions peekBitsLsb(), skipBitsLsb(), peekBitsMsb() and
+  skipBitsMsb() have been added to bitdata.s7i.
+- The functions lzwCompressLsb(), lzwDecompressLsb(),
+  lzwCompressMsb(), lzwDecompressMsb(), lzwCompressMsbEarlyChange()
+  and lzwDecompressMsbEarlyChange() have been added to lzw.s7i.
+  The functions lzwEncodeMsb() and lzwDecodeMsb() have been
+  deprecated (use lzwCompressMsbEarlyChange() respectively
+  lzwDecompressMsbEarlyChange() instead).
+- Tests for INDEX_ERROR have been added to chkarr.sd7.
+- Tests for peekBitsLsb() and peekBitsMsb() have been added to
+  chkbitdata.sd7.
+- Tests for << (shift left) have been added to chkint.sd7.
+- Tests for string concatenations where the second parameter is a
+  string of length 1 (created by str(aChar)) have been added to
+  chkstr.sd7.
+- The function getStriUpToChar() has been added to bytedata.s7i.
+- The experimental function seekable() has been added to file.s7i,
+  null_file.s7i, clib_file.s7i, external_file.s7i, strifile.s7i,
+  subfile.s7i, utf16.s7i, iobuffer.s7i, gzip.s7i, lzma.s7i, xz.s7i and
+  zstd.s7i.
+- Several optimizations have been done in the compiler (s7c.sd7):
+  - In comp/arr_act.s7i the index check for the action ARR_IDX has
+    been improved.
+  - In comp/int_act.s7i the overflow check for the actions
+    INT_ADD_ASSIGN and INT_SBTR_ASSIGN has been improved.
+  - In comp/intrange.s7i the function getIntRange() has been improved
+    to get a range for the action INT_LSHIFT and to get a better range
+    for the action INT_MOD.
+  - In comp/str_act.s7i the function optimize_str_cat has been
+    improved to generate a call of strConcatChar() or
+    strConcatCharTemp(), if applicable.
+  - In comp/chr_act.s7i the generation of the macro chrStrMacro()
+    has been improved to avoid #line directives in macro parameters.
+- In drw_win.c the performance of the function drwImage() has been
+  improved. Instead of calling SetPixel() for every pixel it now does
+  one call of CreateBitmap().
+- In runerr.c in the function write_curr_position() the check for
+  the current action object has been improved.
+- The functions strConcatChar() and strConcatCharTemp() have been
+  added str_rtl.c.
+- The function filSeekable() has been added to fil_rtl.c.
+- The function determineLseekFunction() has been added to chkccomp.c.
+
 20210223:
 - Spelling corrections have been done in several files. Many thanks go
   to Jens Schleusener, for sending a source code misspelling report

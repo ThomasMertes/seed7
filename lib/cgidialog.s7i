@@ -30,6 +30,7 @@ include "html_ent.s7i";
 include "unicode.s7i";
 include "encoding.s7i";
 include "draw.s7i";
+include "bmp.s7i";
 
 const type: paramHashType is hash [string] string;
 

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bytedata.s7i  Convert byte data to and from strings             *)
-(*  Copyright (C) 2009, 2013 - 2015  Thomas Mertes                  *)
+(*  Copyright (C) 2009, 2013 - 2015, 2019 - 2021  Thomas Mertes     *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -92,6 +92,31 @@ const func string: getAsciiz (inout file: inFile) is func
       resultStri &:= ch;
       ch := getc(inFile);
     end while;
+  end func;
+
+
+(**
+ *  Read a string from ''inFile'' until the ''terminator'' character is found.
+ *  If a ''terminator'' is found the string before the ''terminator'' is
+ *  returned and the ''terminator'' character is assigned to inFile.bufferChar.
+ *  The file position is advanced after the ''terminator'' character.
+ *  If no ''terminator'' is found the rest of the string is returned and
+ *  EOF is assigned to the inFile.bufferChar.
+ *  @return the string read without the ''terminator'' or the rest of the
+ *          file if no ''terminator'' is found.
+ *)
+const func string: getStriUpToChar (inout file: inFile, in char: terminator) is func
+  result
+    var string: resultStri is "";
+  local
+    var char: ch is ' ';
+  begin
+    ch := getc(inFile);
+    while ch <> terminator and ch <> EOF do
+      resultStri &:= ch;
+      ch := getc(inFile);
+    end while;
+    inFile.bufferChar := ch;
   end func;
 
 
