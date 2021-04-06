@@ -924,6 +924,7 @@ objectType evaluate (objectType object)
       case ARRAYOBJECT:
       case HASHOBJECT:
       case STRUCTOBJECT:
+      case SETOBJECT:
       case FILEOBJECT:
 #if WITH_FLOAT
       case FLOATOBJECT:
