@@ -306,13 +306,21 @@ const func string: getHttpStatusCode (inout file: sock) is func
   local
     var string: line is "";
     var string: statusInfo is "";
-    var string: location is "";
+    var integer: spacePos is 0;
   begin
     line := getln(sock);
     # writeln(line);
     if startsWith(line, "HTTP") then
-      statusInfo := trim(line[pos(line, " ") ..]);
-      statusCode := statusInfo[.. pred(pos(statusInfo, " "))];
+      spacePos := pos(line, " ");
+      if spacePos <> 0 then
+        statusInfo := trim(line[spacePos ..]);
+        spacePos := pos(statusInfo, " ");
+        if spacePos = 0 then
+          statusCode := statusInfo;
+        else
+          statusCode := statusInfo[.. pred(spacePos)];
+        end if;
+      end if;
     end if;
   end func;
 
