@@ -1135,7 +1135,11 @@ bstriType socInetAddr (const const_striType hostName, intType port)
         getaddrinfo_result = getaddrinfo(name, servicename, &hints, &addrinfo_list);
         if (unlikely(getaddrinfo_result != 0)) {
           /* printf("getaddrinfo(\"%s\") -> %d\n", name, getaddrinfo_result); */
-          if (getaddrinfo_result == EAI_NONAME || getaddrinfo_result == EAI_AGAIN) {
+          if (getaddrinfo_result == EAI_NONAME || getaddrinfo_result == EAI_AGAIN
+#ifdef EAI_NODATA
+              || getaddrinfo_result == EAI_NODATA
+#endif
+	      ) {
             free_cstri8(name, hostName);
             /* Return empty address */
             if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
