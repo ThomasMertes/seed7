@@ -427,25 +427,6 @@ const proc: storeKeys (inout tlsParameters: parameters) is func
   end func;
 
 
-const func string: getRsaSignature (in string: signatureStri) is func
-  result
-    var string: signature is "";
-  local
-    var asn1DataElement: dataElem is asn1DataElement.value;
-    var integer: pos is 1;
-    var algorithmIdentifierType: algorithmIdentifier is algorithmIdentifierType.value;
-  begin
-    dataElem := getAsn1DataElement(signatureStri, pos);
-    if dataElem.tagCategory = tagSequence then
-      algorithmIdentifier := getAlgorithmIdentifier(signatureStri, pos);
-      dataElem := getAsn1DataElement(signatureStri, pos);
-      if dataElem.tagCategory = tagOctetString then
-        signature := getData(signatureStri, pos, dataElem);
-      end if;
-    end if;
-  end func;
-
-
 const func string: genRsaSignature (in string: signature, in digestAlgorithm: digestAlg) is func
   result
     var string: signatureString is "";
@@ -464,29 +445,6 @@ const func string: genRsaSignature (in string: signature, in digestAlgorithm: di
   end func;
 
 
-const func ecdsaSignature: getEcSignature (in string: signatureStri) is func
-  result
-    var ecdsaSignature: signature is ecdsaSignature.value;
-  local
-    var asn1DataElement: dataElem is asn1DataElement.value;
-    var integer: pos is 1;
-  begin
-    dataElem := getAsn1DataElement(signatureStri, pos);
-    if dataElem.tagCategory = tagSequence then
-      dataElem := getAsn1DataElement(signatureStri, pos);
-      if dataElem.tagCategory = tagInteger then
-        signature.r := bytes2BigInt(getData(signatureStri, pos, dataElem), UNSIGNED, BE);
-        dataElem := getAsn1DataElement(signatureStri, pos);
-        if dataElem.tagCategory = tagInteger then
-          signature.s := bytes2BigInt(getData(signatureStri, pos, dataElem), UNSIGNED, BE);
-        else
-          signature.r := 0_;
-        end if;
-      end if;
-    end if;
-  end func;
-
-
 const func boolean: verifySignature (in string: hashParameter, in integer: signatureScheme,
     in string: signatureStri, in tlsParameters: parameters, inout tlsParseState: state) is func
   result
@@ -494,7 +452,8 @@ const func boolean: verifySignature (in string: hashParameter, in integer: signa
   local
     var string: signatureHash is "";
     var string: decryptedSignature is "";
-    var ecdsaSignature: signature is ecdsaSignature.value;
+    var rsaSignatureType: rsaSignature is rsaSignatureType.value;
+    var ecdsaSignatureType: ecSignature is ecdsaSignatureType.value;
   begin
     case signatureScheme of
       when {RSA_PKCS1_MD5_SHA1}:
@@ -504,17 +463,18 @@ const func boolean: verifySignature (in string: hashParameter, in integer: signa
         signatureHash := msgDigest(signatureHashByNumber[signatureScheme mdiv 256],
                                    hashParameter);
         decryptedSignature := rsassaPkcs1V15Decrypt(parameters.publicRsaCertificateKey, signatureStri);
-        verified := getRsaSignature(decryptedSignature) = signatureHash;
+        rsaSignature := getRsaSignature(decryptedSignature);
+        verified := rsaSignature.signature = signatureHash;
       when {ECDSA_SECP256R1_SHA256}:
         signatureHash := sha256(hashParameter);
-        signature := getEcSignature(signatureStri);
+        ecSignature := getEcdsaSignature(signatureStri);
         verified := verify(secp256r1, bytes2BigInt(signatureHash, UNSIGNED, BE),
-                           signature, parameters.publicEccCertificateKey);
+                           ecSignature, parameters.publicEccCertificateKey);
       when {ECDSA_SHA1}:
         signatureHash := sha1(hashParameter);
-        signature := getEcSignature(signatureStri);
+        ecSignature := getEcdsaSignature(signatureStri);
         verified := verify(parameters.curve, bytes2BigInt(signatureHash, UNSIGNED, BE),
-                           signature, parameters.publicEccCertificateKey);
+                           ecSignature, parameters.publicEccCertificateKey);
     end case;
   end func;
 
@@ -524,10 +484,10 @@ const func string: genSignature (in string: hashParameter, in tlsParameters: par
     var string: signatureStri is "";
   local
     var string: signatureHash is "";
-    var string: rsaSignature is "";
+    var string: rsaSignatureStri is "";
     var digestAlgorithm: digestAlg is NO_DIGEST;
     var integer: signatureHashNumber is 0;
-    var ecdsaSignature: signature is ecdsaSignature.value;
+    var ecdsaSignatureType: ecSignature is ecdsaSignatureType.value;
   begin
     case parameters.signatureScheme of
       when {RSA_PKCS1_MD5_SHA1}:
@@ -536,15 +496,15 @@ const func string: genSignature (in string: hashParameter, in tlsParameters: par
       when {RSA_PKCS1_SHA1, RSA_PKCS1_SHA224, RSA_PKCS1_SHA256, RSA_PKCS1_SHA384, RSA_PKCS1_SHA512}:
         digestAlg := signatureHashByNumber[parameters.signatureScheme mdiv 256];
         signatureHash := msgDigest(digestAlg, hashParameter);
-        rsaSignature := genRsaSignature(signatureHash, digestAlg);
-        signatureStri := rsassaPkcs1V15Encrypt(parameters.privateRsaCertificateKey, rsaSignature);
+        rsaSignatureStri := genRsaSignature(signatureHash, digestAlg);
+        signatureStri := rsassaPkcs1V15Encrypt(parameters.privateRsaCertificateKey, rsaSignatureStri);
       when {ECDSA_SECP256R1_SHA256}:
         signatureHash := sha256(hashParameter);
-        signature := sign(secp256r1, bytes2BigInt(signatureHash, UNSIGNED, BE),
-                          parameters.privateEccCertificateKey);
+        ecSignature := sign(secp256r1, bytes2BigInt(signatureHash, UNSIGNED, BE),
+                            parameters.privateEccCertificateKey);
         signatureStri := genAsn1Sequence(
-            genAsn1Element(tagInteger, bytes(signature.r, SIGNED, BE)) &
-            genAsn1Element(tagInteger, bytes(signature.s, SIGNED, BE)));
+            genAsn1Element(tagInteger, bytes(ecSignature.r, SIGNED, BE)) &
+            genAsn1Element(tagInteger, bytes(ecSignature.s, SIGNED, BE)));
 (*
         signatureHash := sha1(parameters.client_random & parameters.server_random &
                               serverParams);
@@ -562,13 +522,63 @@ const func string: genSignature (in string: hashParameter, in tlsParameters: par
   end func;
 
 
+const proc: validateCertificates (in array x509cert: cert) is func
+  local
+    var integer: index is 1;
+    var integer: issuerIndex is 1;
+    var string: commonName is "";
+    var certSubjectIndexHashType: certSubjectIndexHash is certSubjectIndexHashType.value;
+    var boolean: validated is FALSE;
+  begin
+    for key index range cert do
+      # writeln("examine Cert-" <& index);
+      if time(NOW) >= cert[index].tbsCertificate.validity.notBefore and
+          time(NOW) <= cert[index].tbsCertificate.validity.notAfter then
+        if COMMON_NAME_OID in cert[index].tbsCertificate.subject then
+          if cert[index].tbsCertificate.subject[COMMON_NAME_OID] not in certSubjectIndexHash then
+            commonName := cert[index].tbsCertificate.subject[COMMON_NAME_OID];
+            # writeln("commonName: " <& commonName);
+            certSubjectIndexHash @:= [commonName] index;
+          else
+            writeln("***** Second certificate with same common name.");
+          end if;
+        else
+          writeln("***** Certificate without common name.");
+	end if;
+      else
+        writeln("***** Certificate invalid now.");
+      end if;
+    end for;
+
+    repeat
+      index := issuerIndex;
+      if COMMON_NAME_OID in cert[index].tbsCertificate.issuer and
+          cert[index].tbsCertificate.issuer[COMMON_NAME_OID] in certSubjectIndexHash then
+        issuerIndex := certSubjectIndexHash[cert[index].tbsCertificate.issuer[COMMON_NAME_OID]];
+        # writeln("validate Cert-" <& index <& " with Cert-" <& issuerIndex);
+        validated := validateSignature(cert[index], cert[issuerIndex].tbsCertificate.subjectPublicKeyInfo);
+        # writeln(validated);
+      else
+        # writeln("Issuer not found.");
+        issuerIndex := 0;
+        validated := FALSE;
+      end if;
+    until index = issuerIndex or not validated;
+    if index = 1 and issuerIndex = 1 then
+      writeln("Self signed certificate.");
+    elsif not validated then
+      writeln("***** Cannot be validated.");
+    end if;
+  end func;
+
+
 const proc: processCertificate (inout tlsParameters: parameters, inout tlsParseState: state) is func
   local
     var integer: startPos is 0;
     var integer: sequenceLen is 0;
     var integer: certLen is 0;
     var integer: index is 1;
-    var x509cert: cert is x509cert.value;
+    var array x509cert: cert is 0 times x509cert.value;
   begin
     # writeln("certificate");
     startPos := state.pos;
@@ -581,10 +591,15 @@ const proc: processCertificate (inout tlsParameters: parameters, inout tlsParseS
       parameters.serverCertificates.certList &:= [] (state.message[state.pos len certLen]);
       state.pos +:= certLen;
     end while;
-    cert := getX509Cert(parameters.serverCertificates.certList[1]);
-    # showX509Cert(cert);
-    parameters.publicRsaCertificateKey := cert.tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
-    parameters.publicEccCertificateKey := cert.tbsCertificate.subjectPublicKeyInfo.publicEccKey;
+    cert := length(parameters.serverCertificates.certList) times x509cert.value;
+    for key index range parameters.serverCertificates.certList do
+      # writeln("read Cert-" <& index);
+      cert[index] := getX509Cert(parameters.serverCertificates.certList[index]);
+    end for;
+    # showX509Cert(cert[1]);
+    # validateCertificates(cert);
+    parameters.publicRsaCertificateKey := cert[1].tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
+    parameters.publicEccCertificateKey := cert[1].tbsCertificate.subjectPublicKeyInfo.publicEccKey;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
 
@@ -812,10 +827,12 @@ const proc: processServerKeyExchange (inout tlsParameters: parameters, inout tls
           end if;
           signatureStri := state.message[state.pos len signatureLength];
           state.pos +:= signatureLength;
-          verified := verifySignature(parameters.client_random &
-                                      parameters.server_random &
-                                      serverParams, signatureScheme, signatureStri,
-                                      parameters, state);
+          if not verifySignature(parameters.client_random &
+                                 parameters.server_random &
+                                 serverParams, signatureScheme, signatureStri,
+                                 parameters, state) then
+            state.alert := HANDSHAKE_FAILURE;
+          end if;
         end if;
       else
         state.alert := ILLEGAL_PARAMETER;
@@ -1205,7 +1222,6 @@ const func string: genServerKeyExchange (inout tlsParameters: parameters) is fun
     var string: serverParams is "";
     var string: pointData is "";
     var string: signatureHash is "";
-    var ecdsaSignature: signature is ecdsaSignature.value;
     var string: signatureStri is "";
   begin
     # writeln("genServerKeyExchange");

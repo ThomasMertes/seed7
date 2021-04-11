@@ -562,7 +562,7 @@ const func bigInteger: truncate (in bigInteger: message, in bigInteger: msgMax) 
  *  Structure to hold an ECDSA signature.
  *  ECDSA is the Elliptic Curve Digital Signature Algorithm.
  *)
-const type: ecdsaSignature is new struct
+const type: ecdsaSignatureType is new struct
     var bigInteger: r is 0_;
     var bigInteger: s is 0_;
   end struct;
@@ -572,10 +572,10 @@ const type: ecdsaSignature is new struct
  *  Compute the ECDSA signature of 'message'.
  *  ECDSA is the Elliptic Curve Digital Signature Algorithm.
  *)
-const func ecdsaSignature: sign (in ellipticCurve: curve, in var bigInteger: message,
+const func ecdsaSignatureType: sign (in ellipticCurve: curve, in var bigInteger: message,
     in bigInteger: privateKey) is func
   result
-    var ecdsaSignature: signature is ecdsaSignature.value;
+    var ecdsaSignatureType: signature is ecdsaSignatureType.value;
   local
     var bigInteger: k is 0_;
     var bigInteger: kinv is 0_;
@@ -599,7 +599,7 @@ const func ecdsaSignature: sign (in ellipticCurve: curve, in var bigInteger: mes
  *  ECDSA is the Elliptic Curve Digital Signature Algorithm.
  *)
 const func boolean: verify (in ellipticCurve: curve, in var bigInteger: message,
-    in ecdsaSignature: signature, in ecPoint: publicKey) is func
+    in ecdsaSignatureType: signature, in ecPoint: publicKey) is func
   result
     var boolean: okay is FALSE;
   local

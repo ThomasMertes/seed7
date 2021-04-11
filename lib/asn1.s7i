@@ -232,6 +232,7 @@ const func asn1DataElement: getAsn1DataElement (in string: stri, inout integer: 
       dataElement.length := bytes2Int(stri[pos len numOctets], UNSIGNED, BE);
       pos +:= numOctets;
     end if;
+    # writeln("getAsn1DataElement --> " <& classTagName[ord(dataElement.tagCategory)] <& " (length=" <& dataElement.length <& ")");
     dataElement.dataStart := pos;
   end func;
 

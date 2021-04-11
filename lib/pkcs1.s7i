@@ -300,7 +300,7 @@ const func string: emsaPkcs1V15Encoding (in string: message, in integer: modulus
  *  @exception RANGE_ERROR If ''encodedMessage'' is not in the
  *                         EME-PKCS1-v1_5 format.
  *)
-const func string: emsaPkcs1V15Decoding (in string: encodedMessage, in integer: modulusLen) is func
+const func string: emsaPkcs1V15Decoding (in string: encodedMessage) is func
   result
     var string: message is "";
   local
@@ -311,7 +311,7 @@ const func string: emsaPkcs1V15Decoding (in string: encodedMessage, in integer: 
       raise RANGE_ERROR;
     else
       pos := pos(encodedMessage[3 ..], '\0;');
-      if pos = 0 then
+      if pos < 9 or encodedMessage[3 len pred(pos)] <> "\255;" mult pred(pos) then
         raise RANGE_ERROR;
       else
         message := encodedMessage[pos + 3 ..];
@@ -427,8 +427,8 @@ const func string: rsaesPkcs1V15Encrypt (in rsaKey: encryptionKey, in string: me
     var string: encodedMessage is "";
   begin
     if length(message) > encryptionKey.modulusLen - 2 * hLen - 2 then
-      writeln("length(message): " <& length(message));
-      writeln("modulusLen: " <& encryptionKey.modulusLen);
+      # writeln("length(message): " <& length(message));
+      # writeln("modulusLen: " <& encryptionKey.modulusLen);
       raise RANGE_ERROR;
     else
       encodedMessage := emePkcs1V15Encoding(message, encryptionKey.modulusLen);
@@ -480,8 +480,8 @@ const func string: rsassaPkcs1V15Encrypt (in rsaKey: encryptionKey, in string: m
     var string: encodedMessage is "";
   begin
     if length(message) > encryptionKey.modulusLen - 2 * hLen - 2 then
-      writeln("length(message): " <& length(message));
-      writeln("modulusLen: " <& encryptionKey.modulusLen);
+      # writeln("length(message): " <& length(message));
+      # writeln("modulusLen: " <& encryptionKey.modulusLen);
       raise RANGE_ERROR;
     else
       encodedMessage := emsaPkcs1V15Encoding(message, encryptionKey.modulusLen);
@@ -513,37 +513,6 @@ const func string: rsassaPkcs1V15Decrypt (in rsaKey: decryptionKey, in string: c
     else
       encodedMessage := int2Octets(rsaDecrypt(decryptionKey, octets2int(ciphertext)),
                                    decryptionKey.modulusLen);
-      message := emsaPkcs1V15Decoding(encodedMessage, decryptionKey.modulusLen);
-    end if;
-  end func;
-
-
-const func string: rsaEncryptBytes (in rsaKey: encryptionKey, in string: message) is func
-  result
-    var string: ciphertext is "";
-  begin
-    ciphertext := bytes(rsaEncrypt(encryptionKey, octets2int("\1;\255;\255;\0;" & message)), SIGNED, BE);
-  end func;
-
-
-const func string: rsaDecryptBytes (in rsaKey: decryptionKey, in string: ciphertext) is func
-  result
-    var string: message is "";
-  local
-    var integer: pos is 0;
-  begin
-    message := bytes(rsaDecrypt(decryptionKey, octets2int(ciphertext)), SIGNED, BE);
-    if startsWith(message, "\1;") then
-      pos := 2;
-      while pos <= length(message) and message[pos] <> '\0;' do
-        incr(pos);
-      end while;
-      message := message[succ(pos) ..];
-    (* elsif startsWith(message, "\0;") then
-      pos := 2;
-      while pos <= length(message) and message[pos] = '\0;' do
-        incr(pos);
-      end while;
-      message := message[pos ..]; *)
+      message := emsaPkcs1V15Decoding(encodedMessage);
     end if;
   end func;

@@ -364,7 +364,7 @@ const proc: showCertificate (in string: stri, inout integer: pos) is func
     writeln("Leftover bytes: " <& literal(stri[pos ..]));
     for index range 1 to pred(length(certList)) do
       writeln("validate Cert-" <& index <& " with Cert-" <& succ(index));
-      writeln(validateSignature(certList[index], certList[succ(index)].tbsCertificate.subjectPublicKeyInfo.publicRsaKey));
+      writeln(validateSignature(certList[index], certList[succ(index)].tbsCertificate.subjectPublicKeyInfo));
     end for;
     # writeln("validate Cert-" <& length(certList) <& " with Cert-" <& length(certList));
     # writeln(validateSignature(certList[length(certList)], certList[length(certList)].tbsCertificate.subjectPublicKeyInfo.publicRsaKey));

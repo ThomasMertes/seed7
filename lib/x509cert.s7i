@@ -79,10 +79,17 @@ const type: x509cert is new struct
     var string:                  messageDigest      is "";
   end struct;
 
+const type: certSubjectIndexHashType is hash [string] integer;
+
 const type: certAndKey is new struct
     var array string: certList is 0 times "";
     var rsaKey: privateRsaKey is rsaKey.value;
     var bigInteger: privateEccKey is 0_;
+  end struct;
+
+const type: rsaSignatureType is new struct
+    var algorithmIdentifierType: algorithmIdentifier is algorithmIdentifierType.value;
+    var string: signature is "";
   end struct;
 
 const string: ALIASED_ENTRY_NAME_OID        is encodeObjectIdentifier([] (2, 5, 4, 1));   # "U\4;\1;"
@@ -123,6 +130,8 @@ const string: SHA256_WITH_RSA_ENCRYPTION is PKCS_1 & "\11;";
 const string: SHA384_WITH_RSA_ENCRYPTION is PKCS_1 & "\12;";
 const string: SHA512_WITH_RSA_ENCRYPTION is PKCS_1 & "\13;";
 
+const string: ECDSA_WITH_SHA256 is encodeObjectIdentifier([] (1, 2, 840, 10045, 4, 3, 2));
+
 const string: EC_PUBLIC_KEY is encodeObjectIdentifier([] (1, 2, 840, 10045, 2, 1));     # "*\134;H\206;=\2;\1;"
 
 const string: SECP192K1_OID is encodeObjectIdentifier([] (1, 3, 132, 0, 31));
@@ -138,9 +147,6 @@ const string: SHA1_OID is encodeObjectIdentifier([] (1, 3, 14, 3, 2, 26));
 const string: SHA256_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 1));
 const string: SHA384_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 2));
 const string: SHA512_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 3));
-
-const string: RSA_WITH_SHA256 is encodeObjectIdentifier([] (1, 2, 840, 113549, 1, 1, 11));
-const string: ECDSA_WITH_SHA256 is encodeObjectIdentifier([] (1, 2, 840, 10045, 4, 3, 2));
 
 
 const func algorithmIdentifierType: getAlgorithmIdentifier (in string: stri, inout integer: pos) is func
@@ -220,6 +226,60 @@ const func string: genX509RsaKey (in rsaKey: anRsaKey) is func
     stri := genAsn1Integer(bytes(anRsaKey.modulus, SIGNED, BE));
     stri &:= genAsn1Integer(bytes(anRsaKey.exponent, SIGNED, BE));
     stri := genAsn1Sequence(stri);
+  end func;
+
+
+const func rsaSignatureType: getRsaSignature (in string: signatureStri) is func
+  result
+    var rsaSignatureType: signature is rsaSignatureType.value;
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var integer: pos is 1;
+  begin
+    dataElem := getAsn1DataElement(signatureStri, pos);
+    if dataElem.tagCategory = tagSequence then
+      signature.algorithmIdentifier := getAlgorithmIdentifier(signatureStri, pos);
+      dataElem := getAsn1DataElement(signatureStri, pos);
+      if dataElem.tagCategory = tagOctetString then
+        signature.signature := getData(signatureStri, pos, dataElem);
+      end if;
+    end if;
+    if pos <> succ(length(signatureStri)) then
+      # Tailing garbage bytes
+      # writeln("Tailing garbage bytes");
+      signature.algorithmIdentifier.algorithm := "";
+      signature.algorithmIdentifier.parameters := "";
+      signature.signature := "";
+    end if;
+  end func;
+
+
+const func ecdsaSignatureType: getEcdsaSignature (in string: signatureStri) is func
+  result
+    var ecdsaSignatureType: signature is ecdsaSignatureType.value;
+  local
+    var asn1DataElement: dataElem is asn1DataElement.value;
+    var integer: pos is 1;
+  begin
+    dataElem := getAsn1DataElement(signatureStri, pos);
+    if dataElem.tagCategory = tagSequence then
+      dataElem := getAsn1DataElement(signatureStri, pos);
+      if dataElem.tagCategory = tagInteger then
+        signature.r := bytes2BigInt(getData(signatureStri, pos, dataElem), UNSIGNED, BE);
+        dataElem := getAsn1DataElement(signatureStri, pos);
+        if dataElem.tagCategory = tagInteger then
+          signature.s := bytes2BigInt(getData(signatureStri, pos, dataElem), UNSIGNED, BE);
+        else
+          signature.r := 0_;
+        end if;
+      end if;
+    end if;
+    if pos <> succ(length(signatureStri)) then
+      # Tailing garbage bytes
+      # writeln("Tailing garbage bytes");
+      signature.r := 0_;
+      signature.s := 0_;
+    end if;
   end func;
 
 
@@ -553,6 +613,61 @@ const func string: genX509TbsCertificate (in tbsCertificateType: tbsCertificate)
   end func;
 
 
+const func digestAlgorithm: getDigestAlgorithm (in string: algorithm) is func
+  result
+    var digestAlgorithm: digestAlg is NO_DIGEST;
+  begin
+    if algorithm = SHA1_OID then
+      digestAlg := SHA1;
+    elsif algorithm = SHA256_OID then
+      digestAlg := SHA256;
+    elsif algorithm = SHA384_OID then
+      digestAlg := SHA384;
+    elsif algorithm = SHA512_OID then
+      digestAlg := SHA512;
+    end if;
+  end func;
+
+
+const func digestAlgorithm: getDigestFromSignatureAlgorithm (in string: algorithm) is func
+  result
+    var digestAlgorithm: digestAlg is NO_DIGEST;
+  begin
+    if algorithm = MD5_WITH_RSA_ENCRYPTION then
+      digestAlg := MD5;
+    elsif algorithm = SHA1_WITH_RSA_ENCRYPTION then
+      digestAlg := SHA1;
+    elsif algorithm = SHA256_WITH_RSA_ENCRYPTION or
+          algorithm = ECDSA_WITH_SHA256 then
+      digestAlg := SHA256;
+    elsif algorithm = SHA384_WITH_RSA_ENCRYPTION then
+      digestAlg := SHA384;
+    elsif algorithm = SHA512_WITH_RSA_ENCRYPTION then
+      digestAlg := SHA512;
+    end if;
+  end func;
+
+
+const proc: showSignatureAlgorithm (in string: algorithm) is func
+  begin
+    if algorithm = MD5_WITH_RSA_ENCRYPTION then
+      writeln("MD5 with RSA Encryption");
+    elsif algorithm = SHA1_WITH_RSA_ENCRYPTION then
+      writeln("SHA-1 with RSA Encryption");
+    elsif algorithm = SHA256_WITH_RSA_ENCRYPTION then
+      writeln("SHA-256 with RSA Encryption");
+    elsif algorithm = SHA384_WITH_RSA_ENCRYPTION then
+      writeln("SHA-384 with RSA Encryption");
+    elsif algorithm = SHA512_WITH_RSA_ENCRYPTION then
+      writeln("SHA-512 with RSA Encryption");
+    elsif algorithm = ECDSA_WITH_SHA256 then
+      writeln("ECDSA with SHA-256");
+    else
+      writeln("Unknown: " <& literal(algorithm));
+    end if;
+  end func;
+
+
 (**
  *  Read a X.509 public key certificate from ''stri''.
  *  @return the X.509 public key certificate.
@@ -565,6 +680,7 @@ const func x509cert: getX509Cert (in string: stri) is func
     var asn1DataElement: dataElem is asn1DataElement.value;
     var integer: tbsCertificatePos is 1;
     var integer: posAfterTbsCertificate is 1;
+    var digestAlgorithm: digestAlg is NO_DIGEST;
   begin
     dataElem := getAsn1DataElement(stri, pos);
     # writeln("getX509Cert: tagCategory=" <& classTagName[ord(dataElem.tagCategory)]);
@@ -581,10 +697,11 @@ const func x509cert: getX509Cert (in string: stri) is func
       cert.signatureValue := getData(stri, pos, dataElem)[2 ..];
       # writeln("messageDigest start: " <& tbsCertificatePos);
       # writeln("messageDigest end:   " <& pred(posAfterTbsCertificate));
-      if cert.signatureAlgorithm.algorithm = MD5_WITH_RSA_ENCRYPTION then
-        cert.messageDigest := md5(stri[tbsCertificatePos .. pred(posAfterTbsCertificate)]);
-      elsif cert.signatureAlgorithm.algorithm = SHA1_WITH_RSA_ENCRYPTION then
-        cert.messageDigest := sha1(stri[tbsCertificatePos .. pred(posAfterTbsCertificate)]);
+      # showSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
+      digestAlg := getDigestFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
+      if digestAlg <> NO_DIGEST then
+        cert.messageDigest := msgDigest(digestAlg,
+            stri[tbsCertificatePos .. pred(posAfterTbsCertificate)]);
       end if;
     end if;
     # writeln("end getX509Cert");
@@ -595,19 +712,19 @@ const func string: genX509Cert (inout x509cert: cert, in rsaKey: encryptionKey) 
   result
     var string: stri is "";
   local
+    var digestAlgorithm: digestAlg is NO_DIGEST;
     var string: signature is "";
     var algorithmIdentifierType: signatureAlgorithmIdentifier is algorithmIdentifierType.value;
   begin
     stri := genX509TbsCertificate(cert.tbsCertificate);
-    if cert.signatureAlgorithm.algorithm = MD5_WITH_RSA_ENCRYPTION then
-      cert.messageDigest := md5(stri);
-    elsif cert.signatureAlgorithm.algorithm = SHA1_WITH_RSA_ENCRYPTION then
-      cert.messageDigest := sha1(stri);
+    digestAlg := getDigestFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
+    if digestAlg <> NO_DIGEST then
+      cert.messageDigest := msgDigest(digestAlg, stri);
     end if;
     signature := genAlgorithmIdentifier(cert.signatureAlgorithm);
     signature &:= genAsn1Element(tagOctetString, cert.messageDigest);
     signature := genAsn1Sequence(signature);
-    cert.signatureValue := rsaEncryptBytes(encryptionKey, signature);
+    cert.signatureValue := rsassaPkcs1V15Encrypt(encryptionKey, signature);
     stri &:= genAlgorithmIdentifier(cert.signatureAlgorithm);
     stri &:= genAsn1Element(tagBitString, "\0;" & cert.signatureValue);
     stri := genAsn1Sequence(stri);
@@ -619,36 +736,41 @@ const func string: genX509Cert (inout x509cert: cert, in rsaKey: encryptionKey) 
  *  @return TRUE if the certificate can be validated,
  *          FALSE otherwise.
  *)
-const func boolean: validateSignature (in x509cert: cert, in rsaKey: publicKey) is func
+const func boolean: validateSignature (in x509cert: cert, in subjectPublicKeyInfoType: publicKey) is func
   result
     var boolean: okay is FALSE;
   local
+    var digestAlgorithm: digestAlg is NO_DIGEST;
     var string: decrypted is "";
-    var integer: pos is 1;
-    var asn1DataElement: dataElem is asn1DataElement.value;
-    var algorithmIdentifierType: digestAlgorithmIdentifier is algorithmIdentifierType.value;
-    var string: digest is "";
+    var rsaSignatureType: rsaSignature is rsaSignatureType.value;
   begin
     # writeln("in validateSignature: algorithm=" <& literal(cert.signatureAlgorithm.algorithm));
-    if cert.signatureAlgorithm.algorithm = MD5_WITH_RSA_ENCRYPTION or
-        cert.signatureAlgorithm.algorithm = SHA1_WITH_RSA_ENCRYPTION then
-      # writeln("-------------");
-      # writeln("length(messageDigest): " <& length(cert.messageDigest));
-      # writeln("messageDigest: " <& literal(cert.messageDigest));
-      decrypted := rsaDecryptBytes(publicKey, cert.signatureValue);
-      # writeln("length(decrypted):     " <& length(decrypted));
-      # writeln("decrypted:     " <& literal(decrypted));
-      printAsn1(decrypted);
-      dataElem := getAsn1DataElement(decrypted, pos);
-      if dataElem.tagCategory = tagSequence then
-        digestAlgorithmIdentifier := getAlgorithmIdentifier(decrypted, pos);
-        dataElem := getAsn1DataElement(decrypted, pos);
-        if dataElem.tagCategory = tagOctetString then
-          digest := getData(decrypted, pos, dataElem);
-          # writeln("digest: " <& literal(digest));
-          okay := cert.messageDigest = digest;
+    digestAlg := getDigestFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
+    if digestAlg <> NO_DIGEST then
+      block
+        # writeln("length(messageDigest): " <& length(cert.messageDigest));
+        # writeln("messageDigest: " <& literal(cert.messageDigest));
+        # writeln("algorith: " <& literal(publicKey.algorithm.algorithm));
+        if publicKey.algorithm.algorithm = RSA_ENCRYPTION_OID then
+          # writeln("RSA_ENCRYPTION_OID:");
+          decrypted := rsassaPkcs1V15Decrypt(publicKey.publicRsaKey, cert.signatureValue);
+          # writeln("length(decrypted):     " <& length(decrypted));
+          # writeln("decrypted:     " <& literal(decrypted));
+          # printAsn1(decrypted);
+          rsaSignature := getRsaSignature(decrypted);
+          okay := digestAlg = getDigestAlgorithm(rsaSignature.algorithmIdentifier.algorithm) and
+                  cert.messageDigest = rsaSignature.signature;
+        elsif publicKey.algorithm.algorithm = EC_PUBLIC_KEY then
+          # writeln("EC_PUBLIC_KEY:");
+          # writeln("signatureValue: " <& literal(cert.signatureValue));
+          # writeln("length(signatureValue): " <& length(cert.signatureValue));
+          # printAsn1(cert.signatureValue);
+          okay := verify(publicKey.eCurve, bytes2BigInt(cert.messageDigest, UNSIGNED, BE),
+                         getEcdsaSignature(cert.signatureValue), publicKey.publicEccKey);
         end if;
-      end if;
+      exception
+        otherwise: okay := FALSE;
+      end block;
     end if;
   end func;
 
@@ -795,6 +917,6 @@ const func certAndKey: selfSignedX509Cert (in string: commonName,
 
 
 const certAndKey: stdCertificate is selfSignedX509Cert(
-    stdRsaKeyPair, 3_, "localhost",
+    stdRsaKeyPair, 4_, "localhost",
     "AT", "Vienna", "Black Hole", "Super Massive",
-    validityType(date(2018, 1, 1), date(2022, 1, 1)));
+    validityType(date(2021, 1, 1), date(2025, 1, 1)));
