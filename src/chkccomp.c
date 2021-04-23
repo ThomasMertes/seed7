@@ -2945,31 +2945,36 @@ static void numericProperties (FILE *versionFile)
     } /* if */
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n"
-            "int main(int argc,char *argv[]){\n"
             "typedef %s int64Type;\n"
-            "int64Type number;\n"
-            "int64Type intFirst = (int64Type) (-9223372036854775807 - 1);\n"
-            "int64Type intLast = (int64Type) 9223372036854775807;\n"
-            "double argument;\n"
-            "int foundMin = 0;\n"
-            "int foundMax = 0;\n"
+            "double minFltValues[] = { -9223372036854773760.0,\n"
+            "  -9223372036854774784.0, -9223372036854775808.0 };\n"
+            "double maxFltValues[] = { 9223372036854773760.0,\n"
+            "   9223372036854774784.0, 9223372036854775808.0 };\n"
+            "int64Type minIntValues[] = { -9223372036854773760,\n"
+            "  -9223372036854774784, -9223372036854775807-1 };\n"
+            "int64Type maxIntValues[] = { 9223372036854773760,\n"
+            "   9223372036854774784, 9223372036854775807 };\n"
+            "int main(int argc,char *argv[]){\n"
+            "int64Type minimumTruncArgument;\n"
+            "int64Type maximumTruncArgument;\n"
+            "int pos;\n"
 #ifdef TURN_OFF_FP_EXCEPTIONS
             "_control87(MCW_EM, MCW_EM);\n"
 #endif
-            "for (number = 0; !(foundMin && foundMax) && number < 1000; number++) {\n"
-            "  argument = (double) (intFirst + number);\n"
-            "  if (!foundMin && (int64Type) argument != 0) {\n"
-            "    printf(\"#define MINIMUM_TRUNC_ARGUMENT %%%sd\\n\",\n"
-            "           intFirst + number);\n"
-            "    foundMin = 1;\n"
-            "  }\n"
-            "  argument = (double) (intLast - number);\n"
-            "  if (!foundMax && (int64Type) argument > 0) {\n"
-            "    printf(\"#define MAXIMUM_TRUNC_ARGUMENT %%%sd\\n\",\n"
-            "           intLast - number);\n"
-            "    foundMax = 1;\n"
+            "for (pos = 0; pos < 3; pos++) {\n"
+            "  if ((int64Type) minFltValues[pos] == minIntValues[pos]) {\n"
+            "    minimumTruncArgument = minIntValues[pos];\n"
             "  }\n"
             "}\n"
+            "printf(\"#define MINIMUM_TRUNC_ARGUMENT %%%sd\\n\",\n"
+            "       minimumTruncArgument);\n"
+            "for (pos = 0; pos < 3; pos++) {\n"
+            "  if ((int64Type) maxFltValues[pos] == maxIntValues[pos]) {\n"
+            "    maximumTruncArgument = maxIntValues[pos];\n"
+            "  }\n"
+            "}\n"
+            "printf(\"#define MAXIMUM_TRUNC_ARGUMENT %%%sd\\n\",\n"
+            "       maximumTruncArgument);\n"
             "return 0;}\n",
             int64TypeStri, int64TypeFormat, int64TypeFormat);
     if (assertCompAndLnk(buffer)) {
@@ -5807,6 +5812,7 @@ static void defineX11rgbToPixelMacro (FILE *versionFile, const char *x11IncludeC
 
   {
     const char *colorNames[] = {"red", "green", "blue"};
+    const char *colorNamesUc[] = {"RED", "GREEN", "BLUE"};
     char testProgram[BUFFER_SIZE];
     char macroPart[BUFFER_SIZE];
     char macroBody[BUFFER_SIZE];
@@ -5852,6 +5858,7 @@ static void defineX11rgbToPixelMacro (FILE *versionFile, const char *x11IncludeC
           highestMaskBit = testResult >> 8;
           lowZeroBitsInMask = testResult & 0xff;
           colorMask = ~((~(unsigned int) 0) << (highestMaskBit - lowZeroBitsInMask)) << lowZeroBitsInMask;
+          fprintf(versionFile, "#define PIXEL_%s_MASK %lx\n", colorNamesUc[colorIndex], colorMask);
           if (highestMaskBit > 16) {
             sprintf(macroPart, "((((unsigned long) (%s)) << %d) & 0x%lx)",
                     colorNames[colorIndex], highestMaskBit - 16, colorMask);
@@ -5874,6 +5881,7 @@ static void defineX11rgbToPixelMacro (FILE *versionFile, const char *x11IncludeC
       } /* if */
     } /* for */
     if (okay) {
+      fprintf(versionFile, "#define RGB_TO_PIXEL_FLAG_NAME \"useRgbToPixel\"\n");
       fprintf(versionFile, "#define rgbToPixel(red, green, blue) (%s)\n", macroBody);
     } /* if */
   } /* defineX11rgbToPixelMacro */
@@ -7756,6 +7764,10 @@ static void determineIncludesAndLibs (FILE *versionFile)
 #if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
     determineX11Defines(versionFile, include_options);
     determineConsoleDefines(versionFile, include_options);
+#elif defined OS_STRI_WCHAR
+    fputs("#define PIXEL_RED_MASK ff\n", versionFile);
+    fputs("#define PIXEL_GREEN_MASK ff00\n", versionFile);
+    fputs("#define PIXEL_BLUE_MASK ff0000\n", versionFile);
 #endif
     determineMySqlDefines(versionFile, include_options, system_database_libs);
     determineSqliteDefines(versionFile, include_options, system_database_libs);
