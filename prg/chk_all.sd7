@@ -201,6 +201,7 @@ const string: chkarr_output is "\n\
   \Array comparison works correct.\n\
   \Array assignment works correct.\n\
   \Array append ( &:= ) works correct.\n\
+  \Array push ( &:= ) works correct.\n\
   \Index access of array element works correct.\n\
   \Array head and tail operations work correct.\n\
   \Head of array works correct.\n\

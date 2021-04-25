@@ -453,7 +453,7 @@ const func boolean: verifySignature (in string: hashParameter, in integer: signa
     var string: signatureHash is "";
     var string: decryptedSignature is "";
     var rsaSignatureType: rsaSignature is rsaSignatureType.value;
-    var ecdsaSignatureType: ecSignature is ecdsaSignatureType.value;
+    var ecdsaSignatureType: ecdsaSignature is ecdsaSignatureType.value;
   begin
     case signatureScheme of
       when {RSA_PKCS1_MD5_SHA1}:
@@ -467,14 +467,14 @@ const func boolean: verifySignature (in string: hashParameter, in integer: signa
         verified := rsaSignature.signature = signatureHash;
       when {ECDSA_SECP256R1_SHA256}:
         signatureHash := sha256(hashParameter);
-        ecSignature := getEcdsaSignature(signatureStri);
+        ecdsaSignature := getEcdsaSignature(signatureStri);
         verified := verify(secp256r1, bytes2BigInt(signatureHash, UNSIGNED, BE),
-                           ecSignature, parameters.publicEccCertificateKey);
+                           ecdsaSignature, parameters.publicEccCertificateKey);
       when {ECDSA_SHA1}:
         signatureHash := sha1(hashParameter);
-        ecSignature := getEcdsaSignature(signatureStri);
+        ecdsaSignature := getEcdsaSignature(signatureStri);
         verified := verify(parameters.curve, bytes2BigInt(signatureHash, UNSIGNED, BE),
-                           ecSignature, parameters.publicEccCertificateKey);
+                           ecdsaSignature, parameters.publicEccCertificateKey);
     end case;
   end func;
 
@@ -487,7 +487,7 @@ const func string: genSignature (in string: hashParameter, in tlsParameters: par
     var string: rsaSignatureStri is "";
     var digestAlgorithm: digestAlg is NO_DIGEST;
     var integer: signatureHashNumber is 0;
-    var ecdsaSignatureType: ecSignature is ecdsaSignatureType.value;
+    var ecdsaSignatureType: ecdsaSignature is ecdsaSignatureType.value;
   begin
     case parameters.signatureScheme of
       when {RSA_PKCS1_MD5_SHA1}:
@@ -500,11 +500,11 @@ const func string: genSignature (in string: hashParameter, in tlsParameters: par
         signatureStri := rsassaPkcs1V15Encrypt(parameters.privateRsaCertificateKey, rsaSignatureStri);
       when {ECDSA_SECP256R1_SHA256}:
         signatureHash := sha256(hashParameter);
-        ecSignature := sign(secp256r1, bytes2BigInt(signatureHash, UNSIGNED, BE),
+        ecdsaSignature := sign(secp256r1, bytes2BigInt(signatureHash, UNSIGNED, BE),
                             parameters.privateEccCertificateKey);
         signatureStri := genAsn1Sequence(
-            genAsn1Element(tagInteger, bytes(ecSignature.r, SIGNED, BE)) &
-            genAsn1Element(tagInteger, bytes(ecSignature.s, SIGNED, BE)));
+            genAsn1Element(tagInteger, bytes(ecdsaSignature.r, SIGNED, BE)) &
+            genAsn1Element(tagInteger, bytes(ecdsaSignature.s, SIGNED, BE)));
 (*
         signatureHash := sha1(parameters.client_random & parameters.server_random &
                               serverParams);

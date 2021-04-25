@@ -38,6 +38,11 @@ const func boolean: (ref intRange: range1) <> (ref intRange: range2) is
   return range1.minValue <> range2.minValue or range1.maxValue <> range2.maxValue;
 
 
+const type: intRangeOfVariableHash is hash[reference] intRange;
+
+var intRangeOfVariableHash: intRangeOfVariable is intRangeOfVariableHash.value;
+
+
 const func intRange: getIntRange (in reference: intExpression) is forward;
 
 
@@ -91,6 +96,8 @@ const func intRange: getIntLshiftRange (in reference: number, in reference: lshi
       if lshiftRange.maxValue <= bitLength(integer.last) then
         if numberRange.maxValue <= integer.last >> lshiftRange.maxValue then
           valueRange.maxValue := numberRange.maxValue << lshiftRange.maxValue;
+        elsif lshiftRange.minValue > 0 then
+          valueRange.maxValue := integer.last >> lshiftRange.minValue << lshiftRange.minValue;
         else
           valueRange.maxValue := integer.last;
         end if;
@@ -177,6 +184,9 @@ const func intRange: getIntRange (in reference: intExpression) is func
         number := getValue(evaluatedParam, integer);
         valueRange.minValue := number;
         valueRange.maxValue := number;
+      elsif intExpression in intRangeOfVariable then
+        valueRange := intRangeOfVariable[intExpression];
+        # writeln("intRange of variable: " <& valueRange.minValue <& ".." <& valueRange.maxValue);
       elsif category(intExpression) = CALLOBJECT then
         params := getValue(intExpression, ref_list);
         function := params[1];
@@ -350,6 +360,20 @@ const func intRange: getIntRange (in reference: intExpression) is func
               end if;
             when {"INT_MOD"}:
               valueRange := getIntModRange(params[1], params[3]);
+            when {"INT_MULT"}:
+              if getConstant(params[1], INTOBJECT, evaluatedParam) then
+                number := getValue(evaluatedParam, integer);
+                if number >= 2 then
+                  valueRange.minValue := integer.first div number * number;
+                  valueRange.maxValue := integer.last div number * number;
+                end if;
+              elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
+                number := getValue(evaluatedParam, integer);
+                if number >= 2 then
+                  valueRange.minValue := integer.first div number * number;
+                  valueRange.maxValue := integer.last div number * number;
+                end if;
+              end if;
             when {"INT_RAND"}:
               if getConstant(params[1], INTOBJECT, evaluatedParam) then
                 valueRange.minValue := getValue(evaluatedParam, integer);

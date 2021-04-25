@@ -45,6 +45,10 @@ var array [boolean] string: arr3 is [boolean] ("False", "True");
 var array integer: arr4 is [5] (5, 6, 7, 8, 9, 10, 11, 12);
 
 
+const func boolean: boolExpr (ref boolean: value) is
+  return value and str(rand(1, 9))[2 ..] = "";
+
+
 const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
 
@@ -73,8 +77,8 @@ const func string: striExpr (in string: stri) is
   return stri & str(rand(1, 9))[2 ..];
 
 
-const func boolean: boolExpr (ref boolean: value) is
-  return value and str(rand(1, 9))[2 ..] = "";
+const func bitset: setExpr (in bitset: aSet) is
+  return aSet;
 
 
 const func boolean: raisesIndexError (ref proc: statement) is func
@@ -83,6 +87,21 @@ const func boolean: raisesIndexError (ref proc: statement) is func
   begin
     block
       statement;
+    exception
+      catch INDEX_ERROR:
+        raisesIndexError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesIndexError (ref func boolean: expression) is func
+  result
+    var boolean: raisesIndexError is FALSE;
+  local
+    var boolean: exprResult is FALSE;
+  begin
+    block
+      exprResult := expression;
     exception
       catch INDEX_ERROR:
         raisesIndexError := TRUE;
@@ -185,6 +204,21 @@ const func boolean: raisesIndexError (ref func bitset: expression) is func
     var boolean: raisesIndexError is FALSE;
   local
     var bitset: exprResult is {};
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch INDEX_ERROR:
+        raisesIndexError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesIndexError (ref varfunc boolean: expression) is func
+  result
+    var boolean: raisesIndexError is FALSE;
+  local
+    var boolean: exprResult is FALSE;
   begin
     block
       exprResult := expression;
@@ -531,6 +565,7 @@ const proc: testArrayCopy is func
 const proc: testCompare is func
   local
     var boolean: okay is TRUE;
+    var array boolean: blnArr is [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE);
     var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7);
     var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
     var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
@@ -539,6 +574,7 @@ const proc: testCompare is func
     var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
     var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+    var array boolean: blnArr2 is [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE);
     var array integer: intArr2 is [] (1, 2, 3, 4, 5, 6, 7);
     var array bigInteger: bigArr2 is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
     var array float: fltArr2 is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
@@ -547,6 +583,7 @@ const proc: testCompare is func
     var array char: chrArr2 is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
     var array string: strArr2 is [] ("one", "two", "three", "four", "five", "six", "seven");
     var array bitset: setArr2 is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+    const array boolean: blnArrConst is [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE);
     const array integer: intArrConst is [] (1, 2, 3, 4, 5, 6, 7);
     const array bigInteger: bigArrConst is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
     const array float: fltArrConst is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
@@ -556,6 +593,40 @@ const proc: testCompare is func
     const array string: strArrConst is [] ("one", "two", "three", "four", "five", "six", "seven");
     const array bitset: setArrConst is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
   begin
+    if blnArr <> blnArr then
+      writeln(" ***** Comparison of boolean arrays failed. (1)");
+      okay := FALSE;
+    end if;
+    if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE) then
+      writeln(" ***** Comparison of boolean arrays failed. (2)");
+      okay := FALSE;
+    end if;
+    if [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE) <> blnArr then
+      writeln(" ***** Comparison of boolean arrays failed. (3)");
+      okay := FALSE;
+    end if;
+    if [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE) <>
+        [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE) then
+      writeln(" ***** Comparison of boolean arrays failed. (4)");
+      okay := FALSE;
+    end if;
+    if blnArr <> blnArr2 then
+      writeln(" ***** Comparison of boolean arrays failed. (5)");
+      okay := FALSE;
+    end if;
+    if blnArr <> blnArrConst then
+      writeln(" ***** Comparison of boolean arrays failed. (6)");
+      okay := FALSE;
+    end if;
+    if blnArrConst <> blnArr then
+      writeln(" ***** Comparison of boolean arrays failed. (7)");
+      okay := FALSE;
+    end if;
+    if blnArrConst <> blnArrConst then
+      writeln(" ***** Comparison of boolean arrays failed. (8)");
+      okay := FALSE;
+    end if;
+
     if intArr <> intArr then
       writeln(" ***** Comparison of integer arrays failed. (1)");
       okay := FALSE;
@@ -807,6 +878,7 @@ const proc: testCompare is func
 const proc: testAssign is func
   local
     var boolean: okay is TRUE;
+    var array boolean: blnArr is [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE);
     var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7);
     var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
     var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
@@ -816,6 +888,12 @@ const proc: testAssign is func
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
     var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
   begin
+    blnArr := blnArr;
+    if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE) then
+      writeln(" ***** array assignment for 'array boolean' does not work correct");
+      okay := FALSE;
+    end if;
+
     intArr := intArr;
     if intArr <> [] (1, 2, 3, 4, 5, 6, 7) then
       writeln(" ***** array assignment for 'array integer' does not work correct");
@@ -869,6 +947,7 @@ const proc: testAssign is func
 const proc: testAppend is func
   local
     var boolean: okay is TRUE;
+    var array boolean: blnArr is [] (TRUE, FALSE, TRUE, FALSE);
     var array integer: intArr is [] (1, 2, 3, 4);
     var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_);
     var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0);
@@ -878,6 +957,12 @@ const proc: testAppend is func
     var array string: strArr is [] ("one", "two", "three", "four");
     var array bitset: setArr is [] ({1}, {2}, {3}, {4});
   begin
+    blnArr &:= blnArr;
+    if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE) then
+      writeln(" ***** array append ( &:= ) for 'array boolean' does not work correct");
+      okay := FALSE;
+    end if;
+
     intArr &:= intArr;
     if intArr <> [] (1, 2, 3, 4, 1, 2, 3, 4) then
       writeln(" ***** array append ( &:= ) for 'array integer' does not work correct");
@@ -928,9 +1013,127 @@ const proc: testAppend is func
   end func;
 
 
+const proc: testPush is func
+  local
+    var boolean: okay is TRUE;
+    var array boolean: blnArr is [] (TRUE, FALSE, TRUE, FALSE);
+    var array integer: intArr is [] (1, 2, 3, 4);
+    var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_);
+    var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0);
+    var array complex: cpxArr is [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+        complex(4.0, 4.0));
+    var array char: chrArr is [] ('a', 'b', 'c', 'd');
+    var array string: strArr is [] ("one", "two", "three", "four");
+    var array bitset: setArr is [] ({1}, {2}, {3}, {4});
+  begin
+    blnArr &:= TRUE;
+    if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE) then
+      writeln(" ***** array push ( &:= ) for 'array boolean' does not work correct");
+      okay := FALSE;
+    end if;
+
+    blnArr &:= boolExpr(FALSE);
+    if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE) then
+      writeln(" ***** array push ( &:= ) for 'array boolean' does not work correct");
+      okay := FALSE;
+    end if;
+
+    intArr &:= 5;
+    if intArr <> [] (1, 2, 3, 4, 5) then
+      writeln(" ***** array push ( &:= ) for 'array integer' does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    intArr &:= intExpr(6);
+    if intArr <> [] (1, 2, 3, 4, 5, 6) then
+      writeln(" ***** array push ( &:= ) for 'array integer' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    bigArr &:= 5_;
+    if bigArr <> [] (1_, 2_, 3_, 4_, 5_) then
+      writeln(" ***** array push ( &:= ) for 'array bigInteger' does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    bigArr &:= bigintExpr(6_);
+    if bigArr <> [] (1_, 2_, 3_, 4_, 5_, 6_) then
+      writeln(" ***** array push ( &:= ) for 'array bigInteger' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    fltArr &:= 5.0;
+    if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 5.0) then
+      writeln(" ***** array push ( &:= ) for 'array float' does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    fltArr &:= floatExpr(6.0);
+    if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0) then
+      writeln(" ***** array push ( &:= ) for 'array float' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    cpxArr &:= complex(5.0, 5.0);
+    if cpxArr <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+                     complex(4.0, 4.0), complex(5.0, 5.0)) then
+      writeln(" ***** array push ( &:= ) for 'array complex' does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    cpxArr &:= complexExpr(complex(6.0, 6.0));
+    if cpxArr <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+                     complex(4.0, 4.0), complex(5.0, 5.0), complex(6.0, 6.0)) then
+      writeln(" ***** array push ( &:= ) for 'array complex' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    chrArr &:= 'e';
+    if chrArr <> [] ('a', 'b', 'c', 'd', 'e') then
+      writeln(" ***** array push ( &:= ) for 'array char' does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    chrArr &:= charExpr('f');
+    if chrArr <> [] ('a', 'b', 'c', 'd', 'e', 'f') then
+      writeln(" ***** array push ( &:= ) for 'array char' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    strArr &:= "five";
+    if strArr <> [] ("one", "two", "three", "four", "five") then
+      writeln(" ***** array push ( &:= ) for 'array string' does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    strArr &:= striExpr("six");
+    if strArr <> [] ("one", "two", "three", "four", "five", "six") then
+      writeln(" ***** array push ( &:= ) for 'array string' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    setArr &:= {5};
+    if setArr <> [] ({1}, {2}, {3}, {4}, {5}) then
+      writeln(" ***** array push ( &:= ) for 'array bitset' does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    setArr &:= setExpr({6});
+    if setArr <> [] ({1}, {2}, {3}, {4}, {5}, {6}) then
+      writeln(" ***** array push ( &:= ) for 'array bitset' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Array push ( &:= ) works correct.");
+    end if;
+  end func;
+
+
 const proc: testIndex is func
   local
     var boolean: okay is TRUE;
+    var array boolean: blnArr is [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE);
     var array integer: intArr is [] (1, 2, 3, 4, 5, 6, 7);
     var array bigInteger: bigArr is [] (1_, 2_, 3_, 4_, 5_, 6_, 7_);
     var array float: fltArr is [] (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
@@ -939,6 +1142,7 @@ const proc: testIndex is func
     var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
     var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+    var boolean: blnElem is FALSE;
     var integer: intElem is 0;
     var bigInteger: bigElem is 0_;
     var float: fltElem is 0.0;
@@ -947,6 +1151,17 @@ const proc: testIndex is func
     var string: strElem is "";
     var bitset: setElem is {};
   begin
+    if length(blnArr) <> 7 or blnArr[1] <> TRUE or blnArr[2] <> FALSE or blnArr[3] <> TRUE or
+        blnArr[4] <> FALSE or blnArr[5] <> TRUE or blnArr[6] <> FALSE or blnArr[7] <> TRUE then
+      writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (1)");
+      okay := FALSE;
+    end if;
+    blnElem := (blnArr & blnArr)[8];
+    if blnElem <> TRUE then
+      writeln(" ***** ARRAY [ INDEX ] for boolean array failed. (2)");
+      okay := FALSE;
+    end if;
+
     if length(intArr) <> 7 or intArr[1] <> 1 or intArr[2] <> 2 or intArr[3] <> 3 or
             intArr[4] <> 4 or intArr[5] <> 5 or intArr[6] <> 6 or intArr[7] <> 7 then
       writeln(" ***** ARRAY [ INDEX ] for integer array failed. (1)");
@@ -1028,13 +1243,15 @@ const proc: testIndex is func
       okay := FALSE;
     end if;
 
-    if  not raisesIndexError(intArr[integer.first]) or
+    if  not raisesIndexError(blnArr[integer.first]) or
+        not raisesIndexError(intArr[integer.first]) or
         not raisesIndexError(bigArr[integer.first]) or
         not raisesIndexError(fltArr[integer.first]) or
         not raisesIndexError(cpxArr[integer.first]) or
         not raisesIndexError(chrArr[integer.first]) or
         not raisesIndexError(strArr[integer.first]) or
         not raisesIndexError(setArr[integer.first]) or
+        not raisesIndexError(blnArr[0]) or
         not raisesIndexError(intArr[0]) or
         not raisesIndexError(bigArr[0]) or
         not raisesIndexError(fltArr[0]) or
@@ -1042,6 +1259,7 @@ const proc: testIndex is func
         not raisesIndexError(chrArr[0]) or
         not raisesIndexError(strArr[0]) or
         not raisesIndexError(setArr[0]) or
+        not raisesIndexError(blnArr[8]) or
         not raisesIndexError(intArr[8]) or
         not raisesIndexError(bigArr[8]) or
         not raisesIndexError(fltArr[8]) or
@@ -1049,6 +1267,7 @@ const proc: testIndex is func
         not raisesIndexError(chrArr[8]) or
         not raisesIndexError(strArr[8]) or
         not raisesIndexError(setArr[8]) or
+        not raisesIndexError(blnArr[integer.last]) or
         not raisesIndexError(intArr[integer.last]) or
         not raisesIndexError(bigArr[integer.last]) or
         not raisesIndexError(fltArr[integer.last]) or
@@ -1056,6 +1275,7 @@ const proc: testIndex is func
         not raisesIndexError(chrArr[integer.last]) or
         not raisesIndexError(strArr[integer.last]) or
         not raisesIndexError(setArr[integer.last]) or
+        not raisesIndexError(blnArr[intExpr(integer.first)]) or
         not raisesIndexError(intArr[intExpr(integer.first)]) or
         not raisesIndexError(bigArr[intExpr(integer.first)]) or
         not raisesIndexError(fltArr[intExpr(integer.first)]) or
@@ -1063,6 +1283,7 @@ const proc: testIndex is func
         not raisesIndexError(chrArr[intExpr(integer.first)]) or
         not raisesIndexError(strArr[intExpr(integer.first)]) or
         not raisesIndexError(setArr[intExpr(integer.first)]) or
+        not raisesIndexError(blnArr[intExpr(0)]) or
         not raisesIndexError(intArr[intExpr(0)]) or
         not raisesIndexError(bigArr[intExpr(0)]) or
         not raisesIndexError(fltArr[intExpr(0)]) or
@@ -1070,6 +1291,7 @@ const proc: testIndex is func
         not raisesIndexError(chrArr[intExpr(0)]) or
         not raisesIndexError(strArr[intExpr(0)]) or
         not raisesIndexError(setArr[intExpr(0)]) or
+        not raisesIndexError(blnArr[intExpr(8)]) or
         not raisesIndexError(intArr[intExpr(8)]) or
         not raisesIndexError(bigArr[intExpr(8)]) or
         not raisesIndexError(fltArr[intExpr(8)]) or
@@ -1077,6 +1299,7 @@ const proc: testIndex is func
         not raisesIndexError(chrArr[intExpr(8)]) or
         not raisesIndexError(strArr[intExpr(8)]) or
         not raisesIndexError(setArr[intExpr(8)]) or
+        not raisesIndexError(blnArr[intExpr(integer.last)]) or
         not raisesIndexError(intArr[intExpr(integer.last)]) or
         not raisesIndexError(bigArr[intExpr(integer.last)]) or
         not raisesIndexError(fltArr[intExpr(integer.last)]) or
@@ -1088,13 +1311,15 @@ const proc: testIndex is func
       okay := FALSE;
     end if;
 
-    if  not raisesIndexError((intArr & intArr)[integer.first]) or
+    if  not raisesIndexError((blnArr & blnArr)[integer.first]) or
+        not raisesIndexError((intArr & intArr)[integer.first]) or
         not raisesIndexError((bigArr & bigArr)[integer.first]) or
         not raisesIndexError((fltArr & fltArr)[integer.first]) or
         not raisesIndexError((cpxArr & cpxArr)[integer.first]) or
         not raisesIndexError((chrArr & chrArr)[integer.first]) or
         not raisesIndexError((strArr & strArr)[integer.first]) or
         not raisesIndexError((setArr & setArr)[integer.first]) or
+        not raisesIndexError((blnArr & blnArr)[0]) or
         not raisesIndexError((intArr & intArr)[0]) or
         not raisesIndexError((bigArr & bigArr)[0]) or
         not raisesIndexError((fltArr & fltArr)[0]) or
@@ -1102,6 +1327,7 @@ const proc: testIndex is func
         not raisesIndexError((chrArr & chrArr)[0]) or
         not raisesIndexError((strArr & strArr)[0]) or
         not raisesIndexError((setArr & setArr)[0]) or
+        not raisesIndexError((blnArr & blnArr)[15]) or
         not raisesIndexError((intArr & intArr)[15]) or
         not raisesIndexError((bigArr & bigArr)[15]) or
         not raisesIndexError((fltArr & fltArr)[15]) or
@@ -1109,6 +1335,7 @@ const proc: testIndex is func
         not raisesIndexError((chrArr & chrArr)[15]) or
         not raisesIndexError((strArr & strArr)[15]) or
         not raisesIndexError((setArr & setArr)[15]) or
+        not raisesIndexError((blnArr & blnArr)[integer.last]) or
         not raisesIndexError((intArr & intArr)[integer.last]) or
         not raisesIndexError((bigArr & bigArr)[integer.last]) or
         not raisesIndexError((fltArr & fltArr)[integer.last]) or
@@ -1116,6 +1343,7 @@ const proc: testIndex is func
         not raisesIndexError((chrArr & chrArr)[integer.last]) or
         not raisesIndexError((strArr & strArr)[integer.last]) or
         not raisesIndexError((setArr & setArr)[integer.last]) or
+        not raisesIndexError((blnArr & blnArr)[intExpr(integer.first)]) or
         not raisesIndexError((intArr & intArr)[intExpr(integer.first)]) or
         not raisesIndexError((bigArr & bigArr)[intExpr(integer.first)]) or
         not raisesIndexError((fltArr & fltArr)[intExpr(integer.first)]) or
@@ -1123,6 +1351,7 @@ const proc: testIndex is func
         not raisesIndexError((chrArr & chrArr)[intExpr(integer.first)]) or
         not raisesIndexError((strArr & strArr)[intExpr(integer.first)]) or
         not raisesIndexError((setArr & setArr)[intExpr(integer.first)]) or
+        not raisesIndexError((blnArr & blnArr)[intExpr(0)]) or
         not raisesIndexError((intArr & intArr)[intExpr(0)]) or
         not raisesIndexError((bigArr & bigArr)[intExpr(0)]) or
         not raisesIndexError((fltArr & fltArr)[intExpr(0)]) or
@@ -1130,6 +1359,7 @@ const proc: testIndex is func
         not raisesIndexError((chrArr & chrArr)[intExpr(0)]) or
         not raisesIndexError((strArr & strArr)[intExpr(0)]) or
         not raisesIndexError((setArr & setArr)[intExpr(0)]) or
+        not raisesIndexError((blnArr & blnArr)[intExpr(15)]) or
         not raisesIndexError((intArr & intArr)[intExpr(15)]) or
         not raisesIndexError((bigArr & bigArr)[intExpr(15)]) or
         not raisesIndexError((fltArr & fltArr)[intExpr(15)]) or
@@ -1137,6 +1367,7 @@ const proc: testIndex is func
         not raisesIndexError((chrArr & chrArr)[intExpr(15)]) or
         not raisesIndexError((strArr & strArr)[intExpr(15)]) or
         not raisesIndexError((setArr & setArr)[intExpr(15)]) or
+        not raisesIndexError((blnArr & blnArr)[intExpr(integer.last)]) or
         not raisesIndexError((intArr & intArr)[intExpr(integer.last)]) or
         not raisesIndexError((bigArr & bigArr)[intExpr(integer.last)]) or
         not raisesIndexError((fltArr & fltArr)[intExpr(integer.last)]) or
@@ -5180,6 +5411,7 @@ const proc: main is func
     testCompare;
     testAssign;
     testAppend;
+    testPush;
     testIndex;
     testHeadAndTail;
     testHead;

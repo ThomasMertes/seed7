@@ -436,6 +436,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
   local
     var reference: evaluatedParam is NIL;
     var integer: index_value is 0;
+    var intRange: indexRange is intRange.value;
     var string: index_name is "";
   begin
     incr(countOptimizations);
@@ -456,10 +457,12 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
       end if;
     else
+      indexRange := getIntRange(index);
       c_expr.expr &:= "arr[";
       c_expr.expr &:= str(const_table[anArray]);
       c_expr.expr &:= "]->arr[";
-      if array_index_check then
+      if array_index_check and (indexRange.minValue < arrayMinIdx(anArray) or
+          indexRange.maxValue > arrayMaxIdx(anArray)) then
         incr(countIndexChecks);
         incr(c_expr.temp_num);
         index_name := "idx_" & str(c_expr.temp_num);

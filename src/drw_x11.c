@@ -127,7 +127,7 @@ typedef const x11_winRecord *const_x11_winType;
 static Visual *default_visual;
 
 #ifdef rgbToPixel
-static int useRgbToPixel = 0;
+int useRgbToPixel = 0;
 #endif
 
 static int lshift_red;

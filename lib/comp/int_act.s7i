@@ -649,7 +649,7 @@ const proc: int_mult_with_overflow_check (in reference: factor1, in reference: f
     var string: factor2_name is "";
     var string: product_name is "";
   begin
-    if FALSE and ccConf.BUILTIN_MULT_OVERFLOW <> "" then
+    if ccConf.BUILTIN_MULT_OVERFLOW <> "" then
       product_name := defineTempVariable("intType", "prod_", c_expr);
       c_expr.expr &:= "ovfChk(";
       c_expr.expr &:= ccConf.BUILTIN_MULT_OVERFLOW;
@@ -1536,7 +1536,7 @@ const proc: process (INT_ADD_ASSIGN, in reference: function,
           statement.expr &:= variable_name;
           statement.expr &:= ")))?";
           statement.expr &:= intRaiseError("OVERFLOW_ERROR");
-          statement.expr &:= ":0;";
+          statement.expr &:= ":0;\n";
         else
           delta_name := getParameterAsVariable("intType", "delta_", params[3], statement);
           if deltaRange.minValue < 0 or deltaRange.maxValue > 0 then
@@ -3563,6 +3563,7 @@ const proc: process_const_int_mult (in reference: factor1, in integer: factor2,
     var integer: factor1_value is 0;
     var intRange: factor1_range is intRange.value;
     var string: factor1_name is "";
+    var string: product_name is "";
     var boolean: fullOverflowCheck is FALSE;
   begin
     if factor2 < -1 then
@@ -3639,18 +3640,34 @@ const proc: process_const_int_mult (in reference: factor1, in integer: factor2,
       end if;
       if fullOverflowCheck then
         incr(countOverflowChecks);
-        c_expr.expr &:= "(";
-        factor1_name := getParameterAsVariable("intType", "tmp_", factor1, c_expr);
-        c_expr.expr &:= "ovfChk(";
-        checkIfOutsideRange(factor1_name, minAllowedFactor1,
-                            maxAllowedFactor1, c_expr);
-        c_expr.expr &:= ")?";
-        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-        c_expr.expr &:= ":";
-        c_expr.expr &:= factor1_name;
-        c_expr.expr &:= " * ";
-        c_expr.expr &:= integerLiteral(factor2);
-        c_expr.expr &:= ")";
+        if ccConf.BUILTIN_MULT_OVERFLOW <> "" then
+          product_name := defineTempVariable("intType", "prod_", c_expr);
+          c_expr.expr &:= "ovfChk(";
+          c_expr.expr &:= ccConf.BUILTIN_MULT_OVERFLOW;
+          c_expr.expr &:= "(";
+          process_expr(factor1, c_expr);
+          c_expr.expr &:= ", ";
+          c_expr.expr &:= integerLiteral(factor2);
+          c_expr.expr &:= ", &";
+          c_expr.expr &:= product_name;
+          c_expr.expr &:= "))?";
+          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+          c_expr.expr &:= ":";
+          c_expr.expr &:= product_name;
+        else
+          c_expr.expr &:= "(";
+          factor1_name := getParameterAsVariable("intType", "tmp_", factor1, c_expr);
+          c_expr.expr &:= "ovfChk(";
+          checkIfOutsideRange(factor1_name, minAllowedFactor1,
+                              maxAllowedFactor1, c_expr);
+          c_expr.expr &:= ")?";
+          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+          c_expr.expr &:= ":";
+          c_expr.expr &:= factor1_name;
+          c_expr.expr &:= " * ";
+          c_expr.expr &:= integerLiteral(factor2);
+          c_expr.expr &:= ")";
+        end if;
       end if;
     else
       c_expr.expr &:= "(";
@@ -3765,9 +3782,21 @@ const proc: process (INT_MULT_ASSIGN, in reference: function,
       process_const_int_mult_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif check_int_arithmetic_overflow then
       incr(countOverflowChecks);
-      if ccConf.INTTYPE_SIZE = 64 and ccConf.INT128TYPE <> "" or
+      variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
+      if ccConf.BUILTIN_MULT_OVERFLOW <> "" then
+        statement.expr &:= "ovfChk(";
+        statement.expr &:= ccConf.BUILTIN_MULT_OVERFLOW;
+        statement.expr &:= "(";
+        statement.expr &:= variable_name;
+        statement.expr &:= ", ";
+        process_expr(params[3], statement);
+        statement.expr &:= ", &(";
+        statement.expr &:= variable_name;
+        statement.expr &:= ")))?";
+        statement.expr &:= intRaiseError("OVERFLOW_ERROR");
+        statement.expr &:= ":0;";
+      elsif ccConf.INTTYPE_SIZE = 64 and ccConf.INT128TYPE <> "" or
           ccConf.INTTYPE_SIZE = 32 then
-        variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
         product_name := defineTempVariable("doubleIntType", "product_", statement);
         statement.expr &:= product_name;
         statement.expr &:= "=(doubleIntType)(";
@@ -3784,9 +3813,7 @@ const proc: process (INT_MULT_ASSIGN, in reference: function,
         statement.expr &:= product_name;
         statement.expr &:= ");\n";
       else
-        variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
         factor_name := getParameterAsVariable("intType", "tmp_", params[3], statement);
-
         statement.expr &:= variable_name;
         statement.expr &:= "<0&&(";
         statement.expr &:= factor_name;
@@ -3829,7 +3856,6 @@ const proc: process (INT_MULT_ASSIGN, in reference: function,
         statement.expr &:= " *= ";
         statement.expr &:= factor_name;
         statement.expr &:= ");\n";
-
       end if;
       doLocalDeclsOfStatement(statement, c_expr);
     else
@@ -4942,7 +4968,7 @@ const proc: process (INT_SBTR_ASSIGN, in reference: function,
           statement.expr &:= variable_name;
           statement.expr &:= ")))?";
           statement.expr &:= intRaiseError("OVERFLOW_ERROR");
-          statement.expr &:= ":0;";
+          statement.expr &:= ":0;\n";
         else
           delta_name := getParameterAsVariable("intType", "delta_", params[3], statement);
           if deltaRange.minValue < 0 or deltaRange.maxValue > 0 then

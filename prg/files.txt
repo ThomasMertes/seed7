@@ -197,6 +197,7 @@ html.s7i     Support functions for html
 html_ent.s7i HTML entity handling library
 http_response.s7i Support for HTTP responses.
 httpserv.s7i Support for HTTP server and HTTP requests.
+huffman.s7i  Support for Huffman coding.
 ico.s7i      Support for the ICO image file format.
 idxarray.s7i Support for arrays with non-integer index
 image.s7i    Defines images, which are in a window
@@ -205,6 +206,7 @@ inflatefile.s7i Uncompress data from a file with Inflate
 inifile.s7i  Read key value pairs from an INI file
 integer.s7i  Integer support library
 iobuffer.s7i Implementation type for a buffered file.
+jpeg.s7i     Support for the JPEG image file format.
 keybd.s7i    Read from keyboard without buffering and echo
 keydescr.s7i Descriptive text for function keys
 leb128.s7i   Convert integers to and from LEB128 encoding.

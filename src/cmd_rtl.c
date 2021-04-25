@@ -152,6 +152,18 @@
 #ifndef SYSTEM_LIBS
 #define SYSTEM_LIBS ""
 #endif
+#ifndef PIXEL_RED_MASK
+#define PIXEL_RED_MASK "0"
+#endif
+#ifndef PIXEL_GREEN_MASK
+#define PIXEL_GREEN_MASK "0"
+#endif
+#ifndef PIXEL_BLUE_MASK
+#define PIXEL_BLUE_MASK "0"
+#endif
+#ifndef RGB_TO_PIXEL_FLAG_NAME
+#define RGB_TO_PIXEL_FLAG_NAME ""
+#endif
 
 
 #if HAS_BUILTIN_OVERFLOW_OPERATIONS
@@ -2128,6 +2140,14 @@ striType cmdConfigValue (const const_striType name)
 #else
       opt = "";
 #endif
+    } else if (strcmp(opt_name, "PIXEL_RED_MASK") == 0) {
+      opt = PIXEL_RED_MASK;
+    } else if (strcmp(opt_name, "PIXEL_GREEN_MASK") == 0) {
+      opt = PIXEL_GREEN_MASK;
+    } else if (strcmp(opt_name, "PIXEL_BLUE_MASK") == 0) {
+      opt = PIXEL_BLUE_MASK;
+    } else if (strcmp(opt_name, "RGB_TO_PIXEL_FLAG_NAME") == 0) {
+      opt = RGB_TO_PIXEL_FLAG_NAME;
     } else if (strcmp(opt_name, "RAND_MULTIPLIER") == 0) {
       opt = STRINGIFY(RAND_MULTIPLIER);
     } else if (strcmp(opt_name, "RAND_INCREMENT") == 0) {

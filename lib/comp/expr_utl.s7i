@@ -906,6 +906,41 @@ const func string: defineTempConstant (in string: typeName, in string: namePrefi
   end func;
 
 
+const func string: defineForStartVariable (in string: typeName, in string: namePrefix,
+    in reference: param1, inout expr_type: c_expr) is func
+  result
+    var string: variableName is "";
+  local
+    var expr_type: param_expr is expr_type.value;
+  begin
+    param_expr.temp_num := c_expr.temp_num;
+    process_expr(param1, param_expr);
+    c_expr.temp_num := param_expr.temp_num;
+    if param_expr.temp_frees <> "" then
+      incr(c_expr.temp_num);
+      variableName := "start_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "intType ";
+      c_expr.temp_decls &:= variableName;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.temp_assigns &:= "{\n";
+      c_expr.temp_assigns &:= param_expr.temp_decls;
+      c_expr.temp_assigns &:= param_expr.temp_assigns;
+      c_expr.temp_assigns &:= variableName;
+      c_expr.temp_assigns &:= "=";
+      c_expr.temp_assigns &:= param_expr.expr;
+      c_expr.temp_assigns &:= ";\n";
+      c_expr.temp_assigns &:= param_expr.temp_frees;
+      c_expr.temp_assigns &:= "}\n";
+    else
+      if param_expr.temp_decls <> "" or param_expr.temp_assigns <> "" then
+        c_expr.temp_decls &:= param_expr.temp_decls;
+        c_expr.temp_assigns &:= param_expr.temp_assigns;
+      end if;
+      variableName := param_expr.expr;
+    end if;
+  end func;
+
+
 const func boolean: has_temp_values (in expr_type: c_expr) is
   return c_expr.temp_num >= 2 or
       (c_expr.temp_num = 1 and c_expr.result_expr = "");

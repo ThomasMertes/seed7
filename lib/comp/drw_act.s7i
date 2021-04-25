@@ -88,6 +88,44 @@ const ACTION: DRW_XPOS                 is action "DRW_XPOS";
 const ACTION: DRW_YPOS                 is action "DRW_YPOS";
 
 
+const proc: constructRgbMacroPart (in string: colorName, in integer: colorMask,
+    inout string: macroBody) is func
+
+  local
+    var integer: highestMaskBit is 0;
+    var string: macroPart is "";
+  begin
+    highestMaskBit := succ(log2(colorMask));
+    if highestMaskBit > 16 then
+      macroPart := "((((unsigned long) (" <& colorName <&
+                   ")) << " <& highestMaskBit - 16 <&
+                   ") & 0x" <& colorMask radix 16 <& ")";
+    elsif highestMaskBit < 16 then
+      macroPart := "((((unsigned long) (" <& colorName <&
+                   ")) >> " <& 16 - highestMaskBit <&
+                   ") & 0x" <& colorMask radix 16 <& ")";
+    else
+      macroPart := "(((unsigned long) (" <& colorName <&
+                   ")) & 0x" <& colorMask radix 16 <& ")";
+    end if;
+    if macroBody <> "" then
+      macroBody &:= " | ";
+    end if;
+    macroBody &:= macroPart;
+  end func;
+
+
+const func string: defineRgbMacroBody is func
+
+  result
+    var string: macroBody is "";
+  begin
+    constructRgbMacroPart("red",   ccConf.PIXEL_RED_MASK,   macroBody);
+    constructRgbMacroPart("green", ccConf.PIXEL_GREEN_MASK, macroBody);
+    constructRgbMacroPart("blue",  ccConf.PIXEL_BLUE_MASK,  macroBody);
+  end func;
+
+
 const proc: drw_prototypes (inout file: c_prog) is func
 
   begin
@@ -142,7 +180,22 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwFPolyLine (const_winType, intType, intType, bstriType, intType);");
     declareExtern(c_prog, "void        drwPut (const_winType, const_winType, intType, intType);");
     declareExtern(c_prog, "void        drwRect (const_winType, intType, intType, intType, intType);");
-    declareExtern(c_prog, "intType     drwRgbColor (intType, intType, intType);");
+    if inlineFunctions and ccConf.PIXEL_RED_MASK   <> 0 and
+                           ccConf.PIXEL_GREEN_MASK <> 0 and
+                           ccConf.PIXEL_BLUE_MASK  <> 0 then
+      if ccConf.RGB_TO_PIXEL_FLAG_NAME = "" then
+        writeln(c_prog, "#define drwRgbColor(red, green, blue) " <&
+                        "(" <& defineRgbMacroBody <& ")");
+      else
+        declareExtern(c_prog, "intType     drwRgbColor (intType, intType, intType);");
+        writeln(c_prog, "extern int " <& ccConf.RGB_TO_PIXEL_FLAG_NAME <& ";");
+        writeln(c_prog, "#define drwRgbColor(red, green, blue) " <&
+                        "(" <& ccConf.RGB_TO_PIXEL_FLAG_NAME <& "?(" <&
+                        defineRgbMacroBody <& "):(drwRgbColor)(red, green, blue))");
+      end if;
+    else
+      declareExtern(c_prog, "intType     drwRgbColor (intType, intType, intType);");
+    end if;
     declareExtern(c_prog, "winType     drwRtlImage (const_arrayType);");
     declareExtern(c_prog, "intType     drwScreenHeight (void);");
     declareExtern(c_prog, "intType     drwScreenWidth (void);");

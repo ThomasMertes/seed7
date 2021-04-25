@@ -479,6 +479,45 @@ const proc: process (PRC_RETURN, in reference: function,
   end func;
 
 
+const func boolean: varChangedInStatements (in reference: variable,
+    in reference: statements) is func
+
+  result
+    var boolean: varChangedInStatements is FALSE;
+  local
+    var category: currCategory is category.value;
+    var reference: function is NIL;
+    var ref_list: actualParams is ref_list.EMPTY;
+    var ref_list: formalParams is ref_list.EMPTY;
+    var integer: index is 0;
+    var reference: actualParam is NIL;
+    var reference: formalParam is NIL;
+  begin
+    currCategory := category(statements);
+    # writeln("currCategory: " <& str(currCategory));
+    if currCategory = CALLOBJECT or currCategory = MATCHOBJECT then
+      actualParams := getValue(statements, ref_list);
+      function := actualParams[1];
+      actualParams := actualParams[2 ..];
+      formalParams := formalParams(function);
+      for actualParam range actualParams do
+        incr(index);
+        if actualParam = variable then
+          # writeln("  variable used: " <& file(statements) <& "(" <& line(statements) <& ")");
+          formalParam := formalParams[index];
+          if category(formalParam) = REFPARAMOBJECT and isVar(formalParam) then
+            # writeln("    ***** Variable changed");
+            varChangedInStatements := TRUE;
+          end if;
+        elsif category(actualParam) = CALLOBJECT or category(actualParam) = MATCHOBJECT then
+          varChangedInStatements := varChangedInStatements or
+              varChangedInStatements(variable, actualParam);
+        end if;
+      end for;
+    end if;
+  end func;
+
+
 const proc: process_prc_for (in reference: variable, in reference: startExpr,
     in reference: endExpr, in reference: incrStep, in reference: statements,
     in boolean: for_to, inout expr_type: c_expr) is func
@@ -489,36 +528,20 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
     var string: start_name is "";
     var string: end_name is "";
     var string: step_name is "";
+    var boolean: constant_start_value is FALSE;
+    var integer: start_value is 0;
     var boolean: constant_end_value is FALSE;
     var integer: end_value is 0;
     var boolean: raises_exception is FALSE;
+    var intRange: variableRange is intRange.value;
     var expr_type: statement is expr_type.value;
   begin
-    c_start_expr.temp_num := c_expr.temp_num;
-    process_expr(startExpr, c_start_expr);
-    c_expr.temp_num := c_start_expr.temp_num;
-    statement.temp_num := c_expr.temp_num;
-    if c_start_expr.temp_frees <> "" then
-      incr(statement.temp_num);
-      start_name := "start_" & str(statement.temp_num);
-      statement.temp_decls &:= "intType ";
-      statement.temp_decls &:= start_name;
-      statement.temp_decls &:= ";\n";
-      statement.temp_assigns &:= "{\n";
-      statement.temp_assigns &:= c_start_expr.temp_decls;
-      statement.temp_assigns &:= c_start_expr.temp_assigns;
-      statement.temp_assigns &:= start_name;
-      statement.temp_assigns &:= "=";
-      statement.temp_assigns &:= c_start_expr.expr;
-      statement.temp_assigns &:= ";\n";
-      statement.temp_assigns &:= c_start_expr.temp_frees;
-      statement.temp_assigns &:= "}\n";
+    if getConstant(startExpr, INTOBJECT, evaluatedParam) then
+      constant_start_value := TRUE;
+      start_value := getValue(evaluatedParam, integer);
+      start_name := integerLiteral(start_value);
     else
-      if c_start_expr.temp_decls <> "" or c_start_expr.temp_assigns <> "" then
-        statement.temp_decls &:= c_start_expr.temp_decls;
-        statement.temp_assigns &:= c_start_expr.temp_assigns;
-      end if;
-      start_name := c_start_expr.expr;
+      start_name := defineForStartVariable("intType", "start_", startExpr, statement);
     end if;
     if getConstant(endExpr, INTOBJECT, evaluatedParam) then
       constant_end_value := TRUE;
@@ -598,7 +621,23 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
           statement.expr &:= ") {\n";
         end if;
       end if;
-      process_call_by_name_expr(statements, statement);
+      if category(variable) = LOCALVOBJECT and
+          (constant_start_value or constant_end_value) and
+          not varChangedInStatements(variable, statements) then
+        if constant_start_value then
+          variableRange.minValue := start_value;
+        end if;
+        if constant_end_value then
+          variableRange.maxValue := end_value;
+        end if;
+        # write(file(statements) <& "(" <& line(statements) <& ") ");
+        # writeln("for variable range: " <& variableRange.minValue <& ".." <& variableRange.maxValue);
+        intRangeOfVariable @:= [variable] variableRange;
+        process_call_by_name_expr(statements, statement);
+        excl(intRangeOfVariable, variable);
+      else
+        process_call_by_name_expr(statements, statement);
+      end if;
       statement.expr &:= "}\n";
     end if;
     doLocalDeclsOfStatement(statement, c_expr);

@@ -1,0 +1,1570 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  jpeg.s7i      Support for the JPEG image file format.           *)
+(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bytedata.s7i";
+include "bitdata.s7i";
+include "huffman.s7i";
+include "draw.s7i";
+
+
+const string: JPEG_MAGIC is "\16#ff;\16#d8;\16#ff;";  # Start of image (SOI) + ff
+
+const char: JPEG_MARKER_START is '\16#ff;';
+const char: JPEG_SOF0   is '\16#c0;';  # Start Of Frame (Baseline)
+const char: JPEG_SOF1   is '\16#c1;';  # Start Of Frame (Extended sequential)
+const char: JPEG_SOF2   is '\16#c2;';  # Start Of Frame (Progressive)
+const char: JPEG_DHT    is '\16#c4;';  # Define Huffman Table
+const char: JPEG_SOI    is '\16#d8;';  # Start Of Image
+const char: JPEG_EOI    is '\16#d9;';  # End Of Image
+const char: JPEG_SOS    is '\16#da;';  # Start Of Scan
+const char: JPEG_DQT    is '\16#db;';  # Define Quantization Table
+const char: JPEG_DRI    is '\16#dd;';  # Define Restart Interval
+const char: JPEG_APP0   is '\16#e0;';  # Application Segment 0
+const char: JPEG_APP15  is '\16#ef;';  # Application Segment 15
+const char: JPEG_COM    is '\16#fe;';  # Comment
+const char: JPEG_FILLER is '\16#ff;';  # Fill byte (ignored)
+
+const integer: JPEG_BLOCK_SIZE is 64;
+
+const integer: JPEG_COMPTYPE_LUMA        is 1;
+const integer: JPEG_COMPTYPE_CHROMA_BLUE is 2;
+const integer: JPEG_COMPTYPE_CHROMA_RED  is 3;
+
+const type: jpegComponent is new struct
+    var integer: quantizationTableIndex is 0;
+  end struct;
+
+const type: jpegScan is new struct
+    var integer: comptype is 0;
+    var integer: dcHuffmanTableIndex is 0;
+    var integer: acHuffmanTableIndex is 0;
+  end struct;
+
+const type: jpegHeader is new struct
+    var integer: precision is 0;
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: framebytes is 0;
+    var array array integer: quantizationTable is 4 times JPEG_BLOCK_SIZE times 0;
+    var array jpegComponent: component is 0 times jpegComponent.value;
+    var array jpegScan: scan is 0 times jpegScan.value;
+    var array huffmanTable: dcTable is 4 times huffmanTable.value;
+    var array huffmanTable: acTable is 4 times huffmanTable.value;
+    var array integer: lumaQuantization is 0 times 0;
+    var array integer: chromaBlueQuantization is 0 times 0;
+    var array integer: chromaRedQuantization is 0 times 0;
+    var integer: restartInterval is 0;
+    var integer: numberOfScans is 0;
+    var integer: startOfSpectral is 0;
+    var integer: endOfSpectral is 0;
+    var integer: approximationLow is 0;
+    var integer: approximationHigh is 0;
+    var boolean: progressive is FALSE;
+    var integer: vertical is 0;
+    var integer: horizontal is 0;
+    var integer: numLuma is 0;
+    var integer: unitLines is 0;
+    var integer: unitColumns is 0;
+    var integer: blockLines is 0;
+    var integer: blockColumns is 0;
+  end struct;
+
+const type: jpegMinimumCodedUnit is new struct
+    var array array integer: luma is 4 times JPEG_BLOCK_SIZE times 0;
+    var array array integer: chroma is 2 times JPEG_BLOCK_SIZE times 0;
+  end struct;
+
+const integer: CHROMA_BLUE is 1;
+const integer: CHROMA_RED  is 2;
+
+
+const proc: readStartOfFrame (inout file: jpegFile, inout jpegHeader: header) is func
+  local
+    var integer: length is 0;
+    var integer: numComponents is 0;
+    var integer: comptype is 0;
+    var integer: sampling is 0;
+    var integer: index is 0;
+  begin
+    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
+    header.precision := ord(getc(jpegFile));
+    header.height := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE);
+    header.width := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE);
+    numComponents := ord(getc(jpegFile));
+    header.framebytes := header.width * header.height * numComponents;
+    header.component := numComponents times jpegComponent.value;
+    for index range 1 to numComponents do
+      comptype := ord(getc(jpegFile));
+      if comptype <> index then
+        raise RANGE_ERROR;
+      end if;
+      sampling := ord(getc(jpegFile));
+      if comptype = JPEG_COMPTYPE_LUMA then
+        header.vertical := sampling mod 16;
+        header.horizontal := sampling >> 4;
+        if header.vertical > 2 or header.horizontal > 2 then
+          raise RANGE_ERROR;
+        end if;
+      elsif sampling <> 16#11 or comptype > JPEG_COMPTYPE_CHROMA_RED then
+        raise RANGE_ERROR;
+      end if;
+      header.component[index].quantizationTableIndex := ord(getc(jpegFile)) + 1;
+    end for;
+    header.numLuma := header.vertical * header.horizontal;
+    header.unitLines := succ(pred(header.height) mdiv (8 * header.vertical));
+    header.unitColumns := succ(pred(header.width) mdiv (8 * header.horizontal));
+    header.blockLines := succ(pred(header.height) mdiv 8);
+    header.blockColumns := succ(pred(header.width) mdiv 8);
+    length -:= 6 + numComponents * 3;
+    if length <> 0 then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: readDefineHuffmanTable (inout file: jpegFile, inout jpegHeader: header) is func
+  local
+    var integer: length is 0;
+    var array integer: numberOfCodesWithLength is 16 times 0;
+    var integer: maximumCodeLength is 0;
+    var string: huffmanValues is "";
+    var integer: aByte is 0;
+    var integer: tableClass is 0;
+    var integer: tableNumber is 0;
+    var integer: numberOfCodes is 0;
+    var integer: codeLength is 0;
+  begin
+    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
+    while length > 0 do
+      aByte := ord(getc(jpegFile));
+      tableClass := aByte >> 4;
+      tableNumber := succ(aByte mod 16);
+      numberOfCodes := 0;
+      maximumCodeLength := 0;
+      for codeLength range 1 to 16 do
+        numberOfCodesWithLength[codeLength] := ord(getc(jpegFile));
+        if numberOfCodesWithLength[codeLength] <> 0 then
+          maximumCodeLength := codeLength;
+        end if;
+        numberOfCodes +:= numberOfCodesWithLength[codeLength];
+      end for;
+      huffmanValues := gets(jpegFile, numberOfCodes);
+      if tableClass = 0 then
+        createHuffmanTableMsb(header.dcTable[tableNumber], maximumCodeLength,
+                              numberOfCodesWithLength, huffmanValues);
+      elsif tableClass = 1 then
+        createHuffmanTableMsb(header.acTable[tableNumber], maximumCodeLength,
+                              numberOfCodesWithLength, huffmanValues);
+      else
+        raise RANGE_ERROR;
+      end if;
+      length -:= 17 + numberOfCodes;
+    end while;
+    if length <> 0 then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: readStartOfScan (inout file: jpegFile, inout jpegHeader: header) is func
+  local
+    var integer: length is 0;
+    var integer: index is 0;
+    var integer: aByte is 0;
+  begin
+    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
+    header.numberOfScans := ord(getc(jpegFile));
+    header.scan := header.numberOfScans times jpegScan.value;
+    for index range 1 to header.numberOfScans do
+      header.scan[index].comptype := ord(getc(jpegFile));
+      if header.scan[index].comptype > length(header.component) then
+        raise RANGE_ERROR;
+      else
+        aByte := ord(getc(jpegFile));
+        header.scan[index].dcHuffmanTableIndex := succ(aByte >> 4);
+        header.scan[index].acHuffmanTableIndex := succ(aByte mod 16);
+      end if;
+    end for;
+    header.startOfSpectral := succ(ord(getc(jpegFile)));
+    header.endOfSpectral := succ(ord(getc(jpegFile)));
+    aByte := ord(getc(jpegFile));
+    header.approximationHigh := aByte >> 4;
+    header.approximationLow := aByte mod 16;
+    if header.progressive and header.startOfSpectral = 1 and
+        header.endOfSpectral <> 1 then
+      raise RANGE_ERROR;
+    end if;
+    if header.startOfSpectral > header.endOfSpectral or
+        header.endOfSpectral > JPEG_BLOCK_SIZE then
+      raise RANGE_ERROR;
+    end if;
+    if header.startOfSpectral <> 1 and header.numberOfScans <> 1 then
+      raise RANGE_ERROR;
+    end if;
+    if header.approximationHigh <> 0 and
+        header.approximationHigh <> succ(header.approximationLow) then
+      raise RANGE_ERROR;
+    end if;
+    length -:= 4 + header.numberOfScans * 2;
+    if length <> 0 then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: readDefineQuantizationTable (inout file: jpegFile, inout jpegHeader: header) is func
+  local
+    var integer: length is 0;
+    var integer: aByte is 0;
+    var integer: elementPrecision is 0;
+    var integer: tableNumber is 0;
+    var integer: index is 0;
+  begin
+    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
+    while length > 0 do
+      aByte := ord(getc(jpegFile));
+      elementPrecision := aByte >> 4;
+      tableNumber := succ(aByte mod 16);
+      decr(length);
+      if elementPrecision = 0 then
+        for index range 1 to JPEG_BLOCK_SIZE do
+          header.quantizationTable[tableNumber][index] := ord(getc(jpegFile));
+        end for;
+        length -:= JPEG_BLOCK_SIZE;
+      elsif elementPrecision = 1 then
+        for index range 1 to JPEG_BLOCK_SIZE do
+          header.quantizationTable[tableNumber][index] := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE)
+        end for;
+        length -:= 2 * JPEG_BLOCK_SIZE;
+      else
+        raise RANGE_ERROR;
+      end if;
+    end while;
+    if length <> 0 then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: readDefineRestartInterval (inout file: jpegFile, inout jpegHeader: header) is func
+  local
+    var integer: length is 0;
+  begin
+    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
+    if length <> 2 then
+      raise RANGE_ERROR;
+    else
+      header.restartInterval := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE);
+    end if;
+  end func;
+
+
+const proc: readApplicationSegment (inout file: jpegFile, in integer: appNumber) is func
+  local
+    var integer: length is 0;
+    var string: data is "";
+    var integer: pos is 1;
+    var string: identifier is "";
+  begin
+    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
+    data := gets(jpegFile, length);
+    identifier := getAsciiz(data, pos);
+  end func;
+
+
+const proc: readComment (inout file: jpegFile) is func
+  local
+    var integer: length is 0;
+    var string: data is "";
+  begin
+    length := bytes2Int(gets(jpegFile, 2), UNSIGNED, BE) - 2;
+    data := gets(jpegFile, length);
+  end func;
+
+
+##
+#  Get a symbol with ''bitWidth'' bits from the ''stri'' bitstream.
+#  Negative values are encoded with the highest bit set to zero.
+#
+const func integer: getSymbol (in string: stri, inout integer: bytePos,
+    inout integer: bitPos, in integer: bitWidth) is func
+  result
+    var integer: symbol is 0;
+  begin
+    symbol := getBitsMsb(stri, bytePos, bitPos, bitWidth);
+    if symbol < 1 << pred(bitWidth) then
+      # Negative value
+      symbol -:= pred(1 << bitWidth);
+    end if;
+  end func;
+
+
+##
+#  Read a block of IDCT coefficients.
+#  There is one DC coefficient and 63 AC coefficients.
+#  The DC coefficient (the first value) describes the average block value.
+#  @param dataBlock Destination for the 64 coefficients.
+#  @param dcTable Huffman table for the DC coefficient.
+#  @param acTable Huffman table for the 63 AC coefficients.
+#
+const proc: readBlock (inout array integer: dataBlock,
+    in string: stri, inout integer: bytePos, inout integer: bitPos,
+    in huffmanTable: dcTable, in huffmanTable: acTable) is func
+  local
+    var integer: bitWidth is 0;
+    var integer: index is 1;
+    var integer: aByte is 0;
+    var integer: zeros is 0;
+  begin
+    dataBlock := JPEG_BLOCK_SIZE times 0;
+    bitWidth := getHuffmanSymbolMsb(stri, bytePos, bitPos, dcTable);
+    if bitWidth <> 0 then
+      dataBlock[index] := getSymbol(stri, bytePos, bitPos, bitWidth);
+    end if;
+    repeat
+      aByte := getHuffmanSymbolMsb(stri, bytePos, bitPos, acTable);
+      zeros := aByte >> 4;
+      bitWidth := aByte mod 16;
+      if bitWidth = 0 then
+        if zeros = 15 then
+          index +:= 16;
+          if index >= JPEG_BLOCK_SIZE then
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      else
+        index +:= succ(zeros);
+        dataBlock[index] := getSymbol(stri, bytePos, bitPos, bitWidth);
+        if index = JPEG_BLOCK_SIZE then
+          aByte := 0;
+        end if;
+      end if;
+    until aByte = 0;
+  end func;
+
+
+##
+#  Undo zigzagging of coefficients.
+#  @param dataBlock 64 coefficients to dezigzag.
+#  @return The dezigzagged coefficients.
+#
+const func array integer: unzigzag (in array integer: dataBlock) is func
+  result
+    var array integer: unzigzag is JPEG_BLOCK_SIZE times 0;
+  local
+    const array integer: zigzag is [] (
+         1,  2,  6,  7, 15, 16, 28, 29,
+         3,  5,  8, 14, 17, 27, 30, 43,
+         4,  9, 13, 18, 26, 31, 42, 44,
+        10, 12, 19, 25, 32, 41, 45, 54,
+        11, 20, 24, 33, 40, 46, 53, 55,
+        21, 23, 34, 39, 47, 52, 56, 61,
+        22, 35, 38, 48, 51, 57, 60, 62,
+        36, 37, 49, 50, 58, 59, 63, 64);
+    var integer: index is 0;
+  begin
+    for index range 1 to JPEG_BLOCK_SIZE do
+      unzigzag[index] := dataBlock[zigzag[index]];
+    end for;
+  end func;
+
+
+##
+#  Fast inverse discrete cosine transform for a block line or block column.
+#  For the internal calculation the values are scaled by 2048. At the end of
+#  the function the scaling is reversed. This way the same function can be
+#  used for lines and columns.
+#  @param a1 .. a8 The coefficients of a line or column.
+#
+const proc: fastIdct8 (inout integer: a1, inout integer: a2, inout integer: a3,
+    inout integer: a4, inout integer: a5, inout integer: a6, inout integer: a7,
+    inout integer: a8) is func
+  local
+    const integer: W1 is 2841;  # 2048 * sqrt(2.0) * cos(1 * PI / 16)
+    const integer: W2 is 2676;  # 2048 * sqrt(2.0) * cos(2 * PI / 16)
+    const integer: W3 is 2408;  # 2048 * sqrt(2.0) * cos(3 * PI / 16)
+    const integer: W5 is 1609;  # 2048 * sqrt(2.0) * cos(5 * PI / 16)
+    const integer: W6 is 1108;  # 2048 * sqrt(2.0) * cos(6 * PI / 16)
+    const integer: W7 is  565;  # 2048 * sqrt(2.0) * cos(7 * PI / 16)
+    var integer: x0 is 0;
+    var integer: x1 is 0;
+    var integer: x2 is 0;
+    var integer: x3 is 0;
+    var integer: x4 is 0;
+    var integer: x5 is 0;
+    var integer: x6 is 0;
+    var integer: x7 is 0;
+    var integer: x8 is 0;
+  begin
+    if a2 = 0 and a3 = 0 and a4 = 0 and a5 = 0 and a6 = 0 and a7 = 0 and a8 = 0 then
+      a2 := a1;
+      a3 := a1;
+      a4 := a1;
+      a5 := a1;
+      a6 := a1;
+      a7 := a1;
+      a8 := a1;
+    else
+      x0 := (a1 << 11) + 128;
+      x1 := a5 << 11;
+      x2 := a7;
+      x3 := a3;
+      x4 := a2;
+      x5 := a8;
+      x6 := a6;
+      x7 := a4;
+
+      # First stage
+      x8 := W7 * (x4 + x5);
+      x4 := x8 + (W1 - W7) * x4;
+      x5 := x8 - (W1 + W7) * x5;
+      x8 := W3 * (x6 + x7);
+      x6 := x8 - (W3 - W5) * x6;
+      x7 := x8 - (W3 + W5) * x7;
+
+      # Second stage
+      x8 := x0 + x1;
+      x0 -:= x1;
+      x1 := W6 * (x3 + x2);
+      x2 := x1 - (W2 + W6) * x2;
+      x3 := x1 + (W2 - W6) * x3;
+      x1 := x4 + x6;
+      x4 -:= x6;
+      x6 := x5 + x7;
+      x5 -:= x7;
+
+      # Third stage
+      x7 := x8 + x3;
+      x8 -:= x3;
+      x3 := x0 + x2;
+      x0 -:= x2;
+      x2 := (181 * (x4 + x5) + 128) >> 8;
+      x4 := (181 * (x4 - x5) + 128) >> 8;
+
+      # Fourth stage
+      a1 := (x7 + x1) >> 11;
+      a2 := (x3 + x2) >> 11;
+      a3 := (x0 + x4) >> 11;
+      a4 := (x8 + x6) >> 11;
+      a5 := (x8 - x6) >> 11;
+      a6 := (x0 - x4) >> 11;
+      a7 := (x3 - x2) >> 11;
+      a8 := (x7 - x1) >> 11;
+    end if;
+  end func;
+
+
+##
+#  Perform a fast 2d inverse discrete cosine transform for a 8x8 block.
+#  @param dataBlock 64 coefficients to transform.
+#
+const proc: idct8x8 (inout array integer: dataBlock) is func
+  local
+    var integer: index is 0;
+  begin
+    for index range 1 to 57 step 8 do
+      fastIdct8(dataBlock[index],
+                dataBlock[index + 1],
+                dataBlock[index + 2],
+                dataBlock[index + 3],
+                dataBlock[index + 4],
+                dataBlock[index + 5],
+                dataBlock[index + 6],
+                dataBlock[index + 7]);
+    end for;
+    for index range 1 to 8 do
+      fastIdct8(dataBlock[index],
+                dataBlock[index + 8],
+                dataBlock[index + 16],
+                dataBlock[index + 24],
+                dataBlock[index + 32],
+                dataBlock[index + 40],
+                dataBlock[index + 48],
+                dataBlock[index + 56]);
+    end for;
+  end func;
+
+
+##
+#  Read and process a 8x8 block of IDCT coefficients.
+#  This function is used for luma and chroma blocks.
+#  The processed block contains luma or chroma values of an 8x8
+#  area scaled with factor 8 to the range -1024 .. 1023.
+#  The values are not clamped so they might also be higher or
+#  lower than the limit.
+#
+const proc: processBlock (inout array integer: dataBlock,
+    in string: stri, inout integer: bytePos, inout integer: bitPos, 
+    in huffmanTable: dcTable, in huffmanTable: acTable,
+    in array integer: quantizationTable, inout integer: diff) is func
+  local
+    var integer: index is 0;
+  begin
+    readBlock(dataBlock, stri, bytePos, bitPos, dcTable, acTable);
+    dataBlock[1] +:= diff;
+    diff := dataBlock[1];
+    for index range 1 to JPEG_BLOCK_SIZE do
+      dataBlock[index] *:= quantizationTable[index];
+    end for;
+    dataBlock := unzigzag(dataBlock);
+    idct8x8(dataBlock);
+  end func;
+
+
+const func integer: clampColor (in integer: col) is
+  return (col < 0 ? 0 : (col > 255 ? 255 : col)) * 256;
+
+
+##
+#  Determine the pixel color from ''luminance'', ''chromaBlue'' and ''chromaRed''.
+#  @param luminance Luminance scaled to 0 .. 255 (not clamped to it).
+#  @param chromaBlue Blue croma scaled to -1024 .. 1023 (not clamped to it).
+#  @param chromaRed Red croma scaled to -1024 .. 1023 (not clamped to it).
+#  @return The pixel color in the RGB color space.
+#
+const func pixel: setPixel (in integer: luminance, in integer: chromaBlue, in integer: chromaRed) is
+  return rgbPixel(clampColor(chromaRed * 359 mdiv 2048 + luminance),
+                  clampColor(luminance - (chromaBlue * 88 + chromaRed * 183) mdiv 2048),
+                  clampColor(chromaBlue * 454 mdiv 2048 + luminance));
+
+
+const proc: colorMinimumCodedUnit11 (in jpegHeader: header, in array integer: luma1,
+    in array integer: chromaBlue, in array integer: chromaRed, inout array array pixel: image,
+    in integer: mcuTopLine, in integer: mcuLeftColumn) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: columnBeyond is 0;
+    var integer: dataIndex is 0;
+    var integer: luminance is 0;
+  begin
+    line := mcuTopLine;
+    column := mcuLeftColumn;
+    columnBeyond := column + 8;
+    for dataIndex range 1 to JPEG_BLOCK_SIZE do
+      if line <= header.height and column <= header.width then
+        luminance := luma1[dataIndex] mdiv 8 + 128;
+        image[line][column] := setPixel(luminance, chromaBlue[dataIndex], chromaRed[dataIndex]);
+      end if;
+      incr(column);
+      if column = columnBeyond then
+        incr(line);
+        column := mcuLeftColumn;
+      end if;
+    end for;
+  end func;
+
+
+const proc: colorMinimumCodedUnit12 (in jpegHeader: header, in array integer: luma1,
+    in array integer: luma2, in array integer: chromaBlue, in array integer: chromaRed,
+    inout array array pixel: image, in integer: mcuTopLine, in integer: mcuLeftColumn) is func
+  local
+    var integer: blockLine is 0;
+    var integer: blockColumn is 0;
+    var integer: blockColumnMax is 0;
+    var integer: line is 1;
+    var integer: column is 1;
+    var integer: dataIndex is 0;
+    var integer: luminance is 0;
+  begin
+    blockColumnMax := min(7, header.width - mcuLeftColumn);
+    for blockLine range 0 to 7 do
+      line := mcuTopLine + blockLine;
+      if line <= header.height then
+        for blockColumn range 0 to blockColumnMax do
+          column := mcuLeftColumn + blockColumn;
+          luminance := luma1[blockLine * 8 + blockColumn + 1] mdiv 8 + 128;
+          dataIndex := succ(blockLine mdiv 2 * 8 + blockColumn);
+          image[line][column] := setPixel(luminance, chromaBlue[dataIndex], chromaRed[dataIndex]);
+        end for;
+      end if;
+    end for;
+    for blockLine range 8 to 15 do
+      line := mcuTopLine + blockLine;
+      if line <= header.height then
+        for blockColumn range 0 to blockColumnMax do
+          column := mcuLeftColumn + blockColumn;
+          luminance := luma2[(blockLine - 8) * 8 + blockColumn + 1] mdiv 8 + 128;
+          dataIndex := succ(blockLine mdiv 2 * 8 + blockColumn);
+          image[line][column] := setPixel(luminance, chromaBlue[dataIndex], chromaRed[dataIndex]);
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: colorMinimumCodedUnit21 (in jpegHeader: header, in array integer: luma1,
+    in array integer: luma2, in array integer: chromaBlue, in array integer: chromaRed,
+    inout array array pixel: image, in integer: mcuTopLine, in integer: mcuLeftColumn) is func
+  local
+    var integer: blockLine is 0;
+    var integer: blockColumn is 0;
+    var integer: blockColumnMax1 is 0;
+    var integer: blockColumnMax2 is 0;
+    var integer: line is 1;
+    var integer: column is 1;
+    var integer: dataIndex is 0;
+    var integer: luminance is 0;
+  begin
+    blockColumnMax1 := min(7, header.width - mcuLeftColumn);
+    blockColumnMax2 := min(15, header.width - mcuLeftColumn);
+    for blockLine range 0 to min(7, header.height - mcuTopLine) do
+      line := mcuTopLine + blockLine;
+      for blockColumn range 0 to blockColumnMax1 do
+        column := mcuLeftColumn + blockColumn;
+        luminance := luma1[blockLine * 8 + blockColumn + 1] mdiv 8 + 128;
+        dataIndex := succ(blockLine * 8 + blockColumn mdiv 2);
+        image[line][column] := setPixel(luminance, chromaBlue[dataIndex], chromaRed[dataIndex]);
+      end for;
+      for blockColumn range 8 to blockColumnMax2 do
+        column := mcuLeftColumn + blockColumn;
+        luminance := luma2[blockLine * 8 + blockColumn - 8 + 1] mdiv 8 + 128;
+        dataIndex := succ(blockLine * 8 + blockColumn mdiv 2);
+        image[line][column] := setPixel(luminance, chromaBlue[dataIndex], chromaRed[dataIndex]);
+      end for;
+    end for;
+  end func;
+
+
+const proc: colorMinimumCodedUnit22 (in jpegHeader: header, in array integer: luma1,
+    in array integer: luma2, in array integer: luma3, in array integer: luma4,
+    in array integer: chromaBlue, in array integer: chromaRed, inout array array pixel: image,
+    in integer: mcuTopLine, in integer: mcuLeftColumn) is func
+  local
+    var integer: blockLine is 0;
+    var integer: blockColumn is 0;
+    var integer: blockColumnMax1 is 0;
+    var integer: blockColumnMax2 is 0;
+    var integer: line is 1;
+    var integer: column is 1;
+    var integer: dataIndex is 0;
+    var integer: luminance is 0;
+  begin
+    blockColumnMax1 := min(7, header.width - mcuLeftColumn);
+    blockColumnMax2 := min(15, header.width - mcuLeftColumn);
+    for blockLine range 0 to 7 do
+      line := mcuTopLine + blockLine;
+      if line <= header.height then
+        for blockColumn range 0 to blockColumnMax1 do
+          column := mcuLeftColumn + blockColumn;
+          luminance := luma1[blockLine * 8 + blockColumn + 1] mdiv 8 + 128;
+          dataIndex := succ(blockLine mdiv 2 * 8 + blockColumn mdiv 2);
+          image[line][column] := setPixel(luminance, chromaBlue[dataIndex], chromaRed[dataIndex]);
+        end for;
+        for blockColumn range 8 to blockColumnMax2 do
+          column := mcuLeftColumn + blockColumn;
+          luminance := luma2[blockLine * 8 + blockColumn - 8 + 1] mdiv 8 + 128;
+          dataIndex := succ(blockLine mdiv 2 * 8 + blockColumn mdiv 2);
+          image[line][column] := setPixel(luminance, chromaBlue[dataIndex], chromaRed[dataIndex]);
+        end for;
+      end if;
+    end for;
+    for blockLine range 8 to 15 do
+      line := mcuTopLine + blockLine;
+      if line <= header.height then
+        for blockColumn range 0 to blockColumnMax1 do
+          column := mcuLeftColumn + blockColumn;
+          luminance := luma3[(blockLine - 8) * 8 + blockColumn + 1] mdiv 8 + 128;
+          dataIndex := succ(blockLine mdiv 2 * 8 + blockColumn mdiv 2);
+          image[line][column] := setPixel(luminance, chromaBlue[dataIndex], chromaRed[dataIndex]);
+        end for;
+        for blockColumn range 8 to blockColumnMax2 do
+          column := mcuLeftColumn + blockColumn;
+          luminance := luma4[(blockLine - 8) * 8 + blockColumn - 8 + 1] mdiv 8 + 128;
+          dataIndex := succ(blockLine mdiv 2 * 8 + blockColumn mdiv 2);
+          image[line][column] := setPixel(luminance, chromaBlue[dataIndex], chromaRed[dataIndex]);
+        end for;
+      end if;
+    end for;
+  end func;
+
+
+const proc: setupQuantization (inout jpegHeader: header) is func
+  begin
+    header.lumaQuantization := header.quantizationTable[header.component[1].quantizationTableIndex];
+    if length(header.component) >= 2 then
+      header.chromaBlueQuantization := header.quantizationTable[header.component[2].quantizationTableIndex];
+      if length(header.component) >= 3 then
+        header.chromaRedQuantization := header.quantizationTable[header.component[3].quantizationTableIndex];
+      end if;
+    end if;
+  end func;
+
+
+##
+#  Read an entropy coded segment.
+#  The start of the next segment (e.g. Reset) ends the entropy coded segment.
+#  In the segment the sequence "\16#ff;\0;" is replaced by "\16#ff;".
+#  The segment ends, if a "\16#ff;" is not followed by "\0;" (introducing
+#  the start of the next segment). The char after "\16#ff;" is stored in
+#  bufferChar. Before the segment is returned "\16#ff;\16#ff;" is appended.
+#  This allows a peek of 16 bits also at the end of the segment.
+#
+const func string: readEntropyCodedSegment (inout file: jpegFile) is func
+  result
+    var string: ecsData is "";
+  local
+    var char: ch is ' ';
+  begin
+    repeat
+      ch := getc(jpegFile);
+      while ch <> JPEG_MARKER_START and ch <> EOF do
+        ecsData &:= ch;
+        ch := getc(jpegFile);
+      end while;
+      if ch = JPEG_MARKER_START then
+        ch := getc(jpegFile);
+        if ch = '\0;' then
+          ecsData &:= JPEG_MARKER_START;
+        end if;
+      end if;
+    until ch <> '\0;';
+    ecsData &:= "\16#ff;\16#ff;";
+    jpegFile.bufferChar := ch;
+  end func;
+
+
+const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
+    in huffmanTable: dcLumaTable, in huffmanTable: acLumaTable,
+    inout array array pixel: image) is func
+  local
+    var string: entropyCodedSegment is "";
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: mcuTopLine is 0;
+    var integer: mcuLeftColumn is 0;
+    var integer: line is 0;
+    var integer: mcuCount is 0;
+    var integer: diffLuminance is 0;
+    var array integer: luma is JPEG_BLOCK_SIZE times 0;
+    var integer: blockLine is 0;
+    var integer: blockLineMax is 0;
+    var integer: blockColumn is 0;
+    var integer: blockColumnMax is 0;
+    var integer: grayIntensity is 0;
+  begin
+    entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    image := header.height times header.width times pixel.value;
+    for mcuTopLine range 1 to header.height step 8 do
+      blockLineMax := min(7, header.height - mcuTopLine);
+      for mcuLeftColumn range 1 to header.width step 8 do
+        if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
+          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+          bytePos := 1;
+          bitPos := 0;
+          diffLuminance := 0;
+        end if;
+        processBlock(luma, entropyCodedSegment, bytePos, bitPos,
+                     dcLumaTable, acLumaTable, header.lumaQuantization, diffLuminance);
+        blockColumnMax := min(7, header.width - mcuLeftColumn);
+        for blockLine range 0 to blockLineMax do
+          line := mcuTopLine + blockLine;
+          for blockColumn range 0 to blockColumnMax do
+            grayIntensity := clampColor(luma[succ(blockLine * 8 + blockColumn)] mdiv 8 + 128);
+            image[line][mcuLeftColumn + blockColumn] :=
+                rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          end for;
+        end for;
+        incr(mcuCount);
+      end for;
+    end for;
+  end func;
+
+
+const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
+    in huffmanTable: dcLumaTable, in huffmanTable: acLumaTable,
+    in huffmanTable: dcChromaBlueTable, in huffmanTable: acChromaBlueTable,
+    in huffmanTable: dcChromaRedTable, in huffmanTable: acChromaRedTable,
+    inout array array pixel: image) is func
+  local
+    var string: entropyCodedSegment is "";
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: mcuCount is 0;
+    var integer: index is 0;
+    var integer: diffLuminance is 0;
+    var integer: diffChromaBlue is 0;
+    var integer: diffChromaRed is 0;
+    var array array integer: luma is 4 times JPEG_BLOCK_SIZE times 0;
+    var array integer: chromaBlue is JPEG_BLOCK_SIZE times 0;
+    var array integer: chromaRed is JPEG_BLOCK_SIZE times 0;
+  begin
+    entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    image := header.height times header.width times pixel.value;
+    for line range 1 to header.height step header.vertical * 8 do
+      for column range 1 to header.width step header.horizontal * 8 do
+        if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
+          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+          bytePos := 1;
+          bitPos := 0;
+          diffLuminance := 0;
+          diffChromaBlue := 0;
+          diffChromaRed := 0;
+        end if;
+        for index range 1 to header.numLuma do
+          processBlock(luma[index], entropyCodedSegment, bytePos, bitPos,
+                       dcLumaTable, acLumaTable, header.lumaQuantization,
+                       diffLuminance);
+        end for;
+        processBlock(chromaBlue, entropyCodedSegment, bytePos, bitPos,
+                     dcChromaBlueTable, acChromaBlueTable,
+                     header.chromaBlueQuantization, diffChromaBlue);
+        processBlock(chromaRed, entropyCodedSegment, bytePos, bitPos,
+                     dcChromaRedTable, acChromaRedTable,
+                     header.chromaRedQuantization, diffChromaRed);
+        if header.horizontal = 1 then
+          if header.vertical = 1 then
+            colorMinimumCodedUnit11(header, luma[1], chromaBlue, chromaRed,
+                                    image, line, column);
+          else
+            colorMinimumCodedUnit12(header, luma[1], luma[2],
+                                    chromaBlue, chromaRed, image, line, column);
+          end if;
+        else
+          if header.vertical = 1 then
+            colorMinimumCodedUnit21(header, luma[1], luma[2],
+                                    chromaBlue, chromaRed, image, line, column);
+          else
+            colorMinimumCodedUnit22(header, luma[1], luma[2], luma[3], luma[4],
+                                    chromaBlue, chromaRed, image, line, column);
+          end if;
+        end if;
+        incr(mcuCount);
+      end for;
+    end for;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader: header) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var integer: dcLumaIndex is 0;
+    var integer: acLumaIndex is 0;
+    var integer: dcCbIndex is 0;
+    var integer: acCbIndex is 0;
+    var integer: dcCrIndex is 0;
+    var integer: acCrIndex is 0;
+    var array array pixel: image is 0 times 0 times pixel.value;
+  begin
+    if header.scan[1].comptype <> JPEG_COMPTYPE_LUMA then
+      raise RANGE_ERROR;
+    end if;
+    dcLumaIndex := header.scan[1].dcHuffmanTableIndex;
+    acLumaIndex := header.scan[1].acHuffmanTableIndex;
+    if header.numberOfScans = 1 then
+      loadMonochromeImage(jpegFile, header, header.dcTable[dcLumaIndex],
+                          header.acTable[acLumaIndex], image);
+    elsif header.numberOfScans = 3 then
+      if header.scan[2].comptype <> JPEG_COMPTYPE_CHROMA_BLUE or
+          header.scan[3].comptype <> JPEG_COMPTYPE_CHROMA_RED then
+        raise RANGE_ERROR;
+      end if;
+      dcCbIndex  := header.scan[2].dcHuffmanTableIndex;
+      acCbIndex  := header.scan[2].acHuffmanTableIndex;
+      dcCrIndex  := header.scan[3].dcHuffmanTableIndex;
+      acCrIndex  := header.scan[3].acHuffmanTableIndex;
+      loadColorImage(jpegFile, header,
+                     header.dcTable[dcLumaIndex], header.acTable[acLumaIndex],
+                     header.dcTable[dcCbIndex], header.acTable[acCbIndex],
+                     header.dcTable[dcCrIndex], header.acTable[acCrIndex],
+                     image);
+    else
+      raise RANGE_ERROR;
+    end if;
+    pixmap := imagePixmap(image);
+  end func;
+
+
+##
+#  Read the DC coefficient of a block.
+#
+const proc: readDcValue (inout integer: dcCoefficient,
+    in string: stri, inout integer: bytePos, inout integer: bitPos,
+    in huffmanTable: dcTable, inout integer: diff, 
+    in integer: approximationLow) is func
+
+  local
+    var integer: bitWidth is 0;
+    var integer: aValue is 0;
+  begin
+    bitWidth := getHuffmanSymbolMsb(stri, bytePos, bitPos, dcTable);
+    if bitWidth <> 0 then
+      aValue := getSymbol(stri, bytePos, bitPos, bitWidth);
+    end if;
+    aValue +:= diff;
+    diff := aValue;
+    dcCoefficient := aValue << approximationLow;
+  end func;
+
+
+const proc: readLumaDcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
+    in huffmanTable: dcTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
+  local
+    var string: entropyCodedSegment is "";
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: index is 0;
+    var integer: diffLuminance is 0;
+    var integer: mcuCount is 0;
+  begin
+    entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    for line range 1 to header.blockLines do
+      for column range 1 to header.blockColumns do
+        if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
+          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+          bytePos := 1;
+          bitPos := 0;
+          diffLuminance := 0;
+        end if;
+        index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
+        readDcValue(mcuImage[succ(pred(line) mdiv header.vertical)]
+                            [succ(pred(column) mdiv header.horizontal)].luma[index][1],
+                    entropyCodedSegment, bytePos, bitPos, dcTable,
+                    diffLuminance, header.approximationLow);
+        incr(mcuCount);
+      end for;
+    end for;
+  end func;
+
+
+const proc: readDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
+    in integer: dcLumaIndex, in integer: dcCbIndex, in integer: dcCrIndex,
+    inout array array jpegMinimumCodedUnit: mcuImage) is func
+  local
+    var string: entropyCodedSegment is "";
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: index is 0;
+    var integer: diffLuminance is 0;
+    var integer: diffChromaBlue is 0;
+    var integer: diffChromaRed is 0;
+    var integer: mcuCount is 0;
+  begin
+    entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    for line range 1 to header.unitLines do
+      for column range 1 to header.unitColumns do
+        if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
+          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+          bytePos := 1;
+          bitPos := 0;
+          diffLuminance := 0;
+          diffChromaBlue := 0;
+          diffChromaRed := 0;
+        end if;
+        if dcLumaIndex <> 0 then
+          for index range 1 to header.numLuma do
+            readDcValue(mcuImage[line][column].luma[index][1],
+                        entropyCodedSegment, bytePos, bitPos, header.dcTable[dcLumaIndex],
+                        diffLuminance, header.approximationLow);
+          end for;
+        end if;
+        if dcCbIndex <> 0 then
+          readDcValue(mcuImage[line][column].chroma[CHROMA_BLUE][1],
+                      entropyCodedSegment, bytePos, bitPos, header.dcTable[dcCbIndex],
+                      diffChromaBlue, header.approximationLow);
+        end if;
+        if dcCrIndex <> 0 then
+          readDcValue(mcuImage[line][column].chroma[CHROMA_RED][1],
+                      entropyCodedSegment, bytePos, bitPos, header.dcTable[dcCrIndex],
+                      diffChromaRed, header.approximationLow);
+        end if;
+        incr(mcuCount);
+      end for;
+    end for;
+  end func;
+
+
+const proc: refineDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
+    in integer: dcLumaIndex, in integer: dcCbIndex, in integer: dcCrIndex,
+    inout array array jpegMinimumCodedUnit: mcuImage) is func
+  local
+    var string: entropyCodedSegment is "";
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: index is 0;
+    var integer: mcuCount is 0;
+  begin
+    entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    for line range 1 to header.unitLines do
+      for column range 1 to header.unitColumns do
+        if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
+          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+          bytePos := 1;
+          bitPos := 0;
+        end if;
+        if dcLumaIndex <> 0 then
+          for index range 1 to header.numLuma do
+            if getBitMsb(entropyCodedSegment, bytePos, bitPos) <> 0 then
+              mcuImage[line][column].luma[index][1] +:= 1 << header.approximationLow;
+            end if;
+          end for;
+        end if;
+        if dcCbIndex <> 0 then
+          if getBitMsb(entropyCodedSegment, bytePos, bitPos) <> 0 then
+            mcuImage[line][column].chroma[CHROMA_BLUE][1] +:= 1 << header.approximationLow;
+          end if;
+        end if;
+        if dcCrIndex <> 0 then
+          if getBitMsb(entropyCodedSegment, bytePos, bitPos) <> 0 then
+            mcuImage[line][column].chroma[CHROMA_RED][1] +:= 1 << header.approximationLow;
+          end if;
+        end if;
+        incr(mcuCount);
+      end for;
+    end for;
+  end func;
+
+
+##
+#  Read the AC coefficients of a block.
+#
+const proc: readBlockAc (inout array integer: dataBlock,
+    in string: stri, inout integer: bytePos, inout integer: bitPos,
+    in huffmanTable: acTable, in integer: startOfSpectral,
+    in integer: endOfSpectral, inout integer: eobRunLength,
+    in integer: approximationLow) is func
+  local
+    var integer: bitWidth is 0;
+    var integer: index is 1;
+    var integer: aByte is 0;
+    var integer: zeros is 0;
+    var integer: bits is 0;
+  begin
+    index := pred(startOfSpectral);
+    repeat
+      aByte := getHuffmanSymbolMsb(stri, bytePos, bitPos, acTable);
+      zeros := aByte >> 4;
+      bitWidth := aByte mod 16;
+      if bitWidth = 0 then
+        if zeros = 15 then
+          index +:= 16;
+          if index >= JPEG_BLOCK_SIZE then
+            raise RANGE_ERROR;
+          end if;
+        else
+          eobRunLength := 1 << zeros;
+          if zeros <> 0 then
+            bits := getBitsMsb(stri, bytePos, bitPos, zeros);
+            eobRunLength +:= bits;
+          end if;
+          decr(eobRunLength);
+          aByte := 0;
+        end if;
+      else
+        index +:= succ(zeros);
+        dataBlock[index] := getSymbol(stri, bytePos, bitPos, bitWidth) << approximationLow;
+        if index = endOfSpectral then
+          aByte := 0;
+        end if;
+      end if;
+    until aByte = 0;
+  end func;
+
+
+const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
+    in huffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
+  local
+    var string: entropyCodedSegment is "";
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: index is 0;
+    var integer: mcuCount is 0;
+    var integer: eobRunLength is 0;
+  begin
+    entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    for line range 1 to header.blockLines do
+      for column range 1 to header.blockColumns do
+        if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
+          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+          bytePos := 1;
+          bitPos := 0;
+        end if;
+        if eobRunLength > 0 then
+          decr(eobRunLength);
+        else
+          index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
+          readBlockAc(mcuImage[succ(pred(line) mdiv header.vertical)]
+                              [succ(pred(column) mdiv header.horizontal)].luma[index],
+                      entropyCodedSegment, bytePos, bitPos, acTable,
+                      header.startOfSpectral, header.endOfSpectral,
+                      eobRunLength, header.approximationLow);
+        end if;
+        incr(mcuCount);
+      end for;
+    end for;
+  end func;
+
+
+const proc: readChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
+    in huffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage,
+    in integer: chromaIndex) is func
+  local
+    var string: entropyCodedSegment is "";
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: mcuCount is 0;
+    var integer: eobRunLength is 0;
+  begin
+    entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    for line range 1 to header.unitLines do
+      for column range 1 to header.unitColumns do
+        if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
+          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+          bytePos := 1;
+          bitPos := 0;
+        end if;
+        if eobRunLength > 0 then
+          decr(eobRunLength);
+        else
+          readBlockAc(mcuImage[line][column].chroma[chromaIndex],
+                      entropyCodedSegment, bytePos, bitPos, acTable,
+                      header.startOfSpectral, header.endOfSpectral,
+                      eobRunLength, header.approximationLow);
+        end if;
+        incr(mcuCount);
+      end for;
+    end for;
+  end func;
+
+
+const proc: refineNonZeroes (inout array integer: dataBlock,
+    in string: stri, inout integer: bytePos, inout integer: bitPos,
+    inout integer: spectral, in integer: endOfSpectral,
+    in var integer: numberOfZeros, in integer: delta) is func
+  local
+    var boolean: enoughZeros is FALSE;
+    var integer: bit is 0;
+  begin
+    while spectral <= endOfSpectral and not enoughZeros do
+      if dataBlock[spectral] = 0 then
+        if numberOfZeros = 0 then
+          enoughZeros := TRUE;
+        else
+          decr(numberOfZeros);
+          incr(spectral);
+        end if;
+      else
+        bit := getBitMsb(stri, bytePos, bitPos);
+        if bit <> 0 then
+          if dataBlock[spectral] >= 0 then
+            dataBlock[spectral] +:= delta;
+          else
+            dataBlock[spectral] -:= delta;
+          end if;
+        end if;
+        incr(spectral);
+      end if;
+    end while;
+  end func;
+
+
+##
+#  Refine the AC coefficients of a block.
+#
+const proc: refineBlockAc (inout array integer: dataBlock,
+    in string: stri, inout integer: bytePos, inout integer: bitPos,
+    in huffmanTable: acTable, in integer: startOfSpectral,
+    in integer: endOfSpectral, inout integer: eobRunLength, in integer: delta) is func
+  local
+    var integer: spectral is 0;
+    var integer: coefficient is 0;
+    var integer: bit is 0;
+    var integer: aByte is 0;
+    var integer: zeros is 0;
+    var integer: bitWidth is 0;
+    var integer: bits is 0;
+  begin
+    spectral := startOfSpectral;
+    while spectral <= endOfSpectral and eobRunLength = 0 do
+      coefficient := 0;
+      aByte := getHuffmanSymbolMsb(stri, bytePos, bitPos, acTable);
+      zeros := aByte >> 4;
+      bitWidth := aByte mod 16;
+      if bitWidth = 0 then
+        if zeros <> 15 then
+          eobRunLength := 1 << zeros;
+          if zeros <> 0 then
+            bits := getBitsMsb(stri, bytePos, bitPos, zeros);
+            eobRunLength +:= bits;
+          end if;
+        end if;
+      elsif bitWidth = 1 then
+        coefficient := delta;
+        bit := getBitMsb(stri, bytePos, bitPos);
+        if bit = 0 then
+          coefficient := -coefficient;
+        end if;
+      else
+        raise RANGE_ERROR;
+      end if;
+      if eobRunLength = 0 then
+        refineNonZeroes(dataBlock, stri, bytePos, bitPos, spectral, endOfSpectral, zeros, delta);
+        if spectral > endOfSpectral then
+          raise RANGE_ERROR;
+        end if;
+        if coefficient <> 0 then
+          dataBlock[spectral] := coefficient;
+        end if;
+        incr(spectral);
+      end if;
+    end while;
+    if eobRunLength > 0 then
+      decr(eobRunLength);
+      refineNonZeroes(dataBlock, stri, bytePos, bitPos, spectral, endOfSpectral, -1, delta);
+    end if;
+  end func;
+
+
+const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
+    in huffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
+  local
+    var string: entropyCodedSegment is "";
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: index is 0;
+    var integer: mcuCount is 0;
+    var integer: eobRunLength is 0;
+  begin
+    entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    for line range 1 to header.blockLines do
+      for column range 1 to header.blockColumns do
+        if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
+          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+          bytePos := 1;
+          bitPos := 0;
+        end if;
+        index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
+        refineBlockAc(mcuImage[succ(pred(line) mdiv header.vertical)]
+                              [succ(pred(column) mdiv header.horizontal)].luma[index], 
+                      entropyCodedSegment, bytePos, bitPos, acTable,
+                      header.startOfSpectral, header.endOfSpectral,
+                      eobRunLength, 1 << header.approximationLow);
+        incr(mcuCount);
+      end for;
+    end for;
+  end func;
+
+
+const proc: refineChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
+    in huffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage,
+    in integer: chromaIndex) is func
+  local
+    var string: entropyCodedSegment is "";
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: mcuCount is 0;
+    var integer: eobRunLength is 0;
+  begin
+    entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    for line range 1 to header.unitLines do
+      for column range 1 to header.unitColumns do
+        if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
+          entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+          bytePos := 1;
+          bitPos := 0;
+        end if;
+        refineBlockAc(mcuImage[line][column].chroma[chromaIndex],
+                      entropyCodedSegment, bytePos, bitPos, acTable,
+                      header.startOfSpectral, header.endOfSpectral,
+                      eobRunLength, 1 << header.approximationLow);
+        incr(mcuCount);
+      end for;
+    end for;
+  end func;
+
+
+const proc: loadProgressive (inout file: jpegFile, in jpegHeader: header,
+    inout array array jpegMinimumCodedUnit: mcuImage) is func
+  local
+    var integer: dcLumaIndex is 0;
+    var integer: dcCbIndex is 0;
+    var integer: dcCrIndex is 0;
+    var integer: acLumaIndex is 0;
+    var integer: acCbIndex is 0;
+    var integer: acCrIndex is 0;
+    var integer: index is 0;
+  begin
+    for index range 1 to header.numberOfScans do
+      case header.scan[index].comptype of
+        when {JPEG_COMPTYPE_LUMA}:
+          dcLumaIndex := header.scan[index].dcHuffmanTableIndex;
+          acLumaIndex := header.scan[index].acHuffmanTableIndex;
+        when {JPEG_COMPTYPE_CHROMA_BLUE}:
+          dcCbIndex  := header.scan[index].dcHuffmanTableIndex;
+          acCbIndex  := header.scan[index].acHuffmanTableIndex;
+        when {JPEG_COMPTYPE_CHROMA_RED}:
+          dcCrIndex  := header.scan[index].dcHuffmanTableIndex;
+          acCrIndex  := header.scan[index].acHuffmanTableIndex;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    end for;
+    if header.startOfSpectral = 1 and header.endOfSpectral = 1 then
+      if header.approximationHigh = 0 then
+        if dcLumaIndex <> 0 and dcCbIndex = 0 and dcCrIndex = 0 then
+          readLumaDcOfAllBlocks(jpegFile, header, header.dcTable[dcLumaIndex],
+                                mcuImage);
+        else
+          readDcValuesOfAllBlocks(jpegFile, header, dcLumaIndex,
+                                  dcCbIndex, dcCrIndex, mcuImage);
+        end if;
+      else
+        refineDcValuesOfAllBlocks(jpegFile, header, dcLumaIndex,
+                                  dcCbIndex, dcCrIndex, mcuImage);
+      end if;
+    elsif header.approximationHigh = 0 then
+      if acLumaIndex <> 0 then
+        readLumaAcOfAllBlocks(jpegFile, header, header.acTable[acLumaIndex],
+                              mcuImage);
+      elsif acCbIndex <> 0 then
+        readChromaAcOfAllBlocks(jpegFile, header, header.acTable[acCbIndex],
+                                mcuImage, CHROMA_BLUE);
+      elsif acCrIndex <> 0 then
+        readChromaAcOfAllBlocks(jpegFile, header, header.acTable[acCrIndex],
+                                mcuImage, CHROMA_RED);
+      end if;
+    else
+      if acLumaIndex <> 0 then
+        refineLumaAcOfAllBlocks(jpegFile, header, header.acTable[acLumaIndex],
+                                mcuImage);
+      elsif acCbIndex <> 0 then
+        refineChromaAcOfAllBlocks(jpegFile, header, header.acTable[acCbIndex],
+                                  mcuImage, CHROMA_BLUE);
+      elsif acCrIndex <> 0 then
+        refineChromaAcOfAllBlocks(jpegFile, header, header.acTable[acCrIndex],
+                                  mcuImage, CHROMA_RED);
+      end if;
+    end if;
+  end func;
+
+
+##
+#  Process a 8x8 block of IDCT coefficients.
+#  This function is used for luma and chroma blocks.
+#  The resulting block contains luma or chroma values of an 8x8
+#  area scaled with factor 8 to the range -1024 .. 1023.
+#  The values are not clamped so they might also be higher or
+#  lower than the limit.
+#
+const proc: processBlock (inout array integer: dataBlock, in array integer: quantizationTable) is func
+  local
+    var integer: index is 0;
+  begin
+    for index range 1 to JPEG_BLOCK_SIZE do
+      dataBlock[index] *:= quantizationTable[index];
+    end for;
+    dataBlock := unzigzag(dataBlock);
+    idct8x8(dataBlock);
+  end func;
+
+
+const proc: colorMinimumCodedUnit (inout jpegHeader: header,
+    inout jpegMinimumCodedUnit: minimumCodedUnit,
+    in array integer: lumaQuantization, in array integer: chromaBlueQuantization,
+    in array integer: chromaRedQuantization, inout array array pixel: image,
+    in integer: line, in integer: column) is func
+  local
+    var integer: index is 0;
+  begin
+    for index range 1 to header.numLuma do
+      processBlock(minimumCodedUnit.luma[index], lumaQuantization);
+    end for;
+    processBlock(minimumCodedUnit.chroma[CHROMA_BLUE], chromaBlueQuantization);
+    processBlock(minimumCodedUnit.chroma[CHROMA_RED], chromaRedQuantization);
+
+    if header.horizontal = 1 then
+      if header.vertical = 1 then
+        colorMinimumCodedUnit11(header, minimumCodedUnit.luma[1],
+                                minimumCodedUnit.chroma[CHROMA_BLUE],
+                                minimumCodedUnit.chroma[CHROMA_RED],
+                                image, line, column);
+      else
+        colorMinimumCodedUnit12(header, minimumCodedUnit.luma[1],
+                                minimumCodedUnit.luma[2],
+                                minimumCodedUnit.chroma[CHROMA_BLUE],
+                                minimumCodedUnit.chroma[CHROMA_RED],
+                                image, line, column);
+      end if;
+    else
+      if header.vertical = 1 then
+        colorMinimumCodedUnit21(header, minimumCodedUnit.luma[1],
+                                minimumCodedUnit.luma[2],
+                                minimumCodedUnit.chroma[CHROMA_BLUE],
+                                minimumCodedUnit.chroma[CHROMA_RED],
+                                image, line, column);
+      else
+        colorMinimumCodedUnit22(header, minimumCodedUnit.luma[1],
+                                minimumCodedUnit.luma[2],
+                                minimumCodedUnit.luma[3],
+                                minimumCodedUnit.luma[4],
+                                minimumCodedUnit.chroma[CHROMA_BLUE],
+                                minimumCodedUnit.chroma[CHROMA_RED],
+                                image, line, column);
+      end if;
+    end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: colorAllMinimumCodedUnits (inout jpegHeader: header,
+    inout array array jpegMinimumCodedUnit: mcuImage, in array integer: lumaQuantization,
+    in array integer: chromaBlueQuantization, in array integer: chromaRedQuantization) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var array array pixel: image is 0 times 0 times pixel.value;
+  begin
+    image := header.height times header.width times pixel.value;
+    for line range 1 to length(mcuImage) do
+      for column range 1 to length(mcuImage[line]) do
+        colorMinimumCodedUnit(header, mcuImage[line][column],
+                              lumaQuantization, chromaBlueQuantization,
+                              chromaRedQuantization, image,
+                              succ(pred(line) * 8 * header.vertical),
+                              succ(pred(column) * 8 * header.horizontal));
+      end for;
+    end for;
+    pixmap := imagePixmap(image);
+  end func;
+
+
+(**
+ *  Reads a JPEG file into a pixmap.
+ *  @param jpegFile File that contains a JPEG image.
+ *  @result A pixmap with the JPEG image.
+ *  @exception RANGE_ERROR The file is not in the JPEG file format.
+ *)
+const func PRIMITIVE_WINDOW: readJpeg (inout file: jpegFile) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var string: magic is "";
+    var boolean: readMarker is TRUE;
+    var char: segmentMarker is ' ';
+    var boolean: endOfImage is FALSE;
+    var jpegHeader: header is jpegHeader.value;
+    var array array jpegMinimumCodedUnit: mcuImage is 0 times 0 times jpegMinimumCodedUnit.value;
+  begin
+    magic := gets(jpegFile, length(JPEG_MAGIC));
+    if magic = JPEG_MAGIC then
+      pixmap := newPixmap(1, 1); # Initialize graphic
+      # Start Of Image (SOI)
+      repeat
+        if readMarker then
+          segmentMarker := getc(jpegFile);
+        end if;
+        readMarker := TRUE;
+        case segmentMarker of
+          when {JPEG_SOF0, JPEG_SOF1}:
+            readStartOfFrame(jpegFile, header);
+          when {JPEG_SOF2}:
+            readStartOfFrame(jpegFile, header);
+            header.progressive := TRUE;
+            mcuImage := header.unitLines times header.unitColumns times jpegMinimumCodedUnit.value;
+          when {JPEG_DHT}:
+            readDefineHuffmanTable(jpegFile, header);
+          when {JPEG_EOI}:
+            # End Of Image
+            endOfImage := TRUE;
+            readMarker := FALSE;
+          when {JPEG_SOS}:
+            readStartOfScan(jpegFile, header);
+            if header.progressive then
+              loadProgressive(jpegFile, header, mcuImage);
+            else
+              setupQuantization(header);
+              pixmap := loadSequential(jpegFile, header);
+            end if;
+            segmentMarker := jpegFile.bufferChar;
+            readMarker := FALSE;
+          when {JPEG_DQT}:
+            readDefineQuantizationTable(jpegFile, header);
+          when {JPEG_DRI}:
+            readDefineRestartInterval(jpegFile, header);
+          when {JPEG_APP0 .. JPEG_APP15}:
+            readApplicationSegment(jpegFile, ord(segmentMarker) - ord(JPEG_APP0));
+          when {JPEG_COM}:
+            readComment(jpegFile);
+          when {JPEG_FILLER}:
+            # Fill byte (16#ff), which is ignored.
+            segmentMarker := getc(jpegFile);
+            readMarker := FALSE;
+          otherwise:
+            raise RANGE_ERROR;
+        end case;
+        if readMarker and getc(jpegFile) <> JPEG_MARKER_START then
+          raise RANGE_ERROR;
+        end if;
+      until endOfImage;
+      if header.progressive then
+        setupQuantization(header);
+        pixmap := colorAllMinimumCodedUnits(header, mcuImage,
+                                            header.lumaQuantization,
+                                            header.chromaBlueQuantization,
+                                            header.chromaRedQuantization);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a JPEG file with the given ''jpegFileName'' into a pixmap.
+ *  @param jpegFileName Name of the JPEG file.
+ *  @result A pixmap with the JPEG image.
+ *  @exception RANGE_ERROR The file is not in the JPEG file format.
+ *)
+const func PRIMITIVE_WINDOW: readJpeg (in string: jpegFileName) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var file: jpegFile is STD_NULL;
+  begin
+    jpegFile := open(jpegFileName, "r");
+    if jpegFile <> STD_NULL then
+      pixmap := readJpeg(jpegFile);
+      close(jpegFile);
+    end if;
+  end func;

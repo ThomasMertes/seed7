@@ -361,6 +361,30 @@ const type: ccConfigType is new struct
     var integer: MAXIMUM_TRUNC_ARGUMENT       is 0;
 
     (**
+     *  Mask for the red color in a pixel.
+     *  0 if there is no mapping and drwRgbColor() should be used.
+     *)
+    var integer: PIXEL_RED_MASK               is 0;
+
+    (**
+     *  Mask for the green color in a pixel.
+     *  0 if there is no mapping and drwRgbColor() should be used.
+     *)
+    var integer: PIXEL_GREEN_MASK             is 0;
+
+    (**
+     *  Mask for the blue color in a pixel.
+     *  0 if there is no mapping and drwRgbColor() should be used.
+     *)
+    var integer: PIXEL_BLUE_MASK              is 0;
+
+    (**
+     *  Name of the variable deciding between macro and drwRgbColor().
+     *  "" if no variable needs to be checked.
+     *)
+    var string: RGB_TO_PIXEL_FLAG_NAME        is "";
+
+    (**
      *  Multiplier for the linear congruential generator.
      *  A well known pseudorandom number generator algorithm.
      *)
@@ -806,6 +830,10 @@ const func ccConfigType: getBuiltInConfig is func
     conf.INT_RANGE_IN_FLOATTYPE_MAX    := integer(configValue("INT_RANGE_IN_FLOATTYPE_MAX"));
     conf.MINIMUM_TRUNC_ARGUMENT        := integer(configValue("MINIMUM_TRUNC_ARGUMENT"));
     conf.MAXIMUM_TRUNC_ARGUMENT        := integer(configValue("MAXIMUM_TRUNC_ARGUMENT"));
+    conf.PIXEL_RED_MASK                := integer(configValue("PIXEL_RED_MASK"), 16);
+    conf.PIXEL_GREEN_MASK              := integer(configValue("PIXEL_GREEN_MASK"), 16);
+    conf.PIXEL_BLUE_MASK               := integer(configValue("PIXEL_BLUE_MASK"), 16);
+    conf.RGB_TO_PIXEL_FLAG_NAME        := configValue("RGB_TO_PIXEL_FLAG_NAME");
     conf.RAND_MULTIPLIER               := integer(configValue("RAND_MULTIPLIER"));
     conf.RAND_INCREMENT                := integer(configValue("RAND_INCREMENT"));
     conf.BOOLTYPE                      := configValue("BOOLTYPE");

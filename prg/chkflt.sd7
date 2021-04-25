@@ -112,7 +112,17 @@ const proc: check_literal is func
         bin64(+00000000000000000000000000000000000.5) <> bin64(16#3fe0000000000000) or
         bin64(-00000000000000000000000000000000000.5) <> bin64(16#bfe0000000000000_) or
         bin64( 9007199254740991.0) <> bin64(16#433fffffffffffff) or
-        bin64(-9007199254740991.0) <> bin64(16#c33fffffffffffff_) then
+        bin64(-9007199254740991.0) <> bin64(16#c33fffffffffffff_) or
+        bin64(-9223372036854777856.0) <> bin64(16#c3e0000000000001_) or
+        bin64(-9223372036854775808.0) <> bin64(16#c3e0000000000000_) or
+        bin64(-9223372036854775807.0) <> bin64(16#c3e0000000000000_) or
+        bin64(-9223372036854774784.0) <> bin64(16#c3dfffffffffffff_) or
+        bin64(-9223372036854773760.0) <> bin64(16#c3dffffffffffffe_) or
+        bin64( 9223372036854773760.0) <> bin64(16#43dffffffffffffe) or
+        bin64( 9223372036854774784.0) <> bin64(16#43dfffffffffffff) or
+        bin64( 9223372036854775807.0) <> bin64(16#43e0000000000000) or
+        bin64( 9223372036854775808.0) <> bin64(16#43e0000000000000) or
+        bin64( 9223372036854777856.0) <> bin64(16#43e0000000000001) then
       writeln(" ***** Float literals do not work correct.");
       okay := FALSE;
     end if;

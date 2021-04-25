@@ -5858,7 +5858,7 @@ static void defineX11rgbToPixelMacro (FILE *versionFile, const char *x11IncludeC
           highestMaskBit = testResult >> 8;
           lowZeroBitsInMask = testResult & 0xff;
           colorMask = ~((~(unsigned int) 0) << (highestMaskBit - lowZeroBitsInMask)) << lowZeroBitsInMask;
-          fprintf(versionFile, "#define PIXEL_%s_MASK %lx\n", colorNamesUc[colorIndex], colorMask);
+          fprintf(versionFile, "#define PIXEL_%s_MASK \"%lx\"\n", colorNamesUc[colorIndex], colorMask);
           if (highestMaskBit > 16) {
             sprintf(macroPart, "((((unsigned long) (%s)) << %d) & 0x%lx)",
                     colorNames[colorIndex], highestMaskBit - 16, colorMask);
@@ -7765,9 +7765,9 @@ static void determineIncludesAndLibs (FILE *versionFile)
     determineX11Defines(versionFile, include_options);
     determineConsoleDefines(versionFile, include_options);
 #elif defined OS_STRI_WCHAR
-    fputs("#define PIXEL_RED_MASK ff\n", versionFile);
-    fputs("#define PIXEL_GREEN_MASK ff00\n", versionFile);
-    fputs("#define PIXEL_BLUE_MASK ff0000\n", versionFile);
+    fputs("#define PIXEL_RED_MASK \"ff\"\n", versionFile);
+    fputs("#define PIXEL_GREEN_MASK \"ff00\"\n", versionFile);
+    fputs("#define PIXEL_BLUE_MASK \"ff0000\"\n", versionFile);
 #endif
     determineMySqlDefines(versionFile, include_options, system_database_libs);
     determineSqliteDefines(versionFile, include_options, system_database_libs);

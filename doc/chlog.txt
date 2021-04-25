@@ -1,3 +1,95 @@
+20210425:
+- The new library jpeg.s7i has been added. This library supports the
+  JPEG image file format.
+- The new library huffman.s7i has been added. This library supports
+  Huffman coding as it is used by JPEG files.
+- In chkccomp.c the code to determine MINIMUM_TRUNC_ARGUMENT and
+  MAXIMUM_TRUNC_ARGUMENT has been improved. Many thanks to Zachary
+  Menzies for reporting problems with the Linux distribution Solus.
+- The PKCS#1 v1.5 signature verification has been improved. Many
+  thanks go to Moosa Yahyazadeh for providing a bugs report for
+  seed7-pkcs1. The following improvements have been done:
+  - In pkcs1.s7i the function emsaPkcs1V15Decoding has been improved
+    to check that every padding byte is actually 16#ff and that at
+    least 8 padding bytes are present. (Point 1 of report)
+  - In pkcs1.s7i the functions rsaEncryptBytes() and rsaDecryptBytes()
+    have been removed and usages of them have been replaced with
+    rsassaPkcs1V15Encrypt() respectively rsassaPkcs1V15Decrypt().
+    (Point 2 of report)
+  - In x509cert.s7i the function validateSignature() has been improved
+    to compare the digest algorithm obtained from the certificate with
+    the digest algorithm stored in the ASN.1 digestAlgorithmIdentifier
+    of the decrypted signature. (Point 3 of report)
+  - The functions getRsaSignature() and getEcdsaSignature() have been
+    added to x509cert.s7i. These functions check that the encoded
+    message has not any trailing garbage bytes. (Point 4 of report)
+- The functions getDigestAlgorithm(), showSignatureAlgorithm() and
+  getDigestFromSignatureAlgorithm() have been added to x509cert.s7i.
+- In x509cert.s7i the function validateSignature() has been improved
+  to validate RSA and ECDSA (Elliptic Curve Digital Signature
+  Algorithm) signatures.
+- In x509cert.s7i the type rsaSignatureType has been introduced and
+  getRsaSignature() has been changed to return a rsaSignatureType.
+- The functions getRsaSignature() and getEcSignature() have been
+  moved from tls.s7 to x509cert.s7i. Calls of these functions in
+  verifySignature() have been adjusted.
+- The function validateCertificates() has been added to tls.s7i.
+- In tls.s7i the function processServerKeyExchange() has been improved
+  to trigger a handshake failure if verifySignature() fails.
+- In elliptic.s7i the type ecdsaSignature has been renamed to
+  ecdsaSignatureType.
+- In gethttp.s7i the function getHttpStatusCode has been improved
+  to work correctly, if there is no space after the status code.
+- In integer.s7i the definitions of min() and max() have been improved
+  to use the ternary operator (a ? b : c).
+- Several optimizations have been done in the compiler (s7c.sd7):
+  - In comp/prc_act.s7i the function process_prc_for() has been
+    improved to store the range of the for-variable if the start or
+    the end value is constant (or both are constant).
+  - In comp/intrange.s7i the function getIntRange() has been improved
+    to get a range for the action INT_MULT and for a for-variable (if
+    the start or the end value of the for-loop is constant).
+    Determining the maximum of INT_LSHIFT has been improved.
+  - In comp/drw_act.s7i the function drwRgbColor() is now defined as
+    macro, if the optimization level requires it (-oc3).
+  - In comp/arr_act.s7i in the function process_const_arr_idx() the
+    index check has been omitted, if it is known that the index is
+    always in the range of the constant array.
+  - In comp/int_act.s7i the actions INT_MULT and INT_MULT_ASSIGN have
+    been improved to use the builtin mult overflow function, if
+    available. The improvements were made in the functions
+    int_mult_with_overflow_check() and process_const_int_mult().
+  - The new function varChangedInStatements() has been added to
+    comp/prc_act.s7i.
+  - Code has been moved from process_prc_for() in comp/prc_act.s7i
+    to the new function defineForStartVariable in comp/expr_utl.s7i.
+  - In s7c.sd7 the initialisation of local arrays has been improved
+    to recognize if all elements of the array are the same. In
+    this case arrTimes(), arrMalloc(), malloc() or memset() are
+    used instead of copying an array. The functions canUseArrTimes()
+    and assignArrayValue() have been added, and the function
+    identical_values() has been moved.
+- Tests for the operator &:= (append one element to an array) have
+  been added to chkarr.sd7.
+- Tests for arrays with boolean elements have been added to
+  chkarr.sd7.
+- Tests for the bitpattern of the minimum and maximum floats that can
+  be truncated to an integer have been added to chkflt.sd7.
+- Tests for reduced overflow checking, if multiplication or lshift
+  leaves some space towards the maximum integer, have been added to
+  chkint.sd7.
+- Tests of the ternary operator (a ? b : c) have been added to
+  chkint.sd7.
+- In exec.c the function evaluate() has been improved to also work
+  for SETOBJECT.
+- In soc_rtl.c the function socInetAddr() has been improved to
+  treat EAI_NODATA like EAI_NONAME.
+- The program chkccomp.c has been improved to determine the macros
+  PIXEL_RED_MASK, PIXEL_GREEN_MASK PIXEL_BLUE_MASK and
+  RGB_TO_PIXEL_FLAG_NAME.
+- Definitions of PIXEL_RED_MASK, PIXEL_GREEN_MASK, PIXEL_BLUE_MASK
+  and RGB_TO_PIXEL_FLAG_NAME have been added to cc_conf.s7i.
+
 20210322:
 - Some missleading tests have been removed from chkflt.sd7. Many
   thanks go to Zachary Menzies for pointing out problems with the

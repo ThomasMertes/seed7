@@ -536,6 +536,203 @@ const func boolean: recursiveFunctionCall (in reference: function,
   end func;
 
 
+const func boolean: identical_values (in reference: object1, in reference: object2) is func
+
+  result
+    var boolean: isIdentical is FALSE;
+  local
+    var reference: element1 is NIL;
+    var ref_list: element_list2 is ref_list.EMPTY;
+    var integer: index2 is 0;
+  begin
+    case category(object1) of
+      when {INTOBJECT}:
+        isIdentical := getValue(object1, integer) = getValue(object2, integer);
+      when {BIGINTOBJECT}:
+        isIdentical := getValue(object1, bigInteger) = getValue(object2, bigInteger);
+      when {CHAROBJECT}:
+        isIdentical := getValue(object1, char) = getValue(object2, char);
+      when {STRIOBJECT}:
+        isIdentical := getValue(object1, string) = getValue(object2, string);
+      when {BSTRIOBJECT}:
+        isIdentical := getValue(object1, bstring) = getValue(object2, bstring);
+      when {SETOBJECT}:
+        isIdentical := getValue(object1, bitset) = getValue(object2, bitset);
+      when {FLOATOBJECT}:
+        isIdentical := getValue(object1, float) = getValue(object2, float);
+      when {REFOBJECT}:
+        isIdentical := getValue(object1, reference) = getValue(object2, reference);
+      when {FILEOBJECT}:
+        isIdentical := getValue(object1, clib_file) = getValue(object2, clib_file);
+      when {CONSTENUMOBJECT, VARENUMOBJECT}:
+        isIdentical := getValue(object1, reference) = getValue(object2, reference);
+      when {ARRAYOBJECT}:
+        if arrayMinIdx(object1) = arrayMinIdx(object2) and
+            arrayMaxIdx(object1) = arrayMaxIdx(object2) then
+          isIdentical := TRUE;
+          element_list2 := arrayToList(object2);
+          index2 := 1;
+          for element1 range arrayToList(object1) until not isIdentical do
+            isIdentical := identical_values(element1, element_list2[index2]);
+            incr(index2);
+          end for;
+        end if;
+      when {STRUCTOBJECT}:
+        isIdentical := TRUE;
+        element_list2 := structToList(object2);
+        index2 := 1;
+        for element1 range structToList(object1) until not isIdentical do
+          isIdentical := identical_values(element1, element_list2[index2]);
+          incr(index2);
+        end for;
+    end case;
+  end func;
+
+
+const func boolean: canUseArrTimes (in type: objectType, in reference: arrayValue,
+    inout reference: repeatedElement) is func
+
+  result
+    var boolean: canUseArrTimes is FALSE;
+  local
+    var type: elementType is void;
+    var ref_list: array_list is ref_list.EMPTY;
+    var reference: element is NIL;
+    var reference: previous_element is NIL;
+    var integer: repeat_count is 1;
+  begin
+    if objectType in array_element then
+      elementType := array_element[objectType];
+      if elementType in typeCategory and
+          typeCategory[elementType] in simpleValueType then
+        array_list := arrayToList(arrayValue);
+        for element range array_list do
+          if previous_element <> NIL then
+            if identical_values(previous_element, element) then
+              incr(repeat_count);
+            end if;
+          end if;
+          previous_element := element;
+        end for;
+        if repeat_count = succ(arrayMaxIdx(arrayValue) - arrayMinIdx(arrayValue)) then
+          canUseArrTimes := TRUE;
+          repeatedElement := array_list[1];
+	end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
+    inout expr_type: c_declaration) is func
+
+  local
+    var integer: arraySize is 0;
+    var reference: repeatedElement is NIL;
+    var string: variableName is "";
+    var string: param_value is "";
+  begin
+    arraySize := succ(arrayMaxIdx(arrayValue) - arrayMinIdx(arrayValue));
+    if evaluate_const_expr >= 2 and
+        arrayMinIdx(arrayValue) > arrayMaxIdx(arrayValue) then
+      if FALSE and inlineFunctions then
+        incr(c_declaration.temp_num);
+        variableName := "new_arr" <& c_declaration.temp_num;
+        c_declaration.temp_decls &:= ";\n";
+        c_declaration.temp_decls &:= "arrayType ";
+        c_declaration.temp_decls &:= variableName;
+        c_declaration.temp_assigns &:= "(";
+        c_declaration.temp_assigns &:= variableName;
+        c_declaration.temp_assigns &:= " = malloc(sizeof(struct rtlArrayStruct) - sizeof(rtlObjectType)), (unlikely(";
+        c_declaration.temp_assigns &:= variableName;
+        c_declaration.temp_assigns &:= " == NULL) ? ";
+        c_declaration.temp_assigns &:= "intRaiseError(MEMORY_ERROR) ";
+        c_declaration.temp_assigns &:= ": 0), ";
+        c_declaration.temp_assigns &:= variableName;
+        c_declaration.temp_assigns &:= "->min_position = ";
+        c_declaration.temp_assigns &:= integerLiteral(arrayMinIdx(arrayValue));
+        c_declaration.temp_assigns &:= ", ";
+        c_declaration.temp_assigns &:= variableName;
+        c_declaration.temp_assigns &:= "->max_position = ";
+        c_declaration.temp_assigns &:= integerLiteral(arrayMaxIdx(arrayValue));
+        c_declaration.temp_assigns &:= ", ";
+        c_declaration.temp_assigns &:= variableName;
+        c_declaration.temp_assigns &:= ");\n";
+      else
+        c_declaration.temp_assigns &:= "arrMalloc(";
+        c_declaration.temp_assigns &:= integerLiteral(arrayMinIdx(arrayValue));
+        c_declaration.temp_assigns &:= ", ";
+        c_declaration.temp_assigns &:= integerLiteral(arrayMaxIdx(arrayValue));
+        c_declaration.temp_assigns &:= ");\n";
+      end if;
+    elsif evaluate_const_expr >= 2 and
+        canUseArrTimes(objectType, arrayValue, repeatedElement) and
+        category(repeatedElement) = INTOBJECT then
+      if getValue(repeatedElement, integer) = 0 then
+        incr(c_declaration.temp_num);
+        variableName := "new_arr" <& c_declaration.temp_num;
+        c_declaration.temp_decls &:= ";\n";
+        c_declaration.temp_decls &:= "arrayType ";
+        c_declaration.temp_decls &:= variableName;
+        c_declaration.temp_assigns &:= "(";
+        c_declaration.temp_assigns &:= variableName;
+        if inlineFunctions and
+            arrayMinIdx(arrayValue) >= -100000000 and arrayMinIdx(arrayValue) <= 100000000 and
+            arraySize <= 100000000 then
+          # The indices are okay and the size given to malloc() will not overflow.
+          c_declaration.temp_assigns &:= " = malloc(sizeof(struct rtlArrayStruct) + ";
+          c_declaration.temp_assigns &:= integerLiteral(pred(arraySize));
+          c_declaration.temp_assigns &:= " * sizeof(rtlObjectType)), (unlikely(";
+          c_declaration.temp_assigns &:= variableName;
+          c_declaration.temp_assigns &:= " == NULL) ? ";
+          c_declaration.temp_assigns &:= "intRaiseError(MEMORY_ERROR) ";
+          c_declaration.temp_assigns &:= ": 0), ";
+          c_declaration.temp_assigns &:= variableName;
+          c_declaration.temp_assigns &:= "->min_position = ";
+          c_declaration.temp_assigns &:= integerLiteral(arrayMinIdx(arrayValue));
+          c_declaration.temp_assigns &:= ", ";
+          c_declaration.temp_assigns &:= variableName;
+          c_declaration.temp_assigns &:= "->max_position = ";
+          c_declaration.temp_assigns &:= integerLiteral(arrayMaxIdx(arrayValue));
+        else
+          # Use arrMalloc(), as it has detailed checks for indices and array size.
+          c_declaration.temp_assigns &:= " = arrMalloc(";
+          c_declaration.temp_assigns &:= integerLiteral(arrayMinIdx(arrayValue));
+          c_declaration.temp_assigns &:= ", ";
+          c_declaration.temp_assigns &:= integerLiteral(arrayMaxIdx(arrayValue));
+          c_declaration.temp_assigns &:= ")";
+        end if;
+        c_declaration.temp_assigns &:= ", memset(";
+        c_declaration.temp_assigns &:= variableName;
+        c_declaration.temp_assigns &:= "->arr, 0, ";
+        c_declaration.temp_assigns &:= integerLiteral(arraySize);
+        c_declaration.temp_assigns &:= " * sizeof(rtlObjectType)), ";
+        c_declaration.temp_assigns &:= variableName;
+        c_declaration.temp_assigns &:= ");\n";
+      else
+        c_declaration.temp_assigns &:= "arrTimes(";
+        c_declaration.temp_assigns &:= integerLiteral(arrayMinIdx(arrayValue));
+        c_declaration.temp_assigns &:= ", ";
+        c_declaration.temp_assigns &:= integerLiteral(arrayMaxIdx(arrayValue));
+        c_declaration.temp_assigns &:= ", (genericType)(";
+        c_declaration.temp_assigns &:= integerLiteral(getValue(repeatedElement, integer));
+        c_declaration.temp_assigns &:= "));\n";
+      end if;
+    else
+      if arrayValue not in const_table then
+        const_table @:= [arrayValue] length(const_table);
+      end if;
+      process_create_declaration(objectType, global_c_expr);
+      param_value := "arr[";
+      param_value &:= str(const_table[arrayValue]);
+      param_value &:= "]";
+      process_create_call(objectType,
+          param_value, c_declaration.temp_assigns);
+      c_declaration.temp_assigns &:= ";\n";
+    end if;
+  end func;
+
+
 const proc: process_local_declaration (in reference: current_object, in var reference: object_value,
     inout expr_type: c_expr) is func
 
@@ -657,21 +854,12 @@ const proc: process_local_declaration (in reference: current_object, in var refe
     elsif valueCategory = POLLOBJECT then
       c_declaration.temp_decls &:= "=NULL";
     elsif valueCategory = ARRAYOBJECT then
-      if object_value not in const_table then
-        const_table @:= [object_value] length(const_table);
-      end if;
-      process_create_declaration(objectType, global_c_expr);
-      process_destr_declaration(objectType, global_c_expr);
       c_declaration.temp_assigns &:= diagnosticLine(current_object);
       c_declaration.temp_assigns &:= "o_";
       create_name(current_object, c_declaration.temp_assigns);
       c_declaration.temp_assigns &:= "=";
-      param_value := "arr[";
-      param_value &:= str(const_table[object_value]);
-      param_value &:= "]";
-      process_create_call(objectType,
-          param_value, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= ";\n";
+      assignArrayValue(objectType, object_value, c_declaration);
+      process_destr_declaration(objectType, global_c_expr);
       param_name := "o_";
       create_name(current_object, param_name);
       process_destr_call(objectType, param_name, c_declaration.temp_frees);
@@ -2153,8 +2341,11 @@ const proc: process_const_func_declaration (in reference: function,
         end if;
       else
         result_init := resultInitValue(function);
+        c_result.temp_num := c_expr.temp_num;
         process_result_declaration(result_object, result_init, c_result);
+        c_local_vars.temp_num := c_result.temp_num;
         process_local_var_declaration(function, c_local_vars);
+        c_expr.temp_num := c_local_vars.temp_num;
         currentProfiledFunction := function;
         process_expr(body(function), c_func_body);
         c_expr.currentFile := file(function);
@@ -2265,12 +2456,17 @@ const proc: process_main_declaration (in reference: current_object,
     if category(current_object) = BLOCKOBJECT then
       function_declared @:= [current_object] TRUE;
       process_local_consts(current_object, c_expr);
+      c_local_vars.temp_num := c_expr.temp_num;
       process_local_var_declaration(current_object, c_local_vars);
       currentProfiledFunction := main_object;
+      c_func_body.temp_num := c_local_vars.temp_num;
       process_expr(body(current_object), c_func_body);
+      c_expr.temp_num := c_func_body.temp_num;
     elsif category(current_object) = ACTOBJECT then
       currentProfiledFunction := main_object;
+      c_func_body.temp_num := c_local_vars.temp_num;
       process_expr(current_object, c_func_body);
+      c_expr.temp_num := c_func_body.temp_num;
     end if;
     c_expr.currentFile := file(current_object);
     c_expr.currentLine := line(current_object);
@@ -2358,7 +2554,7 @@ const proc: process_main_declaration (in reference: current_object,
       main_epilog &:= "{\n";
       main_epilog &:= "  FILE *profile_file;\n";
       main_epilog &:= "  int index;\n";
-      main_epilog &:= "  profile_file = fopen(\"profile_out\", \"w\");\n";
+      main_epilog &:= "  profile_file = fopen(\"profile_out\", \"wb\");\n";
       main_epilog &:= "  if (profile_file != NULL) {\n";
       main_epilog &:= "    qsort(profile, profile_size, sizeof(struct profileElement),\n";
       main_epilog &:= "          cmpProfileElement);\n";
@@ -5356,59 +5552,6 @@ const proc: initPollOperations (inout expr_type: c_expr) is func
   end func;
 
 
-const func boolean: identical_values (in reference: object1, in reference: object2) is func
-
-  result
-    var boolean: isIdentical is FALSE;
-  local
-    var reference: element1 is NIL;
-    var ref_list: element_list2 is ref_list.EMPTY;
-    var integer: index2 is 0;
-  begin
-    case category(object1) of
-      when {INTOBJECT}:
-        isIdentical := getValue(object1, integer) = getValue(object2, integer);
-      when {BIGINTOBJECT}:
-        isIdentical := getValue(object1, bigInteger) = getValue(object2, bigInteger);
-      when {CHAROBJECT}:
-        isIdentical := getValue(object1, char) = getValue(object2, char);
-      when {STRIOBJECT}:
-        isIdentical := getValue(object1, string) = getValue(object2, string);
-      when {BSTRIOBJECT}:
-        isIdentical := getValue(object1, bstring) = getValue(object2, bstring);
-      when {SETOBJECT}:
-        isIdentical := getValue(object1, bitset) = getValue(object2, bitset);
-      when {FLOATOBJECT}:
-        isIdentical := getValue(object1, float) = getValue(object2, float);
-      when {REFOBJECT}:
-        isIdentical := getValue(object1, reference) = getValue(object2, reference);
-      when {FILEOBJECT}:
-        isIdentical := getValue(object1, clib_file) = getValue(object2, clib_file);
-      when {CONSTENUMOBJECT, VARENUMOBJECT}:
-        isIdentical := getValue(object1, reference) = getValue(object2, reference);
-      when {ARRAYOBJECT}:
-        if arrayMinIdx(object1) = arrayMinIdx(object2) and
-            arrayMaxIdx(object1) = arrayMaxIdx(object2) then
-          isIdentical := TRUE;
-          element_list2 := arrayToList(object2);
-          index2 := 1;
-          for element1 range arrayToList(object1) until not isIdentical do
-            isIdentical := identical_values(element1, element_list2[index2]);
-            incr(index2);
-          end for;
-        end if;
-      when {STRUCTOBJECT}:
-        isIdentical := TRUE;
-        element_list2 := structToList(object2);
-        index2 := 1;
-        for element1 range structToList(object1) until not isIdentical do
-          isIdentical := identical_values(element1, element_list2[index2]);
-          incr(index2);
-        end for;
-    end case;
-  end func;
-
-
 const func ref_list: determine_multiple_array_elements (in ref_list: array_list) is func
 
   result
@@ -6394,9 +6537,13 @@ const proc: malloc_struct (in reference: const_object, inout expr_type: c_expr) 
     struct_list := structToList(const_object);
     c_expr.expr &:= "sct[";
     c_expr.expr &:= str(number);
-    c_expr.expr &:= "]=(structType)(malloc(sizeof(struct rtlStructStruct) - sizeof(rtlObjectType) +\n  ";
-    c_expr.expr &:= str(length(struct_list));
-    c_expr.expr &:= " * sizeof(rtlObjectType)));\n";
+    c_expr.expr &:= "]=(structType)(malloc(sizeof(struct rtlStructStruct) - sizeof(rtlObjectType)";
+    if length(struct_list) <> 0 then
+      c_expr.expr &:= " +\n  ";
+      c_expr.expr &:= str(length(struct_list));
+      c_expr.expr &:= " * sizeof(rtlObjectType)";
+    end if;
+    c_expr.expr &:= "));\n";
   end func;
 
 

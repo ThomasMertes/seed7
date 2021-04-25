@@ -3034,6 +3034,38 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
       okay := FALSE;
     end if;
 
+    if  2 * intExpr(-4611686018427387904)     <> integer.first or
+        3 * intExpr(-3074457345618258602) - 2 <> integer.first or
+        4 * intExpr(-2305843009213693952)     <> integer.first or
+        5 * intExpr(-1844674407370955161) - 3 <> integer.first or
+        6 * intExpr(-1537228672809129301) - 2 <> integer.first or
+        7 * intExpr(-1317624576693539401) - 1 <> integer.first or
+        8 * intExpr(-1152921504606846976)     <> integer.first or
+        intExpr(-4611686018427387904) * 2     <> integer.first or
+        intExpr(-3074457345618258602) * 3 - 2 <> integer.first or
+        intExpr(-2305843009213693952) * 4     <> integer.first or
+        intExpr(-1844674407370955161) * 5 - 3 <> integer.first or
+        intExpr(-1537228672809129301) * 6 - 2 <> integer.first or
+        intExpr(-1317624576693539401) * 7 - 1 <> integer.first or
+        intExpr(-1152921504606846976) * 8     <> integer.first or
+        2 * intExpr(4611686018427387903) + 1 <> integer.last or
+        3 * intExpr(3074457345618258602) + 1 <> integer.last or
+        4 * intExpr(2305843009213693951) + 3 <> integer.last or
+        5 * intExpr(1844674407370955161) + 2 <> integer.last or
+        6 * intExpr(1537228672809129301) + 1 <> integer.last or
+        7 * intExpr(1317624576693539401)     <> integer.last or
+        8 * intExpr(1152921504606846975) + 7 <> integer.last or
+        intExpr(4611686018427387903) * 2 + 1 <> integer.last or
+        intExpr(3074457345618258602) * 3 + 1 <> integer.last or
+        intExpr(2305843009213693951) * 4 + 3 <> integer.last or
+        intExpr(1844674407370955161) * 5 + 2 <> integer.last or
+        intExpr(1537228672809129301) * 6 + 1 <> integer.last or
+        intExpr(1317624576693539401) * 7     <> integer.last or
+        intExpr(1152921504606846975) * 8 + 7 <> integer.last then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum product result if the factor is known.");
+      okay := FALSE;
+    end if;
+
     if  (intExpr(integer.first) >>  0) +                    0 <>        integer.first or
         (intExpr(integer.first) >>  1) + -4611686018427387904 <>        integer.first or
         (intExpr( integer.last) >>  1) + -4611686018427387904 <>                   -1 or
@@ -3200,6 +3232,26 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
         (   rand(-2147483647, 0)  << rand(12, 32)) - 4294967296 >         -4294967296 or
         (   rand(-2147483647, -1) << rand(12, 32)) - 4294967296 >         -4294967297 then
       writeln(" ***** Reduced overflow check for sums failed: Lshift error.");
+      okay := FALSE;
+    end if;
+
+    if  (intExpr(4611686018427387903) <<  1) +     1 <> integer.last or
+        (intExpr(2305843009213693951) <<  2) +     3 <> integer.last or
+        (intExpr(1152921504606846975) <<  3) +     7 <> integer.last or
+        (intExpr( 576460752303423487) <<  4) +    15 <> integer.last or
+        (intExpr( 288230376151711743) <<  5) +    31 <> integer.last or
+        (intExpr( 144115188075855871) <<  6) +    63 <> integer.last or
+        (intExpr(  72057594037927935) <<  7) +   127 <> integer.last or
+        (intExpr(  36028797018963967) <<  8) +   255 <> integer.last or
+        (intExpr(  18014398509481983) <<  9) +   511 <> integer.last or
+        (intExpr(   9007199254740991) << 10) +  1023 <> integer.last or
+        (intExpr(   4503599627370495) << 11) +  2047 <> integer.last or
+        (intExpr(   2251799813685247) << 12) +  4095 <> integer.last or
+        (intExpr(   1125899906842623) << 13) +  8191 <> integer.last or
+        (intExpr(    562949953421311) << 14) + 16383 <> integer.last or
+        (intExpr(    281474976710655) << 15) + 32767 <> integer.last or
+        (intExpr(    140737488355327) << 16) + 65535 <> integer.last then
+      writeln(" ***** Reduced overflow check for sums failed: Maximum shift result if the shift amount is known.");
       okay := FALSE;
     end if;
 
@@ -20214,6 +20266,7 @@ const proc: check_ternary is func
   local
     var boolean: okay is TRUE;
     var boolean: ok is TRUE;
+    var integer: argument is 0;
     var integer: number is 0;
   begin
     if  ( TRUE ?  1 : 2) <> 1 or
@@ -20254,6 +20307,178 @@ const proc: check_ternary is func
     number := boolExpr(FALSE) ?  intExpr(1) : intExpr(2); ok := ok and number = 2;
     if not ok then
       writeln(" ***** The ternary operator ? : does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    argument := 255; number := argument < 255 ? argument : 255; ok := ok and number = 255;
+    argument := 256; number := argument < 255 ? argument : 255; ok := ok and number = 255;
+    argument := 127; number := argument < 128 ? 128 : argument; ok := ok and number = 128;
+    argument := 128; number := argument < 128 ? 128 : argument; ok := ok and number = 128;
+    argument := 127; number := 128 < argument ? argument : 128; ok := ok and number = 128;
+    argument := 128; number := 128 < argument ? argument : 128; ok := ok and number = 128;
+    argument := 255; number := 255 < argument ? 255 : argument; ok := ok and number = 255;
+    argument := 256; number := 255 < argument ? 255 : argument; ok := ok and number = 255;
+
+    argument := 255; number := argument <= 255 ? argument : 255; ok := ok and number = 255;
+    argument := 256; number := argument <= 255 ? argument : 255; ok := ok and number = 255;
+    argument := 127; number := argument <= 128 ? 128 : argument; ok := ok and number = 128;
+    argument := 128; number := argument <= 128 ? 128 : argument; ok := ok and number = 128;
+    argument := 127; number := 128 <= argument ? argument : 128; ok := ok and number = 128;
+    argument := 128; number := 128 <= argument ? argument : 128; ok := ok and number = 128;
+    argument := 255; number := 255 <= argument ? 255 : argument; ok := ok and number = 255;
+    argument := 256; number := 255 <= argument ? 255 : argument; ok := ok and number = 255;
+
+    argument := 127; number := argument > 128 ? argument : 128; ok := ok and number = 128;
+    argument := 128; number := argument > 128 ? argument : 128; ok := ok and number = 128;
+    argument := 255; number := argument > 255 ? 255 : argument; ok := ok and number = 255;
+    argument := 256; number := argument > 255 ? 255 : argument; ok := ok and number = 255;
+    argument := 255; number := 255 > argument ? argument : 255; ok := ok and number = 255;
+    argument := 256; number := 255 > argument ? argument : 255; ok := ok and number = 255;
+    argument := 127; number := 128 > argument ? 128 : argument; ok := ok and number = 128;
+    argument := 128; number := 128 > argument ? 128 : argument; ok := ok and number = 128;
+
+    argument := 127; number := argument >= 128 ? argument : 128; ok := ok and number = 128;
+    argument := 128; number := argument >= 128 ? argument : 128; ok := ok and number = 128;
+    argument := 255; number := argument >= 255 ? 255 : argument; ok := ok and number = 255;
+    argument := 256; number := argument >= 255 ? 255 : argument; ok := ok and number = 255;
+    argument := 255; number := 255 >= argument ? argument : 255; ok := ok and number = 255;
+    argument := 256; number := 255 >= argument ? argument : 255; ok := ok and number = 255;
+    argument := 127; number := 128 >= argument ? 128 : argument; ok := ok and number = 128;
+    argument := 128; number := 128 >= argument ? 128 : argument; ok := ok and number = 128;
+
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    argument := 255; number := (argument < 255 ? argument : 255) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument < 255 ? argument : 255) * 256; ok := ok and number = 65280;
+    argument := 127; number := (argument < 128 ? 128 : argument) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument < 128 ? 128 : argument) * 256; ok := ok and number = 32768;
+    argument := 127; number := (128 < argument ? argument : 128) * 256; ok := ok and number = 32768;
+    argument := 128; number := (128 < argument ? argument : 128) * 256; ok := ok and number = 32768;
+    argument := 255; number := (255 < argument ? 255 : argument) * 256; ok := ok and number = 65280;
+    argument := 256; number := (255 < argument ? 255 : argument) * 256; ok := ok and number = 65280;
+
+    argument := 255; number := (argument <= 255 ? argument : 255) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument <= 255 ? argument : 255) * 256; ok := ok and number = 65280;
+    argument := 127; number := (argument <= 128 ? 128 : argument) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument <= 128 ? 128 : argument) * 256; ok := ok and number = 32768;
+    argument := 127; number := (128 <= argument ? argument : 128) * 256; ok := ok and number = 32768;
+    argument := 128; number := (128 <= argument ? argument : 128) * 256; ok := ok and number = 32768;
+    argument := 255; number := (255 <= argument ? 255 : argument) * 256; ok := ok and number = 65280;
+    argument := 256; number := (255 <= argument ? 255 : argument) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (argument > 128 ? argument : 128) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument > 128 ? argument : 128) * 256; ok := ok and number = 32768;
+    argument := 255; number := (argument > 255 ? 255 : argument) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument > 255 ? 255 : argument) * 256; ok := ok and number = 65280;
+    argument := 255; number := (255 > argument ? argument : 255) * 256; ok := ok and number = 65280;
+    argument := 256; number := (255 > argument ? argument : 255) * 256; ok := ok and number = 65280;
+    argument := 127; number := (128 > argument ? 128 : argument) * 256; ok := ok and number = 32768;
+    argument := 128; number := (128 > argument ? 128 : argument) * 256; ok := ok and number = 32768;
+
+    argument := 127; number := (argument >= 128 ? argument : 128) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument >= 128 ? argument : 128) * 256; ok := ok and number = 32768;
+    argument := 255; number := (argument >= 255 ? 255 : argument) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument >= 255 ? 255 : argument) * 256; ok := ok and number = 65280;
+    argument := 255; number := (255 >= argument ? argument : 255) * 256; ok := ok and number = 65280;
+    argument := 256; number := (255 >= argument ? argument : 255) * 256; ok := ok and number = 65280;
+    argument := 127; number := (128 >= argument ? 128 : argument) * 256; ok := ok and number = 32768;
+    argument := 128; number := (128 >= argument ? 128 : argument) * 256; ok := ok and number = 32768;
+
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    argument := 127; number := (argument < 128 ? 128 : (argument > 255 ? 255 : argument)) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument < 128 ? 128 : (argument > 255 ? 255 : argument)) * 256; ok := ok and number = 32768;
+    argument := 255; number := (argument < 128 ? 128 : (argument > 255 ? 255 : argument)) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument < 128 ? 128 : (argument > 255 ? 255 : argument)) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (128 < argument ? (255 > argument ? argument : 255) : 128) * 256; ok := ok and number = 32768;
+    argument := 128; number := (128 < argument ? (255 > argument ? argument : 255) : 128) * 256; ok := ok and number = 32768;
+    argument := 255; number := (128 < argument ? (255 > argument ? argument : 255) : 128) * 256; ok := ok and number = 65280;
+    argument := 256; number := (128 < argument ? (255 > argument ? argument : 255) : 128) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (argument > 128 ? (argument < 255 ? argument : 255) : 128) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument > 128 ? (argument < 255 ? argument : 255) : 128) * 256; ok := ok and number = 32768;
+    argument := 255; number := (argument > 128 ? (argument < 255 ? argument : 255) : 128) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument > 128 ? (argument < 255 ? argument : 255) : 128) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (128 > argument ? 128 : (255 < argument ? 255 : argument)) * 256; ok := ok and number = 32768;
+    argument := 128; number := (128 > argument ? 128 : (255 < argument ? 255 : argument)) * 256; ok := ok and number = 32768;
+    argument := 255; number := (128 > argument ? 128 : (255 < argument ? 255 : argument)) * 256; ok := ok and number = 65280;
+    argument := 256; number := (128 > argument ? 128 : (255 < argument ? 255 : argument)) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (argument > 255 ? 255 : (argument < 128 ? 128 : argument)) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument > 255 ? 255 : (argument < 128 ? 128 : argument)) * 256; ok := ok and number = 32768;
+    argument := 255; number := (argument > 255 ? 255 : (argument < 128 ? 128 : argument)) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument > 255 ? 255 : (argument < 128 ? 128 : argument)) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (255 > argument ? (128 < argument ? argument : 128) : 255) * 256; ok := ok and number = 32768;
+    argument := 128; number := (255 > argument ? (128 < argument ? argument : 128) : 255) * 256; ok := ok and number = 32768;
+    argument := 255; number := (255 > argument ? (128 < argument ? argument : 128) : 255) * 256; ok := ok and number = 65280;
+    argument := 256; number := (255 > argument ? (128 < argument ? argument : 128) : 255) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (argument < 255 ? (argument > 128 ? argument : 128) : 255) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument < 255 ? (argument > 128 ? argument : 128) : 255) * 256; ok := ok and number = 32768;
+    argument := 255; number := (argument < 255 ? (argument > 128 ? argument : 128) : 255) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument < 255 ? (argument > 128 ? argument : 128) : 255) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (255 < argument ? 255 : (128 > argument ? 128 : argument)) * 256; ok := ok and number = 32768;
+    argument := 128; number := (255 < argument ? 255 : (128 > argument ? 128 : argument)) * 256; ok := ok and number = 32768;
+    argument := 255; number := (255 < argument ? 255 : (128 > argument ? 128 : argument)) * 256; ok := ok and number = 65280;
+    argument := 256; number := (255 < argument ? 255 : (128 > argument ? 128 : argument)) * 256; ok := ok and number = 65280;
+
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    argument := 127; number := (argument <= 128 ? 128 : (argument >= 255 ? 255 : argument)) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument <= 128 ? 128 : (argument >= 255 ? 255 : argument)) * 256; ok := ok and number = 32768;
+    argument := 255; number := (argument <= 128 ? 128 : (argument >= 255 ? 255 : argument)) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument <= 128 ? 128 : (argument >= 255 ? 255 : argument)) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (128 <= argument ? (255 >= argument ? argument : 255) : 128) * 256; ok := ok and number = 32768;
+    argument := 128; number := (128 <= argument ? (255 >= argument ? argument : 255) : 128) * 256; ok := ok and number = 32768;
+    argument := 255; number := (128 <= argument ? (255 >= argument ? argument : 255) : 128) * 256; ok := ok and number = 65280;
+    argument := 256; number := (128 <= argument ? (255 >= argument ? argument : 255) : 128) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (argument >= 128 ? (argument <= 255 ? argument : 255) : 128) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument >= 128 ? (argument <= 255 ? argument : 255) : 128) * 256; ok := ok and number = 32768;
+    argument := 255; number := (argument >= 128 ? (argument <= 255 ? argument : 255) : 128) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument >= 128 ? (argument <= 255 ? argument : 255) : 128) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (128 >= argument ? 128 : (255 <= argument ? 255 : argument)) * 256; ok := ok and number = 32768;
+    argument := 128; number := (128 >= argument ? 128 : (255 <= argument ? 255 : argument)) * 256; ok := ok and number = 32768;
+    argument := 255; number := (128 >= argument ? 128 : (255 <= argument ? 255 : argument)) * 256; ok := ok and number = 65280;
+    argument := 256; number := (128 >= argument ? 128 : (255 <= argument ? 255 : argument)) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (argument >= 255 ? 255 : (argument <= 128 ? 128 : argument)) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument >= 255 ? 255 : (argument <= 128 ? 128 : argument)) * 256; ok := ok and number = 32768;
+    argument := 255; number := (argument >= 255 ? 255 : (argument <= 128 ? 128 : argument)) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument >= 255 ? 255 : (argument <= 128 ? 128 : argument)) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (255 >= argument ? (128 <= argument ? argument : 128) : 255) * 256; ok := ok and number = 32768;
+    argument := 128; number := (255 >= argument ? (128 <= argument ? argument : 128) : 255) * 256; ok := ok and number = 32768;
+    argument := 255; number := (255 >= argument ? (128 <= argument ? argument : 128) : 255) * 256; ok := ok and number = 65280;
+    argument := 256; number := (255 >= argument ? (128 <= argument ? argument : 128) : 255) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (argument <= 255 ? (argument >= 128 ? argument : 128) : 255) * 256; ok := ok and number = 32768;
+    argument := 128; number := (argument <= 255 ? (argument >= 128 ? argument : 128) : 255) * 256; ok := ok and number = 32768;
+    argument := 255; number := (argument <= 255 ? (argument >= 128 ? argument : 128) : 255) * 256; ok := ok and number = 65280;
+    argument := 256; number := (argument <= 255 ? (argument >= 128 ? argument : 128) : 255) * 256; ok := ok and number = 65280;
+
+    argument := 127; number := (255 <= argument ? 255 : (128 >= argument ? 128 : argument)) * 256; ok := ok and number = 32768;
+    argument := 128; number := (255 <= argument ? 255 : (128 >= argument ? 128 : argument)) * 256; ok := ok and number = 32768;
+    argument := 255; number := (255 <= argument ? 255 : (128 >= argument ? 128 : argument)) * 256; ok := ok and number = 65280;
+    argument := 256; number := (255 <= argument ? 255 : (128 >= argument ? 128 : argument)) * 256; ok := ok and number = 65280;
+
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (6)");
       okay := FALSE;
     end if;
 

@@ -1,0 +1,103 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  huffman.s7i   Support for Huffman coding.                       *)
+(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bitdata.s7i";
+
+
+const type: huffmanElement is new struct
+    var integer: symbol is 0;
+    var integer: bitWidth is 0;
+  end struct;
+
+const type: huffmanTable is new struct
+    var integer: maxBitWidth is 0;
+    var array huffmanElement: data is 0 times huffmanElement.value;
+  end struct;
+
+
+(**
+ *  Create a Huffman table to be used when reading in MSB-First order.
+ *  @param numberOfCodesWithLength Array to map bit width to number
+ *                                 of symbols that use this bit width.
+ *  @param huffmanValues String with symbols ordered by the bit width.
+ *)
+const proc: createHuffmanTableMsb (inout huffmanTable: table,
+    in integer: maximumCodeLength, in array integer: numberOfCodesWithLength,
+    in string: huffmanValues) is func
+  local
+    var integer: currentCode is 0;
+    var integer: codeLength is 0;
+    var integer: valueIndexStart is 0;
+    var integer: valueIndexEnd is 0;
+    var integer: valueIndex is 0;
+    var integer: tableIndex is 0;
+  begin
+    table.maxBitWidth := maximumCodeLength;
+    table.data := [0 .. pred(1 << maximumCodeLength)] times huffmanElement.value;
+    for codeLength range 1 to maximumCodeLength do
+      valueIndexStart := succ(valueIndexEnd);
+      valueIndexEnd +:= numberOfCodesWithLength[codeLength];
+      for valueIndex range valueIndexStart to valueIndexEnd do
+        while currentCode = tableIndex >> (maximumCodeLength - codeLength) do
+          table.data[tableIndex].symbol := ord(huffmanValues[valueIndex]);
+          table.data[tableIndex].bitWidth := codeLength;
+          incr(tableIndex);
+        end while;
+        incr(currentCode);
+      end for;
+      currentCode <<:= 1;
+    end for;
+    while tableIndex <= pred(1 << maximumCodeLength) do
+      table.data[tableIndex].symbol := ord(huffmanValues[length(huffmanValues)]);
+      table.data[tableIndex].bitWidth := maximumCodeLength;
+      incr(tableIndex);
+    end while;
+  end func;
+
+
+(**
+ *  Get huffman symbol from ''stri'' in MSB-First order using the huffman ''table''.
+ *  The read direction is from MSB (most significant bit) to LSB (least significant bit).
+ *  The function peeks bits from ''stri''. Therefore it is necessary that some
+ *  bytes are appended to ''stri'' to allow that bits can be peeked always.
+ *  @param stri String of bytes from which the bits are read.
+ *  @param bytePos Current byte position in ''stri''.
+ *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
+ *  @param table Huffman table defining the bit sequences that encode the symbols.
+ *)
+const func integer: getHuffmanSymbolMsb (in string: stri, inout integer: bytePos,
+    inout integer: bitPos, in huffmanTable: table) is func
+  result
+    var integer: symbol is 0;
+  local
+    var integer: index is 0;
+  begin
+    index := peekBitsMsb(stri, bytePos, bitPos, table.maxBitWidth);
+    symbol := table.data[index].symbol;
+    skipBitsMsb(bytePos, bitPos, table.data[index].bitWidth);
+  end func;
