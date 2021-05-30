@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  gkb_x11.c     Keyboard and mouse access with X11 capabilities.  */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013, 2015, 2018 - 2021  Thomas Mertes     */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/gkb_x11.c                                       */
-/*  Changes: 1994, 2000 - 2011  Thomas Mertes                       */
+/*  Changes: 1994, 2000 - 2013, 2015, 2018 - 2021  Thomas Mertes    */
 /*  Content: Keyboard and mouse access with X11 capabilities.       */
 /*                                                                  */
 /********************************************************************/
@@ -93,7 +93,11 @@ struct modifierState {
 static struct modifierState modState = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
 
 extern int getCloseAction (winType actual_window);
-extern void redraw (winType redraw_window, int xPos, int yPos, int width, int height);
+extern void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsigned int height);
+extern boolType resize (winType resizeWindow, unsigned int width, unsigned int height);
+extern boolType isResize (winType resizeWindow, unsigned int width, unsigned int height);
+extern void setResizeReturnsKey (winType resizeWindow, boolType active);
+extern void drwSetCloseAction (winType actual_window, intType closeAction);
 extern void doFlush (void);
 extern void flushBeforeRead (void);
 
@@ -985,43 +989,55 @@ void remove_window (Window sys_window)
 void handleExpose (XExposeEvent *xexpose)
 
   {
-    winType redraw_window;
+    winType redrawWindow;
 
   /* handleExpose */
     logFunction(printf("handleExpose(" FMT_U_MEM ")\n", (memSizeType) xexpose););
     /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d, count=%d\n",
         xexpose->x, xexpose->y, xexpose->width, xexpose->height, xexpose->count); */
-    redraw_window = find_window(xexpose->window);
-    redraw(redraw_window, xexpose->x, xexpose->y, xexpose->width, xexpose->height);
+    redrawWindow = find_window(xexpose->window);
+    redraw(redrawWindow, xexpose->x, xexpose->y, (unsigned int) xexpose->width,
+           (unsigned int) xexpose->height);
     logFunction(printf("handleExpose -->\n"););
   } /* handleExpose */
 
 
 
-#ifdef OUT_OF_ORDER
-void waitForReparent (void)
+static boolType handleConfigure (XConfigureEvent *xconfigure)
 
-  { /* waitForReparent */
-    XNextEvent(mydisplay, &currentEvent);
-    switch(currentEvent.type) {
-      case ReparentNotify:
-      case ConfigureNotify:
-        break;
-      default:
-        printf("Other Event %d\n", currentEvent.type);
-        break;
-    } /* switch */
-    XNextEvent(mydisplay, &currentEvent);
-    switch(currentEvent.type) {
-      case ReparentNotify:
-      case ConfigureNotify:
-        break;
-      default:
-        printf("Other Event %d\n", currentEvent.type);
-        break;
-    } /* switch */
-  } /* waitForReparent */
-#endif
+  {
+    winType resizeWindow;
+    boolType sendResizeNotification = FALSE;
+
+  /* handleConfigure */
+    logFunction(printf("handleConfigure(" FMT_U_MEM ")\n", (memSizeType) xconfigure););
+    /* printf("XConfigureEvent width=%d, height=%d\n",
+       xconfigure->width, xconfigure->height); */
+    resizeWindow = find_window(xconfigure->window);
+    sendResizeNotification = resize(resizeWindow, (unsigned int) xconfigure->width,
+                                    (unsigned int) xconfigure->height);
+    logFunction(printf("handleConfigure --> %d\n", sendResizeNotification););
+    return sendResizeNotification;
+  } /* handleConfigure */
+
+
+
+static boolType configureDoesResize (XConfigureEvent *xconfigure)
+
+  {
+    winType resizeWindow;
+    boolType sendResizeNotification = FALSE;
+
+  /* configureDoesResize */
+    logFunction(printf("configureDoesResize(" FMT_U_MEM ")\n", (memSizeType) xconfigure););
+    /* printf("XConfigureEvent width=%d, height=%d\n",
+       xconfigure->width, xconfigure->height); */
+    resizeWindow = find_window(xconfigure->window);
+    sendResizeNotification = isResize(resizeWindow, (unsigned int) xconfigure->width,
+                                      (unsigned int) xconfigure->height);
+    logFunction(printf("configureDoesResize --> %d\n", sendResizeNotification););
+    return sendResizeNotification;
+  } /* configureDoesResize */
 
 
 
@@ -1163,32 +1179,26 @@ charType gkbGetc (void)
           getNextChar = TRUE;
           break;
 
-#ifdef OUT_OF_ORDER
         case ConfigureNotify:
           traceEvent(printf("ConfigureNotify"););
-          configure(&currentEvent.xconfigure);
-          getNextChar = TRUE;
+          if (handleConfigure(&currentEvent.xconfigure)) {
+            result = K_RESIZE;
+            button_window = currentEvent.xconfigure.window;
+          } else {
+            getNextChar = TRUE;
+          } /* if */
           break;
-        case MapNotify:
-#endif
 
 #if TRACE_REPARENT_NOTIFY
         case ReparentNotify:
           printf("gkbGetc: Reparent\n");
           getNextChar = TRUE;
           break;
-
-        case ConfigureNotify:
-          printf("gkbGetc: Configure %lx %d, %d\n",
-                 currentEvent.xconfigure.window,
-                 currentEvent.xconfigure.width, currentEvent.xconfigure.height);
-          getNextChar = TRUE;
-          break;
 #endif
 #ifdef ALLOW_REPARENT_NOTIFY
         case ReparentNotify:
-        case ConfigureNotify:
 #endif
+        case MapNotify:
         case GraphicsExpose:
         case NoExpose:
           traceEvent(printf("NoExpose\n"););
@@ -1795,18 +1805,21 @@ boolType processEvents (void)
             result = TRUE;
             break;
 
-#ifdef OUT_OF_ORDER
           case ConfigureNotify:
-            if (num_events == 1) {
-              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            traceEvent(printf("processEvents: ConfigureNotify\n"););
+            if (configureDoesResize(&currentEvent.xconfigure)) {
+              num_events = 0;
+              eventPresent = TRUE;
             } else {
-              num_events--;
+              if (num_events == 1) {
+                num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+              } else {
+                num_events--;
+              } /* if */
+              handleConfigure(&currentEvent.xconfigure);
+              result = TRUE;
             } /* if */
-            configure(&currentEvent.xconfigure);
-            result = TRUE;
             break;
-          case MapNotify:
-#endif
 
 #if TRACE_REPARENT_NOTIFY
           case ReparentNotify:
@@ -1817,26 +1830,15 @@ boolType processEvents (void)
               num_events--;
             } /* if */
             break;
-
-          case ConfigureNotify:
-            printf("processEvents: Configure %lx %d, %d\n",
-                   currentEvent.xconfigure.window,
-                   currentEvent.xconfigure.width, currentEvent.xconfigure.height);
-            if (num_events == 1) {
-              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-            } else {
-              num_events--;
-            } /* if */
-            break;
 #endif
 
 #ifdef ALLOW_REPARENT_NOTIFY
           case ReparentNotify:
-          case ConfigureNotify:
 #endif
+          case MapNotify:
           case GraphicsExpose:
           case NoExpose:
-            traceEvent(printf("processEvents: Reparent/Configure/GraphicsExpose/NoExpose\n"););
+            traceEvent(printf("processEvents: Reparent/Map/GraphicsExpose/NoExpose\n"););
             traceEvent(printf("processEvents: KeyPress key.state: %x\n",
                               currentEvent.xkey.state););
             if (num_events == 1) {
@@ -2211,6 +2213,24 @@ charType gkbRawGetc (void)
   { /* gkbRawGetc */
     return gkbGetc();
   } /* gkbRawGetc */
+
+
+
+void gkbSelectInput (winType aWindow, charType aKey, boolType active)
+
+  { /* gkbSelectInput */
+    if (aKey == K_RESIZE) {
+      setResizeReturnsKey(aWindow, active);
+    } else if (aKey == K_CLOSE) {
+      if (active) {
+        drwSetCloseAction(aWindow, CLOSE_BUTTON_RETURNS_KEY);
+      } else {
+        drwSetCloseAction(aWindow, CLOSE_BUTTON_CLOSES_PROGRAM);
+      } /* if */
+    } else {
+      raise_error(RANGE_ERROR);
+    } /* if */
+  } /* gkbSelectInput */
 
 
 

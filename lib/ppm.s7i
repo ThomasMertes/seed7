@@ -1,0 +1,167 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  ppm.s7i       Support for the PPM image file format.            *)
+(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "scanfile.s7i";
+include "bytedata.s7i";
+include "draw.s7i";
+include "keybd.s7i";
+
+const string: PPM_MAGIC is "P6";
+
+
+(**
+ *  Reads a PPM file into a pixmap.
+ *  @param ppmFile File that contains a PPM image.
+ *  @result A pixmap with the PPM image.
+ *  @exception RANGE_ERROR The file is not in the PPM file format.
+ *)
+const func PRIMITIVE_WINDOW: readPpm (inout file: ppmFile) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var string: magic is "";
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: maximumColorValue is 0;
+    var string: pixelData is "";
+    var integer: byteIndex is 1;
+    var integer: line is 0;
+    var integer: column is 0;
+    var array array pixel: image is 0 times 0 times pixel.value;
+  begin
+    magic := gets(ppmFile, length(PPM_MAGIC));
+    if magic = PPM_MAGIC then
+      pixmap := newPixmap(1, 1); # Initialize graphic
+      ppmFile.bufferChar := getc(ppmFile);
+      skipWhiteSpace(ppmFile);
+      while ppmFile.bufferChar = '#' do
+        skipLineComment(ppmFile);
+        ppmFile.bufferChar := getc(ppmFile);
+      end while;
+      skipWhiteSpace(ppmFile);
+      width := integer(getInteger(ppmFile));
+      skipWhiteSpace(ppmFile);
+      while ppmFile.bufferChar = '#' do
+        skipLineComment(ppmFile);
+        ppmFile.bufferChar := getc(ppmFile);
+      end while;
+      skipWhiteSpace(ppmFile);
+      height := integer(getInteger(ppmFile));
+      skipWhiteSpace(ppmFile);
+      while ppmFile.bufferChar = '#' do
+        skipLineComment(ppmFile);
+        ppmFile.bufferChar := getc(ppmFile);
+      end while;
+      skipWhiteSpace(ppmFile);
+      maximumColorValue := integer(getInteger(ppmFile));
+      image := height times width times pixel.value;
+      if maximumColorValue <= 255 then
+        for line range 1 to height do
+          pixelData := gets(ppmFile, width * 3);
+          byteIndex := 1;
+          for column range 1 to width do
+            image[line][column] := rgbPixel(ord(pixelData[byteIndex]) * 256,
+                                            ord(pixelData[succ(byteIndex)]) * 256,
+                                            ord(pixelData[byteIndex + 2]) * 256);
+            byteIndex +:= 3;
+          end for;
+        end for;
+      else
+        for line range 1 to height do
+          pixelData := gets(ppmFile, width * 6);
+          byteIndex := 1;
+          for column range 1 to width do
+            image[line][column] :=
+                rgbPixel(bytes2Int(pixelData[byteIndex len 2], UNSIGNED, BE),
+                         bytes2Int(pixelData[byteIndex + 2 len 2], UNSIGNED, BE),
+                         bytes2Int(pixelData[byteIndex + 4 len 2], UNSIGNED, BE));
+            byteIndex +:= 6;
+          end for;
+        end for;
+      end if;
+      pixmap := imagePixmap(image);
+    end if;
+  end func;
+
+
+(**
+ *  Reads a PPM file with the given ''ppmFileName'' into a pixmap.
+ *  @param ppmFileName Name of the PPM file.
+ *  @result A pixmap with the PPM image.
+ *  @exception RANGE_ERROR The file is not in the PPM file format.
+ *)
+const func PRIMITIVE_WINDOW: readPpm (in string: ppmFileName) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var file: ppmFile is STD_NULL;
+   begin
+    ppmFile := open(ppmFileName, "r");
+    if ppmFile <> STD_NULL then
+      pixmap := readPpm(ppmFile);
+      close(ppmFile);
+    end if;
+  end func;
+
+
+const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
+  result
+    var string: stri is PPM_MAGIC;
+  local
+    var bstring: bImage is bstring.value;
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var color: col is color.value;
+  begin
+    height := height(pixmap);
+    width := width(pixmap);
+    stri &:= "\n" <& width <& " " <& height <& "\n255\n";
+    bImage := getImage(pixmap);
+    for line range 0 to pred(height) do
+      for column range 0 to pred(width) do
+        col := getPixelColor(bImage, width, height, column, line);
+        stri &:= chr(col.redLight   mdiv 256);
+        stri &:= chr(col.greenLight mdiv 256);
+        stri &:= chr(col.blueLight  mdiv 256);
+      end for;
+    end for;
+  end func;
+
+
+const proc: writePpm (in string: fileName, in PRIMITIVE_WINDOW: pixmap) is func
+  local
+    var file: ppmFile is STD_NULL;
+  begin
+    ppmFile := open(fileName, "w");
+    if ppmFile <> STD_NULL then
+      write(ppmFile, str(pixmap, PPM));
+      close(ppmFile);
+    end if;
+  end func;

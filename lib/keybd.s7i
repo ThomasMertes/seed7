@@ -569,5 +569,6 @@ const char: KEY_NUM_LOCK_ON    is chr(KEYCODE_BASE + 380);
 const char: KEY_SCROLL_LOCK    is chr(KEYCODE_BASE + 381);
 const char: KEY_SCROLL_LOCK_ON is chr(KEYCODE_BASE + 382);
 const char: KEY_CLOSE          is chr(KEYCODE_BASE + 385);
-const char: KEY_UNDEF          is chr(KEYCODE_BASE + 386);
-const char: KEY_NONE           is chr(KEYCODE_BASE + 387);
+const char: KEY_RESIZE         is chr(KEYCODE_BASE + 386);
+const char: KEY_UNDEF          is chr(KEYCODE_BASE + 387);
+const char: KEY_NONE           is chr(KEYCODE_BASE + 388);

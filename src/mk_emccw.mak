@@ -11,7 +11,7 @@ CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -W
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1 -s EXTRA_EXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString']
+LDFLAGS = -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString']
 # LDFLAGS = -Wl,--gc-sections,--stack,8388608,--subsystem,windows
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p

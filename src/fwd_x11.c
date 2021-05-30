@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fwd_x11.c     Forward X11 calls to a shared X11 library.        */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2021  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/fwd_x11.c                                       */
-/*  Changes: 2019  Thomas Mertes                                    */
+/*  Changes: 2019 - 2021  Thomas Mertes                             */
 /*  Content: Forward X11 calls to a shared X11 library.             */
 /*                                                                  */
 /********************************************************************/
@@ -43,6 +43,9 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#ifdef HAS_XRENDER_EXTENSION
+#include <X11/extensions/Xrender.h>
+#endif
 #undef XDestroyImage
 #undef XGetPixel
 #endif
@@ -199,9 +202,28 @@ typedef int (*tp_XSetWMHints) (Display *display, Window window, XWMHints *wm_hin
 typedef Status (*tp_XSetWMProtocols) (Display *display, Window window,
                                       Atom *protocols, int count);
 typedef int (*tp_XStoreColor) (Display *display, Colormap colormap, XColor *color);
+typedef int (*tp_XStoreName) (Display *display, Window window, const char *window_name);
 typedef int (*tp_XSync) (Display *display, Bool discard);
 typedef unsigned long (*tp_XWhitePixel) (Display *display,
                                          int screen_number);
+
+#ifdef HAS_XRENDER_EXTENSION
+typedef void (*tp_XRenderComposite) (Display *display, int op, Picture src,
+                                     Picture mask, Picture dst, int src_x, int src_y,
+                                     int mask_x, int mask_y, int dst_x, int dst_y,
+                                     unsigned int width, unsigned int height);
+typedef Picture (*tp_XRenderCreatePicture) (Display *display,
+                                            Drawable drawable,
+                                            const XRenderPictFormat *format,
+                                            unsigned long valuemask,
+                                            const XRenderPictureAttributes *attributes);
+typedef XRenderPictFormat *(*tp_XRenderFindVisualFormat) (Display *display,
+                                                          const Visual *visual);
+typedef void (*tp_XRenderFreePicture) (Display *display, Picture picture);
+typedef void (*tp_XRenderSetPictureTransform) (Display *display,
+                                               Picture picture,
+                                               XTransform *transform);
+#endif
 
 static tp_XAllocColor             ptr_XAllocColor;
 static tp_XAllocColorCells        ptr_XAllocColorCells;
@@ -268,18 +290,27 @@ static tp_XSetStandardProperties  ptr_XSetStandardProperties;
 static tp_XSetWMHints             ptr_XSetWMHints;
 static tp_XSetWMProtocols         ptr_XSetWMProtocols;
 static tp_XStoreColor             ptr_XStoreColor;
+static tp_XStoreName              ptr_XStoreName;
 static tp_XSync                   ptr_XSync;
 static tp_XWhitePixel             ptr_XWhitePixel;
 
+#ifdef HAS_XRENDER_EXTENSION
+static tp_XRenderComposite           ptr_XRenderComposite;
+static tp_XRenderCreatePicture       ptr_XRenderCreatePicture;
+static tp_XRenderFindVisualFormat    ptr_XRenderFindVisualFormat;
+static tp_XRenderFreePicture         ptr_XRenderFreePicture;
+static tp_XRenderSetPictureTransform ptr_XRenderSetPictureTransform;
+#endif
 
 
-static boolType setupDll (const char *dllName)
+
+static boolType setupX11Dll (const char *dllName)
 
   {
     static void *x11Dll = NULL;
 
-  /* setupDll */
-    logFunction(printf("setupDll(\"%s\")\n", dllName););
+  /* setupX11Dll */
+    logFunction(printf("setupX11Dll(\"%s\")\n", dllName););
     if (x11Dll == NULL) {
       x11Dll = dllOpen(dllName);
       if (x11Dll != NULL) {
@@ -348,15 +379,43 @@ static boolType setupDll (const char *dllName)
             (ptr_XSetWMHints             = (tp_XSetWMHints)             dllFunc(x11Dll, "XSetWMHints"))             == NULL ||
             (ptr_XSetWMProtocols         = (tp_XSetWMProtocols)         dllFunc(x11Dll, "XSetWMProtocols"))         == NULL ||
             (ptr_XStoreColor             = (tp_XStoreColor)             dllFunc(x11Dll, "XStoreColor"))             == NULL ||
+            (ptr_XStoreName              = (tp_XStoreName)              dllFunc(x11Dll, "XStoreName"))              == NULL ||
             (ptr_XSync                   = (tp_XSync)                   dllFunc(x11Dll, "XSync"))                   == NULL ||
             (ptr_XWhitePixel             = (tp_XWhitePixel)             dllFunc(x11Dll, "XWhitePixel"))             == NULL) {
           x11Dll = NULL;
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("setupDll --> %d\n", x11Dll != NULL););
+    logFunction(printf("setupX11Dll --> %d\n", x11Dll != NULL););
     return x11Dll != NULL;
-  } /* setupDll */
+  } /* setupX11Dll */
+
+
+
+#ifdef HAS_XRENDER_EXTENSION
+static boolType setupXrenderDll (const char *dllName)
+
+  {
+    static void *renderDll = NULL;
+
+  /* setupXrenderDll */
+    logFunction(printf("setupXrenderDll(\"%s\")\n", dllName););
+    if (renderDll == NULL) {
+      renderDll = dllOpen(dllName);
+      if (renderDll != NULL) {
+        if ((ptr_XRenderComposite           = (tp_XRenderComposite)           dllFunc(renderDll, "XRenderComposite"))           == NULL ||
+            (ptr_XRenderCreatePicture       = (tp_XRenderCreatePicture)       dllFunc(renderDll, "XRenderCreatePicture"))       == NULL ||
+            (ptr_XRenderFindVisualFormat    = (tp_XRenderFindVisualFormat)    dllFunc(renderDll, "XRenderFindVisualFormat"))    == NULL ||
+            (ptr_XRenderFreePicture         = (tp_XRenderFreePicture)         dllFunc(renderDll, "XRenderFreePicture"))         == NULL ||
+            (ptr_XRenderSetPictureTransform = (tp_XRenderSetPictureTransform) dllFunc(renderDll, "XRenderSetPictureTransform")) == NULL) {
+          renderDll = NULL;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("setupXrenderDll --> %d\n", renderDll != NULL););
+    return renderDll != NULL;
+  } /* setupXrenderDll */
+#endif
 
 
 
@@ -364,14 +423,23 @@ boolType findX11Dll (void)
 
   {
     const char *dllList[] = { X11_DLL };
+    const char *xRenderDllList[] = { X11_XRENDER_DLL };
     unsigned int pos;
     boolType found = FALSE;
 
   /* findX11Dll */
     logFunction(printf("findX11Dll()\n"););
     for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos++) {
-      found = setupDll(dllList[pos]);
+      found = setupX11Dll(dllList[pos]);
     } /* for */
+#ifdef HAS_XRENDER_EXTENSION
+    if (found) {
+      found = FALSE;
+      for (pos = 0; pos < sizeof(xRenderDllList) / sizeof(char *) && !found; pos++) {
+        found = setupXrenderDll(xRenderDllList[pos]);
+      } /* for */
+    } /* if */
+#endif
     logFunction(printf("findX11Dll --> %d\n", found););
     return found;
   } /* findX11Dll */
@@ -1286,7 +1354,7 @@ Status XQueryTree (Display *display, Window window,
                        ", " FMT_U_XID ", "FMT_U_MEM", %u) --> %d\n",
                        (memSizeType) display, window, *root_return,
                        *parent_return, (memSizeType) *children_return,
-                       *nchildren_return););
+                       *nchildren_return, status););
     return status;
   } /* XQueryTree */
 
@@ -1521,6 +1589,21 @@ int XStoreColor (Display *display, Colormap colormap, XColor *color)
 
 
 
+int XStoreName (Display *display, Window window, const char *window_name)
+
+  {
+    int funcResult;
+
+  /* XStoreName */
+    logFunction(printf("XStoreName(" FMT_U_MEM ", " FMT_U_XID ", \"%s\")\n",
+                       (memSizeType) display, window, window_name););
+    funcResult = ptr_XStoreName(display, window, window_name);
+    logFunction(printf("XStoreName --> %d\n", funcResult););
+    return funcResult;
+  } /* XStoreName */
+
+
+
 int XSync (Display *display, Bool discard)
 
   {
@@ -1548,5 +1631,93 @@ unsigned long XWhitePixel (Display *display, int screen_number)
     logFunction(printf("XWhitePixel --> %lu\n", whitePixel););
     return whitePixel;
   } /* XWhitePixel */
+
+
+
+#ifdef HAS_XRENDER_EXTENSION
+
+void XRenderComposite (Display *display, int op, Picture src,
+                       Picture mask, Picture dst, int src_x, int src_y,
+                       int mask_x, int mask_y, int dst_x, int dst_y,
+                       unsigned int width, unsigned int height)
+
+  { /* XRenderComposite */
+    logFunction(printf("XRenderComposite(" FMT_U_MEM ", %d, " FMT_U_MEM ", "
+                       FMT_U_MEM ", " FMT_U_MEM ", %d, %d, %d, %d, %d, %d, %u, %u)\n",
+                       (memSizeType) display, op, (memSizeType) src,
+                       (memSizeType) mask, (memSizeType) dst, src_x, src_y,
+                       mask_x, mask_y, dst_x, dst_y, width, height););
+    ptr_XRenderComposite(display, op, src, mask, dst, src_x, src_y,
+                         mask_x, mask_y, dst_x, dst_y, width, height);
+    logFunction(printf("XRenderComposite -->\n"););
+  } /* XRenderComposite */
+
+
+
+Picture XRenderCreatePicture (Display *display,
+                              Drawable drawable,
+                              const XRenderPictFormat *format,
+                              unsigned long valuemask,
+                              const XRenderPictureAttributes *attributes)
+
+  {
+    Picture picture;
+
+  /* XRenderCreatePicture */
+    logFunction(printf("XRenderCreatePicture(" FMT_U_MEM ", " FMT_U_XID ", "
+                       FMT_U_MEM ", 0x%lx, " FMT_U_MEM ")\n",
+                       (memSizeType) display, drawable, (memSizeType) format,
+                       valuemask, (memSizeType) attributes););
+    picture = ptr_XRenderCreatePicture(display, drawable, format, valuemask,
+                                       attributes);
+    logFunction(printf("XRenderCreatePicture --> " FMT_U_MEM "\n",
+                       (memSizeType) picture););
+    return picture;
+  } /* XRenderCreatePicture */
+
+
+
+XRenderPictFormat *XRenderFindVisualFormat (Display *display,
+                                            const Visual *visual)
+
+  {
+    XRenderPictFormat *xRenderPictFormat;
+
+  /* XRenderFindVisualFormat */
+    logFunction(printf("XRenderFindVisualFormat(" FMT_U_MEM ", "
+                       FMT_U_MEM ")\n",
+                       (memSizeType) display, (memSizeType) visual););
+    xRenderPictFormat = ptr_XRenderFindVisualFormat(display, visual);
+    logFunction(printf("XRenderFindVisualFormat --> " FMT_U_MEM "\n",
+                       (memSizeType) xRenderPictFormat););
+    return xRenderPictFormat;
+  } /* XRenderFindVisualFormat */
+
+
+
+void XRenderFreePicture (Display *display, Picture picture)
+
+  { /* XRenderFreePicture */
+    logFunction(printf("XRenderFreePicture(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) display, (memSizeType) picture););
+    ptr_XRenderFreePicture(display, picture);
+    logFunction(printf("XRenderFreePicture -->\n"););
+  } /* XRenderFreePicture */
+
+
+
+void XRenderSetPictureTransform (Display *display,
+                                 Picture picture,
+                                 XTransform *transform)
+
+  { /* XRenderSetPictureTransform */
+    logFunction(printf("XRenderSetPictureTransform(" FMT_U_MEM ", "
+                       FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) display, (memSizeType) picture,
+                       (memSizeType) transform););
+    ptr_XRenderSetPictureTransform(display, picture, transform);
+    logFunction(printf("XRenderSetPictureTransform -->\n"););
+  } /* XRenderSetPictureTransform */
+#endif
 
 #endif

@@ -1139,7 +1139,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
 #ifdef EAI_NODATA
               || getaddrinfo_result == EAI_NODATA
 #endif
-	      ) {
+          ) {
             free_cstri8(name, hostName);
             /* Return empty address */
             if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {

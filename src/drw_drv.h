@@ -35,6 +35,7 @@ intType gkbButtonYpos (void);
 charType gkbGetc (void);
 boolType gkbKeyPressed (void);
 charType gkbRawGetc (void);
+void gkbSelectInput (winType aWindow, charType aKey, boolType active);
 winType gkbWindow (void);
 intType drwPointerXpos (const_winType actual_window);
 intType drwPointerYpos (const_winType actual_window);
@@ -104,6 +105,8 @@ void drwFPolyLine (const_winType actual_window,
     intType x, intType y, bstriType point_list, intType col);
 void drwPut (const_winType actual_window, const_winType pixmap,
     intType x, intType y);
+void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
+    intType width, intType height, const_winType pixmap);
 void drwRect (const_winType actual_window,
     intType x, intType y, intType width, intType height);
 void drwPRect (const_winType actual_window,
@@ -115,6 +118,7 @@ intType drwScreenWidth (void);
 void drwSetContent (const_winType actual_window, const_winType pixmap);
 void drwSetPos (const_winType actual_window, intType xPos, intType yPos);
 void drwSetTransparentColor (winType pixmap, intType col);
+void drwSetWindowName (winType aWindow, const const_striType windowName);
 void drwText (const_winType actual_window, intType x, intType y,
     const const_striType stri, intType col, intType bkcol);
 void drwToBottom (const_winType actual_window);

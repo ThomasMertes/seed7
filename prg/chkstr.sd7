@@ -17078,6 +17078,12 @@ const proc: check_string_funcs is func
       okay := FALSE;
     end if;
 
+    if  str("") <> "" or
+        str(striExpr("")) <> "" then
+      writeln(" ***** str(STRING) does not work correct.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("String functions work correct.");
     end if;

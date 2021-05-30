@@ -55,6 +55,7 @@
 #define PI 3.141592653589793238462643383279502884197
 
 #define windowClass "MyWindowClass"
+#define windowClassW L"MyWindowClass"
 
 static intType init_called = 0;
 
@@ -74,28 +75,43 @@ typedef struct {
     boolType is_pixmap;
     unsigned int width;  /* Always <= INT_MAX: Cast to int is safe. */
     unsigned int height; /* Always <= INT_MAX: Cast to int is safe. */
-    unsigned int brutto_width_delta;
-    unsigned int brutto_height_delta;
+    unsigned int backupWidth;  /* Always <= INT_MAX: Cast to int is safe. */
+    unsigned int backupHeight; /* Always <= INT_MAX: Cast to int is safe. */
+    unsigned int bruttoWidthDelta;
+    unsigned int bruttoHeightDelta;
     intType clear_col;
     int close_action;
+    boolType resizeReturnsKey;
   } win_winRecord, *win_winType;
 
-#define to_hwnd(win)                 (((win_winType) win)->hWnd)
-#define to_hdc(win)                  (((win_winType) win)->hdc)
-#define to_backup_hdc(win)           (((win_winType) win)->backup_hdc)
-#define to_backup(win)               (((win_winType) win)->backup)
-#define to_hBitmap(win)              (((win_winType) win)->hBitmap)
-#define to_oldBitmap(win)            (((win_winType) win)->oldBitmap)
-#define is_pixmap(win)               (((win_winType) win)->is_pixmap)
-#define to_hasTransparentPixel(win)  (((win_winType) win)->hasTransparentPixel)
-#define to_transparentPixel(win)     (((win_winType) win)->transparentPixel)
-#define to_maskBitmap(win)           (((win_winType) win)->maskBitmap)
-#define to_width(win)                (((win_winType) win)->width)
-#define to_height(win)               (((win_winType) win)->height)
-#define to_brutto_width_delta(win)   (((win_winType) win)->brutto_width_delta)
-#define to_brutto_height_delta(win)  (((win_winType) win)->brutto_height_delta)
-#define to_clear_col(win)            (((win_winType) win)->clear_col)
-#define to_close_action(win)         (((win_winType) win)->close_action)
+typedef const win_winRecord *const_win_winType;
+
+#define to_hwnd(win)                 (((const_win_winType) win)->hWnd)
+#define to_hdc(win)                  (((const_win_winType) win)->hdc)
+#define to_backup_hdc(win)           (((const_win_winType) win)->backup_hdc)
+#define to_backup(win)               (((const_win_winType) win)->backup)
+#define to_hBitmap(win)              (((const_win_winType) win)->hBitmap)
+#define to_oldBitmap(win)            (((const_win_winType) win)->oldBitmap)
+#define is_pixmap(win)               (((const_win_winType) win)->is_pixmap)
+#define to_hasTransparentPixel(win)  (((const_win_winType) win)->hasTransparentPixel)
+#define to_transparentPixel(win)     (((const_win_winType) win)->transparentPixel)
+#define to_maskBitmap(win)           (((const_win_winType) win)->maskBitmap)
+#define to_width(win)                (((const_win_winType) win)->width)
+#define to_height(win)               (((const_win_winType) win)->height)
+#define to_backupWidth(win)          (((const_win_winType) win)->backupWidth)
+#define to_backupHeight(win)         (((const_win_winType) win)->backupHeight)
+#define to_bruttoWidthDelta(win)     (((const_win_winType) win)->bruttoWidthDelta)
+#define to_bruttoHeightDelta(win)    (((const_win_winType) win)->bruttoHeightDelta)
+#define to_clear_col(win)            (((const_win_winType) win)->clear_col)
+#define to_resizeReturnsKey(win)     (((const_win_winType) win)->resizeReturnsKey)
+#define to_close_action(win)         (((const_win_winType) win)->close_action)
+
+#define to_var_hasTransparentPixel(win)  (((win_winType) win)->hasTransparentPixel)
+#define to_var_transparentPixel(win)     (((win_winType) win)->transparentPixel)
+#define to_var_maskBitmap(win)           (((win_winType) win)->maskBitmap)
+#define to_var_clear_col(win)            (((win_winType) win)->clear_col)
+#define to_var_resizeReturnsKey(win)     (((win_winType) win)->resizeReturnsKey)
+#define to_var_close_action(win)         (((win_winType) win)->close_action)
 
 #ifndef WM_NCMOUSELEAVE
 #define WM_NCMOUSELEAVE 674
@@ -124,8 +140,8 @@ int getCloseAction (winType actual_window)
 
 
 
-static void drawRectangle (win_winType actual_window,
-    intType x1, intType y1, intType x2, intType y2, intType col)
+static void drawRectangle (HDC hdc, intType x1, intType y1,
+    intType x2, intType y2, intType col)
 
   {
     HPEN old_pen;
@@ -139,29 +155,85 @@ static void drawRectangle (win_winType actual_window,
     if (unlikely(current_pen == NULL || current_brush == NULL)) {
       raise_error(MEMORY_ERROR);
     } else {
-      old_pen = (HPEN) SelectObject(actual_window->hdc, current_pen);
-      old_brush = (HBRUSH) SelectObject(actual_window->hdc, current_brush);
+      old_pen = (HPEN) SelectObject(hdc, current_pen);
+      old_brush = (HBRUSH) SelectObject(hdc, current_brush);
       if (x1 == x2) {
         if (y1 == y2) {
-          SetPixel(actual_window->hdc, castToInt(x1), castToInt(y1), (COLORREF) col);
+          SetPixel(hdc, castToInt(x1), castToInt(y1), (COLORREF) col);
         } else {
-          MoveToEx(actual_window->hdc, castToInt(x1), castToInt(y1), NULL);
-          LineTo(actual_window->hdc, castToInt(x1), castToInt(y2 + 1));
+          MoveToEx(hdc, castToInt(x1), castToInt(y1), NULL);
+          LineTo(hdc, castToInt(x1), castToInt(y2 + 1));
         } /* if */
       } else {
         if (y1 == y2) {
-          MoveToEx(actual_window->hdc, castToInt(x1), castToInt(y1), NULL);
-          LineTo(actual_window->hdc, castToInt(x2 + 1), castToInt(y1));
+          MoveToEx(hdc, castToInt(x1), castToInt(y1), NULL);
+          LineTo(hdc, castToInt(x2 + 1), castToInt(y1));
         } else {
-          Rectangle(actual_window->hdc, castToInt(x1), castToInt(y1), castToInt(x2 + 1), castToInt(y2 + 1));
+          Rectangle(hdc, castToInt(x1), castToInt(y1), castToInt(x2 + 1), castToInt(y2 + 1));
         } /* if */
       } /* if */
-      SelectObject(actual_window->hdc, old_pen);
-      SelectObject(actual_window->hdc, old_brush);
+      SelectObject(hdc, old_pen);
+      SelectObject(hdc, old_brush);
       DeleteObject(current_pen);
       DeleteObject(current_brush);
     } /* if */
   } /* drawRectangle */
+
+
+
+void setResizeReturnsKey (winType resizeWindow, boolType active)
+
+  { /* setResizeReturnsKey */
+    to_var_resizeReturnsKey(resizeWindow) = active;
+  } /* setResizeReturnsKey */
+
+
+
+boolType getResizeReturnsKey (winType resizeWindow)
+
+  { /* getResizeReturnsKey */
+    return to_resizeReturnsKey(resizeWindow);
+  } /* getResizeReturnsKey */
+
+
+
+static void resize (win_winType resizeWindow, unsigned int width,
+    unsigned int height)
+
+  {
+    HDC newBackupHdc;
+    HBITMAP newBackup;
+    unsigned int newWidth;
+    unsigned int newHeight;
+
+  /* resize */
+    logFunction(printf("resize(" FMT_U_MEM ", %d, %d)\n",
+                       (memSizeType) resizeWindow, width, height););
+    if (resizeWindow != NULL && resizeWindow->backup_hdc != 0) {
+      if (resizeWindow->backupWidth < width ||
+          resizeWindow->backupHeight < height) {
+        newWidth = resizeWindow->backupWidth > width ? resizeWindow->backupWidth : width;
+        newHeight = resizeWindow->backupHeight > height ? resizeWindow->backupHeight : height;
+        newBackupHdc = CreateCompatibleDC(resizeWindow->hdc);
+        newBackup = CreateCompatibleBitmap(resizeWindow->hdc, (int) newWidth, (int) newHeight);
+        SelectObject(newBackupHdc, newBackup);
+        drawRectangle(newBackupHdc, 0, 0, newWidth - 1, newHeight - 1,
+                      resizeWindow->clear_col);
+        BitBlt(newBackupHdc, 0, 0,
+               (int) resizeWindow->backupWidth, (int) resizeWindow->backupHeight,
+               resizeWindow->backup_hdc, 0, 0, SRCCOPY);
+        DeleteObject(resizeWindow->backup);
+        DeleteDC(resizeWindow->backup_hdc);
+        resizeWindow->backup = newBackup;
+        resizeWindow->backup_hdc = newBackupHdc;
+        resizeWindow->backupWidth = newWidth;
+        resizeWindow->backupHeight = newHeight;
+      } /* if */
+      resizeWindow->width = width;
+      resizeWindow->height = height;
+    } /* if */
+    logFunction(printf("resize -->\n"););
+  } /* resize */
 
 
 
@@ -171,7 +243,6 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     PAINTSTRUCT paintStruct;
     RECT rect;
     RECT rect2;
-    /* MSG msg; */
     LRESULT result;
 
   /* WndProc */
@@ -240,7 +311,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             } /* if */
             /* printf("drawRectangle left=%ld, top=%ld, right=%ld, bottom=%ld\n",
                 rect2.left, rect.top, rect.right, rect2.bottom); */
-            drawRectangle(paint_window, rect2.left, rect.top, rect.right, rect2.bottom,
+            drawRectangle(paint_window->hdc, rect2.left, rect.top, rect.right, rect2.bottom,
                 to_clear_col(paint_window));
                 /* GetBkColor(paint_window->hWnd)); */
           } /* if */
@@ -252,7 +323,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             } /* if */
             /* printf("drawRectangle left=%ld, top=%ld, right=%ld, bottom=%ld\n",
                 rect.left, rect2.top, rect.right, rect.bottom); */
-            drawRectangle(paint_window, rect.left, rect2.top, rect.right, rect.bottom,
+            drawRectangle(paint_window->hdc, rect.left, rect2.top, rect.right, rect.bottom,
                 to_clear_col(paint_window));
                 /* GetBkColor(paint_window->hWnd)); */
           } /* if */
@@ -261,6 +332,13 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
               (memSizeType) paint_window,
               (memSizeType) paint_window->backup_hdc);
         } /* if */
+        result = 1;
+        break;
+      case WM_SIZE:
+        /* printf("WM_SIZE\n"); */
+        paint_window = (win_winType) find_window(hWnd);
+        resize(paint_window, (unsigned int) LOWORD(lParam),
+               (unsigned int) HIWORD(lParam));
         result = 1;
         break;
       default:
@@ -282,7 +360,7 @@ static void dra_init (void)
   /* dra_init */
     wcex.cbSize        = sizeof(WNDCLASSEX);
     wcex.style         = /* CS_HREDRAW | CS_VREDRAW | */ CS_OWNDC;
-    wcex.lpfnWndProc   = (WNDPROC)WndProc;
+    wcex.lpfnWndProc   = (WNDPROC) WndProc;
     wcex.hInstance     = NULL;
     wcex.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
     wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
@@ -615,7 +693,7 @@ void drwClear (winType actual_window, intType col)
   /* drwClear */
     logFunction(printf("drwClear(" FMT_U_MEM ", " F_X(08) ")\n",
                        (memSizeType) actual_window, col););
-    to_clear_col(actual_window) = col;
+    to_var_clear_col(actual_window) = col;
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
     if (unlikely(current_pen == NULL || current_brush == NULL)) {
@@ -632,7 +710,7 @@ void drwClear (winType actual_window, intType col)
         old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
         old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
         Rectangle(to_backup_hdc(actual_window), 0, 0,
-            (int) to_width(actual_window), (int) to_height(actual_window));
+            (int) to_backupWidth(actual_window), (int) to_backupHeight(actual_window));
         SelectObject(to_backup_hdc(actual_window), old_pen);
         SelectObject(to_backup_hdc(actual_window), old_brush);
       } /* if */
@@ -940,6 +1018,7 @@ winType drwCapture (intType left, intType upper,
       if (unlikely(pixmap->hBitmap == NULL)) {
         free(pixmap);
         pixmap = NULL;
+        ReleaseDC(NULL, screenDC);
         raise_error(MEMORY_ERROR);
       } else {
         pixmap->oldBitmap = (HBITMAP) SelectObject(pixmap->hdc, pixmap->hBitmap);
@@ -956,15 +1035,17 @@ winType drwCapture (intType left, intType upper,
           BitBlt(pixmap->hdc, 0, 0, (int) width, (int) height,
                  screenDC, (int) left, (int) upper, SRCCOPY);
         } else {
+          SetStretchBltMode(pixmap->hdc, COLORONCOLOR);
           StretchBlt(pixmap->hdc, 0, 0, (int) width, (int) height, screenDC,
                      (int) (left * desktopHorizRes / horizRes),
                      (int) (upper * desktopVertRes / vertRes),
                      (int) (width * desktopHorizRes / horizRes),
                      (int) (height * desktopVertRes / vertRes), SRCCOPY);
         } /* if */
+        ReleaseDC(NULL, screenDC);
       } /* if */
     } /* if */
-    logFunction(printf("drwGet --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+    logFunction(printf("drwCapture --> " FMT_U_MEM " (usage=" FMT_U ")\n",
                        (memSizeType) pixmap,
                        pixmap != NULL ? pixmap->usage_count : (uintType) 0););
     return (winType) pixmap;
@@ -1217,34 +1298,35 @@ static boolType privateConsole (void)
 
 
 winType drwOpen (intType xPos, intType yPos,
-    intType width, intType height, const const_striType window_name)
+    intType width, intType height, const const_striType windowName)
 
   {
-    int brutto_width_delta;
-    int brutto_height_delta;
-    char *win_name;
+    int bruttoWidthDelta;
+    int bruttoHeightDelta;
+    os_striType winName;
     HFONT std_font;
     errInfoType err_info = OKAY_NO_ERROR;
     win_winType result = NULL;
 
   /* drwOpen */
-    logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       xPos, yPos, width, height););
-    brutto_width_delta = 2 * GetSystemMetrics(SM_CXSIZEFRAME);
-    brutto_height_delta = 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
+    logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", \"%s\")\n", xPos, yPos, width, height,
+                       striAsUnquotedCStri(windowName)););
+    bruttoWidthDelta = 2 * GetSystemMetrics(SM_CXSIZEFRAME);
+    bruttoHeightDelta = 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
         GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER);
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
-                 brutto_width_delta < 0 || brutto_height_delta < 0 ||
-                 width < 1 || width > INT_MAX - brutto_width_delta ||
-                 height < 1 || height > INT_MAX - brutto_height_delta)) {
+                 bruttoWidthDelta < 0 || bruttoHeightDelta < 0 ||
+                 width < 1 || width > INT_MAX - bruttoWidthDelta ||
+                 height < 1 || height > INT_MAX - bruttoHeightDelta)) {
       raise_error(RANGE_ERROR);
     } else {
       if (init_called == 0) {
         dra_init();
       } /* if */
       if (init_called != 0) {
-        win_name = stri_to_cstri8(window_name, &err_info);
-        if (unlikely(win_name == NULL)) {
+        winName = stri_to_os_stri(windowName, &err_info);
+        if (unlikely(winName == NULL)) {
           raise_error(err_info);
         } else {
           if (privateConsole()) {
@@ -1271,13 +1353,13 @@ winType drwOpen (intType xPos, intType yPos,
             printf("height=%d\n",         height + 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
                 GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER));
 #endif
-            result->brutto_width_delta = (unsigned int) brutto_width_delta;
-            result->brutto_height_delta = (unsigned int) brutto_height_delta;
-            result->hWnd = CreateWindow(windowClass, win_name,
+            result->bruttoWidthDelta = (unsigned int) bruttoWidthDelta;
+            result->bruttoHeightDelta = (unsigned int) bruttoHeightDelta;
+            result->hWnd = CreateWindowW(windowClassW, winName,
                 WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
                 (int) xPos, (int) yPos,
-                (int) width + brutto_width_delta,
-                (int) height + brutto_height_delta,
+                (int) width + bruttoWidthDelta,
+                (int) height + bruttoHeightDelta,
                 (HWND) NULL, (HMENU) NULL, NULL, NULL);
             enter_window((winType) result, result->hWnd);
             /* printf("hWnd=%lu\n", result->hWnd); */
@@ -1289,6 +1371,8 @@ winType drwOpen (intType xPos, intType yPos,
               result->is_pixmap = FALSE;
               result->width = (unsigned int) width;
               result->height = (unsigned int) height;
+              result->backupWidth = (unsigned int) width;
+              result->backupHeight = (unsigned int) height;
               result->clear_col = (intType) RGB(0, 0, 0); /* black */
               result->backup_hdc = CreateCompatibleDC(result->hdc);
               result->backup = CreateCompatibleBitmap(result->hdc, (int) width, (int) height);
@@ -1302,7 +1386,7 @@ winType drwOpen (intType xPos, intType yPos,
               UpdateWindow(result->hWnd);
             } /* if */
           } /* if */
-          free_cstri8(win_name, window_name);
+          os_stri_free(winName);
         } /* if */
       } /* if */
     } /* if */
@@ -1374,8 +1458,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
           printf("WS_CHILD            = %lx\n", WS_CHILD);
 #endif
 
-          result->brutto_width_delta = 0;
-          result->brutto_height_delta = 0;
+          result->bruttoWidthDelta = 0;
+          result->bruttoHeightDelta = 0;
           if (to_width(parent_window) == 0 && to_height(parent_window) == 0) {
             result->hWnd = CreateWindowEx(WS_EX_NOACTIVATE, windowClass, "",
                 WS_POPUP,
@@ -1399,6 +1483,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
             result->is_pixmap = FALSE;
             result->width = (unsigned int) width;
             result->height = (unsigned int) height;
+            result->backupWidth = (unsigned int) width;
+            result->backupHeight = (unsigned int) height;
             result->clear_col = (intType) RGB(0, 0, 0); /* black */
             result->backup_hdc = CreateCompatibleDC(result->hdc);
             result->backup = CreateCompatibleBitmap(result->hdc, (int) width, (int) height);
@@ -1428,7 +1514,7 @@ void drwSetCloseAction (winType actual_window, intType closeAction)
     if (closeAction < 0 || closeAction > 2) {
       raise_error(RANGE_ERROR);
     } else {
-      to_close_action(actual_window) = (int) closeAction;
+      to_var_close_action(actual_window) = (int) closeAction;
     } /* if */
   } /* drwSetCloseAction */
 
@@ -1630,6 +1716,8 @@ void drwPut (const_winType actual_window, const_winType pixmap,
     HDC hdcMem;
 
   /* drwPut */
+    logFunction(printf("drwPut(" FMT_U_MEM ", " FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, (memSizeType) pixmap, x, y););
     if (pixmap != NULL) {
       if (to_hasTransparentPixel(pixmap)) {
         hdcMem = CreateCompatibleDC(0);
@@ -1656,6 +1744,34 @@ void drwPut (const_winType actual_window, const_winType pixmap,
       } /* if */
     } /* if */
   } /* drwPut */
+
+
+
+void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
+    intType width, intType height, const_winType pixmap)
+
+  { /* drwPutScaled */
+    logFunction(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D ", "
+                       FMT_D ", " FMT_D ", " FMT_U_MEM")\n",
+                       (memSizeType) destWindow, (memSizeType) pixmap,
+                       xDest, yDest, width, height););
+    if (unlikely(!inIntRange(xDest) || !inIntRange(yDest) ||
+                 !inIntRange(width) || width < 0 ||
+                 !inIntRange(height) || height < 0)) {
+      raise_error(RANGE_ERROR);
+    } else if (pixmap != NULL) {
+      SetStretchBltMode(to_hdc(destWindow), COLORONCOLOR);
+      StretchBlt(to_hdc(destWindow), (int) xDest, (int) yDest,
+                 (int) width, (int) height, to_hdc(pixmap), 0, 0,
+                 (int) to_width(pixmap), (int) to_height(pixmap), SRCCOPY);
+      if (to_backup_hdc(destWindow) != 0) {
+        SetStretchBltMode(to_backup_hdc(destWindow), COLORONCOLOR);
+        StretchBlt(to_backup_hdc(destWindow), (int) xDest, (int) yDest,
+                   (int) width, (int) height, to_hdc(pixmap), 0, 0,
+                   (int) to_width(pixmap), (int) to_height(pixmap), SRCCOPY);
+      } /* if */
+    } /* if */
+  } /* drwPutScaled */
 
 
 
@@ -1896,11 +2012,40 @@ void drwSetTransparentColor (winType pixmap, intType col)
   { /* drwSetTransparentColor */
     logFunction(printf("drwSetTransparentColor(" FMT_U_MEM ", " F_X(08) ")\n",
                        (memSizeType) pixmap, col););
-    to_hasTransparentPixel(pixmap) = TRUE;
-    to_transparentPixel(pixmap) = (UINT) col;
-    to_maskBitmap(pixmap) = createMaskBitmap(to_hdc(pixmap),
+    to_var_hasTransparentPixel(pixmap) = TRUE;
+    to_var_transparentPixel(pixmap) = (UINT) col;
+    to_var_maskBitmap(pixmap) = createMaskBitmap(to_hdc(pixmap),
         (int) to_width(pixmap), (int) to_height(pixmap), (COLORREF) col);
   } /* drwSetTransparentColor */
+
+
+
+void drwSetWindowName (winType aWindow, const const_striType windowName)
+
+  {
+    os_striType winName;
+    BOOL funcRes;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* drwSetWindowName */
+    logFunction(printf("drwSetWindowName(" FMT_U_MEM ", \"%s\")\n",
+                       (memSizeType) aWindow,
+                       striAsUnquotedCStri(windowName)););
+    winName = stri_to_os_stri(windowName, &err_info);
+    if (unlikely(winName == NULL)) {
+      raise_error(err_info);
+    } else {
+      funcRes = SetWindowTextW(to_hwnd(aWindow), (LPCWSTR) winName);
+      os_stri_free(winName);
+      if (unlikely(funcRes == 0)) {
+        logError(printf("SetWindowTextW(" FMT_U_MEM ", \"%s\") failed\n",
+                        (memSizeType) aWindow,
+                        striAsUnquotedCStri(windowName)););
+        raise_error(FILE_ERROR);
+      } /* if */
+    } /* if */
+    logFunction(printf("drwSetWindowName -->\n"););
+  } /* drwSetWindowName */
 
 
 

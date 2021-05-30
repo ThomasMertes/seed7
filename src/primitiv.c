@@ -372,6 +372,7 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_PPOINT",              drw_ppoint,              },
     { "DRW_PRECT",               drw_prect,               },
     { "DRW_PUT",                 drw_put,                 },
+    { "DRW_PUT_SCALED",          drw_put_scaled,          },
     { "DRW_RECT",                drw_rect,                },
     { "DRW_RGBCOL",              drw_rgbcol,              },
  /* { "DRW_ROT",                 drw_rot,                 }, */
@@ -382,6 +383,7 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_SETCONTENT",          drw_setContent,          },
     { "DRW_SETPOS",              drw_setPos,              },
     { "DRW_SETTRANSPARENTCOLOR", drw_setTransparentColor, },
+    { "DRW_SETWINDOWNAME",       drw_setWindowName,       },
     { "DRW_TEXT",                drw_text,                },
     { "DRW_TOBOTTOM",            drw_toBottom,            },
     { "DRW_TOTOP",               drw_toTop,               },
@@ -515,6 +517,7 @@ static const actEntryRecord actEntryTable[] = {
     { "GKB_KEYPRESSED",          gkb_keypressed,          },
     { "GKB_LINE_READ",           gkb_line_read,           },
     { "GKB_RAW_GETC",            gkb_raw_getc,            },
+    { "GKB_SELECT_INPUT",        gkb_select_input,        },
     { "GKB_WINDOW",              gkb_window,              },
     { "GKB_WORD_READ",           gkb_word_read,           },
 #endif

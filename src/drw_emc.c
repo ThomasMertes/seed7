@@ -111,6 +111,16 @@ charType gkbRawGetc (void)
 
 
 
+void gkbSelectInput (winType aWindow, charType aKey, boolType active)
+
+  { /* gkbSelectInput */
+    if (aKey != K_RESIZE && aKey != K_CLOSE) {
+      raise_error(RANGE_ERROR);
+    } /* if */
+  } /* gkbSelectInput */
+
+
+
 winType gkbWindow (void)
 
   { /* gkbWindow */
@@ -1008,6 +1018,19 @@ void drwPut (const_winType actual_window, const_winType pixmap,
 
 
 
+void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
+    intType width, intType height, const_winType pixmap)
+
+  { /* drwPutScaled */
+    logFunction(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D ", "
+                       FMT_D ", " FMT_D ", " FMT_U_MEM")\n",
+                       (memSizeType) destWindow, (memSizeType) pixmap,
+                       xDest, yDest, width, height););
+    logFunction(printf("drwPutScaled -->\n"););
+  } /* drwPutScaled */
+
+
+
 void drwRect (const_winType actual_window,
     intType x, intType y, intType width, intType height)
 
@@ -1185,6 +1208,13 @@ void drwSetTransparentColor (winType pixmap, intType col)
 
   { /* drwSetTransparentColor */
   } /* drwSetTransparentColor */
+
+
+
+void drwSetWindowName (winType aWindow, const const_striType windowName)
+
+  { /* drwSetWindowName */
+  } /* drwSetWindowName */
 
 
 

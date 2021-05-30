@@ -550,6 +550,20 @@ const proc: put (in integer: x, in integer: y,
 
 
 (**
+ *  Put a scaled ''pixmap'' to the given rectangle at ''destWindow''.
+ *  @param destWindow Destination Window.
+ *  @param xDest X-coordinate of the destination rectangle.
+ *  @param yDest Y-coordinate of the destination rectangle.
+ *  @param width Width of the destination rectangle.
+ *  @param height Height of the destination rectangle.
+ *  @param pixmap Source window to be scaled to the rectangle
+ *)
+const proc: put (inout PRIMITIVE_WINDOW: destWindow, in integer: xDest,
+    in integer: yDest, in integer: width, in integer: height,
+    in PRIMITIVE_WINDOW: pixmap) is action "DRW_PUT_SCALED";
+
+
+(**
  *  Creates a new pixmap with the given 'width' and 'height'.
  *  A rectangle with the upper left corner at (x1, y1) and the given
  *  'width' and 'height' is copied from 'curr_win' to the new pixmap.

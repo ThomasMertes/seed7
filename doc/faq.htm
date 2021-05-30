@@ -310,6 +310,9 @@ Why does a local type declaration trigger an error?
 <li><a class="link" href="#faq_automatic_casts"><b>
 Are there automatic casts to the right type?
 </b></a></li>
+<li><a class="link" href="#faq_do_what_i_mean"><b>
+Is Seed7 a "do what I mean" language?
+</b></a></li>
 <li><a class="link" href="#faq_declare_later"><b>
 Can I use something and declare it later?
 </b></a></li>
@@ -820,12 +823,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2021-04-25 the number of lines is:
+than 300000 lines of Seed7. For version 2021-05-30 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">164740</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12753</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">194450</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">165056</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">165867</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12829</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">194839</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">165340</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1752,6 +1755,35 @@ advantages than disadvantages:
 <li>Since you have to do type conversions explicit you are more aware of the
     run time overhead.</li>
 </ol></div>
+
+<div><br /><a name="faq_do_what_i_mean"><h3>Is Seed7 a "do what I mean" language?
+</h3></a><hr />
+<p>
+The phrase "do what I mean" (DWIM) is used when computer systems attempt to
+anticipate what users intend to do. To put it bluntly: A program tries to read
+a humans mind. Since this is not possible DWIM languages use heuristics to
+interpret illegal or ambiguous code towards an interpretation that makes sense.
+Well, it makes sense for the one who invented the heuristic, which does not
+imply that it makes sense for everybody else.
+</p><p>
+Heuristics usually do not work for 100%. There are always corner cases where
+heuristics fail in an unexpected way. In this case something in your program
+is misinterpreted and you don't know about it. This means: Your program
+contains a bug which you are not aware of.
+</p><p>
+Not all human programmers have the same background. What one programmer sees
+as correct reinterpretation of his intentions another programmer might consider
+as totally stupid. The second programmer would certainly prefer to get an error
+message instead of a silent reinterpretation of his program. Of cause this
+silent reinterpretation means also that there is a hidden bug in the program.
+</p><p>
+There is a reason natural languages are not used for programming. They are just
+too ambiguous. Established programming languages try to be unambiguous. Usually
+they are more strict than the languages used in mathematics or physics. Being
+strict has proven to facilitate the maintenance of large programs. It is a bad
+idea to allow ambiguities, even when they are resolved by "do what I mean"
+heuristics. Therefore Seed7 is not a "do what I mean" language.
+</p></div>
 
 <div><br /><a name="faq_declare_later"><h3>Can I use something and declare it later?
 </h3></a><hr />

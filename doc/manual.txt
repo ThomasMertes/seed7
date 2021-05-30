@@ -3832,6 +3832,7 @@ CONTENTS
 
     var aSetType: aSet is aSetType.value;
     var aSetType: aSet is {1, 2, 3};
+    var aSetType: aSet is {1 .. 5};
 
   The type 'set of baseType' is
   defined in the library "set.s7i". This abstract data type decides

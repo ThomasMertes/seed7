@@ -944,7 +944,10 @@ objectType prc_include (listType arguments)
       err_stri(WRONG_PATH_DELIMITER, include_file_name);
     } else {
       find_include_file(include_file_name, &err_info);
-      if (unlikely(err_info == MEMORY_ERROR)) {
+      if (unlikely(err_info == ACTION_ERROR)) {
+        /* This is a compile-time function and it is called at run-time. */
+        return raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, arguments);
+      } else if (unlikely(err_info == MEMORY_ERROR)) {
         err_warning(OUT_OF_HEAP_SPACE);
       } else if (unlikely(err_info != OKAY_NO_ERROR)) {
         /* FILE_ERROR or RANGE_ERROR */

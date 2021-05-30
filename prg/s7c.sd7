@@ -617,7 +617,7 @@ const func boolean: canUseArrTimes (in type: objectType, in reference: arrayValu
         if repeat_count = succ(arrayMaxIdx(arrayValue) - arrayMinIdx(arrayValue)) then
           canUseArrTimes := TRUE;
           repeatedElement := array_list[1];
-	end if;
+        end if;
       end if;
     end if;
   end func;

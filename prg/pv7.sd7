@@ -1,0 +1,232 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pv7.sd7       Picture viewer for several graphic formats.       *)
+(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "osfiles.s7i";
+  include "time.s7i";
+  include "duration.s7i";
+  include "console.s7i";
+  include "draw.s7i";
+  include "stdfont24.s7i";
+  include "png.s7i";
+  include "gif.s7i";
+  include "jpeg.s7i";
+  include "bmp.s7i";
+  include "ppm.s7i";
+
+
+const proc: writeMessage (in string: message) is func
+
+  local
+    var text: screen is text.value;
+  begin
+    clear(curr_win, black);
+    rect((width(curr_win) - width(stdFont24, message)) div 2 - 50,
+         height(curr_win) div 2 - 50,
+         width(stdFont24, message) + 100, 100, white);
+    screen := openPixmapFontFile(curr_win);
+    color(screen, black, white);
+    setFont(screen, stdFont24);
+    setPosXY(screen, (width(curr_win) - width(stdFont24, message)) div 2,
+             (height(curr_win) + capHeight(stdFont24)) div 2);
+    write(screen, message);
+  end func;
+
+
+const func boolean: hasImageExtension (in var string: fileName) is func
+  result
+    var boolean: hasImageExtension is FALSE;
+  begin
+    fileName := lower(fileName);
+    hasImageExtension := endsWith(fileName, ".png") or
+                         endsWith(fileName, ".gif") or
+                         endsWith(fileName, ".jpeg") or
+                         endsWith(fileName, ".jpg") or
+                         endsWith(fileName, ".ppm") or
+                         endsWith(fileName, ".bmp");
+  end func;
+
+
+const proc: nextImageFile (in array string: fileList, inout integer: index) is func
+  begin
+    if index <= length(fileList) then
+      repeat
+        incr(index);
+      until index > length(fileList) or hasImageExtension(fileList[index]);
+    end if;
+  end func;
+
+
+const proc: previousImageFile (in array string: fileList, inout integer: index) is func
+  begin
+    if index >= 1 then
+      repeat
+        decr(index);
+      until index < 1 or hasImageExtension(fileList[index]);
+    end if;
+  end func;
+
+
+const proc: findFileWithName (in array string: fileList, in string: fileName, inout integer: index) is func
+  begin
+    index := 1;
+    while index <= length(fileList) and fileList[index] <> fileName do
+      incr(index);
+    end while;
+    if index > length(fileList) then
+      index := 0;
+    end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var string: magic is "";
+  begin
+    block
+      magic := gets(imageFile, length(PPM_MAGIC));
+      if magic = PPM_MAGIC then
+        seek(imageFile, 1);
+        pixmap := readPpm(imageFile);
+      elsif magic = BMP_MAGIC then
+        seek(imageFile, 1);
+        pixmap := readBmp(imageFile);
+      else
+        magic &:= gets(imageFile, length(JPEG_MAGIC) - length(PPM_MAGIC));
+        if magic = JPEG_MAGIC then
+          seek(imageFile, 1);
+          pixmap := readJpeg(imageFile);
+        else
+          magic &:= gets(imageFile, length(GIF_MAGIC_87) - length(JPEG_MAGIC));
+          if magic = GIF_MAGIC_87 or magic = GIF_MAGIC_89 then
+            seek(imageFile, 1);
+            pixmap := readGif(imageFile);
+          else
+            magic &:= gets(imageFile, length(PNG_MAGIC) - length(GIF_MAGIC_87));
+            if magic = PNG_MAGIC then
+              seek(imageFile, 1);
+              pixmap := readPng(imageFile);
+            end if;
+          end if;
+        end if;
+      end if;
+    exception
+      otherwise: noop;
+    end block;
+  end func;
+
+
+const proc: displayImage (in PRIMITIVE_WINDOW: pixmap) is func
+  local
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: border is 0;
+  begin
+    if width(curr_win) * height(pixmap) >= width(pixmap) * height(curr_win) then
+      width := width(pixmap) * height(curr_win) div height(pixmap);
+      border := (width(curr_win) - width) div 2;
+      put(curr_win, border, 0, width, height(curr_win), pixmap);
+      rect(curr_win, 0, 0, border, height(curr_win), black);
+      rect(curr_win, border + width, 0, width(curr_win) - border - width, height(curr_win), black);
+    else
+      height := height(pixmap) * width(curr_win) div width(pixmap);
+      border := (height(curr_win) - height) div 2;
+      put(curr_win, 0, border, width(curr_win), height, pixmap);
+      rect(curr_win, 0, 0, width(curr_win), border, black);
+      rect(curr_win, 0, border + height, width(curr_win), height(curr_win) - border - height, black);
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var array string: fileList is 0 times "";
+    var integer: index is 0;
+    var file: imageFile is STD_NULL;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+    var boolean: commandPresent is FALSE;
+    var char: command is ' ';
+  begin
+    screen(1024, 688);
+    selectInput(curr_win, KEY_RESIZE, TRUE);
+    clear(curr_win, black);
+    DRAW_FLUSH;
+    KEYBOARD := GRAPH_KEYBOARD;
+    OUT := STD_CONSOLE;
+    fileList := readDir(getcwd);
+    if length(argv(PROGRAM)) >= 1 then
+      findFileWithName(fileList, argv(PROGRAM)[1], index);
+      if index = 0 or not hasImageExtension(fileList[index]) then
+        nextImageFile(fileList, index);
+      end if;
+    else
+      nextImageFile(fileList, index);
+    end if;
+    repeat
+      command := KEY_NONE;
+      if index < 1 then
+        writeMessage("Start");
+      elsif index > length(fileList) then
+        writeMessage("End");
+      else
+        imageFile := open(fileList[index], "r");
+        if imageFile <> STD_NULL then
+          # writeln(fileList[index]);
+          pixmap := readImage(imageFile);
+          close(imageFile);
+          setWindowName(curr_win, fileList[index]);
+          command := KEY_RESIZE;
+          repeat
+            if command = KEY_RESIZE then
+              if pixmap <> PRIMITIVE_WINDOW.value then
+                displayImage(pixmap);
+              else
+                writeMessage("Error reading " <& fileList[index]);
+              end if;
+              DRAW_FLUSH;
+            else
+              await(time(NOW) + 30000 . MICRO_SECONDS);
+            end if;
+            command := busy_getc(KEYBOARD);
+          until command <> KEY_NONE and command <> KEY_RESIZE;
+          commandPresent := TRUE;
+        else
+          writeMessage("Cannot open: " <& fileList[index]);
+        end if;
+      end if;
+      repeat
+        if not commandPresent then
+          command := getc(KEYBOARD);
+        end if;
+        if command = KEY_MOUSE1 or command = KEY_NL or command = KEY_TAB or command = KEY_RIGHT then
+          nextImageFile(fileList, index);
+        elsif command = KEY_MOUSE3 or command = KEY_BACKTAB or command = KEY_LEFT then
+          previousImageFile(fileList, index);
+        end if;
+        commandPresent := FALSE;
+      until not keypressed(KEYBOARD);
+    until lower(command) = 'q' or command = KEY_ESC;
+  end func;

@@ -79,6 +79,9 @@ void find_include_file (const_striType include_file_name, errInfoType *err_info)
       if (include_file_name->size >= 1 && include_file_name->mem[0] == '/') {
         open_infile(include_file_name, in_file.write_library_names,
                     in_file.write_line_numbers, err_info);
+      } else if (unlikely(lib_path == NULL)) {
+        /* This is a compile-time function and it is called at run-time. */
+        *err_info = ACTION_ERROR;
       } else {
         found = FALSE;
         lib_path_size = arraySize(lib_path);

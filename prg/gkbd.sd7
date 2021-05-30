@@ -32,7 +32,7 @@ $ include "seed7_05.s7i";
   include "console.s7i";
 
 
-const integer: xSpeed is 2;
+const integer: xSpeed is 1;
 
 
 const proc: main is func
@@ -45,14 +45,15 @@ const proc: main is func
     var time: waitTime is time.value;
   begin
     screen(640, 480);
-    setCloseAction(curr_win, RETURN_KEY);
+    selectInput(curr_win, KEY_CLOSE, TRUE);
+    selectInput(curr_win, KEY_RESIZE, TRUE);
     OUT := STD_CONSOLE;
     writeln("Keyboard test program. Type ! to terminate the program");
     KEYBOARD := GRAPH_KEYBOARD;
     DRAW_FLUSH;
     waitTime := time(NOW);
     repeat
-      waitTime +:= 100000 . MICRO_SECONDS;
+      waitTime +:= 30000 . MICRO_SECONDS;
       ch := busy_getc(KEYBOARD);
       while ch <> KEY_NONE do
         lastChar := ch;

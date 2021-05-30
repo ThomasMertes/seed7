@@ -30,6 +30,7 @@ const ACTION: GKB_GETS            is action "GKB_GETS";
 const ACTION: GKB_KEYPRESSED      is action "GKB_KEYPRESSED";
 const ACTION: GKB_LINE_READ       is action "GKB_LINE_READ";
 const ACTION: GKB_RAW_GETC        is action "GKB_RAW_GETC";
+const ACTION: GKB_SELECT_INPUT    is action "GKB_SELECT_INPUT";
 const ACTION: GKB_WINDOW          is action "GKB_WINDOW";
 const ACTION: GKB_WORD_READ       is action "GKB_WORD_READ";
 const ACTION: GKB_BUTTON_PRESSED  is action "GKB_BUTTON_PRESSED";
@@ -48,6 +49,7 @@ const proc: gkb_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "boolType    gkbKeyPressed (void);");
     declareExtern(c_prog, "striType    gkbLineRead (charType *);");
     declareExtern(c_prog, "charType    gkbRawGetc (void);");
+    declareExtern(c_prog, "void        gkbSelectInput (winType, charType, boolType);");
     declareExtern(c_prog, "winType     gkbWindow (void);");
     declareExtern(c_prog, "striType    gkbWordRead (charType *);");
   end func;
@@ -106,6 +108,21 @@ const proc: process (GKB_RAW_GETC, in reference: function,
 
   begin
     c_expr.expr &:= "gkbRawGetc()";
+  end func;
+
+
+const proc: process (GKB_SELECT_INPUT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "gkbSelectInput(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ");\n";
   end func;
 
 

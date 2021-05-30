@@ -334,12 +334,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2021-04-25 the number of lines is:
+than 300000 lines of Seed7. For version 2021-05-30 the number of lines is:
 
-  164740  C source files (*.c)
-   12753  C header files (*.h)
-  194450  Seed7 source files (*.sd7)
-  165056  Seed7 library/include files (*.s7i)
+  165867  C source files (*.c)
+   12829  C header files (*.h)
+  194839  Seed7 source files (*.sd7)
+  165340  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1265,6 +1265,35 @@ advantages than disadvantages:
  3. Errors caused by unplanned automatic type conversions cannot happen.
  4. Since you have to do type conversions explicit you are more aware of the
     run time overhead.
+
+
+Is Seed7 a "do what I mean" language?
+=====================================
+
+The phrase "do what I mean" (DWIM) is used when computer systems attempt to
+anticipate what users intend to do. To put it bluntly: A program tries to read
+a humans mind. Since this is not possible DWIM languages use heuristics to
+interpret illegal or ambiguous code towards an interpretation that makes sense.
+Well, it makes sense for the one who invented the heuristic, which does not
+imply that it makes sense for everybody else.
+
+Heuristics usually do not work for 100%. There are always corner cases where
+heuristics fail in an unexpected way. In this case something in your program
+is misinterpreted and you don't know about it. This means: Your program
+contains a bug which you are not aware of.
+
+Not all human programmers have the same background. What one programmer sees
+as correct reinterpretation of his intentions another programmer might consider
+as totally stupid. The second programmer would certainly prefer to get an error
+message instead of a silent reinterpretation of his program. Of cause this
+silent reinterpretation means also that there is a hidden bug in the program.
+
+There is a reason natural languages are not used for programming. They are just
+too ambiguous. Established programming languages try to be unambiguous. Usually
+they are more strict than the languages used in mathematics or physics. Being
+strict has proven to facilitate the maintenance of large programs. It is a bad
+idea to allow ambiguities, even when they are resolved by "do what I mean"
+heuristics. Therefore Seed7 is not a "do what I mean" language.
 
 
 Can I use something and declare it later?

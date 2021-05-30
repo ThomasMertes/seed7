@@ -544,7 +544,7 @@ const proc: validateCertificates (in array x509cert: cert) is func
           end if;
         else
           writeln("***** Certificate without common name.");
-	end if;
+        end if;
       else
         writeln("***** Certificate invalid now.");
       end if;

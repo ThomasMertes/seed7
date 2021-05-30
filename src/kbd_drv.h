@@ -272,8 +272,9 @@
 #define K_SCROLL_LOCK    (KEYCODE_BASE + 381)
 #define K_SCROLL_LOCK_ON (KEYCODE_BASE + 382)
 #define K_CLOSE          (KEYCODE_BASE + 385)
-#define K_UNDEF          (KEYCODE_BASE + 386)
-#define K_NONE           (KEYCODE_BASE + 387)
+#define K_RESIZE         (KEYCODE_BASE + 386)
+#define K_UNDEF          (KEYCODE_BASE + 387)
+#define K_NONE           (KEYCODE_BASE + 388)
 
 
 charType kbdGetc (void);

@@ -71,6 +71,7 @@ const ACTION: DRW_POLYLINE             is action "DRW_POLYLINE";
 const ACTION: DRW_PPOINT               is action "DRW_PPOINT";
 const ACTION: DRW_PRECT                is action "DRW_PRECT";
 const ACTION: DRW_PUT                  is action "DRW_PUT";
+const ACTION: DRW_PUT_SCALED           is action "DRW_PUT_SCALED";
 const ACTION: DRW_RECT                 is action "DRW_RECT";
 const ACTION: DRW_RGBCOL               is action "DRW_RGBCOL";
 const ACTION: DRW_SCREEN_HEIGHT        is action "DRW_SCREEN_HEIGHT";
@@ -79,6 +80,7 @@ const ACTION: DRW_SETCLOSEACTION       is action "DRW_SETCLOSEACTION";
 const ACTION: DRW_SETCONTENT           is action "DRW_SETCONTENT";
 const ACTION: DRW_SETPOS               is action "DRW_SETPOS";
 const ACTION: DRW_SETTRANSPARENTCOLOR  is action "DRW_SETTRANSPARENTCOLOR";
+const ACTION: DRW_SETWINDOWNAME        is action "DRW_SETWINDOWNAME";
 const ACTION: DRW_TEXT                 is action "DRW_TEXT";
 const ACTION: DRW_TOBOTTOM             is action "DRW_TOBOTTOM";
 const ACTION: DRW_TOTOP                is action "DRW_TOTOP";
@@ -179,6 +181,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwPolyLine (const_winType, intType, intType, bstriType, intType);");
     declareExtern(c_prog, "void        drwFPolyLine (const_winType, intType, intType, bstriType, intType);");
     declareExtern(c_prog, "void        drwPut (const_winType, const_winType, intType, intType);");
+    declareExtern(c_prog, "void        drwPutScaled (const_winType, intType, intType, intType, intType, const_winType);");
     declareExtern(c_prog, "void        drwRect (const_winType, intType, intType, intType, intType);");
     if inlineFunctions and ccConf.PIXEL_RED_MASK   <> 0 and
                            ccConf.PIXEL_GREEN_MASK <> 0 and
@@ -202,6 +205,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwSetContent (const_winType, const_winType);");
     declareExtern(c_prog, "void        drwSetPos (const_winType, intType, intType);");
     declareExtern(c_prog, "void        drwSetTransparentColor (winType, intType);");
+    declareExtern(c_prog, "void        drwSetWindowName (winType, const const_striType);");
     declareExtern(c_prog, "void        drwText (const_winType, intType, intType, const const_striType, intType, intType);");
     declareExtern(c_prog, "void        drwToBottom (const_winType);");
     declareExtern(c_prog, "void        drwToTop (const_winType);");
@@ -1024,6 +1028,27 @@ const proc: process (DRW_PUT, in reference: function,
   end func;
 
 
+const proc: process (DRW_PUT_SCALED, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPutScaled(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process (DRW_RECT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -1123,6 +1148,19 @@ const proc: process (DRW_SETTRANSPARENTCOLOR, in reference: function,
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_SETWINDOWNAME, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwSetWindowName(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 

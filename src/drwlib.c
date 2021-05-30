@@ -183,6 +183,20 @@ objectType gkb_raw_getc (listType arguments)
 
 
 
+objectType gkb_select_input (listType arguments)
+
+  { /* gkb_select_input */
+    isit_win(arg_1(arguments));
+    isit_char(arg_2(arguments));
+    isit_bool(arg_3(arguments))
+    gkbSelectInput(take_win(arg_1(arguments)),
+                   take_char(arg_2(arguments)),
+                   take_bool(arg_3(arguments)) == SYS_TRUE_OBJECT);
+    return SYS_EMPTY_OBJECT;
+  } /* gkb_select_input */
+
+
+
 objectType gkb_window (listType arguments)
 
   { /* gkb_window */
@@ -1287,12 +1301,40 @@ objectType drw_put (listType arguments)
     pixmap = take_win(arg_2(arguments));
     /* A pixmap value of NULL is used to describe an empty pixmap. */
     /* In this case nothing should be done.                        */
-    /* This is handled in the driver function drwPut.             */
+    /* This is handled in the driver function drwPut.              */
     drwPut(actual_window, pixmap,
         take_int(arg_3(arguments)),
         take_int(arg_4(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* drw_put */
+
+
+
+objectType drw_put_scaled (listType arguments)
+
+  {
+    winType actual_window;
+    winType pixmap;
+
+  /* drw_put_scaled */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_win(arg_6(arguments));
+    actual_window = take_win(arg_1(arguments));
+    pixmap = take_win(arg_6(arguments));
+    /* A pixmap value of NULL is used to describe an empty pixmap. */
+    /* In this case nothing should be done.                        */
+    /* This is handled in the driver function drwPutScaled.        */
+    drwPutScaled(actual_window,
+        take_int(arg_2(arguments)),
+        take_int(arg_3(arguments)),
+        take_int(arg_4(arguments)),
+        take_int(arg_5(arguments)), pixmap);
+    return SYS_EMPTY_OBJECT;
+  } /* drw_put_scaled */
 
 
 
@@ -1417,6 +1459,17 @@ objectType drw_setTransparentColor (listType arguments)
         take_int(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* drw_setTransparentColor */
+
+
+
+objectType drw_setWindowName (listType arguments)
+
+  { /* drw_setWindowName */
+    isit_win(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    drwSetWindowName(take_win(arg_1(arguments)), take_stri(arg_2(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* drw_setWindowName */
 
 
 

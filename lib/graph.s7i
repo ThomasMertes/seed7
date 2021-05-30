@@ -153,6 +153,9 @@ const func PRIMITIVE_WINDOW: openSubWindow (
     ref integer: xPos, ref integer: yPos,
     ref integer: width, ref integer: height)        is action "DRW_OPEN_SUB_WINDOW";
 
+const proc: setWindowName (in PRIMITIVE_WINDOW: aWindow,
+                           in string: windowName)   is action "DRW_SETWINDOWNAME";
+
 const func PRIMITIVE_WINDOW: DRAW_GET (
     in PRIMITIVE_WINDOW: aWindow,
     ref integer: left, ref integer: upper,
@@ -338,6 +341,25 @@ const type: windowCloseAction is new enum
  *)
 const proc: setCloseAction (in PRIMITIVE_WINDOW: aWindow, in windowCloseAction: closeAction) is
   return SET_CLOSE_ACTION(aWindow, ord(closeAction));
+
+
+(**
+ *  Select if ''aKey'' is returned as key, or if it triggers a default action.
+ *  A program might be notified when a window is resized.
+ *  By default, this notification is switched off. It can be switched on with:
+ *   selectInput(curr_win, KEY_RESIZE, TRUE);
+ *  By default, closing a window terminates the program.
+ *  To get a notification for a window close (instead of a program termination) do:
+ *   selectInput(curr_win, KEY_CLOSE, TRUE);
+ *  If the notification is turned on the function getc(GRAPH_KEYBOARD)
+ *  might return the corresponding notification character (KEY_RESIZE or KEY_CLOSE).
+ *  @param aWindow Window for which the key behavior is specified.
+ *  @param aKey KEY_CLOSE or KEY_RESIZE.
+ *  @param active TRUE if reading from the KEYBOARD returns ''aKey'', or
+ *                FALSE if ''aKey'' triggers a default action.
+ *)
+const proc: selectInput (in PRIMITIVE_WINDOW: aWindow, in char: aKey,
+                         in boolean: active)                      is action "GKB_SELECT_INPUT";
 
 
 const type: pointList is newtype;

@@ -1,7 +1,8 @@
 /********************************************************************/
 /*                                                                  */
 /*  gkb_win.c     Keyboard and mouse access for windows.            */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013, 2015, 2016, 2018  Thomas Mertes      */
+/*  Copyright (C) 2020, 2021  Thomas Mertes                         */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -37,6 +38,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "windows.h"
+#include "windowsx.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -56,6 +58,14 @@ static intType button_x = 0;
 static intType button_y = 0;
 static HWND button_window = 0;
 static rtlHashType window_hash = NULL;
+static WPARAM resizeMode = 0;
+static int resizeLeft;
+static int resizeTop;
+static int resizeStartWidth;
+static int resizeStartHeight;
+static int resizeWidthDelta;
+static int resizeHeightDelta;
+static boolType mouseMoveProcessed = FALSE;
 
 static const charType map_1252_to_unicode[] = {
 /* 128 */ 0x20AC,    '?', 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
@@ -64,6 +74,10 @@ static const charType map_1252_to_unicode[] = {
 /* 152 */ 0x02DC, 0x2122, 0x0161, 0x203A, 0x0153,    '?', 0x017E, 0x0178};
 
 extern int getCloseAction (winType actual_window);
+extern void setResizeReturnsKey (winType resizeWindow, boolType active);
+extern boolType getResizeReturnsKey (winType resizeWindow);
+extern void drwSetCloseAction (winType actual_window, intType closeAction);
+
 
 #ifdef DMC_GKB_WIN_DEFINES
 #define WM_MOUSEWHEEL                   0x020A
@@ -132,6 +146,250 @@ void remove_window (HWND sys_window)
 
 
 
+static void resizeBottomAndRight (MSG *msg)
+
+  {
+    POINT point;
+    RECT rect;
+
+  /* resizeBottomAndRight */
+    resizeMode = msg->wParam;
+    point.x = GET_X_LPARAM(msg->lParam);
+    point.y = GET_Y_LPARAM(msg->lParam);
+    ScreenToClient(msg->hwnd, &point);
+    SetCapture(msg->hwnd);
+    GetWindowRect(msg->hwnd, &rect);
+    resizeStartWidth = (int) (rect.right - rect.left);
+    resizeStartHeight = (int) (rect.bottom - rect.top);
+    GetClientRect(msg->hwnd, &rect);
+    resizeWidthDelta = resizeStartWidth - (int) (rect.right - rect.left);
+    resizeHeightDelta = resizeStartHeight - (int) (rect.bottom - rect.top);
+    resizeWidthDelta -= point.x - rect.right;
+    resizeHeightDelta -= point.y - rect.bottom;
+    BringWindowToTop(msg->hwnd);
+  } /* resizeBottomAndRight */
+
+
+
+static void resizeTopAndLeft (MSG *msg)
+
+  {
+    POINT point;
+    RECT rect;
+
+  /* resizeTopAndLeft */
+    resizeMode = msg->wParam;
+    point.x = GET_X_LPARAM(msg->lParam);
+    point.y = GET_Y_LPARAM(msg->lParam);
+    ScreenToClient(msg->hwnd, &point);
+    SetCapture(msg->hwnd);
+    GetWindowRect(msg->hwnd, &rect);
+    resizeLeft = rect.left;
+    resizeTop = rect.top;
+    resizeStartWidth = (int) (rect.right - rect.left);
+    resizeStartHeight = (int) (rect.bottom - rect.top);
+    GetClientRect(msg->hwnd, &rect);
+    resizeWidthDelta = point.x - rect.left;
+    resizeHeightDelta = point.y - rect.top;
+    BringWindowToTop(msg->hwnd);
+  } /* resizeTopAndLeft */
+
+
+
+static void startMoveWindow (MSG *msg)
+
+  {
+    POINT point;
+    RECT rect;
+
+  /* startMoveWindow */
+    resizeMode = msg->wParam;
+    point.x = GET_X_LPARAM(msg->lParam);
+    point.y = GET_Y_LPARAM(msg->lParam);
+    ScreenToClient(msg->hwnd, &point);
+    SetCapture(msg->hwnd);
+    GetWindowRect(msg->hwnd, &rect);
+    resizeLeft = rect.left;
+    resizeTop = rect.top;
+    GetClientRect(msg->hwnd, &rect);
+    resizeWidthDelta = point.x - rect.left;
+    resizeHeightDelta = point.y - rect.top;
+    BringWindowToTop(msg->hwnd);
+  } /* startMoveWindow */
+
+
+
+static void processMouseMove (MSG *msg)
+
+  { /* processMouseMove */
+    switch (resizeMode) {
+      case HTBOTTOMRIGHT:
+        SetWindowPos(msg->hwnd, 0, 0, 0,
+            GET_X_LPARAM(msg->lParam) + resizeWidthDelta,
+            GET_Y_LPARAM(msg->lParam) + resizeHeightDelta,
+            /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOMOVE);
+        break;
+      case HTRIGHT:
+        SetWindowPos(msg->hwnd, 0, 0, 0,
+            GET_X_LPARAM(msg->lParam) + resizeWidthDelta,
+            resizeStartHeight,
+            /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOMOVE);
+        break;
+      case HTBOTTOM:
+        SetWindowPos(msg->hwnd, 0, 0, 0,
+            resizeStartWidth,
+            GET_Y_LPARAM(msg->lParam) + resizeHeightDelta,
+            /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOMOVE);
+        break;
+      case HTTOPLEFT:
+        if ((int) resizeStartWidth - GET_X_LPARAM(msg->lParam) + resizeWidthDelta >= GetSystemMetrics(SM_CXMINTRACK) &&
+            (int) resizeStartHeight - GET_Y_LPARAM(msg->lParam) + resizeHeightDelta >= GetSystemMetrics(SM_CYMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft + GET_X_LPARAM(msg->lParam) - resizeWidthDelta,
+              resizeTop + GET_Y_LPARAM(msg->lParam) - resizeHeightDelta,
+              resizeStartWidth - GET_X_LPARAM(msg->lParam) + resizeWidthDelta,
+              resizeStartHeight - GET_Y_LPARAM(msg->lParam) + resizeHeightDelta,
+              SWP_NOSENDCHANGING | SWP_NOZORDER);
+          resizeLeft += GET_X_LPARAM(msg->lParam) - resizeWidthDelta;
+          resizeTop += GET_Y_LPARAM(msg->lParam) - resizeHeightDelta;
+          resizeStartWidth -= GET_X_LPARAM(msg->lParam) - resizeWidthDelta;
+          resizeStartHeight -= GET_Y_LPARAM(msg->lParam) - resizeHeightDelta;
+        } else if ((int) resizeStartWidth - GET_X_LPARAM(msg->lParam) + resizeWidthDelta >= GetSystemMetrics(SM_CXMINTRACK) &&
+            (int) resizeStartHeight >= GetSystemMetrics(SM_CYMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft + GET_X_LPARAM(msg->lParam) - resizeWidthDelta,
+              resizeTop + resizeStartHeight - GetSystemMetrics(SM_CYMINTRACK),
+              resizeStartWidth - GET_X_LPARAM(msg->lParam) + resizeWidthDelta,
+              GetSystemMetrics(SM_CYMINTRACK),
+              SWP_NOSENDCHANGING | SWP_NOZORDER);
+          resizeLeft += GET_X_LPARAM(msg->lParam) - resizeWidthDelta;
+          resizeTop += resizeStartHeight - GetSystemMetrics(SM_CYMINTRACK);
+          resizeStartWidth -= GET_X_LPARAM(msg->lParam) - resizeWidthDelta;
+          resizeStartHeight = GetSystemMetrics(SM_CYMINTRACK);
+        } else if ((int) resizeStartWidth >= GetSystemMetrics(SM_CXMINTRACK) &&
+            (int) resizeStartHeight - GET_Y_LPARAM(msg->lParam) + resizeHeightDelta >= GetSystemMetrics(SM_CYMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft + resizeStartWidth - GetSystemMetrics(SM_CXMINTRACK),
+              resizeTop + GET_Y_LPARAM(msg->lParam) - resizeHeightDelta,
+              GetSystemMetrics(SM_CXMINTRACK),
+              resizeStartHeight - GET_Y_LPARAM(msg->lParam) + resizeHeightDelta,
+              SWP_NOSENDCHANGING | SWP_NOZORDER);
+          resizeLeft += resizeStartWidth - GetSystemMetrics(SM_CXMINTRACK);;
+          resizeTop += GET_Y_LPARAM(msg->lParam) - resizeHeightDelta;
+          resizeStartWidth = GetSystemMetrics(SM_CXMINTRACK);
+          resizeStartHeight -= GET_Y_LPARAM(msg->lParam) - resizeHeightDelta;
+        } else if ((int) resizeStartWidth >= GetSystemMetrics(SM_CXMINTRACK) &&
+            (int) resizeStartHeight >= GetSystemMetrics(SM_CYMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft + resizeStartWidth - GetSystemMetrics(SM_CXMINTRACK),
+              resizeTop + resizeStartHeight - GetSystemMetrics(SM_CYMINTRACK),
+              GetSystemMetrics(SM_CXMINTRACK),
+              GetSystemMetrics(SM_CYMINTRACK),
+              SWP_NOSENDCHANGING | SWP_NOZORDER);
+          resizeLeft += resizeStartWidth - GetSystemMetrics(SM_CXMINTRACK);
+          resizeTop += resizeStartHeight - GetSystemMetrics(SM_CYMINTRACK);
+          resizeStartWidth = GetSystemMetrics(SM_CXMINTRACK);
+          resizeStartHeight = GetSystemMetrics(SM_CYMINTRACK);
+        } /* if */
+        break;
+      case HTLEFT:
+        if ((int) resizeStartWidth - GET_X_LPARAM(msg->lParam) + resizeWidthDelta >= GetSystemMetrics(SM_CXMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft + GET_X_LPARAM(msg->lParam) - resizeWidthDelta,
+              resizeTop,
+              resizeStartWidth - GET_X_LPARAM(msg->lParam) + resizeWidthDelta,
+              resizeStartHeight,
+              SWP_NOSENDCHANGING | SWP_NOZORDER);
+          resizeLeft += GET_X_LPARAM(msg->lParam) - resizeWidthDelta;
+          resizeStartWidth -= GET_X_LPARAM(msg->lParam) - resizeWidthDelta;
+        } else if ((int) resizeStartWidth >= GetSystemMetrics(SM_CXMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft + resizeStartWidth - GetSystemMetrics(SM_CXMINTRACK),
+              resizeTop,
+              GetSystemMetrics(SM_CXMINTRACK),
+              resizeStartHeight,
+              SWP_NOSENDCHANGING | SWP_NOZORDER);
+          resizeLeft += resizeStartWidth - GetSystemMetrics(SM_CXMINTRACK);
+          resizeStartWidth = GetSystemMetrics(SM_CXMINTRACK);
+        } /* if */
+        break;
+      case HTTOP:
+        if ((int) resizeStartHeight - GET_Y_LPARAM(msg->lParam) + resizeHeightDelta >= GetSystemMetrics(SM_CYMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft,
+              resizeTop + GET_Y_LPARAM(msg->lParam) - resizeHeightDelta,
+              resizeStartWidth,
+              resizeStartHeight - GET_Y_LPARAM(msg->lParam) + resizeHeightDelta,
+              SWP_NOSENDCHANGING | SWP_NOZORDER);
+          resizeTop += GET_Y_LPARAM(msg->lParam) - resizeHeightDelta;
+          resizeStartHeight -= GET_Y_LPARAM(msg->lParam) - resizeHeightDelta;
+        } else if ((int) resizeStartHeight >= GetSystemMetrics(SM_CYMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft,
+              resizeTop + resizeStartHeight - GetSystemMetrics(SM_CYMINTRACK),
+              resizeStartWidth,
+              GetSystemMetrics(SM_CYMINTRACK),
+              SWP_NOSENDCHANGING | SWP_NOZORDER);
+          resizeTop += resizeStartHeight - GetSystemMetrics(SM_CYMINTRACK);
+          resizeStartHeight = GetSystemMetrics(SM_CYMINTRACK);
+        } /* if */
+        break;
+      case HTTOPRIGHT:
+        if ((int) resizeStartHeight - GET_Y_LPARAM(msg->lParam) + resizeHeightDelta >= GetSystemMetrics(SM_CYMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft,
+              resizeTop + GET_Y_LPARAM(msg->lParam) - resizeHeightDelta,
+              resizeStartWidth + GET_X_LPARAM(msg->lParam) - resizeWidthDelta,
+              resizeStartHeight - GET_Y_LPARAM(msg->lParam) + resizeHeightDelta,
+              /* SWP_NOSENDCHANGING | */ SWP_NOZORDER);
+          resizeTop += GET_Y_LPARAM(msg->lParam) - resizeHeightDelta;
+          resizeStartHeight -= GET_Y_LPARAM(msg->lParam) - resizeHeightDelta;
+        } else if ((int) resizeStartHeight >= GetSystemMetrics(SM_CYMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft,
+              resizeTop + resizeStartHeight - GetSystemMetrics(SM_CYMINTRACK),
+              resizeStartWidth + GET_X_LPARAM(msg->lParam) - resizeWidthDelta,
+              GetSystemMetrics(SM_CYMINTRACK),
+              /* SWP_NOSENDCHANGING | */ SWP_NOZORDER);
+          resizeTop += resizeStartHeight - GetSystemMetrics(SM_CYMINTRACK);
+          resizeStartHeight = GetSystemMetrics(SM_CYMINTRACK);
+        } /* if */
+        break;
+      case HTBOTTOMLEFT:
+        if ((int) resizeStartWidth - GET_X_LPARAM(msg->lParam) + resizeWidthDelta >= GetSystemMetrics(SM_CXMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft + GET_X_LPARAM(msg->lParam) - resizeWidthDelta,
+              resizeTop,
+              resizeStartWidth - GET_X_LPARAM(msg->lParam) + resizeWidthDelta,
+              resizeStartHeight + GET_Y_LPARAM(msg->lParam) - resizeHeightDelta,
+              /* SWP_NOSENDCHANGING | */ SWP_NOZORDER);
+          resizeLeft += GET_X_LPARAM(msg->lParam) - resizeWidthDelta;
+          resizeStartWidth -= GET_X_LPARAM(msg->lParam) - resizeWidthDelta;
+        } else if ((int) resizeStartWidth >= GetSystemMetrics(SM_CXMINTRACK)) {
+          SetWindowPos(msg->hwnd, 0,
+              resizeLeft + resizeStartWidth - GetSystemMetrics(SM_CXMINTRACK),
+              resizeTop,
+              GetSystemMetrics(SM_CXMINTRACK),
+              resizeStartHeight + GET_Y_LPARAM(msg->lParam) - resizeHeightDelta,
+              /* SWP_NOSENDCHANGING | */ SWP_NOZORDER);
+          resizeLeft += resizeStartWidth - GetSystemMetrics(SM_CXMINTRACK);
+          resizeStartWidth = GetSystemMetrics(SM_CXMINTRACK);
+        } /* if */
+        break;
+      case HTCAPTION:
+        SetWindowPos(msg->hwnd, 0,
+            resizeLeft + GET_X_LPARAM(msg->lParam) - resizeWidthDelta,
+            resizeTop + GET_Y_LPARAM(msg->lParam) - resizeHeightDelta,
+            0, 0,
+            SWP_NOSENDCHANGING | SWP_NOZORDER | SWP_NOSIZE);
+          resizeLeft += GET_X_LPARAM(msg->lParam) - resizeWidthDelta;
+          resizeTop += GET_Y_LPARAM(msg->lParam) - resizeHeightDelta;
+        break;
+    } /* switch */
+  } /* processMouseMove */
+
+
+
 charType gkbGetc (void)
 
   {
@@ -149,20 +407,211 @@ charType gkbGetc (void)
         logError(printf("GetMessage(&msg, NULL, 0, 0)=-1\n"););
       } else {
         /* printf("gkbGetc message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-        if (msg.message == WM_KEYDOWN) {
-          traceEvent(printf("WM_KEYDOWN hwnd=%lu, msg.wParam=%d, lParam=%x, "
-                            "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
-                            msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
-                            GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
-          if (GetKeyState(VK_SHIFT) & 0x8000) {
-            /* printf("VK_SHIFT\n"); */
-            if (msg.lParam & 0x1000000) {
-              /* The key is a cursor key but not from the numeric keypad. */
+        switch (msg.message) {
+          case WM_KEYDOWN:
+            traceEvent(printf("WM_KEYDOWN hwnd=%lu, msg.wParam=%d, lParam=%x, "
+                              "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
+                              msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
+                              GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
+            if (GetKeyState(VK_SHIFT) & 0x8000) {
+              /* printf("VK_SHIFT\n"); */
+              if (msg.lParam & 0x1000000) {
+                /* The key is a cursor key but not from the numeric keypad. */
+                switch (msg.wParam) {
+                  case VK_RETURN:   result = K_SFT_NL;     break;
+                  case VK_BACK:     result = K_SFT_BS;     break;
+                  case VK_TAB:      result = K_BACKTAB;    break;
+                  case VK_ESCAPE:   result = K_SFT_ESC;    break;
+                  case VK_LEFT:     result = K_LEFT;       break;
+                  case VK_RIGHT:    result = K_RIGHT;      break;
+                  case VK_UP:       result = K_UP;         break;
+                  case VK_DOWN:     result = K_DOWN;       break;
+                  case VK_HOME:     result = K_HOME;       break;
+                  case VK_END:      result = K_END;        break;
+                  case VK_PRIOR:    result = K_PGUP;       break;
+                  case VK_NEXT:     result = K_PGDN;       break;
+                  case VK_CLEAR:    result = K_PAD_CENTER; break;
+                  case VK_INSERT:   result = K_INS;        break;
+                  case VK_DELETE:   result = K_DEL;        break;
+                  case VK_APPS:     result = K_SFT_MENU;   break;
+                  case VK_PRINT:    result = K_SFT_PRINT;  break;
+                  case VK_PAUSE:    result = K_SFT_PAUSE;  break;
+                  case VK_SHIFT:
+                  case VK_CONTROL:
+                  case VK_MENU:
+                  case VK_CAPITAL:
+                  case VK_NUMLOCK:
+                  case VK_SCROLL:   result = K_NONE;       break;
+                  default:          result = K_UNDEF;      break;
+                } /* switch */
+              } else {
+                switch (msg.wParam) {
+                  case VK_RETURN:   result = K_SFT_NL;     break;
+                  case VK_BACK:     result = K_SFT_BS;     break;
+                  case VK_TAB:      result = K_BACKTAB;    break;
+                  case VK_ESCAPE:   result = K_SFT_ESC;    break;
+                  case VK_F1:       result = K_SFT_F1;     break;
+                  case VK_F2:       result = K_SFT_F2;     break;
+                  case VK_F3:       result = K_SFT_F3;     break;
+                  case VK_F4:       result = K_SFT_F4;     break;
+                  case VK_F5:       result = K_SFT_F5;     break;
+                  case VK_F6:       result = K_SFT_F6;     break;
+                  case VK_F7:       result = K_SFT_F7;     break;
+                  case VK_F8:       result = K_SFT_F8;     break;
+                  case VK_F9:       result = K_SFT_F9;     break;
+                  case VK_F10:      result = K_SFT_F10;    break;
+                  case VK_F11:      result = K_SFT_F11;    break;
+                  case VK_F12:      result = K_SFT_F12;    break;
+                  case VK_LEFT:     result = '4';          break;
+                  case VK_RIGHT:    result = '6';          break;
+                  case VK_UP:       result = '8';          break;
+                  case VK_DOWN:     result = '2';          break;
+                  case VK_HOME:     result = '7';          break;
+                  case VK_END:      result = '1';          break;
+                  case VK_PRIOR:    result = '9';          break;
+                  case VK_NEXT:     result = '3';          break;
+                  case VK_CLEAR:    result = '5';          break;
+                  case VK_INSERT:   result = '0';          break;
+                  case VK_DELETE:   result = K_DEL;        break;
+                  case VK_APPS:     result = K_SFT_MENU;   break;
+                  case VK_PRINT:    result = K_SFT_PRINT;  break;
+                  case VK_PAUSE:    result = K_SFT_PAUSE;  break;
+                  case VK_SHIFT:
+                  case VK_CONTROL:
+                  case VK_MENU:
+                  case VK_CAPITAL:
+                  case VK_NUMLOCK:
+                  case VK_SCROLL:   result = K_NONE;       break;
+                  default:          result = K_UNDEF;      break;
+                } /* switch */
+              } /* if */
+            } else if (((GetKeyState(VK_CONTROL)  & 0x8000) != 0 &&
+                        (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                        (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+              /* This condition is complicated because Alt Gr is     */
+              /* encoded as if left-control + right-alt are pressed. */
+              /* This situation is filtered out with this condition. */
+              /* printf("VK_CONTROL\n"); */
               switch (msg.wParam) {
-                case VK_RETURN:   result = K_SFT_NL;     break;
-                case VK_BACK:     result = K_SFT_BS;     break;
-                case VK_TAB:      result = K_BACKTAB;    break;
-                case VK_ESCAPE:   result = K_SFT_ESC;    break;
+                case VK_RETURN:   result = K_CTL_NL;         break;
+                case VK_BACK:     result = K_CTL_BS;         break;
+                case VK_TAB:      result = K_CTL_TAB;        break;
+                case VK_ESCAPE:   result = K_CTL_ESC;        break;
+                case VK_F1:       result = K_CTL_F1;         break;
+                case VK_F2:       result = K_CTL_F2;         break;
+                case VK_F3:       result = K_CTL_F3;         break;
+                case VK_F4:       result = K_CTL_F4;         break;
+                case VK_F5:       result = K_CTL_F5;         break;
+                case VK_F6:       result = K_CTL_F6;         break;
+                case VK_F7:       result = K_CTL_F7;         break;
+                case VK_F8:       result = K_CTL_F8;         break;
+                case VK_F9:       result = K_CTL_F9;         break;
+                case VK_F10:      result = K_CTL_F10;        break;
+                case VK_F11:      result = K_CTL_F11;        break;
+                case VK_F12:      result = K_CTL_F12;        break;
+                case VK_NUMPAD0:  result = K_CTL_INS;        break;
+                case VK_NUMPAD1:  result = K_CTL_END;        break;
+                case VK_NUMPAD2:  result = K_CTL_DOWN;       break;
+                case VK_NUMPAD3:  result = K_CTL_PGDN;       break;
+                case VK_NUMPAD4:  result = K_CTL_LEFT;       break;
+                case VK_NUMPAD5:  result = K_CTL_PAD_CENTER; break;
+                case VK_NUMPAD6:  result = K_CTL_RIGHT;      break;
+                case VK_NUMPAD7:  result = K_CTL_HOME;       break;
+                case VK_NUMPAD8:  result = K_CTL_UP;         break;
+                case VK_NUMPAD9:  result = K_CTL_PGUP;       break;
+                case VK_DECIMAL:  result = K_CTL_DEL;        break;
+                case VK_LEFT:     result = K_CTL_LEFT;       break;
+                case VK_RIGHT:    result = K_CTL_RIGHT;      break;
+                case VK_UP:       result = K_CTL_UP;         break;
+                case VK_DOWN:     result = K_CTL_DOWN;       break;
+                case VK_HOME:     result = K_CTL_HOME;       break;
+                case VK_END:      result = K_CTL_END;        break;
+                case VK_PRIOR:    result = K_CTL_PGUP;       break;
+                case VK_NEXT:     result = K_CTL_PGDN;       break;
+                case VK_CLEAR:    result = K_CTL_PAD_CENTER; break;
+                case VK_INSERT:   result = K_CTL_INS;        break;
+                case VK_DELETE:   result = K_CTL_DEL;        break;
+                case VK_APPS:     result = K_CTL_MENU;       break;
+                case VK_PRINT:    result = K_CTL_PRINT;      break;
+                case VK_PAUSE:    result = K_CTL_PAUSE;      break;
+                case VK_SHIFT:
+                case VK_CONTROL:
+                case VK_MENU:
+                case VK_CAPITAL:
+                case VK_NUMLOCK:
+                case VK_SCROLL:   result = K_NONE;           break;
+                default:          result = K_UNDEF;          break;
+              } /* switch */
+            } else if (GetKeyState(VK_MENU) & 0x8000) {
+              /* This condition is true for the Alt key and the Alt Gr key. */
+              /* printf("VK_MENU\n"); */
+              switch (msg.wParam) {
+                case VK_RETURN:   result = K_ALT_NL;         break;
+                case VK_BACK:     result = K_ALT_BS;         break;
+                case VK_TAB:      result = K_ALT_TAB;        break;
+                case VK_ESCAPE:   result = K_ALT_ESC;        break;
+                case VK_F1:       result = K_ALT_F1;         break;
+                case VK_F2:       result = K_ALT_F2;         break;
+                case VK_F3:       result = K_ALT_F3;         break;
+                case VK_F4:       result = K_ALT_F4;         break;
+                case VK_F5:       result = K_ALT_F5;         break;
+                case VK_F6:       result = K_ALT_F6;         break;
+                case VK_F7:       result = K_ALT_F7;         break;
+                case VK_F8:       result = K_ALT_F8;         break;
+                case VK_F9:       result = K_ALT_F9;         break;
+                case VK_F10:      result = K_ALT_F10;        break;
+                case VK_F11:      result = K_ALT_F11;        break;
+                case VK_F12:      result = K_ALT_F12;        break;
+                case VK_NUMPAD0:  result = K_ALT_INS;        break;
+                case VK_NUMPAD1:  result = K_ALT_END;        break;
+                case VK_NUMPAD2:  result = K_ALT_DOWN;       break;
+                case VK_NUMPAD3:  result = K_ALT_PGDN;       break;
+                case VK_NUMPAD4:  result = K_ALT_LEFT;       break;
+                case VK_NUMPAD5:  result = K_ALT_PAD_CENTER; break;
+                case VK_NUMPAD6:  result = K_ALT_RIGHT;      break;
+                case VK_NUMPAD7:  result = K_ALT_HOME;       break;
+                case VK_NUMPAD8:  result = K_ALT_UP;         break;
+                case VK_NUMPAD9:  result = K_ALT_PGUP;       break;
+                case VK_DECIMAL:  result = K_ALT_DEL;        break;
+                case VK_LEFT:     result = K_ALT_LEFT;       break;
+                case VK_RIGHT:    result = K_ALT_RIGHT;      break;
+                case VK_UP:       result = K_ALT_UP;         break;
+                case VK_DOWN:     result = K_ALT_DOWN;       break;
+                case VK_HOME:     result = K_ALT_HOME;       break;
+                case VK_END:      result = K_ALT_END;        break;
+                case VK_PRIOR:    result = K_ALT_PGUP;       break;
+                case VK_NEXT:     result = K_ALT_PGDN;       break;
+                case VK_CLEAR:    result = K_ALT_PAD_CENTER; break;
+                case VK_INSERT:   result = K_ALT_INS;        break;
+                case VK_DELETE:   result = K_ALT_DEL;        break;
+                case VK_APPS:     result = K_ALT_MENU;       break;
+                case VK_PRINT:    result = K_ALT_PRINT;      break;
+                case VK_PAUSE:    result = K_ALT_PAUSE;      break;
+                case VK_SHIFT:
+                case VK_CONTROL:
+                case VK_MENU:
+                case VK_CAPITAL:
+                case VK_NUMLOCK:
+                case VK_SCROLL:   result = K_NONE;           break;
+                default:          result = K_UNDEF;          break;
+              } /* switch */
+            } else {
+              /* printf("no key state\n"); */
+              switch (msg.wParam) {
+                case VK_RETURN:   result = K_NL;         break;
+                case VK_ESCAPE:   result = K_ESC;        break;
+                case VK_F1:       result = K_F1;         break;
+                case VK_F2:       result = K_F2;         break;
+                case VK_F3:       result = K_F3;         break;
+                case VK_F4:       result = K_F4;         break;
+                case VK_F5:       result = K_F5;         break;
+                case VK_F6:       result = K_F6;         break;
+                case VK_F7:       result = K_F7;         break;
+                case VK_F8:       result = K_F8;         break;
+                case VK_F9:       result = K_F9;         break;
+                case VK_F10:      result = K_F10;        break;
+                case VK_F11:      result = K_F11;        break;
+                case VK_F12:      result = K_F12;        break;
                 case VK_LEFT:     result = K_LEFT;       break;
                 case VK_RIGHT:    result = K_RIGHT;      break;
                 case VK_UP:       result = K_UP;         break;
@@ -174,9 +623,9 @@ charType gkbGetc (void)
                 case VK_CLEAR:    result = K_PAD_CENTER; break;
                 case VK_INSERT:   result = K_INS;        break;
                 case VK_DELETE:   result = K_DEL;        break;
-                case VK_APPS:     result = K_SFT_MENU;   break;
-                case VK_PRINT:    result = K_SFT_PRINT;  break;
-                case VK_PAUSE:    result = K_SFT_PAUSE;  break;
+                case VK_APPS:     result = K_MENU;       break;
+                case VK_PRINT:    result = K_PRINT;      break;
+                case VK_PAUSE:    result = K_PAUSE;      break;
                 case VK_SHIFT:
                 case VK_CONTROL:
                 case VK_MENU:
@@ -184,489 +633,382 @@ charType gkbGetc (void)
                 case VK_NUMLOCK:
                 case VK_SCROLL:   result = K_NONE;       break;
                 default:          result = K_UNDEF;      break;
+              } /* switch */
+            } /* if */
+            if (result == K_UNDEF) {
+              /* printf("TranslateMessage(%d) %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+              TranslateMessage(&msg);
+              /* printf("translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+              if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+                /* printf("PeekMessage(%d) %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+                if (msg.message == WM_CHAR) {
+                  result = K_NONE;
+                } /* if */
+              } else {
+                /* printf("PeekMessage --> empty\n"); */
+              } /* if */
+            } /* if */
+            break;
+          case WM_LBUTTONDOWN:
+            traceEvent(printf("WM_LBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%x\n",
+                              msg.hwnd, msg.wParam, msg.lParam););
+            button_x = LOWORD(msg.lParam);
+            button_y = HIWORD(msg.lParam);
+            button_window = msg.hwnd;
+            if (GetKeyState(VK_MENU) & 0x8000) {
+              result = K_ALT_MOUSE1;
+            } else if (msg.wParam & 0x04) {
+              result = K_SFT_MOUSE1;
+            } else if (msg.wParam & 0x08) {
+              result = K_CTL_MOUSE1;
+            } else {
+              result = K_MOUSE1;
+            } /* if */
+            break;
+          case WM_MBUTTONDOWN:
+            traceEvent(printf("WM_MBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%x\n",
+                              msg.hwnd, msg.wParam, msg.lParam););
+            button_x = LOWORD(msg.lParam);
+            button_y = HIWORD(msg.lParam);
+            button_window = msg.hwnd;
+            if (GetKeyState(VK_MENU) & 0x8000) {
+              result = K_ALT_MOUSE2;
+            } else if (msg.wParam & 0x04) {
+              result = K_SFT_MOUSE2;
+            } else if (msg.wParam & 0x08) {
+              result = K_CTL_MOUSE2;
+            } else {
+              result = K_MOUSE2;
+            } /* if */
+            break;
+          case WM_RBUTTONDOWN:
+            traceEvent(printf("WM_RBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%x\n",
+                              msg.hwnd, msg.wParam, msg.lParam););
+            button_x = LOWORD(msg.lParam);
+            button_y = HIWORD(msg.lParam);
+            button_window = msg.hwnd;
+            if (GetKeyState(VK_MENU) & 0x8000) {
+              result = K_ALT_MOUSE3;
+            } else if (msg.wParam & 0x04) {
+              result = K_SFT_MOUSE3;
+            } else if (msg.wParam & 0x08) {
+              result = K_CTL_MOUSE3;
+            } else {
+              result = K_MOUSE3;
+            } /* if */
+            break;
+          case WM_MOUSEWHEEL:
+            traceEvent(printf("WM_MOUSEWHEEL hwnd=%lu, msg.wParam=%d, lParam=%x\n",
+                              msg.hwnd, msg.wParam, msg.lParam););
+            button_x = LOWORD(msg.lParam);
+            button_y = HIWORD(msg.lParam);
+            button_window = msg.hwnd;
+            if ((intPtrType) msg.wParam > 0) {
+              if (GetKeyState(VK_MENU) & 0x8000) {
+                result = K_ALT_MOUSE4;
+              } else if (msg.wParam & 0x04) {
+                result = K_SFT_MOUSE4;
+              } else if (msg.wParam & 0x08) {
+                result = K_CTL_MOUSE4;
+              } else {
+                result = K_MOUSE4;
+              } /* if */
+            } else {
+              if (GetKeyState(VK_MENU) & 0x8000) {
+                result = K_ALT_MOUSE5;
+              } else if (msg.wParam & 0x04) {
+                result = K_SFT_MOUSE5;
+              } else if (msg.wParam & 0x08) {
+                result = K_CTL_MOUSE5;
+              } else {
+                result = K_MOUSE5;
+              } /* if */
+            } /* if */
+            break;
+          case WM_XBUTTONDOWN:
+            traceEvent(printf("WM_XBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%x\n",
+                              msg.hwnd, msg.wParam, msg.lParam););
+            button_x = LOWORD(msg.lParam);
+            button_y = HIWORD(msg.lParam);
+            button_window = msg.hwnd;
+            if ((msg.wParam & 0xffff0) == 0x20040) {
+              if (GetKeyState(VK_MENU) & 0x8000) {
+                result = K_ALT_MOUSE_FWD;
+              } else if (msg.wParam & 0x04) {
+                result = K_SFT_MOUSE_FWD;
+              } else if (msg.wParam & 0x08) {
+                result = K_CTL_MOUSE_FWD;
+              } else {
+                result = K_MOUSE_FWD;
+              } /* if */
+            } else if ((msg.wParam & 0xffff0) == 0x10020) {
+              if (GetKeyState(VK_MENU) & 0x8000) {
+                result = K_ALT_MOUSE_BACK;
+              } else if (msg.wParam & 0x04) {
+                result = K_SFT_MOUSE_BACK;
+              } else if (msg.wParam & 0x08) {
+                result = K_CTL_MOUSE_BACK;
+              } else {
+                result = K_MOUSE_BACK;
+              } /* if */
+            } else {
+              result = K_UNDEF;
+            } /* if */
+            break;
+          case WM_SYSKEYDOWN:
+            traceEvent(printf("WM_SYSKEYDOWN hwnd=%lu, msg.wParam=%d, lParam=%x, "
+                              "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
+                              msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
+                              GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
+            if (msg.lParam & 0x1000000) {
+              /* The key is a cursor key but not from the numeric keypad. */
+              switch (msg.wParam) {
+                case VK_RETURN:   result = K_ALT_NL;         break;
+                case VK_BACK:     result = K_ALT_BS;         break;
+                case VK_TAB:      result = K_ALT_TAB;        break;
+                case VK_ESCAPE:   result = K_ALT_ESC;        break;
+                case VK_LEFT:     result = K_ALT_LEFT;       break;
+                case VK_RIGHT:    result = K_ALT_RIGHT;      break;
+                case VK_UP:       result = K_ALT_UP;         break;
+                case VK_DOWN:     result = K_ALT_DOWN;       break;
+                case VK_HOME:     result = K_ALT_HOME;       break;
+                case VK_END:      result = K_ALT_END;        break;
+                case VK_PRIOR:    result = K_ALT_PGUP;       break;
+                case VK_NEXT:     result = K_ALT_PGDN;       break;
+                case VK_CLEAR:    result = K_ALT_PAD_CENTER; break;
+                case VK_INSERT:   result = K_ALT_INS;        break;
+                case VK_DELETE:   result = K_ALT_DEL;        break;
+                case VK_APPS:     result = K_ALT_MENU;       break;
+                case VK_PRINT:    result = K_ALT_PRINT;      break;
+                case VK_PAUSE:    result = K_ALT_PAUSE;      break;
+                case VK_SHIFT:
+                case VK_CONTROL:
+                case VK_MENU:
+                case VK_CAPITAL:
+                case VK_NUMLOCK:
+                case VK_SCROLL:   result = K_NONE;        break;
+                default:
+                  /* printf("WM_SYSKEYDOWN %lu, %d %x\n", msg.hwnd, msg.wParam, msg.lParam); */
+                  result = K_UNDEF;
+                  break;
               } /* switch */
             } else {
               switch (msg.wParam) {
-                case VK_RETURN:   result = K_SFT_NL;     break;
-                case VK_BACK:     result = K_SFT_BS;     break;
-                case VK_TAB:      result = K_BACKTAB;    break;
-                case VK_ESCAPE:   result = K_SFT_ESC;    break;
-                case VK_F1:       result = K_SFT_F1;     break;
-                case VK_F2:       result = K_SFT_F2;     break;
-                case VK_F3:       result = K_SFT_F3;     break;
-                case VK_F4:       result = K_SFT_F4;     break;
-                case VK_F5:       result = K_SFT_F5;     break;
-                case VK_F6:       result = K_SFT_F6;     break;
-                case VK_F7:       result = K_SFT_F7;     break;
-                case VK_F8:       result = K_SFT_F8;     break;
-                case VK_F9:       result = K_SFT_F9;     break;
-                case VK_F10:      result = K_SFT_F10;    break;
-                case VK_F11:      result = K_SFT_F11;    break;
-                case VK_F12:      result = K_SFT_F12;    break;
-                case VK_LEFT:     result = '4';          break;
-                case VK_RIGHT:    result = '6';          break;
-                case VK_UP:       result = '8';          break;
-                case VK_DOWN:     result = '2';          break;
-                case VK_HOME:     result = '7';          break;
-                case VK_END:      result = '1';          break;
-                case VK_PRIOR:    result = '9';          break;
-                case VK_NEXT:     result = '3';          break;
-                case VK_CLEAR:    result = '5';          break;
-                case VK_INSERT:   result = '0';          break;
-                case VK_DELETE:   result = K_DEL;        break;
-                case VK_APPS:     result = K_SFT_MENU;   break;
-                case VK_PRINT:    result = K_SFT_PRINT;  break;
-                case VK_PAUSE:    result = K_SFT_PAUSE;  break;
+                case 'A':         result = K_ALT_A;          break;
+                case 'B':         result = K_ALT_B;          break;
+                case 'C':         result = K_ALT_C;          break;
+                case 'D':         result = K_ALT_D;          break;
+                case 'E':         result = K_ALT_E;          break;
+                case 'F':         result = K_ALT_F;          break;
+                case 'G':         result = K_ALT_G;          break;
+                case 'H':         result = K_ALT_H;          break;
+                case 'I':         result = K_ALT_I;          break;
+                case 'J':         result = K_ALT_J;          break;
+                case 'K':         result = K_ALT_K;          break;
+                case 'L':         result = K_ALT_L;          break;
+                case 'M':         result = K_ALT_M;          break;
+                case 'N':         result = K_ALT_N;          break;
+                case 'O':         result = K_ALT_O;          break;
+                case 'P':         result = K_ALT_P;          break;
+                case 'Q':         result = K_ALT_Q;          break;
+                case 'R':         result = K_ALT_R;          break;
+                case 'S':         result = K_ALT_S;          break;
+                case 'T':         result = K_ALT_T;          break;
+                case 'U':         result = K_ALT_U;          break;
+                case 'V':         result = K_ALT_V;          break;
+                case 'W':         result = K_ALT_W;          break;
+                case 'X':         result = K_ALT_X;          break;
+                case 'Y':         result = K_ALT_Y;          break;
+                case 'Z':         result = K_ALT_Z;          break;
+                case '0':         result = K_ALT_0;          break;
+                case '1':         result = K_ALT_1;          break;
+                case '2':         result = K_ALT_2;          break;
+                case '3':         result = K_ALT_3;          break;
+                case '4':         result = K_ALT_4;          break;
+                case '5':         result = K_ALT_5;          break;
+                case '6':         result = K_ALT_6;          break;
+                case '7':         result = K_ALT_7;          break;
+                case '8':         result = K_ALT_8;          break;
+                case '9':         result = K_ALT_9;          break;
+                case VK_RETURN:   result = K_ALT_NL;         break;
+                case VK_BACK:     result = K_ALT_BS;         break;
+                case VK_TAB:      result = K_ALT_TAB;        break;
+                case VK_ESCAPE:   result = K_ALT_ESC;        break;
+                case VK_NUMPAD0:  result = K_ALT_INS;        break;
+                case VK_NUMPAD1:  result = K_ALT_END;        break;
+                case VK_NUMPAD2:  result = K_ALT_DOWN;       break;
+                case VK_NUMPAD3:  result = K_ALT_PGDN;       break;
+                case VK_NUMPAD4:  result = K_ALT_LEFT;       break;
+                case VK_NUMPAD5:  result = K_ALT_PAD_CENTER; break;
+                case VK_NUMPAD6:  result = K_ALT_RIGHT;      break;
+                case VK_NUMPAD7:  result = K_ALT_HOME;       break;
+                case VK_NUMPAD8:  result = K_ALT_UP;         break;
+                case VK_NUMPAD9:  result = K_ALT_PGUP;       break;
+                case VK_DECIMAL:  result = K_ALT_DEL;        break;
+                case VK_LEFT:     result = K_ALT_LEFT;       break;
+                case VK_RIGHT:    result = K_ALT_RIGHT;      break;
+                case VK_UP:       result = K_ALT_UP;         break;
+                case VK_DOWN:     result = K_ALT_DOWN;       break;
+                case VK_HOME:     result = K_ALT_HOME;       break;
+                case VK_END:      result = K_ALT_END;        break;
+                case VK_PRIOR:    result = K_ALT_PGUP;       break;
+                case VK_NEXT:     result = K_ALT_PGDN;       break;
+                case VK_CLEAR:    result = K_ALT_PAD_CENTER; break;
+                case VK_INSERT:   result = K_ALT_INS;        break;
+                case VK_DELETE:   result = K_ALT_DEL;        break;
+                case VK_APPS:     result = K_ALT_MENU;       break;
+                case VK_PRINT:    result = K_ALT_PRINT;      break;
+                case VK_PAUSE:    result = K_ALT_PAUSE;      break;
+                case VK_F1:       result = K_ALT_F1;         break;
+                case VK_F2:       result = K_ALT_F2;         break;
+                case VK_F3:       result = K_ALT_F3;         break;
+                case VK_F4:       result = K_ALT_F4;         break;
+                case VK_F5:       result = K_ALT_F5;         break;
+                case VK_F6:       result = K_ALT_F6;         break;
+                case VK_F7:       result = K_ALT_F7;         break;
+                case VK_F8:       result = K_ALT_F8;         break;
+                case VK_F9:       result = K_ALT_F9;         break;
+                case VK_F10:
+                  if (msg.lParam & 0x20000000) {
+                    result = K_ALT_F10;
+                  } else if (GetKeyState(VK_SHIFT) & 0x8000) {
+                    result = K_SFT_F10;
+                  } else if (GetKeyState(VK_CONTROL) & 0x8000) {
+                    result = K_CTL_F10;
+                  } else {
+                    result = K_F10;
+                  } /* if */
+                  break;
+                case VK_F11:      result = K_ALT_F11;        break;
+                case VK_F12:      result = K_ALT_F12;        break;
                 case VK_SHIFT:
                 case VK_CONTROL:
                 case VK_MENU:
                 case VK_CAPITAL:
                 case VK_NUMLOCK:
-                case VK_SCROLL:   result = K_NONE;       break;
-                default:          result = K_UNDEF;      break;
+                case VK_SCROLL:   result = K_NONE;           break;
+                default:
+                  /* printf("WM_SYSKEYDOWN %lu, %d %x\n", msg.hwnd, msg.wParam, msg.lParam); */
+                  result = K_UNDEF;
+                  break;
               } /* switch */
             } /* if */
-          } else if (((GetKeyState(VK_CONTROL)  & 0x8000) != 0 &&
-                      (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
-                      (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
-            /* This condition is complicated because Alt Gr is     */
-            /* encoded as if left-control + right-alt are pressed. */
-            /* This situation is filtered out with this condition. */
-            /* printf("VK_CONTROL\n"); */
-            switch (msg.wParam) {
-              case VK_RETURN:   result = K_CTL_NL;         break;
-              case VK_BACK:     result = K_CTL_BS;         break;
-              case VK_TAB:      result = K_CTL_TAB;        break;
-              case VK_ESCAPE:   result = K_CTL_ESC;        break;
-              case VK_F1:       result = K_CTL_F1;         break;
-              case VK_F2:       result = K_CTL_F2;         break;
-              case VK_F3:       result = K_CTL_F3;         break;
-              case VK_F4:       result = K_CTL_F4;         break;
-              case VK_F5:       result = K_CTL_F5;         break;
-              case VK_F6:       result = K_CTL_F6;         break;
-              case VK_F7:       result = K_CTL_F7;         break;
-              case VK_F8:       result = K_CTL_F8;         break;
-              case VK_F9:       result = K_CTL_F9;         break;
-              case VK_F10:      result = K_CTL_F10;        break;
-              case VK_F11:      result = K_CTL_F11;        break;
-              case VK_F12:      result = K_CTL_F12;        break;
-              case VK_NUMPAD0:  result = K_CTL_INS;        break;
-              case VK_NUMPAD1:  result = K_CTL_END;        break;
-              case VK_NUMPAD2:  result = K_CTL_DOWN;       break;
-              case VK_NUMPAD3:  result = K_CTL_PGDN;       break;
-              case VK_NUMPAD4:  result = K_CTL_LEFT;       break;
-              case VK_NUMPAD5:  result = K_CTL_PAD_CENTER; break;
-              case VK_NUMPAD6:  result = K_CTL_RIGHT;      break;
-              case VK_NUMPAD7:  result = K_CTL_HOME;       break;
-              case VK_NUMPAD8:  result = K_CTL_UP;         break;
-              case VK_NUMPAD9:  result = K_CTL_PGUP;       break;
-              case VK_DECIMAL:  result = K_CTL_DEL;        break;
-              case VK_LEFT:     result = K_CTL_LEFT;       break;
-              case VK_RIGHT:    result = K_CTL_RIGHT;      break;
-              case VK_UP:       result = K_CTL_UP;         break;
-              case VK_DOWN:     result = K_CTL_DOWN;       break;
-              case VK_HOME:     result = K_CTL_HOME;       break;
-              case VK_END:      result = K_CTL_END;        break;
-              case VK_PRIOR:    result = K_CTL_PGUP;       break;
-              case VK_NEXT:     result = K_CTL_PGDN;       break;
-              case VK_CLEAR:    result = K_CTL_PAD_CENTER; break;
-              case VK_INSERT:   result = K_CTL_INS;        break;
-              case VK_DELETE:   result = K_CTL_DEL;        break;
-              case VK_APPS:     result = K_CTL_MENU;       break;
-              case VK_PRINT:    result = K_CTL_PRINT;      break;
-              case VK_PAUSE:    result = K_CTL_PAUSE;      break;
-              case VK_SHIFT:
-              case VK_CONTROL:
-              case VK_MENU:
-              case VK_CAPITAL:
-              case VK_NUMLOCK:
-              case VK_SCROLL:   result = K_NONE;           break;
-              default:          result = K_UNDEF;          break;
-            } /* switch */
-          } else if (GetKeyState(VK_MENU) & 0x8000) {
-            /* This condition is true for the Alt key and the Alt Gr key. */
-            /* printf("VK_MENU\n"); */
-            switch (msg.wParam) {
-              case VK_RETURN:   result = K_ALT_NL;         break;
-              case VK_BACK:     result = K_ALT_BS;         break;
-              case VK_TAB:      result = K_ALT_TAB;        break;
-              case VK_ESCAPE:   result = K_ALT_ESC;        break;
-              case VK_F1:       result = K_ALT_F1;         break;
-              case VK_F2:       result = K_ALT_F2;         break;
-              case VK_F3:       result = K_ALT_F3;         break;
-              case VK_F4:       result = K_ALT_F4;         break;
-              case VK_F5:       result = K_ALT_F5;         break;
-              case VK_F6:       result = K_ALT_F6;         break;
-              case VK_F7:       result = K_ALT_F7;         break;
-              case VK_F8:       result = K_ALT_F8;         break;
-              case VK_F9:       result = K_ALT_F9;         break;
-              case VK_F10:      result = K_ALT_F10;        break;
-              case VK_F11:      result = K_ALT_F11;        break;
-              case VK_F12:      result = K_ALT_F12;        break;
-              case VK_NUMPAD0:  result = K_ALT_INS;        break;
-              case VK_NUMPAD1:  result = K_ALT_END;        break;
-              case VK_NUMPAD2:  result = K_ALT_DOWN;       break;
-              case VK_NUMPAD3:  result = K_ALT_PGDN;       break;
-              case VK_NUMPAD4:  result = K_ALT_LEFT;       break;
-              case VK_NUMPAD5:  result = K_ALT_PAD_CENTER; break;
-              case VK_NUMPAD6:  result = K_ALT_RIGHT;      break;
-              case VK_NUMPAD7:  result = K_ALT_HOME;       break;
-              case VK_NUMPAD8:  result = K_ALT_UP;         break;
-              case VK_NUMPAD9:  result = K_ALT_PGUP;       break;
-              case VK_DECIMAL:  result = K_ALT_DEL;        break;
-              case VK_LEFT:     result = K_ALT_LEFT;       break;
-              case VK_RIGHT:    result = K_ALT_RIGHT;      break;
-              case VK_UP:       result = K_ALT_UP;         break;
-              case VK_DOWN:     result = K_ALT_DOWN;       break;
-              case VK_HOME:     result = K_ALT_HOME;       break;
-              case VK_END:      result = K_ALT_END;        break;
-              case VK_PRIOR:    result = K_ALT_PGUP;       break;
-              case VK_NEXT:     result = K_ALT_PGDN;       break;
-              case VK_CLEAR:    result = K_ALT_PAD_CENTER; break;
-              case VK_INSERT:   result = K_ALT_INS;        break;
-              case VK_DELETE:   result = K_ALT_DEL;        break;
-              case VK_APPS:     result = K_ALT_MENU;       break;
-              case VK_PRINT:    result = K_ALT_PRINT;      break;
-              case VK_PAUSE:    result = K_ALT_PAUSE;      break;
-              case VK_SHIFT:
-              case VK_CONTROL:
-              case VK_MENU:
-              case VK_CAPITAL:
-              case VK_NUMLOCK:
-              case VK_SCROLL:   result = K_NONE;           break;
-              default:          result = K_UNDEF;          break;
-            } /* switch */
-          } else {
-            /* printf("no key state\n"); */
-            switch (msg.wParam) {
-              case VK_RETURN:   result = K_NL;         break;
-              case VK_ESCAPE:   result = K_ESC;        break;
-              case VK_F1:       result = K_F1;         break;
-              case VK_F2:       result = K_F2;         break;
-              case VK_F3:       result = K_F3;         break;
-              case VK_F4:       result = K_F4;         break;
-              case VK_F5:       result = K_F5;         break;
-              case VK_F6:       result = K_F6;         break;
-              case VK_F7:       result = K_F7;         break;
-              case VK_F8:       result = K_F8;         break;
-              case VK_F9:       result = K_F9;         break;
-              case VK_F10:      result = K_F10;        break;
-              case VK_F11:      result = K_F11;        break;
-              case VK_F12:      result = K_F12;        break;
-              case VK_LEFT:     result = K_LEFT;       break;
-              case VK_RIGHT:    result = K_RIGHT;      break;
-              case VK_UP:       result = K_UP;         break;
-              case VK_DOWN:     result = K_DOWN;       break;
-              case VK_HOME:     result = K_HOME;       break;
-              case VK_END:      result = K_END;        break;
-              case VK_PRIOR:    result = K_PGUP;       break;
-              case VK_NEXT:     result = K_PGDN;       break;
-              case VK_CLEAR:    result = K_PAD_CENTER; break;
-              case VK_INSERT:   result = K_INS;        break;
-              case VK_DELETE:   result = K_DEL;        break;
-              case VK_APPS:     result = K_MENU;       break;
-              case VK_PRINT:    result = K_PRINT;      break;
-              case VK_PAUSE:    result = K_PAUSE;      break;
-              case VK_SHIFT:
-              case VK_CONTROL:
-              case VK_MENU:
-              case VK_CAPITAL:
-              case VK_NUMLOCK:
-              case VK_SCROLL:   result = K_NONE;       break;
-              default:          result = K_UNDEF;      break;
-            } /* switch */
-          } /* if */
-          if (result == K_UNDEF) {
-            /* printf("TranslateMessage(%d) %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+            break;
+          case WM_NCLBUTTONDOWN:
+            traceEvent(printf("WM_NCLBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%x, "
+                              "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
+                              msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
+                              GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
+            if (msg.wParam == HTCLOSE && IsWindow(msg.hwnd)) {
+              /* printf("HTCLOSE\n"); */
+              switch (getCloseAction(find_window(msg.hwnd))) {
+                case CLOSE_BUTTON_CLOSES_PROGRAM:
+                  exit(0);
+                  break;
+                case CLOSE_BUTTON_RETURNS_KEY:
+                  result = K_CLOSE;
+                  button_window = msg.hwnd;
+                  break;
+                case CLOSE_BUTTON_RAISES_EXCEPTION:
+                  raise_error(CLOSE_ERROR);
+                  result = K_CLOSE;
+                  break;
+              } /* switch */
+            } else if (msg.wParam == HTBOTTOMRIGHT || msg.wParam == HTRIGHT || msg.wParam == HTBOTTOM) {
+              resizeBottomAndRight(&msg);
+            } else if (msg.wParam == HTTOPLEFT || msg.wParam == HTLEFT || msg.wParam == HTTOP ||
+                msg.wParam == HTTOPRIGHT || msg.wParam == HTBOTTOMLEFT) {
+              resizeTopAndLeft(&msg);
+            } else if (msg.wParam == HTCAPTION) {
+              startMoveWindow(&msg);
+            } else {
+              TranslateMessage(&msg);
+              DispatchMessage(&msg);
+            } /* if */
+            break;
+          case WM_SYSCOMMAND:
+            traceEvent(printf("WM_SYSCOMMAND hwnd=%lu, msg.wParam=%d, lParam=%x, "
+                              "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
+                              msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
+                              GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
+            if (msg.wParam == SC_CLOSE && IsWindow(msg.hwnd)) {
+              /* printf("SC_CLOSE\n"); */
+              switch (getCloseAction(find_window(msg.hwnd))) {
+                case CLOSE_BUTTON_CLOSES_PROGRAM:
+                  exit(0);
+                  break;
+                case CLOSE_BUTTON_RETURNS_KEY:
+                  result = K_CLOSE;
+                  button_window = msg.hwnd;
+                  break;
+                case CLOSE_BUTTON_RAISES_EXCEPTION:
+                  raise_error(CLOSE_ERROR);
+                  result = K_CLOSE;
+                  break;
+              } /* switch */
+            } else if (msg.wParam == SC_SIZE &&
+                getResizeReturnsKey(find_window(msg.hwnd))) {
+              /* printf("SC_SIZE\n"); */
+              TranslateMessage(&msg);
+              DispatchMessage(&msg);
+              result = K_RESIZE;
+            } else {
+              TranslateMessage(&msg);
+              DispatchMessage(&msg);
+            } /* if */
+            break;
+          case WM_MOUSEMOVE:
+            traceEvent(printf("WM_MOUSEMOVE hwnd=%lu, msg.wParam=%d, lParam=%x, "
+                              "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
+                              msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
+                              GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
+            if (resizeMode != 0) {
+              if (mouseMoveProcessed) {
+                if (resizeMode != HTCAPTION) {
+                  result = K_RESIZE;
+                } /* if */
+              } else {
+                processMouseMove(&msg);
+                if (resizeMode != HTCAPTION &&
+                    getResizeReturnsKey(find_window(msg.hwnd))) {
+                  result = K_RESIZE;
+                } /* if */
+              } /* if */
+              mouseMoveProcessed = FALSE;
+            } else {
+              TranslateMessage(&msg);
+              DispatchMessage(&msg);
+            } /* if */
+            break;
+          case WM_LBUTTONUP:
+            /* printf("WM_LBUTTONUP\n"); */
+            if (resizeMode != 0) {
+              /* printf("resizeMode: %d\n", (int) resizeMode); */
+              ReleaseCapture();
+              resizeMode = 0;
+            } else {
+              TranslateMessage(&msg);
+              DispatchMessage(&msg);
+            } /* if */
+            break;
+          case WM_CHAR:
+            traceEvent(printf("WM_CHAR hwnd=%lu, msg.wParam=%d, lParam=%x\n",
+                              msg.hwnd, msg.wParam, msg.lParam););
+            result = (charType) msg.wParam;
+            if (result >= 128 && result <= 159) {
+              result = map_1252_to_unicode[result - 128];
+            } /* if */
+            break;
+          default:
+            /* printf("A message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+            traceEvent(printf("message=%d, hwnd=%lu, msg.wParam=%d, lParam=%x\n",
+                              msg.message, msg.hwnd, msg.wParam, msg.lParam););
+            /* E.g.: WM_NCMOUSELEAVE */
             TranslateMessage(&msg);
             /* printf("translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-            if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-              /* printf("PeekMessage(%d) %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-              if (msg.message == WM_CHAR) {
-                result = K_NONE;
-              } /* if */
-            } else {
-              /* printf("PeekMessage --> empty\n"); */
-            } /* if */
-          } /* if */
-        } else if (msg.message == WM_LBUTTONDOWN) {
-          traceEvent(printf("WM_LBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%x\n",
-                            msg.hwnd, msg.wParam, msg.lParam););
-          button_x = LOWORD(msg.lParam);
-          button_y = HIWORD(msg.lParam);
-          button_window = msg.hwnd;
-          if (GetKeyState(VK_MENU) & 0x8000) {
-            result = K_ALT_MOUSE1;
-          } else if (msg.wParam & 0x04) {
-            result = K_SFT_MOUSE1;
-          } else if (msg.wParam & 0x08) {
-            result = K_CTL_MOUSE1;
-          } else {
-            result = K_MOUSE1;
-          } /* if */
-        } else if (msg.message == WM_MBUTTONDOWN) {
-          traceEvent(printf("WM_MBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%x\n",
-                            msg.hwnd, msg.wParam, msg.lParam););
-          button_x = LOWORD(msg.lParam);
-          button_y = HIWORD(msg.lParam);
-          button_window = msg.hwnd;
-          if (GetKeyState(VK_MENU) & 0x8000) {
-            result = K_ALT_MOUSE2;
-          } else if (msg.wParam & 0x04) {
-            result = K_SFT_MOUSE2;
-          } else if (msg.wParam & 0x08) {
-            result = K_CTL_MOUSE2;
-          } else {
-            result = K_MOUSE2;
-          } /* if */
-        } else if (msg.message == WM_RBUTTONDOWN) {
-          traceEvent(printf("WM_RBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%x\n",
-                            msg.hwnd, msg.wParam, msg.lParam););
-          button_x = LOWORD(msg.lParam);
-          button_y = HIWORD(msg.lParam);
-          button_window = msg.hwnd;
-          if (GetKeyState(VK_MENU) & 0x8000) {
-            result = K_ALT_MOUSE3;
-          } else if (msg.wParam & 0x04) {
-            result = K_SFT_MOUSE3;
-          } else if (msg.wParam & 0x08) {
-            result = K_CTL_MOUSE3;
-          } else {
-            result = K_MOUSE3;
-          } /* if */
-        } else if (msg.message == WM_MOUSEWHEEL) {
-          traceEvent(printf("WM_MOUSEWHEEL hwnd=%lu, msg.wParam=%d, lParam=%x\n",
-                            msg.hwnd, msg.wParam, msg.lParam););
-          button_x = LOWORD(msg.lParam);
-          button_y = HIWORD(msg.lParam);
-          button_window = msg.hwnd;
-          if ((intPtrType) msg.wParam > 0) {
-            if (GetKeyState(VK_MENU) & 0x8000) {
-              result = K_ALT_MOUSE4;
-            } else if (msg.wParam & 0x04) {
-              result = K_SFT_MOUSE4;
-            } else if (msg.wParam & 0x08) {
-              result = K_CTL_MOUSE4;
-            } else {
-              result = K_MOUSE4;
-            } /* if */
-          } else {
-            if (GetKeyState(VK_MENU) & 0x8000) {
-              result = K_ALT_MOUSE5;
-            } else if (msg.wParam & 0x04) {
-              result = K_SFT_MOUSE5;
-            } else if (msg.wParam & 0x08) {
-              result = K_CTL_MOUSE5;
-            } else {
-              result = K_MOUSE5;
-            } /* if */
-          } /* if */
-        } else if (msg.message == WM_XBUTTONDOWN) {
-          traceEvent(printf("WM_XBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%x\n",
-                            msg.hwnd, msg.wParam, msg.lParam););
-          button_x = LOWORD(msg.lParam);
-          button_y = HIWORD(msg.lParam);
-          button_window = msg.hwnd;
-          if ((msg.wParam & 0xffff0) == 0x20040) {
-            if (GetKeyState(VK_MENU) & 0x8000) {
-              result = K_ALT_MOUSE_FWD;
-            } else if (msg.wParam & 0x04) {
-              result = K_SFT_MOUSE_FWD;
-            } else if (msg.wParam & 0x08) {
-              result = K_CTL_MOUSE_FWD;
-            } else {
-              result = K_MOUSE_FWD;
-            } /* if */
-          } else if ((msg.wParam & 0xffff0) == 0x10020) {
-            if (GetKeyState(VK_MENU) & 0x8000) {
-              result = K_ALT_MOUSE_BACK;
-            } else if (msg.wParam & 0x04) {
-              result = K_SFT_MOUSE_BACK;
-            } else if (msg.wParam & 0x08) {
-              result = K_CTL_MOUSE_BACK;
-            } else {
-              result = K_MOUSE_BACK;
-            } /* if */
-          } else {
-            result = K_UNDEF;
-          } /* if */
-        } else if (msg.message == WM_SYSKEYDOWN) {
-          traceEvent(printf("WM_SYSKEYDOWN hwnd=%lu, msg.wParam=%d, lParam=%x, "
-                            "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
-                            msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
-                            GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
-          if (msg.lParam & 0x1000000) {
-            /* The key is a cursor key but not from the numeric keypad. */
-            switch (msg.wParam) {
-              case VK_RETURN:   result = K_ALT_NL;         break;
-              case VK_BACK:     result = K_ALT_BS;         break;
-              case VK_TAB:      result = K_ALT_TAB;        break;
-              case VK_ESCAPE:   result = K_ALT_ESC;        break;
-              case VK_LEFT:     result = K_ALT_LEFT;       break;
-              case VK_RIGHT:    result = K_ALT_RIGHT;      break;
-              case VK_UP:       result = K_ALT_UP;         break;
-              case VK_DOWN:     result = K_ALT_DOWN;       break;
-              case VK_HOME:     result = K_ALT_HOME;       break;
-              case VK_END:      result = K_ALT_END;        break;
-              case VK_PRIOR:    result = K_ALT_PGUP;       break;
-              case VK_NEXT:     result = K_ALT_PGDN;       break;
-              case VK_CLEAR:    result = K_ALT_PAD_CENTER; break;
-              case VK_INSERT:   result = K_ALT_INS;        break;
-              case VK_DELETE:   result = K_ALT_DEL;        break;
-              case VK_APPS:     result = K_ALT_MENU;       break;
-              case VK_PRINT:    result = K_ALT_PRINT;      break;
-              case VK_PAUSE:    result = K_ALT_PAUSE;      break;
-              case VK_SHIFT:
-              case VK_CONTROL:
-              case VK_MENU:
-              case VK_CAPITAL:
-              case VK_NUMLOCK:
-              case VK_SCROLL:   result = K_NONE;        break;
-              default:
-                /* printf("WM_SYSKEYDOWN %lu, %d %x\n", msg.hwnd, msg.wParam, msg.lParam); */
-                result = K_UNDEF;
-                break;
-            } /* switch */
-          } else {
-            switch (msg.wParam) {
-              case 'A':         result = K_ALT_A;          break;
-              case 'B':         result = K_ALT_B;          break;
-              case 'C':         result = K_ALT_C;          break;
-              case 'D':         result = K_ALT_D;          break;
-              case 'E':         result = K_ALT_E;          break;
-              case 'F':         result = K_ALT_F;          break;
-              case 'G':         result = K_ALT_G;          break;
-              case 'H':         result = K_ALT_H;          break;
-              case 'I':         result = K_ALT_I;          break;
-              case 'J':         result = K_ALT_J;          break;
-              case 'K':         result = K_ALT_K;          break;
-              case 'L':         result = K_ALT_L;          break;
-              case 'M':         result = K_ALT_M;          break;
-              case 'N':         result = K_ALT_N;          break;
-              case 'O':         result = K_ALT_O;          break;
-              case 'P':         result = K_ALT_P;          break;
-              case 'Q':         result = K_ALT_Q;          break;
-              case 'R':         result = K_ALT_R;          break;
-              case 'S':         result = K_ALT_S;          break;
-              case 'T':         result = K_ALT_T;          break;
-              case 'U':         result = K_ALT_U;          break;
-              case 'V':         result = K_ALT_V;          break;
-              case 'W':         result = K_ALT_W;          break;
-              case 'X':         result = K_ALT_X;          break;
-              case 'Y':         result = K_ALT_Y;          break;
-              case 'Z':         result = K_ALT_Z;          break;
-              case '0':         result = K_ALT_0;          break;
-              case '1':         result = K_ALT_1;          break;
-              case '2':         result = K_ALT_2;          break;
-              case '3':         result = K_ALT_3;          break;
-              case '4':         result = K_ALT_4;          break;
-              case '5':         result = K_ALT_5;          break;
-              case '6':         result = K_ALT_6;          break;
-              case '7':         result = K_ALT_7;          break;
-              case '8':         result = K_ALT_8;          break;
-              case '9':         result = K_ALT_9;          break;
-              case VK_RETURN:   result = K_ALT_NL;         break;
-              case VK_BACK:     result = K_ALT_BS;         break;
-              case VK_TAB:      result = K_ALT_TAB;        break;
-              case VK_ESCAPE:   result = K_ALT_ESC;        break;
-              case VK_NUMPAD0:  result = K_ALT_INS;        break;
-              case VK_NUMPAD1:  result = K_ALT_END;        break;
-              case VK_NUMPAD2:  result = K_ALT_DOWN;       break;
-              case VK_NUMPAD3:  result = K_ALT_PGDN;       break;
-              case VK_NUMPAD4:  result = K_ALT_LEFT;       break;
-              case VK_NUMPAD5:  result = K_ALT_PAD_CENTER; break;
-              case VK_NUMPAD6:  result = K_ALT_RIGHT;      break;
-              case VK_NUMPAD7:  result = K_ALT_HOME;       break;
-              case VK_NUMPAD8:  result = K_ALT_UP;         break;
-              case VK_NUMPAD9:  result = K_ALT_PGUP;       break;
-              case VK_DECIMAL:  result = K_ALT_DEL;        break;
-              case VK_LEFT:     result = K_ALT_LEFT;       break;
-              case VK_RIGHT:    result = K_ALT_RIGHT;      break;
-              case VK_UP:       result = K_ALT_UP;         break;
-              case VK_DOWN:     result = K_ALT_DOWN;       break;
-              case VK_HOME:     result = K_ALT_HOME;       break;
-              case VK_END:      result = K_ALT_END;        break;
-              case VK_PRIOR:    result = K_ALT_PGUP;       break;
-              case VK_NEXT:     result = K_ALT_PGDN;       break;
-              case VK_CLEAR:    result = K_ALT_PAD_CENTER; break;
-              case VK_INSERT:   result = K_ALT_INS;        break;
-              case VK_DELETE:   result = K_ALT_DEL;        break;
-              case VK_APPS:     result = K_ALT_MENU;       break;
-              case VK_PRINT:    result = K_ALT_PRINT;      break;
-              case VK_PAUSE:    result = K_ALT_PAUSE;      break;
-              case VK_F1:       result = K_ALT_F1;         break;
-              case VK_F2:       result = K_ALT_F2;         break;
-              case VK_F3:       result = K_ALT_F3;         break;
-              case VK_F4:       result = K_ALT_F4;         break;
-              case VK_F5:       result = K_ALT_F5;         break;
-              case VK_F6:       result = K_ALT_F6;         break;
-              case VK_F7:       result = K_ALT_F7;         break;
-              case VK_F8:       result = K_ALT_F8;         break;
-              case VK_F9:       result = K_ALT_F9;         break;
-              case VK_F10:
-                if (msg.lParam & 0x20000000) {
-                  result = K_ALT_F10;
-                } else if (GetKeyState(VK_SHIFT) & 0x8000) {
-                  result = K_SFT_F10;
-                } else if (GetKeyState(VK_CONTROL) & 0x8000) {
-                  result = K_CTL_F10;
-                } else {
-                  result = K_F10;
-                } /* if */
-                break;
-              case VK_F11:      result = K_ALT_F11;        break;
-              case VK_F12:      result = K_ALT_F12;        break;
-              case VK_SHIFT:
-              case VK_CONTROL:
-              case VK_MENU:
-              case VK_CAPITAL:
-              case VK_NUMLOCK:
-              case VK_SCROLL:   result = K_NONE;           break;
-              default:
-                /* printf("WM_SYSKEYDOWN %lu, %d %x\n", msg.hwnd, msg.wParam, msg.lParam); */
-                result = K_UNDEF;
-                break;
-            } /* switch */
-          } /* if */
-        } else if (msg.message == WM_NCLBUTTONDOWN) {
-          traceEvent(printf("WM_NCLBUTTONDOWN hwnd=%lu, msg.wParam=%d, lParam=%x, "
-                            "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
-                            msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
-                            GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
-          if (msg.wParam == HTCLOSE && IsWindow(msg.hwnd)) {
-            /* printf("HTCLOSE\n"); */
-            switch (getCloseAction(find_window(msg.hwnd))) {
-              case CLOSE_BUTTON_CLOSES_PROGRAM:
-                exit(0);
-                break;
-              case CLOSE_BUTTON_RETURNS_KEY:
-                result = K_CLOSE;
-                button_window = msg.hwnd;
-                break;
-              case CLOSE_BUTTON_RAISES_EXCEPTION:
-                raise_error(CLOSE_ERROR);
-                result = K_CLOSE;
-                break;
-            } /* switch */
-          } else {
-            TranslateMessage(&msg);
             DispatchMessage(&msg);
-          } /* if */
-        } else if (msg.message == WM_CHAR) {
-          traceEvent(printf("WM_CHAR hwnd=%lu, msg.wParam=%d, lParam=%x\n",
-                            msg.hwnd, msg.wParam, msg.lParam););
-          result = (charType) msg.wParam;
-          if (result >= 128 && result <= 159) {
-            result = map_1252_to_unicode[result - 128];
-          } /* if */
-        } else {
-          traceEvent(printf("message=%d, hwnd=%lu, msg.wParam=%d, lParam=%x\n",
-                            msg.message, msg.hwnd, msg.wParam, msg.lParam););
-          /* E.g.: WM_NCMOUSELEAVE */
-          TranslateMessage(&msg);
-          /* printf("translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-          DispatchMessage(&msg);
-        } /* if */
+            break;
+        } /* switch */
       } /* if */
       if (result == K_NONE) {
         /* printf("before GetMessage\n"); */
@@ -732,18 +1074,111 @@ boolType gkbKeyPressed (void)
             /* printf("HTCLOSE\n"); */
             msg_present = 0;
             result = TRUE;
+          } else if (msg.wParam == HTBOTTOMRIGHT || msg.wParam == HTRIGHT || msg.wParam == HTBOTTOM) {
+            resizeBottomAndRight(&msg);
+            bRet = GetMessage(&msg, NULL, 0, 0);
+            if (bRet == 0 || bRet == -1) {
+              logError(printf("GetMessage(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            } /* if */
+            msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+          } else if (msg.wParam == HTTOPLEFT || msg.wParam == HTLEFT || msg.wParam == HTTOP ||
+              msg.wParam == HTTOPRIGHT || msg.wParam == HTBOTTOMLEFT) {
+            resizeTopAndLeft(&msg);
+            bRet = GetMessage(&msg, NULL, 0, 0);
+            if (bRet == 0 || bRet == -1) {
+              logError(printf("GetMessage(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            } /* if */
+            msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+          } else if (msg.wParam == HTCAPTION) {
+            startMoveWindow(&msg);
+            bRet = GetMessage(&msg, NULL, 0, 0);
+            if (bRet == 0 || bRet == -1) {
+              logError(printf("GetMessage(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            } /* if */
+            msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
           } else {
             bRet = GetMessage(&msg, NULL, 0, 0);
-            if (bRet == 0) {
-              logError(printf("x GetMessage(&msg, NULL, 0, 0)=0\n"););
-            } else if (bRet == -1) {
-              logError(printf("x GetMessage(&msg, NULL, 0, 0)=-1\n"););
+            if (bRet == 0 || bRet == -1) {
+              logError(printf("GetMessage(&msg, NULL, 0, 0)=%d\n", (int) bRet););
             } else {
               /* printf("x message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
               TranslateMessage(&msg);
               /* printf("x translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
               DispatchMessage(&msg);
               /* printf("x dispatched message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+            } /* if */
+            msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+          } /* if */
+          break;
+        case WM_SYSCOMMAND:
+          /* printf("gkbKeyPressed WM_SYSCOMMAND\n"); */
+          if (msg.wParam == SC_CLOSE && IsWindow(msg.hwnd)) {
+            /* printf("SC_CLOSE\n"); */
+            msg_present = 0;
+            result = TRUE;
+          } else if (msg.wParam == SC_SIZE &&
+              getResizeReturnsKey(find_window(msg.hwnd))) {
+            /* printf("SC_SIZE\n"); */
+            msg_present = 0;
+            result = TRUE;
+          } else {
+            bRet = GetMessage(&msg, NULL, 0, 0);
+            if (bRet == 0 || bRet == -1) {
+              logError(printf("GetMessage(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            } else {
+              TranslateMessage(&msg);
+              DispatchMessage(&msg);
+            } /* if */
+            msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+          } /* if */
+          break;
+        case WM_MOUSEMOVE:
+          /* printf("gkbKeyPressed WM_MOUSEMOVE\n"); */
+          if (resizeMode != 0) {
+            processMouseMove(&msg);
+            if (resizeMode != HTCAPTION &&
+                getResizeReturnsKey(find_window(msg.hwnd))) {
+              mouseMoveProcessed = TRUE;
+              msg_present = 0;
+              result = TRUE;
+            } else {
+              bRet = GetMessage(&msg, NULL, 0, 0);
+              if (bRet == 0 || bRet == -1) {
+                logError(printf("GetMessage(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+              } /* if */
+              msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+            } /* if */
+          } else {
+            bRet = GetMessage(&msg, NULL, 0, 0);
+            if (bRet == 0 || bRet == -1) {
+              logError(printf("GetMessage(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            } else {
+              /* printf("x message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+              TranslateMessage(&msg);
+              /* printf("x translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+              DispatchMessage(&msg);
+              /* printf("x dispatched message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+            } /* if */
+            msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+          } /* if */
+          break;
+        case WM_LBUTTONUP:
+          /* printf("gkbKeyPressed WM_LBUTTONUP\n"); */
+          if (resizeMode != 0) {
+            /* printf("resizeMode: %d\n", (int) resizeMode); */
+            ReleaseCapture();
+            resizeMode = 0;
+            msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+          } else {
+            bRet = GetMessage(&msg, NULL, 0, 0);
+            if (bRet == 0 || bRet == -1) {
+              logError(printf("GetMessage(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            } else {
+              /* printf("y message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+              TranslateMessage(&msg);
+              /* printf("y translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+              DispatchMessage(&msg);
+              /* printf("y dispatched message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             } /* if */
             msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
           } /* if */
@@ -765,7 +1200,7 @@ boolType gkbKeyPressed (void)
           } else if (bRet == -1) {
             logError(printf("GetMessage(&msg, NULL, 0, 0)=-1\n"););
           } else {
-            /* printf("message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+            /* printf("B message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             TranslateMessage(&msg);
             /* printf("translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             DispatchMessage(&msg);
@@ -885,7 +1320,11 @@ boolType gkbButtonPressed (charType button)
       case '-': vkey1 = VK_SUBTRACT; break;
       case '/': vkey1 = VK_DIVIDE;   break;
 
-      case K_MOUSE1: case K_SFT_MOUSE1: case K_CTL_MOUSE1: case K_ALT_MOUSE1: vkey1 = VK_LBUTTON; break;
+      case K_MOUSE1: case K_SFT_MOUSE1: case K_CTL_MOUSE1: case K_ALT_MOUSE1:
+        if (resizeMode == 0) {
+          vkey1 = VK_LBUTTON;
+        } /* if */
+        break;
       case K_MOUSE2: case K_SFT_MOUSE2: case K_CTL_MOUSE2: case K_ALT_MOUSE2: vkey1 = VK_MBUTTON; break;
       case K_MOUSE3: case K_SFT_MOUSE3: case K_CTL_MOUSE3: case K_ALT_MOUSE3: vkey1 = VK_RBUTTON; break;
 
@@ -938,6 +1377,24 @@ charType gkbRawGetc (void)
   { /* gkbRawGetc */
     return gkbGetc();
   } /* gkbRawGetc */
+
+
+
+void gkbSelectInput (winType aWindow, charType aKey, boolType active)
+
+  { /* gkbSelectInput */
+    if (aKey == K_RESIZE) {
+      setResizeReturnsKey(aWindow, active);
+    } else if (aKey == K_CLOSE) {
+      if (active) {
+        drwSetCloseAction(aWindow, CLOSE_BUTTON_RETURNS_KEY);
+      } else {
+        drwSetCloseAction(aWindow, CLOSE_BUTTON_CLOSES_PROGRAM);
+      } /* if */
+    } else {
+      raise_error(RANGE_ERROR);
+    } /* if */
+  } /* gkbSelectInput */
 
 
 

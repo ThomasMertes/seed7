@@ -266,8 +266,24 @@ const func integer: max (in bitset: aSet)                       is action "SET_M
 const func integer: next (in bitset: aSet, in integer: number)  is action "SET_NEXT";
 
 
+(**
+ *  Create ''bitset'' with the element ''aNumber''.
+ *   {42}    returns a bitset with the element 42.
+ *)
 const func bitset: { (in integer: aNumber) }                    is action "SET_BASELIT";
+
+
+(**
+ *  Create ''bitset'' with elements from a comma separated list.
+ *   {2, 3, 5, 7, 11}    returns a bitset with the elements 2, 3, 5, 7 and 11.
+ *)
 const func bitset: { (in tuple integer: numberTuple) }          is action "SET_ARRLIT";
+
+
+(**
+ *  Create ''bitset'' with all elements from ''lowValue'' to ''highValue'' inclusive.
+ *   {1 .. 5}    returns a bitset with the elements 1, 2, 3, 4 and 5.
+ *)
 const func bitset: { (in integer: lowValue) ..
                      (in integer: highValue) }                  is action "SET_RANGELIT";
 

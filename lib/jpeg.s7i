@@ -519,7 +519,7 @@ const proc: idct8x8 (inout array integer: dataBlock) is func
 #  lower than the limit.
 #
 const proc: processBlock (inout array integer: dataBlock,
-    in string: stri, inout integer: bytePos, inout integer: bitPos, 
+    in string: stri, inout integer: bytePos, inout integer: bitPos,
     in huffmanTable: dcTable, in huffmanTable: acTable,
     in array integer: quantizationTable, inout integer: diff) is func
   local
@@ -908,7 +908,7 @@ const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader
 #
 const proc: readDcValue (inout integer: dcCoefficient,
     in string: stri, inout integer: bytePos, inout integer: bitPos,
-    in huffmanTable: dcTable, inout integer: diff, 
+    in huffmanTable: dcTable, inout integer: diff,
     in integer: approximationLow) is func
 
   local
@@ -1275,7 +1275,7 @@ const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
         end if;
         index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
         refineBlockAc(mcuImage[succ(pred(line) mdiv header.vertical)]
-                              [succ(pred(column) mdiv header.horizontal)].luma[index], 
+                              [succ(pred(column) mdiv header.horizontal)].luma[index],
                       entropyCodedSegment, bytePos, bitPos, acTable,
                       header.startOfSpectral, header.endOfSpectral,
                       eobRunLength, 1 << header.approximationLow);
@@ -1400,7 +1400,7 @@ const proc: processBlock (inout array integer: dataBlock, in array integer: quan
   end func;
 
 
-const proc: colorMinimumCodedUnit (inout jpegHeader: header,
+const proc: colorMinimumCodedUnit (in jpegHeader: header,
     inout jpegMinimumCodedUnit: minimumCodedUnit,
     in array integer: lumaQuantization, in array integer: chromaBlueQuantization,
     in array integer: chromaRedQuantization, inout array array pixel: image,
@@ -1447,7 +1447,7 @@ const proc: colorMinimumCodedUnit (inout jpegHeader: header,
   end func;
 
 
-const func PRIMITIVE_WINDOW: colorAllMinimumCodedUnits (inout jpegHeader: header,
+const func PRIMITIVE_WINDOW: colorAllMinimumCodedUnits (in jpegHeader: header,
     inout array array jpegMinimumCodedUnit: mcuImage, in array integer: lumaQuantization,
     in array integer: chromaBlueQuantization, in array integer: chromaRedQuantization) is func
   result

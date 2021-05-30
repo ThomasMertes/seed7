@@ -670,6 +670,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_PUT"}:
         drawLibraryUsed := TRUE;
         process(DRW_PUT, function, params, c_expr);
+      when {"DRW_PUT_SCALED"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_PUT_SCALED, function, params, c_expr);
       when {"DRW_RECT"}:
         drawLibraryUsed := TRUE;
         process(DRW_RECT, function, params, c_expr);
@@ -694,6 +697,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_SETTRANSPARENTCOLOR"}:
         drawLibraryUsed := TRUE;
         process(DRW_SETTRANSPARENTCOLOR, function, params, c_expr);
+      when {"DRW_SETWINDOWNAME"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_SETWINDOWNAME, function, params, c_expr);
       when {"DRW_TEXT"}:
         drawLibraryUsed := TRUE;
         process(DRW_TEXT, function, params, c_expr);
@@ -939,6 +945,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"GKB_RAW_GETC"}:
         drawLibraryUsed := TRUE;
         process(GKB_RAW_GETC, function, params, c_expr);
+      when {"GKB_SELECT_INPUT"}:
+        drawLibraryUsed := TRUE;
+        process(GKB_SELECT_INPUT, function, params, c_expr);
       when {"GKB_WINDOW"}:
         drawLibraryUsed := TRUE;
         process(GKB_WINDOW, function, params, c_expr);

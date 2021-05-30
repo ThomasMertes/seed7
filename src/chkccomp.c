@@ -5592,9 +5592,9 @@ static const char *findIncludeFile (char *scopeName, char *testProgram,
 
 
 static int findStaticLib (const char *scopeName, const char *testProgram,
-    const char *includeOption, const char *baseDir, const char **libDirList,
-    size_t libDirListLength, const char **libNameList, size_t libNameListLength,
-    char *system_libs)
+    const char *includeOption, const char *libraryOption, const char *baseDir,
+    const char **libDirList, size_t libDirListLength,
+    const char **libNameList, size_t libNameListLength, char *system_libs)
 
   {
     int dirIndex;
@@ -5602,6 +5602,7 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
     char linkParam[BUFFER_SIZE];
+    char linkOption[BUFFER_SIZE];
     int libFound = 0;
 
   /* findStaticLib */
@@ -5620,9 +5621,12 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
           if (fileIsRegular(filePath)) {
             /* printf("fileIsRegular(%s)\n", filePath); */
             sprintf(linkParam, "\"%s\"", filePath);
+            linkOption[0] = '\0';
+            appendOption(linkOption, libraryOption);
+            appendOption(linkOption, linkParam);
             /* fprintf(logFile, "includeOption: \"%s\"\n", includeOption);
             fprintf(logFile, "linkParam: \"%s\"\n", linkParam); */
-            if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkParam)) {
+            if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkOption)) {
               if (doTest() == 1) {
                 fprintf(logFile, "\r%s: %s found in: %s\n",
                         scopeName, libNameList[nameIndex], dirPath);
@@ -5635,10 +5639,14 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
               fprintf(logFile, "\r%s: Cannot link %s\n", scopeName, filePath);
             } /* if */
           } else {
-            sprintf(linkParam, "-L%s %s", dirPath, libNameList[nameIndex]);
+            sprintf(linkParam, "-L%s", dirPath);
+            linkOption[0] = '\0';
+            appendOption(linkOption, libraryOption);
+            appendOption(linkOption, linkParam);
+            appendOption(linkOption, libNameList[nameIndex]);
             /* fprintf(logFile, "includeOption: \"%s\"\n", includeOption);
             fprintf(logFile, "linkParam: \"%s\"\n", linkParam); */
-            if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkParam)) {
+            if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkOption)) {
               if (doTest() == 1) {
                 fprintf(logFile, "\r%s: %s found in: %s\n",
                         scopeName, libNameList[nameIndex], dirPath);
@@ -5900,14 +5908,18 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
 #else
     const char *libNameList[] = {"-lX11"};
 #endif
+    const char *xRenderLibNameList[] = {"-lXrender"};
 #ifdef X11_DLL
     const char *dllNameList[] = { X11_DLL };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES
     const char *dllNameList[] = {"libX11.so", "libX11.so.6", "libX11.so.5"};
+    const char *xRenderDllNameList[] = {"libXrender.so"};
 #elif LIBRARY_TYPE == MACOS_LIBRARIES
     const char *dllNameList[] = {"libX11.dylib"};
+    const char *xRenderDllNameList[] = {"libXrender.dylib"};
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"x11.dll"};
+    const char *xRenderDllNameList[] = {"xrender.dll"};
 #endif
     char includeOption[BUFFER_SIZE];
     const char *x11Include = NULL;
@@ -5945,7 +5957,8 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
     if (x11Include != NULL) {
       x11IncludeCommand = "#include <X11/X.h>\n"
                           "#include <X11/Xlib.h>\n"
-                          "#include <X11/Xutil.h>\n";
+                          "#include <X11/Xutil.h>\n"
+                          "#include <X11/extensions/Xrender.h>\n";
 #ifdef ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS
     } else {
       includeOption[0] = '\0';
@@ -5986,10 +5999,27 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
          fprintf(logFile, "x11Include: \"%s\"\n", x11Include); */
       system_draw_libs[0] = '\0';
 #ifdef X11_LIBRARY_PATH
-      if (findStaticLib("X11", testProgram, includeOption, "",
+      if (findStaticLib("X11", testProgram, includeOption, "", "",
                         libDirList, sizeof(libDirList) / sizeof(char *),
                         libNameList, sizeof(libNameList) / sizeof(char *),
                         system_draw_libs)) {
+        sprintf(testProgram, "#include<stdio.h>\n%s"
+                             "int main(int argc,char *argv[]){\n"
+                             "Display *display;\n"
+                             "int event_basep;\n"
+                             "int error_basep;\n"
+                             "display = XOpenDisplay(\"\");\n"
+                             "XRenderQueryExtension(display, &event_basep, &error_basep);\n"
+                             "printf(\"1\\n\");\n"
+                             "return 0;}\n", x11IncludeCommand);
+        /* fprintf(logFile, "%s\n", testProgram);
+           fprintf(logFile, "x11Include: \"%s\"\n", x11Include); */
+        if (findStaticLib("Xrender", testProgram, includeOption, system_draw_libs, "",
+                          libDirList, sizeof(libDirList) / sizeof(char *),
+                          xRenderLibNameList, sizeof(xRenderLibNameList) / sizeof(char *),
+                          system_draw_libs)) {
+          fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
+        } /* if */
         sprintf(makeDefinition, "SYSTEM_DRAW_LIBS = %s", system_draw_libs);
         replaceNLBySpace(makeDefinition);
         strcat(makeDefinition, "\n");
@@ -6006,6 +6036,22 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
         if (findLinkerOption("X11", testProgram, includeOption, "",
                              libNameList, sizeof(libNameList) / sizeof(char *),
                              system_draw_libs)) {
+          sprintf(testProgram, "#include<stdio.h>\n%s"
+                               "int main(int argc,char *argv[]){\n"
+                               "Display *display;\n"
+                               "int event_basep;\n"
+                               "int error_basep;\n"
+                               "display = XOpenDisplay(\"\");\n"
+                               "XRenderQueryExtension(display, &event_basep, &error_basep);\n"
+                               "printf(\"1\\n\");\n"
+                               "return 0;}\n", x11IncludeCommand);
+          /* fprintf(logFile, "%s\n", testProgram);
+             fprintf(logFile, "x11Include: \"%s\"\n", x11Include); */
+          if (findLinkerOption("Xrender", testProgram, includeOption, system_draw_libs,
+                               xRenderLibNameList, sizeof(xRenderLibNameList) / sizeof(char *),
+                               system_draw_libs)) {
+            fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
+          } /* if */
           sprintf(makeDefinition, "SYSTEM_DRAW_LIBS = %s", system_draw_libs);
           replaceNLBySpace(makeDefinition);
           strcat(makeDefinition, "\n");
@@ -6033,6 +6079,14 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
              nameIndex++) {
           fprintf(logFile, "\rX11: DLL / Shared library: %s\n", dllNameList[nameIndex]);
           fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
+        } /* for */
+        fprintf(versionFile, "\n");
+        fprintf(versionFile, "#define X11_XRENDER_DLL");
+        for (nameIndex = 0;
+             nameIndex < sizeof(xRenderDllNameList) / sizeof(char *);
+             nameIndex++) {
+          fprintf(logFile, "\rX11_XRENDER: DLL / Shared library: %s\n", xRenderDllNameList[nameIndex]);
+          fprintf(versionFile, " \"%s\",", xRenderDllNameList[nameIndex]);
         } /* for */
         fprintf(versionFile, "\n");
       } /* if */
@@ -6317,7 +6371,7 @@ static void determineMySqlDefines (FILE *versionFile,
     /* fprintf(logFile, "%s\n", testProgram);
        fprintf(logFile, "mySqlInclude: \"%s\"\n", mySqlInclude); */
     if (dbHomeExists) {
-      if (findStaticLib("MySql/MariaDb", testProgram, includeOption, dbHome,
+      if (findStaticLib("MySql/MariaDb", testProgram, includeOption, "", dbHome,
                         libDirList, sizeof(libDirList) / sizeof(char *),
                         libNameList, sizeof(libNameList) / sizeof(char *),
                         system_database_libs)) {
@@ -6449,7 +6503,7 @@ static void determineSqliteDefines (FILE *versionFile,
     /* fprintf(logFile, "%s\n", testProgram);
        fprintf(logFile, "sqliteInclude: \"%s\"\n", sqliteInclude); */
     if (dbHomeExists) {
-      if (findStaticLib("SQLite", testProgram, includeOption, dbHome,
+      if (findStaticLib("SQLite", testProgram, includeOption, "", dbHome,
                         libDirList, sizeof(libDirList) / sizeof(char *),
                         libNameList, sizeof(libNameList) / sizeof(char *),
                         system_database_libs)) {
@@ -6814,7 +6868,7 @@ static void determinePostgresDefines (FILE *versionFile,
     /* fprintf(logFile, "%s\n", testProgram);
        fprintf(logFile, "postgresqlInclude: \"%s\"\n", postgresqlInclude); */
     if (dbHomeExists) {
-      if (findStaticLib("PostgreSQL", testProgram, includeOption, dbHome,
+      if (findStaticLib("PostgreSQL", testProgram, includeOption, "", dbHome,
                         libDirList, sizeof(libDirList) / sizeof(char *),
                         libNameList, sizeof(libNameList) / sizeof(char *),
                         system_database_libs)) {
@@ -7075,7 +7129,7 @@ static void determineOciDefines (FILE *versionFile,
     /* fprintf(logFile, "%s\n", testProgram);
        fprintf(logFile, "ociInclude: \"%s\"\n", ociInclude); */
     if (dbHomeExists) {
-      if (findStaticLib("Oracle", testProgram, includeOption, dbHome,
+      if (findStaticLib("Oracle", testProgram, includeOption, "", dbHome,
                         libDirList, sizeof(libDirList) / sizeof(char *),
                         libNameList, sizeof(libNameList) / sizeof(char *),
                         system_database_libs)) {
@@ -7422,7 +7476,7 @@ static void determineDb2Defines (FILE *versionFile,
        fprintf(logFile, "db2Include: \"%s\"\n", db2Include); */
     db2_libs[0] = '\0';
     if (dbHomeExists) {
-      if (findStaticLib("DB2", testProgram, includeOption, dbHome,
+      if (findStaticLib("DB2", testProgram, includeOption, "", dbHome,
                         libDirList, sizeof(libDirList) / sizeof(char *),
                         libNameList, sizeof(libNameList) / sizeof(char *),
                         db2_libs)) {

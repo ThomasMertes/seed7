@@ -52,6 +52,9 @@
 #ifdef WITH_XSHAPE_EXTENSION
 #include <X11/extensions/shape.h>
 #endif
+#ifdef HAS_XRENDER_EXTENSION
+#include <X11/extensions/Xrender.h>
+#endif
 #endif
 
 #include "common.h"
@@ -98,31 +101,38 @@ typedef struct {
     boolType is_managed;
     unsigned int width;
     unsigned int height;
+    unsigned int backupWidth;
+    unsigned int backupHeight;
     intType clear_col;
+    boolType resizeReturnsKey;
     int close_action;
   } x11_winRecord, *x11_winType;
 
 typedef const x11_winRecord *const_x11_winType;
 
-#define to_window(win)       (((const_x11_winType) win)->window)
-#define to_backup(win)       (((const_x11_winType) win)->backup)
-#define to_clip_mask(win)    (((const_x11_winType) win)->clip_mask)
-#define is_pixmap(win)       (((const_x11_winType) win)->is_pixmap)
-#define is_managed(win)      (((const_x11_winType) win)->is_managed)
-#define to_width(win)        (((const_x11_winType) win)->width)
-#define to_height(win)       (((const_x11_winType) win)->height)
-#define to_clear_col(win)    (((const_x11_winType) win)->clear_col)
-#define to_close_action(win) (((const_x11_winType) win)->close_action)
+#define to_window(win)           (((const_x11_winType) win)->window)
+#define to_backup(win)           (((const_x11_winType) win)->backup)
+#define to_clip_mask(win)        (((const_x11_winType) win)->clip_mask)
+#define is_pixmap(win)           (((const_x11_winType) win)->is_pixmap)
+#define is_managed(win)          (((const_x11_winType) win)->is_managed)
+#define to_width(win)            (((const_x11_winType) win)->width)
+#define to_height(win)           (((const_x11_winType) win)->height)
+#define to_backupWidth(win)      (((const_x11_winType) win)->backupWidth)
+#define to_backupHeight(win)     (((const_x11_winType) win)->backupHeight)
+#define to_clear_col(win)        (((const_x11_winType) win)->clear_col)
+#define to_resizeReturnsKey(win) (((const_x11_winType) win)->resizeReturnsKey)
+#define to_close_action(win)     (((const_x11_winType) win)->close_action)
 
-#define to_var_window(win)       (((x11_winType) win)->window)
-#define to_var_backup(win)       (((x11_winType) win)->backup)
-#define to_var_clip_mask(win)    (((x11_winType) win)->clip_mask)
-#define is_var_pixmap(win)       (((x11_winType) win)->is_pixmap)
-#define is_var_managed(win)      (((x11_winType) win)->is_managed)
-#define to_var_width(win)        (((x11_winType) win)->width)
-#define to_var_height(win)       (((x11_winType) win)->height)
-#define to_var_clear_col(win)    (((x11_winType) win)->clear_col)
-#define to_var_close_action(win) (((x11_winType) win)->close_action)
+#define to_var_window(win)           (((x11_winType) win)->window)
+#define to_var_backup(win)           (((x11_winType) win)->backup)
+#define to_var_clip_mask(win)        (((x11_winType) win)->clip_mask)
+#define is_var_pixmap(win)           (((x11_winType) win)->is_pixmap)
+#define is_var_managed(win)          (((x11_winType) win)->is_managed)
+#define to_var_width(win)            (((x11_winType) win)->width)
+#define to_var_height(win)           (((x11_winType) win)->height)
+#define to_var_clear_col(win)        (((x11_winType) win)->clear_col)
+#define to_var_resizeReturnsKey(win) (((x11_winType) win)->resizeReturnsKey)
+#define to_var_close_action(win)     (((x11_winType) win)->close_action)
 
 static Visual *default_visual;
 
@@ -178,10 +188,10 @@ Window getWindowParent (Window window)
     Window root;
     Window parent;
     Window *children = NULL;
-    unsigned int num_children;
+    unsigned int numChildren;
 
   /* getWindowParent */
-    if(XQueryTree(mydisplay, window, &root, &parent, &children, &num_children) == 0) {
+    if(XQueryTree(mydisplay, window, &root, &parent, &children, &numChildren) == 0) {
       parent = 0;
     } else if (children != NULL) {
       XFree((char *) children);
@@ -193,73 +203,139 @@ Window getWindowParent (Window window)
 
 
 
-void redraw (winType redraw_window, int xPos, int yPos, int width, int height)
+void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsigned int height)
 
   {
-    x11_winType expose_window;
-    int xClear, yClear, clearWidth, clearHeight;
+    x11_winType x11Window;
+    int xClear, yClear;
+    unsigned int clearWidth, clearHeight;
 
   /* redraw */
     logFunction(printf("redraw(" FMT_U_MEM ", %d, %d, %d, %d)\n",
-                       (memSizeType) redraw_window, xPos, yPos, width, height););
-    expose_window = (x11_winType) redraw_window;
+                       (memSizeType) redrawWindow, xPos, yPos, width, height););
+    x11Window = (x11_winType) redrawWindow;
     /* XFlush(mydisplay);
        XSync(mydisplay, 0);
        getchar(); */
-    if (expose_window != NULL) {
-      if (expose_window->backup != 0 &&
-          xPos < to_width(expose_window) && yPos < to_height(expose_window)) {
+    if (x11Window != NULL) {
+      if (x11Window->backup != 0 &&
+          xPos < (int) x11Window->width && yPos < (int) x11Window->height) {
         /* printf("XCopyArea: xPos=%d, yPos=%d, width=%d, height=%d\n",
             xPos, yPos, width, height); */
-        XCopyArea(mydisplay, expose_window->backup,
-            expose_window->window, mygc, xPos, yPos,
+        XCopyArea(mydisplay, x11Window->backup,
+            x11Window->window, mygc, xPos, yPos,
             width, height, xPos, yPos);
       } /* if */
-      if (xPos + width > to_width(expose_window)) {
-        XSetForeground(mydisplay, mygc,
-            (unsigned long) to_clear_col(redraw_window));
-        if (xPos >= to_width(expose_window)) {
+      if (xPos + (int) width > (int) x11Window->width) {
+        XSetForeground(mydisplay, mygc, (unsigned long) x11Window->clear_col);
+        if (xPos >= (int) x11Window->width) {
           xClear = xPos;
           clearWidth = width;
         } else {
-          xClear = to_width(expose_window);
-          clearWidth = xPos + width - to_width(expose_window);
-          if (yPos + height > to_height(expose_window)) {
-            if (yPos >= to_height(expose_window)) {
+          xClear = (int) x11Window-> width;
+          clearWidth = (unsigned int) (xPos + (int) width - (int) x11Window->width);
+          if (yPos + (int) height > (int) x11Window->height) {
+            if (yPos >= (int) x11Window->height) {
               yClear = yPos;
               clearHeight = height;
             } else {
-              yClear = to_height(expose_window);
-              clearHeight = yPos + height - to_height(expose_window);
+              yClear = (int) x11Window->height;
+              clearHeight = (unsigned int) (yPos + (int) height - (int) x11Window->height);
             } /* if */
             /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
-                xPos, yClear, to_width(expose_window) - xPos, clearHeight); */
-            XFillRectangle(mydisplay, to_window(expose_window), mygc,
-                xPos, yClear, to_width(expose_window) - xPos, clearHeight);
+                xPos, yClear, x11Window->width - xPos, clearHeight); */
+            XFillRectangle(mydisplay, x11Window->window, mygc,
+                           xPos, yClear, x11Window->width - (unsigned int) xPos, clearHeight);
           } /* if */
         } /* if */
         /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
             xClear, yPos, clearWidth, height); */
-        XFillRectangle(mydisplay, to_window(expose_window), mygc,
+        XFillRectangle(mydisplay, x11Window->window, mygc,
             xClear, yPos, clearWidth, height);
-      } else if (yPos + height > to_height(expose_window)) {
-        XSetForeground(mydisplay, mygc,
-            (unsigned long) to_clear_col(redraw_window));
-        if (yPos >= to_height(expose_window)) {
+      } else if (yPos + (int) height > (int) x11Window->height) {
+        XSetForeground(mydisplay, mygc, (unsigned long) x11Window->clear_col);
+        if (yPos >= (int) x11Window->height) {
           yClear = yPos;
           clearHeight = height;
         } else {
-          yClear = to_height(expose_window);
-          clearHeight = yPos + height - to_height(expose_window);
+          yClear = (int) x11Window->height;
+          clearHeight = (unsigned int) (yPos + (int) height - (int) x11Window->height);
         } /* if */
         /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
             xPos, yClear, width, clearHeight); */
-        XFillRectangle(mydisplay, to_window(expose_window), mygc,
+        XFillRectangle(mydisplay, x11Window->window, mygc,
             xPos, yClear, width, clearHeight);
       } /* if */
     } /* if */
     logFunction(printf("redraw -->\n"););
   } /* redraw */
+
+
+
+boolType resize (winType resizeWindow, unsigned int width, unsigned int height)
+
+  {
+    x11_winType x11Window;
+    Pixmap newBackup;
+    unsigned int newWidth;
+    unsigned int newHeight;
+    boolType sendResizeNotification = FALSE;
+
+  /* resize */
+    logFunction(printf("resize(" FMT_U_MEM ", %d, %d)\n",
+                       (memSizeType) resizeWindow, width, height););
+    x11Window = (x11_winType) resizeWindow;
+    if (x11Window != NULL && x11Window->backup != 0) {
+      if (x11Window->backupWidth < width || x11Window->backupHeight < height) {
+        newWidth = x11Window->backupWidth > width ? x11Window->backupWidth : width;
+        newHeight = x11Window->backupHeight > height ? x11Window->backupHeight : height;
+        newBackup = XCreatePixmap(mydisplay, x11Window->window,
+            newWidth, newHeight,
+            (unsigned int) DefaultDepth(mydisplay, myscreen));
+        XSetForeground(mydisplay, mygc, (unsigned long) x11Window->clear_col);
+        XFillRectangle(mydisplay, newBackup, mygc, 0, 0, newWidth, newHeight);
+        XCopyArea(mydisplay, x11Window->backup, newBackup, mygc,
+                  0, 0, x11Window->backupWidth, x11Window->backupHeight, 0, 0);
+        XFreePixmap(mydisplay, x11Window->backup);
+        x11Window->backup = newBackup;
+        x11Window->backupWidth = newWidth;
+        x11Window->backupHeight = newHeight;
+      } /* if */
+      sendResizeNotification = x11Window->resizeReturnsKey &&
+          (x11Window->width != width || x11Window->height != height);
+      x11Window->width = width;
+      x11Window->height = height;
+    } /* if */
+    logFunction(printf("resize --> %d\n", sendResizeNotification););
+    return sendResizeNotification;
+  } /* resize */
+
+
+
+boolType isResize (winType resizeWindow, unsigned int width, unsigned int height)
+
+  {
+    x11_winType x11Window;
+    boolType sendResizeNotification = FALSE;
+
+  /* isResize */
+    logFunction(printf("isResize(" FMT_U_MEM ", %d, %d)\n",
+                       (memSizeType) resizeWindow, width, height););
+    x11Window = (x11_winType) resizeWindow;
+    if (x11Window != NULL && x11Window->backup != 0 && x11Window->resizeReturnsKey) {
+      sendResizeNotification = x11Window->width != width || x11Window->height != height;
+    } /* if */
+    logFunction(printf("resize --> %d\n", sendResizeNotification););
+    return sendResizeNotification;
+  } /* isResize */
+
+
+
+void setResizeReturnsKey (winType resizeWindow, boolType active)
+
+  { /* setResizeReturnsKey */
+    to_var_resizeReturnsKey(resizeWindow) = active;
+  } /* setResizeReturnsKey */
 
 
 
@@ -471,12 +547,16 @@ static void setupBackup (x11_winType result)
             result->width, result->height,
             (unsigned int) DefaultDepth(mydisplay, myscreen));
         /* printf("backup=%lu\n", (long unsigned) result->backup); */
+        result->backupWidth = result->width;
+        result->backupHeight = result->height;
       } /* if */
     } else {
       result->backup = XCreatePixmap(mydisplay, result->window,
           result->width, result->height,
           (unsigned int) DefaultDepth(mydisplay, myscreen));
       /* printf("backup=%lu\n", (long unsigned) result->backup); */
+      result->backupWidth = result->width;
+      result->backupHeight = result->height;
     } /* if */
     logFunction(printf("setupBackup -->\n"););
   } /* setupBackup */
@@ -898,7 +978,7 @@ void drwClear (winType actual_window, intType col)
         (unsigned int) drwWidth(actual_window), (unsigned int) drwHeight(actual_window));
     if (to_backup(actual_window) != 0) {
       XFillRectangle(mydisplay, to_backup(actual_window), mygc, 0, 0,
-          to_width(actual_window), to_height(actual_window));
+          to_backupWidth(actual_window), to_backupHeight(actual_window));
     } /* if */
   } /* drwClear */
 
@@ -1587,8 +1667,8 @@ winType drwOpen (intType xPos, intType yPos,
             XChangeWindowAttributes(mydisplay, result->window, CWBackPixmap, &attributes);
 
             XSelectInput(mydisplay, result->window,
-                ButtonPressMask | KeyPressMask | KeyReleaseMask | ExposureMask | FocusChangeMask);
-            /* currently not used: StructureNotifyMask */
+                ButtonPressMask | KeyPressMask | KeyReleaseMask | ExposureMask |
+                FocusChangeMask | StructureNotifyMask);
 
             XMapRaised(mydisplay, result->window);
             drwClear((winType) result, (intType) myforeground);
@@ -1965,25 +2045,82 @@ void drwPut (const_winType actual_window, const_winType pixmap,
                        (memSizeType) actual_window, (memSizeType) pixmap, x, y););
     /* printf("actual_window=%lu, pixmap=%lu\n", to_window(actual_window),
         pixmap != NULL ? to_window(pixmap) : NULL); */
-    /* A pixmap value of NULL or a pixmap with a window of 0 */
-    /* is used to describe an empty pixmap. In this case     */
-    /* nothing should be done.                               */
-    if (pixmap != NULL && to_window(pixmap) != 0) {
+    if (unlikely(!inIntRange(x) || !inIntRange(y))) {
+      raise_error(RANGE_ERROR);
+    } else if (pixmap != NULL && to_window(pixmap) != 0) {
+      /* A pixmap value of NULL or a pixmap with a window of 0 */
+      /* is used to describe an empty pixmap. In this case     */
+      /* nothing should be done.                               */
       if (to_clip_mask(pixmap) != 0) {
         XSetClipMask(mydisplay, mygc, to_clip_mask(pixmap));
         XSetClipOrigin(mydisplay, mygc, castToInt(x), castToInt(y));
       } /* if */
       XCopyArea(mydisplay, to_window(pixmap), to_window(actual_window),
-          mygc, 0, 0, to_width(pixmap), to_height(pixmap), castToInt(x), castToInt(y));
+                mygc, 0, 0, to_width(pixmap), to_height(pixmap), (int) x, (int) y);
       if (to_backup(actual_window) != 0) {
         XCopyArea(mydisplay, to_window(pixmap), to_backup(actual_window),
-            mygc, 0, 0, to_width(pixmap), to_height(pixmap), castToInt(x), castToInt(y));
+                  mygc, 0, 0, to_width(pixmap), to_height(pixmap), (int) x, (int) y);
       } /* if */
       if (to_clip_mask(pixmap) != 0) {
         XSetClipMask(mydisplay, mygc, None);
       } /* if */
     } /* if */
   } /* drwPut */
+
+
+
+void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
+    intType width, intType height, const_winType pixmap)
+
+  {
+    Picture picture;
+    Picture dest;
+
+  /* drwPutScaled */
+    logFunction(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D ", "
+                       FMT_D ", " FMT_D ", " FMT_U_MEM")\n",
+                       (memSizeType) destWindow, (memSizeType) pixmap,
+                       xDest, yDest, width, height););
+    if (unlikely(!inIntRange(xDest) || !inIntRange(yDest) ||
+                 !inIntRange(width) || width < 0 ||
+                 !inIntRange(height) || height < 0)) {
+      raise_error(RANGE_ERROR);
+    } else if (pixmap != NULL && to_window(pixmap) != 0) {
+      /* A pixmap value of NULL or a pixmap with a window of 0 */
+      /* is used to describe an empty pixmap. In this case     */
+      /* nothing should be done.                               */
+#ifdef HAS_XRENDER_EXTENSION
+      double xScale = (double) to_width(pixmap) / (double) width;
+      double yScale = (double) to_height(pixmap) / (double) height;
+      XTransform transform = {{
+          { XDoubleToFixed(xScale), XDoubleToFixed(   0.0), XDoubleToFixed(0.0) },
+          { XDoubleToFixed(   0.0), XDoubleToFixed(yScale), XDoubleToFixed(0.0) },
+          { XDoubleToFixed(   0.0), XDoubleToFixed(   0.0), XDoubleToFixed(1.0) }
+        }};
+      XRenderPictureAttributes pictureAttributes;
+      memset(&pictureAttributes, 0, sizeof(pictureAttributes));
+      picture = XRenderCreatePicture(mydisplay, to_window(pixmap),
+                                     XRenderFindVisualFormat(mydisplay, default_visual),
+                                     CPSubwindowMode, &pictureAttributes);
+      dest = XRenderCreatePicture(mydisplay, to_backup(destWindow) != 0 ?
+                                  to_backup(destWindow) : to_window(destWindow),
+                                  XRenderFindVisualFormat(mydisplay, default_visual),
+                                  CPSubwindowMode, &pictureAttributes);
+      XRenderSetPictureTransform(mydisplay, picture, &transform);
+      XRenderComposite(mydisplay, PictOpOver, picture, 0, dest,
+                       0, 0, /* source (x, y) */ 0, 0, /* mask (x, y) */
+                       (int) xDest, (int) yDest, (unsigned int) width, (unsigned int) height);
+      XRenderFreePicture(mydisplay, picture);
+      XRenderFreePicture(mydisplay, dest);
+      if (to_backup(destWindow) != 0) {
+        XCopyArea(mydisplay, to_backup(destWindow), to_window(destWindow),
+                  mygc, (int) xDest, (int) yDest, (unsigned int) width,
+                  (unsigned int) height, (int) xDest, (int) yDest);
+      } /* if */
+#endif
+    } /* if */
+    logFunction(printf("drwPutScaled -->\n"););
+  } /* drwPutScaled */
 
 
 
@@ -2471,6 +2608,35 @@ void drwSetTransparentColor (winType pixmap, intType col)
       XFreeGC(mydisplay, bitmap_gc);
     } /* if */
   } /* drwSetTransparentColor */
+
+
+
+void drwSetWindowName (winType aWindow, const const_striType windowName)
+
+  {
+    char *winName;
+    int funcRes;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* drwSetWindowName */
+    logFunction(printf("drwSetWindowName(" FMT_U_MEM ", \"%s\")\n",
+                       (memSizeType) aWindow,
+                       striAsUnquotedCStri(windowName)););
+    winName = stri_to_cstri8(windowName, &err_info);
+    if (unlikely(winName == NULL)) {
+      raise_error(err_info);
+    } else {
+      funcRes = XStoreName(mydisplay, to_window(aWindow), winName);
+      free_cstri8(winName, windowName);
+      if (unlikely(funcRes == 0)) {
+        logError(printf("XStoreName(mydisplay, " FMT_U_MEM ", \"%s\") failed\n",
+                        (memSizeType) aWindow,
+                        striAsUnquotedCStri(windowName)););
+        raise_error(FILE_ERROR);
+      } /* if */
+    } /* if */
+    logFunction(printf("drwSetWindowName -->\n"););
+  } /* drwSetWindowName */
 
 
 

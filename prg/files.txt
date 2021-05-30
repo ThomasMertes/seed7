@@ -84,6 +84,7 @@ prime.sd7    Write a list of prime numbers
 printpi1.sd7 PI with 1000 digits using John Machin's formula
 printpi2.sd7 PI with 1000 digits (Bailey/Borwein/Plouffe)
 printpi3.sd7 Print 1000 digits of PI with Newtons formula
+pv7.sd7      Picture viewer for several graphic formats.
 queen.sd7    Solve the n queen problem
 rand.sd7     Floating point random numbers test
 raytrace.sd7 Raytracing demo program.
@@ -235,6 +236,7 @@ pixmapfont.s7i Defines pixmapFontType and the font cache
 pkcs1.s7i    RSA public-key cryptography standard #1 support.
 png.s7i      Support for the PNG image file format.
 poll.s7i     Support for pollData and the poll function
+ppm.s7i      Support for the PPM image file format.
 process.s7i  Support for creating processes
 progs.s7i    Program handling support library
 propertyfile.s7i Read key-value pairs from a property file

@@ -1,3 +1,71 @@
+20210530:
+- The example program pv7.sd7 has been added. It is a picture viewer
+  for several graphic formats (BMP, GIF, JPEG, PNG and PPM).
+- The new library ppm.s7i has been added. This library supports
+  reading and writing images with the binary PPM image file format.
+- The functions setWindowName() and selectInput() have been added to
+  graph.s7.
+- Now, a program might be notified when a window is resized. With
+  selectInput() the notification can be switched on and off. If a
+  window has been resized, reading from the graphic KEYBOARD returns
+  KEY_RESIZE (if the resize notification is switched on).
+- The libraries keybd.s7i and keydescr.s7i have been improved to
+  define KEY_RESIZE (this key is sent optionally, if a window is
+  resized).
+- The program gkbd.sd7 has been improved to also show KEY_RESIZE.
+- The Windows graphics driver has been improved to allow non-modal
+  resizing and moving of windows (while being resized or moved, the
+  program continues to run).
+- A scaling variant of the function put() has been added to draw.s7i.
+  This function is used by pv7.sd7 to scale an image.
+- The FAQ has been improved to explain that Seed7 does not use "do
+  what I mean" heuristics (because they may fail in unpredictable
+  ways).
+- A bitset example has been added to the manual.
+- In chkarr.sd7 tests for the 'times' operator have been added and
+  the tests for array assignment have been improved.
+- Tests for the str() function have been added to chkstr.sd7.
+- The test programs chkarr.sd7 and chkstr.sd7 have been improved to
+  increase the code coverage of the Seed7 run-time library.
+- The compile time functions prc_include() (in prclib.c) and
+  find_include_file() (in libpath.c) have been adjusted to fail if
+  they are called at runtime.
+- In drw_win.c the function drwCapture() has been improved to release
+  the screen device context. This avoids a resource leak.
+  Additionally, the stretch blt mode is now set with
+  SetStretchBltMode().
+- The program chkccomp.c has been improved to consider the X11
+  extension Xrender. Now definitions of HAS_XRENDER_EXTENSION and
+  X11_XRENDER_DLL might be written to version.h.
+- Interpreter and compiler have been improved to support the new
+  actions DRW_PUT_SCALED, DRW_SETWINDOWNAME and GKB_SELECT_INPUT.
+- The graphic drivers drw_x11.c and drw_win.c have been improved to
+  enlarge the drawing area when a window is enlarged.
+- The functions resize(), setResizeReturnsKey(), drwPutScaled() and
+  drwSetWindowName() have been added to drw_win.c, drw_x11.c.
+- The functions gkbSelectInput(), drwPutScaled() and
+  drwSetWindowName() have been added to drw_dos.c, drw_emc.c and
+  drw_drv.h.
+- The functions resizeBottomAndRight(), resizeTopAndLeft(),
+  startMoveWindow(), processMouseMove() and gkbSelectInput() have
+  been added to gkb_win.c.
+- The functions handleConfigure(), configureDoesResize() and
+  gkbSelectInput() have been added to gkb_x11.c
+- The functions gkb_select_input(), drw_put_scaled() and
+  drw_setWindowName() have been added to drwlib.c and drwlib.h.
+- The handling of events in gkb_x11.c has been improved to handle
+  ConfigureNotify events. These events are used when a window is
+  resized.
+- In drw_win.c the function drwOpen() has been improved to accept
+  Unicode window names.
+- In drw_x11.c the function redraw() has been improved to avoid
+  compiler warnings.
+- Documentation comments have been added to functions in bitset.s7i.
+- The function XStoreName() and the functions of the Xrender
+  extension have been added to x11_x.h and fwd_x11.c.
+- The makefiles mk_emccl.mak and mk_emccw.mak have been adjusted for
+  the newest version of Emscripten.
+
 20210425:
 - The new library jpeg.s7i has been added. This library supports the
   JPEG image file format.
@@ -31,7 +99,7 @@
 - In x509cert.s7i the type rsaSignatureType has been introduced and
   getRsaSignature() has been changed to return a rsaSignatureType.
 - The functions getRsaSignature() and getEcSignature() have been
-  moved from tls.s7 to x509cert.s7i. Calls of these functions in
+  moved from tls.s7i to x509cert.s7i. Calls of these functions in
   verifySignature() have been adjusted.
 - The function validateCertificates() has been added to tls.s7i.
 - In tls.s7i the function processServerKeyExchange() has been improved
@@ -63,7 +131,7 @@
     comp/prc_act.s7i.
   - Code has been moved from process_prc_for() in comp/prc_act.s7i
     to the new function defineForStartVariable in comp/expr_utl.s7i.
-  - In s7c.sd7 the initialisation of local arrays has been improved
+  - In s7c.sd7 the initialization of local arrays has been improved
     to recognize if all elements of the array are the same. In
     this case arrTimes(), arrMalloc(), malloc() or memset() are
     used instead of copying an array. The functions canUseArrTimes()
@@ -85,13 +153,13 @@
 - In soc_rtl.c the function socInetAddr() has been improved to
   treat EAI_NODATA like EAI_NONAME.
 - The program chkccomp.c has been improved to determine the macros
-  PIXEL_RED_MASK, PIXEL_GREEN_MASK PIXEL_BLUE_MASK and
+  PIXEL_RED_MASK, PIXEL_GREEN_MASK, PIXEL_BLUE_MASK and
   RGB_TO_PIXEL_FLAG_NAME.
 - Definitions of PIXEL_RED_MASK, PIXEL_GREEN_MASK, PIXEL_BLUE_MASK
   and RGB_TO_PIXEL_FLAG_NAME have been added to cc_conf.s7i.
 
 20210322:
-- Some missleading tests have been removed from chkflt.sd7. Many
+- Some misleading tests have been removed from chkflt.sd7. Many
   thanks go to Zachary Menzies for pointing out problems with the
   tests for trunc() and round().
 - The new library gif.s7i has been added. This library supports the
@@ -323,7 +391,7 @@
   prc_case_def(), prc_case_hashset() and prc_case_hashset_def(). This
   macro checks that the sets after the keyword 'when' are not NULL.
 - In identutl.c the function init_idents() has been changed to leave
-  a failed initialisation as is (this is cleaned up later).
+  a failed initialization as is (this is cleaned up later).
 - In prg_comp.c the function prgDestr() has been improved to allow
   NULL for elements of the program structure. The function interpret()
   has been improved to restore the global variable
