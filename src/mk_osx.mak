@@ -273,6 +273,7 @@ ftp7: ../bin/ftp7
 ftpserv: ../bin/ftpserv
 hd: ../bin/hd
 make7: ../bin/make7
+pv7: ../bin/pv7
 sql7: ../bin/sql7
 sydir7: ../bin/sydir7
 tar7: ../bin/tar7
@@ -281,7 +282,7 @@ which: ../bin/which
 
 utils: ../bin/bas7 ../bin/bigfiles ../bin/calc7 ../bin/cat ../bin/comanche ../bin/db7 \
        ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7 ../bin/ftpserv ../bin/hd \
-       ../bin/make7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
+       ../bin/make7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
 
 wc: $(SRC)
 	@echo SRC:

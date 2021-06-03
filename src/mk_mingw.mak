@@ -338,6 +338,11 @@ depend: version.h
 	copy ..\prg\make7.exe ..\bin /Y
 	del ..\prg\make7.exe
 
+..\bin\pv7.exe: ..\prg\pv7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\pv7
+	copy ..\prg\pv7.exe ..\bin /Y
+	del ..\prg\pv7.exe
+
 ..\bin\sql7.exe: ..\prg\sql7.sd7 ..\bin\s7c.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\sql7
 	copy ..\prg\sql7.exe ..\bin /Y
@@ -376,6 +381,7 @@ ftp7: ..\bin\ftp7.exe
 ftpserv: ..\bin\ftpserv.exe
 hd: ..\bin\hd.exe
 make7: ..\bin\make7.exe
+pv7: ..\bin\pv7.exe
 sql7: ..\bin\sql7.exe
 sydir7: ..\bin\sydir7.exe
 tar7: ..\bin\tar7.exe
@@ -384,7 +390,7 @@ which: ..\bin\which.exe
 
 utils: ..\bin\bas7.exe ..\bin\bigfiles.exe ..\bin\calc7.exe ..\bin\cat.exe ..\bin\comanche.exe ..\bin\db7.exe \
        ..\bin\diff7.exe ..\bin\find7.exe ..\bin\findchar.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe \
-       ..\bin\make7.exe ..\bin\sql7.exe ..\bin\sydir7.exe ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
+       ..\bin\make7.exe ..\bin\pv7.exe ..\bin\sql7.exe ..\bin\sydir7.exe ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
 
 wc: $(SRC)
 	@echo SRC:
