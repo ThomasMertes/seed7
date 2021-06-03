@@ -952,6 +952,7 @@ charType gkbGetc (void)
               TranslateMessage(&msg);
               DispatchMessage(&msg);
               result = K_RESIZE;
+              button_window = msg.hwnd;
             } else {
               TranslateMessage(&msg);
               DispatchMessage(&msg);
@@ -966,12 +967,14 @@ charType gkbGetc (void)
               if (mouseMoveProcessed) {
                 if (resizeMode != HTCAPTION) {
                   result = K_RESIZE;
+                  button_window = msg.hwnd;
                 } /* if */
               } else {
                 processMouseMove(&msg);
                 if (resizeMode != HTCAPTION &&
                     getResizeReturnsKey(find_window(msg.hwnd))) {
                   result = K_RESIZE;
+                  button_window = msg.hwnd;
                 } /* if */
               } /* if */
               mouseMoveProcessed = FALSE;

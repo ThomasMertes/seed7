@@ -2073,8 +2073,10 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
     intType width, intType height, const_winType pixmap)
 
   {
+#ifdef HAS_XRENDER_EXTENSION
     Picture picture;
     Picture dest;
+#endif
 
   /* drwPutScaled */
     logFunction(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D ", "
