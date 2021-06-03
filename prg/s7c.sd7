@@ -643,7 +643,7 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
         c_declaration.temp_decls &:= variableName;
         c_declaration.temp_assigns &:= "(";
         c_declaration.temp_assigns &:= variableName;
-        c_declaration.temp_assigns &:= " = malloc(sizeof(struct rtlArrayStruct) - sizeof(rtlObjectType)), (unlikely(";
+        c_declaration.temp_assigns &:= " = (arrayType) malloc(sizeof(struct rtlArrayStruct) - sizeof(rtlObjectType)), (unlikely(";
         c_declaration.temp_assigns &:= variableName;
         c_declaration.temp_assigns &:= " == NULL) ? ";
         c_declaration.temp_assigns &:= "intRaiseError(MEMORY_ERROR) ";
@@ -680,7 +680,7 @@ const proc: assignArrayValue (in type: objectType, in reference: arrayValue,
             arrayMinIdx(arrayValue) >= -100000000 and arrayMinIdx(arrayValue) <= 100000000 and
             arraySize <= 100000000 then
           # The indices are okay and the size given to malloc() will not overflow.
-          c_declaration.temp_assigns &:= " = malloc(sizeof(struct rtlArrayStruct) + ";
+          c_declaration.temp_assigns &:= " = (arrayType) malloc(sizeof(struct rtlArrayStruct) + ";
           c_declaration.temp_assigns &:= integerLiteral(pred(arraySize));
           c_declaration.temp_assigns &:= " * sizeof(rtlObjectType)), (unlikely(";
           c_declaration.temp_assigns &:= variableName;

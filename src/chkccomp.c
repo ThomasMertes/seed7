@@ -5740,9 +5740,9 @@ static void listDynamicLibsInSameDir (char *scopeName, const char *baseDllPath,
     const char **dllNameList, size_t dllNameListLength, FILE *versionFile)
 
   {
-    char *slashPos;
-    char *backslashPos;
-    char *dirPathEnd;
+    const char *slashPos;
+    const char *backslashPos;
+    const char *dirPathEnd;
     int nameIndex;
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
@@ -8328,8 +8328,9 @@ int main (int argc, char **argv)
                          "int funcRes; struct passwd pwd;\n"
                          "char buffer[2048]; struct passwd *pwdResult;\n"
                          "funcRes = getpwuid_r((uid_t) 0, &pwd,\n"
-                         "buffer, sizeof(buffer), &pwdResult);\n"
-                         "printf(\"%d\\n\", funcRes==0 && pwdResult==&pwd);\n"
+                         "    buffer, sizeof(buffer), &pwdResult);\n"
+                         "printf(\"%d\\n\", funcRes==0 && pwdResult==&pwd &&\n"
+                         "    pwdResult->pw_uid != -1);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_GETPWUID %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
@@ -8337,7 +8338,7 @@ int main (int argc, char **argv)
                          "int main(int argc, char *argv[]){\n"
                          "struct passwd *pwdResult;\n"
                          "pwdResult = getpwuid((uid_t) 0);\n"
-                         "printf(\"%d\\n\", pwdResult!=NULL);\n"
+                         "printf(\"%d\\n\", pwdResult!=NULL && pwdResult->pw_uid != -1);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_GETPWNAM_R %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
@@ -8346,8 +8347,9 @@ int main (int argc, char **argv)
                          "int funcRes; struct passwd pwd;\n"
                          "char buffer[2048]; struct passwd *pwdResult;\n"
                          "funcRes = getpwnam_r(\"root\", &pwd,\n"
-                         "buffer, sizeof(buffer), &pwdResult);\n"
-                         "printf(\"%d\\n\", funcRes==0 && pwdResult==&pwd);\n"
+                         "    buffer, sizeof(buffer), &pwdResult);\n"
+                         "printf(\"%d\\n\", funcRes==0 && pwdResult==&pwd &&\n"
+                         "    pwdResult->pw_uid != -1);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_GETPWNAM %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
@@ -8355,7 +8357,7 @@ int main (int argc, char **argv)
                          "int main(int argc, char *argv[]){\n"
                          "struct passwd *pwdResult;\n"
                          "pwdResult = getpwnam(\"root\");\n"
-                         "printf(\"%d\\n\", pwdResult!=NULL);\n"
+                         "printf(\"%d\\n\", pwdResult!=NULL && pwdResult->pw_uid != -1);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_SETJMP %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"

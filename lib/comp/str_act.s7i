@@ -1404,7 +1404,7 @@ const proc: process_const_str_head (in string: stri, in reference: length,
       length_value := getValue(evaluatedParam, integer);
       if length_value < 0 then
         warning(DOES_RAISE, "INDEX_ERROR", c_expr);
-        c_expr.expr &:= intRaiseError("INDEX_ERROR");
+        c_expr.expr &:= strRaiseError("INDEX_ERROR");
       else
         c_expr.expr &:= stringLiteral(stri[.. length_value]);
       end if;
@@ -1416,7 +1416,7 @@ const proc: process_const_str_head (in string: stri, in reference: length,
         c_expr.expr &:= "idxChk(";
         process_expr(length, c_expr);
         c_expr.expr &:= "<0)?";
-        c_expr.expr &:= intRaiseError("INDEX_ERROR");
+        c_expr.expr &:= strRaiseError("INDEX_ERROR");
         c_expr.expr &:= ":";
       else
         incr(countNoIndexChecks);
@@ -1432,7 +1432,7 @@ const proc: process_const_str_head (in string: stri, in reference: length,
         c_expr.expr &:= "idxChk(";
         c_expr.expr &:= length_name;
         c_expr.expr &:= "<0)?";
-        c_expr.expr &:= intRaiseError("INDEX_ERROR");
+        c_expr.expr &:= strRaiseError("INDEX_ERROR");
         c_expr.expr &:= ":";
       else
         incr(countNoIndexChecks);
@@ -2397,7 +2397,7 @@ const proc: process_const_str_poscpy (in reference: destStri,
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
         c_expr.expr &:= ";\n";
-        c_expr.expr &:= "striType aStri=";
+        c_expr.expr &:= "const_striType aStri=";
         c_expr.expr &:= c_aStri.expr;
         c_expr.expr &:= ";\n";
         c_expr.expr &:= "if (idxChk(destStri->size<aStri->size || (uintType)";
@@ -2414,7 +2414,7 @@ const proc: process_const_str_poscpy (in reference: destStri,
         c_expr.expr &:= "}\n";
       else
         incr(countNoIndexChecks);
-        c_expr.expr &:= "striType aStri=";
+        c_expr.expr &:= "const_striType aStri=";
         c_expr.expr &:= c_aStri.expr;
         c_expr.expr &:= ";\n";
         setDiagnosticLine(c_expr);
@@ -2542,7 +2542,7 @@ const proc: process (STR_POSCPY, in reference: function,
         c_expr.expr &:= "striType destStri=";
         c_expr.expr &:= c_destStri.expr;
         c_expr.expr &:= ";\n";
-        c_expr.expr &:= "striType aStri=";
+        c_expr.expr &:= "const_striType aStri=";
         c_expr.expr &:= c_aStri.expr;
         c_expr.expr &:= ";\n";
         c_expr.expr &:= "intType position=";
@@ -2560,7 +2560,7 @@ const proc: process (STR_POSCPY, in reference: function,
         c_expr.expr &:= "}\n";
       else
         incr(countNoIndexChecks);
-        c_expr.expr &:= "striType aStri=";
+        c_expr.expr &:= "const_striType aStri=";
         c_expr.expr &:= c_aStri.expr;
         c_expr.expr &:= ";\n";
         setDiagnosticLine(c_expr);
@@ -2767,7 +2767,7 @@ const proc: process_inline_str_range (in ref_list: params, in string: slice_name
             c_expr.expr &:= "<";
             c_expr.expr &:= start_name;
             c_expr.expr &:= "-1)?";
-            c_expr.expr &:= strRaiseError("INDEX_ERROR");
+            c_expr.expr &:= intRaiseError("INDEX_ERROR");
           else
             incr(countNoIndexChecks);
           end if;
