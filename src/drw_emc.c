@@ -48,6 +48,7 @@
 #undef EXTERN
 #define EXTERN
 #include "drw_drv.h"
+#include "kbd_drv.h"
 
 
 typedef struct {
