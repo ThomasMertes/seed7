@@ -127,7 +127,11 @@ clear: clean
 clean:
 	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h base.h settings.h version.h wrdepend levelup next_lvl
 
-distclean: clean
+clean_utils:
+	rm -f ../bin/bas7 ../bin/bigfiles ../bin/calc7 ../bin/cat ../bin/comanche ../bin/db7 ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7
+	rm -f ../bin/ftpserv ../bin/hd ../bin/ide7 ../bin/make7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
+
+distclean: clean clean_utils
 	cp level_bk.h level.h
 	rm -f vers_freebsd.h
 
@@ -237,7 +241,7 @@ depend: version.h
 	ar r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 ../bin/%: ../prg/%.sd7 ../bin/s7c
-	../bin/s7c -l ../lib -b ../bin -O2 $<
+	../bin/s7c -l ../lib -b ../bin -O3 -oc3 $<
 	mv $(<:.sd7=) ../bin
 
 bas7: ../bin/bas7
@@ -252,6 +256,7 @@ findchar: ../bin/findchar
 ftp7: ../bin/ftp7
 ftpserv: ../bin/ftpserv
 hd: ../bin/hd
+ide7: ../bin/ide7
 make7: ../bin/make7
 pv7: ../bin/pv7
 sql7: ../bin/sql7
@@ -261,7 +266,7 @@ toutf8: ../bin/toutf8
 which: ../bin/which
 
 utils: ../bin/bas7 ../bin/bigfiles ../bin/calc7 ../bin/cat ../bin/comanche ../bin/db7 \
-       ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7 ../bin/ftpserv ../bin/hd \
+       ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7 ../bin/ftpserv ../bin/hd ../bin/ide7 \
        ../bin/make7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
 
 wc: $(SRC)

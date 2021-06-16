@@ -140,7 +140,17 @@ clean:
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo
 
-distclean: clean
+clean_utils:
+	rm -f ../bin/bas7.js ../bin/bigfiles.js ../bin/calc7.js ../bin/cat.js ../bin/comanche.js
+	rm -f ../bin/db7.js ../bin/diff7.js ../bin/find7.js ../bin/findchar.js ../bin/ftp7.js
+	rm -f ../bin/ftpserv.js ../bin/hd.js ../bin/ide7.js ../bin/make7.js ../bin/pv7.js
+	rm -f ../bin/sql7.js ../bin/sydir7.js ../bin/tar7.js ../bin/toutf8.js ../bin/which.js
+	rm -f ../bin/bas7.wasm ../bin/bigfiles.wasm ../bin/calc7.wasm ../bin/cat.wasm ../bin/comanche.wasm
+	rm -f ../bin/db7.wasm ../bin/diff7.wasm ../bin/find7.wasm ../bin/findchar.wasm ../bin/ftp7.wasm
+	rm -f ../bin/ftpserv.wasm ../bin/hd.wasm ../bin/ide7.wasm ../bin/make7.wasm ../bin/pv7.wasm
+	rm -f ../bin/sql7.wasm ../bin/sydir7.wasm ../bin/tar7.wasm ../bin/toutf8.wasm ../bin/which.wasm
+
+distclean: clean clean_utils
 	cp level_bk.h level.h
 	rm -f vers_emccl.h
 
@@ -151,10 +161,14 @@ test:
 	@echo
 
 install: setwpath
-	./setwpath add ../bin
+	@echo
+	@echo "  Cannot install."
+	@echo
 
 uninstall: setwpath
-	./setwpath remove ../bin
+	@echo
+	@echo "  Cannot uninstall."
+	@echo
 
 dep: depend
 
@@ -162,7 +176,7 @@ strip:
 	strip ../bin/s7
 
 chkccomp.h:
-	echo "#define LIST_DIRECTORY_CONTENTS \"dir\"" > chkccomp.h
+	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" > chkccomp.h
 
 base.h:
 	echo "#define PATH_DELIMITER '/'" > base.h
@@ -254,35 +268,35 @@ depend: version.h
 ../bin/$(SPECIAL_LIB): pre_js.js
 	cp pre_js.js ../bin/$(SPECIAL_LIB)
 
-make7: ../bin/make7
+../bin/%.js: ../prg/%.sd7 ../bin/s7c.js
+	node ../bin/s7c.js -l ../lib -b ../bin -O3 -oc3 $<
+	mv $(<:.sd7=.js) ../bin
+	mv $(<:.sd7=.wasm) ../bin
 
-../bin/make7: ../prg/make7.sd7 ../bin/s7c
-	../bin/s7c -l ../lib -b ../bin -O2 ../prg/make7
-	mv ../prg/make7 ../bin
+bas7: ../bin/bas7.js
+bigfiles: ../bin/bigfiles.js
+calc7: ../bin/calc7.js
+cat: ../bin/cat.js
+comanche: ../bin/comanche.js
+db7: ../bin/db7.js
+diff7: ../bin/diff7.js
+find7: ../bin/find7.js
+findchar: ../bin/findchar.js
+ftp7: ../bin/ftp7.js
+ftpserv: ../bin/ftpserv.js
+hd: ../bin/hd.js
+ide7: ../bin/ide7.js
+make7: ../bin/make7.js
+pv7: ../bin/pv7.js
+sql7: ../bin/sql7.js
+sydir7: ../bin/sydir7.js
+tar7: ../bin/tar7.js
+toutf8: ../bin/toutf8.js
+which: ../bin/which.js
 
-calc7: ../bin/calc7
-
-../bin/calc7: ../prg/calc7.sd7 ../bin/s7c
-	../bin/s7c -l ../lib -b ../bin -O2 ../prg/calc7
-	mv ../prg/calc7 ../bin
-
-tar7: ../bin/tar7
-
-../bin/tar7: ../prg/tar7.sd7 ../bin/s7c
-	../bin/s7c -l ../lib -b ../bin -O2 ../prg/tar7
-	mv ../prg/tar7 ../bin
-
-ftp7: ../bin/ftp7
-
-../bin/ftp7: ../prg/ftp7.sd7 ../bin/s7c
-	../bin/s7c -l ../lib -b ../bin -O2 ../prg/ftp7
-	mv ../prg/ftp7 ../bin
-
-ftpserv: ../bin/ftpserv
-
-../bin/ftpserv: ../prg/ftpserv.sd7 ../bin/s7c
-	../bin/s7c -l ../lib -b ../bin -O2 ../prg/ftpserv
-	mv ../prg/ftpserv ../bin
+utils: ../bin/bas7.js ../bin/bigfiles.js ../bin/calc7.js ../bin/cat.js ../bin/comanche.js \
+       ../bin/diff7.js ../bin/find7.js ../bin/findchar.js ../bin/ftp7.js ../bin/ftpserv.js ../bin/hd.js \
+       ../bin/make7.js ../bin/pv7.js ../bin/sql7.js ../bin/sydir7.js ../bin/tar7.js ../bin/toutf8.js ../bin/which.js
 
 wc: $(SRC)
 	@echo SRC:

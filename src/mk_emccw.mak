@@ -160,7 +160,49 @@ clean:
 	@echo Use 'make depend' (with your make command) to create the dependencies.
 	@echo.
 
-distclean: clean
+clean_utils:
+	del ..\bin\bas7.js
+	del ..\bin\bigfiles.js
+	del ..\bin\calc7.js
+	del ..\bin\cat.js
+	del ..\bin\comanche.js
+	del ..\bin\db7.js
+	del ..\bin\diff7.js
+	del ..\bin\find7.js
+	del ..\bin\findchar.js
+	del ..\bin\ftp7.js
+	del ..\bin\ftpserv.js
+	del ..\bin\hd.js
+	del ..\bin\ide7.js
+	del ..\bin\make7.js
+	del ..\bin\pv7.js
+	del ..\bin\sql7.js
+	del ..\bin\sydir7.js
+	del ..\bin\tar7.js
+	del ..\bin\toutf8.js
+	del ..\bin\which.js
+	del ..\bin\bas7.wasm
+	del ..\bin\bigfiles.wasm
+	del ..\bin\calc7.wasm
+	del ..\bin\cat.wasm
+	del ..\bin\comanche.wasm
+	del ..\bin\db7.wasm
+	del ..\bin\diff7.wasm
+	del ..\bin\find7.wasm
+	del ..\bin\findchar.wasm
+	del ..\bin\ftp7.wasm
+	del ..\bin\ftpserv.wasm
+	del ..\bin\hd.wasm
+	del ..\bin\ide7.wasm
+	del ..\bin\make7.wasm
+	del ..\bin\pv7.wasm
+	del ..\bin\sql7.wasm
+	del ..\bin\sydir7.wasm
+	del ..\bin\tar7.wasm
+	del ..\bin\toutf8.wasm
+	del ..\bin\which.wasm
+
+distclean: clean clean_utils
 	copy level_bk.h level.h /Y
 	del vers_emccw.h
 
@@ -341,10 +383,20 @@ depend: version.h
 	copy ..\prg\hd.js ..\bin /Y
 	del ..\prg\hd.js
 
+..\bin\ide7.js: ..\prg\ide7.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\ide7
+	copy ..\prg\ide7.js ..\bin /Y
+	del ..\prg\ide7.js
+
 ..\bin\make7.js: ..\prg\make7.sd7 ..\bin\s7c.js
 	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\make7
 	copy ..\prg\make7.js ..\bin /Y
 	del ..\prg\make7.js
+
+..\bin\pv7.js: ..\prg\pv7.sd7 ..\bin\s7c.js
+	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\pv7
+	copy ..\prg\pv7.js ..\bin /Y
+	del ..\prg\pv7.js
 
 ..\bin\sql7.js: ..\prg\sql7.sd7 ..\bin\s7c.js
 	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\sql7
@@ -383,16 +435,18 @@ findchar: ..\bin\findchar.js
 ftp7: ..\bin\ftp7.js
 ftpserv: ..\bin\ftpserv.js
 hd: ..\bin\hd.js
+ide7: ..\bin\ide7.js
 make7: ..\bin\make7.js
+pv7: ..\bin\pv7.js
 sql7: ..\bin\sql7.js
 sydir7: ..\bin\sydir7.js
 tar7: ..\bin\tar7.js
 toutf8: ..\bin\toutf8.js
 which: ..\bin\which.js
 
-utils: ..\bin\bas7.js ..\bin\bigfiles.js ..\bin\calc7.js ..\bin\cat.js ..\bin\comanche.js ..\bin\db7.js \
+utils: ..\bin\bas7.js ..\bin\bigfiles.js ..\bin\calc7.js ..\bin\cat.js ..\bin\comanche.js \
        ..\bin\diff7.js ..\bin\find7.js ..\bin\findchar.js ..\bin\ftp7.js ..\bin\ftpserv.js ..\bin\hd.js \
-       ..\bin\make7.js ..\bin\sql7.js ..\bin\sydir7.js ..\bin\tar7.js ..\bin\toutf8.js ..\bin\which.js
+       ..\bin\make7.js ..\bin\pv7.js ..\bin\sql7.js ..\bin\sydir7.js ..\bin\tar7.js ..\bin\toutf8.js ..\bin\which.js
 
 wc: $(SRC)
 	@echo SRC:

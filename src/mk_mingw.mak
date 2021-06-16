@@ -161,7 +161,29 @@ clean:
 	@echo Use 'make depend' (with your make command) to create the dependencies.
 	@echo.
 
-distclean: clean
+clean_utils:
+	del ..\bin\bas7.exe
+	del ..\bin\bigfiles.exe
+	del ..\bin\calc7.exe
+	del ..\bin\cat.exe
+	del ..\bin\comanche.exe
+	del ..\bin\db7.exe
+	del ..\bin\diff7.exe
+	del ..\bin\find7.exe
+	del ..\bin\findchar.exe
+	del ..\bin\ftp7.exe
+	del ..\bin\ftpserv.exe
+	del ..\bin\hd.exe
+	del ..\bin\ide7.exe
+	del ..\bin\make7.exe
+	del ..\bin\pv7.exe
+	del ..\bin\sql7.exe
+	del ..\bin\sydir7.exe
+	del ..\bin\tar7.exe
+	del ..\bin\toutf8.exe
+	del ..\bin\which.exe
+
+distclean: clean clean_utils
 	copy level_bk.h level.h /Y
 	del vers_mingw.h
 
@@ -274,97 +296,102 @@ depend: version.h
 	$(AR) r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 ..\bin\bas7.exe: ..\prg\bas7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\bas7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\bas7
 	copy ..\prg\bas7.exe ..\bin /Y
 	del ..\prg\bas7.exe
 
 ..\bin\bigfiles.exe: ..\prg\bigfiles.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\bigfiles
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\bigfiles
 	copy ..\prg\bigfiles.exe ..\bin /Y
 	del ..\prg\bigfiles.exe
 
 ..\bin\calc7.exe: ..\prg\calc7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\calc7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\calc7
 	copy ..\prg\calc7.exe ..\bin /Y
 	del ..\prg\calc7.exe
 
 ..\bin\cat.exe: ..\prg\cat.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\cat
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\cat
 	copy ..\prg\cat.exe ..\bin /Y
 	del ..\prg\cat.exe
 
 ..\bin\comanche.exe: ..\prg\comanche.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\comanche
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\comanche
 	copy ..\prg\comanche.exe ..\bin /Y
 	del ..\prg\comanche.exe
 
 ..\bin\db7.exe: ..\prg\db7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\db7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\db7
 	copy ..\prg\db7.exe ..\bin /Y
 	del ..\prg\db7.exe
 
 ..\bin\diff7.exe: ..\prg\diff7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\diff7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\diff7
 	copy ..\prg\diff7.exe ..\bin /Y
 	del ..\prg\diff7.exe
 
 ..\bin\find7.exe: ..\prg\find7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\find7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\find7
 	copy ..\prg\find7.exe ..\bin /Y
 	del ..\prg\find7.exe
 
 ..\bin\findchar.exe: ..\prg\findchar.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\findchar
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\findchar
 	copy ..\prg\findchar.exe ..\bin /Y
 	del ..\prg\findchar.exe
 
 ..\bin\ftp7.exe: ..\prg\ftp7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftp7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\ftp7
 	copy ..\prg\ftp7.exe ..\bin /Y
 	del ..\prg\ftp7.exe
 
 ..\bin\ftpserv.exe: ..\prg\ftpserv.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftpserv
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\ftpserv
 	copy ..\prg\ftpserv.exe ..\bin /Y
 	del ..\prg\ftpserv.exe
 
 ..\bin\hd.exe: ..\prg\hd.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\hd
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\hd
 	copy ..\prg\hd.exe ..\bin /Y
 	del ..\prg\hd.exe
 
+..\bin\ide7.exe: ..\prg\ide7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\ide7
+	copy ..\prg\ide7.exe ..\bin /Y
+	del ..\prg\ide7.exe
+
 ..\bin\make7.exe: ..\prg\make7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\make7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\make7
 	copy ..\prg\make7.exe ..\bin /Y
 	del ..\prg\make7.exe
 
 ..\bin\pv7.exe: ..\prg\pv7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\pv7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\pv7
 	copy ..\prg\pv7.exe ..\bin /Y
 	del ..\prg\pv7.exe
 
 ..\bin\sql7.exe: ..\prg\sql7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\sql7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\sql7
 	copy ..\prg\sql7.exe ..\bin /Y
 	del ..\prg\sql7.exe
 
 ..\bin\sydir7.exe: ..\prg\sydir7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\sydir7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\sydir7
 	copy ..\prg\sydir7.exe ..\bin /Y
 	del ..\prg\sydir7.exe
 
 ..\bin\tar7.exe: ..\prg\tar7.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\tar7
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\tar7
 	copy ..\prg\tar7.exe ..\bin /Y
 	del ..\prg\tar7.exe
 
 ..\bin\toutf8.exe: ..\prg\toutf8.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\toutf8
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\toutf8
 	copy ..\prg\toutf8.exe ..\bin /Y
 	del ..\prg\toutf8.exe
 
 ..\bin\which.exe: ..\prg\which.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\which
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\which
 	copy ..\prg\which.exe ..\bin /Y
 	del ..\prg\which.exe
 
@@ -380,6 +407,7 @@ findchar: ..\bin\findchar.exe
 ftp7: ..\bin\ftp7.exe
 ftpserv: ..\bin\ftpserv.exe
 hd: ..\bin\hd.exe
+ide7: ..\bin\ide7.exe
 make7: ..\bin\make7.exe
 pv7: ..\bin\pv7.exe
 sql7: ..\bin\sql7.exe
@@ -389,7 +417,7 @@ toutf8: ..\bin\toutf8.exe
 which: ..\bin\which.exe
 
 utils: ..\bin\bas7.exe ..\bin\bigfiles.exe ..\bin\calc7.exe ..\bin\cat.exe ..\bin\comanche.exe ..\bin\db7.exe \
-       ..\bin\diff7.exe ..\bin\find7.exe ..\bin\findchar.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe \
+       ..\bin\diff7.exe ..\bin\find7.exe ..\bin\findchar.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe ..\bin\ide7.exe \
        ..\bin\make7.exe ..\bin\pv7.exe ..\bin\sql7.exe ..\bin\sydir7.exe ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
 
 wc: $(SRC)

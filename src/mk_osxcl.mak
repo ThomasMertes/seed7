@@ -144,7 +144,11 @@ clean:
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo
 
-distclean: clean
+clean_utils:
+	rm -f ../bin/bas7 ../bin/bigfiles ../bin/calc7 ../bin/cat ../bin/comanche ../bin/db7 ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7
+	rm -f ../bin/ftpserv ../bin/hd ../bin/ide7 ../bin/make7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
+
+distclean: clean clean_utils
 	cp level_bk.h level.h
 	rm -f vers_osxcl.h
 
@@ -160,12 +164,38 @@ install:
 	cd ../bin; ln -s `pwd`/s7c /usr/local/bin
 	gzip -c ../doc/s7.1 > /usr/share/man/man1/s7.1.gz
 	gzip -c ../doc/s7c.1 > /usr/share/man/man1/s7c.1.gz
+	cd ../bin; ln -s `pwd`/bas7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/calc7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/db7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/diff7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/find7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/ftp7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/ide7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/make7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/pv7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/sql7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/sydir7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/tar7 /usr/local/bin
+	cd ../bin; ln -s `pwd`/toutf8 /usr/local/bin
 
 uninstall:
-	rm /usr/local/bin/s7
-	rm /usr/local/bin/s7c
-	rm /usr/share/man/man1/s7.1.gz
-	rm /usr/share/man/man1/s7c.1.gz
+	rm -f /usr/local/bin/s7
+	rm -f /usr/local/bin/s7c
+	rm -f /usr/share/man/man1/s7.1.gz
+	rm -f /usr/share/man/man1/s7c.1.gz
+	rm -f /usr/local/bin/bas7
+	rm -f /usr/local/bin/calc7
+	rm -f /usr/local/bin/db7
+	rm -f /usr/local/bin/diff7
+	rm -f /usr/local/bin/find7
+	rm -f /usr/local/bin/ftp7
+	rm -f /usr/local/bin/ide7
+	rm -f /usr/local/bin/make7
+	rm -f /usr/local/bin/pv7
+	rm -f /usr/local/bin/sql7
+	rm -f /usr/local/bin/sydir7
+	rm -f /usr/local/bin/tar7
+	rm -f /usr/local/bin/toutf8
 
 dep: depend
 
@@ -256,7 +286,7 @@ depend: version.h
 	$(AR) r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 ../bin/%: ../prg/%.sd7 ../bin/s7c
-	../bin/s7c -l ../lib -b ../bin -O2 $<
+	../bin/s7c -l ../lib -b ../bin -O3 -oc3 $<
 	mv $(<:.sd7=) ../bin
 
 bas7: ../bin/bas7
@@ -271,6 +301,7 @@ findchar: ../bin/findchar
 ftp7: ../bin/ftp7
 ftpserv: ../bin/ftpserv
 hd: ../bin/hd
+ide7: ../bin/ide7
 make7: ../bin/make7
 pv7: ../bin/pv7
 sql7: ../bin/sql7
@@ -280,7 +311,7 @@ toutf8: ../bin/toutf8
 which: ../bin/which
 
 utils: ../bin/bas7 ../bin/bigfiles ../bin/calc7 ../bin/cat ../bin/comanche ../bin/db7 \
-       ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7 ../bin/ftpserv ../bin/hd \
+       ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7 ../bin/ftpserv ../bin/hd ../bin/ide7 \
        ../bin/make7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
 
 wc: $(SRC)

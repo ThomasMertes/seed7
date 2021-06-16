@@ -145,7 +145,13 @@ clean:
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo
 
-distclean: clean
+clean_utils:
+	rm -f ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe
+	rm -f ../bin/db7.exe ../bin/diff7.exe ../bin/find7.exe ../bin/findchar.exe ../bin/ftp7.exe
+	rm -f ../bin/ftpserv.exe ../bin/hd.exe ../bin/ide7.exe ../bin/make7.exe ../bin/pv7.exe
+	rm -f ../bin/sql7.exe ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
+
+distclean: clean clean_utils
 	cp level_bk.h level.h
 	rm -f vers_msys.h
 
@@ -258,79 +264,83 @@ depend: version.h
 	$(AR) r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 ../bin/bas7.exe: ../prg/bas7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/bas7
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/bas7
 	mv ../prg/bas7.exe ../bin
 
 ../bin/bigfiles.exe: ../prg/bigfiles.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/bigfiles
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/bigfiles
 	mv ../prg/bigfiles.exe ../bin
 
 ../bin/calc7.exe: ../prg/calc7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/calc7
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/calc7
 	mv ../prg/calc7.exe ../bin
 
 ../bin/cat.exe: ../prg/cat.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/cat
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/cat
 	mv ../prg/cat.exe ../bin
 
 ../bin/comanche.exe: ../prg/comanche.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/comanche
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/comanche
 	mv ../prg/comanche.exe ../bin
 
 ../bin/db7.exe: ../prg/db7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/db7
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/db7
 	mv ../prg/db7.exe ../bin
 
 ../bin/diff7.exe: ../prg/diff7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/diff7
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/diff7
 	mv ../prg/diff7.exe ../bin
 
 ../bin/find7.exe: ../prg/find7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/find7
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/find7
 	mv ../prg/find7.exe ../bin
 
 ../bin/findchar.exe: ../prg/findchar.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/findchar
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/findchar
 	mv ../prg/findchar.exe ../bin
 
 ../bin/ftp7.exe: ../prg/ftp7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/ftp7
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/ftp7
 	mv ../prg/ftp7.exe ../bin
 
 ../bin/ftpserv.exe: ../prg/ftpserv.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/ftpserv
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/ftpserv
 	mv ../prg/ftpserv.exe ../bin
 
 ../bin/hd.exe: ../prg/hd.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/hd
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/hd
 	mv ../prg/hd.exe ../bin
 
+../bin/ide7.exe: ../prg/ide7.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/ide7
+	mv ../prg/ide7.exe ../bin
+
 ../bin/make7.exe: ../prg/make7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/make7
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/make7
 	mv ../prg/make7.exe ../bin
 
 ../bin/pv7.exe: ../prg/pv7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/pv7
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/pv7
 	mv ../prg/pv7.exe ../bin
 
 ../bin/sql7.exe: ../prg/sql7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/sql7
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/sql7
 	mv ../prg/sql7.exe ../bin
 
 ../bin/sydir7.exe: ../prg/sydir7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/sydir7
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/sydir7
 	mv ../prg/sydir7.exe ../bin
 
 ../bin/tar7.exe: ../prg/tar7.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/tar7
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/tar7
 	mv ../prg/tar7.exe ../bin
 
 ../bin/toutf8.exe: ../prg/toutf8.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/toutf8
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/toutf8
 	mv ../prg/toutf8.exe ../bin
 
 ../bin/which.exe: ../prg/which.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/which
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 ../prg/which
 	mv ../prg/which.exe ../bin
 
 bas7: ../bin/bas7.exe
@@ -345,6 +355,7 @@ findchar: ../bin/findchar.exe
 ftp7: ../bin/ftp7.exe
 ftpserv: ../bin/ftpserv.exe
 hd: ../bin/hd.exe
+ide7: ../bin/ide7.exe
 make7: ../bin/make7.exe
 pv7: ../bin/pv7.exe
 sql7: ../bin/sql7.exe
@@ -354,7 +365,7 @@ toutf8: ../bin/toutf8.exe
 which: ../bin/which.exe
 
 utils: ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe ../bin/db7.exe \
-       ../bin/diff7.exe ../bin/find7.exe ../bin/findchar.exe ../bin/ftp7.exe ../bin/ftpserv.exe ../bin/hd.exe \
+       ../bin/diff7.exe ../bin/find7.exe ../bin/findchar.exe ../bin/ftp7.exe ../bin/ftpserv.exe ../bin/hd.exe ../bin/ide7.exe \
        ../bin/make7.exe ../bin/pv7.exe ../bin/sql7.exe ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
 
 wc: $(SRC)

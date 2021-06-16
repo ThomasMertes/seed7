@@ -147,7 +147,13 @@ clean:
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo
 
-distclean: clean
+clean_utils:
+	rm -f ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe
+	rm -f ../bin/db7.exe ../bin/diff7.exe ../bin/find7.exe ../bin/findchar.exe ../bin/ftp7.exe
+	rm -f ../bin/ftpserv.exe ../bin/hd.exe ../bin/ide7.exe ../bin/make7.exe ../bin/pv7.exe
+	rm -f ../bin/sql7.exe ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
+
+distclean: clean clean_utils
 	cp level_bk.h level.h
 	rm -f vers_cygw.h
 
@@ -158,16 +164,42 @@ test:
 	@echo
 
 install:
-	cd ../bin; ln -s `pwd`/s7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/s7c /usr/local/bin
+	cd ../bin; ln -s `pwd`/s7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/s7c.exe /usr/local/bin
 	gzip -c ../doc/s7.1 > /usr/share/man/man1/s7.1.gz
 	gzip -c ../doc/s7c.1 > /usr/share/man/man1/s7c.1.gz
+	cd ../bin; ln -s `pwd`/bas7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/calc7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/db7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/diff7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/find7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/ftp7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/ide7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/make7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/pv7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/sql7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/sydir7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/tar7.exe /usr/local/bin
+	cd ../bin; ln -s `pwd`/toutf8.exe /usr/local/bin
 
 uninstall:
-	rm /usr/local/bin/s7
-	rm /usr/local/bin/s7c
-	rm /usr/share/man/man1/s7.1.gz
-	rm /usr/share/man/man1/s7c.1.gz
+	rm -f /usr/local/bin/s7.exe
+	rm -f /usr/local/bin/s7c.exe
+	rm -f /usr/share/man/man1/s7.1.gz
+	rm -f /usr/share/man/man1/s7c.1.gz
+	rm -f /usr/local/bin/bas7.exe
+	rm -f /usr/local/bin/calc7.exe
+	rm -f /usr/local/bin/db7.exe
+	rm -f /usr/local/bin/diff7.exe
+	rm -f /usr/local/bin/find7.exe
+	rm -f /usr/local/bin/ftp7.exe
+	rm -f /usr/local/bin/ide7.exe
+	rm -f /usr/local/bin/make7.exe
+	rm -f /usr/local/bin/pv7.exe
+	rm -f /usr/local/bin/sql7.exe
+	rm -f /usr/local/bin/sydir7.exe
+	rm -f /usr/local/bin/tar7.exe
+	rm -f /usr/local/bin/toutf8.exe
 
 dep: depend
 
@@ -262,7 +294,7 @@ depend: version.h
 	$(AR) r ../bin/$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 ../bin/%.exe: ../prg/%.sd7 ../bin/s7c.exe
-	../bin/s7c.exe -l ../lib -b ../bin -O2 $<
+	../bin/s7c.exe -l ../lib -b ../bin -O3 -oc3 $<
 	mv $(<:.sd7=.exe) ../bin
 
 bas7: ../bin/bas7.exe
@@ -277,6 +309,7 @@ findchar: ../bin/findchar.exe
 ftp7: ../bin/ftp7.exe
 ftpserv: ../bin/ftpserv.exe
 hd: ../bin/hd.exe
+ide7: ../bin/ide7.exe
 make7: ../bin/make7.exe
 pv7: ../bin/pv7.exe
 sql7: ../bin/sql7.exe
@@ -285,7 +318,7 @@ tar7: ../bin/tar7.exe
 toutf8: ../bin/toutf8.exe
 which: ../bin/which.exe
 
-utils: ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe ../bin/db7.exe \
+utils: ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe \
        ../bin/diff7.exe ../bin/find7.exe ../bin/findchar.exe ../bin/ftp7.exe ../bin/ftpserv.exe ../bin/hd.exe \
        ../bin/make7.exe ../bin/pv7.exe ../bin/sql7.exe ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
 

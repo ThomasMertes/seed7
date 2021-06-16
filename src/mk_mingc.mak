@@ -142,7 +142,29 @@ clean:
 	del levelup.exe
 	del next_lvl
 
-distclean: clean
+clean_utils:
+	del ..\bin\bas7.exe
+	del ..\bin\bigfiles.exe
+	del ..\bin\calc7.exe
+	del ..\bin\cat.exe
+	del ..\bin\comanche.exe
+	del ..\bin\db7.exe
+	del ..\bin\diff7.exe
+	del ..\bin\find7.exe
+	del ..\bin\findchar.exe
+	del ..\bin\ftp7.exe
+	del ..\bin\ftpserv.exe
+	del ..\bin\hd.exe
+	del ..\bin\ide7.exe
+	del ..\bin\make7.exe
+	del ..\bin\pv7.exe
+	del ..\bin\sql7.exe
+	del ..\bin\sydir7.exe
+	del ..\bin\tar7.exe
+	del ..\bin\toutf8.exe
+	del ..\bin\which.exe
+
+distclean: clean clean_utils
 	copy level_bk.h level.h /Y
 	del vers_mingc.h
 
@@ -247,7 +269,7 @@ depend: version.h
 	$(AR) r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 ..\bin\%.exe: ..\prg\%.sd7 ..\bin\s7c.exe
-	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 $<
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 $<
 	move /Y $(<:.sd7=.exe) ..\bin
 
 bas7: ..\bin\bas7.exe
@@ -262,6 +284,7 @@ findchar: ..\bin\findchar.exe
 ftp7: ..\bin\ftp7.exe
 ftpserv: ..\bin\ftpserv.exe
 hd: ..\bin\hd.exe
+ide7: ..\bin\ide7.exe
 make7: ..\bin\make7.exe
 pv7: ..\bin\pv7.exe
 sql7: ..\bin\sql7.exe
@@ -271,7 +294,7 @@ toutf8: ..\bin\toutf8.exe
 which: ..\bin\which.exe
 
 utils: ..\bin\bas7.exe ..\bin\bigfiles.exe ..\bin\calc7.exe ..\bin\cat.exe ..\bin\comanche.exe ..\bin\db7.exe \
-       ..\bin\diff7.exe ..\bin\find7.exe ..\bin\findchar.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe \
+       ..\bin\diff7.exe ..\bin\find7.exe ..\bin\findchar.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe ..\bin\ide7.exe \
        ..\bin\make7.exe ..\bin\pv7.exe ..\bin\sql7.exe ..\bin\sydir7.exe ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
 
 wc: $(SRC)
