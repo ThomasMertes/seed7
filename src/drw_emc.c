@@ -163,7 +163,7 @@ intType drwPointerYpos (const_winType actual_window)
 
 
 void drwArc (const_winType actual_window, intType x, intType y,
-    intType radius, floatType ang1, floatType ang2)
+    intType radius, floatType startAngle, floatType sweepAngle)
 
   { /* drwArc */
     logFunction(printf("drwArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
@@ -173,7 +173,7 @@ void drwArc (const_winType actual_window, intType x, intType y,
 
 
 void drwPArc (const_winType actual_window, intType x, intType y,
-    intType radius, floatType ang1, floatType ang2, intType col)
+    intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
   { /* drwPArc */
     logFunction(printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
@@ -832,6 +832,13 @@ void drwSetCloseAction (winType actual_window, intType closeAction)
 
 
 
+void drwSetCursorVisible (winType aWindow, boolType visible)
+
+  { /* drwSetCursorVisible */
+  } /* drwSetCursorVisible */
+
+
+
 void drwPoint (const_winType actual_window, intType x, intType y)
 
   { /* drwPoint */
@@ -1025,8 +1032,8 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
   { /* drwPutScaled */
     logFunction(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D ", "
                        FMT_D ", " FMT_D ", " FMT_U_MEM")\n",
-                       (memSizeType) destWindow, (memSizeType) pixmap,
-                       xDest, yDest, width, height););
+                       (memSizeType) destWindow, xDest, yDest,
+                       width, height, (memSizeType) pixmap););
     logFunction(printf("drwPutScaled -->\n"););
   } /* drwPutScaled */
 

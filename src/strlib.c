@@ -108,7 +108,7 @@ static arrayType addCopiedStriToArray (const strElemType *stri_elems,
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems, length * sizeof(strElemType));
       if (used_max_position >= work_array->max_position) {
-        if (unlikely(work_array->max_position >= MAX_ARR_INDEX / ARRAY_SIZE_FACTOR ||
+        if (unlikely(work_array->max_position > (intType) (MAX_ARR_INDEX / ARRAY_SIZE_FACTOR) ||
             (resized_work_array = REALLOC_ARRAY(work_array,
                 (uintType) work_array->max_position,
                 (uintType) work_array->max_position * ARRAY_SIZE_FACTOR)) == NULL)) {

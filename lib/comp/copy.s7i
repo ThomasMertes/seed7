@@ -307,6 +307,7 @@ const proc: process_cpy_call (in type: object_type,
         when {BIGINTOBJECT}:    expr &:= "bigCpy(&(" & param_a & "), " & param_b & ")";
         when {STRIOBJECT}:      expr &:= "strCopy(&(" & param_a & "), " & param_b & ")";
         when {BSTRIOBJECT}:     expr &:= "bstCpy(&(" & param_a & "), " & param_b & ")";
+        when {FILEOBJECT}:      expr &:= "filCpy(&(" & param_a & "), " & param_b & ")";
         when {SETOBJECT}:       expr &:= "setCpy(&(" & param_a & "), " & param_b & ")";
         when {POLLOBJECT}:      expr &:= "polCpy(" & param_a & ", " & param_b & ")";
         when {REFLISTOBJECT}:   expr &:= "rflCpy(&(" & param_a & "), " & param_b & ")";

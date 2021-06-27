@@ -66,6 +66,14 @@ const proc: fil_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        filBigSeek (fileType, const const_bigIntType);");
     declareExtern(c_prog, "bigIntType  filBigTell (fileType);");
     declareExtern(c_prog, "void        filClose (fileType);");
+    declareExtern(c_prog, "void        filCpy (fileType *const, const fileType);");
+    declareExtern(c_prog, "void        filCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "fileType    filCreate (const fileType);");
+    declareExtern(c_prog, "genericType filCreateGeneric (const genericType);");
+    declareExtern(c_prog, "void        filDestr (const fileType);");
+    declareExtern(c_prog, "void        filDestrGeneric (const genericType);");
+    declareExtern(c_prog, "boolType    filEof (fileType);");
+    declareExtern(c_prog, "void        filFlush (fileType);");
     declareExtern(c_prog, "charType    filGetcChkCtrlC (fileType);");
     declareExtern(c_prog, "striType    filGets (fileType, intType);");
     declareExtern(c_prog, "striType    filGetsChkCtrlC (fileType, intType);");
@@ -145,11 +153,38 @@ const proc: process (FIL_CPY, in reference: function,
 
   local
     var expr_type: statement is expr_type.value;
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
   begin
-    process_expr(params[1], statement);
-    statement.expr &:= "=";
-    process_expr(params[3], statement);
-    statement.expr &:= ";\n";
+    statement.temp_num := c_expr.temp_num;
+    prepareAnyParamTemporarys(params[1], c_param1, statement);
+    c_param3.demand := ASSIGN_RESULT;
+    prepareAnyParamTemporarys(params[3], c_param3, statement);
+    if c_param3.result_expr <> "" then
+      if isNormalVariable(params[1]) then
+        statement.temp_decls &:= "fileType old_file=";
+        statement.temp_decls &:= c_param1.expr;
+        statement.temp_decls &:= ";\n";
+        statement.expr &:= c_param1.expr;
+        statement.expr &:= "=";
+      else
+        statement.temp_decls &:= "fileType old_file;\n";
+        statement.temp_decls &:= "fileType *file_ptr=&(";
+        statement.temp_decls &:= c_param1.expr;
+        statement.temp_decls &:= ");\n";
+        statement.expr &:= "old_file=*file_ptr;\n";
+        statement.expr &:= "*file_ptr=";
+      end if;
+      statement.expr &:= c_param3.result_expr;
+      statement.expr &:= ";\n";
+      statement.expr &:= "filDestr(old_file);\n";
+    else
+      statement.expr &:= "filCpy(&(";
+      statement.expr &:= c_param1.expr;
+      statement.expr &:= "), ";
+      statement.expr &:= c_param3.expr;
+      statement.expr &:= ");\n";
+    end if;
     doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
@@ -158,7 +193,7 @@ const proc: process (FIL_EMPTY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "NULL";
+    c_expr.expr &:= "&nullFileRecord";
   end func;
 
 
@@ -166,7 +201,7 @@ const proc: process (FIL_EOF, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "feof(";
+    c_expr.expr &:= "filEof(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -188,7 +223,7 @@ const proc: process (FIL_ERR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "stderr";
+    c_expr.expr &:= "&stderrFileRecord";
   end func;
 
 
@@ -197,7 +232,7 @@ const proc: process (FIL_FLUSH, in reference: function,
 
   begin
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "fflush(";
+    c_expr.expr &:= "filFlush(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
   end func;
@@ -240,7 +275,7 @@ const proc: process (FIL_IN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "stdin";
+    c_expr.expr &:= "&stdinFileRecord";
   end func;
 
 
@@ -304,11 +339,12 @@ const proc: process (FIL_OPEN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "filOpen(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
+    prepare_file_result(c_expr);
+    c_expr.result_expr &:= "filOpen(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -316,7 +352,8 @@ const proc: process (FIL_OPEN_NULL_DEVICE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "filOpenNullDevice()";
+    prepare_file_result(c_expr);
+    c_expr.result_expr &:= "filOpenNullDevice()";
   end func;
 
 
@@ -324,7 +361,7 @@ const proc: process (FIL_OUT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "stdout";
+    c_expr.expr &:= "&stdoutFileRecord";
   end func;
 
 
@@ -356,13 +393,14 @@ const proc: process (FIL_POPEN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "filPopen(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    prepare_file_result(c_expr);
+    c_expr.result_expr &:= "filPopen(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -448,19 +486,6 @@ const proc: process (FIL_VALUE, in reference: function,
   end func;
 
 
-const proc: process (FIL_WRITE, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "filWrite(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
 const proc: process (FIL_WORD_READ, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -471,4 +496,17 @@ const proc: process (FIL_WORD_READ, in reference: function,
     c_expr.result_expr &:= ", &(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
+  end func;
+
+
+const proc: process (FIL_WRITE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "filWrite(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
   end func;

@@ -41,6 +41,6 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
 void pcsPty (const const_striType command, const const_rtlArrayType parameters,
     fileType *childStdin, fileType *childStdout);
 processType pcsStart (const const_striType command, const const_rtlArrayType parameters,
-    fileType childStdin, fileType childStdout, fileType childStderr);
+    fileType redirectStdin, fileType redirectStdout, fileType redirectStderr);
 striType pcsStr (const const_processType process);
 void pcsWaitFor (const processType process);

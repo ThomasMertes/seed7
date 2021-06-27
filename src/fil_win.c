@@ -52,6 +52,7 @@
 
 #include "common.h"
 #include "os_decls.h"
+#include "heaputl.h"
 #include "stat_drv.h"
 #include "fil_rtl.h"
 #include "rtl_err.h"
@@ -89,7 +90,7 @@ static void handleIntSignal (int sig_num)
  *  @param sigintReceived Flag indicating if ctrl-c has been pressed.
  *  @return the character read.
  */
-int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
+int readCharChkCtrlC (cFileType inFile, boolType *sigintReceived)
 
   {
 #if HAS_SIGACTION
@@ -192,9 +193,10 @@ static boolType stdinReady (void)
  *  Regular files do not block.
  *  @return TRUE if 'getc' would not block, FALSE otherwise.
  */
-boolType filInputReady (fileType aFile)
+boolType filInputReady (fileType inFile)
 
   {
+    cFileType cInFile;
     int file_no;
     HANDLE fileHandle;
     os_fstat_struct stat_buf;
@@ -202,19 +204,22 @@ boolType filInputReady (fileType aFile)
     boolType inputReady;
 
   /* filInputReady */
-    logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
-    file_no = fileno(aFile);
+    logFunction(printf("filInputReady(%s%d)\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0););
+    cInFile = inFile->cFile;
+    file_no = fileno(cInFile);
     if (unlikely(file_no == -1)) {
       logError(printf("filInputReady(%d): fileno(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), safe_fileno(aFile),
+                      safe_fileno(cInFile), safe_fileno(cInFile),
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
       inputReady = FALSE;
     } else if (unlikely(os_fstat(file_no, &stat_buf) != 0)) {
       logError(printf("filInputReady(%d): fstat(%d, *) failed:\n"
                       "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), safe_fileno(aFile),
+                      safe_fileno(cInFile), safe_fileno(cInFile),
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
       inputReady = FALSE;
@@ -222,8 +227,8 @@ boolType filInputReady (fileType aFile)
       if (S_ISREG(stat_buf.st_mode)) {
         inputReady = TRUE;
       } else if (S_ISCHR(stat_buf.st_mode)) {
-        /* printf("read_buffer_empty(aFile)=%d\n", read_buffer_empty(aFile)); */
-        if (!read_buffer_empty(aFile)) {
+        /* printf("read_buffer_empty(cInFile)=%d\n", read_buffer_empty(cInFile)); */
+        if (!read_buffer_empty(cInFile)) {
           inputReady = TRUE;
         } else if (file_no == 0) {
           inputReady = stdinReady();
@@ -233,7 +238,7 @@ boolType filInputReady (fileType aFile)
           if (unlikely(fileHandle == (HANDLE) -1)) {
             logError(printf("filInputReady(%d): _get_osfhandle(%d) failed:\n"
                             "errno=%d\nerror: %s\n",
-                            safe_fileno(aFile), safe_fileno(aFile),
+                            safe_fileno(cInFile), safe_fileno(cInFile),
                             errno, strerror(errno)););
             raise_error(FILE_ERROR);
             inputReady = FALSE;
@@ -242,27 +247,27 @@ boolType filInputReady (fileType aFile)
           } /* if */
         } /* if */
       } else if (S_ISFIFO(stat_buf.st_mode)) {
-        /* printf("read_buffer_empty(aFile)=%d\n", read_buffer_empty(aFile)); */
-        if (!read_buffer_empty(aFile)) {
+        /* printf("read_buffer_empty(cInFile)=%d\n", read_buffer_empty(cInFile)); */
+        if (!read_buffer_empty(cInFile)) {
           inputReady = TRUE;
         } else {
           fileHandle = (HANDLE) _get_osfhandle(file_no);
           if (unlikely(fileHandle == (HANDLE) -1)) {
             logError(printf("filInputReady(%d): _get_osfhandle(%d) failed:\n"
                             "errno=%d\nerror: %s\n",
-                            safe_fileno(aFile), safe_fileno(aFile),
+                            safe_fileno(cInFile), safe_fileno(cInFile),
                             errno, strerror(errno)););
             raise_error(FILE_ERROR);
             inputReady = FALSE;
           } else {
             if (PeekNamedPipe(fileHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
               inputReady = totalBytesAvail >= 1;
-            } else if (GetLastError() == ERROR_BROKEN_PIPE || feof(aFile)) {
+            } else if (GetLastError() == ERROR_BROKEN_PIPE || feof(cInFile)) {
               inputReady = TRUE;
             } else {
               logError(printf("filInputReady(%d): PeekNamedPipe(" FMT_U_MEM ", ...) failed:\n"
                               "errno=%d\nerror: %s\n",
-                              safe_fileno(aFile), (memSizeType) fileHandle,
+                              safe_fileno(cInFile), (memSizeType) fileHandle,
                               errno, strerror(errno)););
               raise_error(FILE_ERROR);
               inputReady = FALSE;
@@ -271,13 +276,13 @@ boolType filInputReady (fileType aFile)
         } /* if */
       } else {
         logError(printf("filInputReady(%d): Unknown file type %d.\n",
-                        safe_fileno(aFile), stat_buf.st_mode & S_IFMT););
+                        safe_fileno(cInFile), stat_buf.st_mode & S_IFMT););
         raise_error(FILE_ERROR);
         inputReady = FALSE;
       } /* if */
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
-                       safe_fileno(aFile), inputReady););
+                       safe_fileno(cInFile), inputReady););
     return inputReady;
   } /* filInputReady */
 
@@ -286,57 +291,81 @@ boolType filInputReady (fileType aFile)
 void filPipe (fileType *inFile, fileType *outFile)
 
   {
+    fileType pipeInFile = NULL;
+    fileType pipeOutFile = NULL;
     SECURITY_ATTRIBUTES saAttr;
     HANDLE pipeReadHandle = INVALID_HANDLE_VALUE;
     HANDLE pipeWriteHandle = INVALID_HANDLE_VALUE;
     int pipeReadFildes;
     int pipeWriteFildes;
+    cFileType cPipeInFile;
+    cFileType cPipeOutFile;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* filPipe */
-    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-    saAttr.bInheritHandle = TRUE;
-    saAttr.lpSecurityDescriptor = NULL;
-    if (unlikely(CreatePipe(&pipeReadHandle,
-                            &pipeWriteHandle, &saAttr, 0) == 0)) {
-      logError(printf("filPipe: CreatePipe() failed.\n"););
-      raise_error(FILE_ERROR);
+    if (unlikely(!ALLOC_RECORD(pipeInFile, fileRecord, count.files) ||
+                 !ALLOC_RECORD(pipeOutFile, fileRecord, count.files))) {
+      err_info = MEMORY_ERROR;
     } else {
-      if (unlikely((pipeReadFildes =
-          _open_osfhandle((intptr_t) (pipeReadHandle), _O_TEXT)) == -1)) {
-        logError(printf("filPipe: _open_osfhandle() failed:\n"););
-        CloseHandle(pipeReadHandle);
-        CloseHandle(pipeWriteHandle);
-        *inFile = NULL;
-        *outFile = NULL;
-        raise_error(FILE_ERROR);
-      } else if (unlikely((pipeWriteFildes =
-          _open_osfhandle((intptr_t) (pipeWriteHandle), _O_TEXT)) == -1)) {
-        logError(printf("filPipe: _open_osfhandle() failed:\n"););
-        _close(pipeReadFildes);
-        CloseHandle(pipeWriteHandle);
-        *inFile = NULL;
-        *outFile = NULL;
-        raise_error(FILE_ERROR);
-      } else if (unlikely((*inFile = fdopen(pipeReadFildes, "rb")) == NULL)) {
-        logError(printf("filPipe: fdopen(%d, \"rb\") failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      pipeReadFildes, errno, strerror(errno)););
-        _close(pipeReadFildes);
-        _close(pipeWriteFildes);
-        *outFile = NULL;
-        raise_error(FILE_ERROR);
-      } else if (unlikely((*outFile = fdopen(pipeWriteFildes, "wb")) == NULL)) {
-        logError(printf("filPipe: fdopen(%d, \"wb\") failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      pipeWriteFildes, errno, strerror(errno)););
-        fclose(*inFile);
-        *inFile = NULL;
-        _close(pipeWriteFildes);
-        raise_error(FILE_ERROR);
+      saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+      saAttr.bInheritHandle = TRUE;
+      saAttr.lpSecurityDescriptor = NULL;
+      if (unlikely(CreatePipe(&pipeReadHandle,
+                              &pipeWriteHandle, &saAttr, 0) == 0)) {
+        logError(printf("filPipe: CreatePipe() failed.\n"););
+        err_info = FILE_ERROR;
+      } else {
+        if (unlikely((pipeReadFildes =
+            _open_osfhandle((intptr_t) (pipeReadHandle), _O_TEXT)) == -1)) {
+          logError(printf("filPipe: _open_osfhandle() failed:\n"););
+          CloseHandle(pipeReadHandle);
+          CloseHandle(pipeWriteHandle);
+          err_info = FILE_ERROR;
+        } else if (unlikely((pipeWriteFildes =
+            _open_osfhandle((intptr_t) (pipeWriteHandle), _O_TEXT)) == -1)) {
+          logError(printf("filPipe: _open_osfhandle() failed:\n"););
+          _close(pipeReadFildes);
+          CloseHandle(pipeWriteHandle);
+          err_info = FILE_ERROR;
+        } else if (unlikely((cPipeInFile = fdopen(pipeReadFildes, "rb")) == NULL)) {
+          logError(printf("filPipe: fdopen(%d, \"rb\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        pipeReadFildes, errno, strerror(errno)););
+          _close(pipeReadFildes);
+          _close(pipeWriteFildes);
+          err_info = FILE_ERROR;
+        } else if (unlikely((cPipeOutFile = fdopen(pipeWriteFildes, "wb")) == NULL)) {
+          logError(printf("filPipe: fdopen(%d, \"wb\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        pipeWriteFildes, errno, strerror(errno)););
+          fclose(cPipeInFile);
+          _close(pipeWriteFildes);
+          err_info = FILE_ERROR;
+        } else {
+          filDestr(*inFile);
+          initFileType(pipeInFile, 1);
+          pipeInFile->cFile = cPipeInFile;
+          *inFile = pipeInFile;
+          filDestr(*outFile);
+          initFileType(pipeOutFile, 1);
+          pipeOutFile->cFile = cPipeOutFile;
+          *outFile = pipeOutFile;
+        } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("filPipe --> {%d, %d}\n",
-                       safe_fileno(*inFile), safe_fileno(*outFile)));
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (pipeInFile != NULL) {
+        FREE_RECORD(pipeInFile, fileRecord, count.files);
+      } /* if */
+      if (pipeOutFile != NULL) {
+        FREE_RECORD(pipeOutFile, fileRecord, count.files);
+      } /* if */
+    } /* if */
+    logFunction(printf("filPipe --> {%s%d, %s%d}\n",
+                       *inFile == NULL ? "NULL " : "",
+                       *inFile != NULL ? safe_fileno((*inFile)->cFile) : 0,
+                       *outFile == NULL ? "NULL " : "",
+                       *outFile != NULL ? safe_fileno((*outFile)->cFile) : 0));
   } /* filPipe */
 
 
@@ -424,6 +453,9 @@ void setupFiles (void)
     DWORD mode;
 
   /* setupFiles */
+    stdinFileRecord.cFile = stdin;
+    stdoutFileRecord.cFile = stdout;
+    stderrFileRecord.cFile = stderr;
     /* Redirected files are set to _O_BINARY mode.       */
     /* Only real console files are left in _O_TEXT mode. */
     /* This way the ENTER key is translated to '\n'.     */

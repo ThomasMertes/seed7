@@ -254,6 +254,27 @@ const proc: prepare_bstri_result (inout expr_type: c_expr) is func
   end func;
 
 
+const proc: prepare_file_result (inout expr_type: c_expr) is func
+
+  begin
+    incr(c_expr.temp_num);
+    c_expr.result_name := "tmp_";
+    c_expr.result_name &:= str(c_expr.temp_num);
+    c_expr.result_decl := "fileType tmp_";
+    c_expr.result_decl &:= str(c_expr.temp_num);
+    c_expr.result_decl &:= " = NULL;\n";
+    c_expr.result_free := "filDestr(tmp_";
+    c_expr.result_free &:= str(c_expr.temp_num);
+    c_expr.result_free &:= ");\n";
+    c_expr.result_to_null := c_expr.result_name;
+    c_expr.result_to_null &:= " = NULL;\n";
+    c_expr.result_intro := "(tmp_";
+    c_expr.result_intro &:= str(c_expr.temp_num);
+    c_expr.result_intro &:= "=";
+    c_expr.result_finish := ")";
+  end func;
+
+
 const proc: prepare_prog_result (inout expr_type: c_expr) is func
 
   begin

@@ -78,9 +78,10 @@ const proc: process (PCS_CHILD_STDERR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "pcsChildStdErr(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    prepare_file_result(c_expr);
+    c_expr.result_expr &:= "pcsChildStdErr(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -88,9 +89,10 @@ const proc: process (PCS_CHILD_STDIN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "pcsChildStdIn(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    prepare_file_result(c_expr);
+    c_expr.result_expr &:= "pcsChildStdIn(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -98,9 +100,10 @@ const proc: process (PCS_CHILD_STDOUT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "pcsChildStdOut(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    prepare_file_result(c_expr);
+    c_expr.result_expr &:= "pcsChildStdOut(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 

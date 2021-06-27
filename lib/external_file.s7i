@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  external_file.s7i  File implementation type describing OS files *)
-(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2014, 2019 - 2021  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

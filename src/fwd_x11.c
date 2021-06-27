@@ -95,6 +95,9 @@ typedef int (*tp_XCopyPlane) (Display *display, Drawable src, Drawable dest,
                               GC gc, int src_x, int src_y, unsigned int width,
                               unsigned int height, int dest_x, int dest_y,
                               unsigned long plane);
+typedef Pixmap (*tp_XCreateBitmapFromData) (Display *display, Drawable drawable,
+                                            const char *data, unsigned int width,
+                                            unsigned int height);
 typedef GC (*tp_XCreateGC) (Display *display, Drawable drawable, unsigned long valuemask,
                             XGCValues *values);
 typedef XImage *(*tp_XCreateImage) (Display *display, Visual *visual,
@@ -103,6 +106,9 @@ typedef XImage *(*tp_XCreateImage) (Display *display, Visual *visual,
                                     int bitmap_pad, int bytes_per_line);
 typedef Pixmap (*tp_XCreatePixmap) (Display *display, Drawable drawable, unsigned int width,
                                     unsigned int height, unsigned int depth);
+typedef Cursor (*tp_XCreatePixmapCursor) (Display *display, Pixmap source, Pixmap mask,
+                                          XColor *foreground_color, XColor *background_color,
+                                          unsigned int x, unsigned int y);
 typedef Window (*tp_XCreateSimpleWindow) (Display *display, Window parent, int x, int y,
                                           unsigned int width, unsigned int height,
                                           unsigned int border_width,
@@ -115,6 +121,7 @@ typedef int (*tp_XDefaultDepth) (Display *display,
 typedef Window (*tp_XDefaultRootWindow) (Display *display);
 typedef int (*tp_XDefaultScreen) (Display *display);
 typedef Visual *(*tp_XDefaultVisual) (Display *display, int screen_number);
+typedef int (*tp_XDefineCursor) (Display *display, Window window, Cursor cursor);
 typedef int (*tp_XDestroyImage) (XImage *ximage);
 typedef int (*tp_XDestroyWindow) (Display *display, Window window);
 typedef int (*tp_XDoesBackingStore) (Screen *screen);
@@ -204,6 +211,7 @@ typedef Status (*tp_XSetWMProtocols) (Display *display, Window window,
 typedef int (*tp_XStoreColor) (Display *display, Colormap colormap, XColor *color);
 typedef int (*tp_XStoreName) (Display *display, Window window, const char *window_name);
 typedef int (*tp_XSync) (Display *display, Bool discard);
+typedef int (*tp_XUndefineCursor) (Display *display, Window window);
 typedef unsigned long (*tp_XWhitePixel) (Display *display,
                                          int screen_number);
 
@@ -232,15 +240,18 @@ static tp_XChangeProperty         ptr_XChangeProperty;
 static tp_XChangeWindowAttributes ptr_XChangeWindowAttributes;
 static tp_XCopyArea               ptr_XCopyArea;
 static tp_XCopyPlane              ptr_XCopyPlane;
+static tp_XCreateBitmapFromData   ptr_XCreateBitmapFromData;
 static tp_XCreateGC               ptr_XCreateGC;
 static tp_XCreateImage            ptr_XCreateImage;
 static tp_XCreatePixmap           ptr_XCreatePixmap;
+static tp_XCreatePixmapCursor     ptr_XCreatePixmapCursor;
 static tp_XCreateSimpleWindow     ptr_XCreateSimpleWindow;
 static tp_XDefaultColormap        ptr_XDefaultColormap;
 static tp_XDefaultDepth           ptr_XDefaultDepth;
 static tp_XDefaultRootWindow      ptr_XDefaultRootWindow;
 static tp_XDefaultScreen          ptr_XDefaultScreen;
 static tp_XDefaultVisual          ptr_XDefaultVisual;
+static tp_XDefineCursor           ptr_XDefineCursor;
 static tp_XDestroyImage           ptr_XDestroyImage;
 static tp_XDestroyWindow          ptr_XDestroyWindow;
 static tp_XDoesBackingStore       ptr_XDoesBackingStore;
@@ -292,6 +303,7 @@ static tp_XSetWMProtocols         ptr_XSetWMProtocols;
 static tp_XStoreColor             ptr_XStoreColor;
 static tp_XStoreName              ptr_XStoreName;
 static tp_XSync                   ptr_XSync;
+static tp_XUndefineCursor         ptr_XUndefineCursor;
 static tp_XWhitePixel             ptr_XWhitePixel;
 
 #ifdef HAS_XRENDER_EXTENSION
@@ -321,15 +333,18 @@ static boolType setupX11Dll (const char *dllName)
             (ptr_XChangeWindowAttributes = (tp_XChangeWindowAttributes) dllFunc(x11Dll, "XChangeWindowAttributes")) == NULL ||
             (ptr_XCopyArea               = (tp_XCopyArea)               dllFunc(x11Dll, "XCopyArea"))               == NULL ||
             (ptr_XCopyPlane              = (tp_XCopyPlane)              dllFunc(x11Dll, "XCopyPlane"))              == NULL ||
+            (ptr_XCreateBitmapFromData   = (tp_XCreateBitmapFromData)   dllFunc(x11Dll, "XCreateBitmapFromData"))   == NULL ||
             (ptr_XCreateGC               = (tp_XCreateGC)               dllFunc(x11Dll, "XCreateGC"))               == NULL ||
             (ptr_XCreateImage            = (tp_XCreateImage)            dllFunc(x11Dll, "XCreateImage"))            == NULL ||
             (ptr_XCreatePixmap           = (tp_XCreatePixmap)           dllFunc(x11Dll, "XCreatePixmap"))           == NULL ||
+            (ptr_XCreatePixmapCursor     = (tp_XCreatePixmapCursor)     dllFunc(x11Dll, "XCreatePixmapCursor"))     == NULL ||
             (ptr_XCreateSimpleWindow     = (tp_XCreateSimpleWindow)     dllFunc(x11Dll, "XCreateSimpleWindow"))     == NULL ||
             (ptr_XDefaultColormap        = (tp_XDefaultColormap)        dllFunc(x11Dll, "XDefaultColormap"))        == NULL ||
             (ptr_XDefaultDepth           = (tp_XDefaultDepth)           dllFunc(x11Dll, "XDefaultDepth"))           == NULL ||
             (ptr_XDefaultRootWindow      = (tp_XDefaultRootWindow)      dllFunc(x11Dll, "XDefaultRootWindow"))      == NULL ||
             (ptr_XDefaultScreen          = (tp_XDefaultScreen)          dllFunc(x11Dll, "XDefaultScreen"))          == NULL ||
             (ptr_XDefaultVisual          = (tp_XDefaultVisual)          dllFunc(x11Dll, "XDefaultVisual"))          == NULL ||
+            (ptr_XDefineCursor           = (tp_XDefineCursor)           dllFunc(x11Dll, "XDefineCursor"))           == NULL ||
             (ptr_XDestroyImage           = (tp_XDestroyImage)           dllFunc(x11Dll, "XDestroyImage"))           == NULL ||
             (ptr_XDestroyWindow          = (tp_XDestroyWindow)          dllFunc(x11Dll, "XDestroyWindow"))          == NULL ||
             (ptr_XDoesBackingStore       = (tp_XDoesBackingStore)       dllFunc(x11Dll, "XDoesBackingStore"))       == NULL ||
@@ -381,6 +396,7 @@ static boolType setupX11Dll (const char *dllName)
             (ptr_XStoreColor             = (tp_XStoreColor)             dllFunc(x11Dll, "XStoreColor"))             == NULL ||
             (ptr_XStoreName              = (tp_XStoreName)              dllFunc(x11Dll, "XStoreName"))              == NULL ||
             (ptr_XSync                   = (tp_XSync)                   dllFunc(x11Dll, "XSync"))                   == NULL ||
+            (ptr_XUndefineCursor         = (tp_XUndefineCursor)         dllFunc(x11Dll, "XUndefineCursor"))         == NULL ||
             (ptr_XWhitePixel             = (tp_XWhitePixel)             dllFunc(x11Dll, "XWhitePixel"))             == NULL) {
           x11Dll = NULL;
         } /* if */
@@ -423,7 +439,9 @@ boolType findX11Dll (void)
 
   {
     const char *dllList[] = { X11_DLL };
+#ifdef HAS_XRENDER_EXTENSION
     const char *xRenderDllList[] = { X11_XRENDER_DLL };
+#endif
     unsigned int pos;
     boolType found = FALSE;
 
@@ -583,6 +601,25 @@ int XCopyPlane (Display *display, Drawable src, Drawable dest,
 
 
 
+Pixmap XCreateBitmapFromData (Display *display, Drawable drawable,
+                              const char *data, unsigned int width,
+                              unsigned int height)
+
+  {
+    Pixmap pixmap;
+
+  /* XCreateBitmapFromData */
+    logFunction(printf("XCreateBitmapFromData(" FMT_U_MEM ", " FMT_U_XID ", "
+                       FMT_U_MEM ", %u, %u)\n",
+                       (memSizeType) display, drawable,
+                       (memSizeType) data, width, height););
+    pixmap = ptr_XCreateBitmapFromData(display, drawable, data, width, height);
+    logFunction(printf("XCreateBitmapFromData -> " FMT_U_MEM "\n", pixmap););
+    return pixmap;
+  } /* XCreateBitmapFromData */
+
+
+
 GC XCreateGC (Display *display, Drawable drawable, unsigned long valuemask,
               XGCValues *values)
 
@@ -637,6 +674,29 @@ Pixmap XCreatePixmap (Display *display, Drawable drawable, unsigned int width,
     logFunction(printf("XCreatePixmap -> " FMT_U_MEM "\n", pixmap););
     return pixmap;
   } /* XCreatePixmap */
+
+
+
+Cursor XCreatePixmapCursor (Display *display, Pixmap source, Pixmap mask,
+                            XColor *foreground_color, XColor *background_color,
+                            unsigned int x, unsigned int y)
+
+  {
+    Cursor cursor;
+
+  /* XCreatePixmapCursor */
+    logFunction(printf("XCreatePixmapCursor(" FMT_U_MEM ", " FMT_U_XID ", "
+                       FMT_U_XID ", " FMT_U_MEM ", " FMT_U_MEM ", %d, %d)\n",
+                       (memSizeType) display, source, mask,
+                       (memSizeType) foreground_color,
+                       (memSizeType) background_color, x, y););
+    cursor = ptr_XCreatePixmapCursor(display, source, mask,
+                                     foreground_color, background_color,
+                                     x, y);
+    logFunction(printf("XCreatePixmapCursor --> " FMT_D_XID "\n",
+                       cursor););
+    return cursor;
+  } /* XCreatePixmapCursor */
 
 
 
@@ -738,6 +798,22 @@ Visual *XDefaultVisual (Display *display, int screen_number)
                        (memSizeType) defaultVisual););
     return defaultVisual;
   } /* XDefaultVisual */
+
+
+
+int XDefineCursor (Display *display, Window window, Cursor cursor)
+
+  {
+    int funcResult;
+
+  /* XDefineCursor */
+    logFunction(printf("XDefineCursor(" FMT_U_MEM ", " FMT_U_XID ", "
+                       FMT_U_XID ")\n",
+                       (memSizeType) display, window, cursor););
+    funcResult = ptr_XDefineCursor(display, window, cursor);
+    logFunction(printf("XDefineCursor --> %d\n", funcResult););
+    return funcResult;
+  } /* XDefineCursor */
 
 
 
@@ -1351,7 +1427,7 @@ Status XQueryTree (Display *display, Window window,
     status = ptr_XQueryTree(display, window, root_return,
                             parent_return, children_return, nchildren_return);
     logFunction(printf("XQueryTree(" FMT_U_MEM ", " FMT_U_XID ", " FMT_U_XID
-                       ", " FMT_U_XID ", "FMT_U_MEM", %u) --> %d\n",
+                       ", " FMT_U_XID ", " FMT_U_MEM ", %u) --> %d\n",
                        (memSizeType) display, window, *root_return,
                        *parent_return, (memSizeType) *children_return,
                        *nchildren_return, status););
@@ -1616,6 +1692,21 @@ int XSync (Display *display, Bool discard)
     logFunction(printf("XSync --> %d\n", funcResult););
     return funcResult;
   } /* XSync */
+
+
+
+int XUndefineCursor (Display *display, Window window)
+
+  {
+    int funcResult;
+
+  /* XUndefineCursor */
+    logFunction(printf("XUndefineCursor(" FMT_U_MEM ", " FMT_U_XID ")\n",
+                       (memSizeType) display, window););
+    funcResult = ptr_XUndefineCursor(display, window);
+    logFunction(printf("XUndefineCursor --> %d\n", funcResult););
+    return funcResult;
+  } /* XUndefineCursor */
 
 
 

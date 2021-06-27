@@ -1049,6 +1049,50 @@ objectType int_mult_assign (listType arguments)
 
 
 
+objectType int_n_bytes_be_signed (listType arguments)
+
+  { /* int_n_bytes_be_signed */
+    isit_int(arg_1(arguments));
+    isit_int(arg_4(arguments));
+    return bld_stri_temp(intNBytesBeSigned(take_int(arg_1(arguments)),
+                                             take_int(arg_4(arguments))));
+  } /* int_n_bytes_be_signed */
+
+
+
+objectType int_n_bytes_be_unsigned (listType arguments)
+
+  { /* int_n_bytes_be_unsigned */
+    isit_int(arg_1(arguments));
+    isit_int(arg_4(arguments));
+    return bld_stri_temp(intNBytesBeUnsigned(take_int(arg_1(arguments)),
+                                             take_int(arg_4(arguments))));
+  } /* int_n_bytes_be_unsigned */
+
+
+
+objectType int_n_bytes_le_signed (listType arguments)
+
+  { /* int_n_bytes_le_signed */
+    isit_int(arg_1(arguments));
+    isit_int(arg_4(arguments));
+    return bld_stri_temp(intNBytesLeSigned(take_int(arg_1(arguments)),
+                                           take_int(arg_4(arguments))));
+  } /* int_n_bytes_le_signed */
+
+
+
+objectType int_n_bytes_le_unsigned (listType arguments)
+
+  { /* int_n_bytes_le_unsigned */
+    isit_int(arg_1(arguments));
+    isit_int(arg_4(arguments));
+    return bld_stri_temp(intNBytesLeUnsigned(take_int(arg_1(arguments)),
+                                             take_int(arg_4(arguments))));
+  } /* int_n_bytes_le_unsigned */
+
+
+
 /**
  *  Check if two integer numbers are not equal.
  *  @return FALSE if both numbers are equal,

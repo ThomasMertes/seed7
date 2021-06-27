@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  process.s7i   Support for creating processes                    *)
-(*  Copyright (C) 2009 - 2013  Thomas Mertes                        *)
+(*  Copyright (C) 2009 - 2016, 2021  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -195,7 +195,7 @@ const func clib_file: childStdErrClibFile (in process: aProcess) is action "PCS_
  *  If the standard input file of the subprocess has been redirected
  *  then this function will return NULL.
  *  @return the standard input file of 'aProcess' or
- *          NULL, if stdin has been redirected.
+ *          STD_NULL, if stdin has been redirected.
  *)
 const func file: childStdIn (in process: aProcess) is func
   result
@@ -217,7 +217,7 @@ const func file: childStdIn (in process: aProcess) is func
  *  If the standard output file of the subprocess has been redirected
  *  then this function will return NULL.
  *  @return the standard output file of 'aProcess' or
- *          NULL, if stdout has been redirected.
+ *          STD_NULL, if stdout has been redirected.
  *)
 const func file: childStdOut (in process: aProcess) is func
   result
@@ -239,7 +239,7 @@ const func file: childStdOut (in process: aProcess) is func
  *  If the standard error file of the subprocess has been redirected
  *  then this function will return NULL.
  *  @return the error output file of 'aProcess' or
- *          NULL, if stderr has been redirected.
+ *          STD_NULL, if stderr has been redirected.
  *)
 const func file: childStdErr (in process: aProcess) is func
   result

@@ -54,6 +54,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "int_rtl.h"
+#include "fil_rtl.h"
 #include "rtl_err.h"
 
 
@@ -386,6 +387,8 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
 
   {
     os_striType *argv;
+    fileType childStdinFile;
+    fileType childStdoutFile;
     int childStdinPipes[2];
     int childStdoutPipes[2];
     errInfoType err_info = OKAY_NO_ERROR;
@@ -402,17 +405,28 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
       logError(printf("pcsPipe2: No execute permission for " FMT_S_OS "\n", argv[0]););
       freeArgVector(argv);
       raise_error(FILE_ERROR);
+    } else if (unlikely(!ALLOC_RECORD(childStdinFile, fileRecord, count.files))) {
+      freeArgVector(argv);
+      raise_error(MEMORY_ERROR);
+    } else if (unlikely(!ALLOC_RECORD(childStdoutFile, fileRecord, count.files))) {
+      freeArgVector(argv);
+      FREE_RECORD(childStdinFile, fileRecord, count.files);
+      raise_error(MEMORY_ERROR);
     } else if (unlikely(pipe(childStdinPipes) != 0)) {
       logError(printf("pcsPipe2: pipe(childStdinPipes) failed:\n"
                       "errno=%d\nerror: %s\n",
                       errno, strerror(errno)););
       freeArgVector(argv);
+      FREE_RECORD(childStdinFile, fileRecord, count.files);
+      FREE_RECORD(childStdoutFile, fileRecord, count.files);
       raise_error(FILE_ERROR);
     } else if (unlikely(pipe(childStdoutPipes) != 0)) {
       logError(printf("pcsPipe2: pipe(childStdoutPipes) failed:\n"
                       "errno=%d\nerror: %s\n",
                       errno, strerror(errno)););
       freeArgVector(argv);
+      FREE_RECORD(childStdinFile, fileRecord, count.files);
+      FREE_RECORD(childStdoutFile, fileRecord, count.files);
       close(childStdinPipes[0]);
       close(childStdinPipes[1]);
       raise_error(FILE_ERROR);
@@ -436,12 +450,20 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
         close(childStdinPipes[1]);
         close(childStdoutPipes[0]);
         freeArgVector(argv);
+        FREE_RECORD(childStdinFile, fileRecord, count.files);
+        FREE_RECORD(childStdoutFile, fileRecord, count.files);
         raise_error(FILE_ERROR);
       } else {
         close(childStdinPipes[0]); /* These are being used by the child */
         close(childStdoutPipes[1]);
-        *childStdin  = fdopen(childStdinPipes[1], "w");
-        *childStdout = fdopen(childStdoutPipes[0], "r");
+        filDestr(*childStdin);
+        initFileType(childStdinFile, 1);
+        childStdinFile->cFile = fdopen(childStdinPipes[1], "w");
+        *childStdin  = childStdinFile;
+        filDestr(*childStdout);
+        initFileType(childStdoutFile, 1);
+        childStdoutFile->cFile = fdopen(childStdoutPipes[0], "r");
+        *childStdout = childStdoutFile;
         freeArgVector(argv);
       } /* if */
     } /* if */
@@ -467,6 +489,8 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
 
   {
     os_striType *argv;
+    fileType childStdinFile;
+    fileType childStdoutFile;
     int masterfd;
     int slavefd;
     char *slavedevice;
@@ -486,6 +510,13 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
       logError(printf("pcsPty: No execute permission for " FMT_S_OS "\n", argv[0]););
       freeArgVector(argv);
       raise_error(FILE_ERROR);
+    } else if (unlikely(!ALLOC_RECORD(childStdinFile, fileRecord, count.files))) {
+      freeArgVector(argv);
+      raise_error(MEMORY_ERROR);
+    } else if (unlikely(!ALLOC_RECORD(childStdoutFile, fileRecord, count.files))) {
+      freeArgVector(argv);
+      FREE_RECORD(childStdinFile, fileRecord, count.files);
+      raise_error(MEMORY_ERROR);
     } else {
       masterfd = posix_openpt(O_RDWR|O_NOCTTY);
       /* printf("masterfd: %d\n", masterfd); */
@@ -494,6 +525,8 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
                    (slavedevice = ptsname(masterfd)) == NULL)) {
         logError(printf("pcsPty: Cannot open pty.\n"););
         freeArgVector(argv);
+        FREE_RECORD(childStdinFile, fileRecord, count.files);
+        FREE_RECORD(childStdoutFile, fileRecord, count.files);
         raise_error(FILE_ERROR);
       } else {
         /* printf("slave device is: %s\n", slavedevice); */
@@ -501,6 +534,8 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
         if (unlikely(slavefd < 0)) {
           logError(printf("pcsPty: No slavefd\n"););
           freeArgVector(argv);
+          FREE_RECORD(childStdinFile, fileRecord, count.files);
+          FREE_RECORD(childStdoutFile, fileRecord, count.files);
           raise_error(FILE_ERROR);
         } else {
           savedStdin  = dup(0);
@@ -525,6 +560,8 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
             dup2(savedStdout, 1);
             close(slavefd); /* This is unused */
             freeArgVector(argv);
+            FREE_RECORD(childStdinFile, fileRecord, count.files);
+            FREE_RECORD(childStdoutFile, fileRecord, count.files);
             raise_error(FILE_ERROR);
           } else {
             close(0); /* Restore the original std fds of parent */
@@ -532,8 +569,14 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
             dup2(savedStdin, 0);
             dup2(savedStdout, 1);
             close(slavefd); /* This is being used by the child */
-            *childStdin  = fdopen(masterfd, "w");
-            *childStdout = fdopen(masterfd, "r");
+            filDestr(*childStdin);
+            initFileType(childStdinFile, 1);
+            childStdinFile->cFile = fdopen(masterfd, "w");
+            *childStdin = childStdinFile;
+            filDestr(*childStdout);
+            initFileType(childStdoutFile, 1);
+            childStdoutFile->cFile = fdopen(masterfd, "r");
+            *childStdout = childStdoutFile;
             freeArgVector(argv);
           } /* if */
         } /* if */
@@ -546,9 +589,12 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
 
 
 processType pcsStart (const const_striType command, const const_rtlArrayType parameters,
-    fileType childStdin, fileType childStdout, fileType childStderr)
+    fileType redirectStdin, fileType redirectStdout, fileType redirectStderr)
 
   {
+    cFileType childStdin;
+    cFileType childStdout;
+    cFileType childStderr;
     os_striType *argv;
     int stdinFileNo;
     int stdoutFileNo;
@@ -560,9 +606,16 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
   /* pcsStart */
     logFunction(printf("pcsStart(\"%s\"", striAsUnquotedCStri(command));
                 printParameters(parameters);
-                printf(", %d, %d, %d)\n",
-                       safe_fileno(childStdin), safe_fileno(childStdout),
-                       safe_fileno(childStderr)););
+                printf(", %s%d, %s%d, %s%d)\n",
+                       redirectStdin == NULL ? "NULL " : "",
+                       redirectStdin != NULL ? safe_fileno(redirectStdin->cFile) : 0,
+                       redirectStdout == NULL ? "NULL " : "",
+                       redirectStdout != NULL ? safe_fileno(redirectStdout->cFile) : 0,
+                       redirectStderr == NULL ? "NULL " : "",
+                       redirectStderr != NULL ? safe_fileno(redirectStderr->cFile) : 0););
+    childStdin = redirectStdin->cFile;
+    childStdout = redirectStdout->cFile;
+    childStderr = redirectStderr->cFile;
     if (childStdin == NULL) {
       stdinFileNo = open(NULL_DEVICE, O_RDONLY);
     } else {
@@ -655,6 +708,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
 
   {
     os_striType *argv;
+    fileType childStdinFile;
+    fileType childStdoutFile;
+    fileType childStderrFile;
     int childStdinPipes[2];
     int childStdoutPipes[2];
     int childStderrPipes[2];
@@ -678,11 +734,29 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     } else if (unlikely(!ALLOC_RECORD(process, unx_processRecord, count.process))) {
       freeArgVector(argv);
       raise_error(MEMORY_ERROR);
+    } else if (unlikely(!ALLOC_RECORD(childStdinFile, fileRecord, count.files))) {
+      freeArgVector(argv);
+      FREE_RECORD(process, unx_processRecord, count.process);
+      raise_error(MEMORY_ERROR);
+    } else if (unlikely(!ALLOC_RECORD(childStdoutFile, fileRecord, count.files))) {
+      freeArgVector(argv);
+      FREE_RECORD(childStdinFile, fileRecord, count.files);
+      FREE_RECORD(process, unx_processRecord, count.process);
+      raise_error(MEMORY_ERROR);
+    } else if (unlikely(!ALLOC_RECORD(childStderrFile, fileRecord, count.files))) {
+      freeArgVector(argv);
+      FREE_RECORD(childStdinFile, fileRecord, count.files);
+      FREE_RECORD(childStdoutFile, fileRecord, count.files);
+      FREE_RECORD(process, unx_processRecord, count.process);
+      raise_error(MEMORY_ERROR);
     } else if (unlikely(pipe(childStdinPipes) != 0)) {
       logError(printf("pcsStartPipe: pipe(childStdinPipes) failed:\n"
                       "errno=%d\nerror: %s\n",
                       errno, strerror(errno)););
       freeArgVector(argv);
+      FREE_RECORD(childStdinFile, fileRecord, count.files);
+      FREE_RECORD(childStdoutFile, fileRecord, count.files);
+      FREE_RECORD(childStderrFile, fileRecord, count.files);
       FREE_RECORD(process, unx_processRecord, count.process);
       raise_error(FILE_ERROR);
       process = NULL;
@@ -691,6 +765,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                       "errno=%d\nerror: %s\n",
                       errno, strerror(errno)););
       freeArgVector(argv);
+      FREE_RECORD(childStdinFile, fileRecord, count.files);
+      FREE_RECORD(childStdoutFile, fileRecord, count.files);
+      FREE_RECORD(childStderrFile, fileRecord, count.files);
       FREE_RECORD(process, unx_processRecord, count.process);
       close(childStdinPipes[0]);
       close(childStdinPipes[1]);
@@ -701,6 +778,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
                       "errno=%d\nerror: %s\n",
                       errno, strerror(errno)););
       freeArgVector(argv);
+      FREE_RECORD(childStdinFile, fileRecord, count.files);
+      FREE_RECORD(childStdoutFile, fileRecord, count.files);
+      FREE_RECORD(childStderrFile, fileRecord, count.files);
       FREE_RECORD(process, unx_processRecord, count.process);
       close(childStdinPipes[0]);
       close(childStdinPipes[1]);
@@ -737,6 +817,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
         close(childStdoutPipes[0]);
         close(childStderrPipes[0]);
         freeArgVector(argv);
+        FREE_RECORD(childStdinFile, fileRecord, count.files);
+        FREE_RECORD(childStdoutFile, fileRecord, count.files);
+        FREE_RECORD(childStderrFile, fileRecord, count.files);
         FREE_RECORD(process, unx_processRecord, count.process);
         raise_error(FILE_ERROR);
         process = NULL;
@@ -749,9 +832,15 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
         process->usage_count = 1;
         process->pid = pid;
         process->isTerminated = FALSE;
-        process->stdIn  = fdopen(childStdinPipes[1], "w");
-        process->stdOut = fdopen(childStdoutPipes[0], "r");
-        process->stdErr = fdopen(childStderrPipes[0], "r");
+        initFileType(childStdinFile, 1);
+        childStdinFile->cFile  = fdopen(childStdinPipes[1], "w");
+        process->stdIn = childStdinFile;
+        initFileType(childStdoutFile, 1);
+        childStdoutFile->cFile = fdopen(childStdoutPipes[0], "r");
+        process->stdOut = childStdoutFile;
+        initFileType(childStderrFile, 1);
+        childStderrFile->cFile = fdopen(childStderrPipes[0], "r");
+        process->stdErr = childStderrFile;
       } /* if */
     } /* if */
     logFunction(printf("pcsStartPipe -> " FMT_U_MEM "\n",

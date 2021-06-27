@@ -57,7 +57,7 @@
  *  If the standard error file of the subprocess has been redirected
  *  then this function will return NULL.
  *  @return the error output file of ''process'' or
- *          NULL, if stderr has been redirected.
+ *          CLIB_NULL_FILE, if stderr has been redirected.
  */
 objectType pcs_child_stderr (listType arguments)
 
@@ -74,7 +74,7 @@ objectType pcs_child_stderr (listType arguments)
  *  If the standard input file of the subprocess has been redirected
  *  then this function will return NULL.
  *  @return the standard input file of ''process'' or
- *          NULL, if stdin has been redirected.
+ *          CLIB_NULL_FILE, if stdin has been redirected.
  */
 objectType pcs_child_stdin (listType arguments)
 
@@ -91,7 +91,7 @@ objectType pcs_child_stdin (listType arguments)
  *  If the standard output file of the subprocess has been redirected
  *  then this function will return NULL.
  *  @return the standard output file of ''process'' or
- *          NULL, if stdout has been redirected.
+ *          CLIB_NULL_FILE, if stdout has been redirected.
  */
 objectType pcs_child_stdout (listType arguments)
 
@@ -394,9 +394,9 @@ objectType pcs_start (listType arguments)
     isit_file(arg_5(arguments));
     logFunction(printf("pcs_start(\"%s\", arr, %d, %d, %d)\n",
                        striAsUnquotedCStri(take_stri(arg_1(arguments))),
-                       safe_fileno(take_file(arg_3(arguments))),
-                       safe_fileno(take_file(arg_4(arguments))),
-                       safe_fileno(take_file(arg_5(arguments)))););
+                       safe_fileno(take_file(arg_3(arguments))->cFile),
+                       safe_fileno(take_file(arg_4(arguments))->cFile),
+                       safe_fileno(take_file(arg_5(arguments))->cFile)););
     parameters = gen_rtl_array(take_array(arg_2(arguments)));
     if (parameters == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);

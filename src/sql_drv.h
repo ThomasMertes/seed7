@@ -38,14 +38,16 @@ typedef struct {
                            const const_bigIntType numerator,
                            const const_bigIntType denominator);
     void (*sqlBindBool) (sqlStmtType sqlStatement, intType pos, boolType value);
-    void (*sqlBindBStri) (sqlStmtType sqlStatement, intType pos, bstriType bstri);
+    void (*sqlBindBStri) (sqlStmtType sqlStatement, intType pos,
+                          const const_bstriType bstri);
     void (*sqlBindDuration) (sqlStmtType sqlStatement, intType pos,
                              intType year, intType month, intType day, intType hour,
                              intType minute, intType second, intType micro_second);
     void (*sqlBindFloat) (sqlStmtType sqlStatement, intType pos, floatType value);
     void (*sqlBindInt) (sqlStmtType sqlStatement, intType pos, intType value);
     void (*sqlBindNull) (sqlStmtType sqlStatement, intType pos);
-    void (*sqlBindStri) (sqlStmtType sqlStatement, intType pos, striType stri);
+    void (*sqlBindStri) (sqlStmtType sqlStatement, intType pos,
+                         const const_striType stri);
     void (*sqlBindTime) (sqlStmtType sqlStatement, intType pos,
                          intType year, intType month, intType day, intType hour,
                          intType min, intType sec, intType micro_sec,
@@ -71,7 +73,8 @@ typedef struct {
     boolType (*sqlFetch) (sqlStmtType sqlStatement);
     boolType (*sqlGetAutoCommit) (databaseType database);
     boolType (*sqlIsNull) (sqlStmtType sqlStatement, intType column);
-    sqlStmtType (*sqlPrepare) (databaseType database, striType sqlStatementStri);
+    sqlStmtType (*sqlPrepare) (databaseType database,
+                               const const_striType sqlStatementStri);
     void (*sqlRollback) (databaseType database);
     void (*sqlSetAutoCommit) (databaseType database, boolType autoCommit);
     intType (*sqlStmtColumnCount) (sqlStmtType sqlStatement);

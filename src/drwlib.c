@@ -1432,6 +1432,24 @@ objectType drw_setContent (listType arguments)
 
 
 /**
+ *  Set the visibility of the mouse cursor in aWindow/arg_1.
+ *  @param aWindow/arg_1 Window for which the mouse cursor visibility is set.
+ *  @param visible/arg_2 TRUE, if the mouse cursor should be visible, or
+ *                       FALSE, if the mouse curser should be invisible.
+ */
+objectType drw_setCursorVisible (listType arguments)
+
+  { /* drw_setCursorVisible */
+    isit_win(arg_1(arguments));
+    isit_bool(arg_2(arguments));
+    drwSetCursorVisible(take_win(arg_1(arguments)),
+                        take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT);
+    return SYS_EMPTY_OBJECT;
+  } /* drw_setCursorVisible */
+
+
+
+/**
  *  Move a window to the coordinates x/y.
  *  Afterwards the top left corner of the window will be at the position x/y.
  *  If window decorations are present the top left corner of the

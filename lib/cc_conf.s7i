@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  cc_conf.s7i   Configuration values for C compiler and runtime.  *)
-(*  Copyright (C) 2013 - 2020  Thomas Mertes                        *)
+(*  Copyright (C) 2013 - 2021  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -202,9 +202,12 @@ const type: ccConfigType is new struct
     (**
      *  TRUE if floating point divisions by zero cause compilation errors.
      *  Some C compilers check if the dividend is 0.0 and classify a
-     *  floating point division by zero as fatal error. The generated
-     *  C code should avoid this situation and generate code to
-     *  raise the exception NUMERIC_ERROR instead.
+     *  floating point division by zero as fatal compilation error.
+     *  Some C compilers even trigger wrong behavior if the dividend
+     *  is 0.0. In this case FLOAT_ZERO_DIV_ERROR is also TRUE.
+     *  If FLOAT_ZERO_DIV_ERROR is TRUE the generated C code should
+     *  avoid divisions by zero and generate code to return Infinity,
+     *  -Infinity or NaN instead.
      *)
     var boolean: FLOAT_ZERO_DIV_ERROR         is FALSE;
 

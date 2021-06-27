@@ -96,6 +96,7 @@ objectType drw_screen_width        (listType arguments);
 objectType drw_scale               (listType arguments);
 objectType drw_setCloseAction      (listType arguments);
 objectType drw_setContent          (listType arguments);
+objectType drw_setCursorVisible    (listType arguments);
 objectType drw_setPos              (listType arguments);
 objectType drw_setTransparentColor (listType arguments);
 objectType drw_setWindowName       (listType arguments);

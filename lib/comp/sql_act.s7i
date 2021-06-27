@@ -90,12 +90,12 @@ const proc: sql_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        sqlBindBigInt (sqlStmtType, intType, const const_bigIntType);");
     declareExtern(c_prog, "void        sqlBindBigRat (sqlStmtType, intType, const const_bigIntType, const const_bigIntType);");
     declareExtern(c_prog, "void        sqlBindBool (sqlStmtType, intType, boolType);");
-    declareExtern(c_prog, "void        sqlBindBStri (sqlStmtType, intType, bstriType);");
+    declareExtern(c_prog, "void        sqlBindBStri (sqlStmtType, intType, const const_bstriType);");
     declareExtern(c_prog, "void        sqlBindDuration (sqlStmtType, intType, intType, intType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        sqlBindFloat (sqlStmtType, intType, floatType);");
     declareExtern(c_prog, "void        sqlBindInt (sqlStmtType, intType, intType);");
     declareExtern(c_prog, "void        sqlBindNull (sqlStmtType, intType);");
-    declareExtern(c_prog, "void        sqlBindStri (sqlStmtType, intType, striType);");
+    declareExtern(c_prog, "void        sqlBindStri (sqlStmtType, intType, const const_striType);");
     declareExtern(c_prog, "void        sqlBindTime (sqlStmtType, intType, intType, intType, intType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        sqlClose (databaseType);");
     declareExtern(c_prog, "bigIntType  sqlColumnBigInt (sqlStmtType, intType);");
@@ -138,7 +138,7 @@ const proc: sql_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "databaseType sqlOpenPost (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenSqlServer (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenTds (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
-    declareExtern(c_prog, "sqlStmtType sqlPrepare (databaseType, striType);");
+    declareExtern(c_prog, "sqlStmtType sqlPrepare (databaseType, const const_striType);");
     declareExtern(c_prog, "void        sqlRollback (databaseType);");
     declareExtern(c_prog, "void        sqlSetAutoCommit (databaseType, boolType);");
     declareExtern(c_prog, "intType     sqlStmtColumnCount (sqlStmtType);");

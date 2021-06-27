@@ -59,7 +59,6 @@
 
 static intType init_called = 0;
 
-
 typedef struct {
     uintType usage_count;
     /* Up to here the structure is identical to struct winStruct */
@@ -82,6 +81,7 @@ typedef struct {
     intType clear_col;
     int close_action;
     boolType resizeReturnsKey;
+    boolType cursorVisible;
   } win_winRecord, *win_winType;
 
 typedef const win_winRecord *const_win_winType;
@@ -103,15 +103,17 @@ typedef const win_winRecord *const_win_winType;
 #define to_bruttoWidthDelta(win)     (((const_win_winType) win)->bruttoWidthDelta)
 #define to_bruttoHeightDelta(win)    (((const_win_winType) win)->bruttoHeightDelta)
 #define to_clear_col(win)            (((const_win_winType) win)->clear_col)
-#define to_resizeReturnsKey(win)     (((const_win_winType) win)->resizeReturnsKey)
 #define to_close_action(win)         (((const_win_winType) win)->close_action)
+#define to_resizeReturnsKey(win)     (((const_win_winType) win)->resizeReturnsKey)
+#define to_cursorVisible(win)        (((const_win_winType) win)->cursorVisible)
 
 #define to_var_hasTransparentPixel(win)  (((win_winType) win)->hasTransparentPixel)
 #define to_var_transparentPixel(win)     (((win_winType) win)->transparentPixel)
 #define to_var_maskBitmap(win)           (((win_winType) win)->maskBitmap)
 #define to_var_clear_col(win)            (((win_winType) win)->clear_col)
-#define to_var_resizeReturnsKey(win)     (((win_winType) win)->resizeReturnsKey)
 #define to_var_close_action(win)         (((win_winType) win)->close_action)
+#define to_var_resizeReturnsKey(win)     (((win_winType) win)->resizeReturnsKey)
+#define to_var_cursorVisible(win)        (((win_winType) win)->cursorVisible)
 
 #ifndef WM_NCMOUSELEAVE
 #define WM_NCMOUSELEAVE 674
@@ -341,6 +343,16 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                (unsigned int) HIWORD(lParam));
         result = 1;
         break;
+      case WM_SETCURSOR:
+        /* printf("WM_SETCURSOR\n"); */
+        paint_window = (win_winType) find_window(hWnd);
+        if (LOWORD(lParam) == HTCLIENT && !paint_window->cursorVisible) {
+          SetCursor(NULL);
+          result = 1;
+        } else{
+          result = DefWindowProc(hWnd, message, wParam, lParam);
+        } /* if */
+        break;
       default:
         result = DefWindowProc(hWnd, message, wParam, lParam);
         break;
@@ -351,13 +363,13 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 
-static void dra_init (void)
+static void drawInit (void)
 
   {
     WNDCLASSEX wcex = {0};
     HMODULE hntdll = 0;
 
-  /* dra_init */
+  /* drawInit */
     wcex.cbSize        = sizeof(WNDCLASSEX);
     wcex.style         = /* CS_HREDRAW | CS_VREDRAW | */ CS_OWNDC;
     wcex.lpfnWndProc   = (WNDPROC) WndProc;
@@ -374,7 +386,7 @@ static void dra_init (void)
       pGetConsoleWindow = (pGetConsoleWindowType) GetProcAddress(hntdll, "GetConsoleWindow");
     } /* if */
     init_called = 1;
-  } /* dra_init */
+  } /* drawInit */
 
 
 
@@ -865,7 +877,7 @@ winType drwEmpty (void)
   /* drwEmpty */
     logFunction(printf("drwEmpty()\n"););
     if (init_called == 0) {
-      dra_init();
+      drawInit();
     } /* if */
     if (unlikely(!ALLOC_RECORD2(emptyWindow, win_winRecord, count.win, count.win_bytes))) {
       raise_error(MEMORY_ERROR);
@@ -1134,7 +1146,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
       pixmap = NULL;
     } else {
       if (init_called == 0) {
-        dra_init();
+        drawInit();
       } /* if */
       if (unlikely(!ALLOC_RECORD2(pixmap, win_winRecord, count.win, count.win_bytes))) {
         raise_error(MEMORY_ERROR);
@@ -1228,7 +1240,7 @@ winType drwNewPixmap (intType width, intType height)
       pixmap = NULL;
     } else {
       if (init_called == 0) {
-        dra_init();
+        drawInit();
       } /* if */
       if (unlikely(!ALLOC_RECORD2(pixmap, win_winRecord, count.win, count.win_bytes))) {
         raise_error(MEMORY_ERROR);
@@ -1322,7 +1334,7 @@ winType drwOpen (intType xPos, intType yPos,
       raise_error(RANGE_ERROR);
     } else {
       if (init_called == 0) {
-        dra_init();
+        drawInit();
       } /* if */
       if (init_called != 0) {
         winName = stri_to_os_stri(windowName, &err_info);
@@ -1374,6 +1386,7 @@ winType drwOpen (intType xPos, intType yPos,
               result->backupWidth = (unsigned int) width;
               result->backupHeight = (unsigned int) height;
               result->clear_col = (intType) RGB(0, 0, 0); /* black */
+              result->cursorVisible = TRUE;
               result->backup_hdc = CreateCompatibleDC(result->hdc);
               result->backup = CreateCompatibleBitmap(result->hdc, (int) width, (int) height);
               SelectObject(result->backup_hdc, result->backup);
@@ -1432,7 +1445,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
       raise_error(RANGE_ERROR);
     } else {
       if (init_called == 0) {
-        dra_init();
+        drawInit();
       } /* if */
       if (init_called != 0) {
         if (ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes)) {
@@ -1486,6 +1499,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
             result->backupWidth = (unsigned int) width;
             result->backupHeight = (unsigned int) height;
             result->clear_col = (intType) RGB(0, 0, 0); /* black */
+            result->cursorVisible = TRUE;
             result->backup_hdc = CreateCompatibleDC(result->hdc);
             result->backup = CreateCompatibleBitmap(result->hdc, (int) width, (int) height);
             SelectObject(result->backup_hdc, result->backup);
@@ -1517,6 +1531,27 @@ void drwSetCloseAction (winType actual_window, intType closeAction)
       to_var_close_action(actual_window) = (int) closeAction;
     } /* if */
   } /* drwSetCloseAction */
+
+
+
+/**
+ *  Set the visibility of the mouse cursor in 'aWindow'.
+ *  @param aWindow Window for which the mouse cursor visibility is set.
+ *  @param visible TRUE, if the mouse cursor should be visible in 'aWindow', or
+ *                 FALSE, if the mouse curser should be invisible in 'aWindow'.
+ */
+void drwSetCursorVisible (winType aWindow, boolType visible)
+
+  {
+    POINT point;
+
+  /* drwSetCursorVisible */
+    logFunction(printf("drwSetCursorVisible(" FMT_U_MEM ", %d)\n"););
+    to_var_cursorVisible(aWindow) = visible;
+    if (GetCursorPos(&point) != 0) {
+      SetCursorPos(point.x, point.y);
+    } /* if */
+  } /* drwSetCursorVisible */
 
 
 
@@ -1753,8 +1788,8 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
   { /* drwPutScaled */
     logFunction(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D ", "
                        FMT_D ", " FMT_D ", " FMT_U_MEM")\n",
-                       (memSizeType) destWindow, (memSizeType) pixmap,
-                       xDest, yDest, width, height););
+                       (memSizeType) destWindow, xDest, yDest,
+                       width, height, (memSizeType) pixmap););
     if (unlikely(!inIntRange(xDest) || !inIntRange(yDest) ||
                  !inIntRange(width) || width < 0 ||
                  !inIntRange(height) || height < 0)) {

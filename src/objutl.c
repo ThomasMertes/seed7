@@ -54,6 +54,7 @@
 #include "drw_drv.h"
 #include "pcs_drv.h"
 #include "pol_drv.h"
+#include "fil_rtl.h"
 #if WITH_SQL
 #include "sql_rtl.h"
 #endif
@@ -650,7 +651,6 @@ void dump_temp_value (objectType object)
     switch (CATEGORY_OF_OBJ(object)) {
       case INTOBJECT:
       case CHAROBJECT:
-      case FILEOBJECT:
       case SOCKETOBJECT:
       case FLOATOBJECT:
       case REFOBJECT:
@@ -663,6 +663,10 @@ void dump_temp_value (objectType object)
       case TYPEOBJECT:
       case DECLAREDOBJECT:
       case FORWARDOBJECT:
+        SET_UNUSED_FLAG(object);
+        break;
+      case FILEOBJECT:
+        filDestr(object->value.fileValue);
         SET_UNUSED_FLAG(object);
         break;
       case BIGINTOBJECT:

@@ -1472,7 +1472,7 @@ rtlArrayType arrRemoveArray (rtlArrayType *arr_to, intType position, intType len
       result = NULL;
     } else {
       arr1_size = arraySize(arr1);
-      if (length > MAX_RTL_ARR_LEN) {
+      if ((uintType) length > MAX_RTL_ARR_LEN) {
         result_size = MAX_RTL_ARR_LEN;
       } else {
         result_size = (memSizeType) (uintType) (length);

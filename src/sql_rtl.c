@@ -184,7 +184,8 @@ void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
  *                         if 'bstri' cannot be converted.
  *  @exception DATABASE_ERROR If a database function fails.
  */
-void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri)
+void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
+    const const_bstriType bstri)
 
   { /* sqlBindBStri */
     logFunction(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
@@ -345,7 +346,8 @@ void sqlBindNull (sqlStmtType sqlStatement, intType pos)
  *                         if 'stri' cannot be converted.
  *  @exception DATABASE_ERROR If a database function fails.
  */
-void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
+void sqlBindStri (sqlStmtType sqlStatement, intType pos,
+    const const_striType stri)
 
   { /* sqlBindStri */
     logFunction(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
@@ -1287,7 +1289,8 @@ boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
  *         use a question mark (?).
  *  @exception RANGE_ERROR If the database is not open.
  */
-sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
+sqlStmtType sqlPrepare (databaseType database,
+    const const_striType sqlStatementStri)
 
   {
     sqlStmtType preparedStmt;

@@ -125,7 +125,7 @@ intType drwPointerYpos (const_winType actual_window)
 
 
 void drwArc (const_winType actual_window, intType x, intType y,
-    intType radius, floatType ang1, floatType ang2)
+    intType radius, floatType startAngle, floatType sweepAngle)
 
   { /* drwArc */
   } /* drwArc */
@@ -133,7 +133,7 @@ void drwArc (const_winType actual_window, intType x, intType y,
 
 
 void drwPArc (const_winType actual_window, intType x, intType y,
-    intType radius, floatType ang1, floatType ang2, intType col)
+    intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
   { /* drwPArc */
   } /* drwPArc */
@@ -380,6 +380,13 @@ void drwSetCloseAction (winType actual_window, intType closeAction)
 
   { /* drwSetCloseAction */
   } /* drwSetCloseAction */
+
+
+
+void drwSetCursorVisible (winType aWindow, boolType visible)
+
+  { /* drwSetCursorVisible */
+  } /* drwSetCursorVisible */
 
 
 

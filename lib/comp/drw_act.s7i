@@ -78,6 +78,7 @@ const ACTION: DRW_SCREEN_HEIGHT        is action "DRW_SCREEN_HEIGHT";
 const ACTION: DRW_SCREEN_WIDTH         is action "DRW_SCREEN_WIDTH";
 const ACTION: DRW_SETCLOSEACTION       is action "DRW_SETCLOSEACTION";
 const ACTION: DRW_SETCONTENT           is action "DRW_SETCONTENT";
+const ACTION: DRW_SETCURSORVISIBLE     is action "DRW_SETCURSORVISIBLE";
 const ACTION: DRW_SETPOS               is action "DRW_SETPOS";
 const ACTION: DRW_SETTRANSPARENTCOLOR  is action "DRW_SETTRANSPARENTCOLOR";
 const ACTION: DRW_SETWINDOWNAME        is action "DRW_SETWINDOWNAME";
@@ -203,6 +204,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     drwScreenHeight (void);");
     declareExtern(c_prog, "intType     drwScreenWidth (void);");
     declareExtern(c_prog, "void        drwSetContent (const_winType, const_winType);");
+    declareExtern(c_prog, "void        drwSetCursorVisible (winType, boolType);");
     declareExtern(c_prog, "void        drwSetPos (const_winType, intType, intType);");
     declareExtern(c_prog, "void        drwSetTransparentColor (winType, intType);");
     declareExtern(c_prog, "void        drwSetWindowName (winType, const const_striType);");
@@ -1120,6 +1122,19 @@ const proc: process (DRW_SETCONTENT, in reference: function,
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_SETCURSORVISIBLE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwSetCursorVisible(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 

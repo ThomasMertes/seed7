@@ -166,7 +166,8 @@ CONTENTS
   12.28   file(PROGRAM)
   12.29   getenv
   12.30   setenv
-  12.31   environment
+  12.31   unsetenv
+  12.32   environment
   13.   DATABASE ABSTRACTION API
   13.1    Opening a database connection
   13.2    Other ways to open a database connection
@@ -324,7 +325,9 @@ CONTENTS
 
     - Static type checking and no automatic casts.
 
-    - exception handling
+    - There is exception handling
+
+    - There are checks for array indices and integer overflow.
 
     - overloading of procedures/functions/operators/statements
 
@@ -337,6 +340,8 @@ CONTENTS
 
   Several concepts in use by other languages are not present
 
+    - There is no Null.
+
     - There is no goto statement.
       Hidden gotos like break- and continue-statements are
       also omitted.
@@ -348,6 +353,19 @@ CONTENTS
     - There are no automatic type conversions.
       When a subprogram should be used for different types
       it must be overloaded.
+
+    - There is no implicit fall-through for control flow
+      as in the switch statement of C.
+
+    - There is no undefined bahavior.
+
+    - There is no manual memory management.
+
+    - There is no "do what I mean" heuristic,
+      where the compiler tries to read the programmers mind.
+
+    - There is no preprocessor to accommodate for language
+      features that should exist by default.
 
     - There are no variable length parameter lists.
       Instead it is possible to use arrays as parameters.
@@ -1298,6 +1316,13 @@ CONTENTS
     s Trace signals
     * All flags
 
+  The pragma names can be used to allow Unicode in
+  name identifiers:
+
+    $ names unicode;
+
+  This allows variables with e.g. German umlauts or Cyrillic letters. This way
+  beginners can use variable and function names from their native language.
 
 
 
@@ -9742,6 +9767,9 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'name' to the system string type or not
         enough memory to represent the result 'string'.
+    RANGE_ERROR
+        'name' cannot be converted to the system string
+        type or a system function returns an error.
 
 
 12.30 setenv
@@ -9763,10 +9791,32 @@ CONTENTS
         Not enough memory to convert 'name' or 'value' to
         the system string type.
     RANGE_ERROR
-        A system function returns an error.
+        'name' or 'value' cannot be converted to the
+        system string type or a system function returns an error.
 
 
-12.31 environment
+12.31 unsetenv
+
+    The function 'unsetenv' removes an environment variable.
+
+    const proc: unsetenv (in string: name) is ...
+
+  The function 'unsetenv' searches the environment for an
+  environment variable with the given 'name'. When such
+  an environment variable exists it is removed from the
+  environment. When no environment variable with the given
+  'name' exists the function succeeds, and the
+  environment is unchanged.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to convert 'name' to the system string type.
+    RANGE_ERROR
+        'name' cannot be converted to the system string
+        type or a system function returns an error.
+
+
+12.32 environment
 
     The function 'environment' returns the list of
   environment variable names as array of strings.

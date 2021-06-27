@@ -88,6 +88,7 @@ Atom net_wm_state;
 Atom net_wm_state_skip_taskbar;
 static unsigned long myforeground;
 static unsigned long mybackground;
+static Cursor emptyCursor;
 static GC mygc;
 static int myscreen;
 
@@ -438,6 +439,9 @@ static void drawInit (void)
 #ifdef OUT_OF_ORDER
     const_cstriType class_text;
 #endif
+    XColor color;
+    static const char data[1] = {0};
+    Pixmap blankPixmap;
 
   /* drawInit */
     logFunction(printf("drawInit()\n"););
@@ -518,6 +522,9 @@ static void drawInit (void)
       motifWmHintsProperty = XInternAtom(mydisplay, "_MOTIF_WM_HINTS", True);
       net_wm_state = XInternAtom(mydisplay, "_NET_WM_STATE", False);
       net_wm_state_skip_taskbar = XInternAtom(mydisplay, "_NET_WM_STATE_SKIP_TASKBAR", False);
+      blankPixmap = XCreateBitmapFromData(mydisplay, DefaultRootWindow(mydisplay), data, 1, 1);
+      emptyCursor = XCreatePixmapCursor(mydisplay, blankPixmap, blankPixmap, &color, &color, 0, 0);
+      XFreePixmap(mydisplay, blankPixmap);
     } /* if */
     logFunction(printf("drawInit -->\n"););
   } /* drawInit */
@@ -1329,37 +1336,45 @@ bstriType drwGetImage (const_winType source_window)
 
   /* drwGetImage */
     logFunction(printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) source_window););
-    if (to_backup(source_window) != 0) {
-      image = XGetImage(mydisplay, to_backup(source_window),
-                        0, 0, to_width(source_window), to_height(source_window),
-                        (unsigned long) -1, ZPixmap);
-    } else if (to_window(source_window) != 0) {
-      image = XGetImage(mydisplay, to_window(source_window),
-                        0, 0, to_width(source_window), to_height(source_window),
-                        (unsigned long) -1, ZPixmap);
-    } else {
-      image = NULL;
-    } /* if */
-    if (unlikely(image == NULL)) {
-      logError(printf("drwGetImage(" FMT_U_MEM "): XGetImage failed\n",
-                      (memSizeType) source_window););
-      raise_error(FILE_ERROR);
-      result = NULL;
-    } else {
-      result_size = to_width(source_window) * to_height(source_window) * sizeof(int32Type);
-      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
+    if (to_window(source_window) == 0) {
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = result_size;
-        image_data = (int32Type *) result->mem;
-        for (yPos = 0; yPos < to_height(source_window); yPos++) {
-          for (xPos = 0; xPos < to_width(source_window); xPos++) {
-            image_data[yPos * to_width(source_window) + xPos] =
-                (int32Type) XGetPixel(image, (int) xPos, (int) yPos);
-          } /* for */
-        } /* for */
+        result->size = 0;
       } /* if */
-      XDestroyImage(image);
+    } else {
+      if (to_backup(source_window) != 0) {
+        image = XGetImage(mydisplay, to_backup(source_window),
+                          0, 0, to_width(source_window), to_height(source_window),
+                          (unsigned long) -1, ZPixmap);
+      } else if (to_window(source_window) != 0) {
+        image = XGetImage(mydisplay, to_window(source_window),
+                          0, 0, to_width(source_window), to_height(source_window),
+                          (unsigned long) -1, ZPixmap);
+      } else {
+        image = NULL;
+      } /* if */
+      if (unlikely(image == NULL)) {
+        logError(printf("drwGetImage(" FMT_U_MEM "): XGetImage failed\n",
+                        (memSizeType) source_window););
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else {
+        result_size = to_width(source_window) * to_height(source_window) * sizeof(int32Type);
+        if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = result_size;
+          image_data = (int32Type *) result->mem;
+          for (yPos = 0; yPos < to_height(source_window); yPos++) {
+            for (xPos = 0; xPos < to_width(source_window); xPos++) {
+              image_data[yPos * to_width(source_window) + xPos] =
+                  (int32Type) XGetPixel(image, (int) xPos, (int) yPos);
+            } /* for */
+          } /* for */
+        } /* if */
+        XDestroyImage(image);
+      } /* if */
     } /* if */
     return result;
   } /* drwGetImage */
@@ -1849,6 +1864,26 @@ void drwSetCloseAction (winType actual_window, intType closeAction)
 
 
 
+/**
+ *  Set the visibility of the mouse cursor in 'aWindow'.
+ *  @param aWindow Window for which the mouse cursor visibility is set.
+ *  @param visible TRUE, if the mouse cursor should be visible in 'aWindow', or
+ *                 FALSE, if the mouse curser should be invisible in 'aWindow'.
+ */
+void drwSetCursorVisible (winType aWindow, boolType visible)
+
+  { /* drwSetCursorVisible */
+    logFunction(printf("drwSetCursorVisible(" FMT_U_MEM ", %d)\n"););
+    if (visible) {
+      XUndefineCursor(mydisplay, to_window(aWindow));
+    } else {
+      XDefineCursor(mydisplay, to_window(aWindow), emptyCursor);
+    } /* if */
+    XFlush(mydisplay);
+  } /* drwSetCursorVisible */
+
+
+
 void drwPoint (const_winType actual_window, intType x, intType y)
 
   { /* drwPoint */
@@ -1986,14 +2021,14 @@ void drwPolyLine (const_winType actual_window,
     XPoint startBackup;
 
   /* drwPolyLine */
-    if (unlikely(x < SHRT_MIN || x > SHRT_MAX || y < SHRT_MIN || y > SHRT_MAX)) {
+    if (unlikely(!inShortRange(x) || !inShortRange(y))) {
       raise_error(RANGE_ERROR);
     } else {
       points = (XPoint *) point_list->mem;
       numPoints = (int) (point_list->size / sizeof(XPoint));
       memcpy(&startBackup, &points[0], sizeof(XPoint));
-      points[0].x += castToShort(x);
-      points[0].y += castToShort(y);
+      points[0].x += (short int) x;
+      points[0].y += (short int) y;
       XSetForeground(mydisplay, mygc, (unsigned long) col);
       XDrawLines(mydisplay, to_window(actual_window), mygc, points, numPoints, CoordModePrevious);
       if (to_backup(actual_window) != 0) {
@@ -2014,14 +2049,14 @@ void drwFPolyLine (const_winType actual_window,
     XPoint startBackup;
 
   /* drwFPolyLine */
-    if (unlikely(x < SHRT_MIN || x > SHRT_MAX || y < SHRT_MIN || y > SHRT_MAX)) {
+    if (unlikely(!inShortRange(x) || !inShortRange(y))) {
       raise_error(RANGE_ERROR);
     } else {
       points = (XPoint *) point_list->mem;
       numPoints = (int) (point_list->size / sizeof(XPoint));
       memcpy(&startBackup, &points[0], sizeof(XPoint));
-      points[0].x += castToShort(x);
-      points[0].y += castToShort(y);
+      points[0].x += (short int) x;
+      points[0].y += (short int) y;
       XSetForeground(mydisplay, mygc, (unsigned long) col);
       XDrawLines(mydisplay, to_window(actual_window), mygc, points, numPoints, CoordModePrevious);
       XFillPolygon(mydisplay, to_window(actual_window), mygc, points, numPoints,
@@ -2081,8 +2116,8 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
   /* drwPutScaled */
     logFunction(printf("drwPutScaled(" FMT_U_MEM  ", " FMT_D ", " FMT_D ", "
                        FMT_D ", " FMT_D ", " FMT_U_MEM")\n",
-                       (memSizeType) destWindow, (memSizeType) pixmap,
-                       xDest, yDest, width, height););
+                       (memSizeType) destWindow, xDest, yDest,
+                       width, height, (memSizeType) pixmap););
     if (unlikely(!inIntRange(xDest) || !inIntRange(yDest) ||
                  !inIntRange(width) || width < 0 ||
                  !inIntRange(height) || height < 0)) {

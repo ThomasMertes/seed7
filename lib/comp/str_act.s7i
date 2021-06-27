@@ -727,10 +727,11 @@ const proc: process (STR_CPY, in reference: function,
             statement.expr &:= c_param1.expr;
             statement.expr &:= "=";
           else
+            statement.temp_decls &:= "striType old_stri;\n";
             statement.temp_decls &:= "striType *stri_ptr=&(";
             statement.temp_decls &:= c_param1.expr;
             statement.temp_decls &:= ");\n";
-            statement.expr &:= "striType old_stri=*stri_ptr;\n";
+            statement.expr &:= "old_stri=*stri_ptr;\n";
             statement.expr &:= "*stri_ptr=";
           end if;
           statement.expr &:= c_param3.result_expr;

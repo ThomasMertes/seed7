@@ -268,7 +268,7 @@
 
 static int testNumber = 0;
 static char c_compiler[COMMAND_SIZE];
-static char *nullDevice = NULL;
+static const char *nullDevice = NULL;
 static FILE *logFile = NULL;
 static unsigned long removeReattempts = 0;
 
@@ -1025,7 +1025,7 @@ static void testOutputToVersionFile (FILE *versionFile)
 
 
 
-static int isNullDevice (char *fileName, int eofChar)
+static int isNullDevice (const char *fileName, int eofChar)
 
   {
     FILE *aFile;
@@ -1092,7 +1092,7 @@ static void initializeNullDevice (void)
 
 
 
-static int checkIfNullDevice (char *fileName, int eofChar)
+static int checkIfNullDevice (const char *fileName, int eofChar)
 
   {
     char buffer[BUFFER_SIZE];
@@ -1146,7 +1146,7 @@ static int checkIfNullDevice (char *fileName, int eofChar)
 static void determineNullDevice (FILE *versionFile)
 
   {
-    char *nullDevice = NULL;
+    const char *nullDevice = NULL;
 
   /* determineNullDevice */
     if (checkIfNullDevice("/dev/null", EOF)) {
@@ -1312,9 +1312,9 @@ static void writeMacroDefs (FILE *versionFile)
 static void checkPopen (FILE *versionFile)
 
   {
-    char *popen = NULL;
+    const char *popen = NULL;
     int binary_mode_supported;
-    char *binary_mode = "";
+    const char *binary_mode = "";
     char buffer[BUFFER_SIZE];
     char fileName[NAME_SIZE];
 
@@ -2206,6 +2206,22 @@ static void numericProperties (FILE *versionFile)
                               "signal(SIGINT,handleSig);\n"
                               "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") ||
             doTest() == 2 ||
+            !compileAndLinkOk("#include<stdio.h>\n"
+                              "#define POSITIVE_INFINITY ( 1.0 / 0.0)\n"
+                              "#define NEGATIVE_INFINITY (-1.0 / 0.0)\n"
+                              "int isLess (double number1, double number2)\n"
+                              "  {return number1 < number2;}\n"
+                              "int isGreater (double number1, double number2)\n"
+                              "  {return number1 > number2;}\n"
+                              "int main(int argc,char *argv[]){\n"
+                              "int check1, check2, check3, check4;\n"
+                              "check1 = -(POSITIVE_INFINITY) < -1.0E37;\n"
+                              "check2 = isLess(-(POSITIVE_INFINITY), -1.0E37);\n"
+                              "check3 = -(NEGATIVE_INFINITY) > 1.0E37;\n"
+                              "check4 = isGreater(-(NEGATIVE_INFINITY), 1.0E37);\n"
+                              "printf(\"%d\\n\", check1 == check2 && check3 == check4);\n"
+                              "return 0;}\n") ||
+            doTest() != 1 ||
             !compileAndLinkOk(buffer) ||
             doTest() != 1);
     if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
@@ -3615,7 +3631,7 @@ static void determineSocketLib (FILE *versionFile)
 static void determineOsDirAccess (FILE *versionFile)
 
   {
-    char *directory_lib = NULL;
+    const char *directory_lib = NULL;
     int lib_number;
 
   /* determineOsDirAccess */
@@ -4065,8 +4081,8 @@ static void determineFtruncate (FILE *versionFile, const char *fileno)
 
   {
     char buffer[BUFFER_SIZE];
-    char *os_ftruncate_stri = NULL;
-    char *ftruncate_size_in_bits;
+    const char *os_ftruncate_stri = NULL;
+    const char *ftruncate_size_in_bits;
     char size_buffer[10];
 
   /* determineFtruncate */
@@ -4279,7 +4295,7 @@ static void determineEnvironDefines (FILE *versionFile)
     char buffer[BUFFER_SIZE];
     char getenv_definition[BUFFER_SIZE];
     char setenv_definition[BUFFER_SIZE];
-    char *os_environ_stri = NULL;
+    const char *os_environ_stri = NULL;
     int declare_os_environ = 0;
     int use_get_environment = 0;
     int initialize_os_environ = 0;
@@ -4289,10 +4305,10 @@ static void determineEnvironDefines (FILE *versionFile)
     int test_result;
     int putenv_can_remove_keys = 0;
     int getenv_is_case_sensitive = -1;
-    char *os_getenv_stri = NULL;
-    char *os_putenv_stri = NULL;
-    char *os_setenv_stri = NULL;
-    char *os_unsetenv_stri = NULL;
+    const char *os_getenv_stri = NULL;
+    const char *os_putenv_stri = NULL;
+    const char *os_setenv_stri = NULL;
+    const char *os_unsetenv_stri = NULL;
 
   /* determineEnvironDefines */
     buffer[0] = '\0';
@@ -4813,9 +4829,9 @@ static void determineEnvironDefines (FILE *versionFile)
 static void determineOsUtime (FILE *versionFile)
 
   {
-    char *utime_include = NULL;
-    char *os_utimbuf_struct_stri = NULL;
-    char *os_utime_stri = NULL;
+    const char *utime_include = NULL;
+    const char *os_utimbuf_struct_stri = NULL;
+    const char *os_utime_stri = NULL;
     char buffer[BUFFER_SIZE];
 
   /* determineOsUtime */
@@ -5547,7 +5563,7 @@ static void appendOption (char *options, const char *optionToAppend)
 
 
 
-static const char *findIncludeFile (char *scopeName, char *testProgram,
+static const char *findIncludeFile (const char *scopeName, char *testProgram,
     const char *baseDir, const char **inclDirList, size_t inclDirListLength,
     const char *inclName, char *includeOption)
 
@@ -5698,7 +5714,7 @@ static int findLinkerOption (const char *scopeName, const char *testProgram,
 
 
 
-static void listDynamicLibs (char *scopeName, const char *baseDir,
+static void listDynamicLibs (const char *scopeName, const char *baseDir,
     const char **dllDirList, size_t dllDirListLength,
     const char **dllNameList, size_t dllNameListLength, FILE *versionFile)
 
@@ -5736,7 +5752,7 @@ static void listDynamicLibs (char *scopeName, const char *baseDir,
 
 
 
-static void listDynamicLibsInSameDir (char *scopeName, const char *baseDllPath,
+static void listDynamicLibsInSameDir (const char *scopeName, const char *baseDllPath,
     const char **dllNameList, size_t dllNameListLength, FILE *versionFile)
 
   {
@@ -5785,8 +5801,8 @@ static void listDynamicLibsInSameDir (char *scopeName, const char *baseDllPath,
 
 
 
-static void defineLibraryMacro (char *scopeName, int dbHomeExists,
-    char *dbHome, char *macroName, const char **dllDirList,
+static void defineLibraryMacro (const char *scopeName, int dbHomeExists,
+    char *dbHome, const char *macroName, const char **dllDirList,
     size_t dllDirListLength, const char **baseDllNameList,
     size_t baseDllNameListLength, const char **dllNameList,
     size_t dllNameListLength, FILE *versionFile)
@@ -7752,7 +7768,7 @@ static void determineBigIntDefines (FILE *versionFile,
     char *include_options, char *additional_system_libs)
 
   {
-    char *gmpLinkerOption;
+    const char *gmpLinkerOption;
     char linkerOptions[BUFFER_SIZE];
 
   /* determineBigIntDefines */
@@ -8053,6 +8069,12 @@ int main (int argc, char **argv)
     fprintf(versionFile, "#define ACLAPI_H_PRESENT %d\n",
             compileAndLinkOk("#include <aclapi.h>\n"
                              "int main(int argc,char *argv[]){return 0;}\n"));
+    fprintf(versionFile, "#define WINDOWSX_H_PRESENT %d\n",
+            compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                             "#include <windowsx.h>\n"
+                             "int main(int argc,char *argv[])\n"
+                             "{printf(\"%d\\n\", GET_X_LPARAM(12345) == 12345);\n"
+                             "return 0;}\n") && doTest() == 1);
     checkSignal(versionFile);
     writeMacroDefs(versionFile);
     closeVersionFile(versionFile);

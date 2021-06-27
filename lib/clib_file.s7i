@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  clib_file.s7i  Type for FILE * files from the C runtime library *)
-(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2014, 2020, 2021  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -39,7 +39,7 @@ const type: clib_file is newtype;
 
 IN_PARAM_IS_VALUE(clib_file);
 
-const proc: destroy (ref clib_file: aValue)                          is action "GEN_DESTR";
+const proc: destroy (ref clib_file: aValue)                          is action "FIL_DESTR";
 const proc: (ref clib_file: dest) ::= (in clib_file: source)         is action "FIL_CREATE";
 const proc: (inout clib_file: dest) := (in clib_file: source)        is action "FIL_CPY";
 

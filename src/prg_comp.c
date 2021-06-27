@@ -134,7 +134,7 @@ static void free_args (objectType arg_v)
 
 
 
-void interpret (const progType currentProg, const const_rtlArrayType argv,
+void interpret (const const_progType currentProg, const const_rtlArrayType argv,
     memSizeType argvStart, uintType options, const const_striType protFileName)
 
   {
@@ -151,7 +151,8 @@ void interpret (const progType currentProg, const const_rtlArrayType argv,
       fail_stack = NULL;
       if (currentProg->main_object != NULL) {
         progBackup = prog;
-        prog = currentProg;
+        /* Cast to mutable structure */
+        prog = (progType) currentProg;
         prog->option_flags = options;
         setupSignalHandlers((options & HANDLE_SIGNALS) != 0,
                             (options & TRACE_SIGNALS) != 0,
@@ -356,7 +357,7 @@ objectType prgEval (progType aProgram, objectType anExpression)
 /**
  *  Execute the program referred by 'aProgram'.
  */
-void prgExec (const progType aProgram, const const_rtlArrayType parameters,
+void prgExec (const const_progType aProgram, const const_rtlArrayType parameters,
     const const_setType options, const const_striType protFileName)
 
   {

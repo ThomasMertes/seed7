@@ -1958,22 +1958,23 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   LOG2_OF_NEGATIVE_OKAY: TRUE if log2() of a negative number
                          returns NaN.
 
-  FLOAT_ZERO_DIV_ERROR: Defined if the C compiler classifies a
-                        floating point division by zero as fatal
-                        error.
+  FLOAT_ZERO_DIV_ERROR:
+      TRUE if floating point divisions by zero cause compilation errors.
+      Some C compilers check if the dividend is 0.0 and classify a
+      floating point division by zero as fatal compilation error.
+      Some C compilers even trigger wrong behavior if the dividend
+      is 0.0. In this case FLOAT_ZERO_DIV_ERROR is also TRUE.
+      If FLOAT_ZERO_DIV_ERROR is TRUE the generated C code should
+      avoid divisions by zero and generate code to return Infinity,
+      -Infinity or NaN instead.
 
-  CHECK_FLOAT_DIV_BY_ZERO: Defined if a C floating point division
-                           by zero does not return the IEEE 754
-                           values Infinity, -Infinity or NaN. In
-                           this case the interpreter checks all
-                           float divisions and returns the correct
-                           result. Additionally the Seed7 to C
-                           compiler generates C code, which checks
-                           all float divisions ( / and /:= ) for
-                           division by zero. The generated C code
-                           should, if executed, return Infinity,
-                           -Infinity or NaN instead of doing the
-                           divide operation.
+  CHECK_FLOAT_DIV_BY_ZERO:
+      TRUE if floating point divisions by zero don't conform to IEEE 754.
+      According to IEEE 754 a floating point division by zero should
+      return Infinity, -Infinity or NaN. In this case the compiler
+      generates C code, which checks all float divisions ( / and /:= )
+      for division by zero. The generated C code should return
+      Infinity, -Infinity or NaN instead of doing the divide operation.
 
   PRINTF_MAXIMUM_FLOAT_PRECISION: Precision up to which writing a
                                   float with printf (using format
@@ -2119,6 +2120,19 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
 
 MACROS DEFINED IN CONFIG.H
+
+  WITH_STRI_CAPACITY:
+      TRUE if the Seed7 runtime library uses strings with capacity.
+      The capacity of a string can be larger than its size.
+      Strings with capacity can be enlarged without calling realloc().
+
+  ALLOW_STRITYPE_SLICES:
+      TRUE if the actual characters of a string can be stored elsewhere.
+      This allows string slices without the need to copy characters.
+
+  ALLOW_BSTRITYPE_SLICES:
+      TRUE if the actual characters of a bstring can be stored elsewhere.
+      This allows bstring slices without the need to copy characters.
 
   WITH_SQL: 1 if SQL should be supported, 0 otherwise.
 

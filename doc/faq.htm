@@ -823,12 +823,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2021-05-30 the number of lines is:
+than 300000 lines of Seed7. For version 2021-06-27 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">165867</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12829</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">194839</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">165340</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">167490</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12893</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">197091</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">165612</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1509,6 +1509,7 @@ Beyond that, reduced complexity also helps readability:
 </p><ul>
 <li>Integers and strings follow the "one size fits all" principle. There are
    <a class="link" href="#faq_byte_small_long">no integer types of various sizes</a> and there is just <a class="link" href="#faq_unicode">one string type</a>.</li>
+<li>Computations with <tt><span class="type">bigInteger</span></tt> values can use the usual infix operators (<tt><span class="op_no_ul">+</span></tt> <tt><span class="op_no_ul">-</span></tt> <tt><span class="op_no_ul">*</span></tt> <tt><span class="op_no_ul">div</span></tt> <tt><span class="op_no_ul">rem</span></tt> <tt><span class="op_no_ul">mdiv</span></tt> <tt><span class="op_no_ul">mod</span></tt>).</li>
 <li>There is no need to distinguish between <a class="link" href="#faq_mutable_strings">mutable and unmutable strings</a>.</li>
 <li><a class="link" href="#faq_comparisons">Comparisons</a> are always done with simple operators (<tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt> <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt>).</li>
 <li>There is no NULL, so no necessity to check for NULL.</li>

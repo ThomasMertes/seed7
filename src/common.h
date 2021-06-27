@@ -483,7 +483,7 @@ typedef unsigned char      ucharType;
 typedef char              *cstriType;
 typedef unsigned char     *ustriType;
 typedef memSizeType        sySizeType;
-typedef FILE              *fileType;
+typedef FILE              *cFileType;
 typedef int                fileDesType;
 
 typedef uint16Type         wcharType;
@@ -590,6 +590,7 @@ boolType findTermDll (void);
 typedef struct setStruct      *setType;
 typedef struct striStruct     *striType;
 typedef struct bstriStruct    *bstriType;
+typedef struct fileStruct     *fileType;
 typedef struct pollStruct     *pollType;
 typedef struct winStruct      *winType;
 typedef struct processStruct  *processType;
@@ -599,6 +600,7 @@ typedef struct sqlStmtStruct  *sqlStmtType;
 typedef const struct setStruct      *const_setType;
 typedef const struct striStruct     *const_striType;
 typedef const struct bstriStruct    *const_bstriType;
+typedef const struct fileStruct     *const_fileType;
 typedef const struct pollStruct     *const_pollType;
 typedef const struct winStruct      *const_winType;
 typedef const struct processStruct  *const_processType;
@@ -633,6 +635,11 @@ typedef struct bstriStruct {
     ucharType mem[1];
 #endif
   } bstriRecord;
+
+typedef struct fileStruct {
+    cFileType cFile;
+    uintType usage_count;
+  } fileRecord;
 
 typedef struct pollStruct {
 #if !EMPTY_STRUCTS_ALLOWED

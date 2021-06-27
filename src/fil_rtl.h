@@ -29,14 +29,35 @@
 /*                                                                  */
 /********************************************************************/
 
-int offsetSeek (fileType aFile, const os_off_t anOffset, const int origin);
-memSizeType remainingBytesInFile (fileType aFile);
-intType getFileLengthUsingSeek (fileType aFile);
-bigIntType getBigFileLengthUsingSeek (fileType aFile);
+#ifdef DO_INIT
+fileRecord nullFileRecord = {NULL, 0};
+fileRecord stdinFileRecord = {NULL, 0};
+fileRecord stdoutFileRecord = {NULL, 0};
+fileRecord stderrFileRecord = {NULL, 0};
+#else
+EXTERN fileRecord nullFileRecord;
+EXTERN fileRecord stdinFileRecord;
+EXTERN fileRecord stdoutFileRecord;
+EXTERN fileRecord stderrFileRecord;
+#endif
+
+#define initFileType(aFile, usage) (aFile)->usage_count = (usage);
+
+
+int offsetSeek (cFileType aFile, const os_off_t anOffset, const int origin);
+memSizeType remainingBytesInFile (cFileType aFile);
+intType getFileLengthUsingSeek (cFileType aFile);
+bigIntType getBigFileLengthUsingSeek (cFileType aFile);
 bigIntType filBigLng (fileType aFile);
 void filBigSeek (fileType aFile, const const_bigIntType big_position);
 bigIntType filBigTell (fileType aFile);
 void filClose (fileType aFile);
+void filCpy (fileType *const dest, const fileType source);
+fileType filCreate (const fileType source);
+void filDestr (const fileType old_file);
+boolType filEof (fileType inFile);
+void filFlush (fileType outFile);
+void filFree (fileType oldFile);
 charType filGetcChkCtrlC (fileType inFile);
 striType filGets (fileType inFile, intType length);
 striType filGetsChkCtrlC (fileType inFile, intType length);

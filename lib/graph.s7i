@@ -2,7 +2,8 @@
 (********************************************************************)
 (*                                                                  *)
 (*  graph.s7i     Basic graphic library                             *)
-(*  Copyright (C) 1994, 1995, 2004, 2005  Thomas Mertes             *)
+(*  Copyright (C) 1994, 1995, 2004, 2005, 2007  Thomas Mertes       *)
+(*                2009 - 2013, 2017, 2018, 2020, 2021 Thomas Mertes *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -153,8 +154,22 @@ const func PRIMITIVE_WINDOW: openSubWindow (
     ref integer: xPos, ref integer: yPos,
     ref integer: width, ref integer: height)        is action "DRW_OPEN_SUB_WINDOW";
 
+(**
+ *  Set the window name (title) of ''aWindow''.
+ *  @param aWindow Window for which the name should be set.
+ *  @param windowName New name (title) of the window.
+ *)
 const proc: setWindowName (in PRIMITIVE_WINDOW: aWindow,
                            in string: windowName)   is action "DRW_SETWINDOWNAME";
+
+(**
+ *  Set the visibility of the mouse cursor in ''aWindow''.
+ *  @param aWindow Window for which the mouse cursor visibility is set.
+ *  @param visible TRUE, if the mouse cursor should be visible in ''aWindow'', or
+ *                 FALSE, if the mouse curser should be invisible in ''aWindow''.
+ *)
+const proc: setCursorVisible (in PRIMITIVE_WINDOW: aWindow,
+                              in boolean: visible)  is action "DRW_SETCURSORVISIBLE";
 
 const func PRIMITIVE_WINDOW: DRAW_GET (
     in PRIMITIVE_WINDOW: aWindow,

@@ -848,7 +848,12 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       create_name(current_object, c_declaration.temp_frees);
       c_declaration.temp_frees &:= ");\n";
     elsif valueCategory = FILEOBJECT then
-      c_declaration.temp_decls &:= "=NULL";
+      c_declaration.temp_decls &:= "=&";
+      c_declaration.temp_decls &:= lower(literal(getValue(object_value, clib_file)));
+      c_declaration.temp_decls &:= "FileRecord;\n\n";
+      c_declaration.temp_frees &:= "filDestr(o_";
+      create_name(current_object, c_declaration.temp_frees);
+      c_declaration.temp_frees &:= ");\n";
     elsif valueCategory = SOCKETOBJECT then
       c_declaration.temp_decls &:= "=-1";
     elsif valueCategory = POLLOBJECT then
@@ -1072,6 +1077,12 @@ const proc: defineFunctype (in string: valueName, in reference: actual_param,
     c_expr.expr &:= ");\n";
     c_expr.expr &:= "struct {\n";
     for dataItem range data_list do
+      if not isVar(dataItem) then
+        c_expr.expr &:= "const ";
+        if useConstPrefix(dataItem) then
+          c_expr.expr &:= "const_";
+        end if;
+      end if;
       c_expr.expr &:= type_name(getType(dataItem));
       if isFunc(getType(dataItem)) then
         c_expr.expr &:= " data_";
@@ -2603,7 +2614,7 @@ const proc: process_main_declaration (in reference: current_object,
       if consoleLibraryUsed then
         main_epilog &:= "    conWrite(message);\n";
       else
-        main_epilog &:= "    ut8Write(stdout, message);\n";
+        main_epilog &:= "    ut8Write(&stdoutFileRecord, message);\n";
       end if;
       main_epilog &:= "    printf(\"\\n\");\n";
       main_epilog &:= "    strDestr(message);\n";
@@ -2897,6 +2908,12 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&genericCpy";
     elsif action_name = "ENU_CREATE" then
       c_expr.expr &:= "&genericCreate";
+    elsif action_name = "FIL_CPY" then
+      c_expr.expr &:= "&filCpyGeneric";
+    elsif action_name = "FIL_CREATE" then
+      c_expr.expr &:= "&filCreateGeneric";
+    elsif action_name = "FIL_DESTR" then
+      c_expr.expr &:= "&filDestrGeneric";
     elsif action_name = "FLT_CMP" then
       c_expr.expr &:= "&fltCmpGeneric";
     elsif action_name = "FLT_CPY" then
@@ -3172,7 +3189,9 @@ const proc: process_file_declaration (in reference: current_object,
   begin
     c_expr.expr &:= "fileType o_";
     create_name(current_object, c_expr.expr);
-    c_expr.expr &:= "=NULL;\n\n";
+    c_expr.expr &:= "=&";
+    c_expr.expr &:= lower(literal(getValue(current_object, clib_file)));
+    c_expr.expr &:= "FileRecord;\n\n";
     count_declarations(c_expr);
   end func;
 
@@ -5056,7 +5075,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef uint32Type strElemType;");
     writeln(c_prog, "typedef uintType bitSetType;");
     writeln(c_prog, "typedef uint" <& ccConf.POINTER_SIZE <& "Type memSizeType;");
-    writeln(c_prog, "typedef FILE *fileType;");
+    writeln(c_prog, "typedef FILE *cFileType;");
     writeln(c_prog, "typedef unsigned char *ustriType;");
     writeln(c_prog, "typedef const unsigned char *const_ustriType;");
     writeln(c_prog, "typedef struct striStruct {");
@@ -5083,6 +5102,11 @@ const proc: write_file_head is func
     end if;
     writeln(c_prog, "} *bstriType;");
     writeln(c_prog, "typedef const struct bstriStruct  *const_bstriType;");
+    writeln(c_prog, "typedef struct fileStruct {");
+    writeln(c_prog, "  cFileType cFile;");
+    writeln(c_prog, "  uintType usage_count;");
+    writeln(c_prog, "} *fileType;");
+    writeln(c_prog, "typedef const struct fileStruct  *const_fileType;");
     writeln(c_prog, "typedef struct setStruct {");
     writeln(c_prog, "  intType min_position;");
     writeln(c_prog, "  intType max_position;");
@@ -5317,6 +5341,10 @@ const proc: write_file_head is func
       writeln(c_prog, "#define NEGATIVE_INFINITY (-1.0 / 0.0)");
     end if;
     writeln(c_prog, "extern const floatType negativeZero;");
+    writeln(c_prog, "extern struct fileStruct nullFileRecord;");
+    writeln(c_prog, "extern struct fileStruct stdinFileRecord;");
+    writeln(c_prog, "extern struct fileStruct stdoutFileRecord;");
+    writeln(c_prog, "extern struct fileStruct stderrFileRecord;");
     writeln(c_prog, "typedef int errInfoType;");
     writeln(c_prog, "#define OKAY_NO_ERROR   0");
     writeln(c_prog, "#define MEMORY_ERROR    1");
@@ -5510,7 +5538,7 @@ const proc: write_prototypes is func
       writeln(c_prog, "#define filLineRead(inFile, terminationChar) filLineReadChkCtrlC(inFile, terminationChar)");
       writeln(c_prog, "#define filWordRead(inFile, terminationChar) filWordReadChkCtrlC(inFile, terminationChar)");
     else
-      writeln(c_prog, "#define filGetc(inFile) fgetc(inFile)");
+      writeln(c_prog, "#define filGetc(inFile) (unlikely((inFile)->cFile==NULL)?intRaiseError(FILE_ERROR):fgetc((inFile)->cFile))");
     end if;
   end func;
 
@@ -5736,8 +5764,9 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
         c_expr.expr &:= "))";
       end if;
     elsif objectCategory = FILEOBJECT then
-      c_expr.expr &:= ".value.fileValue=";
-      c_expr.expr &:= literal(getValue(current_object, clib_file));
+      c_expr.expr &:= ".value.fileValue=&";
+      c_expr.expr &:= lower(literal(getValue(current_object, clib_file)));
+      c_expr.expr &:= "FileRecord";
     elsif objectCategory = SOCKETOBJECT then
       c_expr.expr &:= ".value.intValue=";
       c_expr.expr &:= "-1";

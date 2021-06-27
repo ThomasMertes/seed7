@@ -38,6 +38,8 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "fil_rtl.h"
+#include "rtl_err.h"
 #include "pcs_drv.h"
 
 
@@ -47,7 +49,7 @@
  *  If the standard error file of the subprocess has been redirected
  *  then this function will return NULL.
  *  @return the error output file of 'process' or
- *          NULL, if stderr has been redirected.
+ *          CLIB_NULL_FILE, if stderr has been redirected.
  */
 fileType pcsChildStdErr (const const_processType process)
 
@@ -55,10 +57,15 @@ fileType pcsChildStdErr (const const_processType process)
     fileType stdErr;
 
   /* pcsChildStdErr */
-    if (process == NULL) {
+    if (unlikely(process == NULL)) {
+      logError(printf("pcsChildStdErr: process == NULL\n"););
+      raise_error(FILE_ERROR);
       stdErr = NULL;
+    } else if (process->stdErr == NULL) {
+      stdErr = &nullFileRecord;
     } else {
       stdErr = process->stdErr;
+      stdErr->usage_count++;
     } /* if */
     return stdErr;
   } /* pcsChildStdErr */
@@ -70,7 +77,7 @@ fileType pcsChildStdErr (const const_processType process)
  *  If the standard input file of the subprocess has been redirected
  *  then this function will return NULL.
  *  @return the standard input file of 'process' or
- *          NULL, if stdin has been redirected.
+ *          CLIB_NULL_FILE, if stdin has been redirected.
  */
 fileType pcsChildStdIn (const const_processType process)
 
@@ -78,10 +85,15 @@ fileType pcsChildStdIn (const const_processType process)
     fileType stdIn;
 
   /* pcsChildStdIn */
-    if (process == NULL) {
+    if (unlikely(process == NULL)) {
+      logError(printf("pcsChildStdIn: process == NULL\n"););
+      raise_error(FILE_ERROR);
       stdIn = NULL;
+    } else if (process->stdIn == NULL) {
+      stdIn = &nullFileRecord;
     } else {
       stdIn = process->stdIn;
+      stdIn->usage_count++;
     } /* if */
     return stdIn;
   } /* pcsChildStdIn */
@@ -93,7 +105,7 @@ fileType pcsChildStdIn (const const_processType process)
  *  If the standard output file of the subprocess has been redirected
  *  then this function will return NULL.
  *  @return the standard output file of 'process' or
- *          NULL, if stdout has been redirected.
+ *          CLIB_NULL_FILE, if stdout has been redirected.
  */
 fileType pcsChildStdOut (const const_processType process)
 
@@ -101,10 +113,15 @@ fileType pcsChildStdOut (const const_processType process)
     fileType stdOut;
 
   /* pcsChildStdOut */
-    if (process == NULL) {
+    if (unlikely(process == NULL)) {
+      logError(printf("pcsChildStdOut: process == NULL\n"););
+      raise_error(FILE_ERROR);
       stdOut = NULL;
+    } else if (process->stdOut == NULL) {
+      stdOut = &nullFileRecord;
     } else {
       stdOut = process->stdOut;
+      stdOut->usage_count++;
     } /* if */
     return stdOut;
   } /* pcsChildStdOut */
@@ -221,20 +238,32 @@ genericType pcsCreateGeneric (const genericType from_value)
 
 
 /**
- *  Free the memory referred by 'old_process'.
- *  After pcsDestr is left 'old_process' refers to not existing memory.
- *  The memory where 'old_process' is stored can be freed afterwards.
+ *  Free the memory referred by 'oldProcess'.
+ *  After pcsDestr is left 'oldProcess' refers to not existing memory.
+ *  The memory where 'oldProcess' is stored can be freed afterwards.
  */
-void pcsDestr (const processType old_process)
+void pcsDestr (const processType oldProcess)
 
   { /* pcsDestr */
     logFunction(printf("pcsDestr(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-                       (memSizeType) old_process,
-                       old_process != NULL ? old_process->usage_count : (uintType) 0););
-    if (old_process != NULL) {
-      old_process->usage_count--;
-      if (old_process->usage_count == 0) {
-        pcsFree(old_process);
+                       (memSizeType) oldProcess,
+                       oldProcess != NULL ? oldProcess->usage_count : (uintType) 0););
+    if (oldProcess != NULL) {
+      oldProcess->usage_count--;
+      if (oldProcess->usage_count == 0) {
+        if (oldProcess->stdIn != NULL) {
+          filClose(oldProcess->stdIn);
+          filDestr(oldProcess->stdIn);
+        } /* if */
+        if (oldProcess->stdOut != NULL) {
+          filClose(oldProcess->stdOut);
+          filDestr(oldProcess->stdOut);
+        } /* if */
+        if (oldProcess->stdErr != NULL) {
+          filClose(oldProcess->stdErr);
+          filDestr(oldProcess->stdErr);
+        } /* if */
+        pcsFree(oldProcess);
       } /* if */
     } /* if */
   } /* pcsDestr */

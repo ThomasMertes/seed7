@@ -473,7 +473,7 @@ void heapStatistic (void)
       bytes_used += count.loclist * SIZ_REC(locListRecord);
     } /* if */
     if (count.infil > num_flist_infiles) {
-      printf(F_U_MEM(9) " bytes in %8lu files of               %4u bytes\n",
+      printf(F_U_MEM(9) " bytes in %8lu infiles of             %4u bytes\n",
           (count.infil - num_flist_infiles) * SIZ_REC(inFileRecord),
           count.infil - num_flist_infiles,
           (unsigned int) SIZ_REC(inFileRecord));
@@ -485,6 +485,13 @@ void heapStatistic (void)
           count.polldata,
           (unsigned int) sizeof_pollRecord);
       bytes_used += count.polldata * sizeof_pollRecord;
+    } /* if */
+    if (count.files != 0) {
+      printf(F_U_MEM(9) " bytes in %8lu files of               %4u bytes\n",
+          count.files * SIZ_REC(fileRecord),
+          count.files,
+          (unsigned int) SIZ_REC(fileRecord));
+      bytes_used += count.win_bytes;
     } /* if */
     if (count.win != 0) {
       printf(F_U_MEM(9) " bytes in %8lu windows of             %4u bytes\n",
@@ -661,6 +668,7 @@ static memSizeType compute_hs (void)
     bytes_total += count.loclist * SIZ_REC(locListRecord);
     bytes_total += count.infil * SIZ_REC(inFileRecord);
     bytes_total += count.polldata * sizeof_pollRecord;
+    bytes_total += count.files * SIZ_REC(fileRecord);
     bytes_total += count.win_bytes;
     bytes_total += count.process * sizeof_processRecord;
     bytes_total += count.sql_func * SIZ_REC(sqlFuncRecord);

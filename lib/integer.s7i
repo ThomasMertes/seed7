@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  integer.s7i   Integer support library                           *)
-(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2016, 2018 - 2021  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -400,6 +400,17 @@ const func integer: (attr integer) conv (in integer: number)     is action "INT_
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: str (in integer: number)                      is action "INT_STR";
+
+
+(**
+ *  Convert an ''integer'' number to a [[string]].
+ *  The number is converted to a string with decimal representation.
+ *  For negative numbers a minus sign is prepended.
+ *  @param number Number to be converted to a [[string]].
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: string (in integer: number)                   is action "INT_STR";
 
 
 (**

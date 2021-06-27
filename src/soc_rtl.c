@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  soc_rtl.c     Primitive actions for the socket type.            */
-/*  Copyright (C) 1989 - 2015, 2018 - 2020  Thomas Mertes           */
+/*  Copyright (C) 1989 - 2015, 2018 - 2021  Thomas Mertes           */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -88,6 +88,7 @@ typedef socklen_t sockLenType;
 #define check_initialization(err_result)
 #define cast_send_recv_data(data_ptr) ((void *) (data_ptr))
 #define cast_buffer_len(len)          len
+#define SOCKLEN_NEGATIVE(len) 0
 #define INVALID_SOCKET (-1)
 
 #elif SOCKET_LIB == WINSOCK_SOCKETS
@@ -98,6 +99,7 @@ static boolType initialized = FALSE;
     if (unlikely(!initialized)) {if (init_winsock()) {return err_result;}}
 #define cast_send_recv_data(data_ptr) ((char *) (data_ptr))
 #define cast_buffer_len(len)          ((int) (len))
+#define SOCKLEN_NEGATIVE(len) (len) < 0
 #ifndef SHUT_RDWR
 #define SHUT_RDWR SD_BOTH
 #endif
@@ -394,7 +396,7 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
                                            cast_send_recv_data(currBuffer->buffer),
                                            cast_buffer_len(LIST_BUFFER_SIZE), 0);
       /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
-      if (unlikely(bytes_in_buffer == (memSizeType) (-1) && result_size == 0)) {
+      if (unlikely(bytes_in_buffer == (memSizeType) -1 && result_size == 0)) {
         logError(printf("receive_and_alloc_stri: "
                         "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
                         "%s=%d\nerror: %s\n",
@@ -429,7 +431,7 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
                                            cast_send_recv_data(currBuffer->buffer),
                                            cast_buffer_len(chars_missing - result_size), 0);
       /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
-      if (unlikely(bytes_in_buffer == (memSizeType) (-1) && result_size == 0)) {
+      if (unlikely(bytes_in_buffer == (memSizeType) -1 && result_size == 0)) {
         logError(printf("receive_and_alloc_stri: "
                         "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
                         "%s=%d\nerror: %s\n",
@@ -796,9 +798,17 @@ charType socGetc (socketType inSocket, charType *const eofIndicator)
                        inSocket, *eofIndicator););
     bytes_received = (memSizeType) recv((os_socketType) inSocket,
                                         cast_send_recv_data(&ch), 1, 0);
+    /* printf("socGetc: bytes_received=" FMT_U_MEM "\n", bytes_received); */
     if (bytes_received != 1) {
-      *eofIndicator = (charType) EOF;
-      result = (charType) EOF;
+      if (unlikely(inSocket == (socketType) -1)) {
+        logError(printf("socGetc(%d, '\\" FMT_U32 ";'): Invalid socket.\n",
+                        inSocket, *eofIndicator););
+        raise_error(FILE_ERROR);
+        result = (charType) EOF;
+      } else {
+        *eofIndicator = (charType) EOF;
+        result = (charType) EOF;
+      } /* if */
     } else {
       result = (charType) ch;
     } /* if */
@@ -827,7 +837,13 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
   /* socGets */
     logFunction(printf("socGets(%d, " FMT_D ", '\\" FMT_U32 ";')\n",
                        inSocket, length, *eofIndicator););
-    if (unlikely(length <= 0)) {
+    if (unlikely(inSocket == (socketType) -1)) {
+        logError(printf("socGets(%d, " FMT_D ", '\\" FMT_U32 ";'): "
+                        "Invalid socket.\n",
+                        inSocket, length, *eofIndicator););
+      raise_error(FILE_ERROR);
+      result = NULL;
+    } else if (unlikely(length <= 0)) {
       if (unlikely(length != 0)) {
         logError(printf("socGets(%d, " FMT_D ", *): Negative length.\n",
                         inSocket, length););
@@ -852,8 +868,8 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
         result_size = (memSizeType) recv((os_socketType) inSocket,
                                          cast_send_recv_data(buffer),
                                          cast_buffer_len(chars_requested), 0);
-        /* printf("socGets: result_size=" FMT_U_MEM "\n", result_size); */
-        if (result_size == (memSizeType) (-1)) {
+        printf("socGets: result_size=" FMT_U_MEM "\n", result_size);
+        if (result_size == (memSizeType) -1) {
           result_size = 0;
         } /* if */
         if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
@@ -887,8 +903,8 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
             result_size = (memSizeType) recv((os_socketType) inSocket,
                                              cast_send_recv_data(result->mem),
                                              cast_buffer_len(chars_requested), 0);
-            /* printf("socGets: result_size=" FMT_U_MEM "\n", result_size); */
-            if (result_size == (memSizeType) (-1)) {
+            printf("socGets: result_size=" FMT_U_MEM "\n", result_size);
+            if (result_size == (memSizeType) -1) {
               result_size = 0;
             } /* if */
             memcpy_to_strelem(result->mem, (ustriType) result->mem, result_size);
@@ -1064,7 +1080,11 @@ boolType socHasNext (socketType inSocket)
     bytes_received = (memSizeType) recv((os_socketType) inSocket,
                                         cast_send_recv_data(&next_char), 1, MSG_PEEK);
     if (bytes_received != 1) {
-      /* printf("socHasNext: bytes_received=%ld\n", (long int) bytes_received); */
+      /* printf("socHasNext: bytes_received=" FMT_U_MEM "\n", bytes_received); */
+      if (unlikely(inSocket == (socketType) -1)) {
+        logError(printf("socHasNext(%d): Invalid socket.\n", inSocket););
+        raise_error(FILE_ERROR);
+      } /* if */
       hasNext = FALSE;
     } else {
       /* printf("socHasNext: next_char=%d\n", next_char); */
@@ -1173,13 +1193,16 @@ bstriType socInetAddr (const const_striType hostName, intType port)
         } else {
           /* dump_addrinfo(addrinfo_list); */
           result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
-          if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_addrinfo->ai_addrlen))) {
+          if (unlikely(SOCKLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
+                       !ALLOC_BSTRI_SIZE_OK(result,
+                           (memSizeType) result_addrinfo->ai_addrlen))) {
             free_cstri8(name, hostName);
             freeaddrinfo(addrinfo_list);
             raise_error(MEMORY_ERROR);
           } else {
-            result->size = result_addrinfo->ai_addrlen;
-            memcpy(result->mem, result_addrinfo->ai_addr, result_addrinfo->ai_addrlen);
+            result->size = (memSizeType) result_addrinfo->ai_addrlen;
+            memcpy(result->mem, result_addrinfo->ai_addr,
+                   (memSizeType) result_addrinfo->ai_addrlen);
             free_cstri8(name, hostName);
             freeaddrinfo(addrinfo_list);
           } /* if */
@@ -1311,12 +1334,15 @@ bstriType socInetLocalAddr (intType port)
       } else {
         /* dump_addrinfo(addrinfo_list); */
         result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
-        if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_addrinfo->ai_addrlen))) {
+        if (unlikely(SOCKLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
+                     !ALLOC_BSTRI_SIZE_OK(result,
+                         (memSizeType) result_addrinfo->ai_addrlen))) {
           freeaddrinfo(addrinfo_list);
           raise_error(MEMORY_ERROR);
         } else {
-          result->size = result_addrinfo->ai_addrlen;
-          memcpy(result->mem, result_addrinfo->ai_addr, result_addrinfo->ai_addrlen);
+          result->size = (memSizeType) result_addrinfo->ai_addrlen;
+          memcpy(result->mem, result_addrinfo->ai_addr,
+                 (memSizeType) result_addrinfo->ai_addrlen);
           freeaddrinfo(addrinfo_list);
         } /* if */
       } /* if */
@@ -1395,12 +1421,15 @@ bstriType socInetServAddr (intType port)
       } else {
         /* dump_addrinfo(addrinfo_list); */
         result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
-        if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_addrinfo->ai_addrlen))) {
+        if (unlikely(SOCKLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
+                     !ALLOC_BSTRI_SIZE_OK(result,
+                         (memSizeType) result_addrinfo->ai_addrlen))) {
           freeaddrinfo(addrinfo_list);
           raise_error(MEMORY_ERROR);
         } else {
-          result->size = result_addrinfo->ai_addrlen;
-          memcpy(result->mem, result_addrinfo->ai_addr, result_addrinfo->ai_addrlen);
+          result->size = (memSizeType) result_addrinfo->ai_addrlen;
+          memcpy(result->mem, result_addrinfo->ai_addr,
+                 (memSizeType) result_addrinfo->ai_addrlen);
           freeaddrinfo(addrinfo_list);
         } /* if */
       } /* if */
@@ -1453,7 +1482,13 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
   /* socInputReady */
     logFunction(printf("socInputReady(%d, " FMT_D ", " FMT_D ")\n",
                        sock, seconds, micro_seconds););
-    if (unlikely(seconds < 0 || seconds >= INT_MAX / 1000 ||
+    if (unlikely(sock == (socketType) -1)) {
+      logError(printf("socInputReady(%d, " FMT_D ", " FMT_D "): "
+                      "Invalid socket.\n",
+                      sock, seconds, micro_seconds););
+      raise_error(FILE_ERROR);
+      inputReady = FALSE;
+    } else if (unlikely(seconds < 0 || seconds >= INT_MAX / 1000 ||
                  micro_seconds < 0 || micro_seconds >= 1000000)) {
       logError(printf("socInputReady(%d, " FMT_D ", " FMT_D"): "
                       "seconds or micro_seconds not in allowed range.\n",
@@ -1510,7 +1545,13 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
   /* socInputReady */
     logFunction(printf("socInputReady(%d, " FMT_D ", " FMT_D ")\n",
                        sock, seconds, micro_seconds););
-    if (unlikely(seconds < 0 || seconds >= LONG_MAX ||
+    if (unlikely(sock == (socketType) -1)) {
+      logError(printf("socInputReady(%d, " FMT_D ", " FMT_D "): "
+                      "Invalid socket.\n",
+                      sock, seconds, micro_seconds););
+      raise_error(FILE_ERROR);
+      inputReady = FALSE;
+    } else if (unlikely(seconds < 0 || seconds >= LONG_MAX ||
                  micro_seconds < 0 || micro_seconds >= 1000000)) {
       logError(printf("socInputReady(%d, " FMT_D ", " FMT_D"): "
                       "seconds or micro_seconds not in allowed range.\n",
@@ -1585,125 +1626,133 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
   /* socLineRead */
     logFunction(printf("socLineRead(%d, '\\" FMT_U32 ";')\n",
                        inSocket, *terminationChar););
-    bytes_received = (memSizeType) recv((os_socketType) inSocket,
-                                        cast_send_recv_data(buffer),
-                                        BUFFER_START_SIZE, MSG_PEEK);
-    if (bytes_received == (memSizeType) (-1)) {
-      bytes_received = 0;
-    } /* if */
-    if (bytes_received == 0) {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
-        raise_error(MEMORY_ERROR);
-        result = NULL;
-      } else {
-        result->size = 0;
-        *terminationChar = (charType) EOF;
-      } /* if */
+    if (unlikely(inSocket == (socketType) -1)) {
+      logError(printf("socLineRead(%d, '\\" FMT_U32 ";'): Invalid socket.\n",
+                      inSocket, *terminationChar););
+      raise_error(FILE_ERROR);
+      result = NULL;
     } else {
-      nlPos = (ucharType *) memchr(buffer, '\n', bytes_received);
-      if (nlPos != NULL) {
-        bytes_requested = (memSizeType) (nlPos - buffer) + 1;
-        /* This should overwrite the buffer with identical data up to '\n'. */
-        bytes_received = (memSizeType) recv((os_socketType) inSocket,
-                                            cast_send_recv_data(buffer),
-                                            cast_buffer_len(bytes_requested), 0);
-        /* bytes_received should always be identical to bytes_requested. */
-        result_size = bytes_requested - 1;
-        if (nlPos != buffer && nlPos[-1] == '\r') {
-          result_size--;
-        } /* if */
-        if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
+      bytes_received = (memSizeType) recv((os_socketType) inSocket,
+                                          cast_send_recv_data(buffer),
+                                          BUFFER_START_SIZE, MSG_PEEK);
+      /* printf("socLineRead: bytes_received: " FMT_U_MEM "\n", bytes_received); */
+      if (bytes_received == (memSizeType) -1) {
+        bytes_received = 0;
+      } /* if */
+      if (bytes_received == 0) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
-          memcpy_to_strelem(result->mem, buffer, result_size);
-          result->size = result_size;
-          *terminationChar = '\n';
+          result->size = 0;
+          *terminationChar = (charType) EOF;
         } /* if */
       } else {
-        result_size = bytes_received;
-        old_result_size = 0;
-        result_pos = 0;
-        result = NULL;
-        do {
-          bytes_requested = bytes_received;
-          /* This should overwrite the buffer with identical data. */
-          bytes_received = (memSizeType) recv((os_socketType) inSocket,
-                                              cast_send_recv_data(buffer),
-                                              cast_buffer_len(bytes_requested), 0);
-          /* bytes_received should always be identical to bytes_requested. */
-          result_size += BUFFER_DELTA_SIZE;
-          /* printf("A result=%08lx, old_result_size=%d, result_size=%d\n",
-              (unsigned long) result, old_result_size, result_size); */
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, old_result_size, result_size);
-          /* printf("B result=%08lx, resized_result=%08lx\n",
-              (unsigned long) result, (unsigned long) resized_result); */
-          if (unlikely(resized_result == NULL)) {
-            if (result != NULL) {
-              FREE_STRI(result, old_result_size);
-            } /* if */
-            raise_error(MEMORY_ERROR);
-            result = NULL;
-          } else {
-            result = resized_result;
-            old_result_size = result_size;
-            /* printf("a result[%d], size=%d\n", result_pos, bytes_requested); */
-            memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
-            result_pos += bytes_requested;
-            bytes_received = (memSizeType) recv((os_socketType) inSocket,
-                                                cast_send_recv_data(buffer),
-                                                BUFFER_DELTA_SIZE, MSG_PEEK);
-            if (bytes_received == (memSizeType) (-1)) {
-              bytes_received = 0;
-            } /* if */
-            if (bytes_received == 0) {
-              REALLOC_STRI_CHECK_SIZE(resized_result, result, result_size, result_pos);
-              if (unlikely(resized_result == NULL)) {
-                FREE_STRI(result, result_size);
-                raise_error(MEMORY_ERROR);
-                result = NULL;
-              } else {
-                result = resized_result;
-                result->size = result_pos;
-                *terminationChar = (charType) EOF;
-              } /* if */
-            } else {
-              nlPos = (ucharType *) memchr(buffer, '\n', bytes_received);
-            } /* if */
-          } /* if */
-        } while (result != NULL && bytes_received != 0 && nlPos == NULL);
-        if (result != NULL && nlPos != NULL) {
+        nlPos = (ucharType *) memchr(buffer, '\n', bytes_received);
+        if (nlPos != NULL) {
           bytes_requested = (memSizeType) (nlPos - buffer) + 1;
           /* This should overwrite the buffer with identical data up to '\n'. */
           bytes_received = (memSizeType) recv((os_socketType) inSocket,
                                               cast_send_recv_data(buffer),
                                               cast_buffer_len(bytes_requested), 0);
           /* bytes_received should always be identical to bytes_requested. */
-          bytes_requested--;
-          if (nlPos == buffer) {
-            if (result->mem[result_pos - 1] == '\r') {
-              result_pos--;
-            } /* if */
-          } else if (nlPos[-1] == '\r') {
-            bytes_requested--;
+          result_size = bytes_requested - 1;
+          if (nlPos != buffer && nlPos[-1] == '\r') {
+            result_size--;
           } /* if */
-          old_result_size = result_size;
-          result_size = result_pos + bytes_requested;
-          /* printf("C result=%08lx, old_result_size=%d, result_size=%d\n",
-              (unsigned long) result, old_result_size, result_size); */
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, old_result_size, result_size);
-          /* printf("D result=%08lx, resized_result=%08lx\n",
-              (unsigned long) result, (unsigned long) resized_result); */
-          if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, result_size);
+          if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
-            result = resized_result;
-            /* printf("e result[%d], size=%d\n", result_pos, bytes_requested); */
-            memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
+            memcpy_to_strelem(result->mem, buffer, result_size);
             result->size = result_size;
             *terminationChar = '\n';
+          } /* if */
+        } else {
+          result_size = bytes_received;
+          old_result_size = 0;
+          result_pos = 0;
+          result = NULL;
+          do {
+            bytes_requested = bytes_received;
+            /* This should overwrite the buffer with identical data. */
+            bytes_received = (memSizeType) recv((os_socketType) inSocket,
+                                                cast_send_recv_data(buffer),
+                                                cast_buffer_len(bytes_requested), 0);
+            /* bytes_received should always be identical to bytes_requested. */
+            result_size += BUFFER_DELTA_SIZE;
+            /* printf("A result=%08lx, old_result_size=%d, result_size=%d\n",
+                (unsigned long) result, old_result_size, result_size); */
+            REALLOC_STRI_CHECK_SIZE(resized_result, result, old_result_size, result_size);
+            /* printf("B result=%08lx, resized_result=%08lx\n",
+                (unsigned long) result, (unsigned long) resized_result); */
+            if (unlikely(resized_result == NULL)) {
+              if (result != NULL) {
+                FREE_STRI(result, old_result_size);
+              } /* if */
+              raise_error(MEMORY_ERROR);
+              result = NULL;
+            } else {
+              result = resized_result;
+              old_result_size = result_size;
+              /* printf("a result[%d], size=%d\n", result_pos, bytes_requested); */
+              memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
+              result_pos += bytes_requested;
+              bytes_received = (memSizeType) recv((os_socketType) inSocket,
+                                                  cast_send_recv_data(buffer),
+                                                  BUFFER_DELTA_SIZE, MSG_PEEK);
+              if (bytes_received == (memSizeType) -1) {
+                bytes_received = 0;
+              } /* if */
+              if (bytes_received == 0) {
+                REALLOC_STRI_CHECK_SIZE(resized_result, result, result_size, result_pos);
+                if (unlikely(resized_result == NULL)) {
+                  FREE_STRI(result, result_size);
+                  raise_error(MEMORY_ERROR);
+                  result = NULL;
+                } else {
+                  result = resized_result;
+                  result->size = result_pos;
+                  *terminationChar = (charType) EOF;
+                } /* if */
+              } else {
+                nlPos = (ucharType *) memchr(buffer, '\n', bytes_received);
+              } /* if */
+            } /* if */
+          } while (result != NULL && bytes_received != 0 && nlPos == NULL);
+          if (result != NULL && nlPos != NULL) {
+            bytes_requested = (memSizeType) (nlPos - buffer) + 1;
+            /* This should overwrite the buffer with identical data up to '\n'. */
+            bytes_received = (memSizeType) recv((os_socketType) inSocket,
+                                                cast_send_recv_data(buffer),
+                                                cast_buffer_len(bytes_requested), 0);
+            /* bytes_received should always be identical to bytes_requested. */
+            bytes_requested--;
+            if (nlPos == buffer) {
+              if (result->mem[result_pos - 1] == '\r') {
+                result_pos--;
+              } /* if */
+            } else if (nlPos[-1] == '\r') {
+              bytes_requested--;
+            } /* if */
+            old_result_size = result_size;
+            result_size = result_pos + bytes_requested;
+            /* printf("C result=%08lx, old_result_size=%d, result_size=%d\n",
+                (unsigned long) result, old_result_size, result_size); */
+            REALLOC_STRI_CHECK_SIZE(resized_result, result, old_result_size, result_size);
+            /* printf("D result=%08lx, resized_result=%08lx\n",
+                (unsigned long) result, (unsigned long) resized_result); */
+            if (unlikely(resized_result == NULL)) {
+              FREE_STRI(result, result_size);
+              raise_error(MEMORY_ERROR);
+              result = NULL;
+            } else {
+              result = resized_result;
+              /* printf("e result[%d], size=%d\n", result_pos, bytes_requested); */
+              memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
+              result->size = result_size;
+              *terminationChar = '\n';
+            } /* if */
           } /* if */
         } /* if */
       } /* if */
@@ -1750,7 +1799,15 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
     memSizeType new_stri_size;
 
   /* socRecv */
-    if (unlikely(length < 0 || !inIntRange(flags))) {
+    logFunction(printf("socRecv(%d, *, " FMT_D ", 0x" FMT_X ")\n",
+                       sock, length, flags););
+    if (unlikely(sock == (socketType) -1)) {
+      logError(printf("socRecv(%d, *, " FMT_D ", 0x" FMT_X "): "
+                      "Invalid socket.\n",
+                      sock, length, flags););
+      raise_error(FILE_ERROR);
+      return 0;
+    } else if (unlikely(length < 0 || !inIntRange(flags))) {
       logError(printf("socRecv(%d, *, " FMT_D ", 0x" FMT_X "): "
                       "length or flags not in allowed range.\n",
                       sock, length, flags););
@@ -1776,16 +1833,18 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
       new_stri_size = (memSizeType) recv((os_socketType) sock,
                                          cast_send_recv_data((*stri)->mem),
                                          cast_buffer_len(bytes_requested), (int) flags);
-      memcpy_to_strelem((*stri)->mem, (ustriType) (*stri)->mem, new_stri_size);
-      (*stri)->size = new_stri_size;
-      if (new_stri_size < old_stri_size) {
-        REALLOC_STRI_SIZE_OK(resized_stri, *stri, old_stri_size, new_stri_size);
-        if (unlikely(resized_stri == NULL)) {
-          raise_error(MEMORY_ERROR);
-          return 0;
+      if (likely(new_stri_size != (memSizeType) -1)) {
+        memcpy_to_strelem((*stri)->mem, (ustriType) (*stri)->mem, new_stri_size);
+        (*stri)->size = new_stri_size;
+        if (new_stri_size < old_stri_size) {
+          REALLOC_STRI_SIZE_OK(resized_stri, *stri, old_stri_size, new_stri_size);
+          if (unlikely(resized_stri == NULL)) {
+            raise_error(MEMORY_ERROR);
+            return 0;
+          } /* if */
+          *stri = resized_stri;
+          COUNT3_STRI(old_stri_size, new_stri_size);
         } /* if */
-        *stri = resized_stri;
-        COUNT3_STRI(old_stri_size, new_stri_size);
       } /* if */
     } /* if */
     return (intType) new_stri_size;
@@ -1805,7 +1864,15 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
     memSizeType stri_size;
 
   /* socRecvfrom */
-    if (unlikely(length < 0 || !inIntRange(flags))) {
+    logFunction(printf("socRecvfrom(%d, *, " FMT_D ", 0x" FMT_X ")\n",
+                       sock, length, flags););
+    if (unlikely(sock == (socketType) -1)) {
+      logError(printf("socRecvfrom(%d, *, " FMT_D ", 0x" FMT_X "): "
+                      "Invalid socket.\n",
+                      sock, length, flags););
+      raise_error(FILE_ERROR);
+      return 0;
+    } else if (unlikely(length < 0 || !inIntRange(flags))) {
       logError(printf("socRecvfrom(%d, *, " FMT_D ", 0x" FMT_X "): "
                       "length or flags not in allowed range.\n",
                       sock, length, flags););
@@ -1872,16 +1939,18 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
           } /* if */
         } /* if */
       } /* if */
-      memcpy_to_strelem((*stri)->mem, (ustriType) (*stri)->mem, stri_size);
-      (*stri)->size = stri_size;
-      if (stri_size < bytes_requested) {
-        REALLOC_STRI_SIZE_OK(resized_stri, *stri, bytes_requested, stri_size);
-        if (unlikely(resized_stri == NULL)) {
-          raise_error(MEMORY_ERROR);
-          return 0;
+      if (likely(stri_size != (memSizeType) -1)) {
+        memcpy_to_strelem((*stri)->mem, (ustriType) (*stri)->mem, stri_size);
+        (*stri)->size = stri_size;
+        if (stri_size < bytes_requested) {
+          REALLOC_STRI_SIZE_OK(resized_stri, *stri, bytes_requested, stri_size);
+          if (unlikely(resized_stri == NULL)) {
+            raise_error(MEMORY_ERROR);
+            return 0;
+          } /* if */
+          *stri = resized_stri;
+          COUNT3_STRI(bytes_requested, stri_size);
         } /* if */
-        *stri = resized_stri;
-        COUNT3_STRI(bytes_requested, stri_size);
       } /* if */
     } /* if */
     return (intType) stri_size;
@@ -1898,7 +1967,15 @@ intType socSend (socketType sock, const const_striType stri, intType flags)
     intType result;
 
   /* socSend */
-    if (unlikely(!inIntRange(flags))) {
+    logFunction(printf("socSend(%d, \"%s\", 0x" FMT_X ")\n",
+                       sock, striAsUnquotedCStri(stri), flags););
+    if (unlikely(sock == (socketType) -1)) {
+      logError(printf("socSend(%d, \"%s\", 0x" FMT_X "): "
+                      "Invalid socket.\n",
+                      sock, striAsUnquotedCStri(stri), flags););
+      raise_error(FILE_ERROR);
+      result = 0;
+    } else if (unlikely(!inIntRange(flags))) {
       logError(printf("socSend(%d, \"%s\", 0x" FMT_X "): "
                       "flags not in allowed range.\n",
                       sock, striAsUnquotedCStri(stri), flags););
@@ -1941,7 +2018,17 @@ intType socSendto (socketType sock, const const_striType stri, intType flags,
     intType result;
 
   /* socSendto */
-    if (unlikely(!inIntRange(flags))) {
+    logFunction(printf("socSendto(%d, \"%s\", 0x" FMT_X ", \"%s\")\n",
+                       sock, striAsUnquotedCStri(stri), flags,
+                       socAddressCStri(address)););
+    if (unlikely(sock == (socketType) -1)) {
+      logError(printf("socSendto(%d, \"%s\", 0x" FMT_X ", \"%s\"): "
+                      "Invalid socket.\n",
+                      sock, striAsUnquotedCStri(stri), flags,
+                      socAddressCStri(address)););
+      raise_error(FILE_ERROR);
+      result = 0;
+    } else if (unlikely(!inIntRange(flags))) {
       logError(printf("socSendto(%d, \"%s\", 0x" FMT_X ", \"%s\"): "
                       "flags not in allowed range.\n",
                       sock, striAsUnquotedCStri(stri), flags,
@@ -2063,7 +2150,7 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
     register memSizeType position;
     register memSizeType bytes_received;
     strElemType *memory;
-    memSizeType memlength;
+    memSizeType memlength = READ_STRI_INIT_SIZE;
     memSizeType newmemlength;
     striType resized_result;
     striType result;
@@ -2071,8 +2158,12 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
   /* socWordRead */
     logFunction(printf("socWordRead(%d, '\\" FMT_U32 ";')\n",
                        inSocket, *terminationChar););
-    memlength = READ_STRI_INIT_SIZE;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
+    if (unlikely(inSocket == (socketType) -1)) {
+      logError(printf("socWordRead(%d, '\\" FMT_U32 ";'): Invalid socket.\n",
+                      inSocket, *terminationChar););
+      raise_error(FILE_ERROR);
+      result = NULL;
+    } else if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
@@ -2148,7 +2239,13 @@ void socWrite (socketType outSocket, const const_striType stri)
   /* socWrite */
     logFunction(printf("socWrite(%d, \"%s\")\n",
                        outSocket, striAsUnquotedCStri(stri)););
-    if (stri->size <= BUFFER_SIZE) {
+    if (unlikely(outSocket == (socketType) -1)) {
+        logError(printf("socWrite(%d, \"%s\"): Invalid socket.\n",
+                        outSocket, striAsUnquotedCStri(stri)););
+      err_info = FILE_ERROR;
+      buf = NULL;
+      bytes_to_send = 0;
+    } else if (stri->size <= BUFFER_SIZE) {
       if (unlikely(memcpy_from_strelem(buffer, stri->mem, stri->size))) {
         logError(printf("socWrite(%d, \"%s\"): "
                         "At least one character does not fit into a byte.\n",

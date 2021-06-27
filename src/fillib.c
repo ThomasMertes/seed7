@@ -36,6 +36,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "syvarutl.h"
 #include "striutl.h"
@@ -143,13 +144,52 @@ objectType fil_cpy (listType arguments)
 
   {
     objectType dest;
+    objectType source;
+    fileType fileSource;
+    fileType oldFile;
 
   /* fil_cpy */
     dest = arg_1(arguments);
+    source = arg_3(arguments);
     isit_file(dest);
+    isit_file(source);
     is_variable(dest);
-    isit_file(arg_3(arguments));
-    dest->value.fileValue = take_file(arg_3(arguments));
+    fileSource = take_file(source);
+    oldFile = take_file(dest);
+    logFunction(printf("fil_cpy(" FMT_U_MEM " %s%d (usage=" FMT_U "), "
+                       FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) oldFile,
+                       oldFile == NULL ? "NULL " : "",
+                       oldFile != NULL ? safe_fileno(oldFile->cFile) : 0,
+                       oldFile != NULL ? oldFile->usage_count : (uintType) 0,
+                       (memSizeType) fileSource,
+                       fileSource == NULL ? "NULL " : "",
+                       fileSource != NULL ? safe_fileno(fileSource->cFile) : 0,
+                       fileSource != NULL ? fileSource->usage_count : (uintType) 0););
+    if (TEMP_OBJECT(source)) {
+      source->value.fileValue = NULL;
+    } else {
+      if (fileSource != NULL && fileSource->usage_count != 0) {
+        fileSource->usage_count++;
+      } /* if */
+    } /* if */
+    if (oldFile != NULL && oldFile->usage_count != 0) {
+      oldFile->usage_count--;
+      if (oldFile->usage_count == 0) {
+        filFree(oldFile);
+      } /* if */
+    } /* if */
+    dest->value.fileValue = fileSource;
+    logFunction(printf("fil_cpy(" FMT_U_MEM " %s%d (usage=" FMT_U "), "
+                       FMT_U_MEM " %s%d (usage=" FMT_U ")) -->\n",
+                       (memSizeType) fileSource,
+                       fileSource == NULL ? "NULL " : "",
+                       fileSource != NULL ? safe_fileno(fileSource->cFile) : 0,
+                       fileSource != NULL ? fileSource->usage_count : (uintType) 0,
+                       (memSizeType) fileSource,
+                       fileSource == NULL ? "NULL " : "",
+                       fileSource != NULL ? safe_fileno(fileSource->cFile) : 0,
+                       fileSource != NULL ? fileSource->usage_count : (uintType) 0););
     return SYS_EMPTY_OBJECT;
   } /* fil_cpy */
 
@@ -163,12 +203,61 @@ objectType fil_cpy (listType arguments)
  */
 objectType fil_create (listType arguments)
 
-  { /* fil_create */
-    isit_file(arg_3(arguments));
+  {
+    objectType source;
+    fileType fileSource;
+
+  /* fil_create */
+    source = arg_3(arguments);
+    isit_file(source);
+    fileSource = take_file(source);
+    logFunction(printf("fil_create(" FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) fileSource,
+                       fileSource == NULL ? "NULL " : "",
+                       fileSource != NULL ? safe_fileno(fileSource->cFile) : 0,
+                       fileSource != NULL ? fileSource->usage_count : (uintType) 0););
     SET_CATEGORY_OF_OBJ(arg_1(arguments), FILEOBJECT);
-    arg_1(arguments)->value.fileValue = take_file(arg_3(arguments));
+    arg_1(arguments)->value.fileValue = fileSource;
+    if (TEMP_OBJECT(source)) {
+      source->value.fileValue = NULL;
+    } else {
+      if (fileSource != NULL && fileSource->usage_count != 0) {
+        fileSource->usage_count++;
+      } /* if */
+    } /* if */
+    logFunction(printf("fil_create --> " FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       (memSizeType) fileSource,
+                       fileSource == NULL ? "NULL " : "",
+                       fileSource != NULL ? safe_fileno(fileSource->cFile) : 0,
+                       fileSource != NULL ? fileSource->usage_count : (uintType) 0););
     return SYS_EMPTY_OBJECT;
   } /* fil_create */
+
+
+
+objectType fil_destr (listType arguments)
+
+  {
+    fileType oldFile;
+
+  /* fil_destr */
+    isit_file(arg_1(arguments));
+    oldFile = take_file(arg_1(arguments));
+    logFunction(printf("fil_destr(" FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) oldFile,
+                       oldFile == NULL ? "NULL " : "",
+                       oldFile != NULL ? safe_fileno(oldFile->cFile) : 0,
+                       oldFile != NULL ? oldFile->usage_count : (uintType) 0););
+    if (oldFile != NULL && oldFile->usage_count != 0) {
+      oldFile->usage_count--;
+      if (oldFile->usage_count == 0) {
+        filFree(oldFile);
+      } /* if */
+      arg_1(arguments)->value.fileValue = NULL;
+    } /* if */
+    SET_UNUSED_FLAG(arg_1(arguments));
+    return SYS_EMPTY_OBJECT;
+  } /* fil_destr */
 
 
 
@@ -180,7 +269,7 @@ objectType fil_create (listType arguments)
 objectType fil_empty (listType arguments)
 
   { /* fil_empty */
-    return bld_file_temp(NULL);
+    return bld_file_temp(&nullFileRecord);
   } /* fil_empty */
 
 
@@ -195,7 +284,7 @@ objectType fil_eof (listType arguments)
 
   { /* fil_eof */
     isit_file(arg_1(arguments));
-    if (feof(take_file(arg_1(arguments)))) {
+    if (filEof(take_file(arg_1(arguments)))) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -231,7 +320,7 @@ objectType fil_eq (listType arguments)
 objectType fil_err (listType arguments)
 
   { /* fil_err */
-    return bld_file_temp(stderr);
+    return bld_file_temp(&stderrFileRecord);
   } /* fil_err */
 
 
@@ -244,7 +333,7 @@ objectType fil_flush (listType arguments)
 
   { /* fil_flush */
     isit_file(arg_1(arguments));
-    fflush(take_file(arg_1(arguments)));
+    filFlush(take_file(arg_1(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* fil_flush */
 
@@ -308,7 +397,7 @@ objectType fil_has_next (listType arguments)
 objectType fil_in (listType arguments)
 
   { /* fil_in */
-    return bld_file_temp(stdin);
+    return bld_file_temp(&stdinFileRecord);
   } /* fil_in */
 
 
@@ -472,7 +561,7 @@ objectType fil_open_null_device (listType arguments)
 objectType fil_out (listType arguments)
 
   { /* fil_out */
-    return bld_file_temp(stdout);
+    return bld_file_temp(&stdoutFileRecord);
   } /* fil_out */
 
 
@@ -570,7 +659,7 @@ objectType fil_seek (listType arguments)
     isit_file(arg_1(arguments));
     isit_int(arg_2(arguments));
     filSeek(take_file(arg_1(arguments)),
-        take_int(arg_2(arguments)));
+            take_int(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* fil_seek */
 
@@ -646,7 +735,7 @@ objectType fil_truncate (listType arguments)
     isit_file(arg_1(arguments));
     isit_int(arg_2(arguments));
     filTruncate(take_file(arg_1(arguments)),
-        take_int(arg_2(arguments)));
+                take_int(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* fil_truncate */
 

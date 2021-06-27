@@ -64,6 +64,7 @@
 
 #undef EXTERN
 #define EXTERN
+#define DO_INIT
 #include "fil_rtl.h"
 
 
@@ -197,7 +198,7 @@ static void get_mode (os_charType os_mode[MAX_MODE_LEN], const const_striType fi
  *  @return the length of the file, or
  *          -1 if the length could not be obtained.
  */
-static os_off_t seekFileLength (fileType aFile)
+static os_off_t seekFileLength (cFileType aFile)
 
   {
     os_off_t file_length;
@@ -303,7 +304,7 @@ static os_off_t seekFileLength (fileType aFile)
  *  @return the current file position, or
  *          -1 if the file position could not be obtained.
  */
-static os_off_t offsetTell (fileType aFile)
+static os_off_t offsetTell (cFileType aFile)
 
   {
     os_off_t current_file_position;
@@ -378,7 +379,7 @@ static os_off_t offsetTell (fileType aFile)
  *  @return 0 upon successful completion, or
  *          -1 if the file position could not be set.
  */
-int offsetSeek (fileType aFile, const os_off_t anOffset, const int origin)
+int offsetSeek (cFileType aFile, const os_off_t anOffset, const int origin)
 
   {
     int result;
@@ -491,7 +492,7 @@ int offsetSeek (fileType aFile, const os_off_t anOffset, const int origin)
  *  Returns MAX_MEMSIZETYPE if the result does not fit into
  *  memSizeType.
  */
-memSizeType remainingBytesInFile (fileType aFile)
+memSizeType remainingBytesInFile (cFileType aFile)
 
   {
     int file_no;
@@ -529,7 +530,7 @@ memSizeType remainingBytesInFile (fileType aFile)
 
 
 
-intType getFileLengthUsingSeek (fileType aFile)
+intType getFileLengthUsingSeek (cFileType aFile)
 
   {
     os_off_t file_length;
@@ -557,7 +558,7 @@ intType getFileLengthUsingSeek (fileType aFile)
 
 
 
-bigIntType getBigFileLengthUsingSeek (fileType aFile)
+bigIntType getBigFileLengthUsingSeek (cFileType aFile)
 
   {
     os_off_t file_length;
@@ -592,7 +593,7 @@ bigIntType getBigFileLengthUsingSeek (fileType aFile)
  *  Afterwards the string is allocated, the data is copied from the
  *  buffers and the list of buffers is freed.
  */
-static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
+static striType read_and_alloc_stri (cFileType inFile, memSizeType chars_missing,
     errInfoType *err_info)
 
   {
@@ -695,7 +696,7 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
  *  @param sigintReceived Flag indicating if ctrl-c has been pressed.
  *  @return the character read.
  */
-int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
+int readCharChkCtrlC (cFileType inFile, boolType *sigintReceived)
 
   {
     int ch;
@@ -723,7 +724,7 @@ int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
  *         no resume is done.
  *  @return the character read.
  */
-static int readCharFromTerminal (fileType inFile, boolType *sigintReceived)
+static int readCharFromTerminal (cFileType inFile, boolType *sigintReceived)
 
   {
     boolType resume;
@@ -746,7 +747,7 @@ static int readCharFromTerminal (fileType inFile, boolType *sigintReceived)
 
 
 
-static charType doGetcFromTerminal (fileType inFile)
+static charType doGetcFromTerminal (cFileType inFile)
 
   {
     boolType sigintReceived = FALSE;
@@ -765,15 +766,17 @@ static charType doGetcFromTerminal (fileType inFile)
 static striType doGetsFromTerminal (fileType inFile, intType length)
 
   {
+    cFileType cInFile;
     boolType sigintReceived = FALSE;
     int ch;
     striType result;
 
   /* doGetsFromTerminal */
+    cInFile = inFile->cFile;
     if (unlikely(length <= 0)) {
       if (unlikely(length != 0)) {
         logError(printf("doGetsFromTerminal(%d, " FMT_D "): Negative length.\n",
-                        safe_fileno(inFile), length););
+                        safe_fileno(cInFile), length););
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
@@ -784,7 +787,7 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
         } /* if */
       } /* if */
     } else {
-      ch = readCharFromTerminal(inFile, &sigintReceived);
+      ch = readCharFromTerminal(cInFile, &sigintReceived);
       if (unlikely(sigintReceived)) {
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
           raise_error(MEMORY_ERROR);
@@ -793,7 +796,7 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
         } /* if */
       } else {
         if (ch != EOF) {
-          ungetc(ch, inFile);
+          ungetc(ch, cInFile);
         } /* if */
         result = filGets(inFile, length);
       } /* if */
@@ -806,14 +809,18 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
 static striType doLineReadFromTerminal (fileType inFile, charType *terminationChar)
 
   {
+    cFileType cInFile;
     boolType sigintReceived = FALSE;
     int ch;
     striType result;
 
   /* doLineReadFromTerminal */
-    logFunction(printf("doLineReadFromTerminal(%d, '\\" FMT_U32 ";')\n",
-                       safe_fileno(inFile), *terminationChar););
-    ch = readCharFromTerminal(inFile, &sigintReceived);
+    logFunction(printf("doLineReadFromTerminal(%s%d, '\\" FMT_U32 ";')\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0,
+                       *terminationChar););
+    cInFile = inFile->cFile;
+    ch = readCharFromTerminal(cInFile, &sigintReceived);
     if (unlikely(sigintReceived)) {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
         raise_error(MEMORY_ERROR);
@@ -822,7 +829,7 @@ static striType doLineReadFromTerminal (fileType inFile, charType *terminationCh
       } /* if */
     } else {
       if (ch != EOF) {
-        ungetc(ch, inFile);
+        ungetc(ch, cInFile);
       } /* if */
       result = filLineRead(inFile, terminationChar);
     } /* if */
@@ -834,14 +841,18 @@ static striType doLineReadFromTerminal (fileType inFile, charType *terminationCh
 static striType doWordReadFromTerminal (fileType inFile, charType *terminationChar)
 
   {
+    cFileType cInFile;
     boolType sigintReceived = FALSE;
     int ch;
     striType result;
 
   /* doWordReadFromTerminal */
-    logFunction(printf("doWordReadFromTerminal(%d, '\\" FMT_U32 ";')\n",
-                       safe_fileno(inFile), *terminationChar););
-    ch = readCharFromTerminal(inFile, &sigintReceived);
+    logFunction(printf("doWordReadFromTerminal(%s%d, '\\" FMT_U32 ";')\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0,
+                       *terminationChar););
+    cInFile = inFile->cFile;
+    ch = readCharFromTerminal(cInFile, &sigintReceived);
     if (unlikely(sigintReceived)) {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
         raise_error(MEMORY_ERROR);
@@ -850,7 +861,7 @@ static striType doWordReadFromTerminal (fileType inFile, charType *terminationCh
       } /* if */
     } else {
       if (ch != EOF) {
-        ungetc(ch, inFile);
+        ungetc(ch, cInFile);
       } /* if */
       result = filWordRead(inFile, terminationChar);
     } /* if */
@@ -870,13 +881,23 @@ static striType doWordReadFromTerminal (fileType inFile, charType *terminationCh
 bigIntType filBigLng (fileType aFile)
 
   {
+    cFileType cFile;
     bigIntType length;
 
   /* filBigLng */
-    logFunction(printf("filBigLng(%d)\n", safe_fileno(aFile)););
-    /* os_fstat() is not used, because when writing to a */
-    /* file the stat data is only updated after a flush. */
-    length = getBigFileLengthUsingSeek(aFile);
+    logFunction(printf("filBigLng(%s%d)\n",
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0););
+    cFile = aFile->cFile;
+    if (unlikely(cFile == NULL)) {
+      logError(printf("filBigLng: Attempt to get the length of a closed file.\n"););
+      raise_error(FILE_ERROR);
+      length = NULL;
+    } else {
+      /* os_fstat() is not used, because when writing to a */
+      /* file the stat data is only updated after a flush. */
+      length = getBigFileLengthUsingSeek(cFile);
+    } /* if */
     logFunction(printf("filBigLng --> %s\n", bigHexCStri(length)););
     return length;
   } /* filBigLng */
@@ -895,29 +916,38 @@ bigIntType filBigLng (fileType aFile)
 void filBigSeek (fileType aFile, const const_bigIntType position)
 
   {
+    cFileType cFile;
     os_off_t file_position;
 
   /* filBigSeek */
-    logFunction(printf("filBigSeek(%d, %s)\n", safe_fileno(aFile),
+    logFunction(printf("filBigSeek(%s%d, %s)\n",
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0,
                        bigHexCStri(position)););
+    cFile = aFile->cFile;
+    if (unlikely(cFile == NULL)) {
+      logError(printf("filBigSeek: Attempt to set the current position of a closed file.\n"););
+      raise_error(FILE_ERROR);
+    } else {
 #if OS_OFF_T_SIZE == 32
-    file_position = (os_off_t) bigToInt32(position, NULL);
+      file_position = (os_off_t) bigToInt32(position, NULL);
 #elif OS_OFF_T_SIZE == 64
-    file_position = (os_off_t) bigToInt64(position, NULL);
+      file_position = (os_off_t) bigToInt64(position, NULL);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
-    if (unlikely(file_position <= 0)) {
-      logError(printf("filBigSeek(%d, " FMT_D_OFF "): Position <= 0%s.\n",
-                      safe_fileno(aFile), file_position, file_position == 0 ?
-                          " or conversion from bigInteger failed" : ""););
-      raise_error(RANGE_ERROR);
-    } else if (unlikely(offsetSeek(aFile, file_position - 1, SEEK_SET) != 0)) {
-      logError(printf("filBigSeek(%d, %s): "
-                      "offsetSeek(%d, " FMT_D64 ", SEEK_SET) failed.\n",
-                      safe_fileno(aFile), bigHexCStri(position),
-                      safe_fileno(aFile), (int64Type) (file_position - 1)););
-      raise_error(FILE_ERROR);
+      if (unlikely(file_position <= 0)) {
+        logError(printf("filBigSeek(%d, " FMT_D_OFF "): Position <= 0%s.\n",
+                        safe_fileno(cFile), file_position, file_position == 0 ?
+                            " or conversion from bigInteger failed" : ""););
+        raise_error(RANGE_ERROR);
+      } else if (unlikely(offsetSeek(cFile, file_position - 1, SEEK_SET) != 0)) {
+        logError(printf("filBigSeek(%d, %s): "
+                        "offsetSeek(%d, " FMT_D64 ", SEEK_SET) failed.\n",
+                        safe_fileno(cFile), bigHexCStri(position),
+                        safe_fileno(cFile), (int64Type) (file_position - 1)););
+        raise_error(FILE_ERROR);
+      } /* if */
     } /* if */
   } /* filBigSeek */
 
@@ -935,27 +965,37 @@ void filBigSeek (fileType aFile, const const_bigIntType position)
 bigIntType filBigTell (fileType aFile)
 
   {
+    cFileType cFile;
     os_off_t current_file_position;
     bigIntType position;
 
   /* filBigTell */
-    logFunction(printf("filBigTell(%d)\n", safe_fileno(aFile)););
-    current_file_position = offsetTell(aFile);
-    if (unlikely(current_file_position < (os_off_t) 0)) {
-      logError(printf("filBigTell(%d): offsetTell(%d) "
-                      "returns negative offset: " FMT_D64 ".\n",
-                      safe_fileno(aFile), safe_fileno(aFile),
-                      (int64Type) current_file_position););
+    logFunction(printf("filBigTell(%s%d)\n",
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0););
+    cFile = aFile->cFile;
+    if (unlikely(cFile == NULL)) {
+      logError(printf("filBigTell: Attempt to get the current position of a closed file.\n"););
       raise_error(FILE_ERROR);
       position = NULL;
     } else {
+      current_file_position = offsetTell(cFile);
+      if (unlikely(current_file_position < (os_off_t) 0)) {
+        logError(printf("filBigTell(%d): offsetTell(%d) "
+                        "returns negative offset: " FMT_D64 ".\n",
+                        safe_fileno(cFile), safe_fileno(cFile),
+                        (int64Type) current_file_position););
+        raise_error(FILE_ERROR);
+        position = NULL;
+      } else {
 #if OS_OFF_T_SIZE == 32
-      position = bigFromUInt32((uint32Type) current_file_position + 1);
+        position = bigFromUInt32((uint32Type) current_file_position + 1);
 #elif OS_OFF_T_SIZE == 64
-      position = bigFromUInt64((uint64Type) current_file_position + 1);
+        position = bigFromUInt64((uint64Type) current_file_position + 1);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
+      } /* if */
     } /* if */
     logFunction(printf("filBigTell --> %s\n", bigHexCStri(position)););
     return position;
@@ -970,18 +1010,196 @@ bigIntType filBigTell (fileType aFile)
 void filClose (fileType aFile)
 
   { /* filClose */
-    logFunction(printf("filClose(%d)\n", safe_fileno(aFile)););
-    if (unlikely(aFile == NULL)) {
+    logFunction(printf("filClose(" FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) aFile,
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0,
+                       aFile != NULL ? aFile->usage_count : (uintType) 0););
+    if (unlikely(aFile->cFile == NULL)) {
       logError(printf("filClose: fclose(NULL)\n"););
       raise_error(FILE_ERROR);
-    } else if (unlikely(fclose(aFile) != 0)) {
+    } else if (unlikely(fclose(aFile->cFile) != 0)) {
       logError(printf("filClose: fclose(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), errno, strerror(errno)););
+                      safe_fileno(aFile->cFile), errno, strerror(errno)););
+      /* After the call to fclose(), any use of */
+      /* cFile results in undefined behavior.   */
+      aFile->cFile = NULL;
       raise_error(FILE_ERROR);
+    } else {
+      aFile->cFile = NULL;
     } /* if */
-    logFunction(printf("filClose -->\n"););
+    logFunction(printf("filClose(" FMT_U_MEM " %s%d (usage=" FMT_U ")) -->\n",
+                       (memSizeType) aFile,
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0,
+                       aFile != NULL ? aFile->usage_count : (uintType) 0););
   } /* filClose */
+
+
+
+/**
+ *  Assign source to *dest.
+ *  A copy function assumes that *dest contains a legal value.
+ */
+void filCpy (fileType *const dest, const fileType source)
+
+  { /* filCpy */
+    logFunction(printf("filCpy(" FMT_U_MEM " %s%d (usage=" FMT_U "), "
+                       FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) *dest,
+                       *dest == NULL ? "NULL " : "",
+                       *dest != NULL ? safe_fileno((*dest)->cFile) : 0,
+                       *dest != NULL ? (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source == NULL ? "NULL " : "",
+                       source != NULL ? safe_fileno(source->cFile) : 0,
+                       source != NULL ? source->usage_count : (uintType) 0););
+    if (source != NULL && source->usage_count != 0) {
+      source->usage_count++;
+    } /* if */
+    if (*dest != NULL && (*dest)->usage_count != 0) {
+      (*dest)->usage_count--;
+      if ((*dest)->usage_count == 0) {
+        filFree(*dest);
+      } /* if */
+    } /* if */
+    *dest = source;
+    logFunction(printf("filCpy(" FMT_U_MEM " %s%d (usage=" FMT_U "), "
+                       FMT_U_MEM " %s%d (usage=" FMT_U ")) -->\n",
+                       (memSizeType) *dest,
+                       *dest == NULL ? "NULL " : "",
+                       *dest != NULL ? safe_fileno((*dest)->cFile) : 0,
+                       *dest != NULL ? (*dest)->usage_count : (uintType) 0,
+                       (memSizeType) source,
+                       source == NULL ? "NULL " : "",
+                       source != NULL ? safe_fileno(source->cFile) : 0,
+                       source != NULL ? source->usage_count : (uintType) 0););
+  } /* filCpy */
+
+
+
+/**
+ *  Reinterpret the generic parameters as fileType and call filCpy.
+ *  Function pointers in C programs generated by the Seed7 compiler
+ *  may point to this function. This assures correct behaviour even
+ *  if sizeof(genericType) != sizeof(fileType).
+ */
+void filCpyGeneric (genericType *const dest, const genericType source)
+
+  { /* filCpyGeneric */
+    filCpy(&((rtlObjectType *) dest)->value.fileValue,
+           ((const_rtlObjectType *) &source)->value.fileValue);
+  } /* filCpyGeneric */
+
+
+
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ */
+fileType filCreate (const fileType source)
+
+  { /* filCreate */
+    logFunction(printf("filCreate(" FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       (memSizeType) source,
+                       source == NULL ? "NULL " : "",
+                       source != NULL ? safe_fileno(source->cFile) : 0,
+                       source != NULL ? source->usage_count : (uintType) 0););
+    if (source != NULL && source->usage_count != 0) {
+      source->usage_count++;
+    } /* if */
+    logFunction(printf("filCreate --> " FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       (memSizeType) source,
+                       source == NULL ? "NULL " : "",
+                       source != NULL ? safe_fileno(source->cFile) : 0,
+                       source != NULL ? source->usage_count : (uintType) 0););
+    return source;
+  } /* filCreate */
+
+
+
+/**
+ *  Generic Create function to be used via function pointers.
+ *  Function pointers in C programs generated by the Seed7 compiler
+ *  may point to this function. This assures correct behaviour even
+ *  if sizeof(genericType) != sizeof(fileType).
+ */
+genericType filCreateGeneric (const genericType from_value)
+
+  {
+    rtlObjectType result;
+
+  /* filCreateGeneric */
+    INIT_GENERIC_PTR(result.value.genericValue);
+    result.value.fileValue =
+        filCreate(((const_rtlObjectType *) &from_value)->value.fileValue);
+    return result.value.genericValue;
+  } /* filCreateGeneric */
+
+
+
+/**
+ *  Maintain a usage count and free an unused file 'oldFile'.
+ *  After a file is freed 'oldFile' refers to not existing memory.
+ *  The memory where 'oldFile' is stored can be freed after filDestr.
+ */
+void filDestr (const fileType oldFile)
+
+  { /* filDestr */
+    logFunction(printf("filDestr(" FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) oldFile,
+                       oldFile == NULL ? "NULL " : "",
+                       oldFile != NULL ? safe_fileno(oldFile->cFile) : 0,
+                       oldFile != NULL ? oldFile->usage_count : (uintType) 0););
+    if (oldFile != NULL && oldFile->usage_count != 0) {
+      oldFile->usage_count--;
+      if (oldFile->usage_count == 0) {
+        filFree(oldFile);
+      } /* if */
+    } /* if */
+  } /* filDestr */
+
+
+
+/**
+ *  Generic Destr function to be used via function pointers.
+ *  Function pointers in C programs generated by the Seed7 compiler
+ *  may point to this function. This assures correct behaviour even
+ *  if sizeof(genericType) != sizeof(fileType).
+ */
+void filDestrGeneric (const genericType old_value)
+
+  { /* filDestrGeneric */
+    filDestr(((const_rtlObjectType *) &old_value)->value.fileValue);
+  } /* filDestrGeneric */
+
+
+
+boolType filEof (fileType inFile)
+
+  {
+    cFileType cInFile;
+    boolType eofIndicator;
+
+  /* filEof */
+    logFunction(printf("filEof(%s%d)\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0););
+    cInFile = inFile->cFile;
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filEof: Attempt to test a closed file.\n"););
+      raise_error(FILE_ERROR);
+      eofIndicator = FALSE;
+    } else {
+      eofIndicator = feof(cInFile) != 0;
+    } /* if */
+    logFunction(printf("filEof(%d) --> %d\n",
+                       safe_fileno(cInFile), eofIndicator););
+    return eofIndicator;
+  } /* filEof */
 
 
 
@@ -989,12 +1207,14 @@ void filClose (fileType aFile)
 intType filFileType (fileType aFile)
 
   {
+    cFileType cFile;
     int file_no;
     os_fstat_struct stat_buf;
     intType result;
 
   /* filFileType */
-    file_no = fileno(aFile);
+    cFile = aFile->cFile;
+    file_no = fileno(cFile);
     if (unlikely(file_no == -1 ||
                  os_fstat(file_no, &stat_buf) != 0)) {
       result = 0;
@@ -1024,6 +1244,42 @@ intType filFileType (fileType aFile)
 
 
 
+void filFlush (fileType outFile)
+
+  {
+    cFileType cOutFile;
+
+  /* filFlush */
+    logFunction(printf("filFlush(%s%d)\n",
+                       outFile == NULL ? "NULL " : "",
+                       outFile != NULL ? safe_fileno(outFile->cFile) : 0););
+    cOutFile = outFile->cFile;
+    if (unlikely(cOutFile == NULL)) {
+      logError(printf("filFlush: Attempt to flush a closed file.\n"););
+      raise_error(FILE_ERROR);
+    } else {
+      fflush(cOutFile);
+    } /* if */
+  } /* filFlush */
+
+
+
+void filFree (fileType oldFile)
+
+  { /* filFree */
+    logFunction(printf("filFree(" FMT_U_MEM " %s%d (usage=" FMT_U "))\n",
+                       (memSizeType) oldFile,
+                       oldFile == NULL ? "NULL " : "",
+                       oldFile != NULL ? safe_fileno(oldFile->cFile) : 0,
+                       oldFile != NULL ? oldFile->usage_count : (uintType) 0););
+    if (oldFile->cFile != NULL) {
+      fclose(oldFile->cFile);
+    } /* if */
+    FREE_RECORD(oldFile, fileRecord, count.files);
+  } /* filFree */
+
+
+
 /**
  *  Read a character from a clib_file.
  *  @return the character read, or EOF at the end of the file.
@@ -1031,15 +1287,23 @@ intType filFileType (fileType aFile)
 charType filGetcChkCtrlC (fileType inFile)
 
   {
+    cFileType cInFile;
     int file_no;
     charType result;
 
   /* filGetcChkCtrlC */
-    file_no = fileno(inFile);
-    if (file_no != -1 && isatty(file_no)) {
-      result = doGetcFromTerminal(inFile);
+    cInFile = inFile->cFile;
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filGetcChkCtrlC: Attempt to read from closed file.\n"););
+      raise_error(FILE_ERROR);
+      result = 0;
     } else {
-      result = (charType) getc(inFile);
+      file_no = fileno(cInFile);
+      if (file_no != -1 && isatty(file_no)) {
+        result = doGetcFromTerminal(cInFile);
+      } else {
+        result = (charType) getc(cInFile);
+      } /* if */
     } /* if */
     return result;
   } /* filGetcChkCtrlC */
@@ -1067,6 +1331,7 @@ charType filGetcChkCtrlC (fileType inFile)
 striType filGets (fileType inFile, intType length)
 
   {
+    cFileType cInFile;
     memSizeType chars_requested;
     memSizeType bytes_there;
     memSizeType allocated_size;
@@ -1076,11 +1341,19 @@ striType filGets (fileType inFile, intType length)
     striType result;
 
   /* filGets */
-    logFunction(printf("filGets(%d, " FMT_D ")\n", safe_fileno(inFile), length););
-    if (unlikely(length <= 0)) {
+    logFunction(printf("filGets(%s%d, " FMT_D ")\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0,
+                       length););
+    cInFile = inFile->cFile;
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filGets: Attempt to read from closed file.\n"););
+      raise_error(FILE_ERROR);
+      result = NULL;
+    } else if (unlikely(length <= 0)) {
       if (unlikely(length != 0)) {
         logError(printf("filGets(%d, " FMT_D "): Negative length.\n",
-                        safe_fileno(inFile), length););
+                        safe_fileno(cInFile), length););
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
@@ -1104,10 +1377,10 @@ striType filGets (fileType inFile, intType length)
         (void) ALLOC_STRI_SIZE_OK(result, allocated_size);
       } /* if */
       if (result == NULL) {
-        bytes_there = remainingBytesInFile(inFile);
+        bytes_there = remainingBytesInFile(cInFile);
         /* printf("bytes_there=" FMT_U_MEM "\n", bytes_there); */
         if (bytes_there != 0) {
-          /* Now we know that bytes_there bytes are available in inFile */
+          /* Now we know that bytes_there bytes are available in cInFile */
           if (chars_requested <= bytes_there) {
             allocated_size = chars_requested;
           } else {
@@ -1128,18 +1401,20 @@ striType filGets (fileType inFile, intType length)
         result->size = allocated_size;
         /* printf("read_size=%ld\n", allocated_size); */
         num_of_chars_read = (memSizeType) fread(result->mem, 1,
-            (size_t) allocated_size, inFile);
+            (size_t) allocated_size, cInFile);
         /* printf("num_of_chars_read=" FMT_U_MEM "\n", num_of_chars_read); */
-        if (unlikely(num_of_chars_read == 0 && ferror(inFile))) {
+        if (unlikely(num_of_chars_read == 0 && ferror(cInFile))) {
           logError(printf("filGets: fread(*, 1, " FMT_U_MEM ", %d) failed:\n"
                           "errno=%d\nerror: %s\n",
-                          allocated_size, safe_fileno(inFile),
+                          allocated_size, safe_fileno(cInFile),
                           errno, strerror(errno)););
           err_info = FILE_ERROR;
         } else {
-          memcpy_to_strelem(result->mem, (ustriType) result->mem, num_of_chars_read);
+          memcpy_to_strelem(result->mem, (ustriType) result->mem,
+                            num_of_chars_read);
           if (num_of_chars_read < result->size) {
-            REALLOC_STRI_SIZE_SMALLER(resized_result, result, result->size, num_of_chars_read);
+            REALLOC_STRI_SIZE_SMALLER(resized_result, result, result->size,
+                                      num_of_chars_read);
             if (unlikely(resized_result == NULL)) {
               err_info = MEMORY_ERROR;
             } else {
@@ -1151,7 +1426,7 @@ striType filGets (fileType inFile, intType length)
         } /* if */
       } else {
         /* Read a string, if we do not know how many bytes are available. */
-        result = read_and_alloc_stri(inFile, chars_requested, &err_info);
+        result = read_and_alloc_stri(cInFile, chars_requested, &err_info);
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         if (result != NULL) {
@@ -1162,7 +1437,8 @@ striType filGets (fileType inFile, intType length)
       } /* if */
     } /* if */
     logFunction(printf("filGets(%d, " FMT_D ") --> \"%s\"\n",
-                       safe_fileno(inFile), length, striAsUnquotedCStri(result)););
+                       safe_fileno(cInFile), length,
+                       striAsUnquotedCStri(result)););
     return result;
   } /* filGets */
 
@@ -1171,20 +1447,30 @@ striType filGets (fileType inFile, intType length)
 striType filGetsChkCtrlC (fileType inFile, intType length)
 
   {
+    cFileType cInFile;
     int file_no;
     striType result;
 
   /* filGetsChkCtrlC */
-    logFunction(printf("filGetsChkCtrlC(%d, " FMT_D ")\n",
-                       safe_fileno(inFile), length););
-    file_no = fileno(inFile);
-    if (file_no != -1 && isatty(file_no)) {
-      result = doGetsFromTerminal(inFile, length);
+    logFunction(printf("filGetsChkCtrlC(%s%d, " FMT_D ")\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0,
+                       length););
+    cInFile = inFile->cFile;
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filGetsChkCtrlC: Attempt to read from closed file.\n"););
+      raise_error(FILE_ERROR);
+      result = NULL;
     } else {
-      result = filGets(inFile, length);
+      file_no = fileno(cInFile);
+      if (file_no != -1 && isatty(file_no)) {
+        result = doGetsFromTerminal(inFile, length);
+      } else {
+        result = filGets(inFile, length);
+      } /* if */
     } /* if */
     logFunction(printf("filGetsChkCtrlC(%d, " FMT_D ") --> \"%s\"\n",
-                       safe_fileno(inFile), length, striAsUnquotedCStri(result)););
+                       safe_fileno(cInFile), length, striAsUnquotedCStri(result)););
     return result;
   } /* filGetsChkCtrlC */
 
@@ -1198,32 +1484,40 @@ striType filGetsChkCtrlC (fileType inFile, intType length)
 boolType filHasNext (fileType inFile)
 
   {
+    cFileType cInFile;
     int next_char;
     boolType hasNext;
 
   /* filHasNext */
-    logFunction(printf("filHasNext(%d)\n", safe_fileno(inFile)););
-    if (feof(inFile)) {
+    logFunction(printf("filHasNext(%s%d)\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0););
+    cInFile = inFile->cFile;
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filHasNext: Attempt to test a closed file.\n"););
+      raise_error(FILE_ERROR);
+      hasNext = FALSE;
+    } else if (feof(cInFile)) {
       hasNext = FALSE;
     } else {
-      next_char = getc(inFile);
+      next_char = getc(cInFile);
       if (next_char != EOF) {
-        if (unlikely(ungetc(next_char, inFile) != next_char)) {
+        if (unlikely(ungetc(next_char, cInFile) != next_char)) {
           logError(printf("filHasNext: ungetc('\\" FMT_U32 ";', %d) "
                           "does not return '\\" FMT_U32 ";'.\n",
-                          next_char, safe_fileno(inFile), next_char););
+                          next_char, safe_fileno(cInFile), next_char););
           raise_error(FILE_ERROR);
           hasNext = FALSE;
         } else {
           hasNext = TRUE;
         } /* if */
       } else {
-        clearerr(inFile);
+        clearerr(cInFile);
         hasNext = FALSE;
       } /* if */
     } /* if */
     logFunction(printf("filHasNext(%d) --> %d\n",
-                       safe_fileno(inFile), hasNext););
+                       safe_fileno(cInFile), hasNext););
     return hasNext;
   } /* filHasNext */
 
@@ -1232,40 +1526,47 @@ boolType filHasNext (fileType inFile)
 boolType filHasNextChkCtrlC (fileType inFile)
 
   {
+    cFileType cInFile;
     int file_no;
     int next_char;
     boolType hasNext;
 
   /* filHasNextChkCtrlC */
-    logFunction(printf("filHasNextChkCtrlC(%d)\n",
-                       safe_fileno(inFile)););
-    if (feof(inFile)) {
+    logFunction(printf("filHasNextChkCtrlC(%s%d)\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0););
+    cInFile = inFile->cFile;
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filHasNextChkCtrlC: Attempt to test a closed file.\n"););
+      raise_error(FILE_ERROR);
+      hasNext = FALSE;
+    } else if (feof(cInFile)) {
       hasNext = FALSE;
     } else {
-      file_no = fileno(inFile);
+      file_no = fileno(cInFile);
       if (file_no != -1 && isatty(file_no)) {
-        next_char = (int) (scharType) doGetcFromTerminal(inFile);
+        next_char = (int) (scharType) doGetcFromTerminal(cInFile);
       } else {
-        next_char = getc(inFile);
+        next_char = getc(cInFile);
       } /* if */
       if (next_char != EOF) {
-        if (unlikely(ungetc(next_char, inFile) != next_char)) {
+        if (unlikely(ungetc(next_char, cInFile) != next_char)) {
           logError(printf("filHasNextChkCtrlC: "
                           "ungetc('\\" FMT_U32 ";', %d) "
                           "does not return '\\" FMT_U32 ";'.\n",
-                          next_char, safe_fileno(inFile), next_char););
+                          next_char, safe_fileno(cInFile), next_char););
           raise_error(FILE_ERROR);
           hasNext = FALSE;
         } else {
           hasNext = TRUE;
         } /* if */
       } else {
-        clearerr(inFile);
+        clearerr(cInFile);
         hasNext = FALSE;
       } /* if */
     } /* if */
     logFunction(printf("filHasNextChkCtrlC(%d) --> %d\n",
-                       safe_fileno(inFile), hasNext););
+                       safe_fileno(cInFile), hasNext););
     return hasNext;
   } /* filHasNextChkCtrlC */
 
@@ -1284,6 +1585,7 @@ boolType filHasNextChkCtrlC (fileType inFile)
 striType filLineRead (fileType inFile, charType *terminationChar)
 
   {
+    cFileType cInFile;
     register int ch;
     register memSizeType position;
     strElemType *memory;
@@ -1293,61 +1595,70 @@ striType filLineRead (fileType inFile, charType *terminationChar)
     striType result;
 
   /* filLineRead */
-    logFunction(printf("filLineRead(%d, '\\" FMT_U32 ";')\n",
-                       safe_fileno(inFile), *terminationChar););
-    memlength = READ_STRI_INIT_SIZE;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
-      raise_error(MEMORY_ERROR);
+    logFunction(printf("filLineRead(%s%d, '\\" FMT_U32 ";')\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0,
+                       *terminationChar););
+    cInFile = inFile->cFile;
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filLineRead: Attempt to read from closed file.\n"););
+      raise_error(FILE_ERROR);
+      result = NULL;
     } else {
-      memory = result->mem;
-      position = 0;
-      flockfile(inFile);
-      while ((ch = getc_unlocked(inFile)) != '\n' && ch != EOF) {
-        if (position >= memlength) {
-          newmemlength = memlength + READ_STRI_SIZE_DELTA;
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
-          if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, memlength);
-            funlockfile(inFile);
-            raise_error(MEMORY_ERROR);
-            return NULL;
-          } /* if */
-          result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
-          memory = result->mem;
-          memlength = newmemlength;
-        } /* if */
-        memory[position++] = (strElemType) ch;
-      } /* while */
-      funlockfile(inFile);
-      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
-        position--;
-      } /* if */
-      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
-        FREE_STRI(result, memlength);
-        logError(printf("filLineRead(%d, '\\" FMT_U32 ";'): "
-                        "getc_unlocked(%d) failed:\n"
-                        "errno=%d\nerror: %s\n",
-                        safe_fileno(inFile), *terminationChar,
-                        safe_fileno(inFile), errno, strerror(errno)););
-        raise_error(FILE_ERROR);
-        result = NULL;
+      memlength = READ_STRI_INIT_SIZE;
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
+        raise_error(MEMORY_ERROR);
       } else {
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
-        if (unlikely(resized_result == NULL)) {
+        memory = result->mem;
+        position = 0;
+        flockfile(cInFile);
+        while ((ch = getc_unlocked(cInFile)) != '\n' && ch != EOF) {
+          if (position >= memlength) {
+            newmemlength = memlength + READ_STRI_SIZE_DELTA;
+            REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+            if (unlikely(resized_result == NULL)) {
+              FREE_STRI(result, memlength);
+              funlockfile(cInFile);
+              raise_error(MEMORY_ERROR);
+              return NULL;
+            } /* if */
+            result = resized_result;
+            COUNT3_STRI(memlength, newmemlength);
+            memory = result->mem;
+            memlength = newmemlength;
+          } /* if */
+          memory[position++] = (strElemType) ch;
+        } /* while */
+        funlockfile(cInFile);
+        if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+          position--;
+        } /* if */
+        if (unlikely(ch == EOF && position == 0 && ferror(cInFile))) {
           FREE_STRI(result, memlength);
-          raise_error(MEMORY_ERROR);
+          logError(printf("filLineRead(%d, '\\" FMT_U32 ";'): "
+                          "getc_unlocked(%d) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          safe_fileno(cInFile), *terminationChar,
+                          safe_fileno(cInFile), errno, strerror(errno)););
+          raise_error(FILE_ERROR);
           result = NULL;
         } else {
-          result = resized_result;
-          COUNT3_STRI(memlength, position);
-          result->size = position;
-          *terminationChar = (charType) ch;
+          REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+          if (unlikely(resized_result == NULL)) {
+            FREE_STRI(result, memlength);
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            result = resized_result;
+            COUNT3_STRI(memlength, position);
+            result->size = position;
+            *terminationChar = (charType) ch;
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
     logFunction(printf("filLineRead(%d, '\\" FMT_U32 ";') --> \"%s\"\n",
-                       safe_fileno(inFile), *terminationChar,
+                       safe_fileno(cInFile), *terminationChar,
                        striAsUnquotedCStri(result)););
     return result;
   } /* filLineRead */
@@ -1357,20 +1668,30 @@ striType filLineRead (fileType inFile, charType *terminationChar)
 striType filLineReadChkCtrlC (fileType inFile, charType *terminationChar)
 
   {
+    cFileType cInFile;
     int file_no;
     striType result;
 
   /* filLineReadChkCtrlC */
-    logFunction(printf("filLineReadChkCtrlC(%d, '\\" FMT_U32 ";')\n",
-                       safe_fileno(inFile), *terminationChar););
-    file_no = fileno(inFile);
-    if (file_no != -1 && isatty(file_no)) {
-      result = doLineReadFromTerminal(inFile, terminationChar);
+    logFunction(printf("filLineReadChkCtrlC(%s%d, '\\" FMT_U32 ";')\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0,
+                       *terminationChar););
+    cInFile = inFile->cFile;
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filLineReadChkCtrlC: Attempt to read from closed file.\n"););
+      raise_error(FILE_ERROR);
+      result = NULL;
     } else {
-      result = filLineRead(inFile, terminationChar);
+      file_no = fileno(cInFile);
+      if (file_no != -1 && isatty(file_no)) {
+        result = doLineReadFromTerminal(inFile, terminationChar);
+      } else {
+        result = filLineRead(inFile, terminationChar);
+      } /* if */
     } /* if */
     logFunction(printf("filLineReadChkCtrlC(%d, '\\" FMT_U32 ";') --> \"%s\"\n",
-                       safe_fileno(inFile), *terminationChar,
+                       safe_fileno(cInFile), *terminationChar,
                        striAsUnquotedCStri(result)););
     return result;
   } /* filLineReadChkCtrlC */
@@ -1380,17 +1701,19 @@ striType filLineReadChkCtrlC (fileType inFile, charType *terminationChar)
 striType filLit (fileType aFile)
 
   {
+    cFileType cFile;
     const_cstriType file_name;
     striType result;
 
   /* filLit */
-    if (aFile == NULL) {
+    cFile = aFile->cFile;
+    if (cFile == NULL) {
       file_name = "NULL";
-    } else if (aFile == stdin) {
+    } else if (cFile == stdin) {
       file_name = "stdin";
-    } else if (aFile == stdout) {
+    } else if (cFile == stdout) {
       file_name = "stdout";
-    } else if (aFile == stderr) {
+    } else if (cFile == stderr) {
       file_name = "stderr";
     } else {
       file_name = "file";
@@ -1416,13 +1739,23 @@ striType filLit (fileType aFile)
 intType filLng (fileType aFile)
 
   {
+    cFileType cFile;
     intType length;
 
   /* filLng */
-    logFunction(printf("filLng(%d)\n", safe_fileno(aFile)););
-    /* os_fstat() is not used, because when writing to a */
-    /* file the stat data is only updated after a flush. */
-    length = getFileLengthUsingSeek(aFile);
+    logFunction(printf("filLng(%s%d)\n",
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0););
+    cFile = aFile->cFile;
+    if (unlikely(cFile == NULL)) {
+      logError(printf("filLng: Attempt to get the length of a closed file.\n"););
+      raise_error(FILE_ERROR);
+      length = 0;
+    } else {
+      /* os_fstat() is not used, because when writing to a */
+      /* file the stat data is only updated after a flush. */
+      length = getFileLengthUsingSeek(cFile);
+    } /* if */
     logFunction(printf("filLng --> " FMT_D "\n", length););
     return length;
   } /* filLng */
@@ -1454,6 +1787,13 @@ intType filLng (fileType aFile)
  *  @param path Path of the file to be opened. The path must
  *         use the standard path representation.
  *  @param mode Mode of the file to be opened.
+ *  @param err_info Unchanged if the function succeeds, or
+ *                  MEMORY_ERROR if there is not enough memory to convert
+ *                        the path to the system path type, or
+ *                  RANGE_ERROR if the 'mode' is not one of the allowed
+ *                        values or 'path' does not use the standard path
+ *                        representation or 'path' cannot be converted
+ *                        to the system path type.
  *  @return the file opened, or NULL if it could not be opened or
  *          if 'path' refers to a directory.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
@@ -1463,40 +1803,39 @@ intType filLng (fileType aFile)
  *             representation or 'path' cannot be converted
  *             to the system path type.
  */
-fileType filOpen (const const_striType path, const const_striType mode)
+static cFileType cFileOpen (const const_striType path, const const_striType mode,
+    errInfoType *err_info)
 
   {
     os_striType os_path;
     os_charType os_mode[MAX_MODE_LEN];
     int path_info = PATH_IS_NORMAL;
-    errInfoType err_info = OKAY_NO_ERROR;
 #if FOPEN_OPENS_DIRECTORIES
     int file_no;
     os_fstat_struct stat_buf;
 #endif
-    fileType result;
+    cFileType result;
 
-  /* filOpen */
-    logFunction(printf("filOpen(\"%s\", ", striAsUnquotedCStri(path));
-                printf("\"%s\")\n", striAsUnquotedCStri(mode)););
+  /* cFileOpen */
+    logFunction(printf("cFileOpen(\"%s\", ", striAsUnquotedCStri(path));
+                printf("\"%s\", *)\n", striAsUnquotedCStri(mode)););
     get_mode(os_mode, mode);
     if (unlikely(os_mode[0] == '\0')) {
-      logError(printf("filOpen: Illegal mode: \"%s\".\n",
+      logError(printf("cFileOpen: Illegal mode: \"%s\".\n",
                       striAsUnquotedCStri(mode)););
-      raise_error(RANGE_ERROR);
+      *err_info = RANGE_ERROR;
       result = NULL;
     } else {
-      os_path = cp_to_os_path(path, &path_info, &err_info);
-      /* printf("os_path \"%ls\" %d %d\n", os_path, path_info, err_info); */
+      os_path = cp_to_os_path(path, &path_info, err_info);
+      /* printf("os_path \"%ls\" %d %d\n", os_path, path_info, *err_info); */
       if (unlikely(os_path == NULL)) {
 #if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
         if (unlikely(path_info == PATH_IS_NORMAL))
 #endif
         {
-          logError(printf("filOpen: cp_to_os_path(\"%s\", *, *) failed:\n"
+          logError(printf("cFileOpen: cp_to_os_path(\"%s\", *, *) failed:\n"
                           "path_info=%d, err_info=%d\n",
-                          striAsUnquotedCStri(path), path_info, err_info););
-          raise_error(err_info);
+                          striAsUnquotedCStri(path), path_info, *err_info););
         }
         result = NULL;
       } else {
@@ -1504,7 +1843,7 @@ fileType filOpen (const const_striType path, const const_striType mode)
                           os_path, os_mode););
         result = os_fopen(os_path, os_mode);
         if (unlikely(result == NULL)) {
-          logError(printf("filOpen: "
+          logError(printf("cFileOpen: "
                           "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
                           "errno=%d\nerror: %s\n",
                           os_path, os_mode, errno, strerror(errno)););
@@ -1519,7 +1858,7 @@ fileType filOpen (const const_striType path, const const_striType mode)
           file_no = fileno(result);
           if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
               S_ISDIR(stat_buf.st_mode)) {
-            /* An attempt to open a directory with filOpen()     */
+            /* An attempt to open a directory with cFileOpen()   */
             /* returns NULL even if fopen() succeeds. On many    */
             /* modern operating systems functions like fgetc()   */
             /* and readf() fail to read from a directory anyway. */
@@ -1534,7 +1873,7 @@ fileType filOpen (const const_striType path, const const_striType mode)
             /* dirRead() and dirClose() provide a portable way   */
             /* to open, read and close a directory.              */
             fclose(result);
-            logError(printf("filOpen: "
+            logError(printf("cFileOpen: "
                             "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") "
                             "opened a directory. Close it and return NULL.\n",
                             os_path, os_mode););
@@ -1545,28 +1884,117 @@ fileType filOpen (const const_striType path, const const_striType mode)
         os_stri_free(os_path);
       } /* if */
     } /* if */
-    logFunction(printf("filOpen(\"%s\", ", striAsUnquotedCStri(path));
-                printf("\"%s\") --> %d\n",
-                       striAsUnquotedCStri(mode), safe_fileno(result)););
+    logFunction(printf("cFileOpen(\"%s\", ", striAsUnquotedCStri(path));
+                printf("\"%s\", %d) --> %d\n",
+                       striAsUnquotedCStri(mode),
+                       *err_info, safe_fileno(result)););
     return result;
+  } /* cFileOpen */
+
+
+
+/**
+ *  Opens a file with the specified 'path' and 'mode'.
+ *  There are text modes and binary modes:
+ *  - Binary modes:
+ *   - "r"   Open file for reading.
+ *   - "w"   Truncate to zero length or create file for writing.
+ *   - "a"   Append; open or create file for writing at end-of-file.
+ *   - "r+"  Open file for update (reading and writing).
+ *   - "w+"  Truncate to zero length or create file for update.
+ *   - "a+"  Append; open or create file for update, writing at end-of-file.
+ *  - Text modes:
+ *   - "rt"  Open file for reading.
+ *   - "wt"  Truncate to zero length or create file for writing.
+ *   - "at"  Append; open or create file for writing at end-of-file.
+ *   - "rt+" Open file for update (reading and writing).
+ *   - "wt+" Truncate to zero length or create file for update.
+ *   - "at+" Append; open or create file for update, writing at end-of-file.
+ *
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen(). Unicode characters in 'path' are converted to the
+ *  representation used by the fopen() function of the operating
+ *  system.
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
+ *  @return the file opened, or CLIB_NULL_FILE if it could not be opened or
+ *          if 'path' refers to a directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The 'mode' is not one of the allowed
+ *             values or 'path' does not use the standard path
+ *             representation or 'path' cannot be converted
+ *             to the system path type.
+ */
+fileType filOpen (const const_striType path, const const_striType mode)
+
+  {
+    cFileType cFile;
+    errInfoType err_info = OKAY_NO_ERROR;
+    fileType fileOpened;
+
+  /* filOpen */
+    logFunction(printf("filOpen(\"%s\", ", striAsUnquotedCStri(path));
+                printf("\"%s\")\n", striAsUnquotedCStri(mode)););
+    cFile = cFileOpen(path, mode, &err_info);
+    if (unlikely(cFile == NULL)) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+        fileOpened = NULL;
+      } else {
+        fileOpened = &nullFileRecord;
+      } /* if */
+    } else {
+      if (unlikely(!ALLOC_RECORD(fileOpened, fileRecord, count.files))) {
+        fclose(cFile);
+        raise_error(MEMORY_ERROR);
+      } else {
+        initFileType(fileOpened, 1);
+        fileOpened->cFile = cFile;
+      } /* if */
+    } /* if */
+    logFunction(printf("filOpen(\"%s\", ", striAsUnquotedCStri(path));
+                printf("\"%s\") --> " FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       striAsUnquotedCStri(mode),
+                       (memSizeType) fileOpened,
+                       fileOpened == NULL ? "NULL " : "",
+                       fileOpened != NULL ? safe_fileno(fileOpened->cFile) : 0,
+                       fileOpened != NULL ? fileOpened->usage_count : (uintType) 0););
+    return fileOpened;
   } /* filOpen */
 
 
 
 /**
  *  Open the null device of the operation system for reading and writing.
- *  @return the null device opened, or NULL if it could not be opened.
+ *  @return the null device opened, or CLIB_NULL_FILE if it could not be opened.
  */
 fileType filOpenNullDevice (void)
 
   {
+    cFileType cFile;
     fileType fileOpened;
 
   /* filOpenNullDevice */
     logFunction(printf("filOpenNullDevice()\n"););
-    fileOpened = fopen(NULL_DEVICE, "r+");
-    logFunction(printf("filOpenNullDevice() --> %d\n",
-                       safe_fileno(fileOpened)););
+    cFile = fopen(NULL_DEVICE, "r+");
+    if (unlikely(cFile == NULL)) {
+      fileOpened = &nullFileRecord;
+    } else {
+      if (unlikely(!ALLOC_RECORD(fileOpened, fileRecord, count.files))) {
+        fclose(cFile);
+        raise_error(MEMORY_ERROR);
+      } else {
+        initFileType(fileOpened, 1);
+        fileOpened->cFile = cFile;
+      } /* if */
+    } /* if */
+    logFunction(printf("filOpenNullDevice() --> " FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       (memSizeType) fileOpened,
+                       fileOpened == NULL ? "NULL " : "",
+                       fileOpened != NULL ? safe_fileno(fileOpened->cFile) : 0,
+                       fileOpened != NULL ? fileOpened->usage_count : (uintType) 0););
     return fileOpened;
   } /* filOpenNullDevice */
 
@@ -1580,13 +2008,20 @@ fileType filOpenNullDevice (void)
 void filPclose (fileType aPipe)
 
   { /* filPclose */
-    logFunction(printf("filPclose(%d)\n", safe_fileno(aPipe)););
+    logFunction(printf("filPclose(%s%d)\n",
+                       aPipe == NULL ? "NULL " : "",
+                       aPipe != NULL ? safe_fileno(aPipe->cFile) : 0););
 #if HAS_POPEN
-    if (unlikely(os_pclose(aPipe) == -1)) {
+    if (unlikely(aPipe->cFile == NULL)) {
+      logError(printf("filPclose: fclose(NULL)\n"););
+      raise_error(FILE_ERROR);
+    } else if (unlikely(os_pclose(aPipe->cFile) == -1)) {
       logError(printf("filPclose: pclose(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
-                      safe_fileno(aPipe), errno, strerror(errno)););
+                      safe_fileno(aPipe->cFile), errno, strerror(errno)););
       raise_error(FILE_ERROR);
+    } else {
+      aPipe->cFile = NULL;
     } /* if */
 #endif
     logFunction(printf("filPclose -->\n"););
@@ -1624,8 +2059,9 @@ fileType filPopen (const const_striType command,
     os_charType os_mode[MAX_MODE_LEN];
     int mode_pos = 0;
     errInfoType err_info = OKAY_NO_ERROR;
+    cFileType cFile;
 #endif
-    fileType result;
+    fileType fileOpened;
 
   /* filPopen */
     logFunction(printf("filPopen(\"%s\", ", striAsUnquotedCStri(command));
@@ -1640,7 +2076,7 @@ fileType filPopen (const const_striType command,
                       "err_info=%d\n",
                       striAsUnquotedCStri(parameters), err_info););
       raise_error(err_info);
-      result = NULL;
+      fileOpened = NULL;
     } else {
       if (mode->size == 1 &&
           (mode->mem[0] == 'r' ||
@@ -1658,39 +2094,54 @@ fileType filPopen (const const_striType command,
         os_mode[mode_pos++] = 't';
 #endif
       } /* if */
-#if POPEN_SUPPORTS_CLOEXEC_MODE
-      os_mode[mode_pos++] = 'e';
-#endif
-      os_mode[mode_pos++] = '\0';
-      if (unlikely(os_mode[0] == '\0')) {
+      if (unlikely(mode_pos == 0)) {
         logError(printf("filPopen: Illegal mode: \"%s\".\n",
                         striAsUnquotedCStri(mode)););
         raise_error(RANGE_ERROR);
-        result = NULL;
+        fileOpened = NULL;
       } else {
+#if POPEN_SUPPORTS_CLOEXEC_MODE
+        os_mode[mode_pos++] = 'e';
+#endif
+        os_mode[mode_pos++] = '\0';
 #if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
         adjustCwdForShell(&err_info);
 #endif
         logMessage(printf("os_popen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
                           os_command, os_mode););
-        result = os_popen(os_command, os_mode);
-        logErrorIfTrue(result == NULL,
-                       printf("filPopen: os_popen(\"" FMT_S_OS "\","
-                              " \"" FMT_S_OS "\") failed:\n"
-                              "errno=%d\nerror: %s\n",
-                              os_command, os_mode,
-                              errno, strerror(errno)););
+        cFile = os_popen(os_command, os_mode);
+        if (unlikely(cFile == NULL)) {
+          logError(printf("filPopen: os_popen(\"" FMT_S_OS "\","
+                          " \"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_command, os_mode,
+                          errno, strerror(errno)););
+          fileOpened = &nullFileRecord;
+        } else {
+          FREE_OS_STRI(os_command);
+          if (unlikely(!ALLOC_RECORD(fileOpened, fileRecord, count.files))) {
+            os_pclose(cFile);
+            raise_error(MEMORY_ERROR);
+            fileOpened = NULL;
+          } else {
+            initFileType(fileOpened, 1);
+            fileOpened->cFile = cFile;
+          } /* if */
+        } /* if */
       } /* if */
-      FREE_OS_STRI(os_command);
     } /* if */
 #else
-    result = NULL;
+    fileOpened = &nullFileRecord;
 #endif
     logFunction(printf("filPopen(\"%s\", ", striAsUnquotedCStri(command));
                 printf("\"%s\", ", striAsUnquotedCStri(parameters));
-                printf("\"%s\") --> %d\n",
-                       striAsUnquotedCStri(mode), safe_fileno(result)););
-    return result;
+                printf("\"%s\") --> " FMT_U_MEM " %s%d (usage=" FMT_U ")\n",
+                       striAsUnquotedCStri(mode),
+                       (memSizeType) fileOpened,
+                       fileOpened == NULL ? "NULL " : "",
+                       fileOpened != NULL ? safe_fileno(fileOpened->cFile) : 0,
+                       fileOpened != NULL ? fileOpened->usage_count : (uintType) 0););
+    return fileOpened;
   } /* filPopen */
 
 
@@ -1698,7 +2149,7 @@ fileType filPopen (const const_striType command,
 void filPrint (const const_striType stri)
 
   { /* filPrint */
-    ut8Write(stdout, stri);
+    ut8Write(&stdoutFileRecord, stri);
     putchar('\n');
     fflush(stdout);
   } /* filPrint */
@@ -1716,35 +2167,45 @@ void filPrint (const const_striType stri)
  */
 void filSeek (fileType aFile, intType position)
 
-  { /* filSeek */
-    logFunction(printf("filSeek(%d, " FMT_D ")\n", safe_fileno(aFile), position););
-    if (unlikely(position <= 0)) {
+  {
+    cFileType cFile;
+
+  /* filSeek */
+    logFunction(printf("filSeek(%s%d, " FMT_D ")\n",
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0,
+                       position););
+    cFile = aFile->cFile;
+    if (unlikely(cFile == NULL)) {
+      logError(printf("filSeek: Attempt to set the current position of a closed file.\n"););
+      raise_error(FILE_ERROR);
+    } else if (unlikely(position <= 0)) {
       logError(printf("filSeek(%d, " FMT_D "): Position <= 0.\n",
-                      safe_fileno(aFile), position););
+                      safe_fileno(cFile), position););
       raise_error(RANGE_ERROR);
 #if OS_OFF_T_SIZE < INTTYPE_SIZE
 #if OS_OFF_T_SIZE == 32
     } else if (unlikely(position > INT32TYPE_MAX)) {
       logError(printf("filSeek(%d, " FMT_D "): "
                       "Position not representable in the system file position type.\n",
-                      safe_fileno(aFile), position););
+                      safe_fileno(cFile), position););
       raise_error(RANGE_ERROR);
 #elif OS_OFF_T_SIZE == 64
     } else if (unlikely(position > INT64TYPE_MAX)) {
       logError(printf("filSeek(%d, " FMT_D "): "
                       "Position not representable in the system file position type.\n",
-                      safe_fileno(aFile), position););
+                      safe_fileno(cFile), position););
       raise_error(RANGE_ERROR);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
 #endif
-    } else if (unlikely(offsetSeek(aFile, (os_off_t) (position - 1), SEEK_SET) != 0)) {
+    } else if (unlikely(offsetSeek(cFile, (os_off_t) (position - 1), SEEK_SET) != 0)) {
       logError(printf("filSeek(%d, " FMT_D "): "
                       "offsetSeek(%d, " FMT_D ", SEEK_SET) failed:\n"
                       "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), position,
-                      safe_fileno(aFile), position - 1,
+                      safe_fileno(cFile), position,
+                      safe_fileno(cFile), position - 1,
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } /* if */
@@ -1761,22 +2222,33 @@ void filSeek (fileType aFile, intType position)
 boolType filSeekable (fileType aFile)
 
   {
+    cFileType cFile;
     int file_no;
     os_fstat_struct stat_buf;
     boolType seekable;
 
   /* filSeekable */
-    file_no = fileno(aFile);
-    if (file_no != -1) {
-      if (os_fstat(file_no, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
-        seekable = TRUE;
-      } else if (os_lseek(file_no, (off_t) 0, SEEK_CUR) != (off_t) -1) {
-        seekable = TRUE;
+    logFunction(printf("filSeekable(%s%d)\n",
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0););
+    cFile = aFile->cFile;
+    if (unlikely(cFile == NULL)) {
+      logError(printf("filSeekable: Attempt to get propery of a closed file.\n"););
+      raise_error(FILE_ERROR);
+      seekable = FALSE;
+    } else {
+      file_no = fileno(cFile);
+      if (file_no != -1) {
+        if (os_fstat(file_no, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+          seekable = TRUE;
+        } else if (os_lseek(file_no, (off_t) 0, SEEK_CUR) != (off_t) -1) {
+          seekable = TRUE;
+        } else {
+          seekable = FALSE;
+        } /* if */
       } else {
         seekable = FALSE;
       } /* if */
-    } else {
-      seekable = FALSE;
     } /* if */
     return seekable;
   } /* filSeekable */
@@ -1785,17 +2257,25 @@ boolType filSeekable (fileType aFile)
 
 void filSetbuf (fileType aFile, intType mode, intType size)
 
-  { /* filSetbuf */
+  {
+    cFileType cFile;
+
+  /* filSetbuf */
+    logFunction(printf("filSetbuf(%s%d, " FMT_D ", " FMT_D ")\n",
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0,
+                       mode, size););
+    cFile = aFile->cFile;
     if (unlikely(mode < 0 || mode > 2 || size < 0 || (uintType) size > MAX_MEMSIZETYPE)) {
       logError(printf("filSetbuf(%d, " FMT_D ", " FMT_D "): "
                       "Mode or size not in allowed range.\n",
-                      safe_fileno(aFile), mode, size););
+                      safe_fileno(cFile), mode, size););
       raise_error(RANGE_ERROR);
-    } else if (unlikely(setvbuf(aFile, NULL, (int) mode, (memSizeType) size) != 0)) {
+    } else if (unlikely(setvbuf(cFile, NULL, (int) mode, (memSizeType) size) != 0)) {
       logError(printf("filSetbuf: "
                       "setvbuf(%d, NULL, %d, " FMT_U_MEM ") failed.:\n"
                       "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), (int) mode, (memSizeType) size,
+                      safe_fileno(cFile), (int) mode, (memSizeType) size,
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } /* if */
@@ -1816,27 +2296,37 @@ void filSetbuf (fileType aFile, intType mode, intType size)
 intType filTell (fileType aFile)
 
   {
+    cFileType cFile;
     os_off_t current_file_position;
     intType position;
 
   /* filTell */
-    logFunction(printf("filTell(%d)\n", safe_fileno(aFile)););
-    current_file_position = offsetTell(aFile);
-    if (unlikely(current_file_position < (os_off_t) 0)) {
-      logError(printf("filTell(%d): "
-                      "offsetTell(%d) returns negative offset: " FMT_D64 ".\n",
-                      safe_fileno(aFile), safe_fileno(aFile),
-                      (int64Type) current_file_position););
+    logFunction(printf("filTell(%s%d)\n",
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0););
+    cFile = aFile->cFile;
+    if (unlikely(cFile == NULL)) {
+      logError(printf("filTell: Attempt to get the current position of a closed file.\n"););
       raise_error(FILE_ERROR);
       position = 0;
-    } else if (unlikely(current_file_position >= INTTYPE_MAX)) {
-      logError(printf("filTell(%d): "
-                      "File position does not fit into an integer: " FMT_D_OFF ".\n",
-                      safe_fileno(aFile), current_file_position););
-      raise_error(RANGE_ERROR);
-      position = 0;
     } else {
-      position = (intType) (current_file_position + 1);
+      current_file_position = offsetTell(cFile);
+      if (unlikely(current_file_position < (os_off_t) 0)) {
+        logError(printf("filTell(%d): "
+                        "offsetTell(%d) returns negative offset: " FMT_D64 ".\n",
+                        safe_fileno(cFile), safe_fileno(cFile),
+                        (int64Type) current_file_position););
+        raise_error(FILE_ERROR);
+        position = 0;
+      } else if (unlikely(current_file_position >= INTTYPE_MAX)) {
+        logError(printf("filTell(%d): "
+                        "File position does not fit into an integer: " FMT_D_OFF ".\n",
+                        safe_fileno(cFile), current_file_position););
+        raise_error(RANGE_ERROR);
+        position = 0;
+      } else {
+        position = (intType) (current_file_position + 1);
+      } /* if */
     } /* if */
     logFunction(printf("filTell --> " FMT_D "\n", position););
     return position;
@@ -1859,45 +2349,53 @@ intType filTell (fileType aFile)
 void filTruncate (fileType aFile, intType length)
 
   {
+    cFileType cFile;
     int file_no;
     fpos_t pos;
 
   /* filTruncate */
-    logFunction(printf("filTruncate(%d, " FMT_D ")\n", safe_fileno(aFile), length););
-    if (unlikely(length < 0)) {
+    logFunction(printf("filTruncate(%s%d, " FMT_D ")\n",
+                       aFile == NULL ? "NULL " : "",
+                       aFile != NULL ? safe_fileno(aFile->cFile) : 0,
+                       length););
+    cFile = aFile->cFile;
+    if (unlikely(cFile == NULL)) {
+      logError(printf("filTruncate: Attempt to truncate a closed file.\n"););
+      raise_error(FILE_ERROR);
+    } else if (unlikely(length < 0)) {
       logError(printf("filTruncate(%d, " FMT_D "): Length < 0.\n",
-                      safe_fileno(aFile), length););
+                      safe_fileno(cFile), length););
       raise_error(RANGE_ERROR);
 #if FTRUNCATE_SIZE < INTTYPE_SIZE
 #if FTRUNCATE_SIZE == 32
     } else if (unlikely(length > INT32TYPE_MAX)) {
       logError(printf("filTruncate(%d, " FMT_D "): "
                       "Length not representable in the system file length type.\n",
-                      safe_fileno(aFile), length););
+                      safe_fileno(cFile), length););
       raise_error(RANGE_ERROR);
 #elif FTRUNCATE_SIZE == 64
     } else if (unlikely(length > INT64TYPE_MAX)) {
       logError(printf("filTruncate(%d, " FMT_D "): "
                       "Length not representable in the system file length type.\n",
-                      safe_fileno(aFile), length););
+                      safe_fileno(cFile), length););
       raise_error(RANGE_ERROR);
 #else
 #error "FTRUNCATE_SIZE is neither 32 nor 64."
 #endif
 #endif
     } else {
-      file_no = fileno(aFile);
+      file_no = fileno(cFile);
       if (unlikely(file_no == -1)) {
         logError(printf("filTruncate(%d): fileno(%d) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        safe_fileno(aFile), safe_fileno(aFile),
+                        safe_fileno(cFile), safe_fileno(cFile),
                         errno, strerror(errno)););
         raise_error(FILE_ERROR);
       } else {
         /* Use fgetpos() and fsetpos() to ensure, that the internal buffer */
-        /* of aFile is synchronized with the underlying file descriptor file. */
+        /* of cFile is synchronized with the underlying file descriptor file. */
         /* This way nothing written is lost. */
-        if (unlikely(fgetpos(aFile, &pos) != 0 || fsetpos(aFile, &pos) != 0)) {
+        if (unlikely(fgetpos(cFile, &pos) != 0 || fsetpos(cFile, &pos) != 0)) {
           logError(printf("filTruncate(%d): fgetpos/fsetpos(%d) failed:\n"
                           "errno=%d\nerror: %s\n",
                           file_no, file_no, errno, strerror(errno)););
@@ -1931,6 +2429,7 @@ void filTruncate (fileType aFile, intType length)
 striType filWordRead (fileType inFile, charType *terminationChar)
 
   {
+    cFileType cInFile;
     register int ch;
     register memSizeType position;
     strElemType *memory;
@@ -1940,66 +2439,75 @@ striType filWordRead (fileType inFile, charType *terminationChar)
     striType result;
 
   /* filWordRead */
-    logFunction(printf("filWordRead(%d, '\\" FMT_U32 ";')\n",
-                       safe_fileno(inFile), *terminationChar););
-    memlength = READ_STRI_INIT_SIZE;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
-      raise_error(MEMORY_ERROR);
+    logFunction(printf("filWordRead(%s%d, '\\" FMT_U32 ";')\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0,
+                       *terminationChar););
+    cInFile = inFile->cFile;
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filWordRead: Attempt to read from closed file.\n"););
+      raise_error(FILE_ERROR);
+      result = NULL;
     } else {
-      memory = result->mem;
-      position = 0;
-      flockfile(inFile);
-      do {
-        ch = getc_unlocked(inFile);
-      } while (ch == ' ' || ch == '\t');
-      while (ch != ' ' && ch != '\t' &&
-          ch != '\n' && ch != EOF) {
-        if (position >= memlength) {
-          newmemlength = memlength + READ_STRI_SIZE_DELTA;
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
-          if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, memlength);
-            funlockfile(inFile);
-            raise_error(MEMORY_ERROR);
-            return NULL;
-          } /* if */
-          result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
-          memory = result->mem;
-          memlength = newmemlength;
-        } /* if */
-        memory[position++] = (strElemType) ch;
-        ch = getc_unlocked(inFile);
-      } /* while */
-      funlockfile(inFile);
-      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
-        position--;
-      } /* if */
-      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
-        FREE_STRI(result, memlength);
-        logError(printf("filWordRead(%d, '\\" FMT_U32 ";'): "
-                        "getc_unlocked(%d) failed:\n"
-                        "errno=%d\nerror: %s\n",
-                        safe_fileno(inFile), *terminationChar,
-                        safe_fileno(inFile), errno, strerror(errno)););
-        raise_error(FILE_ERROR);
-        result = NULL;
+      memlength = READ_STRI_INIT_SIZE;
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
+        raise_error(MEMORY_ERROR);
       } else {
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
-        if (unlikely(resized_result == NULL)) {
+        memory = result->mem;
+        position = 0;
+        flockfile(cInFile);
+        do {
+          ch = getc_unlocked(cInFile);
+        } while (ch == ' ' || ch == '\t');
+        while (ch != ' ' && ch != '\t' &&
+            ch != '\n' && ch != EOF) {
+          if (position >= memlength) {
+            newmemlength = memlength + READ_STRI_SIZE_DELTA;
+            REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+            if (unlikely(resized_result == NULL)) {
+              FREE_STRI(result, memlength);
+              funlockfile(cInFile);
+              raise_error(MEMORY_ERROR);
+              return NULL;
+            } /* if */
+            result = resized_result;
+            COUNT3_STRI(memlength, newmemlength);
+            memory = result->mem;
+            memlength = newmemlength;
+          } /* if */
+          memory[position++] = (strElemType) ch;
+          ch = getc_unlocked(cInFile);
+        } /* while */
+        funlockfile(cInFile);
+        if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+          position--;
+        } /* if */
+        if (unlikely(ch == EOF && position == 0 && ferror(cInFile))) {
           FREE_STRI(result, memlength);
-          raise_error(MEMORY_ERROR);
+          logError(printf("filWordRead(%d, '\\" FMT_U32 ";'): "
+                          "getc_unlocked(%d) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          safe_fileno(cInFile), *terminationChar,
+                          safe_fileno(cInFile), errno, strerror(errno)););
+          raise_error(FILE_ERROR);
           result = NULL;
         } else {
-          result = resized_result;
-          COUNT3_STRI(memlength, position);
-          result->size = position;
-          *terminationChar = (charType) ch;
+          REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+          if (unlikely(resized_result == NULL)) {
+            FREE_STRI(result, memlength);
+            raise_error(MEMORY_ERROR);
+            result = NULL;
+          } else {
+            result = resized_result;
+            COUNT3_STRI(memlength, position);
+            result->size = position;
+            *terminationChar = (charType) ch;
+          } /* if */
         } /* if */
       } /* if */
     } /* if */
     logFunction(printf("filWordRead(%d, '\\" FMT_U32 ";') --> \"%s\"\n",
-                       safe_fileno(inFile), *terminationChar,
+                       safe_fileno(cInFile), *terminationChar,
                        striAsUnquotedCStri(result)););
     return result;
   } /* filWordRead */
@@ -2009,20 +2517,30 @@ striType filWordRead (fileType inFile, charType *terminationChar)
 striType filWordReadChkCtrlC (fileType inFile, charType *terminationChar)
 
   {
+    cFileType cInFile;
     int file_no;
     striType result;
 
   /* filWordReadChkCtrlC */
-    logFunction(printf("filWordReadChkCtrlC(%d, '\\" FMT_U32 ";')\n",
-                       safe_fileno(inFile), *terminationChar););
-    file_no = fileno(inFile);
-    if (file_no != -1 && isatty(file_no)) {
-      result = doWordReadFromTerminal(inFile, terminationChar);
+    logFunction(printf("filWordReadChkCtrlC(%s%d, '\\" FMT_U32 ";')\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0,
+                       *terminationChar););
+    cInFile = inFile->cFile;
+    if (unlikely(cInFile == NULL)) {
+      logError(printf("filWordReadChkCtrlC: Attempt to read from closed file.\n"););
+      raise_error(FILE_ERROR);
+      result = NULL;
     } else {
-      result = filWordRead(inFile, terminationChar);
+      file_no = fileno(cInFile);
+      if (file_no != -1 && isatty(file_no)) {
+        result = doWordReadFromTerminal(inFile, terminationChar);
+      } else {
+        result = filWordRead(inFile, terminationChar);
+      } /* if */
     } /* if */
     logFunction(printf("filWordReadChkCtrlC(%d, '\\" FMT_U32 ";') --> \"%s\"\n",
-                       safe_fileno(inFile), *terminationChar,
+                       safe_fileno(cInFile), *terminationChar,
                        striAsUnquotedCStri(result)););
     return result;
   } /* filWordReadChkCtrlC */
@@ -2038,17 +2556,26 @@ striType filWordReadChkCtrlC (fileType inFile, charType *terminationChar)
 void filWrite (fileType outFile, const const_striType stri)
 
   {
+    cFileType cOutFile;
     const strElemType *striElems;
     memSizeType len;
     ucharType buffer[BUFFER_SIZE];
 
   /* filWrite */
-    logFunction(printf("filWrite(%d, \"%s\")\n",
-                       safe_fileno(outFile), striAsUnquotedCStri(stri)););
+    logFunction(printf("filWrite(%s%d, \"%s\")\n",
+                       outFile == NULL ? "NULL " : "",
+                       outFile != NULL ? safe_fileno(outFile->cFile) : 0,
+                       striAsUnquotedCStri(stri)););
+    cOutFile = outFile->cFile;
+    if (unlikely(cOutFile == NULL)) {
+      logError(printf("filWrite: Attempt to write to closed file.\n"););
+      raise_error(FILE_ERROR);
+      return;
+    } /* if */
 #if FWRITE_WRONG_FOR_READ_ONLY_FILES
-    if (unlikely(stri->size > 0 && (outFile->flags & _F_WRIT) == 0)) {
+    if (unlikely(stri->size > 0 && (cOutFile->flags & _F_WRIT) == 0)) {
       logError(printf("filWrite: Attempt to write to read only file: %d.\n",
-                      safe_fileno(outFile)););
+                      safe_fileno(cOutFile)););
       raise_error(FILE_ERROR);
       return;
     } /* if */
@@ -2058,15 +2585,15 @@ void filWrite (fileType outFile, const const_striType stri)
       if (unlikely(memcpy_from_strelem(buffer, striElems, BUFFER_SIZE))) {
         logError(printf("filWrite(%d, \"%s\"): "
                         "At least one character does not fit into a byte.\n",
-                        safe_fileno(outFile), striAsUnquotedCStri(stri)););
+                        safe_fileno(cOutFile), striAsUnquotedCStri(stri)););
         raise_error(RANGE_ERROR);
         return;
       } /* if */
       striElems = &striElems[BUFFER_SIZE];
-      if (unlikely(BUFFER_SIZE != fwrite(buffer, 1, BUFFER_SIZE, outFile))) {
+      if (unlikely(BUFFER_SIZE != fwrite(buffer, 1, BUFFER_SIZE, cOutFile))) {
         logError(printf("filWrite: fwrite(*, 1, " FMT_U_MEM ", %d) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        (memSizeType) BUFFER_SIZE, safe_fileno(outFile),
+                        (memSizeType) BUFFER_SIZE, safe_fileno(cOutFile),
                         errno, strerror(errno)););
         raise_error(FILE_ERROR);
         return;
@@ -2076,14 +2603,14 @@ void filWrite (fileType outFile, const const_striType stri)
       if (unlikely(memcpy_from_strelem(buffer, striElems, len))) {
         logError(printf("filWrite(%d, \"%s\"): "
                         "At least one character does not fit into a byte.\n",
-                        safe_fileno(outFile), striAsUnquotedCStri(stri)););
+                        safe_fileno(cOutFile), striAsUnquotedCStri(stri)););
         raise_error(RANGE_ERROR);
         return;
       } /* if */
-      if (unlikely(len != fwrite(buffer, 1, len, outFile))) {
+      if (unlikely(len != fwrite(buffer, 1, len, cOutFile))) {
         logError(printf("filWrite: fwrite(*, 1, " FMT_U_MEM ", %d) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        len, safe_fileno(outFile), errno, strerror(errno)););
+                        len, safe_fileno(cOutFile), errno, strerror(errno)););
         raise_error(FILE_ERROR);
         return;
       } /* if */

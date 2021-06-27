@@ -31,6 +31,7 @@ objectType fil_big_tell         (listType arguments);
 objectType fil_close            (listType arguments);
 objectType fil_cpy              (listType arguments);
 objectType fil_create           (listType arguments);
+objectType fil_destr            (listType arguments);
 objectType fil_empty            (listType arguments);
 objectType fil_eof              (listType arguments);
 objectType fil_eq               (listType arguments);

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  cpio.s7i      Cpio archive library                              *)
-(*  Copyright (C) 2020  Thomas Mertes                               *)
+(*  Copyright (C) 2020, 2021  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -114,15 +114,15 @@ const proc: readHead (inout file: inFile, inout cpioHeader: header) is func
     if header.magic = CPIO_BINARY_MAGIC then
       # writeln("CPIO_BINARY_MAGIC");
       headerStri := gets(inFile, 24);
-      header.devmajor   := ord(headerStri[1]);
-      header.devminor   := ord(headerStri[2]);
+      header.devmajor   := bytes2Int(headerStri[ 1 len 1], UNSIGNED, BE);
+      header.devminor   := bytes2Int(headerStri[ 2 len 1], UNSIGNED, BE);
       header.ino        := bytes2Int(headerStri[ 3 len 2], UNSIGNED, BE);
       header.mode       := bytes2Int(headerStri[ 5 len 2], UNSIGNED, BE);
       header.uid        := bytes2Int(headerStri[ 7 len 2], UNSIGNED, BE);
       header.gid        := bytes2Int(headerStri[ 9 len 2], UNSIGNED, BE);
       header.nlink      := bytes2Int(headerStri[11 len 2], UNSIGNED, BE);
-      header.rdevmajor  := ord(headerStri[13]);
-      header.rdevminor  := ord(headerStri[14]);
+      header.rdevmajor  := bytes2Int(headerStri[13 len 1], UNSIGNED, BE);
+      header.rdevminor  := bytes2Int(headerStri[14 len 1], UNSIGNED, BE);
       header.mtime      := bytes2Int(headerStri[15 len 4], UNSIGNED, BE);
       header.nameSize   := bytes2Int(headerStri[19 len 2], UNSIGNED, BE);
       header.fileSize   := bytes2Int(headerStri[21 len 4], UNSIGNED, BE);
@@ -132,15 +132,15 @@ const proc: readHead (inout file: inFile, inout cpioHeader: header) is func
     elsif header.magic = CPIO_SWAPPED_BINARY_MAGIC then
       # writeln("CPIO_SWAPPED_BINARY_MAGIC");
       headerStri := gets(inFile, 24);
-      header.devminor   := ord(headerStri[1]);
-      header.devmajor   := ord(headerStri[2]);
+      header.devminor   := bytes2Int(headerStri[ 1 len 1], UNSIGNED, LE);
+      header.devmajor   := bytes2Int(headerStri[ 2 len 1], UNSIGNED, LE);
       header.ino        := bytes2Int(headerStri[ 3 len 2], UNSIGNED, LE);
       header.mode       := bytes2Int(headerStri[ 5 len 2], UNSIGNED, LE);
       header.uid        := bytes2Int(headerStri[ 7 len 2], UNSIGNED, LE);
       header.gid        := bytes2Int(headerStri[ 9 len 2], UNSIGNED, LE);
       header.nlink      := bytes2Int(headerStri[11 len 2], UNSIGNED, LE);
-      header.rdevminor  := ord(headerStri[13]);
-      header.rdevmajor  := ord(headerStri[14]);
+      header.rdevminor  := bytes2Int(headerStri[13 len 1], UNSIGNED, LE);
+      header.rdevmajor  := bytes2Int(headerStri[14 len 1], UNSIGNED, LE);
       header.mtime      := bytes2Int(headerStri[15 len 2], UNSIGNED, LE) * 65536 +
                            bytes2Int(headerStri[17 len 2], UNSIGNED, LE);
       header.nameSize   := bytes2Int(headerStri[19 len 2], UNSIGNED, LE);
@@ -293,35 +293,35 @@ const func string: str (in cpioHeader: header) is func
     if header.magic = CPIO_BINARY_MAGIC then
       # writeln("CPIO_BINARY_MAGIC");
       stri := header.magic &
-              str(char(header.devmajor)) &
-              str(char(header.devminor)) &
-              int16AsTwoBytesBe(header.ino) &
-              int16AsTwoBytesBe(header.mode) &
-              int16AsTwoBytesBe(header.uid) &
-              int16AsTwoBytesBe(header.gid) &
-              int16AsTwoBytesBe(header.nlink) &
-              str(char(header.rdevmajor)) &
-              str(char(header.rdevminor)) &
-              int32AsFourBytesBe(header.mtime) &
-              int16AsTwoBytesBe(header.nameSize) &
-              int32AsFourBytesBe(header.fileSize);
+              bytes(header.devmajor,  UNSIGNED, BE, 1) &
+              bytes(header.devminor,  UNSIGNED, BE, 1) &
+              bytes(header.ino,       UNSIGNED, BE, 2) &
+              bytes(header.mode,      UNSIGNED, BE, 2) &
+              bytes(header.uid,       UNSIGNED, BE, 2) &
+              bytes(header.gid,       UNSIGNED, BE, 2) &
+              bytes(header.nlink,     UNSIGNED, BE, 2) &
+              bytes(header.rdevmajor, UNSIGNED, BE, 1) &
+              bytes(header.rdevminor, UNSIGNED, BE, 1) &
+              bytes(header.mtime,     UNSIGNED, BE, 4) &
+              bytes(header.nameSize,  UNSIGNED, BE, 2) &
+              bytes(header.fileSize,  UNSIGNED, BE, 4);
     elsif header.magic = CPIO_SWAPPED_BINARY_MAGIC then
       # writeln("CPIO_SWAPPED_BINARY_MAGIC");
       stri := header.magic &
-              str(char(header.devminor)) &
-              str(char(header.devmajor)) &
-              int16AsTwoBytesLe(header.ino) &
-              int16AsTwoBytesLe(header.mode) &
-              int16AsTwoBytesLe(header.uid) &
-              int16AsTwoBytesLe(header.gid) &
-              int16AsTwoBytesLe(header.nlink) &
-              str(char(header.rdevminor)) &
-              str(char(header.rdevmajor)) &
-              int16AsTwoBytesLe(header.mtime >> 16) &
-              int16AsTwoBytesLe(header.mtime mod 65536) &
-              int16AsTwoBytesLe(header.nameSize) &
-              int16AsTwoBytesLe(header.fileSize >> 16) &
-              int16AsTwoBytesLe(header.fileSize mod 65536);
+              bytes(header.devminor,           UNSIGNED, LE, 1) &
+              bytes(header.devmajor,           UNSIGNED, LE, 1) &
+              bytes(header.ino,                UNSIGNED, LE, 2) &
+              bytes(header.mode,               UNSIGNED, LE, 2) &
+              bytes(header.uid,                UNSIGNED, LE, 2) &
+              bytes(header.gid,                UNSIGNED, LE, 2) &
+              bytes(header.nlink,              UNSIGNED, LE, 2) &
+              bytes(header.rdevminor,          UNSIGNED, LE, 1) &
+              bytes(header.rdevmajor,          UNSIGNED, LE, 1) &
+              bytes(header.mtime >> 16,        UNSIGNED, LE, 2) &
+              bytes(header.mtime mod 65536,    UNSIGNED, LE, 2) &
+              bytes(header.nameSize,           UNSIGNED, LE, 2) &
+              bytes(header.fileSize >> 16,     UNSIGNED, LE, 2) &
+              bytes(header.fileSize mod 65536, UNSIGNED, LE, 2);
     elsif header.magic = CPIO_OLD_ASCII_MAGIC then
       # writeln("CPIO_OLD_ASCII_MAGIC");
       stri := header.magic <&

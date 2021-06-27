@@ -166,14 +166,18 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
 
 
 processType pcsStart (const const_striType command, const const_rtlArrayType parameters,
-    fileType childStdin, fileType childStdout, fileType childStderr)
+    fileType redirectStdin, fileType redirectStdout, fileType redirectStderr)
 
   { /* pcsStart */
     logFunction(printf("pcsStart(\"%s\"", striAsUnquotedCStri(command));
                 printParameters(parameters);
-                printf(", %d, %d, %d)\n",
-                       safe_fileno(childStdin), safe_fileno(childStdout),
-                       safe_fileno(childStderr)););
+                printf(", %s%d, %s%d, %s%d)\n",
+                       redirectStdin == NULL ? "NULL " : "",
+                       redirectStdin != NULL ? safe_fileno(redirectStdin->cFile) : 0,
+                       redirectStdout == NULL ? "NULL " : "",
+                       redirectStdout != NULL ? safe_fileno(redirectStdout->cFile) : 0,
+                       redirectStderr == NULL ? "NULL " : "",
+                       redirectStderr != NULL ? safe_fileno(redirectStderr->cFile) : 0););
     logFunction(printf("pcsStart -> 0\n"););
     return NULL;
   } /* pcsStart */

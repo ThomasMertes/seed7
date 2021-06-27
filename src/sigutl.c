@@ -324,7 +324,7 @@ void setupSignalHandlers (boolType handleSignals,
     boolType fpeNumericError, suspendInterprType suspendInterpr)
 
   {
-    int pos;
+    unsigned int pos;
     int signalNum;
     struct sigaction sigAct;
     boolType okay = TRUE;

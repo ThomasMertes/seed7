@@ -30,8 +30,8 @@
 /********************************************************************/
 
 
-int readCharChkCtrlC (fileType inFile, boolType *sigintReceived);
-boolType filInputReady (fileType aFile);
+int readCharChkCtrlC (cFileType inFile, boolType *sigintReceived);
+boolType filInputReady (fileType inFile);
 void filPipe (fileType *inFile, fileType *outFile);
 #ifdef DEFINE_FTELLI64_EXT
 os_off_t ftelli64Ext (FILE *aFile);

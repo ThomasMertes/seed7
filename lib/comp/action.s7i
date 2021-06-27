@@ -691,6 +691,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_SETCONTENT"}:
         drawLibraryUsed := TRUE;
         process(DRW_SETCONTENT, function, params, c_expr);
+      when {"DRW_SETCURSORVISIBLE"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_SETCURSORVISIBLE, function, params, c_expr);
       when {"DRW_SETPOS"}:
         drawLibraryUsed := TRUE;
         process(DRW_SETPOS, function, params, c_expr);
@@ -1073,6 +1076,14 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_NE, function, params, c_expr);
       when {"INT_NEGATE"}:
         process(INT_NEGATE, function, params, c_expr);
+      when {"INT_N_BYTES_BE_SIGNED"}:
+        process(INT_N_BYTES_BE_SIGNED, function, params, c_expr);
+      when {"INT_N_BYTES_BE_UNSIGNED"}:
+        process(INT_N_BYTES_BE_UNSIGNED, function, params, c_expr);
+      when {"INT_N_BYTES_LE_SIGNED"}:
+        process(INT_N_BYTES_LE_SIGNED, function, params, c_expr);
+      when {"INT_N_BYTES_LE_UNSIGNED"}:
+        process(INT_N_BYTES_LE_UNSIGNED, function, params, c_expr);
       when {"INT_ODD"}:
         process(INT_ODD, function, params, c_expr);
       when {"INT_PARSE1"}:

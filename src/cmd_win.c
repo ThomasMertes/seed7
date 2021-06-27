@@ -709,7 +709,7 @@ striType cmdUser (void)
 
   {
     HANDLE hToken = NULL;
-    PTOKEN_USER ptu = NULL;
+    TOKEN_USER *ptu = NULL;
     DWORD dwSize = 0;
     striType user;
 
@@ -729,7 +729,7 @@ striType cmdUser (void)
         raise_error(FILE_ERROR);
         user = NULL;
       } else {
-        ptu = (PTOKEN_USER) LocalAlloc(LPTR, dwSize);
+        ptu = (TOKEN_USER *) LocalAlloc(LPTR, dwSize);
         if (unlikely(ptu == NULL)) {
           raise_error(MEMORY_ERROR);
           user = NULL;

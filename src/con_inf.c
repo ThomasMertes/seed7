@@ -178,7 +178,7 @@ static consoleType con;
 
 
 static void strelem_fwrite (const strElemType *stri, memSizeType length,
-    fileType outFile)
+    cFileType outFile)
 
   {
     memSizeType size;

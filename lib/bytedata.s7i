@@ -331,6 +331,40 @@ const func string: bytes (in integer: number,
     in signedness: signed, in endianness: endian) is DYNAMIC;
 
 
+const func string: bytes (in integer: number, UNSIGNED, BE, in integer: length) is action "INT_N_BYTES_BE_UNSIGNED";
+
+const func string: bytes (in integer: number, UNSIGNED, LE, in integer: length) is action "INT_N_BYTES_LE_UNSIGNED";
+
+const func string: bytes (in integer: number, SIGNED, BE, in integer: length) is action "INT_N_BYTES_BE_SIGNED";
+
+const func string: bytes (in integer: number, SIGNED, LE, in integer: length) is action "INT_N_BYTES_LE_SIGNED";
+
+
+(**
+ *  Convert an [[integer]] into a [[string]] of bytes with the given ''length''.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *   bytes(1413829460, SIGNED, BE, 5)  returns "\0;TEST"
+ *   bytes(1497451343, SIGNED, LE, 5)  returns "OKAY\0;"
+ *  @param number Integer number to be converted.
+ *  @param signed Determines the [[#signedness|signedness]] of the result.
+ *         Possible values are UNSIGNED and SIGNED. If ''signed'' is SIGNED
+ *         the result is encoded with the twos-complement representation.
+ *         In this case a negative ''number'' is converted to a result
+ *         where the most significant byte has an ordinal >= 128.
+ *  @param endian Determines the [[#endianness|endianness]] of the result.
+ *         Possible values are LE for little-endian and BE for big-endian.
+ *  @param length Determines the length of the result string.
+ *  @return a [[string]] with the shortest binary representation of ''number''.
+ *  @exception RANGE_ERROR If ''number'' is negative and ''signed'' is UNSIGNED, or
+ *                         if ''length'' is negative or zero, or
+ *                         if the result would not fit in ''length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: bytes (in integer: number,
+    in signedness: signed, in endianness: endian, in integer: length) is DYNAMIC;
+
+
 const func string: bytes (in bigInteger: number, UNSIGNED, BE) is
   return str(bStriBe(number, FALSE));
 

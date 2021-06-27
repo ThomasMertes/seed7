@@ -1,3 +1,85 @@
+20210627:
+- As suggested by Zachary Menzies a function to make the mouse cursor
+  invisible has been added. The function setCursorVisible() has been
+  added to graph.s7i. This function sets the visibility of the mouse
+  cursor in a specified window.
+- A function to convert an integer to a string of bytes with a given
+  length has been added to bytedata.s7i. To get the bytes of a 32-bit
+  signed big-endian representation use: bytes(number, SIGNED, BE, 4).
+- The functions for external files have been improved to raise
+  FILE_ERROR, if a file is used after it has been closed.
+- The management of external files has been improved to automatically
+  close a file, when the last variable that refers to the file leaves
+  its scope (no variable refers to the file any more).
+- Adjustments have be done in s7c.sd7, comp/prg_act.s7i,
+  comp/sql_act.s7i, comp/str_act.s7i, prg_comp.c, chkccomp.c,
+  sql_cli.c, sql_fire.c, sql_lite.c, sql_my.c, sql_oci.c, sql_post.c,
+  sql_tds.c, sql_rtl.c, sql_rtl.h and sql_drv.h to support
+  compilation with a C++ compiler.
+- The functions XCreateBitmapFromData(), XCreatePixmapCursor(),
+  XDefineCursor() and XUndefineCursor() have been added to x11_x.h
+  and fwd_x11.c.
+- The makefiles have been improved to compile the utilities with
+  -O3 -oc3 (command: make utils). A possibility to remove the
+  utilities has been added (command: make clean_utils). The utility
+  programs are now installed under Linux (command: make install).
+- Documentation comments have been improved in cc_conf.s7i,
+  environment.s7i, process.s7i, graph.s7i, cmdlib.c and cmd_rtl.c.
+- In cgidialog.s7i the handling of an image with an empty pixmap has
+  been improved.
+- In clib_file.s7i the function destroy has been changed to use the
+  action FIL_DESTR.
+- Interpreter and compiler have been improved to support the actions
+  DRW_SETCURSORVISIBLE, FIL_DESTR, INT_N_BYTES_BE_SIGNED,
+  INT_N_BYTES_BE_UNSIGNED, INT_N_BYTES_LE_SIGNED and
+  INT_N_BYTES_LE_UNSIGNED.
+- Tests have been added to chkint.sd7. These tests check the
+  conversion of an integer to a string of bytes with a given length.
+- Tests have been added to chkfil.sd7. It is checked if the automatic
+  closing of files works as expected. Other tests check if FILE_ERROR
+  is raised in case a file is used after it has been closed.
+- Tests for the assignment to an element in an array of strings have
+  been added to chkstr.sd7.
+- The libraries cpio.s7i and rpm.s7i have been improved to use the
+  new integer conversion functions.
+- Additional conversion functions have been added to float.s7i and
+  integer.s7i.
+- Another test for FLOAT_ZERO_DIV_ERROR has been added to chkccomp.c.
+- In drw_win.c drwSetCursorVisible() has been added, dra_init() has
+  been renamed to drawInit() and WndProc() has been improved to
+  process WM_SETCURSOR.
+- In drw_x11.c drwGetImage() has been improved to work for an empty
+  window, drwSetCursorVisible() has been added and several checks for
+  RANGE_ERROR have been improved.
+- In fillib.c the functions fil_cpy(), fil_create(), fil_destr(),
+  fil_empty(), fil_eof(), fil_err(), fil_flush(), fil_in() and
+  fil_out() have been adjusted for the new fileType.
+- The functions in fil_rtl.c have been adjusted for the new fileType.
+- In fil_unx.c and fil_win.c the functions filInputReady(), filPipe()
+  and setupFiles() have been adjusted for the new fileType.
+- In fil_ut8.c the functions ut8Getc(), ut8Gets(), ut8LineRead(),
+  ut8Seek(), ut8WordRead() and ut8Write() have been adjusted for the
+  new fileType.
+- The function heapStatistic() in flistutl.c has been adjusted for
+  the new fileType.
+- Improvements in gkb_win.c set the button window, when a resize is
+  done.
+- The functions intNBytesBeSigned(), intNBytesBeUnsigned(),
+  intNBytesLeSigned() and intNBytesLeUnsigned() have been added to
+  int_rtl.c.
+- In pcs_rtl.c pcsChildStdErr(), pcsChildStdIn(), pcsChildStdOut()
+  and pcsDestr() have been adjusted for the new fileType.
+- In pcs_dos.c in function pcsStart() the logging has been adjusted
+  for the new fileType.
+- In pcs_unx.c the functions pcsPipe2(), pcsPty(), pcsStart() and
+  pcsStartPipe() have been adjusted for the new fileType.
+- In pcs_win.c the functions pcsPipe2(), pcsStart() and
+  pcsStartPipe() have been adjusted for the new fileType.
+- Functions in soc_rtl.c have been changed to raise FILE_ERROR, if
+  they are used with an invalid socket.
+- Logging functions have been added to prclib.c.
+- The documentation in src/read_me.txt has been improved.
+
 20210530:
 - The example program pv7.sd7 has been added. It is a picture viewer
   for several graphic formats (BMP, GIF, JPEG, PNG and PPM).

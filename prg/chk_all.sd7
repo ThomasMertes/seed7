@@ -42,6 +42,8 @@ const string: chkint_output is "\n\
   \The integer compare works correct.\n\
   \Conversion of integer to big endian byte string works correct.\n\
   \Conversion of integer to little endian byte string works correct.\n\
+  \Conversion of integer to big endian byte string with length works correct.\n\
+  \Conversion of integer to little endian byte string with length works correct.\n\
   \Conversion of big endian byte string to integer works correct.\n\
   \Conversion of little endian byte string to integer works correct.\n\
   \Conversion to and from LEB128 encoding works correct.\n\
@@ -341,8 +343,13 @@ const string: chkfil_output is "\n\
   \Open a file does work correct.\n\
   \File I/O does work correct.\n\
   \File seek does work correct.\n\
+  \Automatic closing of files works.\n\
+  \File operations with a closed file fail as they should.\n\
+  \Open an UTF-8 file does work correct.\n\
   \Utf-8 file I/O does work correct.\n\
   \Utf-8 file seek does work correct.\n\
+  \Automatic closing of UTF-8 files works.\n\
+  \File operations with a closed UTF-8 file fail as they should.\n\
   \STD_NULL does work correct.\n";
 
 const string: chkexc_output is "\n\

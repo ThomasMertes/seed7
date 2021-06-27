@@ -41,6 +41,7 @@
 
 #include "common.h"
 #include "heaputl.h"
+#include "fil_rtl.h"
 #include "ut8_rtl.h"
 
 #undef EXTERN
@@ -364,7 +365,7 @@ intType conLine (void)
 void conWrite (const const_striType stri)
 
   { /* conWrite */
-    ut8Write(stdout, stri);
+    ut8Write(&stdoutFileRecord, stri);
   } /* conWrite */
 
 

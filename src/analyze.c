@@ -71,6 +71,7 @@
 #include "runerr.h"
 #include "cmd_rtl.h"
 #include "str_rtl.h"
+#include "fil_rtl.h"
 #include "ut8_rtl.h"
 #include "prg_comp.h"
 
@@ -243,7 +244,7 @@ static void processPragma (void)
             NL_LIN_INFO();
           } /* if */
 #endif
-          ut8Write(stdout, symbol.striValue);
+          ut8Write(&stdoutFileRecord, symbol.striValue);
           putchar('\n');
           fflush(stdout);
           display_compilation_info();

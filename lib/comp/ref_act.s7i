@@ -671,7 +671,29 @@ const proc: process (REF_TRACE, in reference: function,
         when {BSTRIOBJECT}:
           c_expr.expr &:= "printf(\"<BSTRIOBJECT>\")";
         when {FILEOBJECT}:
-          c_expr.expr &:= "printf(\"<FILEOBJECT>\")";
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "fileType file=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "printf(\"<FILEOBJECT>\");\n";
+          c_expr.expr &:= "if (file == NULL) {\n";
+          c_expr.expr &:= "printf(\"  *NULL_FILE* \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "cFileType cFile=file->cFile;\n";
+          c_expr.expr &:= "printf(\" file [%lu] %lu\", file->usage_count, file);\n";
+          c_expr.expr &:= "if (cFile == NULL) {\n";
+          c_expr.expr &:= "printf(\" *CLIB_NULL_FILE*\");\n";
+          c_expr.expr &:= "} else if (cFile == stdin) {\n";
+          c_expr.expr &:= "printf(\" stdin\");\n";
+          c_expr.expr &:= "} else if (cFile == stdout) {\n";
+          c_expr.expr &:= "printf(\" stdout\");\n";
+          c_expr.expr &:= "} else if (cFile == stderr) {\n";
+          c_expr.expr &:= "printf(\" stderr\");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" file %d\", fileno(cFile));\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
         when {SOCKETOBJECT}:
           c_expr.expr &:= "printf(\"<SOCKETOBJECT>\")";
         when {POLLOBJECT}:
@@ -731,11 +753,11 @@ const proc: process (REF_TRACE, in reference: function,
           c_expr.expr &:= "} else {\n";
           c_expr.expr &:= "printf(\"  const \");\n";
           c_expr.expr &:= "}\n";
-          c_expr.expr &:= "filWrite(stdout, typeStri);\n";
+          c_expr.expr &:= "filWrite(&stdoutFileRecord, typeStri);\n";
           c_expr.expr &:= "printf(\": \");\n";
-          c_expr.expr &:= "filWrite(stdout, nameStri);\n";
+          c_expr.expr &:= "filWrite(&stdoutFileRecord, nameStri);\n";
           c_expr.expr &:= "printf(\" is <\");\n";
-          c_expr.expr &:= "filWrite(stdout, categoryStri);\n";
+          c_expr.expr &:= "filWrite(&stdoutFileRecord, categoryStri);\n";
           c_expr.expr &:= "printf(\">\");\n";
           c_expr.expr &:= "strDestr(typeStri);\n";
           c_expr.expr &:= "strDestr(nameStri);\n";

@@ -55,8 +55,10 @@
 
 #include "common.h"
 #include "os_decls.h"
+#include "heaputl.h"
 #include "striutl.h"
 #include "cmd_drv.h"
+#include "fil_rtl.h"
 #include "rtl_err.h"
 
 #if HAS_SIGACTION || HAS_SIGNAL
@@ -83,7 +85,7 @@ static void handleIntSignal (int sig_num)
  *  @param sigintReceived Flag indicating if ctrl-c has been pressed.
  *  @return the character read.
  */
-int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
+int readCharChkCtrlC (cFileType inFile, boolType *sigintReceived)
 
   {
 #if HAS_SIGACTION
@@ -146,24 +148,28 @@ int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
  *  @return TRUE if 'getc' would not block, FALSE otherwise.
  */
 #if defined read_buffer_empty && HAS_POLL
-boolType filInputReady (fileType aFile)
+boolType filInputReady (fileType inFile)
 
   {
+    cFileType cInFile;
     int file_no;
     struct pollfd pollFd[1];
     int poll_result;
     boolType inputReady;
 
   /* filInputReady */
-    logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
-    if (!read_buffer_empty(aFile)) {
+    logFunction(printf("filInputReady(%s%d)\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0););
+    cInFile = inFile->cFile;
+    if (!read_buffer_empty(cInFile)) {
       inputReady = TRUE;
     } else {
-      file_no = fileno(aFile);
+      file_no = fileno(cInFile);
       if (unlikely(file_no == -1)) {
         logError(printf("filInputReady(%d): fileno(%d) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        safe_fileno(aFile), safe_fileno(aFile),
+                        safe_fileno(cInFile), safe_fileno(cInFile),
                         errno, strerror(errno)););
         raise_error(FILE_ERROR);
         inputReady = FALSE;
@@ -175,7 +181,7 @@ boolType filInputReady (fileType aFile)
         if (unlikely(poll_result < 0)) {
           logError(printf("filInputReady(%d): poll([%d, POLLIN], 1, 0) failed:\n"
                           "errno=%d\nerror: %s\n",
-                          safe_fileno(aFile), safe_fileno(aFile),
+                          safe_fileno(cInFile), safe_fileno(cInFile),
                           errno, strerror(errno)););
           raise_error(FILE_ERROR);
           inputReady = FALSE;
@@ -188,7 +194,7 @@ boolType filInputReady (fileType aFile)
       } /* if */
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
-                       safe_fileno(aFile), inputReady););
+                       safe_fileno(cInFile), inputReady););
     return inputReady;
   } /* filInputReady */
 
@@ -196,9 +202,10 @@ boolType filInputReady (fileType aFile)
 
 
 
-boolType filInputReady (fileType aFile)
+boolType filInputReady (fileType inFile)
 
   {
+    cFileType cInFile;
     int file_no;
     int flags;
     int ch;
@@ -206,12 +213,15 @@ boolType filInputReady (fileType aFile)
     boolType inputReady;
 
   /* filInputReady */
-    logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
-    file_no = fileno(aFile);
+    logFunction(printf("filInputReady(%s%d)\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0););
+    cInFile = inFile->cFile;
+    file_no = fileno(cInFile);
     if (unlikely(file_no == -1)) {
       logError(printf("filInputReady(%d): fileno(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), safe_fileno(aFile),
+                      safe_fileno(cInFile), safe_fileno(cInFile),
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
       inputReady = FALSE;
@@ -219,12 +229,12 @@ boolType filInputReady (fileType aFile)
       /* printf("file_no=%d\n", file_no); */
       flags = fcntl(file_no, F_GETFL);
       fcntl(file_no, F_SETFL, flags|O_NONBLOCK);
-      ch = getc(aFile);
+      ch = getc(cInFile);
       saved_errno = errno;
       /* printf("errno=%d ", saved_errno); */
       if (ch == EOF) {
-        if (feof(aFile)) {
-          clearerr(aFile);
+        if (feof(cInFile)) {
+          clearerr(cInFile);
           inputReady = TRUE;
         } else if (saved_errno == EAGAIN || saved_errno == EIO) {
           inputReady = FALSE;
@@ -232,13 +242,13 @@ boolType filInputReady (fileType aFile)
           inputReady = TRUE;
         } /* if */
       } else {
-        ungetc(ch, aFile);
+        ungetc(ch, cInFile);
         inputReady = TRUE;
       } /* if */
       fcntl(file_no, F_SETFL, flags);
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
-                       safe_fileno(aFile), inputReady););
+                       safe_fileno(cInFile), inputReady););
     return inputReady;
   } /* filInputReady */
 #endif
@@ -246,9 +256,10 @@ boolType filInputReady (fileType aFile)
 
 
 #ifdef OUT_OF_ORDER
-boolType filInputReady (fileType aFile)
+boolType filInputReady (fileType inFile)
 
   {
+    cFileType cInFile;
     int file_no;
     int nfds;
     fd_set readfds;
@@ -257,12 +268,15 @@ boolType filInputReady (fileType aFile)
     boolType inputReady;
 
   /* filInputReady */
-    logFunction(printf("filInputReady(%d)\n", safe_fileno(aFile)););
-    file_no = fileno(aFile);
+    logFunction(printf("filInputReady(%s%d)\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0););
+    cInFile = inFile->cFile;
+    file_no = fileno(cInFile);
     if (unlikely(file_no == -1)) {
       logError(printf("filInputReady(%d): fileno(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
-                      safe_fileno(aFile), safe_fileno(aFile),
+                      safe_fileno(cInFile), safe_fileno(cInFile),
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
       inputReady = FALSE;
@@ -279,7 +293,7 @@ boolType filInputReady (fileType aFile)
         logError(printf("filInputReady(%d): "
                         "select(%d, [%d], NULL, NULL, [0, 0]) failed:\n"
                         "errno=%d\nerror: %s\n",
-                        safe_fileno(aFile), nfds, sock,
+                        safe_fileno(cInFile), nfds, sock,
                         errno, strerror(errno)););
         raise_error(FILE_ERROR);
         inputReady = FALSE;
@@ -288,7 +302,7 @@ boolType filInputReady (fileType aFile)
       } /* if */
     } /* if */
     logFunction(printf("filInputReady(%d) --> %d\n",
-                       safe_fileno(aFile), inputReady););
+                       safe_fileno(cInFile), inputReady););
     return inputReady;
   } /* filInputReady */
 #endif
@@ -298,37 +312,61 @@ boolType filInputReady (fileType aFile)
 void filPipe (fileType *inFile, fileType *outFile)
 
   {
+    fileType pipeInFile = NULL;
+    fileType pipeOutFile = NULL;
     int aPipe[2];
+    cFileType cPipeInFile;
+    cFileType cPipeOutFile;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* filPipe */
-    if (unlikely(pipe(aPipe) != 0)) {
+    if (unlikely(!ALLOC_RECORD(pipeInFile, fileRecord, count.files) ||
+                 !ALLOC_RECORD(pipeOutFile, fileRecord, count.files))) {
+      err_info = MEMORY_ERROR;
+    } else if (unlikely(pipe(aPipe) != 0)) {
       logError(printf("filPipe: pipe(aPipe) failed:\n"
                       "errno=%d\nerror: %s\n",
                       errno, strerror(errno)););
-      *inFile = NULL;
-      *outFile = NULL;
-      raise_error(FILE_ERROR);
+      err_info = FILE_ERROR;
     } else {
-      if (unlikely((*inFile = fdopen(aPipe[0], "rb")) == NULL)) {
+      if (unlikely((cPipeInFile = fdopen(aPipe[0], "rb")) == NULL)) {
         logError(printf("filPipe: fdopen(%d, \"rb\") failed:\n"
                       "errno=%d\nerror: %s\n",
                       aPipe[0], errno, strerror(errno)););
         close(aPipe[0]);
         close(aPipe[1]);
-        *outFile = NULL;
-        raise_error(FILE_ERROR);
-      } else if (unlikely((*outFile = fdopen(aPipe[1], "wb")) == NULL)) {
+        err_info = FILE_ERROR;
+      } else if (unlikely((cPipeOutFile = fdopen(aPipe[1], "wb")) == NULL)) {
         logError(printf("filPipe: fdopen(%d, \"wb\") failed:\n"
                       "errno=%d\nerror: %s\n",
                       aPipe[1], errno, strerror(errno)););
-        fclose(*inFile);
-        *inFile = NULL;
+        fclose(cPipeInFile);
         close(aPipe[1]);
-        raise_error(FILE_ERROR);
+        err_info = FILE_ERROR;
+      } else {
+        filDestr(*inFile);
+        initFileType(pipeInFile, 1);
+        pipeInFile->cFile = cPipeInFile;
+        *inFile = pipeInFile;
+        filDestr(*outFile);
+        initFileType(pipeOutFile, 1);
+        pipeOutFile->cFile = cPipeOutFile;
+        *outFile = pipeOutFile;
       } /* if */
     } /* if */
-    logFunction(printf("filPipe --> {%d, %d}\n",
-                       safe_fileno(*inFile), safe_fileno(*outFile)));
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (pipeInFile != NULL) {
+        FREE_RECORD(pipeInFile, fileRecord, count.files);
+      } /* if */
+      if (pipeOutFile != NULL) {
+        FREE_RECORD(pipeOutFile, fileRecord, count.files);
+      } /* if */
+    } /* if */
+    logFunction(printf("filPipe --> {%s%d, %s%d}\n",
+                       *inFile == NULL ? "NULL " : "",
+                       *inFile != NULL ? safe_fileno((*inFile)->cFile) : 0,
+                       *outFile == NULL ? "NULL " : "",
+                       *outFile != NULL ? safe_fileno((*outFile)->cFile) : 0));
   } /* filPipe */
 
 
@@ -371,6 +409,9 @@ void setupFiles (void)
 
   { /* setupFiles */
     logFunction(printf("setupFiles\n"););
+    stdinFileRecord.cFile = stdin;
+    stdoutFileRecord.cFile = stdout;
+    stderrFileRecord.cFile = stderr;
 #ifdef MOUNT_NODEFS
     EM_ASM(
       let bslash = String.fromCharCode(92);

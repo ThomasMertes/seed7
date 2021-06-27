@@ -43,7 +43,7 @@
 #define STRINGIFY(s) STRINGIFY_HELPER(s)
 #define STRINGIFY_HELPER(s) #s
 #else
-#define STRINGIFY(s) stringify(s)
+#define STRINGIFY(s) stringify((intType) s)
 #endif
 
 #define CSTRI_LITERAL_TO_STRI(literal) cstri_buf_to_stri(literal, STRLEN(literal))
@@ -171,7 +171,7 @@ extern const os_charType emulated_root[];
 cstriType striAsUnquotedCStri (const const_striType stri);
 cstriType bstriAsUnquotedCStri (const const_bstriType bstri);
 #if !STRINGIFY_WORKS
-cstriType stringify (int number);
+cstriType stringify (intType number);
 #endif
 void memcpy_to_strelem (register strElemType *const dest,
                         register const const_ustriType src, memSizeType len);
@@ -207,7 +207,7 @@ cstriType stri_to_cstri (const const_striType stri, errInfoType *err_info);
 cstriType stri_to_cstri8 (const const_striType stri, errInfoType *err_info);
 cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length);
 bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info);
-bstriType stri_to_bstri8 (const_striType stri);
+bstriType stri_to_bstri8 (const const_striType stri);
 #ifdef CONSOLE_WCHAR
 bstriType stri_to_bstriw (const_striType stri, errInfoType *err_info);
 #endif

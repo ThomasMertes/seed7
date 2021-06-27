@@ -48,6 +48,7 @@
 #include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "fil_rtl.h"
 #include "ut8_rtl.h"
 #include "rtl_err.h"
 #include "kbd_drv.h"
@@ -582,7 +583,7 @@ void conWrite (const const_striType stri)
       doWriteConsole(stri);
     } else {
       /* The output has been redirected */
-      ut8Write(stdout, stri);
+      ut8Write(&stdoutFileRecord, stri);
     } /* if */
   } /* conWrite */
 

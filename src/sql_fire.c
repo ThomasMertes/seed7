@@ -1249,8 +1249,8 @@ static striType getClob (preparedStmtType preparedStmt,
 
 
 
-static errInfoType putBlob (preparedStmtType preparedStmt, bstriType bstri,
-    XSQLVAR *sqlvar)
+static errInfoType putBlob (preparedStmtType preparedStmt,
+    const const_bstriType bstri, XSQLVAR *sqlvar)
 
   {
     ISC_STATUS status_vector[20];
@@ -1600,7 +1600,8 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 
 
 
-static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri)
+static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
+    const const_bstriType bstri)
 
   {
     preparedStmtType preparedStmt;
@@ -2021,7 +2022,8 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
 
 
 
-static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
+static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
+    const const_striType stri)
 
   {
     preparedStmtType preparedStmt;
@@ -3329,7 +3331,8 @@ static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
 
 
-static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
+static sqlStmtType sqlPrepare (databaseType database,
+    const const_striType sqlStatementStri)
 
   {
     dbType db;

@@ -32,8 +32,7 @@ var string_type_hash: parametersOfHshDestr is string_type_hash.EMPTY_HASH;
 
 const set of category: simpleValueType is {
     BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
-    FILEOBJECT, SOCKETOBJECT, REFOBJECT, TYPEOBJECT,
-    ACTOBJECT, BLOCKOBJECT};
+    SOCKETOBJECT, REFOBJECT, TYPEOBJECT, ACTOBJECT, BLOCKOBJECT};
 
 
 const proc: process_destr_declaration (in type: object_type,
@@ -378,9 +377,9 @@ const proc: declare_missing_destr_declarations (inout expr_type: c_expr) is func
 
 
 const set of category: destrNecessary is {
-    BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, SETOBJECT, REFLISTOBJECT,
-    WINOBJECT, PROCESSOBJECT, PROGOBJECT, DATABASEOBJECT, SQLSTMTOBJECT,
-    ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT};
+    BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, FILEOBJECT, SETOBJECT,
+    REFLISTOBJECT, WINOBJECT, PROCESSOBJECT, PROGOBJECT, DATABASEOBJECT,
+    SQLSTMTOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT};
 
 
 const proc: process_destr_call (in type: object_type,
@@ -393,6 +392,7 @@ const proc: process_destr_call (in type: object_type,
         when {BIGINTOBJECT}:    expr &:= "bigDestr(" & param_b & ");\n";
         when {STRIOBJECT}:      expr &:= "strDestr(" & param_b & ");\n";
         when {BSTRIOBJECT}:     expr &:= "bstDestr(" & param_b & ");\n";
+        when {FILEOBJECT}:      expr &:= "filDestr(" & param_b & ");\n";
         when {SETOBJECT}:       expr &:= "setDestr(" & param_b & ");\n";
         when {POLLOBJECT}:      expr &:= "polDestr(" & param_b & ");\n";
         when {REFLISTOBJECT}:   expr &:= "rflDestr(" & param_b & ");\n";

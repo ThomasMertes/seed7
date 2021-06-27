@@ -297,13 +297,13 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
 
 
 #if !STRINGIFY_WORKS
-cstriType stringify (int number)
+cstriType stringify (intType number)
 
   {
     static char buffer[10];
 
   /* stringify */
-    sprintf(buffer, "%d", number);
+    sprintf(buffer, FMT_D, number);
     return buffer;
   } /* stringify */
 #endif
@@ -1792,7 +1792,7 @@ bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info)
  *  @return an UTF-8 encoded bstring, or
  *          NULL if the memory allocation failed.
  */
-bstriType stri_to_bstri8 (const_striType stri)
+bstriType stri_to_bstri8 (const const_striType stri)
 
   {
     bstriType resized_bstri;

@@ -365,6 +365,7 @@ pre.indent {
 <li><a class="link" href="#os_file_PROGRAM"><b>file(PROGRAM)</b></a></li>
 <li><a class="link" href="#os_getenv"><b>getenv</b></a></li>
 <li><a class="link" href="#os_setenv"><b>setenv</b></a></li>
+<li><a class="link" href="#os_unsetenv"><b>unsetenv</b></a></li>
 <li><a class="link" href="#os_environment"><b>environment</b></a></li></ol></li>
 <li><a class="link" href="#database_file_start"><big><b>DATABASE ABSTRACTION API</b></big></a><ol>
 <li><a class="link" href="#database_Opening_a_database_connection"><b>Opening a database connection</b></a></li>
@@ -523,7 +524,9 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
 
     <li><span class="link">Static type checking</span> and no <span class="link">automatic casts</span>.</li>
 
-    <li><a class="link" href="#errors_Exceptions">exception handling</a></li>
+    <li>There is <a class="link" href="#errors_Exceptions">exception handling</a></li>
+
+    <li>There are checks for <a class="link" href="#errors_INDEX_ERROR">array indices</a> and <span class="link">integer overflow</span>.</li>
 
     <li>overloading of procedures/functions/operators/statements</li>
 
@@ -536,6 +539,8 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
 </p><p>
   Several concepts in use by other languages are not present
 </p><ul>
+    <li>There is no Null.</li>
+
     <li>There is no goto statement.
       Hidden gotos like break- and continue-statements are
       also omitted.</li>
@@ -547,6 +552,19 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
     <li>There are no <span class="link">automatic type conversions</span>.
       When a subprogram should be used for different types
       it must be overloaded.</li>
+
+    <li>There is no implicit fall-through for control flow
+      as in the switch statement of C.</li>
+
+    <li>There is no <span class="link">undefined bahavior</span>.</li>
+
+    <li>There is no manual <span class="link">memory management</span>.</li>
+
+    <li>There is no <span class="link">"do what I mean"</span> heuristic,
+      where the compiler tries to read the programmers mind.</li>
+
+    <li>There is no preprocessor to accommodate for language
+      features that should exist by default.</li>
 
     <li>There are no <span class="link">variable length parameter lists</span>.
       Instead it is possible to use arrays as parameters.</li>
@@ -1497,6 +1515,13 @@ $ <span class="keywd">info</span> <span class="keywd">off</span>;
     <li><b>s</b> Trace signals</li>
     <li><b>*</b> All flags</li></ul></li>
 </ul><p>
+  The pragma <tt><span class="keywd">names</span></tt> can be used to allow Unicode in
+  <a class="link" href="#tokens_Name_identifiers">name identifiers</a>:
+</p><pre class="indent">
+$ <span class="keywd">names</span> <span class="keywd">unicode</span>;
+</pre><p>
+  This allows variables with e.g. German umlauts or Cyrillic letters. This way
+  beginners can use variable and function names from their native language.
 </p>
 
 <a name="stats_file_start"></a><p></p>
@@ -9941,6 +9966,9 @@ my_dir := homeDir;
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
         <dd>Not enough memory to convert <tt>'name'</tt> to the system string type or not
         enough memory to represent the result <tt><a class="type" href="#types_string">string</a></tt>.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd>'name' cannot be converted to the system string
+        type or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
 <a name="os_setenv"><h3>12.30 setenv</h3></a>
@@ -9962,10 +9990,32 @@ my_dir := homeDir;
         <dd>Not enough memory to convert <tt>'name'</tt> or <tt>'value'</tt> to
         the system string type.</dd>
     <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
-        <dd>A system function returns an error.</dd>
+        <dd><tt>'name'</tt> or <tt>'value'</tt> cannot be converted to the
+        system string type or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_environment"><h3>12.31 environment</h3></a>
+<a name="os_unsetenv"><h3>12.31 unsetenv</h3></a>
+<p>
+    The function <tt><span class="func">unsetenv</span></tt> removes an environment variable.
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: unsetenv (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name) <span class="keywd">is</span> ...
+</pre><p>
+  The function <tt><span class="func">unsetenv</span></tt> searches the environment for an
+  environment variable with the given <tt>'name'</tt>. When such
+  an environment variable exists it is removed from the
+  environment. When no environment variable with the given
+  <tt>'name'</tt> exists the function succeeds, and the
+  environment is unchanged.
+</p>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to convert <tt>'name'</tt> to the system string type.</dd>
+    <dt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></dt>
+        <dd><tt>'name'</tt> cannot be converted to the system string
+        type or a system function returns an error.</dd>
+</dl></dd></dl></div><p></p>
+
+<a name="os_environment"><h3>12.32 environment</h3></a>
 <p>
     The function <tt><span class="func">environment</span></tt> returns the list of
   environment variable names as array of strings.
@@ -10349,7 +10399,7 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"CREAT
 </p><p>
   Another example with binding is:
 </p><pre class="indent">
-write("name? ");
+write(<span class="stri">"name? "</span>);
 readln(name);
 statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELECT name, area FROM customers WHERE name = ?"</span>);
 <span class="func">bind</span>(statement, 1, name);
@@ -10361,9 +10411,9 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELEC
   if the SQL statement is build from user input. Suppose we
   do the example above without binding:
 </p><pre class="indent">
-write("name? ");
+write(<span class="stri">"name? "</span>);
 readln(name);
-statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELECT name, area FROM customers WHERE name = '"</span> <& name <& "'");
+statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELECT name, area FROM customers WHERE name = '"</span> <& name <& <span class="stri">"'"</span>);
 <span class="func">execute</span>(statement);
 . . .  Write a list of names and areas.
 </pre><p>

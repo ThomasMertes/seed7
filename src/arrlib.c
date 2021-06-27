@@ -1345,7 +1345,7 @@ objectType arr_remove_array (listType arguments)
       return raise_exception(SYS_IDX_EXCEPTION);
     } else {
       arr1_size = arraySize(arr1);
-      if (length > MAX_ARR_LEN) {
+      if ((uintType) length > MAX_ARR_LEN) {
         result_size = MAX_ARR_LEN;
       } else {
         result_size = (memSizeType) (uintType) (length);

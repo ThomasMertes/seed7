@@ -38,7 +38,12 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "windows.h"
+#if WINDOWSX_H_PRESENT
 #include "windowsx.h"
+#else
+#define GET_X_LPARAM(lp) ((int)(short)LOWORD(lp))
+#define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
+#endif
 
 #include "common.h"
 #include "data_rtl.h"

@@ -360,6 +360,8 @@ objectType cmd_getcwd (listType arguments)
  *  @exception MEMORY_ERROR Not enough memory to convert 'name' to the
  *             system string type or not enough memory to represent the
  *             result string.
+ *  @exception RANGE_ERROR 'name' cannot be converted to the system string
+ *             type or a system function returns an error.
  */
 objectType cmd_getenv (listType arguments)
 
@@ -708,7 +710,8 @@ objectType cmd_remove_tree (listType arguments)
  *  the value 'value' is created.
  *  @exception MEMORY_ERROR Not enough memory to convert 'name' or 'value'
  *             to the system string type.
- *  @exception RANGE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR 'name' or 'value' cannot be converted to the
+ *             system string type or a system function returns an error.
  */
 objectType cmd_setenv (listType arguments)
 
@@ -960,10 +963,10 @@ objectType cmd_to_os_path (listType arguments)
  *  Deletes the variable 'name' from the environment.
  *  If 'name' does not exist in the environment,
  *  then the function succeeds, and the environment is unchanged.
- *  @exception MEMORY_ERROR Not enough memory to convert 'name'
- *             to the system string type.
- *  @exception RANGE_ERROR 'name' cannot be converted to the
- *             system string type or a system function returns an error.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name' to the
+ *             system string type.
+ *  @exception RANGE_ERROR 'name' cannot be converted to the system string
+ *             type or a system function returns an error.
  */
 objectType cmd_unsetenv (listType arguments)
 

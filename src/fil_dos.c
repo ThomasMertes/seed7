@@ -48,6 +48,7 @@
 
 #include "common.h"
 #include "os_decls.h"
+#include "fil_rtl.h"
 #include "rtl_err.h"
 
 
@@ -69,7 +70,7 @@ static void handleIntSignal (int sig_num)
 
 
 
-int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
+int readCharChkCtrlC (cFileType inFile, boolType *sigintReceived)
 
   {
 #if HAS_SIGACTION
@@ -131,7 +132,7 @@ int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
  *  Regular files do not block.
  *  @return TRUE if 'getc' would not block, FALSE otherwise.
  */
-boolType filInputReady (fileType aFile)
+boolType filInputReady (fileType inFile)
 
   { /* filInputReady */
     return TRUE;
@@ -155,6 +156,9 @@ void setupFiles (void)
     struct termios term_descr;
 
   /* setupFiles */
+    stdinFileRecord.cFile = stdin;
+    stdoutFileRecord.cFile = stdout;
+    stderrFileRecord.cFile = stderr;
     if (isatty(STDIN_FILENO)) {
       if (tcgetattr(STDIN_FILENO, &term_descr) != 0) {
         printf("setupFiles: tcgetattr(STDIN_FILENO, ...) failed:\n"

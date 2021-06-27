@@ -644,6 +644,11 @@ extern int XCopyPlane (Display *display,
                        int dest_x,
                        int dest_y,
                        unsigned long plane);
+extern Pixmap XCreateBitmapFromData (Display *display,
+                                     Drawable drawable,
+                                     const char *data,
+                                     unsigned int width,
+                                     unsigned int height);
 extern GC XCreateGC (Display *display,
                      Drawable drawable,
                      unsigned long valuemask,
@@ -663,6 +668,13 @@ extern Pixmap XCreatePixmap (Display *display,
                              unsigned int width,
                              unsigned int height,
                              unsigned int depth);
+extern Cursor XCreatePixmapCursor (Display *display,
+                                   Pixmap source,
+                                   Pixmap mask,
+                                   XColor *foreground_color,
+                                   XColor *background_color,
+                                   unsigned int x,
+                                   unsigned int y);
 extern Window XCreateSimpleWindow (Display *display,
                                    Window parent,
                                    int x,
@@ -680,6 +692,9 @@ extern Window XDefaultRootWindow (Display *display);
 extern int XDefaultScreen (Display *display);
 extern Visual *XDefaultVisual (Display *display,
                                int screen_number);
+extern int XDefineCursor (Display *display,
+                          Window window,
+                          Cursor cursor);
 extern int XDestroyImage (XImage *ximage);
 extern int XDestroyWindow (Display *display,
                            Window window);
@@ -867,6 +882,8 @@ extern int XStoreColor (Display *display, Colormap colormap, XColor *color);
 extern int XStoreName (Display *display, Window window, const char *window_name);
 extern int XSync (Display *display,
                   Bool discard);
+extern int XUndefineCursor (Display *display,
+                            Window window);
 extern unsigned long XWhitePixel (Display *display,
                                   int screen_number);
 

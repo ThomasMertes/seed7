@@ -875,7 +875,7 @@ static rtlArrayType addStriToRtlArray (const striType stri,
     logFunction(printf("addStriToRtlArray(\"%s\", *, " FMT_D ")\n",
                        striAsUnquotedCStri(stri), used_max_position););
     if (used_max_position >= work_array->max_position) {
-      if (unlikely(work_array->max_position > MAX_RTL_ARR_INDEX - ARRAY_SIZE_DELTA ||
+      if (unlikely(work_array->max_position > (intType) (MAX_RTL_ARR_INDEX - ARRAY_SIZE_DELTA) ||
           (resized_work_array = REALLOC_RTL_ARRAY(work_array,
               (uintType) work_array->max_position,
               (uintType) work_array->max_position + ARRAY_SIZE_DELTA)) == NULL)) {
@@ -1768,7 +1768,7 @@ bigIntType cmdBigFileSize (const const_striType filePath)
     os_striType os_path;
     os_stat_struct stat_buf;
     int stat_result;
-    fileType aFile;
+    cFileType aFile;
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     bigIntType size_of_file;
@@ -2484,7 +2484,7 @@ intType cmdFileSize (const const_striType filePath)
     os_striType os_path;
     os_stat_struct stat_buf;
     int stat_result;
-    fileType aFile;
+    cFileType aFile;
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
     intType size_of_file;
@@ -2726,6 +2726,8 @@ striType cmdGetcwd (void)
  *  @exception MEMORY_ERROR Not enough memory to convert 'name' to the
  *             system string type or not enough memory to represent the
  *             result string.
+ *  @exception RANGE_ERROR 'name' cannot be converted to the system string
+ *             type or a system function returns an error.
  */
 striType cmdGetenv (const const_striType name)
 
@@ -4142,10 +4144,10 @@ striType cmdToOsPath (const const_striType standardPath)
  *  Deletes the variable 'name' from the environment.
  *  If 'name' does not exist in the environment,
  *  then the function succeeds, and the environment is unchanged.
- *  @exception MEMORY_ERROR Not enough memory to convert 'name'
- *             to the system string type.
- *  @exception RANGE_ERROR 'name' cannot be converted to the
- *             system string type or a system function returns an error.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name' to the
+ *             system string type.
+ *  @exception RANGE_ERROR 'name' cannot be converted to the system string
+ *             type or a system function returns an error.
  */
 void cmdUnsetenv (const const_striType name)
 
@@ -4187,10 +4189,10 @@ void cmdUnsetenv (const const_striType name)
  *  Deletes the variable 'name' from the environment.
  *  If 'name' does not exist in the environment,
  *  then the function succeeds, and the environment is unchanged.
- *  @exception MEMORY_ERROR Not enough memory to convert 'name'
- *             to the system string type.
- *  @exception RANGE_ERROR 'name' cannot be converted to the
- *             system string type or a system function returns an error.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'name' to the
+ *             system string type.
+ *  @exception RANGE_ERROR 'name' cannot be converted to the system string
+ *             type or a system function returns an error.
  */
 void cmdUnsetenv (const const_striType name)
 

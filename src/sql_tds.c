@@ -1336,7 +1336,8 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 
 
 
-static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri)
+static void sqlBindBStri (sqlStmtType sqlStatement, intType pos,
+    const const_bstriType bstri)
 
   {
     const unsigned char digit[] = {'0', '1', '2', '3', '4', '5', '6', '7',
@@ -1471,7 +1472,8 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
 
 
 
-static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
+static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
+    const const_striType stri)
 
   {
     preparedStmtType preparedStmt;
@@ -2474,7 +2476,8 @@ static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
 
 
-static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
+static sqlStmtType sqlPrepare (databaseType database,
+    const const_striType sqlStatementStri)
 
   {
     dbType db;

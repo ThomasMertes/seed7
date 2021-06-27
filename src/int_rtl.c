@@ -1905,6 +1905,262 @@ int64Type __mulodi4 (int64Type factor1, int64Type factor2, int *overflow)
 
 
 
+striType intNBytesBeSigned (intType number, intType length)
+
+  {
+    strElemType *buffer;
+    memSizeType dataStart;
+    memSizeType pos = 0;
+    striType result;
+
+  /* intNBytesBeSigned */
+    logFunction(printf("intNBytesBeSigned(" FMT_D ", " FMT_D ")\n", number, length););
+    if (unlikely(length <= 0)) {
+      logError(printf("intNBytesBeSigned(" FMT_D ", " FMT_D "): "
+                      "Negative length.\n", number, length););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (unlikely((uintType) length > MAX_STRI_LEN ||
+                        !ALLOC_STRI_SIZE_OK(result, (memSizeType) length))) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      result->size = (memSizeType) length;
+      if ((memSizeType) length > BYTE_BUFFER_SIZE) {
+        dataStart = (memSizeType) length - BYTE_BUFFER_SIZE;
+      } else {
+        dataStart = 0;
+      } /* if */
+      buffer = result->mem;
+      pos = (memSizeType) length;
+      if (number >= 0) {
+        do {
+          pos--;
+          buffer[pos] = (strElemType) (number & 0xff);
+          number >>= CHAR_BIT;
+        } while (pos > dataStart);
+        if (pos > 0) {
+          memset(buffer, 0, pos * sizeof(strElemType));
+        } else if (unlikely(number != 0 || buffer[pos] > BYTE_MAX)) {
+          logError(printf("intNBytesBeSigned: "
+                          "Number does not fit into " FMT_D " bytes.\n", length););
+          FREE_STRI(result, (memSizeType) length);
+          raise_error(RANGE_ERROR);
+          result = NULL;
+        } /* if */
+      } else {
+        do {
+          pos--;
+          buffer[pos] = (strElemType) (number & 0xff);
+#if RSHIFT_DOES_SIGN_EXTEND
+          number >>= CHAR_BIT;
+#else
+          number = ~(~number >> CHAR_BIT);
+#endif
+        } while (pos > dataStart);
+        if (pos > 0) {
+          do {
+            pos--;
+            buffer[pos] = (strElemType) 0xff;
+          } while (pos > dataStart);
+        } else if (unlikely(number != -1 || buffer[pos] <= BYTE_MAX)) {
+          logError(printf("intNBytesBeSigned: "
+                          "Number does not fit into " FMT_D " bytes.\n", length););
+          FREE_STRI(result, (memSizeType) length);
+          raise_error(RANGE_ERROR);
+          result = NULL;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("intNBytesBeSigned --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
+    return result;
+  } /* intNBytesBeSigned */
+
+
+
+striType intNBytesBeUnsigned (intType number, intType length)
+
+  {
+    strElemType *buffer;
+    memSizeType dataStart;
+    memSizeType pos = 0;
+    striType result;
+
+  /* intNBytesBeUnsigned */
+    logFunction(printf("intNBytesBeUnsigned(" FMT_D ", " FMT_D ")\n",
+                       number, length););
+    if (unlikely(length <= 0)) {
+      logError(printf("intNBytesBeUnsigned(" FMT_D ", " FMT_D "): "
+                      "Negative length.\n", number, length););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (unlikely(number < 0)) {
+      logError(printf("intNBytesBeUnsigned(" FMT_D ", " FMT_D "): "
+                      "Negative number.\n",
+                      number, length););
+      raise_error(RANGE_ERROR);
+      return NULL;
+    } else if (unlikely((uintType) length > MAX_STRI_LEN ||
+                        !ALLOC_STRI_SIZE_OK(result, (memSizeType) length))) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      result->size = (memSizeType) length;
+      if ((memSizeType) length > BYTE_BUFFER_SIZE) {
+        dataStart = (memSizeType) length - BYTE_BUFFER_SIZE;
+      } else {
+        dataStart = 0;
+      } /* if */
+      buffer = result->mem;
+      pos = (memSizeType) length;
+      do {
+        pos--;
+        buffer[pos] = (strElemType) (number & 0xff);
+        number >>= CHAR_BIT;
+      } while (pos > dataStart);
+      if (pos > 0) {
+        memset(buffer, 0, pos * sizeof(strElemType));
+      } else if (unlikely(number != 0)) {
+        logError(printf("intNBytesBeUnsigned: "
+                        "Number does not fit into " FMT_D " bytes.\n", length););
+        FREE_STRI(result, (memSizeType) length);
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } /* if */
+    } /* if */
+    logFunction(printf("intNBytesBeUnsigned --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
+    return result;
+  } /* intNBytesBeUnsigned */
+
+
+
+striType intNBytesLeSigned (intType number, intType length)
+
+  {
+    strElemType *buffer;
+    memSizeType dataLength;
+    memSizeType pos = 0;
+    striType result;
+
+  /* intNBytesLeSigned */
+    logFunction(printf("intNBytesLeSigned(" FMT_D ", " FMT_D ")\n", number, length););
+    if (unlikely(length <= 0)) {
+      logError(printf("intNBytesLeSigned(" FMT_D ", " FMT_D "): "
+                      "Negative length.\n", number, length););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (unlikely((uintType) length > MAX_STRI_LEN ||
+                        !ALLOC_STRI_SIZE_OK(result, (memSizeType) length))) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      result->size = (memSizeType) length;
+      if ((memSizeType) length > BYTE_BUFFER_SIZE) {
+        dataLength = BYTE_BUFFER_SIZE;
+      } else {
+        dataLength = (memSizeType) length;
+      } /* if */
+      buffer = result->mem;
+      if (number >= 0) {
+        for (pos = 0; pos < dataLength; pos++) {
+          buffer[pos] = (strElemType) (number & 0xff);
+          number >>= CHAR_BIT;
+        } /* for */
+        if ((memSizeType) length > dataLength) {
+          memset(&buffer[pos], 0, ((memSizeType) length - dataLength) * sizeof(strElemType));
+        } else if (unlikely(number != 0 || buffer[pos - 1] > BYTE_MAX)) {
+          logError(printf("intNBytesLeSigned: "
+                          "Number does not fit into " FMT_D " bytes.\n", length););
+          FREE_STRI(result, (memSizeType) length);
+          raise_error(RANGE_ERROR);
+          result = NULL;
+        } /* if */
+      } else {
+        for (pos = 0; pos < dataLength; pos++) {
+          buffer[pos] = (strElemType) (number & 0xff);
+#if RSHIFT_DOES_SIGN_EXTEND
+          number >>= CHAR_BIT;
+#else
+          number = ~(~number >> CHAR_BIT);
+#endif
+        } /* for */
+        if ((memSizeType) length > dataLength) {
+          for (; pos < (memSizeType) length; pos++) {
+            buffer[pos] = (strElemType) 0xff;
+          } /* for */
+        } else if (unlikely(number != -1 || buffer[pos - 1] <= BYTE_MAX)) {
+          logError(printf("intNBytesLeSigned: "
+                          "Number does not fit into " FMT_D " bytes.\n", length););
+          FREE_STRI(result, (memSizeType) length);
+          raise_error(RANGE_ERROR);
+          result = NULL;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("intNBytesLeSigned --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
+    return result;
+  } /* intNBytesLeSigned */
+
+
+
+striType intNBytesLeUnsigned (intType number, intType length)
+
+  {
+    strElemType *buffer;
+    memSizeType dataLength;
+    memSizeType pos = 0;
+    striType result;
+
+  /* intNBytesLeUnsigned */
+    logFunction(printf("intNBytesLeUnsigned(" FMT_D ", " FMT_D ")\n",
+                       number, length););
+    if (unlikely(length <= 0)) {
+      logError(printf("intNBytesLeUnsigned(" FMT_D ", " FMT_D "): "
+                      "Negative length.\n", number, length););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (unlikely(number < 0)) {
+      logError(printf("intNBytesLeUnsigned(" FMT_D ", " FMT_D "): "
+                      "Negative number.\n",
+                      number, length););
+      raise_error(RANGE_ERROR);
+      return NULL;
+    } else if (unlikely((uintType) length > MAX_STRI_LEN ||
+                        !ALLOC_STRI_SIZE_OK(result, (memSizeType) length))) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      result->size = (memSizeType) length;
+      if ((memSizeType) length > BYTE_BUFFER_SIZE) {
+        dataLength = BYTE_BUFFER_SIZE;
+      } else {
+        dataLength = (memSizeType) length;
+      } /* if */
+      buffer = result->mem;
+      for (pos = 0; pos < dataLength; pos++) {
+        buffer[pos] = (strElemType) (number & 0xff);
+        number >>= CHAR_BIT;
+      } /* for */
+      if ((memSizeType) length > dataLength) {
+        memset(&buffer[pos], 0, ((memSizeType) length - dataLength) * sizeof(strElemType));
+      } else if (unlikely(number != 0)) {
+        logError(printf("intNBytesLeUnsigned: "
+                        "Number does not fit into " FMT_D " bytes.\n", length););
+        FREE_STRI(result, (memSizeType) length);
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } /* if */
+    } /* if */
+    logFunction(printf("intNBytesLeUnsigned --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
+    return result;
+  } /* intNBytesLeUnsigned */
+
+
+
 /**
  *  Convert a string to an integer number.
  *  The string must contain an integer literal consisting of an

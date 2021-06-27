@@ -2,7 +2,8 @@
 (********************************************************************)
 (*                                                                  *)
 (*  float.s7i     Floating point support library                    *)
-(*  Copyright (C) 1993, 1994, 2005  Thomas Mertes                   *)
+(*  Copyright (C) 1993, 1994, 2005, 2008  Thomas Mertes             *)
+(*                2011 - 2016, 2018, 2019, 2021 Thomas Mertes       *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -340,6 +341,26 @@ const func integer: hashCode (in float: number)                is action "FLT_HA
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: str (in float: number)                      is action "FLT_STR";
+
+
+(**
+ *  Convert a float number to a [[string]].
+ *  The number is converted to a string with decimal representation.
+ *  The result string has the style [-]ddd.ddd where there is at least
+ *  one digit before and after the decimal point. The number of digits
+ *  after the decimal point is determined automatically. Except for the
+ *  case with only one zero digit after the decimal point the last digit
+ *  is never zero. Negative zero (-0.0) and positive zero (+0.0)
+ *  are both converted to "0.0".
+ *   string(16.125)    returns "16.125"
+ *   string(-0.0)      returns "0.0"
+ *   string(Infinity)  returns "Infinity"
+ *   string(-Infinity) returns "-Infinity"
+ *   string(NaN)       returns "NaN"
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: string (in float: number)                   is action "FLT_STR";
 
 
 (**

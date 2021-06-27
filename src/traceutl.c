@@ -66,7 +66,8 @@
 #include "traceutl.h"
 
 
-static FILE *protfile = NULL; /* was: stdout; */
+static fileRecord protFileRecord = {NULL, 0};
+static fileType protfile = &protFileRecord;
 static boolType internal_protocol = FALSE;
 
 /* #define prot_ptr(ptr) */
@@ -88,10 +89,10 @@ void prot_flush (void)
         memcpy(&trace, &trace_backup, sizeof(traceRecord));
       } /* if */
     } else {
-      if (protfile == NULL) {
-        protfile = stdout;
+      if (protfile->cFile == NULL) {
+        protfile->cFile = stdout;
       } /* if */
-      fflush(protfile);
+      fflush(protfile->cFile);
     } /* if */
   } /* prot_flush */
 
@@ -111,10 +112,10 @@ void prot_nl (void)
         memcpy(&trace, &trace_backup, sizeof(traceRecord));
       } /* if */
     } else {
-      if (protfile == NULL) {
-        protfile = stdout;
+      if (protfile->cFile == NULL) {
+        protfile->cFile = stdout;
       } /* if */
-      fputs("\n", protfile);
+      fputs("\n", protfile->cFile);
     } /* if */
   } /* prot_nl */
 
@@ -134,14 +135,14 @@ void prot_cstri (const_cstriType cstri)
         memcpy(&trace, &trace_backup, sizeof(traceRecord));
       } /* if */
     } else {
-      if (protfile == NULL) {
-        protfile = stdout;
+      if (protfile->cFile == NULL) {
+        protfile->cFile = stdout;
       } /* if */
       if (cstri == NULL) {
         cstri = "*NULL*";
       } /* if */
 #ifdef USE_CONSOLE_FOR_PROT_CSTRI
-      if (protfile == stdout) {
+      if (protfile->cFile == stdout) {
         striType stri;
 
         stri = cstri_to_stri(cstri);
@@ -149,13 +150,13 @@ void prot_cstri (const_cstriType cstri)
           conWrite(stri);
           FREE_STRI(stri, stri->size);
         } else {
-          fputs(cstri, protfile);
+          fputs(cstri, protfile->cFile);
         } /* if */
       } else {
-        fputs(cstri, protfile);
+        fputs(cstri, protfile->cFile);
       } /* if */
 #else
-      fputs(cstri, protfile);
+      fputs(cstri, protfile->cFile);
 #endif
     } /* if */
   } /* prot_cstri */
@@ -184,19 +185,19 @@ void prot_cstri8 (const const_cstriType cstri8)
         memcpy(&trace, &trace_backup, sizeof(traceRecord));
       } /* if */
     } else {
-      if (protfile == NULL) {
-        protfile = stdout;
+      if (protfile->cFile == NULL) {
+        protfile->cFile = stdout;
       } /* if */
-      if (protfile == stdout) {
+      if (protfile->cFile == stdout) {
         stri = cstri8_to_stri(cstri8, &err_info);
         if (stri != NULL) {
           conWrite(stri);
           FREE_STRI(stri, stri->size);
         } else {
-          fputs(cstri8, protfile);
+          fputs(cstri8, protfile->cFile);
         } /* if */
       } else {
-        fputs(cstri8, protfile);
+        fputs(cstri8, protfile->cFile);
       } /* if */
     } /* if */
   } /* prot_cstri8 */
@@ -315,10 +316,10 @@ void prot_string (const striType stri)
         memcpy(&trace, &trace_backup, sizeof(traceRecord));
       } /* if */
     } else {
-      if (protfile == NULL) {
-        protfile = stdout;
+      if (protfile->cFile == NULL) {
+        protfile->cFile = stdout;
       } /* if */
-      if (protfile == stdout) {
+      if (protfile->cFile == stdout) {
         conWrite(stri);
       } else {
         ut8Write(protfile, stri);
@@ -511,15 +512,19 @@ static void print_real_value (const_objectType anyobject)
       case FILEOBJECT:
         if (anyobject->value.fileValue == NULL) {
           prot_cstri(" *NULL_FILE* ");
-        } else if (anyobject->value.fileValue == stdin) {
-          prot_cstri("stdin");
-        } else if (anyobject->value.fileValue == stdout) {
-          prot_cstri("stdout");
-        } else if (anyobject->value.fileValue == stderr) {
-          prot_cstri("stderr");
         } else {
-          prot_cstri("file ");
-          prot_int((intType) fileno(anyobject->value.fileValue));
+          if (anyobject->value.fileValue->cFile == NULL) {
+            prot_cstri(" *CLIB_NULL_FILE* ");
+          } else if (anyobject->value.fileValue->cFile == stdin) {
+            prot_cstri("stdin");
+          } else if (anyobject->value.fileValue->cFile == stdout) {
+            prot_cstri("stdout");
+          } else if (anyobject->value.fileValue->cFile == stderr) {
+            prot_cstri("stderr");
+          } else {
+            prot_cstri("file ");
+            prot_int((intType) fileno(anyobject->value.fileValue->cFile));
+          } /* if */
         } /* if */
         break;
       case SOCKETOBJECT:
@@ -1601,17 +1606,17 @@ void set_protfile_name (const const_striType protfile_name)
     if (protfile_name != NULL && protfile_name->size != 0) {
       os_protfile_name = cp_to_os_path(protfile_name, &path_info, &err_info);
       if (unlikely(os_protfile_name != NULL)) {
-        if (protfile != NULL && protfile != stdout) {
-          fclose(protfile);
+        if (protfile->cFile != NULL && protfile->cFile != stdout) {
+          fclose(protfile->cFile);
         } /* if */
-        protfile = os_fopen(os_protfile_name, os_mode);
+        protfile->cFile = os_fopen(os_protfile_name, os_mode);
         os_stri_free(os_protfile_name);
-        if (protfile == NULL) {
-          protfile = stdout;
+        if (protfile->cFile == NULL) {
+          protfile->cFile = stdout;
         } /* if */
       } /* if */
-    } else if (protfile == NULL) {
-      protfile = stdout;
+    } else if (protfile->cFile == NULL) {
+      protfile->cFile = stdout;
     } /* if */
     logFunction(printf("set_protfile_name -->\n"););
   } /* set_protfile_name */

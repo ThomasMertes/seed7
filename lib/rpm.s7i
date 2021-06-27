@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  rpm.s7i       Rpm archive library                               *)
-(*  Copyright (C) 2020  Thomas Mertes                               *)
+(*  Copyright (C) 2020, 2021  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -830,32 +830,35 @@ const func integer: getIntValue (in string: store,
 
 
 const proc: read (inout file: rpmFile, inout rpmLead: lead) is func
+  local
+    var string: leadStri is "";
   begin
     lead.magic := gets(rpmFile, 4);
     # writeln("Magic: " <& hex(lead.magic));
     if lead.magic = RPM_LEAD_MAGIC then
-      lead.majorVersion := ord(getc(rpmFile));
-      lead.minorVersion := ord(getc(rpmFile));
-      lead.fileType := getUInt16Be(rpmFile);
-      lead.arch := getUInt16Be(rpmFile);
-      lead.name := gets(rpmFile, 66);
-      lead.os := getUInt16Be(rpmFile);
-      lead.sig := getUInt16Be(rpmFile);
-      ignore(gets(rpmFile, 16));
+      leadStri := gets(rpmFile, 92);
+      lead.majorVersion := bytes2Int(leadStri[ 1 len  1], UNSIGNED, BE);
+      lead.minorVersion := bytes2Int(leadStri[ 2 len  1], UNSIGNED, BE);
+      lead.fileType     := bytes2Int(leadStri[ 3 len  2], UNSIGNED, BE);
+      lead.arch         := bytes2Int(leadStri[ 5 len  2], UNSIGNED, BE);
+      lead.name         :=           leadStri[ 7 len 66];
+      lead.os           := bytes2Int(leadStri[73 len  2], UNSIGNED, BE);
+      lead.sig          := bytes2Int(leadStri[75 len  2], UNSIGNED, BE);
+      # 16 reserved bytes are currently unused.
     end if;
   end func;
 
 
 const func string: str (in rpmLead: lead) is
   return lead.magic <&
-         chr(lead.majorVersion) <&
-         chr(lead.minorVersion) <&
-         int16AsTwoBytesBe(lead.fileType) <&
-         int16AsTwoBytesBe(lead.arch) <&
-         lead.name rpad 66 <&
-         int16AsTwoBytesBe(lead.os) <&
-         int16AsTwoBytesBe(lead.sig) <&
-         "\0;" mult 16;
+         bytes(lead.majorVersion, UNSIGNED, BE, 1) <&
+         bytes(lead.minorVersion, UNSIGNED, BE, 1) <&
+         bytes(lead.fileType,     UNSIGNED, BE, 2) <&
+         bytes(lead.arch,         UNSIGNED, BE, 2) <&
+               lead.name rpad 66                   <&
+         bytes(lead.os,           UNSIGNED, BE, 2) <&
+         bytes(lead.sig,          UNSIGNED, BE, 2) <&
+         "\0;" mult 16;   # 16 reserved bytes
 
 
 const proc: writeLead (inout file: outFile, inout rpmLead: lead) is func
@@ -873,40 +876,46 @@ const proc: writeLead (inout file: outFile, inout rpmLead: lead) is func
 
 
 const proc: read (inout file: rpmFile, inout rpmHeader: header) is func
+  local
+    var string: headerStri is "";
   begin
     header.magic := gets(rpmFile, 3);
     # writeln("Magic: " <& hex(header.magic));
     if header.magic = RPM_HEADER_MAGIC then
-      header.version := ord(getc(rpmFile));
-      ignore(gets(rpmFile, 4));
-      header.indexCount := getUInt32Be(rpmFile);
-      header.storeSize := getUInt32Be(rpmFile);
+      headerStri := gets(rpmFile, 13);
+      header.version    := bytes2Int(headerStri[ 1 len 1], UNSIGNED, BE);
+      # 4 reserved bytes are currently unused.
+      header.indexCount := bytes2Int(headerStri[ 6 len 4], UNSIGNED, BE);
+      header.storeSize  := bytes2Int(headerStri[10 len 4], UNSIGNED, BE);
     end if;
   end func;
 
 
 const func string: str (in rpmHeader: header) is
   return header.magic <&
-         chr(header.version) <&
-         "\0;" mult 4 <&
-         int32AsFourBytesBe(header.indexCount) <&
-         int32AsFourBytesBe(header.storeSize);
+         bytes(header.version,    UNSIGNED, BE, 1) <&
+         "\0;" mult 4 <&   # 4 reserved bytes
+         bytes(header.indexCount, UNSIGNED, BE, 4) <&
+         bytes(header.storeSize,  UNSIGNED, BE, 4);
 
 
 const proc: read (inout file: rpmFile, inout rpmIndexEntry: indexEntry) is func
+  local
+    var string: entryStri is "";
   begin
-    indexEntry.tag := getUInt32Be(rpmFile);
-    indexEntry.dataType := getUInt32Be(rpmFile);
-    indexEntry.offset := getUInt32Be(rpmFile);
-    indexEntry.count := getUInt32Be(rpmFile);
+    entryStri := gets(rpmFile, 16);
+    indexEntry.tag      := bytes2Int(entryStri[ 1 len 4], UNSIGNED, BE);
+    indexEntry.dataType := bytes2Int(entryStri[ 5 len 4], UNSIGNED, BE);
+    indexEntry.offset   := bytes2Int(entryStri[ 9 len 4], SIGNED,   BE);
+    indexEntry.count    := bytes2Int(entryStri[13 len 4], UNSIGNED, BE);
   end func;
 
 
 const func string: str (in rpmIndexEntry: indexEntry) is
-  return int32AsFourBytesBe(indexEntry.tag) <&
-         int32AsFourBytesBe(indexEntry.dataType) <&
-         int32AsFourBytesBe(indexEntry.offset) <&
-         int32AsFourBytesBe(indexEntry.count);
+  return bytes(indexEntry.tag,      UNSIGNED, BE, 4) <&
+         bytes(indexEntry.dataType, UNSIGNED, BE, 4) <&
+         bytes(indexEntry.offset,   SIGNED,   BE, 4) <&
+         bytes(indexEntry.count,    UNSIGNED, BE, 4);
 
 
 const type: rpmCatalogEntry is new struct

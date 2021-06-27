@@ -1111,7 +1111,6 @@ void destroy_local_object (const_locObjType local, boolType ignoreError)
       switch (CATEGORY_OF_OBJ(local->object->value.objValue)) {
         case INTOBJECT:
         case CHAROBJECT:
-        case FILEOBJECT:
         case FLOATOBJECT:
         case REFOBJECT:
         case ACTOBJECT:
@@ -1188,7 +1187,6 @@ void destroy_local_init_value (const_locObjType local, errInfoType *err_info)
     switch (CATEGORY_OF_OBJ(local->init_value)) {
       case INTOBJECT:
       case CHAROBJECT:
-      case FILEOBJECT:
       case FLOATOBJECT:
       case REFOBJECT:
       case ACTOBJECT:
@@ -1266,7 +1264,6 @@ void destr_struct (objectType old_elem, memSizeType old_size)
       switch (CATEGORY_OF_OBJ(old_elem)) {
         case INTOBJECT:
         case CHAROBJECT:
-        case FILEOBJECT:
         case FLOATOBJECT:
         case REFOBJECT:
         case ACTOBJECT:

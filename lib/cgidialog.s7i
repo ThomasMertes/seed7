@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  cgidialog.s7i   Dialogs to be shown with a web browser.         *)
-(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*  Copyright (C) 2013, 2015, 2017, 2021  Thomas Mertes             *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -216,7 +216,11 @@ const func image: image (in PRIMITIVE_WINDOW: pixmap) is func
     anImage.name := genDialogElementName;
     anImage.width := width(pixmap);
     anImage.height := height(pixmap);
-    anImage.src := "data:image/bmp;base64," & toBase64(str(pixmap, BMP));
+    if pixmap = PRIMITIVE_WINDOW.value then
+      anImage.src := "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+    else
+      anImage.src := "data:image/bmp;base64," & toBase64(str(pixmap, BMP));
+    end if;
   end func;
 
 const proc: assignName (inout image: anImage, inout integer: id) is func

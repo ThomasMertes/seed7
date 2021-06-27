@@ -24,62 +24,66 @@
 (********************************************************************)
 
 
-const ACTION: INT_ABS               is action "INT_ABS";
-const ACTION: INT_ADD               is action "INT_ADD";
-const ACTION: INT_ADD_ASSIGN        is action "INT_ADD_ASSIGN";
-const ACTION: INT_BINOM             is action "INT_BINOM";
-const ACTION: INT_BIT_LENGTH        is action "INT_BIT_LENGTH";
-const ACTION: INT_BYTES_BE_2_INT    is action "INT_BYTES_BE_2_INT";
-const ACTION: INT_BYTES_BE_2_UINT   is action "INT_BYTES_BE_2_UINT";
-const ACTION: INT_BYTES_BE_SIGNED   is action "INT_BYTES_BE_SIGNED";
-const ACTION: INT_BYTES_BE_UNSIGNED is action "INT_BYTES_BE_UNSIGNED";
-const ACTION: INT_BYTES_LE_2_INT    is action "INT_BYTES_LE_2_INT";
-const ACTION: INT_BYTES_LE_2_UINT   is action "INT_BYTES_LE_2_UINT";
-const ACTION: INT_BYTES_LE_SIGNED   is action "INT_BYTES_LE_SIGNED";
-const ACTION: INT_BYTES_LE_UNSIGNED is action "INT_BYTES_LE_UNSIGNED";
-const ACTION: INT_CMP               is action "INT_CMP";
-const ACTION: INT_CPY               is action "INT_CPY";
-const ACTION: INT_DECR              is action "INT_DECR";
-const ACTION: INT_DIV               is action "INT_DIV";
-const ACTION: INT_EQ                is action "INT_EQ";
-const ACTION: INT_FACT              is action "INT_FACT";
-const ACTION: INT_GE                is action "INT_GE";
-const ACTION: INT_GT                is action "INT_GT";
-const ACTION: INT_HASHCODE          is action "INT_HASHCODE";
-const ACTION: INT_ICONV1            is action "INT_ICONV1";
-const ACTION: INT_ICONV3            is action "INT_ICONV3";
-const ACTION: INT_INCR              is action "INT_INCR";
-const ACTION: INT_LE                is action "INT_LE";
-const ACTION: INT_LOG10             is action "INT_LOG10";
-const ACTION: INT_LOG2              is action "INT_LOG2";
-const ACTION: INT_LOWEST_SET_BIT    is action "INT_LOWEST_SET_BIT";
-const ACTION: INT_LPAD0             is action "INT_LPAD0";
-const ACTION: INT_LSHIFT            is action "INT_LSHIFT";
-const ACTION: INT_LSHIFT_ASSIGN     is action "INT_LSHIFT_ASSIGN";
-const ACTION: INT_LT                is action "INT_LT";
-const ACTION: INT_MDIV              is action "INT_MDIV";
-const ACTION: INT_MOD               is action "INT_MOD";
-const ACTION: INT_MULT              is action "INT_MULT";
-const ACTION: INT_MULT_ASSIGN       is action "INT_MULT_ASSIGN";
-const ACTION: INT_NE                is action "INT_NE";
-const ACTION: INT_NEGATE            is action "INT_NEGATE";
-const ACTION: INT_ODD               is action "INT_ODD";
-const ACTION: INT_PARSE1            is action "INT_PARSE1";
-const ACTION: INT_PLUS              is action "INT_PLUS";
-const ACTION: INT_POW               is action "INT_POW";
-const ACTION: INT_PRED              is action "INT_PRED";
-const ACTION: INT_radix             is action "INT_radix";
-const ACTION: INT_RADIX             is action "INT_RADIX";
-const ACTION: INT_RAND              is action "INT_RAND";
-const ACTION: INT_REM               is action "INT_REM";
-const ACTION: INT_RSHIFT            is action "INT_RSHIFT";
-const ACTION: INT_RSHIFT_ASSIGN     is action "INT_RSHIFT_ASSIGN";
-const ACTION: INT_SBTR              is action "INT_SBTR";
-const ACTION: INT_SBTR_ASSIGN       is action "INT_SBTR_ASSIGN";
-const ACTION: INT_SQRT              is action "INT_SQRT";
-const ACTION: INT_STR               is action "INT_STR";
-const ACTION: INT_SUCC              is action "INT_SUCC";
-const ACTION: INT_VALUE             is action "INT_VALUE";
+const ACTION: INT_ABS                 is action "INT_ABS";
+const ACTION: INT_ADD                 is action "INT_ADD";
+const ACTION: INT_ADD_ASSIGN          is action "INT_ADD_ASSIGN";
+const ACTION: INT_BINOM               is action "INT_BINOM";
+const ACTION: INT_BIT_LENGTH          is action "INT_BIT_LENGTH";
+const ACTION: INT_BYTES_BE_2_INT      is action "INT_BYTES_BE_2_INT";
+const ACTION: INT_BYTES_BE_2_UINT     is action "INT_BYTES_BE_2_UINT";
+const ACTION: INT_BYTES_BE_SIGNED     is action "INT_BYTES_BE_SIGNED";
+const ACTION: INT_BYTES_BE_UNSIGNED   is action "INT_BYTES_BE_UNSIGNED";
+const ACTION: INT_BYTES_LE_2_INT      is action "INT_BYTES_LE_2_INT";
+const ACTION: INT_BYTES_LE_2_UINT     is action "INT_BYTES_LE_2_UINT";
+const ACTION: INT_BYTES_LE_SIGNED     is action "INT_BYTES_LE_SIGNED";
+const ACTION: INT_BYTES_LE_UNSIGNED   is action "INT_BYTES_LE_UNSIGNED";
+const ACTION: INT_CMP                 is action "INT_CMP";
+const ACTION: INT_CPY                 is action "INT_CPY";
+const ACTION: INT_DECR                is action "INT_DECR";
+const ACTION: INT_DIV                 is action "INT_DIV";
+const ACTION: INT_EQ                  is action "INT_EQ";
+const ACTION: INT_FACT                is action "INT_FACT";
+const ACTION: INT_GE                  is action "INT_GE";
+const ACTION: INT_GT                  is action "INT_GT";
+const ACTION: INT_HASHCODE            is action "INT_HASHCODE";
+const ACTION: INT_ICONV1              is action "INT_ICONV1";
+const ACTION: INT_ICONV3              is action "INT_ICONV3";
+const ACTION: INT_INCR                is action "INT_INCR";
+const ACTION: INT_LE                  is action "INT_LE";
+const ACTION: INT_LOG10               is action "INT_LOG10";
+const ACTION: INT_LOG2                is action "INT_LOG2";
+const ACTION: INT_LOWEST_SET_BIT      is action "INT_LOWEST_SET_BIT";
+const ACTION: INT_LPAD0               is action "INT_LPAD0";
+const ACTION: INT_LSHIFT              is action "INT_LSHIFT";
+const ACTION: INT_LSHIFT_ASSIGN       is action "INT_LSHIFT_ASSIGN";
+const ACTION: INT_LT                  is action "INT_LT";
+const ACTION: INT_N_BYTES_BE_SIGNED   is action "INT_N_BYTES_BE_SIGNED";
+const ACTION: INT_N_BYTES_BE_UNSIGNED is action "INT_N_BYTES_BE_UNSIGNED";
+const ACTION: INT_N_BYTES_LE_SIGNED   is action "INT_N_BYTES_LE_SIGNED";
+const ACTION: INT_N_BYTES_LE_UNSIGNED is action "INT_N_BYTES_LE_UNSIGNED";
+const ACTION: INT_MDIV                is action "INT_MDIV";
+const ACTION: INT_MOD                 is action "INT_MOD";
+const ACTION: INT_MULT                is action "INT_MULT";
+const ACTION: INT_MULT_ASSIGN         is action "INT_MULT_ASSIGN";
+const ACTION: INT_NE                  is action "INT_NE";
+const ACTION: INT_NEGATE              is action "INT_NEGATE";
+const ACTION: INT_ODD                 is action "INT_ODD";
+const ACTION: INT_PARSE1              is action "INT_PARSE1";
+const ACTION: INT_PLUS                is action "INT_PLUS";
+const ACTION: INT_POW                 is action "INT_POW";
+const ACTION: INT_PRED                is action "INT_PRED";
+const ACTION: INT_radix               is action "INT_radix";
+const ACTION: INT_RADIX               is action "INT_RADIX";
+const ACTION: INT_RAND                is action "INT_RAND";
+const ACTION: INT_REM                 is action "INT_REM";
+const ACTION: INT_RSHIFT              is action "INT_RSHIFT";
+const ACTION: INT_RSHIFT_ASSIGN       is action "INT_RSHIFT_ASSIGN";
+const ACTION: INT_SBTR                is action "INT_SBTR";
+const ACTION: INT_SBTR_ASSIGN         is action "INT_SBTR_ASSIGN";
+const ACTION: INT_SQRT                is action "INT_SQRT";
+const ACTION: INT_STR                 is action "INT_STR";
+const ACTION: INT_SUCC                is action "INT_SUCC";
+const ACTION: INT_VALUE               is action "INT_VALUE";
 
 
 const proc: int_prototypes (inout file: c_prog) is func
@@ -132,6 +136,10 @@ const proc: int_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     intLog2 (intType);");
     declareExtern(c_prog, "intType     intLowestSetBit (intType);");
     declareExtern(c_prog, "striType    intLpad0 (intType, const intType);");
+    declareExtern(c_prog, "striType    intNBytesBeSigned (intType, intType);");
+    declareExtern(c_prog, "striType    intNBytesBeUnsigned (intType, intType);");
+    declareExtern(c_prog, "striType    intNBytesLeSigned (intType, intType);");
+    declareExtern(c_prog, "striType    intNBytesLeUnsigned (intType, intType);");
     declareExtern(c_prog, "intType     intParse (const const_striType);");
     declareExtern(c_prog, "intType     intPow (intType, intType);");
     declareExtern(c_prog, "intType     intPowOvfChk (intType, intType);");
@@ -3900,6 +3908,58 @@ const proc: process (INT_NEGATE, in reference: function,
     else
       negate(params[2], c_expr);
     end if;
+  end func;
+
+
+const proc: process (INT_N_BYTES_BE_SIGNED, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "intNBytesBeSigned(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (INT_N_BYTES_BE_UNSIGNED, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "intNBytesBeUnsigned(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (INT_N_BYTES_LE_SIGNED, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "intNBytesLeSigned(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (INT_N_BYTES_LE_UNSIGNED, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "intNBytesLeUnsigned(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
