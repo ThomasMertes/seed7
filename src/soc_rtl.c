@@ -868,7 +868,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
         result_size = (memSizeType) recv((os_socketType) inSocket,
                                          cast_send_recv_data(buffer),
                                          cast_buffer_len(chars_requested), 0);
-        printf("socGets: result_size=" FMT_U_MEM "\n", result_size);
+        /* printf("socGets: result_size=" FMT_U_MEM "\n", result_size); */
         if (result_size == (memSizeType) -1) {
           result_size = 0;
         } /* if */
@@ -903,7 +903,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
             result_size = (memSizeType) recv((os_socketType) inSocket,
                                              cast_send_recv_data(result->mem),
                                              cast_buffer_len(chars_requested), 0);
-            printf("socGets: result_size=" FMT_U_MEM "\n", result_size);
+            /* printf("socGets: result_size=" FMT_U_MEM "\n", result_size); */
             if (result_size == (memSizeType) -1) {
               result_size = 0;
             } /* if */
