@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  zip.s7i       Zip compression support library                   *)
-(*  Copyright (C) 2009, 2016, 2017, 2020  Thomas Mertes             *)
+(*  Copyright (C) 2009, 2016, 2017, 2020, 2021  Thomas Mertes       *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -95,8 +95,8 @@ const func zipExtraFieldType: getExtraFieldMap (in string: field) is func
     var string: value is "";
   begin
     while pos <= length(field) - 3 do
-      id := ord(field[pos]) + ord(field[succ(pos)]) * 256;
-      length := ord(field[pos + 2]) + ord(field[pos + 3]) * 256;
+      id     := bytes2Int(field[pos     len 2], UNSIGNED, LE);
+      length := bytes2Int(field[pos + 2 len 2], UNSIGNED, LE);
       value := field[pos + 4 len length];
       extraFieldMap @:= [id] value;
       pos +:= 4 + length;
@@ -113,7 +113,7 @@ const func string: extraFieldFromMap (in zipExtraFieldType: extraFieldMap) is fu
   begin
     for id range sort(keys(extraFieldMap)) do
       value := extraFieldMap[id];
-      field &:= int16AsTwoBytesLe(id) & int16AsTwoBytesLe(length(value)) & value;
+      field &:= bytes(id, UNSIGNED, LE, 2) & bytes(length(value), UNSIGNED, LE, 2) & value;
     end for;
   end func;
 
@@ -126,8 +126,8 @@ const proc: writeExtraField (in string: field) is func
     var string: value is "";
   begin
     while pos <= length(field) - 3 do
-      id := ord(field[pos]) + ord(field[succ(pos)]) * 256;
-      length := ord(field[pos + 2]) + ord(field[pos + 3]) * 256;
+      id     := bytes2Int(field[pos     len 2], UNSIGNED, LE);
+      length := bytes2Int(field[pos + 2 len 2], UNSIGNED, LE);
       value := field[pos + 4 len length];
       writeln("field: " <& id radix 16 lpad0 4 <& " " <& length <& " " <& literal(value));
       pos +:= 4 + length;
@@ -221,16 +221,16 @@ const func string: str (in local_file_header: header) is func
     var string: stri is "";
   begin
     stri := ZIP_LOCAL_HEADER_SIGNATURE &
-            int16AsTwoBytesLe(header.version_needed_to_extract) &
-            int16AsTwoBytesLe(ord(header.general_purpose_bit_flag)) &
-            int16AsTwoBytesLe(header.compression_method) &
-            int16AsTwoBytesLe(header.last_mod_file_time) &
-            int16AsTwoBytesLe(header.last_mod_file_date) &
-            int32AsFourBytesLe(ord(header.crc_32)) &
-            int32AsFourBytesLe(header.compressed_size) &
-            int32AsFourBytesLe(header.uncompressed_size) &
-            int16AsTwoBytesLe(length(header.file_name)) &
-            int16AsTwoBytesLe(length(header.extra_field)) &
+            bytes(       header.version_needed_to_extract, UNSIGNED, LE, 2) &
+            bytes(ord(   header.general_purpose_bit_flag), UNSIGNED, LE, 2) &
+            bytes(       header.compression_method,        UNSIGNED, LE, 2) &
+            bytes(       header.last_mod_file_time,        UNSIGNED, LE, 2) &
+            bytes(       header.last_mod_file_date,        UNSIGNED, LE, 2) &
+            bytes(ord(   header.crc_32),                   UNSIGNED, LE, 4) &
+            bytes(       header.compressed_size,           UNSIGNED, LE, 4) &
+            bytes(       header.uncompressed_size,         UNSIGNED, LE, 4) &
+            bytes(length(header.file_name),                UNSIGNED, LE, 2) &
+            bytes(length(header.extra_field),              UNSIGNED, LE, 2) &
             header.file_name &
             header.extra_field;
   end func;
@@ -298,13 +298,13 @@ const func string: str (in end_of_central_directory: endOfCentDir) is func
     var string: stri is "";
   begin
     stri := ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE &
-            int16AsTwoBytesLe(endOfCentDir.number_of_this_disk) &
-            int16AsTwoBytesLe(endOfCentDir.disk_number_with_start_of_central_directory) &
-            int16AsTwoBytesLe(endOfCentDir.entries_in_central_directory_on_this_disk) &
-            int16AsTwoBytesLe(endOfCentDir.entries_in_central_directory) &
-            int32AsFourBytesLe(endOfCentDir.size_of_central_directory) &
-            int32AsFourBytesLe(endOfCentDir.offset_of_start_of_central_directory) &
-            int16AsTwoBytesLe(length(endOfCentDir.file_comment)) &
+            bytes(       endOfCentDir.number_of_this_disk,                         UNSIGNED, LE, 2) &
+            bytes(       endOfCentDir.disk_number_with_start_of_central_directory, UNSIGNED, LE, 2) &
+            bytes(       endOfCentDir.entries_in_central_directory_on_this_disk,   UNSIGNED, LE, 2) &
+            bytes(       endOfCentDir.entries_in_central_directory,                UNSIGNED, LE, 2) &
+            bytes(       endOfCentDir.size_of_central_directory,                   UNSIGNED, LE, 4) &
+            bytes(       endOfCentDir.offset_of_start_of_central_directory,        UNSIGNED, LE, 4) &
+            bytes(length(endOfCentDir.file_comment),                               UNSIGNED, LE, 2) &
             endOfCentDir.file_comment;
   end func;
 
@@ -441,22 +441,22 @@ const func string: str (in central_file_header: header) is func
     var string: stri is "";
   begin
     stri := ZIP_CENTRAL_HEADER_SIGNATURE &
-            int16AsTwoBytesLe(header.version_made_by) &
-            int16AsTwoBytesLe(header.version_needed_to_extract) &
-            int16AsTwoBytesLe(ord(header.general_purpose_bit_flag)) &
-            int16AsTwoBytesLe(header.compression_method) &
-            int16AsTwoBytesLe(header.last_mod_file_time) &
-            int16AsTwoBytesLe(header.last_mod_file_date) &
-            int32AsFourBytesLe(ord(header.crc_32)) &
-            int32AsFourBytesLe(header.compressed_size) &
-            int32AsFourBytesLe(header.uncompressed_size) &
-            int16AsTwoBytesLe(length(header.file_name)) &
-            int16AsTwoBytesLe(length(header.extra_field)) &
-            int16AsTwoBytesLe(length(header.file_comment)) &
-            int16AsTwoBytesLe(header.disk_number_start) &
-            int16AsTwoBytesLe(header.internal_file_attributes) &
-            int32AsFourBytesLe(header.external_file_attributes) &
-            int32AsFourBytesLe(header.relative_offset_of_local_header) &
+            bytes(       header.version_made_by,                 UNSIGNED, LE, 2) &
+            bytes(       header.version_needed_to_extract,       UNSIGNED, LE, 2) &
+            bytes(   ord(header.general_purpose_bit_flag),       UNSIGNED, LE, 2) &
+            bytes(       header.compression_method,              UNSIGNED, LE, 2) &
+            bytes(       header.last_mod_file_time,              UNSIGNED, LE, 2) &
+            bytes(       header.last_mod_file_date,              UNSIGNED, LE, 2) &
+            bytes(   ord(header.crc_32),                         UNSIGNED, LE, 4) &
+            bytes(       header.compressed_size,                 UNSIGNED, LE, 4) &
+            bytes(       header.uncompressed_size,               UNSIGNED, LE, 4) &
+            bytes(length(header.file_name),                      UNSIGNED, LE, 2) &
+            bytes(length(header.extra_field),                    UNSIGNED, LE, 2) &
+            bytes(length(header.file_comment),                   UNSIGNED, LE, 2) &
+            bytes(       header.disk_number_start,               UNSIGNED, LE, 2) &
+            bytes(       header.internal_file_attributes,        UNSIGNED, LE, 2) &
+            bytes(       header.external_file_attributes,        UNSIGNED, LE, 4) &
+            bytes(       header.relative_offset_of_local_header, UNSIGNED, LE, 4) &
             header.file_name &
             header.extra_field &
             header.file_comment;
@@ -543,17 +543,17 @@ const proc: assignLastModFileTime (inout local_file_header: localHeader,
     if 16#5455 in localHeader.extraFieldMap then
       # Extended Timestamp Extra Field:
       timestamp := timestamp1970(modificationTime);
-      localHeader.extraFieldMap[16#5455] @:= [2] int32AsFourBytesLe(timestamp);
+      localHeader.extraFieldMap[16#5455] @:= [2] bytes(timestamp, UNSIGNED, LE, 4);
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
     elsif 16#000d in localHeader.extraFieldMap then
       # UNIX Extra Field
       timestamp := timestamp1970(modificationTime);
-      localHeader.extraFieldMap[16#000d] @:= [5] int32AsFourBytesLe(timestamp);
+      localHeader.extraFieldMap[16#000d] @:= [5] bytes(timestamp, UNSIGNED, LE, 4);
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
     elsif 16#000a in localHeader.extraFieldMap then
       # NTFS Extra Field:
       timestamp := timestamp1601(modificationTime);
-      localHeader.extraFieldMap[16#000a] @:= [9] int64AsEightBytesLe(timestamp);
+      localHeader.extraFieldMap[16#000a] @:= [9] bytes(timestamp, UNSIGNED, LE, 8);
       localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
     end if;
     localHeader.last_mod_file_time := (modificationTime.hour << 11) +
@@ -573,17 +573,17 @@ const proc: assignLastModFileTime (inout central_file_header: header,
     if 16#5455 in header.extraFieldMap then
       # Extended Timestamp Extra Field:
       timestamp := timestamp1970(modificationTime);
-      header.extraFieldMap[16#5455] @:= [2] int32AsFourBytesLe(timestamp);
+      header.extraFieldMap[16#5455] @:= [2] bytes(timestamp, UNSIGNED, LE, 4);
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
     elsif 16#000d in header.extraFieldMap then
       # UNIX Extra Field
       timestamp := timestamp1970(modificationTime);
-      header.extraFieldMap[16#000d] @:= [5] int32AsFourBytesLe(timestamp);
+      header.extraFieldMap[16#000d] @:= [5] bytes(timestamp, UNSIGNED, LE, 4);
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
     elsif 16#000a in header.extraFieldMap then
       # NTFS Extra Field:
       timestamp := timestamp1601(modificationTime);
-      header.extraFieldMap[16#000a] @:= [9] int64AsEightBytesLe(timestamp);
+      header.extraFieldMap[16#000a] @:= [9] bytes(timestamp, UNSIGNED, LE, 8);
       header.extra_field := extraFieldFromMap(header.extraFieldMap);
     end if;
     header.last_mod_file_time := (modificationTime.hour << 11) +
@@ -678,7 +678,7 @@ const func fileSys: openZip (in string: zipFileName) is func
  *)
 const proc: close (inout zipArchive: zip) is func
   begin
-    close(zip.zipFile);
+    # close(zip.zipFile);
     zip.zipFile := STD_NULL;
   end func;
 
@@ -1103,7 +1103,7 @@ const proc: setMTime (inout zipArchive: zip, in string: filePath,
       writeHead(zip.zipFile, header);
       seek(zip.zipFile, succ(header.relative_offset_of_local_header));
       localHeader := get_local_header(zip.zipFile);
-      assignLastModFileTime(header, modificationTime);
+      assignLastModFileTime(localHeader, modificationTime);
       seek(zip.zipFile, succ(header.relative_offset_of_local_header));
       writeHead(zip.zipFile, localHeader);
     end if;

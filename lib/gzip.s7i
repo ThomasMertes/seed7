@@ -370,14 +370,14 @@ const func string: gzip (in string: uncompressed) is func
   result
     var string: compressed is GZIP_MAGIC;
   begin
-    compressed &:= '\8;';  # Compression method: Deflate
-    compressed &:= '\0;';  # Flags
-    compressed &:= int32AsFourBytesLe(timestamp1970(time(NOW)));
-    compressed &:= '\0;';  # Extra flags
-    compressed &:= '\3;';  # Operating system: Unix
+    compressed &:= "\8;" &  # Compression method: Deflate
+                   "\0;" &  # Flags
+                   bytes(timestamp1970(time(NOW)), UNSIGNED, LE, 4) &
+                   "\0;" &  # Extra flags
+                   "\3;";   # Operating system: Unix
     deflateBlock(uncompressed, compressed, TRUE);
-    compressed &:= int32AsFourBytesLe(ord(crc32(uncompressed)));
-    compressed &:= int32AsFourBytesLe(length(uncompressed));
+    compressed &:= bytes(ord(crc32(uncompressed)), UNSIGNED, LE, 4) &
+                   bytes(length(uncompressed),     UNSIGNED, LE, 4);
   end func;
 
 
@@ -409,11 +409,11 @@ const func file: openGzipFile (inout file: destFile) is func
     var gzipFile: new_gzipFile is gzipFile.value;
   begin
     new_gzipFile.destFile := destFile;
-    new_gzipFile.compressed &:= '\8;';  # Compression method: Deflate
-    new_gzipFile.compressed &:= '\0;';  # Flags
-    new_gzipFile.compressed &:= int32AsFourBytesLe(timestamp1970(time(NOW)));
-    new_gzipFile.compressed &:= '\0;';  # Extra flags
-    new_gzipFile.compressed &:= '\3;';  # Operating system: Unix
+    new_gzipFile.compressed &:= "\8;" &  # Compression method: Deflate
+                                "\0;" &  # Flags
+                                bytes(timestamp1970(time(NOW)), UNSIGNED, LE, 4) &
+                                "\0;" &  # Extra flags
+                                "\3;";   # Operating system: Unix
     newFile := toInterface(new_gzipFile);
   end func;
 
@@ -425,8 +425,8 @@ const proc: close (inout gzipFile: aFile) is func
   begin
     beginDeflateBlock(aFile.deflateState, aFile.compressed, TRUE);
     closeDeflateBlock(aFile.deflateState, aFile.uncompressed, aFile.compressed);
-    aFile.compressed &:= int32AsFourBytesLe(ord(crc32(aFile.uncompressed, aFile.crc32)));
-    aFile.compressed &:= int32AsFourBytesLe(length(aFile.uncompressed) + aFile.uncompressedLength);
+    aFile.compressed &:= bytes(ord(crc32(aFile.uncompressed, aFile.crc32)),           UNSIGNED, LE, 4) &
+                         bytes(length(aFile.uncompressed) + aFile.uncompressedLength, UNSIGNED, LE, 4);
     write(aFile.destFile, aFile.compressed);
   end func;
 

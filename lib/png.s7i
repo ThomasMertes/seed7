@@ -69,13 +69,13 @@ const func pngHeader: pngHeader (in string: stri) is func
     var pngHeader: header is pngHeader.value;
   begin
     if length(stri) = 13 then
-      header.width := bytes2Int(stri[1 len 4], UNSIGNED, BE);
-      header.height := bytes2Int(stri[5 len 4], UNSIGNED, BE);
-      header.bitDepth := ord(stri[9]);
-      header.colorType := ord(stri[10]);
-      header.compressionMethod := ord(stri[11]);
-      header.filterMethod := ord(stri[12]);
-      header.interlaceMethod := ord(stri[13]);
+      header.width             := bytes2Int(stri[ 1 len 4], UNSIGNED, BE);
+      header.height            := bytes2Int(stri[ 5 len 4], UNSIGNED, BE);
+      header.bitDepth          := bytes2Int(stri[ 9 len 1], UNSIGNED, BE);
+      header.colorType         := bytes2Int(stri[10 len 1], UNSIGNED, BE);
+      header.compressionMethod := bytes2Int(stri[11 len 1], UNSIGNED, BE);
+      header.filterMethod      := bytes2Int(stri[12 len 1], UNSIGNED, BE);
+      header.interlaceMethod   := bytes2Int(stri[13 len 1], UNSIGNED, BE);
       # showHeader(header);
     else
       raise RANGE_ERROR;
@@ -84,13 +84,13 @@ const func pngHeader: pngHeader (in string: stri) is func
 
 
 const func string: str (in pngHeader: header) is
-  return int32AsFourBytesBe(header.width) &
-         int32AsFourBytesBe(header.height) &
-         str(char(header.bitDepth)) &
-         str(char(header.colorType)) &
-         str(char(header.compressionMethod)) &
-         str(char(header.filterMethod)) &
-         str(char(header.interlaceMethod));
+  return bytes(header.width,             UNSIGNED, BE, 4) &
+         bytes(header.height,            UNSIGNED, BE, 4) &
+         bytes(header.bitDepth,          UNSIGNED, BE, 1) &
+         bytes(header.colorType,         UNSIGNED, BE, 1) &
+         bytes(header.compressionMethod, UNSIGNED, BE, 1) &
+         bytes(header.filterMethod,      UNSIGNED, BE, 1) &
+         bytes(header.interlaceMethod,   UNSIGNED, BE, 1);
 
 
 const func boolean: isOkay (in pngHeader: header) is
@@ -151,9 +151,9 @@ const func string: readPngChunk (inout file: pngFile, inout string: chunkType) i
 
 
 const func string: genPngChunk (in string: chunkType, in string: chunkData) is
-  return int32AsFourBytesBe(length(chunkData)) &
+  return bytes(length(chunkData), UNSIGNED, BE, 4) &
          chunkType & chunkData &
-         int32AsFourBytesBe(integer(crc32(chunkType & chunkData)));
+         bytes(integer(crc32(chunkType & chunkData)), UNSIGNED, BE, 4);
 
 
 const func integer: paethPredictor (in integer: a, in integer: b, in integer: c) is func
