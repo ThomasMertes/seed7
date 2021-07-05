@@ -188,16 +188,18 @@ const proc: main is func
     repeat
       command := KEY_NONE;
       if index < 1 then
+        setWindowName(curr_win, "Start");
         writeMessage("Start");
       elsif index > length(fileList) then
+        setWindowName(curr_win, "End");
         writeMessage("End");
       else
+        setWindowName(curr_win, fileList[index]);
         imageFile := open(fileList[index], "r");
         if imageFile <> STD_NULL then
           # writeln(fileList[index]);
           pixmap := readImage(imageFile);
           close(imageFile);
-          setWindowName(curr_win, fileList[index]);
           command := KEY_RESIZE;
           repeat
             if command = KEY_RESIZE then
