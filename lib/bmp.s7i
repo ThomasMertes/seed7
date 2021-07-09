@@ -27,9 +27,609 @@
 
 
 include "draw.s7i";
+include "bin64.s7i";
+include "jpeg.s7i";
+include "png.s7i";
 
 
 const string: BMP_MAGIC is "BM";
+
+# Sizes of DIB header variants:
+const integer: BMP_COREHEADER             is  12;
+const integer: BMP_INFOHEADER_OS22X_SHORT is  16;
+const integer: BMP_INFOHEADER             is  40;
+const integer: BMP_INFOHEADER_V2          is  52;
+const integer: BMP_INFOHEADER_V3          is  56;
+const integer: BMP_INFOHEADER_OS22X       is  64;
+const integer: BMP_INFOHEADER_V4          is 108;
+const integer: BMP_INFOHEADER_V5          is 124;
+
+# Compression methods:
+const integer: BMP_BI_RGB            is  0;
+const integer: BMP_BI_RLE8           is  1;
+const integer: BMP_BI_RLE4           is  2;
+const integer: BMP_BI_BITFIELDS      is  3;
+const integer: BMP_BI_JPEG           is  4;
+const integer: BMP_BI_PNG            is  5;
+const integer: BMP_BI_ALPHABITFIELDS is  6;
+const integer: BMP_BI_CMYK           is 11;
+const integer: BMP_BI_CMYKRLE8       is 12;
+const integer: BMP_BI_CMYKRLE4       is 13;
+
+const type: bmpColorBitfield is new struct
+    var integer: mask is 0;
+    var integer: rShift is 0;
+    var integer: scale is 0;
+  end struct;
+
+const type: bmpHeader is new struct
+    var integer: bmpFileSize is 0;
+    var integer: offset is 0;
+    var integer: calculatedOffset is 0;
+    var integer: dibHeaderSize is 0;
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: planes is 0;
+    var integer: bitsPerPixel is 0;
+    var integer: compressionMethod is BMP_BI_RGB;
+    var integer: rawDataSize is 0;
+    var integer: horizontalResolution is 0;
+    var integer: verticalResolution is 0;
+    var integer: paletteColors is 0;
+    var integer: importantColors is 0;
+    var bmpColorBitfield: redBitfield is bmpColorBitfield.value;
+    var bmpColorBitfield: greenBitfield is bmpColorBitfield.value;
+    var bmpColorBitfield: blueBitfield is bmpColorBitfield.value;
+    var bmpColorBitfield: alphaBitfield is bmpColorBitfield.value;
+    var integer: colorSpace is 0;
+    var array integer: colorSpaceEndpoints is 0 times 0;
+    var integer: redGamma is 0;
+    var integer: greenGamma is 0;
+    var integer: blueGamma is 0;
+    var array pixel: palette is 0 times pixel.value;
+  end struct;
+
+
+const func bmpColorBitfield: bmpColorBitfield (in integer: mask) is func
+  result
+    var bmpColorBitfield: bitfield is bmpColorBitfield.value;
+  begin
+    bitfield.mask   := mask;
+    bitfield.rShift := lowestSetBit(bitfield.mask);
+    bitfield.scale  := pred(2 ** (bitLength(bitfield.mask) - bitfield.rShift));
+    bitfield.rShift := max(0, bitfield.rShift);
+  end func;
+
+
+const func string: str (in bmpColorBitfield: bitfield) is
+  return "(" <& bitfield.mask radix 2 lpad0 32 <&
+        ", " <& bitfield.rShift lpad 2 <&
+        ", " <& bitfield.scale <& ")";
+
+
+const func integer: toColor (in bmpColorBitfield: bitfield, in integer: pixelColor) is
+  return 65535 * (integer(bin64(pixelColor) & bin64(bitfield.mask)) >> bitfield.rShift) div bitfield.scale;
+
+
+const proc: readBitMasks (inout file: bmpFile, inout bmpHeader: header) is func
+  local
+    var integer: numOfBitMaskBytes is 0;
+    var string: stri is "";
+  begin
+    if header.compressionMethod = BMP_BI_BITFIELDS or
+        header.compressionMethod = BMP_BI_ALPHABITFIELDS then
+      numOfBitMaskBytes := header.compressionMethod = BMP_BI_BITFIELDS ? 12 : 16;
+      stri := gets(bmpFile, numOfBitMaskBytes);
+      if length(stri) = numOfBitMaskBytes then
+        header.calculatedOffset +:= numOfBitMaskBytes;
+        header.redBitfield   := bmpColorBitfield(bytes2Int(stri[1 len 4], UNSIGNED, LE));
+        header.greenBitfield := bmpColorBitfield(bytes2Int(stri[5 len 4], UNSIGNED, LE));
+        header.blueBitfield  := bmpColorBitfield(bytes2Int(stri[9 len 4], UNSIGNED, LE));
+        if header.compressionMethod = BMP_BI_ALPHABITFIELDS then
+          header.alphaBitfield  := bmpColorBitfield(bytes2Int(stri[13 len 4], UNSIGNED, LE));
+        end if;
+      else
+        raise RANGE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+const proc: showHeader (in bmpHeader: header) is func
+  begin
+    writeln("bmpFileSize: " <& header.bmpFileSize);
+    writeln("offset: " <& header.offset);
+    writeln("dibHeaderSize: " <& header.dibHeaderSize);
+    writeln("width: " <& header.width);
+    writeln("height: " <& header.height);
+    writeln("planes: " <& header.planes);
+    writeln("bitsPerPixel: " <& header.bitsPerPixel);
+    writeln("compressionMethod: " <& header.compressionMethod);
+    writeln("rawDataSize: " <& header.rawDataSize);
+    writeln("horizontalResolution: " <& header.horizontalResolution);
+    writeln("verticalResolution: " <& header.verticalResolution);
+    writeln("paletteColors: " <& header.paletteColors);
+    writeln("importantColors: " <& header.importantColors);
+    writeln("redBitfield:   " <& str(header.redBitfield));
+    writeln("greenBitfield: " <& str(header.greenBitfield));
+    writeln("blueBitfield:  " <& str(header.blueBitfield));
+    writeln("colorSpace: " <& bytes(header.colorSpace, UNSIGNED, BE));
+    writeln("redGamma: " <& header.redGamma);
+    writeln("greenGamma: " <& header.greenGamma);
+    writeln("blueGamma: " <& header.blueGamma);
+  end func;
+
+
+const proc: readDibHeader (inout file: bmpFile, inout bmpHeader: header) is func
+  local
+    var string: stri is "";
+  begin
+    stri := gets(bmpFile, header.dibHeaderSize - 4);
+    if header.dibHeaderSize in {BMP_COREHEADER, BMP_INFOHEADER_OS22X_SHORT,
+                                BMP_INFOHEADER, BMP_INFOHEADER_V2,
+                                BMP_INFOHEADER_V3, BMP_INFOHEADER_OS22X,
+                                BMP_INFOHEADER_V4, BMP_INFOHEADER_V5} and
+        length(stri) = header.dibHeaderSize - 4 then
+      header.calculatedOffset +:= header.dibHeaderSize;
+      if header.dibHeaderSize = BMP_COREHEADER then
+        header.width        := bytes2Int(stri[1 len 2], UNSIGNED, LE);
+        header.height       := bytes2Int(stri[3 len 2], UNSIGNED, LE);
+        header.planes       := bytes2Int(stri[5 len 2], UNSIGNED, LE);
+        header.bitsPerPixel := bytes2Int(stri[7 len 2], UNSIGNED, LE);
+      elsif header.dibHeaderSize = BMP_INFOHEADER_OS22X_SHORT then
+        header.width        := bytes2Int(stri[ 1 len 4], UNSIGNED, LE);
+        header.height       := bytes2Int(stri[ 5 len 4], UNSIGNED, LE);
+        header.planes       := bytes2Int(stri[ 9 len 2], UNSIGNED, LE);
+        header.bitsPerPixel := bytes2Int(stri[11 len 2], UNSIGNED, LE);
+      else  # header.dibHeaderSize >= BMP_INFOHEADER
+        header.width                := bytes2Int(stri[ 1 len 4], UNSIGNED, LE);
+        header.height               := bytes2Int(stri[ 5 len 4], UNSIGNED, LE);
+        header.planes               := bytes2Int(stri[ 9 len 2], UNSIGNED, LE);
+        header.bitsPerPixel         := bytes2Int(stri[11 len 2], UNSIGNED, LE);
+        header.compressionMethod    := bytes2Int(stri[13 len 4], UNSIGNED, LE);
+        header.rawDataSize          := bytes2Int(stri[17 len 4], UNSIGNED, LE);
+        header.horizontalResolution := bytes2Int(stri[21 len 4], UNSIGNED, LE);
+        header.verticalResolution   := bytes2Int(stri[25 len 4], UNSIGNED, LE);
+        header.paletteColors        := bytes2Int(stri[29 len 4], UNSIGNED, LE);
+        header.importantColors      := bytes2Int(stri[33 len 4], UNSIGNED, LE);
+        if header.dibHeaderSize = BMP_INFOHEADER then
+          # The bit masks are optional and outside of the DIB header.
+          readBitMasks(bmpFile, header);
+        elsif header.dibHeaderSize = BMP_INFOHEADER_V2 or
+            header.dibHeaderSize = BMP_INFOHEADER_V3 or
+            header.dibHeaderSize >= BMP_INFOHEADER_V4 then
+          # The bit masks are part of the DIB header.
+          if header.compressionMethod = BMP_BI_BITFIELDS or
+              header.compressionMethod = BMP_BI_ALPHABITFIELDS then
+            header.redBitfield   := bmpColorBitfield(bytes2Int(stri[37 len 4], UNSIGNED, LE));
+            header.greenBitfield := bmpColorBitfield(bytes2Int(stri[41 len 4], UNSIGNED, LE));
+            header.blueBitfield  := bmpColorBitfield(bytes2Int(stri[45 len 4], UNSIGNED, LE));
+            if header.compressionMethod = BMP_BI_ALPHABITFIELDS then
+              header.alphaBitfield := bmpColorBitfield(bytes2Int(stri[49 len 4], UNSIGNED, LE));
+            end if;
+          end if;
+          if header.dibHeaderSize >= BMP_INFOHEADER_V4 then
+            header.colorSpace := bytes2Int(stri[ 53 len 4], UNSIGNED, LE);
+            # writeln("Color Space endpoints: " <&hex(stri[57 len 36]));
+            header.redGamma   := bytes2Int(stri[ 93 len 4], UNSIGNED, LE);
+            header.greenGamma := bytes2Int(stri[ 97 len 4], UNSIGNED, LE);
+            header.blueGamma  := bytes2Int(stri[101 len 4], UNSIGNED, LE);
+          end if;
+        end if;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: readHeader (inout file: bmpFile, inout bmpHeader: header) is func
+  local
+    var string: stri is "";
+  begin
+    stri := gets(bmpFile, 16);
+    if length(stri) = 16 then
+      header.calculatedOffset := 14;
+      header.bmpFileSize   := bytes2Int(stri[ 1 len 4], UNSIGNED, LE);
+      # Ignore 4 reserved bytes.
+      header.offset        := bytes2Int(stri[ 9 len 4], UNSIGNED, LE);
+      header.dibHeaderSize := bytes2Int(stri[13 len 4], UNSIGNED, LE);
+      readDibHeader(bmpFile, header);
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: computeNumberOfPaletteColors (inout bmpHeader: header,
+    in integer: colorEntrySize) is func
+  begin
+    if header.calculatedOffset < header.offset then
+      header.paletteColors :=
+          (header.offset - header.calculatedOffset) mdiv colorEntrySize;
+    end if;
+  end func;
+
+
+const proc: readPaletteData (inout file: bmpFile, inout bmpHeader: header,
+    in integer: colorEntrySize) is func
+  local
+    var integer: numOfPaletteBytes is 0;
+    var string: stri is "";
+    var integer: index is 0;
+    var integer: byteIndex is 1;
+  begin
+    numOfPaletteBytes := header.paletteColors * colorEntrySize;
+    header.paletteColors := min(header.paletteColors, 256);
+    header.palette := [0 .. pred(header.paletteColors)] times pixel.value;
+    stri := gets(bmpFile, numOfPaletteBytes);
+    if length(stri) = numOfPaletteBytes then
+      header.calculatedOffset +:= numOfPaletteBytes;
+      for index range 0 to pred(header.paletteColors) do
+        header.palette[index] := rgbPixel(ord(stri[byteIndex + 2]) * 256,
+                                          ord(stri[succ(byteIndex)]) * 256,
+                                          ord(stri[byteIndex]) * 256);
+        byteIndex +:= colorEntrySize;
+      end for;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: readPalette (inout file: bmpFile, inout bmpHeader: header) is func
+  local
+    var integer: colorEntrySize is 0;
+  begin
+    colorEntrySize := header.dibHeaderSize = BMP_COREHEADER ? 3 : 4;
+    if header.bitsPerPixel <> 0 and header.bitsPerPixel <= 8 and
+        header.paletteColors = 0 then
+      computeNumberOfPaletteColors(header, colorEntrySize);
+    end if;
+    if header.paletteColors > 0 then
+      readPaletteData(bmpFile, header, colorEntrySize);
+    end if;
+  end func;
+
+
+const proc: readBmpImage1Bit (inout file: bmpFile, inout bmpHeader: header,
+    inout array array pixel: image) is func
+  local
+    var string: stri is "";
+    var integer: padding is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 0;
+    var integer: currentByte is 0;
+    var integer: rshift is 0;
+  begin
+    padding := -succ(pred(header.width) mdiv 8) mod 4;
+    for line range header.height downto 1 do
+      stri := gets(bmpFile, succ(pred(header.width) mdiv 8) + padding);
+      byteIndex := 1;
+      for column range 1 to (header.width - 7) step 8 do
+        currentByte := ord(stri[byteIndex]);
+        image[line][column]       := header.palette[ currentByte >> 7];
+        image[line][succ(column)] := header.palette[(currentByte >> 6) mod 2];
+        image[line][column + 2]   := header.palette[(currentByte >> 5) mod 2];
+        image[line][column + 3]   := header.palette[(currentByte >> 4) mod 2];
+        image[line][column + 4]   := header.palette[(currentByte >> 3) mod 2];
+        image[line][column + 5]   := header.palette[(currentByte >> 2) mod 2];
+        image[line][column + 6]   := header.palette[(currentByte >> 1) mod 2];
+        image[line][column + 7]   := header.palette[ currentByte       mod 2];
+        incr(byteIndex);
+      end for;
+      if header.width mod 8 <> 0 then
+        currentByte := ord(stri[byteIndex]);
+        rshift := 7;
+        for column range succ(header.width - header.width mod 8) to header.width do
+          image[line][column] := header.palette[(currentByte >> rshift) mod 2];
+          decr(rshift);
+        end for;
+        incr(byteIndex);
+      end if;
+    end for;
+  end func;
+
+
+const proc: readBmpImage2Bit (inout file: bmpFile, inout bmpHeader: header,
+    inout array array pixel: image) is func
+  local
+    var string: stri is "";
+    var integer: padding is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 0;
+    var integer: currentByte is 0;
+    var integer: rshift is 0;
+  begin
+    padding := -succ(pred(header.width) mdiv 4) mod 4;
+    for line range header.height downto 1 do
+      stri := gets(bmpFile, succ(pred(header.width) mdiv 4) + padding);
+      byteIndex := 1;
+      for column range 1 to (header.width - 3) step 4 do
+        currentByte := ord(stri[byteIndex]);
+        image[line][column]       := header.palette[ currentByte >> 6];
+        image[line][succ(column)] := header.palette[(currentByte >> 4) mod 4];
+        image[line][column + 2]   := header.palette[(currentByte >> 2) mod 4];
+        image[line][column + 3]   := header.palette[ currentByte       mod 4];
+        incr(byteIndex);
+      end for;
+      if header.width mod 4 <> 0 then
+        currentByte := ord(stri[byteIndex]);
+        rshift := 6;
+        for column range succ(header.width - header.width mod 4) to header.width do
+          image[line][column] := header.palette[(currentByte >> rshift) mod 4];
+          rshift -:= 2;
+        end for;
+        incr(byteIndex);
+      end if;
+    end for;
+  end func;
+
+
+const proc: readBmpImage4Bit (inout file: bmpFile, inout bmpHeader: header,
+    inout array array pixel: image) is func
+  local
+    var string: stri is "";
+    var integer: padding is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 0;
+    var integer: pixelColor is 0;
+  begin
+    padding := -succ(pred(header.width) mdiv 2) mod 4;
+    for line range header.height downto 1 do
+      stri := gets(bmpFile, succ(pred(header.width) mdiv 2) + padding);
+      byteIndex := 1;
+      for column range 1 to header.width do
+        if odd(column) then
+          image[line][column] := header.palette[ord(stri[byteIndex]) >> 4];
+        else
+          image[line][column] := header.palette[ord(stri[byteIndex]) mod 16];
+          incr(byteIndex);
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: readBmpImage8Bit (inout file: bmpFile, inout bmpHeader: header,
+    inout array array pixel: image) is func
+  local
+    var string: stri is "";
+    var integer: padding is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 0;
+    var integer: pixelColor is 0;
+  begin
+    padding := -header.width mod 4;
+    for line range header.height downto 1 do
+      stri := gets(bmpFile, header.width + padding);
+      byteIndex := 1;
+      for column range 1 to header.width do
+        pixelColor := ord(stri[byteIndex]);
+        image[line][column] := header.palette[pixelColor];
+        incr(byteIndex);
+      end for;
+    end for;
+  end func;
+
+
+const proc: readBmpImage16Bit (inout file: bmpFile, inout bmpHeader: header,
+    inout array array pixel: image) is func
+  local
+    var string: stri is "";
+    var integer: padding is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 0;
+    var integer: pixelColor is 0;
+  begin
+    padding := -(2 * header.width) mod 4;
+    if  header.redBitfield.mask <> 0 or
+        header.greenBitfield.mask <> 0 or
+        header.blueBitfield.mask <> 0 then
+      for line range header.height downto 1 do
+        stri := gets(bmpFile, 2 * header.width + padding);
+        byteIndex := 1;
+        for column range 1 to header.width do
+          pixelColor := bytes2Int(stri[byteIndex len 2], UNSIGNED, LE);
+          image[line][column] := rgbPixel(toColor(header.redBitfield, pixelColor),
+                                          toColor(header.greenBitfield, pixelColor),
+                                          toColor(header.blueBitfield, pixelColor));
+          byteIndex +:= 2;
+        end for;
+      end for;
+    else
+      for line range header.height downto 1 do
+        stri := gets(bmpFile, 2 * header.width + padding);
+        byteIndex := 1;
+        for column range 1 to header.width do
+          pixelColor := bytes2Int(stri[byteIndex len 2], UNSIGNED, LE);
+          image[line][column] := rgbPixel(((pixelColor >> 10) mod 32) * 2114,
+                                          ((pixelColor >>  5) mod 32) * 2114,
+                                          ( pixelColor        mod 32) * 2114);
+          byteIndex +:= 2;
+        end for;
+      end for;
+    end if;
+  end func;
+
+
+const proc: readBmpImage24Bit (inout file: bmpFile, inout bmpHeader: header,
+    inout array array pixel: image) is func
+  local
+    var string: stri is "";
+    var integer: padding is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 0;
+  begin
+    padding := -(3 * header.width) mod 4;
+    for line range header.height downto 1 do
+      stri := gets(bmpFile, 3 * header.width + padding);
+      byteIndex := 1;
+      for column range 1 to header.width do
+        image[line][column] := rgbPixel(ord(stri[byteIndex + 2]) * 256,
+                                        ord(stri[byteIndex + 1]) * 256,
+                                        ord(stri[byteIndex]) * 256);
+        byteIndex +:= 3;
+      end for;
+    end for;
+  end func;
+
+
+const proc: readBmpImage32Bit (inout file: bmpFile, inout bmpHeader: header,
+    inout array array pixel: image) is func
+  local
+    var string: stri is "";
+    var integer: padding is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: byteIndex is 0;
+    var integer: pixelColor is 0;
+  begin
+    padding := -(4 * header.width) mod 4;
+    if  header.redBitfield.mask <> 0 or
+        header.greenBitfield.mask <> 0 or
+        header.blueBitfield.mask <> 0 then
+      for line range header.height downto 1 do
+        stri := gets(bmpFile, 4 * header.width + padding);
+        byteIndex := 1;
+        for column range 1 to header.width do
+          pixelColor := bytes2Int(stri[byteIndex len 4], UNSIGNED, LE);
+          image[line][column] := rgbPixel(toColor(header.redBitfield, pixelColor),
+                                          toColor(header.greenBitfield, pixelColor),
+                                          toColor(header.blueBitfield, pixelColor));
+          byteIndex +:= 4;
+        end for;
+      end for;
+    else
+      for line range header.height downto 1 do
+        stri := gets(bmpFile, 4 * header.width + padding);
+        byteIndex := 1;
+        for column range 1 to header.width do
+          image[line][column] := rgbPixel(ord(stri[byteIndex + 2]) * 256,
+                                          ord(stri[byteIndex + 1]) * 256,
+                                          ord(stri[byteIndex]) * 256);
+          byteIndex +:= 4;
+        end for;
+      end for;
+    end if;
+  end func;
+
+
+const proc: readBmpImageRle4 (inout file: bmpFile, inout bmpHeader: header,
+    inout array array pixel: image) is func
+  local
+    var char: aByte is ' ';
+    var integer: line is 0;
+    var integer: column is 1;
+    var integer: count is 0;
+    var integer: index is 0;
+    var boolean: endOfBitmap is FALSE;
+  begin
+    line := header.height;
+    repeat
+      aByte := getc(bmpFile);
+      if aByte = '\0;' then
+        # Escape
+        aByte := getc(bmpFile);
+        case aByte of
+          when {'\0;'}:  # End of line
+            decr(line);
+            column := 1;
+          when {'\1;'}:  # End of bitmap
+            endOfBitmap := TRUE;
+          when {'\2;'}:  # Delta
+            column +:= ord(getc(bmpFile));
+            line -:= ord(getc(bmpFile));
+          otherwise:     # Absolute mode
+            count := ord(aByte);
+            for index range 0 to pred(count) do
+              if odd(index) then
+                image[line][column + index] := header.palette[ord(aByte) mod 16];
+              else
+                aByte := getc(bmpFile);
+                image[line][column + index] := header.palette[ord(aByte) >> 4];
+              end if;
+            end for;
+            column +:= count;
+            if odd(succ(count) div 2) then
+              # Align to a word boundary.
+              aByte := getc(bmpFile);
+            end if;
+        end case;
+      elsif aByte = EOF then
+        endOfBitmap := TRUE;
+      else
+        # Encoded mode
+        count := ord(aByte);
+        aByte := getc(bmpFile);
+        for index range 0 to pred(count) do
+          if odd(index) then
+            image[line][column + index] := header.palette[ord(aByte) mod 16];
+          else
+            image[line][column + index] := header.palette[ord(aByte) >> 4];
+          end if;
+        end for;
+        column +:= count;
+      end if;
+    until endOfBitmap;
+  end func;
+
+
+const proc: readBmpImageRle8 (inout file: bmpFile, inout bmpHeader: header,
+    inout array array pixel: image) is func
+  local
+    var char: aByte is ' ';
+    var integer: line is 0;
+    var integer: column is 1;
+    var integer: count is 0;
+    var integer: index is 0;
+    var boolean: endOfBitmap is FALSE;
+  begin
+    line := header.height;
+    repeat
+      aByte := getc(bmpFile);
+      if aByte = '\0;' then
+        # Escape
+        aByte := getc(bmpFile);
+        case aByte of
+          when {'\0;'}:  # End of line
+            decr(line);
+            column := 1;
+          when {'\1;'}:  # End of bitmap
+            endOfBitmap := TRUE;
+          when {'\2;'}:  # Delta
+            column +:= ord(getc(bmpFile));
+            line -:= ord(getc(bmpFile));
+          otherwise:     # Absolute mode
+            count := ord(aByte);
+            for index range column to column + pred(count) do
+              image[line][index] := header.palette[ord(getc(bmpFile))];
+            end for;
+            column +:= count;
+            if odd(count) then
+              # Align to a word boundary.
+              aByte := getc(bmpFile);
+            end if;
+        end case;
+      elsif aByte = EOF then
+        endOfBitmap := TRUE;
+      else
+        # Encoded mode
+        count := ord(aByte);
+        aByte := getc(bmpFile);
+        for index range column to column + pred(count) do
+          image[line][index] := header.palette[ord(aByte)];
+        end for;
+        column +:= count;
+      end if;
+    until endOfBitmap;
+  end func;
 
 
 (**
@@ -43,80 +643,59 @@ const func PRIMITIVE_WINDOW: readBmp (inout file: bmpFile) is func
     var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var string: magic is "";
-    var string: stri is "";
-    var integer: bmpFileSize is 0;
-    var integer: dibHeaderSize is 0;
-    var integer: offset is 0;
-    var integer: width is 0;
-    var integer: height is 0;
-    var integer: planes is 0;
-    var integer: bits is 0;
-    var integer: padding is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-    var integer: byteIndex is 0;
-    var integer: grayIntensity is 0;
+    var bmpHeader: header is bmpHeader.value;
     var array array pixel: image is 0 times 0 times pixel.value;
   begin
     magic := gets(bmpFile, 2);
     if magic = BMP_MAGIC then
       pixmap := newPixmap(1, 1); # Initialize graphic
-      stri := gets(bmpFile, 16);
-      bmpFileSize := bytes2Int(stri[1 len 4], UNSIGNED, LE);
-      # 4 reserved bytes.
-      offset := bytes2Int(stri[9 len 4], UNSIGNED, LE);
-      dibHeaderSize := bytes2Int(stri[13 len 4], UNSIGNED, LE);
-      if dibHeaderSize <> 40 then
+      readHeader(bmpFile, header);
+      # showHeader(header);
+      readPalette(bmpFile, header);
+      if header.calculatedOffset < header.offset then
+        # Skip unused bytes between the palette and the pixel data.
+        ignore(gets(bmpFile, header.offset - header.calculatedOffset));
+      elsif header.calculatedOffset > header.offset then
+        # Pixel data started at a previous position.
         raise RANGE_ERROR;
+      end if;
+      if header.compressionMethod = BMP_BI_JPEG then
+        pixmap := readJpeg(bmpFile);
+      elsif header.compressionMethod = BMP_BI_PNG then
+        pixmap := readPng(bmpFile);
       else
-        stri := gets(bmpFile, dibHeaderSize - 4);
-        width := bytes2Int(stri[1 len 4], UNSIGNED, LE);
-        height := bytes2Int(stri[5 len 4], UNSIGNED, LE);
-        planes := bytes2Int(stri[9 len 2], UNSIGNED, LE);
-        bits := bytes2Int(stri[11 len 2], UNSIGNED, LE);
-        image := height times width times pixel.value;
-        seek(bmpFile, offset + 1);
-        if bits = 24 then
-          padding := -(3 * width) mod 4;
-          for line range height downto 1 do
-            stri := gets(bmpFile, 3 * width + padding);
-            byteIndex := 1;
-            for column range 1 to width do
-              image[line][column] := rgbPixel(ord(stri[byteIndex + 2]) * 256,
-                                              ord(stri[byteIndex + 1]) * 256,
-                                              ord(stri[byteIndex]) * 256);
-              byteIndex +:= 3;
-            end for;
-          end for;
-        elsif bits = 16 then
-          padding := -(2 * width) mod 4;
-          for line range height downto 1 do
-            stri := gets(bmpFile, 2 * width + padding);
-            byteIndex := 1;
-            for column range 1 to width do
-              image[line][column] := rgbPixel(((ord(stri[byteIndex + 1]) >> 2) mod 32) * 2114,
-                                              (((ord(stri[byteIndex + 1]) << 3) +
-                                                (ord(stri[byteIndex]) >> 5)) mod 32) * 2114,
-                                              (ord(stri[byteIndex]) mod 32) * 2114);
-              byteIndex +:= 2;
-            end for;
-          end for;
-        elsif bits = 8 then
-          padding := -width mod 4;
-          for line range height downto 1 do
-            stri := gets(bmpFile, width + padding);
-            byteIndex := 1;
-            for column range 1 to width do
-              grayIntensity := ord(stri[byteIndex]) * 256;
-              image[line][column] := rgbPixel(grayIntensity,
-                                              grayIntensity,
-                                              grayIntensity);
-              incr(byteIndex);
-            end for;
-          end for;
-        else
-          raise RANGE_ERROR;
+        if header.compressionMethod not in {BMP_BI_RLE4, BMP_BI_RLE8} and
+            length(bmpFile) - header.offset <
+            (header.height * header.width * header.bitsPerPixel + 7) div 8 then
+          raise MEMORY_ERROR;
         end if;
+        image := header.height times header.width times pixel.value;
+        case header.bitsPerPixel of
+          when {1}:
+            readBmpImage1Bit(bmpFile, header, image);
+          when {2}:
+            readBmpImage2Bit(bmpFile, header, image);
+          when {4}:
+            if header.compressionMethod = BMP_BI_RLE4 then
+              readBmpImageRle4(bmpFile, header, image);
+            else
+              readBmpImage4Bit(bmpFile, header, image);
+            end if;
+          when {8}:
+            if header.compressionMethod = BMP_BI_RLE8 then
+              readBmpImageRle8(bmpFile, header, image);
+            else
+              readBmpImage8Bit(bmpFile, header, image);
+            end if;
+          when {16}:
+            readBmpImage16Bit(bmpFile, header, image);
+          when {24}:
+            readBmpImage24Bit(bmpFile, header, image);
+          when {32}:
+            readBmpImage32Bit(bmpFile, header, image);
+          otherwise:
+            raise RANGE_ERROR;
+        end case;
         pixmap := imagePixmap(image);
       end if;
     end if;
@@ -163,20 +742,20 @@ const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
     height := height(image);
     padding := -(3 * width) mod 4;
     rawDataSize := height * (3 * width + padding);
-    stri &:= int32AsFourBytesLe(rawDataSize + 54);
-    stri &:= "\0;" mult 4;               # reserved1, reserved2
-    stri &:= int32AsFourBytesLe(54);     # offset to pixel array
-    stri &:= int32AsFourBytesLe(40);     # header size
-    stri &:= int32AsFourBytesLe(width);
-    stri &:= int32AsFourBytesLe(height);
-    stri &:= int16AsTwoBytesLe(1);       # color planes
-    stri &:= int16AsTwoBytesLe(24);      # bits per pixel
-    stri &:= int32AsFourBytesLe(0);      # compression
-    stri &:= int32AsFourBytesLe(rawDataSize);
-    stri &:= int32AsFourBytesLe(2835);   # horizontal resolution
-    stri &:= int32AsFourBytesLe(2835);   # vertical resolution
-    stri &:= int32AsFourBytesLe(0);      # palette colors
-    stri &:= int32AsFourBytesLe(0);      # important colors (0 means all colors are important)
+    stri &:= bytes(rawDataSize + 54, UNSIGNED, LE, 4) &
+             "\0;" mult 4                             &  # reserved1, reserved2
+             bytes(54,               UNSIGNED, LE, 4) &  # offset to pixel array
+             bytes(BMP_INFOHEADER,   UNSIGNED, LE, 4) &  # header size
+             bytes(width,            UNSIGNED, LE, 4) &
+             bytes(height,           UNSIGNED, LE, 4) &
+             bytes(1,                UNSIGNED, LE, 2) &  # color planes
+             bytes(24,               UNSIGNED, LE, 2) &  # bits per pixel
+             bytes(BMP_BI_RGB,       UNSIGNED, LE, 4) &  # compression method
+             bytes(rawDataSize,      UNSIGNED, LE, 4) &
+             bytes(2835,             UNSIGNED, LE, 4) &  # horizontal resolution
+             bytes(2835,             UNSIGNED, LE, 4) &  # vertical resolution
+             bytes(0,                UNSIGNED, LE, 4) &  # palette colors
+             bytes(0,                UNSIGNED, LE, 4);   # important colors (0 means all colors are important)
     bImage := getImage(image);
     for line range pred(height) downto 0 do
       for column range 0 to pred(width) do
