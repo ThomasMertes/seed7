@@ -5829,9 +5829,9 @@ const func string: int32AsFourBytes (in integer: number) is func
     var string: stri is "";
   begin
     if ccConf.LITTLE_ENDIAN_INTTYPE then
-      stri := int32AsFourBytesLe(number);
+      stri := bytes(number, UNSIGNED, LE, 4);
     else
-      stri := int32AsFourBytesBe(number);
+      stri := bytes(number, UNSIGNED, BE, 4);
     end if;
   end func;
 
@@ -5841,17 +5841,9 @@ const func string: int64AsEightBytes (in integer: number) is func
     var string: stri is "";
   begin
     if ccConf.LITTLE_ENDIAN_INTTYPE then
-      if ccConf.INTTYPE_SIZE = 64 then
-        stri := int64AsEightBytesLe(number);
-      else
-        stri := int32AsFourBytesLe(number) & "\0;\0;\0;\0;";
-      end if;
+      stri := bytes(number, UNSIGNED, LE, 8);
     else
-      if ccConf.INTTYPE_SIZE = 64 then
-        stri := int64AsEightBytesBe(number);
-      else
-        stri := "\0;\0;\0;\0;" & int32AsFourBytesBe(number);
-      end if;
+      stri := bytes(number, UNSIGNED, BE, 8);
     end if;
   end func;
 
@@ -5862,15 +5854,15 @@ const func string: int64AsTwoInt32 (in bigInteger: number) is func
     var string: literals is "";
   begin
     if ccConf.LITTLE_ENDIAN_INTTYPE then
-      literals  := str( number        mod 4294967295_);
-      literals &:= ",";
-      literals &:= str((number >> 32) mod 4294967295_);
-      literals &:= ",";
+      literals := str( number        mod 16#100000000_) &
+                  "," &
+                  str((number >> 32) mod 16#100000000_) &
+                  ",";
     else
-      literals  := str((number >> 32) mod 4294967295_);
-      literals &:= ",";
-      literals &:= str( number        mod 4294967295_);
-      literals &:= ",";
+      literals := str((number >> 32) mod 16#100000000_) &
+                  "," &
+                  str( number        mod 16#100000000_) &
+                  ",";
     end if;
   end func;
 

@@ -34,6 +34,8 @@ include "png.s7i";
 
 const string: BMP_MAGIC is "BM";
 
+const integer: BMP_FILE_HEADER_SIZE is 14;
+
 # Sizes of DIB header variants:
 const integer: BMP_COREHEADER             is  12;
 const integer: BMP_INFOHEADER_OS22X_SHORT is  16;
@@ -225,11 +227,12 @@ const proc: readDibHeader (inout file: bmpFile, inout bmpHeader: header) is func
 
 const proc: readHeader (inout file: bmpFile, inout bmpHeader: header) is func
   local
+    const integer: STRI_SIZE is BMP_FILE_HEADER_SIZE - length(BMP_MAGIC) + 4;
     var string: stri is "";
   begin
-    stri := gets(bmpFile, 16);
-    if length(stri) = 16 then
-      header.calculatedOffset := 14;
+    stri := gets(bmpFile, STRI_SIZE);
+    if length(stri) = STRI_SIZE then
+      header.calculatedOffset := BMP_FILE_HEADER_SIZE;
       header.bmpFileSize   := bytes2Int(stri[ 1 len 4], UNSIGNED, LE);
       # Ignore 4 reserved bytes.
       header.offset        := bytes2Int(stri[ 9 len 4], UNSIGNED, LE);
@@ -247,6 +250,8 @@ const proc: computeNumberOfPaletteColors (inout bmpHeader: header,
     if header.calculatedOffset < header.offset then
       header.paletteColors :=
           (header.offset - header.calculatedOffset) mdiv colorEntrySize;
+    elsif header.offset = 0 then
+      header.paletteColors := 2 ** header.bitsPerPixel;
     end if;
   end func;
 
@@ -632,6 +637,62 @@ const proc: readBmpImageRle8 (inout file: bmpFile, inout bmpHeader: header,
   end func;
 
 
+const func PRIMITIVE_WINDOW: readBmp (inout file: bmpFile, inout bmpHeader: header) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var array array pixel: image is 0 times 0 times pixel.value;
+  begin
+    readPalette(bmpFile, header);
+    if header.calculatedOffset < header.offset then
+      # Skip unused bytes between the palette and the pixel data.
+      ignore(gets(bmpFile, header.offset - header.calculatedOffset));
+    elsif header.offset <> 0 and header.calculatedOffset > header.offset then
+      # Pixel data started at a previous position.
+      raise RANGE_ERROR;
+    end if;
+    if header.compressionMethod = BMP_BI_JPEG then
+      pixmap := readJpeg(bmpFile);
+    elsif header.compressionMethod = BMP_BI_PNG then
+      pixmap := readPng(bmpFile);
+    else
+      if header.compressionMethod not in {BMP_BI_RLE4, BMP_BI_RLE8} and
+          length(bmpFile) - header.offset <
+          (header.height * header.width * header.bitsPerPixel + 7) div 8 then
+        raise MEMORY_ERROR;
+      end if;
+      image := header.height times header.width times pixel.value;
+      case header.bitsPerPixel of
+        when {1}:
+          readBmpImage1Bit(bmpFile, header, image);
+        when {2}:
+          readBmpImage2Bit(bmpFile, header, image);
+        when {4}:
+          if header.compressionMethod = BMP_BI_RLE4 then
+            readBmpImageRle4(bmpFile, header, image);
+          else
+            readBmpImage4Bit(bmpFile, header, image);
+          end if;
+        when {8}:
+          if header.compressionMethod = BMP_BI_RLE8 then
+            readBmpImageRle8(bmpFile, header, image);
+          else
+            readBmpImage8Bit(bmpFile, header, image);
+          end if;
+        when {16}:
+          readBmpImage16Bit(bmpFile, header, image);
+        when {24}:
+          readBmpImage24Bit(bmpFile, header, image);
+        when {32}:
+          readBmpImage32Bit(bmpFile, header, image);
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+      pixmap := imagePixmap(image);
+    end if;
+  end func;
+
+
 (**
  *  Reads a BMP file into a pixmap.
  *  @param bmpFile File that contains a BMP image.
@@ -644,60 +705,13 @@ const func PRIMITIVE_WINDOW: readBmp (inout file: bmpFile) is func
   local
     var string: magic is "";
     var bmpHeader: header is bmpHeader.value;
-    var array array pixel: image is 0 times 0 times pixel.value;
   begin
-    magic := gets(bmpFile, 2);
+    magic := gets(bmpFile, length(BMP_MAGIC));
     if magic = BMP_MAGIC then
       pixmap := newPixmap(1, 1); # Initialize graphic
       readHeader(bmpFile, header);
       # showHeader(header);
-      readPalette(bmpFile, header);
-      if header.calculatedOffset < header.offset then
-        # Skip unused bytes between the palette and the pixel data.
-        ignore(gets(bmpFile, header.offset - header.calculatedOffset));
-      elsif header.calculatedOffset > header.offset then
-        # Pixel data started at a previous position.
-        raise RANGE_ERROR;
-      end if;
-      if header.compressionMethod = BMP_BI_JPEG then
-        pixmap := readJpeg(bmpFile);
-      elsif header.compressionMethod = BMP_BI_PNG then
-        pixmap := readPng(bmpFile);
-      else
-        if header.compressionMethod not in {BMP_BI_RLE4, BMP_BI_RLE8} and
-            length(bmpFile) - header.offset <
-            (header.height * header.width * header.bitsPerPixel + 7) div 8 then
-          raise MEMORY_ERROR;
-        end if;
-        image := header.height times header.width times pixel.value;
-        case header.bitsPerPixel of
-          when {1}:
-            readBmpImage1Bit(bmpFile, header, image);
-          when {2}:
-            readBmpImage2Bit(bmpFile, header, image);
-          when {4}:
-            if header.compressionMethod = BMP_BI_RLE4 then
-              readBmpImageRle4(bmpFile, header, image);
-            else
-              readBmpImage4Bit(bmpFile, header, image);
-            end if;
-          when {8}:
-            if header.compressionMethod = BMP_BI_RLE8 then
-              readBmpImageRle8(bmpFile, header, image);
-            else
-              readBmpImage8Bit(bmpFile, header, image);
-            end if;
-          when {16}:
-            readBmpImage16Bit(bmpFile, header, image);
-          when {24}:
-            readBmpImage24Bit(bmpFile, header, image);
-          when {32}:
-            readBmpImage32Bit(bmpFile, header, image);
-          otherwise:
-            raise RANGE_ERROR;
-        end case;
-        pixmap := imagePixmap(image);
-      end if;
+      pixmap := readBmp(bmpFile, header);
     end if;
   end func;
 

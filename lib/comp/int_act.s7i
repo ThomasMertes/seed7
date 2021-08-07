@@ -3924,16 +3924,118 @@ const proc: process (INT_N_BYTES_BE_SIGNED, in reference: function,
   end func;
 
 
+const proc: process_const_int_n_bytes_be_unsigned (in reference: number,
+    in integer: length, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedNumber is NIL;
+    var integer: numberValue is 0;
+    var string: buffer_name is "";
+    var string: number_name is "";
+    var integer: index is 0;
+  begin
+    if length <= 0 then
+      incr(countOptimizations);
+      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+      c_expr.expr &:= strRaiseError("RANGE_ERROR");
+    elsif getConstant(number, INTOBJECT, evaluatedNumber) then
+      incr(countOptimizations);
+      numberValue := getValue(evaluatedNumber, integer);
+      if numberValue < 0 or (length < 8 and numberValue >= 2 ** (8 * length)) then
+        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+        c_expr.expr &:= strRaiseError("RANGE_ERROR");
+      else
+        c_expr.expr &:= stringLiteral(bytes(numberValue, UNSIGNED, BE, length));
+      end if;
+    elsif ccConf.ALLOW_STRITYPE_SLICES and length <= 8 then
+      incr(countOptimizations);
+      incr(c_expr.temp_num);
+      buffer_name := "buffer_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "union {\n";
+      c_expr.temp_decls &:= "  struct striStruct striBuf;\n";
+      c_expr.temp_decls &:= "  char charBuf[SIZ_STRI(";
+      c_expr.temp_decls &:= str(length);
+      c_expr.temp_decls &:= ")];\n";
+      c_expr.temp_decls &:= "} ";
+      c_expr.temp_decls &:= buffer_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(";
+      number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
+      if function_range_check then
+        c_expr.expr &:= "rngChk(";
+        if length < 8 then
+          checkIfOutsideRange(number_name, 0, pred(2 ** (8 * length)), c_expr);
+        else
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= "<0";
+        end if;
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= strRaiseError("RANGE_ERROR");
+        c_expr.expr &:= ":(";
+      end if;
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.size=";
+      c_expr.expr &:= str(length);
+      c_expr.expr &:= ",";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.mem=";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.mem1,";
+      for index range 1 to length do
+        c_expr.expr &:= buffer_name;
+        c_expr.expr &:= ".striBuf.mem1[";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= "]=(strElemType)(";
+        if index <> length then
+          c_expr.expr &:= "(";
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= ">>";
+          c_expr.expr &:= str(8 * (length - index));
+          c_expr.expr &:= ")";
+        else
+          c_expr.expr &:= number_name;
+        end if;
+        if index <> 1 then
+          c_expr.expr &:= "&255";
+        end if;
+        c_expr.expr &:= "),";
+      end for;
+      c_expr.expr &:= "&";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf";
+      if function_range_check then
+        c_expr.expr &:= ")";
+      end if;
+      c_expr.expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "intNBytesBeUnsigned(";
+      getStdParamToResultExpr(number, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= integerLiteral(length);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (INT_N_BYTES_BE_UNSIGNED, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedLength is NIL;
   begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "intNBytesBeUnsigned(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getStdParamToResultExpr(params[4], c_expr);
-    c_expr.result_expr &:= ")";
+    if inlineFunctions and
+        getConstant(params[4], INTOBJECT, evaluatedLength) then
+      process_const_int_n_bytes_be_unsigned(params[1],
+          getValue(evaluatedLength, integer), c_expr);
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "intNBytesBeUnsigned(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[4], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -3950,16 +4052,118 @@ const proc: process (INT_N_BYTES_LE_SIGNED, in reference: function,
   end func;
 
 
+const proc: process_const_int_n_bytes_le_unsigned (in reference: number,
+    in integer: length, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedNumber is NIL;
+    var integer: numberValue is 0;
+    var string: buffer_name is "";
+    var string: number_name is "";
+    var integer: index is 0;
+  begin
+    if length <= 0 then
+      incr(countOptimizations);
+      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+      c_expr.expr &:= strRaiseError("RANGE_ERROR");
+    elsif getConstant(number, INTOBJECT, evaluatedNumber) then
+      incr(countOptimizations);
+      numberValue := getValue(evaluatedNumber, integer);
+      if numberValue < 0 or (length < 8 and numberValue >= 2 ** (8 * length)) then
+        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+        c_expr.expr &:= strRaiseError("RANGE_ERROR");
+      else
+        c_expr.expr &:= stringLiteral(bytes(numberValue, UNSIGNED, LE, length));
+      end if;
+    elsif ccConf.ALLOW_STRITYPE_SLICES and length <= 8 then
+      incr(countOptimizations);
+      incr(c_expr.temp_num);
+      buffer_name := "buffer_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "union {\n";
+      c_expr.temp_decls &:= "  struct striStruct striBuf;\n";
+      c_expr.temp_decls &:= "  char charBuf[SIZ_STRI(";
+      c_expr.temp_decls &:= str(length);
+      c_expr.temp_decls &:= ")];\n";
+      c_expr.temp_decls &:= "} ";
+      c_expr.temp_decls &:= buffer_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(";
+      number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
+      if function_range_check then
+        c_expr.expr &:= "rngChk(";
+        if length < 8 then
+          checkIfOutsideRange(number_name, 0, pred(2 ** (8 * length)), c_expr);
+        else
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= "<0";
+        end if;
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= strRaiseError("RANGE_ERROR");
+        c_expr.expr &:= ":(";
+      end if;
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.size=";
+      c_expr.expr &:= str(length);
+      c_expr.expr &:= ",";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.mem=";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.mem1,";
+      for index range 1 to length do
+        c_expr.expr &:= buffer_name;
+        c_expr.expr &:= ".striBuf.mem1[";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= "]=(strElemType)(";
+        if index <> 1 then
+          c_expr.expr &:= "(";
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= ">>";
+          c_expr.expr &:= str(8 * pred(index));
+          c_expr.expr &:= ")";
+        else
+          c_expr.expr &:= number_name;
+        end if;
+        if index <> length then
+          c_expr.expr &:= "&255";
+        end if;
+        c_expr.expr &:= "),";
+      end for;
+      c_expr.expr &:= "&";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf";
+      if function_range_check then
+        c_expr.expr &:= ")";
+      end if;
+      c_expr.expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "intNBytesLeUnsigned(";
+      getStdParamToResultExpr(number, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= integerLiteral(length);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (INT_N_BYTES_LE_UNSIGNED, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedLength is NIL;
   begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "intNBytesLeUnsigned(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getStdParamToResultExpr(params[4], c_expr);
-    c_expr.result_expr &:= ")";
+    if inlineFunctions and
+        getConstant(params[4], INTOBJECT, evaluatedLength) then
+      process_const_int_n_bytes_le_unsigned(params[1],
+          getValue(evaluatedLength, integer), c_expr);
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "intNBytesLeUnsigned(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[4], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 

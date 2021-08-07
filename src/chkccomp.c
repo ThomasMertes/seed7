@@ -8216,6 +8216,14 @@ int main (int argc, char **argv)
                              "typedef struct emptyStruct { } emptyRecord;\n"
                              "int main(int argc, char *argv[]){\n"
                              "return 0;}\n"));
+    fprintf(versionFile, "#define INITIALIZING_WITH_ADDRESS_ALLOWED %d\n",
+            compileAndLinkOk("#include <stdio.h>\n"
+                             "typedef struct testStruct { int number; } *testType;\n"
+                             "struct testStruct aRecord;\n"
+                             "int main(int argc, char *argv[])\n"
+                             "{ testType aVariable = &aRecord;\n"
+                             "int counter;\n"
+                             "printf(\"0\\n\"); return 0;}\n"));
     checkForLimitedStringLiteralLength(versionFile);
     checkForLimitedArrayLiteralLength(versionFile);
     checkForSwitchWithInt64Type(versionFile);

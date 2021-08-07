@@ -168,10 +168,7 @@ const func string: hex2Bytes (in string: hex) is func
   end func;
 
 
-(**
- *  Convert 16 lower bits of an integer into two little-endian chars.
- *  @return a string of length two with the little-endian representation.
- *)
+# The function int16AsTwoBytesLe() is deprecated. Use bytes(n, UNSIGNED, LE, 2) instead.
 const func string: int16AsTwoBytesLe (in integer: number) is func
   result
     var string: twoBytes is "\0;" mult 2;
@@ -181,10 +178,7 @@ const func string: int16AsTwoBytesLe (in integer: number) is func
   end func;
 
 
-(**
- *  Convert 32 lower bits of an integer into four little-endian chars.
- *  @return a string of length four with the little-endian representation.
- *)
+# The function int32AsFourBytesLe() is deprecated. Use bytes(n, UNSIGNED, LE, 4) instead.
 const func string: int32AsFourBytesLe (in integer: number) is func
   result
     var string: fourBytes is "\0;" mult 4;
@@ -196,10 +190,7 @@ const func string: int32AsFourBytesLe (in integer: number) is func
   end func;
 
 
-(**
- *  Convert 64 lower bits of an integer into eight little-endian chars.
- *  @return a string of length eight with the little-endian representation.
- *)
+# The function int64AsEightBytesLe() is deprecated. Use bytes(n, UNSIGNED, LE, 8) instead.
 const func string: int64AsEightBytesLe (in integer: number) is func
   result
     var string: eightBytes is "\0;" mult 8;
@@ -215,10 +206,7 @@ const func string: int64AsEightBytesLe (in integer: number) is func
   end func;
 
 
-(**
- *  Convert 16 lower bits of an integer into two big-endian chars.
- *  @return a string of length two with the big-endian representation.
- *)
+# The function int16AsTwoBytesBe() is deprecated. Use bytes(n, UNSIGNED, BE, 2) instead.
 const func string: int16AsTwoBytesBe (in integer: number) is func
   result
     var string: twoBytes is "\0;" mult 2;
@@ -228,10 +216,7 @@ const func string: int16AsTwoBytesBe (in integer: number) is func
   end func;
 
 
-(**
- *  Convert 32 lower bits of an integer into four big-endian chars.
- *  @return a string of length four with the big-endian representation.
- *)
+# The function int32AsFourBytesBe() is deprecated. Use bytes(n, UNSIGNED, BE, 4) instead.
 const func string: int32AsFourBytesBe (in integer: number) is func
   result
     var string: fourBytes is "\0;" mult 4;
@@ -243,10 +228,7 @@ const func string: int32AsFourBytesBe (in integer: number) is func
   end func;
 
 
-(**
- *  Convert 64 lower bits of an integer into eight big-endian chars.
- *  @return a string of length eight with the big-endian representation.
- *)
+# The function int64AsEightBytesBe() is deprecated. Use bytes(n, UNSIGNED, BE, 8) instead.
 const func string: int64AsEightBytesBe (in integer: number) is func
   result
     var string: eightBytes is "\0;" mult 8;
@@ -262,10 +244,7 @@ const func string: int64AsEightBytesBe (in integer: number) is func
   end func;
 
 
-(**
- *  Convert 64 lower bits of a bigInteger into eight little-endian chars.
- *  @return a string of length eight with the little-endian representation.
- *)
+# The function bigAsEightBytesLe() is deprecated. Use bytes(n, UNSIGNED, LE, 8) instead.
 const func string: bigAsEightBytesLe (in bigInteger: number) is func
   result
     var string: eightBytes is "\0;" mult 8;
@@ -281,10 +260,7 @@ const func string: bigAsEightBytesLe (in bigInteger: number) is func
   end func;
 
 
-(**
- *  Convert 64 lower bits of a bigInteger into eight big-endian chars.
- *  @return a string of length eight with the big-endian representation.
- *)
+# The function bigAsEightBytesBe() is deprecated. Use bytes(n, UNSIGNED, BE, 8) instead.
 const func string: bigAsEightBytesBe (in bigInteger: number) is func
   result
     var string: eightBytes is "\0;" mult 8;
@@ -368,7 +344,7 @@ const func string: bytes (in integer: number, SIGNED, LE, in integer: length) is
  *  @param endian Determines the [[#endianness|endianness]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @param length Determines the length of the result string.
- *  @return a [[string]] with the shortest binary representation of ''number''.
+ *  @return a [[string]] of ''length'' bytes with the binary representation of ''number''.
  *  @exception RANGE_ERROR If ''number'' is negative and ''signed'' is UNSIGNED, or
  *                         if ''length'' is negative or zero, or
  *                         if the result would not fit in ''length'' bytes.

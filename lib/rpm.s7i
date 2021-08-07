@@ -1182,13 +1182,13 @@ const proc: updateIndexEntry (inout rpmSection: section, in integer: tag,
     end if;
     case indexEntry.dataType of
       when {RPM_INT8_TYPE}:
-        indexEntry.striValue := str(chr(value));
+        indexEntry.striValue := bytes(value, UNSIGNED, BE, 1);
       when {RPM_INT16_TYPE}:
-        indexEntry.striValue := int16AsTwoBytesBe(value);
+        indexEntry.striValue := bytes(value, UNSIGNED, BE, 2);
       when {RPM_INT32_TYPE}:
-        indexEntry.striValue := int32AsFourBytesBe(value);
+        indexEntry.striValue := bytes(value, UNSIGNED, BE, 4);
       when {RPM_INT64_TYPE}:
-        indexEntry.striValue := int64AsEightBytesBe(value);
+        indexEntry.striValue := bytes(value, UNSIGNED, BE, 8);
       otherwise:
         raise RANGE_ERROR;
     end case;
@@ -1254,16 +1254,16 @@ const proc: updateIndexEntry (inout rpmArchive: rpm, in integer: tag,
     case indexEntry.dataType of
       when {RPM_INT8_TYPE}:
         dataSize := 1;
-        data := str(chr(value));
+        data := bytes(value, UNSIGNED, BE, 1);
       when {RPM_INT16_TYPE}:
         dataSize := 2;
-        data := int16AsTwoBytesBe(value);
+        data := bytes(value, UNSIGNED, BE, 2);
       when {RPM_INT32_TYPE}:
         dataSize := 4;
-        data := int32AsFourBytesBe(value);
+        data := bytes(value, UNSIGNED, BE, 4);
       when {RPM_INT64_TYPE}:
         dataSize := 8;
-        data := int64AsEightBytesBe(value);
+        data := bytes(value, UNSIGNED, BE, 8);
       otherwise:
         raise RANGE_ERROR;
     end case;

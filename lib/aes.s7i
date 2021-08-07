@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  aes.s7i       AES (Advanced Encryption Standard) cipher support.*)
-(*  Copyright (C) 2015, 2017  Thomas Mertes                         *)
+(*  Copyright (C) 2015, 2017, 2020 - 2021  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -986,10 +986,10 @@ const func string: encodeAesBlock (in array bin32: subKey, in integer: rounds, i
           subKey[keyIdx + 3];
 
     # Map cipher state to byte array block:
-    outData := int32AsFourBytesBe(ord(s1)) &
-               int32AsFourBytesBe(ord(s2)) &
-               int32AsFourBytesBe(ord(s3)) &
-               int32AsFourBytesBe(ord(s4));
+    outData := bytes(ord(s1), UNSIGNED, BE, 4) &
+               bytes(ord(s2), UNSIGNED, BE, 4) &
+               bytes(ord(s3), UNSIGNED, BE, 4) &
+               bytes(ord(s4), UNSIGNED, BE, 4);
   end func;
 
 
@@ -1086,10 +1086,10 @@ const func string: decodeAesBlock (in array bin32: subKey, in integer: rounds, i
           subKey[keyIdx + 3];
 
     # Map cipher state to byte array block:
-    outData := int32AsFourBytesBe(ord(s1)) &
-               int32AsFourBytesBe(ord(s2)) &
-               int32AsFourBytesBe(ord(s3)) &
-               int32AsFourBytesBe(ord(s4));
+    outData := bytes(ord(s1), UNSIGNED, BE, 4) &
+               bytes(ord(s2), UNSIGNED, BE, 4) &
+               bytes(ord(s3), UNSIGNED, BE, 4) &
+               bytes(ord(s4), UNSIGNED, BE, 4);
   end func;
 
 

@@ -33,6 +33,7 @@ $ include "seed7_05.s7i";
   include "gif.s7i";
   include "jpeg.s7i";
   include "bmp.s7i";
+  include "ico.s7i";
   include "ppm.s7i";
 
 
@@ -64,7 +65,8 @@ const func boolean: hasImageExtension (in var string: fileName) is func
                          endsWith(fileName, ".jpeg") or
                          endsWith(fileName, ".jpg") or
                          endsWith(fileName, ".ppm") or
-                         endsWith(fileName, ".bmp");
+                         endsWith(fileName, ".bmp") or
+                         endsWith(fileName, ".ico");
   end func;
 
 
@@ -108,27 +110,33 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
   begin
     block
       magic := gets(imageFile, length(PPM_MAGIC));
-      if magic = PPM_MAGIC then
-        seek(imageFile, 1);
-        pixmap := readPpm(imageFile);
-      elsif magic = BMP_MAGIC then
+      if magic = BMP_MAGIC then
         seek(imageFile, 1);
         pixmap := readBmp(imageFile);
+      elsif magic = PPM_MAGIC then
+        seek(imageFile, 1);
+        pixmap := readPpm(imageFile);
       else
         magic &:= gets(imageFile, length(JPEG_MAGIC) - length(PPM_MAGIC));
         if magic = JPEG_MAGIC then
           seek(imageFile, 1);
           pixmap := readJpeg(imageFile);
         else
-          magic &:= gets(imageFile, length(GIF_MAGIC_87) - length(JPEG_MAGIC));
-          if magic = GIF_MAGIC_87 or magic = GIF_MAGIC_89 then
+          magic &:= gets(imageFile, length(ICO_MAGIC) - length(JPEG_MAGIC));
+          if magic = ICO_MAGIC then
             seek(imageFile, 1);
-            pixmap := readGif(imageFile);
+            pixmap := readIco(imageFile);
           else
-            magic &:= gets(imageFile, length(PNG_MAGIC) - length(GIF_MAGIC_87));
-            if magic = PNG_MAGIC then
+            magic &:= gets(imageFile, length(GIF_MAGIC_87) - length(ICO_MAGIC));
+            if magic = GIF_MAGIC_87 or magic = GIF_MAGIC_89 then
               seek(imageFile, 1);
-              pixmap := readPng(imageFile);
+              pixmap := readGif(imageFile);
+            else
+              magic &:= gets(imageFile, length(PNG_MAGIC) - length(GIF_MAGIC_87));
+              if magic = PNG_MAGIC then
+                seek(imageFile, 1);
+                pixmap := readPng(imageFile);
+              end if;
             end if;
           end if;
         end if;

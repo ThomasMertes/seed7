@@ -189,6 +189,36 @@ const func string: (in bin64: number) RADIX (in integer: base) is action "BIN_RA
 
 
 (**
+ *  Convert a ''bin64'' into a [[string]] of bytes with big-endian encoding.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Bin64 to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of ''length'' bytes with the unsigned binary
+ *          representation of ''number''.
+ *  @exception RANGE_ERROR If ''length'' is negative or zero, or
+ *                         if the result would not fit in ''length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: bytes (in bin64: number, BE, in integer: length) is action "BIN_N_BYTES_BE";
+
+
+(**
+ *  Convert a ''bin64'' into a [[string]] of bytes with little-endian encoding.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Bin64 to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of ''length'' bytes with the unsigned binary
+ *          representation of ''number''.
+ *  @exception RANGE_ERROR If ''length'' is negative or zero, or
+ *                         if the result would not fit in ''length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: bytes (in bin64: number, LE, in integer: length) is action "BIN_N_BYTES_LE";
+
+
+(**
  *  Check if two bin64 values are equal.
  *  @return TRUE if the two values are equal,
  *          FALSE otherwise.
@@ -428,10 +458,7 @@ const func bin64: bin64 (in string: eightBytes, BE) is
          bin64(eightBytes[8]);
 
 
-(**
- *  Convert 64 lower bits of a bin64 value into eight little-endian chars.
- *  @return a string of length eight with the little-endian representation.
- *)
+# The function bin64AsEightBytesLe() is deprecated. Use bytes(n, LE, 8) instead.
 const func string: bin64AsEightBytesLe (in bin64: binValue) is func
   result
     var string: eightBytes is "\0;" mult 8;
@@ -447,10 +474,7 @@ const func string: bin64AsEightBytesLe (in bin64: binValue) is func
   end func;
 
 
-(**
- *  Convert 64 lower bits of a bin64 value into eight big-endian chars.
- *  @return a string of length eight with the big-endian representation.
- *)
+# The function bin64AsEightBytesBe() is deprecated. Use bytes(n, BE, 8) instead.
 const func string: bin64AsEightBytesBe (in bin64: binValue) is func
   result
     var string: eightBytes is "\0;" mult 8;

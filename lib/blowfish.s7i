@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  blowfish.s7i  Blowfish cipher support.                          *)
-(*  Copyright (C) 2019  Thomas Mertes                               *)
+(*  Copyright (C) 2019, 2021  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -352,11 +352,11 @@ const func string: encode (inout blowfishState: state, in string: plaintext) is 
     var integer: right is 0;
   begin
     for index range 1 to length(plaintext) step blockSize(BLOWFISH) do
-      left := bytes2Int(plaintext[index len 4], UNSIGNED, BE);
+      left  := bytes2Int(plaintext[index len 4],     UNSIGNED, BE);
       right := bytes2Int(plaintext[index + 4 len 4], UNSIGNED, BE);
       encrypt(state, left, right);
-      encoded &:= int32AsFourBytesBe(left);
-      encoded &:= int32AsFourBytesBe(right);
+      encoded &:= bytes(left,  UNSIGNED, BE, 4) &
+                  bytes(right, UNSIGNED, BE, 4);
     end for;
   end func;
 
@@ -374,10 +374,10 @@ const func string: decode (inout blowfishState: state, in string: encoded) is fu
     var integer: right is 0;
   begin
     for index range 1 to length(encoded) step blockSize(BLOWFISH) do
-      left := bytes2Int(encoded[index len 4], UNSIGNED, BE);
+      left  := bytes2Int(encoded[index len 4],     UNSIGNED, BE);
       right := bytes2Int(encoded[index + 4 len 4], UNSIGNED, BE);
       decrypt(state, left, right);
-      plaintext &:= int32AsFourBytesBe(left);
-      plaintext &:= int32AsFourBytesBe(right);
+      plaintext &:= bytes(left,  UNSIGNED, BE, 4) &
+                    bytes(right, UNSIGNED, BE, 4);
     end for;
   end func;

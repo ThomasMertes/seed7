@@ -10764,6 +10764,8 @@ CONTENTS
     BIN_GET_BINARY_FROM_SET bin_get_binary_from_set setToUInt
     BIN_LSHIFT          bin_lshift          (intType)((uintType)(a<&ltb))
     BIN_LSHIFT_ASSIGN   bin_lshift_assign   a=(intType)((uintType)(a<&ltb))
+    BIN_N_BYTES_BE      bin_n_bytes_be      uintNBytesBe
+    BIN_N_BYTES_LE      bin_n_bytes_le      uintNBytesLe
     BIN_OR              bin_or              |
     BIN_OR_ASSIGN       bin_or_assign       |=
     BIN_RADIX           bin_RADIX           uintRadix
@@ -10984,14 +10986,17 @@ CONTENTS
     DRW_PPOINT          drw_ppoint          drwPPoint
     DRW_PRECT           drw_prect           drwPRect
     DRW_PUT             drw_put             drwPut
+    DRW_PUT_SCALED      drw_put_scaled      drwPutScaled
     DRW_RECT            drw_rect            drwRect
     DRW_RGBCOL          drw_rgbcol          drwRgbColor
     DRW_SCREEN_HEIGHT   drw_screen_height   drwScreenHeight
     DRW_SCREEN_WIDTH    drw_screen_width    drwScreenWidth
     DRW_SETCLOSEACTION  drw_setCloseAction  drwSetCloseAction
     DRW_SETCONTENT      drw_setContent      drwSetContent
+    DRW_SETCURSORVISIBLE drw_setCursorVisible drwSetCursorVisible
     DRW_SETPOS          drw_setPos          drwSetPos
     DRW_SETTRANSPARENTCOLOR drw_setTransparentColor drwSetTransparentColor
+    DRW_SETWINDOWNAME   drw_setWindowName   drwSetWindowName
     DRW_TEXT            drw_text            drwText
     DRW_TOBOTTOM        drw_toBottom        drwToBottom
     DRW_TOTOP           drw_toTop           drwToTop
@@ -11024,6 +11029,7 @@ CONTENTS
     FIL_CLOSE           fil_close           fclose
     FIL_CPY             fil_cpy             fltCpy
     FIL_CREATE          fil_create          fltCreate
+    FIL_DESTR           fil_destr           filDestr
     FIL_EMPTY           fil_empty
     FIL_EOF             fil_eof             feof
     FIL_EQ              fil_eq              ==
@@ -11133,6 +11139,7 @@ CONTENTS
     GKB_KEYPRESSED      gkb_keypressed      gkbKeyPressed
     GKB_LINE_READ       gkb_line_read       gkbLineRead
     GKB_RAW_GETC        gkb_raw_getc        gkbRawGetc
+    GKB_SELECT_INPUT    gkb_select_input    gkbSelectInput
     GKB_WINDOW          gkb_window          gkbWindow
     GKB_WORD_READ       gkb_word_read       gkbWordRead
 
@@ -11203,6 +11210,10 @@ CONTENTS
     INT_MULT_ASSIGN     int_mult_assign     *=
     INT_NE              int_ne              !=
     INT_NEGATE          int_negate          -
+    INT_N_BYTES_BE_SIGNED   int_n_bytes_be_signed   intNBytesBeSigned
+    INT_N_BYTES_BE_UNSIGNED int_n_bytes_be_unsigned intNBytesBeUnsigned
+    INT_N_BYTES_LE_SIGNED   int_n_bytes_le_signed   intNBytesLeSigned
+    INT_N_BYTES_LE_UNSIGNED int_n_bytes_le_unsigned intNBytesLeUnsigned
     INT_ODD             int_odd             &1
     INT_PARSE1          int_parse1          intParse
     INT_PLUS            int_plus            (noop)
@@ -11415,6 +11426,7 @@ CONTENTS
     REF_HSHKEYSTOLIST   ref_hshkeystolist   refHshKeysToList
     REF_HSHLENGTH       ref_hshlength       refHshLength
     REF_ISSYMB          ref_issymb
+    REF_ISTEMP          ref_istemp          refIsTemp
     REF_ISVAR           ref_isvar           refIsvar
     REF_ITFTOSCT        ref_itftosct        refItftosct
     REF_LINE            ref_line            refLine

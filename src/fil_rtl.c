@@ -1796,12 +1796,6 @@ intType filLng (fileType aFile)
  *                        to the system path type.
  *  @return the file opened, or NULL if it could not be opened or
  *          if 'path' refers to a directory.
- *  @exception MEMORY_ERROR Not enough memory to convert the path
- *             to the system path type.
- *  @exception RANGE_ERROR The 'mode' is not one of the allowed
- *             values or 'path' does not use the standard path
- *             representation or 'path' cannot be converted
- *             to the system path type.
  */
 static cFileType cFileOpen (const const_striType path, const const_striType mode,
     errInfoType *err_info)

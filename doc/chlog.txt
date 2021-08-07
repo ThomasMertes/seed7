@@ -1,3 +1,54 @@
+20210807:
+- The bmp.s7i library has been improved. Now the function readBmp()
+  works also for historical versions of the BMP format.
+- The function readIco() has been added to the library ico.s7i.
+- In msgdigest.s7i the run-time of the functions md4(), md5(),
+  ripemd160(), sha1(), sha224() and sha256() has been reduced by 4%
+  and the run-time of sha384() and sha512() has been reduced by 62%
+  and 67% respectively (measured with gcc and valgrind).
+- The example program pv7.sd7 (Picture Viewer) has been improved to
+  support the ICO graphic format. Additionally the window title is
+  now changed also at the start and the end of the picture sequence.
+- The library gif.s7i has been improved to work also for the empty
+  GIF image.
+- Functions to convert a bin64 or bin32 to a string of bytes with a
+  given length have been added to bin64.s7i and bin32.s7i. To get
+  the bytes of a bin64 or bin32 value use e.g.: bytes(number, BE, 4)
+  The functions bin32AsFourBytesBe, bin32AsFourBytesLe,
+  bin64AsEightBytesBe and bin64AsEightBytesLe are deprecated now.
+- In bytedata.s7i the functions int16AsTwoBytesBe,
+  int32AsFourBytesBe, int64AsEightBytesBe, int16AsTwoBytesLe,
+  int32AsFourBytesLe, int64AsEightBytesLe, bigAsEightBytesLe and
+  bigAsEightBytesBe are deprecated now. The functions from the
+  bytes(number, SIGNED, LE, 4) family can be used instead.
+- Calls of the deprecated functions have been replaced with the
+  new function bytes(), which converts an integer to a string of
+  bytes with a given length. The changes have been done in aes.s7i,
+  blowfish.s7i, bmp.s7i, des.s7i, encoding.s7i, gzip.s7i, hmac.s7i,
+  ico.s7i, msgdigest.s7i, rpm.s7i, tls.s7i, zip.s7i, bas7.sd7 and
+  s7c.sd7.
+- Interpreter and compiler have been improved to support the actions
+  BIN_N_BYTES_BE and BIN_N_BYTES_LE.
+- The compiler (s7c.sd7) has been improved to generate optimized
+  code for the actions INT_N_BYTES_BE_UNSIGNED,
+  INT_N_BYTES_LE_UNSIGNED, BIN_N_BYTES_BE and BIN_N_BYTES_LE.
+- In zip.s7i an error in the function setMTime() has been fixed and
+  the function close() has been improved to leave the actual ZIP
+  file open.
+- Tests for the bytes() function have been added to chkint.sd7 and
+  chkbig.sd7. These tests make sure that the compiler optimizations
+  of the bytes() function work correctly.
+- The functions uintNBytesBe() and uintNBytesLe() have been added to
+  int_rtl.c.
+- The functions bin_n_bytes_be() and bin_n_bytes_le() have been added
+  to binlib.c.
+- Documentation comments have been improved in drwlib.c, intlib.c
+  and int_rtl.c.
+- The documentation of primitive actions in the manual has been
+  improved.
+- A debug printf() has been removed from the function socGets() in
+  soc_rtl.c.
+
 20210627:
 - As suggested by Zachary Menzies a function to make the mouse cursor
   invisible has been added. The function setCursorVisible() has been

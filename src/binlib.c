@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2016, 2018, 2021  Thomas Mertes            */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -219,6 +219,52 @@ objectType bin_lshift_assign (listType arguments)
         take_binary(binary_variable) << lshift;
     return SYS_EMPTY_OBJECT;
   } /* bin_lshift_assign */
+
+
+
+/**
+ *  Convert an unsigned integer into a big-endian encoded string of bytes.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number/arg_1 Unsigned integer number to be converted.
+ *  @param length/arg_3 Determines the length of the result string.
+ *  @return a string of 'length' bytes with the unsigned binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If ''length'' is negative or zero, or
+ *                         if the result would not fit in ''length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType bin_n_bytes_be (listType arguments)
+
+  { /* bin_n_bytes_be */
+    isit_binary(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_stri_temp(uintNBytesBe(take_binary(arg_1(arguments)),
+                                      take_int(arg_3(arguments))));
+  } /* bin_n_bytes_be */
+
+
+
+/**
+ *  Convert an unsigned integer into a little-endian encoded string of bytes.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number/arg_1 Unsigned integer number to be converted.
+ *  @param length/arg_3 Determines the length of the result string.
+ *  @return a string of 'length' bytes with the unsigned binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If ''length'' is negative or zero, or
+ *                         if the result would not fit in ''length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType bin_n_bytes_le (listType arguments)
+
+  { /* bin_n_bytes_le */
+    isit_binary(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_stri_temp(uintNBytesLe(take_binary(arg_1(arguments)),
+                                      take_int(arg_3(arguments))));
+  } /* bin_n_bytes_le */
 
 
 

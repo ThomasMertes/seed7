@@ -136,7 +136,7 @@ const func string: mgf1Sha1 (in string: mgfSeed, in integer: maskLen) is func
     var integer: counter is 0;
   begin
     for counter range 0 to pred(maskLen) mdiv hLen do
-      mask &:= sha1(mgfSeed & int32AsFourBytesBe(counter));
+      mask &:= sha1(mgfSeed & bytes(counter, UNSIGNED, BE, 4));
     end for;
     mask := mask[.. maskLen];
   end func;

@@ -34,6 +34,8 @@ objectType bin_cmp                 (listType arguments);
 objectType bin_get_binary_from_set (listType arguments);
 objectType bin_lshift              (listType arguments);
 objectType bin_lshift_assign       (listType arguments);
+objectType bin_n_bytes_be          (listType arguments);
+objectType bin_n_bytes_le          (listType arguments);
 objectType bin_or                  (listType arguments);
 objectType bin_or_assign           (listType arguments);
 objectType bin_radix               (listType arguments);

@@ -183,6 +183,21 @@ objectType gkb_raw_getc (listType arguments)
 
 
 
+/**
+ *  Select if aKey/arg_2 is returned as key, or if it triggers a default action.
+ *  A program might be notified when a window is resized.
+ *  By default, this notification is switched off. It can be switched on with:
+ *   selectInput(curr_win, KEY_RESIZE, TRUE);
+ *  By default, closing a window terminates the program.
+ *  To get a notification for a window close (instead of a program termination) do:
+ *   selectInput(curr_win, KEY_CLOSE, TRUE);
+ *  If the notification is turned on the function getc(GRAPH_KEYBOARD)
+ *  might return the corresponding notification character (KEY_RESIZE or KEY_CLOSE).
+ *  @param aWindow/arg_1 Window for which the key behavior is specified.
+ *  @param aKey/arg_2 KEY_CLOSE or KEY_RESIZE.
+ *  @param active/arg_3 TRUE if reading from the KEYBOARD returns ''aKey'', or
+ *                FALSE if ''aKey'' triggers a default action.
+ */
 objectType gkb_select_input (listType arguments)
 
   { /* gkb_select_input */

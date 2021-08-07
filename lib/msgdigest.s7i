@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  msgdigest.s7i  Message digest and secure hash algorithms.       *)
-(*  Copyright (C) 2013, 2014, 2017 - 2019  Thomas Mertes            *)
+(*  Copyright (C) 2013, 2014, 2017 - 2021  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -73,7 +73,7 @@ const func string: md4 (in var string: message) is func
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
     message &:= "\0;" mult 63 - (length + 8) mod 64;
     # Append length of message (before pre-processing), in bits, as 64-bit little-endian integer.
-    message &:= int64AsEightBytesLe(8 * length);
+    message &:= bytes(8 * length, UNSIGNED, LE, 8);
 
     # Process the message in successive 512-bit chunks:
     while wordIndex <= length(message) do
@@ -115,10 +115,10 @@ const func string: md4 (in var string: message) is func
     end while;
 
     # Produce the final hash value:
-    digest := int32AsFourBytesLe(a0) &
-              int32AsFourBytesLe(b0) &
-              int32AsFourBytesLe(c0) &
-              int32AsFourBytesLe(d0);
+    digest := bytes(a0 mod 16#100000000, UNSIGNED, LE, 4) &
+              bytes(b0 mod 16#100000000, UNSIGNED, LE, 4) &
+              bytes(c0 mod 16#100000000, UNSIGNED, LE, 4) &
+              bytes(d0 mod 16#100000000, UNSIGNED, LE, 4);
   end func;
 
 
@@ -175,7 +175,7 @@ const func string: md5 (in var string: message) is func
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
     message &:= "\0;" mult 63 - (length + 8) mod 64;
     # Append length of message (before pre-processing), in bits, as 64-bit little-endian integer.
-    message &:= int64AsEightBytesLe(8 * length);
+    message &:= bytes(8 * length, UNSIGNED, LE, 8);
 
     # Process the message in successive 512-bit chunks:
     while wordIndex <= length(message) do
@@ -222,10 +222,10 @@ const func string: md5 (in var string: message) is func
     end while;
 
     # Produce the final hash value:
-    digest := int32AsFourBytesLe(a0) &
-              int32AsFourBytesLe(b0) &
-              int32AsFourBytesLe(c0) &
-              int32AsFourBytesLe(d0);
+    digest := bytes(a0 mod 16#100000000, UNSIGNED, LE, 4) &
+              bytes(b0 mod 16#100000000, UNSIGNED, LE, 4) &
+              bytes(c0 mod 16#100000000, UNSIGNED, LE, 4) &
+              bytes(d0 mod 16#100000000, UNSIGNED, LE, 4);
   end func;
 
 
@@ -292,7 +292,7 @@ const func string: ripemd160 (in var string: message) is func
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
     message &:= "\0;" mult 63 - (length + 8) mod 64;
     # Append length of message (before pre-processing), in bits, as 64-bit little-endian integer.
-    message &:= int64AsEightBytesLe(8 * length);
+    message &:= bytes(8 * length, UNSIGNED, LE, 8);
 
     # Process the message in successive 512-bit chunks:
     while wordIndex <= length(message) do
@@ -356,11 +356,11 @@ const func string: ripemd160 (in var string: message) is func
     end while;
 
     # Produce the final hash value:
-    digest := int32AsFourBytesLe(h0) &
-              int32AsFourBytesLe(h1) &
-              int32AsFourBytesLe(h2) &
-              int32AsFourBytesLe(h3) &
-              int32AsFourBytesLe(h4);
+    digest := bytes(h0, UNSIGNED, LE, 4) &
+              bytes(h1, UNSIGNED, LE, 4) &
+              bytes(h2, UNSIGNED, LE, 4) &
+              bytes(h3, UNSIGNED, LE, 4) &
+              bytes(h4, UNSIGNED, LE, 4);
   end func;
 
 
@@ -398,7 +398,7 @@ const func string: sha1 (in var string: message) is func
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
     message &:= "\0;" mult 63 - (length + 8) mod 64;
     # Append length of message (before pre-processing), in bits, as 64-bit big-endian integer.
-    message &:= int64AsEightBytesBe(8 * length);
+    message &:= bytes(8 * length, UNSIGNED, BE, 8);
 
     # Process the message in successive 512-bit chunks:
     while wordIndex <= length(message) do
@@ -453,11 +453,11 @@ const func string: sha1 (in var string: message) is func
     end while;
 
     # Produce the final hash value:
-    digest := int32AsFourBytesBe(h0) &
-              int32AsFourBytesBe(h1) &
-              int32AsFourBytesBe(h2) &
-              int32AsFourBytesBe(h3) &
-              int32AsFourBytesBe(h4);
+    digest := bytes(h0 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h1 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h2 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h3 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h4 mod 16#100000000, UNSIGNED, BE, 4);
   end func;
 
 
@@ -516,7 +516,7 @@ const func string: sha224 (in var string: message) is func
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
     message &:= "\0;" mult 63 - (length + 8) mod 64;
     # Append length of message (before pre-processing), in bits, as 64-bit big-endian integer.
-    message &:= int64AsEightBytesBe(8 * length);
+    message &:= bytes(8 * length, UNSIGNED, BE, 8);
 
     # Process the message in successive 512-bit chunks:
     while wordIndex <= length(message) do
@@ -576,13 +576,13 @@ const func string: sha224 (in var string: message) is func
     end while;
 
     # Produce the final hash value:
-    digest := int32AsFourBytesBe(h0) &
-              int32AsFourBytesBe(h1) &
-              int32AsFourBytesBe(h2) &
-              int32AsFourBytesBe(h3) &
-              int32AsFourBytesBe(h4) &
-              int32AsFourBytesBe(h5) &
-              int32AsFourBytesBe(h6);
+    digest := bytes(h0 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h1 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h2 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h3 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h4 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h5 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h6 mod 16#100000000, UNSIGNED, BE, 4);
   end func;
 
 
@@ -641,7 +641,7 @@ const func string: sha256 (in var string: message) is func
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
     message &:= "\0;" mult 63 - (length + 8) mod 64;
     # Append length of message (before pre-processing), in bits, as 64-bit big-endian integer.
-    message &:= int64AsEightBytesBe(8 * length);
+    message &:= bytes(8 * length, UNSIGNED, BE, 8);
 
     # Process the message in successive 512-bit chunks:
     while wordIndex <= length(message) do
@@ -701,14 +701,14 @@ const func string: sha256 (in var string: message) is func
     end while;
 
     # Produce the final hash value:
-    digest := int32AsFourBytesBe(h0) &
-              int32AsFourBytesBe(h1) &
-              int32AsFourBytesBe(h2) &
-              int32AsFourBytesBe(h3) &
-              int32AsFourBytesBe(h4) &
-              int32AsFourBytesBe(h5) &
-              int32AsFourBytesBe(h6) &
-              int32AsFourBytesBe(h7);
+    digest := bytes(h0 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h1 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h2 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h3 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h4 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h5 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h6 mod 16#100000000, UNSIGNED, BE, 4) &
+              bytes(h7 mod 16#100000000, UNSIGNED, BE, 4);
   end func;
 
 
@@ -724,41 +724,41 @@ const func string: sha384 (in var string: message) is func
     const bigInteger: powTwo64 is 2_**64;
     # Initialize array of round constants with the first 64 bits of
     # the fractional parts of the cube roots of the first 80 primes 2..409.
-    const array bigInteger: k is [] (
-        16#428a2f98d728ae22_, 16#7137449123ef65cd_, 16#b5c0fbcfec4d3b2f_, 16#e9b5dba58189dbbc_,
-        16#3956c25bf348b538_, 16#59f111f1b605d019_, 16#923f82a4af194f9b_, 16#ab1c5ed5da6d8118_,
-        16#d807aa98a3030242_, 16#12835b0145706fbe_, 16#243185be4ee4b28c_, 16#550c7dc3d5ffb4e2_,
-        16#72be5d74f27b896f_, 16#80deb1fe3b1696b1_, 16#9bdc06a725c71235_, 16#c19bf174cf692694_,
-        16#e49b69c19ef14ad2_, 16#efbe4786384f25e3_, 16#0fc19dc68b8cd5b5_, 16#240ca1cc77ac9c65_,
-        16#2de92c6f592b0275_, 16#4a7484aa6ea6e483_, 16#5cb0a9dcbd41fbd4_, 16#76f988da831153b5_,
-        16#983e5152ee66dfab_, 16#a831c66d2db43210_, 16#b00327c898fb213f_, 16#bf597fc7beef0ee4_,
-        16#c6e00bf33da88fc2_, 16#d5a79147930aa725_, 16#06ca6351e003826f_, 16#142929670a0e6e70_,
-        16#27b70a8546d22ffc_, 16#2e1b21385c26c926_, 16#4d2c6dfc5ac42aed_, 16#53380d139d95b3df_,
-        16#650a73548baf63de_, 16#766a0abb3c77b2a8_, 16#81c2c92e47edaee6_, 16#92722c851482353b_,
-        16#a2bfe8a14cf10364_, 16#a81a664bbc423001_, 16#c24b8b70d0f89791_, 16#c76c51a30654be30_,
-        16#d192e819d6ef5218_, 16#d69906245565a910_, 16#f40e35855771202a_, 16#106aa07032bbd1b8_,
-        16#19a4c116b8d2d0c8_, 16#1e376c085141ab53_, 16#2748774cdf8eeb99_, 16#34b0bcb5e19b48a8_,
-        16#391c0cb3c5c95a63_, 16#4ed8aa4ae3418acb_, 16#5b9cca4f7763e373_, 16#682e6ff3d6b2b8a3_,
-        16#748f82ee5defb2fc_, 16#78a5636f43172f60_, 16#84c87814a1f0ab72_, 16#8cc702081a6439ec_,
-        16#90befffa23631e28_, 16#a4506cebde82bde9_, 16#bef9a3f7b2c67915_, 16#c67178f2e372532b_,
-        16#ca273eceea26619c_, 16#d186b8c721c0c207_, 16#eada7dd6cde0eb1e_, 16#f57d4f7fee6ed178_,
-        16#06f067aa72176fba_, 16#0a637dc5a2c898a6_, 16#113f9804bef90dae_, 16#1b710b35131c471b_,
-        16#28db77f523047d84_, 16#32caab7b40c72493_, 16#3c9ebe0a15c9bebc_, 16#431d67c49c100d4c_,
-        16#4cc5d4becb3e42b6_, 16#597f299cfc657e2a_, 16#5fcb6fab3ad6faec_, 16#6c44198c4a475817_);
+    const array bin64: k is [] (
+        bin64(16#428a2f98d728ae22_), bin64(16#7137449123ef65cd_), bin64(16#b5c0fbcfec4d3b2f_), bin64(16#e9b5dba58189dbbc_),
+        bin64(16#3956c25bf348b538_), bin64(16#59f111f1b605d019_), bin64(16#923f82a4af194f9b_), bin64(16#ab1c5ed5da6d8118_),
+        bin64(16#d807aa98a3030242_), bin64(16#12835b0145706fbe_), bin64(16#243185be4ee4b28c_), bin64(16#550c7dc3d5ffb4e2_),
+        bin64(16#72be5d74f27b896f_), bin64(16#80deb1fe3b1696b1_), bin64(16#9bdc06a725c71235_), bin64(16#c19bf174cf692694_),
+        bin64(16#e49b69c19ef14ad2_), bin64(16#efbe4786384f25e3_), bin64(16#0fc19dc68b8cd5b5_), bin64(16#240ca1cc77ac9c65_),
+        bin64(16#2de92c6f592b0275_), bin64(16#4a7484aa6ea6e483_), bin64(16#5cb0a9dcbd41fbd4_), bin64(16#76f988da831153b5_),
+        bin64(16#983e5152ee66dfab_), bin64(16#a831c66d2db43210_), bin64(16#b00327c898fb213f_), bin64(16#bf597fc7beef0ee4_),
+        bin64(16#c6e00bf33da88fc2_), bin64(16#d5a79147930aa725_), bin64(16#06ca6351e003826f_), bin64(16#142929670a0e6e70_),
+        bin64(16#27b70a8546d22ffc_), bin64(16#2e1b21385c26c926_), bin64(16#4d2c6dfc5ac42aed_), bin64(16#53380d139d95b3df_),
+        bin64(16#650a73548baf63de_), bin64(16#766a0abb3c77b2a8_), bin64(16#81c2c92e47edaee6_), bin64(16#92722c851482353b_),
+        bin64(16#a2bfe8a14cf10364_), bin64(16#a81a664bbc423001_), bin64(16#c24b8b70d0f89791_), bin64(16#c76c51a30654be30_),
+        bin64(16#d192e819d6ef5218_), bin64(16#d69906245565a910_), bin64(16#f40e35855771202a_), bin64(16#106aa07032bbd1b8_),
+        bin64(16#19a4c116b8d2d0c8_), bin64(16#1e376c085141ab53_), bin64(16#2748774cdf8eeb99_), bin64(16#34b0bcb5e19b48a8_),
+        bin64(16#391c0cb3c5c95a63_), bin64(16#4ed8aa4ae3418acb_), bin64(16#5b9cca4f7763e373_), bin64(16#682e6ff3d6b2b8a3_),
+        bin64(16#748f82ee5defb2fc_), bin64(16#78a5636f43172f60_), bin64(16#84c87814a1f0ab72_), bin64(16#8cc702081a6439ec_),
+        bin64(16#90befffa23631e28_), bin64(16#a4506cebde82bde9_), bin64(16#bef9a3f7b2c67915_), bin64(16#c67178f2e372532b_),
+        bin64(16#ca273eceea26619c_), bin64(16#d186b8c721c0c207_), bin64(16#eada7dd6cde0eb1e_), bin64(16#f57d4f7fee6ed178_),
+        bin64(16#06f067aa72176fba_), bin64(16#0a637dc5a2c898a6_), bin64(16#113f9804bef90dae_), bin64(16#1b710b35131c471b_),
+        bin64(16#28db77f523047d84_), bin64(16#32caab7b40c72493_), bin64(16#3c9ebe0a15c9bebc_), bin64(16#431d67c49c100d4c_),
+        bin64(16#4cc5d4becb3e42b6_), bin64(16#597f299cfc657e2a_), bin64(16#5fcb6fab3ad6faec_), bin64(16#6c44198c4a475817_));
     var integer: length is 0;
     var integer: chunkIndex is 0;
     var integer: index is 0;
     var array bin64: w is 80 times bin64.value;
     # Initialize hash values with the first 64 bits of
     # the fractional parts of the square roots of the first 8 primes 2..19.
-    var bigInteger: h0 is 16#cbbb9d5dc1059ed8_;
-    var bigInteger: h1 is 16#629a292a367cd507_;
-    var bigInteger: h2 is 16#9159015a3070dd17_;
-    var bigInteger: h3 is 16#152fecd8f70e5939_;
-    var bigInteger: h4 is 16#67332667ffc00b31_;
-    var bigInteger: h5 is 16#8eb44a8768581511_;
-    var bigInteger: h6 is 16#db0c2e0d64f98fa7_;
-    var bigInteger: h7 is 16#47b5481dbefa4fa4_;
+    var bin64: h0 is bin64(16#cbbb9d5dc1059ed8_);
+    var bin64: h1 is bin64(16#629a292a367cd507_);
+    var bin64: h2 is bin64(16#9159015a3070dd17_);
+    var bin64: h3 is bin64(16#152fecd8f70e5939_);
+    var bin64: h4 is bin64(16#67332667ffc00b31_);
+    var bin64: h5 is bin64(16#8eb44a8768581511_);
+    var bin64: h6 is bin64(16#db0c2e0d64f98fa7_);
+    var bin64: h7 is bin64(16#47b5481dbefa4fa4_);
     var bin64: a is bin64(0);
     var bin64: b is bin64(0);
     var bin64: c is bin64(0);
@@ -780,7 +780,7 @@ const func string: sha384 (in var string: message) is func
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 1024).
     message &:= "\0;" mult 127 - (length + 8) mod 128;
     # Append length of message (before pre-processing), in bits, as 64-bit big-endian integer.
-    message &:= int64AsEightBytesBe(8 * length);
+    message &:= bytes(8 * length, UNSIGNED, BE, 8);
 
     # Process the message in successive 1024-bit chunks:
     for chunkIndex range 1 to length(message) step 128 do
@@ -809,20 +809,20 @@ const func string: sha384 (in var string: message) is func
       end for;
 
       # Initialize working variables to current hash value:
-      a := bin64(h0 mod powTwo64);
-      b := bin64(h1 mod powTwo64);
-      c := bin64(h2 mod powTwo64);
-      d := bin64(h3 mod powTwo64);
-      e := bin64(h4 mod powTwo64);
-      f := bin64(h5 mod powTwo64);
-      g := bin64(h6 mod powTwo64);
-      h := bin64(h7 mod powTwo64);
+      a := h0;
+      b := h1;
+      c := h2;
+      d := h3;
+      e := h4;
+      f := h5;
+      g := h6;
+      h := h7;
 
       # Compression function main loop:
       for index range 1 to 80 do
         s1 := rotRight(e, 14) >< rotRight(e, 18) >< rotRight(e, 41);
         ch := (e & f) >< (~e & g);
-        temp1 := bin64((big(h) + big(s1) + big(ch) + k[index] + big(w[index])) mod powTwo64);
+        temp1 := bin64((big(h) + big(s1) + big(ch) + big(k[index]) + big(w[index])) mod powTwo64);
         s0 := rotRight(a, 28) >< rotRight(a, 34) >< rotRight(a, 39);
         maj := (a & b) >< (a & c) >< (b & c);
         temp2 := bin64((big(s0) + big(maj)) mod powTwo64);
@@ -838,23 +838,23 @@ const func string: sha384 (in var string: message) is func
       end for;
 
       # Add the compressed chunk to the current hash value:
-      h0 +:= big(a);
-      h1 +:= big(b);
-      h2 +:= big(c);
-      h3 +:= big(d);
-      h4 +:= big(e);
-      h5 +:= big(f);
-      h6 +:= big(g);
-      h7 +:= big(h);
+      h0 := bin64((big(h0) + big(a)) mod powTwo64);
+      h1 := bin64((big(h1) + big(b)) mod powTwo64);
+      h2 := bin64((big(h2) + big(c)) mod powTwo64);
+      h3 := bin64((big(h3) + big(d)) mod powTwo64);
+      h4 := bin64((big(h4) + big(e)) mod powTwo64);
+      h5 := bin64((big(h5) + big(f)) mod powTwo64);
+      h6 := bin64((big(h6) + big(g)) mod powTwo64);
+      h7 := bin64((big(h7) + big(h)) mod powTwo64);
     end for;
 
     # Produce the final hash value:
-    digest := bigAsEightBytesBe(h0) &
-              bigAsEightBytesBe(h1) &
-              bigAsEightBytesBe(h2) &
-              bigAsEightBytesBe(h3) &
-              bigAsEightBytesBe(h4) &
-              bigAsEightBytesBe(h5);
+    digest := bytes(h0, BE, 8) &
+              bytes(h1, BE, 8) &
+              bytes(h2, BE, 8) &
+              bytes(h3, BE, 8) &
+              bytes(h4, BE, 8) &
+              bytes(h5, BE, 8);
   end func;
 
 
@@ -870,41 +870,41 @@ const func string: sha512 (in var string: message) is func
     const bigInteger: powTwo64 is 2_**64;
     # Initialize array of round constants with the first 64 bits of
     # the fractional parts of the cube roots of the first 80 primes 2..409.
-    const array bigInteger: k is [] (
-        16#428a2f98d728ae22_, 16#7137449123ef65cd_, 16#b5c0fbcfec4d3b2f_, 16#e9b5dba58189dbbc_,
-        16#3956c25bf348b538_, 16#59f111f1b605d019_, 16#923f82a4af194f9b_, 16#ab1c5ed5da6d8118_,
-        16#d807aa98a3030242_, 16#12835b0145706fbe_, 16#243185be4ee4b28c_, 16#550c7dc3d5ffb4e2_,
-        16#72be5d74f27b896f_, 16#80deb1fe3b1696b1_, 16#9bdc06a725c71235_, 16#c19bf174cf692694_,
-        16#e49b69c19ef14ad2_, 16#efbe4786384f25e3_, 16#0fc19dc68b8cd5b5_, 16#240ca1cc77ac9c65_,
-        16#2de92c6f592b0275_, 16#4a7484aa6ea6e483_, 16#5cb0a9dcbd41fbd4_, 16#76f988da831153b5_,
-        16#983e5152ee66dfab_, 16#a831c66d2db43210_, 16#b00327c898fb213f_, 16#bf597fc7beef0ee4_,
-        16#c6e00bf33da88fc2_, 16#d5a79147930aa725_, 16#06ca6351e003826f_, 16#142929670a0e6e70_,
-        16#27b70a8546d22ffc_, 16#2e1b21385c26c926_, 16#4d2c6dfc5ac42aed_, 16#53380d139d95b3df_,
-        16#650a73548baf63de_, 16#766a0abb3c77b2a8_, 16#81c2c92e47edaee6_, 16#92722c851482353b_,
-        16#a2bfe8a14cf10364_, 16#a81a664bbc423001_, 16#c24b8b70d0f89791_, 16#c76c51a30654be30_,
-        16#d192e819d6ef5218_, 16#d69906245565a910_, 16#f40e35855771202a_, 16#106aa07032bbd1b8_,
-        16#19a4c116b8d2d0c8_, 16#1e376c085141ab53_, 16#2748774cdf8eeb99_, 16#34b0bcb5e19b48a8_,
-        16#391c0cb3c5c95a63_, 16#4ed8aa4ae3418acb_, 16#5b9cca4f7763e373_, 16#682e6ff3d6b2b8a3_,
-        16#748f82ee5defb2fc_, 16#78a5636f43172f60_, 16#84c87814a1f0ab72_, 16#8cc702081a6439ec_,
-        16#90befffa23631e28_, 16#a4506cebde82bde9_, 16#bef9a3f7b2c67915_, 16#c67178f2e372532b_,
-        16#ca273eceea26619c_, 16#d186b8c721c0c207_, 16#eada7dd6cde0eb1e_, 16#f57d4f7fee6ed178_,
-        16#06f067aa72176fba_, 16#0a637dc5a2c898a6_, 16#113f9804bef90dae_, 16#1b710b35131c471b_,
-        16#28db77f523047d84_, 16#32caab7b40c72493_, 16#3c9ebe0a15c9bebc_, 16#431d67c49c100d4c_,
-        16#4cc5d4becb3e42b6_, 16#597f299cfc657e2a_, 16#5fcb6fab3ad6faec_, 16#6c44198c4a475817_);
+    const array bin64: k is [] (
+        bin64(16#428a2f98d728ae22_), bin64(16#7137449123ef65cd_), bin64(16#b5c0fbcfec4d3b2f_), bin64(16#e9b5dba58189dbbc_),
+        bin64(16#3956c25bf348b538_), bin64(16#59f111f1b605d019_), bin64(16#923f82a4af194f9b_), bin64(16#ab1c5ed5da6d8118_),
+        bin64(16#d807aa98a3030242_), bin64(16#12835b0145706fbe_), bin64(16#243185be4ee4b28c_), bin64(16#550c7dc3d5ffb4e2_),
+        bin64(16#72be5d74f27b896f_), bin64(16#80deb1fe3b1696b1_), bin64(16#9bdc06a725c71235_), bin64(16#c19bf174cf692694_),
+        bin64(16#e49b69c19ef14ad2_), bin64(16#efbe4786384f25e3_), bin64(16#0fc19dc68b8cd5b5_), bin64(16#240ca1cc77ac9c65_),
+        bin64(16#2de92c6f592b0275_), bin64(16#4a7484aa6ea6e483_), bin64(16#5cb0a9dcbd41fbd4_), bin64(16#76f988da831153b5_),
+        bin64(16#983e5152ee66dfab_), bin64(16#a831c66d2db43210_), bin64(16#b00327c898fb213f_), bin64(16#bf597fc7beef0ee4_),
+        bin64(16#c6e00bf33da88fc2_), bin64(16#d5a79147930aa725_), bin64(16#06ca6351e003826f_), bin64(16#142929670a0e6e70_),
+        bin64(16#27b70a8546d22ffc_), bin64(16#2e1b21385c26c926_), bin64(16#4d2c6dfc5ac42aed_), bin64(16#53380d139d95b3df_),
+        bin64(16#650a73548baf63de_), bin64(16#766a0abb3c77b2a8_), bin64(16#81c2c92e47edaee6_), bin64(16#92722c851482353b_),
+        bin64(16#a2bfe8a14cf10364_), bin64(16#a81a664bbc423001_), bin64(16#c24b8b70d0f89791_), bin64(16#c76c51a30654be30_),
+        bin64(16#d192e819d6ef5218_), bin64(16#d69906245565a910_), bin64(16#f40e35855771202a_), bin64(16#106aa07032bbd1b8_),
+        bin64(16#19a4c116b8d2d0c8_), bin64(16#1e376c085141ab53_), bin64(16#2748774cdf8eeb99_), bin64(16#34b0bcb5e19b48a8_),
+        bin64(16#391c0cb3c5c95a63_), bin64(16#4ed8aa4ae3418acb_), bin64(16#5b9cca4f7763e373_), bin64(16#682e6ff3d6b2b8a3_),
+        bin64(16#748f82ee5defb2fc_), bin64(16#78a5636f43172f60_), bin64(16#84c87814a1f0ab72_), bin64(16#8cc702081a6439ec_),
+        bin64(16#90befffa23631e28_), bin64(16#a4506cebde82bde9_), bin64(16#bef9a3f7b2c67915_), bin64(16#c67178f2e372532b_),
+        bin64(16#ca273eceea26619c_), bin64(16#d186b8c721c0c207_), bin64(16#eada7dd6cde0eb1e_), bin64(16#f57d4f7fee6ed178_),
+        bin64(16#06f067aa72176fba_), bin64(16#0a637dc5a2c898a6_), bin64(16#113f9804bef90dae_), bin64(16#1b710b35131c471b_),
+        bin64(16#28db77f523047d84_), bin64(16#32caab7b40c72493_), bin64(16#3c9ebe0a15c9bebc_), bin64(16#431d67c49c100d4c_),
+        bin64(16#4cc5d4becb3e42b6_), bin64(16#597f299cfc657e2a_), bin64(16#5fcb6fab3ad6faec_), bin64(16#6c44198c4a475817_));
     var integer: length is 0;
     var integer: chunkIndex is 0;
     var integer: index is 0;
     var array bin64: w is 80 times bin64.value;
     # Initialize hash values with the first 64 bits of
     # the fractional parts of the square roots of the first 8 primes 2..19.
-    var bigInteger: h0 is 16#6a09e667f3bcc908_;
-    var bigInteger: h1 is 16#bb67ae8584caa73b_;
-    var bigInteger: h2 is 16#3c6ef372fe94f82b_;
-    var bigInteger: h3 is 16#a54ff53a5f1d36f1_;
-    var bigInteger: h4 is 16#510e527fade682d1_;
-    var bigInteger: h5 is 16#9b05688c2b3e6c1f_;
-    var bigInteger: h6 is 16#1f83d9abfb41bd6b_;
-    var bigInteger: h7 is 16#5be0cd19137e2179_;
+    var bin64: h0 is bin64(16#6a09e667f3bcc908_);
+    var bin64: h1 is bin64(16#bb67ae8584caa73b_);
+    var bin64: h2 is bin64(16#3c6ef372fe94f82b_);
+    var bin64: h3 is bin64(16#a54ff53a5f1d36f1_);
+    var bin64: h4 is bin64(16#510e527fade682d1_);
+    var bin64: h5 is bin64(16#9b05688c2b3e6c1f_);
+    var bin64: h6 is bin64(16#1f83d9abfb41bd6b_);
+    var bin64: h7 is bin64(16#5be0cd19137e2179_);
     var bin64: a is bin64(0);
     var bin64: b is bin64(0);
     var bin64: c is bin64(0);
@@ -926,7 +926,7 @@ const func string: sha512 (in var string: message) is func
     # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 1024).
     message &:= "\0;" mult 127 - (length + 8) mod 128;
     # Append length of message (before pre-processing), in bits, as 64-bit big-endian integer.
-    message &:= int64AsEightBytesBe(8 * length);
+    message &:= bytes(8 * length, UNSIGNED, BE, 8);
 
     # Process the message in successive 1024-bit chunks:
     for chunkIndex range 1 to length(message) step 128 do
@@ -955,20 +955,20 @@ const func string: sha512 (in var string: message) is func
       end for;
 
       # Initialize working variables to current hash value:
-      a := bin64(h0 mod powTwo64);
-      b := bin64(h1 mod powTwo64);
-      c := bin64(h2 mod powTwo64);
-      d := bin64(h3 mod powTwo64);
-      e := bin64(h4 mod powTwo64);
-      f := bin64(h5 mod powTwo64);
-      g := bin64(h6 mod powTwo64);
-      h := bin64(h7 mod powTwo64);
+      a := h0;
+      b := h1;
+      c := h2;
+      d := h3;
+      e := h4;
+      f := h5;
+      g := h6;
+      h := h7;
 
       # Compression function main loop:
       for index range 1 to 80 do
         s1 := rotRight(e, 14) >< rotRight(e, 18) >< rotRight(e, 41);
         ch := (e & f) >< (~e & g);
-        temp1 := bin64((big(h) + big(s1) + big(ch) + k[index] + big(w[index])) mod powTwo64);
+        temp1 := bin64((big(h) + big(s1) + big(ch) + big(k[index]) + big(w[index])) mod powTwo64);
         s0 := rotRight(a, 28) >< rotRight(a, 34) >< rotRight(a, 39);
         maj := (a & b) >< (a & c) >< (b & c);
         temp2 := bin64((big(s0) + big(maj)) mod powTwo64);
@@ -984,25 +984,25 @@ const func string: sha512 (in var string: message) is func
       end for;
 
       # Add the compressed chunk to the current hash value:
-      h0 +:= big(a);
-      h1 +:= big(b);
-      h2 +:= big(c);
-      h3 +:= big(d);
-      h4 +:= big(e);
-      h5 +:= big(f);
-      h6 +:= big(g);
-      h7 +:= big(h);
+      h0 := bin64((big(h0) + big(a)) mod powTwo64);
+      h1 := bin64((big(h1) + big(b)) mod powTwo64);
+      h2 := bin64((big(h2) + big(c)) mod powTwo64);
+      h3 := bin64((big(h3) + big(d)) mod powTwo64);
+      h4 := bin64((big(h4) + big(e)) mod powTwo64);
+      h5 := bin64((big(h5) + big(f)) mod powTwo64);
+      h6 := bin64((big(h6) + big(g)) mod powTwo64);
+      h7 := bin64((big(h7) + big(h)) mod powTwo64);
     end for;
 
     # Produce the final hash value:
-    digest := bigAsEightBytesBe(h0) &
-              bigAsEightBytesBe(h1) &
-              bigAsEightBytesBe(h2) &
-              bigAsEightBytesBe(h3) &
-              bigAsEightBytesBe(h4) &
-              bigAsEightBytesBe(h5) &
-              bigAsEightBytesBe(h6) &
-              bigAsEightBytesBe(h7);
+    digest := bytes(h0, BE, 8) &
+              bytes(h1, BE, 8) &
+              bytes(h2, BE, 8) &
+              bytes(h3, BE, 8) &
+              bytes(h4, BE, 8) &
+              bytes(h5, BE, 8) &
+              bytes(h6, BE, 8) &
+              bytes(h7, BE, 8);
   end func;
 
 

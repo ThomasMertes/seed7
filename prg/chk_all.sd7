@@ -140,6 +140,8 @@ const string: chkflt_output is "\n\
   \The ternary operator ? : works correct for float.\n";
 
 const string: chkbin_output is "\n\
+  \Conversion of bin64 to big endian byte string with length works correct.\n\
+  \Conversion of bin64 to little endian byte string with length works correct.\n\
   \Converting float to bin32 and bin64 values works correct.\n\
   \Converting bin32 and bin64 values to float works correct.\n\
   \float2MbfBits works correct for bin32 and bin64 values.\n\

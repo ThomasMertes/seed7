@@ -33,6 +33,8 @@ const ACTION: BIN_CMP                 is action "BIN_CMP";
 const ACTION: BIN_GET_BINARY_FROM_SET is action "BIN_GET_BINARY_FROM_SET";
 const ACTION: BIN_LSHIFT              is action "BIN_LSHIFT";
 const ACTION: BIN_LSHIFT_ASSIGN       is action "BIN_LSHIFT_ASSIGN";
+const ACTION: BIN_N_BYTES_BE          is action "BIN_N_BYTES_BE";
+const ACTION: BIN_N_BYTES_LE          is action "BIN_N_BYTES_LE";
 const ACTION: BIN_OR                  is action "BIN_OR";
 const ACTION: BIN_OR_ASSIGN           is action "BIN_OR_ASSIGN";
 const ACTION: BIN_radix               is action "BIN_radix";
@@ -51,6 +53,8 @@ const proc: bin_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     uintCard (uintType);");
     declareExtern(c_prog, "intType     uintCmp (uintType, uintType);");
     declareExtern(c_prog, "intType     uintCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "striType    uintNBytesBe (uintType, intType);");
+    declareExtern(c_prog, "striType    uintNBytesLe (uintType, intType);");
     declareExtern(c_prog, "striType    uintRadix (uintType, intType, boolType);");
     declareExtern(c_prog, "striType    uintRadixPow2 (uintType, int, int, boolType);");
     declareExtern(c_prog, "striType    uintStr (uintType);");
@@ -363,6 +367,234 @@ const proc: process (BIN_LSHIFT_ASSIGN, in reference: function,
       process_expr(params[3], statement);
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
+    end if;
+  end func;
+
+
+const proc: process_const_bin_n_bytes_be (in reference: number,
+    in integer: length, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedNumber is NIL;
+    var integer: numberValue is 0;
+    var string: buffer_name is "";
+    var string: number_name is "";
+    var integer: index is 0;
+  begin
+    if length <= 0 then
+      incr(countOptimizations);
+      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+      c_expr.expr &:= strRaiseError("RANGE_ERROR");
+    elsif getConstant(number, INTOBJECT, evaluatedNumber) then
+      incr(countOptimizations);
+      numberValue := getValue(evaluatedNumber, integer);
+      if length < 8 and (numberValue >= 2 ** (8 * length) or numberValue < 0) then
+        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+        c_expr.expr &:= strRaiseError("RANGE_ERROR");
+      else
+        c_expr.expr &:= stringLiteral(bytes(bin64(numberValue), BE, length));
+      end if;
+    elsif ccConf.ALLOW_STRITYPE_SLICES and length <= 8 then
+      incr(countOptimizations);
+      incr(c_expr.temp_num);
+      buffer_name := "buffer_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "union {\n";
+      c_expr.temp_decls &:= "  struct striStruct striBuf;\n";
+      c_expr.temp_decls &:= "  char charBuf[SIZ_STRI(";
+      c_expr.temp_decls &:= str(length);
+      c_expr.temp_decls &:= ")];\n";
+      c_expr.temp_decls &:= "} ";
+      c_expr.temp_decls &:= buffer_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(";
+      number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
+      if function_range_check and length < 8 then
+        c_expr.expr &:= "rngChk(";
+        c_expr.expr &:= "(uintType)";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= ">(uintType)";
+        c_expr.expr &:= integerLiteral(pred(2 ** (8 * length)));
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= strRaiseError("RANGE_ERROR");
+        c_expr.expr &:= ":(";
+      end if;
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.size=";
+      c_expr.expr &:= str(length);
+      c_expr.expr &:= ",";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.mem=";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.mem1,";
+      for index range 1 to length do
+        c_expr.expr &:= buffer_name;
+        c_expr.expr &:= ".striBuf.mem1[";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= "]=(strElemType)(";
+        if index <> length then
+          c_expr.expr &:= "((uintType)(";
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= ")>>";
+          c_expr.expr &:= str(8 * (length - index));
+        else
+          c_expr.expr &:= "(uintType)(";
+          c_expr.expr &:= number_name;
+        end if;
+        c_expr.expr &:= ")";
+        if index <> 1 then
+          c_expr.expr &:= "&255";
+        end if;
+        c_expr.expr &:= "),";
+      end for;
+      c_expr.expr &:= "&";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf";
+      if function_range_check and length < 8 then
+        c_expr.expr &:= ")";
+      end if;
+      c_expr.expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "uintNBytesBe(";
+      getStdParamToResultExpr(number, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= integerLiteral(length);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process (BIN_N_BYTES_BE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedLength is NIL;
+  begin
+    if inlineFunctions and
+        getConstant(params[3], INTOBJECT, evaluatedLength) then
+      process_const_bin_n_bytes_be(params[1],
+          getValue(evaluatedLength, integer), c_expr);
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "uintNBytesBe(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_const_bin_n_bytes_le (in reference: number,
+    in integer: length, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedNumber is NIL;
+    var integer: numberValue is 0;
+    var string: buffer_name is "";
+    var string: number_name is "";
+    var integer: index is 0;
+  begin
+    if length <= 0 then
+      incr(countOptimizations);
+      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+      c_expr.expr &:= strRaiseError("RANGE_ERROR");
+    elsif getConstant(number, INTOBJECT, evaluatedNumber) then
+      incr(countOptimizations);
+      numberValue := getValue(evaluatedNumber, integer);
+      if length < 8 and (numberValue >= 2 ** (8 * length) or numberValue < 0) then
+        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+        c_expr.expr &:= strRaiseError("RANGE_ERROR");
+      else
+        c_expr.expr &:= stringLiteral(bytes(bin64(numberValue), LE, length));
+      end if;
+    elsif ccConf.ALLOW_STRITYPE_SLICES and length <= 8 then
+      incr(countOptimizations);
+      incr(c_expr.temp_num);
+      buffer_name := "buffer_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "union {\n";
+      c_expr.temp_decls &:= "  struct striStruct striBuf;\n";
+      c_expr.temp_decls &:= "  char charBuf[SIZ_STRI(";
+      c_expr.temp_decls &:= str(length);
+      c_expr.temp_decls &:= ")];\n";
+      c_expr.temp_decls &:= "} ";
+      c_expr.temp_decls &:= buffer_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(";
+      number_name := getParameterAsVariable("intType", "tmp_", number, c_expr);
+      if function_range_check and length < 8 then
+        c_expr.expr &:= "rngChk(";
+        c_expr.expr &:= "(uintType)";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= ">(uintType)";
+        c_expr.expr &:= integerLiteral(pred(2 ** (8 * length)));
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= strRaiseError("RANGE_ERROR");
+        c_expr.expr &:= ":(";
+      end if;
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.size=";
+      c_expr.expr &:= str(length);
+      c_expr.expr &:= ",";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.mem=";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf.mem1,";
+      for index range 1 to length do
+        c_expr.expr &:= buffer_name;
+        c_expr.expr &:= ".striBuf.mem1[";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= "]=(strElemType)(";
+        if index <> 1 then
+          c_expr.expr &:= "((uintType)(";
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= ")>>";
+          c_expr.expr &:= str(8 * pred(index));
+        else
+          c_expr.expr &:= "(uintType)(";
+          c_expr.expr &:= number_name;
+        end if;
+        c_expr.expr &:= ")";
+        if index <> length then
+          c_expr.expr &:= "&255";
+        end if;
+        c_expr.expr &:= "),";
+      end for;
+      c_expr.expr &:= "&";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ".striBuf";
+      if function_range_check and length < 8 then
+        c_expr.expr &:= ")";
+      end if;
+      c_expr.expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "uintNBytesLe(";
+      getStdParamToResultExpr(number, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= integerLiteral(length);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process (BIN_N_BYTES_LE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedLength is NIL;
+  begin
+    if inlineFunctions and
+        getConstant(params[3], INTOBJECT, evaluatedLength) then
+      process_const_bin_n_bytes_le(params[1],
+          getValue(evaluatedLength, integer), c_expr);
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "uintNBytesLe(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
     end if;
   end func;
 

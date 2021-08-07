@@ -10963,6 +10963,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BIN_GET_BINARY_FROM_SET</td> <td>bin_get_binary_from_set</td> <td>setToUInt</td></tr>
     <tr><td>BIN_LSHIFT</td>          <td>bin_lshift</td>          <td>(intType)((uintType)(a&lt;&ltb))</td></tr>
     <tr><td>BIN_LSHIFT_ASSIGN</td>   <td>bin_lshift_assign</td>   <td>a=(intType)((uintType)(a&lt;&ltb))</td></tr>
+    <tr><td>BIN_N_BYTES_BE</td>      <td>bin_n_bytes_be</td>      <td>uintNBytesBe</td></tr>
+    <tr><td>BIN_N_BYTES_LE</td>      <td>bin_n_bytes_le</td>      <td>uintNBytesLe</td></tr>
     <tr><td>BIN_OR</td>              <td>bin_or</td>              <td>|</td></tr>
     <tr><td>BIN_OR_ASSIGN</td>       <td>bin_or_assign</td>       <td>|=</td></tr>
     <tr><td>BIN_RADIX</td>           <td>bin_RADIX</td>           <td>uintRadix</td></tr>
@@ -11183,14 +11185,17 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_PPOINT</td>          <td>drw_ppoint</td>          <td>drwPPoint</td></tr>
     <tr><td>DRW_PRECT</td>           <td>drw_prect</td>           <td>drwPRect</td></tr>
     <tr><td>DRW_PUT</td>             <td>drw_put</td>             <td>drwPut</td></tr>
+    <tr><td>DRW_PUT_SCALED</td>      <td>drw_put_scaled</td>      <td>drwPutScaled</td></tr>
     <tr><td>DRW_RECT</td>            <td>drw_rect</td>            <td>drwRect</td></tr>
     <tr><td>DRW_RGBCOL</td>          <td>drw_rgbcol</td>          <td>drwRgbColor</td></tr>
     <tr><td>DRW_SCREEN_HEIGHT</td>   <td>drw_screen_height</td>   <td>drwScreenHeight</td></tr>
     <tr><td>DRW_SCREEN_WIDTH</td>    <td>drw_screen_width</td>    <td>drwScreenWidth</td></tr>
     <tr><td>DRW_SETCLOSEACTION</td>  <td>drw_setCloseAction</td>  <td>drwSetCloseAction</td></tr>
     <tr><td>DRW_SETCONTENT</td>      <td>drw_setContent</td>      <td>drwSetContent</td></tr>
+    <tr><td>DRW_SETCURSORVISIBLE</td> <td>drw_setCursorVisible</td> <td>drwSetCursorVisible</td></tr>
     <tr><td>DRW_SETPOS</td>          <td>drw_setPos</td>          <td>drwSetPos</td></tr>
     <tr><td>DRW_SETTRANSPARENTCOLOR</td> <td>drw_setTransparentColor</td> <td>drwSetTransparentColor</td></tr>
+    <tr><td>DRW_SETWINDOWNAME</td>   <td>drw_setWindowName</td>   <td>drwSetWindowName</td></tr>
     <tr><td>DRW_TEXT</td>            <td>drw_text</td>            <td>drwText</td></tr>
     <tr><td>DRW_TOBOTTOM</td>        <td>drw_toBottom</td>        <td>drwToBottom</td></tr>
     <tr><td>DRW_TOTOP</td>           <td>drw_toTop</td>           <td>drwToTop</td></tr>
@@ -11223,6 +11228,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FIL_CLOSE</td>           <td>fil_close</td>           <td>fclose</td></tr>
     <tr><td>FIL_CPY</td>             <td>fil_cpy</td>             <td>fltCpy</td></tr>
     <tr><td>FIL_CREATE</td>          <td>fil_create</td>          <td>fltCreate</td></tr>
+    <tr><td>FIL_DESTR</td>           <td>fil_destr</td>           <td>filDestr</td></tr>
     <tr><td>FIL_EMPTY</td>           <td>fil_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>FIL_EOF</td>             <td>fil_eof</td>             <td>feof</td></tr>
     <tr><td>FIL_EQ</td>              <td>fil_eq</td>              <td>==</td></tr>
@@ -11332,6 +11338,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>GKB_KEYPRESSED</td>      <td>gkb_keypressed</td>      <td>gkbKeyPressed</td></tr>
     <tr><td>GKB_LINE_READ</td>       <td>gkb_line_read</td>       <td>gkbLineRead</td></tr>
     <tr><td>GKB_RAW_GETC</td>        <td>gkb_raw_getc</td>        <td>gkbRawGetc</td></tr>
+    <tr><td>GKB_SELECT_INPUT</td>    <td>gkb_select_input</td>    <td>gkbSelectInput</td></tr>
     <tr><td>GKB_WINDOW</td>          <td>gkb_window</td>          <td>gkbWindow</td></tr>
     <tr><td>GKB_WORD_READ</td>       <td>gkb_word_read</td>       <td>gkbWordRead</td></tr>
 </table><p></p>
@@ -11402,6 +11409,10 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>INT_MULT_ASSIGN</td>     <td>int_mult_assign</td>     <td>*=</td></tr>
     <tr><td>INT_NE</td>              <td>int_ne</td>              <td>!=</td></tr>
     <tr><td>INT_NEGATE</td>          <td>int_negate</td>          <td>-</td></tr>
+    <tr><td>INT_N_BYTES_BE_SIGNED</td>   <td>int_n_bytes_be_signed</td>   <td>intNBytesBeSigned</td></tr>
+    <tr><td>INT_N_BYTES_BE_UNSIGNED</td> <td>int_n_bytes_be_unsigned</td> <td>intNBytesBeUnsigned</td></tr>
+    <tr><td>INT_N_BYTES_LE_SIGNED</td>   <td>int_n_bytes_le_signed</td>   <td>intNBytesLeSigned</td></tr>
+    <tr><td>INT_N_BYTES_LE_UNSIGNED</td> <td>int_n_bytes_le_unsigned</td> <td>intNBytesLeUnsigned</td></tr>
     <tr><td>INT_ODD</td>             <td>int_odd</td>             <td>&amp;1</td></tr>
     <tr><td>INT_PARSE1</td>          <td>int_parse1</td>          <td>intParse</td></tr>
     <tr><td>INT_PLUS</td>            <td>int_plus</td>            <td>(noop)</td></tr>
@@ -11614,6 +11625,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>REF_HSHKEYSTOLIST</td>   <td>ref_hshkeystolist</td>   <td>refHshKeysToList</td></tr>
     <tr><td>REF_HSHLENGTH</td>       <td>ref_hshlength</td>       <td>refHshLength</td></tr>
     <tr><td>REF_ISSYMB</td>          <td>ref_issymb</td>          <td>&nbsp;</td></tr>
+    <tr><td>REF_ISTEMP</td>          <td>ref_istemp</td>          <td>refIsTemp</td></tr>
     <tr><td>REF_ISVAR</td>           <td>ref_isvar</td>           <td>refIsvar</td></tr>
     <tr><td>REF_ITFTOSCT</td>        <td>ref_itftosct</td>        <td>refItftosct</td></tr>
     <tr><td>REF_LINE</td>            <td>ref_line</td>            <td>refLine</td></tr>

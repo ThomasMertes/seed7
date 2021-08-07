@@ -171,6 +171,36 @@ const func string: (in bin32: number) RADIX (in integer: base) is action "BIN_RA
 
 
 (**
+ *  Convert a ''bin32'' into a [[string]] of bytes with big-endian encoding.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Bin32 to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of ''length'' bytes with the unsigned binary
+ *          representation of ''number''.
+ *  @exception RANGE_ERROR If ''length'' is negative or zero, or
+ *                         if the result would not fit in ''length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: bytes (in bin32: number, BE, in integer: length) is action "BIN_N_BYTES_BE";
+
+
+(**
+ *  Convert a ''bin32'' into a [[string]] of bytes with little-endian encoding.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Bin32 to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of ''length'' bytes with the unsigned binary
+ *          representation of ''number''.
+ *  @exception RANGE_ERROR If ''length'' is negative or zero, or
+ *                         if the result would not fit in ''length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: bytes (in bin32: number, LE, in integer: length) is action "BIN_N_BYTES_LE";
+
+
+(**
  *  Check if two bin32 values are equal.
  *  @return TRUE if the two values are equal,
  *          FALSE otherwise.
@@ -395,10 +425,7 @@ const func bin32: bin32 (in string: fourBytes, BE) is
          bin32(fourBytes[4]);
 
 
-(**
- *  Convert 32 lower bits of a bin32 value into four little-endian chars.
- *  @return a string of length four with the little-endian representation.
- *)
+# The function bin32AsFourBytesLe() is deprecated. Use bytes(n, LE, 4) instead.
 const func string: bin32AsFourBytesLe (in bin32: binValue) is func
   result
     var string: fourBytes is "\0;" mult 4;
@@ -410,10 +437,7 @@ const func string: bin32AsFourBytesLe (in bin32: binValue) is func
   end func;
 
 
-(**
- *  Convert 32 lower bits of a bin32 value into four big-endian chars.
- *  @return a string of length four with the big-endian representation.
- *)
+# The function bin32AsFourBytesBe() is deprecated. Use bytes(n, BE, 4) instead.
 const func string: bin32AsFourBytesBe (in bin32: binValue) is func
   result
     var string: fourBytes is "\0;" mult 4;

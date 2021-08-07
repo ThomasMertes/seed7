@@ -42,6 +42,8 @@ extern const const_ustriType digitTable[];
 
 void setupRand (void);
 uintType uintMult (uintType factor1, uintType factor2, uintType *product_high);
+striType uintNBytesBe (uintType number, intType length);
+striType uintNBytesLe (uintType number, intType length);
 uintType uintRand (void);
 uintType uintRandMantissa (void);
 uintType uintRandLimited (uintType rand_max);

@@ -293,6 +293,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIN_LSHIFT, function, params, c_expr);
       when {"BIN_LSHIFT_ASSIGN"}:
         process(BIN_LSHIFT_ASSIGN, function, params, c_expr);
+      when {"BIN_N_BYTES_BE"}:
+        process(BIN_N_BYTES_BE, function, params, c_expr);
+      when {"BIN_N_BYTES_LE"}:
+        process(BIN_N_BYTES_LE, function, params, c_expr);
       when {"BIN_OR"}:
         process(BIN_OR, function, params, c_expr);
       when {"BIN_OR_ASSIGN"}:

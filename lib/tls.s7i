@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tls.s7i       Support for Transport Layer Security (TLS/SSL).   *)
-(*  Copyright (C) 2013 - 2019  Thomas Mertes                        *)
+(*  Copyright (C) 2013 - 2019, 2021  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -505,19 +505,9 @@ const func string: genSignature (in string: hashParameter, in tlsParameters: par
         signatureStri := genAsn1Sequence(
             genAsn1Element(tagInteger, bytes(ecdsaSignature.r, SIGNED, BE)) &
             genAsn1Element(tagInteger, bytes(ecdsaSignature.s, SIGNED, BE)));
-(*
-        signatureHash := sha1(parameters.client_random & parameters.server_random &
-                              serverParams);
-        signature := sign(parameters.curve, bytes2BigInt(signatureHash, UNSIGNED, BE),
-                          parameters.privateEccCertificateKey);
-        signatureStri := genAsn1Sequence(
-            genAsn1Element(tagInteger, bytes(signature.r, SIGNED, BE)) &
-            genAsn1Element(tagInteger, bytes(signature.s, SIGNED, BE)));
-        signatureStri := bytes(length(signatureStri), UNSIGNED, BE) & signatureStri;
-*)
     end case;
-    signatureStri := int16AsTwoBytesBe(parameters.signatureScheme) &
-                     int16AsTwoBytesBe(length(signatureStri)) &
+    signatureStri := bytes(parameters.signatureScheme, UNSIGNED, BE, 2) &
+                     bytes(length(signatureStri),      UNSIGNED, BE, 2) &
                      signatureStri;
   end func;
 
@@ -911,8 +901,8 @@ const proc: processClientKeyExchange (inout tlsParameters: parameters, inout tls
                                       parameters.ownEccKeyPair.privateKey);
       # writeln("sharedSecretEcPoint.x: " <& sharedSecretEcPoint.x radix 16);
       # writeln("length: " <& getSizeInBytes(parameters.curve));
-      preMasterSecret := int2Octets(sharedSecretEcPoint.x,
-                                    getSizeInBytes(parameters.curve));
+      preMasterSecret := bytes(sharedSecretEcPoint.x, UNSIGNED, BE,
+                               getSizeInBytes(parameters.curve));
     end if;
     # writeln("preMasterSecret: " <& hex(preMasterSecret));
     computeMasterSecret(parameters, preMasterSecret);
@@ -1076,13 +1066,13 @@ const proc: loadCompleteHandshakeMsg (inout file: sock, inout tlsParseState: sta
 
 
 const func string: genExtension (in integer: extensionType, in string: data) is
-  return int16AsTwoBytesBe(extensionType) &
-      int16AsTwoBytesBe(length(data)) & data;
+  return bytes(extensionType, UNSIGNED, BE, 2) &
+         bytes(length(data),  UNSIGNED, BE, 2) & data;
 
 
 const func string: serverNameExtension (in string: serverName) is
-  return int16AsTwoBytesBe(length(serverName) + 3) &
-         "\0;" & int16AsTwoBytesBe(length(serverName)) & serverName;
+  return bytes(length(serverName) + 3, UNSIGNED, BE, 2) & "\0;" &
+         bytes(length(serverName),     UNSIGNED, BE, 2) & serverName;
 
 
 const func string: genEllipticCurvesExtension (in array ellipticCurve: curves) is func
@@ -1091,9 +1081,9 @@ const func string: genEllipticCurvesExtension (in array ellipticCurve: curves) i
   local
     var integer: curveNumber is 0;
   begin
-    extensionBytes := int16AsTwoBytesBe(length(curves) * 2);
+    extensionBytes := bytes(length(curves) * 2, UNSIGNED, BE, 2);
     for key curveNumber range curves do
-      extensionBytes &:= int16AsTwoBytesBe(curveNumber);
+      extensionBytes &:= bytes(curveNumber, UNSIGNED, BE, 2);
     end for;
   end func;
 
@@ -1104,9 +1094,9 @@ const func string: int16BeArrayExtension (in array integer: intArray) is func
   local
     var integer: intValue is 0;
   begin
-    extensionBytes := int16AsTwoBytesBe(length(intArray) * 2);
+    extensionBytes := bytes(length(intArray) * 2, UNSIGNED, BE, 2);
     for intValue range intArray do
-      extensionBytes &:= int16AsTwoBytesBe(intValue);
+      extensionBytes &:= bytes(intValue, UNSIGNED, BE, 2);
     end for;
   end func;
 
@@ -1121,7 +1111,7 @@ const func string: genClientExtensions (in tlsParameters: parameters) is func
     extensionBytes &:= genExtension(ELLIPTIC_CURVES, genEllipticCurvesExtension(curveByNumber));
     extensionBytes &:= genExtension(SIGNATURE_ALGORITHMS, int16BeArrayExtension(signatureSchemes));
     if extensionBytes <> "" then
-      extensionBytes := int16AsTwoBytesBe(length(extensionBytes)) & extensionBytes;
+      extensionBytes := bytes(length(extensionBytes), UNSIGNED, BE, 2) & extensionBytes;
     end if;
   end func;
 
@@ -1134,8 +1124,9 @@ const func string: genClientHello (inout tlsParameters: parameters, in string: s
     var integer: count is 0;
     var cipherSuite: cipher is TLS_NULL_WITH_NULL_NULL;
   begin
-    parameters.client_random := int32AsFourBytesBe(timestamp1970(time(NOW)));   # Random - gmt_unix_time
-    parameters.client_random &:= int2Octets(rand(0_, 2_ ** (28 * 8) - 1_), 28); # Random - random_bytes
+    parameters.client_random :=
+        bytes(timestamp1970(time(NOW)),      UNSIGNED, BE,  4) &  # Random - gmt_unix_time
+        bytes(rand(0_, 2_ ** (28 * 8) - 1_), UNSIGNED, BE, 28);   # Random - random_bytes
     clientHello := str(HANDSHAKE) &               # ContentType (index: 1)
                    parameters.tls_version &       # Version: 3.1
                    "\0;\0;" &                     # Length: filled later (index: 4)
@@ -1145,16 +1136,16 @@ const func string: genClientHello (inout tlsParameters: parameters, in string: s
                    parameters.client_random &     # Random - random_bytes
                    str(chr(length(sessionId))) &  # SessionId length
                    sessionId &                    # SessionId
-                   int16AsTwoBytesBe(2 * length(supportedCiphers));  # Number of Ciphers in bytes
+                   bytes(2 * length(supportedCiphers), UNSIGNED, BE, 2);  # Number of Ciphers in bytes
     for cipher range supportedCiphers do
-      clientHello &:= int16AsTwoBytesBe(ord(cipher));
+      clientHello &:= bytes(ord(cipher), UNSIGNED, BE, 2);
     end for;
     clientHello &:= "\1;" &                       # Number of CompressionMethods: 1 (1 byte)
                     "\0;";                        # CompressionMethod-1: 0
     clientHello &:= genClientExtensions(parameters);
     length := length(clientHello);
-    clientHello @:= [4] int16AsTwoBytesBe(length - 5);
-    clientHello @:= [8] int16AsTwoBytesBe(length - 9);
+    clientHello @:= [4] bytes(length - 5, UNSIGNED, BE, 2);
+    clientHello @:= [8] bytes(length - 9, UNSIGNED, BE, 2);
     parameters.handshake_messages &:= clientHello[6 ..];
   end func;
 
@@ -1167,10 +1158,11 @@ const func string: genServerHello (inout tlsParameters: parameters) is func
     var integer: length is 0;
     var integer: count is 0;
   begin
-    parameters.server_random := int32AsFourBytesBe(timestamp1970(time(NOW)));   # Random - gmt_unix_time
-    parameters.server_random &:= int2Octets(rand(0_, 2_ ** (28 * 8) - 1_), 28); # Random - random_bytes
+    parameters.server_random :=
+        bytes(timestamp1970(time(NOW)),      UNSIGNED, BE,  4) &  # Random - gmt_unix_time
+        bytes(rand(0_, 2_ ** (28 * 8) - 1_), UNSIGNED, BE, 28);   # Random - random_bytes
     parameters.session_id :=
-        int2Octets(rand(0_, 2_ ** (SESSION_ID_LEN * 8) - 1_), SESSION_ID_LEN);  # SessionId
+        bytes(rand(0_, 2_ ** (SESSION_ID_LEN * 8) - 1_), UNSIGNED, BE, SESSION_ID_LEN);  # SessionId
     serverHello := str(HANDSHAKE) &            # ContentType (index: 1)
                    parameters.tls_version &    # Version: take version from client_hello.
                    "\0;\0;" &                  # Length: filled later (index: 4)
@@ -1180,11 +1172,11 @@ const func string: genServerHello (inout tlsParameters: parameters) is func
                    parameters.server_random &  # Random
                    str(chr(SESSION_ID_LEN)) &  # SessionId length
                    parameters.session_id &     # SessionId
-                   int16AsTwoBytesBe(ord(parameters.cipher_suite)) &
+                   bytes(ord(parameters.cipher_suite), UNSIGNED, BE, 2) &
                    "\0;";                      # CompressionMethod: 0
     length := length(serverHello);
-    serverHello @:= [4] int16AsTwoBytesBe(length - 5);
-    serverHello @:= [8] int16AsTwoBytesBe(length - 9);
+    serverHello @:= [4] bytes(length - 5, UNSIGNED, BE, 2);
+    serverHello @:= [8] bytes(length - 9, UNSIGNED, BE, 2);
     parameters.handshake_messages &:= serverHello[6 ..];
   end func;
 
@@ -1203,13 +1195,14 @@ const func string: genCertificate (inout tlsParameters: parameters, in array str
                    "\0;\0;\0;" &             # Length: filled later
                    "\0;\0;\0;";              # Sequence length: filled later
     for key index range certList do
-      certificate &:= "\0;" & int16AsTwoBytesBe(length(certList[index])) &
+      certificate &:= "\0;" &
+                      bytes(length(certList[index]), UNSIGNED, BE, 2) &
                       certList[index];
     end for;
     length := length(certificate);
-    certificate @:= [4] int16AsTwoBytesBe(length - 5);
-    certificate @:= [8] int16AsTwoBytesBe(length - 9);
-    certificate @:= [11] int16AsTwoBytesBe(length - 12);
+    certificate @:= [ 4] bytes(length -  5, UNSIGNED, BE, 2);
+    certificate @:= [ 8] bytes(length -  9, UNSIGNED, BE, 2);
+    certificate @:= [11] bytes(length - 12, UNSIGNED, BE, 2);
     parameters.handshake_messages &:= certificate[6 ..];
   end func;
 
@@ -1236,7 +1229,7 @@ const func string: genServerKeyExchange (inout tlsParameters: parameters) is fun
       # writeln("curve number: " <& getEllipticCurveNumber(parameters.curve));
       pointData := ecPointEncode(parameters.curve, parameters.ownEccKeyPair.publicKey);
       serverParams &:= str(NAMED_CURVE) &
-                       int16AsTwoBytesBe(getEllipticCurveNumber(parameters.curve)) &
+                       bytes(getEllipticCurveNumber(parameters.curve), UNSIGNED, BE, 2) &
                        str(chr(length(pointData))) & pointData;
       signatureStri := genSignature(parameters.client_random &
                                     parameters.server_random &
@@ -1244,8 +1237,8 @@ const func string: genServerKeyExchange (inout tlsParameters: parameters) is fun
       serverKeyExchange &:= serverParams & signatureStri;
     end if;
     length := length(serverKeyExchange);
-    serverKeyExchange @:= [4] int16AsTwoBytesBe(length - 5);
-    serverKeyExchange @:= [8] int16AsTwoBytesBe(length - 9);
+    serverKeyExchange @:= [4] bytes(length - 5, UNSIGNED, BE, 2);
+    serverKeyExchange @:= [8] bytes(length - 9, UNSIGNED, BE, 2);
     parameters.handshake_messages &:= serverKeyExchange[6 ..];
   end func;
 
@@ -1262,7 +1255,7 @@ const func string: genServerHelloDone (inout tlsParameters: parameters) is func
                        str(SERVER_HELLO_DONE) &  # HandshakeType (index: 6)
                        "\0;\0;\0;";              # Length: 0
     length := length(serverHelloDone);
-    serverHelloDone @:= [4] int16AsTwoBytesBe(length - 5);
+    serverHelloDone @:= [4] bytes(length - 5, UNSIGNED, BE, 2);
     parameters.handshake_messages &:= serverHelloDone[6 ..];
   end func;
 
@@ -1284,14 +1277,15 @@ const func string: genClientKeyExchange (inout tlsParameters: parameters) is fun
                          str(CLIENT_KEY_EXCHANGE) &  # HandshakeType (index: 6)
                          "\0;\0;\0;";                # Length: filled later
     if parameters.key_exchange_algorithm = RSA then
-      preMasterSecret := parameters.tls_version;                          # ProtocolVersion
-      preMasterSecret &:= int2Octets(rand(0_, 2_ ** (46 * 8) - 1_), 46);  # Random - random_bytes
+      preMasterSecret :=
+          parameters.tls_version &                                 # ProtocolVersion
+          bytes(rand(0_, 2_ ** (46 * 8) - 1_), UNSIGNED, BE, 46);  # Random - random_bytes
       encryptedPreMasterSecret := rsaesPkcs1V15Encrypt(parameters.publicRsaCertificateKey,
           preMasterSecret);
       # writeln("encryptedPreMasterSecret: " <& hex(encryptedPreMasterSecret));
       # writeln("length(encryptedPreMasterSecret): " <& length(encryptedPreMasterSecret));
       if parameters.tls_version <> SSL_3_0 then
-        clientKeyExchange &:= int16AsTwoBytesBe(length(encryptedPreMasterSecret));
+        clientKeyExchange &:= bytes(length(encryptedPreMasterSecret), UNSIGNED, BE, 2);
       end if;
       clientKeyExchange &:= encryptedPreMasterSecret;
     elsif parameters.key_exchange_algorithm = EC_DIFFIE_HELLMAN then
@@ -1302,16 +1296,16 @@ const func string: genClientKeyExchange (inout tlsParameters: parameters) is fun
                                       parameters.ownEccKeyPair.privateKey);
       # writeln("sharedSecretEcPoint.x: " <& sharedSecretEcPoint.x radix 16);
       # writeln("length: " <& getSizeInBytes(parameters.curve));
-      preMasterSecret := int2Octets(sharedSecretEcPoint.x,
-                                    getSizeInBytes(parameters.curve));
+      preMasterSecret := bytes(sharedSecretEcPoint.x, UNSIGNED, BE,
+                               getSizeInBytes(parameters.curve));
     end if;
     # writeln("preMasterSecret: " <& hex(preMasterSecret));
     computeMasterSecret(parameters, preMasterSecret);
     # writeln("master_secret: " <& hex(parameters.master_secret));
     storeKeys(parameters);
     length := length(clientKeyExchange);
-    clientKeyExchange @:= [4] int16AsTwoBytesBe(length - 5);
-    clientKeyExchange @:= [8] int16AsTwoBytesBe(length - 9);
+    clientKeyExchange @:= [4] bytes(length - 5, UNSIGNED, BE, 2);
+    clientKeyExchange @:= [8] bytes(length - 9, UNSIGNED, BE, 2);
     parameters.handshake_messages &:= clientKeyExchange[6 ..];
   end func;
 
@@ -1327,7 +1321,7 @@ const func string: genChangeCipherSpec (in tlsParameters: parameters) is func
                         "\0;\0;" &                 # Length: filled later (index: 4)
                         "\1;";                     # change_cipher_spec
     length := length(changeCipherSpec);
-    changeCipherSpec @:= [4] int16AsTwoBytesBe(length - 5);
+    changeCipherSpec @:= [4] bytes(length - 5, UNSIGNED, BE, 2);
   end func;
 
 
@@ -1378,8 +1372,8 @@ const func string: genFinished (inout tlsParameters: parameters) is func
     # writeln("verify_data: " <& hex(verify_data));
     finished &:= verify_data;
     length := length(finished);
-    finished @:= [4] int16AsTwoBytesBe(length - 5);
-    finished @:= [8] int16AsTwoBytesBe(length - 9);
+    finished @:= [4] bytes(length - 5, UNSIGNED, BE, 2);
+    finished @:= [8] bytes(length - 9, UNSIGNED, BE, 2);
     parameters.handshake_messages &:= finished[6 ..];
   end func;
 
@@ -1396,7 +1390,7 @@ const func string: genAlert (inout tlsParameters: parameters, in char: descripti
              "\1;" &                   # level: 1
              str(description);         # AlertDescription
     length := length(alert);
-    alert @:= [4] int16AsTwoBytesBe(length - 5);
+    alert @:= [4] bytes(length - 5, UNSIGNED, BE, 2);
   end func;
 
 
@@ -1420,19 +1414,20 @@ const func string: tlsEncryptRecord (inout tlsParameters: parameters, in string:
     if parameters.tls_version = SSL_3_0 then
       mac := msgDigest(parameters.mac_algorithm, parameters.writeMacSecret & SHA_PAD2 &
                        msgDigest(parameters.mac_algorithm, parameters.writeMacSecret & SHA_PAD1 &
-                                 int64AsEightBytesBe(parameters.writeSequenceNumber) &
+                                 bytes(parameters.writeSequenceNumber, UNSIGNED, BE, 8) &
                                  plain[1 len 1] & plain[4 ..]));
     else
       # writeln("mac algorithm: " <& ord(parameters.mac_algorithm));
       # writeln("mac secret: " <& hex(parameters.writeMacSecret));
-      # writeln("hmac in: " <& hex(int64AsEightBytesBe(parameters.writeSequenceNumber) & plain));
+      # writeln("hmac in: " <& hex(bytes(parameters.writeSequenceNumber, UNSIGNED, BE, 8) & plain));
       mac := hmac(parameters.mac_algorithm, parameters.writeMacSecret,
-                  int64AsEightBytesBe(parameters.writeSequenceNumber) & plain);
+                  bytes(parameters.writeSequenceNumber, UNSIGNED, BE, 8) & plain);
     end if;
     content := plain[6 ..];
     if parameters.block_size <> 0 then
       if parameters.tls_version >= TLS_1_1 then
-        iv := int2Octets(rand(0_, 2_ ** (parameters.block_size * 8) - 1_), parameters.block_size);
+        iv := bytes(rand(0_, 2_ ** (parameters.block_size * 8) - 1_), UNSIGNED, BE,
+                    parameters.block_size);
       end if;
       padding_length := parameters.block_size - 1 -
                         (length(content) + length(mac)) mod parameters.block_size;
@@ -1448,7 +1443,7 @@ const func string: tlsEncryptRecord (inout tlsParameters: parameters, in string:
     # writeln("length(encoded): " <& length(encoded));
     encrypted &:= encoded;
     length := length(encrypted);
-    encrypted @:= [4] int16AsTwoBytesBe(length - 5);
+    encrypted @:= [4] bytes(length - 5, UNSIGNED, BE, 2);
     # writeln("encrypted message: " <& hex(encrypted));
     # writeln("length: " <& length(encrypted));
     incr(parameters.writeSequenceNumber);
@@ -1490,18 +1485,18 @@ const func boolean: tlsDecryptRecord (inout tlsParameters: parameters, inout tls
       content := decoded[.. length(decoded) - digestSize(parameters.mac_algorithm)];
       mac := decoded[length(decoded) - digestSize(parameters.mac_algorithm) + 1 ..];
       plain := state.message[.. 3] &
-               int16AsTwoBytesBe(length(content)) &
+               bytes(length(content), UNSIGNED, BE, 2) &
                content;
       # writeln("plain: " <& hex(plain));
       # writeln("mac: " <& hex(mac));
       if version = SSL_3_0 then
         verify := msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD2 &
                             msgDigest(parameters.mac_algorithm, parameters.readMacSecret & SHA_PAD1 &
-                                      int64AsEightBytesBe(parameters.readSequenceNumber) &
+                                      bytes(parameters.readSequenceNumber, UNSIGNED, BE, 8) &
                                       plain[1 len 1] & plain[4 ..]));
       else
         verify := hmac(parameters.mac_algorithm, parameters.readMacSecret,
-                       int64AsEightBytesBe(parameters.readSequenceNumber) & plain);
+                       bytes(parameters.readSequenceNumber, UNSIGNED, BE, 8) & plain);
       end if;
       # writeln("verify: " <& hex(verify));
       if mac = verify then
@@ -1976,7 +1971,7 @@ const proc: write (inout tlsFile: outFile, in string: stri) is func
                outFile.parameters.tls_version &  # Version: 3.1
                "\0;\0;" &                        # Length: filled later (index: 4)
                stri[startIndex len maxStriLen];
-      plain @:= [4] int16AsTwoBytesBe(length(plain) - 5);
+      plain @:= [4] bytes(length(plain) - 5, UNSIGNED, BE, 2);
       # showTlsMsg(plain);
       message := tlsEncryptRecord(outFile.parameters, plain);
       write(outFile.sock, message);

@@ -749,6 +749,130 @@ intType uintCmpGeneric (const genericType value1, const genericType value2)
 
 
 /**
+ *  Convert an unsigned integer into a big-endian encoded string of bytes.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Unsigned integer number to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of 'length' bytes with the unsigned binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If 'length' is negative or zero, or
+ *                         if the result would not fit in 'length' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType uintNBytesBe (uintType number, intType length)
+
+  {
+    strElemType *buffer;
+    memSizeType dataStart;
+    memSizeType pos = 0;
+    striType result;
+
+  /* uintNBytesBe */
+    logFunction(printf("uintNBytesBe(" FMT_U ", " FMT_D ")\n",
+                       number, length););
+    if (unlikely(length <= 0)) {
+      logError(printf("uintNBytesBe(" FMT_U ", " FMT_D "): "
+                      "Negative length.\n", number, length););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (unlikely((uintType) length > MAX_STRI_LEN ||
+                        !ALLOC_STRI_SIZE_OK(result, (memSizeType) length))) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      result->size = (memSizeType) length;
+      if ((memSizeType) length > BYTE_BUFFER_SIZE) {
+        dataStart = (memSizeType) length - BYTE_BUFFER_SIZE;
+      } else {
+        dataStart = 0;
+      } /* if */
+      buffer = result->mem;
+      pos = (memSizeType) length;
+      do {
+        pos--;
+        buffer[pos] = (strElemType) (number & 0xff);
+        number >>= CHAR_BIT;
+      } while (pos > dataStart);
+      if (pos > 0) {
+        memset(buffer, 0, pos * sizeof(strElemType));
+      } else if (unlikely(number != 0)) {
+        logError(printf("uintNBytesBe: "
+                        "Number does not fit into " FMT_D " bytes.\n", length););
+        FREE_STRI(result, (memSizeType) length);
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } /* if */
+    } /* if */
+    logFunction(printf("uintNBytesBe --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
+    return result;
+  } /* uintNBytesBe */
+
+
+
+/**
+ *  Convert an unsigned integer into a little-endian encoded string of bytes.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Unsigned integer number to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of 'length' bytes with the unsigned binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If 'length' is negative or zero, or
+ *                         if the result would not fit in 'length' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType uintNBytesLe (uintType number, intType length)
+
+  {
+    strElemType *buffer;
+    memSizeType dataLength;
+    memSizeType pos = 0;
+    striType result;
+
+  /* uintNBytesLe */
+    logFunction(printf("uintNBytesLe(" FMT_U ", " FMT_D ")\n",
+                       number, length););
+    if (unlikely(length <= 0)) {
+      logError(printf("uintNBytesLe(" FMT_U ", " FMT_D "): "
+                      "Negative length.\n", number, length););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else if (unlikely((uintType) length > MAX_STRI_LEN ||
+                        !ALLOC_STRI_SIZE_OK(result, (memSizeType) length))) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      result->size = (memSizeType) length;
+      if ((memSizeType) length > BYTE_BUFFER_SIZE) {
+        dataLength = BYTE_BUFFER_SIZE;
+      } else {
+        dataLength = (memSizeType) length;
+      } /* if */
+      buffer = result->mem;
+      for (pos = 0; pos < dataLength; pos++) {
+        buffer[pos] = (strElemType) (number & 0xff);
+        number >>= CHAR_BIT;
+      } /* for */
+      if ((memSizeType) length > dataLength) {
+        memset(&buffer[pos], 0, ((memSizeType) length - dataLength) * sizeof(strElemType));
+      } else if (unlikely(number != 0)) {
+        logError(printf("uintNBytesLe: "
+                        "Number does not fit into " FMT_D " bytes.\n", length););
+        FREE_STRI(result, (memSizeType) length);
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } /* if */
+    } /* if */
+    logFunction(printf("uintNBytesLe --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
+    return result;
+  } /* uintNBytesLe */
+
+
+
+/**
  *  Convert an unsigned number to a string using a radix.
  *  The conversion uses the numeral system with the given base.
  *  Digit values from 10 upward are encoded with letters.
@@ -1221,7 +1345,7 @@ intType intBitLength (intType number)
 
 
 /**
- *  Convert an integer into a big-endian string of bytes.
+ *  Convert an integer into a big-endian encoded string of bytes.
  *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  @param number Integer number to be converted.
@@ -1411,7 +1535,7 @@ intType intBytesBe2UInt (const const_striType byteStri)
 
 
 /**
- *  Convert an integer into a little-endian string of bytes.
+ *  Convert an integer into a little-endian encoded string of bytes.
  *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  @param number Integer number to be converted.
@@ -1724,7 +1848,7 @@ intType intLowestSetBit (intType number)
  *  Convert integer to string and pad it with zeros at the left side.
  *  The number is converted to a string with decimal representation.
  *  For negative numbers a minus sign is prepended.
- *  @param number Number to be converted to a [[string]].
+ *  @param number Number to be converted to a string.
  *  @param length Minimum length of the result.
  *  @return number as decimal string left padded with zeroes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -1905,6 +2029,19 @@ int64Type __mulodi4 (int64Type factor1, int64Type factor2, int *overflow)
 
 
 
+/**
+ *  Convert an integer into a big-endian encoded string of bytes.
+ *  Negative numbers use a twos-complement representation.
+ *  The result uses a signed binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Integer number to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of 'length' bytes with the signed binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If 'length' is negative or zero, or
+ *                         if the result would not fit in 'length' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 striType intNBytesBeSigned (intType number, intType length)
 
   {
@@ -1979,6 +2116,19 @@ striType intNBytesBeSigned (intType number, intType length)
 
 
 
+/**
+ *  Convert a positive integer into a big-endian encoded string of bytes.
+ *  The result uses an unsigned binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Integer number to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of 'length' bytes with the unsigned binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If 'length' is negative or zero, or
+ *                         if 'number' is negative, or
+ *                         if the result would not fit in 'length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 striType intNBytesBeUnsigned (intType number, intType length)
 
   {
@@ -2036,6 +2186,19 @@ striType intNBytesBeUnsigned (intType number, intType length)
 
 
 
+/**
+ *  Convert an integer into a little-endian encoded string of bytes.
+ *  Negative numbers use a twos-complement representation.
+ *  The result uses a signed binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Integer number to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of 'length' bytes with the signed binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If 'length' is negative or zero, or
+ *                         if the result would not fit in 'length' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 striType intNBytesLeSigned (intType number, intType length)
 
   {
@@ -2106,6 +2269,19 @@ striType intNBytesLeSigned (intType number, intType length)
 
 
 
+/**
+ *  Convert a positive integer into a little-endian encoded string of bytes.
+ *  The result uses an unsigned binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number Integer number to be converted.
+ *  @param length Determines the length of the result string.
+ *  @return a string of 'length' bytes with the unsigned binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If 'length' is negative or zero, or
+ *                         if 'number' is negative, or
+ *                         if the result would not fit in 'length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 striType intNBytesLeUnsigned (intType number, intType length)
 
   {

@@ -2,7 +2,8 @@
 (********************************************************************)
 (*                                                                  *)
 (*  encoding.s7i  Encoding and decoding functions                   *)
-(*  Copyright (C) 2007, 2008  Thomas Mertes                         *)
+(*  Copyright (C) 2007, 2008, 2011, 2013, 2015, 2016  Thomas Mertes *)
+(*  Copyright (C) 2019 - 2021  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -564,7 +565,7 @@ const func string: fromAscii85 (in string: ascii85) is func
         incr(digitIndex);
         base85Number := base85Number * 85 + (ord(ch) - ord('!'));
         if digitIndex = 5 then
-          decoded &:= int32AsFourBytesBe(base85Number);
+          decoded &:= bytes(base85Number, UNSIGNED, BE, 4);
           digitIndex := 0;
           base85Number := 0;
         end if;
@@ -578,7 +579,7 @@ const func string: fromAscii85 (in string: ascii85) is func
       for idx range 1 to 5 - digitIndex do
         base85Number := base85Number * 85 + 84;
       end for;
-      decoded &:= int32AsFourBytesBe(base85Number)[.. pred(digitIndex)];
+      decoded &:= bytes(base85Number, UNSIGNED, BE, 4)[.. pred(digitIndex)];
     end if;
   end func;
 

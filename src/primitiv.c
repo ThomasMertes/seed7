@@ -179,6 +179,8 @@ static const actEntryRecord actEntryTable[] = {
     { "BIN_GET_BINARY_FROM_SET", bin_get_binary_from_set, },
     { "BIN_LSHIFT",              bin_lshift,              },
     { "BIN_LSHIFT_ASSIGN",       bin_lshift_assign,       },
+    { "BIN_N_BYTES_BE",          bin_n_bytes_be,          },
+    { "BIN_N_BYTES_LE",          bin_n_bytes_le,          },
     { "BIN_OR",                  bin_or,                  },
     { "BIN_OR_ASSIGN",           bin_or_assign,           },
     { "BIN_RADIX",               bin_RADIX,               },

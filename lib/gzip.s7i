@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  gzip.s7i      Gzip compression support library                  *)
-(*  Copyright (C) 2008 - 2013, 2015, 2019, 2020  Thomas Mertes      *)
+(*  Copyright (C) 2008 - 2013, 2015, 2019 - 2021  Thomas Mertes     *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

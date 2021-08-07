@@ -1951,7 +1951,7 @@ const func string: exec_str_primary (
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        exprResult := bin64AsEightBytesLe(bin64(num1));
+        exprResult := bytes(bin64(num1), LE, 8);
         writeln(log, "MKD$(" <& num1 <& ") -> " <& literal(exprResult));
       when {"MKDMBF$"}:
         symbol := get_symbol(line);
@@ -1959,7 +1959,7 @@ const func string: exec_str_primary (
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
         block
-          exprResult := bin64AsEightBytesLe(float2MbfBits(num1, DOUBLE));
+          exprResult := bytes(float2MbfBits(num1, DOUBLE), LE, 8);
           writeln(log, "MKDMBF$(" <& num1 <& ") -> " <& literal(exprResult));
         exception
           catch RANGE_ERROR:
@@ -1989,7 +1989,7 @@ const func string: exec_str_primary (
         expect("(", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        exprResult := bin32AsFourBytesLe(bin32(num1));
+        exprResult := bytes(bin32(num1), LE, 4);
         writeln(log, "MKS$(" <& num1 <& ") -> " <& literal(exprResult));
       when {"MKSMBF$"}:
         symbol := get_symbol(line);
@@ -1997,7 +1997,7 @@ const func string: exec_str_primary (
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
         block
-          exprResult := bin32AsFourBytesLe(float2MbfBits(num1, SINGLE));
+          exprResult := bytes(float2MbfBits(num1, SINGLE), LE, 4);
         writeln(log, "MKSMBF$(" <& num1 <& ") -> " <& literal(exprResult));
         exception
           catch RANGE_ERROR:
@@ -7029,17 +7029,17 @@ const func string: getBytesFromArray (in string: name_start,
     for index range lbound to ubound do
       element := getNumericVar(name_start & str(index) & name_end);
       if element >= -32768.0 and element <= 65535.0 then
-        bytesFromInt2 &:= int16AsTwoBytesLe(round(element));
+        bytesFromInt2 &:= bytes(round(element) mod 65536, UNSIGNED, LE, 2);
       else
         allInteger := FALSE;
       end if;
       if element >= -3.4028235e38 and element <= 3.4028235e38 or
           abs(element) = Infinity or isNaN(element) then
-        bytesFromFlt4 &:= bin32AsFourBytesLe(bin32(element));
+        bytesFromFlt4 &:= bytes(bin32(element), LE, 4);
       else
         allFloat := FALSE;
       end if;
-      bytesFromDbl8 &:= bin64AsEightBytesLe(bin64(element));
+      bytesFromDbl8 &:= bytes(bin64(element), LE, 8);
     end for;
     if allInteger then
       bytes := bytesFromInt2;

@@ -266,7 +266,7 @@ objectType int_bytes_be_2_uint (listType arguments)
 
 
 /**
- *  Convert an integer into a big-endian string of bytes.
+ *  Convert an integer into a big-endian encoded string of bytes.
  *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  @param number/arg_1 Integer number to be converted.
@@ -283,7 +283,7 @@ objectType int_bytes_be_signed (listType arguments)
 
 
 /**
- *  Convert a positive integer into a big-endian string of bytes.
+ *  Convert a positive integer into a big-endian encoded string of bytes.
  *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  @param number/arg_1 Integer number to be converted.
@@ -341,7 +341,7 @@ objectType int_bytes_le_2_uint (listType arguments)
 
 
 /**
- *  Convert an integer into a little-endian string of bytes.
+ *  Convert an integer into a little-endian encoded string of bytes.
  *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  @param number/arg_1 Integer number to be converted.
@@ -358,7 +358,7 @@ objectType int_bytes_le_signed (listType arguments)
 
 
 /**
- *  Convert a positive integer into a little-endian string of bytes.
+ *  Convert a positive integer into a little-endian encoded string of bytes.
  *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  @param number/arg_1 Integer number to be converted.
@@ -729,7 +729,7 @@ objectType int_lowest_set_bit (listType arguments)
  *  Convert integer to string and pad it with zeros at the left side.
  *  The number is converted to a string with decimal representation.
  *  For negative numbers a minus sign is prepended.
- *  @param number/arg_1 Number to be converted to a [[string]].
+ *  @param number/arg_1 Number to be converted to a string.
  *  @param length/arg_3 Minimum length of the result.
  *  @return number as decimal string left padded with zeroes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -1049,6 +1049,19 @@ objectType int_mult_assign (listType arguments)
 
 
 
+/**
+ *  Convert an integer into a big-endian encoded string of bytes.
+ *  Negative numbers use a twos-complement representation.
+ *  The result uses a signed binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number/arg_1 Integer number to be converted.
+ *  @param length/arg_4 Determines the length of the result string.
+ *  @return a string of 'length' bytes with the signed binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If 'length' is negative or zero, or
+ *                         if the result would not fit in 'length' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType int_n_bytes_be_signed (listType arguments)
 
   { /* int_n_bytes_be_signed */
@@ -1060,6 +1073,19 @@ objectType int_n_bytes_be_signed (listType arguments)
 
 
 
+/**
+ *  Convert a positive integer into a big-endian encoded string of bytes.
+ *  The result uses an unsigned binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number/arg_1 Integer number to be converted.
+ *  @param length/arg_4 Determines the length of the result string.
+ *  @return a string of 'length' bytes with the unsigned binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If 'length' is negative or zero, or
+ *                         if 'number' is negative, or
+ *                         if the result would not fit in 'length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType int_n_bytes_be_unsigned (listType arguments)
 
   { /* int_n_bytes_be_unsigned */
@@ -1071,6 +1097,19 @@ objectType int_n_bytes_be_unsigned (listType arguments)
 
 
 
+/**
+ *  Convert an integer into a little-endian encoded string of bytes.
+ *  Negative numbers use a twos-complement representation.
+ *  The result uses a signed binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number/arg_1 Integer number to be converted.
+ *  @param length/arg_4 Determines the length of the result string.
+ *  @return a string of 'length' bytes with the signed binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If 'length' is negative or zero, or
+ *                         if the result would not fit in 'length' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType int_n_bytes_le_signed (listType arguments)
 
   { /* int_n_bytes_le_signed */
@@ -1082,6 +1121,19 @@ objectType int_n_bytes_le_signed (listType arguments)
 
 
 
+/**
+ *  Convert a positive integer into a little-endian encoded string of bytes.
+ *  The result uses an unsigned binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *  @param number/arg_1 Integer number to be converted.
+ *  @param length/arg_4 Determines the length of the result string.
+ *  @return a string of 'length' bytes with the unsigned binary
+ *          representation of 'number'.
+ *  @exception RANGE_ERROR If 'length' is negative or zero, or
+ *                         if 'number' is negative, or
+ *                         if the result would not fit in 'length'' bytes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType int_n_bytes_le_unsigned (listType arguments)
 
   { /* int_n_bytes_le_unsigned */

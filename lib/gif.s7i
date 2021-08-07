@@ -280,7 +280,8 @@ const func PRIMITIVE_WINDOW: readGif (inout file: gifFile) is func
         elsif sentinel = ',' then
           readImageHeader(gifFile, imageHeader);
           initialNumberOfLzwBits := ord(getc(gifFile));
-          compressed := readSubBlockSeries(gifFile);
+          # Appending one bits is necessary to successfully read the empty GIF image.
+          compressed := readSubBlockSeries(gifFile) & "\16#ff;\16#ff;";
           uncompressed := lzwDecompressLsb(compressed, initialNumberOfLzwBits);
           if imageHeader.hasLocalColorMap then
             if extensions.transparentColorFlag then
