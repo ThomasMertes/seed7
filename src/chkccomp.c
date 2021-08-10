@@ -6688,6 +6688,86 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
 
 
 
+ static const char *findPgTypeH (char *includeOption, char *serverIncludeOption)
+
+  {
+    char testProgram[BUFFER_SIZE];
+    const char *pgTypeInclude = NULL;
+
+  /* findPgTypeH */
+    if (compileAndLinkWithOptionsOk("#include <server/catalog/pg_type.h>\n"
+                                    "int main(int argc,char *argv[]){"
+                                    "printf(\"%d\\n\", INT4OID == 23);\n"
+                                    "return 0;}\n",
+                                    includeOption, "")) {
+      pgTypeInclude = "server/catalog/pg_type.h";
+    } else if (compileAndLinkWithOptionsOk("#include <server/catalog/pg_type_d.h>\n"
+                                           "int main(int argc,char *argv[]){"
+                                           "printf(\"%d\\n\", INT4OID == 23);\n"
+                                           "return 0;}\n",
+                                           includeOption, "")) {
+      pgTypeInclude = "server/catalog/pg_type_d.h";
+    } else if (compileAndLinkWithOptionsOk("#include <catalog/pg_type.h>\n"
+                                           "int main(int argc,char *argv[]){"
+                                           "printf(\"%d\\n\", INT4OID == 23);\n"
+                                           "return 0;}\n",
+                                           includeOption, "")) {
+      pgTypeInclude = "catalog/pg_type.h";
+    } else if (compileAndLinkWithOptionsOk("#include <catalog/pg_type_d.h>\n"
+                                           "int main(int argc,char *argv[]){"
+                                           "printf(\"%d\\n\", INT4OID == 23);\n"
+                                           "return 0;}\n",
+                                           includeOption, "")) {
+      pgTypeInclude = "catalog/pg_type_d.h";
+    } else {
+      appendOption(includeOption, serverIncludeOption);
+      if (compileAndLinkWithOptionsOk("#include <server/catalog/pg_type.h>\n"
+                                      "int main(int argc,char *argv[]){"
+                                      "printf(\"%d\\n\", INT4OID == 23);\n"
+                                      "return 0;}\n",
+                                      includeOption, "")) {
+        pgTypeInclude = "server/catalog/pg_type.h";
+      } else if (compileAndLinkWithOptionsOk("#include <server/catalog/pg_type_d.h>\n"
+                                             "int main(int argc,char *argv[]){"
+                                             "printf(\"%d\\n\", INT4OID == 23);\n"
+                                             "return 0;}\n",
+                                             includeOption, "")) {
+        pgTypeInclude = "server/catalog/pg_type_d.h";
+      } else if (compileAndLinkWithOptionsOk("#include <catalog/pg_type.h>\n"
+                                             "int main(int argc,char *argv[]){"
+                                             "printf(\"%d\\n\", INT4OID == 23);\n"
+                                             "return 0;}\n",
+                                             includeOption, "")) {
+        pgTypeInclude = "catalog/pg_type.h";
+      } else if (compileAndLinkWithOptionsOk("#include <catalog/pg_type_d.h>\n"
+                                             "int main(int argc,char *argv[]){"
+                                             "printf(\"%d\\n\", INT4OID == 23);\n"
+                                             "return 0;}\n",
+                                             includeOption, "")) {
+        pgTypeInclude = "catalog/pg_type_d.h";
+      } else {
+        pgTypeInclude = "server/catalog/pg_type.h";
+      } /* if */
+    } /* if */
+    sprintf(testProgram, "#include <%s>\n"
+                         "int main(int argc,char *argv[]){"
+                         "printf(\"%d\\n\", INT4OID == 23);\n"
+                         "return 0;}\n",
+                         pgTypeInclude);
+    if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
+      fprintf(logFile, "\rPostgreSQL: %s found in system include directory.\n", pgTypeInclude);
+    } else if (findPgTypeInclude(includeOption, pgTypeInclude)) {
+      pgTypeInclude = "pg_type.h";
+      fprintf(logFile, "\rPostgreSQL: %s found in Seed7 include directory.\n", pgTypeInclude);
+    } else {
+      fprintf(logFile, "\rPostgreSQL: %s not found in include directories.\n", pgTypeInclude);
+      pgTypeInclude = NULL;
+    } /* if */
+    return pgTypeInclude;
+  } /* findPgTypeH */
+
+
+
 static void determinePostgresDefines (FILE *versionFile,
     char *include_options, char *system_database_libs)
 
@@ -6728,7 +6808,6 @@ static void determinePostgresDefines (FILE *versionFile,
     char includeOption[BUFFER_SIZE];
     char serverIncludeOption[BUFFER_SIZE];
     const char *postgresqlInclude = NULL;
-    const char *postgresInclude = NULL;
     const char *pgTypeInclude = NULL;
     char testProgram[BUFFER_SIZE];
     int dbHomeExists = 0;
@@ -6770,6 +6849,7 @@ static void determinePostgresDefines (FILE *versionFile,
     if (dbHomeExists) {
       /* fprintf(logFile, "dbHome=%s\n", dbHome); */
       sprintf(includeOption, "-I\"%s/include\"", dbHome);
+      sprintf(serverIncludeOption, "-I\"%s/include/server\"", dbHome);
       /* fprintf(logFile, "includeOption=%s\n", includeOption); */
       if (compileAndLinkWithOptionsOk("#include \"libpq-fe.h\"\n"
                                       "int main(int argc,char *argv[]){"
@@ -6777,16 +6857,7 @@ static void determinePostgresDefines (FILE *versionFile,
                                       includeOption, "")) {
         postgresqlInclude = "libpq-fe.h";
         fprintf(logFile, "\rPostgreSQL: %s found in %s/include\n", postgresqlInclude, dbHome);
-        sprintf(dirPath, "%s/include/server", dbHome);
-        if (fileIsDir(dirPath)) {
-          sprintf(filePath, "%s/include/server/catalog/pg_type.h", dbHome);
-        } else {
-          sprintf(filePath, "%s/include/catalog/pg_type.h", dbHome);
-        } /* if */
-        if (extractPostgresOid(filePath)) {
-          pgTypeInclude = "pg_type.h";
-          fprintf(logFile, "\rPostgreSQL: %s found in Seed7 directory.\n", pgTypeInclude);
-        } /* if */
+        pgTypeInclude = findPgTypeH(includeOption, serverIncludeOption);
       } else {
         sprintf(filePath, "%s/include/libpq-fe.h", dbHome);
         if (fileIsRegular(filePath)) {
@@ -6802,50 +6873,9 @@ static void determinePostgresDefines (FILE *versionFile,
                                     includeOption, "")) {
       postgresqlInclude = "libpq-fe.h";
       fprintf(logFile, "\rPostgreSQL: %s found in system include directory.\n", postgresqlInclude);
-      if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
-                                      "int main(int argc,char *argv[]){"
-                                      "return 0;}\n",
-                                      includeOption, "")) {
-        postgresInclude = "server/postgres.h";
-        pgTypeInclude = "server/catalog/pg_type.h";
-      } else {
-        appendOption(includeOption, serverIncludeOption);
-        if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
-                                        "int main(int argc,char *argv[]){"
-                                        "return 0;}\n",
-                                        includeOption, "")) {
-          postgresInclude = "server/postgres.h";
-          pgTypeInclude = "server/catalog/pg_type.h";
-        } else {
-          postgresInclude = "postgres.h";
-          pgTypeInclude = "catalog/pg_type.h";
-        } /* if */
-      } /* if */
-      sprintf(testProgram, "#include <%s>\n#include <%s>\n"
-                           "int main(int argc,char *argv[]){"
-                           "return 0;}\n",
-                           postgresInclude, pgTypeInclude);
-      if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
-        fprintf(logFile, "\rPostgreSQL: %s found in system include directory.\n", pgTypeInclude);
-      } else if (findPgTypeInclude(includeOption, pgTypeInclude)) {
-        pgTypeInclude = "pg_type.h";
-        fprintf(logFile, "\rPostgreSQL: %s found in Seed7 include directory.\n", pgTypeInclude);
-      } else {
-        fprintf(logFile, "\rPostgreSQL: %s not found in include directories.\n", pgTypeInclude);
-        pgTypeInclude = NULL;
-      } /* if */
-      sprintf(testProgram, "#include <%s>\n"
-                           "int main(int argc,char *argv[]){"
-                           "return 0;}\n",
-                           postgresInclude);
-      if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
-        fprintf(logFile, "\rPostgreSQL: %s found in system include directory.\n", postgresInclude);
-      } else {
-        fprintf(logFile, "\rPostgreSQL: %s not found in include directories.\n", postgresInclude);
-        postgresInclude = NULL;
-      } /* if */
+      pgTypeInclude = findPgTypeH(includeOption, serverIncludeOption);
     } /* if */
-    if ((postgresqlInclude == NULL || postgresInclude == NULL || pgTypeInclude == NULL) &&
+    if ((postgresqlInclude == NULL || pgTypeInclude == NULL) &&
         (compileAndLinkWithOptionsOk("#include \"db_post.h\"\n"
                                      "int main(int argc,char *argv[]){\n"
                                      "PGconn *connection; return 0;}\n",
@@ -6864,9 +6894,6 @@ static void determinePostgresDefines (FILE *versionFile,
         appendOption(include_options, includeOption);
       } /* if */
       fprintf(versionFile, "#define POSTGRESQL_INCLUDE \"%s\"\n", postgresqlInclude);
-    } /* if */
-    if (postgresInclude != NULL) {
-      fprintf(versionFile, "#define POSTGRESQL_POSTGRES_H \"%s\"\n", postgresInclude);
     } /* if */
     if (pgTypeInclude != NULL) {
       fprintf(versionFile, "#define POSTGRESQL_PG_TYPE_H \"%s\"\n", pgTypeInclude);
