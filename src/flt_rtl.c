@@ -1075,7 +1075,7 @@ floatType fltLog1p (floatType number)
 
   /* fltLog1p */
     logFunction(printf("fltLog1p(" FMT_E ")\n", number););
-    logarithm = log(1.0 + x);
+    logarithm = log(1.0 + number);
     logFunction(printf("fltLog1p(" FMT_E ") --> " FMT_E "\n",
                 number, logarithm););
     return logarithm;
