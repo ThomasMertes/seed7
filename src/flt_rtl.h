@@ -66,6 +66,12 @@ boolType fltEq (floatType number1, floatType number2);
 floatType fltExp (floatType exponent);
 #endif
 
+#if HAS_EXPM1
+#define fltExpM1(exponent) expm1(exponent)
+#else
+floatType fltExpM1 (floatType exponent);
+#endif
+
 #if !FLOAT_COMPARISON_OKAY
 boolType fltGe (floatType number1, floatType number2);
 boolType fltGt (floatType number1, floatType number2);
@@ -94,6 +100,12 @@ floatType fltLog (floatType number);
 #define fltLog10(number) log10(number)
 #else
 floatType fltLog10 (floatType number);
+#endif
+
+#if HAS_LOG1P
+#define fltLog1p(number) log1p(number)
+#else
+floatType fltLog1p (floatType number);
 #endif
 
 #if LOG2_FUNCTION_OKAY

@@ -46,6 +46,7 @@ const ACTION: FLT_DIV_ASSIGN      is action "FLT_DIV_ASSIGN";
 const ACTION: FLT_DOUBLE2BITS     is action "FLT_DOUBLE2BITS";
 const ACTION: FLT_EQ              is action "FLT_EQ";
 const ACTION: FLT_EXP             is action "FLT_EXP";
+const ACTION: FLT_EXPM1           is action "FLT_EXPM1";
 const ACTION: FLT_FLOOR           is action "FLT_FLOOR";
 const ACTION: FLT_GE              is action "FLT_GE";
 const ACTION: FLT_GT              is action "FLT_GT";
@@ -59,6 +60,7 @@ const ACTION: FLT_ISNEGATIVEZERO  is action "FLT_ISNEGATIVEZERO";
 const ACTION: FLT_LE              is action "FLT_LE";
 const ACTION: FLT_LOG             is action "FLT_LOG";
 const ACTION: FLT_LOG10           is action "FLT_LOG10";
+const ACTION: FLT_LOG1P           is action "FLT_LOG1P";
 const ACTION: FLT_LOG2            is action "FLT_LOG2";
 const ACTION: FLT_LSHIFT          is action "FLT_LSHIFT";
 const ACTION: FLT_LT              is action "FLT_LT";
@@ -109,6 +111,11 @@ const proc: flt_prototypes (inout file: c_prog) is func
     else
       declareExtern(c_prog, "floatType   fltExp (floatType number);");
     end if;
+    if ccConf.HAS_EXPM1 then
+      writeln(c_prog, "#define     fltExpM1(exponent) expm1(exponent)");
+    else
+      declareExtern(c_prog, "floatType   fltExpM1 (floatType number);");
+    end if;
     if not ccConf.FLOAT_COMPARISON_OKAY then
       declareExtern(c_prog, "boolType    fltGe (floatType, floatType);");
       declareExtern(c_prog, "boolType    fltGt (floatType, floatType);");
@@ -129,6 +136,9 @@ const proc: flt_prototypes (inout file: c_prog) is func
     end if;
     if not ccConf.LOG10_FUNCTION_OKAY then
       declareExtern(c_prog, "floatType   fltLog10 (floatType);");
+    end if;
+    if not ccConf.HAS_LOG1P then
+      declareExtern(c_prog, "floatType   fltLog1p (floatType);");
     end if;
     if not ccConf.LOG2_FUNCTION_OKAY then
       declareExtern(c_prog, "floatType   fltLog2 (floatType);");
@@ -693,6 +703,16 @@ const proc: process (FLT_EXP, in reference: function,
 
   begin
     c_expr.expr &:= "fltExp(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FLT_EXPM1, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "fltExpM1(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -1274,6 +1294,20 @@ const proc: process (FLT_LOG10, in reference: function,
       c_expr.expr &:= "log10(";
     else
       c_expr.expr &:= "fltLog10(";
+    end if;
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FLT_LOG1P, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    if ccConf.HAS_LOG1P then
+      c_expr.expr &:= "log1p(";
+    else
+      c_expr.expr &:= "fltLog1p(";
     end if;
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";

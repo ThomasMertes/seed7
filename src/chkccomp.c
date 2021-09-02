@@ -2240,6 +2240,16 @@ static void numericProperties (FILE *versionFile)
                          "return 0;}\n")) {
       fprintf(versionFile, "#define CAST_INT_TO_FLOAT_OKAY %d\n", doTest());
     } /* if */
+    fprintf(versionFile, "#define HAS_LOG1P %d\n",
+        compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+                                    "int main(int argc,char *argv[]){\n"
+                                    "float num1 = 0.0;\n"
+                                    "double num2 = 0.0;\n"
+                                    "printf(\"%d\\n\",\n"
+                                    "       log1p(num1) == 0.0 &&\n"
+                                    "       log1p(num2) == 0.0);\n"
+                                    "return 0;}\n",
+                                    "", SYSTEM_LIBS) && doTest() == 1);
     has_log2 =
         compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
                                     "int main(int argc,char *argv[]){\n"
@@ -2519,6 +2529,25 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define HAS_EXP10 %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       expm1(0.0) == 0.0 &&\n"
+            "       expm1(floatZero) == 0.0 &&\n"
+            "       expm1(floatNegativeZero) == 0.0 &&\n"
+            "       expm1(floatMinusInf) == -1.0 &&\n"
+            "       expm1(doubleMinusInf) == -1.0 &&\n"
+            "       expm1(floatPlusInf) == floatPlusInf &&\n"
+            "       expm1(doublePlusInf) == doublePlusInf &&\n"
+            "       os_isnan(expm1(floatNanValue1)) &&\n"
+            "       os_isnan(expm1(doubleNanValue1)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define HAS_EXPM1 %d\n",
         compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
@@ -6751,7 +6780,7 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
     } /* if */
     sprintf(testProgram, "#include <%s>\n"
                          "int main(int argc,char *argv[]){"
-                         "printf(\"%d\\n\", INT4OID == 23);\n"
+                         "printf(\"%%d\\n\", INT4OID == 23);\n"
                          "return 0;}\n",
                          pgTypeInclude);
     if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {

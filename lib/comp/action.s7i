@@ -854,6 +854,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_EQ, function, params, c_expr);
       when {"FLT_EXP"}:
         process(FLT_EXP, function, params, c_expr);
+      when {"FLT_EXPM1"}:
+        process(FLT_EXPM1, function, params, c_expr);
       when {"FLT_FLOOR"}:
         process(FLT_FLOOR, function, params, c_expr);
       when {"FLT_GE"}:
@@ -880,6 +882,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_LOG, function, params, c_expr);
       when {"FLT_LOG10"}:
         process(FLT_LOG10, function, params, c_expr);
+      when {"FLT_LOG1P"}:
+        process(FLT_LOG1P, function, params, c_expr);
       when {"FLT_LOG2"}:
         process(FLT_LOG2, function, params, c_expr);
       when {"FLT_LSHIFT"}:

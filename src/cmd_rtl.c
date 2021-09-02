@@ -1309,7 +1309,8 @@ static intType getFileTypeSL (const const_striType filePath, errInfoType *err_in
       } else {
         type_of_file = FILE_ABSENT;
         if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
-            saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG)) {
+                     saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG &&
+                     saved_errno != EACCES)) {
           logError(printf("getFileTypeSL: os_lstat(\"" FMT_S_OS "\") failed:\n"
                           "errno=%d\nerror: %s\n",
                           os_path, saved_errno, strerror(saved_errno)););
@@ -1753,7 +1754,7 @@ static int systemForNodeJs (const char *command)
 /**
  *  Determine the size of a file.
  *  The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, fifos and sockets a size of 0 is returned.
  *  @return the size of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -1800,7 +1801,9 @@ bigIntType cmdBigFileSize (const const_striType filePath)
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
-      } else if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
+      } else if (stat_result == 0 && (S_ISDIR(stat_buf.st_mode) ||
+                                      S_ISFIFO(stat_buf.st_mode) ||
+                                      S_ISSOCK(stat_buf.st_mode))) {
         size_of_file = bigIConv(0);
       } else {
         aFile = os_fopen(os_path, os_mode_rb);
@@ -2179,6 +2182,10 @@ striType cmdConfigValue (const const_striType name)
       opt = HAS_EXP2 ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "HAS_EXP10") == 0) {
       opt = HAS_EXP10 ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "HAS_EXPM1") == 0) {
+      opt = HAS_EXPM1 ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "HAS_LOG1P") == 0) {
+      opt = HAS_LOG1P ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "HAS_CBRT") == 0) {
       opt = HAS_CBRT ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
@@ -2468,7 +2475,7 @@ setType cmdFileMode (const const_striType filePath)
 /**
  *  Determine the size of a file.
  *  The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, fifos and sockets a size of 0 is returned.
  *  @return the size of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -2516,7 +2523,9 @@ intType cmdFileSize (const const_striType filePath)
         } else {
           size_of_file = (intType) stat_buf.st_size;
         } /* if */
-      } else if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
+      } else if (stat_result == 0 && (S_ISDIR(stat_buf.st_mode) ||
+                                      S_ISFIFO(stat_buf.st_mode) ||
+                                      S_ISSOCK(stat_buf.st_mode))) {
         size_of_file = 0;
       } else {
         /* printf("stat_result=%d\nerrno=%d\n", stat_result, errno); */
@@ -2564,7 +2573,7 @@ intType cmdFileSize (const const_striType filePath)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR or ENAMETOOLONG.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
  */
 intType cmdFileType (const const_striType filePath)
 
@@ -2628,15 +2637,16 @@ intType cmdFileType (const const_striType filePath)
         type_of_file = FILE_SYMLINK;
 #endif
       } else if (unlikely(saved_errno == EACCES) &&
-          os_lstat(os_path, &stat_buf) == 0 &&
-          S_ISLNK(stat_buf.st_mode)) {
+                          os_lstat(os_path, &stat_buf) == 0 &&
+                          S_ISLNK(stat_buf.st_mode)) {
         /* Symbolic link that refers to a place where */
         /* the permission is denied. */
         type_of_file = FILE_SYMLINK;
       } else {
         type_of_file = FILE_ABSENT;
         if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
-            saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG)) {
+                     saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG &&
+                     saved_errno != EACCES)) {
           logError(printf("cmdFileType: os_stat(\"" FMT_S_OS "\") failed:\n"
                           "errno=%d\nerror: %s\n",
                           os_path, saved_errno, strerror(saved_errno)););
@@ -2668,7 +2678,7 @@ intType cmdFileType (const const_striType filePath)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR or ENAMETOOLONG.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
  */
 intType cmdFileTypeSL (const const_striType filePath)
 

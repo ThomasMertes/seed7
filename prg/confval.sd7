@@ -66,7 +66,9 @@ const proc: main is func
     writeln("CHECK_FLOAT_DIV_BY_ZERO:       " <& ccConf.CHECK_FLOAT_DIV_BY_ZERO);
     writeln("HAS_EXP2:                      " <& ccConf.HAS_EXP2);
     writeln("HAS_EXP10:                     " <& ccConf.HAS_EXP10);
+    writeln("HAS_EXPM1:                     " <& ccConf.HAS_EXPM1);
     writeln("HAS_CBRT:                      " <& ccConf.HAS_CBRT);
+    writeln("HAS_LOG1P:                     " <& ccConf.HAS_LOG1P);
     writeln("LIMITED_CSTRI_LITERAL_LEN:     " <& ccConf.LIMITED_CSTRI_LITERAL_LEN);
     writeln("SWITCH_WORKS_FOR_INT64TYPE:    " <& ccConf.SWITCH_WORKS_FOR_INT64TYPE);
     writeln("CC_SOURCE_UTF8:                " <& ccConf.CC_SOURCE_UTF8);

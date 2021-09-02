@@ -577,6 +577,22 @@ objectType flt_exp (listType arguments)
 
 
 /**
+ *  Compute exp(x) - 1.0 (subtract one from e raised to the power of x).
+ *  The result is computed in a way that is accurate even if the value
+ *  of x is near zero.
+ *  @return exp(x) - 1.0
+ */
+objectType flt_expm1 (listType arguments)
+
+  { /* flt_expm1 */
+    isit_float(arg_1(arguments));
+    return bld_float_temp(
+        fltExpM1(take_float(arg_1(arguments))));
+  } /* flt_expm1 */
+
+
+
+/**
  *  Round down towards negative infinity.
  *  Returns the largest value that is less than or equal to the
  *  argument and is equal to a mathematical integer.
@@ -822,6 +838,25 @@ objectType flt_log10 (listType arguments)
     logarithm = fltLog10(take_float(arg_1(arguments)));
     return bld_float_temp(logarithm);
   } /* flt_log10 */
+
+
+
+/**
+ *  Compute log(1.0 + x) (natural logarithm of the sum of 1 and x).
+ *  The result is computed in a way that is accurate even if the value
+ *  of x is near zero.
+ *  @return log(1.0 + x)
+ */
+objectType flt_log1p (listType arguments)
+
+  {
+    floatType logarithm;
+
+  /* flt_log1p */
+    isit_float(arg_1(arguments));
+    logarithm = fltLog1p(take_float(arg_1(arguments)));
+    return bld_float_temp(logarithm);
+  } /* flt_log1p */
 
 
 

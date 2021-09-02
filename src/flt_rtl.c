@@ -649,6 +649,29 @@ floatType fltExp (floatType exponent)
 
 
 
+#if !HAS_EXPM1
+/**
+ *  Compute exp(x) - 1.0 (subtract one from e raised to the power of x).
+ *  This function is used, if the function expm1() is missing from
+ *  the C math library. This simple implementation is not accurate if
+ *  the value of x is near zero.
+ *  @return exp(x) - 1.0
+ */
+floatType fltExpM1 (floatType exponent)
+
+  {
+    floatType power;
+
+  /* fltExpM1 */
+    logFunction(printf("fltExpM1(" FMT_E ", *)\n", exponent););
+    power = fltExp(exponent) - 1;
+    logFunction(printf("fltExpM1 --> " FMT_E "\n", power););
+    return power;
+  } /* fltExpM1 */
+#endif
+
+
+
 #if !FLOAT_COMPARISON_OKAY
 /**
  *  Check if 'number1' is greater than or equal to 'number2'.
@@ -1033,6 +1056,30 @@ floatType fltLog10 (floatType number)
                 number, logarithm););
     return logarithm;
   } /* fltLog10 */
+#endif
+
+
+
+#if !HAS_LOG1P
+/**
+ *  Compute log(1.0 + x) (natural logarithm of the sum of 1 and x).
+ *  This function is used, if the function log1p() is missing from
+ *  the C math library. This simple implementation is not accurate if
+ *  the value of x is near zero.
+ *  @return log(1.0 + x)
+ */
+floatType fltLog1p (floatType number)
+
+  {
+    floatType logarithm;
+
+  /* fltLog1p */
+    logFunction(printf("fltLog1p(" FMT_E ")\n", number););
+    logarithm = log(1.0 + x);
+    logFunction(printf("fltLog1p(" FMT_E ") --> " FMT_E "\n",
+                number, logarithm););
+    return logarithm;
+  } /* fltLog1p */
 #endif
 
 

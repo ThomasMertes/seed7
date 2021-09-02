@@ -128,6 +128,15 @@ const func float: exp (in float: x)                            is action "FLT_EX
 
 
 (**
+ *  Compute exp(x) - 1.0 (subtract one from e raised to the power of x).
+ *  The result is computed in a way that is accurate even if the value
+ *  of x is near zero.
+ *  @return exp(x) - 1.0
+ *)
+const func float: expm1 (in float: x)                          is action "FLT_EXPM1";
+
+
+(**
  *  Return the natural logarithm (base e) of x.
  *   log(NaN)       returns NaN
  *   log(1.0)       returns 0.0
@@ -137,6 +146,15 @@ const func float: exp (in float: x)                            is action "FLT_EX
  *  @return the natural logarithm of x.
  *)
 const func float: log (in float: x)                            is action "FLT_LOG";
+
+
+(**
+ *  Compute log(1.0 + x) (natural logarithm of the sum of 1 and x).
+ *  The result is computed in a way that is accurate even if the value
+ *  of x is near zero.
+ *  @return log(1.0 + x)
+ *)
+const func float: log1p (in float: x)                          is action "FLT_LOG1P";
 
 
 (**

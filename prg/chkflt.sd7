@@ -10788,6 +10788,12 @@ const proc: check_inf is func
       okay := FALSE;
     end if;
 
+    if  log1p(               -1.0)  <> -Infinity or
+        log1p(     floatExpr(-1.0)) <> -Infinity then
+      writeln(" ***** log1p(-1.0) does not return -Infinity.");
+      okay := FALSE;
+    end if;
+
     if  log2(                -0.0)  <> -Infinity or
         log2(           minusZero)  <> -Infinity or
         log2(                 0.0)  <> -Infinity or
@@ -11673,6 +11679,13 @@ const proc: check_nan is func
         not isNaN(log(-1.0))         or
         not isNaN(log(NaN))          then
       writeln(" ***** NaN is not returned as error value for log().");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(log1p(-Infinity))  or
+        not isNaN(log1p(-2.0))       or
+        not isNaN(log1p(NaN))        then
+      writeln(" ***** NaN is not returned as error value for log1p().");
       okay := FALSE;
     end if;
 
