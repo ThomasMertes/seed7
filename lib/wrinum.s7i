@@ -106,7 +106,7 @@ const func string: str (ENGLISH, in integer: number) is func
           end if;
           stri &:= "hundred";
         end if;
-        if number rem 100 <> 0 then
+        if number rem 100 <> 0 or number = 0 then
           if number >= 100 then
             stri &:= "and";
           end if;
@@ -124,7 +124,7 @@ const func string: str (ENGLISH, in integer: number) is func
           end if;
           stri &:= "thousand";
         end if;
-        if number rem 1000 <> 0 then
+        if number rem 1000 <> 0 or number = 0 then
           if number >= 1000 then
             stri &:= "and";
           end if;
@@ -143,7 +143,7 @@ const func string: str (ENGLISH, in integer: number) is func
             stri := str_1E3(number div 1000000) & "millions";
           end if;
         end if;
-        if number rem 1000000 <> 0 then
+        if number rem 1000000 <> 0 or number = 0 then
           stri &:= str_1E6(number rem 1000000);
         end if;
       end func;
@@ -200,7 +200,7 @@ const func string: str (GERMAN, in integer: number) is func
           end if;
           stri &:= "hundert";
         end if;
-        if number rem 100 <> 0 then
+        if number rem 100 <> 0 or number = 0 then
           if number >= 100 then
             stri &:= "und";
           end if;
@@ -218,7 +218,7 @@ const func string: str (GERMAN, in integer: number) is func
           end if;
           stri &:= "tausend";
         end if;
-        if number rem 1000 <> 0 then
+        if number rem 1000 <> 0 or number = 0 then
           if number >= 1000 then
             stri &:= "und";
           end if;
@@ -237,7 +237,7 @@ const func string: str (GERMAN, in integer: number) is func
             stri := str_1E3(number div 1000000) & "millionen";
           end if;
         end if;
-        if number rem 1000000 <> 0 then
+        if number rem 1000000 <> 0 or number = 0 then
           stri &:= str_1E6(number rem 1000000);
         end if;
       end func;
