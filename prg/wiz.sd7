@@ -2,7 +2,8 @@
 (********************************************************************)
 (*                                                                  *)
 (*  wiz.sd7       Find treasures and fight monsters labyrinth game  *)
-(*  Copyright (C) 1991, 1992, 1993, 1994, 2004  Thomas Mertes       *)
+(*  Copyright (C) 1990 - 1994, 2004, 2007, 2008  Thomas Mertes      *)
+(*                2011, 2013, 2021  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -23,335 +24,225 @@
 
 
 $ include "seed7_05.s7i";
-  include "stdio.s7i";
+  include "keybd.s7i";
+  include "console.s7i";
+  include "editline.s7i";
+  include "wrinum.s7i";
 
 const integer: SIZE_LABY is 8;
 const integer: NUM_LEVELS is 8;
+const integer: RESTRICTED_CONNECTION_COUNT is 5;
+const integer: STAIRS_PER_LEVEL is 3;
 const integer: THINGS_PER_LEVEL is 1;
 const integer: VENDORS_PER_LEVEL is 1;
 const integer: OCCURRENCES_PER_LEVEL is 1;
 const integer: TRANSFERS_PER_LEVEL is 1;
+const integer: ARMOR_STRENGTH_FACTOR is 7;
 
 
-const type: speciestype is new enum
+const type: speciesType is new enum
     HOBBIT, ELF, HUMAN, DWARF
   end enum;
 
-const array speciestype: list_of_species is [](HOBBIT, ELF, HUMAN, DWARF);
+const func string: str (in speciesType: species) is
+  return [] ("hobbit", "elf", "human", "dwarf")[succ(ord(species))];
 
-const func string: str (in speciestype: aSpecies) is
-  return [] ("hobbit", "elf", "human", "dwarf")[succ(ord(aSpecies))];
-
-enable_output(speciestype);
+enable_output(speciesType);
 
 
-const type: commandtype is subtype integer;
-const commandtype: ILLEGAL     is  0;
-const commandtype: GO_NORTH    is  1;
-const commandtype: GO_SOUTH    is  2;
-const commandtype: GO_EAST     is  3;
-const commandtype: GO_WEST     is  4;
-const commandtype: GO_UP       is  5;
-const commandtype: GO_DOWN     is  6;
-const commandtype: WAIT        is  7;
-const commandtype: INVENTORY   is  8;
-const commandtype: HELP        is  9;
-const commandtype: LOOK        is 10;
-const commandtype: MAP         is 11;
-const commandtype: FLARE       is 12;
-const commandtype: LIGHT       is 13;
-const commandtype: ATTACK      is 14;
-const commandtype: CAST        is 15;
-const commandtype: BRIBE       is 16;
-const commandtype: STATUS      is 17;
-const commandtype: OPEN        is 18;
-const commandtype: READ        is 19;
-const commandtype: GAZE        is 20;
-const commandtype: TELEPORT    is 21;
-const commandtype: DRINK       is 22;
-const commandtype: SELL        is 23;
-const commandtype: BUY         is 24;
-const commandtype: QUITCOMMAND is 25;
-
-const type: directtype is subtype integer;
-const directtype: NORTH is 1;
-const directtype: SOUTH is 2;
-const directtype: EAST is 3;
-const directtype: WEST is 4;
-const directtype: UP is 5;
-const directtype: DOWN is 6;
-
-const func string: str (in directtype: direct) is
-  return [] ("north", "south", "east", "west", "up", "down")[direct];
-
-enable_output(directtype);
-
-const array integer: delta_x is [](-1,  1,  0,  0,  0,  0);
-const array integer: delta_y is []( 0,  0,  1, -1,  0,  0);
-const array integer: delta_z is []( 0,  0,  0,  0, -1,  1);
-
-const type: contenttype is integer;
-const contenttype: EMPTYROOM is 1;
-const contenttype: ENTRANCE is 2;
-const contenttype: EMPTYCHEST is 3;
-const contenttype: CHESTWITHSKELETON is 4;
-const contenttype: CLOSEDCHEST is 5;
-const contenttype: ORB is 6;
-const contenttype: POOL is 7;
-const contenttype: BOOK is 8;
-const array contenttype: list_of_contents is [](EMPTYROOM, ENTRANCE, EMPTYCHEST,
-      CHESTWITHSKELETON, CLOSEDCHEST, ORB, POOL, BOOK);
-
-const type: placetype is new enum
-    NOWHERE, ANYROOM, PLAYER
+const type: directType is new enum
+    NORTH, SOUTH, EAST, WEST, UP, DOWN
   end enum;
 
-const type: object_record is new struct
-    var string: name is "";
-    var integer: number is 0;
-    var placetype: place is NOWHERE;
-    var integer: xPos is 0;
-    var integer: yPos is 0;
-    var integer: zPos is 0;
-  end struct;
+const func string: str (in directType: direct) is
+  return [] ("north", "south", "east", "west", "up", "down")[succ(ord(direct))];
 
-const type: objecttype is varptr object_record;
+enable_output(directType);
 
-const objecttype: NOOBJECT is  varalloc(object_record.value);
-const objecttype: LAMP is      varalloc(object_record.value);
-const objecttype: RUBY is      varalloc(object_record.value);
-const objecttype: NORNSTONE is varalloc(object_record.value);
-const objecttype: PEARL is     varalloc(object_record.value);
-const objecttype: OPAL is      varalloc(object_record.value);
-const objecttype: GREENGEM is  varalloc(object_record.value);
-const objecttype: BLUEFLAME is varalloc(object_record.value);
-const objecttype: PALANTIR is  varalloc(object_record.value);
-const objecttype: SILMARIL is  varalloc(object_record.value);
-const objecttype: RUNESTAFF is varalloc(object_record.value);
-const objecttype: ORBOFZOT is  varalloc(object_record.value);
-
-const array objecttype: list_of_objects is [](LAMP, RUBY, NORNSTONE, PEARL,
-      OPAL, GREENGEM, BLUEFLAME, PALANTIR, SILMARIL, RUNESTAFF,
-      ORBOFZOT);
-const array objecttype: list_of_treasures is [](RUBY, NORNSTONE, PEARL,
-      OPAL, GREENGEM, BLUEFLAME, PALANTIR, SILMARIL);
-(*
-const integer: ord (NOOBJECT)  is 0;
-const integer: ord (LAMP)      is 1;
-const integer: ord (RUBY)      is 2;
-const integer: ord (NORNSTONE) is 3;
-const integer: ord (PEARL)     is 4;
-const integer: ord (OPAL)      is 5;
-const integer: ord (GREENGEM)  is 6;
-const integer: ord (BLUEFLAME) is 7;
-const integer: ord (PALANTIR)  is 8;
-const integer: ord (SILMARIL)  is 9;
-const integer: ord (RUNESTAFF) is 10;
-const integer: ord (ORBOFZOT)  is 11;
-const func integer: ord (in objecttype: anObject) is DYNAMIC;
-const string: str (NOOBJECT)  is "nothing";
-const string: str (LAMP)      is "lamp";
-const string: str (RUBY)      is "ruby red";
-const string: str (NORNSTONE) is "norn Stone";
-const string: str (PEARL)     is "pale pearl";
-const string: str (OPAL)      is "opal Eye";
-const string: str (GREENGEM)  is "green Gem";
-const string: str (BLUEFLAME) is "blue Flame";
-const string: str (PALANTIR)  is "Palantir";
-const string: str (SILMARIL)  is "Silmaril";
-const string: str (RUNESTAFF) is "Runestaff";
-const string: str (ORBOFZOT)  is "*ORB OF ZOT*";
-const func string: str (in objecttype: anObject) is DYNAMIC;
-*)
-
-NOOBJECT->number  :=  0;
-LAMP->number      :=  1;
-RUBY->number      :=  2;
-NORNSTONE->number :=  3;
-PEARL->number     :=  4;
-OPAL->number      :=  5;
-GREENGEM->number  :=  6;
-BLUEFLAME->number :=  7;
-PALANTIR->number  :=  8;
-SILMARIL->number  :=  9;
-RUNESTAFF->number := 10;
-ORBOFZOT->number  := 11;
-
-const func integer: ord (in objecttype: obj) is func
-  result
-    var integer: num is 0;
-  begin
-    num := obj->number;
-  end func;
-
-NOOBJECT->name   := "nothing";
-LAMP->name       := "lamp";
-RUBY->name       := "ruby red";
-NORNSTONE->name  := "norn Stone";
-PEARL->name      := "pale pearl";
-OPAL->name       := "opal Eye";
-GREENGEM->name   := "green Gem";
-BLUEFLAME->name  := "blue Flame";
-PALANTIR->name   := "Palantir";
-SILMARIL->name   := "Silmaril";
-RUNESTAFF->name  := "Runestaff";
-ORBOFZOT->name   := "*ORB OF ZOT*";
-
-const func string: str (in objecttype: obj) is func
-  result
-    var string: stri is "";
-  begin
-    stri := obj->name;
-  end func;
+const type: directSet is set of directType;
 
 
-const type: animatetype is new enum
+const type: objectType is new enum
+    NOOBJECT, LAMP, RUBY, NORNSTONE, PEARL, OPAL, GREENGEM, BLUEFLAME,
+    PALANTIR, SILMARIL, RUNESTAFF, ORBOFZOT
+  end enum;
+
+const func string: str (in objectType: anObject) is
+  return [] ("nothing", "lamp", "ruby red", "norn Stone", "pale pearl",
+             "opal Eye", "green Gem", "blue Flame", "Palantir", "Silmaril",
+             "Runestaff", "*ORB OF ZOT*")[succ(ord(anObject))];
+
+enable_output(objectType);
+
+const type: objectSet is set of objectType;
+
+const objectSet: treasureSet is {RUBY, NORNSTONE, PEARL, OPAL, GREENGEM,
+                                 BLUEFLAME, PALANTIR, SILMARIL};
+
+
+const type: animateType is new enum
     NOBODY, KOBOLD, ORC, WOLF, GOBLIN, OGRE, TROLL, BEAR,
     MINOTAUR, GARGOYLE, CHIMERA, BALROG, DRAGON, VENDOR
   end enum;
 
-const array animatetype: list_of_animates is [](NOBODY, KOBOLD, ORC, WOLF, GOBLIN, OGRE,
-      TROLL, BEAR, MINOTAUR, GARGOYLE, CHIMERA, BALROG, DRAGON, VENDOR);
+const func string: str (in animateType: anAnimate) is
+  return [] ("nobody", "kobold", "orc", "wolf", "goblin", "ogre", "troll",
+             "bear", "minotaur", "gargoyle", "chimera", "balrog", "dragon",
+             "vendor")[succ(ord(anAnimate))];
 
-const func string: str (in animatetype: anAnimate) is
-  return [] ("nobody", "kobold", "orc", "wolf", "goblin", "ogre", "troll", "bear",
-      "minotaur", "gargoyle", "chimera", "balrog", "dragon", "vendor")[succ(ord(anAnimate))];
-
-enable_output(animatetype);
+enable_output(animateType);
 
 
-const type: armortype is new enum
+const type: armorType is new enum
     NOARMOR, LEATHER, CHAINMAIL, PLATE
   end enum;
 
-const func string: str (in armortype: anArmor) is
+const func string: str (in armorType: anArmor) is
   return [] ("no", "leather", "chainmail", "plate") [succ(ord(anArmor))];
 
-enable_output(armortype);
+enable_output(armorType);
 
 
-const type: weapontype is new enum
+const type: weaponType is new enum
     NOWEAPON, DAGGER, MACE, SWORD
   end enum;
 
-const func string: str (in weapontype: aWeapon) is
+const func string: str (in weaponType: aWeapon) is
   return [] ("no", "dagger", "mace", "sword") [succ(ord(aWeapon))];
 
-enable_output(weapontype);
+enable_output(weaponType);
 
 
-const type: transtype is integer;
-const transtype: NOTRANSFER is 1;
-const transtype: SINKHOLE is 2;
-const transtype: WARP is 3;
-
-const type: occurtype is new enum
-    NOOCCURRENCE, LEECH, LETHARGY, FORGET,
-    STEALARMOR, STEALWEAPON, STEALLAMP, STEALFLARES,
-    STEALTREASURE, FINDGOLD, FINDFLARES
+const type: commandType is new enum
+    ILLEGAL, GO_NORTH, GO_SOUTH, GO_EAST, GO_WEST, GO_UP, GO_DOWN, WAIT,
+    INVENTORY, HELP, LOOK, MAP, FLARE, USE_LAMP, ATTACK, CAST, BRIBE,
+    STATUS, OPEN, READ, GAZE, TELEPORT, DRINK, SELL, BUY, QUITCOMMAND
   end enum;
 
-const type: directset is set of integer;
+const type: contentType is new enum
+    EMPTYROOM, ENTRANCE, EMPTYCHEST, CHESTWITHSKELETON, CLOSEDCHEST, ORB,
+    POOL, BOOK
+  end enum;
 
-const array string: food_list is []("sandwiches", "stew", "soup", "burgers",
-    "roast", "filet", "tace", "pie");
+const type: transferType is new enum
+    NOTRANSFER, SINKHOLE, WARP
+  end enum;
 
-const array string: adjective_list is []("large", "strange", "ugly", "enormous",
-    "forbidding", "horrible", "exotic", "ordinary");
+const type: occurType is new enum
+    NOOCCURRENCE, LEECH, LETHARGY, FORGET, STEALARMOR, STEALWEAPON,
+    STEALLAMP, STEALFLARES, STEALTREASURE, FINDGOLD, FINDFLARES
+  end enum;
 
-const type: roomtype is new struct
-    var directset: connections is EMPTY_SET;
-    var transtype: transfer is NOTRANSFER;
-    var occurtype: occurrence is NOOCCURRENCE;
-    var animatetype: roomer is NOBODY;
-    var contenttype: contents is EMPTYROOM;
+const type: playerType is new struct
+    var speciesType: species is HUMAN;
+    var boolean: isMale is TRUE;
+    var integer: strength is 2;
+    var integer: intelligence is 8;
+    var integer: dexterity is 14;
+    var integer: goldPieces is 10;
+    var armorType: armor is NOARMOR;
+    var integer: armorStrength is 0;
+    var weaponType: weapon is NOWEAPON;
+    var boolean: weaponBlocked is FALSE;
+    var integer: flares is 0;
+    var objectSet: possession is objectSet.value;
+    var integer: turns is 1;
+    var integer: mealHour is 0;
+    var boolean: living is TRUE;
+    var boolean: blind is FALSE;
+    var boolean: haveLeech is FALSE;
+    var boolean: lethargic is FALSE;
+    var boolean: forgetting is FALSE;
+    var boolean: leaveCastle is FALSE;
+    var boolean: quitDialog is FALSE;
+    var boolean: quitProgram is FALSE;
+  end struct;
+
+const type: fightStateType is new struct
+    var integer: monsterCount is NUM_LEVELS * 12;
+    var boolean: angryVendors is FALSE;
+    var integer: webCount is 0;
+    var integer: aggressionOfMonster is 0;
+    var integer: monsterStrength is 0;
+    var boolean: monsterPresent is FALSE;
+    var boolean: monsterWillAttack is FALSE;
+    var boolean: bribed is FALSE;
+  end struct;
+
+const type: roomType is new struct
+    var directSet: connections is {NORTH, SOUTH, EAST, WEST};
+    var transferType: transfer is NOTRANSFER;
+    var occurType: occurrence is NOOCCURRENCE;
+    var animateType: roomer is NOBODY;
+    var contentType: contents is EMPTYROOM;
+    var objectSet: objects is objectSet.value;
     var boolean: visited is FALSE;
     var integer: xPos is 0;
     var integer: yPos is 0;
     var integer: zPos is 0;
   end struct;
 
-const type: roomref is varptr roomtype;
+const type: roomRef is sub object interface;
+
+type_implements_interface(roomType, roomRef);
+
+const proc: writePos (in roomRef: aRoom) is DYNAMIC;
+const proc: enterRoom (inout roomRef: currentRoom, inout playerType: player,
+                       inout fightStateType: fightState) is DYNAMIC;
+const proc: incident (inout roomRef: currentRoom,
+                      inout playerType: player) is DYNAMIC;
+const proc: teleportTo (inout roomRef: currentRoom, inout playerType: player,
+                        inout fightStateType: fightState) is DYNAMIC;
+const proc: writeFightState (in roomRef: currentRoom, inout playerType: player,
+                             inout fightStateType: fightState) is DYNAMIC;
+const proc: executeCommand (inout roomRef: currentRoom, inout playerType: player,
+                            inout fightStateType: fightState) is DYNAMIC;
+const proc: removeFromRoom (inout roomRef: currentRoom,
+                            in objectType: treasure) is DYNAMIC;
+
+var integer: labyrinthNumber is 0;
+
+var roomRef: currentRoomRef is roomType.value;
+
+const type: objPlaceType is array [objectType] roomRef;
+var objPlaceType: objPlace is objectType times roomType.value;
+
+const type: labyrinthType is array array array roomType;
+var labyrinthType: labyrinth is SIZE_LABY times SIZE_LABY times NUM_LEVELS times roomType.value;
 
 
-var integer: dungeonNumber is 0;
-var integer: strength is 0;
-var integer: intelligence is 0;
-var integer: dexterity is 0;
-var integer: goldPieces is 10;
-var integer: flares is 0;
-var integer: armorStrength is 0;
-var integer: monsterCount is 0;
-var integer: turns is 0;
-var integer: mealHour is 0;
-var boolean: leaveCastle is FALSE;
-var boolean: quitProgram is FALSE;
-var boolean: living is TRUE;
-var boolean: maleSex is TRUE;
-var boolean: blind is FALSE;
-var boolean: weaponBlocked is FALSE;
-var boolean: haveLeech is FALSE;
-var boolean: lethargic is FALSE;
-var boolean: forgetting is FALSE;
-var boolean: angryVendors is FALSE;
-var speciestype: species is HUMAN;
-var armortype: armor is NOARMOR;
-var weapontype: weapon is NOWEAPON;
-var integer: webCount is 0;
-var integer: aggressionOfMonster is 0;
-var integer: monsterStrength is 0;
-var boolean: livingMonster is FALSE;
-var boolean: activeMonster is FALSE;
-var boolean: bribed is FALSE;
-var roomref: currentRoom is roomref.NIL;
-
-const type: room_arr1 is array roomtype;
-const type: room_arr2 is array room_arr1;
-const type: room_arr3 is array room_arr2;
-var room_arr1: LABY1 is NUM_LEVELS times roomtype.value;
-var room_arr2: LABY2 is SIZE_LABY times LABY1;
-var room_arr3: LABYRINTH is SIZE_LABY times LABY2;
-(* var array array array roomtype: LABYRINTH is SIZE_LABY times SIZE_LABY times NUM_LEVELS times roomtype.value; *)
+const func integer: rangeLaby (in integer: number) is
+  return succ(pred(number) mod SIZE_LABY);
 
 
-const func integer: range_laby (in integer: number) is func
-  result
-    var integer: inRange is 0;
-  begin (* range_laby *)
-    inRange := succ(pred(number) mod SIZE_LABY);
-  end func; (* range_laby *)
+const func integer: rangeLevel (in integer: number) is
+  return succ(pred(number) mod NUM_LEVELS);
 
 
-const func integer: range_level (in integer: number) is func
-  result
-    var integer: inRange is 0;
-  begin (* range_level *)
-    inRange := succ(pred(number) mod NUM_LEVELS);
-  end func; (* range_level *)
+const func integer: range18 (in integer: number) is
+  return number <= 18 ? number: 18;
 
 
-const func integer: range18 (in integer: number) is func
-  result
-    var integer: inRange is 18;
-  begin (* range18 *)
-    if number <= 18 then
-      inRange := number;
-    end if;
-  end func; (* range18 *)
+const func speciesType: rand (attr speciesType) is
+  return rand(speciesType.first, speciesType.last);
+
+
+const func animateType: rand (attr animateType) is
+  return rand(KOBOLD, DRAGON);
 
 
 const proc: startText is func
-  begin (* startText *)
+  begin
     writeln;
     writeln;
     writeln;
     writeln("*" mult 78);
     writeln;
     writeln("                       * * * THE WIZARD'S CASTLE * * *");
-    writeln("                                 Version 1.0");
+    writeln("                                 Version 2.0");
     writeln;
-    writeln("                                Copyright 1990");
-    writeln("                                      by");
+    writeln("                                  Copyright");
+    writeln("               1990 - 1994, 2004, 2007, 2008, 2011, 2013, 2021");
     writeln("                                Thomas  Mertes");
     writeln;
     writeln("*" mult 78);
@@ -366,26 +257,26 @@ const proc: startText is func
     writeln(" ways.");
     writeln;
     writeln("All right, bold one.");
-  end func; (* startText *)
+  end func; # startText
 
 
-const proc: execute (HELP) is func
-  begin (* execute (HELP) *)
+const proc: writeHelp is func
+  begin
     writeln;
     writeln("*** WIZARD'S CASTLE COMMAND AND INFORMATION SUMMARY ***");
     writeln;
     writeln("The following commands are available:");
     writeln;
     writeln("H/ELP       N/ORTH      S/OUTH      E/AST       W/EST       U/P         D/OWN");
-    writeln("L/OOK       I/NVENTORY  M/AP        ST/ATUS     A/TTACK     F/LARE      LA/AMP");
+    writeln("L/OOK       I/NVENTORY  M/AP        ST/ATUS     A/TTACK     C/AST       BR/IBE");
     writeln("O/PEN       R/EAD       G/AZE       T/ELEPORT   DR/INK      SE/LL       B/UY");
-    writeln("BR/IBE      Q/UIT");
+    writeln("F/LARE      LA/AMP      Q/UIT");
     writeln;
     writeln("The contents of rooms are as follows:");
     writeln;
-    writeln(". = EMPTY ROOM   D = STAIRS DOWN  O = CRYSTAL ORB  T = TREASURE     V = VENDOR");
-    writeln("B = BOOK         E = EXIT         P = MAGIC POOL   U = STAIRS UP    W = WARP");
-    writeln("C = CHEST        M = MONSTER      S = SINKHOLE");
+    writeln(". = EMPTY ROOM   D = WAY DOWN     G = GOLD PIECES  P = MAGIC POOL   U = WAY UP");
+    writeln("B = BOOK         E = EXIT         M = MONSTER      S = SINKHOLE     V = VENDOR");
+    writeln("C = CHEST        F = FLARES       O = CRYSTAL ORB  T = TREASURE     W = WARP");
     writeln;
     writeln("The benefits of having treasures are:");
     writeln;
@@ -393,278 +284,334 @@ const proc: execute (HELP) is func
     writeln("green gem -   AVOID FORGETTING   opal eye -    CURES BLINDNESS");
     writeln("blue flame -  DISSOLVES BOOKS    norn stone -  NO BENEFIT");
     writeln("palantir -    NO BENEFIT         silmaril -    NO BENEFIT");
-  end func; (* execute (HELP) *)
+  end func; # writeHelp
 
 
-const func string: str (in object: obj) is DYNAMIC;
+const proc: randomRoom (inout integer: xPos, inout integer: yPos,
+    inout integer: zPos) is func
+  begin
+    xPos := rand(1, SIZE_LABY);
+    yPos := rand(1, SIZE_LABY);
+    zPos := rand(1, NUM_LEVELS);
+  end func; # randomRoom
 
 
-const proc: write_a (in object: obj) is func
+const proc: findUninhabitedRoom (inout integer: xPos, inout integer: yPos,
+    in integer: zPos) is func
+  begin
+    repeat
+      xPos := rand(1, SIZE_LABY);
+      yPos := rand(1, SIZE_LABY);
+    until labyrinth[xPos][yPos][zPos].roomer = NOBODY and
+          labyrinth[xPos][yPos][zPos].contents <> ENTRANCE;
+  end func; # findUninhabitedRoom
+
+
+const proc: findEmptyRoom (inout integer: xPos, inout integer: yPos,
+    in integer: zPos) is func
+  begin
+    repeat
+      xPos := rand(1, SIZE_LABY);
+      yPos := rand(1, SIZE_LABY);
+    until labyrinth[xPos][yPos][zPos].transfer = NOTRANSFER and
+          labyrinth[xPos][yPos][zPos].roomer = NOBODY and
+          labyrinth[xPos][yPos][zPos].contents = EMPTYROOM and
+          labyrinth[xPos][yPos][zPos].occurrence = NOOCCURRENCE and
+          labyrinth[xPos][yPos][zPos].objects = objectSet.value;
+  end func; # findEmptyRoom
+
+
+const proc: initRoom (inout roomType: aRoom, in integer: xPos, in integer: yPos,
+    in integer: zPos) is func
+  begin
+    aRoom := roomType.value;
+    aRoom.xPos := xPos;
+    aRoom.yPos := yPos;
+    aRoom.zPos := zPos;
+  end func; # initRoom
+
+
+const proc: initEntrance (inout roomType: aRoom) is func
+  begin
+    aRoom.connections := {NORTH, SOUTH, EAST, WEST};
+    aRoom.contents := ENTRANCE;
+    aRoom.visited := TRUE;
+  end func; # initEntrance
+
+
+const proc: initRoomConnections is func
   local
-    var string: stri is "";
-    var char: ch1 is ' ';
-  begin (* write_a *)
-    stri := str(obj);
-    if stri <> "" then
-      ch1 := upper(stri[1]);
-      if ch1 = 'A' or ch1 = 'E' or ch1 = 'I' or ch1 = 'O' or ch1 = 'U' then
-        write("an ");
+    const array directSet: restrictedConnections is [] (
+        {       SOUTH, EAST, WEST},
+        {NORTH,        EAST, WEST},
+        {NORTH, SOUTH,       WEST},
+        {NORTH, SOUTH, EAST      },
+        {NORTH, SOUTH            },
+        {NORTH,        EAST      },
+        {NORTH,              WEST},
+        {       SOUTH, EAST      },
+        {       SOUTH,       WEST},
+        {              EAST, WEST});
+    var directSet: connections is directSet.value;
+    var integer: count is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: zPos is 0;
+  begin
+    for xPos range 1 to SIZE_LABY do
+      for yPos range 1 to SIZE_LABY do
+        for zPos range 1 to NUM_LEVELS do
+          initRoom(labyrinth[xPos][yPos][zPos], xPos, yPos, zPos);
+        end for;
+        write(".");
+        flush(OUT);
+      end for;
+    end for;
+    writeln;
+    for count range 1 to RESTRICTED_CONNECTION_COUNT do
+      for connections range restrictedConnections do
+        randomRoom(xPos, yPos, zPos);
+        labyrinth[xPos][yPos][zPos].connections := connections;
+      end for;
+    end for;
+    for zPos range 1 to NUM_LEVELS do
+      xPos := rand(1, SIZE_LABY);
+      yPos := rand(1, SIZE_LABY);
+      labyrinth[xPos][yPos][zPos].connections := {rand(NORTH, WEST)};
+    end for;
+    initEntrance(labyrinth[rangeLaby(4)][1][1]);
+    for zPos range 1 to pred(NUM_LEVELS) do
+      for count range 1 to STAIRS_PER_LEVEL do
+        xPos := rand(1, SIZE_LABY);
+        yPos := rand(1, SIZE_LABY);
+        incl(labyrinth[xPos][yPos][zPos].connections, DOWN);
+        incl(labyrinth[xPos][yPos][succ(zPos)].connections, UP);
+      end for;
+    end for;
+  end func; # initRoomConnections
+
+
+const proc: initRoomProperties is func
+  local
+    var integer: count is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: zPos is 0;
+    var contentType: content is EMPTYROOM;
+    var animateType: animate is NOBODY;
+    var objectType: treasure is NOOBJECT;
+    var occurType: occurrence is NOOCCURRENCE;
+  begin
+    for zPos range 1 to NUM_LEVELS do
+      for count range 1 to THINGS_PER_LEVEL do
+        for content range [](CLOSEDCHEST, ORB, POOL, BOOK) do
+          findEmptyRoom(xPos, yPos, zPos);
+          labyrinth[xPos][yPos][zPos].contents := content;
+        end for;
+      end for;
+    end for;
+    for zPos range 1 to NUM_LEVELS do
+      for animate range KOBOLD to DRAGON do
+        findUninhabitedRoom(xPos, yPos, zPos);
+        labyrinth[xPos][yPos][zPos].roomer := animate;
+      end for;
+      for count range 1 to VENDORS_PER_LEVEL do
+        findUninhabitedRoom(xPos, yPos, zPos);
+        labyrinth[xPos][yPos][zPos].roomer := VENDOR;
+      end for;
+    end for;
+    for treasure range treasureSet do
+      randomRoom(xPos, yPos, zPos);
+      incl(labyrinth[xPos][yPos][zPos].objects, treasure);
+      objPlace[treasure] := labyrinth[xPos][yPos][zPos];
+    end for;
+    for zPos range 1 to NUM_LEVELS do
+      for count range 1 to OCCURRENCES_PER_LEVEL do
+        for occurrence range FINDGOLD to FINDFLARES do
+          xPos := rand(1, SIZE_LABY);
+          yPos := rand(1, SIZE_LABY);
+          labyrinth[xPos][yPos][zPos].occurrence := occurrence;
+        end for;
+      end for;
+    end for;
+    for occurrence range LEECH to STEALTREASURE do
+      randomRoom(xPos, yPos, zPos);
+      labyrinth[xPos][yPos][zPos].occurrence := occurrence;
+    end for;
+  end func; # initRoomProperties
+
+
+const proc: initRoomTransfers is func
+  local
+    var integer: count is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: zPos is 0;
+  begin
+    zPos := rand(1, NUM_LEVELS);
+    findUninhabitedRoom(xPos, yPos, zPos);
+    labyrinth[xPos][yPos][zPos].roomer := rand(animateType);
+    incl(labyrinth[xPos][yPos][zPos].objects, RUNESTAFF);
+    objPlace[RUNESTAFF] := labyrinth[xPos][yPos][zPos];
+    zPos := rand(1, NUM_LEVELS);
+    findEmptyRoom(xPos, yPos, zPos);
+    labyrinth[xPos][yPos][zPos].transfer := WARP;
+    labyrinth[xPos][yPos][zPos].objects := {ORBOFZOT};
+    objPlace[ORBOFZOT] := labyrinth[xPos][yPos][zPos];
+    for zPos range 1 to NUM_LEVELS do
+      for count range 1 to TRANSFERS_PER_LEVEL do
+        findEmptyRoom(xPos, yPos, zPos);
+        labyrinth[xPos][yPos][zPos].transfer := SINKHOLE;
+        findEmptyRoom(xPos, yPos, zPos);
+        labyrinth[xPos][yPos][zPos].transfer := WARP;
+      end for;
+    end for;
+  end func; # initRoomTransfers
+
+
+const func string: aOrAn (in string: word) is func
+  result
+    var string: wordWithIndefiniteArticle is "";
+  begin
+    if word <> "" then
+      if upper(word[1]) in {'A', 'E', 'I', 'O', 'U'} then
+        wordWithIndefiniteArticle := "an " & word;
       else
-        write("a ");
+        wordWithIndefiniteArticle := "a " & word;
       end if;
-      write(stri);
     end if;
-  end func; (* write_a *)
+  end func; # aOrAn
 
 
-const proc: writeAnyFood is func
-  begin (* writeAnyFood *)
-    write(food_list[rand(1, length(food_list))]);
-  end func;(* writeAnyFood *)
+const proc: DECLARE_A_OR_AN (in type: aType) is func
+  begin
+    const func string: aOrAn (in aType: aValue) is
+      return aOrAn(str(aValue));
+  end func;
+
+DECLARE_A_OR_AN(speciesType);
+DECLARE_A_OR_AN(weaponType);
+DECLARE_A_OR_AN(animateType);
 
 
-const proc: writeAnyAdjective is func
-  begin (* writeAnyAdjective *)
-    write_a(adjective_list[rand(1, length(adjective_list))]);
-  end func; (* writeAnyAdjective *)
+const func string: anyFood is
+  return rand([]("sandwiches", "stew", "soup", "burgers", "roast",
+                 "filet", "tace", "pie"));
 
 
-const proc: numberName (in integer: number) is func
-  begin (* numberName *)
-    if number <= 20 then
-      case number of
-        when { 0}: write("no");
-        when { 1}: write("one");
-        when { 2}: write("two");
-        when { 3}: write("three");
-        when { 4}: write("four");
-        when { 5}: write("five");
-        when { 6}: write("six");
-        when { 7}: write("seven");
-        when { 8}: write("eight");
-        when { 9}: write("nine");
-        when {10}: write("ten");
-        when {11}: write("eleven");
-        when {12}: write("twelve");
-        when {13}: write("thirteen");
-        when {14}: write("fourteen");
-        when {15}: write("fivteen");
-        when {16}: write("sixteen");
-        when {17}: write("seventeen");
-        when {18}: write("eightteen");
-        when {19}: write("nineteen");
-        when {20}: write("twenty");
-      end case;
+const func string: anyAdjective is
+  return rand([]("a large", "a strange", "an ugly", "an enormous",
+                 "a forbidding", "a horrible", "an exotic",
+                 "an ordinary"));
+
+
+const func string: numberName (in integer: number) is
+  return number <= 20 ? str(ENGLISH, number) : str(number);
+
+
+const func string: sexName (in boolean: isMale) is
+  return isMale ? "male" : "female";
+
+
+const func string: titleName (in boolean: isMale) is
+  return isMale ? "sir" : "madam";
+
+
+const func integer: countOwnedObjects (in playerType: player) is
+  return card(player.possession);
+
+
+const func integer: countOwnedTreasures (in playerType: player) is
+  return card(player.possession & treasureSet);
+
+
+const func objectType: ownedTreasure (in playerType: player) is
+  return rand(player.possession & treasureSet);
+
+
+const proc: removeFromRoom (inout roomType: currentRoom,
+    in objectType: treasure) is func
+  begin
+    excl(currentRoom.objects, treasure);
+  end func; # removeFromRoom
+
+
+const proc: writePos (in roomType: aRoom) is func
+  begin
+    writeln("(" <& aRoom.xPos <& ", " <& aRoom.yPos <& ") Level: " <& aRoom.zPos);
+  end func; # writePos
+
+
+const proc: findGoldPieces (inout playerType: player, in integer: limit) is func
+  local
+    var integer: goldPieces is 0;
+  begin
+    goldPieces := rand(2, limit);
+    player.goldPieces +:= goldPieces;
+    writeln(numberName(goldPieces) <& " gold pieces!");
+    writeln("You now have " <& numberName(player.goldPieces) <& " GP'S.");
+  end func; # findGoldPieces
+
+
+const proc: findFlares (inout playerType: player, in integer: limit) is func
+  local
+    var integer: flares is 0;
+  begin
+    flares := rand(2, limit);
+    player.flares +:= flares;
+    writeln(numberName(flares) <& " flares. You now have " <&
+            numberName(player.flares) <& " flares.");
+  end func; # findFlares
+
+
+const func string: roomAdjective (in integer: roomId) is
+  return [0]("", "luxurious ", "expensive ", "wonderful ", "good ",
+             "worn out ", "fine ", "moss-grown ", "old ", "figured ",
+             "patterned ")[roomId rem 11];
+
+
+const func integer: roomIdInLevel (in roomType: aRoom) is
+  return 64 * pred(labyrinthNumber) + 8 * pred(aRoom.xPos) + pred(aRoom.yPos);
+
+
+const func integer: roomId (in roomType: aRoom) is
+  return 8 * roomIdInLevel(aRoom) + pred(aRoom.zPos);
+
+
+const proc: writeRoomDescription (in roomType: aRoom) is func
+  local
+    var integer: roomId is 0;
+  begin
+    if aRoom.contents = ENTRANCE then
+      writeln("the entrance hall. To the North the castle can be left.");
     else
-      write(number);
-    end if;
-  end func; (* numberName *)
-
-
-const proc: sexName (in boolean: is_male) is func
-  begin (* sexName *)
-    if is_male then
-      write("male");
-    else
-      write("female");
-    end if;
-  end func; (* sexName *)
-
-
-const proc: titleName (in boolean: is_male) is func
-
-  begin (* titleName *)
-    if is_male then
-      write("sir");
-    else
-      write("madam");
-    end if;
-  end func; (* titleName *)
-
-
-const func objecttype: rand (attr objecttype) is
-  return list_of_objects[rand(1, length(list_of_objects))];
-
-
-const func speciestype: rand (attr speciestype) is
-  return list_of_species[rand(1, length(list_of_species))];
-
-
-const func animatetype: rand (attr animatetype) is
-  return list_of_animates[rand(2, pred(length(list_of_animates)))];
-
-
-const func directtype: rand (DIRECTION) is func
-  result
-    var directtype: dir is NORTH;
-  local
-    var integer: quantity is 0;
-    var integer: number is 0;
-  begin (* rand (DIRECTION) *)
-    quantity := card(currentRoom->connections);
-    if quantity <> 0 then
-      dir := NORTH;
-      while dir not in currentRoom->connections do
-        dir := succ(dir);
-      end while;
-      for number range 2 to rand(1, quantity) do
-        repeat
-          dir := succ(dir);
-        until dir in currentRoom->connections;
-      end for;
-    end if;
-  end func; (* rand (DIRECTION) *)
-
-
-const func integer: count (OBJECTS) is func
-  result
-    var integer: count is 0;
-  local
-    var objecttype: obj is NOOBJECT;
-  begin (* count (OBJECTS) *)
-    for obj range list_of_objects do
-      if obj->place = PLAYER then
-        incr(count);
-      end if;
-    end for;
-  end func; (* count (OBJECTS) *)
-
-
-const func integer: count (TREASURES) is func
-  result
-    var integer: count is 0;
-  local
-    var objecttype: obj is NOOBJECT;
-  begin (* count (TREASURES) *)
-    for obj range list_of_treasures do
-      if obj->place = PLAYER then
-        incr(count);
-      end if;
-    end for;
-  end func; (* count (TREASURES) *)
-
-
-const func objecttype: one_of_owned (TREASURES) is func
-  result
-    var objecttype: obj is NOOBJECT;
-  local
-    var integer: number is 0;
-    var integer: RANDOM_NUMBER is 0;
-    var objecttype: OBJT is NOOBJECT;
-  begin (* one_of_owned (TREASURES) *)
-    if count(TREASURES) <> 0 then
-      RANDOM_NUMBER := rand(1, count(TREASURES));
-      for OBJT range list_of_treasures do
-        if OBJT->place = PLAYER then
-          incr(number);
-          if number = RANDOM_NUMBER then
-            obj := OBJT;
-          end if;
-        end if;
-      end for;
-    end if;
-  end func; (* one_of_owned (TREASURES) *)
-
-
-const proc: findGoldPieces (in integer: limit) is func
-  local
-    var integer: number is 0;
-  begin (* findGoldPieces *)
-    number := rand(2, limit);
-    goldPieces +:= number;
-    numberName(number);
-    writeln(" gold pieces!");
-    write("You now have ");
-    numberName(goldPieces);
-    writeln(" GP'S.");
-  end func; (* findGoldPieces *)
-
-
-const proc: findFlares (in integer: limit) is func
-  local
-    var integer: number is 0;
-  begin (* findFlares *)
-    number := rand(2, limit);
-    flares +:= number;
-    numberName(number);
-    write(" flares. You now have ");
-    numberName(flares);
-    writeln(" flares.");
-  end func; (* findFlares *)
-
-
-const proc: RoomAdjective (in integer: number) is func
-  begin (* RoomAdjective *)
-    case number rem 11 of
-      when { 0}: noop;
-      when { 1}: write("luxurious ");
-      when { 2}: write("expensive ");
-      when { 3}: write("wonderful ");
-      when { 4}: write("good ");
-      when { 5}: write("worn out ");
-      when { 6}: write("fine ");
-      when { 7}: write("moss-grown ");
-      when { 8}: write("old ");
-      when { 9}: write("figured ");
-      when {10}: write("patterned ");
-    end case;
-  end func; (* RoomAdjective *)
-
-
-const proc: ARoomAdjective (in integer: number) is func
-  begin (* ARoomAdjective *)
-    case number rem 11 of
-      when { 0}: write("a ");
-      when { 1}: write_a("luxurious ");
-      when { 2}: write_a("expensive ");
-      when { 3}: write_a("wonderful ");
-      when { 4}: write_a("good ");
-      when { 5}: write_a("worn out ");
-      when { 6}: write_a("fine ");
-      when { 7}: write_a("moss-grown ");
-      when { 8}: write_a("old ");
-      when { 9}: write_a("figured ");
-      when {10}: write_a("patterned ");
-    end case;
-  end func; (* ARoomAdjective *)
-
-
-const proc: writeRoom (in roomref: a_room) is func
-  local
-    var integer: number is 0;
-  begin (* writeRoom *)
-    if a_room->contents = ENTRANCE then
-      write("the entrance hall. ");
-      writeln("To the North the castle can be left.");
-    else
-      number := 512 * pred(dungeonNumber) + 64 * pred(a_room->xPos) +
-          8 * pred(a_room->yPos) + pred(a_room->zPos);
-      case number rem 23 of
+      roomId := roomId(aRoom);
+      case roomId rem 23 of
         when { 0}: write("a ");
-        when { 1}: write_a("gigantic ");
-        when { 2}: write_a("large ");
-        when { 3}: write_a("long ");
-        when { 4}: write_a("small ");
-        when { 5}: write_a("narrow ");
-        when { 6}: write_a("tiny ");
-        when { 7}: write_a("round ");
-        when { 8}: write_a("octagonal ");
-        when { 9}: write_a("hexagonal ");
-        when {10}: write_a("whitewashed ");
-        when {11}: write_a("blue painted ");
-        when {12}: write_a("black painted ");
-        when {13}: write_a("red painted ");
-        when {14}: write_a("green painted ");
-        when {15}: write_a("brown painted ");
-        when {16}: write_a("cold ");
-        when {17}: write_a("windy ");
-        when {18}: write_a("draughty ");
-        when {19}: write_a("antique ");
-        when {20}: write_a("old ");
-        when {21}: write_a("dusty ");
-        when {22}: write_a("dilapidated ");
+        when { 1}: write("a gigantic ");
+        when { 2}: write("a large ");
+        when { 3}: write("a long ");
+        when { 4}: write("a small ");
+        when { 5}: write("a narrow ");
+        when { 6}: write("a tiny ");
+        when { 7}: write("a round ");
+        when { 8}: write("an octagonal ");
+        when { 9}: write("a hexagonal ");
+        when {10}: write("a whitewashed ");
+        when {11}: write("a blue painted ");
+        when {12}: write("a black painted ");
+        when {13}: write("a red painted ");
+        when {14}: write("a green painted ");
+        when {15}: write("a brown painted ");
+        when {16}: write("a cold ");
+        when {17}: write("a windy ");
+        when {18}: write("a draughty ");
+        when {19}: write("an antique ");
+        when {20}: write("an old ");
+        when {21}: write("a dusty ");
+        when {22}: write("a dilapidated ");
       end case;
-      case number rem 7 of
+      case roomId rem 7 of
         when {0}: write("dome ");
         when {1}: write("hall ");
         when {2}: write("room ");
@@ -673,514 +620,208 @@ const proc: writeRoom (in roomref: a_room) is func
         when {5}: write("cavern ");
         when {6}: write("tunnel ");
       end case;
-      case number rem 17 of
-        when {0}:
-          write("with wooden planking.");
-        when {1}:
-          write("blasted out of the rock.");
-        when {2}:
-          write("that must have been a cellar.");
-        when {3}:
-          write("with all walls made out of bricks.");
-        when {4}:
-          write("that has a massive pillar in the centre.");
-        when {5}:
-          write("with an enormous chandelier hanging down.");
-        when {6}:
-          write("which has a lot of paintings on the walls.");
-        when {7}:
-          write("which is totally made from rustless steel.");
-        when {8}:
-          write("with lots of statues high above your head.");
-        when {9}:
-          write("with ");
-          ARoomAdjective(number);
-          write("parquet.");
-        when {10}:
-          write("with ");
-          ARoomAdjective(number);
-          write("stone-floor.");
-        when {11}:
-          write("with ");
-          ARoomAdjective(number);
-          write("rug lying on the floor.");
-        when {12}:
-          write("with ");
-          ARoomAdjective(number);
-          write("fresco at the wall.");
-        when {13}:
-          write("with ");
-          RoomAdjective(number);
-          write("walls made from granite.");
-        when {14}:
-          write("with ");
-          RoomAdjective(number);
-          write("panelling at the walls.");
-        when {15}:
-          write("with ");
-          RoomAdjective(number);
-          write("paintings at the ceiling.");
-        when {16}:
-          write("with a floor made out of ");
-          RoomAdjective(number);
-          write("marble.");
+      case roomId rem 17 of
+        when { 0}: write("with wooden planking.");
+        when { 1}: write("blasted out of the rock.");
+        when { 2}: write("that must have been a cellar.");
+        when { 3}: write("with all walls made out of bricks.");
+        when { 4}: write("that has a massive pillar in the centre.");
+        when { 5}: write("with an enormous chandelier hanging down.");
+        when { 6}: write("which has a lot of paintings on the walls.");
+        when { 7}: write("which is totally made from rustless steel.");
+        when { 8}: write("with lots of statues high above your head.");
+        when { 9}: write("with " <& aOrAn(roomAdjective(roomId)) <& "parquet.");
+        when {10}: write("with " <& aOrAn(roomAdjective(roomId)) <&
+                         "stone-floor.");
+        when {11}: write("with " <& aOrAn(roomAdjective(roomId)) <&
+                         "rug lying on the floor.");
+        when {12}: write("with " <& aOrAn(roomAdjective(roomId)) <&
+                         "fresco at the wall.");
+        when {13}: write("with " <& roomAdjective(roomId) <&
+                         "walls made from granite.");
+        when {14}: write("with " <& roomAdjective(roomId) <&
+                         "panelling at the walls.");
+        when {15}: write("with " <& roomAdjective(roomId) <&
+                         "paintings at the ceiling.");
+        when {16}: write("with a floor made out of " <&
+                         roomAdjective(roomId) <& "marble.");
       end case;
       writeln;
     end if;
-  end func; (* writeRoom *)
+  end func; # writeRoomDescription
 
 
-const proc: writeConnections (in roomref: a_room) is func
+const proc: writeConnections (in roomType: aRoom) is func
   local
-    var integer: number is 0;
-    var directtype: direction is NORTH;
-  begin (* writeConnections *)
-    if UP in a_room->connections or
-        DOWN in a_room->connections then
-      number := 64 * pred(dungeonNumber) + 8 * pred(a_room->xPos) +
-          pred(a_room->yPos);
-      case number rem 9 of
-        when {0}:
-          write("At one wall are steps ");
-        when {1}:
-          write("Here is a shaky rope ladder ");
-        when {2}:
-          write("Here is a forbidding staircase ");
-        when {3}:
-          write("Here you find a steel-ladder ");
-        when {4}:
-          write("Here you find a very old staircase ");
-        when {5}:
-          write("There is a narrow spiral staircase ");
-        when {6}:
-          write("There is a rotten ladder ");
-        when {7}:
-          write("There you find a wooden staircase ");
-        when {8}:
-          write("There you find stone steps ");
+    var integer: roomIdInLevel is 0;
+    var integer: numConnections is 0;
+    var directType: direction is NORTH;
+  begin
+    if UP in aRoom.connections or
+        DOWN in aRoom.connections then
+      roomIdInLevel := roomIdInLevel(aRoom);
+      case roomIdInLevel rem 9 of
+        when {0}: write("At one wall are steps ");
+        when {1}: write("Here is a shaky rope ladder ");
+        when {2}: write("Here is a forbidding staircase ");
+        when {3}: write("Here you find a steel-ladder ");
+        when {4}: write("Here you find a very old staircase ");
+        when {5}: write("There is a narrow spiral staircase ");
+        when {6}: write("There is a rotten ladder ");
+        when {7}: write("There you find a wooden staircase ");
+        when {8}: write("There you find stone steps ");
       end case;
-      case number rem 2 of
+      case roomIdInLevel rem 2 of
         when {0}: write("going ");
         when {1}: write("leading ");
       end case;
-      if UP in a_room->connections and
-          DOWN in a_room->connections then
-        write("up and down");
-      elsif UP in a_room->connections then
-        write("up");
+      if UP in aRoom.connections then
+        if DOWN in aRoom.connections then
+          write("up and down");
+        else
+          write("up");
+        end if;
       else
         write("down");
       end if;
-      number := 512 * pred(dungeonNumber) + (*!! 64 * pred(z1) + !!*)
-          8 * pred(a_room->yPos) + pred(a_room->xPos);
-      case number rem 4 of
+      case roomId(aRoom) rem 5 of
         when {0}: writeln(" into deep darkness.");
-        when {1}: writeln("ward into darkness.");
-        when {2}: writeln("ward.");
-        when {3}: writeln(".");
+        when {1}: writeln(" into darkness.");
+        when {2}: writeln("ward into darkness.");
+        when {3}: writeln("ward.");
+        when {4}: writeln(".");
       end case;
     end if;
-    number := card(a_room->connections);
-    if number = 1 or number = 2 then
-      write("The room can be left to the ");
-      for direction range [](NORTH, SOUTH, EAST, WEST) do
-        if direction in a_room->connections then
+    numConnections := card(aRoom.connections - {UP, DOWN});
+    if numConnections = 1 or numConnections = 2 then
+      write("The room can " <&
+             card(aRoom.connections) = 1 ? "only " : "" <&
+            "be left to the ");
+      for direction range NORTH to WEST do
+        if direction in aRoom.connections then
           write(direction);
-          number := pred(number);
-          if number = 1 then
+          decr(numConnections);
+          if numConnections = 1 then
             write(" and ");
           end if;
         end if;
       end for;
       writeln(".");
-    elsif number = 3 then
+    elsif numConnections = 3 then
       write("There is no way to the ");
-      for direction range [](NORTH, SOUTH, EAST, WEST) do
-        if direction not in a_room->connections then
+      for direction range NORTH to WEST do
+        if direction not in aRoom.connections then
           write(direction);
         end if;
       end for;
       writeln(".");
     end if;
-  end func; (* writeConnections *)
+  end func; # writeConnections
 
 
-const proc: writeThings (in roomref: a_room) is func
-  local
-    var contenttype: content is EMPTYROOM;
-  begin (* writeThings *)
-    content := a_room->contents;
-    case content of
-      when {EMPTYROOM}: noop;
-      when {ENTRANCE}: noop;
-      when {EMPTYCHEST}:
-        writeln("Here is an empty chest.");
-      when {CHESTWITHSKELETON}:
-        writeln("Here is an open chest with a skeleton in it.");
-      when {CLOSEDCHEST}:
-        writeln("Here is a chest.");
-      when {ORB}:
-        writeln("Here is a crystal orb.");
-      when {POOL}:
-        writeln("Here is a pool.");
-      when {BOOK}:
-        writeln("Here is a book.");
+const proc: writeThings (in roomType: aRoom) is func
+  begin
+    case aRoom.contents of
+      when {EMPTYCHEST}:        writeln("Here is an empty chest.");
+      when {CHESTWITHSKELETON}: writeln("Here is an open chest with a skeleton in it.");
+      when {CLOSEDCHEST}:       writeln("Here is a chest.");
+      when {ORB}:               writeln("Here is a crystal orb.");
+      when {POOL}:              writeln("Here is a pool.");
+      when {BOOK}:              writeln("Here is a book.");
     end case;
-  end func; (* writeThings *)
+  end func; # writeThings
 
 
-const proc: writeAnimates (in roomref: a_room) is func
-  begin (* writeAnimates *)
-    if a_room->roomer <> NOBODY then
-      write("In this room is ");
-      write_a(a_room->roomer);
-      writeln(".");
+const proc: writeAnimates (in roomType: aRoom) is func
+  begin
+    if aRoom.roomer <> NOBODY then
+      writeln("In this room is " <& aOrAn(aRoom.roomer) <& ".");
     end if;
-  end func; (* writeAnimates *)
+  end func; # writeAnimates
 
 
-const proc: writeObjects (in roomref: a_room) is func
+const proc: writeObjects (in roomType: aRoom) is func
   local
     var integer: count is 0;
     var integer: number is 0;
-    var objecttype: obj is NOOBJECT;
-  begin (* writeObjects *)
-    if a_room->roomer = NOBODY then
-      for obj range list_of_objects do
-        if (a_room->xPos = obj->xPos) and
-            (a_room->yPos = obj->yPos) and
-            (a_room->zPos = obj->zPos) and
-            (obj->place = ANYROOM) then
-          incr(count);
-        end if;
-      end for;
+    var objectType: obj is NOOBJECT;
+  begin
+    if aRoom.roomer = NOBODY then
+      count := card(aRoom.objects);
       if count > 0 then
         write("This room contains ");
-        for obj range list_of_objects do
-          if (a_room->xPos = obj->xPos) and
-              (a_room->yPos = obj->yPos) and
-              (a_room->zPos = obj->zPos) and
-              (obj->place = ANYROOM) then
-            incr(number);
-            if number = 1 then
-              write("the ");
-            elsif number = count then
-              write(" and the ");
-            else
-              write(", the ");
-            end if;
-            write(obj->name);
+        for obj range aRoom.objects do
+          incr(number);
+          if number = 1 then
+            write("the ");
+          elsif number = count then
+            write(" and the ");
+          else
+            write(", the ");
           end if;
+          write(obj);
         end for;
         writeln(".");
       end if;
     end if;
-  end func; (* writeObjects *)
+  end func; # writeObjects
 
 
-const proc: writeRemark is func
-  local
-    var integer: number is 0;
-  begin (* writeRemark *)
-    if rand(1, 5) = 1 then
-      if blind then
-        number := rand(1, 4);
-      else
-        number := rand(1, 5);
-      end if;
-      case number of
-        when {1}:
-          case rand(1, 8) of
-            when {1}:
-              writeln("You sneezed.");
-            when {2}:
-              writeln("You stepped on a frog.");
-            when {3}:
-              writeln("You have a fit of dizziness.");
-            when {4}:
-              writeln("You moved your hand through a spiders net.");
-            when {5}:
-              writeln("There are indications that somebody must have been here recently.");
-            when {6}:
-              writeln("A blast of wind blows a cloud of dust across the room.");
-            when {7}:
-              write("You touch ");
-              writeAnyAdjective();
-              writeln(" insect that immediately flies away.");
-            when {8}:
-              write("The smell of ");
-              writeAnyFood();
-              writeln(" is in the air.");
-          end case;
-        when {2}:
-          write("You smell ");
-          case rand(1, 9) of
-            when {1}:
-              writeln("musty air.");
-            when {2}:
-              writeln("rotten flesh.");
-            when {3}:
-              writeln("a whiff of good french perfume.");
-            when {4}:
-              writeln("the bad odour of a mouldering body.");
-            when {5}:
-              writeln("the pleasant scent of a green meadow.");
-            when {6}:
-              writeln("the unpleasant stench of an acid.");
-            when {7}:
-              writeln("mouldering bones which must lie nearby.");
-            when {8}:
-              write_a(rand(animatetype));
-              writeln(" frying.");
-            when {9}:
-              write("the presence of a ");
-              sexName(not maleSex);
-              write(" ");
-              write(species);
-              writeln(".");
-          end case;
-        when {3}:
-          write("You feel ");
-          case rand(1, 10) of
-            when {1}:
-              writeln("like you're being watched.");
-            when {2}:
-              writeln("terribly frightened.");
-            when {3}:
-              writeln("drops falling on your neck.");
-            when {4}:
-              writeln("something touching your shoulder.");
-            when {5}:
-              writeln("that you will be killed.");
-            when {6}:
-              writeln("a cold wind blowing across the room.");
-            when {7}:
-              writeln("that you get hungry.");
-            when {8}:
-              writeln("vibrations at the ground.");
-            when {9}:
-              writeln("danger in the vicinity.");
-            when {10}:
-              write("that a ");
-              sexName(not maleSex);
-              write(" ");
-              write(rand(speciestype));
-              writeln(" must have been here recently.");
-          end case;
-        when {4}:
-          write("You hear ");
-          case rand(1, 11) of
-            when { 1}:
-              writeln("thunder.");
-            when { 2}:
-              writeln("moaning.");
-            when { 3}:
-              writeln("a scream.");
-            when { 4}:
-              writeln("a wumpus.");
-            when { 5}:
-              writeln("footsteps.");
-            when { 6}:
-              writeln("a door open.");
-            when { 7}:
-              writeln("a door slam.");
-            when { 8}:
-              writeln("rattling sounds.");
-            when { 9}:
-              writeln("somebody snigger.");
-            when {10}:
-              writeln("faint rustling noises.");
-            when {11}:
-              writeln("somebody whisper your name.");
-          end case;
-        when {5}:
-          write("You see ");
-          case rand(1, 8) of
-            when {1}:
-              writeln("a bat fly by.");
-            when {2}:
-              writeln("some flies.");
-            when {3}:
-              writeln("a shadow passing by.");
-            when {4}:
-              writeln("a rat crossing the room.");
-            when {5}:
-              writeln("two eyes glowing in the dark. A moment later they disappear.");
-            when {6}:
-              writeAnyAdjective();
-              writeln(" footprint.");
-            when {7}:
-              writeAnyAdjective();
-              writeln(" spider running away.");
-            when {8}:
-              write("the mirage of the ");
-              write(rand(objecttype)->name);
-              writeln(".");
-          end case;
-      end case;
-    end if;
-  end func; (* writeRemark *)
-
-
-const proc: writePos (in roomref: a_room) is func
-  begin (* writePos *)
-    writeln("(" <& a_room->xPos <& ", " <& a_room->yPos <& ") Level: " <& a_room->zPos);
-  end func; (* writePos *)
-
-
-const proc: execute (LOOK) is func
-  local
-    var integer: number is 0;
-    var objecttype: obj is NOOBJECT;
-    var transtype: trans is NOTRANSFER;
-  begin (* execute (LOOK) *)
-    repeat
-      currentRoom->visited := TRUE;
-      writeln;
-      write("You are in ");
-      if blind then
-        writeln("a new room.");
-      else
-        writeRoom(currentRoom);
-      end if;
-      trans := currentRoom->transfer;
-      case trans of
-        when {NOTRANSFER}: noop;
-        when {SINKHOLE}:
-          currentRoom := &LABYRINTH[currentRoom->xPos]
-              [currentRoom->yPos][range_level(succ(currentRoom->zPos))];
-          number := 512 * pred(dungeonNumber) +
-              64 * pred(currentRoom->xPos) +
-              8 * pred(currentRoom->yPos) +
-              pred(currentRoom->zPos);
-          case number rem 5 of
-            when {0}:
-              writeln("Here you fall into a sinkhole.");
-            when {1}:
-              writeln("Here a trap-door opens under your feet and you fall down.");
-            when {2}:
-              writeln("You have trapped into a pitfall.");
-            when {3}:
-              writeln("You step on an open trap-door and fall down.");
-            when {4}:
-              writeln("You fall into a hole hidden on the ground.");
-          end case;
-        when {WARP}:
-          currentRoom := &LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)];
-          write("This room contains a warp. You have been transferred to ");
-          writePos(currentRoom);
-      end case;
-    until trans = NOTRANSFER;
+const proc: writeRoomDetails (in roomType: currentRoom) is func
+  begin
     writeConnections(currentRoom);
     writeThings(currentRoom);
     writeAnimates(currentRoom);
     writeObjects(currentRoom);
-    if currentRoom->roomer = NOBODY then
-      for obj range list_of_objects do
-        if (currentRoom->xPos = obj->xPos) and
-            (currentRoom->yPos = obj->yPos) and
-            (currentRoom->zPos = obj->zPos) and
-            (obj->place = ANYROOM) then
-          obj->place := PLAYER;
-        end if;
-      end for;
-    end if;
-  end func; (* execute (LOOK) *)
+  end func; # writeRoomDetails
 
 
-const proc: execute (STATUS) is func
-  begin (* execute (STATUS) *)
+const proc: look (inout roomType: currentRoom, in playerType: player) is func
+  begin
     writeln;
-    if not blind then
-      write("You are at ");
-      writePos(currentRoom);
-      writeln;
+    write("You are in ");
+    if player.blind then
+      writeln("a room.");
+    else
+      writeRoomDescription(currentRoom);
     end if;
-    writeln("STRENGTH = " <& strength <&
-            "  INTELLIGENCE = " <& intelligence <&
-            "  DEXTERITY = " <& dexterity);
-    writeln("OBJECTS = " <& count(OBJECTS) <&
-            "  FLARES = " <& flares <&
-            "  GOLD PIECES = " <& goldPieces);
-    writeln("weapon = " <& weapon <& "  armor = " <& armor);
-  end func; (* execute (STATUS) *)
+    writeRoomDetails(currentRoom);
+  end func; # look
 
 
-const proc: listInventory is func
-  local
-    var boolean: anythinglisted is FALSE;
-    var objecttype: obj is NOOBJECT;
-  begin (* listInventory *)
-    if weapon <> NOWEAPON then
-      anythinglisted := TRUE;
-      writeln("  a " <& weapon);
-    end if;
-    if armor <> NOARMOR then
-      anythinglisted := TRUE;
-      writeln("  " <& armor <& " armor");
-    end if;
-    if flares > 0 then
-      anythinglisted := TRUE;
-      write("  ");
-      numberName(flares);
-      write(" flare");
-      if flares <> 1 then
-        write("s");
-      end if;
-      writeln;
-    end if;
-    if goldPieces > 0 then
-      anythinglisted := TRUE;
-      write("  ");
-      numberName(goldPieces);
-      write(" gold piece");
-      if goldPieces <> 1 then
-        write("s");
-      end if;
-      writeln;
-    end if;
-    for obj range list_of_objects do
-      if obj->place = PLAYER then
-        anythinglisted := TRUE;
-        writeln("  the " <& obj->name);
-      end if;
-    end for;
-    if not anythinglisted then
-      writeln("  nothing");
-    end if;
-  end func; (* listInventory *)
-
-
-const proc: readChar (inout char: ch) is func
+const func char: readChar is func
+  result
+    var char: ch is '\0;';
   local
     var string: stri is "";
-  begin (* readChar *)
-    readln(stri);
+  begin
+    stri := upper(getln(IN));
     if stri <> "" then
-      ch := upper(stri[1]);
-    else
-      ch := '\0;';
+      ch := stri[1];
     end if;
-  end func; (* readChar *)
+  end func; # readChar
 
 
-const proc: readChoice (inout char: ch) is func
-  begin (* readChoice *)
+const func char: readChoice is func
+  result
+    var char: ch is ' ';
+  begin
     writeln;
     write("Your choice? ");
-    readChar(ch);
-  end func; (* readChoice *)
+    ch := readChar();
+  end func; # readChoice
 
 
-const proc: readNumber (inout integer: number, inout boolean: okay, inout boolean: quit) is func
+const proc: readNumber (inout integer: number, inout boolean: okay,
+    inout boolean: quit) is func
   local
     var string: stri is "";
-  begin (* readNumber *)
+  begin
     number := 0;
     okay := TRUE;
-    readln(stri);
+    stri := upper(getln(IN));
     if stri <> "" then
-      if upper(stri) = "Q" then
+      if stri = "Q" then
         okay := FALSE;
         quit := TRUE;
       else
@@ -1192,269 +833,24 @@ const proc: readNumber (inout integer: number, inout boolean: okay, inout boolea
         end block;
       end if;
     end if;
-  end func; (* readNumber *)
+  end func; # readNumber
 
 
-const func boolean: availTreasure (in roomref: a_room) is func
-  result
-    var boolean: found is FALSE;
+const proc: readSpecies (inout playerType: player) is func
   local
-    var objecttype: obj is NOOBJECT;
-  begin (* availTreasure *)
-    for obj range list_of_objects do
-      if (a_room->xPos = obj->xPos) and
-          (a_room->yPos = obj->yPos) and
-          (a_room->zPos = obj->zPos) and
-          (obj->place = ANYROOM) then
-        found := TRUE;
-      end if;
-    end for;
-  end func; (* availTreasure *)
-
-
-const proc: findNormalRoom (inout integer: x1, inout integer: y1, in integer: z1) is func
-  begin (* findNormalRoom *)
-    repeat
-      x1 := rand(1, SIZE_LABY);
-      y1 := rand(1, SIZE_LABY);
-(*!!
-write(x1 <& " " <& y1 <& " ");
-TRACE(LABYRINTH[x1][y1][z1].contents);
-writeln;
-*)
-    until LABYRINTH[x1][y1][z1].contents = EMPTYROOM;
-  end func; (* findNormalRoom *)
-
-
-const proc: findUninhabitedRoom (inout integer: x1, inout integer: y1, in integer: z1) is func
-  begin (* findUninhabitedRoom *)
-    repeat
-      x1 := rand(1, SIZE_LABY);
-      y1 := rand(1, SIZE_LABY);
-    until LABYRINTH[x1][y1][z1].roomer = NOBODY and
-        LABYRINTH[x1][y1][z1].contents <> ENTRANCE;
-  end func; (* findUninhabitedRoom *)
-
-
-const proc: findEmptyRoom (inout integer: x1, inout integer: y1, in integer: z1) is func
-  begin (* findEmptyRoom *)
-    repeat
-      x1 := rand(1, SIZE_LABY);
-      y1 := rand(1, SIZE_LABY);
-    until LABYRINTH[x1][y1][z1].transfer = NOTRANSFER and
-        LABYRINTH[x1][y1][z1].roomer = NOBODY and
-        LABYRINTH[x1][y1][z1].contents = EMPTYROOM and
-        LABYRINTH[x1][y1][z1].occurrence = NOOCCURRENCE and
-        not availTreasure(&LABYRINTH[x1][y1][z1]);
-  end func; (* findEmptyRoom *)
-
-
-const proc: initScalars is func
-  begin (* initScalars *)
-    dungeonNumber := rand(1, 50);
-    turns := 1;
-    living := TRUE;
-    blind := FALSE;
-    species := HUMAN;
-    maleSex := TRUE;
-    strength := 2;
-    intelligence := 8;
-    dexterity := 14;
-    goldPieces := 10;
-    armor := NOARMOR;
-    armorStrength := 0;
-    weapon := NOWEAPON;
-    weaponBlocked := FALSE;
-    flares := 0;
-    mealHour := 0;
-    angryVendors := FALSE;
-    livingMonster := FALSE;
-    haveLeech := FALSE;
-    lethargic := FALSE;
-    forgetting := FALSE;
-    leaveCastle := FALSE;
-    quitProgram := FALSE;
-  end func; (* initScalars *)
-
-
-const proc: initVars is func
-  local
-    var integer: number is 0;
-    var integer: count is 0;
-    var integer: x1 is 0;
-    var integer: y1 is 0;
-    var integer: z1 is 0;
-    var contenttype: content is EMPTYROOM;
-    var objecttype: obj is NOOBJECT;
-    var animatetype: animate is NOBODY;
-    const directset: way_nsew is {NORTH, SOUTH, EAST, WEST};
-    const directset: way_sew is  {       SOUTH, EAST, WEST};
-    const directset: way_new is  {NORTH,        EAST, WEST};
-    const directset: way_nsw is  {NORTH, SOUTH,       WEST};
-    const directset: way_nse is  {NORTH, SOUTH, EAST      };
-    const directset: way_ns is   {NORTH, SOUTH            };
-    const directset: way_ne is   {NORTH,        EAST      };
-    const directset: way_nw is   {NORTH,              WEST};
-    const directset: way_se is   {       SOUTH, EAST      };
-    const directset: way_sw is   {       SOUTH,       WEST};
-    const directset: way_ew is   {              EAST, WEST};
-    const directset: way_n is    {NORTH                   };
-    const directset: way_s is    {       SOUTH            };
-    const directset: way_e is    {              EAST      };
-    const directset: way_w is    {                    WEST};
-    var roomref: a_room is roomref.NIL;
-  begin (* initVars *)
-    for x1 range 1 to SIZE_LABY do
-      for y1 range 1 to SIZE_LABY do
-        for z1 range 1 to NUM_LEVELS do
-          a_room := &LABYRINTH[x1][y1][z1];
-          a_room->contents := EMPTYROOM;
-          a_room->visited := FALSE;
-          a_room->roomer := NOBODY;
-          a_room->connections := way_nsew;
-          a_room->transfer := NOTRANSFER;
-          a_room->occurrence := NOOCCURRENCE;
-          a_room->xPos := x1;
-          a_room->yPos := y1;
-          a_room->zPos := z1;
-        end for;
-        write(".");
-        flush(OUT);
-      end for;
-    end for;
-    writeln;
-    for number range 1 to 5 do
-      LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].connections := way_sew;
-      LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].connections := way_new;
-      LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].connections := way_nsw;
-      LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].connections := way_nse;
-      LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].connections := way_ns;
-      LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].connections := way_ne;
-      LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].connections := way_nw;
-      LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].connections := way_se;
-      LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].connections := way_sw;
-      LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].connections := way_ew;
-    end for;
-    for z1 range 1 to NUM_LEVELS do
-      x1 := rand(1, SIZE_LABY);
-      y1 := rand(1, SIZE_LABY);
-      case rand(1, 4) of
-        when {1}:
-          LABYRINTH[x1][y1][z1].connections := way_n;
-        when {2}:
-          LABYRINTH[x1][y1][z1].connections := way_s;
-        when {3}:
-          LABYRINTH[x1][y1][z1].connections := way_e;
-        when {4}:
-          LABYRINTH[x1][y1][z1].connections := way_w;
-      end case;
-    end for;
-    (*
-    for x1 range 1 to SIZE_LABY do
-      for y1 range 1 to SIZE_LABY do
-        for z1 range 1 to NUM_LEVELS do
-          a_room := &LABYRINTH[x1][y1][z1];
-          write(x1 <& y1 <& z1 <& " " <& LABYRINTH[x1][y1][z1].contents);
-          writeln(" " <& a_room->connections);
-        end for;
-      end for;
-    end for;
-    *)
-    a_room := &LABYRINTH[1][range_laby(4)][1];
-    a_room->connections := way_nsew;
-    a_room->contents := ENTRANCE;
-    a_room->visited := TRUE;
-    for z1 range 1 to pred(NUM_LEVELS) do
-      for number range 1 to 3 do
-        x1 := rand(1, SIZE_LABY);
-        y1 := rand(1, SIZE_LABY);
-        incl(LABYRINTH[x1][y1][z1].connections, DOWN);
-        incl(LABYRINTH[x1][y1][succ(z1)].connections, UP);
-      end for;
-    end for;
-    for z1 range 1 to NUM_LEVELS do
-      for count range 1 to THINGS_PER_LEVEL do
-        for content range [](CLOSEDCHEST, ORB, POOL, BOOK) do
-          findNormalRoom(x1, y1, z1);
-          LABYRINTH[x1][y1][z1].contents := content;
-        end for;
-      end for;
-    end for;
-    for z1 range 1 to NUM_LEVELS do
-      for animate range list_of_animates do
-        findUninhabitedRoom(x1, y1, z1);
-        LABYRINTH[x1][y1][z1].roomer := animate;
-      end for;
-      for count range 1 to VENDORS_PER_LEVEL do
-        findUninhabitedRoom(x1, y1, z1);
-        LABYRINTH[x1][y1][z1].roomer := VENDOR;
-      end for;
-    end for;
-    monsterCount := 96;
-    LAMP->place := NOWHERE;
-    for obj range list_of_treasures do
-      obj->place := ANYROOM;
-      obj->xPos := rand(1, SIZE_LABY);
-      obj->yPos := rand(1, SIZE_LABY);
-      obj->zPos := rand(1, NUM_LEVELS);
-    end for;
-    z1 := rand(1, NUM_LEVELS);
-    animate := rand(animatetype);
-    findUninhabitedRoom(x1, y1, z1);
-    LABYRINTH[x1][y1][z1].roomer := animate;
-    RUNESTAFF->place := ANYROOM;
-    RUNESTAFF->xPos := x1;
-    RUNESTAFF->yPos := y1;
-    RUNESTAFF->zPos := z1;
-    z1 := rand(1, NUM_LEVELS);
-    findEmptyRoom(x1, y1, z1);
-    LABYRINTH[x1][y1][z1].transfer := WARP;
-    ORBOFZOT->place := NOWHERE;
-    ORBOFZOT->xPos := x1;
-    ORBOFZOT->yPos := y1;
-    ORBOFZOT->zPos := z1;
-    for z1 range 1 to NUM_LEVELS do
-      for count range 1 to OCCURRENCES_PER_LEVEL do
-        LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][z1].occurrence := FINDGOLD;
-        LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][z1].occurrence := FINDFLARES;
-      end for;
-    end for;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := LEECH;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := LETHARGY;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := FORGET;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := STEALARMOR;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := STEALWEAPON;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := STEALLAMP;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := STEALFLARES;
-    LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].occurrence := STEALTREASURE;
-    for z1 range 1 to NUM_LEVELS do
-      for count range 1 to TRANSFERS_PER_LEVEL do
-        findEmptyRoom(x1, y1, z1);
-        LABYRINTH[x1][y1][z1].transfer := SINKHOLE;
-        findEmptyRoom(x1, y1, z1);
-        LABYRINTH[x1][y1][z1].transfer := WARP;
-      end for;
-    end for;
-  end func; (* initVars *)
-
-
-const proc: readSpecies is func
-  local
-    var char: ch is ' ';
     var boolean: okay is TRUE;
-  begin (* readSpecies *)
-    if not quitProgram then
+  begin
+    if not player.quitDialog then
       repeat
         okay := TRUE;
         writeln;
         writeln("You may be an elf, dwarf, man, or hobbit.");
-        readChoice(ch);
-        case ch of
-          when {'H'}:   species := HOBBIT;
-          when {'E'}:   species := ELF;
-          when {'M'}:   species := HUMAN;
-          when {'D'}:   species := DWARF;
-          when {'Q'}:   quitProgram := TRUE;
+        case readChoice() of
+          when {'H'}: player.species := HOBBIT;
+          when {'E'}: player.species := ELF;
+          when {'M'}: player.species := HUMAN;
+          when {'D'}: player.species := DWARF;
+          when {'Q'}: player.quitDialog := TRUE;
           otherwise:
             okay := FALSE;
             writeln;
@@ -1462,296 +858,277 @@ const proc: readSpecies is func
         end case;
       until okay;
     end if;
-  end func; (* readSpecies *)
+  end func; # readSpecies
 
 
-const proc: readSex is func
+const proc: readSex (inout playerType: player) is func
   local
-    var char: ch is ' ';
     var boolean: okay is TRUE;
-  begin (* readSex *)
-    if not quitProgram then
+  begin
+    if not player.quitDialog then
       repeat
         okay := TRUE;
         writeln;
         write("Which sex do you prefer? ");
-        readChar(ch);
-        case ch of
-          when {'M'}:   maleSex := TRUE;
-          when {'F'}:   maleSex := FALSE;
-          when {'Q'}:   quitProgram := TRUE;
+        case readChar() of
+          when {'M'}: player.isMale := TRUE;
+          when {'F'}: player.isMale := FALSE;
+          when {'Q'}: player.quitDialog := TRUE;
           otherwise:
             okay := FALSE;
             writeln;
-            writeln("** Cute " <& species <& ", real cute. Try M, F or Q.");
+            writeln("** Cute " <& player.species <& ", real cute. Try M, F or Q.");
         end case;
       until okay;
     end if;
-  end func; (* readSex *)
+  end func; # readSex
 
 
-const proc: riseAttribute (in string: attr_name, inout integer: attribute,
-    inout integer: otherpoints) is func
+const proc: riseAttribute (inout playerType: player, in string: attrName,
+    inout integer: attribute, inout integer: otherPoints) is func
   local
-    var integer: number is 0;
+    var integer: points is 0;
     var boolean: okay is TRUE;
-  begin (* riseAttribute *)
+  begin
     repeat
       writeln;
-      write("How many points do you wish to add to your " <& attr_name <& "? ");
-      readNumber(number, okay, quitProgram);
-      if not quitProgram then
+      write("How many points do you wish to add to your " <& attrName <& "? ");
+      readNumber(points, okay, player.quitDialog);
+      if not player.quitDialog then
         if okay then
-          if number > otherpoints then
+          if points > otherPoints then
             writeln;
-            write("** Dear " <& species <& ", you have only ");
-            numberName(otherpoints);
-            if otherpoints = 1 then
-              writeln(" point.");
-            else
-              writeln(" points.");
-            end if;
+            writeln("** Dear " <& player.species <& ", you have only " <&
+                    numberName(otherPoints) <& " point" <&
+                    otherPoints <> 1 ? "s." : ".");
             okay := FALSE;
           end if;
         else
           writeln;
           writeln("** Would you please be so kind to type a number or q, " <&
-                  species <& ".");
+                  player.species <& ".");
         end if;
       end if;
-    until okay or quitProgram;
+    until okay or player.quitDialog;
     if okay then
-      attribute +:= number;
-      otherpoints -:= number;
+      attribute +:= points;
+      otherPoints -:= points;
     end if;
-  end func; (* riseAttribute *)
+  end func; # riseAttribute
 
 
-const proc: readAttributes is func
+const proc: readAttributes (inout playerType: player) is func
   local
-    var integer: otherpoints is 0;
-  begin (* readAttributes *)
-    if not quitProgram then
-      strength := 4 + 2 * ord(species);
-      intelligence := 8;
-      dexterity := 12 - 2 * ord(species);
-      if species = HOBBIT then
-        otherpoints := 4;
+    var integer: otherPoints is 0;
+  begin
+    if not player.quitDialog then
+      player.strength := 4 + 2 * ord(player.species);
+      player.intelligence := 8;
+      player.dexterity := 12 - 2 * ord(player.species);
+      if player.species = HOBBIT then
+        otherPoints := 4;
       else
-        otherpoints := 8;
+        otherPoints := 8;
       end if;
       writeln;
-      writeln("Ok, " <& species <& ", you have the following attributes:");
-      writeln("STRENGTH = " <& strength <&
-              "  INTELLIGENCE = " <& intelligence <&
-              "  DEXTERITY = " <& dexterity);
-      writeln("and " <& otherpoints <& " other points to allocate as you wish.");
-      riseAttribute("strength", strength, otherpoints);
-      if not quitProgram and (otherpoints > 0) then
-        riseAttribute("intelligence", intelligence, otherpoints);
-        if not quitProgram and (otherpoints > 0) then
-          riseAttribute("dexterity", dexterity, otherpoints);
+      writeln("Ok, " <& player.species <& ", you have the following attributes:");
+      writeln("STRENGTH = " <& player.strength <&
+              "  INTELLIGENCE = " <& player.intelligence <&
+              "  DEXTERITY = " <& player.dexterity);
+      writeln("and " <& otherPoints <& " other points to allocate as you wish.");
+      riseAttribute(player, "strength", player.strength, otherPoints);
+      if not player.quitDialog and otherPoints > 0 then
+        riseAttribute(player, "intelligence", player.intelligence, otherPoints);
+        if not player.quitDialog and otherPoints > 0 then
+          riseAttribute(player, "dexterity", player.dexterity, otherPoints);
         end if;
       end if;
-      if not quitProgram and (otherpoints > 0) then
+      if not player.quitDialog and otherPoints > 0 then
         writeln;
         write("I am sure that you can never use the saved ");
-        if otherpoints = 1 then
+        if otherPoints = 1 then
           writeln("point.");
         else
-          numberName(otherpoints);
-          writeln(" points.");
+          writeln(numberName(otherPoints) <& " points.");
         end if;
       end if;
     end if;
-  end func; (* readAttributes *)
+  end func; # readAttributes
 
 
-const proc: buyAttribute (in string: attr_name, inout integer: attribute,
-    in integer: price, inout boolean: quit) is func
+const proc: buyAttribute (inout playerType: player, in string: attrName,
+    inout integer: attribute, in integer: price) is func
   local
     var char: ch is ' ';
     var boolean: okay is TRUE;
-  begin (* buyAttribute *)
-    if not quit and (goldPieces >= price) then
+  begin
+    if not player.quitDialog and player.goldPieces >= price then
       repeat
         repeat
           okay := TRUE;
           writeln;
-          writeln("Your " <& attr_name <& " is now " <& attribute <&
-                  " and you have " <& goldPieces <& " GP'S.");
-          write("Do you want to buy a potion of " <& attr_name <&
+          writeln("Your " <& attrName <& " is now " <& attribute <&
+                  " and you have " <& player.goldPieces <& " GP'S.");
+          write("Do you want to buy a potion of " <& attrName <&
                 " for " <& price <& " GP'S? ");
-          readChar(ch);
+          ch := readChar();
           case ch of
             when {'Y'}:
-              goldPieces -:= price;
+              player.goldPieces -:= price;
               attribute := range18(attribute + rand(1, 6));
             when {'N'}: noop;
             when {'Q'}:
-              quit := TRUE;
+              player.quitDialog := TRUE;
             otherwise:
               okay := FALSE;
               writeln;
               writeln("** Please answer Y, N or Q.");
           end case;
         until okay;
-      until ch <> 'Y' or goldPieces < price;
-      if ch <> 'Q' and goldPieces < price then
+      until ch <> 'Y' or player.goldPieces < price;
+      if ch <> 'Q' and player.goldPieces < price then
         writeln;
-        writeln("Your " <& attr_name <& " is now " <& attribute <& ".");
+        writeln("Your " <& attrName <& " is now " <& attribute <& ".");
       end if;
     end if;
-  end func; (* buyAttribute *)
+  end func; # buyAttribute
 
 
-const proc: buyArmor (
-    in integer: price_of_plate,
-    in integer: price_of_chainmail,
-    in integer: price_of_leather,
-    inout boolean: quit) is func
+const proc: buyArmor (inout playerType: player, in integer: priceOfPlate,
+    in integer: priceOfChainmail, in integer: priceOfLeather) is func
   local
     var char: ch is ' ';
     var boolean: okay is TRUE;
-  begin (* buyArmor *)
-    if not quit and (goldPieces >= price_of_leather) then
+  begin
+    if not player.quitDialog and player.goldPieces >= priceOfLeather then
       writeln;
-      writeln("Ok, " <& species <& ", you have " <& goldPieces <&
-              " gold pieces (GP'S) and " <& armor <& " armor.");
+      writeln("Ok, " <& player.species <& ", you have " <& player.goldPieces <&
+              " gold pieces (GP'S) and " <& player.armor <& " armor.");
       repeat
         okay := TRUE;
         writeln("These are the types of armor you can buy:");
         writeln;
-        if goldPieces >= price_of_plate then
-          writeln("  P/LATE     " <& price_of_plate lpad 4 <& " GP'S");
+        if player.goldPieces >= priceOfPlate then
+          writeln("  P/LATE     " <& priceOfPlate lpad 4 <& " GP'S");
         end if;
-        if goldPieces >= price_of_chainmail then
-          writeln("  C/HAINMAIL " <& price_of_chainmail lpad 4 <& " GP'S");
+        if player.goldPieces >= priceOfChainmail then
+          writeln("  C/HAINMAIL " <& priceOfChainmail lpad 4 <& " GP'S");
         end if;
-        writeln("  L/EATHER   " <& price_of_leather lpad 4 <& " GP'S");
+        writeln("  L/EATHER   " <& priceOfLeather lpad 4 <& " GP'S");
         writeln("  N/OTHING      0 GP'S");
-        readChoice(ch);
-        if (ch <> 'P' or goldPieces < price_of_plate) and
-            (ch <> 'C' or goldPieces < price_of_chainmail) and
-            ch <> 'L' and ch <> 'N' and ch <> 'Q' then
+        ch := readChoice();
+        if  (ch <> 'P' or player.goldPieces < priceOfPlate) and
+            (ch <> 'C' or player.goldPieces < priceOfChainmail) and
+             ch not in {'L', 'N', 'Q'} then
           okay := FALSE;
           writeln;
-          write("** Are you ");
-          write_a(species);
-          write(" or ");
-          write_a(rand(animatetype));
-          writeln("?");
+          writeln("** Are you " <& aOrAn(player.species) <& " or " <&
+                  aOrAn(rand(animateType)) <& "?");
           writeln;
         end if;
       until okay;
       case ch of
         when {'P'}:
-          armor := PLATE;
-          armorStrength := ord(armor) * 7;
-          goldPieces -:= price_of_plate;
+          player.armor := PLATE;
+          player.armorStrength := ord(player.armor) * ARMOR_STRENGTH_FACTOR;
+          player.goldPieces -:= priceOfPlate;
         when {'C'}:
-          armor := CHAINMAIL;
-          armorStrength := ord(armor) * 7;
-          goldPieces -:= price_of_chainmail;
+          player.armor := CHAINMAIL;
+          player.armorStrength := ord(player.armor) * ARMOR_STRENGTH_FACTOR;
+          player.goldPieces -:= priceOfChainmail;
         when {'L'}:
-          armor := LEATHER;
-          armorStrength := ord(armor) * 7;
-          goldPieces -:= price_of_leather;
+          player.armor := LEATHER;
+          player.armorStrength := ord(player.armor) * ARMOR_STRENGTH_FACTOR;
+          player.goldPieces -:= priceOfLeather;
         when {'N'}: noop;
         when {'Q'}:
-          quit := TRUE;
+          player.quitDialog := TRUE;
       end case;
     end if;
-  end func; (* buyArmor *)
+  end func; # buyArmor
 
 
-const proc: buyWeapon (
-    in integer: price_of_sword,
-    in integer: price_of_mace,
-    in integer: price_of_dagger,
-    inout boolean: quit) is func
+const proc: buyWeapon (inout playerType: player, in integer: priceOfSword,
+    in integer: priceOfMace, in integer: priceOfDagger) is func
   local
     var char: ch is ' ';
     var boolean: okay is TRUE;
-  begin (* buyWeapon *)
-    if not quit and (goldPieces >= price_of_dagger) then
+  begin
+    if not player.quitDialog and player.goldPieces >= priceOfDagger then
       writeln;
       write("Ok, ");
-      if armor <> NOARMOR then
+      if player.armor <> NOARMOR then
         write("bold ");
       end if;
-      write(species <& ", you have " <& goldPieces <& " GP'S left and ");
-      if weapon = NOWEAPON then
+      write(player.species <& ", you have " <& player.goldPieces <&
+            " GP'S left and ");
+      if player.weapon = NOWEAPON then
         writeln("no weapon.");
       else
-        write_a(weapon);
-        writeln(".");
+        writeln(aOrAn(player.weapon) <& ".");
       end if;
       repeat
         okay := TRUE;
         writeln("These are the types of weapons you can buy:");
         writeln;
-        if goldPieces >= price_of_sword then
-          writeln("  S/WORD     " <& price_of_sword lpad 4 <& " GP'S");
+        if player.goldPieces >= priceOfSword then
+          writeln("  S/WORD     " <& priceOfSword lpad 4 <& " GP'S");
         end if;
-        if goldPieces >= price_of_mace then
-          writeln("  M/ACE      " <& price_of_mace lpad 4 <& " GP'S");
+        if player.goldPieces >= priceOfMace then
+          writeln("  M/ACE      " <& priceOfMace lpad 4 <& " GP'S");
         end if;
-        writeln("  D/AGGER    " <& price_of_dagger lpad 4 <& " GP'S");
+        writeln("  D/AGGER    " <& priceOfDagger lpad 4 <& " GP'S");
         writeln("  N/OTHING      0 GP'S");
-        readChoice(ch);
-        if (ch <> 'S' or goldPieces < price_of_sword) and
-            (ch <> 'M' or goldPieces < price_of_mace) and
-            ch <> 'D' and ch <> 'N' and ch <> 'Q' then
+        ch := readChoice();
+        if  (ch <> 'S' or player.goldPieces < priceOfSword) and
+            (ch <> 'M' or player.goldPieces < priceOfMace) and
+             ch not in {'D', 'N', 'Q'} then
           okay := FALSE;
           writeln;
-          write("** Is your intelligence really ");
-          numberName(intelligence);
-          writeln("?");
+          writeln("** Is your intelligence really " <&
+                  numberName(player.intelligence) <& "?");
           writeln;
         end if;
       until okay;
       case ch of
         when {'S'}:
-          weapon := SWORD;
-          goldPieces -:= price_of_sword;
+          player.weapon := SWORD;
+          player.goldPieces -:= priceOfSword;
         when {'M'}:
-          weapon := MACE;
-          goldPieces -:= price_of_mace;
+          player.weapon := MACE;
+          player.goldPieces -:= priceOfMace;
         when {'D'}:
-          weapon := DAGGER;
-          goldPieces -:= price_of_dagger;
+          player.weapon := DAGGER;
+          player.goldPieces -:= priceOfDagger;
         when {'N'}: noop;
         when {'Q'}:
-          quit := TRUE;
+          player.quitDialog := TRUE;
       end case;
     end if;
-  end func; (* buyWeapon *)
+  end func; # buyWeapon
 
 
-const proc: buyLamp (in integer: price, inout boolean: quit) is func
+const proc: buyLamp (inout playerType: player, in integer: price) is func
   local
-    var char: ch is ' ';
     var boolean: okay is TRUE;
-  begin (* buyLamp *)
-    if not quit and LAMP->place <> PLAYER and
-        goldPieces >= price then
+  begin
+    if not player.quitDialog and LAMP not in player.possession and
+        player.goldPieces >= price then
       repeat
         okay := TRUE;
         writeln;
         write("Do you want to buy a lamp for " <& price <& " GP'S? ");
-        readChar(ch);
-        case ch of
+        case readChar() of
           when {'Y'}:
             if price > 10 then
               writeln;
               writeln("It's guaranteed to outlive you.");
             end if;
-            LAMP->place := PLAYER;
-            goldPieces -:= price;
+            incl(player.possession, LAMP);
+            player.goldPieces -:= price;
           when {'N'}: noop;
           when {'Q'}:
-            quit := TRUE;
+            player.quitDialog := TRUE;
           otherwise:
             okay := FALSE;
             writeln;
@@ -1759,26 +1136,27 @@ const proc: buyLamp (in integer: price, inout boolean: quit) is func
         end case;
       until okay;
     end if;
-  end func; (* buyLamp *)
+  end func; # buyLamp
 
 
-const proc: readFlares is func
+const proc: buyFlares (inout playerType: player) is func
   local
-    var integer: number is 0;
+    var integer: flares is 0;
     var boolean: okay is TRUE;
-  begin (* readFlares *)
-    if not quitProgram and (goldPieces >= 1) then
+  begin
+    if not player.quitDialog and player.goldPieces >= 1 then
       writeln;
-      writeln("Ok, " <& species <& ", you have " <& goldPieces <& " GP'S left.");
+      writeln("Ok, " <& player.species <& ", you have " <& player.goldPieces <&
+              " GP'S left.");
       repeat
         writeln;
         write("Five flares cost 1 GP. How many do you want? ");
-        readNumber(number, okay, quitProgram);
-        if not quitProgram then
+        readNumber(flares, okay, player.quitDialog);
+        if not player.quitDialog then
           if okay then
-            if number > 5 * goldPieces then
+            if flares > 5 * player.goldPieces then
               writeln;
-              writeln("** You can afford only " <& 5 * goldPieces <& ".");
+              writeln("** You can afford only " <& 5 * player.goldPieces <& ".");
               okay := FALSE;
             end if;
           else
@@ -1786,75 +1164,41 @@ const proc: readFlares is func
             writeln("** If you don't want any, just type 0 (zero).");
           end if;
         end if;
-      until okay or quitProgram;
+      until okay or player.quitDialog;
       if okay then
-        flares +:= number;
-        goldPieces -:= (number + 4) div 5;
+        player.flares +:= flares;
+        player.goldPieces -:= (flares + 4) div 5;
       end if;
     end if;
-  end func; (* readFlares *)
+  end func; # buyFlares
 
 
-const proc: sellTreasures (inout boolean: quit) is func
+const proc: buyTreasures (inout playerType: player) is func
   local
+    var objectType: treasure is NOOBJECT;
+    var integer: treasureNumber is 0;
     var integer: price is 0;
-    var objecttype: obj is NOOBJECT;
-    var char: ch is ' ';
     var boolean: okay is TRUE;
-  begin (* sellTreasures *)
-    for obj range list_of_treasures & [](RUNESTAFF, ORBOFZOT) do
-      if not quit and (obj->place = PLAYER) then
-        price := rand(1, 150) +
-            150 * pred(rand(1, succ(ord(obj) - ord(RUBY))));
-        repeat
-          okay := TRUE;
-          writeln;
-          write("Do you want to sell the " <& obj->name <&
-                " for " <& price <& " GP'S? ");
-          readChar(ch);
-          case ch of
-            when {'Y'}:
-              obj->place := NOWHERE;
-              goldPieces +:= price;
-            when {'N'}: noop;
-            when {'Q'}:
-              quit := TRUE;
-            otherwise:
-              okay := FALSE;
-              writeln;
-              writeln("** Please answer Y, N or Q.");
-          end case;
-        until okay;
-      end if;
-    end for;
-  end func; (* sellTreasures *)
-
-
-const proc: buyTreasures (inout boolean: quit) is func
-  local
-    var integer: price is 0;
-    var objecttype: obj is NOOBJECT;
-    var char: ch is ' ';
-    var boolean: okay is TRUE;
-  begin (* buyTreasures *)
-    for obj range list_of_treasures do
-      if not quit and (obj->place <> PLAYER) then
-        price := 125 * succ(ord(obj) - ord(RUBY)) + rand(1, 250) +
-            250 * pred(rand(1, succ(ord(obj) - ord(RUBY))));
-        if price <= goldPieces then
+  begin
+    for treasure range treasureSet do
+      if not player.quitDialog and treasure not in player.possession then
+        treasureNumber := succ(ord(treasure) - ord(RUBY));
+        price := 125 * treasureNumber + rand(1, 250) +
+                 250 * pred(rand(1, treasureNumber));
+        if price <= player.goldPieces then
           repeat
             okay := TRUE;
             writeln;
-            write("Do you want to buy the " <& obj->name <&
+            write("Do you want to buy the " <& treasure <&
                   " for " <& price <& " GP'S? ");
-            readChar(ch);
-            case ch of
+            case readChar() of
               when {'Y'}:
-                obj->place := PLAYER;
-                goldPieces -:= price;
+                removeFromRoom(objPlace[treasure], treasure);
+                incl(player.possession, treasure);
+                player.goldPieces -:= price;
               when {'N'}: noop;
               when {'Q'}:
-                quit := TRUE;
+                player.quitDialog := TRUE;
               otherwise:
                 okay := FALSE;
                 writeln;
@@ -1864,1013 +1208,1067 @@ const proc: buyTreasures (inout boolean: quit) is func
         end if;
       end if;
     end for;
-  end func; (* buyTreasures *)
+  end func; # buyTreasures
 
 
-const proc: execute (SELL) is func
+const proc: buy (in roomType: currentRoom, inout playerType: player) is func
+  begin
+    if currentRoom.roomer <> VENDOR then
+      writeln;
+      writeln("** You can only buy from a vendor!");
+    elsif player.goldPieces < 100 then
+      writeln;
+      case rand(1, 14) of
+        when { 1}: writeln("I do not play with funny money.");
+        when { 2}: writeln("You need more gold pieces to trade.");
+        when { 3}: writeln("You haven't got enough cash on hand.");
+        when { 4}: writeln("Earn money and then come and try again.");
+        when { 5}: writeln("You need hard currency to trade with me.");
+        when { 6}: writeln("In capitalism real money is needed for trading.");
+        when { 7}: writeln("Your dungeon express card -  You left home without it.");
+        when { 8}: writeln("I don't give alms, " <& player.species <& ".");
+        when { 9}: writeln("You're too poor to trade, " <& player.species <& ".");
+        when {10}: writeln("I don't trade with a beggar, " <& player.species <& ".");
+        when {11}: writeln("Even " <& aOrAn(rand(animateType)) <&
+                           " knows that money is needed for trading.");
+        when {12}: writeln("With " <& numberName(player.goldPieces) <&
+                           " GP'S no trade can be done.");
+        when {13}: writeln("It's typical for " <& sexName(player.isMale) <&
+                           " " <& player.species <&
+                           "s, that they want to trade without enough money.");
+        when {14}: writeln("Sorry " <& titleName(player.isMale) <&
+                           ", I'm afraid I don't give credit.");
+      end case;
+    else
+      player.quitDialog := FALSE;
+      buyArmor(player, 200, 150, 125);
+      buyWeapon(player, 200, 150, 125);
+      buyAttribute(player, "strength",     player.strength,     100);
+      buyAttribute(player, "intelligence", player.intelligence, 100);
+      buyAttribute(player, "dexterity",    player.dexterity,    100);
+      buyLamp(player, 100);
+      buyTreasures(player);
+    end if;
+  end func; # buy
+
+
+const proc: sellTreasures (inout roomType: currentRoom,
+    inout playerType: player) is func
   local
-    var boolean: quit is FALSE;
-  begin (* execute (SELL) *)
-    quit := FALSE;
-    if currentRoom->roomer <> VENDOR then
+    var objectType: treasure is NOOBJECT;
+    var integer: treasureNumber is 0;
+    var integer: price is 0;
+    var boolean: okay is TRUE;
+  begin
+    for treasure range treasureSet | {RUNESTAFF, ORBOFZOT} do
+      if not player.quitDialog and treasure in player.possession then
+        treasureNumber := succ(ord(treasure) - ord(RUBY));
+        price := rand(1, 150) + 150 * pred(rand(1, treasureNumber));
+        repeat
+          okay := TRUE;
+          writeln;
+          write("Do you want to sell the " <& treasure <&
+                " for " <& price <& " GP'S? ");
+          case readChar() of
+            when {'Y'}:
+              excl(player.possession, treasure);
+              incl(currentRoom.objects, treasure);
+              objPlace[treasure] := currentRoom;
+              player.goldPieces +:= price;
+            when {'N'}: noop;
+            when {'Q'}:
+              player.quitDialog := TRUE;
+            otherwise:
+              okay := FALSE;
+              writeln;
+              writeln("** Please answer Y, N or Q.");
+          end case;
+        until okay;
+      end if;
+    end for;
+  end func; # sellTreasures
+
+
+const proc: sell (inout roomType: currentRoom, inout playerType: player) is func
+  begin
+    if currentRoom.roomer <> VENDOR then
       writeln;
       writeln("** You can only sell to a vendor!");
-    elsif count(TREASURES) = 0 then
+    elsif countOwnedTreasures(player) = 0 then
       writeln;
       writeln("** You have nothing to offer!");
     else
-      sellTreasures(quit);
+      player.quitDialog := FALSE;
+      sellTreasures(currentRoom, player);
     end if;
-  end func; (* execute (SELL) *)
+  end func; # sell
 
 
-const proc: execute (BUY) is func
+const proc: checkArmor (inout playerType: player, in integer: strike) is func
   local
-    var boolean: quit is FALSE;
-  begin (* execute (BUY) *)
-    quit := FALSE;
-    if currentRoom->roomer <> VENDOR then
-      writeln;
-      writeln("** You can only buy from a vendor!");
-    elsif goldPieces < 100 then
-      writeln;
-      case rand(1, 14) of
-        when { 1}:
-          writeln("I do not play with funny money.");
-        when { 2}:
-          writeln("You need more gold pieces to trade.");
-        when { 3}:
-          writeln("You haven't got enough cash on hand.");
-        when { 4}:
-          writeln("Earn money and then come and try again.");
-        when { 5}:
-          writeln("You need hard currency to trade with me.");
-        when { 6}:
-          writeln("In capitalism real money is needed for trading.");
-        when { 7}:
-          writeln("Your dungeon express card -  You left home without it.");
-        when { 8}:
-          writeln("I don't give alms, " <& species <& ".");
-        when { 9}:
-          writeln("You're too poor to trade, " <& species <& ".");
-        when {10}:
-          writeln("I don't trade with a beggar, " <& species <& ".");
-        when {11}:
-          write("Even ");
-          write_a(rand(animatetype));
-          writeln(" knows that money is need for trading.");
-        when {12}:
-          write("With ");
-          numberName(goldPieces);
-          writeln(" GP'S no trade can be done.");
-        when {13}:
-          write("It's typical for ");
-          sexName(maleSex);
-          writeln(" " <& species <&
-                  " that they want to trade without enough money.");
-        when {14}:
-          write("Sorry ");
-          titleName(maleSex);
-          writeln(" I'm afraid I don't give credit.");
-      end case;
+    var integer: damage is 0;
+  begin
+    if player.armor = NOARMOR then
+      damage := strike;
     else
-      buyArmor(200, 150, 125, quit);
-      buyWeapon(200, 150, 125, quit);
-      buyAttribute("strength",     strength,     100, quit);
-      buyAttribute("intelligence", intelligence, 100, quit);
-      buyAttribute("dexterity",    dexterity,    100, quit);
-      buyLamp(100, quit);
-      buyTreasures(quit);
-    end if;
-  end func; (* execute (BUY) *)
-
-
-const proc: checkArmor (in integer: strike) is func
-  local
-    var integer: number is 0;
-  begin (* checkArmor *)
-    if armor <> NOARMOR then
-      number := strike - ord(armor);
-      armorStrength -:= ord(armor);
-      if number < 0 then
-        armorStrength -:= number;
-        number := 0;
+      if strike < ord(player.armor) then
+        damage := 0;
+        player.armorStrength -:= strike;
+      else
+        damage := strike - ord(player.armor);
+        player.armorStrength -:= ord(player.armor);
       end if;
-      if armorStrength < 0 then
-        armorStrength := 0;
-        armor := NOARMOR;
+      if player.armorStrength < 0 then
+        player.armorStrength := 0;
+        player.armor := NOARMOR;
         writeln;
         writeln("YOUR ARMOR HAS BEEN DESTROYED . . . GOOD LUCK!");
       end if;
     end if;
-    strength -:= number;
-  end func; (* checkArmor *)
+    player.strength -:= damage;
+  end func; # checkArmor
 
 
-const proc: contentInfo (in roomref: a_room) is func
-  begin (* contentInfo *)
-    case a_room->transfer of
-      when {NOTRANSFER}:
-        if a_room->roomer = NOBODY then
-          if a_room->contents <> EMPTYROOM then
-            case a_room->contents of
-              when {ENTRANCE}:          write("E");
-              when {EMPTYCHEST}:        write(".");
-              when {CHESTWITHSKELETON}: write(".");
-              when {CLOSEDCHEST}:       write("C");
-              when {ORB}:               write("O");
-              when {POOL}:              write("P");
-              when {BOOK}:              write("B");
-            end case;
-          elsif availTreasure(a_room) then
-            write("T");
-          elsif UP in a_room->connections then
-            write("U");
-          elsif DOWN in a_room->connections then
-            write("D");
-          else
-            write(".");
-          end if;
-        elsif a_room->roomer = VENDOR then
-          write("V");
-        else
-          write("M");
-        end if;
-      when {SINKHOLE}: write("S");
-      when {WARP}:     write("W");
-    end case;
-  end func; (* contentInfo *)
-
-
-const proc: execute (MAP) is func
+const proc: monsterDies (inout roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
   local
-    var integer: x1 is 0;
-    var integer: y1 is 0;
-    var integer: z1 is 0;
-    var roomref: a_room is roomref.NIL;
-  begin (* execute (MAP) *)
-    writeln;
-    if blind then
-      writeln("** You are blind, you dumb " <& species <& "!");
-    else
-      z1 := currentRoom->zPos;
-      for x1 range 1 to SIZE_LABY do
-        for y1 range 1 to SIZE_LABY do
-          a_room := &LABYRINTH[x1][y1][z1];
-          if a_room->visited then
-            if a_room = currentRoom then
-              write("<");
-              contentInfo(currentRoom);
-              write(">  ");
-            else
-              write(" ");
-              contentInfo(a_room);
-              write("   ");
-            end if;
-          else
-            write("     ");
-          end if;
-        end for;
-        writeln;
-        writeln;
-      end for;
-      write("You are at ");
-      writePos(currentRoom);
-    end if;
-  end func; (* execute (MAP) *)
-
-
-const proc: execute (FLARE) is func
-  local
-    var integer: num1 is 0;
-    var integer: num2 is 0;
-    var integer: x1 is 0;
-    var integer: y1 is 0;
-    var integer: z1 is 0;
-    var roomref: a_room is roomref.NIL;
-  begin (* execute (FLARE) *)
-    writeln;
-    if flares = 0 then
-      writeln("** Hey, bright one, you're out of flares!");
-    elsif blind then
-      writeln("** You can't see anything, you dumb " <& species <& "!");
-    else
-      decr(flares);
-      z1 := currentRoom->zPos;
-      for num1 range pred(currentRoom->xPos) to succ(currentRoom->xPos) do
-        x1 := range_laby(num1);
-        for num2 range pred(currentRoom->yPos) to succ(currentRoom->yPos) do
-          y1 := range_laby(num2);
-          a_room := &LABYRINTH[x1][y1][z1];
-          a_room->visited := TRUE;
-          write(" ");
-          contentInfo(a_room);
-          write("   ");
-        end for;
-        writeln;
-        writeln;
-      end for;
-      write("You are at ");
-      writePos(currentRoom);
-    end if;
-  end func; (* execute (FLARE) *)
-
-
-const proc: execute (LIGHT) is func
-  local
-    var integer: x1 is 0;
-    var integer: y1 is 0;
-    var integer: z1 is 0;
-    var char: ch is ' ';
-    var roomref: a_room is roomref.NIL;
-  begin (* execute (LIGHT) *)
-    writeln;
-    if LAMP->place <> PLAYER then
-      writeln("** You don't have a lamp, " <& species <& "!");
-    elsif blind then
-      writeln("** You are blind, you dumb " <& species <& "!");
-    else
-      write("Where do you want to shine the lamp (N, S, E, W)? ");
-      readChar(ch);
-      if not ch in {'N', 'S', 'E', 'W'} then
-        writeln;
-        writeln("** That's not a direction, " <& species <& "!");
-      else
-        x1 := currentRoom->xPos;
-        y1 := currentRoom->yPos;
-        z1 := currentRoom->zPos;
-        case ch of
-          when {'N'}: x1 := range_laby(pred(x1));
-          when {'S'}: x1 := range_laby(succ(x1));
-          when {'W'}: y1 := range_laby(pred(y1));
-          when {'E'}: y1 := range_laby(succ(y1));
-        end case;
-        a_room := &LABYRINTH[x1][y1][z1];
-        a_room->visited := TRUE;
-        writeln;
-        write("The lamp shines into a room at ");
-        writePos(a_room);
-        write("You see ");
-        writeRoom(a_room);
-        writeConnections(a_room);
-        writeAnimates(a_room);
-        writeObjects(a_room);
-      end if;
-    end if;
-  end func; (* execute (LIGHT) *)
-
-
-const proc: execute (DRINK) is func
-  local
-    var integer: number is 0;
-  begin (* execute (DRINK) *)
-    writeln;
-    if currentRoom->contents <> POOL then
-      writeln("** If you want a drink, find a pool!");
-    else
-      write("You take a drink and ");
-      case rand(1, 8) of
-
-        when {1}:
-          strength := range18(strength + rand(1, 3));
-          writeln("feel stronger.");
-
-        when {2}:
-          strength -:= rand(1, 3);
-          writeln("feel weaker.");
-          if strength < 1 then
-            living := FALSE;
-          end if;
-
-        when {3}:
-          intelligence := range18(intelligence + rand(1, 3));
-          writeln("feel smarter.");
-
-        when {4}:
-          intelligence -:= rand(1, 3);
-          writeln("feel dumber.");
-          if intelligence < 1 then
-            living := FALSE;
-          end if;
-
-        when {5}:
-          dexterity := range18(dexterity + rand(1, 3));
-          writeln("feel nimbler.");
-
-        when {6}:
-          dexterity -:= rand(1, 3);
-          writeln("feel clumsier.");
-          if dexterity < 1 then
-            living := FALSE;
-          end if;
-
-        when {7}:
-          number := rand(0, 2);
-          if number >= ord(species) then
-            number := succ(number);
-          end if;
-          species := list_of_species[succ(number)];
-          write("become ");
-          write_a(species);
-          writeln(".");
-
-        when {8}:
-          maleSex := not maleSex;
-          write("turn into a ");
-          sexName(maleSex);
-          writeln(" " <& species <& ".");
-      end case;
-    end if;
-  end func; (* execute (DRINK) *)
-
-
-const proc: execute (READ) is func
-  begin (* execute (READ) *)
-    writeln;
-    if currentRoom->contents <> BOOK then
-      writeln("** There is nothing that can be read!");
-    else
-      writeln("You open the book and");
-      case rand(1, 6) of
-
-        when {1}:
-          writeln("Flash! Oh no! You are now a blind " <& species <& "!");
-          blind := TRUE;
-
-        when {2}:
-          case rand(1, 4) of
-            when {1}:
-              writeln("It's another volume of Zot's poetry. - YECH!!");
-            when {2}:
-              writeln("It's a manual of this game.");
-            when {3}:
-              writeln("It's a story about a dumb " <& species <&
-                      " who finds a book and then dies.");
-            when {4}:
-              write("It's volume number ");
-              numberName(rand(1, 20));
-              writeln(" of a novel.");
-          end case;
-
-        when {3}:
-          writeln("It's an old copy of play " <& rand(speciestype) <& ".");
-
-        when {4}:
-          writeln("It's a manual of dexterity!");
-          dexterity := 18;
-
-        when {5}:
-          writeln("It's a manual of strength!");
-          strength := 18;
-
-        when {6}:
-          writeln("The book sticks to your hands -");
-          writeln("Now you are unable to draw your weapon!");
-          weaponBlocked := TRUE;
-      end case;
-      currentRoom->contents := EMPTYROOM;
-    end if;
-  end func; (* execute (READ) *)
-
-
-const proc: viewOrb is func
-  local
-    var roomref: a_room is roomref.NIL;
-  begin (* viewOrb *)
-    write("You see ");
-    case rand(1, 6) of
-
-      when {1}:
-        case rand(1, 10) of
-          when {1}:
-            writeln("your own burial!");
-          when {2}:
-            writeln("your mouldering dead body!");
-          when {3}:
-            writeln("yourself in a bloody heap!");
-          when {4}:
-            writeln("yourself with your skull bashed in!");
-          when {5}:
-            writeln("your broken skeleton lying on the ground!");
-          when {6}:
-            writeln("a graveyard and a tombstone with your name!");
-          when {7}:
-            write_a(rand(animatetype));
-            writeln(" killing you!");
-          when {8}:
-            write_a(rand(speciestype));
-            writeln(" finding your faded bones!");
-          when {9}:
-            write_a(rand(speciestype));
-            write(" which tells ");
-            write_a(rand(speciestype));
-            writeln(" that you are dead!");
-          when {10}:
-            write("a ");
-            sexName(not maleSex);
-            writeln(" " <& species <& " giving flowers on your grave!");
-        end case;
-        decr(strength);
-        write("This message makes you weaker. Your strength is now ");
-        if strength < 1 then
-          living := FALSE;
-          writeln("zero!");
-        else
-          numberName(strength);
-          writeln(".");
-        end if;
-
-      when {2}:
-        case rand(1, 4) of
-          when {1}:
-            write("yourself drinking from a pool and becoming ");
-            write_a(rand(animatetype));
-            writeln("!");
-          when {2}:
-            write_a(rand(animatetype));
-            write(" drinking from a pool and becoming ");
-            write_a(rand(speciestype));
-            writeln(".");
-          when {3}:
-            write_a(rand(speciestype));
-            write(" drinking from a pool and becoming ");
-            writeAnyAdjective();
-            writeln(" spider.");
-          when {4}:
-            write("a young ");
-            if rand(FALSE, TRUE) then
-              write("man");
-            else
-              write("woman");
-            end if;
-            writeln(" drinking from a pool and becoming as old as the hills.");
-        end case;
-
-      when {3}:
-        case rand(1, 2) of
-          when {1}:
-            write_a(rand(animatetype));
-            writeln(" gazing back at you.");
-          when {2}:
-            write("that you are watched from ");
-            write_a(rand(speciestype));
-            writeln(".");
-        end case;
-
-      when {4}:
-        a_room := &LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)];
-        a_room->visited := TRUE;
-        writeRoom(a_room);
-        writeConnections(a_room);
-        write("You can also see that this room is at ");
-        writePos(a_room);
-        writeAnimates(a_room);
-        writeObjects(a_room);
-
-      when {5}:
-        write("the *ORB OF ZOT* at ");
-        if rand(FALSE, TRUE) then
-          writePos(&LABYRINTH[ORBOFZOT->xPos][ORBOFZOT->yPos][ORBOFZOT->zPos]);
-        else
-          writePos(&LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)]);
-        end if;
-
-      when {6}:
-        case rand(1, 10) of
-          when {1}:
-            writeln("a soap opera rerun.");
-          when {2}:
-            writeln("a washing powder commercial.");
-          when {3}:
-            writeln("an image to test the reception of the orb.");
-          when {4}:
-            writeln("somebody sitting at a computer playing this game.");
-          when {5}:
-            writeln("nothing because in the moment there are atmospherics.");
-          when {6}:
-            writeln("a scientist demonstrating that an orb could never work.");
-          when {7}:
-            writeln("the presentation of the new generation of orb's with sound.");
-          when {8}:
-            writeln("that there is a 50% chance that what you see in an orb is correct.");
-          when {9}:
-            writeln("yourself looking into an orb where you see yourself looking into ...");
-          when {10}:
-            write_a(rand(speciestype));
-            writeln(" announcing todays program of the orb.");
-        end case;
-    end case;
-  end func; (* viewOrb *)
-
-
-const proc: execute (GAZE) is func
-  begin (* execute (GAZE) *)
-    writeln;
-    if blind then
-      writeln("** You can't see anything, you dumb " <& species <& "!");
-    elsif currentRoom->roomer = NOBODY then
-      case currentRoom->contents of
-        when {EMPTYROOM}:
-          writeln("You are gazing at an empty wall.");
-        when {ENTRANCE}:
-          writeln("You are gazing at the exit.");
-        when {EMPTYCHEST}:
-          writeln("The chest does not fill with gazing at.");
-        when {CHESTWITHSKELETON}:
-          writeln("The skeleton looks horrible.");
-        when {CLOSEDCHEST}:
-          writeln("The chest does not open with gazing at.");
-        when {POOL}:
-          writeln("You see your ugly face mirror in the water.");
-        when {BOOK}:
-          writeln("You are gazing at the book.");
-        when {ORB}:
-          viewOrb();
-      end case;
-    elsif currentRoom->roomer = VENDOR then
-      write("You are gazing at the Vendor. ");
-      if maleSex then
-        writeln("But the Vendor does not like male " <& species <& ".");
-      else
-        writeln("The Vendor smiles and shows his wedding-ring.");
-      end if;
-    else
-      write("The " <& currentRoom->roomer);
-      if maleSex then
-        writeln(" is shocked by the scowl of a strong male " <& species <& ".");
-        activeMonster := FALSE;
-      else
-        writeln(" cannot be shocked by the scowl of a female " <& species <& ".");
-      end if;
-    end if;
-  end func; (* execute (GAZE) *)
-
-
-const proc: monsterDies (in animatetype: monster, inout boolean: livingMonster) is func
-  local
-    var objecttype: obj is NOOBJECT;
-  begin (* monsterDies *)
-    livingMonster := FALSE;
+    var animateType: monster is NOBODY;
+    var objectType: treasure is NOOBJECT;
+  begin
+    monster := currentRoom.roomer;
+    fightState.monsterPresent := FALSE;
     writeln;
     writeln("The " <& monster <& " lies dead at your feet!");
-    if mealHour + 60 <= turns then
+    if monster in {WOLF, BEAR, CHIMERA, BALROG, DRAGON} and
+        player.mealHour + 60 <= player.turns then
       writeln;
-      write("You spend an hour eating " <& monster <& " ");
-      writeAnyFood();
-      writeln(".");
-      mealHour := turns;
+      writeln("You spend an hour eating " <& monster <& " " <& anyFood() <& ".");
+      player.mealHour := player.turns;
     end if;
-    for obj range list_of_objects do
-      if (currentRoom->xPos = obj->xPos) and
-          (currentRoom->yPos = obj->yPos) and
-          (currentRoom->zPos = obj->zPos) and
-          (obj->place = ANYROOM) then
-        writeln("\a");
-        writeln("Great Zot! You've found the " <& obj->name <& "!");
-        obj->place := PLAYER;
-      end if;
-    end for;
     if monster = VENDOR then
       writeln;
       writeln("You get all his wares:");
       writeln("  plate armor");
-      armor := PLATE;
-      armorStrength := 21;
+      player.armor := PLATE;
+      player.armorStrength := ord(player.armor) * ARMOR_STRENGTH_FACTOR;
       writeln("  a sword");
-      weapon := SWORD;
+      player.weapon := SWORD;
       writeln("  a strength potion");
-      strength := range18(strength + rand(1, 6));
+      player.strength := range18(player.strength + rand(1, 6));
       writeln("  an intelligence potion");
-      intelligence := range18(intelligence + rand(1, 6));
+      player.intelligence := range18(player.intelligence + rand(1, 6));
       writeln("  a dexterity potion");
-      dexterity := range18(dexterity + rand(1, 6));
-      if LAMP->place <> PLAYER then
+      player.dexterity := range18(player.dexterity + rand(1, 6));
+      if LAMP not in player.possession then
         writeln("  a lamp");
+        incl(player.possession, LAMP);
       end if;
-      LAMP->place := PLAYER;
+      for treasure range currentRoom.objects do
+        writeln("  the " <& treasure);
+      end for;
     else
-      decr(monsterCount);
+      for treasure range currentRoom.objects do
+        writeln("\a");
+        writeln("Great Zot! You've found the " <& treasure <& "!");
+      end for;
+      decr(fightState.monsterCount);
     end if;
+    player.possession |:= currentRoom.objects;
+    currentRoom.objects := objectSet.value;
     writeln;
     write("You get his hoard of ");
-    findGoldPieces(99);
-    currentRoom->roomer := NOBODY;
-  end func; (* monsterDies *)
+    findGoldPieces(player, 99);
+    currentRoom.roomer := NOBODY;
+  end func; # monsterDies
 
 
-const proc: monsterAttacks (in animatetype: monster) is func
-  begin (* monsterAttacks *)
-    if webCount > 0 then
-      decr(webCount);
-      if webCount = 0 then
+const proc: monsterAttacks (in animateType: monster, inout playerType: player,
+    inout fightStateType: fightState) is func
+  begin
+    if fightState.webCount > 0 then
+      decr(fightState.webCount);
+      if fightState.webCount = 0 then
         writeln;
         writeln("The web just broke!");
       end if;
     end if;
     writeln;
     write("The " <& monster);
-    if webCount > 0 then
+    if fightState.webCount > 0 then
       writeln(" is stuck and can't attack now!");
-    elsif dexterity >= rand(3, 21) + 3 * ord(blind) then
+    elsif player.dexterity >= rand(3, 21) + 3 * ord(player.blind) then
       writeln(" attacks!  What luck, he missed you!");
     else
       writeln(" attacks!  Ouch! He hit you!");
-      checkArmor(aggressionOfMonster);
-      if strength < 1 then
-        living := FALSE;
-      end if;
+      checkArmor(player, fightState.aggressionOfMonster);
+      player.living := player.strength >= 1;
     end if;
-  end func; (* monsterAttacks *)
+  end func; # monsterAttacks
 
 
-const proc: attackMonster (in animatetype: monster, inout boolean: livingMonster) is func
-  begin (* attackMonster *)
-    if weapon = NOWEAPON then
+const proc: attackMonster (inout roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
+  local
+    var animateType: monster is NOBODY;
+  begin
+    monster := currentRoom.roomer;
+    if player.weapon = NOWEAPON then
       writeln;
-      write("** Pounding on ");
-      write_a(monster);
-      writeln(" won't hurt it!");
-    elsif weaponBlocked then
+      writeln("** Pounding on " <& aOrAn(monster) <& " won't hurt it!");
+    elsif player.weaponBlocked then
       writeln;
       writeln("** You can't beat it to death with a book!");
-    elsif dexterity < rand(1, 20) + (3 * ord(blind)) then
+    elsif player.dexterity < rand(1, 20) + (3 * ord(player.blind)) then
       writeln;
       writeln("You missed, too bad!");
     else
       writeln;
       writeln("You hit the evil " <& monster <& ".");
-      monsterStrength -:= ord(weapon);
-      if (monster = GARGOYLE) or (monster = DRAGON) then
+      fightState.monsterStrength -:= ord(player.weapon);
+      if monster in {GARGOYLE, DRAGON} then
         if rand(1, 8) = 1 then
           writeln;
-          writeln("OH NO!  Your " <& weapon <& " broke!");
-          weapon := NOWEAPON;
+          writeln("OH NO!  Your " <& player.weapon <& " broke!");
+          player.weapon := NOWEAPON;
         end if;
       end if;
-      if monsterStrength <= 0 then
-        monsterDies(monster, livingMonster);
+      if fightState.monsterStrength <= 0 then
+        monsterDies(currentRoom, player, fightState);
       end if;
     end if;
-  end func; (* attackMonster *)
+  end func; # attackMonster
 
 
-const proc: castSpell (in animatetype: monster, inout boolean: livingMonster) is func
+const proc: castSpell (inout roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
   local
-    var integer: number is 0;
+    var integer: damage is 0;
     var char: ch is ' ';
-  begin (* castSpell *)
+  begin
     writeln;
     write("Which spell (web, fireball, deathspell)? ");
-    readChar(ch);
+    ch := readChar();
     writeln;
     if ch = 'W' then
-      decr(strength);
-      webCount := rand(2, 9);
-      if strength < 1 then
-        living := FALSE;
-      end if;
+      decr(player.strength);
+      fightState.webCount := rand(2, 9);
+      player.living := player.strength >= 1;
     elsif ch = 'F' then
-      decr(strength);
-      decr(intelligence);
-      if (intelligence < 1) or (strength < 1) then
-        living := FALSE;
+      decr(player.strength);
+      decr(player.intelligence);
+      if player.intelligence < 1 or player.strength < 1 then
+        player.living := FALSE;
       else
-        number := rand(2, 14);
+        damage := rand(2, 14);
         writeln;
-        writeln("It does " <& number <& " points worth of damage.");
-        monsterStrength -:= number;
-        if monsterStrength <= 0 then
-          monsterDies(monster, livingMonster);
+        writeln("It does " <& damage <& " points worth of damage.");
+        fightState.monsterStrength -:= damage;
+        if fightState.monsterStrength <= 0 then
+          monsterDies(currentRoom, player, fightState);
         end if;
       end if;
     elsif ch = 'D' then
       write("DEATH . . . ");
-      if intelligence < rand(16, 19) then
+      if player.intelligence < rand(16, 19) then
         writeln("YOURS!");
-        intelligence := 0;
-        living := FALSE;
+        player.intelligence := 0;
+        player.living := FALSE;
       else
         writeln("HIS!");
-        monsterStrength := 0;
-        monsterDies(monster, livingMonster);
+        fightState.monsterStrength := 0;
+        monsterDies(currentRoom, player, fightState);
       end if;
     else
       writeln("** Try one of the options given.");
     end if;
-  end func; (* castSpell *)
+  end func; # castSpell
 
 
-const proc: execute (QUITCOMMAND) is func
+const proc: bribeMonster (inout roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
   local
-    var char: ch is ' ';
-  begin (* execute (QUITCOMMAND) *)
-    writeln;
-    write("Do you really want to quit now? ");
-    readChar(ch);
-    if ch <> 'Y' then
-      writeln;
-      writeln("** Then don't say that you do!");
-    else
-      quitProgram := TRUE;
-    end if;
-  end func; (* execute (QUITCOMMAND) *)
-
-
-const proc: bribeMonster (in animatetype: monster, inout boolean: bribed) is func
-  local
-    var objecttype: obj is NOOBJECT;
+    var objectType: treasure is NOOBJECT;
     var char: ch is ' ';
     var boolean: okay is TRUE;
-  begin (* bribeMonster *)
-    bribed := FALSE;
-    if count(TREASURES) = 0 then
+  begin
+    fightState.bribed := FALSE;
+    if countOwnedTreasures(player) = 0 then
       writeln;
       writeln("All I want is your life!");
     else
-      obj := one_of_owned(TREASURES);
+      treasure := ownedTreasure(player);
       repeat
         okay := TRUE;
         writeln;
-        write("I want the " <& obj->name <& ". Will you give it to me? ");
-        readChar(ch);
+        write("I want the " <& treasure <& ". Will you give it to me? ");
+        ch := readChar();
         if not ch in {'Y', 'N', 'Q'} then
           okay := FALSE;
           writeln;
           writeln("** Please answer yes or no.");
         end if;
       until okay;
-      if ch = 'Q' then
-        execute(QUITCOMMAND);
-      elsif ch = 'Y' then
-        obj->place := ANYROOM;
-        obj->xPos := currentRoom->xPos;
-        obj->yPos := currentRoom->yPos;
-        obj->zPos := currentRoom->zPos;
+      if ch = 'Y' then
+        excl(player.possession, treasure);
+        incl(currentRoom.objects, treasure);
+        objPlace[treasure] := currentRoom;
         writeln;
         writeln("Ok, just don't tell anyone else.");
-        if monster = VENDOR then
-          angryVendors := FALSE;
+        if currentRoom.roomer = VENDOR then
+          fightState.monsterPresent := FALSE;
+          fightState.angryVendors := FALSE;
         end if;
-        bribed := TRUE;
+        fightState.bribed := TRUE;
       end if;
     end if;
-  end func; (* bribeMonster *)
+  end func; # bribeMonster
 
 
-const proc: newMonster is func
+const proc: meetMonster (in roomType: currentRoom, in playerType: player,
+    inout fightStateType: fightState) is func
   local
-    var animatetype: monster is NOBODY;
-  begin (* newMonster *)
-    monster := currentRoom->roomer;
-    livingMonster := TRUE;
-    bribed := FALSE;
-    webCount := 0;
-    aggressionOfMonster := 1 + ord(monster) div 2;
-    monsterStrength := ord(monster) + 2;
-    if (monster = VENDOR) and not angryVendors then
+    var animateType: monster is NOBODY;
+  begin
+    monster := currentRoom.roomer;
+    fightState.monsterPresent := TRUE;
+    fightState.bribed := FALSE;
+    fightState.webCount := 0;
+    fightState.aggressionOfMonster := 1 + ord(monster) div 2;
+    fightState.monsterStrength := ord(monster) + 2;
+    if monster = VENDOR and not fightState.angryVendors then
       writeln;
       writeln("You'll be sorry that you did that!");
-      angryVendors := TRUE;
-    end if;
-    if (lethargic and RUBY->place <> PLAYER) or
-        blind or (dexterity < rand(1, 18)) then
-      activeMonster := TRUE;
+      fightState.angryVendors := TRUE;
     else
-      activeMonster := FALSE;
+      writeln("You may attack or retreat.");
+      if countOwnedTreasures(player) <> 0 then
+        writeln("You can also attempt a bribe.");
+      end if;
+      if player.intelligence >= 15 then
+        writeln("You can also cast a spell.");
+      end if;
     end if;
-  end func; (* newMonster *)
+    if (player.lethargic and RUBY not in player.possession) or
+        player.blind or player.dexterity < rand(1, 18) then
+      fightState.monsterWillAttack := TRUE;
+    else
+      fightState.monsterWillAttack := FALSE;
+    end if;
+  end func; # meetMonster
 
 
-const proc: retreatFromMonster is func
+const proc: retreatFromMonster (in roomType: currentRoom,
+    inout playerType: player, inout fightStateType: fightState) is func
   local
-    var animatetype: monster is NOBODY;
-  begin (* retreatFromMonster *)
-    if livingMonster then
-      if not bribed then
-        monster := currentRoom->roomer;
-        monsterAttacks(monster);
-        if living then
+    var animateType: monster is NOBODY;
+  begin
+    if fightState.monsterPresent then
+      if not fightState.bribed then
+        monster := currentRoom.roomer;
+        monsterAttacks(monster, player, fightState);
+        if player.living then
           writeln;
           case rand(1, 7) of
-            when {1}:
-              writeln("You fake a blow and escape.");
-            when {2}:
-              writeln("You have escaped by turning and running.");
-            when {3}:
-              writeln("You jump to the left and escape to the right.");
-            when {4}:
-              writeln("What a furious trick. You escaped by doing nothing.");
-            when {5}:
-              writeln("The " <& monster <& " stumbled and you escaped.");
-            when {6}:
-              writeln("You escaped by jumping over the " <& monster <& "!");
-            when {7}:
-              writeln("You are lucky, you have escaped because the " <& monster <&
-                      " was diverted by a cry.");
+            when {1}: writeln("You fake a blow and escape.");
+            when {2}: writeln("You have escaped by turning and running.");
+            when {3}: writeln("You jump to the left and escape to the right.");
+            when {4}: writeln("What a furious trick. You escaped by doing nothing.");
+            when {5}: writeln("The " <& monster <& " stumbled and you escaped.");
+            when {6}: writeln("You escaped by jumping over the " <& monster <& "!");
+            when {7}: writeln("You are lucky, you have escaped because the " <&
+                              monster <& " was diverted by a cry.");
           end case;
         end if;
       end if;
-      livingMonster := FALSE;
+      fightState.monsterPresent := FALSE;
     end if;
-  end func; (* retreatFromMonster *)
+  end func; # retreatFromMonster
 
 
-const proc: meetMonster is func
-  local
-    var animatetype: monster is NOBODY;
-  begin (* meetMonster *)
-    if livingMonster and not quitProgram then
-      if not bribed then
-        monster := currentRoom->roomer;
-        if activeMonster then
-          monsterAttacks(monster);
-        end if;
-        activeMonster := TRUE;
-        if living then
-          writeln;
-          write("You're facing ");
-          write_a(monster);
-          writeln("!");
-          writeln("Your strength is " <& strength <&
-                  " and your dexterity is " <& dexterity <& ".");
-        end if;
-      end if;
-    end if;
-  end func; (* meetMonster *)
-
-
-const proc: execute (ATTACK) is func
-  begin (* execute (ATTACK) *)
-    if currentRoom->roomer = NOBODY then
+const proc: attack (inout roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
+  begin
+    if currentRoom.roomer = NOBODY then
       writeln;
       writeln("** There is nothing that can be attacked!");
     else
-      if livingMonster then
-        bribed := FALSE;
-      else
-        newMonster();
+      fightState.bribed := FALSE;
+      if not fightState.monsterPresent then  # attack VENDOR
+        meetMonster(currentRoom, player, fightState);
       end if;
-      attackMonster(currentRoom->roomer, livingMonster);
-      activeMonster := TRUE;
+      attackMonster(currentRoom, player, fightState);
+      fightState.monsterWillAttack := TRUE;
     end if;
-  end func; (* execute (ATTACK) *)
+  end func; # attack
 
 
-const proc: execute (CAST) is func
-  begin (* execute (CAST) *)
-    if currentRoom->roomer = NOBODY then
+const proc: cast (inout roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
+  begin
+    if currentRoom.roomer = NOBODY then
       writeln;
       writeln("** There is nothing that can be casted!");
-    elsif intelligence < 15 then
+    elsif player.intelligence < 15 then
       writeln;
       writeln("** Your intelligence must be 15 or more to cast a spell!");
     else
-      if livingMonster then
-        bribed := FALSE;
-      else
-        newMonster();
+      fightState.bribed := FALSE;
+      if not fightState.monsterPresent then  # cast VENDOR
+        meetMonster(currentRoom, player, fightState);
       end if;
-      castSpell(currentRoom->roomer, livingMonster);
-      activeMonster := TRUE;
+      castSpell(currentRoom, player, fightState);
+      fightState.monsterWillAttack := TRUE;
     end if;
-  end func; (* execute (CAST) *)
+  end func; # cast
 
 
-const proc: execute (BRIBE) is func
-  begin (* execute (BRIBE) *)
-    if currentRoom->roomer = NOBODY then
+const proc: bribe (inout roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
+  begin
+    if currentRoom.roomer = NOBODY then
       writeln;
-      writeln("** There is nothing that can be bribed!");
-    elsif livingMonster then
-      if bribed then
+      writeln("** There is nobody that can be bribed!");
+    elsif fightState.monsterPresent then
+      if fightState.bribed then
         writeln;
         writeln("I will not give you more than your life.");
       else
-        bribeMonster(currentRoom->roomer, bribed);
+        bribeMonster(currentRoom, player, fightState);
       end if;
     else
       writeln;
-      writeln("That does not work.");
+      writeln("** That does not work.");
     end if;
-  end func; (* execute (BRIBE) *)
+  end func; # bribe
 
 
-const proc: meetVendor is func
-  begin (* meetVendor *)
-    if angryVendors then
-      newMonster();
+const proc: meetVendor (inout roomType: currentRoom, in playerType: player,
+    inout fightStateType: fightState) is func
+  begin
+    if fightState.angryVendors then
+      meetMonster(currentRoom, player, fightState);
     else
       writeln("You may buy from, sell to, attack, or ignore the vendor.");
     end if;
-  end func; (* meetVendor *)
+  end func; # meetVendor
 
 
-const proc: enterRoom is func
-  begin (* enterRoom *)
-(*!!
-    writeln(currentRoom->xPos <& " " <& currentRoom->yPos <& " " <& currentRoom->zPos);
-!!*)
-    execute(LOOK);
-    if currentRoom->roomer = VENDOR then
-      meetVendor();
-    elsif currentRoom->roomer <> NOBODY then
-      newMonster();
+const proc: enterRoom (inout roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
+  begin
+    currentRoom.visited := TRUE;
+    writeln;
+    write("You are in ");
+    if player.blind then
+      writeln("a new room.");
+    else
+      writeRoomDescription(currentRoom);
     end if;
-  end func; (* enterRoom *)
+    case currentRoom.transfer of
+      when {NOTRANSFER}:
+        writeRoomDetails(currentRoom);
+        if currentRoom.roomer = VENDOR then
+          meetVendor(currentRoom, player, fightState);
+        elsif currentRoom.roomer <> NOBODY then
+          meetMonster(currentRoom, player, fightState);
+        else
+          if currentRoom.objects <> objectSet.value then
+            writeln;
+            if card(currentRoom.objects) = 1 then
+              writeln("It's now yours!");
+            else
+              writeln("They're yours now!");
+            end if;
+            player.possession |:= currentRoom.objects;
+            currentRoom.objects := objectSet.value;
+          end if;
+        end if;
+      when {SINKHOLE}:
+        case roomId(currentRoom) rem 5 of
+          when {0}: writeln("Here you fall into a sinkhole.");
+          when {1}: writeln("Here a trap-door opens under your feet and \
+                            \you fall down.");
+          when {2}: writeln("You have stepped into a pitfall.");
+          when {3}: writeln("You step on an open trap-door and fall down.");
+          when {4}: writeln("You fall into a hole hidden on the ground.");
+        end case;
+        currentRoomRef := labyrinth[currentRoom.xPos]
+                                   [currentRoom.yPos]
+                                   [rangeLevel(succ(currentRoom.zPos))];
+        enterRoom(currentRoomRef, player, fightState);
+      when {WARP}:
+        write("This room contains a warp. You have been transferred to ");
+        currentRoomRef := labyrinth[rand(1, SIZE_LABY)]
+                                   [rand(1, SIZE_LABY)]
+                                   [rand(1, NUM_LEVELS)];
+        writePos(currentRoomRef);
+        enterRoom(currentRoomRef, player, fightState);
+    end case;
+  end func; # enterRoom
 
 
-const proc: readCoordinate (in char: coordname, inout integer: coordinate) is func
+const proc: readCoordinate (inout playerType: player, in char: coordname,
+    inout integer: coordinate, in integer: coordinateMax) is func
   local
     var boolean: okay is TRUE;
-  begin (* readCoordinate *)
-    repeat
-      writeln;
-      write("Please enter the " <& coordname <& "-coordinate? ");
-      readNumber(coordinate, okay, quitProgram);
-      if okay then
-        if coordinate < 1 or coordinate > SIZE_LABY then
-          writeln;
-          writeln("** Try a number from 1 to " <& SIZE_LABY <& ".");
-          okay := FALSE;
-        end if;
-      else
+  begin
+    if not player.quitDialog then
+      repeat
         writeln;
-        writeln("** Would you please be so kind to type a number, " <& species <& ".");
-      end if;
-    until okay;
-  end func; (* readCoordinate *)
+        write("Please enter the " <& coordname <& "-coordinate? ");
+        readNumber(coordinate, okay, player.quitDialog);
+        if okay then
+          if coordinate < 1 or coordinate > coordinateMax then
+            writeln;
+            writeln("** Try a number from 1 to " <& coordinateMax <& ".");
+            okay := FALSE;
+          end if;
+        elsif not player.quitDialog then
+          writeln;
+          writeln("** Would you please be so kind to type a digit, " <&
+                  player.species <& ".");
+        end if;
+      until okay or player.quitDialog;
+    end if;
+  end func; # readCoordinate
 
 
-const proc: execute (TELEPORT) is func
+const proc: teleportTo (inout roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
+  begin
+    if ORBOFZOT in currentRoom.objects then
+      excl(player.possession, RUNESTAFF);
+      player.possession |:= currentRoom.objects;
+      currentRoom.objects := objectSet.value;
+      currentRoom.visited := TRUE;
+      currentRoom.transfer := NOTRANSFER;
+      enterRoom(currentRoom, player, fightState);
+      writeln;
+      writeln("Great unmitigated Zot!");
+      writeln;
+      writeln("You just found the *ORB OF ZOT*!");
+      writeln;
+      writeln("The Runestaff has disappeared!");
+    else
+      enterRoom(currentRoom, player, fightState);
+    end if;
+  end func; # teleportTo
+
+
+const proc: teleport (in roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
   local
-    var integer: x1 is 0;
-    var integer: y1 is 0;
-    var integer: z1 is 0;
-  begin (* execute (TELEPORT) *)
-    if RUNESTAFF->place <> PLAYER then
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: zPos is 0;
+  begin
+    if RUNESTAFF not in player.possession then
       writeln;
       writeln("** You can't teleport without the Runestaff!");
     else
-      readCoordinate('x', x1);
-      readCoordinate('y', y1);
-      readCoordinate('z', z1);
-      currentRoom := &LABYRINTH[x1][y1][z1];
-      if (currentRoom->xPos = ORBOFZOT->xPos) and
-          (currentRoom->yPos = ORBOFZOT->yPos) and
-          (currentRoom->zPos = ORBOFZOT->zPos) and
-          (ORBOFZOT->place = NOWHERE) then
+      player.quitDialog := FALSE;
+      readCoordinate(player, 'x', xPos, SIZE_LABY);
+      readCoordinate(player, 'y', yPos, SIZE_LABY);
+      readCoordinate(player, 'z', zPos, NUM_LEVELS);
+      if player.quitDialog then
         writeln;
-        writeln("Great unmitigated Zot!");
-        writeln;
-        writeln("You just found the *ORB OF ZOT*!");
-        writeln;
-        writeln("The Runestaff has disappeared!");
-        RUNESTAFF->place := NOWHERE;
-        ORBOFZOT->place := PLAYER;
-        currentRoom->visited := TRUE;
-        currentRoom->transfer := NOTRANSFER;
+        writeln("** The Runesaff needs three coordinates, " <&
+                player.species <& ".");
       else
-        enterRoom();
+        fightState.monsterPresent := FALSE;
+        currentRoomRef := labyrinth[xPos][yPos][zPos];
+        teleportTo(currentRoomRef, player, fightState);
       end if;
     end if;
-  end func; (* execute (TELEPORT) *)
+  end func; # teleport
 
 
-const proc: go (in directtype: direction) is func
+const proc: go (in roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState, in directType: direction) is func
   local
-    var char: ch is ' ';
-  begin (* go *)
-    if (direction = NORTH) and
-        (currentRoom->contents = ENTRANCE) then
+    const array [directType] integer: delta_x is [directType]( 0,  0,  1, -1,  0,  0);
+    const array [directType] integer: delta_y is [directType](-1,  1,  0,  0,  0,  0);
+    const array [directType] integer: delta_z is [directType]( 0,  0,  0,  0, -1,  1);
+  begin
+    if direction = NORTH and currentRoom.contents = ENTRANCE then
       writeln;
       write("Do you really want to leave the castle? ");
-      readChar(ch);
-      if ch <> 'Y' then
+      if readChar() <> 'Y' then
         writeln;
         writeln("** Then don't say that you do!");
       else
-        retreatFromMonster();
-        leaveCastle := TRUE;
+        retreatFromMonster(currentRoom, player, fightState);
+        player.leaveCastle := TRUE;
       end if;
-    elsif direction in currentRoom->connections then
-      retreatFromMonster();
-      currentRoom := &LABYRINTH[range_laby(currentRoom->xPos + delta_x[direction])]
-          [range_laby(currentRoom->yPos + delta_y[direction])]
-          [range_level(currentRoom->zPos + delta_z[direction])];
-      enterRoom();
+    elsif direction in currentRoom.connections then
+      retreatFromMonster(currentRoom, player, fightState);
+      if player.living then
+        currentRoomRef := labyrinth
+            [ rangeLaby(currentRoom.xPos + delta_x[direction])]
+            [ rangeLaby(currentRoom.yPos + delta_y[direction])]
+            [rangeLevel(currentRoom.zPos + delta_z[direction])];
+        enterRoom(currentRoomRef, player, fightState);
+      end if;
     else
       writeln;
       writeln("** There is no way in this direction!");
     end if;
-  end func; (* go *)
+  end func; # go
 
 
-const proc: openChest is func
+const proc: status (in roomType: currentRoom, in playerType: player) is func
+  begin
+    writeln;
+    if not player.blind then
+      write("You are at ");
+      writePos(currentRoom);
+      writeln;
+    end if;
+    writeln("STRENGTH = " <& player.strength <&
+            "  INTELLIGENCE = " <& player.intelligence <&
+            "  DEXTERITY = " <& player.dexterity);
+    writeln("OBJECTS = " <& countOwnedObjects(player) <&
+            "  FLARES = " <& player.flares <&
+            "  GOLD PIECES = " <& player.goldPieces);
+    writeln("weapon = " <& player.weapon <& "  armor = " <& player.armor);
+  end func; # status
+
+
+const proc: listInventory (in playerType: player) is func
   local
-    var directtype: direct is NORTH;
-  begin (* openChest *)
-    if currentRoom->roomer <> NOBODY then
-      writeln("The " <& currentRoom->roomer <&
+    var boolean: anythinglisted is FALSE;
+    var objectType: obj is NOOBJECT;
+  begin
+    if player.weapon <> NOWEAPON then
+      anythinglisted := TRUE;
+      writeln("  a " <& player.weapon);
+    end if;
+    if player.armor <> NOARMOR then
+      anythinglisted := TRUE;
+      writeln("  " <& player.armor <& " armor");
+    end if;
+    if player.flares > 0 then
+      anythinglisted := TRUE;
+      writeln("  " <& numberName(player.flares) <& " flare" <&
+              player.flares <> 1 ? "s" : "");
+    end if;
+    if player.goldPieces > 0 then
+      anythinglisted := TRUE;
+      writeln("  " <& numberName(player.goldPieces) <& " gold piece" <&
+              player.goldPieces <> 1 ? "s" : "");
+    end if;
+    for obj range player.possession do
+      anythinglisted := TRUE;
+      writeln("  the " <& obj);
+    end for;
+    if not anythinglisted then
+      writeln("  nothing");
+    end if;
+  end func; # listInventory
+
+
+const proc: inventory (in playerType: player) is func
+  begin
+    writeln;
+    writeln("You have:");
+    listInventory(player);
+  end func; # inventory
+
+
+const proc: contentInfo (in roomType: currentRoom, in roomType: aRoom) is func
+  begin
+    write(aRoom.xPos = currentRoom.xPos and
+          aRoom.yPos = currentRoom.yPos ? "<" : " ");
+    if aRoom.visited then
+      case aRoom.transfer of
+        when {NOTRANSFER}:
+          if aRoom.roomer = NOBODY then
+            if aRoom.contents <> EMPTYROOM then
+              case aRoom.contents of
+                when {ENTRANCE}:          write("E");
+                when {EMPTYCHEST}:        write(".");
+                when {CHESTWITHSKELETON}: write(".");
+                when {CLOSEDCHEST}:       write("C");
+                when {ORB}:               write("O");
+                when {POOL}:              write("P");
+                when {BOOK}:              write("B");
+              end case;
+            elsif aRoom.objects <> objectSet.value then
+              write("T");
+            elsif UP in aRoom.connections then
+              write("U");
+            elsif DOWN in aRoom.connections then
+              write("D");
+            elsif aRoom.occurrence = FINDFLARES then
+              write("F");
+            elsif aRoom.occurrence = FINDGOLD then
+              write("G");
+            else
+              write(".");
+            end if;
+          elsif aRoom.roomer = VENDOR then
+            write("V");
+          else
+            write("M");
+          end if;
+        when {SINKHOLE}: write("S");
+        when {WARP}:     write("W");
+      end case;
+    else
+      write(" ");
+    end if;
+    write(aRoom.xPos = currentRoom.xPos and
+          aRoom.yPos = currentRoom.yPos ? ">  " : "   ");
+  end func; # contentInfo
+
+
+const proc: map (in roomType: currentRoom, in playerType: player) is func
+  local
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: zPos is 0;
+  begin
+    writeln;
+    if player.blind then
+      writeln("** You are blind, you dumb " <& player.species <& "!");
+    else
+      zPos := currentRoom.zPos;
+      for yPos range 1 to SIZE_LABY do
+        for xPos range 1 to SIZE_LABY do
+          contentInfo(currentRoom, labyrinth[xPos][yPos][zPos]);
+        end for;
+        writeln;
+        writeln;
+      end for;
+      write("You are at ");
+      writePos(currentRoom);
+    end if;
+  end func; # map
+
+
+const proc: flare (inout roomType: currentRoom, inout playerType: player) is func
+  local
+    var integer: x is 0;
+    var integer: y is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: zPos is 0;
+  begin
+    writeln;
+    if player.flares = 0 then
+      writeln("** Hey, bright one, you're out of flares!");
+    elsif player.blind then
+      writeln("** You can't see anything, you dumb " <& player.species <& "!");
+    else
+      decr(player.flares);
+      zPos := currentRoom.zPos;
+      for y range pred(currentRoom.yPos) to succ(currentRoom.yPos) do
+        yPos := rangeLaby(y);
+        for x range pred(currentRoom.xPos) to succ(currentRoom.xPos) do
+          xPos := rangeLaby(x);
+          labyrinth[xPos][yPos][zPos].visited := TRUE;
+          contentInfo(currentRoom, labyrinth[xPos][yPos][zPos]);
+        end for;
+        writeln;
+        writeln;
+      end for;
+      write("You are at ");
+      writePos(currentRoom);
+    end if;
+  end func; # flare
+
+
+const proc: shineIntoRoom (inout roomType: aRoom) is func
+  begin
+    aRoom.visited := TRUE;
+    writeln;
+    write("The lamp shines into a room at ");
+    writePos(aRoom);
+    write("You see ");
+    writeRoomDescription(aRoom);
+    writeRoomDetails(aRoom);
+  end func; # shineIntoRoom
+
+
+const proc: lamp (in roomType: currentRoom, in playerType: player) is func
+  local
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: zPos is 0;
+    var char: ch is ' ';
+  begin
+    writeln;
+    if LAMP not in player.possession then
+      writeln("** You don't have a lamp, " <& player.species <& "!");
+    elsif player.blind then
+      writeln("** You are blind, you dumb " <& player.species <& "!");
+    else
+      write("Where do you want to shine the lamp (N, S, E, W)? ");
+      ch := readChar();
+      if not ch in {'N', 'S', 'E', 'W'} then
+        writeln;
+        writeln("** That's not a direction, " <& player.species <& "!");
+      else
+        xPos := currentRoom.xPos;
+        yPos := currentRoom.yPos;
+        zPos := currentRoom.zPos;
+        case ch of
+          when {'N'}: yPos := rangeLaby(pred(yPos));
+          when {'S'}: yPos := rangeLaby(succ(yPos));
+          when {'W'}: xPos := rangeLaby(pred(xPos));
+          when {'E'}: xPos := rangeLaby(succ(xPos));
+        end case;
+        shineIntoRoom(labyrinth[xPos][yPos][zPos]);
+      end if;
+    end if;
+  end func; # lamp
+
+
+const proc: drink (in roomType: currentRoom, inout playerType: player) is func
+  local
+    var speciesType: newSpecies is HUMAN;
+  begin
+    writeln;
+    if currentRoom.contents <> POOL then
+      writeln("** If you want a drink, find a pool!");
+    else
+      write("You take a drink and ");
+      case rand(1, 8) of
+
+        when {1}:
+          player.strength := range18(player.strength + rand(1, 3));
+          writeln("feel stronger.");
+
+        when {2}:
+          player.strength -:= rand(1, 3);
+          writeln("feel weaker.");
+          player.living := player.strength >= 1 ;
+
+        when {3}:
+          player.intelligence := range18(player.intelligence + rand(1, 3));
+          writeln("feel smarter.");
+
+        when {4}:
+          player.intelligence -:= rand(1, 3);
+          writeln("feel dumber.");
+          player.living := player.intelligence >= 1;
+
+        when {5}:
+          player.dexterity := range18(player.dexterity + rand(1, 3));
+          writeln("feel nimbler.");
+
+        when {6}:
+          player.dexterity -:= rand(1, 3);
+          writeln("feel clumsier.");
+          player.living := player.dexterity >= 1;
+
+        when {7}:
+          newSpecies := rand(speciesType.first, pred(speciesType.last));
+          if newSpecies >= player.species then
+            incr(newSpecies);
+          end if;
+          player.species := newSpecies;
+          writeln("become " <& aOrAn(player.species) <& ".");
+
+        when {8}:
+          player.isMale := not player.isMale;
+          writeln("turn into a " <& sexName(player.isMale) <&
+                  " " <& player.species <& ".");
+      end case;
+    end if;
+  end func; # drink
+
+
+const proc: read (inout roomType: currentRoom, inout playerType: player) is func
+  begin
+    writeln;
+    if currentRoom.contents <> BOOK then
+      writeln("** There is nothing that can be read!");
+    elsif player.blind then
+      writeln("** You are blind, you dumb " <& player.species <& "!");
+    else
+      writeln("You open the book and");
+      case rand(1, 6) of
+
+        when {1}:
+          writeln("Flash! Oh no! You are now a blind " <& player.species <& "!");
+          player.blind := TRUE;
+
+        when {2}:
+          case rand(1, 4) of
+            when {1}: writeln("It's another volume of Zot's poetry. - YECH!!");
+            when {2}: writeln("It's a manual of this game.");
+            when {3}: writeln("It's a story about a dumb " <& player.species <&
+                              " who finds a book and then dies.");
+            when {4}: writeln("It's volume number " <&
+                              numberName(rand(1, 20)) <& " of a novel.");
+          end case;
+
+        when {3}:
+          writeln("It's an old copy of play " <& rand(speciesType) <& ".");
+
+        when {4}:
+          writeln("It's a manual of dexterity!");
+          player.dexterity := 18;
+
+        when {5}:
+          writeln("It's a manual of strength!");
+          player.strength := 18;
+
+        when {6}:
+          writeln("The book sticks to your hands -");
+          writeln("Now you are unable to draw your weapon!");
+          player.weaponBlocked := TRUE;
+      end case;
+      currentRoom.contents := EMPTYROOM;
+    end if;
+  end func; # read
+
+
+const proc: viewRoomWithOrb (inout roomType: aRoom) is func
+  begin
+    aRoom.visited := TRUE;
+    writeRoomDescription(aRoom);
+    writeConnections(aRoom);
+    write("You can also see that this room is at ");
+    writePos(aRoom);
+    writeAnimates(aRoom);
+    writeObjects(aRoom);
+  end func; # viewRoomWithOrb
+
+
+const proc: gazeIntoOrb (inout playerType: player) is func
+  begin
+    write("You see ");
+    case rand(1, 6) of
+
+      when {1}:
+        case rand(1, 10) of
+          when { 1}: writeln("your own burial!");
+          when { 2}: writeln("your mouldering dead body!");
+          when { 3}: writeln("yourself in a bloody heap!");
+          when { 4}: writeln("yourself with your skull bashed in!");
+          when { 5}: writeln("your broken skeleton lying on the ground!");
+          when { 6}: writeln("a graveyard and a tombstone with your name!");
+          when { 7}: writeln(aOrAn(rand(animateType)) <& " killing you!");
+          when { 8}: writeln(aOrAn(rand(speciesType)) <&
+                            " finding your faded bones!");
+          when { 9}: writeln(aOrAn(rand(speciesType)) <& " which tells " <&
+                            aOrAn(rand(speciesType)) <& " that you are dead!");
+          when {10}: writeln("a " <& sexName(not player.isMale) <&
+                             " " <& player.species <&
+                             " giving flowers on your grave!");
+        end case;
+        decr(player.strength);
+        write("This message makes you weaker. Your strength is now ");
+        if player.strength < 1 then
+          player.living := FALSE;
+          writeln("zero!");
+        else
+          writeln(numberName(player.strength) <& ".");
+        end if;
+
+      when {2}:
+        case rand(1, 4) of
+          when {1}: writeln("yourself drinking from a pool and becoming " <&
+                            aOrAn(rand(animateType)) <& "!");
+          when {2}: writeln(aOrAn(rand(animateType)) <&
+                            " drinking from a pool and becoming " <&
+                            aOrAn(rand(speciesType)) <& ".");
+          when {3}: writeln(aOrAn(rand(speciesType)) <&
+                            " drinking from a pool and becoming " <&
+                            anyAdjective() <& " spider.");
+          when {4}: writeln("a young " <& rand(FALSE, TRUE) ? "man" : "woman" <&
+                            " drinking from a pool and becoming as old \
+                            \as the hills.");
+        end case;
+
+      when {3}:
+        case rand(1, 2) of
+          when {1}: writeln(aOrAn(rand(animateType)) <&
+                            " gazing back at you.");
+          when {2}: writeln("that you are watched from " <&
+                            aOrAn(rand(speciesType)) <& ".");
+        end case;
+
+      when {4}:
+        viewRoomWithOrb(labyrinth[rand(1, SIZE_LABY)]
+                                 [rand(1, SIZE_LABY)]
+                                 [rand(1, NUM_LEVELS)]);
+
+      when {5}:
+        write("the *ORB OF ZOT* at ");
+        if rand(FALSE, TRUE) then
+          writePos(objPlace[ORBOFZOT]);
+        else
+          writePos(labyrinth[rand(1, SIZE_LABY)]
+                            [rand(1, SIZE_LABY)]
+                            [rand(1, NUM_LEVELS)]);
+        end if;
+
+      when {6}:
+        case rand(1, 10) of
+          when { 1}: writeln("a soap opera rerun.");
+          when { 2}: writeln("a washing powder commercial.");
+          when { 3}: writeln("an image to test the reception of the orb.");
+          when { 4}: writeln("somebody sitting at a computer playing this game.");
+          when { 5}: writeln("nothing because in the moment there are atmospherics.");
+          when { 6}: writeln("a scientist demonstrating that an orb could never work.");
+          when { 7}: writeln("the presentation of the new generation of orb's with sound.");
+          when { 8}: writeln("that there is a 50% chance that what you see in an orb is correct.");
+          when { 9}: writeln("yourself looking into an orb where you see yourself looking into ...");
+          when {10}: writeln(aOrAn(rand(speciesType)) <&
+                             " announcing todays program of the orb.");
+        end case;
+    end case;
+  end func; # gazeIntoOrb
+
+
+const proc: gaze (in roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
+  begin
+    writeln;
+    if player.blind then
+      writeln("** You can't see anything, you dumb " <& player.species <& "!");
+    elsif currentRoom.roomer = NOBODY then
+      case currentRoom.contents of
+        when {EMPTYROOM}:         writeln("You are gazing at an empty wall.");
+        when {ENTRANCE}:          writeln("You are gazing at the exit.");
+        when {EMPTYCHEST}:        writeln("The chest does not fill with gazing at.");
+        when {CHESTWITHSKELETON}: writeln("The skeleton looks horrible.");
+        when {CLOSEDCHEST}:       writeln("The chest does not open with gazing at.");
+        when {POOL}:              writeln("You see your ugly face mirror in the water.");
+        when {BOOK}:              writeln("You are gazing at the book.");
+        when {ORB}:               gazeIntoOrb(player);
+      end case;
+    elsif currentRoom.roomer = VENDOR then
+      write("You are gazing at the Vendor. ");
+      if player.isMale then
+        writeln("But the Vendor does not like male " <& player.species <& ".");
+      else
+        writeln("The Vendor smiles and shows his wedding-ring.");
+      end if;
+    else
+      write("The " <& currentRoom.roomer);
+      if player.isMale then
+        writeln(" is shocked by the scowl of a strong male " <&
+                player.species <& ".");
+        fightState.monsterWillAttack := FALSE;
+      else
+        writeln(" cannot be shocked by the scowl of a female " <&
+                player.species <& ".");
+      end if;
+    end if;
+  end func; # gaze
+
+
+const proc: openChest (inout roomType: currentRoom, inout playerType: player,
+  inout fightStateType: fightState) is func
+  local
+    var directType: direct is NORTH;
+  begin
+    if currentRoom.roomer <> NOBODY then
+      writeln("The " <& currentRoom.roomer <&
               " does not allow to open the chest.");
     else
       write("You open the chest and ");
@@ -2878,441 +2276,546 @@ const proc: openChest is func
 
         when {1}:
           write("find ");
-          findGoldPieces(99);
-          currentRoom->contents := EMPTYCHEST;
+          findGoldPieces(player, 99);
+          currentRoom.contents := EMPTYCHEST;
 
         when {2}:
           case rand(1, 7) of
 
             when {1}:
               writeln("it is totally empty.");
-              currentRoom->contents := EMPTYCHEST;
+              currentRoom.contents := EMPTYCHEST;
 
             when {2}:
               writeln("it disappears in the moment you open it.");
-              currentRoom->contents := EMPTYROOM;
+              currentRoom.contents := EMPTYROOM;
 
             when {3}:
               writeln("...  KABOOOM!  It explodes!!");
-              checkArmor(rand(1, 6));
-              if strength < 1 then
-                living := FALSE;
-              end if;
-              currentRoom->contents := EMPTYROOM;
+              checkArmor(player, rand(1, 6));
+              player.living := player.strength >= 1;
+              currentRoom.contents := EMPTYROOM;
 
             when {4}:
-              turns +:= 20;
-              direct := rand(DIRECTION);
-              writeln("...  GAS!!  You stagger from the room to the " <& direct <& "!");
-              currentRoom->contents := EMPTYCHEST;
-              go(direct);
+              player.turns +:= 20;
+              direct := rand(currentRoom.connections - {UP, DOWN});
+              writeln("...  GAS!!  You stagger from the room to the " <&
+                      direct <& "!");
+              currentRoom.contents := EMPTYCHEST;
+              go(currentRoom, player, fightState, direct);
 
             when {5}:
-              write("find ");
-              writeAnyAdjective();
-              writeln(" skeleton.");
-              writeln("It seems that this " <& rand(speciestype) <&
+              writeln("find " <& anyAdjective() <& " skeleton.");
+              writeln("It seems that this " <& rand(speciesType) <&
                       " was also an adventurer.");
-              currentRoom->contents := CHESTWITHSKELETON;
+              currentRoom.contents := CHESTWITHSKELETON;
 
             when {6}:
               write("find ");
-              findFlares(4);
-              currentRoom->contents := EMPTYCHEST;
+              findFlares(player, 4);
+              currentRoom.contents := EMPTYCHEST;
 
             when {7}:
-              if armor = NOARMOR then
-                armor := LEATHER;
+              if player.armor = NOARMOR then
+                player.armor := LEATHER;
               end if;
-              writeln("find a brand new " <& armor <& " armor.");
-              armorStrength := ord(armor) * 7;
-              currentRoom->contents := EMPTYCHEST;
+              writeln("find a brand new " <& player.armor <& " armor.");
+              player.armorStrength := ord(player.armor) * ARMOR_STRENGTH_FACTOR;
+              currentRoom.contents := EMPTYCHEST;
           end case;
       end case;
     end if;
-  end func; (* openChest *)
+  end func; # openChest
 
 
-const proc: execute (OPEN) is func
-  begin (* execute (OPEN) *)
+const proc: open (inout roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
+  begin
     writeln;
-    if currentRoom->contents <> CLOSEDCHEST then
+    if currentRoom.contents <> CLOSEDCHEST then
       writeln("** The only thing opened, was your big mouth!");
     else
-      openChest();
+      openChest(currentRoom, player, fightState);
     end if;
-  end func; (* execute (OPEN) *)
+  end func; # open
 
 
-const proc: execute (ILLEGAL) is func
-  begin (* execute *)
+const proc: quit (inout playerType: player) is func
+  begin
     writeln;
-    writeln("** Silly " <& species <& ", that wasn't a valid command!");
-  end func; (* execute *)
+    write("Do you really want to quit now? ");
+    if readChar() <> 'Y' then
+      writeln;
+      writeln("** Then don't say that you do!");
+    else
+      player.quitProgram := TRUE;
+    end if;
+  end func; # quit
 
 
-const proc: execute (WAIT) is func
-  begin (* execute (WAIT) *)
+const proc: wait is func
+  begin
     writeln;
     writeln("Waiting ...");
-  end func; (* execute (WAIT) *)
+  end func; # wait
 
 
-const proc: execute (INVENTORY) is func
-  begin (* execute (INVENTORY) *)
+const proc: illegal (in playerType: player) is func
+  begin
     writeln;
-    writeln("You have:");
-    listInventory();
-  end func; (* execute (INVENTORY) *)
+    writeln("** Silly " <& player.species <& ", that wasn't a valid command!");
+  end func; # illegal
 
 
-const func commandtype: readCommand is func
+const func commandType: readCommand is func
   result
-    var commandtype: current_command is ILLEGAL;
+    var commandType: currentCommand is ILLEGAL;
   local
     var string: stri is "";
     var char: ch1 is ' ';
     var char: ch2 is ' ';
-  begin (* readCommand *)
+  begin
     writeln;
     write(" -> ");
-    readln(stri);
+    stri := upper(getln(IN));
     if stri = "" then
-      current_command := WAIT;
+      currentCommand := WAIT;
     else
-      ch1 := upper(stri[1]);
+      ch1 := stri[1];
       if length(stri) >= 2 then
-        ch2 := upper(stri[2]);
-      else
-        ch2 := ' ';
+        ch2 := stri[2];
       end if;
-      if ch1 >= 'A' and ch1 <= 'Z' then
-        case ch1 of
-          when {'A'}:   current_command := ATTACK;
-          when {'B'}:
-            if (ch2 = ' ') or (ch2 = 'U') then
-              current_command := BUY;
-            elsif ch2 = 'R' then
-              current_command := BRIBE;
-            else
-              current_command := ILLEGAL;
-            end if;
-          when {'C'}:   current_command := CAST;
-          when {'D'}:
-            if (ch2 = ' ') or (ch2 = 'O') then
-              current_command := GO_DOWN;
-            elsif ch2 = 'R' then
-              current_command := DRINK;
-            else
-              current_command := ILLEGAL;
-            end if;
-          when {'E'}:   current_command := GO_EAST;
-          when {'F'}:   current_command := FLARE;
-          when {'G'}:   current_command := GAZE;
-          when {'H'}:   current_command := HELP;
-          when {'I'}:   current_command := INVENTORY;
-          when {'J'}:   current_command := ILLEGAL;
-          when {'K'}:   current_command := ILLEGAL;
-          when {'L'}:
-            if (ch2 = ' ') or (ch2 = 'O') then
-              current_command := LOOK;
-            elsif ch2 = 'A' then
-              current_command := LIGHT;
-            else
-              current_command := ILLEGAL;
-            end if;
-          when {'M'}:   current_command := MAP;
-          when {'N'}:   current_command := GO_NORTH;
-          when {'O'}:   current_command := OPEN;
-          when {'P'}:   current_command := ILLEGAL;
-          when {'Q'}:   current_command := QUITCOMMAND;
-          when {'R'}:   current_command := READ;
-          when {'S'}:
-            if (ch2 = ' ') or (ch2 = 'O') then
-              current_command := GO_SOUTH;
-            elsif ch2 = 'T' then
-              current_command := STATUS;
-            elsif ch2 = 'E' then
-              current_command := SELL;
-            else
-              current_command := ILLEGAL;
-            end if;
-          when {'T'}:   current_command := TELEPORT;
-          when {'U'}:   current_command := GO_UP;
-          when {'V'}:   current_command := ILLEGAL;
-          when {'W'}:   current_command := GO_WEST;
-          when {'X'}:   current_command := ILLEGAL;
-          when {'Y'}:   current_command := ILLEGAL;
-          when {'Z'}:   current_command := ILLEGAL;
-        end case;
-      else
-        current_command := ILLEGAL;
+      case ch1 of
+        when {'A'}: currentCommand := ATTACK;
+        when {'B'}: if ch2 = ' ' or ch2 = 'U' then
+                      currentCommand := BUY;
+                    elsif ch2 = 'R' then
+                      currentCommand := BRIBE;
+                    else
+                      currentCommand := ILLEGAL;
+                    end if;
+        when {'C'}: currentCommand := CAST;
+        when {'D'}: if ch2 = ' ' or ch2 = 'O' then
+                      currentCommand := GO_DOWN;
+                    elsif ch2 = 'R' then
+                      currentCommand := DRINK;
+                    else
+                      currentCommand := ILLEGAL;
+                    end if;
+        when {'E'}: currentCommand := GO_EAST;
+        when {'F'}: currentCommand := FLARE;
+        when {'G'}: currentCommand := GAZE;
+        when {'H'}: currentCommand := HELP;
+        when {'I'}: currentCommand := INVENTORY;
+        when {'L'}: if ch2 = ' ' or ch2 = 'O' then
+                      currentCommand := LOOK;
+                    elsif ch2 = 'A' then
+                      currentCommand := USE_LAMP;
+                    else
+                      currentCommand := ILLEGAL;
+                    end if;
+        when {'M'}: currentCommand := MAP;
+        when {'N'}: currentCommand := GO_NORTH;
+        when {'O'}: currentCommand := OPEN;
+        when {'Q'}: currentCommand := QUITCOMMAND;
+        when {'R'}: currentCommand := READ;
+        when {'S'}: if ch2 = ' ' or ch2 = 'O' then
+                      currentCommand := GO_SOUTH;
+                    elsif ch2 = 'T' then
+                      currentCommand := STATUS;
+                    elsif ch2 = 'E' then
+                      currentCommand := SELL;
+                    else
+                      currentCommand := ILLEGAL;
+                    end if;
+        when {'T'}: currentCommand := TELEPORT;
+        when {'U'}: currentCommand := GO_UP;
+        when {'W'}: currentCommand := GO_WEST;
+        otherwise:  currentCommand := ILLEGAL;
+      end case;
+    end if;
+  end func; # readCommand
+
+
+const proc: executeCommand (inout roomType: currentRoom,
+    inout playerType: player, inout fightStateType: fightState) is func
+  begin
+    case readCommand() of
+      when {GO_NORTH}:    go(currentRoom, player, fightState, NORTH);
+      when {GO_SOUTH}:    go(currentRoom, player, fightState, SOUTH);
+      when {GO_EAST}:     go(currentRoom, player, fightState, EAST);
+      when {GO_WEST}:     go(currentRoom, player, fightState, WEST);
+      when {GO_UP}:       go(currentRoom, player, fightState, UP);
+      when {GO_DOWN}:     go(currentRoom, player, fightState, DOWN);
+      when {WAIT}:        wait;
+      when {INVENTORY}:   inventory(player);
+      when {HELP}:        writeHelp;
+      when {LOOK}:        look(currentRoom, player);
+      when {MAP}:         map(currentRoom, player);
+      when {FLARE}:       flare(currentRoom, player);
+      when {USE_LAMP}:    lamp(currentRoom, player);
+      when {ATTACK}:      attack(currentRoom, player, fightState);
+      when {CAST}:        cast(currentRoom, player, fightState);
+      when {BRIBE}:       bribe(currentRoom, player, fightState);
+      when {STATUS}:      status(currentRoom, player);
+      when {OPEN}:        open(currentRoom, player, fightState);
+      when {READ}:        read(currentRoom, player);
+      when {GAZE}:        gaze(currentRoom, player, fightState);
+      when {TELEPORT}:    teleport(currentRoom, player, fightState);
+      when {DRINK}:       drink(currentRoom, player);
+      when {SELL}:        sell(currentRoom, player);
+      when {BUY}:         buy(currentRoom, player);
+      when {QUITCOMMAND}: quit(player);
+      otherwise:          illegal(player);
+    end case;
+  end func; # executeCommand
+
+
+const proc: writeFightState (in roomType: currentRoom, inout playerType: player,
+    inout fightStateType: fightState) is func
+  local
+    var animateType: monster is NOBODY;
+  begin
+    if fightState.monsterPresent and not fightState.bribed and
+        player.living and not player.quitProgram then
+      monster := currentRoom.roomer;
+      if fightState.monsterWillAttack then
+        monsterAttacks(monster, player, fightState);
+      end if;
+      fightState.monsterWillAttack := TRUE;
+      if player.living then
+        writeln;
+        writeln("You're facing " <& aOrAn(monster) <& "!");
+        writeln("Your strength is " <& player.strength <&
+                " and your dexterity is " <& player.dexterity <& ".");
       end if;
     end if;
-  end func; (* readCommand *)
+  end func; # writeFightState
 
 
-const proc: executeCommand is func
+const proc: incident (inout roomType: currentRoom,
+    inout playerType: player) is func
   local
-    var commandtype: current_command is ILLEGAL;
-  begin (* executeCommand *)
-    current_command := readCommand();
-    case current_command of
-      when {GO_NORTH}:    go(NORTH);
-      when {GO_SOUTH}:    go(SOUTH);
-      when {GO_EAST}:     go(EAST);
-      when {GO_WEST}:     go(WEST);
-      when {GO_UP}:       go(UP);
-      when {GO_DOWN}:     go(DOWN);
-      when {WAIT}:        execute(WAIT);
-      when {INVENTORY}:   execute(INVENTORY);
-      when {HELP}:        execute(HELP);
-      when {LOOK}:        execute(LOOK);
-      when {MAP}:         execute(MAP);
-      when {FLARE}:       execute(FLARE);
-      when {LIGHT}:       execute(LIGHT);
-      when {ATTACK}:      execute(ATTACK);
-      when {CAST}:        execute(CAST);
-      when {BRIBE}:       execute(BRIBE);
-      when {STATUS}:      execute(STATUS);
-      when {OPEN}:        execute(OPEN);
-      when {READ}:        execute(READ);
-      when {GAZE}:        execute(GAZE);
-      when {TELEPORT}:    execute(TELEPORT);
-      when {DRINK}:       execute(DRINK);
-      when {SELL}:        execute(SELL);
-      when {BUY}:         execute(BUY);
-      when {QUITCOMMAND}: execute(QUITCOMMAND);
-      otherwise:          execute(ILLEGAL);
-    end case;
-    meetMonster();
-  end func; (* executeCommand *)
-
-
-const proc: incident is func
-  local
-    var objecttype: obj is NOOBJECT;
-  begin (* incident *)
-    if PEARL->place <> PLAYER then
-      if currentRoom->occurrence = LEECH then
-        writeln("You pocket has a leetch. Now you will lose goldPieces.");
-        currentRoom->occurrence := NOOCCURRENCE;
-        haveLeech := TRUE;
+    var objectType: treasure is NOOBJECT;
+  begin
+    if PEARL not in player.possession then
+      if currentRoom.occurrence = LEECH then
+        writeln("You pocket has a leetch. Now you will lose gold pieces.");
+        currentRoom.occurrence := NOOCCURRENCE;
+        player.haveLeech := TRUE;
       end if;
-      if haveLeech then
-        goldPieces -:= rand(1, 3);
-        if goldPieces < 0 then
-          goldPieces := 0;
+      if player.haveLeech then
+        player.goldPieces -:= rand(1, 3);
+        if player.goldPieces < 0 then
+          player.goldPieces := 0;
         end if;
       end if;
     end if;
-    if RUBY->place <> PLAYER then
-      if currentRoom->occurrence = LETHARGY then
+    if RUBY not in player.possession then
+      if currentRoom.occurrence = LETHARGY then
         writeln("You feel that you are lethargic now.");
-        currentRoom->occurrence := NOOCCURRENCE;
-        lethargic := TRUE;
+        currentRoom.occurrence := NOOCCURRENCE;
+        player.lethargic := TRUE;
       end if;
-      if lethargic then
-        incr(turns);
+      if player.lethargic then
+        incr(player.turns);
       end if;
     end if;
-    if GREENGEM->place <> PLAYER then
-      if currentRoom->occurrence = FORGET then
+    if GREENGEM not in player.possession then
+      if currentRoom.occurrence = FORGET then
         writeln("You see a lot of strange signs on the ground, possibly runes.");
         writeln("You try to read them, but you found no sense.");
         writeln("You feel that the runes force you to forget the map of the castle.");
-        currentRoom->occurrence := NOOCCURRENCE;
-        forgetting := TRUE;
+        currentRoom.occurrence := NOOCCURRENCE;
+        player.forgetting := TRUE;
       end if;
-      if forgetting then
-        LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)].visited := FALSE;
+      if player.forgetting then
+        labyrinth[rand(1, SIZE_LABY)]
+                 [rand(1, SIZE_LABY)]
+                 [rand(1, NUM_LEVELS)].visited := FALSE;
       end if;
     end if;
-    if (armor <> NOARMOR) and (currentRoom->occurrence = STEALARMOR) then
+    if player.armor <> NOARMOR and currentRoom.occurrence = STEALARMOR then
       writeln("You are knocked down from behind and somebody steals your " <&
-              armor <& " armor.");
-      currentRoom->occurrence := NOOCCURRENCE;
-      armor := NOARMOR;
+              player.armor <& " armor.");
+      currentRoom.occurrence := NOOCCURRENCE;
+      player.armor := NOARMOR;
     end if;
-    if (weapon <> NOWEAPON) and (currentRoom->occurrence = STEALWEAPON) then
-      writeln("You realize that somebody has stolen your " <& weapon <& ".");
-      currentRoom->occurrence := NOOCCURRENCE;
-      weapon := NOWEAPON;
+    if player.weapon <> NOWEAPON and currentRoom.occurrence = STEALWEAPON then
+      writeln("You realize that somebody has stolen your " <& player.weapon <& ".");
+      currentRoom.occurrence := NOOCCURRENCE;
+      player.weapon := NOWEAPON;
     end if;
-    if (LAMP->place = PLAYER) and (currentRoom->occurrence = STEALLAMP) then
+    if LAMP in player.possession and currentRoom.occurrence = STEALLAMP then
       writeln("You realize that somebody has stolen your lamp.");
-      currentRoom->occurrence := NOOCCURRENCE;
-      LAMP->place := NOWHERE;
+      currentRoom.occurrence := NOOCCURRENCE;
+      excl(player.possession, LAMP);
     end if;
-    if (flares <> 0) and (currentRoom->occurrence = STEALFLARES) then
+    if player.flares <> 0 and currentRoom.occurrence = STEALFLARES then
       writeln("You realize that somebody has stolen all your flares.");
-      currentRoom->occurrence := NOOCCURRENCE;
-      flares := 0;
+      currentRoom.occurrence := NOOCCURRENCE;
+      player.flares := 0;
     end if;
-    if currentRoom->occurrence = STEALTREASURE then
-      if count(TREASURES) <> 0 then
-        obj := one_of_owned(TREASURES);
-        writeln("You realize that somebody has stolen the " <& obj->name <& ".");
-        currentRoom->occurrence := NOOCCURRENCE;
-        obj->place := NOWHERE;
+    if currentRoom.occurrence = STEALTREASURE then
+      if countOwnedTreasures(player) <> 0 then
+        treasure := ownedTreasure(player);
+        writeln("You realize that somebody has stolen the " <& treasure <& ".");
+        currentRoom.occurrence := NOOCCURRENCE;
+        excl(player.possession, treasure);
       end if;
     end if;
-    if currentRoom->occurrence = FINDGOLD then
-      if currentRoom->roomer = NOBODY then
+    if currentRoom.occurrence = FINDGOLD then
+      if currentRoom.roomer = NOBODY then
         write("Here you find ");
-        findGoldPieces(10);
+        findGoldPieces(player, 10);
       else
-        write("Here are ");
-        numberName(rand(2, 11));
-        writeln(" GP'S. But the " <& currentRoom->roomer <&
+        writeln("Here are " <& numberName(rand(2, 11)) <&
+                " GP'S. But the " <& currentRoom.roomer <&
                 " is faster and takes them.");
       end if;
-      currentRoom->occurrence := NOOCCURRENCE;
+      currentRoom.occurrence := NOOCCURRENCE;
     end if;
-    if currentRoom->occurrence = FINDFLARES then
-      if currentRoom->roomer = NOBODY then
+    if currentRoom.occurrence = FINDFLARES then
+      if currentRoom.roomer = NOBODY then
         write("Here you find ");
-        findFlares(4);
+        findFlares(player, 4);
       else
-        write("Here are ");
-        numberName(rand(2, 5));
-        writeln(" flares. But the " <& currentRoom->roomer <&
+        writeln("Here are " <& numberName(rand(2, 5)) <&
+                " flares. But the " <& currentRoom.roomer <&
                 " is faster and takes them.");
       end if;
-      currentRoom->occurrence := NOOCCURRENCE;
+      currentRoom.occurrence := NOOCCURRENCE;
     end if;
-  end func; (* incident *)
+  end func; # incident
 
 
-const proc: curesAndDissolves is func
-  begin (* curesAndDissolves *)
-    if blind and (OPAL->place = PLAYER) then
+const proc: curesAndDissolves (inout playerType: player) is func
+  begin
+    if player.blind and OPAL in player.possession then
       writeln;
       writeln("The opal Eye cures your blindness!");
-      blind := FALSE;
+      player.blind := FALSE;
     end if;
-    if weaponBlocked and (BLUEFLAME->place = PLAYER) then
+    if player.weaponBlocked and BLUEFLAME in player.possession then
       writeln;
       writeln("The blue Flame dissolves the book!");
-      weaponBlocked := FALSE;
+      player.weaponBlocked := FALSE;
     end if;
-    if haveLeech and (PEARL->place = PLAYER) then
+    if player.haveLeech and PEARL in player.possession then
       writeln;
       writeln("The pale pearl fixes the leech in your pocket.");
-      haveLeech := FALSE;
+      player.haveLeech := FALSE;
     end if;
-    if lethargic and (RUBY->place = PLAYER) then
+    if player.lethargic and RUBY in player.possession then
       writeln;
       writeln("The ruby red stops your lethargy.");
-      lethargic := FALSE;
+      player.lethargic := FALSE;
     end if;
-    if forgetting and (GREENGEM->place = PLAYER) then
+    if player.forgetting and GREENGEM in player.possession then
       writeln;
       writeln("The green Gem stops the forgetting of the map.");
-      forgetting := FALSE;
+      player.forgetting := FALSE;
     end if;
-  end func; (* curesAndDissolves *)
+  end func; # curesAndDissolves
 
 
-const proc: die is func
-  begin (* die *)
+const proc: writeRemark (in playerType: player) is func
+  local
+    var integer: number is 0;
+  begin
+    if rand(1, 5) = 1 then
+      if player.blind then
+        number := rand(1, 4);
+      else
+        number := rand(1, 5);
+      end if;
+      case number of
+        when {1}:
+          case rand(1, 8) of
+            when {1}: writeln("You sneezed.");
+            when {2}: writeln("You stepped on a frog.");
+            when {3}: writeln("You have a fit of dizziness.");
+            when {4}: writeln("You moved your hand through a spiders net.");
+            when {5}: writeln("There are indications that somebody must have \
+                              \been here recently.");
+            when {6}: writeln("A blast of wind blows a cloud of dust across \
+                              \the room.");
+            when {7}: writeln("You touch " <& anyAdjective() <&
+                              " insect that immediately flies away.");
+            when {8}:
+              writeln("The smell of " <& anyFood() <& " is in the air.");
+          end case;
+        when {2}:
+          write("You smell ");
+          case rand(1, 9) of
+            when {1}: writeln("musty air.");
+            when {2}: writeln("rotten flesh.");
+            when {3}: writeln("a whiff of good french perfume.");
+            when {4}: writeln("the bad odour of a mouldering body.");
+            when {5}: writeln("the pleasant scent of a green meadow.");
+            when {6}: writeln("the unpleasant stench of an acid.");
+            when {7}: writeln("mouldering bones which must lie nearby.");
+            when {8}: writeln(aOrAn(rand(animateType)) <& " frying.");
+            when {9}: writeln("the presence of a " <&
+                              sexName(not player.isMale) <& " " <&
+                              player.species <& ".");
+          end case;
+        when {3}:
+          write("You feel ");
+          case rand(1, 10) of
+            when { 1}: writeln("like you're being watched.");
+            when { 2}: writeln("terribly frightened.");
+            when { 3}: writeln("drops falling on your neck.");
+            when { 4}: writeln("something touching your shoulder.");
+            when { 5}: writeln("that you will be killed.");
+            when { 6}: writeln("a cold wind blowing across the room.");
+            when { 7}: writeln("that you get hungry.");
+            when { 8}: writeln("vibrations at the ground.");
+            when { 9}: writeln("danger in the vicinity.");
+            when {10}: writeln("that a " <& sexName(not player.isMale) <&
+                               " " <& rand(speciesType) <&
+                               " must have been here recently.");
+          end case;
+        when {4}:
+          write("You hear ");
+          case rand(1, 11) of
+            when { 1}: writeln("thunder.");
+            when { 2}: writeln("moaning.");
+            when { 3}: writeln("a scream.");
+            when { 4}: writeln("a wumpus.");
+            when { 5}: writeln("footsteps.");
+            when { 6}: writeln("a door open.");
+            when { 7}: writeln("a door slam.");
+            when { 8}: writeln("rattling sounds.");
+            when { 9}: writeln("somebody snigger.");
+            when {10}: writeln("faint rustling noises.");
+            when {11}: writeln("somebody whisper your name.");
+          end case;
+        when {5}:
+          write("You see ");
+          case rand(1, 8) of
+            when {1}: writeln("a bat fly by.");
+            when {2}: writeln("some flies.");
+            when {3}: writeln("a shadow passing by.");
+            when {4}: writeln("a rat crossing the room.");
+            when {5}: writeln("two eyes glowing in the dark. \
+                              \A moment later they disappear.");
+            when {6}: writeln(anyAdjective() <& " footprint.");
+            when {7}: writeln(anyAdjective() <& " spider running away.");
+            when {8}: writeln("the mirage of the " <&
+                              rand(LAMP, ORBOFZOT) <& ".");
+          end case;
+      end case;
+    end if;
+  end func; # writeRemark
+
+
+const proc: die (in playerType: player) is func
+  begin
     writeln("\a");
     writeln("*" mult 78);
-    writeln("A noble effort, oh formerly living " <& species <& "!");
+    writeln("A noble effort, oh formerly living " <& player.species <& "!");
     writeln;
     write("You died due to lack of ");
-    if strength < 1 then
+    if player.strength < 1 then
       writeln("strength.");
-    end if;
-    if intelligence < 1 then
+    elsif player.intelligence < 1 then
       writeln("intelligence.");
-    end if;
-    if dexterity < 1 then
+    elsif player.dexterity < 1 then
       writeln("dexterity.");
     end if;
     writeln;
     writeln("At the time you died, you had:");
-    listInventory();
+    listInventory(player);
     writeln;
-    writeln("And it took you " <& turns <& " turns!");
-  end func; (* die *)
+    writeln("And it took you " <& player.turns <& " turns!");
+  end func; # die
 
 
-const proc: exitCastle is func
-  begin (* exitCastle *)
+const proc: exitCastle (inout playerType: player) is func
+  begin
     writeln("\a");
     write("You left the castle with");
-    if ORBOFZOT->place <> PLAYER then
+    if ORBOFZOT not in player.possession then
       write("out");
     end if;
     writeln(" the *ORB OF ZOT*.");
     writeln;
-    if ORBOFZOT->place = PLAYER then
+    if ORBOFZOT in player.possession then
       writeln("An incredibly glorious victory!!");
       writeln;
       writeln("In addition, you got out with the following:");
       writeln("  your life");
-      ORBOFZOT->place := NOWHERE;
+      excl(player.possession, ORBOFZOT);
     else
       writeln("A less than awe-inspiring defeat.");
       writeln;
       writeln("when you left the castle, you had:");
       writeln("  your miserable life");
     end if;
-    listInventory();
+    listInventory(player);
     writeln;
-    writeln("And it took you " <& turns <& " turns!");
-  end func; (* exitCastle *)
+    writeln("And it took you " <& player.turns <& " turns!");
+  end func; # exitCastle
 
 
 const proc: main is func
   local
+    var playerType: player is playerType.value;
+    var fightStateType: fightState is fightStateType.value;
     var char: ch is ' ';
-  begin (* main *)
+  begin
+    OUT := STD_CONSOLE;
+    IN := openEditLine(KEYBOARD, OUT);
     startText();
     repeat
-      initVars();
-      initScalars();
-      readSpecies();
-      readSex();
-      readAttributes();
-      buyArmor(7, 5, 3, quitProgram);
-      buyWeapon(7, 5, 3, quitProgram);
-      buyLamp(2, quitProgram);
-      readFlares();
-      if not quitProgram then
+      initRoomConnections();
+      initRoomProperties();
+      initRoomTransfers();
+      labyrinthNumber := rand(1, 50);
+      player := playerType.value;
+      fightState := fightStateType.value;
+      readSpecies(player);
+      readSex(player);
+      readAttributes(player);
+      buyArmor(player, 7, 5, 3);
+      buyWeapon(player, 7, 5, 3);
+      buyLamp(player, 2);
+      buyFlares(player);
+      if not player.quitDialog then
         writeln;
-        writeln("Ok, " <& species <& ", you are now entering the castle.");
+        writeln("Ok, " <& player.species <& ", you are now entering the castle.");
         writeln("Type H for help.");
-        currentRoom := &LABYRINTH[1][4][1];
-        enterRoom();
+        currentRoomRef := labyrinth[rangeLaby(4)][1][1];
+        enterRoom(currentRoomRef, player, fightState);
         repeat
-          incr(turns);
-          incident();
-          curesAndDissolves();
-          writeRemark();
-          executeCommand();
-        until not living or leaveCastle or quitProgram;
-        if not living then
-          die();
-        elsif leaveCastle then
-          exitCastle();
+          incr(player.turns);
+          incident(currentRoomRef, player);
+          curesAndDissolves(player);
+          writeRemark(player);
+          executeCommand(currentRoomRef, player, fightState);
+          writeFightState(currentRoomRef, player, fightState);
+        until not player.living or player.leaveCastle or player.quitProgram;
+        if not player.living then
+          die(player);
+        elsif player.leaveCastle then
+          exitCastle(player);
         end if;
       end if;
       repeat
         writeln;
         write("Are you foolish enough to want to play again? ");
-        readChar(ch);
+        ch := readChar();
         if not ch in {'Y', 'N'} then
           writeln;
           writeln("** Please answer yes or no.");
         end if;
-      until ch = 'Y' or ch = 'N';
+      until ch in {'Y', 'N'};
       writeln;
       if ch = 'Y' then
-        writeln("Some " <& species <& "s never learn!");
+        writeln("Some " <& player.species <& "s never learn!");
       else
-        writeln("Maybe dumb " <& species <& " is not so dumb after all!");
+        writeln("Maybe dumb " <& player.species <& " is not so dumb after all!");
       end if;
     until ch = 'N';
-  end func; (* main *)
+  end func; # main
