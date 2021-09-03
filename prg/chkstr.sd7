@@ -19291,6 +19291,27 @@ const proc: check_string_ternary is func
       okay := FALSE;
     end if;
 
+    stri :=  TRUE ?  str(intExpr(1)) : str(intExpr(2)); ok := ok and stri = "1";
+    stri := FALSE ?  str(intExpr(1)) : str(intExpr(2)); ok := ok and stri = "2";
+    stri :=  TRUE ?  str(intExpr(1)) : striExpr("2"); ok := ok and stri = "1";
+    stri := FALSE ?  str(intExpr(1)) : striExpr("2"); ok := ok and stri = "2";
+    stri :=  TRUE ?  striExpr("1") : str(intExpr(2)); ok := ok and stri = "1";
+    stri := FALSE ?  striExpr("1") : str(intExpr(2)); ok := ok and stri = "2";
+    stri :=  TRUE ?  striExpr("1") : striExpr("2"); ok := ok and stri = "1";
+    stri := FALSE ?  striExpr("1") : striExpr("2"); ok := ok and stri = "2";
+    stri := boolExpr( TRUE) ?  str(intExpr(1)) : str(intExpr(2)); ok := ok and stri = "1";
+    stri := boolExpr(FALSE) ?  str(intExpr(1)) : str(intExpr(2)); ok := ok and stri = "2";
+    stri := boolExpr( TRUE) ?  str(intExpr(1)) : striExpr("2"); ok := ok and stri = "1";
+    stri := boolExpr(FALSE) ?  str(intExpr(1)) : striExpr("2"); ok := ok and stri = "2";
+    stri := boolExpr( TRUE) ?  striExpr("1") : str(intExpr(2)); ok := ok and stri = "1";
+    stri := boolExpr(FALSE) ?  striExpr("1") : str(intExpr(2)); ok := ok and stri = "2";
+    stri := boolExpr( TRUE) ?  striExpr("1") : striExpr("2"); ok := ok and stri = "1";
+    stri := boolExpr(FALSE) ?  striExpr("1") : striExpr("2"); ok := ok and stri = "2";
+    if not ok then
+      writeln(" ***** The ternary operator ? : does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("The ternary operator ? : works correct for string.");
     else
