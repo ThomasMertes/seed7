@@ -224,6 +224,10 @@ const string: chkprc_output is "\n\
   \Repeat statements work correct.\n\
   \For to statements work correct.\n\
   \For downto statements work correct.\n\
+  \For to until statements work correct.\n\
+  \For downto until statements work correct.\n\
+  \For char to statements work correct.\n\
+  \For char downto statements work correct.\n\
   \For bigInteger statements work correct.\n\
   \Case integer statements work correct.\n\
   \Case char statements work correct.\n\
@@ -236,6 +240,7 @@ const string: chkbig_output is "\n\
   \String conversion of bigInteger works correct.\n\
   \The radix operator for bigInteger works correct.\n\
   \Conversion of bigInteger to integer works correct.\n\
+  \ord(aBigInteger mod 2_**y) works correct.\n\
   \Conversion of integer to bigInteger works correct.\n\
   \Conversion of bigInteger to big endian byte string works correct.\n\
   \Conversion of bigInteger to little endian byte string works correct.\n\

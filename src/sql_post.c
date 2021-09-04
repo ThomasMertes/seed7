@@ -46,9 +46,6 @@
 #include "winsock2.h"
 #endif
 #ifdef POSTGRESQL_INCLUDE
-#ifdef POSTGRESQL_POSTGRES_H
-#include POSTGRESQL_POSTGRES_H
-#endif
 #include POSTGRESQL_INCLUDE
 #ifdef POSTGRESQL_PG_TYPE_H
 #include POSTGRESQL_PG_TYPE_H

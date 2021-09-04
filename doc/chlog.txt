@@ -1,3 +1,55 @@
+20210904:
+- The linking of PostgreSQL has been improved. Many thanks go to
+  SiliconWizard, for pointing out linking problems and for helping
+  to investigate them. The function findPgTypeH() has been added to
+  chkccomp.c. Now the search for pg_type.h and pg_type_d.h does not
+  include postgres.h. In sql_post.c the include of the file
+  postgres.h has been removed.
+- The wiz.sd7 example program has been refactored. Now it can be
+  compiled. Many thanks go to Vasiliy Tereshkov, for reporting the
+  compilation problem. Additionally, several improvements of wiz.sd7
+  have been done.
+- The functions expm1() and log1p() have been added to the math.s7i
+  library. Many thanks go to Sanjay Jain for pointing out that
+  they were missing.
+- In wrinum.s7i the functions str(ENGLISH, number) and
+  str(GERMAN, number) have been improved to work correctly for zero.
+- In forloop.s7i the definition of for-until-loops has been
+  improved, such that the loop variable never gets a value outside
+  of the range. The definition of for-loops has been changed to
+  invoke the loop-body just at one place. Since the loop body is
+  inlined, this does shorten the generated code.
+- Tests for for-loops have been added to chkprc.sd7.
+- The compiler (s7c.sd7) has been improved to generate better code
+  for the actions BLN_TERNARY, REF_ADDR, REF_SELECT and SET_ELEM
+  (changes were done in bln_act.s7i, ref_act.s7i and set_act.s7i).
+- The compiler has been improved (in comp/enu_act.s7i), to check
+  for a possible RANGE_ERROR, if an integer is converted to an
+  enumeration value (action ENU_ICONV2).
+- The compiler has been improved to optimize expressions like
+  ord(aBigExpression mod aPowerOfTwo).
+- The function chkBigOrdWithBigMod has been added to chkbig.sd7.
+  This function checks the optimizations done with expressions like
+  ord(aBigExpression mod aPowerOfTwo).
+- Tests for the ternary operator have been added to chkstr.sd7.
+- Tests for the 'element in bitset' operator have been added to
+  chkset.sd7. These tests check the compiler optimizations for
+  SET_ELEM.
+- Definitions of HAS_EXPM1 and HAS_LOG1P have been added to
+  cc_conf.s7i.
+- Interpreter and compiler have been improved, to support the
+  actions HAS_EXPM1 and HAS_LOG1P.
+- In comp/intrange.s7i the function getIntRange() has been improved
+  to consider the actions INT_SUCC, INT_PRED, INT_ICONV1,
+  INT_ICONV3 and SET_RAND. The handling of the actions INT_RAND,
+  INT_ABS and INT_NEGATE has been improved. The functions
+  getIntAddRange() and getSetRandRange() have been improved.
+- The program chk_all.sd7 has been adjusted to the changes in the
+  check programs.
+- A spelling error in s7c.sd7 has been fixed.
+- The program wrinum.sd7 has been changed to start with zero.
+- Logging functions have been added to reflib.c.
+
 20210807:
 - The bmp.s7i library has been improved. Now the function readBmp()
   works also for historical versions of the BMP format.

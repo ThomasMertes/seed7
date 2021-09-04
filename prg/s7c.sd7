@@ -3827,7 +3827,7 @@ const proc: process_dynamic_param_enumeration (in reference: current_object,
       c_expr.expr &:= "case ";
       c_expr.expr &:= str(intValueOfEnum);
       c_expr.expr &:= ": {\n";
-      # If the enums are correct there will onle be one per integer value
+      # If the enums are correct there will only be one per integer value
       enumLiteral := enumsByIntValue[intValueOfEnum][1];
       backupParam := formal_params[paramNum];
       formal_params @:= [paramNum] enumLiteral;

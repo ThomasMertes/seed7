@@ -46,6 +46,62 @@ var intRangeOfVariableHash: intRangeOfVariable is intRangeOfVariableHash.value;
 const func intRange: getIntRange (in reference: intExpression) is forward;
 
 
+const func intRange: getIntAddRange (in reference: summand1, in reference: summand2) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var intRange: summand1Range is intRange.value;
+    var intRange: summand2Range is intRange.value;
+  begin
+    summand1Range := getIntRange(summand1);
+    summand2Range := getIntRange(summand2);
+    if summand1Range.minValue < 0 then
+      if summand2Range.minValue < 0 then
+        if summand1Range.minValue >= integer.first - summand2Range.minValue then
+          valueRange.minValue := summand1Range.minValue + summand2Range.minValue;
+        end if;
+      else
+        valueRange.minValue := summand1Range.minValue + summand2Range.minValue;
+      end if;
+    else
+      if summand2Range.minValue > 0 then
+        if summand2Range.minValue <= integer.last - summand1Range.minValue then
+          valueRange.minValue := summand1Range.minValue + summand2Range.minValue;
+        else
+          valueRange.minValue := integer.last;
+          valueRange.maxValue := integer.first;
+        end if
+      else
+        valueRange.minValue := summand1Range.minValue + summand2Range.minValue;
+      end if;
+    end if;
+    if summand1Range.maxValue > 0 then
+      if summand2Range.maxValue > 0 then
+        if summand2Range.maxValue <= integer.last - summand1Range.maxValue then
+          valueRange.maxValue := summand1Range.maxValue + summand2Range.maxValue;
+        end if;
+      else
+        valueRange.maxValue := summand1Range.maxValue + summand2Range.maxValue;
+      end if;
+    else
+      if summand2Range.maxValue < 0 then
+        if summand2Range.maxValue >= integer.first - summand1Range.maxValue then
+          valueRange.maxValue := summand1Range.maxValue + summand2Range.maxValue;
+        else
+          valueRange.minValue := integer.last;
+          valueRange.maxValue := integer.first;
+        end if
+      else
+        valueRange.maxValue := summand1Range.maxValue + summand2Range.maxValue;
+      end if;
+    end if;
+    if valueRange.minValue > valueRange.maxValue then
+      valueRange.minValue := 0;
+      valueRange.maxValue := -1;
+    end if;
+  end func;
+
+
 const func intRange: getIntLshiftRange (in reference: number, in reference: lshift) is func
   result
     var intRange: valueRange is intRange.value;
@@ -167,6 +223,26 @@ const func intRange: getIntModRange (in reference: dividend, in reference: divis
   end func;
 
 
+const func intRange: getSetRandRange (in reference: aSet) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var reference: evaluatedParam is NIL;
+    var bitset: setValue is {};
+  begin
+    if getConstant(aSet, SETOBJECT, evaluatedParam) then
+      setValue := getValue(evaluatedParam, bitset);
+      if setValue = {} then
+        valueRange.minValue := 0;
+        valueRange.maxValue := -1;
+      else
+        valueRange.minValue := min(setValue);
+        valueRange.maxValue := max(setValue);
+      end if;
+    end if;
+  end func;
+
+
 const func intRange: getIntRange (in reference: intExpression) is func
   result
     var intRange: valueRange is intRange.value;
@@ -184,6 +260,7 @@ const func intRange: getIntRange (in reference: intExpression) is func
         number := getValue(evaluatedParam, integer);
         valueRange.minValue := number;
         valueRange.maxValue := number;
+        # writeln("intRange of constant: " <& valueRange.minValue <& ".." <& valueRange.maxValue);
       elsif intExpression in intRangeOfVariable then
         valueRange := intRangeOfVariable[intExpression];
         # writeln("intRange of variable: " <& valueRange.minValue <& ".." <& valueRange.maxValue);
@@ -219,74 +296,32 @@ const func intRange: getIntRange (in reference: intExpression) is func
                 valueRange.minValue := -2147483647;
               end if;
               valueRange.maxValue := 2147483647;
+            when {"ENU_ORD2"}:
+              valueRange.minValue := 0;
+              valueRange.maxValue :=
+                  pred(length(getValue(evaluate(prog, params[2]), ref_list)));
             when {"FIL_TELL"}:
               valueRange.minValue := 1;
               valueRange.maxValue := integer.last;
             when {"INT_ABS"}:
+              valueRange.minValue := 0;
               argument1Range := getIntRange(params[1]);
-              if argument1Range <> intRange.value then
-                valueRange.minValue := 0;
-                if argument1Range.minValue > integer.first and
-                    argument1Range.maxValue > integer.first then
-                  if abs(argument1Range.minValue) > abs(argument1Range.maxValue) then
-                    valueRange.maxValue := abs(argument1Range.minValue);
-                  else
-                    valueRange.maxValue := abs(argument1Range.maxValue);
-                  end if;
+              if argument1Range <> intRange.value and
+                  argument1Range.minValue > integer.first and
+                  argument1Range.maxValue > integer.first then
+                if argument1Range.maxValue < argument1Range.minValue then
+                  valueRange.minValue := 0;
+                  valueRange.maxValue := -1;
+		elsif abs(argument1Range.minValue) > abs(argument1Range.maxValue) then
+                  valueRange.maxValue := abs(argument1Range.minValue);
                 else
-                  valueRange.maxValue := integer.last;
+                  valueRange.maxValue := abs(argument1Range.maxValue);
                 end if;
               else
-                valueRange.minValue := 0;
                 valueRange.maxValue := integer.last;
               end if;
             when {"INT_ADD"}:
-              argument1Range := getIntRange(params[1]);
-              argument2Range := getIntRange(params[3]);
-              if argument1Range.minValue < 0 then
-                if argument2Range.minValue < 0 then
-                  if argument1Range.minValue >= integer.first - argument2Range.minValue then
-                    valueRange.minValue := argument1Range.minValue + argument2Range.minValue;
-                  end if;
-                else
-                  valueRange.minValue := argument1Range.minValue + argument2Range.minValue;
-                end if;
-              else
-                if argument2Range.minValue > 0 then
-                  if argument2Range.minValue <= integer.last - argument1Range.minValue then
-                    valueRange.minValue := argument1Range.minValue + argument2Range.minValue;
-                  else
-                    valueRange.minValue := integer.last;
-                    valueRange.maxValue := integer.first;
-                  end if
-                else
-                  valueRange.minValue := argument1Range.minValue + argument2Range.minValue;
-                end if;
-              end if;
-              if argument1Range.maxValue > 0 then
-                if argument2Range.maxValue > 0 then
-                  if argument2Range.maxValue <= integer.last - argument1Range.maxValue then
-                    valueRange.maxValue := argument1Range.maxValue + argument2Range.maxValue;
-                  end if;
-                else
-                  valueRange.maxValue := argument1Range.maxValue + argument2Range.maxValue;
-                end if;
-              else
-                if argument2Range.maxValue < 0 then
-                  if argument2Range.maxValue >= integer.first - argument1Range.maxValue then
-                    valueRange.maxValue := argument1Range.maxValue + argument2Range.maxValue;
-                  else
-                    valueRange.minValue := integer.last;
-                    valueRange.maxValue := integer.first;
-                  end if
-                else
-                  valueRange.maxValue := argument1Range.maxValue + argument2Range.maxValue;
-                end if;
-              end if;
-              if valueRange.minValue > valueRange.maxValue then
-                valueRange.minValue := 0;
-                valueRange.maxValue := -1;
-              end if;
+              valueRange := getIntAddRange(params[1], params[3]);
             when {"INT_BIT_LENGTH"}:
               valueRange.minValue := 0;
               valueRange.maxValue := pred(ccConf.INTTYPE_SIZE);
@@ -312,6 +347,10 @@ const func intRange: getIntRange (in reference: intExpression) is func
                   valueRange.maxValue := -number;
                 end if;
               end if;
+            when {"INT_ICONV1"}:
+              valueRange := getIntRange(params[1]);
+            when {"INT_ICONV3"}:
+              valueRange := getIntRange(params[3]);
             when {"INT_LOG10"}:
               valueRange.minValue := -1;
               valueRange.maxValue := log10(integer.last);
@@ -323,19 +362,6 @@ const func intRange: getIntRange (in reference: intExpression) is func
               valueRange.maxValue := pred(ccConf.INTTYPE_SIZE);
             when {"INT_LSHIFT"}:
               valueRange := getIntLshiftRange(params[1], params[3]);
-            when {"INT_NEGATE"}:
-              argument1Range := getIntRange(params[2]);
-              if argument1Range <> intRange.value then
-                valueRange.minValue := -argument1Range.maxValue;
-                if argument1Range.minValue < -integer.last then
-                  valueRange.maxValue := integer.last;
-                else
-                  valueRange.maxValue := -argument1Range.minValue;
-                end if;
-              else
-                valueRange.minValue := -integer.last;
-                valueRange.maxValue := integer.last;
-              end if;
             when {"INT_MDIV"}:
               if getConstant(params[3], INTOBJECT, evaluatedParam) then
                 number := getValue(evaluatedParam, integer);
@@ -364,23 +390,74 @@ const func intRange: getIntRange (in reference: intExpression) is func
               if getConstant(params[1], INTOBJECT, evaluatedParam) then
                 number := getValue(evaluatedParam, integer);
                 if number >= 2 then
-                  valueRange.minValue := integer.first div number * number;
-                  valueRange.maxValue := integer.last div number * number;
+                  argument2Range := getIntRange(params[3]);
+                  if argument2Range.minValue >= integer.first div number and
+                      argument2Range.minValue <= integer.last div number then
+                    valueRange.minValue := argument2Range.minValue * number;
+                  else
+                    valueRange.minValue := integer.first div number * number;
+                  end if;
+                  if argument2Range.maxValue >= integer.first div number and
+                      argument2Range.maxValue <= integer.last div number then
+                    valueRange.maxValue := argument2Range.maxValue * number;
+                  else
+                    valueRange.maxValue := integer.last div number * number;
+                  end if;
                 end if;
               elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
                 number := getValue(evaluatedParam, integer);
                 if number >= 2 then
-                  valueRange.minValue := integer.first div number * number;
-                  valueRange.maxValue := integer.last div number * number;
+                  argument1Range := getIntRange(params[1]);
+                  if argument1Range.minValue >= integer.first div number and
+                      argument1Range.minValue <= integer.last div number then
+                    valueRange.minValue := argument1Range.minValue * number;
+                  else
+                    valueRange.minValue := integer.first div number * number;
+                  end if;
+                  if argument1Range.maxValue >= integer.first div number and
+                      argument1Range.maxValue <= integer.last div number then
+                    valueRange.maxValue := argument1Range.maxValue * number;
+                  else
+                    valueRange.maxValue := integer.last div number * number;
+                  end if;
                 end if;
               end if;
+            when {"INT_NEGATE"}:
+              argument1Range := getIntRange(params[2]);
+              if argument1Range <> intRange.value then
+                if argument1Range.maxValue < -integer.last or
+                    argument1Range.maxValue < argument1Range.minValue then
+                  valueRange.minValue := 0;
+                  valueRange.maxValue := -1;
+		else
+                  valueRange.minValue := -argument1Range.maxValue;
+                  if argument1Range.minValue < -integer.last then
+                    valueRange.maxValue := integer.last;
+                  else
+                    valueRange.maxValue := -argument1Range.minValue;
+                  end if;
+                end if;
+              else
+                valueRange.minValue := -integer.last;
+                valueRange.maxValue := integer.last;
+              end if;
+            when {"INT_PRED"}:
+              argument1Range := getIntRange(params[1]);
+              if argument1Range.minValue <> integer.first then
+                valueRange.minValue := pred(argument1Range.minValue);
+              else
+                valueRange.minValue := integer.first;
+              end if;
+              if argument1Range.maxValue <> integer.first then
+                valueRange.maxValue := pred(argument1Range.maxValue);
+              else
+                valueRange.maxValue := integer.first;
+              end if;
             when {"INT_RAND"}:
-              if getConstant(params[1], INTOBJECT, evaluatedParam) then
-                valueRange.minValue := getValue(evaluatedParam, integer);
-              end if;
-              if getConstant(params[2], INTOBJECT, evaluatedParam) then
-                valueRange.maxValue := getValue(evaluatedParam, integer);
-              end if;
+              argument1Range := getIntRange(params[1]);
+              argument2Range := getIntRange(params[2]);
+              valueRange.minValue := argument1Range.minValue;
+              valueRange.maxValue := argument2Range.maxValue;
             when {"INT_REM"}:
               if getConstant(params[3], INTOBJECT, evaluatedParam) then
                 number := getValue(evaluatedParam, integer);
@@ -424,6 +501,20 @@ const func intRange: getIntRange (in reference: intExpression) is func
             when {"INT_SQRT"}:
               valueRange.minValue := 0;
               valueRange.maxValue := sqrt(integer.last);
+            when {"INT_SUCC"}:
+              argument1Range := getIntRange(params[1]);
+              if argument1Range.minValue <> integer.last then
+                valueRange.minValue := succ(argument1Range.minValue);
+              else
+                valueRange.minValue := integer.last;
+              end if;
+              if argument1Range.maxValue <> integer.last then
+                valueRange.maxValue := succ(argument1Range.maxValue);
+              else
+                valueRange.maxValue := integer.last;
+              end if;
+            when {"SET_RAND"}:
+              valueRange := getSetRandRange(params[1]);
             when {"STR_CHIPOS", "STR_CHPOS", "STR_IPOS", "STR_POS",
                   "STR_RCHIPOS", "STR_RCHPOS", "STR_RIPOS", "STR_RPOS"}:
               if getConstant(params[1], STRIOBJECT, evaluatedParam) then
@@ -448,6 +539,15 @@ const func intRange: getIntRange (in reference: intExpression) is func
                 valueRange.maxValue := 2 ** (ccConf.POINTER_SIZE - 2);
               end if;
           end case;
+          # writeln(actionName <& ": " <& valueRange.minValue <& " " <& valueRange.maxValue);
+        elsif category(function) = BLOCKOBJECT then
+          if resultVar(function) = NIL and
+              resultInitValue(function) = NIL and
+              localConsts(function) = ref_list.EMPTY and
+              localVars(function) = ref_list.EMPTY then
+            valueRange := getIntRange(body(function));
+          end if;
+          # writeln("BLOCKOBJECT: " <& valueRange.minValue <& " " <& valueRange.maxValue);
         end if;
       end if;
     end if;

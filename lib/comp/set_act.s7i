@@ -316,16 +316,22 @@ const proc: process (SET_DIFF, in reference: function,
   end func;
 
 
-const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
+const proc: process_const_set_elem (in reference: param1, in var bitset: aBitset,
     inout expr_type: c_expr) is func
 
   local
+    var intRange: numberRange is intRange.value;
     var reference: evaluatedParam is NIL;
-    var string: integer_name is "";
+    var string: number_name is "";
     var integer: number is 0;
     var boolean: first_element is TRUE;
     var boolean: isElement is FALSE;
   begin
+    numberRange := getIntRange(param1);
+    if aBitset <> EMPTY_SET then
+      aBitset &:= {max(numberRange.minValue, min(aBitset)) ..
+                   min(numberRange.maxValue, max(aBitset))};
+    end if;
     if getConstant(param1, INTOBJECT, evaluatedParam) then
       incr(countOptimizations);
       isElement := getValue(evaluatedParam, integer) in aBitset;
@@ -336,6 +342,11 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
     elsif aBitset = EMPTY_SET then
       incr(countOptimizations);
       c_expr.expr &:= "0/*FALSE*/";
+    elsif numberRange.minValue >= min(aBitset) and
+          numberRange.maxValue <= max(aBitset) and
+          {numberRange.minValue .. numberRange.maxValue} <= aBitset then
+      incr(countOptimizations);
+      c_expr.expr &:= "1/*TRUE*/";
     elsif card(aBitset) = 1 then
       incr(countOptimizations);
       c_expr.expr &:= "(";
@@ -345,17 +356,17 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
     elsif card(aBitset) >= 3 and max(aBitset) - min(aBitset) = pred(card(aBitset)) then
       incr(countOptimizations);
       c_expr.expr &:= "(";
-      integer_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
+      number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
       if ccConf.TWOS_COMPLEMENT_INTTYPE and min(aBitset) = 0 then
         c_expr.expr &:= "(uintType)(";
-        c_expr.expr &:= integer_name;
+        c_expr.expr &:= number_name;
         c_expr.expr &:= ")";
       else
-        c_expr.expr &:= integer_name;
+        c_expr.expr &:= number_name;
         c_expr.expr &:= ">=";
         c_expr.expr &:= integerLiteral(min(aBitset));
         c_expr.expr &:= " && ";
-        c_expr.expr &:= integer_name;
+        c_expr.expr &:= number_name;
       end if;
       c_expr.expr &:= "<=";
       c_expr.expr &:= integerLiteral(max(aBitset));
@@ -364,83 +375,106 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
         card(aBitset) = 3 and (min(aBitset) < 0 or max(aBitset) >= ccConf.INTTYPE_SIZE) then
       incr(countOptimizations);
       c_expr.expr &:= "(";
-      integer_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
+      number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
       for number range aBitset do
         if first_element then
           first_element := FALSE;
         else
           c_expr.expr &:= "||";
         end if;
-        c_expr.expr &:= integer_name;
+        c_expr.expr &:= number_name;
         c_expr.expr &:= "==";
         c_expr.expr &:= integerLiteral(number);
       end for;
       c_expr.expr &:= ")";
     elsif min(aBitset) >= 0 and max(aBitset) < ccConf.INTTYPE_SIZE then
       incr(countOptimizations);
-      c_expr.expr &:= "(";
-      integer_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
-      if ccConf.TWOS_COMPLEMENT_INTTYPE then
-        c_expr.expr &:= "(uintType)(";
-        c_expr.expr &:= integer_name;
-        c_expr.expr &:= ")";
+      if numberRange.minValue >= 0 and numberRange.maxValue < ccConf.INTTYPE_SIZE then
+        c_expr.expr &:= bitsetElemAsHex(aBitset, 0);
+        c_expr.expr &:= ">>(";
+        process_expr(param1, c_expr);
+        c_expr.expr &:= ")&1";
       else
-        c_expr.expr &:= integer_name;
-        c_expr.expr &:= ">=0&&";
-        c_expr.expr &:= integer_name;
+        c_expr.expr &:= "(";
+        number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
+        if ccConf.TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= "(uintType)(";
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= ")";
+        else
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= ">=0&&";
+          c_expr.expr &:= number_name;
+        end if;
+        c_expr.expr &:= "<=";
+        c_expr.expr &:= str(max(aBitset));
+        c_expr.expr &:= "&&";
+        c_expr.expr &:= bitsetElemAsHex(aBitset, 0);
+        c_expr.expr &:= ">>";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= "&1)";
       end if;
-      c_expr.expr &:= "<=";
-      c_expr.expr &:= str(max(aBitset));
-      c_expr.expr &:= "&&";
-      c_expr.expr &:= bitsetElemAsHex(aBitset, 0);
-      c_expr.expr &:= ">>";
-      c_expr.expr &:= integer_name;
-      c_expr.expr &:= "&1)";
     elsif max(aBitset) - min(aBitset) < ccConf.INTTYPE_SIZE then
       incr(countOptimizations);
       c_expr.expr &:= "(";
-      integer_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
-      c_expr.expr &:= integer_name;
-      c_expr.expr &:= ">=";
-      c_expr.expr &:= integerLiteral(min(aBitset));
-      c_expr.expr &:= "&&";
-      c_expr.expr &:= integer_name;
-      c_expr.expr &:= "<=";
-      c_expr.expr &:= integerLiteral(max(aBitset));
-      c_expr.expr &:= "&&";
-      c_expr.expr &:= bitsetElemAsHex(aBitset, min(aBitset));
-      c_expr.expr &:= ">>";
-      c_expr.expr &:= integer_name;
-      c_expr.expr &:= "-";
-      c_expr.expr &:= integerLiteral(min(aBitset));
-      c_expr.expr &:= "&1)";
-    elsif inlineFunctions then
-      c_expr.expr &:= "(";
-      integer_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
-      if ccConf.TWOS_COMPLEMENT_INTTYPE and bitset_pos(min(aBitset)) = 0 then
-        c_expr.expr &:= "(uintType)(";
-        c_expr.expr &:= integer_name;
-        c_expr.expr &:= ")";
+      number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
+      if max(aBitset) >= integer.first + ccConf.INTTYPE_SIZE and
+          max(aBitset) - ccConf.INTTYPE_SIZE < numberRange.minValue then
+        if numberRange.minValue <= integer.last - ccConf.INTTYPE_SIZE and
+            numberRange.maxValue >= numberRange.minValue + ccConf.INTTYPE_SIZE then
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= "<=";
+          c_expr.expr &:= integerLiteral(max(aBitset));
+          c_expr.expr &:= "&&";
+        end if;
+        c_expr.expr &:= bitsetElemAsHex(aBitset, numberRange.minValue);
+        c_expr.expr &:= ">>";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= "-(";
+        c_expr.expr &:= integerLiteral(numberRange.minValue);
       else
-        c_expr.expr &:= integer_name;
+        c_expr.expr &:= number_name;
         c_expr.expr &:= ">=";
         c_expr.expr &:= integerLiteral(min(aBitset));
         c_expr.expr &:= "&&";
-        c_expr.expr &:= integer_name;
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= "<=";
+        c_expr.expr &:= integerLiteral(max(aBitset));
+        c_expr.expr &:= "&&";
+        c_expr.expr &:= bitsetElemAsHex(aBitset, min(aBitset));
+        c_expr.expr &:= ">>";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= "-(";
+        c_expr.expr &:= integerLiteral(min(aBitset));
+      end if;
+      c_expr.expr &:= ")&1)";
+    elsif inlineFunctions then
+      c_expr.expr &:= "(";
+      number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
+      if ccConf.TWOS_COMPLEMENT_INTTYPE and bitset_pos(min(aBitset)) = 0 then
+        c_expr.expr &:= "(uintType)(";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= ">=";
+        c_expr.expr &:= integerLiteral(min(aBitset));
+        c_expr.expr &:= "&&";
+        c_expr.expr &:= number_name;
       end if;
       c_expr.expr &:= "<=";
       c_expr.expr &:= integerLiteral(max(aBitset));
       c_expr.expr &:= "&&";
       c_expr.expr &:= bitsetLiteral(aBitset);
       c_expr.expr &:= "->bitset[(uintType)(bitset_pos(";
-      c_expr.expr &:= integer_name;
+      c_expr.expr &:= number_name;
       c_expr.expr &:= ")";
       if bitset_pos(min(aBitset)) <> 0 then
         c_expr.expr &:= "-";
         c_expr.expr &:= integerLiteral(bitset_pos(min(aBitset)));
       end if;
       c_expr.expr &:= ")] >> (";
-      c_expr.expr &:= integer_name;
+      c_expr.expr &:= number_name;
       c_expr.expr &:= " & bitset_mask)&1)";
     else
       c_expr.expr &:= "setElem(";
@@ -457,7 +491,7 @@ const proc: process_set_elem (in reference: param1, in reference: param3,
 
   local
     var reference: evaluatedParam is NIL;
-    var string: integer_name is "";
+    var string: number_name is "";
     var string: position_name is "";
     var string: set_name is "";
   begin
@@ -465,7 +499,7 @@ const proc: process_set_elem (in reference: param1, in reference: param3,
       process_const_set_elem(param1, getValue(evaluatedParam, bitset), c_expr);
     elsif inlineFunctions then
       c_expr.expr &:= "(";
-      integer_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
+      number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
       set_name := getParameterAsVariable("const_setType", "tmp_", param3, c_expr);
       incr(c_expr.temp_num);
       position_name := "tmp_" & str(c_expr.temp_num);
@@ -474,7 +508,7 @@ const proc: process_set_elem (in reference: param1, in reference: param3,
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= position_name;
       c_expr.expr &:= "=bitset_pos(";
-      c_expr.expr &:= integer_name;
+      c_expr.expr &:= number_name;
       c_expr.expr &:= "),";
       c_expr.expr &:= position_name;
       c_expr.expr &:= ">=";
@@ -490,7 +524,7 @@ const proc: process_set_elem (in reference: param1, in reference: param3,
       c_expr.expr &:= "-";
       c_expr.expr &:= set_name;
       c_expr.expr &:= "->min_position)] >> (";
-      c_expr.expr &:= integer_name;
+      c_expr.expr &:= number_name;
       c_expr.expr &:= " & bitset_mask)&1)";
     else
       c_expr.expr &:= "setElem(";
@@ -564,7 +598,7 @@ const proc: process_inline_set_excl (in ref_list: params,
 
   local
     var expr_type: statement is expr_type.value;
-    var string: integer_name is "";
+    var string: number_name is "";
     var string: position_name is "";
     var string: set_name is "";
   begin
@@ -582,14 +616,14 @@ const proc: process_inline_set_excl (in ref_list: params,
       statement.expr &:= ";\n";
     end if;
     if isNormalVariable(params[2]) then
-      integer_name := normalVariable(params[2], statement);
+      number_name := normalVariable(params[2], statement);
     else
       incr(statement.temp_num);
-      integer_name := "tmp_" & str(statement.temp_num);
+      number_name := "tmp_" & str(statement.temp_num);
       statement.temp_decls &:= "intType ";
-      statement.temp_decls &:= integer_name;
+      statement.temp_decls &:= number_name;
       statement.temp_decls &:= ";\n";
-      statement.expr &:= integer_name;
+      statement.expr &:= number_name;
       statement.expr &:= "=";
       process_expr(params[2], statement);
       statement.expr &:= ";\n";
@@ -601,7 +635,7 @@ const proc: process_inline_set_excl (in ref_list: params,
     statement.temp_decls &:= ";\n";
     statement.expr &:= position_name;
     statement.expr &:= "=bitset_pos(";
-    statement.expr &:= integer_name;
+    statement.expr &:= number_name;
     statement.expr &:= ");\n";
     statement.expr &:= "if (";
     statement.expr &:= position_name;
@@ -618,7 +652,7 @@ const proc: process_inline_set_excl (in ref_list: params,
     statement.expr &:= "-";
     statement.expr &:= set_name;
     statement.expr &:= "->min_position)] &= ~((bitSetType) 1 << (((unsigned int) ";
-    statement.expr &:= integer_name;
+    statement.expr &:= number_name;
     statement.expr &:= ") & bitset_mask));\n";
     statement.expr &:= "}\n";
     doLocalDeclsOfStatement(statement, c_expr);

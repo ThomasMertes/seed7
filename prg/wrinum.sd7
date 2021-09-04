@@ -33,7 +33,7 @@ var integer: num is 0;
 
 const proc: main is func
     begin
-      for number range 1 to 999999 do
+      for number range 0 to 999999 do
 (*      num := rand(1, 999999999); *)
 (*      write(num);
         write(" "); *)

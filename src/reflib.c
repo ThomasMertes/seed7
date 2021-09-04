@@ -140,6 +140,9 @@ static void sort_list (listType *any_list)
 objectType ref_addr (listType arguments)
 
   { /* ref_addr */
+    logFunction(printf("ref_addr(");
+                trace1(arg_2(arguments));
+                printf(")\n"););
     return bld_reference_temp(arg_2(arguments));
   } /* ref_addr */
 
@@ -523,7 +526,7 @@ objectType ref_issymb (listType arguments)
   /* ref_issymb */
     isit_reference(arg_1(arguments));
     symb_object = take_reference(arg_1(arguments));
-    logFunction(printf("ref issymb(" FMT_U_MEM " ",
+    logFunction(printf("ref_issymb(" FMT_U_MEM " ",
                        (memSizeType) GET_ENTITY(symb_object));
                 trace1(symb_object);
                 printf(")\n"););
@@ -986,7 +989,7 @@ objectType ref_symb (listType arguments)
   /* ref_symb */
     isit_reference(arg_2(arguments));
     symb_object = take_reference(arg_2(arguments));
-    logFunction(printf("ref symb(" FMT_U_MEM " ",
+    logFunction(printf("ref_symb(" FMT_U_MEM " ",
                        (memSizeType) GET_ENTITY(symb_object));
                 trace1(symb_object);
                 printf(")\n"););
@@ -1000,7 +1003,7 @@ objectType ref_symb (listType arguments)
                printf("): Error\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    logFunction(printf("ref symb --> " FMT_U_MEM " ",
+    logFunction(printf("ref_symb --> " FMT_U_MEM " ",
                        (memSizeType) GET_ENTITY(symb_object));
                 trace1(symb_object);
                 printf("\n"););

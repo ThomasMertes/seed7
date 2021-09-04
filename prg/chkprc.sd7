@@ -2,7 +2,8 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chkprc.sd7    Checks procedures and statements                  *)
-(*  Copyright (C) 1992, 1993, 1994, 2004  Thomas Mertes             *)
+(*  Copyright (C) 1992 - 1994, 2004, 2011, 2015  Thomas Mertes      *)
+(*                2018, 2020, 2021  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -1131,194 +1132,208 @@ const proc: check_for_int_to is func
     var integer: startVariable is 4;
     var integer: endVariable is 6;
   begin
-    okay := TRUE;
     for number range 1 to 0 do
-      writeln(" ***** for integer range 1 to 0 ...  does not work correct.");
+      writeln(" ***** for integer range 1 to 0 ...  does not work correct. (1)");
       okay := FALSE;
     end for;
     if number <> 1 then
-      writeln(" ***** for integer range 1 to 0 ...  does not work correct.");
+      writeln(" ***** for integer range 1 to 0 ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 1 to 1 do
       incr(counter);
       if number <> counter then
-        writeln(" ***** for integer range 1 to 1 ...  does not work correct.");
+        writeln(" ***** for integer range 1 to 1 ...  does not work correct. (1)");
         okay := FALSE;
       end if;
     end for;
     if counter <> 1 or number <> 2 then
-      writeln(" ***** for integer range 1 to 1 ...  does not work correct.");
+      writeln(" ***** for integer range 1 to 1 ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 1 to 2 do
       incr(counter);
       if number <> counter then
-        writeln(" ***** for integer range 1 to 2 ...  does not work correct.");
+        writeln(" ***** for integer range 1 to 2 ...  does not work correct. (1)");
         okay := FALSE;
       end if;
     end for;
     if counter <> 2 or number <> 3 then
-      writeln(" ***** for integer range 1 to 2 ...  does not work correct.");
+      writeln(" ***** for integer range 1 to 2 ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 1 to 3 do
       incr(counter);
       if number <> counter then
-        writeln(" ***** for integer range 1 to 3 ...  does not work correct.");
+        writeln(" ***** for integer range 1 to 3 ...  does not work correct. (1)");
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 4 then
-      writeln(" ***** for integer range 1 to 3 ...  does not work correct.");
+      writeln(" ***** for integer range 1 to 3 ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 0 to counter do
       incr(counter);
       if number <> 0 then
-        writeln(" ***** for integer range 0 to VARIABLE ...  does not work correct.");
+        writeln(" ***** for integer range 0 to VARIABLE ...  does not work correct. (1)");
         counter := 0;
         okay := FALSE;
       end if;
     end for;
     if counter <> 1 or number <> 1 then
-      writeln(" ***** for integer range 0 to VARIABLE ...  does not work correct.");
+      writeln(" ***** for integer range 0 to VARIABLE ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 4 to endVariable do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
-        writeln(" ***** for integer range CONSTANT to VARIABLE ...  does not work correct.");
+        writeln(" ***** for integer range CONSTANT to VARIABLE ...  does not work correct. (1)");
         number := 7;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 7 then
-      writeln(" ***** for integer range CONSTANT to VARIABLE ...  does not work correct.");
+      writeln(" ***** for integer range CONSTANT to VARIABLE ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range startVariable to 6 do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
-        writeln(" ***** for integer range VARIABLE to CONSTANT ...  does not work correct.");
+        writeln(" ***** for integer range VARIABLE to CONSTANT ...  does not work correct. (1)");
         number := 7;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 7 then
-      writeln(" ***** for integer range VARIABLE to CONSTANT ...  does not work correct.");
+      writeln(" ***** for integer range VARIABLE to CONSTANT ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range startVariable to endVariable do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
-        writeln(" ***** for integer range VARIABLE to VARIABLE ...  does not work correct.");
+        writeln(" ***** for integer range VARIABLE to VARIABLE ...  does not work correct. (1)");
         number := 7;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 7 then
-      writeln(" ***** for integer range VARIABLE to VARIABLE ...  does not work correct.");
+      writeln(" ***** for integer range VARIABLE to VARIABLE ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 4 to intExpr(6) do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
-        writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct.");
+        writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct. (1)");
         number := 7;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 7 then
-      writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct.");
+      writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range intExpr(4) to 6 do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
-        writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct.");
+        writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct. (1)");
         number := 7;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 7 then
-      writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct.");
+      writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range intExpr(4) to intExpr(6) do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
-        writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct.");
+        writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct. (1)");
         number := 7;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 7 then
-      writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct.");
+      writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 4 to length(striExpr("123456")) do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
-        writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct.");
+        writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct. (3)");
         number := 7;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 7 then
-      writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct.");
+      writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct. (4)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range length(striExpr("1234")) to 6 do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
-        writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct.");
+        writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct. (3)");
         number := 7;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 7 then
-      writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct.");
+      writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct. (4)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range length(striExpr("1234")) to length(striExpr("123456")) do
       incr(counter);
       if number < 4 or number > 6 or number <> counter + 3 then
-        writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct.");
+        writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct. (3)");
         number := 7;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 7 then
-      writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct.");
+      writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct. (4)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 1 to 32 step 2 do
       incr(counter);
       if number < 1 or number > 32 or number <> 2 * counter - 1 then
-        writeln(" ***** for integer range 1 to 32 step 2 ...  does not work correct.");
+        writeln(" ***** for integer range 1 to 32 step 2 ...  does not work correct. (1)");
         number := 33;
         okay := FALSE;
       end if;
     end for;
     if counter <> 16 or number <> 33 then
-      writeln(" ***** for integer range 1 to 32 step 2 ...  does not work correct.");
+      writeln(" ***** for integer range 1 to 32 step 2 ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     if okay then
       writeln("For to statements work correct.");
     else
@@ -1336,198 +1351,1041 @@ const proc: check_for_int_downto is func
     var integer: startVariable is 6;
     var integer: endVariable is 4;
   begin
-    okay := TRUE;
     for number range 0 downto 1 do
-      writeln(" ***** for integer range 0 downto 1 ...  does not work correct.");
+      writeln(" ***** for integer range 0 downto 1 ...  does not work correct. (1)");
       okay := FALSE;
     end for;
     if number <> 0 then
-      writeln(" ***** for integer range 0 downto 1 ...  does not work correct.");
+      writeln(" ***** for integer range 0 downto 1 ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 2;
     for number range 1 downto 1 do
       decr(counter);
       if number <> counter then
-        writeln(" ***** for integer range 1 downto 1 ...  does not work correct.");
+        writeln(" ***** for integer range 1 downto 1 ...  does not work correct. (1)");
         okay := FALSE;
       end if;
     end for;
     if counter <> 1 or number <> 0 then
-      writeln(" ***** for integer range 1 downto 1 ...  does not work correct.");
+      writeln(" ***** for integer range 1 downto 1 ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 3;
     for number range 2 downto 1 do
       decr(counter);
       if number <> counter then
-        writeln(" ***** for integer range 2 downto 1 ...  does not work correct.");
+        writeln(" ***** for integer range 2 downto 1 ...  does not work correct. (1)");
         okay := FALSE;
       end if;
     end for;
     if counter <> 1 or number <> 0 then
-      writeln(" ***** for integer range 2 downto 1 ...  does not work correct.");
+      writeln(" ***** for integer range 2 downto 1 ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 4;
     for number range 3 downto 1 do
       decr(counter);
       if number <> counter then
-        writeln(" ***** for integer range 3 downto 1 ...  does not work correct.");
+        writeln(" ***** for integer range 3 downto 1 ...  does not work correct. (1)");
         okay := FALSE;
       end if;
     end for;
     if counter <> 1 or number <> 0 then
-      writeln(" ***** for integer range 3 downto 1 ...  does not work correct.");
+      writeln(" ***** for integer range 3 downto 1 ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
-    for number range counter downto 0 do
-      incr(counter);
+    for number range 0 downto counter do
+      decr(counter);
       if number <> 0 then
-        writeln(" ***** for integer range VARIABLE downto 0 ...  does not work correct.");
+        writeln(" ***** for integer range 0 downto VARIABLE ...  does not work correct. (1)");
         counter := 0;
         okay := FALSE;
       end if;
     end for;
-    if counter <> 1 or number <> -1 then
-      writeln(" ***** for integer range VARIABLE downto 0 ...  does not work correct.");
+    if counter <> -1 or number <> -1 then
+      writeln(" ***** for integer range 0 downto VARIABLE ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 6 downto endVariable do
       incr(counter);
       if number < 4 or number > 6 or number <> 7 - counter then
-        writeln(" ***** for integer range CONSTANT downto VARIABLE ...  does not work correct.");
+        writeln(" ***** for integer range CONSTANT downto VARIABLE ...  does not work correct. (1)");
         number := 3;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 3 then
-      writeln(" ***** for integer range CONSTANT downto VARIABLE ...  does not work correct.");
+      writeln(" ***** for integer range CONSTANT downto VARIABLE ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range startVariable downto 4 do
       incr(counter);
       if number < 4 or number > 6 or number <> 7 - counter then
-        writeln(" ***** for integer range VARIABLE downto CONSTANT ...  does not work correct.");
+        writeln(" ***** for integer range VARIABLE downto CONSTANT ...  does not work correct. (1)");
         number := 3;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 3 then
-      writeln(" ***** for integer range VARIABLE downto CONSTANT ...  does not work correct.");
+      writeln(" ***** for integer range VARIABLE downto CONSTANT ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range startVariable downto endVariable do
       incr(counter);
       if number < 4 or number > 6 or number <> 7 - counter then
-        writeln(" ***** for integer range VARIABLE downto VARIABLE ...  does not work correct.");
+        writeln(" ***** for integer range VARIABLE downto VARIABLE ...  does not work correct. (1)");
         number := 3;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 3 then
-      writeln(" ***** for integer range VARIABLE downto VARIABLE ...  does not work correct.");
+      writeln(" ***** for integer range VARIABLE downto VARIABLE ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 6 downto intExpr(4) do
       incr(counter);
       if number < 4 or number > 6 or number <> 7 - counter then
-        writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct.");
+        writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct. (1)");
         number := 3;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 3 then
-      writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct.");
+      writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range intExpr(6) downto 4 do
       incr(counter);
       if number < 4 or number > 6 or number <> 7 - counter then
-        writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct.");
+        writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct. (1)");
         number := 3;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 3 then
-      writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct.");
+      writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range intExpr(6) downto intExpr(4) do
       incr(counter);
       if number < 4 or number > 6 or number <> 7 - counter then
-        writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct.");
+        writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct. (1)");
         number := 3;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 3 then
-      writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct.");
+      writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 6 downto length(striExpr("1234")) do
       incr(counter);
       if number < 4 or number > 6 or number <> 7 - counter then
-        writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct.");
+        writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct. (3)");
         number := 3;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 3 then
-      writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct.");
+      writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct. (4)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range length(striExpr("123456")) downto 4 do
       incr(counter);
       if number < 4 or number > 6 or number <> 7 - counter then
-        writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct.");
+        writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct. (3)");
         number := 3;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 3 then
-      writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct.");
+      writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct. (4)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range length(striExpr("123456")) downto length(striExpr("1234")) do
       incr(counter);
       if number < 4 or number > 6 or number <> 7 - counter then
-        writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct.");
+        writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct. (3)");
         number := 3;
         okay := FALSE;
       end if;
     end for;
     if counter <> 3 or number <> 3 then
-      writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct.");
+      writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct. (4)");
       okay := FALSE;
     end if;
+
     counter := 0;
     for number range 32 downto 1 step 2 do
       incr(counter);
       if number < 1 or number > 32 or number <> 34 - 2 * counter then
-        writeln(" ***** for integer range 1 downto 32 step 2 ...  does not work correct.");
+        writeln(" ***** for integer range 1 downto 32 step 2 ...  does not work correct. (1)");
         number := 0;
         okay := FALSE;
       end if;
     end for;
     if counter <> 16 or number <> 0 then
-      writeln(" ***** for integer range 1 downto 32 step 2 ...  does not work correct.");
+      writeln(" ***** for integer range 1 downto 32 step 2 ...  does not work correct. (2)");
       okay := FALSE;
     end if;
+
     if okay then
       writeln("For downto statements work correct.");
     else
       writeln(" ***** For downto statements do not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_for_int_to_until is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 12345;
+    var integer: counter is 0;
+  begin
+    for number range 1 to 0 until FALSE do
+      writeln(" ***** for integer range 1 to 0 until ...  does not work correct. (1)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 0 until ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 0 until boolExpr(FALSE) do
+      writeln(" ***** for integer range 1 to 0 until ...  does not work correct. (3)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 0 until ...  does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 0 until TRUE do
+      writeln(" ***** for integer range 1 to 0 until ...  does not work correct. (5)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 0 until ...  does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 0 until boolExpr(TRUE) do
+      writeln(" ***** for integer range 1 to 0 until ...  does not work correct. (7)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 0 until ...  does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for number range 1 to 1 until FALSE do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 1 until ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 1 or counter <> 1 then
+      writeln(" ***** for integer range 1 to 1 until ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for number range 1 to 1 until boolExpr(FALSE) do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 1 until ...  does not work correct. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 1 or counter <> 1 then
+      writeln(" ***** for integer range 1 to 1 until ...  does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 1 until TRUE do
+      writeln(" ***** for integer range 1 to 1 until ...  does not work correct. (5)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 1 until ...  does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 1 until boolExpr(TRUE) do
+      writeln(" ***** for integer range 1 to 1 until ...  does not work correct. (7)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 1 until ...  does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 1 until number = 1 do
+      writeln(" ***** for integer range 1 to 1 until ...  does not work correct. (9)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 1 until ...  does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for number range 1 to 2 until FALSE do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 2 or counter <> 2 then
+      writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for number range 1 to 2 until boolExpr(FALSE) do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 2 or counter <> 2 then
+      writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 2 until TRUE do
+      writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (5)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 2 until boolExpr(TRUE) do
+      writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (7)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 2 until number = 1 do
+      writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (9)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for number range 1 to 2 until number = 2 do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (11)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 2 or counter <> 1 then
+      writeln(" ***** for integer range 1 to 2 until ...  does not work correct. (12)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for number range 1 to 3 until FALSE do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 3 or counter <> 3 then
+      writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for number range 1 to 3 until boolExpr(FALSE) do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 3 or counter <> 3 then
+      writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 3 until TRUE do
+      writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (5)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 3 until boolExpr(TRUE) do
+      writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (7)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 to 3 until number = 1 do
+      writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (9)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for number range 1 to 3 until number = 2 do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (11)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 2 or counter <> 1 then
+      writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (12)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for number range 1 to 3 until number = 3 do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (13)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 3 or counter <> 2 then
+      writeln(" ***** for integer range 1 to 3 until ...  does not work correct. (14)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("For to until statements work correct.");
+    else
+      writeln(" ***** For to until statements do not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_for_int_downto_until is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 12345;
+    var integer: counter is 0;
+  begin
+    for number range 0 downto 1 until FALSE do
+      writeln(" ***** for integer range 0 downto 1 until ...  does not work correct. (1)");
+      okay := FALSE;
+    end for;
+    if number <> 0 then
+      writeln(" ***** for integer range 0 downto 1 until ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    for number range 0 downto 1 until boolExpr(FALSE) do
+      writeln(" ***** for integer range 0 downto 1 until ...  does not work correct. (3)");
+      okay := FALSE;
+    end for;
+    if number <> 0 then
+      writeln(" ***** for integer range 0 downto 1 until ...  does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range 0 downto 1 until TRUE do
+      writeln(" ***** for integer range 0 downto 1 until ...  does not work correct. (5)");
+      okay := FALSE;
+    end for;
+    if number <> 0 then
+      writeln(" ***** for integer range 0 downto 1 until ...  does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    for number range 0 downto 1 until boolExpr(TRUE) do
+      writeln(" ***** for integer range 0 downto 1 until ...  does not work correct. (7)");
+      okay := FALSE;
+    end for;
+    if number <> 0 then
+      writeln(" ***** for integer range 0 downto 1 until ...  does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    counter := 2;
+    for number range 1 downto 1 until FALSE do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 downto 1 until ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 1 or counter <> 1 then
+      writeln(" ***** for integer range 1 downto 1 until ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 2;
+    for number range 1 downto 1 until boolExpr(FALSE) do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 downto 1 until ...  does not work correct. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 1 or counter <> 1 then
+      writeln(" ***** for integer range 1 downto 1 until ...  does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 downto 1 until TRUE do
+      writeln(" ***** for integer range 1 downto 1 until ...  does not work correct. (5)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 downto 1 until ...  does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 downto 1 until boolExpr(TRUE) do
+      writeln(" ***** for integer range 1 downto 1 until ...  does not work correct. (7)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 downto 1 until ...  does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    for number range 1 downto 1 until number = 1 do
+      writeln(" ***** for integer range 1 downto 1 until ...  does not work correct. (9)");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 downto 1 until ...  does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 3;
+    for number range 2 downto 1 until FALSE do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 1 or counter <> 1 then
+      writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 3;
+    for number range 2 downto 1 until boolExpr(FALSE) do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 1 or counter <> 1 then
+      writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range 2 downto 1 until TRUE do
+      writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (5)");
+      okay := FALSE;
+    end for;
+    if number <> 2 then
+      writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    for number range 2 downto 1 until boolExpr(TRUE) do
+      writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (7)");
+      okay := FALSE;
+    end for;
+    if number <> 2 then
+      writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    for number range 2 downto 1 until number = 2 do
+      writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (9)");
+      okay := FALSE;
+    end for;
+    if number <> 2 then
+      writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 3;
+    for number range 2 downto 1 until number = 1 do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (11)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 1 or counter <> 2 then
+      writeln(" ***** for integer range 2 downto 1 until ...  does not work correct. (12)");
+      okay := FALSE;
+    end if;
+
+    counter := 4;
+    for number range 3 downto 1 until FALSE do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 1 or counter <> 1 then
+      writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 4;
+    for number range 3 downto 1 until boolExpr(FALSE) do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (3)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 1 or counter <> 1 then
+      writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range 3 downto 1 until TRUE do
+      writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (5)");
+      okay := FALSE;
+    end for;
+    if number <> 3 then
+      writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    for number range 3 downto 1 until boolExpr(TRUE) do
+      writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (7)");
+      okay := FALSE;
+    end for;
+    if number <> 3 then
+      writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    counter := 4;
+    for number range 3 downto 1 until number = 3 do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (9)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 3 or counter <> 4 then
+      writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    counter := 4;
+    for number range 3 downto 1 until number = 2 do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (11)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 2 or counter <> 3 then
+      writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (12)");
+      okay := FALSE;
+    end if;
+
+    counter := 4;
+    for number range 3 downto 1 until number = 1 do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (13)");
+        okay := FALSE;
+      end if;
+    end for;
+    if number <> 1 or counter <> 2 then
+      writeln(" ***** for integer range 3 downto 1 until ...  does not work correct. (14)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("For downto until statements work correct.");
+    else
+      writeln(" ***** For downto until statements do not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_for_char_to is func
+  local
+    var boolean: okay is TRUE;
+    var char: ch is ' ';
+    var char: testCh is ' ';
+    var char: startVariable is 'd';
+    var char: endVariable is 'f';
+  begin
+    for ch range 'a' to '`' do
+      writeln(" ***** for char range 'a' to '`' ...  does not work correct. (1)");
+      okay := FALSE;
+    end for;
+
+    if ch <> 'a' then
+      writeln(" ***** for char range 'a' to '`' ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := '`';
+    for ch range 'a' to 'a' do
+      incr(testCh);
+      if ch <> testCh then
+        writeln(" ***** for char range 'a' to 'a' ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or testCh <> 'a' then
+      writeln(" ***** for char range 'a' to 'a' ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := '`';
+    for ch range 'a' to 'b' do
+      incr(testCh);
+      if ch <> testCh then
+        writeln(" ***** for char range 'a' to 'b' ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'b' or testCh <> 'b' then
+      writeln(" ***** for char range 'a' to 'b' ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := '`';
+    for ch range 'a' to 'c' do
+      incr(testCh);
+      if ch <> testCh then
+        writeln(" ***** for char range 'a' to 'c' ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'c' or testCh <> 'c' then
+      writeln(" ***** for char range 'a' to 'c' ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'a';
+    for ch range 'a' to testCh do
+      incr(testCh);
+      if ch <> 'a' then
+        writeln(" ***** for char range 'a' to VARIABLE ...  does not work correct. (1)");
+        testCh := 'a';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or testCh <> 'b' then
+      writeln(" ***** for char range 'a' to VARIABLE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'c';
+    for ch range 'd' to endVariable do
+      incr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range CONSTANT to VARIABLE ...  does not work correct. (1)");
+        ch := 'g';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'f' or testCh <> 'f' then
+      writeln(" ***** for char range CONSTANT to VARIABLE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'c';
+    for ch range startVariable to 'f' do
+      incr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range VARIABLE to CONSTANT ...  does not work correct. (1)");
+        ch := 'g';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'f' or testCh <> 'f' then
+      writeln(" ***** for char range VARIABLE to CONSTANT ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'c';
+    for ch range startVariable to endVariable do
+      incr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range VARIABLE to VARIABLE ...  does not work correct. (1)");
+        ch := 'g';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'f' or testCh <> 'f' then
+      writeln(" ***** for char range VARIABLE to VARIABLE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'c';
+    for ch range 'd' to charExpr('f') do
+      incr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range CONSTANT to EXPRESSION ...  does not work correct. (1)");
+        ch := 'g';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'f' or testCh <> 'f' then
+      writeln(" ***** for char range CONSTANT to EXPRESSION ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'c';
+    for ch range charExpr('d') to 'f' do
+      incr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range EXPRESSION to CONSTANT ...  does not work correct. (1)");
+        ch := 'g';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'f' or testCh <> 'f' then
+      writeln(" ***** for char range EXPRESSION to CONSTANT ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'c';
+    for ch range charExpr('d') to charExpr('f') do
+      incr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range EXPRESSION to EXPRESSION ...  does not work correct. (1)");
+        ch := 'g';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'f' or testCh <> 'f' then
+      writeln(" ***** for char range EXPRESSION to EXPRESSION ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("For char to statements work correct.");
+    else
+      writeln(" ***** For char to statements do not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_for_char_downto is func
+  local
+    var boolean: okay is TRUE;
+    var char: ch is ' ';
+    var char: testCh is ' ';
+    var char: startVariable is 'f';
+    var char: endVariable is 'd';
+  begin
+    for ch range '`' downto 'a' do
+      writeln(" ***** for char range '`' downto 'a' ...  does not work correct. (1)");
+      okay := FALSE;
+    end for;
+    if ch <> '`' then
+      writeln(" ***** for char range '`' downto 'a' ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'b';
+    for ch range 'a' downto 'a' do
+      decr(testCh);
+      if ch <> testCh then
+        writeln(" ***** for char range 'a' downto 'a' ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or testCh <> 'a' then
+      writeln(" ***** for char range 'a' downto 'a' ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'c';
+    for ch range 'b' downto 'a' do
+      decr(testCh);
+      if ch <> testCh then
+        writeln(" ***** for char range 'b' downto 'a' ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or testCh <> 'a' then
+      writeln(" ***** for char range 'b' downto 'a' ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'd';
+    for ch range 'c' downto 'a' do
+      decr(testCh);
+      if ch <> testCh then
+        writeln(" ***** for char range 'c' downto 'a' ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or testCh <> 'a' then
+      writeln(" ***** for char range 'c' downto 'a' ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'a';
+    for ch range 'a' downto testCh do
+      decr(testCh);
+      if ch <> 'a' then
+        writeln(" ***** for char range 'a' downto VARIABLE ...  does not work correct. (1)");
+        testCh := 'a';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'a' or testCh <> '`' then
+      writeln(" ***** for char range 'a' downto VARIABLE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'g';
+    for ch range 'f' downto endVariable do
+      decr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range CONSTANT downto VARIABLE ...  does not work correct. (1)");
+        ch := 'c';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'd' or testCh <> 'd' then
+      writeln(" ***** for char range CONSTANT downto VARIABLE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'g';
+    for ch range startVariable downto 'd' do
+      decr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range VARIABLE downto CONSTANT ...  does not work correct. (1)");
+        ch := 'c';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'd' or testCh <> 'd' then
+      writeln(" ***** for char range VARIABLE downto CONSTANT ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'g';
+    for ch range startVariable downto endVariable do
+      decr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range VARIABLE downto VARIABLE ...  does not work correct. (1)");
+        ch := 'c';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'd' or testCh <> 'd' then
+      writeln(" ***** for char range VARIABLE downto VARIABLE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'g';
+    for ch range 'f' downto charExpr('d') do
+      decr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range CONSTANT downto EXPRESSION ...  does not work correct. (1)");
+        ch := 'c';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'd' or testCh <> 'd' then
+      writeln(" ***** for char range CONSTANT downto EXPRESSION ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'g';
+    for ch range charExpr('f') downto 'd' do
+      decr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range EXPRESSION downto CONSTANT ...  does not work correct. (1)");
+        ch := 'c';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'd' or testCh <> 'd' then
+      writeln(" ***** for char range EXPRESSION downto CONSTANT ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    testCh := 'g';
+    for ch range charExpr('f') downto charExpr('d') do
+      decr(testCh);
+      if ch < 'd' or ch > 'f' or ch <> testCh then
+        writeln(" ***** for char range EXPRESSION downto EXPRESSION ...  does not work correct. (1)");
+        ch := 'c';
+        okay := FALSE;
+      end if;
+    end for;
+    if ch <> 'd' or testCh <> 'd' then
+      writeln(" ***** for char range EXPRESSION downto EXPRESSION ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("For char downto statements work correct.");
+    else
+      writeln(" ***** For char downto statements do not work correct.");
       writeln;
     end if;
   end func;
@@ -4847,6 +5705,10 @@ const proc: main is func
     check_repeat;
     check_for_int_to;
     check_for_int_downto;
+    check_for_int_to_until;
+    check_for_int_downto_until;
+    check_for_char_to;
+    check_for_char_downto;
     check_for_big_to;
     check_case_int;
     check_case_char;
