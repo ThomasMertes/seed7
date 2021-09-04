@@ -117,7 +117,7 @@ static objectType toArrayType (rtlArrayType anRtlArray)
 /**
  *  Determine the size of a file.
  *  The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, fifos and sockets a size of 0 is returned.
  *  @return the size of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -267,7 +267,7 @@ objectType cmd_filemode (listType arguments)
 /**
  *  Determine the size of a file.
  *  The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, fifos and sockets a size of 0 is returned.
  *  @return the size of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -299,7 +299,7 @@ objectType cmd_filesize (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR or ENAMETOOLONG.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
  */
 objectType cmd_filetype (listType arguments)
 
@@ -323,7 +323,7 @@ objectType cmd_filetype (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR or ENAMETOOLONG.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
  */
 objectType cmd_filetype_sl (listType arguments)
 

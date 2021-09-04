@@ -88,7 +88,7 @@ const func array string: readDir (in string: dirPath)        is action "CMD_LS";
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR or ENAMETOOLONG.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
  *)
 const func fileType: fileType (in string: filePath)          is action "CMD_FILETYPE";
 
@@ -105,7 +105,7 @@ const func fileType: fileType (in string: filePath)          is action "CMD_FILE
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR or ENAMETOOLONG.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
  *)
 const func fileType: fileTypeSL (in string: filePath)        is action "CMD_FILETYPE_SL";
 
@@ -138,7 +138,7 @@ const proc: setFileMode (in string: filePath, in fileMode: mode) is action "CMD_
 (**
  *  Determine the size of a file.
  *  The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, fifos and sockets a size of 0 is returned.
  *  @return the size of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
  *             to the system path type.
@@ -154,7 +154,7 @@ const func integer: fileSize (in string: filePath)           is action "CMD_FILE
 (**
  *  Determine the size of a file.
  *  The file size is measured in bytes.
- *  For directories a size of 0 is returned.
+ *  For directories, fifos and sockets a size of 0 is returned.
  *  @return the size of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
  *             to the system path type.
