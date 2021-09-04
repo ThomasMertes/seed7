@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  forloop.s7i   For-loop and templates to define for-loop         *)
-(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2015, 2017, 2019, 2021  Thomas Mertes      *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -125,11 +125,13 @@ const proc: FOR_STEP_DECLS (in type: aType) is func
 
 
 (**
- *  Template function to define for-loops with condition for ''aType''.
+ *  Template function to define for-loops for ''aType'' with a ''condition''.
  *  Defines an upward and a downward counting for-loop which
- *  increments/decrements the loop variable with 1. Additionally
- *  a condition is checked before the statements in the loop body
- *  are executed.
+ *  increments/decrements the loop variable. The loop is terminated if
+ *  either the last value has been processed or if the ''condition'' is TRUE.
+ *  The ''condition'' is checked before the statements in the loop body are
+ *  executed. The loop variable never gets a value below ''lowerLimit''
+ *  or above ''upperLimit''.
  *)
 const proc: FOR_UNTIL_DECLS (in type: aType) is func
   begin
@@ -138,11 +140,18 @@ const proc: FOR_UNTIL_DECLS (in type: aType) is func
                 to (in aType: upperLimit)
                 until (ref func boolean: condition)
                 do (in proc: statements) end for is func
+      local
+        var boolean: continue is FALSE;
       begin
         variable := lowerLimit;
-        while variable <= upperLimit and not condition do
+        continue := variable <= upperLimit;
+        while continue and not condition do
           statements;
-          incr(variable);
+          if variable < upperLimit then
+            incr(variable);
+          else
+            continue := FALSE;
+          end if;
         end while;
       end func;
 
@@ -151,11 +160,18 @@ const proc: FOR_UNTIL_DECLS (in type: aType) is func
                 to (in aType: upperLimit)
                 until (ref boolean: condition)
                 do (in proc: statements) end for is func
+      local
+        var boolean: continue is FALSE;
       begin
         variable := lowerLimit;
-        while variable <= upperLimit and not condition do
+        continue := variable <= upperLimit;
+        while continue and not condition do
           statements;
-          incr(variable);
+          if variable < upperLimit then
+            incr(variable);
+          else
+            continue := FALSE;
+          end if;
         end while;
       end func;
 
@@ -164,11 +180,18 @@ const proc: FOR_UNTIL_DECLS (in type: aType) is func
                 downto (in aType: lowerLimit)
                 until (ref func boolean: condition)
                 do (in proc: statements) end for is func
+      local
+        var boolean: continue is FALSE;
       begin
         variable := upperLimit;
-        while variable >= lowerLimit and not condition do
+        continue := variable >= lowerLimit;
+        while continue and not condition do
           statements;
-          decr(variable);
+          if variable > lowerLimit then
+            decr(variable);
+          else
+            continue := FALSE;
+          end if;
         end while;
       end func;
 
@@ -177,11 +200,18 @@ const proc: FOR_UNTIL_DECLS (in type: aType) is func
                 downto (in aType: lowerLimit)
                 until (ref boolean: condition)
                 do (in proc: statements) end for is func
+      local
+        var boolean: continue is FALSE;
       begin
         variable := upperLimit;
-        while variable >= lowerLimit and not condition do
+        continue := variable >= lowerLimit;
+        while continue and not condition do
           statements;
-          decr(variable);
+          if variable > lowerLimit then
+            decr(variable);
+          else
+            continue := FALSE;
+          end if;
         end while;
       end func;
   end func;
@@ -190,37 +220,46 @@ const proc: FOR_UNTIL_DECLS (in type: aType) is func
 (**
  *  Template function to define all for-loops for ''aType''.
  *  Defines upward and downward counting for-loops which
- *  increment/decrement the loop variable with 1 or with a
- *  given step value. The for-loops with step value are
- *  defined with the ''FOR_STEP_DECLS'' template.
+ *  increment/decrement the loop variable with 1 or with a given step value.
+ *  In normal for-loops and in for-until-loops the loop variable never gets
+ *  a value below ''lowerLimit'' or above ''upperLimit''. The for-loops with
+ *  step value are defined with the ''FOR_STEP_DECLS'' template.
  *)
 const proc: FOR_DECLS (in type: aType) is func
   begin
 
     const proc: for (inout aType: variable) range (in aType: lowerLimit) to (in aType: upperLimit) do
         (in proc: statements) end for is func
+      local
+        var boolean: continue is FALSE;
       begin
         variable := lowerLimit;
-        if variable <= upperLimit then
+        continue := variable <= upperLimit;
+        while continue do
           statements;
-          while variable < upperLimit do
+          if variable < upperLimit then
             incr(variable);
-            statements;
-          end while;
-        end if;
+          else
+            continue := FALSE;
+          end if;
+        end while;
       end func;
 
     const proc: for (inout aType: variable) range (in aType: upperLimit) downto (in aType: lowerLimit) do
         (in proc: statements) end for is func
+      local
+        var boolean: continue is FALSE;
       begin
         variable := upperLimit;
-        if variable >= lowerLimit then
+        continue := variable >= lowerLimit;
+        while continue do
           statements;
-          while variable > lowerLimit do
+          if variable > lowerLimit then
             decr(variable);
-            statements;
-          end while;
-        end if;
+          else
+            continue := FALSE;
+          end if;
+        end while;
       end func;
 
     FOR_UNTIL_DECLS(aType);
