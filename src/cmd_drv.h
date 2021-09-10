@@ -40,7 +40,7 @@ extern char *nullDevice;
 extern unsigned char shellPathDelimiter;
 extern boolType shellUsesDriveLetters;
 #ifdef EMULATE_ENVIRONMENT
-extern int (*environmenStrncmp) (const char *s1, const char *s2, size_t n);
+extern int (*environmentStrncmp) (const char *s1, const char *s2, size_t n);
 #endif
 #endif
 

@@ -299,7 +299,7 @@ objectType cmd_filesize (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCES.
  */
 objectType cmd_filetype (listType arguments)
 
@@ -323,7 +323,7 @@ objectType cmd_filetype (listType arguments)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCES.
  */
 objectType cmd_filetype_sl (listType arguments)
 

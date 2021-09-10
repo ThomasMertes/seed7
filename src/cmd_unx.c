@@ -84,7 +84,7 @@
 char **environ7 = NULL;
 
 #ifndef DETERMINE_OS_PROPERTIES_AT_RUNTIME
-#define environmenStrncmp strncmp
+#define environmentStrncmp strncmp
 #endif
 #endif
 
@@ -174,7 +174,7 @@ char *getenv7 (const char *name)
     } else {
       nameLen = strlen(name);
       for (p = environ7; (c = *p) != NULL; ++p) {
-        if (environmenStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
+        if (environmentStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
           /* printf("getenv7(\"%s\") --> \"%s\"\n", name, &c[nameLen + 1]); */
           return &c[nameLen + 1];
         } /* if */
@@ -202,7 +202,7 @@ int setenv7 (const char *name, const char *value, int overwrite)
       if (environ7 != NULL) {
         for (p = environ7; (c = *p) != NULL; ++p) {
           nameCount++;
-          if (environmenStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
+          if (environmentStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
             if (overwrite) {
               if ((c = realloc(*p, nameLen + strlen(value) + 2)) == NULL) {
                 errno = ENOMEM;
@@ -250,7 +250,7 @@ int unsetenv7 (const char *name)
       if (environ7 != NULL) {
         for (p = environ7; (c = *p) != NULL; ++p) {
           nameCount++;
-          if (found == NULL && environmenStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
+          if (found == NULL && environmentStrncmp(c, name, nameLen) == 0 && c[nameLen] == '=') {
             found = p;
           } /* if */
         } /* for */

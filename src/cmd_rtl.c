@@ -250,6 +250,9 @@ static const os_charType path_variable[] = {'P', 'A', 'T', 'H', 0};
 char *nullDevice;
 unsigned char shellPathDelimiter;
 boolType shellUsesDriveLetters;
+#ifdef EMULATE_ENVIRONMENT
+int (*environmentStrncmp) (const char *s1, const char *s2, size_t n);
+#endif
 #define NULL_DEVICE_FOR_SCRIPTS nullDevice
 #define SHELL_PATH_DELIMITER shellPathDelimiter
 #define if_pathDelimiterNotSlash(thenPart) if (shellPathDelimiter != '/') thenPart
@@ -2573,7 +2576,7 @@ intType cmdFileSize (const const_striType filePath)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCES.
  */
 intType cmdFileType (const const_striType filePath)
 
@@ -2678,7 +2681,7 @@ intType cmdFileType (const const_striType filePath)
  *  @exception RANGE_ERROR 'filePath' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCES.
  */
 intType cmdFileTypeSL (const const_striType filePath)
 

@@ -384,9 +384,9 @@ EMSCRIPTEN_KEEPALIVE void setOsProperties (char *nullDeviceName, unsigned char *
     shellUsesDriveLetters = useDriveLetters;
 #ifdef EMULATE_ENVIRONMENT
     if (envCaseInsensitive) {
-      environmenStrncmp = strncasecmp;
+      environmentStrncmp = strncasecmp;
     } else {
-      environmenStrncmp = strncmp;
+      environmentStrncmp = strncmp;
     } /* if */
 #endif
   } /* setOsProperties */
