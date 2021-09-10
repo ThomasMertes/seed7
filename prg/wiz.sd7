@@ -529,6 +529,10 @@ const func objectType: ownedTreasure (in playerType: player) is
   return rand(player.possession & treasureSet);
 
 
+const func integer: treasureNumber (in objectType: treasure) is
+  return succ(ord(treasure) - ord(RUBY));
+
+
 const proc: removeFromRoom (inout roomType: currentRoom,
     in objectType: treasure) is func
   begin
@@ -1182,7 +1186,7 @@ const proc: buyTreasures (inout playerType: player) is func
   begin
     for treasure range treasureSet do
       if not player.quitDialog and treasure not in player.possession then
-        treasureNumber := succ(ord(treasure) - ord(RUBY));
+        treasureNumber := treasureNumber(treasure);
         price := 125 * treasureNumber + rand(1, 250) +
                  250 * pred(rand(1, treasureNumber));
         if price <= player.goldPieces then
@@ -1262,7 +1266,7 @@ const proc: sellTreasures (inout roomType: currentRoom,
   begin
     for treasure range treasureSet | {RUNESTAFF, ORBOFZOT} do
       if not player.quitDialog and treasure in player.possession then
-        treasureNumber := succ(ord(treasure) - ord(RUBY));
+        treasureNumber := treasureNumber(treasure);
         price := rand(1, 150) + 150 * pred(rand(1, treasureNumber));
         repeat
           okay := TRUE;
@@ -1329,6 +1333,34 @@ const proc: checkArmor (inout playerType: player, in integer: strike) is func
   end func; # checkArmor
 
 
+const proc: vendorDies (in roomType: currentRoom,
+    inout playerType: player) is func
+  local
+    var objectType: treasure is NOOBJECT;
+  begin
+    writeln;
+    writeln("You get all his wares:");
+    writeln("  plate armor");
+    player.armor := PLATE;
+    player.armorStrength := ord(player.armor) * ARMOR_STRENGTH_FACTOR;
+    writeln("  a sword");
+    player.weapon := SWORD;
+    writeln("  a strength potion");
+    player.strength := range18(player.strength + rand(1, 6));
+    writeln("  an intelligence potion");
+    player.intelligence := range18(player.intelligence + rand(1, 6));
+    writeln("  a dexterity potion");
+    player.dexterity := range18(player.dexterity + rand(1, 6));
+    if LAMP not in player.possession then
+      writeln("  a lamp");
+      incl(player.possession, LAMP);
+    end if;
+    for treasure range currentRoom.objects do
+      writeln("  the " <& treasure);
+    end for;
+  end func; # vendorDies
+
+
 const proc: monsterDies (inout roomType: currentRoom, inout playerType: player,
     inout fightStateType: fightState) is func
   local
@@ -1346,26 +1378,7 @@ const proc: monsterDies (inout roomType: currentRoom, inout playerType: player,
       player.mealHour := player.turns;
     end if;
     if monster = VENDOR then
-      writeln;
-      writeln("You get all his wares:");
-      writeln("  plate armor");
-      player.armor := PLATE;
-      player.armorStrength := ord(player.armor) * ARMOR_STRENGTH_FACTOR;
-      writeln("  a sword");
-      player.weapon := SWORD;
-      writeln("  a strength potion");
-      player.strength := range18(player.strength + rand(1, 6));
-      writeln("  an intelligence potion");
-      player.intelligence := range18(player.intelligence + rand(1, 6));
-      writeln("  a dexterity potion");
-      player.dexterity := range18(player.dexterity + rand(1, 6));
-      if LAMP not in player.possession then
-        writeln("  a lamp");
-        incl(player.possession, LAMP);
-      end if;
-      for treasure range currentRoom.objects do
-        writeln("  the " <& treasure);
-      end for;
+      vendorDies(currentRoom, player);
     else
       for treasure range currentRoom.objects do
         writeln("\a");
@@ -2750,7 +2763,7 @@ const proc: exitCastle (inout playerType: player) is func
     else
       writeln("A less than awe-inspiring defeat.");
       writeln;
-      writeln("when you left the castle, you had:");
+      writeln("When you left the castle, you had:");
       writeln("  your miserable life");
     end if;
     listInventory(player);
