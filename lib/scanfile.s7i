@@ -1383,11 +1383,8 @@ const func string: getHtmlAttributeValue (inout file: inFile) is func
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar = ''' or inFile.bufferChar = EOF;
         inFile.bufferChar := getc(inFile);
-      when right_angle_bracket:
-        symbol &:= inFile.bufferChar;
-        inFile.bufferChar := getc(inFile);
-      when {EOF}:
-        symbol := "";
+      when {'>', '/', EOF}:
+        noop;
       otherwise:
         repeat
           symbol &:= inFile.bufferChar;
@@ -1428,8 +1425,6 @@ const proc: getNextHtmlAttribute (inout file: inFile,
         if  startsWith(attributeValue, "\"") or
             startsWith(attributeValue, "'") then
           attributeValue := attributeValue[2 ..];
-        elsif attributeValue = "/" or attributeValue = ">" then
-          attributeValue := "";
         end if;
       else
         attributeValue := "";

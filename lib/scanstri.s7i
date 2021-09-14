@@ -1380,9 +1380,8 @@ const func string: getHtmlAttributeValue (inout string: stri) is func
           until pos > leng or stri[pos] = ''';
           symbol := stri[succ(start) .. pred(pos)];
           stri := stri[succ(pos) ..];
-        when right_angle_bracket:
-          symbol := stri[pos len 1];
-          stri := stri[succ(pos) ..];
+        when {'>', '/'}:
+          stri := stri[pos ..];
         otherwise:
           repeat
             incr(pos);
@@ -1426,8 +1425,6 @@ const proc: getNextHtmlAttribute (inout string: stri,
         if  startsWith(attributeValue, "\"") or
             startsWith(attributeValue, "'") then
           attributeValue := attributeValue[2 ..];
-        elsif attributeValue = "/" or attributeValue = ">" then
-          attributeValue := "";
         end if;
       else
         attributeValue := "";
