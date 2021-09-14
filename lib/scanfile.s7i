@@ -1421,7 +1421,9 @@ const proc: getNextHtmlAttribute (inout file: inFile,
       attributeName := "";
       attributeValue := "";
     else
-      if getSymbolInXmlTag(inFile) = "=" then
+      skipWhiteSpace(inFile);
+      if inFile.bufferChar = '=' then
+        inFile.bufferChar := getc(inFile);
         attributeValue := getHtmlAttributeValue(inFile);
         if  startsWith(attributeValue, "\"") or
             startsWith(attributeValue, "'") then
