@@ -528,7 +528,7 @@ const func string: getCharLiteral (inout string: stri) is func
         incr(pos);
       end if;
       if pos > leng or stri[pos] <> '\'' then
-        if stri[pos] <> '\n' and stri[pos] <> '\r' and stri[pos] <> EOF then
+        if stri[pos] <> '\n' and stri[pos] <> '\r' then
           repeat
             symbol &:= stri[pos];
             incr(pos);
@@ -922,7 +922,7 @@ const func string: getLine (inout string: stri) is func
  *  is empty or stri[1] contains the character after the symbol or
  *  comment.
  *  @return the symbol or comment, and
- *          "" if EOF was reached.
+ *          "" if the end of ''stri'' was reached.
  *)
 const func string: getSymbolOrComment (inout string: stri) is func
   result
@@ -995,7 +995,7 @@ const func string: getSymbolOrComment (inout string: stri) is func
  *  or comment. When the function is left ''stri'' is empty or stri[1]
  *  contains the character after the symbol.
  *  @return the symbol, and
- *          "" if EOF was reached.
+ *          "" if end of ''stri'' was reached.
  *)
 const func string: getSymbol (inout string: stri) is func
   result
@@ -1061,7 +1061,7 @@ const func string: getSymbol (inout string: stri) is func
 
 
 (**
- *  Skips a XML comment from a [[string]].
+ *  Skips an XML comment from a [[string]].
  *  The XML comment starts with <!-- and ends with --> . When the
  *  function is called it is assumed that stri[1] contains the
  *  last '-' of the introducing <!-- . When the function is left
@@ -1097,15 +1097,15 @@ const proc: skipXmlComment (inout string: stri) is func
 
 
 (**
- *  Reads a XML/HTML tag or the XML/HTML content text from a [[string]].
- *  A XML/HTML tag starts with < and ends with > . The content text
- *  starts with everything else and ends just before a < or with EOF.
- *  When the function is called it is assumed that stri[1] contains
- *  the introducing < of a XML/HTML tag or the first character of the
- *  content text. When the function is left the character after the
- *  XML/HTML tag or the content text is in stri[1].
+ *  Reads an XML/HTML tag or the XML/HTML content text from a [[string]].
+ *  An XML/HTML tag starts with < and ends with > . The content text
+ *  starts with everything else and ends just before a < or with the end
+ *  of ''stri''. When the function is called it is assumed that stri[1]
+ *  contains the introducing < of an XML/HTML tag or the first character
+ *  of the content text. When the function is left the character after
+ *  the XML/HTML tag or the content text is in stri[1].
  *  @return the XML/HTML tag or XML/HTML content text, and
- *          "" if EOF was reached.
+ *          "" if the end of ''stri'' was reached.
  *)
 const func string: getXmlTagOrContent (inout string: stri) is func
   result
@@ -1134,21 +1134,76 @@ const func string: getXmlTagOrContent (inout string: stri) is func
 
 
 (**
- *  Reads a XML/HTML tag head or a XML/HTML content from a [[string]].
- *  Before reading a tag head or content it skips whitespace
- *  characters and XML comments. A XML/HTML tag head starts
- *  with < and ends before a > or a / or a whitespace character
- *  or EOF. The content text starts with a non whitespace character
- *  and ends just before a < or with EOF. When the function is
- *  called it is assumed that ''stri'' is empty or stri[1] contains
- *  either a whitespace character, the introducing < of a XML/HTML
- *  tag or the first character of the content text. When the function
- *  is left ''stri'' is empty or stri[1] contains the character after
- *  the XML/HTML tag head or the content text. If a tag head
- *  starts with <-- it is interpreted as XML comment. A XML comment
- *  is ignored and getXmlTagHeadOrContent is called recursive.
+ *  Read the content text of a CDATA section.
+ *  In a CDATA section the text between <![CDATA[ and ]]> is considered
+ *  content text. Inside a CDATA section the characters < and & have no
+ *  special meaning. All occurances of < and & inside CDATA are returned
+ *  as &lt; and &amp; respectively. When the function is called it is
+ *  assumed that ''stri'' is empty or stri[1] contains the first character
+ *  after the introducing <![CDATA[ sequence. When the function is left
+ *  ''stri'' is empty or stri[1] contains the character after final
+ *  ]]> sequence.
+ *  @return the content text of the CDATA section that has been read.
+ *)
+const func string: getXmlCdataContent (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+    var char: ch is ' ';
+  begin
+    leng := length(stri);
+    if pos <= leng then
+      repeat
+        repeat
+          repeat
+            ch :=  stri[pos];
+            if ch = '<' then
+              symbol &:= "&lt;";
+            elsif ch = '&' then
+              symbol &:= "&amp;";
+            else
+              symbol &:= ch;
+            end if;
+            incr(pos);
+          until pos > leng or stri[pos] = ']';
+          incr(pos);
+          if pos <= leng and stri[pos] <> ']' then
+            symbol &:= ']';
+          end if;
+        until pos > leng or stri[pos] = ']';
+        incr(pos);
+        if pos <= leng and stri[pos] <> '>' then
+          symbol &:= "]]";
+        end if;
+      until pos > leng or stri[pos] = '>';
+      incr(pos);
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+(**
+ *  Reads an XML/HTML tag head or an XML/HTML content from a [[string]].
+ *  Before reading a tag head or content, it skips whitespace characters
+ *  and XML comments. An XML/HTML tag head starts with < and ends
+ *  before a > or a / or a whitespace character or the end of ''stri''.
+ *  The content text starts with a non whitespace character and ends
+ *  just before a < or with the end of ''stri''. Content text can be
+ *  also in a CDATA section. In a CDATA section the text between
+ *  <![CDATA[ and ]]> is considered content text. Inside a CDATA section
+ *  the characters < and & have no special meaning. All occurances of
+ *  < and & inside CDATA are returned as &lt; and &amp; respectively.
+ *  When the function is called it is assumed that ''stri'' is empty
+ *  or stri[1] contains either a whitespace character, the introducing
+ *  < of an XML/HTML tag or the first character of the content text.
+ *  When the function is left, ''stri'' is empty or stri[1] contains
+ *  the character after the XML/HTML tag head or the content text.
+ *  Text between <!-- and --> is considered an XML comment. An XML
+ *  comment is ignored and getXmlTagHeadOrContent() is called recursive.
  *  @return the XML/HTML tag head or XML/HTML content text, and
- *          "" if EOF was reached.
+ *          "" if the end of ''stri'' was reached.
  *)
 const func string: getXmlTagHeadOrContent (inout string: stri) is func
   result
@@ -1175,6 +1230,19 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
             symbol := getXmlTagHeadOrContent(stri);
             finished  := TRUE;
           end if;
+        elsif pos <= leng and stri[pos] = '[' then
+          symbol := "<![";
+          incr(pos);
+          while pos <= leng and stri[pos] in letter_char do
+            symbol &:= stri[pos];
+            incr(pos);
+          end while;
+          if symbol = "<![CDATA" and pos <= leng and stri[pos] = '[' then
+            incr(pos);
+            stri := stri[pos ..];
+            symbol := getXmlCdataContent(stri);
+            finished  := TRUE;
+          end if;
         end if;
       end if;
       if not finished then
@@ -1198,9 +1266,9 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
   end func;
 
 (**
- *  Reads a symbol which can appear inside a XML/HTML tag from [[string]].
+ *  Reads a symbol which can appear inside an XML/HTML tag from [[string]].
  *  Before reading the symbol it skips whitespace characters. A symbol
- *  inside a XML/HTML tag can be a name, a string literal (quoted with "
+ *  inside an XML/HTML tag can be a name, a string literal (quoted with "
  *  or ' ), the equals sign (=), the end tag sign (>), the end of empty
  *  element tag sign (/) or a special symbol (sequence of characters
  *  terminated with the character > or a whitespace character). Special
@@ -1210,7 +1278,7 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
  *  left ''stri'' is empty or stri[1] contains the character after the
  *  symbol.
  *  @return the symbol, and
- *          "" if EOF was reached.
+ *          "" if the end of ''stri'' was reached.
  *)
 const func string: getSymbolInXmlTag (inout string: stri) is func
   result
@@ -1262,7 +1330,7 @@ const func string: getSymbolInXmlTag (inout string: stri) is func
 
 
 (**
- *  Skips beyond a XML Tag in a [[string]].
+ *  Skips beyond an XML Tag in a [[string]].
  *  When the function is left ''stri'' is empty or stri[1] contains
  *  the character after '>'.
  *)
@@ -1277,7 +1345,7 @@ const proc: skipXmlTag (inout string: stri) is func
 
 
 (**
- *  Skips beyond a XML Tag in a [[string]].
+ *  Skips beyond an XML Tag in a [[string]].
  *  The parameter ''symbol'' is used to provide the current symbol
  *  which possibly can be ">" or "". When the function is left
  *  ''stri'' is empty or stri[1] contains the character after '>'.
@@ -1291,7 +1359,7 @@ const proc: skipXmlTag (inout string: stri, in var string: symbol) is func
 
 
 (**
- *  Reads name and value of an attribute inside a XML tag from [[string]].
+ *  Reads name and value of an attribute inside an XML tag from [[string]].
  *  Attribute name and value are returned in ''attributeName'' and
  *  ''attributeValue'' respectively. Surrounding single or double
  *  quotes of the attribute value are omitted. It is a syntax
@@ -1351,7 +1419,7 @@ const proc: getNextXmlAttribute (inout string: stri,
  *  function is left ''stri'' is empty or stri[1] contains the character
  *  after the value.
  *  @return the symbol, and
- *          "" if EOF was reached.
+ *          "" if the end of ''stri'' was reached.
  *)
 const func string: getHtmlAttributeValue (inout string: stri) is func
   result
@@ -1442,7 +1510,7 @@ const proc: getNextHtmlAttribute (inout string: stri,
  *  a symbol. When the function is left ''stri'' is empty or stri[1]
  *  contains the character after the symbol.
  *  @return the symbol, and
- *          "" if EOF was reached.
+ *          "" if the end of ''stri'' was reached.
  *)
 const func string: getHttpSymbol (inout string: stri) is func
   result
