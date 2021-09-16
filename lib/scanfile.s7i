@@ -1168,32 +1168,41 @@ const func string: getXmlCharacterReference (inout file: inFile) is func
  *)
 const func string: getXmlCdataContent (inout file: inFile) is func
   result
-    var string: symbol is "";
+    var string: cdata is "";
+  local
+    var char: character is ' ';
   begin
-    if inFile.bufferChar <> EOF then
+    character := inFile.bufferChar;
+    repeat
       repeat
-        repeat
-          repeat
-            if inFile.bufferChar = '<' then
-              symbol &:= "&lt;";
-            elsif inFile.bufferChar = '&' then
-              symbol &:= "&amp;";
-            else
-              symbol &:= inFile.bufferChar;
-            end if;
-            inFile.bufferChar := getc(inFile);
-          until inFile.bufferChar = ']' or inFile.bufferChar = EOF;
-          inFile.bufferChar := getc(inFile);
-          if inFile.bufferChar <> ']' then
-            symbol &:= ']';
+        while character <> ']' and character <> EOF do
+          if character = '<' then
+            cdata &:= "&lt;";
+          elsif character = '&' then
+            cdata &:= "&amp;";
+          else
+            cdata &:= character;
           end if;
-        until inFile.bufferChar = ']' or inFile.bufferChar = EOF;
-        inFile.bufferChar := getc(inFile);
-        if inFile.bufferChar <> '>' then
-          symbol &:= "]]";
+          character := getc(inFile);
+        end while;
+        if character = ']' then
+          character := getc(inFile);
+          if character <> ']' then
+            cdata &:= ']';
+          end if;
         end if;
-      until inFile.bufferChar = '>' or inFile.bufferChar = EOF;
+      until character = ']' or character = EOF;
+      if character = ']' then
+        character := getc(inFile);
+        if character <> '>' then
+          cdata &:= "]]";
+        end if;
+      end if;
+    until character = '>' or character = EOF;
+    if character = '>' then
       inFile.bufferChar := getc(inFile);
+    else
+      inFile.bufferChar := EOF;
     end if;
   end func;
 
@@ -1263,6 +1272,9 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
           if symbol = "<![CDATA" and inFile.bufferChar = '[' then
             inFile.bufferChar := getc(inFile);
             symbol := getXmlCdataContent(inFile);
+            if symbol = "" then
+              symbol := getXmlTagHeadOrContent(inFile);
+            end if;
             finished  := TRUE;
           end if;
         else

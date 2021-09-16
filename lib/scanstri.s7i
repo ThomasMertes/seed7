@@ -1148,40 +1148,38 @@ const func string: getXmlTagOrContent (inout string: stri) is func
  *)
 const func string: getXmlCdataContent (inout string: stri) is func
   result
-    var string: symbol is "";
+    var string: cdata is "";
   local
     var integer: leng is 0;
     var integer: pos is 1;
-    var char: ch is ' ';
+    var char: character is ' ';
   begin
     leng := length(stri);
-    if pos <= leng then
+    repeat
       repeat
-        repeat
-          repeat
-            ch :=  stri[pos];
-            if ch = '<' then
-              symbol &:= "&lt;";
-            elsif ch = '&' then
-              symbol &:= "&amp;";
-            else
-              symbol &:= ch;
-            end if;
-            incr(pos);
-          until pos > leng or stri[pos] = ']';
-          incr(pos);
-          if pos <= leng and stri[pos] <> ']' then
-            symbol &:= ']';
+        while pos <= leng and stri[pos] <> ']' do
+          character :=  stri[pos];
+          if character = '<' then
+            cdata &:= "&lt;";
+          elsif character = '&' then
+            cdata &:= "&amp;";
+          else
+            cdata &:= character;
           end if;
-        until pos > leng or stri[pos] = ']';
+          incr(pos);
+        end while;
         incr(pos);
-        if pos <= leng and stri[pos] <> '>' then
-          symbol &:= "]]";
+        if pos <= leng and stri[pos] <> ']' then
+          cdata &:= ']';
         end if;
-      until pos > leng or stri[pos] = '>';
+      until pos > leng or stri[pos] = ']';
       incr(pos);
-      stri := stri[pos ..];
-    end if;
+      if pos <= leng and stri[pos] <> '>' then
+        cdata &:= "]]";
+      end if;
+    until pos > leng or stri[pos] = '>';
+    incr(pos);
+    stri := stri[pos ..];
   end func;
 
 
@@ -1254,6 +1252,9 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
             incr(pos);
             stri := stri[pos ..];
             symbol := getXmlCdataContent(stri);
+            if symbol = "" then
+              symbol := getXmlTagHeadOrContent(stri);
+            end if;
             finished  := TRUE;
           end if;
         end if;
