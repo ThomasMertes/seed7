@@ -1163,6 +1163,7 @@ const func string: getXmlCharacterReference (inout file: inFile) is func
  *  the introducing <![CDATA[ sequence or [[char#EOF|EOF]]. When the
  *  function is left inFile.bufferChar contains the character after
  *  the final ]]> sequence or [[char#EOF|EOF]].
+ *  @param inFile Input file
  *  @return the content text of the CDATA section that has been read.
  *)
 const func string: getXmlCdataContent (inout file: inFile) is func
@@ -1199,6 +1200,10 @@ const func string: getXmlCdataContent (inout file: inFile) is func
 
 (**
  *  Reads an XML/HTML tag head or an XML/HTML content from a [[file]].
+ *  Examples of XML/HTML tag heads are:
+ *   <html
+ *   <meta
+ *   <table
  *  Before reading a tag head or content, it skips whitespace
  *  characters and XML comments. An XML/HTML tag head starts
  *  with < and ends before a > or a / or a whitespace character
@@ -1215,6 +1220,14 @@ const func string: getXmlCdataContent (inout file: inFile) is func
  *  XML/HTML tag head or the content text is in inFile.bufferChar.
  *  Text between <!-- and --> is considered an XML comment. An XML
  *  comment is ignored and getXmlTagHeadOrContent() is called recursive.
+ *  The function can be used as follows:
+ *   symbol := getXmlTagHeadOrContent(inFile);
+ *   if startsWith(symbol, "<") then
+ *     ... handle the attributes of the XML/HTML element ...
+ *   else
+ *     ... handle the content text ...
+ *   end if;
+ *  @param inFile Input file
  *  @return the XML/HTML tag head or XML/HTML content text, and
  *          "" if [[char#EOF|EOF]] was reached.
  *)
@@ -1288,6 +1301,7 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
  *  the first character of a symbol. When the function is left
  *  inFile.bufferChar contains the character after the XML/HTML symbol
  *  or [[char#EOF|EOF]].
+ *  @param inFile Input file
  *  @return the symbol, and
  *          "" if [[char#EOF|EOF]] was reached.
  *)
@@ -1373,6 +1387,9 @@ const proc: skipXmlTag (inout file: inFile, in var string: symbol) is func
  *  of the XML tag. To indicate the syntax error ''attributeName'' is
  *  set to "" and ''attributeValue'' is set to a symbol shortly before
  *  the error (this will never be ">" or "/>").
+ *  @param inFile Input file
+ *  @param attributeName Destination for the attribute name.
+ *  @param attributeValue Destination for the attribute value:
  *)
 const proc: getNextXmlAttribute (inout file: inFile,
     inout string: attributeName, inout string: attributeValue) is func
@@ -1419,13 +1436,15 @@ const proc: getNextXmlAttribute (inout file: inFile,
  *  is called it is assumed that inFile.bufferChar contains a
  *  whitespace character or the first character of a value. When the
  *  function is left inFile.bufferChar contains the character after
- *  the XML/HTML symbol or [[char#EOF|EOF]].
- *  @return the symbol, and
- *          "" if [[char#EOF|EOF]] was reached.
+ *  the XML/HTML attribute value or [[char#EOF|EOF]].
+ *  @param inFile Input file
+ *  @return the attribute value, and
+ *          "" if the end of the HTML tag or [[char#EOF|EOF]] is
+ *              directly after the skipped whitespace characters.
  *)
 const func string: getHtmlAttributeValue (inout file: inFile) is func
   result
-    var string: symbol is "";
+    var string: attributeValue is "";
   begin
     while inFile.bufferChar in white_space_char do
       inFile.bufferChar := getc(inFile);
@@ -1433,21 +1452,21 @@ const func string: getHtmlAttributeValue (inout file: inFile) is func
     case inFile.bufferChar of
       when double_quotation_char:
         repeat
-          symbol &:= inFile.bufferChar;
+          attributeValue &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar = '"' or inFile.bufferChar = EOF;
         inFile.bufferChar := getc(inFile);
       when single_quotation_char:
         repeat
-          symbol &:= inFile.bufferChar;
+          attributeValue &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar = ''' or inFile.bufferChar = EOF;
         inFile.bufferChar := getc(inFile);
-      when {'>', '/', EOF}:
+      when {'>', EOF}:
         noop;
       otherwise:
         repeat
-          symbol &:= inFile.bufferChar;
+          attributeValue &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar in white_space_or_end_tag or
             inFile.bufferChar = EOF;
@@ -1457,12 +1476,32 @@ const func string: getHtmlAttributeValue (inout file: inFile) is func
 
 (**
  *  Reads name and value of an attribute inside a HTML tag from a [[file]].
+ *  Before reading the attribute assignment it skips whitespace
+ *  characters. Attribute assignments can have the following forms:
+ *   aName="aValue"
+ *   aName='aValue'
+ *   aName=aValue
+ *   aName
+ *  White space characters before and after the = are ignored.
  *  The variable ''attributeName'' is set to "" if no more attributes
  *  are present in the HTML tag. If the HTML tag ends with / the
  *  function assigns "/" to ''attributeValue'' and ''attributeName'' is
- *  set to "". If the HTML tag does not end with / ''attributeValue''
- *  and ''attributeName'' are set to "" if no more attributes are
- *  present.
+ *  set to "". If the HTML tag does not end with / ''attributeValue'' and
+ *  ''attributeName'' are set to "", if no more attributes are present.
+ *  The attributes of an opening HTML tag can be processed with:
+ *   getNextHtmlAttribute(inFile, attributeName, attributeValue);
+ *   while attributeName <> "" do
+ *     ... process the current attribute ...
+ *     getNextHtmlAttribute(inFile, attributeName, attributeValue);
+ *   end while;
+ *   if attributeValue = "/" then
+ *     ... this tag closes itself ...
+ *   else
+ *     ... this is a normal opening tag ...
+ *   end if;
+ *  @param inFile Input file
+ *  @param attributeName Destination for the attribute name.
+ *  @param attributeValue Destination for the attribute value:
  *)
 const proc: getNextHtmlAttribute (inout file: inFile,
     inout string: attributeName, inout string: attributeValue) is func

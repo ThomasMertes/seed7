@@ -1143,6 +1143,7 @@ const func string: getXmlTagOrContent (inout string: stri) is func
  *  after the introducing <![CDATA[ sequence. When the function is left
  *  ''stri'' is empty or stri[1] contains the character after final
  *  ]]> sequence.
+ *  @param stri Input [[string]] from which the consumed characters are removed.
  *  @return the content text of the CDATA section that has been read.
  *)
 const func string: getXmlCdataContent (inout string: stri) is func
@@ -1186,6 +1187,10 @@ const func string: getXmlCdataContent (inout string: stri) is func
 
 (**
  *  Reads an XML/HTML tag head or an XML/HTML content from a [[string]].
+ *  Examples of XML/HTML tag heads are:
+ *   <html
+ *   <meta
+ *   <table
  *  Before reading a tag head or content, it skips whitespace characters
  *  and XML comments. An XML/HTML tag head starts with < and ends
  *  before a > or a / or a whitespace character or the end of ''stri''.
@@ -1202,6 +1207,14 @@ const func string: getXmlCdataContent (inout string: stri) is func
  *  the character after the XML/HTML tag head or the content text.
  *  Text between <!-- and --> is considered an XML comment. An XML
  *  comment is ignored and getXmlTagHeadOrContent() is called recursive.
+ *  The function can be used as follows:
+ *   symbol := getXmlTagHeadOrContent(stri);
+ *   if startsWith(symbol, "<") then
+ *     ... handle the attributes of the XML/HTML element ...
+ *   else
+ *     ... handle the content text ...
+ *   end if;
+ *  @param stri Input [[string]] from which the consumed characters are removed.
  *  @return the XML/HTML tag head or XML/HTML content text, and
  *          "" if the end of ''stri'' was reached.
  *)
@@ -1277,6 +1290,7 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
  *  character or the first character of a symbol. When the function is
  *  left ''stri'' is empty or stri[1] contains the character after the
  *  symbol.
+ *  @param stri Input [[string]] from which the consumed characters are removed.
  *  @return the symbol, and
  *          "" if the end of ''stri'' was reached.
  *)
@@ -1371,6 +1385,9 @@ const proc: skipXmlTag (inout string: stri, in var string: symbol) is func
  *  of the XML tag. To indicate the syntax error ''attributeName'' is
  *  set to "" and ''attributeValue'' is set to a symbol shortly before
  *  the error (this will never be ">" or "/>").
+ *  @param stri Input [[string]] from which the consumed characters are removed.
+ *  @param attributeName Destination for the attribute name.
+ *  @param attributeValue Destination for the attribute value:
  *)
 const proc: getNextXmlAttribute (inout string: stri,
     inout string: attributeName, inout string: attributeValue) is func
@@ -1417,13 +1434,15 @@ const proc: getNextXmlAttribute (inout string: stri,
  *  is called it is assumed that ''stri'' is empty or stri[1] contains
  *  a whitespace character or the first character of a value. When the
  *  function is left ''stri'' is empty or stri[1] contains the character
- *  after the value.
- *  @return the symbol, and
- *          "" if the end of ''stri'' was reached.
+ *  after the attribute value.
+ *  @param stri Input [[string]] from which the consumed characters are removed.
+ *  @return the attribute value, and
+ *          "" if the end of the HTML tag or the end of ''stri'' is
+ *              directly after the skipped whitespace characters.
  *)
 const func string: getHtmlAttributeValue (inout string: stri) is func
   result
-    var string: symbol is "";
+    var string: attributeValue is "";
   local
     var integer: leng is 0;
     var integer: start is 1;
@@ -1440,21 +1459,21 @@ const func string: getHtmlAttributeValue (inout string: stri) is func
           repeat
             incr(pos);
           until pos > leng or stri[pos] = '"';
-          symbol := stri[succ(start) .. pred(pos)];
+          attributeValue := stri[succ(start) .. pred(pos)];
           stri := stri[succ(pos) ..];
         when single_quotation_char:
           repeat
             incr(pos);
           until pos > leng or stri[pos] = ''';
-          symbol := stri[succ(start) .. pred(pos)];
+          attributeValue := stri[succ(start) .. pred(pos)];
           stri := stri[succ(pos) ..];
-        when {'>', '/'}:
+        when {'>'}:
           stri := stri[pos ..];
         otherwise:
           repeat
             incr(pos);
           until pos > leng or stri[pos] in white_space_or_end_tag;
-          symbol := stri[start .. pred(pos)];
+          attributeValue := stri[start .. pred(pos)];
           stri := stri[pos ..];
       end case;
     else
@@ -1465,12 +1484,32 @@ const func string: getHtmlAttributeValue (inout string: stri) is func
 
 (**
  *  Reads name and value of an attribute inside a HTML tag from [[string]].
+ *  Before reading the attribute assignment it skips whitespace
+ *  characters. Attribute assignments can have the following forms:
+ *   aName="aValue"
+ *   aName='aValue'
+ *   aName=aValue
+ *   aName
+ *  White space characters before and after the = are ignored.
  *  The variable ''attributeName'' is set to "" if no more attributes
  *  are present in the HTML tag. If the HTML tag ends with / the
  *  function assigns "/" to ''attributeValue'' and ''attributeName'' is
- *  set to "". If the HTML tag does not end with / ''attributeValue''
- *  and ''attributeName'' are set to "" if no more attributes are
- *  present.
+ *  set to "". If the HTML tag does not end with / ''attributeValue'' and
+ *  ''attributeName'' are set to "", if no more attributes are present.
+ *  The attributes of an opening HTML tag can be processed with:
+ *   getNextHtmlAttribute(stri, attributeName, attributeValue);
+ *   while attributeName <> "" do
+ *     ... process the current attribute ...
+ *     getNextHtmlAttribute(stri, attributeName, attributeValue);
+ *   end while;
+ *   if attributeValue = "/" then
+ *     ... this tag closes itself ...
+ *   else
+ *     ... this is a normal opening tag ...
+ *   end if;
+ *  @param stri Input [[string]] from which the consumed characters are removed.
+ *  @param attributeName Destination for the attribute name.
+ *  @param attributeValue Destination for the attribute value:
  *)
 const proc: getNextHtmlAttribute (inout string: stri,
     inout string: attributeName, inout string: attributeValue) is func
