@@ -47,6 +47,7 @@ void toUpper (const strElemType *const stri, memSizeType length,
     strElemType *const dest);
 striType concatPath (const const_striType absolutePath,
     const const_striType relativePath);
+striType straightenAbsolutePath (const const_striType absolutePath);
 void strAppend (striType *const destination, const_striType extension);
 void strAppendN (striType *const destination,
     const const_striType extensionArray[], memSizeType arraySize);

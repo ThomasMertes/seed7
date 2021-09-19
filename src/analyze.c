@@ -409,36 +409,36 @@ static striType getProgramName (const const_striType sourceFileArgument)
 
 
 /**
- *  Get the absolute source file path in the standard path representation.
- *  @return the absolute source file path in the standard path
+ *  Get the absolute file path in the standard path representation.
+ *  @return the absolute file path in the standard path
  *          representation, or NULL if the memory allocation failed.
  */
-static striType getProgramPath (const const_striType sourceFilePath)
+static striType getAbsolutePath (const const_striType aPath)
 
   {
     striType cwd;
     errInfoType err_info = OKAY_NO_ERROR;
-    striType program_path;
+    striType absolutePath;
 
-  /* getProgramPath */
-    logFunction(printf("getProgramPath(\"%s\")\n",
-                       striAsUnquotedCStri(sourceFilePath)););
-    if (sourceFilePath->size >= 1 &&
-        sourceFilePath->mem[0] == (charType) '/') {
-      program_path = strCreate(sourceFilePath);
+  /* getAbsolutePath */
+    logFunction(printf("getAbsolutePath(\"%s\")\n",
+                       striAsUnquotedCStri(aPath)););
+    if (aPath->size >= 1 &&
+        aPath->mem[0] == (charType) '/') {
+      absolutePath = straightenAbsolutePath(aPath);
     } else {
       cwd = doGetCwd(&err_info);
       if (unlikely(cwd == NULL)) {
-        program_path = NULL;
+        absolutePath = NULL;
       } else {
-        program_path = concatPath(cwd, sourceFilePath);
+        absolutePath = concatPath(cwd, aPath);
         FREE_STRI(cwd, cwd->size);
       } /* if */
     } /* if */
-    logFunction(printf("getProgramPath --> \"%s\"\n",
-                       striAsUnquotedCStri(program_path)););
-    return program_path;
-  } /* getProgramPath */
+    logFunction(printf("getAbsolutePath --> \"%s\"\n",
+                       striAsUnquotedCStri(absolutePath)););
+    return absolutePath;
+  } /* getAbsolutePath */
 
 
 
@@ -492,7 +492,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       resultProg->literals = NULL;
       resultProg->arg0         = strCreate(sourceFileArgument);
       resultProg->program_name = getProgramName(sourceFileArgument);
-      resultProg->program_path = getProgramPath(sourceFilePath);
+      resultProg->program_path = getAbsolutePath(sourceFilePath);
       if (resultProg->arg0 == NULL ||
           resultProg->program_name == NULL ||
           resultProg->program_path == NULL) {

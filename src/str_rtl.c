@@ -732,6 +732,54 @@ static inline rtlArrayType completeRtlStriArray (rtlArrayType work_array,
 
 
 
+static memSizeType concatAndStraightenPath (strElemType *destination_pos,
+    const strElemType *destination_start, const strElemType *source_pos,
+    const strElemType *source_beyond)
+
+  {
+    memSizeType result_size;
+
+  /* concatAndStraightenPath */
+    while (source_pos < source_beyond) {
+      if (&source_pos[1] < source_beyond &&
+          source_pos[0] == '.' && source_pos[1] == '.' &&
+          (&source_pos[2] >= source_beyond || source_pos[2] == '/')) {
+        source_pos += 2;
+        if (destination_pos > destination_start) {
+          do {
+            destination_pos--;
+          } while (*destination_pos != '/');
+        } /* if */
+      } else if (&source_pos[0] < source_beyond &&
+                 source_pos[0] == '.' &&
+                 (&source_pos[1] >= source_beyond || source_pos[1] == '/')) {
+        source_pos++;
+      } else if (*source_pos == '/') {
+        source_pos++;
+      } else {
+        do {
+          destination_pos++;
+          *destination_pos = *source_pos;
+          source_pos++;
+        } while (&source_pos[0] < source_beyond && source_pos[0] != '/');
+        destination_pos++;
+        /* The line below adds a temporary slash (/) to the end   */
+        /* of the intermediate result. Therefore + 2 is used to   */
+        /* compute the estimated_result_size.                     */
+        *destination_pos = '/';
+      } /* if */
+    } /* while */
+    if (destination_pos == destination_start) {
+      destination_pos[0] = '/';
+      result_size = 1;
+    } else {
+      result_size = (memSizeType) (destination_pos - destination_start);
+    } /* if */
+    return result_size;
+  } /* concatAndStraightenPath */
+
+
+
 /**
  *  Concatenate a relative path to an absolute path.
  *  In the relative path the special directories "." and ".." are
@@ -750,9 +798,6 @@ striType concatPath (const const_striType absolutePath,
   {
     memSizeType abs_path_length;
     memSizeType estimated_result_size;
-    strElemType *abs_path_end;
-    const strElemType *rel_path_pos;
-    const strElemType *rel_path_beyond;
     memSizeType result_size;
     striType resized_result;
     striType result;
@@ -775,44 +820,8 @@ striType concatPath (const const_striType absolutePath,
       if (ALLOC_STRI_SIZE_OK(result, estimated_result_size)) {
         memcpy(result->mem, absolutePath->mem, abs_path_length * sizeof(strElemType));
         result->mem[abs_path_length] = '/';
-        abs_path_end = &result->mem[abs_path_length];
-        rel_path_pos = relativePath->mem;
-        rel_path_beyond = &relativePath->mem[relativePath->size];
-        while (rel_path_pos < rel_path_beyond) {
-          if (&rel_path_pos[1] < rel_path_beyond &&
-              rel_path_pos[0] == '.' && rel_path_pos[1] == '.' &&
-              (&rel_path_pos[2] >= rel_path_beyond || rel_path_pos[2] == '/')) {
-            rel_path_pos += 2;
-            if (abs_path_end > result->mem) {
-              do {
-                abs_path_end--;
-              } while (*abs_path_end != '/');
-            } /* if */
-          } else if (&rel_path_pos[0] < rel_path_beyond &&
-                     rel_path_pos[0] == '.' &&
-                     (&rel_path_pos[1] >= rel_path_beyond || rel_path_pos[1] == '/')) {
-            rel_path_pos++;
-          } else if (*rel_path_pos == '/') {
-            rel_path_pos++;
-          } else {
-            do {
-              abs_path_end++;
-              *abs_path_end = *rel_path_pos;
-              rel_path_pos++;
-            } while (&rel_path_pos[0] < rel_path_beyond && rel_path_pos[0] != '/');
-            abs_path_end++;
-            /* The line below adds a temporary slash (/) to the end   */
-            /* of the intermediate result. Therefore + 2 is used to   */
-            /* compute the estimated_result_size.                     */
-            *abs_path_end = '/';
-          } /* if */
-        } /* while */
-        if (abs_path_end == result->mem) {
-          result->mem[0] = '/';
-          result_size = 1;
-        } else {
-          result_size = (memSizeType) (abs_path_end - result->mem);
-        } /* if */
+        result_size = concatAndStraightenPath(&result->mem[abs_path_length],
+            result->mem, relativePath->mem, &relativePath->mem[relativePath->size]);
         REALLOC_STRI_SIZE_SMALLER(resized_result, result, estimated_result_size, result_size);
         if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, estimated_result_size);
@@ -827,6 +836,56 @@ striType concatPath (const const_striType absolutePath,
     logFunction(printf("concatPath --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* concatPath */
+
+
+
+/**
+ *  Straighten an absolute path.
+ *  The special directories "." and ".." are interpreted according to
+ *  their conventional meaning. A ".." which would go above the
+ *  file system root ("/") is ignored.
+ *  @param absolutePath Absolute path in the standard path
+ *         representation.
+ *  @return the straightened absolute path in the standard path
+ *          representation, or NULL if the memory allocation failed.
+ */
+striType straightenAbsolutePath (const const_striType absolutePath)
+
+  {
+    memSizeType estimated_result_size;
+    memSizeType result_size;
+    striType resized_result;
+    striType result;
+
+  /* straightenAbsolutePath */
+    logFunction(printf("straightenAbsolutePath(\"%s\")\n",
+                        striAsUnquotedCStri(absolutePath)););
+    /* absolutePath->mem[0] is always '/'. */
+    if (unlikely(absolutePath->size > MAX_STRI_LEN - 2)) {
+      result = NULL;
+    } else {
+      /* There is one slash (/) between the two paths. Temporarily    */
+      /* there is also a slash at the end of the intermediate result. */
+      estimated_result_size = absolutePath->size + 2;
+      if (ALLOC_STRI_SIZE_OK(result, estimated_result_size)) {
+        result->mem[0] = '/';
+        result_size = concatAndStraightenPath(&result->mem[0], result->mem,
+            &absolutePath->mem[1], &absolutePath->mem[absolutePath->size]);
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, estimated_result_size, result_size);
+        if (unlikely(resized_result == NULL)) {
+          FREE_STRI(result, estimated_result_size);
+          result = NULL;
+        } else {
+          result = resized_result;
+          COUNT3_STRI(estimated_result_size, result_size);
+          result->size = result_size;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("straightenAbsolutePath --> \"%s\"\n",
+                        striAsUnquotedCStri(result)););
+    return result;
+  } /* straightenAbsolutePath */
 
 
 
