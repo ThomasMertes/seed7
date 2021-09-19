@@ -98,39 +98,39 @@ char **environ7 = NULL;
 striType getExecutablePath (const const_striType arg_0)
 
   {
-#if HAS_SYMBOLIC_LINKS
-    os_charType buffer[PATH_MAX];
-    ssize_t readlink_result;
-#ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
+    striType procSelfExe;
+#if HAS_SYMBOLIC_LINKS && defined APPEND_EXTENSION_TO_EXECUTABLE_PATH
     striType exeExtension;
-#endif
 #endif
     striType cwd;
     errInfoType err_info = OKAY_NO_ERROR;
-    striType executablePath;
+    striType executablePath = NULL;
 
   /* getExecutablePath */
     logFunction(printf("getExecutablePath\n"););
 #if HAS_SYMBOLIC_LINKS
-    readlink_result = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
-    if (readlink_result != -1) {
-      buffer[readlink_result] = '\0';
-      executablePath = cp_from_os_path(buffer, &err_info);
-      if (unlikely(executablePath == NULL)) {
-        logError(printf("getExecutablePath: cp_from_os_path failed.\n"););
-        raise_error(err_info);
+    procSelfExe = CSTRI_LITERAL_TO_STRI("/proc/self/exe");
+    if (likely(procSelfExe != NULL)) {
+      executablePath = doReadLink(procSelfExe, &err_info);
+      FREE_STRI(procSelfExe, procSelfExe->size);
+      if (executablePath != NULL) {
 #ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
-      } else {
         exeExtension = CSTRI_LITERAL_TO_STRI(EXECUTABLE_FILE_EXTENSION);
-        strAppendTemp(&executablePath, exeExtension);
+        if (likely(exeExtension != NULL)) {
+          strAppendTemp(&executablePath, exeExtension);
+        } else {
+          FREE_STRI(executablePath, executablePath->size);
+          executablePath = NULL;
+        } /* if */
 #endif
       } /* if */
-    } else {
+    } /* if */
 #endif
+    if (executablePath == NULL) {
       if (strChPos(arg_0, (charType) '/') == 0) {
         executablePath = examineSearchPath(arg_0);
       } else if (arg_0->size >= 1 && arg_0->mem[0] == (charType) '/') {
-        executablePath = strCreate(arg_0);
+        executablePath = straightenAbsolutePath(arg_0);
       } else {
         cwd = doGetCwd(&err_info);
         if (unlikely(cwd == NULL)) {

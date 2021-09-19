@@ -1342,12 +1342,14 @@ static intType getFileTypeSL (const const_striType filePath, errInfoType *err_in
  *  @return The destination referred by the symbolic link, or
  *          NULL if an error occurred.
  */
-static striType doReadLink (const const_striType filePath, errInfoType *err_info)
+striType doReadLink (const const_striType filePath, errInfoType *err_info)
 
   {
     os_striType os_filePath;
     os_stat_struct link_stat;
+    memSizeType link_size;
     os_striType link_destination;
+    os_charType buffer[PATH_MAX];
     ssize_t readlink_result;
     int path_info;
     striType destination = NULL;
@@ -1371,44 +1373,54 @@ static striType doReadLink (const const_striType filePath, errInfoType *err_info
                         "The file " FMT_S_OS " is not a symbolic link.\n",
                         os_filePath););
         *err_info = FILE_ERROR;
+      } else if (unlikely(link_stat.st_size < 0 ||
+                          (unsigned_os_off_t) link_stat.st_size > MAX_OS_STRI_LEN)) {
+        *err_info = FILE_ERROR;
       } else {
-        /* printf("link size=%lu\n", link_stat.st_size); */
-        if (unlikely(link_stat.st_size < 0 ||
-                     (unsigned_os_off_t) link_stat.st_size > MAX_OS_STRI_LEN)) {
-          *err_info = FILE_ERROR;
-        } else {
-          if (unlikely(!os_stri_alloc(link_destination,
-                                      (memSizeType) link_stat.st_size))) {
-            *err_info = MEMORY_ERROR;
+        link_size = (memSizeType) link_stat.st_size;
+        /* printf("link size=" FMT_U_MEM "\n", link_size); */
+        if (link_size < sizeof(buffer)) {
+          link_size = (memSizeType) sizeof(buffer) - NULL_TERMINATION_LEN;
+          link_destination = buffer;
+        } else if (unlikely(!os_stri_alloc(link_destination, link_size))) {
+          *err_info = MEMORY_ERROR;
+        } /* if */
+        if (likely(link_destination != NULL)) {
+          readlink_result = readlink(os_filePath, link_destination,
+                                     (size_t) (link_size + NULL_TERMINATION_LEN));
+          if (unlikely(readlink_result == -1)) {
+            logError(printf("cmdReadlink: "
+                            "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            os_filePath, link_size + NULL_TERMINATION_LEN,
+                            errno, strerror(errno)););
+            *err_info = FILE_ERROR;
+          } else if (unlikely(readlink_result > link_size)) {
+            logError(printf("cmdReadlink: "
+                            "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
+                            "Link destination possibly truncated.\n",
+                            os_filePath, link_size + NULL_TERMINATION_LEN););
+            *err_info = FILE_ERROR;
           } else {
-            readlink_result = readlink(os_filePath, link_destination,
-                                       (size_t) link_stat.st_size);
-            if (unlikely(readlink_result == -1)) {
+            link_destination[readlink_result] = '\0';
+            destination = cp_from_os_path(link_destination, err_info);
+            if (unlikely(destination == NULL)) {
               logError(printf("cmdReadlink: "
-                              "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
-                              "errno=%d\nerror: %s\n",
-                              os_filePath, (memSizeType) link_stat.st_size,
-                              errno, strerror(errno)););
-              *err_info = FILE_ERROR;
-            } else {
-              link_destination[readlink_result] = '\0';
-              destination = cp_from_os_path(link_destination, err_info);
-              if (unlikely(destination == NULL)) {
-                logError(printf("cmdReadlink: "
-                                "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
-                                "err_info=%d\n",
-                                link_destination, *err_info););
-              } /* if */
+                              "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
+                              "err_info=%d\n",
+                              link_destination, *err_info););
             } /* if */
+          } /* if */
+          if (link_destination != buffer) {
             os_stri_free(link_destination);
           } /* if */
         } /* if */
       } /* if */
       os_stri_free(os_filePath);
     } /* if */
-    logFunction(printf("doReadLink(\"%s\", %d) --> \"%s\"\n",
-                       striAsUnquotedCStri(filePath), *err_info,
-                       striAsUnquotedCStri(destination)););
+    logFunction(printf("doReadLink(\"%s\", %d) --> ",
+                       striAsUnquotedCStri(filePath), *err_info);
+                printf("\"%s\"\n", striAsUnquotedCStri(destination)););
     return destination;
   } /* doReadLink */
 #endif
