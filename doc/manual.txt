@@ -43,10 +43,11 @@ CONTENTS
   4.2     while-statement
   4.3     repeat-statement
   4.4     for-statement
-  4.5     for-step-statement
-  4.6     for-each-statement
-  4.7     if-statement
-  4.8     case-statement
+  4.5     for-until-statement
+  4.6     for-step-statement
+  4.7     for-each-statement
+  4.8     if-statement
+  4.9     case-statement
   5.    PREDEFINED TYPES
   5.1     boolean
   5.2     integer
@@ -1549,43 +1550,163 @@ CONTENTS
     $ syntax expr: .for.().range.().to.().do.().end.for       is -> 25;
     $ syntax expr: .for.().range.().downto.().do.().end.for   is -> 25;
 
+    const proc: for (inout integer: aVar) range (in integer: lowerLimit) to (in integer: upperLimit) do
+                  (in proc: statements)
+                end for                                                      is action "PRC_FOR_TO";
+    const proc: for (inout integer: aVar) range (in integer: upperLimit) downto (in integer: lowerLimit) do
+                  (in proc: statements)
+                end for                                                      is action "PRC_FOR_DOWNTO";
+
+  Declaration for non-integer types:
+
     const proc: FOR_DECLS (in type: aType) is func
       begin
         const proc: for (inout aType: variable) range
             (in aType: lowerLimit) to (in aType: upperLimit) do
             (in proc: statements) end for is func
+          local
+            var boolean: continue is FALSE;
           begin
             variable := lowerLimit;
-            if variable <= upperLimit then
+            continue := variable <= upperLimit;
+            while continue do
               statements;
-              while variable < upperLimit do
+              if variable < upperLimit then
                 incr(variable);
-                statements;
-              end while;
-            end if;
+              else
+                continue := FALSE;
+              end if;
+            end while;
           end func;
 
         const proc: for (inout aType: variable) range
             (in aType: upperLimit) downto (in aType: lowerLimit) do
             (in proc: statements) end for is func
+          local
+            var boolean: continue is FALSE;
           begin
             variable := upperLimit;
-            if variable >= lowerLimit then
+            continue := variable >= lowerLimit;
+            while continue do
               statements;
-              while variable > lowerLimit do
+              if variable > lowerLimit then
                 decr(variable);
-                statements;
-              end while;
-            end if;
+              else
+                continue := FALSE;
+              end if;
+            end while;
           end func;
+
       end func;
 
-    FOR_DECLS(integer);
     FOR_DECLS(char);
     FOR_DECLS(boolean);
+    FOR_DECLS(bigInteger);
 
 
-4.5 for-step-statement
+4.5 for-until-statement
+
+  For example:
+
+    for column range 1 to length(maxRow) until selectedColumn <> 0 do
+      if maxRow[column] <> 0 then
+        incr(numColumns);
+      end if;
+      if numColumns = selectedNum then
+        selectedColumn := column;
+      end if;
+    end for;
+
+  Semantics:
+    When the 'to' symbol is used the for-until-statement is defined as
+    follows:
+      First the lower limit and the upper limit which stand behind
+      'range' and 'to' are evaluated. Then the lower limit is assigned
+      to the control variable which stands behind 'for'. If the value
+      of the control variable is less than or equal the upper limit
+      the condition behind 'until' is checked. If the condition is
+      FALSE the statements behind 'do' are executed. After that the
+      control variable is incremented and compared with the upper limit
+      again. This compare - check condition - execute - increment cycle
+      is repeated until the control variable would become greater than
+      the upper limit or the condition is TRUE.
+    When the 'downto' symbol is used the for-until-statement is defined as
+    follows:
+      First the upper limit and the lower limit which stand behind
+      'range' and 'downto' are evaluated. Then the upper limit is
+      assigned to the control variable which stands behind 'for'. If the
+      value of the control variable is greater than or equal the lower
+      limit the condition behind 'until' is checked. If the condition is
+      FALSE the statements behind 'do' are executed. After that the
+      control variable is decremented and compared with the lower limit
+      again. This compare - check condition - execute - increment cycle
+      is repeated until the control variable would become less than the
+      lower limit or the condition is TRUE.
+    In all cases the control variable never gets a value outside of the
+    range lower limit .. upper limit.
+
+
+  Syntax:
+
+    for_until_statement ::=
+      'for' identifier 'range' expression [ 'to' | 'downto' ] expression 'until' expression 'do'
+        statement
+      'end' 'for' .
+
+
+  Declaration:
+
+    $ syntax expr: .for.().range.().to.().until.().do.().end.for       is -> 25;
+    $ syntax expr: .for.().range.().downto.().until.().do.().end.for   is -> 25;
+
+    const proc: FOR_UNTIL_DECLS (in type: aType) is func
+      begin
+
+        const proc: for (inout aType: variable) range (in aType: lowerLimit) to (in aType: upperLimit)
+            until (ref func boolean: condition) do
+            (in proc: statements) end for is func
+          local
+            var boolean: continue is FALSE;
+          begin
+            variable := lowerLimit;
+            continue := variable <= upperLimit;
+            while continue and not condition do
+              statements;
+              if variable < upperLimit then
+                incr(variable);
+              else
+                continue := FALSE;
+              end if;
+            end while;
+          end func;
+
+        const proc: for (inout aType: variable) range (in aType: lowerLimit) downto (in aType: upperLimit)
+            until (ref func boolean: condition) do
+            (in proc: statements) end for is func
+          local
+            var boolean: continue is FALSE;
+          begin
+            variable := upperLimit;
+            continue := variable >= lowerLimit;
+            while continue and not condition do
+              statements;
+              if variable > lowerLimit then
+                decr(variable);
+              else
+                continue := FALSE;
+              end if;
+            end while;
+          end func;
+
+      end func;
+
+    FOR_UNTIL_DECLS(integer);
+    FOR_UNTIL_DECLS(char);
+    FOR_UNTIL_DECLS(boolean);
+    FOR_UNTIL_DECLS(bigInteger);
+
+
+4.6 for-step-statement
 
   For example:
 
@@ -1664,9 +1785,10 @@ CONTENTS
       end func;
 
     FOR_STEP_DECLS(integer);
+    FOR_STEP_DECLS(bigInteger);
 
 
-4.6 for-each-statement
+4.7 for-each-statement
 
   For example:
 
@@ -1726,7 +1848,7 @@ CONTENTS
       end func;
 
 
-4.7 if-statement
+4.8 if-statement
 
   For example:
 
@@ -1800,7 +1922,7 @@ CONTENTS
                         (in void: elsePart)                is ELSIF_EMPTY;
 
 
-4.8 case-statement
+4.9 case-statement
 
   For example:
 
@@ -9331,7 +9453,7 @@ CONTENTS
         'filePath' does not use the standard path representation.
     FILE_ERROR
         The system function returns an error other than ENOENT,
-        ENOTDIR or ENAMETOOLONG.
+        ENOTDIR, ENAMETOOLONG or EACCES.
 
 
 12.9 fileMode

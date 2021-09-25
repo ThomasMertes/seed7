@@ -242,6 +242,7 @@ pre.indent {
 <li><a class="link" href="#stats_while-statement"><b>while-statement</b></a></li>
 <li><a class="link" href="#stats_repeat-statement"><b>repeat-statement</b></a></li>
 <li><a class="link" href="#stats_for-statement"><b>for-statement</b></a></li>
+<li><a class="link" href="#stats_for-until-statement"><b>for-until-statement</b></a></li>
 <li><a class="link" href="#stats_for-step-statement"><b>for-step-statement</b></a></li>
 <li><a class="link" href="#stats_for-each-statement"><b>for-each-statement</b></a></li>
 <li><a class="link" href="#stats_if-statement"><b>if-statement</b></a></li>
@@ -1035,15 +1036,15 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     Most parameters are not changed inside a function. Seed7
   uses <tt>'<span class="keywd">in</span>'</tt> parameters to describe this situation:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func integer</span>: negate (<span class="keywd">in</span> <span class="type">integer</span>: num1) <span class="keywd">is</span>
-  <span class="keywd">return</span> -num1;
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: negate (<span class="keywd">in</span> <a class="type_no_ul" href="#types_integer">integer</a>: num1) <span class="keywd">is</span>
+  <span class="keywd">return</span> <span class="op_no_ul">-</span>num1;
 
-<span class="keywd">const</span> <span class="type">func integer</span>: fib (<span class="keywd">in</span> <span class="type">integer</span>: num1) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_integer">integer</a>: fib (<span class="keywd">in</span> <a class="type_no_ul" href="#types_integer">integer</a>: num1) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: fib <span class="keywd">is</span> 1;
   <span class="keywd">begin</span>
-    <a class="keywd_no_ul" href="#stats_if-statement">if</a> num1 &lt;> 1 <span class="op">and</span> num1 &lt;> 2 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
-      fib := fib(pred(num1)) + fib(num1 - 2);
+    <a class="keywd_no_ul" href="#stats_if-statement">if</a> num1 <span class="op_no_ul">&lt;></span> 1 <span class="op_no_ul">and</span> num1 <span class="op_no_ul">&lt;></span> 2 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+      fib := fib(pred(num1)) <span class="op_no_ul">+</span> fib(num1 <span class="op_no_ul">-</span> 2);
     <a class="keywd_no_ul" href="#stats_if-statement">end if</a>;
   <span class="keywd">end func</span>;
 </pre><p>
@@ -1052,7 +1053,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   parameter like <tt>'num1'</tt> behaves like a constant.
   Trying to change a formal <tt>'<span class="keywd">in</span>'</tt> parameter:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: wrong (<span class="keywd">in</span> <span class="type">integer</span>: num2) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: wrong (<span class="keywd">in</span> <span class="type">integer</span>: num2) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     num2 := 0;
   <span class="keywd">end func</span>;
@@ -1065,7 +1066,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   When a function wants to change the value of the actual
   parameter it can use an <tt>'<span class="keywd">inout</span>'</tt> parameter:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: reset (<span class="keywd">inout</span> <a class="type_no_ul" href="#types_integer">integer</a>: num2) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: reset (<span class="keywd">inout</span> <a class="type_no_ul" href="#types_integer">integer</a>: num2) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     num2 := 0;
   <span class="keywd">end func</span>;
@@ -1088,9 +1089,9 @@ reset(8);
   the formal parameter in the function without affecting the
   actual parameter. In this case we use the <tt>'<span class="keywd">in var</span>'</tt> parameter:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func string</span>: oct_str (<span class="keywd">in var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_func">func</a> <a class="type_no_ul" href="#types_string">string</a>: oct_str (<span class="keywd">in var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: stri <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_if-statement">if</a> number >= 0 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
       <span class="keywd">repeat</span>
@@ -1137,11 +1138,11 @@ reset(8);
 </pre><p>
   while the parameter
 </p><pre class="indent">
-<span class="keywd">in</span> <span class="type">string</span>: stri
+<span class="keywd">in</span> <a class="type_no_ul" href="#types_string">string</a>: stri
 </pre><p>
   is a 'ref' parameter which could also be declared as
 </p><pre class="indent">
-<span class="keywd">ref</span> <span class="type">string</span>: stri
+<span class="keywd">ref</span> <a class="type_no_ul" href="#types_string">string</a>: stri
 </pre><p>
   The meaning of the <tt>'<span class="keywd">in</span>'</tt> parameter is predefined for most
   types. Usually types with small amounts of data use <tt>'<span class="keywd">val</span>'</tt>
@@ -1164,9 +1165,9 @@ reset(8);
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;       <span class="comment"># Standard Seed7 library</span>
 
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
-    <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: stri <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
     <span class="keywd">for</span> stri <span class="keywd">range</span> argv(PROGRAM) <span class="keywd">do</span>
       write(stri &lt;& <span class="stri">" "</span>);
@@ -1181,8 +1182,8 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;   
   <tt><span class="lib">seed7_05.s7i</span></tt> the <tt><a class="link" href="#stats_for-statement">for-statement</a></tt> for <a class="type" href="#types_array">array</a>s is declared as
   follows:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: for (<span class="keywd">inout</span> <span class="type">baseType</span>: variable) range (<span class="keywd">in</span> <span class="type">arrayType</span>: arr_obj) do
-              (<span class="keywd">in</span> <span class="type">proc</span>: statements)
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">baseType</span>: variable) range (<span class="keywd">in</span> <span class="type">arrayType</span>: arr_obj) do
+              (<span class="keywd">in</span> <a class="type_no_ul" href="#types_proc">proc</a>: statements)
             end for <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
@@ -1206,11 +1207,11 @@ $ <span class="keywd">syntax</span> <span class="type">expr</span>: .for.().rang
   Templates are just normal functions with <a class="type" href="#types_type">type</a>s as parameters.
   The following template function declares <tt><a class="link" href="#stats_for-statement">for-statements</a></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: FOR_DECLS (<span class="keywd">in</span> <span class="type">type</span>: aType) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: FOR_DECLS (<span class="keywd">in</span> <span class="type">type</span>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
 
-    <span class="keywd">const</span> <span class="type">proc</span>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: low) to (<span class="keywd">in</span> <span class="type">aType</span>: high) do
-        (<span class="keywd">in</span> <span class="type">proc</span>: statements) end for <span class="keywd">is func</span>
+    <span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: low) to (<span class="keywd">in</span> <span class="type">aType</span>: high) do
+        (<span class="keywd">in</span> <a class="type_no_ul" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
       <span class="keywd">begin</span>
         variable := low;
         <a class="keywd_no_ul" href="#stats_if-statement">if</a> variable &lt;= high <a class="keywd_no_ul" href="#stats_if-statement">then</a>
@@ -1748,43 +1749,163 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().to.().do.().end.for       <span class="keywd">is</span> -> 25;
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().downto.().do.().end.for   <span class="keywd">is</span> -> 25;
 
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: aVar) range (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: lowerLimit) to (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: upperLimit) do
+              (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
+            end for                                                      <span class="keywd">is action</span> <span class="stri">"PRC_FOR_TO"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: aVar) range (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: upperLimit) downto (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: lowerLimit) do
+              (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements)
+            end for                                                      <span class="keywd">is action</span> <span class="stri">"PRC_FOR_DOWNTO"</span>;
+</pre><p>
+  Declaration for non-integer types:
+</p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range
         (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) to (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit) do
         (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+      <span class="keywd">local</span>
+        <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: continue <span class="keywd">is</span> <span class="var">FALSE</span>;
       <span class="keywd">begin</span>
         variable := lowerLimit;
-        <span class="keywd">if</span> variable &lt;= upperLimit <span class="keywd">then</span>
+        continue := variable <= upperLimit;
+        <span class="keywd">while</span> continue <span class="keywd">do</span>
           statements;
-          <span class="keywd">while</span> variable &lt; upperLimit <span class="keywd">do</span>
+          <span class="keywd">if</span> variable < upperLimit <span class="keywd">then</span>
             incr(variable);
-            statements;
-          <span class="keywd">end while</span>;
-        <span class="keywd">end if</span>;
+          <span class="keywd">else</span>
+            continue := <span class="var">FALSE</span>;
+          <span class="keywd">end if</span>;
+        <span class="keywd">end while</span>;
       <span class="keywd">end func</span>;
 
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range
         (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit) downto (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) do
         (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+      <span class="keywd">local</span>
+        <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: continue <span class="keywd">is</span> <span class="var">FALSE</span>;
       <span class="keywd">begin</span>
         variable := upperLimit;
-        <span class="keywd">if</span> variable >= lowerLimit <span class="keywd">then</span>
+        continue := variable >= lowerLimit;
+        <span class="keywd">while</span> continue <span class="keywd">do</span>
           statements;
-          <span class="keywd">while</span> variable > lowerLimit <span class="keywd">do</span>
+          <span class="keywd">if</span> variable > lowerLimit <span class="keywd">then</span>
             decr(variable);
-            statements;
-          <span class="keywd">end while</span>;
-        end if;
+          <span class="keywd">else</span>
+            continue := <span class="var">FALSE</span>;
+          <span class="keywd">end if</span>;
+        <span class="keywd">end while</span>;
       <span class="keywd">end func</span>;
+
   <span class="keywd">end func</span>;
 
-FOR_DECLS(<a class="type" href="#types_integer">integer</a>);
 FOR_DECLS(<a class="type" href="#types_char">char</a>);
 FOR_DECLS(<a class="type" href="#types_boolean">boolean</a>);
+FOR_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 </pre><p></p>
 
-<a name="stats_for-step-statement"><h3>4.5 for-step-statement</h3></a>
+<a name="stats_for-until-statement"><h3>4.5 for-until-statement</h3></a>
+<p>
+  For example:
+</p><pre class="indent">
+<span class="keywd">for</span> column <span class="keywd">range</span> 1 <span class="keywd">to</span> length(maxRow) <span class="keywd">until</span> selectedColumn <> 0 <span class="keywd">do</span>
+  <span class="keywd"></span>if maxRow[column] <> 0 <span class="keywd">then</span>
+    incr(numColumns);
+  <span class="keywd">end if</span>;
+  <span class="keywd">if</span> numColumns = selectedNum <span class="keywd">then</span>
+    selectedColumn := column;
+  <span class="keywd">end if</span>;
+<span class="keywd">end for</span>;
+</pre><p></p><dl><dt>
+  Semantics:</dt><dd><dl><dt>
+    When the <tt><span class="keywd">to</span></tt> symbol is used the for-until-statement is defined as
+    follows:</dt><dd>
+      First the lower limit and the upper limit which stand behind
+      <tt><span class="keywd">range</span></tt> and <tt><span class="keywd">to</span></tt> are evaluated. Then the lower limit is assigned
+      to the control variable which stands behind <tt><span class="keywd">for</span></tt>. If the value
+      of the control variable is less than or equal the upper limit
+      the condition behind <tt><span class="keywd">until</span></tt> is checked. If the condition is
+      <tt><span class="var">FALSE</span></tt> the statements behind <tt><span class="keywd">do</span></tt> are executed. After that the
+      control variable is incremented and compared with the upper limit
+      again. This compare - check condition - execute - increment cycle
+      is repeated until the control variable would become greater than
+      the upper limit or the condition is <tt><span class="var">TRUE</span></tt>.</dd><dt>
+    When the <tt><span class="keywd">downto</span></tt> symbol is used the for-until-statement is defined as
+    follows:</dt><dd>
+      First the upper limit and the lower limit which stand behind
+      <tt><span class="keywd">range</span></tt> and <tt><span class="keywd">downto</span></tt> are evaluated. Then the upper limit is
+      assigned to the control variable which stands behind <tt><span class="keywd">for</span></tt>. If the
+      value of the control variable is greater than or equal the lower
+      limit the condition behind <tt><span class="keywd">until</span></tt> is checked. If the condition is
+      <tt><span class="var">FALSE</span></tt> the statements behind <tt><span class="keywd">do</span></tt> are executed. After that the
+      control variable is decremented and compared with the lower limit
+      again. This compare - check condition - execute - increment cycle
+      is repeated until the control variable would become less than the
+      lower limit or the condition is <tt><span class="var">TRUE</span></tt>.</dd></dl>
+    In all cases the control variable never gets a value outside of the
+    range lower limit .. upper limit.
+</dd></dl>
+<dl><dt>
+  Syntax:
+</dt><dd><tt><dl>
+    <dt><a name="stats_ebnf_for_until_statement">for_until_statement</a> ::=</dt><dd>
+      '<span class="keywd">for</span>' <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> [ '<span class="keywd">to</span>' | '<span class="keywd">downto</span>' ] <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">until</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">do</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
+      '<span class="keywd">end</span>' '<span class="keywd">for</span>' .</dd>
+</dl></tt></dd></dl><p>
+
+  Declaration:
+</p><pre class="indent">
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().to.().until.().do.().end.for       <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().downto.().until.().do.().end.for   <span class="keywd">is</span> -> 25;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_UNTIL_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+
+    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) to (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit)
+        until (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do
+        (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+      <span class="keywd">local</span>
+        <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: continue <span class="keywd">is</span> <span class="var">FALSE</span>;
+      <span class="keywd">begin</span>
+        variable := lowerLimit;
+        continue := variable <= upperLimit;
+        <span class="keywd">while</span> continue <span class="keywd">and not</span> condition <span class="keywd">do</span>
+          statements;
+          <span class="keywd">if</span> variable < upperLimit <span class="keywd">then</span>
+            incr(variable);
+          <span class="keywd">else</span>
+            continue := <span class="var">FALSE</span>;
+          <span class="keywd">end if</span>;
+        <span class="keywd">end while</span>;
+      <span class="keywd">end func</span>;
+
+    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) downto (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit)
+        until (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: condition) do
+        (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+      <span class="keywd">local</span>
+        <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: continue <span class="keywd">is</span> <span class="var">FALSE</span>;
+      <span class="keywd">begin</span>
+        variable := upperLimit;
+        continue := variable >= lowerLimit;
+        <span class="keywd">while</span> continue <span class="keywd">and not</span> condition <span class="keywd">do</span>
+          statements;
+          <span class="keywd">if</span> variable > lowerLimit <span class="keywd">then</span>
+            decr(variable);
+          <span class="keywd">else</span>
+            continue := <span class="var">FALSE</span>;
+          <span class="keywd">end if</span>;
+        <span class="keywd">end while</span>;
+      <span class="keywd">end func</span>;
+
+  <span class="keywd">end func</span>;
+
+FOR_UNTIL_DECLS(<a class="type" href="#types_integer">integer</a>);
+FOR_UNTIL_DECLS(<a class="type" href="#types_char">char</a>);
+FOR_UNTIL_DECLS(<a class="type" href="#types_boolean">boolean</a>);
+FOR_UNTIL_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
+</pre><p></p>
+
+<a name="stats_for-step-statement"><h3>4.6 for-step-statement</h3></a>
 <p>
   For example:
 </p><pre class="indent">
@@ -1863,9 +1984,10 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   <span class="keywd">end func</span>;
 
 FOR_STEP_DECLS(<a class="type" href="#types_integer">integer</a>);
+FOR_STEP_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 </pre><p></p>
 
-<a name="stats_for-each-statement"><h3>4.6 for-each-statement</h3></a>
+<a name="stats_for-each-statement"><h3>4.7 for-each-statement</h3></a>
 <p>
   For example:
 </p><pre class="indent">
@@ -1925,7 +2047,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   <span class="keywd">end func</span>;
 </pre><p></p>
 
-<a name="stats_if-statement"><h3>4.7 if-statement</h3></a>
+<a name="stats_if-statement"><h3>4.8 if-statement</h3></a>
 <p>
   For example:
 </p><pre class="indent">
@@ -1999,7 +2121,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
                     (<span class="keywd">in</span> <a class="type" href="#types_void">void</a>: elsePart)                <span class="keywd">is</span> ELSIF_EMPTY;
 </pre><p></p>
 
-<a name="stats_case-statement"><h3>4.8 case-statement</h3></a>
+<a name="stats_case-statement"><h3>4.9 case-statement</h3></a>
 <p>
   For example:
 </p><pre class="indent">
@@ -9530,7 +9652,7 @@ my_dir := homeDir;
         <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>.</dd>
     <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
         <dd>The system function returns an error other than ENOENT,
-        ENOTDIR or ENAMETOOLONG.</dd>
+        ENOTDIR, ENAMETOOLONG or EACCES.</dd>
 </dl></dd></dl></div><p></p>
 
 <a name="os_fileMode"><h3>12.9 fileMode</h3></a>
