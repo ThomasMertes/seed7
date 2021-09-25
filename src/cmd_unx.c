@@ -98,9 +98,11 @@ char **environ7 = NULL;
 striType getExecutablePath (const const_striType arg_0)
 
   {
+#if HAS_SYMBOLIC_LINKS
     striType procSelfExe;
-#if HAS_SYMBOLIC_LINKS && defined APPEND_EXTENSION_TO_EXECUTABLE_PATH
+#ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
     striType exeExtension;
+#endif
 #endif
     striType cwd;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -125,8 +127,8 @@ striType getExecutablePath (const const_striType arg_0)
 #endif
       } /* if */
     } /* if */
-#endif
     if (executablePath == NULL) {
+#endif
       if (strChPos(arg_0, (charType) '/') == 0) {
         executablePath = examineSearchPath(arg_0);
       } else if (arg_0->size >= 1 && arg_0->mem[0] == (charType) '/') {
