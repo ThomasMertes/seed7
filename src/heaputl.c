@@ -201,7 +201,8 @@ striType growStri (striType stri, memSizeType len)
         newCapacity = MAX_STRI_LEN;
       } /* if */
       /* printf("growStri(" FMT_X_MEM ", " FMT_U_MEM
-             ") size=%u, capacity=%u, newCapacity=%u, siz_stri=%lu, sizeof=%lu\n",
+             ") size=" FMT_U_MEM ", capacity=" FMT_U_MEM ", newCapacity="
+             FMT_U_MEM ", siz_stri=" FMT_U_MEM ", sizeof=" FMT_U_MEM "\n",
              (memSizeType) stri, len, stri->size, stri->capacity, newCapacity,
              SIZ_STRI(newCapacity), sizeof(striRecord));
       fflush(stdout); */
@@ -209,8 +210,9 @@ striType growStri (striType stri, memSizeType len)
       if (unlikely(result == NULL)) {
         do {
           newCapacity = (newCapacity + len) / 2;
-          /* printf("newCapacity: %u, siz_stri=%lu\n", newCapacity, SIZ_STRI(newCapacity));
-          fflush(stdout); */
+          /* printf("newCapacity: " FMT_U_MEM ", siz_stri=" FMT_U_MEM "\n",
+              newCapacity, SIZ_STRI(newCapacity));
+	  fflush(stdout); */
           result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
         } while (result == NULL && newCapacity != len);
       } /* if */
@@ -221,8 +223,10 @@ striType growStri (striType stri, memSizeType len)
         COUNT3_STRI(result->capacity, newCapacity);
         result->capacity = newCapacity;
       } else {
-        logError(printf("growStri(" FMT_X_MEM ", " FMT_U_MEM ") failed\n",
-                        (memSizeType) stri, len););
+        logError(printf("growStri(" FMT_X_MEM " (capacity=" FMT_U_MEM "), "
+                        FMT_U_MEM ") failed\n",
+                        (memSizeType) stri, stri->capacity, len););
+        /* heapStatistic(); */
       } /* if */
     } /* if */
     logFunction(printf("growStri --> " FMT_X_MEM "\n", (memSizeType) result);

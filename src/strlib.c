@@ -513,6 +513,11 @@ objectType str_cpy (listType arguments)
     source = arg_3(arguments);
     isit_stri(dest);
     isit_stri(source);
+    logFunction(printf("str_cpy(\"%s\", ",
+                       striAsUnquotedCStri(take_stri(dest)));
+                printf("\"%s\")",
+                       striAsUnquotedCStri(take_stri(source)));
+                fflush(stdout););
     is_variable(dest);
     stri_dest = take_stri(dest);
     if (TEMP_OBJECT(source)) {
@@ -542,6 +547,8 @@ objectType str_cpy (listType arguments)
                new_size * sizeof(strElemType));
       } /* if */
     } /* if */
+    logFunctionResult(printf(FMT_X_MEM "\n",
+                             (memSizeType) take_stri(dest)););
     return SYS_EMPTY_OBJECT;
   } /* str_cpy */
 
@@ -565,8 +572,9 @@ objectType str_create (listType arguments)
     dest = arg_1(arguments);
     source = arg_3(arguments);
     isit_stri(source);
-    logFunction(printf("str_create(*, \"%s\")\n",
-                       striAsUnquotedCStri(take_stri(source))););
+    logFunction(printf("str_create(*, \"%s\")",
+                       striAsUnquotedCStri(take_stri(source)));
+                fflush(stdout););
     SET_CATEGORY_OF_OBJ(dest, STRIOBJECT);
     if (TEMP_OBJECT(source)) {
       dest->value.striValue = take_stri(source);
@@ -583,6 +591,8 @@ objectType str_create (listType arguments)
       memcpy(new_str->mem, take_stri(source)->mem,
              new_size * sizeof(strElemType));
     } /* if */
+    logFunctionResult(printf(FMT_X_MEM "\n",
+                             (memSizeType) take_stri(dest)););
     return SYS_EMPTY_OBJECT;
   } /* str_create */
 
@@ -602,6 +612,8 @@ objectType str_destr (listType arguments)
   /* str_destr */
     isit_stri(arg_1(arguments));
     old_string = take_stri(arg_1(arguments));
+    logFunction(printf("str_destr(\"%s\")\n",
+                       striAsUnquotedCStri(old_string)););
     if (old_string != NULL) {
       FREE_STRI(old_string, old_string->size);
       arg_1(arguments)->value.striValue = NULL;

@@ -275,7 +275,7 @@ void init_lib_path (const_striType sourceFileName,
 
       /* print_lib_path(); */
     } /* if */
-    logFunction(printf("init_lib_path\n"););
+    logFunction(printf("init_lib_path -->\n"););
   } /* init_lib_path */
 
 
