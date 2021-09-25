@@ -88,7 +88,7 @@ const func array string: readDir (in string: dirPath)        is action "CMD_LS";
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCES.
  *)
 const func fileType: fileType (in string: filePath)          is action "CMD_FILETYPE";
 
@@ -105,7 +105,7 @@ const func fileType: fileType (in string: filePath)          is action "CMD_FILE
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR The system function returns an error other
- *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCESS.
+ *             than ENOENT, ENOTDIR, ENAMETOOLONG or EACCES.
  *)
 const func fileType: fileTypeSL (in string: filePath)        is action "CMD_FILETYPE_SL";
 
