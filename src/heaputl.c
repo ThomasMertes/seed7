@@ -212,7 +212,7 @@ striType growStri (striType stri, memSizeType len)
           newCapacity = (newCapacity + len) / 2;
           /* printf("newCapacity: " FMT_U_MEM ", siz_stri=" FMT_U_MEM "\n",
               newCapacity, SIZ_STRI(newCapacity));
-	  fflush(stdout); */
+          fflush(stdout); */
           result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
         } while (result == NULL && newCapacity != len);
       } /* if */

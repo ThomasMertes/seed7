@@ -181,7 +181,7 @@ static void get_mode (os_charType os_mode[MAX_MODE_LEN], const const_striType fi
 #endif
     } /* if */
     os_mode[mode_pos++] = '\0';
-    logFunction(printf("get_mode(\"%s\", \"%s\") -->\n",
+    logFunction(printf("get_mode(\"" FMT_S_OS "\", \"%s\") -->\n",
                        os_mode, striAsUnquotedCStri(file_mode)););
   } /* get_mode */
 
@@ -1388,7 +1388,8 @@ striType filGets (fileType inFile, intType length)
           } /* if */
           /* printf("allocated_size=" FMT_U_MEM "\n", allocated_size); */
           if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, allocated_size))) {
-            /* printf("MAX_STRI_LEN=%lu, SIZ_STRI(MAX_STRI_LEN)=%lu\n",
+            /* printf("MAX_STRI_LEN= " FMT_U_MEM
+                ", SIZ_STRI(MAX_STRI_LEN)=" FMT_U_MEM "\n",
                 MAX_STRI_LEN, SIZ_STRI(MAX_STRI_LEN)); */
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -1399,7 +1400,7 @@ striType filGets (fileType inFile, intType length)
         /* We have allocated a buffer for the requested number of chars
            or for the number of bytes which are available in the file */
         result->size = allocated_size;
-        /* printf("read_size=%ld\n", allocated_size); */
+        /* printf("read_size=" FMT_U_MEM "\n", allocated_size); */
         num_of_chars_read = (memSizeType) fread(result->mem, 1,
             (size_t) allocated_size, cInFile);
         /* printf("num_of_chars_read=" FMT_U_MEM "\n", num_of_chars_read); */
