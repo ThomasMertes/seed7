@@ -612,7 +612,9 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
                     (options & WRITE_LINE_NUMBERS) != 0, err_info);
       } /* if */
 #if HAS_SYMBOLIC_LINKS
-      sourceFilePath = followLink(sourceFilePath, err_info);
+      if (*err_info == OKAY_NO_ERROR) {
+        sourceFilePath = followLink(sourceFilePath, err_info);
+      } /* if */
 #endif
       if (*err_info == OKAY_NO_ERROR) {
         scan_byte_order_mark();

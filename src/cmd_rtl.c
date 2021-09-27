@@ -1447,13 +1447,11 @@ striType followLink (striType startPath, errInfoType *err_info)
         FREE_STRI(helpPath, helpPath->size);
         number_of_links_followed--;
       } /* while */
-      if (path == NULL) {
-        path = startPath;
-      } else if (number_of_links_followed == 0) {
+      if (path == NULL || number_of_links_followed != 0) {
+        FREE_STRI(startPath, startPath->size);
+      } else {
         FREE_STRI(path, path->size);
         path = startPath;
-      } else {
-        FREE_STRI(startPath, startPath->size);
       } /* if */
     } else {
       path = startPath;

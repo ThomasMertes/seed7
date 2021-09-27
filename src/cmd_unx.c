@@ -109,7 +109,7 @@ striType getExecutablePath (const const_striType arg_0)
     striType executablePath = NULL;
 
   /* getExecutablePath */
-    logFunction(printf("getExecutablePath\n"););
+    logFunction(printf("getExecutablePath(\"%s\")\n", striAsUnquotedCStri(arg_0)););
 #if HAS_SYMBOLIC_LINKS
     procSelfExe = CSTRI_LITERAL_TO_STRI("/proc/self/exe");
     if (likely(procSelfExe != NULL)) {
@@ -128,6 +128,7 @@ striType getExecutablePath (const const_striType arg_0)
       } /* if */
     } /* if */
     if (executablePath == NULL) {
+      err_info = OKAY_NO_ERROR;
 #endif
       if (strChPos(arg_0, (charType) '/') == 0) {
         executablePath = examineSearchPath(arg_0);
@@ -137,7 +138,6 @@ striType getExecutablePath (const const_striType arg_0)
         cwd = doGetCwd(&err_info);
         if (unlikely(cwd == NULL)) {
           raise_error(err_info);
-          executablePath = NULL;
         } else {
           executablePath = concatPath(cwd, arg_0);
           FREE_STRI(cwd, cwd->size);
@@ -148,7 +148,7 @@ striType getExecutablePath (const const_striType arg_0)
 #if HAS_SYMBOLIC_LINKS
       } else {
         executablePath = followLink(executablePath, &err_info);
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
+        if (unlikely(executablePath == NULL)) {
           raise_error(err_info);
         } /* if */
 #endif
