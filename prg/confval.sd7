@@ -123,7 +123,7 @@ const proc: main is func
     writeln("CC_OPT_OPTIMIZE_3:             " <& join(noEmptyArray(ccConf.CC_OPT_OPTIMIZE_3),    " "));
     writeln("CC_OPT_TRAP_OVERFLOW:          " <& ccConf.CC_OPT_TRAP_OVERFLOW);
     writeln("CC_OPT_VERSION_INFO:           " <& ccConf.CC_OPT_VERSION_INFO);
-    writeln("CC_FLAGS:                      " <& join(noEmptyArray(ccConf.CC_FLAGS),    " "));
+    writeln("CC_FLAGS:                      " <& join(noEmptyArray(ccConf.CC_FLAGS), " "));
     writeln("CC_ERROR_FILEDES:              " <& ccConf.CC_ERROR_FILEDES);
     writeln("CC_VERSION_INFO_FILEDES:       " <& ccConf.CC_VERSION_INFO_FILEDES);
     writeln("LINKER_OPT_DEBUG_INFO:         " <& ccConf.LINKER_OPT_DEBUG_INFO);
@@ -131,12 +131,13 @@ const proc: main is func
     writeln("LINKER_OPT_NO_DEBUG_INFO:      " <& ccConf.LINKER_OPT_NO_DEBUG_INFO);
     writeln("LINKER_OPT_OUTPUT_FILE:        " <& ccConf.LINKER_OPT_OUTPUT_FILE);
     writeln("LINKER_OPT_SPECIAL_LIB:        " <& ccConf.LINKER_OPT_SPECIAL_LIB);
-    writeln("LINKER_FLAGS:                  " <& join(noEmptyArray(ccConf.LINKER_FLAGS),    " "));
-    writeln("SYSTEM_LIBS:                   " <& join(noEmptyArray(ccConf.SYSTEM_LIBS),    " "));
-    writeln("SYSTEM_DRAW_LIBS:              " <& join(noEmptyArray(ccConf.SYSTEM_DRAW_LIBS),    " "));
-    writeln("SYSTEM_CONSOLE_LIBS:           " <& join(noEmptyArray(ccConf.SYSTEM_CONSOLE_LIBS),    " "));
-    writeln("SYSTEM_DATABASE_LIBS:          " <& join(noEmptyArray(ccConf.SYSTEM_DATABASE_LIBS),    " "));
-    writeln("ADDITIONAL_SYSTEM_LIBS:        " <& join(noEmptyArray(ccConf.ADDITIONAL_SYSTEM_LIBS),    " "));
+    writeln("LINKER_FLAGS:                  " <& join(noEmptyArray(ccConf.LINKER_FLAGS), " "));
+    writeln("SYSTEM_LIBS:                   " <& join(noEmptyArray(ccConf.SYSTEM_LIBS),          " "));
+    writeln("SYSTEM_BIGINT_LIBS:            " <& join(noEmptyArray(ccConf.SYSTEM_BIGINT_LIBS),   " "));
+    writeln("SYSTEM_CONSOLE_LIBS:           " <& join(noEmptyArray(ccConf.SYSTEM_CONSOLE_LIBS),  " "));
+    writeln("SYSTEM_DATABASE_LIBS:          " <& join(noEmptyArray(ccConf.SYSTEM_DATABASE_LIBS), " "));
+    writeln("SYSTEM_DRAW_LIBS:              " <& join(noEmptyArray(ccConf.SYSTEM_DRAW_LIBS),     " "));
+    writeln("SYSTEM_MATH_LIBS:              " <& join(noEmptyArray(ccConf.SYSTEM_MATH_LIBS),     " "));
     writeln("SEED7_LIB:                     " <& ccConf.SEED7_LIB);
     writeln("DRAW_LIB:                      " <& ccConf.DRAW_LIB);
     writeln("CONSOLE_LIB:                   " <& ccConf.CONSOLE_LIB);

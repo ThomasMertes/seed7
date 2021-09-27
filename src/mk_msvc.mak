@@ -17,9 +17,12 @@ LDFLAGS = /F0x800000
 # LDFLAGS = -pg
 SYSTEM_LIBS = user32.lib ws2_32.lib advapi32.lib
 # SYSTEM_LIBS = user32.lib ws2_32.lib gmp.lib
-SYSTEM_DRAW_LIBS = gdi32.lib
+# SYSTEM_BIGINT_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 SYSTEM_CONSOLE_LIBS =
 # SYSTEM_DATABASE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+SYSTEM_DRAW_LIBS = gdi32.lib
+SYSTEM_MATH_LIBS =
+ALL_SYSTEM_LIBS = $(SYSTEM_LIBS) $(SYSTEM_BIGINT_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_MATH_LIBS)
 SEED7_LIB = seed7_05.lib
 DRAW_LIB = s7_draw.lib
 CONSOLE_LIB = s7_con.lib
@@ -98,7 +101,7 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	@echo.
 
 ..\bin\s7.exe: levelup.exe next_lvl $(OBJ) $(ALL_S7_LIBS)
-	$(CC) -Z7 $(LDFLAGS) -o ..\bin\s7.exe $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	$(CC) -Z7 $(LDFLAGS) -o ..\bin\s7.exe $(OBJ) $(ALL_S7_LIBS) $(ALL_SYSTEM_LIBS)
 	del next_lvl
 
 ..\prg\s7.exe: ..\bin\s7.exe
@@ -215,6 +218,7 @@ base.h:
 	echo #define FILENO_WORKS_FOR_NULL 0 >> base.h
 	echo #define USE_WMAIN >> base.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
+	echo #define SYSTEM_MATH_LIBS "$(SYSTEM_MATH_LIBS)" >> base.h
 
 settings.h:
 	echo #define MAKE_UTILITY_NAME "$(MAKE)" > settings.h
@@ -228,8 +232,8 @@ settings.h:
 	echo #define CC_OPT_OPTIMIZE_3 "-O2" >> settings.h
 	echo #define LINKER_OPT_DEBUG_INFO "-Z7" >> settings.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> settings.h
-	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> settings.h
 	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> settings.h
+	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> settings.h
 	echo #define SEED7_LIB "$(SEED7_LIB)" >> settings.h
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> settings.h
 	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> settings.h
@@ -419,7 +423,7 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -p $(SRC) $(ALL_SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(ALL_SYSTEM_LIBS)

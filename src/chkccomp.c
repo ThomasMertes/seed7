@@ -80,6 +80,8 @@
  *      In that case LINKER contains the command to call the stand-alone linker.
  *  SYSTEM_LIBS: (optional)
  *      Contains system libraries for the stand-alone linker.
+ *  SYSTEM_MATH_LIBS: (optional)
+ *      Contains system mathematic libraries for the stand-alone linker.
  *  INT64TYPE_NO_SUFFIX_BUT_CAST: (optional)
  *      Defined if 64-bit integer literals do not use a suffix.
  *  TURN_OFF_FP_EXCEPTIONS (optional)
@@ -134,10 +136,14 @@
  *      Either "ls" or "dir".
  *      E.g.: #define LIST_DIRECTORY_CONTENTS "ls"
  *            #define LIST_DIRECTORY_CONTENTS "dir"
- *  LINKER_OPT_STATIC_LINKING: (optional)
- *      Contains the linker option to force static linking (e.g.: "-static").
  *  CC_OPT_LINK_TIME_OPTIMIZATION (optional)
  *      Contains the compiler option for link time optimization (e.g.: "-flto").
+ *  LINKER_OPT_STATIC_LINKING: (optional)
+ *      Contains the linker option to force static linking (e.g.: "-static").
+ *  LINKER_OPT_DYN_LINK_LIBS: (optional)
+ *      Contains the linker option to add the dynamic linking library.
+ *      It might be added to the SYSTEM_DRAW_LIBS, SYSTEM_CONSOLE_LIBS or
+ *      SYSTEM_DATABASE_LIBS settings.
  *  SUPPORTS_PARTIAL_LINKING: (optional)
  *      Defined if partial/incremental linking is prossible.
  *      In this case source code can be compiled with the options -r -c.
@@ -202,6 +208,10 @@
 #define CC_FLAGS ""
 #endif
 
+#ifndef LINKER_OPT_DYN_LINK_LIBS
+#define LINKER_OPT_DYN_LINK_LIBS ""
+#endif
+
 #ifndef S_ISREG
 #define S_ISREG(mode) (((mode) & S_IFMT) == S_IFREG)
 #endif
@@ -224,6 +234,10 @@
 
 #ifndef SYSTEM_LIBS
 #define SYSTEM_LIBS ""
+#endif
+
+#ifndef SYSTEM_MATH_LIBS
+#define SYSTEM_MATH_LIBS ""
 #endif
 
 #ifndef MYSQL_LIBRARY_PATH
@@ -1319,18 +1333,34 @@ static void checkPopen (FILE *versionFile)
     char fileName[NAME_SIZE];
 
   /* checkPopen */
-    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc, char *argv[])\n"
                          "{FILE *aFile; aFile=popen(\""
                          LIST_DIRECTORY_CONTENTS
                          "\", \"r\");\n"
                          "printf(\"%d\\n\", aFile != NULL); return 0;}\n") && doTest() == 1) {
       popen = "popen";
-    } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+    } else if (compileAndLinkOk("#include <stdio.h>\n"
+                                "int main(int argc, char *argv[])\n"
                                 "{FILE *aFile; aFile=_popen(\""
                                 LIST_DIRECTORY_CONTENTS
                                 "\", \"r\");\n"
                                 "printf(\"%d\\n\", aFile != NULL); return 0;}\n") && doTest() == 1) {
       popen = "_popen";
+    } /* if */
+    if (popen != NULL) {
+      sprintf(buffer, "#include <stdio.h>\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{FILE *aFile; aFile=%s(\""
+                      LIST_DIRECTORY_CONTENTS
+                      "\", \"r\");\n"
+                      "printf(\"%%d\\n\", aFile != NULL &&\n"
+                      "       fileno(aFile) != -1); return 0;}\n", popen);
+      if (compileAndLinkOk(buffer) && doTest() != 1) {
+        fprintf(logFile, "\n *** fileno() does not work on a file opened with %s().\n",
+                popen);
+        popen = NULL;
+      } /* if */
     } /* if */
     fprintf(versionFile, "#define HAS_POPEN %d\n", popen != NULL);
     if (popen != NULL) {
@@ -1953,7 +1983,7 @@ static const char *determine_os_isnan_definition (const char *computeValues,
             "return 0;}\n",
             os_isnan_definition, computeValues);
     /* printf("%s\n", buffer); */
-    if (compileAndLinkOk(buffer) && doTest() == 1) {
+    if (compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1) {
       macro_definition = os_isnan_definition;
     } /* if */
     return macro_definition;
@@ -2249,7 +2279,7 @@ static void numericProperties (FILE *versionFile)
                                     "       log1p(num1) == 0.0 &&\n"
                                     "       log1p(num2) == 0.0);\n"
                                     "return 0;}\n",
-                                    "", SYSTEM_LIBS) && doTest() == 1);
+                                    "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     has_log2 =
         compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
                                     "int main(int argc,char *argv[]){\n"
@@ -2259,7 +2289,7 @@ static void numericProperties (FILE *versionFile)
                                     "       log2(num1) == 1.0 &&\n"
                                     "       log2(num2) == 1.0);\n"
                                     "return 0;}\n",
-                                    "", SYSTEM_LIBS) && doTest() == 1;
+                                    "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1;
     fprintf(versionFile, "#define HAS_LOG2 %d\n", has_log2);
     fprintf(versionFile, "#define HAS_CBRT %d\n",
         compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
@@ -2273,7 +2303,7 @@ static void numericProperties (FILE *versionFile)
                                     "       cbrt( 27.0) == 3.0 &&\n"
                                     "       cbrt( 64.0) == 4.0 &&\n"
                                     "       cbrt(125.0) == 5.0); return 0;}\n",
-                                    "", SYSTEM_LIBS) && doTest() == 1);
+                                    "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     strcpy(computeValues,
            "float floatZero = 0.0;\n"
            "float floatNegativeZero;\n"
@@ -2474,7 +2504,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define HAS_EXP %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2510,7 +2540,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define HAS_EXP2 %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2529,7 +2559,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define HAS_EXP10 %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2548,7 +2578,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define HAS_EXPM1 %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2560,7 +2590,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define SQRT_OF_NAN_OKAY %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2586,7 +2616,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define SQRT_OF_NEGATIVE_OKAY %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2598,7 +2628,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define EXP_OF_NAN_OKAY %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2611,7 +2641,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define LDEXP_OF_NAN_OKAY %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2641,7 +2671,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define FREXP_INFINITY_NAN_OKAY %d\n",
-            compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) ? doTest() : 0);
+            compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) ? doTest() : 0);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "int main(int argc,char *argv[]){\n"
@@ -2658,7 +2688,7 @@ static void numericProperties (FILE *versionFile)
             "printf(\"%%d\\n\", frexp_okay);\n"
             "return 0;}\n");
     fprintf(versionFile, "#define FREXP_SUBNORMAL_OKAY %d\n",
-            compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) ? doTest() : 0);
+            compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) ? doTest() : 0);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2673,7 +2703,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define FMOD_DIVIDEND_NAN_OKAY %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2688,7 +2718,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define FMOD_DIVISOR_NAN_OKAY %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2706,7 +2736,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define FMOD_DIVIDEND_INFINITY_OKAY %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2724,7 +2754,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define FMOD_DIVISOR_INFINITY_OKAY %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -2739,7 +2769,7 @@ static void numericProperties (FILE *versionFile)
             "return 0;}\n",
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define FMOD_DIVISOR_ZERO_OKAY %d\n",
-        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<string.h>\n"
             "#include<float.h>\n#include<math.h>\n"
@@ -2905,7 +2935,7 @@ static void numericProperties (FILE *versionFile)
             "{ char buffer[1024]; sprintf(buffer, \"%%1.1f\", floatNegativeZero);\n"
             "printf(\"#define PRINTS_NEGATIVE_ZERO %%d\\n\", buffer[0] == '-'); }\n"
             "return 0;}\n", os_isnan_definition, computeValues, has_log2);
-    if (assertCompAndLnkWithOptions(buffer, "", SYSTEM_LIBS)) {
+    if (assertCompAndLnkWithOptions(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS)) {
       testOutputToVersionFile(versionFile);
     } /* if */
     if (compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
@@ -5582,11 +5612,13 @@ static void escapeString (FILE *versionFile, const char *text)
 static void appendOption (char *options, const char *optionToAppend)
 
   { /* appendOption */
-    if (strstr(options, optionToAppend) == NULL) {
-      if (options[0] != '\0' && optionToAppend[0] != '\0') {
-        strcat(options, "\n");
+    if (optionToAppend[0] != '\0') {
+      if (strstr(options, optionToAppend) == NULL) {
+        if (options[0] != '\0') {
+          strcat(options, "\n");
+        } /* if */
+        strcat(options, optionToAppend);
       } /* if */
-      strcat(options, optionToAppend);
     } /* if */
   } /* appendOption */
 
@@ -5597,8 +5629,7 @@ static const char *findIncludeFile (const char *scopeName, char *testProgram,
     const char *inclName, char *includeOption)
 
   {
-    int dirIndex;
-    int nameIndex;
+    unsigned int dirIndex;
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
     char inclOption[BUFFER_SIZE];
@@ -5642,8 +5673,8 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
     const char **libNameList, size_t libNameListLength, char *system_libs)
 
   {
-    int dirIndex;
-    int nameIndex;
+    unsigned int dirIndex;
+    unsigned int nameIndex;
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
     char linkParam[BUFFER_SIZE];
@@ -5715,7 +5746,7 @@ static int findLinkerOption (const char *scopeName, const char *testProgram,
     size_t libNameListLength, char *system_libs)
 
   {
-    int nameIndex;
+    unsigned int nameIndex;
     char linkParam[BUFFER_SIZE];
     int libFound = 0;
 
@@ -5748,8 +5779,8 @@ static void listDynamicLibs (const char *scopeName, const char *baseDir,
     const char **dllNameList, size_t dllNameListLength, FILE *versionFile)
 
   {
-    int dirIndex;
-    int nameIndex;
+    unsigned int dirIndex;
+    unsigned int nameIndex;
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
 
@@ -5788,7 +5819,7 @@ static void listDynamicLibsInSameDir (const char *scopeName, const char *baseDll
     const char *slashPos;
     const char *backslashPos;
     const char *dirPathEnd;
-    int nameIndex;
+    unsigned int nameIndex;
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
 
@@ -5837,7 +5868,7 @@ static void defineLibraryMacro (const char *scopeName, int dbHomeExists,
     size_t dllNameListLength, FILE *versionFile)
 
   {
-    int nameIndex;
+    unsigned int nameIndex;
 
   /* defineLibraryMacro */
     fprintf(versionFile, "#define %s", macroName);
@@ -5970,7 +6001,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
     const char *x11Include = NULL;
     const char *x11IncludeCommand;
     char testProgram[BUFFER_SIZE];
-    int nameIndex;
+    unsigned int nameIndex;
     int searchForLib = 1;
     char makeDefinition[BUFFER_SIZE];
     char system_draw_libs[BUFFER_SIZE];
@@ -6115,8 +6146,8 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
       } /* if */
       fprintf(versionFile, "#define FORWARD_X11_CALLS %d\n", searchForLib);
       if (searchForLib) {
-        fprintf(versionFile, "#define SYSTEM_DRAW_LIBS \"\"\n");
-        appendToFile("macros", "SYSTEM_DRAW_LIBS =\n");
+        fprintf(versionFile, "#define SYSTEM_DRAW_LIBS \"%s\"\n", LINKER_OPT_DYN_LINK_LIBS);
+        appendToFile("macros", "SYSTEM_DRAW_LIBS =" LINKER_OPT_DYN_LINK_LIBS "\n");
         /* Handle dynamic libraries: */
         fprintf(versionFile, "#define X11_DLL");
         for (nameIndex = 0;
@@ -6159,7 +6190,7 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options)
 #endif
     const char *consoleInclude = NULL;
     int useSystemHeader = 1;
-    int nameIndex;
+    unsigned int nameIndex;
     int searchForLib = 1;
     char testProgram[BUFFER_SIZE];
     char makeDefinition[BUFFER_SIZE];
@@ -6266,8 +6297,8 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options)
       fprintf(versionFile, "#define FORWARD_TERM_CALLS %d\n",
               searchForLib && !useSystemHeader);
       if (searchForLib && !useSystemHeader) {
-        fprintf(versionFile, "#define SYSTEM_CONSOLE_LIBS \"\"\n");
-        appendToFile("macros", "SYSTEM_CONSOLE_LIBS =\n");
+        fprintf(versionFile, "#define SYSTEM_CONSOLE_LIBS \"%s\"\n", LINKER_OPT_DYN_LINK_LIBS);
+        appendToFile("macros", "SYSTEM_CONSOLE_LIBS =" LINKER_OPT_DYN_LINK_LIBS "\n");
         /* Handle dynamic libraries: */
         fprintf(versionFile, "#define CONSOLE_DLL");
         for (nameIndex = 0;
@@ -6310,11 +6341,9 @@ static void determineMySqlDefines (FILE *versionFile,
     const char *inclDirList[] = {"/include"};
     const char *libDirList[] = {"/lib"};
     const char *dllDirList[] = {"/lib"};
-    int dirIndex;
-    int nameIndex;
+    unsigned int dirIndex;
+    unsigned int nameIndex;
     int searchForLib = 1;
-    char dirPath[BUFFER_SIZE];
-    char filePath[BUFFER_SIZE];
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
     char dbHome[BUFFER_SIZE];
@@ -6433,6 +6462,7 @@ static void determineMySqlDefines (FILE *versionFile,
 #endif
     if (searchForLib) {
       /* Handle dynamic libraries: */
+      appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define MYSQL_DLL");
       if (dbHomeExists) {
         listDynamicLibs("MySql/MariaDb", dbHome,
@@ -6472,11 +6502,9 @@ static void determineSqliteDefines (FILE *versionFile,
 #endif
     const char *libDirList[] = {""};
     const char *dllDirList[] = {""};
-    int dirIndex;
-    int nameIndex;
+    unsigned int dirIndex;
+    unsigned int nameIndex;
     int searchForLib = 1;
-    char dirPath[BUFFER_SIZE];
-    char filePath[BUFFER_SIZE];
     char dbHome[BUFFER_SIZE];
     char includeOption[BUFFER_SIZE];
     const char *sqliteInclude = NULL;
@@ -6565,6 +6593,7 @@ static void determineSqliteDefines (FILE *versionFile,
 #endif
     if (searchForLib) {
       /* Handle dynamic libraries: */
+      appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define SQLITE_DLL");
       if (dbHomeExists) {
         listDynamicLibs("SQLite", dbHome,
@@ -6826,10 +6855,9 @@ static void determinePostgresDefines (FILE *versionFile,
     const char *libeay32DllList[] = {"libeay32.dll"};
     const char *libcryptoDllList[] = {"libcrypto-1_1-x64.dll"};
     const char *libsslDllList[] = {"libssl-1_1-x64.dll"};
-    int dirIndex;
-    int nameIndex;
+    unsigned int dirIndex;
+    unsigned int nameIndex;
     int searchForLib = 1;
-    char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
@@ -6957,6 +6985,7 @@ static void determinePostgresDefines (FILE *versionFile,
 #endif
     if (searchForLib) {
       /* Handle dynamic libraries: */
+      appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define POSTGRESQL_DLL");
       if (dbHomeExists) {
         listDynamicLibs("PostgreSQL", dbHome,
@@ -7015,7 +7044,7 @@ static void determineOdbcDefines (FILE *versionFile,
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"odbc32.dll"};
 #endif
-    int nameIndex;
+    unsigned int nameIndex;
     int searchForLib = 1;
     char includeOption[BUFFER_SIZE];
     int windowsOdbc = 0;
@@ -7101,6 +7130,7 @@ static void determineOdbcDefines (FILE *versionFile,
 #endif
     if (searchForLib) {
       /* Handle dynamic libraries: */
+      appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define ODBC_DLL");
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
         fprintf(logFile, "\rOdbc: DLL / Shared library: %s\n", dllNameList[nameIndex]);
@@ -7136,8 +7166,8 @@ static void determineOciDefines (FILE *versionFile,
     const char *inclDirList[] = {"/rdbms/public", "/oci/include", "/sdk/include"};
     const char *libDirList[] = {"/lib"};
     const char *dllDirList[] = {"/lib", "/bin", ""};
-    int dirIndex;
-    int nameIndex;
+    unsigned int dirIndex;
+    unsigned int nameIndex;
     int searchForLib = 1;
     char dirPath[BUFFER_SIZE];
     char filePath[BUFFER_SIZE];
@@ -7218,6 +7248,7 @@ static void determineOciDefines (FILE *versionFile,
 #endif
     if (searchForLib) {
       /* Handle dynamic libraries: */
+      appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define OCI_DLL");
       if (dbHomeExists && rpath != NULL) {
         listDynamicLibs("Oracle", dbHome,
@@ -7284,11 +7315,9 @@ static void determineFireDefines (FILE *versionFile,
 #endif
     const char *inclDirList[] = {"/include"};
     const char *dllDirList[] = {""};
-    int dirIndex;
-    int nameIndex;
+    unsigned int dirIndex;
+    unsigned int nameIndex;
     int searchForLib = 1;
-    char dirPath[BUFFER_SIZE];
-    char filePath[BUFFER_SIZE];
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
     char dbHome[BUFFER_SIZE];
@@ -7415,6 +7444,7 @@ static void determineFireDefines (FILE *versionFile,
 #endif
     if (searchForLib) {
       /* Handle dynamic libraries: */
+      appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define FIRE_DLL");
       if (dbHomeExists) {
         listDynamicLibs("Firebird", dbHome,
@@ -7456,12 +7486,9 @@ static void determineDb2Defines (FILE *versionFile,
                                     "D:/Program Files/IBM/DB2DSDriver"};
     const char *inclDirList[] = {"/include"};
     const char *libDirList[] = {"/lib"};
-    int driverDirIndex;
-    int dirIndex;
-    int nameIndex;
+    unsigned int driverDirIndex;
+    unsigned int nameIndex;
     int searchForLib = 1;
-    char dirPath[BUFFER_SIZE];
-    char filePath[BUFFER_SIZE];
     char includeOption[BUFFER_SIZE];
     char makeDefinition[BUFFER_SIZE];
     const char *db2Include = NULL;
@@ -7573,6 +7600,7 @@ static void determineDb2Defines (FILE *versionFile,
 #endif
     if (searchForLib) {
       /* Handle dynamic libraries: */
+      appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define DB2_DLL");
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
         fprintf(logFile, "\rDB2: DLL / Shared library: %s\n", dllNameList[nameIndex]);
@@ -7605,7 +7633,7 @@ static void determineSqlServerDefines (FILE *versionFile,
     /* sqlncli11.dll is omitted, because it truncates fields. */
     const char *dllNameList[] = {"sqlsrv32.dll"};
 #endif
-    int nameIndex;
+    unsigned int nameIndex;
     int searchForLib = 1;
     char includeOption[BUFFER_SIZE];
     char makeDefinition[BUFFER_SIZE];
@@ -7708,6 +7736,7 @@ static void determineSqlServerDefines (FILE *versionFile,
 #endif
     if (searchForLib) {
       /* Handle dynamic libraries: */
+      appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define SQL_SERVER_DLL");
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
         fprintf(logFile, "\rSQL Server: DLL / Shared library: %s\n", dllNameList[nameIndex]);
@@ -7739,7 +7768,7 @@ static void determineTdsDefines (FILE *versionFile,
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"sybdb.dll"};
 #endif
-    int nameIndex;
+    unsigned int nameIndex;
     int searchForLib = 1;
     char includeOption[BUFFER_SIZE];
     int includeSybfront = 0;
@@ -7809,6 +7838,7 @@ static void determineTdsDefines (FILE *versionFile,
 #endif
     if (searchForLib) {
       /* Handle dynamic libraries: */
+      appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define TDS_DLL");
       for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
         fprintf(logFile, "\rTDS: DLL / Shared library: %s\n", dllNameList[nameIndex]);
@@ -7821,7 +7851,7 @@ static void determineTdsDefines (FILE *versionFile,
 
 
 static void determineBigIntDefines (FILE *versionFile,
-    char *include_options, char *additional_system_libs)
+    char *include_options, char *system_bigint_libs)
 
   {
     const char *gmpLinkerOption;
@@ -7851,7 +7881,7 @@ static void determineBigIntDefines (FILE *versionFile,
         doTest() == 1) {
       fputs("#define BIG_GMP_LIBRARY 2\n", versionFile);
       fputs("#define BIGINT_LIB BIG_GMP_LIBRARY\n", versionFile);
-      appendOption(additional_system_libs, gmpLinkerOption);
+      appendOption(system_bigint_libs, gmpLinkerOption);
     } else {
       fputs("#define BIG_RTL_LIBRARY 1\n", versionFile);
       fputs("#define BIGINT_LIB BIG_RTL_LIBRARY\n", versionFile);
@@ -7866,7 +7896,7 @@ static void determineIncludesAndLibs (FILE *versionFile)
   {
     char include_options[BUFFER_SIZE];
     char system_database_libs[BUFFER_SIZE];
-    char additional_system_libs[BUFFER_SIZE];
+    char system_bigint_libs[BUFFER_SIZE];
     char rpath_buffer[BUFFER_SIZE];
     char *rpath = NULL;
     char rpathOption[BUFFER_SIZE];
@@ -7882,7 +7912,7 @@ static void determineIncludesAndLibs (FILE *versionFile)
 #endif
     include_options[0] = '\0';
     system_database_libs[0] = '\0';
-    additional_system_libs[0] = '\0';
+    system_bigint_libs[0] = '\0';
     if (linkerOptionAllowed("-Wl,--disable-new-dtags")) {
       rpath_buffer[0] = '\0';
       rpath = rpath_buffer;
@@ -7904,7 +7934,7 @@ static void determineIncludesAndLibs (FILE *versionFile)
     determineDb2Defines(versionFile, include_options, system_database_libs);
     determineSqlServerDefines(versionFile, include_options, system_database_libs);
     determineTdsDefines(versionFile, include_options, system_database_libs);
-    determineBigIntDefines(versionFile, include_options, additional_system_libs);
+    determineBigIntDefines(versionFile, include_options, system_bigint_libs);
     if (rpath != NULL && rpath[0] != '\0') {
       sprintf(rpathOption, "-Wl,--disable-new-dtags,-rpath=%s", rpath);
       appendOption(system_database_libs, rpathOption);
@@ -7917,7 +7947,7 @@ static void determineIncludesAndLibs (FILE *versionFile)
     replaceNLBySpace(buffer);
     strcat(buffer, "\n");
     appendToFile("macros", buffer);
-    sprintf(buffer, "ADDITIONAL_SYSTEM_LIBS = %s", additional_system_libs);
+    sprintf(buffer, "SYSTEM_BIGINT_LIBS = %s", system_bigint_libs);
     replaceNLBySpace(buffer);
     strcat(buffer, "\n");
     appendToFile("macros", buffer);
@@ -7927,8 +7957,8 @@ static void determineIncludesAndLibs (FILE *versionFile)
     fprintf(versionFile, "#define SYSTEM_DATABASE_LIBS \"");
     escapeString(versionFile, system_database_libs);
     fprintf(versionFile, "\"\n");
-    fprintf(versionFile, "#define ADDITIONAL_SYSTEM_LIBS \"");
-    escapeString(versionFile, additional_system_libs);
+    fprintf(versionFile, "#define SYSTEM_BIGINT_LIBS \"");
+    escapeString(versionFile, system_bigint_libs);
     fprintf(versionFile, "\"\n");
   } /* determineIncludesAndLibs */
 

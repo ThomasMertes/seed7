@@ -152,6 +152,9 @@
 #ifndef SYSTEM_LIBS
 #define SYSTEM_LIBS ""
 #endif
+#ifndef SYSTEM_MATH_LIBS
+#define SYSTEM_MATH_LIBS ""
+#endif
 #ifndef PIXEL_RED_MASK
 #define PIXEL_RED_MASK "0"
 #endif
@@ -2072,14 +2075,16 @@ striType cmdConfigValue (const const_striType name)
       opt = LINKER_FLAGS;
     } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
       opt = SYSTEM_LIBS;
-    } else if (strcmp(opt_name, "SYSTEM_DRAW_LIBS") == 0) {
-      opt = SYSTEM_DRAW_LIBS;
+    } else if (strcmp(opt_name, "SYSTEM_BIGINT_LIBS") == 0) {
+      opt = SYSTEM_BIGINT_LIBS;
     } else if (strcmp(opt_name, "SYSTEM_CONSOLE_LIBS") == 0) {
       opt = SYSTEM_CONSOLE_LIBS;
     } else if (strcmp(opt_name, "SYSTEM_DATABASE_LIBS") == 0) {
       opt = SYSTEM_DATABASE_LIBS;
-    } else if (strcmp(opt_name, "ADDITIONAL_SYSTEM_LIBS") == 0) {
-      opt = ADDITIONAL_SYSTEM_LIBS;
+    } else if (strcmp(opt_name, "SYSTEM_DRAW_LIBS") == 0) {
+      opt = SYSTEM_DRAW_LIBS;
+    } else if (strcmp(opt_name, "SYSTEM_MATH_LIBS") == 0) {
+      opt = SYSTEM_MATH_LIBS;
     } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
       opt = SEED7_LIB;
     } else if (strcmp(opt_name, "DRAW_LIB") == 0) {

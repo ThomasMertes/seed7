@@ -17,9 +17,12 @@ LDFLAGS = -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=[
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lnodefs.js
 # SYSTEM_LIBS = -lm -lws2_32 -lgmp
-# SYSTEM_DRAW_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+# SYSTEM_BIGINT_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 # SYSTEM_CONSOLE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 # SYSTEM_DATABASE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+# SYSTEM_DRAW_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+SYSTEM_MATH_LIBS = -lm
+ALL_SYSTEM_LIBS = $(SYSTEM_LIBS) $(SYSTEM_BIGINT_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_MATH_LIBS)
 SEED7_LIB = seed7_05.a
 DRAW_LIB = s7_draw.a
 CONSOLE_LIB = s7_con.a
@@ -97,7 +100,7 @@ s7c: ../bin/s7c.js ../prg/s7c.js
 	@echo
 
 ../bin/s7.js: levelup next_lvl $(OBJ) $(ALL_S7_LIBS) ../bin/$(SPECIAL_LIB)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) --pre-js ../bin/$(SPECIAL_LIB) -o ../bin/s7.js
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(ALL_SYSTEM_LIBS) --pre-js ../bin/$(SPECIAL_LIB) -o ../bin/s7.js
 	rm next_lvl
 
 ../prg/s7.js: ../bin/s7.js
@@ -315,10 +318,10 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -p $(SRC) $(ALL_SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(ALL_SYSTEM_LIBS)
 
 ifeq (depend,$(wildcard depend))
 include depend

@@ -850,7 +850,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
     elsif valueCategory = FILEOBJECT then
       c_declaration.temp_decls &:= "=&";
       c_declaration.temp_decls &:= lower(literal(getValue(object_value, clib_file)));
-      c_declaration.temp_decls &:= "FileRecord;\n\n";
+      c_declaration.temp_decls &:= "FileRecord";
       c_declaration.temp_frees &:= "filDestr(o_";
       create_name(current_object, c_declaration.temp_frees);
       c_declaration.temp_frees &:= ");\n";
@@ -7323,6 +7323,32 @@ const proc: importEnvironment (in string: fileName) is func
   end func;
 
 
+const proc: appendOption (inout array string: options, in string: optionToAppend) is func
+  local
+    var string: existingOption is "";
+    var boolean: found is FALSE;
+  begin
+    if optionToAppend <> "" then
+      for existingOption range options until found do
+        found := existingOption = optionToAppend;
+      end for;
+      if not found then
+        options &:= optionToAppend;
+      end if;
+    end if;
+  end func;
+
+
+const proc: appendOption (inout array string: options, in array string: optionsToAppend) is func
+  local
+    var string: optionToAppend is "";
+  begin
+    for optionToAppend range optionsToAppend do
+      appendOption(options, optionToAppend);
+    end for;
+  end func;
+
+
 const proc: logProgram (in string: command, in array string: parameters,
     in string: errorFile) is func
 
@@ -7547,7 +7573,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
           okay := FALSE;
         end if;
         if databaseLibraryUsed and fileType(database_lib) <> FILE_REGULAR then
-          writeln("*** Console library " <& literal(database_lib) <& " missing");
+          writeln("*** Database library " <& literal(database_lib) <& " missing");
           okay := FALSE;
         end if;
         if compilerLibraryUsed and fileType(compiler_lib) <> FILE_REGULAR then
@@ -7603,36 +7629,41 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             end if;
             linkParams &:= toOsPath(objectFile);
             if compilerLibraryUsed then
-              linkParams &:= toOsPath(compiler_lib);
+              appendOption(linkParams, toOsPath(compiler_lib));
             end if;
             if compDataLibraryUsed then
-              linkParams &:= toOsPath(comp_data_lib);
+              appendOption(linkParams, toOsPath(comp_data_lib));
             end if;
             if drawLibraryUsed then
-              linkParams &:= toOsPath(draw_lib);
+              appendOption(linkParams, toOsPath(draw_lib));
             end if;
             if consoleLibraryUsed then
-              linkParams &:= toOsPath(console_lib);
+              appendOption(linkParams, toOsPath(console_lib));
             end if;
             if databaseLibraryUsed then
-              linkParams &:= toOsPath(database_lib);
+              appendOption(linkParams, toOsPath(database_lib));
             end if;
-            linkParams &:= toOsPath(seed7_lib);
+            appendOption(linkParams, toOsPath(seed7_lib));
             if ccConf.LINKER_OPT_SPECIAL_LIB <> "" then
-              linkParams &:= ccConf.LINKER_OPT_SPECIAL_LIB;
-              linkParams &:= toOsPath(special_lib);
+              appendOption(linkParams, ccConf.LINKER_OPT_SPECIAL_LIB);
+              appendOption(linkParams, toOsPath(special_lib));
             end if;
-            if drawLibraryUsed then
-              linkParams &:= ccConf.SYSTEM_DRAW_LIBS;
+            appendOption(linkParams, ccConf.SYSTEM_LIBS);
+            if bigintLibraryUsed then
+              appendOption(linkParams, ccConf.SYSTEM_BIGINT_LIBS);
             end if;
             if consoleLibraryUsed then
-              linkParams &:= ccConf.SYSTEM_CONSOLE_LIBS;
+              appendOption(linkParams, ccConf.SYSTEM_CONSOLE_LIBS);
             end if;
             if databaseLibraryUsed then
-              linkParams &:= ccConf.SYSTEM_DATABASE_LIBS;
+              appendOption(linkParams, ccConf.SYSTEM_DATABASE_LIBS);
             end if;
-            linkParams &:= ccConf.SYSTEM_LIBS;
-            linkParams &:= ccConf.ADDITIONAL_SYSTEM_LIBS;
+            if drawLibraryUsed then
+              appendOption(linkParams, ccConf.SYSTEM_DRAW_LIBS);
+            end if;
+            if mathLibraryUsed then
+              appendOption(linkParams, ccConf.SYSTEM_MATH_LIBS);
+            end if;
             if ccConf.CALL_C_COMPILER_FROM_SHELL then
               execProgramScript(link_cmd, linkParams, linkErrFile);
             else

@@ -25,12 +25,15 @@ CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) $(CC_OPT_
 LDFLAGS = -Wl,--gc-sections
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
-SYSTEM_LIBS = -lm -ldl
+SYSTEM_LIBS =
 # SYSTEM_LIBS = -lm -ldl -lgmp
 # SYSTEM_LIBS = -lm_p -lc_p
-# SYSTEM_DRAW_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+# SYSTEM_BIGINT_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 # SYSTEM_CONSOLE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 # SYSTEM_DATABASE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+# SYSTEM_DRAW_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+SYSTEM_MATH_LIBS = -lm
+ALL_SYSTEM_LIBS = $(SYSTEM_LIBS) $(SYSTEM_BIGINT_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_MATH_LIBS)
 SEED7_LIB = seed7_05.a
 DRAW_LIB = s7_draw.a
 CONSOLE_LIB = s7_con.a
@@ -107,7 +110,7 @@ s7c: ../bin/s7c ../prg/s7c
 	@echo
 
 ../bin/s7: levelup next_lvl $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ../bin/s7
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(ALL_SYSTEM_LIBS) -o ../bin/s7
 	rm next_lvl
 
 ../prg/s7:
@@ -212,9 +215,10 @@ strip:
 
 chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" > chkccomp.h
-	echo "#define LINKER_OPT_STATIC_LINKING \"-static\"" >> chkccomp.h
 	echo "#define CC_OPT_LINK_TIME_OPTIMIZATION \"-flto\"" >> chkccomp.h
+	echo "#define LINKER_OPT_STATIC_LINKING \"-static\"" >> chkccomp.h
 	echo "#define LINKER_OPT_NO_LTO \"-fno-lto\"" >> chkccomp.h
+	echo "#define LINKER_OPT_DYN_LINK_LIBS \"-ldl\"" >> chkccomp.h
 	echo "#define SUPPORTS_PARTIAL_LINKING" >> chkccomp.h
 	echo "#define ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS" >> chkccomp.h
 
@@ -230,6 +234,7 @@ base.h:
 	echo "#define ARCHIVER \"$(AR)\"" >> base.h
 	echo "#define ARCHIVER_OPT_REPLACE \"r \"" >> base.h
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> base.h
+	echo "#define SYSTEM_MATH_LIBS \"$(SYSTEM_MATH_LIBS)\"" >> base.h
 
 settings.h:
 	echo "#define MAKE_UTILITY_NAME \"$(MAKE)\"" > settings.h
@@ -345,10 +350,10 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -p $(SRC) $(ALL_SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(ALL_SYSTEM_LIBS)
 
 cppcheck: $(SRC) $(SEED7_LIB_SRC) $(DRAW_LIB_SRC) $(COMP_DATA_LIB_SRC) $(COMPILER_LIB_SRC)
 	cppcheck --force --enable=all $(SRC) $(SEED7_LIB_SRC) $(DRAW_LIB_SRC) $(COMP_DATA_LIB_SRC) $(COMPILER_LIB_SRC)

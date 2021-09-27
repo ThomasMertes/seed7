@@ -16,9 +16,12 @@ LDFLAGS = -Wl,-stack=16777216
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lws2_32 -ladvapi32
 # SYSTEM_LIBS = -lgmp
-SYSTEM_DRAW_LIBS = -lgdi32 -luser32
+# SYSTEM_BIGINT_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 SYSTEM_CONSOLE_LIBS =
 # SYSTEM_DATABASE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+SYSTEM_DRAW_LIBS = -lgdi32 -luser32
+SYSTEM_MATH_LIBS =
+ALL_SYSTEM_LIBS = $(SYSTEM_LIBS) $(SYSTEM_BIGINT_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_MATH_LIBS)
 SEED7_LIB = seed7_05.a
 DRAW_LIB = s7_draw.a
 CONSOLE_LIB = s7_con.a
@@ -94,7 +97,7 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	@echo.
 
 ..\bin\s7.exe: levelup.exe next_lvl $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ..\bin\s7.exe
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(ALL_SYSTEM_LIBS) -o ..\bin\s7.exe
 	del next_lvl
 
 ..\prg\s7.exe: ..\bin\s7.exe
@@ -206,6 +209,7 @@ base.h:
 	echo #define INT_DIV_BY_ZERO_POPUP >> base.h
 	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO 1 >> base.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
+	echo #define SYSTEM_MATH_LIBS "$(SYSTEM_MATH_LIBS)" >> base.h
 
 settings.h:
 	echo #define MAKE_UTILITY_NAME "$(MAKE)" > settings.h
@@ -219,8 +223,8 @@ settings.h:
 	echo #define CC_OPT_DEBUG_INFO "-g" >> settings.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> settings.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> settings.h
-	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> settings.h
 	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> settings.h
+	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> settings.h
 	echo #define SEED7_LIB "$(SEED7_LIB)" >> settings.h
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> settings.h
 	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> settings.h
@@ -404,10 +408,10 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -p $(SRC) $(ALL_SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(ALL_SYSTEM_LIBS)
 
 ifeq (macros,$(wildcard macros))
 include macros

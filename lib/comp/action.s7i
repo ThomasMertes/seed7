@@ -170,110 +170,163 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"ARR_TAIL"}:
         process(ARR_TAIL, function, params, c_expr);
       when {"BIG_ABS"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_ABS, function, params, c_expr);
       when {"BIG_ADD"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_ADD, function, params, c_expr);
       when {"BIG_ADD_ASSIGN"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_ADD_ASSIGN, function, params, c_expr);
       when {"BIG_BIT_LENGTH"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_BIT_LENGTH, function, params, c_expr);
       when {"BIG_CMP"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_CMP, function, params, c_expr);
       when {"BIG_CONV"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_CONV, function, params, c_expr);
       when {"BIG_CPY"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_CPY, function, params, c_expr);
       when {"BIG_DECR"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_DECR, function, params, c_expr);
       when {"BIG_DIV"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_DIV, function, params, c_expr);
       when {"BIG_DIV_REM"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_DIV_REM, function, params, c_expr);
       when {"BIG_EQ"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_EQ, function, params, c_expr);
       when {"BIG_FROM_BSTRI_BE"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_FROM_BSTRI_BE, function, params, c_expr);
       when {"BIG_FROM_BSTRI_LE"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_FROM_BSTRI_LE, function, params, c_expr);
       when {"BIG_GCD"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_GCD, function, params, c_expr);
       when {"BIG_GE"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_GE, function, params, c_expr);
       when {"BIG_GT"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_GT, function, params, c_expr);
       when {"BIG_HASHCODE"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_HASHCODE, function, params, c_expr);
       when {"BIG_ICONV1"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_ICONV1, function, params, c_expr);
       when {"BIG_ICONV3"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_ICONV3, function, params, c_expr);
       when {"BIG_INCR"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_INCR, function, params, c_expr);
       when {"BIG_IPOW"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_IPOW, function, params, c_expr);
       when {"BIG_LE"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_LE, function, params, c_expr);
       when {"BIG_LOG10"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_LOG10, function, params, c_expr);
       when {"BIG_LOG2"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_LOG2, function, params, c_expr);
       when {"BIG_LOWEST_SET_BIT"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_LOWEST_SET_BIT, function, params, c_expr);
       when {"BIG_LSHIFT"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_LSHIFT, function, params, c_expr);
       when {"BIG_LSHIFT_ASSIGN"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_LSHIFT_ASSIGN, function, params, c_expr);
       when {"BIG_LT"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_LT, function, params, c_expr);
       when {"BIG_MDIV"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_MDIV, function, params, c_expr);
       when {"BIG_MOD"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_MOD, function, params, c_expr);
       when {"BIG_MULT"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_MULT, function, params, c_expr);
       when {"BIG_MULT_ASSIGN"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_MULT_ASSIGN, function, params, c_expr);
       when {"BIG_NE"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_NE, function, params, c_expr);
       when {"BIG_NEGATE"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_NEGATE, function, params, c_expr);
       when {"BIG_ODD"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_ODD, function, params, c_expr);
       when {"BIG_ORD"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_ORD, function, params, c_expr);
       when {"BIG_PARSE1"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_PARSE1, function, params, c_expr);
       when {"BIG_PARSE_BASED"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_PARSE_BASED, function, params, c_expr);
       when {"BIG_PLUS"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_PLUS, function, params, c_expr);
       when {"BIG_PRED"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_PRED, function, params, c_expr);
       when {"BIG_radix"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_radix, function, params, c_expr);
       when {"BIG_RADIX"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_RADIX, function, params, c_expr);
       when {"BIG_RAND"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_RAND, function, params, c_expr);
       when {"BIG_REM"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_REM, function, params, c_expr);
       when {"BIG_RSHIFT"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_RSHIFT, function, params, c_expr);
       when {"BIG_RSHIFT_ASSIGN"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_RSHIFT_ASSIGN, function, params, c_expr);
       when {"BIG_SBTR"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_SBTR, function, params, c_expr);
       when {"BIG_SBTR_ASSIGN"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_SBTR_ASSIGN, function, params, c_expr);
       when {"BIG_STR"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_STR, function, params, c_expr);
       when {"BIG_SUCC"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_SUCC, function, params, c_expr);
       when {"BIG_TO_BSTRI_BE"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_TO_BSTRI_BE, function, params, c_expr);
       when {"BIG_TO_BSTRI_LE"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_TO_BSTRI_LE, function, params, c_expr);
       when {"BIG_VALUE"}:
+        bigintLibraryUsed := TRUE;
         process(BIG_VALUE, function, params, c_expr);
       when {"BIN_AND"}:
         process(BIN_AND, function, params, c_expr);
@@ -811,18 +864,23 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"FIL_WORD_READ"}:
         process(FIL_WORD_READ, function, params, c_expr);
       when {"FLT_ABS"}:
+        mathLibraryUsed := TRUE;
         process(FLT_ABS, function, params, c_expr);
       when {"FLT_ACOS"}:
+        mathLibraryUsed := TRUE;
         process(FLT_ACOS, function, params, c_expr);
       when {"FLT_ADD"}:
         process(FLT_ADD, function, params, c_expr);
       when {"FLT_ADD_ASSIGN"}:
         process(FLT_ADD_ASSIGN, function, params, c_expr);
       when {"FLT_ASIN"}:
+        mathLibraryUsed := TRUE;
         process(FLT_ASIN, function, params, c_expr);
       when {"FLT_ATAN"}:
+        mathLibraryUsed := TRUE;
         process(FLT_ATAN, function, params, c_expr);
       when {"FLT_ATAN2"}:
+        mathLibraryUsed := TRUE;
         process(FLT_ATAN2, function, params, c_expr);
       when {"FLT_BITS2DOUBLE"}:
         process(FLT_BITS2DOUBLE, function, params, c_expr);
@@ -831,18 +889,24 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"FLT_CAST"}:
         process(FLT_CAST, function, params, c_expr);
       when {"FLT_CEIL"}:
+        mathLibraryUsed := TRUE;
         process(FLT_CEIL, function, params, c_expr);
       when {"FLT_CMP"}:
+        mathLibraryUsed := TRUE;
         process(FLT_CMP, function, params, c_expr);
       when {"FLT_COS"}:
+        mathLibraryUsed := TRUE;
         process(FLT_COS, function, params, c_expr);
       when {"FLT_COSH"}:
+        mathLibraryUsed := TRUE;
         process(FLT_COSH, function, params, c_expr);
       when {"FLT_CPY"}:
         process(FLT_CPY, function, params, c_expr);
       when {"FLT_DECOMPOSE"}:
+        mathLibraryUsed := TRUE;
         process(FLT_DECOMPOSE, function, params, c_expr);
       when {"FLT_DGTS"}:
+        mathLibraryUsed := TRUE;
         process(FLT_DGTS, function, params, c_expr);
       when {"FLT_DIV"}:
         process(FLT_DIV, function, params, c_expr);
@@ -853,10 +917,13 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"FLT_EQ"}:
         process(FLT_EQ, function, params, c_expr);
       when {"FLT_EXP"}:
+        mathLibraryUsed := TRUE;
         process(FLT_EXP, function, params, c_expr);
       when {"FLT_EXPM1"}:
+        mathLibraryUsed := TRUE;
         process(FLT_EXPM1, function, params, c_expr);
       when {"FLT_FLOOR"}:
+        mathLibraryUsed := TRUE;
         process(FLT_FLOOR, function, params, c_expr);
       when {"FLT_GE"}:
         process(FLT_GE, function, params, c_expr);
@@ -871,26 +938,34 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"FLT_ICONV3"}:
         process(FLT_ICONV3, function, params, c_expr);
       when {"FLT_IPOW"}:
+        mathLibraryUsed := TRUE;
         process(FLT_IPOW, function, params, c_expr);
       when {"FLT_ISNAN"}:
+        mathLibraryUsed := TRUE;
         process(FLT_ISNAN, function, params, c_expr);
       when {"FLT_ISNEGATIVEZERO"}:
         process(FLT_ISNEGATIVEZERO, function, params, c_expr);
       when {"FLT_LE"}:
         process(FLT_LE, function, params, c_expr);
       when {"FLT_LOG"}:
+        mathLibraryUsed := TRUE;
         process(FLT_LOG, function, params, c_expr);
       when {"FLT_LOG10"}:
+        mathLibraryUsed := TRUE;
         process(FLT_LOG10, function, params, c_expr);
       when {"FLT_LOG1P"}:
+        mathLibraryUsed := TRUE;
         process(FLT_LOG1P, function, params, c_expr);
       when {"FLT_LOG2"}:
+        mathLibraryUsed := TRUE;
         process(FLT_LOG2, function, params, c_expr);
       when {"FLT_LSHIFT"}:
+        mathLibraryUsed := TRUE;
         process(FLT_LSHIFT, function, params, c_expr);
       when {"FLT_LT"}:
         process(FLT_LT, function, params, c_expr);
       when {"FLT_MOD"}:
+        mathLibraryUsed := TRUE;
         process(FLT_MOD, function, params, c_expr);
       when {"FLT_MULT"}:
         process(FLT_MULT, function, params, c_expr);
@@ -905,38 +980,52 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"FLT_PLUS"}:
         process(FLT_PLUS, function, params, c_expr);
       when {"FLT_POW"}:
+        mathLibraryUsed := TRUE;
         process(FLT_POW, function, params, c_expr);
       when {"FLT_RAND"}:
+        mathLibraryUsed := TRUE;
         process(FLT_RAND, function, params, c_expr);
       when {"FLT_REM"}:
+        mathLibraryUsed := TRUE;
         process(FLT_REM, function, params, c_expr);
       when {"FLT_ROUND"}:
+        mathLibraryUsed := TRUE;
         process(FLT_ROUND, function, params, c_expr);
       when {"FLT_RSHIFT"}:
+        mathLibraryUsed := TRUE;
         process(FLT_RSHIFT, function, params, c_expr);
       when {"FLT_SBTR"}:
         process(FLT_SBTR, function, params, c_expr);
       when {"FLT_SBTR_ASSIGN"}:
         process(FLT_SBTR_ASSIGN, function, params, c_expr);
       when {"FLT_SCI"}:
+        mathLibraryUsed := TRUE;
         process(FLT_SCI, function, params, c_expr);
       when {"FLT_SIN"}:
+        mathLibraryUsed := TRUE;
         process(FLT_SIN, function, params, c_expr);
       when {"FLT_SINGLE2BITS"}:
         process(FLT_SINGLE2BITS, function, params, c_expr);
       when {"FLT_SINH"}:
+        mathLibraryUsed := TRUE;
         process(FLT_SINH, function, params, c_expr);
       when {"FLT_SQRT"}:
+        mathLibraryUsed := TRUE;
         process(FLT_SQRT, function, params, c_expr);
       when {"FLT_STR"}:
+        mathLibraryUsed := TRUE;
         process(FLT_STR, function, params, c_expr);
       when {"FLT_TAN"}:
+        mathLibraryUsed := TRUE;
         process(FLT_TAN, function, params, c_expr);
       when {"FLT_TANH"}:
+        mathLibraryUsed := TRUE;
         process(FLT_TANH, function, params, c_expr);
       when {"FLT_TRUNC"}:
+        mathLibraryUsed := TRUE;
         process(FLT_TRUNC, function, params, c_expr);
       when {"FLT_VALUE"}:
+        mathLibraryUsed := TRUE;
         process(FLT_VALUE, function, params, c_expr);
       when {"GKB_BUSY_GETC"}:
         drawLibraryUsed := TRUE;
