@@ -56,6 +56,7 @@ void adjustCwdForShell (errInfoType *err_info);
 void initEmulatedCwd (errInfoType *err_info);
 #endif
 striType doGetCwd (errInfoType *err_info);
+striType getAbsolutePath (const const_striType aPath);
 bigIntType cmdBigFileSize (const const_striType file_name);
 void cmdChdir (const const_striType dir_name);
 void cmdCloneFile (const const_striType source_name, const const_striType dest_name);

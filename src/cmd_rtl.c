@@ -1710,6 +1710,40 @@ striType doGetCwd (errInfoType *err_info)
 
 
 
+/**
+ *  Get the absolute file path in the standard path representation.
+ *  @return the absolute file path in the standard path
+ *          representation, or NULL if the memory allocation failed.
+ */
+striType getAbsolutePath (const const_striType aPath)
+
+  {
+    striType cwd;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType absolutePath;
+
+  /* getAbsolutePath */
+    logFunction(printf("getAbsolutePath(\"%s\")\n",
+                       striAsUnquotedCStri(aPath)););
+    if (aPath->size >= 1 &&
+        aPath->mem[0] == (charType) '/') {
+      absolutePath = straightenAbsolutePath(aPath);
+    } else {
+      cwd = doGetCwd(&err_info);
+      if (unlikely(cwd == NULL)) {
+        absolutePath = NULL;
+      } else {
+        absolutePath = concatPath(cwd, aPath);
+        FREE_STRI(cwd, cwd->size);
+      } /* if */
+    } /* if */
+    logFunction(printf("getAbsolutePath --> \"%s\"\n",
+                       striAsUnquotedCStri(absolutePath)););
+    return absolutePath;
+  } /* getAbsolutePath */
+
+
+
 #ifdef DEFINE_SYSTEM_FUNCTION
 static int systemForNodeJs (const char *command)
 
