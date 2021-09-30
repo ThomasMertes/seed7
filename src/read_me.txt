@@ -1274,30 +1274,35 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                               called via a script (defined with
                               C_COMPILER_SCRIPT).
 
-  GET_CC_VERSION_INFO: Contains a shell command that causes the
-                       C compiler to write its version information
-                       into a given file. In Seed7 it is used with
-                       cmd_sh(GET_CC_VERSION_INFO & fileName);
-                       Afterwards the file fileName contains the
-                       version information of the C compiler.
-                       Reading the first line of the file should
-                       give the same string as C_COMPILER_VERSION.
+  CC_ERROR_FILDES: File descriptor to which the C compiler writes
+                   errors. The MSVC stand-alone C compiler (CL)
+                   writes the error messages to standard output
+                   (file descriptor 1). The C compilers of
+                   Linux/Unix/BSD and the compilers from MinGW and
+                   Cygwin write the error messages to the error
+                   output (file descriptor 2).
 
-  GET_CC_VERSION_INFO_OPTIONS: C compiler option to get the version
-                               information of the compiler. The
-                               destination file name must be
-                               appended to the command.
-
-  CC_SOURCE_UTF8: Defined if the C compiler accepts UTF-8 encoded
-                  file names in #line directives. The file names
-                  from #line directives are used by the debugger to
-                  allow source code debugging.
+  CC_FLAGS: Contains C compiler flags, which should be used when
+            C programs are compiled.
 
   CC_OPT_DEBUG_INFO: Contains the C compiler option to add source
                      level debugging information to the object file.
 
+  CC_OPT_LINK_TIME_OPTIMIZATION: Contains the compiler option for
+                                 link time optimization (e.g.:
+                                 "-flto").
+
   CC_OPT_NO_WARNINGS: Contains the C compiler option to suppress
                       all warnings.
+
+  CC_OPT_OPTIMIZE_1: C compiler option to optimize with a level
+                     of -O1.
+
+  CC_OPT_OPTIMIZE_2: C compiler option to optimize with a level
+                     of -O2.
+
+  CC_OPT_OPTIMIZE_3: C compiler option to optimize with a level
+                     of -O3.
 
   CC_OPT_TRAP_OVERFLOW: C compiler option to generate traps for
                         signed integer overflow. An integer overflow
@@ -1308,20 +1313,23 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                         or if traps would not lead to a performance
                         advantage.
 
-  CC_FLAGS: Contains C compiler flags, which should be used when
-            C programs are compiled.
+  CC_OPT_VERSION_INFO: C compiler option to write the C compiler
+                       version information.
 
-  CC_ERROR_FILDES: File descriptor to which the C compiler writes
-                   errors. The MSVC stand-alone C compiler (CL)
-                   writes the error messages to standard output
-                   (file descriptor 1). The C compilers of
-                   Linux/Unix/BSD and the compilers from MinGW and
-                   Cygwin write the error messages to the error
-                   output (file descriptor 2).
+  CC_SOURCE_UTF8: Defined if the C compiler accepts UTF-8 encoded
+                  file names in #line directives. The file names
+                  from #line directives are used by the debugger to
+                  allow source code debugging.
+
+  CC_VERSION_INFO_FILEDES: File descriptor to which the C compiler
+                           writes its version info.
 
   LINKER: Defined if C_COMPILER does just invoke the stand-alone
           C compiler. In that case LINKER contains the command to
           call the stand-alone linker.
+
+  LINKER_FLAGS: Contains options for the stand-alone linker to link
+                a compiled Seed7 program.
 
   LINKER_OPT_DEBUG_INFO: Contains the linker option to add source
                          level debugging information to the
@@ -1342,22 +1350,15 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
   LINKER_OPT_STATIC_LINKING: Contains the linker option to force
                              static linking (e.g.: "-static").
 
-  CC_OPT_LINK_TIME_OPTIMIZATION: Contains the compiler option for
-                                 link time optimization (e.g.:
-                                 "-flto").
-
-  LINKER_FLAGS: Contains options for the stand-alone linker to link
-                a compiled Seed7 program.
-
   SYSTEM_LIBS: Options to link system libraries to a compiled
                program. This is intended for options to link
                libraries required by the Seed7 runtime library.
                E.g. libraries for math or socket.
 
-  SYSTEM_DRAW_LIBS: Options to link system graphic libraries to a
-                    compiled program. This is intended for options
-                    to link libraries required by the Seed7 graphic
-                    runtime library (e.g.: "-lX11").
+  SYSTEM_BIGINT_LIBS Options to link system bigint libraries to a
+                     compiled program. This is intended for options
+                     to link libraries required by the Seed7
+                     bigint.s7i runtime library (e.g.: "-lgmp").
 
   SYSTEM_CONSOLE_LIBS: Options to link system console libraries to
                        a compiled program. This is intended for
@@ -1365,16 +1366,21 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                        Seed7 console runtime library
                        (e.g.: "-lncurses").
 
+  SYSTEM_DRAW_LIBS: Options to link system graphic libraries to a
+                    compiled program. This is intended for options
+                    to link libraries required by the Seed7 graphic
+                    runtime library (e.g.: "-lX11").
+
   SYSTEM_DATABASE_LIBS: Options to link system database libraries
                         to a compiled program. This is intended for
                         options to link libraries required by the
                         Seed7 database runtime libraries
                         (e.g.: "-lmysqlclient").
 
-  ADDITIONAL_SYSTEM_LIBS: Options to link additional libraries to
-                          a compiled program. This is intended for
-                          options to link libraries required by the
-                          multiprecision library (e.g.: "-lgmp").
+  SYSTEM_MATH_LIBS: Options to link system mathematic libraries to
+                    a compiled program. This is intended for
+                    options to link libraries required by the
+                    Seed7 math.s7i runtime library. (e.g.: "-lm").
 
   DEFINE_COMMAND_LINE_TO_ARGV_W: Defined if the function
                                  CommandLineToArgvW() is missing or
