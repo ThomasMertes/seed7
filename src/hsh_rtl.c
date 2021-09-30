@@ -825,6 +825,14 @@ rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
 
 
 
+/**
+ *  Search for 'aKey' in 'aHashMap'.
+ *  If 'aKey' is element of 'aHashMap' the corresponding value is returned.
+ *  If 'aKey' is not element of 'aHashMap' then 'defaultData' is stored
+ *  as value of 'aKey' in 'aHashMap' and 'defaultData' is returned.
+ *  @return the value stored for 'aKey' in 'aHashMap', or
+ *          'defaultData', if 'aKey' is not a member of 'aHashMap'.
+ */
 genericType hshIdxEnterDefault (const rtlHashType aHashMap,
     const genericType aKey, const genericType defaultData, intType hashcode)
 
@@ -892,6 +900,13 @@ genericType hshIdxEnterDefault (const rtlHashType aHashMap,
 
 
 
+/**
+ *  Search for 'aKey' in 'aHashMap'.
+ *  If 'aKey' is element of 'aHashMap' the corresponding value is returned.
+ *  If 'aKey' is not element of 'aHashMap' then 'defaultData' is returned.
+ *  @return the value stored for 'aKey' in 'aHashMap', or
+ *          'defaultData', if 'aKey' is not a member of 'aHashMap'.
+ */
 genericType hshIdxWithDefault (const const_rtlHashType aHashMap, const genericType aKey,
     const genericType defaultData, intType hashcode, compareType cmp_func)
 
@@ -931,6 +946,13 @@ genericType hshIdxWithDefault (const const_rtlHashType aHashMap, const genericTy
 
 
 
+/**
+ *  Search for 'aKey' in 'aHashMap'.
+ *  If 'aKey' is element of 'aHashMap' the corresponding value is returned.
+ *  If 'aKey' is not element of 'aHashMap' then 0 is returned.
+ *  @return the value stored for 'aKey' in 'aHashMap', or
+ *          0, if 'aKey' is not a member of 'aHashMap'.
+ */
 genericType hshIdxDefault0 (const const_rtlHashType aHashMap, const genericType aKey,
     intType hashcode, compareType cmp_func)
 
