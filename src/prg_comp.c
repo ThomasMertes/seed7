@@ -286,7 +286,7 @@ void prgDestr (progType old_prog)
         close_entity(old_prog);
         close_idents(old_prog);
         close_type(old_prog);
-        remove_prog_files(old_prog);
+        removeProgFiles(old_prog);
         dump_list(old_prog->literals);
         free_entity(old_prog, old_prog->entity.literal);
         if (old_prog->property.literal != NULL) {

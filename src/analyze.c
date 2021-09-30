@@ -162,6 +162,7 @@ static void includeFile (void)
 
   {
     striType includeFileName;
+    includeResultType includeResult;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* includeFile */
@@ -177,19 +178,22 @@ static void includeFile (void)
         scan_symbol();
         if (current_ident != prog->id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
-        } /* if */
-        if (strChPos(includeFileName, (charType) '\\') != 0) {
-          err_stri(WRONG_PATH_DELIMITER, includeFileName);
-          scan_symbol();
         } else {
-          find_include_file(includeFileName, &err_info);
-          if (unlikely(err_info == MEMORY_ERROR)) {
-            err_warning(OUT_OF_HEAP_SPACE);
-          } else if (unlikely(err_info != OKAY_NO_ERROR)) {
-            /* FILE_ERROR or RANGE_ERROR */
-            err_stri(FILENOTFOUND, includeFileName);
+          if (strChPos(includeFileName, (charType) '\\') != 0) {
+            err_stri(WRONG_PATH_DELIMITER, includeFileName);
           } else {
-            scan_byte_order_mark();
+            includeResult = findIncludeFile((rtlHashType) prog->includeFileHash,
+                                            includeFileName, &err_info);
+            if (unlikely(includeResult == INCLUDE_FAILED)) {
+              if (err_info == MEMORY_ERROR) {
+                err_warning(OUT_OF_HEAP_SPACE);
+              } else {
+                /* FILE_ERROR or RANGE_ERROR */
+                err_stri(FILENOTFOUND, includeFileName);
+              } /* if */
+            } else if (includeResult == INCLUDE_SUCCESS) {
+              scan_byte_order_mark();
+            } /* if */
           } /* if */
           scan_symbol();
         } /* if */
@@ -228,7 +232,7 @@ static void processPragma (void)
             err_warning(WRONG_PATH_DELIMITER);
             scan_symbol();
           } else {
-            append_to_lib_path(symbol.striValue, &err_info);
+            appendToLibPath(symbol.striValue, &err_info);
             if (unlikely(err_info != OKAY_NO_ERROR)) {
               fatal_memory_error(SOURCE_POSITION(2111));
             } /* if */
@@ -443,8 +447,9 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
       resultProg->types = NULL;
+      resultProg->includeFileHash = (void *) initIncludeFileHash();
       in_file.owningProg = resultProg;
-      init_lib_path(sourceFileArgument, libraryDirs, err_info);
+      initLibPath(sourceFileArgument, libraryDirs, err_info);
       init_symbol(err_info);
       init_idents(resultProg, err_info);
       init_findid(resultProg, err_info);
@@ -485,9 +490,9 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         } else {
           resultProg->main_object = MAIN_OBJECT(resultProg);
         } /* if */
-        /* To get a nice list of files with the option -v close_infile() */
-        /* is executed before write_idents() and show_statistic().       */
-        close_infile();
+        /* To get a nice list of files with the option -v closeInfile() */
+        /* is executed before write_idents() and show_statistic().      */
+        closeInfile();
         if (options & SHOW_IDENT_TABLE) {
           write_idents(resultProg);
         } /* if */
@@ -504,7 +509,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         currentlyAnalyzing = FALSE;
       } else {
         prog = progBackup;
-        close_infile();
+        closeInfile();
         clean_idents(resultProg);
         /* heapStatistic(); */
         prgDestr(resultProg);
@@ -515,7 +520,9 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       curr_argument_list = backup_curr_argument_list;
       memcpy(&trace, &traceBackup, sizeof(traceRecord));
       close_symbol();
-      free_lib_path();
+      freeLibPath();
+      shutIncludeFileHash((rtlHashType) resultProg->includeFileHash);
+      resultProg->includeFileHash = NULL;
       leaveExceptionHandling();
       interpreter_exception = backup_interpreter_exception;
     } /* if */
@@ -534,6 +541,7 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
     striType sourceFilePath;
     memSizeType nameLen;
     boolType add_extension;
+    boolType isOpen;
     progType resultProg = NULL;
 
   /* analyzeFile */
@@ -567,22 +575,21 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
         memcpy_to_strelem(&sourceFilePath->mem[sourceFileArgument->size],
                           (const_ustriType) ".sd7", STRLEN(".sd7"));
       } /* if */
-      open_infile(sourceFilePath,
-                  (options & WRITE_LIBRARY_NAMES) != 0,
-                  (options & WRITE_LINE_NUMBERS) != 0, err_info);
-      if (*err_info == FILE_ERROR && add_extension) {
-        *err_info = OKAY_NO_ERROR;
+      isOpen = openInfile(sourceFilePath,
+                          (options & WRITE_LIBRARY_NAMES) != 0,
+                          (options & WRITE_LINE_NUMBERS) != 0, err_info);
+      if (!isOpen && add_extension) {
         sourceFilePath->size = nameLen - STRLEN(".sd7");
-        open_infile(sourceFilePath,
-                    (options & WRITE_LIBRARY_NAMES) != 0,
-                    (options & WRITE_LINE_NUMBERS) != 0, err_info);
+        isOpen = openInfile(sourceFilePath,
+                            (options & WRITE_LIBRARY_NAMES) != 0,
+                            (options & WRITE_LINE_NUMBERS) != 0, err_info);
       } /* if */
 #if HAS_SYMBOLIC_LINKS
-      if (*err_info == OKAY_NO_ERROR) {
+      if (isOpen) {
         sourceFilePath = followLink(sourceFilePath, err_info);
       } /* if */
 #endif
-      if (*err_info == OKAY_NO_ERROR) {
+      if (isOpen && sourceFilePath != NULL) {
         scan_byte_order_mark();
         resultProg = analyzeProg(sourceFileArgument, sourceFilePath, options,
                                  libraryDirs, protFileName, err_info);
@@ -635,7 +642,8 @@ progType analyzeString (const const_striType input_string, uintType options,
   {
     striType sourceFileArgument;
     bstriType input_bstri;
-    progType resultProg;
+    boolType isOpen;
+    progType resultProg = NULL;
 
   /* analyzeString */
     logFunction(printf("analyzeString(\"%s\", 0x" F_X(016) ", *, ",
@@ -643,7 +651,6 @@ progType analyzeString (const const_striType input_string, uintType options,
                 printf("\"%s\", *)\n",
                        striAsUnquotedCStri(protFileName)););
     initAnalyze();
-    resultProg = NULL;
     sourceFileArgument = CSTRI_LITERAL_TO_STRI("STRING");
     if (sourceFileArgument == NULL) {
       *err_info = MEMORY_ERROR;
@@ -652,10 +659,10 @@ progType analyzeString (const const_striType input_string, uintType options,
       if (input_bstri == NULL) {
         *err_info = MEMORY_ERROR;
       } else {
-        open_string(input_bstri,
-                    (options & WRITE_LIBRARY_NAMES) != 0,
-                    (options & WRITE_LINE_NUMBERS) != 0, err_info);
-        if (*err_info == OKAY_NO_ERROR) {
+        isOpen = openString(input_bstri,
+                            (options & WRITE_LIBRARY_NAMES) != 0,
+                            (options & WRITE_LINE_NUMBERS) != 0, err_info);
+        if (isOpen) {
           resultProg = analyzeProg(sourceFileArgument, sourceFileArgument,
                                    options, libraryDirs, protFileName, err_info);
         } /* if */

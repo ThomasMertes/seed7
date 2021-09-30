@@ -935,27 +935,31 @@ objectType prc_if_noop (listType arguments)
 objectType prc_include (listType arguments)
 
   {
-    striType include_file_name;
+    striType includeFileName;
+    includeResultType includeResult;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* prc_include */
-    isit_stri(arg_1(arguments));
-    include_file_name = take_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    includeFileName = take_stri(arg_2(arguments));
     logFunction(printf("prc_include(\"%s\")\n",
-                       striAsUnquotedCStri(include_file_name)));
-    if (strChPos(include_file_name, (charType) '\\') != 0) {
-      err_stri(WRONG_PATH_DELIMITER, include_file_name);
+                       striAsUnquotedCStri(includeFileName)));
+    if (strChPos(includeFileName, (charType) '\\') != 0) {
+      err_stri(WRONG_PATH_DELIMITER, includeFileName);
     } else {
-      find_include_file(include_file_name, &err_info);
-      if (unlikely(err_info == ACTION_ERROR)) {
-        /* This is a compile-time function and it is called at run-time. */
-        return raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, arguments);
-      } else if (unlikely(err_info == MEMORY_ERROR)) {
-        err_warning(OUT_OF_HEAP_SPACE);
-      } else if (unlikely(err_info != OKAY_NO_ERROR)) {
-        /* FILE_ERROR or RANGE_ERROR */
-        err_stri(FILENOTFOUND, include_file_name);
-      } else {
+      includeResult = findIncludeFile((rtlHashType) prog->includeFileHash,
+                                      includeFileName, &err_info);
+      if (unlikely(includeResult == INCLUDE_FAILED)) {
+        if (err_info == ACTION_ERROR) {
+          /* This is a compile-time function and it is called at run-time. */
+          return raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, arguments);
+        } else if (err_info == MEMORY_ERROR) {
+          err_warning(OUT_OF_HEAP_SPACE);
+        } else {
+          /* FILE_ERROR or RANGE_ERROR */
+          err_stri(FILENOTFOUND, includeFileName);
+        } /* if */
+      } else if (includeResult == INCLUDE_SUCCESS) {
         scan_byte_order_mark();
         scan_symbol();
       } /* if */

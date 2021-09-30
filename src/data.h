@@ -401,6 +401,7 @@ typedef struct progStruct {
     objectType arg_v;
     uintType option_flags;
     unsigned int error_count;
+    void *includeFileHash;
     idRootType ident;
     findIdType id_for;
     entityRootType entity;

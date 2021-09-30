@@ -41,6 +41,9 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "infile.h"
+#include "hsh_rtl.h"
+#include "str_rtl.h"
+#include "cmd_rtl.h"
 #include "cmd_drv.h"
 
 #undef EXTERN
@@ -49,6 +52,76 @@
 
 
 static rtlArrayType lib_path;
+
+intType strCmpGeneric (const genericType value1, const genericType value2);
+genericType strCreateGeneric (const genericType source);
+void strDestrGeneric (const genericType old_value);
+
+
+
+rtlHashType initIncludeFileHash (void)
+
+  {
+    rtlHashType includeFileHash;
+
+  /* initIncludeFileHash */
+    logFunction(printf("initIncludeFileHash()\n"););
+    includeFileHash = hshEmpty();
+    logFunction(printf("initIncludeFileHash --> " FMT_U_MEM "\n",
+                       (memSizeType) includeFileHash););
+    return includeFileHash;
+  } /* initIncludeFileHash */
+
+
+
+void shutIncludeFileHash (const const_rtlHashType includeFileHash)
+
+  { /* shutIncludeFileHash */
+    logFunction(printf("shutIncludeFileHash(" FMT_U_MEM ")\n",
+                       (memSizeType) includeFileHash););
+    hshDestr(includeFileHash, &strDestrGeneric, &genericDestr);
+    logFunction(printf("shutIncludeFileHash -->\n"););
+  } /* shutIncludeFileHash */
+
+
+
+static includeResultType openIncludeFile (const rtlHashType includeFileHash,
+    const_striType includeFileName, errInfoType *err_info)
+
+  {
+    striType absolutePath;
+    includeResultType includeResult = INCLUDE_FAILED;
+
+  /* openIncludeFile */
+    logFunction(printf("openIncludeFile(" FMT_U_MEM ", \"%s\", %d)\n",
+                       (memSizeType) includeFileHash,
+                       striAsUnquotedCStri(includeFileName),
+                       *err_info););
+    absolutePath = getAbsolutePath(includeFileName);
+    if (unlikely(absolutePath == NULL)) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      if (hshContains(includeFileHash, (genericType) absolutePath,
+                      strHashCode(absolutePath), &strCmpGeneric)) {
+        /* already included */
+        logMessage(printf("already included: \"%s\"\n",
+                          striAsUnquotedCStri(absolutePath)););
+        includeResult = INCLUDE_ALREADY;
+      } else if (openInfile(includeFileName, in_file.write_library_names,
+                            in_file.write_line_numbers, err_info)) {
+        /* add to list of include files */
+        hshIncl(includeFileHash, (genericType) absolutePath,
+                (genericType) 1, strHashCode(absolutePath),
+                &strCmpGeneric, &strCreateGeneric,
+                &genericCreate, &genericCpy);
+        includeResult = INCLUDE_SUCCESS;
+      } /* if */
+      FREE_STRI(absolutePath, absolutePath->size);
+    } /* if */
+    logFunction(printf("openIncludeFile --> %d (err_info=%d)\n",
+                       includeResult, *err_info););
+    return includeResult;
+  } /* openIncludeFile */
 
 
 
@@ -62,68 +135,64 @@ static rtlArrayType lib_path;
  *  the include library is found the search is stopped and the
  *  include library is opened.
  */
-void find_include_file (const_striType include_file_name, errInfoType *err_info)
+includeResultType findIncludeFile (const rtlHashType includeFileHash,
+    const_striType includeFileName, errInfoType *err_info)
 
   {
-    boolType found;
     memSizeType lib_path_size;
     memSizeType position;
     striType curr_path;
     memSizeType length;
     striType stri;
+    includeResultType includeResult = INCLUDE_FAILED;
 
-  /* find_include_file */
-    logFunction(printf("find_include_file(\"%s\"\n",
-                       striAsUnquotedCStri(include_file_name)););
+  /* findIncludeFile */
+    logFunction(printf("findIncludeFile(" FMT_U_MEM ", \"%s\", %d)\n",
+                       (memSizeType) includeFileHash,
+                       striAsUnquotedCStri(includeFileName),
+                       *err_info););
     if (*err_info == OKAY_NO_ERROR) {
-      if (include_file_name->size >= 1 && include_file_name->mem[0] == '/') {
-        open_infile(include_file_name, in_file.write_library_names,
-                    in_file.write_line_numbers, err_info);
+      if (includeFileName->size >= 1 && includeFileName->mem[0] == '/') {
+        includeResult = openIncludeFile(includeFileHash, includeFileName, err_info);
       } else if (unlikely(lib_path == NULL)) {
         /* This is a compile-time function and it is called at run-time. */
         *err_info = ACTION_ERROR;
       } else {
-        found = FALSE;
         lib_path_size = arraySize(lib_path);
         for (position = 0;
-             !found && *err_info == OKAY_NO_ERROR && position < lib_path_size;
+             includeResult == INCLUDE_FAILED && position < lib_path_size;
              position++) {
           curr_path = lib_path->arr[position].value.striValue;
           if (curr_path->size == 0) {
-            open_infile(include_file_name, in_file.write_library_names,
-                        in_file.write_line_numbers, err_info);
+            includeResult = openIncludeFile(includeFileHash, includeFileName, err_info);
           } else {
-            if (curr_path->size > MAX_STRI_LEN - include_file_name->size) {
+            if (curr_path->size > MAX_STRI_LEN - includeFileName->size) {
               *err_info = MEMORY_ERROR;
             } else {
-              length = curr_path->size + include_file_name->size;
+              length = curr_path->size + includeFileName->size;
               if (!ALLOC_STRI_SIZE_OK(stri, length)) {
                 *err_info = MEMORY_ERROR;
               } else {
                 stri->size = length;
                 memcpy(stri->mem, curr_path->mem,
                     (size_t) curr_path->size * sizeof(strElemType));
-                memcpy(&stri->mem[curr_path->size], include_file_name->mem,
-                    (size_t) include_file_name->size * sizeof(strElemType));
-                open_infile(stri, in_file.write_library_names,
-                            in_file.write_line_numbers, err_info);
+                memcpy(&stri->mem[curr_path->size], includeFileName->mem,
+                    (size_t) includeFileName->size * sizeof(strElemType));
+                includeResult = openIncludeFile(includeFileHash, stri, err_info);
                 FREE_STRI(stri, length);
               } /* if */
             } /* if */
           } /* if */
-          if (*err_info == OKAY_NO_ERROR) {
-            found = TRUE;
-          } else if (*err_info == FILE_ERROR) {
-            *err_info = OKAY_NO_ERROR;
-          } /* if */
         } /* for */
-        if (!found && *err_info == OKAY_NO_ERROR) {
+        if (includeResult == INCLUDE_FAILED && *err_info == OKAY_NO_ERROR) {
           *err_info = FILE_ERROR;
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("find_include_file --> (err_info=%d)\n", *err_info););
-  } /* find_include_file */
+    logFunction(printf("findIncludeFile --> %d (err_info=%d)\n",
+                       includeResult, *err_info););
+    return includeResult;
+  } /* findIncludeFile */
 
 
 
@@ -152,7 +221,7 @@ static void print_lib_path (void)
  *  The function makes sure that all paths in the include library
  *  search path end with '/'.
  */
-void append_to_lib_path (const_striType path, errInfoType *err_info)
+void appendToLibPath (const_striType path, errInfoType *err_info)
 
   {
     memSizeType stri_len;
@@ -160,8 +229,8 @@ void append_to_lib_path (const_striType path, errInfoType *err_info)
     rtlArrayType resized_lib_path;
     memSizeType position;
 
-  /* append_to_lib_path */
-    logFunction(printf("append_to_lib_path(\"%s\")\n",
+  /* appendToLibPath */
+    logFunction(printf("appendToLibPath(\"%s\")\n",
                        striAsUnquotedCStri(path)););
     stri_len = path->size;
     if (stri_len >= 1 && path->mem[stri_len - 1] != '/') {
@@ -195,8 +264,8 @@ void append_to_lib_path (const_striType path, errInfoType *err_info)
         lib_path->max_position++;
       } /* if */
     } /* if */
-    logFunction(printf("append_to_lib_path --> (err_info=%d)\n", *err_info););
-  } /* append_to_lib_path */
+    logFunction(printf("appendToLibPath --> (err_info=%d)\n", *err_info););
+  } /* appendToLibPath */
 
 
 
@@ -208,7 +277,7 @@ void append_to_lib_path (const_striType path, errInfoType *err_info)
  *  3. The directory containing the predefined Seed7 include libraries.
  *  4. The directory specified with the SEED7_LIBRARY environment variable.
  */
-void init_lib_path (const_striType sourceFileName,
+void initLibPath (const_striType sourceFileName,
     const const_rtlArrayType seed7_libraries, errInfoType *err_info)
 
   {
@@ -220,8 +289,8 @@ void init_lib_path (const_striType sourceFileName,
     os_striType library_environment_variable;
     intType idx;
 
-  /* init_lib_path */
-    logFunction(printf("init_lib_path\n"););
+  /* initLibPath */
+    logFunction(printf("initLibPath\n"););
     if (!ALLOC_RTL_ARRAY(lib_path, 0)) {
       *err_info = MEMORY_ERROR;
     } else {
@@ -240,7 +309,7 @@ void init_lib_path (const_striType sourceFileName,
       } else {
         path->size = dir_path_size;
         memcpy(path->mem, sourceFileName->mem, dir_path_size * sizeof(strElemType));
-        append_to_lib_path(path, err_info);
+        appendToLibPath(path, err_info);
         FREE_STRI(path, path->size);
       } /* if */
 
@@ -249,7 +318,7 @@ void init_lib_path (const_striType sourceFileName,
         for (idx = 0;
              idx <= seed7_libraries->max_position - seed7_libraries->min_position;
              idx++) {
-          append_to_lib_path(seed7_libraries->arr[idx].value.striValue, err_info);
+          appendToLibPath(seed7_libraries->arr[idx].value.striValue, err_info);
         } /* for */
       } /* if */
 
@@ -258,7 +327,7 @@ void init_lib_path (const_striType sourceFileName,
       if (path == NULL) {
         *err_info = MEMORY_ERROR;
       } else {
-        append_to_lib_path(path, err_info);
+        appendToLibPath(path, err_info);
         FREE_STRI(path, path->size);
       } /* if */
 
@@ -268,27 +337,27 @@ void init_lib_path (const_striType sourceFileName,
         path = cp_from_os_path(library_environment_variable, err_info);
         os_getenv_string_free(library_environment_variable);
         if (path != NULL) {
-          append_to_lib_path(path, err_info);
+          appendToLibPath(path, err_info);
           FREE_STRI(path, path->size);
         } /* if */
       } /* if */
 
       /* print_lib_path(); */
     } /* if */
-    logFunction(printf("init_lib_path -->\n"););
-  } /* init_lib_path */
+    logFunction(printf("initLibPath -->\n"););
+  } /* initLibPath */
 
 
 
-void free_lib_path (void)
+void freeLibPath (void)
 
   {
     memSizeType length;
     memSizeType position;
     striType stri;
 
-  /* free_lib_path */
-    logFunction(printf("free_lib_path\n"););
+  /* freeLibPath */
+    logFunction(printf("freeLibPath\n"););
     length = arraySize(lib_path);
     for (position = 0; position < length; position++) {
       stri = lib_path->arr[position].value.striValue;
@@ -296,5 +365,5 @@ void free_lib_path (void)
     } /* for */
     FREE_RTL_ARRAY(lib_path, length);
     lib_path = NULL;
-    logFunction(printf("free_lib_path -->\n"););
-  } /* free_lib_path */
+    logFunction(printf("freeLibPath -->\n"););
+  } /* freeLibPath */

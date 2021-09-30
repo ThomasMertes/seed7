@@ -1199,43 +1199,7 @@ const proc: exit (PROGRAM) is func
     exit(0);
   end func;
 
-const proc: PRIMITIVE_INCLUDE (in string: fileName)  is action "PRC_INCLUDE";
-
-var set of string: INCLUDED_LIBRARY_LIST is (set of string).value;
-
-const proc: include (in string: library) is func
-  local
-    var string: libraryName is "";
-  begin
-    if rpos(library, '/') <> 0 then
-      libraryName := library[succ(rpos(library, '/')) ..];
-    else
-      libraryName := library;
-    end if;
-    if libraryName not in INCLUDED_LIBRARY_LIST then
-      incl(INCLUDED_LIBRARY_LIST, libraryName);
-      PRIMITIVE_INCLUDE(library);
-    end if;
-  end func;
-
-incl(INCLUDED_LIBRARY_LIST, "syntax.s7i");
-incl(INCLUDED_LIBRARY_LIST, "boolean.s7i");
-incl(INCLUDED_LIBRARY_LIST, "integer.s7i");
-incl(INCLUDED_LIBRARY_LIST, "char.s7i");
-incl(INCLUDED_LIBRARY_LIST, "string.s7i");
-incl(INCLUDED_LIBRARY_LIST, "reference.s7i");
-incl(INCLUDED_LIBRARY_LIST, "ref_list.s7i");
-incl(INCLUDED_LIBRARY_LIST, "forloop.s7i");
-incl(INCLUDED_LIBRARY_LIST, "struct.s7i");
-incl(INCLUDED_LIBRARY_LIST, "subrange.s7i");
-incl(INCLUDED_LIBRARY_LIST, "array.s7i");
-incl(INCLUDED_LIBRARY_LIST, "idxarray.s7i");
-incl(INCLUDED_LIBRARY_LIST, "hash.s7i");
-incl(INCLUDED_LIBRARY_LIST, "bitset.s7i");
-incl(INCLUDED_LIBRARY_LIST, "bitsetof.s7i");
-incl(INCLUDED_LIBRARY_LIST, "hashsetof.s7i");
-incl(INCLUDED_LIBRARY_LIST, "set.s7i");
-incl(INCLUDED_LIBRARY_LIST, "environment.s7i");
+const proc: include (in string: fileName)  is action "PRC_INCLUDE";
 
 (*
 const proc: var (ref expr: typeExpr) : (ref expr: nameExpr) is (ref expr: initExpr) is action "PRC_TRACE";

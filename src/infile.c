@@ -180,7 +180,7 @@ static inline boolType speedup (void)
 
 
 
-void open_infile (const_striType sourceFileName, boolType write_library_names,
+boolType openInfile (const_striType sourceFileName, boolType write_library_names,
     boolType write_line_numbers, errInfoType *err_info)
 
   {
@@ -191,9 +191,10 @@ void open_infile (const_striType sourceFileName, boolType write_library_names,
     memSizeType name_length;
     striType in_name;
     int path_info = PATH_IS_NORMAL;
+    boolType isOpen = FALSE;
 
-  /* open_infile */
-    logFunction(printf("open_infile(\"%s\", %d, %d, err_info=%d)\n",
+  /* openInfile */
+    logFunction(printf("openInfile(\"%s\", %d, %d, err_info=%d)\n",
                        striAsUnquotedCStri(sourceFileName),
                        write_library_names, write_line_numbers,
                        *err_info););
@@ -203,7 +204,7 @@ void open_infile (const_striType sourceFileName, boolType write_library_names,
       /* printf("fopen(\"" FMT_S_OS "\") --> " FMT_U_MEM "\n",
              os_path, (memSizeType) in_fil); */
       if (in_fil == NULL) {
-        logError(printf("open_infile: "
+        logError(printf("openInfile: "
                         "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_path, os_mode_rb, errno, strerror(errno)););
@@ -244,7 +245,7 @@ void open_infile (const_striType sourceFileName, boolType write_library_names,
               } else {
                 in_file.fil = NULL;
               } /* if */
-              logError(printf("open_infile: speedup() failed.\n"
+              logError(printf("openInfile: speedup() failed.\n"
                               "os_path: \"" FMT_S_OS "\"\n", os_path););
               *err_info = FILE_ERROR;
             } else {
@@ -267,21 +268,23 @@ void open_infile (const_striType sourceFileName, boolType write_library_names,
               in_file.next = file_pointer;
               file_pointer = new_file;
               memcpy(new_file, &in_file, sizeof(inFileRecord));
+              isOpen = TRUE;
             } /* if */
           } /* if */
         } /* if */
       } /* if */
       os_stri_free(os_path);
     } /* if */
-    logFunction(printf("open_infile --> err_info=%d\n", *err_info););
-  } /* open_infile */
+    logFunction(printf("openInfile --> %d (err_info=%d)\n", isOpen, *err_info););
+    return isOpen;
+  } /* openInfile */
 
 
 
-void close_infile (void)
+void closeInfile (void)
 
-  { /* close_infile */
-    logFunction(printf("close_infile\n"););
+  { /* closeInfile */
+    logFunction(printf("closeInfile\n"););
     /* printf("\nclose(\"%s\");\n", in_file.name); */
 #if WITH_COMPILATION_INFO
     if (in_file.write_line_numbers) {
@@ -327,12 +330,12 @@ void close_infile (void)
       in_file.curr_infile = NULL;
     } /* if */
     in_file.next_msg_line = in_file.line + in_file.incr_message_line;
-    logFunction(printf("END close_infile\n"););
-  } /* close_infile */
+    logFunction(printf("END closeInfile\n"););
+  } /* closeInfile */
 
 
 
-void open_string (bstriType input_string, boolType write_library_names,
+boolType openString (bstriType inputString, boolType write_library_names,
     boolType write_line_numbers, errInfoType *err_info)
 
   {
@@ -341,10 +344,11 @@ void open_string (bstriType input_string, boolType write_library_names,
     memSizeType name_length;
     ustriType name_ustri;
     striType in_name;
+    boolType isOpen = FALSE;
 
-  /* open_string */
-    logFunction(printf("open_string(\"%s\", %d, %d, err_info=%d)\n",
-                       bstriAsUnquotedCStri(input_string),
+  /* openString */
+    logFunction(printf("openString(\"%s\", %d, %d, err_info=%d)\n",
+                       bstriAsUnquotedCStri(inputString),
                        write_library_names, write_line_numbers,
                        *err_info););
 #if USE_ALTERNATE_NEXT_CHARACTER
@@ -369,9 +373,9 @@ void open_string (bstriType input_string, boolType write_library_names,
           in_file.fil = NULL;
           in_file.name_ustri = name_ustri;
           in_file.name = in_name;
-          in_file.start = input_string->mem;
+          in_file.start = inputString->mem;
           in_file.nextch = in_file.start;
-          in_file.beyond = in_file.start + input_string->size;
+          in_file.beyond = in_file.start + inputString->size;
           in_file.buffer_size = 0;
           in_file.character = next_character();
           in_file.line = 1;
@@ -385,56 +389,58 @@ void open_string (bstriType input_string, boolType write_library_names,
           in_file.next = file_pointer;
           file_pointer = new_file;
           memcpy(new_file, &in_file, sizeof(inFileRecord));
+          isOpen = TRUE;
         } /* if */
       } /* if */
     } /* if */
 #endif
-    logFunction(printf("open_string --> err_info=%d\n", *err_info););
-  } /* open_string */
+    logFunction(printf("openString --> %d (err_info=%d)\n", isOpen, *err_info););
+    return isOpen;
+  } /* openString */
 
 
 
-static void free_file (inFileType old_file)
+static void freeFile (inFileType old_file)
 
   {
     memSizeType name_length;
 
-  /* free_file */
-    logFunction(printf("free_file\n"););
+  /* freeFile */
+    logFunction(printf("freeFile\n"););
     name_length = strlen((cstriType) old_file->name_ustri);
     FREE_USTRI(old_file->name_ustri, name_length, count.fnam, count.fnam_bytes);
     FREE_STRI(old_file->name, old_file->name->size);
     FREE_FILE(old_file);
-    logFunction(printf("free_file -->\n"););
-  } /* free_file */
+    logFunction(printf("freeFile -->\n"););
+  } /* freeFile */
 
 
 
-void remove_prog_files (progType currentProg)
+void removeProgFiles (progType currentProg)
 
   {
     inFileType aFile;
     inFileType *fileAddr;
     inFileType currFile;
 
-  /* remove_prog_files */
-    logFunction(printf("remove_prog_files\n"););
+  /* removeProgFiles */
+    logFunction(printf("removeProgFiles\n"););
     aFile = file_pointer;
     fileAddr = &file_pointer;
     while (aFile != NULL) {
       currFile = aFile;
       aFile = aFile->next;
-      /* printf("remove_prog_files: %s %lx %lx\n", currFile->name_ustri,
+      /* printf("removeProgFiles: %s %lx %lx\n", currFile->name_ustri,
          (unsigned long) currFile->owningProg, (unsigned long) currentProg); */
       if (currFile->owningProg == currentProg) {
-        free_file(currFile);
+        freeFile(currFile);
         *fileAddr = aFile;
       } else {
         fileAddr = &currFile->next;
       } /* if */
     } /* if */
-    logFunction(printf("remove_prog_files -->\n"););
-  } /* remove_prog_files */
+    logFunction(printf("removeProgFiles -->\n"););
+  } /* removeProgFiles */
 
 
 
@@ -444,7 +450,7 @@ void next_file (void)
     logFunction(printf("next_file\n"););
     in_file.line--;
     if (in_file.up_infile != NULL) {
-      close_infile();
+      closeInfile();
     } else {
       in_file.end_of_file = TRUE;
     } /* if */
