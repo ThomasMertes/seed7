@@ -988,9 +988,9 @@ genericType hshIdxDefault0 (const const_rtlHashType aHashMap, const genericType 
 
 
 /**
- *  Add 'anElem' with the key 'aKey' to the hash map 'aHashMap'.
+ *  Add 'data' with the key 'aKey' to the hash map 'aHashMap'.
  *  If an element with the key 'aKey' already exists,
- *  it is overwritten with 'anElem'.
+ *  it is overwritten with 'data'.
  *  @exception MEMORY_ERROR If there is not enough memory.
  */
 void hshIncl (const rtlHashType aHashMap, const genericType aKey,
@@ -1110,9 +1110,9 @@ const_rtlHashElemType hshRand (const const_rtlHashType aHashMap)
 
 
 /**
- *  Add 'anElem' with the key 'aKey' to the hash map 'aHashMap'.
+ *  Add 'data' with the key 'aKey' to the hash map 'aHashMap'.
  *  If an element with the key 'aKey' already exists,
- *  it is overwritten with 'anElem'.
+ *  it is overwritten with 'data'.
  *  @param data New value, a temporary value which is used or returned.
  *  @return the old element with the key 'aKey' or
  *          the new data value if no old element existed.

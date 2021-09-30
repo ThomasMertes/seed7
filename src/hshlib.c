@@ -584,8 +584,8 @@ objectType hsh_contains_element (hashType aHashMap, objectType aKey,
 
 /**
  *  Hash membership test.
- *  Determine if 'aKey' is a member of the hash map 'aHashMap'.
- *  @return TRUE if 'aKey' is a member of 'aHashMap',
+ *  Determine if 'aKey/arg_2' is a member of the hash map 'aHashMap/arg_1'.
+ *  @return TRUE if 'aKey/arg_2' is a member of 'aHashMap/arg_1',
  *          FALSE otherwise.
  */
 objectType hsh_contains (listType arguments)
@@ -825,7 +825,7 @@ objectType hsh_empty (listType arguments)
 
 
 /**
- *  Remove the element with the key 'aKey' from the hash map 'aHashMap'.
+ *  Remove the element with the key 'aKey/arg_2' from the hash map 'aHashMap/arg_1'.
  */
 objectType hsh_excl (listType arguments)
 
@@ -898,7 +898,7 @@ objectType hsh_excl (listType arguments)
 
 
 /**
- *  For-loop where 'forVar' loops over the values of the hash map 'aHashMap'.
+ *  For-loop where 'forVar/arg_1' loops over the values of the hash map 'aHashMap/arg_2'.
  */
 objectType hsh_for (listType arguments)
 
@@ -922,7 +922,7 @@ objectType hsh_for (listType arguments)
 
 
 /**
- *  For-loop where 'forVar' and 'keyVar' loop over the hash map 'aHashMap'.
+ *  For-loop where 'forVar/arg_1' and 'keyVar/arg_2' loop over the hash map 'aHashMap/arg_3'.
  */
 objectType hsh_for_data_key (listType arguments)
 
@@ -952,7 +952,7 @@ objectType hsh_for_data_key (listType arguments)
 
 
 /**
- *  For-loop where 'keyVar' loops over the keys of the hash map 'aHashMap'.
+ *  For-loop where 'keyVar/arg_1' loops over the keys of the hash map 'aHashMap/arg_2'.
  */
 objectType hsh_for_key (listType arguments)
 
@@ -976,10 +976,10 @@ objectType hsh_for_key (listType arguments)
 
 
 /**
- *  Access one value from the hash table 'aHashMap'.
- *  @return the element with the key 'aKey' from 'aHashMap'.
- *  @exception RANGE_ERROR If 'aHashMap' does not have an element
- *             with the key 'aKey'.
+ *  Access one value from the hash table 'aHashMap/arg_1'.
+ *  @return the element with the key 'aKey/arg_2' from 'aHashMap/arg_1'.
+ *  @exception RANGE_ERROR If 'aHashMap/arg_1' does not have an element
+ *             with the key 'aKey/arg_2'.
  */
 objectType hsh_idx (listType arguments)
 
@@ -1059,10 +1059,10 @@ objectType hsh_idx (listType arguments)
 
 
 /**
- *  Access one value from the hash table 'aHashMap'.
- *  @return the element with the key 'aKey' from 'aHashMap'.
- *  @exception RANGE_ERROR If 'aHashMap' does not have an element
- *             with the key 'aKey'.
+ *  Access one value from the hash table 'aHashMap/arg_1'.
+ *  @return the element with the key 'aKey/arg_2' from 'aHashMap/arg_1'.
+ *  @exception RANGE_ERROR If 'aHashMap/arg_1' does not have an element
+ *             with the key 'aKey/arg_2'.
  */
 objectType hsh_idx2 (listType arguments)
 
@@ -1243,9 +1243,9 @@ objectType hsh_idx2 (listType arguments)
 
 
 /**
- *  Add 'anElem' with the key 'aKey' to the hash map 'aHashMap'.
- *  If an element with the key 'aKey' already exists,
- *  it is overwritten with 'anElem'.
+ *  Add 'data/arg_3' with the key 'aKey/arg_2' to the hash map 'aHashMap/arg_1'.
+ *  If an element with the key 'aKey/arg_2' already exists,
+ *  it is overwritten with 'data/arg_3'.
  *  @exception MEMORY_ERROR If there is not enough memory.
  */
 objectType hsh_incl (listType arguments)
@@ -1336,7 +1336,7 @@ objectType hsh_incl (listType arguments)
 
 
 /**
- *  Obtain the keys of the hash map 'aHashMap'.
+ *  Obtain the keys of the hash map 'aHashMap/arg_1'.
  *  @return the keys of the hash map.
  */
 objectType hsh_keys (listType arguments)
@@ -1361,8 +1361,8 @@ objectType hsh_keys (listType arguments)
 
 
 /**
- *  Number of elements in the hash map 'aHashMap'.
- *  @return the number of elements in 'aHashMap'.
+ *  Number of elements in the hash map 'aHashMap/arg_1'.
+ *  @return the number of elements in 'aHashMap/arg_1'.
  */
 objectType hsh_lng (listType arguments)
 
@@ -1375,10 +1375,10 @@ objectType hsh_lng (listType arguments)
 
 
 /**
- *  Compute pseudo-random key from 'aHashMap'.
+ *  Compute pseudo-random key from 'aHashMap/arg_1'.
  *  The random values are uniform distributed.
  *  @return a random key such that hsh_rand_key(aHashMap) in aHashMap holds.
- *  @exception RANGE_ERROR If 'aHashMap' is empty.
+ *  @exception RANGE_ERROR If 'aHashMap/arg_1' is empty.
  */
 objectType hsh_rand_key (listType arguments)
 
@@ -1488,9 +1488,9 @@ objectType hsh_refidx (listType arguments)
 
 
 /**
- *  Add 'anElem' with the key 'aKey' to the hash map 'aHashMap'.
- *  If an element with the key 'aKey' already exists,
- *  it is overwritten with 'anElem'.
+ *  Add 'data' with the key 'aKey/arg_2' to the hash map 'aHashMap/arg_1'.
+ *  If an element with the key 'aKey/arg_2' already exists,
+ *  it is overwritten with 'data'.
  *  @exception MEMORY_ERROR If there is not enough memory.
  */
 objectType hsh_update (listType arguments)
@@ -1583,7 +1583,7 @@ objectType hsh_update (listType arguments)
 
 
 /**
- *  Obtain the values of the hash map 'aHashMap'.
+ *  Obtain the values of the hash map 'aHashMap/arg_1'.
  *  @return the values of the hash map.
  */
 objectType hsh_values (listType arguments)
