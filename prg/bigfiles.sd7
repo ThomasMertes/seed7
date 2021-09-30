@@ -81,7 +81,7 @@ const proc: showResults (in sizeMapType: sizeMap, in integer: lines) is func
     for lengthIndex range maxIdx(lengthList) downto minIdx(lengthList) until count >= lines do
       length := lengthList[lengthIndex];
       if length in pathsWithLength then
-        for path range pathsWithLength[length] do
+        for path range pathsWithLength[length] until count >= lines do
           writeln(length lpad 14 <& ": " <& path);
           incr(count);
         end for;
