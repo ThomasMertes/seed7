@@ -1801,9 +1801,7 @@ const func integer: keyboardScanCode (in char: current_key) is func
 const proc: execLines is forward;
 
 
-const func string: exec_str_primary (
-    inout string: symbol,
-    inout string: line,
+const func string: exec_str_primary (inout string: symbol, inout string: line,
     inout string: variable_name) is func
   result
     var string: exprResult is "";
@@ -2170,26 +2168,37 @@ const func string: exec_str_primary (
   end func;
 
 
-const func string: exec_str_expr (
-    inout string: symbol,
-    inout string: line,
+const func string: exec_str_mult (inout string: symbol, inout string: line,
+    inout string: variable_name) is func
+  result
+    var string: exprResult is "";
+  local
+    var integer: factor is 0;
+  begin
+    exprResult := exec_str_primary(symbol, line, variable_name);
+    while symbol = "*" do
+      variable_name := "";
+      symbol := get_symbol(line);
+      factor := round(exec_expr(symbol, line));
+      exprResult := exprResult mult factor;
+    end while;
+  end func;
+
+
+const func string: exec_str_expr (inout string: symbol, inout string: line,
     inout string: variable_name) is func
   result
     var string: exprResult is "";
   local
     var string: unused_name is "";
-    var string: op is "";
     var string: stri is "";
   begin
-    exprResult := exec_str_primary(symbol, line, variable_name);
+    exprResult := exec_str_mult(symbol, line, variable_name);
     while symbol = "+" or symbol = "&" do
       variable_name := "";
-      op := symbol;
       symbol := get_symbol(line);
-      stri := exec_str_primary(symbol, line, unused_name);
-      if op = "+" or op = "&" then
-         exprResult &:= stri;
-      end if;
+      stri := exec_str_mult(symbol, line, unused_name);
+      exprResult &:= stri;
     end while;
   end func;
 
