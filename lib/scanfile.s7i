@@ -1320,40 +1320,44 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
 const func string: getSymbolInXmlTag (inout file: inFile) is func
   result
     var string: symbol is "";
+  local
+    var char: character is ' ';
   begin
-    while inFile.bufferChar in white_space_char do
-      inFile.bufferChar := getc(inFile);
+    character := inFile.bufferChar;
+    while character in white_space_char do
+      character := getc(inFile);
     end while;
-    case inFile.bufferChar of
+    case character of
       when html_name_start_char:
         repeat
-          symbol &:= inFile.bufferChar;
-          inFile.bufferChar := getc(inFile);
-        until inFile.bufferChar not in html_name_char;
+          symbol &:= character;
+          character := getc(inFile);
+        until character not in html_name_char;
       when double_quotation_char:
         repeat
-          symbol &:= inFile.bufferChar;
-          inFile.bufferChar := getc(inFile);
-        until inFile.bufferChar = '"' or inFile.bufferChar = EOF;
-        inFile.bufferChar := getc(inFile);
+          symbol &:= character;
+          character := getc(inFile);
+        until character = '"' or character = EOF;
+        character := getc(inFile);
       when single_quotation_char:
         repeat
-          symbol &:= inFile.bufferChar;
-          inFile.bufferChar := getc(inFile);
-        until inFile.bufferChar = ''' or inFile.bufferChar = EOF;
-        inFile.bufferChar := getc(inFile);
+          symbol &:= character;
+          character := getc(inFile);
+        until character = ''' or character = EOF;
+        character := getc(inFile);
       when equals_or_end_tag:
-        symbol &:= inFile.bufferChar;
-        inFile.bufferChar := getc(inFile);
+        symbol &:= character;
+        character := getc(inFile);
       when {EOF}:
         symbol := "";
       otherwise:
         repeat
-          symbol &:= inFile.bufferChar;
-          inFile.bufferChar := getc(inFile);
-        until inFile.bufferChar in white_space_or_end_tag or
-            inFile.bufferChar = EOF;
+          symbol &:= character;
+          character := getc(inFile);
+        until character in white_space_or_end_tag or
+            character = EOF;
     end case;
+    inFile.bufferChar := character;
   end func;
 
 
@@ -1519,10 +1523,8 @@ const proc: getNextHtmlAttribute (inout file: inFile,
     inout string: attributeName, inout string: attributeValue) is func
   begin
     attributeName := getSymbolInXmlTag(inFile);
-    if attributeName = "/" then
-      repeat
-        attributeName := getSymbolInXmlTag(inFile);
-      until attributeName = ">" or attributeName = "";
+    if attributeName = "/" and inFile.bufferChar = '>' then
+      inFile.bufferChar := getc(inFile);
       attributeName := "";
       attributeValue := "/";
     elsif attributeName = ">" then

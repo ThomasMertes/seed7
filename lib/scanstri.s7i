@@ -1516,10 +1516,8 @@ const proc: getNextHtmlAttribute (inout string: stri,
     inout string: attributeName, inout string: attributeValue) is func
   begin
     attributeName := getSymbolInXmlTag(stri);
-    if attributeName = "/" then
-      repeat
-        attributeName := getSymbolInXmlTag(stri);
-      until attributeName = ">" or attributeName = "";
+    if attributeName = "/" and stri <> "" and stri[1] = '>' then
+      stri := stri[2 ..];
       attributeName := "";
       attributeValue := "/";
     elsif attributeName = ">" then
