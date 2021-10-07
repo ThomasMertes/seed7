@@ -7323,28 +7323,28 @@ const proc: importEnvironment (in string: fileName) is func
   end func;
 
 
-const proc: appendOption (inout array string: options, in string: optionToAppend) is func
+const proc: appendLibrary (inout array string: options, in string: libraryToAppend) is func
   local
     var string: existingOption is "";
     var boolean: found is FALSE;
   begin
-    if optionToAppend <> "" then
+    if libraryToAppend <> "" then
       for existingOption range options until found do
-        found := existingOption = optionToAppend;
+        found := existingOption = libraryToAppend;
       end for;
       if not found then
-        options &:= optionToAppend;
+        options &:= libraryToAppend;
       end if;
     end if;
   end func;
 
 
-const proc: appendOption (inout array string: options, in array string: optionsToAppend) is func
+const proc: appendLibrary (inout array string: options, in array string: librariesToAppend) is func
   local
-    var string: optionToAppend is "";
+    var string: libraryToAppend is "";
   begin
-    for optionToAppend range optionsToAppend do
-      appendOption(options, optionToAppend);
+    for libraryToAppend range librariesToAppend do
+      appendLibrary(options, libraryToAppend);
     end for;
   end func;
 
@@ -7629,40 +7629,40 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             end if;
             linkParams &:= toOsPath(objectFile);
             if compilerLibraryUsed then
-              appendOption(linkParams, toOsPath(compiler_lib));
+              appendLibrary(linkParams, toOsPath(compiler_lib));
             end if;
             if compDataLibraryUsed then
-              appendOption(linkParams, toOsPath(comp_data_lib));
+              appendLibrary(linkParams, toOsPath(comp_data_lib));
             end if;
             if drawLibraryUsed then
-              appendOption(linkParams, toOsPath(draw_lib));
+              appendLibrary(linkParams, toOsPath(draw_lib));
             end if;
             if consoleLibraryUsed then
-              appendOption(linkParams, toOsPath(console_lib));
+              appendLibrary(linkParams, toOsPath(console_lib));
             end if;
             if databaseLibraryUsed then
-              appendOption(linkParams, toOsPath(database_lib));
+              appendLibrary(linkParams, toOsPath(database_lib));
             end if;
-            appendOption(linkParams, toOsPath(seed7_lib));
+            appendLibrary(linkParams, toOsPath(seed7_lib));
             if ccConf.LINKER_OPT_SPECIAL_LIB <> "" then
-              appendOption(linkParams, ccConf.LINKER_OPT_SPECIAL_LIB);
-              appendOption(linkParams, toOsPath(special_lib));
+              appendLibrary(linkParams, ccConf.LINKER_OPT_SPECIAL_LIB);
+              appendLibrary(linkParams, toOsPath(special_lib));
             end if;
-            appendOption(linkParams, ccConf.SYSTEM_LIBS);
+            appendLibrary(linkParams, ccConf.SYSTEM_LIBS);
             if bigintLibraryUsed then
-              appendOption(linkParams, ccConf.SYSTEM_BIGINT_LIBS);
+              appendLibrary(linkParams, ccConf.SYSTEM_BIGINT_LIBS);
             end if;
             if consoleLibraryUsed then
-              appendOption(linkParams, ccConf.SYSTEM_CONSOLE_LIBS);
+              appendLibrary(linkParams, ccConf.SYSTEM_CONSOLE_LIBS);
             end if;
             if databaseLibraryUsed then
-              appendOption(linkParams, ccConf.SYSTEM_DATABASE_LIBS);
+              appendLibrary(linkParams, ccConf.SYSTEM_DATABASE_LIBS);
             end if;
             if drawLibraryUsed then
-              appendOption(linkParams, ccConf.SYSTEM_DRAW_LIBS);
+              appendLibrary(linkParams, ccConf.SYSTEM_DRAW_LIBS);
             end if;
             if mathLibraryUsed then
-              appendOption(linkParams, ccConf.SYSTEM_MATH_LIBS);
+              appendLibrary(linkParams, ccConf.SYSTEM_MATH_LIBS);
             end if;
             if ccConf.CALL_C_COMPILER_FROM_SHELL then
               execProgramScript(link_cmd, linkParams, linkErrFile);
