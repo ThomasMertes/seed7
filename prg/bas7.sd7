@@ -2026,9 +2026,16 @@ const func string: exec_str_primary (inout string: symbol, inout string: line,
         expect(",", symbol, line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        exprResult := stri1 mult round(num1);
-        writeln(log, "RPT$(" <& literal(stri1) <& ", " <& num1 <&
-            ") -> " <& literal(exprResult));
+        index1 := round(num1);
+        if index1 >= 0 then
+          exprResult := stri1 mult index1;
+          writeln(log, "RPT$(" <& literal(stri1) <& ", " <& num1 <&
+              ") -> " <& literal(exprResult));
+        else
+          error_marker;
+          writeln(err, "RPT$(" <& literal(stri1) <& ", " <& num1 <&
+              ") - REPEAT COUNT NEGATIVE");
+        end if;
       when {"RTRIM$"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
@@ -2173,14 +2180,22 @@ const func string: exec_str_mult (inout string: symbol, inout string: line,
   result
     var string: exprResult is "";
   local
+    var float: num1 is 0.0;
     var integer: factor is 0;
   begin
     exprResult := exec_str_primary(symbol, line, variable_name);
     while symbol = "*" do
       variable_name := "";
       symbol := get_symbol(line);
-      factor := round(exec_expr(symbol, line));
-      exprResult := exprResult mult factor;
+      num1 := exec_expr(symbol, line);
+      factor := round(num1);
+      if factor >= 0 then
+        exprResult := exprResult mult factor;
+      else
+        error_marker;
+        writeln(err, "REPEAT COUNT " <& num1 <&
+            " NEGATIVE IN STRING MULTIPLICATION.");
+      end if;
     end while;
   end func;
 
