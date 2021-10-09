@@ -37,5 +37,5 @@ void conVScroll (intType startlin, intType startcol,
 #ifdef CONSOLE_USES_CON_TEXT
 intType conColumn (void);
 intType conLine (void);
-void conWrite (const_striType stri);
+void conWrite (const const_striType stri);
 #endif

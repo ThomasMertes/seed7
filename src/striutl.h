@@ -209,7 +209,7 @@ cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length);
 bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info);
 bstriType stri_to_bstri8 (const const_striType stri);
 #ifdef CONSOLE_WCHAR
-bstriType stri_to_bstriw (const_striType stri, errInfoType *err_info);
+bstriType stri_to_bstriw (const const_striType stri, errInfoType *err_info);
 #endif
 wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
                              errInfoType *err_info);

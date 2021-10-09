@@ -119,7 +119,7 @@ void conVScroll (intType startlin, intType startcol,
  *  position of the console. The string stri is not allowed to go
  *  beyond the right border of the console.
  */
-void conWrite (const_striType stri)
+void conWrite (const const_striType stri)
 
   {
     memSizeType size;

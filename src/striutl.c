@@ -1848,7 +1848,7 @@ bstriType stri_to_bstri8 (const const_striType stri)
  *  @return an UTF-8 encoded bstring, or
  *          NULL if the memory allocation failed.
  */
-bstriType stri_to_bstriw (const_striType stri, errInfoType *err_info)
+bstriType stri_to_bstriw (const const_striType stri, errInfoType *err_info)
 
   {
     memSizeType wstri_size;
