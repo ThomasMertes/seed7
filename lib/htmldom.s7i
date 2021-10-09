@@ -1,0 +1,285 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  htmldom.s7i   HTML dom parser                                   *)
+(*  Copyright (C) 2009, 2010, 2012, 2015, 2021  Thomas Mertes       *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "xmldom.s7i";
+include "html_ent.s7i";
+include "html.s7i";
+
+
+(**
+ *  Type for a HTML document.
+ *)
+const type: htmlDocument is new struct
+    var string: doctypeName is "";
+    var array string: doctypeArguments is 0 times "";
+    var xmlNode: html is xmlNode.value;
+  end struct;
+
+
+(**
+ *  Get the root [[xmldom#xmlNode|xmlNode]] of a [[#htmlDocument|htmlDocument]].
+ *)
+const func xmlNode: getHtmlRoot (in htmlDocument: document) is
+  return document.html;
+
+
+(**
+ *  Get the name of !DOCTYPE of a [[#htmlDocument|htmlDocument]].
+ *)
+const func string: getDoctypeName (in htmlDocument: document) is
+  return document.doctypeName;
+
+
+(**
+ *  Get the specified parameter from the <!DOCTYPE structure.
+ *)
+const func string: getDoctypeParameter (in htmlDocument: document, in integer: index) is
+  return document.doctypeArguments[index];
+
+
+const type: htmlDomParserState is new struct
+    var file: inFile is STD_NULL;
+    var string: symbol is "";
+  end struct;
+
+
+
+const func xmlNode: readHtmlNode (inout htmlDomParserState: parserState,
+    in string: parentEndTagHead) is forward;
+
+
+const func xmlNode: readHtmlContainerSubNodes (inout htmlDomParserState: parserState,
+    inout xmlContainer: containerElement, in string: parentEndTagHead) is func
+  result
+    var xmlNode: node is xmlNode.value;
+  local
+    var string: endTagHead is "";
+    var set of string: alternateEndTags is (set of string).value;
+    var xmlElement: emptyElement is xmlElement.value;
+  begin
+    endTagHead := "</" & containerElement.name;
+    case containerElement.name of
+      when {"li"}:       alternateEndTags := {"<li"};
+                         if parentEndTagHead in {"</ol", "</ul", "</menu"} then
+                           alternateEndTags |:= {"</ol", "</ul", "</menu"};
+                         end if;
+      when {"dt", "dd"}: alternateEndTags := {"<dt", "<dd"};
+                         if parentEndTagHead in {"</dl"} then
+                           incl(alternateEndTags, parentEndTagHead);
+                         end if;
+      when {"td", "th"}: alternateEndTags := {"<td", "<th", "<tr", "<thead", "<tbody", "<tfoot"};
+                         if parentEndTagHead in {"</tr", "</thead", "</tbody", "</tfoot", "</table"} then
+                           alternateEndTags |:= {"</tr", "</thead", "</tbody", "</tfoot", "</table"};
+                         end if;
+      when {"tr"}:       alternateEndTags := {"<tr", "<thead", "<tbody", "<tfoot"};
+                         if parentEndTagHead in {"</thead", "</tbody", "</tfoot", "</table"} then
+                           alternateEndTags |:= {"</thead", "</tbody", "</tfoot", "</table"};
+                         end if;
+      when {"thead", "tbody", "tfoot"}:
+                         alternateEndTags := {"<thead", "<tbody", "<tfoot"};
+                         if parentEndTagHead in {"</table"} then
+                           incl(alternateEndTags, parentEndTagHead);
+                         end if;
+      when {"option"}:   alternateEndTags := {"<option", "</select"};
+      when {"p"}:        alternateEndTags := {"<address", "<article", "<aside",
+                             "<blockquote", "<details", "<div", "<dl",
+                             "<fieldset", "<figcaption", "<figure", "<footer",
+                             "<form", "<h1", "<h2", "<h3", "<h4", "<h5", "<h6",
+                             "<header", "<hgroup", "<hr", "<menu", "<nav",
+                             "<ol", "<p", "<pre", "<section", "<table", "<ul"};
+                         if parentEndTagHead not in {"</a", "</audio", "</del", "</ins",
+                                                     "</map", "</noscript", "</video"} then
+                           incl(alternateEndTags, parentEndTagHead);
+                         end if;
+      otherwise:         alternateEndTags := {parentEndTagHead};
+    end case;
+    parserState.symbol := getXmlTagHeadOrContent(parserState.inFile);
+    while parserState.symbol <> "" and lower(parserState.symbol) <> endTagHead and
+        lower(parserState.symbol) not in alternateEndTags do
+      containerElement.subNodes &:= [] (readHtmlNode(parserState, endTagHead));
+    end while;
+    if lower(parserState.symbol) = endTagHead then
+      skipXmlTag(parserState.inFile);
+      parserState.symbol := getXmlTagHeadOrContent(parserState.inFile);
+    end if;
+    if length(containerElement.subNodes) = 0 then
+      # There are no subnodes: Create empty element
+      emptyElement.name := containerElement.name;
+      emptyElement.attributes := containerElement.attributes;
+      node := toInterface(emptyElement);
+    else
+      node := toInterface(containerElement);
+    end if;
+  end func;
+
+
+const func xmlNode: readHtmlNode (inout htmlDomParserState: parserState,
+    in string: parentEndTagHead) is func
+  result
+    var xmlNode: node is xmlNode.value;
+  local
+    var xmlContainer: containerElement is xmlContainer.value;
+    var xmlElement: emptyElement is xmlElement.value;
+    var xmlText: currentText is xmlText.value;
+    var string: attributeName is "";
+    var string: attributeValue is "";
+  begin
+    if startsWith(parserState.symbol, "<") then
+      # HTML is case insensitive.
+      containerElement.name := lower(parserState.symbol[2 ..]);
+      getNextHtmlAttribute(parserState.inFile, attributeName, attributeValue);
+      while attributeName <> "" do
+        containerElement.attributes @:= [lower(attributeName)]
+            decodeHtmlEntities(attributeValue);
+        getNextHtmlAttribute(parserState.inFile, attributeName, attributeValue);
+      end while;
+      if attributeValue = "/" or containerElement.name in voidHtmlElements or
+           startsWith(containerElement.name, "/") then
+        # The HTML tag ends with /> or
+        # it is a superflous end tag that starts with </
+        emptyElement.name := containerElement.name;
+        emptyElement.attributes := containerElement.attributes;
+        node := toInterface(emptyElement);
+        parserState.symbol := getXmlTagHeadOrContent(parserState.inFile);
+      else # attributeValue = ""
+        # The HTML tag ends with >
+        node := readHtmlContainerSubNodes(parserState, containerElement, parentEndTagHead);
+      end if;
+    else
+      currentText.content := decodeHtmlEntities(rtrim(parserState.symbol));
+      node := toInterface(currentText);
+      parserState.symbol := getXmlTagHeadOrContent(parserState.inFile);
+    end if;
+  end func;
+
+
+(**
+ *  Read a HTML file into a [[#htmlDocument|htmlDocument]] structure.
+ *  There are differences between HTML and XML:
+ *  * HTML is case insensitive while XML is not.
+ *  * For several HTML tags the closing tags are optional.
+ *  * HTML attributes can have no value.
+ *  * The <!DOCTYPE data is not an HTML tag.
+ *  * There might be closing tags without corresponding opening tag.
+ *  The parser considers several things special for HTML:
+ *  * Tag names and attribute names are converted to lower case.
+ *  * There are alternate end tags for tags with optional closing tag.
+ *  * Attributes without value get "" as value.
+ *  * The <!DOCTYPE data is not handled as [[xmldom#xmlNode|xmlNode]].
+ *  * Closing tags without opening tag are left in as is.
+ *  The HTML stored in the [[#htmlDocument|htmlDocument]] is inspired by XHTML.
+ *  @param inFile File with HTML data.
+ *  @return a [[#htmlDocument|htmlDocument]] containing the contents of the HTML file.
+ *)
+const func htmlDocument: readHtml (inout file: inFile) is func
+  result
+    var htmlDocument: document is htmlDocument.value;
+  local
+    var string: symbol is "";
+    var string: argument is "";
+    var htmlDomParserState: parserState is htmlDomParserState.value;
+  begin
+    symbol := getXmlTagHeadOrContent(inFile);
+    while startsWith(symbol, "<?") do
+      skipXmlTag(inFile);
+      symbol := getXmlTagHeadOrContent(inFile);
+    end while;
+    if startsWith(symbol, "<!") and upper(symbol) = "<!DOCTYPE" then
+      document.doctypeName := symbol[2 ..];
+      argument := getSymbolInXmlTag(inFile);
+      while argument <> ">" do
+        if startsWith(argument, "\"") then
+          document.doctypeArguments &:= [] (argument & "\"");
+        else
+          document.doctypeArguments &:= [] argument;
+        end if;
+        argument := getSymbolInXmlTag(inFile);
+      end while;
+      symbol := getXmlTagHeadOrContent(inFile);
+    else
+      document.doctypeName := "!DOCTYPE";
+      document.doctypeArguments := [] ("HTML");
+    end if;
+    parserState.inFile := inFile;
+    parserState.symbol := symbol;
+    document.html := readHtmlNode(parserState, "");
+  end func;
+
+
+(**
+ *  Read HTML data from a string into a [[#htmlDocument|htmlDocument]] structure.
+ *  There are differences between HTML and XML:
+ *  * HTML is case insensitive while XML is not.
+ *  * For several HTML tags the closing tags are optional.
+ *  * HTML attributes can have no value.
+ *  * The <!DOCTYPE data is not an HTML tag.
+ *  * There might be closing tags without corresponding opening tag.
+ *  The parser considers several things special for HTML:
+ *  * Tag names and attribute names are converted to lower case.
+ *  * There are alternate end tags for tags with optional closing tag.
+ *  * Attributes without value get "" as value.
+ *  * The <!DOCTYPE data is not handled as [[xmldom#xmlNode|xmlNode]].
+ *  * Closing tags without opening tag are left in as is.
+ *  The HTML stored in the [[#htmlDocument|htmlDocument]] is inspired by XHTML.
+ *  @param htmlStri String with HTML data.
+ *  @return a [[#htmlDocument|htmlDocument]] containing the contents of the ''htmlStri''.
+ *)
+const func htmlDocument: readHtml (in string: htmlStri) is func
+  result
+    var htmlDocument: document is htmlDocument.value;
+  local
+    var file: htmlFile is STD_NULL;
+  begin
+    htmlFile := openStrifile(htmlStri);
+    document := readHtml(htmlFile);
+  end func;
+
+
+(**
+ *  Write a [[#htmlDocument|htmlDocument]] to the specified ''outFile''.
+ *)
+const proc: writeHtml (inout file: outFile, in htmlDocument: document) is func
+  local
+    var string: argument is "";
+  begin
+    write(outFile, "<" <& document.doctypeName);
+    for argument range document.doctypeArguments do
+      write(outFile, " " <& argument);
+    end for;
+    writeln(outFile, ">");
+    writeXml(outFile, document.html);
+  end func;
+
+
+(**
+ *  Write a [[#htmlDocument|htmlDocument]] to the standard output file ([[stdio#OUT|OUT]]).
+ *)
+const proc: writeHtml (in htmlDocument: document) is func
+  begin
+    writeHtml(OUT, document);
+  end func;

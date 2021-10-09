@@ -1,3 +1,117 @@
+20211009:
+- Seed7's approach to avoid double library includes has been
+  improved. Many thanks to Zachary Menzies for reporting the
+  problem (a second library with the same name but in a different
+  directory was not included) and for providing a test case to
+  trigger it. The new mechanism uses the absolute path of a library
+  to determine if it already has been included. Now the map of
+  included libraries is not part of the compiled executable anymore.
+  Changes have been made in seed7_05.s7i, analyze.c, data.h,
+  infile.c, infile.h, libpath.c, libpath.h, prclib.c and prg_comp.c.
+- The new library htmldom.s7i has been added. This library contains
+  an improved HTML DOM parser. Many thanks to OddCitron1981 for
+  suggesting to parse some of the wild HTML out there on the web. The
+  functions readHtmlNode() and readHtml() have been moved from
+  xmldom.s7i to htmldom.s7i. The type htmlDocument and the function
+  readHtmlContainerSubNodes() have been added. Improvements of HTML
+  scanning functions were also made due to this suggestion. The new
+  HTML parser considers several things special for HTML:
+  - Tag names and attribute names are converted to lower case.
+  - There are alternate end tags for tags with optional closing tag.
+  - Attributes without value get "" as value.
+  - The <!DOCTYPE data is not handled as xmlNode.
+  - Closing tags without opening tag are left in as is.
+- The HTML scanning functions in scanfile.s7i and scanstri.s7i have
+  been improved:
+  - HTML tag attributes without value are allowed now.
+  - Reading of HTML tag attributes now stops at the end of tag
+    character (>).
+  - CDATA sections are considered now.
+  - The functions getXmlTagHeadOrContent(), getSymbolInXmlTag(),
+    getHtmlAttributeValue() and getNextHtmlAttribute() have been
+    improved.
+  - The function getXmlCdataContent() has been added.
+- A chapter about for-until-loops has been added to the manual.
+- The makefiles and the compiler (s7c.sd7) have been improved to
+  avoid linking unused system libraries (e.g. with -lm). Changes have
+  been done in cc_conf.s7i, comp/action.s7i, comp/flt_act.s7i,
+  comp/library.s7i, s7c.sd7, cmd_rtl.c and in the makefiles.
+- The bas7.sd7 (basic interpreter) example program has been improved.
+  - Now, it is possible to do a string multiplication with the *
+    operator. E.g.: "ha"*3 results in "hahaha" and "ab"*2+"xy"*3
+    results in "ababxyxyxy".
+  - Now, the RPT$ function is checked for a negative factor.
+- The wiz.sd7 example program has been refactored. The functions
+  treasureNumber() and vendorDies() have been introduced.
+- The bigfiles.sd7 example program has been improved to limit the
+  length of the result list.
+- The compiler has been improved:
+  - Now, unused system libraries are not linked to the executable.
+  - In comp/flt_act.s7i the implementation of FLT_DECOMPOSE has been
+    improved and float comparisons set the flag mathLibraryUsed, if
+    the implementation requires it.
+  - Two functions named appendLibrary() have been added to s7c.sd7.
+    These functions avoid that a system library is linked twice.
+  - In comp/action.s7i calls of BIG_... actions now set the flag
+    bigintLibraryUsed  and calls of FLT_... actions (that need the
+    math system library) now set the flag mathLibraryUsed.
+  - The flags bigintLibraryUsed and mathLibraryUsed have been added
+    to comp/library.s7i.
+- In xmldom.s7i the writeXml functions have been refactored.
+  Unnecessary definitions of writeXml have been removed.
+- Definitions of SYSTEM_BIGINT_LIBS and SYSTEM_MATH_LIBS have been
+  added to cc_conf.s7i. The definition of ADDITIONAL_SYSTEM_LIBS
+  has been removed. SYSTEM_BIGINT_LIBS and SYSTEM_MATH_LIBS are
+  used in confval.sd7 and s7c.sd7.
+- Several improvements in chkccomp.c have been done:
+  - Now SYSTEM_MATH_LIBS and LINKER_OPT_DYN_LINK_LIBS are
+    considered. This helps to avoid linking unused libraries.
+  - ADDITIONAL_SYSTEM_LIBS has been renamed to SYSTEM_BIGINT_LIBS. 
+  - Now, it checks if fileno() succeeds after a successful
+    call of popen() (this fixes a problem with Emscripten).
+  - The function appendOption() has been improved.
+  - The type of several indices has been changed from int to
+    unsigned int (this reduces the number of C warnings).
+  - The value LINKER_OPT_DYN_LINK_LIBS is now added to a
+    corresponding list of system libraries if dynamic linking at
+    run-time is necessary.
+- In cmd_rtl.c the function doReadLink() has been improved to work
+  also for symlinks in the Linux /proc filesystem (in /proc the
+  stat() function reports a symlink size of 0).
+- The macro environmenStrncmp has been renamed to environmentStrncmp.
+- The function getProgramPath() has been moved from analyze.c to
+  cmd_rtl.c. Additionally it has been improved and renamed to
+  getAbsolutePath().
+- In cmd_unx.c the function getExecutablePath() has been improved to
+  use doReadLink() and to return a straightened absolute path (the
+  special directories "." and ".." are interpreted according to
+  their conventional meanings).
+- The functions concatAndStraightenPath() and
+  straightenAbsolutePath() have been added to str_rtl.c.
+- In infile.c the functions open_infile(), close_infile(),
+  open_string() and remove_prog_files() have been renamed to
+  openInfile(), closeInfile(), openString() and removeProgFiles()
+  respectively. Now openInfile() and openString() return a
+  boolType result to indicate the success.
+- In libpath.c the functions find_include_file(),
+  append_to_lib_path(), init_lib_path() and free_lib_path() have
+  been renamed to findIncludeFile(), appendToLibPath(),
+  initLibPath() and freeLibPath() respectively. The functions
+  initIncludeFileHash(), shutIncludeFileHash() and
+  openIncludeFile() have been added. The added functions maintain a
+  hashmap of already included files.
+- In prclib.c the function prc_include() has been adjusted to call
+  the new function that avoids double includes. Now the 2nd
+  parameter ofthe action PRC_INCLUDE contains the file name to be
+  included.
+- In striutl.c the functions stri_to_os_utf8(), conv_to_os_stri()
+  have been improved to return a boolType result that indicates
+  success.
+- Logging functions have been added to strlib.c.
+- Documentation comments have been improved in cc_conf.s7i,
+  html.s7i, osfiles.s7i, scanfile.s7i, scanstri.s7i, cmdlib.c,
+  cmd_rtl.c, hshlib.c and hsh_rtl.c.
+
 20210904:
 - The linking of PostgreSQL has been improved. Many thanks go to
   SiliconWizard, for pointing out linking problems and for helping
@@ -43,7 +157,7 @@
   to consider the actions INT_SUCC, INT_PRED, INT_ICONV1,
   INT_ICONV3 and SET_RAND. The handling of the actions INT_RAND,
   INT_ABS and INT_NEGATE has been improved. The functions
-  getIntAddRange() and getSetRandRange() have been improved.
+  getIntAddRange() and getSetRandRange() have been added.
 - The program chk_all.sd7 has been adjusted to the changes in the
   check programs.
 - A spelling error in s7c.sd7 has been fixed.

@@ -74,6 +74,7 @@ $ include "seed7_05.s7i";
   include "logfile.s7i";
   include "font8x8.s7i";
   include "pixmap_file.s7i";
+  include "editline.s7i";
 
 const integer: MAX_LINENUM is 2147483647;
 const integer: TEXT_LINES is 25;
@@ -10180,6 +10181,7 @@ const func boolean: loadProg (in string: name) is func
 
 const proc: interactiveMode is func
   local
+    var file: commandFile is STD_NULL;
     var string: symbol is "";
     var string: line is "";
     var boolean: running is TRUE;
@@ -10191,10 +10193,11 @@ const proc: interactiveMode is func
     IN := openEcho(KEYBOARD, OUT);
     IN := openLine(IN);
     err := OUT;
+    commandFile := openEditLine(KEYBOARD, OUT);
     writeln("Type END to exit direct mode.");
     repeat
       write("] ");
-      readln(line);
+      readln(commandFile, line);
       symbol := get_symbol(line);
       running := execCmd(symbol, line);
     until not running;

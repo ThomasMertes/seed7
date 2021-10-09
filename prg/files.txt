@@ -196,6 +196,7 @@ hashsetof.s7i Support for hashsets of a base type
 hmac.s7i     Hash-based message authentication code functions.
 html.s7i     Support functions for html
 html_ent.s7i HTML entity handling library
+htmldom.s7i  HTML dom parser
 http_response.s7i Support for HTTP responses.
 httpserv.s7i Support for HTTP server and HTTP requests.
 huffman.s7i  Support for Huffman coding.
@@ -295,7 +296,7 @@ window.s7i   Filter file for text windows with random access
 wrinum.s7i   Functions to write numbers
 x509cert.s7i Support for X.509 public key certificates.
 xml_ent.s7i  XML entity handling library
-xmldom.s7i   Simple XML dom parser
+xmldom.s7i   XML dom parser
 xz.s7i       XZ compression support library
 zip.s7i      Zip compression support library
 zstd.s7i     Zstandard compression support library

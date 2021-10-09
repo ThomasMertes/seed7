@@ -29,6 +29,9 @@
 include "scanstri.s7i";
 
 
+(**
+ *  Set of void HTML elements (that don't need a closing tag).
+ *)
 const set of string: voidHtmlElements is {
     "area", "base", "br", "col", "command", "embed", "hr", "img",
     "input", "keygen", "link", "meta", "param", "source", "wbr"};
