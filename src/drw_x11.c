@@ -52,9 +52,11 @@
 #ifdef WITH_XSHAPE_EXTENSION
 #include <X11/extensions/shape.h>
 #endif
-#ifdef HAS_XRENDER_EXTENSION
-#include <X11/extensions/Xrender.h>
 #endif
+#ifdef X11_XRENDER_INCLUDE
+#include X11_XRENDER_INCLUDE
+#else
+#include <X11/extensions/Xrender.h>
 #endif
 
 #include "common.h"

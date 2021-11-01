@@ -5989,7 +5989,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
     const char *dllNameList[] = { X11_DLL };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES
     const char *dllNameList[] = {"libX11.so", "libX11.so.6", "libX11.so.5"};
-    const char *xRenderDllNameList[] = {"libXrender.so"};
+    const char *xRenderDllNameList[] = {"libXrender.so", "libXrender.so.1"};
 #elif LIBRARY_TYPE == MACOS_LIBRARIES
     const char *dllNameList[] = {"libX11.dylib"};
     const char *xRenderDllNameList[] = {"libXrender.dylib"};
@@ -6000,6 +6000,8 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
     char includeOption[BUFFER_SIZE];
     const char *x11Include = NULL;
     const char *x11IncludeCommand;
+    const char *x11XrenderInclude = NULL;
+    const char *x11XrenderIncludeCommand = "";
     char testProgram[BUFFER_SIZE];
     unsigned int nameIndex;
     int searchForLib = 1;
@@ -6033,8 +6035,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
     if (x11Include != NULL) {
       x11IncludeCommand = "#include <X11/X.h>\n"
                           "#include <X11/Xlib.h>\n"
-                          "#include <X11/Xutil.h>\n"
-                          "#include <X11/extensions/Xrender.h>\n";
+                          "#include <X11/Xutil.h>\n";
 #ifdef ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS
     } else {
       includeOption[0] = '\0';
@@ -6042,6 +6043,25 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
       fprintf(versionFile, "#define X11_INCLUDE \"%s\"\n", x11Include);
       fprintf(logFile, "\rX11: %s found in Seed7 include directory.\n", x11Include);
       x11IncludeCommand = "#include \"x11_x.h\"\n";
+#endif
+    } /* if */
+    sprintf(testProgram, "#include<stdio.h>\n%s"
+                         "#include <X11/extensions/Xrender.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "Display *display;\n"
+                         "int event_basep;\n"
+                         "int error_basep;\n"
+                         "display = XOpenDisplay(\"\");\n"
+                         "printf(\"%%d\\n\", (int)\n"
+                         "    XRenderQueryExtension(display, &event_basep, &error_basep));\n"
+                         "return 0;}\n", x11IncludeCommand);
+    if (compileAndLinkWithOptionsOk(testProgram, "", "")) {
+      x11XrenderIncludeCommand = "#include <X11/extensions/Xrender.h>\n";
+#ifdef ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS
+    } else {
+      x11XrenderInclude = "x11_rend.h";
+      fprintf(versionFile, "#define X11_XRENDER_INCLUDE \"%s\"\n", x11XrenderInclude);
+      x11XrenderIncludeCommand = "#include \"x11_rend.h\"\n";
 #endif
     } /* if */
     if (x11Include == NULL) {
@@ -6079,15 +6099,15 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
                         libDirList, sizeof(libDirList) / sizeof(char *),
                         libNameList, sizeof(libNameList) / sizeof(char *),
                         system_draw_libs)) {
-        sprintf(testProgram, "#include<stdio.h>\n%s"
+        sprintf(testProgram, "#include<stdio.h>\n%s%s"
                              "int main(int argc,char *argv[]){\n"
                              "Display *display;\n"
                              "int event_basep;\n"
                              "int error_basep;\n"
                              "display = XOpenDisplay(\"\");\n"
-                             "XRenderQueryExtension(display, &event_basep, &error_basep);\n"
-                             "printf(\"1\\n\");\n"
-                             "return 0;}\n", x11IncludeCommand);
+                             "printf(\"%%d\\n\", (int)\n"
+                             "    XRenderQueryExtension(display, &event_basep, &error_basep));\n"
+                             "return 0;}\n", x11IncludeCommand, x11XrenderIncludeCommand);
         /* fprintf(logFile, "%s\n", testProgram);
            fprintf(logFile, "x11Include: \"%s\"\n", x11Include); */
         if (findStaticLib("Xrender", testProgram, includeOption, system_draw_libs, "",
@@ -6095,39 +6115,9 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
                           xRenderLibNameList, sizeof(xRenderLibNameList) / sizeof(char *),
                           system_draw_libs)) {
           fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
+          searchForLib = 0;
         } /* if */
-        sprintf(makeDefinition, "SYSTEM_DRAW_LIBS = %s", system_draw_libs);
-        replaceNLBySpace(makeDefinition);
-        strcat(makeDefinition, "\n");
-        appendToFile("macros", makeDefinition);
-        fprintf(versionFile, "#define SYSTEM_DRAW_LIBS \"");
-        /* The SYSTEM_DRAW_LIBS are space separated: */
-        replaceNLBySpace(system_draw_libs);
-        escapeString(versionFile, system_draw_libs);
-        fprintf(versionFile, "\"\n");
-        searchForLib = 0;
-      } /* if */
-#endif
-      if (searchForLib) {
-        if (findLinkerOption("X11", testProgram, includeOption, "",
-                             libNameList, sizeof(libNameList) / sizeof(char *),
-                             system_draw_libs)) {
-          sprintf(testProgram, "#include<stdio.h>\n%s"
-                               "int main(int argc,char *argv[]){\n"
-                               "Display *display;\n"
-                               "int event_basep;\n"
-                               "int error_basep;\n"
-                               "display = XOpenDisplay(\"\");\n"
-                               "XRenderQueryExtension(display, &event_basep, &error_basep);\n"
-                               "printf(\"1\\n\");\n"
-                               "return 0;}\n", x11IncludeCommand);
-          /* fprintf(logFile, "%s\n", testProgram);
-             fprintf(logFile, "x11Include: \"%s\"\n", x11Include); */
-          if (findLinkerOption("Xrender", testProgram, includeOption, system_draw_libs,
-                               xRenderLibNameList, sizeof(xRenderLibNameList) / sizeof(char *),
-                               system_draw_libs)) {
-            fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
-          } /* if */
+        if (!searchForLib) {
           sprintf(makeDefinition, "SYSTEM_DRAW_LIBS = %s", system_draw_libs);
           replaceNLBySpace(makeDefinition);
           strcat(makeDefinition, "\n");
@@ -6137,7 +6127,41 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
           replaceNLBySpace(system_draw_libs);
           escapeString(versionFile, system_draw_libs);
           fprintf(versionFile, "\"\n");
-          searchForLib = 0;
+        } /* if */
+      } /* if */
+#endif
+      if (searchForLib) {
+        if (findLinkerOption("X11", testProgram, includeOption, "",
+                             libNameList, sizeof(libNameList) / sizeof(char *),
+                             system_draw_libs)) {
+          sprintf(testProgram, "#include<stdio.h>\n%s%s"
+                               "int main(int argc,char *argv[]){\n"
+                               "Display *display;\n"
+                               "int event_basep;\n"
+                               "int error_basep;\n"
+                               "display = XOpenDisplay(\"\");\n"
+                               "printf(\"%%d\\n\", (int)\n"
+                               "  XRenderQueryExtension(display, &event_basep, &error_basep));\n"
+                               "return 0;}\n", x11IncludeCommand, x11XrenderIncludeCommand);
+          /* fprintf(logFile, "%s\n", testProgram);
+             fprintf(logFile, "x11Include: \"%s\"\n", x11Include); */
+          if (findLinkerOption("Xrender", testProgram, includeOption, system_draw_libs,
+                               xRenderLibNameList, sizeof(xRenderLibNameList) / sizeof(char *),
+                               system_draw_libs)) {
+            fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
+            searchForLib = 0;
+          } /* if */
+          if (!searchForLib) {
+            sprintf(makeDefinition, "SYSTEM_DRAW_LIBS = %s", system_draw_libs);
+            replaceNLBySpace(makeDefinition);
+            strcat(makeDefinition, "\n");
+            appendToFile("macros", makeDefinition);
+            fprintf(versionFile, "#define SYSTEM_DRAW_LIBS \"");
+            /* The SYSTEM_DRAW_LIBS are space separated: */
+            replaceNLBySpace(system_draw_libs);
+            escapeString(versionFile, system_draw_libs);
+            fprintf(versionFile, "\"\n");
+          } /* if */
         } /* if */
       } /* if */
 #endif
@@ -6146,6 +6170,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
       } /* if */
       fprintf(versionFile, "#define FORWARD_X11_CALLS %d\n", searchForLib);
       if (searchForLib) {
+        fprintf(versionFile, "#define HAS_XRENDER_EXTENSION\n");
         fprintf(versionFile, "#define SYSTEM_DRAW_LIBS \"%s\"\n", LINKER_OPT_DYN_LINK_LIBS);
         appendToFile("macros", "SYSTEM_DRAW_LIBS =" LINKER_OPT_DYN_LINK_LIBS "\n");
         /* Handle dynamic libraries: */

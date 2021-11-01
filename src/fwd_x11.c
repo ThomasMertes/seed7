@@ -43,11 +43,13 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#ifdef HAS_XRENDER_EXTENSION
-#include <X11/extensions/Xrender.h>
-#endif
 #undef XDestroyImage
 #undef XGetPixel
+#endif
+#ifdef X11_XRENDER_INCLUDE
+#include X11_XRENDER_INCLUDE
+#else
+#include <X11/extensions/Xrender.h>
 #endif
 
 #include "common.h"
