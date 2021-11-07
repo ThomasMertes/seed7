@@ -39,6 +39,13 @@ What are the design principles of Seed7?
 
 The design principles are:
 
+ - Can interpret scripts or compile large programs:
+   The interpreter starts quickly. It can process 400000 lines
+   per second. This allows a quick edit-test cycle. Seed7 can be
+   compiled to efficient machine code (via a C compiler as back-end).
+   You don't need makefiles or other build technology for Seed7
+   programs.
+
  - Error prevention:
    Seed7 is statically typed, memory safe, variables must always
    have a value, there are no pointers and there is no NULL. All
@@ -83,10 +90,6 @@ The design principles are:
    Seed7 is based on the executables of the operating system.
    This removes another dependency.
 
- - An interpreter that starts quickly:
-   This allows a quick edit-test cycle. It can do up to
-   400000 lines per second or more.
-
  - No artificial restrictions:
    Historic programming languages have a lot of artificial
    restrictions. In Seed7 there is no limit for length of an
@@ -94,8 +97,10 @@ The design principles are:
    of nesting levels, etc.
 
  - Independent of databases:
-   The database drivers of Seed7 consist of 30000 lines of C.
-   This way many differences are abstracted away.
+   A database independent API supports the access to SQL
+   databases. The database drivers of Seed7 consist of 30000
+   lines of C. This way many differences between databases are
+   abstracted away.
 
  - Possibility to work without IDE:
    IDEs are great, but some programming languages have been
@@ -762,7 +767,8 @@ Is it possible to compile Seed7 programs?
 Generally Seed7 is designed to allow the compilation from Seed7 to C. The Seed7
 compiler (s7c) is written in Seed7. It uses the analyze phase of the interpreter
 to convert a program to call-code and then generates a corresponding C program.
-This C program is compiled and linked afterwards. The Seed7 compiler can be
+This C program is compiled and linked afterwards. So Seed7 compiles to efficient
+machine code via C. The Seed7 compiler can be
 called with:
 
   s7c [ options ] source
@@ -1164,6 +1170,25 @@ declarations, but this time must be paid back with massive interest rates to do
 the debugging.
 
 
+Does static type checking speed up programs?
+============================================
+
+Definitely yes. Static type checking can guarantee that only legal values of
+the correct type are used. This way run-time type checks are unnecessary and
+the program execution can be more efficient. A statically typed language can
+be compiled to efficient machine code. In a dynamically typed language the
+type checks take place at run-time. It might be necessary to do type checks
+many times for the same expression and not just once at compile-time. In this
+case there is an overhead every time a dynamically typed value is used.
+
+Dynamically typed languages often introduce compilation and type annotations
+as afterthought. This works worse than in a statically typed language. Since
+type annotations are optional they are not considered when the program is
+written, but at a later time (maybe by someone else). If the type annotations
+are not 100% correct unnecessary conversions might take place, which slow
+down the program.
+
+
 How can static type checking work if types are first-class objects?
 ===================================================================
 
@@ -1404,11 +1429,14 @@ Are there types like byte, small and long?
 
 Seed7 follows the "one size fits all" principle for fixed size integers. The
 type integer is 64-bit signed, smaller integer types do not exist. Today's
-computers have 64-bit processors. On such computers smaller integers must be
-converted into 64-bit integers in order to do computations. So programs that
-use smaller integers might actually be slower because of this. Today
+computers have 64-bit processors. Some processors do not have instructions
+for all the smaller integer types. On such computers, smaller integers must
+be converted into larger integers in order to do computations. So programs
+that use smaller integers might actually be slower because of this. Today
 computers' memory covers many gigabytes, so the pressure to save memory is
-also gone.
+also gone. If you prefer arrays with smaller integers, because they fit into
+the cache, you should probably stick with C or some other lower level
+language. Seed7 tries to stay above this low level thinking.
 
 Support for shorter integers is only needed, when reading or writing files
 that contain binary integers of smaller sizes. In C it is possible to write
@@ -1426,7 +1454,7 @@ types bin32 and bin64 have been introduced. These types support bitwise AND,
 OR and XOR operations, but no integer arithmetic. Conversions between integer
 and bin64 (respectively bin32) cause no additional costs in compiled programs.
 
-If the 64-bit signed integer type is not sufficient the type bigInteger can be
+If the 64-bit signed 'integer' type is not sufficient the type 'bigInteger' can be
 used.
 
 
@@ -1885,6 +1913,86 @@ output, without any hint that an integer overflow occurred. In Seed7
 the exception OVERFLOW_ERROR is raised if an overflow occurs.
 If performance is important the overflow checking can be switched
 off with the compiler option -so.
+
+
+Why are integers not promoted to bigInteger when they overflow?
+===============================================================
+
+In some languages, an 'integer' expression that overflows is promoted to
+'bigInteger' and the correct result is returned as bigInteger. Seed7 does
+not follow this approach because it costs significant performance.
+
+The approach that promotes integers requires a new encoding for integers.
+A new combined integer type that can encode a fixed size integer and a big
+integer in one memory location. The information, which representation
+contains the actual integer value, must also be encoded in this combined
+integer.
+
+An encoding for a combined integer that is actually used by integer
+promoting languages is: The lowest bit of a 64-bit value decides if a fixed
+size integer or a bigInteger is encoded in the remaining 63 bits. If the
+lowest bit is zero, the higher 63 bits would be the actual integer in a
+twos complement representation. If the lowest bit is one, the higher 63
+bits would encode a reference to the actual bigInteger value. This combined
+integer encoding (with the lowest bit as decision-maker) considers memory
+consumption and run-time overhead.
+
+For performance consideration the most common situation is used: An
+addition of two small integers (that fit into the fixed size part of a
+combined integer) and no overflow occurs.
+
+ - The addition of two normal integers without overflow check takes one
+   machine instruction.
+ - The addition of two normal integers with overflow check takes two
+   machine instructions (most hardware architectures support a jump on
+   overflow instruction):
+
+     add
+     jump on overflow
+
+ - Code that adds two combined integers (that promote to bigInteger if
+   the integer addition overflows) takes more instructions. The pseudocode
+   for the addition of a and b is below:
+
+     slow = (a | b) & 1;
+     res = a + b;
+     if (!slow && !overflow_ocurred) {
+       return res;
+     } else {
+       return bignum_add(a, b);
+     }
+
+   The happy path requires approximately 5 machine instructions for an
+   addition:
+
+     | & + !slow !overflow_occurred
+
+   Besides that, there is more overhead:
+    - Every time a combined integer is changed by an assignment (or at
+      the end of a variable scope), the old value must be freed. This
+      means, it must be checked if the actual value is a big integer,
+      and if this is the case, the memory of the big integer must be
+      freed.
+    - Arrays and structs containing combined integers must do this also
+      for all their values.
+    - Every time a normal integer is needed (e.g. as parameter of an
+      external function) the combined integer must be converted to a
+      normal integer. At least a check of the lowest bit and a shift of
+      the value is necessary to obtain the normal integer.
+    - If a pointer to a normal integer is needed the combined integer
+      needs to be converted and a conversion back is also needed.
+   All these actions slow the program down.
+
+The automatic promotion to big integer (with the combined integer type)
+reduces performance. The approach that only checks for integer overflow
+needs two instructions for an addition. I needs no additional overhead
+for assignments, at the end of a variable scope, or in other situations.
+The possibility of optimizations applies to both approaches that check
+for integer overflow, but not everything can be optimized away.
+
+For these reasons, Seed7 does not support the automatic promotion of
+integer expressions that overflow. Instead, it checks for integer
+overflow and raises the exception OVERFLOW_ERROR if neccessary.
 
 
 Is there a garbage collection?
