@@ -13218,6 +13218,10 @@ CONTENTS
 
     raise RANGE_ERROR;
 
+  Additional exceptions can be declared with:
+
+    const EXCEPTION: MY_ERROR is enumlit;
+
 
 16.3.1 MEMORY_ERROR
 
