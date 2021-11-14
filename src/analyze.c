@@ -436,12 +436,13 @@ static progType analyzeProg (const const_striType sourceFileArgument,
                        striAsUnquotedCStri(sourceFileArgument));
                 printf("\"%s\", 0x" F_X(016) ", *, ",
                        striAsUnquotedCStri(sourceFilePath), options);
-                printf("\"%s\", *)\n",
-                       striAsUnquotedCStri(protFileName)););
+                printf("\"%s\", %d)\n",
+                       striAsUnquotedCStri(protFileName), *err_info););
     if (!ALLOC_RECORD(resultProg, progRecord, count.prog)) {
       *err_info = MEMORY_ERROR;
     } else {
       memset(resultProg, 0, sizeof(progRecord));
+      *err_info = OKAY_NO_ERROR;
       backup_interpreter_exception = interpreter_exception;
       interpreter_exception = TRUE;
       resultProg->usage_count = 1;
@@ -497,6 +498,8 @@ static progType analyzeProg (const const_striType sourceFileArgument,
           write_idents(resultProg);
         } /* if */
         clean_idents(resultProg);
+        shutIncludeFileHash((rtlHashType) resultProg->includeFileHash);
+        resultProg->includeFileHash = NULL;
         if (options & SHOW_STATISTICS) {
           show_statistic();
           if (resultProg->error_count >= 1) {
@@ -511,6 +514,8 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         prog = progBackup;
         closeInfile();
         clean_idents(resultProg);
+        shutIncludeFileHash((rtlHashType) resultProg->includeFileHash);
+        resultProg->includeFileHash = NULL;
         /* heapStatistic(); */
         prgDestr(resultProg);
         resultProg = NULL;
@@ -521,8 +526,6 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       memcpy(&trace, &traceBackup, sizeof(traceRecord));
       close_symbol();
       freeLibPath();
-      shutIncludeFileHash((rtlHashType) resultProg->includeFileHash);
-      resultProg->includeFileHash = NULL;
       leaveExceptionHandling();
       interpreter_exception = backup_interpreter_exception;
     } /* if */

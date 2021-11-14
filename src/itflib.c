@@ -309,6 +309,8 @@ objectType itf_create (listType arguments)
           printf("\n"); */
           memcpy(new_value, source, sizeof(objectRecord));
         } /* if */
+      } else {
+        isit_struct_ok(new_value);
       } /* if */
       if (new_value->value.structValue->usage_count != 0) {
         new_value->value.structValue->usage_count++;

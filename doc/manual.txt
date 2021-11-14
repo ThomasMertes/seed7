@@ -6797,7 +6797,7 @@ CONTENTS
   The type 'external_file' is defined as:
 
     const type: external_file is sub null_file struct
-        var clib_file: ext_file is PRIMITIVE_null_file;
+        var clib_file: ext_file is CLIB_NULL_FILE;
         var string: name is "";
       end struct;
 
@@ -6824,9 +6824,9 @@ CONTENTS
         standardFile.name := file_name;
       end func;
 
-    var external_file: STD_IN is  INIT_STD_FILE(PRIMITIVE_INPUT,  "STD_IN");
-    var external_file: STD_OUT is INIT_STD_FILE(PRIMITIVE_OUTPUT, "STD_OUT");
-    var external_file: STD_ERR is INIT_STD_FILE(PRIMITIVE_ERROR,  "STD_ERR");
+    var external_file: STD_IN is  INIT_STD_FILE(CLIB_INPUT,  "STD_IN");
+    var external_file: STD_OUT is INIT_STD_FILE(CLIB_OUTPUT, "STD_OUT");
+    var external_file: STD_ERR is INIT_STD_FILE(CLIB_ERROR,  "STD_ERR");
 
   It is possible to do I/O directly with them, but it is more wisely
   to use them only to initialize user defined file variables as in:
@@ -7576,7 +7576,7 @@ CONTENTS
 
     name := getSymbol(inFile);
     while name <> "" do
-      if name <> "#" and getSymbol(inFile) = nt color=maroon>"="/font> then
+      if name <> "#" and getSymbol(inFile) = "=" then
         aValue = getSymbol(inFile);
         if aValue <> "" then
           if aValue[1] = '"' then

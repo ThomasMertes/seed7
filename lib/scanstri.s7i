@@ -1258,16 +1258,22 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
             finished  := TRUE;
           end if;
         end if;
+      elsif pos <= leng and stri[pos] = '/' then
+        incr(pos);
       end if;
       if not finished then
-        if pos <= leng and stri[pos] not in white_space_char and
-            stri[pos] <> '>' then
+        if pos <= leng and (isLetter(stri[pos]) or stri[pos] = '_') then
           repeat
             incr(pos);
           until pos > leng or stri[pos] in white_space_char or
               stri[pos] = '>' or stri[pos] = '/';
+          symbol := stri[start .. pred(pos)];
+        else
+          while pos <= leng and stri[pos] <> '<' do
+            incr(pos);
+          end while;
+          symbol := "&lt;" & stri[succ(start) .. pred(pos)];
         end if;
-        symbol := stri[start .. pred(pos)];
         stri := stri[pos ..];
       end if;
     else

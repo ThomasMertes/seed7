@@ -1280,17 +1280,27 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
         else
           symbol := "<!";
         end if;
+      elsif inFile.bufferChar = '/' then
+        symbol := "</";
+        inFile.bufferChar := getc(inFile);
       else
         symbol := "<";
       end if;
-      if not finished and inFile.bufferChar not in white_space_char and
-          inFile.bufferChar <> '>' and inFile.bufferChar <> EOF then
-        repeat
-          symbol &:= inFile.bufferChar;
-          inFile.bufferChar := getc(inFile);
-        until inFile.bufferChar in white_space_char or
-            inFile.bufferChar = '>' or inFile.bufferChar = '/' or
-            inFile.bufferChar = EOF;
+      if not finished then
+        if isLetter(inFile.bufferChar) or inFile.bufferChar = '_' then
+          repeat
+            symbol &:= inFile.bufferChar;
+            inFile.bufferChar := getc(inFile);
+          until inFile.bufferChar in white_space_char or
+              inFile.bufferChar = '>' or inFile.bufferChar = '/' or
+              inFile.bufferChar = EOF;
+        else
+          symbol := "&lt;" & symbol[2 ..];
+          while inFile.bufferChar <> '<' and inFile.bufferChar <> EOF do
+            symbol &:= inFile.bufferChar;
+            inFile.bufferChar := getc(inFile);
+          end while;
+        end if;
       end if;
     elsif inFile.bufferChar <> EOF then
       repeat

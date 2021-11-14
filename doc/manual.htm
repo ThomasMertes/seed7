@@ -737,7 +737,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <tt><span class="func">writeln</span></tt> statement with the <tt><span class="stri">"hello world"</span></tt> string. The
   <tt><span class="func">writeln</span></tt> statement is used to write a <tt><a class="type" href="#types_string">string</a></tt> followed by a
   newline character.
-</p><p>
+</p>
 
 <a name="tutorial_Greeting"><h3>2.2 Greeting</h3></a>
 <p>
@@ -1023,7 +1023,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     <span class="func_no_ul">write</span>(<span class="stri">"Enter text: "</span>);
     <span class="func_no_ul">readln</span>(testText);
     <span class="keywd">for</span> ch <span class="keywd">range</span> testText <span class="keywd">until</span> controlCharFound <span class="keywd">do</span>
-      controlCharFound := <span class="func_no_ul">ord</span>(ch) < 32;
+      controlCharFound := <span class="func_no_ul">ord</span>(ch) &lt; 32;
     <span class="keywd">end for</span>;
     <a class="keywd_no_ul" href="#stats_if-statement">if</a> controlCharFound <a class="keywd_no_ul" href="#stats_if-statement">then</a>
       <span class="func_no_ul">writeln</span>(<span class="stri">"The text contains control chars."</span>);
@@ -1095,7 +1095,7 @@ reset(8);
   <span class="keywd">begin</span>
     <a class="keywd_no_ul" href="#stats_if-statement">if</a> number >= 0 <a class="keywd_no_ul" href="#stats_if-statement">then</a>
       <span class="keywd">repeat</span>
-        stri := str(number <span class="op">mod</span> 8) & stri;
+        stri := str(number <span class="op">mod</span> 8) &amp; stri;
         number := number <span class="op">mdiv</span> 8;
       <span class="keywd">until</span> number = 0;
     <a class="keywd_no_ul" href="#stats_if-statement">end if</a>;
@@ -1514,7 +1514,7 @@ $ <span class="keywd">info</span> <span class="keywd">off</span>;
     <li><b>m</b> Trace matching of expressions</li>
     <li><b>u</b> Trace exec utility functions</li>
     <li><b>s</b> Trace signals</li>
-    <li><b>*</b> All flags</li></ul></li>
+    <li><b>*</b> All flags</li>
 </ul><p>
   The pragma <tt><span class="keywd">names</span></tt> can be used to allow Unicode in
   <a class="link" href="#tokens_Name_identifiers">name identifiers</a>:
@@ -1767,10 +1767,10 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
         <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: continue <span class="keywd">is</span> <span class="var">FALSE</span>;
       <span class="keywd">begin</span>
         variable := lowerLimit;
-        continue := variable <= upperLimit;
+        continue := variable &lt;= upperLimit;
         <span class="keywd">while</span> continue <span class="keywd">do</span>
           statements;
-          <span class="keywd">if</span> variable < upperLimit <span class="keywd">then</span>
+          <span class="keywd">if</span> variable &lt; upperLimit <span class="keywd">then</span>
             incr(variable);
           <span class="keywd">else</span>
             continue := <span class="var">FALSE</span>;
@@ -1807,8 +1807,8 @@ FOR_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 <p>
   For example:
 </p><pre class="indent">
-<span class="keywd">for</span> column <span class="keywd">range</span> 1 <span class="keywd">to</span> length(maxRow) <span class="keywd">until</span> selectedColumn <> 0 <span class="keywd">do</span>
-  <span class="keywd"></span>if maxRow[column] <> 0 <span class="keywd">then</span>
+<span class="keywd">for</span> column <span class="keywd">range</span> 1 <span class="keywd">to</span> length(maxRow) <span class="keywd">until</span> selectedColumn &lt;> 0 <span class="keywd">do</span>
+  <span class="keywd"></span>if maxRow[column] &lt;> 0 <span class="keywd">then</span>
     incr(numColumns);
   <span class="keywd">end if</span>;
   <span class="keywd">if</span> numColumns = selectedNum <span class="keywd">then</span>
@@ -1868,10 +1868,10 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
         <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: continue <span class="keywd">is</span> <span class="var">FALSE</span>;
       <span class="keywd">begin</span>
         variable := lowerLimit;
-        continue := variable <= upperLimit;
+        continue := variable &lt;= upperLimit;
         <span class="keywd">while</span> continue <span class="keywd">and not</span> condition <span class="keywd">do</span>
           statements;
-          <span class="keywd">if</span> variable < upperLimit <span class="keywd">then</span>
+          <span class="keywd">if</span> variable &lt; upperLimit <span class="keywd">then</span>
             incr(variable);
           <span class="keywd">else</span>
             continue := <span class="var">FALSE</span>;
@@ -1953,21 +1953,21 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_STEP_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span>: variable) +:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: delta)) <> NIL <span class="keywd">then</span>
+    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span>: variable) +:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: delta)) &lt;> NIL <span class="keywd">then</span>
 
       <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) to (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit)
           step (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: incr_step) do
           (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
         <span class="keywd">begin</span>
           variable := lowerLimit;
-          <span class="keywd">while</span> variable <= upperLimit <span class="keywd">do</span>
+          <span class="keywd">while</span> variable &lt;= upperLimit <span class="keywd">do</span>
             statements;
             variable +:= incr_step;
           <span class="keywd">end while</span>;
         <span class="keywd">end func</span>;
 
     <span class="keywd">end if</span>;
-    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span>: variable) -:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: delta)) <> NIL <span class="keywd">then</span>
+    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span>: variable) -:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: delta)) &lt;> NIL <span class="keywd">then</span>
 
       <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit) downto (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit)
           step (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: decr_step) do
@@ -1992,7 +1992,7 @@ FOR_STEP_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
   For example:
 </p><pre class="indent">
 <span class="keywd">for</span> currObject <span class="keywd">range</span> element_list <span class="keywd">do</span>
-  result &amp;:= " " & str(currObject);
+  result &amp;:= " " &amp; str(currObject);
 <span class="keywd">end for</span>;
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
@@ -2410,12 +2410,12 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     A ** -1 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       A <span class="op">&lt;&lt;</span> B    Shift left
                   ( A &lt;&lt; B is okay for B >= 0 and B &lt;= 63,
-                    A &lt;&lt; B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> for B < 0 or B >= 64,
+                    A &lt;&lt; B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> for B &lt; 0 or B >= 64,
                     A &lt;&lt; B <b>&rArr;</b> A * 2 ** B,
                     A &lt;&lt; 0 <b>&rArr;</b> A )
       A <span class="op">>></span> B    Arithmetic shift right
                   ( A >> B is okay for B >= 0 and B &lt;= 63,
-                    A >> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> for B < 0 or B >= 64,
+                    A >> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> for B &lt; 0 or B >= 64,
                     A >> B <b>&rArr;</b> A <span class="op">mdiv</span> 2 ** B  for B &lt;= 62,
                     A >> 0 <b>&rArr;</b> A,
                     A >> B <b>&rArr;</b> C for A >= 0 holds: C >= 0,
@@ -2429,7 +2429,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     n ! 1 <b>&rArr;</b> n,
                     n ! k <b>&rArr;</b> 0 for n >= 0 and k > n,
                     n ! k <b>&rArr;</b> !n <span class="op">div</span> (!k * !(n - k)) for k >= 0 and k &lt;= n,
-                    n ! k <b>&rArr;</b> (-1) ** k * (n + k - 1 ! k) for n < 0 and k >= 0 )
+                    n ! k <b>&rArr;</b> (-1) ** k * (n + k - 1 ! k) for n &lt; 0 and k >= 0 )
       A <span class="op">?</span> B <span class="op">:</span> C  Ternary operator condition ? thenValue : elseValue
                   ( Type of argument A: <a class="type" href="#types_boolean">boolean</a>,
                     <span class="var">TRUE</span> ? a : b <b>&rArr;</b> a,
@@ -2505,7 +2505,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     pred(<a class="type" href="#types_integer">integer</a>.<span class="var">first</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> )
       <span class="func">abs</span>(A)    Absolute value
                   ( abs(A) <b>&rArr;</b> A for A >= 0,
-                  ( abs(A) <b>&rArr;</b> -A for A < 0,
+                  ( abs(A) <b>&rArr;</b> -A for A &lt; 0,
                   ( abs(<a class="type" href="#types_integer">integer</a>.<span class="var">first</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> )
       <span class="func">odd</span>(A)    Odd value
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a> )
@@ -2752,13 +2752,13 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       A <span class="op">&lt;&lt;</span> B    Shift left
                   ( Type of argument B: <a class="type" href="#types_integer">integer</a>,
                     A &lt;&lt; B <b>&rArr;</b> A * 2_ ** B  for B >= 0,
-                    A &lt;&lt; B <b>&rArr;</b> A >> -B for B < 0,
+                    A &lt;&lt; B <b>&rArr;</b> A >> -B for B &lt; 0,
                     A &lt;&lt; 0 <b>&rArr;</b> A,
                     0_ &lt;&lt; B <b>&rArr;</b> 0_ for every B )
       A <span class="op">>></span> B    Arithmetic shift right
                   ( Type of argument B: <a class="type" href="#types_integer">integer</a>,
                     A >> B <b>&rArr;</b> A <span class="op">mdiv</span> 2_ ** B for B >= 0,
-                    A >> B <b>&rArr;</b> A &lt;&lt; -B for B < 0,
+                    A >> B <b>&rArr;</b> A &lt;&lt; -B for B &lt; 0,
                     A >> 0 <b>&rArr;</b> A,
                     A >> B <b>&rArr;</b> C for A >= 0_ holds: C >= 0_,
                     A >> B <b>&rArr;</b> C for A &lt; 0_ holds: C &lt; 0_,
@@ -2771,7 +2771,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     n ! 1_ <b>&rArr;</b> n,
                     n ! k <b>&rArr;</b> 0_ for n >= 0_ and k > n,
                     n ! k <b>&rArr;</b> !n <span class="op">div</span> (!k * !(n - k)) for k >= 0_ and k &lt;= n,
-                    n ! k <b>&rArr;</b> (-1) ** k * (n + k - 1 ! k) for n < 0_ and k >= 0_ )
+                    n ! k <b>&rArr;</b> (-1) ** k * (n + k - 1 ! k) for n &lt; 0_ and k >= 0_ )
       A <span class="op">?</span> B <span class="op">:</span> C  Ternary operator condition ? thenValue : elseValue
                   ( Type of argument A: <a class="type" href="#types_boolean">boolean</a>,
                     <span class="var">TRUE</span> ? a : b <b>&rArr;</b> a,
@@ -4197,7 +4197,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="op">|</span>         Union
                   ( {1, 3} | {2, 3} <b>&rArr;</b> {1, 2, 3} )
       <span class="op">&amp;</span>         Intersection
-                  ( {1, 3} & {2, 3} <b>&rArr;</b> {3} )
+                  ( {1, 3} &amp; {2, 3} <b>&rArr;</b> {3} )
       <span class="op">-</span>         Difference
                   ( {1, 3} - {2, 3} <b>&rArr;</b> {1} )
       <span class="op">>&lt;</span>        Symmetric Difference
@@ -6137,13 +6137,13 @@ circle(10)
 </pre><p>
   The interface type <tt><span class="type">Number</span></tt> can represent an <tt>'<span class="type">Integer</span>'</tt> or a <tt>'<span class="type">Float</span>'</tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: Integer <span class="keywd">is</span> </font><span class="keywd">new struct</span>
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: Integer <span class="keywd">is</span> <span class="keywd">new struct</span>
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: data <span class="keywd">is</span> 0;
   <span class="keywd">end struct</span>;
 
 type_implements_interface(<span class="type">Integer</span>, <span class="type">Number</span>);
 
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: Float <span class="keywd">is</span> </font><span class="keywd">new struct</span>
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: Float <span class="keywd">is</span> <span class="keywd">new struct</span>
     <span class="keywd">var</span> <a class="type" href="#types_float">float</a>: data <span class="keywd">is</span> 0.0;
   <span class="keywd">end struct</span>;
 
@@ -6209,8 +6209,8 @@ type_implements_interface(<span class="type">Float</span>, <span class="type">Nu
   can be used as basic implementation type from which other
   implementation types can inherit:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: emptyElement <span class="keywd">is</span> </font><span class="keywd">new struct</span>
-  end struct</font>;
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: emptyElement <span class="keywd">is</span> <span class="keywd">new struct</span>
+  <span class="keywd">end struct</span>;
 </pre><p>
   That the implementation type <tt><span class="type">emptyElement</span></tt> implements the
   interface type <tt><span class="type">element</span></tt> is described with:
@@ -6440,7 +6440,7 @@ clear(window1);
     <span class="keywd">elsif</span> stri = <span class="stri">"FALSE"</span> <span class="keywd">then</span>
       aBoolean := <span class="var">FALSE</span>;
     <span class="keywd">else</span>
-      raise RANGE_ERROR;
+      raise <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>;
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 </pre><p>
@@ -6487,7 +6487,7 @@ writeln(4321 <span class="keywd">lpad</span> 6);
     <span class="keywd">var</span> <span class="type">string</span>: padded <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> leng > length(stri) <span class="keywd">then</span>
-      padded := <span class="stri">" "</span> <span class="keywd">mult</span> leng - length(stri) & stri;
+      padded := <span class="stri">" "</span> <span class="keywd">mult</span> leng - length(stri) &amp; stri;
     <span class="keywd">else</span>
       padded := stri;
     <span class="keywd">end if</span>;
@@ -6498,7 +6498,7 @@ writeln(4321 <span class="keywd">lpad</span> 6);
     <span class="keywd">var</span> <span class="type">string</span>: padded <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> leng > length(stri) <span class="keywd">then</span>
-      padded := stri & <span class="stri">" "</span> <span class="keywd">mult</span> leng - length(stri);
+      padded := stri &amp; <span class="stri">" "</span> <span class="keywd">mult</span> leng - length(stri);
     <span class="keywd">else</span>
       padded := stri;
     <span class="keywd">end if</span>;
@@ -6996,7 +6996,7 @@ my_out := openUtf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r"
   The type <tt><span class="type">external_file</span></tt> is defined as:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">type</span>: external_file <span class="keywd">is sub</span> <span class="type">null_file</span> <span class="keywd">struct</span>
-    <span class="keywd">var</span> <span class="type">clib_file</span>: ext_file <span class="keywd">is</span> PRIMITIVE_null_file;
+    <span class="keywd">var</span> <span class="type">clib_file</span>: ext_file <span class="keywd">is</span> CLIB_NULL_FILE;
     <span class="keywd">var</span> <span class="type">string</span>: name <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">end struct</span>;
 </pre><p>
@@ -7023,9 +7023,9 @@ my_out := openUtf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r"
     standardFile.name := file_name;
   <span class="keywd">end func</span>;
 
-<span class="keywd">var</span> <span class="type">external_file</span>: STD_IN <span class="keywd">is</span>  INIT_STD_FILE(PRIMITIVE_INPUT,  <span class="stri">"STD_IN"</span>);
-<span class="keywd">var</span> <span class="type">external_file</span>: STD_OUT <span class="keywd">is</span> INIT_STD_FILE(PRIMITIVE_OUTPUT, <span class="stri">"STD_OUT"</span>);
-<span class="keywd">var</span> <span class="type">external_file</span>: STD_ERR <span class="keywd">is</span> INIT_STD_FILE(PRIMITIVE_ERROR,  <span class="stri">"STD_ERR"</span>);
+<span class="keywd">var</span> <span class="type">external_file</span>: STD_IN <span class="keywd">is</span>  INIT_STD_FILE(CLIB_INPUT,  <span class="stri">"STD_IN"</span>);
+<span class="keywd">var</span> <span class="type">external_file</span>: STD_OUT <span class="keywd">is</span> INIT_STD_FILE(CLIB_OUTPUT, <span class="stri">"STD_OUT"</span>);
+<span class="keywd">var</span> <span class="type">external_file</span>: STD_ERR <span class="keywd">is</span> INIT_STD_FILE(CLIB_ERROR,  <span class="stri">"STD_ERR"</span>);
 </pre><p>
   It is possible to do I/O directly with them, but it is more wisely
   to use them only to initialize user defined file variables as in:
@@ -7775,7 +7775,7 @@ skipWhiteSpace(IN);
 </p><pre class="indent">
 name := getSymbol(inFile);
 <span class="keywd">while</span> name &lt;> <span class="stri">""</span> <span class="keywd">do</span>
-  <span class="keywd">if</span> name &lt;> <span class="stri">"#"</span> <span class="keywd">and</span> getSymbol(inFile) = nt color=maroon>"="/font> <span class="keywd">then</span>
+  <span class="keywd">if</span> name &lt;> <span class="stri">"#"</span> <span class="keywd">and</span> getSymbol(inFile) = <span class="stri">"="</span> <span class="keywd">then</span>
     aValue = getSymbol(inFile);
     <span class="keywd">if</span> aValue &lt;> <span class="stri">""</span> <span class="keywd">then</span>
       <span class="keywd">if</span> aValue[1] = <span class="stri">'"'</span> <span class="keywd">then</span>
@@ -10513,7 +10513,7 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"CREAT
 </pre><p>
   The <tt><span class="func">bind</span>()</tt> functions check the given position (<tt>pos</tt>) and raise
   the exception <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, if no corresponding placeholder (<tt>?</tt>)
-  is found. This happens if <tt>pos <= 0</tt> holds or if <tt>pos</tt> is greater
+  is found. This happens if <tt>pos &lt;= 0</tt> holds or if <tt>pos</tt> is greater
   than the number of placeholders. The <tt><span class="func">bind</span>()</tt> functions check
   also, if the type of the given value fits to the database
   column. If the type does not fit the exception <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt> is
@@ -10535,7 +10535,7 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELEC
 </p><pre class="indent">
 write(<span class="stri">"name? "</span>);
 readln(name);
-statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELECT name, area FROM customers WHERE name = '"</span> <& name <& <span class="stri">"'"</span>);
+statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELECT name, area FROM customers WHERE name = '"</span> &lt;&amp; name &lt;&amp; <span class="stri">"'"</span>);
 <span class="func">execute</span>(statement);
 . . .  Write a list of names and areas.
 </pre><p>
@@ -10648,7 +10648,7 @@ end while;
 </pre><p>
   The <tt><span class="func">column</span>()</tt> functions check the given position (<tt>column</tt>) and
   raise the exception <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, if no corresponding column
-  exists in the result record. This happens if <tt>column <= 0</tt>
+  exists in the result record. This happens if <tt>column &lt;= 0</tt>
   is <tt><span class="var">TRUE</span></tt> or if <tt>column</tt> is greater than the number of columns
   (which can be obtained with <tt><span class="func">columnCount</span>()</tt>). Database columns can
   be <tt>NULL</tt>. This can be checked with the following function:
@@ -10920,7 +10920,7 @@ TYPE_ACTION
     int result;
 
   <span class="comment">/* intLog2 */</span>
-    <span class="keywd">if</span> (unlikely(number < 0)) {
+    <span class="keywd">if</span> (unlikely(number &lt; 0)) {
       raise_error(NUMERIC_ERROR);
       result = 0;
     } <span class="keywd">else</span> {
@@ -11045,7 +11045,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BIG_LOWEST_SET_BIT</td>  <td>big_lowest_set_bit</td>  <td>bigLowestSetBit</td></tr>
     <tr><td>BIG_LSHIFT</td>          <td>big_lshift</td>          <td>bigLShift</td></tr>
     <tr><td>BIG_LSHIFT_ASSIGN</td>   <td>big_lshift_assign</td>   <td>bigLShiftAssign</td></tr>
-    <tr><td>BIG_LT</td>              <td>big_lt</td>              <td>bigCmp < 0</td></tr>
+    <tr><td>BIG_LT</td>              <td>big_lt</td>              <td>bigCmp &lt; 0</td></tr>
     <tr><td>BIG_MDIV</td>            <td>big_mdiv</td>            <td>bigMDiv</td></tr>
     <tr><td>BIG_MOD</td>             <td>big_mod</td>             <td>bigMod</td></tr>
     <tr><td>BIG_MULT</td>            <td>big_mult</td>            <td>bigMult</td></tr>
@@ -13801,7 +13801,7 @@ Program received signal SIGFPE, Arithmetic exception.
   to be compiled without checks for that exception. Careful program
   analysis and testing (the exception should never be raised) is
   necessary to decide about the omission of exception checking.
-</p><p>
+</p>
 
 <a name="errors_Signals"><h3>16.7 Signals</h3></a>
 <p>

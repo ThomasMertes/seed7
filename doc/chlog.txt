@@ -1,3 +1,41 @@
+20211114:
+- The libraries pixmap_file.s7i and graph_file.s7i have been improved
+  to draw to the correct graphic window. Many thanks to Anders
+  Carstensen for pointing out that text was written into the wrong
+  window and for providing a test program.
+- Answers to three new questions have been added to the FAQ. Answers
+  to existing questions have been improved. Many thanks to Zachary
+  Menzies for pointing out a problem with two dimensional arrays and
+  for providing a test program.
+- An unclosed <i> tag has been removed from the manual. Thanks to
+  ifethereal for pointing out this error. Several other places with
+  illegal HTML in doc/manual.htm have also been fixed.
+- The function getXmlTagHeadOrContent() has been improved in
+  scanfile.s7i and scanstri.s7i. Now, tag names start with a letter
+  or underscore (_), and the function can read XML contents that
+  start with the character '<' (like < <= or <> ). In this case, the
+  character < is read as character reference (&lt;).
+- An explanation of the exception declaration has been added to the
+  manual.
+- The search for the X11 Xrender extension has been improved. In
+  chkccomp.c the function determineX11Defines() has been improved.
+  Declarations have been moved from x11_x.h to the new file
+  x11_rend.h. Adjustements have been made in drw_x11.c and fwd_x11.c. 
+- Two code pages for APL symbol encoding have been added to
+  charsets.s7i. The graphic representation of the character '\a'
+  (bell) has been changed from '\16#25cf;' to '\16#2022;' in all
+  code sets.
+- In the vector font cronos16 the design of the characters 'J' '£'
+  and '€' have been improved.
+- In the vector font cronos27 the design of the characters '£' '¤'
+  and '€' have been improved.
+- In analyze.c, the function analyzeProg() has been improved to work
+  correctly if an error occurs.
+- In itflib.c, the function itf_create() has been improved to raise
+  the exception ACTION_ERROR if the source struct is NULL.
+- The prototypes of the functions conWrite() and stri_to_bstriw()
+  have been changed to work with constant strings.
+
 20211009:
 - Seed7's approach to avoid double library includes has been
   improved. Many thanks to Zachary Menzies for reporting the
@@ -102,7 +140,7 @@
   hashmap of already included files.
 - In prclib.c the function prc_include() has been adjusted to call
   the new function that avoids double includes. Now the 2nd
-  parameter ofthe action PRC_INCLUDE contains the file name to be
+  parameter of the action PRC_INCLUDE contains the file name to be
   included.
 - In striutl.c the functions stri_to_os_utf8(), conv_to_os_stri()
   have been improved to return a boolType result that indicates

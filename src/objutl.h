@@ -116,6 +116,7 @@
                             if (unlikely(take_stri(arg) == NULL))       { empty_value(arg); return NULL; }
 #define isit_struct(arg)    hasCategory(arg, STRUCTOBJECT); \
                             if (unlikely(take_struct(arg) == NULL))     { empty_value(arg); return NULL; }
+#define isit_struct_ok(arg) if (unlikely(take_struct(arg) == NULL))     { empty_value(arg); return NULL; }
 #define isit_type(arg)      hasCategory(arg, TYPEOBJECT)
 #define isit_win(arg)       hasCategory(arg, WINOBJECT)
 #define isit_process(arg)   hasCategory(arg, PROCESSOBJECT)
@@ -151,6 +152,7 @@
 #define isit_sqlstmt(arg)
 #define isit_stri(arg)
 #define isit_struct(arg)
+#define isit_struct_ok(arg)
 #define isit_type(arg)
 #define isit_win(arg)
 #define isit_process(arg)

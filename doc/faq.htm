@@ -310,6 +310,9 @@ Why does Seed7 not use type inference?
 <li><a class="link" href="#faq_local_type_declaration"><b>
 Why does a local type declaration trigger an error?
 </b></a></li>
+<li><a class="link" href="#faq_two_dimensional_array"><b>
+Why does a two dimensional array trigger an error?
+</b></a></li>
 <li><a class="link" href="#faq_automatic_casts"><b>
 Are there automatic casts to the right type?
 </b></a></li>
@@ -834,12 +837,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2021-10-09 the number of lines is:
+than 300000 lines of Seed7. For version 2021-11-14 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">168173</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12925</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">168207</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12954</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
   <tr><td align="right">200706</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">167582</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">167653</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1749,7 +1752,7 @@ program. And that is very bad since a program is more often read than written.
   are not defined during the parsing. If the locally defined type is used in
   the same declaration block an error like
 </p><pre class="indent">
-*** tst249.sd7(6):51: <span class="link">Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed</span>
+*** tst249.sd7(6):52: <span class="link">Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed</span>
     var intArrayType: arr is [](1, 2);
 </pre><p>
   will be triggered. This errors are avoided, if all <tt><span class="type">type</span></tt> declarations are
@@ -1765,6 +1768,33 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">begin</span>
     <span class="func">writeln</span>(<span class="func">length</span>(arr));
   <span class="keywd">end func</span>;
+</pre></div>
+
+<div><br /><a name="faq_two_dimensional_array"><h3>Why does a two dimensional array trigger an error?
+</h3></a><hr />
+<p>
+  A function declaration like:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>: test (<span class="keywd">in</span> <span class="type">string</span>: value) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>: data <span class="keywd">is</span> 0 <span class="op">times</span> 0 <span class="op">times</span> "";
+  ...
+</pre><p>
+  triggers the error:
+</p><pre class="indent">
+*** tst309.sd7(4):52: <span class="link">Match for {func result var func type: <BLOCKOBJECT> ({array type: <TYPEOBJECT> ({array string }) }) : {data } is {0 times {0 times "" } } begin {data := {3 times {2 times value } } } end func } failed</span>
+const func array array string: test (in string: value) is func
+</pre><p>
+  The reason is: The two occurrences of <tt><span class="type">array</span> <span class="type">array</span> <span class="type">string</span></tt> are considered
+  as two different types. This error can be avoided by defining a named <tt><span class="type">type</span></tt>
+  for the two dimensional array at the top level:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">type</span>: stringArray2D <span class="keywd">is</span> <span class="type">array</span> <span class="type">array</span> <span class="type">string</span>;
+
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">stringArray2D</span>: test (<span class="keywd">in</span> <span class="type">string</span>: value) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">stringArray2D</span>: data <span class="keywd">is</span> 0 <span class="op">times</span> 0 <span class="op">times</span> "";
+  ...
 </pre></div>
 
 <div><br /><a name="faq_automatic_casts"><h3>Are there automatic casts to the right type?
@@ -2299,7 +2329,7 @@ An <tt><span class="keywd">in</span></tt> parameter is either a <tt><span class=
      <tt><span class="type">bigInteger</span></tt>, <tt><span class="type">rational</span></tt>, <tt><span class="type">bigRational</span></tt>, <tt><span class="type">complex</span></tt>, <tt><span class="type">string</span></tt>, <tt><span class="type">array</span></tt>, <tt><span class="type">hash</span></tt>,
      <tt><span class="type">set</span></tt>, <tt><span class="type">bitset</span></tt>, <tt><span class="type">struct</span></tt>, <tt><span class="type">interface</span></tt>, <tt><span class="type">ref_list</span></tt>, <tt><span class="type">program</span></tt>, <tt><span class="type">color</span></tt>, <tt><span class="type">time</span></tt>,
      <tt><span class="type">duration</span></tt>, <tt><span class="type">file</span></tt>, <tt><span class="type">text</span></tt>, <tt><span class="type">proc</span></tt>, <tt><span class="type">type</span></tt>, <tt><span class="type">object</span></tt></dd></dl></li>
-</ul></p>
+</ul><p>
 Usually it is not necessary to care, if an <tt><span class="keywd">in</span></tt> parameter uses call-by-value or
 call-by-reference. A programmer can just use <tt><span class="keywd">in</span></tt> parameters to specify, that
 the actual parameter value is going into the function. A programmer can use
@@ -2319,9 +2349,9 @@ $ include <span class="lib">"seed7_05.s7i"</span>;
 
 <span class="keywd">const</span> <span class="type">proc</span>: aFunc (<span class="keywd">val</span> <span class="type">integer</span>: valParam, <span class="keywd">ref</span> <span class="type">integer</span>: refParam) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    writeln(valParam <& <span class="stri">" "</span> <& refParam);
+    writeln(valParam &lt;&amp; <span class="stri">" "</span> &lt;&amp; refParam);
     aGlobal := 2;
-    writeln(valParam <& <span class="stri">" "</span> <& refParam);
+    writeln(valParam &lt;&amp; <span class="stri">" "</span> &lt;&amp; refParam);
   <span class="keywd">end func</span>;
 
 <span class="keywd">const</span> proc: main <span class="keywd">is func</span>
@@ -2449,7 +2479,7 @@ jump on overflow</pre></li>
    the integer addition overflows) takes more instructions. The pseudocode
    for the addition of a and b is below:
    <pre class="indent">
-slow = (a | b) & 1;
+slow = (a | b) &amp; 1;
 res = a + b;
 if (!slow && !overflow_ocurred) {
   return res;
@@ -2460,7 +2490,7 @@ if (!slow && !overflow_ocurred) {
    The happy path requires approximately 5 machine instructions for an
    addition:
    <pre class="indent">
-| & + !slow !overflow_occurred</pre>
+| &amp; + !slow !overflow_occurred</pre>
 
    Besides that, there is more overhead:<ul>
    <li>Every time a combined integer is changed by an assignment (or at
@@ -3133,7 +3163,7 @@ of a tree. The expressions from the AST are matched with the dictionary. If a
 match fails, because a corresponding declaration is not found, you will get
 an error like:
 </p><pre class="indent">
-*** chkloop.sd7(35):51: <span class="link">Match for {while "X" do {1 + 2 } end while } failed</span>
+*** chkloop.sd7(35):52: <span class="link">Match for {while "X" do {1 + 2 } end while } failed</span>
 </pre><p>
 If all expressions are found in the dictionary the matching process leads to an
 enriched AST, the <a class="link" href="#faq_bytecode">call-code</a>. Call-code can be executed by the <a class="link" href="#faq_interpreter">interpreter</a>.

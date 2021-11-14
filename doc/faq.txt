@@ -339,12 +339,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2021-10-09 the number of lines is:
+than 300000 lines of Seed7. For version 2021-11-14 the number of lines is:
 
-  168173  C source files (*.c)
-   12925  C header files (*.h)
+  168207  C source files (*.c)
+   12954  C header files (*.h)
   200706  Seed7 source files (*.sd7)
-  167582  Seed7 library/include files (*.s7i)
+  167653  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1254,7 +1254,7 @@ Why does a local type declaration trigger an error?
   are not defined during the parsing. If the locally defined type is used in
   the same declaration block an error like
 
-    *** tst249.sd7(6):51: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
+    *** tst249.sd7(6):52: Match for {var intArrayType : {arr } is {[ ] {1 , 2 } } } failed
         var intArrayType: arr is [](1, 2);
 
   will be triggered. This errors are avoided, if all 'type' declarations are
@@ -1270,6 +1270,33 @@ Why does a local type declaration trigger an error?
       begin
         writeln(length(arr));
       end func;
+
+
+Why does a two dimensional array trigger an error?
+==================================================
+
+  A function declaration like:
+
+    const func array array string: test (in string: value) is func
+      result
+        var array array string: data is 0 times 0 times "";
+      ...
+
+  triggers the error:
+
+    *** tst309.sd7(4):52: Match for {func result var func type: <BLOCKOBJECT> ({array type: <TYPEOBJECT> ({array string }) }) : {data } is {0 times {0 times "" } } begin {data := {3 times {2 times value } } } end func } failed
+    const func array array string: test (in string: value) is func
+
+  The reason is: The two occurrences of 'array array string' are considered
+  as two different types. This error can be avoided by defining a named 'type'
+  for the two dimensional array at the top level:
+
+    const type: stringArray2D is array array string;
+
+    const func stringArray2D: test (in string: value) is func
+      result
+        var stringArray2D: data is 0 times 0 times "";
+      ...
 
 
 Are there automatic casts to the right type?
@@ -2638,7 +2665,7 @@ of a tree. The expressions from the AST are matched with the dictionary. If a
 match fails, because a corresponding declaration is not found, you will get
 an error like:
 
-    *** chkloop.sd7(35):51: Match for {while "X" do {1 + 2 } end while } failed
+    *** chkloop.sd7(35):52: Match for {while "X" do {1 + 2 } end while } failed
 
 If all expressions are found in the dictionary the matching process leads to an
 enriched AST, the call-code. Call-code can be executed by the interpreter.
