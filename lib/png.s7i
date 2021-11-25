@@ -558,25 +558,27 @@ const func pngImageType: interlaceToImage (in pngHeader: header,
           lineDelta := 2;
           columnDelta := 1;
       end case;
-      passHeader.width := (header.width + columnDelta - startColumn) div columnDelta;
-      passHeader.height := (header.height + lineDelta - startLine) div lineDelta;
-      passHeader.bitDepth := header.bitDepth;
-      passHeader.colorType := header.colorType;
-      passHeader.bytesPerPixel := header.bytesPerPixel;
-      computeBytesPerScanline(passHeader);
-      passData := pixelData[passStartPos ..];
-      filterPngData(passHeader, passData);
-      passImage := pixelDataToImage(passHeader, passData, palette);
-      line := startLine;
-      for passLine range 1 to passHeader.height do
-        column := startColumn;
-        for passColumn range 1 to passHeader.width do
-          image[line][column] := passImage[passLine][passColumn];
-          column +:= columnDelta;
+      if startLine <= header.height and startColumn <= header.width then
+        passHeader.width := (header.width + columnDelta - startColumn) div columnDelta;
+        passHeader.height := (header.height + lineDelta - startLine) div lineDelta;
+        passHeader.bitDepth := header.bitDepth;
+        passHeader.colorType := header.colorType;
+        passHeader.bytesPerPixel := header.bytesPerPixel;
+        computeBytesPerScanline(passHeader);
+        passData := pixelData[passStartPos ..];
+        filterPngData(passHeader, passData);
+        passImage := pixelDataToImage(passHeader, passData, palette);
+        line := startLine;
+        for passLine range 1 to passHeader.height do
+          column := startColumn;
+          for passColumn range 1 to passHeader.width do
+            image[line][column] := passImage[passLine][passColumn];
+            column +:= columnDelta;
+          end for;
+          line +:= lineDelta;
         end for;
-        line +:= lineDelta;
-      end for;
-      passStartPos +:= passHeader.height * passHeader.bytesPerScanline;
+        passStartPos +:= passHeader.height * passHeader.bytesPerScanline;
+      end if;
     end for;
   end func;
 
