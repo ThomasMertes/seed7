@@ -92,6 +92,13 @@ struct modifierState {
 
 static struct modifierState modState = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
 
+struct buttonStateStruct {
+    boolType mouseFwd;
+    boolType mouseBack;
+  };
+
+static struct buttonStateStruct buttonState = {FALSE, FALSE};
+
 extern int getCloseAction (winType actual_window);
 extern void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsigned int height);
 extern boolType resize (winType resizeWindow, unsigned int width, unsigned int height);
@@ -1266,8 +1273,10 @@ charType gkbGetc (void)
             result = K_MOUSE5;
           } else if (currentEvent.xbutton.button == 8) {
             result = K_MOUSE_BACK;
+            buttonState.mouseBack = TRUE;
           } else if (currentEvent.xbutton.button == 9) {
             result = K_MOUSE_FWD;
+            buttonState.mouseFwd = TRUE;
           } else {
             result = K_UNDEF;
           } /* if */
@@ -1282,6 +1291,19 @@ charType gkbGetc (void)
               result += K_ALT_MOUSE1 - K_MOUSE1;
             } /* if */
           } /* if */
+          break;
+
+        case ButtonRelease:
+          traceEvent(printf("ButtonRelease (%d, %d, %u %lu)\n",
+                            currentEvent.xbutton.x, currentEvent.xbutton.y,
+                            currentEvent.xbutton.button,
+                            (unsigned long) currentEvent.xbutton.window););
+          if (currentEvent.xbutton.button == 8) {
+            buttonState.mouseBack = FALSE;
+          } else if (currentEvent.xbutton.button == 9) {
+            buttonState.mouseFwd = FALSE;
+          } /* if */
+          getNextChar = TRUE;
           break;
 
         case KeyPress:
@@ -1955,6 +1977,21 @@ boolType processEvents (void)
             } /* if */
             break;
 
+          case ButtonRelease:
+            traceEvent(printf("processEvents: ButtonRelease: %u\n",
+                              currentEvent.xbutton.button, currentKey););
+            if (currentEvent.xbutton.button == 8) {
+              buttonState.mouseBack = FALSE;
+            } else if (currentEvent.xbutton.button == 9) {
+              buttonState.mouseFwd = FALSE;
+            } /* if */
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            break;
+
           default:
             /* printf("currentEvent.type=%d\n", currentEvent.type); */
             num_events = 0;
@@ -2128,12 +2165,16 @@ boolType gkbButtonPressed (charType button)
       case K_MOUSE5: case K_SFT_MOUSE5: case K_CTL_MOUSE5: case K_ALT_MOUSE5:
         button_mask = Button5Mask; break;
 
-      /*
       case K_MOUSE_FWD:      case K_SFT_MOUSE_FWD:
-      case K_CTL_MOUSE_FWD:  case K_ALT_MOUSE_FWD:  button_mask = Button5Mask; break;
+      case K_CTL_MOUSE_FWD:  case K_ALT_MOUSE_FWD:
+        result = buttonState.mouseFwd;
+        finished = TRUE;
+        break;
       case K_MOUSE_BACK:     case K_SFT_MOUSE_BACK:
-      case K_CTL_MOUSE_BACK: case K_ALT_MOUSE_BACK: button_mask = Button5Mask; break;
-      */
+      case K_CTL_MOUSE_BACK: case K_ALT_MOUSE_BACK:
+        result = buttonState.mouseBack;
+        finished = TRUE;
+        break;
 
       /* When the window has the focus keyPress and keyRelease events are */
       /* used to maintain the modifier key state (Shift, Control, etc.).  */

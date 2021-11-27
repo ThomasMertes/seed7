@@ -1336,12 +1336,10 @@ boolType gkbButtonPressed (charType button)
       case K_MOUSE2: case K_SFT_MOUSE2: case K_CTL_MOUSE2: case K_ALT_MOUSE2: vkey1 = VK_MBUTTON; break;
       case K_MOUSE3: case K_SFT_MOUSE3: case K_CTL_MOUSE3: case K_ALT_MOUSE3: vkey1 = VK_RBUTTON; break;
 
-      /*
       case K_MOUSE_FWD:      case K_SFT_MOUSE_FWD:
-      case K_CTL_MOUSE_FWD:  case K_ALT_MOUSE_FWD:  vkey1 = VK_XBUTTON1; break;
+      case K_CTL_MOUSE_FWD:  case K_ALT_MOUSE_FWD:  vkey1 = VK_XBUTTON2; break;
       case K_MOUSE_BACK:     case K_SFT_MOUSE_BACK:
-      case K_CTL_MOUSE_BACK: case K_ALT_MOUSE_BACK: vkey1 = VK_XBUTTON2; break;
-      */
+      case K_CTL_MOUSE_BACK: case K_ALT_MOUSE_BACK: vkey1 = VK_XBUTTON1; break;
 
       case K_SHIFT:          vkey1 = VK_SHIFT;    break;
       case K_LEFT_SHIFT:     vkey1 = VK_LSHIFT;   break;
