@@ -1858,9 +1858,11 @@ boolType processEvents (void)
           case ReparentNotify:
 #endif
           case MapNotify:
+          case UnmapNotify:
           case GraphicsExpose:
           case NoExpose:
-            traceEvent(printf("processEvents: Reparent/Map/GraphicsExpose/NoExpose\n"););
+            traceEvent(printf("processEvents: "
+                              "Reparent/Map/Unmap/GraphicsExpose/NoExpose\n"););
             traceEvent(printf("processEvents: KeyPress key.state: %x\n",
                               currentEvent.xkey.state););
             if (num_events == 1) {
@@ -1979,7 +1981,7 @@ boolType processEvents (void)
 
           case ButtonRelease:
             traceEvent(printf("processEvents: ButtonRelease: %u\n",
-                              currentEvent.xbutton.button, currentKey););
+                              currentEvent.xbutton.button););
             if (currentEvent.xbutton.button == 8) {
               buttonState.mouseBack = FALSE;
             } else if (currentEvent.xbutton.button == 9) {
@@ -2026,6 +2028,7 @@ boolType gkbButtonPressed (charType button)
     KeySym sym1;
     KeySym sym2 = 0;
     KeySym sym3 = 0;
+    KeySym sym4 = 0;
     int keysymIndex;
     XKeyboardState keyboardState;
     boolType finished = FALSE;
@@ -2111,9 +2114,9 @@ boolType gkbButtonPressed (charType button)
       case K_SFT_BS: case K_CTL_BS: case K_ALT_BS:
         sym1 = XK_BackSpace; break;
       case K_NL:
-        sym1 = XK_Return; sym2 = 'J'; sym3 = XK_Mode_switch; break;
+        sym1 = XK_Return; sym2 = 'J'; sym3 = XK_KP_Enter; sym4 = XK_Mode_switch; break;
       case K_SFT_NL: case K_CTL_NL: case K_ALT_NL:
-        sym1 = XK_Return; sym2 = XK_Mode_switch; break;
+        sym1 = XK_Return; sym2 = XK_KP_Enter; sym3 = XK_Mode_switch; break;
       case K_TAB:
         sym1 = XK_Tab; sym2 = 'I'; break;
       case K_BACKTAB: case K_CTL_TAB: case K_ALT_TAB:
@@ -2239,6 +2242,9 @@ boolType gkbButtonPressed (charType button)
           result = keyboardButtonPressed(sym2);
           if (!result && sym3 != 0) {
             result = keyboardButtonPressed(sym3);
+            if (!result && sym4 != 0) {
+              result = keyboardButtonPressed(sym4);
+            } /* if */
           } /* if */
         } /* if */
       } /* if */
