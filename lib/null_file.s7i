@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  null_file.s7i  Base implementation type for all files           *)
-(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2013, 2021  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -104,8 +104,16 @@ const proc: writeln (inout null_file: outFile, in string: stri) is func
  *  Read a string with a maximum length from a ''null_file''.
  *  Derived types of ''null_file'' need to override this function.
  *  @return the empty string ("").
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
  *)
-const string: gets (in null_file: inFile, in integer: maxLength) is "";
+const func string: gets (in null_file: inFile, in integer: maxLength) is func
+  result
+    var string: striRead is "";
+  begin
+    if maxLength < 0 then
+      raise RANGE_ERROR;
+    end if;
+  end func;
 
 
 (**
