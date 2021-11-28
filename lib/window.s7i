@@ -64,12 +64,12 @@ const func file: openWindow (ref text: out_fil,
     window_fil.out_file := out_fil;
     window_fil.upper_border := upper;
     window_fil.left_border := left;
-    if upper + height - 1 <= height(out_fil) then
+    if height(out_fil) = 0 or upper + height - 1 <= height(out_fil) then
       window_fil.height := height;
     else
       window_fil.height := height(out_fil) - upper + 1;
     end if;
-    if left + width - 1 <= width(out_fil) then
+    if width(out_fil) = 0 or left + width - 1 <= width(out_fil) then
       window_fil.width := width;
     else
       window_fil.width := width(out_fil) - left + 1;

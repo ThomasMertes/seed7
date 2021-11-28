@@ -198,6 +198,36 @@ const proc: clear (inout pixmapFontFile: fontFile) is func
   end func;
 
 
+const proc: v_scroll (inout pixmapFontFile: fontFile,
+    in integer: upper, in integer: left, in integer: lower, in integer: right,
+    in integer: count) is func
+  begin
+    if count > 0 then
+      copyArea(fontFile.win, fontFile.win,
+          fontFile.min_x + column_delta(fontFile.font) * pred(left),
+          fontFile.min_y + line_delta(fontFile.font) * pred(upper + count),
+          column_delta(fontFile.font) * succ(right - left),
+          line_delta(fontFile.font) * succ(lower - upper - count),
+          fontFile.min_x + column_delta(fontFile.font) * pred(left),
+          fontFile.min_y + line_delta(fontFile.font) * pred(upper));
+      rect(fontFile.win,
+          fontFile.min_x + column_delta(fontFile.font) * pred(left),
+          fontFile.min_y + line_delta(fontFile.font) * (lower - count),
+          column_delta(fontFile.font) * succ(right - left),
+          line_delta(fontFile.font) * count,
+          black);
+    elsif count < 0 then
+      copyArea(fontFile.win, fontFile.win,
+          fontFile.min_x + column_delta(fontFile.font) * pred(left),
+          fontFile.min_y + line_delta(fontFile.font) * pred(upper),
+          column_delta(fontFile.font) * succ(right - left),
+          line_delta(fontFile.font) * succ(lower - upper + count),
+          fontFile.min_x + column_delta(fontFile.font) * pred(left),
+          fontFile.min_y + line_delta(fontFile.font) * pred(upper - count));
+    end if;
+  end func;
+
+
 (**
  *  Set the current position of ''fontFile'' to ''line'' and ''column''.
  *)

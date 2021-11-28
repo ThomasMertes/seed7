@@ -100,8 +100,8 @@ const func graph_file: open (in PRIMITIVE_WINDOW: graph_win,
     aGraphFile.min_x := min_x;
     aGraphFile.min_y := min_y;
     aGraphFile.lineStartX := min_x;
-    aGraphFile.curr_x := 0;
-    aGraphFile.curr_y := 11;
+    aGraphFile.curr_x := min_x;
+    aGraphFile.curr_y := min_y + 11;
   end func;
 
 
@@ -125,8 +125,8 @@ const func graph_file: open (in PRIMITIVE_WINDOW: graph_win,
     aGraphFile.min_x := min_x;
     aGraphFile.min_y := min_y;
     aGraphFile.lineStartX := min_x;
-    aGraphFile.curr_x := 0;
-    aGraphFile.curr_y := 11;
+    aGraphFile.curr_x := min_x;
+    aGraphFile.curr_y := min_y + 11;
   end func;
 
 
@@ -259,26 +259,26 @@ const proc: v_scroll (inout graph_file: aGraphFile,
   begin
     if count > 0 then
       copyArea(aGraphFile.win, aGraphFile.win,
-          aGraphFile.column_delta * pred(left),
-          aGraphFile.line_delta * pred(upper + count),
+          aGraphFile.min_x + aGraphFile.column_delta * pred(left),
+          aGraphFile.min_y + aGraphFile.line_delta * pred(upper + count),
           aGraphFile.column_delta * succ(right - left),
           aGraphFile.line_delta * succ(lower - upper - count),
-          aGraphFile.column_delta * pred(left),
-          aGraphFile.line_delta * pred(upper));
+          aGraphFile.min_x + aGraphFile.column_delta * pred(left),
+          aGraphFile.min_y + aGraphFile.line_delta * pred(upper));
       rect(aGraphFile.win,
-          aGraphFile.column_delta * pred(left),
-          aGraphFile.line_delta * (lower - count),
+          aGraphFile.min_x + aGraphFile.column_delta * pred(left),
+          aGraphFile.min_y + aGraphFile.line_delta * (lower - count),
           aGraphFile.column_delta * succ(right - left),
           aGraphFile.line_delta * count,
           black);
     elsif count < 0 then
       copyArea(aGraphFile.win, aGraphFile.win,
-          aGraphFile.column_delta * pred(left),
-          aGraphFile.line_delta * pred(upper),
+          aGraphFile.min_x + aGraphFile.column_delta * pred(left),
+          aGraphFile.min_y + aGraphFile.line_delta * pred(upper),
           aGraphFile.column_delta * succ(right - left),
           aGraphFile.line_delta * succ(lower - upper + count),
-          aGraphFile.column_delta * pred(left),
-          aGraphFile.line_delta * pred(upper - count));
+          aGraphFile.min_x + aGraphFile.column_delta * pred(left),
+          aGraphFile.min_y + aGraphFile.line_delta * pred(upper - count));
     end if;
   end func;
 
