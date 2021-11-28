@@ -613,6 +613,7 @@ static objectType exec_action (const_objectType act_object,
 #if WITH_ACTION_CHECK
     if (trace.check_actions) {
       if (unlikely(act_object->value.actValue == actTable.table[0].action)) {
+        logError(printf("evaluate: illegal action\n"););
         result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION,
             evaluated_act_params);
       } /* if */
@@ -816,6 +817,7 @@ objectType exec_call (objectType object)
         result = evaluate(subroutine_object);
         break;
       case FORWARDOBJECT:
+        logError(printf("exec_call: forward object\n"););
         result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, actual_parameters);
         break;
       default:
@@ -942,9 +944,9 @@ objectType evaluate (objectType object)
         result = exec_action(object, NULL, NULL);
         break;
       default:
-        prot_cstri("evaluate unknown ");
-        trace1(object);
-        prot_nl();
+        logError(printf("evaluate: evaluate unknown\n");
+                 trace1(object);
+                 printf("\n"););
         result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, NULL);
         break;
     } /* switch */
@@ -1120,6 +1122,9 @@ printf("\n"); */
         } /* if */
 #endif
       } else {
+        logError(printf("exec_dynamic: No match\n");
+                 trace1(match_expr);
+                 printf("\n"););
         return raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, expr_list);
       } /* if */
     } else {
