@@ -116,8 +116,8 @@ const func boolean: equalFileContent (in string: sourcePath, in string: destPath
       if destFile <> STD_NULL then
         equal := TRUE;
         while equal and not eof(sourceFile) and not eof(destFile) do
-          sourceBlock := gets(sourceFile, 134217728);
-          destBlock := gets(destFile, 134217728);
+          sourceBlock := gets(sourceFile, 67108864);
+          destBlock := gets(destFile, 67108864);
           equal := sourceBlock = destBlock;
         end while;
         close(destFile);
