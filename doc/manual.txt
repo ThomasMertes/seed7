@@ -6910,6 +6910,7 @@ CONTENTS
     Key character constant     Description
     KEY_CTL_A to KEY_CTL_Z     The control keys ctrl-a to ctrl-z
     KEY_ALT_A to KEY_ALT_Z     The alternate keys alt-a to alt-z
+    KEY_CTL_0 to KEY_CTL_9     The control keys ctrl-0 to ctrl-9
     KEY_ALT_0 to KEY_ALT_9     The alternate keys alt-0 to alt-9
     KEY_F1 to KEY_F10          Function keys F1 to F10
     KEY_SFT_F1 to KEY_SFT_F10  Shifted function keys F1 to F10
@@ -6926,6 +6927,17 @@ CONTENTS
     KEY_INS                    Insert key
     KEY_DEL                    Delete key
     KEY_PAD_CENTER             Numeric keypad center key
+    KEY_SFT_LEFT               Shifted cursor left
+    KEY_SFT_RIGHT              Shifted cursor right
+    KEY_SFT_UP                 Shifted cursor up
+    KEY_SFT_DOWN               Shifted cursor down
+    KEY_SFT_HOME               Shifted home key
+    KEY_SFT_END                Shifted end key
+    KEY_SFT_PGUP               Shifted page up
+    KEY_SFT_PGDN               Shifted page down
+    KEY_SFT_INS                Shifted insert key
+    KEY_SFT_DEL                Shifted delete key
+    KEY_SFT_PAD_CENTER         Shifted numeric keypad center key
     KEY_CTL_LEFT               Control cursor left
     KEY_CTL_RIGHT              Control cursor right
     KEY_CTL_UP                 Control cursor up

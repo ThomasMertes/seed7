@@ -58,6 +58,11 @@ const func keyDescriptionType: genKeyDescription is func
       keyDescription @:= [chr(pred(ord(KEY_ALT_A)) + index)] description;
     end for;
     for description key index range [](
+        "KEY_CTL_0", "KEY_CTL_1", "KEY_CTL_2", "KEY_CTL_3", "KEY_CTL_4",
+        "KEY_CTL_5", "KEY_CTL_6", "KEY_CTL_7", "KEY_CTL_8", "KEY_CTL_9") do
+      keyDescription @:= [chr(pred(ord(KEY_CTL_0)) + index)] description;
+    end for;
+    for description key index range [](
         "KEY_ALT_0", "KEY_ALT_1", "KEY_ALT_2", "KEY_ALT_3", "KEY_ALT_4",
         "KEY_ALT_5", "KEY_ALT_6", "KEY_ALT_7", "KEY_ALT_8", "KEY_ALT_9") do
       keyDescription @:= [chr(pred(ord(KEY_ALT_0)) + index)] description;
