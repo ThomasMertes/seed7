@@ -52,6 +52,13 @@
 #include "drw_drv.h"
 
 
+#define TRACE_EVENTS 0
+#if TRACE_EVENTS
+#define traceEvent(traceStatements) traceStatements
+#else
+#define traceEvent(traceStatements)
+#endif
+
 #define PI 3.141592653589793238462643383279502884197
 
 #define windowClass "MyWindowClass"
@@ -78,6 +85,7 @@ typedef struct {
     unsigned int backupHeight; /* Always <= INT_MAX: Cast to int is safe. */
     unsigned int bruttoWidthDelta;
     unsigned int bruttoHeightDelta;
+    boolType minimized;
     intType clear_col;
     int close_action;
     boolType resizeReturnsKey;
@@ -102,6 +110,7 @@ typedef const win_winRecord *const_win_winType;
 #define to_backupHeight(win)         (((const_win_winType) win)->backupHeight)
 #define to_bruttoWidthDelta(win)     (((const_win_winType) win)->bruttoWidthDelta)
 #define to_bruttoHeightDelta(win)    (((const_win_winType) win)->bruttoHeightDelta)
+#define to_minimized(win)            (((const_win_winType) win)->minimized)
 #define to_clear_col(win)            (((const_win_winType) win)->clear_col)
 #define to_close_action(win)         (((const_win_winType) win)->close_action)
 #define to_resizeReturnsKey(win)     (((const_win_winType) win)->resizeReturnsKey)
@@ -252,7 +261,10 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                        message, hWnd, wParam, lParam););
     switch (message) {
       case WM_PAINT:
-        /* printf("WM_PAINT %lu %lu\n", hWnd, paint_window); */
+        traceEvent(printf("WndProc WM_PAINT hwnd=" FMT_U_MEM
+                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                          (memSizeType) hWnd, (uint64Type) wParam,
+                          (uint64Type) lParam););
         paint_window = (win_winType) find_window(hWnd);
         if (paint_window != NULL && paint_window->backup_hdc != 0) {
           BeginPaint(paint_window->hWnd, &paintStruct);
@@ -278,7 +290,10 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         result = 0;
         break;
       case WM_ERASEBKGND:
-        /* printf("WM_ERASEBKGND %lu\n", hWnd); */
+        traceEvent(printf("WndProc WM_ERASEBKGND hwnd=" FMT_U_MEM
+                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                          (memSizeType) hWnd, (uint64Type) wParam,
+                          (uint64Type) lParam););
         paint_window = (win_winType) find_window(hWnd);
         if (paint_window != NULL && paint_window->backup_hdc != 0) {
           if (GetUpdateRect(paint_window->hWnd, &rect, FALSE) != 0) {
@@ -337,14 +352,20 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         result = 1;
         break;
       case WM_SIZE:
-        /* printf("WM_SIZE\n"); */
+        traceEvent(printf("WndProc WM_SIZE hwnd=" FMT_U_MEM
+                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                          (memSizeType) hWnd, (uint64Type) wParam,
+                          (uint64Type) lParam););
         paint_window = (win_winType) find_window(hWnd);
         resize(paint_window, (unsigned int) LOWORD(lParam),
                (unsigned int) HIWORD(lParam));
         result = 1;
         break;
       case WM_SETCURSOR:
-        /* printf("WM_SETCURSOR\n"); */
+        traceEvent(printf("WndProc WM_SETCURSOR hwnd=" FMT_U_MEM
+                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                          (memSizeType) hWnd, (uint64Type) wParam,
+                          (uint64Type) lParam););
         paint_window = (win_winType) find_window(hWnd);
         if (LOWORD(lParam) == HTCLIENT && !paint_window->cursorVisible) {
           SetCursor(NULL);
@@ -352,6 +373,31 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         } else{
           result = DefWindowProc(hWnd, message, wParam, lParam);
         } /* if */
+        break;
+      case WM_SYSCOMMAND:
+        traceEvent(printf("WndProc WM_SYSCOMMAND: hwnd=" FMT_U_MEM
+                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                          (memSizeType) hWnd, (uint64Type) wParam,
+                          (uint64Type) lParam););
+        if (wParam == SC_MAXIMIZE || wParam == SC_RESTORE) {
+          /* printf("SC_MAXIMIZE / SC_RESTORE\n"); */
+          paint_window = (win_winType) find_window(hWnd);
+          if (paint_window != NULL) {
+            if (paint_window->minimized) {
+              paint_window->minimized = FALSE;
+            } else if (paint_window->resizeReturnsKey) {
+              /* printf("send WM_USER\n"); */
+              PostMessageA(hWnd, WM_USER, wParam, lParam);
+            } /* if */
+          } /* if */
+        } else if (wParam == SC_MINIMIZE) {
+          /* printf("SC_MINIMIZE\n"); */
+          paint_window = (win_winType) find_window(hWnd);
+          if (paint_window != NULL) {
+            paint_window->minimized = TRUE;
+          } /* if */
+        } /* if */
+        result = DefWindowProc(hWnd, message, wParam, lParam);
         break;
       default:
         result = DefWindowProc(hWnd, message, wParam, lParam);
@@ -1385,6 +1431,7 @@ winType drwOpen (intType xPos, intType yPos,
               result->height = (unsigned int) height;
               result->backupWidth = (unsigned int) width;
               result->backupHeight = (unsigned int) height;
+              result->minimized = FALSE;
               result->clear_col = (intType) RGB(0, 0, 0); /* black */
               result->cursorVisible = TRUE;
               result->backup_hdc = CreateCompatibleDC(result->hdc);
@@ -1498,6 +1545,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
             result->height = (unsigned int) height;
             result->backupWidth = (unsigned int) width;
             result->backupHeight = (unsigned int) height;
+            result->minimized = FALSE;
             result->clear_col = (intType) RGB(0, 0, 0); /* black */
             result->cursorVisible = TRUE;
             result->backup_hdc = CreateCompatibleDC(result->hdc);
