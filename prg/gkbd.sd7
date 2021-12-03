@@ -176,10 +176,10 @@ const proc: main is func
     selectInput(curr_win, KEY_CLOSE, TRUE);
     selectInput(curr_win, KEY_RESIZE, TRUE);
     screen := openPixmapFontFile(curr_win, 10, 26);
-    setFont(screen, genStdFont12);
+    setFont(screen, stdFont12);
     writeln(screen, "Keyboard test program. Type ! to terminate the program");
     screen := openPixmapFontFile(curr_win, 20, 270);
-    setFont(screen, genStdFont12);
+    setFont(screen, stdFont12);
     OUT := openWindow(screen, 1, 1, 11, 500);
     logFile := STD_CONSOLE;
     OUT := openTee(OUT, logFile);
