@@ -120,6 +120,9 @@ const func boolean: equalFileContent (in string: sourcePath, in string: destPath
           destBlock := gets(destFile, 67108864);
           equal := sourceBlock = destBlock;
         end while;
+        if not eof(sourceFile) or not eof(destFile) then
+          equal := FALSE;
+        end if;
         close(destFile);
       end if;
       close(sourceFile);
