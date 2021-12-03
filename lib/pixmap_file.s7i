@@ -234,12 +234,14 @@ const proc: v_scroll (inout pixmapFontFile: fontFile,
 const proc: setPos (inout pixmapFontFile: fontFile,
     in integer: line, in integer: column) is func
   begin
-    fontFile.lineStartX := fontFile.min_x;
-    fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(line);
-    fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(column);
-    fontFile.useBaseY := FALSE;
-    fontFile.line := line;
-    fontFile.column := column;
+    if fontFile.line <> line or fontFile.column <> column then
+      fontFile.lineStartX := fontFile.min_x;
+      fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(line);
+      fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(column);
+      fontFile.useBaseY := FALSE;
+      fontFile.line := line;
+      fontFile.column := column;
+    end if;
   end func;
 
 
