@@ -45,8 +45,8 @@ const type: pixmapFontFile is sub null_file struct
     var integer: width is 0;
     var integer: line is 0;
     var integer: column is 0;
-    var integer: min_x is 0;
-    var integer: min_y is 0;
+    var integer: minX is 0;
+    var integer: minY is 0;
     var integer: lineStartX is 0;
     var integer: currLeftX is 0;
     var integer: currTopY is 0;
@@ -76,12 +76,12 @@ const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win) is func
 
 
 (**
- *  Creates a ''pixmapFontFile'' at (''min_x'', ''min_y'') in ''win''.
+ *  Creates a ''pixmapFontFile'' at (''minX'', ''minY'') in ''win''.
  *  The ''pixmapFontFile'' extends to the lower right edge of ''win''.
  *  @return the file opened.
  *)
 const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win,
-    in integer: min_x, in integer: min_y) is func
+    in integer: minX, in integer: minY) is func
   result
     var text: newFile is STD_NULL;
   local
@@ -89,11 +89,11 @@ const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win,
   begin
     new_file.win := win;
     new_file.font.baseFont := fontProperties.value;
-    new_file.min_x := min_x;
-    new_file.min_y := min_y;
-    new_file.lineStartX := min_x;
-    new_file.currLeftX := min_x;
-    new_file.currTopY := min_y;
+    new_file.minX := minX;
+    new_file.minY := minY;
+    new_file.lineStartX := minX;
+    new_file.currLeftX := minX;
+    new_file.currTopY := minY;
     newFile := toInterface(new_file);
   end func;
 
@@ -168,14 +168,14 @@ const proc: clear (inout pixmapFontFile: fontFile,
     in integer: upper, in integer: left, in integer: lower, in integer: right) is func
   begin
     rectTo(fontFile.win,
-        fontFile.min_x + column_delta(fontFile.font) * pred(left),
-        fontFile.min_y + line_delta(fontFile.font) * pred(upper),
-        fontFile.min_x + pred(column_delta(fontFile.font) * right),
-        fontFile.min_y + pred(line_delta(fontFile.font) * lower),
+        fontFile.minX + column_delta(fontFile.font) * pred(left),
+        fontFile.minY + line_delta(fontFile.font) * pred(upper),
+        fontFile.minX + pred(column_delta(fontFile.font) * right),
+        fontFile.minY + pred(line_delta(fontFile.font) * lower),
         background(fontFile.font));
-    fontFile.lineStartX := fontFile.min_x;
-    fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(upper);
-    fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(left);
+    fontFile.lineStartX := fontFile.minX;
+    fontFile.currTopY := fontFile.minY + line_delta(fontFile.font) * pred(upper);
+    fontFile.currLeftX := fontFile.minX + column_delta(fontFile.font) * pred(left);
     fontFile.useBaseY := FALSE;
   end func;
 
@@ -186,14 +186,14 @@ const proc: clear (inout pixmapFontFile: fontFile,
 const proc: clear (inout pixmapFontFile: fontFile) is func
   begin
     rectTo(fontFile.win,
-        fontFile.min_x,
-        fontFile.min_y,
+        fontFile.minX,
+        fontFile.minY,
         pred(width(fontFile.win)),
         pred(height(fontFile.win)),
         background(fontFile.font));
-    fontFile.lineStartX := fontFile.min_x;
-    fontFile.currTopY := fontFile.min_y;
-    fontFile.currLeftX := fontFile.min_x;
+    fontFile.lineStartX := fontFile.minX;
+    fontFile.currTopY := fontFile.minY;
+    fontFile.currLeftX := fontFile.minX;
     fontFile.useBaseY := FALSE;
   end func;
 
@@ -204,26 +204,26 @@ const proc: v_scroll (inout pixmapFontFile: fontFile,
   begin
     if count > 0 then
       copyArea(fontFile.win, fontFile.win,
-          fontFile.min_x + column_delta(fontFile.font) * pred(left),
-          fontFile.min_y + line_delta(fontFile.font) * pred(upper + count),
+          fontFile.minX + column_delta(fontFile.font) * pred(left),
+          fontFile.minY + line_delta(fontFile.font) * pred(upper + count),
           column_delta(fontFile.font) * succ(right - left),
           line_delta(fontFile.font) * succ(lower - upper - count),
-          fontFile.min_x + column_delta(fontFile.font) * pred(left),
-          fontFile.min_y + line_delta(fontFile.font) * pred(upper));
+          fontFile.minX + column_delta(fontFile.font) * pred(left),
+          fontFile.minY + line_delta(fontFile.font) * pred(upper));
       rect(fontFile.win,
-          fontFile.min_x + column_delta(fontFile.font) * pred(left),
-          fontFile.min_y + line_delta(fontFile.font) * (lower - count),
+          fontFile.minX + column_delta(fontFile.font) * pred(left),
+          fontFile.minY + line_delta(fontFile.font) * (lower - count),
           column_delta(fontFile.font) * succ(right - left),
           line_delta(fontFile.font) * count,
           black);
     elsif count < 0 then
       copyArea(fontFile.win, fontFile.win,
-          fontFile.min_x + column_delta(fontFile.font) * pred(left),
-          fontFile.min_y + line_delta(fontFile.font) * pred(upper),
+          fontFile.minX + column_delta(fontFile.font) * pred(left),
+          fontFile.minY + line_delta(fontFile.font) * pred(upper),
           column_delta(fontFile.font) * succ(right - left),
           line_delta(fontFile.font) * succ(lower - upper + count),
-          fontFile.min_x + column_delta(fontFile.font) * pred(left),
-          fontFile.min_y + line_delta(fontFile.font) * pred(upper - count));
+          fontFile.minX + column_delta(fontFile.font) * pred(left),
+          fontFile.minY + line_delta(fontFile.font) * pred(upper - count));
     end if;
   end func;
 
@@ -235,9 +235,9 @@ const proc: setPos (inout pixmapFontFile: fontFile,
     in integer: line, in integer: column) is func
   begin
     if fontFile.line <> line or fontFile.column <> column then
-      fontFile.lineStartX := fontFile.min_x;
-      fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(line);
-      fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(column);
+      fontFile.lineStartX := fontFile.minX;
+      fontFile.currTopY := fontFile.minY + line_delta(fontFile.font) * pred(line);
+      fontFile.currLeftX := fontFile.minX + column_delta(fontFile.font) * pred(column);
       fontFile.useBaseY := FALSE;
       fontFile.line := line;
       fontFile.column := column;
@@ -251,9 +251,9 @@ const proc: setPos (inout pixmapFontFile: fontFile,
  *)
 const proc: setPosXY (inout pixmapFontFile: fontFile, in integer: xPos, in integer: yPos) is func
   begin
-    fontFile.lineStartX := fontFile.min_x + xPos;
-    fontFile.currLeftX := fontFile.min_x + xPos;
-    fontFile.currBaseY := fontFile.min_y + yPos;
+    fontFile.lineStartX := fontFile.minX + xPos;
+    fontFile.currLeftX := fontFile.minX + xPos;
+    fontFile.currBaseY := fontFile.minY + yPos;
     fontFile.useBaseY := TRUE;
     if line_delta(fontFile.font) <> 0 then
       fontFile.line := yPos div line_delta(fontFile.font);
@@ -269,7 +269,7 @@ const proc: setPosXY (inout pixmapFontFile: fontFile, in integer: xPos, in integ
  *)
 const proc: setLine (inout pixmapFontFile: fontFile, in integer: line) is func
   begin
-    fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(line);
+    fontFile.currTopY := fontFile.minY + line_delta(fontFile.font) * pred(line);
     fontFile.useBaseY := FALSE;
     fontFile.line := line;
   end func;
@@ -280,8 +280,8 @@ const proc: setLine (inout pixmapFontFile: fontFile, in integer: line) is func
  *)
 const proc: setColumn (inout pixmapFontFile: fontFile, in integer: column) is func
   begin
-    fontFile.lineStartX := fontFile.min_x;
-    fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(column);
+    fontFile.lineStartX := fontFile.minX;
+    fontFile.currLeftX := fontFile.minX + column_delta(fontFile.font) * pred(column);
     fontFile.column := column;
   end func;
 

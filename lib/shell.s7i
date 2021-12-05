@@ -186,10 +186,13 @@ const func clib_file: popenClibFile (in string: command,
 const proc: pclose (in clib_file: fileToClose)    is action "FIL_PCLOSE";
 
 
-const type: popen_file is sub external_file struct
+(**
+ *  [[file|File]] implementation type for operating system pipes.
+ *)
+const type: popenFile is sub external_file struct
   end struct;
 
-type_implements_interface(popen_file, file);
+type_implements_interface(popenFile, file);
 
 
 (**
@@ -222,7 +225,7 @@ const func file: popen (in string: command, in string: parameters,
     var file: newPipe is STD_NULL;
   local
     var clib_file: open_file is CLIB_NULL_FILE;
-    var popen_file: new_file is popen_file.value;
+    var popenFile: new_file is popenFile.value;
   begin
     open_file := popenClibFile(command, parameters, mode);
     if open_file <> CLIB_NULL_FILE then
@@ -309,16 +312,19 @@ const func file: popen (in string: command, in array string: paramList,
  *  @param aFile Pipe to be closed (created by 'popen').
  *  @exception FILE_ERROR A system function returned an error.
  *)
-const proc: close (in popen_file: aPipe) is func
+const proc: close (in popenFile: aPipe) is func
   begin
     pclose(aPipe.ext_file);
   end func;
 
 
-const type: popen8_file is sub utf8_file struct
+(**
+ *  [[file|File]] implementation type for UTF-8 encoded operating system pipes.
+ *)
+const type: popen8File is sub utf8_file struct
   end struct;
 
-type_implements_interface(popen8_file, file);
+type_implements_interface(popen8File, file);
 
 
 (**
@@ -351,7 +357,7 @@ const func file: popen8 (in string: command, in string: parameters,
     var file: newPipe is STD_NULL;
   local
     var clib_file: open_file is CLIB_NULL_FILE;
-    var popen8_file: new_file is popen8_file.value;
+    var popen8File: new_file is popen8File.value;
   begin
     open_file := popenClibFile(command, parameters, mode);
     if open_file <> CLIB_NULL_FILE then
@@ -438,7 +444,7 @@ const func file: popen8 (in string: command, in array string: paramList,
  *  @param aPipe UTF-8 encoded pipe to be closed (created by 'popen8').
  *  @exception FILE_ERROR A system function returned an error.
  *)
-const proc: close (in popen8_file: aPipe) is func
+const proc: close (in popen8File: aPipe) is func
   begin
     pclose(aPipe.ext_file);
   end func;

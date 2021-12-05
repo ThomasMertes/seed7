@@ -30,33 +30,35 @@
  *  [[file|File]] implementation type which generates an echo of the input.
  *)
 const type: echo_file is sub null_file struct
-    var file: in_file is STD_NULL;
-    var file: out_file is STD_NULL;
-    var integer: in_pos is 1;
+    var file: inFile is STD_NULL;
+    var file: outFile is STD_NULL;
+    var integer: inPos is 1;
   end struct;
 
 
 (**
- *  Open an echo_file.
+ *  Open a file that echoes characters read from ''inFile'' to ''outFile''.
+ *  Reading operations are forwarded to ''inFile''. All normal characters
+ *  that are read from ''inFile'' are also written to ''outFile''.
  *  @return the file opened.
  *)
-const func file: openEcho (in file: in_fil, in file: out_fil) is func
+const func file: openEcho (in file: inFile, in file: outFile) is func
   result
     var file: newFile is STD_NULL;
   local
     var echo_file: new_echo_file is echo_file.value;
   begin
-    new_echo_file.in_file := in_fil;
-    new_echo_file.out_file := out_fil;
-    new_echo_file.in_pos := 1;
+    new_echo_file.inFile := inFile;
+    new_echo_file.outFile := outFile;
+    new_echo_file.inPos := 1;
     newFile := toInterface(new_echo_file);
   end func;
 
 
 (**
  *  Read a character from an echo_file.
- *  The request is forwarded to ''in_file''. The character read from
- *  ''in_file'' is written (echoed) to ''out_file''. Ctrl-C and ctrl-T
+ *  The request is forwarded to ''inFile''. The character read from
+ *  ''inFile'' is written (echoed) to ''outFile''. Ctrl-C and ctrl-T
  *  are handled special, as they can be used to terminate the
  *  program. The user is asked for confirmation before the program
  *  is terminated.
@@ -69,35 +71,35 @@ const func char: getc (inout echo_file: echo_fil) is func
     var integer: number is 0;
   begin
     repeat
-      flush(echo_fil.out_file);
-(*    cursor_on(echo_fil.out_file); *)
-      charRead := getc(echo_fil.in_file);
-(*    cursor_off(echo_fil.out_file); *)
+      flush(echo_fil.outFile);
+(*    cursor_on(echo_fil.outFile); *)
+      charRead := getc(echo_fil.inFile);
+(*    cursor_off(echo_fil.outFile); *)
       if charRead >= ' ' and charRead <= '~' then
-        incr(echo_fil.in_pos);
-        write(echo_fil.out_file, charRead);
+        incr(echo_fil.inPos);
+        write(echo_fil.outFile, charRead);
       elsif charRead = '\n' then
-        echo_fil.in_pos := 1;
-        writeln(echo_fil.out_file);
+        echo_fil.inPos := 1;
+        writeln(echo_fil.outFile);
       elsif charRead = '\b' then
-        if echo_fil.in_pos > 1 then
-          decr(echo_fil.in_pos);
-          backSpace(echo_fil.out_file, " ");
+        if echo_fil.inPos > 1 then
+          decr(echo_fil.inPos);
+          backSpace(echo_fil.outFile, " ");
         end if;
       elsif charRead = '\C' or charRead = '\T' then
-        write(echo_fil.out_file, " terminate (y/n)? ");
-        flush(echo_fil.out_file);
-        if lower(getc(echo_fil.in_file)) = 'y' then
-          writeln(echo_fil.out_file, "yes");
-          writeln(echo_fil.out_file);
-          writeln(echo_fil.out_file, "*** PROGRAM TERMINATED BY USER");
+        write(echo_fil.outFile, " terminate (y/n)? ");
+        flush(echo_fil.outFile);
+        if lower(getc(echo_fil.inFile)) = 'y' then
+          writeln(echo_fil.outFile, "yes");
+          writeln(echo_fil.outFile);
+          writeln(echo_fil.outFile, "*** PROGRAM TERMINATED BY USER");
           exit(PROGRAM);
         else
-          backSpace(echo_fil.out_file, " terminate (y/n)? ");
+          backSpace(echo_fil.outFile, " terminate (y/n)? ");
         end if;
       elsif charRead <> EOF then
-        incr(echo_fil.in_pos);
-        write(echo_fil.out_file, '?');
+        incr(echo_fil.inPos);
+        write(echo_fil.outFile, '?');
       end if;
     until charRead <> '\C' and charRead <> '\T';
   end func;
