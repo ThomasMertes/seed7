@@ -37,6 +37,8 @@ const type: line_file is sub null_file struct
 
 (**
  *  Open a line_file to filter ''aFile'' linewise.
+ *  Until a line is finished with '\n' or [[char#EOF|EOF]] the
+ *  characters in the line can be corrected with backspace ('\b').
  *  @return the file opened.
  *)
 const func file: openLine (in file: aFile) is func

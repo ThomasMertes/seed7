@@ -400,7 +400,7 @@ const func boolean: decodeProperties (inout lzmaDecoder: decoder, in string: pro
     var integer: dictSizeInProperties is 0;
   begin
     aByte := ord(properties[1]);
-    if aByte >= (9 * 5 * 5) then
+    if aByte >= 9 * 5 * 5 then
       # writeln("Incorrect LZMA properties");
       okay := FALSE;
     else
@@ -646,6 +646,10 @@ const func integer: decodePacket (inout lzmaDecoder: lzma,
   end func;
 
 
+(**
+ *  [[file|File]] implementation type to decompress a LZMA file.
+ *  LZMA is a file format used for compression.
+ *)
 const type: lzmaFile is sub null_file struct
     var file: compressed is STD_NULL;
     var integer: unpackSize is 0;
@@ -659,8 +663,11 @@ type_implements_interface(lzmaFile, file);
 
 
 (**
- *  Open a ''lzmaFile'' to decompress a compressed file.
- *  @return the file opened.
+ *  Open a LZMA file for decompression.
+ *  LZMA is a file format used for compression. Reading from
+ *  the file delivers decompressed data. Writing is not supported.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if the file is not in LZMA format.
  *)
 const func file: openLzmaFile (inout file: compressed) is func
   result

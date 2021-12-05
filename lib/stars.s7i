@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  stars.s7i     List of stars with name, RA, DEC and magnitude V  *)
+(*  stars.s7i     List of stars with name, RA, DEC and V magnitude. *)
 (*  Copyright (C) 2007  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -26,6 +26,10 @@
 (********************************************************************)
 
 
+(**
+ *  Type do describe information about a star.
+ *  It contains name, right ascension, declination and V magnitude.
+ *)
 const type: starDescr is new struct
     var string: name is "";
     var float: rightAscension is 0.0;
@@ -47,6 +51,9 @@ const func starDescr: genStarDescr (in string: name,
   end func;
 
 
+(**
+ *  List of stars with name, right ascension, declination and V magnitude.
+ *)
 const array starDescr: stars is [] (
     genStarDescr("Alpha And",       0.139769,  29.090834,  2.07),
     genStarDescr("Beta And",        1.162167,  35.620834,  2.07),

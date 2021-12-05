@@ -226,6 +226,10 @@ const proc: readXzBlockHeader (inout lzmaDecoder: lzmaDec) is func
   end func;
 
 
+(**
+ *  [[file|File]] implementation type to decompress a XZ file.
+ *  XZ is a file format used for compression.
+ *)
 const type: xzFile is sub null_file struct
     var integer: flags is 0;
     var integer: crc32 is 0;
@@ -238,8 +242,11 @@ type_implements_interface(xzFile, file);
 
 
 (**
- *  Open a ''xzFile'' to decompress a compressed file.
- *  @return the file opened.
+ *  Open a XZ file for decompression.
+ *  XZ is a file format used for compression. Reading from
+ *  the file delivers decompressed data. Writing is not supported.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if the file is not in XZ format.
  *)
 const func file: openXzFile (inout file: compressed) is func
   result

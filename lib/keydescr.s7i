@@ -175,4 +175,9 @@ const func keyDescriptionType: genKeyDescription is func
   end func;
 
 
+(**
+ *  Map with descriptive texts for cursor, function and mouse keys.
+ *   keyDescription[KEY_ESC]       returns "KEY_ESC"
+ *   keyDescription[KEY_ALT_LEFT]  returns "KEY_ALT_LEFT"
+ *)
 const keyDescriptionType: keyDescription is genKeyDescription;

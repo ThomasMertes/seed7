@@ -150,6 +150,14 @@ const func integer: tell (in utf16_file: aFile) is
   return tell(aFile.ext_file);
 
 
+(**
+ *  [[file|File]] implementation type for UTF-16LE (little endian) files.
+ *  This type supports UTF-16 encoded sequential files of the
+ *  operating system. UTF-16 files are seekable, therefore they
+ *  support the functions [[#length(in_utf16_file)|length]],
+ *  [[#seek(in_utf16_file,in_integer)|seek]] and
+ *  [[#tell(in_utf16_file)|tell]].
+ *)
 const type: utf16le_file is sub utf16_file struct
   end struct;
 
@@ -305,6 +313,14 @@ const func string: gets (in utf16le_file: inFile, in integer: maxLength) is func
   end func;
 
 
+(**
+ *  [[file|File]] implementation type for UTF-16BE (big endian) files.
+ *  This type supports UTF-16 encoded sequential files of the
+ *  operating system. UTF-16 files are seekable, therefore they
+ *  support the functions [[#length(in_utf16_file)|length]],
+ *  [[#seek(in_utf16_file,in_integer)|seek]] and
+ *  [[#tell(in_utf16_file)|tell]].
+ *)
 const type: utf16be_file is sub utf16_file struct
   end struct;
 

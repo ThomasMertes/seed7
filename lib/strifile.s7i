@@ -28,6 +28,10 @@
 
 (**
  *  [[file|File]] implementation type for files stored in a [[string]].
+ *  String files are seekable, therefore they
+ *  support the functions [[#length(in_strifile)|length]],
+ *  [[#seek(inout_strifile,in_integer)|seek]] and
+ *  [[#tell(in_strifile)|tell]].
  *)
 const type: strifile is sub null_file struct
     var string: content is "";

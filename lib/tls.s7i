@@ -236,6 +236,13 @@ const type: tlsParseState is new struct
     var char: alert is CLOSE_NOTIFY;
   end struct;
 
+(**
+ *  [[file|File]] implementation type for TLS.
+ *  This type supports communication TLS. A ''tlsFile'' is
+ *  not seekable. The functions [[null_file#length(in_null_file)|length]],
+ *  [[null_file#seek(in_null_file,in_integer)|seek]] and
+ *  [[null_file#tell(in_null_file)|tell]] raise FILE_ERROR.
+ *)
 const type: tlsFile is sub null_file struct
     var file: sock is STD_NULL;
     var tlsParseState: parseState is tlsParseState.value;

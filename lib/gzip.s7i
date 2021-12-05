@@ -194,6 +194,10 @@ const func string: gunzip (in string: compressed) is func
   end func;
 
 
+(**
+ *  [[file|File]] implementation type to decompress a GZIP file.
+ *  GZIP is a file format used for compression.
+ *)
 const type: gunzipFile is sub null_file struct
     var file: compressed is STD_NULL;
     var integer: bitPos is 0;
@@ -206,8 +210,11 @@ type_implements_interface(gunzipFile, file);
 
 
 (**
- *  Open a ''gunzipFile'' to decompress a compressed file.
- *  @return the file opened.
+ *  Open a GZIP file for decompression.
+ *  GZIP is a file format used for compression. Reading from
+ *  the file delivers decompressed data. Writing is not supported.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if the file is not in GZIP format.
  *)
 const func file: openGunzipFile (inout file: compressed) is func
   result
@@ -381,6 +388,9 @@ const func string: gzip (in string: uncompressed) is func
   end func;
 
 
+(**
+ *  [[file|File]] implementation type to compress data with the GZIP format.
+ *)
 const type: gzipFile is sub null_file struct
     var file: destFile is STD_NULL;
     var deflateData: deflateState is deflateData.value;
@@ -394,7 +404,7 @@ type_implements_interface(gzipFile, file);
 
 
 (**
- *  Open a ''gzipFile'' to compress data to the gzip format.
+ *  Open a ''gzipFile'' to compress data with the GZIP format.
  *  A ''gzipFile'' compresses data that is written to it. The
  *  compressed data is written to ''destFile'' in the gzip
  *  format. Gzip uses the DEFLATE compression algorithm. DEFLATE

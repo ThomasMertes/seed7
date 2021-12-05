@@ -1028,6 +1028,10 @@ const func boolean: zstdBlock (inout file: compressed, inout zstdBlockStateType:
   end func;
 
 
+(**
+ *  [[file|File]] implementation type to decompress a Zstandard file.
+ *  Zstandard is a file format used for compression.
+ *)
 const type: zstdFile is sub null_file struct
     var file: compressed is STD_NULL;
     var boolean: finished is FALSE;
@@ -1040,8 +1044,11 @@ type_implements_interface(zstdFile, file);
 
 
 (**
- *  Open a ''zstdFile'' to decompress a compressed file.
- *  @return the file opened.
+ *  Open a Zstandard file for decompression.
+ *  Zstandard is a file format used for compression. Reading from
+ *  the file delivers decompressed data. Writing is not supported.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if the file is not in Zstandard format.
  *)
 const func file: openZstdFile (inout file: compressed) is func
   result

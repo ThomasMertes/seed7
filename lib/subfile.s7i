@@ -30,6 +30,10 @@ include "stdio.s7i";
 include "time.s7i";
 
 
+(**
+ *  [[file|File]] implementation type for a sub segment of a base file.
+ *  A sub segment has a starting position and a length.
+ *)
 const type: subFile is sub null_file struct
     var file: baseFile is STD_NULL;
     var integer: startPos is 0;
@@ -40,6 +44,13 @@ const type: subFile is sub null_file struct
 type_implements_interface(subFile, file);
 
 
+(**
+ *  Open a file to read from a sub segment of a base file.
+ *  @param baseFile Base file in which the sub segment is situated.
+ *  @param startPos Start position of the sub segment.
+ *  @param size Size of the sub segment.
+ *  @return the file opened.
+ *)
 const func file: openSubFile (in file: baseFile, in integer: startPos, in integer: size) is func
   result
     var file: newFile is STD_NULL;
