@@ -163,23 +163,23 @@ test:
 
 install:
 	mkdir -p /usr/local/bin
-	cd ../bin; ln -s `pwd`/s7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/s7c /usr/local/bin
+	cd ../bin; ln -fs `pwd`/s7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/s7c /usr/local/bin
 	gzip -c ../doc/s7.1 > /usr/share/man/man1/s7.1.gz
 	gzip -c ../doc/s7c.1 > /usr/share/man/man1/s7c.1.gz
-	cd ../bin; ln -s `pwd`/bas7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/calc7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/db7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/diff7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/find7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/ftp7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/ide7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/make7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/pv7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/sql7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/sydir7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/tar7 /usr/local/bin
-	cd ../bin; ln -s `pwd`/toutf8 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/bas7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/calc7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/db7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/diff7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/find7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/ftp7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/ide7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/make7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/pv7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/sql7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/sydir7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/tar7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/toutf8 /usr/local/bin
 
 uninstall:
 	rm -f /usr/local/bin/s7
