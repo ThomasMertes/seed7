@@ -307,6 +307,8 @@ static inline boolType is_nonspacing (charType ch)
         return (boolType) (
             (nonspacing_table_data[8 * (unsigned int) ind + ((ch >> 6) & 7)] >> (ch & 63)) & 1);
       } /* if */
+    } else if (ch >= 0x10ffff) {
+      return TRUE;
     } /* if */
     return FALSE;
   } /* is_nonspacing */
