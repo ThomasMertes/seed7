@@ -28,9 +28,13 @@
 
 const proc: (ref string: dest) ::= (in string: source)           is action "STR_CREATE";
 
-const string: (attr string) . value is "";
-
 const proc: (inout string: dest) := (in string: source)          is action "STR_CPY";
+
+
+(**
+ *  Default value of ''string'' ("").
+ *)
+const string: (attr string) . value is "";
 
 
 (**

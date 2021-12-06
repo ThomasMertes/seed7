@@ -51,6 +51,12 @@ const proc: (inout bigInteger: dest) := (in bigInteger: source)          is acti
 
 
 (**
+ *  Default value of ''bigInteger'' (0_).
+ *)
+const bigInteger: (attr bigInteger) . value                              is 0_;
+
+
+(**
  *  Plus sign for ''bigInteger'' numbers.
  *  @return its operand unchanged.
  *)
@@ -531,9 +537,6 @@ const func integer: bitLength (in bigInteger: number)                    is acti
  *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
  *)
 const func integer: lowestSetBit (in bigInteger: number)                 is action "BIG_LOWEST_SET_BIT";
-
-
-const bigInteger: (attr bigInteger) . value                              is 0_;
 
 
 (**

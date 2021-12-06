@@ -40,6 +40,21 @@ const proc: (inout category: dest) := (in category: source)     is action "INT_C
 
 
 (**
+ *  Convert a [[string]] to a ''category''.
+ *  @param catName Name of a category to be converted.
+ *  @return the ''category'' result fo the conversion.
+ *  @exception RANGE_ERROR If there is no corresponding ''category''.
+ *)
+const func category: category (in string: catName)              is action "REF_CAT_PARSE";
+
+
+(**
+ *  Default value of ''category'' (SYMBOLOBJECT).
+ *)
+const category: (attr category) . value is category("SYMBOLOBJECT");
+
+
+(**
  *  Check if two ''category'' values are equal.
  *  @return TRUE if both values are equal, FALSE otherwise.
  *)
@@ -89,20 +104,9 @@ const func string: str (in category: aCategory)                 is action "REF_C
  *  @return the ''category'' result fo the conversion.
  *  @exception RANGE_ERROR If there is no corresponding ''category''.
  *)
-const func category: category (in string: catName)              is action "REF_CAT_PARSE";
-
-
-(**
- *  Convert a [[string]] to a ''category''.
- *  @param catName Name of a category to be converted.
- *  @return the ''category'' result fo the conversion.
- *  @exception RANGE_ERROR If there is no corresponding ''category''.
- *)
 const func category: (attr category) parse (in string: catName) is
     return category(catName);
 
-
-const category: (attr category) . value is category("SYMBOLOBJECT");
 
 const category: SYMBOLOBJECT      is category("SYMBOLOBJECT");
 const category: DECLAREDOBJECT    is category("DECLAREDOBJECT");

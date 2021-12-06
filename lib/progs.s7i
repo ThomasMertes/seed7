@@ -50,6 +50,11 @@ const proc: (inout program: dest) := (ref program: source)               is acti
 
 const func program: _GENERATE_EMPTY_PROG                                 is action "PRG_EMPTY";
 const program: (attr program) . EMPTY                                    is _GENERATE_EMPTY_PROG;
+
+
+(**
+ *  Default value of ''program'' (program.EMPTY).
+ *)
 const program: (attr program) . value                                    is program.EMPTY;
 
 

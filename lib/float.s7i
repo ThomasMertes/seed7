@@ -42,6 +42,10 @@ const proc: destroy (ref float: aValue)                        is action "GEN_DE
 const proc: (ref float: dest) ::= (ref float: source)          is action "FLT_CREATE";
 IN_PARAM_IS_VALUE(float);
 
+
+(**
+ *  Default value of ''float'' (0.0).
+ *)
 const float: (attr float) . value is 0.0;
 
 

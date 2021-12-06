@@ -40,6 +40,20 @@ const proc: (inout reference: dest) := (in reference: source)          is action
 (* Deactivated since it allows 'reference' := anything which is against type checking *)
 (* const proc: (inout reference: dest) := (in object: source)          is action "REF_MKREF"; *)
 
+const func reference: _GENERATE_NIL                                    is action "REF_NIL";
+
+
+(**
+ *  Reference to no element.
+ *)
+const reference: NIL                                                   is _GENERATE_NIL;
+
+
+(**
+ *  Default value of ''reference'' (NIL).
+ *)
+const reference: (attr reference) . value                              is NIL;
+
 
 (**
  *  Check if two references are equal.
@@ -79,18 +93,6 @@ const func integer: hashCode (in reference: aReference)                is action
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: str (ref reference: aReference)                     is action "REF_STR";
-
-
-const func reference: _GENERATE_NIL                                    is action "REF_NIL";
-
-
-(**
- *  Reference to no element.
- *)
-const reference: NIL                                                   is _GENERATE_NIL;
-
-
-const reference: (attr reference) . value                              is NIL;
 
 
 (**

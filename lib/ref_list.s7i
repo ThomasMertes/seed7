@@ -38,6 +38,15 @@ const proc: (ref ref_list: dest) ::= (in ref_list: source)               is acti
 const proc: destroy (ref ref_list: aValue)                               is action "RFL_DESTR";
 const proc: (inout ref_list: dest) := (in ref_list: source)              is action "RFL_CPY";
 
+const func ref_list: _GENERATE_EMPTY_REFLIST                             is action "RFL_EMPTY";
+const ref_list: (attr ref_list) . EMPTY                                  is _GENERATE_EMPTY_REFLIST;
+
+
+(**
+ *  Default value of ''ref_list'' (ref_list.EMPTY).
+ *)
+const ref_list: (attr ref_list) . value                                  is ref_list.EMPTY;
+
 
 (**
  *  Append the ref_list ''extension'' to ''dest''.
@@ -58,11 +67,6 @@ const proc: (inout ref_list: dest) &:= (in ref_list: extension)          is acti
  *)
 const proc: (inout ref_list: dest) @:=
              [ (in integer: position) ] (in reference: source)           is action "RFL_ELEMCPY";
-
-
-const func ref_list: _GENERATE_EMPTY_REFLIST                             is action "RFL_EMPTY";
-const ref_list: (attr ref_list) . EMPTY                                  is _GENERATE_EMPTY_REFLIST;
-const ref_list: (attr ref_list) . value                                  is ref_list.EMPTY;
 
 
 (**

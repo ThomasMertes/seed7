@@ -41,6 +41,9 @@ const proc: (ref char: dest) ::= (in char: source)            is action "CHR_CRE
 const proc: (inout char: dest) := (in char: source)           is action "CHR_CPY";
 
 
+(**
+ *  Default value of ''char'' (' ').
+ *)
 const char: (attr char) . value is ' ';
 
 

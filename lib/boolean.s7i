@@ -56,8 +56,22 @@ const boolean: TRUE is enumlit;
 $ system "true" is TRUE;
 $ system "false" is FALSE;
 
+
+(**
+ *  Default value of ''boolean'' (FALSE).
+ *)
 const boolean: (attr boolean) . value is FALSE;
+
+
+(**
+ *  Minimum value of ''boolean'' (FALSE).
+ *)
 const boolean: (attr boolean) . first is FALSE;
+
+
+(**
+ *  Maximum value of ''boolean'' (TRUE).
+ *)
 const boolean: (attr boolean) . last  is TRUE;
 
 

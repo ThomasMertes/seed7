@@ -33,6 +33,9 @@ const proc: (ref integer: dest) ::= (ref integer: source)           is action "I
 const proc: (inout integer: dest) := (in integer: source)           is action "INT_CPY";
 
 
+(**
+ *  Default value of ''integer'' (0).
+ *)
 const integer: (attr integer) . value is 0;
 
 
