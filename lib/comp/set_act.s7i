@@ -32,6 +32,7 @@ const ACTION: SET_CONV1            is action "SET_CONV1";
 const ACTION: SET_CONV3            is action "SET_CONV3";
 const ACTION: SET_CPY              is action "SET_CPY";
 const ACTION: SET_DIFF             is action "SET_DIFF";
+const ACTION: SET_DIFF_ASSIGN      is action "SET_DIFF_ASSIGN";
 const ACTION: SET_ELEM             is action "SET_ELEM";
 const ACTION: SET_EQ               is action "SET_EQ";
 const ACTION: SET_EXCL             is action "SET_EXCL";
@@ -79,6 +80,7 @@ const proc: set_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        setDestr (const const_setType);");
     declareExtern(c_prog, "void        setDestrGeneric (const genericType);");
     declareExtern(c_prog, "setType     setDiff (const const_setType, const const_setType);");
+    declareExtern(c_prog, "void        setDiffAssign (setType *const, const const_setType);");
     declareExtern(c_prog, "boolType    setElem (const intType, const const_setType);");
     declareExtern(c_prog, "boolType    setEq (const const_setType, const const_setType);");
     declareExtern(c_prog, "void        setExcl (setType *const, const intType);");
@@ -313,6 +315,28 @@ const proc: process (SET_DIFF, in reference: function,
       getAnyParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= ")";
     end if;
+  end func;
+
+
+const proc: process (SET_DIFF_ASSIGN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: statement is expr_type.value;
+  begin
+    if getConstant(params[3], SETOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, bitset) = EMPTY_SET then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* ignore: set -:= EMPTY_SET */\n";
+    else
+      statement.expr := "setDiffAssign(&(";
+      process_expr(params[1], statement);
+      statement.expr &:= "), ";
+      getAnyParamToExpr(params[3], statement);
+      statement.expr &:= ");\n";
+    end if;
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 

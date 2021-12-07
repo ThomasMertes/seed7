@@ -1550,6 +1550,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SET_CPY, function, params, c_expr);
       when {"SET_DIFF"}:
         process(SET_DIFF, function, params, c_expr);
+      when {"SET_DIFF_ASSIGN"}:
+        process(SET_DIFF_ASSIGN, function, params, c_expr);
       when {"SET_ELEM"}:
         process(SET_ELEM, function, params, c_expr);
       when {"SET_EQ"}:
