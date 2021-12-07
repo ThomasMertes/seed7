@@ -321,6 +321,7 @@ const string: chkset_output is "\n\
   \set intersection works correct.\n\
   \set intersection assignment works correct.\n\
   \set difference test works correct.\n\
+  \set difference assignment works correct.\n\
   \set membership test works correct.\n\
   \set membership test for char works correct.\n\
   \set membership test for string works correct.\n\
