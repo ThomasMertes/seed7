@@ -849,6 +849,7 @@ static const actEntryRecord actEntryTable[] = {
     { "SET_CREATE",              set_create,              },
     { "SET_DESTR",               set_destr,               },
     { "SET_DIFF",                set_diff,                },
+    { "SET_DIFF_ASSIGN",         set_diff_assign,         },
     { "SET_ELEM",                set_elem,                },
     { "SET_EMPTY",               set_empty,               },
     { "SET_EQ",                  set_eq,                  },

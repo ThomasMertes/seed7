@@ -35,6 +35,7 @@ objectType set_cpy              (listType arguments);
 objectType set_create           (listType arguments);
 objectType set_destr            (listType arguments);
 objectType set_diff             (listType arguments);
+objectType set_diff_assign      (listType arguments);
 objectType set_elem             (listType arguments);
 objectType set_empty            (listType arguments);
 objectType set_eq               (listType arguments);

@@ -336,6 +336,26 @@ objectType set_diff (listType arguments)
 
 
 /**
+ *  Assign the difference of dest/arg_1 and delta/arg_3 to dest/arg_1.
+ *  @exception MEMORY_ERROR Not enough memory to create dest/arg_1.
+ */
+objectType set_diff_assign (listType arguments)
+
+  {
+    objectType set_variable;
+
+  /* set_diff_assign */
+    set_variable = arg_1(arguments);
+    isit_set(set_variable);
+    is_variable(set_variable);
+    isit_set(arg_3(arguments));
+    setDiffAssign(&set_variable->value.setValue, take_set(arg_3(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* set_diff_assign */
+
+
+
+/**
  *  Set membership test.
  *  Determine if 'number' is a member of the set 'aSet'.
  *  @return TRUE if 'number' is a member of  'aSet',
@@ -658,7 +678,7 @@ objectType set_intersect (listType arguments)
 
 
 /**
- *  Assign the intersection of delta/arg_3 and dest/arg_1 to dest/arg_1.
+ *  Assign the intersection of dest/arg_1 and delta/arg_3 to dest/arg_1.
  *  @exception MEMORY_ERROR Not enough memory to create dest/arg_1.
  */
 objectType set_intersect_assign (listType arguments)
@@ -927,7 +947,7 @@ objectType set_union (listType arguments)
 
 
 /**
- *  Assign the union of delta/arg_3 and dest/arg_1 to dest/arg_1.
+ *  Assign the union of dest/arg_1 and delta/arg_3 to dest/arg_1.
  *  @exception MEMORY_ERROR Not enough memory to create dest/arg_1.
  */
 objectType set_union_assign (listType arguments)

@@ -52,6 +52,7 @@ void setCpy (setType *const dest, const const_setType source);
 setType setCreate (const const_setType source);
 void setDestr (const const_setType old_set);
 setType setDiff (const const_setType set1, const const_setType set2);
+void setDiffAssign (setType *const dest, const const_setType delta);
 boolType setElem (const intType number, const const_setType set1);
 setType setEmpty (void);
 boolType setEq (const const_setType set1, const const_setType set2);

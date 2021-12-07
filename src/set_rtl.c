@@ -549,6 +549,107 @@ setType setDiff (const const_setType set1, const const_setType set2)
 
 
 /**
+ *  Assign the difference of *dest and delta to *dest.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void setDiffAssign (setType *const dest, const const_setType delta)
+
+  {
+    setType set1;
+    intType min_position;
+    intType max_position;
+    intType position;
+    setType new_set1;
+
+  /* setDiffAssign */
+    logFunction(printf("setDiffAssign(");
+                prot_set(*dest);
+                printf(", ");
+                prot_set(delta);
+                printf(")\n"););
+    set1 = *dest;
+    min_position = set1->min_position;
+    max_position = set1->max_position;
+    while (min_position <= max_position &&
+           min_position >= delta->min_position &&
+           min_position <= delta->max_position &&
+           (set1->bitset[min_position - set1->min_position] &
+            ~ delta->bitset[min_position - delta->min_position]) == 0) {
+      min_position++;
+    } /* while */
+    while (min_position <= max_position &&
+           max_position >= delta->min_position &&
+           max_position <= delta->max_position &&
+           (set1->bitset[max_position - set1->min_position] &
+            ~ delta->bitset[max_position - delta->min_position]) == 0) {
+      max_position--;
+    } /* while */
+    if (min_position > max_position) {
+      new_set1 = REALLOC_SET(set1, bitsetSize(set1), 1);
+      if (unlikely(new_set1 == NULL)) {
+        /* Strange case if a 'realloc', which shrinks memory, fails. */
+        /* The destination set stays unchanged. */
+        raise_error(MEMORY_ERROR);
+      } else {
+        new_set1->min_position = 0;
+        new_set1->max_position = 0;
+        new_set1->bitset[0] = (bitSetType) 0;
+        *dest = new_set1;
+      } /* if */
+    } else if (min_position == set1->min_position) {
+      if (max_position != set1->max_position) {
+        new_set1 = REALLOC_SET(set1, bitsetSize(set1), bitsetSize2(min_position, max_position));
+        if (unlikely(new_set1 == NULL)) {
+          /* Strange case if a 'realloc', which shrinks memory, fails. */
+          /* The destination set stays unchanged. */
+          raise_error(MEMORY_ERROR);
+          return;
+        } else {
+          set1 = new_set1;
+          set1->max_position = max_position;
+          *dest = set1;
+        } /* if */
+      } /* if */
+      for (position = min_position; position <= max_position; position++) {
+        if (position >= delta->min_position &&
+            position <= delta->max_position) {
+          set1->bitset[position - min_position] &=
+              ~ delta->bitset[position - delta->min_position];
+        } /* if */
+      } /* for */
+    } else {
+      for (position = min_position; position <= max_position; position++) {
+        if (position >= delta->min_position &&
+            position <= delta->max_position) {
+          set1->bitset[position - min_position] =
+              set1->bitset[position - set1->min_position] &
+              ~ delta->bitset[position - delta->min_position];
+        } else {
+          set1->bitset[position - min_position] =
+              set1->bitset[position - set1->min_position];
+        } /* if */
+      } /* for */
+      new_set1 = REALLOC_SET(set1, bitsetSize(set1), bitsetSize2(min_position, max_position));
+      if (unlikely(new_set1 == NULL)) {
+        /* Strange case if a 'realloc', which shrinks memory, fails. */
+        /* Deliver the result in the original set (that is too big). */
+        set1->min_position = min_position;
+        set1->max_position = max_position;
+        raise_error(MEMORY_ERROR);
+      } else {
+        new_set1->min_position = min_position;
+        new_set1->max_position = max_position;
+        *dest = new_set1;
+      } /* if */
+    } /* if */
+    logFunction(printf("setDiffAssign --> ");
+                prot_set(*dest);
+                printf("\n"););
+  } /* setDiffAssign */
+
+
+
+/**
  *  Set membership test.
  *  Determine if 'number' is a member of the set 'aSet'.
  *  @return TRUE if 'number' is a member of  'aSet',
@@ -907,7 +1008,7 @@ setType setIntersect (const const_setType set1, const const_setType set2)
 
 
 /**
- *  Assign the intersection of delta and *dest to *dest.
+ *  Assign the intersection of *dest and delta to *dest.
  *  @exception MEMORY_ERROR Not enough memory to create dest.
  */
 void setIntersectAssign (setType *const dest, const const_setType delta)
@@ -1722,7 +1823,7 @@ setType setUnion (const const_setType set1, const const_setType set2)
 
 
 /**
- *  Assign the union of delta and *dest to *dest.
+ *  Assign the union of *dest and delta to *dest.
  *  @exception MEMORY_ERROR Not enough memory to create dest.
  */
 void setUnionAssign (setType *const dest, const const_setType delta)
