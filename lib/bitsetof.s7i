@@ -52,6 +52,17 @@ const func type: bitset (in type: baseType) is func
 
       const boolean: isBitset (attr setType)                             is TRUE;
 
+      const func bitset: bitset (in setType: aSet)                       is action "SET_CONV1";
+      const func bitset: (attr bitset) conv (in setType: aSet)           is action "SET_CONV3";
+      const varfunc bitset: (attr bitset) varConv (inout setType: aSet)  is action "TYP_VARCONV";
+      const func setType: (attr setType) conv (in bitset: aSet)          is action "SET_CONV3";
+      const setType: (attr setType) . EMPTY_SET                          is setType conv EMPTY_SET;
+
+      (**
+       *  Default value of ''setType'' ({}).
+       *)
+      const setType: (attr setType) . value                              is setType conv EMPTY_SET;
+
       (**
        *  Union of two sets.
        *  @return the union of the two sets.
@@ -81,16 +92,22 @@ const func type: bitset (in type: baseType) is func
       const func setType: (in setType: set1) - (in setType: set2)        is action "SET_DIFF";
 
       (**
-       *  Assign the union of set2 and dest to dest.
-       *  @exception MEMORY_ERROR Not enough memory to create dest.
+       *  Assign the union of ''dest'' and ''set2'' to ''dest''.
+       *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
        *)
       const proc: (inout setType: dest) |:= (in setType: set2)           is action "SET_UNION_ASSIGN";
 
       (**
-       *  Assign the intersection of set2 and dest to dest.
-       *  @exception MEMORY_ERROR Not enough memory for the result.
+       *  Assign the intersection of ''dest'' and ''set2'' to ''dest''.
+       *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
        *)
       const proc: (inout setType: dest) &:= (in setType: set2)           is action "SET_INTERSECT_ASSIGN";
+
+      (**
+       *  Assign the difference of ''dest'' and ''set2'' to ''dest''.
+       *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
+       *)
+      const proc: (inout setType: dest) -:= (in setType: set2)           is action "SET_DIFF_ASSIGN";
 
       (**
        *  Check if two sets are equal.
@@ -165,13 +182,6 @@ const func type: bitset (in type: baseType) is func
        *  @return the hash value.
        *)
       const func integer: hashCode (in setType: aSet)                    is action "SET_HASHCODE";
-
-      const func bitset: bitset (in setType: aSet)                       is action "SET_CONV1";
-      const func bitset: (attr bitset) conv (in setType: aSet)           is action "SET_CONV3";
-      const varfunc bitset: (attr bitset) varConv (inout setType: aSet)  is action "TYP_VARCONV";
-      const func setType: (attr setType) conv (in bitset: aSet)          is action "SET_CONV3";
-      const setType: (attr setType) . EMPTY_SET                          is setType conv EMPTY_SET;
-      const setType: (attr setType) . value                              is setType conv EMPTY_SET;
 
       (**
        *  Set membership test.

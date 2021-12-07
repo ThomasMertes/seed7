@@ -38,8 +38,18 @@ const proc: (ref bitset: dest) ::= (in bitset: source)          is action "SET_C
 const proc: destroy (ref bitset: aValue)                        is action "SET_DESTR";
 const proc: (inout bitset: dest) := (in bitset: source)         is action "SET_CPY";
 
-
 const boolean: isBitset (attr bitset)                           is TRUE;
+
+const func bitset: _GENERATE_EMPTY_SET                          is action "SET_EMPTY";
+const bitset: EMPTY_SET                                         is _GENERATE_EMPTY_SET;
+const bitset: (attr bitset) . EMPTY_SET                         is EMPTY_SET;
+const bitset: { }                                               is EMPTY_SET;
+
+
+(**
+ *  Default value of ''bitset'' ({}).
+ *)
+const bitset: (attr bitset) . value                             is EMPTY_SET;
 
 
 (**
@@ -75,17 +85,24 @@ const func bitset: (in bitset: set1) - (in bitset: set2)        is action "SET_D
 
 
 (**
- *  Assign the union of set2 and dest to dest.
- *  @exception MEMORY_ERROR Not enough memory to create dest.
+ *  Assign the union of ''dest'' and ''set2'' to ''dest''.
+ *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
  *)
 const proc: (inout bitset: dest) |:= (in bitset: set2)          is action "SET_UNION_ASSIGN";
 
 
 (**
- *  Assign the intersection of set2 and dest to dest.
- *  @exception MEMORY_ERROR Not enough memory for the result.
+ *  Assign the intersection of ''dest'' and ''set2'' to ''dest''.
+ *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
  *)
 const proc: (inout bitset: dest) &:= (in bitset: set2)          is action "SET_INTERSECT_ASSIGN";
+
+
+(**
+ *  Assign the difference of ''dest'' and ''set2'' to ''dest''.
+ *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
+ *)
+const proc: (inout bitset: dest) -:= (in bitset: set2)          is action "SET_DIFF_ASSIGN";
 
 
 (**
@@ -326,13 +343,6 @@ const func bitset: bitset (in integer: number)                  is action "SET_I
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bitset: (attr bitset) conv (in integer: number)      is action "SET_ICONV3";
-
-
-const func bitset: _GENERATE_EMPTY_SET                          is action "SET_EMPTY";
-const bitset: EMPTY_SET                                         is _GENERATE_EMPTY_SET;
-const bitset: (attr bitset) . EMPTY_SET                         is EMPTY_SET;
-const bitset: (attr bitset) . value                             is EMPTY_SET;
-const bitset: { }                                               is EMPTY_SET;
 
 
 (**

@@ -87,6 +87,14 @@ const func type: hashset (in type: baseType) is func
 
       const boolean: isBitset (attr setType)                                   is FALSE;
 
+      const func setType: (attr setType) . _GENERATE_EMPTY_SET                 is action "HSH_EMPTY";
+      const setType: (attr setType) . EMPTY_SET                                is setType._GENERATE_EMPTY_SET;
+
+      (**
+       *  Default value of ''setType'' ({}).
+       *)
+      const setType: (attr setType) . value                                    is setType._GENERATE_EMPTY_SET;
+
       (**
        *  Compute the cardinality of a set.
        *  @return the number of elements in ''aSet''.
@@ -100,10 +108,6 @@ const func type: hashset (in type: baseType) is func
        *  @exception RANGE_ERROR If ''aSet'' is empty.
        *)
       const func baseType: rand (in setType: aSet)                             is action "HSH_RAND_KEY";
-
-      const func setType: (attr setType) . _GENERATE_EMPTY_SET                 is action "HSH_EMPTY";
-      const setType: (attr setType) . EMPTY_SET                                is setType._GENERATE_EMPTY_SET;
-      const setType: (attr setType) . value                                    is setType._GENERATE_EMPTY_SET;
 
       const proc: INCL (inout setType: aSet, in baseType: hashKey,
                         in boolean: data, in integer: hashCode,
@@ -265,8 +269,8 @@ const func type: hashset (in type: baseType) is func
         end func;
 
       (**
-       *  Assign the union of set2 and dest to dest.
-       *  @exception MEMORY_ERROR Not enough memory to create dest.
+       *  Assign the union of ''dest'' and ''set2'' to ''dest''.
+       *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
        *)
       const proc: (inout setType: dest) |:= (in setType: set2) is func
         local
@@ -278,8 +282,8 @@ const func type: hashset (in type: baseType) is func
         end func;
 
       (**
-       *  Assign the intersection of set2 and dest to dest.
-       *  @exception MEMORY_ERROR Not enough memory to create dest.
+       *  Assign the intersection of ''dest'' and ''set2'' to ''dest''.
+       *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
        *)
       const proc: (inout setType: dest) &:= (in setType: set2) is func
         local
@@ -292,6 +296,19 @@ const func type: hashset (in type: baseType) is func
             end if;
           end for;
           dest := intersection;
+        end func;
+
+      (**
+       *  Assign the difference of ''dest'' and ''set2'' to ''dest''.
+       *  @exception MEMORY_ERROR Not enough memory to create ''dest''.
+       *)
+      const proc: (inout setType: dest) -:= (in setType: set2) is func
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set2 do
+            excl(dest, element);
+          end for;
         end func;
 
       (**
