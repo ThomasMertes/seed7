@@ -39,5 +39,7 @@ objectType bln_ne      (listType arguments);
 objectType bln_not     (listType arguments);
 objectType bln_or      (listType arguments);
 objectType bln_ord     (listType arguments);
+objectType bln_pred    (listType arguments);
+objectType bln_succ    (listType arguments);
 objectType bln_ternary (listType arguments);
 objectType bln_value   (listType arguments);

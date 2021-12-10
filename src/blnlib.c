@@ -347,6 +347,40 @@ objectType bln_ord (listType arguments)
 
 
 /**
+ *  Predecessor of a boolean value.
+ *  @return FALSE, if 'boolValue/arg_1' is TRUE.
+ *  @exception RANGE_ERROR If 'boolValue/arg_1' is FALSE.
+ */
+objectType bln_pred (listType arguments)
+
+  { /* bln_pred */
+    isit_bool(arg_1(arguments));
+    if (take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT) {
+      return SYS_FALSE_OBJECT;
+    } else {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } /* if */
+  } /* bln_pred */
+
+
+/**
+ *  Successor of a boolean value.
+ *  @return TRUE, if 'boolValue/arg_1' is FALSE.
+ *  @exception RANGE_ERROR If 'boolValue/arg_1' is TRUE.
+ */
+objectType bln_succ (listType arguments)
+
+  { /* bln_succ */
+    isit_bool(arg_1(arguments));
+    if (take_bool(arg_1(arguments)) == SYS_FALSE_OBJECT) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } /* if */
+  } /* bln_succ */
+
+
+/**
  *  Ternary operator condition/arg_1 ? thenValue/arg_3 : elseValue/arg_5
  *  @return thenValue/arg_3 if condition/arg_1 is TRUE, and
  *          elseValue/arg_5 if condition/arg_1 is FALSE.
