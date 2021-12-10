@@ -200,22 +200,24 @@ const func boolean: (attr boolean) conv (in integer: number)             is acti
 const varfunc boolean: (attr boolean) varConv (inout integer: number)    is action "TYP_VARCONV";
 
 
-const boolean: succ (FALSE) is TRUE;
-const boolean: pred (TRUE) is  FALSE;
+# const boolean: succ (FALSE) is TRUE;
+# const boolean: pred (TRUE) is  FALSE;
 
 
 (**
  *  Successor of a boolean value.
  *  @return TRUE, if the boolean value is FALSE.
+ *  @exception RANGE_ERROR If the boolean value is TRUE.
  *)
-const func boolean: succ (ref boolean: boolValue) is DYNAMIC;
+const func boolean: succ (ref boolean: boolValue)                        is action "BLN_SUCC";
 
 
 (**
  *  Predecessor of a boolean value.
  *  @return FALSE, if the boolean value is TRUE.
+ *  @exception RANGE_ERROR If the boolean value is FALSE.
  *)
-const func boolean: pred (ref boolean: boolValue) is DYNAMIC;
+const func boolean: pred (ref boolean: boolValue)                        is action "BLN_PRED";
 
 
 (**
