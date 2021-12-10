@@ -2391,6 +2391,132 @@ const proc: check_for_char_downto is func
   end func;
 
 
+const proc: check_for_bool_to is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: boolVar is FALSE;
+    var integer: counter is 0;
+  begin
+    for boolVar range TRUE to FALSE do
+      writeln(" ***** for boolean range TRUE to FALSE ...  does not work correct. (1)");
+      okay := FALSE;
+    end for;
+    if boolVar <> TRUE then
+      writeln(" ***** for boolean range TRUE to FALSE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for boolVar range FALSE to FALSE do
+      incr(counter);
+      if boolVar <> FALSE then
+        writeln(" ***** for boolean range FALSE to FALSE ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 or boolVar <> FALSE then
+      writeln(" ***** for boolean range FALSE to FALSE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for boolVar range TRUE to TRUE do
+      incr(counter);
+      if boolVar <> TRUE then
+        writeln(" ***** for boolean range TRUE to TRUE ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 or boolVar <> TRUE then
+      writeln(" ***** for boolean range TRUE to TRUE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for boolVar range FALSE to TRUE do
+      if ord(boolVar) <> counter then
+        writeln(" ***** for boolean range FALSE to TRUE ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+      incr(counter);
+    end for;
+    if counter <> 2 or boolVar <> TRUE then
+      writeln(" ***** for boolean range FALSE to TRUE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("For boolean to statements work correct.");
+    else
+      writeln(" ***** For boolean to statements do not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_for_bool_downto is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: boolVar is FALSE;
+    var integer: counter is 0;
+  begin
+    for boolVar range FALSE downto TRUE do
+      writeln(" ***** for boolean range FALSE downto TRUE ...  does not work correct. (1)");
+      okay := FALSE;
+    end for;
+    if boolVar <> FALSE then
+      writeln(" ***** for boolean range FALSE downto TRUE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for boolVar range FALSE downto FALSE do
+      incr(counter);
+      if boolVar <> FALSE then
+        writeln(" ***** for boolean range FALSE downto FALSE ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 or boolVar <> FALSE then
+      writeln(" ***** for boolean range FALSE downto FALSE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for boolVar range TRUE downto TRUE do
+      incr(counter);
+      if boolVar <> TRUE then
+        writeln(" ***** for boolean range TRUE downto TRUE ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 or boolVar <> TRUE then
+      writeln(" ***** for boolean range TRUE downto TRUE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    counter := 0;
+    for boolVar range TRUE downto FALSE do
+      if not ord(boolVar) <> counter then
+        writeln(" ***** for boolean range TRUE downto FALSE ...  does not work correct. (1)");
+        okay := FALSE;
+      end if;
+      incr(counter);
+    end for;
+    if counter <> 2 or boolVar <> FALSE then
+      writeln(" ***** for boolean range TRUE downto FALSE ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("For boolean downto statements work correct.");
+    else
+      writeln(" ***** For boolean downto statements do not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: check_for_big_to is func
   local
     var boolean: okay is TRUE;
@@ -5709,6 +5835,8 @@ const proc: main is func
     check_for_int_downto_until;
     check_for_char_to;
     check_for_char_downto;
+    check_for_bool_to;
+    check_for_bool_downto;
     check_for_big_to;
     check_case_int;
     check_case_char;

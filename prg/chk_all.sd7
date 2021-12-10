@@ -228,6 +228,8 @@ const string: chkprc_output is "\n\
   \For downto until statements work correct.\n\
   \For char to statements work correct.\n\
   \For char downto statements work correct.\n\
+  \For boolean to statements work correct.\n\
+  \For boolean downto statements work correct.\n\
   \For bigInteger statements work correct.\n\
   \Case integer statements work correct.\n\
   \Case char statements work correct.\n\
@@ -293,6 +295,8 @@ const string: chkbool_output is "\n\
   \Boolean compare works correct.\n\
   \Boolean ord() works correct.\n\
   \Boolean str() works correct.\n\
+  \Boolean succ() works correct.\n\
+  \Boolean pred() works correct.\n\
   \The ternary operator ? : works correct for boolean.\n";
 
 const string:chkbitdata_output is "\n\

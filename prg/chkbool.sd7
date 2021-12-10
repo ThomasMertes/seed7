@@ -1549,6 +1549,436 @@ const proc: check_str is func
   end func;
 
 
+const proc: check_succ_in_param (in boolean: true_param, in boolean: false_param) is func
+  local
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+  begin
+    if succ(false_param) <> TRUE then
+      writeln(" ***** succ(FALSE) with in parameter evaluates not to TRUE.");
+    end if;
+
+    block
+      resultVar := succ(true_param);
+      writeln(" ***** succ(TRUE) with in parameter does not raise RANGE_ERROR. (1)");
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 1 then
+      writeln(" ***** succ(TRUE) with in parameter does not raise RANGE_ERROR. (2)");
+    end if;
+  end func;
+
+
+const proc: check_succ_in_var_param (in var boolean: true_param, in var boolean: false_param) is func
+  local
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+  begin
+    if succ(false_param) <> TRUE then
+      writeln(" ***** succ(FALSE) with in var parameter evaluates not to TRUE.");
+    end if;
+
+    block
+      resultVar := succ(true_param);
+      writeln(" ***** succ(TRUE) with in var parameter does not raise RANGE_ERROR. (1)");
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 1 then
+      writeln(" ***** succ(TRUE) with in var parameter does not raise RANGE_ERROR. (2)");
+    end if;
+  end func;
+
+
+const proc: check_succ_val_param (val boolean: true_param, val boolean: false_param) is func
+  local
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+  begin
+    if succ(false_param) <> TRUE then
+      writeln(" ***** succ(FALSE) with val parameter evaluates not to TRUE.");
+    end if;
+
+    block
+      resultVar := succ(true_param);
+      writeln(" ***** succ(TRUE) with val parameter does not raise RANGE_ERROR. (1)");
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 1 then
+      writeln(" ***** succ(TRUE) with val parameter does not raise RANGE_ERROR. (2)");
+    end if;
+  end func;
+
+
+const proc: check_succ_ref_param (ref boolean: true_param, ref boolean: false_param) is func
+  local
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+  begin
+    if succ(false_param) <> TRUE then
+      writeln(" ***** succ(FALSE) with ref parameter evaluates not to TRUE.");
+    end if;
+
+    block
+      resultVar := succ(true_param);
+      writeln(" ***** succ(TRUE) with ref parameter does not raise RANGE_ERROR. (1)");
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 1 then
+      writeln(" ***** succ(TRUE) with ref parameter does not raise RANGE_ERROR. (2)");
+    end if;
+  end func;
+
+
+const proc: check_succ_inout_param (inout boolean: true_param, inout boolean: false_param) is func
+  local
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+  begin
+    if succ(false_param) <> TRUE then
+      writeln(" ***** succ(FALSE) with inout parameter evaluates not to TRUE.");
+    end if;
+
+    block
+      resultVar := succ(true_param);
+      writeln(" ***** succ(TRUE) with inout parameter does not raise RANGE_ERROR. (1)");
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 1 then
+      writeln(" ***** succ(TRUE) with inout parameter does not raise RANGE_ERROR. (2)");
+    end if;
+  end func;
+
+
+const proc: check_succ is func
+  local
+    const boolean: local_false_const is FALSE;
+    const boolean: local_true_const is TRUE;
+    var boolean: local_false_var is FALSE;
+    var boolean: local_true_var is TRUE;
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+    var boolean: okay is TRUE;
+  begin
+    if  succ(FALSE)             <> TRUE or
+        succ(false_const)       <> TRUE or
+        succ(false_var)         <> TRUE or
+        succ(local_false_const) <> TRUE or
+        succ(local_false_var)   <> TRUE then
+      writeln(" ***** Boolean succ() does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    block
+      resultVar := succ(TRUE);
+      writeln(" ***** Boolean succ() does not work correct. (2)");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    block
+      resultVar := succ(true_const);
+      writeln(" ***** Boolean succ() does not work correct. (3)");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    block
+      resultVar := succ(true_var);
+      writeln(" ***** Boolean succ() does not work correct. (4)");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    block
+      resultVar := succ(local_true_const);
+      writeln(" ***** Boolean succ() does not work correct. (5)");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    block
+      resultVar := succ(local_true_var);
+      writeln(" ***** Boolean succ() does not work correct. (6)");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 5 then
+      writeln(" ***** Boolean succ() does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    check_succ_in_param(TRUE, FALSE);
+    check_succ_in_param(true_const, false_const);
+    check_succ_in_param(true_var, false_var);
+    check_succ_in_param(local_true_const, local_false_const);
+    check_succ_in_param(local_true_var, local_false_var);
+    check_succ_in_var_param(TRUE, FALSE);
+    check_succ_in_var_param(true_const, false_const);
+    check_succ_in_var_param(true_var, false_var);
+    check_succ_in_var_param(local_true_const, local_false_const);
+    check_succ_in_var_param(local_true_var, local_false_var);
+    check_succ_val_param(TRUE, FALSE);
+    check_succ_val_param(true_const, false_const);
+    check_succ_val_param(true_var, false_var);
+    check_succ_val_param(local_true_const, local_false_const);
+    check_succ_val_param(local_true_var, local_false_var);
+    check_succ_ref_param(TRUE, FALSE);
+    check_succ_ref_param(true_const, false_const);
+    check_succ_ref_param(true_var, false_var);
+    check_succ_ref_param(local_true_const, local_false_const);
+    check_succ_ref_param(local_true_var, local_false_var);
+    check_succ_inout_param(true_var, false_var);
+    check_succ_inout_param(local_true_var, local_false_var);
+
+    if okay then
+      writeln("Boolean succ() works correct.");
+    else
+      writeln(" ***** Boolean succ() does not work correct.");
+    end if;
+  end func;
+
+
+const proc: check_pred_in_param (in boolean: true_param, in boolean: false_param) is func
+  local
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+  begin
+    if pred(true_param) <> FALSE then
+      writeln(" ***** pred(TRUE) with in parameter evaluates not to FALSE.");
+    end if;
+
+    block
+      resultVar := pred(false_param);
+      writeln(" ***** pred(FALSE) with in parameter does not raise RANGE_ERROR. (1)");
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 1 then
+      writeln(" ***** pred(FALSE) with in parameter does not raise RANGE_ERROR. (2)");
+    end if;
+  end func;
+
+
+const proc: check_pred_in_var_param (in var boolean: true_param, in var boolean: false_param) is func
+  local
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+  begin
+    if pred(true_param) <> FALSE then
+      writeln(" ***** pred(TRUE) with in var parameter evaluates not to FALSE.");
+    end if;
+
+    block
+      resultVar := pred(false_param);
+      writeln(" ***** pred(FALSE) with in var parameter does not raise RANGE_ERROR. (1)");
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 1 then
+      writeln(" ***** pred(FALSE) with in var parameter does not raise RANGE_ERROR. (2)");
+    end if;
+  end func;
+
+
+const proc: check_pred_val_param (val boolean: true_param, val boolean: false_param) is func
+  local
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+  begin
+    if pred(true_param) <> FALSE then
+      writeln(" ***** pred(TRUE) with val parameter evaluates not to FALSE.");
+    end if;
+
+    block
+      resultVar := pred(false_param);
+      writeln(" ***** pred(FALSE) with val parameter does not raise RANGE_ERROR. (1)");
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 1 then
+      writeln(" ***** pred(FALSE) with val parameter does not raise RANGE_ERROR. (2)");
+    end if;
+  end func;
+
+
+const proc: check_pred_ref_param (ref boolean: true_param, ref boolean: false_param) is func
+  local
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+  begin
+    if pred(true_param) <> FALSE then
+      writeln(" ***** pred(TRUE) with ref parameter evaluates not to FALSE.");
+    end if;
+
+    block
+      resultVar := pred(false_param);
+      writeln(" ***** pred(FALSE) with ref parameter does not raise RANGE_ERROR. (1)");
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 1 then
+      writeln(" ***** pred(FALSE) with ref parameter does not raise RANGE_ERROR. (2)");
+    end if;
+  end func;
+
+
+const proc: check_pred_inout_param (inout boolean: true_param, inout boolean: false_param) is func
+  local
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+  begin
+    if pred(true_param) <> FALSE then
+      writeln(" ***** pred(TRUE) with inout parameter evaluates not to FALSE.");
+    end if;
+
+    block
+      resultVar := pred(false_param);
+      writeln(" ***** pred(FALSE) with inout parameter does not raise RANGE_ERROR. (1)");
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 1 then
+      writeln(" ***** pred(FALSE) with inout parameter does not raise RANGE_ERROR. (2)");
+    end if;
+  end func;
+
+
+const proc: check_pred is func
+  local
+    const boolean: local_false_const is FALSE;
+    const boolean: local_true_const is TRUE;
+    var boolean: local_false_var is FALSE;
+    var boolean: local_true_var is TRUE;
+    var boolean: resultVar is FALSE;
+    var integer: count is 0;
+    var boolean: okay is TRUE;
+  begin
+    if  pred(TRUE)             <> FALSE or
+        pred(true_const)       <> FALSE or
+        pred(true_var)         <> FALSE or
+        pred(local_true_const) <> FALSE or
+        pred(local_true_var)   <> FALSE then
+      writeln(" ***** Boolean pred() does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    block
+      resultVar := pred(FALSE);
+      writeln(" ***** Boolean pred() does not work correct. (2)");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    block
+      resultVar := pred(false_const);
+      writeln(" ***** Boolean pred() does not work correct. (3)");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    block
+      resultVar := pred(false_var);
+      writeln(" ***** Boolean pred() does not work correct. (4)");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    block
+      resultVar := pred(local_false_const);
+      writeln(" ***** Boolean pred() does not work correct. (5)");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    block
+      resultVar := pred(local_false_var);
+      writeln(" ***** Boolean pred() does not work correct. (6)");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(count);
+    end block;
+
+    if count <> 5 then
+      writeln(" ***** Boolean pred() does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    check_pred_in_param(TRUE, FALSE);
+    check_pred_in_param(true_const, false_const);
+    check_pred_in_param(true_var, false_var);
+    check_pred_in_param(local_true_const, local_false_const);
+    check_pred_in_param(local_true_var, local_false_var);
+    check_pred_in_var_param(TRUE, FALSE);
+    check_pred_in_var_param(true_const, false_const);
+    check_pred_in_var_param(true_var, false_var);
+    check_pred_in_var_param(local_true_const, local_false_const);
+    check_pred_in_var_param(local_true_var, local_false_var);
+    check_pred_val_param(TRUE, FALSE);
+    check_pred_val_param(true_const, false_const);
+    check_pred_val_param(true_var, false_var);
+    check_pred_val_param(local_true_const, local_false_const);
+    check_pred_val_param(local_true_var, local_false_var);
+    check_pred_ref_param(TRUE, FALSE);
+    check_pred_ref_param(true_const, false_const);
+    check_pred_ref_param(true_var, false_var);
+    check_pred_ref_param(local_true_const, local_false_const);
+    check_pred_ref_param(local_true_var, local_false_var);
+    check_pred_inout_param(true_var, false_var);
+    check_pred_inout_param(local_true_var, local_false_var);
+
+    if okay then
+      writeln("Boolean pred() works correct.");
+    else
+      writeln(" ***** Boolean pred() does not work correct.");
+    end if;
+  end func;
+
+
 const proc: check_ternary is func
   local
     var boolean: okay is TRUE;
@@ -2092,5 +2522,7 @@ const proc: main is func
     check_compare;
     check_ord();
     check_str();
+    check_succ();
+    check_pred();
     check_ternary();
   end func;
