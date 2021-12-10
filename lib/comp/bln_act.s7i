@@ -37,6 +37,8 @@ const ACTION: BLN_NE      is action "BLN_NE";
 const ACTION: BLN_NOT     is action "BLN_NOT";
 const ACTION: BLN_OR      is action "BLN_OR";
 const ACTION: BLN_ORD     is action "BLN_ORD";
+const ACTION: BLN_PRED    is action "BLN_PRED";
+const ACTION: BLN_SUCC    is action "BLN_SUCC";
 const ACTION: BLN_TERNARY is action "BLN_TERNARY";
 const ACTION: BLN_VALUE   is action "BLN_VALUE";
 
@@ -226,6 +228,28 @@ const proc: process (BLN_ORD, in reference: function,
     c_expr.expr &:= "(intType)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_PRED, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")?0:";
+    c_expr.expr &:= intRaiseError("RANGE_ERROR");
+  end func;
+
+
+const proc: process (BLN_SUCC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "!(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")?1:";
+    c_expr.expr &:= intRaiseError("RANGE_ERROR");
   end func;
 
 
