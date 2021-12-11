@@ -49,6 +49,9 @@ const func color: pixelToColor (in pixel: pix) is func
   end func;
 
 
+(**
+ *  Open the default window (''curr_win'') with the given ''width'' and ''height''.
+ *)
 const proc: screen (in integer: width, in integer: height) is func
   begin
     curr_win := PRIMITIVE_GRAPHIC_OPEN(0, 0, width, height, name(PROGRAM));

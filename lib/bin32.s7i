@@ -95,6 +95,7 @@ const func bin32: bin32 (in char: ch) is
  *  IEEE 754 is a standard for floating point arithmetic.
  *  The single-precision format of IEEE 754 has a sign bit, an 8 bit
  *  exponent, and a 23 bit mantissa.
+ *   bin32(1.0)  returns  bin32(16#3f800000)
  *  @param number Float value to be converted to bin32.
  *  @return 32 bits in IEEE 754 single-precision float representation.
  *)
@@ -106,6 +107,7 @@ const func bin32: bin32 (in float: number)                     is action "FLT_SI
  *  IEEE 754 is a standard for floating point arithmetic.
  *  The single-precision format of IEEE 754 has a sign bit, an 8 bit
  *  exponent, and a 23 bit mantissa.
+ *   float(bin32(16#3f800000))  returns  1.0
  *  @param bits Bits to be converted to a float.
  *  @return a float from bits in single-precision float representation.
  *)
@@ -248,6 +250,7 @@ const func bin32: ~ (in bin32: aBinary) is
 (**
  *  Shift a bin32 value left by lshift bits.
  *  @return the left shifted value.
+ *   bin32(16#abcdef) << 4  returns  bin32(16#abcdef0)
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
@@ -257,6 +260,7 @@ const func bin32: (in bin32: binValue) << (in integer: lshift) is action "BIN_LS
 (**
  *  Shift a bin32 value right by rshift bits.
  *  Bits shifted beyond the lowest bit position are lost.
+ *   bin32(16#abcdef) >> 4  returns  bin32(16#abcde)
  *  @return the right shifted value.
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
@@ -303,6 +307,7 @@ const proc: (inout bin32: binary1) ><:= (in bin32: binary2)    is action "BIN_XO
  *  Rotate the bits of a bin32 value left by shiftCount bits.
  *  The vacant bit positions at the right side are filled in with
  *  the bits that are shifted out at the left side.
+ *   rotLeft(bin32(16#12345678), 8)  returns  bin32(16#34567812)
  *  @return the left rotated value.
  *  @exception OVERFLOW_ERROR If the shift amount is negative
  *             or greater than 32.
@@ -315,6 +320,7 @@ const func bin32: rotLeft (in bin32: x, in integer: shiftCount) is
  *  Rotate the bits of a bin32 value right by shiftCount bits.
  *  The vacant bit positions at the left side are filled in with
  *  the bits that are shifted out at the right side.
+ *   rotRight(bin32(16#12345678), 8)  returns  bin32(16#78123456)
  *  @return the right rotated value.
  *  @exception OVERFLOW_ERROR If the shift amount is negative
  *             or greater than 32.
@@ -328,6 +334,7 @@ const func bin32: rotRight (in bin32: x, in integer: shiftCount) is
  *  Microsoft Binary Format (MBF) is a format for floating point numbers.
  *  The single-precision version of MBF has a 8 bit exponent, a sign bit
  *  and a 23 bit mantissa.
+ *   float2MbfBits(1.0, SINGLE)  returns  bin32(16#81000000)
  *  @param number Float value to be converted to bin32.
  *  @return 32 bits in MBF single-precision float representation.
  *  @exception RANGE_ERROR If number is not representable in MBF.
@@ -377,6 +384,7 @@ const func bin32: float2MbfBits (in float: number, SINGLE) is func
  *  Microsoft Binary Format (MBF) is a format for floating point numbers.
  *  The single-precision version of MBF has a 8 bit exponent, a sign bit
  *  and a 23 bit mantissa.
+ *   mbfBits2Float(bin32(16#81000000))  returns  1.0
  *  @param bits Bits to be converted to a float.
  *  @return a float from bits in MBF single-precision float representation.
  *)

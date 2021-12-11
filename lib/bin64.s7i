@@ -92,6 +92,14 @@ const func bigInteger: big (in bin64: binValue)                is action "BIN_BI
 
 
 (**
+ *  Convert to bigInteger.
+ *  @return the unchanged value as integer.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func bigInteger: bigInteger (in bin64: binValue)         is action "BIN_BIG";
+
+
+(**
  *  Convert to bin64.
  *  @return the unchanged value as bin64.
  *  @exception RANGE_ERROR The number is negative or too big to fit
@@ -113,6 +121,7 @@ const func bin64: bin64 (in char: ch) is
  *  IEEE 754 is a standard for floating point arithmetic.
  *  The double-precision format of IEEE 754 has a sign bit,
  *  an 11 bit exponent, and a 52 bit mantissa.
+ *   bin64(1.0)  returns  bin64(16#3ff0000000000000)
  *  @param number Float value to be converted to bin64.
  *  @return 64 bits in IEEE 754 double-precision float representation.
  *)
@@ -124,6 +133,7 @@ const func bin64: bin64 (in float: number)                     is action "FLT_DO
  *  IEEE 754 is a standard for floating point arithmetic.
  *  The double-precision format of IEEE 754 has a sign bit,
  *  an 11 bit exponent, and a 52 bit mantissa.
+ *   float(bin64(16#3ff0000000000000))  returns  1.0
  *  @param bits Bits to be converted to a float.
  *  @return a float from bits in double-precision float representation.
  *)
@@ -158,6 +168,7 @@ const func bin64: rand (attr bin64) is
 (**
  *  Convert an ''bin64'' value to a [[string]].
  *  The values is converted to a string with decimal representation.
+ *  The conversion interprets the ''bin64'' value as unsigned.
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -266,6 +277,7 @@ const func bin64: ~ (in bin64: aBinary) is
 (**
  *  Shift a bin64 value left by lshift bits.
  *  Bits shifted beyond the highest bit position are lost.
+ *   bin64(16#1234567890abcde0) << 4  returns  bin64(16#234567890abcde00)
  *  @return the left shifted value.
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
@@ -276,6 +288,7 @@ const func bin64: (in bin64: binValue) << (in integer: lshift) is action "BIN_LS
 (**
  *  Shift a bin64 value right by rshift bits.
  *  Bits shifted beyond the lowest bit position are lost.
+ *   bin64(16#1234567890abcde0) >> 4  returns  bin64(16#1234567890abcde)
  *  @return the right shifted value.
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
@@ -323,6 +336,7 @@ const proc: (inout bin64: binary1) ><:= (in bin64: binary2)    is action "BIN_XO
  *  Rotate the bits of a bin64 value left by shiftCount bits.
  *  The vacant bit positions at the right side are filled in with
  *  the bits that are shifted out at the left side.
+ *   rotLeft(bin64(16#76543210fedcba98), 12)  returns  bin64(16#43210fedcba98765)
  *  @return the left rotated value.
  *  @exception OVERFLOW_ERROR If the shift amount is negative
  *             or greater than 64.
@@ -335,6 +349,7 @@ const func bin64: rotLeft (in bin64: x, in integer: shiftCount) is
  *  Rotate the bits of a bin64 value right by shiftCount bits.
  *  The vacant bit positions at the left side are filled in with
  *  the bits that are shifted out at the right side.
+ *   rotRight(bin64(16#76543210fedcba98), 40)  returns  bin64(16#10fedcba98765432)
  *  @return the right rotated value.
  *  @exception OVERFLOW_ERROR If the shift amount is negative
  *             or greater than 64.
@@ -356,6 +371,7 @@ const func bin64: getBinary (in bitset: set1,
  *  Microsoft Binary Format (MBF) is a format for floating point numbers.
  *  The double-precision version of MBF has a 8 bit exponent, a sign bit
  *  and a 55 bit mantissa.
+ *   float2MbfBits(1.0, DOUBLE)  returns  bin64(16#8100000000000000_)
  *  @param number Float value to be converted to bin64.
  *  @return 64 bits in MBF double-precision float representation.
  *  @exception RANGE_ERROR If number is not representable in MBF.
@@ -402,6 +418,7 @@ const func bin64: float2MbfBits (in float: number, DOUBLE) is func
  *  Microsoft Binary Format (MBF) is a format for floating point numbers.
  *  The double-precision version of MBF has a 8 bit exponent, a sign bit
  *  and a 55 bit mantissa.
+ *   mbfBits2Float(bin64(16#8100000000000000_))  returns  1.0
  *  @param bits Bits to be converted to a float.
  *  @return a float from bits in double-precision float representation.
  *)
