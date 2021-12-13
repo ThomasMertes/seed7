@@ -173,7 +173,7 @@ const proc: main is func
     var integer: col is 0;
   begin
     screen(num_pix, num_pix);
-    setCloseAction(curr_win, RETURN_KEY);
+    selectInput(curr_win, KEY_CLOSE, TRUE);
     clear(curr_win, black);
     screen := openPixmapFontFile(curr_win);
     setFont(screen, stdFont8);

@@ -775,7 +775,7 @@ const proc: playLevel is func
 const proc: main is func
   begin
     screen(992, 544);
-    setCloseAction(curr_win, RETURN_KEY);
+    selectInput(curr_win, KEY_CLOSE, TRUE);
     KEYBOARD := GRAPH_KEYBOARD;
     win := openPixmapFontFile(curr_win, 650, 4);
     setFont(win, stdFont9);

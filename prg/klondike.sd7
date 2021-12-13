@@ -854,7 +854,7 @@ const proc: main is func
   begin
     screen(2 * LEFT_MARGIN + 6 * DELTA_X + CARD_WIDTH,
            2 * TOP_MARGIN + DELTA_Y + 19 * PILE_DELTA_Y + CARD_HEIGHT);
-    setCloseAction(curr_win, RETURN_KEY);
+    selectInput(curr_win, KEY_CLOSE, TRUE);
     KEYBOARD := GRAPH_KEYBOARD;
     repeat
       quit := playGame;

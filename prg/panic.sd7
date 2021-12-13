@@ -2441,7 +2441,7 @@ const proc: main is func
     var char: cmd is ' ';
   begin
     screen(WIN_WIDTH, WIN_HEIGHT);
-    setCloseAction(curr_win, RETURN_KEY);
+    selectInput(curr_win, KEY_CLOSE, TRUE);
     clear(curr_win, black);
     KEYBOARD := GRAPH_KEYBOARD;
     scr := openPixmapFontFile(curr_win);

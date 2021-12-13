@@ -448,7 +448,7 @@ const proc: main is func
     var char: ch is ' ';
   begin
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
-    setCloseAction(curr_win, RETURN_KEY);
+    selectInput(curr_win, KEY_CLOSE, TRUE);
     clear(curr_win, white);
     color(white, black);
     KEYBOARD := GRAPH_KEYBOARD;

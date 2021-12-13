@@ -2597,7 +2597,7 @@ const proc: writeCentered (inout text: screen, in integer: yPos, in string: stri
 const proc: main is func
   begin
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
-    setCloseAction(curr_win, RETURN_KEY);
+    selectInput(curr_win, KEY_CLOSE, TRUE);
     clear(BACKGROUND);
     info := openPixmapFontFile(curr_win, 630, 0);
     setFont(info, stdFont9);

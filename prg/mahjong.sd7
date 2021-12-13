@@ -1789,7 +1789,7 @@ const proc: main is func
     var char: command is ' ';
   begin
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
-    setCloseAction(curr_win, RETURN_KEY);
+    selectInput(curr_win, KEY_CLOSE, TRUE);
     clear(curr_win, BACKGROUND);
     KEYBOARD := GRAPH_KEYBOARD;
     screen := openPixmapFontFile(curr_win);

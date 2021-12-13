@@ -1525,7 +1525,7 @@ const proc: crash_test is func
 const proc: main is func
   begin (* main *)
     screen(640, 480);
-    setCloseAction(curr_win, RETURN_KEY);
+    selectInput(curr_win, KEY_CLOSE, TRUE);
     clear(curr_win, black);
     color(white, black);
     KEYBOARD := GRAPH_KEYBOARD;
