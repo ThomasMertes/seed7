@@ -104,8 +104,8 @@ void drwPolyLine (const_winType actual_window,
     intType x, intType y, bstriType point_list, intType col);
 void drwFPolyLine (const_winType actual_window,
     intType x, intType y, bstriType point_list, intType col);
-void drwPut (const_winType actual_window, const_winType pixmap,
-    intType x, intType y);
+void drwPut (const_winType destWindow, intType xDest, intType yDest,
+    const_winType pixmap);
 void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
     intType width, intType height, const_winType pixmap);
 void drwRect (const_winType actual_window,

@@ -1008,12 +1008,12 @@ void drwFPolyLine (const_winType actual_window,
 
 
 
-void drwPut (const_winType actual_window, const_winType pixmap,
-    intType x, intType y)
+void drwPut (const_winType destWindow, intType xDest, intType yDest,
+    const_winType pixmap)
 
   { /* drwPut */
-    logFunction(printf("drwPut(" FMT_U_MEM ", " FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, (memSizeType) pixmap, x, y););
+    logFunction(printf("drwPut(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ")\n",
+                       (memSizeType) destWindow, xDest, yDest, (memSizeType) pixmap););
     EM_ASM({
       if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined' &&
                                            typeof mapIdToCanvas[$1] !== 'undefined') {
@@ -1021,7 +1021,7 @@ void drwPut (const_winType actual_window, const_winType pixmap,
       } else {
         console.log('windowId not found: ' + $0);
       }
-    }, to_window(actual_window), to_window(pixmap), castToInt(x), castToInt(y));
+    }, to_window(destWindow), to_window(pixmap), castToInt(xDest), castToInt(yDest));
   } /* drwPut */
 
 

@@ -2075,15 +2075,15 @@ void drwFPolyLine (const_winType actual_window,
 
 
 
-void drwPut (const_winType actual_window, const_winType pixmap,
-    intType x, intType y)
+void drwPut (const_winType destWindow, intType xDest, intType yDest,
+    const_winType pixmap)
 
   { /* drwPut */
-    logFunction(printf("drwPut(" FMT_U_MEM ", " FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, (memSizeType) pixmap, x, y););
-    /* printf("actual_window=%lu, pixmap=%lu\n", to_window(actual_window),
+    logFunction(printf("drwPut(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ")\n",
+                       (memSizeType) destWindow, xDest, yDest, (memSizeType) pixmap););
+    /* printf("destWindow=%lu, pixmap=%lu\n", to_window(destWindow),
         pixmap != NULL ? to_window(pixmap) : NULL); */
-    if (unlikely(!inIntRange(x) || !inIntRange(y))) {
+    if (unlikely(!inIntRange(xDest) || !inIntRange(yDest))) {
       raise_error(RANGE_ERROR);
     } else if (pixmap != NULL && to_window(pixmap) != 0) {
       /* A pixmap value of NULL or a pixmap with a window of 0 */
@@ -2091,13 +2091,13 @@ void drwPut (const_winType actual_window, const_winType pixmap,
       /* nothing should be done.                               */
       if (to_clip_mask(pixmap) != 0) {
         XSetClipMask(mydisplay, mygc, to_clip_mask(pixmap));
-        XSetClipOrigin(mydisplay, mygc, castToInt(x), castToInt(y));
+        XSetClipOrigin(mydisplay, mygc, castToInt(xDest), castToInt(yDest));
       } /* if */
-      XCopyArea(mydisplay, to_window(pixmap), to_window(actual_window),
-                mygc, 0, 0, to_width(pixmap), to_height(pixmap), (int) x, (int) y);
-      if (to_backup(actual_window) != 0) {
-        XCopyArea(mydisplay, to_window(pixmap), to_backup(actual_window),
-                  mygc, 0, 0, to_width(pixmap), to_height(pixmap), (int) x, (int) y);
+      XCopyArea(mydisplay, to_window(pixmap), to_window(destWindow),
+                mygc, 0, 0, to_width(pixmap), to_height(pixmap), (int) xDest, (int) yDest);
+      if (to_backup(destWindow) != 0) {
+        XCopyArea(mydisplay, to_window(pixmap), to_backup(destWindow),
+                  mygc, 0, 0, to_width(pixmap), to_height(pixmap), (int) xDest, (int) yDest);
       } /* if */
       if (to_clip_mask(pixmap) != 0) {
         XSetClipMask(mydisplay, mygc, None);

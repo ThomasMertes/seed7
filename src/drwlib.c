@@ -1309,17 +1309,17 @@ objectType drw_put (listType arguments)
 
   /* drw_put */
     isit_win(arg_1(arguments));
-    isit_win(arg_2(arguments));
+    isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
-    isit_int(arg_4(arguments));
+    isit_win(arg_4(arguments));
     actual_window = take_win(arg_1(arguments));
-    pixmap = take_win(arg_2(arguments));
+    pixmap = take_win(arg_4(arguments));
     /* A pixmap value of NULL is used to describe an empty pixmap. */
     /* In this case nothing should be done.                        */
     /* This is handled in the driver function drwPut.              */
-    drwPut(actual_window, pixmap,
-        take_int(arg_3(arguments)),
-        take_int(arg_4(arguments)));
+    drwPut(actual_window,
+        take_int(arg_2(arguments)),
+        take_int(arg_3(arguments)), pixmap);
     return SYS_EMPTY_OBJECT;
   } /* drw_put */
 

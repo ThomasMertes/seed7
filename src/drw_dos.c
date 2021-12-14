@@ -436,8 +436,8 @@ void drwFPolyLine (const_winType actual_window,
 
 
 
-void drwPut (const_winType actual_window, const_winType pixmap,
-    intType x, intType y)
+void drwPut (const_winType destWindow, intType xDest, intType yDest,
+    const_winType pixmap)
 
   { /* drwPut */
   } /* drwPut */

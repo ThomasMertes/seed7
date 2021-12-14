@@ -181,7 +181,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwPRect (const_winType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        drwPolyLine (const_winType, intType, intType, bstriType, intType);");
     declareExtern(c_prog, "void        drwFPolyLine (const_winType, intType, intType, bstriType, intType);");
-    declareExtern(c_prog, "void        drwPut (const_winType, const_winType, intType, intType);");
+    declareExtern(c_prog, "void        drwPut (const_winType, intType, intType, const_winType);");
     declareExtern(c_prog, "void        drwPutScaled (const_winType, intType, intType, intType, intType, const_winType);");
     declareExtern(c_prog, "void        drwRect (const_winType, intType, intType, intType, intType);");
     if inlineFunctions and ccConf.PIXEL_RED_MASK   <> 0 and
@@ -1025,7 +1025,7 @@ const proc: process (DRW_PUT, in reference: function,
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
+    getAnyParamToExpr(params[4], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 

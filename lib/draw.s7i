@@ -522,11 +522,23 @@ const proc: paint (in integer: x, in integer: y, in integer: col) is func
   end func;
 
 
+(**
+ *  Put ''pixmap'' to the given position at ''destWindow''.
+ *  The top left edge of ''pixmap'' is put at (''xDest'', ''yDest'').
+ *  @param destWindow Destination Window.
+ *  @param xDest X-coordinate of the destination position.
+ *  @param yDest Y-coordinate of the destination position.
+ *  @param pixmap Source window to be put to the destination.
+ *)
+const proc: put (inout PRIMITIVE_WINDOW: destWindow, in integer: xDest,
+    in integer: yDest, in PRIMITIVE_WINDOW: pixmap) is action "DRW_PUT";
+
+
 const proc: put (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y,
     in PRIMITIVE_WINDOW: pixmap, PSET) is func
   begin
-    DRAW_PUT(win, pixmap, x, y);
+    put(win, x, y, pixmap);
   end func;
 
 
@@ -534,21 +546,21 @@ const proc: put (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y,
     in PRIMITIVE_WINDOW: pixmap, XOR) is func
   begin
-    DRAW_PUT(win, pixmap, x, y);
+    put(win, x, y, pixmap);
   end func;
 
 
 const proc: put (in integer: x, in integer: y,
     in PRIMITIVE_WINDOW: pixmap, PSET) is func
   begin
-    DRAW_PUT(curr_win, pixmap, x, y);
+    put(curr_win, x, y, pixmap);
   end func;
 
 
 const proc: put (in integer: x, in integer: y,
     in PRIMITIVE_WINDOW: pixmap, XOR) is func
   begin
-    DRAW_PUT(curr_win, pixmap, x, y);
+    put(curr_win, x, y, pixmap);
   end func;
 
 
@@ -559,7 +571,7 @@ const proc: put (in integer: x, in integer: y,
  *  @param yDest Y-coordinate of the destination rectangle.
  *  @param width Width of the destination rectangle.
  *  @param height Height of the destination rectangle.
- *  @param pixmap Source window to be scaled to the rectangle
+ *  @param pixmap Source window to be scaled to the rectangle.
  *)
 const proc: put (inout PRIMITIVE_WINDOW: destWindow, in integer: xDest,
     in integer: yDest, in integer: width, in integer: height,
@@ -607,6 +619,9 @@ const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) i
 const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: anImage) is action "DRW_IMAGE";
 
 
+(**
+ *  Sets the transparent color of a pixmap.
+ *)
 const proc: setTransparentColor (in PRIMITIVE_WINDOW: pixmap, in color: col) is func
   begin
     SET_TRANSPARENTCOLOR(pixmap, colorPixel(col));

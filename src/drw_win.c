@@ -1792,36 +1792,36 @@ void drwFPolyLine (const_winType actual_window,
 
 
 
-void drwPut (const_winType actual_window, const_winType pixmap,
-    intType x, intType y)
+void drwPut (const_winType destWindow, intType xDest, intType yDest,
+    const_winType pixmap)
 
   {
     HDC hdcMem;
 
   /* drwPut */
-    logFunction(printf("drwPut(" FMT_U_MEM ", " FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, (memSizeType) pixmap, x, y););
+    logFunction(printf("drwPut(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ")\n",
+                       (memSizeType) destWindow, xDest, yDest, (memSizeType) pixmap););
     if (pixmap != NULL) {
       if (to_hasTransparentPixel(pixmap)) {
         hdcMem = CreateCompatibleDC(0);
         SelectObject(hdcMem, to_maskBitmap(pixmap));
-        BitBlt(to_hdc(actual_window), castToInt(x), castToInt(y),
+        BitBlt(to_hdc(destWindow), castToInt(xDest), castToInt(yDest),
                (int) to_width(pixmap), (int) to_height(pixmap), hdcMem, 0, 0, SRCAND);
-        BitBlt(to_hdc(actual_window), castToInt(x), castToInt(y),
+        BitBlt(to_hdc(destWindow), castToInt(xDest), castToInt(yDest),
                (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCPAINT);
-        if (to_backup_hdc(actual_window) != 0) {
+        if (to_backup_hdc(destWindow) != 0) {
           SelectObject(hdcMem, to_maskBitmap(pixmap));
-          BitBlt(to_backup_hdc(actual_window), castToInt(x), castToInt(y),
+          BitBlt(to_backup_hdc(destWindow), castToInt(xDest), castToInt(yDest),
                  (int) to_width(pixmap), (int) to_height(pixmap), hdcMem, 0, 0, SRCAND);
-          BitBlt(to_backup_hdc(actual_window), castToInt(x), castToInt(y),
+          BitBlt(to_backup_hdc(destWindow), castToInt(xDest), castToInt(yDest),
                  (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCPAINT);
         } /* if */
         DeleteDC(hdcMem);
       } else {
-        BitBlt(to_hdc(actual_window), castToInt(x), castToInt(y),
+        BitBlt(to_hdc(destWindow), castToInt(xDest), castToInt(yDest),
                (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCCOPY);
-        if (to_backup_hdc(actual_window) != 0) {
-          BitBlt(to_backup_hdc(actual_window), castToInt(x), castToInt(y),
+        if (to_backup_hdc(destWindow) != 0) {
+          BitBlt(to_backup_hdc(destWindow), castToInt(xDest), castToInt(yDest),
                  (int) to_width(pixmap), (int) to_height(pixmap), to_hdc(pixmap), 0, 0, SRCCOPY);
         } /* if */
       } /* if */
