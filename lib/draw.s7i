@@ -534,6 +534,21 @@ const proc: put (inout PRIMITIVE_WINDOW: destWindow, in integer: xDest,
     in integer: yDest, in PRIMITIVE_WINDOW: pixmap) is action "DRW_PUT";
 
 
+(**
+ *  Put ''pixmap'' to the given position at the current window 'curr_win'.
+ *  The top left edge of ''pixmap'' is put at (''xDest'', ''yDest'').
+ *  @param xDest X-coordinate of the destination position.
+ *  @param yDest Y-coordinate of the destination position.
+ *  @param pixmap Source window to be put to the destination.
+ *)
+const proc: put (in integer: xDest, in integer: yDest,
+    in PRIMITIVE_WINDOW: pixmap) is func
+  begin
+    put(curr_win, xDest, yDest, pixmap);
+  end func;
+
+
+# The put() function with PSET as parameter is deprecated. Use the one without PSET.
 const proc: put (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y,
     in PRIMITIVE_WINDOW: pixmap, PSET) is func
@@ -542,6 +557,7 @@ const proc: put (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+# The put() function with XOR as parameter is deprecated. Use the one without XOR.
 const proc: put (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y,
     in PRIMITIVE_WINDOW: pixmap, XOR) is func
@@ -550,6 +566,7 @@ const proc: put (inout PRIMITIVE_WINDOW: win,
   end func;
 
 
+# The put() function with PSET as parameter is deprecated. Use the one without PSET.
 const proc: put (in integer: x, in integer: y,
     in PRIMITIVE_WINDOW: pixmap, PSET) is func
   begin
@@ -557,6 +574,7 @@ const proc: put (in integer: x, in integer: y,
   end func;
 
 
+# The put() function with XOR as parameter is deprecated. Use the one without XOR.
 const proc: put (in integer: x, in integer: y,
     in PRIMITIVE_WINDOW: pixmap, XOR) is func
   begin
@@ -566,6 +584,7 @@ const proc: put (in integer: x, in integer: y,
 
 (**
  *  Put a scaled ''pixmap'' to the given rectangle at ''destWindow''.
+ *  The top left edge of the destination rectangle is at (''xDest'', ''yDest'').
  *  @param destWindow Destination Window.
  *  @param xDest X-coordinate of the destination rectangle.
  *  @param yDest Y-coordinate of the destination rectangle.
