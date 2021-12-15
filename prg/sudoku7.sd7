@@ -624,7 +624,7 @@ const proc: setRedDigit (in integer: row, in integer: column,
     clearField(row, column);
     put(X_SHIFT + STRETCH_FACTOR * succ(column) + PIXMAP_SHIFT,
         Y_SHIFT + STRETCH_FACTOR * succ(row) + PIXMAP_SHIFT,
-        red_digits[digit], PSET);
+        red_digits[digit]);
   end func;
 
 
@@ -637,7 +637,7 @@ const proc: setBlueDigit (in integer: row, in integer: column,
     clearField(row, column);
     put(X_SHIFT + STRETCH_FACTOR * succ(column) + PIXMAP_SHIFT,
         Y_SHIFT + STRETCH_FACTOR * succ(row) + PIXMAP_SHIFT,
-        blue_digits[digit], PSET);
+        blue_digits[digit]);
   end func;
 
 
@@ -648,7 +648,7 @@ const proc: writeSmallDigit (in integer: row, in integer: column,
         (pred(digit) mod 3) * 16,
         Y_SHIFT + STRETCH_FACTOR * succ(row) + SMALL_PIXMAP_SHIFT +
         (pred(digit) div 3) * 16,
-        small_digits[digit], PSET);
+        small_digits[digit]);
   end func;
 
 
@@ -2264,7 +2264,7 @@ const proc: showStrategyCheckboxes is func
       end case;
       if button_is_on then
         put(RIGHT_BUTTON_X + 8, RIGHT_BUTTON_MIN_Y + 8 + 39 * pred(number),
-            checkmark_pixmap, PSET);
+            checkmark_pixmap);
       else
         rect(RIGHT_BUTTON_X + 8, RIGHT_BUTTON_MIN_Y + 8 + 39 * pred(number),
             16, 16, BACKGROUND);
@@ -2288,19 +2288,19 @@ const proc: showButtons is func
       case number of
         when {1 .. 9}:
           put(TOP_BUTTON_MIN_X + 8 + 48 * number, TOP_BUTTON_Y + 8,
-              small_digits[number], PSET);
+              small_digits[number]);
         when {10}:
           put(TOP_BUTTON_MIN_X + 8 + 48 * number, TOP_BUTTON_Y + 8,
-              single_pixmap, PSET);
+              single_pixmap);
         when {11}:
           put(TOP_BUTTON_MIN_X + 8 + 48 * number, TOP_BUTTON_Y + 8,
-              double_pixmap, PSET);
+              double_pixmap);
         when {12}:
           put(TOP_BUTTON_MIN_X + 8 + 48 * number, TOP_BUTTON_Y + 8,
-              triple_pixmap, PSET);
+              triple_pixmap);
       end case;
     end for;
-    put(EXIT_BUTTON_X, TOP_BUTTON_Y, exit_pixmap, PSET);
+    put(EXIT_BUTTON_X, TOP_BUTTON_Y, exit_pixmap);
     for number range 1 to 2 do
       box(RIGHT_BUTTON_X + 4, RIGHT_BUTTON_MIN_Y + 4 + 39 * pred(number), 24, 24, FOREGROUND);
       setPosXY(info, 45, RIGHT_BUTTON_MIN_Y + 18 + 39 * pred(number));
@@ -2554,7 +2554,7 @@ const proc: processCommand is func
               if show_solution or button_num <= 1 then
                 if button_is_on then
                   put(RIGHT_BUTTON_X + 8, RIGHT_BUTTON_MIN_Y + 8 + 39 * button_num,
-                      checkmark_pixmap, PSET);
+                      checkmark_pixmap);
                 else
                   rect(RIGHT_BUTTON_X + 8, RIGHT_BUTTON_MIN_Y + 8 + 39 * button_num,
                       16, 16, BACKGROUND);

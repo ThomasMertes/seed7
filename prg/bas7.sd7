@@ -7471,7 +7471,7 @@ const proc: exec_put (inout string: symbol, inout string: line) is func
     if image <> PRIMITIVE_WINDOW.value then
       line_marker;
       writeln(log, "PUT (" <& x1 <& ", " <& y1 <& "), " <& variable_name);
-      put(x1, y1, image, PSET);
+      put(x1, y1, image);
     else
       error_marker;
       writeln(err, "UNDEFINED IMAGE VARIABLE " <& literal(variable_name));

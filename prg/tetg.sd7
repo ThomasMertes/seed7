@@ -437,7 +437,7 @@ const proc: remove_full_lines is func
             occupied[ .. pred(line)] & occupied[succ(line) .. ];
         buffer := getPixmap(FIELD_X_START, FIELD_Y_START,
             10 * BLOCK_SIZE, pred(line) * BLOCK_SIZE);
-        put(FIELD_X_START, FIELD_Y_START + BLOCK_SIZE, buffer, PSET);
+        put(FIELD_X_START, FIELD_Y_START + BLOCK_SIZE, buffer);
       end if;
     end for;
   end func;

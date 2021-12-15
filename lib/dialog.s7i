@@ -296,7 +296,7 @@ const proc: bossMode (inout boolean: doQuit) is func
       if cmd in {'Q', 'q', KEY_CLOSE} then
         doQuit := TRUE;
       elsif cmd in {'P', 'p'} then
-        put(0, 0, savedWindow, PSET);
+        put(0, 0, savedWindow);
         DRAW_FLUSH;
         restored := TRUE;
       end if;

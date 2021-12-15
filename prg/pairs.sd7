@@ -1218,7 +1218,7 @@ const proc: draw (in integer: xPos, in integer: yPos,
       drawPattern(curr_win, xPos, yPos, aCard.picture, CARD_SIZE div length(aCard.picture), black);
       aCard.pixmap := getPixmap(xPos, yPos, CARD_SIZE, CARD_SIZE);
     else
-      put(xPos, yPos, aCard.pixmap, PSET);
+      put(xPos, yPos, aCard.pixmap);
     end if;
   end func;
 
@@ -1324,7 +1324,7 @@ const proc: draw_number (in integer: xPos, in integer: yPos, in string: num_stri
       else
         put(xPos + pred(index) * 32,
             yPos,
-            digit_pixmap[ord(ch) - ord('0')], PSET);
+            digit_pixmap[ord(ch) - ord('0')]);
       end if;
     end for;
   end func;
@@ -1798,16 +1798,16 @@ const proc: playerMove (inout boolean: hit) is func
         end if;
       elsif command in digit_char then
         game.currLevel := ord(command) - ord('0');
-        put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel], PSET);
+        put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel]);
       elsif command in {KEY_RIGHT, KEY_UP} then
         if game.currLevel < 9 then
           incr(game.currLevel);
-          put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel], PSET);
+          put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel]);
         end if;
       elsif command in {KEY_LEFT, KEY_DOWN} then
         if game.currLevel > 0 then
           decr(game.currLevel);
-          put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel], PSET);
+          put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel]);
         end if;
       elsif openCards = 2 then
         checkHit(line1, column1, line2, column2, hit);
@@ -1886,7 +1886,7 @@ const proc: selectSize is func
           column := (column - LEFT_BORDER) div FIELD_SIZE + 1;
           if line = 1 and column >= 1 and column <= length(size_descr) then
             clear(curr_win, white);
-            put(OPPONENT_XPOS, OPPONENT_YPOS, opponent, PSET);
+            put(OPPONENT_XPOS, OPPONENT_YPOS, opponent);
             dealCards(size_list[column][1], size_list[column][2]);
             selected := TRUE;
           end if;
@@ -1934,11 +1934,11 @@ const proc: main is func
       createPixmap(nine,  2, black));
 
     opponent := createPixmap(woman_pic, 2, black);
-    put(OPPONENT_XPOS, OPPONENT_YPOS, opponent, PSET);
+    put(OPPONENT_XPOS, OPPONENT_YPOS, opponent);
 
     selectSize;
 
-    put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel], PSET);
+    put(OPPONENT_XPOS - 40, OPPONENT_YPOS, digit_pixmap[game.currLevel]);
 
     index := 1;
     while countCardBacks > 0 and not game.quit do

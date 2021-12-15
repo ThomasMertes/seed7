@@ -48,7 +48,7 @@ const func rectangularArea: selectArea is func
   begin
     screenPixmap := capturePixmap(0, 0, screenWidth, screenHeight);
     wholeScreen := openSubWindow(PRIMITIVE_WINDOW.value, 0, 0, screenWidth, screenHeight);
-    put(wholeScreen, 0, 0, screenPixmap, PSET);
+    put(wholeScreen, 0, 0, screenPixmap);
     if getc(KEYBOARD) = KEY_MOUSE1 then
       area.topLeftX := pointerXPos(PRIMITIVE_WINDOW.value);
       area.topLeftY := pointerYPos(PRIMITIVE_WINDOW.value);
@@ -122,7 +122,7 @@ const proc: main is func
           pixmap := capturePixmap(area.topLeftX, area.topLeftY,
               area.bottomRightX - area.topLeftX + 1,
               area.bottomRightY - area.topLeftY + 1);
-          put(curr_win, 0, 0, pixmap, PSET);
+          put(curr_win, 0, 0, pixmap);
           wait(30000 . MICRO_SECONDS);
         until keypressed(KEYBOARD);
       end if;

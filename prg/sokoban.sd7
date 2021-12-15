@@ -514,7 +514,7 @@ const proc: drawMap is func
           end case;
           if sprite <> PRIMITIVE_WINDOW.value then
             put(curr_win, pred(column) * TILE_SIZE,
-                pred(line) * TILE_SIZE, sprite, PSET);
+                pred(line) * TILE_SIZE, sprite);
           end if;
           levelMap[line][column].dirty := FALSE;
         end if;

@@ -580,7 +580,7 @@ const proc: draw (in integer: xPos, in integer: yPos,
       drawPattern(curr_win, xPos, yPos, aCard.picture, CARD_SIZE div length(aCard.picture), black);
       aCard.pixmap := getPixmap(xPos, yPos, CARD_SIZE, CARD_SIZE);
     else
-      put(xPos, yPos, aCard.pixmap, PSET);
+      put(xPos, yPos, aCard.pixmap);
     end if;
   end func;
 

@@ -567,7 +567,7 @@ const proc: draw (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPo
       drawPattern(win, xPos, yPos, aTile.pattern, PIXMAP_HEIGHT div length(aTile.pattern), white);
       aTile.pixmap := getPixmap(win, xPos, yPos, PIXMAP_WIDTH, PIXMAP_HEIGHT);
     else
-      put(win, xPos, yPos, aTile.pixmap, PSET);
+      put(win, xPos, yPos, aTile.pixmap);
     end if;
   end func;
 
@@ -731,7 +731,7 @@ const proc: drawBoard is func
         end for;
       end for;
     end for;
-    put(0, 0, win, PSET);
+    put(0, 0, win);
   end func;
 
 
@@ -833,7 +833,7 @@ const proc: unmarkFrame (in positionType: pos) is func
     xPos := LEFT_BORDER + TILE_BORDER + FIELD_X_STEP * pred(pos.column) + SHIFT_X * pos.level;
     yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
     put(xPos - TILE_BORDER, yPos - TILE_BORDER,
-        field[pos.level][pos.line][pos.column].backup, PSET);
+        field[pos.level][pos.line][pos.column].backup);
     field[pos.level][pos.line][pos.column].backup := PRIMITIVE_WINDOW.value;
   end func;
 
@@ -907,7 +907,7 @@ const proc: refresh (in positionType: pos) is func
     yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
     win := getPixmap(win, xPos - TILE_BORDER - SHIFT_X, yPos - TILE_BORDER,
         TILE_WIDTH + SHIFT_X, TILE_HEIGHT + SHIFT_Y);
-    put(xPos - TILE_BORDER - SHIFT_X, yPos - TILE_BORDER, win, PSET);
+    put(xPos - TILE_BORDER - SHIFT_X, yPos - TILE_BORDER, win);
   end func;
 
 
@@ -951,7 +951,7 @@ const proc: draw_number (in integer: xPos, in integer: yPos, in string: num_stri
       else
         put(xPos + pred(index) * 32,
             yPos,
-            digit_pixmap[ord(ch) - ord('0')], PSET);
+            digit_pixmap[ord(ch) - ord('0')]);
       end if;
     end for;
   end func;

@@ -60,7 +60,7 @@ const proc: put (in integer: xPos, in integer: yPos,
     aCard.rank := rank;
     aCard.name := str(rank) <& " of " <& str(suit);
     aCard.window := openSubWindow(curr_win, xPos, yPos, width(pixmap), height(pixmap));
-    put(aCard.window, 0, 0, pixmap, PSET);
+    put(aCard.window, 0, 0, pixmap);
     anImage := toInterface(aCard);
     imageHash @:= [window(anImage)] anImage;
   end func;

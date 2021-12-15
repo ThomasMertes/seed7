@@ -86,9 +86,9 @@ const proc: setVisible (inout cardType: card, in boolean: visible) is func
   begin
     card.visible := visible;
     if visible then
-      put(card.window, 0, 0, card.frontside, PSET);
+      put(card.window, 0, 0, card.frontside);
     else
-      put(card.window, 0, 0, card.backside, PSET);
+      put(card.window, 0, 0, card.backside);
     end if;
   end func;
 
@@ -100,9 +100,9 @@ const proc: putCard (inout cardType: card, in integer: xPos, in integer: yPos,
     card.window := openSubWindow(curr_win, xPos, yPos,
         width(card.frontside), height(card.frontside));
     if visible then
-      put(card.window, 0, 0, card.frontside, PSET);
+      put(card.window, 0, 0, card.frontside);
     else
-      put(card.window, 0, 0, card.backside, PSET);
+      put(card.window, 0, 0, card.backside);
     end if;
   end func;
 
@@ -768,7 +768,7 @@ const proc: jumpingCard (inout cardType: card) is func
     startTime := time(NOW);
     while xPos > -width(card.frontside) and xPos < width(curr_win) and
         not keypressed(KEYBOARD) do
-      put(xPos, yPos, card.frontside, PSET);
+      put(xPos, yPos, card.frontside);
       setPos(card, xPos, yPos);
       xPos +:= xSpeed;
       yPos +:= ySpeed;

@@ -81,7 +81,7 @@ const proc: displayMandelbrotSet (in complex: center, in float: zoom) is func
 
 const proc: showHelp is func
   begin
-    put(0, 0, startWindow, PSET);
+    put(0, 0, startWindow);
     setPosXY(screen, 282, 126);
     writeln(screen, "HELP");
     setPosXY(screen, 252, 142);
@@ -150,7 +150,7 @@ const proc: doCommand (inout char: ch) is func
       when {'R'}:
         zoom := startZoom;
         center := startCenter;
-        put(0, 0, startWindow, PSET);
+        put(0, 0, startWindow);
         ch := getc(KEYBOARD);
         doCommand(ch);
       when {'H'}:
@@ -158,7 +158,7 @@ const proc: doCommand (inout char: ch) is func
         showHelp;
         ch := getc(KEYBOARD);
         if ch not in {'q', 'Q', KEY_ESC, KEY_CLOSE} then
-          put(0, 0, savedWindow, PSET);
+          put(0, 0, savedWindow);
           ch := getc(KEYBOARD);
           doCommand(ch);
         end if;
@@ -219,7 +219,7 @@ const proc: main is func
     end if;
     if ch not in {'q', 'Q', KEY_ESC, KEY_CLOSE} then
       if ch not in {KEY_MOUSE1, KEY_MOUSE2, KEY_MOUSE3} then
-        put(0, 0, startWindow, PSET);
+        put(0, 0, startWindow);
         ch := getc(KEYBOARD);
       end if;
       doCommand(ch);

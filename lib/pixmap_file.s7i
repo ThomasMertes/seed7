@@ -336,7 +336,7 @@ const proc: write (inout pixmapFontFile: fontFile, in string: stri) is func
       else
         charPixmap := getFontCharPixmap(fontFile.font, ch);
       end if;
-      put(fontFile.win, fontFile.currLeftX, fontFile.currTopY, charPixmap, PSET);
+      put(fontFile.win, fontFile.currLeftX, fontFile.currTopY, charPixmap);
       fontFile.currLeftX +:= width(charPixmap);
       if characterSpacing(fontFile.font) <> 0 then
         rect(fontFile.win, fontFile.currLeftX, fontFile.currTopY,
@@ -433,7 +433,7 @@ const proc: cursorOn (inout pixmapFontFile: fontFile, in char: cursorChar) is fu
     else
       charPixmap := getFontCharPixmap(font, cursorChar);
     end if;
-    put(fontFile.win, fontFile.currLeftX, fontFile.currTopY, charPixmap, PSET);
+    put(fontFile.win, fontFile.currLeftX, fontFile.currTopY, charPixmap);
   end func;
 
 
@@ -452,5 +452,5 @@ const proc: cursorOff (inout pixmapFontFile: fontFile, in char: cursorChar) is f
     else
       charPixmap := getFontCharPixmap(fontFile.font, cursorChar);
     end if;
-    put(fontFile.win, fontFile.currLeftX, fontFile.currTopY, charPixmap, PSET);
+    put(fontFile.win, fontFile.currLeftX, fontFile.currTopY, charPixmap);
   end func;

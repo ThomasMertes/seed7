@@ -1324,7 +1324,7 @@ const proc: displayRoom (in roomType: current_room) is func
               writeln(ord(ch));
           end case;
           put(curr_win, BORDER_DIST + pred(column) * PIXMAP_SIZE,
-              BORDER_DIST + pred(line) * PIXMAP_SIZE, field_pixmap, PSET);
+              BORDER_DIST + pred(line) * PIXMAP_SIZE, field_pixmap);
         end if;
       end for;
     end for;
@@ -1340,11 +1340,11 @@ const proc: displayRoom (in roomType: current_room) is func
 const proc: displayObj (inout graphObj: currObject) is func
   begin
     put(curr_win, BORDER_DIST + currObject.saved_xPos,
-        BORDER_DIST + currObject.saved_yPos, currObject.saved_pixmap, PSET);
+        BORDER_DIST + currObject.saved_yPos, currObject.saved_pixmap);
     currObject.saved_pixmap := getPixmap(BORDER_DIST + currObject.xPos,
         BORDER_DIST + currObject.yPos, PIXMAP_SIZE, PIXMAP_SIZE);
     put(curr_win, BORDER_DIST + currObject.xPos,
-        BORDER_DIST + currObject.yPos, getPixmap(currObject), PSET);
+        BORDER_DIST + currObject.yPos, getPixmap(currObject));
     currObject.saved_xPos := currObject.xPos;
     currObject.saved_yPos := currObject.yPos;
   end func;
@@ -1364,7 +1364,7 @@ const proc: displayMonster is func
 
 const proc: objectLegend (inout graphObj: currObject, in integer: line) is func
   begin
-    put(curr_win, LEGEND_XPOS, LEGEND_YPOS_MIN + pred(line) * PIXMAP_SIZE, getPixmap(currObject), PSET);
+    put(curr_win, LEGEND_XPOS, LEGEND_YPOS_MIN + pred(line) * PIXMAP_SIZE, getPixmap(currObject));
     color(white, black);
     setPos(screen, 2 * line, LEGEND_COLUMN);
     if currObject.adjective <> "" then
@@ -1585,25 +1585,25 @@ const proc: displayMessage is func
 
 const proc: displayCommands (in PRIMITIVE_WINDOW: bmp) is func
   begin
-    put(curr_win, BUTTONS_1_XPOS, BUTTON_YPOS_MIN, load_pixmap, PSET);
+    put(curr_win, BUTTONS_1_XPOS, BUTTON_YPOS_MIN, load_pixmap);
     setPos(screen, BUTTON_TEXT_LINE1, BUTTONS_1_COLUMN);
     write(screen, "Load");
-    put(curr_win, BUTTONS_1_XPOS, BUTTON_YPOS_MIN + 32, save_pixmap, PSET);
+    put(curr_win, BUTTONS_1_XPOS, BUTTON_YPOS_MIN + 32, save_pixmap);
     setPos(screen, BUTTON_TEXT_LINE1 + 2, BUTTONS_1_COLUMN);
     write(screen, "Save");
-    put(curr_win, BUTTONS_1_XPOS, BUTTON_YPOS_MIN + 64, exit_pixmap, PSET);
+    put(curr_win, BUTTONS_1_XPOS, BUTTON_YPOS_MIN + 64, exit_pixmap);
     setPos(screen, BUTTON_TEXT_LINE1 + 4, BUTTONS_1_COLUMN);
     write(screen, "Exit");
-    put(curr_win, BUTTONS_2_XPOS, BUTTON_YPOS_MIN, take_pixmap, PSET);
+    put(curr_win, BUTTONS_2_XPOS, BUTTON_YPOS_MIN, take_pixmap);
     setPos(screen, BUTTON_TEXT_LINE1, BUTTONS_2_COLUMN);
     write(screen, "Take");
-    put(curr_win, BUTTONS_2_XPOS, BUTTON_YPOS_MIN + 32, drop_pixmap, PSET);
+    put(curr_win, BUTTONS_2_XPOS, BUTTON_YPOS_MIN + 32, drop_pixmap);
     setPos(screen, BUTTON_TEXT_LINE1 + 2, BUTTONS_2_COLUMN);
     write(screen, "Drop");
-    put(curr_win, BUTTONS_3_XPOS, BUTTON_YPOS_MIN, eye_pixmap, PSET);
+    put(curr_win, BUTTONS_3_XPOS, BUTTON_YPOS_MIN, eye_pixmap);
     setPos(screen, BUTTON_TEXT_LINE1, BUTTONS_3_COLUMN);
     write(screen, "Look");
-    put(curr_win, BUTTONS_3_XPOS, BUTTON_YPOS_MIN + 32, hand_pixmap, PSET);
+    put(curr_win, BUTTONS_3_XPOS, BUTTON_YPOS_MIN + 32, hand_pixmap);
     setPos(screen, BUTTON_TEXT_LINE1 + 2, BUTTONS_3_COLUMN);
     write(screen, "Use");
   end func;
@@ -1865,7 +1865,7 @@ const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, i
       rect(LEGEND_XPOS + PIXMAP_SIZE, LEGEND_YPOS_MIN + pred(startLine) * PIXMAP_SIZE,
           150, PIXMAP_SIZE, light_gray);
       put(curr_win, LEGEND_XPOS + PIXMAP_SIZE, LEGEND_YPOS_MIN + pred(startLine) * PIXMAP_SIZE,
-          symbol, PSET);
+          symbol);
       color(white, black);
       setPos(screen, 2 * startLine, LEGEND_COLUMN + 5);
       write(screen, name);
@@ -1880,7 +1880,7 @@ const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, i
           displayInventoryItem(position);
         else
           put(curr_win, LEGEND_XPOS + PIXMAP_SIZE, LEGEND_YPOS_MIN + pred(startLine) * PIXMAP_SIZE,
-              symbol, PSET);
+              symbol);
           color(white, black);
           setPos(screen, 2 * startLine, LEGEND_COLUMN + 5);
           write(screen, name);
@@ -1908,7 +1908,7 @@ const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, i
           displayInventoryItem(position);
         else
           put(curr_win, LEGEND_XPOS + PIXMAP_SIZE, LEGEND_YPOS_MIN + pred(startLine) * PIXMAP_SIZE,
-              symbol, PSET);
+              symbol);
           color(white, black);
           setPos(screen, 2 * startLine, LEGEND_COLUMN + 5);
           write(screen, name);
@@ -1980,7 +1980,7 @@ const proc: dropItem (in itemType: item_ident) is func
       showItem(item[item_ident]);
       excl(player.inventory, item_ident);
       put(curr_win, BORDER_DIST + item[item_ident].xPos,
-          BORDER_DIST + item[item_ident].yPos, getPixmap(item[item_ident]), PSET);
+          BORDER_DIST + item[item_ident].yPos, getPixmap(item[item_ident]));
       displayLegend;
       displayInventory;
     else
@@ -2363,7 +2363,7 @@ const proc: lookItemInRoom is func
           if player.room = CHEFS_QUARTERS then
             if item[WINE_FLASK].room_num = NO_ROOM and not WINE_FLASK in player.inventory then
               put(curr_win, BORDER_DIST + item[WINE_FLASK].xPos,
-                  BORDER_DIST + item[WINE_FLASK].yPos, getPixmap(item[WINE_FLASK]), PSET);
+                  BORDER_DIST + item[WINE_FLASK].yPos, getPixmap(item[WINE_FLASK]));
               message := [] ("look desk:",
                              "There is a Wine Flask on top.");
             else
@@ -2373,7 +2373,7 @@ const proc: lookItemInRoom is func
           elsif player.room = YELLOW_ROOM then
             if item[GLASSES].room_num = NO_ROOM and not GLASSES in player.inventory then
               put(curr_win, BORDER_DIST + item[GLASSES].xPos,
-                  BORDER_DIST + item[GLASSES].yPos, getPixmap(item[GLASSES]), PSET);
+                  BORDER_DIST + item[GLASSES].yPos, getPixmap(item[GLASSES]));
               message := [] ("look desk:",
                              "There is a Pair of Eye Glasses on Top.");
             else
@@ -2383,7 +2383,7 @@ const proc: lookItemInRoom is func
           elsif player.room = KINGS_STUDY then
             if item[KEY].room_num = NO_ROOM and not KEY in player.inventory then
               put(curr_win, BORDER_DIST + item[KEY].xPos,
-                  BORDER_DIST + item[KEY].yPos, getPixmap(item[KEY]), PSET);
+                  BORDER_DIST + item[KEY].yPos, getPixmap(item[KEY]));
               message := [] ("look desk:",
                              "There is a Key on top.");
             else
@@ -2393,7 +2393,7 @@ const proc: lookItemInRoom is func
           elsif player.room = LIBRARY_WEST_END then
             if item[BOOK].room_num = NO_ROOM and not BOOK in player.inventory then
               put(curr_win, BORDER_DIST + item[BOOK].xPos,
-                  BORDER_DIST + item[BOOK].yPos, getPixmap(item[BOOK]), PSET);
+                  BORDER_DIST + item[BOOK].yPos, getPixmap(item[BOOK]));
               message := [] ("look shelves:",
                              "There's a book on one.");
             else
@@ -2568,7 +2568,7 @@ const proc: checkField (inout char: field) is func
             field := ' ';
             incl(player.inventory, item_ident);
             put(curr_win, BORDER_DIST + pred(column) * PIXMAP_SIZE,
-                BORDER_DIST + pred(line) * PIXMAP_SIZE, floor_pixmap, PSET);
+                BORDER_DIST + pred(line) * PIXMAP_SIZE, floor_pixmap);
             displayLegend;
             displayInventory;
             message := 0 times "";

@@ -870,7 +870,7 @@ const proc: draw_number (in integer: line, in integer: column, in string: num_st
       else
         put(succ((column + index - 2) * 7) * FIELD_ELEM_STEP,
             succ((pred(line) * 8 + 2)      * FIELD_ELEM_STEP),
-            digit_pixmap[ord(ch) - ord('0')], PSET);
+            digit_pixmap[ord(ch) - ord('0')]);
       end if;
     end for;
   end func;
@@ -893,7 +893,7 @@ const func PRIMITIVE_WINDOW: number_pixmap (in string: num_stri) is func
         put(pixmap,
             (2 + pred(index) * 7) * PICTURE_SCALE,
             2                     * PICTURE_SCALE,
-            digit_pixmap[ord(ch) - ord('0')], PSET);
+            digit_pixmap[ord(ch) - ord('0')]);
       end if;
     end for;
   end func;
@@ -1284,7 +1284,7 @@ const proc: move (inout screenObj: screenObject) is func
           width(screenObject.saved_pixmap) <> screenObject.width * PICTURE_SCALE then
         put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
             FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
-            screenObject.saved_pixmap, PSET);
+            screenObject.saved_pixmap);
         screenObject.line +:= screenObject.line_direction;
         screenObject.column +:= screenObject.column_direction;
         screenObject.saved_pixmap := getPixmap(
@@ -1295,7 +1295,7 @@ const proc: move (inout screenObj: screenObject) is func
       end if;
       put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
           FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
-          screenObject.pixmap[screenObject.actual_pixmap_index], PSET);
+          screenObject.pixmap[screenObject.actual_pixmap_index]);
       screenObject.motionIndex := screenObject.motionSpeed;
     elsif screenObject.motionIndex > 0 then
       decr(screenObject.motionIndex);
@@ -1312,7 +1312,7 @@ const proc: visible (inout screenObj: screenObject) is func
         screenObject.height * PICTURE_SCALE);
     put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
         FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
-        screenObject.pixmap[screenObject.actual_pixmap_index], PSET);
+        screenObject.pixmap[screenObject.actual_pixmap_index]);
   end func;
 
 
@@ -1320,7 +1320,7 @@ const proc: invisible (inout screenObj: screenObject) is func
   begin
     put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
         FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
-        screenObject.saved_pixmap, PSET);
+        screenObject.saved_pixmap);
   end func;
 
 
@@ -1742,7 +1742,7 @@ const proc: draw_reserve (in var integer: num_players) is func
     for number range 1 to num_players do
       put((number * 7 - 6) * FIELD_ELEM_STEP,
           succ(186         * FIELD_ELEM_STEP),
-          player_reserve_pixmap, PSET);
+          player_reserve_pixmap);
     end for;
     for number range succ(num_players) to 4 do
       rect((number * 7 - 6) * FIELD_ELEM_STEP,
@@ -1783,18 +1783,18 @@ const proc: init_round (in integer: num_round) is func
     draw_reserve(game.num_players);
     put(succ(6 * 7) * FIELD_ELEM_STEP,
         succ(186    * FIELD_ELEM_STEP),
-        score_text_pixmap, PSET);
+        score_text_pixmap);
     if game.score <> 0 then
       draw_number(24, 10, game.score lpad 6);
     end if;
     game.round_bonus := round_description[num_round][4];
     put(succ(17 * 7) * FIELD_ELEM_STEP,
         succ(186    * FIELD_ELEM_STEP),
-        bonus_text_pixmap, PSET);
+        bonus_text_pixmap);
     draw_number(24, 24, game.round_bonus lpad 4);
     put(succ(31 * 7) * FIELD_ELEM_STEP,
         succ(186    * FIELD_ELEM_STEP),
-        hiscore_text_pixmap, PSET);
+        hiscore_text_pixmap);
     if game.hiScore <> 0 then
       draw_number(24, 35, game.hiScore lpad 6);
     end if;
