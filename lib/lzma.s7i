@@ -663,7 +663,7 @@ type_implements_interface(lzmaFile, file);
 
 
 (**
- *  Open a LZMA file for decompression.
+ *  Open a LZMA file for reading (decompression).
  *  LZMA is a file format used for compression. Reading from
  *  the file delivers decompressed data. Writing is not supported.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]

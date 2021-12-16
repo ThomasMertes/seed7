@@ -1,0 +1,105 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  imagefile.s7i  Support for various image file formats.          *)
+(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+  include "png.s7i";
+  include "gif.s7i";
+  include "jpeg.s7i";
+  include "bmp.s7i";
+  include "ico.s7i";
+  include "ppm.s7i";
+
+
+(**
+ *  Reads an image file into a pixmap.
+ *  @param imageFile File that contains an image.
+ *  @result A pixmap with the image.
+ *  @exception RANGE_ERROR The file is not in a valid image file format.
+ *)
+const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var string: magic is "";
+  begin
+    block
+      magic := gets(imageFile, length(PPM_MAGIC));
+      if magic = BMP_MAGIC then
+        seek(imageFile, 1);
+        pixmap := readBmp(imageFile);
+      elsif magic = PPM_MAGIC then
+        seek(imageFile, 1);
+        pixmap := readPpm(imageFile);
+      else
+        magic &:= gets(imageFile, length(JPEG_MAGIC) - length(PPM_MAGIC));
+        if magic = JPEG_MAGIC then
+          seek(imageFile, 1);
+          pixmap := readJpeg(imageFile);
+        else
+          magic &:= gets(imageFile, length(ICO_MAGIC) - length(JPEG_MAGIC));
+          if magic = ICO_MAGIC then
+            seek(imageFile, 1);
+            pixmap := readIco(imageFile);
+          else
+            magic &:= gets(imageFile, length(GIF_MAGIC_87) - length(ICO_MAGIC));
+            if magic = GIF_MAGIC_87 or magic = GIF_MAGIC_89 then
+              seek(imageFile, 1);
+              pixmap := readGif(imageFile);
+            else
+              magic &:= gets(imageFile, length(PNG_MAGIC) - length(GIF_MAGIC_87));
+              if magic = PNG_MAGIC then
+                seek(imageFile, 1);
+                pixmap := readPng(imageFile);
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    exception
+      otherwise: noop;
+    end block;
+  end func;
+
+
+(**
+ *  Reads an image file with the given ''imageFileName'' into a pixmap.
+ *  @param imageFileName Name of the image file.
+ *  @result A pixmap with the image.
+ *  @exception RANGE_ERROR The file is not in a valid image file format.
+ *)
+const func PRIMITIVE_WINDOW: readImage (in string: imageFileName) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var file: imageFile is STD_NULL;
+   begin
+    imageFile := open(imageFileName, "r");
+    if imageFile <> STD_NULL then
+      pixmap := readImage(imageFile);
+      close(imageFile);
+    end if;
+  end func;

@@ -242,7 +242,7 @@ type_implements_interface(xzFile, file);
 
 
 (**
- *  Open a XZ file for decompression.
+ *  Open a XZ file for reading (decompression).
  *  XZ is a file format used for compression. Reading from
  *  the file delivers decompressed data. Writing is not supported.
  *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
