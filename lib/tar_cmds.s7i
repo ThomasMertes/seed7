@@ -71,7 +71,7 @@ const func file: openTarFileWithMagic (in string: inFileName, in boolean: do_unz
       magicBytes := gets(inFile, length(GZIP_MAGIC));
       if magicBytes = GZIP_MAGIC then
         seek(inFile, 1);
-        inFile := openGunzipFile(inFile);
+        inFile := openGzipFile(inFile, READ);
       else
         magicBytes &:= gets(inFile, length(ZSTD_MAGIC) - length(GZIP_MAGIC));
         if magicBytes = ZSTD_MAGIC then
@@ -305,7 +305,7 @@ const proc: tarCreate (in string: outFileName, in array string: arg_list,
     outFile := open(outFileName, "w");
     if outFile <> STD_NULL and do_zip then
       compressedFile := outFile;
-      outFile := openGzipFile(compressedFile);
+      outFile := openGzipFile(compressedFile, WRITE);
     end if;
     if outFile <> STD_NULL then
       for name range arg_list do
