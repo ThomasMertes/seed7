@@ -59,7 +59,7 @@ const func boolean: chkGetBitLsb (in string: stri, in integer: bytePos,
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
     end if;
-    testFile := openStrifile(stri);
+    testFile := openStriFile(stri);
     ignore(gets(testFile, pred(bytePos)));
     if bitPos = 0 then
       bitPosVar := 8;
@@ -156,7 +156,7 @@ const func boolean: chkGetBitsLsb (in string: stri, in integer: bytePos,
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
     end if;
-    testFile := openStrifile(stri);
+    testFile := openStriFile(stri);
     ignore(gets(testFile, pred(bytePos)));
     if bitPos = 0 then
       bitPosVar := 8;
@@ -1506,10 +1506,10 @@ const func boolean: chkPutBitLsb (in string: stri, in integer: bitPos,
       end if;
     end if;
     if bitPos = 0 then
-      testFile := openStrifile(stri);
+      testFile := openStriFile(stri);
       testFile.bufferChar := '\0;';
     else
-      testFile := openStrifile(stri[.. pred(length(stri))]);
+      testFile := openStriFile(stri[.. pred(length(stri))]);
       testFile.bufferChar := stri[length(stri)];
     end if;
     bitPosVar := bitPos;
@@ -1604,10 +1604,10 @@ const func boolean: chkPutBitsLsb (in string: stri, in integer: bitPos,
       end if;
     end if;
     if bitPos = 0 then
-      testFile := openStrifile(stri);
+      testFile := openStriFile(stri);
       testFile.bufferChar := '\0;';
     else
-      testFile := openStrifile(stri[.. pred(length(stri))]);
+      testFile := openStriFile(stri[.. pred(length(stri))]);
       testFile.bufferChar := stri[length(stri)];
     end if;
     bitPosVar := bitPos;
@@ -2306,7 +2306,7 @@ const func boolean: chkGetBitMsb (in string: stri, in integer: bytePos,
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
     end if;
-    testFile := openStrifile(stri);
+    testFile := openStriFile(stri);
     ignore(gets(testFile, pred(bytePos)));
     if bitPos = 0 then
       bitPosVar := 8;
@@ -2403,7 +2403,7 @@ const func boolean: chkGetBitsMsb (in string: stri, in integer: bytePos,
         writeln(" ***** Expected bitPos " <& bitPosExpected <& " found " <& bitPosVar);
       end if;
     end if;
-    testFile := openStrifile(stri);
+    testFile := openStriFile(stri);
     ignore(gets(testFile, pred(bytePos)));
     if bitPos = 0 then
       bitPosVar := 8;
@@ -3753,10 +3753,10 @@ const func boolean: chkPutBitMsb (in string: stri, in integer: bitPos,
       end if;
     end if;
     if bitPos = 0 then
-      testFile := openStrifile(stri);
+      testFile := openStriFile(stri);
       testFile.bufferChar := '\0;';
     else
-      testFile := openStrifile(stri[.. pred(length(stri))]);
+      testFile := openStriFile(stri[.. pred(length(stri))]);
       testFile.bufferChar := stri[length(stri)];
     end if;
     bitPosVar := bitPos;
@@ -3851,10 +3851,10 @@ const func boolean: chkPutBitsMsb (in string: stri, in integer: bitPos,
       end if;
     end if;
     if bitPos = 0 then
-      testFile := openStrifile(stri);
+      testFile := openStriFile(stri);
       testFile.bufferChar := '\0;';
     else
-      testFile := openStrifile(stri[.. pred(length(stri))]);
+      testFile := openStriFile(stri[.. pred(length(stri))]);
       testFile.bufferChar := stri[length(stri)];
     end if;
     bitPosVar := bitPos;

@@ -255,7 +255,7 @@ const func htmlDocument: readHtml (in string: htmlStri) is func
   local
     var file: htmlFile is STD_NULL;
   begin
-    htmlFile := openStrifile(htmlStri);
+    htmlFile := openStriFile(htmlStri);
     document := readHtml(htmlFile);
   end func;
 

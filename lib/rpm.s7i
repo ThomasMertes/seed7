@@ -1591,7 +1591,7 @@ const proc: getArchive (inout rpmArchive: rpm) is func
       checkPayloadDigest(rpm);
     end if;
     if rpm.payloadPos = 0 then
-      rpm.payloadFile := openStrifile();
+      rpm.payloadFile := openStriFile();
     else
       seek(rpm.rpmFile, rpm.payloadPos);
       if RPMTAG_PAYLOADCOMPRESSOR in rpm.header.tagMap then
@@ -1606,7 +1606,7 @@ const proc: getArchive (inout rpmArchive: rpm) is func
       end if;
       if payload <> STD_NULL then
         # writeln("length uncompressed: " <& length(payload));
-        rpm.payloadFile := openStrifile(gets(payload, integer.last));
+        rpm.payloadFile := openStriFile(gets(payload, integer.last));
         close(payload);
       end if;
     end if;
