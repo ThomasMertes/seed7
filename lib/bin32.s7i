@@ -45,6 +45,39 @@ const proc: (inout bin32: dest) := (in bin32: source)          is action "INT_CP
 
 
 (**
+ *  Convert to bin32.
+ *  @return the unchanged value as bin32.
+ *)
+const func bin32: bin32 (in integer: number)                   is action "INT_ICONV1";
+
+
+(**
+ *  Default value of ''bin32'' (bin32(0)).
+ *)
+const bin32: (attr bin32) . value   is bin32(0);
+
+
+(**
+ *  Convert to bin32.
+ *  @return the unchanged value as bin32.
+ *)
+const func bin32: bin32 (in char: ch) is
+  return bin32(ord(ch));
+
+
+(**
+ *  Get bits in IEEE 754 single-precision representation from a float.
+ *  IEEE 754 is a standard for floating point arithmetic.
+ *  The single-precision format of IEEE 754 has a sign bit, an 8 bit
+ *  exponent, and a 23 bit mantissa.
+ *   bin32(1.0)  returns  bin32(16#3f800000)
+ *  @param number Float value to be converted to bin32.
+ *  @return 32 bits in IEEE 754 single-precision float representation.
+ *)
+const func bin32: bin32 (in float: number)                     is action "FLT_SINGLE2BITS";
+
+
+(**
  *  Convert to integer.
  *  @return the unchanged value as integer.
  *)
@@ -70,36 +103,6 @@ const func integer: ord (in bin32: binValue)                   is action "INT_IC
  *  @return the unchanged value as integer.
  *)
 const func integer: integer (in bin32: binValue)               is action "INT_ICONV1";
-
-
-(**
- *  Convert to bin32.
- *  @return the unchanged value as bin32.
- *)
-const func bin32: bin32 (in integer: number)                   is action "INT_ICONV1";
-
-
-const bin32: (attr bin32) . value   is bin32(0);
-
-
-(**
- *  Convert to bin32.
- *  @return the unchanged value as bin32.
- *)
-const func bin32: bin32 (in char: ch) is
-  return bin32(ord(ch));
-
-
-(**
- *  Get bits in IEEE 754 single-precision representation from a float.
- *  IEEE 754 is a standard for floating point arithmetic.
- *  The single-precision format of IEEE 754 has a sign bit, an 8 bit
- *  exponent, and a 23 bit mantissa.
- *   bin32(1.0)  returns  bin32(16#3f800000)
- *  @param number Float value to be converted to bin32.
- *  @return 32 bits in IEEE 754 single-precision float representation.
- *)
-const func bin32: bin32 (in float: number)                     is action "FLT_SINGLE2BITS";
 
 
 (**

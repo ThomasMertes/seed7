@@ -333,7 +333,7 @@ const proc: readln (inout file: inFile) is func
  *  Skip ''numChars'' characters from ''inFile''.
  *  When the function is left ''numChars'' have been skipped from
  *  ''inFile'' or [[char#EOF|EOF]] has been reached.
- *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
+ *  @exception RANGE_ERROR The parameter ''numChars'' is negative.
  *)
 const proc: skip (inout file: inFile, in var integer: numChars) is func
   local

@@ -46,57 +46,16 @@ const proc: (inout bin64: dest) := (in bin64: source)          is action "INT_CP
 
 
 (**
- *  Convert to integer.
- *  @return the unchanged value as integer.
- *)
-const func integer: (attr integer) conv (in bin64: binValue)   is action "INT_ICONV3";
-
-
-(**
- *  Convert to bin64.
- *  @return the unchanged value as bin64.
- *)
-const func bin64: (attr bin64) conv (in integer: anInt)        is action "INT_ICONV3";
-
-
-(**
- *  Convert to integer.
- *  @return the unchanged value as integer.
- *)
-const func integer: ord (in bin64: binValue)                   is action "INT_ICONV1";
-
-
-(**
- *  Convert to integer.
- *  @return the unchanged value as integer.
- *)
-const func integer: integer (in bin64: binValue)               is action "INT_ICONV1";
-
-
-(**
  *  Convert to bin64.
  *  @return the unchanged value as bin64.
  *)
 const func bin64: bin64 (in integer: number)                   is action "INT_ICONV1";
 
 
+(**
+ *  Default value of ''bin64'' (bin64(0)).
+ *)
 const bin64: (attr bin64) . value   is bin64(0);
-
-
-(**
- *  Convert to bigInteger.
- *  @return the unchanged value as integer.
- *  @exception MEMORY_ERROR Not enough memory to represent the result.
- *)
-const func bigInteger: big (in bin64: binValue)                is action "BIN_BIG";
-
-
-(**
- *  Convert to bigInteger.
- *  @return the unchanged value as integer.
- *  @exception MEMORY_ERROR Not enough memory to represent the result.
- *)
-const func bigInteger: bigInteger (in bin64: binValue)         is action "BIN_BIG";
 
 
 (**
@@ -126,6 +85,50 @@ const func bin64: bin64 (in char: ch) is
  *  @return 64 bits in IEEE 754 double-precision float representation.
  *)
 const func bin64: bin64 (in float: number)                     is action "FLT_DOUBLE2BITS";
+
+
+(**
+ *  Convert to integer.
+ *  @return the unchanged value as integer.
+ *)
+const func integer: (attr integer) conv (in bin64: binValue)   is action "INT_ICONV3";
+
+
+(**
+ *  Convert to bin64.
+ *  @return the unchanged value as bin64.
+ *)
+const func bin64: (attr bin64) conv (in integer: anInt)        is action "INT_ICONV3";
+
+
+(**
+ *  Convert to integer.
+ *  @return the unchanged value as integer.
+ *)
+const func integer: ord (in bin64: binValue)                   is action "INT_ICONV1";
+
+
+(**
+ *  Convert to integer.
+ *  @return the unchanged value as integer.
+ *)
+const func integer: integer (in bin64: binValue)               is action "INT_ICONV1";
+
+
+(**
+ *  Convert to bigInteger.
+ *  @return the unchanged value as integer.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func bigInteger: big (in bin64: binValue)                is action "BIN_BIG";
+
+
+(**
+ *  Convert to bigInteger.
+ *  @return the unchanged value as integer.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func bigInteger: bigInteger (in bin64: binValue)         is action "BIN_BIG";
 
 
 (**

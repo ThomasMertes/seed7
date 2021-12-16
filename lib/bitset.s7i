@@ -453,7 +453,9 @@ const func string: str (in bitset: aSet) is func
 
 (**
  *  Convert a [[string]] to a ''bitset''.
- *  @return the integer result of the conversion.
+ *   bitset("{}")            returns  {},
+ *   bitset("{2, 3, 5, 7}")  returns  {2, 3, 5, 7} )
+ *  @return a ''bitset'' which corresponds to the given literal.
  *  @exception RANGE_ERROR If the string is empty or
  *             cannot be converted to a ''bitset''.
  *)

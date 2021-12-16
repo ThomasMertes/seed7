@@ -42,6 +42,11 @@ const proc: (ref bstring: dest) ::= (in bstring: source)                is actio
 const proc: (inout bstring: dest) := (in bstring: source)               is action "BST_CPY";
 
 const func bstring: _GENERATE_EMPTY_BSTRING                             is action "BST_EMPTY";
+
+
+(**
+ *  Default value of ''bstring'' (bstring("")).
+ *)
 const bstring: (attr bstring) . value                                   is _GENERATE_EMPTY_BSTRING;
 
 
