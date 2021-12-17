@@ -183,16 +183,18 @@ const func integer: ord (in boolean: boolValue)                          is acti
 
 (**
  *  Convert an [[integer]] to a boolean value.
- *  @return TRUE if number is odd,
- *          FALSE otherwise.
+ *  @return FALSE if number is 0,
+ *          TRUE if number is 1.
+ *  @exception RANGE_ERROR If number is neither 0 nor 1.
  *)
 const func boolean: boolean (in integer: number)                         is action "BLN_ICONV1";
 
 
 (**
  *  Convert an [[integer]] to a boolean value.
- *  @return TRUE if number is odd,
- *          FALSE otherwise.
+ *  @return FALSE if number is 0,
+ *          TRUE if number is 1.
+ *  @exception RANGE_ERROR If number is neither 0 nor 1.
  *)
 const func boolean: (attr boolean) conv (in integer: number)             is action "BLN_ICONV3";
 

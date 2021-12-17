@@ -294,6 +294,7 @@ const string: chkbool_output is "\n\
   \Boolean <= works correct.\n\
   \Boolean compare works correct.\n\
   \Boolean ord() works correct.\n\
+  \Boolean conv works correct.\n\
   \Boolean str() works correct.\n\
   \Boolean succ() works correct.\n\
   \Boolean pred() works correct.\n\

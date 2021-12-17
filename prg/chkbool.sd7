@@ -1397,6 +1397,222 @@ const proc: check_ord is func
     end if;
   end func;
 
+
+const proc: check_conv_literal is func
+  begin
+    if boolean conv 0 then
+      writeln(" ***** boolean conv 0 evaluates not to FALSE");
+    else
+      if boolean conv 1 then
+        if boolean(0) then
+          writeln(" ***** boolean(0) evaluates not to FALSE");
+        else
+          if boolean(1) then
+            incr(counter);
+          else
+            writeln(" ***** boolean(1) evaluates not to TRUE");
+          end if;
+        end if;
+      else
+        writeln(" ***** boolean conv 1evaluates not to TRUE");
+      end if;
+    end if;
+  end func;
+
+
+const proc: check_conv_local_const is func
+  local
+    const integer: local_zero_const is 0;
+    const integer: local_one_const is 1;
+  begin
+    if boolean conv local_zero_const then
+      writeln(" ***** boolean conv 0 with in parameters evaluates not to FALSE");
+    else
+      if boolean conv local_one_const then
+        if boolean(local_zero_const) then
+          writeln(" ***** boolean(0) with in parameters evaluates not to FALSE");
+        else
+          if boolean(local_one_const) then
+            incr(counter);
+          else
+            writeln(" ***** boolean(1) with in parameters evaluates not to TRUE");
+          end if;
+        end if;
+      else
+        writeln(" ***** boolean conv 1 with in parameters evaluates not to TRUE");
+      end if;
+    end if;
+  end func;
+
+
+const proc: check_conv_local_var is func
+  local
+    var integer: local_zero_var is 0;
+    var integer: local_one_var is 1;
+  begin
+    if boolean conv local_zero_var then
+      writeln(" ***** boolean conv 0 with in parameters evaluates not to FALSE");
+    else
+      if boolean conv local_one_var then
+        if boolean(local_zero_var) then
+          writeln(" ***** boolean(0) with in parameters evaluates not to FALSE");
+        else
+          if boolean(local_one_var) then
+            incr(counter);
+          else
+            writeln(" ***** boolean(1) with in parameters evaluates not to TRUE");
+          end if;
+        end if;
+      else
+        writeln(" ***** boolean conv 1 with in parameters evaluates not to TRUE");
+      end if;
+    end if;
+  end func;
+
+
+const proc: check_conv_ref_param (ref integer: zero_param, ref integer: one_param) is func
+  begin
+    if boolean conv zero_param then
+      writeln(" ***** boolean conv 0 with ref parameters evaluates not to FALSE");
+    else
+      if boolean conv one_param then
+        if boolean(zero_param) then
+          writeln(" ***** boolean(0) with ref parameters evaluates not to FALSE");
+        else
+          if boolean(one_param) then
+            incr(counter);
+          else
+            writeln(" ***** boolean(1) with ref parameters evaluates not to TRUE");
+          end if;
+        end if;
+      else
+        writeln(" ***** boolean conv 1 with ref parameters evaluates not to TRUE");
+      end if;
+    end if;
+  end func;
+
+
+const proc: check_conv_in_param (in integer: zero_param, in integer: one_param) is func
+  begin
+    if boolean conv zero_param then
+      writeln(" ***** boolean conv 0 with in parameters evaluates not to FALSE");
+    else
+      if boolean conv one_param then
+        if boolean(zero_param) then
+          writeln(" ***** boolean(0) with in parameters evaluates not to FALSE");
+        else
+          if boolean(one_param) then
+            incr(counter);
+          else
+            writeln(" ***** boolean(1) with in parameters evaluates not to TRUE");
+          end if;
+        end if;
+      else
+        writeln(" ***** boolean conv 1 with in parameters evaluates not to TRUE");
+      end if;
+    end if;
+  end func;
+
+
+const proc: check_conv is func
+  local
+    var boolean: resultVar is FALSE;
+  begin
+    counter := 0;
+    check_conv_literal();
+    check_conv_local_const();
+    check_conv_local_var();
+    check_conv_in_param(0, 1);
+    check_conv_ref_param(0, 1);
+
+    block
+      resultVar := boolean conv (-1);
+      writeln(" ***** boolean conv (-1) does not raise RANGE_ERROR.");
+    exception
+      catch RANGE_ERROR:
+        incr(counter);
+    end block;
+
+    block
+      resultVar := boolean conv 2;
+      writeln(" ***** boolean conv 2 does not raise RANGE_ERROR.");
+    exception
+      catch RANGE_ERROR:
+        incr(counter);
+    end block;
+
+    block
+      resultVar := boolean(-1);
+      writeln(" ***** boolean(-1) does not raise RANGE_ERROR.");
+    exception
+      catch RANGE_ERROR:
+        incr(counter);
+    end block;
+
+    block
+      resultVar := boolean(2);
+      writeln(" ***** boolean(2) does not raise RANGE_ERROR.");
+    exception
+      catch RANGE_ERROR:
+        incr(counter);
+    end block;
+
+    block
+      resultVar := boolean conv (rand(integer.first, integer.last) mod 2);
+      incr(counter);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** boolean conv (number mod 2) does raise RANGE_ERROR.");
+    end block;
+
+    block
+      resultVar := boolean(rand(integer.first, integer.last) mod 2);
+      incr(counter);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** boolean(number mod 2) does raise RANGE_ERROR.");
+    end block;
+
+    block
+      resultVar := boolean conv rand(integer.first, -1);
+      writeln(" ***** boolean conv rand(integer.first, -1) does not raise RANGE_ERROR.");
+    exception
+      catch RANGE_ERROR:
+        incr(counter);
+    end block;
+
+    block
+      resultVar := boolean(rand(integer.first, -1));
+      writeln(" ***** boolean(rand(integer.first, -1)) does not raise RANGE_ERROR.");
+    exception
+      catch RANGE_ERROR:
+        incr(counter);
+    end block;
+
+    block
+      resultVar := boolean conv rand(2, integer.last);
+      writeln(" ***** boolean conv rand(2, integer.last) does not raise RANGE_ERROR.");
+    exception
+      catch RANGE_ERROR:
+        incr(counter);
+    end block;
+
+    block
+      resultVar := boolean(rand(2, integer.last));
+      writeln(" ***** boolean(rand(2, integer.last)) does not raise RANGE_ERROR.");
+    exception
+      catch RANGE_ERROR:
+        incr(counter);
+    end block;
+
+    if counter = 15 then
+      writeln("Boolean conv works correct.");
+    else
+      writeln(" ***** Boolean conv does not work correct.");
+    end if;
+  end func;
+
+
 (*
 const proc: check_rand_literal is func
   begin
@@ -2521,6 +2737,7 @@ const proc: main is func
     check_relations;
     check_compare;
     check_ord();
+    check_conv();
     check_str();
     check_succ();
     check_pred();

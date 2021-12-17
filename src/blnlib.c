@@ -190,14 +190,21 @@ objectType bln_gt (listType arguments)
 
 /**
  *  Convert an integer to a boolean value.
- *  @return TRUE if number is odd,
- *          FALSE otherwise.
+ *  @return FALSE if number is 0,
+ *          TRUE if number is 1.
+ *  @exception RANGE_ERROR If 'number/arg_1' is neither 0 nor 1.
  */
 objectType bln_iconv1 (listType arguments)
 
-  { /* bln_iconv1 */
+  {
+    intType number;
+
+  /* bln_iconv1 */
     isit_int(arg_1(arguments));
-    if (take_int(arg_1(arguments)) & 1) {
+    number = take_int(arg_1(arguments));
+    if (unlikely(number < 0 || number >= 2)) {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else if (number != 0) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -208,14 +215,21 @@ objectType bln_iconv1 (listType arguments)
 
 /**
  *  Convert an integer to a boolean value.
- *  @return TRUE if number is odd,
- *          FALSE otherwise.
+ *  @return FALSE if number is 0,
+ *          TRUE if number is 1.
+ *  @exception RANGE_ERROR If 'number/arg_3' is neither 0 nor 1.
  */
 objectType bln_iconv3 (listType arguments)
 
-  { /* bln_iconv3 */
+  {
+    intType number;
+
+  /* bln_iconv3 */
     isit_int(arg_3(arguments));
-    if (take_int(arg_3(arguments)) & 1) {
+    number = take_int(arg_3(arguments));
+    if (unlikely(number < 0 || number >= 2)) {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else if (number != 0) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -355,7 +369,7 @@ objectType bln_pred (listType arguments)
 
   { /* bln_pred */
     isit_bool(arg_1(arguments));
-    if (take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT) {
+    if (likely(take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT)) {
       return SYS_FALSE_OBJECT;
     } else {
       return raise_exception(SYS_RNG_EXCEPTION);
@@ -372,7 +386,7 @@ objectType bln_succ (listType arguments)
 
   { /* bln_succ */
     isit_bool(arg_1(arguments));
-    if (take_bool(arg_1(arguments)) == SYS_FALSE_OBJECT) {
+    if (likely(take_bool(arg_1(arguments)) == SYS_FALSE_OBJECT)) {
       return SYS_TRUE_OBJECT;
     } else {
       return raise_exception(SYS_RNG_EXCEPTION);
