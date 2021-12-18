@@ -1605,7 +1605,25 @@ const proc: check_conv is func
         incr(counter);
     end block;
 
-    if counter = 15 then
+    block
+      # Test code generation of simplified range check
+      resultVar := boolean conv rand(integer.first, 1);
+      incr(counter);
+    exception
+      catch RANGE_ERROR:
+        incr(counter);
+    end block;
+
+    block
+      # Test code generation of simplified range check
+      resultVar := boolean(rand(integer.first, 1));
+      incr(counter);
+    exception
+      catch RANGE_ERROR:
+        incr(counter);
+    end block;
+
+    if counter = 17 then
       writeln("Boolean conv works correct.");
     else
       writeln(" ***** Boolean conv does not work correct.");
