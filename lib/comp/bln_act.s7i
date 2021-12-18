@@ -285,19 +285,31 @@ const proc: process (BLN_ORD, in reference: function,
 const proc: process (BLN_PRED, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
     c_expr.expr &:= "(boolType)(";
-    if function_range_check then
-      c_expr.expr &:= "rngChk(!(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= "))?";
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-      c_expr.expr &:= ":0";
+    if getConstant(params[1], ENUMLITERALOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      if getValue(evaluatedParam, boolean) then
+        c_expr.expr &:= "0";
+      else
+        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+      end if;
     else
-      incr(countNoRangeChecks);
-      c_expr.expr &:= "(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ")-1";
+      if function_range_check then
+        c_expr.expr &:= "rngChk(!(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= "))?";
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+        c_expr.expr &:= ":0";
+      else
+        incr(countNoRangeChecks);
+        c_expr.expr &:= "(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ")-1";
+      end if;
     end if;
     c_expr.expr &:= ")";
   end func;
@@ -306,19 +318,31 @@ const proc: process (BLN_PRED, in reference: function,
 const proc: process (BLN_SUCC, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
     c_expr.expr &:= "(boolType)(";
-    if function_range_check then
-      c_expr.expr &:= "rngChk(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-      c_expr.expr &:= ":1";
+    if getConstant(params[1], ENUMLITERALOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      if getValue(evaluatedParam, boolean) then
+        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+      else
+        c_expr.expr &:= "1";
+      end if;
     else
-      incr(countNoRangeChecks);
-      c_expr.expr &:= "(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ")+1";
+      if function_range_check then
+        c_expr.expr &:= "rngChk(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+        c_expr.expr &:= ":1";
+      else
+        incr(countNoRangeChecks);
+        c_expr.expr &:= "(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ")+1";
+      end if;
     end if;
     c_expr.expr &:= ")";
   end func;
