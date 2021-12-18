@@ -222,6 +222,7 @@ const proc: process_chr_iconv (in reference: number, inout expr_type: c_expr) is
       if number_range.minValue >= -2147483648 and
           number_range.maxValue <= 2147483647 then
         # This conversion cannot overflow
+        incr(countOptimizations);
         c_expr.expr &:= "/*no_range_check_conversion*/(charType)(";
         process_expr(number, c_expr);
         c_expr.expr &:= ")";
