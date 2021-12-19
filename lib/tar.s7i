@@ -552,7 +552,8 @@ const func fileSys: openTar (inout file: tarFile) is func
 (**
  *  Open a TAR archive with the given tarFileName.
  *  @param tarFileName Name of the TAR archive to be opened.
- *  @return a file system that accesses the TAR archive.
+ *  @return a file system that accesses the TAR archive, or
+ *          fileSys.value if it could not be opened.
  *)
 const func fileSys: openTar (in string: tarFileName) is func
   result
@@ -570,7 +571,7 @@ const func fileSys: openTar (in string: tarFileName) is func
  *)
 const proc: close (inout tarArchive: tar) is func
   begin
-    close(tar.tarFile);
+    # close(tar.tarFile);
     tar.tarFile := STD_NULL;
   end func;
 

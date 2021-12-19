@@ -618,7 +618,8 @@ const type: zipArchive is sub emptyFileSys struct
 (**
  *  Open a ZIP archive with the given zipFile.
  *  @param zipFile File that contains a ZIP archive.
- *  @return a file system that accesses the ZIP archive.
+ *  @return a file system that accesses the ZIP archive, or
+ *          fileSys.value if it could not be opened.
  *)
 const func fileSys: openZip (inout file: zipFile) is func
   result
@@ -660,7 +661,8 @@ const func fileSys: openZip (inout file: zipFile) is func
 (**
  *  Open a ZIP archive with the given zipFileName.
  *  @param zipFileName Name of the ZIP archive to be opened.
- *  @return a file system that accesses the ZIP archive.
+ *  @return a file system that accesses the ZIP archive, or
+ *          fileSys.value if it could not be opened.
  *)
 const func fileSys: openZip (in string: zipFileName) is func
   result

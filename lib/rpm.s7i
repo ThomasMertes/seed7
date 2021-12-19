@@ -1640,7 +1640,8 @@ const func string: archiveFilePath (inout fileSys: archive, in string: filePath)
 (**
  *  Open a RPM archive with the given rpmFile.
  *  @param rpmFile File that contains a RPM archive.
- *  @return a file system that accesses the RPM archive.
+ *  @return a file system that accesses the RPM archive, or
+ *          fileSys.value if it could not be opened.
  *)
 const func fileSys: openRpm (inout file: rpmFile) is func
   result
@@ -1673,7 +1674,8 @@ const func fileSys: openRpm (inout file: rpmFile) is func
 (**
  *  Open a RPM archive with the given rpmFileName.
  *  @param rpmFileName Name of the RPM archive to be opened.
- *  @return a file system that accesses the RPM archive.
+ *  @return a file system that accesses the RPM archive, or
+ *          fileSys.value if it could not be opened.
  *)
 const func fileSys: openRpm (in string: rpmFileName) is func
   result

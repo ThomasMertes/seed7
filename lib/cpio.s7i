@@ -411,7 +411,8 @@ const type: cpioArchive is sub emptyFileSys struct
 (**
  *  Open a CPIO archive with the given cpioFile.
  *  @param cpioFile File that contains a CPIO archive.
- *  @return a file system that accesses the CPIO archive.
+ *  @return a file system that accesses the CPIO archive, or
+ *          fileSys.value if it could not be opened.
  *)
 const func fileSys: openCpio (inout file: cpioFile) is func
   result
@@ -457,7 +458,8 @@ const func fileSys: openCpio (inout file: cpioFile) is func
 (**
  *  Open a CPIO archive with the given cpioFileName.
  *  @param cpioFileName Name of the CPIO archive to be opened.
- *  @return a file system that accesses the CPIO archive.
+ *  @return a file system that accesses the CPIO archive, or
+ *          fileSys.value if it could not be opened.
  *)
 const func fileSys: openCpio (in string: cpioFileName) is func
   result

@@ -287,7 +287,7 @@ const func string: readlink (inout fileSys: fileSystem, in string: filePath) is
 
 
 (**
- *  Remove a file (except nonempty directories), from a file system.
+ *  Remove a file (except a nonempty directory), from a file system.
  *  Not all file systems support this function.
  *)
 const proc: removeFile (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
@@ -308,14 +308,14 @@ const proc: moveFile (inout fileSys: fileSystem, in string: sourcePath, in strin
 
 
 (**
- *  Creates a directory on a remote host using the file system.
+ *  Creates a directory in the file system.
  *  Not all file systems support this function.
  *)
 const proc: mkdir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
 
 
 (**
- *  Deletes an empty directory using the file system.
+ *  Deletes an empty directory in the file system.
  *  Not all file systems support this function.
  *)
 const proc: rmdir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
