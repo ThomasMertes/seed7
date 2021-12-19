@@ -655,7 +655,7 @@ objectType cmd_readlink (listType arguments)
   { /* cmd_readlink */
     isit_stri(arg_1(arguments));
     return bld_stri_temp(
-        cmdReadlink(take_stri(arg_1(arguments))));
+        cmdReadLink(take_stri(arg_1(arguments))));
   } /* cmd_readlink */
 
 

@@ -1362,17 +1362,17 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
                        striAsUnquotedCStri(filePath), *err_info););
     os_filePath = cp_to_os_path(filePath, &path_info, err_info);
     if (unlikely(os_filePath == NULL)) {
-      logError(printf("cmdReadlink: cp_to_os_path(\"%s\", *, *) failed:\n"
+      logError(printf("cmdReadLink: cp_to_os_path(\"%s\", *, *) failed:\n"
                       "path_info=%d, err_info=%d\n",
                       striAsUnquotedCStri(filePath), path_info, *err_info););
     } else {
       if (unlikely(os_lstat(os_filePath, &link_stat) != 0)) {
-        logError(printf("cmdReadlink: os_lstat(" FMT_S_OS ", *) failed:\n"
+        logError(printf("cmdReadLink: os_lstat(" FMT_S_OS ", *) failed:\n"
                         "errno=%d\nerror: %s\n",
                         os_filePath, errno, strerror(errno)););
         *err_info = FILE_ERROR;
       } else if (unlikely(!S_ISLNK(link_stat.st_mode))) {
-        logError(printf("cmdReadlink: "
+        logError(printf("cmdReadLink: "
                         "The file " FMT_S_OS " is not a symbolic link.\n",
                         os_filePath););
         *err_info = FILE_ERROR;
@@ -1392,14 +1392,14 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
           readlink_result = readlink(os_filePath, link_destination,
                                      (size_t) (link_size + NULL_TERMINATION_LEN));
           if (unlikely(readlink_result == -1)) {
-            logError(printf("cmdReadlink: "
+            logError(printf("cmdReadLink: "
                             "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
                             "errno=%d\nerror: %s\n",
                             os_filePath, link_size + NULL_TERMINATION_LEN,
                             errno, strerror(errno)););
             *err_info = FILE_ERROR;
           } else if (unlikely(readlink_result > link_size)) {
-            logError(printf("cmdReadlink: "
+            logError(printf("cmdReadLink: "
                             "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
                             "Link destination possibly truncated.\n",
                             os_filePath, link_size + NULL_TERMINATION_LEN););
@@ -1408,7 +1408,7 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
             link_destination[readlink_result] = '\0';
             destination = cp_from_os_path(link_destination, err_info);
             if (unlikely(destination == NULL)) {
-              logError(printf("cmdReadlink: "
+              logError(printf("cmdReadLink: "
                               "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
                               "err_info=%d\n",
                               link_destination, *err_info););
@@ -3264,14 +3264,14 @@ void cmdMove (const const_striType sourcePath, const const_striType destPath)
  *  @exception FILE_ERROR The file described with the path does not
  *             exist or is not a symbolic link.
  */
-striType cmdReadlink (const const_striType filePath)
+striType cmdReadLink (const const_striType filePath)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
     striType destination;
 
-  /* cmdReadlink */
-    logFunction(printf("cmdReadlink(\"%s\")\n",
+  /* cmdReadLink */
+    logFunction(printf("cmdReadLink(\"%s\")\n",
                        striAsUnquotedCStri(filePath)););
 #if HAS_READLINK
     destination = doReadLink(filePath, &err_info);
@@ -3282,10 +3282,10 @@ striType cmdReadlink (const const_striType filePath)
     raise_error(FILE_ERROR);
     destination = NULL;
 #endif
-    logFunction(printf("cmdReadlink --> \"%s\"\n",
+    logFunction(printf("cmdReadLink --> \"%s\"\n",
                        striAsUnquotedCStri(destination)););
     return destination;
-  } /* cmdReadlink */
+  } /* cmdReadLink */
 
 
 

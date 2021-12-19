@@ -88,7 +88,7 @@ const proc: cmd_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "arrayType   cmdLs (const const_striType);");
     declareExtern(c_prog, "void        cmdMkdir (const const_striType);");
     declareExtern(c_prog, "void        cmdMove (const const_striType, const const_striType);");
-    declareExtern(c_prog, "striType    cmdReadlink (const const_striType);");
+    declareExtern(c_prog, "striType    cmdReadLink (const const_striType);");
     declareExtern(c_prog, "void        cmdRemoveFile (const const_striType);");
     declareExtern(c_prog, "void        cmdRemoveTree (const const_striType);");
     declareExtern(c_prog, "void        cmdSetenv (const const_striType, const const_striType);");
@@ -407,7 +407,7 @@ const proc: process (CMD_READLINK, in reference: function,
 
   begin
     prepare_stri_result(c_expr);
-    c_expr.result_expr := "cmdReadlink(";
+    c_expr.result_expr := "cmdReadLink(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
