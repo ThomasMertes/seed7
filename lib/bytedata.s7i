@@ -557,62 +557,26 @@ const func bigInteger: bytes2BigInt (in string: byteStri,
 (**
  *  Read two bytes from a file and return their little-endian value.
  *)
-const func integer: getUInt16Le (inout file: in_file) is func
-  result
-    var integer: number is 0;
-  local
-    var string: stri is "";
-  begin
-    stri := gets(in_file, 2);
-    number := ord(stri[1]) +
-              ord(stri[2]) * 256;
-  end func;
+const func integer: getUInt16Le (inout file: inFile) is
+  return bytes2Int(gets(inFile, 2), UNSIGNED, LE);
 
 
 (**
  *  Read four bytes from a file and return their little-endian value.
  *)
-const func integer: getUInt32Le (inout file: in_file) is func
-  result
-    var integer: number is 0;
-  local
-    var string: stri is "";
-  begin
-    stri := gets(in_file, 4);
-    number := ord(stri[1]) +
-              ord(stri[2]) * 256 +
-              ord(stri[3]) * 65536 +
-              ord(stri[4]) * 16777216;
-  end func;
+const func integer: getUInt32Le (inout file: inFile) is
+  return bytes2Int(gets(inFile, 4), UNSIGNED, LE);
 
 
 (**
  *  Read two bytes from a file and return their big-endian value.
  *)
-const func integer: getUInt16Be (inout file: in_file) is func
-  result
-    var integer: number is 0;
-  local
-    var string: stri is "";
-  begin
-    stri := gets(in_file, 2);
-    number := ord(stri[1]) * 256 +
-              ord(stri[2]);
-  end func;
+const func integer: getUInt16Be (inout file: inFile) is
+  return bytes2Int(gets(inFile, 2), UNSIGNED, BE);
 
 
 (**
  *  Read four bytes from a file and return their big-endian value.
  *)
-const func integer: getUInt32Be (inout file: in_file) is func
-  result
-    var integer: number is 0;
-  local
-    var string: stri is "";
-  begin
-    stri := gets(in_file, 4);
-    number := ord(stri[1]) * 16777216 +
-              ord(stri[2]) * 65536 +
-              ord(stri[3]) * 256 +
-              ord(stri[4]);
-  end func;
+const func integer: getUInt32Be (inout file: inFile) is
+  return bytes2Int(gets(inFile, 4), UNSIGNED, BE);
