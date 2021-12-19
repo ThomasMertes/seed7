@@ -82,7 +82,7 @@ const proc: searchDir (in string: dirPath,
       case fileType(filePath) of
         when {FILE_DIR}:
           if fileTypeSL(filePath) = FILE_SYMLINK and
-              startsWith(dirPath, toAbsPath(dirPath, readlink(filePath))) then
+              startsWith(dirPath, toAbsPath(dirPath, readLink(filePath))) then
             writeln(" *** Symbolic link loop " <& filePath);
           else
             searchDir(filePath, partOfFileName, stringSearched);

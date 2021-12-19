@@ -989,7 +989,7 @@ const proc: setGroup (inout cpioArchive: cpio, in string: filePath,
  *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive,
  *             or is not a symbolic link.
  *)
-const func string: readlink (inout cpioArchive: cpio, in string: filePath) is func
+const func string: readLink (inout cpioArchive: cpio, in string: filePath) is func
   result
     var string: linkPath is "";
   local

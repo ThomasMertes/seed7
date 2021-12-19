@@ -510,7 +510,8 @@ const type: tarArchive is sub emptyFileSys struct
 (**
  *  Open a TAR archive with the given tarFile.
  *  @param tarFile File that contains a TAR archive.
- *  @return a file system that accesses the TAR archive.
+ *  @return a file system that accesses the TAR archive, or
+ *          fileSys.value if it could not be opened.
  *)
 const func fileSys: openTar (inout file: tarFile) is func
   result
@@ -1109,7 +1110,7 @@ const proc: setGroup (inout tarArchive: tar, in string: filePath,
  *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive,
  *             or is not a symbolic link.
  *)
-const func string: readlink (inout tarArchive: tar, in string: filePath) is func
+const func string: readLink (inout tarArchive: tar, in string: filePath) is func
   result
     var string: linkPath is "";
   local

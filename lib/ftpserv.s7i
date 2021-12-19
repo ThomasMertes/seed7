@@ -142,7 +142,7 @@ const proc: listOneFile (inout file: data, in string: fileName,
     line := fileTypeIndicator[ord(currFileType) len 1];
     if currFileType = FILE_SYMLINK then
       line &:= "rwxrwxrwx 1 user users ";
-      line &:= length(readlink(backendSys, filePath)) lpad 10 <& " ";
+      line &:= length(readLink(backendSys, filePath)) lpad 10 <& " ";
       if fileType(backendSys, filePath) = FILE_ABSENT then
         modificationTime := time.value;
       else

@@ -278,7 +278,12 @@ const proc: putFile (inout fileSys: fileSystem, in string: filePath, in string: 
  *  Not all file systems support this function.
  *  @return The destination referred by the symbolic link.
  *)
-const func string: readlink (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+const func string: readLink (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+# The function readlink() is deprecated. Use readLink() instead.
+const func string: readlink (inout fileSys: fileSystem, in string: filePath) is
+  return readLink(fileSystem, filePath);
 
 
 (**
@@ -340,6 +345,10 @@ const type: emptyFileSys is new struct
 
 type_implements_interface(emptyFileSys, fileSys);
 
+
+(**
+ *  Default value of ''fileSys'' (emptyFileSys.value).
+ *)
 const fileSys: (attr fileSys) . value is emptyFileSys.value;
 
 

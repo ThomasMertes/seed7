@@ -163,7 +163,7 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
             writeln(" *** Cannot copy symlink " <& literal(sourcePath) <& " to " <& literal(destPath));
         end block;
       elsif destType = FILE_SYMLINK then
-        if readlink(sourcePath) <> readlink(destPath) then
+        if readLink(sourcePath) <> readLink(destPath) then
           writeln("Source link " <& literal(sourcePath) <&
                   " and destination link " <& literal(destPath) <&
                   " point to different paths");

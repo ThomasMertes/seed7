@@ -325,7 +325,12 @@ const proc: setGroup (in string: filePath, in string: group) is action "CMD_SET_
  *  @exception FILE_ERROR The file described with the path does not
  *             exist or is not a symbolic link.
  *)
-const func string: readlink (in string: filePath)            is action "CMD_READLINK";
+const func string: readLink (in string: filePath)            is action "CMD_READLINK";
+
+
+# The function readlink() is deprecated. Use readLink() instead.
+const func string: readlink (in string: filePath) is
+  return readLink(filePath);
 
 
 (**
@@ -735,8 +740,8 @@ const proc: putFile (inout osFileSys: fileSystem, in string: filePath, in string
     end if;
   end func;
 
-const func string: readlink (inout osFileSys: fileSystem, in string: filePath) is
-  return readlink(filePath);
+const func string: readLink (inout osFileSys: fileSystem, in string: filePath) is
+  return readLink(filePath);
 
 const proc: mkdir (inout osFileSys: fileSystem, in string: dirPath) is func
   begin

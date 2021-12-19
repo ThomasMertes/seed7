@@ -2275,7 +2275,7 @@ const proc: setGroup (inout rpmArchive: rpm, in string: filePath,
  *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive,
  *             or is not a symbolic link.
  *)
-const func string: readlink (inout rpmArchive: rpm, in string: filePath) is func
+const func string: readLink (inout rpmArchive: rpm, in string: filePath) is func
   result
     var string: linkPath is "";
   local
