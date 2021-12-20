@@ -29,7 +29,7 @@
 (**
  *  Interface type for sequential files.
  *  The file interface is implemented with [[null_file]],
- *  [[external_file]], [[utf8|utf8_file]], [[utf16|utf16File]],
+ *  [[external_file]], [[utf8|utf8File]], [[utf16|utf16File]],
  *  [[socket]], [[echo|echoFile]], [[line|lineFile]],
  *  [[dir|dirFile]] and many other types.
  *)

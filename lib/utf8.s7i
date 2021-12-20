@@ -34,10 +34,10 @@ include "external_file.s7i";
  *  This type supports UTF-8 encoded sequential files of the
  *  operating system. UTF-8 files are seekable, therefore they
  *  support the functions [[external_file#length(in_external_file)|length]],
- *  [[#seek(in_utf8_file,in_integer)|seek]] and
+ *  [[#seek(in_utf8File,in_integer)|seek]] and
  *  [[external_file#tell(in_external_file)|tell]].
  *)
-const type: utf8_file is sub external_file struct
+const type: utf8File is sub external_file struct
   end struct;
 
 
@@ -90,7 +90,7 @@ const func file: openUtf8 (in string: path, in string: mode) is func
     var file: newFile is STD_NULL;
   local
     var clib_file: open_file is CLIB_NULL_FILE;
-    var utf8_file: new_file is utf8_file.value;
+    var utf8File: new_file is utf8File.value;
   begin
     open_file := openClibFile(path, mode);
     if open_file <> CLIB_NULL_FILE then
@@ -105,7 +105,7 @@ const func file: openUtf8 (in string: path, in string: mode) is func
  *  Write a string to an UTF-8 file.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: write (in utf8_file: outFile, in string: stri) is func
+const proc: write (in utf8File: outFile, in string: stri) is func
   begin
     utf8_write(outFile.ext_file, stri);
   end func;
@@ -116,7 +116,7 @@ const proc: write (in utf8_file: outFile, in string: stri) is func
  *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
  *  @exception RANGE_ERROR The file contains an illegal encoding.
  *)
-const func char: getc (in utf8_file: inFile) is
+const func char: getc (in utf8File: inFile) is
   return utf8_getc(inFile.ext_file);
 
 
@@ -126,7 +126,7 @@ const func char: getc (in utf8_file: inFile) is
  *  @exception RANGE_ERROR The parameter ''maxLength'' is negative, or
  *             the file contains an illegal encoding.
  *)
-const func string: gets (in utf8_file: inFile, in integer: maxLength) is
+const func string: gets (in utf8File: inFile, in integer: maxLength) is
   return utf8_gets(inFile.ext_file, maxLength);
 
 
@@ -143,7 +143,7 @@ const func string: gets (in utf8_file: inFile, in integer: maxLength) is
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const func string: getwd (inout utf8_file: inFile) is
+const func string: getwd (inout utf8File: inFile) is
   return utf8_word_read(inFile.ext_file, inFile.bufferChar);
 
 
@@ -159,7 +159,7 @@ const func string: getwd (inout utf8_file: inFile) is
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const func string: getln (inout utf8_file: inFile) is
+const func string: getln (inout utf8File: inFile) is
   return utf8_line_read(inFile.ext_file, inFile.bufferChar);
 
 
@@ -175,7 +175,7 @@ const func string: getln (inout utf8_file: inFile) is
  *             file position type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: seek (in utf8_file: aFile, in integer: position) is func
+const proc: seek (in utf8File: aFile, in integer: position) is func
   begin
     utf8_seek(aFile.ext_file, position);
   end func;
@@ -184,10 +184,10 @@ const proc: seek (in utf8_file: aFile, in integer: position) is func
 (* System STD_UTF8_IN, STD_UTF8_OUT and STD_UTF8_ERR files *)
 
 
-const func utf8_file: INIT_STD_UTF8_FILE (ref clib_file: primitive_file,
+const func utf8File: INIT_STD_UTF8_FILE (ref clib_file: primitive_file,
     in string: path) is func
   result
-    var utf8_file: aFile is utf8_file.value;
+    var utf8File: aFile is utf8File.value;
   begin
     aFile.ext_file := primitive_file;
     aFile.name := path;
@@ -205,7 +205,7 @@ const func utf8_file: INIT_STD_UTF8_FILE (ref clib_file: primitive_file,
  *   read(aVariable);
  *  reads from ''STD_UTF8_IN''.
  *)
-var utf8_file: STD_UTF8_IN is  INIT_STD_UTF8_FILE(CLIB_INPUT,  "STD_UTF8_IN");
+var utf8File: STD_UTF8_IN is  INIT_STD_UTF8_FILE(CLIB_INPUT,  "STD_UTF8_IN");
 
 
 (**
@@ -219,7 +219,7 @@ var utf8_file: STD_UTF8_IN is  INIT_STD_UTF8_FILE(CLIB_INPUT,  "STD_UTF8_IN");
  *   write(something);
  *  writes to ''STD_UTF8_OUT''.
  *)
-var utf8_file: STD_UTF8_OUT is INIT_STD_UTF8_FILE(CLIB_OUTPUT, "STD_UTF8_OUT");
+var utf8File: STD_UTF8_OUT is INIT_STD_UTF8_FILE(CLIB_OUTPUT, "STD_UTF8_OUT");
 
 
 (**
@@ -227,4 +227,4 @@ var utf8_file: STD_UTF8_OUT is INIT_STD_UTF8_FILE(CLIB_OUTPUT, "STD_UTF8_OUT");
  *  Writing to ''STD_UTF8_ERR'' can be done with e.g.:
  *   write(STD_UTF8_ERR, something);
  *)
-var utf8_file: STD_UTF8_ERR is INIT_STD_UTF8_FILE(CLIB_ERROR,  "STD_UTF8_ERR");
+var utf8File: STD_UTF8_ERR is INIT_STD_UTF8_FILE(CLIB_ERROR,  "STD_UTF8_ERR");

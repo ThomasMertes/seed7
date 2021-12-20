@@ -321,7 +321,7 @@ const proc: close (in popenFile: aPipe) is func
 (**
  *  [[file|File]] implementation type for UTF-8 encoded operating system pipes.
  *)
-const type: popen8File is sub utf8_file struct
+const type: popen8File is sub utf8File struct
   end struct;
 
 type_implements_interface(popen8File, file);
