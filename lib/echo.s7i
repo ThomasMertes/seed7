@@ -29,7 +29,7 @@
 (**
  *  [[file|File]] implementation type which generates an echo of the input.
  *)
-const type: echo_file is sub null_file struct
+const type: echoFile is sub null_file struct
     var file: inFile is STD_NULL;
     var file: outFile is STD_NULL;
     var integer: inPos is 1;
@@ -46,17 +46,17 @@ const func file: openEcho (in file: inFile, in file: outFile) is func
   result
     var file: newFile is STD_NULL;
   local
-    var echo_file: new_echo_file is echo_file.value;
+    var echoFile: new_echoFile is echoFile.value;
   begin
-    new_echo_file.inFile := inFile;
-    new_echo_file.outFile := outFile;
-    new_echo_file.inPos := 1;
-    newFile := toInterface(new_echo_file);
+    new_echoFile.inFile := inFile;
+    new_echoFile.outFile := outFile;
+    new_echoFile.inPos := 1;
+    newFile := toInterface(new_echoFile);
   end func;
 
 
 (**
- *  Read a character from an echo_file.
+ *  Read a character from an echoFile.
  *  The request is forwarded to ''inFile''. The character read from
  *  ''inFile'' is written (echoed) to ''outFile''. Ctrl-C and ctrl-T
  *  are handled special, as they can be used to terminate the
@@ -64,52 +64,52 @@ const func file: openEcho (in file: inFile, in file: outFile) is func
  *  is terminated.
  *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
  *)
-const func char: getc (inout echo_file: echo_fil) is func
+const func char: getc (inout echoFile: inFile) is func
   result
     var char: charRead is ' ';
   local
     var integer: number is 0;
   begin
     repeat
-      flush(echo_fil.outFile);
-(*    cursor_on(echo_fil.outFile); *)
-      charRead := getc(echo_fil.inFile);
-(*    cursor_off(echo_fil.outFile); *)
+      flush(inFile.outFile);
+(*    cursor_on(inFile.outFile); *)
+      charRead := getc(inFile.inFile);
+(*    cursor_off(inFile.outFile); *)
       if charRead >= ' ' and charRead <= '~' then
-        incr(echo_fil.inPos);
-        write(echo_fil.outFile, charRead);
+        incr(inFile.inPos);
+        write(inFile.outFile, charRead);
       elsif charRead = '\n' then
-        echo_fil.inPos := 1;
-        writeln(echo_fil.outFile);
+        inFile.inPos := 1;
+        writeln(inFile.outFile);
       elsif charRead = '\b' then
-        if echo_fil.inPos > 1 then
-          decr(echo_fil.inPos);
-          backSpace(echo_fil.outFile, " ");
+        if inFile.inPos > 1 then
+          decr(inFile.inPos);
+          backSpace(inFile.outFile, " ");
         end if;
       elsif charRead = '\C' or charRead = '\T' then
-        write(echo_fil.outFile, " terminate (y/n)? ");
-        flush(echo_fil.outFile);
-        if lower(getc(echo_fil.inFile)) = 'y' then
-          writeln(echo_fil.outFile, "yes");
-          writeln(echo_fil.outFile);
-          writeln(echo_fil.outFile, "*** PROGRAM TERMINATED BY USER");
+        write(inFile.outFile, " terminate (y/n)? ");
+        flush(inFile.outFile);
+        if lower(getc(inFile.inFile)) = 'y' then
+          writeln(inFile.outFile, "yes");
+          writeln(inFile.outFile);
+          writeln(inFile.outFile, "*** PROGRAM TERMINATED BY USER");
           exit(PROGRAM);
         else
-          backSpace(echo_fil.outFile, " terminate (y/n)? ");
+          backSpace(inFile.outFile, " terminate (y/n)? ");
         end if;
       elsif charRead <> EOF then
-        incr(echo_fil.inPos);
-        write(echo_fil.outFile, '?');
+        incr(inFile.inPos);
+        write(inFile.outFile, '?');
       end if;
     until charRead <> '\C' and charRead <> '\T';
   end func;
 
 
 (**
- *  Read a string with a maximum length from an echo_file.
+ *  Read a string with a maximum length from an echoFile.
  *  @return the string read.
  *)
-const func string: gets (inout echo_file: echo_fil, in integer: maxLength) is func
+const func string: gets (inout echoFile: inFile, in integer: maxLength) is func
   result
     var string: striRead is "";
   local
@@ -117,7 +117,7 @@ const func string: gets (inout echo_file: echo_fil, in integer: maxLength) is fu
     var char: ch is ' ';
   begin
     while number <= maxLength and ch <> EOF do
-      ch := getc(echo_fil);
+      ch := getc(inFile);
       if ch <> EOF then
         striRead &:= str(ch);
       end if;
