@@ -1817,7 +1817,7 @@ const proc: init_round (in integer: num_round) is func
       monster[number].height := height(monster[number].pixmap[1]) div PICTURE_SCALE;
       monster[number].width := width(monster[number].pixmap[1]) div PICTURE_SCALE;
     end for;
-    DRAW_FLUSH;
+    flushGraphic;
     game_command(busy_getc(KEYBOARD));
     if not game.round_finished and not game.quit then
       await(start_time + 500000 . MICRO_SECONDS);
@@ -1828,7 +1828,7 @@ const proc: init_round (in integer: num_round) is func
       place_monster(monster[number], number, level_line[rand(1, pred(NUM_LEVELS))]);
       change_direction(monster[number]);
       incr(number);
-      DRAW_FLUSH;
+      flushGraphic;
       game_command(busy_getc(KEYBOARD));
       if not game.round_finished and not game.quit then
         await(start_time + 500000 . MICRO_SECONDS);
@@ -2357,7 +2357,7 @@ const proc: game_round is func
     var integer: bonus is 0;
   begin
     clear(curr_win, black);
-    DRAW_FLUSH;
+    flushGraphic;
     init_round(game.round_number);
     bonus := game.round_bonus;
     game.turn_time := time(NOW);
@@ -2393,7 +2393,7 @@ const proc: game_round is func
         end if;
         incr(progress);
         game.turn_time +:= 30000 . MICRO_SECONDS;
-        DRAW_FLUSH;
+        flushGraphic;
         await(game.turn_time);
       end if;
     end while;
@@ -2481,10 +2481,10 @@ const proc: main is func
     draw_base_level(level_line[6]);
     draw_ladder(level_line[1], level_line[6], 8);
     draw_ladder(level_line[1], level_line[6], 260);
-    DRAW_FLUSH;
+    flushGraphic;
     init_pictures;
     writeCentered(scr, 378, "Press any key to start game");
-    DRAW_FLUSH;
+    flushGraphic;
     cmd := getc(KEYBOARD);
     if cmd in {'Q', 'q', KEY_CLOSE} then
       game.quit := TRUE;

@@ -1492,11 +1492,11 @@ const proc: computerLevel0 (inout integer: line1, inout integer: column1,
   begin
     randomField(line1, column1);
     show(line1, column1);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
     randomField(line2, column2);
     show(line2, column2);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
   end func;
 
@@ -1508,7 +1508,7 @@ const proc: computerLevel1 (inout integer: line1, inout integer: column1,
   begin
     randomField(line1, column1);
     show(line1, column1);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
     if rand(1, 5) = 1 then
       secondOfPair(field[line1][column1].cardNumber, line2, column2, found2);
@@ -1517,7 +1517,7 @@ const proc: computerLevel1 (inout integer: line1, inout integer: column1,
       randomField(line2, column2);
     end if;
     show(line2, column2);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
   end func;
 
@@ -1529,7 +1529,7 @@ const proc: computerLevel2 (inout integer: line1, inout integer: column1,
   begin
     randomField(line1, column1);
     show(line1, column1);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
     if rand(1, 4) = 1 then
       secondOfPair(field[line1][column1].cardNumber, line2, column2, found2);
@@ -1538,7 +1538,7 @@ const proc: computerLevel2 (inout integer: line1, inout integer: column1,
       randomField(line2, column2);
     end if;
     show(line2, column2);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
   end func;
 
@@ -1550,7 +1550,7 @@ const proc: computerLevel3 (inout integer: line1, inout integer: column1,
   begin
     randomField(line1, column1);
     show(line1, column1);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
     if rand(1, 3) = 1 then
       secondOfPair(field[line1][column1].cardNumber, line2, column2, found2);
@@ -1559,7 +1559,7 @@ const proc: computerLevel3 (inout integer: line1, inout integer: column1,
       randomField(line2, column2);
     end if;
     show(line2, column2);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
   end func;
 
@@ -1571,7 +1571,7 @@ const proc: computerLevel4 (inout integer: line1, inout integer: column1,
   begin
     randomField(line1, column1);
     show(line1, column1);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
     if rand(1, 2) = 1 then
       secondOfPair(field[line1][column1].cardNumber, line2, column2, found2);
@@ -1580,7 +1580,7 @@ const proc: computerLevel4 (inout integer: line1, inout integer: column1,
       randomField(line2, column2);
     end if;
     show(line2, column2);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
   end func;
 
@@ -1592,14 +1592,14 @@ const proc: computerLevel5 (inout integer: line1, inout integer: column1,
   begin
     randomField(line1, column1);
     show(line1, column1);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
     secondOfPair(field[line1][column1].cardNumber, line2, column2, found2);
     if not found2 then
       randomField(line2, column2);
     end if;
     show(line2, column2);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
   end func;
 
@@ -1617,14 +1617,14 @@ const proc: computerLevel6 (inout integer: line1, inout integer: column1,
       randomNotVisited(line1, column1);
     end if;
     show(line1, column1);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
     secondOfPair(field[line1][column1].cardNumber, line2, column2, found2);
     if not found2 then
       randomNotVisited(line2, column2);
     end if;
     show(line2, column2);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
   end func;
 
@@ -1642,14 +1642,14 @@ const proc: computerLevel7 (inout integer: line1, inout integer: column1,
       randomNotVisited(line1, column1);
     end if;
     show(line1, column1);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
     secondOfPair(field[line1][column1].cardNumber, line2, column2, found2);
     if not found2 then
       randomNotVisited(line2, column2);
     end if;
     show(line2, column2);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
   end func;
 
@@ -1667,14 +1667,14 @@ const proc: computerLevel8 (inout integer: line1, inout integer: column1,
       randomNotVisited(line1, column1);
     end if;
     show(line1, column1);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
     secondOfPair(field[line1][column1].cardNumber, line2, column2, found2);
     if not found2 then
       randomNotVisited(line2, column2);
     end if;
     show(line2, column2);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
   end func;
 
@@ -1690,14 +1690,14 @@ const proc: computerLevel9 (inout integer: line1, inout integer: column1,
       randomNotVisited(line1, column1);
     end if;
     show(line1, column1);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
     secondOfPair(field[line1][column1].cardNumber, line2, column2, found2);
     if not found2 then
       randomNotVisited(line2, column2);
     end if;
     show(line2, column2);
-    DRAW_FLUSH;
+    flushGraphic;
     wait(1 . SECONDS);
   end func;
 

@@ -374,7 +374,7 @@ const proc: set_piece (in tetromino_type: tetromino) is func
   begin
     actual_piece.tetromino := tetromino;
     position(actual_piece, 1, 5);
-    DRAW_FLUSH;
+    flushGraphic;
     if not is_occupied(actual_piece) then
       counter := counter_start;
       command := busy_getc(KEYBOARD);
@@ -396,7 +396,7 @@ const proc: set_piece (in tetromino_type: tetromino) is func
           down(actual_piece);
           counter := counter_start;
         end if;
-        DRAW_FLUSH;
+        flushGraphic;
         decr(counter);
         await(start_time + delta);
         command := busy_getc(KEYBOARD);
@@ -481,10 +481,10 @@ const proc: main is func
       occupied := FIELD_HEIGHT times
           (3 times TRUE & FIELD_WIDTH times FALSE & 3 times TRUE) &
           3 times FIELD_WIDTH + 6 times TRUE;
-      DRAW_FLUSH;
+      flushGraphic;
       rect(FIELD_X_START, FIELD_Y_START,
           10 * BLOCK_SIZE, 20 * BLOCK_SIZE, black);
-      DRAW_FLUSH;
+      flushGraphic;
       repeat
         set_piece(tetromino_list[rand(1, length(tetromino_list))]);
         remove_full_lines;

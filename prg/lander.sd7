@@ -964,7 +964,7 @@ const proc: ship_picture is func
     for number range 1 to length(flames[succ(rocket.old_thrust)]) do
       drawLine(flames[succ(rocket.old_thrust)][number], light_red);
     end for;
-    DRAW_FLUSH;
+    flushGraphic;
   end func; (* ship_picture *)
 
 
@@ -1363,7 +1363,7 @@ const proc: explosion is func
       lineTo(xPos + explosion_data[number][1], yPos - explosion_data[number][2],
            xPos - explosion_data[number][1], yPos + explosion_data[number][2] div 2, light_red);
     end for;
-    DRAW_FLUSH;
+    flushGraphic;
   end func; (* explosion *)
 
 

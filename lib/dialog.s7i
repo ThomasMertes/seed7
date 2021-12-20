@@ -297,7 +297,7 @@ const proc: bossMode (inout boolean: doQuit) is func
         doQuit := TRUE;
       elsif cmd in {'P', 'p'} then
         put(0, 0, savedWindow);
-        DRAW_FLUSH;
+        flushGraphic;
         restored := TRUE;
       end if;
     until restored or doQuit;

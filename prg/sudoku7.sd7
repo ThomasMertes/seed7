@@ -739,7 +739,7 @@ const proc: showAllCandidates is func
         end if;
       end for;
     end for;
-    DRAW_FLUSH;
+    flushGraphic;
   end func;
 
 
@@ -2121,7 +2121,7 @@ const proc: blueChanges is func
     repeat
       blue_changes := FALSE;
       excludeFields;
-      DRAW_FLUSH;
+      flushGraphic;
     until not blue_changes;
   end func;
 
@@ -2359,7 +2359,7 @@ const proc: processCommand is func
       box(X_SHIFT + STRETCH_FACTOR * succ(column) + CELL_SHIFT,
           Y_SHIFT + STRETCH_FACTOR * succ(row) + CELL_SHIFT,
           CELL_SIZE, CELL_SIZE, light_red);
-      DRAW_FLUSH;
+      flushGraphic;
 (*
       if not keypressed(KEYBOARD) then
         blueChanges;

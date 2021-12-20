@@ -532,6 +532,6 @@ const proc: main is func
 
     trace(rt, scene, standardView, color(0, 0, 8192), 0.4, aLight, 5.0);
 
-    DRAW_FLUSH;
+    flushGraphic;
     ignore(getc(KEYBOARD));
   end func;

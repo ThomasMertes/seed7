@@ -521,7 +521,7 @@ const proc: move (inout image: anImage, in integer: xDest, in integer: yDest) is
       setPos(anImage, xStart + (xDest - xStart) * stepNum div steps,
                       yStart + (yDest - yStart) * stepNum div steps);
       ignore(busy_getc(KEYBOARD));
-      DRAW_FLUSH;
+      flushGraphic;
       wait(5000 . MICRO_SECONDS);
     end for;
   end func;
@@ -552,7 +552,7 @@ const proc: move (in subPileType: subPile, in integer: xDest, in integer: yDest)
         yDist +:= PILE_DELTA_Y;
       end for;
       ignore(busy_getc(KEYBOARD));
-      DRAW_FLUSH;
+      flushGraphic;
       wait(5000 . MICRO_SECONDS);
     end for;
   end func;
@@ -572,7 +572,7 @@ const proc: move (inout image: anImage) is func
       newYpos := pointerYPos(curr_win) - deltaY;
       if newXpos <> xPos(anImage) or newYpos <> yPos(anImage) then
         setPos(anImage, newXpos, newYpos);
-        DRAW_FLUSH;
+        flushGraphic;
       end if;
       wait(30000 . MICRO_SECONDS);
     until keypressed(KEYBOARD) or
@@ -600,7 +600,7 @@ const proc: move (in subPileType: subPile) is func
           setPos(card, newXpos, newYpos);
           newYpos +:= PILE_DELTA_Y;
         end for;
-        DRAW_FLUSH;
+        flushGraphic;
       end if;
       wait(30000 . MICRO_SECONDS);
     until keypressed(KEYBOARD) or
@@ -777,7 +777,7 @@ const proc: jumpingCard (inout cardType: card) is func
         ySpeed := -(ySpeed - SPEED_REDUCTION);
       end if;
       incr(ySpeed);
-      DRAW_FLUSH;
+      flushGraphic;
       startTime +:= 5000 . MICRO_SECONDS;
       await(startTime);
     end while;

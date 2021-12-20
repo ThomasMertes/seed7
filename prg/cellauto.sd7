@@ -79,6 +79,6 @@ const proc: main is func
       currentGeneration := nextGeneration(rule30, currentGeneration);
       drawGeneration(generationNumber, currentGeneration);
     end for;
-    DRAW_FLUSH;
+    flushGraphic;
     ignore(getc(KEYBOARD));
   end func;

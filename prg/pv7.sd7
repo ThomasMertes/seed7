@@ -181,7 +181,7 @@ const proc: main is func
     screen(1024, 688);
     selectInput(curr_win, KEY_RESIZE, TRUE);
     clear(curr_win, black);
-    DRAW_FLUSH;
+    flushGraphic;
     KEYBOARD := GRAPH_KEYBOARD;
     OUT := STD_CONSOLE;
     fileList := readDir(getcwd);
@@ -216,7 +216,7 @@ const proc: main is func
               else
                 writeMessage("Error reading " <& fileList[index]);
               end if;
-              DRAW_FLUSH;
+              flushGraphic;
             else
               await(time(NOW) + 30000 . MICRO_SECONDS);
             end if;
@@ -240,3 +240,4 @@ const proc: main is func
       until not keypressed(KEYBOARD);
     until lower(command) = 'q' or command = KEY_ESC;
   end func;
+

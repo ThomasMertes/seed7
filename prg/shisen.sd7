@@ -1084,7 +1084,7 @@ const proc: readHelpCommand (inout char: command) is func
   local
     var boolean: doQuit is FALSE;
   begin
-    DRAW_FLUSH;
+    flushGraphic;
     command := upper(getc(KEYBOARD));
     while command = KEY_ESC do
       bossMode(doQuit);
@@ -1249,7 +1249,7 @@ const proc: playerTurn (inout char: command) is func
         onTurn := FALSE;
       elsif field[line1][column1].cardNumber =
           field[line2][column2].cardNumber then
-        DRAW_FLUSH;
+        flushGraphic;
         number := 0;
         while not keypressed(KEYBOARD) and number <= 5 do
           wait(100000 . MICRO_SECONDS);
@@ -1354,7 +1354,7 @@ const proc: dealCards is func
       for column range 1 to FIELD_COLUMNS do
         field[line][column].visible := normal;
         show(line, column);
-        DRAW_FLUSH;
+        flushGraphic;
       end for;
     end for;
   end func;
@@ -1383,7 +1383,7 @@ const proc: main is func
     writeCentered(screen, 54, "This program is free software under the terms of the GNU General Public License");
     writeCentered(screen, 652, "Shisen is written in the Seed7 programming language");
     writeCentered(screen, 668, "Homepage:    http://seed7.sourceforge.net");
-    DRAW_FLUSH;
+    flushGraphic;
     digit_pixmap := [0](
       createPixmap(zero,  2, black),
       createPixmap(one,   2, black),

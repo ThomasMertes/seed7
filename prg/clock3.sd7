@@ -87,7 +87,7 @@ const proc: main is func
              100 + round(sin(alpha)*50.0), FOREGROUND);
       fcircle(100, 100, 7, CLOCKCOLOR);
       circle(100, 100, 7, FOREGROUND);
-      DRAW_FLUSH;
+      flushGraphic;
       await(start_time + 1 . SECONDS);
       command := busy_getc(KEYBOARD);
     end while;

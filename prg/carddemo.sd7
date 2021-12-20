@@ -80,7 +80,7 @@ const proc: move (inout image: anImage) is func
       newYpos := pointerYPos(curr_win) - deltaY;
       if newXpos <> xPos(anImage) or newYpos <> yPos(anImage) then
         setPos(anImage, newXpos, newYpos);
-        DRAW_FLUSH;
+        flushGraphic;
       end if;
       wait(30000 . MICRO_SECONDS);
     until keypressed(KEYBOARD) or
@@ -169,17 +169,17 @@ const proc: main is func
     put(754, 304, clubs,    four);
     put(829, 304, clubs,    three);
     put(904, 304, clubs,    two);
-    DRAW_FLUSH;
+    flushGraphic;
     command := getc(KEYBOARD);
     while command in {KEY_MOUSE1, KEY_MOUSE2, KEY_MOUSE3} do
       anImage := select_card;
       if anImage <> image.value then
         if command = KEY_MOUSE2 then
           toTop(anImage);
-          DRAW_FLUSH;
+          flushGraphic;
         elsif command = KEY_MOUSE3 then
           toBottom(anImage);
-          DRAW_FLUSH;
+          flushGraphic;
         end if;
         move(anImage);
       end if;

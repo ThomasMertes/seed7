@@ -2904,7 +2904,7 @@ const proc: moveTo (in integer: xPos, in integer: yPos) is func
         end if;
         checkRoom;
         moveMonsters;
-        DRAW_FLUSH;
+        flushGraphic;
         await(curr_time + 30000 . MICRO_SECONDS);
       until abs(xPos - player.xPos) <= STEP_SIZE div 2 and
           abs(yPos - player.yPos) <= STEP_SIZE div 2 or

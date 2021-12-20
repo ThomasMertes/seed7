@@ -67,6 +67,6 @@ const proc: main is func
     clear(curr_win, white);
     KEYBOARD := GRAPH_KEYBOARD;
     bifurk;
-    DRAW_FLUSH;
+    flushGraphic;
     ignore(getc(KEYBOARD));
   end func;

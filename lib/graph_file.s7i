@@ -164,7 +164,7 @@ const proc: close (inout graph_file: aGraphFile) is func
  *)
 const proc: flush (in graph_file: aGraphFile) is func
   begin
-    DRAW_FLUSH;
+    flushGraphic;
   end func;
 
 

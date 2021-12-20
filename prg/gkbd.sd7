@@ -184,7 +184,7 @@ const proc: main is func
     logFile := STD_CONSOLE;
     OUT := openTee(OUT, logFile);
     KEYBOARD := GRAPH_KEYBOARD;
-    DRAW_FLUSH;
+    flushGraphic;
     waitTime := time(NOW);
     repeat
       waitTime +:= 30000 . MICRO_SECONDS;
@@ -299,7 +299,7 @@ const proc: main is func
       checkKey(keyActive, KEY_PGDN);
       checkKey(keyActive, KEY_INS);
       checkKey(keyActive, KEY_DEL);
-      DRAW_FLUSH;
+      flushGraphic;
       await(waitTime);
     until lastChar = '!';
   end func;

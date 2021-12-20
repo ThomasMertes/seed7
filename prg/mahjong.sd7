@@ -697,7 +697,7 @@ const proc: drawBoardWithFlush is func
           if column >= 1 and column <= FIELD_COLUMNS and
               field[level][line][column].present then
             drawTile(curr_win, level, line, column);
-            DRAW_FLUSH;
+            flushGraphic;
           end if;
         end for;
       end for;
@@ -1179,7 +1179,7 @@ const proc: showDemo is func
         wait(200000 . MICRO_SECONDS);
         remove(demoMoves[number].pos1);
         remove(demoMoves[number].pos2);
-        DRAW_FLUSH;
+        flushGraphic;
         incr(number);
       end if;
     end while;
@@ -1357,7 +1357,7 @@ const proc: playerTurn (inout char: command) is func
         onTurn := FALSE;
       elsif tiles[field[move.pos1.level][move.pos1.line][move.pos1.column].tileNumber].value =
           tiles[field[move.pos2.level][move.pos2.line][move.pos2.column].tileNumber].value then
-        DRAW_FLUSH;
+        flushGraphic;
         number := 0;
         while not keypressed(KEYBOARD) and number <= 5 do
           wait(100000 . MICRO_SECONDS);
@@ -1800,7 +1800,7 @@ const proc: main is func
     writeCentered(screen, 344, "This program is free software under the terms of the GNU General Public License");
     writeCentered(screen, 359, "Mahjong is written in the Seed7 programming language");
     writeCentered(screen, 374, "Homepage:   http://seed7.sourceforge.net");
-    DRAW_FLUSH;
+    flushGraphic;
     digit_pixmap := [0](
       createPixmap(zero,  2, white),
       createPixmap(one,   2, white),
@@ -1838,7 +1838,7 @@ const proc: main is func
           dealTiles2;
           clear(curr_win, BACKGROUND);
           drawBoard;
-          DRAW_FLUSH;
+          flushGraphic;
           dealTiles(command);
           if not doQuit then
             clear(curr_win, BACKGROUND);

@@ -7260,7 +7260,7 @@ const proc: exec_pset (inout string: symbol, inout string: line) is func
       col := foreground_color;
     end if;
     point(currX, currY, color_num(col));
-    DRAW_FLUSH;
+    flushGraphic;
     line_marker;
     writeln(log, "PSET (" <& currX <& ", " <& currY <& "), " <& col);
   end func;
@@ -7292,7 +7292,7 @@ const proc: exec_preset (inout string: symbol, inout string: line) is func
       col := background_color;
     end if;
     point(currX, currY, color_num(col));
-    DRAW_FLUSH;
+    flushGraphic;
     line_marker;
     writeln(log, "PRESET (" <& currX <& ", " <& currY <& "), " <& col);
   end func;
@@ -7364,7 +7364,7 @@ const proc: exec_line (inout string: symbol, inout string: line) is func
     else
       lineTo(x1, y1, currX, currY, color_num(col));
     end if;
-    DRAW_FLUSH;
+    flushGraphic;
     line_marker;
     write(log, "LINE (" <& x1 <& ", " <& y1 <&
         ") - (" <& currX <& ", " <& currY <& "), " <& col);
@@ -7430,7 +7430,7 @@ const proc: exec_circle (inout string: symbol, inout string: line) is func
       end if;
     end if;
     circle(currX, currY, radius, color_num(col));
-    DRAW_FLUSH;
+    flushGraphic;
     line_marker;
     writeln(log, "CIRCLE (" <& currX <& ", " <& currY <& "), " <&
         radius <& ", " <& col);
@@ -7760,7 +7760,7 @@ const proc: exec_plot (inout string: symbol, inout string: line) is func
     currY := round(exec_expr(symbol, line));
     col := round(getNumericVar("COLOR"));
     point(currX, currY, loresColor[col mod length(loresColor)]);
-    DRAW_FLUSH;
+    flushGraphic;
     line_marker;
     writeln(log, "PLOT " <& currX <& ", " <& currY);
   end func;
@@ -7786,7 +7786,7 @@ const proc: exec_hplot (inout string: symbol, inout string: line) is func
         destY := round(exec_expr(symbol, line));
         lineTo(currX, currY, destX, destY,
                hiresColor[col mod length(hiresColor)]);
-        DRAW_FLUSH;
+        flushGraphic;
         line_marker;
         writeln(log, "HPLOT " <& currX <& ", " <& currY <&
                 " TO " <& destX <& ", " <& destY);
@@ -7795,7 +7795,7 @@ const proc: exec_hplot (inout string: symbol, inout string: line) is func
       until symbol <> "TO";
     else
       point(currX, currY, hiresColor[col mod length(hiresColor)]);
-      DRAW_FLUSH;
+      flushGraphic;
       line_marker;
       writeln(log, "HPLOT " <& currX <& ", " <& currY);
     end if;

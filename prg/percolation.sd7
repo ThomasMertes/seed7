@@ -234,7 +234,7 @@ const proc: draw_update(in percolation: model) is func
         end if;
 			end for;
 		end for;
-		DRAW_FLUSH;
+		flushGraphic;
 	end func;
 
 (* generate random number between 1 and dimensions(model) ^ 2 *)

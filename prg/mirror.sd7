@@ -109,11 +109,11 @@ const proc: main is func
               \with your selection release the left mouse button. After that the mirror window\n\
               \will show up. The mirror window is updated every 30 milliseconds. To exit the\n\
               \program just click on the mirror window. Are you ready to select the area?") then
-      DRAW_FLUSH;
+      flushGraphic;
       # Wait until the message window has vanished.
       wait(300000 . MICRO_SECONDS);
       area := selectArea;
-      DRAW_FLUSH;
+      flushGraphic;
       if area.topLeftX <> 0 or area.topLeftY <> 0 or area.bottomRightX <> 0 or area.bottomRightY <> 0 then
         curr_win := PRIMITIVE_GRAPHIC_OPEN(250, 200,
             area.bottomRightX - area.topLeftX + 1,

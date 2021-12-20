@@ -1288,7 +1288,7 @@ const proc: main is func
         while length(animates) <> 0 and busy_getc(KEYBOARD) = KEY_NONE do
           generation;
           turnTime +:= 50000 . MICRO_SECONDS;
-          DRAW_FLUSH;
+          flushGraphic;
           await(turnTime);
           incr(genNr);
           if genNr mod STATTIME = 0 then

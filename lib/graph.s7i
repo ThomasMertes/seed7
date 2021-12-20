@@ -126,11 +126,23 @@ const proc: FILL_ELLIPSE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: width, in integer: height,
     in pixel: col)                                  is action "DRW_PFELLIPSE";
-const proc: DRAW_FLUSH                              is action "DRW_FLUSH";
 const func PRIMITIVE_WINDOW: PRIMITIVE_GRAPHIC_OPEN (
     ref integer: xPos, ref integer: yPos,
     ref integer: width, ref integer: height,
     ref string: window_name)                        is action "DRW_OPEN";
+
+
+(**
+ *  Flush graphic commands such that the contents of all windows is up to date.
+ *  An animation can be created by using ''flushGrapic'' every time before
+ *  the program waits for a fraction of a second.
+ *)
+const proc: flushGraphic                            is action "DRW_FLUSH";
+
+
+# The function DRAW_FLUSH is deprecated. Use flushGraphic instead.
+const proc: DRAW_FLUSH                              is action "DRW_FLUSH";
+
 
 (**
  *  Create a sub window inside of ''parent_window''.

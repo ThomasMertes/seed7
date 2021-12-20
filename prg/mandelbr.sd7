@@ -211,7 +211,7 @@ const proc: main is func
     writeln(screen, "H");
     setPosXY(screen, 138, 222);
     writeln(screen, "for help");
-    DRAW_FLUSH;
+    flushGraphic;
     ch := getc(KEYBOARD);
     if upper(ch) = 'H' then
       showHelp;
@@ -226,7 +226,7 @@ const proc: main is func
       while ch not in {'q', 'Q', KEY_ESC, KEY_CLOSE} do
         if ch in {'r', 'R', KEY_MOUSE1, KEY_MOUSE2, KEY_MOUSE3} then
           displayMandelbrotSet(center, zoom);
-          DRAW_FLUSH;
+          flushGraphic;
         end if;
         ch := getc(KEYBOARD);
         doCommand(ch);

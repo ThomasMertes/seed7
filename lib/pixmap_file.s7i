@@ -104,7 +104,7 @@ const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win,
  *)
 const proc: flush (inout pixmapFontFile: aFile) is func
   begin
-    DRAW_FLUSH;
+    flushGraphic;
   end func;
 
 
