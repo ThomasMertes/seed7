@@ -50,29 +50,29 @@ type_implements_interface(window_file, text);
 
 
 (**
- *  Creates a ''window_file'' at (left, upper) in ''out_fil''.
+ *  Creates a ''window_file'' at (left, upper) in ''outText''.
  *  The ''window_file'' has the given ''height'' and ''width''.
  *  @return the file opened.
  *)
-const func file: openWindow (ref text: out_fil,
+const func file: openWindow (ref text: outText,
     in integer: upper, in integer: left, in integer: height, in integer: width) is func
   result
     var file: newFile is STD_NULL;
   local
     var window_file: window_fil is window_file.value;
   begin
-    window_fil.out_file := out_fil;
+    window_fil.out_file := outText;
     window_fil.upper_border := upper;
     window_fil.left_border := left;
-    if height(out_fil) = 0 or upper + height - 1 <= height(out_fil) then
+    if height(outText) = 0 or upper + height - 1 <= height(outText) then
       window_fil.height := height;
     else
-      window_fil.height := height(out_fil) - upper + 1;
+      window_fil.height := height(outText) - upper + 1;
     end if;
-    if width(out_fil) = 0 or left + width - 1 <= width(out_fil) then
+    if width(outText) = 0 or left + width - 1 <= width(outText) then
       window_fil.width := width;
     else
-      window_fil.width := width(out_fil) - left + 1;
+      window_fil.width := width(outText) - left + 1;
     end if;
     window_fil.curr_line := 1;
     window_fil.curr_column := 1;
@@ -81,35 +81,35 @@ const func file: openWindow (ref text: out_fil,
 
 
 (**
- *  Get the height of 'out_fil'.
- *  @return the height of 'out_fil'.
+ *  Get the height of 'outText'.
+ *  @return the height of 'outText'.
  *)
-const func integer: height (in window_file: out_fil) is
-  return out_fil.height;
+const func integer: height (in window_file: outText) is
+  return outText.height;
 
 
 (**
- *  Get the width of 'out_fil'.
- *  @return the width of 'out_fil'.
+ *  Get the width of 'outText'.
+ *  @return the width of 'outText'.
  *)
-const func integer: width (in window_file: out_fil) is
-  return out_fil.width;
+const func integer: width (in window_file: outText) is
+  return outText.width;
 
 
 (**
- *  Get the current line of ''out_fil''.
- *  @return the current line of ''out_fil''.
+ *  Get the current line of ''outText''.
+ *  @return the current line of ''outText''.
  *)
-const func integer: line (in window_file: out_fil) is
-  return out_fil.curr_line;
+const func integer: line (in window_file: outText) is
+  return outText.curr_line;
 
 
 (**
- *  Get the current column of ''out_fil''.
- *  @return the current column of ''out_fil''.
+ *  Get the current column of ''outText''.
+ *  @return the current column of ''outText''.
  *)
-const func integer: column (in window_file: out_fil) is
-  return out_fil.curr_column;
+const func integer: column (in window_file: outText) is
+  return outText.curr_column;
 
 
 (**

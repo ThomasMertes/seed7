@@ -57,19 +57,19 @@ type_implements_interface(graph_file, text);
 
 
 (**
- *  Creates a ''graph_file'' at the upper left corner of ''graph_win''.
- *  The ''graph_file'' extends over the whole ''graph_win''.
+ *  Creates a ''graph_file'' at the upper left corner of ''graphWin''.
+ *  The ''graph_file'' extends over the whole ''graphWin''.
  *  @return the file opened.
  *)
-const func graph_file: open (in PRIMITIVE_WINDOW: graph_win) is func
+const func graph_file: open (in PRIMITIVE_WINDOW: graphWin) is func
   result
     var graph_file: aGraphFile is graph_file.value;
   begin
-    aGraphFile.win := graph_win;
+    aGraphFile.win := graphWin;
     aGraphFile.line_delta := 13;
     aGraphFile.column_delta := 6;
-    aGraphFile.height := height(graph_win) div aGraphFile.line_delta;
-    aGraphFile.width := width(graph_win) div aGraphFile.column_delta;
+    aGraphFile.height := height(graphWin) div aGraphFile.line_delta;
+    aGraphFile.width := width(graphWin) div aGraphFile.column_delta;
     aGraphFile.line := 1;
     aGraphFile.column := 1;
     aGraphFile.min_x := 0;
@@ -81,64 +81,64 @@ const func graph_file: open (in PRIMITIVE_WINDOW: graph_win) is func
 
 
 (**
- *  Creates a ''graph_file'' at (min_x, min_y) in ''graph_win''.
- *  The ''graph_file'' extends to the lower right edge of ''graph_win''.
+ *  Creates a ''graph_file'' at (minX, minY) in ''graphWin''.
+ *  The ''graph_file'' extends to the lower right edge of ''graphWin''.
  *  @return the file opened.
  *)
-const func graph_file: open (in PRIMITIVE_WINDOW: graph_win,
-    in integer: min_x, in integer: min_y) is func
+const func graph_file: open (in PRIMITIVE_WINDOW: graphWin,
+    in integer: minX, in integer: minY) is func
   result
     var graph_file: aGraphFile is graph_file.value;
   begin
-    aGraphFile.win := graph_win;
+    aGraphFile.win := graphWin;
     aGraphFile.line_delta := 13;
     aGraphFile.column_delta := 6;
-    aGraphFile.height := (height(graph_win) - min_y) div aGraphFile.line_delta;
-    aGraphFile.width := (width(graph_win) - min_x) div aGraphFile.column_delta;
+    aGraphFile.height := (height(graphWin) - minY) div aGraphFile.line_delta;
+    aGraphFile.width := (width(graphWin) - minX) div aGraphFile.column_delta;
     aGraphFile.line := 1;
     aGraphFile.column := 1;
-    aGraphFile.min_x := min_x;
-    aGraphFile.min_y := min_y;
-    aGraphFile.lineStartX := min_x;
-    aGraphFile.curr_x := min_x;
-    aGraphFile.curr_y := min_y + 11;
+    aGraphFile.min_x := minX;
+    aGraphFile.min_y := minY;
+    aGraphFile.lineStartX := minX;
+    aGraphFile.curr_x := minX;
+    aGraphFile.curr_y := minY + 11;
   end func;
 
 
 (**
- *  Creates a ''graph_file'' at (min_x, min_y) in ''graph_win''.
+ *  Creates a ''graph_file'' at (minX, minY) in ''graphWin''.
  *  The ''graph_file'' is created with the given ''width'' and ''height'.
  *  @return the file opened.
  *)
-const func graph_file: open (in PRIMITIVE_WINDOW: graph_win,
-    in integer: min_x, in integer: min_y, in integer: width, in integer: height) is func
+const func graph_file: open (in PRIMITIVE_WINDOW: graphWin,
+    in integer: minX, in integer: minY, in integer: width, in integer: height) is func
   result
     var graph_file: aGraphFile is graph_file.value;
   begin
-    aGraphFile.win := graph_win;
+    aGraphFile.win := graphWin;
     aGraphFile.line_delta := 13;
     aGraphFile.column_delta := 6;
     aGraphFile.height := height div aGraphFile.line_delta;
     aGraphFile.width := width div aGraphFile.column_delta;
     aGraphFile.line := 1;
     aGraphFile.column := 1;
-    aGraphFile.min_x := min_x;
-    aGraphFile.min_y := min_y;
-    aGraphFile.lineStartX := min_x;
-    aGraphFile.curr_x := min_x;
-    aGraphFile.curr_y := min_y + 11;
+    aGraphFile.min_x := minX;
+    aGraphFile.min_y := minY;
+    aGraphFile.lineStartX := minX;
+    aGraphFile.curr_x := minX;
+    aGraphFile.curr_y := minY + 11;
   end func;
 
 
-const func graph_file: open (in PRIMITIVE_WINDOW: graph_win, in integer: lin_delta) is func
+const func graph_file: open (in PRIMITIVE_WINDOW: graphWin, in integer: lin_delta) is func
   result
     var graph_file: aGraphFile is graph_file.value;
   begin
-    aGraphFile.win := graph_win;
+    aGraphFile.win := graphWin;
     aGraphFile.line_delta := lin_delta;
     aGraphFile.column_delta := 6;
-    aGraphFile.height := height(graph_win) div aGraphFile.line_delta;
-    aGraphFile.width := width(graph_win) div aGraphFile.column_delta;
+    aGraphFile.height := height(graphWin) div aGraphFile.line_delta;
+    aGraphFile.width := width(graphWin) div aGraphFile.column_delta;
     aGraphFile.line := 1;
     aGraphFile.column := 1;
     aGraphFile.min_x := 0;
