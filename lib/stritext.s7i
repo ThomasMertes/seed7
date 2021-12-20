@@ -32,101 +32,106 @@ include "text.s7i";
 (**
  *  [[text|Text]] implementation type for files stored in a [[string]] [[array]].
  *)
-const type: stritext is sub null_file struct
+const type: striText is sub null_file struct
     var array string: content is 0 times "";
     var integer: line is 1;
     var integer: column is 1;
   end struct;
 
-type_implements_interface(stritext, text);
+type_implements_interface(striText, text);
 
 
 (**
- *  Open a ''stritext'' with the given [[string]] [[array]] content.
+ *  Open a ''striText'' with the given [[string]] [[array]] content.
  *  @return the file opened.
  *)
-const func file: openStritext (in array string: content) is func
+const func file: openStriText (in array string: content) is func
   result
     var file: newFile is STD_NULL;
   local
-    var stritext: new_stritext is stritext.value;
+    var striText: new_striText is striText.value;
   begin
-    new_stritext.content := content;
-    newFile := toInterface(new_stritext);
+    new_striText.content := content;
+    newFile := toInterface(new_striText);
   end func;
+
+
+# The function openStritext() is deprecated. openStriText() instead.
+const func file: openStritext (in array string: content) is
+  return openStriText(content);
 
 
 (**
- *  Write the [[string]] ''stri'' to ''outStritext''.
+ *  Write the [[string]] ''stri'' to ''outStriText''.
  *)
-const proc: write (inout stritext: outStritext, in string: stri) is func
+const proc: write (inout striText: outStriText, in string: stri) is func
   begin
-    if outStritext.line > length(outStritext.content) then
-      while outStritext.line > length(outStritext.content) do
-        outStritext.content &:= [] ("");
+    if outStriText.line > length(outStriText.content) then
+      while outStriText.line > length(outStriText.content) do
+        outStriText.content &:= [] ("");
       end while;
     end if;
-    if outStritext.column > succ(length(outStritext.content[outStritext.line])) then
-      outStritext.content[outStritext.line] &:=
-          "" lpad (outStritext.column - succ(length(outStritext.content[outStritext.line])));
+    if outStriText.column > succ(length(outStriText.content[outStriText.line])) then
+      outStriText.content[outStriText.line] &:=
+          "" lpad (outStriText.column - succ(length(outStriText.content[outStriText.line])));
     end if;
-    outStritext.content[outStritext.line] :=
-        outStritext.content[outStritext.line][.. pred(outStritext.column)] &
+    outStriText.content[outStriText.line] :=
+        outStriText.content[outStriText.line][.. pred(outStriText.column)] &
         stri &
-        outStritext.content[outStritext.line][outStritext.column ..];
-    outStritext.column +:= length(stri);
+        outStriText.content[outStriText.line][outStriText.column ..];
+    outStriText.column +:= length(stri);
   end func;
 
 
-const proc: writeln (inout stritext: outStritext) is func
+const proc: writeln (inout striText: outStriText) is func
   begin
-    if outStritext.line <= length(outStritext.content) then
-      outStritext.content[outStritext.line] := outStritext.content[outStritext.line][.. outStritext.column];
-      outStritext.content := outStritext.content[.. outStritext.line] &
-          [] (outStritext.content[outStritext.line][outStritext.column ..]) &
-          outStritext.content[succ(outStritext.line) ..];
+    if outStriText.line <= length(outStriText.content) then
+      outStriText.content[outStriText.line] := outStriText.content[outStriText.line][.. outStriText.column];
+      outStriText.content := outStriText.content[.. outStriText.line] &
+          [] (outStriText.content[outStriText.line][outStriText.column ..]) &
+          outStriText.content[succ(outStriText.line) ..];
     else
-      while outStritext.line > length(outStritext.content) do
-        outStritext.content &:= [] ("");
+      while outStriText.line > length(outStriText.content) do
+        outStriText.content &:= [] ("");
       end while;
-      outStritext.content &:= [] ("");
+      outStriText.content &:= [] ("");
     end if;
-    incr(outStritext.line);
-    outStritext.column := 1;
+    incr(outStriText.line);
+    outStriText.column := 1;
   end func;
 
 
-const proc: moveLeft (inout stritext: outStritext, in string: stri) is func
+const proc: moveLeft (inout striText: outStriText, in string: stri) is func
   begin
-    if outStritext.column > length(stri) then
-      outStritext.column -:= length(stri);
-    elsif outStritext.line > 1 then
-      decr(outStritext.line);
-      if outStritext.line <= length(outStritext.content) then
-        outStritext.column := succ(length(outStritext.content[outStritext.line]));
+    if outStriText.column > length(stri) then
+      outStriText.column -:= length(stri);
+    elsif outStriText.line > 1 then
+      decr(outStriText.line);
+      if outStriText.line <= length(outStriText.content) then
+        outStriText.column := succ(length(outStriText.content[outStriText.line]));
       else
-        outStritext.column := 1;
+        outStriText.column := 1;
       end if;
     end if;
   end func;
 
 
 (**
- *  Read a character from ''inStritext''.
+ *  Read a character from ''inStriText''.
  *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
  *)
-const func char: getc (inout stritext: inStritext) is func
+const func char: getc (inout striText: inStriText) is func
   result
     var char: charRead is ' ';
   begin
-    if inStritext.line <= length(inStritext.content) then
-      if inStritext.column <= length(inStritext.content[inStritext.line]) then
-        charRead := inStritext.content[inStritext.line][inStritext.column];
-        incr(inStritext.column);
+    if inStriText.line <= length(inStriText.content) then
+      if inStriText.column <= length(inStriText.content[inStriText.line]) then
+        charRead := inStriText.content[inStriText.line][inStriText.column];
+        incr(inStriText.column);
       else
         charRead := '\n';
-        incr(inStritext.line);
-        inStritext.column := 1;
+        incr(inStriText.line);
+        inStriText.column := 1;
       end if;
     else
       charRead := EOF;
@@ -135,41 +140,41 @@ const func char: getc (inout stritext: inStritext) is func
 
 
 (**
- *  Read a [[string]] with a maximum length from ''inStritext''.
+ *  Read a [[string]] with a maximum length from ''inStriText''.
  *  @return the string read.
  *)
-const func string: gets (inout stritext: inStritext, in var integer: maxLength) is func
+const func string: gets (inout striText: inStriText, in var integer: maxLength) is func
   result
     var string: striRead is "";
   begin
-    if inStritext.line <= length(inStritext.content) then
-      if maxLength > succ(length(inStritext.content[inStritext.line]) - inStritext.column) then
-        striRead := inStritext.content[inStritext.line][inStritext.column ..];
+    if inStriText.line <= length(inStriText.content) then
+      if maxLength > succ(length(inStriText.content[inStriText.line]) - inStriText.column) then
+        striRead := inStriText.content[inStriText.line][inStriText.column ..];
         striRead &:= "\n";
-        maxLength -:= length(inStritext.content[inStritext.line]) - inStritext.column + 2;
-        incr(inStritext.line);
-        while inStritext.line <= length(inStritext.content) and
-            maxLength > length(inStritext.content[inStritext.line]) do
-          striRead &:= inStritext.content[inStritext.line];
+        maxLength -:= length(inStriText.content[inStriText.line]) - inStriText.column + 2;
+        incr(inStriText.line);
+        while inStriText.line <= length(inStriText.content) and
+            maxLength > length(inStriText.content[inStriText.line]) do
+          striRead &:= inStriText.content[inStriText.line];
           striRead &:= "\n";
-          maxLength -:= succ(length(inStritext.content[inStritext.line]));
-          incr(inStritext.line);
+          maxLength -:= succ(length(inStriText.content[inStriText.line]));
+          incr(inStriText.line);
         end while;
-        if inStritext.line <= length(inStritext.content) and maxLength > 0 then
-          striRead &:= inStritext.content[inStritext.line][inStritext.column len maxLength];
-          inStritext.column := succ(maxLength);
+        if inStriText.line <= length(inStriText.content) and maxLength > 0 then
+          striRead &:= inStriText.content[inStriText.line][inStriText.column len maxLength];
+          inStriText.column := succ(maxLength);
         else
-          inStritext.column := 1;
+          inStriText.column := 1;
         end if;
       else
-        striRead := inStritext.content[inStritext.line][inStritext.column len maxLength];
-        inStritext.column +:= maxLength;
+        striRead := inStriText.content[inStriText.line][inStriText.column len maxLength];
+        inStriText.column +:= maxLength;
       end if;
     end if;
   end func;
 
 
-const func string: getwd (inout stritext: inStritext) is func
+const func string: getwd (inout striText: inStriText) is func
   result
     var string: stri is "";
   begin
@@ -178,25 +183,25 @@ const func string: getwd (inout stritext: inStritext) is func
 
 
 (**
- *  Read a line from ''inStritext''.
- *  A stritext works as if all lines end with '\n'.
+ *  Read a line from ''inStriText''.
+ *  A striText works as if all lines end with '\n'.
  *  The line ending character is not copied into the string. When
- *  the function is left inStritext.bufferChar contains '\n' or
+ *  the function is left inStriText.bufferChar contains '\n' or
  *  [[char#EOF|EOF]].
  *  @return the line read.
  *)
-const func string: getln (inout stritext: inStritext) is func
+const func string: getln (inout striText: inStriText) is func
   result
     var string: stri is "";
   begin
-    if inStritext.line <= length(inStritext.content) then
-      stri := inStritext.content[inStritext.line][inStritext.column .. ];
-      incr(inStritext.line);
-      inStritext.column := 1;
-      inStritext.bufferChar := '\n';
+    if inStriText.line <= length(inStriText.content) then
+      stri := inStriText.content[inStriText.line][inStriText.column .. ];
+      incr(inStriText.line);
+      inStriText.column := 1;
+      inStriText.bufferChar := '\n';
     else
       stri := "";
-      inStritext.bufferChar := EOF;
+      inStriText.bufferChar := EOF;
     end if;
   end func;
 
@@ -207,8 +212,8 @@ const func string: getln (inout stritext: inStritext) is func
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
-const func boolean: eof (in stritext: inStritext) is
-  return inStritext.line > length(inStritext.content);
+const func boolean: eof (in striText: inStriText) is
+  return inStriText.line > length(inStriText.content);
 
 
 (**
@@ -217,131 +222,131 @@ const func boolean: eof (in stritext: inStritext) is
  *  @return FALSE if 'getc' would return [[char#EOF|EOF]],
  *          TRUE otherwise.
  *)
-const func boolean: hasNext (in stritext: inStritext) is
-  return inStritext.line <= length(inStritext.content);
+const func boolean: hasNext (in striText: inStriText) is
+  return inStriText.line <= length(inStriText.content);
 
 
 (**
- *  Obtain the length of a ''aStritext''.
+ *  Obtain the length of a ''aStriText''.
  *  The file length is measured in characters.
  *  @return the length of a file.
  *)
-const func integer: length (in stritext: aStritext) is func
+const func integer: length (in striText: aStriText) is func
   result
     var integer: length is 0;
   local
     var integer: line is 0;
   begin
-    for line range 1 to length(aStritext.content) do
-      length +:= succ(length(aStritext.content[line]));
+    for line range 1 to length(aStriText.content) do
+      length +:= succ(length(aStriText.content[line]));
     end for;
   end func;
 
 
-const proc: seek (in stritext: aStritext, in integer: position) is func
+const proc: seek (in striText: aStriText, in integer: position) is func
   begin
     noop; # todo
   end func;
 
 
 (**
- *  Obtain the current file position of ''aStritext''.
+ *  Obtain the current file position of ''aStriText''.
  *  The file position is measured in characters from the start of the file.
  *  The first character in the file has the position 1.
  *  @return the current file position.
  *)
-const func integer: tell (in stritext: aStritext) is func
+const func integer: tell (in striText: aStriText) is func
   result
     var integer: position is 0;
   local
     var integer: line is 0;
   begin
-    for line range 1 to pred(aStritext.line) do
-      position +:= succ(length(aStritext.content[aStritext.line]));
+    for line range 1 to pred(aStriText.line) do
+      position +:= succ(length(aStriText.content[aStriText.line]));
     end for;
-    position +:= aStritext.column;
+    position +:= aStriText.column;
   end func;
 
 
 (**
- *  Get the height of ''aStritext''.
- *  @return the height of ''aStritext''.
+ *  Get the height of ''aStriText''.
+ *  @return the height of ''aStriText''.
  *)
-const func integer: height (in stritext: aStritext) is
-  return length(aStritext.content);
+const func integer: height (in striText: aStriText) is
+  return length(aStriText.content);
 
 
 (**
- *  Get the width of ''aStritext''.
- *  @return the width of ''aStritext''.
+ *  Get the width of ''aStriText''.
+ *  @return the width of ''aStriText''.
  *)
-const func integer: width (in stritext: aStritext) is func
+const func integer: width (in striText: aStriText) is func
   result
     var integer: width is 0;
   local
     var integer: line is 0;
   begin
-    for line range 1 to length(aStritext.content) do
-      if length(aStritext.content[line]) > width then
-        width := length(aStritext.content[line]);
+    for line range 1 to length(aStriText.content) do
+      if length(aStriText.content[line]) > width then
+        width := length(aStriText.content[line]);
       end if;
     end for;
   end func;
 
 
 (**
- *  Determine the current line of ''aStritext''.
- *  @return the current line of ''aStritext''.
+ *  Determine the current line of ''aStriText''.
+ *  @return the current line of ''aStriText''.
  *)
-const func integer: line (in stritext: aStritext) is
-  return aStritext.line;
+const func integer: line (in striText: aStriText) is
+  return aStriText.line;
 
 
 (**
- *  Determine the current column of ''aStritext''.
- *  @return the current column of ''aStritext''.
+ *  Determine the current column of ''aStriText''.
+ *  @return the current column of ''aStriText''.
  *)
-const func integer: column (in stritext: aStritext) is
-  return aStritext.column;
+const func integer: column (in striText: aStriText) is
+  return aStriText.column;
 
 
 (**
- *  Set the current position of ''aStritext'' to ''line'' and ''column''.
+ *  Set the current position of ''aStriText'' to ''line'' and ''column''.
  *)
-const proc: setPos (inout stritext: aStritext, in integer: line, in integer: column) is func
+const proc: setPos (inout striText: aStriText, in integer: line, in integer: column) is func
   begin
-    aStritext.line := line;
-    aStritext.column := column;
+    aStriText.line := line;
+    aStriText.column := column;
   end func;
 
 
 (**
- *  Set the ''line'' of the current position of ''aStritext''.
+ *  Set the ''line'' of the current position of ''aStriText''.
  *)
-const proc: setLine (inout stritext: aStritext, in integer: line) is func
+const proc: setLine (inout striText: aStriText, in integer: line) is func
   begin
-    aStritext.line := line;
+    aStriText.line := line;
   end func;
 
 
 (**
- *  Set the ''column'' of the current position of ''aStritext''.
+ *  Set the ''column'' of the current position of ''aStriText''.
  *)
-const proc: setColumn (inout stritext: aStritext, in integer: column) is func
+const proc: setColumn (inout striText: aStriText, in integer: column) is func
   begin
-    aStritext.column := column;
+    aStriText.column := column;
   end func;
 
 
-const proc: clear (inout stritext: aText) is noop;
-const proc: clear (inout stritext: aText, in integer: upper, in integer: left,
+const proc: clear (inout striText: aText) is noop;
+const proc: clear (inout striText: aText, in integer: upper, in integer: left,
     in integer: lower, in integer: right) is noop;
-const proc: v_scroll (inout stritext: aText, in integer: count) is noop;
-const proc: v_scroll (inout stritext: aText, in integer: upper, in integer: left,
+const proc: v_scroll (inout striText: aText, in integer: count) is noop;
+const proc: v_scroll (inout striText: aText, in integer: upper, in integer: left,
     in integer: lower, in integer: right, in integer: count) is noop;
-const proc: h_scroll (inout stritext: aText, in integer: count) is noop;
-const proc: h_scroll (inout stritext: aText, in integer: upper, in integer: left,
+const proc: h_scroll (inout striText: aText, in integer: count) is noop;
+const proc: h_scroll (inout striText: aText, in integer: upper, in integer: left,
     in integer: lower, in integer: right, in integer: count) is noop;
-const proc: color (inout stritext: aText, in color: foreground) is noop;
-const proc: color (inout stritext: aText, in color: foreground, in color: background) is noop;
-const proc: setPosXY (inout stritext: aText, in integer: xPos, in integer: yPos) is noop;
+const proc: color (inout striText: aText, in color: foreground) is noop;
+const proc: color (inout striText: aText, in color: foreground, in color: background) is noop;
+const proc: setPosXY (inout striText: aText, in integer: xPos, in integer: yPos) is noop;
