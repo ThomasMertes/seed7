@@ -33,21 +33,21 @@ include "null_file.s7i";
  *  [[file|File]] implementation type for UTF-16 files.
  *  This type supports UTF-16 encoded sequential files of the
  *  operating system. UTF-16 files are seekable, therefore they
- *  support the functions [[#length(in_utf16_file)|length]],
- *  [[#seek(in_utf16_file,in_integer)|seek]] and
- *  [[#tell(in_utf16_file)|tell]].
+ *  support the functions [[#length(in_utf16File)|length]],
+ *  [[#seek(in_utf16File,in_integer)|seek]] and
+ *  [[#tell(in_utf16File)|tell]].
  *)
-const type: utf16_file is sub null_file struct
+const type: utf16File is sub null_file struct
     var clib_file: ext_file is CLIB_NULL_FILE;
     var string: name is "";
   end struct;
 
 
 (**
- *  Close an utf16_file.
+ *  Close an utf16File.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: close (in utf16_file: aFile) is func
+const proc: close (in utf16File: aFile) is func
   begin
     close(aFile.ext_file);
   end func;
@@ -57,7 +57,7 @@ const proc: close (in utf16_file: aFile) is func
  *  Forces that all buffered data of ''outFile'' is sent to its destination.
  *  This causes data to be sent to the operating systems file system.
  *)
-const proc: flush (in utf16_file: outFile) is func
+const proc: flush (in utf16File: outFile) is func
   begin
     flush(outFile.ext_file);
   end func;
@@ -69,7 +69,7 @@ const proc: flush (in utf16_file: outFile) is func
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
-const func boolean: eof (in utf16_file: inFile) is
+const func boolean: eof (in utf16File: inFile) is
   return eof(inFile.ext_file);
 
 
@@ -78,7 +78,7 @@ const func boolean: eof (in utf16_file: inFile) is
  *  This function allows a file to be handled like an iterator.
  *  @return FALSE if 'getc' would return [[char#EOF|EOF]], TRUE otherwise.
  *)
-const func boolean: hasNext (in utf16_file: inFile) is
+const func boolean: hasNext (in utf16File: inFile) is
   return hasNext(inFile.ext_file);
 
 
@@ -91,7 +91,7 @@ const func boolean: hasNext (in utf16_file: inFile) is
  *  @exception FILE_ERROR A system function returns an error or the
  *             file length reported by the system is negative.
  *)
-const func integer: length (in utf16_file: aFile) is
+const func integer: length (in utf16File: aFile) is
   return length(aFile.ext_file);
 
 
@@ -107,7 +107,7 @@ const func integer: length (in utf16_file: aFile) is
  *             used by the system function.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: truncate (in utf16_file: aFile, in integer: length) is func
+const proc: truncate (in utf16File: aFile, in integer: length) is func
   begin
     truncate(aFile.ext_file, length);
   end func;
@@ -119,7 +119,7 @@ const proc: truncate (in utf16_file: aFile, in integer: length) is func
  *  can be used to set and and obtain the current file position.
  *  @return TRUE, if ''aFile'' is seekable, FALSE otherwise.
  *)
-const func boolean: seekable (in utf16_file: aFile) is
+const func boolean: seekable (in utf16File: aFile) is
   return seekable(aFile.ext_file);
 
 
@@ -130,7 +130,7 @@ const func boolean: seekable (in utf16_file: aFile) is
  *  @exception RANGE_ERROR The file position is negative or zero.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: seek (in utf16_file: aFile, in integer: position) is func
+const proc: seek (in utf16File: aFile, in integer: position) is func
   begin
     seek(aFile.ext_file, position);
   end func;
@@ -146,7 +146,7 @@ const proc: seek (in utf16_file: aFile, in integer: position) is func
  *  @exception FILE_ERROR A system function returns an error or the
  *             file position reported by the system is negative.
  *)
-const func integer: tell (in utf16_file: aFile) is
+const func integer: tell (in utf16File: aFile) is
   return tell(aFile.ext_file);
 
 
@@ -154,11 +154,11 @@ const func integer: tell (in utf16_file: aFile) is
  *  [[file|File]] implementation type for UTF-16LE (little endian) files.
  *  This type supports UTF-16 encoded sequential files of the
  *  operating system. UTF-16 files are seekable, therefore they
- *  support the functions [[#length(in_utf16_file)|length]],
- *  [[#seek(in_utf16_file,in_integer)|seek]] and
- *  [[#tell(in_utf16_file)|tell]].
+ *  support the functions [[#length(in_utf16File)|length]],
+ *  [[#seek(in_utf16File,in_integer)|seek]] and
+ *  [[#tell(in_utf16File)|tell]].
  *)
-const type: utf16le_file is sub utf16_file struct
+const type: utf16leFile is sub utf16File struct
   end struct;
 
 
@@ -205,7 +205,7 @@ const func file: openUtf16le (in string: path, in string: mode) is func
     var file: newFile is STD_NULL;
   local
     var clib_file: open_file is CLIB_NULL_FILE;
-    var utf16le_file: new_le_file is utf16le_file.value;
+    var utf16leFile: new_le_file is utf16leFile.value;
   begin
     open_file := openClibFile(path, mode);
     if open_file <> CLIB_NULL_FILE then
@@ -224,7 +224,7 @@ const func file: openUtf16le (in string: path, in string: mode) is func
  *  @exception RANGE_ERROR A character is not representable with UTF-16.
  *  @exception FILE_ERROR The system function returns an error.
  *)
-const proc: write (in utf16le_file: outFile, in string: stri) is func
+const proc: write (in utf16leFile: outFile, in string: stri) is func
   local
     var char: ch is ' ';
     var integer: number is 0;
@@ -256,7 +256,7 @@ const proc: write (in utf16le_file: outFile, in string: stri) is func
  *  @exception RANGE_ERROR The parameter ''maxLength'' is negative, or
  *             the file contains an illegal surrogate pair.
  *)
-const func string: gets (in utf16le_file: inFile, in integer: maxLength) is func
+const func string: gets (in utf16leFile: inFile, in integer: maxLength) is func
   result
     var string: striRead is "";
   local
@@ -317,11 +317,11 @@ const func string: gets (in utf16le_file: inFile, in integer: maxLength) is func
  *  [[file|File]] implementation type for UTF-16BE (big endian) files.
  *  This type supports UTF-16 encoded sequential files of the
  *  operating system. UTF-16 files are seekable, therefore they
- *  support the functions [[#length(in_utf16_file)|length]],
- *  [[#seek(in_utf16_file,in_integer)|seek]] and
- *  [[#tell(in_utf16_file)|tell]].
+ *  support the functions [[#length(in_utf16File)|length]],
+ *  [[#seek(in_utf16File,in_integer)|seek]] and
+ *  [[#tell(in_utf16File)|tell]].
  *)
-const type: utf16be_file is sub utf16_file struct
+const type: utf16beFile is sub utf16File struct
   end struct;
 
 
@@ -368,7 +368,7 @@ const func file: openUtf16be (in string: path, in string: mode) is func
     var file: newFile is STD_NULL;
   local
     var clib_file: open_file is CLIB_NULL_FILE;
-    var utf16be_file: new_be_file is utf16be_file.value;
+    var utf16beFile: new_be_file is utf16beFile.value;
   begin
     open_file := openClibFile(path, mode);
     if open_file <> CLIB_NULL_FILE then
@@ -387,7 +387,7 @@ const func file: openUtf16be (in string: path, in string: mode) is func
  *  @exception RANGE_ERROR If a character is not representable with UTF-16.
  *  @exception FILE_ERROR The system function returns an error.
  *)
-const proc: write (in utf16be_file: outFile, in string: stri) is func
+const proc: write (in utf16beFile: outFile, in string: stri) is func
   local
     var char: ch is ' ';
     var integer: number is 0;
@@ -419,7 +419,7 @@ const proc: write (in utf16be_file: outFile, in string: stri) is func
  *  @exception RANGE_ERROR The parameter ''maxLength'' is negative, or
  *             the file contains an illegal surrogate pair.
  *)
-const func string: gets (in utf16be_file: inFile, in integer: maxLength) is func
+const func string: gets (in utf16beFile: inFile, in integer: maxLength) is func
   result
     var string: striRead is "";
   local
@@ -517,8 +517,8 @@ const func file: openUtf16 (in string: path, in string: mode) is func
     var file: newFile is STD_NULL;
   local
     var clib_file: open_file is CLIB_NULL_FILE;
-    var utf16le_file: new_le_file is utf16le_file.value;
-    var utf16be_file: new_be_file is utf16be_file.value;
+    var utf16leFile: new_le_file is utf16leFile.value;
+    var utf16beFile: new_be_file is utf16beFile.value;
     var string: bom is "";
   begin
     open_file := openClibFile(path, mode);
