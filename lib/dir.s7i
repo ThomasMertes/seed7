@@ -33,17 +33,17 @@ include "osfiles.s7i";
 (**
  *  [[file|File]] to read the contents of a directory.
  *)
-const type: dir_file is sub null_file struct
+const type: dirFile is sub null_file struct
     var string: path is "";
-    var array string: dir_array is 0 times "";
-    var integer: curr_line is 0;
-    var integer: curr_column is 0;
+    var array string: dirArray is 0 times "";
+    var integer: currLine is 0;
+    var integer: currColumn is 0;
   end struct;
 
 
 (**
- *  Open a ''dir_file''.
- *  @return the ''dir_file'' opened, or [[null_file#STD_NULL|STD_NULL]]
+ *  Open a ''dirFile''.
+ *  @return the ''dirFile'' opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
@@ -51,17 +51,17 @@ const type: dir_file is sub null_file struct
  *             representation or it cannot be converted to the system
  *             path type.
  *)
-const func file: openDir (in string: dir_name) is func
+const func file: openDir (in string: directoryPath) is func
   result
     var file: newFile is STD_NULL;
   local
-    var dir_file: new_file is dir_file.value;
+    var dirFile: new_file is dirFile.value;
   begin
     new_file.path := "";
-    new_file.curr_line := 1;
-    new_file.curr_column := 1;
+    new_file.currLine := 1;
+    new_file.currColumn := 1;
     block
-      new_file.dir_array := readDir(dir_name);
+      new_file.dirArray := readDir(directoryPath);
       newFile := toInterface(new_file);
     exception
       catch FILE_ERROR:
@@ -70,21 +70,21 @@ const func file: openDir (in string: dir_name) is func
   end func;
 
 
-const func file: openDirPath (in string: dir_name) is func
+const func file: openDirPath (in string: directoryPath) is func
   result
     var file: newFile is STD_NULL;
   local
-    var dir_file: new_file is dir_file.value;
+    var dirFile: new_file is dirFile.value;
   begin
-    if dir_name[length(dir_name)] <> '/' then
-      new_file.path := dir_name & "/";
+    if directoryPath[length(directoryPath)] <> '/' then
+      new_file.path := directoryPath & "/";
     else
-      new_file.path := dir_name;
+      new_file.path := directoryPath;
     end if;
-    new_file.curr_line := 1;
-    new_file.curr_column := 1;
+    new_file.currLine := 1;
+    new_file.currColumn := 1;
     block
-      new_file.dir_array := readDir(dir_name);
+      new_file.dirArray := readDir(directoryPath);
       newFile := toInterface(new_file);
     exception
       catch FILE_ERROR:
@@ -94,20 +94,20 @@ const func file: openDirPath (in string: dir_name) is func
 
 
 (**
- *  Read a file name from a ''dir_file''.
- *  When the function is left dir_file.bufferChar contains '\n' or
+ *  Read a file name from a ''dirFile''.
+ *  When the function is left dirFile.bufferChar contains '\n' or
  *  [[char#EOF|EOF]].
  *  @return the file name.
  *)
-const func string: getln (inout dir_file: aFile) is func
+const func string: getln (inout dirFile: aFile) is func
   result
     var string: stri is "";
   begin
-    if aFile.curr_line <= length(aFile.dir_array) then
+    if aFile.currLine <= length(aFile.dirArray) then
       stri := aFile.path &
-          aFile.dir_array[aFile.curr_line][aFile.curr_column .. ];
-      incr(aFile.curr_line);
-      aFile.curr_column := 1;
+          aFile.dirArray[aFile.currLine][aFile.currColumn .. ];
+      incr(aFile.currLine);
+      aFile.currColumn := 1;
       aFile.bufferChar := '\n';
     else
       aFile.bufferChar := EOF;
@@ -116,20 +116,20 @@ const func string: getln (inout dir_file: aFile) is func
 
 
 (**
- *  Read a file name from a ''dir_file''.
- *  When the function is left dir_file.bufferChar contains '\n' or
+ *  Read a file name from a ''dirFile''.
+ *  When the function is left dirFile.bufferChar contains '\n' or
  *  [[char#EOF|EOF]].
  *  @return the file name.
  *)
-const func string: getwd (inout dir_file: aFile) is func
+const func string: getwd (inout dirFile: aFile) is func
   result
     var string: stri is "";
   begin
-    if aFile.curr_line <= length(aFile.dir_array) then
+    if aFile.currLine <= length(aFile.dirArray) then
       stri := aFile.path &
-          aFile.dir_array[aFile.curr_line][aFile.curr_column .. ];
-      incr(aFile.curr_line);
-      aFile.curr_column := 1;
+          aFile.dirArray[aFile.currLine][aFile.currColumn .. ];
+      incr(aFile.currLine);
+      aFile.currColumn := 1;
       aFile.bufferChar := '\n';
     else
       aFile.bufferChar := EOF;
@@ -137,7 +137,7 @@ const func string: getwd (inout dir_file: aFile) is func
   end func;
 
 
-const func string: gets (in dir_file: aFile, in integer: maxLength) is func
+const func string: gets (in dirFile: aFile, in integer: maxLength) is func
   result
     var string: stri is "";
   begin
@@ -149,8 +149,8 @@ const func string: gets (in dir_file: aFile, in integer: maxLength) is func
  *  Determine the end-of-file indicator.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
-const func boolean: eof (in dir_file: aFile) is
-  return aFile.curr_line > length(aFile.dir_array);
+const func boolean: eof (in dirFile: aFile) is
+  return aFile.currLine > length(aFile.dirArray);
 
 
 (**
@@ -158,5 +158,5 @@ const func boolean: eof (in dir_file: aFile) is
  *  This function allows a file to be handled like an iterator.
  *  @return FALSE if 'getln' would return "", TRUE otherwise.
  *)
-const func boolean: hasNext (in dir_file: aFile) is
-  return aFile.curr_line <= length(aFile.dir_array);
+const func boolean: hasNext (in dirFile: aFile) is
+  return aFile.currLine <= length(aFile.dirArray);
