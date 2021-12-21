@@ -80,7 +80,9 @@ const proc: readDirEntry (inout file: icoFile, inout icoDirEntry: dirEntry) is f
 (**
  *  Reads a ICO file into a pixmap.
  *  @param icoFile File that contains a ICO image.
- *  @return A pixmap with the ICO image.
+ *  @return A pixmap with the ICO image, or
+ *          PRIMITIVE_WINDOW.value if the the file does
+ *          not contain a ICO magic number.
  *  @exception RANGE_ERROR The file is not in the ICO file format.
  *)
 const func PRIMITIVE_WINDOW: readIco (inout file: icoFile) is func
@@ -112,7 +114,9 @@ const func PRIMITIVE_WINDOW: readIco (inout file: icoFile) is func
 (**
  *  Reads a ICO file with the given ''icoFileName'' into a pixmap.
  *  @param icoFileName Name of the ICO file.
- *  @return A pixmap with the ICO image.
+ *  @return A pixmap with the ICO image, or
+ *          PRIMITIVE_WINDOW.value if the file cannot be opened or
+ *          does not contain a ICO magic number.
  *  @exception RANGE_ERROR The file is not in the ICO file format.
  *)
 const func PRIMITIVE_WINDOW: readIco (in string: icoFileName) is func

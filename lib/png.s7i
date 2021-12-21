@@ -586,7 +586,9 @@ const func pngImageType: interlaceToImage (in pngHeader: header,
 (**
  *  Reads a PNG file into a pixmap.
  *  @param pngFile File that contains a PNG image.
- *  @return A pixmap with the PNG image.
+ *  @return A pixmap with the PNG image, or
+ *          PRIMITIVE_WINDOW.value if the the file does
+ *          not contain a PNG magic number.
  *  @exception RANGE_ERROR The file is not in the PNG file format.
  *)
 const func PRIMITIVE_WINDOW: readPng (inout file: pngFile) is func
@@ -649,7 +651,9 @@ const func PRIMITIVE_WINDOW: readPng (inout file: pngFile) is func
 (**
  *  Reads a PNG file with the given ''pngFileName'' into a pixmap.
  *  @param pngFileName Name of the PNG file.
- *  @return A pixmap with the PNG image.
+ *  @return A pixmap with the PNG image, or
+ *          PRIMITIVE_WINDOW.value if the file cannot be opened or
+ *          does not contain a PNG magic number.
  *  @exception RANGE_ERROR The file is not in the PNG file format.
  *)
 const func PRIMITIVE_WINDOW: readPng (in string: pngFileName) is func
