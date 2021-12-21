@@ -30,7 +30,7 @@ include "text.s7i";
 
 
 (**
- *  [[text|Text]] implementation type for files stored in a [[string]] [[array]].
+ *  [[text|Text]] implementation type for files stored in an [[array]] [[string]].
  *)
 const type: striText is sub null_file struct
     var array string: content is 0 times "";
@@ -42,7 +42,7 @@ type_implements_interface(striText, text);
 
 
 (**
- *  Open a ''striText'' with the given [[string]] [[array]] content.
+ *  Open a ''striText'' with the given [[array]] [[string]] content.
  *  @return the file opened.
  *)
 const func file: openStriText (in array string: content) is func

@@ -36,9 +36,12 @@
 
 (**
  *  Reads an image file into a pixmap.
+ *  The file is checked for magic numbers and the corresponding read
+ *  function is used, to read the actual image.
  *  @param imageFile File that contains an image.
- *  @result A pixmap with the image.
- *  @exception RANGE_ERROR The file is not in a valid image file format.
+ *  @result A pixmap with the image, or
+ *          PRIMITIVE_WINDOW.value if the file is not in a valid
+ *          image file format.
  *)
 const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
   result
@@ -87,9 +90,13 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
 
 (**
  *  Reads an image file with the given ''imageFileName'' into a pixmap.
+ *  The file is checked for magic numbers and the corresponding read
+ *  function is used, to read the actual image. The file extension of
+ *  ''imageFileName'' is not used to decide about the image file type.
  *  @param imageFileName Name of the image file.
- *  @result A pixmap with the image.
- *  @exception RANGE_ERROR The file is not in a valid image file format.
+ *  @result A pixmap with the image, or
+ *          PRIMITIVE_WINDOW.value if the file cannot be opened or
+ *          is not in a valid image file format.
  *)
 const func PRIMITIVE_WINDOW: readImage (in string: imageFileName) is func
   result
