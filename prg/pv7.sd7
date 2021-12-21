@@ -23,18 +23,13 @@
 
 
 $ include "seed7_05.s7i";
+  include "imagefile.s7i";
   include "osfiles.s7i";
   include "time.s7i";
   include "duration.s7i";
   include "console.s7i";
   include "draw.s7i";
   include "stdfont24.s7i";
-  include "png.s7i";
-  include "gif.s7i";
-  include "jpeg.s7i";
-  include "bmp.s7i";
-  include "ico.s7i";
-  include "ppm.s7i";
 
 
 const proc: writeMessage (in string: message) is func
@@ -99,51 +94,6 @@ const proc: findFileWithName (in array string: fileList, in string: fileName, in
     if index > length(fileList) then
       index := 0;
     end if;
-  end func;
-
-
-const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  local
-    var string: magic is "";
-  begin
-    block
-      magic := gets(imageFile, length(PPM_MAGIC));
-      if magic = BMP_MAGIC then
-        seek(imageFile, 1);
-        pixmap := readBmp(imageFile);
-      elsif magic = PPM_MAGIC then
-        seek(imageFile, 1);
-        pixmap := readPpm(imageFile);
-      else
-        magic &:= gets(imageFile, length(JPEG_MAGIC) - length(PPM_MAGIC));
-        if magic = JPEG_MAGIC then
-          seek(imageFile, 1);
-          pixmap := readJpeg(imageFile);
-        else
-          magic &:= gets(imageFile, length(ICO_MAGIC) - length(JPEG_MAGIC));
-          if magic = ICO_MAGIC then
-            seek(imageFile, 1);
-            pixmap := readIco(imageFile);
-          else
-            magic &:= gets(imageFile, length(GIF_MAGIC_87) - length(ICO_MAGIC));
-            if magic = GIF_MAGIC_87 or magic = GIF_MAGIC_89 then
-              seek(imageFile, 1);
-              pixmap := readGif(imageFile);
-            else
-              magic &:= gets(imageFile, length(PNG_MAGIC) - length(GIF_MAGIC_87));
-              if magic = PNG_MAGIC then
-                seek(imageFile, 1);
-                pixmap := readPng(imageFile);
-              end if;
-            end if;
-          end if;
-        end if;
-      end if;
-    exception
-      otherwise: noop;
-    end block;
   end func;
 
 
@@ -240,4 +190,3 @@ const proc: main is func
       until not keypressed(KEYBOARD);
     until lower(command) = 'q' or command = KEY_ESC;
   end func;
-

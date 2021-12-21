@@ -203,6 +203,7 @@ huffman.s7i  Support for Huffman coding.
 ico.s7i      Support for the ICO image file format.
 idxarray.s7i Support for arrays with non-integer index
 image.s7i    Defines images, which are in a window
+imagefile.s7i Support for various image file formats.
 inflate.s7i  Inflate uncompression algorithm
 inflatefile.s7i Uncompress data from a file with Inflate
 inifile.s7i  Read key value pairs from an INI file
@@ -257,7 +258,7 @@ sockbase.s7i Support for socket address and primitive socket
 socket.s7i   File implementation type for sockets
 sokoban1.s7i Classic sokoban levels 1 to 90.
 sql_base.s7i Base SQL access library
-stars.s7i    List of stars with name, RA, DEC and magnitude V
+stars.s7i    List of stars with name, RA, DEC and V magnitude.
 stdfont10.s7i Standard bitmap font with capHeight 10.
 stdfont12.s7i Standard bitmap font with capHeight 12.
 stdfont14.s7i Standard bitmap font with capHeight 14.
