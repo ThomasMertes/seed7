@@ -251,7 +251,7 @@ const proc: fillGifImage8Bit (inout array array pixel: image, in string: pixelDa
 (**
  *  Reads a GIF file into a pixmap.
  *  @param gifFile File that contains a GIF image.
- *  @result A pixmap with the GIF image.
+ *  @return A pixmap with the GIF image.
  *  @exception RANGE_ERROR The file is not in the GIF file format.
  *)
 const func PRIMITIVE_WINDOW: readGif (inout file: gifFile) is func
@@ -314,7 +314,7 @@ const func PRIMITIVE_WINDOW: readGif (inout file: gifFile) is func
 (**
  *  Reads a GIF file with the given ''gifFileName'' into a pixmap.
  *  @param gifFileName Name of the GIF file.
- *  @result A pixmap with the GIF image.
+ *  @return A pixmap with the GIF image.
  *  @exception RANGE_ERROR The file is not in the GIF file format.
  *)
 const func PRIMITIVE_WINDOW: readGif (in string: gifFileName) is func

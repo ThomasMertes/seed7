@@ -37,7 +37,7 @@ const string: PPM_MAGIC is "P6";
 (**
  *  Reads a PPM file into a pixmap.
  *  @param ppmFile File that contains a PPM image.
- *  @result A pixmap with the PPM image.
+ *  @return A pixmap with the PPM image.
  *  @exception RANGE_ERROR The file is not in the PPM file format.
  *)
 const func PRIMITIVE_WINDOW: readPpm (inout file: ppmFile) is func
@@ -112,7 +112,7 @@ const func PRIMITIVE_WINDOW: readPpm (inout file: ppmFile) is func
 (**
  *  Reads a PPM file with the given ''ppmFileName'' into a pixmap.
  *  @param ppmFileName Name of the PPM file.
- *  @result A pixmap with the PPM image.
+ *  @return A pixmap with the PPM image.
  *  @exception RANGE_ERROR The file is not in the PPM file format.
  *)
 const func PRIMITIVE_WINDOW: readPpm (in string: ppmFileName) is func
