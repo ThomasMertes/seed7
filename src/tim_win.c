@@ -333,7 +333,7 @@ int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
       /* printf("old atime=" FMT_T "\n", stat_buf.st_atime);
          printf("old mtime=" FMT_T "\n", stat_buf.st_mtime); */
 #endif
-      filehandle = CreateFileW(os_path, GENERIC_WRITE,
+      filehandle = CreateFileW(os_path, FILE_WRITE_ATTRIBUTES,
                                FILE_SHARE_READ | FILE_SHARE_DELETE, NULL,
                                OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
       if (unlikely(filehandle == INVALID_HANDLE_VALUE)) {
