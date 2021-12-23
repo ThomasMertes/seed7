@@ -949,13 +949,6 @@ winType drwEmpty (void)
 
 
 
-void drwFlush (void)
-
-  { /* drwFlush */
-  } /* drwFlush */
-
-
-
 void drwFree (winType old_window)
 
   { /* drwFree */

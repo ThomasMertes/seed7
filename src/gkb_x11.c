@@ -1937,18 +1937,17 @@ charType gkbGetc (void)
 
 
 
-boolType processEvents (void)
+static boolType processEvents (void)
 
   {
     KeySym currentKey;
     int num_events;
     int lookup_count;
     char buffer[21];
-    boolType result;
+    boolType doFlushAndProcessAnotherEvent = FALSE;
 
   /* processEvents */
     logFunction(printf("processEvents\n"););
-    result = FALSE;
     if (!eventPresent) {
       num_events = XEventsQueued(mydisplay, QueuedAfterReading);
       while (num_events != 0) {
@@ -1962,7 +1961,7 @@ boolType processEvents (void)
               num_events--;
             } /* if */
             handleExpose(&currentEvent.xexpose);
-            result = TRUE;
+            doFlushAndProcessAnotherEvent = TRUE;
             break;
 
           case ConfigureNotify:
@@ -1977,7 +1976,7 @@ boolType processEvents (void)
                 num_events--;
               } /* if */
               handleConfigure(&currentEvent.xconfigure);
-              result = TRUE;
+              doFlushAndProcessAnotherEvent = TRUE;
             } /* if */
             break;
 
@@ -2026,6 +2025,24 @@ boolType processEvents (void)
               num_events = XEventsQueued(mydisplay, QueuedAfterReading);
             } else {
               num_events--;
+            } /* if */
+            break;
+
+          case ClientMessage:
+            traceEvent(printf("processEvents: ClientMessage\n"););
+            if ((Atom) currentEvent.xclient.data.l[0] == wm_delete_window) {
+              /* printf("wm_delete_window\n"); */
+              if (getCloseAction(find_window(currentEvent.xclient.window)) ==
+                  CLOSE_BUTTON_CLOSES_PROGRAM) {
+                exit(0);
+              } else {
+                num_events = 0;
+                eventPresent = TRUE;
+              } /* if */
+            } else {
+              /* printf("%ld\n", currentEvent.xclient.data.l[0]); */
+              num_events = 0;
+              eventPresent = TRUE;
             } /* if */
             break;
 
@@ -2150,8 +2167,8 @@ boolType processEvents (void)
         } /* switch */
       } /* while */
     } /* if */
-    logFunction(printf("processEvents --> %d\n", result););
-    return result;
+    logFunction(printf("processEvents --> %d\n", doFlushAndProcessAnotherEvent););
+    return doFlushAndProcessAnotherEvent;
   } /* processEvents */
 
 

@@ -1202,8 +1202,12 @@ boolType gkbKeyPressed (void)
                             (uint64Type) msg.lParam););
           if (msg.wParam == HTCLOSE && IsWindow(msg.hwnd)) {
             /* printf("HTCLOSE\n"); */
-            msg_present = 0;
-            result = TRUE;
+            if (getCloseAction(find_window(msg.hwnd)) == CLOSE_BUTTON_CLOSES_PROGRAM) {
+              exit(0);
+            } else {
+              msg_present = 0;
+              result = TRUE;
+            } /* if */
           } else if (msg.wParam == HTBOTTOMRIGHT || msg.wParam == HTRIGHT || msg.wParam == HTBOTTOM) {
             resizeBottomAndRight(&msg);
             bRet = GetMessage(&msg, NULL, 0, 0);
@@ -1721,3 +1725,13 @@ winType gkbWindow (void)
     logFunction(printf("gkbWindow -> " FMT_U_MEM "\n", (memSizeType) result););
     return result;
   } /* gkbWindow */
+
+
+
+void drwFlush (void)
+
+  { /* drwFlush */
+    logFunction(printf("drwFlush\n"););
+    gkbKeyPressed();
+    logFunction(printf("drwFlush -->\n"););
+  } /* drwFlush */
