@@ -312,7 +312,7 @@ const func intRange: getIntRange (in reference: intExpression) is func
                 if argument1Range.maxValue < argument1Range.minValue then
                   valueRange.minValue := 0;
                   valueRange.maxValue := -1;
-		elsif abs(argument1Range.minValue) > abs(argument1Range.maxValue) then
+                elsif abs(argument1Range.minValue) > abs(argument1Range.maxValue) then
                   valueRange.maxValue := abs(argument1Range.minValue);
                 else
                   valueRange.maxValue := abs(argument1Range.maxValue);
@@ -429,7 +429,7 @@ const func intRange: getIntRange (in reference: intExpression) is func
                     argument1Range.maxValue < argument1Range.minValue then
                   valueRange.minValue := 0;
                   valueRange.maxValue := -1;
-		else
+                else
                   valueRange.minValue := -argument1Range.maxValue;
                   if argument1Range.minValue < -integer.last then
                     valueRange.maxValue := integer.last;

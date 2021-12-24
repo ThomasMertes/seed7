@@ -304,7 +304,7 @@ const proc: for (in integer: numRepeats) do
 (**
  *  For-loop which loops over the [[char|characters]] of a [[string]].
  *)
-const proc: for (inout char: variable) range (in string: stri) do
+const proc: for (inout char: forVar) range (in string: stri) do
               (in proc: statements)
             end for is                                                      action "STR_FOR";
 
@@ -320,14 +320,14 @@ const proc: for key (inout integer: keyVar) range (in string: stri) do
 (**
  *  For-loop which loops over [[char|characters]] and keys (indices) of a [[string]].
  *)
-const proc: for (inout char: variable) key (inout integer: keyVar) range (in string: stri) do
+const proc: for (inout char: forVar) key (inout integer: keyVar) range (in string: stri) do
               (in proc: statements)
             end for is                                                      action "STR_FOR_VAR_KEY";
 
 
 (**
  *  For-loop which loops over the [[char|characters]] of a [[string]]
- *  Additionally a condition is checked before the statements in
+ *  Additionally a ''condition'' is checked before the statements in
  *  the loop body are executed.
  *)
 const proc: for (inout char: forVar)
@@ -374,7 +374,7 @@ const proc: for (inout char: forVar)
 
 (**
  *  For-loop which loops over the keys (indices) of a [[string]].
- *  Additionally a condition is checked before the statements in
+ *  Additionally a ''condition'' is checked before the statements in
  *  the loop body are executed.
  *)
 const proc: for key (inout integer: number)
@@ -403,7 +403,7 @@ const proc: for key (inout integer: number)
 
 (**
  *  For-loop which loops over [[char|characters]] and keys (indices) of a [[string]].
- *  Additionally a condition is checked before the statements in
+ *  Additionally a ''condition'' is checked before the statements in
  *  the loop body are executed.
  *)
 const proc: for (inout char: forVar)

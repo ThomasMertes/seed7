@@ -150,11 +150,33 @@ const category: DATABASEOBJECT    is category("DATABASEOBJECT");
 const category: SQLSTMTOBJECT     is category("SQLSTMTOBJECT");
 const category: PROGOBJECT        is category("PROGOBJECT");
 
-const proc: for (inout category: variable) range (in category: startValue) to (in category: endValue) do
+
+(**
+ *  [[category|Category]] for-loop, looping from ''startValue'' upward to ''endValue''.
+ *  The variable ''forVar'' is initialized with ''startValue''. The
+ *  ''statements'' are executed repeatedly. After each repetition the
+ *  variable ''forVar'' is incremented with ''forVar := category(succ(ord(forVar)))''.
+ *  After the ''statements'' were executed with ''endValue'' the for-loop is
+ *  terminated. If ''ord(startValue)'' is greater than ''ord(endValue)'' the
+ *  ''statements'' are not executed at all.
+ *)
+const proc: for (inout category: forVar) range (in category: startValue) to (in category: endValue) do
               (in proc: statements)
             end for                                                     is action "PRC_FOR_TO";
-const proc: for (inout category: variable) range (in category: startValue) downto (in category: endValue) do
+
+
+(**
+ *  [[category|Category]] for-loop, looping from ''startValue'' downward to ''endValue''.
+ *  The variable ''forVar'' is initialized with ''startValue''. The
+ *  ''statements'' are executed repeatedly. After each repetition the
+ *  variable ''forVar'' is decremented with ''forVar := category(pred(ord(forVar)))''.
+ *  After the ''statements'' were executed with ''endValue'' the for-loop is
+ *  terminated. If ''ord(startValue)'' is greater than ''ord(endValue)'' the
+ *  ''statements'' are not executed at all.
+ *)
+const proc: for (inout category: forVar) range (in category: startValue) downto (in category: endValue) do
               (in proc: statements)
             end for                                                     is action "PRC_FOR_DOWNTO";
+
 
 CASE_DECLS(category);

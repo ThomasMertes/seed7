@@ -572,7 +572,7 @@ void setDiffAssign (setType *const dest, const const_setType delta)
     max_position = set1->max_position;
     while (min_position <= max_position &&
            (set1->bitset[min_position - set1->min_position] == 0 ||
-	    (min_position >= delta->min_position &&
+            (min_position >= delta->min_position &&
              min_position <= delta->max_position &&
              (set1->bitset[min_position - set1->min_position] &
               ~ delta->bitset[min_position - delta->min_position]) == 0))) {
