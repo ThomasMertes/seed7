@@ -143,14 +143,17 @@ const func integer: hashCode (in bstring: bstri)                        is actio
 const func integer: compare (in bstring: bstri1, in bstring: bstri2)    is action "BST_CMP";
 
 
-const proc: for (inout char: variable) range (in bstring: bstri) do
+(**
+ *  For-loop which loops over the [[char|characters]] of a ''bstring''.
+ *)
+const proc: for (inout char: forVar) range (in bstring: bstri) do
               (in proc: statements)
             end for is func
   local
     var integer: number is 0;
   begin
     for number range 1 to length(bstri) do
-      variable := bstri[number];
+      forVar := bstri[number];
       statements;
     end for;
   end func;
