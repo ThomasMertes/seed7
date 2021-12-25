@@ -40,14 +40,15 @@ CONTENTS
   3.4     Pragmas
   4.    PREDEFINED STATEMENTS
   4.1     Assignment
-  4.2     while-statement
-  4.3     repeat-statement
-  4.4     for-statement
-  4.5     for-until-statement
-  4.6     for-step-statement
-  4.7     for-each-statement
-  4.8     if-statement
-  4.9     case-statement
+  4.2     Ignoring values
+  4.3     while-statement
+  4.4     repeat-statement
+  4.5     for-statement
+  4.6     for-until-statement
+  4.7     for-step-statement
+  4.8     for-each-statement
+  4.9     if-statement
+  4.10    case-statement
   5.    PREDEFINED TYPES
   5.1     boolean
   5.2     integer
@@ -62,24 +63,28 @@ CONTENTS
   5.11    hash
   5.12    set
   5.13    struct
-  5.14    category
-  5.15    reference
-  5.16    ref_list
-  5.17    program
-  5.18    ptr
-  5.19    ENUMERATION
-  5.20    color
-  5.21    time
-  5.22    duration
-  5.23    file
-  5.24    text
-  5.25    func
-  5.26    varfunc
-  5.27    void
-  5.28    proc
-  5.29    type
-  5.30    object
-  5.31    expr
+  5.14    ENUMERATION
+  5.15    bin64
+  5.16    bin32
+  5.17    bstring
+  5.18    color
+  5.19    time
+  5.20    duration
+  5.21    file
+  5.22    text
+  5.23    fileSys
+  5.24    category
+  5.25    reference
+  5.26    ref_list
+  5.27    program
+  5.28    ptr
+  5.29    func
+  5.30    varfunc
+  5.31    void
+  5.32    proc
+  5.33    type
+  5.34    object
+  5.35    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -105,8 +110,9 @@ CONTENTS
   8.7     Keyboard file
   8.8     Files with line structure
   8.9     Sockets
-  8.10    User defined file types
-  8.11    Scanning a file
+  8.10    Transport Layer Security
+  8.11    User defined file types
+  8.12    Scanning a file
   9.    STRUCTURED SYNTAX DEFINITION
   9.1     The Extended Backus-Naur Form
   9.2     The Seed7 Structured Syntax Description
@@ -153,7 +159,7 @@ CONTENTS
   12.14   getMTime
   12.15   setATime
   12.16   setMTime
-  12.17   readlink
+  12.17   readLink
   12.18   symlink
   12.19   removeFile
   12.20   removeTree
@@ -177,67 +183,69 @@ CONTENTS
   13.5    Execute a prepared statement
   13.6    Fetch records from the result set
   13.7    Get columns from fetched records
-  14.   PRIMITIVE ACTIONS
-  14.1    Actions for the type ACTION
-  14.2    Actions for array types
-  14.3    Actions for the type bigInteger
-  14.4    Actions for the types bin32 and bin64
-  14.5    Actions for the type boolean
-  14.6    Actions for byte strings
-  14.7    Actions for the type char
-  14.8    Actions for various directory, file and other commands
-  14.9    Actions for text (console) screen output
-  14.10   Actions for declarations
-  14.11   Actions to do graphic output
-  14.12   Actions for enumeration types
-  14.13   Actions for the type clib_file
-  14.14   Actions for the type float
-  14.15   Actions to support the graphic keyboard
-  14.16   Actions for hash types
-  14.17   Actions for the type integer
-  14.18   Actions for interface types
-  14.19   Actions to support the text (console) screen keyboard
-  14.20   Actions for the list type
-  14.21   Actions for the type process
-  14.22   Actions for the type pollData
-  14.23   Actions for proc operations and statements
-  14.24   Actions for the type program
-  14.25   Actions for the type reference
-  14.26   Actions for the type ref_list
-  14.27   Actions for struct types
-  14.28   Actions for set types
-  14.29   Actions for the type PRIMITIVE_SOCKET
-  14.30   Actions for the types database and sqlStatement
-  14.31   Actions for the type string
-  14.32   Actions for the type time
-  14.33   Actions for the type type
-  14.34   Actions for the type utf8_file
-  15.   FOREIGN FUNCTION INTERFACE
-  15.1    C types used by the implementation
-  15.2    String conversions
-  15.3    Operating system string and path conversions
-  15.4    Macros to access the action parameters
-  15.5    Functions to create action results
-  15.6    Memory management macros
-  15.7    Basic conversion functions
-  15.8    Error handling
-  16.   ERRORS
-  16.1    Parsing errors
-  16.2    Compilation errors
-  16.3    Exceptions
-  16.3.1  MEMORY_ERROR
-  16.3.2  NUMERIC_ERROR
-  16.3.3  OVERFLOW_ERROR
-  16.3.4  INDEX_ERROR
-  16.3.5  RANGE_ERROR
-  16.3.6  FILE_ERROR
-  16.3.7  DATABASE_ERROR
-  16.3.8  ILLEGAL_ACTION
-  16.4    Handlers
-  16.5    Stack trace
-  16.6    Suppressing exception checks
-  16.7    Signals
-  16.8    Other errors and warnings
+  14.   GRAPHIC LIBRARY
+  14.1    Basics
+  15.   PRIMITIVE ACTIONS
+  15.1    Actions for the type ACTION
+  15.2    Actions for array types
+  15.3    Actions for the type bigInteger
+  15.4    Actions for the types bin32 and bin64
+  15.5    Actions for the type boolean
+  15.6    Actions for byte strings
+  15.7    Actions for the type char
+  15.8    Actions for various directory, file and other commands
+  15.9    Actions for text (console) screen output
+  15.10   Actions for declarations
+  15.11   Actions to do graphic output
+  15.12   Actions for enumeration types
+  15.13   Actions for the type clib_file
+  15.14   Actions for the type float
+  15.15   Actions to support the graphic keyboard
+  15.16   Actions for hash types
+  15.17   Actions for the type integer
+  15.18   Actions for interface types
+  15.19   Actions to support the text (console) screen keyboard
+  15.20   Actions for the list type
+  15.21   Actions for the type process
+  15.22   Actions for the type pollData
+  15.23   Actions for proc operations and statements
+  15.24   Actions for the type program
+  15.25   Actions for the type reference
+  15.26   Actions for the type ref_list
+  15.27   Actions for struct types
+  15.28   Actions for set types
+  15.29   Actions for the type PRIMITIVE_SOCKET
+  15.30   Actions for the types database and sqlStatement
+  15.31   Actions for the type string
+  15.32   Actions for the type time
+  15.33   Actions for the type type
+  15.34   Actions for the type utf8File
+  16.   FOREIGN FUNCTION INTERFACE
+  16.1    C types used by the implementation
+  16.2    String conversions
+  16.3    Operating system string and path conversions
+  16.4    Macros to access the action parameters
+  16.5    Functions to create action results
+  16.6    Memory management macros
+  16.7    Basic conversion functions
+  16.8    Error handling
+  17.   ERRORS
+  17.1    Parsing errors
+  17.2    Compilation errors
+  17.3    Exceptions
+  17.3.1  MEMORY_ERROR
+  17.3.2  NUMERIC_ERROR
+  17.3.3  OVERFLOW_ERROR
+  17.3.4  INDEX_ERROR
+  17.3.5  RANGE_ERROR
+  17.3.6  FILE_ERROR
+  17.3.7  DATABASE_ERROR
+  17.3.8  ILLEGAL_ACTION
+  17.4    Handlers
+  17.5    Stack trace
+  17.6    Suppressing exception checks
+  17.7    Signals
+  17.8    Other errors and warnings
 
 
 
@@ -1412,7 +1420,34 @@ CONTENTS
     const proc: (inout interfaceType: dest) := (ref aType: source)   is action "ITF_CPY2";
 
 
-4.2 while-statement
+4.2 Ignoring values
+
+  Unused expression results are not implicitely discarded. Writing:
+
+      begin
+        1 + 1;
+        writeln;
+      end func;
+
+  results in a parsing error:
+
+    *** tst316.sd7(5):52: Match for {INT_ADD({1 + 1 }) ; writeln } failed
+        1 + 1;
+
+  An unused expression result must be explicitely ignored. E.g.:
+
+    ignore(getc(KEYBOARD));
+
+  This example waits for a character pressed on the 'KEYBOARD' and
+  then ignores that character. So all of the side effects of the
+  expressions take place. It is just the result of the expression
+  that is ignored.
+
+  The need to explicitely ignore unused expression results
+  removes another possible source of errors.
+
+
+4.3 while-statement
 
   For example:
 
@@ -1459,7 +1494,7 @@ CONTENTS
       end func;
 
 
-4.3 repeat-statement
+4.4 repeat-statement
 
   For example:
 
@@ -1506,7 +1541,7 @@ CONTENTS
       end func;
 
 
-4.4 for-statement
+4.5 for-statement
 
   For example:
 
@@ -1604,7 +1639,7 @@ CONTENTS
     FOR_DECLS(bigInteger);
 
 
-4.5 for-until-statement
+4.6 for-until-statement
 
   For example:
 
@@ -1706,7 +1741,7 @@ CONTENTS
     FOR_UNTIL_DECLS(bigInteger);
 
 
-4.6 for-step-statement
+4.7 for-step-statement
 
   For example:
 
@@ -1788,7 +1823,7 @@ CONTENTS
     FOR_STEP_DECLS(bigInteger);
 
 
-4.7 for-each-statement
+4.8 for-each-statement
 
   For example:
 
@@ -1848,7 +1883,7 @@ CONTENTS
       end func;
 
 
-4.8 if-statement
+4.9 if-statement
 
   For example:
 
@@ -1922,7 +1957,7 @@ CONTENTS
                         (in void: elsePart)                is ELSIF_EMPTY;
 
 
-4.9 case-statement
+4.10 case-statement
 
   For example:
 
@@ -2029,6 +2064,10 @@ CONTENTS
   TRUE and FALSE. The 'boolean' functions are defined in
   the library "boolean.s7i".
 
+    Constants:
+      boolean.value  Default value of boolean (FALSE)
+      boolean.first  Minimum value of boolean (FALSE)
+      boolean.last   Maximum value of boolean (TRUE)
     Prefix operators:
       not       Negation
                   ( not TRUE => FALSE,
@@ -2060,7 +2099,12 @@ CONTENTS
     Functions:
       ord(A)    Ordinal number
                   ( Type of result: integer,
-                    ord(FALSE) => 0, ord(TRUE) => 1 )
+                    ord(FALSE) => 0,
+                    ord(TRUE) => 1 )
+      integer(A) Ordinal number
+                  ( Type of result: integer,
+                    integer(FALSE) => 0,
+                    integer(TRUE) => 1 )
       succ(A)   Successor
                   ( succ(FALSE) => TRUE,
                     succ(TRUE) => EXCEPTION RANGE_ERROR )
@@ -2070,12 +2114,15 @@ CONTENTS
       boolean(A) Convert an integer to a boolean value
                   ( Type of argument A: integer,
                     boolean(0) => FALSE,
-                    boolean(1) => TRUE )
+                    boolean(1) => TRUE,
+                    boolean(2) => EXCEPTION RANGE_ERROR,
+                    boolean(-1) => EXCEPTION RANGE_ERROR )
       boolean(A) Conversion of string to boolean
                   ( Type of argument A: string,
                     boolean("FALSE") => FALSE,
                     boolean("TRUE") => TRUE,
                     boolean("TRUE ") => EXCEPTION RANGE_ERROR,
+                    boolean("true") => EXCEPTION RANGE_ERROR,
                     boolean("ASDF") => EXCEPTION RANGE_ERROR )
       str(A)    Conversion to string
                   ( Type of result: string,
@@ -2099,6 +2146,7 @@ CONTENTS
                   ( incr(A) => A:=succ(A) )
       decr(A)   Decrement
                   ( decr(A) => A:=pred(A) )
+      ignore(A) Ignore value
 
 
     The logical operators 'and' and 'or' work strictly left
@@ -2180,6 +2228,7 @@ CONTENTS
   in the library "integer.s7i".
 
     Constants:
+      integer.value  Default value of integer (0)
       integer.first  Minimum value of integer (-9223372036854775808)
       integer.last   Maximum value of integer (9223372036854775807)
     Prefix operators:
@@ -2394,10 +2443,11 @@ CONTENTS
                   ( A >>:= B => A := A >> B )
       incr(A)   Increment with 1
                   ( incr(A) => A +:= 1,
-                    incr(integer.last) => EXCEPTION OVERFLOW_ERROR )
+                    incr(A) => EXCEPTION OVERFLOW_ERROR for A = integer.last )
       decr(A)   Decrement with 1
                   ( decr(A) => A -:= 1,
-                    decr(integer.first) => EXCEPTION OVERFLOW_ERROR )
+                    decr(A) => EXCEPTION OVERFLOW_ERROR for A = integer.first )
+      ignore(A) Ignore value
 
   For the operations 'div' and 'rem' holds for all A:
     (A div B) * B + A rem B = A           when B <> 0
@@ -2522,6 +2572,8 @@ CONTENTS
   In this case the exception MEMORY_ERROR is raised. The 'bigInteger'
   functions are defined in the library "bigint.s7i".
 
+    Constants:
+      bigInteger.value  Default value of bigInteger (0_)
     Prefix operators:
       +         Identity
       -         Change sign
@@ -2724,6 +2776,7 @@ CONTENTS
                   ( incr(A) => A +:= 1_ )
       decr(A)   Decrement with 1
                   ( decr(A) => A -:= 1_ )
+      ignore(A) Ignore value
 
   For the operations 'div' and 'rem' holds for all A:
     (A div B) * B + A rem B = A           when B <> 0_
@@ -2843,6 +2896,8 @@ CONTENTS
     Elements:
       var integer: numerator is 0;
       var integer: denominator is 1;
+    Constants:
+      rational.value  Default value of rational (0/1)
     Prefix operators:
       +         Identity
       -         Change sign
@@ -2958,6 +3013,7 @@ CONTENTS
                   ( A *:= B => A := A * B )
       A /:= B   Dividing copy
                   ( A /:= B => A := A / B )
+      ignore(A) Ignore value
 
   All calculations with 'rational' numbers are done exact.
   (Without any rounding)
@@ -2979,6 +3035,8 @@ CONTENTS
     Elements:
       var bigInteger: numerator is 0_;
       var bigInteger: denominator is 1_;
+    Constants:
+      bigRational.value  Default value of bigRational (0_/1_)
     Prefix operators:
       +         Identity
       -         Change sign
@@ -3100,6 +3158,7 @@ CONTENTS
                   ( A *:= B => A := A * B )
       A /:= B   Dividing copy
                   ( A /:= B => A := A / B )
+      ignore(A) Ignore value
 
   All calculations with 'bigRational' numbers are done exact.
   (Without any rounding)
@@ -3126,10 +3185,11 @@ CONTENTS
   in the library "math.s7i".
 
     Constants:
-      Infinity  Positive infinity
-      NaN       Not-a-Number
-      PI        Mathematical constant &pi;
-      E         Euler's number
+      float.value  Default value of float (0.0)
+      Infinity     Positive infinity
+      NaN          Not-a-Number
+      PI           Mathematical constant &pi;
+      E            Euler's number
     Prefix operators:
       +         Identity
       -         Change sign
@@ -3167,6 +3227,16 @@ CONTENTS
                     0.0 ** B => Infinity for B < 0,
                     (-0.0) ** B => -Infinity for B < 0 and odd(B),
                     A ** B => 1.0 / A ** (-B) for B < 0 )
+      A << B    Shift left
+                  ( Type of argument B: integer
+                    A << B => A * 2.0 ** B,
+                    A << 0 => A,
+                    0.0 << B => 0.0 )
+      A >> B    Arithmetic shift right
+                  ( Type of argument B: integer,
+                    A >> B => A / 2.0 ** B,
+                    A >> 0 => A,
+                    0.0 >> B => 0.0 )
       A ? B : C  Ternary operator condition ? thenValue : elseValue
                   ( Type of argument A: boolean,
                     TRUE ? a : b => a,
@@ -3308,6 +3378,7 @@ CONTENTS
                   ( A *:= B => A := A * B )
       A /:= B   Dividing copy
                   ( A /:= B => A := A / B )
+      ignore(A) Ignore value
 
 
 5.7 complex
@@ -3320,6 +3391,8 @@ CONTENTS
     Elements:
       var float: re is 0.0;
       var float: im is 0.0;
+    Constants:
+      complex.value  Default value of complex (complex(0.0))
     Prefix operators:
       +         Identity
       -         Change sign
@@ -3352,6 +3425,10 @@ CONTENTS
                   ( Type of right operand: integer,
                     Type of result: string,
                     complex(3.1415) digits 2 => "3.14+0.00i" )
+      sci       Conversion to a string in scientific notation
+                  ( Type of right operand: integer,
+                    Type of result: string,
+                    complex(3.1415) sci 2 => "3.14e+0+0.00e+0i" )
       complex parse A   Conversion of string to complex
                   ( Type of argument A: string )
     Relations:
@@ -3389,6 +3466,7 @@ CONTENTS
                   ( A *:= B => A := A * B )
       A /:= B   Dividing copy
                   ( A /:= B => A := A / B )
+      ignore(A) Ignore value
 
 
 5.8 char
@@ -3431,6 +3509,8 @@ CONTENTS
   encoded characters. The 'char' functions are defined in
   the library "char.s7i".
 
+    Constants:
+      char.value  Default value of char (' ')
     Infix operators:
       A ? B : C  Ternary operator condition ? thenValue : elseValue
                   ( Type of argument A: boolean,
@@ -3465,11 +3545,26 @@ CONTENTS
                   ( Type of result: string,
                     literal('A') => "'A'" )
       upper(A)  Conversion to upper case character
-                  ( upper('A') => 'A' )
-                  ( upper('z') => 'Z' )
+                  ( upper('A') => 'A',
+                    upper('z') => 'Z' )
       lower(A)  Conversion to lower case character
-                  ( lower('A') => 'a' )
-                  ( lower('z') => 'z' )
+                  ( lower('A') => 'a',
+                    lower('z') => 'z' )
+      isLetter  Is it an alphabetic Unicode character
+                  ( isLetter('A') => TRUE,
+                    isLetter('\16#4e2d;') => TRUE,
+                    isLetter('4') => FALSE,
+                    isLetter('+') => FALSE,
+                    isLetter('\t') => FALSE,
+                    isLetter(KEY_LEFT) => FALSE,
+                    isLetter(EOF) => FALSE )
+      width  Number of screen columns occupied by a Unicode character
+                  ( width('\n') => 0,
+                    width('\t') => 0,
+                    width(KEY_LEFT) => 0,
+                    width(EOF) => 0 )
+                    width('A') => 1,
+                    width('\16#4e2d;') => 2 )
       rand(A, B) Random character in the range [A, B]
                  The random values are uniform distributed.
                   ( rand(A, B) returns a random character such that
@@ -3488,6 +3583,7 @@ CONTENTS
                   ( incr(A) => A := succ(A) )
       decr(A)   Decrement
                   ( decr(A) => A := pred(A) )
+      ignore(A) Ignore value
 
 
 5.9 string
@@ -3526,6 +3622,8 @@ CONTENTS
   encoded characters. The 'string' functions are defined in
   the library "string.s7i".
 
+    Constants:
+      string.value  Default value of string ("")
     Infix operators:
       &         String concatenation
                   ( "All " & "OK" => "All OK" )
@@ -3549,7 +3647,7 @@ CONTENTS
                     "HELLO" lpad  4 => "HELLO",
                     "HELLO" lpad  0 => "HELLO",
                     "HELLO" lpad -8 => "HELLO" )
-      lpad0      Left padding with zeroes
+      lpad0     Left padding with zeroes
                   ( Type of right operand: integer,
                     "12" lpad0  5 => "00012",
                     "12" lpad0  3 => "012",
@@ -3576,7 +3674,7 @@ CONTENTS
                     "abcde"[6] => EXCEPTION INDEX_ERROR )
       [ A .. B ] Access a substring from position A to B
                   ( Type of arguments A and B: integer,
-                    S [A .. B] is okay for A >= 1 and B >= pred(A),
+                    S[A .. B] is okay for A >= 1 and B >= pred(A),
                     "abcde"[2 .. 4] => "bcd",
                     "abcde"[2 .. 7] => "bcde",
                     "abcde"[4 .. 3] => "",
@@ -3588,7 +3686,7 @@ CONTENTS
                     "abcde"[1 .. -1] => EXCEPTION INDEX_ERROR )
       [ A len B ] Access a substring from position A with length B
                   ( Type of arguments A and B: integer,
-                    S [A len B] is okay for A >= 1 and B >= 0,
+                    S[A len B] is okay for A >= 1 and B >= 0,
                     "abcde"[2 len 3] => "bcd",
                     "abcde"[2 len 5] => "bcde",
                     "abcde"[3 len 0] => "",
@@ -3597,7 +3695,7 @@ CONTENTS
                     "abcde"[0 len 2] => EXCEPTION INDEX_ERROR )
       [ A .. ]  Access a substring beginning at position A
                   ( Type of argument A: integer,
-                    S [A ..] is okay for A >= 1,
+                    S[A ..] is okay for A >= 1,
                     "abcde"[3 ..] => "cde",
                     "abcde"[6 ..] => "",
                     ""[1 ..] => "",
@@ -3605,7 +3703,7 @@ CONTENTS
                     "abcde"[0 ..] =>  EXCEPTION INDEX_ERROR )
       [ .. A ]  Access a substring ending at position A
                   ( Type of argument A: integer,
-                    S [.. A] is okay for A >= 0,
+                    S[.. A] is okay for A >= 0,
                     "abcde"[.. 4] => "abcd",
                     "abcde"[.. 6] => "abcde",
                     ""[.. 5] => "",
@@ -3654,7 +3752,7 @@ CONTENTS
                     rpos("XYZXYZ","ZYX") => 0,
                     rpos("123456789","") => 0 )
       rpos(A,B,C) Last position of char B in string A
-                 The search starts at position C of string A
+                  The search starts at position C of string A
                   ( Type of argument B: char,
                     Type of argument C: integer,
                     Type of result: integer,
@@ -3662,7 +3760,7 @@ CONTENTS
                     rpos("XYZYX",'Z', 2) => 0,
                     rpos("12345",'3', 5) => 3 )
       rpos(A,B,C) Last position of char B in string A
-                 The search starts at position C of string A
+                  The search starts at position C of string A
                   ( Type of argument C: integer,
                     Type of result: integer,
                     rpos("ABCABC","BC", 4) => 2,
@@ -3712,11 +3810,9 @@ CONTENTS
       rtrim(A)   Removes trailing spaces and control chars
                   ( rtrim(" /n xyz /r") => " /n xyz" )
       str(A)    Conversion to string
-                  ( Type of result: string,
-                    str(A) => A )
+                  ( str(A) => A )
       literal(A) Conversion to a literal
-                  ( Type of result: string,
-                    literal("ABC") => "\"ABC\"",
+                  ( literal("ABC") => "\"ABC\"",
                     literal("O' \"X\"") => "\"O\' \\\"X\\\"\"" )
       upper(A)  Conversion to upper case characters
                   ( upper("Upper") => "UPPER" )
@@ -3748,19 +3844,58 @@ CONTENTS
                         A := A[..pred(B)] & C & A[B+length(C)..],
                     A @:= [0] "xyz" => EXCEPTION INDEX_ERROR,
                     A @:= [pred(length(A))] "xyz" => EXCEPTION INDEX_ERROR )
+      ignore(A) Ignore value
+      for forVar range aString do
+        statements
+      end for   Loop over all elements of a string
+                  ( Type of argument forVar: char,
+                    Type of argument statements: proc )
+      for key keyVar range aString do
+        statements
+      end for   Loop over all indices of a string
+                  ( Type of argument keyVar: integer,
+                    Type of argument statements: proc )
+      for forVar key keyVar range aString do
+        statements
+      end for   Loop over all elements and indices of a string
+                  ( Type of argument forVar: char,
+                    Type of argument keyVar: integer,
+                    Type of argument statements: proc )
+      for forVar range aString until condition do
+        statements
+      end for   Loop over all elements of a string until condition is TRUE
+                Check the condition before the statements in the loop body are executed.
+                  ( Type of argument forVar: char,
+                    Type of argument condition: boolean,
+                    Type of argument statements: proc )
+      for key keyVar range aString until condition do
+        statements
+      end for   Loop over all indices of a string until condition is TRUE
+                Check the condition before the statements in the loop body are executed.
+                  ( Type of argument keyVar: integer,
+                    Type of argument condition: boolean,
+                    Type of argument statements: proc )
+      for forVar key keyVar range aString until condition do
+        statements
+      end for   Loop over all elements and indices of a string until condition is TRUE
+                Check the condition before the statements in the loop body are executed.
+                  ( Type of argument forVar: char,
+                    Type of argument keyVar: integer,
+                    Type of argument condition: boolean,
+                    Type of argument statements: proc )
 
 
 5.10 array
 
     The type 'array baseType' describes sequences of 'baseType'
-  elements (including the empty sequence).
-  Examples of array type declarations are:
+  elements (including the empty sequence). Examples of array type
+  declarations are:
 
     const type: striArrayType is array string;
     const type: structArrayType is array aStructType;
 
   This defines 'striArrayType' as an array type with 'string' elements. The
-  second line defines 'structArrayType' as an array type with aStructType
+  second line defines 'structArrayType' as an array type with 'aStructType'
   elements. Variables of these types are declared with:
 
     var striArrayType: striArr1 is striArrayType.value;
@@ -3777,9 +3912,10 @@ CONTENTS
   There are functions which generate arrays with the default minimal
   index of 1 and other functions which generate arrays with the minimal
   index taken from a parameter. The 'array' functions are defined
-  in the library "array.s7i". Arrays with non-integer index are defined
-  in the library "idxarray.s7i". An array type with 'char' index and
-  'bigInteger' elements is defined as:
+  in the library "array.s7i".
+
+  Arrays with non-integer index are defined in the library "idxarray.s7i".
+  An array type with 'char' index and 'bigInteger' elements is defined as:
 
     const type: charIndexArray is array [char] bigInteger;
 
@@ -3790,27 +3926,40 @@ CONTENTS
     var charIndexArray: bigArr3 is [char] (0_, 1_, 2_);
     var charIndexArray: bigArr4 is [' '] (32_, 33_, 34_);
 
+  The definition of 'charIndexArray' defines also the special 'times'
+  operator from above and the special possibilities to define literals
+  of 'charIndexArray'.
+
     Literal:
-      [] (elem1, elem2)  Create an array with the given elements
-                    The starting index of the array is 1.
-      [0] (elem1, elem2)  Create an array with the given elements
-                    The starting index of the array is 0.
+      [] (elem1, elem2)      Create an 'array' with the given elements.
+                             Index type is integer and starting index is 1.
+      [0] (elem1, elem2)     Create an 'array' with the given elements.
+                             Index type is integer and starting index is 0.
+      [char] (elem1, elem2)  Create an 'array' with the given elements.
+                             Index type is char and starting index is char.value (' ').
+      ['A'] (elem1, elem2)   Create an 'array' with the given elements.
+                             Index type is char and starting index is 'A'.
     Infix operators:
       &         Array concatenation
       times     Array generation
                   ( Left operand: integer,
                     Right operand: baseType,
-                    A times B Generates an 'array baseType'
-                    with A elements of B,
-                    (1 times B)[1] => B
+                    A times B Generates an 'array baseType' with A elements of B,
+                    3 times B => [] (B, B, B),
+                    (1 times B)[1] => B,
+                    (0 times B)[1] => EXCEPTION INDEX_ERROR,
                     -1 times B => EXCEPTION RANGE_ERROR )
       [ A .. B ] times C    Array generation
-                  ( Type of arguments A and B: integer )
+                  ( Type of arguments A and B: integer,
                     Type of argument C: baseType,
                     [ A .. B ] times C Generates an 'array baseType'
                     with pred(B - A) elements of C,
                     [ -1 .. -2 ] times B => empty array,
                     [ -1 .. -3 ] times B => EXCEPTION RANGE_ERROR )
+      indexType times A   Array generation for indices from indexType.first
+                          to indexType.last.
+                  ( Type of argument A: baseType,
+                    boolean times 5 => [FALSE] (5, 5) )
     Indices:
       [ A ]     Access one array element
                   ( Type of argument A: integer,
@@ -3821,21 +3970,21 @@ CONTENTS
                     A[succ(maxIdx(A))] => EXCEPTION INDEX_ERROR )
       [ A .. B ]  Get a sub array from the position A to the position B
                   ( Type of arguments A and B: integer,
-                    X [ A .. B ] is okay for A >= minIdx(X) and B >= pred(A),
+                    X[A .. B] is okay for A >= minIdx(X) and B >= pred(A),
                     anArray[pred(minIdx(anArray)) .. n] => EXCEPTION INDEX_ERROR,
                     anArray[n .. n - 2] => EXCEPTION INDEX_ERROR )
       [ A len B ]  Get a sub array from the position A with maximum length B
                   ( Type of arguments A and B: integer,
-                    X [ A len B ] is okay for A >= minIdx(X) and B >= 0,
+                    X[A len B] is okay for A >= minIdx(X) and B >= 0,
                     anArray[pred(minIdx(anArray)) len n] => EXCEPTION INDEX_ERROR,
                     anArray[n len -1] => EXCEPTION INDEX_ERROR )
       [ A .. ]  Get a sub array beginning at position A
                   ( Type of argument A: integer,
-                    X [ A .. ] is okay for A >= minIdx(X),
+                    X[A ..] is okay for A >= minIdx(X),
                     anArray[pred(minIdx(anArray)) ..] => EXCEPTION INDEX_ERROR )
       [ .. A ]  Get a sub array ending at position A
                   ( Type of argument A: integer,
-                    X [ .. A ] is okay for A >= pred(minIdx(X)),
+                    X[.. A] is okay for A >= pred(minIdx(X)),
                     anArray[.. minIdx(anArray) - 2] => EXCEPTION INDEX_ERROR )
     Relations:
       =, <>
@@ -3863,7 +4012,7 @@ CONTENTS
                     remove(anArray, 0) => EXCEPTION INDEX_ERROR for minIdx(anArray) = 1,
                     remove(anArray, 5) => EXCEPTION INDEX_ERROR for maxIdx(anArray) = 4 )
       remove(A,B,C) Remove the sub-array with with index B and length C from array A and
-                  return the removed sub-array
+                    return the removed sub-array
                   ( Type of argument B: integer,
                     Type of argument C: integer,
                     remove(A,B,C) is okay for B >= minIdx(A) and B <= maxIdx(A) and C >= 0,
@@ -3877,11 +4026,6 @@ CONTENTS
       A &:= B   Append element B to A
                   ( Type of argument B: baseType,
                     A &:= B => A := A & [] (B) )
-      for A range B do
-        C
-      end for   Loop over all elements of an array
-                  ( Type of argument A: baseType,
-                    Type of argument C: proc )
       insert(A,B,C) Insert element C into array A at index B
                   ( Type of argument B: integer,
                     Type of argument C: baseType,
@@ -3894,7 +4038,46 @@ CONTENTS
                     insert(anArray, 0, anotherAnarry) => EXCEPTION INDEX_ERROR for minIdx(anArray) = 1,
                     insert(anArray, 6, anotherAnarry) => EXCEPTION INDEX_ERROR for maxIdx(anArray) = 4 )
       insert(A, B) Insert B into the sorted array A
-                  ( Type of argument C: baseType )
+                  ( Type of argument B: baseType )
+      ignore(A) Ignore value
+      for forVar range anArray do
+        statements
+      end for   Loop over all elements of an array
+                  ( Type of argument forVar: baseType,
+                    Type of argument statements: proc )
+      for key keyVar range anArray do
+        statements
+      end for   Loop over all indices of an array
+                  ( Type of argument keyVar: indexType,
+                    Type of argument statements: proc )
+      for forVar key keyVar range anArray do
+        statements
+      end for   Loop over all elements and indices of an array
+                  ( Type of argument forVar: baseType,
+                    Type of argument keyVar: indexType,
+                    Type of argument statements: proc )
+      for forVar range anArray until condition do
+        statements
+      end for   Loop over all elements of an array until condition is TRUE
+                Check the condition before the statements in the loop body are executed.
+                  ( Type of argument forVar: baseType,
+                    Type of argument condition: boolean,
+                    Type of argument statements: proc )
+      for key keyVar range anArray until condition do
+        statements
+      end for   Loop over all indices of an array until condition is TRUE
+                Check the condition before the statements in the loop body are executed.
+                  ( Type of argument keyVar: indexType,
+                    Type of argument condition: boolean,
+                    Type of argument statements: proc )
+      for forVar key keyVar range anArray until condition do
+        statements
+      end for   Loop over all elements and indices of an array until condition is TRUE
+                Check the condition before the statements in the loop body are executed.
+                  ( Type of argument forVar: baseType,
+                    Type of argument keyVar: indexType,
+                    Type of argument condition: boolean,
+                    Type of argument statements: proc )
 
 
 5.11 hash
@@ -3948,22 +4131,23 @@ CONTENTS
       A @:= [B] C  Assign C to element B of hash table A
                   ( Type of argument B: keyType,
                     Type of argument C: baseType )
-      for A range B do
-        C
+      ignore(A) Ignore value
+      for forVar range aHash do
+        statements
       end for   Unsorted loop over all values of a hash
-                  ( Type of argument A: baseType,
-                    Type of argument C: proc )
-      for key A range B do
-        C
+                  ( Type of argument forVar: baseType,
+                    Type of argument statements: proc )
+      for key keyVar range aHash do
+        statements
       end for   Unsorted loop over all keys of a hash
-                  ( Type of argument A: keyType,
-                    Type of argument C: proc )
-      for A key B range C do
-        D
+                  ( Type of argument keyVar: keyType,
+                    Type of argument statements: proc )
+      for forVar key keyVar range aHash do
+        statements
       end for   Unsorted loop over all values and keys of a hash
-                  ( Type of argument A: baseType,
-                    Type of argument B: keyType,
-                    Type of argument D: proc )
+                  ( Type of argument forVar: baseType,
+                    Type of argument keyVar: keyType,
+                    Type of argument statements: proc )
 
 
 5.12 set
@@ -3992,8 +4176,11 @@ CONTENTS
   for 'bitset', which is defined in the library "bitset.s7i".
 
     Constants:
-      setType.EMPTY_SET  Empty set
-      EMPTY_SET  Empty set of the type bitset
+      {}                 Empty set of the type bitset
+      EMPTY_SET          Empty set of the type bitset
+      bitset.value       Default value of bitset ({})
+      setType.EMPTY_SET  Empty set of the type setType
+      setType.value      Default value of setType (setType.EMPTY_SET)
     Infix operators:
       |         Union
                   ( {1, 3} | {2, 3} => {1, 2, 3} )
@@ -4047,29 +4234,43 @@ CONTENTS
                     setType.EMPTY_SET > A => FALSE,
                     A > B => B < A )
     Functions:
-      card      Cardinality of a set
+      bitset(A) Convert an integer number to a bitset
+                  ( Type of argument A: integer,
+                    bitset(2220) => {2, 3, 5, 7, 11} )
+      bitset(A) Convert a string to a bitset
+                  ( Type of argumant A: string,
+                    bitset("{}") => {},
+                    bitset("{2, 3, 5, 7}") => {2, 3, 5, 7} )
+      integer(A) Convert a bitset to an integer
+                  ( Type of result: integer,
+                    integer({2, 3, 5, 7, 11}) => 2220 )
+      card(A)   Cardinality of a set
                   ( Type of result: integer,
                     card(setType.EMPTY_SET) => 0  )
-      min       Minimal element
+      min(A)    Minimal element
                   ( Type of result: baseType,
                     Delivers the element from the set for
                     which the following condition holds:
                        Element <= X
                     for all X which are in the set.
                     min(setType.EMPTY_SET) => EXCEPTION RANGE_ERROR )
-      max       Maximum element
+      max(A)    Maximum element
                   ( Type of result: baseType,
                     Delivers the element from the set for
                     which the following condition holds:
                        Element >= X
                     for all X which are in the set.
                     min(setType.EMPTY_SET) => EXCEPTION RANGE_ERROR )
+      next(A, B) Minimal element of set A that is larger than B
+                  ( Type of argument B: baseType,
+                    Type of result: baseType,
+                    next(A, max(A)) => EXCEPTION RANGE_ERROR )
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(setType.EMPTY_SET) => "{}",
                     str({}) => "{}" )
                     str({1, 2}) => "{1, 2}" )
-      rand      Random element from a set
+      rand(A)   Random element from a set
                 The random elements are uniform distributed.
                   ( Type of result: baseType,
                     rand(setType.EMPTY_SET) => EXCEPTION RANGE_ERROR )
@@ -4077,16 +4278,27 @@ CONTENTS
                   ( Type of result: integer )
       hashCode(A) Hash function
                   ( Type of result: integer )
+      toArray(A)  Obtain an array containing all the values in A
+                  ( Type of result: array baseType )
     Statements:
+      A |:= B   Assign the union of A and B to A
+      A &:= B   Assign the intersection of A and B to A
+      A -:= B   Assign the difference of A and B to A
+      A @:= [B] C  Add or remove B to respectively from A
+                  ( Type of argument B: baseType,
+                    Type of argument C: boolean,
+                    A @:= [B] TRUE => incl(A,B),
+                    A @:= [B] FALSE => excl(A,B) )
       incl(A,B) Include element B to set A
                   ( Type of argument B: baseType )
       excl(A,B) Exclude element B from set A
                   ( Type of argument B: baseType )
-      for A range B do
-        C
+      ignore(A) Ignore value
+      for forVar range aSet do
+        statements
       end for   Loop over all elements of a set
-                  ( Type of argument A: baseType,
-                    Type of argument C: proc )
+                  ( Type of argument forVar: baseType,
+                    Type of argument statements: proc )
 
 
 5.13 struct
@@ -4138,19 +4350,1004 @@ CONTENTS
                   ( example->element )
     Relations:
       =, <>
+    Statements:
+      ignore(A) Ignore value
+
+
+5.14 ENUMERATION
+
+    With
+
+    const type: enumType is new enum
+        enum_literal1, enum_literal2
+      end enum;
+
+  a new enumeration type is declared. The values of this type are:
+
+    enum_literal1 and enum_literal2
+
+  For a enumeration type only few operations are predefined.
+  Additional operations must be defined separately. So it is
+  necessary to define the functions 'str' and 'parse' in order to
+  do I/O for a new enumeration type.
+
+    Constants:
+      enumType.value  Default value of enumType (enum_literal1)
+      enumType.first  Minimum value of enumType (enum_literal1)
+      enumType.last   Maximum value of enumType (enum_literal2)
+    Infix operators:
+      enumType conv A  Conversion from integer A to enumType
+                  ( Type of argument A: integer,
+                    enumType conv 0 => enum_literal1,
+                    enumType conv (-1) => EXCEPTION RANGE_ERROR )
+      integer conv A   Conversion from enumType A to integer
+                  ( Type of result: integer,
+                    integer conv enum_literal1 => 0 )
+    Relations:
+      =, <>, <, <=, >, >=
     Functions:
-      incl(A, B) Include element in MODULE
-                  ( Type of argument B: reference )
-      excl(A, B) Exclude element from MODULE
-                  ( Type of argument B: reference )
+      ord(A)    Ordinal number
+                  ( Type of result: integer )
+      succ(A)   Successor
+                  ( succ(A) => enumType conv(succ(ord(A))),
+                    succ(enumType.last) => EXCEPTION RANGE_ERROR )
+      pred(A)   Predecessor
+                  ( pred(A) => enumType conv(pred(ord(A))),
+                    pred(enumType.first) => EXCEPTION RANGE_ERROR )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+    Statements:
+      incr(A)   Increment
+                  ( incr(A) => A:=succ(A) )
+      decr(A)   Decrement
+                  ( decr(A) => A:=pred(A) )
+      ignore(A) Ignore value
 
 
-5.14 category
+5.15 bin64
+
+    The type 'bin64' describes bit-patterns with 64 bits. It uses
+  the same representation as an 'integer'. There is a division of
+  responsibility. The type 'bin64' is for bitwise operations and
+  the type 'integer' is for arithmetic operations. In compiled
+  programs conversionsions between 'bin64' and 'integer' have no
+  overhead.
+
+    Constants:
+      bin64.value  Default value of bin64 (bin64(0))
+    Prefix operators:
+      ~         Bitwise not
+    Infix operators:
+      &         Bitwise and
+      |         Bitwise inclusive or
+      ><        Bitwise exclusive or (xor)
+      A << B    Shift left
+                  ( Type of argument B: integer,
+                    A << B is okay for B >= 0 and B <= 63,
+                    A << B => EXCEPTION OVERFLOW_ERROR for B < 0 or B >= 64,
+                    A << 0 => A,
+                    bin64(16#1234567890abcde0) << 4 => bin64(16#234567890abcde00) )
+      A >> B    Shift right
+                  ( Type of argument B: integer,
+                    A >> B is okay for B >= 0 and B <= 63,
+                    A >> B => EXCEPTION OVERFLOW_ERROR for B < 0 or B >= 64,
+                    A >> 0 => A,
+                    bin64(16#1234567890abcde0) >> 4 => bin64(16#1234567890abcde) )
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
+      A radix B Convert to a string using a radix
+                  ( Type of result: string,
+                    Type of argument B: integer )
+      A RADIX B Convert to a string using a radix
+                  ( Type of result: string,
+                    Type of argument B: integer )
+      integer conv A  Convert to integer
+                  ( Type of result: integer )
+      bin64 conv A  Convert to bin64
+                  ( Type of argument A: integer )
+    Relations:
+      =, <>
+    Functions:
+      bin64(A)  Conversion of integer to bin64
+                  ( Type of argument: integer )
+      bin64(A)  Conversion of bigInteger to bin64
+                  ( Type of argument: bigInteger )
+      bin64(A)  Conversion of char to bin64
+                  ( Type of argument: char )
+      bin64(A)  Get bits in IEEE 754 double-precision representation from a float
+                  ( Type of argument: float,
+                    bin64(1.0) => bin64(16#3ff0000000000000) )
+      ord(A)    Ordinal number
+                  ( Type of result: integer )
+      integer(A) Ordinal number
+                  ( Type of result: integer )
+      big(A)    Conversion to bigInteger
+                  ( Type of result: bigInteger )
+      bigInteger(A) Conversion to bigInteger
+                  ( Type of result: bigInteger )
+      float(A)  Get float from bits in IEEE 754 double-precision representation
+                  ( Type of result: float,
+                    float(bin64(16#3ff0000000000000)) => 1.0 )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+      rand(bin64) Random bin64 value
+                 The random values are uniform distributed.
+                  ( rand(bin64) => bin64(rand(integer.first, integer.last)) )
+      str(A)    Conversion to string
+                  ( Type of result: string,
+                    str(bin64(18446744073709551615_)) => "18446744073709551615" )
+      bytes(aBin64, BE, len) Convert into a string of bytes with big-endian encoding
+                  ( Type of result: string )
+      bytes(aBin64, LE, len) Convert into a string of bytes with little-endian encoding
+                  ( Type of result: string )
+      rotLeft(A, B)  Rotate the bits of a A left by B bits
+                  ( rotLeft(bin64(16#76543210fedcba98), 12) => bin64(16#43210fedcba98765) )
+      rotRight(A, B)  Rotate the bits of a A right by B bits
+                  ( rotRight(bin64(16#76543210fedcba98), 40) => bin64(16#10fedcba98765432) )
+      getBinary(aBitset, lowestBitNum)  Get 64 bits from aBitset starting with lowestBitNum
+                  ( Type of argument aBitset: bitset,
+                    Type of argument lowestBitNum: integer )
+      float2MbfBits(aFloat, DOUBLE) Get bits in MBF double-precision representation from aFloat
+                 Microsoft Binary Format (MBF) is a format for floating point numbers.
+                  ( Type of argument aFloat: float,
+                    float2MbfBits(1.0, DOUBLE) => bin64(16#8100000000000000_) )
+      mbfBits2Float(bits) Get a float from bits in MBF double-precision representation
+                 Microsoft Binary Format (MBF) is a format for floating point numbers.
+                  ( Type of result: float,
+                    mbfBits2Float(bin64(16#8100000000000000_)) => 1.0 )
+      bin64(bytes, LE) Convert string of little-endian bytes to bin64
+                  ( Type of argument bytes: string )
+      bin64(bytes, BE) Convert string of big-endian bytes to bin64
+                  ( Type of argument bytes: string )
+    Statements:
+      A &:= B   Bitwise and copy
+                  ( A &:= B ⇒ A := A & B )
+      A |:= B   Bitwise inclusive or copy
+                  ( A |:= B ⇒ A := A | B )
+      A ><:= B  Bitwise exclusive or (xor) copy
+                  ( A ><:= B ⇒ A := A >< B )
+      A <<:= B  Shift left copy
+                  ( A <<:= B ⇒ A := A << B )
+      A >>:= B  Shift right copy
+                  ( A >>:= B ⇒ A := A >> B )
+      ignore(A) Ignore value
+
+
+5.16 bin32
+
+    The type 'bin32' describes bit-patterns with 32 bits. It uses
+  the same representation as an 'integer'. There is a division of
+  responsibility. The type 'bin32' is for bitwise operations and
+  the type 'integer' is for arithmetic operations. In compiled
+  programs conversionsions between 'bin32' and 'integer' have no
+  overhead.
+
+    Constants:
+      bin32.value  Default value of bin32 (bin32(0))
+    Prefix operators:
+      ~         Bitwise not
+    Infix operators:
+      &         Bitwise and
+      |         Bitwise inclusive or
+      ><        Bitwise exclusive or (xor)
+      A << B    Shift left
+                  ( Type of argument B: integer,
+                    A << B is okay for B >= 0 and B <= 63,
+                    A << B => EXCEPTION OVERFLOW_ERROR for B < 0 or B >= 64,
+                    A << 0 => A,
+                    bin32(16#abcdef) << 4 => bin32(16#abcdef0) )
+      A >> B    Shift right
+                  ( Type of argument B: integer,
+                    A >> B is okay for B >= 0 and B <= 63,
+                    A >> B => EXCEPTION OVERFLOW_ERROR for B < 0 or B >= 64,
+                    A >> 0 => A,
+                    bin32(16#abcdef) >> 4 => bin32(16#abcde) )
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
+      A radix B Convert to a string using a radix
+                  ( Type of result: string,
+                    Type of argument B: integer )
+      A RADIX B Convert to a string using a radix
+                  ( Type of result: string,
+                    Type of argument B: integer )
+      integer conv A  Convert to integer
+                  ( Type of result: integer )
+      bin32 conv A  Convert to bin32
+                  ( Type of argument A: integer )
+    Relations:
+      =, <>
+    Functions:
+      bin32(A)  Conversion of integer to bin32
+                  ( Type of argument: integer )
+      bin32(A)  Conversion of char to bin32
+                  ( Type of argument: char )
+      bin32(A)  Get bits in IEEE 754 single-precision representation from a float
+                  ( Type of argument: float,
+                    bin32(1.0) => bin32(16#3f800000) )
+      ord(A)    Ordinal number
+                  ( Type of result: integer )
+      integer(A) Ordinal number
+                  ( Type of result: integer )
+      float(A)  Get float from bits in IEEE 754 single-precision representation
+                  ( Type of result: float,
+                    float(bin32(16#3f800000)) => 1.0 )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+      rand(bin32) Random bin32 value
+                 The random values are uniform distributed.
+                  ( rand(bin32) => bin32(rand(0, 4294967295)) )
+      str(A)    Conversion to string
+                  ( Type of result: string,
+                    str(bin32(4294967295)) => "4294967295" )
+      bytes(aBin32, BE, len) Convert into a string of bytes with big-endian encoding
+                  ( Type of result: string )
+      bytes(aBin32, LE, len) Convert into a string of bytes with little-endian encoding
+                  ( Type of result: string )
+      rotLeft(A, B)  Rotate the bits of a A left by B bits
+                  ( rotLeft(bin32(16#12345678), 8) => bin32(16#34567812) )
+      rotRight(A, B)  Rotate the bits of a A right by B bits
+                  ( rotRight(bin32(16#12345678), 8) => bin32(16#78123456) )
+      float2MbfBits(aFloat, SINGLE) Get bits in MBF single-precision representation from aFloat
+                 Microsoft Binary Format (MBF) is a format for floating point numbers.
+                  ( Type of argument aFloat: float,
+                    float2MbfBits(1.0, SINGLE) => bin32(16#81000000) )
+      mbfBits2Float(bits) Get a float from bits in MBF single-precision representation
+                 Microsoft Binary Format (MBF) is a format for floating point numbers.
+                  ( Type of result: float
+                    mbfBits2Float(bin32(16#81000000)) => 1.0 )
+      bin32(bytes, LE) Convert string of little-endian bytes to bin32
+                  ( Type of argument bytes: string )
+      bin32(bytes, BE) Convert string of big-endian bytes to bin32
+                  ( Type of argument bytes: string )
+    Statements:
+      A &:= B   Bitwise and copy
+                  ( A &:= B ⇒ A := A & B )
+      A |:= B   Bitwise inclusive or copy
+                  ( A |:= B ⇒ A := A | B )
+      A ><:= B  Bitwise exclusive or (xor) copy
+                  ( A ><:= B ⇒ A := A >< B )
+      A <<:= B  Shift left copy
+                  ( A <<:= B ⇒ A := A << B )
+      A >>:= B  Shift right copy
+                  ( A >>:= B ⇒ A := A >> B )
+      ignore(A) Ignore value
+
+
+5.17 bstring
+
+    The type 'bstring' describes strings of bytes. It is used to store binary data.
+
+    Constants:
+      bstring.value  Default value of bstring (bstring(""))
+    Infix operators:
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
+      bstring parse A   Conversion of string to bstring
+                  ( Type of argument A: string )
+    Indices:
+      [ A ]     Access one character
+                  ( Type of argument A: integer,
+                    Type of result: char )
+    Functions:
+      str(A)    Conversion to string
+                  ( Type of result: string )
+      literal(A) Conversion to a literal
+                  ( Type of result: string )
+      string(A) Conversion to string
+                  ( Type of result: string )
+      bstring(A) Conversion to bstring
+                  ( Type of argument A: string )
+      length(A) Length of bstring
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      bStriBe2BigInt(A, isSigned) Convert a bstring (interpreted as big-endian) to a bigInteger
+                  ( Type of argument isSigned: boolean,
+                    Type of result: bigInteger )
+      bStriLe2BigInt(A, isSigned) Convert a bstring (interpreted as little-endian) to a bigInteger
+                  ( Type of argument isSigned: boolean,
+                    Type of result: bigInteger )
+      bStriBe(A, isSigned) Convert a bigInteger into a big-endian bstring
+                  ( Type of argument A: bigInteger,
+                    Type of argument isSigned: boolean )
+      bStriLe(A, isSigned) Convert a bigInteger into a little-endian bstring
+                  ( Type of argument A: bigInteger,
+                    Type of argument isSigned: boolean )
+    Relations:
+      =, <>
+    Statements:
+      ignore(A) Ignore value
+      for forVar range bstri do
+        statements
+      end for   Loop over all elements of a bstring
+                  ( Type of argument forVar: char,
+                    Type of argument statements: proc )
+
+
+5.18 color
+
+    The type 'color' describes colors. It uses the additive color
+  model with red, green and blue lights. The red, green and blue
+  lights are specified with 'integer' values in the range 0 .. 65535.
+  The 'color' functions are defined in the library "color.s7i".
+
+    Elements:
+      var integer: redLight is 0;
+      var integer: greenLight is 0;
+      var integer: blueLight is 0;
+    Constants:
+      color.value    Default value of color (black)
+      black          color(0, 0, 0);
+      dark_red       color(32768, 0, 0);
+      dark_green     color(0, 32768, 0);
+      brown          color(32768, 16384, 0);
+      dark_blue      color(0, 0, 32768);
+      dark_magenta   color(32768, 0, 32768);
+      dark_cyan      color(0, 65535, 65535);
+      light_gray     color(49152, 49152, 49152);
+      dark_gray      color(16384, 16384, 16384);
+      light_red      color(65535, 0, 0);
+      light_green    color(0, 65535, 0);
+      yellow         color(65535, 65535, 0);
+      light_blue     color(0, 0, 65535);
+      light_magenta  color(65535, 0, 65535);
+      light_cyan     color(32768, 65535, 65535);
+      white          color(65535, 65535, 65535);
+      orange         color(65535, 32768, 0);
+      amber          color(49152, 32768, 16384);
+      pink           color(65535, 32768, 32768);
+    Infix operators:
+      +         Add two colors in an additive color system
+    Relations:
+      =, <>
+    Functions:
+      color(R,G,B) Creates a color from Red, Green and Blue
+                  ( Type of argument R: integer,
+                    Type of argument G: integer,
+                    Type of argument B: integer )
+      gray(BR)  Create a gray color value from BR
+                  ( Type of argument BR: integer )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+    Statements:
+      clear(A)  Clear current window
+      ignore(A) Ignore value
+
+
+5.19 time
+
+    The type 'time' describes times and dates.
+  For dates the proleptic Gregorian calendar is used (which assumes
+  that the Gregorian calendar was even in effect at dates preceding
+  its official introduction). This convention is used according to
+  ISO 8601 which also defines that positive and negative years exist
+  and that the year preceding 1 is 0. Time is measured in hours,
+  minutes, seconds and micro seconds. Additionally information about
+  the difference to UTC and a flag indicating daylight saving time
+  is maintained also. The 'time' functions are defined in the
+  library "time.s7i".
+
+    Elements:
+      var integer: year is 0;
+      var integer: month is 1;
+      var integer: day is 1;
+      var integer: hour is 0;
+      var integer: minute is 0;
+      var integer: second is 0;
+      var integer: micro_second is 0;
+    Constants:
+      time.value  Default value of time (time(0, 1, 1, 0, 0, 0))
+    Infix operators:
+      time parse A   Conversion of string to time
+                  ( Type of argument A: string,
+                    time parse "2005-02-28 12:00:01" => 2005-02-28 12:00:01,
+                    time parse "2005-02-29 12:00:01" => EXCEPTION RANGE_ERROR )
+    Relations:
+      =, <>, <, <=, >, >=
+    Functions:
+      time(NOW)  Gets the current time
+      time(A)  Conversion of string to time
+                  ( Type of argument A: string,
+                    time("2005-02-28 12:00:01") => 2005-02-28 12:00:01,
+                    time("2005-02-29 12:00:01") => EXCEPTION RANGE_ERROR )
+      str(A)    Conversion to string
+                  ( Type of result: string )
+      strDate(A)  Conversion of the date to string
+                    with ISO 8601 YYYY-MM-DD date format
+                  ( Type of result: string )
+      strTime(A)  Conversion of the daytime to string
+                    with ISO 8601 hh:mm:ss time format
+                  ( Type of result: string )
+      strDateTime(A)  Conversion of date and time to string
+                    with ISO 8601 YYYY-MM-DD hh:mm:ss format
+                  ( Type of result: string )
+      strTimeZone(A)  Conversion of the time zone to string
+                  ( Type of result: string )
+      truncToSecond(A)  Truncate a time to a second
+      truncToMinute(A)  Truncate a time to a minute
+      truncToHour(A)  Truncate a time to a hour
+      truncToDay(A)  Truncate a time to a day
+      truncToMonth(A)  Truncate a time to a month
+      truncToYear(A)  Truncate a time to a year
+      isLeapYear(A)  Determine if a given year is a leap year
+                  ( Type of argument A: integer )
+                  ( Type of result: boolean )
+      daysInYear(Y)  Calculate the number of days in a year
+                  ( Type of argument Y: integer,
+                    Type of result: integer )
+      daysInMonth(Y, M)  Calculate the number of days in a month
+                  ( Type of argument Y: integer,
+                    Type of argument M: integer,
+                    Type of result: integer )
+      daysInMonth(A)  Calculate the number of days in a month
+                  ( Type of result: integer )
+      dayOfWeek(A)  Day of the week with Monday as 1
+                  ( Type of result: integer )
+      dayOfYear(A)  Day of the year with 1 January as 1
+                  ( Type of result: integer )
+      weekOfYear(Y, D)  Compute the week number of a year (0 to 53).
+                    According to ISO 8601: Week number 1 of
+                    every year contains the 4. of january.
+                  ( Type of argument Y: integer,
+                    Type of argument D: integer,
+                    Type of result: integer )
+      weekOfYear(A)  Compute the week number of a year (0 to 53).
+                    According to ISO 8601: Week number 1 of
+                    every year contains the 4. of january.
+                  ( Type of result: integer )
+      weekDateYear(A)  Compute the year of the ISO 8601 week date
+                  ( Type of result: integer )
+      weekDateWeek(A)  Compute the week of the ISO 8601 week date
+                  ( Type of result: integer )
+      toUTC(A)  Conversion to Coordinated Universal Time (UTC)
+      julianDayNumber(A)  Number of days that have elapsed since
+                January 1, 4713 BC in the proleptic Julian calendar
+                  ( Type of result: integer )
+      julianDayNumToTime(A)  Convert julian day number to time
+                  ( Type of argument A: integer )
+      timestamp1970(A)  Time expressed in seconds since the
+                Unix Epoch (1970-01-01 00:00:00 UTC)
+                  ( Type of result: integer )
+      timestamp1970ToTime(A)  Convert a timestamp into a time from
+                the local time zone
+                  ( Type of argument A: integer )
+      compare(A, B)  Compare function
+                  ( Type of result: integer )
+      hashCode(A)  Hash function
+                  ( Type of result: integer )
+    Statements:
+      await(A)  Wait until the given time
+      ignore(A) Ignore value
+
+
+5.20 duration
+
+    The type 'duration' describes time and date durations.
+  The 'duration' functions are defined in the library
+  "duration.s7i".
+
+    Constants:
+      duration.value  Default value of duration (duration("P0D"))
+    Prefix operators:
+      +         Identity
+      -         Change sign
+    Infix operators:
+      +         Add two durations
+      -         Subtract two durations
+      *         Multiply a duration by an integer
+                  ( Type of left operand: integer )
+      *         Multiply a duration by an integer
+                  ( Type of right operand: integer )
+      +         Add a duration to a time
+                  ( Type of left operand: time,
+                    Type of result: time )
+      -         Subtract a duration from a time
+                  ( Type of left operand: time,
+                    Type of result: time )
+      -         Subtract two times
+                  ( Type of left operand: time,
+                    Type of right operand: time )
+      duration parse A   Conversion of string to duration
+                  ( Type of argument A: string,
+                    duration parse "P2M28DT12H1S" => P2M28DT12H1S,
+                    duration parse "P13M28DT12H1S" => EXCEPTION RANGE_ERROR )
+    Relations:
+      =, <>, <, <=, >, >=
+    Functions:
+      duration(A)  Conversion of string to duration
+                  ( Type of argument A: string,
+                    duration("P2M28DT12H1S") => P2M28DT12H1S,
+                    duration("P13M28DT12H1S") => EXCEPTION RANGE_ERROR )
+      getYears(A)  Obtains the years of a duration
+                  ( Type of result: integer )
+      getMonths(A) Obtains the months of a duration
+                  ( Type of result: integer )
+      getDays(A)   Obtains the days of a duration
+                  ( Type of result: integer )
+      getHours(A)  Obtains the hours of a duration
+                  ( Type of result: integer )
+      getMinutes(A) Obtains the minutes of a duration
+                  ( Type of result: integer )
+      getSeconds(A) Obtains the seconds of a duration
+                  ( Type of result: integer )
+      getMicroSeconds(A)  Obtains the micro seconds of a duration
+                  ( Type of result: integer )
+      toYears(A)  Return the duration in years
+                  ( Type of result: integer )
+      toMonths(A) Return the duration in months
+                  ( Type of result: integer )
+      toDays(A)   Return the duration in days
+                  ( Type of result: integer )
+      toHours(A)  Return the duration in hours
+                  ( Type of result: integer )
+      toMinutes(A) Return the duration in minutes
+                  ( Type of result: integer )
+      toSeconds(A) Return the duration in seconds
+                  ( Type of result: integer )
+      toMicroSeconds(A)  Return the duration in micro seconds
+                  ( Type of result: integer )
+      str(A)    Conversion to string
+                  ( Type of result: string )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+    Statements:
+      A +:= B   Increment A by B
+                  ( A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( A -:= B => A := A - B )
+      A +:= B   Increment time A by B
+                  ( Type of argument A: time,
+                    A +:= B => A := A + B )
+      A -:= B   Decrement time A by B
+                  ( Type of argument A: time,
+                    A -:= B => A := A - B )
+      wait(A)   Wait for given duration
+      ignore(A) Ignore value
+
+  For the operations '-' (negate a 'duration') and
+  '-' (subtract two 'time' values) holds:
+    (tim1 - tim2) = - (tim2 - tim1)
+
+  For the operations '+' (add a 'duration' to a 'time') and
+  '-' (subtract two 'time' values) holds:
+    tim2 + (tim1 - tim2) = tim1
+
+  For the operations '-' (subtract a 'duration' from a 'time') and
+  '-' (subtract two 'time' values) holds:
+    tim1 - (tim1 - tim2) = tim2
+
+
+5.21 file
+
+    The type 'file' is the interface type for sequential files.
+  The 'file' functions are defined in the library "file.s7i".
+
+    Variables:
+      STD_NULL  Standard null file
+      STD_IN    Standard input of the operating system
+      STD_OUT   Standard output of the operating system
+      STD_ERR   Standard error output of the operating system
+      IN        Standard input file used for file input
+                  operations when no file is specified
+                  ( IN is initialized with STD_IN )
+      OUT       Standard output file used for file output
+                  operations when no file is specified
+                  ( OUT is initialized with STD_OUT )
+      CONSOLE_KEYBOARD  Keyboard file describing the console keyboard.
+      GRAPH_KEYBOARD    Keyboard file describing the graphic keyboard.
+      KEYBOARD  Variable describing the keyboard.
+                  ( KEYBOARD is initialized with CONSOLE_KEYBOARD )
+    Implementation types of the file interface:
+      null_file      Base implementation type for the file interface
+      external_file  Files of the operating system
+      utf8File       UTF-8 encoded files of the operating system
+      utf16File      UTF-16 encoded files of the operating system
+      utf16leFile    UTF-16LE encoded files of the operating system
+      utf16beFile    UTF-16BE encoded files of the operating system
+      dirFile        Read the contents of a directory
+      echoFile       Generate an echo of the input
+      lineFile       Read a baseFile linewise
+      editLineFile   Support linewise editing with history
+      gzipFile       Read decompressed data from a GZIP file
+      gzipWriteFile  Write compressed data into a GZIP file
+      bufferFile     Buffer (cache) data based on the given base file
+      lzmaFile       Read decompressed data from a LZMA file
+      popenFile      Operating system pipes
+      popen8File     UTF-8 encoded operating system pipes
+      socket         Sockets of the operation system
+      tlsFile        Transport Layer Security (TLS/SSL) sockets
+      striFile       Files stored in a string
+      subFile        Read access to the sub segment of a base file
+      xzFile         Read decompressed data from a XZ file
+      zstdFile       Read decompressed data from a Zstandard file
+    Relations:
+      =, <>
+    Functions to open a file:
+      open(path, mode) Open external file
+                  ( Type of argument path: string,
+                    Type of argument mode: string,
+                    Type of result: file,
+                    Returns STD_NULL if open was not possible )
+      openUtf8(path, mode) Open external UTF-8 encoded file
+                  ( Type of argument path: string,
+                    Type of argument mode: string,
+                    Type of result: file,
+                    Returns STD_NULL if open was not possible )
+      openUtf16(path, mode) Open existing UTF-16LE or UTF-16BE encoded file
+                  ( Type of argument path: string,
+                    Type of argument mode: string,
+                    Type of result: file,
+                    Returns STD_NULL if open was not possible )
+      openUtf16le(path, mode) Open UTF-16LE encoded file
+                  ( Type of argument path: string,
+                    Type of argument mode: string,
+                    Type of result: file,
+                    Returns STD_NULL if open was not possible )
+      openUtf16be(path, mode) Open UTF-16BE encoded file
+                  ( Type of argument path: string,
+                    Type of argument mode: string,
+                    Type of result: file,
+                    Returns STD_NULL if open was not possible )
+      openStriFile(content) Open a striFile with the given string content
+                  ( Type of argument content: string )
+      openStriFile Open a striFile with an empty string content
+      openGzipFile(compressed, READ) Open a GZIP file for reading (decompression)
+                  ( Returns STD_NULL if the file is not in GZIP format )
+      openGzipFile(destFile, WRITE) Open a GZIP file for writing (compression)
+           The data written to this file is compressed with GZIP and written to destFile.
+      openLzmaFile(compressed) Open a LZMA file for reading (decompression)
+                  ( Returns STD_NULL if the file is not in LZMA format )
+      openXzFile(compressed)  Open a XZ file for reading (decompression)
+                  ( Returns STD_NULL if the file is not in XZ format )
+      openZstdFile(compressed) Open a Zstandard file for reading (decompression)
+                  ( Returns STD_NULL if the file is not in Zstandard format )
+      popen(A, B) Open a pipe to a process
+                  ( Type of argument A: string,
+                    Type of argument B: string,
+                    Type of result: file,
+                    Returns STD_NULL if popen was not possible )
+      popen8(A, B) Open a UTF-8 pipe to a process
+                  ( Type of argument A: string,
+                    Type of argument B: string,
+                    Type of result: file,
+                    Returns STD_NULL if popen8 was not possible )
+      openInetSocket(port) Open local Internet client socket
+                  ( Type of argument port: integer,
+                    Type of result: file,
+                    Returns STD_NULL if open was not possible )
+      openInetSocket(addr, port) Open Internet client socket
+                  ( Type of argument addr: string,
+                    Type of argument port: integer,
+                    Type of result: file,
+                    Returns STD_NULL if open was not possible )
+      openTlsSocket(addr, port) Open TLS socket
+                  ( Type of argument addr: string,
+                    Type of argument port: integer,
+                    Type of result: file,
+                    Returns STD_NULL if open was not possible )
+      openDir(directoryPath)  Open a directory file
+                  ( Type of argument directoryPath: string )
+      openEcho(inFile, outFile) Open an echo file
+      openLine(aFile) Open a lineFile to filter aFile linewise
+      openEditLine(inFile, outFile) Open an Unicode filter file
+                    for linewise editing with history
+      openEditLineLatin1(inFile, outFile) Open a Latin-1 filter file
+                    for linewise editing with history
+    Functions:
+      length(A) Length of file A
+                  ( Type of result: integer )
+      tell(A)   Return the actual file position
+                  ( Type of argument: file,
+                    The first position in the file is 1 )
+      seekable(A) Determine if file A is seekable
+      getc(A)   Get one character from file A
+                  ( Type of result: char )
+      gets(A, B) Get string with maximum length B from file A
+                  ( Type of argument A: integer,
+                    Type of argument B: file,
+                    Type of result: string,
+                    gets(A, -1) => EXCEPTION RANGE_ERROR )
+      getwd(A)  Get one word from file A
+                  ( Type of result: string )
+      getln(A)  Get one line from file A
+                  ( Type of result: string )
+      eoln(A)   End of line
+                  ( Type of result: boolean )
+      eof(A)    End of file
+                  ( Type of result: boolean )
+      hasNext(A) A call of getc would not return the EOF character
+                  ( Type of result: boolean )
+      inputReady(A) At least one character can be read without blocking.
+                  ( Type of result: boolean )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+    Statements:
+      write(A, B) Write string B to file A
+                  ( Type of argument B: string )
+      writeln(A) Write a new line to file A
+      writeln(A, B) Write string B and new line to file A
+                  ( Type of argument B: string )
+      read(A, B) Read a word from file A into string B
+                  ( Type of argument B: string )
+      read(A, B, C) Read a word from file A into B or use default value C
+                  ( Type of argument B: string,
+                    Type of argument C: string )
+      readln(A)  Read a line from file A
+      readln(A, B) Read a line from file A into the string B
+                  ( Type of right operand: string )
+      readln(A, B, C)  Read a line from file A into B or use default value C
+                  ( Type of argument B: string,
+                    Type of argument C: string )
+      skip(A, B) Skip B characters from file A
+      backSpace(A) Write backspace to file A
+      close(A)  Close file A
+      flush(A)  Flush file A
+      seek(A, B) Set actual file position of file A to B
+                  ( Type of argument B: integer,
+                    seek(A, 1) => Set to file begin,
+                    seek(A, length(A)) => Set to last position,
+                    seek(A, length(A) + 1) => Set to end of file,
+                    seek(A, 0) => EXCEPTION RANGE_ERROR )
+      truncate(A, B) Truncate file A to length B
+                  ( Type of argument B: integer )
+      ignore(A) Ignore value
+
+
+5.22 text
+
+    The type 'text' describes two dimensional files.
+  The 'text' functions are defined in the library "text.s7i".
+
+    Variables:
+      STD_CONSOLE  Standard console file of the current process.
+    Implementation types of the text interface:
+      console_file    Write to the text console/window
+      graph_file      Write to a graphic window with the system font
+      window_file     Write to a rectangular area in another text
+      pixmapFontFile  Write to a graphic window with a pixmap font
+      striText        Text file stored in an array of strings
+    Relations:
+      =, <>
+    Functions to open a text:
+      open(CONSOLE)  Creates console_file at the upper left corner of the console/window.
+      open(graphWin)  Creates a graph_file at the upper left corner of graphWin
+                  ( Type of argument graphWin: PRIMITIVE_WINDOW )
+      open(graphWin, minX, minY)  Creates a graph_file at (minX, minY) in graphWin
+                  ( Type of argument graphWin: PRIMITIVE_WINDOW,
+                    Type of argument minX: integer,
+                    Type of argument minY: integer )
+      open(graphWin, minX, minY, width, height)  Creates a graph_file at (minX, minY) in graphWin
+                  ( Type of argument graphWin: PRIMITIVE_WINDOW,
+                    Type of argument minX: integer,
+                    Type of argument minY: integer,
+                    Type of argument width: integer,
+                    Type of argument height: integer )
+      openWindow(outText, upper, left, height, width)  Creates a window_file at (left, upper) in outText
+                  ( Type of argument upper: integer,
+                    Type of argument left: integer,
+                    Type of argument height: integer,
+                    Type of argument width: integer )
+      openPixmapFontFile(win)  Creates a pixmapFontFile at the upper left corner of win
+                  ( Type of argument win: PRIMITIVE_WINDOW )
+      openPixmapFontFile(win, minX, minY)  Creates a pixmapFontFile at (minX, minY) in win
+                  ( Type of argument win: PRIMITIVE_WINDOW,
+                    Type of argument minX: integer,
+                    Type of argument minY: integer )
+      openStriText(content)  Open a striText with the given content
+                  ( Type of argument content: array string )
+    Functions:
+      height(A) Height of the text
+                  ( Type of result: integer )
+      width(A)  Width of the text
+                  ( Type of result: integer )
+      line(A)   Current line of the text
+                  ( Type of result: integer )
+      column(A) Current column of the text
+                  ( Type of result: integer )
+    Statements:
+      write(A, B) Write string B to text A
+                  ( Type of argument B: string )
+      writeln(A) Write a new line to text A
+      writeln(A, B) Write string B and new line to text A
+                  ( Type of argument B: string )
+      read(A, B) Read a word from text A into string B
+                  ( Type of right operand: string )
+      readln(A)  Read a line from text A
+      readln(A, B) Read a line from text A into the string B
+                  ( Type of right operand: string )
+      backSpace(A) Write backspace to text A
+      close(A)  Close text A
+      flush(A)  Flush text A
+      clear(A)  Clear the window
+      clear(A, UP, LO, LE, RI)  Clear an area of the window
+                  ( Type of argument UP: integer
+                    Type of argument LO: integer
+                    Type of argument LE: integer
+                    Type of argument RI: integer )
+      v_scroll(A) Scroll the window vertical
+      h_scroll(A) Scroll the window horizontal
+      color(A, B) Set foreground color of the text A
+                  ( Type of argument B: color )
+      color(A, B, C) Set foreground and background color of the text A
+                  ( Type of argument B: color,
+                    Type of argument C: color )
+      setPos(A, B, C) Set the current position of the text A
+                  ( Type of argument B: integer
+                    Type of argument C: integer )
+      setLine(A, B) Set the current line of the text A
+                  ( Type of argument B: integer )
+      setColumn(A, B) Set the current column of the text A
+                  ( Type of argument B: integer )
+      box(A)    Write a box around the window
+      clear_box(A) Clear the box around the window
+      cursor_on(A) Make the cursor visible
+      cursor_off(A) Make the cursor invisible
+      ignore(A) Ignore value
+
+
+5.23 fileSys
+
+    The type 'fileSys' is the interface type for file systems. The
+  files of the operating system and the contents of an archive file
+  are both organized as file systems. The connection to files stored at
+  a remote computer can also use the 'fileSys' interface.
+
+    Constants:
+      fileSys.value  Default value of fileSys (emptyFileSys.value)
+    Variables:
+      osFiles        File system of the operating system files
+    Implementation types of the fileSys interface:
+      emptyFileSys   Empty file system (used as default value)
+      osFileSys      File system to access operating system files
+      tarArchive     Access to a TAR archive
+      zipArchive     Access to a ZIP archive
+      cpioArchive    Access to a CPIO archive
+      rpmArchive     Access to a RPM archive
+      ftpConnection  Connection to a FTP server
+    Functions to open a fileSys:
+      openTar(tarFile)  Open a TAR archive with the given tarFile
+                  ( Type of argument tarFile: file,
+                    Returns fileSys.value if open was not possible )
+      openTar(tarFileName)  Open a TAR archive with the given tarFileName
+                  ( Type of argument tarFileName: string,
+                    Returns fileSys.value if open was not possible )
+      openCpio(cpioFile)  Open a CPIO archive with the given cpioFile
+                  ( Type of argument cpioFile: file,
+                    Returns fileSys.value if open was not possible )
+      openCpio(cpioFileName)  Open a CPIO archive with the given cpioFileName
+                  ( Type of argument cpioFileName: string,
+                    Returns fileSys.value if open was not possible )
+      openRpm(rpmFile)  Open a RPM archive with the given rpmFile
+                  ( Type of argument rpmFile: file,
+                    Returns fileSys.value if open was not possible )
+      openRpm(rpmFileName)  Open a RPM archive with the given rpmFileName
+                  ( Type of argument rpmFileName: string,
+                    Returns fileSys.value if open was not possible )
+      openZip(zipFile)  Open a ZIP archive with the given zipFile
+                  ( Type of argument zipFile: file,
+                    Returns fileSys.value if open was not possible )
+      openZip(zipFileName)  Open a ZIP archive with the given zipFileName
+                  ( Type of argument zipFileName: string,
+                    Returns fileSys.value if open was not possible )
+      openFtp(hostName, user, password, ftpControlPort)  Open a FTP file system
+                  ( Type of argument hostName: string,
+                    Type of argument user: string,
+                    Type of argument password: string,
+                    Type of argument ftpControlPort: integer )
+      openFtp(hostName, user, password)  Open a FTP file system
+                  ( Type of argument hostName: string,
+                    Type of argument user: string,
+                    Type of argument password: string )
+      openFtp(connectStri, ftpControlPort)  Open a FTP file system
+                  ( Type of argument connectStri: string,
+                    Type of argument ftpControlPort: integer )
+      openFtp(connectStri)  Open a FTP file system
+                  ( Type of argument connectStri: string )
+    Functions:
+      close(aFileSys)  Close a file system
+      readDir(aFileSys, dirPath)  Read the file names of a directory
+                  ( Type of argument dirPath: string,
+                    Type of result: array string )
+      readDir(aFileSys, dirPath, RECURSIVE)  Read the file paths of a directory recursively
+                  ( Type of argument dirPath: string,
+                    Type of result: array string )
+      readDir(aFileSys)  Read the file names of the root directory
+                  ( Type of result: array string )
+      readDir(aFileSys, RECURSIVE)  Read the file paths of the root directory recursively
+                  ( Type of result: array string )
+      fileType(aFileSys, path)  Get the type of a file
+                  ( Type of argument path: string,
+                    Type of result: fileType )
+      fileTypeSL(aFileSys, path)  Get the type of a file (do not follow symbolic links)
+                  ( Type of argument path: string,
+                    Type of result: fileType )
+      fileMode(aFileSys, path)  Get the file mode (permissions) of a file
+                  ( Type of argument path: string,
+                    Type of result: fileMode )
+      fileSize(aFileSys, path)  Get the size of a file
+                  ( Type of argument path: string,
+                    Type of result: integer )
+      bigFileSize(aFileSys, path)  Get the size of a file
+                  ( Type of argument path: string,
+                    Type of result: bigInteger )
+      getMTime(aFileSys, path)  Get the modification time of a file
+                  ( Type of argument path: string,
+                    Type of result: time )
+      getOwner(aFileSys, path)  Get the name of the owner (UID) of a file
+                  ( Type of argument path: string,
+                    Type of result: string )
+      getGroup(aFileSys, path)  Get the name of the group (GID) to which a file belongs
+                  ( Type of argument path: string,
+                    Type of result: string )
+      open(aFileSys, filePath, mode)  Open a file with filePath and mode
+                  ( Type of argument filePath: string,
+                    Type of argument mode: string,
+                    Type of result: file )
+      getFile(aFileSys, filePath)  Get the contents of file filePath
+                  ( Type of argument filePath: string,
+                    Type of result: string )
+      readLink(aFileSys, path)  Reads the destination of a symbolic link
+                  ( Type of argument path: string,
+                    Type of result: string )
+    Statements:
+      setFileMode(aFileSys, path, mode)  Change the file mode (permissions) of a file
+                  ( Type of argument path: string,
+                    Type of argument mode: fileMode )
+      setMTime(aFileSys, path, modificationTime)
+                  ( Type of argument path: string,
+                    Type of argument modificationTime: time )
+      setOwner(aFileSys, path, owner)  Set the owner of a file
+                  ( Type of argument path: string,
+                    Type of argument owner: string )
+      setGroup(aFileSys, path, group)  Set the group of a file
+                  ( Type of argument path: string,
+                    Type of argument group: string )
+      putFile(aFileSys, filePath, stri)  Write stri to the file filePath using the file system
+                  ( Type of argument filePath: string,
+                    Type of argument stri: string )
+      removeFile(aFileSys, path)  Remove a file (except a nonempty directory)
+                  ( Type of argument path: string )
+      removeTree(aFileSys, path)  Remove a file of any type inclusive a directory tree
+                  ( Type of argument path: string )
+      moveFile(aFileSys, sourcePath, destPath)  Move and rename a file or directory tree
+                  ( Type of argument sourcePath: string,
+                    Type of argument destPath: string )
+      mkdir(aFileSys, dirPath)  Create a directory
+                  ( Type of argument dirPath: string )
+      rmdir(aFileSys, dirPath)  Delete an empty directory
+                  ( Type of argument dirPath: string )
+      getcwd(aFileSys)  Determine the current working directory
+      chdir(aFileSys, dirPath)  Change the current working directory
+                  ( Type of argument dirPath: string )
+      ignore(A) Ignore value
+
+
+5.24 category
 
     The type 'category' describes the category of a 'reference'.
   The 'category' functions are defined in the library "category.s7i".
 
-    Constants:
+    Literals:
       SYMBOLOBJECT, DECLAREDOBJECT, FORWARDOBJECT, FWDREFOBJECT, BLOCKOBJECT,
       CALLOBJECT,MATCHOBJECT, TYPEOBJECT, FORMPARAMOBJECT, INTOBJECT,
       BIGINTOBJECT, CHAROBJECT, STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT,
@@ -4159,6 +5356,8 @@ CONTENTS
       ENUMLITERALOBJECT, CONSTENUMOBJECT, VARENUMOBJECT, REFOBJECT,
       REFLISTOBJECT, EXPROBJECT, ACTOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT,
       RESULTOBJECT, LOCALVOBJECT, PROGOBJECT
+    Constants:
+      category.value  Default value of category (SYMBOLOBJECT)
     Infix operators:
       category conv A   Conversion of integer to category
                   ( Type of argument A: integer,
@@ -4183,6 +5382,7 @@ CONTENTS
                     category("FLOATOBJECT") => FLOATOBJECT,
                     category("does not exist") => EXCEPTION RANGE_ERROR )
     Statements:
+      ignore(A) Ignore value
       for A range B to C do
         D
       end for   Loop over all categories from B to C
@@ -4193,7 +5393,7 @@ CONTENTS
                   ( Type of argument D: proc )
 
 
-5.15 reference
+5.25 reference
 
     The type 'reference' describes a reference to any
   object. The 'reference' functions are defined in
@@ -4201,7 +5401,8 @@ CONTENTS
 
 
     Constants:
-      NIL       Reference to no element.
+      NIL              Reference to no element.
+      reference.value  Default value of reference (NIL)
     Relations:
       =, <>
     Functions:
@@ -4337,9 +5538,10 @@ CONTENTS
       setFormalParams(A, B) Set the formal parameters of a function
                   ( Type of argument B: ref_list,
                     setFormalParams(NIL, B) => EXCEPTION RANGE_ERROR )
+      ignore(A) Ignore value
 
 
-5.16 ref_list
+5.26 ref_list
 
     The type 'ref_list' describes a list of 'reference' objects.
   The 'ref_list' functions are defined in
@@ -4347,6 +5549,7 @@ CONTENTS
 
     Constants:
       ref_list.EMPTY  Empty reference list.
+      ref_list.value  Default value of ref_list (ref_list.EMPTY)
     Infix operators:
       &         Ref_list list concatenation
       A in B    Is element in ref_list
@@ -4359,8 +5562,8 @@ CONTENTS
       [ A ]     Access one ref_list element
                   ( Type of argument A: integer,
                     Type of result: reference,
-                    A[1]=>First element,
-                    A[length(A)]=>Last element,
+                    A[1] => First element,
+                    A[length(A)] => Last element,
                     A[0] => EXCEPTION INDEX_ERROR,
                     A[succ(length(A))] => EXCEPTION INDEX_ERROR )
       [ A .. B ]  Access a sub list
@@ -4399,23 +5602,34 @@ CONTENTS
                         A := A[..pred(B)] & make_list(C) & A[succ(B)..],
                     A @:= [0] C => EXCEPTION INDEX_ERROR,
                     A @:= [succ(length(A))] C => EXCEPTION INDEX_ERROR )
-      for A range B do
-        C
+      ignore(A) Ignore value
+      for forVar range aRefList do
+        statements
       end for   Loop over all elements of a ref_list
-                  ( Type of argument A: reference,
-                    Type of argument C: proc )
+                  ( Type of argument forVar: reference,
+                    Type of argument statements: proc )
+      for forVar range aRefList until condition do
+        statements
+      end for   Loop over all elements of a ref_list until condition is TRUE
+                Check the condition before the statements in the loop body are executed.
+                  ( Type of argument forVar: reference,
+                    Type of argument condition: boolean,
+                    Type of argument statements: proc )
 
 
-5.17 program
+5.27 program
 
     The type 'program' describes a Seed7 program.
   The 'program' functions are defined in the library "progs.s7i".
 
     Constants:
       program.EMPTY  Empty program.
+      program.value  Default value of program (program.EMPTY)
     Relations:
       =, <>
     Functions:
+      name(A)   Name of program A without path and extension
+      path(A)   Absolute path of program A
       parseFile(A)  Parse the file with the name A
                   ( Type of argument A: string )
       parseStri(A)  Parse the string A
@@ -4438,9 +5652,10 @@ CONTENTS
                     Type of argument B: ref_list )
     Statements:
       execute(A) Execute the program referred by A
+      ignore(A) Ignore value
 
 
-5.18 ptr
+5.28 ptr
 
     The type 'ptr baseType' describes a pointer to an object
   of a 'baseType'. With
@@ -4467,465 +5682,7 @@ CONTENTS
                   ( Type of argument ptrType: type )
 
 
-5.19 ENUMERATION
-
-    With
-
-    const type: enumType is new enum
-        enum_literal1, enum_literal2
-      end enum;
-
-  a new enumeration type is declared. The values of this type are:
-
-    enum_literal1 and enum_literal2
-
-  For a enumeration type only few operations are predefined.
-  Additional operations must be defined separately. So it is
-  necessary to define the functions 'str' and 'parse' in order to
-  do I/O for a new enumeration type.
-
-    Infix operators:
-      enumType conv A  Conversion from integer A to enumType
-                  ( Type of argument A: integer,
-                    enumType conv 0 => enum_literal1 )
-      integer conv A   Conversion from enumType A to integer
-                  ( Type of result: integer,
-                    integer conv enum_literal1 => 0 )
-    Relations:
-      =, <>, <, <=, >, >=
-    Functions:
-      ord(A)    Ordinal number
-                  ( Type of result: integer )
-      succ(A)   Successor
-                  ( succ(A) => enumType conv(succ(ord(A))) )
-      pred(A)   Predecessor
-                  ( pred(A) => enumType conv(pred(ord(A))) )
-      compare(A, B) Compare function
-                  ( Type of result: integer )
-      hashCode(A) Hash function
-                  ( Type of result: integer )
-    Statements:
-      incr(A)   Increment
-                  ( incr(A) => A:=succ(A) )
-      decr(A)   Decrement
-                  ( decr(A) => A:=pred(A) )
-
-
-5.20 color
-
-    The type 'color' describes colors. The 'color'
-  functions are defined in the library "color.s7i".
-
-    Elements:
-      var integer: red_part is 0;
-      var integer: green_part is 0;
-      var integer: blue_part is 0;
-    Constants:
-      black         is color(0, 0, 0);
-      dark_red      is color(32768, 0, 0);
-      dark_green    is color(0, 32768, 0);
-      brown         is color(32768, 16384, 0);
-      dark_blue     is color(0, 0, 32768);
-      dark_magenta  is color(32768, 0, 32768);
-      dark_cyan     is color(0, 65535, 65535);
-      light_gray    is color(49152, 49152, 49152);
-      dark_gray     is color(16384, 16384, 16384);
-      light_red     is color(65535, 0, 0);
-      light_green   is color(0, 65535, 0);
-      yellow        is color(65535, 65535, 0);
-      light_blue    is color(0, 0, 65535);
-      light_magenta is color(65535, 0, 65535);
-      light_cyan    is color(32768, 65535, 65535);
-      white         is color(65535, 65535, 65535);
-      orange        is color(65535, 32768, 0);
-      amber         is color(49152, 32768, 16384);
-      pink          is color(65535, 32768, 32768);
-    Infix operators:
-      +         Add two colors in an additive color system
-    Relations:
-      =, <>
-    Functions:
-      color(R,G,B) Creates a color from Red, Green and Blue
-                  ( Type of argument R: integer,
-                    Type of argument G: integer,
-                    Type of argument B: integer )
-      gray(BR)  Create a gray color value from BR
-                  ( Type of argument BR: integer )
-      compare(A, B) Compare function
-                  ( Type of result: integer )
-      hashCode(A) Hash function
-                  ( Type of result: integer )
-
-
-5.21 time
-
-    The type 'time' describes times and dates.
-  For dates the proleptic Gregorian calendar is used (which assumes
-  that the Gregorian calendar was even in effect at dates preceding
-  its official introduction). This convention is used according to
-  ISO 8601 which also defines that positive and negative years exist
-  and that the year preceding 1 is 0. Time is measured in hours,
-  minutes, seconds and micro seconds. Additionally information about
-  the difference to UTC and a flag indicating daylight saving time
-  is maintained also. The 'time' functions are defined in the
-  library "time.s7i".
-
-    Elements:
-      var integer: year is 0;
-      var integer: month is 1;
-      var integer: day is 1;
-      var integer: hour is 0;
-      var integer: minute is 0;
-      var integer: second is 0;
-      var integer: micro_second is 0;
-    Infix operators:
-      time parse A   Conversion of string to time
-                  ( Type of argument A: string,
-                    time parse "2005-02-28 12:00:01" => 2005-02-28 12:00:01,
-                    time parse "2005-02-29 12:00:01" => EXCEPTION RANGE_ERROR )
-    Relations:
-      =, <>, <, <=, >, >=
-    Functions:
-      time(NOW)  Gets the current time
-      time(A)  Conversion of string to time
-                  ( Type of argument A: string,
-                    time("2005-02-28 12:00:01") => 2005-02-28 12:00:01,
-                    time("2005-02-29 12:00:01") => EXCEPTION RANGE_ERROR )
-      str(A)    Conversion to string
-                  ( Type of result: string )
-      strDate(A)  Conversion of the date to string
-                    with ISO 8601 YYYY-MM-DD date format
-                  ( Type of result: string )
-      strTime(A)  Conversion of the daytime to string
-                    with ISO 8601 hh:mm:ss time format
-                  ( Type of result: string )
-      strDateTime(A)  Conversion of date and time to string
-                    with ISO 8601 YYYY-MM-DD hh:mm:ss format
-                  ( Type of result: string )
-      strTimeZone(A)  Conversion of the time zone to string
-                  ( Type of result: string )
-      truncToSecond(A)  Truncate a time to a second
-      truncToMinute(A)  Truncate a time to a minute
-      truncToHour(A)  Truncate a time to a hour
-      truncToDay(A)  Truncate a time to a day
-      truncToMonth(A)  Truncate a time to a month
-      truncToYear(A)  Truncate a time to a year
-      isLeapYear(A)  Determine if a given year is a leap year
-                  ( Type of argument A: integer )
-                  ( Type of result: boolean )
-      daysInYear(Y)  Calculate the number of days in a year
-                  ( Type of argument Y: integer,
-                    Type of result: integer )
-      daysInMonth(Y, M)  Calculate the number of days in a month
-                  ( Type of argument Y: integer,
-                    Type of argument M: integer,
-                    Type of result: integer )
-      daysInMonth(A)  Calculate the number of days in a month
-                  ( Type of result: integer )
-      dayOfWeek(A)  Day of the week with Monday as 1
-                  ( Type of result: integer )
-      dayOfYear(A)  Day of the year with 1 January as 1
-                  ( Type of result: integer )
-      weekOfYear(Y, D)  Compute the week number of a year (0 to 53).
-                    According to ISO 8601: Week number 1 of
-                    every year contains the 4. of january.
-                  ( Type of argument Y: integer,
-                    Type of argument D: integer,
-                    Type of result: integer )
-      weekOfYear(A)  Compute the week number of a year (0 to 53).
-                    According to ISO 8601: Week number 1 of
-                    every year contains the 4. of january.
-                  ( Type of result: integer )
-      weekDateYear(A)  Compute the year of the ISO 8601 week date
-                  ( Type of result: integer )
-      weekDateWeek(A)  Compute the week of the ISO 8601 week date
-                  ( Type of result: integer )
-      toUTC(A)  Conversion to Coordinated Universal Time (UTC)
-      julianDayNumber(A)  Number of days that have elapsed since
-                January 1, 4713 BC in the proleptic Julian calendar
-                  ( Type of result: integer )
-      julianDayNumToTime(A)  Convert julian day number to time
-                  ( Type of argument A: integer )
-      timestamp1970(A)  Time expressed in seconds since the
-                Unix Epoch (1970-01-01 00:00:00 UTC)
-                  ( Type of result: integer )
-      timestamp1970ToTime(A)  Convert a timestamp into a time from
-                the local time zone
-                  ( Type of argument A: integer )
-      compare(A, B)  Compare function
-                  ( Type of result: integer )
-      hashCode(A)  Hash function
-                  ( Type of result: integer )
-    Statements:
-      await(A)  Wait until the given time
-
-
-5.22 duration
-
-    The type 'duration' describes time and date durations.
-  The 'duration' functions are defined in the library
-  "duration.s7i".
-
-    Prefix operators:
-      +         Identity
-      -         Change sign
-    Infix operators:
-      +         Add two durations
-      -         Subtract two durations
-      *         Multiply a duration by an integer
-                  ( Type of left operand: integer )
-      *         Multiply a duration by an integer
-                  ( Type of right operand: integer )
-      +         Add a duration to a time
-                  ( Type of left operand: time,
-                    Type of result: time )
-      -         Subtract a duration from a time
-                  ( Type of left operand: time,
-                    Type of result: time )
-      -         Subtract two times
-                  ( Type of left operand: time,
-                    Type of right operand: time )
-      duration parse A   Conversion of string to duration
-                  ( Type of argument A: string,
-                    duration parse "P2M28DT12H1S" => P2M28DT12H1S,
-                    duration parse "P13M28DT12H1S" => EXCEPTION RANGE_ERROR )
-    Relations:
-      =, <>, <, <=, >, >=
-    Functions:
-      duration(A)  Conversion of string to duration
-                  ( Type of argument A: string,
-                    duration("P2M28DT12H1S") => P2M28DT12H1S,
-                    duration("P13M28DT12H1S") => EXCEPTION RANGE_ERROR )
-      getYears(A)  Obtains the years of a duration
-                  ( Type of result: integer )
-      getMonths(A) Obtains the months of a duration
-                  ( Type of result: integer )
-      getDays(A)   Obtains the days of a duration
-                  ( Type of result: integer )
-      getHours(A)  Obtains the hours of a duration
-                  ( Type of result: integer )
-      getMinutes(A) Obtains the minutes of a duration
-                  ( Type of result: integer )
-      getSeconds(A) Obtains the seconds of a duration
-                  ( Type of result: integer )
-      getMicroSeconds(A)  Obtains the micro seconds of a duration
-                  ( Type of result: integer )
-      toYears(A)  Return the duration in years
-                  ( Type of result: integer )
-      toMonths(A) Return the duration in months
-                  ( Type of result: integer )
-      toDays(A)   Return the duration in days
-                  ( Type of result: integer )
-      toHours(A)  Return the duration in hours
-                  ( Type of result: integer )
-      toMinutes(A) Return the duration in minutes
-                  ( Type of result: integer )
-      toSeconds(A) Return the duration in seconds
-                  ( Type of result: integer )
-      toMicroSeconds(A)  Return the duration in micro seconds
-                  ( Type of result: integer )
-      str(A)    Conversion to string
-                  ( Type of result: string )
-      compare(A, B) Compare function
-                  ( Type of result: integer )
-      hashCode(A) Hash function
-                  ( Type of result: integer )
-    Statements:
-      A +:= B   Increment A by B
-                  ( A +:= B => A := A + B )
-      A -:= B   Decrement A by B
-                  ( A -:= B => A := A - B )
-      A +:= B   Increment time A by B
-                  ( Type of argument A: time,
-                    A +:= B => A := A + B )
-      A -:= B   Decrement time A by B
-                  ( Type of argument A: time,
-                    A -:= B => A := A - B )
-      wait(A)   Wait for given duration
-
-  For the operations '-' (negate a duration) and
-  '-' (subtract two time values) holds:
-    (tim1 - tim2) = - (tim2 - tim1)
-
-  For the operations '+' (add a duration to a time) and
-  '-' (subtract two time values) holds:
-    tim2 + (tim1 - tim2) = tim1
-
-  For the operations '-' (subtract a duration from a time) and
-  '-' (subtract two time values) holds:
-    tim1 - (tim1 - tim2) = tim2
-
-
-5.23 file
-
-    The type 'file' is the interface type for sequential files.
-  The 'file' functions are defined in the library "file.s7i".
-
-    Variables:
-      STD_NULL  Standard null file
-      STD_IN    Standard input of the operating system
-      STD_OUT   Standard output of the operating system
-      STD_ERR   Standard error output of the operating system
-      IN        Standard input file used for file input
-                  operations when no file is specified
-                  ( IN is initialized with STD_IN )
-      OUT       Standard output file used for file output
-                  operations when no file is specified
-                  ( OUT is initialized with STD_OUT )
-    Relations:
-      =, <>
-    Functions:
-      open(A, B) Open external file
-                  ( Type of argument A: string,
-                    Type of argument B: string,
-                    Type of result: file,
-                    Returns STD_NULL if open was not
-                    possible )
-      openUtf8(A, B) Open external UTF-8 file
-                  ( Type of argument A: string,
-                    Type of argument B: string,
-                    Type of result: file,
-                    Returns STD_NULL if open was not
-                    possible )
-      openUtf16(A, B) Open external UTF-16 file
-                  ( Type of argument A: string,
-                    Type of argument B: string,
-                    Type of result: file,
-                    Returns STD_NULL if open was not
-                    possible )
-      popen(A, B) Open a pipe to a process
-                  ( Type of argument A: string,
-                    Type of argument B: string,
-                    Type of result: file,
-                    Returns STD_NULL if popen was not
-                    possible )
-      popen8(A, B) Open a UTF-8 pipe to a process
-                  ( Type of argument A: string,
-                    Type of argument B: string,
-                    Type of result: file,
-                    Returns STD_NULL if popen8 was not
-                    possible )
-      openInetSocket(port) Open local Internet client socket
-                  ( Type of argument port: integer,
-                    Type of result: file,
-                    Returns STD_NULL if open was not
-                    possible )
-      openInetSocket(addr, port) Open Internet client socket
-                  ( Type of argument addr: string,
-                    Type of argument port: integer,
-                    Type of result: file,
-                    Returns STD_NULL if open was not
-                    possible )
-      length(A) Length of file A
-                  ( Type of result: integer )
-      tell(A)   Return the actual file position
-                  ( Type of argument: file,
-                    The first position in the file is 1 )
-      getc(A)   Get one character from file A
-                  ( Type of result: char )
-      gets(A, B) Get string with maximum length B from file A
-                  ( Type of argument A: integer,
-                    Type of argument B: file,
-                    Type of result: string,
-                    gets(A, -1) => EXCEPTION RANGE_ERROR )
-      getwd(A)  Get one word from file A
-                  ( Type of result: string )
-      getln(A)  Get one line from file A
-                  ( Type of result: string )
-      eoln(A)   End of line
-                  ( Type of result: boolean )
-      hasNext(A) A call of getc does not return the EOF character
-                  ( Type of result: boolean )
-      eof(A)    End of file
-                  ( Type of result: boolean )
-      compare(A, B) Compare function
-                  ( Type of result: integer )
-      hashCode(A) Hash function
-                  ( Type of result: integer )
-    Statements:
-      write(A, B) Write string B to file A
-                  ( Type of argument B: string )
-      writeln(A) Write a new line to file A
-      writeln(A, B) Write string B and new line to file A
-                  ( Type of argument B: string )
-      read(A, B) Read a word from file A into string B
-                  ( Type of right operand: string )
-      readln(A)  Read a line from file A
-      readln(A, B) Read a line from file A into the string B
-                  ( Type of right operand: string )
-      backSpace(A) Write backspace to file A
-      close(A)  Close file A
-      flush(A)  Flush file A
-      seek(A, B) Set actual file position of file A to B
-                  ( Type of argument B: integer,
-                    seek(A, 1) => Set to file begin,
-                    seek(A, length(A)) => Set to last position,
-                    seek(A, length(A) + 1) => Set to end of file,
-                    seek(A, 0) => EXCEPTION RANGE_ERROR )
-
-
-5.24 text
-
-    The type 'text' describes two dimensional files.
-  The 'text' functions are defined in the library "text.s7i".
-
-    Relations:
-      =, <>
-    Functions:
-      openWindow(F, A, B, C, D) Open a text
-                  ( Type of argument A: integer,
-                    Type of argument B: integer,
-                    Type of argument C: integer,
-                    Type of argument D: integer )
-      height(A) Height of the text
-                  ( Type of result: integer )
-      width(A)  Width of the text
-                  ( Type of result: integer )
-      line(A)   Current line of the text
-                  ( Type of result: integer )
-      column(A) Current column of the text
-                  ( Type of result: integer )
-    Statements:
-      write(A, B) Write string B to text A
-                  ( Type of argument B: string )
-      writeln(A) Write a new line to text A
-      writeln(A, B) Write string B and new line to text A
-                  ( Type of argument B: string )
-      read(A, B) Read a word from text A into string B
-                  ( Type of right operand: string )
-      readln(A)  Read a line from text A
-      readln(A, B) Read a line from text A into the string B
-                  ( Type of right operand: string )
-      backSpace(A) Write backspace to text A
-      close(A)  Close text A
-      flush(A)  Flush text A
-      clear(A)  Clear the window
-      clear(A, UP, LO, LE, RI)  Clear an area of the window
-                  ( Type of argument UP: integer
-                    Type of argument LO: integer
-                    Type of argument LE: integer
-                    Type of argument RI: integer )
-      v_scroll(A) Scroll the window vertical
-      h_scroll(A) Scroll the window horizontal
-      color(A, B) Set foreground color of the text A
-                  ( Type of argument B: color )
-      color(A, B, C) Set foreground and background color of the text A
-                  ( Type of argument B: color,
-                    Type of argument C: color )
-      setPos(A, B, C) Set the current position of the text A
-                  ( Type of argument B: integer
-                    Type of argument C: integer )
-      setLine(A, B) Set the current line of the text A
-                  ( Type of argument B: integer )
-      setColumn(A, B) Set the current column of the text A
-                  ( Type of argument B: integer )
-      box(A)    Write a box around the window
-      clear_box(A) Clear the box around the window
-      cursor_on(A) Make the cursor visible
-      cursor_off(A) Make the cursor invisible
-
-
-5.25 func
+5.29 func
 
     The type 'func baseType' describes functions which return
   a 'baseType'. For example: 'func integer' describes an 'integer'
@@ -5014,7 +5771,7 @@ CONTENTS
   parameter is TRUE.
 
 
-5.26 varfunc
+5.30 varfunc
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
@@ -5047,15 +5804,17 @@ CONTENTS
   and structs can be used in the usual way.
 
 
-5.27 void
+5.31 void
 
     The type 'void' describes the empty type.
 
     Value:
       empty     This is the only value of the type 'void'.
+    Constants:
+      void.value  Default value of void (empty)
 
 
-5.28 proc
+5.32 proc
 
     The type 'proc' describes procedures. The type 'proc'
   is defined as 'func void'.
@@ -5092,7 +5851,7 @@ CONTENTS
                     Type of result: proc )
 
 
-5.29 type
+5.33 type
 
     The type 'type' describes all types. Examples of type declarations are:
 
@@ -5129,6 +5888,8 @@ CONTENTS
       file, proc, type, ...
                 Every type declared with const type: ... is a value
                 The type 'void' is used as empty type.
+    Constants:
+      type.value  Default value of type (void)
     Prefix operators:
       func      Function type
                   ( func char => Function which returns a char )
@@ -5192,9 +5953,10 @@ CONTENTS
                 Declare constant 'name' with 'value'
       var aType: name is value
                 Declare variable 'name' with 'value'
+      ignore(A) Ignore value
 
 
-5.30 object
+5.34 object
 
     The type 'object' is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -5207,7 +5969,7 @@ CONTENTS
       TRACE_OBJ(A)  Write internal information
 
 
-5.31 expr
+5.35 expr
 
     The type 'expr' is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
@@ -6100,8 +6862,8 @@ CONTENTS
     write("hello world");
     writeln;
 
-  The procedure 'write' writes a given string and 'writeln' means: Write newline.
-  We can also write data of various types with 'write':
+  The procedure 'write' writes a given string and 'writeln' means:
+  Write newline. We can also write data of various types with 'write':
 
     write("result = ");
     write(number div 5);
@@ -6115,15 +6877,24 @@ CONTENTS
 
     writeln("result = " <& number div 5 <& " " <& not error);
 
-  The '<&' operator needs a 'string' as left operand and
-  is overloaded for various types as right operand. To allow things like
+  The '<&' operator is overloaded for various types and is present
+  it three variants:
 
-    write(next_time <& " \r");
+    - 'string' <& 'otherType':
+      In this case the right operand is converted to a 'string' before
+      the concatenation takes place.
+    - 'otherType' <& 'string':
+      In this case the left operand is converted to a 'string' before
+      the concatenation takes place.
+    - 'string' <& 'string': In this case the two operands are concatenated.
 
-  the '<&' operator is also overloaded for various types as
-  left operand and a 'string' as right operand.
-  This allows you to concatenate several objects with '<&' if
-  at least the first or the second object is a 'string'.
+  This allows chaining concatenations like in:
+
+    write(next_time <& " is " <& booleanExpression);
+
+  Several objects can be concatenated in a chain, if the first or the
+  second object is a 'string'.
+
   We can also read data from the keyboard:
 
     write("Amount? ");
@@ -6401,8 +7172,16 @@ CONTENTS
 
   The two basic I/O methods defined for 'null_file' are
 
-    const proc: write (ref null_file: aFile, in string: stri) is noop;
-    const string: gets (ref null_file: aFile, ref integer: maxLength) is "";
+    const proc: write (in null_file: aFile, in string: stri) is noop;
+
+    const func string: gets (in null_file: inFile, in integer: maxLength) is func
+      result
+        var string: striRead is "";
+      begin
+        if maxLength < 0 then
+          raise RANGE_ERROR;
+        end if;
+      end func;
 
   A 'write' to 'null_file' with any string has no effect.
   Reading any number of characters with 'gets' from
@@ -6552,6 +7331,18 @@ CONTENTS
         aValue := aType parse trimValue(aType, getln(aFile));
       end func;
 
+  The function 'trimValue' is used to trim the 'string' retrieved by
+  'getln'. This adjusts the 'string' before the 'parse' operator is
+  applied. There are 3 cases:
+
+    - Trimming of a 'string' with 'trimValue(string, aString)':
+      This leaves the string unchanged.
+    - Trimming of a 'char' with 'trimValue(char, aString)':
+      For "" it returns "". In all other cases it returns a trimmed
+      string of length 1.
+    - Trimming of all other types with 'trimValue(aType, aString)':
+      This removes leading and trailing spaces.
+
   The next declaration defines 'backSpace':
 
     const proc: backSpace (ref external_file: aFile) is func
@@ -6607,24 +7398,24 @@ CONTENTS
         writeln(OUT);
       end func;
 
-  As an example when you call
+  As an example, when you call
 
     readln(number);
 
-  the readln(integer) procedure calls
+  the 'readln(number)' function of the type 'integer' calls
 
     readln(IN, number);
 
-  if the file IN has not redefined readln(IN, integer) this
-  procedure calls
+  which executes
 
-    stri := getln(IN);
+    number := integer parse trimValue(integer, getln(IN));
 
-  and 'getln' may call gets(IN, 1) in a loop or may be defined
-  for the file 'IN'. Finally the 'parse' function converts the
-  string read into an 'integer' and assigns it to 'number'
-
-    number := integer parse stri;
+  The file 'IN' may have its own implementation of 'getln' (e.g. as
+  'getln' of 'external_file'). The default implementation of 'getln'
+  (in 'null_file') calls 'gets(IN, 1)' in a loop. For the type
+  'integer' the function 'trimValue' removes leading and trailing
+  spaces. Finally the 'parse' operator converts the string read into
+  an 'integer' which is assigned to 'number'.
 
 
 8.5 Standard input and output files
@@ -6884,9 +7675,9 @@ CONTENTS
       with "\r\n" line endings under Unix/Linux/Bsd.
 
   The library "utf8.s7i" defines the
-  implementation type 'utf8_file' as
+  implementation type 'utf8File' as
 
-    const type: utf8_file is sub external_file struct
+    const type: utf8File is sub external_file struct
       end struct;
 
 
@@ -7165,10 +7956,10 @@ CONTENTS
       end func;
 
   Some file types are defined to support the 'KEYBOARD'. One such
-  file type is 'echo_file', which is defined in the library "echo.s7i".
-  An 'echo_file' file can be used to write input characters to
+  file type is 'echoFile', which is defined in the library "echo.s7i".
+  An 'echoFile' file can be used to write input characters to
   an output file. This is useful since 'KEYBOARD' does not echo its
-  input, but 'echo_file' is not restricted to support 'KEYBOARD'.
+  input, but 'echoFile' is not restricted to support 'KEYBOARD'.
   The following program writes echoes of the keys typed and exits as
   soon as a '!' is encountered:
 
@@ -7187,8 +7978,8 @@ CONTENTS
         writeln;
       end func;
 
-  An 'echo_file' checks also for control-C ('KEY_CTL_C'). If
-  control-C is typed an 'echo_file' asks if the program should be
+  An 'echoFile' checks also for control-C ('KEY_CTL_C'). If
+  control-C is typed an 'echoFile' asks if the program should be
   terminated:
 
     terminate (y/n)?
@@ -7201,12 +7992,12 @@ CONTENTS
   Any other input removes the question and the program continues
   to read input.
 
-  Another helpful file type is 'line_file', which is defined in the
-  library "line.s7i". A 'line_file' allows to correct the input with
+  Another helpful file type is 'lineFile', which is defined in the
+  library "line.s7i". A 'lineFile' allows to correct the input with
   Backspace until a Return (represented with '\n') is encountered.
   In contrast to this editing feature the possibility to edit a line
   of 'STD_IN' is provided by the operating system. The following
-  program uses 'echo_file' and 'line_file' to simulate input line
+  program uses 'echoFile' and 'lineFile' to simulate input line
   editing:
 
     $ include "seed7_05.s7i";
@@ -7228,6 +8019,31 @@ CONTENTS
 
   This program terminates if a line containing '!' is confirmed
   with Return.
+
+  There is also the 'editLineFile', which is defined in the library
+  "editline.s7i". An 'editLineFile' provides more than a combination
+  of an 'echoFile' with a 'lineFile'. An 'editLineFile' allows
+  editing with Backspace, Delete, <-, ->, Home and End. The vertical
+  curser keys can be used to get previous input lines. Like an
+  'echoFile' it checks also for control-C ('KEY_CTL_C').
+
+    $ include "seed7_05.s7i";
+      include "keybd.s7i";
+      include "console.s7i";
+      include "editline.s7i";
+
+    const proc: main is func
+      local
+        var string: command is "";
+      begin
+        OUT := STD_CONSOLE;
+        IN := openEditLine(KEYBOARD, OUT);
+        writeln("Use the command quit to exit the program.");
+        repeat
+          write("command> ");
+          readln(command);
+        until command = "quit";
+      end func;
 
 
 8.8 Files with line structure
@@ -7285,21 +8101,26 @@ CONTENTS
 
     clientSocket := openInetSocket(1080);
 
-  Since sockets use the 'file' interface functions
-  like 'writeln' and 'getln' can be used:
+  Since sockets use the 'file' interface functions like 'writeln'
+  and 'getln' can be used:
 
-    sock := openInetSocket(serverName, 80);
-    if sock <> STD_NULL then
-      writeln(sock, "GET " <& address <& " HTTP/1.1");
-      writeln(sock, "Host: " <& hostname);
-      writeln(sock, "User-Agent: BlackHole");
-      writeln(sock);
-      line := getln(sock);
-      if startsWith(line, "HTTP") then
-        statusInfo := trim(line[pos(line, " ") ..]);
-        statusCode := statusInfo[.. pred(pos(statusInfo, " "))];
-      end if;
-    end if;
+    $ include "seed7_05.s7i";
+      include "socket.s7i";
+
+    const proc: main is func
+      local
+        const string: serverName is "www.google.com";
+        var file: aSocket is STD_NULL;
+      begin
+        aSocket := openInetSocket(serverName, 80);
+        if aSocket <> STD_NULL then
+          writeln(aSocket, "GET / HTTP/1.1");
+          writeln(aSocket, "Host: " <& serverName);
+          writeln(aSocket, "User-Agent: BlackHole");
+          writeln(aSocket);
+          writeln(getln(aSocket));
+        end if;
+      end func;
 
   The example above sends a HTTP request to a server and gets
   the status code from the response. The example above consists
@@ -7356,7 +8177,48 @@ CONTENTS
   which is defined in "poll.s7i".
 
 
-8.10 User defined file types
+8.10 Transport Layer Security
+
+    Transport Layer Security (TLS) is the successor of the Secure
+  Sockets Layer (SSL). It provides secure communitaction over a
+  computer network. The library "tls.s7i" defines types and functions
+  for TLS sockets. The implementation type for sockets is 'tlsFile'.
+  As interface type 'file' is used:
+
+    var file: aTlsSocket is STD_NULL;
+
+  With 'openTlsSocket' a TLS socket can be opened:
+
+    aTlsSocket := openTlsSocket("www.google.com", 443);
+
+  The function 'openTlsSocket' opens a TLS socket. Since TLS sockets
+  use the 'file' interface functions like 'writeln' and 'getln' can
+  be used:
+
+    $ include "seed7_05.s7i";
+      include "tls.s7i";
+
+    const proc: main is func
+      local
+        const string: serverName is "www.google.com";
+        var file: aTlsSocket is STD_NULL;
+      begin
+        aTlsSocket := openTlsSocket(serverName, 443);
+        if aTlsSocket <> STD_NULL then
+          writeln(aTlsSocket, "GET / HTTP/1.1");
+          writeln(aTlsSocket, "Host: " <& serverName);
+          writeln(aTlsSocket, "User-Agent: BlackHole");
+          writeln(aTlsSocket);
+          writeln(getln(aTlsSocket));
+        end if;
+      end func;
+
+  The example above sends a HTTPS request to a server and gets
+  the status code from the response. The example above consists
+  of code from the library "gethttps.s7i".
+
+
+8.11 User defined file types
 
     In addition to the predefined file types it is often
   necessary to define a new type of file. Such a new file
@@ -7432,7 +8294,7 @@ CONTENTS
       end func;
 
 
-8.11 Scanning a file
+8.12 Scanning a file
 
     The I/O concept introduced in the previous chapters separates
   the input of data from its conversion. The 'read', 'readln',
@@ -7836,18 +8698,23 @@ CONTENTS
     $ syntax expr: .(). + .()   is -> 7;
 
   This defines the + as left associative infix operator with
-  priority 7. The + operator is an infix operator because the
-  operator pattern is:
+  priority 7. The actual syntax is described with:
+
+    . () . + . ()
+
+  The dots are used to create a list of elements. For the purpose of
+  the syntax description we can just remove the dots, which gives:
 
     () + ()
 
-  The place of the parameters is specified with (). Any expression
-  can be used as parameter. The type of the parameters and the type
-  of the result of + is not specified by the S7SSD. Checks for the
-  correct type are not done at the syntactic level. This way S7SSD
-  allows syntax that would not be allowed in a corresponding EBNF
-  description. S7SSD considers just operator symbols and their
-  priority and associativity.
+  The place of the parameters is specified with (). The + operator
+  is an infix operator, because the + is preceeded and succeeded by
+  a (). Any expression can be used as () parameter. The type of the
+  () parameters and the type of the result of + is not specified by
+  the S7SSD. Checks for the correct type are not done at the syntactic
+  level. This way S7SSD allows syntax that would not be allowed in a
+  corresponding EBNF description. S7SSD considers just operator
+  symbols and their priority and associativity.
 
 
 9.3 The syntax of a statement
@@ -9307,16 +10174,16 @@ CONTENTS
 
       include "dir.s7i";
 
-      var file: dir_file is STD_NULL;
-      var string: file_name is "";
+      var file: aDirFile is STD_NULL;
+      var string: fileName is "";
 
       ...
 
-      dir_file := openDir(".");
-      file_name := getln(dir_file);
-      while file_name <> "" do
-        writeln(file_name);
-        file_name := getln(dir_file);
+      aDirFile := openDir(".");
+      fileName := getln(aDirFile);
+      while fileName <> "" do
+        writeln(fileName);
+        fileName := getln(aDirFile);
       end while;
 
 
@@ -9433,7 +10300,7 @@ CONTENTS
   'fileType' never returns 'FILE_SYMLINK'. The function 'fileTypeSL'
   can also return 'FILE_SYMLINK', because it does not follow symbolic
   links. All functions which use a file path, except 'fileTypeSL'
-  and 'readlink' follow symbolic links.  A return value of
+  and 'readLink' follow symbolic links.  A return value of
   'FILE_ABSENT' does not imply that a file with this name can be
   created, since missing directories and illegal file names cause
   also 'FILE_ABSENT'.
@@ -9654,11 +10521,11 @@ CONTENTS
         A system function returns an error.
 
 
-12.17 readlink
+12.17 readLink
 
-    The function 'readlink' reads the destination of a symbolic link:
+    The function 'readLink' reads the destination of a symbolic link:
 
-    const func string: readlink (in string: filePath) is ...
+    const func string: readLink (in string: filePath) is ...
 
   Returns:
     The symbolic link referred by 'filePath'.
@@ -10487,7 +11354,90 @@ CONTENTS
 
 
 
-14. PRIMITIVE ACTIONS
+14. GRAPHIC LIBRARY
+===================
+
+    Seed7 provides a portable graphics library. Below is the graphic
+  "hello world" program:
+
+    $ include "seed7_05.s7i";
+      include "dialog.s7i";
+
+    const proc: main is func
+      begin
+        messageWindow("hello world");
+      end func;
+
+  This program displays a popup window with the message "hello world".
+  In the popup window there is an OK button, which ends the program.
+  A program that creates an empty window and a message popup is:
+
+    $ include "seed7_05.s7i";
+      include "dialog.s7i";
+
+    const proc: main is func
+      begin
+        screen(640, 480);
+        messageWindow("hello world");
+      end func;
+
+  The function 'screen(640, 480)' opens window with a width of 640 and
+  a height of 480. The window is assigned to the variable 'curr_win',
+  which is used as default window by drawing functions.
+
+  Displaying an empty window without message box is done with:
+
+    $ include "seed7_05.s7i";
+      include "draw.s7i";
+      include "keybd.s7i";
+
+    const proc: main is func
+      begin
+        screen(640, 480);
+        ignore(getc(GRAPH_KEYBOARD));
+      end func;
+
+  This program waits until a key is pressed. The key is read from
+  'GRAPH_KEYBOARD' Without reading from 'GRAPH_KEYBOARD' the program
+  would terminate immediately. Regarding the keyboard:
+
+    - In graphic programs the keyboard is connected to 'GRAPH_KEYBOARD'.
+    - In console programs the keyboard is connected to 'CONSOLE_KEYBOARD'.
+
+  For that reason a graphic program should do the following assignment:
+
+    KEYBOARD := GRAPH_KEYBOARD;
+
+  Afterwards it should just use the variable 'KEYBOARD'.
+
+  The program below clears the window with a color computed from the
+  keys pressed:
+
+    $ include "seed7_05.s7i";
+      include "draw.s7i";
+      include "keybd.s7i";
+
+    const proc: main is func
+      local
+        var char: command is ' ';
+      begin
+        screen(640, 480);
+        KEYBOARD := GRAPH_KEYBOARD;
+        repeat
+          command := getc(KEYBOARD);
+          clear(color(1009 * ord(command) mod 65536,
+                      4999 * ord(command) mod 65536,
+                      9973 * ord(command) mod 65536));
+        until command = KEY_ESC;
+      end func;
+
+  The function 'color' creates a 'color' from red, green and blue lights
+  in the additive color model. The red, green and blue lights are
+  specified by integer values in the range 0 .. 65535.
+
+
+
+15. PRIMITIVE ACTIONS
 =====================
 
     Not all functions can be described by calling other
@@ -10617,7 +11567,7 @@ CONTENTS
     STR_  strlib.c  'string' operations
     TIM_  timlib.c  'time' and 'duration' operations
     TYP_  typlib.c  'type' operations
-    UT8_  ut8lib.c  'utf8_file' operations
+    UT8_  ut8lib.c  'utf8File' operations
 
   The C functions which implement primitive actions have
   lowercase names. E.g.: The action 'PRC_WHILE' is implemented
@@ -10928,6 +11878,8 @@ CONTENTS
     BLN_NOT             bln_not             !
     BLN_OR              bln_or              ||
     BLN_ORD             bln_ord             (intType)
+    BLN_PRED            bln_pred            -1
+    BLN_SUCC            bln_succ            +1
     BLN_TERNARY         bln_ternary         ((cond)?(thenExpr):(elseExpr))
     BLN_VALUE           bln_value           blnValue
 
@@ -11007,7 +11959,7 @@ CONTENTS
     CMD_LS              cmd_ls              cmdLs
     CMD_MKDIR           cmd_mkdir           cmdMkdir
     CMD_MOVE            cmd_move            cmdMove
-    CMD_READLINK        cmd_readlink        cmdReadlink
+    CMD_READLINK        cmd_readlink        cmdReadLink
     CMD_REMOVE_FILE     cmd_remove_file     cmdRemoveFile
     CMD_REMOVE_TREE     cmd_remove_tree     cmdRemoveTree
     CMD_SETENV          cmd_setenv          cmdSetenv
@@ -11650,6 +12602,7 @@ CONTENTS
     SET_CREATE          set_create          setCreate
     SET_DESTR           set_destr           setDestr
     SET_DIFF            set_diff            setDiff
+    SET_DIFF_ASSIGN     set_diff_assign     setDiffAssign
     SET_ELEM            set_elem            setElem
     SET_EMPTY           set_empty
     SET_EQ              set_eq              setEq
@@ -11874,7 +12827,7 @@ CONTENTS
     TYP_VARFUNC         typ_varfunc         typVarfunc
 
 
-14.34 Actions for the type utf8_file
+14.34 Actions for the type utf8File
 
     Action name         ut8lib.c function   ut8_rtl.c function
     UT8_GETC            ut8_getc            ut8Getc
@@ -11886,7 +12839,7 @@ CONTENTS
 
 
 
-15. FOREIGN FUNCTION INTERFACE
+16. FOREIGN FUNCTION INTERFACE
 ==============================
 
     Foreign functions cannot be called directly. It is necessary to
@@ -13123,7 +14076,7 @@ CONTENTS
 
 
 
-16. ERRORS
+17. ERRORS
 ==========
 
 16.1 Parsing errors

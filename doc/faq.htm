@@ -837,12 +837,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2021-11-14 the number of lines is:
+than 300000 lines of Seed7. For version 2021-12-25 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">168207</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12954</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">200706</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">167653</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">169184</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12968</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">202872</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">168335</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1262,12 +1262,12 @@ The following options are recognized by s7:
 <div><br /><a name="faq_compile"><h3>Is it possible to compile Seed7 programs?
 </h3></a><hr />
 <p>
-Generally Seed7 is designed to allow the compilation from Seed7 to C. The Seed7
+Generally Seed7 is designed to allow the compilation to machine code. The Seed7
 compiler (<span class="link">s7c</span>) is written in Seed7. It uses the analyze phase of the interpreter
 to convert a program to <a class="link" href="#faq_bytecode">call-code</a> and then generates a corresponding C program.
 This C program is compiled and linked afterwards. So Seed7 compiles to efficient
-machine code via C. The Seed7 compiler can be
-called with:
+machine code via C. The intermediate C code is viewed as portable assembler. It
+is not intended for human readers. The Seed7 compiler can be called with:
 </p><pre class="box">
   s7c [ options ] source
 </pre><p>
@@ -2567,7 +2567,7 @@ description of the Seed7 object orientation.
 </p><p>
 An example of an object oriented type is <tt><span class="type">file</span></tt>. A <tt><span class="type">file</span></tt> describes references to
 values with some other type. A value of a <tt><span class="type">file</span></tt> can have one of the following
-types: null_file, external_file, echo_file, line_file, etc. Each of this <tt><span class="type">file</span></tt>
+types: null_file, external_file, echoFile, lineFile, etc. Each of this <tt><span class="type">file</span></tt>
 value types acts differently to the same requests.
 </p><p>
 For the type <tt><span class="type">file</span></tt> two kinds of functions are defined:

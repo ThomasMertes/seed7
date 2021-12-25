@@ -339,12 +339,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2021-11-14 the number of lines is:
+than 300000 lines of Seed7. For version 2021-12-25 the number of lines is:
 
-  168207  C source files (*.c)
-   12954  C header files (*.h)
-  200706  Seed7 source files (*.sd7)
-  167653  Seed7 library/include files (*.s7i)
+  169184  C source files (*.c)
+   12968  C header files (*.h)
+  202872  Seed7 source files (*.sd7)
+  168335  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -764,12 +764,12 @@ The following options are recognized by s7:
 Is it possible to compile Seed7 programs?
 =========================================
 
-Generally Seed7 is designed to allow the compilation from Seed7 to C. The Seed7
+Generally Seed7 is designed to allow the compilation to machine code. The Seed7
 compiler (s7c) is written in Seed7. It uses the analyze phase of the interpreter
 to convert a program to call-code and then generates a corresponding C program.
 This C program is compiled and linked afterwards. So Seed7 compiles to efficient
-machine code via C. The Seed7 compiler can be
-called with:
+machine code via C. The intermediate C code is viewed as portable assembler. It
+is not intended for human readers. The Seed7 compiler can be called with:
 
   s7c [ options ] source
 
@@ -2069,7 +2069,7 @@ description of the Seed7 object orientation.
 
 An example of an object oriented type is 'file'. A 'file' describes references to
 values with some other type. A value of a 'file' can have one of the following
-types: null_file, external_file, echo_file, line_file, etc. Each of this 'file'
+types: null_file, external_file, echoFile, lineFile, etc. Each of this 'file'
 value types acts differently to the same requests.
 
 For the type 'file' two kinds of functions are defined:

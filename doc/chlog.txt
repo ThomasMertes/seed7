@@ -1,3 +1,139 @@
+20211225:
+- Support for syntax highlighting in vim has been added. Many thanks
+  to Johannes Gritsch for providing the files doc/seed7.vim and
+  doc/sd7.vim.
+- Chapters about ignoring values, bin64, bin32, bstring, fileSys,
+  Transport Layer Security and the graphics library have been added
+  to the manual. Many other chapters of the manual have been improved
+  as well.
+- The new library imagefile.s7i has been added. This library supports
+  various image file formats (PNG, GIF, JPEG, BMP, ICO, PPM).
+- The picture viewer program pv7.sd7 has been improved to use the
+  function readImage() from the imagefile.s7i library.
+- The keyboard test program gkbd.sd7 has been improved to show more
+  keys. These keys turn red when they are currently pressed.
+- The function equalFileContent() in sydir7.sd7 has been improved to
+  use a reduced buffer size. A possible error that happens if just
+  one file is at EOF after reading data into the buffers, has been
+  fixed also.
+- In keybd.s7i, keydescr.s7i and kbd_drv.h definitions for KEY_CTL_0
+  to KEY_CTL_9 have been added.
+- In png.s7i an error that happend when reading tiny interlaced PNG
+  files has been fixed.
+- In boolean.s7i the functions succ(), pred() and boolean()
+  (conversion from integer) have been improved to raise RANGE_ERROR
+  if the resulting value would not be TRUE or FALSE.
+- Tests for the boolean succ() and pred() functions have been added
+  to chkbool.sd7.
+- Tests for boolean for-loops have been added to chkprc.sd7.
+- The operator -:= has been added to bitset.s7i, bitsetof.s7i and
+  hashsetof.s7i.
+- Tests for set difference assignment (operator -:=) have been added
+  to chkset.sd7.
+- The program chk_all.sd7 has been adjusted to the changes in the
+  check programs.
+- The function width(aCharacter) (defined in char.s7i) has been fixed
+  to return 0 for curser and function keys. The change has been made
+  in chr_rtl.c.
+- In file.s7i the function skip() has been improved to avoid a
+  possible endless loop.
+- In null_file.s7i the function gets() has been improved to raise
+  RANGE_ERROR if the parameter ''maxLength'' is negative.
+- In graph_file.s7i, pixmap_file.s7i and window.s7i, the scrolling
+  has been fixed.
+- In bytedata.s7i the functions getUInt16Le(), getUInt32Le(),
+  getUInt16Be() and getUInt32Be() have been improved to use
+  bytes2Int().
+- In filesys.s7i and osfiles.s7i the function readlink() is
+  deprecated. The function readLink() should be used instead.
+  The files cpio.s7i ftpserv.s7i, rpm.s7i, tar.s7i, find7.sd7 and
+  sydir7.sd7 have been altered to use readLink().
+- In graph.s7i fhe function DRAW_FLUSH() is deprecated. The
+  function flushGraphic() should be used instead.
+- The files dialog.s7i, graph_file.s7i, pixmap_file.s7i, bas7.sd7,
+  bifurk.sd7, carddemo.sd7, castle.sd7, cellauto.sd7, clock3.sd7,
+  dnafight.sd7, gkbd.sd7, klondike.sd7, lander.sd7, mahjong.sd7,
+  mandelbr.sd7, mirror.sd7, pairs.sd7, panic.sd7, percolation.sd7,
+  pv7.sd7, raytrace.sd7, shisen.sd7, sudoku7.sd7 and tetg.sd7 have
+  been altered to use flushGraphic() instead of the deprecated
+  DRAW_FLUSH().
+- In draw.s7i  the put() functions with PSET and XOR parameter are
+  deprecated. The functions without PSET respectively XOR should
+  be used instead.
+- In graph.s7i the function setCloseAction() is deprecated.
+  Instead of setCloseAction(popupWindow, RETURN_KEY); the statement
+  selectInput(popupWindow, KEY_CLOSE, TRUE); should be used.
+- The files dialog.s7i, castle.sd7, klondike.sd7, lander.sd7,
+  mahjong.sd7, mandelbr.sd7, pairs.sd7, panic.sd7, planets.sd7,
+  shisen.sd7, sokoban.sd7, sudoku7.sd7, tetg.sd7 and wator.sd7 have
+  been altered to use selectInput() instead of the deprecated
+  setCloseAction().
+- In gzip.s7i the functions openGunzipFile(aFile) and
+  openGzipFile(aFile) are deprecated. Instead of
+  openGunzipFile(aFile), use openGzipFile(aFile, READ), and instead
+  of openGzipFile(aFile) use openGzipFile(aFile, WRITE). The files
+  rpm.s7i and tar_cmds.s7i have been altered to use the new
+  function.
+- In strifile.s7i the function openStrifile() is deprecated.
+  The function openStriFile() should be used instead.
+- The files htmldom.s7i, rpm.s7i, xmldom.s7i and chkbitdata.sd7 have
+  been altered to use openStriFile() instead of the deprecated
+  openStrifile().
+- In stritext.s7i the function openStritext() is deprecated.
+  The function openStriText() should be used instead.
+- A syntax error in the library stritext.s7i has been fixed.
+- In echo.s7i, dir.s7i, pixmap_file.s7i and shell.s7i internal
+  indentifiers have been renamed to use camel case.
+- Interpreter and compiler have been improved to support the actions
+  BLN_SUCC and BLN_PRED. Changes have been done in boolean.s7i,
+  blnlib.c, blnlib.h, primitiv.c, comp/bln_act.s7i and
+  comp/action.s7i.
+- Interpreter and compiler have been improved to support the action
+  SET_DIFF_ASSIGN. Changes have been done in bitset.s7i,
+  bitsetof.s7i, set_rtl.c, set_rtl.h, setlib.c, setlib.h, primitiv.c,
+  comp/set_act.s7i and comp/action.s7i.
+- In interpreter and compiler the actions BLN_ICONV1 and BLN_ICONV3
+  have been improved to raise RANGE_ERROR if the value is not 0 or 1.
+- The interpreter has been improved (in s7.c) to write an error
+  message if the declaration of main() is missing.
+- The graphic keyboard drivers in drw_win.c, gkb_win.c and gkb_x11.c
+  have been improved. Minimizing, maximizing and restoring a window
+  triggers a KEY_RESIZE only when it is necessary. Now it can be
+  checked if the mouse forward and back buttons are currently
+  pressed. The event tracing in the keyboard drivers has also been
+  improved.
+- The parameters of the function drwPut() have been altered in
+  drw_dos.c, drw_emc.c, drw_win.c, drw_x11.c, drw_drv.h, drwlib.c
+  and comp/drw_act.s7i.
+- The code generation for ENU_ICONV2 in the compiler has been
+  improved (in comp/enu_act.s7i). Now it is similar to the code
+  generated for BLN_ICONV1 and BLN_ICONV3.
+- The error logging in exec.c has been improved.
+- Several makefiles have been improved such that 'sudo make install'
+  succeeds for an existing installation.
+- In blnlib.c the functions bln_pred() and bln_succ() have been
+  added and the functions bln_iconv1() and bln_iconv3() have been
+  adjusted. Now these functions raise RANGE_ERROR if the resulting
+  value would not be TRUE or FALSE.
+- The function setDiffAssign() has been added to set_rtl.c.
+- In tim_win.c the function alternate_utime() has been improved to
+  work more reliable (this is called by setMTime).
+- The function cmdReadlink has been renamed to cmdReadLink. Changes
+  have been done in cmdlib.c, cmd_rtl.c, cmd_rtl.h and
+  comp/cmd_act.s7i.
+- Documentation comments have been added or improved in array.s7i,
+  bigint.s7i, bin32.s7i, bin64.s7i, bitset.s7i, bitsetof.s7i,
+  bmp.s7i, boolean.s7i, bstring.s7i, category.s7i, char.s7i,
+  cpio.s7i, dir.s7i, draw.s7i, echo.s7i, file.s7i, filesys.s7i,
+  float.s7i, forloop.s7i, gif.s7i, graph.s7i, graph_file.s7i,
+  gzip.s7i, hashsetof.s7i, ico.s7i, integer.s7i, jpeg.s7i,
+  keydescr.s7i, line.s7i, logfile.s7i, lzma.s7i, null_file.s7i,
+  pixmap_file.s7i, png.s7i, ppm.s7i, progs.s7i, reference.s7i,
+  ref_list.s7i, rpm.s7i, shell.s7i, stars.s7i, strifile.s7i,
+  string.s7i, stritext.s7i, subfile.s7i, tar.s7i, text.s7i,
+  tls.s7i, utf16.s7i, utf8.s7i, xz.s7i, zstd.s7i
+  setlib.c and set_rtl.c.
+
 20211114:
 - The libraries pixmap_file.s7i and graph_file.s7i have been improved
   to draw to the correct graphic window. Many thanks to Anders
