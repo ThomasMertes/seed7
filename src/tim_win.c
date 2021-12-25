@@ -340,6 +340,8 @@ int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
         logError(printf("alternate_utime: CreateFileW(\"%ls\", ...) failed:\n"
                         "GetLastError=" FMT_U32 "\n",
                         os_path, (uint32Type) GetLastError()););
+        errno = EACCES;
+        result = -1;
       } else {
         /* The case of utime_buf == NULL is not considered,   */
         /* since alternate_utime will never be used this way. */
@@ -363,6 +365,8 @@ int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
           logError(printf("alternate_utime(\"%ls\", ...): SetFileTime() failed:\n"
                           "GetLastError=" FMT_U32 "\n",
                           os_path, (uint32Type) GetLastError()););
+          errno = EACCES;
+          result = -1;
         } else {
           result = 0;
         } /* if */
