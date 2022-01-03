@@ -83,7 +83,7 @@ void *dllOpen (const char *dllName)
                    {
                      printf("LoadLibrary(\"%s\") failed:\n"
                             "error: " FMT_U32 "\n",
-                            dllName, GetLastError());
+                            dllName, (uint32Type) GetLastError());
                    });
     return aDll;
   } /* dllOpen */

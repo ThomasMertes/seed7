@@ -101,7 +101,7 @@ static includeResultType openIncludeFile (const rtlHashType includeFileHash,
     if (unlikely(absolutePath == NULL)) {
       *err_info = MEMORY_ERROR;
     } else {
-      if (hshContains(includeFileHash, (genericType) absolutePath,
+      if (hshContains(includeFileHash, (genericType) (memSizeType) absolutePath,
                       strHashCode(absolutePath), &strCmpGeneric)) {
         /* already included */
         logMessage(printf("already included: \"%s\"\n",
@@ -110,7 +110,7 @@ static includeResultType openIncludeFile (const rtlHashType includeFileHash,
       } else if (openInfile(includeFileName, in_file.write_library_names,
                             in_file.write_line_numbers, err_info)) {
         /* add to list of include files */
-        hshIncl(includeFileHash, (genericType) absolutePath,
+        hshIncl(includeFileHash, (genericType) (memSizeType) absolutePath,
                 (genericType) 1, strHashCode(absolutePath),
                 &strCmpGeneric, &strCreateGeneric,
                 &genericCreate, &genericCpy);
