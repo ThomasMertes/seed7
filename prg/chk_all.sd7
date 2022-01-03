@@ -140,6 +140,7 @@ const string: chkflt_output is "\n\
   \The ternary operator ? : works correct for float.\n";
 
 const string: chkbin_output is "\n\
+  \Bin64 shift works correct.\n\
   \Conversion of bin64 to big endian byte string with length works correct.\n\
   \Conversion of bin64 to little endian byte string with length works correct.\n\
   \Converting float to bin32 and bin64 values works correct.\n\

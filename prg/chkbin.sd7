@@ -98,6 +98,46 @@ const func boolean: raisesRangeError (ref func string: expression) is func
   end func;
 
 
+const proc: checkShift is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  bin64(1) << 61 <> bin64(2305843009213693952) or
+        bin64(1) << 62 <> bin64(4611686018427387904) or
+        bin64(1) << 63 <> bin64(9223372036854775808_) then
+      okay := FALSE;
+    end if;
+
+    if  bin64( 2305843009213693951)  >> 60 <> bin64(1) or
+        bin64( 2305843009213693951)  >> 61 <> bin64(0) or
+        bin64( 2305843009213693952)  >> 61 <> bin64(1) or
+        bin64( 4611686018427387903)  >> 61 <> bin64(1) or
+        bin64( 4611686018427387903)  >> 62 <> bin64(0) or
+        bin64( 4611686018427387904)  >> 62 <> bin64(1) or
+        bin64( 9223372036854775807)  >> 62 <> bin64(1) or
+        bin64( 9223372036854775807)  >> 63 <> bin64(0) or
+        bin64( 9223372036854775808_) >> 63 <> bin64(1) or
+        bin64(18446744073709551615_) >> 63 <> bin64(1) then
+      okay := FALSE;
+    end if;
+
+    if  bin64(1) << rand(0, 62) = bin64(4611686018427387905) then
+      okay := FALSE;
+    end if;
+
+    if  bin64(9223372036854775807) >> rand(0, 62) = bin64(0) then
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Bin64 shift works correct.");
+    else
+      writeln(" ***** Bin64 shift does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: checkBytesBeWithLength is func
   local
     var boolean: okay is TRUE;
@@ -2931,6 +2971,7 @@ const proc: main is func
 
   begin
     writeln;
+    checkShift;
     checkBytesBeWithLength;
     checkBytesLeWithLength;
     checkFloat2Bits;
