@@ -748,6 +748,7 @@ const proc: negate (in reference: number, inout expr_type: c_expr) is func
       number_range := getIntRange(number);
       if number_range.minValue >= -integer.last then
         # This negation cannot overflow
+        countOverflowOptimizations(c_expr);
         c_expr.expr &:= "/*no_overflow_check_negate*/-(";
         process_expr(number, c_expr);
         c_expr.expr &:= ")";
@@ -811,6 +812,7 @@ const proc: process_const_int_add (in reference: summand1, in integer: summand2,
           summand1_range.minValue >= minAllowedSummand1 and
           summand1_range.maxValue <= maxAllowedSummand1 then
         # This addition cannot overflow
+        countOverflowOptimizations(c_expr);
         c_expr.expr &:= "/*no_overflow_check_add*/(";
         process_expr(summand1, c_expr);
         c_expr.expr &:= ") + ";
@@ -860,6 +862,7 @@ const proc: process_int_add (in reference: summand1, in reference: summand2,
         if  summand2_range.minValue >= minAllowedSummand2 and
             summand2_range.maxValue <= maxAllowedSummand2 then
           # This addition cannot overflow
+          countOverflowOptimizations(c_expr);
           c_expr.expr &:= "/*no_overflow_check_add*/(";
           process_expr(summand1, c_expr);
           c_expr.expr &:= ") + (";
@@ -968,6 +971,7 @@ const proc: process_const_int_sbtr (in reference: minuend, in integer: subtrahen
           minuend_range.minValue >= minAllowedMinuend and
           minuend_range.maxValue <= maxAllowedMinuend then
         # This subtraction cannot overflow
+        countOverflowOptimizations(c_expr);
         c_expr.expr &:= "/*no_overflow_check_sbtr*/(";
         process_expr(minuend, c_expr);
         c_expr.expr &:= ") - ";
@@ -1014,6 +1018,7 @@ const proc: process_const_int_sbtr (in integer: minuend, in reference: subtrahen
           subtrahend_range.minValue >= minAllowedSubtrahend and
           subtrahend_range.maxValue <= maxAllowedSubtrahend then
         # This subtraction cannot overflow
+        countOverflowOptimizations(c_expr);
         c_expr.expr &:= "/*no_overflow_check_sbtr*/ ";
         c_expr.expr &:= integerLiteral(minuend);
         c_expr.expr &:= " - (";
@@ -1067,6 +1072,7 @@ const proc: process_int_sbtr (in reference: minuend, in reference: subtrahend,
         if  subtrahend_range.minValue >= minAllowedSubtrahend and
             subtrahend_range.maxValue <= maxAllowedSubtrahend then
           # This subtraction cannot overflow
+          countOverflowOptimizations(c_expr);
           c_expr.expr &:= "/*no_overflow_check_sbtr*/(";
           process_expr(minuend, c_expr);
           c_expr.expr &:= ") - (";
@@ -1727,6 +1733,7 @@ const proc: optimize_int_bytes_be_2_uint (in reference: stri, in integer: length
       c_expr.expr &:= "0";
     elsif length >= 1 and length <= 8 then
       incr(countOptimizations);
+      incr(countInlinedFunctions);
       c_expr.expr &:= "(";
       stri_name := getParameterAsVariable("const_striType", "tmp_", stri, c_expr);
       c_expr.expr &:= stri_name;
@@ -1738,7 +1745,7 @@ const proc: optimize_int_bytes_be_2_uint (in reference: stri, in integer: length
           c_expr.expr &:= "|";
         end if;
         if function_range_check then
-          c_expr.expr &:= "(ovfChk(";
+          c_expr.expr &:= "(rngChk(";
           c_expr.expr &:= stri_name;
           c_expr.expr &:= "->mem[";
           c_expr.expr &:= integerLiteral(pred(index));
@@ -1841,6 +1848,7 @@ const proc: optimize_int_bytes_le_2_uint (in reference: stri, in integer: length
       c_expr.expr &:= "0";
     elsif length >= 1 and length <= 8 then
       incr(countOptimizations);
+      incr(countInlinedFunctions);
       c_expr.expr &:= "(";
       stri_name := getParameterAsVariable("const_striType", "tmp_", stri, c_expr);
       c_expr.expr &:= stri_name;
@@ -1852,7 +1860,7 @@ const proc: optimize_int_bytes_le_2_uint (in reference: stri, in integer: length
           c_expr.expr &:= "|";
         end if;
         if function_range_check then
-          c_expr.expr &:= "(ovfChk(";
+          c_expr.expr &:= "(rngChk(";
           c_expr.expr &:= stri_name;
           c_expr.expr &:= "->mem[";
           c_expr.expr &:= integerLiteral(pred(index));
@@ -1942,6 +1950,8 @@ const proc: process (INT_CMP, in reference: function,
     var string: number2_name is "";
   begin
     if inlineFunctions then
+      incr(countOptimizations);
+      incr(countInlinedFunctions);
       c_expr.expr &:= "(";
       number1_name := getParameterAsVariable("intType", "num1_", params[1], c_expr);
       number2_name := getParameterAsVariable("intType", "num2_", params[2], c_expr);
@@ -2451,6 +2461,7 @@ const proc: process_const_int_lshift (in reference: number, in integer: lshift,
         if  number_range.minValue >= minAllowedNumber and
             number_range.maxValue <= maxAllowedNumber then
           # This lshift cannot overflow
+          countOverflowOptimizations(c_expr);
           c_expr.expr &:= "/*no_overflow_check_lshift*/(";
           process_expr(number, c_expr);
           c_expr.expr &:= ") << ";
@@ -2511,9 +2522,21 @@ const proc: process_const_int_lshift (in integer: number, in reference: lshift,
 
   local
     var string: lshift_name is "";
+    var intRange: lshift_range is intRange.value;
+    var boolean: doOverflowCheck is FALSE;
   begin
     if check_int_shift_overflow then
-      incr(countOverflowChecks);
+      lshift_range := getIntRange(lshift);
+      if lshift_range.minValue < 0 or
+          lshift_range.maxValue > bitLength(integer.last) - bitLength(number) then
+        incr(countOverflowChecks);
+        doOverflowCheck := TRUE;
+      else
+        countOverflowOptimizations(c_expr);
+        c_expr.expr &:= "/*no_overflow_check_lshift*/";
+      end if;
+    end if;
+    if doOverflowCheck then
       c_expr.expr &:= "(";
       lshift_name := getParameterAsVariable("intType", "tmp_", lshift, c_expr);
       c_expr.expr &:= "ovfChk(";
@@ -2550,6 +2573,7 @@ const proc: process (INT_LSHIFT, in reference: function,
     var reference: evaluatedParam is NIL;
     var string: number_name is "";
     var string: lshift_name is "";
+    var intRange: lshift_range is intRange.value;
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_lshift(params[1], getValue(evaluatedParam, integer), c_expr);
@@ -2560,9 +2584,15 @@ const proc: process (INT_LSHIFT, in reference: function,
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
       lshift_name := getParameterAsVariable("intType", "lshift_", params[3], c_expr);
+      lshift_range := getIntRange(params[3]);
       c_expr.expr &:= "ovfChk(";
-      checkRangeFromZero(lshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
-      c_expr.expr &:= "||";
+      if lshift_range.minValue < 0 or
+          lshift_range.maxValue >= ccConf.INTTYPE_SIZE then
+        checkRangeFromZero(lshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
+        c_expr.expr &:= "||";
+      else
+        countOverflowOptimizations(c_expr);
+      end if;
       c_expr.expr &:= number_name;
       c_expr.expr &:= "<";
       if ccConf.RSHIFT_DOES_SIGN_EXTEND then
@@ -3615,6 +3645,7 @@ const proc: process_const_int_mult (in reference: factor1, in integer: factor2,
         if  factor1_range.minValue >= minAllowedFactor1 and
             factor1_range.maxValue <= maxAllowedFactor1 then
           # This multiplication cannot overflow
+          countOverflowOptimizations(c_expr);
           c_expr.expr &:= "/*no_overflow_check_mult*/(";
           process_expr(factor1, c_expr);
           c_expr.expr &:= ") * ";
@@ -3949,6 +3980,7 @@ const proc: process_const_int_n_bytes_be_unsigned (in reference: number,
       end if;
     elsif ccConf.ALLOW_STRITYPE_SLICES and length <= 8 then
       incr(countOptimizations);
+      incr(countInlinedFunctions);
       incr(c_expr.temp_num);
       buffer_name := "buffer_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "union {\n";
@@ -4077,6 +4109,7 @@ const proc: process_const_int_n_bytes_le_unsigned (in reference: number,
       end if;
     elsif ccConf.ALLOW_STRITYPE_SLICES and length <= 8 then
       incr(countOptimizations);
+      incr(countInlinedFunctions);
       incr(c_expr.temp_num);
       buffer_name := "buffer_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "union {\n";
@@ -4979,12 +5012,24 @@ const proc: process (INT_RSHIFT, in reference: function,
     var reference: evaluatedParam is NIL;
     var string: number_name is "";
     var string: rshift_name is "";
+    var intRange: rshift_range is intRange.value;
+    var boolean: doOverflowCheck is FALSE;
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_rshift(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif ccConf.RSHIFT_DOES_SIGN_EXTEND then
       if check_int_shift_overflow then
-        incr(countOverflowChecks);
+        rshift_range := getIntRange(params[3]);
+        if rshift_range.minValue < 0 or
+            rshift_range.maxValue >= ccConf.INTTYPE_SIZE then
+          incr(countOverflowChecks);
+          doOverflowCheck := TRUE;
+        else
+          countOverflowOptimizations(c_expr);
+          c_expr.expr &:= "/*no_overflow_check_rshift*/";
+        end if;
+      end if;
+      if doOverflowCheck then
         c_expr.expr &:= "(";
         rshift_name := getParameterAsVariable("intType", "rshift_", params[3], c_expr);
         c_expr.expr &:= "ovfChk(";
@@ -5003,32 +5048,45 @@ const proc: process (INT_RSHIFT, in reference: function,
         process_expr(params[3], c_expr);
         c_expr.expr &:= ")";
       end if;
-    elsif check_int_shift_overflow then
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
-      rshift_name := getParameterAsVariable("intType", "rshift_", params[3], c_expr);
-      c_expr.expr &:= "ovfChk(";
-      checkRangeFromZero(rshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":";
-      doRshift(number_name, rshift_name, c_expr);
-      c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "(";
-      number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
-      (* Formula used: a<0?~(~a>>b):a>>b *)
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= "<0?~(~";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= " >> (";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ")):";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= " >> (";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= "))";
+      if check_int_shift_overflow then
+        rshift_range := getIntRange(params[3]);
+        if rshift_range.minValue < 0 or
+            rshift_range.maxValue >= ccConf.INTTYPE_SIZE then
+          incr(countOverflowChecks);
+          doOverflowCheck := TRUE;
+        else
+          countOverflowOptimizations(c_expr);
+          c_expr.expr &:= "/*no_overflow_check_rshift*/";
+        end if;
+      end if;
+      if doOverflowCheck then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "(";
+        number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+        rshift_name := getParameterAsVariable("intType", "rshift_", params[3], c_expr);
+        c_expr.expr &:= "ovfChk(";
+        checkRangeFromZero(rshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        c_expr.expr &:= ":";
+        doRshift(number_name, rshift_name, c_expr);
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= "(";
+        number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+        (* Formula used: a<0?~(~a>>b):a>>b *)
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= "<0?~(~";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= " >> (";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ")):";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= " >> (";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= "))";
+      end if;
     end if;
   end func;
 

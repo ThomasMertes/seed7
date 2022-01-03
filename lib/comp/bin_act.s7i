@@ -169,6 +169,8 @@ const proc: process (BIN_CMP, in reference: function,
     var string: number2_name is "";
   begin
     if inlineFunctions then
+      incr(countOptimizations);
+      incr(countInlinedFunctions);
       c_expr.expr &:= "(";
       number1_name := getParameterAsVariable("uintType", "num1_", params[1], c_expr);
       number2_name := getParameterAsVariable("uintType", "num2_", params[2], c_expr);
@@ -226,22 +228,35 @@ const proc: process (BIN_LSHIFT, in reference: function,
   local
     var reference: evaluatedParam is NIL;
     var string: lshift_name is "";
+    var intRange: lshift_range is intRange.value;
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_bin_lshift(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif check_int_shift_overflow then
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      lshift_name := getParameterAsVariable("intType", "lshift_", params[3], c_expr);
-      c_expr.expr &:= "ovfChk(";
-      checkRangeFromZero(lshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":(intType)((uintType)(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ") << ";
-      c_expr.expr &:= lshift_name;
-      c_expr.expr &:= "))";
+      lshift_range := getIntRange(params[3]);
+      if lshift_range.minValue < 0 or
+          lshift_range.maxValue >= ccConf.INTTYPE_SIZE then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "(";
+        lshift_name := getParameterAsVariable("intType", "lshift_", params[3], c_expr);
+        c_expr.expr &:= "ovfChk(";
+        checkRangeFromZero(lshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        c_expr.expr &:= ":(intType)((uintType)(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ") << ";
+        c_expr.expr &:= lshift_name;
+        c_expr.expr &:= "))";
+      else
+        countOverflowOptimizations(c_expr);
+        c_expr.expr &:= "/*no_overflow_check_lshift*/";
+        c_expr.expr &:= "(intType)((uintType)(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ") << (";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= "))";
+      end if;
     else
       c_expr.expr &:= "(intType)((uintType)(";
       process_expr(params[1], c_expr);
@@ -343,6 +358,7 @@ const proc: process_const_bin_n_bytes_be (in reference: number,
       end if;
     elsif ccConf.ALLOW_STRITYPE_SLICES and length <= 8 then
       incr(countOptimizations);
+      incr(countInlinedFunctions);
       incr(c_expr.temp_num);
       buffer_name := "buffer_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "union {\n";
@@ -457,6 +473,7 @@ const proc: process_const_bin_n_bytes_le (in reference: number,
       end if;
     elsif ccConf.ALLOW_STRITYPE_SLICES and length <= 8 then
       incr(countOptimizations);
+      incr(countInlinedFunctions);
       incr(c_expr.temp_num);
       buffer_name := "buffer_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "union {\n";
@@ -680,22 +697,35 @@ const proc: process (BIN_RSHIFT, in reference: function,
   local
     var reference: evaluatedParam is NIL;
     var string: rshift_name is "";
+    var intRange: rshift_range is intRange.value;
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_bin_rshift(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif check_int_shift_overflow then
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      rshift_name := getParameterAsVariable("intType", "rshift_", params[3], c_expr);
-      c_expr.expr &:= "ovfChk(";
-      checkRangeFromZero(rshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":(intType)((uintType)(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ") >> ";
-      c_expr.expr &:= rshift_name;
-      c_expr.expr &:= "))";
+      rshift_range := getIntRange(params[3]);
+      if rshift_range.minValue < 0 or
+          rshift_range.maxValue >= ccConf.INTTYPE_SIZE then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "(";
+        rshift_name := getParameterAsVariable("intType", "rshift_", params[3], c_expr);
+        c_expr.expr &:= "ovfChk(";
+        checkRangeFromZero(rshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        c_expr.expr &:= ":(intType)((uintType)(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ") >> ";
+        c_expr.expr &:= rshift_name;
+        c_expr.expr &:= "))";
+      else
+        countOverflowOptimizations(c_expr);
+        c_expr.expr &:= "/*no_overflow_check_rshift*/";
+        c_expr.expr &:= "(intType)((uintType)(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ") >> (";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= "))";
+      end if;
     else
       c_expr.expr &:= "(intType)((uintType)(";
       process_expr(params[1], c_expr);
