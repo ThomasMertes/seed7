@@ -40,14 +40,20 @@ include "filebits.s7i";
 include "fileutil.s7i";
 
 
-const string: ZIP_CENTRAL_HEADER_SIGNATURE           is "PK\1;\2;";
-const string: ZIP_LOCAL_HEADER_SIGNATURE             is "PK\3;\4;";
-const string: ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE is "PK\5;\6;";
-const string: ZIP_DATA_DESCRIPTOR_SIGNATURE          is "PK\7;\8;";
+const string: ZIP_CENTRAL_HEADER_SIGNATURE               is "PK\1;\2;";
+const string: ZIP_LOCAL_HEADER_SIGNATURE                 is "PK\3;\4;";
+const string: ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE     is "PK\5;\6;";
+const string: ZIP_DATA_DESCRIPTOR_SIGNATURE              is "PK\7;\8;";
 
-const integer: ZIP_CENTRAL_HEADER_FIXED_SIZE           is 46;
-const integer: ZIP_LOCAL_HEADER_FIXED_SIZE             is 30;
-const integer: ZIP_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE is 22;
+const string: ZIP64_END_OF_CENTRAL_DIRECTORY_SIGNATURE   is "PK\6;\6;";
+const string: ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIGNATURE is "PK\6;\7;";
+
+const integer: ZIP_CENTRAL_HEADER_FIXED_SIZE             is 46;
+const integer: ZIP_LOCAL_HEADER_FIXED_SIZE               is 30;
+const integer: ZIP_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE   is 22;
+
+const integer: ZIP64_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE is 56;
+const integer: ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIZE     is 20;
 
 # Bits of the general_purpose_bit_flag:
 const bin32: ZIP_HAS_DATA_DESCRIPTOR is bin32(16#0008);
@@ -173,6 +179,24 @@ const proc: write (in local_file_header: header) is func
   end func;
 
 
+const proc: considerZip64ExtraField (inout local_file_header: header,
+    in string: zip64ExtraField) is func
+  local
+    var integer: pos is 1;
+  begin
+    if header.uncompressed_size = 16#ffffffff and length(zip64ExtraField) >= pos + 7 then
+      header.uncompressed_size := bytes2Int(zip64ExtraField[pos len 8], UNSIGNED, LE);
+      # writeln("uncompressed_size: " <& header.uncompressed_size);
+      pos +:= 8;
+    end if;
+    if header.compressed_size = 16#ffffffff and length(zip64ExtraField) >= pos + 7 then
+      header.compressed_size := bytes2Int(zip64ExtraField[pos len 8], UNSIGNED, LE);
+      # writeln("compressed_size: " <& header.compressed_size);
+      pos +:= 8;
+    end if;
+  end func;
+
+
 const func local_file_header: get_local_header (inout file: inFile) is func
   result
     var local_file_header: header is local_file_header.value;
@@ -211,6 +235,9 @@ const func local_file_header: get_local_header (inout file: inFile) is func
       if header.filePath <> "/" and endsWith(header.filePath, "/") then
         header.filePath := header.filePath[.. pred(length(header.filePath))];
       end if;
+      if 16#0001 in header.extraFieldMap then
+        considerZip64ExtraField(header, header.extraFieldMap[16#0001]);
+      end if;
       # write(header);
     end if;
   end func;
@@ -239,6 +266,99 @@ const func string: str (in local_file_header: header) is func
 const proc: writeHead (inout file: outFile, in local_file_header: header) is func
   begin
     write(outFile, str(header));
+  end func;
+
+
+const type: zip64_end_of_central_dir_locator is new struct
+    var string:  signature                                        is "";  # 4 bytes ("PK\6;\7;")
+    var integer: disk_number_with_zip64_end_of_central_directory  is 0;   # 4 bytes
+    var integer: offset_of_zip64_end_of_central_directory         is 0;   # 8 bytes
+    var integer: total_number_of_disks                            is 0;   # 4 bytes
+  end struct;
+
+
+const proc: write (in zip64_end_of_central_dir_locator: endOfCentDirLocator) is func
+  begin
+    writeln("signature: "                                       rpad 50 <& literal(endOfCentDirLocator.signature) lpad 16);
+    writeln("disk_number_with_zip64_end_of_central_directory: " rpad 50 <& endOfCentDirLocator.disk_number_with_zip64_end_of_central_directory);
+    writeln("offset_of_zip64_end_of_central_directory: "        rpad 50 <& endOfCentDirLocator.offset_of_zip64_end_of_central_directory);
+    writeln("total_number_of_disks: "                           rpad 50 <& endOfCentDirLocator.total_number_of_disks);
+  end func;
+
+
+const func zip64_end_of_central_dir_locator: get_zip64_end_of_central_dir_locator (inout file: inFile) is func
+  result
+    var zip64_end_of_central_dir_locator: endOfCentDirLocator is zip64_end_of_central_dir_locator.value;
+  local
+    var string: stri is "";
+  begin
+    stri := gets(inFile, ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIZE);
+    if length(stri) = ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIZE and
+        stri[.. 4] = ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIGNATURE then
+      endOfCentDirLocator.signature := ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIGNATURE;
+      endOfCentDirLocator.disk_number_with_zip64_end_of_central_directory := bytes2Int(stri[ 5 len 4], UNSIGNED, LE);
+      endOfCentDirLocator.offset_of_zip64_end_of_central_directory        := bytes2Int(stri[ 9 len 8], UNSIGNED, LE);
+      endOfCentDirLocator.total_number_of_disks                           := bytes2Int(stri[17 len 4], UNSIGNED, LE);
+      # write(endOfCentDirLocator);
+    end if;
+  end func;
+
+
+const type: zip64_end_of_central_directory is new struct
+    var string:  signature                                    is "";  # 4 bytes ("PK\6;\6;")
+    var integer: size_of_eocd64_minus_12                      is 0;   # 8 bytes
+    var integer: version_made_by                              is 0;   # 2 bytes
+    var integer: version_needed_to_extract                    is 0;   # 2 bytes
+    var integer: number_of_this_disk                          is 0;   # 4 bytes
+    var integer: disk_number_with_start_of_central_directory  is 0;   # 4 bytes
+    var integer: entries_in_central_directory_on_this_disk    is 0;   # 8 bytes
+    var integer: entries_in_central_directory                 is 0;   # 8 bytes
+    var integer: size_of_central_directory                    is 0;   # 8 bytes
+    var integer: offset_of_start_of_central_directory         is 0;   # 8 bytes
+    var string:  comment                                      is "";  # variable size
+  end struct;
+
+
+const proc: write (in zip64_end_of_central_directory: endOfCentDir) is func
+  begin
+    writeln("signature: "                                   rpad 45 <& literal(endOfCentDir.signature) lpad 16);
+    writeln("size_of_eocd64_minus_12: "                     rpad 45 <& endOfCentDir.size_of_eocd64_minus_12 lpad 16);
+    writeln("version_made_by: "                             rpad 45 <& endOfCentDir.version_made_by lpad 16);
+    writeln("version_needed_to_extract: "                   rpad 45 <& endOfCentDir.version_needed_to_extract lpad 16);
+    writeln("number_of_this_disk: "                         rpad 45 <& endOfCentDir.number_of_this_disk lpad 16);
+    writeln("disk_number_with_start_of_central_directory: " rpad 45 <& endOfCentDir.disk_number_with_start_of_central_directory lpad 16);
+    writeln("entries_in_central_directory_on_this_disk: "   rpad 45 <& endOfCentDir.entries_in_central_directory_on_this_disk lpad 16);
+    writeln("entries_in_central_directory: "                rpad 45 <& endOfCentDir.entries_in_central_directory lpad 16);
+    writeln("size_of_central_directory: "                   rpad 45 <& endOfCentDir.size_of_central_directory lpad 16);
+    writeln("offset_of_start_of_central_directory: "        rpad 45 <& endOfCentDir.offset_of_start_of_central_directory lpad 16);
+    writeln("comment: "                                     rpad 45 <& literal(endOfCentDir.comment) lpad 16);
+  end func;
+
+
+const func zip64_end_of_central_directory: get_zip64_end_of_central_directory (inout file: inFile) is func
+  result
+    var zip64_end_of_central_directory: endOfCentDir is zip64_end_of_central_directory.value;
+  local
+    var string: stri is "";
+    var integer: commentLength is 0;
+  begin
+    stri := gets(inFile, ZIP64_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE);
+    if length(stri) = ZIP64_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE and
+        stri[.. 4] = ZIP64_END_OF_CENTRAL_DIRECTORY_SIGNATURE then
+      endOfCentDir.signature := ZIP64_END_OF_CENTRAL_DIRECTORY_SIGNATURE;
+      endOfCentDir.size_of_eocd64_minus_12                     := bytes2Int(stri[ 5 len 8], UNSIGNED, LE);
+      endOfCentDir.version_made_by                             := bytes2Int(stri[13 len 2], UNSIGNED, LE);
+      endOfCentDir.version_needed_to_extract                   := bytes2Int(stri[15 len 2], UNSIGNED, LE);
+      endOfCentDir.number_of_this_disk                         := bytes2Int(stri[17 len 4], UNSIGNED, LE);
+      endOfCentDir.disk_number_with_start_of_central_directory := bytes2Int(stri[21 len 4], UNSIGNED, LE);
+      endOfCentDir.entries_in_central_directory_on_this_disk   := bytes2Int(stri[25 len 8], UNSIGNED, LE);
+      endOfCentDir.entries_in_central_directory                := bytes2Int(stri[33 len 8], UNSIGNED, LE);
+      endOfCentDir.size_of_central_directory                   := bytes2Int(stri[41 len 8], UNSIGNED, LE);
+      endOfCentDir.offset_of_start_of_central_directory        := bytes2Int(stri[49 len 8], UNSIGNED, LE);
+      commentLength := endOfCentDir.size_of_eocd64_minus_12 + 12 - ZIP64_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE;
+      endOfCentDir.comment                                     := gets(inFile, commentLength);
+      # write(endOfCentDir);
+    end if;
   end func;
 
 
@@ -316,12 +436,47 @@ const func end_of_central_directory: readEndOfCentralDir (inout file: inFile,
   local
     const integer: MIN_RECORD_LEN is 22;
     const integer: MAX_RECORD_LEN is MIN_RECORD_LEN + 2**16 - 1;
+    var zip64_end_of_central_dir_locator: endOfCentDirLocator is zip64_end_of_central_dir_locator.value;
+    var zip64_end_of_central_directory: endOfCentralDir64 is zip64_end_of_central_directory.value;
   begin
     endOfCentralDirPos := rposOfMagic(inFile, ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE,
                                       MIN_RECORD_LEN, MAX_RECORD_LEN);
     if endOfCentralDirPos <> 0 then
+      if endOfCentralDirPos > ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIZE then
+        seek(inFile, endOfCentralDirPos - ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIZE);
+        endOfCentDirLocator := get_zip64_end_of_central_dir_locator(inFile);
+        if endOfCentDirLocator.signature = ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIGNATURE then
+          seek(inFile, succ(endOfCentDirLocator.offset_of_zip64_end_of_central_directory));
+          endOfCentralDir64 := get_zip64_end_of_central_directory(inFile);
+        end if;
+      end if;
       seek(inFile, endOfCentralDirPos);
       endOfCentralDir := get_end_of_central_directory(inFile);
+      if endOfCentDirLocator.signature = ZIP64_END_OF_CENTRAL_DIR_LOCATOR_SIGNATURE then
+        if endOfCentralDir64.signature = ZIP64_END_OF_CENTRAL_DIRECTORY_SIGNATURE then
+          if endOfCentralDir.number_of_this_disk = 16#ffff then
+            endOfCentralDir.number_of_this_disk := endOfCentralDir64.number_of_this_disk;
+          end if;
+          if endOfCentralDir.disk_number_with_start_of_central_directory = 16#ffff then
+            endOfCentralDir.disk_number_with_start_of_central_directory :=
+                endOfCentralDir64.disk_number_with_start_of_central_directory;
+          end if;
+          if endOfCentralDir.entries_in_central_directory_on_this_disk = 16#ffff then
+            endOfCentralDir.entries_in_central_directory_on_this_disk :=
+                endOfCentralDir64.entries_in_central_directory_on_this_disk;
+          end if;
+          if endOfCentralDir.entries_in_central_directory = 16#ffff then
+            endOfCentralDir.entries_in_central_directory := endOfCentralDir64.entries_in_central_directory;
+          end if;
+          if endOfCentralDir.size_of_central_directory = 16#ffffffff then
+            endOfCentralDir.size_of_central_directory := endOfCentralDir64.size_of_central_directory;
+          end if;
+          if endOfCentralDir.offset_of_start_of_central_directory = 16#ffffffff then
+            endOfCentralDir.offset_of_start_of_central_directory :=
+                endOfCentralDir64.offset_of_start_of_central_directory;
+          end if;
+        end if;
+      end if;
       if tell(inFile) <> succ(length(inFile)) then
         # The end_of_central_directory record is not at the end of the file.
         # writeln("curr pos: " <& tell(inFile) <& " length: " <& length(inFile));
@@ -384,6 +539,34 @@ const proc: write (in central_file_header: header) is func
   end func;
 
 
+const proc: considerZip64ExtraField (inout central_file_header: header,
+    in string: zip64ExtraField) is func
+  local
+    var integer: pos is 1;
+  begin
+    if header.uncompressed_size = 16#ffffffff and length(zip64ExtraField) >= pos + 7 then
+      header.uncompressed_size := bytes2Int(zip64ExtraField[pos len 8], UNSIGNED, LE);
+      # writeln("uncompressed_size: " <& header.uncompressed_size);
+      pos +:= 8;
+    end if;
+    if header.compressed_size = 16#ffffffff and length(zip64ExtraField) >= pos + 7 then
+      header.compressed_size := bytes2Int(zip64ExtraField[pos len 8], UNSIGNED, LE);
+      # writeln("compressed_size: " <& header.compressed_size);
+      pos +:= 8;
+    end if;
+    if header.relative_offset_of_local_header = 16#ffffffff and length(zip64ExtraField) >= pos + 7 then
+      header.relative_offset_of_local_header := bytes2Int(zip64ExtraField[pos len 8], UNSIGNED, LE);
+      # writeln("relative_offset_of_local_header: " <& header.relative_offset_of_local_header);
+      pos +:= 8;
+    end if;
+    if header.disk_number_start = 16#ffff and length(zip64ExtraField) >= pos + 3 then
+      header.disk_number_start := bytes2Int(zip64ExtraField[pos len 4], UNSIGNED, LE);
+      # writeln("disk_number_start: " <& header.disk_number_start);
+      pos +:= 4;
+    end if;
+  end func;
+
+
 const func central_file_header: get_central_header (inout file: inFile) is func
   result
     var central_file_header: header is central_file_header.value;
@@ -429,6 +612,9 @@ const func central_file_header: get_central_header (inout file: inFile) is func
       end if;
       if header.filePath <> "/" and endsWith(header.filePath, "/") then
         header.filePath := header.filePath[.. pred(length(header.filePath))];
+      end if;
+      if 16#0001 in header.extraFieldMap then
+        considerZip64ExtraField(header, header.extraFieldMap[16#0001]);
       end if;
       # write(header);
       # writeExtraField(header.extra_field);
