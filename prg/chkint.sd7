@@ -739,7 +739,7 @@ const proc: check_bytesBe is func
         bytes(   72057594037927935, SIGNED, BE) <> "\000;\255;\255;\255;\255;\255;\255;\255;" or
         bytes(   72057594037927936, SIGNED, BE) <> "\001;\000;\000;\000;\000;\000;\000;\000;" or
         bytes( 9223372036854775807, SIGNED, BE) <> "\127;\255;\255;\255;\255;\255;\255;\255;" then
-      writeln("Conversion of integer to big endian byte string does not work correct.");
+      writeln("Conversion of integer to signed big endian byte string does not work correct. (1)");
       okay := FALSE;
     end if;
 
@@ -757,7 +757,7 @@ const proc: check_bytesBe is func
         bytes(     6618611909121, SIGNED, BE) <>       "\6;\5;\4;\3;\2;\1;" or
         bytes(  1976943448883713, SIGNED, BE) <>    "\7;\6;\5;\4;\3;\2;\1;" or
         bytes(578437695752307201, SIGNED, BE) <> "\8;\7;\6;\5;\4;\3;\2;\1;" then
-      writeln("Conversion of integer to big endian byte string does not work correct.");
+      writeln("Conversion of integer to signed big endian byte string does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -775,7 +775,7 @@ const proc: check_bytesBe is func
         bytes(    -1077969485311, SIGNED, BE) <>       "\255;\5;\4;\3;\2;\1;" or
         bytes(  -274856364801535, SIGNED, BE) <>    "\255;\6;\5;\4;\3;\2;\1;" or
         bytes(-70080650589044223, SIGNED, BE) <> "\255;\7;\6;\5;\4;\3;\2;\1;" then
-      writeln("Conversion of integer to big endian byte string does not work correct.");
+      writeln("Conversion of integer to signed big endian byte string does not work correct. (3)");
       okay := FALSE;
     end if;
 
@@ -833,7 +833,7 @@ const proc: check_bytesBe is func
         bytes(  72057594037927935, UNSIGNED, BE) <>      "\255;\255;\255;\255;\255;\255;\255;" or
         bytes(  72057594037927936, UNSIGNED, BE) <> "\001;\000;\000;\000;\000;\000;\000;\000;" or
         bytes(9223372036854775807, UNSIGNED, BE) <> "\127;\255;\255;\255;\255;\255;\255;\255;" then
-      writeln("Conversion of integer to unsigned big endian byte string does not work correct.");
+      writeln("Conversion of integer to unsigned big endian byte string does not work correct. (1)");
       okay := FALSE;
     end if;
 
@@ -851,7 +851,7 @@ const proc: check_bytesBe is func
         bytes(     6618611909121, UNSIGNED, BE) <>       "\6;\5;\4;\3;\2;\1;" or
         bytes(  1976943448883713, UNSIGNED, BE) <>    "\7;\6;\5;\4;\3;\2;\1;" or
         bytes(578437695752307201, UNSIGNED, BE) <> "\8;\7;\6;\5;\4;\3;\2;\1;" then
-      writeln("Conversion of integer to unsigned big endian byte string does not work correct.");
+      writeln("Conversion of integer to unsigned big endian byte string does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -867,17 +867,267 @@ const proc: check_bytesBe is func
         bytes(    1095283966465, UNSIGNED, BE) <>       "\255;\4;\3;\2;\1;" or
         bytes(  280397007225345, UNSIGNED, BE) <>    "\255;\5;\4;\3;\2;\1;" or
         bytes(71782737673126401, UNSIGNED, BE) <> "\255;\6;\5;\4;\3;\2;\1;" then
-      writeln("Conversion of integer to unsigned big endian byte string does not work correct.");
+      writeln("Conversion of integer to unsigned big endian byte string does not work correct. (3)");
       okay := FALSE;
     end if;
 
-    if  bytes(1413829460,          SIGNED,   BE) <> "TEST"     or
-        bytes(1330331993,          SIGNED,   BE) <> "OKAY"     or
-        bytes(-338762715347,       SIGNED,   BE) <> "± +/-"    or
-        bytes(760748912429,        SIGNED,   BE) <> "\0;± +/-" or
-        bytes(760748912429,        UNSIGNED, BE) <> "± +/-"    or
+    if  bytes(         1413829460, SIGNED,   BE) <> "TEST"     or
+        bytes(         1330331993, SIGNED,   BE) <> "OKAY"     or
+        bytes(      -338762715347, SIGNED,   BE) <> "± +/-"    or
+        bytes(       760748912429, SIGNED,   BE) <> "\0;± +/-" or
+        bytes(       760748912429, UNSIGNED, BE) <> "± +/-"    or
         bytes(5292891159410142067, UNSIGNED, BE) <> "It works" then
-      writeln("Conversion of bigInteger to byte string does not work correct.");
+      writeln("Conversion of integer to big endian byte string does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(           INT64_MIN), SIGNED, BE) <> "\128;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(-9223372036854775807), SIGNED, BE) <> "\128;\000;\000;\000;\000;\000;\000;\001;" or
+        bytes(intExpr(  -72057594037927937), SIGNED, BE) <> "\254;\255;\255;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(  -72057594037927936), SIGNED, BE) <> "\255;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(  -36028797018963969), SIGNED, BE) <> "\255;\127;\255;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(  -36028797018963968), SIGNED, BE) <>      "\128;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(    -281474976710657), SIGNED, BE) <>      "\254;\255;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(    -281474976710656), SIGNED, BE) <>      "\255;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(    -140737488355329), SIGNED, BE) <>      "\255;\127;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(    -140737488355328), SIGNED, BE) <>           "\128;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(      -1099511627777), SIGNED, BE) <>           "\254;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(      -1099511627776), SIGNED, BE) <>           "\255;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(       -549755813889), SIGNED, BE) <>           "\255;\127;\255;\255;\255;\255;" or
+        bytes(intExpr(       -549755813888), SIGNED, BE) <>                "\128;\000;\000;\000;\000;" or
+        bytes(intExpr(         -4294967297), SIGNED, BE) <>                "\254;\255;\255;\255;\255;" or
+        bytes(intExpr(         -4294967296), SIGNED, BE) <>                "\255;\000;\000;\000;\000;" or
+        bytes(intExpr(         -2147483649), SIGNED, BE) <>                "\255;\127;\255;\255;\255;" or
+        bytes(intExpr(         -2147483648), SIGNED, BE) <>                     "\128;\000;\000;\000;" or
+        bytes(intExpr(           -16777217), SIGNED, BE) <>                     "\254;\255;\255;\255;" or
+        bytes(intExpr(           -16777216), SIGNED, BE) <>                     "\255;\000;\000;\000;" or
+        bytes(intExpr(            -8388609), SIGNED, BE) <>                     "\255;\127;\255;\255;" or
+        bytes(intExpr(            -8388608), SIGNED, BE) <>                          "\128;\000;\000;" or
+        bytes(intExpr(              -65537), SIGNED, BE) <>                          "\254;\255;\255;" or
+        bytes(intExpr(              -65536), SIGNED, BE) <>                          "\255;\000;\000;" or
+        bytes(intExpr(              -65281), SIGNED, BE) <>                          "\255;\000;\255;" or
+        bytes(intExpr(              -65280), SIGNED, BE) <>                          "\255;\001;\000;" or
+        bytes(intExpr(              -65025), SIGNED, BE) <>                          "\255;\001;\255;" or
+        bytes(intExpr(              -65024), SIGNED, BE) <>                          "\255;\002;\000;" or
+        bytes(intExpr(              -32770), SIGNED, BE) <>                          "\255;\127;\254;" or
+        bytes(intExpr(              -32769), SIGNED, BE) <>                          "\255;\127;\255;" or
+        bytes(intExpr(              -32768), SIGNED, BE) <>                               "\128;\000;" or
+        bytes(intExpr(              -32767), SIGNED, BE) <>                               "\128;\001;" or
+        bytes(intExpr(              -32514), SIGNED, BE) <>                               "\128;\254;" or
+        bytes(intExpr(              -32513), SIGNED, BE) <>                               "\128;\255;" or
+        bytes(intExpr(              -32512), SIGNED, BE) <>                               "\129;\000;" or
+        bytes(intExpr(              -32511), SIGNED, BE) <>                               "\129;\001;" or
+        bytes(intExpr(              -32258), SIGNED, BE) <>                               "\129;\254;" or
+        bytes(intExpr(              -32257), SIGNED, BE) <>                               "\129;\255;" or
+        bytes(intExpr(              -32256), SIGNED, BE) <>                               "\130;\000;" or
+        bytes(intExpr(              -32255), SIGNED, BE) <>                               "\130;\001;" or
+        bytes(intExpr(                -514), SIGNED, BE) <>                               "\253;\254;" or
+        bytes(intExpr(                -513), SIGNED, BE) <>                               "\253;\255;" or
+        bytes(intExpr(                -512), SIGNED, BE) <>                               "\254;\000;" or
+        bytes(intExpr(                -511), SIGNED, BE) <>                               "\254;\001;" or
+        bytes(intExpr(                -258), SIGNED, BE) <>                               "\254;\254;" or
+        bytes(intExpr(                -257), SIGNED, BE) <>                               "\254;\255;" or
+        bytes(intExpr(                -256), SIGNED, BE) <>                               "\255;\000;" or
+        bytes(intExpr(                -255), SIGNED, BE) <>                               "\255;\001;" or
+        bytes(intExpr(                -130), SIGNED, BE) <>                               "\255;\126;" or
+        bytes(intExpr(                -129), SIGNED, BE) <>                               "\255;\127;" or
+        bytes(intExpr(                -128), SIGNED, BE) <>                                    "\128;" or
+        bytes(intExpr(                -127), SIGNED, BE) <>                                    "\129;" or
+        bytes(intExpr(                  -2), SIGNED, BE) <>                                    "\254;" or
+        bytes(intExpr(                  -1), SIGNED, BE) <>                                    "\255;" or
+        bytes(intExpr(                   0), SIGNED, BE) <>                                    "\000;" or
+        bytes(intExpr(                   1), SIGNED, BE) <>                                    "\001;" or
+        bytes(intExpr(                   2), SIGNED, BE) <>                                    "\002;" or
+        bytes(intExpr(                 126), SIGNED, BE) <>                                    "\126;" or
+        bytes(intExpr(                 127), SIGNED, BE) <>                                    "\127;" or
+        bytes(intExpr(                 128), SIGNED, BE) <>                               "\000;\128;" or
+        bytes(intExpr(                 129), SIGNED, BE) <>                               "\000;\129;" or
+        bytes(intExpr(                 254), SIGNED, BE) <>                               "\000;\254;" or
+        bytes(intExpr(                 255), SIGNED, BE) <>                               "\000;\255;" or
+        bytes(intExpr(                 256), SIGNED, BE) <>                               "\001;\000;" or
+        bytes(intExpr(                 257), SIGNED, BE) <>                               "\001;\001;" or
+        bytes(intExpr(                 510), SIGNED, BE) <>                               "\001;\254;" or
+        bytes(intExpr(                 511), SIGNED, BE) <>                               "\001;\255;" or
+        bytes(intExpr(                 512), SIGNED, BE) <>                               "\002;\000;" or
+        bytes(intExpr(                 513), SIGNED, BE) <>                               "\002;\001;" or
+        bytes(intExpr(               32254), SIGNED, BE) <>                               "\125;\254;" or
+        bytes(intExpr(               32255), SIGNED, BE) <>                               "\125;\255;" or
+        bytes(intExpr(               32256), SIGNED, BE) <>                               "\126;\000;" or
+        bytes(intExpr(               32257), SIGNED, BE) <>                               "\126;\001;" or
+        bytes(intExpr(               32510), SIGNED, BE) <>                               "\126;\254;" or
+        bytes(intExpr(               32511), SIGNED, BE) <>                               "\126;\255;" or
+        bytes(intExpr(               32512), SIGNED, BE) <>                               "\127;\000;" or
+        bytes(intExpr(               32513), SIGNED, BE) <>                               "\127;\001;" or
+        bytes(intExpr(               32766), SIGNED, BE) <>                               "\127;\254;" or
+        bytes(intExpr(               32767), SIGNED, BE) <>                               "\127;\255;" or
+        bytes(intExpr(               32768), SIGNED, BE) <>                          "\000;\128;\000;" or
+        bytes(intExpr(               32769), SIGNED, BE) <>                          "\000;\128;\001;" or
+        bytes(intExpr(               65023), SIGNED, BE) <>                          "\000;\253;\255;" or
+        bytes(intExpr(               65024), SIGNED, BE) <>                          "\000;\254;\000;" or
+        bytes(intExpr(               65279), SIGNED, BE) <>                          "\000;\254;\255;" or
+        bytes(intExpr(               65280), SIGNED, BE) <>                          "\000;\255;\000;" or
+        bytes(intExpr(               65535), SIGNED, BE) <>                          "\000;\255;\255;" or
+        bytes(intExpr(               65536), SIGNED, BE) <>                          "\001;\000;\000;" or
+        bytes(intExpr(             8388607), SIGNED, BE) <>                          "\127;\255;\255;" or
+        bytes(intExpr(             8388608), SIGNED, BE) <>                     "\000;\128;\000;\000;" or
+        bytes(intExpr(            16777215), SIGNED, BE) <>                     "\000;\255;\255;\255;" or
+        bytes(intExpr(            16777216), SIGNED, BE) <>                     "\001;\000;\000;\000;" or
+        bytes(intExpr(          2147483647), SIGNED, BE) <>                     "\127;\255;\255;\255;" or
+        bytes(intExpr(          2147483648), SIGNED, BE) <>                "\000;\128;\000;\000;\000;" or
+        bytes(intExpr(          4294967295), SIGNED, BE) <>                "\000;\255;\255;\255;\255;" or
+        bytes(intExpr(          4294967296), SIGNED, BE) <>                "\001;\000;\000;\000;\000;" or
+        bytes(intExpr(        549755813887), SIGNED, BE) <>                "\127;\255;\255;\255;\255;" or
+        bytes(intExpr(        549755813888), SIGNED, BE) <>           "\000;\128;\000;\000;\000;\000;" or
+        bytes(intExpr(       1099511627775), SIGNED, BE) <>           "\000;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(       1099511627776), SIGNED, BE) <>           "\001;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(     140737488355327), SIGNED, BE) <>           "\127;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(     140737488355328), SIGNED, BE) <>      "\000;\128;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(     281474976710655), SIGNED, BE) <>      "\000;\255;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(     281474976710656), SIGNED, BE) <>      "\001;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(   36028797018963967), SIGNED, BE) <>      "\127;\255;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(   36028797018963968), SIGNED, BE) <> "\000;\128;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(   72057594037927935), SIGNED, BE) <> "\000;\255;\255;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(   72057594037927936), SIGNED, BE) <> "\001;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr( 9223372036854775807), SIGNED, BE) <> "\127;\255;\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to signed big endian byte string does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(               258), SIGNED, BE) <>                   "\1;\2;" or
+        bytes(intExpr(             66051), SIGNED, BE) <>                "\1;\2;\3;" or
+        bytes(intExpr(          16909060), SIGNED, BE) <>             "\1;\2;\3;\4;" or
+        bytes(intExpr(        4328719365), SIGNED, BE) <>          "\1;\2;\3;\4;\5;" or
+        bytes(intExpr(     1108152157446), SIGNED, BE) <>       "\1;\2;\3;\4;\5;\6;" or
+        bytes(intExpr(   283686952306183), SIGNED, BE) <>    "\1;\2;\3;\4;\5;\6;\7;" or
+        bytes(intExpr( 72623859790382856), SIGNED, BE) <> "\1;\2;\3;\4;\5;\6;\7;\8;" or
+        bytes(intExpr(               513), SIGNED, BE) <>                   "\2;\1;" or
+        bytes(intExpr(            197121), SIGNED, BE) <>                "\3;\2;\1;" or
+        bytes(intExpr(          67305985), SIGNED, BE) <>             "\4;\3;\2;\1;" or
+        bytes(intExpr(       21542142465), SIGNED, BE) <>          "\5;\4;\3;\2;\1;" or
+        bytes(intExpr(     6618611909121), SIGNED, BE) <>       "\6;\5;\4;\3;\2;\1;" or
+        bytes(intExpr(  1976943448883713), SIGNED, BE) <>    "\7;\6;\5;\4;\3;\2;\1;" or
+        bytes(intExpr(578437695752307201), SIGNED, BE) <> "\8;\7;\6;\5;\4;\3;\2;\1;" then
+      writeln("Conversion of integer to signed big endian byte string does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(              -255), SIGNED, BE) <>                   "\255;\1;" or
+        bytes(intExpr(            -65278), SIGNED, BE) <>                "\255;\1;\2;" or
+        bytes(intExpr(         -16711165), SIGNED, BE) <>             "\255;\1;\2;\3;" or
+        bytes(intExpr(       -4278058236), SIGNED, BE) <>          "\255;\1;\2;\3;\4;" or
+        bytes(intExpr(    -1095182908411), SIGNED, BE) <>       "\255;\1;\2;\3;\4;\5;" or
+        bytes(intExpr(  -280366824553210), SIGNED, BE) <>    "\255;\1;\2;\3;\4;\5;\6;" or
+        bytes(intExpr(-71773907085621753), SIGNED, BE) <> "\255;\1;\2;\3;\4;\5;\6;\7;" or
+        bytes(intExpr(              -255), SIGNED, BE) <>                   "\255;\1;" or
+        bytes(intExpr(            -65023), SIGNED, BE) <>                "\255;\2;\1;" or
+        bytes(intExpr(         -16580095), SIGNED, BE) <>             "\255;\3;\2;\1;" or
+        bytes(intExpr(       -4227661311), SIGNED, BE) <>          "\255;\4;\3;\2;\1;" or
+        bytes(intExpr(    -1077969485311), SIGNED, BE) <>       "\255;\5;\4;\3;\2;\1;" or
+        bytes(intExpr(  -274856364801535), SIGNED, BE) <>    "\255;\6;\5;\4;\3;\2;\1;" or
+        bytes(intExpr(-70080650589044223), SIGNED, BE) <> "\255;\7;\6;\5;\4;\3;\2;\1;" then
+      writeln("Conversion of integer to signed big endian byte string does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, BE) <>                                    "\000;" or
+        bytes(intExpr(                  1), UNSIGNED, BE) <>                                    "\001;" or
+        bytes(intExpr(                  2), UNSIGNED, BE) <>                                    "\002;" or
+        bytes(intExpr(                126), UNSIGNED, BE) <>                                    "\126;" or
+        bytes(intExpr(                127), UNSIGNED, BE) <>                                    "\127;" or
+        bytes(intExpr(                128), UNSIGNED, BE) <>                                    "\128;" or
+        bytes(intExpr(                129), UNSIGNED, BE) <>                                    "\129;" or
+        bytes(intExpr(                254), UNSIGNED, BE) <>                                    "\254;" or
+        bytes(intExpr(                255), UNSIGNED, BE) <>                                    "\255;" or
+        bytes(intExpr(                256), UNSIGNED, BE) <>                               "\001;\000;" or
+        bytes(intExpr(                257), UNSIGNED, BE) <>                               "\001;\001;" or
+        bytes(intExpr(                510), UNSIGNED, BE) <>                               "\001;\254;" or
+        bytes(intExpr(                511), UNSIGNED, BE) <>                               "\001;\255;" or
+        bytes(intExpr(                512), UNSIGNED, BE) <>                               "\002;\000;" or
+        bytes(intExpr(                513), UNSIGNED, BE) <>                               "\002;\001;" or
+        bytes(intExpr(              32254), UNSIGNED, BE) <>                               "\125;\254;" or
+        bytes(intExpr(              32255), UNSIGNED, BE) <>                               "\125;\255;" or
+        bytes(intExpr(              32256), UNSIGNED, BE) <>                               "\126;\000;" or
+        bytes(intExpr(              32257), UNSIGNED, BE) <>                               "\126;\001;" or
+        bytes(intExpr(              32510), UNSIGNED, BE) <>                               "\126;\254;" or
+        bytes(intExpr(              32511), UNSIGNED, BE) <>                               "\126;\255;" or
+        bytes(intExpr(              32512), UNSIGNED, BE) <>                               "\127;\000;" or
+        bytes(intExpr(              32513), UNSIGNED, BE) <>                               "\127;\001;" or
+        bytes(intExpr(              32766), UNSIGNED, BE) <>                               "\127;\254;" or
+        bytes(intExpr(              32767), UNSIGNED, BE) <>                               "\127;\255;" or
+        bytes(intExpr(              32768), UNSIGNED, BE) <>                               "\128;\000;" or
+        bytes(intExpr(              32769), UNSIGNED, BE) <>                               "\128;\001;" or
+        bytes(intExpr(              65023), UNSIGNED, BE) <>                               "\253;\255;" or
+        bytes(intExpr(              65024), UNSIGNED, BE) <>                               "\254;\000;" or
+        bytes(intExpr(              65279), UNSIGNED, BE) <>                               "\254;\255;" or
+        bytes(intExpr(              65280), UNSIGNED, BE) <>                               "\255;\000;" or
+        bytes(intExpr(              65535), UNSIGNED, BE) <>                               "\255;\255;" or
+        bytes(intExpr(              65536), UNSIGNED, BE) <>                          "\001;\000;\000;" or
+        bytes(intExpr(            8388607), UNSIGNED, BE) <>                          "\127;\255;\255;" or
+        bytes(intExpr(            8388608), UNSIGNED, BE) <>                          "\128;\000;\000;" or
+        bytes(intExpr(           16777215), UNSIGNED, BE) <>                          "\255;\255;\255;" or
+        bytes(intExpr(           16777216), UNSIGNED, BE) <>                     "\001;\000;\000;\000;" or
+        bytes(intExpr(         2147483647), UNSIGNED, BE) <>                     "\127;\255;\255;\255;" or
+        bytes(intExpr(         2147483648), UNSIGNED, BE) <>                     "\128;\000;\000;\000;" or
+        bytes(intExpr(         4294967295), UNSIGNED, BE) <>                     "\255;\255;\255;\255;" or
+        bytes(intExpr(         4294967296), UNSIGNED, BE) <>                "\001;\000;\000;\000;\000;" or
+        bytes(intExpr(       549755813887), UNSIGNED, BE) <>                "\127;\255;\255;\255;\255;" or
+        bytes(intExpr(       549755813888), UNSIGNED, BE) <>                "\128;\000;\000;\000;\000;" or
+        bytes(intExpr(      1099511627775), UNSIGNED, BE) <>                "\255;\255;\255;\255;\255;" or
+        bytes(intExpr(      1099511627776), UNSIGNED, BE) <>           "\001;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(    140737488355327), UNSIGNED, BE) <>           "\127;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(    140737488355328), UNSIGNED, BE) <>           "\128;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(    281474976710655), UNSIGNED, BE) <>           "\255;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(    281474976710656), UNSIGNED, BE) <>      "\001;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(  36028797018963967), UNSIGNED, BE) <>      "\127;\255;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(  36028797018963968), UNSIGNED, BE) <>      "\128;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(  72057594037927935), UNSIGNED, BE) <>      "\255;\255;\255;\255;\255;\255;\255;" or
+        bytes(intExpr(  72057594037927936), UNSIGNED, BE) <> "\001;\000;\000;\000;\000;\000;\000;\000;" or
+        bytes(intExpr(9223372036854775807), UNSIGNED, BE) <> "\127;\255;\255;\255;\255;\255;\255;\255;" then
+      writeln("Conversion of integer to unsigned big endian byte string does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(               258), UNSIGNED, BE) <>                   "\1;\2;" or
+        bytes(intExpr(             66051), UNSIGNED, BE) <>                "\1;\2;\3;" or
+        bytes(intExpr(          16909060), UNSIGNED, BE) <>             "\1;\2;\3;\4;" or
+        bytes(intExpr(        4328719365), UNSIGNED, BE) <>          "\1;\2;\3;\4;\5;" or
+        bytes(intExpr(     1108152157446), UNSIGNED, BE) <>       "\1;\2;\3;\4;\5;\6;" or
+        bytes(intExpr(   283686952306183), UNSIGNED, BE) <>    "\1;\2;\3;\4;\5;\6;\7;" or
+        bytes(intExpr( 72623859790382856), UNSIGNED, BE) <> "\1;\2;\3;\4;\5;\6;\7;\8;" or
+        bytes(intExpr(               513), UNSIGNED, BE) <>                   "\2;\1;" or
+        bytes(intExpr(            197121), UNSIGNED, BE) <>                "\3;\2;\1;" or
+        bytes(intExpr(          67305985), UNSIGNED, BE) <>             "\4;\3;\2;\1;" or
+        bytes(intExpr(       21542142465), UNSIGNED, BE) <>          "\5;\4;\3;\2;\1;" or
+        bytes(intExpr(     6618611909121), UNSIGNED, BE) <>       "\6;\5;\4;\3;\2;\1;" or
+        bytes(intExpr(  1976943448883713), UNSIGNED, BE) <>    "\7;\6;\5;\4;\3;\2;\1;" or
+        bytes(intExpr(578437695752307201), UNSIGNED, BE) <> "\8;\7;\6;\5;\4;\3;\2;\1;" then
+      writeln("Conversion of integer to unsigned big endian byte string does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(            65281), UNSIGNED, BE) <>                "\255;\1;" or
+        bytes(intExpr(         16711938), UNSIGNED, BE) <>             "\255;\1;\2;" or
+        bytes(intExpr(       4278256131), UNSIGNED, BE) <>          "\255;\1;\2;\3;" or
+        bytes(intExpr(    1095233569540), UNSIGNED, BE) <>       "\255;\1;\2;\3;\4;" or
+        bytes(intExpr(  280379793802245), UNSIGNED, BE) <>    "\255;\1;\2;\3;\4;\5;" or
+        bytes(intExpr(71777227213374726), UNSIGNED, BE) <> "\255;\1;\2;\3;\4;\5;\6;" or
+        bytes(intExpr(            65281), UNSIGNED, BE) <>                "\255;\1;" or
+        bytes(intExpr(         16712193), UNSIGNED, BE) <>             "\255;\2;\1;" or
+        bytes(intExpr(       4278387201), UNSIGNED, BE) <>          "\255;\3;\2;\1;" or
+        bytes(intExpr(    1095283966465), UNSIGNED, BE) <>       "\255;\4;\3;\2;\1;" or
+        bytes(intExpr(  280397007225345), UNSIGNED, BE) <>    "\255;\5;\4;\3;\2;\1;" or
+        bytes(intExpr(71782737673126401), UNSIGNED, BE) <> "\255;\6;\5;\4;\3;\2;\1;" then
+      writeln("Conversion of integer to unsigned big endian byte string does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(         1413829460), SIGNED,   BE) <> "TEST"     or
+        bytes(intExpr(         1330331993), SIGNED,   BE) <> "OKAY"     or
+        bytes(intExpr(      -338762715347), SIGNED,   BE) <> "± +/-"    or
+        bytes(intExpr(       760748912429), SIGNED,   BE) <> "\0;± +/-" or
+        bytes(intExpr(       760748912429), UNSIGNED, BE) <> "± +/-"    or
+        bytes(intExpr(5292891159410142067), UNSIGNED, BE) <> "It works" then
+      writeln("Conversion of integer to big endian byte string does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -885,6 +1135,14 @@ const proc: check_bytesBe is func
         not raisesRangeError(bytes(                   -1,  UNSIGNED, BE)) or
         not raisesRangeError(bytes(intExpr(integer.first), UNSIGNED, BE)) or
         not raisesRangeError(bytes(intExpr(           -1), UNSIGNED, BE)) then
+      writeln("Conversion of negative integer to unsigned big endian byte string does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(bytes(intExpr(        integer.first),  UNSIGNED, BE)) or
+        not raisesRangeError(bytes(intExpr(                   -1),  UNSIGNED, BE)) or
+        not raisesRangeError(bytes(intExpr(intExpr(integer.first)), UNSIGNED, BE)) or
+        not raisesRangeError(bytes(intExpr(intExpr(           -1)), UNSIGNED, BE)) then
       writeln("Conversion of negative integer to unsigned big endian byte string does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
@@ -1010,7 +1268,7 @@ const proc: check_bytesLe is func
         bytes(   72057594037927935, SIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\255;\000;" or
         bytes(   72057594037927936, SIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\000;\001;" or
         bytes( 9223372036854775807, SIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\255;\127;" then
-      writeln("Conversion of integer to little endian byte string does not work correct.");
+      writeln("Conversion of integer to signed little endian byte string does not work correct. (1)");
       okay := FALSE;
     end if;
 
@@ -1028,7 +1286,7 @@ const proc: check_bytesLe is func
         bytes(     6618611909121, SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;"       or
         bytes(  1976943448883713, SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;"    or
         bytes(578437695752307201, SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;" then
-      writeln("Conversion of integer to little endian byte string does not work correct.");
+      writeln("Conversion of integer to signed little endian byte string does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -1046,7 +1304,7 @@ const proc: check_bytesLe is func
         bytes(    -1077969485311, SIGNED, LE) <> "\1;\2;\3;\4;\5;\255;"       or
         bytes(  -274856364801535, SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\255;"    or
         bytes(-70080650589044223, SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\255;" then
-      writeln("Conversion of integer to little endian byte string does not work correct.");
+      writeln("Conversion of integer to signed little endian byte string does not work correct. (3)");
       okay := FALSE;
     end if;
 
@@ -1104,7 +1362,7 @@ const proc: check_bytesLe is func
         bytes(  72057594037927935, UNSIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\255;"      or
         bytes(  72057594037927936, UNSIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\000;\001;" or
         bytes(9223372036854775807, UNSIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\255;\127;" then
-      writeln("Conversion of integer to unsigned little endian byte string does not work correct.");
+      writeln("Conversion of integer to unsigned little endian byte string does not work correct. (1)");
       okay := FALSE;
     end if;
 
@@ -1122,7 +1380,7 @@ const proc: check_bytesLe is func
         bytes(     6618611909121, UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;"       or
         bytes(  1976943448883713, UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;"    or
         bytes(578437695752307201, UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;" then
-      writeln("Conversion of integer to unsigned little endian byte string does not work correct.");
+      writeln("Conversion of integer to unsigned little endian byte string does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -1138,17 +1396,267 @@ const proc: check_bytesLe is func
         bytes(    1095283966465, UNSIGNED, LE) <> "\1;\2;\3;\4;\255;"       or
         bytes(  280397007225345, UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\255;"    or
         bytes(71782737673126401, UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\255;" then
-      writeln("Conversion of integer to unsigned little endian byte string does not work correct.");
+      writeln("Conversion of integer to unsigned little endian byte string does not work correct. (3)");
       okay := FALSE;
     end if;
 
-    if  bytes(1414743380,          SIGNED,   LE) <> "TEST"     or
-        bytes(1497451343,          SIGNED,   LE) <> "OKAY"     or
-        bytes(-338762584277,       SIGNED,   LE) <> "+/- ±"    or
-        bytes(760749043499,        SIGNED,   LE) <> "+/- ±\0;" or
-        bytes(760749043499,        UNSIGNED, LE) <> "+/- ±"    or
+    if  bytes(         1414743380, SIGNED,   LE) <> "TEST"     or
+        bytes(         1497451343, SIGNED,   LE) <> "OKAY"     or
+        bytes(      -338762584277, SIGNED,   LE) <> "+/- ±"    or
+        bytes(       760749043499, SIGNED,   LE) <> "+/- ±\0;" or
+        bytes(       760749043499, UNSIGNED, LE) <> "+/- ±"    or
         bytes(8316866959935304777, UNSIGNED, LE) <> "It works" then
-      writeln("Conversion of bigInteger to byte string does not work correct.");
+      writeln("Conversion of integer to little endian byte string does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(           INT64_MIN), SIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\000;\128;" or
+        bytes(intExpr(-9223372036854775807), SIGNED, LE) <> "\001;\000;\000;\000;\000;\000;\000;\128;" or
+        bytes(intExpr(  -72057594037927937), SIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\255;\254;" or
+        bytes(intExpr(  -72057594037927936), SIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\000;\255;" or
+        bytes(intExpr(  -36028797018963969), SIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\127;\255;" or
+        bytes(intExpr(  -36028797018963968), SIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\128;"      or
+        bytes(intExpr(    -281474976710657), SIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\254;"      or
+        bytes(intExpr(    -281474976710656), SIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\255;"      or
+        bytes(intExpr(    -140737488355329), SIGNED, LE) <> "\255;\255;\255;\255;\255;\127;\255;"      or
+        bytes(intExpr(    -140737488355328), SIGNED, LE) <> "\000;\000;\000;\000;\000;\128;"           or
+        bytes(intExpr(      -1099511627777), SIGNED, LE) <> "\255;\255;\255;\255;\255;\254;"           or
+        bytes(intExpr(      -1099511627776), SIGNED, LE) <> "\000;\000;\000;\000;\000;\255;"           or
+        bytes(intExpr(       -549755813889), SIGNED, LE) <> "\255;\255;\255;\255;\127;\255;"           or
+        bytes(intExpr(       -549755813888), SIGNED, LE) <> "\000;\000;\000;\000;\128;"                or
+        bytes(intExpr(         -4294967297), SIGNED, LE) <> "\255;\255;\255;\255;\254;"                or
+        bytes(intExpr(         -4294967296), SIGNED, LE) <> "\000;\000;\000;\000;\255;"                or
+        bytes(intExpr(         -2147483649), SIGNED, LE) <> "\255;\255;\255;\127;\255;"                or
+        bytes(intExpr(         -2147483648), SIGNED, LE) <> "\000;\000;\000;\128;"                     or
+        bytes(intExpr(           -16777217), SIGNED, LE) <> "\255;\255;\255;\254;"                     or
+        bytes(intExpr(           -16777216), SIGNED, LE) <> "\000;\000;\000;\255;"                     or
+        bytes(intExpr(            -8388609), SIGNED, LE) <> "\255;\255;\127;\255;"                     or
+        bytes(intExpr(            -8388608), SIGNED, LE) <> "\000;\000;\128;"                          or
+        bytes(intExpr(              -65537), SIGNED, LE) <> "\255;\255;\254;"                          or
+        bytes(intExpr(              -65536), SIGNED, LE) <> "\000;\000;\255;"                          or
+        bytes(intExpr(              -65281), SIGNED, LE) <> "\255;\000;\255;"                          or
+        bytes(intExpr(              -65280), SIGNED, LE) <> "\000;\001;\255;"                          or
+        bytes(intExpr(              -65025), SIGNED, LE) <> "\255;\001;\255;"                          or
+        bytes(intExpr(              -65024), SIGNED, LE) <> "\000;\002;\255;"                          or
+        bytes(intExpr(              -32770), SIGNED, LE) <> "\254;\127;\255;"                          or
+        bytes(intExpr(              -32769), SIGNED, LE) <> "\255;\127;\255;"                          or
+        bytes(intExpr(              -32768), SIGNED, LE) <> "\000;\128;"                               or
+        bytes(intExpr(              -32767), SIGNED, LE) <> "\001;\128;"                               or
+        bytes(intExpr(              -32514), SIGNED, LE) <> "\254;\128;"                               or
+        bytes(intExpr(              -32513), SIGNED, LE) <> "\255;\128;"                               or
+        bytes(intExpr(              -32512), SIGNED, LE) <> "\000;\129;"                               or
+        bytes(intExpr(              -32511), SIGNED, LE) <> "\001;\129;"                               or
+        bytes(intExpr(              -32258), SIGNED, LE) <> "\254;\129;"                               or
+        bytes(intExpr(              -32257), SIGNED, LE) <> "\255;\129;"                               or
+        bytes(intExpr(              -32256), SIGNED, LE) <> "\000;\130;"                               or
+        bytes(intExpr(              -32255), SIGNED, LE) <> "\001;\130;"                               or
+        bytes(intExpr(                -514), SIGNED, LE) <> "\254;\253;"                               or
+        bytes(intExpr(                -513), SIGNED, LE) <> "\255;\253;"                               or
+        bytes(intExpr(                -512), SIGNED, LE) <> "\000;\254;"                               or
+        bytes(intExpr(                -511), SIGNED, LE) <> "\001;\254;"                               or
+        bytes(intExpr(                -258), SIGNED, LE) <> "\254;\254;"                               or
+        bytes(intExpr(                -257), SIGNED, LE) <> "\255;\254;"                               or
+        bytes(intExpr(                -256), SIGNED, LE) <> "\000;\255;"                               or
+        bytes(intExpr(                -255), SIGNED, LE) <> "\001;\255;"                               or
+        bytes(intExpr(                -130), SIGNED, LE) <> "\126;\255;"                               or
+        bytes(intExpr(                -129), SIGNED, LE) <> "\127;\255;"                               or
+        bytes(intExpr(                -128), SIGNED, LE) <> "\128;"                                    or
+        bytes(intExpr(                -127), SIGNED, LE) <> "\129;"                                    or
+        bytes(intExpr(                  -2), SIGNED, LE) <> "\254;"                                    or
+        bytes(intExpr(                  -1), SIGNED, LE) <> "\255;"                                    or
+        bytes(intExpr(                   0), SIGNED, LE) <> "\000;"                                    or
+        bytes(intExpr(                   1), SIGNED, LE) <> "\001;"                                    or
+        bytes(intExpr(                   2), SIGNED, LE) <> "\002;"                                    or
+        bytes(intExpr(                 126), SIGNED, LE) <> "\126;"                                    or
+        bytes(intExpr(                 127), SIGNED, LE) <> "\127;"                                    or
+        bytes(intExpr(                 128), SIGNED, LE) <> "\128;\000;"                               or
+        bytes(intExpr(                 129), SIGNED, LE) <> "\129;\000;"                               or
+        bytes(intExpr(                 254), SIGNED, LE) <> "\254;\000;"                               or
+        bytes(intExpr(                 255), SIGNED, LE) <> "\255;\000;"                               or
+        bytes(intExpr(                 256), SIGNED, LE) <> "\000;\001;"                               or
+        bytes(intExpr(                 257), SIGNED, LE) <> "\001;\001;"                               or
+        bytes(intExpr(                 510), SIGNED, LE) <> "\254;\001;"                               or
+        bytes(intExpr(                 511), SIGNED, LE) <> "\255;\001;"                               or
+        bytes(intExpr(                 512), SIGNED, LE) <> "\000;\002;"                               or
+        bytes(intExpr(                 513), SIGNED, LE) <> "\001;\002;"                               or
+        bytes(intExpr(               32254), SIGNED, LE) <> "\254;\125;"                               or
+        bytes(intExpr(               32255), SIGNED, LE) <> "\255;\125;"                               or
+        bytes(intExpr(               32256), SIGNED, LE) <> "\000;\126;"                               or
+        bytes(intExpr(               32257), SIGNED, LE) <> "\001;\126;"                               or
+        bytes(intExpr(               32510), SIGNED, LE) <> "\254;\126;"                               or
+        bytes(intExpr(               32511), SIGNED, LE) <> "\255;\126;"                               or
+        bytes(intExpr(               32512), SIGNED, LE) <> "\000;\127;"                               or
+        bytes(intExpr(               32513), SIGNED, LE) <> "\001;\127;"                               or
+        bytes(intExpr(               32766), SIGNED, LE) <> "\254;\127;"                               or
+        bytes(intExpr(               32767), SIGNED, LE) <> "\255;\127;"                               or
+        bytes(intExpr(               32768), SIGNED, LE) <> "\000;\128;\000;"                          or
+        bytes(intExpr(               32769), SIGNED, LE) <> "\001;\128;\000;"                          or
+        bytes(intExpr(               65023), SIGNED, LE) <> "\255;\253;\000;"                          or
+        bytes(intExpr(               65024), SIGNED, LE) <> "\000;\254;\000;"                          or
+        bytes(intExpr(               65279), SIGNED, LE) <> "\255;\254;\000;"                          or
+        bytes(intExpr(               65280), SIGNED, LE) <> "\000;\255;\000;"                          or
+        bytes(intExpr(               65535), SIGNED, LE) <> "\255;\255;\000;"                          or
+        bytes(intExpr(               65536), SIGNED, LE) <> "\000;\000;\001;"                          or
+        bytes(intExpr(             8388607), SIGNED, LE) <> "\255;\255;\127;"                          or
+        bytes(intExpr(             8388608), SIGNED, LE) <> "\000;\000;\128;\000;"                     or
+        bytes(intExpr(            16777215), SIGNED, LE) <> "\255;\255;\255;\000;"                     or
+        bytes(intExpr(            16777216), SIGNED, LE) <> "\000;\000;\000;\001;"                     or
+        bytes(intExpr(          2147483647), SIGNED, LE) <> "\255;\255;\255;\127;"                     or
+        bytes(intExpr(          2147483648), SIGNED, LE) <> "\000;\000;\000;\128;\000;"                or
+        bytes(intExpr(          4294967295), SIGNED, LE) <> "\255;\255;\255;\255;\000;"                or
+        bytes(intExpr(          4294967296), SIGNED, LE) <> "\000;\000;\000;\000;\001;"                or
+        bytes(intExpr(        549755813887), SIGNED, LE) <> "\255;\255;\255;\255;\127;"                or
+        bytes(intExpr(        549755813888), SIGNED, LE) <> "\000;\000;\000;\000;\128;\000;"           or
+        bytes(intExpr(       1099511627775), SIGNED, LE) <> "\255;\255;\255;\255;\255;\000;"           or
+        bytes(intExpr(       1099511627776), SIGNED, LE) <> "\000;\000;\000;\000;\000;\001;"           or
+        bytes(intExpr(     140737488355327), SIGNED, LE) <> "\255;\255;\255;\255;\255;\127;"           or
+        bytes(intExpr(     140737488355328), SIGNED, LE) <> "\000;\000;\000;\000;\000;\128;\000;"      or
+        bytes(intExpr(     281474976710655), SIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\000;"      or
+        bytes(intExpr(     281474976710656), SIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\001;"      or
+        bytes(intExpr(   36028797018963967), SIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\127;"      or
+        bytes(intExpr(   36028797018963968), SIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\128;\000;" or
+        bytes(intExpr(   72057594037927935), SIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\255;\000;" or
+        bytes(intExpr(   72057594037927936), SIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\000;\001;" or
+        bytes(intExpr( 9223372036854775807), SIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\255;\127;" then
+      writeln("Conversion of integer to signed little endian byte string does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(               258), SIGNED, LE) <> "\2;\1;"                   or
+        bytes(intExpr(             66051), SIGNED, LE) <> "\3;\2;\1;"                or
+        bytes(intExpr(          16909060), SIGNED, LE) <> "\4;\3;\2;\1;"             or
+        bytes(intExpr(        4328719365), SIGNED, LE) <> "\5;\4;\3;\2;\1;"          or
+        bytes(intExpr(     1108152157446), SIGNED, LE) <> "\6;\5;\4;\3;\2;\1;"       or
+        bytes(intExpr(   283686952306183), SIGNED, LE) <> "\7;\6;\5;\4;\3;\2;\1;"    or
+        bytes(intExpr( 72623859790382856), SIGNED, LE) <> "\8;\7;\6;\5;\4;\3;\2;\1;" or
+        bytes(intExpr(               513), SIGNED, LE) <> "\1;\2;"                   or
+        bytes(intExpr(            197121), SIGNED, LE) <> "\1;\2;\3;"                or
+        bytes(intExpr(          67305985), SIGNED, LE) <> "\1;\2;\3;\4;"             or
+        bytes(intExpr(       21542142465), SIGNED, LE) <> "\1;\2;\3;\4;\5;"          or
+        bytes(intExpr(     6618611909121), SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;"       or
+        bytes(intExpr(  1976943448883713), SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;"    or
+        bytes(intExpr(578437695752307201), SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;" then
+      writeln("Conversion of integer to signed little endian byte string does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(              -255), SIGNED, LE) <> "\1;\255;"                   or
+        bytes(intExpr(            -65278), SIGNED, LE) <> "\2;\1;\255;"                or
+        bytes(intExpr(         -16711165), SIGNED, LE) <> "\3;\2;\1;\255;"             or
+        bytes(intExpr(       -4278058236), SIGNED, LE) <> "\4;\3;\2;\1;\255;"          or
+        bytes(intExpr(    -1095182908411), SIGNED, LE) <> "\5;\4;\3;\2;\1;\255;"       or
+        bytes(intExpr(  -280366824553210), SIGNED, LE) <> "\6;\5;\4;\3;\2;\1;\255;"    or
+        bytes(intExpr(-71773907085621753), SIGNED, LE) <> "\7;\6;\5;\4;\3;\2;\1;\255;" or
+        bytes(intExpr(              -255), SIGNED, LE) <> "\1;\255;"                   or
+        bytes(intExpr(            -65023), SIGNED, LE) <> "\1;\2;\255;"                or
+        bytes(intExpr(         -16580095), SIGNED, LE) <> "\1;\2;\3;\255;"             or
+        bytes(intExpr(       -4227661311), SIGNED, LE) <> "\1;\2;\3;\4;\255;"          or
+        bytes(intExpr(    -1077969485311), SIGNED, LE) <> "\1;\2;\3;\4;\5;\255;"       or
+        bytes(intExpr(  -274856364801535), SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\255;"    or
+        bytes(intExpr(-70080650589044223), SIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\255;" then
+      writeln("Conversion of integer to signed little endian byte string does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(                  0), UNSIGNED, LE) <> "\000;"                                    or
+        bytes(intExpr(                  1), UNSIGNED, LE) <> "\001;"                                    or
+        bytes(intExpr(                  2), UNSIGNED, LE) <> "\002;"                                    or
+        bytes(intExpr(                126), UNSIGNED, LE) <> "\126;"                                    or
+        bytes(intExpr(                127), UNSIGNED, LE) <> "\127;"                                    or
+        bytes(intExpr(                128), UNSIGNED, LE) <> "\128;"                                    or
+        bytes(intExpr(                129), UNSIGNED, LE) <> "\129;"                                    or
+        bytes(intExpr(                254), UNSIGNED, LE) <> "\254;"                                    or
+        bytes(intExpr(                255), UNSIGNED, LE) <> "\255;"                                    or
+        bytes(intExpr(                256), UNSIGNED, LE) <> "\000;\001;"                               or
+        bytes(intExpr(                257), UNSIGNED, LE) <> "\001;\001;"                               or
+        bytes(intExpr(                510), UNSIGNED, LE) <> "\254;\001;"                               or
+        bytes(intExpr(                511), UNSIGNED, LE) <> "\255;\001;"                               or
+        bytes(intExpr(                512), UNSIGNED, LE) <> "\000;\002;"                               or
+        bytes(intExpr(                513), UNSIGNED, LE) <> "\001;\002;"                               or
+        bytes(intExpr(              32254), UNSIGNED, LE) <> "\254;\125;"                               or
+        bytes(intExpr(              32255), UNSIGNED, LE) <> "\255;\125;"                               or
+        bytes(intExpr(              32256), UNSIGNED, LE) <> "\000;\126;"                               or
+        bytes(intExpr(              32257), UNSIGNED, LE) <> "\001;\126;"                               or
+        bytes(intExpr(              32510), UNSIGNED, LE) <> "\254;\126;"                               or
+        bytes(intExpr(              32511), UNSIGNED, LE) <> "\255;\126;"                               or
+        bytes(intExpr(              32512), UNSIGNED, LE) <> "\000;\127;"                               or
+        bytes(intExpr(              32513), UNSIGNED, LE) <> "\001;\127;"                               or
+        bytes(intExpr(              32766), UNSIGNED, LE) <> "\254;\127;"                               or
+        bytes(intExpr(              32767), UNSIGNED, LE) <> "\255;\127;"                               or
+        bytes(intExpr(              32768), UNSIGNED, LE) <> "\000;\128;"                               or
+        bytes(intExpr(              32769), UNSIGNED, LE) <> "\001;\128;"                               or
+        bytes(intExpr(              65023), UNSIGNED, LE) <> "\255;\253;"                               or
+        bytes(intExpr(              65024), UNSIGNED, LE) <> "\000;\254;"                               or
+        bytes(intExpr(              65279), UNSIGNED, LE) <> "\255;\254;"                               or
+        bytes(intExpr(              65280), UNSIGNED, LE) <> "\000;\255;"                               or
+        bytes(intExpr(              65535), UNSIGNED, LE) <> "\255;\255;"                               or
+        bytes(intExpr(              65536), UNSIGNED, LE) <> "\000;\000;\001;"                          or
+        bytes(intExpr(            8388607), UNSIGNED, LE) <> "\255;\255;\127;"                          or
+        bytes(intExpr(            8388608), UNSIGNED, LE) <> "\000;\000;\128;"                          or
+        bytes(intExpr(           16777215), UNSIGNED, LE) <> "\255;\255;\255;"                          or
+        bytes(intExpr(           16777216), UNSIGNED, LE) <> "\000;\000;\000;\001;"                     or
+        bytes(intExpr(         2147483647), UNSIGNED, LE) <> "\255;\255;\255;\127;"                     or
+        bytes(intExpr(         2147483648), UNSIGNED, LE) <> "\000;\000;\000;\128;"                     or
+        bytes(intExpr(         4294967295), UNSIGNED, LE) <> "\255;\255;\255;\255;"                     or
+        bytes(intExpr(         4294967296), UNSIGNED, LE) <> "\000;\000;\000;\000;\001;"                or
+        bytes(intExpr(       549755813887), UNSIGNED, LE) <> "\255;\255;\255;\255;\127;"                or
+        bytes(intExpr(       549755813888), UNSIGNED, LE) <> "\000;\000;\000;\000;\128;"                or
+        bytes(intExpr(      1099511627775), UNSIGNED, LE) <> "\255;\255;\255;\255;\255;"                or
+        bytes(intExpr(      1099511627776), UNSIGNED, LE) <> "\000;\000;\000;\000;\000;\001;"           or
+        bytes(intExpr(    140737488355327), UNSIGNED, LE) <> "\255;\255;\255;\255;\255;\127;"           or
+        bytes(intExpr(    140737488355328), UNSIGNED, LE) <> "\000;\000;\000;\000;\000;\128;"           or
+        bytes(intExpr(    281474976710655), UNSIGNED, LE) <> "\255;\255;\255;\255;\255;\255;"           or
+        bytes(intExpr(    281474976710656), UNSIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\001;"      or
+        bytes(intExpr(  36028797018963967), UNSIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\127;"      or
+        bytes(intExpr(  36028797018963968), UNSIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\128;"      or
+        bytes(intExpr(  72057594037927935), UNSIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\255;"      or
+        bytes(intExpr(  72057594037927936), UNSIGNED, LE) <> "\000;\000;\000;\000;\000;\000;\000;\001;" or
+        bytes(intExpr(9223372036854775807), UNSIGNED, LE) <> "\255;\255;\255;\255;\255;\255;\255;\127;" then
+      writeln("Conversion of integer to unsigned little endian byte string does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(               258), UNSIGNED, LE) <> "\2;\1;"                   or
+        bytes(intExpr(             66051), UNSIGNED, LE) <> "\3;\2;\1;"                or
+        bytes(intExpr(          16909060), UNSIGNED, LE) <> "\4;\3;\2;\1;"             or
+        bytes(intExpr(        4328719365), UNSIGNED, LE) <> "\5;\4;\3;\2;\1;"          or
+        bytes(intExpr(     1108152157446), UNSIGNED, LE) <> "\6;\5;\4;\3;\2;\1;"       or
+        bytes(intExpr(   283686952306183), UNSIGNED, LE) <> "\7;\6;\5;\4;\3;\2;\1;"    or
+        bytes(intExpr( 72623859790382856), UNSIGNED, LE) <> "\8;\7;\6;\5;\4;\3;\2;\1;" or
+        bytes(intExpr(               513), UNSIGNED, LE) <> "\1;\2;"                   or
+        bytes(intExpr(            197121), UNSIGNED, LE) <> "\1;\2;\3;"                or
+        bytes(intExpr(          67305985), UNSIGNED, LE) <> "\1;\2;\3;\4;"             or
+        bytes(intExpr(       21542142465), UNSIGNED, LE) <> "\1;\2;\3;\4;\5;"          or
+        bytes(intExpr(     6618611909121), UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;"       or
+        bytes(intExpr(  1976943448883713), UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;"    or
+        bytes(intExpr(578437695752307201), UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\7;\8;" then
+      writeln("Conversion of integer to unsigned little endian byte string does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(            65281), UNSIGNED, LE) <> "\1;\255;"                or
+        bytes(intExpr(         16711938), UNSIGNED, LE) <> "\2;\1;\255;"             or
+        bytes(intExpr(       4278256131), UNSIGNED, LE) <> "\3;\2;\1;\255;"          or
+        bytes(intExpr(    1095233569540), UNSIGNED, LE) <> "\4;\3;\2;\1;\255;"       or
+        bytes(intExpr(  280379793802245), UNSIGNED, LE) <> "\5;\4;\3;\2;\1;\255;"    or
+        bytes(intExpr(71777227213374726), UNSIGNED, LE) <> "\6;\5;\4;\3;\2;\1;\255;" or
+        bytes(intExpr(            65281), UNSIGNED, LE) <> "\1;\255;"                or
+        bytes(intExpr(         16712193), UNSIGNED, LE) <> "\1;\2;\255;"             or
+        bytes(intExpr(       4278387201), UNSIGNED, LE) <> "\1;\2;\3;\255;"          or
+        bytes(intExpr(    1095283966465), UNSIGNED, LE) <> "\1;\2;\3;\4;\255;"       or
+        bytes(intExpr(  280397007225345), UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\255;"    or
+        bytes(intExpr(71782737673126401), UNSIGNED, LE) <> "\1;\2;\3;\4;\5;\6;\255;" then
+      writeln("Conversion of integer to unsigned little endian byte string does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  bytes(intExpr(         1414743380), SIGNED,   LE) <> "TEST"     or
+        bytes(intExpr(         1497451343), SIGNED,   LE) <> "OKAY"     or
+        bytes(intExpr(      -338762584277), SIGNED,   LE) <> "+/- ±"    or
+        bytes(intExpr(       760749043499), SIGNED,   LE) <> "+/- ±\0;" or
+        bytes(intExpr(       760749043499), UNSIGNED, LE) <> "+/- ±"    or
+        bytes(intExpr(8316866959935304777), UNSIGNED, LE) <> "It works" then
+      writeln("Conversion of integer to little endian byte string does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -1156,6 +1664,14 @@ const proc: check_bytesLe is func
         not raisesRangeError(bytes(                   -1,  UNSIGNED, LE)) or
         not raisesRangeError(bytes(intExpr(integer.first), UNSIGNED, LE)) or
         not raisesRangeError(bytes(intExpr(           -1), UNSIGNED, LE)) then
+      writeln("Conversion of negative integer to unsigned little endian byte string does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(bytes(intExpr(        integer.first),  UNSIGNED, LE)) or
+        not raisesRangeError(bytes(intExpr(                   -1),  UNSIGNED, LE)) or
+        not raisesRangeError(bytes(intExpr(intExpr(integer.first)), UNSIGNED, LE)) or
+        not raisesRangeError(bytes(intExpr(intExpr(           -1)), UNSIGNED, LE)) then
       writeln("Conversion of negative integer to unsigned little endian byte string does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
@@ -5422,6 +5938,30 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
         (        integer.last >> intExpr( 0)) +                    0 <>         integer.last or
         (        integer.last >> intExpr(63)) +                    0 <>                    0 then
       writeln(" ***** Reduced overflow check for sums failed: Maximum rshift result if the shifted value is known.");
+      okay := FALSE;
+    end if;
+
+    if  (         4611686018427387903  >>          30)  + 18014398501093376 <>   18014402796060671 or
+        (intExpr( 4611686018427387903) >>          30)  + 18014398501093376 <>   18014402796060671 or
+        (rand(0,  4611686018427387903) >>          30)  + 18014398501093376 <    18014398501093376 or
+        (rand(0,  4611686018427387903) >>          30)  + 18014398501093376 >    18014402796060671 or
+        (         4611686018427387903  >>  intExpr(30)) + 18014398501093376 <>   18014402796060671 or
+        (intExpr( 4611686018427387903) >>  intExpr(30)) + 18014398501093376 <>   18014402796060671 or
+        (rand(0,  4611686018427387903) >>  intExpr(30)) + 18014398501093376 <    18014398501093376 or
+        (rand(0,  4611686018427387903) >>  intExpr(30)) + 18014398501093376 >    18014402796060671 or
+        (         4611686018427387903  >> rand( 0, 30)) + 18014398501093376 <    18014402796060671 or
+        (         4611686018427387903  >> rand( 0, 30)) + 18014398501093376 >  4629700416928481279 or
+        (intExpr( 4611686018427387903) >> rand( 0, 30)) + 18014398501093376 <    18014402796060671 or
+        (intExpr( 4611686018427387903) >> rand( 0, 30)) + 18014398501093376 >  4629700416928481279 or
+        (rand(0,  4611686018427387903) >> rand( 0, 30)) + 18014398501093376 <    18014398501093376 or
+        (rand(0,  4611686018427387903) >> rand( 0, 30)) + 18014398501093376 >  4629700416928481279 or
+        (         4611686018427387903  >> rand(18, 30)) + 18014398501093376 <    18014402796060671 or
+        (         4611686018427387903  >> rand(18, 30)) + 18014398501093376 >    18031990687137791 or
+        (intExpr( 4611686018427387903) >> rand(18, 30)) + 18014398501093376 <    18014402796060671 or
+        (intExpr( 4611686018427387903) >> rand(18, 30)) + 18014398501093376 >    18031990687137791 or
+        (rand(0,  4611686018427387903) >> rand(18, 30)) + 18014398501093376 <    18014398501093376 or
+        (rand(0,  4611686018427387903) >> rand(18, 30)) + 18014398501093376 >    18031990687137791 then
+      writeln(" ***** Reduced overflow check for sums failed: Rshift error.");
       okay := FALSE;
     end if;
 
