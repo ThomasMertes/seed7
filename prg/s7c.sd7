@@ -5554,7 +5554,7 @@ const proc: write_resize_catch_stack is func
     writeln(c_prog, "    catch_type *resized_stack;");
     writeln(c_prog);
     writeln(c_prog, "    max_catch_stack += 128;");
-    writeln(c_prog, "    resized_stack = (catch_type *)(realloc(catch_stack, max_catch_stack));");
+    writeln(c_prog, "    resized_stack = (catch_type *)(realloc(catch_stack, max_catch_stack * sizeof(catch_type)));");
     writeln(c_prog, "    if (resized_stack == NULL) {");
     writeln(c_prog, "      catch_stack_pos--;");
     writeln(c_prog, "      raiseError(MEMORY_ERROR);");
@@ -7272,23 +7272,32 @@ const proc: pass_2 (in string: source, in program: prog,
             close(c_prog);
             writeln(countDeclarations  <& " declarations processed");
             writeln(countOptimizations <& " optimizations done");
+            if countInlinedFunctions <> 0 then
+              writeln(countInlinedFunctions <& " functions inlined");
+            end if;
             if countEvaluations <> 0 then
-              writeln(countEvaluations   <& " evaluations done");
+              writeln(countEvaluations <& " evaluations done");
             end if;
             if countRangeChecks <> 0 then
-              writeln(countRangeChecks   <& " range checks inserted");
+              writeln(countRangeChecks <& " range checks inserted");
             end if;
             if countNoRangeChecks <> 0 then
               writeln(countNoRangeChecks <& " range checks suppressed");
             end if;
             if countIndexChecks <> 0 then
-              writeln(countIndexChecks   <& " index checks inserted");
+              writeln(countIndexChecks <& " index checks inserted");
             end if;
-            if countNoIndexChecks <> 0 then
-              writeln(countNoIndexChecks <& " index checks suppressed");
+            if countOptimizedIndexChecks <> 0 then
+              writeln(countOptimizedIndexChecks <& " index checks optimized away");
+            end if;
+            if countSuppressedIndexChecks <> 0 then
+              writeln(countSuppressedIndexChecks <& " index checks suppressed");
             end if;
             if countOverflowChecks <> 0 then
-              writeln(countOverflowChecks   <& " overflow checks inserted");
+              writeln(countOverflowChecks <& " overflow checks inserted");
+            end if;
+            if countOptimizedOverflowChecks <> 0 then
+              writeln(countOptimizedOverflowChecks <& " overflow checks optimized away");
             end if;
           else
             write("*** Cannot open temp file ");

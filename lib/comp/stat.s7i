@@ -24,10 +24,27 @@
 (********************************************************************)
 
 
-var integer: countOptimizations  is 0;
-var integer: countEvaluations    is 0;
-var integer: countRangeChecks    is 0;
-var integer: countNoRangeChecks  is 0;
-var integer: countIndexChecks    is 0;
-var integer: countNoIndexChecks  is 0;
-var integer: countOverflowChecks is 0;
+var integer: countOptimizations            is 0;
+var integer: countInlinedFunctions         is 0;
+var integer: countEvaluations              is 0;
+var integer: countRangeChecks              is 0;
+var integer: countNoRangeChecks            is 0;
+var integer: countIndexChecks              is 0;
+var integer: countOptimizedIndexChecks     is 0;
+var integer: countSuppressedIndexChecks    is 0;
+var integer: countOverflowChecks           is 0;
+var integer: countOptimizedOverflowChecks  is 0;
+
+
+const proc: countIndexOptimizations (in expr_type: c_expr) is func
+  begin
+    incr(countOptimizedIndexChecks);
+    # writeln(c_expr.currentFile <& "(" <& c_expr.currentLine <& "): Index check optimized away.");
+  end func;
+
+
+const proc: countOverflowOptimizations (in expr_type: c_expr) is func
+  begin
+    incr(countOptimizedOverflowChecks);
+    # writeln(c_expr.currentFile <& "(" <& c_expr.currentLine <& "): Overflow check optimized away.");
+  end func;
