@@ -2413,8 +2413,11 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
     logFunction(printf("strHeadSlice(\"%s\", " FMT_D ")",
                        striAsUnquotedCStri(stri), stop);
                 fflush(stdout););
-    striSize = stri->size;
-    if (stop >= 1 && striSize >= 1) {
+    if (unlikely(stop < 0)) {
+      logError(printf("strHeadSlice: Stop negative."););
+      raise_error(INDEX_ERROR);
+    } else {
+      striSize = stri->size;
       SET_SLICE_CAPACITY(slice, 0);
       slice->mem = stri->mem;
       if (striSize <= (uintType) stop) {
@@ -2422,13 +2425,6 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
       } else {
         slice->size = (memSizeType) stop;
       } /* if */
-    } else if (unlikely(stop < 0)) {
-      logError(printf("strHeadSlice: Stop negative."););
-      raise_error(INDEX_ERROR);
-    } else {
-      SET_SLICE_CAPACITY(slice, 0);
-      slice->mem = NULL;
-      slice->size = 0;
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
   } /* strHeadSlice */
