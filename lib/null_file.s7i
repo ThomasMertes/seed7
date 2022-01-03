@@ -64,6 +64,9 @@ const func boolean: (in null_file: aFile1) <> (in null_file: aFile2)  is action 
 var null_file: STD_NULL is null_file.value;
 
 
+(**
+ *  Default value of ''file'' (STD_NULL).
+ *)
 const file: (attr file) . value is STD_NULL;
 
 

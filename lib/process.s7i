@@ -43,12 +43,18 @@ const proc: (ref process: dest) ::= (in process: source)     is action "PCS_CREA
 const proc: destroy (ref process: aValue)                    is action "PCS_DESTR";
 const proc: (inout process: dest) := (in process: source)    is action "PCS_CPY";
 const func process: _GENERATE_EMPTY_PROCESS                  is action "PCS_EMPTY";
-const process: (attr process) . value                        is _GENERATE_EMPTY_PROCESS;
 const process: (attr process) . EMPTY                        is _GENERATE_EMPTY_PROCESS;
 
 
 (**
+ *  Default value of ''process'' (process.EMPTY).
+ *)
+const process: (attr process) . value                        is _GENERATE_EMPTY_PROCESS;
+
+
+(**
  *  Check if two processes are equal.
+ *  Processes are compared with the process identifier (PID).
  *  @return TRUE if the two processes are equal,
  *          FALSE otherwise.
  *)
@@ -57,6 +63,7 @@ const func boolean: (in process: process1) = (in process: process2)  is action "
 
 (**
  *  Check if two processes are not equal.
+ *  Processes are compared with the process identifier (PID).
  *  @return TRUE if both processes are not equal,
  *          FALSE otherwise.
  *)
@@ -275,6 +282,7 @@ const proc: waitFor (in process: aProcess) is action "PCS_WAIT_FOR";
  *  Return the exit value of the specified process.
  *  By convention, the value 0 indicates normal termination.
  *  @return the exit value of the specified process.
+ *  @exception FILE_ERROR The process has not yet terminated.
  *)
 const func integer: exitValue (in process: aProcess) is action "PCS_EXIT_VALUE";
 

@@ -128,19 +128,19 @@ const func boolean: (in bstring: bstri1) <> (in bstring: bstri2)        is actio
 
 
 (**
- *  Compute the hash value of a ''bstring''.
- *  @return the hash value.
- *)
-const func integer: hashCode (in bstring: bstri)                        is action "BST_HASHCODE";
-
-
-(**
  *  Compare two bstrings.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.
  *)
 const func integer: compare (in bstring: bstri1, in bstring: bstri2)    is action "BST_CMP";
+
+
+(**
+ *  Compute the hash value of a ''bstring''.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in bstring: bstri)                        is action "BST_HASHCODE";
 
 
 (**
