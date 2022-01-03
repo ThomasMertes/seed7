@@ -252,7 +252,7 @@ const proc: process_const_bst_idx (in bstring: bstri,
           c_expr.expr &:= "-1)";
         end if;
       else
-        incr(countNoIndexChecks);
+        incr(countSuppressedIndexChecks);
         c_expr.expr &:= "(";
         process_expr(index, c_expr);
         c_expr.expr &:= ")-1";
@@ -287,7 +287,7 @@ const proc: process_const_bst_idx (in reference: param1,
       c_expr.expr &:= integerLiteral(pred(index));
       c_expr.expr &:= ")])";
     else
-      incr(countNoIndexChecks);
+      incr(countSuppressedIndexChecks);
       c_expr.expr &:= "(";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ")->mem[";
@@ -351,7 +351,7 @@ const proc: process (BST_IDX, in reference: function,
         c_expr.expr &:= "-1)])";
       end if;
     else
-      incr(countNoIndexChecks);
+      incr(countSuppressedIndexChecks);
       c_expr.expr &:= "(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ")->mem[(";

@@ -473,6 +473,8 @@ const proc: process_const_set_elem (in reference: param1, in var bitset: aBitset
       end if;
       c_expr.expr &:= ")&1)";
     elsif inlineFunctions then
+      incr(countOptimizations);
+      incr(countInlinedFunctions);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
       if ccConf.TWOS_COMPLEMENT_INTTYPE and bitset_pos(min(aBitset)) = 0 then
@@ -522,6 +524,8 @@ const proc: process_set_elem (in reference: param1, in reference: param3,
     if getConstant(param3, SETOBJECT, evaluatedParam) then
       process_const_set_elem(param1, getValue(evaluatedParam, bitset), c_expr);
     elsif inlineFunctions then
+      incr(countOptimizations);
+      incr(countInlinedFunctions);
       c_expr.expr &:= "(";
       number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
       set_name := getParameterAsVariable("const_setType", "tmp_", param3, c_expr);
@@ -690,6 +694,8 @@ const proc: process (SET_EXCL, in reference: function,
     var expr_type: statement is expr_type.value;
   begin
     if inlineFunctions then
+      incr(countOptimizations);
+      incr(countInlinedFunctions);
       process_inline_set_excl(params, c_expr);
     else
       statement.expr := "setExcl(&(";

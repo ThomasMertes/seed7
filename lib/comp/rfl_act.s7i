@@ -380,7 +380,7 @@ const proc: process_const_rfl_idx (in reference: param1,
       c_expr.expr &:= listName;
       c_expr.expr &:= "->obj)";
     elsif index <= 12 and not ref_list_index_check then
-      incr(countNoIndexChecks);
+      incr(countSuppressedIndexChecks);
       c_expr.expr &:= "(";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ")";
