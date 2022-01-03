@@ -224,13 +224,9 @@ const func type: array (in type: baseType) is func
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in ARRAY_IDX_RANGE: indexRange) times
-          (in baseType: element) is func
-        result
-          var arrayType: anArray is arrayType.value;
-        begin
-          anArray := succ(indexRange.maxIdx - indexRange.minIdx) times element;
-          anArray := [indexRange.minIdx] (tupleType conv anArray);
-        end func;
+          (in baseType: element) is
+        return [indexRange.minIdx] (tupleType conv
+               (succ(indexRange.maxIdx - indexRange.minIdx) times element));
 
       (**
        *  For-loop where ''forVar'' loops over the elements of the array ''arr''.
