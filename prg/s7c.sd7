@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  s7c.sd7       Seed7 compiler - Compiles Seed7 to C              *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2021  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2022  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -7151,8 +7151,12 @@ const proc: pass_1 (in string: source, inout program: prog,
       if "-e" in compiler_option then
         signal_exception := TRUE;
       end if;
-      if "-o" in compiler_option and compiler_option["-o"] in {"c0", "c1", "c2", "c3"} then
-        evaluate_const_expr := integer(compiler_option["-o"][2 ..]);
+      if "-o" in compiler_option then
+        if compiler_option["-o"] in {"c0", "c1", "c2", "c3"} then
+          evaluate_const_expr := integer(compiler_option["-o"][2 ..]);
+	else
+          writeln("*** Ignore unsupported option: -o" <& compiler_option["-o"]);
+        end if;
       end if;
       setOptimizationSettings(evaluate_const_expr);
       if "-s" in compiler_option then
