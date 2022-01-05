@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chkarr.sd7    Checks arrays and array operations                *)
-(*  Copyright (C) 2005, 2020, 2021  Thomas Mertes                   *)
+(*  Copyright (C) 2005, 2020 - 2022  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -1192,6 +1192,14 @@ const proc: testIndex is func
     var array char: chrArr is [] ('a', 'b', 'c', 'd', 'e', 'f', 'g');
     var array string: strArr is [] ("one", "two", "three", "four", "five", "six", "seven");
     var array bitset: setArr is [] ({1}, {2}, {3}, {4}, {5}, {6}, {7});
+    var array boolean: emptyBlnArr is 0 times FALSE;
+    var array integer: emptyIntArr is 0 times 0;
+    var array bigInteger: emptyBigArr is 0 times 0_;
+    var array float: emptyFltArr is 0 times 0.0;
+    var array complex: emptyCpxArr is 0 times complex(0.0, 0.0);
+    var array char: emptyChrArr is 0 times ' ';
+    var array string: emptyStrArr is 0 times "";
+    var array bitset: emptySetArr is 0 times {};
     var boolean: blnElem is FALSE;
     var integer: intElem is 0;
     var bigInteger: bigElem is 0_;
@@ -1426,6 +1434,74 @@ const proc: testIndex is func
         not raisesIndexError((strArr & strArr)[intExpr(integer.last)]) or
         not raisesIndexError((setArr & setArr)[intExpr(integer.last)]) then
       writeln(" ***** Index access with index out of range does not raise INDEX_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(emptyBlnArr[integer.first]) or
+        not raisesIndexError(emptyIntArr[integer.first]) or
+        not raisesIndexError(emptyBigArr[integer.first]) or
+        not raisesIndexError(emptyFltArr[integer.first]) or
+        not raisesIndexError(emptyCpxArr[integer.first]) or
+        not raisesIndexError(emptyChrArr[integer.first]) or
+        not raisesIndexError(emptyStrArr[integer.first]) or
+        not raisesIndexError(emptySetArr[integer.first]) or
+        not raisesIndexError(emptyBlnArr[0]) or
+        not raisesIndexError(emptyIntArr[0]) or
+        not raisesIndexError(emptyBigArr[0]) or
+        not raisesIndexError(emptyFltArr[0]) or
+        not raisesIndexError(emptyCpxArr[0]) or
+        not raisesIndexError(emptyChrArr[0]) or
+        not raisesIndexError(emptyStrArr[0]) or
+        not raisesIndexError(emptySetArr[0]) or
+        not raisesIndexError(emptyBlnArr[1]) or
+        not raisesIndexError(emptyIntArr[1]) or
+        not raisesIndexError(emptyBigArr[1]) or
+        not raisesIndexError(emptyFltArr[1]) or
+        not raisesIndexError(emptyCpxArr[1]) or
+        not raisesIndexError(emptyChrArr[1]) or
+        not raisesIndexError(emptyStrArr[1]) or
+        not raisesIndexError(emptySetArr[1]) or
+        not raisesIndexError(emptyBlnArr[integer.last]) or
+        not raisesIndexError(emptyIntArr[integer.last]) or
+        not raisesIndexError(emptyBigArr[integer.last]) or
+        not raisesIndexError(emptyFltArr[integer.last]) or
+        not raisesIndexError(emptyCpxArr[integer.last]) or
+        not raisesIndexError(emptyChrArr[integer.last]) or
+        not raisesIndexError(emptyStrArr[integer.last]) or
+        not raisesIndexError(emptySetArr[integer.last]) or
+        not raisesIndexError(emptyBlnArr[intExpr(integer.first)]) or
+        not raisesIndexError(emptyIntArr[intExpr(integer.first)]) or
+        not raisesIndexError(emptyBigArr[intExpr(integer.first)]) or
+        not raisesIndexError(emptyFltArr[intExpr(integer.first)]) or
+        not raisesIndexError(emptyCpxArr[intExpr(integer.first)]) or
+        not raisesIndexError(emptyChrArr[intExpr(integer.first)]) or
+        not raisesIndexError(emptyStrArr[intExpr(integer.first)]) or
+        not raisesIndexError(emptySetArr[intExpr(integer.first)]) or
+        not raisesIndexError(emptyBlnArr[intExpr(0)]) or
+        not raisesIndexError(emptyIntArr[intExpr(0)]) or
+        not raisesIndexError(emptyBigArr[intExpr(0)]) or
+        not raisesIndexError(emptyFltArr[intExpr(0)]) or
+        not raisesIndexError(emptyCpxArr[intExpr(0)]) or
+        not raisesIndexError(emptyChrArr[intExpr(0)]) or
+        not raisesIndexError(emptyStrArr[intExpr(0)]) or
+        not raisesIndexError(emptySetArr[intExpr(0)]) or
+        not raisesIndexError(emptyBlnArr[intExpr(1)]) or
+        not raisesIndexError(emptyIntArr[intExpr(1)]) or
+        not raisesIndexError(emptyBigArr[intExpr(1)]) or
+        not raisesIndexError(emptyFltArr[intExpr(1)]) or
+        not raisesIndexError(emptyCpxArr[intExpr(1)]) or
+        not raisesIndexError(emptyChrArr[intExpr(1)]) or
+        not raisesIndexError(emptyStrArr[intExpr(1)]) or
+        not raisesIndexError(emptySetArr[intExpr(1)]) or
+        not raisesIndexError(emptyBlnArr[intExpr(integer.last)]) or
+        not raisesIndexError(emptyIntArr[intExpr(integer.last)]) or
+        not raisesIndexError(emptyBigArr[intExpr(integer.last)]) or
+        not raisesIndexError(emptyFltArr[intExpr(integer.last)]) or
+        not raisesIndexError(emptyCpxArr[intExpr(integer.last)]) or
+        not raisesIndexError(emptyChrArr[intExpr(integer.last)]) or
+        not raisesIndexError(emptyStrArr[intExpr(integer.last)]) or
+        not raisesIndexError(emptySetArr[intExpr(integer.last)]) then
+      writeln(" ***** Index access with index out of range does not raise INDEX_ERROR. (3)");
       okay := FALSE;
     end if;
 
