@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  chkint.sd7    Checks integer literals and operations            *)
 (*  Copyright (C) 1991 - 1994, 2004, 2005  Thomas Mertes            *)
-(*                2007 - 2017, 2019 - 2021  Thomas Mertes           *)
+(*                2007 - 2017, 2019 - 2022  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
