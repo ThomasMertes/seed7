@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  null_file.s7i  Base implementation type for all files           *)
-(*  Copyright (C) 1989 - 2013, 2021  Thomas Mertes                  *)
+(*  Copyright (C) 1989 - 2013, 2021, 2022  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

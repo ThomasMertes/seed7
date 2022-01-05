@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  stat.s7i      Statistics support.                               *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014, 2022  Thomas Mertes     *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)

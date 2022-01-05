@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  process.s7i   Support for creating processes                    *)
-(*  Copyright (C) 2009 - 2016, 2021  Thomas Mertes                  *)
+(*  Copyright (C) 2009 - 2016, 2021, 2022  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
