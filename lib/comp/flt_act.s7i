@@ -507,7 +507,6 @@ const proc: process_const_flt_div_assign (in reference: param1, in float: diviso
 
   local
     var expr_type: statement is expr_type.value;
-    var integer: temp_num is 0;
     var string: dividend is "";
   begin
     incr(countOptimizations);
@@ -1048,7 +1047,6 @@ const proc: process_const_flt_ipow (in reference: base, in integer: exponent,
         (* 20 *) "(c=(b=(a=x*x,a*a*x),b*b),c*c)", "(c=(b=(a=x*x,a*a*x),b*b),c*c*x)",
         (* 22 *) "(c=(b=(a=x*x,a*a*x),b*b*x),c*c)");
     const string: variables is "abc";
-    var reference: evaluatedBase is NIL;
     var string: powerTemplate is "";
     var string: baseName is "";
     var string: variableName is "";
@@ -2030,7 +2028,6 @@ const proc: process_const_flt_rem (in reference: dividend, in float: divisor,
     inout expr_type: c_expr) is func
 
   local
-    var reference: evaluatedParam is NIL;
     var string: dividend_name is "";
   begin
     if isNaN(divisor) or divisor = 0.0 then

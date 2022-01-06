@@ -998,7 +998,6 @@ const proc: process_const_int_sbtr (in integer: minuend, in reference: subtrahen
   local
     var integer: minAllowedSubtrahend is 0;
     var integer: maxAllowedSubtrahend is 0;
-    var reference: evaluatedParam is NIL;
     var intRange: subtrahend_range is intRange.value;
     var string: subtrahend_name is "";
   begin
@@ -1214,7 +1213,6 @@ const proc: optimize_int_add (in addSubIntListType: addSubParamList,
     var string: summand1_name is "";
     var string: summand2_name is "";
     var boolean: doAdd is FALSE;
-    var integer: index is 1;
   begin
     if length(addSubParamList) >= 3 then
       incr(countOptimizations);
@@ -1788,8 +1786,6 @@ const proc: optimize_int_bytes_be_2_uint (in reference: stri, in integer: length
 const proc: process (INT_BYTES_BE_2_UINT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
-  local
-    var integer: length is 0;
   begin
     if inlineFunctions and
         isActionExpression(params[1], "STR_SUBSTR") and
@@ -1903,8 +1899,6 @@ const proc: optimize_int_bytes_le_2_uint (in reference: stri, in integer: length
 const proc: process (INT_BYTES_LE_2_UINT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
-  local
-    var integer: length is 0;
   begin
     if inlineFunctions and
         isActionExpression(params[1], "STR_SUBSTR") and
@@ -2633,7 +2627,6 @@ const proc: process_const_int_lshift_assign (in reference: variable, in integer:
     inout expr_type: c_expr) is func
 
   local
-    var reference: evaluatedNumber is NIL;
     var string: variable_name is "";
     var expr_type: statement is expr_type.value;
   begin
@@ -3100,7 +3093,6 @@ const proc: optimize_mod_of_sum (in addSubIntListType: addSubParamList,
     var integer: index is 1;
     var bigInteger: constSummand is 0_;
     var reference: summand is NIL;
-    var integer: lshift is 0;
   begin
     for key index range addSubParamList do
       if addSubParamList[index].summand = NIL then

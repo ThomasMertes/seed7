@@ -1608,7 +1608,6 @@ const proc: process_match (in reference: current_expression, inout expr_type: c_
     var ref_list: params is ref_list.EMPTY;
     var reference: function is NIL;
     var category: functionCategory is category.value;
-    var reference: result_object is NIL;
     var reference: obj is NIL;
     var boolean: first_element is TRUE;
   begin
@@ -2000,7 +1999,6 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
 const proc: process_call_by_name_expr (in var reference: current_expression, inout expr_type: c_expr) is func
 
   local
-    var reference: evaluated_expression is NIL;
     var category: exprCategory is category.value;
   begin
     exprCategory := category(current_expression);
@@ -3350,16 +3348,11 @@ const proc: process_struct_declaration (in reference: current_object,
 const proc: process_interface_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
-  local
-    var reference: object_value is NIL;
-    var category: valueCategory is category.value;
   begin
     c_expr.expr &:= type_name(getType(current_object));
     c_expr.expr &:= " o_";
     create_name(current_object, c_expr.expr);
     c_expr.expr &:= ";\n\n";
-    object_value := interfaceToStruct(current_object);
-    valueCategory := category(object_value);
     if current_object not in const_table then
       const_table @:= [current_object] length(const_table);
     end if;
@@ -5927,9 +5920,6 @@ const proc: init_win_constants is func
     var win_index_hash: win_index is win_index_hash.EMPTY_HASH;
     var PRIMITIVE_WINDOW: win1 is PRIMITIVE_WINDOW.value;
     var integer: number is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-    var pixel: pix is pixel.value;
     var string: image is "";
     var bstring: bImage is bstring.value;
   begin
@@ -6551,8 +6541,6 @@ const proc: malloc_struct (in reference: const_object, inout expr_type: c_expr) 
   local
     var ref_list: struct_list is ref_list.EMPTY;
     var integer: number is 0;
-    var integer: elem_num is 0;
-    var reference: element is NIL;
   begin
     number := const_table[const_object];
     struct_list := structToList(const_object);

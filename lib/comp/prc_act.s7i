@@ -725,10 +725,8 @@ const proc: process_when (in reference: when_expr, in var bitset: allWhenValues,
 
   local
     var ref_list: params is ref_list.EMPTY;
-    var reference: function is NIL;
   begin
     params := getValue(when_expr, ref_list);
-    function := params[1];
     params := params[2 ..];
     process_case_labels(params[2], allWhenValues, c_expr);
     process_call_by_name_expr(params[4], c_expr);
@@ -841,13 +839,11 @@ const proc: process (PRC_CASE_HASHSET, in reference: function,
 
   local
     var integer: numOfCaseStmt is 0;
-    var type: switchType is void;
     var reference: switchValue is NIL;
     var expr_type: statement is expr_type.value;
   begin
     case_table &:= 0 times NIL;
     numOfCaseStmt := maxIdx(case_table);
-    switchType := getType(params[2]);
     switchValue := getParameterAsVariable(params[2], statement);
     statement.expr &:= diagnosticLine(c_expr);
     statement.expr &:= "switch (hshIdxDefault0(caseLabels[";
@@ -875,13 +871,11 @@ const proc: process (PRC_CASE_HASHSET_DEF, in reference: function,
 
   local
     var integer: numOfCaseStmt is 0;
-    var type: switchType is void;
     var reference: switchValue is NIL;
     var expr_type: statement is expr_type.value;
   begin
     case_table &:= 0 times NIL;
     numOfCaseStmt := maxIdx(case_table);
-    switchType := getType(params[2]);
     switchValue := getParameterAsVariable(params[2], statement);
     statement.expr &:= diagnosticLine(c_expr);
     statement.expr &:= "switch (hshIdxDefault0(caseLabels[";

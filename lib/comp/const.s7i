@@ -256,7 +256,6 @@ const func boolean: isPureFunction (in reference: function) is func
         {"PRC_FOR_DOWNTO", "PRC_FOR_TO", "SET_INCL", "TYP_VARCONV"};
     var category: functionCategory is category.value;
     var string: action_name is "";
-    var reference: obj is NIL;
   begin
     # writeln("isPureFunction: " <& str(function));
     functionCategory := category(function);
