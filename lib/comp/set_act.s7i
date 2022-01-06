@@ -453,7 +453,7 @@ const proc: process_const_set_elem (in reference: param1, in var bitset: aBitset
           c_expr.expr &:= "&&";
         end if;
         c_expr.expr &:= bitsetElemAsHex(aBitset, numberRange.minValue);
-        c_expr.expr &:= ">>";
+        c_expr.expr &:= ">>(";
         c_expr.expr &:= number_name;
         c_expr.expr &:= "-(";
         c_expr.expr &:= integerLiteral(numberRange.minValue);
@@ -467,12 +467,12 @@ const proc: process_const_set_elem (in reference: param1, in var bitset: aBitset
         c_expr.expr &:= integerLiteral(max(aBitset));
         c_expr.expr &:= "&&";
         c_expr.expr &:= bitsetElemAsHex(aBitset, min(aBitset));
-        c_expr.expr &:= ">>";
+        c_expr.expr &:= ">>(";
         c_expr.expr &:= number_name;
         c_expr.expr &:= "-(";
         c_expr.expr &:= integerLiteral(min(aBitset));
       end if;
-      c_expr.expr &:= ")&1)";
+      c_expr.expr &:= "))&1)";
     elsif inlineFunctions then
       incr(countOptimizations);
       incr(countInlinedFunctions);
