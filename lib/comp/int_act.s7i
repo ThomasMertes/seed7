@@ -1720,6 +1720,114 @@ const proc: process (INT_BYTES_BE_2_INT, in reference: function,
   end func;
 
 
+const proc: optimize_int_bytes_2_uint_length_0 (in reference: start,
+    inout expr_type: c_expr) is func
+
+  local
+    var intRange: start_range is intRange.value;
+  begin
+    incr(countOptimizations);
+    incr(countInlinedFunctions);
+    if string_index_check then
+      start_range := getIntRange(start);
+      if start_range.minValue < 1 then
+        incr(countIndexChecks);
+        c_expr.expr &:= "idxChk(";
+        process_expr(start, c_expr);
+        c_expr.expr &:= "<1)?";
+        c_expr.expr &:= intRaiseError("INDEX_ERROR");
+        c_expr.expr &:= ":";
+      else
+        countIndexOptimizations(c_expr);
+      end if;
+    else
+      incr(countSuppressedIndexChecks);
+    end if;
+    c_expr.expr &:= "0";
+  end func;
+
+
+const proc: optimize_int_bytes_2_uint_length_1 (in reference: stri,
+    in reference: start, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var string: stri_name is "";
+    var string: stri_value is "";
+    var string: stri_size is "";
+    var string: start_name is "";
+    var integer: start_value is 0;
+    var intRange: start_range is intRange.value;
+    var boolean: raisesIndexError is FALSE;
+  begin
+    incr(countOptimizations);
+    incr(countInlinedFunctions);
+    c_expr.expr &:= "(";
+    if getConstant(stri, STRIOBJECT, evaluatedParam) then
+      stri_value := getValue(evaluatedParam, string);
+      stri_name := "(" & stringLiteral(stri_value) & ")";
+      stri_size := memSizeLiteral(length(stri_value));
+    else
+      stri_name := getParameterAsVariable("const_striType", "stri_", stri, c_expr);
+      stri_size := stri_name & "->size";
+    end if;
+    if getConstant(start, INTOBJECT, evaluatedParam) then
+      start_value := getValue(evaluatedParam, integer);
+      if start_value < 1 then
+        warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+        c_expr.expr &:= strRaiseError("INDEX_ERROR");
+        raisesIndexError := TRUE;
+      else
+        start_name := integerLiteral(start_value);
+      end if;
+    else
+      start_name := getTempVariable("intType", "start_", start, c_expr);
+    end if;
+    if not raisesIndexError then
+      if string_index_check then
+        start_range := getIntRange(start);
+        if start_range.minValue < 1 then
+          incr(countIndexChecks);
+          c_expr.expr &:= "idxChk(";
+          c_expr.expr &:= start_name;
+          c_expr.expr &:= "<1)?";
+          c_expr.expr &:= intRaiseError("INDEX_ERROR");
+          c_expr.expr &:= ":";
+        else
+          countIndexOptimizations(c_expr);
+        end if;
+      else
+        incr(countSuppressedIndexChecks);
+      end if;
+      c_expr.expr &:= "(";
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= ">";
+      c_expr.expr &:= stri_size;
+      c_expr.expr &:= " ? 0 : ";
+      if function_range_check then
+        c_expr.expr &:= "(rngChk(";
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->mem[";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "-1]>255)?";
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
+        c_expr.expr &:= ":(intType)";
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->mem[";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "-1])";
+      else
+        c_expr.expr &:= "((intType)";
+        c_expr.expr &:= stri_name;
+        c_expr.expr &:= "->mem[";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= "-1])";
+      end if;
+      c_expr.expr &:= "))";
+    end if;
+  end func;
+
+
 const proc: optimize_int_bytes_be_2_uint (in reference: stri, in integer: length,
     inout expr_type: c_expr) is func
 
@@ -1728,7 +1836,10 @@ const proc: optimize_int_bytes_be_2_uint (in reference: stri, in integer: length
     var integer: index is 0;
   begin
     if length = 0 then
-      c_expr.expr &:= "0";
+      optimize_int_bytes_2_uint_length_0(getValue(stri, ref_list)[4], c_expr);
+    elsif length = 1 then
+      optimize_int_bytes_2_uint_length_1(getValue(stri, ref_list)[2],
+          getValue(stri, ref_list)[4], c_expr);
     elsif length >= 1 and length <= 8 then
       incr(countOptimizations);
       incr(countInlinedFunctions);
@@ -1841,8 +1952,11 @@ const proc: optimize_int_bytes_le_2_uint (in reference: stri, in integer: length
     var integer: index is 0;
   begin
     if length = 0 then
-      c_expr.expr &:= "0";
-    elsif length >= 1 and length <= 8 then
+      optimize_int_bytes_2_uint_length_0(getValue(stri, ref_list)[4], c_expr);
+    elsif length = 1 then
+      optimize_int_bytes_2_uint_length_1(getValue(stri, ref_list)[2],
+          getValue(stri, ref_list)[4], c_expr);
+    elsif length >= 2 and length <= 8 then
       incr(countOptimizations);
       incr(countInlinedFunctions);
       c_expr.expr &:= "(";

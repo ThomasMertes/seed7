@@ -50,8 +50,8 @@ const ACTION: ARR_REMOVE       is action "ARR_REMOVE";
 const ACTION: ARR_REMOVE_ARRAY is action "ARR_REMOVE_ARRAY";
 const ACTION: ARR_SORT         is action "ARR_SORT";
 const ACTION: ARR_SUBARR       is action "ARR_SUBARR";
-const ACTION: ARR_TIMES        is action "ARR_TIMES";
 const ACTION: ARR_TAIL         is action "ARR_TAIL";
+const ACTION: ARR_TIMES        is action "ARR_TIMES";
 
 
 const proc: arr_prototypes (inout file: c_prog) is func

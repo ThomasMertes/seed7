@@ -223,6 +223,22 @@ const func intRange: getIntModRange (in reference: dividend, in reference: divis
   end func;
 
 
+const func intRange: getIntBytes2UIntRange (in reference: stri) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var integer: length is 0;
+  begin
+    valueRange.minValue := 0;
+    if isActionExpression(stri, "STR_SUBSTR") and
+        category(getValue(stri, ref_list)[6]) = INTOBJECT and
+        not isVar(getValue(stri, ref_list)[6]) then
+      length := getValue(getValue(stri, ref_list)[6], integer);
+      valueRange.maxValue := pred(2 ** (length * 8));
+    end if;
+  end func;
+
+
 const func intRange: getSetRandRange (in reference: aSet) is func
   result
     var intRange: valueRange is intRange.value;
@@ -273,7 +289,6 @@ const func intRange: getIntRange (in reference: intExpression) is func
           case actionName of
             when {"ARR_LNG", "BST_LNG", "FIL_LNG", "HSH_LNG", "RFL_LNG",
                   "SET_CARD",
-                  "INT_BYTES_BE_2_UINT", "INT_BYTES_LE_2_UINT",
                   "SQL_STMT_COLUMN_COUNT"}:
               valueRange.minValue := 0;
               valueRange.maxValue := integer.last;
@@ -325,6 +340,9 @@ const func intRange: getIntRange (in reference: intExpression) is func
             when {"INT_BIT_LENGTH"}:
               valueRange.minValue := 0;
               valueRange.maxValue := pred(ccConf.INTTYPE_SIZE);
+            when {"INT_BYTES_BE_2_UINT",
+                  "INT_BYTES_LE_2_UINT"}:
+              valueRange := getIntBytes2UIntRange(params[1]);
             when {"INT_DIV"}:
               if getConstant(params[3], INTOBJECT, evaluatedParam) then
                 number := getValue(evaluatedParam, integer);
