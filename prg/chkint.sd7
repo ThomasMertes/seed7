@@ -96,6 +96,21 @@ const func boolean: raisesNumericError (ref func integer: expression) is func
   end func;
 
 
+const func boolean: raisesIndexError (ref func integer: expression) is func
+  result
+    var boolean: raisesIndexError is FALSE;
+  local
+    var integer: exprResult is 0;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch INDEX_ERROR:
+        raisesIndexError := TRUE;
+    end block;
+  end func;
+
+
 const proc: check_exponent_integer_literal is func
   local
     var boolean: okay is TRUE;
@@ -4461,6 +4476,44 @@ const proc: check_bytesBe2Int is func
       okay := FALSE;
     end if;
 
+    if  not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[3 len integer.first], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[3 len            -1], UNSIGNED, BE)) or
+                             bytes2Int("\233;\120;\215;\049;"[3 len             0], UNSIGNED, BE) <>     0 or
+                             bytes2Int("\233;\120;\215;\049;"[3 len             1], UNSIGNED, BE) <>   215 or
+                             bytes2Int("\233;\120;\215;\049;"[3 len             2], UNSIGNED, BE) <> 55089 or
+                             bytes2Int("\233;\120;\215;\049;"[3 len             3], UNSIGNED, BE) <> 55089 or
+                             bytes2Int("\233;\120;\215;\049;"[3 len  integer.last], UNSIGNED, BE) <> 55089 then
+      writeln("Conversion of unsigned big endian byte string to integer with substring beyond string end does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[5 len integer.first], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[5 len            -1], UNSIGNED, BE)) or
+                             bytes2Int("\233;\120;\215;\049;"[5 len             0], UNSIGNED, BE) <> 0 or
+                             bytes2Int("\233;\120;\215;\049;"[5 len             1], UNSIGNED, BE) <> 0 or
+                             bytes2Int("\233;\120;\215;\049;"[5 len             2], UNSIGNED, BE) <> 0 or
+                             bytes2Int("\233;\120;\215;\049;"[5 len             3], UNSIGNED, BE) <> 0 or
+                             bytes2Int("\233;\120;\215;\049;"[5 len  integer.last], UNSIGNED, BE) <> 0 then
+      writeln("Conversion of unsigned big endian byte string to integer with substring staring beyond string end does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[0 len 0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(0) len 0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[0 len 0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(0) len 0], UNSIGNED, BE)) then
+      writeln("Conversion of unsigned big endian byte string to integer with substring starting at 0 does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 len -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) len -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 len -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) len -1], UNSIGNED, BE)) then
+      writeln("Conversion of unsigned big endian byte string to integer with substring of length -1 does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
+
     if  not raisesRangeError(bytes2Int("\000;\127;\255;\255;\255;\255;\255;\255;\255;\255;",   SIGNED, BE)) or
         not raisesRangeError(bytes2Int("\000;\000;\128;\255;\255;\255;\255;\255;\255;\255;",   SIGNED, BE)) or
         not raisesRangeError(bytes2Int("\000;\000;\127;\255;\255;\255;\256;\255;\255;\255;",   SIGNED, BE)) or
@@ -4974,6 +5027,44 @@ const proc: check_bytesLe2Int is func
         not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\256;\255;\255;\127;")[intExpr(2) len 8], UNSIGNED, LE)) or
         not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\127;")[intExpr(2) len 8], UNSIGNED, LE)) then
       writeln("Conversion of unsigned little endian byte string to integer with substring does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[3 len integer.first], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[3 len            -1], UNSIGNED, LE)) or
+                             bytes2Int("\233;\120;\049;\215;"[3 len             0], UNSIGNED, LE) <>     0 or
+                             bytes2Int("\233;\120;\049;\215;"[3 len             1], UNSIGNED, LE) <>    49 or
+                             bytes2Int("\233;\120;\049;\215;"[3 len             2], UNSIGNED, LE) <> 55089 or
+                             bytes2Int("\233;\120;\049;\215;"[3 len             3], UNSIGNED, LE) <> 55089 or
+                             bytes2Int("\233;\120;\049;\215;"[3 len  integer.last], UNSIGNED, LE) <> 55089 then
+      writeln("Conversion of unsigned little endian byte string to integer with substring beyond string end does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[5 len integer.first], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[5 len            -1], UNSIGNED, LE)) or
+                             bytes2Int("\233;\120;\049;\215;"[5 len             0], UNSIGNED, LE) <> 0 or
+                             bytes2Int("\233;\120;\049;\215;"[5 len             1], UNSIGNED, LE) <> 0 or
+                             bytes2Int("\233;\120;\049;\215;"[5 len             2], UNSIGNED, LE) <> 0 or
+                             bytes2Int("\233;\120;\049;\215;"[5 len             3], UNSIGNED, LE) <> 0 or
+                             bytes2Int("\233;\120;\049;\215;"[5 len  integer.last], UNSIGNED, LE) <> 0 then
+      writeln("Conversion of unsigned little endian byte string to integer with substring starting beyond string end does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[0 len 0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(0) len 0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[0 len 0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(0) len 0], UNSIGNED, LE)) then
+      writeln("Conversion of unsigned little endian byte string to integer with substring starting at 0 does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len -1], UNSIGNED, LE)) then
+      writeln("Conversion of unsigned little endian byte string to integer with substring of length -1 does not raise INDEX_ERROR.");
       okay := FALSE;
     end if;
 
