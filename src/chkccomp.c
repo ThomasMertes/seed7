@@ -61,6 +61,12 @@
  *  INTERPRETER_FOR_LINKED_PROGRAM: (optional)
  *      Defines an interpreter that is used if compiler and linker create
  *      a file that must be interpreted.
+ *  CC_OPT_OPTIMIZE_1: (optional)
+ *      C compiler option to optimize with a level of -O1.
+ *  CC_OPT_OPTIMIZE_2: (optional)
+ *      C compiler option to optimize with a level of -O2.
+ *  CC_OPT_OPTIMIZE_3: (optional)
+ *      C compiler option to optimize with a level of -O3.
  *  CC_OPT_TRAP_OVERFLOW: (optional)
  *      Contains a C compiler option that triggers the generation of code to
  *      raise OVERFLOW_SIGNAL in case there is an integer overflow.
@@ -194,6 +200,18 @@
 #define LIBRARY_TYPE MACOS_LIBRARIES
 #else
 #define LIBRARY_TYPE UNIX_LIBRARIES
+#endif
+
+#ifndef CC_OPT_OPTIMIZE_1
+#define CC_OPT_OPTIMIZE_1 "-O1"
+#endif
+
+#ifndef CC_OPT_OPTIMIZE_2
+#define CC_OPT_OPTIMIZE_2 "-O2"
+#endif
+
+#ifndef CC_OPT_OPTIMIZE_3
+#define CC_OPT_OPTIMIZE_3 "-O3"
 #endif
 
 #ifndef CC_OPT_TRAP_OVERFLOW
@@ -1778,6 +1796,166 @@ static void numericSizes (FILE *versionFile)
 
 
 
+static int checkIntDivisionOneByZero (const char *compilerOptions,
+    const char *linkerOptions)
+
+  {
+    int check_int_div_one_by_zero;
+
+  /* checkIntDivisionOneByZero */
+    check_int_div_one_by_zero =
+        !compileAndLinkWithOptionsOk("#include<stdio.h>\n"
+                                     "int main(int argc,char *argv[]){"
+                                     "printf(\"%d\\n\", 1/0);return 0;}\n",
+                                     compilerOptions, linkerOptions) ||
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",1/0==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2 ||
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "int zero=0;\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",1/zero==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2 ||
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "int one=1;\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",one/0==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2 ||
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "int one=1;\n"
+                                     "int zero=0;\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",one/zero==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2;
+    /* fprintf(logFile, "checkIntDivisionOneByZero --> %d\n", check_int_div_one_by_zero); */
+    return check_int_div_one_by_zero;
+  } /* checkIntDivisionOneByZero */
+
+
+
+static int checkIntDivisionZeroByZero (const char *compilerOptions,
+    const char *linkerOptions)
+
+  {
+    int check_int_div_zero_by_zero;
+
+  /* checkIntDivisionZeroByZero */
+    check_int_div_zero_by_zero =
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "int zero=0;\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",zero/0==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2 ||
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "int zero1=0;\n"
+                                     "int zero2=0;\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",zero1/zero2==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2;
+    /* fprintf(logFile, "checkIntDivisionZeroByZero --> %d\n", check_int_div_zero_by_zero); */
+    return check_int_div_zero_by_zero;
+  } /* checkIntDivisionZeroByZero */
+
+
+
+static int checkIntRemainderByZero (const char *compilerOptions,
+    const char *linkerOptions)
+
+  {
+    int check_int_rem_by_zero;
+
+  /* checkIntRemainderByZero */
+    check_int_rem_by_zero =
+        !compileAndLinkWithOptionsOk("#include<stdio.h>\n"
+                                     "int main(int argc,char *argv[]){"
+                                     "printf(\"%d\\n\", 1%0);return 0;}\n",
+                                     compilerOptions, linkerOptions) ||
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",1%0==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2 ||
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "int zero=0;\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",1%zero==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2 ||
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "int one=1;\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",one%0==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2 ||
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "int one=1;\n"
+                                     "int zero=0;\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",one%zero==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2 ||
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "int zero=0;\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",zero%0==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2 ||
+        !compileAndLinkWithOptionsOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                                     "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                                     "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                                     "int main(int argc,char *argv[]){\n"
+                                     "int zero1=0;\n"
+                                     "int zero2=0;\n"
+                                     "signal(SIGFPE,handleSigfpe);\n"
+                                     "signal(SIGILL,handleSigill);\n"
+                                     "printf(\"%d\\n\",zero1%zero2==0);return 0;}\n",
+                                     compilerOptions, linkerOptions) || doTest() != 2;
+    /* fprintf(logFile, "checkIntRemainderByZero --> %d\n", check_int_rem_by_zero); */
+    return check_int_rem_by_zero;
+  } /* checkIntRemainderByZero */
+
+
+
 static void checkIntDivisions (FILE *versionFile)
 
   {
@@ -1792,61 +1970,40 @@ static void checkIntDivisions (FILE *versionFile)
     check_int_div_zero_by_zero = 1;
     check_int_rem_by_zero = 1;
     check_int_rem_zero_by_zero = 1;
+#ifndef DO_SIGFPE_WITH_DIV_BY_ZERO
+    /* If 1/0 triggers SIGFPE this expression can be used to trigger SIGFPE. */
+    fprintf(versionFile, "#define DO_SIGFPE_WITH_DIV_BY_ZERO %d\n", !check_int_div_by_zero);
+#endif
 #else
-    check_int_div_by_zero =
-        !compileAndLinkOk("#include<stdio.h>\n"
-                          "int main(int argc,char *argv[]){"
-                          "printf(\"%d\\n\", 1/0);return 0;}\n") ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",1/0==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "int zero=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",1/zero==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "int one=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",one/0==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "int one=0;\n"
-                          "int zero=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",one/zero==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "int zero=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",zero/0==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "int zero1=0;\n"
-                          "int zero2=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",zero1/zero2==0);return 0;}\n") || doTest() != 2;
+    check_int_div_by_zero = checkIntDivisionOneByZero("", "");
+    if (!check_int_div_by_zero) {
+      check_int_div_by_zero = checkIntDivisionOneByZero(CC_OPT_OPTIMIZE_1, "");
+      if (!check_int_div_by_zero) {
+        check_int_div_by_zero = checkIntDivisionOneByZero(CC_OPT_OPTIMIZE_2, "");
+        if (!check_int_div_by_zero) {
+          check_int_div_by_zero = checkIntDivisionOneByZero(CC_OPT_OPTIMIZE_3, "");
+        } /* if */
+      } /* if */
+    } /* if */
+#ifndef DO_SIGFPE_WITH_DIV_BY_ZERO
+    /* If 1/0 triggers SIGFPE this expression can be used to trigger SIGFPE. */
+    fprintf(versionFile, "#define DO_SIGFPE_WITH_DIV_BY_ZERO %d\n", !check_int_div_by_zero);
+#endif
+    if (!check_int_div_by_zero) {
+      check_int_div_by_zero = checkIntDivisionZeroByZero("", "");
+      if (!check_int_div_by_zero) {
+        check_int_div_by_zero = checkIntDivisionZeroByZero(CC_OPT_OPTIMIZE_1, "");
+        if (!check_int_div_by_zero) {
+          check_int_div_by_zero = checkIntDivisionZeroByZero(CC_OPT_OPTIMIZE_2, "");
+          if (!check_int_div_by_zero) {
+            check_int_div_by_zero = checkIntDivisionZeroByZero(CC_OPT_OPTIMIZE_3, "");
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
 
+    /* Determine if the C compiler does some "optimizations" with 0/0, */
+    /* because it is "undefined behavior" that should not happen.      */
     check_int_div_zero_by_zero =
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
                           "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
@@ -1864,58 +2021,19 @@ static void checkIntDivisions (FILE *versionFile)
                           "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",0/zero==0);return 0;}\n") || doTest() != 2;
 
-    check_int_rem_by_zero =
-        !compileAndLinkOk("#include<stdio.h>\n"
-                          "int main(int argc,char *argv[]){"
-                          "printf(\"%d\\n\", 1%0);return 0;}\n") ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",1%0==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "int zero=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",1%zero==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "int one=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",one%0==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "int one=0, zero=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",one%zero==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "int zero=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",zero%0==0);return 0;}\n") || doTest() != 2 ||
-        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
-                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "int zero1=0, zero2=0;\n"
-                          "signal(SIGFPE,handleSigfpe);\n"
-                          "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",zero1%zero2==0);return 0;}\n") || doTest() != 2;
+    check_int_rem_zero_by_zero = checkIntRemainderByZero("", "");
+    if (!check_int_rem_zero_by_zero) {
+      check_int_rem_zero_by_zero = checkIntRemainderByZero(CC_OPT_OPTIMIZE_1, "");
+      if (!check_int_rem_zero_by_zero) {
+        check_int_rem_zero_by_zero = checkIntRemainderByZero(CC_OPT_OPTIMIZE_2, "");
+        if (!check_int_rem_zero_by_zero) {
+          check_int_rem_zero_by_zero = checkIntRemainderByZero(CC_OPT_OPTIMIZE_3, "");
+        } /* if */
+      } /* if */
+    } /* if */
 
+    /* Determine if the C compiler does some "optimizations" with 0%0, */
+    /* because it is "undefined behavior" that should not happen.      */
     check_int_rem_zero_by_zero =
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
                           "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
@@ -1932,9 +2050,6 @@ static void checkIntDivisions (FILE *versionFile)
                           "signal(SIGFPE,handleSigfpe);\n"
                           "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",0%zero==0);return 0;}\n") || doTest() != 2;
-#endif
-#ifndef DO_SIGFPE_WITH_DIV_BY_ZERO
-    fprintf(versionFile, "#define DO_SIGFPE_WITH_DIV_BY_ZERO %d\n", !check_int_div_by_zero);
 #endif
     fprintf(versionFile, "#define CHECK_INT_DIV_BY_ZERO %d\n", check_int_div_by_zero);
     fprintf(versionFile, "#define CHECK_INT_DIV_ZERO_BY_ZERO %d\n", check_int_div_zero_by_zero);
