@@ -2021,13 +2021,13 @@ static void checkIntDivisions (FILE *versionFile)
                           "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",0/zero==0);return 0;}\n") || doTest() != 2;
 
-    check_int_rem_zero_by_zero = checkIntRemainderByZero("", "");
-    if (!check_int_rem_zero_by_zero) {
-      check_int_rem_zero_by_zero = checkIntRemainderByZero(CC_OPT_OPTIMIZE_1, "");
-      if (!check_int_rem_zero_by_zero) {
-        check_int_rem_zero_by_zero = checkIntRemainderByZero(CC_OPT_OPTIMIZE_2, "");
-        if (!check_int_rem_zero_by_zero) {
-          check_int_rem_zero_by_zero = checkIntRemainderByZero(CC_OPT_OPTIMIZE_3, "");
+    check_int_rem_by_zero = checkIntRemainderByZero("", "");
+    if (!check_int_rem_by_zero) {
+      check_int_rem_by_zero = checkIntRemainderByZero(CC_OPT_OPTIMIZE_1, "");
+      if (!check_int_rem_by_zero) {
+        check_int_rem_by_zero = checkIntRemainderByZero(CC_OPT_OPTIMIZE_2, "");
+        if (!check_int_rem_by_zero) {
+          check_int_rem_by_zero = checkIntRemainderByZero(CC_OPT_OPTIMIZE_3, "");
         } /* if */
       } /* if */
     } /* if */
