@@ -27,6 +27,8 @@
 var integer: countOptimizations            is 0;
 var integer: countInlinedFunctions         is 0;
 var integer: countEvaluations              is 0;
+var integer: countDivisionChecks           is 0;
+var integer: countOptimizedDivisionChecks  is 0;
 var integer: countRangeChecks              is 0;
 var integer: countNoRangeChecks            is 0;
 var integer: countIndexChecks              is 0;
@@ -34,6 +36,13 @@ var integer: countOptimizedIndexChecks     is 0;
 var integer: countSuppressedIndexChecks    is 0;
 var integer: countOverflowChecks           is 0;
 var integer: countOptimizedOverflowChecks  is 0;
+
+
+const proc: countDivisionOptimizations (in expr_type: c_expr) is func
+  begin
+    incr(countOptimizedDivisionChecks);
+    # writeln(c_expr.currentFile <& "(" <& c_expr.currentLine <& "): Division check optimized away.");
+  end func;
 
 
 const proc: countIndexOptimizations (in expr_type: c_expr) is func

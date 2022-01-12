@@ -7270,6 +7270,12 @@ const proc: pass_2 (in string: source, in program: prog,
             if countEvaluations <> 0 then
               writeln(countEvaluations <& " evaluations done");
             end if;
+            if countDivisionChecks <> 0 then
+              writeln(countDivisionChecks <& " division checks inserted");
+            end if;
+            if countOptimizedDivisionChecks <> 0 then
+              writeln(countOptimizedDivisionChecks <& " division checks optimized away");
+            end if;
             if countRangeChecks <> 0 then
               writeln(countRangeChecks <& " range checks inserted");
             end if;

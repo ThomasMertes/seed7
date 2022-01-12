@@ -27,6 +27,7 @@
 const type: intRange is new struct
     var integer: minValue is integer.first;
     var integer: maxValue is integer.last;
+    var boolean: mayRaiseException is TRUE;
   end struct;
 
 
@@ -276,9 +277,11 @@ const func intRange: getIntRange (in reference: intExpression) is func
         number := getValue(evaluatedParam, integer);
         valueRange.minValue := number;
         valueRange.maxValue := number;
+        valueRange.mayRaiseException := FALSE;
         # writeln("intRange of constant: " <& valueRange.minValue <& ".." <& valueRange.maxValue);
       elsif intExpression in intRangeOfVariable then
         valueRange := intRangeOfVariable[intExpression];
+        valueRange.mayRaiseException := FALSE;
         # writeln("intRange of variable: " <& valueRange.minValue <& ".." <& valueRange.maxValue);
       elsif category(intExpression) = CALLOBJECT then
         params := getValue(intExpression, ref_list);
@@ -471,11 +474,20 @@ const func intRange: getIntRange (in reference: intExpression) is func
               else
                 valueRange.maxValue := integer.first;
               end if;
+              if not argument1Range.mayRaiseException and
+                  argument1Range.minValue <> integer.first then
+                valueRange.mayRaiseException := FALSE;
+              end if;
             when {"INT_RAND"}:
               argument1Range := getIntRange(params[1]);
               argument2Range := getIntRange(params[2]);
               valueRange.minValue := argument1Range.minValue;
               valueRange.maxValue := argument2Range.maxValue;
+              if not (argument1Range.mayRaiseException or
+                      argument2Range.mayRaiseException) and
+                  argument1Range.maxValue <= argument2Range.minValue then
+                valueRange.mayRaiseException := FALSE;
+              end if;
             when {"INT_REM"}:
               if getConstant(params[3], INTOBJECT, evaluatedParam) then
                 number := getValue(evaluatedParam, integer);
@@ -530,6 +542,10 @@ const func intRange: getIntRange (in reference: intExpression) is func
                 valueRange.maxValue := succ(argument1Range.maxValue);
               else
                 valueRange.maxValue := integer.last;
+              end if;
+              if not argument1Range.mayRaiseException and
+                  argument1Range.maxValue <> integer.last then
+                valueRange.mayRaiseException := FALSE;
               end if;
             when {"SET_RAND"}:
               valueRange := getSetRandRange(params[1]);
