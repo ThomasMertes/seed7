@@ -96,6 +96,21 @@ const func boolean: raisesNumericError (ref func integer: expression) is func
   end func;
 
 
+const func boolean: raisesNumericError (ref func boolean: expression) is func
+  result
+    var boolean: raisesNumericError is FALSE;
+  local
+    var boolean: exprResult is FALSE;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch NUMERIC_ERROR:
+        raisesNumericError := TRUE;
+    end block;
+  end func;
+
+
 const func boolean: raisesIndexError (ref func integer: expression) is func
   result
     var boolean: raisesIndexError is FALSE;
@@ -9683,6 +9698,160 @@ const proc: check_division is func
   end func;
 
 
+const func boolean: check_div_division_check_optimization is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var integer: number is 0;
+    var boolean: ok is TRUE;
+  begin
+    if integer.first div rand(integer.first,           -2) <=        0 or
+                 -10 div rand(integer.first,          -11) <>        0 or
+                 -10 div rand(integer.first,           -1) not in {  0,  1,  2,  3,  5, 10} or
+                 -10 div rand(            1, integer.last) not in {-10, -5, -3, -2, -1,  0} or
+                 -10 div rand(           11, integer.last) <>        0 or
+                  -1 div rand(integer.first,           -2) <>        0 or
+                  -1 div rand(integer.first,           -1) not in {  0, 1} or
+                  -1 div rand(            2, integer.last) <>        0 or
+                   0 div rand(integer.first,           -1) <>        0 or
+                   0 div rand(            1, integer.last) <>        0 or
+                   1 div rand(integer.first,           -2) <>        0 or
+                   1 div rand(            1, integer.last) not in {  0, 1} or
+                   1 div rand(            2, integer.last) <>        0 or
+                  10 div rand(integer.first,          -11) <>        0 or
+                  10 div rand(integer.first,           -1) not in {-10, -5, -3, -2, -1,  0} or
+                  10 div rand(            1, integer.last) not in {  0,  1,  2,  3,  5, 10} or
+                  10 div rand(           11, integer.last) <>        0 then
+      writeln(" ***** Optimized division with the div operator does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(integer.first) div rand(integer.first,           -2) <=        0 or
+        intExpr(          -10) div rand(integer.first,          -11) <>        0 or
+        intExpr(          -10) div rand(integer.first,           -1) not in {  0,  1,  2,  3,  5, 10} or
+        intExpr(          -10) div rand(            1, integer.last) not in {-10, -5, -3, -2, -1,  0} or
+        intExpr(          -10) div rand(           11, integer.last) <>        0 or
+        intExpr(           -1) div rand(integer.first,           -2) <>        0 or
+        intExpr(           -1) div rand(integer.first,           -1) not in {  0, 1} or
+        intExpr(           -1) div rand(            2, integer.last) <>        0 or
+        intExpr(            0) div rand(integer.first,           -1) <>        0 or
+        intExpr(            0) div rand(            1, integer.last) <>        0 or
+        intExpr(            1) div rand(integer.first,           -2) <>        0 or
+        intExpr(            1) div rand(            1, integer.last) not in {  0, 1} or
+        intExpr(            1) div rand(            2, integer.last) <>        0 or
+        intExpr(           10) div rand(integer.first,          -11) <>        0 or
+        intExpr(           10) div rand(integer.first,           -1) not in {-10, -5, -3, -2, -1,  0} or
+        intExpr(           10) div rand(            1, integer.last) not in {  0,  1,  2,  3,  5, 10} or
+        intExpr(           10) div rand(           11, integer.last) <>        0 then
+      writeln(" ***** Optimized division with the div operator does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  integer.first div (pred(2 * rand(0, 1)) * rand(2, integer.last)) =         0 or
+                  -10 div (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10} or
+                   -1 div (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in { -1,  0,  1} or
+                    0 div (pred(2 * rand(0, 1)) * rand(1, integer.last)) <>        0 or
+                    1 div (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in { -1,  0,  1} or
+                   10 div (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10} then
+      writeln(" ***** Optimized division with the div operator does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(integer.first) div (pred(2 * rand(0, 1)) * rand(2, integer.last)) =         0 or
+        intExpr(          -10) div (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10} or
+        intExpr(           -1) div (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in { -1,  0,  1} or
+        intExpr(            0) div (pred(2 * rand(0, 1)) * rand(1, integer.last)) <>        0 or
+        intExpr(            1) div (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in { -1,  0,  1} or
+        intExpr(           10) div (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10} then
+      writeln(" ***** Optimized division with the div operator does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range -1 to -1 do
+      if number div number <> 1 then
+        ok := FALSE;
+      end if;
+    end for;
+    for number range 1 to 1 do
+      if number div number <> 1 then
+        ok := FALSE;
+      end if;
+    end for;
+    if not ok then
+      writeln(" ***** Optimized division with the div operator does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    number := integer.first; ok := ok and number div number = 1;
+    number :=            -1; ok := ok and number div number = 1;
+    number :=             1; ok := ok and number div number = 1;
+    number :=  integer.last; ok := ok and number div number = 1;
+    if not ok then
+      writeln(" ***** Optimized division with the div operator does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(integer.first div rand(0, 0)) or
+        not raisesNumericError(          -10 div rand(0, 0)) or
+        not raisesNumericError(           -1 div rand(0, 0)) or
+        not raisesNumericError(            0 div rand(0, 0)) or
+        not raisesNumericError(            1 div rand(0, 0)) or
+        not raisesNumericError(           10 div rand(0, 0)) or
+        not raisesNumericError(          -10 div rand(0, 0) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(           -1 div rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(            0 div rand(0, 0) <>        0) or
+        not raisesNumericError(            1 div rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(           10 div rand(0, 0) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(integer.first div intExpr(0)) or
+        not raisesNumericError(          -10 div intExpr(0)) or
+        not raisesNumericError(           -1 div intExpr(0)) or
+        not raisesNumericError(            0 div intExpr(0)) or
+        not raisesNumericError(            1 div intExpr(0)) or
+        not raisesNumericError(           10 div intExpr(0)) or
+        not raisesNumericError(          -10 div intExpr(0) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(           -1 div intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(            0 div intExpr(0) <>        0) or
+        not raisesNumericError(            1 div intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(           10 div intExpr(0) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10}) then
+      writeln(" ***** Optimized division by zero with the div operator does not raise NUMERIC_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(intExpr(integer.first) div rand(0, 0)) or
+        not raisesNumericError(intExpr(          -10) div rand(0, 0)) or
+        not raisesNumericError(intExpr(           -1) div rand(0, 0)) or
+        not raisesNumericError(intExpr(            0) div rand(0, 0)) or
+        not raisesNumericError(intExpr(            1) div rand(0, 0)) or
+        not raisesNumericError(intExpr(           10) div rand(0, 0)) or
+        not raisesNumericError(intExpr(          -10) div rand(0, 0) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(           -1) div rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(            0) div rand(0, 0) <>        0) or
+        not raisesNumericError(intExpr(            1) div rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(           10) div rand(0, 0) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(integer.first) div intExpr(0)) or
+        not raisesNumericError(intExpr(          -10) div intExpr(0)) or
+        not raisesNumericError(intExpr(           -1) div intExpr(0)) or
+        not raisesNumericError(intExpr(            0) div intExpr(0)) or
+        not raisesNumericError(intExpr(            1) div intExpr(0)) or
+        not raisesNumericError(intExpr(           10) div intExpr(0)) or
+        not raisesNumericError(intExpr(          -10) div intExpr(0) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(           -1) div intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(            0) div intExpr(0) <>        0) or
+        not raisesNumericError(intExpr(            1) div intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(           10) div intExpr(0) not in {-10, -5, -3, -2, -1, 0, 1, 2, 3, 5, 10}) then
+      writeln(" ***** Optimized division by zero with the div operator does not raise NUMERIC_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    number := 0;
+    if  not raisesNumericError(number div number) then
+      writeln(" ***** Optimized division by zero with the div operator does not raise NUMERIC_ERROR. (3)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_div is func
   local
     var boolean: okay is TRUE;
@@ -10755,10 +10924,176 @@ const proc: check_div is func
       okay := FALSE;
     end if;
 
+    if not check_div_division_check_optimization then
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Div works correct for selected values.");
     else
       writeln(" ***** div does not work correct.");
+    end if;
+  end func;
+
+
+const func boolean: check_rem_division_check_optimization is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var integer: number is 0;
+    var boolean: ok is TRUE;
+  begin
+    if -10 rem rand(integer.first,          -11) <>      -10 or
+       -10 rem rand(integer.first,           -1) not in {-10, -4, -3, -2, -1,  0} or
+       -10 rem rand(            1, integer.last) not in {-10, -4, -3, -2, -1,  0} or
+       -10 rem rand(           11, integer.last) <>      -10 or
+        -1 rem rand(integer.first,           -2) <>       -1 or
+        -1 rem rand(integer.first,           -1) not in { -1,  0} or
+        -1 rem rand(            1, integer.last) not in { -1,  0} or
+        -1 rem rand(            2, integer.last) <        -1 or
+         0 rem rand(integer.first,           -1) <>        0 or
+         0 rem rand(            1, integer.last) <>        0 or
+         1 rem rand(integer.first,           -2) >         1 or
+         1 rem rand(integer.first,           -1) not in {  0,  1} or
+         1 rem rand(            1, integer.last) not in {  0,  1} or
+         1 rem rand(            2, integer.last) <>        1 or
+        10 rem rand(integer.first,          -11) >        10 or
+        10 rem rand(integer.first,           -1) not in {  0,  1,  2,  3,  4, 10} or
+        10 rem rand(            1, integer.last) not in {  0,  1,  2,  3,  4, 10} or
+        10 rem rand(           11, integer.last) <>       10 then
+      writeln(" ***** Optimized division with the rem operator does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if intExpr(-10) rem rand(integer.first,          -11) <>      -10 or
+       intExpr(-10) rem rand(integer.first,           -1) not in {-10, -4, -3, -2, -1,  0} or
+       intExpr(-10) rem rand(            1, integer.last) not in {-10, -4, -3, -2, -1,  0} or
+       intExpr(-10) rem rand(           11, integer.last) <>      -10 or
+       intExpr( -1) rem rand(integer.first,           -2) <>       -1 or
+       intExpr( -1) rem rand(integer.first,           -1) not in { -1,  0} or
+       intExpr( -1) rem rand(            1, integer.last) not in { -1,  0} or
+       intExpr( -1) rem rand(            2, integer.last) <        -1 or
+       intExpr(  0) rem rand(integer.first,           -1) <>        0 or
+       intExpr(  0) rem rand(            1, integer.last) <>        0 or
+       intExpr(  1) rem rand(integer.first,           -2) >         1 or
+       intExpr(  1) rem rand(integer.first,           -1) not in {  0,  1} or
+       intExpr(  1) rem rand(            1, integer.last) not in {  0,  1} or
+       intExpr(  1) rem rand(            2, integer.last) <>        1 or
+       intExpr( 10) rem rand(integer.first,          -11) >        10 or
+       intExpr( 10) rem rand(integer.first,           -1) not in {  0,  1,  2,  3,  4, 10} or
+       intExpr( 10) rem rand(            1, integer.last) not in {  0,  1,  2,  3,  4, 10} or
+       intExpr( 10) rem rand(           11, integer.last) <>       10 then
+      writeln(" ***** Optimized division with the rem operator does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  -10 rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) <                  -10 or
+        -10 rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) >  9223372036854775797 or
+         -1 rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) <                   -1 or
+         -1 rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) >  9223372036854775806 or
+          0 rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) <>                   0 or
+          1 rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) < -9223372036854775807 or
+          1 rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) >                    1 or
+         10 rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) < -9223372036854775798 or
+         10 rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) >                   10 then
+      writeln(" ***** Optimized division with the rem operator does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(-10) rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) <                  -10 or
+        intExpr(-10) rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) >  9223372036854775797 or
+        intExpr( -1) rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) <                   -1 or
+        intExpr( -1) rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) >  9223372036854775806 or
+        intExpr(  0) rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) <>                   0 or
+        intExpr(  1) rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) < -9223372036854775807 or
+        intExpr(  1) rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) >                    1 or
+        intExpr( 10) rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) < -9223372036854775798 or
+        intExpr( 10) rem (pred(2 * rand(0, 1)) * rand(1, integer.last)) >                   10 then
+      writeln(" ***** Optimized division with the rem operator does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range -1 to -1 do
+      if number rem number <> 0 then
+        ok := FALSE;
+      end if;
+    end for;
+    for number range 1 to 1 do
+      if number rem number <> 0 then
+        ok := FALSE;
+      end if;
+    end for;
+    if not ok then
+      writeln(" ***** Optimized division with the rem operator does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    number := integer.first; ok := ok and number rem number = 0;
+    number :=            -1; ok := ok and number rem number = 0;
+    number :=             1; ok := ok and number rem number = 0;
+    number :=  integer.last; ok := ok and number rem number = 0;
+    if not ok then
+      writeln(" ***** Optimized division with the rem operator does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(integer.first rem rand(0, 0)) or
+        not raisesNumericError(          -10 rem rand(0, 0)) or
+        not raisesNumericError(           -1 rem rand(0, 0)) or
+        not raisesNumericError(            0 rem rand(0, 0)) or
+        not raisesNumericError(            1 rem rand(0, 0)) or
+        not raisesNumericError(           10 rem rand(0, 0)) or
+        not raisesNumericError(          -10 rem rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(           -1 rem rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(            0 rem rand(0, 0) <>        0) or
+        not raisesNumericError(            1 rem rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(           10 rem rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(integer.first rem intExpr(0)) or
+        not raisesNumericError(          -10 rem intExpr(0)) or
+        not raisesNumericError(           -1 rem intExpr(0)) or
+        not raisesNumericError(            0 rem intExpr(0)) or
+        not raisesNumericError(            1 rem intExpr(0)) or
+        not raisesNumericError(           10 rem intExpr(0)) or
+        not raisesNumericError(          -10 rem intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(           -1 rem intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(            0 rem intExpr(0) <>        0) or
+        not raisesNumericError(            1 rem intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(           10 rem intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) then
+      writeln(" ***** Optimized division by zero with the rem operator does not raise NUMERIC_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(intExpr(integer.first) rem rand(0, 0)) or
+        not raisesNumericError(intExpr(          -10) rem rand(0, 0)) or
+        not raisesNumericError(intExpr(           -1) rem rand(0, 0)) or
+        not raisesNumericError(intExpr(            0) rem rand(0, 0)) or
+        not raisesNumericError(intExpr(            1) rem rand(0, 0)) or
+        not raisesNumericError(intExpr(           10) rem rand(0, 0)) or
+        not raisesNumericError(intExpr(          -10) rem rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(           -1) rem rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(            0) rem rand(0, 0) <>        0) or
+        not raisesNumericError(intExpr(            1) rem rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(           10) rem rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(integer.first) rem intExpr(0)) or
+        not raisesNumericError(intExpr(          -10) rem intExpr(0)) or
+        not raisesNumericError(intExpr(           -1) rem intExpr(0)) or
+        not raisesNumericError(intExpr(            0) rem intExpr(0)) or
+        not raisesNumericError(intExpr(            1) rem intExpr(0)) or
+        not raisesNumericError(intExpr(           10) rem intExpr(0)) or
+        not raisesNumericError(intExpr(          -10) rem intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(           -1) rem intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(            0) rem intExpr(0) <>        0) or
+        not raisesNumericError(intExpr(            1) rem intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(           10) rem intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) then
+      writeln(" ***** Optimized division by zero with the rem operator does not raise NUMERIC_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    number := 0;
+    if  not raisesNumericError(number rem number) then
+      writeln(" ***** Optimized division by zero with the rem operator does not raise NUMERIC_ERROR. (2)");
+      okay := FALSE;
     end if;
   end func;
 
@@ -11835,6 +12170,10 @@ const proc: check_rem is func
       okay := FALSE;
     end if;
 
+    if not check_rem_division_check_optimization then
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Rem works correct for selected values.");
     else
@@ -12311,6 +12650,160 @@ const func boolean: check_mdiv_by_zero is func
         not raisesNumericError(intExpr( 2147483647) mdiv intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MAX) mdiv intExpr(0)) then
       writeln(" ***** Division by zero with the mdiv operator does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_mdiv_division_check_optimization is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var integer: number is 0;
+    var boolean: ok is TRUE;
+  begin
+    if integer.first mdiv rand(integer.first,           -2) <=        0 or
+                 -10 mdiv rand(integer.first,          -11) <>        0 or
+                 -10 mdiv rand(integer.first,           -1) not in {  0,  1,  2,  3,  5, 10} or
+                 -10 mdiv rand(            1, integer.last) not in {-10, -5, -4, -3, -2, -1} or
+                 -10 mdiv rand(           10, integer.last) <>       -1 or
+                  -1 mdiv rand(integer.first,           -2) <>        0 or
+                  -1 mdiv rand(integer.first,           -1) not in {  0, 1} or
+                  -1 mdiv rand(            1, integer.last) <>       -1 or
+                   0 mdiv rand(integer.first,           -1) <>        0 or
+                   0 mdiv rand(            1, integer.last) <>        0 or
+                   1 mdiv rand(integer.first,           -1) <>       -1 or
+                   1 mdiv rand(            1, integer.last) not in {  0, 1} or
+                   1 mdiv rand(            2, integer.last) <>        0 or
+                  10 mdiv rand(integer.first,          -10) <>       -1 or
+                  10 mdiv rand(integer.first,           -1) not in {-10, -5, -4, -3, -2, -1} or
+                  10 mdiv rand(            1, integer.last) not in {  0,  1,  2,  3,  5, 10} or
+                  10 mdiv rand(           11, integer.last) <>        0 then
+      writeln(" ***** Optimized division with the mdiv operator does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(integer.first) mdiv rand(integer.first,           -2) <=        0 or
+        intExpr(          -10) mdiv rand(integer.first,          -11) <>        0 or
+        intExpr(          -10) mdiv rand(integer.first,           -1) not in {  0,  1,  2,  3,  5, 10} or
+        intExpr(          -10) mdiv rand(            1, integer.last) not in {-10, -5, -4, -3, -2, -1} or
+        intExpr(          -10) mdiv rand(           10, integer.last) <>       -1 or
+        intExpr(           -1) mdiv rand(integer.first,           -2) <>        0 or
+        intExpr(           -1) mdiv rand(integer.first,           -1) not in {  0, 1} or
+        intExpr(           -1) mdiv rand(            1, integer.last) <>       -1 or
+        intExpr(            0) mdiv rand(integer.first,           -1) <>        0 or
+        intExpr(            0) mdiv rand(            1, integer.last) <>        0 or
+        intExpr(            1) mdiv rand(integer.first,           -1) <>       -1 or
+        intExpr(            1) mdiv rand(            1, integer.last) not in {  0, 1} or
+        intExpr(            1) mdiv rand(            2, integer.last) <>        0 or
+        intExpr(           10) mdiv rand(integer.first,          -10) <>       -1 or
+        intExpr(           10) mdiv rand(integer.first,           -1) not in {-10, -5, -4, -3, -2, -1} or
+        intExpr(           10) mdiv rand(            1, integer.last) not in {  0,  1,  2,  3,  5, 10} or
+        intExpr(           10) mdiv rand(           11, integer.last) <>        0 then
+      writeln(" ***** Optimized division with the mdiv operator does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  integer.first mdiv (pred(2 * rand(0, 1)) * rand(2, integer.last)) =         0 or
+                  -10 mdiv (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10} or
+                   -1 mdiv (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in { -1,  0,  1} or
+                    0 mdiv (pred(2 * rand(0, 1)) * rand(1, integer.last)) <>        0 or
+                    1 mdiv (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in { -1,  0,  1} or
+                   10 mdiv (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10} then
+      writeln(" ***** Optimized division with the mdiv operator does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(integer.first) mdiv (pred(2 * rand(0, 1)) * rand(2, integer.last)) =         0 or
+        intExpr(          -10) mdiv (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10} or
+        intExpr(           -1) mdiv (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in { -1,  0,  1} or
+        intExpr(            0) mdiv (pred(2 * rand(0, 1)) * rand(1, integer.last)) <>        0 or
+        intExpr(            1) mdiv (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in { -1,  0,  1} or
+        intExpr(           10) mdiv (pred(2 * rand(0, 1)) * rand(1, integer.last)) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10} then
+      writeln(" ***** Optimized division with the mdiv operator does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range -1 to -1 do
+      if number mdiv number <> 1 then
+        ok := FALSE;
+      end if;
+    end for;
+    for number range 1 to 1 do
+      if number mdiv number <> 1 then
+        ok := FALSE;
+      end if;
+    end for;
+    if not ok then
+      writeln(" ***** Optimized division with the mdiv operator does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    number := integer.first; ok := ok and number mdiv number = 1;
+    number :=            -1; ok := ok and number mdiv number = 1;
+    number :=             1; ok := ok and number mdiv number = 1;
+    number :=  integer.last; ok := ok and number mdiv number = 1;
+    if not ok then
+      writeln(" ***** Optimized division with the mdiv operator does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(integer.first mdiv rand(0, 0)) or
+        not raisesNumericError(          -10 mdiv rand(0, 0)) or
+        not raisesNumericError(           -1 mdiv rand(0, 0)) or
+        not raisesNumericError(            0 mdiv rand(0, 0)) or
+        not raisesNumericError(            1 mdiv rand(0, 0)) or
+        not raisesNumericError(           10 mdiv rand(0, 0)) or
+        not raisesNumericError(          -10 mdiv rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(           -1 mdiv rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(            0 mdiv rand(0, 0) <>        0) or
+        not raisesNumericError(            1 mdiv rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(           10 mdiv rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(integer.first mdiv intExpr(0)) or
+        not raisesNumericError(          -10 mdiv intExpr(0)) or
+        not raisesNumericError(           -1 mdiv intExpr(0)) or
+        not raisesNumericError(            0 mdiv intExpr(0)) or
+        not raisesNumericError(            1 mdiv intExpr(0)) or
+        not raisesNumericError(           10 mdiv intExpr(0)) or
+        not raisesNumericError(          -10 mdiv intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(           -1 mdiv intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(            0 mdiv intExpr(0) <>        0) or
+        not raisesNumericError(            1 mdiv intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(           10 mdiv intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) then
+      writeln(" ***** Optimized division by zero with the mdiv operator does not raise NUMERIC_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(intExpr(integer.first) mdiv rand(0, 0)) or
+        not raisesNumericError(intExpr(          -10) mdiv rand(0, 0)) or
+        not raisesNumericError(intExpr(           -1) mdiv rand(0, 0)) or
+        not raisesNumericError(intExpr(            0) mdiv rand(0, 0)) or
+        not raisesNumericError(intExpr(            1) mdiv rand(0, 0)) or
+        not raisesNumericError(intExpr(           10) mdiv rand(0, 0)) or
+        not raisesNumericError(intExpr(          -10) mdiv rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(           -1) mdiv rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(            0) mdiv rand(0, 0) <>        0) or
+        not raisesNumericError(intExpr(            1) mdiv rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(           10) mdiv rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(integer.first) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(          -10) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(           -1) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(            0) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(            1) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(           10) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(          -10) mdiv intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(           -1) mdiv intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(            0) mdiv intExpr(0) <>        0) or
+        not raisesNumericError(intExpr(            1) mdiv intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(           10) mdiv intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) then
+      writeln(" ***** Optimized division by zero with the mdiv operator does not raise NUMERIC_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    number := 0;
+    if  not raisesNumericError(number mdiv number) then
+      writeln(" ***** Optimized division by zero with the mdiv operator does not raise NUMERIC_ERROR. (2)");
       okay := FALSE;
     end if;
   end func;
@@ -13181,6 +13674,10 @@ const proc: check_mdiv is func
     end if;
 
     if not check_mdiv_by_zero then
+      okay := FALSE;
+    end if;
+
+    if not check_mdiv_division_check_optimization then
       okay := FALSE;
     end if;
 
@@ -14447,6 +14944,160 @@ const func boolean: check_mod_by_zero is func
   end func;
 
 
+const func boolean: check_mod_division_check_optimization is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var integer: number is 0;
+    var boolean: ok is TRUE;
+  begin
+    if -10 mod rand(integer.first,          -11) <>      -10 or
+       -10 mod rand(integer.first,           -1) not in {-10, -4, -3, -2, -1,  0} or
+       -10 mod rand(            1, integer.last) <         0 or
+        -1 mod rand(integer.first,           -2) <>       -1 or
+        -1 mod rand(integer.first,           -1) not in { -1,  0} or
+        -1 mod rand(            1, integer.last) <         0 or
+         0 mod rand(integer.first,           -1) <>        0 or
+         0 mod rand(            1, integer.last) <>        0 or
+         1 mod rand(integer.first,           -2) >        -1 or
+         1 mod rand(            1, integer.last) not in {  0,  1} or
+         1 mod rand(            2, integer.last) <>        1 or
+        10 mod rand(integer.first,          -11) >        -1 or
+        10 mod rand(            1, integer.last) not in {  0,  1,  2,  3,  4, 10} or
+        10 mod rand(           11, integer.last) <>       10 then
+      writeln(" ***** Optimized division with the mod operator does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if intExpr(-10) mod rand(integer.first,          -11) <>      -10 or
+       intExpr(-10) mod rand(integer.first,           -1) not in {-10, -4, -3, -2, -1,  0} or
+       intExpr(-10) mod rand(            1, integer.last) <         0 or
+       intExpr( -1) mod rand(integer.first,           -2) <>       -1 or
+       intExpr( -1) mod rand(integer.first,           -1) not in { -1,  0} or
+       intExpr( -1) mod rand(            1, integer.last) <         0 or
+       intExpr(  0) mod rand(integer.first,           -1) <>        0 or
+       intExpr(  0) mod rand(            1, integer.last) <>        0 or
+       intExpr(  1) mod rand(integer.first,           -2) >        -1 or
+       intExpr(  1) mod rand(            1, integer.last) not in {  0,  1} or
+       intExpr(  1) mod rand(            2, integer.last) <>        1 or
+       intExpr( 10) mod rand(integer.first,          -11) >        -1 or
+       intExpr( 10) mod rand(            1, integer.last) not in {  0,  1,  2,  3,  4, 10} or
+       intExpr( 10) mod rand(           11, integer.last) <>       10 then
+      writeln(" ***** Optimized division with the mod operator does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  -10 mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) <                  -10 or
+        -10 mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) >  9223372036854775797 or
+         -1 mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) <                   -1 or
+         -1 mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) >  9223372036854775806 or
+          0 mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) <>                   0 or
+          1 mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) < -9223372036854775807 or
+          1 mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) >                    1 or
+         10 mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) < -9223372036854775798 or
+         10 mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) >                   10 then
+      writeln(" ***** Optimized division with the mod operator does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(-10) mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) <                  -10 or
+        intExpr(-10) mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) >  9223372036854775797 or
+        intExpr( -1) mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) <                   -1 or
+        intExpr( -1) mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) >  9223372036854775806 or
+        intExpr(  0) mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) <>                   0 or
+        intExpr(  1) mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) < -9223372036854775807 or
+        intExpr(  1) mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) >                    1 or
+        intExpr( 10) mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) < -9223372036854775798 or
+        intExpr( 10) mod (pred(2 * rand(0, 1)) * rand(1, integer.last)) >                   10 then
+      writeln(" ***** Optimized division with the mod operator does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    for number range -1 to -1 do
+      if number mod number <> 0 then
+        ok := FALSE;
+      end if;
+    end for;
+    for number range 1 to 1 do
+      if number mod number <> 0 then
+        ok := FALSE;
+      end if;
+    end for;
+    if not ok then
+      writeln(" ***** Optimized division with the mod operator does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    number := integer.first; ok := ok and number mod number = 0;
+    number :=            -1; ok := ok and number mod number = 0;
+    number :=             1; ok := ok and number mod number = 0;
+    number :=  integer.last; ok := ok and number mod number = 0;
+    if not ok then
+      writeln(" ***** Optimized division with the mod operator does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(integer.first mod rand(0, 0)) or
+        not raisesNumericError(          -10 mod rand(0, 0)) or
+        not raisesNumericError(           -1 mod rand(0, 0)) or
+        not raisesNumericError(            0 mod rand(0, 0)) or
+        not raisesNumericError(            1 mod rand(0, 0)) or
+        not raisesNumericError(           10 mod rand(0, 0)) or
+        not raisesNumericError(          -10 mod rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(           -1 mod rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(            0 mod rand(0, 0) <>        0) or
+        not raisesNumericError(            1 mod rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(           10 mod rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(integer.first mod intExpr(0)) or
+        not raisesNumericError(          -10 mod intExpr(0)) or
+        not raisesNumericError(           -1 mod intExpr(0)) or
+        not raisesNumericError(            0 mod intExpr(0)) or
+        not raisesNumericError(            1 mod intExpr(0)) or
+        not raisesNumericError(           10 mod intExpr(0)) or
+        not raisesNumericError(          -10 mod intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(           -1 mod intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(            0 mod intExpr(0) <>        0) or
+        not raisesNumericError(            1 mod intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(           10 mod intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) then
+      writeln(" ***** Optimized division by zero with the mod operator does not raise NUMERIC_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(intExpr(integer.first) mod rand(0, 0)) or
+        not raisesNumericError(intExpr(          -10) mod rand(0, 0)) or
+        not raisesNumericError(intExpr(           -1) mod rand(0, 0)) or
+        not raisesNumericError(intExpr(            0) mod rand(0, 0)) or
+        not raisesNumericError(intExpr(            1) mod rand(0, 0)) or
+        not raisesNumericError(intExpr(           10) mod rand(0, 0)) or
+        not raisesNumericError(intExpr(          -10) mod rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(           -1) mod rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(            0) mod rand(0, 0) <>        0) or
+        not raisesNumericError(intExpr(            1) mod rand(0, 0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(           10) mod rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(integer.first) mod intExpr(0)) or
+        not raisesNumericError(intExpr(          -10) mod intExpr(0)) or
+        not raisesNumericError(intExpr(           -1) mod intExpr(0)) or
+        not raisesNumericError(intExpr(            0) mod intExpr(0)) or
+        not raisesNumericError(intExpr(            1) mod intExpr(0)) or
+        not raisesNumericError(intExpr(           10) mod intExpr(0)) or
+        not raisesNumericError(intExpr(          -10) mod intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
+        not raisesNumericError(intExpr(           -1) mod intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(            0) mod intExpr(0) <>        0) or
+        not raisesNumericError(intExpr(            1) mod intExpr(0) not in { -1,  0,  1}) or
+        not raisesNumericError(intExpr(           10) mod intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) then
+      writeln(" ***** Optimized division by zero with the mod operator does not raise NUMERIC_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    number := 0;
+    if  not raisesNumericError(number mod number) then
+      writeln(" ***** Optimized division by zero with the mod operator does not raise NUMERIC_ERROR. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_mod is func
   local
     var boolean: okay is TRUE;
@@ -15320,6 +15971,10 @@ const proc: check_mod is func
     end if;
 
     if not check_mod_by_zero then
+      okay := FALSE;
+    end if;
+
+    if not check_mod_division_check_optimization then
       okay := FALSE;
     end if;
 
