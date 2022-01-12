@@ -114,99 +114,111 @@ const proc: readHead (inout file: inFile, inout cpioHeader: header) is func
     if header.magic = CPIO_BINARY_MAGIC then
       # writeln("CPIO_BINARY_MAGIC");
       headerStri := gets(inFile, 24);
-      header.devmajor   := bytes2Int(headerStri[ 1 len 1], UNSIGNED, BE);
-      header.devminor   := bytes2Int(headerStri[ 2 len 1], UNSIGNED, BE);
-      header.ino        := bytes2Int(headerStri[ 3 len 2], UNSIGNED, BE);
-      header.mode       := bytes2Int(headerStri[ 5 len 2], UNSIGNED, BE);
-      header.uid        := bytes2Int(headerStri[ 7 len 2], UNSIGNED, BE);
-      header.gid        := bytes2Int(headerStri[ 9 len 2], UNSIGNED, BE);
-      header.nlink      := bytes2Int(headerStri[11 len 2], UNSIGNED, BE);
-      header.rdevmajor  := bytes2Int(headerStri[13 len 1], UNSIGNED, BE);
-      header.rdevminor  := bytes2Int(headerStri[14 len 1], UNSIGNED, BE);
-      header.mtime      := bytes2Int(headerStri[15 len 4], UNSIGNED, BE);
-      header.nameSize   := bytes2Int(headerStri[19 len 2], UNSIGNED, BE);
-      header.fileSize   := bytes2Int(headerStri[21 len 4], UNSIGNED, BE);
-      header.headerSize := 26;
-      filePath8         := gets(inFile, pred(header.nameSize));
-      header.padding    := 2;
+      if length(headerStri) = 24 then
+        header.devmajor   := bytes2Int(headerStri[ 1 len 1], UNSIGNED, BE);
+        header.devminor   := bytes2Int(headerStri[ 2 len 1], UNSIGNED, BE);
+        header.ino        := bytes2Int(headerStri[ 3 len 2], UNSIGNED, BE);
+        header.mode       := bytes2Int(headerStri[ 5 len 2], UNSIGNED, BE);
+        header.uid        := bytes2Int(headerStri[ 7 len 2], UNSIGNED, BE);
+        header.gid        := bytes2Int(headerStri[ 9 len 2], UNSIGNED, BE);
+        header.nlink      := bytes2Int(headerStri[11 len 2], UNSIGNED, BE);
+        header.rdevmajor  := bytes2Int(headerStri[13 len 1], UNSIGNED, BE);
+        header.rdevminor  := bytes2Int(headerStri[14 len 1], UNSIGNED, BE);
+        header.mtime      := bytes2Int(headerStri[15 len 4], UNSIGNED, BE);
+        header.nameSize   := bytes2Int(headerStri[19 len 2], UNSIGNED, BE);
+        header.fileSize   := bytes2Int(headerStri[21 len 4], UNSIGNED, BE);
+        header.headerSize := 26;
+        filePath8         := gets(inFile, pred(header.nameSize));
+        header.padding    := 2;
+      end if;
     elsif header.magic = CPIO_SWAPPED_BINARY_MAGIC then
       # writeln("CPIO_SWAPPED_BINARY_MAGIC");
       headerStri := gets(inFile, 24);
-      header.devminor   := bytes2Int(headerStri[ 1 len 1], UNSIGNED, LE);
-      header.devmajor   := bytes2Int(headerStri[ 2 len 1], UNSIGNED, LE);
-      header.ino        := bytes2Int(headerStri[ 3 len 2], UNSIGNED, LE);
-      header.mode       := bytes2Int(headerStri[ 5 len 2], UNSIGNED, LE);
-      header.uid        := bytes2Int(headerStri[ 7 len 2], UNSIGNED, LE);
-      header.gid        := bytes2Int(headerStri[ 9 len 2], UNSIGNED, LE);
-      header.nlink      := bytes2Int(headerStri[11 len 2], UNSIGNED, LE);
-      header.rdevminor  := bytes2Int(headerStri[13 len 1], UNSIGNED, LE);
-      header.rdevmajor  := bytes2Int(headerStri[14 len 1], UNSIGNED, LE);
-      header.mtime      := bytes2Int(headerStri[15 len 2], UNSIGNED, LE) * 65536 +
-                           bytes2Int(headerStri[17 len 2], UNSIGNED, LE);
-      header.nameSize   := bytes2Int(headerStri[19 len 2], UNSIGNED, LE);
-      header.fileSize   := bytes2Int(headerStri[21 len 2], UNSIGNED, LE) * 65536 +
-                           bytes2Int(headerStri[23 len 2], UNSIGNED, LE);
-      header.headerSize := 26;
-      filePath8         := gets(inFile, pred(header.nameSize));
-      header.padding    := 2;
+      if length(headerStri) = 24 then
+        header.devminor   := bytes2Int(headerStri[ 1 len 1], UNSIGNED, LE);
+        header.devmajor   := bytes2Int(headerStri[ 2 len 1], UNSIGNED, LE);
+        header.ino        := bytes2Int(headerStri[ 3 len 2], UNSIGNED, LE);
+        header.mode       := bytes2Int(headerStri[ 5 len 2], UNSIGNED, LE);
+        header.uid        := bytes2Int(headerStri[ 7 len 2], UNSIGNED, LE);
+        header.gid        := bytes2Int(headerStri[ 9 len 2], UNSIGNED, LE);
+        header.nlink      := bytes2Int(headerStri[11 len 2], UNSIGNED, LE);
+        header.rdevminor  := bytes2Int(headerStri[13 len 1], UNSIGNED, LE);
+        header.rdevmajor  := bytes2Int(headerStri[14 len 1], UNSIGNED, LE);
+        header.mtime      := bytes2Int(headerStri[15 len 2], UNSIGNED, LE) * 65536 +
+                             bytes2Int(headerStri[17 len 2], UNSIGNED, LE);
+        header.nameSize   := bytes2Int(headerStri[19 len 2], UNSIGNED, LE);
+        header.fileSize   := bytes2Int(headerStri[21 len 2], UNSIGNED, LE) * 65536 +
+                             bytes2Int(headerStri[23 len 2], UNSIGNED, LE);
+        header.headerSize := 26;
+        filePath8         := gets(inFile, pred(header.nameSize));
+        header.padding    := 2;
+      end if;
     else
       header.magic &:= gets(inFile, 4);
       if header.magic = CPIO_OLD_ASCII_MAGIC then
         # writeln("CPIO_OLD_ASCII_MAGIC");
         headerStri := gets(inFile, 70);
-        device            := integer(headerStri[ 1 len  6], 8);
-        header.devmajor   := device >> 8;
-        header.devminor   := device mod 256;
-        header.ino        := integer(headerStri[ 7 len  6], 8);
-        header.mode       := integer(headerStri[13 len  6], 8);
-        header.uid        := integer(headerStri[19 len  6], 8);
-        header.gid        := integer(headerStri[25 len  6], 8);
-        header.nlink      := integer(headerStri[31 len  6], 8);
-        device            := integer(headerStri[37 len  6], 8);
-        header.rdevmajor  := device >> 8;
-        header.rdevminor  := device mod 256;
-        header.mtime      := integer(headerStri[43 len 11], 8);
-        header.nameSize   := integer(headerStri[54 len  6], 8);
-        header.fileSize   := integer(headerStri[60 len 11], 8);
-        header.headerSize := 76;
-        filePath8         := gets(inFile, pred(header.nameSize));
-        header.padding    := 1;
+        if length(headerStri) = 70 then
+          device            := integer(headerStri[ 1 len  6], 8);
+          header.devmajor   := device >> 8;
+          header.devminor   := device mod 256;
+          header.ino        := integer(headerStri[ 7 len  6], 8);
+          header.mode       := integer(headerStri[13 len  6], 8);
+          header.uid        := integer(headerStri[19 len  6], 8);
+          header.gid        := integer(headerStri[25 len  6], 8);
+          header.nlink      := integer(headerStri[31 len  6], 8);
+          device            := integer(headerStri[37 len  6], 8);
+          header.rdevmajor  := device >> 8;
+          header.rdevminor  := device mod 256;
+          header.mtime      := integer(headerStri[43 len 11], 8);
+          header.nameSize   := integer(headerStri[54 len  6], 8);
+          header.fileSize   := integer(headerStri[60 len 11], 8);
+          header.headerSize := 76;
+          filePath8         := gets(inFile, pred(header.nameSize));
+          header.padding    := 1;
+	end if;
       elsif header.magic = CPIO_NEW_ASCII_MAGIC or
             header.magic = CPIO_NEW_ASCII_CRC_MAGIC then
         # writeln("CPIO_NEW_ASCII_MAGIC");
         headerStri := gets(inFile, 104);
-        header.ino        := integer(headerStri[ 1 len  8], 16);
-        header.mode       := integer(headerStri[ 9 len  8], 16);
-        header.uid        := integer(headerStri[17 len  8], 16);
-        header.gid        := integer(headerStri[25 len  8], 16);
-        header.nlink      := integer(headerStri[33 len  8], 16);
-        header.mtime      := integer(headerStri[41 len  8], 16);
-        header.fileSize   := integer(headerStri[49 len  8], 16);
-        header.devmajor   := integer(headerStri[57 len  8], 16);
-        header.devminor   := integer(headerStri[65 len  8], 16);
-        header.rdevmajor  := integer(headerStri[73 len  8], 16);
-        header.rdevminor  := integer(headerStri[81 len  8], 16);
-        header.nameSize   := integer(headerStri[89 len  8], 16);
-        header.check      := integer(headerStri[97 len  8], 16);
-        header.headerSize := 110;
-        filePath8         := gets(inFile, pred(header.nameSize));
-        header.padding    := 4;
+        if length(headerStri) = 104 then
+          header.ino        := integer(headerStri[ 1 len  8], 16);
+          header.mode       := integer(headerStri[ 9 len  8], 16);
+          header.uid        := integer(headerStri[17 len  8], 16);
+          header.gid        := integer(headerStri[25 len  8], 16);
+          header.nlink      := integer(headerStri[33 len  8], 16);
+          header.mtime      := integer(headerStri[41 len  8], 16);
+          header.fileSize   := integer(headerStri[49 len  8], 16);
+          header.devmajor   := integer(headerStri[57 len  8], 16);
+          header.devminor   := integer(headerStri[65 len  8], 16);
+          header.rdevmajor  := integer(headerStri[73 len  8], 16);
+          header.rdevminor  := integer(headerStri[81 len  8], 16);
+          header.nameSize   := integer(headerStri[89 len  8], 16);
+          header.check      := integer(headerStri[97 len  8], 16);
+          header.headerSize := 110;
+          filePath8         := gets(inFile, pred(header.nameSize));
+          header.padding    := 4;
+        end if;
       else
         header.magic := "";
       end if;
     end if;
     if header.magic <> "" then
-      block
-        header.filePath := utf8ToStri(filePath8);
-      exception
-        catch RANGE_ERROR:
-          header.filePath := filePath8;
-      end block;
-      remPadding := (header.headerSize + header.nameSize) rem header.padding;
-      if remPadding <> 0 then
-        ignore(gets(inFile, 1 + header.padding - remPadding));
+      if header.headerSize = 0 then
+        header.magic := "";
       else
-        ignore(getc(inFile));
+        block
+          header.filePath := utf8ToStri(filePath8);
+        exception
+          catch RANGE_ERROR:
+            header.filePath := filePath8;
+        end block;
+        remPadding := (header.headerSize + header.nameSize) rem header.padding;
+        if remPadding <> 0 then
+          ignore(gets(inFile, 1 + header.padding - remPadding));
+        else
+          ignore(getc(inFile));
+        end if;
       end if;
     end if;
     if endsWith(header.filePath, "/") and header.filePath <> "/" then
@@ -227,55 +239,67 @@ const proc: readMinimumOfHead (inout file: inFile, inout cpioHeader: header) is 
     if header.magic = CPIO_BINARY_MAGIC then
       # writeln("CPIO_BINARY_MAGIC");
       headerStri := gets(inFile, 24);
-      header.nameSize   := bytes2Int(headerStri[19 len 2], UNSIGNED, BE);
-      header.fileSize   := bytes2Int(headerStri[21 len 4], UNSIGNED, BE);
-      header.headerSize := 26;
-      filePath8         := gets(inFile, pred(header.nameSize));
-      header.padding    := 2;
+      if length(headerStri) = 24 then
+        header.nameSize   := bytes2Int(headerStri[19 len 2], UNSIGNED, BE);
+        header.fileSize   := bytes2Int(headerStri[21 len 4], UNSIGNED, BE);
+        header.headerSize := 26;
+        filePath8         := gets(inFile, pred(header.nameSize));
+        header.padding    := 2;
+      end if;
     elsif header.magic = CPIO_SWAPPED_BINARY_MAGIC then
       # writeln("CPIO_SWAPPED_BINARY_MAGIC");
       headerStri := gets(inFile, 24);
-      header.nameSize   := bytes2Int(headerStri[19 len 2], UNSIGNED, LE);
-      header.fileSize   := bytes2Int(headerStri[21 len 2], UNSIGNED, LE) * 65536 +
-                           bytes2Int(headerStri[23 len 2], UNSIGNED, LE);
-      header.headerSize := 26;
-      filePath8         := gets(inFile, pred(header.nameSize));
-      header.padding    := 2;
+      if length(headerStri) = 24 then
+        header.nameSize   := bytes2Int(headerStri[19 len 2], UNSIGNED, LE);
+        header.fileSize   := bytes2Int(headerStri[21 len 2], UNSIGNED, LE) * 65536 +
+                             bytes2Int(headerStri[23 len 2], UNSIGNED, LE);
+        header.headerSize := 26;
+        filePath8         := gets(inFile, pred(header.nameSize));
+        header.padding    := 2;
+      end if;
     else
       header.magic &:= gets(inFile, 4);
       if header.magic = CPIO_OLD_ASCII_MAGIC then
         # writeln("CPIO_OLD_ASCII_MAGIC");
         headerStri := gets(inFile, 70);
-        header.nameSize   := integer(headerStri[54 len  6], 8);
-        header.fileSize   := integer(headerStri[60 len 11], 8);
-        header.headerSize := 76;
-        filePath8         := gets(inFile, pred(header.nameSize));
-        header.padding    := 1;
+        if length(headerStri) = 70 then
+          header.nameSize   := integer(headerStri[54 len  6], 8);
+          header.fileSize   := integer(headerStri[60 len 11], 8);
+          header.headerSize := 76;
+          filePath8         := gets(inFile, pred(header.nameSize));
+          header.padding    := 1;
+        end if;
       elsif header.magic = CPIO_NEW_ASCII_MAGIC or
             header.magic = CPIO_NEW_ASCII_CRC_MAGIC then
         # writeln("CPIO_NEW_ASCII_MAGIC");
         headerStri := gets(inFile, 104);
-        header.fileSize   := integer(headerStri[49 len  8], 16);
-        header.nameSize   := integer(headerStri[89 len  8], 16);
-        header.headerSize := 110;
-        filePath8         := gets(inFile, pred(header.nameSize));
-        header.padding    := 4;
+        if length(headerStri) = 104 then
+          header.fileSize   := integer(headerStri[49 len  8], 16);
+          header.nameSize   := integer(headerStri[89 len  8], 16);
+          header.headerSize := 110;
+          filePath8         := gets(inFile, pred(header.nameSize));
+          header.padding    := 4;
+        end if;
       else
         header.magic := "";
       end if;
     end if;
     if header.magic <> "" then
-      block
-        header.filePath := utf8ToStri(filePath8);
-      exception
-        catch RANGE_ERROR:
-          header.filePath := filePath8;
-      end block;
-      remPadding := (header.headerSize + header.nameSize) rem header.padding;
-      if remPadding <> 0 then
-        ignore(gets(inFile, 1 + header.padding - remPadding));
+      if header.headerSize = 0 then
+        header.magic := "";
       else
-        ignore(getc(inFile));
+        block
+          header.filePath := utf8ToStri(filePath8);
+        exception
+          catch RANGE_ERROR:
+            header.filePath := filePath8;
+        end block;
+        remPadding := (header.headerSize + header.nameSize) rem header.padding;
+        if remPadding <> 0 then
+          ignore(gets(inFile, 1 + header.padding - remPadding));
+        else
+          ignore(getc(inFile));
+        end if;
       end if;
     end if;
     if endsWith(header.filePath, "/") and header.filePath <> "/" then
@@ -488,7 +512,11 @@ const func cpioHeader: addToCatalog (inout cpioArchive: cpio, in string: filePat
   begin
     seek(cpio.cpioFile, cpio.register[filePath]);
     readHead(cpio.cpioFile, header);
-    cpio.catalog @:= [filePath] header;
+    if header.magic <> "" then
+      cpio.catalog @:= [filePath] header;
+    else
+      raise RANGE_ERROR;
+    end if;
   end func;
 
 
