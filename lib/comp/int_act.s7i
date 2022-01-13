@@ -1743,7 +1743,8 @@ const proc: optimize_int_bytes_2_uint_length_0 (in reference: start,
     else
       incr(countSuppressedIndexChecks);
     end if;
-    c_expr.expr &:= "0";
+    warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+    c_expr.expr &:= intRaiseError("RANGE_ERROR");
   end func;
 
 
@@ -1803,7 +1804,9 @@ const proc: optimize_int_bytes_2_uint_length_1 (in reference: stri,
       c_expr.expr &:= start_name;
       c_expr.expr &:= ">";
       c_expr.expr &:= stri_size;
-      c_expr.expr &:= " ? 0 : ";
+      c_expr.expr &:= " ? ";
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
+      c_expr.expr &:= " : ";
       if function_range_check then
         c_expr.expr &:= "(rngChk(";
         c_expr.expr &:= stri_name;

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2019, 2021, 2022  Thomas Mertes            */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -234,7 +234,8 @@ objectType int_bit_length (listType arguments)
  *  @return an integer created from 'byteStri'. The result is negative
  *          if the most significant byte (the first byte) of byteStri/arg_1
  *          has an ordinal > BYTE_MAX (=127).
- *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
  *             if the result value cannot be represented with an integer.
  */
 objectType int_bytes_be_2_int (listType arguments)
@@ -253,7 +254,8 @@ objectType int_bytes_be_2_int (listType arguments)
  *         base of 256.
  *  @return an integer created from 'byteStri'. The result is always
  *          positive.
- *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
  *             if the result value cannot be represented with an integer.
  */
 objectType int_bytes_be_2_uint (listType arguments)
@@ -309,7 +311,8 @@ objectType int_bytes_be_unsigned (listType arguments)
  *  @return an integer created from 'byteStri'. The result is negative
  *          if the most significant byte (the last byte) of byteStri/arg_1
  *          has an ordinal > BYTE_MAX (=127).
- *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
  *             if the result value cannot be represented with an integer.
  */
 objectType int_bytes_le_2_int (listType arguments)
@@ -328,7 +331,8 @@ objectType int_bytes_le_2_int (listType arguments)
  *         base of 256.
  *  @return an integer created from 'byteStri'. The result is always
  *          positive.
- *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
  *             if the result value cannot be represented with an integer.
  */
 objectType int_bytes_le_2_uint (listType arguments)

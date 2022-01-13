@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bytedata.s7i  Convert byte data to and from strings             *)
-(*  Copyright (C) 2009, 2013 - 2015, 2019 - 2021  Thomas Mertes     *)
+(*  Copyright (C) 2009, 2013 - 2015, 2019 - 2022  Thomas Mertes     *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -509,7 +509,8 @@ const func integer: bytes2Int (in string: byteStri, SIGNED, LE) is action "INT_B
  *  @param endian Determines the [[#endianness|endianness]] of ''byteStri''.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return an integer created from ''byteStri''.
- *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *  @exception RANGE_ERROR If ''byteStri'' is empty or
+ *             if characters beyond '\255;' are present or
  *             if the result value cannot be represented with an integer.
  *)
 const func integer: bytes2Int (in string: byteStri,

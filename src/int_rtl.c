@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  int_rtl.c     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2019, 2021  Thomas Mertes                  */
+/*  Copyright (C) 1989 - 2019, 2021, 2022  Thomas Mertes            */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -1420,7 +1420,8 @@ striType intBytesBe (intType number, boolType isSigned)
  *  @return an integer created from 'byteStri'. The result is negative
  *          if the most significant byte (the first byte) of 'byteStri'
  *          has an ordinal > BYTE_MAX (=127).
- *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
  *             if the result value cannot be represented with an integer.
  */
 intType intBytesBe2Int (const const_striType byteStri)
@@ -1432,7 +1433,12 @@ intType intBytesBe2Int (const const_striType byteStri)
   /* intBytesBe2Int */
     logFunction(printf("intBytesBe2Int(\"%s\")\n",
                        striAsUnquotedCStri(byteStri)););
-    if (byteStri->size == 0 || byteStri->mem[0] <= BYTE_MAX) {
+    if (unlikely(byteStri->size == 0)) {
+      logError(printf("intBytesBe2Int(\"\"): "
+                      "String is empty.\n"););
+      raise_error(RANGE_ERROR);
+      return 0;
+    } else if (byteStri->mem[0] <= BYTE_MAX) {
       if (byteStri->size >= sizeof(intType)) {
         while (pos < byteStri->size && byteStri->mem[pos] == 0) {
           pos++;
@@ -1490,7 +1496,8 @@ intType intBytesBe2Int (const const_striType byteStri)
  *         base of 256.
  *  @return an integer created from 'byteStri'. The result is always
  *          positive.
- *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
  *             if the result value cannot be represented with an integer.
  */
 intType intBytesBe2UInt (const const_striType byteStri)
@@ -1502,7 +1509,12 @@ intType intBytesBe2UInt (const const_striType byteStri)
   /* intBytesBe2UInt */
     logFunction(printf("intBytesBe2UInt(\"%s\")\n",
                        striAsUnquotedCStri(byteStri)););
-    if (byteStri->size >= sizeof(intType)) {
+    if (unlikely(byteStri->size == 0)) {
+      logError(printf("intBytesBe2UInt(\"\"): "
+                      "String is empty.\n"););
+      raise_error(RANGE_ERROR);
+      return 0;
+    } else if (byteStri->size >= sizeof(intType)) {
       while (pos < byteStri->size && byteStri->mem[pos] == 0) {
         pos++;
       } /* if */
@@ -1611,7 +1623,8 @@ striType intBytesLe (intType number, boolType isSigned)
  *  @return an integer created from 'byteStri'. The result is negative
  *          if the most significant byte (the last byte) of 'byteStri'
  *          has an ordinal > BYTE_MAX (=127).
- *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
  *             if the result value cannot be represented with an integer.
  */
 intType intBytesLe2Int (const const_striType byteStri)
@@ -1624,7 +1637,12 @@ intType intBytesLe2Int (const const_striType byteStri)
     logFunction(printf("intBytesLe2Int(\"%s\")\n",
                        striAsUnquotedCStri(byteStri)););
     pos = byteStri->size;
-    if (byteStri->size == 0 || byteStri->mem[pos - 1] <= BYTE_MAX) {
+    if (unlikely(byteStri->size == 0)) {
+      logError(printf("intBytesLe2Int(\"\"): "
+                      "String is empty.\n"););
+      raise_error(RANGE_ERROR);
+      return 0;
+    } else if (byteStri->mem[pos - 1] <= BYTE_MAX) {
       if (unlikely(byteStri->size >= sizeof(intType))) {
         while (pos > 0 && byteStri->mem[pos - 1] == 0) {
           pos--;
@@ -1682,7 +1700,8 @@ intType intBytesLe2Int (const const_striType byteStri)
  *         base of 256.
  *  @return an integer created from 'byteStri'. The result is always
  *          positive.
- *  @exception RANGE_ERROR If characters beyond '\255;' are present or
+ *  @exception RANGE_ERROR If 'byteStri' is empty or
+ *             if characters beyond '\255;' are present or
  *             if the result value cannot be represented with an integer.
  */
 intType intBytesLe2UInt (const const_striType byteStri)
@@ -1695,7 +1714,12 @@ intType intBytesLe2UInt (const const_striType byteStri)
     logFunction(printf("intBytesLe2UInt(\"%s\")\n",
                        striAsUnquotedCStri(byteStri)););
     pos = byteStri->size;
-    if (unlikely(byteStri->size >= sizeof(intType))) {
+    if (unlikely(byteStri->size == 0)) {
+      logError(printf("intBytesLe2UInt(\"\"): "
+                      "String is empty.\n"););
+      raise_error(RANGE_ERROR);
+      return 0;
+    } else if (unlikely(byteStri->size >= sizeof(intType))) {
       while (pos > 0 && byteStri->mem[pos - 1] == 0) {
         pos--;
       } /* if */
