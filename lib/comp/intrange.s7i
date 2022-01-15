@@ -235,7 +235,9 @@ const func intRange: getIntBytes2UIntRange (in reference: stri) is func
         category(getValue(stri, ref_list)[6]) = INTOBJECT and
         not isVar(getValue(stri, ref_list)[6]) then
       length := getValue(getValue(stri, ref_list)[6], integer);
-      valueRange.maxValue := pred(2 ** (length * 8));
+      if length >= 1 and length < 8 then
+        valueRange.maxValue := pred(2 ** (length * 8));
+      end if;
     end if;
   end func;
 

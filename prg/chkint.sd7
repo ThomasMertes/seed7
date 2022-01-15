@@ -4037,7 +4037,7 @@ const func boolean: check_bytesBe2Int_len_optimization is func
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) len 7], UNSIGNED, BE) <>   11100861875349880 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) len 8], UNSIGNED, BE) <> 2841820640089569495 or
         bytes2Int(striExpr("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) len 9], UNSIGNED, BE) <> 8083064988257277745 then
-      writeln("Conversion of unsigned big endian byte string to integer with substring does not work correct.");
+      writeln("Conversion of unsigned big endian byte string to integer with substring does not work correct. (1)");
       okay := FALSE;
     end if;
 
@@ -4073,7 +4073,23 @@ const func boolean: check_bytesBe2Int_len_optimization is func
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;"          )[intExpr(2) len 7], UNSIGNED, BE) <>      43362741700585 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;"     )[intExpr(2) len 8], UNSIGNED, BE) <>   11100861875349880 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;")[intExpr(2) len 9], UNSIGNED, BE) <> 2841820640089569495 then
-      writeln("Conversion of unsigned big endian byte string to integer with substring does not work correct.");
+      writeln("Conversion of unsigned big endian byte string to integer with substring does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 len 7], UNSIGNED, BE) + 9151314442816847872 <> 9162415304692197752 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 len 8], UNSIGNED, BE) + 6381551396765206312 <> 9223372036854775807 or
+        bytes2Int("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;"[2 len 9], UNSIGNED, BE) + 1140307048597498062 <> 9223372036854775807 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) len 7], UNSIGNED, BE) + 9151314442816847872 <> 9162415304692197752 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) len 8], UNSIGNED, BE) + 6381551396765206312 <> 9223372036854775807 or
+        bytes2Int("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) len 9], UNSIGNED, BE) + 1140307048597498062 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 len 7], UNSIGNED, BE) + 9151314442816847872 <> 9162415304692197752 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 len 8], UNSIGNED, BE) + 6381551396765206312 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;")[2 len 9], UNSIGNED, BE) + 1140307048597498062 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) len 7], UNSIGNED, BE) + 9151314442816847872 <> 9162415304692197752 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) len 8], UNSIGNED, BE) + 6381551396765206312 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) len 9], UNSIGNED, BE) + 1140307048597498062 <> 9223372036854775807 then
+      writeln("Conversion of unsigned big endian byte string to integer with substring does not work correct. (3)");
       okay := FALSE;
     end if;
 
@@ -4609,7 +4625,7 @@ const func boolean: check_bytesLe2Int_len_optimization is func
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 7], UNSIGNED, LE) <>   34034041605615655 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 8], UNSIGNED, LE) <> 3564856149464084519 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[intExpr(2) len 9], UNSIGNED, LE) <> 3564856149464084519 then
-      writeln("Conversion of unsigned little endian byte string to integer with substring does not work correct.");
+      writeln("Conversion of unsigned little endian byte string to integer with substring does not work correct. (1)");
       okay := FALSE;
     end if;
 
@@ -4645,7 +4661,23 @@ const func boolean: check_bytesLe2Int_len_optimization is func
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;"          )[intExpr(2) len 7], UNSIGNED, LE) <>     257044400336935 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;"     )[intExpr(2) len 8], UNSIGNED, LE) <>   34034041605615655 or
         bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;")[intExpr(2) len 9], UNSIGNED, LE) <> 3564856149464084519 then
-      writeln("Conversion of unsigned little endian byte string to integer with substring does not work correct.");
+      writeln("Conversion of unsigned little endian byte string to integer with substring does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 7], UNSIGNED, LE) + 9151314442816847872 <> 9185348484422463527 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 len 8], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;"[2 len 9], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 7], UNSIGNED, LE) + 9151314442816847872 <> 9185348484422463527 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) len 8], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;"[intExpr(2) len 9], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 7], UNSIGNED, LE) + 9151314442816847872 <> 9185348484422463527 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 len 8], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[2 len 9], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 7], UNSIGNED, LE) + 9151314442816847872 <> 9185348484422463527 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) len 8], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[intExpr(2) len 9], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 then
+      writeln("Conversion of unsigned little endian byte string to integer with substring does not work correct. (3)");
       okay := FALSE;
     end if;
 
