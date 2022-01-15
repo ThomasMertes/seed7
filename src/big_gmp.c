@@ -653,6 +653,7 @@ boolType bigEqSignedDigit (const const_bigIntType big1, intType number)
  *         is used. In this case the result is negative if the most
  *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
+ *  @exception RANGE_ERROR If 'size' is zero ('buffer' is empty).
  */
 bigIntType bigFromByteBufferBe (const memSizeType size,
     const const_ustriType buffer, const boolType isSigned)
@@ -666,23 +667,30 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
   /* bigFromByteBufferBe */
     logFunction(printf("bigFromByteBufferBe(" FMT_U_MEM ", 0x" FMT_X_MEM ", %d)\n",
                        size, (memSizeType) buffer, isSigned););
-    ALLOC_BIG(result);
-    mpz_init(result);
-    if (isSigned && size != 0 && buffer[0] > BYTE_MAX) {
-      negated_buffer = (ustriType) malloc(size);
-      carry = 1;
-      pos = size;
-      while (pos > 0) {
-        pos--;
-        carry += ~buffer[pos] & 0xFF;
-        negated_buffer[pos] = (ucharType) (carry & 0xFF);
-        carry >>= CHAR_BIT;
-      } /* for */
-      mpz_import(result, (size_t) size, 1, 1, 0, 0, negated_buffer);
-      free(negated_buffer);
-      mpz_neg(result, result);
+    if (unlikely(size == 0)) {
+      logError(printf("bigFromByteBufferBe(0, \"\", %d): "
+                      "Buffer is empty.\n", isSigned););
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
-      mpz_import(result, (size_t) size, 1, 1, 0, 0, buffer);
+      ALLOC_BIG(result);
+      mpz_init(result);
+      if (isSigned && buffer[0] > BYTE_MAX) {
+        negated_buffer = (ustriType) malloc(size);
+        carry = 1;
+        pos = size;
+        while (pos > 0) {
+          pos--;
+          carry += ~buffer[pos] & 0xFF;
+          negated_buffer[pos] = (ucharType) (carry & 0xFF);
+          carry >>= CHAR_BIT;
+        } /* for */
+        mpz_import(result, (size_t) size, 1, 1, 0, 0, negated_buffer);
+        free(negated_buffer);
+        mpz_neg(result, result);
+      } else {
+        mpz_import(result, (size_t) size, 1, 1, 0, 0, buffer);
+      } /* if */
     } /* if */
     logFunction(printf("bigFromByteBufferBe --> %s\n", bigHexCStri(result)););
     return result;
@@ -700,6 +708,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
  *         is used. In this case the result is negative if the most
  *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
+ *  @exception RANGE_ERROR If 'size' is zero ('buffer' is empty).
  */
 bigIntType bigFromByteBufferLe (const memSizeType size,
     const const_ustriType buffer, const boolType isSigned)
@@ -713,23 +722,30 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
   /* bigFromByteBufferLe */
     logFunction(printf("bigFromByteBufferLe(" FMT_U_MEM ", 0x" FMT_X_MEM ", %d)\n",
                        size, (memSizeType) buffer, isSigned););
-    ALLOC_BIG(result);
-    mpz_init(result);
-    if (isSigned && size != 0 && buffer[size - 1] > BYTE_MAX) {
-      negated_buffer = (ustriType) malloc(size);
-      carry = 1;
-      pos = 0;
-      while (pos < size) {
-        carry += ~buffer[pos] & 0xFF;
-        negated_buffer[pos] = (ucharType) (carry & 0xFF);
-        carry >>= CHAR_BIT;
-        pos++;
-      } /* for */
-      mpz_import(result, (size_t) size, -1, 1, 0, 0, negated_buffer);
-      free(negated_buffer);
-      mpz_neg(result, result);
+    if (unlikely(size == 0)) {
+      logError(printf("bigFromByteBufferLe(0, \"\", %d): "
+                      "Buffer is empty.\n", isSigned););
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
-      mpz_import(result, (size_t) size, -1, 1, 0, 0, buffer);
+      ALLOC_BIG(result);
+      mpz_init(result);
+      if (isSigned && buffer[size - 1] > BYTE_MAX) {
+        negated_buffer = (ustriType) malloc(size);
+        carry = 1;
+        pos = 0;
+        while (pos < size) {
+          carry += ~buffer[pos] & 0xFF;
+          negated_buffer[pos] = (ucharType) (carry & 0xFF);
+          carry >>= CHAR_BIT;
+          pos++;
+        } /* for */
+        mpz_import(result, (size_t) size, -1, 1, 0, 0, negated_buffer);
+        free(negated_buffer);
+        mpz_neg(result, result);
+      } else {
+        mpz_import(result, (size_t) size, -1, 1, 0, 0, buffer);
+      } /* if */
     } /* if */
     logFunction(printf("bigFromByteBufferLe --> %s\n", bigHexCStri(result)););
     return result;
@@ -746,6 +762,7 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
  *         is used. In this case the result is negative if the most
  *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
+ *  @exception RANGE_ERROR If 'bStri' is empty.
  */
 bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
 
@@ -766,6 +783,7 @@ bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
  *         is used. In this case the result is negative if the most
  *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
+ *  @exception RANGE_ERROR If 'bStri' is empty.
  */
 bigIntType bigFromBStriLe (const const_bstriType bstri, const boolType isSigned)
 

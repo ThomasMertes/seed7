@@ -4289,7 +4289,6 @@ const proc: chkBytesBe2BigInt is func
         bytes2BigInt(                              "\255;\255;\255;\255;", SIGNED, BE) <>                      -1_ or
         bytes2BigInt(                                   "\255;\255;\255;", SIGNED, BE) <>                      -1_ or
         bytes2BigInt(                                        "\255;\255;", SIGNED, BE) <>                      -1_ or
-        bytes2BigInt(                                                  "", SIGNED, BE) <>                       0_ or
         bytes2BigInt(                                        "\000;\000;", SIGNED, BE) <>                       0_ or
         bytes2BigInt(                                   "\000;\000;\000;", SIGNED, BE) <>                       0_ or
         bytes2BigInt(                              "\000;\000;\000;\000;", SIGNED, BE) <>                       0_ or
@@ -4458,8 +4457,7 @@ const proc: chkBytesBe2BigInt is func
       okay := FALSE;
     end if;
 
-    if  bytes2BigInt(                                                  "", UNSIGNED, BE) <>                      0_ or
-        bytes2BigInt(                                        "\000;\000;", UNSIGNED, BE) <>                      0_ or
+    if  bytes2BigInt(                                        "\000;\000;", UNSIGNED, BE) <>                      0_ or
         bytes2BigInt(                                   "\000;\000;\000;", UNSIGNED, BE) <>                      0_ or
         bytes2BigInt(                              "\000;\000;\000;\000;", UNSIGNED, BE) <>                      0_ or
         bytes2BigInt(                         "\000;\000;\000;\000;\000;", UNSIGNED, BE) <>                      0_ or
@@ -4500,6 +4498,12 @@ const proc: chkBytesBe2BigInt is func
       okay := FALSE;
     end if;
 
+    if  not raisesRangeError(bytes2BigInt("",   SIGNED, BE)) or
+        not raisesRangeError(bytes2BigInt("", UNSIGNED, BE)) then
+      writeln("Conversion of empty big endian byte string to bigInteger does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+        
     if okay then
       writeln("Conversion of big endian byte string to bigInteger works correct.");
     else
@@ -4742,7 +4746,6 @@ const proc: chkBytesLe2BigInt is func
         bytes2BigInt("\255;\255;\255;\255;",                               SIGNED, LE) <>                      -1_ or
         bytes2BigInt("\255;\255;\255;",                                    SIGNED, LE) <>                      -1_ or
         bytes2BigInt("\255;\255;",                                         SIGNED, LE) <>                      -1_ or
-        bytes2BigInt("",                                                   SIGNED, LE) <>                       0_ or
         bytes2BigInt("\000;\000;",                                         SIGNED, LE) <>                       0_ or
         bytes2BigInt("\000;\000;\000;",                                    SIGNED, LE) <>                       0_ or
         bytes2BigInt("\000;\000;\000;\000;",                               SIGNED, LE) <>                       0_ or
@@ -4911,8 +4914,7 @@ const proc: chkBytesLe2BigInt is func
       okay := FALSE;
     end if;
 
-    if  bytes2BigInt("",                                                   UNSIGNED, LE) <>                       0_ or
-        bytes2BigInt("\000;\000;",                                         UNSIGNED, LE) <>                       0_ or
+    if  bytes2BigInt("\000;\000;",                                         UNSIGNED, LE) <>                       0_ or
         bytes2BigInt("\000;\000;\000;",                                    UNSIGNED, LE) <>                       0_ or
         bytes2BigInt("\000;\000;\000;\000;",                               UNSIGNED, LE) <>                       0_ or
         bytes2BigInt("\000;\000;\000;\000;\000;",                          UNSIGNED, LE) <>                       0_ or
@@ -4953,6 +4955,12 @@ const proc: chkBytesLe2BigInt is func
       okay := FALSE;
     end if;
 
+    if  not raisesRangeError(bytes2BigInt("",   SIGNED, LE)) or
+        not raisesRangeError(bytes2BigInt("", UNSIGNED, LE)) then
+      writeln("Conversion of empty little endian byte string to bigInteger does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+        
     if okay then
       writeln("Conversion of little endian byte string to bigInteger works correct.");
     else

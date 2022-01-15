@@ -328,6 +328,7 @@ objectType big_eq (listType arguments)
  *         is used. In this case the result is negative if the most
  *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
+ *  @exception RANGE_ERROR If bstri/arg_1 is empty.
  */
 objectType big_from_bstri_be (listType arguments)
 
@@ -350,6 +351,7 @@ objectType big_from_bstri_be (listType arguments)
  *         is used. In this case the result is negative if the most
  *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
+ *  @exception RANGE_ERROR If bstri/arg_1 is empty.
  */
 objectType big_from_bstri_le (listType arguments)
 

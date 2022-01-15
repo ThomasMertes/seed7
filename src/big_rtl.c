@@ -4257,6 +4257,7 @@ boolType bigEqSignedDigit (const const_bigIntType big1, intType number)
  *         is used. In this case the result is negative if the most
  *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
+ *  @exception RANGE_ERROR If 'size' is zero ('buffer' is empty).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigFromByteBufferBe (const memSizeType size,
@@ -4273,9 +4274,11 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
   /* bigFromByteBufferBe */
     logFunction(printf("bigFromByteBufferBe(" FMT_U_MEM ", 0x" FMT_X_MEM ", %d)\n",
                        size, (memSizeType) buffer, isSigned););
-    if (size == 0) {
-      num_bigdigits = 0;
-      result_size = 1;
+    if (unlikely(size == 0)) {
+      logError(printf("bigFromByteBufferBe(0, \"\", %d): "
+                      "Buffer is empty.\n", isSigned););
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       num_bigdigits = (size + (BIGDIGIT_SIZE >> 3) - 1) / (BIGDIGIT_SIZE >> 3);
       result_size = num_bigdigits;
@@ -4284,15 +4287,11 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
         /* A leading zero bigdigit must be added.          */
         result_size++;
       } /* if */
-    } /* if */
-    if (unlikely(!ALLOC_BIG(result, result_size))) {
-      raise_error(MEMORY_ERROR);
-      return NULL;
-    } else {
-      result->size = result_size;
-      if (num_bigdigits == 0) {
-        result->bigdigits[0] = (bigDigitType) 0;
+      if (unlikely(!ALLOC_BIG(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+        return NULL;
       } else {
+        result->size = result_size;
         byteIndex = size;
         for (pos = 0; pos < num_bigdigits - 1; pos++) {
 #if BIGDIGIT_SIZE == 8
@@ -4332,9 +4331,9 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
           /* A leading zero bigdigit must be added.          */
           result->bigdigits[num_bigdigits] = (bigDigitType) 0;
         } /* if */
+        result = normalize(result);
       } /* if */
     } /* if */
-    result = normalize(result);
     logFunction(printf("bigFromByteBufferBe --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigFromByteBufferBe */
@@ -4351,6 +4350,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
  *         is used. In this case the result is negative if the most
  *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
+ *  @exception RANGE_ERROR If 'size' is zero ('buffer' is empty).
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigFromByteBufferLe (const memSizeType size,
@@ -4367,9 +4367,11 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
   /* bigFromByteBufferLe */
     logFunction(printf("bigFromByteBufferLe(" FMT_U_MEM ", 0x" FMT_X_MEM ", %d)\n",
                        size, (memSizeType) buffer, isSigned););
-    if (size == 0) {
-      num_bigdigits = 0;
-      result_size = 1;
+    if (unlikely(size == 0)) {
+      logError(printf("bigFromByteBufferLe(0, \"\", %d): "
+                      "Buffer is empty.\n", isSigned););
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       num_bigdigits = (size + (BIGDIGIT_SIZE >> 3) - 1) / (BIGDIGIT_SIZE >> 3);
       result_size = num_bigdigits;
@@ -4378,15 +4380,11 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
         /* A leading zero bigdigit must be added.          */
         result_size++;
       } /* if */
-    } /* if */
-    if (unlikely(!ALLOC_BIG(result, result_size))) {
-      raise_error(MEMORY_ERROR);
-      return NULL;
-    } else {
-      result->size = result_size;
-      if (num_bigdigits == 0) {
-        result->bigdigits[0] = (bigDigitType) 0;
+      if (unlikely(!ALLOC_BIG(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+        return NULL;
       } else {
+        result->size = result_size;
         byteIndex = 0;
         for (pos = 0; pos < num_bigdigits - 1; pos++) {
 #if BIGDIGIT_SIZE == 8
@@ -4426,9 +4424,9 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
           /* A leading zero bigdigit must be added.          */
           result->bigdigits[num_bigdigits] = (bigDigitType) 0;
         } /* if */
+        result = normalize(result);
       } /* if */
     } /* if */
-    result = normalize(result);
     logFunction(printf("bigFromByteBufferLe --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigFromByteBufferLe */
@@ -4444,6 +4442,7 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
  *         is used. In this case the result is negative if the most
  *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
+ *  @exception RANGE_ERROR If 'bStri' is empty.
  */
 bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
 
@@ -4464,6 +4463,7 @@ bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
  *         is used. In this case the result is negative if the most
  *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
+ *  @exception RANGE_ERROR If 'bStri' is empty.
  */
 bigIntType bigFromBStriLe (const const_bstriType bstri, const boolType isSigned)
 

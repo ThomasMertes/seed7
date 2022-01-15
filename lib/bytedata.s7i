@@ -548,7 +548,8 @@ const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, LE) is
  *  @param endian Determines the [[#endianness|endianness]] of ''byteStri''.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return a bigInteger created from ''byteStri''.
- *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *  @exception RANGE_ERROR If ''byteStri'' is empty or
+ *             if characters beyond '\255;' are present.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bigInteger: bytes2BigInt (in string: byteStri,
