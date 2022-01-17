@@ -558,11 +558,28 @@ static void write_type (const_typeType anytype)
 static void write_name_list (const_listType params)
 
   {
+    const_listType param_list_end;
     objectType formal_param;
     int in_formal_param_list = 0;
 
   /* write_name_list */
-    while (params != NULL) {
+    if (params != NULL) {
+      param_list_end = params;
+      while (param_list_end->next != NULL) {
+        param_list_end = param_list_end->next;
+      } /* while */
+      if (CATEGORY_OF_OBJ(params->obj) != SYMBOLOBJECT &&
+          CATEGORY_OF_OBJ(param_list_end->obj) == SYMBOLOBJECT &&
+          HAS_ENTITY(param_list_end->obj)) {
+        prot_cstri(" ");
+        prot_ustri(GET_ENTITY(param_list_end->obj)->ident->name);
+      } else {
+        param_list_end = NULL;
+      } /* if */
+    } else {
+      param_list_end = NULL;
+    } /* if */
+    while (params != param_list_end) {
       if (CATEGORY_OF_OBJ(params->obj) == FORMPARAMOBJECT) {
         if (in_formal_param_list) {
           prot_cstri(", ");
