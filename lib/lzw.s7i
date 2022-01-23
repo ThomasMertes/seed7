@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  lzw.s7i       Lempel-Ziv-Welch compression support library      *)
-(*  Copyright (C) 2015, 2021  Thomas Mertes                         *)
+(*  Copyright (C) 2015, 2021, 2022  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -98,7 +98,7 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed ''lsbBitStream''.
  *  The packing order of bits in bytes is LSB-First (Least Significant
  *  Bit First). This compression method is used for GIF files. Decompressing
  *  starts with succ(''codeSize'') bits per coding point and goes up to
@@ -110,13 +110,12 @@ const func string: lzwCompressLsb (in string: uncompressed, in integer: codeSize
  *  @param codeSize Number of bits used by the decompressed data.
  *  @return Decompressed version of the ''compressed'' data.
  *)
-const func string: lzwDecompressLsb (in string: compressed, in integer: codeSize) is func
+const func string: lzwDecompressLsb (inout lsbBitStream: compressedBitStream,
+    in integer: codeSize) is func
   result
     var string: decompressed is "";
   local
     const integer: maxTableIndex is 4095;
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
     var integer: bitsToRead is 0;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
@@ -135,7 +134,7 @@ const func string: lzwDecompressLsb (in string: compressed, in integer: codeSize
     nextTableIndex := succ(endOfInformationCode);
     moreBitsNeeded := 1 << bitsToRead;
     previousCode := clearCode;
-    code := getBitsLsb(compressed, bytePos, bitPos, bitsToRead);
+    code := getBits(compressedBitStream, bitsToRead);
     while code <> endOfInformationCode do
       if code = clearCode then
         bitsToRead := succ(codeSize);
@@ -173,8 +172,32 @@ const func string: lzwDecompressLsb (in string: compressed, in integer: codeSize
         end if;
       end if;
       previousCode := code;
-      code := getBitsLsb(compressed, bytePos, bitPos, bitsToRead);
+      code := getBits(compressedBitStream, bitsToRead);
     end while;
+  end func;
+
+
+(**
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  The packing order of bits in bytes is LSB-First (Least Significant
+ *  Bit First). This compression method is used for GIF files. Decompressing
+ *  starts with succ(''codeSize'') bits per coding point and goes up to
+ *  12 bits per coding point. The code points 0 to pred(2 ** ''codeSize'')
+ *  correspond to unchanged data. Code 2 ** ''codeSize'' starts a new
+ *  block with a new table and succ(''codeSize'') bits per code point.
+ *  Code succ(2 ** ''codeSize'') marks the end of the compressed data.
+ *  @param compressed Byte string to be decompressed.
+ *  @param codeSize Number of bits used by the decompressed data.
+ *  @return Decompressed version of the ''compressed'' data.
+ *)
+const func string: lzwDecompressLsb (in string: compressed, in integer: codeSize) is func
+  result
+    var string: decompressed is "";
+  local
+    var lsbBitStream: compressedBitStream is lsbBitStream.value;
+  begin
+    compressedBitStream := openLsbBitStream(compressed);
+    decompressed := lzwDecompressLsb(compressedBitStream, codeSize);
   end func;
 
 
@@ -248,7 +271,7 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed ''msbBitStream''.
  *  The packing order of bits in bytes is MSB-First (Most Significant
  *  Bit First). This compression  method is used in PDF files.
  *  Decompressing starts with succ(''codeSize'') bits per coding point and
@@ -261,13 +284,12 @@ const func string: lzwCompressMsb (in string: uncompressed, in integer: codeSize
  *  @param codeSize Number of bits used by the decompressed data.
  *  @return Decompressed version of the ''compressed'' data.
  *)
-const func string: lzwDecompressMsb (in string: compressed, in integer: codeSize) is func
+const func string: lzwDecompressMsb (inout msbBitStream: compressedBitStream,
+    in integer: codeSize) is func
   result
     var string: decompressed is "";
   local
     const integer: maxTableIndex is 4095;
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
     var integer: bitsToRead is 0;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
@@ -286,7 +308,7 @@ const func string: lzwDecompressMsb (in string: compressed, in integer: codeSize
     nextTableIndex := succ(endOfInformationCode);
     moreBitsNeeded := 1 << bitsToRead;
     previousCode := clearCode;
-    code := getBitsMsb(compressed, bytePos, bitPos, bitsToRead);
+    code := getBits(compressedBitStream, bitsToRead);
     while code <> endOfInformationCode do
       if code = clearCode then
         bitsToRead := succ(codeSize);
@@ -324,8 +346,33 @@ const func string: lzwDecompressMsb (in string: compressed, in integer: codeSize
         end if;
       end if;
       previousCode := code;
-      code := getBitsMsb(compressed, bytePos, bitPos, bitsToRead);
+      code := getBits(compressedBitStream, bitsToRead);
     end while;
+  end func;
+
+
+(**
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  The packing order of bits in bytes is MSB-First (Most Significant
+ *  Bit First). This compression  method is used in PDF files.
+ *  Decompressing starts with succ(''codeSize'') bits per coding point and
+ *  goes up to 12 bits per coding point. The code points 0 to
+ *  pred(2 ** ''codeSize'') correspond to unchanged data. Code
+ *  2 ** ''codeSize'' starts a new block with a new table and
+ *  succ(''codeSize'') bits per code point. Code succ(2 ** ''codeSize'')
+ *  marks the end of the compressed data.
+ *  @param compressed Byte string to be decompressed.
+ *  @param codeSize Number of bits used by the decompressed data.
+ *  @return Decompressed version of the ''compressed'' data.
+ *)
+const func string: lzwDecompressMsb (in string: compressed, in integer: codeSize) is func
+  result
+    var string: decompressed is "";
+  local
+    var msbBitStream: compressedBitStream is msbBitStream.value;
+  begin
+    compressedBitStream := openMsbBitStream(compressed);
+    decompressed := lzwDecompressMsb(compressedBitStream, codeSize);
   end func;
 
 
@@ -405,7 +452,7 @@ const func string: lzwEncodeMsb (in string: uncompressed) is
 
 
 (**
- *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed ''msbBitStream''.
  *  The packing order of bits in bytes is MSB-First (Most Significant
  *  Bit First). This compression  method is used in TIFF and PDF files.
  *  EarlyChange means that the encoding width changes one code too early.
@@ -419,13 +466,12 @@ const func string: lzwEncodeMsb (in string: uncompressed) is
  *  @param codeSize Number of bits used by the decompressed data.
  *  @return Decompressed version of the ''compressed'' data.
  *)
-const func string: lzwDecompressMsbEarlyChange (in string: compressed, in integer: codeSize) is func
+const func string: lzwDecompressMsbEarlyChange (inout msbBitStream: compressedBitStream,
+    in integer: codeSize) is func
   result
     var string: decompressed is "";
   local
     const integer: maxTableIndex is 4095;
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
     var integer: bitsToRead is 0;
     var integer: clearCode is 0;
     var integer: endOfInformationCode is 0;
@@ -444,7 +490,7 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
     nextTableIndex := succ(endOfInformationCode);
     moreBitsNeeded := pred(1 << bitsToRead);
     previousCode := clearCode;
-    code := getBitsMsb(compressed, bytePos, bitPos, bitsToRead);
+    code := getBits(compressedBitStream, bitsToRead);
     while code <> endOfInformationCode do
       if code = clearCode then
         bitsToRead := succ(codeSize);
@@ -482,8 +528,149 @@ const func string: lzwDecompressMsbEarlyChange (in string: compressed, in intege
         end if;
       end if;
       previousCode := code;
-      code := getBitsMsb(compressed, bytePos, bitPos, bitsToRead);
+      code := getBits(compressedBitStream, bitsToRead);
     end while;
+  end func;
+
+
+(**
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  The packing order of bits in bytes is MSB-First (Most Significant
+ *  Bit First). This compression  method is used in TIFF and PDF files.
+ *  EarlyChange means that the encoding width changes one code too early.
+ *  Decompressing starts with succ(''codeSize'') bits per coding point and
+ *  goes up to 12 bits per coding point. The code points 0 to
+ *  pred(2 ** ''codeSize'') correspond to unchanged data. Code
+ *  2 ** ''codeSize'' starts a new block with a new table and
+ *  succ(''codeSize'') bits per code point. Code succ(2 ** ''codeSize'')
+ *  marks the end of the compressed data.
+ *  @param compressed Byte string to be decompressed.
+ *  @param codeSize Number of bits used by the decompressed data.
+ *  @return Decompressed version of the ''compressed'' data.
+ *)
+const func string: lzwDecompressMsbEarlyChange (in string: compressed, in integer: codeSize) is func
+  result
+    var string: decompressed is "";
+  local
+    var msbBitStream: compressedBitStream is msbBitStream.value;
+  begin
+    # writeln("lzwDecompressMsbEarlyChange");
+    # writeln(hex(compressed));
+    compressedBitStream := openMsbBitStream(compressed);
+    decompressed := lzwDecompressMsbEarlyChange(compressedBitStream, codeSize);
+  end func;
+
+
+(**
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed ''msbBitStream''.
+ *  The packing order of bits in bytes is MSB-First (Most Significant
+ *  Bit First). This compression  method is used in TIFF and PDF files.
+ *  EarlyChange means that the encoding width changes one code too early.
+ *  Decompressing starts with succ(''codeSize'') bits per coding point and
+ *  goes up to 12 bits per coding point. The code points 0 to
+ *  pred(2 ** ''codeSize'') correspond to unchanged data. Code
+ *  2 ** ''codeSize'' starts a new block with a new table and
+ *  succ(''codeSize'') bits per code point. Code succ(2 ** ''codeSize'')
+ *  marks the end of the compressed data.
+ *  @param compressed Byte string to be decompressed.
+ *  @param codeSize Number of bits used by the decompressed data.
+ *  @param requestedLength Number of decompressed bytes to be read.
+ *  @return Decompressed version of the ''compressed'' data.
+ *)
+const func string: lzwDecompressMsbEarlyChange (inout msbBitStream: compressedBitStream,
+    in integer: codeSize, in integer: requestedLength) is func
+  result
+    var string: decompressed is "";
+  local
+    const integer: maxTableIndex is 4095;
+    var integer: bitsToRead is 0;
+    var integer: clearCode is 0;
+    var integer: endOfInformationCode is 0;
+    var integer: code is 0;
+    var integer: previousCode is 0;
+    var array string: table is [0 .. maxTableIndex] times "";
+    var integer: nextTableIndex is 0;
+    var integer: moreBitsNeeded is 0;
+  begin
+    bitsToRead := succ(codeSize);
+    clearCode := 1 << codeSize;
+    for code range 0 to pred(clearCode) do
+      table[code] := str(char(code));
+    end for;
+    endOfInformationCode := succ(clearCode);
+    nextTableIndex := succ(endOfInformationCode);
+    moreBitsNeeded := pred(1 << bitsToRead);
+    previousCode := clearCode;
+    code := getBits(compressedBitStream, bitsToRead);
+    while code <> endOfInformationCode and length(decompressed) < requestedLength do
+      if code = clearCode then
+        bitsToRead := succ(codeSize);
+        nextTableIndex := succ(endOfInformationCode);
+        moreBitsNeeded := pred(1 << bitsToRead);
+      elsif previousCode = clearCode then
+        if code < nextTableIndex then
+          decompressed &:= table[code];
+        else
+          raise RANGE_ERROR;
+        end if;
+      else
+        if code < nextTableIndex then
+          if nextTableIndex <= maxTableIndex then
+            table[nextTableIndex] := table[previousCode] & str(table[code][1]);
+            incr(nextTableIndex);
+          end if;
+          decompressed &:= table[code];
+        elsif code = nextTableIndex then
+          if nextTableIndex <= maxTableIndex then
+            table[nextTableIndex] := table[previousCode] & str(table[previousCode][1]);
+            incr(nextTableIndex);
+            decompressed &:= table[code];
+          else
+            decompressed &:= table[previousCode] & str(table[previousCode][1]);
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+        if nextTableIndex = moreBitsNeeded then
+          incr(bitsToRead);
+          if bitsToRead < 12 then
+            moreBitsNeeded := pred(1 << bitsToRead);
+          end if;
+        end if;
+      end if;
+      previousCode := code;
+      code := getBits(compressedBitStream, bitsToRead);
+    end while;
+  end func;
+
+
+(**
+ *  Decompress an Lempel-Ziv-Welch (LZW) compressed string.
+ *  The packing order of bits in bytes is MSB-First (Most Significant
+ *  Bit First). This compression  method is used in TIFF and PDF files.
+ *  EarlyChange means that the encoding width changes one code too early.
+ *  Decompressing starts with succ(''codeSize'') bits per coding point and
+ *  goes up to 12 bits per coding point. The code points 0 to
+ *  pred(2 ** ''codeSize'') correspond to unchanged data. Code
+ *  2 ** ''codeSize'' starts a new block with a new table and
+ *  succ(''codeSize'') bits per code point. Code succ(2 ** ''codeSize'')
+ *  marks the end of the compressed data.
+ *  @param compressed Byte string to be decompressed.
+ *  @param codeSize Number of bits used by the decompressed data.
+ *  @param requestedLength Number of decompressed bytes to be read.
+ *  @return Decompressed version of the ''compressed'' data.
+ *)
+const func string: lzwDecompressMsbEarlyChange (in string: compressed, in integer: codeSize,
+    in integer: requestedLength) is func
+  result
+    var string: decompressed is "";
+  local
+    var msbBitStream: compressedBitStream is msbBitStream.value;
+  begin
+    # writeln("lzwDecompressMsbEarlyChange");
+    # writeln(hex(compressed));
+    compressedBitStream := openMsbBitStream(compressed);
+    decompressed := lzwDecompressMsbEarlyChange(compressedBitStream, codeSize, requestedLength);
   end func;
 
 

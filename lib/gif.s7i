@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  gif.s7i       Support for the GIF image file format.            *)
-(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*  Copyright (C) 2021, 2022  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -266,7 +266,6 @@ const func PRIMITIVE_WINDOW: readGif (inout file: gifFile) is func
     var gifExtensions: extensions is gifExtensions.value;
     var char: sentinel is ' ';
     var integer: initialNumberOfLzwBits is 0;
-    var string: compressed is "";
     var string: uncompressed is "";
     var array array pixel: image is 0 times 0 times pixel.value;
   begin
@@ -282,9 +281,8 @@ const func PRIMITIVE_WINDOW: readGif (inout file: gifFile) is func
         elsif sentinel = ',' then
           readImageHeader(gifFile, imageHeader);
           initialNumberOfLzwBits := ord(getc(gifFile));
-          # Appending one bits is necessary to successfully read the empty GIF image.
-          compressed := readSubBlockSeries(gifFile) & "\16#ff;\16#ff;";
-          uncompressed := lzwDecompressLsb(compressed, initialNumberOfLzwBits);
+          uncompressed := lzwDecompressLsb(readSubBlockSeries(gifFile),
+                                           initialNumberOfLzwBits);
           if imageHeader.hasLocalColorMap then
             if extensions.transparentColorFlag then
               fillGifImage8Bit(image, uncompressed, imageHeader.localColorMap,

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bitdata.s7i   Read and write bits to and from strings           *)
-(*  Copyright (C) 2015, 2017, 2019 - 2021  Thomas Mertes            *)
+(*  Copyright (C) 2015, 2017, 2019 - 2022  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -24,6 +24,9 @@
 (*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
 (*                                                                  *)
 (********************************************************************)
+
+
+include "bytedata.s7i";
 
 
 (**
@@ -117,15 +120,289 @@ const func integer: reverseBits (in integer: size, in var integer: bits) is func
 
 
 (**
- *  Get one bit in LSB-First order from ''stri''.
+ *  Type to read bitwise data starting with the least significant bit.
+ *  This is used by the the Huffman compression (as part of the deflate
+ *  compression) used for ZIP and GZIP files. It is also used by the
+ *  Lempel-Ziv-Welch compression used for GIF files.
+ *  In an ''lsbBitStream'' the read direction is from
+ *  LSB (least significant bit) to MSB (most significant bit).
+ *  For the bit position in a byte holds: 0 = LSB, 7 = MSB.
+ *)
+const type: lsbBitStream is new struct
+    var file: inFile is STD_NULL;
+    var integer: buffer is 0;
+    var integer: bitPos is 0;
+    var string: striBuffer is "";
+    var integer: striBufferIncrease is 4096;
+    var integer: limit is 0;
+    var integer: bytePos is 1;
+  end struct;
+
+
+const proc: fillStriBuffer (inout lsbBitStream: bitStream) is func
+  begin
+    bitStream.striBuffer := bitStream.striBuffer[bitStream.bytePos ..] &
+                            gets(bitStream.inFile, bitStream.striBufferIncrease);
+    if not hasNext(bitStream.inFile) then
+      # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
+      # This allows a peek of 32 bits also at the end of the data.
+      bitStream.striBuffer &:= "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
+    end if;
+    bitStream.limit := max(0, length(bitStream.striBuffer) - 4);
+    bitStream.bytePos := 1;
+  end func;
+
+
+const proc: fillBuffer (inout lsbBitStream: bitStream) is func
+  begin
+    if bitStream.bytePos > bitStream.limit then
+      fillStriBuffer(bitStream);
+    end if;
+    bitStream.buffer := bytes2Int(bitStream.striBuffer[bitStream.bytePos len 5], UNSIGNED, LE);
+  end func;
+
+
+(**
+ *  Open an LSB bit stream from the file ''inFile'' for reading.
+ *  In an ''lsbBitStream'' the read direction is from
+ *  LSB (least significant bit) to MSB (most significant bit).
+ *)
+const func lsbBitStream: openLsbBitStream (in file: inFile) is func
+  result
+    var lsbBitStream: bitStream is lsbBitStream.value;
+  begin
+    bitStream.inFile := inFile;
+    fillBuffer(bitStream);
+  end func;
+
+
+(**
+ *  Open an LSB bit stream from the string ''stri'' for reading.
+ *  In an ''lsbBitStream'' the read direction is from
+ *  LSB (least significant bit) to MSB (most significant bit).
+ *)
+const func lsbBitStream: openLsbBitStream (in string: stri) is func
+  result
+    var lsbBitStream: bitStream is lsbBitStream.value;
+  begin
+    # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
+    # This allows a peek of 32 bits also at the end of the data.
+    bitStream.striBuffer := stri & "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
+    bitStream.limit := length(bitStream.striBuffer);
+    fillBuffer(bitStream);
+  end func;
+
+
+(**
+ *  Get one bit in LSB-First order from ''bitStream''.
  *  The bit is read at the current byte and bit position. Afterwards
  *  byte and bit position are advanced by one bit. The read
  *  direction is from LSB (least significant bit) to MSB (most significant bit).
- *  @param stri String of bytes from which the bit is read.
- *  @param bytePos Current byte position in ''stri''.
- *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
- *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
+ *   aBitStream := openLsbBitStream("\2#01101011;\2#11001110;");
+ *   skipBits(aBitStream, 5);
+ *   # Original data:  "\2#01101011;\2#11001110;"
+ *   #                       ^
+ *   #                    current
+ *   #                   position
+ *   getBit(aBitStream)  returns  2#1
+ *   # Original data:  "\2#01101011;\2#11001110;"
+ *   #                       1
+ *   #                    bit of
+ *   #                  the result
+ *   # Now aBitStream is at bytePos=1 and bitPos=6 of the original data.
+ *   # Original data:  "\2#01101011;\2#11001110;"
+ *   #                      ^
+ *   #                   current
+ *   #                  position
+ *  @param bitStream LSB orderd bit stream from which the bit is read.
+ *  @exception RANGE_ERROR If the end of ''bitStream'' has been reached.
  *)
+const func integer: getBit (inout lsbBitStream: bitStream) is func
+  result
+    var integer: resultBit is 0;
+  begin
+    resultBit := (bitStream.buffer >> bitStream.bitPos) mod 2;
+    incr(bitStream.bitPos);
+    if bitStream.bitPos >= 8 then
+      bitStream.bitPos := 0;
+      incr(bitStream.bytePos);
+      if bitStream.bytePos > bitStream.limit then
+        fillStriBuffer(bitStream);
+      end if;
+      bitStream.buffer := (bitStream.buffer >> 8) +
+          (bytes2Int(bitStream.striBuffer[bitStream.bytePos + 4 len 1], UNSIGNED, LE) << 32);
+    end if;
+  end func;
+
+
+(**
+ *  Get ''bitWidth'' bits in LSB-First order from ''bitStream''.
+ *  The bits are read at the current byte and bit position. Afterwards
+ *  byte and bit position are advanced by ''bitWidth'' bits. The read
+ *  direction is from LSB (least significant bit) to MSB (most significant bit).
+ *  If bits from the next byte(s) are read a byte order of little-endian
+ *  is used.
+ *   aBitStream := openLsbBitStream("\2#01101011;\2#11001110;");
+ *   skipBits(aBitStream, 5);
+ *   # Original data:  "\2#01101011;\2#11001110;"
+ *   #                       ^
+ *   #                    current
+ *   #                   position
+ *   getBits(aBitStream, 5)  returns  2#10011
+ *   # Original data:  "\2#01101011;\2#11001110;"
+ *   #                     011               10
+ *   #                 lower bits        higher bits
+ *   #                  of result         of result
+ *   # Now aBitStream is at bytePos=2 and bitPos=2 of the original data.
+ *   # Original data:  "\2#01101011;\2#11001110;"
+ *   #                                      ^
+ *   #                                   current
+ *   #                                   position
+ *  @param bitStream LSB orderd bit stream from which the bits are read.
+ *  @param bitWidth Number of bits requested.
+ *  @exception RANGE_ERROR If the end of ''bitStream'' has been reached.
+ *)
+const func integer: getBits (inout lsbBitStream: bitStream, in integer: bitWidth) is func
+  result
+    var integer: resultBits is 0;
+  local
+    var integer: bytePosDelta is 0;
+  begin
+    resultBits := (bitStream.buffer >> bitStream.bitPos) mod (1 << bitWidth);
+    bitStream.bitPos +:= bitWidth;
+    bytePosDelta := bitStream.bitPos mdiv 8;
+    if bytePosDelta <> 0 then
+      bitStream.bitPos := bitStream.bitPos mod 8;
+      bitStream.bytePos +:= bytePosDelta;
+      if bitStream.bytePos > bitStream.limit then
+        fillStriBuffer(bitStream);
+      end if;
+      if bytePosDelta = 1 then
+        bitStream.buffer := (bitStream.buffer >> 8) +
+            (bytes2Int(bitStream.striBuffer[bitStream.bytePos + 4 len 1], UNSIGNED, LE) << 32);
+      elsif bytePosDelta = 2 then
+        bitStream.buffer := (bitStream.buffer >> 16) +
+            (bytes2Int(bitStream.striBuffer[bitStream.bytePos + 3 len 2], UNSIGNED, LE) << 24);
+      else
+        bitStream.buffer := bytes2Int(bitStream.striBuffer[bitStream.bytePos len 5], UNSIGNED, LE);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Peek ''bitWidth'' bits in LSB-First order from ''bitStream''.
+ *  The bits are read at the current byte and bit position. Byte
+ *  and bit position remain unchanged. The read direction is from
+ *  LSB (least significant bit) to MSB (most significant bit).
+ *  If bits from the next byte(s) are read a byte order of little-endian
+ *  is used.
+ *   aBitStream := openLsbBitStream("\2#01101011;\2#10101101;");
+ *   skipBits(aBitStream, 5);
+ *   # Original data:  "\2#01101011;\2#10101101;"
+ *   #                       ^
+ *   #                    current
+ *   #                   position
+ *   peekBits(aBitStream, 6)  returns  2#101011
+ *   # Original data:  "\2#01101011;\2#10101101;"
+ *   #                     011              101
+ *   #                 lower bits        higher bits
+ *   #                  of result         of result
+ *   # BytePos and bitPos of aBitStream have not changed.
+ *  @param bitStream LSB orderd bit stream from which the bits are peeked.
+ *  @param bitWidth Number of bits requested.
+ *  @exception RANGE_ERROR If the end of ''bitStream'' has been reached.
+ *)
+const func integer: peekBits (inout lsbBitStream: bitStream, in integer: bitWidth) is
+  return (bitStream.buffer >> bitStream.bitPos) mod (1 << bitWidth);
+
+
+(**
+ *  Advance the bit position of ''bitStream'' by ''bitWidth'' bits.
+ *   aBitStream := openLsbBitStream("\2#01101011;\2#11001110;");
+ *   # Now aBitStream has bytePos=1 and bitPos=0 of the original data.
+ *   # Original data:  "\2#01101011;\2#11001110;"
+ *   #                            ^
+ *   #                         current
+ *   #                        position
+ *   skipBits(aBitStream, 5);
+ *   # Now aBitStream is at bytePos=1 and bitPos=5 of the original data.
+ *   # Original data:  "\2#01101011;\2#11001110;"
+ *   #                       ^
+ *   #                    current
+ *   #                   position
+ *  @param bitStream LSB orderd bit stream from which the bits are skipped.
+ *  @param bitWidth Number of bits to be skipped.
+ *)
+const proc: skipBits (inout lsbBitStream: bitStream, in integer: bitWidth) is func
+  local
+    var integer: bytePosDelta is 0;
+  begin
+    bitStream.bitPos +:= bitWidth;
+    bytePosDelta := bitStream.bitPos mdiv 8;
+    if bytePosDelta <> 0 then
+      bitStream.bitPos := bitStream.bitPos mod 8;
+      bitStream.bytePos +:= bytePosDelta;
+      if bitStream.bytePos > bitStream.limit then
+        fillStriBuffer(bitStream);
+      end if;
+      if bytePosDelta = 1 then
+        bitStream.buffer := (bitStream.buffer >> 8) +
+            (bytes2Int(bitStream.striBuffer[bitStream.bytePos + 4 len 1], UNSIGNED, LE) << 32);
+      elsif bytePosDelta = 2 then
+        bitStream.buffer := (bitStream.buffer >> 16) +
+            (bytes2Int(bitStream.striBuffer[bitStream.bytePos + 3 len 2], UNSIGNED, LE) << 24);
+      else
+        bitStream.buffer := bytes2Int(bitStream.striBuffer[bitStream.bytePos len 5], UNSIGNED, LE);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Get ''maxLength'' bytes from ''bitStream''.
+ *  The function returns bytes from the original data. If the currend byte of
+ *  ''bitStream'' is partially used it is not considered and the bytes are
+ *  read beginning with the next byte from the original data.
+ *   aBitStream := openLsbBitStream("\2#01101011;\2#1001111;\2#1001011;\2#1101;");
+ *   skipBits(aBitStream, 5);
+ *   # Original data:  "\2#01101011;\2#1001111;\2#1001011;\2#1101;"
+ *   #                       ^
+ *   #                    current
+ *   #                   position
+ *   gets(aBitStream, 2)  returns "\2#1001111;\2#1001011;" (="OK")
+ *  @param bitStream LSB orderd bit stream from which the bytes are read.
+ *  @param maxLength The maximum number of bytes to be read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
+ *)
+const func string: gets (inout lsbBitStream: bitStream, in integer: maxLength) is func
+  result
+    var string: striRead is "";
+  begin
+    if maxLength < 0 then
+      raise RANGE_ERROR;
+    else
+      if bitStream.bitPos <> 0 then
+        incr(bitStream.bytePos);
+        bitStream.bitPos := 0;
+      end if;
+      if maxLength <= succ(length(bitStream.striBuffer) - bitStream.bytePos) then
+        striRead := bitStream.striBuffer[bitStream.bytePos len maxLength];
+        bitStream.bytePos +:= maxLength;
+      else
+        striRead := bitStream.striBuffer[bitStream.bytePos ..] &
+                    gets(bitStream.inFile, maxLength -
+                         succ(length(bitStream.striBuffer) - bitStream.bytePos));
+        bitStream.striBuffer := "";
+        bitStream.limit := 0;
+        bitStream.bytePos := 1;
+      end if;
+      fillBuffer(bitStream);
+    end if;
+  end func;
+
+
+# The function getBitLsb() is deprecated. Use getBit(lsbBitStream) instead.
 const func integer: getBitLsb (in string: stri, inout integer: bytePos,
     inout integer: bitPos) is func
   result
@@ -141,24 +418,7 @@ const func integer: getBitLsb (in string: stri, inout integer: bytePos,
   end func;
 
 
-(**
- *  Get ''bitWidth'' bits in LSB-First order from ''stri''.
- *  The bits are read at the current byte and bit position. Afterwards
- *  byte and bit position are advanced by ''bitWidth'' bits. The read
- *  direction is from LSB (least significant bit) to MSB (most significant bit).
- *  If bits from the next byte(s) are read a byte order of little-endian
- *  is used.
- *   stri := "\2#01101011;\2#1110;"; bytePos := 1; bitPos := 5;
- *   #           011           10
- *   #       lower bits    higher bits
- *   #        of result     of result
- *   getBitsLsb(stri, bytePos, bitPos, 5)  returns  2#10011 (bytePos=2, bitPos=2)
- *  @param stri String of bytes from which the bits are read.
- *  @param bytePos Current byte position in ''stri''.
- *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
- *  @param bitWidth Number of bits requested.
- *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
- *)
+# The function getBitsLsb() is deprecated. Use getBits(lsbBitStream) instead.
 const func integer: getBitsLsb (in string: stri, inout integer: bytePos,
     inout integer: bitPos, in integer: bitWidth) is func
   result
@@ -182,24 +442,7 @@ const func integer: getBitsLsb (in string: stri, inout integer: bytePos,
   end func;
 
 
-(**
- *  Peek ''bitWidth'' bits in LSB-First order from ''stri''.
- *  The bits are read at the current byte and bit position. Byte
- *  and bit position remain unchanged. The read direction is from
- *  LSB (least significant bit) to MSB (most significant bit).
- *  If bits from the next byte(s) are read a byte order of little-endian
- *  is used.
- *   stri := "\2#01101011;\2#1101;";
- *   #           011          101
- *   #       lower bits    higher bits
- *   #        of result     of result
- *   peekBitsLsb(stri, 1, 5, 6)  returns  2#101011
- *  @param stri String of bytes from which the bits are read.
- *  @param bytePos Current byte position in ''stri''.
- *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
- *  @param bitWidth Number of bits requested.
- *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
- *)
+# The function peekBitsLsb() is deprecated. Use peekBits(lsbBitStream) instead.
 const func integer: peekBitsLsb (in string: stri, in var integer: bytePos,
     in integer: bitPos, in integer: bitWidth) is func
   result
@@ -219,15 +462,290 @@ const func integer: peekBitsLsb (in string: stri, in var integer: bytePos,
   end func;
 
 
-(**
- *  Advance byte and bit position by ''bitWidth'' bits.
- *)
+# The function skipBitsLsb() is deprecated. Use skipBits(lsbBitStream) instead.
 const proc: skipBitsLsb (inout integer: bytePos, inout integer: bitPos,
     in integer: bitWidth) is func
   begin
     bitPos +:= bitWidth;
     bytePos +:= bitPos mdiv 8;
     bitPos := bitPos mod 8;
+  end func;
+
+
+(**
+ *  Type to read bitwise data starting with the most significant bit.
+ *  This is used by the Huffman compression used for JPEG files.
+ *  In an ''msbBitStream'' the read direction is from
+ *  MSB (least significant bit) to MSB (most significant bit).
+ *  For the bit position in a byte holds: 0 = MSB, 7 = LSB.
+ *)
+const type: msbBitStream is new struct
+    var file: inFile is STD_NULL;
+    var integer: buffer is 0;
+    var integer: bitPos is 40;
+    var string: striBuffer is "";
+    var integer: striBufferIncrease is 4096;
+    var integer: limit is 0;
+    var integer: bytePos is 1;
+  end struct;
+
+
+const proc: fillStriBuffer (inout msbBitStream: bitStream) is func
+  begin
+    bitStream.striBuffer := bitStream.striBuffer[bitStream.bytePos ..] &
+                            gets(bitStream.inFile, bitStream.striBufferIncrease);
+    if not hasNext(bitStream.inFile) then
+      # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
+      # This allows a peek of 32 bits also at the end of the data.
+      bitStream.striBuffer &:= "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
+    end if;
+    bitStream.limit := max(0, length(bitStream.striBuffer) - 4);
+    bitStream.bytePos := 1;
+  end func;
+
+
+const proc: fillBuffer (inout msbBitStream: bitStream) is func
+  begin
+    if bitStream.bytePos > bitStream.limit then
+      fillStriBuffer(bitStream);
+    end if;
+    bitStream.buffer := bytes2Int(bitStream.striBuffer[bitStream.bytePos len 5], UNSIGNED, BE);
+  end func;
+
+
+(**
+ *  Open an MSB bit stream from the file ''inFile'' for reading.
+ *  In an ''msbBitStream'' the read direction is from
+ *  MSB (most significant bit) to LSB (least significant bit).
+ *)
+const func msbBitStream: openMsbBitStream (in file: inFile) is func
+  result
+    var msbBitStream: bitStream is msbBitStream.value;
+  begin
+    bitStream.inFile := inFile;
+    fillBuffer(bitStream);
+  end func;
+
+
+(**
+ *  Open an MSB bit stream from the string ''stri'' for reading.
+ *  In an ''msbBitStream'' the read direction is from
+ *  MSB (most significant bit) to LSB (least significant bit).
+ *)
+const func msbBitStream: openMsbBitStream (in string: stri) is func
+  result
+    var msbBitStream: bitStream is msbBitStream.value;
+  begin
+    # Append "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;" to the data.
+    # This allows a peek of 32 bits also at the end of the data.
+    bitStream.striBuffer := stri & "\16#ff;\16#ff;\16#ff;\16#ff;\16#ff;";
+    bitStream.limit := length(bitStream.striBuffer);
+    fillBuffer(bitStream);
+  end func;
+
+
+(**
+ *  Get one bit in MSB-First order from ''bitStream''.
+ *  The bits are read at the current byte and bit position. Afterwards
+ *  byte and bit position are advanced by ''bitWidth'' bits. The read
+ *  direction is from MSB (most significant bit) to LSB (least significant bit).
+ *  If bits from the next byte(s) are read a byte order of big-endian
+ *  is used.
+ *   aBitStream := openMsbBitStream("\2#01011100;\2#11010110;");
+ *   skipBits(aBitStream, 5);
+ *   # Original data:  "\2#01011100;\2#11010110;";
+ *   #                          ^
+ *   #                       current
+ *   #                      position
+ *   getBit(aBitStream)  returns  2#1
+ *   # Original data:  "\2#01011100;\2#11010110;";
+ *   #                          1
+ *   #                       bit of
+ *   #                     the result
+ *   # Now aBitStream is at bytePos=1 and bitPos=6 of the original data.
+ *   # Original data:  "\2#01011100;\2#11010110;";
+ *   #                           ^
+ *   #                        current
+ *   #                       position
+ *  @param bitStream MSB orderd bit stream from which the bits are peeked.
+ *  @exception RANGE_ERROR If the end of ''bitStream'' has been reached.
+ *)
+const func integer: getBit (inout msbBitStream: bitStream) is func
+  result
+    var integer: resultBit is 0;
+  begin
+    resultBit := (bitStream.buffer >> pred(bitStream.bitPos)) mod 2;
+    decr(bitStream.bitPos);
+    if pred(bitStream.bitPos) mdiv 8 <> 4 then
+      bitStream.bitPos := bitStream.bitPos + 8;
+      incr(bitStream.bytePos);
+      if bitStream.bytePos > bitStream.limit then
+        fillStriBuffer(bitStream);
+      end if;
+      bitStream.buffer := ((bitStream.buffer mod 2 ** 32) << 8) +
+          bytes2Int(bitStream.striBuffer[bitStream.bytePos + 4 len 1], UNSIGNED, BE);
+    end if;
+  end func;
+
+
+(**
+ *  Get ''bitWidth'' bits in MSB-First order from ''bitStream''.
+ *  The bits are read at the current byte and bit position. Afterwards
+ *  byte and bit position are advanced by ''bitWidth'' bits. The read
+ *  direction is from MSB (most significant bit) to LSB (least significant bit).
+ *  If bits from the next byte(s) are read a byte order of big-endian
+ *  is used.
+ *   aBitStream := openMsbBitStream("\2#01011100;\2#11010110;");
+ *   skipBits(aBitStream, 5);
+ *   # Original data:  "\2#01011100;\2#11010110;";
+ *   #                          ^
+ *   #                       current
+ *   #                      position
+ *   getBits(aBitStream, 5)  returns  2#10011
+ *   # Original data:  "\2#01011100;\2#11010110;";
+ *   #                          100    11
+ *   #                   higher bits  lower bits
+ *   #                    of result    of result
+ *   # Now aBitStream is at bytePos=2 and bitPos=2 of the original data.
+ *   # Original data:  "\2#01011100;\2#11010110;";
+ *   #                                   ^
+ *   #                                current
+ *   #                                position
+ *  @param bitStream MSB orderd bit stream from which the bits are peeked.
+ *  @param bitWidth Number of bits requested.
+ *  @exception RANGE_ERROR If the end of ''bitStream'' has been reached.
+ *)
+const func integer: getBits (inout msbBitStream: bitStream, in integer: bitWidth) is func
+  result
+    var integer: resultBits is 0;
+  local
+    var integer: bytePosDelta is 0;
+  begin
+    resultBits := (bitStream.buffer >> (bitStream.bitPos - bitWidth)) mod (1 << bitWidth);
+    bitStream.bitPos -:= bitWidth;
+    bytePosDelta := 4 - pred(bitStream.bitPos) mdiv 8;
+    if bytePosDelta <> 0 then
+      bitStream.bitPos := bitStream.bitPos + 8 * bytePosDelta;
+      bitStream.bytePos +:= bytePosDelta;
+      if bitStream.bytePos > bitStream.limit then
+        fillStriBuffer(bitStream);
+      end if;
+      if bytePosDelta = 1 then
+        bitStream.buffer := ((bitStream.buffer mod 2 ** 32) << 8) +
+            bytes2Int(bitStream.striBuffer[bitStream.bytePos + 4 len 1], UNSIGNED, BE);
+      else
+        bitStream.buffer := bytes2Int(bitStream.striBuffer[bitStream.bytePos len 5], UNSIGNED, BE);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Peek ''bitWidth'' bits in MSB-First order from ''bitStream''.
+ *  The bits are read at the current byte and bit position. Byte
+ *  and bit position remain unchanged. The read direction is from
+ *  MSB (most significant bit) to LSB (least significant bit).
+ *  If bits from the next byte(s) are read a byte order of big-endian
+ *  is used.
+ *   aBitStream := openMsbBitStream("\2#01011100;\2#11010110;");
+ *   skipBits(aBitStream, 5);
+ *   # Original data:  "\2#01011100;\2#11010110;";
+ *   #                          ^
+ *   #                       current
+ *   #                      position
+ *   peekBits(aBitStream, 6)  returns  2#100110
+ *   # Original data:  "\2#01011100;\2#11010110;";
+ *   #                          100    110
+ *   #                   higher bits  lower bits
+ *   #                    of result    of result
+ *   # BytePos and bitPos of aBitStream have not changed.
+ *  @param bitStream MSB orderd bit stream from which the bits are read.
+ *  @param bitWidth Number of bits requested.
+ *  @exception RANGE_ERROR If the end of ''bitStream'' has been reached.
+ *)
+const func integer: peekBits (inout msbBitStream: bitStream, in integer: bitWidth) is
+  return (bitStream.buffer >> (bitStream.bitPos - bitWidth)) mod (1 << bitWidth);
+
+
+(**
+ *  Advance the bit position of ''bitStream'' by ''bitWidth'' bits.
+ *   aBitStream := openMsbBitStream("\2#01101011;\2#11001110;");
+ *   # Now aBitStream has bytePos=1 and bitPos=0 of the original data.
+ *   # Original data:  "\2#01101011;\2#11001110;"
+ *   #                     ^
+ *   #                  current
+ *   #                 position
+ *   skipBits(aBitStream, 5);
+ *   # Now aBitStream is at bytePos=1 and bitPos=5 of the original data.
+ *   # Original data:  "\2#01101011;\2#11001110;"
+ *   #                          ^
+ *   #                       current
+ *   #                      position
+ *  @param bitStream MSB orderd bit stream from which the bits are skipped.
+ *  @param bitWidth Number of bits to be skipped.
+ *)
+const proc: skipBits (inout msbBitStream: bitStream, in integer: bitWidth) is func
+  local
+    var integer: bytePosDelta is 0;
+  begin
+    bitStream.bitPos -:= bitWidth;
+    bytePosDelta := 4 - pred(bitStream.bitPos) mdiv 8;
+    if bytePosDelta <> 0 then
+      bitStream.bitPos := bitStream.bitPos + 8 * bytePosDelta;
+      bitStream.bytePos +:= bytePosDelta;
+      if bitStream.bytePos > bitStream.limit then
+        fillStriBuffer(bitStream);
+      end if;
+      if bytePosDelta = 1 then
+        bitStream.buffer := ((bitStream.buffer mod 2 ** 32) << 8) +
+            bytes2Int(bitStream.striBuffer[bitStream.bytePos + 4 len 1], UNSIGNED, BE);
+      else
+        bitStream.buffer := bytes2Int(bitStream.striBuffer[bitStream.bytePos len 5], UNSIGNED, BE);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Get ''maxLength'' bytes from ''bitStream''.
+ *  The function returns bytes from the original data. If the currend byte of
+ *  ''bitStream'' is partially used it is not considered and the bytes are
+ *  read beginning with the next byte from the original data.
+ *   aBitStream := openMsbBitStream("\2#01101011;\2#1001111;\2#1001011;\2#1101;");
+ *   skipBits(aBitStream, 5);
+ *   # Original data:  "\2#01101011;\2#1001111;\2#1001011;\2#1101;"
+ *   #                       ^
+ *   #                    current
+ *   #                   position
+ *   gets(aBitStream, 2)  returns "\2#1001111;\2#1001011;" (="OK")
+ *  @param bitStream MSB orderd bit stream from which the bytes are read.
+ *  @param maxLength The maximum number of bytes to be read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
+ *)
+const func string: gets (inout msbBitStream: bitStream, in integer: maxLength) is func
+  result
+    var string: striRead is "";
+  begin
+    if maxLength < 0 then
+      raise RANGE_ERROR;
+    else
+      if bitStream.bitPos <> 40 then
+        incr(bitStream.bytePos);
+        bitStream.bitPos := 40;
+      end if;
+      if maxLength <= succ(length(bitStream.striBuffer) - bitStream.bytePos) then
+        striRead := bitStream.striBuffer[bitStream.bytePos len maxLength];
+        bitStream.bytePos +:= maxLength;
+      else
+        striRead := bitStream.striBuffer[bitStream.bytePos ..] &
+                    gets(bitStream.inFile, maxLength -
+                         succ(length(bitStream.striBuffer) - bitStream.bytePos));
+        bitStream.striBuffer := "";
+        bitStream.limit := 0;
+        bitStream.bytePos := 1;
+      end if;
+      fillBuffer(bitStream);
+    end if;
   end func;
 
 
@@ -310,16 +828,7 @@ const proc: putBitsLsb (inout string: stri, inout integer: bitPos, in var intege
   end func;
 
 
-(**
- *  Get one bit in MSB-First order from ''stri''.
- *  The bit is read at the current byte and bit position.
- *  Afterwards byte and bit position are advanced by one bit. The read
- *  direction is from MSB (most significant bit) to LSB (least significant bit).
- *  @param stri String of bytes from which the bit is read.
- *  @param bytePos Current byte position in ''stri''.
- *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
- *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
- *)
+# The function getBitMsb(string) is deprecated. Use getBit(msbBitStream) instead.
 const func integer: getBitMsb (in string: stri, inout integer: bytePos,
     inout integer: bitPos) is func
   result
@@ -335,23 +844,7 @@ const func integer: getBitMsb (in string: stri, inout integer: bytePos,
   end func;
 
 
-(**
- *  Get ''bitWidth'' bits in MSB-First order from ''stri''.
- *  The bits are read at the current byte and bit position. Afterwards
- *  byte and bit position are advanced by ''bitWidth'' bits. The read
- *  direction is from MSB (most significant bit) to LSB (least significant bit).
- *  If bits from the next byte(s) are read a byte order of big-endian is used.
- *   stri := "\2#01011100;\2#11010110;"; bytePos := 1; bitPos := 5;
- *   #                100    11
- *   #         higher bits  lower bits
- *   #          of result    of result
- *   getBitsMsb(stri, bytePos, bitPos, 5)  returns  2#10011 (bytePos=2, bitPos=2)
- *  @param stri String of bytes from which the bits are read.
- *  @param bytePos Current byte position in ''stri''.
- *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
- *  @param bitWidth Number of bits requested.
- *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
- *)
+# The function getBitsMsb(string) is deprecated. Use getBits(msbBitStream) instead.
 const func integer: getBitsMsb (in string: stri, inout integer: bytePos,
     inout integer: bitPos, in integer: bitWidth) is func
   result
@@ -374,23 +867,7 @@ const func integer: getBitsMsb (in string: stri, inout integer: bytePos,
   end func;
 
 
-(**
- *  Peek ''bitWidth'' bits in MSB-First order from ''stri''.
- *  The bits are read at the current byte and bit position. Byte
- *  and bit position remain unchanged. The read direction is from
- *  MSB (most significant bit) to LSB (least significant bit).
- *  If bits from the next byte(s) are read a byte order of big-endian is used.
- *   stri := "\2#01011100;\2#11010110;";
- *   #                100    110
- *   #         higher bits  lower bits
- *   #          of result    of result
- *   peekBitsMsb(stri, 1, 5, 6)  returns  2#100110
- *  @param stri String of bytes from which the bits are read.
- *  @param bytePos Current byte position in ''stri''.
- *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
- *  @param bitWidth Number of bits requested.
- *  @exception RANGE_ERROR If the end of ''stri'' has been reached.
- *)
+# The function peekBitsMsb(string) is deprecated. Use peekBits(msbBitStream) instead.
 const func integer: peekBitsMsb (in string: stri, in var integer: bytePos,
     in integer: bitPos, in integer: bitWidth) is func
   result
@@ -409,9 +886,7 @@ const func integer: peekBitsMsb (in string: stri, in var integer: bytePos,
   end func;
 
 
-(**
- *  Advance byte and bit position by ''bitWidth'' bits.
- *)
+# The function skipBitsMsb() is deprecated. Use skipBits(msbBitStream) instead.
 const proc: skipBitsMsb (inout integer: bytePos, inout integer: bitPos,
     in integer: bitWidth) is func
   begin

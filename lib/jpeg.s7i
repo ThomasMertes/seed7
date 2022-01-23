@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  jpeg.s7i      Support for the JPEG image file format.           *)
-(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*  Copyright (C) 2021, 2022  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -311,12 +311,12 @@ const proc: readComment (inout file: jpegFile) is func
 #  Get a symbol with ''bitWidth'' bits from the ''stri'' bitstream.
 #  Negative values are encoded with the highest bit set to zero.
 #
-const func integer: getSymbol (in string: stri, inout integer: bytePos,
-    inout integer: bitPos, in integer: bitWidth) is func
+const func integer: getSymbol (inout msbBitStream: bitStream,
+    in integer: bitWidth) is func
   result
     var integer: symbol is 0;
   begin
-    symbol := getBitsMsb(stri, bytePos, bitPos, bitWidth);
+    symbol := getBits(bitStream, bitWidth);
     if symbol < 1 << pred(bitWidth) then
       # Negative value
       symbol -:= pred(1 << bitWidth);
@@ -333,8 +333,8 @@ const func integer: getSymbol (in string: stri, inout integer: bytePos,
 #  @param acTable Huffman table for the 63 AC coefficients.
 #
 const proc: readBlock (inout array integer: dataBlock,
-    in string: stri, inout integer: bytePos, inout integer: bitPos,
-    in huffmanTable: dcTable, in huffmanTable: acTable) is func
+    inout msbBitStream: bitStream, in huffmanTable: dcTable,
+    in huffmanTable: acTable) is func
   local
     var integer: bitWidth is 0;
     var integer: index is 1;
@@ -342,12 +342,12 @@ const proc: readBlock (inout array integer: dataBlock,
     var integer: zeros is 0;
   begin
     dataBlock := JPEG_BLOCK_SIZE times 0;
-    bitWidth := getHuffmanSymbolMsb(stri, bytePos, bitPos, dcTable);
+    bitWidth := getHuffmanSymbolMsb(bitStream, dcTable);
     if bitWidth <> 0 then
-      dataBlock[index] := getSymbol(stri, bytePos, bitPos, bitWidth);
+      dataBlock[index] := getSymbol(bitStream, bitWidth);
     end if;
     repeat
-      aByte := getHuffmanSymbolMsb(stri, bytePos, bitPos, acTable);
+      aByte := getHuffmanSymbolMsb(bitStream, acTable);
       zeros := aByte >> 4;
       bitWidth := aByte mod 16;
       if bitWidth = 0 then
@@ -359,7 +359,7 @@ const proc: readBlock (inout array integer: dataBlock,
         end if;
       else
         index +:= succ(zeros);
-        dataBlock[index] := getSymbol(stri, bytePos, bitPos, bitWidth);
+        dataBlock[index] := getSymbol(bitStream, bitWidth);
         if index = JPEG_BLOCK_SIZE then
           aByte := 0;
         end if;
@@ -519,13 +519,13 @@ const proc: idct8x8 (inout array integer: dataBlock) is func
 #  lower than the limit.
 #
 const proc: processBlock (inout array integer: dataBlock,
-    in string: stri, inout integer: bytePos, inout integer: bitPos,
-    in huffmanTable: dcTable, in huffmanTable: acTable,
-    in array integer: quantizationTable, inout integer: diff) is func
+    inout msbBitStream: bitStream, in huffmanTable: dcTable,
+    in huffmanTable: acTable, in array integer: quantizationTable,
+    inout integer: diff) is func
   local
     var integer: index is 0;
   begin
-    readBlock(dataBlock, stri, bytePos, bitPos, dcTable, acTable);
+    readBlock(dataBlock, bitStream, dcTable, acTable);
     dataBlock[1] +:= diff;
     diff := dataBlock[1];
     for index range 1 to JPEG_BLOCK_SIZE do
@@ -722,8 +722,7 @@ const proc: setupQuantization (inout jpegHeader: header) is func
 #  In the segment the sequence "\16#ff;\0;" is replaced by "\16#ff;".
 #  The segment ends, if a "\16#ff;" is not followed by "\0;" (introducing
 #  the start of the next segment). The char after "\16#ff;" is stored in
-#  bufferChar. Before the segment is returned "\16#ff;\16#ff;" is appended.
-#  This allows a peek of 16 bits also at the end of the segment.
+#  bufferChar.
 #
 const func string: readEntropyCodedSegment (inout file: jpegFile) is func
   result
@@ -744,7 +743,6 @@ const func string: readEntropyCodedSegment (inout file: jpegFile) is func
         end if;
       end if;
     until ch <> '\0;';
-    ecsData &:= "\16#ff;\16#ff;";
     jpegFile.bufferChar := ch;
   end func;
 
@@ -754,8 +752,7 @@ const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
     inout array array pixel: image) is func
   local
     var string: entropyCodedSegment is "";
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
+    var msbBitStream: bitStream is msbBitStream.value;
     var integer: mcuTopLine is 0;
     var integer: mcuLeftColumn is 0;
     var integer: line is 0;
@@ -769,18 +766,18 @@ const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
     var integer: grayIntensity is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    bitStream := openMsbBitStream(entropyCodedSegment);
     image := header.height times header.width times pixel.value;
     for mcuTopLine range 1 to header.height step 8 do
       blockLineMax := min(7, header.height - mcuTopLine);
       for mcuLeftColumn range 1 to header.width step 8 do
         if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
           entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          bytePos := 1;
-          bitPos := 0;
+          bitStream := openMsbBitStream(entropyCodedSegment);
           diffLuminance := 0;
         end if;
-        processBlock(luma, entropyCodedSegment, bytePos, bitPos,
-                     dcLumaTable, acLumaTable, header.lumaQuantization, diffLuminance);
+        processBlock(luma, bitStream, dcLumaTable, acLumaTable,
+                     header.lumaQuantization, diffLuminance);
         blockColumnMax := min(7, header.width - mcuLeftColumn);
         for blockLine range 0 to blockLineMax do
           line := mcuTopLine + blockLine;
@@ -803,8 +800,7 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
     inout array array pixel: image) is func
   local
     var string: entropyCodedSegment is "";
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
+    var msbBitStream: bitStream is msbBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: mcuCount is 0;
@@ -817,27 +813,24 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
     var array integer: chromaRed is JPEG_BLOCK_SIZE times 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    bitStream := openMsbBitStream(entropyCodedSegment);
     image := header.height times header.width times pixel.value;
     for line range 1 to header.height step header.vertical * 8 do
       for column range 1 to header.width step header.horizontal * 8 do
         if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
           entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          bytePos := 1;
-          bitPos := 0;
+          bitStream := openMsbBitStream(entropyCodedSegment);
           diffLuminance := 0;
           diffChromaBlue := 0;
           diffChromaRed := 0;
         end if;
         for index range 1 to header.numLuma do
-          processBlock(luma[index], entropyCodedSegment, bytePos, bitPos,
-                       dcLumaTable, acLumaTable, header.lumaQuantization,
-                       diffLuminance);
+          processBlock(luma[index], bitStream, dcLumaTable, acLumaTable,
+                       header.lumaQuantization, diffLuminance);
         end for;
-        processBlock(chromaBlue, entropyCodedSegment, bytePos, bitPos,
-                     dcChromaBlueTable, acChromaBlueTable,
+        processBlock(chromaBlue, bitStream, dcChromaBlueTable, acChromaBlueTable,
                      header.chromaBlueQuantization, diffChromaBlue);
-        processBlock(chromaRed, entropyCodedSegment, bytePos, bitPos,
-                     dcChromaRedTable, acChromaRedTable,
+        processBlock(chromaRed, bitStream, dcChromaRedTable, acChromaRedTable,
                      header.chromaRedQuantization, diffChromaRed);
         if header.horizontal = 1 then
           if header.vertical = 1 then
@@ -862,9 +855,8 @@ const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
   end func;
 
 
-const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader: header) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+const proc: loadImage (inout file: jpegFile, in jpegHeader: header,
+    inout array array pixel: image) is func
   local
     var integer: dcLumaIndex is 0;
     var integer: acLumaIndex is 0;
@@ -872,7 +864,6 @@ const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader
     var integer: acCbIndex is 0;
     var integer: dcCrIndex is 0;
     var integer: acCrIndex is 0;
-    var array array pixel: image is 0 times 0 times pixel.value;
   begin
     if header.scan[1].comptype <> JPEG_COMPTYPE_LUMA then
       raise RANGE_ERROR;
@@ -899,6 +890,16 @@ const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader
     else
       raise RANGE_ERROR;
     end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader: header) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var array array pixel: image is 0 times 0 times pixel.value;
+  begin
+    loadImage(jpegFile, header, image);
     pixmap := imagePixmap(image);
   end func;
 
@@ -907,17 +908,16 @@ const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader
 #  Read the DC coefficient of a block.
 #
 const proc: readDcValue (inout integer: dcCoefficient,
-    in string: stri, inout integer: bytePos, inout integer: bitPos,
-    in huffmanTable: dcTable, inout integer: diff,
-    in integer: approximationLow) is func
+    inout msbBitStream: bitStream, in huffmanTable: dcTable,
+    inout integer: diff, in integer: approximationLow) is func
 
   local
     var integer: bitWidth is 0;
     var integer: aValue is 0;
   begin
-    bitWidth := getHuffmanSymbolMsb(stri, bytePos, bitPos, dcTable);
+    bitWidth := getHuffmanSymbolMsb(bitStream, dcTable);
     if bitWidth <> 0 then
-      aValue := getSymbol(stri, bytePos, bitPos, bitWidth);
+      aValue := getSymbol(bitStream, bitWidth);
     end if;
     aValue +:= diff;
     diff := aValue;
@@ -929,8 +929,7 @@ const proc: readLumaDcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
     in huffmanTable: dcTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
+    var msbBitStream: bitStream is msbBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
@@ -938,19 +937,18 @@ const proc: readLumaDcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
     var integer: mcuCount is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    bitStream := openMsbBitStream(entropyCodedSegment);
     for line range 1 to header.blockLines do
       for column range 1 to header.blockColumns do
         if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
           entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          bytePos := 1;
-          bitPos := 0;
+          bitStream := openMsbBitStream(entropyCodedSegment);
           diffLuminance := 0;
         end if;
         index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
         readDcValue(mcuImage[succ(pred(line) mdiv header.vertical)]
                             [succ(pred(column) mdiv header.horizontal)].luma[index][1],
-                    entropyCodedSegment, bytePos, bitPos, dcTable,
-                    diffLuminance, header.approximationLow);
+                    bitStream, dcTable, diffLuminance, header.approximationLow);
         incr(mcuCount);
       end for;
     end for;
@@ -962,8 +960,7 @@ const proc: readDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
+    var msbBitStream: bitStream is msbBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
@@ -973,12 +970,12 @@ const proc: readDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     var integer: mcuCount is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    bitStream := openMsbBitStream(entropyCodedSegment);
     for line range 1 to header.unitLines do
       for column range 1 to header.unitColumns do
         if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
           entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          bytePos := 1;
-          bitPos := 0;
+          bitStream := openMsbBitStream(entropyCodedSegment);
           diffLuminance := 0;
           diffChromaBlue := 0;
           diffChromaRed := 0;
@@ -986,18 +983,18 @@ const proc: readDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: header
         if dcLumaIndex <> 0 then
           for index range 1 to header.numLuma do
             readDcValue(mcuImage[line][column].luma[index][1],
-                        entropyCodedSegment, bytePos, bitPos, header.dcTable[dcLumaIndex],
+                        bitStream, header.dcTable[dcLumaIndex],
                         diffLuminance, header.approximationLow);
           end for;
         end if;
         if dcCbIndex <> 0 then
           readDcValue(mcuImage[line][column].chroma[CHROMA_BLUE][1],
-                      entropyCodedSegment, bytePos, bitPos, header.dcTable[dcCbIndex],
+                      bitStream, header.dcTable[dcCbIndex],
                       diffChromaBlue, header.approximationLow);
         end if;
         if dcCrIndex <> 0 then
           readDcValue(mcuImage[line][column].chroma[CHROMA_RED][1],
-                      entropyCodedSegment, bytePos, bitPos, header.dcTable[dcCrIndex],
+                      bitStream, header.dcTable[dcCrIndex],
                       diffChromaRed, header.approximationLow);
         end if;
         incr(mcuCount);
@@ -1011,35 +1008,34 @@ const proc: refineDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: head
     inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
+    var msbBitStream: bitStream is msbBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
     var integer: mcuCount is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    bitStream := openMsbBitStream(entropyCodedSegment);
     for line range 1 to header.unitLines do
       for column range 1 to header.unitColumns do
         if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
           entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          bytePos := 1;
-          bitPos := 0;
+          bitStream := openMsbBitStream(entropyCodedSegment);
         end if;
         if dcLumaIndex <> 0 then
           for index range 1 to header.numLuma do
-            if getBitMsb(entropyCodedSegment, bytePos, bitPos) <> 0 then
+            if getBit(bitStream) <> 0 then
               mcuImage[line][column].luma[index][1] +:= 1 << header.approximationLow;
             end if;
           end for;
         end if;
         if dcCbIndex <> 0 then
-          if getBitMsb(entropyCodedSegment, bytePos, bitPos) <> 0 then
+          if getBit(bitStream) <> 0 then
             mcuImage[line][column].chroma[CHROMA_BLUE][1] +:= 1 << header.approximationLow;
           end if;
         end if;
         if dcCrIndex <> 0 then
-          if getBitMsb(entropyCodedSegment, bytePos, bitPos) <> 0 then
+          if getBit(bitStream) <> 0 then
             mcuImage[line][column].chroma[CHROMA_RED][1] +:= 1 << header.approximationLow;
           end if;
         end if;
@@ -1053,10 +1049,9 @@ const proc: refineDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: head
 #  Read the AC coefficients of a block.
 #
 const proc: readBlockAc (inout array integer: dataBlock,
-    in string: stri, inout integer: bytePos, inout integer: bitPos,
-    in huffmanTable: acTable, in integer: startOfSpectral,
-    in integer: endOfSpectral, inout integer: eobRunLength,
-    in integer: approximationLow) is func
+    inout msbBitStream: bitStream, in huffmanTable: acTable,
+    in integer: startOfSpectral, in integer: endOfSpectral,
+    inout integer: eobRunLength, in integer: approximationLow) is func
   local
     var integer: bitWidth is 0;
     var integer: index is 1;
@@ -1066,7 +1061,7 @@ const proc: readBlockAc (inout array integer: dataBlock,
   begin
     index := pred(startOfSpectral);
     repeat
-      aByte := getHuffmanSymbolMsb(stri, bytePos, bitPos, acTable);
+      aByte := getHuffmanSymbolMsb(bitStream, acTable);
       zeros := aByte >> 4;
       bitWidth := aByte mod 16;
       if bitWidth = 0 then
@@ -1078,7 +1073,7 @@ const proc: readBlockAc (inout array integer: dataBlock,
         else
           eobRunLength := 1 << zeros;
           if zeros <> 0 then
-            bits := getBitsMsb(stri, bytePos, bitPos, zeros);
+            bits := getBits(bitStream, zeros);
             eobRunLength +:= bits;
           end if;
           decr(eobRunLength);
@@ -1086,7 +1081,7 @@ const proc: readBlockAc (inout array integer: dataBlock,
         end if;
       else
         index +:= succ(zeros);
-        dataBlock[index] := getSymbol(stri, bytePos, bitPos, bitWidth) << approximationLow;
+        dataBlock[index] := getSymbol(bitStream, bitWidth) << approximationLow;
         if index = endOfSpectral then
           aByte := 0;
         end if;
@@ -1099,8 +1094,7 @@ const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
     in huffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
+    var msbBitStream: bitStream is msbBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
@@ -1108,12 +1102,12 @@ const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
     var integer: eobRunLength is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    bitStream := openMsbBitStream(entropyCodedSegment);
     for line range 1 to header.blockLines do
       for column range 1 to header.blockColumns do
         if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
           entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          bytePos := 1;
-          bitPos := 0;
+          bitStream := openMsbBitStream(entropyCodedSegment);
         end if;
         if eobRunLength > 0 then
           decr(eobRunLength);
@@ -1121,8 +1115,7 @@ const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
           index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
           readBlockAc(mcuImage[succ(pred(line) mdiv header.vertical)]
                               [succ(pred(column) mdiv header.horizontal)].luma[index],
-                      entropyCodedSegment, bytePos, bitPos, acTable,
-                      header.startOfSpectral, header.endOfSpectral,
+                      bitStream, acTable, header.startOfSpectral, header.endOfSpectral,
                       eobRunLength, header.approximationLow);
         end if;
         incr(mcuCount);
@@ -1136,28 +1129,27 @@ const proc: readChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     in integer: chromaIndex) is func
   local
     var string: entropyCodedSegment is "";
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
+    var msbBitStream: bitStream is msbBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: mcuCount is 0;
     var integer: eobRunLength is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    bitStream := openMsbBitStream(entropyCodedSegment);
     for line range 1 to header.unitLines do
       for column range 1 to header.unitColumns do
         if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
           entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          bytePos := 1;
-          bitPos := 0;
+          bitStream := openMsbBitStream(entropyCodedSegment);
         end if;
         if eobRunLength > 0 then
           decr(eobRunLength);
         else
           readBlockAc(mcuImage[line][column].chroma[chromaIndex],
-                      entropyCodedSegment, bytePos, bitPos, acTable,
-                      header.startOfSpectral, header.endOfSpectral,
-                      eobRunLength, header.approximationLow);
+                      bitStream, acTable, header.startOfSpectral,
+                      header.endOfSpectral, eobRunLength,
+                      header.approximationLow);
         end if;
         incr(mcuCount);
       end for;
@@ -1166,9 +1158,9 @@ const proc: readChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
 
 
 const proc: refineNonZeroes (inout array integer: dataBlock,
-    in string: stri, inout integer: bytePos, inout integer: bitPos,
-    inout integer: spectral, in integer: endOfSpectral,
-    in var integer: numberOfZeros, in integer: delta) is func
+    inout msbBitStream: bitStream, inout integer: spectral,
+    in integer: endOfSpectral, in var integer: numberOfZeros,
+    in integer: delta) is func
   local
     var boolean: enoughZeros is FALSE;
     var integer: bit is 0;
@@ -1182,7 +1174,7 @@ const proc: refineNonZeroes (inout array integer: dataBlock,
           incr(spectral);
         end if;
       else
-        bit := getBitMsb(stri, bytePos, bitPos);
+        bit := getBit(bitStream);
         if bit <> 0 then
           if dataBlock[spectral] >= 0 then
             dataBlock[spectral] +:= delta;
@@ -1200,9 +1192,9 @@ const proc: refineNonZeroes (inout array integer: dataBlock,
 #  Refine the AC coefficients of a block.
 #
 const proc: refineBlockAc (inout array integer: dataBlock,
-    in string: stri, inout integer: bytePos, inout integer: bitPos,
-    in huffmanTable: acTable, in integer: startOfSpectral,
-    in integer: endOfSpectral, inout integer: eobRunLength, in integer: delta) is func
+    inout msbBitStream: bitStream, in huffmanTable: acTable,
+    in integer: startOfSpectral, in integer: endOfSpectral,
+    inout integer: eobRunLength, in integer: delta) is func
   local
     var integer: spectral is 0;
     var integer: coefficient is 0;
@@ -1215,20 +1207,20 @@ const proc: refineBlockAc (inout array integer: dataBlock,
     spectral := startOfSpectral;
     while spectral <= endOfSpectral and eobRunLength = 0 do
       coefficient := 0;
-      aByte := getHuffmanSymbolMsb(stri, bytePos, bitPos, acTable);
+      aByte := getHuffmanSymbolMsb(bitStream, acTable);
       zeros := aByte >> 4;
       bitWidth := aByte mod 16;
       if bitWidth = 0 then
         if zeros <> 15 then
           eobRunLength := 1 << zeros;
           if zeros <> 0 then
-            bits := getBitsMsb(stri, bytePos, bitPos, zeros);
+            bits := getBits(bitStream, zeros);
             eobRunLength +:= bits;
           end if;
         end if;
       elsif bitWidth = 1 then
         coefficient := delta;
-        bit := getBitMsb(stri, bytePos, bitPos);
+        bit := getBit(bitStream);
         if bit = 0 then
           coefficient := -coefficient;
         end if;
@@ -1236,7 +1228,7 @@ const proc: refineBlockAc (inout array integer: dataBlock,
         raise RANGE_ERROR;
       end if;
       if eobRunLength = 0 then
-        refineNonZeroes(dataBlock, stri, bytePos, bitPos, spectral, endOfSpectral, zeros, delta);
+        refineNonZeroes(dataBlock, bitStream, spectral, endOfSpectral, zeros, delta);
         if spectral > endOfSpectral then
           raise RANGE_ERROR;
         end if;
@@ -1248,7 +1240,7 @@ const proc: refineBlockAc (inout array integer: dataBlock,
     end while;
     if eobRunLength > 0 then
       decr(eobRunLength);
-      refineNonZeroes(dataBlock, stri, bytePos, bitPos, spectral, endOfSpectral, -1, delta);
+      refineNonZeroes(dataBlock, bitStream, spectral, endOfSpectral, -1, delta);
     end if;
   end func;
 
@@ -1257,8 +1249,7 @@ const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     in huffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
+    var msbBitStream: bitStream is msbBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: index is 0;
@@ -1266,19 +1257,19 @@ const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
     var integer: eobRunLength is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    bitStream := openMsbBitStream(entropyCodedSegment);
     for line range 1 to header.blockLines do
       for column range 1 to header.blockColumns do
         if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
           entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          bytePos := 1;
-          bitPos := 0;
+          bitStream := openMsbBitStream(entropyCodedSegment);
         end if;
         index := succ(2 * (pred(line) mod header.vertical) + pred(column) mod header.horizontal);
         refineBlockAc(mcuImage[succ(pred(line) mdiv header.vertical)]
                               [succ(pred(column) mdiv header.horizontal)].luma[index],
-                      entropyCodedSegment, bytePos, bitPos, acTable,
-                      header.startOfSpectral, header.endOfSpectral,
-                      eobRunLength, 1 << header.approximationLow);
+                      bitStream, acTable, header.startOfSpectral,
+                      header.endOfSpectral, eobRunLength,
+                      1 << header.approximationLow);
         incr(mcuCount);
       end for;
     end for;
@@ -1290,25 +1281,24 @@ const proc: refineChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: head
     in integer: chromaIndex) is func
   local
     var string: entropyCodedSegment is "";
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
+    var msbBitStream: bitStream is msbBitStream.value;
     var integer: line is 0;
     var integer: column is 0;
     var integer: mcuCount is 0;
     var integer: eobRunLength is 0;
   begin
     entropyCodedSegment := readEntropyCodedSegment(jpegFile);
+    bitStream := openMsbBitStream(entropyCodedSegment);
     for line range 1 to header.unitLines do
       for column range 1 to header.unitColumns do
         if header.restartInterval <> 0 and mcuCount rem header.restartInterval = 0 and mcuCount > 0 then
           entropyCodedSegment := readEntropyCodedSegment(jpegFile);
-          bytePos := 1;
-          bitPos := 0;
+          bitStream := openMsbBitStream(entropyCodedSegment);
         end if;
         refineBlockAc(mcuImage[line][column].chroma[chromaIndex],
-                      entropyCodedSegment, bytePos, bitPos, acTable,
-                      header.startOfSpectral, header.endOfSpectral,
-                      eobRunLength, 1 << header.approximationLow);
+                      bitStream, acTable, header.startOfSpectral,
+                      header.endOfSpectral, eobRunLength,
+                      1 << header.approximationLow);
         incr(mcuCount);
       end for;
     end for;

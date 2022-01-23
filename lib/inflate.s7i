@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  inflate.s7i   Inflate uncompression algorithm                   *)
-(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*  Copyright (C) 2008, 2013, 2015, 2017, 2022  Thomas Mertes       *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -27,67 +27,71 @@
 
 
 include "bitdata.s7i";
+include "bytedata.s7i";
+include "huffman.s7i";
 
 
-const proc: getNonCompressedBlock (in string: stri, inout integer: bytePos,
-    inout string: uncompressed) is func
+const proc: getNonCompressedBlock (inout lsbBitStream: bitStream, inout string: uncompressed) is func
   local
     var integer: length is 0;
     var integer: nlength is 0;
+    var string: uncompressedBlock is "";
   begin
-    length := ord(stri[bytePos]) + (ord(stri[succ(bytePos)]) << 8);
-    nlength := ord(stri[bytePos + 2]) + (ord(stri[bytePos + 3]) << 8);
-    uncompressed &:= stri[bytePos + 4 len length];
-    bytePos +:= 4 + length;
+    length := bytes2Int(gets(bitStream, 2), UNSIGNED, LE);
+    nlength := bytes2Int(gets(bitStream, 2), UNSIGNED, LE);
+    uncompressedBlock := gets(bitStream, length);
+    if length(uncompressedBlock) <> length then
+      raise RANGE_ERROR;
+    else
+      uncompressed &:= uncompressedBlock;
+    end if;
   end func;
 
 
-const func integer: getLiteralOrLength (in string: stri, inout integer: bytePos,
-    inout integer: bitPos) is func
+const func integer: getLiteralOrLength (inout lsbBitStream: bitStream) is func
   result
     var integer: literalOrLength is 0;
   begin
-    literalOrLength := reverseBits[7][getBitsLsb(stri, bytePos, bitPos, 7)];
+    literalOrLength := reverseBits[7][getBits(bitStream, 7)];
     if literalOrLength <= 2#0010111 then
       literalOrLength +:= 256;
     else
       literalOrLength <<:= 1;
-      literalOrLength +:= getBitLsb(stri, bytePos, bitPos);
+      literalOrLength +:= getBit(bitStream);
       if literalOrLength <= 2#10111111 then
         literalOrLength -:= 2#00110000;
       elsif literalOrLength <= 2#11000111 then
         literalOrLength +:= 280 - 2#11000000;
       else
         literalOrLength <<:= 1;
-        literalOrLength +:= getBitLsb(stri, bytePos, bitPos);
+        literalOrLength +:= getBit(bitStream);
         literalOrLength -:= 2#110010000 - 144;
       end if;
     end if;
   end func;
 
 
-const func integer: getDistance (in string: stri, inout integer: bytePos,
-    inout integer: bitPos) is
-  return reverseBits[5][getBitsLsb(stri, bytePos, bitPos, 5)];
+const func integer: getDistance (inout lsbBitStream: bitStream) is
+  return reverseBits[5][getBits(bitStream, 5)];
 
 
-const func integer: decodeLength (in string: stri, inout integer: bytePos,
-    inout integer: bitPos, in integer: code) is func
+const func integer: decodeLength (inout lsbBitStream: bitStream,
+    in integer: code) is func
   result
     var integer: length is 0;
   begin
     if code <= 264 then
       length := code - 254;
     elsif code <= 268 then
-      length := 11 + ((code - 265) << 1) + getBitLsb(stri, bytePos, bitPos);
+      length := 11 + ((code - 265) << 1) + getBit(bitStream);
     elsif code <= 272 then
-      length := 19 + ((code - 269) << 2) + getBitsLsb(stri, bytePos, bitPos, 2);
+      length := 19 + ((code - 269) << 2) + getBits(bitStream, 2);
     elsif code <= 276 then
-      length := 35 + ((code - 273) << 3) + getBitsLsb(stri, bytePos, bitPos, 3);
+      length := 35 + ((code - 273) << 3) + getBits(bitStream, 3);
     elsif code <= 280 then
-      length := 67 + ((code - 277) << 4) + getBitsLsb(stri, bytePos, bitPos, 4);
+      length := 67 + ((code - 277) << 4) + getBits(bitStream, 4);
     elsif code <= 284 then
-      length := 131 + ((code - 281) << 5) + getBitsLsb(stri, bytePos, bitPos, 5);
+      length := 131 + ((code - 281) << 5) + getBits(bitStream, 5);
     elsif code = 285 then
       length := 258;
     else
@@ -96,8 +100,8 @@ const func integer: decodeLength (in string: stri, inout integer: bytePos,
   end func;
 
 
-const func integer: decodeDistance (in string: stri, inout integer: bytePos,
-    inout integer: bitPos, in integer: code) is func
+const func integer: decodeDistance (inout lsbBitStream: bitStream,
+    in integer: code) is func
   result
     var integer: distance is 0;
   begin
@@ -105,39 +109,39 @@ const func integer: decodeDistance (in string: stri, inout integer: bytePos,
       when {0, 1, 2, 3}:
         distance := succ(code);
       when {4, 5}:
-        distance := 5 + ((code - 4) << 1) + getBitLsb(stri, bytePos, bitPos);
+        distance := 5 + ((code - 4) << 1) + getBit(bitStream);
       when {6, 7}:
-        distance := 9 + ((code - 6) << 2) + getBitsLsb(stri, bytePos, bitPos, 2);
+        distance := 9 + ((code - 6) << 2) + getBits(bitStream, 2);
       when {8, 9}:
-        distance := 17 + ((code - 8) << 3) + getBitsLsb(stri, bytePos, bitPos, 3);
+        distance := 17 + ((code - 8) << 3) + getBits(bitStream, 3);
       when {10, 11}:
-        distance := 33 + ((code - 10) << 4) + getBitsLsb(stri, bytePos, bitPos, 4);
+        distance := 33 + ((code - 10) << 4) + getBits(bitStream, 4);
       when {12, 13}:
-        distance := 65 + ((code - 12) << 5) + getBitsLsb(stri, bytePos, bitPos, 5);
+        distance := 65 + ((code - 12) << 5) + getBits(bitStream, 5);
       when {14, 15}:
-        distance := 129 + ((code - 14) << 6) + getBitsLsb(stri, bytePos, bitPos, 6);
+        distance := 129 + ((code - 14) << 6) + getBits(bitStream, 6);
       when {16, 17}:
-        distance := 257 + ((code - 16) << 7) + getBitsLsb(stri, bytePos, bitPos, 7);
+        distance := 257 + ((code - 16) << 7) + getBits(bitStream, 7);
       when {18, 19}:
-        distance := 513 + ((code - 18) << 8) + getBitsLsb(stri, bytePos, bitPos, 8);
+        distance := 513 + ((code - 18) << 8) + getBits(bitStream, 8);
       when {20, 21}:
-        distance := 1025 + ((code - 20) << 9) + getBitsLsb(stri, bytePos, bitPos, 9);
+        distance := 1025 + ((code - 20) << 9) + getBits(bitStream, 9);
       when {22, 23}:
-        distance := 2049 + ((code - 22) << 10) + getBitsLsb(stri, bytePos, bitPos, 10);
+        distance := 2049 + ((code - 22) << 10) + getBits(bitStream, 10);
       when {24, 25}:
-        distance := 4097 + ((code - 24) << 11) + getBitsLsb(stri, bytePos, bitPos, 11);
+        distance := 4097 + ((code - 24) << 11) + getBits(bitStream, 11);
       when {26, 27}:
-        distance := 8193 + ((code - 26) << 12) + getBitsLsb(stri, bytePos, bitPos, 12);
+        distance := 8193 + ((code - 26) << 12) + getBits(bitStream, 12);
       when {28, 29}:
-        distance := 16385 + ((code - 28) << 13) + getBitsLsb(stri, bytePos, bitPos, 13);
+        distance := 16385 + ((code - 28) << 13) + getBits(bitStream, 13);
       otherwise:
         raise RANGE_ERROR;
     end case;
   end func;
 
 
-const proc: decodeFixedHuffmanCodes (in string: compressed, inout integer: bytePos,
-    inout integer: bitPos, inout string: uncompressed) is func
+const proc: decodeFixedHuffmanCodes (inout lsbBitStream: bitStream,
+    inout string: uncompressed) is func
   local
     var integer: literalOrLength is 0;
     var integer: length is 0;
@@ -145,14 +149,14 @@ const proc: decodeFixedHuffmanCodes (in string: compressed, inout integer: byteP
     var integer: number is 0;
     var integer: nextPos is 0;
   begin
-    literalOrLength := getLiteralOrLength(compressed, bytePos, bitPos);
+    literalOrLength := getLiteralOrLength(bitStream);
     while literalOrLength <> 256 do
       if literalOrLength < 256 then
         uncompressed &:= chr(literalOrLength);
       else
-        length := decodeLength(compressed, bytePos, bitPos, literalOrLength);
-        distance := getDistance(compressed, bytePos, bitPos);
-        distance := decodeDistance(compressed, bytePos, bitPos, distance);
+        length := decodeLength(bitStream, literalOrLength);
+        distance := getDistance(bitStream);
+        distance := decodeDistance(bitStream, distance);
         if length > distance then
           nextPos := succ(length(uncompressed));
           uncompressed &:= "\0;" mult length;
@@ -163,84 +167,13 @@ const proc: decodeFixedHuffmanCodes (in string: compressed, inout integer: byteP
           uncompressed &:= uncompressed[succ(length(uncompressed)) - distance len length];
         end if;
       end if;
-      literalOrLength := getLiteralOrLength(compressed, bytePos, bitPos);
+      literalOrLength := getLiteralOrLength(bitStream);
     end while;
   end func;
 
 
-const type: conversionEntry is new struct
-    var integer: limit is 0;
-    var array integer: table is 0 times 0;
-  end struct;
-
-const type: conversionTableType is array conversionEntry;
-
-
-const func integer: getHuffmanValue (in string: stri, inout integer: bytePos,
-    inout integer: bitPos, in conversionTableType: conversionTable) is func
-  result
-    var integer: huffmanValue is 0;
-  local
-    var integer: bitLength is 1;
-    var integer: code is 0;
-  begin
-    repeat
-      code <<:= 1;
-      code +:= getBitLsb(stri, bytePos, bitPos);
-      incr(bitLength);
-    until code < conversionTable[bitLength].limit;
-    huffmanValue := conversionTable[pred(bitLength)].table[code];
-  end func;
-
-
-const func conversionTableType: computeConversionTable (in array integer: codeLengths) is func
-  result
-    var conversionTableType: conversionTable is conversionTableType.value;
-  local
-    var integer: maxBits is 0;
-    var integer: bits is 0;
-    var integer: number is 0;
-    var integer: code is 0;
-    var array integer: bl_count is 0 times 0;
-    var integer: length is 0;
-    var array integer: nextCode is 0 times 0;
-    var array integer: codeValues is 0 times 0;
-  begin
-    maxBits := 0;
-    for number range minIdx(codeLengths) to maxIdx(codeLengths) do
-      if codeLengths[number] > maxBits then
-        maxBits := codeLengths[number];
-      end if;
-    end for;
-    bl_count := [0 .. maxBits] times 0;
-    for number range minIdx(codeLengths) to maxIdx(codeLengths) do
-      incr(bl_count[codeLengths[number]]);
-    end for;
-    code := 0;
-    bl_count[0] := 0;
-    nextCode := maxBits times 0;
-    conversionTable := succ(maxBits) times conversionEntry.value;
-    for bits range 1 to maxBits do
-      code := (code + bl_count[pred(bits)]) << 1;
-      conversionTable[bits].limit := code >> 1;
-      conversionTable[bits].table := [code .. pred(code)] times 0;
-      nextCode[bits] := code;
-    end for;
-    conversionTable[succ(maxBits)].limit := 1 << maxBits;
-    codeValues := [minIdx(codeLengths) .. maxIdx(codeLengths)] times 0;
-    for number range minIdx(codeLengths) to maxIdx(codeLengths) do
-      length := codeLengths[number];
-      if length <> 0 then
-        codeValues[number] := nextCode[length];
-        incr(nextCode[length]);
-        conversionTable[length].table &:= number;
-      end if;
-    end for;
-  end func;
-
-
-const proc: decodeDynamicHuffmanCodes (in string: compressed, inout integer: bytePos,
-    inout integer: bitPos, inout string: uncompressed) is func
+const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: bitStream,
+    inout string: uncompressed) is func
   local
     const array integer: codeLengthAlphabet is []
         (16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15);
@@ -254,55 +187,55 @@ const proc: decodeDynamicHuffmanCodes (in string: compressed, inout integer: byt
     var integer: number is 0;
     var integer: codeLength is 0;
     var integer: factor is 0;
-    var conversionTableType: lengthConversionTable is conversionTableType.value;
-    var conversionTableType: literalOrLengthConversionTable is conversionTableType.value;
-    var conversionTableType: distanceConversionTable is conversionTableType.value;
+    var huffmanTable: lengthConversionTable is huffmanTable.value;
+    var huffmanTable: literalOrLengthConversionTable is huffmanTable.value;
+    var huffmanTable: distanceConversionTable is huffmanTable.value;
     var integer: literalOrLength is 0;
     var integer: length is 0;
     var integer: distance is 0;
     var integer: nextPos is 0;
   begin
-    hlit := getBitsLsb(compressed, bytePos, bitPos, 5);
-    hdist := getBitsLsb(compressed, bytePos, bitPos, 5);
-    hclen := getBitsLsb(compressed, bytePos, bitPos, 4);
+    hlit := getBits(bitStream, 5);
+    hdist := getBits(bitStream, 5);
+    hclen := getBits(bitStream, 4);
     lengthCodeLengths := [0 .. 18] times 0;
     for number range 1 to hclen + 4 do
-      lengthCodeLengths[codeLengthAlphabet[number]] := getBitsLsb(compressed, bytePos, bitPos, 3);
+      lengthCodeLengths[codeLengthAlphabet[number]] := getBits(bitStream, 3);
     end for;
-    lengthConversionTable := computeConversionTable(lengthCodeLengths);
+    lengthConversionTable := createHuffmanTableLsb(lengthCodeLengths);
     number := 1;
     while number <= hlit + 257 + hdist + 1 do
-      codeLength := getHuffmanValue(compressed, bytePos, bitPos, lengthConversionTable);
+      codeLength := getHuffmanSymbolLsb(bitStream, lengthConversionTable);
       if codeLength <= 15 then
         combinedCodeLengths &:= codeLength;
         incr(number);
       elsif codeLength = 16 then
-        factor := getBitsLsb(compressed, bytePos, bitPos, 2) + 3;
+        factor := getBits(bitStream, 2) + 3;
         combinedCodeLengths &:= factor times
             combinedCodeLengths[maxIdx(combinedCodeLengths)];
         number +:= factor;
       elsif codeLength = 17 then
-        factor := getBitsLsb(compressed, bytePos, bitPos, 3) + 3;
+        factor := getBits(bitStream, 3) + 3;
         combinedCodeLengths &:= factor times 0;
         number +:= factor;
       else # codeLength = 18
-        factor := getBitsLsb(compressed, bytePos, bitPos, 7) + 11;
+        factor := getBits(bitStream, 7) + 11;
         combinedCodeLengths &:= factor times 0;
         number +:= factor;
       end if;
     end while;
     literalOrLengthCodeLengths := combinedCodeLengths[.. hlit + 256];
     distanceCodeLengths := combinedCodeLengths[hlit + 257 .. ];
-    literalOrLengthConversionTable := computeConversionTable(literalOrLengthCodeLengths);
-    distanceConversionTable := computeConversionTable(distanceCodeLengths);
-    literalOrLength := getHuffmanValue(compressed, bytePos, bitPos, literalOrLengthConversionTable);
+    literalOrLengthConversionTable := createHuffmanTableLsb(literalOrLengthCodeLengths);
+    distanceConversionTable := createHuffmanTableLsb(distanceCodeLengths);
+    literalOrLength := getHuffmanSymbolLsb(bitStream, literalOrLengthConversionTable);
     while literalOrLength <> 256 do
       if literalOrLength < 256 then
         uncompressed &:= chr(literalOrLength);
       else
-        length := decodeLength(compressed, bytePos, bitPos, literalOrLength);
-        distance := getHuffmanValue(compressed, bytePos, bitPos, distanceConversionTable);
-        distance := decodeDistance(compressed, bytePos, bitPos, distance);
+        length := decodeLength(bitStream, literalOrLength);
+        distance := getHuffmanSymbolLsb(bitStream, distanceConversionTable);
+        distance := decodeDistance(bitStream, distance);
         if length > distance then
           nextPos := succ(length(uncompressed));
           uncompressed &:= "\0;" mult length;
@@ -313,32 +246,49 @@ const proc: decodeDynamicHuffmanCodes (in string: compressed, inout integer: byt
           uncompressed &:= uncompressed[succ(length(uncompressed)) - distance len length];
         end if;
       end if;
-      literalOrLength := getHuffmanValue(compressed, bytePos, bitPos, literalOrLengthConversionTable);
+      literalOrLength := getHuffmanSymbolLsb(bitStream, literalOrLengthConversionTable);
     end while;
   end func;
 
 
-const proc: processCompressedBlock (in string: compressed, inout integer: bytePos,
-    inout integer: bitPos, inout string: uncompressed, inout boolean: bfinal) is func
+const proc: processCompressedBlock (inout lsbBitStream: bitStream,
+    inout string: uncompressed, inout boolean: bfinal) is func
   local
     var integer: btype is 0;
   begin
-    bfinal := odd(getBitLsb(compressed, bytePos, bitPos));
-    btype := getBitsLsb(compressed, bytePos, bitPos, 2);
+    bfinal := odd(getBit(bitStream));
+    btype := getBits(bitStream, 2);
     case btype of
       when {0}:
-        if bitPos <> 0 then
-          incr(bytePos);
-          bitPos := 0;
-        end if;
-        getNonCompressedBlock(compressed, bytePos, uncompressed);
+        getNonCompressedBlock(bitStream, uncompressed);
       when {1}:
-        decodeFixedHuffmanCodes(compressed, bytePos, bitPos, uncompressed);
+        decodeFixedHuffmanCodes(bitStream, uncompressed);
       when {2}:
-        decodeDynamicHuffmanCodes(compressed, bytePos, bitPos, uncompressed);
+        decodeDynamicHuffmanCodes(bitStream, uncompressed);
       otherwise:
         raise RANGE_ERROR;
     end case;
+  end func;
+
+
+(**
+ *  Decompress a file that was compressed with DEFLATE.
+ *  DEFLATE is a compression algorithm that uses a combination of
+ *  the LZ77 algorithm and Huffman coding.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in DEFLATE format.
+ *)
+const func string: inflate (inout file: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var lsbBitStream: bitStream is lsbBitStream.value;
+    var boolean: bfinal is FALSE;
+  begin
+    bitStream := openLsbBitStream(compressed);
+    repeat
+      processCompressedBlock(bitStream, uncompressed, bfinal);
+    until bfinal;
   end func;
 
 
@@ -353,11 +303,11 @@ const func string: inflate (in string: compressed) is func
   result
     var string: uncompressed is "";
   local
-    var integer: bytePos is 1;
-    var integer: bitPos is 0;
+    var lsbBitStream: bitStream is lsbBitStream.value;
     var boolean: bfinal is FALSE;
   begin
+    bitStream := openLsbBitStream(compressed);
     repeat
-      processCompressedBlock(compressed, bytePos, bitPos, uncompressed, bfinal);
+      processCompressedBlock(bitStream, uncompressed, bfinal);
     until bfinal;
   end func;

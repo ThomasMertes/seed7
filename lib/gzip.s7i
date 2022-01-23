@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  gzip.s7i      Gzip compression support library                  *)
-(*  Copyright (C) 2008 - 2013, 2015, 2019 - 2021  Thomas Mertes     *)
+(*  Copyright (C) 2008 - 2013, 2015, 2019 - 2022  Thomas Mertes     *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -27,7 +27,6 @@
 
 
 include "inflate.s7i";
-include "inflatefile.s7i";
 include "deflate.s7i";
 include "bytedata.s7i";
 include "time.s7i";
@@ -141,20 +140,22 @@ const func string: gzuncompress (in string: compressed) is func
     var integer: compressionMethod is 0;
     var integer: cinfo is 0;
     var integer: flags is 0;
-    var integer: bytePos is 3;
-    var integer: bitPos is 0;
+    var lsbBitStream: bitStream is lsbBitStream.value;
     var boolean: bfinal is FALSE;
   begin
     if (ord(compressed[1]) * 256 + ord(compressed[2])) mod 31 = 0 then
       compressionMethod := ord(compressed[1]) mod 16;
       cinfo := (ord(compressed[1]) >> 4) mod 16;
       flags := ord(compressed[2]);
-      if odd(flags >> 5) then
-        bytePos +:= 4;
-      end if;
       if compressionMethod = 8 then
+        bitStream := openLsbBitStream(compressed);
+        if odd(flags >> 5) then
+          skipBits(bitStream, 48);
+        else
+          skipBits(bitStream, 16);
+        end if;
         repeat
-          processCompressedBlock(compressed, bytePos, bitPos, uncompressed, bfinal);
+          processCompressedBlock(bitStream, uncompressed, bfinal);
         until bfinal;
       end if;
     end if;
@@ -181,14 +182,16 @@ const func string: gunzip (in string: compressed) is func
   result
     var string: uncompressed is "";
   local
+    var lsbBitStream: bitStream is lsbBitStream.value;
     var integer: bytePos is 0;
-    var integer: bitPos is 0;
     var boolean: bfinal is FALSE;
   begin
     if compressed[1 len 2] = GZIP_MAGIC then
       readGzipHeader(compressed, bytePos);
+      bitStream := openLsbBitStream(compressed);
+      skipBits(bitStream, pred(bytePos) * 8);
       repeat
-        processCompressedBlock(compressed, bytePos, bitPos, uncompressed, bfinal);
+        processCompressedBlock(bitStream, uncompressed, bfinal);
       until bfinal;
     end if;
   end func;
@@ -199,8 +202,7 @@ const func string: gunzip (in string: compressed) is func
  *  GZIP is a file format used for compression.
  *)
 const type: gzipFile is sub null_file struct
-    var file: compressed is STD_NULL;
-    var integer: bitPos is 0;
+    var lsbBitStream: bitStream is lsbBitStream.value;
     var boolean: bfinal is FALSE;
     var string: uncompressed is "";
     var integer: position is 1;
@@ -229,8 +231,7 @@ const func file: openGzipFile (inout file: compressed, READ) is func
     magic := gets(compressed, 2);
     if magic = GZIP_MAGIC then
       readGzipHeader(compressed);
-      compressed.bufferChar := getc(compressed);
-      new_gzipFile.compressed := compressed;
+      new_gzipFile.bitStream := openLsbBitStream(compressed);
       newFile := toInterface(new_gzipFile);
     end if;
   end func;
@@ -257,7 +258,7 @@ const func char: getc (inout gzipFile: inFile) is func
   begin
     while inFile.position > length(inFile.uncompressed) and
         not inFile.bfinal do
-      processCompressedBlock(inFile.compressed, inFile.bitPos,
+      processCompressedBlock(inFile.bitStream,
           inFile.uncompressed, inFile.bfinal);
     end while;
     if inFile.position <= length(inFile.uncompressed) then
@@ -285,7 +286,7 @@ const func string: gets (inout gzipFile: inFile, in integer: maxLength) is func
     else
       while maxLength > succ(length(inFile.uncompressed) - inFile.position) and
           not inFile.bfinal do
-        processCompressedBlock(inFile.compressed, inFile.bitPos,
+        processCompressedBlock(inFile.bitStream,
             inFile.uncompressed, inFile.bfinal);
       end while;
       if maxLength <= succ(length(inFile.uncompressed) - inFile.position) then
@@ -320,7 +321,7 @@ const func boolean: hasNext (inout gzipFile: inFile) is func
   begin
     while inFile.position > length(inFile.uncompressed) and
         not inFile.bfinal do
-      processCompressedBlock(inFile.compressed, inFile.bitPos,
+      processCompressedBlock(inFile.bitStream,
           inFile.uncompressed, inFile.bfinal);
     end while;
     hasNext := inFile.position <= length(inFile.uncompressed);
@@ -337,7 +338,7 @@ const func integer: length (inout gzipFile: aFile) is func
     var integer: length is 0;
   begin
     while not aFile.bfinal do
-      processCompressedBlock(aFile.compressed, aFile.bitPos,
+      processCompressedBlock(aFile.bitStream,
           aFile.uncompressed, aFile.bfinal);
     end while;
     length := length(aFile.uncompressed);

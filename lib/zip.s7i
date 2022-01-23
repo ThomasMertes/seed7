@@ -28,7 +28,6 @@
 
 include "stdio.s7i";
 include "inflate.s7i";
-include "inflatefile.s7i";
 include "deflate.s7i";
 include "unicode.s7i";
 include "bytedata.s7i";
