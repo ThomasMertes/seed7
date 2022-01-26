@@ -281,14 +281,14 @@ const func integer: peekSymbol (in fseDecodingType: fseDecoding, in integer: fse
 
 
 const proc: nextState (in fseDecodingType: fseDecoding, inout integer: fseState,
-    inout reverseBitStream: bitStream) is func
+    inout reverseBitStream: compressedStream) is func
   local
     var integer: bitsNeeded is 0;
     var integer: baseLine is 0;
   begin
     bitsNeeded := fseDecoding.decodingTable[fseState].numberOfBits;
     baseLine := fseDecoding.decodingTable[fseState].baseline;
-    fseState := baseLine + getBits(bitStream, bitsNeeded);
+    fseState := baseLine + getBits(compressedStream, bitsNeeded);
   end func;
 
 
@@ -297,7 +297,7 @@ const func integer: getAdditionalBits (in fseDecodingType: fseDecoding, in integ
 
 
 const func array integer: decodeInterleavedFseStreams (in fseDecodingType: fseDecoding,
-    inout reverseBitStream: bitStream) is func
+    inout reverseBitStream: compressedStream) is func
   result
     var array integer: weights is [0 .. -1] times 0;
   local
@@ -309,20 +309,20 @@ const func array integer: decodeInterleavedFseStreams (in fseDecodingType: fseDe
     var integer: symbol is 0;
   begin
     repeat
-      aBit := getBits(bitStream, 1);
+      aBit := getBits(compressedStream, 1);
     until aBit = 1;
-    if bitsRead(bitStream) > 8 then
+    if bitsRead(compressedStream) > 8 then
       raise RANGE_ERROR;
     else
-      fseState[1] := getBits(bitStream, fseDecoding.accuracyLog);
-      fseState[2] := getBits(bitStream, fseDecoding.accuracyLog);
+      fseState[1] := getBits(compressedStream, fseDecoding.accuracyLog);
+      fseState[2] := getBits(compressedStream, fseDecoding.accuracyLog);
       repeat
         for key index range fseState until endOfStreamReached do
           symbol := peekSymbol(fseDecoding, fseState[index]);
-          nextState(fseDecoding, fseState[index], bitStream);
+          nextState(fseDecoding, fseState[index], compressedStream);
           weights &:= symbol;
 
-          if bitsStillInStream(bitStream) < 0 then
+          if bitsStillInStream(compressedStream) < 0 then
             otherIndex := succ(index mod length(fseState));
             symbol := peekSymbol(fseDecoding, fseState[otherIndex]);
             weights &:= symbol;
@@ -446,7 +446,7 @@ const func array integer: readZstdHuffmanTreeWeights (inout file: compressed) is
     var fseDecodingType: fseDecoding is fseDecodingType.value;
     var integer: posBefore is 0;
     var integer: bitStreamLength is 0;
-    var reverseBitStream: bitStream is reverseBitStream.value;
+    var reverseBitStream: compressedStream is reverseBitStream.value;
     var integer: numberOfWeights is 0;
     var integer: index is 0;
     var integer: aByte is 0;
@@ -457,8 +457,8 @@ const func array integer: readZstdHuffmanTreeWeights (inout file: compressed) is
       fseWeights := getFseCompressedHuffmanWeights(compressed);
       fseDecoding := buildDecodingTable(fseWeights);
       bitStreamLength := huffmanTreeHeaderByte - (tell(compressed) - posBefore);
-      bitStream := reverseBitStream(compressed, bitStreamLength);
-      weights := decodeInterleavedFseStreams(fseDecoding, bitStream);
+      compressedStream := reverseBitStream(compressed, bitStreamLength);
+      weights := decodeInterleavedFseStreams(fseDecoding, compressedStream);
     else
       # Direct representation of huffman weights.
       numberOfWeights := huffmanTreeHeaderByte - 127;
@@ -476,7 +476,7 @@ const func array integer: readZstdHuffmanTreeWeights (inout file: compressed) is
 
 
 const func char: decodeSymbol (in zstdHuffmanDecodingTable: huffmanDecoding,
-    inout integer: state, inout reverseBitStream: bitStream) is func
+    inout integer: state, inout reverseBitStream: compressedStream) is func
   result
     var char: symbol is ' ';
   local
@@ -485,13 +485,13 @@ const func char: decodeSymbol (in zstdHuffmanDecodingTable: huffmanDecoding,
   begin
     symbol := char(huffmanDecoding.symbols[state]);
     bitsNeeded := huffmanDecoding.numberOfBits[state];
-    rest := getBits(bitStream, bitsNeeded);
+    rest := getBits(compressedStream, bitsNeeded);
     state := ((state << bitsNeeded) + rest) mod (1 << huffmanDecoding.maxBits);
   end func;
 
 
 const func string: decodeStream (in zstdHuffmanDecodingTable: huffmanDecoding,
-    inout reverseBitStream: bitStream) is func
+    inout reverseBitStream: compressedStream) is func
   result
     var string: uncompressed is "";
   local
@@ -499,16 +499,16 @@ const func string: decodeStream (in zstdHuffmanDecodingTable: huffmanDecoding,
     var integer: state is 0;
   begin
     repeat
-      aBit := getBits(bitStream, 1);
+      aBit := getBits(compressedStream, 1);
     until aBit = 1;
-    if bitsRead(bitStream) > 8 then
+    if bitsRead(compressedStream) > 8 then
       raise RANGE_ERROR;
     else
-      state := getBits(bitStream, huffmanDecoding.maxBits);
-      while bitsStillInStream(bitStream) > -huffmanDecoding.maxBits do
-        uncompressed &:= decodeSymbol(huffmanDecoding, state, bitStream);
+      state := getBits(compressedStream, huffmanDecoding.maxBits);
+      while bitsStillInStream(compressedStream) > -huffmanDecoding.maxBits do
+        uncompressed &:= decodeSymbol(huffmanDecoding, state, compressedStream);
       end while;
-      if bitsStillInStream(bitStream) <> -huffmanDecoding.maxBits then
+      if bitsStillInStream(compressedStream) <> -huffmanDecoding.maxBits then
         raise RANGE_ERROR;
       end if;
     end if;
@@ -601,7 +601,7 @@ const func string: readCompressedLiteralsBlock (inout file: compressed,
     var integer: posBefore is 0;
     var array integer: weights is [0 .. -1] times 0;
     var array integer: streamSize is 4 times 0;
-    var array reverseBitStream: bitStream is 4 times reverseBitStream.value;
+    var array reverseBitStream: compressedStream is 4 times reverseBitStream.value;
   begin
     compressedSize := header.compressedSize;
     if header.literalsBlockType = ZSTD_COMPRESSED_LITERALS_BLOCK then
@@ -611,22 +611,22 @@ const func string: readCompressedLiteralsBlock (inout file: compressed,
       blockState.table := buildZstdHuffmanDecodingTable(weights);
     end if;
     if header.numStreams = 1 then
-      bitStream[1] := reverseBitStream(compressed, compressedSize);
-      literals := decodeStream(blockState.table, bitStream[1]);
+      compressedStream[1] := reverseBitStream(compressed, compressedSize);
+      literals := decodeStream(blockState.table, compressedStream[1]);
     elsif header.numStreams = 4 then
       streamSize[1] := bytes2Int(gets(compressed, 2), UNSIGNED, LE);
       streamSize[2] := bytes2Int(gets(compressed, 2), UNSIGNED, LE);
       streamSize[3] := bytes2Int(gets(compressed, 2), UNSIGNED, LE);
       compressedSize -:= 6;
       streamSize[4] := compressedSize - streamSize[1] - streamSize[2] - streamSize[3];
-      bitStream[1] := reverseBitStream(compressed, streamSize[1]);
-      bitStream[2] := reverseBitStream(compressed, streamSize[2]);
-      bitStream[3] := reverseBitStream(compressed, streamSize[3]);
-      bitStream[4] := reverseBitStream(compressed, streamSize[4]);
-      literals := decodeStream(blockState.table, bitStream[1]) &
-                  decodeStream(blockState.table, bitStream[2]) &
-                  decodeStream(blockState.table, bitStream[3]) &
-                  decodeStream(blockState.table, bitStream[4]);
+      compressedStream[1] := reverseBitStream(compressed, streamSize[1]);
+      compressedStream[2] := reverseBitStream(compressed, streamSize[2]);
+      compressedStream[3] := reverseBitStream(compressed, streamSize[3]);
+      compressedStream[4] := reverseBitStream(compressed, streamSize[4]);
+      literals := decodeStream(blockState.table, compressedStream[1]) &
+                  decodeStream(blockState.table, compressedStream[2]) &
+                  decodeStream(blockState.table, compressedStream[3]) &
+                  decodeStream(blockState.table, compressedStream[4]);
     end if;
   end func;
 
@@ -858,7 +858,7 @@ const proc: initDecodeTables (inout file: compressed,
 
 
 const func zstdSequenceType: decodeSequence (in zstdSequencesSectionType: sequencesSection,
-    inout reverseBitStream: bitStream, inout zstdSequenceState: state) is func
+    inout reverseBitStream: compressedStream, inout zstdSequenceState: state) is func
   result
     var zstdSequenceType: sequence is zstdSequenceType.value;
   local
@@ -867,14 +867,14 @@ const func zstdSequenceType: decodeSequence (in zstdSequencesSectionType: sequen
     var integer: literalLengthAdditionalBits is 0;
   begin
     offsetCode := peekSymbol(sequencesSection.offsetsFseDecoding, state.offsetsState);
-    sequence.offset := getBits(bitStream, offsetCode) + (1 << offsetCode);
+    sequence.offset := getBits(compressedStream, offsetCode) + (1 << offsetCode);
 
     sequence.matchLength := peekSymbol(sequencesSection.matchLengthsFseDecoding,
                                        state.matchLengthsState);
     matchLengthAdditionalBits := getAdditionalBits(sequencesSection.matchLengthsFseDecoding,
                                                    state.matchLengthsState);
     if matchLengthAdditionalBits <> 0 then
-      sequence.matchLength +:= getBits(bitStream, matchLengthAdditionalBits);
+      sequence.matchLength +:= getBits(compressedStream, matchLengthAdditionalBits);
     end if;
 
     sequence.literalLength := peekSymbol(sequencesSection.literalLengthsFseDecoding,
@@ -882,13 +882,13 @@ const func zstdSequenceType: decodeSequence (in zstdSequencesSectionType: sequen
     literalLengthAdditionalBits := getAdditionalBits(sequencesSection.literalLengthsFseDecoding,
                                                      state.literalLengthsState);
     if literalLengthAdditionalBits <> 0 then
-      sequence.literalLength +:= getBits(bitStream, literalLengthAdditionalBits);
+      sequence.literalLength +:= getBits(compressedStream, literalLengthAdditionalBits);
     end if;
   end func;
 
 
 const proc: decodeSequences (in zstdSequencesSectionType: sequencesSection,
-    inout reverseBitStream: bitStream, in string: literals,
+    inout reverseBitStream: compressedStream, in string: literals,
     inout zstdBlockStateType: blockState, inout string: uncompressed) is func
   local
     var integer: aBit is 0;
@@ -901,17 +901,17 @@ const proc: decodeSequences (in zstdSequencesSectionType: sequencesSection,
     var integer: number is 0;
   begin
     repeat
-      aBit := getBits(bitStream, 1);
+      aBit := getBits(compressedStream, 1);
     until aBit = 1;
-    if bitsRead(bitStream) > 8 then
+    if bitsRead(compressedStream) > 8 then
       raise RANGE_ERROR;
     else
-      state.literalLengthsState := getBits(bitStream, sequencesSection.literalLengthsFseDecoding.accuracyLog);
-      state.offsetsState        := getBits(bitStream, sequencesSection.offsetsFseDecoding.accuracyLog);
-      state.matchLengthsState   := getBits(bitStream, sequencesSection.matchLengthsFseDecoding.accuracyLog);
+      state.literalLengthsState := getBits(compressedStream, sequencesSection.literalLengthsFseDecoding.accuracyLog);
+      state.offsetsState        := getBits(compressedStream, sequencesSection.offsetsFseDecoding.accuracyLog);
+      state.matchLengthsState   := getBits(compressedStream, sequencesSection.matchLengthsFseDecoding.accuracyLog);
 
       for index range 1 to sequencesSection.numberOfSequences do
-        sequence := decodeSequence(sequencesSection, bitStream, state);
+        sequence := decodeSequence(sequencesSection, compressedStream, state);
         if sequence.literalLength > 0 then
           uncompressed &:= literals[literalPos len sequence.literalLength];
           literalPos +:= sequence.literalLength;
@@ -964,17 +964,17 @@ const proc: decodeSequences (in zstdSequencesSectionType: sequencesSection,
         # Don't update on the last index.
         if index < sequencesSection.numberOfSequences then
           nextState(sequencesSection.literalLengthsFseDecoding, state.literalLengthsState,
-                    bitStream);
+                    compressedStream);
           nextState(sequencesSection.matchLengthsFseDecoding, state.matchLengthsState,
-                    bitStream);
+                    compressedStream);
           nextState(sequencesSection.offsetsFseDecoding, state.offsetsState,
-                    bitStream);
+                    compressedStream);
         end if;
       end for;
 
       uncompressed &:= literals[literalPos ..];
 
-      if bitsStillInStream(bitStream) <> 0 then
+      if bitsStillInStream(compressedStream) <> 0 then
         raise RANGE_ERROR;
       end if;
     end if;
@@ -988,7 +988,7 @@ const proc: readCompressedBlock (inout file: compressed, in integer: blockSize,
     var string: literals is "";
     var zstdSequencesSectionHeader: header is zstdSequencesSectionHeader.value;
     var integer: lengthOfSequencesData is 0;
-    var reverseBitStream: bitStream is reverseBitStream.value;
+    var reverseBitStream: compressedStream is reverseBitStream.value;
   begin
     blockStartPos := tell(compressed);
     literals := readLiteralsSection(compressed, blockState);
@@ -998,8 +998,8 @@ const proc: readCompressedBlock (inout file: compressed, in integer: blockSize,
     else
       initDecodeTables(compressed, blockState, header);
       lengthOfSequencesData := blockSize - (tell(compressed) - blockStartPos);
-      bitStream := reverseBitStream(compressed, lengthOfSequencesData);
-      decodeSequences(blockState.sequencesSection, bitStream, literals, blockState, uncompressed);
+      compressedStream := reverseBitStream(compressed, lengthOfSequencesData);
+      decodeSequences(blockState.sequencesSection, compressedStream, literals, blockState, uncompressed);
     end if;
   end func;
 

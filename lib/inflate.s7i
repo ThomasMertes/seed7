@@ -31,15 +31,16 @@ include "bytedata.s7i";
 include "huffman.s7i";
 
 
-const proc: getNonCompressedBlock (inout lsbBitStream: bitStream, inout string: uncompressed) is func
+const proc: getNonCompressedBlock (inout lsbBitStream: compressedStream,
+    inout string: uncompressed) is func
   local
     var integer: length is 0;
     var integer: nlength is 0;
     var string: uncompressedBlock is "";
   begin
-    length := bytes2Int(gets(bitStream, 2), UNSIGNED, LE);
-    nlength := bytes2Int(gets(bitStream, 2), UNSIGNED, LE);
-    uncompressedBlock := gets(bitStream, length);
+    length := bytes2Int(gets(compressedStream, 2), UNSIGNED, LE);
+    nlength := bytes2Int(gets(compressedStream, 2), UNSIGNED, LE);
+    uncompressedBlock := gets(compressedStream, length);
     if length(uncompressedBlock) <> length then
       raise RANGE_ERROR;
     else
@@ -48,34 +49,34 @@ const proc: getNonCompressedBlock (inout lsbBitStream: bitStream, inout string: 
   end func;
 
 
-const func integer: getLiteralOrLength (inout lsbBitStream: bitStream) is func
+const func integer: getLiteralOrLength (inout lsbBitStream: compressedStream) is func
   result
     var integer: literalOrLength is 0;
   begin
-    literalOrLength := reverseBits[7][getBits(bitStream, 7)];
+    literalOrLength := reverseBits[7][getBits(compressedStream, 7)];
     if literalOrLength <= 2#0010111 then
       literalOrLength +:= 256;
     else
       literalOrLength <<:= 1;
-      literalOrLength +:= getBit(bitStream);
+      literalOrLength +:= getBit(compressedStream);
       if literalOrLength <= 2#10111111 then
         literalOrLength -:= 2#00110000;
       elsif literalOrLength <= 2#11000111 then
         literalOrLength +:= 280 - 2#11000000;
       else
         literalOrLength <<:= 1;
-        literalOrLength +:= getBit(bitStream);
+        literalOrLength +:= getBit(compressedStream);
         literalOrLength -:= 2#110010000 - 144;
       end if;
     end if;
   end func;
 
 
-const func integer: getDistance (inout lsbBitStream: bitStream) is
-  return reverseBits[5][getBits(bitStream, 5)];
+const func integer: getDistance (inout lsbBitStream: compressedStream) is
+  return reverseBits[5][getBits(compressedStream, 5)];
 
 
-const func integer: decodeLength (inout lsbBitStream: bitStream,
+const func integer: decodeLength (inout lsbBitStream: compressedStream,
     in integer: code) is func
   result
     var integer: length is 0;
@@ -83,15 +84,15 @@ const func integer: decodeLength (inout lsbBitStream: bitStream,
     if code <= 264 then
       length := code - 254;
     elsif code <= 268 then
-      length := 11 + ((code - 265) << 1) + getBit(bitStream);
+      length := 11 + ((code - 265) << 1) + getBit(compressedStream);
     elsif code <= 272 then
-      length := 19 + ((code - 269) << 2) + getBits(bitStream, 2);
+      length := 19 + ((code - 269) << 2) + getBits(compressedStream, 2);
     elsif code <= 276 then
-      length := 35 + ((code - 273) << 3) + getBits(bitStream, 3);
+      length := 35 + ((code - 273) << 3) + getBits(compressedStream, 3);
     elsif code <= 280 then
-      length := 67 + ((code - 277) << 4) + getBits(bitStream, 4);
+      length := 67 + ((code - 277) << 4) + getBits(compressedStream, 4);
     elsif code <= 284 then
-      length := 131 + ((code - 281) << 5) + getBits(bitStream, 5);
+      length := 131 + ((code - 281) << 5) + getBits(compressedStream, 5);
     elsif code = 285 then
       length := 258;
     else
@@ -100,7 +101,7 @@ const func integer: decodeLength (inout lsbBitStream: bitStream,
   end func;
 
 
-const func integer: decodeDistance (inout lsbBitStream: bitStream,
+const func integer: decodeDistance (inout lsbBitStream: compressedStream,
     in integer: code) is func
   result
     var integer: distance is 0;
@@ -109,38 +110,38 @@ const func integer: decodeDistance (inout lsbBitStream: bitStream,
       when {0, 1, 2, 3}:
         distance := succ(code);
       when {4, 5}:
-        distance := 5 + ((code - 4) << 1) + getBit(bitStream);
+        distance := 5 + ((code - 4) << 1) + getBit(compressedStream);
       when {6, 7}:
-        distance := 9 + ((code - 6) << 2) + getBits(bitStream, 2);
+        distance := 9 + ((code - 6) << 2) + getBits(compressedStream, 2);
       when {8, 9}:
-        distance := 17 + ((code - 8) << 3) + getBits(bitStream, 3);
+        distance := 17 + ((code - 8) << 3) + getBits(compressedStream, 3);
       when {10, 11}:
-        distance := 33 + ((code - 10) << 4) + getBits(bitStream, 4);
+        distance := 33 + ((code - 10) << 4) + getBits(compressedStream, 4);
       when {12, 13}:
-        distance := 65 + ((code - 12) << 5) + getBits(bitStream, 5);
+        distance := 65 + ((code - 12) << 5) + getBits(compressedStream, 5);
       when {14, 15}:
-        distance := 129 + ((code - 14) << 6) + getBits(bitStream, 6);
+        distance := 129 + ((code - 14) << 6) + getBits(compressedStream, 6);
       when {16, 17}:
-        distance := 257 + ((code - 16) << 7) + getBits(bitStream, 7);
+        distance := 257 + ((code - 16) << 7) + getBits(compressedStream, 7);
       when {18, 19}:
-        distance := 513 + ((code - 18) << 8) + getBits(bitStream, 8);
+        distance := 513 + ((code - 18) << 8) + getBits(compressedStream, 8);
       when {20, 21}:
-        distance := 1025 + ((code - 20) << 9) + getBits(bitStream, 9);
+        distance := 1025 + ((code - 20) << 9) + getBits(compressedStream, 9);
       when {22, 23}:
-        distance := 2049 + ((code - 22) << 10) + getBits(bitStream, 10);
+        distance := 2049 + ((code - 22) << 10) + getBits(compressedStream, 10);
       when {24, 25}:
-        distance := 4097 + ((code - 24) << 11) + getBits(bitStream, 11);
+        distance := 4097 + ((code - 24) << 11) + getBits(compressedStream, 11);
       when {26, 27}:
-        distance := 8193 + ((code - 26) << 12) + getBits(bitStream, 12);
+        distance := 8193 + ((code - 26) << 12) + getBits(compressedStream, 12);
       when {28, 29}:
-        distance := 16385 + ((code - 28) << 13) + getBits(bitStream, 13);
+        distance := 16385 + ((code - 28) << 13) + getBits(compressedStream, 13);
       otherwise:
         raise RANGE_ERROR;
     end case;
   end func;
 
 
-const proc: decodeFixedHuffmanCodes (inout lsbBitStream: bitStream,
+const proc: decodeFixedHuffmanCodes (inout lsbBitStream: compressedStream,
     inout string: uncompressed) is func
   local
     var integer: literalOrLength is 0;
@@ -149,14 +150,14 @@ const proc: decodeFixedHuffmanCodes (inout lsbBitStream: bitStream,
     var integer: number is 0;
     var integer: nextPos is 0;
   begin
-    literalOrLength := getLiteralOrLength(bitStream);
+    literalOrLength := getLiteralOrLength(compressedStream);
     while literalOrLength <> 256 do
       if literalOrLength < 256 then
         uncompressed &:= chr(literalOrLength);
       else
-        length := decodeLength(bitStream, literalOrLength);
-        distance := getDistance(bitStream);
-        distance := decodeDistance(bitStream, distance);
+        length := decodeLength(compressedStream, literalOrLength);
+        distance := getDistance(compressedStream);
+        distance := decodeDistance(compressedStream, distance);
         if length > distance then
           nextPos := succ(length(uncompressed));
           uncompressed &:= "\0;" mult length;
@@ -167,12 +168,12 @@ const proc: decodeFixedHuffmanCodes (inout lsbBitStream: bitStream,
           uncompressed &:= uncompressed[succ(length(uncompressed)) - distance len length];
         end if;
       end if;
-      literalOrLength := getLiteralOrLength(bitStream);
+      literalOrLength := getLiteralOrLength(compressedStream);
     end while;
   end func;
 
 
-const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: bitStream,
+const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: compressedStream,
     inout string: uncompressed) is func
   local
     const array integer: codeLengthAlphabet is []
@@ -195,31 +196,31 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: bitStream,
     var integer: distance is 0;
     var integer: nextPos is 0;
   begin
-    hlit := getBits(bitStream, 5);
-    hdist := getBits(bitStream, 5);
-    hclen := getBits(bitStream, 4);
+    hlit := getBits(compressedStream, 5);
+    hdist := getBits(compressedStream, 5);
+    hclen := getBits(compressedStream, 4);
     lengthCodeLengths := [0 .. 18] times 0;
     for number range 1 to hclen + 4 do
-      lengthCodeLengths[codeLengthAlphabet[number]] := getBits(bitStream, 3);
+      lengthCodeLengths[codeLengthAlphabet[number]] := getBits(compressedStream, 3);
     end for;
     lengthConversionTable := createHuffmanTableLsb(lengthCodeLengths);
     number := 1;
     while number <= hlit + 257 + hdist + 1 do
-      codeLength := getHuffmanSymbol(bitStream, lengthConversionTable);
+      codeLength := getHuffmanSymbol(compressedStream, lengthConversionTable);
       if codeLength <= 15 then
         combinedCodeLengths &:= codeLength;
         incr(number);
       elsif codeLength = 16 then
-        factor := getBits(bitStream, 2) + 3;
+        factor := getBits(compressedStream, 2) + 3;
         combinedCodeLengths &:= factor times
             combinedCodeLengths[maxIdx(combinedCodeLengths)];
         number +:= factor;
       elsif codeLength = 17 then
-        factor := getBits(bitStream, 3) + 3;
+        factor := getBits(compressedStream, 3) + 3;
         combinedCodeLengths &:= factor times 0;
         number +:= factor;
       else # codeLength = 18
-        factor := getBits(bitStream, 7) + 11;
+        factor := getBits(compressedStream, 7) + 11;
         combinedCodeLengths &:= factor times 0;
         number +:= factor;
       end if;
@@ -228,14 +229,14 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: bitStream,
     distanceCodeLengths := combinedCodeLengths[hlit + 257 .. ];
     literalOrLengthConversionTable := createHuffmanTableLsb(literalOrLengthCodeLengths);
     distanceConversionTable := createHuffmanTableLsb(distanceCodeLengths);
-    literalOrLength := getHuffmanSymbol(bitStream, literalOrLengthConversionTable);
+    literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthConversionTable);
     while literalOrLength <> 256 do
       if literalOrLength < 256 then
         uncompressed &:= chr(literalOrLength);
       else
-        length := decodeLength(bitStream, literalOrLength);
-        distance := getHuffmanSymbol(bitStream, distanceConversionTable);
-        distance := decodeDistance(bitStream, distance);
+        length := decodeLength(compressedStream, literalOrLength);
+        distance := getHuffmanSymbol(compressedStream, distanceConversionTable);
+        distance := decodeDistance(compressedStream, distance);
         if length > distance then
           nextPos := succ(length(uncompressed));
           uncompressed &:= "\0;" mult length;
@@ -246,25 +247,25 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: bitStream,
           uncompressed &:= uncompressed[succ(length(uncompressed)) - distance len length];
         end if;
       end if;
-      literalOrLength := getHuffmanSymbol(bitStream, literalOrLengthConversionTable);
+      literalOrLength := getHuffmanSymbol(compressedStream, literalOrLengthConversionTable);
     end while;
   end func;
 
 
-const proc: processCompressedBlock (inout lsbBitStream: bitStream,
+const proc: processCompressedBlock (inout lsbBitStream: compressedStream,
     inout string: uncompressed, inout boolean: bfinal) is func
   local
     var integer: btype is 0;
   begin
-    bfinal := odd(getBit(bitStream));
-    btype := getBits(bitStream, 2);
+    bfinal := odd(getBit(compressedStream));
+    btype := getBits(compressedStream, 2);
     case btype of
       when {0}:
-        getNonCompressedBlock(bitStream, uncompressed);
+        getNonCompressedBlock(compressedStream, uncompressed);
       when {1}:
-        decodeFixedHuffmanCodes(bitStream, uncompressed);
+        decodeFixedHuffmanCodes(compressedStream, uncompressed);
       when {2}:
-        decodeDynamicHuffmanCodes(bitStream, uncompressed);
+        decodeDynamicHuffmanCodes(compressedStream, uncompressed);
       otherwise:
         raise RANGE_ERROR;
     end case;
@@ -282,12 +283,12 @@ const func string: inflate (inout file: compressed) is func
   result
     var string: uncompressed is "";
   local
-    var lsbBitStream: bitStream is lsbBitStream.value;
+    var lsbBitStream: compressedStream is lsbBitStream.value;
     var boolean: bfinal is FALSE;
   begin
-    bitStream := openLsbBitStream(compressed);
+    compressedStream := openLsbBitStream(compressed);
     repeat
-      processCompressedBlock(bitStream, uncompressed, bfinal);
+      processCompressedBlock(compressedStream, uncompressed, bfinal);
     until bfinal;
   end func;
 
@@ -303,11 +304,11 @@ const func string: inflate (in string: compressed) is func
   result
     var string: uncompressed is "";
   local
-    var lsbBitStream: bitStream is lsbBitStream.value;
+    var lsbBitStream: compressedStream is lsbBitStream.value;
     var boolean: bfinal is FALSE;
   begin
-    bitStream := openLsbBitStream(compressed);
+    compressedStream := openLsbBitStream(compressed);
     repeat
-      processCompressedBlock(bitStream, uncompressed, bfinal);
+      processCompressedBlock(compressedStream, uncompressed, bfinal);
     until bfinal;
   end func;
