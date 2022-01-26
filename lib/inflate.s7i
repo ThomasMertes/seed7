@@ -187,9 +187,9 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: bitStream,
     var integer: number is 0;
     var integer: codeLength is 0;
     var integer: factor is 0;
-    var huffmanTable: lengthConversionTable is huffmanTable.value;
-    var huffmanTable: literalOrLengthConversionTable is huffmanTable.value;
-    var huffmanTable: distanceConversionTable is huffmanTable.value;
+    var lsbHuffmanTable: lengthConversionTable is lsbHuffmanTable.value;
+    var lsbHuffmanTable: literalOrLengthConversionTable is lsbHuffmanTable.value;
+    var lsbHuffmanTable: distanceConversionTable is lsbHuffmanTable.value;
     var integer: literalOrLength is 0;
     var integer: length is 0;
     var integer: distance is 0;
@@ -205,7 +205,7 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: bitStream,
     lengthConversionTable := createHuffmanTableLsb(lengthCodeLengths);
     number := 1;
     while number <= hlit + 257 + hdist + 1 do
-      codeLength := getHuffmanSymbolLsb(bitStream, lengthConversionTable);
+      codeLength := getHuffmanSymbol(bitStream, lengthConversionTable);
       if codeLength <= 15 then
         combinedCodeLengths &:= codeLength;
         incr(number);
@@ -228,13 +228,13 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: bitStream,
     distanceCodeLengths := combinedCodeLengths[hlit + 257 .. ];
     literalOrLengthConversionTable := createHuffmanTableLsb(literalOrLengthCodeLengths);
     distanceConversionTable := createHuffmanTableLsb(distanceCodeLengths);
-    literalOrLength := getHuffmanSymbolLsb(bitStream, literalOrLengthConversionTable);
+    literalOrLength := getHuffmanSymbol(bitStream, literalOrLengthConversionTable);
     while literalOrLength <> 256 do
       if literalOrLength < 256 then
         uncompressed &:= chr(literalOrLength);
       else
         length := decodeLength(bitStream, literalOrLength);
-        distance := getHuffmanSymbolLsb(bitStream, distanceConversionTable);
+        distance := getHuffmanSymbol(bitStream, distanceConversionTable);
         distance := decodeDistance(bitStream, distance);
         if length > distance then
           nextPos := succ(length(uncompressed));
@@ -246,7 +246,7 @@ const proc: decodeDynamicHuffmanCodes (inout lsbBitStream: bitStream,
           uncompressed &:= uncompressed[succ(length(uncompressed)) - distance len length];
         end if;
       end if;
-      literalOrLength := getHuffmanSymbolLsb(bitStream, literalOrLengthConversionTable);
+      literalOrLength := getHuffmanSymbol(bitStream, literalOrLengthConversionTable);
     end while;
   end func;
 

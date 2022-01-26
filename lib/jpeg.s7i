@@ -73,8 +73,8 @@ const type: jpegHeader is new struct
     var array array integer: quantizationTable is 4 times JPEG_BLOCK_SIZE times 0;
     var array jpegComponent: component is 0 times jpegComponent.value;
     var array jpegScan: scan is 0 times jpegScan.value;
-    var array huffmanTable: dcTable is 4 times huffmanTable.value;
-    var array huffmanTable: acTable is 4 times huffmanTable.value;
+    var array msbHuffmanTable: dcTable is 4 times msbHuffmanTable.value;
+    var array msbHuffmanTable: acTable is 4 times msbHuffmanTable.value;
     var array integer: lumaQuantization is 0 times 0;
     var array integer: chromaBlueQuantization is 0 times 0;
     var array integer: chromaRedQuantization is 0 times 0;
@@ -175,11 +175,11 @@ const proc: readDefineHuffmanTable (inout file: jpegFile, inout jpegHeader: head
       end for;
       huffmanValues := gets(jpegFile, numberOfCodes);
       if tableClass = 0 then
-        createHuffmanTableMsb(header.dcTable[tableNumber], maximumCodeLength,
-                              numberOfCodesWithLength, huffmanValues);
+        header.dcTable[tableNumber] := createHuffmanTableMsb(maximumCodeLength,
+            numberOfCodesWithLength, huffmanValues);
       elsif tableClass = 1 then
-        createHuffmanTableMsb(header.acTable[tableNumber], maximumCodeLength,
-                              numberOfCodesWithLength, huffmanValues);
+        header.acTable[tableNumber] := createHuffmanTableMsb(maximumCodeLength,
+            numberOfCodesWithLength, huffmanValues);
       else
         raise RANGE_ERROR;
       end if;
@@ -333,8 +333,8 @@ const func integer: getSymbol (inout msbBitStream: bitStream,
 #  @param acTable Huffman table for the 63 AC coefficients.
 #
 const proc: readBlock (inout array integer: dataBlock,
-    inout msbBitStream: bitStream, in huffmanTable: dcTable,
-    in huffmanTable: acTable) is func
+    inout msbBitStream: bitStream, in msbHuffmanTable: dcTable,
+    in msbHuffmanTable: acTable) is func
   local
     var integer: bitWidth is 0;
     var integer: index is 1;
@@ -342,12 +342,12 @@ const proc: readBlock (inout array integer: dataBlock,
     var integer: zeros is 0;
   begin
     dataBlock := JPEG_BLOCK_SIZE times 0;
-    bitWidth := getHuffmanSymbolMsb(bitStream, dcTable);
+    bitWidth := getHuffmanSymbol(bitStream, dcTable);
     if bitWidth <> 0 then
       dataBlock[index] := getSymbol(bitStream, bitWidth);
     end if;
     repeat
-      aByte := getHuffmanSymbolMsb(bitStream, acTable);
+      aByte := getHuffmanSymbol(bitStream, acTable);
       zeros := aByte >> 4;
       bitWidth := aByte mod 16;
       if bitWidth = 0 then
@@ -519,8 +519,8 @@ const proc: idct8x8 (inout array integer: dataBlock) is func
 #  lower than the limit.
 #
 const proc: processBlock (inout array integer: dataBlock,
-    inout msbBitStream: bitStream, in huffmanTable: dcTable,
-    in huffmanTable: acTable, in array integer: quantizationTable,
+    inout msbBitStream: bitStream, in msbHuffmanTable: dcTable,
+    in msbHuffmanTable: acTable, in array integer: quantizationTable,
     inout integer: diff) is func
   local
     var integer: index is 0;
@@ -748,7 +748,7 @@ const func string: readEntropyCodedSegment (inout file: jpegFile) is func
 
 
 const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
-    in huffmanTable: dcLumaTable, in huffmanTable: acLumaTable,
+    in msbHuffmanTable: dcLumaTable, in msbHuffmanTable: acLumaTable,
     inout array array pixel: image) is func
   local
     var string: entropyCodedSegment is "";
@@ -794,9 +794,9 @@ const proc: loadMonochromeImage (inout file: jpegFile, in jpegHeader: header,
 
 
 const proc: loadColorImage (inout file: jpegFile, in jpegHeader: header,
-    in huffmanTable: dcLumaTable, in huffmanTable: acLumaTable,
-    in huffmanTable: dcChromaBlueTable, in huffmanTable: acChromaBlueTable,
-    in huffmanTable: dcChromaRedTable, in huffmanTable: acChromaRedTable,
+    in msbHuffmanTable: dcLumaTable, in msbHuffmanTable: acLumaTable,
+    in msbHuffmanTable: dcChromaBlueTable, in msbHuffmanTable: acChromaBlueTable,
+    in msbHuffmanTable: dcChromaRedTable, in msbHuffmanTable: acChromaRedTable,
     inout array array pixel: image) is func
   local
     var string: entropyCodedSegment is "";
@@ -908,14 +908,14 @@ const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader
 #  Read the DC coefficient of a block.
 #
 const proc: readDcValue (inout integer: dcCoefficient,
-    inout msbBitStream: bitStream, in huffmanTable: dcTable,
+    inout msbBitStream: bitStream, in msbHuffmanTable: dcTable,
     inout integer: diff, in integer: approximationLow) is func
 
   local
     var integer: bitWidth is 0;
     var integer: aValue is 0;
   begin
-    bitWidth := getHuffmanSymbolMsb(bitStream, dcTable);
+    bitWidth := getHuffmanSymbol(bitStream, dcTable);
     if bitWidth <> 0 then
       aValue := getSymbol(bitStream, bitWidth);
     end if;
@@ -926,7 +926,7 @@ const proc: readDcValue (inout integer: dcCoefficient,
 
 
 const proc: readLumaDcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
-    in huffmanTable: dcTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
+    in msbHuffmanTable: dcTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
     var msbBitStream: bitStream is msbBitStream.value;
@@ -1049,7 +1049,7 @@ const proc: refineDcValuesOfAllBlocks (inout file: jpegFile, in jpegHeader: head
 #  Read the AC coefficients of a block.
 #
 const proc: readBlockAc (inout array integer: dataBlock,
-    inout msbBitStream: bitStream, in huffmanTable: acTable,
+    inout msbBitStream: bitStream, in msbHuffmanTable: acTable,
     in integer: startOfSpectral, in integer: endOfSpectral,
     inout integer: eobRunLength, in integer: approximationLow) is func
   local
@@ -1061,7 +1061,7 @@ const proc: readBlockAc (inout array integer: dataBlock,
   begin
     index := pred(startOfSpectral);
     repeat
-      aByte := getHuffmanSymbolMsb(bitStream, acTable);
+      aByte := getHuffmanSymbol(bitStream, acTable);
       zeros := aByte >> 4;
       bitWidth := aByte mod 16;
       if bitWidth = 0 then
@@ -1091,7 +1091,7 @@ const proc: readBlockAc (inout array integer: dataBlock,
 
 
 const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
-    in huffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
+    in msbHuffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
     var msbBitStream: bitStream is msbBitStream.value;
@@ -1125,7 +1125,7 @@ const proc: readLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
 
 
 const proc: readChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
-    in huffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage,
+    in msbHuffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage,
     in integer: chromaIndex) is func
   local
     var string: entropyCodedSegment is "";
@@ -1192,7 +1192,7 @@ const proc: refineNonZeroes (inout array integer: dataBlock,
 #  Refine the AC coefficients of a block.
 #
 const proc: refineBlockAc (inout array integer: dataBlock,
-    inout msbBitStream: bitStream, in huffmanTable: acTable,
+    inout msbBitStream: bitStream, in msbHuffmanTable: acTable,
     in integer: startOfSpectral, in integer: endOfSpectral,
     inout integer: eobRunLength, in integer: delta) is func
   local
@@ -1207,7 +1207,7 @@ const proc: refineBlockAc (inout array integer: dataBlock,
     spectral := startOfSpectral;
     while spectral <= endOfSpectral and eobRunLength = 0 do
       coefficient := 0;
-      aByte := getHuffmanSymbolMsb(bitStream, acTable);
+      aByte := getHuffmanSymbol(bitStream, acTable);
       zeros := aByte >> 4;
       bitWidth := aByte mod 16;
       if bitWidth = 0 then
@@ -1246,7 +1246,7 @@ const proc: refineBlockAc (inout array integer: dataBlock,
 
 
 const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
-    in huffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
+    in msbHuffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage) is func
   local
     var string: entropyCodedSegment is "";
     var msbBitStream: bitStream is msbBitStream.value;
@@ -1277,7 +1277,7 @@ const proc: refineLumaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header
 
 
 const proc: refineChromaAcOfAllBlocks (inout file: jpegFile, in jpegHeader: header,
-    in huffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage,
+    in msbHuffmanTable: acTable, inout array array jpegMinimumCodedUnit: mcuImage,
     in integer: chromaIndex) is func
   local
     var string: entropyCodedSegment is "";

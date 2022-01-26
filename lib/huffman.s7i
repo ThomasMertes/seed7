@@ -29,11 +29,16 @@
 include "bitdata.s7i";
 
 
-const type: huffmanTable is new struct
+const type: huffmanTable is sub object interface;
+
+
+const type: msbHuffmanTable is new struct
     var integer: maxBitWidth is 0;
     var array integer: symbols is 0 times 0;
     var array integer: codeLengths is 0 times 0;
   end struct;
+
+type_implements_interface(msbHuffmanTable, huffmanTable);
 
 const type: valuesOfCodeWithLengthType is array array integer;
 
@@ -49,9 +54,10 @@ const type: valuesOfCodeWithLengthType is array array integer;
  *                                 of symbols that use this bit width.
  *  @param huffmanValues String with symbols ordered by the bit width.
  *)
-const proc: createHuffmanTableMsb (inout huffmanTable: table,
-    in integer: maximumCodeLength, in array integer: numberOfCodesWithLength,
-    in string: huffmanValues) is func
+const func msbHuffmanTable: createHuffmanTableMsb (in integer: maximumCodeLength,
+    in array integer: numberOfCodesWithLength, in string: huffmanValues) is func
+  result
+    var msbHuffmanTable: table is msbHuffmanTable.value;
   local
     var integer: currentCode is 0;
     var integer: codeLength is 0;
@@ -88,29 +94,29 @@ const proc: createHuffmanTableMsb (inout huffmanTable: table,
 
 
 (**
- *  Get a huffman symbol from ''bitStream'' in MSB-First order using the huffman ''table''.
+ *  Get a huffman symbol from ''inBitStream'' in MSB-First order using the huffman ''table''.
  *  The read direction is from MSB (most significant bit) to LSB (least significant bit).
- *  The function peeks bits from ''bitStream''. By default ''bitStream'' appends some
+ *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
- *  @param bitStream MSB orderd bit stream from which the bits are skipped.
+ *  @param inBitStream MSB orderd bit stream from which the bits are skipped.
  *  @param table Huffman table defining the bit sequences that encode the symbols.
  *)
-const func integer: getHuffmanSymbolMsb (inout msbBitStream: bitStream,
-    in huffmanTable: table) is func
+const func integer: getHuffmanSymbol (inout msbBitStream: inBitStream,
+    in msbHuffmanTable: table) is func
   result
     var integer: symbol is 0;
   local
     var integer: index is 0;
   begin
-    index := peekBits(bitStream, table.maxBitWidth);
+    index := peekBits(inBitStream, table.maxBitWidth);
     symbol := table.symbols[index];
-    skipBits(bitStream, table.codeLengths[index]);
+    skipBits(inBitStream, table.codeLengths[index]);
   end func;
 
 
-# The function getHuffmanSymbolMsb(string) is deprecated. Use getHuffmanSymbolMsb(lsbBitStream) instead.
+# The function getHuffmanSymbolMsb(string) is deprecated. Use getHuffmanSymbol(msbBitStream) instead.
 const func integer: getHuffmanSymbolMsb (in string: stri, inout integer: bytePos,
-    inout integer: bitPos, in huffmanTable: table) is func
+    inout integer: bitPos, in msbHuffmanTable: table) is func
   result
     var integer: symbol is 0;
   local
@@ -122,11 +128,20 @@ const func integer: getHuffmanSymbolMsb (in string: stri, inout integer: bytePos
   end func;
 
 
-const func huffmanTable: createHuffmanTableLsb (in array integer: codeLengths,
+const type: lsbHuffmanTable is new struct
+    var integer: maxBitWidth is 0;
+    var array integer: symbols is 0 times 0;
+    var array integer: codeLengths is 0 times 0;
+  end struct;
+
+type_implements_interface(lsbHuffmanTable, huffmanTable);
+
+
+const func lsbHuffmanTable: createHuffmanTableLsb (in array integer: codeLengths,
     in integer: maximumCodeLength,
     in valuesOfCodeWithLengthType: valuesOfCodeWithLength) is func
   result
-    var huffmanTable: table is huffmanTable.value;
+    var lsbHuffmanTable: table is lsbHuffmanTable.value;
   local
     var integer: codeLength is 0;
     var integer: huffmanValue is 0;
@@ -184,9 +199,9 @@ const func huffmanTable: createHuffmanTableLsb (in array integer: codeLengths,
  *  @param codeLengths Array to map the codes to the number of bits used
  *                     to encode this code. Zero means: This code is not used.
  *)
-const func huffmanTable: createHuffmanTableLsb (in array integer: codeLengths) is func
+const func lsbHuffmanTable: createHuffmanTableLsb (in array integer: codeLengths) is func
   result
-    var huffmanTable: table is huffmanTable.value;
+    var lsbHuffmanTable: table is lsbHuffmanTable.value;
   local
     var integer: codeLength is 0;
     var integer: maximumCodeLength is 0;
@@ -227,29 +242,29 @@ const func huffmanTable: createHuffmanTableLsb (in array integer: codeLengths) i
 
 
 (**
- *  Get a huffman symbol from ''bitStream'' in LSB-First order using the huffman ''table''.
+ *  Get a huffman symbol from ''inBitStream'' in LSB-First order using the huffman ''table''.
  *  The read direction is from LSB (least significant bit) to MSB (most significant bit).
- *  The function peeks bits from ''bitStream''. By default ''bitStream'' appends some
+ *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
- *  @param bitStream LSB orderd bit stream from which the bits are skipped.
+ *  @param inBitStream LSB orderd bit stream from which the bits are skipped.
  *  @param table Huffman table defining the bit sequences that encode the symbols.
  *)
-const func integer: getHuffmanSymbolLsb (inout lsbBitStream: bitStream,
-    in huffmanTable: table) is func
+const func integer: getHuffmanSymbol (inout lsbBitStream: inBitStream,
+    in lsbHuffmanTable: table) is func
   result
     var integer: symbol is 0;
   local
     var integer: index is 0;
   begin
-    index := peekBits(bitStream, table.maxBitWidth);
+    index := peekBits(inBitStream, table.maxBitWidth);
     symbol := table.symbols[index];
-    skipBits(bitStream, table.codeLengths[symbol]);
+    skipBits(inBitStream, table.codeLengths[symbol]);
   end func;
 
 
-# The function getHuffmanSymbolLsb(string) is deprecated. Use getHuffmanSymbolLsb(lsbBitStream) instead.
+# The function getHuffmanSymbolLsb(string) is deprecated. Use getHuffmanSymbol(lsbBitStream) instead.
 const func integer: getHuffmanSymbolLsb (in string: stri, inout integer: bytePos,
-    inout integer: bitPos, in huffmanTable: table) is func
+    inout integer: bitPos, in lsbHuffmanTable: table) is func
   result
     var integer: symbol is 0;
   local
