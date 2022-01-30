@@ -676,9 +676,9 @@ void drwPArc (const_winType actual_window, intType x, intType y,
   /* drwPArc */
     logFunction(printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
                        (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
-    XSetForeground(mydisplay, mygc, (unsigned long) col);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
     XDrawArc(mydisplay, to_window(actual_window), mygc,
         castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius),
@@ -690,6 +690,54 @@ void drwPArc (const_winType actual_window, intType x, intType y,
           startAng, sweepAng);
     } /* if */
   } /* drwPArc */
+
+
+
+void drwPFArc (const_winType actual_window, intType x, intType y,
+    intType radius, floatType startAngle, floatType sweepAngle,
+    intType width, intType col)
+
+  {
+    int startAng, sweepAng;
+    unsigned int diameter;
+    unsigned int lineWidth;
+
+  /* drwPFArc */
+    logFunction(printf("drwPFArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", %.4f, %.4f, " FMT_D ")\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle, width););
+    startAng = (int) (startAngle * (23040.0 / (2 * PI)));
+    sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+    if ((width & 1) != 0) {
+      diameter = (unsigned int) (2 * radius - width + 1);
+      lineWidth = (unsigned int) width;
+    } else {
+      diameter = (unsigned int) (2 * radius - width + 2);
+      lineWidth = (unsigned int) (width - 1);
+    } /* if */
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
+    XSetLineAttributes(mydisplay, mygc, lineWidth, LineSolid, CapButt, JoinMiter);
+    XDrawArc(mydisplay, to_window(actual_window), mygc,
+        castToInt(x - radius + lineWidth / 2), castToInt(y - radius + lineWidth / 2),
+        diameter, diameter, startAng, sweepAng);
+    if ((width & 1) == 0) {
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          castToInt(x - radius + lineWidth / 2 + 1), castToInt(y - radius + lineWidth / 2 + 1),
+          diameter - 2, diameter - 2, startAng, sweepAng);
+    } /* if */
+    if (to_backup(actual_window) != 0) {
+      XDrawArc(mydisplay, to_backup(actual_window), mygc,
+          castToInt(x - radius + lineWidth / 2), castToInt(y - radius + lineWidth / 2),
+          diameter, diameter, startAng, sweepAng);
+      if ((width & 1) == 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            castToInt(x - radius + lineWidth / 2 + 1), castToInt(y - radius + lineWidth / 2 + 1),
+            diameter - 2, diameter - 2, startAng, sweepAng);
+      } /* if */
+    } /* if */
+    XSetLineAttributes(mydisplay, mygc, 0, LineSolid, CapButt, JoinMiter);
+  } /* drwPFArc */
 
 
 

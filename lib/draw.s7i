@@ -411,6 +411,33 @@ const proc: arc (in integer: x, in integer: y, in integer: radius,
   end func;
 
 
+(**
+ *  Draws an arc with the color 'col' to the window 'win'.
+ *  The arc has the given 'radius' and its center is at (x, y).
+ *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
+ *)
+const proc: arc (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in integer: radius,
+    in float: startAngle, in float: sweepAngle, in integer: width,
+    in color: col) is func
+  begin
+    DRAW_ARC(win, x, y, radius, startAngle, sweepAngle, width, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws an arc with the color 'col' to the current window 'curr_win'.
+ *  The arc has the given 'radius' and its center is at (x, y).
+ *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
+ *)
+const proc: arc (in integer: x, in integer: y, in integer: radius,
+    in float: startAngle, in float: sweepAngle, in integer: width,
+    in color: col) is func
+  begin
+    DRAW_ARC(curr_win, x, y, radius, startAngle, sweepAngle, width, colorPixel(col));
+  end func;
+
+
 const proc: chord (in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle, in color: col) is func
   begin

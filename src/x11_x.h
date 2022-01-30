@@ -91,6 +91,19 @@
 #define GXnand          0xe
 #define GXset           0xf
 
+#define LineSolid       0
+#define LineOnOffDash   1
+#define LineDoubleDash  2
+
+#define CapNotLast      0
+#define CapButt         1
+#define CapRound        2
+#define CapProjecting   3
+
+#define JoinMiter       0
+#define JoinRound       1
+#define JoinBevel       2
+
 #define CWBackPixmap           1L
 #define CWBackPixel            2L
 #define CWBorderPixmap         4L
@@ -829,6 +842,12 @@ extern int XSetForeground (Display *display,
 extern int XSetFunction (Display *display,
                          GC gc,
                          int function);
+extern int XSetLineAttributes (Display *display,
+                               GC gc,
+                               unsigned int line_width,
+                               int line_style,
+                               int cap_style,
+                               int join_style);
 extern int XSetStandardProperties (Display *display,
                                    Window window,
                                    const char *window_name,

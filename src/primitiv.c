@@ -363,6 +363,7 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_OPEN_SUB_WINDOW",     drw_open_sub_window,     },
     { "DRW_PARC",                drw_parc,                },
     { "DRW_PCIRCLE",             drw_pcircle,             },
+    { "DRW_PFARC",               drw_pfarc,               },
     { "DRW_PFARCCHORD",          drw_pfarcchord,          },
     { "DRW_PFARCPIESLICE",       drw_pfarcpieslice,       },
     { "DRW_PFCIRCLE",            drw_pfcircle,            },

@@ -38,6 +38,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "limits.h"
+#include "math.h"
 #include "windows.h"
 
 #include "common.h"
@@ -532,27 +533,123 @@ void drwPArc (const_winType actual_window, intType x, intType y,
     HPEN current_pen;
 
   /* drwPArc */
-    startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
-    sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
-    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-    if (unlikely(current_pen == NULL)) {
-      raise_error(MEMORY_ERROR);
-    } else if (unlikely(!inIntRange(x) || !inIntRange(x))) {
+    if (unlikely(!inIntRange(x) || !inIntRange(x) || !inIntRange(radius) || radius <= 0)) {
       raise_error(RANGE_ERROR);
     } else {
-      old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
-      /* MoveToEx(to_hdc(actual_window), x + radius, y, NULL); */
-      AngleArc(to_hdc(actual_window), (int) x, (int) y, (unsigned) radius, startAng, sweepAng);
-      SelectObject(to_hdc(actual_window), old_pen);
-      if (to_backup_hdc(actual_window) != 0) {
-        old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
-        /* MoveToEx(to_backup_hdc(actual_window), x + radius, y, NULL); */
-        AngleArc(to_backup_hdc(actual_window), (int) x, (int) y, (unsigned) radius, startAng, sweepAng);
-        SelectObject(to_backup_hdc(actual_window), old_pen);
+      startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
+      sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
+      current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+      if (unlikely(current_pen == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+        MoveToEx(to_hdc(actual_window),
+                 (int) x + (int) (cos(startAngle) * (double) radius),
+                 (int) y - (int) (sin(startAngle) * (double) radius),
+                 (LPPOINT) NULL);
+        AngleArc(to_hdc(actual_window), (int) x, (int) y, (unsigned) radius, startAng, sweepAng);
+        SelectObject(to_hdc(actual_window), old_pen);
+        if (to_backup_hdc(actual_window) != 0) {
+          old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+          MoveToEx(to_backup_hdc(actual_window),
+                   (int) x + (int) (cos(startAngle) * (double) radius),
+                   (int) y - (int) (sin(startAngle) * (double) radius),
+                   (LPPOINT) NULL);
+          AngleArc(to_backup_hdc(actual_window), (int) x, (int) y, (unsigned) radius, startAng, sweepAng);
+          SelectObject(to_backup_hdc(actual_window), old_pen);
+        } /* if */
+        DeleteObject(current_pen);
       } /* if */
-      DeleteObject(current_pen);
     } /* if */
   } /* drwPArc */
+
+
+
+void drwPFArc (const_winType actual_window, intType x, intType y,
+    intType radius, floatType startAngle, floatType sweepAngle,
+    intType width, intType col)
+
+  {
+    FLOAT startAng, sweepAng;
+    double minRadius;
+    double maxRadius;
+    double angleDelta;
+    double angle;
+    HPEN old_pen;
+    HPEN current_pen;
+    HBRUSH old_brush;
+    HBRUSH current_brush;
+
+  /* drwPFArc */
+    logFunction(printf("drwPFArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", %.4f, %.4f, " FMT_D ")\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle, width););
+    if (width == 1) {
+      drwPArc(actual_window, x, y, radius, startAngle, sweepAngle, col);
+    } else if (unlikely(!inIntRange(x) || !inIntRange(y) || !inIntRange(radius) ||
+                        radius <= 0 || width <= 0 || width > radius)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
+      sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
+      current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+      current_brush = CreateSolidBrush((COLORREF) col);
+      if (unlikely(current_pen == NULL || current_brush == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+        old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
+        minRadius = (double) (radius - width + 1);
+        maxRadius = (double) radius;
+        angleDelta = asin(2.0 / radius);
+        BeginPath(to_hdc(actual_window));
+        MoveToEx(to_hdc(actual_window),
+                 (int) x + (int) (cos(startAngle) * maxRadius),
+                 (int) y - (int) (sin(startAngle) * maxRadius),
+                 (LPPOINT) NULL);
+        AngleArc(to_hdc(actual_window), (int) x, (int) y,
+                 (DWORD) radius, startAng, sweepAng);
+        for (angle = startAngle + sweepAngle; angle >= startAngle; angle -= angleDelta) {
+          LineTo(to_hdc(actual_window),
+                 (int) x + (int) (cos(angle) * minRadius),
+                 (int) y - (int) (sin(angle) * minRadius));
+        } /* if */
+        LineTo(to_hdc(actual_window),
+               (int) x + (int) (cos(startAngle) * minRadius),
+               (int) y - (int) (sin(startAngle) * minRadius));
+        EndPath(to_hdc(actual_window));
+        StrokeAndFillPath(to_hdc(actual_window));
+        SelectObject(to_hdc(actual_window), old_pen);
+        SelectObject(to_hdc(actual_window), old_brush);
+        if (to_backup_hdc(actual_window) != 0) {
+          old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+          old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
+          BeginPath(to_backup_hdc(actual_window));
+          MoveToEx(to_backup_hdc(actual_window),
+                   (int) x + (int) (cos(startAngle) * maxRadius),
+                   (int) y - (int) (sin(startAngle) * maxRadius),
+                   (LPPOINT) NULL);
+          AngleArc(to_backup_hdc(actual_window), (int) x, (int) y,
+                   (DWORD) radius, startAng, sweepAng);
+          for (angle = startAngle + sweepAngle; angle >= startAngle; angle -= angleDelta) {
+            LineTo(to_backup_hdc(actual_window),
+                   (int) x + (int) (cos(angle) * minRadius),
+                   (int) y - (int) (sin(angle) * minRadius));
+          } /* if */
+          LineTo(to_backup_hdc(actual_window),
+                 (int) x + (int) (cos(startAngle) * minRadius),
+                 (int) y - (int) (sin(startAngle) * minRadius));
+          EndPath(to_backup_hdc(actual_window));
+          StrokeAndFillPath(to_backup_hdc(actual_window));
+          SelectObject(to_backup_hdc(actual_window), old_pen);
+          SelectObject(to_backup_hdc(actual_window), old_brush);
+        } /* if */
+        DeleteObject(current_pen);
+        DeleteObject(current_brush);
+      } /* if */
+    } /* if */
+  } /* drwPFArc */
 
 
 

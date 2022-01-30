@@ -1033,6 +1033,38 @@ objectType drw_pcircle (listType arguments)
 
 
 
+objectType drw_pfarc (listType arguments)
+
+  {
+    winType actual_window;
+    intType x, y, radius;
+    floatType ang1, ang2;
+    intType width;
+    intType col;
+
+  /* drw_pfarc */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_float(arg_5(arguments));
+    isit_float(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    isit_int(arg_8(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x = take_int(arg_2(arguments));
+    y = take_int(arg_3(arguments));
+    radius = take_int(arg_4(arguments));
+    ang1 = take_float(arg_5(arguments));
+    ang2 = take_float(arg_6(arguments));
+    width = take_int(arg_7(arguments));
+    col = take_int(arg_8(arguments));
+    drwPFArc(actual_window, x, y, radius, ang1, ang2, width, col);
+    return SYS_EMPTY_OBJECT;
+  } /* drw_pfarc */
+
+
+
 objectType drw_pfarcchord (listType arguments)
 
   {

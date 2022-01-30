@@ -74,6 +74,7 @@ objectType drw_open                (listType arguments);
 objectType drw_open_sub_window     (listType arguments);
 objectType drw_parc                (listType arguments);
 objectType drw_pcircle             (listType arguments);
+objectType drw_pfarc               (listType arguments);
 objectType drw_pfarcchord          (listType arguments);
 objectType drw_pfarcpieslice       (listType arguments);
 objectType drw_pfcircle            (listType arguments);

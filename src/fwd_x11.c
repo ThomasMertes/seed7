@@ -202,6 +202,11 @@ typedef int (*tp_XSetClipOrigin) (Display *display, GC gc, int clip_x_origin,
                                   int clip_y_origin);
 typedef int (*tp_XSetForeground) (Display *display, GC gc, unsigned long foreground);
 typedef int (*tp_XSetFunction) (Display *display, GC gc, int function);
+typedef int (*tp_XSetLineAttributes) (Display *display, GC gc,
+                                      unsigned int line_width,
+                                      int line_style,
+                                      int cap_style,
+                                      int join_style);
 typedef int (*tp_XSetStandardProperties) (Display *display, Window window,
                                           const char *window_name,
                                           const char *icon_name,
@@ -299,6 +304,7 @@ static tp_XSetClipMask            ptr_XSetClipMask;
 static tp_XSetClipOrigin          ptr_XSetClipOrigin;
 static tp_XSetForeground          ptr_XSetForeground;
 static tp_XSetFunction            ptr_XSetFunction;
+static tp_XSetLineAttributes      ptr_XSetLineAttributes;
 static tp_XSetStandardProperties  ptr_XSetStandardProperties;
 static tp_XSetWMHints             ptr_XSetWMHints;
 static tp_XSetWMProtocols         ptr_XSetWMProtocols;
@@ -392,6 +398,7 @@ static boolType setupX11Dll (const char *dllName)
             (ptr_XSetClipOrigin          = (tp_XSetClipOrigin)          dllFunc(x11Dll, "XSetClipOrigin"))          == NULL ||
             (ptr_XSetForeground          = (tp_XSetForeground)          dllFunc(x11Dll, "XSetForeground"))          == NULL ||
             (ptr_XSetFunction            = (tp_XSetFunction)            dllFunc(x11Dll, "XSetFunction"))            == NULL ||
+            (ptr_XSetLineAttributes      = (tp_XSetLineAttributes       dllFunc(x11Dll, "XSetLineAttributes"))      == NULL ||
             (ptr_XSetStandardProperties  = (tp_XSetStandardProperties)  dllFunc(x11Dll, "XSetStandardProperties"))  == NULL ||
             (ptr_XSetWMHints             = (tp_XSetWMHints)             dllFunc(x11Dll, "XSetWMHints"))             == NULL ||
             (ptr_XSetWMProtocols         = (tp_XSetWMProtocols)         dllFunc(x11Dll, "XSetWMProtocols"))         == NULL ||
@@ -1589,6 +1596,25 @@ int XSetFunction (Display *display, GC gc, int function)
     logFunction(printf("XSetFunction --> %d\n", funcResult););
     return funcResult;
   } /* XSetFunction */
+
+
+
+int XSetLineAttributes (Display *display, GC gc, unsigned int line_width,
+                        int line_style, int cap_style, int join_style)
+
+  {
+    int funcResult;
+
+  /* XSetLineAttributes */
+    logFunction(printf("XSetLineAttributes(" FMT_U_MEM ", " FMT_U_MEM
+                       ", %u, %d, &d, %d)\n",
+                       (memSizeType) display, (memSizeType) gc,
+                       line_width, line_style, cap_stype, join_style););
+    funcResult = ptr_XSetLineAttributes(display, gc, line_width,
+                                        line_style, cap_stype, join_style);
+    logFunction(printf("XSetLineAttributes --> %d\n", funcResult););
+    return funcResult;
+  } /* XSetLineAttributes */
 
 
 
