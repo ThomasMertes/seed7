@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  imagefile.s7i  Support for various image file formats.          *)
-(*  Copyright (C) 2021  Thomas Mertes                               *)
+(*  Copyright (C) 2021, 2022  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -32,6 +32,7 @@
   include "bmp.s7i";
   include "ico.s7i";
   include "ppm.s7i";
+  include "tiff.s7i";
 
 
 (**
@@ -67,6 +68,9 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
           if magic = ICO_MAGIC then
             seek(imageFile, 1);
             pixmap := readIco(imageFile);
+          elsif magic = TIFF_MAGIC_LE or magic = TIFF_MAGIC_BE then
+            seek(imageFile, 1);
+            pixmap := readTiff(imageFile);
           else
             magic &:= gets(imageFile, length(GIF_MAGIC_87) - length(ICO_MAGIC));
             if magic = GIF_MAGIC_87 or magic = GIF_MAGIC_89 then
