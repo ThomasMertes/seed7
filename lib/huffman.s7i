@@ -32,6 +32,10 @@ include "bitdata.s7i";
 const type: huffmanTable is sub object interface;
 
 
+const func integer: getHuffmanSymbol (inout bitStream: inBitStream,
+                                      in huffmanTable: table) is DYNAMIC;
+
+
 const type: msbHuffmanTable is new struct
     var integer: maxBitWidth is 0;
     var array integer: symbols is 0 times 0;
@@ -124,7 +128,7 @@ const func integer: getHuffmanSymbolMsb (in string: stri, inout integer: bytePos
   begin
     index := peekBitsMsb(stri, bytePos, bitPos, table.maxBitWidth);
     symbol := table.symbols[index];
-    skipBitsMsb(bytePos, bitPos, table.codeLengths[symbol]);
+    skipBitsMsb(bytePos, bitPos, table.codeLengths[index]);
   end func;
 
 
