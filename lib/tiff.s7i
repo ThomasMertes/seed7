@@ -1,0 +1,1495 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  tiff.s7i      Support for the TIFF image file format.           *)
+(*  Copyright (C) 2022  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bytedata.s7i";
+include "draw.s7i";
+include "ccittfax.s7i";
+include "lzw.s7i";
+include "jpeg.s7i";
+include "strifile.s7i";
+include "gzip.s7i";
+
+
+const string: TIFF_MAGIC_LE is "II\42;\0;";
+const string: TIFF_MAGIC_BE is "MM\0;\42;";
+
+const integer: TIFF_TAG_NEW_SUBFILE_TYPE           is 16#00fe;
+const integer: TIFF_TAG_SUBFILE_TYPE               is 16#00ff;
+const integer: TIFF_TAG_IMAGE_WIDTH                is 16#0100;
+const integer: TIFF_TAG_IMAGE_LENGTH               is 16#0101;
+const integer: TIFF_TAG_BITS_PER_SAMPLE            is 16#0102;
+const integer: TIFF_TAG_COMPRESSION                is 16#0103;
+const integer: TIFF_TAG_PHOTOMETRIC_INTERPRETATION is 16#0106;
+const integer: TIFF_TAG_FILL_ORDER                 is 16#010a;
+const integer: TIFF_TAG_DOCUMENT_NAME              is 16#010d;
+const integer: TIFF_TAG_IMAGE_DESCRIPTION          is 16#010e;
+const integer: TIFF_TAG_SCANNER_MANUFACTURER       is 16#010f;
+const integer: TIFF_TAG_SCANNER_MODEL              is 16#0110;
+const integer: TIFF_TAG_STRIP_OFFSETS              is 16#0111;
+const integer: TIFF_TAG_ORIENTATION                is 16#0112;
+const integer: TIFF_TAG_SAMPLES_PER_PIXEL          is 16#0115;
+const integer: TIFF_TAG_ROWS_PER_STRIP             is 16#0116;
+const integer: TIFF_TAG_STRIP_BYTE_COUNTS          is 16#0117;
+const integer: TIFF_TAG_X_RESOLUTION               is 16#011a;
+const integer: TIFF_TAG_Y_RESOLUTION               is 16#011b;
+const integer: TIFF_TAG_PLANAR_CONFIGURATION       is 16#011c;
+const integer: TIFF_TAG_PAGE_NAME                  is 16#011d;
+const integer: TIFF_TAG_X_POSITION                 is 16#011e;
+const integer: TIFF_TAG_Y_POSITION                 is 16#011f;
+const integer: TIFF_TAG_CCITT_T4_OPTIONS           is 16#0124;
+const integer: TIFF_TAG_CCITT_T6_OPTIONS           is 16#0125;
+const integer: TIFF_TAG_RESOLUTION_UNIT            is 16#0128;
+const integer: TIFF_TAG_PAGE_NUMBER                is 16#0129;
+const integer: TIFF_TAG_SOFTWARE                   is 16#0131;
+const integer: TIFF_TAG_DATE_TIME                  is 16#0132;
+const integer: TIFF_TAG_ARTIST                     is 16#013b;
+const integer: TIFF_TAG_HOST_COMPUTER              is 16#013c;
+const integer: TIFF_TAG_PREDICTOR                  is 16#013d;
+const integer: TIFF_TAG_WHITE_POINT                is 16#013e;
+const integer: TIFF_TAG_COLOR_MAP                  is 16#0140;
+const integer: TIFF_TAG_TILE_WIDTH                 is 16#0142;
+const integer: TIFF_TAG_TILE_LENGTH                is 16#0143;
+const integer: TIFF_TAG_TILE_OFFSETS               is 16#0144;
+const integer: TIFF_TAG_TILE_BYTE_COUNTS           is 16#0145;
+const integer: TIFF_TAG_BAD_FAX_LINES              is 16#0146;
+const integer: TIFF_TAG_EXTRA_SAMPLES              is 16#0152;
+const integer: TIFF_TAG_SAMPLE_FORMAT              is 16#0153;
+const integer: TIFF_TAG_JPEG_TABLES                is 16#015b;
+const integer: TIFF_TAG_Y_CB_CR_SUB_SAMPLING       is 16#0212;
+const integer: TIFF_TAG_REFERENCE_BLACK_WHITE      is 16#0214;
+
+const integer: TIFF_FIELD_BYTE      is  1;  # 8-bit unsigned integer.
+const integer: TIFF_FIELD_ASCII     is  2;  # 8-bit byte that contains a 7-bit ASCII code; the last byte must be NUL (binary zero).
+const integer: TIFF_FIELD_SHORT     is  3;  # 16-bit (2-byte) unsigned integer.
+const integer: TIFF_FIELD_LONG      is  4;  # 32-bit (4-byte) unsigned integer.
+const integer: TIFF_FIELD_RATIONAL  is  5;  # Two LONGs: the first represents the numerator of a fraction, the second, the denominator.
+const integer: TIFF_FIELD_SBYTE     is  6;  # 8-bit signed (twos-complement) integer.
+const integer: TIFF_FIELD_UNDEFINED is  7;  # 8-bit byte that may contain anything.
+const integer: TIFF_FIELD_SSHORT    is  8;  # 16-bit (2-byte) signed (twos-complement) integer.
+const integer: TIFF_FIELD_SLONG     is  9;  # 32-bit (4-byte) signed (twos-complement) integer.
+const integer: TIFF_FIELD_SRATIONAL is 10;  # Two SLONG’s: the first represents the numerator of a fraction, the second the denominator.
+const integer: TIFF_FIELD_FLOAT     is 11;  # Single precision (4-byte) IEEE format.
+const integer: TIFF_FIELD_DOUBLE    is 12;  # Double precision (8-byte) IEEE format.
+
+const integer: TIFF_NO_COMPRESSION                     is     1;
+const integer: TIFF_COMPRESSION_CCITT_MODIFIED_GROUP_3 is     2;
+const integer: TIFF_COMPRESSION_CCITT_T4               is     3;
+const integer: TIFF_COMPRESSION_CCITT_T6               is     4;
+const integer: TIFF_COMPRESSION_LEMPEL_ZIV_WELCH       is     5;
+const integer: TIFF_COMPRESSION_JPEG                   is     7;
+const integer: TIFF_COMPRESSION_DEFLATE                is     8;
+const integer: TIFF_COMPRESSION_PACK_BITS              is 32773;
+const integer: TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE is 32946;
+
+const integer: TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO     is 0;
+const integer: TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO     is 1;
+const integer: TIFF_PHOTOMETRIC_INTERPRETATION_RGB               is 2;
+const integer: TIFF_PHOTOMETRIC_INTERPRETATION_PALETTE_COLOR     is 3;
+const integer: TIFF_PHOTOMETRIC_INTERPRETATION_TRANSPARENCY_MASK is 4;
+
+const integer: TIFF_PLANAR_CONFIGURATION_CHUNKY_FORMAT is 1;
+const integer: TIFF_PLANAR_CONFIGURATION_PLANAR_FORMAT is 2;
+
+const type: tiffIntegerTagValues is hash [integer] array integer;
+const type: tiffStringTagValues is hash [integer] string;
+
+const type: tiffHeader is new struct
+    var string: magic is "";
+    var boolean: littleEndian is TRUE;
+    var integer: width is 0;
+    var integer: height is 0;                     # Named length the TIFF 6.0 specification
+    var integer: compression is 0;
+    var integer: photometricInterpretation is -1;
+    var integer: planarConfiguration is 1;        # Default in the TIFF 6.0 specification
+    var integer: fillOrder is 1;                  # Default in the TIFF 6.0 specification
+    var integer: samplesPerPixel is 1;            # Default in the TIFF 6.0 specification
+    var array integer: bitsPerSample is [] (1);   # Default in the TIFF 6.0 specification
+    var integer: rowsPerStrip is pred(2 ** 32);   # Default in the TIFF 6.0 specification
+    var array integer: stripOffsets is 0 times 0;
+    var array integer: stripByteCounts is 0 times 0;
+    var integer: offsetToFirstIfd is 0;
+    var tiffIntegerTagValues: integerTagValues is tiffIntegerTagValues.value;
+    var tiffStringTagValues: stringTagValues is tiffStringTagValues.value;
+    var array pixel: colorMap is 0 times pixel.value;
+  end struct;
+
+const type: tiffIDFEntry is new struct
+    var string: tag is "";
+    var boolean: littleEndian is TRUE;
+    var integer: offsetToFirstIfd is 0;
+  end struct;
+
+
+const proc: showHeader (in tiffHeader: header) is func
+  begin
+    writeln("magic: " <& literal(header.magic));
+    writeln("littleEndian: " <& header.littleEndian);
+    writeln("offsetToFirstIfd: " <& header.offsetToFirstIfd);
+  end func;
+
+
+const proc: readHeader (inout file: tiffFile, in string: magic,
+    inout tiffHeader: header) is func
+  local
+    var string: stri is "";
+  begin
+    stri := gets(tiffFile, 4);
+    if length(stri) = 4 then
+      header.magic := magic;
+      header.littleEndian := magic = TIFF_MAGIC_LE;
+      if header.littleEndian then
+        header.offsetToFirstIfd := bytes2Int(stri, UNSIGNED, LE);
+      else
+        header.offsetToFirstIfd := bytes2Int(stri, UNSIGNED, BE);
+      end if;
+      # showHeader(header);
+    end if;
+  end func;
+
+
+const func string: tagName (in integer: tag) is func
+  result
+    var string: stri is "";
+  begin
+    case tag of
+      when {TIFF_TAG_NEW_SUBFILE_TYPE}:           stri := "TIFF_TAG_NEW_SUBFILE_TYPE";
+      when {TIFF_TAG_SUBFILE_TYPE}:               stri := "TIFF_TAG_SUBFILE_TYPE";
+      when {TIFF_TAG_IMAGE_WIDTH}:                stri := "TIFF_TAG_IMAGE_WIDTH";
+      when {TIFF_TAG_IMAGE_LENGTH}:               stri := "TIFF_TAG_IMAGE_LENGTH";
+      when {TIFF_TAG_BITS_PER_SAMPLE}:            stri := "TIFF_TAG_BITS_PER_SAMPLE";
+      when {TIFF_TAG_COMPRESSION}:                stri := "TIFF_TAG_COMPRESSION";
+      when {TIFF_TAG_PHOTOMETRIC_INTERPRETATION}: stri := "TIFF_TAG_PHOTOMETRIC_INTERPRETATION";
+      when {TIFF_TAG_FILL_ORDER}:                 stri := "TIFF_TAG_FILL_ORDER";
+      when {TIFF_TAG_DOCUMENT_NAME}:              stri := "TIFF_TAG_DOCUMENT_NAME";
+      when {TIFF_TAG_IMAGE_DESCRIPTION}:          stri := "TIFF_TAG_IMAGE_DESCRIPTION";
+      when {TIFF_TAG_SCANNER_MANUFACTURER}:       stri := "TIFF_TAG_SCANNER_MANUFACTURER";
+      when {TIFF_TAG_SCANNER_MODEL}:              stri := "TIFF_TAG_SCANNER_MODEL";
+      when {TIFF_TAG_STRIP_OFFSETS}:              stri := "TIFF_TAG_STRIP_OFFSETS";
+      when {TIFF_TAG_ORIENTATION}:                stri := "TIFF_TAG_ORIENTATION";
+      when {TIFF_TAG_SAMPLES_PER_PIXEL}:          stri := "TIFF_TAG_SAMPLES_PER_PIXEL";
+      when {TIFF_TAG_ROWS_PER_STRIP}:             stri := "TIFF_TAG_ROWS_PER_STRIP";
+      when {TIFF_TAG_STRIP_BYTE_COUNTS}:          stri := "TIFF_TAG_STRIP_BYTE_COUNTS";
+      when {TIFF_TAG_X_RESOLUTION}:               stri := "TIFF_TAG_X_RESOLUTION";
+      when {TIFF_TAG_Y_RESOLUTION}:               stri := "TIFF_TAG_Y_RESOLUTION";
+      when {TIFF_TAG_PLANAR_CONFIGURATION}:       stri := "TIFF_TAG_PLANAR_CONFIGURATION";
+      when {TIFF_TAG_PAGE_NAME}:                  stri := "TIFF_TAG_PAGE_NAME";
+      when {TIFF_TAG_X_POSITION}:                 stri := "TIFF_TAG_X_POSITION";
+      when {TIFF_TAG_Y_POSITION}:                 stri := "TIFF_TAG_Y_POSITION";
+      when {TIFF_TAG_CCITT_T4_OPTIONS}:           stri := "TIFF_TAG_CCITT_T4_OPTIONS";
+      when {TIFF_TAG_CCITT_T6_OPTIONS}:           stri := "TIFF_TAG_CCITT_T6_OPTIONS";
+      when {TIFF_TAG_RESOLUTION_UNIT}:            stri := "TIFF_TAG_RESOLUTION_UNIT";
+      when {TIFF_TAG_PAGE_NUMBER}:                stri := "TIFF_TAG_PAGE_NUMBER";
+      when {TIFF_TAG_SOFTWARE}:                   stri := "TIFF_TAG_SOFTWARE";
+      when {TIFF_TAG_DATE_TIME}:                  stri := "TIFF_TAG_DATE_TIME";
+      when {TIFF_TAG_ARTIST}:                     stri := "TIFF_TAG_ARTIST";
+      when {TIFF_TAG_HOST_COMPUTER}:              stri := "TIFF_TAG_HOST_COMPUTER";
+      when {TIFF_TAG_PREDICTOR}:                  stri := "TIFF_TAG_PREDICTOR";
+      when {TIFF_TAG_WHITE_POINT}:                stri := "TIFF_TAG_WHITE_POINT";
+      when {TIFF_TAG_COLOR_MAP}:                  stri := "TIFF_TAG_COLOR_MAP";
+      when {TIFF_TAG_TILE_WIDTH}:                 stri := "TIFF_TAG_TILE_WIDTH";
+      when {TIFF_TAG_TILE_LENGTH}:                stri := "TIFF_TAG_TILE_LENGTH";
+      when {TIFF_TAG_TILE_OFFSETS}:               stri := "TIFF_TAG_TILE_OFFSETS";
+      when {TIFF_TAG_TILE_BYTE_COUNTS}:           stri := "TIFF_TAG_TILE_BYTE_COUNTS";
+      when {TIFF_TAG_BAD_FAX_LINES}:              stri := "TIFF_TAG_BAD_FAX_LINES";
+      when {TIFF_TAG_EXTRA_SAMPLES}:              stri := "TIFF_TAG_EXTRA_SAMPLES";
+      when {TIFF_TAG_SAMPLE_FORMAT}:              stri := "TIFF_TAG_SAMPLE_FORMAT";
+      when {TIFF_TAG_JPEG_TABLES}:                stri := "TIFF_TAG_JPEG_TABLES";
+      when {TIFF_TAG_Y_CB_CR_SUB_SAMPLING}:       stri := "TIFF_TAG_Y_CB_CR_SUB_SAMPLING";
+      when {TIFF_TAG_REFERENCE_BLACK_WHITE}:      stri := "TIFF_TAG_REFERENCE_BLACK_WHITE";
+      otherwise: writeln(" **** Unknown tag: " <& tag radix 16 lpad0 4);
+    end case;
+  end func;
+
+
+const func string: fieldTypeName (in integer: fieldType) is func
+  result
+    var string: stri is "";
+  begin
+    case fieldType of
+      when {TIFF_FIELD_BYTE}:      stri := "TIFF_FIELD_BYTE";
+      when {TIFF_FIELD_ASCII}:     stri := "TIFF_FIELD_ASCII";
+      when {TIFF_FIELD_SHORT}:     stri := "TIFF_FIELD_SHORT";
+      when {TIFF_FIELD_LONG}:      stri := "TIFF_FIELD_LONG";
+      when {TIFF_FIELD_RATIONAL}:  stri := "TIFF_FIELD_RATIONAL";
+      when {TIFF_FIELD_SBYTE}:     stri := "TIFF_FIELD_SBYTE";
+      when {TIFF_FIELD_UNDEFINED}: stri := "TIFF_FIELD_UNDEFINED";
+      when {TIFF_FIELD_SSHORT}:    stri := "TIFF_FIELD_SSHORT";
+      when {TIFF_FIELD_SLONG}:     stri := "TIFF_FIELD_SLONG";
+      when {TIFF_FIELD_SRATIONAL}: stri := "TIFF_FIELD_SRATIONAL";
+      when {TIFF_FIELD_FLOAT}:     stri := "TIFF_FIELD_FLOAT";
+      when {TIFF_FIELD_DOUBLE}:    stri := "TIFF_FIELD_DOUBLE";
+      otherwise:
+        writeln(" ***** Unknown field type: " <& fieldType);
+    end case;
+  end func;
+
+
+const func string: tagValueAsString (inout file: tiffFile, in tiffHeader: header,
+    in integer: fieldType, in integer: count, in integer: valueOrOffset) is func
+  result
+    var string: stri is "";
+  local
+    var integer: oldPos is 0;
+    var string: rationalStri is "";
+    var integer: numerator is 0;
+    var integer: denominator is 0;
+  begin
+    case fieldType of
+      when {TIFF_FIELD_BYTE}:
+        if count = 1 then
+          if header.littleEndian then
+            if valueOrOffset < 2**8 then
+              stri := str(valueOrOffset);
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            if valueOrOffset mod 2**24 = 0 then
+              stri := str(valueOrOffset >> 24);
+            else
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        else
+          oldPos := tell(tiffFile);
+          seek(tiffFile, succ(valueOrOffset));
+          stri := literal(gets(tiffFile, count));
+          seek(tiffFile, oldPos);
+        end if;
+      when {TIFF_FIELD_ASCII}:
+        oldPos := tell(tiffFile);
+        seek(tiffFile, succ(valueOrOffset));
+        stri := gets(tiffFile, count);
+        seek(tiffFile, oldPos);
+      when {TIFF_FIELD_SHORT}:
+        if header.littleEndian then
+          if valueOrOffset < 2**16 then
+            stri := str(valueOrOffset);
+          else
+            raise RANGE_ERROR;
+          end if;
+        else
+          # writeln("valueOrOffset: " <& valueOrOffset radix 16 lpad0 8);
+          if valueOrOffset mod 2**16 = 0 then
+            stri := str(valueOrOffset >> 16);
+          else
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      when {TIFF_FIELD_LONG}:
+        stri := str(valueOrOffset);
+      when {TIFF_FIELD_RATIONAL}:
+        oldPos := tell(tiffFile);
+        seek(tiffFile, succ(valueOrOffset));
+        rationalStri := gets(tiffFile, 8);
+        if length(rationalStri) = 8 then
+          if header.littleEndian then
+            numerator   := bytes2Int(rationalStri[1 len 4], UNSIGNED, LE);
+            denominator := bytes2Int(rationalStri[1 len 4], UNSIGNED, LE);
+          else
+            numerator   := bytes2Int(rationalStri[1 len 4], UNSIGNED, BE);
+            denominator := bytes2Int(rationalStri[1 len 4], UNSIGNED, BE);
+          end if;
+          stri := numerator <& "/" <& denominator;
+        else
+          raise RANGE_ERROR;
+        end if;
+        seek(tiffFile, oldPos);
+      when {TIFF_FIELD_UNDEFINED}:
+        if count = 1 then
+          if header.littleEndian then
+            if valueOrOffset < 2**8 then
+              stri := str(valueOrOffset);
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            if valueOrOffset mod 2**24 = 0 then
+              stri := str(valueOrOffset >> 24);
+            else
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        else
+          oldPos := tell(tiffFile);
+          seek(tiffFile, succ(valueOrOffset));
+          stri := gets(tiffFile, count);
+          seek(tiffFile, oldPos);
+        end if;
+      otherwise:
+        writeln(" ***** Unknown field type: " <& fieldType);
+    end case;
+  end func;
+
+
+const func array integer: tagValueAsArray (inout file: tiffFile, in tiffHeader: header,
+    in integer: fieldType, in integer: count, in integer: valueOrOffset) is func
+  result
+    var array integer: tagValues is 0 times 0;
+  local
+    var integer: oldPos is 0;
+    var string: stri is "";
+    var integer: index is 0;
+  begin
+    case fieldType of
+      when {TIFF_FIELD_BYTE}:
+        if count = 1 then
+          if header.littleEndian then
+            if valueOrOffset < 2**8 then
+              tagValues := [] valueOrOffset;
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            if valueOrOffset mod 2**24 = 0 then
+              tagValues := [] (valueOrOffset >> 24);
+            else
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        elsif count <= 4 then
+          raise RANGE_ERROR;
+        else
+          tagValues := count times 0;
+          oldPos := tell(tiffFile);
+          seek(tiffFile, succ(valueOrOffset));
+          stri := gets(tiffFile, count);
+          if length(stri) = count then
+            for index range 1 to count do
+              tagValues[index] := bytes2Int(stri[index len 1], UNSIGNED, LE);
+            end for;
+          else
+            raise RANGE_ERROR;
+          end if;
+          seek(tiffFile, oldPos);
+        end if;
+      when {TIFF_FIELD_SHORT}:
+        if count = 1 then
+          if header.littleEndian then
+            if valueOrOffset < 2**16 then
+              tagValues := [] valueOrOffset;
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            if valueOrOffset mod 2**16 = 0 then
+              tagValues := [] (valueOrOffset >> 16);
+            else
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        elsif count = 2 then
+          if header.littleEndian then
+            tagValues := [] (valueOrOffset mod 2**16, valueOrOffset >> 16);
+          else
+            tagValues := [] (valueOrOffset >> 16, valueOrOffset mod 2**16);
+          end if;
+        else
+          tagValues := count times 0;
+          oldPos := tell(tiffFile);
+          seek(tiffFile, succ(valueOrOffset));
+          stri := gets(tiffFile, 2 * count);
+          if length(stri) = 2 * count then
+            if header.littleEndian then
+              for index range 1 to count do
+                tagValues[index] := bytes2Int(stri[pred(2 * index) len 2], UNSIGNED, LE);
+              end for;
+            else
+              for index range 1 to count do
+                tagValues[index] := bytes2Int(stri[pred(2 * index) len 2], UNSIGNED, BE);
+              end for;
+            end if;
+          else
+            raise RANGE_ERROR;
+          end if;
+          seek(tiffFile, oldPos);
+        end if;
+      when {TIFF_FIELD_LONG}:
+        if count = 1 then
+          tagValues := [] valueOrOffset;
+        else
+          tagValues := count times 0;
+          oldPos := tell(tiffFile);
+          seek(tiffFile, succ(valueOrOffset));
+          stri := gets(tiffFile, 4 * count);
+          if length(stri) = 4 * count then
+            if header.littleEndian then
+              for index range 1 to count do
+                tagValues[index] := bytes2Int(stri[4 * index - 3 len 4], UNSIGNED, LE);
+              end for;
+            else
+              for index range 1 to count do
+                tagValues[index] := bytes2Int(stri[4 * index - 3 len 4], UNSIGNED, BE);
+              end for;
+            end if;
+          else
+            raise RANGE_ERROR;
+          end if;
+          seek(tiffFile, oldPos);
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: readIDFEntry (inout file: tiffFile, inout tiffHeader: header) is func
+  local
+    var string: stri is "";
+    var integer: tag is 0;
+    var integer: fieldType is 0;
+    var integer: count is 0;
+    var integer: valueOrOffset is 0;
+    var integer: aValue is 0;
+  begin
+    stri := gets(tiffFile, 12);
+    if length(stri) = 12 then
+      if header.littleEndian then
+        tag           := bytes2Int(stri[1 len 2], UNSIGNED, LE);
+        fieldType     := bytes2Int(stri[3 len 2], UNSIGNED, LE);
+        count         := bytes2Int(stri[5 len 4], UNSIGNED, LE);
+        valueOrOffset := bytes2Int(stri[9 len 4], UNSIGNED, LE);
+      else
+        tag           := bytes2Int(stri[1 len 2], UNSIGNED, BE);
+        fieldType     := bytes2Int(stri[3 len 2], UNSIGNED, BE);
+        count         := bytes2Int(stri[5 len 4], UNSIGNED, BE);
+        valueOrOffset := bytes2Int(stri[9 len 4], UNSIGNED, BE);
+      end if;
+      # write(tagName(tag) <& ":");
+      if fieldType in {TIFF_FIELD_BYTE, TIFF_FIELD_SHORT, TIFF_FIELD_LONG} then
+        header.integerTagValues @:= [tag] tagValueAsArray(tiffFile, header, fieldType, count, valueOrOffset);
+      end if;
+      if fieldType = TIFF_FIELD_UNDEFINED then
+        header.stringTagValues @:= [tag] tagValueAsString(tiffFile, header, fieldType, count, valueOrOffset);
+      end if;
+      (*
+      if fieldType = TIFF_FIELD_ASCII or fieldType = TIFF_FIELD_BYTE or count = 1 then
+        writeln(" " <& tagValueAsString(tiffFile, header, fieldType, count, valueOrOffset));
+      elsif fieldType = TIFF_FIELD_UNDEFINED then
+        writeln(" " <& hex(header.stringTagValues[tag]));
+      else
+        if tag in header.integerTagValues then
+          for aValue range header.integerTagValues[tag] do
+            write(" " <& aValue);
+          end for;
+          writeln;
+        else
+          writeln("### " <& tag radix 16 lpad0 4 <& " " <& fieldTypeName(fieldType) <& ", count: " <& count <& " " <& valueOrOffset);
+        end if;
+      end if;
+      *)
+    end if;
+  end func;
+
+
+const proc: readImageFileDirectory (inout file: tiffFile, inout tiffHeader: header) is func
+  local
+    var string: stri is "";
+    var integer: numberOfDirectoryEntries is 0;
+    var integer: entryNumber is 0;
+    var integer: offsetOfNextIFD is 0;
+  begin
+    stri := gets(tiffFile, 2);
+    if length(stri) = 2 then
+      if header.littleEndian then
+        numberOfDirectoryEntries := bytes2Int(stri, UNSIGNED, LE);
+      else
+        numberOfDirectoryEntries := bytes2Int(stri, UNSIGNED, BE);
+      end if;
+      # writeln("littleEndian: " <& header.littleEndian);
+      # writeln("numberOfDirectoryEntries: " <& numberOfDirectoryEntries);
+      for entryNumber range 1 to numberOfDirectoryEntries do
+        readIDFEntry(tiffFile, header);
+      end for;
+      stri := gets(tiffFile, 4);
+      if length(stri) = 4 then
+        if header.littleEndian then
+          offsetOfNextIFD := bytes2Int(stri, UNSIGNED, LE);
+        else
+          offsetOfNextIFD := bytes2Int(stri, UNSIGNED, BE);
+        end if;
+        # writeln("offsetOfNextIFD: " <& offsetOfNextIFD);
+      end if;
+    end if;
+  end func;
+
+
+const proc: readColorMap (inout tiffHeader: header) is func
+  local
+    var array integer: colorMapData is 0 times 0;
+    var integer: numberOfColorMapEntries is 0;
+    var integer: colorMapIndex is 0;
+  begin
+    colorMapData := header.integerTagValues[TIFF_TAG_COLOR_MAP];
+    numberOfColorMapEntries := length(colorMapData) div 3;
+    # writeln("numberOfColorMapEntries: " <& numberOfColorMapEntries);
+    header.colorMap := [0 .. pred(numberOfColorMapEntries)] times pixel.value;
+    for colorMapIndex range 0 to pred(numberOfColorMapEntries) do
+      # writeln("colorMap[" <& colorMapIndex <& "] := rgbPixel(" <&
+      #     colorMapData[succ(colorMapIndex)] <& ", " <&
+      #     colorMapData[succ(colorMapIndex) + numberOfColorMapEntries] <& ", " <&
+      #     colorMapData[succ(colorMapIndex) + 2 * numberOfColorMapEntries] <& ")");
+      header.colorMap[colorMapIndex] := rgbPixel(
+          colorMapData[succ(colorMapIndex)],
+          colorMapData[succ(colorMapIndex) + numberOfColorMapEntries],
+          colorMapData[succ(colorMapIndex) + 2 * numberOfColorMapEntries]);
+    end for;
+  end func;
+
+
+const proc: predictor (in tiffHeader: header, inout string: stripData) is func
+  local
+    var integer: delta is 1;
+    var integer: linesInStrip is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: index is 0;
+  begin
+    if header.planarConfiguration <> TIFF_PLANAR_CONFIGURATION_PLANAR_FORMAT then
+      delta := header.samplesPerPixel;
+    end if;
+    linesInStrip := (length(stripData) div header.width) div delta;
+    for line range 1 to linesInStrip do
+      index := pred(line) * delta * header.width + succ(delta);
+      for column range succ(delta) to delta * header.width do
+        stripData @:= [index] char((ord(stripData[index - delta]) +
+                                    ord(stripData[index])) mod 256);
+        incr(index);
+      end for;
+    end for;
+  end func;
+
+
+const proc: processJpegSegments (in string: jpegData, inout jpegHeader: header,
+    inout array array pixel: image) is func
+  local
+    var file: jpegFile is STD_NULL;
+    var boolean: readMarker is TRUE;
+    var char: segmentMarker is ' ';
+    var boolean: endOfImage is FALSE;
+  begin
+    jpegFile := openStriFile(jpegData[4 ..]);
+    repeat
+      if readMarker then
+        segmentMarker := getc(jpegFile);
+      end if;
+      readMarker := TRUE;
+      case segmentMarker of
+        when {JPEG_SOF0}:
+          # writeln("SOF0");
+          readStartOfFrame(jpegFile, header);
+        when {JPEG_DHT}:
+          # writeln("DHT");
+          readDefineHuffmanTable(jpegFile, header);
+        when {JPEG_DQT}:
+          # writeln("DQT");
+          readDefineQuantizationTable(jpegFile, header);
+        when {JPEG_EOI}:
+          # writeln("EOI");
+          # End Of Image
+          endOfImage := TRUE;
+          readMarker := FALSE;
+        when {JPEG_SOS}:
+          # writeln("SOS");
+          readStartOfScan(jpegFile, header);
+          if header.progressive then
+            raise RANGE_ERROR;
+          else
+            setupQuantization(header);
+            loadImage(jpegFile, header, image);
+          end if;
+          segmentMarker := jpegFile.bufferChar;
+          readMarker := FALSE;
+        otherwise:
+          writeln("unknown marker: " <& ord(segmentMarker) radix 16 lpad0 2);
+          raise RANGE_ERROR;
+      end case;
+      if readMarker and getc(jpegFile) <> JPEG_MARKER_START then
+        raise RANGE_ERROR;
+      end if;
+    until endOfImage;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: readJpeg (inout file: tiffFile,
+    in tiffHeader: header) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var jpegHeader: jpegHead is jpegHeader.value;
+    var string: jpegTables is "";
+    var integer: stripOffset is 0;
+    var integer: stripIndex is 0;
+    var integer: stripByteCount is 0;
+    var string: stripData is "";
+    var integer: insertPos is 1;
+    var array array pixel: subImage is 0 times 0 times pixel.value;
+    var array array pixel: image is 0 times 0 times pixel.value;
+  begin
+    jpegHead.width := header.width;
+    jpegHead.height := header.height;
+    if TIFF_TAG_Y_CB_CR_SUB_SAMPLING in header.integerTagValues then
+      jpegHead.horizontal := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][1];
+      jpegHead.vertical := header.integerTagValues[TIFF_TAG_Y_CB_CR_SUB_SAMPLING][2];
+    else
+      jpegHead.horizontal := 1;
+      jpegHead.vertical := 1;
+    end if;
+    jpegHead.numLuma := jpegHead.vertical * jpegHead.horizontal;
+    jpegHead.unitLines := succ(pred(jpegHead.height) mdiv (8 * jpegHead.vertical));
+    jpegHead.unitColumns := succ(pred(jpegHead.width) mdiv (8 * jpegHead.horizontal));
+    if TIFF_TAG_JPEG_TABLES in header.stringTagValues then
+      jpegTables := header.stringTagValues[TIFF_TAG_JPEG_TABLES];
+      if startsWith(jpegTables, JPEG_MAGIC) then
+        processJpegSegments(jpegTables, jpegHead, subImage);
+      end if;
+    end if;
+    for stripOffset key stripIndex range header.stripOffsets do
+      stripByteCount := header.stripByteCounts[stripIndex];
+      seek(tiffFile, succ(stripOffset));
+      stripData := gets(tiffFile, stripByteCount);
+      if length(stripData) = stripByteCount then
+        # writeln("stripData: " <& hex(stripData));
+        if startsWith(stripData, JPEG_MAGIC) then
+          processJpegSegments(stripData, jpegHead, subImage);
+          insert(image, insertPos, subImage);
+          insertPos +:= length(subImage);
+        end if;
+      end if;
+    end for;
+    pixmap := imagePixmap(image);
+  end func;
+
+
+const func string: unpackBits (in string: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var integer: index is 1;
+    var char: ch is ' ';
+  begin
+    while index <= length(compressed) do
+      ch := compressed[index];
+      if ch <= chr(127) then
+        uncompressed &:= compressed[succ(index) len succ(ord(ch))];
+        index +:= ord(ch) + 2;
+      else
+        uncompressed &:= str(compressed[succ(index)]) mult (257 - ord(ch));
+        index +:= 2;
+      end if;
+    end while;
+  end func;
+
+
+const proc: processCcittModifiedGroup3Fax (in tiffHeader: header, in string: stripData,
+    in integer: startLine, in integer: height,
+    inout array array pixel: image) is func
+  local
+    var pixel: whitePixel is pixel.value;
+    var pixel: blackPixel is pixel.value;
+  begin
+    if header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
+      whitePixel := colorPixel(white);
+      blackPixel := colorPixel(black);
+    elsif header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
+      whitePixel := colorPixel(black);
+      blackPixel := colorPixel(white);
+    else
+      raise RANGE_ERROR;
+    end if;
+    if header.fillOrder = 1 then
+      processCcittModifiedGroup3FaxMsb(stripData, whitePixel, blackPixel,
+                                startLine, height, header.width, image);
+    elsif header.fillOrder = 2 then
+      processCcittModifiedGroup3FaxLsb(stripData, whitePixel, blackPixel,
+                                startLine, height, header.width, image);
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: processCcittT6Fax (in tiffHeader: header, in string: stripData,
+    in integer: startLine, in integer: height,
+    inout array array pixel: image) is func
+  local
+    var array pixel: blackOrWhite is 0 times pixel.value;
+  begin
+    if header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
+      blackOrWhite := [0] (colorPixel(black), colorPixel(white));
+    elsif header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
+      blackOrWhite := [0] (colorPixel(white), colorPixel(black));
+    else
+      raise RANGE_ERROR;
+    end if;
+    if header.fillOrder = 1 then
+      processCcittT6FaxMsb(stripData, blackOrWhite, startLine, height,
+                           header.width, image);
+    elsif header.fillOrder = 2 then
+      processCcittT6FaxLsb(stripData, blackOrWhite, startLine, height,
+                           header.width, image);
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: processCcittT4Fax1d (in tiffHeader: header, in string: stripData,
+    in integer: startLine, in integer: height,
+    inout array array pixel: image) is func
+  local
+    var pixel: whitePixel is pixel.value;
+    var pixel: blackPixel is pixel.value;
+  begin
+    if header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
+      whitePixel := colorPixel(white);
+      blackPixel := colorPixel(black);
+    elsif header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
+      whitePixel := colorPixel(black);
+      blackPixel := colorPixel(white);
+    else
+      raise RANGE_ERROR;
+    end if;
+    if header.fillOrder = 1 then
+      processCcittT4Fax1dMsb(stripData, whitePixel, blackPixel, startLine,
+                             height, header.width, image);
+    elsif header.fillOrder = 2 then
+      processCcittT4Fax1dLsb(stripData, whitePixel, blackPixel, startLine,
+                             height, header.width, image);
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: processCcittT4Fax2d (in tiffHeader: header, in string: stripData,
+    in integer: startLine, in integer: height,
+    inout array array pixel: image) is func
+  local
+    var array pixel: blackOrWhite is 0 times pixel.value;
+  begin
+    if header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
+      blackOrWhite := [0] (colorPixel(black), colorPixel(white));
+    elsif header.photometricInterpretation = TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
+      blackOrWhite := [0] (colorPixel(white), colorPixel(black));
+    else
+      raise RANGE_ERROR;
+    end if;
+    if header.fillOrder = 1 then
+      processCcittT4Fax2dMsb(stripData, blackOrWhite, startLine, height,
+                             header.width, image);
+    elsif header.fillOrder = 2 then
+      processCcittT4Fax2dLsb(stripData, blackOrWhite, startLine, height,
+                             header.width, image);
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: processRow (in tiffHeader: header, inout msbBitStream: stripDataStream,
+    in integer: line, inout array array pixel: image) is func
+  local
+    var integer: bitsPerSample1 is 0;
+    var pixel: whitePixel is pixel.value;
+    var pixel: blackPixel is pixel.value;
+    var integer: grayFactor is 0;
+    var integer: grayIntensity is 0;
+    var integer: colorFactor1 is 0;
+    var integer: colorFactor2 is 0;
+    var integer: colorFactor3 is 0;
+    var integer: column is 1;
+  begin
+    # writeln("line " <& line);
+    case header.samplesPerPixel of
+      when {1}:
+        bitsPerSample1 := header.bitsPerSample[1];
+        if length(header.colorMap) <> 0 then
+          for column range 1 to header.width do
+            image[line][column] := header.colorMap[getBits(stripDataStream, bitsPerSample1)];
+          end for;
+        elsif bitsPerSample1 = 1 then
+          if header.photometricInterpretation =
+              TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
+            whitePixel := colorPixel(white);
+            blackPixel := colorPixel(black);
+          else
+            whitePixel := colorPixel(black);
+            blackPixel := colorPixel(white);
+          end if;
+          for column range 1 to header.width do
+            if getBit(stripDataStream) = 0 then
+              image[line][column] := whitePixel;
+            else
+              image[line][column] := blackPixel;
+            end if;
+          end for;
+        else
+          grayFactor := 65535 div pred(2 ** bitsPerSample1);
+          for column range 1 to header.width do
+            grayIntensity :=  getBits(stripDataStream, bitsPerSample1) * grayFactor;
+            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          end for;
+        end if;
+      when {3}:
+        colorFactor1 := 65535 div pred(2 ** header.bitsPerSample[1]);
+        colorFactor2 := 65535 div pred(2 ** header.bitsPerSample[2]);
+        colorFactor3 := 65535 div pred(2 ** header.bitsPerSample[3]);
+        for column range 1 to header.width do
+          image[line][column] := rgbPixel(getBits(stripDataStream, header.bitsPerSample[1]) * colorFactor1,
+                                          getBits(stripDataStream, header.bitsPerSample[2]) * colorFactor2,
+                                          getBits(stripDataStream, header.bitsPerSample[3]) * colorFactor3);
+        end for;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: processRowWithColorMap (in tiffHeader: header,
+    in string: stripData, inout integer: currPosition, in integer: line,
+    inout array array pixel: image) is func
+  local
+    var integer: column is 0;
+  begin
+    case header.bitsPerSample[1] of
+      when {8}:
+        for column range 1 to header.width do
+          image[line][column] := header.colorMap[ord(stripData[currPosition])];
+          incr(currPosition);
+        end for;
+      when {16}:
+        if header.littleEndian then
+          for column range 1 to header.width do
+            image[line][column] := header.colorMap[bytes2Int(stripData[currPosition len 2], UNSIGNED, LE)];
+            currPosition +:= 2;
+          end for;
+        else
+          for column range 1 to header.width do
+            image[line][column] := header.colorMap[bytes2Int(stripData[currPosition len 2], UNSIGNED, BE)];
+            currPosition +:= 2;
+          end for;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: processRowWithGrayscale (in tiffHeader: header,
+    in string: stripData, inout integer: currPosition, in integer: line,
+    inout array array pixel: image) is func
+  local
+    var integer: column is 0;
+    var integer: positionIncrement is 0;
+    var integer: positionDelta is 0;
+    var integer: grayIntensity is 0;
+  begin
+    case header.bitsPerSample[1] of
+      when {8}:
+        for column range 1 to header.width do
+          grayIntensity := ord(stripData[currPosition]) * 256;
+          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          incr(currPosition);
+        end for;
+      when {16, 24, 32, 64}:
+        positionIncrement := header.bitsPerSample[1] div 8;
+        positionDelta := positionIncrement - 2;
+        if header.littleEndian then
+          for column range 1 to header.width do
+            grayIntensity := bytes2Int(stripData[currPosition + positionDelta len 2], UNSIGNED, LE);
+            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            currPosition +:= positionIncrement;
+          end for;
+        else
+          for column range 1 to header.width do
+            grayIntensity := bytes2Int(stripData[currPosition len 2], UNSIGNED, BE);
+            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            currPosition +:= positionIncrement;
+          end for;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: processRowWithGrayscaleReversed (in tiffHeader: header,
+    in string: stripData, inout integer: currPosition, in integer: line,
+    inout array array pixel: image) is func
+  local
+    var integer: column is 0;
+    var integer: positionIncrement is 0;
+    var integer: positionDelta is 0;
+    var integer: grayIntensity is 0;
+  begin
+    case header.bitsPerSample[1] of
+      when {8}:
+        for column range 1 to header.width do
+          grayIntensity := 65535 - ord(stripData[currPosition]) * 256;
+          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          incr(currPosition);
+        end for;
+      when {16, 24, 32, 64}:
+        positionIncrement := header.bitsPerSample[1] div 8;
+        positionDelta := positionIncrement - 2;
+        if header.littleEndian then
+          for column range 1 to header.width do
+            grayIntensity := 65535 - bytes2Int(stripData[currPosition + positionDelta len 2], UNSIGNED, LE);
+            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            currPosition +:= positionIncrement;
+          end for;
+        else
+          for column range 1 to header.width do
+            grayIntensity := 65535 - bytes2Int(stripData[currPosition len 2], UNSIGNED, BE);
+            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            currPosition +:= positionIncrement;
+          end for;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: processRowWithGrayscaleAlpha (in tiffHeader: header,
+    in string: stripData, inout integer: currPosition, in integer: line,
+    inout array array pixel: image) is func
+  local
+    var integer: column is 0;
+    var integer: positionIncrement is 0;
+    var integer: positionDelta is 0;
+    var integer: grayIntensity is 0;
+  begin
+    case header.bitsPerSample[1] of
+      when {8}:
+        for column range 1 to header.width do
+          grayIntensity := ord(stripData[currPosition]) * 256;
+          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          currPosition +:= 2;
+        end for;
+      when {16, 24, 32}:
+        positionIncrement := header.bitsPerSample[1] div 4;
+        positionDelta := header.bitsPerSample[1] div 8 - 2;
+        if header.littleEndian then
+          for column range 1 to header.width do
+            grayIntensity := bytes2Int(stripData[currPosition + positionDelta len 2], UNSIGNED, LE);
+            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            currPosition +:= positionIncrement;
+          end for;
+        else
+          for column range 1 to header.width do
+            grayIntensity := bytes2Int(stripData[currPosition len 2], UNSIGNED, BE);
+            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            currPosition +:= positionIncrement;
+          end for;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: processRowWithGrayscaleAlphaReversed (in tiffHeader: header,
+    in string: stripData, inout integer: currPosition, in integer: line,
+    inout array array pixel: image) is func
+  local
+    var integer: column is 0;
+    var integer: positionIncrement is 0;
+    var integer: positionDelta is 0;
+    var integer: grayIntensity is 0;
+  begin
+    case header.bitsPerSample[1] of
+      when {8}:
+        for column range 1 to header.width do
+          grayIntensity := 65535 - ord(stripData[currPosition]) * 256;
+          image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+          currPosition +:= 2;
+        end for;
+      when {16, 24, 32}:
+        positionIncrement := header.bitsPerSample[1] div 4;
+        positionDelta := header.bitsPerSample[1] div 8 - 2;
+        if header.littleEndian then
+          for column range 1 to header.width do
+            grayIntensity := 65535 - bytes2Int(stripData[currPosition + positionDelta len 2], UNSIGNED, LE);
+            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            currPosition +:= positionIncrement;
+          end for;
+        else
+          for column range 1 to header.width do
+            grayIntensity := 65535 - bytes2Int(stripData[currPosition len 2], UNSIGNED, BE);
+            image[line][column] := rgbPixel(grayIntensity, grayIntensity, grayIntensity);
+            currPosition +:= positionIncrement;
+          end for;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: processRowWithRGB (in tiffHeader: header,
+    in string: stripData, inout integer: currPosition, in integer: line,
+    inout array array pixel: image) is func
+  local
+    var integer: column is 0;
+    var integer: positionIncrement is 0;
+    var integer: deltaRed is 0;
+    var integer: deltaGreen is 0;
+    var integer: deltaBlue is 0;
+  begin
+    case header.bitsPerSample[1] of
+      when {8}:
+        for column range 1 to header.width do
+          image[line][column] := rgbPixel(ord(stripData[currPosition]) * 256,
+                                          ord(stripData[succ(currPosition)]) * 256,
+                                          ord(stripData[currPosition + 2]) * 256);
+          currPosition +:= 3;
+        end for;
+      when {16, 24, 32, 64}:
+        positionIncrement := header.bitsPerSample[1] div 8 * 3;
+        if header.littleEndian then
+          deltaRed := header.bitsPerSample[1] div 8 - 2;
+          deltaGreen := deltaRed + header.bitsPerSample[1] div 8;
+          deltaBlue := deltaGreen + header.bitsPerSample[1] div 8;
+          for column range 1 to header.width do
+            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition + deltaRed   len 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + deltaGreen len 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + deltaBlue  len 2], UNSIGNED, LE));
+            currPosition +:= positionIncrement;
+          end for;
+        else
+          deltaGreen := header.bitsPerSample[1] div 8;
+          deltaBlue := 2 * deltaGreen;
+          for column range 1 to header.width do
+            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition              len 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + deltaGreen len 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + deltaBlue  len 2], UNSIGNED, BE));
+            currPosition +:= positionIncrement;
+          end for;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: processRowWithRGBA (in tiffHeader: header,
+    in string: stripData, inout integer: currPosition, in integer: line,
+    inout array array pixel: image) is func
+  local
+    var integer: column is 0;
+  begin
+    case header.bitsPerSample[1] of
+      when {8}:
+        for column range 1 to header.width do
+          image[line][column] := rgbPixel(ord(stripData[currPosition]) * 256,
+                                          ord(stripData[succ(currPosition)]) * 256,
+                                          ord(stripData[currPosition + 2]) * 256);
+          currPosition +:= 4;
+        end for;
+      when {16}:
+        if header.littleEndian then
+          for column range 1 to header.width do
+            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition len 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + 2 len 2], UNSIGNED, LE),
+                                            bytes2Int(stripData[currPosition + 4 len 2], UNSIGNED, LE));
+            currPosition +:= 8;
+          end for;
+        else
+          for column range 1 to header.width do
+            image[line][column] := rgbPixel(bytes2Int(stripData[currPosition len 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + 2 len 2], UNSIGNED, BE),
+                                            bytes2Int(stripData[currPosition + 4 len 2], UNSIGNED, BE));
+            currPosition +:= 8;
+          end for;
+        end if;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: processRow (in tiffHeader: header, in string: stripData,
+    inout integer: currPosition, in integer: line,
+    inout array array pixel: image) is func
+  begin
+    # writeln("line: " <& line);
+    case header.samplesPerPixel of
+      when {1}:
+        if length(header.colorMap) <> 0 then
+          processRowWithColorMap(header, stripData,
+                                 currPosition, line, image);
+        else
+          if header.photometricInterpretation =
+              TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
+            processRowWithGrayscale(header, stripData,
+                                    currPosition, line, image);
+          elsif header.photometricInterpretation =
+              TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
+            processRowWithGrayscaleReversed(header, stripData,
+                                            currPosition, line, image);
+          else
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      when {2}:
+        if header.photometricInterpretation =
+            TIFF_PHOTOMETRIC_INTERPRETATION_BLACK_IS_ZERO then
+          processRowWithGrayscaleAlpha(header, stripData,
+                                       currPosition, line, image);
+        elsif header.photometricInterpretation =
+            TIFF_PHOTOMETRIC_INTERPRETATION_WHITE_IS_ZERO then
+          processRowWithGrayscaleAlphaReversed(header, stripData,
+                                               currPosition, line, image);
+        else
+          raise RANGE_ERROR;
+        end if;
+      when {3}:
+        processRowWithRGB(header, stripData,
+                          currPosition, line, image);
+      when {4}:
+        processRowWithRGBA(header, stripData,
+                           currPosition, line, image);
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+  end func;
+
+
+const proc: processDataStrip (in tiffHeader: header, inout string: stripData,
+    in integer: rowsInCurrentStrip) is func
+  local
+    var integer: requestedLength is 0;
+  begin
+    case header.compression of
+      when {TIFF_COMPRESSION_PACK_BITS}:
+        stripData := unpackBits(stripData);
+      when {TIFF_COMPRESSION_LEMPEL_ZIV_WELCH}:
+        if stripData[1] = '\0;' then
+          # Old style LZW encoded
+          stripData := lzwDecompressLsb(stripData, 8);
+        else
+          if rowsInCurrentStrip <> 0 then
+            if header.samplesPerPixel = 1 then
+              requestedLength := (rowsInCurrentStrip * header.width *
+                                  header.bitsPerSample[1] + 7) div 8;
+            else
+              requestedLength := rowsInCurrentStrip * header.width * header.samplesPerPixel;
+            end if;
+            stripData := lzwDecompressMsbEarlyChange(stripData, 8, requestedLength);
+          else
+            stripData := lzwDecompressMsbEarlyChange(stripData, 8);
+          end if;
+        end if;
+      when {TIFF_COMPRESSION_DEFLATE,
+            TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
+        stripData := gzuncompress(stripData);
+    end case;
+    if TIFF_TAG_PREDICTOR in header.integerTagValues and
+        header.integerTagValues[TIFF_TAG_PREDICTOR][1] = 2 then
+      predictor(header, stripData);
+    end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
+    inout tiffHeader: header) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var integer: stripOffset is 0;
+    var integer: stripIndex is 0;
+    var integer: lastFullStripIndex is 0;
+    var integer: stripByteCount is 0;
+    var string: stripData is "";
+    var integer: rowsInCurrentStrip is 0;
+    var integer: rowIndex is 0;
+    var integer: currPosition is 1;
+    var integer: currentRow is 1;
+    var msbBitStream: stripDataStream is msbBitStream.value;
+    var array array pixel: image is 0 times 0 times pixel.value;
+  begin
+    image := header.height times header.width times pixel.value;
+    lastFullStripIndex := header.height div header.rowsPerStrip;
+    if header.photometricInterpretation =
+        TIFF_PHOTOMETRIC_INTERPRETATION_PALETTE_COLOR and
+        TIFF_TAG_COLOR_MAP in header.integerTagValues then
+      readColorMap(header);
+    end if;
+    for stripOffset key stripIndex range header.stripOffsets do
+      stripByteCount := header.stripByteCounts[stripIndex];
+      seek(tiffFile, succ(stripOffset));
+      stripData := gets(tiffFile, stripByteCount);
+      if length(stripData) = stripByteCount then
+        if stripIndex <= lastFullStripIndex then
+          rowsInCurrentStrip := header.rowsPerStrip;
+        else
+          rowsInCurrentStrip := header.height rem header.rowsPerStrip;
+        end if;
+        case header.compression of
+          when {TIFF_NO_COMPRESSION,
+                TIFF_COMPRESSION_PACK_BITS,
+                TIFF_COMPRESSION_LEMPEL_ZIV_WELCH,
+                TIFF_COMPRESSION_DEFLATE,
+                TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
+            processDataStrip(header, stripData, rowsInCurrentStrip);
+            if header.bitsPerSample[1] mod 8 <> 0 then
+              stripDataStream := openMsbBitStream(stripData);
+              for rowIndex range 1 to rowsInCurrentStrip do
+                processRow(header, stripDataStream, currentRow, image);
+                ignore(gets(stripDataStream, 0));
+                incr(currentRow);
+              end for;
+            else
+              currPosition := 1;
+              for rowIndex range 1 to rowsInCurrentStrip do
+                processRow(header, stripData, currPosition, currentRow, image);
+                incr(currentRow);
+              end for;
+            end if;
+          when {TIFF_COMPRESSION_CCITT_MODIFIED_GROUP_3}:
+            processCcittModifiedGroup3Fax(header, stripData, currentRow,
+                                          rowsInCurrentStrip, image);
+            currentRow +:= rowsInCurrentStrip;
+          when {TIFF_COMPRESSION_CCITT_T4}:
+            if TIFF_TAG_CCITT_T4_OPTIONS not in header.integerTagValues or
+                not odd(header.integerTagValues[TIFF_TAG_CCITT_T4_OPTIONS][1]) then
+              processCcittT4Fax1d(header, stripData, currentRow,
+                                  rowsInCurrentStrip, image);
+              currentRow +:= rowsInCurrentStrip;
+            else
+              processCcittT4Fax2d(header, stripData, currentRow,
+                                  rowsInCurrentStrip, image);
+              currentRow +:= rowsInCurrentStrip;
+            end if;
+          when {TIFF_COMPRESSION_CCITT_T6}:
+            processCcittT6Fax(header, stripData, currentRow, rowsInCurrentStrip, image);
+            currentRow +:= rowsInCurrentStrip;
+        end case;
+      else
+        raise RANGE_ERROR;
+      end if;
+    end for;
+    pixmap := imagePixmap(image);
+  end func;
+
+
+const proc: processRow (in tiffHeader: header, in array string: stripData,
+    in integer: line, inout integer: currPosition,
+    inout array array pixel: image) is func
+  local
+    var integer: column is 0;
+    var integer: positionIncrement is 0;
+    var integer: positionDelta is 0;
+  begin
+    if header.samplesPerPixel = 3 or header.samplesPerPixel = 4 then
+      case header.bitsPerSample[1] of
+        when {8}:
+          for column range 1 to header.width do
+            image[line][column] := rgbPixel(ord(stripData[1][currPosition]) * 256,
+                                            ord(stripData[2][currPosition]) * 256,
+                                            ord(stripData[3][currPosition]) * 256);
+            incr(currPosition);
+          end for;
+        when {16, 24, 32, 64}:
+          positionIncrement := header.bitsPerSample[1] div 8;
+          positionDelta := positionIncrement - 2;
+          if header.littleEndian then
+            for column range 1 to header.width do
+              image[line][column] := rgbPixel(bytes2Int(stripData[1][currPosition + positionDelta len 2], UNSIGNED, LE),
+                                              bytes2Int(stripData[2][currPosition + positionDelta len 2], UNSIGNED, LE),
+                                              bytes2Int(stripData[3][currPosition + positionDelta len 2], UNSIGNED, LE));
+              currPosition +:= positionIncrement;
+            end for;
+          else
+            for column range 1 to header.width do
+              image[line][column] := rgbPixel(bytes2Int(stripData[1][currPosition len 2], UNSIGNED, BE),
+                                              bytes2Int(stripData[2][currPosition len 2], UNSIGNED, BE),
+                                              bytes2Int(stripData[3][currPosition len 2], UNSIGNED, BE));
+              currPosition +:= positionIncrement;
+            end for;
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
+    in tiffHeader: header) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var integer: stripsPerImage is 0;
+    var integer: baseStripIndex is 1;
+    var integer: stripIndex is 0;
+    var integer: stripLineMax is 0;
+    var array string: stripData is 0 times "";
+    var integer: sampleIndex is 0;
+    var integer: line is 0;
+    var integer: currPosition is 0;
+    var array array pixel: image is 0 times 0 times pixel.value;
+  begin
+    image := header.height times header.width times pixel.value;
+    stripsPerImage := (header.height + header.rowsPerStrip - 1) div header.rowsPerStrip;
+    # writeln("length(stripOffsets): " <& length(header.stripOffsets));
+    # writeln("length(stripByteCounts): " <& length(header.stripByteCounts));
+    # writeln("stripsPerImage: " <& stripsPerImage);
+    for line range 1 to header.height do
+      # writeln("line: " <& line);
+      if line > stripLineMax then
+        # writeln("read strips");
+        stripData := header.samplesPerPixel times "";
+        for sampleIndex range 1 to header.samplesPerPixel do
+          # writeln("baseStripIndex: " <& baseStripIndex);
+          # writeln("sampleIndex: " <& sampleIndex);
+          stripIndex := baseStripIndex + pred(sampleIndex) * stripsPerImage;
+          # writeln("index: " <& stripIndex);
+          seek(tiffFile, succ(header.stripOffsets[stripIndex]));
+          stripData[sampleIndex] := gets(tiffFile, header.stripByteCounts[stripIndex]);
+          if length(stripData[sampleIndex]) = header.stripByteCounts[stripIndex] then
+            processDataStrip(header, stripData[sampleIndex], 0);
+          else
+            raise RANGE_ERROR;
+          end if;
+          # writeln("length(stripData[" <& sampleIndex <& "]): " <& length(stripData[sampleIndex]));
+        end for;
+        stripLineMax +:= header.rowsPerStrip;
+        incr(baseStripIndex);
+        currPosition := 1;
+      end if;
+      processRow(header, stripData, line, currPosition, image);
+    end for;
+    pixmap := imagePixmap(image);
+  end func;
+
+
+(**
+ *  Reads a TIFF file into a pixmap.
+ *  @param tiffFile File that contains a TIFF image.
+ *  @return A pixmap with the TIFF image, or
+ *          PRIMITIVE_WINDOW.value if the the file does
+ *          not contain a TIFF magic number.
+ *  @exception RANGE_ERROR The file is not in the TIFF file format.
+ *)
+const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var string: magic is "";
+    var tiffHeader: header is tiffHeader.value;
+  begin
+    magic := gets(tiffFile, length(TIFF_MAGIC_LE));
+    if magic = TIFF_MAGIC_LE or magic = TIFF_MAGIC_BE then
+      pixmap := newPixmap(1, 1); # Initialize graphic
+      readHeader(tiffFile, magic, header);
+      if header.offsetToFirstIfd <> 0 then
+        seek(tiffFile, succ(header.offsetToFirstIfd));
+        readImageFileDirectory(tiffFile, header);
+        header.width := header.integerTagValues[TIFF_TAG_IMAGE_WIDTH][1];
+        header.height := header.integerTagValues[TIFF_TAG_IMAGE_LENGTH][1];
+        header.compression := header.integerTagValues[TIFF_TAG_COMPRESSION][1];
+        header.photometricInterpretation :=
+            header.integerTagValues[TIFF_TAG_PHOTOMETRIC_INTERPRETATION][1];
+        if TIFF_TAG_PLANAR_CONFIGURATION in header.integerTagValues then
+          header.planarConfiguration := header.integerTagValues[TIFF_TAG_PLANAR_CONFIGURATION][1];
+        end if;
+        if TIFF_TAG_FILL_ORDER in header.integerTagValues then
+          header.fillOrder := header.integerTagValues[TIFF_TAG_FILL_ORDER][1];
+        end if;
+        if TIFF_TAG_SAMPLES_PER_PIXEL in header.integerTagValues then
+          header.samplesPerPixel := header.integerTagValues[TIFF_TAG_SAMPLES_PER_PIXEL][1];
+        end if;
+        if TIFF_TAG_BITS_PER_SAMPLE in header.integerTagValues then
+          header.bitsPerSample := header.integerTagValues[TIFF_TAG_BITS_PER_SAMPLE];
+        end if;
+        if TIFF_TAG_ROWS_PER_STRIP in header.integerTagValues then
+          header.rowsPerStrip := header.integerTagValues[TIFF_TAG_ROWS_PER_STRIP][1];
+        end if;
+        if TIFF_TAG_STRIP_OFFSETS in header.integerTagValues then
+          header.stripOffsets := header.integerTagValues[TIFF_TAG_STRIP_OFFSETS];
+        end if;
+        if TIFF_TAG_STRIP_BYTE_COUNTS in header.integerTagValues then
+          header.stripByteCounts := header.integerTagValues[TIFF_TAG_STRIP_BYTE_COUNTS];
+        elsif length(header.stripOffsets) = 1 and
+            header.bitsPerSample[1] mod 8 = 0 then
+          # Calculate value of the missing required stripByteCounts field.
+          header.stripByteCounts := [] (header.width * header.height *
+                                        header.samplesPerPixel *
+                                        (header.bitsPerSample[1] div 8));
+          # writeln("stripByteCounts[1]: " <& header.stripByteCounts[1]);
+        end if;
+        case header.compression of
+          when {TIFF_NO_COMPRESSION,
+                TIFF_COMPRESSION_PACK_BITS,
+                TIFF_COMPRESSION_CCITT_MODIFIED_GROUP_3,
+                TIFF_COMPRESSION_CCITT_T4,
+                TIFF_COMPRESSION_CCITT_T6,
+                TIFF_COMPRESSION_LEMPEL_ZIV_WELCH,
+                TIFF_COMPRESSION_DEFLATE,
+                TIFF_COMPRESSION_DEFLATE_ALTERNATE_CODE}:
+            if header.planarConfiguration = TIFF_PLANAR_CONFIGURATION_CHUNKY_FORMAT then
+              pixmap := readTiff(tiffFile, header);
+            else
+              pixmap := readTiffPlanarFormat(tiffFile, header);
+            end if;
+          when {TIFF_COMPRESSION_JPEG}:
+            pixmap := readJpeg(tiffFile, header);
+          otherwise:
+            # Unsupported compression
+            raise RANGE_ERROR;
+        end case;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a TIFF file with the given ''tiffFileName'' into a pixmap.
+ *  @param tiffFileName Name of the TIFF file.
+ *  @return A pixmap with the TIFF image, or
+ *          PRIMITIVE_WINDOW.value if the file cannot be opened or
+ *          does not contain a TIFF magic number.
+ *  @exception RANGE_ERROR The file is not in the TIFF file format.
+ *)
+const func PRIMITIVE_WINDOW: readTiff (in string: tiffFileName) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var file: tiffFile is STD_NULL;
+  begin
+    tiffFile := open(tiffFileName, "r");
+    if tiffFile <> STD_NULL then
+      pixmap := readTiff(tiffFile);
+      close(tiffFile);
+    end if;
+  end func;

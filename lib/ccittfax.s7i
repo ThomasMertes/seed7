@@ -1,0 +1,1075 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  ccittfax.s7i  CCITT fax decoding support library                *)
+(*  Copyright (C) 2015, 2022  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bytedata.s7i";
+include "bitdata.s7i";
+include "huffman.s7i";
+include "graph.s7i";
+
+
+const func msbHuffmanTable: createHuffmanTableMsb (in integer: maximumCodeLength) is func
+  result
+    var msbHuffmanTable: table is msbHuffmanTable.value;
+  begin
+    table.maxBitWidth := maximumCodeLength;
+    table.symbols := [0 .. pred(1 << maximumCodeLength)] times -2;
+    table.codeLengths := [0 .. pred(1 << maximumCodeLength)] times 0;
+  end func;
+
+
+const proc: addCode (inout msbHuffmanTable: table, in integer: huffmanValue, in string: bits) is func
+  local
+    var integer: codeLength is 0;
+    var integer: currentCode is 0;
+    var integer: tableIndex is 0;
+  begin
+    codeLength := length(bits);
+    currentCode := integer(bits, 2);
+    tableIndex := currentCode << (table.maxBitWidth - codeLength);
+    while currentCode = tableIndex >> (table.maxBitWidth - codeLength) do
+      table.symbols[tableIndex] := huffmanValue;
+      table.codeLengths[tableIndex] := codeLength;
+      incr(tableIndex);
+    end while;
+  end func;
+
+
+const func lsbHuffmanTable: createHuffmanTableLsb (in integer: maximumCodeLength,
+    in integer: minSymbol, in integer: maxSymbol) is func
+  result
+    var lsbHuffmanTable: table is lsbHuffmanTable.value;
+  begin
+    table.maxBitWidth := maximumCodeLength;
+    table.symbols := [0 .. pred(1 << maximumCodeLength)] times -2;
+    table.codeLengths := [minSymbol .. maxSymbol] times 0;
+  end func;
+
+
+const proc: addCode (inout lsbHuffmanTable: table, in integer: huffmanValue, in string: bits) is func
+  local
+    var integer: codeLength is 0;
+    var integer: currentCode is 0;
+    var integer: reversedCode is 0;
+    var integer: highBits is 0;
+  begin
+    codeLength := length(bits);
+    currentCode := integer(bits, 2);
+    reversedCode := reverseBits(codeLength, currentCode);
+    for highBits range 0 to pred(1 << table.maxBitWidth) step 1 << codeLength do
+      table.symbols[highBits + reversedCode] := huffmanValue;
+    end for;
+    table.codeLengths[huffmanValue] := codeLength;
+  end func;
+
+
+const proc: addCode (inout huffmanTable: table, in integer: huffmanValue, in string: bits) is DYNAMIC;
+
+
+const proc: addWhiteHuffmanValues (inout huffmanTable: table) is func
+  begin
+    # addCode(table,   -1, "00000000");
+    addCode(table,   -1, "000000000001");
+    addCode(table,    0, "00110101");
+    addCode(table,    1, "000111");
+    addCode(table,    2, "0111");
+    addCode(table,    3, "1000");
+    addCode(table,    4, "1011");
+    addCode(table,    5, "1100");
+    addCode(table,    6, "1110");
+    addCode(table,    7, "1111");
+    addCode(table,    8, "10011");
+    addCode(table,    9, "10100");
+    addCode(table,   10, "00111");
+    addCode(table,   11, "01000");
+    addCode(table,   12, "001000");
+    addCode(table,   13, "000011");
+    addCode(table,   14, "110100");
+    addCode(table,   15, "110101");
+    addCode(table,   16, "101010");
+    addCode(table,   17, "101011");
+    addCode(table,   18, "0100111");
+    addCode(table,   19, "0001100");
+    addCode(table,   20, "0001000");
+    addCode(table,   21, "0010111");
+    addCode(table,   22, "0000011");
+    addCode(table,   23, "0000100");
+    addCode(table,   24, "0101000");
+    addCode(table,   25, "0101011");
+    addCode(table,   26, "0010011");
+    addCode(table,   27, "0100100");
+    addCode(table,   28, "0011000");
+    addCode(table,   29, "00000010");
+    addCode(table,   30, "00000011");
+    addCode(table,   31, "00011010");
+    addCode(table,   32, "00011011");
+    addCode(table,   33, "00010010");
+    addCode(table,   34, "00010011");
+    addCode(table,   35, "00010100");
+    addCode(table,   36, "00010101");
+    addCode(table,   37, "00010110");
+    addCode(table,   38, "00010111");
+    addCode(table,   39, "00101000");
+    addCode(table,   40, "00101001");
+    addCode(table,   41, "00101010");
+    addCode(table,   42, "00101011");
+    addCode(table,   43, "00101100");
+    addCode(table,   44, "00101101");
+    addCode(table,   45, "00000100");
+    addCode(table,   46, "00000101");
+    addCode(table,   47, "00001010");
+    addCode(table,   48, "00001011");
+    addCode(table,   49, "01010010");
+    addCode(table,   50, "01010011");
+    addCode(table,   51, "01010100");
+    addCode(table,   52, "01010101");
+    addCode(table,   53, "00100100");
+    addCode(table,   54, "00100101");
+    addCode(table,   55, "01011000");
+    addCode(table,   56, "01011001");
+    addCode(table,   57, "01011010");
+    addCode(table,   58, "01011011");
+    addCode(table,   59, "01001010");
+    addCode(table,   60, "01001011");
+    addCode(table,   61, "00110010");
+    addCode(table,   62, "00110011");
+    addCode(table,   63, "00110100");
+    addCode(table,   64, "11011");
+    addCode(table,  128, "10010");
+    addCode(table,  192, "010111");
+    addCode(table,  256, "0110111");
+    addCode(table,  320, "00110110");
+    addCode(table,  384, "00110111");
+    addCode(table,  448, "01100100");
+    addCode(table,  512, "01100101");
+    addCode(table,  576, "01101000");
+    addCode(table,  640, "01100111");
+    addCode(table,  704, "011001100");
+    addCode(table,  768, "011001101");
+    addCode(table,  832, "011010010");
+    addCode(table,  896, "011010011");
+    addCode(table,  960, "011010100");
+    addCode(table, 1024, "011010101");
+    addCode(table, 1088, "011010110");
+    addCode(table, 1152, "011010111");
+    addCode(table, 1216, "011011000");
+    addCode(table, 1280, "011011001");
+    addCode(table, 1344, "011011010");
+    addCode(table, 1408, "011011011");
+    addCode(table, 1472, "010011000");
+    addCode(table, 1536, "010011001");
+    addCode(table, 1600, "010011010");
+    addCode(table, 1664, "011000");
+    addCode(table, 1728, "010011011");
+    addCode(table, 1792, "00000001000");
+    addCode(table, 1856, "00000001100");
+    addCode(table, 1920, "00000001101");
+    addCode(table, 1984, "000000010010");
+    addCode(table, 2048, "000000010011");
+    addCode(table, 2112, "000000010100");
+    addCode(table, 2176, "000000010101");
+    addCode(table, 2240, "000000010110");
+    addCode(table, 2304, "000000010111");
+    addCode(table, 2368, "000000011100");
+    addCode(table, 2432, "000000011101");
+    addCode(table, 2496, "000000011110");
+    addCode(table, 2560, "000000011111");
+  end func;
+
+
+const proc: addBlackHuffmanValues (inout huffmanTable: table) is func
+  begin
+    # addCode(table,   -1, "00000000");
+    addCode(table,   -1, "00000000000");
+    addCode(table,    0, "0000110111");
+    addCode(table,    1, "010");
+    addCode(table,    2, "11");
+    addCode(table,    3, "10");
+    addCode(table,    4, "011");
+    addCode(table,    5, "0011");
+    addCode(table,    6, "0010");
+    addCode(table,    7, "00011");
+    addCode(table,    8, "000101");
+    addCode(table,    9, "000100");
+    addCode(table,   10, "0000100");
+    addCode(table,   11, "0000101");
+    addCode(table,   12, "0000111");
+    addCode(table,   13, "00000100");
+    addCode(table,   14, "00000111");
+    addCode(table,   15, "000011000");
+    addCode(table,   16, "0000010111");
+    addCode(table,   17, "0000011000");
+    addCode(table,   18, "0000001000");
+    addCode(table,   19, "00001100111");
+    addCode(table,   20, "00001101000");
+    addCode(table,   21, "00001101100");
+    addCode(table,   22, "00000110111");
+    addCode(table,   23, "00000101000");
+    addCode(table,   24, "00000010111");
+    addCode(table,   25, "00000011000");
+    addCode(table,   26, "000011001010");
+    addCode(table,   27, "000011001011");
+    addCode(table,   28, "000011001100");
+    addCode(table,   29, "000011001101");
+    addCode(table,   30, "000001101000");
+    addCode(table,   31, "000001101001");
+    addCode(table,   32, "000001101010");
+    addCode(table,   33, "000001101011");
+    addCode(table,   34, "000011010010");
+    addCode(table,   35, "000011010011");
+    addCode(table,   36, "000011010100");
+    addCode(table,   37, "000011010101");
+    addCode(table,   38, "000011010110");
+    addCode(table,   39, "000011010111");
+    addCode(table,   40, "000001101100");
+    addCode(table,   41, "000001101101");
+    addCode(table,   42, "000011011010");
+    addCode(table,   43, "000011011011");
+    addCode(table,   44, "000001010100");
+    addCode(table,   45, "000001010101");
+    addCode(table,   46, "000001010110");
+    addCode(table,   47, "000001010111");
+    addCode(table,   48, "000001100100");
+    addCode(table,   49, "000001100101");
+    addCode(table,   50, "000001010010");
+    addCode(table,   51, "000001010011");
+    addCode(table,   52, "000000100100");
+    addCode(table,   53, "000000110111");
+    addCode(table,   54, "000000111000");
+    addCode(table,   55, "000000100111");
+    addCode(table,   56, "000000101000");
+    addCode(table,   57, "000001011000");
+    addCode(table,   58, "000001011001");
+    addCode(table,   59, "000000101011");
+    addCode(table,   60, "000000101100");
+    addCode(table,   61, "000001011010");
+    addCode(table,   62, "000001100110");
+    addCode(table,   63, "000001100111");
+    addCode(table,   64, "0000001111");
+    addCode(table,  128, "000011001000");
+    addCode(table,  192, "000011001001");
+    addCode(table,  256, "000001011011");
+    addCode(table,  320, "000000110011");
+    addCode(table,  384, "000000110100");
+    addCode(table,  448, "000000110101");
+    addCode(table,  512, "0000001101100");
+    addCode(table,  576, "0000001101101");
+    addCode(table,  640, "0000001001010");
+    addCode(table,  704, "0000001001011");
+    addCode(table,  768, "0000001001100");
+    addCode(table,  832, "0000001001101");
+    addCode(table,  896, "0000001110010");
+    addCode(table,  960, "0000001110011");
+    addCode(table, 1024, "0000001110100");
+    addCode(table, 1088, "0000001110101");
+    addCode(table, 1152, "0000001110110");
+    addCode(table, 1216, "0000001110111");
+    addCode(table, 1280, "0000001010010");
+    addCode(table, 1344, "0000001010011");
+    addCode(table, 1408, "0000001010100");
+    addCode(table, 1472, "0000001010101");
+    addCode(table, 1536, "0000001011010");
+    addCode(table, 1600, "0000001011011");
+    addCode(table, 1664, "0000001100100");
+    addCode(table, 1728, "0000001100101");
+    addCode(table, 1792, "00000001000");
+    addCode(table, 1856, "00000001100");
+    addCode(table, 1920, "00000001101");
+    addCode(table, 1984, "000000010010");
+    addCode(table, 2048, "000000010011");
+    addCode(table, 2112, "000000010100");
+    addCode(table, 2176, "000000010101");
+    addCode(table, 2240, "000000010110");
+    addCode(table, 2304, "000000010111");
+    addCode(table, 2368, "000000011100");
+    addCode(table, 2432, "000000011101");
+    addCode(table, 2496, "000000011110");
+    addCode(table, 2560, "000000011111");
+  end func;
+
+
+const func msbHuffmanTable: genWhiteMsbHuffmanTable is func
+  result
+    var msbHuffmanTable: table is msbHuffmanTable.value;
+  begin
+    table := createHuffmanTableMsb(12);
+    addWhiteHuffmanValues(table);
+  end func;
+
+
+const func msbHuffmanTable: genBlackMsbHuffmanTable is func
+  result
+    var msbHuffmanTable: table is msbHuffmanTable.value;
+  begin
+    table := createHuffmanTableMsb(13);
+    addBlackHuffmanValues(table);
+  end func;
+
+
+const func lsbHuffmanTable: genWhiteLsbHuffmanTable is func
+  result
+    var lsbHuffmanTable: table is lsbHuffmanTable.value;
+  begin
+    table := createHuffmanTableLsb(12, -1, 2560);
+    addWhiteHuffmanValues(table);
+  end func;
+
+
+const func lsbHuffmanTable: genBlackLsbHuffmanTable is func
+  result
+    var lsbHuffmanTable: table is lsbHuffmanTable.value;
+  begin
+    table := createHuffmanTableLsb(13, -1, 2560);
+    addBlackHuffmanValues(table);
+  end func;
+
+
+const msbHuffmanTable: whiteMsbHuffmanTable is genWhiteMsbHuffmanTable;
+const msbHuffmanTable: blackMsbHuffmanTable is genBlackMsbHuffmanTable;
+const lsbHuffmanTable: whiteLsbHuffmanTable is genWhiteLsbHuffmanTable;
+const lsbHuffmanTable: blackLsbHuffmanTable is genBlackLsbHuffmanTable;
+
+
+const integer: TIFF_T4_PASS             is 0;
+const integer: TIFF_T4_HORIZONTAL       is 1;
+const integer: TIFF_T4_VERTICAL_0       is 2;
+const integer: TIFF_T4_VERTICAL_RIGHT_1 is 3;
+const integer: TIFF_T4_VERTICAL_RIGHT_2 is 4;
+const integer: TIFF_T4_VERTICAL_RIGHT_3 is 5;
+const integer: TIFF_T4_VERTICAL_LEFT_1  is 6;
+const integer: TIFF_T4_VERTICAL_LEFT_2  is 7;
+const integer: TIFF_T4_VERTICAL_LEFT_3  is 8;
+const integer: TIFF_T4_UNCOMPRESSED     is 9;
+
+
+const proc: addT4HuffmanValues (inout huffmanTable: table) is func
+  begin
+    addCode(table, -1,                       "000000000001");
+    addCode(table, TIFF_T4_PASS,             "0001");         # Pass
+    addCode(table, TIFF_T4_HORIZONTAL,       "001");          # Horizontal
+    addCode(table, TIFF_T4_VERTICAL_0,       "1");            # V(0)
+    addCode(table, TIFF_T4_VERTICAL_RIGHT_1, "011");          # Vr(1)
+    addCode(table, TIFF_T4_VERTICAL_RIGHT_2, "000011");       # Vr(2)
+    addCode(table, TIFF_T4_VERTICAL_RIGHT_3, "0000011");      # Vr(3)
+    addCode(table, TIFF_T4_VERTICAL_LEFT_1,  "010");          # Vl(1)
+    addCode(table, TIFF_T4_VERTICAL_LEFT_2,  "000010");       # Vl(2)
+    addCode(table, TIFF_T4_VERTICAL_LEFT_3,  "0000010");      # Vl(3)
+    addCode(table, TIFF_T4_UNCOMPRESSED,     "0000001111");   # Uncompressed
+  end func;
+
+
+const func msbHuffmanTable: genT4MsbHuffmanTable is func
+  result
+    var msbHuffmanTable: table is msbHuffmanTable.value;
+  begin
+    table := createHuffmanTableMsb(12);
+    addT4HuffmanValues(table)
+  end func;
+
+
+const func lsbHuffmanTable: genT4LsbHuffmanTable is func
+  result
+    var lsbHuffmanTable: table is lsbHuffmanTable.value;
+  begin
+    table := createHuffmanTableLsb(12, -2, 10);
+    addT4HuffmanValues(table)
+  end func;
+
+
+const msbHuffmanTable: t4MsbHuffmanTable is genT4MsbHuffmanTable;
+const lsbHuffmanTable: t4LsbHuffmanTable is genT4LsbHuffmanTable;
+
+
+const func integer: getWhiteBits (inout bitStream: ccittFaxStream,
+    in huffmanTable: whiteHuffmanTable) is func
+  result
+    var integer: whiteBits is 0;
+  local
+    var integer: additionalWhiteBits is 0;
+  begin
+    whiteBits := getHuffmanSymbol(ccittFaxStream, whiteHuffmanTable);
+    # writeln("W" <& whiteBits <& " ");
+    if whiteBits >= 64 then
+      repeat
+        additionalWhiteBits := getHuffmanSymbol(ccittFaxStream, whiteHuffmanTable);
+        # writeln("W+" <& additionalWhiteBits <& " ");
+        whiteBits +:= additionalWhiteBits;
+      until additionalWhiteBits < 64;
+    end if;
+    # writeln("W=" <& whiteBits <& " ");
+  end func;
+
+
+const func integer: getBlackBits (inout bitStream: ccittFaxStream,
+    in huffmanTable: blackHuffmanTable) is func
+  result
+    var integer: blackBits is 0;
+  local
+    var integer: additionalBlackBits is 0;
+  begin
+    blackBits := getHuffmanSymbol(ccittFaxStream, blackHuffmanTable);
+    # writeln("B" <& blackBits <& " ");
+    if blackBits >= 64 then
+      repeat
+        additionalBlackBits := getHuffmanSymbol(ccittFaxStream, blackHuffmanTable);
+        # writeln("B+" <& additionalBlackBits <& " ");
+        blackBits +:= additionalBlackBits;
+      until additionalBlackBits < 64;
+    end if;
+    # writeln("B=" <& blackBits <& " ");
+  end func;
+
+
+const proc: skipEol (inout bitStream: inBitStream, in integer: expected) is func
+  local
+    var integer: symbol is 0;
+  begin
+    symbol := getBits(inBitStream, 12);
+    if symbol = 0 then
+      # Fill bits are present.
+      repeat
+        symbol := getBit(inBitStream);
+      until symbol = 1;
+    elsif symbol <> expected then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: processCcittFaxRow (inout bitStream: faxDataStream,
+    in huffmanTable: whiteHuffmanTable, in huffmanTable: blackHuffmanTable,
+    in pixel: whitePixel, in pixel: blackPixel, in integer: line,
+    in integer: width, inout array array pixel: image) is func
+  local
+    var integer: numWhitePixels is 0;
+    var integer: numBlackPixels is 0;
+    var integer: currentColumn is 1;
+    var integer: column is 0;
+    var integer: count is 0;
+  begin
+    repeat
+      numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanTable);
+      if numWhitePixels >= 0 then
+        for column range currentColumn to currentColumn + pred(numWhitePixels) do
+          image[line][column] := whitePixel;
+        end for;
+        currentColumn +:= numWhitePixels;
+        if currentColumn <= width then
+          numBlackPixels := getBlackBits(faxDataStream, blackHuffmanTable);
+          if numBlackPixels >= 0 then
+            for column range currentColumn to currentColumn + pred(numBlackPixels) do
+              image[line][column] := blackPixel;
+            end for;
+            currentColumn +:= numBlackPixels;
+          else
+            for column range currentColumn to width do
+              image[line][column] := blackPixel;
+            end for;
+            currentColumn := succ(width);
+          end if;
+        end if;
+      else
+        for column range currentColumn to width do
+          image[line][column] := whitePixel;
+        end for;
+        currentColumn := succ(width);
+      end if;
+    until currentColumn > width;
+  end func;
+
+
+(**
+ *  Read modified CCITT group 3 ''faxData'' with MSB bit ordering into ''image''.
+ *  A modified CCITT Group 3 one-dimensional Huffman run-length encoding is used.
+ *  The CCITT group 3 facsimile standard has been defined by CCITT in 1988.
+ *  This encoding is used in TIFF files if compression = 2.
+ *  MSB bit ordering processes the bits from the MSB (most significant bit) to
+ *  the LSB (least significant bit). This function fills a part of the ''image''
+ *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
+ *  @param faxData Modified CCITT group 3 one-dimensional encoded fax data with MSB bit ordering.
+ *  @param whitePixel Pixel to be used for white.
+ *  @param blackPixel Pixel to be used for black.
+ *  @param startLine First line of ''image'' to which the pixels are assigned.
+ *  @param height Number of lines to be processed.
+ *  @param width Width of the lines to be processed.
+ *  @param image Destination of the pixel lines.
+ *)
+const proc: processCcittModifiedGroup3FaxMsb (in string: faxData,
+    in pixel: whitePixel, in pixel: blackPixel, in integer: startLine,
+    in integer: height, in integer: width, inout array array pixel: image) is func
+  local
+    var msbBitStream: faxDataStream is msbBitStream.value;
+    var integer: line is 0;
+  begin
+    faxDataStream := openMsbBitStream(faxData);
+    for line range startLine to startLine + height - 1 do
+      processCcittFaxRow(faxDataStream, whiteMsbHuffmanTable,
+                         blackMsbHuffmanTable, whitePixel, blackPixel,
+                         line, width, image);
+      # Go to the next available byte boundary
+      ignore(gets(faxDataStream, 0));
+    end for;
+  end func;
+
+
+(**
+ *  Read modified CCITT group 3 ''faxData'' with LSB bit ordering into ''image''.
+ *  A modified CCITT Group 3 one-dimensional Huffman run-length encoding is used.
+ *  The CCITT group 3 facsimile standard has been defined by CCITT in 1988.
+ *  This encoding is used in TIFF files if compression = 2.
+ *  LSB bit ordering processes the bits from the LSB (least significant bit) to
+ *  the MSB (most significant bit). This function fills a part of the ''image''
+ *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
+ *  @param faxData Modified CCITT group 3 one-dimensional encoded fax data with LSB bit ordering.
+ *  @param whitePixel Pixel to be used for white.
+ *  @param blackPixel Pixel to be used for black.
+ *  @param startLine First line of ''image'' to which the pixels are assigned.
+ *  @param height Number of lines to be processed.
+ *  @param width Width of the lines to be processed.
+ *  @param image Destination of the pixel lines.
+ *)
+const proc: processCcittModifiedGroup3FaxLsb (in string: faxData,
+    in pixel: whitePixel, in pixel: blackPixel, in integer: startLine,
+    in integer: height, in integer: width, inout array array pixel: image) is func
+  local
+    var lsbBitStream: faxDataStream is lsbBitStream.value;
+    var integer: line is 0;
+  begin
+    faxDataStream := openLsbBitStream(faxData);
+    for line range startLine to startLine + height - 1 do
+      processCcittFaxRow(faxDataStream, whiteLsbHuffmanTable,
+                         blackLsbHuffmanTable, whitePixel, blackPixel,
+                         line, width, image);
+      # Go to the next available byte boundary
+      ignore(gets(faxDataStream, 0));
+    end for;
+  end func;
+
+
+const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
+    in huffmanTable: t4HuffmanTable, in huffmanTable: whiteHuffmanTable,
+    in huffmanTable: blackHuffmanTable, in array pixel: blackOrWhite,
+    in integer: line, in integer: width, inout array integer: bValues,
+    inout array array pixel: image) is func
+  local
+    var pixel: currentPixel is pixel.value;
+    var integer: mode is 0;
+    var integer: numBits1 is 0;
+    var integer: numBits2 is 0;
+    var integer: currentColumn is 1;
+    var integer: column is 1;
+    var array integer: aValues is 0 times 0;
+    var integer: bIndex is 1;
+  begin
+    mode := getHuffmanSymbol(faxDataStream, t4HuffmanTable);
+    while mode >= 0 and currentColumn <= width do
+      case mode of
+        when {TIFF_T4_PASS}:
+          # writeln("Pass");
+          currentPixel := blackOrWhite[bIndex mod 2];
+          incr(bIndex);
+          for column range currentColumn to bValues[bIndex] - 1 do
+            image[line][column] := currentPixel;
+          end for;
+          currentColumn := bValues[bIndex];
+          incr(bIndex);
+        when {TIFF_T4_HORIZONTAL}:
+          if odd(bIndex) then
+            numBits1 := getWhiteBits(faxDataStream, whiteHuffmanTable);
+            numBits2 := getBlackBits(faxDataStream, blackHuffmanTable);
+          else
+            numBits1 := getBlackBits(faxDataStream, blackHuffmanTable);
+            numBits2 := getWhiteBits(faxDataStream, whiteHuffmanTable);
+          end if;
+          currentPixel := blackOrWhite[bIndex mod 2];
+          for column range currentColumn to currentColumn + pred(numBits1) do
+            image[line][column] := currentPixel;
+          end for;
+          currentColumn +:= numBits1;
+          aValues &:= [] (currentColumn);
+          currentPixel := blackOrWhite[succ(bIndex) mod 2];
+          for column range currentColumn to currentColumn + pred(numBits2) do
+            image[line][column] := currentPixel;
+          end for;
+          currentColumn +:= numBits2;
+          aValues &:= [] (currentColumn);
+          # writeln("Horizontal " <& numBits1 <& " " <& numBits2);
+          while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
+            bIndex +:= 2;
+          end while;
+        when {TIFF_T4_VERTICAL_0}:
+          # writeln("V(0)");
+          currentPixel := blackOrWhite[bIndex mod 2];
+          if bIndex <= length(bValues) then
+            for column range currentColumn to bValues[bIndex] - 1 do
+              image[line][column] := currentPixel;
+            end for;
+            currentColumn := bValues[bIndex];
+            aValues &:= [] (currentColumn);
+            incr(bIndex);
+          else
+            for column range currentColumn to width do
+              image[line][column] := currentPixel;
+            end for;
+            currentColumn := succ(width);
+          end if;
+        when {TIFF_T4_VERTICAL_RIGHT_1}:
+          # writeln("Vr(1)");
+          currentPixel := blackOrWhite[bIndex mod 2];
+          for column range currentColumn to bValues[bIndex] do
+            image[line][column] := currentPixel;
+          end for;
+          currentColumn := bValues[bIndex] + 1;
+          aValues &:= [] (currentColumn);
+          incr(bIndex);
+          if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
+            bIndex +:= 2;
+          end if;
+        when {TIFF_T4_VERTICAL_RIGHT_2}:
+          # writeln("Vr(2)");
+          currentPixel := blackOrWhite[bIndex mod 2];
+          for column range currentColumn to bValues[bIndex] + 1 do
+            image[line][column] := currentPixel;
+          end for;
+          currentColumn := bValues[bIndex] + 2;
+          aValues &:= [] (currentColumn);
+          incr(bIndex);
+          if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
+            bIndex +:= 2;
+          end if;
+        when {TIFF_T4_VERTICAL_RIGHT_3}:
+          # writeln("Vr(3)");
+          currentPixel := blackOrWhite[bIndex mod 2];
+          for column range currentColumn to bValues[bIndex] + 2 do
+            image[line][column] := currentPixel;
+          end for;
+          currentColumn := bValues[bIndex] + 3;
+          aValues &:= [] (currentColumn);
+          incr(bIndex);
+          while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
+            bIndex +:= 2;
+          end while;
+        when {TIFF_T4_VERTICAL_LEFT_1}:
+          # writeln("Vl(1)");
+          currentPixel := blackOrWhite[bIndex mod 2];
+          for column range currentColumn to bValues[bIndex] - 2 do
+            image[line][column] := currentPixel;
+          end for;
+          currentColumn := bValues[bIndex] - 1;
+          aValues &:= [] (currentColumn);
+          incr(bIndex);
+        when {TIFF_T4_VERTICAL_LEFT_2}:
+          # writeln("Vl(2)");
+          currentPixel := blackOrWhite[bIndex mod 2];
+          for column range currentColumn to bValues[bIndex] - 3 do
+            image[line][column] := currentPixel;
+          end for;
+          currentColumn := bValues[bIndex] - 2;
+          aValues &:= [] (currentColumn);
+          if bIndex > 1 and bValues[pred(bIndex)] > currentColumn then
+            decr(bIndex);
+          else
+            incr(bIndex);
+          end if;
+        when {TIFF_T4_VERTICAL_LEFT_3}:
+          # writeln("Vl(3)");
+          currentPixel := blackOrWhite[bIndex mod 2];
+          for column range currentColumn to bValues[bIndex] - 4 do
+            image[line][column] := currentPixel;
+          end for;
+          currentColumn := bValues[bIndex] - 3;
+          aValues &:= [] (currentColumn);
+          if bIndex > 1 and bValues[pred(bIndex)] > currentColumn then
+            decr(bIndex);
+          else
+            incr(bIndex);
+          end if;
+        otherwise:
+          raise RANGE_ERROR;
+      end case;
+      if currentColumn <= width then
+        mode := getHuffmanSymbol(faxDataStream, t4HuffmanTable);
+      end if;
+    end while;
+    bValues := aValues;
+  end func;
+
+
+(**
+ *  Read CCITT T.6 bi-level ''faxData'' with MSB bit ordering into ''image''.
+ *  CCITT T.6 belongs to the group 4 facsimile standard defined by CCITT in 1988.
+ *  This encoding is used in TIFF files if compression = 4.
+ *  MSB bit ordering processes the bits from the MSB (most significant bit) to
+ *  the LSB (least significant bit). This function fills a part of the ''image''
+ *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
+ *  @param faxData CCITT T.6 two-dimensional encoded fax data with MSB bit ordering.
+ *  @param blackOrWhite Array with black and white pixel indexed from 0.
+ *  @param startLine First line of ''image'' to which the pixels are assigned.
+ *  @param height Number of lines to be processed.
+ *  @param width Width of the lines to be processed.
+ *  @param image Destination of the pixel lines.
+ *)
+const proc: processCcittT6FaxMsb (in string: faxData,
+    in array pixel: blackOrWhite, in integer: startLine, in integer: height,
+    in integer: width, inout array array pixel: image) is func
+  local
+    var msbBitStream: faxDataStream is msbBitStream.value;
+    var array integer: bValues is 0 times 0;
+    var integer: line is 0;
+  begin
+    faxDataStream := openMsbBitStream(faxData);
+    for line range startLine to startLine + height - 1 do
+      processCcittT4Fax2dRow(faxDataStream, t4MsbHuffmanTable,
+                             whiteMsbHuffmanTable, blackMsbHuffmanTable,
+                             blackOrWhite, line, width,
+                             bValues, image);
+    end for;
+  end func;
+
+
+(**
+ *  Read CCITT T.6 bi-level ''faxData'' with LSB bit ordering into ''image''.
+ *  CCITT T.6 belongs to the group 4 facsimile standard defined by CCITT in 1988.
+ *  This encoding is used in TIFF files if compression = 4.
+ *  LSB bit ordering processes the bits from the LSB (least significant bit) to
+ *  the MSB (most significant bit). This function fills a part of the ''image''
+ *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
+ *  @param faxData CCITT T.6 two-dimensional encoded fax data with LSB bit ordering.
+ *  @param blackOrWhite Array with black and white pixel indexed from 0.
+ *  @param startLine First line of ''image'' to which the pixels are assigned.
+ *  @param height Number of lines to be processed.
+ *  @param width Width of the lines to be processed.
+ *  @param image Destination of the pixel lines.
+ *)
+const proc: processCcittT6FaxLsb (in string: faxData,
+    in array pixel: blackOrWhite, in integer: startLine, in integer: height,
+    in integer: width, inout array array pixel: image) is func
+  local
+    var lsbBitStream: faxDataStream is lsbBitStream.value;
+    var array integer: bValues is 0 times 0;
+    var integer: line is 0;
+  begin
+    faxDataStream := openLsbBitStream(faxData);
+    for line range startLine to startLine + height - 1 do
+      processCcittT4Fax2dRow(faxDataStream, t4LsbHuffmanTable,
+                             whiteLsbHuffmanTable, blackLsbHuffmanTable,
+                             blackOrWhite, line, width,
+                             bValues, image);
+    end for;
+  end func;
+
+
+(**
+ *  Read CCITT T.4 bi-level one-dimensional ''faxData'' with MSB bit ordering into ''image''.
+ *  CCITT T.4 belongs to the group 3 facsimile standard defined by CCITT in 1988.
+ *  This encoding is used in TIFF files if compression = 3 and t4Options is even.
+ *  MSB bit ordering processes the bits from the MSB (most significant bit) to
+ *  the LSB (least significant bit). This function fills a part of the ''image''
+ *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
+ *  @param faxData CCITT T.4 one-dimensional encoded fax data with MSB bit ordering.
+ *  @param whitePixel Pixel to be used for white.
+ *  @param blackPixel Pixel to be used for black.
+ *  @param startLine First line of ''image'' to which the pixels are assigned.
+ *  @param height Number of lines to be processed.
+ *  @param width Width of the lines to be processed.
+ *  @param image Destination of the pixel lines.
+ *)
+const proc: processCcittT4Fax1dMsb (in string: faxData,
+    in pixel: whitePixel, in pixel: blackPixel, in integer: startLine,
+    in integer: height, in integer: width, inout array array pixel: image) is func
+  local
+    var msbBitStream: faxDataStream is msbBitStream.value;
+    var integer: line is 0;
+  begin
+    faxDataStream := openMsbBitStream(faxData);
+    for line range startLine to startLine + height - 1 do
+      skipEol(faxDataStream, 2#000000000001);
+      processCcittFaxRow(faxDataStream, whiteMsbHuffmanTable,
+                         blackMsbHuffmanTable, whitePixel, blackPixel,
+                         line, width, image);
+    end for;
+  end func;
+
+
+(**
+ *  Read CCITT T.4 bi-level one-dimensional ''faxData'' with LSB bit ordering into ''image''.
+ *  CCITT T.4 belongs to the group 3 facsimile standard defined by CCITT in 1988.
+ *  This encoding is used in TIFF files if compression = 3 and t4Options is even.
+ *  LSB bit ordering processes the bits from the LSB (least significant bit) to
+ *  the MSB (most significant bit). This function fills a part of the ''image''
+ *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
+ *  @param faxData CCITT T.4 one-dimensional encoded fax data with LSB bit ordering.
+ *  @param whitePixel Pixel to be used for white.
+ *  @param blackPixel Pixel to be used for black.
+ *  @param startLine First line of ''image'' to which the pixels are assigned.
+ *  @param height Number of lines to be processed.
+ *  @param width Width of the lines to be processed.
+ *  @param image Destination of the pixel lines.
+ *)
+const proc: processCcittT4Fax1dLsb (in string: faxData,
+    in pixel: whitePixel, in pixel: blackPixel, in integer: startLine,
+    in integer: height, in integer: width, inout array array pixel: image) is func
+  local
+    var lsbBitStream: faxDataStream is lsbBitStream.value;
+    var integer: line is 0;
+  begin
+    faxDataStream := openLsbBitStream(faxData);
+    for line range startLine to startLine + height - 1 do
+      skipEol(faxDataStream, 2#100000000000);
+      processCcittFaxRow(faxDataStream, whiteLsbHuffmanTable,
+                         blackLsbHuffmanTable, whitePixel, blackPixel,
+                         line, width, image);
+    end for;
+  end func;
+
+
+const proc: processCcittT4Fax1dRow (inout bitStream: faxDataStream,
+    in huffmanTable: whiteHuffmanTable, in huffmanTable: blackHuffmanTable,
+    in pixel: whitePixel, in pixel: blackPixel, in integer: line,
+    in integer: width, inout array integer: aValues,
+    inout array array pixel: image) is func
+  local
+    var integer: numWhitePixels is 0;
+    var integer: numBlackPixels is 0;
+    var integer: currentColumn is 1;
+    var integer: column is 0;
+    var integer: count is 0;
+  begin
+    aValues := 0 times 0;
+    repeat
+      numWhitePixels := getWhiteBits(faxDataStream, whiteHuffmanTable);
+      if numWhitePixels >= 0 then
+        for column range currentColumn to currentColumn + pred(numWhitePixels) do
+          image[line][column] := whitePixel;
+        end for;
+        currentColumn +:= numWhitePixels;
+        aValues &:= [] (currentColumn);
+        if currentColumn <= width then
+          numBlackPixels := getBlackBits(faxDataStream, blackHuffmanTable);
+          if numBlackPixels >= 0 then
+            for column range currentColumn to currentColumn + pred(numBlackPixels) do
+              image[line][column] := blackPixel;
+            end for;
+            currentColumn +:= numBlackPixels;
+            aValues &:= [] (currentColumn);
+          else
+            for column range currentColumn to width do
+              image[line][column] := blackPixel;
+            end for;
+            currentColumn := succ(width);
+          end if;
+        end if;
+      else
+        for column range currentColumn to width do
+          image[line][column] := whitePixel;
+        end for;
+        currentColumn := succ(width);
+      end if;
+    until currentColumn > width;
+  end func;
+
+
+(**
+ *  Read CCITT T.4 bi-level two-dimensional ''faxData'' with MSB bit ordering into ''image''.
+ *  CCITT T.4 belongs to the group 3 facsimile standard defined by CCITT in 1988.
+ *  This encoding is used in TIFF files if compression = 3 and t4Options is odd.
+ *  MSB bit ordering processes the bits from the MSB (most significant bit) to
+ *  the LSB (least significant bit). This function fills a part of the ''image''
+ *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
+ *  @param faxData CCITT T.4 two-dimensional encoded fax data with MSB bit ordering.
+ *  @param blackOrWhite Array with black and white pixel indexed from 0.
+ *  @param startLine First line of ''image'' to which the pixels are assigned.
+ *  @param height Number of lines to be processed.
+ *  @param width Width of the lines to be processed.
+ *  @param image Destination of the pixel lines.
+ *)
+const proc: processCcittT4Fax2dMsb (in string: faxData,
+    in array pixel: blackOrWhite, in integer: startLine, in integer: height,
+    in integer: width, inout array array pixel: image) is func
+  local
+    var msbBitStream: faxDataStream is msbBitStream.value;
+    var array integer: bValues is 0 times 0;
+    var integer: line is 0;
+  begin
+    faxDataStream := openMsbBitStream(faxData);
+    for line range startLine to startLine + height - 1 do
+      skipEol(faxDataStream, 2#000000000001);
+      if getBit(faxDataStream) = 1 then
+        processCcittT4Fax1dRow(faxDataStream, whiteMsbHuffmanTable,
+                               blackMsbHuffmanTable, blackOrWhite[1], blackOrWhite[0],
+                               line, width, bValues, image);
+      else
+        processCcittT4Fax2dRow(faxDataStream, t4MsbHuffmanTable,
+                               whiteMsbHuffmanTable, blackMsbHuffmanTable,
+                               blackOrWhite, line, width,
+                               bValues, image);
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Read CCITT T.4 bi-level two-dimensional ''faxData'' with LSB bit ordering into ''image''.
+ *  CCITT T.4 belongs to the group 3 facsimile standard defined by CCITT in 1988.
+ *  This encoding is used in TIFF files if compression = 3 and t4Options is odd.
+ *  LSB bit ordering processes the bits from the LSB (least significant bit) to
+ *  the MSB (most significant bit). This function fills a part of the ''image''
+ *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
+ *  @param faxData CCITT T.4 two-dimensional encoded fax data with LSB bit ordering.
+ *  @param blackOrWhite Array with black and white pixel indexed from 0.
+ *  @param startLine First line of ''image'' to which the pixels are assigned.
+ *  @param height Number of lines to be processed.
+ *  @param width Width of the lines to be processed.
+ *  @param image Destination of the pixel lines.
+ *)
+const proc: processCcittT4Fax2dLsb (in string: faxData,
+    in array pixel: blackOrWhite, in integer: startLine, in integer: height,
+    in integer: width, inout array array pixel: image) is func
+  local
+    var lsbBitStream: faxDataStream is lsbBitStream.value;
+    var array integer: bValues is 0 times 0;
+    var integer: line is 0;
+  begin
+    faxDataStream := openLsbBitStream(faxData);
+    for line range startLine to startLine + height - 1 do
+      skipEol(faxDataStream, 2#100000000000);
+      if getBit(faxDataStream) = 1 then
+        processCcittT4Fax1dRow(faxDataStream, whiteLsbHuffmanTable,
+                               blackLsbHuffmanTable, blackOrWhite[1], blackOrWhite[0],
+                               line, width, bValues, image);
+      else
+        processCcittT4Fax2dRow(faxDataStream, t4LsbHuffmanTable,
+                               whiteLsbHuffmanTable, blackLsbHuffmanTable,
+                               blackOrWhite, line, width,
+                               bValues, image);
+      end if;
+    end for;
+  end func;
+
+
+const proc: putBits0Msb (inout string: stri, inout integer: bitPos,
+    in var integer: bitWidth) is func
+  local
+    const integer: bits is 0;
+    var integer: bitsFree is 0;
+  begin
+    bitsFree := 8 - bitPos;
+    if bitsFree > bitWidth then
+      # |---------8 bits---------|
+      # |-bitPos-|--bitWidth---| |
+      # |        |---bitsFree----|
+      if bitPos = 0 then
+        stri &:= chr(bits);
+      end if;
+      bitPos +:= bitWidth;
+    else
+      # |---------8 bits---------|
+      # |-bitPos-|----bitWidth------
+      # |        |---bitsFree----|
+      if bitPos <> 0 then
+        bitWidth -:= bitsFree;
+      end if;
+      while bitWidth >= 8 do
+        bitWidth -:= 8;
+        stri &:= chr(bits);
+      end while;
+      if bitWidth >= 1 then
+        stri &:= chr(bits);
+        bitPos := bitWidth;
+      else
+        bitPos := 0;
+      end if;
+    end if;
+  end func;
+
+
+const proc: putBits1Msb (inout string: stri, inout integer: bitPos,
+    in var integer: bitWidth) is func
+  local
+    const integer: bits is 255;
+    var integer: bitsFree is 0;
+  begin
+    bitsFree := 8 - bitPos;
+    if bitsFree > bitWidth then
+      # |---------8 bits---------|
+      # |-bitPos-|--bitWidth---| |
+      # |        |---bitsFree----|
+      if bitPos = 0 then
+        stri &:= chr((bits << (bitsFree - bitWidth)) mod 256);
+      else
+        stri @:= [length(stri)] chr(ord(stri[length(stri)]) + ((bits >> (8 - bitWidth)) << (bitsFree - bitWidth)));
+      end if;
+      bitPos +:= bitWidth;
+    else
+      # |---------8 bits---------|
+      # |-bitPos-|----bitWidth------
+      # |        |---bitsFree----|
+      if bitPos <> 0 then
+        bitWidth -:= bitsFree;
+        stri @:= [length(stri)] chr(ord(stri[length(stri)]) + (bits >> bitPos));
+      end if;
+      while bitWidth >= 8 do
+        bitWidth -:= 8;
+        stri &:= chr(bits);
+      end while;
+      if bitWidth >= 1 then
+        stri &:= chr((bits << (8 - bitWidth)) mod 256);
+        bitPos := bitWidth;
+      else
+        bitPos := 0;
+      end if;
+    end if;
+  end func;
+
+
+const func string: ccittFaxDecode (in string: compressed) is func
+  result
+    var string: decompressed is "";
+  local
+    var msbBitStream: compressedStream is msbBitStream.value;
+    var integer: outBitPos is 0;
+    var integer: whiteBits is 0;
+    var integer: blackBits is 0;
+  begin
+    compressedStream := openMsbBitStream(compressed);
+    repeat
+      whiteBits := getWhiteBits(compressedStream, whiteMsbHuffmanTable);
+       writeln("W" <& whiteBits <& " ");
+      if whiteBits >= 0 then
+        if whiteBits <> 0 then
+          putBits1Msb(decompressed, outBitPos, whiteBits);
+        end if;
+        blackBits := getBlackBits(compressedStream, blackMsbHuffmanTable);
+         writeln("B" <& blackBits <& " ");
+        if blackBits > 0 then
+          putBits0Msb(decompressed, outBitPos, blackBits);
+        end if;
+      end if;
+    until whiteBits < 0 or blackBits < 0;
+    # writeln(hex(decompressed));
+    # writeln(literal(decompressed));
+  end func;
