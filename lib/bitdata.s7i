@@ -119,6 +119,16 @@ const func integer: reverseBits (in integer: size, in var integer: bits) is func
   end func;
 
 
+const type: bitStream is sub object interface;
+
+
+const func integer: getBit (inout bitStream: inBitStream) is DYNAMIC;
+const func integer: getBits (inout bitStream: inBitStream, in integer: bitWidth) is DYNAMIC;
+const func integer: peekBits (inout bitStream: inBitStream, in integer: bitWidth) is DYNAMIC;
+const proc: skipBits (inout bitStream: inBitStream, in integer: bitWidth) is DYNAMIC;
+const func string: gets (inout bitStream: inBitStream, in integer: maxLength) is DYNAMIC;
+
+
 (**
  *  Type to read bitwise data starting with the least significant bit.
  *  This is used by the the Huffman compression (as part of the deflate
@@ -137,6 +147,8 @@ const type: lsbBitStream is new struct
     var integer: limit is 0;
     var integer: bytePos is 1;
   end struct;
+
+type_implements_interface(lsbBitStream, bitStream);
 
 
 const proc: fillStriBuffer (inout lsbBitStream: inBitStream) is func
@@ -488,6 +500,8 @@ const type: msbBitStream is new struct
     var integer: limit is 0;
     var integer: bytePos is 1;
   end struct;
+
+type_implements_interface(msbBitStream, bitStream);
 
 
 const proc: fillStriBuffer (inout msbBitStream: inBitStream) is func
