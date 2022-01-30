@@ -1,3 +1,114 @@
+20220130:
+- An arc() function (to draw an arc) with a width (thickness)
+  parameter has been added to the draw.s7i library. Many thanks to
+  Zachary Menzies for pointing out that it was missing.
+- The new library tiff.s7i has been added. This library supports the
+  TIFF image file format.
+- The new library ccittfax.s7i has been added. This library supports
+  CCITT fax decoding as it is used in TIFF files.
+- The library zip.s7i has been improved to support reading zip64
+  archives.
+- A chapter about the type 'process' has been added to the manual.
+  The chapter about case statements and other chapters of the manual
+  have been improved as well.
+- Bit streams have been introduced and the huffman decoding has been
+  improved. The run-time to extract a gzipped Seed7 archive with tar7
+  has been reduced to 46% (measured with gcc and valgrind). Other
+  usages of the inflate algorithm (PNG, ZIP, etc.) also benefit from
+  the improvements.
+- The compiler has been improved to:
+  - Optimize overflow checks away for shift operations.
+  - Optimize index checks for string operations.
+  - Write an error message if an unsupported option is used.
+  - Inline the string tail function.
+  - Use parentheses to reduce C compiler warnings.
+  - Improve optimizations of the bytes2Int() function.
+  - Improve checking of division by zero.
+- The statistics of the Seed7 compiler (s7c.sd7) has been improved
+  to count inlined functions, optimized index checks and optimized
+  overflow checks.
+- In bitdata.s7i, the types bitStream, lsbBitStream and msbBitStream
+  have been introduced. These types support the functions getBit(),
+  getBits(), peekBits(), skipBits() and gets().
+- In bitdata.s7i, the functions openLsbBitStream() and
+  openMsbBitStream() have been introduced to create lsbBitStream
+  and msbBitStream values. With these functions, bit streams can be
+  created with a file or a string as data source.
+- In bitdata.s7i the functions getBitLsb(), getBitsLsb(),
+  peekBitsLsb(), skipBitsLsb(), getBitMsb(), getBitsMsb(),
+  peekBitsMsb() and skipBitsMsb() with string als parameters are
+  deprecated now. The functions with the types lsbBitStream and
+  msbBitStream should be used instead.
+- In huffman.s7i the functions getHuffmanSymbolMsb(string, ...) and
+  getHuffmanSymbolLsb(string, ...) are deprecated. The functions
+  getHuffmanSymbol(msbBitStream, ...) and
+  getHuffmanSymbol(lsbBitStream, ...) should be used instead.
+- Tests for getBit(), getBits(), peekBits(), skipBits() and gets()
+  have been added to chkbitdata.sd7. This refers to tests with
+  lsbBitStream and msbBitStream.
+- The program chk_all.sd7 has been adjusted to the changes in
+  chkbitdata.sd7.
+- The functions in inflate.s7i have been improved to use lsbBitStream
+  as parameter instead of the previous combination of string, bytePos
+  and bitPos.
+- The library inflatefile.s7i has been removed. The functions from
+  inflate.s7i can be used instead.
+- The library cpio.s7i has been improved to check if a CPIO header
+  is the correct size.
+- The library bytedata.s7i has been improved to raise RANGE_ERROR
+  if an empty byte string is converted to integer or bigInteger.
+- The library gzip.s7i has been improved to use lsbBitStream and the
+  new functions from inflate.s7i.
+- The library imagefile.s7i has been improved to support TIFF images.
+- The library jpeg.s7i has been improved to use
+  getHuffmanSymbol(msbBitStream) instead of
+  getHuffmanSymbolMsb(stri, bytePos, bitPos, ...).
+- The library lzw.s7i has been improved to support the functions
+  lzwDecompress(lsbBitStream, ...), lzwDecompress(msbBitStream, ...),
+  lzwDecompressEarlyChange(msbBitStream, codeSize),
+  lzwDecompressEarlyChange(msbBitStream, codeSize, requestedLength)
+  and lzwDecompressMsbEarlyChange(string, codeSize, requestedLength).
+- The files bitdata.s7i, gzip.s7i, inflate.s7i, jpeg.s7i, zstd.s7i
+  and chkbitdata.sd7 have been refactored to avoid 'bitStream' as
+  variable name. The name 'bitStream' is now used as interface type
+  in bitdata.s7i.
+- The Seed7 compiler has been improved in comp/arr_act.s7i,
+  comp/bin_act.s7i, comp/bst_act.s7i, comp/const.s7i,
+  comp/flt_act.s7i, comp/int_act.s7i, comp/intrange.s7i,
+  comp/literal.s7i, comp/prc_act.s7i, comp/rfl_act.s7i,
+  comp/set_act.s7i, comp/stat.s7i, comp/str_act.s7i and s7c.sd7.
+- Checks for bytes(), bytes2Int(), the right shift operator and
+  division by zero have been added to chkint.sd7.
+- Checks for bin64 shift operations have been added to chkbin.sd7.
+- Checks for index access to an empty array have been added to
+  chkarr.sd7.
+- Checks for bytes2BigInt() have been added to chkbig.sd7.
+- In array.s7i the declaration of the times operator has been
+  simplified.
+- The program pv7.sd7 has been improved to support TIFF files.
+- Casts have been added to dll_win.c and libpath.c to reduce C
+  compiler warnings.
+- In error.c the error message for a failed declaration has been
+  improved.
+- In str_rtl.c the performance of strHeadSlice() has been improved.
+- Unused variables have been removed in several files of the
+  compiler.
+- In int_rtl.c the functions intBytesBe2Int(), intBytesBe2UInt(),
+  intBytesLe2Int() and intBytesLe2UInt() have been changed to raise
+  RANGE_ERROR if the string is empty.
+- In big_rtl.c and big_gmp.c the functions bigFromByteBufferBe()
+  and bigFromByteBufferLe() have been changed to raise RANGE_ERROR
+  if the size is zero (the buffer is empty).
+- The files drw_win.c, drw_x11.c, drw_drv.h, drwlib.c, drwlib.h and
+  primitiv.c have been changed to support the action DRW_PFARC.
+- Definitions for the function XSetLineAttributes() have been added
+  to fwd_x11.c and x11_x.h.
+- In the program chkccomp.c the detection of the division by zero
+  behavior and the remainder by zero behavior has been improved.
+- Documentation comments have been improved in bstring.s7i,
+  bytedata.s7i, bitdata.s7i, null_file.s7i, process.s7i, strifile.s7i
+  and biglib.c.
+
 20211225:
 - Support for syntax highlighting in vim has been added. Many thanks
   to Johannes Gritsch for providing the files doc/seed7.vim and
@@ -18,7 +129,7 @@
   fixed also.
 - In keybd.s7i, keydescr.s7i and kbd_drv.h definitions for KEY_CTL_0
   to KEY_CTL_9 have been added.
-- In png.s7i an error that happend when reading tiny interlaced PNG
+- In png.s7i an error that happened when reading tiny interlaced PNG
   files has been fixed.
 - In boolean.s7i the functions succ(), pred() and boolean()
   (conversion from integer) have been improved to raise RANGE_ERROR
@@ -33,7 +144,7 @@
 - The program chk_all.sd7 has been adjusted to the changes in the
   check programs.
 - The function width(aCharacter) (defined in char.s7i) has been fixed
-  to return 0 for curser and function keys. The change has been made
+  to return 0 for cursor and function keys. The change has been made
   in chr_rtl.c.
 - In file.s7i the function skip() has been improved to avoid a
   possible endless loop.
@@ -48,7 +159,7 @@
   deprecated. The function readLink() should be used instead.
   The files cpio.s7i ftpserv.s7i, rpm.s7i, tar.s7i, find7.sd7 and
   sydir7.sd7 have been altered to use readLink().
-- In graph.s7i fhe function DRAW_FLUSH() is deprecated. The
+- In graph.s7i the function DRAW_FLUSH() is deprecated. The
   function flushGraphic() should be used instead.
 - The files dialog.s7i, graph_file.s7i, pixmap_file.s7i, bas7.sd7,
   bifurk.sd7, carddemo.sd7, castle.sd7, cellauto.sd7, clock3.sd7,
@@ -83,7 +194,7 @@
   The function openStriText() should be used instead.
 - A syntax error in the library stritext.s7i has been fixed.
 - In echo.s7i, dir.s7i, pixmap_file.s7i and shell.s7i internal
-  indentifiers have been renamed to use camel case.
+  identifiers have been renamed to use camel case.
 - Interpreter and compiler have been improved to support the actions
   BLN_SUCC and BLN_PRED. Changes have been done in boolean.s7i,
   blnlib.c, blnlib.h, primitiv.c, comp/bln_act.s7i and

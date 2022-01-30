@@ -73,18 +73,19 @@ CONTENTS
   5.21    file
   5.22    text
   5.23    fileSys
-  5.24    category
-  5.25    reference
-  5.26    ref_list
-  5.27    program
-  5.28    ptr
-  5.29    func
-  5.30    varfunc
-  5.31    void
-  5.32    proc
-  5.33    type
-  5.34    object
-  5.35    expr
+  5.24    process
+  5.25    category
+  5.26    reference
+  5.27    ref_list
+  5.28    program
+  5.29    ptr
+  5.30    func
+  5.31    varfunc
+  5.32    void
+  5.33    proc
+  5.34    type
+  5.35    object
+  5.36    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -1398,26 +1399,31 @@ CONTENTS
 
     $ syntax expr: .(). := .()   is <-> 20;
 
-    const proc: (inout type: dest) := (ref type: source)             is action "TYP_CPY";
-    const proc: (inout proc: dest) := (ref proc: source)             is action "PRC_CPY";
-    const proc: (inout func aType: dest) := (ref func aType: source) is action "PRC_CPY";
+    const proc: (inout type: dest) := (ref type: source)                   is action "TYP_CPY";
+    const proc: (inout proc: dest) := (ref proc: source)                   is action "PRC_CPY";
+    const proc: (inout func aType: dest) := (ref func aType: source)       is action "PRC_CPY";
     const proc: (inout varfunc aType: dest) := (ref varfunc aType: source) is action "PRC_CPY";
-    const proc: (inout ACTION: dest) := (in ACTION: source)          is action "ACT_CPY";
-    const proc: (inout boolean: dest) := (in boolean: source)        is action "BLN_CPY";
-    const proc: (inout integer: dest) := (in integer: source)        is action "INT_CPY";
-    const proc: (inout char: dest) := (ref char: source)             is action "CHR_CPY";
-    const proc: (inout string: dest) := (ref string: source)         is action "STR_CPY";
-    const proc: (inout reference: dest) := (ref reference: source)   is action "REF_CPY";
-    const proc: (inout ref_list: dest) := (in ref_list: source)      is action "RFL_CPY";
-    const proc: (inout ptrType: dest) := (in ptrType: source)        is action "REF_CPY";
-    const proc: (inout varptrType: dest) := (in varptrType: source)  is action "REF_CPY";
-    const proc: (inout arrayType: dest) := (in arrayType: source)    is action "ARR_CPY";
-    const proc: (inout bitset: dest) := (in bitset: source)          is action "SET_CPY";
-    const proc: (inout structType: dest) := (in structType: source)  is action "SCT_CPY";
-    const proc: (inout enumType: dest) := (in enumType: source)      is action "ENU_CPY";
-    const proc: (inout clib_file: dest) := (ref clib_file: source)   is action "FIL_CPY";
+    const proc: (inout ACTION: dest) := (in ACTION: source)                is action "ACT_CPY";
+    const proc: (inout boolean: dest) := (in boolean: source)              is action "BLN_CPY";
+    const proc: (inout integer: dest) := (in integer: source)              is action "INT_CPY";
+    const proc: (inout bigInteger: dest) := (in bigInteger: source)        is action "BIG_CPY";
+    const proc: (inout char: dest) := (in char: source)                    is action "CHR_CPY";
+    const proc: (inout string: dest) := (in string: source)                is action "STR_CPY";
+    const proc: (inout bin64: dest) := (in bin64: source)                  is action "INT_CPY";
+    const proc: (inout bin32: dest) := (in bin32: source)                  is action "INT_CPY";
+    const proc: (inout bstring: dest) := (in bstring: source)              is action "BST_CPY";
+    const proc: (inout reference: dest) := (in reference: source)          is action "REF_CPY";
+    const proc: (inout ref_list: dest) := (in ref_list: source)            is action "RFL_CPY";
+    const proc: (inout ptrType: dest) := (in ptrType: source)              is action "REF_CPY";
+    const proc: (inout varptrType: dest) := (in varptrType: source)        is action "REF_CPY";
+    const proc: (inout arrayType: dest) := (in arrayType: source)          is action "ARR_CPY";
+    const proc: (inout bitset: dest) := (in bitset: source)                is action "SET_CPY";
+    const proc: (inout structType: dest) := (in structType: source)        is action "SCT_CPY";
+    const proc: (inout enumType: dest) := (in enumType: source)            is action "ENU_CPY";
+    const proc: (inout clib_file: dest) := (in clib_file: source)          is action "FIL_CPY";
+    const proc: (inout process: dest) := (in process: source)              is action "PCS_CPY";
     const proc: (inout interfaceType: dest) := (ref interfaceType: source) is action "ITF_CPY";
-    const proc: (inout interfaceType: dest) := (ref aType: source)   is action "ITF_CPY2";
+    const proc: (inout interfaceType: dest) := (ref aType: source)         is action "ITF_CPY2";
 
 
 4.2 Ignoring values
@@ -1980,6 +1986,17 @@ CONTENTS
         characterClass := ILLEGAL;
     end case;
 
+  Case statements work also for strings:
+
+    case elementName of
+      when {"li"}:       alternateEndTags := {"<li"};
+      when {"dt", "dd"}: alternateEndTags := {"<dt", "<dd"};
+      when {"td", "th"}: alternateEndTags := {"<td", "<th", "<tr", "<thead", "<tbody", "<tfoot"};
+      when {"tr"}:       alternateEndTags := {"<tr", "<thead", "<tbody", "<tfoot"};
+      when {"thead", "tbody", "tfoot"}:
+                         alternateEndTags := {"<thead", "<tbody", "<tfoot"};
+    end case;
+
   Semantics:
     The expression between 'case' and 'of' is evaluated. When the
     resulting value is element of a set behind a 'when' the
@@ -2010,6 +2027,7 @@ CONTENTS
 
     $ syntax expr: .case.().of.().end.case                    is -> 25;
     $ syntax expr: .case.().of.().otherwise. : .().end.case   is -> 25;
+    $ syntax expr: .case.().of.otherwise. : .().end.case      is -> 25;
     $ syntax expr: .case.().of.end.case                       is -> 25;
 
     $ syntax expr: .when.(). : .().()   is <- 60;
@@ -2026,12 +2044,29 @@ CONTENTS
         SELECTOR_TYPE := set of aType;
         const proc: case (ref aType: decisionValue) of end case                     is noop;
         const proc: case (ref aType: decisionValue) of
-                      (ref WHEN_PROC: whenPart)
-                    end case                                                        is action "PRC_CASE";
-        const proc: case (ref aType: decisionValue) of
-                      (ref WHEN_PROC: whenPart)
-                      otherwise : (ref proc: statements)
-                    end case                                                        is action "PRC_CASE_DEF";
+                        otherwise : (ref proc: statements)
+                      end case                                                      is func
+          begin
+            statements;
+          end func;
+        if getobj(ord(ref aType: decisionValue)) <> NIL and
+            getobj(ord(ref aType: decisionValue, mayRaiseRangeError)) = NIL then
+          const proc: case (ref aType: decisionValue) of
+                        (ref WHEN_PROC: whenPart)
+                      end case                                                      is action "PRC_CASE";
+          const proc: case (ref aType: decisionValue) of
+                        (ref WHEN_PROC: whenPart)
+                        otherwise : (ref proc: statements)
+                      end case                                                      is action "PRC_CASE_DEF";
+        else
+          const proc: case (ref aType: decisionValue) of
+                        (ref WHEN_PROC: whenPart)
+                      end case                                                      is action "PRC_CASE_HASHSET";
+          const proc: case (ref aType: decisionValue) of
+                        (ref WHEN_PROC: whenPart)
+                        otherwise : (ref proc: statements)
+                      end case                                                      is action "PRC_CASE_HASHSET_DEF";
+        end if;
         const proc: (ref WHEN_RESULT: dest) ::= enumlit                             is action "ENU_GENLIT";
         const WHEN_RESULT: WHEN_EMPTY (attr aType) is enumlit;
         const proc: (ref WHEN_PROC: dest) ::= (ref WHEN_RESULT: source)             is action "ENU_CREATE";
@@ -2043,6 +2078,8 @@ CONTENTS
     CASE_DECLS(integer);
     CASE_DECLS(char);
     CASE_DECLS(boolean);
+    CASE_DECLS(string);
+    CASE_DECLS(bigInteger);
 
 
 
@@ -4651,9 +4688,9 @@ CONTENTS
                   ( Type of argument A: string )
       length(A) Length of bstring
                   ( Type of result: integer )
-      hashCode(A) Hash function
-                  ( Type of result: integer )
       compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
                   ( Type of result: integer )
       bStriBe2BigInt(A, isSigned) Convert a bstring (interpreted as big-endian) to a bigInteger
                   ( Type of argument isSigned: boolean,
@@ -4940,6 +4977,8 @@ CONTENTS
     The type 'file' is the interface type for sequential files.
   The 'file' functions are defined in the library "file.s7i".
 
+    Constants:
+      file.value  Default value of file (STD_NULL)
     Variables:
       STD_NULL  Standard null file
       STD_IN    Standard input of the operating system
@@ -5115,8 +5154,9 @@ CONTENTS
 
 5.22 text
 
-    The type 'text' describes two dimensional files.
-  The 'text' functions are defined in the library "text.s7i".
+    The type 'text' is the interface type for two dimensional files.
+  These files consist of lines with columns in them. The 'text'
+  functions are defined in the library "text.s7i".
 
     Variables:
       STD_CONSOLE  Standard console file of the current process.
@@ -5209,8 +5249,8 @@ CONTENTS
 
     The type 'fileSys' is the interface type for file systems. The
   files of the operating system and the contents of an archive file
-  are both organized as file systems. The connection to files stored at
-  a remote computer can also use the 'fileSys' interface.
+  are both organized as file systems. The connection to files stored
+  at a remote computer can also use the 'fileSys' interface.
 
     Constants:
       fileSys.value  Default value of fileSys (emptyFileSys.value)
@@ -5219,17 +5259,18 @@ CONTENTS
     Implementation types of the fileSys interface:
       emptyFileSys   Empty file system (used as default value)
       osFileSys      File system to access operating system files
-      tarArchive     Access to a TAR archive
-      zipArchive     Access to a ZIP archive
+      arArchive      Access to an AR archive
       cpioArchive    Access to a CPIO archive
       rpmArchive     Access to a RPM archive
+      tarArchive     Access to a TAR archive
+      zipArchive     Access to a ZIP archive
       ftpConnection  Connection to a FTP server
     Functions to open a fileSys:
-      openTar(tarFile)  Open a TAR archive with the given tarFile
-                  ( Type of argument tarFile: file,
+      openAr(arFile)  Open a AR archive with the given arFile
+                  ( Type of argument arFile: file,
                     Returns fileSys.value if open was not possible )
-      openTar(tarFileName)  Open a TAR archive with the given tarFileName
-                  ( Type of argument tarFileName: string,
+      openAr(arFileName)  Open a AR archive with the given arFileName
+                  ( Type of argument arFileName: string,
                     Returns fileSys.value if open was not possible )
       openCpio(cpioFile)  Open a CPIO archive with the given cpioFile
                   ( Type of argument cpioFile: file,
@@ -5242,6 +5283,12 @@ CONTENTS
                     Returns fileSys.value if open was not possible )
       openRpm(rpmFileName)  Open a RPM archive with the given rpmFileName
                   ( Type of argument rpmFileName: string,
+                    Returns fileSys.value if open was not possible )
+      openTar(tarFile)  Open a TAR archive with the given tarFile
+                  ( Type of argument tarFile: file,
+                    Returns fileSys.value if open was not possible )
+      openTar(tarFileName)  Open a TAR archive with the given tarFileName
+                  ( Type of argument tarFileName: string,
                     Returns fileSys.value if open was not possible )
       openZip(zipFile)  Open a ZIP archive with the given zipFile
                   ( Type of argument zipFile: file,
@@ -5342,7 +5389,58 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.24 category
+5.24 process
+
+    The type 'process' describes processes of the operating system.
+  The library "process.s7i" defines functions to create and manage processes.
+
+    Constants:
+      process.value  Default value of process (process.EMPTY)
+    Relations:
+      =, <>
+    Functions:
+      startProcess(command, parameters)  Start a new process
+                  ( Type of argument command: string,
+                    Type of argument parameters: array string )
+      startProcess(cmdAndParams)  Start a new process
+                  ( Type of argument cmdAndParams: string )
+      pipe2(command, parameters, childStdin, childStdout)  Start a process
+           Connect pipes to its standard I/O files.
+                  ( Type of argument command: string,
+                    Type of argument parameters: array string,
+                    Type of argument childStdin: file,
+                    Type of argument childStdout: file )
+      childStdIn(process)  The standard input file of process
+                  ( Type of result: file )
+      childStdOut(process)  The standard output file of process
+                  ( Type of result: file )
+      childStdErr(process)  The standard error file of process
+                  ( Type of result: file )
+      isAlive(process)  Test whether the specified process is alive
+                  ( Type of result: boolean )
+      exitValue(process)  The exit value of process
+                  ( Type of result: integer )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+      str(process)  Get the process identifier (PID)
+      getSearchPath  The search path of the operating system
+                  ( Type of result: array string )
+      commandPath(command)  Search for an executable in the directories of the search path
+                  ( Type of argument command: string,
+                    Type of result: string )
+      commandDir(command)  Search for the directory of an executable in the search path
+                  ( Type of argument command: string,
+                    Type of result: string )
+    Statements:
+      kill(process)  Kill process
+      waitFor(process)  Wait until process has terminated
+      setSearchPath(searchPath)  Set the search path of the current process
+                  ( Type of argument searchPath: array string )
+
+
+5.25 category
 
     The type 'category' describes the category of a 'reference'.
   The 'category' functions are defined in the library "category.s7i".
@@ -5393,7 +5491,7 @@ CONTENTS
                   ( Type of argument D: proc )
 
 
-5.25 reference
+5.26 reference
 
     The type 'reference' describes a reference to any
   object. The 'reference' functions are defined in
@@ -5541,7 +5639,7 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.26 ref_list
+5.27 ref_list
 
     The type 'ref_list' describes a list of 'reference' objects.
   The 'ref_list' functions are defined in
@@ -5617,7 +5715,7 @@ CONTENTS
                     Type of argument statements: proc )
 
 
-5.27 program
+5.28 program
 
     The type 'program' describes a Seed7 program.
   The 'program' functions are defined in the library "progs.s7i".
@@ -5655,7 +5753,7 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.28 ptr
+5.29 ptr
 
     The type 'ptr baseType' describes a pointer to an object
   of a 'baseType'. With
@@ -5682,7 +5780,7 @@ CONTENTS
                   ( Type of argument ptrType: type )
 
 
-5.29 func
+5.30 func
 
     The type 'func baseType' describes functions which return
   a 'baseType'. For example: 'func integer' describes an 'integer'
@@ -5771,7 +5869,7 @@ CONTENTS
   parameter is TRUE.
 
 
-5.30 varfunc
+5.31 varfunc
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
@@ -5804,7 +5902,7 @@ CONTENTS
   and structs can be used in the usual way.
 
 
-5.31 void
+5.32 void
 
     The type 'void' describes the empty type.
 
@@ -5814,7 +5912,7 @@ CONTENTS
       void.value  Default value of void (empty)
 
 
-5.32 proc
+5.33 proc
 
     The type 'proc' describes procedures. The type 'proc'
   is defined as 'func void'.
@@ -5851,7 +5949,7 @@ CONTENTS
                     Type of result: proc )
 
 
-5.33 type
+5.34 type
 
     The type 'type' describes all types. Examples of type declarations are:
 
@@ -5956,7 +6054,7 @@ CONTENTS
       ignore(A) Ignore value
 
 
-5.34 object
+5.35 object
 
     The type 'object' is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -5969,7 +6067,7 @@ CONTENTS
       TRACE_OBJ(A)  Write internal information
 
 
-5.35 expr
+5.36 expr
 
     The type 'expr' is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions

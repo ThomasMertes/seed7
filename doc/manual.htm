@@ -272,6 +272,7 @@ pre.indent {
 <li><a class="link" href="#types_file"><b>file</b></a></li>
 <li><a class="link" href="#types_text"><b>text</b></a></li>
 <li><a class="link" href="#types_fileSys"><b>fileSys</b></a></li>
+<li><a class="link" href="#types_process"><b>process</b></a></li>
 <li><a class="link" href="#types_category"><b>category</b></a></li>
 <li><a class="link" href="#types_reference"><b>reference</b></a></li>
 <li><a class="link" href="#types_ref_list"><b>ref_list</b></a></li>
@@ -1597,26 +1598,31 @@ minimum := maximum <span class="op">div</span> 2;
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). := .()   <span class="keywd">is</span> &lt;-> 20;
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_type">type</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a>: source)             <span class="keywd">is</span> action <span class="stri">"TYP_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_proc">proc</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: source)             <span class="keywd">is</span> action <span class="stri">"PRC_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: source) <span class="keywd">is</span> action <span class="stri">"PRC_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">aType</span>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">aType</span>: source) <span class="keywd">is</span> action <span class="stri">"PRC_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">ACTION</span>: dest) := (<span class="keywd">in</span> <span class="type">ACTION</span>: source)          <span class="keywd">is</span> action <span class="stri">"ACT_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_boolean">boolean</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: source)        <span class="keywd">is</span> action <span class="stri">"BLN_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: source)        <span class="keywd">is</span> action <span class="stri">"INT_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_char">char</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_char">char</a>: source)             <span class="keywd">is</span> action <span class="stri">"CHR_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_string">string</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_string">string</a>: source)         <span class="keywd">is</span> action <span class="stri">"STR_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_reference">reference</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_reference">reference</a>: source)   <span class="keywd">is</span> action <span class="stri">"REF_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_ref_list">ref_list</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_ref_list">ref_list</a>: source)      <span class="keywd">is</span> action <span class="stri">"RFL_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">ptrType</span>: dest) := (<span class="keywd">in</span> <span class="type">ptrType</span>: source)        <span class="keywd">is</span> action <span class="stri">"REF_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">varptrType</span>: dest) := (<span class="keywd">in</span> <span class="type">varptrType</span>: source)  <span class="keywd">is</span> action <span class="stri">"REF_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">arrayType</span>: dest) := (<span class="keywd">in</span> <span class="type">arrayType</span>: source)    <span class="keywd">is</span> action <span class="stri">"ARR_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_set">bitset</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_set">bitset</a>: source)          <span class="keywd">is</span> action <span class="stri">"SET_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">structType</span>: dest) := (<span class="keywd">in</span> <span class="type">structType</span>: source)  <span class="keywd">is</span> action <span class="stri">"SCT_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">enumType</span>: dest) := (<span class="keywd">in</span> <span class="type">enumType</span>: source)      <span class="keywd">is</span> action <span class="stri">"ENU_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">clib_file</span>: dest) := (<span class="keywd">ref</span> <span class="type">clib_file</span>: source)   <span class="keywd">is</span> action <span class="stri">"FIL_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">interfaceType</span>: dest) := (<span class="keywd">ref</span> <span class="type">interfaceType</span>: source) <span class="keywd">is</span> action <span class="stri">"ITF_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">interfaceType</span>: dest) := (<span class="keywd">ref</span> <span class="type">aType</span>: source)   <span class="keywd">is</span> action <span class="stri">"ITF_CPY2"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_type">type</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_type">type</a>: source)                   <span class="keywd">is action</span> <span class="stri">"TYP_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_proc">proc</a>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: source)                   <span class="keywd">is action</span> <span class="stri">"PRC_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: source)       <span class="keywd">is action</span> <span class="stri">"PRC_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">aType</span>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">aType</span>: source) <span class="keywd">is action</span> <span class="stri">"PRC_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">ACTION</span>: dest) := (<span class="keywd">in</span> <span class="type">ACTION</span>: source)                <span class="keywd">is action</span> <span class="stri">"ACT_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_boolean">boolean</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: source)              <span class="keywd">is action</span> <span class="stri">"BLN_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: source)              <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bigInteger">bigInteger</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bigInteger">bigInteger</a>: source)        <span class="keywd">is action</span> <span class="stri">"BIG_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_char">char</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_char">char</a>: source)                    <span class="keywd">is action</span> <span class="stri">"CHR_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_string">string</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: source)                <span class="keywd">is action</span> <span class="stri">"STR_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bin64">bin64</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bin64">bin64</a>: source)                  <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bin32">bin32</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bin32">bin32</a>: source)                  <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bstring">bstring</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bstring">bstring</a>: source)              <span class="keywd">is action</span> <span class="stri">"BST_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_reference">reference</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_reference">reference</a>: source)          <span class="keywd">is action</span> <span class="stri">"REF_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_ref_list">ref_list</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_ref_list">ref_list</a>: source)            <span class="keywd">is action</span> <span class="stri">"RFL_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">ptrType</span>: dest) := (<span class="keywd">in</span> <span class="type">ptrType</span>: source)              <span class="keywd">is action</span> <span class="stri">"REF_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">varptrType</span>: dest) := (<span class="keywd">in</span> <span class="type">varptrType</span>: source)        <span class="keywd">is action</span> <span class="stri">"REF_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">arrayType</span>: dest) := (<span class="keywd">in</span> <span class="type">arrayType</span>: source)          <span class="keywd">is action</span> <span class="stri">"ARR_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_set">bitset</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_set">bitset</a>: source)                <span class="keywd">is action</span> <span class="stri">"SET_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">structType</span>: dest) := (<span class="keywd">in</span> <span class="type">structType</span>: source)        <span class="keywd">is action</span> <span class="stri">"SCT_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">enumType</span>: dest) := (<span class="keywd">in</span> <span class="type">enumType</span>: source)            <span class="keywd">is action</span> <span class="stri">"ENU_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">clib_file</span>: dest) := (<span class="keywd">in</span> <span class="type">clib_file</span>: source)          <span class="keywd">is action</span> <span class="stri">"FIL_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_process">process</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_process">process</a>: source)              <span class="keywd">is action</span> <span class="stri">"PCS_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">interfaceType</span>: dest) := (<span class="keywd">ref</span> <span class="type">interfaceType</span>: source) <span class="keywd">is action</span> <span class="stri">"ITF_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">interfaceType</span>: dest) := (<span class="keywd">ref</span> <span class="type">aType</span>: source)         <span class="keywd">is action</span> <span class="stri">"ITF_CPY2"</span>;
 </pre><p></p>
 
 <a name="stats_Ignoring_values"><h3>4.2 Ignoring values</h3></a>
@@ -1904,7 +1910,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
       <span class="keywd">begin</span>
         variable := lowerLimit;
         continue := variable &lt;= upperLimit;
-        <span class="keywd">while</span> continue <span class="keywd">and not</span> condition <span class="keywd">do</span>
+        <span class="keywd">while</span> continue <span class="op">and not</span> condition <span class="keywd">do</span>
           statements;
           <span class="keywd">if</span> variable &lt; upperLimit <span class="keywd">then</span>
             incr(variable);
@@ -1922,7 +1928,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
       <span class="keywd">begin</span>
         variable := upperLimit;
         continue := variable >= lowerLimit;
-        <span class="keywd">while</span> continue <span class="keywd">and not</span> condition <span class="keywd">do</span>
+        <span class="keywd">while</span> continue <span class="op">and not</span> condition <span class="keywd">do</span>
           statements;
           <span class="keywd">if</span> variable > lowerLimit <span class="keywd">then</span>
             decr(variable);
@@ -2178,6 +2184,17 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   <span class="keywd">otherwise</span>:
     characterClass := ILLEGAL;
 <span class="keywd">end case</span>;
+</pre><p>
+  Case statements work also for strings:
+</p><pre class="indent">
+<span class="keywd">case</span> elementName <span class="keywd">of</span>
+  <span class="keywd">when</span> {<span class="stri">"li"</span>}:       alternateEndTags := {<span class="stri">"&lt;li"</span>};
+  <span class="keywd">when</span> {<span class="stri">"dt"</span>, <span class="stri">"dd"</span>}: alternateEndTags := {<span class="stri">"&lt;dt"</span>, <span class="stri">"&lt;dd"</span>};
+  <span class="keywd">when</span> {<span class="stri">"td"</span>, <span class="stri">"th"</span>}: alternateEndTags := {<span class="stri">"&lt;td"</span>, <span class="stri">"&lt;th"</span>, <span class="stri">"&lt;tr"</span>, <span class="stri">"&lt;thead"</span>, <span class="stri">"&lt;tbody"</span>, <span class="stri">"&lt;tfoot"</span>};
+  <span class="keywd">when</span> {<span class="stri">"tr"</span>}:       alternateEndTags := {<span class="stri">"&lt;tr"</span>, <span class="stri">"&lt;thead"</span>, <span class="stri">"&lt;tbody"</span>, <span class="stri">"&lt;tfoot"</span>};
+  <span class="keywd">when</span> {<span class="stri">"thead"</span>, <span class="stri">"tbody"</span>, <span class="stri">"tfoot"</span>}:
+                     alternateEndTags := {<span class="stri">"&lt;thead"</span>, <span class="stri">"&lt;tbody"</span>, <span class="stri">"&lt;tfoot"</span>};
+<span class="keywd">end case</span>;
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
     The expression between <tt><span class="keywd">case</span></tt> and <tt><span class="keywd">of</span></tt> is evaluated. When the
@@ -2209,6 +2226,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.().end.case                    <span class="keywd">is</span> -> 25;
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.().otherwise. : .().end.case   <span class="keywd">is</span> -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.otherwise. : .().end.case      <span class="keywd">is</span> -> 25;
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .case.().of.end.case                       <span class="keywd">is</span> -> 25;
 
 $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .when.(). : .().()   <span class="keywd">is</span> &lt;- 60;
@@ -2225,12 +2243,29 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
     <span class="type">SELECTOR_TYPE</span> := <a class="type" href="#types_set">set</a> <a class="type" href="#types_set">of</a> <span class="type">aType</span>;
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of end case                     <span class="keywd">is</span> noop;
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of
-                  (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: whenPart)
-                end case                                                        <span class="keywd">is action</span> <span class="stri">"PRC_CASE"</span>;
-    <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of
-                  (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: whenPart)
-                  otherwise : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: statements)
-                end case                                                        <span class="keywd">is action</span> <span class="stri">"PRC_CASE_DEF"</span>;
+                    otherwise : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: statements)
+                  end case                                                      <span class="keywd">is func</span>
+      <span class="keywd">begin</span>
+        statements;
+      <span class="keywd">end func</span>;
+    <span class="keywd">if</span> getobj(ord(<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue)) <> NIL <span class="op">and</span>
+        getobj(ord(<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue, mayRaiseRangeError)) = NIL <span class="keywd">then</span>
+      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of
+                    (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: whenPart)
+                  end case                                                      <span class="keywd">is action</span> <span class="stri">"PRC_CASE"</span>;
+      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of
+                    (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: whenPart)
+                    otherwise : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: statements)
+                  end case                                                      <span class="keywd">is action</span> <span class="stri">"PRC_CASE_DEF"</span>;
+    <span class="keywd">else</span>
+      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of
+                    (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: whenPart)
+                  end case                                                      <span class="keywd">is action</span> <span class="stri">"PRC_CASE_HASHSET"</span>;
+      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: case (<span class="keywd">ref</span> <span class="type">aType</span>: decisionValue) of
+                    (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: whenPart)
+                    otherwise : (<span class="keywd">ref</span> <a class="type" href="#types_proc">proc</a>: statements)
+                  end case                                                      <span class="keywd">is action</span> <span class="stri">"PRC_CASE_HASHSET_DEF"</span>;
+    <span class="keywd">end if</span>;
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <span class="type">WHEN_RESULT</span>: dest) ::= enumlit                             <span class="keywd">is action</span> <span class="stri">"ENU_GENLIT"</span>;
     <span class="keywd">const</span> <span class="type">WHEN_RESULT</span>: WHEN_EMPTY (<span class="keywd">attr</span> <span class="type">aType</span>) is enumlit;
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <span class="type">WHEN_PROC</span>: dest) ::= (<span class="keywd">ref</span> <span class="type">WHEN_RESULT</span>: source)             <span class="keywd">is action</span> <span class="stri">"ENU_CREATE"</span>;
@@ -2242,6 +2277,8 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 CASE_DECLS(<a class="type" href="#types_integer">integer</a>);
 CASE_DECLS(<a class="type" href="#types_char">char</a>);
 CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
+CASE_DECLS(<a class="type" href="#types_string">string</a>);
+CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 </pre><p></p>
 
 <a name="types_file_start"></a><p></p>
@@ -4850,9 +4887,9 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                   ( Type of argument A: <a class="type" href="#types_string">string</a> )
       <span class="func">length</span>(A) Length of <span class="type">bstring</span>
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
-      <span class="func">hashCode</span>(A) Hash function
-                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
       <span class="func">compare</span>(A, B) Compare function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
       <span class="func">bStriBe2BigInt</span>(A, isSigned) Convert a <span class="type">bstring</span> (interpreted as big-endian) to a <a class="type" href="#types_bigInteger">bigInteger</a>
                   ( Type of argument isSigned: <a class="type" href="#types_boolean">boolean</a>,
@@ -5139,6 +5176,8 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
     The type <tt><span class="type">file</span></tt> is the interface type for sequential files.
   The <tt><span class="type">file</span></tt> functions are defined in the library <span class="stri">"<span class="lib">file.s7i</span>"</span>.
 </p><pre class="tt">
+    Constants:
+      <span class="type">file</span>.<span class="var">value</span>  Default value of <span class="type">file</span> (<span class="var">STD_NULL</span>)
     Variables:
       <span class="var">STD_NULL</span>  Standard null file
       <span class="var">STD_IN</span>    Standard input of the operating system
@@ -5314,8 +5353,9 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 
 <a name="types_text"><h3>5.22 text</h3></a>
 <p>
-    The type <tt><span class="type">text</span></tt> describes two dimensional files.
-  The <tt><span class="type">text</span></tt> functions are defined in the library <span class="stri">"<span class="lib">text.s7i</span>"</span>.
+    The type <tt><span class="type">text</span></tt> is the interface type for two dimensional files.
+  These files consist of lines with columns in them. The <tt><span class="type">text</span></tt>
+  functions are defined in the library <span class="stri">"<span class="lib">text.s7i</span>"</span>.
 </p><pre class="tt">
     Variables:
       <span class="var">STD_CONSOLE</span>  Standard console file of the current process.
@@ -5408,8 +5448,8 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 <p>
     The type <tt><span class="type">fileSys</span></tt> is the interface type for file systems. The
   files of the operating system and the contents of an archive file
-  are both organized as file systems. The connection to files stored at
-  a remote computer can also use the <tt><span class="type">fileSys</span></tt> interface.
+  are both organized as file systems. The connection to files stored
+  at a remote computer can also use the <tt><span class="type">fileSys</span></tt> interface.
 </p><pre class="tt">
     Constants:
       <span class="type">fileSys</span>.<span class="var">value</span>  Default value of <span class="type">fileSys</span> (<span class="type">emptyFileSys</span>.<span class="var">value</span>)
@@ -5418,17 +5458,18 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
     Implementation types of the <span class="type">fileSys</span> interface:
       <span class="type">emptyFileSys</span>   Empty file system (used as default value)
       <span class="type">osFileSys</span>      File system to access operating system files
-      <span class="type">tarArchive</span>     Access to a TAR archive
-      <span class="type">zipArchive</span>     Access to a ZIP archive
+      <span class="type">arArchive</span>      Access to an AR archive
       <span class="type">cpioArchive</span>    Access to a CPIO archive
       <span class="type">rpmArchive</span>     Access to a RPM archive
+      <span class="type">tarArchive</span>     Access to a TAR archive
+      <span class="type">zipArchive</span>     Access to a ZIP archive
       <span class="type">ftpConnection</span>  Connection to a FTP server
     Functions to open a <span class="type">fileSys</span>:
-      <span class="func">openTar</span>(tarFile)  Open a TAR archive with the given tarFile
-                  ( Type of argument tarFile: <a class="type" href="#types_file">file</a>,
+      <span class="func">openAr</span>(arFile)  Open a AR archive with the given arFile
+                  ( Type of argument arFile: <a class="type" href="#types_file">file</a>,
                     Returns <span class="type">fileSys</span>.<span class="var">value</span> if open was not possible )
-      <span class="func">openTar</span>(tarFileName)  Open a TAR archive with the given tarFileName
-                  ( Type of argument tarFileName: <a class="type" href="#types_string">string</a>,
+      <span class="func">openAr</span>(arFileName)  Open a AR archive with the given arFileName
+                  ( Type of argument arFileName: <a class="type" href="#types_string">string</a>,
                     Returns <span class="type">fileSys</span>.<span class="var">value</span> if open was not possible )
       <span class="func">openCpio</span>(cpioFile)  Open a CPIO archive with the given cpioFile
                   ( Type of argument cpioFile: <a class="type" href="#types_file">file</a>,
@@ -5441,6 +5482,12 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     Returns <span class="type">fileSys</span>.<span class="var">value</span> if open was not possible )
       <span class="func">openRpm</span>(rpmFileName)  Open a RPM archive with the given rpmFileName
                   ( Type of argument rpmFileName: <a class="type" href="#types_string">string</a>,
+                    Returns <span class="type">fileSys</span>.<span class="var">value</span> if open was not possible )
+      <span class="func">openTar</span>(tarFile)  Open a TAR archive with the given tarFile
+                  ( Type of argument tarFile: <a class="type" href="#types_file">file</a>,
+                    Returns <span class="type">fileSys</span>.<span class="var">value</span> if open was not possible )
+      <span class="func">openTar</span>(tarFileName)  Open a TAR archive with the given tarFileName
+                  ( Type of argument tarFileName: <a class="type" href="#types_string">string</a>,
                     Returns <span class="type">fileSys</span>.<span class="var">value</span> if open was not possible )
       <span class="func">openZip</span>(zipFile)  Open a ZIP archive with the given zipFile
                   ( Type of argument zipFile: <a class="type" href="#types_file">file</a>,
@@ -5541,7 +5588,58 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_category"><h3>5.24 category</h3></a>
+<a name="types_process"><h3>5.24 process</h3></a>
+<p>
+    The type <tt><span class="type">process</span></tt> describes processes of the operating system.
+  The library <span class="stri">"<span class="lib">process.s7i</span>"</span> defines functions to create and manage processes.
+</p><pre class="tt">
+    Constants:
+      <span class="type">process</span>.<span class="var">value</span>  Default value of <span class="type">process</span> (<span class="type">process</span>.<span class="var">EMPTY</span>)
+    Relations:
+      <span class="op">=</span>, <span class="op">&lt;></span>
+    Functions:
+      <span class="func">startProcess</span>(command, parameters)  Start a new process
+                  ( Type of argument command: <a class="type" href="#types_string">string</a>,
+                    Type of argument parameters: <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a> )
+      <span class="func">startProcess</span>(cmdAndParams)  Start a new process
+                  ( Type of argument cmdAndParams: <a class="type" href="#types_string">string</a> )
+      <span class="func">pipe2</span>(command, parameters, childStdin, childStdout)  Start a process
+           Connect pipes to its standard I/O files.
+                  ( Type of argument command: <a class="type" href="#types_string">string</a>,
+                    Type of argument parameters: <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>,
+                    Type of argument childStdin: <a class="type" href="#types_file">file</a>,
+                    Type of argument childStdout: <a class="type" href="#types_file">file</a> )
+      <span class="func">childStdIn</span>(process)  The standard input file of process
+                  ( Type of result: <a class="type" href="#types_file">file</a> )
+      <span class="func">childStdOut</span>(process)  The standard output file of process
+                  ( Type of result: <a class="type" href="#types_file">file</a> )
+      <span class="func">childStdErr</span>(process)  The standard error file of process
+                  ( Type of result: <a class="type" href="#types_file">file</a> )
+      <span class="func">isAlive</span>(process)  Test whether the specified process is alive
+                  ( Type of result: <a class="type" href="#types_boolean">boolean</a> )
+      <span class="func">exitValue</span>(process)  The exit value of process
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">compare</span>(A, B) Compare function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">hashCode</span>(A) Hash function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">str</span>(process)  Get the process identifier (PID)
+      <span class="func">getSearchPath</span>  The search path of the operating system
+                  ( Type of result: <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a> )
+      <span class="func">commandPath</span>(command)  Search for an executable in the directories of the search path
+                  ( Type of argument command: <a class="type" href="#types_string">string</a>,
+                    Type of result: <a class="type" href="#types_string">string</a> )
+      <span class="func">commandDir</span>(command)  Search for the directory of an executable in the search path
+                  ( Type of argument command: <a class="type" href="#types_string">string</a>,
+                    Type of result: <a class="type" href="#types_string">string</a> )
+    Statements:
+      <span class="func">kill</span>(process)  Kill process
+      <span class="func">waitFor</span>(process)  Wait until process has terminated
+      <span class="func">setSearchPath</span>(searchPath)  Set the search path of the current process
+                  ( Type of argument searchPath: <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a> )
+</pre><p></p>
+
+<a name="types_category"><h3>5.25 category</h3></a>
 <p>
     The type <tt><span class="type">category</span></tt> describes the category of a <tt><a class="type" href="#types_reference">reference</a></tt>.
   The <tt><span class="type">category</span></tt> functions are defined in the library <span class="stri">"<span class="lib">category.s7i</span>"</span>.
@@ -5592,7 +5690,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                   ( Type of argument D: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_reference"><h3>5.25 reference</h3></a>
+<a name="types_reference"><h3>5.26 reference</h3></a>
 <p>
     The type <tt><span class="type">reference</span></tt> describes a reference to any
   object. The <tt><span class="type">reference</span></tt> functions are defined in
@@ -5740,7 +5838,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_ref_list"><h3>5.26 ref_list</h3></a>
+<a name="types_ref_list"><h3>5.27 ref_list</h3></a>
 <p>
     The type <tt><span class="type">ref_list</span></tt> describes a list of <tt><a class="type" href="#types_reference">reference</a></tt> objects.
   The <tt><span class="type">ref_list</span></tt> functions are defined in
@@ -5816,7 +5914,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     Type of argument statements: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_program"><h3>5.27 program</h3></a>
+<a name="types_program"><h3>5.28 program</h3></a>
 <p>
     The type <tt><span class="type">program</span></tt> describes a Seed7 program.
   The <tt><span class="type">program</span></tt> functions are defined in the library <span class="stri">"<span class="lib">progs.s7i</span>"</span>.
@@ -5854,7 +5952,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_ptr"><h3>5.28 ptr</h3></a>
+<a name="types_ptr"><h3>5.29 ptr</h3></a>
 <p>
     The type <tt><a class="type" href="#types_ptr">ptr</a> <span class="type">baseType</span></tt> describes a pointer to an object
   of a <tt><span class="type">baseType</span></tt>. With
@@ -5881,7 +5979,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                   ( Type of argument <span class="type">ptrType</span>: <a class="type" href="#types_type">type</a> )
 </pre><p></p>
 
-<a name="types_func"><h3>5.29 func</h3></a>
+<a name="types_func"><h3>5.30 func</h3></a>
 <p>
     The type <tt><a class="type" href="#types_func">func</a> <span class="type">baseType</span></tt> describes functions which return
   a <tt><span class="type">baseType</span></tt>. For example: <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a></tt> describes an <tt><a class="type" href="#types_integer">integer</a></tt>
@@ -5970,7 +6068,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
   parameter is <tt><span class="var">TRUE</span></tt>.
 </p>
 
-<a name="types_varfunc"><h3>5.30 varfunc</h3></a>
+<a name="types_varfunc"><h3>5.31 varfunc</h3></a>
 <p>
     The type <tt><a class="type" href="#types_varfunc">varfunc</a> <span class="type">baseType</span></tt> describes functions which return
   a <tt><span class="type">baseType</span></tt> variable. For example: A function which returns an
@@ -6003,7 +6101,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
   and <a class="type" href="#types_struct">struct</a>s can be used in the usual way.
 </p>
 
-<a name="types_void"><h3>5.31 void</h3></a>
+<a name="types_void"><h3>5.32 void</h3></a>
 <p>
     The type <tt><a class="type" href="#types_void">void</a></tt> describes the empty type.
 </p><pre class="tt">
@@ -6013,7 +6111,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <a class="type" href="#types_void">void</a>.<span class="var">value</span>  Default value of <a class="type" href="#types_void">void</a> (empty)
 </pre><p></p>
 
-<a name="types_proc"><h3>5.32 proc</h3></a>
+<a name="types_proc"><h3>5.33 proc</h3></a>
 <p>
     The type <tt><a class="type" href="#types_proc">proc</a></tt> describes procedures. The type <tt><a class="type" href="#types_proc">proc</a></tt>
   is defined as <tt><a class="type" href="#types_func">func</a> <a class="type" href="#types_void">void</a></tt>.
@@ -6050,7 +6148,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     Type of result: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
-<a name="types_type"><h3>5.33 type</h3></a>
+<a name="types_type"><h3>5.34 type</h3></a>
 <p>
     The type <tt><a class="type" href="#types_type">type</a></tt> describes all types. Examples of type declarations are:
 </p><pre class="indent">
@@ -6155,7 +6253,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
       <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
-<a name="types_object"><h3>5.34 object</h3></a>
+<a name="types_object"><h3>5.35 object</h3></a>
 <p>
     The type <tt><a class="type" href="#types_object">object</a></tt> is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -6168,7 +6266,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
       TRACE_OBJ(A)  Write internal information
 </pre><p></p>
 
-<a name="types_expr"><h3>5.35 expr</h3></a>
+<a name="types_expr"><h3>5.36 expr</h3></a>
 <p>
     The type <tt><a class="type" href="#types_expr">expr</a></tt> is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions

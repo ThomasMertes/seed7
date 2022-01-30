@@ -2549,7 +2549,9 @@ every category a specific strategy of automatic memory management is used:
 <li><span class="link">Arrays</span>, <span class="link">hashes</span> and other containers manage their memory. E.g.: When an
    element is removed from a hash table the memory used by the element is
    freed as well as the hash table internal data. If the container itself is
-   removed all its elements are removed as well.</li>
+   removed all its elements are removed as well. In Seed7 there are no
+   pointers to array elements, hash keys or hash values. So there is no
+   possibility that pointers become dangling.</li>
 <li>Windows, <span class="link">processes</span>, <span class="link">databases</span>, <span class="link">sql statements</span> and <span class="link">programs</span> use a reference
    counter to free the data.</li>
 <li>A struct value can be referred by one struct variable and by several

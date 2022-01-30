@@ -142,6 +142,7 @@ bytedata.s7i Convert byte data to and from strings
 cards.s7i    Playing card pictures of a french deck
 category.s7i Category support library
 cc_conf.s7i  Configuration values for C compiler and runtime.
+ccittfax.s7i CCITT fax decoding support library
 cgi.s7i      Support for the Common Gateway Interface
 cgidialog.s7i Dialogs to be shown with a web browser.
 char.s7i     Char support library
@@ -205,7 +206,6 @@ idxarray.s7i Support for arrays with non-integer index
 image.s7i    Defines images, which are in a window
 imagefile.s7i Support for various image file formats.
 inflate.s7i  Inflate uncompression algorithm
-inflatefile.s7i Uncompress data from a file with Inflate
 inifile.s7i  Read key value pairs from an INI file
 integer.s7i  Integer support library
 iobuffer.s7i Implementation type for a buffered file.
@@ -281,6 +281,7 @@ tar_cmds.s7i Commands of the tar program.
 tdes.s7i     TDES (Triple DES) cipher support.
 tee.s7i      Filter file which emulates the tee functionality
 text.s7i     Interface type for line/column oriented files
+tiff.s7i     Support for the TIFF image file format.
 time.s7i     Time and date library
 tls.s7i      Support for Transport Layer Security (TLS/SSL).
 unicode.s7i  Functions to convert between Unicode encodings.
