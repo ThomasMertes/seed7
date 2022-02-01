@@ -182,6 +182,19 @@ void drwPArc (const_winType actual_window, intType x, intType y,
 
 
 
+void drwPFArc (const_winType actual_window, intType x, intType y,
+    intType radius, floatType startAngle, floatType sweepAngle,
+    intType width, intType col)
+
+  { /* drwPFArc */
+    logFunction(printf("drwPFArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", %.4f, %.4f, " FMT_D ")\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle, width););
+  } /* drwPFArc */
+
+
+
 void drwFArcChord (const_winType actual_window, intType x, intType y,
     intType radius, floatType ang1, floatType ang2)
 
