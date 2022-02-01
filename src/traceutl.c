@@ -871,7 +871,7 @@ void printLocObj (const_locObjType locObj)
 
 
 
-void prot_list_limited (const_listType list, int limit)
+void prot_list_limited (const_listType list, int depthLimit)
 
   {
     int number;
@@ -890,10 +890,10 @@ void prot_list_limited (const_listType list, int limit)
         switch (CATEGORY_OF_OBJ(list->obj)) {
           case LISTOBJECT:
           case EXPROBJECT:
-            if (limit != 0) {
-              prot_list_limited(list->obj->value.listValue, limit - 1);
+            if (depthLimit != 0) {
+              prot_list_limited(list->obj->value.listValue, depthLimit - 1);
             } else {
-              prot_cstri(" *** Limit reached *** ");
+              prot_cstri(" *** details suppressed *** ");
             } /* if */
             break;
           case CALLOBJECT:
@@ -910,10 +910,10 @@ void prot_list_limited (const_listType list, int limit)
               prot_cstri("> ");
             } /* if */
             prot_cstri("(");
-            if (limit != 0) {
-              prot_list_limited(list->obj->value.listValue->next, limit - 1);
+            if (depthLimit != 0) {
+              prot_list_limited(list->obj->value.listValue->next, depthLimit - 1);
             } else {
-              prot_cstri(" *** Limit reached *** ");
+              prot_cstri(" *** details suppressed *** ");
             } /* if */
             prot_cstri(")");
             break;

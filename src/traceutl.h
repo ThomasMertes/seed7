@@ -70,6 +70,7 @@ void printvalue (const_objectType anyobject);
 void printobject (const_objectType anyobject);
 void printLocObj (const_locObjType locObj);
 void prot_list (const_listType list);
+void prot_list_limited (const_listType list, int depthLimit);
 void prot_params (const_listType list);
 void prot_name (const_listType list);
 void trace_node (const_nodeType anynode);

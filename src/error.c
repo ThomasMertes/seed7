@@ -64,6 +64,7 @@
 #define MAX_AREA_SIZE 256
 #define BUFFER_SIZE 1024
 #define TAB_POSITION 8
+#define MAX_DEPTH_SHOWN 3
 
 
 
@@ -1051,7 +1052,7 @@ void err_object (errorType err, const_objectType obj_found)
         break;
       case NO_MATCH:
         prot_cstri("Match for ");
-        prot_list(obj_found->value.listValue);
+        prot_list_limited(obj_found->value.listValue, MAX_DEPTH_SHOWN);
         prot_cstri(" failed");
         prot_nl();
         break;
@@ -1133,7 +1134,7 @@ void err_expr_obj (errorType err, const_objectType expr_object,
     switch (err) {
       case WRONGACCESSRIGHT:
         prot_cstri("Variable expected in ");
-        prot_list(expr_object->value.listValue->next);
+        prot_list_limited(expr_object->value.listValue->next, MAX_DEPTH_SHOWN);
         prot_cstri(" found ");
         write_object(obj_found);
         prot_nl();
@@ -1195,7 +1196,7 @@ void err_match (errorType err, objectType obj_found)
       switch (err) {
         case NO_MATCH:
           prot_cstri("Match for ");
-          prot_list(obj_found->value.listValue);
+          prot_list_limited(obj_found->value.listValue, MAX_DEPTH_SHOWN);
           prot_cstri(" failed");
           prot_nl();
           break;
