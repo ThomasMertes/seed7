@@ -36,7 +36,33 @@
 
 
 (**
+ *  Determine if ''fileName'' uses an image extension.
+ *  Image extensions are .png, .gif, .jpeg, .jpg, .ppm, .bpm, .ico .tiff and .tif.
+ *  @param imageFileName Name of the image file.
+ *  @return TRUE if ''fileName'' ends with an image extension,
+ *          FALSE otherwise.
+ *)
+const func boolean: hasImageExtension (in var string: fileName) is func
+  result
+    var boolean: hasImageExtension is FALSE;
+  begin
+    fileName := lower(fileName);
+    hasImageExtension := endsWith(fileName, ".png") or
+                         endsWith(fileName, ".gif") or
+                         endsWith(fileName, ".jpeg") or
+                         endsWith(fileName, ".jpg") or
+                         endsWith(fileName, ".ppm") or
+                         endsWith(fileName, ".bmp") or
+                         endsWith(fileName, ".ico") or
+                         endsWith(fileName, ".tiff") or
+                         endsWith(fileName, ".tif");
+  end func;
+
+
+(**
  *  Reads an image file into a pixmap.
+ *  [[bmp|BMP]], [[gif|GIF]], [[ico|ICO]], [[jpeg|JPEG]],
+ *  [[png|PNG]], [[ppm|PPM]] and [[tiff|TIFF]] images are supported.
  *  The file is checked for magic numbers and the corresponding read
  *  function is used, to read the actual image.
  *  @param imageFile File that contains an image.
@@ -94,6 +120,8 @@ const func PRIMITIVE_WINDOW: readImage (inout file: imageFile) is func
 
 (**
  *  Reads an image file with the given ''imageFileName'' into a pixmap.
+ *  [[bmp|BMP]], [[gif|GIF]], [[ico|ICO]], [[jpeg|JPEG]],
+ *  [[png|PNG]], [[ppm|PPM]] and [[tiff|TIFF]] images are supported.
  *  The file is checked for magic numbers and the corresponding read
  *  function is used, to read the actual image. The file extension of
  *  ''imageFileName'' is not used to decide about the image file type.

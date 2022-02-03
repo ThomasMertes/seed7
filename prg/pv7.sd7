@@ -50,23 +50,6 @@ const proc: writeMessage (in string: message) is func
   end func;
 
 
-const func boolean: hasImageExtension (in var string: fileName) is func
-  result
-    var boolean: hasImageExtension is FALSE;
-  begin
-    fileName := lower(fileName);
-    hasImageExtension := endsWith(fileName, ".png") or
-                         endsWith(fileName, ".gif") or
-                         endsWith(fileName, ".jpeg") or
-                         endsWith(fileName, ".jpg") or
-                         endsWith(fileName, ".ppm") or
-                         endsWith(fileName, ".bmp") or
-                         endsWith(fileName, ".ico") or
-                         endsWith(fileName, ".tiff") or
-                         endsWith(fileName, ".tif");
-  end func;
-
-
 const proc: nextImageFile (in array string: fileList, inout integer: index) is func
   begin
     if index <= length(fileList) then
