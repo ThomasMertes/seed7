@@ -143,6 +143,12 @@ const proc: displayKey (in char: ch, in boolean: keyActive) is func
                                  rect(455,  90, 20, 20, keyColor);
       when {KEY_DEL}:            rect(610, 210, 20, 20, keyColor);
                                  rect(455, 120, 20, 20, keyColor);
+
+      when {KEY_MOUSE_FWD}:      rect(490, 240, 20, 20, keyColor);
+      when {KEY_MOUSE_BACK}:     rect(520, 240, 20, 20, keyColor);
+      when {KEY_MOUSE1}:         rect(550, 240, 20, 20, keyColor);
+      when {KEY_MOUSE2}:         rect(580, 240, 20, 20, keyColor);
+      when {KEY_MOUSE3}:         rect(610, 240, 20, 20, keyColor);
     end case;
   end func;
 
@@ -173,7 +179,9 @@ const proc: main is func
     var time: waitTime is time.value;
   begin
     screen(640, 480);
+    # Enable the program to get KEY_CLOSE without closing the window.
     selectInput(curr_win, KEY_CLOSE, TRUE);
+    # Enable the program to get KEY_RESIZE.
     selectInput(curr_win, KEY_RESIZE, TRUE);
     screen := openPixmapFontFile(curr_win, 10, 26);
     setFont(screen, stdFont12);
@@ -206,14 +214,6 @@ const proc: main is func
         end if;
         ch := busy_getc(KEYBOARD);
       end while;
-      rect(xPos, 10, 10, 10, black);
-      if xPos > 620 then
-        xIncr := -xSpeed;
-      elsif xPos < 10 then
-        xIncr := xSpeed;
-      end if;
-      xPos +:= xIncr;
-      rect(xPos, 10, 10, 10, buttonColor[buttonPressed(KEYBOARD, lastChar)]);
       checkKey(keyActive, KEY_SHIFT_LOCK);
       checkKey(keyActive, KEY_LEFT_SHIFT);
       checkKey(keyActive, KEY_LEFT_CONTROL);
@@ -299,6 +299,25 @@ const proc: main is func
       checkKey(keyActive, KEY_PGDN);
       checkKey(keyActive, KEY_INS);
       checkKey(keyActive, KEY_DEL);
+
+      checkKey(keyActive, KEY_MOUSE_FWD);
+      checkKey(keyActive, KEY_MOUSE_BACK);
+      checkKey(keyActive, KEY_MOUSE1);
+      checkKey(keyActive, KEY_MOUSE2);
+      checkKey(keyActive, KEY_MOUSE3);
+
+      if xPos > 620 then
+        xIncr := -xSpeed;
+      elsif xPos < 10 then
+        xIncr := xSpeed;
+      end if;
+      if xIncr > 0 then
+        rect(xPos, 10, xIncr, 10, black);
+      else # xIncr < 0
+        rect(xPos + 10 + xIncr, 10, -xIncr, 10, black);
+      end if;
+      xPos +:= xIncr;
+      rect(xPos, 10, 10, 10, buttonColor[buttonPressed(KEYBOARD, lastChar)]);
       flushGraphic;
       await(waitTime);
     until lastChar = '!';
