@@ -741,9 +741,11 @@ const func PRIMITIVE_WINDOW: readBmp (in string: bmpFileName) is func
 
 
 (**
- *  Converts an image into a string in BMP format.
+ *  Converts a pixmap into a string in BMP format.
+ *  @param pixmap Pixmap to be converted.
+ *  @return a string with data in BMP format.
  *)
-const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
+const func string: str (in PRIMITIVE_WINDOW: pixmap, BMP) is func
   result
     var string: stri is BMP_MAGIC;
   local
@@ -751,13 +753,13 @@ const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
     var integer: height is 0;
     var integer: padding is 0;
     var integer: rawDataSize is 0;
+    var array array pixel: image is 0 times 0 times pixel.value;
     var integer: line is 0;
     var integer: column is 0;
-    var bstring: bImage is bstring.value;
     var color: col is color.value;
   begin
-    width := width(image);
-    height := height(image);
+    width := width(pixmap);
+    height := height(pixmap);
     padding := -(3 * width) mod 4;
     rawDataSize := height * (3 * width + padding);
     stri &:= bytes(rawDataSize + 54, UNSIGNED, LE, 4) &
@@ -774,14 +776,26 @@ const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
              bytes(2835,             UNSIGNED, LE, 4) &  # vertical resolution
              bytes(0,                UNSIGNED, LE, 4) &  # palette colors
              bytes(0,                UNSIGNED, LE, 4);   # important colors (0 means all colors are important)
-    bImage := getImage(image);
-    for line range pred(height) downto 0 do
-      for column range 0 to pred(width) do
-        col := getPixelColor(bImage, width, height, column, line);
+    image := getPixelArray(pixmap);
+    for line range height downto 1 do
+      for column range 1 to width do
+        col := pixelToColor(image[line][column]);
         stri &:= chr(col.blueLight  mdiv 256);
         stri &:= chr(col.greenLight mdiv 256);
         stri &:= chr(col.redLight   mdiv 256);
       end for;
       stri &:= "\0;" mult padding;
     end for;
+  end func;
+
+
+const proc: writeBmp (in string: bmpFileName, in PRIMITIVE_WINDOW: pixmap) is func
+  local
+    var file: bmpFile is STD_NULL;
+  begin
+    bmpFile := open(bmpFileName, "w");
+    if bmpFile <> STD_NULL then
+      write(bmpFile, str(pixmap, BMP));
+      close(bmpFile);
+    end if;
   end func;

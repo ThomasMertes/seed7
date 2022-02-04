@@ -134,26 +134,26 @@ const func PRIMITIVE_WINDOW: readIco (in string: icoFileName) is func
 
 
 (**
- *  Converts an image into a string in ICO format.
- *  @param image Image to be converted.
+ *  Converts a pixmap into a string in ICO format.
+ *  @param pixmap Pixmap to be converted.
  *  @return a string with data in ICO format.
- *  @exception RANGE_ERROR The image is too large vor the ICO format.
+ *  @exception RANGE_ERROR The pixmap is too large vor the ICO format.
  *)
-const func string: str (in PRIMITIVE_WINDOW: image, ICO) is func
+const func string: str (in PRIMITIVE_WINDOW: pixmap, ICO) is func
   result
     var string: stri is "";
   local
     var integer: width is 0;
     var integer: height is 0;
-    var bstring: bImage is bstring.value;
+    var array array pixel: image is 0 times 0 times pixel.value;
     var integer: padding is 0;
     var integer: lineMaskLen is 0;
     var integer: line is 0;
     var integer: column is 0;
     var color: col is color.value;
   begin
-    width := width(image);
-    height := height(image);
+    width := width(pixmap);
+    height := height(pixmap);
     if width > 256 or height > 256 then
       raise RANGE_ERROR;
     else
@@ -179,11 +179,11 @@ const func string: str (in PRIMITIVE_WINDOW: image, ICO) is func
               "\0;" mult 4 &                        # vertical resolution
               "\0;" mult 4 &                        # palette colors
               "\0;" mult 4;                         # important colors (0 means all colors are important)
-      bImage := getImage(image);
+      image := getPixelArray(pixmap);
       padding := -(3 * width) mod 4;
-      for line range pred(height) downto 0 do
-        for column range 0 to pred(width) do
-          col := getPixelColor(bImage, width, height, column, line);
+      for line range height downto 1 do
+        for column range 1 to width do
+          col := pixelToColor(image[line][column]);
           stri &:= chr(col.blueLight  mdiv 256);
           stri &:= chr(col.greenLight mdiv 256);
           stri &:= chr(col.redLight   mdiv 256);
@@ -197,5 +197,17 @@ const func string: str (in PRIMITIVE_WINDOW: image, ICO) is func
         stri &:= "\0;" mult (lineMaskLen + padding);
       end for;
       stri @:= [15] bytes(length(stri) - 22, UNSIGNED, LE, 4);  # Subtract ICO header size (=offset)
+    end if;
+  end func;
+
+
+const proc: writeIco (in string: icoFileName, in PRIMITIVE_WINDOW: pixmap) is func
+  local
+    var file: icoFile is STD_NULL;
+  begin
+    icoFile := open(icoFileName, "w");
+    if icoFile <> STD_NULL then
+      write(icoFile, str(pixmap, ICO));
+      close(icoFile);
     end if;
   end func;

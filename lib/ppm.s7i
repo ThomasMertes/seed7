@@ -133,13 +133,18 @@ const func PRIMITIVE_WINDOW: readPpm (in string: ppmFileName) is func
   end func;
 
 
+(**
+ *  Converts a pixmap into a string in PPM format.
+ *  @param pixmap Pixmap to be converted.
+ *  @return a string with data in PPM format.
+ *)
 const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
   result
     var string: stri is PPM_MAGIC;
   local
-    var bstring: bImage is bstring.value;
     var integer: height is 0;
     var integer: width is 0;
+    var array array pixel: image is 0 times 0 times pixel.value;
     var integer: line is 0;
     var integer: column is 0;
     var color: col is color.value;
@@ -147,10 +152,10 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
     height := height(pixmap);
     width := width(pixmap);
     stri &:= "\n" <& width <& " " <& height <& "\n255\n";
-    bImage := getImage(pixmap);
-    for line range 0 to pred(height) do
-      for column range 0 to pred(width) do
-        col := getPixelColor(bImage, width, height, column, line);
+    image := getPixelArray(pixmap);
+    for line range 1 to height do
+      for column range 1 to width do
+        col := pixelToColor(image[line][column]);
         stri &:= chr(col.redLight   mdiv 256);
         stri &:= chr(col.greenLight mdiv 256);
         stri &:= chr(col.blueLight  mdiv 256);
@@ -159,11 +164,11 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
   end func;
 
 
-const proc: writePpm (in string: fileName, in PRIMITIVE_WINDOW: pixmap) is func
+const proc: writePpm (in string: ppmFileName, in PRIMITIVE_WINDOW: pixmap) is func
   local
     var file: ppmFile is STD_NULL;
   begin
-    ppmFile := open(fileName, "w");
+    ppmFile := open(ppmFileName, "w");
     if ppmFile <> STD_NULL then
       write(ppmFile, str(pixmap, PPM));
       close(ppmFile);
