@@ -1378,6 +1378,8 @@ bstriType drwGetImage (const_winType source_window)
 
   {
     XImage *image;
+    unsigned int width;
+    unsigned int height;
     unsigned int xPos;
     unsigned int yPos;
     memSizeType result_size;
@@ -1393,14 +1395,14 @@ bstriType drwGetImage (const_winType source_window)
         result->size = 0;
       } /* if */
     } else {
+      width = to_width(source_window);
+      height = to_height(source_window);
       if (to_backup(source_window) != 0) {
         image = XGetImage(mydisplay, to_backup(source_window),
-                          0, 0, to_width(source_window), to_height(source_window),
-                          (unsigned long) -1, ZPixmap);
+                          0, 0, width, height, (unsigned long) -1, ZPixmap);
       } else if (to_window(source_window) != 0) {
         image = XGetImage(mydisplay, to_window(source_window),
-                          0, 0, to_width(source_window), to_height(source_window),
-                          (unsigned long) -1, ZPixmap);
+                          0, 0, width, height, (unsigned long) -1, ZPixmap);
       } else {
         image = NULL;
       } /* if */
@@ -1410,20 +1412,21 @@ bstriType drwGetImage (const_winType source_window)
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
-        result_size = to_width(source_window) * to_height(source_window) * sizeof(int32Type);
+        result_size = width * height * sizeof(int32Type);
         if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
+          XDestroyImage(image);
           raise_error(MEMORY_ERROR);
         } else {
           result->size = result_size;
           image_data = (int32Type *) result->mem;
-          for (yPos = 0; yPos < to_height(source_window); yPos++) {
-            for (xPos = 0; xPos < to_width(source_window); xPos++) {
-              image_data[yPos * to_width(source_window) + xPos] =
-                  (int32Type) XGetPixel(image, (int) xPos, (int) yPos);
+          for (yPos = 0; yPos < height; yPos++) {
+            for (xPos = 0; xPos < width; xPos++) {
+              *image_data = (int32Type) XGetPixel(image, (int) xPos, (int) yPos);
+              image_data++;
             } /* for */
           } /* for */
+          XDestroyImage(image);
         } /* if */
-        XDestroyImage(image);
       } /* if */
     } /* if */
     return result;

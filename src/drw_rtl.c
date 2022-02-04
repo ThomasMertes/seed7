@@ -40,6 +40,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "heaputl.h"
 #include "rtl_err.h"
 #include "drw_drv.h"
 
@@ -53,13 +54,13 @@
 
 
 #if USE_DUFFS_UNROLLING
-static void memcpy_pixel (register int32Type *const dest,
+static void memcpy_to_pixel (register int32Type *const dest,
     register const intType *const src, memSizeType len)
 
   {
     register memSizeType pos;
 
-  /* memcpy_pixel */
+  /* memcpy_to_pixel */
     if (len != 0) {
       pos = (len + 31) & ~(memSizeType) 31;
       switch (len & 31) {
@@ -99,20 +100,82 @@ static void memcpy_pixel (register int32Type *const dest,
         } while ((pos -= 32) != 0);
       } /* switch */
     } /* if */
-  } /* memcpy_pixel */
+  } /* memcpy_to_pixel */
+
+
+
+static void memcpy_from_pixel (register intType *const dest,
+    register const int32Type *const src, memSizeType len)
+
+  {
+    register memSizeType pos;
+
+  /* memcpy_from_pixel */
+    if (len != 0) {
+      pos = (len + 31) & ~(memSizeType) 31;
+      switch (len & 31) {
+        do {
+          case  0: dest[pos -  1] = (intType) src[pos -  1];
+          case 31: dest[pos -  2] = (intType) src[pos -  2];
+          case 30: dest[pos -  3] = (intType) src[pos -  3];
+          case 29: dest[pos -  4] = (intType) src[pos -  4];
+          case 28: dest[pos -  5] = (intType) src[pos -  5];
+          case 27: dest[pos -  6] = (intType) src[pos -  6];
+          case 26: dest[pos -  7] = (intType) src[pos -  7];
+          case 25: dest[pos -  8] = (intType) src[pos -  8];
+          case 24: dest[pos -  9] = (intType) src[pos -  9];
+          case 23: dest[pos - 10] = (intType) src[pos - 10];
+          case 22: dest[pos - 11] = (intType) src[pos - 11];
+          case 21: dest[pos - 12] = (intType) src[pos - 12];
+          case 20: dest[pos - 13] = (intType) src[pos - 13];
+          case 19: dest[pos - 14] = (intType) src[pos - 14];
+          case 18: dest[pos - 15] = (intType) src[pos - 15];
+          case 17: dest[pos - 16] = (intType) src[pos - 16];
+          case 16: dest[pos - 17] = (intType) src[pos - 17];
+          case 15: dest[pos - 18] = (intType) src[pos - 18];
+          case 14: dest[pos - 19] = (intType) src[pos - 19];
+          case 13: dest[pos - 20] = (intType) src[pos - 20];
+          case 12: dest[pos - 21] = (intType) src[pos - 21];
+          case 11: dest[pos - 22] = (intType) src[pos - 22];
+          case 10: dest[pos - 23] = (intType) src[pos - 23];
+          case  9: dest[pos - 24] = (intType) src[pos - 24];
+          case  8: dest[pos - 25] = (intType) src[pos - 25];
+          case  7: dest[pos - 26] = (intType) src[pos - 26];
+          case  6: dest[pos - 27] = (intType) src[pos - 27];
+          case  5: dest[pos - 28] = (intType) src[pos - 28];
+          case  4: dest[pos - 29] = (intType) src[pos - 29];
+          case  3: dest[pos - 30] = (intType) src[pos - 30];
+          case  2: dest[pos - 31] = (intType) src[pos - 31];
+          case  1: dest[pos - 32] = (intType) src[pos - 32];
+        } while ((pos -= 32) != 0);
+      } /* switch */
+    } /* if */
+  } /* memcpy_from_pixel */
 
 #else
 
 
 
-static void memcpy_pixel (register int32Type *dest,
+static void memcpy_to_pixel (register int32Type *dest,
     register const intType *src, memSizeType len)
 
-  { /* memcpy_pixel */
+  { /* memcpy_to_pixel */
     for (; len > 0; len--, src++, dest++) {
       *dest = (int32Type) *src;
     } /* for */
-  } /* memcpy_pixel */
+  } /* memcpy_to_pixel */
+
+
+
+static void memcpy_from_pixel (register intType *const dest,
+    register const int32Type *const src, memSizeType len)
+
+  { /* memcpy_from_pixel */
+    for (; len > 0; len--, src++, dest++) {
+      *dest = (intType) *src;
+    } /* for */
+  } /* memcpy_from_pixel */
+
 #endif
 
 
@@ -276,6 +339,51 @@ intType drwGetImagePixel (const_bstriType image, intType width,
 
 
 
+rtlArrayType drwGetPixelArray (const_winType sourceWindow)
+
+  {
+    memSizeType height;
+    memSizeType width;
+    bstriType imageData;
+    memSizeType yPos;
+    rtlArrayType imageLine;
+    int32Type *pixelArray;
+    rtlArrayType imageArray;
+
+  /* drwGetPixelArray */
+    height = (memSizeType) drwHeight(sourceWindow);
+    width = (memSizeType) drwWidth(sourceWindow);
+    imageData = drwGetImage(sourceWindow);
+    if (unlikely(!ALLOC_RTL_ARRAY(imageArray, height))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      imageArray->min_position = 1;
+      imageArray->max_position = (intType) height;
+      pixelArray = (int32Type *) imageData->mem;
+      for (yPos = 0; yPos < height; yPos++) {
+	if (likely(ALLOC_RTL_ARRAY(imageLine, width))) {
+          imageLine->min_position = 1;
+          imageLine->max_position = (intType) width;
+          imageArray->arr[yPos].value.arrayValue = imageLine;
+          memcpy_from_pixel((intType *) imageLine->arr, pixelArray, width);
+          pixelArray += width;
+        } else {
+          while (yPos >= 1) {
+            yPos--;
+            FREE_RTL_ARRAY(imageArray->arr[yPos].value.arrayValue, width);
+          } /* while */
+          FREE_RTL_ARRAY(imageArray, height);
+          raise_error(MEMORY_ERROR);
+          imageArray = NULL;
+          yPos = height; /* leave for-loop */
+        } /* if */
+      } /* for */
+    } /* if */
+    return imageArray;
+  } /* drwGetPixelArray */
+
+
+
 winType drwRtlImage (const const_rtlArrayType image)
 
   {
@@ -312,7 +420,7 @@ winType drwRtlImage (const const_rtlArrayType image)
           pixel_elem = image_data;
           for (line = height; line > 0; line--, curr_line++) {
             arr_line = curr_line->value.arrayValue;
-            memcpy_pixel(pixel_elem, (intType *) arr_line->arr, width);
+            memcpy_to_pixel(pixel_elem, (intType *) arr_line->arr, width);
             pixel_elem += width;
           } /* for */
           result = drwImage(image_data, width, height);

@@ -36,6 +36,8 @@ include "math.s7i";
 
 var PRIMITIVE_WINDOW: curr_win is PRIMITIVE_WINDOW.value;
 
+const type: pixelArray2d is array array pixel;
+
 
 const func pixel: colorPixel (in color: col) is
   return rgbPixel(col.redLight, col.greenLight, col.blueLight);
@@ -663,6 +665,12 @@ const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) i
 
 
 const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: anImage) is action "DRW_IMAGE";
+
+
+(**
+ *  Get a two-dimensional array of pixels from ''aWindow''.
+ *)
+const func array array pixel: getPixelArray (in PRIMITIVE_WINDOW: aWindow) is action "DRW_GETPIXELARRAY";
 
 
 (**

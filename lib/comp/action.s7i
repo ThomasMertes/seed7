@@ -662,6 +662,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_GETPIXEL"}:
         drawLibraryUsed := TRUE;
         process(DRW_GETPIXEL, function, params, c_expr);
+      when {"DRW_GETPIXELARRAY"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_GETPIXELARRAY, function, params, c_expr);
       when {"DRW_HASHCODE"}:
         drawLibraryUsed := TRUE;
         process(DRW_HASHCODE, function, params, c_expr);
