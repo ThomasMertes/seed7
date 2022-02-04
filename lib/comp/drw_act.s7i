@@ -48,7 +48,7 @@ const ACTION: DRW_GET                    is action "DRW_GET";
 const ACTION: DRW_GETIMAGE               is action "DRW_GETIMAGE";
 const ACTION: DRW_GETIMAGEPIXEL          is action "DRW_GETIMAGEPIXEL";
 const ACTION: DRW_GETPIXEL               is action "DRW_GETPIXEL";
-const ACTION: DRW_GETPIXELARRAY          is action "DRW_GETPIXELARRAY";
+const ACTION: DRW_GET_PIXEL_ARRAY        is action "DRW_GET_PIXEL_ARRAY";
 const ACTION: DRW_GET_PIXMAP_FROM_PIXELS is action "DRW_GET_PIXMAP_FROM_PIXELS";
 const ACTION: DRW_HASHCODE               is action "DRW_HASHCODE";
 const ACTION: DRW_HEIGHT                 is action "DRW_HEIGHT";
@@ -644,7 +644,7 @@ const proc: process (DRW_GETPIXEL, in reference: function,
   end func;
 
 
-const proc: process (DRW_GETPIXELARRAY, in reference: function,
+const proc: process (DRW_GET_PIXEL_ARRAY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local

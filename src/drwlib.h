@@ -64,7 +64,7 @@ objectType drw_get                    (listType arguments);
 objectType drw_getImage               (listType arguments);
 objectType drw_getImagePixel          (listType arguments);
 objectType drw_getPixel               (listType arguments);
-objectType drw_getPixelArray          (listType arguments);
+objectType drw_get_pixel_array        (listType arguments);
 objectType drw_get_pixmap_from_pixels (listType arguments);
 objectType drw_hashcode               (listType arguments);
 objectType drw_height                 (listType arguments);

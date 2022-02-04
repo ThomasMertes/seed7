@@ -353,7 +353,7 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_GETIMAGE",               drw_getImage,               },
     { "DRW_GETIMAGEPIXEL",          drw_getImagePixel,          },
     { "DRW_GETPIXEL",               drw_getPixel,               },
-    { "DRW_GETPIXELARRAY",          drw_getPixelArray,          },
+    { "DRW_GET_PIXEL_ARRAY",        drw_get_pixel_array,        },
     { "DRW_GET_PIXMAP_FROM_PIXELS", drw_get_pixmap_from_pixels, },
     { "DRW_HASHCODE",               drw_hashcode,               },
     { "DRW_HEIGHT",                 drw_height,                 },

@@ -750,7 +750,7 @@ objectType drw_getImage (listType arguments)
 
 
 
-objectType drw_getPixelArray (listType arguments)
+objectType drw_get_pixel_array (listType arguments)
 
   {
     winType sourceWindow;
@@ -764,8 +764,8 @@ objectType drw_getPixelArray (listType arguments)
     arrayType imageArray;
     objectType result;
 
-  /* drw_getPixelArray */
-    logFunction(printf("drw_getPixelArray\n"););
+  /* drw_get_pixel_array */
+    logFunction(printf("drw_get_pixel_array\n"););
     isit_win(arg_1(arguments));
     sourceWindow = take_win(arg_1(arguments));
     height = (memSizeType) drwHeight(sourceWindow);
@@ -808,9 +808,9 @@ objectType drw_getPixelArray (listType arguments)
         result = bld_array_temp(imageArray);
       } /* if */
     } /* if */
-    logFunction(printf("drw_getPixelArray -->\n"););
+    logFunction(printf("drw_get_pixel_array -->\n"););
     return result;
-  } /* drw_getPixelArray */
+  } /* drw_get_pixel_array */
 
 
 

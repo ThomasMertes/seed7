@@ -662,9 +662,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_GETPIXEL"}:
         drawLibraryUsed := TRUE;
         process(DRW_GETPIXEL, function, params, c_expr);
-      when {"DRW_GETPIXELARRAY"}:
+      when {"DRW_GET_PIXEL_ARRAY"}:
         drawLibraryUsed := TRUE;
-        process(DRW_GETPIXELARRAY, function, params, c_expr);
+        process(DRW_GET_PIXEL_ARRAY, function, params, c_expr);
       when {"DRW_GET_PIXMAP_FROM_PIXELS"}:
         drawLibraryUsed := TRUE;
         process(DRW_GET_PIXMAP_FROM_PIXELS, function, params, c_expr);

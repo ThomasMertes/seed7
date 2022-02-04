@@ -675,7 +675,7 @@ const func PRIMITIVE_WINDOW: getPixmap (ref array array pixel: image) is action 
 (**
  *  Get a two-dimensional array of pixels from ''aWindow''.
  *)
-const func array array pixel: getPixelArray (in PRIMITIVE_WINDOW: aWindow) is action "DRW_GETPIXELARRAY";
+const func array array pixel: getPixelArray (in PRIMITIVE_WINDOW: aWindow) is action "DRW_GET_PIXEL_ARRAY";
 
 
 (**
