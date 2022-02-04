@@ -384,7 +384,7 @@ rtlArrayType drwGetPixelArray (const_winType sourceWindow)
 
 
 
-winType drwRtlImage (const const_rtlArrayType image)
+winType drwGetPixmapFromPixels (const const_rtlArrayType image)
 
   {
     const_rtlObjectType *curr_line;
@@ -396,9 +396,9 @@ winType drwRtlImage (const const_rtlArrayType image)
     int32Type *image_data;
     winType result;
 
-  /* drwRtlImage */
+  /* drwGetPixmapFromPixels */
     height = arraySize(image);
-    /* printf("drwRtlImage: height=" FMT_U_MEM "\n", height); */
+    /* printf("drwGetPixmapFromPixels: height=" FMT_U_MEM "\n", height); */
     if (height == 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -406,7 +406,7 @@ winType drwRtlImage (const const_rtlArrayType image)
       curr_line = &image->arr[0];
       arr_line = curr_line->value.arrayValue;
       width = arraySize(arr_line);
-      /* printf("drwRtlImage: width=" FMT_U_MEM "\n", width); */
+      /* printf("drwGetPixmapFromPixels: width=" FMT_U_MEM "\n", width); */
       if (width == 0) {
         raise_error(RANGE_ERROR);
         result = NULL;
@@ -429,4 +429,4 @@ winType drwRtlImage (const const_rtlArrayType image)
       } /* if */
     } /* if */
     return result;
-  } /* drwRtlImage */
+  } /* drwGetPixmapFromPixels */

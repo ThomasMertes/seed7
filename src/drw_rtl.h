@@ -34,4 +34,4 @@ winType drwCreate (const winType source);
 void drwDestr (const winType old_win);
 intType drwGetImagePixel (const_bstriType image, intType width,
     intType height, intType x, intType y);
-winType drwRtlImage (const const_rtlArrayType image);
+winType drwGetPixmapFromPixels (const const_rtlArrayType image);

@@ -860,32 +860,7 @@ objectType drw_getPixel (listType arguments)
 
 
 
-objectType drw_hashcode (listType arguments)
-
-  { /* drw_hashcode */
-    isit_win(arg_1(arguments));
-    return bld_int_temp((intType)
-        (((memSizeType) take_win(arg_1(arguments))) >> 6));
-  } /* drw_hashcode */
-
-
-
-/**
- *  Determine the height of the window drawing area in pixels.
- *  This excludes window decorations at top and bottom. Add top and bottom
- *  border widths to get the height inclusive window decorations.
- */
-objectType drw_height (listType arguments)
-
-  { /* drw_height */
-    isit_win(arg_1(arguments));
-    return bld_int_temp(
-        drwHeight(take_win(arg_1(arguments))));
-  } /* drw_height */
-
-
-
-objectType drw_image (listType arguments)
+objectType drw_get_pixmap_from_pixels (listType arguments)
 
   {
     arrayType arr_image;
@@ -900,12 +875,12 @@ objectType drw_image (listType arguments)
     int32Type *image_data;
     winType result;
 
-  /* drw_image */
+  /* drw_get_pixmap_from_pixels */
     isit_array(arg_1(arguments));
     arr_image = take_array(arg_1(arguments));
     height = arraySize(arr_image);
     if (height == 0) {
-      logError(printf("drw_image(arr1 (height=" FMT_U_MEM "): "
+      logError(printf("drw_get_pixmap_from_pixels(arr1 (height=" FMT_U_MEM "): "
                       "Height zero.", height););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
@@ -914,7 +889,7 @@ objectType drw_image (listType arguments)
       arr_line = take_array(curr_line);
       width = arraySize(arr_line);
       if (width == 0) {
-        logError(printf("drw_image(arr1 (height=" FMT_U_MEM "): "
+        logError(printf("drw_get_pixmap_from_pixels(arr1 (height=" FMT_U_MEM "): "
                         "Width zero.", height););
         return raise_exception(SYS_RNG_EXCEPTION);
       } else {
@@ -940,7 +915,32 @@ objectType drw_image (listType arguments)
       } /* if */
     } /* if */
     return bld_win_temp(result);
-  } /* drw_image */
+  } /* drw_get_pixmap_from_pixels */
+
+
+
+objectType drw_hashcode (listType arguments)
+
+  { /* drw_hashcode */
+    isit_win(arg_1(arguments));
+    return bld_int_temp((intType)
+        (((memSizeType) take_win(arg_1(arguments))) >> 6));
+  } /* drw_hashcode */
+
+
+
+/**
+ *  Determine the height of the window drawing area in pixels.
+ *  This excludes window decorations at top and bottom. Add top and bottom
+ *  border widths to get the height inclusive window decorations.
+ */
+objectType drw_height (listType arguments)
+
+  { /* drw_height */
+    isit_win(arg_1(arguments));
+    return bld_int_temp(
+        drwHeight(take_win(arg_1(arguments))));
+  } /* drw_height */
 
 
 
