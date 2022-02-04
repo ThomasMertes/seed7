@@ -106,7 +106,7 @@ const func PRIMITIVE_WINDOW: readPpm (inout file: ppmFile) is func
           end for;
         end for;
       end if;
-      pixmap := imagePixmap(image);
+      pixmap := getPixmap(image);
     end if;
   end func;
 

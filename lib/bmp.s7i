@@ -688,7 +688,7 @@ const func PRIMITIVE_WINDOW: readBmp (inout file: bmpFile, inout bmpHeader: head
         otherwise:
           raise RANGE_ERROR;
       end case;
-      pixmap := imagePixmap(image);
+      pixmap := getPixmap(image);
     end if;
   end func;
 

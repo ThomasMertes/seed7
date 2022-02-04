@@ -664,7 +664,12 @@ const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win) is
 const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) is action "DRW_NEW_PIXMAP";
 
 
-const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: anImage) is action "DRW_GET_PIXMAP_FROM_PIXELS";
+(**
+ *  Create a pixmap from a two-dimensional array of pixels.
+ *  @param image Pixel array with lines from top downward and columns from left to right.
+ *  @return the created pixmap.
+ *)
+const func PRIMITIVE_WINDOW: getPixmap (ref array array pixel: image) is action "DRW_GET_PIXMAP_FROM_PIXELS";
 
 
 (**

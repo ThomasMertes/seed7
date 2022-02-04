@@ -306,7 +306,7 @@ const func PRIMITIVE_WINDOW: readGif (inout file: gifFile) is func
         end if;
         sentinel := getc(gifFile);
       end while;
-      pixmap := imagePixmap(image);
+      pixmap := getPixmap(image);
     end if;
   end func;
 

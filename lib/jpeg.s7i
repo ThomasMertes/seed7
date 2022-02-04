@@ -900,7 +900,7 @@ const func PRIMITIVE_WINDOW: loadSequential (inout file: jpegFile, in jpegHeader
     var array array pixel: image is 0 times 0 times pixel.value;
   begin
     loadImage(jpegFile, header, image);
-    pixmap := imagePixmap(image);
+    pixmap := getPixmap(image);
   end func;
 
 
@@ -1457,7 +1457,7 @@ const func PRIMITIVE_WINDOW: colorAllMinimumCodedUnits (in jpegHeader: header,
                               succ(pred(column) * 8 * header.horizontal));
       end for;
     end for;
-    pixmap := imagePixmap(image);
+    pixmap := getPixmap(image);
   end func;
 
 

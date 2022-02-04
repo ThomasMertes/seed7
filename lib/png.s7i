@@ -640,7 +640,7 @@ const func PRIMITIVE_WINDOW: readPng (inout file: pngFile) is func
         else
           image := interlaceToImage(header, uncompressed, palette);
         end if;
-        pixmap := imagePixmap(image);
+        pixmap := getPixmap(image);
       else
         raise RANGE_ERROR;
       end if;

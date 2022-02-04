@@ -682,7 +682,7 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: tiffFile,
         end if;
       end if;
     end for;
-    pixmap := imagePixmap(image);
+    pixmap := getPixmap(image);
   end func;
 
 
@@ -1296,7 +1296,7 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile,
         raise RANGE_ERROR;
       end if;
     end for;
-    pixmap := imagePixmap(image);
+    pixmap := getPixmap(image);
   end func;
 
 
@@ -1389,7 +1389,7 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
       end if;
       processRow(header, stripData, line, currPosition, image);
     end for;
-    pixmap := imagePixmap(image);
+    pixmap := getPixmap(image);
   end func;
 
 
