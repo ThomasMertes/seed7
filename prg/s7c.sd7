@@ -5927,7 +5927,7 @@ const proc: init_win_constants is func
     for number range sort(keys(win_index)) do
       win1 := win_index[number][1];
       if width(win1) <> 0 or height(win1) <> 0 then
-        bImage := getImage(win1);
+        bImage := getPixelData(win1);
         if bImage not in bstri_const_table then
           bstri_const_table @:= [bImage] length(bstri_const_table);
         end if;

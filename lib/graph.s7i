@@ -208,7 +208,7 @@ const func PRIMITIVE_WINDOW: capturePixmap (
     ref integer: left, ref integer: upper,
     ref integer: width, ref integer: height)        is action "DRW_CAPTURE";
 
-const func bstring: getImage (
+const func bstring: getPixelData (
     in PRIMITIVE_WINDOW: aWindow)                   is action "DRW_GET_PIXEL_DATA";
 const func pixel: getPixel (
     in PRIMITIVE_WINDOW: aWindow,
