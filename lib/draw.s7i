@@ -39,10 +39,16 @@ var PRIMITIVE_WINDOW: curr_win is PRIMITIVE_WINDOW.value;
 const type: pixelArray2d is array array pixel;
 
 
+(**
+ *  Convert a [[color]] to a pixel.
+ *)
 const func pixel: colorPixel (in color: col) is
   return rgbPixel(col.redLight, col.greenLight, col.blueLight);
 
 
+(**
+ *  Convert a pixel to a [[color]].
+ *)
 const func color: pixelToColor (in pixel: pix) is func
   result
     var color: col is color.value;
@@ -74,8 +80,8 @@ const proc: color (in color: col1, in color: col2) is func
 
 
 (**
- *  Draws a point with the color 'col' to the window 'win' at the
- *  position (x1, y1).
+ *  Draws a point with the color ''col'' to the window ''win'' at the
+ *  position (x, y).
  *)
 const proc: point (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in color: col) is func
@@ -85,8 +91,8 @@ const proc: point (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws a point with the color 'col' to the current window 'curr_win'
- *  at the position (x1, y1).
+ *  Draws a point with the color ''col'' to the current window ''curr_win''
+ *  at the position (x, y).
  *)
 const proc: point (in integer: x, in integer: y, in color: col) is func
   begin
@@ -95,32 +101,32 @@ const proc: point (in integer: x, in integer: y, in color: col) is func
 
 
 (**
- *  Draws a line with the color 'col' to the window 'win'.
- *  The line starts at (x1, y1) and ends at (delta_x, delta_y).
- *  The coordinates of the endpoint are measured relative to x1, y1.
+ *  Draws a line with the color ''col'' to the window ''win''.
+ *  The line starts at (x, y) and ends at (delta_x, delta_y).
+ *  The coordinates of the endpoint are measured relative to x, y.
  *)
 const proc: line (inout PRIMITIVE_WINDOW: win,
-    in integer: x1, in integer: y1,
+    in integer: x, in integer: y,
     in integer: delta_x, in integer: delta_y, in color: col) is func
   begin
-    DRAW_PLINE(win, x1, y1, x1 + delta_x, y1 + delta_y, colorPixel(col));
+    DRAW_PLINE(win, x, y, x + delta_x, y + delta_y, colorPixel(col));
   end func;
 
 
 (**
- *  Draws a line with the color 'col' to the current window 'curr_win'.
- *  The line starts at (x1, y1) and ends at (delta_x, delta_y).
- *  The coordinates of the endpoint are measured relative to x1, y1.
+ *  Draws a line with the color ''col'' to the current window ''curr_win''.
+ *  The line starts at (x, y) and ends at (delta_x, delta_y).
+ *  The coordinates of the endpoint are measured relative to x, y.
  *)
-const proc: line (in integer: x1, in integer: y1,
+const proc: line (in integer: x, in integer: y,
     in integer: delta_x, in integer: delta_y, in color: col) is func
   begin
-    DRAW_PLINE(curr_win, x1, y1, x1 + delta_x, y1 + delta_y, colorPixel(col));
+    DRAW_PLINE(curr_win, x, y, x + delta_x, y + delta_y, colorPixel(col));
   end func;
 
 
 (**
- *  Draws a line with the color 'col' to the window 'win'.
+ *  Draws a line with the color ''col'' to the window ''win''.
  *  The line starts at (x1, y1) and ends at (x2, y2).
  *  The coordinates of the endpoint are measured in absolute
  *  window coordinates.
@@ -134,7 +140,7 @@ const proc: lineTo (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws a line with the color 'col' to the current window 'curr_win'.
+ *  Draws a line with the color ''col'' to the current window ''curr_win''.
  *  The line starts at (x1, y1) and ends at (x2, y2).
  *  The coordinates of the endpoint are measured in absolute
  *  window coordinates.
@@ -147,9 +153,9 @@ const proc: lineTo (in integer: x1, in integer: y1,
 
 
 (**
- *  Draws a line with the color 'col' to the window 'win'.
- *  The line starts at (x1, y1), has the given 'length' and extends
- *  in the given 'angle'.
+ *  Draws a line with the color ''col'' to the window ''win''.
+ *  The line starts at (x, y), has the given ''length'' and extends
+ *  in the given ''angle''.
  *)
 const proc: lineToAngle (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y,
@@ -162,9 +168,9 @@ const proc: lineToAngle (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws a line with the color 'col' to the current window 'curr_win'.
- *  The line starts at (x1, y1), has the given 'length' and extends
- *  in the given 'angle'.
+ *  Draws a line with the color ''col'' to the current window ''curr_win''.
+ *  The line starts at (x, y), has the given ''length'' and extends
+ *  in the given ''angle''.
  *)
 const proc: lineToAngle (in integer: x, in integer: y,
     in integer: length, in float: angle, in color: col) is func
@@ -206,9 +212,9 @@ const proc: vline (in integer: x1, in integer: y1,
 
 
 (**
- *  Draws a filled rectangle with the color 'col' to the window 'win'.
+ *  Draws a filled rectangle with the color ''col'' to the window ''win''.
  *  The top left edge of the rectangle is at (x1, y1). The size of the
- *  rectangle is specified with 'width' and 'height'.
+ *  rectangle is specified with ''width'' and ''height''.
  *)
 const proc: rect (inout PRIMITIVE_WINDOW: win,
     in integer: x1, in integer: y1,
@@ -219,14 +225,14 @@ const proc: rect (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws a filled rectangle with the color 'col' to the current window 'curr_win'.
- *  The top left edge of the rectangle is at (x1, y1). The size of the
- *  rectangle is specified with 'width' and 'height'.
+ *  Draws a filled rectangle with the color ''col'' to the current window ''curr_win''.
+ *  The top left edge of the rectangle is at (x, y). The size of the
+ *  rectangle is specified with ''width'' and ''height''.
  *)
-const proc: rect (in integer: x1, in integer: y1,
+const proc: rect (in integer: x, in integer: y,
     in integer: width, in integer: height, in color: col) is func
   begin
-    DRAW_PRECT(curr_win, x1, y1, width, height, colorPixel(col));
+    DRAW_PRECT(curr_win, x, y, width, height, colorPixel(col));
   end func;
 
 
@@ -248,7 +254,7 @@ const proc: rect (inout array array pixel: image,
 
 
 (**
- *  Draws a filled rectangle with the color 'col' to the window 'win'.
+ *  Draws a filled rectangle with the color ''col'' to the window ''win''.
  *  The top left edge of the rectangle is at (x1, y1) and the lower right
  *  edge is at (x2, y2).
  *)
@@ -261,7 +267,7 @@ const proc: rectTo (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws a filled rectangle with the color 'col' to the current window 'curr_win'.
+ *  Draws a filled rectangle with the color ''col'' to the current window ''curr_win''.
  *  The top left edge of the rectangle is at (x1, y1) and the lower right
  *  edge is at (x2, y2).
  *)
@@ -273,44 +279,44 @@ const proc: rectTo (in integer: x1, in integer: y1,
 
 
 (**
- *  Draws an empty rectangle with the color 'col' to the window 'win'.
- *  The top left edge of the rectangle is at (x1, y1). The size of the
- *  rectangle is specified with 'width' and 'height'.
+ *  Draws an empty rectangle with the color ''col'' to the window ''win''.
+ *  The top left edge of the rectangle is at (x, y). The size of the
+ *  rectangle is specified with ''width'' and ''height''.
  *)
 const proc: box (inout PRIMITIVE_WINDOW: win,
-    in integer: x1, in integer: y1,
+    in integer: x, in integer: y,
     in integer: width, in integer: height, in color: col) is func
   local
     var pixel: pix is pixel.value;
   begin
     pix := colorPixel(col);
-    DRAW_PLINE(win, x1, y1, pred(x1 + width), y1, pix);
-    DRAW_PLINE(win, pred(x1 + width), y1, pred(x1 + width), pred(y1 + height), pix);
-    DRAW_PLINE(win, pred(x1 + width), pred(y1 + height), x1, pred(y1 + height), pix);
-    DRAW_PLINE(win, x1, pred(y1 + height), x1, y1, pix);
+    DRAW_PLINE(win, x, y, pred(x + width), y, pix);
+    DRAW_PLINE(win, pred(x + width), y, pred(x + width), pred(y + height), pix);
+    DRAW_PLINE(win, pred(x + width), pred(y + height), x, pred(y + height), pix);
+    DRAW_PLINE(win, x, pred(y + height), x, y, pix);
   end func;
 
 
 (**
- *  Draws an empty rectangle with the color 'col' to the current window 'curr_win'.
- *  The top left edge of the rectangle is at (x1, y1). The size of the
- *  rectangle is specified with 'width' and 'height'.
+ *  Draws an empty rectangle with the color ''col'' to the current window ''curr_win''.
+ *  The top left edge of the rectangle is at (x, y). The size of the
+ *  rectangle is specified with ''width'' and ''height''.
  *)
-const proc: box (in integer: x1, in integer: y1,
+const proc: box (in integer: x, in integer: y,
     in integer: width, in integer: height, in color: col) is func
   local
     var pixel: pix is pixel.value;
   begin
     pix := colorPixel(col);
-    DRAW_PLINE(curr_win, x1, y1, pred(x1 + width), y1, pix);
-    DRAW_PLINE(curr_win, pred(x1 + width), y1, pred(x1 + width), pred(y1 + height), pix);
-    DRAW_PLINE(curr_win, pred(x1 + width), pred(y1 + height), x1, pred(y1 + height), pix);
-    DRAW_PLINE(curr_win, x1, pred(y1 + height), x1, y1, pix);
+    DRAW_PLINE(curr_win, x, y, pred(x + width), y, pix);
+    DRAW_PLINE(curr_win, pred(x + width), y, pred(x + width), pred(y + height), pix);
+    DRAW_PLINE(curr_win, pred(x + width), pred(y + height), x, pred(y + height), pix);
+    DRAW_PLINE(curr_win, x, pred(y + height), x, y, pix);
   end func;
 
 
 (**
- *  Draws an empty rectangle with the color 'col' to the window 'win'.
+ *  Draws an empty rectangle with the color ''col'' to the window ''win''.
  *  The top left edge of the rectangle is at (x1, y1) and the lower right
  *  edge is at (x2, y2).
  *)
@@ -329,7 +335,7 @@ const proc: boxTo (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws an empty rectangle with the color 'col' to the current window 'curr_win'.
+ *  Draws an empty rectangle with the color ''col'' to the current window ''curr_win''.
  *  The top left edge of the rectangle is at (x1, y1) and the lower right
  *  edge is at (x2, y2).
  *)
@@ -347,8 +353,8 @@ const proc: boxTo (in integer: x1, in integer: y1,
 
 
 (**
- *  Draws a circle with the color 'col' to the window 'win'.
- *  The circle has the given 'radius' and its center is at (x, y).
+ *  Draws a circle with the color ''col'' to the window ''win''.
+ *  The circle has the given ''radius'' and its center is at (x, y).
  *)
 const proc: circle (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: radius, in color: col) is func
@@ -358,8 +364,8 @@ const proc: circle (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws a circle with the color 'col' to the current window 'curr_win'.
- *  The circle has the given 'radius' and its center is at (x, y).
+ *  Draws a circle with the color ''col'' to the current window ''curr_win''.
+ *  The circle has the given ''radius'' and its center is at (x, y).
  *)
 const proc: circle (in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
@@ -368,8 +374,8 @@ const proc: circle (in integer: x, in integer: y, in integer: radius, in color: 
 
 
 (**
- *  Draws a filled circle with the color 'col' to the window 'win'.
- *  The circle has the given 'radius' and its center is at (x, y).
+ *  Draws a filled circle with the color ''col'' to the window ''win''.
+ *  The circle has the given ''radius'' and its center is at (x, y).
  *)
 const proc: fcircle (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: radius, in color: col) is func
@@ -379,8 +385,8 @@ const proc: fcircle (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws a filled circle with the color 'col' to the current window 'curr_win'.
- *  The circle has the given 'radius' and its center is at (x, y).
+ *  Draws a filled circle with the color ''col'' to the current window ''curr_win''.
+ *  The circle has the given ''radius'' and its center is at (x, y).
  *)
 const proc: fcircle (in integer: x, in integer: y, in integer: radius, in color: col) is func
   begin
@@ -389,9 +395,9 @@ const proc: fcircle (in integer: x, in integer: y, in integer: radius, in color:
 
 
 (**
- *  Draws an arc with the color 'col' to the window 'win'.
- *  The arc has the given 'radius' and its center is at (x, y).
- *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
+ *  Draws an arc with the color ''col'' to the window ''win''.
+ *  The arc has the given ''radius'' and its center is at (x, y).
+ *  The arc begins at ''startAngle'' and spans over ''sweepAngle''.
  *)
 const proc: arc (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: radius,
@@ -402,9 +408,9 @@ const proc: arc (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws an arc with the color 'col' to the current window 'curr_win'.
- *  The arc has the given 'radius' and its center is at (x, y).
- *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
+ *  Draws an arc with the color ''col'' to the current window ''curr_win''.
+ *  The arc has the given ''radius'' and its center is at (x, y).
+ *  The arc begins at ''startAngle'' and spans over ''sweepAngle''.
  *)
 const proc: arc (in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle, in color: col) is func
@@ -414,9 +420,9 @@ const proc: arc (in integer: x, in integer: y, in integer: radius,
 
 
 (**
- *  Draws an arc with the color 'col' to the window 'win'.
- *  The arc has the given 'radius' and its center is at (x, y).
- *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
+ *  Draws an arc with the color ''col'' to the window ''win''.
+ *  The arc has the given ''radius'' and its center is at (x, y).
+ *  The arc begins at ''startAngle'' and spans over ''sweepAngle''.
  *)
 const proc: arc (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: radius,
@@ -428,9 +434,9 @@ const proc: arc (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws an arc with the color 'col' to the current window 'curr_win'.
- *  The arc has the given 'radius' and its center is at (x, y).
- *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
+ *  Draws an arc with the color ''col'' to the current window ''curr_win''.
+ *  The arc has the given ''radius'' and its center is at (x, y).
+ *  The arc begins at ''startAngle'' and spans over ''sweepAngle''.
  *)
 const proc: arc (in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle, in integer: width,
@@ -449,8 +455,8 @@ const proc: chord (in integer: x, in integer: y, in integer: radius,
 
 (**
  *  Draws a filled sector with color ''col'' to ''curr_win''.
- *  The sector has the given 'radius' and its center is at (x, y).
- *  The sector begins at 'startAngle' and spans over 'sweepAngle'.
+ *  The sector has the given ''radius'' and its center is at (x, y).
+ *  The sector begins at ''startAngle'' and spans over ''sweepAngle''.
  *)
 const proc: pieslice (in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle, in color: col) is func
@@ -475,7 +481,7 @@ const proc: fellipse (in integer: x, in integer: y,
 
 
 (**
- *  Clears the window 'win' with the color 'col'.
+ *  Clears the window ''win'' with the color ''col''.
  *)
 const proc: clear (inout PRIMITIVE_WINDOW: win, in color: col) is func
   begin
@@ -484,7 +490,7 @@ const proc: clear (inout PRIMITIVE_WINDOW: win, in color: col) is func
 
 
 (**
- *  Clears the window 'win' with the color black.
+ *  Clears the window ''win'' with the color black.
  *)
 const proc: clear (inout PRIMITIVE_WINDOW: win) is func
   begin
@@ -493,7 +499,7 @@ const proc: clear (inout PRIMITIVE_WINDOW: win) is func
 
 
 (**
- *  Clears the current window 'curr_win' with the color 'col'.
+ *  Clears the current window ''curr_win'' with the color ''col''.
  *)
 const proc: clear (in color: col) is func
   begin
@@ -502,8 +508,8 @@ const proc: clear (in color: col) is func
 
 
 (**
- *  Draws lines with the color 'col' to the window 'win'.
- *  The lines connect the 'points' and are drawn at the position (x, y).
+ *  Draws lines with the color ''col'' to the window ''win''.
+ *  The lines connect the ''points'' and are drawn at the position (x, y).
  *)
 const proc: polyLine (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in pointList: points, in color: col) is func
@@ -513,8 +519,8 @@ const proc: polyLine (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws lines with the color 'col' to the current window 'curr_win'.
- *  The lines connect the 'points' and are drawn at the position (x, y).
+ *  Draws lines with the color ''col'' to the current window ''curr_win''.
+ *  The lines connect the ''points'' and are drawn at the position (x, y).
  *)
 const proc: polyLine (in integer: x, in integer: y, in pointList: points, in color: col) is func
   begin
@@ -523,8 +529,8 @@ const proc: polyLine (in integer: x, in integer: y, in pointList: points, in col
 
 
 (**
- *  Draws a filled polygon with the color 'col' to the window 'win'.
- *  The corners of the polygon are given with 'points'.
+ *  Draws a filled polygon with the color ''col'' to the window ''win''.
+ *  The corners of the polygon are given with ''points''.
  *  The polygon is drawn at the position (x, y).
  *)
 const proc: fpolyLine (inout PRIMITIVE_WINDOW: win,
@@ -535,8 +541,8 @@ const proc: fpolyLine (inout PRIMITIVE_WINDOW: win,
 
 
 (**
- *  Draws a filled polygon with the color 'col' to the current window 'curr_win'.
- *  The corners of the polygon are given with 'points'.
+ *  Draws a filled polygon with the color ''col'' to the current window ''curr_win''.
+ *  The corners of the polygon are given with ''points''.
  *  The polygon is drawn at the position (x, y).
  *)
 const proc: fpolyLine (in integer: x, in integer: y, in pointList: points, in color: col) is func
@@ -627,45 +633,45 @@ const proc: put (inout PRIMITIVE_WINDOW: destWindow, in integer: xDest,
 
 
 (**
- *  Creates a new pixmap with the given 'width' and 'height'.
- *  A rectangle with the upper left corner at (x1, y1) and the given
- *  'width' and 'height' is copied from 'curr_win' to the new pixmap.
- *  @return the new pixmap.
- *)
-const func PRIMITIVE_WINDOW: getPixmap (in integer: x1, in integer: y1,
-    in integer: width, in integer: height) is
-  return DRAW_GET(curr_win, x1, y1, width, height);
-
-
-(**
- *  Creates a new pixmap with the given 'width' and 'height'.
- *  A rectangle with the upper left corner at (x1, y1) and the given
- *  'width' and 'height' is copied from 'source_win' to the new pixmap.
- *  @return the new pixmap.
- *)
-const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win,
-    in integer: x1, in integer: y1, in integer: width, in integer: height) is
-  return DRAW_GET(source_win, x1, y1, width, height);
-
-
-(**
- *  Creates a new pixmap which is a copy from 'source_win'.
- *  The content of 'source_win' is copied the new pixmap.
- *  @return the new pixmap.
- *)
-const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win) is
-  return DRAW_GET(source_win, 0, 0, width(source_win), height(source_win));
-
-
-(**
- *  Creates a new pixmap with the given 'width' and 'height'.
- *  @return the new pixmap.
+ *  Create a new pixmap with the given ''width'' and ''height''.
+ *  @return the created pixmap.
  *)
 const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) is action "DRW_NEW_PIXMAP";
 
 
 (**
- *  Create a pixmap from a two-dimensional array of pixels.
+ *  Create a new pixmap with the given ''width'' and ''height'' from ''sourceWin''.
+ *  A rectangle with the upper left corner at (''left'', ''upper'') and the given
+ *  ''width'' and ''height'' is copied from ''sourceWin'' to the new pixmap.
+ *  @return the created pixmap.
+ *)
+const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin,
+    in integer: left, in integer: upper, in integer: width, in integer: height) is action "DRW_GET";
+
+
+(**
+ *  Create a new pixmap with the given ''width'' and ''height'' from ''curr_win''.
+ *  A rectangle with the upper left corner at (''left'', ''upper'') and the given
+ *  ''width'' and ''height'' is copied from ''curr_win'' to the new pixmap.
+ *  @return the created pixmap.
+ *)
+const func PRIMITIVE_WINDOW: getPixmap (in integer: left, in integer: upper,
+    in integer: width, in integer: height) is
+  return getPixmap(curr_win, left, upper, width, height);
+
+
+(**
+ *  Create a new pixmap with the contents of ''sourceWin''.
+ *  The content of ''sourceWin'' is copied the new pixmap.
+ *  @return the created pixmap.
+ *)
+const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin) is
+  return getPixmap(sourceWin, 0, 0, width(sourceWin), height(sourceWin));
+
+
+(**
+ *  Create a new pixmap from a two-dimensional array of pixels.
+ *  The array of pixels might come from a image file.
  *  @param image Pixel array with lines from top downward and columns from left to right.
  *  @return the created pixmap.
  *)
@@ -674,6 +680,19 @@ const func PRIMITIVE_WINDOW: getPixmap (ref array array pixel: image) is action 
 
 (**
  *  Get a two-dimensional array of pixels from ''aWindow''.
+ *  The array of pixels can be used to write the image to a file.
+ *  This is used by the function str(aWindow, PPM):
+ *   image := getPixelArray(pixmap);
+ *   for line range 1 to height do
+ *     for column range 1 to width do
+ *       col := pixelToColor(image[line][column]);
+ *       stri &:= chr(col.redLight   mdiv 256);
+ *       stri &:= chr(col.greenLight mdiv 256);
+ *       stri &:= chr(col.blueLight  mdiv 256);
+ *     end for;
+ *   end for;
+ *  @param aWindow Window or pixmap source to create the array of pixels.
+ *  @return a pixel array with lines from top downward and columns from left to right.
  *)
 const func array array pixel: getPixelArray (in PRIMITIVE_WINDOW: aWindow) is action "DRW_GET_PIXEL_ARRAY";
 

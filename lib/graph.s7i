@@ -187,11 +187,6 @@ const proc: setWindowName (in PRIMITIVE_WINDOW: aWindow,
 const proc: setCursorVisible (in PRIMITIVE_WINDOW: aWindow,
                               in boolean: visible)  is action "DRW_SETCURSORVISIBLE";
 
-const func PRIMITIVE_WINDOW: DRAW_GET (
-    in PRIMITIVE_WINDOW: aWindow,
-    ref integer: left, ref integer: upper,
-    ref integer: width, ref integer: height)        is action "DRW_GET";
-
 (**
  *  Capture a rectangular area from the screen.
  *  The function takes a screenshot of the rectangular area.
