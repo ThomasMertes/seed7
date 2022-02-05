@@ -899,20 +899,98 @@ const proc: process (DRW_PFELLIPSE, in reference: function,
   end func;
 
 
+const proc: assignColorOfPixel (in string: pixelName,
+    in reference: colorDestination, in integer: colorMask,
+    inout expr_type: c_expr) is func
+
+  local
+    var integer: highestMaskBit is 0;
+  begin
+    process_expr(colorDestination, c_expr);
+    c_expr.expr &:= " = (intType)(";
+    highestMaskBit := succ(log2(colorMask));
+    if highestMaskBit > 16 then
+      c_expr.expr &:= "((uintType)(";
+      c_expr.expr &:= pixelName;
+      c_expr.expr &:= ") & 0x";
+      c_expr.expr &:= colorMask radix 16;
+      c_expr.expr &:= ") >> ";
+      c_expr.expr &:= str(highestMaskBit - 16);
+    elsif highestMaskBit < 16 then
+      c_expr.expr &:= "((uintType)(";
+      c_expr.expr &:= pixelName;
+      c_expr.expr &:= ") & 0x";
+      c_expr.expr &:= colorMask radix 16;
+      c_expr.expr &:= ") << ";
+      c_expr.expr &:= str(16 - highestMaskBit);
+    else
+      c_expr.expr &:= "(uintType)(";
+      c_expr.expr &:= pixelName;
+      c_expr.expr &:= ") & 0x";
+      c_expr.expr &:= colorMask radix 16;
+    end if;
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process (DRW_PIXELTORGB, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: statement is expr_type.value;
+    var string: pixelName is "";
   begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "drwPixelToRgb(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", &(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= "), &(";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "), &(";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= "));\n";
+    if inlineFunctions and ccConf.PIXEL_RED_MASK   <> 0 and
+                           ccConf.PIXEL_GREEN_MASK <> 0 and
+                           ccConf.PIXEL_BLUE_MASK  <> 0 then
+      incr(countInlinedFunctions);
+      if ccConf.RGB_TO_PIXEL_FLAG_NAME <> "" then
+        statement.expr &:= "if (";
+        statement.expr &:= ccConf.RGB_TO_PIXEL_FLAG_NAME;
+        statement.expr &:= ") {\n";
+      end if;
+      if isNormalVariable(params[1]) then
+        pixelName := normalVariable(params[1], statement);
+      else
+        incr(statement.temp_num);
+        pixelName := "pixel_" & str(statement.temp_num);
+        statement.temp_decls &:= "uintType ";
+        statement.temp_decls &:= pixelName;
+        statement.temp_decls &:= ";\n";
+        statement.expr &:= pixelName;
+        statement.expr &:= "=(uintType)(";
+        process_expr(params[1], statement);
+        statement.expr &:= ");\n";
+      end if;
+      assignColorOfPixel(pixelName, params[2], ccConf.PIXEL_RED_MASK,   statement);
+      assignColorOfPixel(pixelName, params[3], ccConf.PIXEL_GREEN_MASK, statement);
+      assignColorOfPixel(pixelName, params[4], ccConf.PIXEL_BLUE_MASK,  statement);
+      if ccConf.RGB_TO_PIXEL_FLAG_NAME <> "" then
+        statement.expr &:= "} else {\n";
+        statement.expr &:= "drwPixelToRgb(";
+        statement.expr &:= pixelName;
+        statement.expr &:= ", &(";
+        process_expr(params[2], statement);
+        statement.expr &:= "), &(";
+        process_expr(params[3], statement);
+        statement.expr &:= "), &(";
+        process_expr(params[4], statement);
+        statement.expr &:= "));\n";
+        statement.expr &:= "}\n";
+      end if;
+      doLocalDeclsOfStatement(statement, c_expr);
+    else
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "drwPixelToRgb(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", &(";
+      process_expr(params[2], c_expr);
+      c_expr.expr &:= "), &(";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= "), &(";
+      process_expr(params[4], c_expr);
+      c_expr.expr &:= "));\n";
+    end if;
   end func;
 
 
