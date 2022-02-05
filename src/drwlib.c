@@ -762,14 +762,14 @@ objectType drw_getImagePixel (listType arguments)
 
 
 
-objectType drw_getPixel (listType arguments)
+objectType drw_get_pixel (listType arguments)
 
   {
     winType actual_window;
     intType x1;
     intType y1;
 
-  /* drw_getPixel */
+  /* drw_get_pixel */
     isit_win(arg_1(arguments));
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
@@ -778,7 +778,7 @@ objectType drw_getPixel (listType arguments)
     y1 = take_int(arg_3(arguments));
     return bld_int_temp(
         drwGetPixel(actual_window, x1, y1));
-  } /* drw_getPixel */
+  } /* drw_get_pixel */
 
 
 

@@ -62,7 +62,7 @@ objectType drw_fpolyLine              (listType arguments);
 objectType drw_genPointList           (listType arguments);
 objectType drw_get                    (listType arguments);
 objectType drw_getImagePixel          (listType arguments);
-objectType drw_getPixel               (listType arguments);
+objectType drw_get_pixel              (listType arguments);
 objectType drw_get_pixel_array        (listType arguments);
 objectType drw_get_pixel_data         (listType arguments);
 objectType drw_get_pixmap_from_pixels (listType arguments);

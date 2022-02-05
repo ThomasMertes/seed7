@@ -212,7 +212,7 @@ const func bstring: getPixelData (
     in PRIMITIVE_WINDOW: aWindow)                   is action "DRW_GET_PIXEL_DATA";
 const func pixel: getPixel (
     in PRIMITIVE_WINDOW: aWindow,
-    ref integer: x, ref integer: y)                 is action "DRW_GETPIXEL";
+    ref integer: x, ref integer: y)                 is action "DRW_GET_PIXEL";
 const func pixel: getPixel (
     in bstring: bImage, in integer: width,
     in integer: height, in integer: x,
