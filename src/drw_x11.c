@@ -1246,60 +1246,6 @@ void drwFree (winType old_window)
 
 
 /**
- *  Create a new pixmap with the given 'width' and 'height'.
- *  A rectangle with the upper left corner at (left, upper) and the given
- *  'width' and 'height' is copied from 'source_window' to the new pixmap.
- *  @exception RANGE_ERROR If 'height' or 'width' are negative.
- *  @return the new pixmap.
- */
-winType drwGet (const_winType source_window, intType left, intType upper,
-    intType width, intType height)
-
-  {
-    x11_winType pixmap;
-
-  /* drwGet */
-    logFunction(printf("drwGet(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) source_window, left, upper, width, height););
-    if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
-                 !inIntRange(width) || !inIntRange(height) ||
-                 width < 1 || height < 1)) {
-      raise_error(RANGE_ERROR);
-      pixmap = NULL;
-    } else if (unlikely(!ALLOC_RECORD2(pixmap, x11_winRecord, count.win, count.win_bytes))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      memset(pixmap, 0, sizeof(x11_winRecord));
-      pixmap->usage_count = 1;
-      pixmap->window = XCreatePixmap(mydisplay, to_window(source_window),
-          (unsigned int) width, (unsigned int) height,
-          (unsigned int) DefaultDepth(mydisplay, myscreen));
-      pixmap->backup = 0;
-      pixmap->clip_mask = 0;
-      pixmap->is_pixmap = TRUE;
-      pixmap->is_managed = FALSE;
-      pixmap->width = (unsigned int) width;
-      pixmap->height = (unsigned int) height;
-      if (to_backup(source_window) != 0) {
-        XCopyArea(mydisplay, to_backup(source_window),
-            pixmap->window, mygc, (int) left, (int) upper,
-            (unsigned int) width, (unsigned int) height, 0, 0);
-      } else {
-        XCopyArea(mydisplay, to_window(source_window),
-            pixmap->window, mygc, (int) left, (int) upper,
-            (unsigned int) width, (unsigned int) height, 0, 0);
-      } /* if */
-      /* printf("XCopyArea(%ld, %ld, %ld, %ld)\n", left, upper, width, height); */
-    } /* if */
-    logFunction(printf("drwGet --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) pixmap,
-                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
-    return (winType) pixmap;
-  } /* drwGet */
-
-
-
-/**
  *  Capture a rectangular area from the screen.
  *  The function takes a screenshot of the rectangular area.
  *  The 'left' and 'upper' coordinates are measured relative to
@@ -1457,6 +1403,60 @@ bstriType drwGetPixelData (const_winType source_window)
     } /* if */
     return result;
   } /* drwGetPixelData */
+
+
+
+/**
+ *  Create a new pixmap with the given 'width' and 'height'.
+ *  A rectangle with the upper left corner at (left, upper) and the given
+ *  'width' and 'height' is copied from 'source_window' to the new pixmap.
+ *  @exception RANGE_ERROR If 'height' or 'width' are negative.
+ *  @return the new pixmap.
+ */
+winType drwGetPixmap (const_winType source_window, intType left, intType upper,
+    intType width, intType height)
+
+  {
+    x11_winType pixmap;
+
+  /* drwGetPixmap */
+    logFunction(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) source_window, left, upper, width, height););
+    if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 width < 1 || height < 1)) {
+      raise_error(RANGE_ERROR);
+      pixmap = NULL;
+    } else if (unlikely(!ALLOC_RECORD2(pixmap, x11_winRecord, count.win, count.win_bytes))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memset(pixmap, 0, sizeof(x11_winRecord));
+      pixmap->usage_count = 1;
+      pixmap->window = XCreatePixmap(mydisplay, to_window(source_window),
+          (unsigned int) width, (unsigned int) height,
+          (unsigned int) DefaultDepth(mydisplay, myscreen));
+      pixmap->backup = 0;
+      pixmap->clip_mask = 0;
+      pixmap->is_pixmap = TRUE;
+      pixmap->is_managed = FALSE;
+      pixmap->width = (unsigned int) width;
+      pixmap->height = (unsigned int) height;
+      if (to_backup(source_window) != 0) {
+        XCopyArea(mydisplay, to_backup(source_window),
+            pixmap->window, mygc, (int) left, (int) upper,
+            (unsigned int) width, (unsigned int) height, 0, 0);
+      } else {
+        XCopyArea(mydisplay, to_window(source_window),
+            pixmap->window, mygc, (int) left, (int) upper,
+            (unsigned int) width, (unsigned int) height, 0, 0);
+      } /* if */
+      /* printf("XCopyArea(%ld, %ld, %ld, %ld)\n", left, upper, width, height); */
+    } /* if */
+    logFunction(printf("drwGetPixmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
+  } /* drwGetPixmap */
 
 
 

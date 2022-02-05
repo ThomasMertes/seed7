@@ -283,15 +283,6 @@ void drwFree (winType old_window)
 
 
 
-winType drwGet (const_winType source_window, intType left, intType upper,
-    intType width, intType height)
-
-  { /* drwGet */
-    return NULL;
-  } /* drwGet */
-
-
-
 winType drwCapture (intType left, intType upper,
     intType width, intType height)
 
@@ -322,6 +313,15 @@ bstriType drwGetPixelData (const_winType source_window)
     } /* if */
     return result;
   } /* drwGetPixelData */
+
+
+
+winType drwGetPixmap (const_winType source_window, intType left, intType upper,
+    intType width, intType height)
+
+  { /* drwGetPixmap */
+    return NULL;
+  } /* drwGetPixmap */
 
 
 

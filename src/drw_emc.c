@@ -456,69 +456,6 @@ void drwFree (winType old_window)
 
 
 
-/**
- *  Create a new pixmap with the given 'width' and 'height'.
- *  A rectangle with the upper left corner at (left, upper) and the given
- *  'width' and 'height' is copied from 'source_window' to the new pixmap.
- *  @exception RANGE_ERROR If 'height' or 'width' are negative.
- *  @return the new pixmap.
- */
-winType drwGet (const_winType source_window, intType left, intType upper,
-    intType width, intType height)
-
-  {
-    emc_winType pixmap;
-
-  /* drwGet */
-    logFunction(printf("drwGet(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) source_window, left, upper, width, height););
-    if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
-                 !inIntRange(width) || !inIntRange(height) ||
-                 width < 1 || height < 1)) {
-      raise_error(RANGE_ERROR);
-      pixmap = NULL;
-    } else if (unlikely(!ALLOC_RECORD2(pixmap, emc_winRecord, count.win, count.win_bytes))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      memset(pixmap, 0, sizeof(emc_winRecord));
-      pixmap->usage_count = 1;
-
-      pixmap->window = EM_ASM_INT({
-        if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
-          let sourceContext = mapIdToContext[$0];
-          let left = $1;
-          let upper = $2;
-          let width = $3;
-          let height = $4;
-          let canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          let context = canvas.getContext('2d');
-          let imageData = sourceContext.getImageData($1, $2, $3, $4);
-          context.putImageData(imageData, 0, 0);
-          currentWindowId++;
-          mapIdToCanvas[currentWindowId] = canvas;
-          mapIdToContext[currentWindowId] = context;
-          return currentWindowId;
-        } else {
-          console.log('windowId not found: ' + $0);
-        }
-      }, to_window(source_window), castToInt(left), castToInt(upper),
-          castToInt(width), castToInt(height));
-
-      pixmap->is_pixmap = TRUE;
-      pixmap->is_subwindow = FALSE;
-      pixmap->width = (int) width;
-      pixmap->height = (int) height;
-    } /* if */
-    logFunction(printf("drwGet --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) pixmap,
-                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
-    return (winType) pixmap;
-  } /* drwGet */
-
-
-
 winType drwCapture (intType left, intType upper,
     intType width, intType height)
 
@@ -565,6 +502,69 @@ bstriType drwGetPixelData (const_winType source_window)
     } /* if */
     return result;
   } /* drwGetPixelData */
+
+
+
+/**
+ *  Create a new pixmap with the given 'width' and 'height'.
+ *  A rectangle with the upper left corner at (left, upper) and the given
+ *  'width' and 'height' is copied from 'source_window' to the new pixmap.
+ *  @exception RANGE_ERROR If 'height' or 'width' are negative.
+ *  @return the new pixmap.
+ */
+winType drwGetPixmap (const_winType source_window, intType left, intType upper,
+    intType width, intType height)
+
+  {
+    emc_winType pixmap;
+
+  /* drwGetPixmap */
+    logFunction(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) source_window, left, upper, width, height););
+    if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 width < 1 || height < 1)) {
+      raise_error(RANGE_ERROR);
+      pixmap = NULL;
+    } else if (unlikely(!ALLOC_RECORD2(pixmap, emc_winRecord, count.win, count.win_bytes))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memset(pixmap, 0, sizeof(emc_winRecord));
+      pixmap->usage_count = 1;
+
+      pixmap->window = EM_ASM_INT({
+        if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+          let sourceContext = mapIdToContext[$0];
+          let left = $1;
+          let upper = $2;
+          let width = $3;
+          let height = $4;
+          let canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          let context = canvas.getContext('2d');
+          let imageData = sourceContext.getImageData($1, $2, $3, $4);
+          context.putImageData(imageData, 0, 0);
+          currentWindowId++;
+          mapIdToCanvas[currentWindowId] = canvas;
+          mapIdToContext[currentWindowId] = context;
+          return currentWindowId;
+        } else {
+          console.log('windowId not found: ' + $0);
+        }
+      }, to_window(source_window), castToInt(left), castToInt(upper),
+          castToInt(width), castToInt(height));
+
+      pixmap->is_pixmap = TRUE;
+      pixmap->is_subwindow = FALSE;
+      pixmap->width = (int) width;
+      pixmap->height = (int) height;
+    } /* if */
+    logFunction(printf("drwGetPixmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) pixmap,
+                       pixmap != NULL ? pixmap->usage_count : (uintType) 0););
+    return (winType) pixmap;
+  } /* drwGetPixmap */
 
 
 

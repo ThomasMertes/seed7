@@ -710,32 +710,6 @@ objectType drw_genPointList (listType arguments)
 
 
 
-objectType drw_get (listType arguments)
-
-  {
-    winType actual_window;
-    intType x1;
-    intType y1;
-    intType width;
-    intType height;
-
-  /* drw_get */
-    isit_win(arg_1(arguments));
-    isit_int(arg_2(arguments));
-    isit_int(arg_3(arguments));
-    isit_int(arg_4(arguments));
-    isit_int(arg_5(arguments));
-    actual_window = take_win(arg_1(arguments));
-    x1 = take_int(arg_2(arguments));
-    y1 = take_int(arg_3(arguments));
-    width = take_int(arg_4(arguments));
-    height = take_int(arg_5(arguments));
-    return bld_win_temp(
-        drwGet(actual_window, x1, y1, width, height));
-  } /* drw_get */
-
-
-
 objectType drw_getImagePixel (listType arguments)
 
   {
@@ -858,6 +832,32 @@ objectType drw_get_pixel_data (listType arguments)
     actual_window = take_win(arg_1(arguments));
     return bld_bstri_temp(drwGetPixelData(actual_window));
   } /* drw_get_pixel_data */
+
+
+
+objectType drw_get_pixmap (listType arguments)
+
+  {
+    winType actual_window;
+    intType x1;
+    intType y1;
+    intType width;
+    intType height;
+
+  /* drw_get_pixmap */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x1 = take_int(arg_2(arguments));
+    y1 = take_int(arg_3(arguments));
+    width = take_int(arg_4(arguments));
+    height = take_int(arg_5(arguments));
+    return bld_win_temp(
+        drwGetPixmap(actual_window, x1, y1, width, height));
+  } /* drw_get_pixmap */
 
 
 

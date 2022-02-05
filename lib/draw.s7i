@@ -646,7 +646,7 @@ const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) i
  *  @return the created pixmap.
  *)
 const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin,
-    in integer: left, in integer: upper, in integer: width, in integer: height) is action "DRW_GET";
+    in integer: left, in integer: upper, in integer: width, in integer: height) is action "DRW_GET_PIXMAP";
 
 
 (**
