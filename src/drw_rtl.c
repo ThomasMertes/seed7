@@ -344,7 +344,7 @@ rtlArrayType drwGetPixelArray (const_winType sourceWindow)
   {
     memSizeType height;
     memSizeType width;
-    bstriType imageData;
+    bstriType pixelData;
     memSizeType yPos;
     rtlArrayType imageLine;
     int32Type *pixelArray;
@@ -353,13 +353,13 @@ rtlArrayType drwGetPixelArray (const_winType sourceWindow)
   /* drwGetPixelArray */
     height = (memSizeType) drwHeight(sourceWindow);
     width = (memSizeType) drwWidth(sourceWindow);
-    imageData = drwGetImage(sourceWindow);
+    pixelData = drwGetPixelData(sourceWindow);
     if (unlikely(!ALLOC_RTL_ARRAY(imageArray, height))) {
       raise_error(MEMORY_ERROR);
     } else {
       imageArray->min_position = 1;
       imageArray->max_position = (intType) height;
-      pixelArray = (int32Type *) imageData->mem;
+      pixelArray = (int32Type *) pixelData->mem;
       for (yPos = 0; yPos < height; yPos++) {
 	if (likely(ALLOC_RTL_ARRAY(imageLine, width))) {
           imageLine->min_position = 1;

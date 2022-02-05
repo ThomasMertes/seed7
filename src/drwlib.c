@@ -736,84 +736,6 @@ objectType drw_get (listType arguments)
 
 
 
-objectType drw_getImage (listType arguments)
-
-  {
-    winType actual_window;
-
-  /* drw_getImage */
-    isit_win(arg_1(arguments));
-    actual_window = take_win(arg_1(arguments));
-    return bld_bstri_temp(
-        drwGetImage(actual_window));
-  } /* drw_getImage */
-
-
-
-objectType drw_get_pixel_array (listType arguments)
-
-  {
-    winType sourceWindow;
-    memSizeType height;
-    memSizeType width;
-    bstriType imageData;
-    memSizeType yPos;
-    memSizeType xPos;
-    arrayType imageLine;
-    int32Type *pixelArray;
-    arrayType imageArray;
-    objectType result;
-
-  /* drw_get_pixel_array */
-    logFunction(printf("drw_get_pixel_array\n"););
-    isit_win(arg_1(arguments));
-    sourceWindow = take_win(arg_1(arguments));
-    height = (memSizeType) drwHeight(sourceWindow);
-    width = (memSizeType) drwWidth(sourceWindow);
-    imageData = drwGetImage(sourceWindow);
-    if (unlikely(!ALLOC_ARRAY(imageArray, height))) {
-      result = raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      imageArray->min_position = 1;
-      imageArray->max_position = (intType) height;
-      pixelArray = (int32Type *) imageData->mem;
-      for (yPos = 0; yPos < height; yPos++) {
-	if (likely(ALLOC_ARRAY(imageLine, width))) {
-          imageLine->min_position = 1;
-          imageLine->max_position = (intType) width;
-          for (xPos = 0; xPos < width; xPos++) {
-            imageLine->arr[xPos].type_of = take_type(SYS_INT_TYPE);
-            imageLine->arr[xPos].descriptor.property = NULL;
-            imageLine->arr[xPos].value.intValue = (intType) pixelArray[xPos];
-            INIT_CATEGORY_OF_VAR(&imageLine->arr[xPos], INTOBJECT);
-          } /* for */
-          imageArray->arr[yPos].type_of = NULL;
-          imageArray->arr[yPos].descriptor.property = NULL;
-          imageArray->arr[yPos].value.arrayValue = imageLine;
-          INIT_CATEGORY_OF_VAR(&imageArray->arr[yPos], ARRAYOBJECT);
-          pixelArray += width;
-        } else {
-          while (yPos >= 1) {
-            yPos--;
-            FREE_ARRAY(imageArray->arr[yPos].value.arrayValue, width);
-          } /* while */
-          FREE_ARRAY(imageArray, height);
-          imageArray = NULL;
-          yPos = height; /* leave for-loop */
-        } /* if */
-      } /* for */
-      if (unlikely(imageArray == NULL)) {
-        result = raise_exception(SYS_MEM_EXCEPTION);
-      } else {
-        result = bld_array_temp(imageArray);
-      } /* if */
-    } /* if */
-    logFunction(printf("drw_get_pixel_array -->\n"););
-    return result;
-  } /* drw_get_pixel_array */
-
-
-
 objectType drw_getImagePixel (listType arguments)
 
   {
@@ -857,6 +779,85 @@ objectType drw_getPixel (listType arguments)
     return bld_int_temp(
         drwGetPixel(actual_window, x1, y1));
   } /* drw_getPixel */
+
+
+
+objectType drw_get_pixel_array (listType arguments)
+
+  {
+    winType sourceWindow;
+    memSizeType height;
+    memSizeType width;
+    bstriType pixelData;
+    memSizeType yPos;
+    memSizeType xPos;
+    arrayType imageLine;
+    int32Type *pixelArray;
+    arrayType imageArray;
+    objectType result;
+
+  /* drw_get_pixel_array */
+    logFunction(printf("drw_get_pixel_array\n"););
+    isit_win(arg_1(arguments));
+    sourceWindow = take_win(arg_1(arguments));
+    height = (memSizeType) drwHeight(sourceWindow);
+    width = (memSizeType) drwWidth(sourceWindow);
+    pixelData = drwGetPixelData(sourceWindow);
+    if (likely(pixelData != NULL)) {
+      if (unlikely(!ALLOC_ARRAY(imageArray, height))) {
+        result = raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        imageArray->min_position = 1;
+        imageArray->max_position = (intType) height;
+        pixelArray = (int32Type *) pixelData->mem;
+        for (yPos = 0; yPos < height; yPos++) {
+          if (likely(ALLOC_ARRAY(imageLine, width))) {
+            imageLine->min_position = 1;
+            imageLine->max_position = (intType) width;
+            for (xPos = 0; xPos < width; xPos++) {
+              imageLine->arr[xPos].type_of = take_type(SYS_INT_TYPE);
+              imageLine->arr[xPos].descriptor.property = NULL;
+              imageLine->arr[xPos].value.intValue = (intType) pixelArray[xPos];
+              INIT_CATEGORY_OF_VAR(&imageLine->arr[xPos], INTOBJECT);
+            } /* for */
+            imageArray->arr[yPos].type_of = NULL;
+            imageArray->arr[yPos].descriptor.property = NULL;
+            imageArray->arr[yPos].value.arrayValue = imageLine;
+            INIT_CATEGORY_OF_VAR(&imageArray->arr[yPos], ARRAYOBJECT);
+            pixelArray += width;
+          } else {
+            while (yPos >= 1) {
+              yPos--;
+              FREE_ARRAY(imageArray->arr[yPos].value.arrayValue, width);
+            } /* while */
+            FREE_ARRAY(imageArray, height);
+            imageArray = NULL;
+            yPos = height; /* leave for-loop */
+          } /* if */
+        } /* for */
+        if (unlikely(imageArray == NULL)) {
+          result = raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          result = bld_array_temp(imageArray);
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("drw_get_pixel_array -->\n"););
+    return result;
+  } /* drw_get_pixel_array */
+
+
+
+objectType drw_get_pixel_data (listType arguments)
+
+  {
+    winType actual_window;
+
+  /* drw_get_pixel_data */
+    isit_win(arg_1(arguments));
+    actual_window = take_win(arg_1(arguments));
+    return bld_bstri_temp(drwGetPixelData(actual_window));
+  } /* drw_get_pixel_data */
 
 
 

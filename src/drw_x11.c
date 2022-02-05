@@ -1374,66 +1374,6 @@ winType drwCapture (intType left, intType upper,
 
 
 
-bstriType drwGetImage (const_winType source_window)
-
-  {
-    XImage *image;
-    unsigned int width;
-    unsigned int height;
-    unsigned int xPos;
-    unsigned int yPos;
-    memSizeType result_size;
-    int32Type *image_data;
-    bstriType result;
-
-  /* drwGetImage */
-    logFunction(printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) source_window););
-    if (to_window(source_window) == 0) {
-      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = 0;
-      } /* if */
-    } else {
-      width = to_width(source_window);
-      height = to_height(source_window);
-      if (to_backup(source_window) != 0) {
-        image = XGetImage(mydisplay, to_backup(source_window),
-                          0, 0, width, height, (unsigned long) -1, ZPixmap);
-      } else if (to_window(source_window) != 0) {
-        image = XGetImage(mydisplay, to_window(source_window),
-                          0, 0, width, height, (unsigned long) -1, ZPixmap);
-      } else {
-        image = NULL;
-      } /* if */
-      if (unlikely(image == NULL)) {
-        logError(printf("drwGetImage(" FMT_U_MEM "): XGetImage failed\n",
-                        (memSizeType) source_window););
-        raise_error(FILE_ERROR);
-        result = NULL;
-      } else {
-        result_size = width * height * sizeof(int32Type);
-        if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
-          XDestroyImage(image);
-          raise_error(MEMORY_ERROR);
-        } else {
-          result->size = result_size;
-          image_data = (int32Type *) result->mem;
-          for (yPos = 0; yPos < height; yPos++) {
-            for (xPos = 0; xPos < width; xPos++) {
-              *image_data = (int32Type) XGetPixel(image, (int) xPos, (int) yPos);
-              image_data++;
-            } /* for */
-          } /* for */
-          XDestroyImage(image);
-        } /* if */
-      } /* if */
-    } /* if */
-    return result;
-  } /* drwGetImage */
-
-
-
 intType drwGetPixel (const_winType source_window, intType x, intType y)
 
   {
@@ -1457,6 +1397,66 @@ intType drwGetPixel (const_winType source_window, intType x, intType y)
     logFunction(printf("drwGetPixel --> " FMT_U "\n", pixel););
     return pixel;
   } /* drwGetPixel */
+
+
+
+bstriType drwGetPixelData (const_winType source_window)
+
+  {
+    XImage *image;
+    unsigned int width;
+    unsigned int height;
+    unsigned int xPos;
+    unsigned int yPos;
+    memSizeType result_size;
+    int32Type *image_data;
+    bstriType result;
+
+  /* drwGetPixelData */
+    logFunction(printf("drwGetPixelData(" FMT_U_MEM ")\n", (memSizeType) source_window););
+    if (to_window(source_window) == 0) {
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = 0;
+      } /* if */
+    } else {
+      width = to_width(source_window);
+      height = to_height(source_window);
+      if (to_backup(source_window) != 0) {
+        image = XGetImage(mydisplay, to_backup(source_window),
+                          0, 0, width, height, (unsigned long) -1, ZPixmap);
+      } else if (to_window(source_window) != 0) {
+        image = XGetImage(mydisplay, to_window(source_window),
+                          0, 0, width, height, (unsigned long) -1, ZPixmap);
+      } else {
+        image = NULL;
+      } /* if */
+      if (unlikely(image == NULL)) {
+        logError(printf("drwGetPixelData(" FMT_U_MEM "): XGetImage failed\n",
+                        (memSizeType) source_window););
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else {
+        result_size = width * height * sizeof(int32Type);
+        if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
+          XDestroyImage(image);
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = result_size;
+          image_data = (int32Type *) result->mem;
+          for (yPos = 0; yPos < height; yPos++) {
+            for (xPos = 0; xPos < width; xPos++) {
+              *image_data = (int32Type) XGetPixel(image, (int) xPos, (int) yPos);
+              image_data++;
+            } /* for */
+          } /* for */
+          XDestroyImage(image);
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* drwGetPixelData */
 
 
 

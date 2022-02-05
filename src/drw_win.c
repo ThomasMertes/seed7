@@ -1201,7 +1201,15 @@ winType drwCapture (intType left, intType upper,
 
 
 
-bstriType drwGetImage (const_winType source_window)
+intType drwGetPixel (const_winType source_window, intType x, intType y)
+
+  { /* drwGetPixel */
+    return (intType) GetPixel(to_hdc(source_window), castToInt(x), castToInt(y));
+  } /* drwGetPixel */
+
+
+
+bstriType drwGetPixelData (const_winType source_window)
 
   {
     unsigned int xPos;
@@ -1210,8 +1218,8 @@ bstriType drwGetImage (const_winType source_window)
     uint32Type *image_data;
     bstriType result;
 
-  /* drwGetImage */
-    logFunction(printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) source_window););
+  /* drwGetPixelData */
+    logFunction(printf("drwGetPixelData(" FMT_U_MEM ")\n", (memSizeType) source_window););
     result_size = to_width(source_window) * to_height(source_window) * sizeof(uint32Type);
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
@@ -1226,15 +1234,7 @@ bstriType drwGetImage (const_winType source_window)
       } /* for */
     } /* if */
     return result;
-  } /* drwGetImage */
-
-
-
-intType drwGetPixel (const_winType source_window, intType x, intType y)
-
-  { /* drwGetPixel */
-    return (intType) GetPixel(to_hdc(source_window), castToInt(x), castToInt(y));
-  } /* drwGetPixel */
+  } /* drwGetPixelData */
 
 
 

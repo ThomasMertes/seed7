@@ -45,10 +45,10 @@ const ACTION: DRW_FLUSH                  is action "DRW_FLUSH";
 const ACTION: DRW_FPOLYLINE              is action "DRW_FPOLYLINE";
 const ACTION: DRW_GENPOINTLIST           is action "DRW_GENPOINTLIST";
 const ACTION: DRW_GET                    is action "DRW_GET";
-const ACTION: DRW_GETIMAGE               is action "DRW_GETIMAGE";
 const ACTION: DRW_GETIMAGEPIXEL          is action "DRW_GETIMAGEPIXEL";
 const ACTION: DRW_GETPIXEL               is action "DRW_GETPIXEL";
 const ACTION: DRW_GET_PIXEL_ARRAY        is action "DRW_GET_PIXEL_ARRAY";
+const ACTION: DRW_GET_PIXEL_DATA         is action "DRW_GET_PIXEL_DATA";
 const ACTION: DRW_GET_PIXMAP_FROM_PIXELS is action "DRW_GET_PIXMAP_FROM_PIXELS";
 const ACTION: DRW_HASHCODE               is action "DRW_HASHCODE";
 const ACTION: DRW_HEIGHT                 is action "DRW_HEIGHT";
@@ -159,8 +159,8 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwFlush (void);");
     declareExtern(c_prog, "bstriType   drwGenPointList (const const_arrayType);");
     declareExtern(c_prog, "winType     drwGet (const_winType, intType, intType, intType, intType);");
-    declareExtern(c_prog, "bstriType   drwGetImage (const_winType);");
     declareExtern(c_prog, "arrayType   drwGetPixelArray (const_winType);");
+    declareExtern(c_prog, "bstriType   drwGetPixelData (const_winType);");
     declareExtern(c_prog, "intType     drwGetImagePixel (const_bstriType, intType, intType, intType, intType);");
     declareExtern(c_prog, "intType     drwGetPixel (const_winType, intType, intType);");
     declareExtern(c_prog, "winType     drwGetPixmapFromPixels (const_arrayType);");
@@ -601,17 +601,6 @@ const proc: process (DRW_GET, in reference: function,
   end func;
 
 
-const proc: process (DRW_GETIMAGE, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    prepare_bstri_result(c_expr);
-    c_expr.result_expr := "drwGetImage(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
-  end func;
-
-
 const proc: process (DRW_GETIMAGEPIXEL, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -653,6 +642,17 @@ const proc: process (DRW_GET_PIXEL_ARRAY, in reference: function,
     result_type := resultType(getType(function));
     prepare_typed_result(result_type, c_expr);
     c_expr.result_expr := "drwGetPixelArray(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_GET_PIXEL_DATA, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "drwGetPixelData(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;

@@ -301,27 +301,27 @@ winType drwCapture (intType left, intType upper,
 
 
 
-bstriType drwGetImage (const_winType source_window)
+intType drwGetPixel (const_winType source_window, intType x, intType y)
+
+  { /* drwGetPixel */
+    return 0;
+  } /* drwGetPixel */
+
+
+
+bstriType drwGetPixelData (const_winType source_window)
 
   {
     bstriType result;
 
-  /* drwGetImage */
+  /* drwGetPixelData */
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
       raise_error(RANGE_ERROR);
     } else {
       result->size = 0;
     } /* if */
     return result;
-  } /* drwGetImage */
-
-
-
-intType drwGetPixel (const_winType source_window, intType x, intType y)
-
-  { /* drwGetPixel */
-    return 0;
-  } /* drwGetPixel */
+  } /* drwGetPixelData */
 
 
 
