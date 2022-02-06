@@ -149,7 +149,7 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, ICO) is func
     var integer: padding is 0;
     var integer: lineMaskLen is 0;
     var integer: line is 0;
-    var integer: column is 0;
+    var pixel: pix is pixel.value;
     var color: col is color.value;
   begin
     width := width(pixmap);
@@ -182,8 +182,8 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, ICO) is func
       image := getPixelArray(pixmap);
       padding := -(3 * width) mod 4;
       for line range height downto 1 do
-        for column range 1 to width do
-          col := pixelToColor(image[line][column]);
+        for pix range image[line] do
+          col := pixelToColor(pix);
           stri &:= chr(col.blueLight  mdiv 256);
           stri &:= chr(col.greenLight mdiv 256);
           stri &:= chr(col.redLight   mdiv 256);

@@ -684,8 +684,8 @@ const func PRIMITIVE_WINDOW: getPixmap (ref array array pixel: image) is action 
  *  This is used by the function str(aWindow, PPM):
  *   image := getPixelArray(pixmap);
  *   for line range 1 to height do
- *     for column range 1 to width do
- *       col := pixelToColor(image[line][column]);
+ *     for pix range image[line] do
+ *       col := pixelToColor(pix);
  *       stri &:= chr(col.redLight   mdiv 256);
  *       stri &:= chr(col.greenLight mdiv 256);
  *       stri &:= chr(col.blueLight  mdiv 256);

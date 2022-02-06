@@ -146,7 +146,7 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
     var integer: width is 0;
     var array array pixel: image is 0 times 0 times pixel.value;
     var integer: line is 0;
-    var integer: column is 0;
+    var pixel: pix is pixel.value;
     var color: col is color.value;
   begin
     height := height(pixmap);
@@ -154,8 +154,8 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, PPM) is func
     stri &:= "\n" <& width <& " " <& height <& "\n255\n";
     image := getPixelArray(pixmap);
     for line range 1 to height do
-      for column range 1 to width do
-        col := pixelToColor(image[line][column]);
+      for pix range image[line] do
+        col := pixelToColor(pix);
         stri &:= chr(col.redLight   mdiv 256);
         stri &:= chr(col.greenLight mdiv 256);
         stri &:= chr(col.blueLight  mdiv 256);

@@ -755,7 +755,7 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, BMP) is func
     var integer: rawDataSize is 0;
     var array array pixel: image is 0 times 0 times pixel.value;
     var integer: line is 0;
-    var integer: column is 0;
+    var pixel: pix is pixel.value;
     var color: col is color.value;
   begin
     width := width(pixmap);
@@ -778,8 +778,8 @@ const func string: str (in PRIMITIVE_WINDOW: pixmap, BMP) is func
              bytes(0,                UNSIGNED, LE, 4);   # important colors (0 means all colors are important)
     image := getPixelArray(pixmap);
     for line range height downto 1 do
-      for column range 1 to width do
-        col := pixelToColor(image[line][column]);
+      for pix range image[line] do
+        col := pixelToColor(pix);
         stri &:= chr(col.blueLight  mdiv 256);
         stri &:= chr(col.greenLight mdiv 256);
         stri &:= chr(col.redLight   mdiv 256);
