@@ -43,6 +43,7 @@
 #include "syvarutl.h"
 #include "objutl.h"
 #include "runerr.h"
+#include "bst_rtl.h"
 #include "drw_rtl.h"
 #include "gkb_rtl.h"
 #include "drw_drv.h"
@@ -778,9 +779,7 @@ objectType drw_get_pixel_array (listType arguments)
     width = (memSizeType) drwWidth(sourceWindow);
     pixelData = drwGetPixelData(sourceWindow);
     if (likely(pixelData != NULL)) {
-      if (unlikely(!ALLOC_ARRAY(imageArray, height))) {
-        result = raise_exception(SYS_MEM_EXCEPTION);
-      } else {
+      if (likely(ALLOC_ARRAY(imageArray, height))) {
         imageArray->min_position = 1;
         imageArray->max_position = (intType) height;
         pixelArray = (int32Type *) pixelData->mem;
@@ -809,11 +808,12 @@ objectType drw_get_pixel_array (listType arguments)
             yPos = height; /* leave for-loop */
           } /* if */
         } /* for */
-        if (unlikely(imageArray == NULL)) {
-          result = raise_exception(SYS_MEM_EXCEPTION);
-        } else {
-          result = bld_array_temp(imageArray);
-        } /* if */
+      } /* if */
+      bstDestr(pixelData);
+      if (unlikely(imageArray == NULL)) {
+        result = raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        result = bld_array_temp(imageArray);
       } /* if */
     } /* if */
     logFunction(printf("drw_get_pixel_array -->\n"););

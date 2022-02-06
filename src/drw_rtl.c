@@ -41,6 +41,7 @@
 #include "common.h"
 #include "data_rtl.h"
 #include "heaputl.h"
+#include "bst_rtl.h"
 #include "rtl_err.h"
 #include "drw_drv.h"
 
@@ -354,30 +355,33 @@ rtlArrayType drwGetPixelArray (const_winType sourceWindow)
     height = (memSizeType) drwHeight(sourceWindow);
     width = (memSizeType) drwWidth(sourceWindow);
     pixelData = drwGetPixelData(sourceWindow);
-    if (unlikely(!ALLOC_RTL_ARRAY(imageArray, height))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      imageArray->min_position = 1;
-      imageArray->max_position = (intType) height;
-      pixelArray = (int32Type *) pixelData->mem;
-      for (yPos = 0; yPos < height; yPos++) {
-	if (likely(ALLOC_RTL_ARRAY(imageLine, width))) {
-          imageLine->min_position = 1;
-          imageLine->max_position = (intType) width;
-          imageArray->arr[yPos].value.arrayValue = imageLine;
-          memcpy_from_pixel((intType *) imageLine->arr, pixelArray, width);
-          pixelArray += width;
-        } else {
-          while (yPos >= 1) {
-            yPos--;
-            FREE_RTL_ARRAY(imageArray->arr[yPos].value.arrayValue, width);
-          } /* while */
-          FREE_RTL_ARRAY(imageArray, height);
-          raise_error(MEMORY_ERROR);
-          imageArray = NULL;
-          yPos = height; /* leave for-loop */
-        } /* if */
-      } /* for */
+    if (likely(pixelData != NULL)) {
+      if (likely(ALLOC_RTL_ARRAY(imageArray, height))) {
+        imageArray->min_position = 1;
+        imageArray->max_position = (intType) height;
+        pixelArray = (int32Type *) pixelData->mem;
+        for (yPos = 0; yPos < height; yPos++) {
+          if (likely(ALLOC_RTL_ARRAY(imageLine, width))) {
+            imageLine->min_position = 1;
+            imageLine->max_position = (intType) width;
+            imageArray->arr[yPos].value.arrayValue = imageLine;
+            memcpy_from_pixel((intType *) imageLine->arr, pixelArray, width);
+            pixelArray += width;
+          } else {
+            while (yPos >= 1) {
+              yPos--;
+              FREE_RTL_ARRAY(imageArray->arr[yPos].value.arrayValue, width);
+            } /* while */
+            FREE_RTL_ARRAY(imageArray, height);
+            imageArray = NULL;
+            yPos = height; /* leave for-loop */
+          } /* if */
+        } /* for */
+      } /* if */
+      bstDestr(pixelData);
+      if (unlikely(imageArray == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
     } /* if */
     return imageArray;
   } /* drwGetPixelArray */
