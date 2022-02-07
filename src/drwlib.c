@@ -399,12 +399,12 @@ objectType drw_color (listType arguments)
 
 
 
-objectType drw_convPointList (listType arguments)
+objectType drw_conv_point_list (listType arguments)
 
-  { /* drw_convPointList */
+  { /* drw_conv_point_list */
     isit_bstri(arg_1(arguments));
     return toIntArray(drwConvPointList(take_bstri(arg_1(arguments))));
-  } /* drw_convPointList */
+  } /* drw_conv_point_list */
 
 
 
@@ -647,14 +647,14 @@ objectType drw_flush (listType arguments)
 
 
 
-objectType drw_fpolyLine (listType arguments)
+objectType drw_fpoly_line (listType arguments)
 
   {
     winType actual_window;
     intType x, y, col;
     bstriType point_list;
 
-  /* drw_fpolyLine */
+  /* drw_fpoly_line */
     isit_win(arg_1(arguments));
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
@@ -667,11 +667,11 @@ objectType drw_fpolyLine (listType arguments)
     col = take_int(arg_5(arguments));
     drwFPolyLine(actual_window, x, y, point_list, col);
     return SYS_EMPTY_OBJECT;
-  } /* drw_fpolyLine */
+  } /* drw_fpoly_line */
 
 
 
-objectType drw_genPointList (listType arguments)
+objectType drw_gen_point_list (listType arguments)
 
   {
     arrayType points_array;
@@ -681,12 +681,12 @@ objectType drw_genPointList (listType arguments)
     memSizeType pos;
     bstriType result;
 
-  /* drw_genPointList */
+  /* drw_gen_point_list */
     isit_array(arg_1(arguments));
     points_array = take_array(arg_1(arguments));
     len = arraySize(points_array);
     if (len == 0 || len & 1) {
-      logError(printf("drw_genPointList(arr1 (size=" FMT_U_MEM "): "
+      logError(printf("drw_gen_point_list(arr1 (size=" FMT_U_MEM "): "
                       "Size zero or odd.",
                       len););
       return raise_exception(SYS_RNG_EXCEPTION);
@@ -707,11 +707,11 @@ objectType drw_genPointList (listType arguments)
       } /* if */
     } /* if */
     return bld_bstri_temp(result);
-  } /* drw_genPointList */
+  } /* drw_gen_point_list */
 
 
 
-objectType drw_getImagePixel (listType arguments)
+objectType drw_get_image_pixel (listType arguments)
 
   {
     bstriType image;
@@ -720,7 +720,7 @@ objectType drw_getImagePixel (listType arguments)
     intType x;
     intType y;
 
-  /* drw_getImagePixel */
+  /* drw_get_image_pixel */
     isit_bstri(arg_1(arguments));
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
@@ -733,7 +733,7 @@ objectType drw_getImagePixel (listType arguments)
     y = take_int(arg_5(arguments));
     return bld_int_temp(
         drwGetImagePixel(image, width, height, x, y));
-  } /* drw_getImagePixel */
+  } /* drw_get_image_pixel */
 
 
 
@@ -1237,14 +1237,14 @@ objectType drw_pfellipse (listType arguments)
 
 
 
-objectType drw_pixelToRgb (listType arguments)
+objectType drw_pixel_to_rgb (listType arguments)
 
   {
     objectType red_variable;
     objectType green_variable;
     objectType blue_variable;
 
-  /* drw_pixelToRgb */
+  /* drw_pixel_to_rgb */
     isit_int(arg_1(arguments));
     red_variable = arg_2(arguments);
     isit_int(red_variable);
@@ -1260,7 +1260,7 @@ objectType drw_pixelToRgb (listType arguments)
                   &green_variable->value.intValue,
                   &blue_variable->value.intValue);
     return SYS_EMPTY_OBJECT;
-  } /* drw_pixelToRgb */
+  } /* drw_pixel_to_rgb */
 
 
 
@@ -1328,14 +1328,14 @@ objectType drw_pointer_ypos (listType arguments)
 
 
 
-objectType drw_polyLine (listType arguments)
+objectType drw_poly_line (listType arguments)
 
   {
     winType actual_window;
     intType x, y, col;
     bstriType point_list;
 
-  /* drw_polyLine */
+  /* drw_poly_line */
     isit_win(arg_1(arguments));
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
@@ -1348,7 +1348,7 @@ objectType drw_polyLine (listType arguments)
     col = take_int(arg_5(arguments));
     drwPolyLine(actual_window, x, y, point_list, col);
     return SYS_EMPTY_OBJECT;
-  } /* drw_polyLine */
+  } /* drw_poly_line */
 
 
 
@@ -1521,25 +1521,25 @@ objectType drw_screen_width (listType arguments)
 
 
 
-objectType drw_setCloseAction (listType arguments)
+objectType drw_set_close_action (listType arguments)
 
-  { /* drw_setCloseAction */
+  { /* drw_set_close_action */
     isit_win(arg_1(arguments));
     isit_int(arg_2(arguments));
     drwSetCloseAction(take_win(arg_1(arguments)), take_int(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* drw_setCloseAction */
+  } /* drw_set_close_action */
 
 
 
-objectType drw_setContent (listType arguments)
+objectType drw_set_content (listType arguments)
 
-  { /* drw_setContent */
+  { /* drw_set_content */
     isit_win(arg_1(arguments));
     isit_win(arg_2(arguments));
     drwSetContent(take_win(arg_1(arguments)), take_win(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* drw_setContent */
+  } /* drw_set_content */
 
 
 
@@ -1549,15 +1549,15 @@ objectType drw_setContent (listType arguments)
  *  @param visible/arg_2 TRUE, if the mouse cursor should be visible, or
  *                       FALSE, if the mouse curser should be invisible.
  */
-objectType drw_setCursorVisible (listType arguments)
+objectType drw_set_cursor_visible (listType arguments)
 
-  { /* drw_setCursorVisible */
+  { /* drw_set_cursor_visible */
     isit_win(arg_1(arguments));
     isit_bool(arg_2(arguments));
     drwSetCursorVisible(take_win(arg_1(arguments)),
                         take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT);
     return SYS_EMPTY_OBJECT;
-  } /* drw_setCursorVisible */
+  } /* drw_set_cursor_visible */
 
 
 
@@ -1567,39 +1567,39 @@ objectType drw_setCursorVisible (listType arguments)
  *  If window decorations are present the top left corner of the
  *  window decorations will be at the position x/y.
  */
-objectType drw_setPos (listType arguments)
+objectType drw_set_pos (listType arguments)
 
-  { /* drw_setPos */
+  { /* drw_set_pos */
     isit_win(arg_1(arguments));
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
     drwSetPos(take_win(arg_1(arguments)),
         take_int(arg_2(arguments)), take_int(arg_3(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* drw_setPos */
+  } /* drw_set_pos */
 
 
 
-objectType drw_setTransparentColor (listType arguments)
+objectType drw_set_transparent_color (listType arguments)
 
-  { /* drw_setTransparentColor */
+  { /* drw_set_transparent_color */
     isit_win(arg_1(arguments));
     isit_int(arg_2(arguments));
     drwSetTransparentColor(take_win(arg_1(arguments)),
         take_int(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* drw_setTransparentColor */
+  } /* drw_set_transparent_color */
 
 
 
-objectType drw_setWindowName (listType arguments)
+objectType drw_set_window_name (listType arguments)
 
-  { /* drw_setWindowName */
+  { /* drw_set_window_name */
     isit_win(arg_1(arguments));
     isit_stri(arg_2(arguments));
     drwSetWindowName(take_win(arg_1(arguments)), take_stri(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* drw_setWindowName */
+  } /* drw_set_window_name */
 
 
 
@@ -1633,26 +1633,26 @@ objectType drw_text (listType arguments)
 /**
  *  Lower a window to the bottom so that it does not obscure any other window.
  */
-objectType drw_toBottom (listType arguments)
+objectType drw_to_bottom (listType arguments)
 
-  { /* drw_toBottom */
+  { /* drw_to_bottom */
     isit_win(arg_1(arguments));
     drwToBottom(take_win(arg_1(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* drw_toBottom */
+  } /* drw_to_bottom */
 
 
 
 /**
  *  Raise a window to the top so that no other window obscures it.
  */
-objectType drw_toTop (listType arguments)
+objectType drw_to_top (listType arguments)
 
-  { /* drw_toTop */
+  { /* drw_to_top */
     isit_win(arg_1(arguments));
     drwToTop(take_win(arg_1(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* drw_toTop */
+  } /* drw_to_top */
 
 
 

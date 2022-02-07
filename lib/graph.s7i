@@ -176,7 +176,7 @@ const func PRIMITIVE_WINDOW: openSubWindow (
  *  @param windowName New name (title) of the window.
  *)
 const proc: setWindowName (in PRIMITIVE_WINDOW: aWindow,
-                           in string: windowName)   is action "DRW_SETWINDOWNAME";
+                           in string: windowName)   is action "DRW_SET_WINDOW_NAME";
 
 (**
  *  Set the visibility of the mouse cursor in ''aWindow''.
@@ -185,7 +185,7 @@ const proc: setWindowName (in PRIMITIVE_WINDOW: aWindow,
  *                 FALSE, if the mouse curser should be invisible in ''aWindow''.
  *)
 const proc: setCursorVisible (in PRIMITIVE_WINDOW: aWindow,
-                              in boolean: visible)  is action "DRW_SETCURSORVISIBLE";
+                              in boolean: visible)  is action "DRW_SET_CURSOR_VISIBLE";
 
 (**
  *  Capture a rectangular area from the screen.
@@ -211,7 +211,7 @@ const func pixel: getPixel (
 const func pixel: getPixel (
     in bstring: bImage, in integer: width,
     in integer: height, in integer: x,
-    in integer: y)                                  is action "DRW_GETIMAGEPIXEL";
+    in integer: y)                                  is action "DRW_GET_IMAGE_PIXEL";
 
 (**
  *  Copy a rectangular area from ''sourceWindow'' to ''destWindow''.
@@ -233,17 +233,17 @@ const proc: copyArea (in PRIMITIVE_WINDOW: sourceWindow,
     ref integer: dest_x, ref integer: dest_y)       is action "DRW_COPYAREA";
 
 const proc: SET_TRANSPARENTCOLOR (in PRIMITIVE_WINDOW: pixmap,
-    ref pixel: col)                                 is action "DRW_SETTRANSPARENTCOLOR";
+    ref pixel: col)                                 is action "DRW_SET_TRANSPARENT_COLOR";
 const func integer: hashCode (in PRIMITIVE_WINDOW: aWindow) is action "DRW_HASHCODE";
 const func integer: compare (in PRIMITIVE_WINDOW: window1,
                              in PRIMITIVE_WINDOW: window2)  is action "DRW_CMP";
 const proc: setContent (inout PRIMITIVE_WINDOW: aWindow,
-    in PRIMITIVE_WINDOW: pixmap)                            is action "DRW_SETCONTENT";
+    in PRIMITIVE_WINDOW: pixmap)                            is action "DRW_SET_CONTENT";
 const func pixel: rgbPixel (ref integer: red,
     ref integer: green, ref integer: blue)          is action "DRW_RGBCOL";
 const proc: DRAW_PIXEL_TO_RGB (
     in pixel: col, inout integer: red,
-    inout integer: green, inout integer: blue)      is action "DRW_PIXELTORGB";
+    inout integer: green, inout integer: blue)      is action "DRW_PIXEL_TO_RGB";
 const proc: SET_COLOR (ref pixel: aWindow)          is action "DRW_COLOR";
 const proc: SET_BACKGROUND (ref pixel: aWindow)     is action "DRW_BACKGROUND";
 const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW: aWindow,
@@ -305,17 +305,17 @@ const func integer: yPos (in PRIMITIVE_WINDOW: aWindow)     is action "DRW_YPOS"
  *  the position is relative to the top left corner of the screen.
  *)
 const proc: setPos (in PRIMITIVE_WINDOW: aWindow,
-    in integer: xPos, in integer: yPos)                     is action "DRW_SETPOS";
+    in integer: xPos, in integer: yPos)                     is action "DRW_SET_POS";
 
 (**
  *  Lower a window to the bottom so that it does not obscure any other window.
  *)
-const proc: toBottom (in PRIMITIVE_WINDOW: aWindow) is action "DRW_TOBOTTOM";
+const proc: toBottom (in PRIMITIVE_WINDOW: aWindow) is action "DRW_TO_BOTTOM";
 
 (**
  *  Raise a window to the top so that no other window obscures it.
  *)
-const proc: toTop (in PRIMITIVE_WINDOW: aWindow)    is action "DRW_TOTOP";
+const proc: toTop (in PRIMITIVE_WINDOW: aWindow)    is action "DRW_TO_TOP";
 
 (**
  *  Determine the border widths of a window in pixels.
@@ -344,7 +344,7 @@ const func integer: pointerXPos (in PRIMITIVE_WINDOW: aWindow) is action "DRW_PO
 const func integer: pointerYPos (in PRIMITIVE_WINDOW: aWindow) is action "DRW_POINTER_YPOS";
 
 
-const proc: SET_CLOSE_ACTION (in PRIMITIVE_WINDOW: aWindow, in integer: closeAction) is action "DRW_SETCLOSEACTION";
+const proc: SET_CLOSE_ACTION (in PRIMITIVE_WINDOW: aWindow, in integer: closeAction) is action "DRW_SET_CLOSE_ACTION";
 
 const type: windowCloseAction is new enum
     CLOSE_PROGRAM, RETURN_KEY, RAISE_EXCEPTION
@@ -393,13 +393,13 @@ const pointList: (attr pointList) . value                         is _GENERATE_E
  *  @return a pointList with the points from the array.
  *  @exception RANGE_ERROR If the length of the array is odd.
  *)
-const func pointList: genPointList (ref array integer: coordinates) is action "DRW_GENPOINTLIST";
+const func pointList: genPointList (ref array integer: coordinates) is action "DRW_GEN_POINT_LIST";
 
 (**
  *  Converts a 'pointList' to an array of (X,Y) coordinates.
  *  @return an array of alternate x and y values.
  *)
-const func array integer: xyArray (ref pointList: aPointList)     is action "DRW_CONVPOINTLIST";
+const func array integer: xyArray (ref pointList: aPointList)     is action "DRW_CONV_POINT_LIST";
 
 const func pointList: scale (in pointList: basePoints, in integer: scale) is func
   result
@@ -417,7 +417,7 @@ const func pointList: scale (in pointList: basePoints, in integer: scale) is fun
 
 const proc: DRAW_POLYLINE (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in pointList: point_list,
-    ref pixel: col)                                               is action "DRW_POLYLINE";
+    ref pixel: col)                                               is action "DRW_POLY_LINE";
 const proc: FILL_POLYLINE (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in pointList: point_list,
-    ref pixel: col)                                               is action "DRW_FPOLYLINE";
+    ref pixel: col)                                               is action "DRW_FPOLY_LINE";

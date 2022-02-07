@@ -617,9 +617,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_COLOR"}:
         drawLibraryUsed := TRUE;
         process(DRW_COLOR, function, params, c_expr);
-      when {"DRW_CONVPOINTLIST"}:
+      when {"DRW_CONV_POINT_LIST"}:
         drawLibraryUsed := TRUE;
-        process(DRW_CONVPOINTLIST, function, params, c_expr);
+        process(DRW_CONV_POINT_LIST, function, params, c_expr);
       when {"DRW_COPYAREA"}:
         drawLibraryUsed := TRUE;
         process(DRW_COPYAREA, function, params, c_expr);
@@ -644,15 +644,15 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_FLUSH"}:
         drawLibraryUsed := TRUE;
         process(DRW_FLUSH, function, params, c_expr);
-      when {"DRW_FPOLYLINE"}:
+      when {"DRW_FPOLY_LINE"}:
         drawLibraryUsed := TRUE;
-        process(DRW_FPOLYLINE, function, params, c_expr);
-      when {"DRW_GENPOINTLIST"}:
+        process(DRW_FPOLY_LINE, function, params, c_expr);
+      when {"DRW_GEN_POINT_LIST"}:
         drawLibraryUsed := TRUE;
-        process(DRW_GENPOINTLIST, function, params, c_expr);
-      when {"DRW_GETIMAGEPIXEL"}:
+        process(DRW_GEN_POINT_LIST, function, params, c_expr);
+      when {"DRW_GET_IMAGE_PIXEL"}:
         drawLibraryUsed := TRUE;
-        process(DRW_GETIMAGEPIXEL, function, params, c_expr);
+        process(DRW_GET_IMAGE_PIXEL, function, params, c_expr);
       when {"DRW_GET_PIXEL"}:
         drawLibraryUsed := TRUE;
         process(DRW_GET_PIXEL, function, params, c_expr);
@@ -707,9 +707,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_PFELLIPSE"}:
         drawLibraryUsed := TRUE;
         process(DRW_PFELLIPSE, function, params, c_expr);
-      when {"DRW_PIXELTORGB"}:
+      when {"DRW_PIXEL_TO_RGB"}:
         drawLibraryUsed := TRUE;
-        process(DRW_PIXELTORGB, function, params, c_expr);
+        process(DRW_PIXEL_TO_RGB, function, params, c_expr);
       when {"DRW_PLINE"}:
         drawLibraryUsed := TRUE;
         process(DRW_PLINE, function, params, c_expr);
@@ -722,9 +722,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_POINTER_YPOS"}:
         drawLibraryUsed := TRUE;
         process(DRW_POINTER_YPOS, function, params, c_expr);
-      when {"DRW_POLYLINE"}:
+      when {"DRW_POLY_LINE"}:
         drawLibraryUsed := TRUE;
-        process(DRW_POLYLINE, function, params, c_expr);
+        process(DRW_POLY_LINE, function, params, c_expr);
       when {"DRW_PPOINT"}:
         drawLibraryUsed := TRUE;
         process(DRW_PPOINT, function, params, c_expr);
@@ -749,33 +749,33 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_SCREEN_WIDTH"}:
         drawLibraryUsed := TRUE;
         process(DRW_SCREEN_WIDTH, function, params, c_expr);
-      when {"DRW_SETCLOSEACTION"}:
+      when {"DRW_SET_CLOSE_ACTION"}:
         drawLibraryUsed := TRUE;
-        process(DRW_SETCLOSEACTION, function, params, c_expr);
-      when {"DRW_SETCONTENT"}:
+        process(DRW_SET_CLOSE_ACTION, function, params, c_expr);
+      when {"DRW_SET_CONTENT"}:
         drawLibraryUsed := TRUE;
-        process(DRW_SETCONTENT, function, params, c_expr);
-      when {"DRW_SETCURSORVISIBLE"}:
+        process(DRW_SET_CONTENT, function, params, c_expr);
+      when {"DRW_SET_CURSOR_VISIBLE"}:
         drawLibraryUsed := TRUE;
-        process(DRW_SETCURSORVISIBLE, function, params, c_expr);
-      when {"DRW_SETPOS"}:
+        process(DRW_SET_CURSOR_VISIBLE, function, params, c_expr);
+      when {"DRW_SET_POS"}:
         drawLibraryUsed := TRUE;
-        process(DRW_SETPOS, function, params, c_expr);
-      when {"DRW_SETTRANSPARENTCOLOR"}:
+        process(DRW_SET_POS, function, params, c_expr);
+      when {"DRW_SET_TRANSPARENT_COLOR"}:
         drawLibraryUsed := TRUE;
-        process(DRW_SETTRANSPARENTCOLOR, function, params, c_expr);
-      when {"DRW_SETWINDOWNAME"}:
+        process(DRW_SET_TRANSPARENT_COLOR, function, params, c_expr);
+      when {"DRW_SET_WINDOW_NAME"}:
         drawLibraryUsed := TRUE;
-        process(DRW_SETWINDOWNAME, function, params, c_expr);
+        process(DRW_SET_WINDOW_NAME, function, params, c_expr);
       when {"DRW_TEXT"}:
         drawLibraryUsed := TRUE;
         process(DRW_TEXT, function, params, c_expr);
-      when {"DRW_TOBOTTOM"}:
+      when {"DRW_TO_BOTTOM"}:
         drawLibraryUsed := TRUE;
-        process(DRW_TOBOTTOM, function, params, c_expr);
-      when {"DRW_TOTOP"}:
+        process(DRW_TO_BOTTOM, function, params, c_expr);
+      when {"DRW_TO_TOP"}:
         drawLibraryUsed := TRUE;
-        process(DRW_TOTOP, function, params, c_expr);
+        process(DRW_TO_TOP, function, params, c_expr);
       when {"DRW_VALUE"}:
         drawLibraryUsed := TRUE;
         process(DRW_VALUE, function, params, c_expr);

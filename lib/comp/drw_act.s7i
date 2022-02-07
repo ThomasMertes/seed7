@@ -33,7 +33,7 @@ const ACTION: DRW_CIRCLE                 is action "DRW_CIRCLE";
 const ACTION: DRW_CLEAR                  is action "DRW_CLEAR";
 const ACTION: DRW_CMP                    is action "DRW_CMP";
 const ACTION: DRW_COLOR                  is action "DRW_COLOR";
-const ACTION: DRW_CONVPOINTLIST          is action "DRW_CONVPOINTLIST";
+const ACTION: DRW_CONV_POINT_LIST        is action "DRW_CONV_POINT_LIST";
 const ACTION: DRW_COPYAREA               is action "DRW_COPYAREA";
 const ACTION: DRW_CPY                    is action "DRW_CPY";
 const ACTION: DRW_EQ                     is action "DRW_EQ";
@@ -42,9 +42,9 @@ const ACTION: DRW_FARCPIESLICE           is action "DRW_FARCPIESLICE";
 const ACTION: DRW_FCIRCLE                is action "DRW_FCIRCLE";
 const ACTION: DRW_FELLIPSE               is action "DRW_FELLIPSE";
 const ACTION: DRW_FLUSH                  is action "DRW_FLUSH";
-const ACTION: DRW_FPOLYLINE              is action "DRW_FPOLYLINE";
-const ACTION: DRW_GENPOINTLIST           is action "DRW_GENPOINTLIST";
-const ACTION: DRW_GETIMAGEPIXEL          is action "DRW_GETIMAGEPIXEL";
+const ACTION: DRW_FPOLY_LINE             is action "DRW_FPOLY_LINE";
+const ACTION: DRW_GEN_POINT_LIST         is action "DRW_GEN_POINT_LIST";
+const ACTION: DRW_GET_IMAGE_PIXEL        is action "DRW_GET_IMAGE_PIXEL";
 const ACTION: DRW_GET_PIXEL              is action "DRW_GET_PIXEL";
 const ACTION: DRW_GET_PIXEL_ARRAY        is action "DRW_GET_PIXEL_ARRAY";
 const ACTION: DRW_GET_PIXEL_DATA         is action "DRW_GET_PIXEL_DATA";
@@ -63,12 +63,12 @@ const ACTION: DRW_PFARCCHORD             is action "DRW_PFARCCHORD";
 const ACTION: DRW_PFARCPIESLICE          is action "DRW_PFARCPIESLICE";
 const ACTION: DRW_PFCIRCLE               is action "DRW_PFCIRCLE";
 const ACTION: DRW_PFELLIPSE              is action "DRW_PFELLIPSE";
-const ACTION: DRW_PIXELTORGB             is action "DRW_PIXELTORGB";
+const ACTION: DRW_PIXEL_TO_RGB           is action "DRW_PIXEL_TO_RGB";
 const ACTION: DRW_PLINE                  is action "DRW_PLINE";
 const ACTION: DRW_POINT                  is action "DRW_POINT";
 const ACTION: DRW_POINTER_XPOS           is action "DRW_POINTER_XPOS";
 const ACTION: DRW_POINTER_YPOS           is action "DRW_POINTER_YPOS";
-const ACTION: DRW_POLYLINE               is action "DRW_POLYLINE";
+const ACTION: DRW_POLY_LINE              is action "DRW_POLY_LINE";
 const ACTION: DRW_PPOINT                 is action "DRW_PPOINT";
 const ACTION: DRW_PRECT                  is action "DRW_PRECT";
 const ACTION: DRW_PUT                    is action "DRW_PUT";
@@ -77,15 +77,15 @@ const ACTION: DRW_RECT                   is action "DRW_RECT";
 const ACTION: DRW_RGBCOL                 is action "DRW_RGBCOL";
 const ACTION: DRW_SCREEN_HEIGHT          is action "DRW_SCREEN_HEIGHT";
 const ACTION: DRW_SCREEN_WIDTH           is action "DRW_SCREEN_WIDTH";
-const ACTION: DRW_SETCLOSEACTION         is action "DRW_SETCLOSEACTION";
-const ACTION: DRW_SETCONTENT             is action "DRW_SETCONTENT";
-const ACTION: DRW_SETCURSORVISIBLE       is action "DRW_SETCURSORVISIBLE";
-const ACTION: DRW_SETPOS                 is action "DRW_SETPOS";
-const ACTION: DRW_SETTRANSPARENTCOLOR    is action "DRW_SETTRANSPARENTCOLOR";
-const ACTION: DRW_SETWINDOWNAME          is action "DRW_SETWINDOWNAME";
+const ACTION: DRW_SET_CLOSE_ACTION       is action "DRW_SET_CLOSE_ACTION";
+const ACTION: DRW_SET_CONTENT            is action "DRW_SET_CONTENT";
+const ACTION: DRW_SET_CURSOR_VISIBLE     is action "DRW_SET_CURSOR_VISIBLE";
+const ACTION: DRW_SET_POS                is action "DRW_SET_POS";
+const ACTION: DRW_SET_TRANSPARENT_COLOR  is action "DRW_SET_TRANSPARENT_COLOR";
+const ACTION: DRW_SET_WINDOW_NAME        is action "DRW_SET_WINDOW_NAME";
 const ACTION: DRW_TEXT                   is action "DRW_TEXT";
-const ACTION: DRW_TOBOTTOM               is action "DRW_TOBOTTOM";
-const ACTION: DRW_TOTOP                  is action "DRW_TOTOP";
+const ACTION: DRW_TO_BOTTOM              is action "DRW_TO_BOTTOM";
+const ACTION: DRW_TO_TOP                 is action "DRW_TO_TOP";
 const ACTION: DRW_VALUE                  is action "DRW_VALUE";
 const ACTION: DRW_WIDTH                  is action "DRW_WIDTH";
 const ACTION: DRW_XPOS                   is action "DRW_XPOS";
@@ -357,7 +357,7 @@ const proc: process (DRW_COLOR, in reference: function,
   end func;
 
 
-const proc: process (DRW_CONVPOINTLIST, in reference: function,
+const proc: process (DRW_CONV_POINT_LIST, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -552,7 +552,7 @@ const proc: process (DRW_FLUSH, in reference: function,
   end func;
 
 
-const proc: process (DRW_FPOLYLINE, in reference: function,
+const proc: process (DRW_FPOLY_LINE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -571,7 +571,7 @@ const proc: process (DRW_FPOLYLINE, in reference: function,
   end func;
 
 
-const proc: process (DRW_GENPOINTLIST, in reference: function,
+const proc: process (DRW_GEN_POINT_LIST, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -582,7 +582,7 @@ const proc: process (DRW_GENPOINTLIST, in reference: function,
   end func;
 
 
-const proc: process (DRW_GETIMAGEPIXEL, in reference: function,
+const proc: process (DRW_GET_IMAGE_PIXEL, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -933,7 +933,7 @@ const proc: assignColorOfPixel (in string: pixelName,
   end func;
 
 
-const proc: process (DRW_PIXELTORGB, in reference: function,
+const proc: process (DRW_PIXEL_TO_RGB, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -1050,7 +1050,7 @@ const proc: process (DRW_POINTER_YPOS, in reference: function,
   end func;
 
 
-const proc: process (DRW_POLYLINE, in reference: function,
+const proc: process (DRW_POLY_LINE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1194,7 +1194,7 @@ const proc: process (DRW_SCREEN_WIDTH, in reference: function,
   end func;
 
 
-const proc: process (DRW_SETCLOSEACTION, in reference: function,
+const proc: process (DRW_SET_CLOSE_ACTION, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1207,7 +1207,7 @@ const proc: process (DRW_SETCLOSEACTION, in reference: function,
   end func;
 
 
-const proc: process (DRW_SETCONTENT, in reference: function,
+const proc: process (DRW_SET_CONTENT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1220,7 +1220,7 @@ const proc: process (DRW_SETCONTENT, in reference: function,
   end func;
 
 
-const proc: process (DRW_SETCURSORVISIBLE, in reference: function,
+const proc: process (DRW_SET_CURSOR_VISIBLE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1233,7 +1233,7 @@ const proc: process (DRW_SETCURSORVISIBLE, in reference: function,
   end func;
 
 
-const proc: process (DRW_SETPOS, in reference: function,
+const proc: process (DRW_SET_POS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1248,7 +1248,7 @@ const proc: process (DRW_SETPOS, in reference: function,
   end func;
 
 
-const proc: process (DRW_SETTRANSPARENTCOLOR, in reference: function,
+const proc: process (DRW_SET_TRANSPARENT_COLOR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1261,7 +1261,7 @@ const proc: process (DRW_SETTRANSPARENTCOLOR, in reference: function,
   end func;
 
 
-const proc: process (DRW_SETWINDOWNAME, in reference: function,
+const proc: process (DRW_SET_WINDOW_NAME, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1295,7 +1295,7 @@ const proc: process (DRW_TEXT, in reference: function,
   end func;
 
 
-const proc: process (DRW_TOBOTTOM, in reference: function,
+const proc: process (DRW_TO_BOTTOM, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1306,7 +1306,7 @@ const proc: process (DRW_TOBOTTOM, in reference: function,
   end func;
 
 
-const proc: process (DRW_TOTOP, in reference: function,
+const proc: process (DRW_TO_TOP, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
