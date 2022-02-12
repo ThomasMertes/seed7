@@ -165,10 +165,14 @@ const func browserConnection: openBrowser is func
       # cmd_sh("firefox localhost:" <& port <& " &");
       if fileType("/usr/bin/firefox") <> FILE_ABSENT then
         browser.program := startProcess("/usr/bin/firefox", [] ("localhost:" <& port));
+      elsif fileType("/usr/bin/chromium") <> FILE_ABSENT then
+        browser.program := startProcess("/usr/bin/chromium", [] ("http://localhost:" <& port));
       elsif fileType("/c/Program Files/Mozilla Firefox/firefox.exe") <> FILE_ABSENT then
         browser.program := startProcess("/c/Program Files/Mozilla Firefox/firefox.exe", [] ("localhost:" <& port));
       elsif fileType("/c/Program Files (x86)/Mozilla Firefox/firefox.exe") <> FILE_ABSENT then
         browser.program := startProcess("/c/Program Files (x86)/Mozilla Firefox/firefox.exe", [] ("localhost:" <& port));
+      elsif fileType("/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe") <> FILE_ABSENT then
+        browser.program := startProcess("/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", [] ("http://localhost:" <& port));
       elsif fileType("/c/Program Files/Internet Explorer/iexplore.exe") <> FILE_ABSENT then
         browser.program := startProcess("/c/Program Files/Internet Explorer/iexplore.exe", [] ("http://localhost:" <& port));
       elsif fileType("/c/Program Files (x86)/Internet Explorer/iexplore.exe") <> FILE_ABSENT then
@@ -211,6 +215,32 @@ const proc: acceptNewSock (inout browserConnection: browser) is func
   end func;
 
 
+const proc: sendClientError (inout file: sock, in integer: statuscode,
+    in string: message, in string: explanation) is func
+  local
+    var string: response is "";
+    var string: htmlMessage is "";
+  begin
+    htmlMessage := "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n\
+                   \<html><head>\n\
+                   \<title>" <& statuscode <& " " <& message <& "</title>\n\
+                   \</head><body>\n\
+                   \<h1>" <& message <& "</h1>\n\
+                   \<p>" <& explanation <& "</p>\n\
+                   \<hr>\n\
+                   \<address>Comanche</address>\n\
+                   \</body></html>\n";
+    response := "HTTP/1.1 " <& statuscode <& " " <& message <& "\r\n\
+                \Server: Comanche\r\n\
+                \Transfer-Encoding: identity\r\n\
+                \Content-Length: " <& length(htmlMessage) <& "\r\n\
+                \Content-Type: text/html\r\n\
+                \\r\n";
+    response &:= htmlMessage;
+    write(sock, response);
+  end func;
+
+
 const proc: display (inout browserConnection: browser, inout webPage: currWebPage) is func
   local
     var string: filePath is "";
@@ -230,10 +260,9 @@ const proc: display (inout browserConnection: browser, inout webPage: currWebPag
         if filePath <> "/" then
           # If the connection has been closed filePath is "".
           block
-            write(browser.sock, "HTTP/1.1 404 Not Found\r\n\
-                                \Connection: keep-alive\r\n\
-                                \Content-Length: 0\r\n\
-                                \r\n");
+            sendClientError(browser.sock, 404, "Not Found",
+                "The requested URL " <& filePath <&
+                " was not found on this server.");
           exception
             catch FILE_ERROR:
               noop;  # Ignore error (the browser has already closed the socket).
