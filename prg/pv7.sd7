@@ -50,22 +50,22 @@ const proc: writeMessage (in string: message) is func
   end func;
 
 
-const proc: nextImageFile (in array string: fileList, inout integer: index) is func
+const proc: nextImageFile (in string: dirPath, in array string: fileList, inout integer: index) is func
   begin
     if index <= length(fileList) then
       repeat
         incr(index);
-      until index > length(fileList) or hasImageExtension(fileList[index]);
+      until index > length(fileList) or hasImageExtension(dirPath & fileList[index]);
     end if;
   end func;
 
 
-const proc: previousImageFile (in array string: fileList, inout integer: index) is func
+const proc: previousImageFile (in string: dirPath, in array string: fileList, inout integer: index) is func
   begin
     if index >= 1 then
       repeat
         decr(index);
-      until index < 1 or hasImageExtension(fileList[index]);
+      until index < 1 or hasImageExtension(dirPath & fileList[index]);
     end if;
   end func;
 
@@ -106,6 +106,9 @@ const proc: displayImage (in PRIMITIVE_WINDOW: pixmap) is func
 
 const proc: main is func
   local
+    var string: fileName is "";
+    var integer: slashPos is 0;
+    var string: dirPath is "";
     var array string: fileList is 0 times "";
     var integer: index is 0;
     var file: imageFile is STD_NULL;
@@ -119,14 +122,34 @@ const proc: main is func
     flushGraphic;
     KEYBOARD := GRAPH_KEYBOARD;
     OUT := STD_CONSOLE;
-    fileList := readDir(getcwd);
     if length(argv(PROGRAM)) >= 1 then
-      findFileWithName(fileList, argv(PROGRAM)[1], index);
-      if index = 0 or not hasImageExtension(fileList[index]) then
-        nextImageFile(fileList, index);
+      fileName := convDosPath(argv(PROGRAM)[1]);
+      if fileType(fileName) = FILE_DIR then
+        dirPath := fileName &  "/";
+        fileList := readDir(fileName);
+      else
+        slashPos := rpos(fileName, '/');
+        if slashPos <> 0 then
+          if slashPos = 1 then
+            dirPath := "/";
+            fileList := readDir("/");
+          else
+            dirPath := fileName[.. slashPos];
+            fileList := readDir(fileName[.. pred(slashPos)]);
+          end if;
+          fileName := fileName[succ(slashPos) ..];
+        else
+          dirPath := getcwd & "/";
+          fileList := readDir(getcwd);
+        end if;
+        findFileWithName(fileList, fileName, index);
       end if;
     else
-      nextImageFile(fileList, index);
+      dirPath := getcwd & "/";
+      fileList := readDir(getcwd);
+    end if;
+    if index = 0 or not hasImageExtension(dirPath & fileList[index]) then
+      nextImageFile(dirPath, fileList, index);
     end if;
     repeat
       command := KEY_NONE;
@@ -138,7 +161,7 @@ const proc: main is func
         writeMessage("End");
       else
         setWindowName(curr_win, fileList[index]);
-        imageFile := open(fileList[index], "r");
+        imageFile := open(dirPath & fileList[index], "r");
         if imageFile <> STD_NULL then
           # writeln(fileList[index]);
           pixmap := readImage(imageFile);
@@ -167,9 +190,9 @@ const proc: main is func
           command := getc(KEYBOARD);
         end if;
         if command = KEY_MOUSE1 or command = KEY_NL or command = KEY_TAB or command = KEY_RIGHT then
-          nextImageFile(fileList, index);
+          nextImageFile(dirPath, fileList, index);
         elsif command = KEY_MOUSE3 or command = KEY_BACKTAB or command = KEY_LEFT then
-          previousImageFile(fileList, index);
+          previousImageFile(dirPath, fileList, index);
         end if;
         commandPresent := FALSE;
       until not keypressed(KEYBOARD);
