@@ -78,8 +78,14 @@ const proc: sendHttpResponse (inout file: sock, in string: content,
       response &:= "Content-Type: image/png\r\n";
     elsif startsWith(content, "GIF87a") or startsWith(content, "GIF89a") then
       response &:= "Content-Type: image/gif\r\n";
+    elsif startsWith(content, "\16#ff;\16#d8;\16#ff;") then
+      response &:= "Content-Type: image/jpeg\r\n";
     elsif startsWith(content, "BM") then
       response &:= "Content-Type: image/bmp\r\n";
+    elsif startsWith(content, "\0;\0;\1;\0;") then
+      response &:= "Content-Type: image/x-icon\r\n";
+    elsif startsWith(content, "II\42;\0;") or startsWith(content, "MM\0;\42;") then
+      response &:= "Content-Type: image/tiff\r\n";
     elsif startsWith(content, "%PDF-") then
       response &:= "Content-Type: application/pdf\r\n";
     elsif startsWith(content, "\0;asm") then
@@ -123,12 +129,12 @@ const proc: sendClientError (inout file: sock, in integer: statuscode,
                    \<hr>\n\
                    \<address>Comanche</address>\n\
                    \</body></html>\n";
-    response &:= "HTTP/1.1 " <& statuscode <& " " <& message <& "\r\n";
-    response &:= "Server: Comanche\r\n";
-    response &:= "Transfer-Encoding: identity\r\n";
-    response &:= "Content-Length: " <& length(htmlMessage) <& "\r\n";
-    response &:= "Content-Type: text/html\r\n";
-    response &:= "\r\n";
+    response := "HTTP/1.1 " <& statuscode <& " " <& message <& "\r\n\
+                \Server: Comanche\r\n\
+                \Transfer-Encoding: identity\r\n\
+                \Content-Length: " <& length(htmlMessage) <& "\r\n\
+                \Content-Type: text/html\r\n\
+                \\r\n";
     response &:= htmlMessage;
     write(sock, response);
   end func;
