@@ -61,22 +61,23 @@
 #define CLI_DLL DB2_DLL
 #endif
 
+#define loadBaseDlls()
 #define ALLOW_EXECUTE_SUCCESS_WITH_INFO
 #define ALLOW_FETCH_SUCCESS_WITH_INFO
 
 #include "sql_cli.c"
 
 typedef struct {
-    wstriType hostname;
+    SQLWCHAR *hostname;
     memSizeType hostnameLength;
     intType port;
-    wstriType database;
+    SQLWCHAR *database;
     memSizeType databaseLength;
-    wstriType uid;
+    SQLWCHAR *uid;
     memSizeType uidLength;
-    wstriType pwd;
+    SQLWCHAR *pwd;
     memSizeType pwdLength;
-    wstriType connectionString;
+    SQLWCHAR *connectionString;
     memSizeType connectionStringLength;
   } connectDataRecord, *connectDataType;
 
@@ -87,20 +88,20 @@ typedef struct {
 static boolType createConnectionString (connectDataType connectData)
 
   {
-    const wcharType databaseKey[] = {'D', 'A', 'T', 'A', 'B', 'A', 'S', 'E', '=', '\0'};
-    const wcharType hostnameKey[] = {'H', 'O', 'S', 'T', 'N', 'A', 'M', 'E', '=', '\0'};
-    const wcharType localhost[] = {'l', 'o', 'c', 'a', 'l', 'h', 'o', 's', 't', '\0'};
-    const wcharType portKey[] = {'P', 'O', 'R', 'T', '=', '\0'};
-    const wcharType protocolKeyAndValue[] = {'P', 'R', 'O', 'T', 'O', 'C', 'O', 'L', '=', 'T', 'C', 'P', 'I', 'P', '\0'};
-    const wcharType uidKey[] = {'U', 'I', 'D', '=', '\0'};
-    const wcharType pwdKey[] = {'P', 'W', 'D', '=', '\0'};
-    const_wstriType hostname;
+    const SQLWCHAR databaseKey[] = {'D', 'A', 'T', 'A', 'B', 'A', 'S', 'E', '=', '\0'};
+    const SQLWCHAR hostnameKey[] = {'H', 'O', 'S', 'T', 'N', 'A', 'M', 'E', '=', '\0'};
+    const SQLWCHAR localhost[] = {'l', 'o', 'c', 'a', 'l', 'h', 'o', 's', 't', '\0'};
+    const SQLWCHAR portKey[] = {'P', 'O', 'R', 'T', '=', '\0'};
+    const SQLWCHAR protocolKeyAndValue[] = {'P', 'R', 'O', 'T', 'O', 'C', 'O', 'L', '=', 'T', 'C', 'P', 'I', 'P', '\0'};
+    const SQLWCHAR uidKey[] = {'U', 'I', 'D', '=', '\0'};
+    const SQLWCHAR pwdKey[] = {'P', 'W', 'D', '=', '\0'};
+    const SQLWCHAR *hostname;
     memSizeType hostnameLength;
     intType port;
     char portName[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     memSizeType portNameLength;
     memSizeType connectionStringLength;
-    wstriType connectionString;
+    SQLWCHAR *connectionString;
     memSizeType pos = 0;
     boolType okay = FALSE;
 

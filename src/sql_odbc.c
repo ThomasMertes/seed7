@@ -72,37 +72,38 @@
 #define CLI_DLL ODBC_DLL
 #endif
 
+#define loadBaseDlls()
 #define ODBC_DRIVER_FUNCTIONS_NEEDED
 
 #include "sql_cli.c"
 
 typedef struct {
-    wstriType driverW;
+    SQLWCHAR *driverW;
     memSizeType driverW_length;
-    wstriType serverW;
+    SQLWCHAR *serverW;
     memSizeType serverW_length;
-    wstriType dbNameW;
+    SQLWCHAR *dbNameW;
     memSizeType dbNameW_length;
-    wstriType userW;
+    SQLWCHAR *userW;
     memSizeType userW_length;
-    wstriType passwordW;
+    SQLWCHAR *passwordW;
     memSizeType passwordW_length;
   } connectDataRecord, *connectDataType;
 
 
 
-static wstriType getRegularName (wstriType wstri, memSizeType wstriLength)
+static SQLWCHAR *getRegularName (SQLWCHAR *wstri, memSizeType wstriLength)
 
   {
-    wstriType destWstri;
-    wstriType compressedWstri;
+    SQLWCHAR *destWstri;
+    SQLWCHAR *compressedWstri;
 
   /* getRegularName */
     if (ALLOC_WSTRI(compressedWstri, wstriLength)) {
       destWstri = compressedWstri;
       while (*wstri != '\0') {
         if (*wstri >= 'A' && *wstri <= 'Z') {
-          *destWstri = (wcharType) (*wstri - 'A' + 'a');
+          *destWstri = (SQLWCHAR) (*wstri - 'A' + 'a');
           destWstri++;
         } else if (*wstri != ' ') {
           *destWstri = *wstri;
@@ -117,33 +118,33 @@ static wstriType getRegularName (wstriType wstri, memSizeType wstriLength)
 
 
 
-static wstriType wstriSearchCh (const_wstriType str, const wcharType ch)
+static SQLWCHAR *wstriSearchCh (const SQLWCHAR *str, const SQLWCHAR ch)
 
   { /* wstriSearchCh */
     for (; *str != ch; str++) {
-      if (*str == (wcharType) 0) {
+      if (*str == (SQLWCHAR) 0) {
         return NULL;
       } /* if */
     } /* for */
-    return (wstriType) str;
+    return (SQLWCHAR *) str;
   } /* wstriSearchCh */
 
 
 
-static wstriType wstriSearch (const_wstriType haystack, const_wstriType needle)
+static SQLWCHAR *wstriSearch (const SQLWCHAR *haystack, const SQLWCHAR *needle)
 
   {
-    const_wstriType sc1;
-    const_wstriType sc2;
+    const SQLWCHAR *sc1;
+    const SQLWCHAR *sc2;
 
   /* wstriSearch */
-    if (*needle == (wcharType) 0) {
-      return (wstriType) haystack;
+    if (*needle == (SQLWCHAR) 0) {
+      return (SQLWCHAR *) haystack;
     } else {
       for (; (haystack = wstriSearchCh(haystack, *needle)) != NULL; haystack++) {
         for (sc1 = haystack, sc2 = needle; ; ) {
-          if (*++sc2 == (wcharType) 0) {
-            return (wstriType) haystack;
+          if (*++sc2 == (SQLWCHAR) 0) {
+            return (SQLWCHAR *) haystack;
           } else if (*++sc1 != *sc2) {
             break;
           } /* if */
@@ -156,16 +157,16 @@ static wstriType wstriSearch (const_wstriType haystack, const_wstriType needle)
 
 
 static boolType connectToServer (connectDataType connectData,
-    SQLHDBC sql_connection, wstriType driver, memSizeType driverLength,
-    wstriType server, memSizeType serverLength)
+    SQLHDBC sql_connection, SQLWCHAR *driver, memSizeType driverLength,
+    SQLWCHAR *server, memSizeType serverLength)
 
   {
-    const wcharType driverKey[] = {'D', 'R', 'I', 'V', 'E', 'R', '=', '\0'};
-    const wcharType serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '=', '\0'};
-    const wcharType databaseKey[] = {'D', 'A', 'T', 'A', 'B', 'A', 'S', 'E', '=', '\0'};
-    const wcharType uidKey[] = {'U', 'I', 'D', '=', '\0'};
-    const wcharType pwdKey[] = {'P', 'W', 'D', '=', '\0'};
-    wcharType inConnectionString[4096];
+    const SQLWCHAR driverKey[] = {'D', 'R', 'I', 'V', 'E', 'R', '=', '\0'};
+    const SQLWCHAR serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '=', '\0'};
+    const SQLWCHAR databaseKey[] = {'D', 'A', 'T', 'A', 'B', 'A', 'S', 'E', '=', '\0'};
+    const SQLWCHAR uidKey[] = {'U', 'I', 'D', '=', '\0'};
+    const SQLWCHAR pwdKey[] = {'P', 'W', 'D', '=', '\0'};
+    SQLWCHAR inConnectionString[4096];
     memSizeType stringLength;
     SQLWCHAR outConnectionString[4096];
     SQLSMALLINT outConnectionStringLength;
@@ -251,19 +252,19 @@ static boolType connectToServer (connectDataType connectData,
 
 
 static boolType connectToDriver (connectDataType connectData,
-    SQLHDBC sql_connection, wstriType driver, memSizeType driverLength)
+    SQLHDBC sql_connection, SQLWCHAR *driver, memSizeType driverLength)
 
   {
-    const wcharType driverKey[] = {'D', 'R', 'I', 'V', 'E', 'R', '=', '\0'};
-    const wcharType serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '\0'};
-    wcharType inConnectionString[4096];
+    const SQLWCHAR driverKey[] = {'D', 'R', 'I', 'V', 'E', 'R', '=', '\0'};
+    const SQLWCHAR serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '\0'};
+    SQLWCHAR inConnectionString[4096];
     memSizeType stringLength;
     SQLWCHAR outConnectionString[4096];
     SQLSMALLINT outConnectionStringLength;
-    wstriType regularNameOfSearchedServer;
-    wstriType regularServerName;
-    wstriType posFound;
-    wstriType server;
+    SQLWCHAR *regularNameOfSearchedServer;
+    SQLWCHAR *regularServerName;
+    SQLWCHAR *posFound;
+    SQLWCHAR *server;
     boolType lastServer;
     SQLRETURN returnCode;
     boolType okay = FALSE;
@@ -359,8 +360,8 @@ static boolType driverConnect (connectDataType connectData, SQLHDBC sql_connecti
   {
     SQLWCHAR driver[4096];
     SQLWCHAR attr[4096];
-    wstriType regularNameOfSearchedDriver;
-    wstriType regularDriverName;
+    SQLWCHAR *regularNameOfSearchedDriver;
+    SQLWCHAR *regularDriverName;
     SQLSMALLINT driverLength;
     SQLSMALLINT attrLength;
     SQLUSMALLINT direction;

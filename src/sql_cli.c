@@ -374,6 +374,7 @@ static boolType setupDll (const char *dllName)
   /* setupDll */
     logFunction(printf("setupDll(\"%s\")\n", dllName););
     if (dbDll == NULL) {
+      loadBaseDlls();
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
         if ((SQLAllocHandle     = (tp_SQLAllocHandle)     dllFunc(dbDll, "SQLAllocHandle"))     == NULL ||
@@ -458,11 +459,11 @@ static void sqlClose (databaseType database);
 
 
 
-static void wstri_to_cstri8 (ustriType cstri8, const_wstriType wstri)
+static void wstri_to_cstri8 (ustriType cstri8, const SQLWCHAR *wstri)
 
   {
     strElemType ch1;
-    wcharType ch2;
+    SQLWCHAR ch2;
 
   /* wstri_to_cstri8 */
     for (; (ch1 = *wstri) != 0; wstri++) {
@@ -5558,7 +5559,7 @@ static boolType setupFuncTable (void)
 
 
 #if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
-static void printWstri (wstriType wstri)
+static void printWstri (SQLWCHAR *wstri)
 
   { /* printWstri */
     while (*wstri != '\0') {

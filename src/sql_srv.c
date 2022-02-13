@@ -67,6 +67,7 @@
 #define CLI_DLL SQL_SERVER_DLL
 #endif
 
+#define loadBaseDlls()
 #if FREETDS_SQL_SERVER_CONNECTION
 #define WIDE_CHARS_SUPPORTED 1
 #define TINY_INT_IS_UNSIGNED 1
@@ -75,16 +76,16 @@
 #include "sql_cli.c"
 
 typedef struct {
-    wstriType server;
+    SQLWCHAR *server;
     memSizeType serverLength;
     intType port;
-    wstriType database;
+    SQLWCHAR *database;
     memSizeType databaseLength;
-    wstriType uid;
+    SQLWCHAR *uid;
     memSizeType uidLength;
-    wstriType pwd;
+    SQLWCHAR *pwd;
     memSizeType pwdLength;
-    wstriType connectionString;
+    SQLWCHAR *connectionString;
     memSizeType connectionStringLength;
   } connectDataRecord, *connectDataType;
 
@@ -95,17 +96,17 @@ typedef struct {
 static boolType createConnectionString (connectDataType connectData)
 
   {
-    const wcharType serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '=', '\0'};
-    const wcharType databaseKey[] = {'D', 'A', 'T', 'A', 'B', 'A', 'S', 'E', '=', '\0'};
-    const wcharType localhost[] = {'l', 'o', 'c', 'a', 'l', 'h', 'o', 's', 't', '\0'};
-    const wcharType uidKey[] = {'U', 'I', 'D', '=', '\0'};
-    const wcharType pwdKey[] = {'P', 'W', 'D', '=', '\0'};
-    const_wstriType server;
+    const SQLWCHAR serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '=', '\0'};
+    const SQLWCHAR databaseKey[] = {'D', 'A', 'T', 'A', 'B', 'A', 'S', 'E', '=', '\0'};
+    const SQLWCHAR localhost[] = {'l', 'o', 'c', 'a', 'l', 'h', 'o', 's', 't', '\0'};
+    const SQLWCHAR uidKey[] = {'U', 'I', 'D', '=', '\0'};
+    const SQLWCHAR pwdKey[] = {'P', 'W', 'D', '=', '\0'};
+    const SQLWCHAR *server;
     memSizeType serverLength;
     char portName[1 + INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     memSizeType portNameLength;
     memSizeType connectionStringLength;
-    wstriType connectionString;
+    SQLWCHAR *connectionString;
     memSizeType pos = 0;
     boolType okay = FALSE;
 
@@ -196,33 +197,33 @@ static boolType createConnectionString (connectDataType connectData)
 
 
 
-static wstriType wstriSearchCh (const_wstriType str, const wcharType ch)
+static SQLWCHAR *wstriSearchCh (const SQLWCHAR *str, const SQLWCHAR ch)
 
   { /* wstriSearchCh */
     for (; *str != ch; str++) {
-      if (*str == (wcharType) 0) {
+      if (*str == (SQLWCHAR) 0) {
         return NULL;
       } /* if */
     } /* for */
-    return (wstriType) str;
+    return (SQLWCHAR *) str;
   } /* wstriSearchCh */
 
 
 
-static wstriType wstriSearch (const_wstriType haystack, const_wstriType needle)
+static SQLWCHAR *wstriSearch (const SQLWCHAR *haystack, const SQLWCHAR *needle)
 
   {
-    const_wstriType sc1;
-    const_wstriType sc2;
+    const SQLWCHAR *sc1;
+    const SQLWCHAR *sc2;
 
   /* wstriSearch */
-    if (*needle == (wcharType) 0) {
-      return (wstriType) haystack;
+    if (*needle == (SQLWCHAR) 0) {
+      return (SQLWCHAR *) haystack;
     } else {
       for (; (haystack = wstriSearchCh(haystack, *needle)) != NULL; haystack++) {
         for (sc1 = haystack, sc2 = needle; ; ) {
-          if (*++sc2 == (wcharType) 0) {
-            return (wstriType) haystack;
+          if (*++sc2 == (SQLWCHAR) 0) {
+            return (SQLWCHAR *) haystack;
           } else if (*++sc1 != *sc2) {
             break;
           } /* if */
@@ -235,14 +236,14 @@ static wstriType wstriSearch (const_wstriType haystack, const_wstriType needle)
 
 
 static boolType connectToServer (connectDataType connectData,
-    SQLHDBC sql_connection, wstriType server, memSizeType serverLength)
+    SQLHDBC sql_connection, SQLWCHAR *server, memSizeType serverLength)
 
   {
-    const wcharType serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '=', '\0'};
-    const wcharType databaseKey[] = {'D', 'A', 'T', 'A', 'B', 'A', 'S', 'E', '=', '\0'};
-    const wcharType uidKey[] = {'U', 'I', 'D', '=', '\0'};
-    const wcharType pwdKey[] = {'P', 'W', 'D', '=', '\0'};
-    wcharType inConnectionString[4096];
+    const SQLWCHAR serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '=', '\0'};
+    const SQLWCHAR databaseKey[] = {'D', 'A', 'T', 'A', 'B', 'A', 'S', 'E', '=', '\0'};
+    const SQLWCHAR uidKey[] = {'U', 'I', 'D', '=', '\0'};
+    const SQLWCHAR pwdKey[] = {'P', 'W', 'D', '=', '\0'};
+    SQLWCHAR inConnectionString[4096];
     memSizeType pos = 0;
     SQLWCHAR outConnectionString[4096];
     SQLSMALLINT outConnectionStringLength;
@@ -313,12 +314,12 @@ static boolType connectToLocalServer (connectDataType connectData,
     SQLHDBC sql_connection)
 
   {
-    const wcharType serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '\0'};
-    wcharType inConnectionString[1];
+    const SQLWCHAR serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '\0'};
+    SQLWCHAR inConnectionString[1];
     SQLWCHAR outConnectionString[4096];
     SQLSMALLINT outConnectionStringLength;
-    wstriType posFound;
-    wstriType server;
+    SQLWCHAR *posFound;
+    SQLWCHAR *server;
     boolType lastServer;
     SQLRETURN returnCode;
     boolType triedToConnect = FALSE;
