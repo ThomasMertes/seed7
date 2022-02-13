@@ -224,6 +224,57 @@ static tp_PQstatus             ptr_PQstatus;
 
 
 
+static void loadBaseDlls (void)
+
+  { /* loadBaseDlls */
+#ifdef LIBINTL_DLL
+    {
+      const char *libIntlDllList[] = { LIBINTL_DLL };
+      unsigned int pos;
+      boolType found = FALSE;
+
+      for (pos = 0; pos < sizeof(libIntlDllList) / sizeof(char *) && !found; pos++) {
+        found = dllOpen(libIntlDllList[pos]) != NULL;
+      } /* for */
+    }
+#endif
+#ifdef LIBEAY32_DLL
+    {
+      const char *libeay32DllList[] = { LIBEAY32_DLL };
+      unsigned int pos;
+      boolType found = FALSE;
+
+      for (pos = 0; pos < sizeof(libeay32DllList) / sizeof(char *) && !found; pos++) {
+        found = dllOpen(libeay32DllList[pos]) != NULL;
+      } /* for */
+    }
+#endif
+#ifdef LIBCRYPTO_DLL
+    {
+      const char *libcryptoDllList[] = { LIBCRYPTO_DLL };
+      unsigned int pos;
+      boolType found = FALSE;
+
+      for (pos = 0; pos < sizeof(libcryptoDllList) / sizeof(char *) && !found; pos++) {
+        found = dllOpen(libcryptoDllList[pos]) != NULL;
+      } /* for */
+    }
+#endif
+#ifdef LIBSSL_DLL
+    {
+      const char *libsslDllList[] = { LIBSSL_DLL };
+      unsigned int pos;
+      boolType found = FALSE;
+
+      for (pos = 0; pos < sizeof(libsslDllList) / sizeof(char *) && !found; pos++) {
+        found = dllOpen(libsslDllList[pos]) != NULL;
+      } /* for */
+    }
+#endif
+  } /* loadBaseDlls */
+
+
+
 static boolType setupDll (const char *dllName)
 
   {
@@ -232,50 +283,7 @@ static boolType setupDll (const char *dllName)
   /* setupDll */
     logFunction(printf("setupDll(\"%s\")\n", dllName););
     if (dbDll == NULL) {
-#ifdef LIBINTL_DLL
-      {
-        const char *libIntlDllList[] = { LIBINTL_DLL };
-        unsigned int pos;
-        boolType found = FALSE;
-
-        for (pos = 0; pos < sizeof(libIntlDllList) / sizeof(char *) && !found; pos++) {
-          found = dllOpen(libIntlDllList[pos]) != NULL;
-        } /* for */
-      }
-#endif
-#ifdef LIBEAY32_DLL
-      {
-        const char *libeay32DllList[] = { LIBEAY32_DLL };
-        unsigned int pos;
-        boolType found = FALSE;
-
-        for (pos = 0; pos < sizeof(libeay32DllList) / sizeof(char *) && !found; pos++) {
-          found = dllOpen(libeay32DllList[pos]) != NULL;
-        } /* for */
-      }
-#endif
-#ifdef LIBCRYPTO_DLL
-      {
-        const char *libcryptoDllList[] = { LIBCRYPTO_DLL };
-        unsigned int pos;
-        boolType found = FALSE;
-
-        for (pos = 0; pos < sizeof(libcryptoDllList) / sizeof(char *) && !found; pos++) {
-          found = dllOpen(libcryptoDllList[pos]) != NULL;
-        } /* for */
-      }
-#endif
-#ifdef LIBSSL_DLL
-      {
-        const char *libsslDllList[] = { LIBSSL_DLL };
-        unsigned int pos;
-        boolType found = FALSE;
-
-        for (pos = 0; pos < sizeof(libsslDllList) / sizeof(char *) && !found; pos++) {
-          found = dllOpen(libsslDllList[pos]) != NULL;
-        } /* for */
-      }
-#endif
+      loadBaseDlls();
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
         if ((PQclear              = (tp_PQclear)              dllFunc(dbDll, "PQclear"))              == NULL ||
