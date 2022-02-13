@@ -2524,6 +2524,9 @@ const proc: process_main_declaration (in reference: current_object,
     end if;
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "setupBig();\n";
+    if compilerLibraryUsed then
+      main_prolog &:= "init_primitiv();\n";
+    end if;
     main_prolog &:= "init_values();\n";
     main_prolog &:= "setupSignalHandlers(1, " <& ord(trace_signal) <&  ", " <&
                                          ord(ccConf.OVERFLOW_SIGNAL <> "") <&
@@ -5500,6 +5503,9 @@ const proc: write_prototypes is func
     declareExtern("void        setupRand (void);");
     declareExtern("void        setupFloat (void);");
     declareExtern("void        setupBig (void);");
+    if compilerLibraryUsed then
+      declareExtern("void        init_primitiv (void);");
+    end if;
     writeln(c_prog, "static void        prcNoop (void) {}");
     writeln(c_prog, "static void        init_values (void);");
     writeln(c_prog, "static void        init_globals (void);");
@@ -7564,6 +7570,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
         end if;
         if compilerLibraryUsed then
           drawLibraryUsed := TRUE;
+          mathLibraryUsed := TRUE;
           consoleLibraryUsed := TRUE;
           databaseLibraryUsed := TRUE;
         end if;

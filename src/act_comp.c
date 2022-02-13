@@ -63,7 +63,7 @@ actType actGen (striType actionName)
                        striAsUnquotedCStri(actionName)););
     anAction = findAction(actionName);
     if (unlikely(anAction == NULL)) {
-      logError(printf("act_gen(\"%s\"): No such action exists.\n",
+      logError(printf("actGen(\"%s\"): No such action exists.\n",
                       striAsUnquotedCStri(actionName)););
       raise_error(RANGE_ERROR);
     } /* if */
