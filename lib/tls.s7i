@@ -920,15 +920,9 @@ const proc: processClientKeyExchange (inout tlsParameters: parameters, inout tls
 
 
 const proc: processChangeCipherSpec (inout tlsParameters: parameters, inout tlsParseState: state) is func
-  local
-    var integer: startPos is 0;
-    var integer: length is 0;
   begin
     # writeln("change_cipher_spec");
-    startPos := state.pos;
     incr(state.pos);
-    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
-    state.pos +:= 4;
   end func;
 
 
