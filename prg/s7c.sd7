@@ -7148,7 +7148,7 @@ const proc: pass_1 (in string: source, inout program: prog,
       if "-o" in compiler_option then
         if compiler_option["-o"] in {"c0", "c1", "c2", "c3"} then
           evaluate_const_expr := integer(compiler_option["-o"][2 ..]);
-	else
+        else
           writeln("*** Ignore unsupported option: -o" <& compiler_option["-o"]);
         end if;
       end if;

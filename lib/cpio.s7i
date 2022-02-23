@@ -176,7 +176,7 @@ const proc: readHead (inout file: inFile, inout cpioHeader: header) is func
           header.headerSize := 76;
           filePath8         := gets(inFile, pred(header.nameSize));
           header.padding    := 1;
-	end if;
+        end if;
       elsif header.magic = CPIO_NEW_ASCII_MAGIC or
             header.magic = CPIO_NEW_ASCII_CRC_MAGIC then
         # writeln("CPIO_NEW_ASCII_MAGIC");
