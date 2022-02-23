@@ -1,6 +1,5 @@
 
-(********************************************************************)
-(*                                                                  *)
+(********************************************************************) (*                                                                  *)
 (*  chkbig.sd7    Checks bigInteger literals and operations         *)
 (*  Copyright (C) 2006 - 2021  Thomas Mertes                        *)
 (*                                                                  *)
@@ -354,9 +353,8 @@ const proc: chkLiteral is func
   end func;
 
 
-const proc: chkStringConv is func
-  local
-    var integer: base is 0;
+const func boolean: chkParse is func
+  result
     var boolean: okay is TRUE;
   begin
     if  str(bigInteger parse                         "0") <>                         "0" or
@@ -867,6 +865,81 @@ const proc: chkStringConv is func
       okay := FALSE;
     end if;
 
+    if  not raisesRangeError(bigInteger parse "99999999a999999999") or
+        not raisesRangeError(bigInteger parse "-9999999999a9999999") or
+        not raisesRangeError(bigInteger parse "@") or
+        not raisesRangeError(bigInteger parse "+") or
+        not raisesRangeError(bigInteger parse "++") or
+        not raisesRangeError(bigInteger parse "+-") or
+        not raisesRangeError(bigInteger parse "++1") or
+        not raisesRangeError(bigInteger parse "+-1") or
+        not raisesRangeError(bigInteger parse "-") or
+        not raisesRangeError(bigInteger parse "--") or
+        not raisesRangeError(bigInteger parse "-+") or
+        not raisesRangeError(bigInteger parse "--1") or
+        not raisesRangeError(bigInteger parse "-+1") or
+        not raisesRangeError(bigInteger parse "") or
+        not raisesRangeError(bigInteger parse " 123") or
+        not raisesRangeError(bigInteger parse "\a123") or
+        not raisesRangeError(bigInteger parse "\f123") or
+        not raisesRangeError(bigInteger parse "\n123") or
+        not raisesRangeError(bigInteger parse "\r123") or
+        not raisesRangeError(bigInteger parse "\t123") or
+        not raisesRangeError(bigInteger parse "\v123") or
+        not raisesRangeError(bigInteger parse "123 ") or
+        not raisesRangeError(bigInteger parse "123\a") or
+        not raisesRangeError(bigInteger parse "123\f") or
+        not raisesRangeError(bigInteger parse "123\n") or
+        not raisesRangeError(bigInteger parse "123\r") or
+        not raisesRangeError(bigInteger parse "123\t") or
+        not raisesRangeError(bigInteger parse "123\v") or
+        not raisesRangeError(bigInteger parse "123@") or
+        not raisesRangeError(bigInteger parse "123@456") or
+        not raisesRangeError(bigInteger parse striExpr("99999999a999999999")) or
+        not raisesRangeError(bigInteger parse striExpr("-9999999999a9999999")) or
+        not raisesRangeError(bigInteger parse striExpr("@")) or
+        not raisesRangeError(bigInteger parse striExpr("+")) or
+        not raisesRangeError(bigInteger parse striExpr("++")) or
+        not raisesRangeError(bigInteger parse striExpr("+-")) or
+        not raisesRangeError(bigInteger parse striExpr("++1")) or
+        not raisesRangeError(bigInteger parse striExpr("+-1")) or
+        not raisesRangeError(bigInteger parse striExpr("-")) or
+        not raisesRangeError(bigInteger parse striExpr("--")) or
+        not raisesRangeError(bigInteger parse striExpr("-+")) or
+        not raisesRangeError(bigInteger parse striExpr("--1")) or
+        not raisesRangeError(bigInteger parse striExpr("-+1")) or
+        not raisesRangeError(bigInteger parse striExpr("")) or
+        not raisesRangeError(bigInteger parse striExpr(" 123")) or
+        not raisesRangeError(bigInteger parse striExpr("\a123")) or
+        not raisesRangeError(bigInteger parse striExpr("\f123")) or
+        not raisesRangeError(bigInteger parse striExpr("\n123")) or
+        not raisesRangeError(bigInteger parse striExpr("\r123")) or
+        not raisesRangeError(bigInteger parse striExpr("\t123")) or
+        not raisesRangeError(bigInteger parse striExpr("\v123")) or
+        not raisesRangeError(bigInteger parse striExpr("123 ")) or
+        not raisesRangeError(bigInteger parse striExpr("123\a")) or
+        not raisesRangeError(bigInteger parse striExpr("123\f")) or
+        not raisesRangeError(bigInteger parse striExpr("123\n")) or
+        not raisesRangeError(bigInteger parse striExpr("123\r")) or
+        not raisesRangeError(bigInteger parse striExpr("123\t")) or
+        not raisesRangeError(bigInteger parse striExpr("123\v")) or
+        not raisesRangeError(bigInteger parse striExpr("123@")) or
+        not raisesRangeError(bigInteger parse striExpr("123@456")) then
+      writeln(" ***** Conversion of illegal numeric literal does not raise RANGE_ERROR. (2)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: chkStringConv is func
+  local
+    var integer: base is 0;
+    var boolean: okay is TRUE;
+  begin
+    if not chkParse then
+      okay := FALSE;
+    end if;
+
     for base range 2 to 36 do
       if  bigInteger("0",                        base) <>  0_ or
           bigInteger("+0",                       base) <>  0_ or
@@ -1273,70 +1346,6 @@ const proc: chkStringConv is func
         not raisesRangeError(bigInteger(striExpr("123@"))) or
         not raisesRangeError(bigInteger(striExpr("123@456"))) then
       writeln(" ***** Conversion of illegal numeric literal does not raise RANGE_ERROR. (1)");
-      okay := FALSE;
-    end if;
-
-    if  not raisesRangeError(bigInteger parse "99999999a999999999") or
-        not raisesRangeError(bigInteger parse "-9999999999a9999999") or
-        not raisesRangeError(bigInteger parse "@") or
-        not raisesRangeError(bigInteger parse "+") or
-        not raisesRangeError(bigInteger parse "++") or
-        not raisesRangeError(bigInteger parse "+-") or
-        not raisesRangeError(bigInteger parse "++1") or
-        not raisesRangeError(bigInteger parse "+-1") or
-        not raisesRangeError(bigInteger parse "-") or
-        not raisesRangeError(bigInteger parse "--") or
-        not raisesRangeError(bigInteger parse "-+") or
-        not raisesRangeError(bigInteger parse "--1") or
-        not raisesRangeError(bigInteger parse "-+1") or
-        not raisesRangeError(bigInteger parse "") or
-        not raisesRangeError(bigInteger parse " 123") or
-        not raisesRangeError(bigInteger parse "\a123") or
-        not raisesRangeError(bigInteger parse "\f123") or
-        not raisesRangeError(bigInteger parse "\n123") or
-        not raisesRangeError(bigInteger parse "\r123") or
-        not raisesRangeError(bigInteger parse "\t123") or
-        not raisesRangeError(bigInteger parse "\v123") or
-        not raisesRangeError(bigInteger parse "123 ") or
-        not raisesRangeError(bigInteger parse "123\a") or
-        not raisesRangeError(bigInteger parse "123\f") or
-        not raisesRangeError(bigInteger parse "123\n") or
-        not raisesRangeError(bigInteger parse "123\r") or
-        not raisesRangeError(bigInteger parse "123\t") or
-        not raisesRangeError(bigInteger parse "123\v") or
-        not raisesRangeError(bigInteger parse "123@") or
-        not raisesRangeError(bigInteger parse "123@456") or
-        not raisesRangeError(bigInteger parse striExpr("99999999a999999999")) or
-        not raisesRangeError(bigInteger parse striExpr("-9999999999a9999999")) or
-        not raisesRangeError(bigInteger parse striExpr("@")) or
-        not raisesRangeError(bigInteger parse striExpr("+")) or
-        not raisesRangeError(bigInteger parse striExpr("++")) or
-        not raisesRangeError(bigInteger parse striExpr("+-")) or
-        not raisesRangeError(bigInteger parse striExpr("++1")) or
-        not raisesRangeError(bigInteger parse striExpr("+-1")) or
-        not raisesRangeError(bigInteger parse striExpr("-")) or
-        not raisesRangeError(bigInteger parse striExpr("--")) or
-        not raisesRangeError(bigInteger parse striExpr("-+")) or
-        not raisesRangeError(bigInteger parse striExpr("--1")) or
-        not raisesRangeError(bigInteger parse striExpr("-+1")) or
-        not raisesRangeError(bigInteger parse striExpr("")) or
-        not raisesRangeError(bigInteger parse striExpr(" 123")) or
-        not raisesRangeError(bigInteger parse striExpr("\a123")) or
-        not raisesRangeError(bigInteger parse striExpr("\f123")) or
-        not raisesRangeError(bigInteger parse striExpr("\n123")) or
-        not raisesRangeError(bigInteger parse striExpr("\r123")) or
-        not raisesRangeError(bigInteger parse striExpr("\t123")) or
-        not raisesRangeError(bigInteger parse striExpr("\v123")) or
-        not raisesRangeError(bigInteger parse striExpr("123 ")) or
-        not raisesRangeError(bigInteger parse striExpr("123\a")) or
-        not raisesRangeError(bigInteger parse striExpr("123\f")) or
-        not raisesRangeError(bigInteger parse striExpr("123\n")) or
-        not raisesRangeError(bigInteger parse striExpr("123\r")) or
-        not raisesRangeError(bigInteger parse striExpr("123\t")) or
-        not raisesRangeError(bigInteger parse striExpr("123\v")) or
-        not raisesRangeError(bigInteger parse striExpr("123@")) or
-        not raisesRangeError(bigInteger parse striExpr("123@456")) then
-      writeln(" ***** Conversion of illegal numeric literal does not raise RANGE_ERROR. (2)");
       okay := FALSE;
     end if;
 
@@ -4503,7 +4512,7 @@ const proc: chkBytesBe2BigInt is func
       writeln("Conversion of empty big endian byte string to bigInteger does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
-        
+
     if okay then
       writeln("Conversion of big endian byte string to bigInteger works correct.");
     else
@@ -4960,7 +4969,7 @@ const proc: chkBytesLe2BigInt is func
       writeln("Conversion of empty little endian byte string to bigInteger does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
-        
+
     if okay then
       writeln("Conversion of little endian byte string to bigInteger works correct.");
     else
