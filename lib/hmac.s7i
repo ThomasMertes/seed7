@@ -30,6 +30,15 @@ include "msgdigest.s7i";
 include "bin32.s7i";
 
 
+##
+#  Bitwise exclusive or (''xor'') for corresponding characters in ''stri1'' and ''stri2''.
+#  The first character of the result is obtained by stri1[1] ''xor'' stri2[1].
+#  The same approach is used for all characters in ''stri1'' and ''stri2''.
+#   ",,**" >< "lLlL"  returns  "@`Ff"
+#  This operation is used for encryption. For normal strings it does not make sense.
+#  @return the bitwise ''xor'' of the two strings.
+#  @exception RANGE_ERROR If ''stri1'' and ''stri2'' do not have the same length.
+#
 const func string: (in string: stri1) >< (in string: stri2) is func
   result
     var string: xorResult is "";

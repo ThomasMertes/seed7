@@ -506,7 +506,7 @@ const proc: processCcittFaxRow (inout bitStream: faxDataStream,
  *  Read modified CCITT group 3 ''faxData'' with MSB bit ordering into ''image''.
  *  A modified CCITT Group 3 one-dimensional Huffman run-length encoding is used.
  *  The CCITT group 3 facsimile standard has been defined by CCITT in 1988.
- *  This encoding is used in TIFF files if compression = 2.
+ *  This encoding is used in [[tiff|TIFF]] files if compression = 2.
  *  MSB bit ordering processes the bits from the MSB (most significant bit) to
  *  the LSB (least significant bit). This function fills a part of the ''image''
  *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
@@ -540,7 +540,7 @@ const proc: processCcittModifiedGroup3FaxMsb (in string: faxData,
  *  Read modified CCITT group 3 ''faxData'' with LSB bit ordering into ''image''.
  *  A modified CCITT Group 3 one-dimensional Huffman run-length encoding is used.
  *  The CCITT group 3 facsimile standard has been defined by CCITT in 1988.
- *  This encoding is used in TIFF files if compression = 2.
+ *  This encoding is used in [[tiff|TIFF]] files if compression = 2.
  *  LSB bit ordering processes the bits from the LSB (least significant bit) to
  *  the MSB (most significant bit). This function fills a part of the ''image''
  *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
@@ -722,7 +722,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
 (**
  *  Read CCITT T.6 bi-level ''faxData'' with MSB bit ordering into ''image''.
  *  CCITT T.6 belongs to the group 4 facsimile standard defined by CCITT in 1988.
- *  This encoding is used in TIFF files if compression = 4.
+ *  This encoding is used in [[tiff|TIFF]] files if compression = 4.
  *  MSB bit ordering processes the bits from the MSB (most significant bit) to
  *  the LSB (least significant bit). This function fills a part of the ''image''
  *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
@@ -754,7 +754,7 @@ const proc: processCcittT6FaxMsb (in string: faxData,
 (**
  *  Read CCITT T.6 bi-level ''faxData'' with LSB bit ordering into ''image''.
  *  CCITT T.6 belongs to the group 4 facsimile standard defined by CCITT in 1988.
- *  This encoding is used in TIFF files if compression = 4.
+ *  This encoding is used in [[tiff|TIFF]] files if compression = 4.
  *  LSB bit ordering processes the bits from the LSB (least significant bit) to
  *  the MSB (most significant bit). This function fills a part of the ''image''
  *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
@@ -786,7 +786,7 @@ const proc: processCcittT6FaxLsb (in string: faxData,
 (**
  *  Read CCITT T.4 bi-level one-dimensional ''faxData'' with MSB bit ordering into ''image''.
  *  CCITT T.4 belongs to the group 3 facsimile standard defined by CCITT in 1988.
- *  This encoding is used in TIFF files if compression = 3 and t4Options is even.
+ *  This encoding is used in [[tiff|TIFF]] files if compression = 3 and t4Options is even.
  *  MSB bit ordering processes the bits from the MSB (most significant bit) to
  *  the LSB (least significant bit). This function fills a part of the ''image''
  *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
@@ -818,7 +818,7 @@ const proc: processCcittT4Fax1dMsb (in string: faxData,
 (**
  *  Read CCITT T.4 bi-level one-dimensional ''faxData'' with LSB bit ordering into ''image''.
  *  CCITT T.4 belongs to the group 3 facsimile standard defined by CCITT in 1988.
- *  This encoding is used in TIFF files if compression = 3 and t4Options is even.
+ *  This encoding is used in [[tiff|TIFF]] files if compression = 3 and t4Options is even.
  *  LSB bit ordering processes the bits from the LSB (least significant bit) to
  *  the MSB (most significant bit). This function fills a part of the ''image''
  *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
@@ -896,7 +896,7 @@ const proc: processCcittT4Fax1dRow (inout bitStream: faxDataStream,
 (**
  *  Read CCITT T.4 bi-level two-dimensional ''faxData'' with MSB bit ordering into ''image''.
  *  CCITT T.4 belongs to the group 3 facsimile standard defined by CCITT in 1988.
- *  This encoding is used in TIFF files if compression = 3 and t4Options is odd.
+ *  This encoding is used in [[tiff|TIFF]] files if compression = 3 and t4Options is odd.
  *  MSB bit ordering processes the bits from the MSB (most significant bit) to
  *  the LSB (least significant bit). This function fills a part of the ''image''
  *  destination. The part starts with ''startLine'' and extends over ''height'' lines.
@@ -935,7 +935,7 @@ const proc: processCcittT4Fax2dMsb (in string: faxData,
 (**
  *  Read CCITT T.4 bi-level two-dimensional ''faxData'' with LSB bit ordering into ''image''.
  *  CCITT T.4 belongs to the group 3 facsimile standard defined by CCITT in 1988.
- *  This encoding is used in TIFF files if compression = 3 and t4Options is odd.
+ *  This encoding is used in [[tiff|TIFF]] files if compression = 3 and t4Options is odd.
  *  LSB bit ordering processes the bits from the LSB (least significant bit) to
  *  the MSB (most significant bit). This function fills a part of the ''image''
  *  destination. The part starts with ''startLine'' and extends over ''height'' lines.

@@ -49,7 +49,7 @@ const type: valuesOfCodeWithLengthType is array array integer;
 
 (**
  *  Create a Huffman table for reading in MSB-First order.
- *  This Huffman encoding is used by JPEG files. It can happen that
+ *  This Huffman encoding is used by [[jpeg|JPEG]] files. It can happen that
  *  ''huffmanValues'' contains the same value twice. In that case
  *  the same symbol is encoded in two ways. This makes absolutely no
  *  sense but it can happen. For that reason it is necessary to use
@@ -98,7 +98,7 @@ const func msbHuffmanTable: createHuffmanTableMsb (in integer: maximumCodeLength
 
 
 (**
- *  Get a huffman symbol from ''inBitStream'' in MSB-First order using the huffman ''table''.
+ *  Get a huffman symbol from a [[bitdata#msbBitStream|msbBitStream]] using the huffman ''table''.
  *  The read direction is from MSB (most significant bit) to LSB (least significant bit).
  *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
@@ -246,7 +246,7 @@ const func lsbHuffmanTable: createHuffmanTableLsb (in array integer: codeLengths
 
 
 (**
- *  Get a huffman symbol from ''inBitStream'' in LSB-First order using the huffman ''table''.
+ *  Get a huffman symbol from a [[bitdata#lsbBitStream|lsbBitStream]] using the huffman ''table''.
  *  The read direction is from LSB (least significant bit) to MSB (most significant bit).
  *  The function peeks bits from ''inBitStream''. By default ''inBitStream'' appends some
  *  '\16#ff;' bytes to allow that bits can be peeked always.
