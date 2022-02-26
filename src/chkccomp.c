@@ -7317,6 +7317,16 @@ static void determineOdbcDefines (FILE *versionFile,
       fprintf(versionFile, "#define ODBC_INCLUDE \"%s\"\n", odbcInclude);
       fprintf(versionFile, "#define ODBC_INCLUDE_SQLEXT_H %d\n", includeSqlext);
       appendOption(include_options, includeOption);
+      sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
+                           "%s#include \"%s\"\n%s"
+                           "int main(int argc,char *argv[]){\n"
+                           "printf(\"%%d\\n\", sizeof(SQLWCHAR));\n"
+                           "return 0;\n}\n",
+                           windowsOdbc ? "#include \"windows.h\"\n" : "", odbcInclude,
+                           includeSqlext ? "#include \"sqlext.h\"\n" : "");
+      if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
+        fprintf(versionFile, "#define ODBC_SIZEOF_SQLWCHAR %d\n", doTest());
+      } /* if */
     } /* if */
 #ifndef ODBC_USE_DLL
     /* Handle static libraries: */
@@ -7769,6 +7779,15 @@ static void determineDb2Defines (FILE *versionFile,
       fprintf(versionFile, "\"\n");
       sprintf(makeDefinition, "DB2_INCLUDE_OPTION = %s\n", includeOption);
       appendToFile("macros", makeDefinition);
+      sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
+                           "#include \"%s\"\n"
+                           "int main(int argc,char *argv[]){\n"
+                           "printf(\"%%d\\n\", sizeof(SQLWCHAR));\n"
+                           "return 0;\n}\n",
+                           db2Include);
+      if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
+        fprintf(versionFile, "#define DB2_SIZEOF_SQLWCHAR %d\n", doTest());
+      } /* if */
     } /* if */
 #if !defined DB2_USE_DLL && defined SUPPORTS_PARTIAL_LINKING
     /* Handle static libraries: */
@@ -7918,6 +7937,16 @@ static void determineSqlServerDefines (FILE *versionFile,
       appendToFile("macros", makeDefinition);
       fprintf(versionFile, "#define FREETDS_SQL_SERVER_CONNECTION %d\n", freeTdsLibrary);
       fprintf(versionFile, "#define SPECIFY_SQL_SERVER_PORT_EXPLICIT %d\n", freeTdsLibrary);
+      sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
+                           "%s#include \"%s\"\n%s"
+                           "int main(int argc,char *argv[]){\n"
+                           "printf(\"%%d\\n\", sizeof(SQLWCHAR));\n"
+                           "return 0;\n}\n",
+                           windowsSqlServer ? "#include \"windows.h\"\n" : "", sqlServerInclude,
+                           includeSqlext ? "#include \"sqlext.h\"\n" : "");
+      if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
+        fprintf(versionFile, "#define SQL_SERVER_SIZEOF_SQLWCHAR %d\n", doTest());
+      } /* if */
     } /* if */
 #if !defined SQL_SERVER_USE_DLL && defined SUPPORTS_PARTIAL_LINKING
     /* Handle static libraries: */

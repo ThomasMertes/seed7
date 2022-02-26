@@ -64,6 +64,7 @@
 #define loadBaseDlls()
 #define ALLOW_EXECUTE_SUCCESS_WITH_INFO
 #define ALLOW_FETCH_SUCCESS_WITH_INFO
+#define SIZEOF_SQLWCHAR DB2_SIZEOF_SQLWCHAR
 
 #include "sql_cli.c"
 
@@ -144,7 +145,7 @@ static boolType createConnectionString (connectDataType connectData)
       } /* if */
 
       if (likely(connectionStringLength <= SHRT_MAX &&
-                 ALLOC_UTF16(connectionString, connectionStringLength))) {
+                 ALLOC_SQLWSTRI(connectionString, connectionStringLength))) {
         connectData->connectionString = connectionString;
         connectData->connectionStringLength = connectionStringLength;
 
@@ -291,19 +292,19 @@ databaseType sqlOpenDb2 (const const_striType host, intType port,
       database = NULL;
     } else {
       connectData.port = port;
-      connectData.hostname = stri_to_wstri16(host, &connectData.hostnameLength, &err_info);
+      connectData.hostname = stri_to_sqlwstri(host, &connectData.hostnameLength, &err_info);
       if (unlikely(connectData.hostname == NULL)) {
         database = NULL;
       } else {
-        connectData.database = stri_to_wstri16(dbName, &connectData.databaseLength, &err_info);
+        connectData.database = stri_to_sqlwstri(dbName, &connectData.databaseLength, &err_info);
         if (unlikely(connectData.database == NULL)) {
           database = NULL;
         } else {
-          connectData.uid = stri_to_wstri16(user, &connectData.uidLength, &err_info);
+          connectData.uid = stri_to_sqlwstri(user, &connectData.uidLength, &err_info);
           if (unlikely(connectData.uid == NULL)) {
             database = NULL;
           } else {
-            connectData.pwd = stri_to_wstri16(password, &connectData.pwdLength, &err_info);
+            connectData.pwd = stri_to_sqlwstri(password, &connectData.pwdLength, &err_info);
             if (unlikely(connectData.pwd == NULL)) {
               database = NULL;
             } else {
@@ -312,15 +313,15 @@ databaseType sqlOpenDb2 (const const_striType host, intType port,
                 database = NULL;
               } else {
                 database = doOpenDb2(&connectData, &err_info);
-                UNALLOC_UTF16(connectData.connectionString, connectData.connectionStringLength);
+                UNALLOC_SQLWSTRI(connectData.connectionString, connectData.connectionStringLength);
               } /* if */
-              UNALLOC_UTF16(connectData.pwd, connectData.pwdLength);
+              UNALLOC_SQLWSTRI(connectData.pwd, connectData.pwdLength);
             } /* if */
-            UNALLOC_UTF16(connectData.uid, connectData.uidLength);
+            UNALLOC_SQLWSTRI(connectData.uid, connectData.uidLength);
           } /* if */
-          UNALLOC_UTF16(connectData.database, connectData.databaseLength);
+          UNALLOC_SQLWSTRI(connectData.database, connectData.databaseLength);
         } /* if */
-        UNALLOC_UTF16(connectData.hostname, connectData.hostnameLength);
+        UNALLOC_SQLWSTRI(connectData.hostname, connectData.hostnameLength);
       } /* if */
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {

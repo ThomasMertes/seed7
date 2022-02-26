@@ -72,6 +72,7 @@
 #define WIDE_CHARS_SUPPORTED 1
 #define TINY_INT_IS_UNSIGNED 1
 #endif
+#define SIZEOF_SQLWCHAR SQL_SERVER_SIZEOF_SQLWCHAR
 
 #include "sql_cli.c"
 
@@ -150,7 +151,7 @@ static boolType createConnectionString (connectDataType connectData)
       } /* if */
 
       if (likely(connectionStringLength <= SHRT_MAX &&
-                 ALLOC_UTF16(connectionString, connectionStringLength))) {
+                 ALLOC_SQLWSTRI(connectionString, connectionStringLength))) {
         connectData->connectionString = connectionString;
         connectData->connectionStringLength = connectionStringLength;
 
@@ -493,19 +494,19 @@ databaseType sqlOpenSqlServer (const const_striType host, intType port,
       database = NULL;
     } else {
       connectData.port = port;
-      connectData.server = stri_to_wstri16(host, &connectData.serverLength, &err_info);
+      connectData.server = stri_to_sqlwstri(host, &connectData.serverLength, &err_info);
       if (unlikely(connectData.server == NULL)) {
         database = NULL;
       } else {
-        connectData.database = stri_to_wstri16(dbName, &connectData.databaseLength, &err_info);
+        connectData.database = stri_to_sqlwstri(dbName, &connectData.databaseLength, &err_info);
         if (unlikely(connectData.database == NULL)) {
           database = NULL;
         } else {
-          connectData.uid = stri_to_wstri16(user, &connectData.uidLength, &err_info);
+          connectData.uid = stri_to_sqlwstri(user, &connectData.uidLength, &err_info);
           if (unlikely(connectData.uid == NULL)) {
             database = NULL;
           } else {
-            connectData.pwd = stri_to_wstri16(password, &connectData.pwdLength, &err_info);
+            connectData.pwd = stri_to_sqlwstri(password, &connectData.pwdLength, &err_info);
             if (unlikely(connectData.pwd == NULL)) {
               database = NULL;
             } else {
@@ -514,15 +515,15 @@ databaseType sqlOpenSqlServer (const const_striType host, intType port,
                 database = NULL;
               } else {
                 database = doOpenSqlServer(&connectData, &err_info);
-                UNALLOC_UTF16(connectData.connectionString, connectData.connectionStringLength);
+                UNALLOC_SQLWSTRI(connectData.connectionString, connectData.connectionStringLength);
               } /* if */
-              UNALLOC_UTF16(connectData.pwd, connectData.pwdLength);
+              UNALLOC_SQLWSTRI(connectData.pwd, connectData.pwdLength);
             } /* if */
-            UNALLOC_UTF16(connectData.uid, connectData.uidLength);
+            UNALLOC_SQLWSTRI(connectData.uid, connectData.uidLength);
           } /* if */
-          UNALLOC_UTF16(connectData.database, connectData.databaseLength);
+          UNALLOC_SQLWSTRI(connectData.database, connectData.databaseLength);
         } /* if */
-        UNALLOC_UTF16(connectData.server, connectData.serverLength);
+        UNALLOC_SQLWSTRI(connectData.server, connectData.serverLength);
       } /* if */
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
