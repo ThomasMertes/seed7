@@ -219,6 +219,9 @@ typedef int (*tp_XStoreColor) (Display *display, Colormap colormap, XColor *colo
 typedef int (*tp_XStoreName) (Display *display, Window window, const char *window_name);
 typedef int (*tp_XSync) (Display *display, Bool discard);
 typedef int (*tp_XUndefineCursor) (Display *display, Window window);
+typedef int (*tp_XWarpPointer) (Display *display, Window src_w, Window dest_w,
+                                int src_x, int src_y, unsigned int src_width,
+                                unsigned int src_height, int dest_x, int dest_y);
 typedef unsigned long (*tp_XWhitePixel) (Display *display,
                                          int screen_number);
 
@@ -312,6 +315,7 @@ static tp_XStoreColor             ptr_XStoreColor;
 static tp_XStoreName              ptr_XStoreName;
 static tp_XSync                   ptr_XSync;
 static tp_XUndefineCursor         ptr_XUndefineCursor;
+static tp_XWarpPointer            ptr_XWarpPointer;
 static tp_XWhitePixel             ptr_XWhitePixel;
 
 #ifdef HAS_XRENDER_EXTENSION
@@ -406,6 +410,7 @@ static boolType setupX11Dll (const char *dllName)
             (ptr_XStoreName              = (tp_XStoreName)              dllFunc(x11Dll, "XStoreName"))              == NULL ||
             (ptr_XSync                   = (tp_XSync)                   dllFunc(x11Dll, "XSync"))                   == NULL ||
             (ptr_XUndefineCursor         = (tp_XUndefineCursor)         dllFunc(x11Dll, "XUndefineCursor"))         == NULL ||
+            (ptr_XWarpPointer            = (tp_XWarpPointer)            dllFunc(x11Dll, "XWarpPointer"))            == NULL ||
             (ptr_XWhitePixel             = (tp_XWhitePixel)             dllFunc(x11Dll, "XWhitePixel"))             == NULL) {
           x11Dll = NULL;
         } /* if */
@@ -1735,6 +1740,26 @@ int XUndefineCursor (Display *display, Window window)
     logFunction(printf("XUndefineCursor --> %d\n", funcResult););
     return funcResult;
   } /* XUndefineCursor */
+
+
+
+extern int XWarpPointer (Display *display, Window src_w, Window dest_w,
+                         int src_x, int src_y, unsigned int src_width,
+                         unsigned int src_height, int dest_x, int dest_y)
+
+  {
+    int funcResult;
+
+  /* XWarpPointer */
+    logFunction(printf("XUndefineCursor(" FMT_U_MEM ", " FMT_U_XID ", "
+                       FMT_U_XID ", %d, %d, %u, %u, %d, %d)\n",
+                       (memSizeType) display, src_w, dest_w, src_x, src_y,
+                       src_width, src_height, dest_x, dest_y););
+    funcResult = ptr_XWarpPointer(display, src_w, dest_w, src_x, src_y,
+                                  src_width, src_height, dest_x, dest_y);
+        logFunction(printf("XWarpPointer --> %d\n", funcResult););
+    return funcResult;
+  } /* XWarpPointer */
 
 
 

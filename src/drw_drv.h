@@ -99,6 +99,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
     intType width, intType height);
 void drwSetCloseAction (winType actual_window, intType closeAction);
 void drwSetCursorVisible (winType aWindow, boolType visible);
+void drwSetPointerPos (const_winType aWindow, intType xPos, intType yPos);
 void drwPoint (const_winType actual_window, intType x, intType y);
 void drwPPoint (const_winType actual_window, intType x, intType y, intType col);
 bstriType drwGenPointList (const const_rtlArrayType xyArray);

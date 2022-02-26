@@ -99,6 +99,7 @@ objectType drw_scale                  (listType arguments);
 objectType drw_set_close_action       (listType arguments);
 objectType drw_set_content            (listType arguments);
 objectType drw_set_cursor_visible     (listType arguments);
+objectType drw_set_pointer_pos        (listType arguments);
 objectType drw_set_pos                (listType arguments);
 objectType drw_set_transparent_color  (listType arguments);
 objectType drw_set_window_name        (listType arguments);

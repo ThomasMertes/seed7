@@ -869,5 +869,8 @@ extern int XSync (Display *display,
                   Bool discard);
 extern int XUndefineCursor (Display *display,
                             Window window);
+extern int XWarpPointer (Display *display, Window src_w, Window dest_w,
+                         int src_x, int src_y, unsigned int src_width,
+                         unsigned int src_height, int dest_x, int dest_y);
 extern unsigned long XWhitePixel (Display *display,
                                   int screen_number);

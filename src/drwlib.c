@@ -1308,6 +1308,13 @@ objectType drw_point (listType arguments)
 
 
 
+/**
+ *  Return the X position of the pointer relative to the specified window.
+ *  The point of origin is the top left corner of the drawing area
+ *  of the given 'actual_window' (inside of the window decorations).
+ *  If 'actual_window' is the empty window the pointer X position is
+ *  relative to the top left corner of the screen.
+ */
 objectType drw_pointer_xpos (listType arguments)
 
   { /* drw_pointer_xpos */
@@ -1318,6 +1325,13 @@ objectType drw_pointer_xpos (listType arguments)
 
 
 
+/**
+ *  Return the Y position of the pointer relative to the specified window.
+ *  The point of origin is the top left corner of the drawing area
+ *  of the given 'actual_window' (inside of the window decorations).
+ *  If 'actual_window' is the empty window the pointer Y position is
+ *  relative to the top left corner of the screen.
+ */
 objectType drw_pointer_ypos (listType arguments)
 
   { /* drw_pointer_ypos */
@@ -1558,6 +1572,26 @@ objectType drw_set_cursor_visible (listType arguments)
                         take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT);
     return SYS_EMPTY_OBJECT;
   } /* drw_set_cursor_visible */
+
+
+
+/**
+ *  Set the pointer x/arg_2 and y/arg_3 position relative to aWindow/arg_1.
+ *  The point of origin is the top left corner of the drawing area
+ *  of the given aWindow/arg_1 (inside of the window decorations).
+ *  If aWindow/arg_1 is the empty window the pointer x and y position
+ *  is relative to the top left corner of the screen.
+ */
+objectType drw_set_pointer_pos (listType arguments)
+
+  { /* drw_set_pointer_pos */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    drwSetPointerPos(take_win(arg_1(arguments)),
+        take_int(arg_2(arguments)), take_int(arg_3(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* drw_set_pointer_pos */
 
 
 

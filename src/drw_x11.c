@@ -1927,7 +1927,8 @@ void drwSetCloseAction (winType actual_window, intType closeAction)
 void drwSetCursorVisible (winType aWindow, boolType visible)
 
   { /* drwSetCursorVisible */
-    logFunction(printf("drwSetCursorVisible(" FMT_U_MEM ", %d)\n"););
+    logFunction(printf("drwSetCursorVisible(" FMT_U_MEM ", %d)\n",
+                       (memSizeType) aWindow, visible););
     if (visible) {
       XUndefineCursor(mydisplay, to_window(aWindow));
     } else {
@@ -1935,6 +1936,34 @@ void drwSetCursorVisible (winType aWindow, boolType visible)
     } /* if */
     XFlush(mydisplay);
   } /* drwSetCursorVisible */
+
+
+
+/**
+ *  Set the pointer x and y position relative to the specified 'aWindow'.
+ *  The point of origin is the top left corner of the drawing area
+ *  of the given 'aWindow' (inside of the window decorations).
+ *  If 'aWindow' is the empty window the pointer x and y position
+ *  is relative to the top left corner of the screen.
+ */
+void drwSetPointerPos (const_winType aWindow, intType xPos, intType yPos)
+
+  {
+    Window window;
+
+  /* drwSetPointerPos */
+    logFunction(printf("drwSetPointerPos(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) aWindow, xPos, yPos););
+    if (unlikely(!inIntRange(xPos) || !inIntRange(yPos))) {
+      raise_error(RANGE_ERROR);
+    } else {
+      window = to_window(aWindow);
+      if (window == 0) {
+        window = DefaultRootWindow(mydisplay);
+      } /* if */
+      XWarpPointer(mydisplay, None, window, 0, 0, 0, 0, (int) xPos, (int) yPos);
+    } /* if */
+  } /* drwSetPointerPos */
 
 
 

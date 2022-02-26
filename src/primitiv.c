@@ -388,6 +388,7 @@ static const actEntryRecord actEntryTable[] = {
     { "DRW_SET_CLOSE_ACTION",       drw_set_close_action,       },
     { "DRW_SET_CONTENT",            drw_set_content,            },
     { "DRW_SET_CURSOR_VISIBLE",     drw_set_cursor_visible,     },
+    { "DRW_SET_POINTER_POS",        drw_set_pointer_pos,        },
     { "DRW_SET_POS",                drw_set_pos,                },
     { "DRW_SET_TRANSPARENT_COLOR",  drw_set_transparent_color,  },
     { "DRW_SET_WINDOW_NAME",        drw_set_window_name,        },
