@@ -13160,30 +13160,31 @@ CONTENTS
   There are also C types without corresponding Seed7 type. They are
   defined in "common.h":
 
-    C type       C definition        Comment
-    int16Type    short int           It is assumed that sizeof(short int) == 2
-    uint16Type   unsigned short int  Unsigned integer type with the size of int16Type
-    int32Type    int                 If sizeof(int) == 4
-                 long                If sizeof(long) == 4
-    uint32Type   unsigned int32Type  Unsigned integer type with the size of int32Type
-    int64Type    long                If sizeof(long) == 8
-                 long long           If sizeof(long long) == 8
-                 __int64             If sizeof(__int64) == 8
-    uint64Type   unsigned int64Type  Unsigned integer type with the size of int64Type
-    int128Type   __int128            If sizeof(__int128) == 16
-                 __int128_t          If sizeof(__int128_t) == 16
-    uint128Type  unsigned __int128   If sizeof(unsigned __int128) == 16
-                 __uint128_t         If sizeof(__uint128_t) == 16
-    uintType     unsigned intType    Unsigned integer type with the size of intType
-    cstriType    char *              String type of the C compiler
-    ustriType    unsigned char *     Helpful for unsigned comparisons
-    wstriType    uint16Type *        UTF-16 string
-    strElemType  charType            UTF-32 character element of string.
-    os_striType  char *              If the OS uses UTF-8 chars
-                 wchar_t *           If the OS uses UTF-16 chars
-    memSizeType  uint32Type          If C uses 32-bit pointers
-                 uint64Type          If C uses 64-bit pointers
-    errInfoType  int                 Represents predefined Exceptions
+    C type        C definition        Comment
+    int16Type     short int           It is assumed that sizeof(short int) == 2
+    uint16Type    unsigned short int  Unsigned integer type with the size of int16Type
+    int32Type     int                 If sizeof(int) == 4
+                  long                If sizeof(long) == 4
+    uint32Type    unsigned int32Type  Unsigned integer type with the size of int32Type
+    int64Type     long                If sizeof(long) == 8
+                  long long           If sizeof(long long) == 8
+                  __int64             If sizeof(__int64) == 8
+    uint64Type    unsigned int64Type  Unsigned integer type with the size of int64Type
+    int128Type    __int128            If sizeof(__int128) == 16
+                  __int128_t          If sizeof(__int128_t) == 16
+    uint128Type   unsigned __int128   If sizeof(unsigned __int128) == 16
+                  __uint128_t         If sizeof(__uint128_t) == 16
+    uintType      unsigned intType    Unsigned integer type with the size of intType
+    cstriType     char *              String type of the C compiler
+    ustriType     unsigned char *     Helpful for unsigned comparisons
+    utf16striType uint16Type *        UTF-16 string
+    utf32striType uint32Type *        UTF-32 string
+    strElemType   charType            UTF-32 character element of string.
+    os_striType   char *              If the OS uses UTF-8 chars
+                  wchar_t *           If the OS uses UTF-16 chars
+    memSizeType   uint32Type          If C uses 32-bit pointers
+                  uint64Type          If C uses 64-bit pointers
+    errInfoType   int                 Represents predefined Exceptions
 
 
 15.2 String conversions

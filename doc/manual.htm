@@ -13359,30 +13359,31 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   There are also C types without corresponding Seed7 type. They are
   defined in <tt><span class="lib">"common.h"</span></tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
-    <tr><th>C type</th>       <th>C definition</th>        <th>Comment</th></tr>
-    <tr><td><tt><a class="type" name="ffi_int16Type">int16Type</a></tt></td>    <td>short int</td>           <td>It is assumed that sizeof(short int) == 2</td></tr>
-    <tr><td><tt><a class="type" name="ffi_uint16Type">uint16Type</a></tt></td>   <td>unsigned short int</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int16Type">int16Type</a></tt></td></tr>
-    <tr><td rowspan="2"><tt><a class="type" name="ffi_int32Type">int32Type</a></tt></td>    <td>int</td>                 <td>If sizeof(int) == 4</td></tr>
+    <tr><th>C type</th>        <th>C definition</th>        <th>Comment</th></tr>
+    <tr><td><tt><a class="type" name="ffi_int16Type">int16Type</a></tt></td>     <td>short int</td>           <td>It is assumed that sizeof(short int) == 2</td></tr>
+    <tr><td><tt><a class="type" name="ffi_uint16Type">uint16Type</a></tt></td>    <td>unsigned short int</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int16Type">int16Type</a></tt></td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_int32Type">int32Type</a></tt></td>     <td>int</td>                 <td>If sizeof(int) == 4</td></tr>
     <tr><td>long</td>                <td>If sizeof(long) == 4</td></tr>
-    <tr><td><tt><a class="type" name="ffi_uint32Type">uint32Type</a></tt></td>   <td>unsigned int32Type</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int32Type">int32Type</a></tt></td></tr>
-    <tr><td rowspan="3"><tt><a class="type" name="ffi_int64Type">int64Type</a></tt></td>    <td>long</td>                <td>If sizeof(long) == 8</td></tr>
+    <tr><td><tt><a class="type" name="ffi_uint32Type">uint32Type</a></tt></td>    <td>unsigned int32Type</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int32Type">int32Type</a></tt></td></tr>
+    <tr><td rowspan="3"><tt><a class="type" name="ffi_int64Type">int64Type</a></tt></td>     <td>long</td>                <td>If sizeof(long) == 8</td></tr>
     <tr><td>long long</td>           <td>If sizeof(long long) == 8</td></tr>
     <tr><td>__int64</td>             <td>If sizeof(__int64) == 8</td></tr>
-    <tr><td><tt><a class="type" name="ffi_uint64Type">uint64Type</a></tt></td>   <td>unsigned int64Type</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int64Type">int64Type</a></tt></td></tr>
-    <tr><td rowspan="2"><tt><a class="type" name="ffi_int128Type">int128Type</a></tt></td>   <td>__int128</td>            <td>If sizeof(__int128) == 16</td></tr>
+    <tr><td><tt><a class="type" name="ffi_uint64Type">uint64Type</a></tt></td>    <td>unsigned int64Type</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int64Type">int64Type</a></tt></td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_int128Type">int128Type</a></tt></td>    <td>__int128</td>            <td>If sizeof(__int128) == 16</td></tr>
     <tr><td>__int128_t</td>          <td>If sizeof(__int128_t) == 16</td></tr>
-    <tr><td rowspan="2"><tt><a class="type" name="ffi_uint128Type">uint128Type</a></tt></td>  <td>unsigned __int128</td>   <td>If sizeof(unsigned __int128) == 16</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_uint128Type">uint128Type</a></tt></td>   <td>unsigned __int128</td>   <td>If sizeof(unsigned __int128) == 16</td></tr>
     <tr><td>__uint128_t</td>         <td>If sizeof(__uint128_t) == 16</td></tr>
-    <tr><td><tt><a class="type" name="ffi_uintType">uintType</a></tt></td>     <td>unsigned intType</td>    <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_intType">intType</a></tt></td></tr>
-    <tr><td><tt><a class="type" name="ffi_cstriType">cstriType</a></tt></td>    <td>char *</td>              <td>String type of the C compiler</td></tr>
-    <tr><td><tt><a class="type" name="ffi_ustriType">ustriType</a></tt></td>    <td>unsigned char *</td>     <td>Helpful for unsigned comparisons</td></tr>
-    <tr><td><tt><a class="type" name="ffi_wstriType">wstriType</a></tt></td>    <td>uint16Type *</td>        <td>UTF-16 string</td></tr>
-    <tr><td><tt><a class="type" name="ffi_strElemType">strElemType</a></tt></td>  <td>charType</td>            <td>UTF-32 character element of <tt><a class="type" href="#ffi_striType">string</a></tt>.</td></tr>
-    <tr><td rowspan="2"><tt><a class="type" name="ffi_os_striType">os_striType</a></tt></td>  <td>char *</td>              <td>If the OS uses UTF-8 chars</td></tr>
+    <tr><td><tt><a class="type" name="ffi_uintType">uintType</a></tt></td>      <td>unsigned intType</td>    <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_intType">intType</a></tt></td></tr>
+    <tr><td><tt><a class="type" name="ffi_cstriType">cstriType</a></tt></td>     <td>char *</td>              <td>String type of the C compiler</td></tr>
+    <tr><td><tt><a class="type" name="ffi_ustriType">ustriType</a></tt></td>     <td>unsigned char *</td>     <td>Helpful for unsigned comparisons</td></tr>
+    <tr><td><tt><a class="type" name="ffi_utf16striType">utf16striType</a></tt></td> <td>uint16Type *</td>        <td>UTF-16 string</td></tr>
+    <tr><td><tt><a class="type" name="ffi_utf32striType">utf32striType</a></tt></td> <td>uint32Type *</td>        <td>UTF-32 string</td></tr>
+    <tr><td><tt><a class="type" name="ffi_strElemType">strElemType</a></tt></td>   <td>charType</td>            <td>UTF-32 character element of <tt><a class="type" href="#ffi_striType">string</a></tt>.</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_os_striType">os_striType</a></tt></td>   <td>char *</td>              <td>If the OS uses UTF-8 chars</td></tr>
     <tr><td>wchar_t *</td>           <td>If the OS uses UTF-16 chars</td></tr>
-    <tr><td rowspan="2"><tt><a class="type" name="ffi_memSizeType">memSizeType</a></tt></td>  <td>uint32Type</td>          <td>If C uses 32-bit pointers</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_memSizeType">memSizeType</a></tt></td>   <td>uint32Type</td>          <td>If C uses 32-bit pointers</td></tr>
     <tr><td>uint64Type</td>          <td>If C uses 64-bit pointers</td></tr>
-    <tr><td><tt><a class="type" name="ffi_errInfoType">errInfoType</a></tt></td>  <td>int</td>                 <td>Represents predefined Exceptions</td></tr>
+    <tr><td><tt><a class="type" name="ffi_errInfoType">errInfoType</a></tt></td>   <td>int</td>                 <td>Represents predefined Exceptions</td></tr>
 </table><p></p>
 
 <a name="ffi_String_conversions"><h3>15.2 String conversions</h3></a>
