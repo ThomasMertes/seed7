@@ -838,6 +838,7 @@ static striType processStatementStri (const const_striType sqlStatementStri,
 
 
 
+#ifndef WIDE_CHARS_SUPPORTED
 static boolType hasDataType (SQLHDBC connection, SQLSMALLINT requestedDataType,
     errInfoType *err_info)
 
@@ -869,9 +870,11 @@ static boolType hasDataType (SQLHDBC connection, SQLSMALLINT requestedDataType,
     logFunction(printf("hasDataType --> %d\n", hasType););
     return hasType;
   } /* hasDataType */
+#endif
 
 
 
+#ifndef TINY_INT_IS_UNSIGNED
 static boolType dataTypeIsUnsigned (SQLHDBC connection, SQLSMALLINT requestedDataType,
     errInfoType *err_info)
 
@@ -938,6 +941,7 @@ static boolType dataTypeIsUnsigned (SQLHDBC connection, SQLSMALLINT requestedDat
     logFunction(printf("dataTypeIsUnsigned --> %d\n", isUnsigned););
     return isUnsigned;
   } /* dataTypeIsUnsigned */
+#endif
 
 
 
