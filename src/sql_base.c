@@ -99,8 +99,8 @@ void dllErrorMessage (const char *funcName, const char *dbFuncName,
         currPos[-2] = '\0';
       } /* if */
       dbLibError(funcName, dbFuncName,
-                 "Searching for dynamic libraries failed: %s\n", dllNames);
-      logError(printf("%s: Searching for dynamic libraries failed: %s\n",
+                 "Searching dynamic libraries failed: %s\n", dllNames);
+      logError(printf("%s: Searching dynamic libraries failed: %s\n",
                       dbFuncName, dllNames););
       UNALLOC_CSTRI(dllNames, dllNamesSize);
     } /* if */
