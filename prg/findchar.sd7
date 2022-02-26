@@ -102,7 +102,7 @@ const proc: main is func
         searchedChar := arg_v[1];
       end if;
       while arg_number <= length(arg_v) do
-        fileName := arg_v[arg_number];
+        fileName := convDosPath(arg_v[arg_number]);
         if fileName[length(fileName)] = '/' then
           fileName := fileName[..pred(length(fileName))];
         end if;
