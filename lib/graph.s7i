@@ -328,8 +328,8 @@ const func array integer: getBorder (in PRIMITIVE_WINDOW: aWindow) is action "DR
 (**
  *  Return the X position of the pointer relative to the specified window.
  *  The point of origin is the top left corner of the drawing area
- *  of the given 'actual_window' (inside of the window decorations).
- *  If 'actual_window' is the empty window the pointer X position is
+ *  of the given 'aWindow' (inside of the window decorations).
+ *  If 'aWindow' is the empty window the pointer X position is
  *  relative to the top left corner of the screen.
  *)
 const func integer: pointerXPos (in PRIMITIVE_WINDOW: aWindow) is action "DRW_POINTER_XPOS";
@@ -337,12 +337,21 @@ const func integer: pointerXPos (in PRIMITIVE_WINDOW: aWindow) is action "DRW_PO
 (**
  *  Return the Y position of the pointer relative to the specified window.
  *  The point of origin is the top left corner of the drawing area
- *  of the given 'actual_window' (inside of the window decorations).
- *  If 'actual_window' is the empty window the pointer Y position is
+ *  of the given 'aWindow' (inside of the window decorations).
+ *  If 'aWindow' is the empty window the pointer Y position is
  *  relative to the top left corner of the screen.
  *)
 const func integer: pointerYPos (in PRIMITIVE_WINDOW: aWindow) is action "DRW_POINTER_YPOS";
 
+(**
+ *  Set the pointer x and y position relative to ''aWindow''.
+ *  The point of origin is the top left corner of the drawing area
+ *  of the given ''aWindow'' (inside of the window decorations).
+ *  If ''aWindow'' is the empty window the pointer x and y position
+ *  is relative to the top left corner of the screen.
+ *)
+const proc: setPointerPos (in PRIMITIVE_WINDOW: aWindow,
+                           in integer: xPos, in integer: yPos) is action "DRW_SET_POINTER_POS";
 
 const proc: SET_CLOSE_ACTION (in PRIMITIVE_WINDOW: aWindow, in integer: closeAction) is action "DRW_SET_CLOSE_ACTION";
 

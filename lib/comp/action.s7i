@@ -758,6 +758,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_SET_CURSOR_VISIBLE"}:
         drawLibraryUsed := TRUE;
         process(DRW_SET_CURSOR_VISIBLE, function, params, c_expr);
+      when {"DRW_SET_POINTER_POS"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_SET_POINTER_POS, function, params, c_expr);
       when {"DRW_SET_POS"}:
         drawLibraryUsed := TRUE;
         process(DRW_SET_POS, function, params, c_expr);
