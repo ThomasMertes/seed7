@@ -303,6 +303,7 @@ static char c_compiler[COMMAND_SIZE];
 static const char *nullDevice = NULL;
 static FILE *logFile = NULL;
 static unsigned long removeReattempts = 0;
+static unsigned long filePresentAfterDelay = 0;
 
 static const char *int16TypeStri = NULL;
 static const char *uint16TypeStri = NULL;
@@ -620,6 +621,35 @@ static void cleanUpCompilation (int testNumber)
 
 
 
+static int fileIsPresentPossiblyAfterDelay (const char *fileName)
+
+  {
+    int fileIsPresent;
+
+  /* fileIsPresentPossiblyAfterDelay */
+    fileIsPresent = fileIsRegular(fileName);
+#if defined OS_STRI_WCHAR && defined _WIN32
+    if (!fileIsPresent) {
+      /* Some virus protection software is so slow that waiting is necessary. */
+      time_t start_time;
+      char command[COMMAND_SIZE];
+
+      sprintf(command, "DIR %s > nul 2>&1", fileName);
+      start_time = time(NULL);
+      do {
+        system(command);
+      } while (time(NULL) < start_time + 5 &&
+               !(fileIsPresent = fileIsRegular(fileName)));
+      if (fileIsPresent) {
+        filePresentAfterDelay++;
+      } /* if */
+    } /* if */
+#endif
+    return fileIsPresent;
+  } /* fileIsPresentPossiblyAfterDelay */
+
+
+
 static int doCompile (const char *compilerOptions, int testNumber)
 
   {
@@ -657,7 +687,7 @@ static int doCompile (const char *compilerOptions, int testNumber)
     /* fprintf(logFile, "command: %s\n", command); */
     returncode = system(command);
     sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
-    if (fileIsRegular(fileName)) {
+    if (fileIsPresentPossiblyAfterDelay(fileName)) {
       if (returncode == 0) {
         okay = 1;
       } else {
@@ -758,7 +788,7 @@ static int doLink (const char *objectOrLibraryName, const char *linkerOptions)
     /* fprintf(logFile, "returncode: %d\n", returncode); */
     sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
     /* fprintf(logFile, "fileName: \"%s\"\n", fileName); */
-    if (fileIsRegular(fileName)) {
+    if (fileIsPresentPossiblyAfterDelay(fileName)) {
       if (returncode == 0) {
         okay = 1;
       } else {
@@ -838,7 +868,7 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
     } /* if */
 #endif
     sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
-    if (fileIsRegular(fileName)) {
+    if (fileIsPresentPossiblyAfterDelay(fileName)) {
       if (returncode == 0) {
         okay = 1;
       } else {
@@ -964,16 +994,17 @@ static int assertCompAndLnk (const char *content)
 
 
 
-static int doTest (void)
+static int runTest (int checkNumericValue)
 
   {
     char command[COMMAND_SIZE];
     char fileName[NAME_SIZE];
+    int ch;
     int returncode;
     FILE *outFile;
     int result = -1;
 
-  /* doTest */
+  /* runTest */
     fprintf(logFile, "+");
     fflush(logFile);
 #ifdef INTERPRETER_FOR_LINKED_PROGRAM
@@ -987,18 +1018,50 @@ static int doTest (void)
     returncode = system(command);
     if (returncode != -1) {
       sprintf(fileName, "ctest%d.out", testNumber);
-      outFile = fopen(fileName, "r");
-      if (outFile != NULL) {
-        fscanf(outFile, "%d", &result);
-        fclose(outFile);
+      if (fileIsPresentPossiblyAfterDelay(fileName)) {
+        outFile = fopen(fileName, "r");
+        if (outFile != NULL) {
+          if (fscanf(outFile, "%d", &result) != 1) {
+            if (checkNumericValue) {
+              fprintf(logFile, "\n *** No numeric result in \"%s\":\n", fileName);
+              rewind(outFile);
+              while ((ch = getc(outFile)) != EOF) {
+                fputc(ch, logFile);
+              } /* if */
+              fputs("\n ", logFile);
+            } /* if */
+          } /* if */
+          fclose(outFile);
+        } else {
+          fprintf(logFile, "\n *** Cannot open \"%s\".\n ", fileName);
+        } /* if */
+      } else {
+        fprintf(logFile, "\n *** File \"%s\" missing.\n ", fileName);
       } /* if */
     } else {
-      printf("\n *** system(\"%s\") failed with errno: %d.\n ", command, errno);
+      fprintf(logFile, "\n *** system(\"%s\") failed with errno: %d.\n ", command, errno);
     } /* if */
     fprintf(logFile, "\b");
+    /* printf(" runTest: %d\n", result); */
     fflush(logFile);
     return result;
+  } /* runTest */
+
+
+
+static int doTest (void)
+
+  { /* doTest */
+    return runTest(1);
   } /* doTest */
+
+
+
+static int doTestNoResultCheck (void)
+
+  { /* doTestNoResultCheck */
+    return runTest(0);
+  } /* doTestNoResultCheck */
 
 
 
@@ -1043,12 +1106,16 @@ static void testOutputToVersionFile (FILE *versionFile)
     returncode = system(command);
     if (returncode != -1) {
       sprintf(fileName, "ctest%d.out", testNumber);
-      outFile = fopen(fileName, "r");
-      if (outFile != NULL) {
-        while ((ch = getc(outFile)) != EOF) {
-          putc(ch, versionFile);
-        } /* while */
-        fclose(outFile);
+      if (fileIsPresentPossiblyAfterDelay(fileName)) {
+        outFile = fopen(fileName, "r");
+        if (outFile != NULL) {
+          while ((ch = getc(outFile)) != EOF) {
+            putc(ch, versionFile);
+          } /* while */
+          fclose(outFile);
+        } /* if */
+      } else {
+        fprintf(logFile, "\n *** File \"%s\" missing.\n ", fileName);
       } /* if */
     } /* if */
     fprintf(logFile, "\b");
@@ -1057,7 +1124,7 @@ static void testOutputToVersionFile (FILE *versionFile)
 
 
 
-static int isNullDevice (const char *fileName, int eofChar)
+static int isNullDevice (const char *nullDeviceName, int eofChar)
 
   {
     FILE *aFile;
@@ -1065,19 +1132,19 @@ static int isNullDevice (const char *fileName, int eofChar)
     int fileIsNullDevice = 0;
 
   /* isNullDevice */
-    aFile = fopen(fileName, "r");
+    aFile = fopen(nullDeviceName, "r");
     if (aFile != NULL) {
       /* The file exists. Now check if the file is empty. */
       fileIsEmpty = getc(aFile) == eofChar;
       fclose(aFile);
       if (fileIsEmpty) {
         /* Reading from a null device returns always EOF. */
-        aFile = fopen(fileName, "r+");
+        aFile = fopen(nullDeviceName, "r+");
         if (aFile != NULL) {
           /* Writing of 'X' to a null device should be ignored. */
           putc('X', aFile);
           fclose(aFile);
-          aFile = fopen(fileName, "r");
+          aFile = fopen(nullDeviceName, "r");
           if (aFile != NULL) {
             /* Check if the file is still empty. */
             fileIsEmpty = getc(aFile) == eofChar;
@@ -1087,7 +1154,7 @@ static int isNullDevice (const char *fileName, int eofChar)
               fileIsNullDevice = 1;
             } else {
               /* The file is not empty, so it is not a null device. */
-              aFile = fopen(fileName, "w");
+              aFile = fopen(nullDeviceName, "w");
               if (aFile != NULL) {
                 /* Make sure that the file is empty, as it was before. */
                 fclose(aFile);
@@ -1124,7 +1191,7 @@ static void initializeNullDevice (void)
 
 
 
-static int checkIfNullDevice (const char *fileName, int eofChar)
+static int checkIfNullDevice (const char *nullDeviceName, const char *eofName)
 
   {
     char buffer[BUFFER_SIZE];
@@ -1136,26 +1203,26 @@ static int checkIfNullDevice (const char *fileName, int eofChar)
             "int main(int argc, char *argv[]) {\n"
             "FILE *aFile;\n"
             "int fileIsEmpty;\n"
-            "char *fileName = \"%s\";\n"
-            "int eofChar = %d;\n"
+            "char *nullDeviceName = \"%s\";\n"
+            "int eofChar = %s;\n"
             "int fileIsNullDevice = 0;\n"
-            "aFile = fopen(fileName, \"r\");\n"
+            "aFile = fopen(nullDeviceName, \"r\");\n"
             "if (aFile != NULL) {\n"
             "  fileIsEmpty = getc(aFile) == eofChar;\n"
             "  fclose(aFile);\n"
             "  if (fileIsEmpty) {\n"
-            "    aFile = fopen(fileName, \"r+\");\n"
+            "    aFile = fopen(nullDeviceName, \"r+\");\n"
             "    if (aFile != NULL) {\n"
             "      putc('X', aFile);\n"
             "      fclose(aFile);\n"
-            "      aFile = fopen(fileName, \"r\");\n"
+            "      aFile = fopen(nullDeviceName, \"r\");\n"
             "      if (aFile != NULL) {\n"
             "        fileIsEmpty = getc(aFile) == eofChar;\n"
             "        fclose(aFile);\n"
             "        if (fileIsEmpty) {\n"
             "          fileIsNullDevice = 1;\n"
             "        } else {\n"
-            "          aFile = fopen(fileName, \"w\");\n"
+            "          aFile = fopen(nullDeviceName, \"w\");\n"
             "          if (aFile != NULL) {\n"
             "            fclose(aFile);\n"
             "          }\n"
@@ -1166,7 +1233,8 @@ static int checkIfNullDevice (const char *fileName, int eofChar)
             "}\n"
             "printf(\"%%d\\n\", fileIsNullDevice);\n"
             "return 0;}",
-            fileName, eofChar);
+            nullDeviceName, eofName);
+    /* printf("%s\n", buffer); */
     if (assertCompAndLnk(buffer)) {
       fileIsNullDevice = doTest() == 1;
     } /* if */
@@ -1181,15 +1249,15 @@ static void determineNullDevice (FILE *versionFile)
     const char *nullDevice = NULL;
 
   /* determineNullDevice */
-    if (checkIfNullDevice("/dev/null", EOF)) {
+    if (checkIfNullDevice("/dev/null", "EOF")) {
       nullDevice = "/dev/null";
-    } else if (checkIfNullDevice("NUL:", EOF)) {
+    } else if (checkIfNullDevice("NUL:", "EOF")) {
       nullDevice = "NUL:";
-    } else if (checkIfNullDevice("NUL", EOF)) {
+    } else if (checkIfNullDevice("NUL", "EOF")) {
       nullDevice = "NUL";
-    } else if (checkIfNullDevice("NUL:", 0)) {
+    } else if (checkIfNullDevice("NUL:", "0")) {
       nullDevice = "NUL:";
-    } else if (checkIfNullDevice("NUL", 0)) {
+    } else if (checkIfNullDevice("NUL", "0")) {
       nullDevice = "NUL";
     } /* if */
     if (nullDevice == NULL) {
@@ -1413,7 +1481,7 @@ static void checkPopen (FILE *versionFile)
                       "\", \"re\");\n"
                       "printf(\"%%d\\n\", aFile != NULL); return 0;}\n", popen);
       if (compileAndLinkOk(buffer)) {
-        fprintf(versionFile, "#define POPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
+        fprintf(versionFile, "#define POPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTestNoResultCheck() == 1);
       } else {
         sprintf(buffer, "#include <stdio.h>\n"
                         "int main(int argc, char *argv[])\n"
@@ -2506,8 +2574,9 @@ static void numericProperties (FILE *versionFile)
     os_isnan_definition = determine_os_isnan_definition(computeValues, "#define os_isnan isnan");
     if (os_isnan_definition == NULL) {
       os_isnan_definition = determine_os_isnan_definition(computeValues, "#define os_isnan _isnan");
-    } else if (os_isnan_definition == NULL) {
-      os_isnan_definition = determine_os_isnan_definition(computeValues, "#define os_isnan(x) (x != x)");
+      if (os_isnan_definition == NULL) {
+        os_isnan_definition = determine_os_isnan_definition(computeValues, "#define os_isnan(x) (x != x)");
+      } /* if */
     } /* if */
     if (os_isnan_definition == NULL) {
       fprintf(logFile, "\n *** Unable to determine isnan() macro.\n");
@@ -5540,7 +5609,7 @@ static void determineOsFunctions (FILE *versionFile)
                          "{SetErrorMode(SEM_NOGPFAULTERRORBOX);\n"
                          "printf(\"%d\\n\", fopen(\"ctstfile.txt\", \"we\") != NULL);\n"
                          "return 0;}\n")) {
-      fprintf(versionFile, "#define FOPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTest() == 1);
+      fprintf(versionFile, "#define FOPEN_SUPPORTS_CLOEXEC_MODE %d\n", doTestNoResultCheck() == 1);
     } else if (assertCompAndLnk("#include <stdio.h>\n"
                                 "int main(int argc,char *argv[])\n"
                                 "{printf(\"%d\\n\", fopen(\"ctstfile.txt\", \"we\") != NULL);"
@@ -5658,7 +5727,7 @@ static void determineOptionForLinkTimeOptimization (FILE *versionFile)
         /* fprintf(logFile, "command: %s\n", command); */
         returncode = system(command);
         /* fprintf(logFile, "returncode: %d\n", returncode); */
-        if (fileIsRegular(libraryName)) {
+        if (fileIsPresentPossiblyAfterDelay(libraryName)) {
           /* fprintf(logFile, " Library present.\n"); */
           if (doLink(libraryName, "")) {
             canDoLinkTimeOptimization = doTest() == 1;
@@ -5816,7 +5885,8 @@ static int findStaticLib (const char *scopeName, const char *testProgram,
             appendOption(linkOption, libraryOption);
             appendOption(linkOption, linkParam);
             /* fprintf(logFile, "includeOption: \"%s\"\n", includeOption);
-            fprintf(logFile, "linkParam: \"%s\"\n", linkParam); */
+            fprintf(logFile, "linkParam: \"%s\"\n", linkParam);
+            fprintf(logFile, "linkOption: \"%s\"\n", linkOption); */
             if (compileAndLinkWithOptionsOk(testProgram, includeOption, linkOption)) {
               if (doTest() == 1) {
                 fprintf(logFile, "\r%s: %s found in: %s\n",
@@ -8682,6 +8752,7 @@ int main (int argc, char **argv)
     writeReadBufferEmptyMacro(versionFile);
     cleanUpCompilation(testNumber);
     fprintf(versionFile, "#define REMOVE_REATTEMPTS %lu\n", removeReattempts);
+    fprintf(versionFile, "#define FILE_PRESENT_AFTER_DELAY %lu\n", filePresentAfterDelay);
     closeVersionFile(versionFile);
     if (fileIsRegular("tst_vers.h")) {
       remove("tst_vers.h");

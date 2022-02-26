@@ -46,7 +46,7 @@ int main (int argc, char *argv[])
       printf("Create \"level.h\".\n");
       currentLevel = 0;
     } /* if */
-    levelFile = fopen("level.h", "w");
+    levelFile = fopen("level.h", "wb");
     if (levelFile != NULL) {
       currentLevel++;
       fprintf(levelFile, "#define LEVEL %ld\n", currentLevel);
