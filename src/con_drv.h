@@ -38,7 +38,7 @@
 
 
 #ifdef CONSOLE_WCHAR
-typedef wstriType console_striType;
+typedef utf16striType console_striType;
 #else
 typedef ustriType console_striType;
 #endif

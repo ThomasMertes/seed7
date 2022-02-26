@@ -68,7 +68,7 @@
 
 #if ANY_LOG_ACTIVE
 #ifdef USE_WMAIN
-static void printArgv (const int argc, const wstriType *const argv)
+static void printArgv (const int argc, const utf16striType *const argv)
 #else
 static void printArgv (const int argc, const cstriType *const argv)
 #endif
@@ -276,7 +276,7 @@ static rtlArrayType copyArgv (const int argc, const os_striType *const argv)
  *  @return an array with the argument vector.
  */
 #ifdef USE_WMAIN
-rtlArrayType getArgv (const int argc, const wstriType *const argv,
+rtlArrayType getArgv (const int argc, const utf16striType *const argv,
     striType *arg_0, striType *programName, striType *exePath)
 
   {

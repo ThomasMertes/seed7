@@ -30,7 +30,7 @@
 /********************************************************************/
 
 #ifdef USE_WMAIN
-rtlArrayType getArgv (const int argc, const wstriType *const argv,
+rtlArrayType getArgv (const int argc, const utf16striType *const argv,
     striType *arg_0, striType *programName, striType *exePath);
 #else
 rtlArrayType getArgv (const int argc, const cstriType *const argv,
