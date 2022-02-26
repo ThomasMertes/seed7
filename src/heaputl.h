@@ -244,7 +244,8 @@ EXTERN memSizeType hs;
 
 #define SIZ_USTRI(len)   ((len) + NULL_TERMINATION_LEN)
 #define SIZ_CSTRI(len)   ((len) + NULL_TERMINATION_LEN)
-#define SIZ_WSTRI(len)   (sizeof(wcharType) * ((len) + NULL_TERMINATION_LEN))
+#define SIZ_UTF16(len)   (sizeof(utf16charType) * ((len) + NULL_TERMINATION_LEN))
+#define SIZ_UTF32(len)   (sizeof(utf32charType) * ((len) + NULL_TERMINATION_LEN))
 #define SIZ_STRI(len)    ((sizeof(striRecord)     - sizeof(strElemType))  + (len) * sizeof(strElemType))
 #define SIZ_BSTRI(len)   ((sizeof(bstriRecord)    - sizeof(ucharType))    + (len) * sizeof(ucharType))
 #define SIZ_ARR(len)     ((sizeof(arrayRecord)    - sizeof(objectRecord)) + (len) * sizeof(objectRecord))
@@ -260,7 +261,8 @@ EXTERN memSizeType hs;
 
 #define MAX_USTRI_LEN   (MAX_MEMSIZETYPE - NULL_TERMINATION_LEN)
 #define MAX_CSTRI_LEN   (MAX_MEMSIZETYPE - NULL_TERMINATION_LEN)
-#define MAX_WSTRI_LEN   (MAX_MEMSIZETYPE / sizeof(wcharType) - NULL_TERMINATION_LEN)
+#define MAX_UTF16_LEN   (MAX_MEMSIZETYPE / sizeof(utf16charType) - NULL_TERMINATION_LEN)
+#define MAX_UTF32_LEN   (MAX_MEMSIZETYPE / sizeof(utf32charType) - NULL_TERMINATION_LEN)
 #define MAX_STRI_LEN    ((MAX_MEMSIZETYPE - sizeof(striRecord)     + sizeof(strElemType))   / sizeof(strElemType))
 #define MAX_BSTRI_LEN   ((MAX_MEMSIZETYPE - sizeof(bstriRecord)    + sizeof(ucharType))     / sizeof(ucharType))
 #define MAX_SET_LEN     ((MAX_MEMSIZETYPE - sizeof(setRecord)      + sizeof(bitSetType))    / sizeof(bitSetType))
@@ -332,9 +334,14 @@ EXTERN memSizeType hs;
 #define UNALLOC_CSTRI(var,len)     FREE_HEAP(var, SIZ_CSTRI(len))
 
 
-#define ALLOC_WSTRI(var,len)       ALLOC_HEAP(var, wstriType, SIZ_WSTRI(len))
-#define REALLOC_WSTRI(var,len)     ((wstriType) REALLOC_HEAP(var, ustriType, SIZ_WSTRI(len)))
-#define UNALLOC_WSTRI(var,len)     FREE_HEAP(var, SIZ_WSTRI(len))
+#define ALLOC_UTF16(var,len)       ALLOC_HEAP(var, utf16charType *, SIZ_UTF16(len))
+#define REALLOC_UTF16(var,len)     REALLOC_HEAP(var, utf16charType *, SIZ_UTF16(len))
+#define UNALLOC_UTF16(var,len)     FREE_HEAP(var, SIZ_UTF16(len))
+
+
+#define ALLOC_UTF32(var,len)       ALLOC_HEAP(var, utf32charType *, SIZ_UTF32(len))
+#define REALLOC_UTF32(var,len)     REALLOC_HEAP(var, utf32charType *, SIZ_UTF32(len))
+#define UNALLOC_UTF32(var,len)     FREE_HEAP(var, SIZ_UTF32(len))
 
 
 #if WITH_STRI_CAPACITY

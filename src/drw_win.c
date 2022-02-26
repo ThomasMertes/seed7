@@ -2270,8 +2270,8 @@ void drwText (const_winType actual_window, intType x, intType y,
     if (unlikely(!inIntRange(x) || !inIntRange(y) ||
                  stri->size >= (unsigned int) INT_MAX)) {
       raise_error(RANGE_ERROR);
-    } else if (unlikely(stri->size > MAX_WSTRI_LEN ||
-                        !ALLOC_WSTRI(stri_buffer, stri->size))) {
+    } else if (unlikely(stri->size > MAX_UTF16_LEN ||
+                        !ALLOC_UTF16(stri_buffer, stri->size))) {
       raise_error(MEMORY_ERROR);
     } else {
       wstri = stri_buffer;
@@ -2279,7 +2279,7 @@ void drwText (const_winType actual_window, intType x, intType y,
       len = stri->size;
       for (; len > 0; wstri++, strelem++, len--) {
         if (unlikely(*strelem >= 65536)) {
-          UNALLOC_WSTRI(stri_buffer, stri->size);
+          UNALLOC_UTF16(stri_buffer, stri->size);
           raise_error(RANGE_ERROR);
           return;
         } /* if */
@@ -2296,7 +2296,7 @@ void drwText (const_winType actual_window, intType x, intType y,
         SetTextAlign(to_backup_hdc(actual_window), TA_BASELINE | TA_LEFT);
         TextOutW(to_backup_hdc(actual_window), (int) x, (int) y, stri_buffer, (int) stri->size);
       } /* if */
-      UNALLOC_WSTRI(stri_buffer, stri->size);
+      UNALLOC_UTF16(stri_buffer, stri->size);
     } /* if */
   } /* drwText */
 

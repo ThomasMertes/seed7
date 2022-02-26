@@ -1086,25 +1086,25 @@ void conv_to_cstri8 (cstriType cstri, const const_striType stri,
  *                        Unicode character (U+10FFFF).
  *  @return the length of the converted UTF-16 string in characters.
  */
-memSizeType stri_to_utf16 (const wstriType out_wstri,
+memSizeType stri_to_utf16 (const utf16striType out_wstri,
     register const strElemType *strelem, memSizeType len,
     errInfoType *const err_info)
 
   {
     register strElemType ch;
-    register wstriType wstri;
+    register utf16striType wstri;
 
   /* stri_to_utf16 */
     wstri = out_wstri;
     for (; len > 0; wstri++, strelem++, len--) {
       ch = *strelem;
       if (likely(ch <= 0xFFFF)) {
-        *wstri = (wcharType) ch;
+        *wstri = (utf16charType) ch;
       } else if (ch <= 0x10FFFF) {
         ch -= 0x10000;
-        *wstri = (wcharType) (0xD800 | (ch >> 10));
+        *wstri = (utf16charType) (0xD800 | (ch >> 10));
         wstri++;
-        *wstri = (wcharType) (0xDC00 | (ch & 0x3FF));
+        *wstri = (utf16charType) (0xDC00 | (ch & 0x3FF));
       } else {
         logError(printf("stri_to_utf16: Non-Unicode character "
                         "in string ('\\" FMT_U32 ";').\n",
@@ -1115,16 +1115,6 @@ memSizeType stri_to_utf16 (const wstriType out_wstri,
     } /* for */
     return (memSizeType) (wstri - out_wstri);
   } /* stri_to_utf16 */
-
-
-
-void memcpy_to_wstri (wstriType dest, const char *src, memSizeType len)
-
-  { /* memcpy_to_wstri */
-    for (; len > 0; src++, dest++, len--) {
-      *dest = (wcharType) *src;
-    } /* for */
-  } /* memcpy_to_wstri */
 
 
 
@@ -1402,12 +1392,12 @@ static inline boolType conv_to_os_stri (const os_striType os_stri,
 
 
 static memSizeType wstri_expand (strElemType *const dest_stri,
-    const_wstriType wstri, memSizeType len)
+    const_utf16striType wstri, memSizeType len)
 
   {
     strElemType *stri;
-    wcharType ch1;
-    wcharType ch2;
+    utf16charType ch1;
+    utf16charType ch2;
 
   /* wstri_expand */
     stri = dest_stri;
@@ -1455,7 +1445,7 @@ striType conv_from_os_stri (const const_os_striType os_stri,
 
   /* conv_from_os_stri */
     if (likely(ALLOC_STRI_CHECK_SIZE(stri, length))) {
-      stri_size = wstri_expand(stri->mem, (const_wstriType) os_stri, length);
+      stri_size = wstri_expand(stri->mem, (const_utf16striType) os_stri, length);
       stri->size = stri_size;
       if (stri_size != length) {
         REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
@@ -1863,7 +1853,7 @@ bstriType stri_to_bstriw (const const_striType stri, errInfoType *err_info)
         stri->size * SURROGATE_PAIR_FACTOR * sizeof(os_charType)))) {
       *err_info = MEMORY_ERROR;
     } else {
-      wstri_size = stri_to_utf16((wstriType) bstri->mem, stri->mem, stri->size, err_info);
+      wstri_size = stri_to_utf16((utf16striType) bstri->mem, stri->mem, stri->size, err_info);
       if (unlikely(*err_info != OKAY_NO_ERROR)) {
         FREE_BSTRI(bstri, stri->size * SURROGATE_PAIR_FACTOR * sizeof(os_charType));
         bstri = NULL;
@@ -1914,7 +1904,6 @@ bstriType stri_to_os_bstri (const_striType stri)
 /**
  *  Create an UTF-16 encoded wide string buffer from a Seed7 UTF-32 string.
  *  The memory for the zero byte terminated wide string is allocated.
- *  The wide string result must be freed with the macro free_wstri().
  *  This function is intended to create temporary strings, that
  *  are used as parameters. To get good performance the allocated
  *  memory for the wide string is oversized.
@@ -1929,15 +1918,15 @@ bstriType stri_to_os_bstri (const_striType stri)
  *          NULL if the memory allocation failed or the
  *          conversion failed (the error is indicated by err_info).
  */
-wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
+utf16striType stri_to_wstri16 (const const_striType stri, memSizeType *length,
       errInfoType *err_info)
 
   {
-    wstriType wstri;
+    utf16striType wstri;
 
-  /* stri_to_wstri_buf */
-    if (unlikely(stri->size > MAX_WSTRI_LEN / SURROGATE_PAIR_FACTOR ||
-                 !ALLOC_WSTRI(wstri, SURROGATE_PAIR_FACTOR * stri->size))) {
+  /* stri_to_wstri16 */
+    if (unlikely(stri->size > MAX_UTF16_LEN / SURROGATE_PAIR_FACTOR ||
+                 !ALLOC_UTF16(wstri, SURROGATE_PAIR_FACTOR * stri->size))) {
       *err_info = MEMORY_ERROR;
       wstri = NULL;
     } else {
@@ -1945,7 +1934,29 @@ wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
       wstri[*length] = '\0';
     } /* if */
     return wstri;
-  } /* stri_to_wstri_buf */
+  } /* stri_to_wstri16 */
+
+
+
+utf32striType stri_to_wstri32 (const const_striType stri, memSizeType *length,
+    errInfoType *err_info)
+
+  {
+    utf32striType wstri;
+
+  /* stri_to_wstri32 */
+    if (unlikely(stri->size > MAX_UTF32_LEN ||
+                 !ALLOC_UTF32(wstri, stri->size))) {
+      *err_info = MEMORY_ERROR;
+      wstri = NULL;
+    } else {
+      /* Assume that sizeof(strElemType) == sizeof(utf32striType). */
+      memcpy(wstri, stri->mem, stri->size * sizeof(utf32striType));
+      wstri[stri->size] = '\0';
+      *length = stri->size;
+    } /* if */
+    return wstri;
+  } /* stri_to_wstri32 */
 
 
 
@@ -2125,7 +2136,7 @@ striType cstri8_or_cstri_to_stri (const_cstriType cstri)
  *  @return an UTF-32 encoded Seed7 string, or
  *          NULL if the memory allocation failed.
  */
-striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
+striType wstri16_to_stri (const_utf16striType wstri, memSizeType length,
     errInfoType *err_info)
 
   {
@@ -2133,7 +2144,7 @@ striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
     striType resized_stri;
     striType stri;
 
-  /* wstri_buf_to_stri */
+  /* wstri16_to_stri */
     if (unlikely(!ALLOC_STRI_CHECK_SIZE(stri, length))) {
       *err_info = MEMORY_ERROR;
     } else {
@@ -2152,40 +2163,26 @@ striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
       } /* if */
     } /* if */
     return stri;
-  } /* wstri_buf_to_stri */
+  } /* wstri16_to_stri */
 
 
 
-/**
- *  Copy a wide string with length to a null terminated C string.
- *  This function is used to convert (ASCII) date and time values.
- *  @param cstri Destination of the null terminated string.
- *  @param wstri Source wide char string to be copied.
- *  @param length Length of wstri measured in wide characters.
- *  @return OKAY_NO_ERROR if the conversion succeeded, or
- *          RANGE_ERROR if non-ASCII characters were found.
- */
-errInfoType conv_wstri_buf_to_cstri (cstriType cstri, const_wstriType wstri,
-    memSizeType length)
+striType wstri32_to_stri (const_utf32striType wstri, memSizeType length,
+    errInfoType *err_info)
 
   {
-    ustriType ustri;
-    wcharType ch;
-    errInfoType err_info = OKAY_NO_ERROR;
+    striType stri;
 
-  /* conv_wstri_buf_to_cstri */
-    ustri = (ustriType) cstri;
-    for (; length > 0; ustri++, wstri++, length--) {
-      ch = *wstri;
-      if (likely(ch <= 0xFF)) {
-        *ustri = (ucharType) ch;
-      } else {
-        err_info = RANGE_ERROR;
-      } /* if */
+  /* wstri32_to_stri */
+    if (unlikely(!ALLOC_STRI_CHECK_SIZE(stri, length))) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      stri->size = length;
+      /* Assume that sizeof(strElemType) == sizeof(utf32striType). */
+      memcpy(stri->mem, wstri, length * sizeof(utf32striType));
     } /* if */
-    *ustri = '\0';
-    return err_info;
-  } /* conv_wstri_buf_to_cstri */
+    return stri;
+  } /* wstri32_to_stri */
 
 
 

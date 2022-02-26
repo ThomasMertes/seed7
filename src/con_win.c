@@ -654,9 +654,9 @@ intType conLine (void)
 static void doWriteConsole (HANDLE hConsole, const const_striType stri)
 
   {
-    wcharType wstri_buffer[WRITE_STRI_BLOCK_SIZE * SURROGATE_PAIR_FACTOR];
-    wstriType wstri;
-    wstriType wstri_part;
+    utf16charType wstri_buffer[WRITE_STRI_BLOCK_SIZE * SURROGATE_PAIR_FACTOR];
+    utf16striType wstri;
+    utf16striType wstri_part;
     memSizeType wstri_size;
     errInfoType err_info = OKAY_NO_ERROR;
     DWORD numchars;
@@ -671,10 +671,10 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
         WriteConsoleW(hConsole, wstri_buffer, (DWORD) wstri_size, &numchars, NULL);
       } /* if */
     } else {
-      /* ALLOC_WSTRI adds space for a NULL termination, which is not needed here. */
+      /* ALLOC_UTF16 adds space for a NULL termination, which is not needed here. */
       if (unlikely(stri->size >
-                   (MAX_WSTRI_LEN + NULL_TERMINATION_LEN) / SURROGATE_PAIR_FACTOR ||
-                   !ALLOC_WSTRI(wstri, stri->size * SURROGATE_PAIR_FACTOR -
+                   (MAX_UTF16_LEN + NULL_TERMINATION_LEN) / SURROGATE_PAIR_FACTOR ||
+                   !ALLOC_UTF16(wstri, stri->size * SURROGATE_PAIR_FACTOR -
                    NULL_TERMINATION_LEN))) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -691,7 +691,7 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
           } /* while */
           WriteConsoleW(hConsole, wstri_part, (DWORD) wstri_size, &numchars, NULL);
         } /* if */
-        UNALLOC_WSTRI(wstri, stri->size * SURROGATE_PAIR_FACTOR - NULL_TERMINATION_LEN);
+        UNALLOC_UTF16(wstri, stri->size * SURROGATE_PAIR_FACTOR - NULL_TERMINATION_LEN);
       } /* if */
     } /* if */
   } /* doWriteConsole */

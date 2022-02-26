@@ -486,9 +486,13 @@ typedef memSizeType        sySizeType;
 typedef FILE              *cFileType;
 typedef int                fileDesType;
 
-typedef uint16Type         wcharType;
-typedef wcharType         *wstriType;
-typedef const wcharType   *const_wstriType;
+typedef uint16Type           utf16charType;
+typedef utf16charType       *utf16striType;
+typedef const utf16charType *const_utf16striType;
+
+typedef uint32Type           utf32charType;
+typedef utf32charType       *utf32striType;
+typedef const utf32charType *const_utf32striType;
 
 typedef int                socketType;
 typedef unsigned int       usocketType;

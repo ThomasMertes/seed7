@@ -99,7 +99,7 @@ static SQLWCHAR *getRegularName (SQLWCHAR *wstri, memSizeType wstriLength)
     SQLWCHAR *compressedWstri;
 
   /* getRegularName */
-    if (ALLOC_WSTRI(compressedWstri, wstriLength)) {
+    if (ALLOC_UTF16(compressedWstri, wstriLength)) {
       destWstri = compressedWstri;
       while (*wstri != '\0') {
         if (*wstri >= 'A' && *wstri <= 'Z') {
@@ -334,14 +334,14 @@ static boolType connectToDriver (connectDataType connectData,
                                          (memSizeType) driverLength, server,
                                          (memSizeType) (posFound - server));
                 } /* if */
-                UNALLOC_WSTRI(regularServerName, driverLength);
+                UNALLOC_UTF16(regularServerName, driverLength);
               } /* if */
               posFound++;
             } while (!okay && !lastServer);
           } /* if */
         } /* if */
       } /* if */
-      UNALLOC_WSTRI(regularNameOfSearchedServer, connectData->serverW_length);
+      UNALLOC_UTF16(regularNameOfSearchedServer, connectData->serverW_length);
     } /* if */
     if (!okay) {
       okay = connectToServer(connectData, sql_connection, driver,
@@ -394,10 +394,10 @@ static boolType driverConnect (connectDataType connectData, SQLHDBC sql_connecti
               okay = connectToDriver(connectData, sql_connection, driver,
                                      (memSizeType) driverLength);
             } /* if */
-            UNALLOC_WSTRI(regularDriverName, driverLength);
+            UNALLOC_UTF16(regularDriverName, driverLength);
           } /* if */
         } /* while */
-        UNALLOC_WSTRI(regularNameOfSearchedDriver, connectData->driverW_length);
+        UNALLOC_UTF16(regularNameOfSearchedDriver, connectData->driverW_length);
       } /* if */
     } /* if */
     logFunction(printf("driverConnect --> %d\n", okay););
@@ -493,23 +493,23 @@ databaseType sqlOpenOdbc (const const_striType driver,
       logError(printf("sqlOpenOdbc: findDll() failed\n"););
       err_info = DATABASE_ERROR;
       database = NULL;
-    } else if (unlikely((connectData.driverW =  stri_to_wstri_buf(driver,
+    } else if (unlikely((connectData.driverW =  stri_to_wstri16(driver,
                              &connectData.driverW_length, &err_info)) == NULL)) {
       database = NULL;
     } else {
-      connectData.serverW = stri_to_wstri_buf(server, &connectData.serverW_length, &err_info);
+      connectData.serverW = stri_to_wstri16(server, &connectData.serverW_length, &err_info);
       if (unlikely(connectData.serverW == NULL)) {
         database = NULL;
       } else {
-        connectData.dbNameW = stri_to_wstri_buf(dbName, &connectData.dbNameW_length, &err_info);
+        connectData.dbNameW = stri_to_wstri16(dbName, &connectData.dbNameW_length, &err_info);
         if (unlikely(connectData.dbNameW == NULL)) {
           database = NULL;
         } else {
-          connectData.userW = stri_to_wstri_buf(user, &connectData.userW_length, &err_info);
+          connectData.userW = stri_to_wstri16(user, &connectData.userW_length, &err_info);
           if (unlikely(connectData.userW == NULL)) {
             database = NULL;
           } else {
-            connectData.passwordW = stri_to_wstri_buf(password, &connectData.passwordW_length, &err_info);
+            connectData.passwordW = stri_to_wstri16(password, &connectData.passwordW_length, &err_info);
             if (unlikely(connectData.passwordW == NULL)) {
               database = NULL;
             } else {
@@ -553,15 +553,15 @@ databaseType sqlOpenOdbc (const const_striType driver,
                   } /* if */
                 } /* if */
               } /* if */
-              free_wstri(connectData.passwordW, password);
+              UNALLOC_UTF16(connectData.passwordW, password);
             } /* if */
-            free_wstri(connectData.userW, user);
+            UNALLOC_UTF16(connectData.userW, user);
           } /* if */
-          free_wstri(connectData.dbNameW, dbName);
+          UNALLOC_UTF16(connectData.dbNameW, dbName);
         } /* if */
-        free_wstri(connectData.serverW, server);
+        UNALLOC_UTF16(connectData.serverW, server);
       } /* if */
-      free_wstri(connectData.driverW, driver);
+      UNALLOC_UTF16(connectData.driverW, driver);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);

@@ -459,6 +459,49 @@ static void sqlClose (databaseType database);
 
 
 
+/**
+ *  Copy a SQLWCHAR string with length to a null terminated C string.
+ *  This function is used to convert (ASCII) date and time values.
+ *  @param cstri Destination of the null terminated string.
+ *  @param wstri Source SQLWCHAR string to be copied.
+ *  @param length Length of wstri measured in wide characters.
+ *  @return OKAY_NO_ERROR if the conversion succeeded, or
+ *          RANGE_ERROR if non-ASCII characters were found.
+ */
+static errInfoType conv_sqlwstri_to_cstri (cstriType cstri, const SQLWCHAR *wstri,
+    memSizeType length)
+
+  {
+    ustriType ustri;
+    SQLWCHAR ch;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* conv_sqlwstri_to_cstri */
+    ustri = (ustriType) cstri;
+    for (; length > 0; ustri++, wstri++, length--) {
+      ch = *wstri;
+      if (likely(ch <= 0xFF)) {
+        *ustri = (ucharType) ch;
+      } else {
+        err_info = RANGE_ERROR;
+      } /* if */
+    } /* if */
+    *ustri = '\0';
+    return err_info;
+  } /* conv_sqlwstri_to_cstri */
+
+
+
+static void memcpy_to_sqlwstri (SQLWCHAR *dest, const char *src, memSizeType len)
+
+  { /* memcpy_to_sqlwstri */
+    for (; len > 0; src++, dest++, len--) {
+      *dest = (SQLWCHAR) *src;
+    } /* for */
+  } /* memcpy_to_sqlwstri */
+
+
+
 static void wstri_to_cstri8 (ustriType cstri8, const SQLWCHAR *wstri)
 
   {
@@ -2472,7 +2515,7 @@ static errInfoType getWClob (preparedStmtType preparedStmt, memSizeType column,
     SQLLEN totalLength;
     memSizeType wstriLength;
     SQLRETURN returnCode;
-    wstriType wstri;
+    utf16striType wstri;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* getWClob */
@@ -2506,16 +2549,16 @@ static errInfoType getWClob (preparedStmtType preparedStmt, memSizeType column,
         err_info = MEMORY_ERROR;
       } else {
         /* printf("totalLength=" FMT_D64 "\n", totalLength); */
-        wstriLength = (memSizeType) totalLength / sizeof(wcharType);
-        if (unlikely(wstriLength > MAX_WSTRI_LEN ||
-                     (wstri = (wstriType) malloc(SIZ_WSTRI(wstriLength))) == NULL)) {
+        wstriLength = (memSizeType) totalLength / sizeof(utf16charType);
+        if (unlikely(wstriLength > MAX_UTF16_LEN ||
+                     (wstri = (utf16striType) malloc(SIZ_UTF16(wstriLength))) == NULL)) {
           err_info = MEMORY_ERROR;
         } else {
           returnCode= SQLGetData(preparedStmt->ppStmt,
                                  (SQLUSMALLINT) column,
                                  SQL_C_WCHAR,
                                  wstri,
-                                 (SQLLEN) SIZ_WSTRI(wstriLength),
+                                 (SQLLEN) SIZ_UTF16(wstriLength),
                                  &columnData->length);
           if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO) {
             columnData->buffer = (cstriType) wstri;
@@ -3671,7 +3714,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
     preparedStmtType preparedStmt;
     bindDataType param;
     SQLSMALLINT c_type;
-    wstriType wstri;
+    utf16striType wstri;
     memSizeType length;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -3708,21 +3751,21 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos,
           case SQL_WLONGVARCHAR:
           case SQL_CLOB:
             c_type = SQL_C_WCHAR;
-            if (unlikely(stri->size > MAX_WSTRI_LEN / SURROGATE_PAIR_FACTOR)) {
+            if (unlikely(stri->size > MAX_UTF16_LEN / SURROGATE_PAIR_FACTOR)) {
               /* It is not possible to compute the memory size. */
               err_info = MEMORY_ERROR;
             } else {
-              if (param->buffer_capacity < SIZ_WSTRI(SURROGATE_PAIR_FACTOR * stri->size)) {
+              if (param->buffer_capacity < SIZ_UTF16(SURROGATE_PAIR_FACTOR * stri->size)) {
                 free(param->buffer);
-                if (unlikely(!ALLOC_WSTRI(param->buffer, SURROGATE_PAIR_FACTOR * stri->size))) {
+                if (unlikely(!ALLOC_UTF16(param->buffer, SURROGATE_PAIR_FACTOR * stri->size))) {
                   param->buffer_capacity = 0;
                   err_info = MEMORY_ERROR;
                 } else {
-                  param->buffer_capacity = SIZ_WSTRI(SURROGATE_PAIR_FACTOR * stri->size);
+                  param->buffer_capacity = SIZ_UTF16(SURROGATE_PAIR_FACTOR * stri->size);
                 } /* if */
               } /* if */
               if (likely(err_info == OKAY_NO_ERROR)) {
-                wstri = (wstriType) param->buffer;
+                wstri = (utf16striType) param->buffer;
                 length = stri_to_utf16(wstri, stri->mem, stri->size, &err_info);
                 wstri[length] = '\0';
                 if (likely(err_info == OKAY_NO_ERROR)) {
@@ -4225,7 +4268,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
                   raise_error(RANGE_ERROR);
                   columnValue = 0;
                 } else {
-                  columnValue = *(const_wstriType) columnData->buffer - '0';
+                  columnValue = *(const_utf16striType) columnData->buffer - '0';
                 } /* if */
                 break;
               default:
@@ -4501,8 +4544,8 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
                               column, length););
               err_info = RANGE_ERROR;
             } else {
-              err_info = conv_wstri_buf_to_cstri(duration,
-                  (wstriType) columnData->buffer,
+              err_info = conv_sqlwstri_to_cstri(duration,
+                  (utf16striType) columnData->buffer,
                   length);
               if (unlikely(err_info != OKAY_NO_ERROR)) {
                 logError(printf("sqlColumnDuration: In column " FMT_D
@@ -4746,7 +4789,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
     resultDescrType columnDescr;
     resultDataType columnData;
     memSizeType length;
-    wstriType wstri;
+    utf16striType wstri;
     cstriType cstri;
     errInfoType err_info = OKAY_NO_ERROR;
     striType columnValue;
@@ -4805,8 +4848,8 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                 break;
               case SQL_C_WCHAR:
                 length = (memSizeType) columnData->length >> 1;
-                columnValue = wstri_buf_to_stri(
-                    (wstriType) columnData->buffer,
+                columnValue = wstri16_to_stri(
+                    (utf16striType) columnData->buffer,
                     length, &err_info);
                 if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
@@ -4836,11 +4879,11 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                 break;
               case SQL_C_WCHAR:
                 length = (memSizeType) columnData->length >> 1;
-                wstri = (wstriType) columnData->buffer;
+                wstri = (utf16striType) columnData->buffer;
                 while (length > 0 && wstri[length - 1] == ' ') {
                   length--;
                 } /* if */
-                columnValue = wstri_buf_to_stri(wstri, length, &err_info);
+                columnValue = wstri16_to_stri(wstri, length, &err_info);
                 if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
                 } /* if */
@@ -4992,8 +5035,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                               column, length););
               err_info = RANGE_ERROR;
             } else {
-              err_info = conv_wstri_buf_to_cstri(datetime2,
-                  (wstriType) columnData->buffer, length);
+              err_info = conv_sqlwstri_to_cstri(datetime2,
+                  (utf16striType) columnData->buffer, length);
               if (unlikely(err_info != OKAY_NO_ERROR)) {
                 logError(printf("sqlColumnTime: In column " FMT_D
                                 " the datetime2 contains characters byond Latin-1.\n",
@@ -5258,7 +5301,7 @@ static sqlStmtType sqlPrepare (databaseType database,
   {
     dbType db;
     striType statementStri;
-    wstriType query;
+    utf16striType query;
     memSizeType queryLength;
     errInfoType err_info = OKAY_NO_ERROR;
     preparedStmtType preparedStmt;
@@ -5277,7 +5320,7 @@ static sqlStmtType sqlPrepare (databaseType database,
       if (statementStri == NULL) {
         preparedStmt = NULL;
       } else {
-        query = stri_to_wstri_buf(statementStri, &queryLength, &err_info);
+        query = stri_to_wstri16(statementStri, &queryLength, &err_info);
         if (unlikely(query == NULL)) {
           preparedStmt = NULL;
         } else {
@@ -5337,7 +5380,7 @@ static sqlStmtType sqlPrepare (databaseType database,
               } /* if */
             } /* if */
           } /* if */
-          free_wstri(query, statementStri);
+          UNALLOC_UTF16(query, statementStri);
         } /* if */
         FREE_STRI(statementStri, sqlStatementStri->size);
       } /* if */
@@ -5438,8 +5481,8 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
     preparedStmtType preparedStmt;
     SQLRETURN returnCode;
     SQLSMALLINT stringLength;
-    wcharType wideNameBuffer[CHARS_IN_NAME_BUFFER + NULL_TERMINATION_LEN];
-    wstriType wideName;
+    utf16charType wideNameBuffer[CHARS_IN_NAME_BUFFER + NULL_TERMINATION_LEN];
+    utf16striType wideName;
     memSizeType wideNameLength;
     errInfoType err_info = OKAY_NO_ERROR;
     striType name;
@@ -5460,7 +5503,7 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
                                     (SQLUSMALLINT) column,
                                     SQL_DESC_NAME,
                                     wideNameBuffer,
-                                    (SQLSMALLINT) SIZ_WSTRI(CHARS_IN_NAME_BUFFER),
+                                    (SQLSMALLINT) SIZ_UTF16(CHARS_IN_NAME_BUFFER),
                                     &stringLength,
                                     NULL);
       if (returnCode != SQL_SUCCESS &&
@@ -5483,27 +5526,27 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
       } else {
         wideNameLength = (memSizeType) (stringLength >> 1);
         if (returnCode == SQL_SUCCESS) {
-          name = wstri_buf_to_stri(wideNameBuffer, wideNameLength, &err_info);
-        } else if (unlikely(!ALLOC_WSTRI(wideName, wideNameLength))) {
+          name = wstri16_to_stri(wideNameBuffer, wideNameLength, &err_info);
+        } else if (unlikely(!ALLOC_UTF16(wideName, wideNameLength))) {
           err_info = MEMORY_ERROR;
           name = NULL;
         } else if (SQLColAttributeW(preparedStmt->ppStmt,
                                     (SQLUSMALLINT) column,
                                     SQL_DESC_NAME,
                                     wideName,
-                                    (SQLSMALLINT) SIZ_WSTRI(wideNameLength),
+                                    (SQLSMALLINT) SIZ_UTF16(wideNameLength),
                                     NULL,
                                     NULL) != SQL_SUCCESS) {
           setDbErrorMsg("sqlStmtColumnName", "SQLColAttributeW",
                         SQL_HANDLE_STMT, preparedStmt->ppStmt);
           logError(printf("sqlStmtColumnName: SQLColAttributeW SQL_DESC_NAME:\n%s\n",
                           dbError.message););
-          UNALLOC_WSTRI(wideName, wideNameLength);
+          UNALLOC_UTF16(wideName, wideNameLength);
           err_info = DATABASE_ERROR;
           name = NULL;
         } else {
-          name = wstri_buf_to_stri(wideName, wideNameLength, &err_info);
-          UNALLOC_WSTRI(wideName, wideNameLength);
+          name = wstri16_to_stri(wideName, wideNameLength, &err_info);
+          UNALLOC_UTF16(wideName, wideNameLength);
         } /* if */
       } /* if */
     } /* if */

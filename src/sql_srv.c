@@ -150,7 +150,7 @@ static boolType createConnectionString (connectDataType connectData)
       } /* if */
 
       if (likely(connectionStringLength <= SHRT_MAX &&
-                 ALLOC_WSTRI(connectionString, connectionStringLength))) {
+                 ALLOC_UTF16(connectionString, connectionStringLength))) {
         connectData->connectionString = connectionString;
         connectData->connectionStringLength = connectionStringLength;
 
@@ -158,7 +158,7 @@ static boolType createConnectionString (connectDataType connectData)
         pos += STRLEN(serverKey);
         memcpy(&connectionString[pos], server, serverLength * sizeof(SQLWCHAR));
         pos += serverLength;
-        memcpy_to_wstri(&connectionString[pos], portName, portNameLength);
+        memcpy_to_sqlwstri(&connectionString[pos], portName, portNameLength);
         pos += portNameLength;
 
         connectionString[pos++] = ';';
@@ -493,19 +493,19 @@ databaseType sqlOpenSqlServer (const const_striType host, intType port,
       database = NULL;
     } else {
       connectData.port = port;
-      connectData.server = stri_to_wstri_buf(host, &connectData.serverLength, &err_info);
+      connectData.server = stri_to_wstri16(host, &connectData.serverLength, &err_info);
       if (unlikely(connectData.server == NULL)) {
         database = NULL;
       } else {
-        connectData.database = stri_to_wstri_buf(dbName, &connectData.databaseLength, &err_info);
+        connectData.database = stri_to_wstri16(dbName, &connectData.databaseLength, &err_info);
         if (unlikely(connectData.database == NULL)) {
           database = NULL;
         } else {
-          connectData.uid = stri_to_wstri_buf(user, &connectData.uidLength, &err_info);
+          connectData.uid = stri_to_wstri16(user, &connectData.uidLength, &err_info);
           if (unlikely(connectData.uid == NULL)) {
             database = NULL;
           } else {
-            connectData.pwd = stri_to_wstri_buf(password, &connectData.pwdLength, &err_info);
+            connectData.pwd = stri_to_wstri16(password, &connectData.pwdLength, &err_info);
             if (unlikely(connectData.pwd == NULL)) {
               database = NULL;
             } else {
@@ -514,15 +514,15 @@ databaseType sqlOpenSqlServer (const const_striType host, intType port,
                 database = NULL;
               } else {
                 database = doOpenSqlServer(&connectData, &err_info);
-                UNALLOC_WSTRI(connectData.connectionString, connectData.connectionStringLength);
+                UNALLOC_UTF16(connectData.connectionString, connectData.connectionStringLength);
               } /* if */
-              UNALLOC_WSTRI(connectData.pwd, connectData.pwdLength);
+              UNALLOC_UTF16(connectData.pwd, connectData.pwdLength);
             } /* if */
-            UNALLOC_WSTRI(connectData.uid, connectData.uidLength);
+            UNALLOC_UTF16(connectData.uid, connectData.uidLength);
           } /* if */
-          UNALLOC_WSTRI(connectData.database, connectData.databaseLength);
+          UNALLOC_UTF16(connectData.database, connectData.databaseLength);
         } /* if */
-        UNALLOC_WSTRI(connectData.server, connectData.serverLength);
+        UNALLOC_UTF16(connectData.server, connectData.serverLength);
       } /* if */
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {

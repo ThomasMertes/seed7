@@ -144,7 +144,7 @@ static boolType createConnectionString (connectDataType connectData)
       } /* if */
 
       if (likely(connectionStringLength <= SHRT_MAX &&
-                 ALLOC_WSTRI(connectionString, connectionStringLength))) {
+                 ALLOC_UTF16(connectionString, connectionStringLength))) {
         connectData->connectionString = connectionString;
         connectData->connectionStringLength = connectionStringLength;
 
@@ -162,7 +162,7 @@ static boolType createConnectionString (connectDataType connectData)
         connectionString[pos++] = ';';
         memcpy(&connectionString[pos], portKey, STRLEN(portKey) * sizeof(SQLWCHAR));
         pos += STRLEN(portKey);
-        memcpy_to_wstri(&connectionString[pos], portName, portNameLength);
+        memcpy_to_sqlwstri(&connectionString[pos], portName, portNameLength);
         pos += portNameLength;
 
         connectionString[pos++] = ';';
@@ -291,19 +291,19 @@ databaseType sqlOpenDb2 (const const_striType host, intType port,
       database = NULL;
     } else {
       connectData.port = port;
-      connectData.hostname = stri_to_wstri_buf(host, &connectData.hostnameLength, &err_info);
+      connectData.hostname = stri_to_wstri16(host, &connectData.hostnameLength, &err_info);
       if (unlikely(connectData.hostname == NULL)) {
         database = NULL;
       } else {
-        connectData.database = stri_to_wstri_buf(dbName, &connectData.databaseLength, &err_info);
+        connectData.database = stri_to_wstri16(dbName, &connectData.databaseLength, &err_info);
         if (unlikely(connectData.database == NULL)) {
           database = NULL;
         } else {
-          connectData.uid = stri_to_wstri_buf(user, &connectData.uidLength, &err_info);
+          connectData.uid = stri_to_wstri16(user, &connectData.uidLength, &err_info);
           if (unlikely(connectData.uid == NULL)) {
             database = NULL;
           } else {
-            connectData.pwd = stri_to_wstri_buf(password, &connectData.pwdLength, &err_info);
+            connectData.pwd = stri_to_wstri16(password, &connectData.pwdLength, &err_info);
             if (unlikely(connectData.pwd == NULL)) {
               database = NULL;
             } else {
@@ -312,15 +312,15 @@ databaseType sqlOpenDb2 (const const_striType host, intType port,
                 database = NULL;
               } else {
                 database = doOpenDb2(&connectData, &err_info);
-                UNALLOC_WSTRI(connectData.connectionString, connectData.connectionStringLength);
+                UNALLOC_UTF16(connectData.connectionString, connectData.connectionStringLength);
               } /* if */
-              UNALLOC_WSTRI(connectData.pwd, connectData.pwdLength);
+              UNALLOC_UTF16(connectData.pwd, connectData.pwdLength);
             } /* if */
-            UNALLOC_WSTRI(connectData.uid, connectData.uidLength);
+            UNALLOC_UTF16(connectData.uid, connectData.uidLength);
           } /* if */
-          UNALLOC_WSTRI(connectData.database, connectData.databaseLength);
+          UNALLOC_UTF16(connectData.database, connectData.databaseLength);
         } /* if */
-        UNALLOC_WSTRI(connectData.hostname, connectData.hostnameLength);
+        UNALLOC_UTF16(connectData.hostname, connectData.hostnameLength);
       } /* if */
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {

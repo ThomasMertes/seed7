@@ -57,7 +57,6 @@ extern const const_cstriType cstri_escape_sequence[];
 #define max_utf8_size(size) (MAX_UTF8_EXPANSION_FACTOR * (size))
 #define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, (stri)->size);
 #define free_cstri8(cstri,stri) UNALLOC_CSTRI(cstri, max_utf8_size((stri)->size));
-#define free_wstri(wstri,stri) free(wstri);
 
 /**
  *  UTF-16 encodes characters > 0xffff with surrogate pairs.
@@ -77,11 +76,11 @@ typedef const wchar_t   *const_os_striType;
 #define os_stri_strcat   wcscat
 #define os_stri_strchr   wcschr
 #define os_stri_strrchr  wcsrchr
-#define ALLOC_OS_STRI(var,len)    ALLOC_HEAP(var, os_striType, SIZ_WSTRI(len))
-#define REALLOC_OS_STRI(var,len)  ((os_striType) REALLOC_HEAP(var, ustriType, SIZ_WSTRI(len)))
+#define ALLOC_OS_STRI(var,len)    ALLOC_HEAP(var, os_striType, SIZ_UTF16(len))
+#define REALLOC_OS_STRI(var,len)  ((os_striType) REALLOC_HEAP(var, ustriType, SIZ_UTF16(len)))
 #define FREE_OS_STRI     free
-#define SIZ_OS_STRI      SIZ_WSTRI
-#define MAX_OS_STRI_LEN  MAX_WSTRI_LEN
+#define SIZ_OS_STRI      SIZ_UTF16
+#define MAX_OS_STRI_LEN  MAX_UTF16_LEN
 #define FMT_S_OS "%ls"
 #else
 typedef char             os_charType;
@@ -199,10 +198,9 @@ memSizeType stri_to_utf8 (const ustriType out_stri,
 cstriType conv_to_cstri (cstriType cstri, const const_striType stri);
 void conv_to_cstri8 (cstriType cstri, const const_striType stri,
                      errInfoType *err_info);
-memSizeType stri_to_utf16 (const wstriType out_wstri,
+memSizeType stri_to_utf16 (const utf16striType out_wstri,
                            register const strElemType *strelem, memSizeType len,
                            errInfoType *const err_info);
-void memcpy_to_wstri (wstriType dest, const char *src, memSizeType len);
 cstriType stri_to_cstri (const const_striType stri, errInfoType *err_info);
 cstriType stri_to_cstri8 (const const_striType stri, errInfoType *err_info);
 cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length);
@@ -211,18 +209,20 @@ bstriType stri_to_bstri8 (const const_striType stri);
 #ifdef CONSOLE_WCHAR
 bstriType stri_to_bstriw (const const_striType stri, errInfoType *err_info);
 #endif
-wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
-                             errInfoType *err_info);
+utf16striType stri_to_wstri16 (const const_striType stri, memSizeType *length,
+                               errInfoType *err_info);
+utf32striType stri_to_wstri32 (const const_striType stri, memSizeType *length,
+                               errInfoType *err_info);
 striType cstri_to_stri (const_cstriType cstri);
 striType cstri_buf_to_stri (const_cstriType cstri, memSizeType length);
 striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info);
 striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
                              errInfoType *err_info);
 striType cstri8_or_cstri_to_stri (const_cstriType cstri);
-striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
-                            errInfoType *err_info);
-errInfoType conv_wstri_buf_to_cstri (cstriType cstri, const_wstriType wstri,
-                                     memSizeType length);
+striType wstri16_to_stri (const_utf16striType wstri, memSizeType length,
+                          errInfoType *err_info);
+striType wstri32_to_stri (const_utf32striType wstri, memSizeType length,
+                          errInfoType *err_info);
 striType conv_from_os_stri (const const_os_striType os_stri, memSizeType length);
 os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info);
 striType os_stri_to_stri (const const_os_striType os_stri, errInfoType *err_info);

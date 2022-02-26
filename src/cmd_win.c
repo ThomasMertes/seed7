@@ -408,7 +408,7 @@ os_striType wgetenv (const const_os_striType name)
     if (value_size == 0) {
       value = NULL;
     } else {
-      if (ALLOC_WSTRI(value, value_size - 1)) {
+      if (ALLOC_UTF16(value, value_size - 1)) {
         if (GetEnvironmentVariableW(name, value, value_size) != value_size - 1) {
           FREE_OS_STRI(value);
           value = NULL;
