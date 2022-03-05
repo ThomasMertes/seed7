@@ -88,6 +88,14 @@ extern void drwSetCloseAction (winType actual_window, intType closeAction);
 #define WM_MOUSEWHEEL                   0x020A
 #endif
 
+#ifndef VK_XBUTTON1
+#define VK_XBUTTON1 5
+#endif
+
+#ifndef VK_XBUTTON2
+#define VK_XBUTTON2 6
+#endif
+
 #ifndef WM_XBUTTONDOWN
 #define WM_XBUTTONDOWN 0x020B
 #endif

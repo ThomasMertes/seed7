@@ -634,16 +634,12 @@ static int fileIsPresentPossiblyAfterDelay (const char *fileName)
     fileIsPresent = fileIsRegular(fileName);
 #if defined OS_STRI_WCHAR && defined _WIN32
     if (!fileIsPresent) {
-      /* Some virus protection software is so slow that waiting is necessary. */
-      time_t start_time;
+      /* Maybe the file shows up after executing a shell command. */
       char command[COMMAND_SIZE];
 
-      sprintf(command, "DIR %s > nul 2>&1", fileName);
-      start_time = time(NULL);
-      do {
-        system(command);
-      } while (time(NULL) < start_time + 5 &&
-               !(fileIsPresent = fileIsRegular(fileName)));
+      sprintf(command, "%s %s > nul 2>&1", LIST_DIRECTORY_CONTENTS, fileName);
+      system(command);
+      fileIsPresent = fileIsRegular(fileName);
       if (fileIsPresent) {
         filePresentAfterDelay++;
       } /* if */
