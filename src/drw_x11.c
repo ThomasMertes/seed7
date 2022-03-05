@@ -2213,11 +2213,13 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
       double xScale = (double) to_width(pixmap) / (double) width;
       double yScale = (double) to_height(pixmap) / (double) height;
       XTransform transform = {{
-          { XDoubleToFixed(xScale), XDoubleToFixed(   0.0), XDoubleToFixed(0.0) },
-          { XDoubleToFixed(   0.0), XDoubleToFixed(yScale), XDoubleToFixed(0.0) },
-          { XDoubleToFixed(   0.0), XDoubleToFixed(   0.0), XDoubleToFixed(1.0) }
+          { XDoubleToFixed(1.0), XDoubleToFixed(0.0), XDoubleToFixed(0.0) },
+          { XDoubleToFixed(0.0), XDoubleToFixed(1.0), XDoubleToFixed(0.0) },
+          { XDoubleToFixed(0.0), XDoubleToFixed(0.0), XDoubleToFixed(1.0) }
         }};
       XRenderPictureAttributes pictureAttributes;
+      transform.matrix[0][0] = XDoubleToFixed(xScale);
+      transform.matrix[1][1] = XDoubleToFixed(yScale);
       memset(&pictureAttributes, 0, sizeof(pictureAttributes));
       picture = XRenderCreatePicture(mydisplay, to_window(pixmap),
                                      XRenderFindVisualFormat(mydisplay, default_visual),

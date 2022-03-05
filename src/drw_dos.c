@@ -399,6 +399,13 @@ void drwSetCursorVisible (winType aWindow, boolType visible)
 
 
 
+void drwSetPointerPos (const_winType aWindow, intType xPos, intType yPos)
+
+  { /* drwSetPointerPos */
+  } /* drwSetPointerPos */
+
+
+
 void drwPoint (const_winType actual_window, intType x, intType y)
 
   { /* drwPoint */
