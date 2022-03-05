@@ -34,7 +34,7 @@
 
 #include "version.h"
 
-#if BIGINT_LIB == BIG_RTL_LIBRARY
+#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"

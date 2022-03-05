@@ -31,7 +31,7 @@
 
 #include "config.h"
 
-#if BIGINT_LIB == BIG_GMP_LIBRARY
+#if BIGINT_LIBRARY == BIG_GMP_LIBRARY
 #include "gmp.h"
 #endif
 
@@ -515,7 +515,7 @@ typedef unsigned int       os_socketType;
 #define DIRDOS_DIRECTORY  3
 #define DIRWIN_DIRECTORY  4
 
-/* Possible values for BIGINT_LIB: */
+/* Possible values for BIGINT_LIBRARY: */
 #define NO_BIG_LIBRARY  -1
 #define BIG_RTL_LIBRARY  1
 #define BIG_GMP_LIBRARY  2
@@ -686,7 +686,7 @@ typedef struct bufferStruct {
   } *bufferList;
 
 
-#if BIGINT_LIB == BIG_RTL_LIBRARY
+#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
 
 /***************************************/
 /*                                     */
@@ -722,7 +722,7 @@ typedef bigIntRecord       *bigIntType;
 typedef const bigIntRecord *const_bigIntType;
 
 
-#elif BIGINT_LIB == BIG_GMP_LIBRARY
+#elif BIGINT_LIBRARY == BIG_GMP_LIBRARY
 
 /***************************************/
 /*                                     */

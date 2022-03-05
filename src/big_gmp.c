@@ -34,7 +34,7 @@
 
 #include "version.h"
 
-#if BIGINT_LIB == BIG_GMP_LIBRARY
+#if BIGINT_LIBRARY == BIG_GMP_LIBRARY
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"

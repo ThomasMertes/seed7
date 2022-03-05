@@ -96,7 +96,7 @@ countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 EXTERN countType count;
 #endif
 
-#if BIGINT_LIB == BIG_RTL_LIBRARY
+#if BIGINT_LIBRARY == BIG_RTL_LIBRARY
 extern const size_t sizeof_bigDigitType;
 extern const size_t sizeof_bigIntRecord;
 #endif
