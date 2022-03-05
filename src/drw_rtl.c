@@ -355,7 +355,10 @@ rtlArrayType drwGetPixelArray (const_winType sourceWindow)
     height = (memSizeType) drwHeight(sourceWindow);
     width = (memSizeType) drwWidth(sourceWindow);
     pixelData = drwGetPixelData(sourceWindow);
-    if (likely(pixelData != NULL)) {
+    if (unlikely(pixelData == NULL)) {
+      /* An exception has already been raised. */
+      imageArray = NULL;
+    } else {
       if (likely(ALLOC_RTL_ARRAY(imageArray, height))) {
         imageArray->min_position = 1;
         imageArray->max_position = (intType) height;

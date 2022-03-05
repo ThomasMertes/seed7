@@ -778,7 +778,10 @@ objectType drw_get_pixel_array (listType arguments)
     height = (memSizeType) drwHeight(sourceWindow);
     width = (memSizeType) drwWidth(sourceWindow);
     pixelData = drwGetPixelData(sourceWindow);
-    if (likely(pixelData != NULL)) {
+    if (unlikely(pixelData == NULL)) {
+      /* An exception has already been raised. */
+      result = NULL;
+    } else {
       if (likely(ALLOC_ARRAY(imageArray, height))) {
         imageArray->min_position = 1;
         imageArray->max_position = (intType) height;
