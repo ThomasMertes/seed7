@@ -1,7 +1,8 @@
 
-(********************************************************************) (*                                                                  *)
+(********************************************************************)
+(*                                                                  *)
 (*  chkbig.sd7    Checks bigInteger literals and operations         *)
-(*  Copyright (C) 2006 - 2021  Thomas Mertes                        *)
+(*  Copyright (C) 2006 - 2022  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
