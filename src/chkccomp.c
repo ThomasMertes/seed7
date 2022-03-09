@@ -7257,7 +7257,7 @@ static void determineOdbcDefines (FILE *versionFile,
     unsigned int nameIndex;
     int searchForLib = 1;
     char includeOption[BUFFER_SIZE];
-    int windowsOdbc = 0;
+    int includeWindows = 0;
     int includeSqlext = 0;
     const char *odbcInclude = NULL;
     char testProgram[BUFFER_SIZE];
@@ -7276,7 +7276,7 @@ static void determineOdbcDefines (FILE *versionFile,
                                     "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
                                     "return 0;}\n",
                                     includeOption, "")) {
-      windowsOdbc = 1;
+      includeWindows = 1;
       includeSqlext = 1;
       odbcInclude = "sql.h";
       fprintf(logFile, "\rOdbc: %s found in system include directory.\n",
@@ -7313,7 +7313,7 @@ static void determineOdbcDefines (FILE *versionFile,
       includeOption[0] = '\0';
     } /* if */
     if (odbcInclude != NULL) {
-      fprintf(versionFile, "#define WINDOWS_ODBC %d\n", windowsOdbc);
+      fprintf(versionFile, "#define ODBC_INCLUDE_WINDOWS_H %d\n", includeWindows);
       fprintf(versionFile, "#define ODBC_INCLUDE \"%s\"\n", odbcInclude);
       fprintf(versionFile, "#define ODBC_INCLUDE_SQLEXT_H %d\n", includeSqlext);
       appendOption(include_options, includeOption);
@@ -7322,7 +7322,7 @@ static void determineOdbcDefines (FILE *versionFile,
                            "int main(int argc,char *argv[]){\n"
                            "printf(\"%%d\\n\", sizeof(SQLWCHAR));\n"
                            "return 0;\n}\n",
-                           windowsOdbc ? "#include \"windows.h\"\n" : "", odbcInclude,
+                           includeWindows ? "#include \"windows.h\"\n" : "", odbcInclude,
                            includeSqlext ? "#include \"sqlext.h\"\n" : "");
       if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
         fprintf(versionFile, "#define ODBC_SIZEOF_SQLWCHAR %d\n", doTest());
@@ -7338,7 +7338,7 @@ static void determineOdbcDefines (FILE *versionFile,
                          "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
                          "printf(\"1\\n\");\n"
                          "return 0;\n}\n",
-                         windowsOdbc ? "#include \"windows.h\"\n" : "", odbcInclude,
+                         includeWindows ? "#include \"windows.h\"\n" : "", odbcInclude,
                          includeSqlext ? "#include \"sqlext.h\"\n" : "");
     /* fprintf(logFile, "%s\n", testProgram);
        fprintf(logFile, "odbcInclude: \"%s\"\n", odbcInclude); */
@@ -7867,7 +7867,7 @@ static void determineSqlServerDefines (FILE *versionFile,
     char includeOption[BUFFER_SIZE];
     char makeDefinition[BUFFER_SIZE];
     int freeTdsLibrary = 0;
-    int windowsSqlServer = 0;
+    int includeWindows = 0;
     int includeSqlext = 0;
     const char *sqlServerInclude = NULL;
     char testProgram[BUFFER_SIZE];
@@ -7890,7 +7890,7 @@ static void determineSqlServerDefines (FILE *versionFile,
                                     "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
                                     "return 0;}\n",
                                     includeOption, "")) {
-      windowsSqlServer = 1;
+      includeWindows = 1;
       includeSqlext = 1;
       sqlServerInclude = "sql.h";
       fprintf(logFile, "\rSQL Server: %s found in system include directory.\n",
@@ -7927,7 +7927,7 @@ static void determineSqlServerDefines (FILE *versionFile,
       includeOption[0] = '\0';
     } /* if */
     if (sqlServerInclude != NULL) {
-      fprintf(versionFile, "#define WINDOWS_SQL_SERVER %d\n", windowsSqlServer);
+      fprintf(versionFile, "#define SQL_SERVER_INCLUDE_WINDOWS_H %d\n", includeWindows);
       fprintf(versionFile, "#define SQL_SERVER_INCLUDE \"%s\"\n", sqlServerInclude);
       fprintf(versionFile, "#define SQL_SERVER_INCLUDE_SQLEXT_H %d\n", includeSqlext);
       fprintf(versionFile, "#define SQL_SERVER_INCLUDE_OPTION \"");
@@ -7942,7 +7942,7 @@ static void determineSqlServerDefines (FILE *versionFile,
                            "int main(int argc,char *argv[]){\n"
                            "printf(\"%%d\\n\", sizeof(SQLWCHAR));\n"
                            "return 0;\n}\n",
-                           windowsSqlServer ? "#include \"windows.h\"\n" : "", sqlServerInclude,
+                           includeWindows ? "#include \"windows.h\"\n" : "", sqlServerInclude,
                            includeSqlext ? "#include \"sqlext.h\"\n" : "");
       if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
         fprintf(versionFile, "#define SQL_SERVER_SIZEOF_SQLWCHAR %d\n", doTest());
@@ -7958,7 +7958,7 @@ static void determineSqlServerDefines (FILE *versionFile,
                          "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
                          "printf(\"1\\n\");\n"
                          "return 0;\n}\n",
-                         windowsSqlServer ? "#include \"windows.h\"\n" : "", sqlServerInclude,
+                         includeWindows ? "#include \"windows.h\"\n" : "", sqlServerInclude,
                          includeSqlext ? "#include \"sqlext.h\"\n" : "");
     /* fprintf(logFile, "%s\n", testProgram);
        fprintf(logFile, "sqlServerInclude: \"%s\"\n", sqlServerInclude); */

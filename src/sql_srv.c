@@ -40,7 +40,7 @@
 #include "time.h"
 #include "limits.h"
 #ifdef SQL_SERVER_INCLUDE
-#if WINDOWS_SQL_SERVER
+#if SQL_SERVER_INCLUDE_WINDOWS_H
 #include "windows.h"
 #endif
 #include SQL_SERVER_INCLUDE

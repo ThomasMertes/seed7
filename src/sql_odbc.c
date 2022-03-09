@@ -41,7 +41,7 @@
 #include "time.h"
 #include "limits.h"
 #ifdef ODBC_INCLUDE
-#if WINDOWS_ODBC
+#if ODBC_INCLUDE_WINDOWS_H
 #include "windows.h"
 #endif
 #include ODBC_INCLUDE
