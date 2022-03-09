@@ -1950,8 +1950,8 @@ utf32striType stri_to_wstri32 (const const_striType stri, memSizeType *length,
       *err_info = MEMORY_ERROR;
       wstri = NULL;
     } else {
-      /* Assume that sizeof(strElemType) == sizeof(utf32striType). */
-      memcpy(wstri, stri->mem, stri->size * sizeof(utf32striType));
+      /* Assume that sizeof(strElemType) == sizeof(utf32charType). */
+      memcpy(wstri, stri->mem, stri->size * sizeof(utf32charType));
       wstri[stri->size] = '\0';
       *length = stri->size;
     } /* if */
@@ -2178,8 +2178,8 @@ striType wstri32_to_stri (const_utf32striType wstri, memSizeType length,
       *err_info = MEMORY_ERROR;
     } else {
       stri->size = length;
-      /* Assume that sizeof(strElemType) == sizeof(utf32striType). */
-      memcpy(stri->mem, wstri, length * sizeof(utf32striType));
+      /* Assume that sizeof(strElemType) == sizeof(utf32charType). */
+      memcpy(stri->mem, wstri, length * sizeof(utf32charType));
     } /* if */
     return stri;
   } /* wstri32_to_stri */

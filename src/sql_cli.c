@@ -100,7 +100,7 @@ static sqlFuncType sqlFunc = NULL;
 #if SIZEOF_SQLWCHAR == 2
 #define SIZ_SQLWSTRI(len)                         SIZ_UTF16(len)
 #define MAX_SQLWSTRI_LEN                          MAX_UTF16_LEN
-#define ALLOC_SQLWSTRI(var,len)                   ALLOC_UTF16(var,len)
+#define ALLOC_SQLWSTRI(var,len)                   ALLOC_HEAP(var, SQLWCHAR *, SIZ_UTF16(len))
 #define UNALLOC_SQLWSTRI(var,len)                 UNALLOC_UTF16(var,len)
 #define stri_to_sqlwstri(stri, length, err_info)  (SQLWCHAR *) stri_to_wstri16(stri, length, err_info)
 #define sqlwstri_to_stri(wstri, length, err_info) wstri16_to_stri((const_utf16striType) wstri, length, err_info)
@@ -108,7 +108,7 @@ static sqlFuncType sqlFunc = NULL;
 #elif SIZEOF_SQLWCHAR == 4
 #define SIZ_SQLWSTRI(len)                         SIZ_UTF32(len)
 #define MAX_SQLWSTRI_LEN                          MAX_UTF32_LEN
-#define ALLOC_SQLWSTRI(var,len)                   ALLOC_UTF32(var,len)
+#define ALLOC_SQLWSTRI(var,len)                   ALLOC_HEAP(var, SQLWCHAR *, SIZ_UTF32(len))
 #define UNALLOC_SQLWSTRI(var,len)                 UNALLOC_UTF32(var,len)
 #define stri_to_sqlwstri(stri, length, err_info)  (SQLWCHAR *) stri_to_wstri32(stri, length, err_info)
 #define sqlwstri_to_stri(wstri, length, err_info) wstri32_to_stri((const_utf32striType) wstri, length, err_info)
@@ -529,7 +529,7 @@ static void wstri_to_cstri8 (ustriType cstri8, const SQLWCHAR *wstri)
     SQLWCHAR ch2;
 
   /* wstri_to_cstri8 */
-    for (; (ch1 = *wstri) != 0; wstri++) {
+    for (; (ch1 = (strElemType) *wstri) != 0; wstri++) {
       if (unlikely(ch1 >= 0xD800 && ch1 <= 0xDBFF)) {
         ch2 = wstri[1];
         if (likely(ch2 >= 0xDC00 && ch2 <= 0xDFFF)) {
