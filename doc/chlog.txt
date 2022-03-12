@@ -1,3 +1,143 @@
+20220312:
+- Two typos in the fwd_x11.c have been fixed. Thanks to Zachary
+  Menzies for pointing them out.
+- Interpreter and compiler have been improved to support Informix
+  databases.
+- The example program portfwd7.sd7 has been added. Portfwd7 is a
+  port forwarder to redirect network communication.
+- The run-time to write a BMP file has been reduced to 74% (measured
+  with gcc and valgrind).
+- The error messages for "Match failed" and "Variable expected"
+  errors have been shortened.
+- The program gkbd.sd7 has been improved to show when mouse
+  buttons are pressed.
+- The browser interface in browser.s7i has been improved to support
+  Chromium and Edge.
+- In http_response.s7i, the HTTP response has been improved to
+  support JPEG, ICO and TIFF files.
+- The pv7 picture viewer has been improved to use the path of the
+  image.
+- The function hasImageExtension() has been move from pv7.sd7 to
+  the imagefile.s7i library.
+- The example program findchar.sd7 has been improved to support
+  Windows/DOS paths.
+- The support for primitive actions in the compiler has been
+  improved.
+- The function loadBaseDlls() has been added to sql_post.c.
+- In tls.s7i an error in processing change_cipher_spec has been
+  fixed.
+- The program chkbig.sd7 has been refactored to use smaller
+  functions.
+- An additional test for case statements has been added to
+  chkprc.sd7.
+- The function getPixelArray() has been added to draw.s7i.
+- The function setPointerPos() has been added to graph.s7i.
+- The libraries bmp.s7i, ico.s7i and ppm.s7i have been improved to
+  use the function getPixelArray() to write BMP, ICO and PPM images.
+- In the libraries bmp.s7i, gif.s7i, jpeg.s7i, png.s7i, ppm.s7i and
+  tiff.s7i calls of imagePixmap() have been replaced by calls of
+  getPixmap().
+- The undocumented functions imagePixmap() and getImage() have been
+  renamed to getPixmap() and getPixelData() respectively.
+- The compiler (s7c) has been improved to inline the action
+  DRAW_PIXEL_TO_RGB.
+- The makefiles have been improved to simplify the build system. Now
+  utilies like chkccomp, wrdepend, setwpath and sudo are compiled
+  with extra commands. Support for Informix databases has also been
+  added.
+- Several improvements have been made in chkccomp.c:
+  - It now writes more detailed error messages.
+  - The function appendOption() has been improved to check if an
+    option is already an element in the list.
+  - The functions fileIsPresentPossiblyAfterDelay(), runTest(),
+    doTestNoResultCheck(), addDynamicLibToDllListWithRpath(),
+    addDynamicLib(), addDynamicLibsWithRpath() and
+    determineInformixDefines() have been added.
+  - Now the macros ODBC_SIZEOF_SQLWCHAR, DB2_SIZEOF_SQLWCHAR and
+    INFORMIX_SIZEOF_SQLWCHAR, SQL_SERVER_SIZEOF_SQLWCHAR are
+    written into version.h.
+  - Macros to support Informix databases are written into version.h.
+- In sql_base.c the error message concerning the searching for
+  dynamic libraries has been improved.
+- Now the static functions hasDataType() and dataTypeIsUnsigned() in
+  sql_cli.c are only defined when needed.
+- In all C source files, the types wcharType and wstriType have been
+  replaced by utf16charType and utf16striType respectively. This
+  avoids confusion, since sizeof(wchar_t) is 2 in Windows and 4 in
+  Linux/Unix/BSD (although sizeof(wcharType) was always 2).
+- Definitions of utf32charType and utf32striType have been added to
+  common.h.
+- Explanations of utf16charType, utf16striType, utf32charType and
+  utf32striType have been added to the manual.
+- In heaputl.h, the macros SIZ_WSTRI, MAX_WSTRI_LEN and ALLOC_WSTRI
+  have been removed. Definitions of the macros SIZ_UTF16, SIZ_UTF32,
+  MAX_UTF16_LEN, MAX_UTF32_LEN, ALLOC_UTF16, ALLOC_UTF32,
+  REALLOC_UTF16, REALLOC_UTF32, UNALLOC_UTF16 and UNALLOC_UTF32
+  have been added.
+- The database drivers sql_cli.c sql_db2.c, sql_odbc.c and sql_srv.c
+  have been changed to use SQLWCHAR instead of wcharType and
+  wstriType.
+- In sql_cli.c the macros SIZ_SQLWSTRI, MAX_SQLWSTRI_LEN,
+  ALLOC_SQLWSTRI, UNALLOC_SQLWSTRI, stri_to_sqlwstri,
+  sqlwstri_to_stri and copy_to_sqlwstri have been introduced. These
+  macros allow the DB interface to work for sizeof(SQLWCHAR) == 2
+  and sizeof(SQLWCHAR) == 4.
+- The Informix database driver sql_ifx.c has been added.
+- The macro BIGINT_LIB has been renamed to BIGINT_LIBRARY in
+  chkccomp.c, common.h, big_gmp.c, big_rtl.c, flistutl.c and
+  heaputl.h.
+- Documentation comments have been improved in bmp.s7i, ccittfax.s7i,
+  draw.s7i, hmac.s7i, huffman.s7i, ico.s7i, imagefile.s7i, lzw.s7i,
+  ppm.s7i,
+- In sql_base.s7i, the value DB_INFORMIX has been added to the
+  enumeration type dbCategory.
+- Functions to open Informix databases have been added to
+  sql_base.s7i and sqllib.c.
+- The function quoteTableNames() has been added to sql_base.s7i.
+- The program db7.sd7 has been improved to quote table names
+  depending on the database type.
+- The function drwPFArc() has been added to drw_dos.c and drw_emc.c.
+- The program wrdepend.c has been improved to support
+  INFORMIX_INCLUDE_OPTION.
+- The function XWarpPointer() has been added to fwd_x11.c and
+  x11_x.h.
+- Interpreter and compiler have been improved to support the actions
+  DRW_GET_PIXEL_ARRAY, DRW_SET_POINTER_POS and SQL_OPEN_INFORMIX.
+- The actions DRW_IMAGE, DRW_GETIMAGE and DRW_GET have been renamed
+  to DRW_GET_PIXMAP_FROM_PIXELS, DRW_GET_PIXEL_DATA and
+  DRW_GET_PIXMAP respectively.
+- Action and function names have been refactored to fit to each
+  other. The actions DRW_CONVPOINTLIST, DRW_FPOLYLINE,
+  DRW_GENPOINTLIST, DRW_GETIMAGEPIXEL, DRW_GETPIXEL, DRW_PIXELTORGB,
+  DRW_POLYLINE, DRW_SETCLOSEACTION, DRW_SETCONTENT,
+  DRW_SETCURSORVISIBLE, DRW_SETPOS, DRW_SETTRANSPARENTCOLOR,
+  DRW_SETWINDOWNAME, DRW_TOBOTTOM and DRW_TOTOP have been renamed to
+  DRW_CONV_POINT_LIST, DRW_FPOLY_LINE, DRW_GEN_POINT_LIST,
+  DRW_GET_IMAGE_PIXEL, DRW_GET_PIXEL, DRW_PIXEL_TO_RGB,
+  DRW_POLY_LINE, DRW_SET_CLOSE_ACTION, DRW_SET_CONTENT,
+  DRW_SET_CURSOR_VISIBLE, DRW_SET_POS, DRW_SET_TRANSPARENT_COLOR,
+  DRW_SET_WINDOW_NAME, DRW_TO_BOTTOM and DRW_TO_TOP respectively.
+- The file primitiv.c has been adjusted to use the new action names.
+- The files drwlib.c and drwlib.h have been refactored to use
+  function names that correspond to action names.
+- In drw_rtl.c the functions memcpy_pixel() and drwRtlImage() have
+  been renamed to memcpy_to_pixel() and drwGetPixmapFromPixels()
+  respectively.
+- The functions memcpy_from_pixel() and drwGetPixelArray() have been
+  added to drw_rtl.c.
+- In drw_win.c, the function rwGetImage() and drwGet() have been
+  renamed to drwGetPixelData() and drwGetPixmap() respectively.
+- The function drwSetPointerPos() has been added to drw_win.c and
+  drw_x11.c.
+- In error.c the new macro MAX_DEPTH_SHOWN defines the expression
+  depth shown in "Match failed" and "Variable expected" error
+  messages.
+- The functions stri_to_wstri16(), stri_to_wstri32(),
+  wstri16_to_stri() and wstri32_to_stri() have been added to
+  striutl.c.
+- The files comp/drw_act.s7i and comp/sql_act.s7i have been adjusted
+  to support the new action names.
+
 20220130:
 - An arc() function (to draw an arc) with a width (thickness)
   parameter has been added to the draw.s7i library. Many thanks to

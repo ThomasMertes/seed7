@@ -56,8 +56,8 @@ OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_emc.o
 CONSOLE_LIB_OBJ = kbd_rtl.o con_emc.o
-DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o \
-                   sql_post.o sql_srv.o sql_tds.o
+DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_ifx.o sql_lite.o sql_my.o sql_oci.o \
+                   sql_odbc.o sql_post.o sql_srv.o sql_tds.o
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
 COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
 
@@ -84,7 +84,7 @@ DRAW_LIB_SRC = gkb_rtl.c drw_emc.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_emc.c
 DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c \
                             sql_post.c sql_tds.c
-DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_srv.c
+DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_ifx.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -130,15 +130,18 @@ big_%.o: big_%.c
 sql_db2.o: sql_db2.c
 	$(CC) $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) -c $<
 
+sql_ifx.o: sql_ifx.c
+	$(CC) $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) -c $<
+
 sql_srv.o: sql_srv.c
 	$(CC) $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $(INCLUDE_OPTIONS) -c $<
 
-clear: clean
+.PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
 
 clean:
 	rm -f *.o ../bin/*.a ../bin/s7.js ../bin/s7.wasm ../bin/$(CC_ENVIRONMENT_INI) ../bin/s7c.js ../bin/s7c.wasm ../bin/$(SPECIAL_LIB)
 	rm -f ../prg/s7.js ../prg/s7.wasm ../prg/s7c.js ../prg/s7c.wasm
-	rm -f depend macros chkccomp.h base.h settings.h version.h setwpath wrdepend levelup next_lvl
+	rm -f depend macros chkccomp.h base.h settings.h version.h chkccomp wrdepend levelup next_lvl
 	@echo
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo
@@ -146,11 +149,11 @@ clean:
 clean_utils:
 	rm -f ../bin/bas7.js ../bin/bigfiles.js ../bin/calc7.js ../bin/cat.js ../bin/comanche.js
 	rm -f ../bin/db7.js ../bin/diff7.js ../bin/find7.js ../bin/findchar.js ../bin/ftp7.js
-	rm -f ../bin/ftpserv.js ../bin/hd.js ../bin/ide7.js ../bin/make7.js ../bin/pv7.js
+	rm -f ../bin/ftpserv.js ../bin/hd.js ../bin/ide7.js ../bin/make7.js ../bin/portfwd.js ../bin/pv7.js
 	rm -f ../bin/sql7.js ../bin/sydir7.js ../bin/tar7.js ../bin/toutf8.js ../bin/which.js
 	rm -f ../bin/bas7.wasm ../bin/bigfiles.wasm ../bin/calc7.wasm ../bin/cat.wasm ../bin/comanche.wasm
 	rm -f ../bin/db7.wasm ../bin/diff7.wasm ../bin/find7.wasm ../bin/findchar.wasm ../bin/ftp7.wasm
-	rm -f ../bin/ftpserv.wasm ../bin/hd.wasm ../bin/ide7.wasm ../bin/make7.wasm ../bin/pv7.wasm
+	rm -f ../bin/ftpserv.wasm ../bin/hd.wasm ../bin/ide7.wasm ../bin/make7.wasm ../bin/portfwd.wasm ../bin/pv7.wasm
 	rm -f ../bin/sql7.wasm ../bin/sydir7.wasm ../bin/tar7.wasm ../bin/toutf8.wasm ../bin/which.wasm
 
 distclean: clean clean_utils
@@ -163,12 +166,12 @@ test:
 	@echo "  Use 'sudo make install' (with your make command) to install Seed7."
 	@echo
 
-install: setwpath
+install:
 	@echo
 	@echo "  Cannot install."
 	@echo
 
-uninstall: setwpath
+uninstall:
 	@echo
 	@echo "  Cannot uninstall."
 	@echo
@@ -224,25 +227,29 @@ settings.h:
 	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> settings.h
 	echo "#define SPECIAL_LIB \"$(SPECIAL_LIB)\"" >> settings.h
 
-version.h: chkccomp.h base.h settings.h
-	gcc chkccomp.c -o chkccomp
+version.h: chkccomp base.h settings.h
 	./chkccomp version.h
-	rm chkccomp
 	rm -f ctest*.wasm
 	env > ../bin/$(CC_ENVIRONMENT_INI)
 	gcc setpaths.c -o setpaths
 	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" "CC_ENVIRONMENT_INI=$(CC_ENVIRONMENT_INI)" >> version.h
 	rm setpaths
-	gcc wrdepend.c -o wrdepend
 	cp version.h vers_emccl.h
 
-depend: version.h
+chkccomp: chkccomp.c chkccomp.h base.h settings.h
+	gcc chkccomp.c -o chkccomp
+
+wrdepend: version.h wrdepend.c
+	gcc wrdepend.c -o wrdepend
+
+depend: version.h wrdepend
 	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(SRC) "> depend"
 	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(SEED7_LIB_SRC) ">> depend"
 	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(DRAW_LIB_SRC) ">> depend"
 	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(CONSOLE_LIB_SRC) ">> depend"
 	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(DATABASE_LIB_SRC_STD_INCL) ">> depend"
 	./wrdepend OPTION=DB2_INCLUDE_OPTION $(CFLAGS) -M -c sql_db2.c ">> depend"
+	./wrdepend OPTION=INFORMIX_INCLUDE_OPTION $(CFLAGS) -M -c sql_ifx.c ">> depend"
 	./wrdepend OPTION=SQL_SERVER_INCLUDE_OPTION $(CFLAGS) -M -c sql_srv.c ">> depend"
 	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(COMP_DATA_LIB_SRC) ">> depend"
 	./wrdepend OPTION=INCLUDE_OPTIONS $(CFLAGS) -M -c $(COMPILER_LIB_SRC) ">> depend"
@@ -290,6 +297,7 @@ ftpserv: ../bin/ftpserv.js
 hd: ../bin/hd.js
 ide7: ../bin/ide7.js
 make7: ../bin/make7.js
+portfwd7: ../bin/portfwd7.js
 pv7: ../bin/pv7.js
 sql7: ../bin/sql7.js
 sydir7: ../bin/sydir7.js
@@ -299,7 +307,8 @@ which: ../bin/which.js
 
 utils: ../bin/bas7.js ../bin/bigfiles.js ../bin/calc7.js ../bin/cat.js ../bin/comanche.js \
        ../bin/diff7.js ../bin/find7.js ../bin/findchar.js ../bin/ftp7.js ../bin/ftpserv.js ../bin/hd.js \
-       ../bin/make7.js ../bin/pv7.js ../bin/sql7.js ../bin/sydir7.js ../bin/tar7.js ../bin/toutf8.js ../bin/which.js
+       ../bin/make7.js ../bin/portfwd7.js ../bin/pv7.js ../bin/sql7.js ../bin/sydir7.js \
+       ../bin/tar7.js ../bin/toutf8.js ../bin/which.js
 
 wc: $(SRC)
 	@echo SRC:

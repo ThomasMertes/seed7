@@ -2218,6 +2218,8 @@ void drwPutScaled (const_winType destWindow, intType xDest, intType yDest,
           { XDoubleToFixed(0.0), XDoubleToFixed(0.0), XDoubleToFixed(1.0) }
         }};
       XRenderPictureAttributes pictureAttributes;
+      /* The assignments below are done, because the Watcom C compiler */
+      /* cannot handle variables in the initialization of transform.   */
       transform.matrix[0][0] = XDoubleToFixed(xScale);
       transform.matrix[1][1] = XDoubleToFixed(yScale);
       memset(&pictureAttributes, 0, sizeof(pictureAttributes));

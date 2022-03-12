@@ -71,6 +71,7 @@ objectType sql_ne_db             (listType arguments);
 objectType sql_ne_stmt           (listType arguments);
 objectType sql_open_db2          (listType arguments);
 objectType sql_open_fire         (listType arguments);
+objectType sql_open_informix     (listType arguments);
 objectType sql_open_lite         (listType arguments);
 objectType sql_open_my           (listType arguments);
 objectType sql_open_oci          (listType arguments);

@@ -21,8 +21,8 @@ CFLAGS = -g $(INCLUDE_OPTIONS) -Wall -Wimplicit-function-declaration -Wunusuppor
 LDFLAGS =
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
-SYSTEM_LIBS = -lm
-# SYSTEM_LIBS = -lm -lgmp
+# SYSTEM_LIBS = -lm
+SYSTEM_LIBS = -lm -lgmp
 # SYSTEM_LIBS = -lm_p -lc_p
 # SYSTEM_BIGINT_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 # SYSTEM_CONSOLE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
@@ -61,8 +61,8 @@ OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_x11.o gkb_x11.o fwd_x11.o
 CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o kbd_poll.o trm_inf.o trm_cap.o fwd_term.o
-DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o \
-                   sql_post.o sql_srv.o sql_tds.o
+DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_ifx.o sql_lite.o sql_my.o sql_oci.o \
+                   sql_odbc.o sql_post.o sql_srv.o sql_tds.o
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
 COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
 
@@ -87,8 +87,8 @@ SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_x11.c gkb_x11.c fwd_x11.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c kbd_poll.c trm_inf.c trm_cap.c fwd_term.c
-DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c \
-                   sql_post.c sql_srv.c sql_tds.c
+DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_ifx.c sql_lite.c sql_my.c sql_oci.c \
+                   sql_odbc.c sql_post.c sql_srv.c sql_tds.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -126,23 +126,26 @@ next_lvl: levelup
 sql_db2.o: sql_db2.c
 	$(CC) $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) -c $<
 
+sql_ifx.o: sql_ifx.c
+	$(CC) $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS) -c $<
+
 sql_srv.o: sql_srv.c
 	$(CC) $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) -c $<
 
 all: depend
 	$(MAKE) -f mk_tcc_l.mak s7 s7c
 
-clear: clean
+.PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h base.h settings.h version.h wrdepend levelup next_lvl
+	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h base.h settings.h version.h chkccomp levelup next_lvl
 	@echo
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo
 
 clean_utils:
 	rm -f ../bin/bas7 ../bin/bigfiles ../bin/calc7 ../bin/cat ../bin/comanche ../bin/db7 ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7
-	rm -f ../bin/ftpserv ../bin/hd ../bin/ide7 ../bin/make7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
+	rm -f ../bin/ftpserv ../bin/hd ../bin/ide7 ../bin/make7 ../bin/portfwd7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
 
 distclean: clean clean_utils
 	cp level_bk.h level.h
@@ -167,6 +170,7 @@ install:
 	cd ../bin; ln -fs `pwd`/ftp7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/ide7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/make7 /usr/local/bin
+	cd ../bin; ln -fs `pwd`/portfwd7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/pv7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/sql7 /usr/local/bin
 	cd ../bin; ln -fs `pwd`/sydir7 /usr/local/bin
@@ -186,13 +190,12 @@ uninstall:
 	rm -f /usr/local/bin/ftp7
 	rm -f /usr/local/bin/ide7
 	rm -f /usr/local/bin/make7
+	rm -f /usr/local/bin/portfwd7
 	rm -f /usr/local/bin/pv7
 	rm -f /usr/local/bin/sql7
 	rm -f /usr/local/bin/sydir7
 	rm -f /usr/local/bin/tar7
 	rm -f /usr/local/bin/toutf8
-
-dep: depend
 
 strip:
 	strip ../bin/s7
@@ -235,14 +238,15 @@ settings.h:
 	echo "#define COMP_DATA_LIB \"$(COMP_DATA_LIB)\"" >> settings.h
 	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> settings.h
 
-version.h: chkccomp.h base.h settings.h
-	$(CC) chkccomp.c -o chkccomp
+version.h: chkccomp base.h settings.h
 	./chkccomp version.h
-	rm chkccomp
 	$(CC) setpaths.c -o setpaths
 	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	rm setpaths
 	cp version.h vers_tcc_l.h
+
+chkccomp: chkccomp.c chkccomp.h base.h settings.h
+	$(CC) chkccomp.c -o chkccomp
 
 depend: version.h
 	@echo "Working without C header dependency checks."
@@ -286,6 +290,7 @@ ftpserv: ../bin/ftpserv
 hd: ../bin/hd
 ide7: ../bin/ide7
 make7: ../bin/make7
+portfwd7: ../bin/portfwd7
 pv7: ../bin/pv7
 sql7: ../bin/sql7
 sydir7: ../bin/sydir7
@@ -294,8 +299,9 @@ toutf8: ../bin/toutf8
 which: ../bin/which
 
 utils: ../bin/bas7 ../bin/bigfiles ../bin/calc7 ../bin/cat ../bin/comanche ../bin/db7 \
-       ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7 ../bin/ftpserv ../bin/hd ../bin/ide7 \
-       ../bin/make7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
+       ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7 ../bin/ftpserv ../bin/hd \
+       ../bin/ide7 ../bin/make7 ../bin/portfwd7 ../bin/pv7 ../bin/sql7 ../bin/sydir7 \
+       ../bin/tar7 ../bin/toutf8 ../bin/which
 
 wc: $(SRC)
 	@echo SRC:

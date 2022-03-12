@@ -56,7 +56,7 @@ DRAW_LIB_OBJ = gkb_rtl.obj drw_win.obj gkb_win.obj
 CONSOLE_LIB_OBJ = kbd_rtl.obj con_win.obj
 DATABASE_LIB_OBJ_STD_INCL = sql_base.obj sql_fire.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj \
                             sql_post.obj sql_tds.obj
-DATABASE_LIB_OBJ = $(DATABASE_LIB_OBJ_STD_INCL) sql_db2.obj sql_srv.obj
+DATABASE_LIB_OBJ = $(DATABASE_LIB_OBJ_STD_INCL) sql_db2.obj sql_ifx.obj sql_srv.obj
 COMP_DATA_LIB_OBJ = typ_data.obj rfl_data.obj ref_data.obj listutl.obj flistutl.obj typeutl.obj datautl.obj
 COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
 
@@ -83,7 +83,7 @@ DRAW_LIB_SRC = gkb_rtl.c drw_win.c gkb_win.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_win.c
 DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c \
                             sql_post.c sql_tds.c
-DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_srv.c
+DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_ifx.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -121,13 +121,14 @@ next_lvl: levelup.exe
 sql_db2.o: sql_db2.c
 	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $<
 
+sql_ifx.o: sql_ifx.c
+	$(CC) -c $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS) $<
+
 sql_srv.o: sql_srv.c
 	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $<
 
 all: depend
 	$(MAKE) -f mk_bcc32.mak s7 s7c
-
-clear: clean
 
 clean:
 	del *.obj
@@ -142,7 +143,9 @@ clean:
 	del base.h
 	del settings.h
 	del version.h
+	del calltlib.c
 	del bcc32.bat
+	del chkccomp.exe
 	del calltlib.exe
 	del setwpath.exe
 	del wrdepend.exe
@@ -170,6 +173,7 @@ clean_utils:
 	del ..\bin\hd.exe
 	del ..\bin\ide7.exe
 	del ..\bin\make7.exe
+	del ..\bin\portfwd7.exe
 	del ..\bin\pv7.exe
 	del ..\bin\sql7.exe
 	del ..\bin\sydir7.exe
@@ -194,8 +198,6 @@ install: setwpath.exe
 
 uninstall: setwpath.exe
 	.\setwpath.exe remove ..\bin
-
-dep: depend
 
 bcc32.bat:
 	echo bcc32.exe %* > bcc32.bat
@@ -246,17 +248,16 @@ settings.h:
 	echo ^#define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> settings.h
 	echo ^#define COMPILER_LIB "$(COMPILER_LIB)" >> settings.h
 
-version.h: chkccomp.h base.h settings.h
-	$(CC) chkccomp.c
+version.h: chkccomp.exe base.h settings.h
 	chkccomp.exe version.h
-	del chkccomp.obj
-	del chkccomp.tds
-	del chkccomp.exe
 	$(CC) setpaths.c
 	setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	del setpaths.obj
 	del setpaths.tds
 	del setpaths.exe
+	copy version.h vers_bcc32.h /Y
+
+calltlib.c:
 	echo ^#include "stdio.h" > calltlib.c
 	echo ^#include "string.h" >> calltlib.c
 	echo int main (int argc, char **argv) >> calltlib.c
@@ -274,19 +275,26 @@ version.h: chkccomp.h base.h settings.h
 	echo system(buffer); >> calltlib.c
 	echo return 0; >> calltlib.c
 	echo } >> calltlib.c
-	$(CC) calltlib.c
-	del calltlib.c
-	del calltlib.obj
-	del calltlib.tds
-	$(CC) setwpath.c
-	$(CC) wrdepend.c
-	$(CC) sudo.c
-	copy version.h vers_bcc32.h /Y
 
 .c.obj:
 	$(CC) $(CFLAGS) -c $<
 
-depend: version.h
+chkccomp.exe: chkccomp.c chkccomp.h base.h settings.h
+	$(CC) chkccomp.c
+
+calltlib.exe: calltlib.c
+	$(CC) calltlib.c
+
+setwpath.exe: version.h setwpath.c
+	$(CC) setwpath.c
+
+wrdepend.exe: version.h wrdepend.c
+	$(CC) wrdepend.c
+
+sudo.exe: sudo.c
+	$(CC) sudo.c
+
+depend: version.h calltlib.exe setwpath.exe wrdepend.exe sudo.exe
 	wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -c -w- -m -md $(SRC)
 	copy *.d depend
 	del *.d
@@ -316,6 +324,11 @@ depend: version.h
 	del *.d
 	del sql_db2.obj
 	type a_depend >> depend
+	wrdepend.exe OPTION=INFORMIX_INCLUDE_OPTION $(CFLAGS) -c -w- -m -md sql_ifx.c
+	copy *.d a_depend
+	del *.d
+	del sql_ifx.obj
+	type a_depend >> depend
 	wrdepend.exe OPTION=SQL_SERVER_INCLUDE_OPTION $(CFLAGS) -c -w- -m -md sql_srv.c
 	copy *.d a_depend
 	del *.d
@@ -336,22 +349,22 @@ depend: version.h
 	@echo Use 'make' (with your make command) to create the interpreter.
 	@echo.
 
-..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
+..\bin\$(SEED7_LIB): calltlib.exe $(SEED7_LIB_OBJ)
 	calltlib ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
-..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
+..\bin\$(DRAW_LIB): calltlib.exe $(DRAW_LIB_OBJ)
 	calltlib ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
 
-..\bin\$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
+..\bin\$(CONSOLE_LIB): calltlib.exe $(CONSOLE_LIB_OBJ)
 	calltlib ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
-..\bin\$(DATABASE_LIB): $(DATABASE_LIB_OBJ)
+..\bin\$(DATABASE_LIB): calltlib.exe $(DATABASE_LIB_OBJ)
 	calltlib ..\bin\$(DATABASE_LIB) $(DATABASE_LIB_OBJ)
 
-..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
+..\bin\$(COMP_DATA_LIB): calltlib.exe $(COMP_DATA_LIB_OBJ)
 	calltlib ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
-..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
+..\bin\$(COMPILER_LIB): calltlib.exe $(COMPILER_LIB_OBJ)
 	calltlib ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 ..\bin\bas7.exe: ..\prg\bas7.sd7 ..\bin\s7c.exe
@@ -424,6 +437,11 @@ depend: version.h
 	copy ..\prg\make7.exe ..\bin /Y
 	del ..\prg\make7.exe
 
+..\bin\portfwd7.exe: ..\prg\portfwd7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\portfwd7
+	copy ..\prg\portfwd7.exe ..\bin /Y
+	del ..\prg\portfwd7.exe
+
 ..\bin\pv7.exe: ..\prg\pv7.sd7 ..\bin\s7c.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\pv7
 	copy ..\prg\pv7.exe ..\bin /Y
@@ -468,6 +486,7 @@ ftpserv: ..\bin\ftpserv.exe
 hd: ..\bin\hd.exe
 ide7: ..\bin\ide7.exe
 make7: ..\bin\make7.exe
+portfwd7: ..\bin\portfwd7.exe
 pv7: ..\bin\pv7.exe
 sql7: ..\bin\sql7.exe
 sydir7: ..\bin\sydir7.exe
@@ -476,8 +495,9 @@ toutf8: ..\bin\toutf8.exe
 which: ..\bin\which.exe
 
 utils: ..\bin\bas7.exe ..\bin\bigfiles.exe ..\bin\calc7.exe ..\bin\cat.exe ..\bin\comanche.exe ..\bin\db7.exe \
-       ..\bin\diff7.exe ..\bin\find7.exe ..\bin\findchar.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe ..\bin\ide7.exe \
-       ..\bin\make7.exe ..\bin\pv7.exe ..\bin\sql7.exe ..\bin\sydir7.exe ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
+       ..\bin\diff7.exe ..\bin\find7.exe ..\bin\findchar.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe \
+       ..\bin\ide7.exe ..\bin\make7.exe ..\bin\portfwd7.exe ..\bin\pv7.exe ..\bin\sql7.exe ..\bin\sydir7.exe \
+       ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
 
 wc: $(SRC)
 	@echo SRC:

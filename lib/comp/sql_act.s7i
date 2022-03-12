@@ -70,6 +70,7 @@ const ACTION: SQL_NE_DB              is action "SQL_NE_DB";
 const ACTION: SQL_NE_STMT            is action "SQL_NE_STMT";
 const ACTION: SQL_OPEN_DB2           is action "SQL_OPEN_DB2";
 const ACTION: SQL_OPEN_FIRE          is action "SQL_OPEN_FIRE";
+const ACTION: SQL_OPEN_INFORMIX      is action "SQL_OPEN_INFORMIX";
 const ACTION: SQL_OPEN_LITE          is action "SQL_OPEN_LITE";
 const ACTION: SQL_OPEN_MY            is action "SQL_OPEN_MY";
 const ACTION: SQL_OPEN_OCI           is action "SQL_OPEN_OCI";
@@ -131,6 +132,7 @@ const proc: sql_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "boolType    sqlIsNull (sqlStmtType, intType);");
     declareExtern(c_prog, "databaseType sqlOpenDb2 (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenFire (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
+    declareExtern(c_prog, "databaseType sqlOpenInformix (const const_striType, intType, const const_striType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenLite (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenMy (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
     declareExtern(c_prog, "databaseType sqlOpenOci (const const_striType, intType, const const_striType, const const_striType, const const_striType);");
@@ -810,6 +812,27 @@ const proc: process (SQL_OPEN_FIRE, in reference: function,
     getAnyParamToResultExpr(params[5], c_expr);
     c_expr.result_expr &:= ", ";
     getAnyParamToResultExpr(params[6], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (SQL_OPEN_INFORMIX, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_typed_result(resultType(getType(function)), c_expr);
+    c_expr.result_expr := "sqlOpenInformix(";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[5], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[6], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[7], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 

@@ -58,6 +58,7 @@ void *dllOpen (const char *dllName)
     void *aDll;
 
   /* dllOpen */
+    logFunction(printf("dllOpen(\"%s\")\n", dllName););
     if (strchr(dllName, '/') != NULL) {
       /* LoadLibrary() needs a path with backslashes (\) */
       /* instead of forward slashes (/). */
@@ -85,6 +86,8 @@ void *dllOpen (const char *dllName)
                             "error: " FMT_U32 "\n",
                             dllName, (uint32Type) GetLastError());
                    });
+    logFunction(printf("dllOpen(\"%s\") --> " FMT_U_MEM "\n",
+                       dllName, (memSizeType) aDll););
     return aDll;
   } /* dllOpen */
 

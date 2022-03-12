@@ -80,6 +80,7 @@ pairs.sd7    Concentration game
 panic.sd7    Catch aliens in traps game
 percolation.sd7 Given a composite systems comprised of randomly
 planets.sd7  Display information about the planets
+portfwd7.sd7 Port forwarder to redirect network communication.
 prime.sd7    Write a list of prime numbers
 printpi1.sd7 PI with 1000 digits using John Machin's formula
 printpi2.sd7 PI with 1000 digits (Bailey/Borwein/Plouffe)

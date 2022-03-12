@@ -1792,6 +1792,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"SQL_OPEN_FIRE"}:
         databaseLibraryUsed := TRUE;
         process(SQL_OPEN_FIRE, function, params, c_expr);
+      when {"SQL_OPEN_INFORMIX"}:
+        databaseLibraryUsed := TRUE;
+        process(SQL_OPEN_INFORMIX, function, params, c_expr);
       when {"SQL_OPEN_LITE"}:
         databaseLibraryUsed := TRUE;
         process(SQL_OPEN_LITE, function, params, c_expr);

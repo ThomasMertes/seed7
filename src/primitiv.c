@@ -964,6 +964,7 @@ static const actEntryRecord actEntryTable[] = {
     { "SQL_NE_STMT",                sql_ne_stmt,                },
     { "SQL_OPEN_DB2",               sql_open_db2,               },
     { "SQL_OPEN_FIRE",              sql_open_fire,              },
+    { "SQL_OPEN_INFORMIX",          sql_open_informix,          },
     { "SQL_OPEN_LITE",              sql_open_lite,              },
     { "SQL_OPEN_MY",                sql_open_my,                },
     { "SQL_OPEN_OCI",               sql_open_oci,               },

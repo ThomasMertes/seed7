@@ -55,8 +55,8 @@ OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_dos.o
 CONSOLE_LIB_OBJ = kbd_rtl.o con_wat.o
-DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o \
-                   sql_post.o sql_srv.o sql_tds.o
+DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_ifx.o sql_lite.o sql_my.o sql_oci.o \
+                   sql_odbc.o sql_post.o sql_srv.o sql_tds.o
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
 COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
 
@@ -81,8 +81,8 @@ SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_dos.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_wat.c
-DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c \
-                   sql_post.c sql_srv.c sql_tds.c
+DATABASE_LIB_SRC = sql_base.c sql_db2.c sql_fire.c sql_ifx.c sql_lite.c sql_my.c sql_oci.c \
+                   sql_odbc.c sql_post.c sql_srv.c sql_tds.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -116,10 +116,11 @@ next_lvl: levelup.exe
 sql_db2.o: sql_db2.c
 	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $< -o $@
 
+sql_ifx.o: sql_ifx.c
+	$(CC) -c $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS) $< -o $@
+
 sql_srv.o: sql_srv.c
 	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $< -o $@
-
-clear: clean
 
 clean:
 	del *.o
@@ -133,6 +134,7 @@ clean:
 	del base.h
 	del settings.h
 	del version.h
+	del chkccomp.exe
 	del levelup.exe
 	del next_lvl
 	echo Use 'make depend' (with your make command) to create the dependencies.
@@ -152,6 +154,7 @@ clean_utils:
 	del ..\bin\hd.exe
 	del ..\bin\ide7.exe
 	del ..\bin\make7.exe
+	del ..\bin\portfwd7.exe
 	del ..\bin\pv7.exe
 	del ..\bin\sql7.exe
 	del ..\bin\sydir7.exe
@@ -165,8 +168,6 @@ distclean: clean clean_utils
 
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
-
-dep: depend
 
 strip:
 	strip ..\bin\s7.exe
@@ -211,15 +212,16 @@ settings.h:
 	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> settings.h
 	echo #define STACK_SIZE_DEFINITION unsigned _stklen = 4194304 >> settings.h
 
-version.h: chkccomp.h base.h settings.h
-	$(CC) chkccomp.c -o chkccomp.exe
+version.h: chkccomp.exe base.h settings.h
 	echo The following C compiler errors can be safely ignored
 	.\chkccomp.exe version.h
-	del chkccomp.exe
 	$(CC) setpaths.c -o setpaths.exe
 	.\setpaths.exe S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
 	del setpaths.exe
 	copy version.h vers_djgp2.h /Y
+
+chkccomp.exe: chkccomp.c chkccomp.h base.h settings.h
+	$(CC) chkccomp.c -o chkccomp.exe
 
 depend: version.h
 	echo Working without C header dependency checks.
@@ -313,6 +315,11 @@ depend: version.h
 	copy ..\prg\make7.exe ..\bin /Y
 	del ..\prg\make7.exe
 
+..\bin\portfwd7.exe: ..\prg\portfwd7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\portfwd7
+	copy ..\prg\portfwd7.exe ..\bin /Y
+	del ..\prg\portfwd7.exe
+
 ..\bin\pv7.exe: ..\prg\pv7.sd7 ..\bin\s7c.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O3 -oc3 ..\prg\pv7
 	copy ..\prg\pv7.exe ..\bin /Y
@@ -357,6 +364,7 @@ ftpserv: ..\bin\ftpserv.exe
 hd: ..\bin\hd.exe
 ide7: ..\bin\ide7.exe
 make7: ..\bin\make7.exe
+portfwd7: ..\bin\portfwd7.exe
 pv7: ..\bin\pv7.exe
 sql7: ..\bin\sql7.exe
 sydir7: ..\bin\sydir7.exe
@@ -365,8 +373,9 @@ toutf8: ..\bin\toutf8.exe
 which: ..\bin\which.exe
 
 utils: ..\bin\bas7.exe ..\bin\bigfiles.exe ..\bin\calc7.exe ..\bin\cat.exe ..\bin\comanche.exe ..\bin\db7.exe \
-       ..\bin\diff7.exe ..\bin\find7.exe ..\bin\findchar.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe ..\bin\ide7.exe \
-       ..\bin\make7.exe ..\bin\pv7.exe ..\bin\sql7.exe ..\bin\sydir7.exe ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
+       ..\bin\diff7.exe ..\bin\find7.exe ..\bin\findchar.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe \
+       ..\bin\ide7.exe ..\bin\make7.exe ..\bin\portfwd7.exe ..\bin\pv7.exe ..\bin\sql7.exe ..\bin\sydir7.exe \
+       ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
 
 wc: $(SRC)
 	echo SRC:

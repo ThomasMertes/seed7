@@ -46,15 +46,18 @@ include "bstring.s7i";
  *  * DB_DB2 Db2
  *  * DB_SQL_SERVER SQL Server
  *  * DB_TDS Tabular Data Stream
+ *  * DB_INFORMIX Informix
  *)
 const type: dbCategory is new enum
-    NO_DB, DB_MYSQL, DB_SQLITE, DB_POSTGRESQL, DB_OCI, DB_ODBC, DB_FIRE, DB_DB2, DB_SQL_SERVER, DB_TDS
+    NO_DB, DB_MYSQL, DB_SQLITE, DB_POSTGRESQL, DB_OCI, DB_ODBC, DB_FIRE, DB_DB2,
+    DB_SQL_SERVER, DB_TDS, DB_INFORMIX
   end enum;
 
 
 const func string: str (in dbCategory: driver) is
   return [] ("NO_DB", "DB_MYSQL", "DB_SQLITE", "DB_POSTGRESQL", "DB_OCI",
-             "DB_ODBC", "DB_FIRE", "DB_DB2", "DB_SQL_SERVER", "DB_TDS") [succ(ord(driver))];
+             "DB_ODBC", "DB_FIRE", "DB_DB2", "DB_SQL_SERVER", "DB_TDS",
+             "DB_INFORMIX") [succ(ord(driver))];
 
 
 const func dbCategory: dbCategory (in string: name) is func
@@ -90,6 +93,8 @@ const func dbCategory: dbCategory (in string: name) is func
       driver := DB_SQL_SERVER;
     elsif ucName = "TDS" then
       driver := DB_TDS;
+    elsif ucName = "INFORMIX" then
+      driver := DB_INFORMIX;
     end if;
   end func;
 
@@ -252,6 +257,51 @@ const func database: openDatabase (in dbCategory: driver, in string: host,
 const func database: openDatabase (DB_ODBC, in string: odbcDriver,
                                    in string: server, in string: dbName,
                                    in string: user, in string: password) is action "SQL_OPEN_ODBC";
+
+
+(**
+ *  Open Informix database with ''host'', ''port'', ''server'', ''dbName'' ''user'' and ''password''.
+ *  @param driver Database driver to be used (DB_INFORMIX).
+ *  @param host The host can be specified by name, with an IPv4 address or with
+ *         an IPv6 address. If ''host'' is empty it is assumed to be "localhost".
+ *  @param port The port to be used to access the database. If ''port'' is
+ *         zero the default port of the database or driver is used.
+ *  @param server The database server to be used.
+ *  @param dbName The name of the database at the specified ''server''.
+ *  @param user Database user name.
+ *  @param password Database password.
+ *  @return the database connection.
+ *  @exception RANGE_ERROR If dbPath, user or password cannot be converted to
+ *                         the character set of the database.
+ *  @exception DATABASE_ERROR If the DLL of the database could not be found, or
+ *                            the connection to the database failed.
+ *)
+const func database: openDatabase (DB_INFORMIX, in string: host,
+                                   in integer: port, in string: server,
+                                   in string: dbName,
+                                   in string: user, in string: password) is action "SQL_OPEN_INFORMIX";
+
+
+const func database: openDatabase (DB_INFORMIX, in string: host,
+                                   in integer: port, in string: dbName,
+                                   in string: user, in string: password) is func
+  result
+    var database: db is database.value;
+  local
+    var integer: slashPos is 0;
+    var string: server is "";
+    var string: databaseName is "";
+  begin
+    slashPos := pos(dbName, '/');
+    if slashPos <> 0 then
+      server := dbName[.. pred(slashPos)];
+      databaseName := dbName[succ(slashPos) ..];
+    else
+      server := dbName;
+      databaseName := dbName;
+    end if;
+    db := openDatabase(DB_INFORMIX, host, port, server, databaseName, user, password);
+  end func;
 
 
 (**
@@ -862,6 +912,23 @@ const func dbCategory: driver (in database: db) is
   return dbCategory conv DRIVER_NUM(db);
 
 
+const func boolean: quoteTableNames (in dbCategory: databaseKind) is func
+  result
+    var boolean: quoteTableNames is FALSE;
+  begin
+    case databaseKind of
+      when {DB_MYSQL}:      quoteTableNames := TRUE;
+      when {DB_SQLITE}:     quoteTableNames := TRUE;
+      when {DB_POSTGRESQL}: quoteTableNames := TRUE;
+      when {DB_OCI}:        quoteTableNames := TRUE;
+      when {DB_FIRE}:       quoteTableNames := TRUE;
+      when {DB_SQL_SERVER}: quoteTableNames := TRUE;
+      when {DB_DB2}:        quoteTableNames := TRUE;
+      when {DB_INFORMIX}:   quoteTableNames := FALSE;
+    end case;
+  end func;
+
+
 const func string: tableNamesCommand (in database: currDb,
     in dbCategory: databaseKind) is func
   result
@@ -879,6 +946,7 @@ const func string: tableNamesCommand (in database: currDb,
                                              \tabschema=(SELECT current_schema FROM sysibm.sysdummy1)";
       # when {DB_DB2}:        getTableNames := "SELECT name FROM sysibm.systables WHERE type = 'T'";
       when {DB_SQL_SERVER}: getTableNames := "SELECT table_name FROM information_schema.tables";
+      when {DB_INFORMIX}:   getTableNames := "SELECT tabname FROM informix.systables";
     end case;
   end func;
 

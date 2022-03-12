@@ -54,6 +54,7 @@ void *dllOpen (const char *dllName)
     void *aDll;
 
   /* dllOpen */
+    logFunction(printf("dllOpen(\"%s\")\n", dllName););
     aDll = dlopen(dllName, RTLD_LAZY);
     logErrorIfTrue(aDll == NULL,
                    {
@@ -61,6 +62,8 @@ void *dllOpen (const char *dllName)
                             "errno=%d\nerror: %s\n%s\n",
                             dllName, errno, strerror(errno), dlerror());
                    });
+    logFunction(printf("dllOpen(\"%s\") --> " FMT_U_MEM "\n",
+                       dllName, (memSizeType) aDll););
     return aDll;
   } /* dllOpen */
 

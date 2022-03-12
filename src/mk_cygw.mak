@@ -58,8 +58,8 @@ OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_x11.o gkb_x11.o fwd_x11.o
 CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o kbd_poll.o trm_inf.o trm_cap.o fwd_term.o
-DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o \
-                   sql_post.o sql_srv.o sql_tds.o
+DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_ifx.o sql_lite.o sql_my.o sql_oci.o \
+                   sql_odbc.o sql_post.o sql_srv.o sql_tds.o
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
 COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
 
@@ -86,7 +86,7 @@ DRAW_LIB_SRC = gkb_rtl.c drw_x11.c gkb_x11.c fwd_x11.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c kbd_poll.c trm_inf.c trm_cap.c fwd_term.c
 DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c \
                             sql_post.c sql_tds.c
-DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_srv.c
+DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_ifx.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
@@ -133,6 +133,10 @@ sql_db2.o: sql_db2.c
 	$(CC) $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $(DB2_LIBS) -c -r -o $@ $<
 	objcopy $(OBJCOPY_PARAMS) $@
 
+sql_ifx.o: sql_ifx.c
+	$(CC) $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS) $(INFORMIX_LIBS) -c -r -o $@ $<
+	objcopy $(OBJCOPY_PARAMS) $@
+
 sql_srv.o: sql_srv.c
 	$(CC) $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $(SQL_SERVER_LIBS) -c -r -o $@ $<
 	objcopy $(OBJCOPY_PARAMS) $@
@@ -140,10 +144,10 @@ sql_srv.o: sql_srv.c
 all: depend
 	$(MAKE) -f mk_cygw.mak s7 s7c
 
-clear: clean
+.PHONY: clean s7 s7c test install all next_lvl strip clean_utils distclean uninstall
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend macros chkccomp.h base.h settings.h version.h wrdepend.exe levelup.exe next_lvl
+	rm -f *.o ../bin/*.a ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend macros chkccomp.h base.h settings.h version.h chkccomp.exe wrdepend.exe levelup.exe next_lvl
 	rm -f chkint chkovf chkflt chkbin chkchr chkstr chkidx chkbst chkarr chkprc chkbig chkbool chkbitdata chkset chkhsh chkfil chkexc
 	rm -f ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c
 	@echo
@@ -153,7 +157,7 @@ clean:
 clean_utils:
 	rm -f ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe
 	rm -f ../bin/db7.exe ../bin/diff7.exe ../bin/find7.exe ../bin/findchar.exe ../bin/ftp7.exe
-	rm -f ../bin/ftpserv.exe ../bin/hd.exe ../bin/ide7.exe ../bin/make7.exe ../bin/pv7.exe
+	rm -f ../bin/ftpserv.exe ../bin/hd.exe ../bin/ide7.exe ../bin/make7.exe ../bin/portfwd7.exe ../bin/pv7.exe
 	rm -f ../bin/sql7.exe ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
 
 distclean: clean clean_utils
@@ -179,6 +183,7 @@ install:
 	cd ../bin; ln -fs `pwd`/ftp7.exe /usr/local/bin
 	cd ../bin; ln -fs `pwd`/ide7.exe /usr/local/bin
 	cd ../bin; ln -fs `pwd`/make7.exe /usr/local/bin
+	cd ../bin; ln -fs `pwd`/portfwd7.exe /usr/local/bin
 	cd ../bin; ln -fs `pwd`/pv7.exe /usr/local/bin
 	cd ../bin; ln -fs `pwd`/sql7.exe /usr/local/bin
 	cd ../bin; ln -fs `pwd`/sydir7.exe /usr/local/bin
@@ -198,13 +203,12 @@ uninstall:
 	rm -f /usr/local/bin/ftp7.exe
 	rm -f /usr/local/bin/ide7.exe
 	rm -f /usr/local/bin/make7.exe
+	rm -f /usr/local/bin/portfwd7.exe
 	rm -f /usr/local/bin/pv7.exe
 	rm -f /usr/local/bin/sql7.exe
 	rm -f /usr/local/bin/sydir7.exe
 	rm -f /usr/local/bin/tar7.exe
 	rm -f /usr/local/bin/toutf8.exe
-
-dep: depend
 
 strip:
 	strip ../bin/s7.exe
@@ -255,23 +259,27 @@ settings.h:
 	echo "#define COMP_DATA_LIB \"$(COMP_DATA_LIB)\"" >> settings.h
 	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> settings.h
 
-version.h: chkccomp.h base.h settings.h
-	$(CC) chkccomp.c -o chkccomp
+version.h: chkccomp.exe base.h settings.h
 	./chkccomp.exe version.h
-	rm chkccomp.exe
 	$(CC) setpaths.c -o setpaths
 	./setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	rm setpaths.exe
-	$(CC) wrdepend.c -o wrdepend
 	cp version.h vers_cygw.h
 
-depend: version.h
+chkccomp.exe: chkccomp.c chkccomp.h base.h settings.h
+	$(CC) chkccomp.c -o chkccomp
+
+wrdepend.exe: version.h wrdepend.c
+	$(CC) wrdepend.c -o wrdepend
+
+depend: version.h wrdepend.exe
 	./wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(SRC) "> depend"
 	./wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
 	./wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
 	./wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
 	./wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(DATABASE_LIB_SRC_STD_INCL) ">> depend"
 	./wrdepend.exe OPTION=DB2_INCLUDE_OPTION $(CFLAGS) -M sql_db2.c ">> depend"
+	./wrdepend.exe OPTION=INFORMIX_INCLUDE_OPTION $(CFLAGS) -M sql_ifx.c ">> depend"
 	./wrdepend.exe OPTION=SQL_SERVER_INCLUDE_OPTION $(CFLAGS) -M sql_srv.c ">> depend"
 	./wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
 	./wrdepend.exe OPTION=INCLUDE_OPTIONS $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
@@ -315,6 +323,7 @@ ftpserv: ../bin/ftpserv.exe
 hd: ../bin/hd.exe
 ide7: ../bin/ide7.exe
 make7: ../bin/make7.exe
+portfwd7: ../bin/portfwd7.exe
 pv7: ../bin/pv7.exe
 sql7: ../bin/sql7.exe
 sydir7: ../bin/sydir7.exe
@@ -324,7 +333,8 @@ which: ../bin/which.exe
 
 utils: ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe \
        ../bin/diff7.exe ../bin/find7.exe ../bin/findchar.exe ../bin/ftp7.exe ../bin/ftpserv.exe ../bin/hd.exe \
-       ../bin/make7.exe ../bin/pv7.exe ../bin/sql7.exe ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
+       ../bin/make7.exe ../bin/portfwd7.exe ../bin/pv7.exe ../bin/sql7.exe ../bin/sydir7.exe \
+       ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
 
 wc: $(SRC)
 	@echo SRC:

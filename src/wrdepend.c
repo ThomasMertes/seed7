@@ -36,6 +36,8 @@
  *      Options to specify include directories.
  *  DB2_INCLUDE_OPTION:
  *      Option to specify the include directory of DB2.
+ *  INFORMIX_INCLUDE_OPTION:
+ *      Option to specify the include directory of Informix.
  *  SQL_SERVER_INCLUDE_OPTION:
  *      Option to specify the include directory of SQL Server.
  */
@@ -154,6 +156,9 @@ int main (int argc, char **argv)
       if (strcmp(include_option, "DB2_INCLUDE_OPTION") == 0 &&
           DB2_INCLUDE_OPTION[0] != '\0') {
         writeOptionList(DB2_INCLUDE_OPTION, command);
+      } else if (strcmp(include_option, "INFORMIX_INCLUDE_OPTION") == 0 &&
+          INFORMIX_INCLUDE_OPTION[0] != '\0') {
+        writeOptionList(INFORMIX_INCLUDE_OPTION, command);
       } else if (strcmp(include_option, "SQL_SERVER_INCLUDE_OPTION") == 0 &&
           SQL_SERVER_INCLUDE_OPTION[0] != '\0') {
         writeOptionList(SQL_SERVER_INCLUDE_OPTION, command);

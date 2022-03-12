@@ -3205,6 +3205,20 @@ const proc: check_case_int is func
       okay := FALSE;
     end if;
 
+    counter := 0;
+    num := 0;
+    case num of
+      when {-2147483648}: writeln(" ***** case 0 of when {-2147483648} {0} {2147483647}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {0}: incr(counter);
+      when {2147483647}: writeln(" ***** case 0 of when {-2147483648} {0} {2147483647}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 0 of when {-2147483648} {0} {2147483647}  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Case integer statements work correct.");
     else

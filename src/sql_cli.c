@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_cli.c     Database access functions for ODBC/CLI interface. */
-/*  Copyright (C) 1989 - 2020  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2022  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_cli.c                                       */
-/*  Changes: 2014, 2015, 2017 - 2020  Thomas Mertes                 */
+/*  Changes: 2014, 2015, 2017 - 2020, 2022  Thomas Mertes           */
 /*  Content: Database access functions for ODBC/CLI interface.      */
 /*                                                                  */
 /********************************************************************/
@@ -146,6 +146,9 @@ static sqlFuncType sqlFunc = NULL;
 #endif
 #ifndef SQL_CLOB
 #define SQL_CLOB -99
+#endif
+#ifndef SQL_INFX_UDT_VARYING
+#define SQL_INFX_UDT_VARYING -101
 #endif
 #ifndef SQL_SS_TIME2
 #define SQL_SS_TIME2 -154
@@ -760,7 +763,11 @@ static const char *nameOfSqlType (SQLSMALLINT sql_type)
       case SQL_BINARY:                    typeName = "SQL_BINARY"; break;
       case SQL_VARBINARY:                 typeName = "SQL_VARBINARY"; break;
       case SQL_LONGVARBINARY:             typeName = "SQL_LONGVARBINARY"; break;
+      case SQL_BLOB:                      typeName = "SQL_BLOB"; break;
+      case SQL_CLOB:                      typeName = "SQL_CLOB"; break;
+      case SQL_INFX_UDT_VARYING:          typeName = "SQL_INFX_UDT_VARYING"; break;
       case SQL_SS_TIME2:                  typeName = "SQL_SS_TIME2"; break;
+      case SQL_XML:                       typeName = "SQL_XML"; break;
       default:
         sprintf(buffer, FMT_D16, sql_type);
         typeName = buffer;
@@ -1085,9 +1092,9 @@ static errInfoType setupParameterColumn (preparedStmtType preparedStmt,
         case SQL_LONGVARBINARY:
         case SQL_BLOB:
         case SQL_CLOB:
-          /* For this data types no buffer is reserved. Therefore   */
+          /* For these data types no buffer is reserved. Therefore  */
           /* param->buffer is NULL and param->buffer_capacity is 0. */
-          /* All bind functions dealing with this data types check  */
+          /* All bind functions dealing with these data types check */
           /* the buffer_capacity and (re)allocate the buffer, if    */
           /* necessary.                                             */
           break;
@@ -1473,6 +1480,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           buffer_length = sizeof(SQL_INTERVAL_STRUCT);
           break;
         case SQL_BLOB:
+        case SQL_INFX_UDT_VARYING:
           columnDescr->dataType = SQL_LONGVARBINARY;
           c_type = SQL_C_BINARY;
           columnDescr->sql_data_at_exec = TRUE;
@@ -2489,7 +2497,7 @@ static errInfoType getBlob (preparedStmtType preparedStmt, memSizeType column,
                         column, totalLength););
         err_info = DATABASE_ERROR;
       } else {
-        /* printf("totalLength=" FMT_D64 "\n", totalLength); */
+        /* printf("totalLength=" FMT_D_LEN "\n", totalLength); */
         if (unlikely((SQLULEN) totalLength > MAX_CSTRI_LEN ||
                      (buffer = (cstriType) malloc(
                           SIZ_CSTRI((SQLULEN) totalLength))) == NULL)) {

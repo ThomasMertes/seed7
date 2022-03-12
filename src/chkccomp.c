@@ -298,6 +298,10 @@
 #define TDS_LIBRARY_PATH ""
 #endif
 
+#ifndef INFORMIX_LIBRARY_PATH
+#define INFORMIX_LIBRARY_PATH ""
+#endif
+
 #define NAME_SIZE    1024
 #define COMMAND_SIZE 1024
 #define BUFFER_SIZE  4096
@@ -5795,14 +5799,34 @@ static void escapeString (FILE *versionFile, const char *text)
 
 static void appendOption (char *options, const char *optionToAppend)
 
-  { /* appendOption */
+  {
+    size_t length;
+    char *startPos;
+    char *optionFound;
+
+  /* appendOption */
     if (optionToAppend[0] != '\0') {
-      if (strstr(options, optionToAppend) == NULL) {
+      /* printf("appendOption(\"%s\", \"%s\")\n", options, optionToAppend); */
+      length = strlen(optionToAppend);
+      startPos = options;
+      do {
+        optionFound = strstr(startPos, optionToAppend);
+        if (optionFound != NULL) {
+          startPos = &optionFound[1];
+        } /* if */
+      } while (optionFound != NULL &&
+               ((optionFound != options && optionFound[-1] != '\n') ||
+                (optionFound[length] != '\0' && optionFound[length] != '\n')));
+      if (optionFound == NULL ||
+          (optionFound != options && optionFound[-1] != '\n') ||
+          (optionFound[length] != '\0' && optionFound[length] != '\n')) {
+        /* The optionToAppend is not an element in the list of options. */
         if (options[0] != '\0') {
           strcat(options, "\n");
         } /* if */
         strcat(options, optionToAppend);
       } /* if */
+      /* printf("appendOption --> \"%s\"\n", options); */
     } /* if */
   } /* appendOption */
 
@@ -6073,6 +6097,114 @@ static void defineLibraryMacro (const char *scopeName, int dbHomeExists,
     } /* for */
     fprintf(versionFile, "\n");
   } /* defineLibraryMacro */
+
+
+
+static void addDynamicLibToDllListWithRpath (const char *scopeName, const char *baseDir,
+    const char **dllDirList, size_t dllDirListLength,
+    const char **dllNameList, size_t dllNameListLength, char *rpath,
+    char *dllList)
+
+  {
+    unsigned int dirIndex;
+    unsigned int nameIndex;
+    char dirPath[BUFFER_SIZE];
+    char filePath[BUFFER_SIZE];
+    int found = 0;
+
+  /* addDynamicLibToDllListWithRpath */
+    for (dirIndex = 0;
+         !found && dirIndex < dllDirListLength;
+         dirIndex++) {
+      sprintf(dirPath, "%s%s", baseDir, dllDirList[dirIndex]);
+      /* printf("dirPath: %s\n", dirPath); */
+      if (fileIsDir(dirPath)) {
+        /* printf("fileIsDir(%s)\n", dirPath); */
+        for (nameIndex = 0;
+             nameIndex < dllNameListLength;
+             nameIndex++) {
+          sprintf(filePath, "%s/%s", dirPath, dllNameList[nameIndex]);
+          /* printf("filePath: %s\n", filePath); */
+          if (fileIsRegular(filePath)) {
+            /* printf("fileIsRegular(%s)\n", filePath); */
+            fprintf(logFile, "\r%s: DLL / Shared library: %s\n",
+                    scopeName, filePath);
+            if (rpath == NULL) {
+              appendOption(dllList, filePath);
+            } /* if */
+            appendOption(dllList, dllNameList[nameIndex]);
+            if (rpath != NULL) {
+              if (strstr(rpath, dirPath) == NULL) {
+                if (rpath[0] != '\0') {
+                  strcat(rpath, ":");
+                } /* if */
+                strcat(rpath, dirPath);
+              } /* if */
+              found = 1;
+            } /* if */
+          } /* if */
+        } /* for */
+      } /* if */
+    } /* for */
+  } /* addDynamicLibToDllListWithRpath */
+
+
+
+static void addDynamicLib (const char *scopeName,
+    const char **dllNameList, size_t dllNameListLength,
+    char *dllList)
+
+  {
+    unsigned int nameIndex;
+    char filePath[BUFFER_SIZE];
+
+  /* addDynamicLib */
+    for (nameIndex = 0;
+         nameIndex < dllNameListLength;
+         nameIndex++) {
+      fprintf(logFile, "\r%s: DLL / Shared library: %s\n",
+              scopeName, dllNameList[nameIndex]);
+      appendOption(dllList, dllNameList[nameIndex]);
+    } /* for */
+  } /* addDynamicLib */
+
+
+
+static void addDynamicLibsWithRpath (const char *scopeName, int baseDirExists,
+    const char *baseDir, const char **dllDirList, size_t dllDirListLength,
+    const char **dllNameList, size_t dllNameListLength, char *rpath,
+    FILE *versionFile)
+
+  {
+    char dllList[BUFFER_SIZE];
+    char *startPos;
+    char *nlPos;
+
+  /* addDynamicLibsWithRpath */
+    dllList[0] = '\0';
+    if (baseDirExists) {
+      addDynamicLibToDllListWithRpath(scopeName, baseDir,
+                                      dllDirList, dllDirListLength,
+                                      dllNameList, dllNameListLength, rpath,
+                                      dllList);
+    } /* if */
+    addDynamicLib(scopeName, dllNameList, dllNameListLength, dllList);
+    startPos = dllList;
+    if (startPos[0] != '\0') {
+      nlPos = strchr(startPos, '\n');
+      while (nlPos != NULL) {
+        *nlPos = '\0';
+        fprintf(versionFile, " \"");
+        escapeString(versionFile, startPos);
+        fprintf(versionFile, "\",");
+        startPos = &nlPos[1];
+        nlPos = strchr(startPos, '\n');
+      } /* while */
+      fprintf(versionFile, " \"");
+      escapeString(versionFile, startPos);
+      fprintf(versionFile, "\",");
+    } /* if */
+  } /* addDynamicLibsWithRpath */
 
 
 
@@ -7470,42 +7602,19 @@ static void determineOciDefines (FILE *versionFile,
       /* Handle dynamic libraries: */
       appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
       fprintf(versionFile, "#define OCI_DLL");
-      if (dbHomeExists && rpath != NULL) {
-        listDynamicLibs("Oracle", dbHome,
-                        dllDirList, sizeof(dllDirList) / sizeof(char *),
-                        dllNameList, sizeof(dllNameList) / sizeof(char *), versionFile);
-      } /* if */
-      for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-        fprintf(logFile, "\rOracle: DLL / Shared library: %s\n", dllNameList[nameIndex]);
-        fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
-      } /* for */
+      /* The oci library has many dependencies to other shared  */
+      /* object libraries, which are in the directory of the    */
+      /* main oci library. To dynamically link with ldopen() at */
+      /* the run-time of the program either this directory must */
+      /* be listed in the LD_LIBRARY_PATH or the -rpath option  */
+      /* must be used. Note that the meaning of the -rpath      */
+      /* option has changed and it must be combined with the    */
+      /* option --disable-new-dtags to get the old behavior.    */
+      addDynamicLibsWithRpath("Oracle", dbHomeExists, dbHome,
+                             dllDirList, sizeof(dllDirList) / sizeof(char *),
+                             dllNameList, sizeof(dllNameList) / sizeof(char *),
+                             rpath, versionFile);
       fprintf(versionFile, "\n");
-      if (dbHomeExists && rpath != NULL) {
-        /* The oci library has many dependencies to other shared  */
-        /* object libraries, which are in the directory of the    */
-        /* main oci library. To dynamically link with ldopen() at */
-        /* the run-time of the program either this directory must */
-        /* be listed in the LD_LIBRARY_PATH or the -rpath option  */
-        /* must be used. Note that the meaning of the -rpath      */
-        /* option has changed and it must be combined with the    */
-        /* option --disable-new-dtags to get the old behavior.    */
-        for (dirIndex = 0; !found && dirIndex < sizeof(dllDirList) / sizeof(char *); dirIndex++) {
-          sprintf(dirPath, "%s%s", dbHome, dllDirList[dirIndex]);
-          if (fileIsDir(dirPath)) {
-            for (nameIndex = 0; nameIndex < sizeof(dllNameList) / sizeof(char *); nameIndex++) {
-              sprintf(filePath, "%s/%s", dirPath, dllNameList[nameIndex]);
-              if (fileIsRegular(filePath)) {
-                fprintf(logFile, "\rOracle: %s found in %s\n", dllNameList[nameIndex], dirPath);
-                if (rpath[0] != '\0') {
-                  strcat(rpath, ":");
-                } /* if */
-                strcat(rpath, dirPath);
-                found = 1;
-              } /* if */
-            } /* for */
-          } /* if */
-        } /* for */
-      } /* if */
     } /* if */
   } /* determineOciDefines */
 
@@ -7841,6 +7950,232 @@ static void determineDb2Defines (FILE *versionFile,
 
 
 
+static void determineInformixDefines (FILE *versionFile,
+    char *include_options, char *system_database_libs, char *rpath)
+
+  {
+    const char *dbHomeSys[] = {"Informix"};
+    const char *informixSdk[] = {"/opt/informix",
+                                 "/opt/IBM/Informix_Client-SDK"};
+#ifdef INFORMIX_LIBS
+    const char *libNameList[] = { INFORMIX_LIBS };
+#elif LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
+    const char *libNameList[] = {"iclit09b.a"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
+    const char *libNameList[] = {"iclit09b.lib"};
+#endif
+#ifdef INFORMIX_DLL
+    const char *dllNameList[] = { INFORMIX_DLL };
+#elif LIBRARY_TYPE == UNIX_LIBRARIES
+    const char *dllNameList[] = {"iclit09b.so"};
+    const char *libIfglsDllList[] = {"libifgls.so"};
+#elif LIBRARY_TYPE == MACOS_LIBRARIES
+    const char *dllNameList[] = {"iclit09b.dylib"};
+    const char *libIfglsDllList[] = {"libifgls.dylib"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
+    const char *dllNameList[] = {"iclit09b.dll"};
+    const char *libIfglsDllList[] = {};
+#endif
+    const char *inclDirList[] = {"/incl/cli"};
+    const char *libDirList[] = {"/lib", "/lib/cli"};
+    const char *dllDirList[] = {"/bin", "/lib/cli", "/lib/esql"};
+    unsigned int dirIndex;
+    unsigned int nameIndex;
+    int searchForLib = 1;
+    const char *informixDir = NULL;
+    const char *programFilesX86 = NULL;
+    const char *programFiles = NULL;
+    char dbHome[BUFFER_SIZE];
+    char includeOption[BUFFER_SIZE];
+    char makeDefinition[BUFFER_SIZE];
+    int includeWindows = 0;
+    int includeSqlext = 0;
+    const char *informixInclude = NULL;
+    char testProgram[BUFFER_SIZE];
+    char informix_libs[BUFFER_SIZE];
+    int dbHomeExists = 0;
+
+  /* determineInformixDefines */
+#ifdef INFORMIX_INCLUDE_OPTIONS
+    strcpy(includeOption, INFORMIX_INCLUDE_OPTIONS);
+#else
+    includeOption[0] = '\0';
+#endif
+    informixDir = getenv("INFORMIXDIR");
+    if (informixDir != NULL) {
+      if (strlen(informixDir) < BUFFER_SIZE && fileIsDir(informixDir)) {
+        strcpy(dbHome, informixDir);
+        dbHomeExists = 1;
+      } /* if */
+    } /* if */
+    if (!dbHomeExists) {
+      programFilesX86 = getenv("ProgramFiles(x86)");
+      /* fprintf(logFile, "programFilesX86: %s\n", programFilesX86); */
+      programFiles = getenv("ProgramFiles");
+      /* fprintf(logFile, "programFiles: %s\n", programFiles); */
+      if (programFiles != NULL) {
+        if (sizeof(char *) == 4 && programFilesX86 != NULL) {
+          programFiles = programFilesX86;
+        } /* if */
+        for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(dbHomeSys) / sizeof(char *); dirIndex++) {
+          sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[dirIndex]);
+          /* fprintf(logFile, "dbHome: <%s>\n", dbHome); */
+          if (fileIsDir(dbHome)) {
+            dbHomeExists = 1;
+          } /* if */
+        } /* for */
+      } /* if */
+    } /* if */
+    if (!dbHomeExists) {
+      for (dirIndex = 0; !dbHomeExists && dirIndex < sizeof(informixSdk) / sizeof(char *); dirIndex++) {
+        if (fileIsDir(informixSdk[dirIndex])) {
+          strcpy(dbHome, informixSdk[dirIndex]);
+          dbHomeExists = 1;
+        } /* if */
+      } /* for */
+    } /* if */
+    if (dbHomeExists) {
+      fprintf(versionFile, "#define INFORMIXDIR \"%s\"\n", dbHome);
+    } /* if */
+    sprintf(testProgram, "#include <infxcli.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "SQLHDBC conn; SQLHSTMT stmt;\n"
+                         "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                         "return 0;}\n");
+    if (dbHomeExists) {
+      informixInclude = findIncludeFile("Informix", testProgram, dbHome,
+                                        inclDirList, sizeof(inclDirList) / sizeof(char *),
+                                        "infxcli.h", includeOption);
+    } /* if */
+    if (informixInclude == NULL) {
+      if (compileAndLinkWithOptionsOk("#include <windows.h>\n"
+                                      "#include <sql.h>\n"
+                                      "#include <sqlext.h>\n"
+                                      "int main(int argc,char *argv[]){\n"
+                                      "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                      "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                      "return 0;}\n",
+                                      includeOption, "")) {
+        includeWindows = 1;
+        includeSqlext = 1;
+        informixInclude = "sql.h";
+        fprintf(logFile, "\rInformix: %s found in system include directory.\n",
+                informixInclude);
+      } else if (compileAndLinkWithOptionsOk("#include <sql.h>\n"
+                                             "#include <sqlext.h>\n"
+                                             "int main(int argc,char *argv[]){\n"
+                                             "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                             "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                             "return 0;}\n",
+                                             includeOption, "")) {
+        includeSqlext = 1;
+        informixInclude = "sql.h";
+        fprintf(logFile, "\rInformix: %s found in system include directory.\n",
+                informixInclude);
+      } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                             "#include \"db_odbc.h\"\n"
+                                             "int main(int argc,char *argv[]){\n"
+                                             "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                             "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                             "return 0;}\n",
+                                             "", "") ||
+                 compileAndLinkWithOptionsOk("#define STDCALL\n"
+                                             "#include \"tst_vers.h\"\n"
+                                             "#include \"db_odbc.h\"\n"
+                                             "int main(int argc,char *argv[]){\n"
+                                             "SQLHDBC conn; SQLHSTMT stmt;\n"
+                                             "SQLSMALLINT h = SQL_HANDLE_STMT;\n"
+                                             "return 0;}\n",
+                                             "", "")) {
+        informixInclude = "db_odbc.h";
+        fprintf(logFile, "\rInformix: %s found in Seed7 include directory.\n",
+                informixInclude);
+        includeOption[0] = '\0';
+      } /* if */
+    } /* if */
+    if (informixInclude != NULL) {
+      fprintf(versionFile, "#define INFORMIX_INCLUDE_WINDOWS_H %d\n", includeWindows);
+      fprintf(versionFile, "#define INFORMIX_INCLUDE \"%s\"\n", informixInclude);
+      fprintf(versionFile, "#define INFORMIX_INCLUDE_SQLEXT_H %d\n", includeSqlext);
+      fprintf(versionFile, "#define INFORMIX_INCLUDE_OPTION \"");
+      escapeString(versionFile, includeOption);
+      fprintf(versionFile, "\"\n");
+      sprintf(makeDefinition, "INFORMIX_INCLUDE_OPTION = %s\n", includeOption);
+      appendToFile("macros", makeDefinition);
+      sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
+                           "%s#include \"%s\"\n%s"
+                           "int main(int argc,char *argv[]){\n"
+                           "printf(\"%%d\\n\", sizeof(SQLWCHAR));\n"
+                           "return 0;\n}\n",
+                           includeWindows ? "#include \"windows.h\"\n" : "",
+                           informixInclude,
+                           includeSqlext ? "#include \"sqlext.h\"\n" : "");
+      if (compileAndLinkWithOptionsOk(testProgram, includeOption, "")) {
+        fprintf(versionFile, "#define INFORMIX_SIZEOF_SQLWCHAR %d\n", doTest());
+      } /* if */
+    } /* if */
+#if !defined INFORMIX_USE_DLL && defined SUPPORTS_PARTIAL_LINKING
+    /* Handle static libraries: */
+    sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
+                         "%s#include \"%s\"\n%s"
+                         "int main(int argc,char *argv[]){\n"
+                         "SQLHENV sql_env;\n"
+                         "SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_env);\n"
+                         "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
+                         "printf(\"1\\n\");\n"
+                         "return 0;\n}\n",
+                         includeWindows ? "#include \"windows.h\"\n" : "",
+                         informixInclude,
+                         includeSqlext ? "#include \"sqlext.h\"\n" : "");
+    /* fprintf(logFile, "%s\n", testProgram);
+       fprintf(logFile, "informixInclude: \"%s\"\n", informixInclude); */
+    informix_libs[0] = '\0';
+    if (dbHomeExists) {
+      if (findStaticLib("Informix", testProgram, includeOption, "-lcrypt -lm", dbHome,
+                        libDirList, sizeof(libDirList) / sizeof(char *),
+                        libNameList, sizeof(libNameList) / sizeof(char *),
+                        informix_libs)) {
+        /* appendOption(informix_libs, "-lcrypt");
+           appendOption(informix_libs, "-lm"); */
+        sprintf(makeDefinition, "INFORMIX_LIBS = %s", informix_libs);
+        replaceNLBySpace(makeDefinition);
+        strcat(makeDefinition, "\n");
+        appendToFile("macros", makeDefinition);
+        searchForLib = 0;
+      } /* if */
+    } /* if */
+    if (searchForLib) {
+      if (findLinkerOption("Informix", testProgram, includeOption, INFORMIX_LIBRARY_PATH,
+                           libNameList, sizeof(libNameList) / sizeof(char *),
+                           informix_libs)) {
+        sprintf(makeDefinition, "INFORMIX_LIBS = %s", informix_libs);
+        replaceNLBySpace(makeDefinition);
+        strcat(makeDefinition, "\n");
+        appendToFile("macros", makeDefinition);
+        searchForLib = 0;
+      } /* if */
+    } /* if */
+#endif
+    if (searchForLib) {
+      /* Handle dynamic libraries: */
+      appendOption(system_database_libs, LINKER_OPT_DYN_LINK_LIBS);
+      fprintf(versionFile, "#define INFORMIX_DLL");
+      addDynamicLibsWithRpath("Informix", dbHomeExists, dbHome,
+                              dllDirList, sizeof(dllDirList) / sizeof(char *),
+                              dllNameList, sizeof(dllNameList) / sizeof(char *),
+                              rpath, versionFile);
+      fprintf(versionFile, "\n");
+      fprintf(versionFile, "#define IFGLS_DLL");
+      addDynamicLibsWithRpath("Informix", dbHomeExists, dbHome,
+                              dllDirList, sizeof(dllDirList) / sizeof(char *),
+                              libIfglsDllList, sizeof(libIfglsDllList) / sizeof(char *),
+                              rpath, versionFile);
+      fprintf(versionFile, "\n");
+    } /* if */
+  } /* determineInformixDefines */
+
+
+
 static void determineSqlServerDefines (FILE *versionFile,
     char *include_options, char *system_database_libs)
 
@@ -8171,6 +8506,7 @@ static void determineIncludesAndLibs (FILE *versionFile)
     determineOciDefines(versionFile, include_options, system_database_libs, rpath);
     determineFireDefines(versionFile, include_options, system_database_libs);
     determineDb2Defines(versionFile, include_options, system_database_libs);
+    determineInformixDefines(versionFile, include_options, system_database_libs, rpath);
     determineSqlServerDefines(versionFile, include_options, system_database_libs);
     determineTdsDefines(versionFile, include_options, system_database_libs);
     determineBigIntDefines(versionFile, include_options, system_bigint_libs);

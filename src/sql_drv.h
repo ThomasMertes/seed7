@@ -90,6 +90,7 @@ typedef struct {
 #define DB_CATEGORY_DB2        7
 #define DB_CATEGORY_SQL_SERVER 8
 #define DB_CATEGORY_TDS        9
+#define DB_CATEGORY_INFORMIX  10
 
 
 databaseType sqlOpenDb2 (const const_striType host, intType port,
@@ -98,6 +99,9 @@ databaseType sqlOpenDb2 (const const_striType host, intType port,
 databaseType sqlOpenFire (const const_striType host, intType port,
     const const_striType dbName, const const_striType user,
     const const_striType password);
+databaseType sqlOpenInformix (const const_striType host, intType port,
+    const const_striType server, const const_striType dbName,
+    const const_striType user, const const_striType password);
 databaseType sqlOpenLite (const const_striType host, intType port,
     const const_striType dbName, const const_striType user,
     const const_striType password);
