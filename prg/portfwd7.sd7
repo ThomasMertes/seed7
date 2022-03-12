@@ -1,0 +1,138 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  portfwd7.sd7  Port forwarder to redirect network communication. *)
+(*  Copyright (C) 2012  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "socket.s7i";
+  include "listener.s7i";
+
+
+const type: destType is hash [file] file;
+
+
+const proc: connectPort (in integer: inPort, in string: outAddress, in integer: outPort) is func
+  local
+    var listener: aListener is listener.value;
+    var file: existingConnection is STD_NULL;
+    var file: newConnection is STD_NULL;
+    var string: request is "";
+    var string: response is "";
+    var destType: destTable is destType.value;
+    var file: destination is STD_NULL;
+    var integer: length is 0;
+  begin
+    writeln("Connect port " <& inPort <& " to " <& outAddress <& ":" <& outPort);
+    aListener := openInetListener(inPort);
+    listen(aListener, 20000);
+    while TRUE do
+      waitForRequest(aListener, existingConnection, newConnection);
+      if existingConnection <> STD_NULL then
+        # write(".");
+        # flush(OUT);
+        if existingConnection in destTable then
+          destination := destTable[existingConnection];
+          request := gets(existingConnection, 100000);
+          if eof(existingConnection) then
+            writeln("Closed connection");
+            signOff(aListener, existingConnection);
+            signOff(aListener, destination);
+            close(existingConnection);
+            close(destination);
+            excl(destTable, existingConnection);
+            excl(destTable, destination);
+          else
+            # writeln("<-> " <& literal(request));
+            write(destination, request);
+          end if;
+        end if;
+      end if;
+      if newConnection <> STD_NULL then
+        writeln("New connection");
+        destination := openInetSocket(outAddress, outPort);
+        if destination = STD_NULL then
+          writeln(" ***** Cannot connect to " <& outAddress <& ":" <& outPort);
+        else
+          destTable @:= [newConnection] destination;
+          destTable @:= [destination] newConnection;
+          signOn(aListener, destination);
+        end if;
+      end if;
+    end while;
+  end func;
+
+
+const proc: main is func
+  local
+    var string: arg is "";
+    var integer: inPort is 6031;
+    var string: outAddress is "localhost";
+    var integer: outPort is 6000;
+  begin
+    if length(argv(PROGRAM)) = 0 then
+      writeln("Portfwd7 Version 1.0 - Port forwarder to redirect network communication.");
+      writeln("Copyright (C) 2012 Thomas Mertes");
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Portfwd7 is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.sourceforge.net");
+      writeln;
+      writeln("usage: portfwd7 inPort outAddress[:outPort]");
+      writeln;
+      writeln("Examples:");
+      writeln("  portfwd7 6001 x11Host:6000");
+      writeln("     Connect local port 6001 to port 6000 at x11Host.");
+      writeln("  portfwd7 6002");
+      writeln("     Connect local port 6002 to port 6000 at localhost.");
+    else
+      if length(argv(PROGRAM)) >= 1 then
+        arg := argv(PROGRAM)[1];
+        if isDigitString(arg) then
+          block
+            inPort := integer parse (arg);
+          exception
+            catch RANGE_ERROR: writeln(" ***** Port number too big. Port " <&
+                inPort <& " used instead.");
+          end block;
+        end if;
+      end if;
+      if length(argv(PROGRAM)) >= 2 then
+        arg := argv(PROGRAM)[2];
+        if pos(arg, ":") <> 0 then
+          outAddress := arg[.. pred(pos(arg, ":"))];
+          if outAddress = "" then
+            outAddress := "localhost";
+          end if;
+          arg := arg[succ(pos(arg, ":")) ..];
+          block
+            outPort := integer parse (arg);
+          exception
+            catch RANGE_ERROR: writeln(" ***** Port number too big. Port " <&
+                outPort <& " used instead.");
+          end block;
+        else
+          outAddress := arg;
+        end if;
+      end if;
+      connectPort(inPort, outAddress, outPort);
+    end if;
+  end func;
