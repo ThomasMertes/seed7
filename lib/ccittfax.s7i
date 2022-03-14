@@ -584,18 +584,29 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
     var integer: column is 1;
     var array integer: aValues is 0 times 0;
     var integer: bIndex is 1;
+    var integer: currentBValue is 0;
   begin
     mode := getHuffmanSymbol(faxDataStream, t4HuffmanTable);
     while mode >= 0 and currentColumn <= width do
+      if bIndex <= length(bValues) then
+        currentBValue := bValues[bIndex];
+      else
+        currentBValue := succ(width);
+      end if;
       case mode of
         when {TIFF_T4_PASS}:
           # writeln("Pass");
           currentPixel := blackOrWhite[bIndex mod 2];
           incr(bIndex);
-          for column range currentColumn to bValues[bIndex] - 1 do
+          if bIndex <= length(bValues) then
+            currentBValue := bValues[bIndex];
+          else
+            currentBValue := succ(width);
+          end if;
+          for column range currentColumn to currentBValue - 1 do
             image[line][column] := currentPixel;
           end for;
-          currentColumn := bValues[bIndex];
+          currentColumn := currentBValue;
           incr(bIndex);
         when {TIFF_T4_HORIZONTAL}:
           if odd(bIndex) then
@@ -605,6 +616,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
             numBits1 := getBlackBits(faxDataStream, blackHuffmanTable);
             numBits2 := getWhiteBits(faxDataStream, whiteHuffmanTable);
           end if;
+          # writeln("Horizontal " <& numBits1 <& " " <& numBits2);
           currentPixel := blackOrWhite[bIndex mod 2];
           for column range currentColumn to currentColumn + pred(numBits1) do
             image[line][column] := currentPixel;
@@ -617,33 +629,25 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
           end for;
           currentColumn +:= numBits2;
           aValues &:= [] (currentColumn);
-          # writeln("Horizontal " <& numBits1 <& " " <& numBits2);
           while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
             bIndex +:= 2;
           end while;
         when {TIFF_T4_VERTICAL_0}:
           # writeln("V(0)");
           currentPixel := blackOrWhite[bIndex mod 2];
-          if bIndex <= length(bValues) then
-            for column range currentColumn to bValues[bIndex] - 1 do
-              image[line][column] := currentPixel;
-            end for;
-            currentColumn := bValues[bIndex];
-            aValues &:= [] (currentColumn);
-            incr(bIndex);
-          else
-            for column range currentColumn to width do
-              image[line][column] := currentPixel;
-            end for;
-            currentColumn := succ(width);
-          end if;
+          for column range currentColumn to currentBValue - 1 do
+            image[line][column] := currentPixel;
+          end for;
+          currentColumn := currentBValue;
+          aValues &:= [] (currentColumn);
+          incr(bIndex);
         when {TIFF_T4_VERTICAL_RIGHT_1}:
           # writeln("Vr(1)");
           currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to bValues[bIndex] do
+          for column range currentColumn to currentBValue do
             image[line][column] := currentPixel;
           end for;
-          currentColumn := bValues[bIndex] + 1;
+          currentColumn := currentBValue + 1;
           aValues &:= [] (currentColumn);
           incr(bIndex);
           if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
@@ -652,10 +656,10 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
         when {TIFF_T4_VERTICAL_RIGHT_2}:
           # writeln("Vr(2)");
           currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to bValues[bIndex] + 1 do
+          for column range currentColumn to currentBValue + 1 do
             image[line][column] := currentPixel;
           end for;
-          currentColumn := bValues[bIndex] + 2;
+          currentColumn := currentBValue + 2;
           aValues &:= [] (currentColumn);
           incr(bIndex);
           if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
@@ -664,10 +668,10 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
         when {TIFF_T4_VERTICAL_RIGHT_3}:
           # writeln("Vr(3)");
           currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to bValues[bIndex] + 2 do
+          for column range currentColumn to currentBValue + 2 do
             image[line][column] := currentPixel;
           end for;
-          currentColumn := bValues[bIndex] + 3;
+          currentColumn := currentBValue + 3;
           aValues &:= [] (currentColumn);
           incr(bIndex);
           while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
@@ -676,19 +680,19 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
         when {TIFF_T4_VERTICAL_LEFT_1}:
           # writeln("Vl(1)");
           currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to bValues[bIndex] - 2 do
+          for column range currentColumn to currentBValue - 2 do
             image[line][column] := currentPixel;
           end for;
-          currentColumn := bValues[bIndex] - 1;
+          currentColumn := currentBValue - 1;
           aValues &:= [] (currentColumn);
           incr(bIndex);
         when {TIFF_T4_VERTICAL_LEFT_2}:
           # writeln("Vl(2)");
           currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to bValues[bIndex] - 3 do
+          for column range currentColumn to currentBValue - 3 do
             image[line][column] := currentPixel;
           end for;
-          currentColumn := bValues[bIndex] - 2;
+          currentColumn := currentBValue - 2;
           aValues &:= [] (currentColumn);
           if bIndex > 1 and bValues[pred(bIndex)] > currentColumn then
             decr(bIndex);
@@ -698,10 +702,10 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
         when {TIFF_T4_VERTICAL_LEFT_3}:
           # writeln("Vl(3)");
           currentPixel := blackOrWhite[bIndex mod 2];
-          for column range currentColumn to bValues[bIndex] - 4 do
+          for column range currentColumn to currentBValue - 4 do
             image[line][column] := currentPixel;
           end for;
-          currentColumn := bValues[bIndex] - 3;
+          currentColumn := currentBValue - 3;
           aValues &:= [] (currentColumn);
           if bIndex > 1 and bValues[pred(bIndex)] > currentColumn then
             decr(bIndex);
