@@ -694,7 +694,8 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
           end for;
           currentColumn := currentBValue - 2;
           aValues &:= [] (currentColumn);
-          if bIndex > 1 and bValues[pred(bIndex)] > currentColumn then
+          if bIndex > 1 and (pred(bIndex) > length(bValues) or
+              bValues[pred(bIndex)] > currentColumn) then
             decr(bIndex);
           else
             incr(bIndex);
@@ -707,7 +708,8 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
           end for;
           currentColumn := currentBValue - 3;
           aValues &:= [] (currentColumn);
-          if bIndex > 1 and bValues[pred(bIndex)] > currentColumn then
+          if bIndex > 1 and (pred(bIndex) > length(bValues) or
+              bValues[pred(bIndex)] > currentColumn) then
             decr(bIndex);
           else
             incr(bIndex);
