@@ -825,7 +825,6 @@ const proc: processRow (in tiffHeader: header, inout msbBitStream: stripDataStre
     var integer: colorFactor3 is 0;
     var integer: column is 1;
   begin
-    # writeln("line " <& line);
     case header.samplesPerPixel of
       when {1}:
         bitsPerSample1 := header.bitsPerSample[1];
@@ -1197,8 +1196,8 @@ const proc: processDataStrip (in tiffHeader: header, inout string: stripData,
         else
           if rowsInCurrentStrip <> 0 then
             if header.samplesPerPixel = 1 then
-              requestedLength := (rowsInCurrentStrip * header.width *
-                                  header.bitsPerSample[1] + 7) div 8;
+              requestedLength := rowsInCurrentStrip *
+                  succ(pred(header.width * header.bitsPerSample[1]) mdiv 8);
             else
               requestedLength := rowsInCurrentStrip * header.width * header.samplesPerPixel;
             end if;
