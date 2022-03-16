@@ -396,31 +396,24 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
                                            cast_send_recv_data(currBuffer->buffer),
                                            cast_buffer_len(LIST_BUFFER_SIZE), 0);
       /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
-      if (unlikely(bytes_in_buffer == (memSizeType) -1 && result_size == 0)) {
-        logError(printf("receive_and_alloc_stri: "
-                        "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
-                        "%s=%d\nerror: %s\n",
-                        inSocket, (memSizeType) LIST_BUFFER_SIZE,
-                        ERROR_INFORMATION););
-        *err_info = FILE_ERROR;
-        result = NULL;
-      } else {
-        result_size += bytes_in_buffer;
-        if (chars_missing > result_size && bytes_in_buffer == LIST_BUFFER_SIZE) {
-          currBuffer->next = (bufferList) malloc(sizeof(struct bufferStruct));
-          if (unlikely(currBuffer->next == NULL)) {
-            logError(printf("receive_and_alloc_stri(%d, " FMT_U_MEM ", *): "
-                            "malloc(" FMT_U_MEM ") failed.\n",
-                            inSocket, chars_missing, sizeof(struct bufferStruct)););
-            *err_info = MEMORY_ERROR;
-            result = NULL;
-            /* Leave the while loop by setting bytes_in_buffer to zero. */
-            bytes_in_buffer = 0;
-          } else {
-            currBuffer = currBuffer->next;
-            currBuffer->next = NULL;
-            input_ready = socInputReady(inSocket, 0, 0);
-          } /* if */
+      if (unlikely(bytes_in_buffer == (memSizeType) -1)) {
+        bytes_in_buffer = 0;
+      } /* if */
+      result_size += bytes_in_buffer;
+      if (chars_missing > result_size && bytes_in_buffer == LIST_BUFFER_SIZE) {
+        currBuffer->next = (bufferList) malloc(sizeof(struct bufferStruct));
+        if (unlikely(currBuffer->next == NULL)) {
+          logError(printf("receive_and_alloc_stri(%d, " FMT_U_MEM ", *): "
+                          "malloc(" FMT_U_MEM ") failed.\n",
+                          inSocket, chars_missing, sizeof(struct bufferStruct)););
+          *err_info = MEMORY_ERROR;
+          result = NULL;
+          /* Leave the while loop by setting bytes_in_buffer to zero. */
+          bytes_in_buffer = 0;
+        } else {
+          currBuffer = currBuffer->next;
+          currBuffer->next = NULL;
+          input_ready = socInputReady(inSocket, 0, 0);
         } /* if */
       } /* if */
     } /* while */
@@ -431,17 +424,10 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
                                            cast_send_recv_data(currBuffer->buffer),
                                            cast_buffer_len(chars_missing - result_size), 0);
       /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
-      if (unlikely(bytes_in_buffer == (memSizeType) -1 && result_size == 0)) {
-        logError(printf("receive_and_alloc_stri: "
-                        "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
-                        "%s=%d\nerror: %s\n",
-                        inSocket, chars_missing - result_size,
-                        ERROR_INFORMATION););
-        *err_info = FILE_ERROR;
-        result = NULL;
-      } else {
-        result_size += bytes_in_buffer;
+      if (unlikely(bytes_in_buffer == (memSizeType) -1)) {
+        bytes_in_buffer = 0;
       } /* if */
+      result_size += bytes_in_buffer;
     } /* if */
     if (likely(*err_info == OKAY_NO_ERROR)) {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
@@ -891,6 +877,8 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
           result = receive_and_alloc_stri(inSocket, chars_requested, &err_info);
           if (unlikely(err_info != OKAY_NO_ERROR)) {
             raise_error(err_info);
+          } else if (result->size == 0) {
+            *eofIndicator = (charType) EOF;
           } /* if */
         } else {
           if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, chars_requested))) {
