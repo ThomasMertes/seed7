@@ -312,6 +312,7 @@ static const char *nullDevice = NULL;
 static FILE *logFile = NULL;
 static unsigned long removeReattempts = 0;
 static unsigned long filePresentAfterDelay = 0;
+static unsigned long numberPresentAfterDelay = 0;
 
 static const char *int16TypeStri = NULL;
 static const char *uint16TypeStri = NULL;
@@ -1006,6 +1007,8 @@ static int runTest (int checkNumericValue)
     int ch;
     int returncode;
     FILE *outFile;
+    int readFailed;
+    int repeatCount = 0;
     int result = -1;
 
   /* runTest */
@@ -1023,21 +1026,27 @@ static int runTest (int checkNumericValue)
     if (returncode != -1) {
       sprintf(fileName, "ctest%d.out", testNumber);
       if (fileIsPresentPossiblyAfterDelay(fileName)) {
-        outFile = fopen(fileName, "r");
-        if (outFile != NULL) {
-          if (fscanf(outFile, "%d", &result) != 1) {
-            if (checkNumericValue) {
-              fprintf(logFile, "\n *** No numeric result in \"%s\":\n", fileName);
-              rewind(outFile);
-              while ((ch = getc(outFile)) != EOF) {
-                fputc(ch, logFile);
-              } /* if */
-              fputs("\n ", logFile);
+        do {
+          outFile = fopen(fileName, "r");
+          if (outFile != NULL) {
+            readFailed = fscanf(outFile, "%d", &result) != 1;
+            if (checkNumericValue && readFailed) {
+              /* This workaround is necessary for windows. */
+              repeatCount++;
+              sprintf(command, "%s %s > nul 2>&1", LIST_DIRECTORY_CONTENTS, fileName);
+              system(command);
             } /* if */
+            fclose(outFile);
+          } else {
+            fprintf(logFile, "\n *** Cannot open \"%s\".\n ", fileName);
           } /* if */
-          fclose(outFile);
-        } else {
-          fprintf(logFile, "\n *** Cannot open \"%s\".\n ", fileName);
+        } while (checkNumericValue && readFailed && repeatCount < 10);
+        if (checkNumericValue && repeatCount != 0) {
+	  if (readFailed) {
+            fprintf(logFile, "\n *** No numeric result in \"%s\".\n", fileName);
+          } else {
+            numberPresentAfterDelay++;
+          } /* if */
         } /* if */
       } else {
         fprintf(logFile, "\n *** File \"%s\" missing.\n ", fileName);
@@ -9118,6 +9127,15 @@ int main (int argc, char **argv)
     cleanUpCompilation(testNumber);
     fprintf(versionFile, "#define REMOVE_REATTEMPTS %lu\n", removeReattempts);
     fprintf(versionFile, "#define FILE_PRESENT_AFTER_DELAY %lu\n", filePresentAfterDelay);
+    if (filePresentAfterDelay != 0) {
+      fprintf(logFile, "%lu times the test output was present after a delay.\n",
+              filePresentAfterDelay);
+    } /* if */
+    fprintf(versionFile, "#define NUMBER_PRESENT_AFTER_DELAY %lu\n", numberPresentAfterDelay);
+    if (numberPresentAfterDelay != 0) {
+      fprintf(logFile, "%lu times the numeric test result was present after a delay.\n",
+              numberPresentAfterDelay);
+    } /* if */
     closeVersionFile(versionFile);
     if (fileIsRegular("tst_vers.h")) {
       remove("tst_vers.h");
