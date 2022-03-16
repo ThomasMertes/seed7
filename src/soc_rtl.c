@@ -397,6 +397,11 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
                                            cast_buffer_len(LIST_BUFFER_SIZE), 0);
       /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
       if (unlikely(bytes_in_buffer == (memSizeType) -1)) {
+        logError(printf("receive_and_alloc_stri: "
+                        "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
+                        "%s=%d\nerror: %s\n",
+                        inSocket, (memSizeType) LIST_BUFFER_SIZE,
+                        ERROR_INFORMATION););
         bytes_in_buffer = 0;
       } /* if */
       result_size += bytes_in_buffer;
@@ -425,6 +430,11 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
                                            cast_buffer_len(chars_missing - result_size), 0);
       /* printf("receive_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
       if (unlikely(bytes_in_buffer == (memSizeType) -1)) {
+        logError(printf("receive_and_alloc_stri: "
+                        "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
+                        "%s=%d\nerror: %s\n",
+                        inSocket, chars_missing - result_size,
+                        ERROR_INFORMATION););
         bytes_in_buffer = 0;
       } /* if */
       result_size += bytes_in_buffer;
@@ -855,7 +865,12 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
                                          cast_send_recv_data(buffer),
                                          cast_buffer_len(chars_requested), 0);
         /* printf("socGets: result_size=" FMT_U_MEM "\n", result_size); */
-        if (result_size == (memSizeType) -1) {
+        if (unlikely(result_size == (memSizeType) -1)) {
+          logError(printf("socGets: "
+                          "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
+                          "%s=%d\nerror: %s\n",
+                          inSocket, chars_requested,
+                          ERROR_INFORMATION););
           result_size = 0;
         } /* if */
         if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
@@ -867,7 +882,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
         } else {
           memcpy_to_strelem(result->mem, buffer, result_size);
           result->size = result_size;
-          if (result_size == 0 && result_size < chars_requested) {
+          if (result_size == 0) {
             *eofIndicator = (charType) EOF;
           } /* if */
         } /* if */
@@ -892,7 +907,12 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
                                              cast_send_recv_data(result->mem),
                                              cast_buffer_len(chars_requested), 0);
             /* printf("socGets: result_size=" FMT_U_MEM "\n", result_size); */
-            if (result_size == (memSizeType) -1) {
+            if (unlikely(result_size == (memSizeType) -1)) {
+              logError(printf("socGets: "
+                              "recv(%d, *, " FMT_U_MEM ", 0) failed:\n"
+                              "%s=%d\nerror: %s\n",
+                              inSocket, chars_requested,
+                              ERROR_INFORMATION););
               result_size = 0;
             } /* if */
             memcpy_to_strelem(result->mem, (ustriType) result->mem, result_size);
@@ -1622,9 +1642,15 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
     } else {
       bytes_received = (memSizeType) recv((os_socketType) inSocket,
                                           cast_send_recv_data(buffer),
-                                          BUFFER_START_SIZE, MSG_PEEK);
+                                          cast_buffer_len(BUFFER_START_SIZE),
+                                          MSG_PEEK);
       /* printf("socLineRead: bytes_received: " FMT_U_MEM "\n", bytes_received); */
-      if (bytes_received == (memSizeType) -1) {
+      if (unlikely(bytes_received == (memSizeType) -1)) {
+        logError(printf("socLineRead: "
+                        "recv(%d, *, " FMT_U_MEM ", MSG_PEEK) failed:\n"
+                        "%s=%d\nerror: %s\n",
+                        inSocket, (memSizeType) BUFFER_START_SIZE,
+                        ERROR_INFORMATION););
         bytes_received = 0;
       } /* if */
       if (bytes_received == 0) {
@@ -1688,8 +1714,14 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
               result_pos += bytes_requested;
               bytes_received = (memSizeType) recv((os_socketType) inSocket,
                                                   cast_send_recv_data(buffer),
-                                                  BUFFER_DELTA_SIZE, MSG_PEEK);
-              if (bytes_received == (memSizeType) -1) {
+                                                  cast_buffer_len(BUFFER_DELTA_SIZE),
+                                                  MSG_PEEK);
+              if (unlikely(bytes_received == (memSizeType) -1)) {
+                logError(printf("socLineRead: "
+                                "recv(%d, *, " FMT_U_MEM ", MSG_PEEK) failed:\n"
+                                "%s=%d\nerror: %s\n",
+                                inSocket, (memSizeType) BUFFER_DELTA_SIZE,
+                                ERROR_INFORMATION););
                 bytes_received = 0;
               } /* if */
               if (bytes_received == 0) {
