@@ -588,8 +588,8 @@ const func integer: getBit (inout msbBitStream: inBitStream) is func
   result
     var integer: resultBit is 0;
   begin
-    resultBit := (inBitStream.buffer >> pred(inBitStream.bitPos)) mod 2;
     decr(inBitStream.bitPos);
+    resultBit := (inBitStream.buffer >> inBitStream.bitPos) mod 2;
     if pred(inBitStream.bitPos) mdiv 8 <> 4 then
       inBitStream.bitPos := inBitStream.bitPos + 8;
       incr(inBitStream.bytePos);
@@ -635,8 +635,8 @@ const func integer: getBits (inout msbBitStream: inBitStream, in integer: bitWid
   local
     var integer: bytePosDelta is 0;
   begin
-    resultBits := (inBitStream.buffer >> (inBitStream.bitPos - bitWidth)) mod (1 << bitWidth);
     inBitStream.bitPos -:= bitWidth;
+    resultBits := (inBitStream.buffer >> inBitStream.bitPos) mod (1 << bitWidth);
     bytePosDelta := 4 - pred(inBitStream.bitPos) mdiv 8;
     if bytePosDelta <> 0 then
       inBitStream.bitPos := inBitStream.bitPos + 8 * bytePosDelta;
