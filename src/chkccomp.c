@@ -7983,7 +7983,7 @@ static void determineInformixDefines (FILE *versionFile,
     const char *libIfglsDllList[] = {"libifgls.dylib"};
 #elif LIBRARY_TYPE == WINDOWS_LIBRARIES
     const char *dllNameList[] = {"iclit09b.dll"};
-    const char *libIfglsDllList[] = {};
+    const char *libIfglsDllList[] = {""};
 #endif
     const char *inclDirList[] = {"/incl/cli"};
     const char *libDirList[] = {"/lib", "/lib/cli"};
@@ -8174,12 +8174,16 @@ static void determineInformixDefines (FILE *versionFile,
                               dllNameList, sizeof(dllNameList) / sizeof(char *),
                               rpath, versionFile);
       fprintf(versionFile, "\n");
-      fprintf(versionFile, "#define IFGLS_DLL");
-      addDynamicLibsWithRpath("Informix", dbHomeExists, dbHome,
-                              dllDirList, sizeof(dllDirList) / sizeof(char *),
-                              libIfglsDllList, sizeof(libIfglsDllList) / sizeof(char *),
-                              rpath, versionFile);
-      fprintf(versionFile, "\n");
+      if (sizeof(libIfglsDllList) / sizeof(char *) > 1 ||
+          (sizeof(libIfglsDllList) / sizeof(char *) == 1 &&
+          libIfglsDllList[0][0] != '\0')) {
+        fprintf(versionFile, "#define IFGLS_DLL");
+        addDynamicLibsWithRpath("Informix", dbHomeExists, dbHome,
+                                dllDirList, sizeof(dllDirList) / sizeof(char *),
+                                libIfglsDllList, sizeof(libIfglsDllList) / sizeof(char *),
+                                rpath, versionFile);
+        fprintf(versionFile, "\n");
+      } /* if */
     } /* if */
   } /* determineInformixDefines */
 
