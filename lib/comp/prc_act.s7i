@@ -683,12 +683,10 @@ const proc: process_bitset (in bitset: currentSet, in string: diagnosticLine,
     var integer: number is 0;
   begin
     for number range currentSet do
-      if number in currentSet then
-        c_expr.expr &:= diagnosticLine;
-        c_expr.expr &:= "case ";
-        c_expr.expr &:= str(number);
-        c_expr.expr &:= ":\n";
-      end if;
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "case ";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= ":\n";
     end for;
   end func;
 
