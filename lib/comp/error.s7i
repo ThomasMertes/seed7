@@ -196,7 +196,15 @@ const proc: error (WHEN_OVERLAPPING, in bitset: overlappingWhenValues,
     in reference: current_expression) is func
   begin
    writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
-            "): When values " <& overlappingWhenValues <& " do overlap.");
+            "): Duplicate when values " <& overlappingWhenValues <& ".");
+  end func;
+
+
+const proc: error (WHEN_PREVIOUS, in bitset: overlappingWhenValues,
+    in reference: current_expression) is func
+  begin
+   writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+            "): Previous usage of " <& overlappingWhenValues <& ".");
   end func;
 
 
