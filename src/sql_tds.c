@@ -2061,13 +2061,13 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
       if (data == NULL) {
         length = dbdatlen(preparedStmt->dbproc, (int) column);
         if (likely(length == 0)) {
-          columnValue = 0.0;
+          columnValue = 0;
         } else {
           dbInconsistent("sqlColumnInt", "dbdatlen");
           logError(printf("sqlColumnInt: Column " FMT_D ": "
                           "dbdatlen returns %d.\n", column, length););
           raise_error(DATABASE_ERROR);
-          columnValue = 0.0;
+          columnValue = 0;
         } /* if */
       } else {
         /* printf("buffer: %s\n", (unsigned char *) columnData->buffer); */

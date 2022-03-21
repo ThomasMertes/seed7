@@ -3593,7 +3593,7 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
       fileName8Length = loginData->fileName8Length + extension_length;
       if (unlikely(fileName8Length > 255 ||
                    !ALLOC_CSTRI(fileName8, fileName8Length))) {
-        err_info = MEMORY_ERROR;
+        fileName8 = NULL;
       } else {
         memcpy(fileName8, loginData->fileName8, loginData->fileName8Length);
         memcpy(&fileName8[loginData->fileName8Length], extension, extension_length);
@@ -3603,7 +3603,9 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
       fileName8Length = loginData->fileName8Length;
       fileName8 = loginData->fileName8;
     } /* if */
-    if (likely(err_info == OKAY_NO_ERROR)) {
+    if (unlikely(fileName8 == NULL)) {
+      err_info = MEMORY_ERROR;
+    } else {
       charset_length = strlen(charset);
       /* Assume that the setting bytes take less then 256 bytes space. */
       dpb_buffer_length = fileName8Length + loginData->user8Length +
