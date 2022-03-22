@@ -106,6 +106,12 @@
  *      If it is FALSE raise(SIGFPE) can be called instead. Under Windows
  *      it is necessary to trigger SIGFPE this way, to assure that the debugger
  *      can catch it.
+ *  LIMITED_CSTRI_LITERAL_LEN: (optional)
+ *      = 0: The C compiler does not limit the length of string literals.
+ *      != 0: An array of characters should be used instead of a string literal.
+ *      Some compilers (cl) run out of heap space when compiling chkbig.sd7
+ *      with string literals. To avoid this problem the makefile (mk_msvc.mak)
+ *      defines LIMITED_CSTRI_LITERAL_LEN.
  *  USE_ALTERNATE_LOCALTIME_R: (optional)
  *      Defined if the function alternate_localtime_r() should be used
  *      instead of localtime().

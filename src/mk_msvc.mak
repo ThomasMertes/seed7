@@ -217,6 +217,7 @@ base.h:
 	echo #define INT_DIV_BY_ZERO_POPUP >> base.h
 	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO 1 >> base.h
 	echo #define FILENO_WORKS_FOR_NULL 0 >> base.h
+	echo #define LIMITED_CSTRI_LITERAL_LEN 1 >> base.h
 	echo #define USE_WMAIN >> base.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
 	echo #define SYSTEM_MATH_LIBS "$(SYSTEM_MATH_LIBS)" >> base.h
