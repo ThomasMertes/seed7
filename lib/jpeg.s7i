@@ -55,12 +55,14 @@ const integer: JPEG_COMPTYPE_LUMA        is 1;
 const integer: JPEG_COMPTYPE_CHROMA_BLUE is 2;
 const integer: JPEG_COMPTYPE_CHROMA_RED  is 3;
 
+const type: jpegComponentTypeMap is hash [integer] integer;
+
 const type: jpegComponent is new struct
     var integer: quantizationTableIndex is 0;
   end struct;
 
 const type: jpegScan is new struct
-    var integer: comptype is 0;
+    var integer: componentId is 0;
     var integer: dcHuffmanTableIndex is 0;
     var integer: acHuffmanTableIndex is 0;
   end struct;
@@ -70,6 +72,7 @@ const type: jpegHeader is new struct
     var integer: width is 0;
     var integer: height is 0;
     var integer: framebytes is 0;
+    var jpegComponentTypeMap: componentType is jpegComponentTypeMap.value;
     var array array integer: quantizationTable is 4 times JPEG_BLOCK_SIZE times 0;
     var array jpegComponent: component is 0 times jpegComponent.value;
     var array jpegScan: scan is 0 times jpegScan.value;
@@ -107,7 +110,7 @@ const proc: readStartOfFrame (inout file: jpegFile, inout jpegHeader: header) is
   local
     var integer: length is 0;
     var integer: numComponents is 0;
-    var integer: comptype is 0;
+    var integer: componentId is 0;
     var integer: sampling is 0;
     var integer: index is 0;
   begin
@@ -119,18 +122,16 @@ const proc: readStartOfFrame (inout file: jpegFile, inout jpegHeader: header) is
     header.framebytes := header.width * header.height * numComponents;
     header.component := numComponents times jpegComponent.value;
     for index range 1 to numComponents do
-      comptype := ord(getc(jpegFile));
-      if comptype <> index then
-        raise RANGE_ERROR;
-      end if;
+      componentId := ord(getc(jpegFile));
+      header.componentType @:= [componentId] index;
       sampling := ord(getc(jpegFile));
-      if comptype = JPEG_COMPTYPE_LUMA then
+      if index = JPEG_COMPTYPE_LUMA then
         header.vertical := sampling mod 16;
         header.horizontal := sampling >> 4;
         if header.vertical > 2 or header.horizontal > 2 then
           raise RANGE_ERROR;
         end if;
-      elsif sampling <> 16#11 or comptype > JPEG_COMPTYPE_CHROMA_RED then
+      elsif sampling <> 16#11 or index > JPEG_COMPTYPE_CHROMA_RED then
         raise RANGE_ERROR;
       end if;
       header.component[index].quantizationTableIndex := ord(getc(jpegFile)) + 1;
@@ -201,8 +202,8 @@ const proc: readStartOfScan (inout file: jpegFile, inout jpegHeader: header) is 
     header.numberOfScans := ord(getc(jpegFile));
     header.scan := header.numberOfScans times jpegScan.value;
     for index range 1 to header.numberOfScans do
-      header.scan[index].comptype := ord(getc(jpegFile));
-      if header.scan[index].comptype > length(header.component) then
+      header.scan[index].componentId := ord(getc(jpegFile));
+      if header.scan[index].componentId not in header.componentType then
         raise RANGE_ERROR;
       else
         aByte := ord(getc(jpegFile));
@@ -865,7 +866,7 @@ const proc: loadImage (inout file: jpegFile, in jpegHeader: header,
     var integer: dcCrIndex is 0;
     var integer: acCrIndex is 0;
   begin
-    if header.scan[1].comptype <> JPEG_COMPTYPE_LUMA then
+    if header.componentType[header.scan[1].componentId] <> JPEG_COMPTYPE_LUMA then
       raise RANGE_ERROR;
     end if;
     dcLumaIndex := header.scan[1].dcHuffmanTableIndex;
@@ -874,8 +875,8 @@ const proc: loadImage (inout file: jpegFile, in jpegHeader: header,
       loadMonochromeImage(jpegFile, header, header.dcTable[dcLumaIndex],
                           header.acTable[acLumaIndex], image);
     elsif header.numberOfScans = 3 then
-      if header.scan[2].comptype <> JPEG_COMPTYPE_CHROMA_BLUE or
-          header.scan[3].comptype <> JPEG_COMPTYPE_CHROMA_RED then
+      if header.componentType[header.scan[2].componentId] <> JPEG_COMPTYPE_CHROMA_BLUE or
+          header.componentType[header.scan[3].componentId] <> JPEG_COMPTYPE_CHROMA_RED then
         raise RANGE_ERROR;
       end if;
       dcCbIndex  := header.scan[2].dcHuffmanTableIndex;
@@ -1317,7 +1318,7 @@ const proc: loadProgressive (inout file: jpegFile, in jpegHeader: header,
     var integer: index is 0;
   begin
     for index range 1 to header.numberOfScans do
-      case header.scan[index].comptype of
+      case header.componentType[header.scan[index].componentId] of
         when {JPEG_COMPTYPE_LUMA}:
           dcLumaIndex := header.scan[index].dcHuffmanTableIndex;
           acLumaIndex := header.scan[index].acHuffmanTableIndex;
