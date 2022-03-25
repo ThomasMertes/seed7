@@ -1249,7 +1249,7 @@ const func string: genCertificateRequest (inout tlsParameters: parameters) is fu
     var string: certificateRequest is "";
   local
     var integer: length is 0;
-    var string: signatureAlgorithm is "";
+    var integer: signatureAlgorithm is 0;
   begin
     certificateRequest := str(HANDSHAKE) &            # ContentType (index: 1)
                           parameters.tls_version &    # Version: take version from client_hello.
@@ -1259,9 +1259,9 @@ const func string: genCertificateRequest (inout tlsParameters: parameters) is fu
                           "\1;" &                     # Bytes in certificate_types list
                           "\1;";                      # Certificate type: rsa_sign
     if parameters.tls_version >= TLS_1_2 then
-      certificateRequest &:= bytes(length(serverSignatureSchemes) * 2, BE, 2);
+      certificateRequest &:= bytes(length(serverSignatureSchemes) * 2, UNSIGNED, BE, 2);
       for signatureAlgorithm range serverSignatureSchemes do
-        certificateRequest &:= signatureAlgorithm;
+        certificateRequest &:= bytes(signatureAlgorithm, UNSIGNED, BE, 2);
       end for;
     end if;
     certificateRequest &:= "\0;\0;";                  # Bytes in certificate_authorities list
