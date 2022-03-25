@@ -1244,6 +1244,34 @@ const func string: genServerKeyExchange (inout tlsParameters: parameters) is fun
   end func;
 
 
+const func string: genCertificateRequest (inout tlsParameters: parameters) is func
+  result
+    var string: certificateRequest is "";
+  local
+    var integer: length is 0;
+    var string: signatureAlgorithm is "";
+  begin
+    certificateRequest := str(HANDSHAKE) &            # ContentType (index: 1)
+                          parameters.tls_version &    # Version: take version from client_hello.
+                          "\0;\0;" &                  # Length: filled later (index: 4)
+                          str(CERTIFICATE_REQUEST) &  # HandshakeType (index: 6)
+                          "\0;\0;\0;" &               # Length: filled later
+                          "\1;" &                     # Bytes in certificate_types list
+                          "\1;";                      # Certificate type: rsa_sign
+    if parameters.tls_version >= TLS_1_2 then
+      certificateRequest &:= bytes(length(serverSignatureSchemes) * 2, BE, 2);
+      for signatureAlgorithm range serverSignatureSchemes do
+        certificateRequest &:= signatureAlgorithm;
+      end for;
+    end if;
+    certificateRequest &:= "\0;\0;";                  # Bytes in certificate_authorities list
+    length := length(certificateRequest);
+    certificateRequest @:= [4] bytes(length - 5, UNSIGNED, BE, 2);
+    certificateRequest @:= [8] bytes(length - 9, UNSIGNED, BE, 2);
+    parameters.handshake_messages &:= certificateRequest[6 ..];
+  end func;
+
+
 const func string: genServerHelloDone (inout tlsParameters: parameters) is func
   result
     var string: serverHelloDone is "";

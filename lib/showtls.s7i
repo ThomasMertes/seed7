@@ -433,19 +433,46 @@ const proc: showServerKeyExchange (in string: stri, inout integer: pos) is func
 
 const proc: showCertificateRequest (in string: stri, inout integer: pos) is func
   local
+    var string: version is "";
     var integer: length is 0;
+    var integer: certificateTypesLength is 0;
+    var integer: supportedSignatureAlgorithmsLength is 0;
+    var integer: certificateAuthoritiesLength is 0;
+    var string: certificateAuthorities is "";
     var integer: index is 0;
   begin
     writeln("certificate_request");
+    version := stri[pos - 5 len 2];
+    writeln("Version: " <& ord(stri[pos - 5]) <& "." <& ord(stri[pos - 4]));
     length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
     pos +:= 3;
     writeln("length: " <& length);
     writeln("Bytes there: " <& length(stri) - pos + 1);
-    writeln("Version: " <& ord(stri[pos]) <& "." <& ord(stri[succ(pos)]));
-    pos +:= 2;
-    length := ord(stri[pos]);
+    certificateTypesLength := ord(stri[pos]);
     incr(pos);
-    writeln("length: " <& length);
+    writeln("certificateTypesLength: " <& certificateTypesLength);
+    for index range 1 to certificateTypesLength do
+      writeln("ClientCertificateType " <& index <& ": " <& ord(stri[pos]));
+      incr(pos);
+    end for;
+    if version >= TLS_1_2 then
+      supportedSignatureAlgorithmsLength := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+      pos +:= 2;
+      writeln("supportedSignatureAlgorithmsLength: " <& supportedSignatureAlgorithmsLength);
+      for index range 1 to supportedSignatureAlgorithmsLength div 2 do
+        writeln(" supportedSignatureAlgorithm " <& index <& ": " <&
+                ord(stri[pos]) lpad0 2 <& " " <& ord(stri[succ(pos)]) lpad0 2);
+        pos +:= 2;
+      end for;
+    end if;
+    certificateAuthoritiesLength := bytes2Int(stri[pos len 2], UNSIGNED, BE);
+    pos +:= 2;
+    writeln("certificateAuthoritiesLength: " <& certificateAuthoritiesLength);
+    certificateAuthorities := stri[pos len certificateAuthoritiesLength];
+    pos +:= certificateAuthoritiesLength;
+    writeln(literal(certificateAuthorities));
+    writeln("Final pos: " <& pos);
+    writeln("Leftover bytes: " <& literal(stri[pos ..]));
   end func;
 
 
