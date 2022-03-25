@@ -638,15 +638,14 @@ const proc: processCertificateVerify (inout tlsParameters: parameters, inout tls
   local
     var integer: startPos is 0;
     var integer: length is 0;
-    var integer: beyond is 0;
   begin
     # writeln("certificate_verify");
     startPos := state.pos;
     incr(state.pos);
     length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
     state.pos +:= 3;
-    beyond := state.pos + length;
-    parameters.handshake_messages &:= state.message[startPos .. pred(beyond)];
+    state.pos +:= length;
+    parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
 
 

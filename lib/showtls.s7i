@@ -499,6 +499,8 @@ const proc: showCertificateVerify (in string: stri, inout integer: pos) is func
     pos +:= 3;
     writeln("Length: " <& length);
     writeln("Bytes there: " <& length(stri) - pos + 1);
+    writeln("Data: " <& literal(stri[pos len length]));
+    pos +:= length;
     writeln("Final pos: " <& pos);
     writeln("Leftover bytes: " <& literal(stri[pos ..]));
   end func;
