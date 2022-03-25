@@ -490,6 +490,20 @@ const proc: showServerHelloDone (in string: stri, inout integer: pos) is func
   end func;
 
 
+const proc: showCertificateVerify (in string: stri, inout integer: pos) is func
+  local
+    var integer: length is 0;
+  begin
+    writeln("certificate_verify");
+    length := bytes2Int(stri[pos len 3], UNSIGNED, BE);
+    pos +:= 3;
+    writeln("Length: " <& length);
+    writeln("Bytes there: " <& length(stri) - pos + 1);
+    writeln("Final pos: " <& pos);
+    writeln("Leftover bytes: " <& literal(stri[pos ..]));
+  end func;
+
+
 const proc: showClientKeyExchange (in string: stri, inout integer: pos) is func
   local
     var integer: length is 0;
@@ -545,6 +559,8 @@ const proc: showHandshakeMsg (in string: stri, in var integer: pos) is func
       showCertificateRequest(stri, pos);
     elsif handshakeType = SERVER_HELLO_DONE then
       showServerHelloDone(stri, pos);
+    elsif handshakeType = CERTIFICATE_VERIFY then
+      showCertificateVerify(stri, pos);
     elsif handshakeType = CLIENT_KEY_EXCHANGE then
       showClientKeyExchange(stri, pos);
     elsif handshakeType = FINISHED then
@@ -639,6 +655,8 @@ const proc: showTlsMsgType (in string: stri) is func
           writeln("CertificateRequest");
         elsif stri[6] = SERVER_HELLO_DONE then
           writeln("ServerHelloDone");
+        elsif stri[6] = CERTIFICATE_VERIFY then
+          writeln("CertificateVerify");
         elsif stri[6] = CLIENT_KEY_EXCHANGE then
           writeln("ClientKeyExchange");
         elsif stri[6] = FINISHED then

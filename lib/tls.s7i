@@ -97,6 +97,7 @@ const type: tlsParameters is new struct
     var string:               client_random            is ""; # length: 32
     var string:               server_random            is ""; # length: 32
     var certAndKey:           serverCertificates       is certAndKey.value;
+    var certAndKey:           clientCertificates       is certAndKey.value;
     var rsaKey:               publicRsaCertificateKey  is rsaKey.value;
     var rsaKey:               privateRsaCertificateKey is rsaKey.value;
     var ecPoint:              publicEccCertificateKey  is ecPoint.value;
@@ -598,6 +599,54 @@ const proc: processCertificate (inout tlsParameters: parameters, inout tlsParseS
     parameters.publicRsaCertificateKey := cert[1].tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
     parameters.publicEccCertificateKey := cert[1].tbsCertificate.subjectPublicKeyInfo.publicEccKey;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
+  end func;
+
+
+const proc: processClientCertificate (inout tlsParameters: parameters, inout tlsParseState: state) is func
+  local
+    var integer: startPos is 0;
+    var integer: sequenceLen is 0;
+    var integer: certLen is 0;
+    var integer: index is 1;
+    var array x509cert: cert is 0 times x509cert.value;
+  begin
+    # writeln("client_certificate");
+    startPos := state.pos;
+    state.pos +:= 4;
+    sequenceLen := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    state.pos +:= 3;
+    while state.pos <= 3 + sequenceLen do
+      certLen := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+      state.pos +:= 3;
+      parameters.clientCertificates.certList &:= [] (state.message[state.pos len certLen]);
+      state.pos +:= certLen;
+    end while;
+    cert := length(parameters.clientCertificates.certList) times x509cert.value;
+    for key index range parameters.clientCertificates.certList do
+      # writeln("read Cert-" <& index);
+      cert[index] := getX509Cert(parameters.clientCertificates.certList[index]);
+    end for;
+    # showX509Cert(cert[1]);
+    # validateCertificates(cert);
+    # parameters.publicRsaCertificateKey := cert[1].tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
+    # parameters.publicEccCertificateKey := cert[1].tbsCertificate.subjectPublicKeyInfo.publicEccKey;
+    parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
+  end func;
+
+
+const proc: processCertificateVerify (inout tlsParameters: parameters, inout tlsParseState: state) is func
+  local
+    var integer: startPos is 0;
+    var integer: length is 0;
+    var integer: beyond is 0;
+  begin
+    # writeln("certificate_verify");
+    startPos := state.pos;
+    incr(state.pos);
+    length := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
+    state.pos +:= 3;
+    beyond := state.pos + length;
+    parameters.handshake_messages &:= state.message[startPos .. pred(beyond)];
   end func;
 
 
@@ -1828,6 +1877,7 @@ const func file: openServerTls (inout file: sock, in certAndKey: certificateAndK
     var string: serverHello is "";
     var string: certificate is "";
     var string: serverKeyExchange is "";
+    var string: certificateRequest is "";
     var string: serverHelloDone is "";
     var string: changeCipherSpec is "";
     var string: finished is "";
@@ -1867,6 +1917,9 @@ const func file: openServerTls (inout file: sock, in certAndKey: certificateAndK
             # showTlsMsg(serverKeyExchange);
             write(sock, serverKeyExchange);
           end if;
+          # certificateRequest := genCertificateRequest(new_file.parameters);
+          # showTlsMsg(certificateRequest);
+          # write(sock, certificateRequest);
         end if;
         if okay then
           serverHelloDone := genServerHelloDone(new_file.parameters);
@@ -1875,9 +1928,14 @@ const func file: openServerTls (inout file: sock, in certAndKey: certificateAndK
           repeat
             getTlsMsgRecord(sock, new_file.parseState);
             # showTlsMsg(new_file.parseState.message);
-            if new_file.parseState.contentType = HANDSHAKE and
-                new_file.parseState.message[new_file.parseState.pos] = CLIENT_KEY_EXCHANGE then
-              processClientKeyExchange(new_file.parameters, new_file.parseState);
+            if new_file.parseState.contentType = HANDSHAKE then
+              if new_file.parseState.message[new_file.parseState.pos] = CLIENT_KEY_EXCHANGE then
+                processClientKeyExchange(new_file.parameters, new_file.parseState);
+              elsif new_file.parseState.message[new_file.parseState.pos] = CERTIFICATE then
+                processClientCertificate(new_file.parameters, new_file.parseState);
+              elsif new_file.parseState.message[new_file.parseState.pos] = CERTIFICATE_VERIFY then
+                processCertificateVerify(new_file.parameters, new_file.parseState);
+              end if;
             end if;
           until new_file.parseState.contentType = CHANGE_CIPHER_SPEC or
                 new_file.parseState.contentType = ALERT or
