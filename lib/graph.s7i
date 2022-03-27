@@ -239,8 +239,16 @@ const func integer: compare (in PRIMITIVE_WINDOW: window1,
                              in PRIMITIVE_WINDOW: window2)  is action "DRW_CMP";
 const proc: setContent (inout PRIMITIVE_WINDOW: aWindow,
     in PRIMITIVE_WINDOW: pixmap)                            is action "DRW_SET_CONTENT";
+
+
+(**
+ *  Create a pixel from the ''red'', ''green'' and ''blue'' colors of light.
+ *  The range for ''red'', ''green'' and ''blue'' is from 0 to 65535.
+ *)
 const func pixel: rgbPixel (ref integer: red,
     ref integer: green, ref integer: blue)          is action "DRW_RGBCOL";
+
+
 const proc: DRAW_PIXEL_TO_RGB (
     in pixel: col, inout integer: red,
     inout integer: green, inout integer: blue)      is action "DRW_PIXEL_TO_RGB";

@@ -1987,7 +1987,7 @@ const func file: openServerTls (inout file: sock, in certAndKey: certificateAndK
 
 
 (**
- *  Close a tlsFile.
+ *  Close a tlsFile. This closes also the socket below.
  *  @exception FILE_ERROR A system function returns an error.
  *)
 const proc: close (inout tlsFile: aFile) is func

@@ -916,6 +916,9 @@ const func certAndKey: selfSignedX509Cert (in string: commonName,
                                          time(NOW) + 1 . YEARS));
 
 
+(**
+ *  Self signed X509 certificate.
+ *)
 const certAndKey: stdCertificate is selfSignedX509Cert(
     stdRsaKeyPair, 4_, "localhost",
     "AT", "Vienna", "Black Hole", "Super Massive",
