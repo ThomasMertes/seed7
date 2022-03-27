@@ -567,7 +567,7 @@ const func fileSys: openTar (in string: tarFileName) is func
 
 
 (**
- *  Close a TAR archive.
+ *  Close a TAR archive. The TAR file below stays open.
  *)
 const proc: close (inout tarArchive: tar) is func
   begin

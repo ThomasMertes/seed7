@@ -497,7 +497,7 @@ const func fileSys: openCpio (in string: cpioFileName) is func
 
 
 (**
- *  Close a CPIO archive.
+ *  Close a CPIO archive. The CPIO file below stays open.
  *)
 const proc: close (inout cpioArchive: cpio) is func
   begin

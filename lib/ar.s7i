@@ -356,11 +356,11 @@ const func fileSys: openAr (in string: arFileName) is func
 
 
 (**
- *  Close an AR archive.
+ *  Close an AR archive. The AR file below stays open.
  *)
 const proc: close (inout arArchive: ar) is func
   begin
-    close(ar.arFile);
+    # close(ar.arFile);
     ar.arFile := STD_NULL;
   end func;
 

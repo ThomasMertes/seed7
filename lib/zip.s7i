@@ -861,7 +861,7 @@ const func fileSys: openZip (in string: zipFileName) is func
 
 
 (**
- *  Close a ZIP archive.
+ *  Close a ZIP archive. The ZIP file below stays open.
  *)
 const proc: close (inout zipArchive: zip) is func
   begin

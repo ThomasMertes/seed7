@@ -1689,7 +1689,7 @@ const func fileSys: openRpm (in string: rpmFileName) is func
 
 
 (**
- *  Close a RPM archive.
+ *  Close a RPM archive. The RPM file below stays open.
  *)
 const proc: close (inout rpmArchive: rpm) is func
   local
