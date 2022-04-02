@@ -334,6 +334,7 @@ const func time: time (in var string: stri) is func
       end if;
       checkForTimeZone := TRUE;
     end if;
+    aTime.daylightSavingTime := FALSE;
     if checkForTimeZone then
       if startsWith(stri, " UTC") then
         stri := stri[5 ..];
@@ -355,11 +356,14 @@ const func time: time (in var string: stri) is func
           end if;
         end if;
       end if;
+      if stri = " (DST)" then
+        aTime.daylightSavingTime := TRUE;
+        stri := "";
+      end if;
     end if;
     if stri <> "" then
       raise RANGE_ERROR;
     end if;
-    aTime.daylightSavingTime := FALSE;
     if aTime.month < 1 or aTime.month > 12 or
         aTime.day < 1 or aTime.day > daysInMonth(aTime.year, aTime.month) or
         aTime.hour < 0 or aTime.hour > 23 or
