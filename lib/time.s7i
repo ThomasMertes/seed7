@@ -334,7 +334,6 @@ const func time: time (in var string: stri) is func
       end if;
       checkForTimeZone := TRUE;
     end if;
-    aTime.daylightSavingTime := FALSE;
     if checkForTimeZone then
       if startsWith(stri, " UTC") then
         stri := stri[5 ..];
