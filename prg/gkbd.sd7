@@ -121,6 +121,8 @@ const proc: displayKey (in char: ch, in boolean: keyActive) is func
       when {'N'}:                rect(230, 180, 20, 20, keyColor);
       when {'M'}:                rect(260, 180, 20, 20, keyColor);
 
+      when {' '}:                rect(145, 210, 160, 20, keyColor);
+
       when {KEY_NUM_LOCK}:       rect(550,  90, 20, 20, keyColor);
       when {KEY_HOME}:           rect(550, 120, 20, 20, keyColor);
                                  rect(485,  90, 20, 20, keyColor);
@@ -286,6 +288,8 @@ const proc: main is func
       checkKey(keyActive, 'B');
       checkKey(keyActive, 'N');
       checkKey(keyActive, 'M');
+
+      checkKey(keyActive, ' ');
 
       checkKey(keyActive, KEY_NUM_LOCK);
       checkKey(keyActive, KEY_HOME);
