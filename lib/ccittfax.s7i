@@ -354,31 +354,31 @@ const lsbHuffmanTable: whiteLsbHuffmanTable is genWhiteLsbHuffmanTable;
 const lsbHuffmanTable: blackLsbHuffmanTable is genBlackLsbHuffmanTable;
 
 
-const integer: TIFF_T4_PASS             is 0;
-const integer: TIFF_T4_HORIZONTAL       is 1;
-const integer: TIFF_T4_VERTICAL_0       is 2;
-const integer: TIFF_T4_VERTICAL_RIGHT_1 is 3;
-const integer: TIFF_T4_VERTICAL_RIGHT_2 is 4;
-const integer: TIFF_T4_VERTICAL_RIGHT_3 is 5;
-const integer: TIFF_T4_VERTICAL_LEFT_1  is 6;
-const integer: TIFF_T4_VERTICAL_LEFT_2  is 7;
-const integer: TIFF_T4_VERTICAL_LEFT_3  is 8;
-const integer: TIFF_T4_UNCOMPRESSED     is 9;
+const integer: CCITT_T4_PASS             is 0;
+const integer: CCITT_T4_HORIZONTAL       is 1;
+const integer: CCITT_T4_VERTICAL_0       is 2;
+const integer: CCITT_T4_VERTICAL_RIGHT_1 is 3;
+const integer: CCITT_T4_VERTICAL_RIGHT_2 is 4;
+const integer: CCITT_T4_VERTICAL_RIGHT_3 is 5;
+const integer: CCITT_T4_VERTICAL_LEFT_1  is 6;
+const integer: CCITT_T4_VERTICAL_LEFT_2  is 7;
+const integer: CCITT_T4_VERTICAL_LEFT_3  is 8;
+const integer: CCITT_T4_UNCOMPRESSED     is 9;
 
 
 const proc: addT4HuffmanValues (inout huffmanTable: table) is func
   begin
     addCode(table, -1,                       "000000000001");
-    addCode(table, TIFF_T4_PASS,             "0001");         # Pass
-    addCode(table, TIFF_T4_HORIZONTAL,       "001");          # Horizontal
-    addCode(table, TIFF_T4_VERTICAL_0,       "1");            # V(0)
-    addCode(table, TIFF_T4_VERTICAL_RIGHT_1, "011");          # Vr(1)
-    addCode(table, TIFF_T4_VERTICAL_RIGHT_2, "000011");       # Vr(2)
-    addCode(table, TIFF_T4_VERTICAL_RIGHT_3, "0000011");      # Vr(3)
-    addCode(table, TIFF_T4_VERTICAL_LEFT_1,  "010");          # Vl(1)
-    addCode(table, TIFF_T4_VERTICAL_LEFT_2,  "000010");       # Vl(2)
-    addCode(table, TIFF_T4_VERTICAL_LEFT_3,  "0000010");      # Vl(3)
-    addCode(table, TIFF_T4_UNCOMPRESSED,     "0000001111");   # Uncompressed
+    addCode(table, CCITT_T4_PASS,             "0001");         # Pass
+    addCode(table, CCITT_T4_HORIZONTAL,       "001");          # Horizontal
+    addCode(table, CCITT_T4_VERTICAL_0,       "1");            # V(0)
+    addCode(table, CCITT_T4_VERTICAL_RIGHT_1, "011");          # Vr(1)
+    addCode(table, CCITT_T4_VERTICAL_RIGHT_2, "000011");       # Vr(2)
+    addCode(table, CCITT_T4_VERTICAL_RIGHT_3, "0000011");      # Vr(3)
+    addCode(table, CCITT_T4_VERTICAL_LEFT_1,  "010");          # Vl(1)
+    addCode(table, CCITT_T4_VERTICAL_LEFT_2,  "000010");       # Vl(2)
+    addCode(table, CCITT_T4_VERTICAL_LEFT_3,  "0000010");      # Vl(3)
+    addCode(table, CCITT_T4_UNCOMPRESSED,     "0000001111");   # Uncompressed
   end func;
 
 
@@ -594,7 +594,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
         currentBValue := succ(width);
       end if;
       case mode of
-        when {TIFF_T4_PASS}:
+        when {CCITT_T4_PASS}:
           # writeln("Pass");
           currentPixel := blackOrWhite[bIndex mod 2];
           incr(bIndex);
@@ -608,7 +608,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
           end for;
           currentColumn := currentBValue;
           incr(bIndex);
-        when {TIFF_T4_HORIZONTAL}:
+        when {CCITT_T4_HORIZONTAL}:
           if odd(bIndex) then
             numBits1 := getWhiteBits(faxDataStream, whiteHuffmanTable);
             numBits2 := getBlackBits(faxDataStream, blackHuffmanTable);
@@ -632,7 +632,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
           while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
             bIndex +:= 2;
           end while;
-        when {TIFF_T4_VERTICAL_0}:
+        when {CCITT_T4_VERTICAL_0}:
           # writeln("V(0)");
           currentPixel := blackOrWhite[bIndex mod 2];
           for column range currentColumn to currentBValue - 1 do
@@ -641,7 +641,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
           currentColumn := currentBValue;
           aValues &:= [] (currentColumn);
           incr(bIndex);
-        when {TIFF_T4_VERTICAL_RIGHT_1}:
+        when {CCITT_T4_VERTICAL_RIGHT_1}:
           # writeln("Vr(1)");
           currentPixel := blackOrWhite[bIndex mod 2];
           for column range currentColumn to currentBValue do
@@ -653,7 +653,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
           if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
             bIndex +:= 2;
           end if;
-        when {TIFF_T4_VERTICAL_RIGHT_2}:
+        when {CCITT_T4_VERTICAL_RIGHT_2}:
           # writeln("Vr(2)");
           currentPixel := blackOrWhite[bIndex mod 2];
           for column range currentColumn to currentBValue + 1 do
@@ -665,7 +665,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
           if bIndex <= length(bValues) and bValues[bIndex] <= currentColumn then
             bIndex +:= 2;
           end if;
-        when {TIFF_T4_VERTICAL_RIGHT_3}:
+        when {CCITT_T4_VERTICAL_RIGHT_3}:
           # writeln("Vr(3)");
           currentPixel := blackOrWhite[bIndex mod 2];
           for column range currentColumn to currentBValue + 2 do
@@ -677,7 +677,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
           while bIndex <= length(bValues) and bValues[bIndex] <= currentColumn do
             bIndex +:= 2;
           end while;
-        when {TIFF_T4_VERTICAL_LEFT_1}:
+        when {CCITT_T4_VERTICAL_LEFT_1}:
           # writeln("Vl(1)");
           currentPixel := blackOrWhite[bIndex mod 2];
           for column range currentColumn to currentBValue - 2 do
@@ -686,7 +686,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
           currentColumn := currentBValue - 1;
           aValues &:= [] (currentColumn);
           incr(bIndex);
-        when {TIFF_T4_VERTICAL_LEFT_2}:
+        when {CCITT_T4_VERTICAL_LEFT_2}:
           # writeln("Vl(2)");
           currentPixel := blackOrWhite[bIndex mod 2];
           for column range currentColumn to currentBValue - 3 do
@@ -700,7 +700,7 @@ const proc: processCcittT4Fax2dRow (inout bitStream: faxDataStream,
           else
             incr(bIndex);
           end if;
-        when {TIFF_T4_VERTICAL_LEFT_3}:
+        when {CCITT_T4_VERTICAL_LEFT_3}:
           # writeln("Vl(3)");
           currentPixel := blackOrWhite[bIndex mod 2];
           for column range currentColumn to currentBValue - 4 do
