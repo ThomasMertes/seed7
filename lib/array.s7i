@@ -40,6 +40,15 @@ const func ARRAY_IDX_RANGE: [ (in integer: minIdx) .. (in integer: maxIdx) ] is 
   end func;
 
 
+const func ARRAY_IDX_RANGE: [ (in integer: minIdx) len (in integer: length) ] is func
+  result
+    var ARRAY_IDX_RANGE: indexRange is ARRAY_IDX_RANGE.value;
+  begin
+    indexRange.minIdx := minIdx;
+    indexRange.maxIdx := pred(minIdx + length);
+  end func;
+
+
 (**
  *  Abstract data type, describing resizable arrays with [[integer]] index.
  *  Arrays with non-integer index are described in [[idxarray]].
@@ -212,15 +221,17 @@ const func type: array (in type: baseType) is func
 
       (**
        *  Generate an array of ''elements'' with indices in a specified range.
-       *  The range is specified with a bracketed range expression like [A .. B].
-       *  An array with 5 char elements indexed from 0 to 4 is created with:
-       *   [0 .. 4] times 'x'
+       *  The range is specified with a bracketed range expression like
+       *  [A .. B] or [A len L]. An array with 5 char elements indexed
+       *  from 0 to 4 is created with:
+       *   [0 .. 4] times 'x'    or    [0 len 5] times 'x'
        *  This is equivalent to
        *   [0] ('x', 'x', 'x', 'x', 'x')
        *  An empty array can be generated with
-       *   [0 .. -1] times "asdf"
-       *  @return an array with B - A + 1 ''elements''.
-       *  @exception RANGE_ERROR If B - A is less than -1.
+       *   [0 .. -1] times ""    or    [0 len 0] times ""
+       *  @return an array with B - A + 1 ''elements'' (when [A .. B] is used), or
+       *          an array with L ''elements'' (when [A len L] is used).
+       *  @exception RANGE_ERROR If B - A is less than -1, or if L is less than 0.
        *  @exception MEMORY_ERROR Not enough memory to represent the result.
        *)
       const func arrayType: (in ARRAY_IDX_RANGE: indexRange) times
