@@ -1048,7 +1048,7 @@ static int runTest (int checkNumericValue)
           } /* if */
         } while (checkNumericValue && readFailed && repeatCount < 10);
         if (checkNumericValue && repeatCount != 0) {
-	  if (readFailed) {
+          if (readFailed) {
             fprintf(logFile, "\n *** No numeric result in \"%s\".\n", fileName);
           } else {
             numberPresentAfterDelay++;

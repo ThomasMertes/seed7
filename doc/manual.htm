@@ -1603,11 +1603,11 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_func">func</a> <span class="type">aType</span>: source)       <span class="keywd">is action</span> <span class="stri">"PRC_CPY"</span>;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">aType</span>: dest) := (<span class="keywd">ref</span> <a class="type" href="#types_varfunc">varfunc</a> <span class="type">aType</span>: source) <span class="keywd">is action</span> <span class="stri">"PRC_CPY"</span>;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <span class="type">ACTION</span>: dest) := (<span class="keywd">in</span> <span class="type">ACTION</span>: source)                <span class="keywd">is action</span> <span class="stri">"ACT_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_boolean">boolean</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: source)              <span class="keywd">is action</span> <span class="stri">"BLN_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: source)              <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_boolean">boolean</a>: dest) <a name="stats_(inout_boolean):=(in_boolean)">:=</a> (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: source)              <span class="keywd">is action</span> <span class="stri">"BLN_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_integer">integer</a>: dest) <a name="stats_(inout_integer):=(in_integer)">:=</a> (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: source)              <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bigInteger">bigInteger</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bigInteger">bigInteger</a>: source)        <span class="keywd">is action</span> <span class="stri">"BIG_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_char">char</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_char">char</a>: source)                    <span class="keywd">is action</span> <span class="stri">"CHR_CPY"</span>;
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_string">string</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: source)                <span class="keywd">is action</span> <span class="stri">"STR_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_char">char</a>: dest) <a name="stats_(inout_char):=(in_char)">:=</a> (<span class="keywd">in</span> <a class="type" href="#types_char">char</a>: source)                    <span class="keywd">is action</span> <span class="stri">"CHR_CPY"</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_string">string</a>: dest) <a name="stats_(inout_string):=(in_string)">:=</a> (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: source)                <span class="keywd">is action</span> <span class="stri">"STR_CPY"</span>;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bin64">bin64</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bin64">bin64</a>: source)                  <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bin32">bin32</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bin32">bin32</a>: source)                  <span class="keywd">is action</span> <span class="stri">"INT_CPY"</span>;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">inout</span> <a class="type" href="#types_bstring">bstring</a>: dest) := (<span class="keywd">in</span> <a class="type" href="#types_bstring">bstring</a>: source)              <span class="keywd">is action</span> <span class="stri">"BST_CPY"</span>;
@@ -2617,6 +2617,24 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     integer(<span class="stri">"Cafe"</span>, 16) <b>&rArr;</b> 51966,
                     integer(<span class="stri">"0"</span>, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     integer(<span class="stri">"qwertyuiop"</span>, 37) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">bytes</span>(A, S, E) Convert an integer into a <a class="type" href="#types_string">string</a> of bytes
+                  ( Type of argument S: <span class="type">signedness</span> (UNSIGNED and SIGNED),
+                    Type of argument E: <span class="type">endianness</span> (LE and BE),
+                    Type of result: <a class="type" href="#types_string">string</a>,
+                    bytes(1413829460, SIGNED, BE) <b>&rArr;</b> "TEST",
+                    bytes(1497451343, SIGNED, LE) <b>&rArr;</b> "OKAY" )
+      <span class="func">bytes</span>(A, S, E, len) Convert an integer into a <a class="type" href="#types_string">string</a> of len bytes
+                  ( Type of argument S: <span class="type">signedness</span> (UNSIGNED and SIGNED),
+                    Type of argument E: <span class="type">endianness</span> (LE and BE),
+                    Type of result: <a class="type" href="#types_string">string</a>,
+                    bytes(1413829460, SIGNED, BE, 5) <b>&rArr;</b> "\0;TEST"
+                    bytes(1413829460, SIGNED, BE, 4) <b>&rArr;</b> "TEST"
+                    bytes(1413829460, SIGNED, BE, 3) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">bytes2Int</span>(A, S, E) Convert a <a class="type" href="#types_string">string</a> of bytes to an integer
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    Type of argument S: <span class="type">signedness</span> (UNSIGNED and SIGNED),
+                    Type of argument E: <span class="type">endianness</span> (LE and BE),
+                    bytes2Int("\210;\2;\150;I", UNSIGNED, LE) <b>&rArr;</b> 1234567890 )
       <span class="func">sqrt</span>(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0,
                     sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
@@ -2938,6 +2956,24 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     bigInteger(<span class="stri">"Cafe"</span>, 16) <b>&rArr;</b> 51966_,
                     bigInteger(<span class="stri">"0"</span>, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     bigInteger(<span class="stri">"qwertyuiop"</span>, 37) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">bytes</span>(A, S, E) Convert a bigInteger into a <a class="type" href="#types_string">string</a> of bytes
+                  ( Type of argument S: <span class="type">signedness</span> (UNSIGNED and SIGNED),
+                    Type of argument E: <span class="type">endianness</span> (LE and BE),
+                    Type of result: <a class="type" href="#types_string">string</a>,
+                    bytes(1413829460_, SIGNED, BE) <b>&rArr;</b> "TEST",
+                    bytes(1497451343_, SIGNED, LE) <b>&rArr;</b> "OKAY" )
+      <span class="func">bytes</span>(A, S, E, len) Convert a bigInteger into a <a class="type" href="#types_string">string</a> of len bytes
+                  ( Type of argument S: <span class="type">signedness</span> (UNSIGNED and SIGNED),
+                    Type of argument E: <span class="type">endianness</span> (LE and BE),
+                    Type of result: <a class="type" href="#types_string">string</a>,
+                    bytes(1413829460_, SIGNED, BE, 5) <b>&rArr;</b> "\0;TEST"
+                    bytes(1413829460_, SIGNED, BE, 4) <b>&rArr;</b> "TEST"
+                    bytes(1413829460_, SIGNED, BE, 3) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">bytes2BigInt</span>(A, S, E) Convert a <a class="type" href="#types_string">string</a> of bytes to a bigInteger
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    Type of argument S: <span class="type">signedness</span> (UNSIGNED and SIGNED),
+                    Type of argument E: <span class="type">endianness</span> (LE and BE),
+                    bytes2BigInt("\210;\2;\150;I", UNSIGNED, LE) <b>&rArr;</b> 1234567890_ )
       <span class="func">sqrt</span>(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0_
                     sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
@@ -3559,11 +3595,17 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="func">cos</span>(A)    Cosine
       <span class="func">tan</span>(A)    Tangent
       <span class="func">exp</span>(A)    Exponential function
+      <span class="func">expm1</span>(A)  Compute <span class="func">exp</span>(x) - 1.0
       <span class="func">log</span>(A)    Natural logarithm
                   ( log(A) is okay for A > 0.0,
                     log(1.0)  <b>&rArr;</b>  0.0,
                     log(0.0)  <b>&rArr;</b> -Infinity,
                     log(-1.0) <b>&rArr;</b>  NaN )
+      <span class="func">log1p</span>(A)  Compute <span class="func">log</span>(1.0 + x)
+                  ( log1p(A) is okay for A > -1.0,
+                    log1p(0.0)  <b>&rArr;</b>  0.0,
+                    log1p(-1.0)  <b>&rArr;</b> -Infinity,
+                    log1p(-2.0) <b>&rArr;</b>  NaN )
       <span class="func">log10</span>(A)  Base 10 logarithm
                   ( log10(A) is okay for A > 0.0,
                     log10(1.0)  <b>&rArr;</b>  0.0,
@@ -4134,10 +4176,12 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
   second line defines <tt><span class="type">structArrayType</span></tt> as an array type with <tt><span class="type">aStructType</span></tt>
   elements. Variables of these types are declared with:
 </p><pre class="indent">
-<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr1 <span class="keywd">is</span> <span class="type">striArrayType</span>.value;
-<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr2 <span class="keywd">is</span> 0 <span class="op">times</span> <span class="stri">""</span>;
-<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr3 <span class="keywd">is</span> [] (<span class="stri">"one"</span>, <span class="stri">"two"</span>);
-<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr4 <span class="keywd">is</span> [0] (<span class="stri">"zero"</span>, <span class="stri">"one"</span>);
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr1 <span class="keywd">is</span> <span class="type">striArrayType</span>.value; <span class="comment"># Empty array with starting index 1.</span>
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr2 <span class="keywd">is</span> 0 <span class="op">times</span> <span class="stri">""</span>;          <span class="comment"># Empty array with starting index 1.</span>
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr4 <span class="keywd">is</span> [0 .. -1] <span class="op">times</span> <span class="stri">""</span>;  <span class="comment"># Empty array with starting index 0.</span>
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr3 <span class="keywd">is</span> [0 len 0] <span class="op">times</span> <span class="stri">""</span>;  <span class="comment"># Empty array with starting index 0.</span>
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr5 <span class="keywd">is</span> [] (<span class="stri">"one"</span>, <span class="stri">"two"</span>);
+<span class="keywd">var</span> <span class="type">striArrayType</span>: striArr6 <span class="keywd">is</span> [0] (<span class="stri">"zero"</span>, <span class="stri">"one"</span>);
 <span class="keywd">var</span> <span class="type">structArrayType</span>: structArr1 <span class="keywd">is</span> <span class="type">structArrayType</span>.value;
 <span class="keywd">var</span> <span class="type">structArrayType</span>: structArr2 <span class="keywd">is</span> 10 <span class="op">times</span> <span class="type">aStructType</span>.value;
 <span class="keywd">var</span> <span class="type">structArrayType</span>: structArr3 <span class="keywd">is</span> [42 .. 365] <span class="op">times</span> <span class="type">aStructType</span>.value;
@@ -4182,6 +4226,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     Right operand: <span class="type">baseType</span>,
                     A <span class="op">times</span> B Generates an <span class="type">array</span> <span class="type">baseType</span> with A elements of B,
                     3 <span class="op">times</span> B <b>&rArr;</b> [] (B, B, B),
+                    0 <span class="op">times</span> B <b>&rArr;</b> empty array with starting index 1,
                     (1 <span class="op">times</span> B)[1] <b>&rArr;</b> B,
                     (0 <span class="op">times</span> B)[1] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_INDEX_ERROR">INDEX_ERROR</a>,
                     -1 <span class="op">times</span> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
@@ -4190,8 +4235,15 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
                     Type of argument C: <span class="type">baseType</span>,
                     [ A .. B ] <span class="op">times</span> C Generates an <span class="type">array</span> <span class="type">baseType</span>
                     with pred(B - A) elements of C,
-                    [ -1 .. -2 ] <span class="op">times</span> B <b>&rArr;</b> empty array,
+                    [ -1 .. -2 ] <span class="op">times</span> B <b>&rArr;</b> empty array with starting index -1,
                     [ -1 .. -3 ] <span class="op">times</span> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      [ A len L ] <span class="op">times</span> C    Array generation
+                  ( Type of arguments A and L: <a class="type" href="#types_integer">integer</a>,
+                    Type of argument C: <span class="type">baseType</span>,
+                    [ A len L ] <span class="op">times</span> C Generates an <span class="type">array</span> <span class="type">baseType</span>
+                    with L elements of C,
+                    [ -1 len 0 ] <span class="op">times</span> B <b>&rArr;</b> empty array with starting index -1,
+                    [ -1 len -1 ] <span class="op">times</span> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="type">indexType</span> <span class="op">times</span> A   Array generation for indices from <span class="type">indexType</span>.<span class="var">first</span>
                           to <span class="type">indexType</span>.<span class="var">last</span>.
                   ( Type of argument A: <span class="type">baseType</span>,
@@ -5637,6 +5689,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="func">waitFor</span>(process)  Wait until process has terminated
       <span class="func">setSearchPath</span>(searchPath)  Set the search path of the current process
                   ( Type of argument searchPath: <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a> )
+      <span class="func">ignore</span>(A) Ignore value
 </pre><p></p>
 
 <a name="types_category"><h3>5.25 category</h3></a>
@@ -8401,8 +8454,8 @@ clientSocket := <span class="func">openInetSocket</span>(1080);
   Since sockets use the <tt><a class="type" href="#types_file">file</a></tt> interface functions like <tt><span class="func">writeln</span></tt>
   and <tt><span class="func">getln</span></tt> can be used:
 </p><pre class="indent">
-$ include <span class="stri">"seed7_05.s7i"</span>;
-  include <span class="stri">"socket.s7i"</span>;
+$ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="stri">"socket.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
@@ -8492,8 +8545,8 @@ aTlsSocket := <span class="func">openTlsSocket</span>(<span class="stri">"www.go
   use the <tt><a class="type" href="#types_file">file</a></tt> interface functions like <tt><span class="func">writeln</span></tt> and <tt><span class="func">getln</span></tt> can
   be used:
 </p><pre class="indent">
-$ include <span class="stri">"seed7_05.s7i"</span>;
-  include <span class="stri">"tls.s7i"</span>;
+$ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="stri">"tls.s7i"</span>;
 
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
@@ -8513,7 +8566,42 @@ $ include <span class="stri">"seed7_05.s7i"</span>;
   The example above sends a HTTPS request to a server and gets
   the status code from the response. The example above consists
   of code from the library <span class="stri">"<span class="lib">gethttps.s7i</span>"</span>.
-</p>
+</p><p>
+  The function <tt><span class="func">openServerTls</span></tt> can be used to open a TLS socket
+  at the server side. The library <span class="stri">"<span class="lib">x509cert.s7i</span>"</span> defines the
+  self signed certificate <tt><span class="var">stdCertificate</span></tt>. This certificate
+  can be used to open a TLS server socket:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="stri">"socket.s7i"</span>;
+  <span class="keywd">include</span> <span class="stri">"listener.s7i"</span>;
+  <span class="keywd">include</span> <span class="stri">"tls.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <span class="type">listener</span>: aListener <span class="keywd">is</span> <span class="type">listener</span>.value;
+    <span class="keywd">var</span> <a class="type" href="#types_file">file</a>: sock <span class="keywd">is</span> <span class="var">STD_NULL</span>;
+    <span class="keywd">var</span> <a class="type" href="#types_file">file</a>: tlsSock <span class="keywd">is</span> <span class="var">STD_NULL</span>;
+    <span class="keywd">var</span> <a class="type" href="#types_string">string</a>: line <span class="keywd">is</span> <span class="stri">""</span>;
+  <span class="keywd">begin</span>
+    aListener := <span class="func">openInetListener</span>(11111);
+    <span class="func">listen</span>(aListener, 10);
+    <span class="keywd">while</span> <span class="var">TRUE</span> <span class="keywd">do</span>
+      sock := <span class="func">accept</span>(aListener);
+      tlsSock := <span class="func">openServerTls</span>(sock, <span class="var">stdCertificate</span>);
+      <span class="keywd">if</span> tlsSock <> <span class="var">STD_NULL</span> <span class="keywd">then</span>
+        <span class="func">writeln</span>(<span class="stri">"Success"</span>);
+        <span class="keywd">repeat</span>
+          line := <span class="func">getln</span>(tlsSock);
+          <span class="func">writeln</span>(line <& <span class="stri">" received"</span>);
+        <span class="keywd">until</span> line = <span class="stri">""</span>;
+        <span class="func">close</span>(tlsSock);
+      <span class="keywd">else</span>
+        <span class="func">writeln</span>(<span class="stri">" *** Cannot open TLS connection."</span>);
+      <span class="keywd">end if</span>;
+    <span class="keywd">end while</span>;
+  <span class="keywd">end func;
+</pre>
 
 <a name="file_User_defined_file_types"><h3>8.11 User defined file types</h3></a>
 <p>
@@ -11139,9 +11227,9 @@ my_dir := homeDir;
   independence by using database drivers as abstraction layers
   between the application and the database. There are database
   drivers for MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird,
-  Interbase, Db2 and SQL Server databases. Databases can also be
-  accessed via the ODBC interface. The following example uses the
-  datapase abstraction API:
+  Interbase, Db2, Informix and SQL Server databases. Databases can
+  also be accessed via the ODBC interface. The following example
+  uses the datapase abstraction API:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: dbDemo <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">local</span>
@@ -11190,9 +11278,10 @@ my_dir := homeDir;
   <tr><td>Firebird      </td><td> DB_FIRE       </td><td>              </td><td></td></tr>
   <tr><td>Interbase     </td><td> DB_FIRE       </td><td>              </td><td></td></tr>
   <tr><td>Db2           </td><td> DB_DB2        </td><td>  50000       </td><td></td></tr>
+  <tr><td>Informix      </td><td> DB_INFORMIX   </td><td>   1526       </td><td></td></tr>
   <tr><td>SQL Server    </td><td> DB_SQL_SERVER </td><td>   1433       </td><td></td></tr>
   <tr><td> various DBs  </td><td> DB_ODBC       </td><td>              </td><td> Needs an ODBC driver to connect to a database.</td></tr>
-  <tr><td>Sybase based  </td><td> DB_TDS        </td><td>   1433       </td><td>Supports SQL Server and Sybase.</td></tr>
+  <tr><td>Sybase based  </td><td> DB_TDS        </td><td>   1433       </td><td> Supports SQL Server and Sybase.</td></tr>
 </table></dd></dl><p>
   A basic function to open a database is:
 </p><pre class="indent">
@@ -11272,7 +11361,22 @@ currDb := <span class="func">openDatabase</span>(<span class="var">DB_SQLITE</sp
   For a SQLite database <tt>host</tt> must be <tt><span class="stri">""</span></tt> and <tt>port</tt> must be 0.
 </p>
 
-<a name="database_Opening_a_ODBC_database_connection"><h4>13.1.5 Opening a ODBC database connection</h4></a>
+<a name="database_Opening_an_Informix_database_connection"><h4>13.1.5 Opening an Informix database connection</h4></a>
+<p>
+  When using the <tt><span class="var">DB_INFORMIX</span></tt> driver you need to specify also a <tt>server</tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">database</span>: <b><span class="func">openDatabase</span></b> (<span class="var">DB_INFORMIX</span>, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: host, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: port,
+                                   <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: server, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: dbName,
+                                   <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: user, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: password)
+</pre><p>
+  A Informix database can be opened with:
+</p><pre class="indent">
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_INFORMIX</span>, <span class="stri">""</span>, 0, <span class="stri">"serverName"</span>, <span class="stri">"databaseName"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+
+currDb := <span class="func">openDatabase</span>(<span class="var">DB_INFORMIX</span>, <span class="stri">"www.example.org"</span>, 0, <span class="stri">"testServer"</span>, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+</pre>
+
+<a name="database_Opening_an_ODBC_database_connection"><h4>13.1.6 Opening an ODBC database connection</h4></a>
 <p>
   The Seed7 database driver <tt><span class="var">DB_ODBC</span></tt> is special, as the ODBC
   interface itself allows connecting to several database types.
@@ -12089,8 +12193,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BIG_DIV</td>             <td>big_div</td>             <td>bigDiv</td></tr>
     <tr><td>BIG_DIV_REM</td>         <td>big_div_rem</td>         <td>bigDivRem</td></tr>
     <tr><td>BIG_EQ</td>              <td>big_eq</td>              <td>bigEq</td></tr>
-    <tr><td>BIG_FROM_BSTRI_BE</td>   <td>big_fromBStriBe</td>     <td>bigFromBStriBe</td></tr>
-    <tr><td>BIG_FROM_BSTRI_LE</td>   <td>big_fromBStriLe</td>     <td>bigFromBStriLe</td></tr>
+    <tr><td>BIG_FROM_BSTRI_BE</td>   <td>big_from_bstri_be</td>   <td>bigFromBStriBe</td></tr>
+    <tr><td>BIG_FROM_BSTRI_LE</td>   <td>big_from_bstri_le</td>   <td>bigFromBStriLe</td></tr>
     <tr><td>BIG_GCD</td>             <td>big_gcd</td>             <td>bigGcd</td></tr>
     <tr><td>BIG_GE</td>              <td>big_ge</td>              <td>bigCmp >= 0</td></tr>
     <tr><td>BIG_GT</td>              <td>big_gt</td>              <td>bigCmp > 0</td></tr>
@@ -12127,8 +12231,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BIG_SBTR_ASSIGN</td>     <td>big_sbtr_assign</td>     <td>bigSbtrAssign, bigAddAssignSignedDigit</td></tr>
     <tr><td>BIG_STR</td>             <td>big_str</td>             <td>bigStr</td></tr>
     <tr><td>BIG_SUCC</td>            <td>big_succ</td>            <td>bigSucc</td></tr>
-    <tr><td>BIG_TO_BSTRI_BE</td>     <td>big_toBStriBe</td>       <td>bigToBStriBe</td></tr>
-    <tr><td>BIG_TO_BSTRI_LE</td>     <td>big_toBStriLe</td>       <td>bigToBStriLe</td></tr>
+    <tr><td>BIG_TO_BSTRI_BE</td>     <td>big_to_bstri_be</td>     <td>bigToBStriBe</td></tr>
+    <tr><td>BIG_TO_BSTRI_LE</td>     <td>big_to_bstri_le</td>     <td>bigToBStriLe</td></tr>
     <tr><td>BIG_VALUE</td>           <td>big_value</td>           <td>bigValue</td></tr>
     <tr><td>BIG_radix</td>           <td>big_radix</td>           <td>bigRadix</td></tr>
 </table><p></p>
@@ -12251,8 +12355,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>CMD_GET_GROUP</td>       <td>cmd_get_group</td>       <td>cmdGetGroup</td></tr>
     <tr><td>CMD_GET_MTIME</td>       <td>cmd_get_mtime</td>       <td>cmdGetMTime</td></tr>
     <tr><td>CMD_GET_OWNER</td>       <td>cmd_get_owner</td>       <td>cmdGetOwner</td></tr>
-    <tr><td>CMD_GET_SEARCH_PATH</td> <td>cmd_getSearchPath</td>   <td>cmdGetSearchPath</td></tr>
-    <tr><td>CMD_HOME_DIR</td>        <td>cmd_homeDir</td>         <td>cmdHomeDir</td></tr>
+    <tr><td>CMD_GET_SEARCH_PATH</td> <td>cmd_get_search_path</td> <td>cmdGetSearchPath</td></tr>
+    <tr><td>CMD_HOME_DIR</td>        <td>cmd_home_dir</td>        <td>cmdHomeDir</td></tr>
     <tr><td>CMD_LS</td>              <td>cmd_ls</td>              <td>cmdLs</td></tr>
     <tr><td>CMD_MKDIR</td>           <td>cmd_mkdir</td>           <td>cmdMkdir</td></tr>
     <tr><td>CMD_MOVE</td>            <td>cmd_move</td>            <td>cmdMove</td></tr>
@@ -12265,7 +12369,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>CMD_SET_GROUP</td>       <td>cmd_set_group</td>       <td>cmdSetGroup</td></tr>
     <tr><td>CMD_SET_MTIME</td>       <td>cmd_set_mtime</td>       <td>cmdSetMTime</td></tr>
     <tr><td>CMD_SET_OWNER</td>       <td>cmd_set_owner</td>       <td>cmdSetOwner</td></tr>
-    <tr><td>CMD_SET_SEARCH_PATH</td> <td>cmd_setSearchPath</td>   <td>cmdSetSearchPath</td></tr>
+    <tr><td>CMD_SET_SEARCH_PATH</td> <td>cmd_set_search_path</td> <td>cmdSetSearchPath</td></tr>
     <tr><td>CMD_SHELL</td>           <td>cmd_shell</td>           <td>cmdShell</td></tr>
     <tr><td>CMD_SHELL_ESCAPE</td>    <td>cmd_shell_escape</td>    <td>cmdShellEscape</td></tr>
     <tr><td>CMD_SYMLINK</td>         <td>cmd_symlink</td>         <td>cmdSymlink</td></tr>
@@ -12328,7 +12432,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_CLEAR</td>           <td>drw_clear</td>           <td>drwClear</td></tr>
     <tr><td>DRW_CMP</td>             <td>drw_cmp</td>             <td>uintCmpGeneric((genericType)(a))</td></tr>
     <tr><td>DRW_COLOR</td>           <td>drw_color</td>           <td>drwColor</td></tr>
-    <tr><td>DRW_CONVPOINTLIST</td>   <td>drw_convPointList</td>   <td>drwConvPointList</td></tr>
+    <tr><td>DRW_CONV_POINT_LIST</td> <td>drw_conv_point_list</td> <td>drwConvPointList</td></tr>
     <tr><td>DRW_COPYAREA</td>        <td>drw_copyarea</td>        <td>drwCopyArea</td></tr>
     <tr><td>DRW_CPY</td>             <td>drw_cpy</td>             <td>drwCpy</td></tr>
     <tr><td>DRW_CREATE</td>          <td>drw_create</td>          <td>drwCreate</td></tr>
@@ -12340,15 +12444,16 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_FCIRCLE</td>         <td>drw_fcircle</td>         <td>drwFCircle</td></tr>
     <tr><td>DRW_FELLIPSE</td>        <td>drw_fellipse</td>        <td>drwFEllipse</td></tr>
     <tr><td>DRW_FLUSH</td>           <td>drw_flush</td>           <td>drwFlush</td></tr>
-    <tr><td>DRW_FPOLYLINE</td>       <td>drw_fpolyLine</td>       <td>drwFPolyLine</td></tr>
-    <tr><td>DRW_GENPOINTLIST</td>    <td>drw_genPointList</td>    <td>drwGenPointList</td></tr>
-    <tr><td>DRW_GET</td>             <td>drw_get</td>             <td>drwGet</td></tr>
-    <tr><td>DRW_GETIMAGE</td>        <td>drw_getImage</td>        <td>drwGetImage</td></tr>
-    <tr><td>DRW_GETIMAGEPIXEL</td>   <td>drw_getImagePixel</td>   <td>drwGetImagePixel</td></tr>
-    <tr><td>DRW_GETPIXEL</td>        <td>drw_getPixel</td>        <td>drwGetPixel</td></tr>
+    <tr><td>DRW_FPOLY_LINE</td>      <td>drw_fpoly_line</td>      <td>drwFPolyLine</td></tr>
+    <tr><td>DRW_GEN_POINT_LIST</td>  <td>drw_gen_point_list</td>  <td>drwGenPointList</td></tr>
+    <tr><td>DRW_GET_IMAGE_PIXEL</td> <td>drw_get_image_pixel</td> <td>drwGetImagePixel</td></tr>
+    <tr><td>DRW_GET_PIXEL</td>       <td>drw_get_pixel</td>       <td>drwGetPixel</td></tr>
+    <tr><td>DRW_GET_PIXEL_ARRAY</td> <td>drw_get_pixel_array</td> <td>drwGetPixelArray</td></tr>
+    <tr><td>DRW_GET_PIXEL_DATA</td>  <td>drw_get_pixel_data</td>  <td>drwGetPixelData</td></tr>
+    <tr><td>DRW_GET_PIXMAP</td>      <td>drw_get_pixmap</td>      <td>drwGetPixmap</td></tr>
+    <tr><td>DRW_GET_PIXMAP_FROM_PIXELS</td> <td>drw_get_pixmap_from_pixels</td> <td>drwGetPixmapFromPixels</td></tr>
     <tr><td>DRW_HASHCODE</td>        <td>drw_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>DRW_HEIGHT</td>          <td>drw_height</td>          <td>drwHeight</td></tr>
-    <tr><td>DRW_IMAGE</td>           <td>drw_image</td>           <td>drwImage</td></tr>
     <tr><td>DRW_LINE</td>            <td>drw_line</td>            <td>drwLine</td></tr>
     <tr><td>DRW_NE</td>              <td>drw_ne</td>              <td>!=</td></tr>
     <tr><td>DRW_NEW_PIXMAP</td>      <td>drw_new_pixmap</td>      <td>drwNewPixmap</td></tr>
@@ -12356,16 +12461,17 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_OPEN_SUB_WINDOW</td> <td>drw_open_sub_window</td> <td>drwOpenSubWindow</td></tr>
     <tr><td>DRW_PARC</td>            <td>drw_parc</td>            <td>drwPArc</td></tr>
     <tr><td>DRW_PCIRCLE</td>         <td>drw_pcircle</td>         <td>drwPCircle</td></tr>
+    <tr><td>DRW_PFARC</td>           <td>drw_pfarc</td>           <td>drwPFArc</td></tr>
     <tr><td>DRW_PFARCCHORD</td>      <td>drw_pfarcchord</td>      <td>drwPFArcChord</td></tr>
     <tr><td>DRW_PFARCPIESLICE</td>   <td>drw_pfarcpieslice</td>   <td>drwFArcPieSlice</td></tr>
     <tr><td>DRW_PFCIRCLE</td>        <td>drw_pfcircle</td>        <td>drwPFCircle</td></tr>
     <tr><td>DRW_PFELLIPSE</td>       <td>drw_pfellipse</td>       <td>drwPFEllipse</td></tr>
-    <tr><td>DRW_PIXELTORGB</td>      <td>drw_pixelToRgb</td>      <td>drwPixelToRgb</td></tr>
+    <tr><td>DRW_PIXEL_TO_RGB</td>    <td>drw_pixel_to_rgb</td>    <td>drwPixelToRgb</td></tr>
     <tr><td>DRW_PLINE</td>           <td>drw_pline</td>           <td>drwPLine</td></tr>
     <tr><td>DRW_POINT</td>           <td>drw_point</td>           <td>drwPoint</td></tr>
     <tr><td>DRW_POINTER_XPOS</td>    <td>drw_pointer_xpos</td>    <td>drwPointerXpos</td></tr>
     <tr><td>DRW_POINTER_YPOS</td>    <td>drw_pointer_ypos</td>    <td>drwPointerYpos</td></tr>
-    <tr><td>DRW_POLYLINE</td>        <td>drw_polyLine</td>        <td>drwPolyLine</td></tr>
+    <tr><td>DRW_POLY_LINE</td>       <td>drw_poly_line</td>       <td>drwPolyLine</td></tr>
     <tr><td>DRW_PPOINT</td>          <td>drw_ppoint</td>          <td>drwPPoint</td></tr>
     <tr><td>DRW_PRECT</td>           <td>drw_prect</td>           <td>drwPRect</td></tr>
     <tr><td>DRW_PUT</td>             <td>drw_put</td>             <td>drwPut</td></tr>
@@ -12374,15 +12480,16 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_RGBCOL</td>          <td>drw_rgbcol</td>          <td>drwRgbColor</td></tr>
     <tr><td>DRW_SCREEN_HEIGHT</td>   <td>drw_screen_height</td>   <td>drwScreenHeight</td></tr>
     <tr><td>DRW_SCREEN_WIDTH</td>    <td>drw_screen_width</td>    <td>drwScreenWidth</td></tr>
-    <tr><td>DRW_SETCLOSEACTION</td>  <td>drw_setCloseAction</td>  <td>drwSetCloseAction</td></tr>
-    <tr><td>DRW_SETCONTENT</td>      <td>drw_setContent</td>      <td>drwSetContent</td></tr>
-    <tr><td>DRW_SETCURSORVISIBLE</td> <td>drw_setCursorVisible</td> <td>drwSetCursorVisible</td></tr>
-    <tr><td>DRW_SETPOS</td>          <td>drw_setPos</td>          <td>drwSetPos</td></tr>
-    <tr><td>DRW_SETTRANSPARENTCOLOR</td> <td>drw_setTransparentColor</td> <td>drwSetTransparentColor</td></tr>
-    <tr><td>DRW_SETWINDOWNAME</td>   <td>drw_setWindowName</td>   <td>drwSetWindowName</td></tr>
+    <tr><td>DRW_SET_CLOSE_ACTION</td> <td>drw_set_close_action</td> <td>drwSetCloseAction</td></tr>
+    <tr><td>DRW_SET_CONTENT</td>     <td>drw_set_content</td>     <td>drwSetContent</td></tr>
+    <tr><td>DRW_SET_CURSOR_VISIBLE</td> <td>drw_set_cursor_visible</td> <td>drwSetCursorVisible</td></tr>
+    <tr><td>DRW_SET_POINTER_POS</td> <td>drw_set_pointer_pos</td> <td>drwSetPointerPos</td></tr>
+    <tr><td>DRW_SET_POS</td>         <td>drw_set_pos</td>         <td>drwSetPos</td></tr>
+    <tr><td>DRW_SET_TRANSPARENT_COLOR</td> <td>drw_set_transparent_color</td> <td>drwSetTransparentColor</td></tr>
+    <tr><td>DRW_SET_WINDOW_NAME</td> <td>drw_set_window_name</td> <td>drwSetWindowName</td></tr>
     <tr><td>DRW_TEXT</td>            <td>drw_text</td>            <td>drwText</td></tr>
-    <tr><td>DRW_TOBOTTOM</td>        <td>drw_toBottom</td>        <td>drwToBottom</td></tr>
-    <tr><td>DRW_TOTOP</td>           <td>drw_toTop</td>           <td>drwToTop</td></tr>
+    <tr><td>DRW_TO_BOTTOM</td>       <td>drw_to_bottom</td>       <td>drwToBottom</td></tr>
+    <tr><td>DRW_TO_TOP</td>          <td>drw_to_top</td>          <td>drwToTop</td></tr>
     <tr><td>DRW_VALUE</td>           <td>drw_value</td>           <td>drwValue</td></tr>
     <tr><td>DRW_WIDTH</td>           <td>drw_width</td>           <td>drwWidth</td></tr>
     <tr><td>DRW_XPOS</td>            <td>drw_xpos</td>            <td>drwXPos</td></tr>
@@ -12468,6 +12575,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FLT_DOUBLE2BITS</td>     <td>flt_double2bits</td>     <td>(x.aDouble=a, x.bits)</td></tr>
     <tr><td>FLT_EQ</td>              <td>flt_eq</td>              <td>==</td></tr>
     <tr><td>FLT_EXP</td>             <td>flt_exp</td>             <td>exp</td></tr>
+    <tr><td>FLT_EXPM1</td>           <td>flt_expm1</td>           <td>expm1</td></tr>
     <tr><td>FLT_FLOOR</td>           <td>flt_floor</td>           <td>floor</td></tr>
     <tr><td>FLT_GE</td>              <td>flt_ge</td>              <td>&gt;=</td></tr>
     <tr><td>FLT_GT</td>              <td>flt_gt</td>              <td>&gt;</td></tr>
@@ -12481,6 +12589,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FLT_LE</td>              <td>flt_le</td>              <td>&lt;=</td></tr>
     <tr><td>FLT_LOG</td>             <td>flt_log</td>             <td>log</td></tr>
     <tr><td>FLT_LOG10</td>           <td>flt_log10</td>           <td>log10</td></tr>
+    <tr><td>FLT_LOG1P</td>           <td>flt_log1p</td>           <td>log1p</td></tr>
     <tr><td>FLT_LOG2</td>            <td>flt_log2</td>            <td>log2</td></tr>
     <tr><td>FLT_LSHIFT</td>          <td>flt_lshift</td>          <td>ldexp</td></tr>
     <tr><td>FLT_LT</td>              <td>flt_lt</td>              <td>&lt;</td></tr>
@@ -12693,20 +12802,20 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <a name="actions_pollData"><h3>14.22 Actions for the type pollData</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>pollib.c function</th>   <th>pol_unx.c/pol_sel.c function</th></tr>
-    <tr><td>POL_ADD_CHECK</td>       <td>pol_addCheck</td>        <td>polAddCheck</td></tr>
+    <tr><td>POL_ADD_CHECK</td>       <td>pol_add_check</td>       <td>polAddCheck</td></tr>
     <tr><td>POL_CLEAR</td>           <td>pol_clear</td>           <td>polClear</td></tr>
     <tr><td>POL_CPY</td>             <td>pol_cpy</td>             <td>polCpy</td></tr>
     <tr><td>POL_CREATE</td>          <td>pol_create</td>          <td>polCreate</td></tr>
     <tr><td>POL_DESTR</td>           <td>pol_destr</td>           <td>polDestr</td></tr>
     <tr><td>POL_EMPTY</td>           <td>pol_empty</td>           <td>polEmpty</td></tr>
-    <tr><td>POL_GET_CHECK</td>       <td>pol_getCheck</td>        <td>polGetCheck</td></tr>
-    <tr><td>POL_GET_FINDING</td>     <td>pol_getFinding</td>      <td>polGetFinding</td></tr>
-    <tr><td>POL_HAS_NEXT</td>        <td>pol_hasNext</td>         <td>polHasNext</td></tr>
-    <tr><td>POL_ITER_CHECKS</td>     <td>pol_iterChecks</td>      <td>polIterChecks</td></tr>
-    <tr><td>POL_ITER_FINDINGS</td>   <td>pol_iterFindings</td>    <td>polIterFindings</td></tr>
-    <tr><td>POL_NEXT_FILE</td>       <td>pol_nextFile</td>        <td>polNextFile</td></tr>
+    <tr><td>POL_GET_CHECK</td>       <td>pol_get_check</td>       <td>polGetCheck</td></tr>
+    <tr><td>POL_GET_FINDING</td>     <td>pol_get_finding</td>     <td>polGetFinding</td></tr>
+    <tr><td>POL_HAS_NEXT</td>        <td>pol_has_next</td>        <td>polHasNext</td></tr>
+    <tr><td>POL_ITER_CHECKS</td>     <td>pol_iter_checks</td>     <td>polIterChecks</td></tr>
+    <tr><td>POL_ITER_FINDINGS</td>   <td>pol_iter_findings</td>   <td>polIterFindings</td></tr>
+    <tr><td>POL_NEXT_FILE</td>       <td>pol_next_file</td>       <td>polNextFile</td></tr>
     <tr><td>POL_POLL</td>            <td>pol_poll</td>            <td>polPoll</td></tr>
-    <tr><td>POL_REMOVE_CHECK</td>    <td>pol_removeCheck</td>     <td>polRemoveCheck</td></tr>
+    <tr><td>POL_REMOVE_CHECK</td>    <td>pol_remove_check</td>    <td>polRemoveCheck</td></tr>
     <tr><td>POL_VALUE</td>           <td>pol_value</td>           <td>polValue</td></tr>
 </table><p></p>
 
@@ -12863,7 +12972,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>RFL_NOT_ELEM</td>        <td>rfl_not_elem</td>        <td>!rflElem</td></tr>
     <tr><td>RFL_POS</td>             <td>rfl_pos</td>             <td>rflPos</td></tr>
     <tr><td>RFL_RANGE</td>           <td>rfl_range</td>           <td>rflRange</td></tr>
-    <tr><td>RFL_SETVALUE</td>        <td>rfl_setValue</td>        <td>rflSetValue</td></tr>
+    <tr><td>RFL_SET_VALUE</td>       <td>rfl_set_value</td>       <td>rflSetValue</td></tr>
     <tr><td>RFL_TAIL</td>            <td>rfl_tail</td>            <td>rflTail</td></tr>
     <tr><td>RFL_TRACE</td>           <td>rfl_trace</td>           <td>&nbsp;</td></tr>
     <tr><td>RFL_VALUE</td>           <td>rfl_value</td>           <td>rflValue</td></tr>
@@ -12945,8 +13054,9 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SOC_EQ</td>              <td>soc_eq</td>              <td>==</td></tr>
     <tr><td>SOC_GETC</td>            <td>soc_getc</td>            <td>socGetc</td></tr>
     <tr><td>SOC_GETS</td>            <td>soc_gets</td>            <td>socGets</td></tr>
-    <tr><td>SOC_GET_ADDR</td>        <td>soc_get_addr</td>        <td>socGetAddr</td></tr>
     <tr><td>SOC_GET_HOSTNAME</td>    <td>soc_get_hostname</td>    <td>socGetHostname</td></tr>
+    <tr><td>SOC_GET_LOCAL_ADDR</td>  <td>soc_get_local_addr</td>  <td>socGetLocalAddr</td></tr>
+    <tr><td>SOC_GET_PEER_ADDR</td>   <td>soc_get_peer_addr</td>   <td>socGetPeerAddr</td></tr>
     <tr><td>SOC_HAS_NEXT</td>        <td>soc_has_next</td>        <td>socHasNext</td></tr>
     <tr><td>SOC_INET_ADDR</td>       <td>soc_inet_addr</td>       <td>socInetAddr</td></tr>
     <tr><td>SOC_INET_LOCAL_ADDR</td> <td>soc_inet_local_addr</td> <td>socInetLocalAddr</td></tr>
@@ -12955,11 +13065,12 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SOC_LINE_READ</td>       <td>soc_line_read</td>       <td>socLineRead</td></tr>
     <tr><td>SOC_LISTEN</td>          <td>soc_listen</td>          <td>socListen</td></tr>
     <tr><td>SOC_NE</td>              <td>soc_ne</td>              <td>!=</td></tr>
+    <tr><td>SOC_ORD</td>             <td>soc_ord</td>             <td>(intType)</td></tr>
     <tr><td>SOC_RECV</td>            <td>soc_recv</td>            <td>socRecv</td></tr>
     <tr><td>SOC_RECVFROM</td>        <td>soc_recvfrom</td>        <td>socRecvfrom</td></tr>
     <tr><td>SOC_SEND</td>            <td>soc_send</td>            <td>socSend</td></tr>
     <tr><td>SOC_SENDTO</td>          <td>soc_sendto</td>          <td>socSendto</td></tr>
-    <tr><td>SOC_SET_OPT_BOOL</td>    <td>soc_setOptBool</td>      <td>socSetOptBool</td></tr>
+    <tr><td>SOC_SET_OPT_BOOL</td>    <td>soc_set_opt_bool</td>    <td>socSetOptBool</td></tr>
     <tr><td>SOC_SOCKET</td>          <td>soc_socket</td>          <td>socSocket</td></tr>
     <tr><td>SOC_WORD_READ</td>       <td>soc_word_read</td>       <td>socWordRead</td></tr>
     <tr><td>SOC_WRITE</td>           <td>soc_write</td>           <td>socWrite</td></tr>
@@ -13014,6 +13125,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SQL_NE_STMT</td>         <td>sql_ne_stmt</td>         <td>!=</td></tr>
     <tr><td>SQL_OPEN_DB2</td>        <td>sql_open_db2</td>        <td>sqlOpenDb2</td></tr>
     <tr><td>SQL_OPEN_FIRE</td>       <td>sql_open_fire</td>       <td>sqlOpenFire</td></tr>
+    <tr><td>SQL_OPEN_INFORMIX</td>   <td>sql_open_informix</td>   <td>sqlOpenInformix</td></tr>
     <tr><td>SQL_OPEN_LITE</td>       <td>sql_open_lite</td>       <td>sqlOpenLite</td></tr>
     <tr><td>SQL_OPEN_MY</td>         <td>sql_open_my</td>         <td>sqlOpenMy</td></tr>
     <tr><td>SQL_OPEN_OCI</td>        <td>sql_open_oci</td>        <td>sqlOpenOci</td></tr>
@@ -13343,18 +13455,20 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td>pollType</td>     <td>struct poll_based_pollStruct *</td>    <td>pol_unx.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
     <tr><td rowspan="2"><tt><span class="type">PRIMITIVE_WINDOW</span></tt></td> <td><a name="ffi_winType">winType</a></td>      <td>x11_winRecord *</td>                   <td>drw_x11.c</td>   <td>Functions cast from struct winStruct * to x11_winRecord *</td></tr>
     <tr><td>winType</td>      <td>win_winRecord *</td>                   <td>drw_win.c</td>   <td>Functions cast from struct winStruct * to win_winRecord *</td></tr>
-    <tr><td rowspan="6"><tt><span class="type">database</span></tt></td>         <td><a name="ffi_databaseType">databaseType</a></td> <td>dbType</td>                            <td>sql_fire.c</td>  <td>Functions cast from databaseType to dbType</td></tr>
+    <tr><td rowspan="7"><tt><span class="type">database</span></tt></td>         <td><a name="ffi_databaseType">databaseType</a></td> <td>dbType</td>                            <td>sql_cli.c</td>   <td>Functions cast from databaseType to dbType</td></tr>
+    <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_fire.c</td>  <td>Functions cast from databaseType to dbType</td></tr>
     <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_lite.c</td>  <td>Functions cast from databaseType to dbType</td></tr>
     <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_my.c</td>    <td>Functions cast from databaseType to dbType</td></tr>
     <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_oci.c</td>   <td>Functions cast from databaseType to dbType</td></tr>
-    <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_odbc.c</td>  <td>Functions cast from databaseType to dbType</td></tr>
     <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_post.c</td>  <td>Functions cast from databaseType to dbType</td></tr>
-    <tr><td rowspan="6"><tt><span class="type">sqlStatement</span></tt></td>     <td><a name="ffi_sqlStmtType">sqlStmtType</a></td>  <td>preparedStmtType</td>                  <td>sql_fire.c</td>  <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
+    <tr><td>databaseType</td> <td>dbType</td>                            <td>sql_tds.c</td>   <td>Functions cast from databaseType to dbType</td></tr>
+    <tr><td rowspan="7"><tt><span class="type">sqlStatement</span></tt></td>     <td><a name="ffi_sqlStmtType">sqlStmtType</a></td>  <td>preparedStmtType</td>                  <td>sql_cli.c</td>   <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
+    <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_fire.c</td>  <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
     <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_lite.c</td>  <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
     <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_my.c</td>    <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
     <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_oci.c</td>   <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
-    <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_odbc.c</td>  <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
     <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_post.c</td>  <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
+    <tr><td>sqlStmtType</td>  <td>preparedStmtType</td>                  <td>sql_tds.c</td>   <td>Functions cast from sqlStmtType to preparedStmtType</td></tr>
 </table><p>
   There are also C types without corresponding Seed7 type. They are
   defined in <tt><span class="lib">"common.h"</span></tt>:
@@ -13392,10 +13506,11 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   byte sequences. C uses also byte sequences with a length. The byte
   sequences can be encoded with ISO-8859-1 or UTF-8. To convert between
   the different representations, <tt><span class="lib">"striutl.h"</span></tt> defines conversion functions
-  between the types <tt><a class="type" href="#ffi_striType">striType</a></tt>, <tt><a class="type" href="#ffi_cstriType">cstriType</a></tt>, <tt><a class="type" href="#ffi_bstriType">bstriType</a></tt> and <tt><a class="type" href="#ffi_wstriType">wstriType</a></tt>.
-  The type <tt><a class="type" href="#ffi_wstriType">wstriType</a></tt> is always a string of UTF-16 characters, even if
-  <tt><span class="type">wchar_t</span></tt> is a 32-bit type. A <tt><a class="type" href="#ffi_wstriType">wstriType</a></tt> string can be zero terminated
-  or a buffer with a length, that is specified with a parameter.
+  between the types <tt><a class="type" href="#ffi_striType">striType</a></tt>, <tt><a class="type" href="#ffi_cstriType">cstriType</a></tt>, <tt><a class="type" href="#ffi_bstriType">bstriType</a></tt>, <tt><a class="type" href="#ffi_utf16striType">utf16striType</a></tt>
+  and <tt><a class="type" href="#ffi_utf32striType">utf32striType</a></tt>. The types <tt><a class="type" href="#ffi_utf16striType">utf16striType</a></tt> and <tt><a class="type" href="#ffi_utf32striType">utf32striType</a></tt> are
+  independent of the size of <tt><span class="type">wchar_t</span></tt>. Strings with <tt><a class="type" href="#ffi_utf16striType">utf16striType</a></tt> and
+  <tt><a class="type" href="#ffi_utf32striType">utf32striType</a></tt> can be zero terminated or a buffer with a length, that
+  is specified with a parameter.
 </p><div><table width="100%" border="1" cellspacing="0" cellpadding="3">
 <tr><td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF" colspan="2">
   Function Summary</td></tr>
@@ -13415,9 +13530,13 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right" valign="top"><a class="type" href="#ffi_bstriType">bstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_bstri8">stri_to_bstri8</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri)</td></tr>
       <tr><td width="30"></td><td>Create an UTF-8 encoded bstring from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_wstriType">wstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_wstri_buf">stri_to_wstri_buf</a></b> (<span class="keywd">const</span> <a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length,
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_utf16striType">utf16striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_wstri16">stri_to_wstri16</a></b> (<span class="keywd">const</span> <a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length,
         <a class="type" href="#ffi_errInfoType">errInfoType</a> *err_info)</td></tr>
       <tr><td width="30"></td><td>Create an UTF-16 encoded wide string buffer from a Seed7 UTF-32 string.</td></tr></table></td></tr>
+
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_utf32striType">utf32striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_wstri32">stri_to_wstri32</a></b> (<span class="keywd">const</span> <a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length,
+        <a class="type" href="#ffi_errInfoType">errInfoType</a> *err_info)</td></tr>
+      <tr><td width="30"></td><td>Create an UTF-32 encoded wide string buffer from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
     <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri_to_stri">cstri_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</td></tr>
       <tr><td width="30"></td><td>Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.</td></tr></table></td></tr>
@@ -13435,9 +13554,13 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri8_or_cstri_to_stri">cstri8_or_cstri_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</td></tr>
       <tr><td width="30"></td><td>Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_wstri_buf_to_stri">wstri_buf_to_stri</a></b> (<a class="type" href="#ffi_wstriType">const_wstriType</a> wstri, <a class="type" href="#ffi_memSizeType">memSizeType</a> length,
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_wstri16_to_stri">wstri16_to_stri</a></b> (<a class="type" href="#ffi_utf16striType">const_utf16striType</a> wstri, <a class="type" href="#ffi_memSizeType">memSizeType</a> length,
         <a class="type" href="#ffi_errInfoType">errInfoType</a> *err_info)</td></tr>
       <tr><td width="30"></td><td>Copy an UTF-16 encoded wide string buffer to a Seed7 string.</td></tr></table></td></tr>
+
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_wstri32_to_stri">wstri32_to_stri</a></b> (<a class="type" href="#ffi_utf32striType">const_utf32striType</a> wstri, <a class="type" href="#ffi_memSizeType">memSizeType</a> length,
+        <a class="type" href="#ffi_errInfoType">errInfoType</a> *err_info)</td></tr>
+      <tr><td width="30"></td><td>Copy an UTF-32 encoded wide string buffer to a Seed7 string.</td></tr></table></td></tr>
 </table></div><br /><div><p><table width="100%" border="1" cellspacing="0" cellpadding="2"><tr>
 <td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF">
   Function Detail</td></tr></table></p>
@@ -13550,14 +13673,13 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         NULL if the memory allocation failed.</dd></dl></dd>
 </dl></div>
 <hr />
-  <div><a name="ffi_stri_to_wstri_buf"><h3>stri_to_wstri_buf</h3></a>
+  <div><a name="ffi_stri_to_wstri16"><h3>stri_to_wstri16</h3></a>
 <p>
-    <a class="type" href="#ffi_wstriType">wstriType</a> <b>stri_to_wstri_buf</b> (<span class="keywd">const</span> <a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length,
+    <a class="type" href="#ffi_utf16striType">utf16striType</a> <b>stri_to_wstri16</b> (<span class="keywd">const</span> <a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length,
         <a class="type" href="#ffi_errInfoType">errInfoType</a> *err_info)</p><dl><dd>
 <p>
       Create an UTF-16 encoded wide string buffer from a Seed7 UTF-32 string.
       The memory for the zero byte terminated wide string is allocated.
-      The wide string result must be freed with the macro <a class="func" href="#ffi_free_wstri">free_wstri</a>().
       This function is intended to create temporary strings, that
       are used as parameters. To get good performance the allocated
       memory for the wide string is oversized.
@@ -13573,6 +13695,32 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-16 encoded null terminated wide string, or
+        NULL if the memory allocation failed or the
+        conversion failed (the error is indicated by err_info).</dd></dl></dd>
+</dl></div>
+<hr />
+  <div><a name="ffi_stri_to_wstri32"><h3>stri_to_wstri32</h3></a>
+<p>
+    <a class="type" href="#ffi_utf32striType">utf32striType</a> <b>stri_to_wstri32</b> (<span class="keywd">const</span> <a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length,
+        <a class="type" href="#ffi_errInfoType">errInfoType</a> *err_info)</p><dl><dd>
+<p>
+      Create an UTF-32 encoded wide string buffer from a Seed7 UTF-32 string.
+      The memory for the zero byte terminated wide string is allocated.
+      This function is intended to create temporary strings, that
+      are used as parameters. To get good performance the allocated
+      memory for the wide string is oversized.
+</p></dd>
+      <dd><dl><dt><b>Parameters:</b></dt>
+        <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
+        <dd><tt>length</tt> - Place to return the character length of the result (without '\0').</dd>
+        <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
+                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed, and
+                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> if stri contains a character
+                          that is higher than the highest
+                          allowed Unicode character (U+10FFFF).</dd>
+</dl></dd>
+      <dd><dl><dt><b>Returns:</b></dt>
+        <dd>an UTF-32 encoded null terminated wide string, or
         NULL if the memory allocation failed or the
         conversion failed (the error is indicated by err_info).</dd></dl></dd>
 </dl></div>
@@ -13663,9 +13811,9 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         NULL if the memory allocation failed.</dd></dl></dd>
 </dl></div>
 <hr />
-  <div><a name="ffi_wstri_buf_to_stri"><h3>wstri_buf_to_stri</h3></a>
+  <div><a name="ffi_wstri16_to_stri"><h3>wstri16_to_stri</h3></a>
 <p>
-    <a class="type" href="#ffi_striType">striType</a> <b>wstri_buf_to_stri</b> (<a class="type" href="#ffi_wstriType">const_wstriType</a> wstri, <a class="type" href="#ffi_memSizeType">memSizeType</a> length,
+    <a class="type" href="#ffi_striType">striType</a> <b>wstri16_to_stri</b> (<a class="type" href="#ffi_utf16striType">const_utf16striType</a> wstri, <a class="type" href="#ffi_memSizeType">memSizeType</a> length,
         <a class="type" href="#ffi_errInfoType">errInfoType</a> *err_info)</p><dl><dd>
 <p>
       Copy an UTF-16 encoded wide string buffer to a Seed7 string.
@@ -13674,6 +13822,25 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>wstri</tt> - UTF-16 encoded wide string buffer (not null terminated).</dd>
         <dd><tt>length</tt> - Character length of the UTF-16 encoded wide string buffer.</dd>
+        <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
+                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed.</dd>
+</dl></dd>
+      <dd><dl><dt><b>Returns:</b></dt>
+        <dd>an UTF-32 encoded Seed7 string, or
+        NULL if the memory allocation failed.</dd></dl></dd>
+</dl></div>
+<hr />
+  <div><a name="ffi_wstri32_to_stri"><h3>wstri32_to_stri</h3></a>
+<p>
+    <a class="type" href="#ffi_striType">striType</a> <b>wstri32_to_stri</b> (<a class="type" href="#ffi_utf32striType">const_utf32striType</a> wstri, <a class="type" href="#ffi_memSizeType">memSizeType</a> length,
+        <a class="type" href="#ffi_errInfoType">errInfoType</a> *err_info)</p><dl><dd>
+<p>
+      Copy an UTF-32 encoded wide string buffer to a Seed7 string.
+      The memory for the UTF-32 encoded Seed7 string is allocated.
+</p></dd>
+      <dd><dl><dt><b>Parameters:</b></dt>
+        <dd><tt>wstri</tt> - UTF-32 encoded wide string buffer (not null terminated).</dd>
+        <dd><tt>length</tt> - Character length of the UTF-32 encoded wide string buffer.</dd>
         <dd><tt>err_info</tt> - Unchanged if the function succeeds, and
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> if the memory allocation failed.</dd>
 </dl></dd>
@@ -14054,9 +14221,6 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right" valign="top"><span class="type">void</span></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_free_cstri8">free_cstri8</b> (<a class="type" href="#ffi_cstriType">cstriType</a> cstri, <a class="type" href="#ffi_striType">striType</a> stri)</td></tr>
       <tr><td width="30"></td><td>Macro to free memory that has been allocated by <a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a>() or <a class="func" href="#ffi_stri_to_cstri8_buf">stri_to_cstri8_buf</a>().</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><span class="type">void</span></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_free_wstri">free_wstri</b> (<a class="type" href="#ffi_wstriType">wstriType</a> wstri, <a class="type" href="#ffi_striType">striType</a> stri)</td></tr>
-      <tr><td width="30"></td><td>Macro to free memory that has been allocated by <a class="func" href="#ffi_stri_to_wstri_buf">stri_to_wstri_buf</a>().</td></tr></table></td></tr>
-
     <tr><td align="right" valign="top"><a class="type" href="#ffi_boolType">boolType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_os_stri_alloc">os_stri_alloc</a></b> (<a class="type" href="#ffi_os_striType">os_striType</a> &amp;var, <a class="type" href="#ffi_memSizeType">memSizeType</a> len)</td></tr>
       <tr><td width="30"></td><td>Macro to allocate memory for an <a class="type" href="#ffi_os_striType">os_striType</a> string.</td></tr></table></td></tr>
 
@@ -14086,17 +14250,6 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>cstri</tt> - The string to be freed.</dd>
         <dd><tt>stri</tt> - The parameter that was used when <a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a>() or <a class="func" href="#ffi_stri_to_cstri8_buf">stri_to_cstri8_buf</a>() was called.</dd>
-</dl></div>
-<hr />
-  <div><a name="ffi_free_wstri"><h3>free_wstri</h3></a>
-<p>
-    <span class="type">void</span> <b>free_wstri</b> (<a class="type" href="#ffi_wstriType">wstriType</a> wstri, <a class="type" href="#ffi_striType">striType</a> stri)</p><dl><dd>
-<p>
-      Macro to free memory that has been allocated by <a class="func" href="#ffi_stri_to_wstri_buf">stri_to_wstri_buf</a>().
-</p></dd>
-      <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>cstri</tt> - The string to be freed.</dd>
-        <dd><tt>stri</tt> - The parameter that was used when <a class="func" href="#ffi_stri_to_wstri_buf">stri_to_wstri_buf</a>() was called.</dd>
 </dl></div>
 <hr />
   <div><a name="ffi_os_stri_alloc"><h3>os_stri_alloc</h3></a>
@@ -14170,7 +14323,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         <span class="keywd">const</span> <a class="type" href="#ffi_strElemType">strElemType</a> *strelem, <a class="type" href="#ffi_memSizeType">memSizeType</a> len)</td></tr>
       <tr><td width="30"></td><td>Convert an UTF-32 encoded string to an UTF-8 encoded string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_memSizeType">memSizeType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_utf16">stri_to_utf16</a></b> (<span class="keywd">const</span> <a class="type" href="#ffi_wstriType">wstriType</a> out_wstri,
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_memSizeType">memSizeType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_utf16">stri_to_utf16</a></b> (<span class="keywd">const</span> <a class="type" href="#ffi_utf16striType">utf16striType</a> out_wstri,
         <span class="keywd">register</span> <span class="keywd">const</span> <a class="type" href="#ffi_strElemType">strElemType</a> *strelem, <a class="type" href="#ffi_memSizeType">memSizeType</a> len,
         <a class="type" href="#ffi_errInfoType">errInfoType</a> *<span class="keywd">const</span> err_info)</td></tr>
       <tr><td width="30"></td><td>Convert an UTF-32 encoded string to an UTF-16 encoded string.</td></tr></table></td></tr>
@@ -14284,7 +14437,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_stri_to_utf16"><h3>stri_to_utf16</h3></a>
 <p>
-    <a class="type" href="#ffi_memSizeType">memSizeType</a> <b>stri_to_utf16</b> (<span class="keywd">const</span> <a class="type" href="#ffi_wstriType">wstriType</a> out_wstri,
+    <a class="type" href="#ffi_memSizeType">memSizeType</a> <b>stri_to_utf16</b> (<span class="keywd">const</span> <a class="type" href="#ffi_utf16striType">utf16striType</a> out_wstri,
         <span class="keywd">register</span> <span class="keywd">const</span> <a class="type" href="#ffi_strElemType">strElemType</a> *strelem, <a class="type" href="#ffi_memSizeType">memSizeType</a> len,
         <a class="type" href="#ffi_errInfoType">errInfoType</a> *<span class="keywd">const</span> err_info)</p><dl><dd>
 <p>

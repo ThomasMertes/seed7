@@ -1,6 +1,62 @@
+20220410:
+- In time.s7i, the function time(string) has been improved to
+  consider the daylight saving time. Many thanks to Anders
+  Carstensen for pointing out the problem and for providing a test
+  program.
+- Explanations of the times operator and the functions bytes(),
+  bytes2Int(), bytes2BigInt(), expm1(), log1p(), ignore() and
+  openServerTls() have been added to the manual.
+- In the manual, the chapters about primitive actions and about the
+  foreign function interface have been improved.
+- The FAQ and manual have been improved to consider the Informix
+  database.
+- In ccittfax.s7i, the CCITT fax decoding has been improved.
+- In tiff.s7i, reading of TIFF files has been improved. Now, the
+  requested length of Lempel Ziv Welch compressed data is computed
+  correctly.
+- In jpeg.s7i, reading of JPEG files has been improved to use the
+  component ID. Now, a hash from component ID to component type is
+  used. The old code assumed that component ID and component type
+  would be equal, and it raised RANGE_ERROR when this was not the
+  case.
+- In bitdata.s7i, the performance of the functions getBit() and
+  getBits() with a msbBitStream has been improved.
+- In array.s7i, the times operator has been improved to work with
+  [A len L] times element.
+- A definition of the [A len L] operator has been added to
+  syntax.s7i.
+- In x509cert.s7i reading and validating certificates has been
+  improved. Now, there is partial support for PKCS #7 certificates.
+- The libraries tls.s7i and showtls.s7i have been improved to
+  support TLS certificate_request, client_certificate and
+  certificate_verify messages.
+- The compiler (s7c.sd7) has been improved to write better error
+  messages for duplicate when values.
+- The program gkbd.sd7 has been improved to consider the space key.
+- In ref_data.c the function refArrToList() has been improved to
+  raise RANGE_ERROR for an illegal array value.
+- In dcllib.c the function dcl_elements() has been improved to work
+  correctly when push_stack() is a noop.
+- The files sql_fire.c and sql_tds.c have been improved to reduce C
+  compiler warnings.
+- The program chkccomp.c has been improved to allow build tests to
+  deliver a result after a delay.
+- In soc_rtl.c the functions socGets() and receive_and_alloc_stri()
+  have been improved to set the EOF indicator instead of raising
+  FILE_ERROR if the peer has crashed.
+- In soc_rtl.c, the function logError() will now be called if
+  recv() fails.
+- In chkccomp.c, the function determineInformixDefines has been
+  improved to avoid the definition of an empty C array.
+- The makefile mk_msvc.mak has been changed to define
+  LIMITED_CSTRI_LITERAL_LEN. This avoids that the C compiler runs
+  out of heap space.
+- Documentation comments have been updated in graph.s7i, tls.s7i,
+  x509cert.s7i, ar.s7i, cpio.s7i, rpm.s7i, tar.s7i and zip.s7i.
+
 20220312:
-- Two typos in the fwd_x11.c have been fixed. Thanks to Zachary
-  Menzies for pointing them out.
+- Two typos in fwd_x11.c have been fixed. Thanks to Zachary Menzies
+  for pointing them out.
 - Interpreter and compiler have been improved to support Informix
   databases.
 - The example program portfwd7.sd7 has been added. Portfwd7 is a
@@ -17,7 +73,7 @@
   support JPEG, ICO and TIFF files.
 - The pv7 picture viewer has been improved to use the path of the
   image.
-- The function hasImageExtension() has been move from pv7.sd7 to
+- The function hasImageExtension() has been moved from pv7.sd7 to
   the imagefile.s7i library.
 - The example program findchar.sd7 has been improved to support
   Windows/DOS paths.

@@ -2418,6 +2418,24 @@ CONTENTS
                     integer("Cafe", 16) => 51966,
                     integer("0", 1) => EXCEPTION RANGE_ERROR,
                     integer("qwertyuiop", 37) => EXCEPTION RANGE_ERROR )
+      bytes(A, S, E) Convert an integer into a string of bytes
+                  ( Type of argument S: signedness (UNSIGNED and SIGNED),
+                    Type of argument E: endianness (LE and BE),
+                    Type of result: string,
+                    bytes(1413829460, SIGNED, BE) => "TEST",
+                    bytes(1497451343, SIGNED, LE) => "OKAY" )
+      bytes(A, S, E, len) Convert an integer into a string of len bytes
+                  ( Type of argument S: signedness (UNSIGNED and SIGNED),
+                    Type of argument E: endianness (LE and BE),
+                    Type of result: string,
+                    bytes(1413829460, SIGNED, BE, 5) => "\0;TEST"
+                    bytes(1413829460, SIGNED, BE, 4) => "TEST"
+                    bytes(1413829460, SIGNED, BE, 3) => EXCEPTION RANGE_ERROR )
+      bytes2Int(A, S, E) Convert a string of bytes to an integer
+                  ( Type of argument A: string,
+                    Type of argument S: signedness (UNSIGNED and SIGNED),
+                    Type of argument E: endianness (LE and BE),
+                    bytes2Int("\210;\2;\150;I", UNSIGNED, LE) => 1234567890 )
       sqrt(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0,
                     sqrt(A) => trunc(sqrt(flt(A))),
@@ -2739,6 +2757,24 @@ CONTENTS
                     bigInteger("Cafe", 16) => 51966_,
                     bigInteger("0", 1) => EXCEPTION RANGE_ERROR,
                     bigInteger("qwertyuiop", 37) => EXCEPTION RANGE_ERROR )
+      bytes(A, S, E) Convert a bigInteger into a string of bytes
+                  ( Type of argument S: signedness (UNSIGNED and SIGNED),
+                    Type of argument E: endianness (LE and BE),
+                    Type of result: string,
+                    bytes(1413829460_, SIGNED, BE) => "TEST",
+                    bytes(1497451343_, SIGNED, LE) => "OKAY" )
+      bytes(A, S, E, len) Convert a bigInteger into a string of len bytes
+                  ( Type of argument S: signedness (UNSIGNED and SIGNED),
+                    Type of argument E: endianness (LE and BE),
+                    Type of result: string,
+                    bytes(1413829460_, SIGNED, BE, 5) => "\0;TEST"
+                    bytes(1413829460_, SIGNED, BE, 4) => "TEST"
+                    bytes(1413829460_, SIGNED, BE, 3) => EXCEPTION RANGE_ERROR )
+      bytes2BigInt(A, S, E) Convert a string of bytes to a bigInteger
+                  ( Type of argument A: string,
+                    Type of argument S: signedness (UNSIGNED and SIGNED),
+                    Type of argument E: endianness (LE and BE),
+                    bytes2BigInt("\210;\2;\150;I", UNSIGNED, LE) => 1234567890_ )
       sqrt(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0_
                     sqrt(A) => trunc(sqrt(flt(A))),
@@ -3360,11 +3396,17 @@ CONTENTS
       cos(A)    Cosine
       tan(A)    Tangent
       exp(A)    Exponential function
+      expm1(A)  Compute exp(x) - 1.0
       log(A)    Natural logarithm
                   ( log(A) is okay for A > 0.0,
                     log(1.0)  =>  0.0,
                     log(0.0)  => -Infinity,
                     log(-1.0) =>  NaN )
+      log1p(A)  Compute log(1.0 + x)
+                  ( log1p(A) is okay for A > -1.0,
+                    log1p(0.0)  =>  0.0,
+                    log1p(-1.0)  => -Infinity,
+                    log1p(-2.0) =>  NaN )
       log10(A)  Base 10 logarithm
                   ( log10(A) is okay for A > 0.0,
                     log10(1.0)  =>  0.0,
@@ -3935,10 +3977,12 @@ CONTENTS
   second line defines 'structArrayType' as an array type with 'aStructType'
   elements. Variables of these types are declared with:
 
-    var striArrayType: striArr1 is striArrayType.value;
-    var striArrayType: striArr2 is 0 times "";
-    var striArrayType: striArr3 is [] ("one", "two");
-    var striArrayType: striArr4 is [0] ("zero", "one");
+    var striArrayType: striArr1 is striArrayType.value; # Empty array with starting index 1.
+    var striArrayType: striArr2 is 0 times "";          # Empty array with starting index 1.
+    var striArrayType: striArr4 is [0 .. -1] times "";  # Empty array with starting index 0.
+    var striArrayType: striArr3 is [0 len 0] times "";  # Empty array with starting index 0.
+    var striArrayType: striArr5 is [] ("one", "two");
+    var striArrayType: striArr6 is [0] ("zero", "one");
     var structArrayType: structArr1 is structArrayType.value;
     var structArrayType: structArr2 is 10 times aStructType.value;
     var structArrayType: structArr3 is [42 .. 365] times aStructType.value;
@@ -3983,6 +4027,7 @@ CONTENTS
                     Right operand: baseType,
                     A times B Generates an 'array baseType' with A elements of B,
                     3 times B => [] (B, B, B),
+                    0 times B => empty array with starting index 1,
                     (1 times B)[1] => B,
                     (0 times B)[1] => EXCEPTION INDEX_ERROR,
                     -1 times B => EXCEPTION RANGE_ERROR )
@@ -3991,8 +4036,15 @@ CONTENTS
                     Type of argument C: baseType,
                     [ A .. B ] times C Generates an 'array baseType'
                     with pred(B - A) elements of C,
-                    [ -1 .. -2 ] times B => empty array,
+                    [ -1 .. -2 ] times B => empty array with starting index -1,
                     [ -1 .. -3 ] times B => EXCEPTION RANGE_ERROR )
+      [ A len L ] times C    Array generation
+                  ( Type of arguments A and L: integer,
+                    Type of argument C: baseType,
+                    [ A len L ] times C Generates an 'array baseType'
+                    with L elements of C,
+                    [ -1 len 0 ] times B => empty array with starting index -1,
+                    [ -1 len -1 ] times B => EXCEPTION RANGE_ERROR )
       indexType times A   Array generation for indices from indexType.first
                           to indexType.last.
                   ( Type of argument A: baseType,
@@ -5438,6 +5490,7 @@ CONTENTS
       waitFor(process)  Wait until process has terminated
       setSearchPath(searchPath)  Set the search path of the current process
                   ( Type of argument searchPath: array string )
+      ignore(A) Ignore value
 
 
 5.25 category
@@ -8315,6 +8368,41 @@ CONTENTS
   the status code from the response. The example above consists
   of code from the library "gethttps.s7i".
 
+  The function 'openServerTls' can be used to open a TLS socket
+  at the server side. The library "x509cert.s7i" defines the
+  self signed certificate 'stdCertificate'. This certificate
+  can be used to open a TLS server socket:
+
+    $ include "seed7_05.s7i";
+      include "socket.s7i";
+      include "listener.s7i";
+      include "tls.s7i";
+
+    const proc: main is func
+      local
+        var listener: aListener is listener.value;
+        var file: sock is STD_NULL;
+        var file: tlsSock is STD_NULL;
+        var string: line is "";
+      begin
+        aListener := openInetListener(11111);
+        listen(aListener, 10);
+        while TRUE do
+          sock := accept(aListener);
+          tlsSock := openServerTls(sock, stdCertificate);
+          if tlsSock <> STD_NULL then
+            writeln("Success");
+            repeat
+              line := getln(tlsSock);
+              writeln(line <& " received");
+            until line = "";
+            close(tlsSock);
+          else
+            writeln(" *** Cannot open TLS connection.");
+          end if;
+        end while;
+      end func;
+
 
 8.11 User defined file types
 
@@ -10940,9 +11028,9 @@ CONTENTS
   independence by using database drivers as abstraction layers
   between the application and the database. There are database
   drivers for MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird,
-  Interbase, Db2 and SQL Server databases. Databases can also be
-  accessed via the ODBC interface. The following example uses the
-  datapase abstraction API:
+  Interbase, Db2, Informix and SQL Server databases. Databases can
+  also be accessed via the ODBC interface. The following example
+  uses the datapase abstraction API:
 
     const proc: dbDemo is func
       local
@@ -10991,9 +11079,10 @@ CONTENTS
   Firebird      | DB_FIRE       |              |
   Interbase     | DB_FIRE       |              |
   Db2           | DB_DB2        |  50000       |
+  Informix      | DB_INFORMIX   |   1526       |
   SQL Server    | DB_SQL_SERVER |   1433       |
    various DBs  | DB_ODBC       |              | Needs an ODBC driver to connect to a database.
-  Sybase based  | DB_TDS        |   1433       |Supports SQL Server and Sybase.
+  Sybase based  | DB_TDS        |   1433       | Supports SQL Server and Sybase.
 
   A basic function to open a database is:
 
@@ -11073,7 +11162,22 @@ CONTENTS
   For a SQLite database 'host' must be "" and 'port' must be 0.
 
 
-13.1.5 Opening a ODBC database connection
+13.1.5 Opening an Informix database connection
+
+  When using the 'DB_INFORMIX' driver you need to specify also a server:
+
+    const func database: openDatabase (DB_INFORMIX, in string: host, in integer: port,
+                                       in string: server, in string: dbName,
+                                       in string: user, in string: password)
+
+  A Informix database can be opened with:
+
+    currDb := openDatabase(DB_INFORMIX, "", 0, "serverName", "databaseName", "testUser", "testPassword");
+
+    currDb := openDatabase(DB_INFORMIX, "www.example.org", 0, "testServer", "testDb", "testUser", "testPassword");
+
+
+13.1.6 Opening an ODBC database connection
 
   The Seed7 database driver 'DB_ODBC' is special, as the ODBC
   interface itself allows connecting to several database types.
@@ -11890,8 +11994,8 @@ CONTENTS
     BIG_DIV             big_div             bigDiv
     BIG_DIV_REM         big_div_rem         bigDivRem
     BIG_EQ              big_eq              bigEq
-    BIG_FROM_BSTRI_BE   big_fromBStriBe     bigFromBStriBe
-    BIG_FROM_BSTRI_LE   big_fromBStriLe     bigFromBStriLe
+    BIG_FROM_BSTRI_BE   big_from_bstri_be   bigFromBStriBe
+    BIG_FROM_BSTRI_LE   big_from_bstri_le   bigFromBStriLe
     BIG_GCD             big_gcd             bigGcd
     BIG_GE              big_ge              bigCmp >= 0
     BIG_GT              big_gt              bigCmp > 0
@@ -11928,8 +12032,8 @@ CONTENTS
     BIG_SBTR_ASSIGN     big_sbtr_assign     bigSbtrAssign, bigAddAssignSignedDigit
     BIG_STR             big_str             bigStr
     BIG_SUCC            big_succ            bigSucc
-    BIG_TO_BSTRI_BE     big_toBStriBe       bigToBStriBe
-    BIG_TO_BSTRI_LE     big_toBStriLe       bigToBStriLe
+    BIG_TO_BSTRI_BE     big_to_bstri_be     bigToBStriBe
+    BIG_TO_BSTRI_LE     big_to_bstri_le     bigToBStriLe
     BIG_VALUE           big_value           bigValue
     BIG_radix           big_radix           bigRadix
 
@@ -12052,8 +12156,8 @@ CONTENTS
     CMD_GET_GROUP       cmd_get_group       cmdGetGroup
     CMD_GET_MTIME       cmd_get_mtime       cmdGetMTime
     CMD_GET_OWNER       cmd_get_owner       cmdGetOwner
-    CMD_GET_SEARCH_PATH cmd_getSearchPath   cmdGetSearchPath
-    CMD_HOME_DIR        cmd_homeDir         cmdHomeDir
+    CMD_GET_SEARCH_PATH cmd_get_search_path cmdGetSearchPath
+    CMD_HOME_DIR        cmd_home_dir        cmdHomeDir
     CMD_LS              cmd_ls              cmdLs
     CMD_MKDIR           cmd_mkdir           cmdMkdir
     CMD_MOVE            cmd_move            cmdMove
@@ -12066,7 +12170,7 @@ CONTENTS
     CMD_SET_GROUP       cmd_set_group       cmdSetGroup
     CMD_SET_MTIME       cmd_set_mtime       cmdSetMTime
     CMD_SET_OWNER       cmd_set_owner       cmdSetOwner
-    CMD_SET_SEARCH_PATH cmd_setSearchPath   cmdSetSearchPath
+    CMD_SET_SEARCH_PATH cmd_set_search_path cmdSetSearchPath
     CMD_SHELL           cmd_shell           cmdShell
     CMD_SHELL_ESCAPE    cmd_shell_escape    cmdShellEscape
     CMD_SYMLINK         cmd_symlink         cmdSymlink
@@ -12129,7 +12233,7 @@ CONTENTS
     DRW_CLEAR           drw_clear           drwClear
     DRW_CMP             drw_cmp             uintCmpGeneric((genericType)(a))
     DRW_COLOR           drw_color           drwColor
-    DRW_CONVPOINTLIST   drw_convPointList   drwConvPointList
+    DRW_CONV_POINT_LIST drw_conv_point_list drwConvPointList
     DRW_COPYAREA        drw_copyarea        drwCopyArea
     DRW_CPY             drw_cpy             drwCpy
     DRW_CREATE          drw_create          drwCreate
@@ -12141,15 +12245,16 @@ CONTENTS
     DRW_FCIRCLE         drw_fcircle         drwFCircle
     DRW_FELLIPSE        drw_fellipse        drwFEllipse
     DRW_FLUSH           drw_flush           drwFlush
-    DRW_FPOLYLINE       drw_fpolyLine       drwFPolyLine
-    DRW_GENPOINTLIST    drw_genPointList    drwGenPointList
-    DRW_GET             drw_get             drwGet
-    DRW_GETIMAGE        drw_getImage        drwGetImage
-    DRW_GETIMAGEPIXEL   drw_getImagePixel   drwGetImagePixel
-    DRW_GETPIXEL        drw_getPixel        drwGetPixel
+    DRW_FPOLY_LINE      drw_fpoly_line      drwFPolyLine
+    DRW_GEN_POINT_LIST  drw_gen_point_list  drwGenPointList
+    DRW_GET_IMAGE_PIXEL drw_get_image_pixel drwGetImagePixel
+    DRW_GET_PIXEL       drw_get_pixel       drwGetPixel
+    DRW_GET_PIXEL_ARRAY drw_get_pixel_array drwGetPixelArray
+    DRW_GET_PIXEL_DATA  drw_get_pixel_data  drwGetPixelData
+    DRW_GET_PIXMAP      drw_get_pixmap      drwGetPixmap
+    DRW_GET_PIXMAP_FROM_PIXELS drw_get_pixmap_from_pixels drwGetPixmapFromPixels
     DRW_HASHCODE        drw_hashcode        (intType)(((memSizeType)a)>>6)
     DRW_HEIGHT          drw_height          drwHeight
-    DRW_IMAGE           drw_image           drwImage
     DRW_LINE            drw_line            drwLine
     DRW_NE              drw_ne              !=
     DRW_NEW_PIXMAP      drw_new_pixmap      drwNewPixmap
@@ -12157,16 +12262,17 @@ CONTENTS
     DRW_OPEN_SUB_WINDOW drw_open_sub_window drwOpenSubWindow
     DRW_PARC            drw_parc            drwPArc
     DRW_PCIRCLE         drw_pcircle         drwPCircle
+    DRW_PFARC           drw_pfarc           drwPFArc
     DRW_PFARCCHORD      drw_pfarcchord      drwPFArcChord
     DRW_PFARCPIESLICE   drw_pfarcpieslice   drwFArcPieSlice
     DRW_PFCIRCLE        drw_pfcircle        drwPFCircle
     DRW_PFELLIPSE       drw_pfellipse       drwPFEllipse
-    DRW_PIXELTORGB      drw_pixelToRgb      drwPixelToRgb
+    DRW_PIXEL_TO_RGB    drw_pixel_to_rgb    drwPixelToRgb
     DRW_PLINE           drw_pline           drwPLine
     DRW_POINT           drw_point           drwPoint
     DRW_POINTER_XPOS    drw_pointer_xpos    drwPointerXpos
     DRW_POINTER_YPOS    drw_pointer_ypos    drwPointerYpos
-    DRW_POLYLINE        drw_polyLine        drwPolyLine
+    DRW_POLY_LINE       drw_poly_line       drwPolyLine
     DRW_PPOINT          drw_ppoint          drwPPoint
     DRW_PRECT           drw_prect           drwPRect
     DRW_PUT             drw_put             drwPut
@@ -12175,15 +12281,16 @@ CONTENTS
     DRW_RGBCOL          drw_rgbcol          drwRgbColor
     DRW_SCREEN_HEIGHT   drw_screen_height   drwScreenHeight
     DRW_SCREEN_WIDTH    drw_screen_width    drwScreenWidth
-    DRW_SETCLOSEACTION  drw_setCloseAction  drwSetCloseAction
-    DRW_SETCONTENT      drw_setContent      drwSetContent
-    DRW_SETCURSORVISIBLE drw_setCursorVisible drwSetCursorVisible
-    DRW_SETPOS          drw_setPos          drwSetPos
-    DRW_SETTRANSPARENTCOLOR drw_setTransparentColor drwSetTransparentColor
-    DRW_SETWINDOWNAME   drw_setWindowName   drwSetWindowName
+    DRW_SET_CLOSE_ACTION drw_set_close_action drwSetCloseAction
+    DRW_SET_CONTENT     drw_set_content     drwSetContent
+    DRW_SET_CURSOR_VISIBLE drw_set_cursor_visible drwSetCursorVisible
+    DRW_SET_POINTER_POS drw_set_pointer_pos drwSetPointerPos
+    DRW_SET_POS         drw_set_pos         drwSetPos
+    DRW_SET_TRANSPARENT_COLOR drw_set_transparent_color drwSetTransparentColor
+    DRW_SET_WINDOW_NAME drw_set_window_name drwSetWindowName
     DRW_TEXT            drw_text            drwText
-    DRW_TOBOTTOM        drw_toBottom        drwToBottom
-    DRW_TOTOP           drw_toTop           drwToTop
+    DRW_TO_BOTTOM       drw_to_bottom       drwToBottom
+    DRW_TO_TOP          drw_to_top          drwToTop
     DRW_VALUE           drw_value           drwValue
     DRW_WIDTH           drw_width           drwWidth
     DRW_XPOS            drw_xpos            drwXPos
@@ -12269,6 +12376,7 @@ CONTENTS
     FLT_DOUBLE2BITS     flt_double2bits     (x.aDouble=a, x.bits)
     FLT_EQ              flt_eq              ==
     FLT_EXP             flt_exp             exp
+    FLT_EXPM1           flt_expm1           expm1
     FLT_FLOOR           flt_floor           floor
     FLT_GE              flt_ge              >=
     FLT_GT              flt_gt              >
@@ -12282,6 +12390,7 @@ CONTENTS
     FLT_LE              flt_le              <=
     FLT_LOG             flt_log             log
     FLT_LOG10           flt_log10           log10
+    FLT_LOG1P           flt_log1p           log1p
     FLT_LOG2            flt_log2            log2
     FLT_LSHIFT          flt_lshift          ldexp
     FLT_LT              flt_lt              <
@@ -12494,20 +12603,20 @@ CONTENTS
 14.22 Actions for the type pollData
 
     Action name         pollib.c function   pol_unx.c/pol_sel.c function
-    POL_ADD_CHECK       pol_addCheck        polAddCheck
+    POL_ADD_CHECK       pol_add_check       polAddCheck
     POL_CLEAR           pol_clear           polClear
     POL_CPY             pol_cpy             polCpy
     POL_CREATE          pol_create          polCreate
     POL_DESTR           pol_destr           polDestr
     POL_EMPTY           pol_empty           polEmpty
-    POL_GET_CHECK       pol_getCheck        polGetCheck
-    POL_GET_FINDING     pol_getFinding      polGetFinding
-    POL_HAS_NEXT        pol_hasNext         polHasNext
-    POL_ITER_CHECKS     pol_iterChecks      polIterChecks
-    POL_ITER_FINDINGS   pol_iterFindings    polIterFindings
-    POL_NEXT_FILE       pol_nextFile        polNextFile
+    POL_GET_CHECK       pol_get_check       polGetCheck
+    POL_GET_FINDING     pol_get_finding     polGetFinding
+    POL_HAS_NEXT        pol_has_next        polHasNext
+    POL_ITER_CHECKS     pol_iter_checks     polIterChecks
+    POL_ITER_FINDINGS   pol_iter_findings   polIterFindings
+    POL_NEXT_FILE       pol_next_file       polNextFile
     POL_POLL            pol_poll            polPoll
-    POL_REMOVE_CHECK    pol_removeCheck     polRemoveCheck
+    POL_REMOVE_CHECK    pol_remove_check    polRemoveCheck
     POL_VALUE           pol_value           polValue
 
 
@@ -12664,7 +12773,7 @@ CONTENTS
     RFL_NOT_ELEM        rfl_not_elem        !rflElem
     RFL_POS             rfl_pos             rflPos
     RFL_RANGE           rfl_range           rflRange
-    RFL_SETVALUE        rfl_setValue        rflSetValue
+    RFL_SET_VALUE       rfl_set_value       rflSetValue
     RFL_TAIL            rfl_tail            rflTail
     RFL_TRACE           rfl_trace
     RFL_VALUE           rfl_value           rflValue
@@ -12746,8 +12855,9 @@ CONTENTS
     SOC_EQ              soc_eq              ==
     SOC_GETC            soc_getc            socGetc
     SOC_GETS            soc_gets            socGets
-    SOC_GET_ADDR        soc_get_addr        socGetAddr
     SOC_GET_HOSTNAME    soc_get_hostname    socGetHostname
+    SOC_GET_LOCAL_ADDR  soc_get_local_addr  socGetLocalAddr
+    SOC_GET_PEER_ADDR   soc_get_peer_addr   socGetPeerAddr
     SOC_HAS_NEXT        soc_has_next        socHasNext
     SOC_INET_ADDR       soc_inet_addr       socInetAddr
     SOC_INET_LOCAL_ADDR soc_inet_local_addr socInetLocalAddr
@@ -12756,11 +12866,12 @@ CONTENTS
     SOC_LINE_READ       soc_line_read       socLineRead
     SOC_LISTEN          soc_listen          socListen
     SOC_NE              soc_ne              !=
+    SOC_ORD             soc_ord             (intType)
     SOC_RECV            soc_recv            socRecv
     SOC_RECVFROM        soc_recvfrom        socRecvfrom
     SOC_SEND            soc_send            socSend
     SOC_SENDTO          soc_sendto          socSendto
-    SOC_SET_OPT_BOOL    soc_setOptBool      socSetOptBool
+    SOC_SET_OPT_BOOL    soc_set_opt_bool    socSetOptBool
     SOC_SOCKET          soc_socket          socSocket
     SOC_WORD_READ       soc_word_read       socWordRead
     SOC_WRITE           soc_write           socWrite
@@ -12815,6 +12926,7 @@ CONTENTS
     SQL_NE_STMT         sql_ne_stmt         !=
     SQL_OPEN_DB2        sql_open_db2        sqlOpenDb2
     SQL_OPEN_FIRE       sql_open_fire       sqlOpenFire
+    SQL_OPEN_INFORMIX   sql_open_informix   sqlOpenInformix
     SQL_OPEN_LITE       sql_open_lite       sqlOpenLite
     SQL_OPEN_MY         sql_open_my         sqlOpenMy
     SQL_OPEN_OCI        sql_open_oci        sqlOpenOci
@@ -13144,18 +13256,20 @@ CONTENTS
                      pollType     struct poll_based_pollStruct *    pol_unx.c   Functions cast it to implementation dependent struct
     PRIMITIVE_WINDOW winType      x11_winRecord *                   drw_x11.c   Functions cast from struct winStruct * to x11_winRecord *
                      winType      win_winRecord *                   drw_win.c   Functions cast from struct winStruct * to win_winRecord *
-    database         databaseType dbType                            sql_fire.c  Functions cast from databaseType to dbType
+    database         databaseType dbType                            sql_cli.c   Functions cast from databaseType to dbType
+                     databaseType dbType                            sql_fire.c  Functions cast from databaseType to dbType
                      databaseType dbType                            sql_lite.c  Functions cast from databaseType to dbType
                      databaseType dbType                            sql_my.c    Functions cast from databaseType to dbType
                      databaseType dbType                            sql_oci.c   Functions cast from databaseType to dbType
-                     databaseType dbType                            sql_odbc.c  Functions cast from databaseType to dbType
                      databaseType dbType                            sql_post.c  Functions cast from databaseType to dbType
-    sqlStatement     sqlStmtType  preparedStmtType                  sql_fire.c  Functions cast from sqlStmtType to preparedStmtType
+                     databaseType dbType                            sql_tds.c   Functions cast from databaseType to dbType
+    sqlStatement     sqlStmtType  preparedStmtType                  sql_cli.c   Functions cast from sqlStmtType to preparedStmtType
+                     sqlStmtType  preparedStmtType                  sql_fire.c  Functions cast from sqlStmtType to preparedStmtType
                      sqlStmtType  preparedStmtType                  sql_lite.c  Functions cast from sqlStmtType to preparedStmtType
                      sqlStmtType  preparedStmtType                  sql_my.c    Functions cast from sqlStmtType to preparedStmtType
                      sqlStmtType  preparedStmtType                  sql_oci.c   Functions cast from sqlStmtType to preparedStmtType
-                     sqlStmtType  preparedStmtType                  sql_odbc.c  Functions cast from sqlStmtType to preparedStmtType
                      sqlStmtType  preparedStmtType                  sql_post.c  Functions cast from sqlStmtType to preparedStmtType
+                     sqlStmtType  preparedStmtType                  sql_tds.c   Functions cast from sqlStmtType to preparedStmtType
 
   There are also C types without corresponding Seed7 type. They are
   defined in "common.h":
@@ -13193,10 +13307,11 @@ CONTENTS
   byte sequences. C uses also byte sequences with a length. The byte
   sequences can be encoded with ISO-8859-1 or UTF-8. To convert between
   the different representations, "striutl.h" defines conversion functions
-  between the types 'striType', 'cstriType', 'bstriType' and 'wstriType'.
-  The type 'wstriType' is always a string of UTF-16 characters, even if
-  'wchar_t' is a 32-bit type. A 'wstriType' string can be zero terminated
-  or a buffer with a length, that is specified with a parameter.
+  between the types 'striType', 'cstriType', 'bstriType', 'utf16striType'
+  and 'utf32striType'. The types 'utf16striType' and 'utf32striType' are
+  independent of the size of 'wchar_t'. Strings with 'utf16striType' and
+  'utf32striType' can be zero terminated or a buffer with a length, that
+  is specified with a parameter.
 
 
   Function Summary
@@ -13216,9 +13331,13 @@ CONTENTS
     bstriType stri_to_bstri8 (const_striType stri)
       Create an UTF-8 encoded bstring from a Seed7 UTF-32 string.
 
-    wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
+    utf16striType stri_to_wstri16 (const const_striType stri, memSizeType *length,
         errInfoType *err_info)
       Create an UTF-16 encoded wide string buffer from a Seed7 UTF-32 string.
+
+    utf32striType stri_to_wstri32 (const const_striType stri, memSizeType *length,
+        errInfoType *err_info)
+      Create an UTF-32 encoded wide string buffer from a Seed7 UTF-32 string.
 
     striType cstri_to_stri (const_cstriType cstri)
       Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
@@ -13236,9 +13355,13 @@ CONTENTS
     striType cstri8_or_cstri_to_stri (const_cstriType cstri)
       Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
 
-    striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
+    striType wstri16_to_stri (const_utf16striType wstri, memSizeType length,
         errInfoType *err_info)
       Copy an UTF-16 encoded wide string buffer to a Seed7 string.
+
+    striType wstri32_to_stri (const_utf32striType wstri, memSizeType length,
+        errInfoType *err_info)
+      Copy an UTF-32 encoded wide string buffer to a Seed7 string.
 
 
   Function Detail
@@ -13351,14 +13474,13 @@ CONTENTS
         NULL if the memory allocation failed.
 
 
-  stri_to_wstri_buf
+  stri_to_wstri16
 
-    wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
+    utf16striType stri_to_wstri16 (const const_striType stri, memSizeType *length,
         errInfoType *err_info)
 
       Create an UTF-16 encoded wide string buffer from a Seed7 UTF-32 string.
       The memory for the zero byte terminated wide string is allocated.
-      The wide string result must be freed with the macro free_wstri().
       This function is intended to create temporary strings, that
       are used as parameters. To get good performance the allocated
       memory for the wide string is oversized.
@@ -13374,6 +13496,32 @@ CONTENTS
 
       Returns:
         an UTF-16 encoded null terminated wide string, or
+        NULL if the memory allocation failed or the
+        conversion failed (the error is indicated by err_info).
+
+
+  stri_to_wstri32
+
+    utf32striType stri_to_wstri32 (const const_striType stri, memSizeType *length,
+        errInfoType *err_info)
+
+      Create an UTF-32 encoded wide string buffer from a Seed7 UTF-32 string.
+      The memory for the zero byte terminated wide string is allocated.
+      This function is intended to create temporary strings, that
+      are used as parameters. To get good performance the allocated
+      memory for the wide string is oversized.
+
+      Parameters:
+        stri - Seed7 UTF-32 string to be converted.
+        length - Place to return the character length of the result (without '\0').
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed, and
+                   RANGE_ERROR if stri contains a character
+                          that is higher than the highest
+                          allowed Unicode character (U+10FFFF).
+
+      Returns:
+        an UTF-32 encoded null terminated wide string, or
         NULL if the memory allocation failed or the
         conversion failed (the error is indicated by err_info).
 
@@ -13464,9 +13612,9 @@ CONTENTS
         NULL if the memory allocation failed.
 
 
-  wstri_buf_to_stri
+  wstri16_to_stri
 
-    striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
+    striType wstri16_to_stri (const_utf16striType wstri, memSizeType length,
         errInfoType *err_info)
 
       Copy an UTF-16 encoded wide string buffer to a Seed7 string.
@@ -13475,6 +13623,25 @@ CONTENTS
       Parameters:
         wstri - UTF-16 encoded wide string buffer (not null terminated).
         length - Character length of the UTF-16 encoded wide string buffer.
+        err_info - Unchanged if the function succeeds, and
+                   MEMORY_ERROR if the memory allocation failed.
+
+      Returns:
+        an UTF-32 encoded Seed7 string, or
+        NULL if the memory allocation failed.
+
+
+  wstri32_to_stri
+
+    striType wstri32_to_stri (const_utf32striType wstri, memSizeType length,
+        errInfoType *err_info)
+
+      Copy an UTF-32 encoded wide string buffer to a Seed7 string.
+      The memory for the UTF-32 encoded Seed7 string is allocated.
+
+      Parameters:
+        wstri - UTF-32 encoded wide string buffer (not null terminated).
+        length - Character length of the UTF-32 encoded wide string buffer.
         err_info - Unchanged if the function succeeds, and
                    MEMORY_ERROR if the memory allocation failed.
 
@@ -13855,9 +14022,6 @@ CONTENTS
     void free_cstri8 (cstriType cstri, striType stri)
       Macro to free memory that has been allocated by stri_to_cstri8() or stri_to_cstri8_buf().
 
-    void free_wstri (wstriType wstri, striType stri)
-      Macro to free memory that has been allocated by stri_to_wstri_buf().
-
     boolType os_stri_alloc (os_striType &var, memSizeType len)
       Macro to allocate memory for an os_striType string.
 
@@ -13887,17 +14051,6 @@ CONTENTS
       Parameters:
         cstri - The string to be freed.
         stri - The parameter that was used when stri_to_cstri8() or stri_to_cstri8_buf() was called.
-
-
-  free_wstri
-
-    void free_wstri (wstriType wstri, striType stri)
-
-      Macro to free memory that has been allocated by stri_to_wstri_buf().
-
-      Parameters:
-        cstri - The string to be freed.
-        stri - The parameter that was used when stri_to_wstri_buf() was called.
 
 
   os_stri_alloc
@@ -13971,7 +14124,7 @@ CONTENTS
         const strElemType *strelem, memSizeType len)
       Convert an UTF-32 encoded string to an UTF-8 encoded string.
 
-    memSizeType stri_to_utf16 (const wstriType out_wstri,
+    memSizeType stri_to_utf16 (const utf16striType out_wstri,
         register const strElemType *strelem, memSizeType len,
         errInfoType *const err_info)
       Convert an UTF-32 encoded string to an UTF-16 encoded string.
@@ -14085,7 +14238,7 @@ CONTENTS
 
   stri_to_utf16
 
-    memSizeType stri_to_utf16 (const wstriType out_wstri,
+    memSizeType stri_to_utf16 (const utf16striType out_wstri,
         register const strElemType *strelem, memSizeType len,
         errInfoType *const err_info)
 

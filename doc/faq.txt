@@ -215,7 +215,8 @@ should be no need to call foreign C functions, or to execute shell
    and other annoyances are managed in the graphics library.
  - A database library provides a database independent API to connect
    to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird, Interbase,
-   Db2 and SQL Server databases. The ODBC interface can be used also.
+   Db2, Informix and SQL Server databases. The ODBC interface can be
+   used also.
  - Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
    the modification of directory access and modification times also
@@ -339,12 +340,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2022-03-12 the number of lines is:
+than 300000 lines of Seed7. For version 2022-04-10 the number of lines is:
 
-  170898  C source files (*.c)
-   13014  C header files (*.h)
-  204977  Seed7 source files (*.sd7)
-  173003  Seed7 library/include files (*.s7i)
+  170984  C source files (*.c)
+   13015  C header files (*.h)
+  205237  Seed7 source files (*.sd7)
+  173275  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1656,9 +1657,10 @@ A database library provides a database independent API, which defines how
 a client may access a database. Seed7 accomplishes database independence
 by using database drivers as abstraction layers between the application
 and the database. There are database drivers for MySQL, MariaDB, SQLLite,
-PostgreSQL, Oracle, Firebird, Interbase, Db2 and SQL Server databases.
-Databases can also be accessed via the ODBC interface. How the database
-independent API of Seed7 works can be seen in the following example:
+PostgreSQL, Oracle, Firebird, Interbase, Db2, Informix and SQL Server
+databases. Databases can also be accessed via the ODBC interface. How the
+database independent API of Seed7 works can be seen in the following
+example:
 
   const proc: dbDemo is func
     local
@@ -2913,7 +2915,8 @@ currently supported databases:
   | Oracle     | oci.h      | db_oci.h  | sql_oci.c  | OCI_LIBS         | OCI_DLL           |
   | Firebird   | ibase.h    | db_fire.h | sql_fire.c | FIRE_LIBS        | FIRE_DLL          |
   | Interbase  | ibase.h    | db_fire.h | sql_fire.c | FIRE_LIBS        | FIRE_DLL          |
-  | DB2        | sqlcli1.h  | db_odbc.h | sql_db2.c  | DB2_LIBS         | DB2_LIBS          |
+  | DB2        | sqlcli1.h  | db_odbc.h | sql_db2.c  | DB2_LIBS         | DB2_DLL           |
+  | Informix   | infxcli.h  | db_odbc.h | sql_ifx.c  | INFORMIX_LIBS    | INFORMIX_DLL      |
   | SQL Server | sql.h      | db_odbc.h | sql_srv.c  | SQL_SERVER_LIBS  | SQL_SERVER_DLL    |
   | ODBC       | sql.h      | db_odbc.h | sql_odbc.c | ODBC_LIBS        | ODBC_DLL          |
   | TDS        | sybdb.h    | db_tds.h  | sql_tds.c  |                  | TDS_DLL           |
@@ -2932,6 +2935,7 @@ value differs between Linux, macOS and Windows:
   | OCI_LIBS         | -lclntsh            | -lclntsh            |                                      |
   | FIRE_LIBS        | -lfbclient          | -lfbclient          | fbclient.dll or gds32.dll            |
   | DB2_LIBS         | libdb2.a            | libdb2.a            | db2cli.lib                           |
+  | INFORMIX_LIBS    | iclit09b.a          | iclit09b.a          | iclit09b.lib                         |
   | SQL_SERVER_LIBS  |                     |                     |                                      |
   | ODBC_LIBS        | -lodbc              | -liodbc             | -lodbc32 or odbc32.lib               |
   +------------------+---------------------+---------------------+--------------------------------------+
@@ -2948,7 +2952,8 @@ value differs between Linux, macOS and Windows:
   | POSTGRESQL_DLL    | libpq.so or libpq.so.5 | libpq.dylib          | libpq.dll                      |
   | OCI_DLL           | libclntsh.so           | libclntsh.dylib      | oci.dll                        |
   | FIRE_DLL          | libfbclient.so         | libfbclient.dylib    | fbclient.dll or gds32.dll      |
-  | DB2_LIBS          | libdb2.so              | libdb2.dylib         | db2cli.dll                     |
+  | DB2_DLL           | libdb2.so              | libdb2.dylib         | db2cli.dll                     |
+  | INFORMIX_DLL      | iclit09b.so            | iclit09b.dylib       | iclit09b.dll                   |
   | SQL_SERVER_DLL    | libtdsodbc.so          | libtdsodbc.dylib     | sqlsrv32.dll                   |
   | ODBC_DLL          | libodbc.so             | libiodbc.dylib       | odbc32.dll                     |
   | TDS_DLL           | libsybdb.so            | libsybdb.dylib       | sybdb.dll                      |

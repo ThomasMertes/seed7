@@ -713,7 +713,8 @@ should be no need to <span class="link">call foreign C functions</span>, or to <
    and other annoyances are managed in the graphics library.</li>
 <li>A <span class="link">database library</span> provides a <span class="link">database independent API</span> to connect
    to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird, Interbase,
-   Db2 and SQL Server databases. The ODBC interface can be used also.</li>
+   Db2, Informix and SQL Server databases. The ODBC interface can be
+   used also.</li>
 <li>Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
    the modification of directory <span class="link">access</span> and <span class="link">modification times</span> also
@@ -803,7 +804,7 @@ Seed7 can be used in various application areas:
 <li>Scripts that deal with <span class="link">files and directories</span> (The Seed7 Homepage
    and the Seed7 release are created with Seed7 scripts).</li>
 <li>Tools for networking (There is support for <span class="link">sockets</span>, <span class="link">TLS/SSL</span>, <span class="link">listeners</span>,
-   <span class="link">HTTP</span>, <span class="link">HTTPS</span>, <span class="link">FTP</span>, <span class="link">SMTP</span> and HTML parsing). E.g.:<ul>
+   <span class="link">HTTP</span>, <span class="link">HTTPS</span>, <span class="link">FTP</span>, <span class="link">SMTP</span> and <span class="link">HTML parsing</span>). E.g.:<ul>
 <li><span class="link">A ftp file transfer program</span></li>
 <li><span class="link">A ftp server</span></li>
 <li><span class="link">A web server</span></li></ul></li>
@@ -837,12 +838,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2022-03-12 the number of lines is:
+than 300000 lines of Seed7. For version 2022-04-10 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">170898</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13014</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">204977</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">173003</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">170984</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 13015</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">205237</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">173275</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -2154,9 +2155,10 @@ A <span class="link">database library</span> provides a <span class="link">datab
 a client may access a database. Seed7 accomplishes database independence
 by using database drivers as abstraction layers between the application
 and the database. There are database drivers for MySQL, MariaDB, SQLLite,
-PostgreSQL, Oracle, Firebird, Interbase, Db2 and SQL Server databases.
-Databases can also be accessed via the ODBC interface. How the database
-independent API of Seed7 works can be seen in the following example:
+PostgreSQL, Oracle, Firebird, Interbase, Db2, Informix and SQL Server
+databases. Databases can also be accessed via the ODBC interface. How the
+database independent API of Seed7 works can be seen in the following
+example:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">proc</span>: dbDemo <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">local</span>
@@ -3411,7 +3413,8 @@ currently supported databases:
   <tr><td> Oracle     </td><td> oci.h      </td><td> db_oci.h  </td><td> sql_oci.c  </td><td> OCI_LIBS         </td><td> OCI_DLL           </td></tr>
   <tr><td> Firebird   </td><td> ibase.h    </td><td> db_fire.h </td><td> sql_fire.c </td><td> FIRE_LIBS        </td><td> FIRE_DLL          </td></tr>
   <tr><td> Interbase  </td><td> ibase.h    </td><td> db_fire.h </td><td> sql_fire.c </td><td> FIRE_LIBS        </td><td> FIRE_DLL          </td></tr>
-  <tr><td> DB2        </td><td> sqlcli1.h  </td><td> db_odbc.h </td><td> sql_db2.c  </td><td> DB2_LIBS         </td><td> DB2_LIBS          </td></tr>
+  <tr><td> DB2        </td><td> sqlcli1.h  </td><td> db_odbc.h </td><td> sql_db2.c  </td><td> DB2_LIBS         </td><td> DB2_DLL           </td></tr>
+  <tr><td> Informix   </td><td> infxcli.h  </td><td> db_odbc.h </td><td> sql_ifx.c  </td><td> INFORMIX_LIBS    </td><td> INFORMIX_DLL      </td></tr>
   <tr><td> SQL Server </td><td> sql.h      </td><td> db_odbc.h </td><td> sql_srv.c  </td><td> SQL_SERVER_LIBS  </td><td> SQL_SERVER_DLL    </td></tr>
   <tr><td> ODBC       </td><td> sql.h      </td><td> db_odbc.h </td><td> sql_odbc.c </td><td> ODBC_LIBS        </td><td> ODBC_DLL          </td></tr>
   <tr><td> TDS        </td><td> sybdb.h    </td><td> db_tds.h  </td><td> sql_tds.c  </td><td>                  </td><td> TDS_DLL           </td></tr>
@@ -3430,6 +3433,7 @@ value differs between Linux, macOS and Windows:
   <tr><td> OCI_LIBS         </td><td> -lclntsh            </td><td> -lclntsh            </td><td>                                      </td></tr>
   <tr><td> FIRE_LIBS        </td><td> -lfbclient          </td><td> -lfbclient          </td><td> fbclient.dll or gds32.dll            </td></tr>
   <tr><td> DB2_LIBS         </td><td> libdb2.a            </td><td> libdb2.a            </td><td> db2cli.lib                           </td></tr>
+  <tr><td> INFORMIX_LIBS    </td><td> iclit09b.a          </td><td> iclit09b.a          </td><td> iclit09b.lib                         </td></tr>
   <tr><td> SQL_SERVER_LIBS  </td><td>                     </td><td>                     </td><td>                                      </td></tr>
   <tr><td> ODBC_LIBS        </td><td> -lodbc              </td><td> -liodbc             </td><td> -lodbc32 or odbc32.lib               </td></tr>
   
@@ -3446,7 +3450,8 @@ value differs between Linux, macOS and Windows:
   <tr><td> POSTGRESQL_DLL    </td><td> libpq.so or libpq.so.5 </td><td> libpq.dylib          </td><td> libpq.dll                      </td></tr>
   <tr><td> OCI_DLL           </td><td> libclntsh.so           </td><td> libclntsh.dylib      </td><td> oci.dll                        </td></tr>
   <tr><td> FIRE_DLL          </td><td> libfbclient.so         </td><td> libfbclient.dylib    </td><td> fbclient.dll or gds32.dll      </td></tr>
-  <tr><td> DB2_LIBS          </td><td> libdb2.so              </td><td> libdb2.dylib         </td><td> db2cli.dll                     </td></tr>
+  <tr><td> DB2_DLL           </td><td> libdb2.so              </td><td> libdb2.dylib         </td><td> db2cli.dll                     </td></tr>
+  <tr><td> INFORMIX_DLL      </td><td> iclit09b.so            </td><td> iclit09b.dylib       </td><td> iclit09b.dll                   </td></tr>
   <tr><td> SQL_SERVER_DLL    </td><td> libtdsodbc.so          </td><td> libtdsodbc.dylib     </td><td> sqlsrv32.dll                   </td></tr>
   <tr><td> ODBC_DLL          </td><td> libodbc.so             </td><td> libiodbc.dylib       </td><td> odbc32.dll                     </td></tr>
   <tr><td> TDS_DLL           </td><td> libsybdb.so            </td><td> libsybdb.dylib       </td><td> sybdb.dll                      </td></tr>
