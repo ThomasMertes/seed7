@@ -562,6 +562,132 @@ const proc: testArrayCopy is func
   end func;
 
 
+const proc: testInitialization is func
+  local
+    var boolean: okay is TRUE;
+    const array boolean: blnArr1Const is 0 times FALSE;
+    const array integer: intArr1Const is 0 times 0;
+    const array bigInteger: bigArr1Const is 0 times 0_;
+    const array float: fltArr1Const is 0 times 0.0;
+    const array complex: cpxArr1Const is 0 times complex.value;
+    const array char: chrArr1Const is 0 times ' ';
+    const array string: strArr1Const is 0 times "";
+    const array bitset: setArr1Const is 0 times {};
+    const array boolean: blnArr2Const is [0 .. -1] times FALSE;
+    const array integer: intArr2Const is [0 .. -1] times 0;
+    const array bigInteger: bigArr2Const is [0 .. -1] times 0_;
+    const array float: fltArr2Const is [0 .. -1] times 0.0;
+    const array complex: cpxArr2Const is [0 .. -1] times complex.value;
+    const array char: chrArr2Const is [0 .. -1] times ' ';
+    const array string: strArr2Const is [0 .. -1] times "";
+    const array bitset: setArr2Const is [0 .. -1] times {};
+    const array boolean: blnArr3Const is [0 len 0] times FALSE;
+    const array integer: intArr3Const is [0 len 0] times 0;
+    const array bigInteger: bigArr3Const is [0 len 0] times 0_;
+    const array float: fltArr3Const is [0 len 0] times 0.0;
+    const array complex: cpxArr3Const is [0 len 0] times complex.value;
+    const array char: chrArr3Const is [0 len 0] times ' ';
+    const array string: strArr3Const is [0 len 0] times "";
+    const array bitset: setArr3Const is [0 len 0] times {};
+    var array boolean: blnArr1 is 0 times FALSE;
+    var array integer: intArr1 is 0 times 0;
+    var array bigInteger: bigArr1 is 0 times 0_;
+    var array float: fltArr1 is 0 times 0.0;
+    var array complex: cpxArr1 is 0 times complex.value;
+    var array char: chrArr1 is 0 times ' ';
+    var array string: strArr1 is 0 times "";
+    var array bitset: setArr1 is 0 times {};
+    var array boolean: blnArr2 is [0 .. -1] times FALSE;
+    var array integer: intArr2 is [0 .. -1] times 0;
+    var array bigInteger: bigArr2 is [0 .. -1] times 0_;
+    var array float: fltArr2 is [0 .. -1] times 0.0;
+    var array complex: cpxArr2 is [0 .. -1] times complex.value;
+    var array char: chrArr2 is [0 .. -1] times ' ';
+    var array string: strArr2 is [0 .. -1] times "";
+    var array bitset: setArr2 is [0 .. -1] times {};
+    var array boolean: blnArr3 is [0 len 0] times FALSE;
+    var array integer: intArr3 is [0 len 0] times 0;
+    var array bigInteger: bigArr3 is [0 len 0] times 0_;
+    var array float: fltArr3 is [0 len 0] times 0.0;
+    var array complex: cpxArr3 is [0 len 0] times complex.value;
+    var array char: chrArr3 is [0 len 0] times ' ';
+    var array string: strArr3 is [0 len 0] times "";
+    var array bitset: setArr3 is [0 len 0] times {};
+  begin
+    if  minIdx(blnArr1Const) <> 1 or maxIdx(blnArr1Const) <> 0 or length(blnArr1Const) <> 0 or
+        minIdx(intArr1Const) <> 1 or maxIdx(intArr1Const) <> 0 or length(intArr1Const) <> 0 or
+        minIdx(bigArr1Const) <> 1 or maxIdx(bigArr1Const) <> 0 or length(bigArr1Const) <> 0 or
+        minIdx(fltArr1Const) <> 1 or maxIdx(fltArr1Const) <> 0 or length(fltArr1Const) <> 0 or
+        minIdx(cpxArr1Const) <> 1 or maxIdx(cpxArr1Const) <> 0 or length(cpxArr1Const) <> 0 or
+        minIdx(chrArr1Const) <> 1 or maxIdx(chrArr1Const) <> 0 or length(chrArr1Const) <> 0 or
+        minIdx(strArr1Const) <> 1 or maxIdx(strArr1Const) <> 0 or length(strArr1Const) <> 0 or
+        minIdx(setArr1Const) <> 1 or maxIdx(setArr1Const) <> 0 or length(setArr1Const) <> 0 then
+      writeln(" ***** Initializing empty array failed. (1)");
+      okay := FALSE;
+    end if;
+    if  minIdx(blnArr2Const) <> 0 or maxIdx(blnArr2Const) <> -1 or length(blnArr2Const) <> 0 or
+        minIdx(intArr2Const) <> 0 or maxIdx(intArr2Const) <> -1 or length(intArr2Const) <> 0 or
+        minIdx(bigArr2Const) <> 0 or maxIdx(bigArr2Const) <> -1 or length(bigArr2Const) <> 0 or
+        minIdx(fltArr2Const) <> 0 or maxIdx(fltArr2Const) <> -1 or length(fltArr2Const) <> 0 or
+        minIdx(cpxArr2Const) <> 0 or maxIdx(cpxArr2Const) <> -1 or length(fltArr2Const) <> 0 or
+        minIdx(chrArr2Const) <> 0 or maxIdx(chrArr2Const) <> -1 or length(chrArr2Const) <> 0 or
+        minIdx(strArr2Const) <> 0 or maxIdx(strArr2Const) <> -1 or length(strArr2Const) <> 0 or
+        minIdx(setArr2Const) <> 0 or maxIdx(setArr2Const) <> -1 or length(setArr2Const) <> 0 then
+      writeln(" ***** Initializing empty array failed. (2)");
+      okay := FALSE;
+    end if;
+    if  minIdx(blnArr3Const) <> 0 or maxIdx(blnArr3Const) <> -1 or length(blnArr3Const) <> 0 or
+        minIdx(intArr3Const) <> 0 or maxIdx(intArr3Const) <> -1 or length(intArr3Const) <> 0 or
+        minIdx(bigArr3Const) <> 0 or maxIdx(bigArr3Const) <> -1 or length(bigArr3Const) <> 0 or
+        minIdx(fltArr3Const) <> 0 or maxIdx(fltArr3Const) <> -1 or length(fltArr3Const) <> 0 or
+        minIdx(cpxArr3Const) <> 0 or maxIdx(cpxArr3Const) <> -1 or length(fltArr3Const) <> 0 or
+        minIdx(chrArr3Const) <> 0 or maxIdx(chrArr3Const) <> -1 or length(chrArr3Const) <> 0 or
+        minIdx(strArr3Const) <> 0 or maxIdx(strArr3Const) <> -1 or length(strArr3Const) <> 0 or
+        minIdx(setArr3Const) <> 0 or maxIdx(setArr3Const) <> -1 or length(setArr3Const) <> 0 then
+      writeln(" ***** Initializing empty array failed. (3)");
+      okay := FALSE;
+    end if;
+
+    if  minIdx(blnArr1) <> 1 or maxIdx(blnArr1) <> 0 or length(blnArr1) <> 0 or
+        minIdx(intArr1) <> 1 or maxIdx(intArr1) <> 0 or length(intArr1) <> 0 or
+        minIdx(bigArr1) <> 1 or maxIdx(bigArr1) <> 0 or length(bigArr1) <> 0 or
+        minIdx(fltArr1) <> 1 or maxIdx(fltArr1) <> 0 or length(fltArr1) <> 0 or
+        minIdx(cpxArr1) <> 1 or maxIdx(cpxArr1) <> 0 or length(cpxArr1) <> 0 or
+        minIdx(chrArr1) <> 1 or maxIdx(chrArr1) <> 0 or length(chrArr1) <> 0 or
+        minIdx(strArr1) <> 1 or maxIdx(strArr1) <> 0 or length(strArr1) <> 0 or
+        minIdx(setArr1) <> 1 or maxIdx(setArr1) <> 0 or length(setArr1) <> 0 then
+      writeln(" ***** Initializing empty array failed. (4)");
+      okay := FALSE;
+    end if;
+    if  minIdx(blnArr2) <> 0 or maxIdx(blnArr2) <> -1 or length(blnArr2) <> 0 or
+        minIdx(intArr2) <> 0 or maxIdx(intArr2) <> -1 or length(intArr2) <> 0 or
+        minIdx(bigArr2) <> 0 or maxIdx(bigArr2) <> -1 or length(bigArr2) <> 0 or
+        minIdx(fltArr2) <> 0 or maxIdx(fltArr2) <> -1 or length(fltArr2) <> 0 or
+        minIdx(cpxArr2) <> 0 or maxIdx(cpxArr2) <> -1 or length(fltArr2) <> 0 or
+        minIdx(chrArr2) <> 0 or maxIdx(chrArr2) <> -1 or length(chrArr2) <> 0 or
+        minIdx(strArr2) <> 0 or maxIdx(strArr2) <> -1 or length(strArr2) <> 0 or
+        minIdx(setArr2) <> 0 or maxIdx(setArr2) <> -1 or length(setArr2) <> 0 then
+      writeln(" ***** Initializing empty array failed. (5)");
+      okay := FALSE;
+    end if;
+    if  minIdx(blnArr3) <> 0 or maxIdx(blnArr3) <> -1 or length(blnArr3) <> 0 or
+        minIdx(intArr3) <> 0 or maxIdx(intArr3) <> -1 or length(intArr3) <> 0 or
+        minIdx(bigArr3) <> 0 or maxIdx(bigArr3) <> -1 or length(bigArr3) <> 0 or
+        minIdx(fltArr3) <> 0 or maxIdx(fltArr3) <> -1 or length(fltArr3) <> 0 or
+        minIdx(cpxArr3) <> 0 or maxIdx(cpxArr3) <> -1 or length(fltArr3) <> 0 or
+        minIdx(chrArr3) <> 0 or maxIdx(chrArr3) <> -1 or length(chrArr3) <> 0 or
+        minIdx(strArr3) <> 0 or maxIdx(strArr3) <> -1 or length(strArr3) <> 0 or
+        minIdx(setArr3) <> 0 or maxIdx(setArr3) <> -1 or length(setArr3) <> 0 then
+      writeln(" ***** Initializing empty array failed. (6)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Array initialization works correct.");
+    end if;
+  end func;
+
+
 const proc: testCompare is func
   local
     var boolean: okay is TRUE;
@@ -1532,74 +1658,202 @@ const proc: testTimes is func
     var bitset: setElem is {};
   begin
     if 2 times blnElem <> [] (FALSE, FALSE) then
-      writeln(" ***** array times operator for 'array boolean' does not work correct");
+      writeln(" ***** array times operator for 'array boolean' does not work correct. (1)");
       okay := FALSE;
     end if;
     if 2 times odd(1) <> [] (TRUE, TRUE) then
-      writeln(" ***** array times operator for 'array boolean' does not work correct");
+      writeln(" ***** array times operator for 'array boolean' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times blnElem <> [0] (FALSE, FALSE) then
+      writeln(" ***** array times operator for 'array boolean' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times odd(1) <> [0] (TRUE, TRUE) then
+      writeln(" ***** array times operator for 'array boolean' does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times blnElem <> [0] (FALSE, FALSE) then
+      writeln(" ***** array times operator for 'array boolean' does not work correct. (5)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times odd(1) <> [0] (TRUE, TRUE) then
+      writeln(" ***** array times operator for 'array boolean' does not work correct. (6)");
       okay := FALSE;
     end if;
 
     if 2 times intElem <> [] (0, 0) then
-      writeln(" ***** array times operator for 'array integer' does not work correct");
+      writeln(" ***** array times operator for 'array integer' does not work correct. (1)");
       okay := FALSE;
     end if;
     if 2 times 1 + 2 <> [] (3, 3) then
-      writeln(" ***** array times operator for 'array integer' does not work correct");
+      writeln(" ***** array times operator for 'array integer' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times intElem <> [0] (0, 0) then
+      writeln(" ***** array times operator for 'array integer' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times 1 + 2 <> [0] (3, 3) then
+      writeln(" ***** array times operator for 'array integer' does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times intElem <> [0] (0, 0) then
+      writeln(" ***** array times operator for 'array integer' does not work correct. (5)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times 1 + 2 <> [0] (3, 3) then
+      writeln(" ***** array times operator for 'array integer' does not work correct. (6)");
       okay := FALSE;
     end if;
 
     if 2 times bigElem <> [] (0_, 0_) then
-      writeln(" ***** array times operator for 'array bigInteger' does not work correct");
+      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (1)");
       okay := FALSE;
     end if;
     if 2 times 1_ + 2_ <> [] (3_, 3_) then
-      writeln(" ***** array times operator for 'array bigInteger' does not work correct");
+      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times bigElem <> [0] (0_, 0_) then
+      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times 1_ + 2_ <> [0] (3_, 3_) then
+      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times bigElem <> [0] (0_, 0_) then
+      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (5)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times 1_ + 2_ <> [0] (3_, 3_) then
+      writeln(" ***** array times operator for 'array bigInteger' does not work correct. (6)");
       okay := FALSE;
     end if;
 
     if 2 times fltElem <> [] (0.0, 0.0) then
-      writeln(" ***** array times operator for 'array float' does not work correct");
+      writeln(" ***** array times operator for 'array float' does not work correct. (1)");
       okay := FALSE;
     end if;
     if 2 times 1.0 + 2.0 <> [] (3.0, 3.0) then
-      writeln(" ***** array times operator for 'array float' does not work correct");
+      writeln(" ***** array times operator for 'array float' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times fltElem <> [0] (0.0, 0.0) then
+      writeln(" ***** array times operator for 'array float' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times 1.0 + 2.0 <> [0] (3.0, 3.0) then
+      writeln(" ***** array times operator for 'array float' does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times fltElem <> [0] (0.0, 0.0) then
+      writeln(" ***** array times operator for 'array float' does not work correct. (5)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times 1.0 + 2.0 <> [0] (3.0, 3.0) then
+      writeln(" ***** array times operator for 'array float' does not work correct. (6)");
       okay := FALSE;
     end if;
 
     if 2 times cpxElem <> [] (complex(0.0, 0.0), complex(0.0, 0.0)) then
-      writeln(" ***** array times operator for 'array complex' does not work correct");
+      writeln(" ***** array times operator for 'array complex' does not work correct. (1)");
       okay := FALSE;
     end if;
     if 2 times complex(1.0, 2.0) + complex(3.0, 4.0) <> [] (complex(4.0, 6.0), complex(4.0, 6.0)) then
-      writeln(" ***** array times operator for 'array complex' does not work correct");
+      writeln(" ***** array times operator for 'array complex' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times cpxElem <> [0] (complex(0.0, 0.0), complex(0.0, 0.0)) then
+      writeln(" ***** array times operator for 'array complex' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times complex(1.0, 2.0) + complex(3.0, 4.0) <> [0] (complex(4.0, 6.0), complex(4.0, 6.0)) then
+      writeln(" ***** array times operator for 'array complex' does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times cpxElem <> [0] (complex(0.0, 0.0), complex(0.0, 0.0)) then
+      writeln(" ***** array times operator for 'array complex' does not work correct. (5)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times complex(1.0, 2.0) + complex(3.0, 4.0) <> [0] (complex(4.0, 6.0), complex(4.0, 6.0)) then
+      writeln(" ***** array times operator for 'array complex' does not work correct. (6)");
       okay := FALSE;
     end if;
 
     if 2 times chrElem <> [] (' ', ' ') then
-      writeln(" ***** array times operator for 'array char' does not work correct");
+      writeln(" ***** array times operator for 'array char' does not work correct. (1)");
       okay := FALSE;
     end if;
     if 2 times char(65) <> [] ('A', 'A') then
-      writeln(" ***** array times operator for 'array char' does not work correct");
+      writeln(" ***** array times operator for 'array char' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times chrElem <> [0] (' ', ' ') then
+      writeln(" ***** array times operator for 'array char' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times char(65) <> [0] ('A', 'A') then
+      writeln(" ***** array times operator for 'array char' does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times chrElem <> [0] (' ', ' ') then
+      writeln(" ***** array times operator for 'array char' does not work correct. (5)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times char(65) <> [0] ('A', 'A') then
+      writeln(" ***** array times operator for 'array char' does not work correct. (6)");
       okay := FALSE;
     end if;
 
     if 2 times strElem <> [] ("", "") then
-      writeln(" ***** array times operator for 'array string' does not work correct");
+      writeln(" ***** array times operator for 'array string' does not work correct. (1)");
       okay := FALSE;
     end if;
     if 2 times ("a" & "b") <> [] ("ab", "ab") then
-      writeln(" ***** array times operator for 'array string' does not work correct");
+      writeln(" ***** array times operator for 'array string' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times strElem <> [0] ("", "") then
+      writeln(" ***** array times operator for 'array string' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times ("a" & "b") <> [0] ("ab", "ab") then
+      writeln(" ***** array times operator for 'array string' does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times strElem <> [0] ("", "") then
+      writeln(" ***** array times operator for 'array string' does not work correct. (5)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times ("a" & "b") <> [0] ("ab", "ab") then
+      writeln(" ***** array times operator for 'array string' does not work correct. (6)");
       okay := FALSE;
     end if;
 
     if 2 times setElem <> [] ({}, {}) then
-      writeln(" ***** array times operator for 'array bitset' does not work correct");
+      writeln(" ***** array times operator for 'array bitset' does not work correct. (1)");
       okay := FALSE;
     end if;
     if 2 times ({1} | {2}) <> [] ({1, 2}, {1, 2}) then
-      writeln(" ***** array times operator for 'array bitset' does not work correct");
+      writeln(" ***** array times operator for 'array bitset' does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times setElem <> [0] ({}, {}) then
+      writeln(" ***** array times operator for 'array bitset' does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if [0 .. 1] times ({1} | {2}) <> [0] ({1, 2}, {1, 2}) then
+      writeln(" ***** array times operator for 'array bitset' does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times setElem <> [0] ({}, {}) then
+      writeln(" ***** array times operator for 'array bitset' does not work correct. (5)");
+      okay := FALSE;
+    end if;
+    if [0 len 2] times ({1} | {2}) <> [0] ({1, 2}, {1, 2}) then
+      writeln(" ***** array times operator for 'array bitset' does not work correct. (6)");
       okay := FALSE;
     end if;
 
@@ -5632,6 +5886,7 @@ const proc: main is func
   begin
     writeln;
     # testSpecial;
+    testInitialization;
     testCompare;
     testAssign;
     testAppend;
