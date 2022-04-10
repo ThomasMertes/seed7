@@ -659,7 +659,7 @@ void pop_stack (void)
   /* pop_stack */
     logFunction(printf("pop_stack %d\n", depth););
     if (prog->stack_current->downward != NULL) {
-      /* printf("%lx pop_stack %d\n", prog->stack_current, depth); */
+      /* printf(FMT_U_MEM " pop_stack %d\n", (memSizeType) prog->stack_current, depth); */
       list_element = prog->stack_current->local_object_list;
       while (list_element != NULL) {
         pop_object(prog, list_element->obj);
@@ -700,6 +700,17 @@ listType *get_local_object_insert_place (void)
   { /* get_local_object_insert_place */
     return prog->stack_current->object_list_insert_place;
   } /* get_local_object_insert_place */
+
+
+
+void pop_object_list (listType list_element)
+
+  { /* pop_object_list */
+    while (list_element != NULL) {
+      pop_object(prog, list_element->obj);
+      list_element = list_element->next;
+    } /* while */
+  } /* pop_object_list */
 
 
 

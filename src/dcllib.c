@@ -197,14 +197,20 @@ objectType dcl_elements (listType arguments)
 
   {
     objectType local_decls;
+    boolType can_push_stack;
     listType *local_object_insert_place;
     objectType decl_res;
-    listType element_list;
     errInfoType err_info = OKAY_NO_ERROR;
+    listType element_list;
 
   /* dcl_elements */
     local_decls = arg_1(arguments);
-    push_stack();
+    /* printf("stack upward: " FMT_U_MEM "\n",
+           (memSizeType) prog->stack_current->upward); */
+    can_push_stack = prog->stack_current->upward != NULL;
+    if (can_push_stack) {
+      push_stack();
+    } /* if */
     local_object_insert_place = get_local_object_insert_place();
     decl_res = evaluate(local_decls);
     if (decl_res != SYS_EMPTY_OBJECT) {
@@ -215,10 +221,17 @@ objectType dcl_elements (listType arguments)
       printf("\n");
       err_object(PROC_EXPECTED, decl_res);
     } /* if */
-    element_list = copy_list(*local_object_insert_place, &err_info);
-    /* printf("before pop_stack\n"); */
-    pop_stack();
-    /* printf("after pop_stack\n"); */
+    if (can_push_stack) {
+      element_list = copy_list(*local_object_insert_place, &err_info);
+      /* printf("before pop_stack\n"); */
+      pop_stack();
+      /* printf("after pop_stack\n"); */
+    } else {
+      element_list = *local_object_insert_place;
+      *local_object_insert_place = NULL;
+      pop_object_list(element_list);
+      prog->stack_current->object_list_insert_place = local_object_insert_place;
+    } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {

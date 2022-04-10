@@ -33,6 +33,7 @@ void shrink_stack (void);
 void push_stack (void);
 void pop_stack (void);
 listType *get_local_object_insert_place (void);
+void pop_object_list (listType list_element);
 objectType entername (nodeType declaration_base, objectType object_name,
     errInfoType *err_info);
 objectType find_name (nodeType declaration_base, const_objectType object_name,
