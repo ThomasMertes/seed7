@@ -426,9 +426,10 @@ listType array_to_list (arrayType arr_from, errInfoType *err_info)
     listType list_to;
 
   /* array_to_list */
-    logFunction(printf("array_to_list\n"););
+    logFunction(printf("array_to_list(array[" FMT_D ".." FMT_D "])\n",
+                       arr_from->min_position, arr_from->max_position););
     arr_from_size = arraySize(arr_from);
-    if (arr_from_size != 0 && *err_info == OKAY_NO_ERROR) {
+    if (arr_from_size != 0) {
       if (flist.list_elems != NULL) {
         help_element = flist.list_elems;
         list_to = help_element;

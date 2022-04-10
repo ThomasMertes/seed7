@@ -206,6 +206,7 @@ intType refArrMinIdx (const const_objectType arrayRef)
 listType refArrToList (const const_objectType arrayRef)
 
   {
+    arrayType arrayValue;
     errInfoType err_info = OKAY_NO_ERROR;
     listType result;
 
@@ -218,10 +219,20 @@ listType refArrToList (const const_objectType arrayRef)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = array_to_list(take_array(arrayRef), &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
-        raise_error(MEMORY_ERROR);
+      arrayValue = take_array(arrayRef);
+      if (unlikely(arrayValue->min_position > arrayValue->max_position &&
+                   arraySize(arrayValue) != 0)) {
+        logError(printf("refArrToList(");
+                 trace1(arrayRef);
+                 printf("): Illegal array value.\n"););
+        raise_error(RANGE_ERROR);
         result = NULL;
+      } else {
+        result = array_to_list(arrayValue, &err_info);
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          raise_error(err_info);
+          result = NULL;
+        } /* if */
       } /* if */
     } /* if */
     return result;
