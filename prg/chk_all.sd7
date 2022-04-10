@@ -204,6 +204,7 @@ const string: chkbst_output is "\n\
   \The ternary operator ? : works correct for bstring.\n";
 
 const string: chkarr_output is "\n\
+  \Array initialization works correct.\n\
   \Array comparison works correct.\n\
   \Array assignment works correct.\n\
   \Array append ( &:= ) works correct.\n\
