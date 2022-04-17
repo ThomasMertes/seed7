@@ -447,14 +447,16 @@ void lit_char (void)
           err_warning(CHAREXCEEDS);
         } else {
           err_cchar(APOSTROPHEXPECTED, in_file.character);
-          do {
-            in_file.character = next_character();
-          } while (in_file.character != '\'' &&
-              in_file.character != '\n' &&
-              in_file.character != '\r' &&
-              in_file.character != EOF);
-          if (in_file.character == '\'') {
-            in_file.character = next_character();
+          if (symbol.charValue != '\'' || position != 0) {
+            do {
+              in_file.character = next_character();
+            } while (in_file.character != '\'' &&
+                in_file.character != '\n' &&
+                in_file.character != '\r' &&
+                in_file.character != EOF);
+            if (in_file.character == '\'') {
+              in_file.character = next_character();
+            } /* if */
           } /* if */
         } /* if */
       } else {
