@@ -1,6 +1,6 @@
 "----------------------------------------------------------------------------
 "  Description: Vim sd7 syntax file
-"     Language: Seed7 
+"     Language: Seed7
 "	   $Id: s7.vim 001 2021-12-05 22:55:01Z jg $
 "    Copyright: Copyright (C) 2021 J. Gritsch
 "   Maintainer: Johannes Gritsch
@@ -93,13 +93,13 @@ syntax match    sd7Conditional	"\<else\>"
 syntax match    sd7Conditional	"\<end\s\+if\>"
 syntax match    sd7Conditional	"\<end\s\+case\>"
 syntax match    sd7Conditional	"\<end\s\+select\>"
-syntax keyword  sd7Conditional	if case otherwise  
+syntax keyword  sd7Conditional	if case otherwise
 syntax keyword  sd7Conditional	elsif when
 
 " Section: other keywords {{{1
 syntax keyword  sd7Keyword	do exception new null out
 syntax keyword  sd7Keyword	downto enum forward inout local of param range ref
-syntax keyword  sd7Keyword	return struct sub syntax system to val 
+syntax keyword  sd7Keyword	return struct sub syntax system to val
 
 " Section: begin keywords {{{1
 "
@@ -126,16 +126,10 @@ syntax keyword sd7Todo contained TODO FIXME XXX NOTE
 
 " Section: Comments. {{{1
 "
-syntax region  sd7Comment 
-    \ contains=sd7Todo,sd7LineError,@Spell
-    \ start="(\*"
-    \ end="\*)"
+syntax region sd7Comment contains=sd7Todo,sd7LineError,@Spell start="(\*" end="\*)"
 
 " Section: Comments. {{{1
-syntax region sd7var
-    \ contains=sd7String,sd7Number,sd7Character,sd7Statement
-    \ start="\<var\>"
-    \ end="\;"
+syntax region sd7var contains=sd7String,sd7Number,sd7Character,sd7Statement start="\<var\>" end="\;"
 
 " Section: The default methods for highlighting. Can be overridden later. {{{1
 "
