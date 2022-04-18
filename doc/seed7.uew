@@ -1,39 +1,40 @@
-/L20"Seed7" SEED7_LANG Nocase Line Comment = # Block Comment On = (* Block Comment Off = *)  Escape Char = \ String Chars = '" File Extensions = SD7
+/L20"Seed7" SEED7_LANG NestBlockComments Line Comment = # Block Comment On = (* Block Comment Off = *)  Escape Char = \ String Chars = '" File Extensions = SD7 S7I
 /Delimiters = ~!@%^&*()-+=|\/{}[]:;"'<> ,	.?
-/Indent Strings = "BEGIN" "CASE" "DO" "ELSE" "ELSIF" "OTHERWISE" "THEN" "WHEN"
-/Unindent Strings = "END"
+/Indent Strings = "begin" "case" "do" "else" "elsif" "otherwise" "then" "when"
+/Unindent Strings = "end"
 /C1"Reserved words"
-BEGIN
-CASE CONST 
-DO DOWNTO
-ELSE ELSIF END ENUM EXP
-FOR FORWARD FUNC FALSE
-IF IN INCLUDE INOUT IS
-LOCAL 
-NEW
-OF OTHERWISE
-PARAM 
-RANGE REF REPEAT RESULT RETURN 
-SCI STRUCT SYNTAX SYSTEM
-THEN TO TRUE 
-UNTIL
-VAL VAR 
-WHEN WHILE 
+begin block
+case catch const
+do downto
+else elsif end enum exception
+for forward func FALSE
+if in include inout is
+key
+local
+new
+of otherwise
+param
+range ref repeat result return
+struct syntax system
+then to TRUE
+until
+val var
+when while
 /C2"Predeclared identifiers"
-ARRAY
-BIGINTEGER BIGRATIONAL BITSET BOOLEAN 
-CHAR COLOR COMPLEX 
-DURATION
-EXPR
-FILE FLOAT FUNC
-HASH
-INTEGER
-OBJECT
-PROC PROGRAM
-RATIONAL REFERENCE REF_LIST 
-SET STRING
-TEXT TIME TYPE
-VARFUNC VOID
+array
+bigInteger bigRational bitset boolean
+char color complex
+duration
+expr
+file float func
+hash
+integer
+object
+proc program
+rational reference ref_list
+set string
+text time type
+varfunc void
 /C3"Operators"
 +
 -
@@ -60,19 +61,19 @@ VARFUNC VOID
 &:=  
 @:=
 /C4"Other ops"
-AND
-CONV
-DIGITS DIV
-EXP
-LPAD LPAD0
-MDIV MOD MULT
-NOT
-OR
-PARSE
-REM RPAD
-SCI
-TIMES
-VARCONV
+and
+conv
+digits div
+exp
+lpad lpad0
+mdiv mod mult
+not
+or
+parse
+rem rpad
+sci
+times
+varconv
 /C5"Statements"
-READ READLN
-WRITE WRITELN
+read readln
+write writeln
