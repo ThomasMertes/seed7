@@ -34,19 +34,16 @@ let b:current_syntax = "sd7"
 "
 " Section: Operators {{{1
 "
-syntax keyword  sd7Operator abs mod not rem xor conv digits div exp in lpad lapd0
-syntax keyword  sd7Operator mdif mod mult parse rem rpad sci times varConv
-syntax match    sd7Operator "\<and\>"
-syntax match    sd7Operator "\<or\>"
+syntax keyword  sd7Operator and conv digits div exp in lpad lapd0 mdiv mod mult not or parse rem rpad sci times varConv
 syntax match    sd7Operator "[-+*/<>&[\]:{}@]"
-syntax keyword  sd7Operator **
+syntax keyword  sd7Operator ** ><
 syntax match    sd7Operator "[/<>]="
 syntax match    sd7Operator "\.\."
 syntax match    sd7Operator "="
 
 " Section: := {{{1
 "
-syntax match sd7Assignment		"@?:="
+syntax match sd7Assignment		"(\+|-|\*|/|<<|>>|&|><|\||@)?:="
 
 " Section: Numbers, including floating point, exponents, and alternate bases. {{{1
 "
@@ -55,7 +52,7 @@ syntax match   sd7Number		"\<\d\d\=#\x[0-9A-Fa-f_]*\(\.\x[0-9A-Fa-f_]*\)\=#\([Ee
 
 " Section: Boolean Constants {{{1
 " Boolean Constants.
-syntax keyword sd7Boolean	true false
+syntax keyword sd7Boolean	TRUE FALSE
 
 " Section: Warn C/C++ {{{1
 " Warn people who try to use C/C++ notation erroneously:
@@ -97,7 +94,7 @@ syntax keyword  sd7Conditional	if case otherwise
 syntax keyword  sd7Conditional	elsif when
 
 " Section: other keywords {{{1
-syntax keyword  sd7Keyword	do exception new null out
+syntax keyword  sd7Keyword	block do exception key new null out
 syntax keyword  sd7Keyword	downto enum forward inout local of param range ref
 syntax keyword  sd7Keyword	return struct sub syntax system to val
 
@@ -115,9 +112,8 @@ syntax match    sd7Begin	"\<procedure\>" contains=sd7Procedure
 
 " Section: String and character constants. {{{1
 "
-"syntax match   sd7Escapes  +\"+
-"syntax match   sd7Escapes  +\\\\+
-syntax region  sd7String	start=+L\="+ skip=+\\\\\|\\"+ end=+"+ contains=@Spell extend
+syntax match   sd7Escapes  +\.+
+syntax region  sd7String	start=+L\="+ skip=+\\\\\|\\"+ end=+"+ contains=@Spell,sd7Escapes extend
 syntax match   sd7Character "'.'"
 
 " Section: Todo (only highlighted in comments) {{{1
@@ -126,7 +122,8 @@ syntax keyword sd7Todo contained TODO FIXME XXX NOTE
 
 " Section: Comments. {{{1
 "
-syntax region sd7Comment contains=sd7Todo,sd7LineError,@Spell start="(\*" end="\*)"
+syntax region  sd7Comment contains=sd7Todo,sd7LineError,@Spell,sd7Comment start="(\*" end="\*)"
+syntax region  sd7CommentL contains=sd7Todo,sd7LineError,@Spell start="#" end="$"
 
 " Section: Comments. {{{1
 syntax region sd7var contains=sd7String,sd7Number,sd7Character,sd7Statement start="\<var\>" end="\;"
@@ -135,6 +132,7 @@ syntax region sd7var contains=sd7String,sd7Number,sd7Character,sd7Statement star
 "
 highlight def link sd7Character	    Character
 highlight def link sd7Comment	    Comment
+highlight def link sd7CommentL	    Comment
 highlight def link sd7Conditional   Conditional
 highlight def link sd7Keyword	    Keyword
 highlight def link sd7Label	    Label
