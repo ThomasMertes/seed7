@@ -1030,7 +1030,7 @@ static int sqltNumberFromDecimalInt (uint8Type *ociNumberData,
             } /* for */
             /* Add terminator for negative value */
             if (negative && length < 20) {
-              mantissa[length++] = -1;
+              mantissa[length++] = (char) -1;
             } /* if */
 #if RSHIFT_DOES_SIGN_EXTEND
             decimalExponent >>= 1;

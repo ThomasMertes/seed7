@@ -407,7 +407,7 @@ static gid_t getGidFromGroup (const const_striType group, errInfoType *err_info)
         gid = (gid_t) -1;
       } else
 #elif HAS_GETGRNAM
-      grpResult = getgrgid(gid);
+      grpResult = getgrnam(os_group);
 #endif
       if (grpResult != NULL) {
         gid = grpResult->gr_gid;
@@ -517,7 +517,7 @@ static uid_t getUidFromUser (const const_striType user, errInfoType *err_info)
         uid = (uid_t) -1;
       } else
 #elif HAS_GETPWNAM
-      pwdResult = getpwuid(uid);
+      pwdResult = getpwnam(os_user);
 #endif
       if (pwdResult != NULL) {
         uid = pwdResult->pw_uid;
