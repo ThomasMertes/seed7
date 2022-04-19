@@ -1013,6 +1013,7 @@ static int runTest (int checkNumericValue)
     int ch;
     int returncode;
     FILE *outFile;
+    time_t startTime;
     int readFailed;
     int repeatCount = 0;
     int result = -1;
@@ -1032,6 +1033,7 @@ static int runTest (int checkNumericValue)
     if (returncode != -1) {
       sprintf(fileName, "ctest%d.out", testNumber);
       if (fileIsPresentPossiblyAfterDelay(fileName)) {
+        startTime = time(NULL);
         do {
           outFile = fopen(fileName, "r");
           if (outFile != NULL) {
@@ -1046,7 +1048,7 @@ static int runTest (int checkNumericValue)
           } else {
             fprintf(logFile, "\n *** Cannot open \"%s\".\n ", fileName);
           } /* if */
-        } while (checkNumericValue && readFailed && repeatCount < 10);
+        } while (checkNumericValue && readFailed && time(NULL) < startTime + 20);
         if (checkNumericValue && repeatCount != 0) {
           if (readFailed) {
             fprintf(logFile, "\n *** No numeric result in \"%s\".\n", fileName);
