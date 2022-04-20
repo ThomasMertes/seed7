@@ -1409,7 +1409,6 @@ const func PRIMITIVE_WINDOW: readTiff (inout file: tiffFile) is func
   begin
     magic := gets(tiffFile, length(TIFF_MAGIC_LE));
     if magic = TIFF_MAGIC_LE or magic = TIFF_MAGIC_BE then
-      pixmap := newPixmap(1, 1); # Initialize graphic
       readHeader(tiffFile, magic, header);
       if header.offsetToFirstIfd <> 0 then
         seek(tiffFile, succ(header.offsetToFirstIfd));

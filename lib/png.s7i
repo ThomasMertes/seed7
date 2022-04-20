@@ -608,7 +608,6 @@ const func PRIMITIVE_WINDOW: readPng (inout file: pngFile) is func
   begin
     magic := gets(pngFile, length(PNG_MAGIC));
     if magic = PNG_MAGIC then
-      pixmap := newPixmap(1, 1); # Initialize graphic
       repeat
         chunkData := readPngChunk(pngFile, chunkType);
         # write("chunkType: " <& literal(chunkType));

@@ -96,7 +96,6 @@ const func PRIMITIVE_WINDOW: readIco (inout file: icoFile) is func
   begin
     magic := gets(icoFile, length(ICO_MAGIC));
     if magic = ICO_MAGIC then
-      pixmap := newPixmap(1, 1); # Initialize graphic
       numberOfImages := bytes2Int(gets(icoFile, 2), UNSIGNED, LE);
       # writeln("numberOfImages: " <& numberOfImages);
       readDirEntry(icoFile, dirEntry);

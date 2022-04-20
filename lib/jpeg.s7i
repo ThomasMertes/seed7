@@ -1483,7 +1483,6 @@ const func PRIMITIVE_WINDOW: readJpeg (inout file: jpegFile) is func
   begin
     magic := gets(jpegFile, length(JPEG_MAGIC));
     if magic = JPEG_MAGIC then
-      pixmap := newPixmap(1, 1); # Initialize graphic
       # Start Of Image (SOI)
       repeat
         if readMarker then

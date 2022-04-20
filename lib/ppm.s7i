@@ -58,7 +58,6 @@ const func PRIMITIVE_WINDOW: readPpm (inout file: ppmFile) is func
   begin
     magic := gets(ppmFile, length(PPM_MAGIC));
     if magic = PPM_MAGIC then
-      pixmap := newPixmap(1, 1); # Initialize graphic
       ppmFile.bufferChar := getc(ppmFile);
       skipWhiteSpace(ppmFile);
       while ppmFile.bufferChar = '#' do

@@ -710,7 +710,6 @@ const func PRIMITIVE_WINDOW: readBmp (inout file: bmpFile) is func
   begin
     magic := gets(bmpFile, length(BMP_MAGIC));
     if magic = BMP_MAGIC then
-      pixmap := newPixmap(1, 1); # Initialize graphic
       readHeader(bmpFile, header);
       # showHeader(header);
       pixmap := readBmp(bmpFile, header);
