@@ -94,6 +94,8 @@ static Cursor emptyCursor;
 static GC mygc;
 static int myscreen;
 
+static boolType init_called = FALSE;
+
 typedef struct {
     uintType usage_count;
     /* Up to here the structure is identical to struct winStruct */
@@ -435,7 +437,7 @@ static int get_highest_bit (unsigned long number)
 
 
 
-static void drawInit (void)
+void drawInit (void)
 
   {
 #ifdef OUT_OF_ORDER
@@ -527,6 +529,7 @@ static void drawInit (void)
       blankPixmap = XCreateBitmapFromData(mydisplay, DefaultRootWindow(mydisplay), data, 1, 1);
       emptyCursor = XCreatePixmapCursor(mydisplay, blankPixmap, blankPixmap, &color, &color, 0, 0);
       XFreePixmap(mydisplay, blankPixmap);
+      init_called = TRUE;
     } /* if */
     logFunction(printf("drawInit -->\n"););
   } /* drawInit */
@@ -1504,10 +1507,10 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
       raise_error(RANGE_ERROR);
       pixmap = NULL;
     } else {
-      if (mydisplay == NULL) {
+      if (!init_called) {
         drawInit();
       } /* if */
-      if (unlikely(mydisplay == NULL)) {
+      if (unlikely(!init_called)) {
         logError(printf("drwImage: drawInit() failed to open a display.\n"););
         raise_error(FILE_ERROR);
         pixmap = NULL;
@@ -1591,10 +1594,10 @@ winType drwNewPixmap (intType width, intType height)
       raise_error(RANGE_ERROR);
       pixmap = NULL;
     } else {
-      if (mydisplay == NULL) {
+      if (!init_called) {
         drawInit();
       } /* if */
-      if (unlikely(mydisplay == NULL)) {
+      if (unlikely(!init_called)) {
         logError(printf("drwNewPixmap: drawInit() failed to open a display.\n"););
         raise_error(FILE_ERROR);
         pixmap = NULL;
@@ -1675,10 +1678,10 @@ winType drwOpen (intType xPos, intType yPos,
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else {
-      if (mydisplay == NULL) {
+      if (!init_called) {
         drawInit();
       } /* if */
-      if (unlikely(mydisplay == NULL)) {
+      if (unlikely(!init_called)) {
         logError(printf("drwOpen: drawInit() failed to open a display.\n"););
         raise_error(FILE_ERROR);
       } else {
@@ -1832,10 +1835,10 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else {
-      if (mydisplay == NULL) {
+      if (!init_called) {
         drawInit();
       } /* if */
-      if (unlikely(mydisplay == NULL)) {
+      if (unlikely(!init_called)) {
         logError(printf("drwOpenSubWindow: drawInit() failed to open a display.\n"););
         raise_error(FILE_ERROR);
       } else {
@@ -2590,7 +2593,7 @@ intType drwScreenHeight (void)
 
   /* drwScreenHeight */
     logFunction(printf("drwScreenHeight()\n"););
-    if (mydisplay == NULL) {
+    if (!init_called) {
       drawInit();
     } /* if */
     if (unlikely(XGetGeometry(mydisplay, DefaultRootWindow(mydisplay), &root,
@@ -2618,7 +2621,7 @@ intType drwScreenWidth (void)
 
   /* drwScreenWidth */
     logFunction(printf("drwScreenWidth()\n"););
-    if (mydisplay == NULL) {
+    if (!init_called) {
       drawInit();
     } /* if */
     if (unlikely(XGetGeometry(mydisplay, DefaultRootWindow(mydisplay), &root,

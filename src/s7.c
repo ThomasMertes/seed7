@@ -64,6 +64,7 @@
 #include "con_drv.h"
 #include "fil_drv.h"
 #include "big_drv.h"
+#include "drw_drv.h"
 
 #ifdef USE_WINMAIN
 typedef struct {
@@ -72,7 +73,7 @@ typedef struct {
 typedef HINSTANCE__ *HINSTANCE;
 #endif
 
-#define VERSION_INFO "SEED7 INTERPRETER Version 5.1.%d  Copyright (c) 1990-2021 Thomas Mertes\n"
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.1.%d  Copyright (c) 1990-2022 Thomas Mertes\n"
 
 
 
@@ -437,6 +438,7 @@ int main (int argc, char **argv)
         } else {
           setupFloat();
           setupBig();
+          drawInit();
           /* printf("sourceFileArgument: \"");
              prot_stri(option.sourceFileArgument);
              printf("\"\n");

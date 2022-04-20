@@ -134,6 +134,7 @@ const func string: defineRgbMacroBody is func
 const proc: drw_prototypes (inout file: c_prog) is func
 
   begin
+    declareExtern(c_prog, "void        drawInit (void);");
     declareExtern(c_prog, "intType     drwPointerXpos (const_winType);");
     declareExtern(c_prog, "intType     drwPointerYpos (const_winType);");
     declareExtern(c_prog, "void        drwArc (const_winType, intType, intType, intType, floatType, floatType);");

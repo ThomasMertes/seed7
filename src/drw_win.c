@@ -65,7 +65,7 @@
 #define windowClass "MyWindowClass"
 #define windowClassW L"MyWindowClass"
 
-static intType init_called = 0;
+static boolType init_called = FALSE;
 
 typedef struct {
     uintType usage_count;
@@ -410,7 +410,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 
-static void drawInit (void)
+void drawInit (void)
 
   {
     WNDCLASSEX wcex = {0};
@@ -432,7 +432,7 @@ static void drawInit (void)
     if (hntdll != 0) {
       pGetConsoleWindow = (pGetConsoleWindowType) GetProcAddress(hntdll, "GetConsoleWindow");
     } /* if */
-    init_called = 1;
+    init_called = TRUE;
   } /* drawInit */
 
 
@@ -602,7 +602,7 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
         old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
         minRadius = (double) (radius - width + 1);
         maxRadius = (double) radius;
-        angleDelta = asin(2.0 / radius);
+        angleDelta = asin(2.0 / (double) radius);
         BeginPath(to_hdc(actual_window));
         MoveToEx(to_hdc(actual_window),
                  (int) x + (int) (cos(startAngle) * maxRadius),
@@ -1019,7 +1019,7 @@ winType drwEmpty (void)
 
   /* drwEmpty */
     logFunction(printf("drwEmpty()\n"););
-    if (init_called == 0) {
+    if (!init_called) {
       drawInit();
     } /* if */
     if (unlikely(!ALLOC_RECORD2(emptyWindow, win_winRecord, count.win, count.win_bytes))) {
@@ -1281,7 +1281,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
       raise_error(RANGE_ERROR);
       pixmap = NULL;
     } else {
-      if (init_called == 0) {
+      if (!init_called) {
         drawInit();
       } /* if */
       if (unlikely(!ALLOC_RECORD2(pixmap, win_winRecord, count.win, count.win_bytes))) {
@@ -1375,7 +1375,7 @@ winType drwNewPixmap (intType width, intType height)
       raise_error(RANGE_ERROR);
       pixmap = NULL;
     } else {
-      if (init_called == 0) {
+      if (!init_called) {
         drawInit();
       } /* if */
       if (unlikely(!ALLOC_RECORD2(pixmap, win_winRecord, count.win, count.win_bytes))) {
@@ -1469,10 +1469,10 @@ winType drwOpen (intType xPos, intType yPos,
                  height < 1 || height > INT_MAX - bruttoHeightDelta)) {
       raise_error(RANGE_ERROR);
     } else {
-      if (init_called == 0) {
+      if (!init_called) {
         drawInit();
       } /* if */
-      if (init_called != 0) {
+      if (init_called) {
         winName = stri_to_os_stri(windowName, &err_info);
         if (unlikely(winName == NULL)) {
           raise_error(err_info);
@@ -1581,10 +1581,10 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else {
-      if (init_called == 0) {
+      if (!init_called) {
         drawInit();
       } /* if */
-      if (init_called != 0) {
+      if (init_called) {
         if (ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes)) {
           memset(result, 0, sizeof(win_winRecord));
           result->usage_count = 1;

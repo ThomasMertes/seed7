@@ -29,6 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
+void drawInit (void);
 boolType gkbButtonPressed (charType button);
 intType gkbButtonXpos (void);
 intType gkbButtonYpos (void);

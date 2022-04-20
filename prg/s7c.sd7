@@ -2524,6 +2524,9 @@ const proc: process_main_declaration (in reference: current_object,
     end if;
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "setupBig();\n";
+    if drawLibraryUsed then
+      main_prolog &:= "drawInit();\n";
+    end if;
     if compilerLibraryUsed then
       main_prolog &:= "init_primitiv();\n";
     end if;
@@ -7764,7 +7767,7 @@ const proc: main is func
   begin
     OUT := STD_UTF8_OUT;
     writeln("SEED7 COMPILER Version 3.1." <& ccConf.VERSION_REVISION_LEVEL <&
-            " Copyright (c) 1990-2021 Thomas Mertes");
+            " Copyright (c) 1990-2022 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");

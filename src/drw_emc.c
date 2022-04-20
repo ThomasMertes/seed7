@@ -146,6 +146,13 @@ intType gkbButtonYpos (void)
 
 
 
+void drawInit (void)
+
+  { /* drawInit */
+  } /* drawInit */
+
+
+
 intType drwPointerXpos (const_winType actual_window)
 
   { /* drwPointerXpos */
