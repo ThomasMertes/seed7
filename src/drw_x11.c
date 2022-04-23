@@ -81,6 +81,7 @@ boolType findX11Dll (void);
 #endif
 
 
+#define MAX_XCHAR2B_LEN   (MAX_MEMSIZETYPE / sizeof(XChar2b))
 #define PI 3.141592653589793238462643383279502884197
 
 Display *mydisplay = NULL;
@@ -2779,8 +2780,14 @@ void drwText (const_winType actual_window, intType x, intType y,
   /* drwText */
     logFunction(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D ", ...)\n",
                        (memSizeType) actual_window, x, y););
-    stri_buffer = (XChar2b *) malloc(sizeof(XChar2b) * stri->size);
-    if (stri_buffer != NULL) {
+    if (unlikely(!inIntRange(x) || !inIntRange(y) ||
+                 stri->size >= (unsigned int) INT_MAX)) {
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(stri->size > MAX_XCHAR2B_LEN ||
+                        (stri_buffer = (XChar2b *) malloc(
+                         sizeof(XChar2b) * stri->size)) == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } else {
       wstri = stri_buffer;
       strelem = stri->mem;
       len = stri->size;
@@ -2789,17 +2796,17 @@ void drwText (const_winType actual_window, intType x, intType y,
           raise_error(RANGE_ERROR);
           return;
         } /* if */
-        wstri->byte1 = (*strelem >> 8) & 0xFF;
-        wstri->byte2 = *strelem & 0xFF;
+        wstri->byte1 = (unsigned char) ((*strelem >> 8) & 0xFF);
+        wstri->byte2 = (unsigned char) (*strelem & 0xFF);
       } /* for */
 
       XSetForeground(mydisplay, mygc, (unsigned long) col);
       XSetBackground(mydisplay, mygc, (unsigned long) bkcol);
       XDrawImageString16(mydisplay, to_window(actual_window), mygc,
-          castToInt(x), castToInt(y), stri_buffer, (int) stri->size);
+          (int) x, (int) y, stri_buffer, (int) stri->size);
       if (to_backup(actual_window) != 0) {
         XDrawImageString16(mydisplay, to_backup(actual_window), mygc,
-            castToInt(x), castToInt(y), stri_buffer, (int) stri->size);
+            (int) x, (int) y, stri_buffer, (int) stri->size);
       } /* if */
       free(stri_buffer);
     } /* if */
