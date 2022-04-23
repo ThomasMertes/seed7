@@ -155,13 +155,44 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
 
     ...Studio\2019\Community\VC\Auxiliary\Build\vcvarsall x64
 
-  Afterwards the environment is set up for MSVC. Now you can go
-  to the 'seed7\src' directory and type:
+  Afterwards the environment is set up for MSVC. In newer
+  versions of MSVC the include files and libraries are in the
+  "Windows Kits" directory. In this case it is necessary to
+  define the environment variables INCLUDE and LIB. To do
+  that look for: Control Panel -> System and Security ->
+  System -> Advanced system settings -> Environment Variables.
+  With "Windows Kits" the include files are in the directory:
+
+    ...Windows Kits\<main_version>\Include\<detailled_version>
+
+  The actual include files are in the sub directories 'um',
+  'ucrt' and 'shared'. Add the absolute paths of these three
+  directories to the INCLUDE environment variable. On such
+  installations the libraries are in the directory:
+
+    ...Windows Kits\<main_version>\Lib\<detailled_version>
+
+  For 32-bit compilation the actual libraries are in the sub
+  directories 'um\x86' and 'ucrt\x86'. For 64-bit compilation
+  the actual libraries are in the sub directories 'um\x64' and
+  'ucrt\x64'. Add the absolute paths of the 32-bit or 64-bit
+  directories to the LIB environment variable. Don't forget to
+  restart a console window after environment variables have
+  changed.
+
+  After everything has been set up for MSVC you can go to the
+  'seed7\src' directory and type:
 
     copy mk_msvc.mak makefile
     nmake depend
     nmake
 
+  If it is necessary to compile again you need to do a
+
+    nmake clean
+
+  to clean the files from a previous compilation attempt.
+  
   After the compilation the interpreter executable can be found
   in the 'bin' directory and it is also copied to prg/s7.exe.
   Note that the build process saves all environment variables
@@ -1047,12 +1078,16 @@ DRIVERS
     pol_unx.c  Poll type and function using UNIX capabilities.
     soc_none.c Dummy functions for the socket type.
     sql_base.c Basic database functions.
+    sql_db2.c  Database access functions for Db2.
     sql_fire.c Database access functions for Firebird/InterBase.
+    sql_ifx.c  Database access functions for Informix.
     sql_lite.c Database access functions for SQLite.
     sql_my.c   Database access functions for MariaDB and MySQL.
     sql_oci.c  Database access functions for OCI.
     sql_odbc.c Database access functions for the ODBC interface.
     sql_post.c Database access functions for PostgreSQL.
+    sql_srv.c  Database access functions for MS SQL-Server.
+    sql_tds.c  Database access functions for Tabular Data Stream.
     trm_cap.c  Driver for termcap screen access.
     trm_inf.c  Driver for terminfo screen access.
     tim_dos.c  Time functions which call the Dos API.
