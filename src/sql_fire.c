@@ -705,9 +705,16 @@ static errInfoType setupParameters (preparedStmtType preparedStmt)
             err_info = RANGE_ERROR;
             break;
         } /* switch */
-        if (sqlvar->sqltype & 1) {
-          /* allocate variable to hold NULL status */
-          sqlvar->sqlind = (short *) malloc(sizeof(short));
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (unlikely(sqlvar->sqldata == NULL)) {
+            err_info = MEMORY_ERROR;
+          } else if (sqlvar->sqltype & 1) {
+            /* allocate variable to hold NULL status */
+            sqlvar->sqlind = (short *) malloc(sizeof(short));
+            if (unlikely(sqlvar->sqlind == NULL)) {
+              err_info = MEMORY_ERROR;
+            } /* if */
+          } /* if */
         } /* if */
       } /* for */
     } /* if */
@@ -797,9 +804,16 @@ static errInfoType setupResult (preparedStmtType preparedStmt,
             err_info = RANGE_ERROR;
             break;
         } /* switch */
-        if (sqlvar->sqltype & 1) {
-          /* allocate variable to hold NULL status */
-          sqlvar->sqlind = (short *) malloc(sizeof(short));
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          if (unlikely(sqlvar->sqldata == NULL)) {
+            err_info = MEMORY_ERROR;
+          } else if (sqlvar->sqltype & 1) {
+            /* allocate variable to hold NULL status */
+            sqlvar->sqlind = (short *) malloc(sizeof(short));
+            if (unlikely(sqlvar->sqlind == NULL)) {
+              err_info = MEMORY_ERROR;
+            } /* if */
+          } /* if */
         } /* if */
       } /* for */
     } /* if */
