@@ -86,8 +86,10 @@ typedef struct {
     memSizeType uidLength;
     SQLWCHAR *pwd;
     memSizeType pwdLength;
-    SQLWCHAR *connectionString;
-    memSizeType connectionStringLength;
+    SQLWCHAR *connectionString1;
+    memSizeType connectionStringLength1;
+    SQLWCHAR *connectionString2;
+    memSizeType connectionStringLength2;
   } connectDataRecord, *connectDataType;
 
 #define DEFAULT_PORT 1526
@@ -116,7 +118,8 @@ static void loadBaseDlls (void)
 
 
 
-static boolType createConnectionString (connectDataType connectData)
+static boolType createConnectionString (connectDataType connectData, boolType withDbLocale,
+    SQLWCHAR **connectionStringDest, memSizeType *connectionStringLengthDest)
 
   {
     const SQLWCHAR databaseKey[] = {'D', 'a', 't', 'a', 'b', 'a', 's', 'e', '=', '\0'};
@@ -159,8 +162,6 @@ static boolType createConnectionString (connectDataType connectData)
       port = connectData->port;
     } /* if */
     portNameLength = (memSizeType) sprintf(portName, FMT_D, port);
-    connectData->connectionString = NULL;
-    connectData->connectionStringLength = 0;
 
     if (likely(connectData->databaseLength <= SHRT_MAX &&
                connectData->hostnameLength <= SHRT_MAX &&
@@ -172,7 +173,7 @@ static boolType createConnectionString (connectDataType connectData)
                                1 + STRLEN(serverKey) + connectData->serverLength +
                                1 + STRLEN(portKey) + portNameLength +
                                1 + STRLEN(protocolKeyAndValue) +
-                               /* 1 + STRLEN(dbLocaleKeyAndValue) + */
+                               (withDbLocale ? 1 + STRLEN(dbLocaleKeyAndValue) : 0) +
                                1 + STRLEN(clientLocaleKeyAndValue);
       /* printf("connectionStringLength: " FMT_U_MEM "\n", connectionStringLength); >*/
       if (connectData->uidLength != 0) {
@@ -184,8 +185,8 @@ static boolType createConnectionString (connectDataType connectData)
 
       if (likely(connectionStringLength <= SHRT_MAX &&
                  ALLOC_SQLWSTRI(connectionString, connectionStringLength))) {
-        connectData->connectionString = connectionString;
-        connectData->connectionStringLength = connectionStringLength;
+        *connectionStringDest = connectionString;
+        *connectionStringLengthDest = connectionStringLength;
 
         memcpy(&connectionString[pos], databaseKey, STRLEN(databaseKey) * sizeof(SQLWCHAR));
         pos += STRLEN(databaseKey);
@@ -214,11 +215,11 @@ static boolType createConnectionString (connectDataType connectData)
         memcpy(&connectionString[pos], protocolKeyAndValue, STRLEN(protocolKeyAndValue) * sizeof(SQLWCHAR));
         pos += STRLEN(protocolKeyAndValue);
 
-#if 0
-        connectionString[pos++] = ';';
-        memcpy(&connectionString[pos], dbLocaleKeyAndValue, STRLEN(dbLocaleKeyAndValue) * sizeof(SQLWCHAR));
-        pos += STRLEN(dbLocaleKeyAndValue);
-#endif
+        if (withDbLocale) {
+          connectionString[pos++] = ';';
+          memcpy(&connectionString[pos], dbLocaleKeyAndValue, STRLEN(dbLocaleKeyAndValue) * sizeof(SQLWCHAR));
+          pos += STRLEN(dbLocaleKeyAndValue);
+        } /* if */
 
         connectionString[pos++] = ';';
         memcpy(&connectionString[pos], clientLocaleKeyAndValue, STRLEN(clientLocaleKeyAndValue) * sizeof(SQLWCHAR));
@@ -266,7 +267,8 @@ static databaseType doOpenInformix (connectDataType connectData, errInfoType *er
     if (unlikely(connectData->databaseLength > SHRT_MAX ||
                  connectData->uidLength > SHRT_MAX ||
                  connectData->pwdLength > SHRT_MAX ||
-                 connectData->connectionStringLength > SHRT_MAX)) {
+                 connectData->connectionStringLength1 > SHRT_MAX ||
+                 connectData->connectionStringLength2 > SHRT_MAX)) {
       *err_info = MEMORY_ERROR;
       database = NULL;
     } else {
@@ -293,8 +295,19 @@ static databaseType doOpenInformix (connectDataType connectData, errInfoType *er
             returnCode != SQL_SUCCESS_WITH_INFO) {
           returnCode = SQLDriverConnectW(sql_connection,
                                          NULL, /* GetDesktopWindow(), */
-                                         (SQLWCHAR *) connectData->connectionString,
-                                         (SQLSMALLINT) connectData->connectionStringLength,
+                                         (SQLWCHAR *) connectData->connectionString1,
+                                         (SQLSMALLINT) connectData->connectionStringLength1,
+                                         NULL, /* outConnectionString */
+                                         0,
+                                         &outConnectionStringLength,
+                                         SQL_DRIVER_NOPROMPT);
+        } /* if */
+        if (returnCode != SQL_SUCCESS &&
+            returnCode != SQL_SUCCESS_WITH_INFO) {
+          returnCode = SQLDriverConnectW(sql_connection,
+                                         NULL, /* GetDesktopWindow(), */
+                                         (SQLWCHAR *) connectData->connectionString2,
+                                         (SQLSMALLINT) connectData->connectionStringLength2,
                                          NULL, /* outConnectionString */
                                          0,
                                          &outConnectionStringLength,
@@ -346,6 +359,7 @@ databaseType sqlOpenInformix (const const_striType host, intType port,
       err_info = DATABASE_ERROR;
       database = NULL;
     } else {
+      memset(&connectData, 0, sizeof(connectDataRecord));
       connectData.port = port;
       connectData.hostname = stri_to_sqlwstri(host, &connectData.hostnameLength, &err_info);
       if (unlikely(connectData.hostname == NULL)) {
@@ -367,12 +381,18 @@ databaseType sqlOpenInformix (const const_striType host, intType port,
               if (unlikely(connectData.pwd == NULL)) {
                 database = NULL;
               } else {
-                if (unlikely(!createConnectionString(&connectData))) {
+                if (unlikely(!createConnectionString(&connectData, FALSE,
+                                                     &connectData.connectionString1,
+                                                     &connectData.connectionStringLength1) ||
+                             !createConnectionString(&connectData, TRUE,
+                                                     &connectData.connectionString2,
+                                                     &connectData.connectionStringLength2))) {
                   err_info = MEMORY_ERROR;
                   database = NULL;
                 } else {
                   database = doOpenInformix(&connectData, &err_info);
-                  UNALLOC_SQLWSTRI(connectData.connectionString, connectData.connectionStringLength);
+                  UNALLOC_SQLWSTRI(connectData.connectionString1, connectData.connectionStringLength1);
+                  UNALLOC_SQLWSTRI(connectData.connectionString2, connectData.connectionStringLength2);
                 } /* if */
                 UNALLOC_SQLWSTRI(connectData.pwd, connectData.pwdLength);
               } /* if */
