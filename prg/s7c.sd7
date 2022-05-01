@@ -2283,10 +2283,16 @@ const proc: process_const_func_declaration (in reference: function,
           appendWithDiagnostic(c_param_list.temp_decls, c_expr);
           appendWithDiagnostic(c_func_body.temp_decls, c_expr);
           if trace_function then
-            c_expr.expr &:= "printf(\"-> ";
+            c_expr.expr &:= "fprintf(";
+            c_expr.expr &:= trace_output;
+            c_expr.expr &:= ", \"-> ";
             create_name(function, c_expr.expr);
             c_expr.expr &:= "\\n\");\n";
-            c_expr.expr &:= "fflush(stdout);\n";
+            if flush_trace_output then
+              c_expr.expr &:= "fflush(";
+              c_expr.expr &:= trace_output;
+              c_expr.expr &:= ");\n";
+            end if;
           end if;
           if profile_function then
             profiledFunctions @:= [objNumber(function)] function;
@@ -2330,10 +2336,16 @@ const proc: process_const_func_declaration (in reference: function,
             c_expr.expr &:= "}\n";
           end if;
           if trace_function then
-            c_expr.expr &:= "printf(\"<- ";
+            c_expr.expr &:= "fprintf(";
+            c_expr.expr &:= trace_output;
+            c_expr.expr &:= ", \"<- ";
             create_name(function, c_expr.expr);
             c_expr.expr &:= "\\n\");\n";
-            c_expr.expr &:= "fflush(stdout);\n";
+            if flush_trace_output then
+              c_expr.expr &:= "fflush(";
+              c_expr.expr &:= trace_output;
+              c_expr.expr &:= ");\n";
+            end if;
           end if;
           setDiagnosticLine(c_expr);
           c_expr.expr &:= "return result;\n";
@@ -2364,10 +2376,16 @@ const proc: process_const_func_declaration (in reference: function,
         c_expr.expr &:= c_local_vars.temp_decls;
         appendWithDiagnostic(c_func_body.temp_decls, c_expr);
         if trace_function then
-          c_expr.expr &:= "printf(\"-> ";
+          c_expr.expr &:= "fprintf(";
+          c_expr.expr &:= trace_output;
+          c_expr.expr &:= ", \"-> ";
           create_name(function, c_expr.expr);
           c_expr.expr &:= "\\n\");\n";
-          c_expr.expr &:= "fflush(stdout);\n";
+          if flush_trace_output then
+            c_expr.expr &:= "fflush(";
+            c_expr.expr &:= trace_output;
+            c_expr.expr &:= ");\n";
+          end if;
         end if;
         if profile_function then
           profiledFunctions @:= [objNumber(function)] function;
@@ -2406,10 +2424,16 @@ const proc: process_const_func_declaration (in reference: function,
           c_expr.expr &:= "}\n";
         end if;
         if trace_function then
-          c_expr.expr &:= "printf(\"<- ";
+          c_expr.expr &:= "fprintf(";
+          c_expr.expr &:= trace_output;
+          c_expr.expr &:= ", \"<- ";
           create_name(function, c_expr.expr);
           c_expr.expr &:= "\\n\");\n";
-          c_expr.expr &:= "fflush(stdout);\n";
+          if flush_trace_output then
+            c_expr.expr &:= "fflush(";
+            c_expr.expr &:= trace_output;
+            c_expr.expr &:= ");\n";
+          end if;
         end if;
         process_return(result_object, c_expr);
       end if;
@@ -2492,8 +2516,14 @@ const proc: process_main_declaration (in reference: current_object,
     main_prolog &:= "catch_stack_pos = 0;\n";
     main_prolog &:= "max_catch_stack = 128;\n";
     if trace_function then
-      main_prolog &:= "printf(\"-> main\\n\");\n";
-      main_prolog &:= "fflush(stdout);\n";
+      main_prolog &:= "fprintf(";
+      main_prolog &:= trace_output;
+      main_prolog &:= ", \"-> main\\n\");\n";
+      if flush_trace_output then
+        main_prolog &:= "fflush(";
+        main_prolog &:= trace_output;
+        main_prolog &:= ");\n";
+      end if;
     end if;
     if profile_function then
       main_prolog &:= "initProfile();\n";
@@ -2594,8 +2624,14 @@ const proc: process_main_declaration (in reference: current_object,
       main_epilog &:= "}\n";
     end if;
     if trace_function then
-      main_epilog &:= "printf(\"<- main\\n\");\n";
-      main_epilog &:= "fflush(stdout);\n";
+      main_epilog &:= "fprintf(";
+      main_epilog &:= trace_output;
+      main_epilog &:= ", \"<- main\\n\");\n";
+      if flush_trace_output then
+        main_epilog &:= "fflush(";
+        main_epilog &:= trace_output;
+        main_epilog &:= ");\n";
+      end if;
     end if;
     main_epilog &:= "return 0;\n";
     main_epilog &:= "} else {\n";
@@ -3671,7 +3707,11 @@ const proc: process_dynamic_call (in reference: function,
     var category: objectCategory is category.value;
     var expr_type: resultExpr is expr_type.value;
   begin
-    if function <> NIL then
+    if function = interface_object then
+      c_expr.expr &:= "/* ENDLESS RECURSION */\n";
+      c_expr.expr &:= diagnosticLine(interface_object);
+      c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
+    elsif function <> NIL then
       c_expr.expr &:= diagnosticLine(interface_object);
       objectCategory := category(function);
       if objectCategory = BLOCKOBJECT then
@@ -3970,6 +4010,16 @@ const proc: process_dynamic_decision (in reference: current_object,
         appendWithDiagnostic(c_param_list.temp_decls, c_expr);
         appendWithDiagnostic(c_func_body.temp_decls, c_expr);
         c_expr.expr &:= c_param_list.temp_assigns;
+        if trace_dynamic_calls then
+          c_expr.expr &:= "fprintf(";
+          c_expr.expr &:= trace_output;
+          c_expr.expr &:= ", \"DYNAMIC ";
+          create_name(current_object, c_expr.expr);
+          c_expr.expr &:= "\\n\");\n";
+          c_expr.expr &:= "fflush(";
+          c_expr.expr &:= trace_output;
+          c_expr.expr &:= ");\n";
+        end if;
         appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
         c_expr.expr &:= c_func_body.expr;
         appendWithDiagnostic(c_param_list.temp_frees, c_expr);
@@ -7132,6 +7182,9 @@ const proc: pass_1 (in string: source, inout program: prog,
         source_debug_info := compiler_option["-g"] <> "-debug_c";
       end if;
       if "-t" in compiler_option then
+        if pos(compiler_option["-t"], 'd') <> 0 then
+          trace_dynamic_calls := TRUE;
+        end if;
         if pos(compiler_option["-t"], 'e') <> 0 then
           trace_exception := TRUE;
         end if;
@@ -7747,6 +7800,7 @@ const proc: writeHelp is func
     writeln("         o Suppress the generation of integer overflow checks.");
     writeln("         r Suppress the generation of range checks.");
     writeln("  -tx  Set runtime trace level to x. Where x is a string consisting of:");
+    writeln("         d Trace dynamic calls");
     writeln("         e Trace exceptions and handlers");
     writeln("         f Trace functions");
     writeln("         s Trace signals");

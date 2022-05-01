@@ -24,11 +24,15 @@
 (********************************************************************)
 
 
-var boolean: for_loop_variable_check is FALSE;
-var boolean: source_debug_info       is TRUE;
+var string:  trace_output            is "stderr";
+var boolean: flush_trace_output      is FALSE;
 var boolean: trace_exception         is FALSE;
 var boolean: trace_function          is FALSE;
+var boolean: trace_dynamic_calls     is FALSE;
 var boolean: trace_signal            is FALSE;
+
+var boolean: for_loop_variable_check is FALSE;
+var boolean: source_debug_info       is TRUE;
 var boolean: profile_function        is FALSE;
 var boolean: signal_exception        is FALSE;
 var integer: evaluate_const_expr     is 1;
