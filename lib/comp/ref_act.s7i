@@ -820,7 +820,7 @@ const proc: process (REF_TRACE, in reference: function,
           c_expr.expr &:= "if (sct->usage_count != 0) {\n";
           c_expr.expr &:= "printf(\"<%lu>\", sct->usage_count);\n";
           c_expr.expr &:= "}\n";
-          c_expr.expr &:= "printf(\" type_num=%lu %lx\", sct->type_num, sct);\n";
+          c_expr.expr &:= "printf(\" type_num=%lu %lx\", (unsigned long) sct->type_num, (unsigned long) sct);\n";
           c_expr.expr &:= "}\n";
           c_expr.expr &:= "}\n";
         when {INTERFACEOBJECT}:
