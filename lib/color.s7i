@@ -27,7 +27,8 @@
 
 
 (**
- *  Describes colors with red, green and blue.
+ *  Describes colors with red, green and blue colors of light.
+ *  The range of ''redLight'', ''greenLight'' and ''blueLight'' is from 0 to 65535.
  *)
 const type: color is new struct
     var integer: redLight is 0;
@@ -71,7 +72,8 @@ const func color: (in color: col1) + (in color: col2) is func
 
 
 (**
- *  Create a color value from the red, green and blue parts.
+ *  Create a color value from the ''red'', ''green'' and ''blue'' colors of light.
+ *  The range for ''red'', ''green'' and ''blue'' is from 0 to 65535.
  *  @return the created color value.
  *)
 const func color: color (in integer: red, in integer: green, in integer: blue) is func
@@ -85,7 +87,8 @@ const func color: color (in integer: red, in integer: green, in integer: blue) i
 
 
 (**
- *  Create a gray color value from the brightness.
+ *  Create a gray color value from the ''brightness''.
+ *  The range for ''brightness'' is from 0 to 65535.
  *  @return the created color value.
  *)
 const func color: gray (in integer: brightness) is func
