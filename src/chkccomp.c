@@ -6379,15 +6379,12 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
       x11IncludeCommand = "#include \"x11_x.h\"\n";
 #endif
     } /* if */
-    sprintf(testProgram, "#include<stdio.h>\n%s"
+    sprintf(testProgram, "%s"
                          "#include <X11/extensions/Xrender.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "Display *display;\n"
-                         "int event_basep;\n"
-                         "int error_basep;\n"
-                         "display = XOpenDisplay(\"\");\n"
-                         "printf(\"%%d\\n\", (int)\n"
-                         "    XRenderQueryExtension(display, &event_basep, &error_basep));\n"
+                         "XRenderPictFormat pictFormat;\n"
+                         "XRenderPictureAttributes pictureAttributes;\n"
                          "return 0;}\n", x11IncludeCommand);
     if (compileAndLinkWithOptionsOk(testProgram, "", "")) {
       x11XrenderIncludeCommand = "#include <X11/extensions/Xrender.h>\n";
