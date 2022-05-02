@@ -318,7 +318,7 @@ static const char *nullDevice = NULL;
 static FILE *logFile = NULL;
 static unsigned long removeReattempts = 0;
 static unsigned long filePresentAfterDelay = 0;
-static unsigned long numberPresentAfterDelay = 0;
+static unsigned long numberPresentAfterRestartOfTest = 0;
 
 static const char *int16TypeStri = NULL;
 static const char *uint16TypeStri = NULL;
@@ -1015,6 +1015,7 @@ static int runTest (int checkNumericValue)
     FILE *outFile;
     time_t startTime;
     int readFailed;
+    int errorOccurred = 0;
     int repeatCount = 0;
     int result = -1;
 
@@ -1029,38 +1030,40 @@ static int runTest (int checkNumericValue)
     sprintf(command, ".%cctest%d%s>ctest%d.out", PATH_DELIMITER,
             testNumber, LINKED_PROGRAM_EXTENSION, testNumber);
 #endif
-    returncode = system(command);
-    if (returncode != -1) {
-      sprintf(fileName, "ctest%d.out", testNumber);
-      if (fileIsPresentPossiblyAfterDelay(fileName)) {
-        startTime = time(NULL);
-        do {
+    sprintf(fileName, "ctest%d.out", testNumber);
+    startTime = time(NULL);
+    do {
+      returncode = system(command);
+      if (returncode != -1) {
+        if (fileIsPresentPossiblyAfterDelay(fileName)) {
           outFile = fopen(fileName, "r");
           if (outFile != NULL) {
             readFailed = fscanf(outFile, "%d", &result) != 1;
             if (checkNumericValue && readFailed) {
               /* This workaround is necessary for windows. */
               repeatCount++;
-              sprintf(command, "%s %s > nul 2>&1", LIST_DIRECTORY_CONTENTS, fileName);
-              system(command);
             } /* if */
             fclose(outFile);
           } else {
             fprintf(logFile, "\n *** Cannot open \"%s\".\n ", fileName);
+            errorOccurred = 1;
           } /* if */
-        } while (checkNumericValue && readFailed && time(NULL) < startTime + 20);
-        if (checkNumericValue && repeatCount != 0) {
-          if (readFailed) {
-            fprintf(logFile, "\n *** No numeric result in \"%s\".\n", fileName);
-          } else {
-            numberPresentAfterDelay++;
-          } /* if */
+        } else {
+          fprintf(logFile, "\n *** File \"%s\" missing.\n ", fileName);
+          errorOccurred = 1;
         } /* if */
       } else {
-        fprintf(logFile, "\n *** File \"%s\" missing.\n ", fileName);
+        fprintf(logFile, "\n *** system(\"%s\") failed with errno: %d.\n ", command, errno);
+        errorOccurred = 1;
       } /* if */
-    } else {
-      fprintf(logFile, "\n *** system(\"%s\") failed with errno: %d.\n ", command, errno);
+    } while (checkNumericValue && readFailed && !errorOccurred &&
+             time(NULL) < startTime + 20);
+    if (checkNumericValue && repeatCount != 0) {
+      if (readFailed) {
+        fprintf(logFile, "\n *** No numeric result in \"%s\".\n", fileName);
+      } else {
+        numberPresentAfterRestartOfTest++;
+      } /* if */
     } /* if */
     fprintf(logFile, "\b");
     /* printf(" runTest: %d\n", result); */
@@ -9135,15 +9138,18 @@ int main (int argc, char **argv)
     writeReadBufferEmptyMacro(versionFile);
     cleanUpCompilation(testNumber);
     fprintf(versionFile, "#define REMOVE_REATTEMPTS %lu\n", removeReattempts);
+    if (removeReattempts != 0) {
+      fprintf(logFile, "%lu times removing a file needed a reattempt.\n", removeReattempts);
+    } /* if */
     fprintf(versionFile, "#define FILE_PRESENT_AFTER_DELAY %lu\n", filePresentAfterDelay);
     if (filePresentAfterDelay != 0) {
       fprintf(logFile, "%lu times the test output was present after a delay.\n",
               filePresentAfterDelay);
     } /* if */
-    fprintf(versionFile, "#define NUMBER_PRESENT_AFTER_DELAY %lu\n", numberPresentAfterDelay);
-    if (numberPresentAfterDelay != 0) {
-      fprintf(logFile, "%lu times the numeric test result was present after a delay.\n",
-              numberPresentAfterDelay);
+    fprintf(versionFile, "#define NUMBER_PRESENT_AFTER_RESTART_OF_TEST %lu\n", numberPresentAfterRestartOfTest);
+    if (numberPresentAfterRestartOfTest != 0) {
+      fprintf(logFile, "%lu times tests had to be restarted to get a numeric test result.\n",
+              numberPresentAfterRestartOfTest);
     } /* if */
     closeVersionFile(versionFile);
     if (fileIsRegular("tst_vers.h")) {
