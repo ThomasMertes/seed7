@@ -439,6 +439,126 @@ const func boolean: raisesIndexError (ref func array bitset: expression) is func
   end func;
 
 
+const func boolean: raisesRangeError (ref func array boolean: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var array boolean: exprResult is 0 times FALSE;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesRangeError (ref func array integer: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var array integer: exprResult is 0 times 0;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesRangeError (ref func array bigInteger: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var array bigInteger: exprResult is 0 times 0_;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesRangeError (ref func array float: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var array float: exprResult is 0 times 0.0;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesRangeError (ref func array complex: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var array complex: exprResult is 0 times complex.value;
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesRangeError (ref func array char: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var array char: exprResult is 0 times ' ';
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesRangeError (ref func array string: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var array string: exprResult is 0 times "";
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesRangeError (ref func array bitset: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var array bitset: exprResult is 0 times {};
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
 const proc: subprog1 is func
   local
     var array integer: arr3 is 0 times 0;
@@ -1183,6 +1303,57 @@ const proc: testAppend is func
       okay := FALSE;
     end if;
 
+    blnArr &:= blnArr[.. 2];
+    if blnArr <> [] (TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE) then
+      writeln(" ***** array append ( &:= ) for 'array boolean' does not work correct");
+      okay := FALSE;
+    end if;
+
+    intArr &:= intArr[.. 2];
+    if intArr <> [] (1, 2, 3, 4, 1, 2, 3, 4, 1, 2) then
+      writeln(" ***** array append ( &:= ) for 'array integer' does not work correct");
+      okay := FALSE;
+    end if;
+
+    bigArr &:= bigArr[.. 2];
+    if bigArr <> [] (1_, 2_, 3_, 4_, 1_, 2_, 3_, 4_, 1_, 2_) then
+      writeln(" ***** array append ( &:= ) for 'array bigInteger' does not work correct");
+      okay := FALSE;
+    end if;
+
+    fltArr &:= fltArr[.. 2];
+    if fltArr <> [] (1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0, 1.0, 2.0) then
+      writeln(" ***** array append ( &:= ) for 'array float' does not work correct");
+      okay := FALSE;
+    end if;
+
+    cpxArr &:= cpxArr[.. 2];
+    if cpxArr <> [] (complex(1.0, 1.0), complex(2.0, 2.0), complex(3.0, 3.0),
+                     complex(4.0, 4.0), complex(1.0, 1.0), complex(2.0, 2.0),
+                     complex(3.0, 3.0), complex(4.0, 4.0), complex(1.0, 1.0),
+                     complex(2.0, 2.0)) then
+      writeln(" ***** array append ( &:= ) for 'array complex' does not work correct");
+      okay := FALSE;
+    end if;
+
+    chrArr &:= chrArr[.. 2];
+    if chrArr <> [] ('a', 'b', 'c', 'd', 'a', 'b', 'c', 'd', 'a', 'b') then
+      writeln(" ***** array append ( &:= ) for 'array char' does not work correct");
+      okay := FALSE;
+    end if;
+
+    strArr &:= strArr[.. 2];
+    if strArr <> [] ("one", "two", "three", "four", "one", "two", "three", "four", "one", "two") then
+      writeln(" ***** array append ( &:= ) for 'array string' does not work correct");
+      okay := FALSE;
+    end if;
+
+    setArr &:= setArr[.. 2];
+    if setArr <> [] ({1}, {2}, {3}, {4}, {1}, {2}, {3}, {4}, {1}, {2}) then
+      writeln(" ***** array append ( &:= ) for 'array bitset' does not work correct");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Array append ( &:= ) works correct.");
     end if;
@@ -1854,6 +2025,42 @@ const proc: testTimes is func
     end if;
     if [0 len 2] times ({1} | {2}) <> [0] ({1, 2}, {1, 2}) then
       writeln(" ***** array times operator for 'array bitset' does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if not raisesRangeError(integer.first times blnElem) or
+       not raisesRangeError(integer.first times intElem) or
+       not raisesRangeError(integer.first times bigElem) or
+       not raisesRangeError(integer.first times fltElem) or
+       not raisesRangeError(integer.first times cpxElem) or
+       not raisesRangeError(integer.first times chrElem) or
+       not raisesRangeError(integer.first times strElem) or
+       not raisesRangeError(integer.first times setElem) or
+       not raisesRangeError(-1 times blnElem) or
+       not raisesRangeError(-1 times intElem) or
+       not raisesRangeError(-1 times bigElem) or
+       not raisesRangeError(-1 times fltElem) or
+       not raisesRangeError(-1 times cpxElem) or
+       not raisesRangeError(-1 times chrElem) or
+       not raisesRangeError(-1 times strElem) or
+       not raisesRangeError(-1 times setElem) or
+       not raisesRangeError([1 .. -1] times blnElem) or
+       not raisesRangeError([1 .. -1] times intElem) or
+       not raisesRangeError([1 .. -1] times bigElem) or
+       not raisesRangeError([1 .. -1] times fltElem) or
+       not raisesRangeError([1 .. -1] times cpxElem) or
+       not raisesRangeError([1 .. -1] times chrElem) or
+       not raisesRangeError([1 .. -1] times strElem) or
+       not raisesRangeError([1 .. -1] times setElem) or
+       not raisesRangeError([1 len -1] times blnElem) or
+       not raisesRangeError([1 len -1] times intElem) or
+       not raisesRangeError([1 len -1] times bigElem) or
+       not raisesRangeError([1 len -1] times fltElem) or
+       not raisesRangeError([1 len -1] times cpxElem) or
+       not raisesRangeError([1 len -1] times chrElem) or
+       not raisesRangeError([1 len -1] times strElem) or
+       not raisesRangeError([1 len -1] times setElem) then
+      writeln(" ***** array times operator with negative factor does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 
@@ -5873,6 +6080,22 @@ const proc: testRemoveArray is func
         not raisesIndexError(remove(chrArr, integer.last, 0)) or
         not raisesIndexError(remove(strArr, integer.last, 0)) then
       writeln(" ***** Remove with index out of range does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(remove(intArr, 1, integer.first)) or
+        not raisesRangeError(remove(bigArr, 1, integer.first)) or
+        not raisesRangeError(remove(fltArr, 1, integer.first)) or
+        not raisesRangeError(remove(cpxArr, 1, integer.first)) or
+        not raisesRangeError(remove(chrArr, 1, integer.first)) or
+        not raisesRangeError(remove(strArr, 1, integer.first)) or
+        not raisesRangeError(remove(intArr, 1, -1)) or
+        not raisesRangeError(remove(bigArr, 1, -1)) or
+        not raisesRangeError(remove(fltArr, 1, -1)) or
+        not raisesRangeError(remove(cpxArr, 1, -1)) or
+        not raisesRangeError(remove(chrArr, 1, -1)) or
+        not raisesRangeError(remove(strArr, 1, -1)) then
+      writeln(" ***** Remove with negative length does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 
