@@ -237,13 +237,14 @@ void toLower (const strElemType *const source, memSizeType length,
           } /* if */
           break;
         case 3:
-          if ("\0\0\0\0\0\0\0\0\0\0\0\0\0\0E\0"
+          if ("\0\0\0\0\0\0\0\0\0\0\0\0\0\0E\200"
               "@\327\376\377\373\017\0\0\0\200\0UUU\220\346"[ch >> 3 & 31] &
               1 << (ch & 7)) {
             switch (ch) {
               case 0x0370: ch += 1;   break;
               case 0x0372: ch += 1;   break;
               case 0x0376: ch += 1;   break;
+              case 0x037f: ch += 116; break;
               case 0x0386: ch += 38;  break;
               case 0x0388: ch += 37;  break;
               case 0x0389: ch += 37;  break;
@@ -283,8 +284,10 @@ void toLower (const strElemType *const source, memSizeType length,
           } /* if */
           break;
         case 5:
-          if (ch <= 0x0526 && (ch & 1) == 0) {
-            ch += 1;
+          if (ch <= 0x052e) {
+            if ((ch & 1) == 0) {
+              ch += 1;
+            } /* if */
           } else if (ch >= 0x0531 && ch <= 0x0556) {
             ch += 48;
           } /* if */
@@ -294,6 +297,20 @@ void toLower (const strElemType *const source, memSizeType length,
               "\0\0\0\0\377\377\377\377\277 \0\0\0\0\0\0"[ch >> 3 & 31] &
               1 << (ch & 7)) {
             ch += 0x1c60;
+          } /* if */
+          break;
+        case 19:
+          if (ch >= 0x13a0 && ch <= 0x13ef) {
+            ch += 0x97d0;
+          } else if (ch >= 0x13f0 && ch <= 0x13f5) {
+            ch += 8;
+          } /* if */
+          break;
+        case 28:
+          if ("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+              "\0\0\377\377\377\377\377\347\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            ch -= 0x0bc0;
           } /* if */
           break;
         case 30:
@@ -344,10 +361,10 @@ void toLower (const strElemType *const source, memSizeType length,
           } /* if */
           break;
         case 44:
-          if ("\377\377\377\377\377\177\0\0\0\0\0\0\235\352%\300"
+          if ("\377\377\377\377\377\377\0\0\0\0\0\0\235\352%\300"
               "UUUUUUUUUUUU\005(\004\0"[ch >> 3 & 31] &
               1 << (ch & 7)) {
-            if (ch <= 0x2c2e) {
+            if (ch <= 0x2c2f) {
               ch += 48;
             } else {
               switch (ch) {
@@ -367,24 +384,32 @@ void toLower (const strElemType *const source, memSizeType length,
           break;
         case 166:
           if ("\0\0\0\0\0\0\0\0UUUUU\025\0\0"
-              "UUU\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              "UUU\5\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
               1 << (ch & 7)) {
             ch += 1;
           } /* if */
           break;
         case 167:
           if ("\0\0\0\0TUTUUUUUUU\0j"
-              "U(\005\0U\005\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              "U(\105\125U\175\137\125\365\2\101\1\0\0\40\0"[ch >> 3 & 31] &
               1 << (ch & 7)) {
-            if (ch == 0xa77d) {
-              ch = 0x1d79;
-            } else if (ch == 0xa78d) {
-              ch = 0x0265;
-            } else if (ch == 0xa7aa) {
-              ch = 0x0266;
-            } else {
-              ch += 1;
-            } /* if */
+            switch (ch) {
+              case 0xa77d: ch = 0x1d79; break;
+              case 0xa78d: ch = 0x0265; break;
+              case 0xa7aa: ch = 0x0266; break;
+              case 0xa7ab: ch = 0x025c; break;
+              case 0xa7ac: ch = 0x0261; break;
+              case 0xa7ad: ch = 0x026c; break;
+              case 0xa7ae: ch = 0x026a; break;
+              case 0xa7b0: ch = 0x029e; break;
+              case 0xa7b1: ch = 0x0287; break;
+              case 0xa7b2: ch = 0x029d; break;
+              case 0xa7b3: ch = 0xab53; break;
+              case 0xa7c4: ch = 0xa794; break;
+              case 0xa7c5: ch = 0x0282; break;
+              case 0xa7c6: ch = 0x1d8e; break;
+              default: ch += 1; break;
+            } /* switch */
           } /* if */
           break;
         case 255:
@@ -393,8 +418,36 @@ void toLower (const strElemType *const source, memSizeType length,
           } /* if */
           break;
         case 260:
-          if (ch >= 0x10400 && ch <= 0x10427) {
+          if ((ch >= 0x10400 && ch <= 0x10427) ||
+              (ch >= 0x104b0 && ch <= 0x104d3)) {
             ch += 40;
+          } /* if */
+          break;
+        case 261:
+          if (ch >= 0x10570 && ch <= 0x10595) {
+            if (ch != 0x1057b && ch != 0x1058b && ch != 0x10593) {
+              ch += 39;
+            } /* if */
+          } /* if */
+          break;
+        case 268:
+          if (ch >= 0x10c80 && ch <= 0x10cb2) {
+            ch += 64;
+          } /* if */
+          break;
+        case 280:
+          if (ch >= 0x118a0 && ch <= 0x118bf) {
+            ch += 32;
+          } /* if */
+          break;
+        case 366:
+          if (ch >= 0x16e40 && ch <= 0x16e5f) {
+            ch += 32;
+          } /* if */
+          break;
+        case 489:
+          if (ch <= 0x1e921) {
+            ch += 34;
           } /* if */
           break;
         default:
@@ -408,12 +461,13 @@ void toLower (const strElemType *const source, memSizeType length,
 
 static const strElemType toUpperTable2[] = {
     0x2c6f, 0x2c6d, 0x2c70, 0x0181, 0x0186,      0, 0x0189, 0x018a,      0, 0x018f,
-         0, 0x0190,      0,      0,      0,      0, 0x0193,      0,      0, 0x0194,
-         0, 0xa78d, 0xa7aa,      0, 0x0197, 0x0196,      0, 0x2c62,      0,      0,
+         0, 0x0190, 0xa7ab,      0,      0,      0, 0x0193, 0xa7ac,      0, 0x0194,
+         0, 0xa78d, 0xa7aa,      0, 0x0197, 0x0196, 0xa7ae, 0x2c62, 0xa7ad,      0,
          0, 0x019c,      0, 0x2c6e, 0x019d,      0,      0, 0x019f,      0,      0,
          0,      0,      0,      0,      0, 0x2c64,      0,      0, 0x01a6,      0,
-         0, 0x01a9,      0,      0,      0,      0, 0x01ae, 0x0244, 0x01b1, 0x01b2,
-    0x0245,      0,      0,      0,      0,      0, 0x01b7
+    0xa7c5, 0x01a9,      0,      0,      0, 0xa7b1, 0x01ae, 0x0244, 0x01b1, 0x01b2,
+    0x0245,      0,      0,      0,      0,      0, 0x01b7,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0, 0xa7b2, 0xa7b0
   };
 
 
@@ -487,8 +541,8 @@ void toUpper (const strElemType *const source, memSizeType length,
           } /* if */
           break;
         case 2:
-          if ("\252\252\252\252\250\252\n\220\205\252\337\ni\213& "
-              "\t\037\004\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+          if ("\252\252\252\252\250\252\n\220\205\252\337\032\153\237& "
+              "\215\037\004\140\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
               1 << (ch & 7)) {
             if (ch <= 0x024f) {
               if (ch == 0x023f) {
@@ -505,7 +559,7 @@ void toUpper (const strElemType *const source, memSizeType length,
           break;
         case 3:
           if ("\0\0\0\0\0\0\0\0 \0\0\0\0\0\212"
-              "8\0\0\0\0\0\360\376\377\377\177\343\252\252\252'\t"[ch >> 3 & 31] &
+              "8\0\0\0\0\0\360\376\377\377\177\343\252\252\252\057\t"[ch >> 3 & 31] &
               1 << (ch & 7)) {
             if (ch <= 0x03af) {
               if (ch == 0x0345) {
@@ -532,7 +586,7 @@ void toUpper (const strElemType *const source, memSizeType length,
               ch -= 1;
             } else {
               ch = (strElemType) ((unsigned char)
-                  "\232\241\371\0\0\225\0\0\367\0\0\372"[ch - 0x03f0] + 0x0300);
+                  "\232\241\371\177\0\225\0\0\367\0\0\372"[ch - 0x03f0] + 0x0300);
             } /* if */
           } /* if */
           break;
@@ -552,14 +606,32 @@ void toUpper (const strElemType *const source, memSizeType length,
           } /* if */
           break;
         case 5:
-          if ("\252\252\252\252\252\0\0\0\0\0\0\0\376\377\377\377"
-              "\177\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
-              1 << (ch & 7)) {
-            if (ch <= 0x0527) {
+          if (ch <= 0x052f) {
+            if ((ch & 1) != 0) {
               ch -= 1;
-            } else {
-              ch -= 48;
             } /* if */
+          } else if (ch >= 0x0561 && ch <= 0x0586) {
+            ch -= 48;
+          } /* if */
+          break;
+        case 16:
+          if ("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+              "\0\0\0\0\0\0\0\0\0\0\377\377\377\377\377\347"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
+            ch += 0x0bc0;
+          } /* if */
+          break;
+        case 19:
+          if (ch >= 0x13f8 && ch <= 0x13fd) {
+            ch -= 8;
+          } /* if */
+          break;
+        case 28:
+          if (ch >= 0x1c80 && ch <= 0x1c87) {
+            ch = (strElemType) ((unsigned char)
+                "\022\024\036\041\042\042\052\142"[ch - 0x1c80] + 0x0400);
+          } else if (ch == 0x1c88) {
+            ch = 0xa64a;
           } /* if */
           break;
         case 29:
@@ -567,6 +639,8 @@ void toUpper (const strElemType *const source, memSizeType length,
             ch = 0xa77d;
           } else if (ch == 0x1d7d) {
             ch = 0x2c63;
+          } else if (ch == 0x1d8e) {
+            ch = 0xa7c6;
           } /* if */
           break;
         case 30:
@@ -617,10 +691,10 @@ void toUpper (const strElemType *const source, memSizeType length,
           } /* if */
           break;
         case 44:
-          if ("\0\0\0\0\0\0\377\377\377\377\377\177b\025H\0"
+          if ("\0\0\0\0\0\0\377\377\377\377\377\377b\025H\0"
               "\252\252\252\252\252\252\252\252\252\252\252\252\nP\b\0"[ch >> 3 & 31] &
               1 << (ch & 7)) {
-            if (ch <= 0x2c5e) {
+            if (ch <= 0x2c5f) {
               ch -= 48;
             } else if (ch == 0x2c65) {
               ch = 0x023a;
@@ -632,22 +706,35 @@ void toUpper (const strElemType *const source, memSizeType length,
           } /* if */
           break;
         case 45:
-          if (ch >= 0x2d00 && ch <= 0x2d2d) {
+          if ("\377\377\377\377\277 \0\0\0\0\0\0\0\0\0\0"
+              "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              1 << (ch & 7)) {
             ch -= 0x1c60;
           } /* if */
           break;
         case 166:
           if ("\0\0\0\0\0\0\0\0\252\252\252\252\252*\0\0"
-              "\252\252\252\0\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              "\252\252\252\012\0\0\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
               1 << (ch & 7)) {
             ch -= 1;
           } /* if */
           break;
         case 167:
           if ("\0\0\0\0\250\252\250\252\252\252\252\252\252\252\0\224"
-              "\252\020\n\0\252\002\0\0\0\0\0\0\0\0\0\0"[ch >> 3 & 31] &
+              "\252\020\232\252\252\002\240\252\012\005\202\002\0\0\100\0"[ch >> 3 & 31] &
               1 << (ch & 7)) {
-            ch -= 1;
+            if (ch == 0xa794) {
+              ch = 0xa7c4;
+            } else {
+              ch -= 1;
+            } /* if */
+          } /* if */
+          break;
+        case 171:
+          if (ch >= 0xab70 && ch <= 0xabbf) {
+            ch -= 0x97d0;
+          } else if (ch == 0xab53) {
+            ch = 0xa7b3;
           } /* if */
           break;
         case 255:
@@ -656,8 +743,36 @@ void toUpper (const strElemType *const source, memSizeType length,
           } /* if */
           break;
         case 260:
-          if (ch >= 0x10428 && ch <= 0x1044f) {
+          if ((ch >= 0x10428 && ch <= 0x1044f) ||
+              (ch >= 0x104d8 && ch <= 0x104fb)) {
             ch -= 40;
+          } /* if */
+          break;
+        case 261:
+          if (ch >= 0x10597 && ch <= 0x105bc) {
+            if (ch != 0x105a2 && ch != 0x105b2 && ch != 0x105ba) {
+              ch -= 39;
+            } /* if */
+          } /* if */
+          break;
+        case 268:
+          if (ch >= 0x10cc0 && ch <= 0x10cf2) {
+            ch -= 64;
+          } /* if */
+          break;
+        case 280:
+          if (ch >= 0x118c0 && ch <= 0x118df) {
+            ch -= 32;
+          } /* if */
+          break;
+        case 366:
+          if (ch >= 0x16e60 && ch <= 0x16e7f) {
+            ch -= 32;
+          } /* if */
+          break;
+        case 489:
+          if (ch >= 0x1e922 && ch <= 0x1e943) {
+            ch -= 34;
           } /* if */
           break;
         default:
