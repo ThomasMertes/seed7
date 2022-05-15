@@ -807,6 +807,34 @@ Possible options are
          s Trace signals
 
 
+Is there support for syntax highlighting?
+=========================================
+
+Syntax highlighting is available for several editors:
+
+ - For vim there are seed7/doc/seed7.vim and seed7/doc/sd7.vim.
+   To install syntax highlighting for vim under Linux go to the 'seed7/doc'
+   directory and do:
+
+     mkdir -p ~/.vim/syntax
+     mkdir -p ~/.vim/ftdetect
+     cp seed7.vim ~/.vim/syntax
+     cp sd7.vim ~/.vim/ftdetect
+
+ - For Notepad++ there is seed7/doc/seed7udl.xml. Start Notepad++ and
+   go to Language => User Defined Language => Define your language...,
+   click on Import..., select the seed7/doc/seed7udl.xml file and press Open.
+   Afterwards close and restart Notepad++.
+ - For UltraEdit there is seed7/doc/seed7.uew.
+   To install syntax highlighting for UltraEdit you must first determine
+   the full directory path for wordfiles: Start UltraEdit and look at
+   Advanced => Settings (or Configuration) => Editor display => Syntax highlighting.
+   In the right part of the popup is the field "Full directory path for wordfiles".
+   Copy the file seed7/doc/seed7.uew to the directory for wordfiles.
+   Afterwards Seed7 can be found under Coding => Add another language...
+ - For Textpad there is seed7/doc/seed7.syn.
+
+
 Can I debug Seed7 programs with Eclipse?
 ========================================
 

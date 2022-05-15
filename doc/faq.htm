@@ -262,6 +262,9 @@ How can I use the Seed7 interpreter?
 <li><a class="link" href="#faq_compile"><b>
 Is it possible to compile Seed7 programs?
 </b></a></li>
+<li><a class="link" href="#faq_syntax_highlighting"><b>
+Is there support for syntax highlighting?
+</b></a></li>
 <li><a class="link" href="#faq_debug_with_eclipse"><b>
 Can I debug Seed7 programs with Eclipse?
 </b></a></li>
@@ -1303,6 +1306,34 @@ Possible options are
          <li><b>e</b> Trace exceptions and handlers</li>
          <li><b>f</b> Trace functions</li>
          <li><b>s</b> Trace signals</li></ul></li>
+</ul></div>
+
+<div><br /><a name="faq_syntax_highlighting"><h3>Is there support for syntax highlighting?
+</h3></a><hr />
+<p>
+Syntax highlighting is available for several editors:
+</p><ul>
+<li>For vim there are <span class="link">seed7/doc/seed7.vim</span> and <span class="link">seed7/doc/sd7.vim</span>.
+   To install syntax highlighting for vim under Linux go to the <nobr><span class="lib">seed7/doc</span></nobr>
+   directory and do:
+</p><pre class="indent">
+mkdir -p ~/.vim/syntax
+mkdir -p ~/.vim/ftdetect
+cp seed7.vim ~/.vim/syntax
+cp sd7.vim ~/.vim/ftdetect
+</pre></li></li>
+<li>For Notepad++ there is <span class="link">seed7/doc/seed7udl.xml</span>. Start Notepad++ and
+   go to <span class="stri">Language <b>&rArr;</b> User Defined Language <b>&rArr;</b> Define your language...</span>,
+   click on <span class="stri">Import...</span>, select the <span class="link">seed7/doc/seed7udl.xml</span> file and press <span class="stri">Open</span>.
+   Afterwards close and restart Notepad++.</li>
+<li>For UltraEdit there is <span class="link">seed7/doc/seed7.uew</span>.
+   To install syntax highlighting for UltraEdit you must first determine
+   the full directory path for wordfiles: Start UltraEdit and look at
+   <span class="stri">Advanced <b>&rArr;</b> Settings (or Configuration) <b>&rArr;</b> Editor display <b>&rArr;</b> Syntax highlighting</span>.
+   In the right part of the popup is the field "Full directory path for wordfiles".
+   Copy the file <span class="link">seed7/doc/seed7.uew</span> to the directory for wordfiles.
+   Afterwards Seed7 can be found under <span class="stri">Coding <b>&rArr;</b> Add another language...</span></li>
+<li>For Textpad there is <span class="link">seed7/doc/seed7.syn</span>.</li>
 </ul></div>
 
 <div><br /><a name="faq_debug_with_eclipse"><h3>Can I debug Seed7 programs with Eclipse?
