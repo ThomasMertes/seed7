@@ -1362,7 +1362,7 @@ striType intBytesBe (intType number, boolType isSigned)
 
   {
     strElemType buffer[BYTE_BUFFER_SIZE];
-    unsigned int pos = BYTE_BUFFER_SIZE;
+    memSizeType pos = BYTE_BUFFER_SIZE;
     striType result;
 
   /* intBytesBe */
@@ -1564,7 +1564,7 @@ striType intBytesLe (intType number, boolType isSigned)
 
   {
     strElemType buffer[BYTE_BUFFER_SIZE];
-    unsigned int pos = 0;
+    memSizeType pos = 0;
     striType result;
 
   /* intBytesLe */
