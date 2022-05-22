@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chkovf.sd7    Checks catching of integer overflows.             *)
-(*  Copyright (C) 2014, 2018 - 2020  Thomas Mertes                  *)
+(*  Copyright (C) 2014, 2018 - 2020, 2022  Thomas Mertes            *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -165,7 +165,7 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
     if  not raisesOverflowError(intExpr(integer.first) div integer.first +  9223372036854775807) or
         not raisesOverflowError(intExpr(integer.first) div -integer.last +  9223372036854775807) or
         not raisesOverflowError(intExpr(integer.first) div  -34359738368 +  9223372036586340352) or
-        not raisesOverflowError(intExpr(integer.first) div   -1234567890 +  9223372029383844392) or
+        not raisesOverflowError(intExpr(integer.first) div   -1234567890 +  9223372029383844391) or
         not raisesOverflowError(intExpr(integer.first) div            -2 +  4611686018427387904) or
         not raisesOverflowError(intExpr( integer.last) div             1 +                    1) or
         not raisesOverflowError(intExpr( integer.last) div             2 +  4611686018427387905) or
@@ -263,7 +263,7 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
 
     if  not raisesOverflowError(intExpr(integer.first) mdiv integer.first +  9223372036854775807) or
         not raisesOverflowError(intExpr(integer.first) mdiv  -34359738368 +  9223372036586340352) or
-        not raisesOverflowError(intExpr(integer.first) mdiv   -1234567890 +  9223372029383844392) or
+        not raisesOverflowError(intExpr(integer.first) mdiv   -1234567890 +  9223372029383844391) or
         not raisesOverflowError(intExpr(integer.first) mdiv            -2 +  4611686018427387904) or
         not raisesOverflowError(intExpr( integer.last) mdiv             1 +                    1) or
         not raisesOverflowError(intExpr( integer.last) mdiv             2 +  4611686018427387905) or
@@ -314,7 +314,7 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
 
     if  not raisesOverflowError(intExpr(        123456789123) mod                    2 +  9223372036854775807) or
         not raisesOverflowError(intExpr(          6172839449) mod           1234567890 +  9223372035620207919) or
-        not raisesOverflowError(intExpr( 9223372002495037439) mod          34359738368 +  9223372002495037442) or
+        not raisesOverflowError(intExpr( 9223372002495037439) mod          34359738368 +  9223372002495037441) or
         not raisesOverflowError(intExpr(        integer.last) mod  4611686018427387904 +  4611686018427387905) or
         not raisesOverflowError(intExpr( 9223372036854775806) mod         integer.last +                    2) then
       writeln(" ***** Reduced overflow check for sums failed: Maximum modulo result if the divisor is known.");
@@ -486,7 +486,7 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
         not raisesOverflowError(ord(charExpr(char(-2147483648) )) + abs(intExpr(1)) + -9223372034707292162) or
         not raisesOverflowError(ord(charExpr(    '\2147483647;')) + abs(intExpr(1)) +  9223372034707292160) or
         not raisesOverflowError(ord(charExpr(char(-2147483648) )) - abs(intExpr(1)) + -9223372034707292160) or
-        not raisesOverflowError(ord(charExpr(    '\2147483647;')) - abs(intExpr(1)) +  9223372034707292163) then
+        not raisesOverflowError(ord(charExpr(    '\2147483647;')) - abs(intExpr(1)) +  9223372034707292162) then
       writeln(" ***** Reduced overflow check for sums failed: ord(char)");
       okay := FALSE;
     end if;
@@ -2232,7 +2232,7 @@ const proc: check_succ is func
   local
     var boolean: okay is TRUE;
   begin
-    if  not raisesOverflowError(succ(9223372036854775807)) or
+    if  not raisesOverflowError(succ(        9223372036854775807)) or
         not raisesOverflowError(succ(intExpr(9223372036854775807))) then
       writeln(" ***** Succ overflow does not raise OVERFLOW_ERROR.");
       okay := FALSE;
@@ -2250,7 +2250,7 @@ const proc: check_pred is func
   local
     var boolean: okay is TRUE;
   begin
-    if  not raisesOverflowError(pred(INT64_MIN)) or
+    if  not raisesOverflowError(pred(        INT64_MIN)) or
         not raisesOverflowError(pred(intExpr(INT64_MIN))) then
       writeln(" ***** Pred overflow does not raise OVERFLOW_ERROR.");
       okay := FALSE;
@@ -4094,8 +4094,6 @@ const proc: check_lShift is func
         not raisesOverflowError(                  -4 << 62) or
         not raisesOverflowError(                  -3 << 62) or
         not raisesOverflowError(                  -2 << 63) or
-        not raisesOverflowError(                  -1 << 64) or
-        not raisesOverflowError(                   0 << 64) or
         not raisesOverflowError(                   1 << 63) or
         not raisesOverflowError(                   2 << 62) or
         not raisesOverflowError(                   3 << 62) or
@@ -4131,8 +4129,12 @@ const proc: check_lShift is func
         not raisesOverflowError( 2305843009213693951 <<  3) or
         not raisesOverflowError( 2305843009213693952 <<  2) or
         not raisesOverflowError( 4611686018427387903 <<  2) or
-        not raisesOverflowError( 4611686018427387904 <<  1) or
-        not raisesOverflowError(intExpr(           INT64_MIN) <<  1) or
+        not raisesOverflowError( 4611686018427387904 <<  1) then
+      writeln(" ***** Overflow when computing left shift does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(           INT64_MIN) <<  1) or
         not raisesOverflowError(intExpr(-4611686018427387905) <<  1) or
         not raisesOverflowError(intExpr(-4611686018427387904) <<  2) or
         not raisesOverflowError(intExpr(-2305843009213693953) <<  2) or
@@ -4168,8 +4170,6 @@ const proc: check_lShift is func
         not raisesOverflowError(intExpr(                  -4) << 62) or
         not raisesOverflowError(intExpr(                  -3) << 62) or
         not raisesOverflowError(intExpr(                  -2) << 63) or
-        not raisesOverflowError(intExpr(                  -1) << 64) or
-        not raisesOverflowError(intExpr(                   0) << 64) or
         not raisesOverflowError(intExpr(                   1) << 63) or
         not raisesOverflowError(intExpr(                   2) << 62) or
         not raisesOverflowError(intExpr(                   3) << 62) or
@@ -4205,8 +4205,12 @@ const proc: check_lShift is func
         not raisesOverflowError(intExpr( 2305843009213693951) <<  3) or
         not raisesOverflowError(intExpr( 2305843009213693952) <<  2) or
         not raisesOverflowError(intExpr( 4611686018427387903) <<  2) or
-        not raisesOverflowError(intExpr( 4611686018427387904) <<  1) or
-        not raisesOverflowError(           INT64_MIN << intExpr( 1)) or
+        not raisesOverflowError(intExpr( 4611686018427387904) <<  1) then
+      writeln(" ***** Overflow when computing left shift does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(           INT64_MIN << intExpr( 1)) or
         not raisesOverflowError(-4611686018427387905 << intExpr( 1)) or
         not raisesOverflowError(-4611686018427387904 << intExpr( 2)) or
         not raisesOverflowError(-2305843009213693953 << intExpr( 2)) or
@@ -4242,8 +4246,6 @@ const proc: check_lShift is func
         not raisesOverflowError(                  -4 << intExpr(62)) or
         not raisesOverflowError(                  -3 << intExpr(62)) or
         not raisesOverflowError(                  -2 << intExpr(63)) or
-        not raisesOverflowError(                  -1 << intExpr(64)) or
-        not raisesOverflowError(                   0 << intExpr(64)) or
         not raisesOverflowError(                   1 << intExpr(63)) or
         not raisesOverflowError(                   2 << intExpr(62)) or
         not raisesOverflowError(                   3 << intExpr(62)) or
@@ -4279,8 +4281,12 @@ const proc: check_lShift is func
         not raisesOverflowError( 2305843009213693951 << intExpr( 3)) or
         not raisesOverflowError( 2305843009213693952 << intExpr( 2)) or
         not raisesOverflowError( 4611686018427387903 << intExpr( 2)) or
-        not raisesOverflowError( 4611686018427387904 << intExpr( 1)) or
-        not raisesOverflowError(intExpr(           INT64_MIN) << intExpr( 1)) or
+        not raisesOverflowError( 4611686018427387904 << intExpr( 1)) then
+      writeln(" ***** Overflow when computing left shift does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(           INT64_MIN) << intExpr( 1)) or
         not raisesOverflowError(intExpr(-4611686018427387905) << intExpr( 1)) or
         not raisesOverflowError(intExpr(-4611686018427387904) << intExpr( 2)) or
         not raisesOverflowError(intExpr(-2305843009213693953) << intExpr( 2)) or
@@ -4316,8 +4322,6 @@ const proc: check_lShift is func
         not raisesOverflowError(intExpr(                  -4) << intExpr(62)) or
         not raisesOverflowError(intExpr(                  -3) << intExpr(62)) or
         not raisesOverflowError(intExpr(                  -2) << intExpr(63)) or
-        not raisesOverflowError(intExpr(                  -1) << intExpr(64)) or
-        not raisesOverflowError(intExpr(                   0) << intExpr(64)) or
         not raisesOverflowError(intExpr(                   1) << intExpr(63)) or
         not raisesOverflowError(intExpr(                   2) << intExpr(62)) or
         not raisesOverflowError(intExpr(                   3) << intExpr(62)) or
@@ -4354,7 +4358,7 @@ const proc: check_lShift is func
         not raisesOverflowError(intExpr( 2305843009213693952) << intExpr( 2)) or
         not raisesOverflowError(intExpr( 4611686018427387903) << intExpr( 2)) or
         not raisesOverflowError(intExpr( 4611686018427387904) << intExpr( 1)) then
-      writeln(" ***** Overflow when computing left shift does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Overflow when computing left shift does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
@@ -4529,8 +4533,6 @@ const proc: check_lShift_assign is func
     num :=                   -4; ok := ok and raisesOverflowError(num <<:= 62);
     num :=                   -3; ok := ok and raisesOverflowError(num <<:= 62);
     num :=                   -2; ok := ok and raisesOverflowError(num <<:= 63);
-    num :=                   -1; ok := ok and raisesOverflowError(num <<:= 64);
-    num :=                    0; ok := ok and raisesOverflowError(num <<:= 64);
     num :=                    1; ok := ok and raisesOverflowError(num <<:= 63);
     num :=                    2; ok := ok and raisesOverflowError(num <<:= 62);
     num :=                    3; ok := ok and raisesOverflowError(num <<:= 62);
@@ -4567,6 +4569,12 @@ const proc: check_lShift_assign is func
     num :=  2305843009213693952; ok := ok and raisesOverflowError(num <<:=  2);
     num :=  4611686018427387903; ok := ok and raisesOverflowError(num <<:=  2);
     num :=  4611686018427387904; ok := ok and raisesOverflowError(num <<:=  1);
+    if not ok then
+      writeln(" ***** Left shift assignment does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num :=            INT64_MIN; ok := ok and raisesOverflowError(num <<:= intExpr( 1));
     num := -4611686018427387905; ok := ok and raisesOverflowError(num <<:= intExpr( 1));
     num := -4611686018427387904; ok := ok and raisesOverflowError(num <<:= intExpr( 2));
@@ -4603,8 +4611,6 @@ const proc: check_lShift_assign is func
     num :=                   -4; ok := ok and raisesOverflowError(num <<:= intExpr(62));
     num :=                   -3; ok := ok and raisesOverflowError(num <<:= intExpr(62));
     num :=                   -2; ok := ok and raisesOverflowError(num <<:= intExpr(63));
-    num :=                   -1; ok := ok and raisesOverflowError(num <<:= intExpr(64));
-    num :=                    0; ok := ok and raisesOverflowError(num <<:= intExpr(64));
     num :=                    1; ok := ok and raisesOverflowError(num <<:= intExpr(63));
     num :=                    2; ok := ok and raisesOverflowError(num <<:= intExpr(62));
     num :=                    3; ok := ok and raisesOverflowError(num <<:= intExpr(62));
@@ -4641,6 +4647,12 @@ const proc: check_lShift_assign is func
     num :=  2305843009213693952; ok := ok and raisesOverflowError(num <<:= intExpr( 2));
     num :=  4611686018427387903; ok := ok and raisesOverflowError(num <<:= intExpr( 2));
     num :=  4611686018427387904; ok := ok and raisesOverflowError(num <<:= intExpr( 1));
+    if not ok then
+      writeln(" ***** Left shift assignment does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=            INT64_MIN; ok := ok and raisesOverflowError(arr[1] <<:=  1);
     arr[1] := -4611686018427387905; ok := ok and raisesOverflowError(arr[1] <<:=  1);
     arr[1] := -4611686018427387904; ok := ok and raisesOverflowError(arr[1] <<:=  2);
@@ -4677,8 +4689,6 @@ const proc: check_lShift_assign is func
     arr[1] :=                   -4; ok := ok and raisesOverflowError(arr[1] <<:= 62);
     arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] <<:= 62);
     arr[1] :=                   -2; ok := ok and raisesOverflowError(arr[1] <<:= 63);
-    arr[1] :=                   -1; ok := ok and raisesOverflowError(arr[1] <<:= 64);
-    arr[1] :=                    0; ok := ok and raisesOverflowError(arr[1] <<:= 64);
     arr[1] :=                    1; ok := ok and raisesOverflowError(arr[1] <<:= 63);
     arr[1] :=                    2; ok := ok and raisesOverflowError(arr[1] <<:= 62);
     arr[1] :=                    3; ok := ok and raisesOverflowError(arr[1] <<:= 62);
@@ -4715,6 +4725,12 @@ const proc: check_lShift_assign is func
     arr[1] :=  2305843009213693952; ok := ok and raisesOverflowError(arr[1] <<:=  2);
     arr[1] :=  4611686018427387903; ok := ok and raisesOverflowError(arr[1] <<:=  2);
     arr[1] :=  4611686018427387904; ok := ok and raisesOverflowError(arr[1] <<:=  1);
+    if not ok then
+      writeln(" ***** Left shift assignment does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=            INT64_MIN; ok := ok and raisesOverflowError(arr[1] <<:= intExpr( 1));
     arr[1] := -4611686018427387905; ok := ok and raisesOverflowError(arr[1] <<:= intExpr( 1));
     arr[1] := -4611686018427387904; ok := ok and raisesOverflowError(arr[1] <<:= intExpr( 2));
@@ -4751,8 +4767,6 @@ const proc: check_lShift_assign is func
     arr[1] :=                   -4; ok := ok and raisesOverflowError(arr[1] <<:= intExpr(62));
     arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] <<:= intExpr(62));
     arr[1] :=                   -2; ok := ok and raisesOverflowError(arr[1] <<:= intExpr(63));
-    arr[1] :=                   -1; ok := ok and raisesOverflowError(arr[1] <<:= intExpr(64));
-    arr[1] :=                    0; ok := ok and raisesOverflowError(arr[1] <<:= intExpr(64));
     arr[1] :=                    1; ok := ok and raisesOverflowError(arr[1] <<:= intExpr(63));
     arr[1] :=                    2; ok := ok and raisesOverflowError(arr[1] <<:= intExpr(62));
     arr[1] :=                    3; ok := ok and raisesOverflowError(arr[1] <<:= intExpr(62));
@@ -4790,7 +4804,7 @@ const proc: check_lShift_assign is func
     arr[1] :=  4611686018427387903; ok := ok and raisesOverflowError(arr[1] <<:= intExpr( 2));
     arr[1] :=  4611686018427387904; ok := ok and raisesOverflowError(arr[1] <<:= intExpr( 1));
     if not ok then
-      writeln(" ***** Left shift assignment does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Left shift assignment does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
