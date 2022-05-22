@@ -1,3 +1,66 @@
+20220522:
+- An explanation for Seed7 syntax highlighting has been added to
+  the FAQ.
+- Syntax highlighting for vim and UltraEdit has been fixed in the
+  files doc/sd7.vim, doc/seed7.vim and doc/seed7.uew.
+- Syntax highlighting support for notepad++ has been added with the
+  file doc/seed7udl.xml
+- The file syntaxhl.sd7 has been added. It can be used to test
+  Seed7 syntax highlighting.
+- In the string.s7i library, the functions lower() and upper() now
+  use an up to date Unicode definition.
+- The library gzip.s7i has been refactored to use the new type
+  gzipHeader and to avoid calling getUInt16Le().
+- The function getDigestOidFromAlgorithm() has been added to the
+  library x509cert.s7i.
+- The pac.sd7 example program has been refactored. Now it also
+  works when compiled.
+- The calc7 example program has been improved to support functions
+  from the draw.s7i library.
+- Tests for array append ( &:= ), the 'times' operator and the
+  function remove() have been added to chkarr.sd7.
+- Tests in chkovf.sd7 have been refactored.
+- Tests for Unicode case conversions and for conversions to UTF-8
+  have been added to chkstr.sd7.
+- Errors in getGidFromGroup() and getUidFromUser() have been fixed
+  in the file cmd_unx.c.
+- In literal.c the error message for empty char literals has been
+  improved.
+- The number of C compiler warnings has been reduced in sql_oci.c,
+  drw_win.c and int_rtl.c.
+- In drw_drv.h, drw_dos.c, drw_emc.c, drw_win.c, drw_x11.c, s7.c,
+  s7c.sd7 and comp/drw_act.s7i, the graphics support has been
+  changed to call drawInit() at program start.
+- The function drawInit() has been added to drw_dos.c and
+  drw_emc.c.
+- With these changes in the graphics support, an explicit
+  initialization of graphics is no longer necessary. The explicit
+  graphics initialization has been removed from bmp.s7i, gif.s7i,
+  ico.s7i, jpeg.s7i, png.s7i, ppm.s7i and tiff.s7i.
+- In str_rtl.c the functions toLower() and toUpper() have been
+  improved to use an up to date Unicode definition.
+- In drw_x11.c the exception checks in the function drwText have
+  been improved.
+- In src/read_me.txt the explanation for how to compile under
+  Windows with cl from MSVC has been improved.
+- In sql_fire.c the function setupParameters() has been changed to
+  check wether malloc() returns NULL.
+- In sql_ifx.c the function createConnectionString has been
+  changed to optionally consider the DB_LOCALE. Now, the function
+  opening the Informix DB will try to do so with and without
+  DB_LOCALE.
+- The compiler (s7c.sd7) has been changed to use stderr for a
+  trace of functions (option: -tf).
+- The compiler has been improved to support tracing of dynamic
+  calls (option: -td). This tracing is also written to stderr.
+- The compiler has been changed to raise ACTION_ERROR if a dynamic
+  call would result in an endless recursion.
+- The program chkccomp.c has been improved to restart tests if no
+  numeric result could be obtained. This is necessary for the
+  program to work reliable under Windows with certain virus
+  detection software.
+- Documentation comments have been improved in color.s7i.
+
 20220410:
 - In time.s7i, the function time(string) has been improved to
   consider the daylight saving time. Many thanks to Anders
