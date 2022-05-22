@@ -1,0 +1,171 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  syntaxhl.sd7  File to test Seed7 syntax highlighting.           *)
+(*  Copyright (C) 2022  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "rational.s7i";
+  include "bigint.s7i";
+  include "bigrat.s7i";
+  include "float.s7i";
+  include "complex.s7i";
+  include "time.s7i";
+  include "duration.s7i";
+  include "color.s7i";
+  include "bin64.s7i";
+
+(* This is a comment. *)
+const boolean: okay is TRUE;
+
+(* Comments can (* nest *) as in this example. *)
+const boolean: notOkay is FALSE;
+
+(* Camments can contain UTF-8 characters like αβγδεζηθικλμνξοπρςστυφχψω *)
+const boolean: alsoOkay is (notOkay and not okay) or okay;
+
+(* Comments can span over multiple
+   lines as in this example. *)
+const integer: speedOfLight is 299792458;
+
+# This is a comment that extends to the end of the line.
+
+const integer: leadingZero is 0299792458;  # A leading zero digit does not introduce an octal integer.
+const integer: leading0x is 0x12345;       # A leading 0x does not introduce a hexadecimal integer.
+const integer: hexInteger is 16#fedcba98;
+const integer: million is 1e6;             # Integer literals can also use exponential notation.
+const integer: anotherMillion is 1E6;
+const integer: negativeExponent is 10e-1;  # A negative exponent in an integer literal is illegal.
+const integer: strangeConstant is (hexInteger mod(speedOfLight div million+ord(okay))*3-10**2 rem anotherMillion)mdiv 2;
+const integer: anotherConstant is abs(million-speedOfLight)+integer parse "42";
+const rational: halve is 1/2;
+const bigInteger: numberOfGrainsAtChessboard is 18446744073709551615_;
+const bigInteger: numberOfGrainsAtChessboard2 is 16#ffffffffffffffff_;
+const bigRational: third is 1_/3_;
+const float: archimedesConstant is 3.1415926535897932384626433832795028841971693993751058209749445923;  # π
+const float: gravitationalConstant is 6.6743E-11;  # In m**3/(kg*s**2)
+const float: coulombConstant is 8.9875517923e9;    # In kg*m**3/(s**2*C**2)
+const float: illegalFloatLiteral is .1234;         # There must be at least one digit before the decimal point.
+const float: anotherIllegalFloatLiteral is 123.;   # There must be at least one digit after the decimal point.
+const complex: i is complex(0.0, 1.0);
+const char: space is ' ';
+const char: newline is '\n';
+const char: apostrophe is ''';
+const char: apostrophe2 is '\'';
+const char: quote is '"';
+const char: qote2 is '\"';
+const char: alpha is 'α';     # The characters in a char literal are UTF-8 encoded.
+const char: illegalNumericEscape    is '\0';  # Numerical escape sequences should end with ";".
+const char: illegalEmptyCharLiteral is '';    # Empty char literals are illegal.
+const char: illegalTwoCharLiteral   is 'ab';  # A char literal should define exactly one character.
+const string: simpleString is "test";
+const string: emptyString is "";
+const string: quotedString is "The quotes like \" and \' are written with an \\ before as in \\\" and \\\'.";
+const string: doublingQuotes is "Use \" instead of "" to represent quotes.";
+const string: withGaps is "There can be a gap <\     \> in a string literal.";
+const string: multiLine is "There can be a line breaks <\
+                           \> in string literals, but they are not part of the string.";
+const string: multiLine2 is "Line comments inside of a line break <\  # There can be line comments inside string literals.
+                            \> are allowed.";
+const string: controlCharacters is "\0;\1;\2;\3;\4;\5;\6;\a\b\t\n\v\f\r\14;\15;\16;\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\e\28;\29;\30;\31;";
+const string: hexCharacters is "\16#f;=\\a \16#10;=\\b \16#11;=\\t \16#12;=\\n";
+const string: greekAlphabet is "αβγδεζηθικλμνξοπρςστυφχψω";  # The characters in a string literal are UTF-8 encoded.
+const bitset: fibonacci is {1, 2, 3, 5, 8, 13, 21, 34, 55};
+const bitset: negative is {-1, -2, -3, -4, -5, -6};
+const bitset: digit is {0 .. 9};
+const bitset: mixedSet is ((fibonacci | negative) & digit) >< {2, 4, 6, 8};
+const time: compileTime is time(NOW);
+const duration: year is duration("P1Y");
+const color: myRed is color(65535, 0, 0);
+const reference: myRef is NIL;
+const ref_list: myRefList is ref_list.EMPTY;
+const array integer: emptyArray is 0 times 0;
+const file: aNullFile is STD_NULL;
+const void: alsoEmpty is empty;
+const type: mySet is set of char;
+const type: myHash is hash [string] float;
+const type: myEnum is new enum
+    ONE, TWO
+  end enum;
+const type: myStruct is sub complex struct
+    var boolean: okay is FALSE;
+  end struct;
+const func boolean: test (in float: u, in var float: v, inout float: w, ref float: x, val float param, attr float) is forward;
+const func boolean: test (in float: u, in var float: v, inout float: w, ref float: x, val float param, attr float) is return TRUE;
+
+
+const proc: main is func
+  local
+    var integer: number is 0;
+    var float: aFloat is 28.0;
+    var bin64: aBin64 is bin64(65521);
+    var myHash: aHash is myHash.value;
+    var boolean: doProceed is TRUE;
+    var integer: count is 0;
+    var integer: index is 0;
+  begin
+    writeln(speedOfLight lpad 10);
+    writeln(speedOfLight lpad0 10);
+    writeln(hexInteger radix 16);
+    writeln(archimedesConstant digits 10);
+    writeln(gravitationalConstant sci 4 exp 2);
+    writeln("*" mult 50);
+    number:=5;
+    number+:=3;
+    number-:=2;
+    number*:=4;
+    number<<:=1;
+    number>>:=2;
+    aFloat/:=4.0;
+    aBin64><:=bin64(997);
+    aBin64|:=bin64(127);
+    aBin64&:=bin64(67891);
+    aHash@:=["x"]1.1;
+    while doProceed do
+      repeat
+        incr(count);
+        if count = 1 then
+          for number range 1 to 10 do
+            writeln(number rpad 3 <& "...");
+          end for;
+        elsif count in {2} then
+          for number range 10 downto 1 do
+            writeln(number lpad 1+1);
+          end for;
+        else
+          for number key index range emptyArray do
+            noop;
+          end for;
+          doProceed := FALSE;
+        end if;
+        block
+          case count of
+            when {1}:  count := 1 div pred(count);
+            when {2}:  writeln("two");
+            otherwise: writeln("otherwise");
+          end case;
+        exception
+          catch NUMERIC_ERROR:
+            writeln("numeric error");
+        end block;
+      until not doProceed;
+    end while;
+  end func;
