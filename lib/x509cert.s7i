@@ -156,7 +156,8 @@ const string: SECP256R1_OID is encodeObjectIdentifier([] (1, 2, 840, 10045, 3, 1
 const string: SECP384R1_OID is encodeObjectIdentifier([] (1, 3, 132, 0, 34));
 const string: SECP521R1_OID is encodeObjectIdentifier([] (1, 3, 132, 0, 35));
 
-const string: SHA1_OID is encodeObjectIdentifier([] (1, 3, 14, 3, 2, 26));
+const string: MD5_OID    is encodeObjectIdentifier([] (1, 2, 840, 113549, 2, 5));
+const string: SHA1_OID   is encodeObjectIdentifier([] (1, 3, 14, 3, 2, 26));
 const string: SHA256_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 1));
 const string: SHA384_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 2));
 const string: SHA512_OID is encodeObjectIdentifier([] (2, 16, 840, 1, 101, 3, 4, 2, 3));
@@ -702,11 +703,27 @@ const func string: genX509TbsCertificate (in tbsCertificateType: tbsCertificate)
   end func;
 
 
+const func string: getDigestOidFromAlgorithm (in digestAlgorithm: digestAlg) is func
+  result
+    var string: digestOid is "";
+  begin
+    case digestAlg of
+      when {MD5}:    digestOid := MD5_OID;
+      when {SHA1}:   digestOid := SHA1_OID;
+      when {SHA256}: digestOid := SHA256_OID;
+      when {SHA384}: digestOid := SHA384_OID;
+      when {SHA512}: digestOid := SHA512_OID;
+    end case;
+  end func;
+
+
 const func digestAlgorithm: getDigestAlgorithm (in string: algorithm) is func
   result
     var digestAlgorithm: digestAlg is NO_DIGEST;
   begin
-    if algorithm = SHA1_OID then
+    if algorithm = MD5_OID then
+      digestAlg := MD5;
+    elsif algorithm = SHA1_OID then
       digestAlg := SHA1;
     elsif algorithm = SHA256_OID then
       digestAlg := SHA256;
