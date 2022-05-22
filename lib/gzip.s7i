@@ -35,11 +35,12 @@ include "crc32.s7i";
 
 const string: GZIP_MAGIC is "\31;\139;";  # Identification for gzip format
 
+const integer: GZIP_HEADER_FIXED_SIZE is 10;
 
-const proc: readGzipHeader (in string: stri, inout integer: bytePos) is func
-  local
+
+const type: gzipHeader is new struct
+    var string: magic is "";
     var integer: compressionMethod is 0;
-    var integer: flags is 0;
     var boolean: flagFtext is FALSE;
     var boolean: flagFhcrc is FALSE;
     var boolean: flagFextra is FALSE;
@@ -48,79 +49,113 @@ const proc: readGzipHeader (in string: stri, inout integer: bytePos) is func
     var integer: mtime is 0;
     var integer: extraFlags is 0;
     var integer: operatingSystem is 0;
-    var integer: extraLength is 0;
-    var string: originalFileName is "";
-    var string: fileComment is "";
-    var integer: crc16 is 0;
-  begin
-    compressionMethod := ord(stri[3]);
-    flags := ord(stri[4]);
-    flagFtext    := odd(flags);
-    flagFhcrc    := odd(flags >> 1);
-    flagFextra   := odd(flags >> 2);
-    flagFname    := odd(flags >> 3);
-    flagFcomment := odd(flags >> 4);
-    mtime := ord(stri[5]) + (ord(stri[6]) << 8) + (ord(stri[7]) << 16) + (ord(stri[8]) << 24);
-    extraFlags := ord(stri[9]);
-    operatingSystem := ord(stri[10]);
-    bytePos := 11;
-    if flagFextra then
-      extraLength := ord(stri[11]) + (ord(stri[12]) << 8);
-      bytePos +:= 2 + extraLength;
-    end if;
-    if flagFname then
-      originalFileName := getAsciiz(stri, bytePos);
-    end if;
-    if flagFcomment then
-      fileComment := getAsciiz(stri, bytePos);
-    end if;
-    if flagFhcrc then
-      crc16 := ord(stri[bytePos]) + (ord(stri[bytePos + 1]) << 8);
-      bytePos +:= 2;
-    end if;
-  end func;
-
-
-const proc: readGzipHeader (inout file: compressed) is func
-  local
-    var integer: compressionMethod is 0;
-    var integer: flags is 0;
-    var boolean: flagFtext is FALSE;
-    var boolean: flagFhcrc is FALSE;
-    var boolean: flagFextra is FALSE;
-    var boolean: flagFname is FALSE;
-    var boolean: flagFcomment is FALSE;
-    var integer: mtime is 0;
-    var integer: extraFlags is 0;
-    var integer: operatingSystem is 0;
-    var integer: extraLength is 0;
     var string: extraData is "";
     var string: originalFileName is "";
     var string: fileComment is "";
     var integer: crc16 is 0;
+  end struct;
+
+
+const func gzipHeader: readGzipHeader (in string: stri, inout integer: bytePos) is func
+  result
+    var gzipHeader: header is gzipHeader.value;
+  local
+    var integer: flags is 0;
+    var integer: extraLength is 0;
   begin
-    compressionMethod := ord(getc(compressed));
-    flags := ord(getc(compressed));
-    flagFtext    := odd(flags);
-    flagFhcrc    := odd(flags >> 1);
-    flagFextra   := odd(flags >> 2);
-    flagFname    := odd(flags >> 3);
-    flagFcomment := odd(flags >> 4);
-    mtime := getUInt32Le(compressed);
-    extraFlags := ord(getc(compressed));
-    operatingSystem := ord(getc(compressed));
-    if flagFextra then
-      extraLength := getUInt16Le(compressed);
-      extraData := gets(compressed, extraLength);
+    if length(stri) >= GZIP_HEADER_FIXED_SIZE and
+        startsWith(stri, GZIP_MAGIC) then
+      header.magic := GZIP_MAGIC;
+      header.compressionMethod := ord(stri[3]);
+      flags := ord(stri[4]);
+      header.flagFtext    := odd(flags);
+      header.flagFhcrc    := odd(flags >> 1);
+      header.flagFextra   := odd(flags >> 2);
+      header.flagFname    := odd(flags >> 3);
+      header.flagFcomment := odd(flags >> 4);
+      header.mtime := bytes2Int(stri[5 len 4], UNSIGNED, LE);
+      header.extraFlags := ord(stri[9]);
+      header.operatingSystem := ord(stri[10]);
+      bytePos := 11;
+      if header.flagFextra then
+        if length(stri) >= succ(bytePos) then
+          extraLength := bytes2Int(stri[bytePos len 2], UNSIGNED, LE);
+          bytePos +:= 2;
+          header.extraData := stri[bytePos len extraLength];
+          bytePos +:= extraLength;
+          if length(header.extraData) <> extraLength then
+            header.magic := "";
+          end if;
+        else
+          header.magic := "";
+        end if;
+      end if;
+      if header.flagFname then
+        header.originalFileName := getAsciiz(stri, bytePos);
+      end if;
+      if header.flagFcomment then
+        header.fileComment := getAsciiz(stri, bytePos);
+      end if;
+      if header.flagFhcrc then
+        if length(stri) >= succ(bytePos) then
+          header.crc16 := bytes2Int(stri[bytePos len 2], UNSIGNED, LE);
+          bytePos +:= 2;
+        else
+          header.magic := "";
+        end if;
+      end if;
     end if;
-    if flagFname then
-      originalFileName := getAsciiz(compressed);
-    end if;
-    if flagFcomment then
-      fileComment := getAsciiz(compressed);
-    end if;
-    if flagFhcrc then
-      crc16 := getUInt16Le(compressed);
+  end func;
+
+
+const func gzipHeader: readGzipHeader (inout file: compressed) is func
+  result
+    var gzipHeader: header is gzipHeader.value;
+  local
+    var string: stri is "";
+    var integer: flags is 0;
+    var integer: extraLength is 0;
+  begin
+    stri := gets(compressed, GZIP_HEADER_FIXED_SIZE);
+    if length(stri) = GZIP_HEADER_FIXED_SIZE and
+        startsWith(stri, GZIP_MAGIC) then
+      header.magic := GZIP_MAGIC;
+      header.compressionMethod := ord(stri[3]);
+      flags := ord(stri[4]);
+      header.flagFtext    := odd(flags);
+      header.flagFhcrc    := odd(flags >> 1);
+      header.flagFextra   := odd(flags >> 2);
+      header.flagFname    := odd(flags >> 3);
+      header.flagFcomment := odd(flags >> 4);
+      header.mtime := bytes2Int(stri[5 len 4], UNSIGNED, LE);
+      header.extraFlags := ord(stri[9]);
+      header.operatingSystem := ord(stri[10]);
+      if header.flagFextra then
+        stri := gets(compressed, 2);
+        if length(stri) = 2 then
+          extraLength := bytes2Int(stri, UNSIGNED, LE);
+          header.extraData := gets(compressed, extraLength);
+          if length(header.extraData) <> extraLength then
+            header.magic := "";
+          end if;
+        else
+          header.magic := "";
+        end if;
+      end if;
+      if header.flagFname then
+        header.originalFileName := getAsciiz(compressed);
+      end if;
+      if header.flagFcomment then
+        header.fileComment := getAsciiz(compressed);
+      end if;
+      if header.flagFhcrc then
+        stri := gets(compressed, 2);
+        if length(stri) = 2 then
+          header.crc16 := bytes2Int(stri, UNSIGNED, LE);
+        else
+          header.magic := "";
+        end if;
+      end if;
     end if;
   end func;
 
@@ -182,12 +217,13 @@ const func string: gunzip (in string: compressed) is func
   result
     var string: uncompressed is "";
   local
+    var gzipHeader: header is gzipHeader.value;
     var lsbBitStream: compressedStream is lsbBitStream.value;
     var integer: bytePos is 0;
     var boolean: bfinal is FALSE;
   begin
-    if compressed[1 len 2] = GZIP_MAGIC then
-      readGzipHeader(compressed, bytePos);
+    header := readGzipHeader(compressed, bytePos);
+    if header.magic = GZIP_MAGIC then
       compressedStream := openLsbBitStream(compressed);
       skipBits(compressedStream, pred(bytePos) * 8);
       repeat
@@ -225,12 +261,11 @@ const func file: openGzipFile (inout file: compressed, READ) is func
   result
     var file: newFile is STD_NULL;
   local
-    var string: magic is "";
+    var gzipHeader: header is gzipHeader.value;
     var gzipFile: new_gzipFile is gzipFile.value;
   begin
-    magic := gets(compressed, 2);
-    if magic = GZIP_MAGIC then
-      readGzipHeader(compressed);
+    header := readGzipHeader(compressed);
+    if header.magic = GZIP_MAGIC then
       new_gzipFile.compressedStream := openLsbBitStream(compressed);
       newFile := toInterface(new_gzipFile);
     end if;
