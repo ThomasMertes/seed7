@@ -8734,7 +8734,21 @@ int main (int argc, char **argv)
     fflush(logFile);
     prepareCompileCommand();
     determineCompilerVersion(versionFile);
-    fprintf(logFile, "done\n");
+    if (assertCompAndLnk("#include <stdio.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "#if defined(__STDC__)\n"
+                         "#if defined(__STDC_VERSION__)\n"
+                         "  printf(\"%ld\\n\", __STDC_VERSION__);\n"
+                         "#else\n"
+                         "  puts(\"1989\");\n"
+                         "#endif\n"
+                         "#else\n"
+                         "  puts(\"1978\");\n"
+                         "#endif\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define C_VERSION %d\n", doTest());
+    } /* if */
+    fprintf(logFile, " done\n");
     determineOptionForLinkTimeOptimization(versionFile);
     numericSizes(versionFile);
     fprintf(logFile, "General settings: ");
