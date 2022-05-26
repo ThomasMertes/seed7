@@ -2218,8 +2218,10 @@ striType cmdConfigValue (const const_striType name)
       opt = BUILTIN_SUB_OVERFLOW;
     } else if (strcmp(opt_name, "BUILTIN_MULT_OVERFLOW") == 0) {
       opt = BUILTIN_MULT_OVERFLOW;
-    } else if (strcmp(opt_name, "INT_DIV_OVERFLOW_INFINITE_LOOP") == 0) {
-      opt = INT_DIV_OVERFLOW_INFINITE_LOOP ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "INT_DIV_OVERFLOW") == 0) {
+      opt = STRINGIFY(INT_DIV_OVERFLOW);
+    } else if (strcmp(opt_name, "INT_REM_OVERFLOW") == 0) {
+      opt = STRINGIFY(INT_REM_OVERFLOW);
     } else if (strcmp(opt_name, "FLOATTYPE_DOUBLE") == 0) {
       opt = FLOATTYPE_DOUBLE ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "HAS_SIGSETJMP") == 0) {

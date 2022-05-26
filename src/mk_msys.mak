@@ -186,6 +186,7 @@ chkccomp.h:
 	echo "#define LINKER_OPT_NO_LTO \"-fno-lto\"" >> chkccomp.h
 	echo "#define SUPPORTS_PARTIAL_LINKING" >> chkccomp.h
 	echo "#define USE_GMP 0" >> chkccomp.h
+	echo "#define INT_DIV_OVERFLOW_INFINITE_LOOP 1" >> chkccomp.h
 	echo "#define POSTGRESQL_USE_DLL" >> chkccomp.h
 
 base.h:
@@ -203,7 +204,6 @@ base.h:
 	echo "#define ARCHIVER \"$(AR)\"" >> base.h
 	echo "#define ARCHIVER_OPT_REPLACE \"r \"" >> base.h
 	echo "#define FORMAT_LL_TRIGGERS_WARNINGS 1" >> base.h
-	echo "#define INT_DIV_OVERFLOW_INFINITE_LOOP 1" >> base.h
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> base.h
 	echo "#define SYSTEM_MATH_LIBS \"$(SYSTEM_MATH_LIBS)\"" >> base.h
 

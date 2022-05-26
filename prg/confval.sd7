@@ -106,6 +106,8 @@ const proc: main is func
     writeln("BUILTIN_ADD_OVERFLOW:          " <& ccConf.BUILTIN_ADD_OVERFLOW);
     writeln("BUILTIN_SUB_OVERFLOW:          " <& ccConf.BUILTIN_SUB_OVERFLOW);
     writeln("BUILTIN_MULT_OVERFLOW:         " <& ccConf.BUILTIN_MULT_OVERFLOW);
+    writeln("INT_DIV_OVERFLOW:              " <& ccConf.INT_DIV_OVERFLOW);
+    writeln("INT_REM_OVERFLOW:              " <& ccConf.INT_REM_OVERFLOW);
     writeln("OBJECT_FILE_EXTENSION:         " <& ccConf.OBJECT_FILE_EXTENSION);
     writeln("LIBRARY_FILE_EXTENSION:        " <& ccConf.LIBRARY_FILE_EXTENSION);
     writeln("EXECUTABLE_FILE_EXTENSION:     " <& ccConf.EXECUTABLE_FILE_EXTENSION);
