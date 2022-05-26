@@ -1500,6 +1500,7 @@ bigIntType bigParse (const const_striType stri)
     bigIntType result;
 
   /* bigParse */
+    logFunction(printf("bigParse(\"%s\")\n", striAsUnquotedCStri(stri)););
     cstri = stri_to_cstri(stri, &err_info);
     if (unlikely(cstri == NULL)) {
       logError(printf("bigParse: stri_to_cstri(\"%s\", *) failed:\n"
@@ -1531,6 +1532,7 @@ bigIntType bigParse (const const_striType stri)
         result = NULL;
       } /* if */
     } /* if */
+    logFunction(printf("bigParse --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigParse */
 
