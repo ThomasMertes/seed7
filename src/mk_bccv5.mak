@@ -201,6 +201,7 @@ bcc32.bat:
 
 chkccomp.h:
 	echo ^#define LIST_DIRECTORY_CONTENTS "dir" > chkccomp.h
+	echo ^#define USE_GMP 0 >> chkccomp.h
 
 base.h:
 	echo ^#define PATH_DELIMITER '\\' > base.h

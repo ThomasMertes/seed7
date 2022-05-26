@@ -826,7 +826,17 @@ HOW TO USE THE GMP LIBRARY?
   You need the GMP library (one of gmp.lib/gmp.dll/gmp.a/gmp.so)
   and the gmp.h include file.
 
-  When Seed7 is compiled with
+  The use of GMP must be enabled explicit in the makefile.
+  In the makefile (that you use) is an echo statement with:
+
+    #define USE_GMP 0
+
+  To enable GMP just change the 0 in this echo statement to 1.
+  Remember to do a
+
+    make clean
+
+  after you changed the makefile. When Seed7 is compiled with
 
     make depend
 
@@ -869,6 +879,12 @@ HOW TO USE THE GMP LIBRARY?
     echo "#define BIGINT_LIBS \" option to link GMP \"" >> chkccomp.h
 
   to write a definition of BIGINT_LIBS to the file chkccomp.h.
+
+  The GMP library might be used by other libraries as well.
+  In some cases the other users of the GMP library use
+  custom memory allocations that may corrupt the memory.
+  If you see buffer overflow errors or corrupt heap memory
+  you should switch back to the default bigInteger library.
 
 
 SOURCE FILES

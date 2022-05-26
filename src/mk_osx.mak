@@ -215,6 +215,7 @@ chkccomp.h:
 	echo "#define LINKER_OPT_NO_LTO \"-fno-lto\"" >> chkccomp.h
 	echo "#define LINKER_OPT_DYN_LINK_LIBS \"-ldl\"" >> chkccomp.h
 	echo "#define X11_LIBRARY_PATH \"/usr/X11R6/lib\"" >> chkccomp.h
+	echo "#define USE_GMP 0" >> chkccomp.h
 
 base.h:
 	echo "#define PATH_DELIMITER '/'" > base.h

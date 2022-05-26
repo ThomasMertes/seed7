@@ -220,6 +220,7 @@ chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" > chkccomp.h
 	echo "#define LINKER_OPT_DYN_LINK_LIBS \"-ldl\"" >> chkccomp.h
 	echo "#define SUPPORTS_PARTIAL_LINKING" >> chkccomp.h
+	echo "#define USE_GMP 0" >> chkccomp.h
 
 base.h:
 	echo "#define PATH_DELIMITER '/'" > base.h

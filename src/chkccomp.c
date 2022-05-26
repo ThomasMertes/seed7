@@ -148,11 +148,11 @@
  *  TEST_C_COMPILER:
  *      If TEST_C_COMPILER is defined it is used instead of C_COMPILER
  *      as command of the stand-alone C compiler and linker.
- *  LIST_DIRECTORY_CONTENTS;
+ *  LIST_DIRECTORY_CONTENTS:
  *      Either "ls" or "dir".
  *      E.g.: #define LIST_DIRECTORY_CONTENTS "ls"
  *            #define LIST_DIRECTORY_CONTENTS "dir"
- *  CC_OPT_LINK_TIME_OPTIMIZATION (optional)
+ *  CC_OPT_LINK_TIME_OPTIMIZATION: (optional)
  *      Contains the compiler option for link time optimization (e.g.: "-flto").
  *  LINKER_OPT_STATIC_LINKING: (optional)
  *      Contains the linker option to force static linking (e.g.: "-static").
@@ -168,6 +168,11 @@
  *      Objcopy is used with the option -L symbolname which converts
  *      a global or weak symbol called symbolname into a local symbol.
  *      This way the symbol is not visible externally.
+ *  USE_GMP: (optional)
+ *      Defines which library is used to implement bigInteger arithmetic.
+ *      Set to 1 if the GNU Multiple Precision Arithmetic Library (GMP)
+ *      should be used. Set to 0 if the build-in big_rtl.c library should
+ *      be used.
  *  ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS: (optional)
  *      Defined if X11 or ncurses header files can be replaced by header
  *      files provided by Seed7.
@@ -8453,16 +8458,13 @@ static void determineBigIntDefines (FILE *versionFile,
     char linkerOptions[BUFFER_SIZE];
 
   /* determineBigIntDefines */
-#if !defined BIGINT_LIBRARY || BIGINT_LIBRARY != BIG_RTL_LIBRARY
+#if defined USE_GMP && USE_GMP == 1
 #ifdef BIGINT_LIBS
     gmpLinkerOption = BIGINT_LIBS;
 #else
     gmpLinkerOption = "-lgmp";
 #endif
     linkerOptions[0] = '\0';
-#ifdef LINKER_OPT_STATIC_LINKING
-    appendOption(linkerOptions, LINKER_OPT_STATIC_LINKING);
-#endif
     appendOption(linkerOptions, gmpLinkerOption);
     if (compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<stdlib.h>\n#include<gmp.h>\n"
                                     "int main(int argc,char *argv[]){\n"
@@ -8481,6 +8483,9 @@ static void determineBigIntDefines (FILE *versionFile,
       fputs("#define BIG_RTL_LIBRARY 1\n", versionFile);
       fputs("#define BIGINT_LIBRARY BIG_RTL_LIBRARY\n", versionFile);
     } /* if */
+#else
+    fputs("#define BIG_RTL_LIBRARY 1\n", versionFile);
+    fputs("#define BIGINT_LIBRARY BIG_RTL_LIBRARY\n", versionFile);
 #endif
   } /* determineBigIntDefines */
 

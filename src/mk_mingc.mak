@@ -194,6 +194,7 @@ chkccomp.h:
 	echo #define LINKER_OPT_STATIC_LINKING "-static" >> chkccomp.h
 	echo #define CC_OPT_LINK_TIME_OPTIMIZATION "-flto" >> chkccomp.h
 	echo #define LINKER_OPT_NO_LTO "-fno-lto" >> chkccomp.h
+	echo #define USE_GMP 0 >> chkccomp.h
 	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
 
 base.h:

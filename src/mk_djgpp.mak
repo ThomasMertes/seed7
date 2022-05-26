@@ -181,6 +181,7 @@ strip:
 
 chkccomp.h:
 	$(ECHO) "#define LIST_DIRECTORY_CONTENTS \"dir\"" > chkccomp.h
+	$(ECHO) "#define USE_GMP 0" >> chkccomp.h
 
 base.h:
 	$(ECHO) "#define PATH_DELIMITER 92 /* backslash (ASCII) */" > base.h
