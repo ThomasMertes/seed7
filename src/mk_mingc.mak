@@ -212,6 +212,7 @@ base.h:
 	echo #define ARCHIVER "..\\bin\\call_ar" >> base.h
 	echo #define ARCHIVER_OPT_REPLACE "r " >> base.h
 	echo #define FORMAT_LL_TRIGGERS_WARNINGS 1 >> base.h
+	echo #define INT_DIV_OVERFLOW_INFINITE_LOOP 1 >> base.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
 	echo #define SYSTEM_MATH_LIBS "$(SYSTEM_MATH_LIBS)" >> base.h
 

@@ -2162,6 +2162,8 @@ static void checkIntDivisionOverflow (FILE *versionFile)
     char buffer[BUFFER_SIZE];
 
   /* checkIntDivisionOverflow */
+#ifndef INT_DIV_OVERFLOW_INFINITE_LOOP
+    fputs("#define INT_DIV_OVERFLOW_INFINITE_LOOP 0\n", versionFile);
     sprintf(buffer,
             "#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
             "typedef %s int64Type;\n"
@@ -2206,6 +2208,7 @@ static void checkIntDivisionOverflow (FILE *versionFile)
     if (compileAndLinkOk(buffer)) {
       fprintf(versionFile, "#define INT_REM_OVERFLOW %d\n", doTest());
     } /* if */
+#endif
   } /* checkIntDivisionOverflow */
 
 
@@ -2361,7 +2364,6 @@ static void numericProperties (FILE *versionFile)
       fputs("#define OVERFLOW_SIGNAL 0\n", versionFile);
       fputs("#define OVERFLOW_SIGNAL_STR \"\"\n", versionFile);
     } /* if */
-    checkIntDivisionOverflow(versionFile);
     if (getSizeof("int") == 8) {
       builtin_add_overflow = "__builtin_sadd_overflow";
     } else if (getSizeof("long") == 8) {
@@ -2380,6 +2382,7 @@ static void numericProperties (FILE *versionFile)
                     int64TypeStri, builtin_add_overflow);
     fprintf(versionFile, "#define HAS_BUILTIN_OVERFLOW_OPERATIONS %d\n",
             compileAndLinkOk(buffer) && doTest() == 1);
+    checkIntDivisionOverflow(versionFile);
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "char buffer[1024];\n"
