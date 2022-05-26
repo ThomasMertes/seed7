@@ -31,9 +31,8 @@ include "float.s7i";
 
 (**
  *  Binary values with 32 bits.
- *  This type is intended for bit operations that are not defined
- *  for integer values. The internal representation is the same as
- *  for integer.
+ *  This type supports bitwise operations but no integer arithmetic.
+ *  The internal representation is the same as for integer.
  *)
 const type: bin32 is subtype object;
 
