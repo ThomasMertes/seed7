@@ -2156,6 +2156,60 @@ static void checkIntDivisions (FILE *versionFile)
 
 
 
+static void checkIntDivisionOverflow (FILE *versionFile)
+
+  {
+    char buffer[BUFFER_SIZE];
+
+  /* checkIntDivisionOverflow */
+    sprintf(buffer,
+            "#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+            "typedef %s int64Type;\n"
+            "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+            "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+            "void handleSigabrt(int sig){puts(\"4\");exit(0);}\n"
+            "void handleSigtrap(int sig){puts(\"5\");exit(0);}\n"
+            "int main(int argc,char *argv[]){\n"
+            "int64Type minusOne=-1;\n"
+            "int64Type minIntValue = -9223372036854775807-1;\n"
+            "signal(SIGFPE,handleSigfpe);\n"
+            "signal(SIGILL,handleSigill);\n"
+            "signal(SIGABRT,handleSigabrt);\n"
+            "#ifdef SIGTRAP\n"
+            "signal(SIGTRAP,handleSigtrap);\n"
+            "#endif\n"
+            "printf(\"%%d\\n\", minIntValue / minusOne == minIntValue);\n"
+            "return 0;}\n",
+	    int64TypeStri);
+    if (compileAndLinkOk(buffer)) {
+      fprintf(versionFile, "#define INT_DIV_OVERFLOW %d\n", doTest());
+    } /* if */
+    sprintf(buffer,
+            "#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+            "typedef %s int64Type;\n"
+            "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+            "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+            "void handleSigabrt(int sig){puts(\"4\");exit(0);}\n"
+            "void handleSigtrap(int sig){puts(\"5\");exit(0);}\n"
+            "int main(int argc,char *argv[]){\n"
+            "int64Type minusOne=-1;\n"
+            "int64Type minIntValue = -9223372036854775807-1;\n"
+            "signal(SIGFPE,handleSigfpe);\n"
+            "signal(SIGILL,handleSigill);\n"
+            "signal(SIGABRT,handleSigabrt);\n"
+            "#ifdef SIGTRAP\n"
+            "signal(SIGTRAP,handleSigtrap);\n"
+            "#endif\n"
+            "printf(\"%%d\\n\", minIntValue %% minusOne == 0);\n"
+            "return 0;}\n",
+	    int64TypeStri);
+    if (compileAndLinkOk(buffer)) {
+      fprintf(versionFile, "#define INT_REM_OVERFLOW %d\n", doTest());
+    } /* if */
+  } /* checkIntDivisionOverflow */
+
+
+
 static const char *determine_os_isnan_definition (const char *computeValues,
     const char *os_isnan_definition)
 
@@ -2307,6 +2361,7 @@ static void numericProperties (FILE *versionFile)
       fputs("#define OVERFLOW_SIGNAL 0\n", versionFile);
       fputs("#define OVERFLOW_SIGNAL_STR \"\"\n", versionFile);
     } /* if */
+    checkIntDivisionOverflow(versionFile);
     if (getSizeof("int") == 8) {
       builtin_add_overflow = "__builtin_sadd_overflow";
     } else if (getSizeof("long") == 8) {
