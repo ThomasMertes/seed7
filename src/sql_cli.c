@@ -38,7 +38,7 @@ typedef struct {
     boolType     wideCharsSupported;
     boolType     tinyintIsUnsigned;
     SQLUSMALLINT maxConcurrentActivities;
-  } dbRecord, *dbType;
+  } dbRecordCli, *dbType;
 
 typedef struct {
     int          sql_type;
@@ -51,7 +51,7 @@ typedef struct {
     SQLSMALLINT  decimalDigits;
     SQLSMALLINT  nullable;
     boolType     bound;
-  } bindDataRecord, *bindDataType;
+  } bindDataRecordCli, *bindDataType;
 
 typedef struct {
     SQLSMALLINT  c_type;
@@ -66,7 +66,7 @@ typedef struct {
 typedef struct {
     void        *buffer;
     SQLLEN       length;
-  } resultDataRecord, *resultDataType;
+  } resultDataRecordCli, *resultDataType;
 
 
 typedef struct fetchDataStruct *fetchDataType;
@@ -93,7 +93,7 @@ typedef struct {
     boolType        executeSuccessful;
     boolType        fetchOkay;
     boolType        fetchFinished;
-  } preparedStmtRecord, *preparedStmtType;
+  } preparedStmtRecordCli, *preparedStmtType;
 
 static sqlFuncType sqlFunc = NULL;
 
@@ -624,7 +624,7 @@ static void freeDatabase (databaseType database)
                        (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
-    FREE_RECORD2(db, dbRecord, count.database, count.database_bytes);
+    FREE_RECORD2(db, dbRecordCli, count.database, count.database_bytes);
     logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
@@ -640,7 +640,7 @@ static void freeFetchData (preparedStmtType preparedStmt, fetchDataType fetchDat
       for (pos = 0; pos < preparedStmt->result_array_size; pos++) {
         free(fetchData->result_array[pos].buffer);
       } /* for */
-      FREE_TABLE(fetchData->result_array, resultDataRecord, preparedStmt->result_array_size);
+      FREE_TABLE(fetchData->result_array, resultDataRecordCli, preparedStmt->result_array_size);
     } /* if */
   } /* freeFetchData */
 
@@ -691,10 +691,10 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
         free(preparedStmt->param_array[pos].buffer);
       } /* for */
-      FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
+      FREE_TABLE(preparedStmt->param_array, bindDataRecordCli, preparedStmt->param_array_size);
     } /* if */
     if (preparedStmt->result_descr_array != NULL) {
-      FREE_TABLE(preparedStmt->result_descr_array, resultDataRecord, preparedStmt->result_array_size);
+      FREE_TABLE(preparedStmt->result_descr_array, resultDataRecordCli, preparedStmt->result_array_size);
     } /* if */
     freePrefetched(preparedStmt);
     freeFetchData(preparedStmt, &preparedStmt->fetchRecord);
@@ -710,7 +710,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       /* printf("FREE " FMT_X_MEM "\n", (memSizeType) preparedStmt->db); */
       freeDatabase((databaseType) preparedStmt->db);
     } /* if */
-    FREE_RECORD2(preparedStmt, preparedStmtRecord,
+    FREE_RECORD2(preparedStmt, preparedStmtRecordCli,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
   } /* freePreparedStmt */
@@ -1141,12 +1141,12 @@ static errInfoType setupParameters (preparedStmtType preparedStmt)
       preparedStmt->param_array_size = 0;
       preparedStmt->param_array = NULL;
     } else if (unlikely(!ALLOC_TABLE(preparedStmt->param_array,
-                                     bindDataRecord, (memSizeType) num_params))) {
+                                     bindDataRecordCli, (memSizeType) num_params))) {
       err_info = MEMORY_ERROR;
     } else {
       preparedStmt->param_array_size = (memSizeType) num_params;
       memset(preparedStmt->param_array, 0,
-             (memSizeType) num_params * sizeof(bindDataRecord));
+             (memSizeType) num_params * sizeof(bindDataRecordCli));
       for (param_index = 0; param_index < num_params &&
            err_info == OKAY_NO_ERROR; param_index++) {
         err_info = setupParameterColumn(preparedStmt, param_index,
@@ -1646,12 +1646,12 @@ static errInfoType bindResult (preparedStmtType preparedStmt, fetchDataType fetc
     if (preparedStmt->result_array_size == 0) {
       /* malloc(0) may return NULL, which would wrongly trigger a MEMORY_ERROR. */
       fetchData->result_array = NULL;
-    } else if (unlikely(!ALLOC_TABLE(fetchData->result_array, resultDataRecord,
+    } else if (unlikely(!ALLOC_TABLE(fetchData->result_array, resultDataRecordCli,
                                      preparedStmt->result_array_size))) {
       err_info = MEMORY_ERROR;
     } else {
       memset(fetchData->result_array, 0,
-          preparedStmt->result_array_size * sizeof(resultDataRecord));
+          preparedStmt->result_array_size * sizeof(resultDataRecordCli));
       for (column_index = 0; column_index < preparedStmt->result_array_size &&
            err_info == OKAY_NO_ERROR; column_index++) {
         err_info = bindResultColumn(preparedStmt, (SQLSMALLINT) (column_index + 1),
@@ -1719,14 +1719,14 @@ static fetchDataType copyFetchData (preparedStmtType preparedStmt, fetchDataType
       if (preparedStmt->result_array_size == 0) {
         /* malloc(0) may return NULL, which would wrongly trigger a MEMORY_ERROR. */
         fetchData->result_array = NULL;
-      } else if (unlikely(!ALLOC_TABLE(fetchData->result_array, resultDataRecord,
+      } else if (unlikely(!ALLOC_TABLE(fetchData->result_array, resultDataRecordCli,
                                        preparedStmt->result_array_size))) {
         FREE_RECORD2(fetchData, fetchDataRecord,
                      count.fetch_data, count.fetch_data_bytes);
         fetchData = NULL;
       } else {
         memset(fetchData->result_array, 0,
-            preparedStmt->result_array_size * sizeof(resultDataRecord));
+            preparedStmt->result_array_size * sizeof(resultDataRecordCli));
         for (column_index = 0; column_index < preparedStmt->result_array_size &&
              err_info == OKAY_NO_ERROR; column_index++) {
           err_info = copyNonBlobBuffers(&preparedStmt->result_descr_array[column_index],
@@ -5357,11 +5357,11 @@ static sqlStmtType sqlPrepare (databaseType database,
                             queryLength););
             err_info = RANGE_ERROR;
             preparedStmt = NULL;
-          } else if (unlikely(!ALLOC_RECORD2(preparedStmt, preparedStmtRecord,
+          } else if (unlikely(!ALLOC_RECORD2(preparedStmt, preparedStmtRecordCli,
                                              count.prepared_stmt, count.prepared_stmt_bytes))) {
             err_info = MEMORY_ERROR;
           } else {
-            memset(preparedStmt, 0, sizeof(preparedStmtRecord));
+            memset(preparedStmt, 0, sizeof(preparedStmtRecordCli));
             if (SQLAllocHandle(SQL_HANDLE_STMT,
                                db->connection,
                                &preparedStmt->ppStmt) != SQL_SUCCESS) {
@@ -5369,7 +5369,7 @@ static sqlStmtType sqlPrepare (databaseType database,
                             SQL_HANDLE_DBC, db->connection);
               logError(printf("sqlPrepare: SQLAllocHandle SQL_HANDLE_STMT:\n%s\n",
                               dbError.message););
-              FREE_RECORD2(preparedStmt, preparedStmtRecord,
+              FREE_RECORD2(preparedStmt, preparedStmtRecordCli,
                            count.prepared_stmt, count.prepared_stmt_bytes);
               err_info = DATABASE_ERROR;
               preparedStmt = NULL;
@@ -5380,7 +5380,7 @@ static sqlStmtType sqlPrepare (databaseType database,
                             SQL_HANDLE_STMT, preparedStmt->ppStmt);
               logError(printf("sqlPrepare: SQLPrepare:\n%s\n",
                               dbError.message););
-              FREE_RECORD2(preparedStmt, preparedStmtRecord,
+              FREE_RECORD2(preparedStmt, preparedStmtRecordCli,
                           count.prepared_stmt, count.prepared_stmt_bytes);
               err_info = DATABASE_ERROR;
               preparedStmt = NULL;
@@ -5723,7 +5723,7 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
 #endif
       if (likely(*err_info == OKAY_NO_ERROR)) {
         if (unlikely(!setupFuncTable() ||
-                     !ALLOC_RECORD2(database, dbRecord,
+                     !ALLOC_RECORD2(database, dbRecordCli,
                                     count.database, count.database_bytes))) {
           *err_info = MEMORY_ERROR;
         } /* if */
@@ -5736,7 +5736,7 @@ static databaseType createDbRecord (SQLHENV sql_environment, SQLHDBC connection,
       database = NULL;
     } else {
       /* printf("maxConcurrentActivities: %lu\n", (unsigned long) maxConcurrentActivities); */
-      memset(database, 0, sizeof(dbRecord));
+      memset(database, 0, sizeof(dbRecordCli));
       database->usage_count = 1;
       database->sqlFunc = sqlFunc;
       database->driver = driver;

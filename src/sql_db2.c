@@ -80,7 +80,7 @@ typedef struct {
     memSizeType pwdLength;
     SQLWCHAR *connectionString;
     memSizeType connectionStringLength;
-  } connectDataRecord, *connectDataType;
+  } connectDataRecordDb2, *connectDataType;
 
 #define DEFAULT_PORT 50000
 
@@ -275,7 +275,7 @@ databaseType sqlOpenDb2 (const const_striType host, intType port,
     const const_striType password)
 
   {
-    connectDataRecord connectData;
+    connectDataRecordDb2 connectData;
     errInfoType err_info = OKAY_NO_ERROR;
     databaseType database;
 

@@ -88,7 +88,7 @@ typedef struct {
     memSizeType pwdLength;
     SQLWCHAR *connectionString;
     memSizeType connectionStringLength;
-  } connectDataRecord, *connectDataType;
+  } connectDataRecordSrv, *connectDataType;
 
 #define DEFAULT_PORT 1433
 
@@ -477,7 +477,7 @@ databaseType sqlOpenSqlServer (const const_striType host, intType port,
     const const_striType password)
 
   {
-    connectDataRecord connectData;
+    connectDataRecordSrv connectData;
     errInfoType err_info = OKAY_NO_ERROR;
     databaseType database;
 

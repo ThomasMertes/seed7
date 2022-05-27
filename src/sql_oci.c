@@ -75,7 +75,7 @@ typedef struct {
     OCISvcCtx   *oci_service_context;
     ub2          charSetId;
     boolType     autoCommit;
-  } dbRecord, *dbType;
+  } dbRecordOci, *dbType;
 
 typedef struct {
     OCIBind     *bind_handle;
@@ -86,7 +86,7 @@ typedef struct {
     void        *descriptor;
     int16Type    indicator;
     boolType     bound;
-  } bindDataRecord, *bindDataType;
+  } bindDataRecordOci, *bindDataType;
 
 typedef struct {
     OCIParam    *column_handle;
@@ -101,7 +101,7 @@ typedef struct {
     void        *descriptor;
     OCIRef      *ref;
     int16Type    indicator;
-  } resultDataRecord, *resultDataType;
+  } resultDataRecordOci, *resultDataType;
 
 typedef struct {
     uintType       usage_count;
@@ -120,7 +120,7 @@ typedef struct {
     boolType       executeSuccessful;
     boolType       fetchOkay;
     boolType       fetchFinished;
-  } preparedStmtRecord, *preparedStmtType;
+  } preparedStmtRecordOci, *preparedStmtType;
 
 typedef struct {
     memSizeType tnsNameLength;
@@ -129,7 +129,7 @@ typedef struct {
     cstriType connectStringService;
     memSizeType connectStringSidLength;
     cstriType connectStringSid;
-  } connectDataRecord, *connectDataType;
+  } connectDataRecordOci, *connectDataType;
 
 static sqlFuncType sqlFunc = NULL;
 
@@ -519,7 +519,7 @@ static void freeDatabase (databaseType database)
                        (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
-    FREE_RECORD2(db, dbRecord, count.database, count.database_bytes);
+    FREE_RECORD2(db, dbRecordOci, count.database, count.database_bytes);
     logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
@@ -637,13 +637,13 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
         freeBindData(preparedStmt, &preparedStmt->param_array[pos]);
       } /* for */
-      FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
+      FREE_TABLE(preparedStmt->param_array, bindDataRecordOci, preparedStmt->param_array_size);
     } /* if */
     if (preparedStmt->result_array != NULL) {
       for (pos = 0; pos < preparedStmt->result_array_size; pos++) {
         freeResultData(preparedStmt, &preparedStmt->result_array[pos]);
       } /* for */
-      FREE_TABLE(preparedStmt->result_array, resultDataRecord, preparedStmt->result_array_size);
+      FREE_TABLE(preparedStmt->result_array, resultDataRecordOci, preparedStmt->result_array_size);
     } /* if */
     OCIHandleFree(preparedStmt->ppStmt, OCI_HTYPE_STMT);
     preparedStmt->db->usage_count--;
@@ -651,7 +651,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       /* printf("FREE " FMT_X_MEM "\n", (memSizeType) preparedStmt->db); */
       freeDatabase((databaseType) preparedStmt->db);
     } /* if */
-    FREE_RECORD2(preparedStmt, preparedStmtRecord,
+    FREE_RECORD2(preparedStmt, preparedStmtRecordOci,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
   } /* freePreparedStmt */
@@ -1501,12 +1501,12 @@ static errInfoType setupParameters (preparedStmtType preparedStmt,
       preparedStmt->param_array_size = 0;
       preparedStmt->param_array = NULL;
     } else if (unlikely(!ALLOC_TABLE(preparedStmt->param_array,
-                                     bindDataRecord, numBindParameters))) {
+                                     bindDataRecordOci, numBindParameters))) {
       err_info = MEMORY_ERROR;
     } else {
       preparedStmt->param_array_size = numBindParameters;
       memset(preparedStmt->param_array, 0,
-             numBindParameters * sizeof(bindDataRecord));
+             numBindParameters * sizeof(bindDataRecordOci));
     } /* if */
     logFunction(printf("setupParameters --> %d\n", err_info););
     return err_info;
@@ -1766,11 +1766,11 @@ static errInfoType setupResult (preparedStmtType preparedStmt)
         /* malloc(0) may return NULL, which would wrongly trigger a MEMORY_ERROR. */
         preparedStmt->result_array_size = 0;
         preparedStmt->result_array = NULL;
-      } else if (!ALLOC_TABLE(preparedStmt->result_array, resultDataRecord, num_columns)) {
+      } else if (!ALLOC_TABLE(preparedStmt->result_array, resultDataRecordOci, num_columns)) {
         err_info = MEMORY_ERROR;
       } else {
         preparedStmt->result_array_size = num_columns;
-        memset(preparedStmt->result_array, 0, num_columns * sizeof(resultDataRecord));
+        memset(preparedStmt->result_array, 0, num_columns * sizeof(resultDataRecordOci));
         for (column_index = 0; column_index < num_columns &&
              err_info == OKAY_NO_ERROR; column_index++) {
           err_info = setupResultColumn(preparedStmt, column_index + 1,
@@ -4322,12 +4322,12 @@ static sqlStmtType sqlPrepare (databaseType database,
                           queryLength););
           err_info = RANGE_ERROR;
           preparedStmt = NULL;
-        } else if (!ALLOC_RECORD2(preparedStmt, preparedStmtRecord,
+        } else if (!ALLOC_RECORD2(preparedStmt, preparedStmtRecordOci,
                                   count.prepared_stmt, count.prepared_stmt_bytes)) {
           err_info = MEMORY_ERROR;
         } else {
           /* printf("sqlPrepare: query: %s\n", query); */
-          memset(preparedStmt, 0, sizeof(preparedStmtRecord));
+          memset(preparedStmt, 0, sizeof(preparedStmtRecordOci));
           if (OCIHandleAlloc(db->oci_environment, (void **) &preparedStmt->ppStmt,
                              OCI_HTYPE_STMT, 0, NULL) != OCI_SUCCESS ||
               OCIStmtPrepare(preparedStmt->ppStmt, db->oci_error,
@@ -4336,7 +4336,7 @@ static sqlStmtType sqlPrepare (databaseType database,
             setDbErrorMsg("sqlPrepare", "OCIStmtPrepare", db->oci_error);
             logError(printf("sqlPrepare: OCIStmtPrepare:\n%s\n",
                             dbError.message););
-            FREE_RECORD2(preparedStmt, preparedStmtRecord,
+            FREE_RECORD2(preparedStmt, preparedStmtRecordOci,
                          count.prepared_stmt, count.prepared_stmt_bytes);
             err_info = DATABASE_ERROR;
             preparedStmt = NULL;
@@ -4647,7 +4647,7 @@ static boolType setupConnectData (const_cstriType host8, intType port, const_cst
       /* printf("host8: \"%s\"\n", host8);
          printf("port: \"%s\"\n", portName);
          printf("dbName8: \"%s\"\n", dbName8); */
-      memset(connectData, 0, sizeof(connectDataRecord));
+      memset(connectData, 0, sizeof(connectDataRecordOci));
       if (possibleTnsName &&
           ALLOC_CSTRI(connectData->tnsName, dbName8Length)) {
         connectData->tnsNameLength = dbName8Length;
@@ -4693,12 +4693,12 @@ databaseType sqlOpenOci (const const_striType host, intType port,
   {
     const_cstriType host8;
     const_cstriType dbName8;
-    connectDataRecord connectData;
+    connectDataRecordOci connectData;
     cstriType user8;
     memSizeType user8Length;
     cstriType password8;
     memSizeType password8Length;
-    dbRecord db;
+    dbRecordOci db;
     errInfoType err_info = OKAY_NO_ERROR;
     dbType database;
 
@@ -4733,7 +4733,7 @@ databaseType sqlOpenOci (const const_striType host, intType port,
               err_info = MEMORY_ERROR;
               database = NULL;
             } else {
-              memset(&db, 0, sizeof(dbRecord));
+              memset(&db, 0, sizeof(dbRecordOci));
               /* printf("dbName:         %s\n", connectData.tnsName);
                  printf("connectString1: %s\n", connectData.connectStringService);
                  printf("connectString2: %s\n", connectData.connectStringSid);
@@ -4862,13 +4862,13 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 sqlClose((databaseType) &db);
                 database = NULL;
               } else if (unlikely(!setupFuncTable() ||
-                                  !ALLOC_RECORD2(database, dbRecord,
+                                  !ALLOC_RECORD2(database, dbRecordOci,
                                                  count.database, count.database_bytes))) {
                 err_info = MEMORY_ERROR;
                 sqlClose((databaseType) &db);
                 database = NULL;
               } else {
-                memset(database, 0, sizeof(dbRecord));
+                memset(database, 0, sizeof(dbRecordOci));
                 database->usage_count = 1;
                 database->sqlFunc = sqlFunc;
                 database->driver = DB_CATEGORY_OCI;

@@ -90,7 +90,7 @@ typedef struct {
     memSizeType connectionStringLength1;
     SQLWCHAR *connectionString2;
     memSizeType connectionStringLength2;
-  } connectDataRecord, *connectDataType;
+  } connectDataRecordIfx, *connectDataType;
 
 #define DEFAULT_PORT 1526
 
@@ -342,7 +342,7 @@ databaseType sqlOpenInformix (const const_striType host, intType port,
     const const_striType user, const const_striType password)
 
   {
-    connectDataRecord connectData;
+    connectDataRecordIfx connectData;
     errInfoType err_info = OKAY_NO_ERROR;
     databaseType database;
 
@@ -359,7 +359,7 @@ databaseType sqlOpenInformix (const const_striType host, intType port,
       err_info = DATABASE_ERROR;
       database = NULL;
     } else {
-      memset(&connectData, 0, sizeof(connectDataRecord));
+      memset(&connectData, 0, sizeof(connectDataRecordIfx));
       connectData.port = port;
       connectData.hostname = stri_to_sqlwstri(host, &connectData.hostnameLength, &err_info);
       if (unlikely(connectData.hostname == NULL)) {

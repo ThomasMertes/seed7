@@ -87,12 +87,12 @@ typedef struct {
     boolType     integerDatetimes;
     uintType     nextStmtNum;
     boolType     autoCommit;
-  } dbRecord, *dbType;
+  } dbRecordPost, *dbType;
 
 typedef struct {
     cstriType    buffer;
     boolType     bound;
-  } bindDataRecord, *bindDataType;
+  } bindDataRecordPost, *bindDataType;
 
 typedef struct {
     uintType       usage_count;
@@ -116,7 +116,7 @@ typedef struct {
     int            num_tuples;
     int            fetch_index;
     boolType       increment_index;
-  } preparedStmtRecord, *preparedStmtType;
+  } preparedStmtRecordPost, *preparedStmtType;
 
 static sqlFuncType sqlFunc = NULL;
 
@@ -532,7 +532,7 @@ static void freeDatabase (databaseType database)
                        (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
-    FREE_RECORD2(db, dbRecord, count.database, count.database_bytes);
+    FREE_RECORD2(db, dbRecordPost, count.database, count.database_bytes);
     logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
@@ -556,7 +556,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
         free(preparedStmt->param_array[pos].buffer);
       } /* for */
-      FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
+      FREE_TABLE(preparedStmt->param_array, bindDataRecordPost, preparedStmt->param_array_size);
     } /* if */
     if (preparedStmt->paramTypes != NULL) {
       FREE_TABLE(preparedStmt->paramTypes, Oid, preparedStmt->param_array_size);
@@ -583,7 +583,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       /* printf("FREE " FMT_X_MEM "\n", (memSizeType) preparedStmt->db); */
       freeDatabase((databaseType) preparedStmt->db);
     } /* if */
-    FREE_RECORD2(preparedStmt, preparedStmtRecord,
+    FREE_RECORD2(preparedStmt, preparedStmtRecordPost,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
   } /* freePreparedStmt */
@@ -908,13 +908,13 @@ static errInfoType setupParameters (PGresult *describe_result, preparedStmtType 
     } else {
       preparedStmt->param_array_size = (memSizeType) num_params;
       if (unlikely(
-          !ALLOC_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size) ||
+          !ALLOC_TABLE(preparedStmt->param_array, bindDataRecordPost, preparedStmt->param_array_size) ||
           !ALLOC_TABLE(preparedStmt->paramTypes, Oid, preparedStmt->param_array_size) ||
           !ALLOC_TABLE(preparedStmt->paramValues, cstriType, preparedStmt->param_array_size) ||
           !ALLOC_TABLE(preparedStmt->paramLengths, int, preparedStmt->param_array_size) ||
           !ALLOC_TABLE(preparedStmt->paramFormats, int, preparedStmt->param_array_size))) {
         if (preparedStmt->param_array != NULL) {
-          FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
+          FREE_TABLE(preparedStmt->param_array, bindDataRecordPost, preparedStmt->param_array_size);
         } /* if */
         if (preparedStmt->paramTypes != NULL) {
           FREE_TABLE(preparedStmt->paramTypes, Oid, preparedStmt->param_array_size);
@@ -937,7 +937,7 @@ static errInfoType setupParameters (PGresult *describe_result, preparedStmtType 
         err_info = MEMORY_ERROR;
       } else {
         memset(preparedStmt->param_array, 0,
-               (memSizeType) num_params * sizeof(bindDataRecord));
+               (memSizeType) num_params * sizeof(bindDataRecordPost));
         for (param_index = 0; param_index < num_params &&
              err_info == OKAY_NO_ERROR; param_index++) {
           preparedStmt->paramTypes[param_index] = PQparamtype(describe_result, param_index);
@@ -3360,17 +3360,17 @@ static sqlStmtType sqlPrepare (databaseType database,
         if (unlikely(query == NULL)) {
           preparedStmt = NULL;
         } else {
-          if (unlikely(!ALLOC_RECORD2(preparedStmt, preparedStmtRecord,
+          if (unlikely(!ALLOC_RECORD2(preparedStmt, preparedStmtRecordPost,
                                       count.prepared_stmt, count.prepared_stmt_bytes))) {
             err_info = MEMORY_ERROR;
           } else {
-            memset(preparedStmt, 0, sizeof(preparedStmtRecord));
+            memset(preparedStmt, 0, sizeof(preparedStmtRecordPost));
             preparedStmt->stmtNum = db->nextStmtNum;
             db->nextStmtNum++;
             sprintf(preparedStmt->stmtName, "prepstat_" FMT_U, preparedStmt->stmtNum);
             prepare_result = PQprepare(db->connection, preparedStmt->stmtName, query, 0, NULL);
             if (unlikely(prepare_result == NULL)) {
-              FREE_RECORD2(preparedStmt, preparedStmtRecord,
+              FREE_RECORD2(preparedStmt, preparedStmtRecordPost,
                            count.prepared_stmt, count.prepared_stmt_bytes);
               err_info = MEMORY_ERROR;
               preparedStmt = NULL;
@@ -3380,7 +3380,7 @@ static sqlStmtType sqlPrepare (databaseType database,
                 logError(printf("sqlPrepare: PQprepare returns a status of %s:\n%s",
                                 PQresStatus(PQresultStatus(prepare_result)),
                                 dbError.message););
-                FREE_RECORD2(preparedStmt, preparedStmtRecord,
+                FREE_RECORD2(preparedStmt, preparedStmtRecordPost,
                              count.prepared_stmt, count.prepared_stmt_bytes);
                 err_info = DATABASE_ERROR;
                 preparedStmt = NULL;
@@ -3597,7 +3597,7 @@ databaseType sqlOpenPost (const const_striType host, intType port,
     const_cstriType password8;
     char portBuffer[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
     cstriType pgport;
-    dbRecord db;
+    dbRecordPost db;
     const_cstriType setting;
     errInfoType err_info = OKAY_NO_ERROR;
     dbType database;
@@ -3665,13 +3665,13 @@ databaseType sqlOpenPost (const const_striType host, intType port,
               PQfinish(db.connection);
               database = NULL;
             } else if (unlikely(!setupFuncTable() ||
-                                !ALLOC_RECORD2(database, dbRecord,
+                                !ALLOC_RECORD2(database, dbRecordPost,
                                                count.database, count.database_bytes))) {
               err_info = MEMORY_ERROR;
               PQfinish(db.connection);
               database = NULL;
             } else {
-              memset(database, 0, sizeof(dbRecord));
+              memset(database, 0, sizeof(dbRecordPost));
               database->usage_count = 1;
               database->sqlFunc = sqlFunc;
               database->driver = DB_CATEGORY_POSTGRESQL;

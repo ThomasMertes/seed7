@@ -70,17 +70,17 @@ typedef struct {
     intType      driver;
     DBPROCESS   *dbproc;
     boolType     autoCommit;
-  } dbRecord, *dbType;
+  } dbRecordTds, *dbType;
 
 typedef struct {
     striType     buffer;
-  } bindDataRecord, *bindDataType;
+  } bindDataRecordTds, *bindDataType;
 
 typedef struct {
     int          buffer_type;
     memSizeType  buffer_length;
     void        *buffer;
-  } resultDataRecord, *resultDataType;
+  } resultDataRecordTds, *resultDataType;
 
 typedef struct {
     uintType        usage_count;
@@ -95,7 +95,7 @@ typedef struct {
     boolType        executeSuccessful;
     boolType        fetchOkay;
     boolType        fetchFinished;
-  } preparedStmtRecord, *preparedStmtType;
+  } preparedStmtRecordTds, *preparedStmtType;
 
 typedef struct {
     DBPROCESS *dbproc;
@@ -369,7 +369,7 @@ static void freeDatabase (databaseType database)
                        (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
-    FREE_RECORD2(db, dbRecord, count.database, count.database_bytes);
+    FREE_RECORD2(db, dbRecordTds, count.database, count.database_bytes);
     logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
@@ -406,7 +406,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
         strDestr(preparedStmt->param_array[pos].buffer);
       } /* for */
-      FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
+      FREE_TABLE(preparedStmt->param_array, bindDataRecordTds, preparedStmt->param_array_size);
     } /* if */
     if (preparedStmt->result_array != NULL) {
       for (pos = 0; pos < preparedStmt->result_array_size; pos++) {
@@ -414,9 +414,9 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
           free(preparedStmt->result_array[pos].buffer);
         } /* if */
       } /* for */
-      FREE_TABLE(preparedStmt->result_array, resultDataRecord, preparedStmt->result_array_size);
+      FREE_TABLE(preparedStmt->result_array, resultDataRecordTds, preparedStmt->result_array_size);
     } /* if */
-    FREE_RECORD2(preparedStmt, preparedStmtRecord,
+    FREE_RECORD2(preparedStmt, preparedStmtRecordTds,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
   } /* freePreparedStmt */
@@ -735,12 +735,12 @@ static errInfoType setupParameters (preparedStmtType preparedStmt,
   /* setupParameters */
     logFunction(printf("setupParameters\n"););
     if (!ALLOC_TABLE(preparedStmt->param_array,
-                     bindDataRecord, (memSizeType) numBindParameters)) {
+                     bindDataRecordTds, (memSizeType) numBindParameters)) {
       err_info = MEMORY_ERROR;
     } else {
       preparedStmt->param_array_size = (memSizeType) numBindParameters;
       memset(preparedStmt->param_array, 0,
-             (memSizeType) numBindParameters * sizeof(bindDataRecord));
+             (memSizeType) numBindParameters * sizeof(bindDataRecordTds));
     } /* if */
     logFunction(printf("setupParameters --> %d\n", err_info););
     return err_info;
@@ -889,12 +889,12 @@ static errInfoType setupResult (preparedStmtType preparedStmt)
       preparedStmt->result_array_size = 0;
       preparedStmt->result_array = NULL;
     } else if (unlikely(!ALLOC_TABLE(preparedStmt->result_array,
-                                     resultDataRecord, (memSizeType) num_columns))) {
+                                     resultDataRecordTds, (memSizeType) num_columns))) {
       err_info = MEMORY_ERROR;
     } else {
       preparedStmt->result_array_size = (memSizeType) num_columns;
       memset(preparedStmt->result_array, 0,
-          (memSizeType) num_columns * sizeof(resultDataRecord));
+          (memSizeType) num_columns * sizeof(resultDataRecordTds));
       for (column_index = 0; column_index < num_columns &&
            err_info == OKAY_NO_ERROR; column_index++) {
         err_info = setupResultColumn(preparedStmt, column_index + 1,
@@ -2500,11 +2500,11 @@ static sqlStmtType sqlPrepare (databaseType database,
       if (stmtPartArray == NULL) {
         preparedStmt = NULL;
       } else {
-        if (!ALLOC_RECORD2(preparedStmt, preparedStmtRecord,
+        if (!ALLOC_RECORD2(preparedStmt, preparedStmtRecordTds,
                            count.prepared_stmt, count.prepared_stmt_bytes)) {
           err_info = MEMORY_ERROR;
         } else {
-          memset(preparedStmt, 0, sizeof(preparedStmtRecord));
+          memset(preparedStmt, 0, sizeof(preparedStmtRecordTds));
           preparedStmt->usage_count = 1;
           preparedStmt->sqlFunc = db->sqlFunc;
           preparedStmt->dbproc = db->dbproc;
@@ -2824,7 +2824,7 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                       dbexit();
                       database = NULL;
                     } else if (unlikely(!setupFuncTable() ||
-                                        !ALLOC_RECORD2(database, dbRecord,
+                                        !ALLOC_RECORD2(database, dbRecordTds,
                                                        count.database,
                                                        count.database_bytes))) {
                       err_info = MEMORY_ERROR;
@@ -2832,7 +2832,7 @@ databaseType sqlOpenTds (const const_striType host, intType port,
                       dbexit();
                       database = NULL;
                     } else {
-                      memset(database, 0, sizeof(dbRecord));
+                      memset(database, 0, sizeof(dbRecordTds));
                       database->usage_count = 1;
                       database->sqlFunc = sqlFunc;
                       database->driver = DB_CATEGORY_TDS;

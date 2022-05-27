@@ -67,11 +67,11 @@ typedef struct {
     sqlFuncType  sqlFunc;
     intType      driver;
     sqlite3     *connection;
-  } dbRecord, *dbType;
+  } dbRecordLite, *dbType;
 
 typedef struct {
     boolType     bound;
-  } bindDataRecord, *bindDataType;
+  } bindDataRecordLite, *bindDataType;
 
 typedef struct {
     uintType      usage_count;
@@ -85,7 +85,7 @@ typedef struct {
     boolType      storedFetchResult;
     boolType      fetchOkay;
     boolType      fetchFinished;
-  } preparedStmtRecord, *preparedStmtType;
+  } preparedStmtRecordLite, *preparedStmtType;
 
 static sqlFuncType sqlFunc = NULL;
 
@@ -307,7 +307,7 @@ static void freeDatabase (databaseType database)
                        (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
-    FREE_RECORD2(db, dbRecord, count.database, count.database_bytes);
+    FREE_RECORD2(db, dbRecordLite, count.database, count.database_bytes);
     logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
@@ -326,10 +326,10 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (preparedStmt->param_array != NULL) {
-      FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
+      FREE_TABLE(preparedStmt->param_array, bindDataRecordLite, preparedStmt->param_array_size);
     } /* if */
     sqlite3_finalize(preparedStmt->ppStmt);
-    FREE_RECORD2(preparedStmt, preparedStmtRecord,
+    FREE_RECORD2(preparedStmt, preparedStmtRecordLite,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
   } /* freePreparedStmt */
@@ -382,12 +382,12 @@ static errInfoType setupParameters (preparedStmtType preparedStmt)
       preparedStmt->param_array_size = 0;
       preparedStmt->param_array = NULL;
     } else if (unlikely(!ALLOC_TABLE(preparedStmt->param_array,
-                                     bindDataRecord, (memSizeType) param_count))) {
+                                     bindDataRecordLite, (memSizeType) param_count))) {
       err_info = MEMORY_ERROR;
     } else {
       preparedStmt->param_array_size = (memSizeType) param_count;
       memset(preparedStmt->param_array, 0,
-             (memSizeType) param_count * sizeof(bindDataRecord));
+             (memSizeType) param_count * sizeof(bindDataRecordLite));
     } /* if */
     logFunction(printf("setupParameters --> %d\n", err_info););
     return err_info;
@@ -2114,11 +2114,11 @@ static sqlStmtType sqlPrepare (databaseType database,
                           queryLength););
           err_info = RANGE_ERROR;
           preparedStmt = NULL;
-        } else if (unlikely(!ALLOC_RECORD2(preparedStmt, preparedStmtRecord,
+        } else if (unlikely(!ALLOC_RECORD2(preparedStmt, preparedStmtRecordLite,
                                            count.prepared_stmt, count.prepared_stmt_bytes))) {
           err_info = MEMORY_ERROR;
         } else {
-          memset(preparedStmt, 0, sizeof(preparedStmtRecord));
+          memset(preparedStmt, 0, sizeof(preparedStmtRecordLite));
           prepare_result = sqlite3_prepare(db->connection,
                                            query,
                                            (int) queryLength,
@@ -2128,7 +2128,7 @@ static sqlStmtType sqlPrepare (databaseType database,
             setDbErrorMsg("sqlPrepare", "sqlite3_prepare", db->connection);
             logError(printf("sqlPrepare: sqlite3_prepare error %d: %s\n",
                             prepare_result, sqlite3_errmsg(db->connection)););
-            FREE_RECORD2(preparedStmt, preparedStmtRecord,
+            FREE_RECORD2(preparedStmt, preparedStmtRecordLite,
                          count.prepared_stmt, count.prepared_stmt_bytes);
             err_info = DATABASE_ERROR;
             preparedStmt = NULL;
@@ -2424,13 +2424,13 @@ databaseType sqlOpenLite (const const_striType host, intType port,
           err_info = DATABASE_ERROR;
           database = NULL;
         } else if (unlikely(!setupFuncTable() ||
-                            !ALLOC_RECORD2(database, dbRecord,
+                            !ALLOC_RECORD2(database, dbRecordLite,
                                            count.database, count.database_bytes))) {
           err_info = MEMORY_ERROR;
           sqlite3_close(connection);
           database = NULL;
         } else {
-          memset(database, 0, sizeof(dbRecord));
+          memset(database, 0, sizeof(dbRecordLite));
           database->usage_count = 1;
           database->sqlFunc = sqlFunc;
           database->driver = DB_CATEGORY_SQLITE;

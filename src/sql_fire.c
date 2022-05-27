@@ -67,11 +67,11 @@ typedef struct {
     intType       driver;
     isc_db_handle connection;
     isc_tr_handle trans_handle;
-  } dbRecord, *dbType;
+  } dbRecordFire, *dbType;
 
 typedef struct {
     boolType     bound;
-  } bindDataRecord, *bindDataType;
+  } bindDataRecordFire, *bindDataType;
 
 typedef struct {
     uintType        usage_count;
@@ -85,7 +85,7 @@ typedef struct {
     boolType        executeSuccessful;
     boolType        fetchOkay;
     boolType        fetchFinished;
-  } preparedStmtRecord, *preparedStmtType;
+  } preparedStmtRecordFire, *preparedStmtType;
 
 typedef struct {
     memSizeType fileName8Length;
@@ -404,7 +404,7 @@ static void freeDatabase (databaseType database)
                        (memSizeType) database););
     sqlClose(database);
     db = (dbType) database;
-    FREE_RECORD2(db, dbRecord, count.database, count.database_bytes);
+    FREE_RECORD2(db, dbRecordFire, count.database, count.database_bytes);
     logFunction(printf("freeDatabase -->\n"););
   } /* freeDatabase */
 
@@ -457,10 +457,10 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       free(preparedStmt->out_sqlda);
     } /* if */
     if (preparedStmt->param_array != NULL) {
-      FREE_TABLE(preparedStmt->param_array, bindDataRecord,
+      FREE_TABLE(preparedStmt->param_array, bindDataRecordFire,
                  (memSizeType) preparedStmt->in_sqlda->sqld);
     } /* if */
-    FREE_RECORD2(preparedStmt, preparedStmtRecord,
+    FREE_RECORD2(preparedStmt, preparedStmtRecordFire,
                  count.prepared_stmt, count.prepared_stmt_bytes);
     logFunction(printf("freePreparedStmt -->\n"););
   } /* freePreparedStmt */
@@ -620,12 +620,12 @@ static errInfoType setupParameters (preparedStmtType preparedStmt)
       /* malloc(0) may return NULL, which would wrongly trigger a MEMORY_ERROR. */
       preparedStmt->param_array = NULL;
     } else if (unlikely(!ALLOC_TABLE(preparedStmt->param_array,
-                                     bindDataRecord,
+                                     bindDataRecordFire,
                                      (memSizeType) preparedStmt->in_sqlda->sqld))) {
       err_info = MEMORY_ERROR;
     } else {
       memset(preparedStmt->param_array, 0,
-             (memSizeType) preparedStmt->in_sqlda->sqld * sizeof(bindDataRecord));
+             (memSizeType) preparedStmt->in_sqlda->sqld * sizeof(bindDataRecordFire));
     } /* if */
     if (likely(err_info == OKAY_NO_ERROR)) {
       numColumns = preparedStmt->in_sqlda->sqld;
@@ -3381,7 +3381,7 @@ static sqlStmtType sqlPrepare (databaseType database,
           err_info = RANGE_ERROR;
           preparedStmt = NULL;
         } else if (unlikely((out_sqlda = (XSQLDA *) malloc(XSQLDA_LENGTH(1))) == NULL ||
-                            !ALLOC_RECORD2(preparedStmt, preparedStmtRecord,
+                            !ALLOC_RECORD2(preparedStmt, preparedStmtRecordFire,
                                            count.prepared_stmt, count.prepared_stmt_bytes))) {
           if (out_sqlda != NULL) {
             free(out_sqlda);
@@ -3391,7 +3391,7 @@ static sqlStmtType sqlPrepare (databaseType database,
         } else {
           /* printf("sqlPrepare: query: %s\n", query); */
           memset(out_sqlda, 0, XSQLDA_LENGTH(1));
-          memset(preparedStmt, 0, sizeof(preparedStmtRecord));
+          memset(preparedStmt, 0, sizeof(preparedStmtRecordFire));
           out_sqlda->version = SQLDA_VERSION1;
           out_sqlda->sqln = 1;
           /* The statement handle must be zero when isc_dsql_allocate_statement() is called. */
@@ -3756,14 +3756,14 @@ databaseType sqlOpenFire (const const_striType host, intType port,
                     isc_detach_database(status_vector, &db_handle);
                     database = NULL;
                   } else if (unlikely(!setupFuncTable() ||
-                                      !ALLOC_RECORD2(database, dbRecord,
+                                      !ALLOC_RECORD2(database, dbRecordFire,
                                                      count.database, count.database_bytes))) {
                     err_info = MEMORY_ERROR;
                     isc_rollback_transaction(status_vector, &trans_handle);
                     isc_detach_database(status_vector, &db_handle);
                     database = NULL;
                   } else {
-                    memset(database, 0, sizeof(dbRecord));
+                    memset(database, 0, sizeof(dbRecordFire));
                     database->usage_count = 1;
                     database->sqlFunc = sqlFunc;
                     database->driver = DB_CATEGORY_FIREBIRD;
