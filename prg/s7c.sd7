@@ -5556,9 +5556,7 @@ const proc: write_prototypes is func
     declareExtern("void        setupRand (void);");
     declareExtern("void        setupFloat (void);");
     declareExtern("void        setupBig (void);");
-    if compilerLibraryUsed then
-      declareExtern("void        init_primitiv (void);");
-    end if;
+    declareExtern("void        init_primitiv (void);");
     writeln(c_prog, "static void        prcNoop (void) {}");
     writeln(c_prog, "static void        init_values (void);");
     writeln(c_prog, "static void        init_globals (void);");
