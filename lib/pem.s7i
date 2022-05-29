@@ -1,0 +1,155 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pem.s7i       Support for the PEM cryptographic file format.    *)
+(*  Copyright (C) 2022  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "encoding.s7i";
+
+
+const string: PEM_HEADER_START is "-----BEGIN ";
+const string: PEM_HEADER_END   is "-----";
+const string: PEM_FOOTER_START is "-----END ";
+
+const type: pemHeaderHash is hash[string] string;
+
+
+(**
+ *  Type to describe the contents of a PEM cryptographic file.
+ *)
+const type: pemObject is new struct
+    var string: pemType is "";
+    var string: content is "";
+    var pemHeaderHash: headers is pemHeaderHash.value;
+  end struct;
+
+
+(**
+ *  Convert a PEM object to a string.
+ *  @param pemObj PEM object with valid type and content.
+ *  @exception RANGE_ERROR If PEM content contains characters beyond '\255;'.
+ *)
+const func string: str (in pemObject: pemObj) is
+  return PEM_HEADER_START & pemObj.pemType & PEM_HEADER_END & "\n" &
+         toBase64(pemObj.content) & "\n" &
+         PEM_FOOTER_START & pemObj.pemType & PEM_HEADER_END & "\n";
+
+
+(**
+ *  Convert a string to a PEM object.
+ *  @param pemKey String which contains a PEM object.
+ *  @exception RANGE_ERROR If string does not contain a PEM object.
+ *)
+const func pemObject: pemObject (in string: pemKey) is func
+  result
+    var pemObject: pemObj is pemObject.value;
+  local
+    var integer: pos1 is 0;
+    var integer: pos2 is 0;
+    var string: pemType is "";
+    var string: footer is "";
+  begin
+    if startsWith(pemKey, PEM_HEADER_START) then
+      pos1 := succ(length(PEM_HEADER_START));
+      pos2 := pos(pemKey, PEM_HEADER_END, pos1);
+      if pos2 <> 0 then
+        pemType := pemKey[pos1 .. pred(pos2)];
+        pos1 := pos2 + length(PEM_HEADER_END);
+        footer := PEM_FOOTER_START & pemType & PEM_HEADER_END;
+        pos2 := pos(pemKey, footer, pos1);
+        if pos2 <> 0 then
+          # Remove line endings at the end of the base64 encoded data.
+          repeat
+            decr(pos2);
+          until pos2 = 0 or (pemKey[pos2] <> '\n' and pemKey[pos2] <> '\r');
+          pemObj.pemType := pemType;
+          pemObj.content := fromBase64(pemKey[pos1 .. pos2]);
+        else
+          raise RANGE_ERROR;
+        end if;
+      else
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Read the next PEM object from the given ''pemFile''.
+ *  @param pemFile File that contains PEM objects.
+ *  @return A PEM object with PEM type and content, or
+ *          or a PEM object with empty type and content
+ *          if the the file in not in PEM format.
+ *  @exception RANGE_ERROR If the PEM data is not in Base64 format.
+ *)
+const func pemObject: readPemObject (inout file: pemFile) is func
+  result
+    var pemObject: pemObj is pemObject.value;
+  local
+    var string: line is "";
+    var string: pemType is "";
+    var string: base64 is "";
+    var integer: colonPos is 0;
+    var string: headerKey is "";
+    var string: headerValue is "";
+  begin
+    repeat
+      line := getln(pemFile);
+    until (startsWith(line, PEM_HEADER_START) and
+           endsWith(line, PEM_HEADER_END)) or eof(pemFile);
+    if not eof(pemFile) then
+      pemType := line[succ(length(PEM_HEADER_START)) .. length(line) - length(PEM_HEADER_END)];
+      line := getln(pemFile);
+      colonPos := pos(line, ':');
+      while not (startsWith(line, PEM_FOOTER_START) or eof(pemFile)) and
+          colonPos <> 0 do
+        # Process encapsulated header field.
+        headerKey := line[.. pred(colonPos)];
+        headerValue := line[succ(colonPos) ..];
+        line := getln(pemFile);
+        while startsWith(line, " ") do
+          headerValue &:= "\n" & line[2 ..];
+          line := getln(pemFile);
+        end while;
+        # writeln(headerKey <& ":" <& headerValue);
+        pemObj.headers @:= [headerKey] headerValue;
+        colonPos := pos(line, ':');
+      end while;
+      if line = "" then
+        line := getln(pemFile);
+      end if;
+      while not (startsWith(line, PEM_FOOTER_START) or eof(pemFile)) do
+        base64 &:= line;
+        line := getln(pemFile);
+      end while;
+      writeln(base64);
+      if line = PEM_FOOTER_START & pemType & PEM_HEADER_END then
+        pemObj.pemType := pemType;
+        pemObj.content := fromBase64(base64);
+      end if;
+    end if;
+  end func;
