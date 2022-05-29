@@ -125,18 +125,18 @@ const func string: fromBase64 (in string: base64) is func
         threeBytes @:= [3] chr( fourBytes        mod 256);
         decoded &:= threeBytes;
         index +:= 4;
-      elsif base64[index] = '\n' then
+      elsif base64[index] = '\n' or base64[index] = '\r' then
         incr(index);
-      elsif base64[index] = '\r' and base64[succ(index)] = '\n' then
-        index +:= 2;
       else
         raise RANGE_ERROR;
       end if;
     end while;
-    if index <> succ(length(base64)) then
+    if index <> succ(length(base64)) or
+        (length(base64) >= 2 and
+         pos(base64[.. length(base64) - 2], '=') <> 0) then
       raise RANGE_ERROR;
     end if;
-    if base64[length(base64) - 1 len 2] = "==" then
+    if length(base64) >= 2 and base64[length(base64) - 1 len 2] = "==" then
       decoded := decoded[.. length(decoded) - 2];
     elsif length(base64) >= 1 and base64[length(base64)] = '=' then
       decoded := decoded[.. pred(length(decoded))];
