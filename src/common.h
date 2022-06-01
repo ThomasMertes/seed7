@@ -776,3 +776,4 @@ typedef mpz_srcptr  const_bigIntType;
 #define logSignalFunctionX(logStatements) printf(__FILE__ ": "); logStatements
 #define logMessageX(logStatements) logStatements
 #define logErrorX(logStatements) printf(" *** "); logStatements
+#define logErrorIfTrueX(cond, logStatements) if (unlikely(cond)) { logErrorX(logStatements) }
