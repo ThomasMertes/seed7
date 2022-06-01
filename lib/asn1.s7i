@@ -399,8 +399,13 @@ const proc: printAsn1 (in string: stri, inout integer: pos) is func
     else
       # Long form
       numOctets := length mod 128;
-      length := bytes2Int(stri[pos len numOctets], UNSIGNED, BE);
-      # writeln("Long form: numOctets=" <& numOctets <& ", length=" <& length);
+      if numOctets <= 7 then
+        length := bytes2Int(stri[pos len numOctets], UNSIGNED, BE);
+        # writeln("Long form: numOctets=" <& numOctets <& ", length=" <& length);
+      else
+        writeln(" *** numOctets (" <& numOctets <& ") too big.");
+        length := 0;
+      end if;
       pos +:= numOctets;
       contents := stri[pos len length];
       posAfterwards := pos + length;
