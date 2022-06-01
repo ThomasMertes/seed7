@@ -139,18 +139,20 @@ const func string: refRaiseError (in string: exceptionName) is func
 
 const proc: warning (DOES_RAISE, in string: exceptionName, in expr_type: c_expr) is func
   begin
-    noop;
-    # writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
-    #         "): Expression raises " <& exceptionName <& ".");
+    if warning_level >= 2 then
+      writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
+              "): Expression raises " <& exceptionName <& ".");
+    end if;
   end func;
 
 
 const proc: checkWarning (CATCH_WITH_SUPPRESSED_CHECK, in string: exceptionName, in reference: place) is func
   begin
-    if  (not (string_index_check and bstring_index_check and array_index_check) and exceptionName = "INDEX_ERROR") or
-        (not integer_division_check and exceptionName = "NUMERIC_ERROR") or
-        (not integer_overflow_check and exceptionName = "OVERFLOW_ERROR") or
-        (not (function_range_check and conversion_range_check) and exceptionName = "RANGE_ERROR") then
+    if warning_level >= 1 and
+        ((not (string_index_check and bstring_index_check and array_index_check) and exceptionName = "INDEX_ERROR") or
+         (not integer_division_check and exceptionName = "NUMERIC_ERROR") or
+         (not integer_overflow_check and exceptionName = "OVERFLOW_ERROR") or
+         (not (function_range_check and conversion_range_check) and exceptionName = "RANGE_ERROR")) then
       writeln("*** " <& sourceNameString(file(place)) <& "(" <& line(place) <&
               "): Catch of " <& exceptionName <& " although the checks are suppressed.");
     end if;
@@ -162,32 +164,34 @@ const proc: checkWarning (CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, in reference: p
     var array string: exceptionNameList is 0 times "";
     var integer: index is 0;
   begin
-    if not (string_index_check and bstring_index_check and array_index_check) then
-      exceptionNameList &:= "INDEX_ERROR";
-    end if;
-    if not integer_division_check then
-      exceptionNameList &:= "NUMERIC_ERROR";
-    end if;
-    if not integer_overflow_check then
-      exceptionNameList &:= "OVERFLOW_ERROR";
-    end if;
-    if not (function_range_check and conversion_range_check) then
-      exceptionNameList &:= "RANGE_ERROR";
-    end if;
-    if length(exceptionNameList) <> 0 then
-      write("*** " <& sourceNameString(file(place)) <& "(" <& line(place) <&
-            "): Catch of otherwise although the checks for ");
-      for index range 1 to pred(length(exceptionNameList)) do
-        if index <> 1 then
-          write(", ");
-        end if;
-        write(exceptionNameList[index]);
-      end for;
-      if length(exceptionNameList) >= 2 then
-        write(" and ");
+    if warning_level >= 1 then
+      if not (string_index_check and bstring_index_check and array_index_check) then
+        exceptionNameList &:= "INDEX_ERROR";
       end if;
-      write(exceptionNameList[length(exceptionNameList)]);
-      writeln(" are suppressed.");
+      if not integer_division_check then
+        exceptionNameList &:= "NUMERIC_ERROR";
+      end if;
+      if not integer_overflow_check then
+        exceptionNameList &:= "OVERFLOW_ERROR";
+      end if;
+      if not (function_range_check and conversion_range_check) then
+        exceptionNameList &:= "RANGE_ERROR";
+      end if;
+      if length(exceptionNameList) <> 0 then
+        write("*** " <& sourceNameString(file(place)) <& "(" <& line(place) <&
+              "): Catch of otherwise although the checks for ");
+        for index range 1 to pred(length(exceptionNameList)) do
+          if index <> 1 then
+            write(", ");
+          end if;
+          write(exceptionNameList[index]);
+        end for;
+        if length(exceptionNameList) >= 2 then
+          write(" and ");
+        end if;
+        write(exceptionNameList[length(exceptionNameList)]);
+        writeln(" are suppressed.");
+      end if;
     end if;
   end func;
 
@@ -195,33 +199,41 @@ const proc: checkWarning (CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, in reference: p
 const proc: error (WHEN_OVERLAPPING, in bitset: overlappingWhenValues,
     in reference: current_expression) is func
   begin
-   writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
-            "): Duplicate when values " <& overlappingWhenValues <& ".");
+    if warning_level >= 1 then
+      writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+              "): Duplicate when values " <& overlappingWhenValues <& ".");
+    end if;
   end func;
 
 
 const proc: error (WHEN_PREVIOUS, in bitset: overlappingWhenValues,
     in reference: current_expression) is func
   begin
-   writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
-            "): Previous usage of " <& overlappingWhenValues <& ".");
+    if warning_level >= 1 then
+      writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+              "): Previous usage of " <& overlappingWhenValues <& ".");
+    end if;
   end func;
 
 
 const proc: error (VARIABLE_WHEN, in reference: current_expression) is func
   begin
-   writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
-            "): When value must be constant.");
+    if warning_level >= 1 then
+      writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+              "): When value must be constant.");
+    end if;
   end func;
 
 
 const proc: error (FORWARD_CALLED, in reference: current_expression,
     in reference: function) is func
   begin
-   writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
-            "): Forward defined function called.");
-   writeln("*** " <& file(function) <& "(" <& line(function) <&
-            "): Forward definition of the called function.");
+    if warning_level >= 1 then
+      writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+              "): Forward defined function called.");
+      writeln("*** " <& file(function) <& "(" <& line(function) <&
+              "): Forward definition of the called function.");
+    end if;
   end func;
 
 

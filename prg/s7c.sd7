@@ -7176,6 +7176,13 @@ const proc: pass_1 (in string: source, inout program: prog,
   begin
     if source <> "" then
       writeln("Compiling the program ...");
+      if "-w" in compiler_option then
+        if compiler_option["-w"] in {"0", "1", "2", "3"} then
+          warning_level := integer(compiler_option["-w"][1 ..]);
+        else
+          writeln("*** Ignore unsupported option: -w" <& compiler_option["-w"]);
+        end if;
+      end if;
       if "-g" in compiler_option then
         source_debug_info := compiler_option["-g"] <> "-debug_c";
       end if;
@@ -7802,6 +7809,8 @@ const proc: writeHelp is func
     writeln("         e Trace exceptions and handlers");
     writeln("         f Trace functions");
     writeln("         s Trace signals");
+    writeln("  -wn  Specify warning level n. E.g.: -w2");
+    writeln("       The level n is a digit between 0 and 2.");
     writeln;
   end func;
 
@@ -7840,7 +7849,7 @@ const proc: main is func
           elsif curr_arg in {"-l"} and index < length(argv(PROGRAM)) then
             incr(index);
             libraryDirs &:= convDosPath(argv(PROGRAM)[index]);
-          elsif curr_arg[.. 2] in {"-?", "-b", "-c", "-e", "-f", "-g", "-o", "-p", "-s", "-t", "-O"} then
+          elsif curr_arg[.. 2] in {"-?", "-b", "-c", "-e", "-f", "-g", "-o", "-p", "-s", "-t", "-w", "-O"} then
             if curr_arg[.. 2] in compiler_option then
               writeln("*** Option " <& curr_arg[.. 2] <&
                       " specified twice. Ignore option: " <& curr_arg);
