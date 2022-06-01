@@ -142,7 +142,7 @@ const func float: expm1 (in float: x)                          is action "FLT_EX
  *   log(1.0)       returns 0.0
  *   log(Infinity)  returns Infinity
  *   log(0.0)       returns -Infinity
- *   log(X)         returns NaN        for X < 0.0
+ *   log(x)         returns NaN        for x < 0.0
  *  @return the natural logarithm of x.
  *)
 const func float: log (in float: x)                            is action "FLT_LOG";
@@ -152,6 +152,11 @@ const func float: log (in float: x)                            is action "FLT_LO
  *  Compute log(1.0 + x) (natural logarithm of the sum of 1 and x).
  *  The result is computed in a way that is accurate even if the value
  *  of x is near zero.
+ *   log1p(NaN)       returns NaN
+ *   log1p(0.0)       returns 0.0
+ *   log1p(Infinity)  returns Infinity
+ *   log1p(-1.0)      returns -Infinity
+ *   log1p(x)         returns NaN        for x < -1.0
  *  @return log(1.0 + x)
  *)
 const func float: log1p (in float: x)                          is action "FLT_LOG1P";

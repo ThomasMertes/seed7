@@ -102,7 +102,7 @@ floatType fltLog (floatType number);
 floatType fltLog10 (floatType number);
 #endif
 
-#if HAS_LOG1P
+#if HAS_LOG1P && LOG_FUNCTION_OKAY
 #define fltLog1p(number) log1p(number)
 #else
 floatType fltLog1p (floatType number);

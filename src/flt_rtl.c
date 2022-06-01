@@ -971,7 +971,7 @@ boolType fltLe (floatType number1, floatType number2)
  *   log(1.0)       returns 0.0
  *   log(Infinity)  returns Infinity
  *   log(0.0)       returns -Infinity
- *   log(X)         returns NaN        for X < 0.0
+ *   log(x)         returns NaN        for x < 0.0
  *  @return the natural logarithm of x.
  */
 floatType fltLog (floatType number)
@@ -1060,12 +1060,25 @@ floatType fltLog10 (floatType number)
 
 
 
-#if !HAS_LOG1P
+#if !HAS_LOG1P || !LOG_FUNCTION_OKAY
+#if HAS_LOG1P
+#define log1pMacro(number) log1p(number)
+#else
+#define log1pMacro(number) log(1.0 + (number))
+#endif
+
+
+
 /**
  *  Compute log(1.0 + x) (natural logarithm of the sum of 1 and x).
  *  This function is used, if the function log1p() is missing from
  *  the C math library. This simple implementation is not accurate if
  *  the value of x is near zero.
+ *   log1p(NaN)       returns NaN
+ *   log1p(0.0)       returns 0.0
+ *   log1p(Infinity)  returns Infinity
+ *   log1p(-1.0)      returns -Infinity
+ *   log1p(x)         returns NaN        for x < -1.0
  *  @return log(1.0 + x)
  */
 floatType fltLog1p (floatType number)
@@ -1075,7 +1088,33 @@ floatType fltLog1p (floatType number)
 
   /* fltLog1p */
     logFunction(printf("fltLog1p(" FMT_E ")\n", number););
-    logarithm = log(1.0 + number);
+#if !LOG_FUNCTION_OKAY
+#if !LOG_OF_NAN_OKAY || !FLOAT_NAN_COMPARISON_OKAY
+    /* This is checked first on purpose. NaN should not be equal  */
+    /* to any value. E.g.: NaN == x should always return FALSE.   */
+    /* Beyond that NaN should not be equal to itself also. Some   */
+    /* C compilers do not compute comparisons with NaN correctly. */
+    /* As a consequence the NaN check is done first.              */
+    if (unlikely(os_isnan(number))) {
+      logarithm = number;
+    } else
+#endif
+#if !LOG_OF_ZERO_OKAY
+    if (unlikely(number == -1.0)) {
+      logarithm = NEGATIVE_INFINITY;
+    } else
+#endif
+#if !LOG_OF_NEGATIVE_OKAY
+    if (unlikely(number < -1.0)) {
+      logarithm = NOT_A_NUMBER;
+    } else
+#endif
+    {
+      logarithm = log1pMacro(number);
+    } /* if */
+#else
+    logarithm = log1pMacro(number);
+#endif;
     logFunction(printf("fltLog1p(" FMT_E ") --> " FMT_E "\n",
                 number, logarithm););
     return logarithm;
