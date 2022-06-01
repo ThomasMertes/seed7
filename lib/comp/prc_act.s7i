@@ -745,16 +745,38 @@ const proc: process_when (in reference: when_expr,
   end func;
 
 
+const proc: generate_switch (in reference: controlExpr,
+    inout expr_type: c_expr) is func
+
+  local
+    var type: controlExprType is void;
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "switch (";
+    controlExprType := getExprResultType(controlExpr);
+    if controlExprType in typeCategory and
+        typeCategory[controlExprType] = CHAROBJECT then
+      c_expr.expr &:= "(scharType)(";
+      process_expr(controlExpr, c_expr);
+      c_expr.expr &:= ")";
+    elsif ccConf.SWITCH_WORKS_FOR_INT64TYPE then
+      process_expr(controlExpr, c_expr);
+    else
+      c_expr.expr &:= "(int32Type)(";
+      process_expr(controlExpr, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+    c_expr.expr &:= ") {\n";
+  end func;
+
+
 const proc: process (PRC_CASE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var allWhenValuesType: allWhenValues is allWhenValuesType.value;
   begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "switch (";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ") {\n";
+    generate_switch(params[2], c_expr);
     process_when(params[4], allWhenValues, c_expr);
     c_expr.expr &:= "}\n";
   end func;
@@ -766,10 +788,7 @@ const proc: process (PRC_CASE_DEF, in reference: function,
   local
     var allWhenValuesType: allWhenValues is allWhenValuesType.value;
   begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "switch (";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ") {\n";
+    generate_switch(params[2], c_expr);
     process_when(params[4], allWhenValues, c_expr);
     c_expr.expr &:= "default:\n";
     process_call_by_name_expr(params[7], c_expr);
@@ -857,7 +876,11 @@ const proc: process (PRC_CASE_HASHSET, in reference: function,
     numOfCaseStmt := maxIdx(case_table);
     switchValue := getParameterAsVariable(params[2], statement);
     statement.expr &:= diagnosticLine(c_expr);
-    statement.expr &:= "switch (hshIdxDefault0(caseLabels[";
+    statement.expr &:= "switch (";
+    if not ccConf.SWITCH_WORKS_FOR_INT64TYPE then
+      statement.expr &:= "(int32Type) ";
+    end if;
+    statement.expr &:= "hshIdxDefault0(caseLabels[";
     statement.expr &:= str(numOfCaseStmt);
     statement.expr &:= "], ";
     if isNormalVariable(params[2]) then
@@ -889,7 +912,11 @@ const proc: process (PRC_CASE_HASHSET_DEF, in reference: function,
     numOfCaseStmt := maxIdx(case_table);
     switchValue := getParameterAsVariable(params[2], statement);
     statement.expr &:= diagnosticLine(c_expr);
-    statement.expr &:= "switch (hshIdxDefault0(caseLabels[";
+    statement.expr &:= "switch (";
+    if not ccConf.SWITCH_WORKS_FOR_INT64TYPE then
+      statement.expr &:= "(int32Type) ";
+    end if;
+    statement.expr &:= "hshIdxDefault0(caseLabels[";
     statement.expr &:= str(numOfCaseStmt);
     statement.expr &:= "], ";
     if isNormalVariable(params[2]) then
