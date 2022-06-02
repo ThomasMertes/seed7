@@ -60,7 +60,7 @@ const proc: readFrameHeader (inout file: compressed, inout zstdFrameHeader: head
     var integer: fcsFieldSize is 0;
     var boolean: singleSegmentFlag is FALSE;
     var integer: dictionaryIdFlag is 0;
-    var integer: didFieldSize is 0;
+    var integer: dictionaryIdFieldSize is 0;
     var integer: windowDescriptor is 0;
   begin
     descriptor := ord(getc(compressed));
@@ -77,9 +77,9 @@ const proc: readFrameHeader (inout file: compressed, inout zstdFrameHeader: head
     # writeln("contentChecksumFlag: " <& header.contentChecksumFlag);
     dictionaryIdFlag := descriptor mod 4;
     if dictionaryIdFlag = 3 then
-      didFieldSize := 4;
+      dictionaryIdFieldSize := 4;
     else
-      didFieldSize := dictionaryIdFlag;
+      dictionaryIdFieldSize := dictionaryIdFlag;
     end if;
     if not singleSegmentFlag then
       windowDescriptor := ord(getc(compressed));
@@ -87,7 +87,9 @@ const proc: readFrameHeader (inout file: compressed, inout zstdFrameHeader: head
       header.windowSize := zstdWindowSize(windowDescriptor >> 3, windowDescriptor mod 8);
       # writeln("windowSize: " <& header.windowSize);
     end if;
-    header.dictionaryId := bytes2Int(gets(compressed, didFieldSize), UNSIGNED, LE);
+    if dictionaryIdFieldSize <> 0 then
+      header.dictionaryId := bytes2Int(gets(compressed, dictionaryIdFieldSize), UNSIGNED, LE);
+    end if;
     # writeln("dictionaryId: " <& header.dictionaryId);
     case fcsFieldSize of
       when {0}: header.frameContentSize := -1;
