@@ -54,6 +54,7 @@ const proc: main is func
     writeln("EXP_FUNCTION_OKAY:             " <& ccConf.EXP_FUNCTION_OKAY);
     writeln("LOG_FUNCTION_OKAY:             " <& ccConf.LOG_FUNCTION_OKAY);
     writeln("LOG10_FUNCTION_OKAY:           " <& ccConf.LOG10_FUNCTION_OKAY);
+    writeln("LOG1P_FUNCTION_OKAY:           " <& ccConf.LOG1P_FUNCTION_OKAY);
     writeln("LOG2_FUNCTION_OKAY:            " <& ccConf.LOG2_FUNCTION_OKAY);
     writeln("LDEXP_FUNCTION_OKAY:           " <& ccConf.LDEXP_FUNCTION_OKAY);
     writeln("FREXP_FUNCTION_OKAY:           " <& ccConf.FREXP_FUNCTION_OKAY);
@@ -68,7 +69,6 @@ const proc: main is func
     writeln("HAS_EXP10:                     " <& ccConf.HAS_EXP10);
     writeln("HAS_EXPM1:                     " <& ccConf.HAS_EXPM1);
     writeln("HAS_CBRT:                      " <& ccConf.HAS_CBRT);
-    writeln("HAS_LOG1P:                     " <& ccConf.HAS_LOG1P);
     writeln("LIMITED_CSTRI_LITERAL_LEN:     " <& ccConf.LIMITED_CSTRI_LITERAL_LEN);
     writeln("SWITCH_WORKS_FOR_INT64TYPE:    " <& ccConf.SWITCH_WORKS_FOR_INT64TYPE);
     writeln("CC_SOURCE_UTF8:                " <& ccConf.CC_SOURCE_UTF8);

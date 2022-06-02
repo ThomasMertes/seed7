@@ -1060,7 +1060,7 @@ floatType fltLog10 (floatType number)
 
 
 
-#if !HAS_LOG1P || !LOG_FUNCTION_OKAY
+#if !LOG1P_FUNCTION_OKAY
 #if HAS_LOG1P
 #define log1pMacro(number) log1p(number)
 #else

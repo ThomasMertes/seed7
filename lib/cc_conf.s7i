@@ -109,19 +109,25 @@ const type: ccConfigType is new struct
     var boolean: EXP_FUNCTION_OKAY              is FALSE;
 
     (**
-     *  TRUE if log() works okay for zero, a negative values and NaN.
+     *  TRUE if log() works okay for zero, negative values and NaN.
      *  If it is FALSE fltLog() should be used instead of log().
      *)
     var boolean: LOG_FUNCTION_OKAY              is FALSE;
 
     (**
-     *  TRUE if log10() works okay for zero, a negative values and NaN.
+     *  TRUE if log10() works okay for zero, negative values and NaN.
      *  If it is FALSE fltLog10() should be used instead of log10().
      *)
     var boolean: LOG10_FUNCTION_OKAY            is FALSE;
 
     (**
-     *  TRUE if log2() works okay for zero, a negative values and NaN.
+     *  TRUE if log1p() works okay for -1.0, values < -1.0 and NaN.
+     *  If it is FALSE fltLog1p() should be used instead of log1p().
+     *)
+    var boolean: LOG1P_FUNCTION_OKAY            is FALSE;
+
+    (**
+     *  TRUE if log2() works okay for zero, negative values and NaN.
      *  If it is FALSE fltLog2() should be used instead of log2().
      *)
     var boolean: LOG2_FUNCTION_OKAY             is FALSE;
@@ -240,11 +246,6 @@ const type: ccConfigType is new struct
      *  TRUE if the C function cbrt() is present.
      *)
     var boolean: HAS_CBRT                       is FALSE;
-
-    (**
-     *  TRUE if the C function log1p() is present.
-     *)
-    var boolean: HAS_LOG1P                      is FALSE;
 
     (**
      *  TRUE if the C compiler limits the length of string literals.
@@ -851,6 +852,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.EXP_FUNCTION_OKAY              := boolean(configValue("EXP_FUNCTION_OKAY"));
     conf.LOG_FUNCTION_OKAY              := boolean(configValue("LOG_FUNCTION_OKAY"));
     conf.LOG10_FUNCTION_OKAY            := boolean(configValue("LOG10_FUNCTION_OKAY"));
+    conf.LOG1P_FUNCTION_OKAY            := boolean(configValue("LOG1P_FUNCTION_OKAY"));
     conf.LOG2_FUNCTION_OKAY             := boolean(configValue("LOG2_FUNCTION_OKAY"));
     conf.LDEXP_FUNCTION_OKAY            := boolean(configValue("LDEXP_FUNCTION_OKAY"));
     conf.FREXP_FUNCTION_OKAY            := boolean(configValue("FREXP_FUNCTION_OKAY"));
@@ -865,7 +867,6 @@ const func ccConfigType: getBuiltInConfig is func
     conf.HAS_EXP10                      := boolean(configValue("HAS_EXP10"));
     conf.HAS_EXPM1                      := boolean(configValue("HAS_EXPM1"));
     conf.HAS_CBRT                       := boolean(configValue("HAS_CBRT"));
-    conf.HAS_LOG1P                      := boolean(configValue("HAS_LOG1P"));
     conf.LIMITED_CSTRI_LITERAL_LEN      := boolean(configValue("LIMITED_CSTRI_LITERAL_LEN"));
     conf.SWITCH_WORKS_FOR_INT64TYPE     := boolean(configValue("SWITCH_WORKS_FOR_INT64TYPE"));
     conf.STMT_BLOCK_IN_PARENTHESES_OK   := boolean(configValue("STMT_BLOCK_IN_PARENTHESES_OK"));

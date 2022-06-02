@@ -138,7 +138,7 @@ const proc: flt_prototypes (inout file: c_prog) is func
     if not ccConf.LOG10_FUNCTION_OKAY then
       declareExtern(c_prog, "floatType   fltLog10 (floatType);");
     end if;
-    if not ccConf.HAS_LOG1P or not ccConf.LOG_FUNCTION_OKAY then
+    if not ccConf.LOG1P_FUNCTION_OKAY then
       declareExtern(c_prog, "floatType   fltLog1p (floatType);");
     end if;
     if not ccConf.LOG2_FUNCTION_OKAY then
@@ -1309,7 +1309,7 @@ const proc: process (FLT_LOG1P, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if ccConf.HAS_LOG1P and ccConf.LOG_FUNCTION_OKAY then
+    if ccConf.LOG1P_FUNCTION_OKAY then
       c_expr.expr &:= "log1p(";
     else
       c_expr.expr &:= "fltLog1p(";

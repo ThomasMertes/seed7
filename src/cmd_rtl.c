@@ -2240,8 +2240,6 @@ striType cmdConfigValue (const const_striType name)
       opt = HAS_EXP10 ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "HAS_EXPM1") == 0) {
       opt = HAS_EXPM1 ? "TRUE" : "FALSE";
-    } else if (strcmp(opt_name, "HAS_LOG1P") == 0) {
-      opt = HAS_LOG1P ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "HAS_CBRT") == 0) {
       opt = HAS_CBRT ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
@@ -2270,6 +2268,8 @@ striType cmdConfigValue (const const_striType name)
       opt = LOG_FUNCTION_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "LOG10_FUNCTION_OKAY") == 0) {
       opt = LOG10_FUNCTION_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "LOG1P_FUNCTION_OKAY") == 0) {
+      opt = LOG1P_FUNCTION_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "LOG2_FUNCTION_OKAY") == 0) {
       opt = LOG2_FUNCTION_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "FMOD_FUNCTION_OKAY") == 0) {
