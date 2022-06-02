@@ -48,8 +48,8 @@ THE MAKEFILES
     make depend
     make
 
-  When the interpreter is compiled successfully the executable
-  and the libraries are placed in the 'bin' directory.
+  When the interpreter (s7) is compiled successfully the
+  executable and the libraries are placed in the 'bin' directory.
   Additionally a symbolic link to the executable is placed in
   the 'prg' directory (Under Windows symbolic links are not
   supported, so a copy of the executable is placed in the 'prg'
@@ -57,11 +57,21 @@ THE MAKEFILES
 
     make s7c
 
-  The compiler executable is copied to the 'bin' directory. To
-  check interpreter and compiler with a test suite (chk_all.sd7)
-  use the command:
+  The compiler executable is copied to the 'bin' directory.
+
+  You can check interpreter and compiler with a test suite
+  (chk_all.sd7). This step is optional and it will take some
+  time. It is recommended to run the test suite but you can
+  also run it later. To run the test suite do:
 
     make test
+
+  There are some tools written in Seed7. If you compile these
+  tools now they are installed with the final step. You can
+  skip this step and compile (and install) the tools later.
+  Compile the tools with:
+
+    make utils
 
   Finally Seed7 can be installed with:
 
