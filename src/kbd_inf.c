@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #ifdef USE_KBD_INF
@@ -875,6 +878,7 @@ charType kbdGetc (void)
     charType result;
 
   /* kbdGetc */
+    logFunction(printf("kbdGetc()\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
@@ -896,7 +900,7 @@ charType kbdGetc (void)
       } /* if */
     } /* if */
     result = read_f_key(result);
-/*  fprintf(stderr, "<%d>", result); */
+    logFunction(printf("kbdGets() --> '\\" FMT_U32 ";'\n", result););
     return result;
   } /* kbdGetc */
 
@@ -908,7 +912,8 @@ charType kbdRawGetc (void)
     ucharType ch;
     charType result;
 
-  /* kbdRawRead */
+  /* kbdRawGetc */
+    logFunction(printf("kbdRawGetc()\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
@@ -929,8 +934,8 @@ charType kbdRawGetc (void)
         result = (charType) ch;
       } /* if */
     } /* if */
-/*  fprintf(stderr, "<%d>", result); */
+    logFunction(printf("kbdRawGetc() --> '\\" FMT_U32 ";'\n", result););
     return result;
-  } /* kbdRawRead */
+  } /* kbdRawGetc */
 
 #endif

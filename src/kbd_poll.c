@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #ifdef USE_KBD_POLL
@@ -676,6 +679,7 @@ charType kbdGetc (void)
     charType result;
 
   /* kbdGetc */
+    logFunction(printf("kbdGetc()\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
@@ -691,6 +695,7 @@ charType kbdGetc (void)
         read_result = (memSizeType) read(fileno(stdin), &key_buffer, KEY_BUFFER_SIZE);
         /* printf("kbdGetc: read_result=%ld", read_result); */
         if (read_result == 0 || read_result == (memSizeType) (-1)) {
+          logFunction(printf("kbdGets() --> '\\" FMT_U32 ";'\n", EOF););
           return (charType) EOF;
         } else {
           key_buffer_size = read_result;
@@ -780,6 +785,7 @@ charType kbdGetc (void)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("kbdGets() --> '\\" FMT_U32 ";'\n", result););
     return result;
   } /* kbdGetc */
 
@@ -791,7 +797,8 @@ charType kbdRawGetc (void)
     ucharType ch;
     charType result;
 
-  /* kbdRawRead */
+  /* kbdRawGetc */
+    logFunction(printf("kbdRawGetc()\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
@@ -815,8 +822,8 @@ charType kbdRawGetc (void)
         result = (charType) ch;
       } /* if */
     } /* if */
-/*  fprintf(stderr, "<%d>", result); */
+    logFunction(printf("kbdRawGetc() --> '\\" FMT_U32 ";'\n", result););
     return result;
-  } /* kbdRawRead */
+  } /* kbdRawGetc */
 
 #endif
