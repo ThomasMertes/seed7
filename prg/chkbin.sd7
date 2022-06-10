@@ -41,6 +41,10 @@ const func bin64: bin64Expr (in bin64: aBin64) is
   return bin64(ord(aBin64) + length(str(rand(1, 9))[2 ..]));
 
 
+const func float: floatExpr (in float: number) is
+  return number;
+
+
 const func boolean: boolExpr (in boolean: okay) is
   return boolean(ord(okay) + length(str(rand(1, 9))[2 ..]));
 
@@ -1646,7 +1650,45 @@ const proc: checkFloat2Bits is func
         bin32(-0.0)                     <> bin32(16#80000000) or
         bin32( NaN)                     <> bin32(16#7fc00000) and
         bin32( NaN)                     <> bin32(16#ffc00000) then
-      writeln(" ***** Converting IEEE single precision float to bin32 does not work correct.");
+      writeln(" ***** Converting IEEE single precision float to bin32 does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bin32(floatExpr( 0.0))                     <> bin32(16#00000000) or
+        bin32(floatExpr( 0.5))                     <> bin32(16#3f000000) or
+        bin32(floatExpr( 0.9999999403953552))      <> bin32(16#3f7fffff) or  # The largest number < 1
+        bin32(floatExpr( 0.9999999999999999))      <> bin32(16#3f800000) or  # Rounded to 1
+        bin32(floatExpr( 1.0))                     <> bin32(16#3f800000) or
+        bin32(floatExpr( 1.0000000000000002))      <> bin32(16#3f800000) or  # Rounded to 1
+        bin32(floatExpr( 1.0000001192092896))      <> bin32(16#3f800001) or  # The smallest number > 1
+        bin32(floatExpr( 1.0000002384185791))      <> bin32(16#3f800002) or
+        bin32(floatExpr( 2.0))                     <> bin32(16#40000000) or
+        bin32(floatExpr(-2.0))                     <> bin32(16#c0000000) or
+        bin32(floatExpr( 5.0e-324))                <> bin32(16#00000000) or  # Min subnormal positive double.
+        bin32(floatExpr( 2.2250738585072009e-308)) <> bin32(16#00000000) or  # Max subnormal positive double.
+        bin32(floatExpr( 2.2250738585072014e-308)) <> bin32(16#00000000) or  # Min normalized positive double.
+        bin32(floatExpr( 1.4012984643248171e-45))  <> bin32(16#00000001) or  # Min subnormal positive single.
+        bin32(floatExpr( 2.9387358770557188e-39))  <> bin32(16#00200000) or  # Min MBF positive single.
+        bin32(floatExpr( 1.1754942106924411e-38))  <> bin32(16#007fffff) or  # Max subnormal positive single.
+        bin32(floatExpr( 1.1754943508222875e-38))  <> bin32(16#00800000) or  # Min normalized positive single.
+        bin32(floatExpr( 1.7014117331926443e+38))  <> bin32(16#7effffff) or  # Max MBF positive single.
+        bin32(floatExpr( 3.4028234663852886e+38))  <> bin32(16#7f7fffff) or  # Max finite positive single.
+        bin32(floatExpr( 1.7976931348623157e+308)) <> bin32(16#7f800000) or  # Max finite positive double.
+        bin32(floatExpr( Infinity))                <> bin32(16#7f800000) or
+        bin32(floatExpr(-Infinity))                <> bin32(16#ff800000) or
+        bin32(floatExpr( 0.3333333432674408))      <> bin32(16#3eaaaaab) or
+        bin32(floatExpr( 0.25))                    <> bin32(16#3e800000) or
+        bin32(floatExpr( 0.7071067690849304))      <> bin32(16#3f3504f3) or  # sqrt(0.5)
+        bin32(floatExpr( 1.4142135381698608))      <> bin32(16#3fb504f3) or  # sqrt(2.0)
+        bin32(floatExpr( 0.6931471824645996))      <> bin32(16#3f317218) or  # log(2.0)
+        bin32(floatExpr( 1.4426950216293335))      <> bin32(16#3fb8aa3b) or  # log2(E)
+        bin32(floatExpr( 1.5707963705062866))      <> bin32(16#3fc90fdb) or  # PI / 2.0
+        bin32(floatExpr( 3.1415927410125732))      <> bin32(16#40490fdb) or  # PI
+        bin32(floatExpr( 6.2831854820251465))      <> bin32(16#40c90fdb) or  # 2.0 * PI
+        bin32(floatExpr(-0.0))                     <> bin32(16#80000000) or
+        bin32(floatExpr( NaN))                     <> bin32(16#7fc00000) and
+        bin32(floatExpr( NaN))                     <> bin32(16#ffc00000) then
+      writeln(" ***** Converting IEEE single precision float to bin32 does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -1684,7 +1726,45 @@ const proc: checkFloat2Bits is func
         bin64(-0.0)                     <> bin64(16#8000000000000000_) or
         bin64( NaN)                     <> bin64(16#7ff8000000000000_) and
         bin64( NaN)                     <> bin64(16#fff8000000000000_) then
-      writeln(" ***** Converting IEEE double precision float to bin64 does not work correct.");
+      writeln(" ***** Converting IEEE double precision float to bin64 does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bin64(floatExpr( 0.0))                     <> bin64(16#0000000000000000_) or
+        bin64(floatExpr( 0.5))                     <> bin64(16#3fe0000000000000_) or
+        bin64(floatExpr( 0.9999999403953552))      <> bin64(16#3fefffffe0000000_) or
+        bin64(floatExpr( 0.9999999999999999))      <> bin64(16#3fefffffffffffff_) or  # The largest number < 1
+        bin64(floatExpr( 1.0))                     <> bin64(16#3ff0000000000000_) or
+        bin64(floatExpr( 1.0000000000000002))      <> bin64(16#3ff0000000000001_) or  # The smallest number > 1
+        bin64(floatExpr( 1.0000000000000004))      <> bin64(16#3ff0000000000002_) or
+        bin64(floatExpr( 1.0000001192092896))      <> bin64(16#3ff0000020000000_) or
+        bin64(floatExpr( 2.0))                     <> bin64(16#4000000000000000_) or
+        bin64(floatExpr(-2.0))                     <> bin64(16#c000000000000000_) or
+        bin64(floatExpr( 5.0e-324))                <> bin64(16#0000000000000001_) or  # Min subnormal positive double.
+        bin64(floatExpr( 2.2250738585072009e-308)) <> bin64(16#000fffffffffffff_) or  # Max subnormal positive double.
+        bin64(floatExpr( 2.2250738585072014e-308)) <> bin64(16#0010000000000000_) or  # Min normalized positive double.
+        bin64(floatExpr( 1.4012984643248171e-45))  <> bin64(16#36a0000000000000_) or  # Min subnormal positive single.
+        bin64(floatExpr( 2.9387358770557188e-39))  <> bin64(16#37f0000000000000_) or  # Min MBF positive double.
+        bin64(floatExpr( 1.1754942106924411e-38))  <> bin64(16#380fffffc0000000_) or  # Max subnormal positive single.
+        bin64(floatExpr( 1.1754943508222875e-38))  <> bin64(16#3810000000000000_) or  # Min normalized positive single.
+        bin64(floatExpr( 1.7014118346046923e+38))  <> bin64(16#47e0000000000000_) or  # Max MBF positive double.
+        bin64(floatExpr( 3.4028234663852886e+38))  <> bin64(16#47efffffe0000000_) or  # Max finite positive single.
+        bin64(floatExpr( 1.7976931348623157e+308)) <> bin64(16#7fefffffffffffff_) or  # Max finite positive double.
+        bin64(floatExpr( Infinity))                <> bin64(16#7ff0000000000000_) or
+        bin64(floatExpr(-Infinity))                <> bin64(16#fff0000000000000_) or
+        bin64(floatExpr( 1.0 / 3.0))               <> bin64(16#3fd5555555555555_) or
+        bin64(floatExpr( 0.25))                    <> bin64(16#3fd0000000000000_) or
+        bin64(floatExpr( 0.7071067811865476))      <> bin64(16#3fe6a09e667f3bcd_) or  # sqrt(0.5)
+        bin64(floatExpr( 1.4142135623730951))      <> bin64(16#3ff6a09e667f3bcd_) or  # sqrt(2.0)
+        bin64(floatExpr( 0.6931471805599453))      <> bin64(16#3fe62e42fefa39ef_) or  # log(2.0)
+        bin64(floatExpr( 1.4426950408889634))      <> bin64(16#3ff71547652b82fe_) or  # log2(E)
+        bin64(floatExpr( 1.5707963267948966))      <> bin64(16#3ff921fb54442d18_) or  # PI / 2.0
+        bin64(floatExpr( 3.1415926535897931))      <> bin64(16#400921fb54442d18_) or  # PI
+        bin64(floatExpr( 6.2831853071795862))      <> bin64(16#401921fb54442d18_) or  # 2.0 * PI
+        bin64(floatExpr(-0.0))                     <> bin64(16#8000000000000000_) or
+        bin64(floatExpr( NaN))                     <> bin64(16#7ff8000000000000_) and
+        bin64(floatExpr( NaN))                     <> bin64(16#fff8000000000000_) then
+      writeln(" ***** Converting IEEE double precision float to bin64 does not work correct. (2)");
       okay := FALSE;
     end if;
 
