@@ -2919,6 +2919,20 @@ static void numericProperties (FILE *versionFile)
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
             "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       ldexp(5.777494836628130267e-309,  1071) == 1.461722466756107500e+014 &&\n"
+            "       ldexp(2.546209045782271622e-309,  2047) == 4.114292659568633900e+307 &&\n"
+            "       ldexp(6.009742445482107613e+258, -1882) == 1.739418242816761100e-308 &&\n"
+            "       ldexp(3.094739191357472818e+93,  -1334) == 8.252961878480251800e-309);\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define LDEXP_SUBNORMAL_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS " " SYSTEM_MATH_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
             "int exponent1 = 999999;\n"
             "int exponent2 = 999999;\n"
             "int exponent3 = 999999;\n"
