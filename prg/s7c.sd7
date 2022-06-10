@@ -7184,7 +7184,11 @@ const proc: pass_1 (in string: source, inout program: prog,
         end if;
       end if;
       if "-g" in compiler_option then
-        source_debug_info := compiler_option["-g"] <> "-debug_c";
+        if compiler_option["-g"] in {"", "-debug_c"} then
+          source_debug_info := compiler_option["-g"] <> "-debug_c";
+        else
+          writeln("*** Ignore unsupported option: -g" <& compiler_option["-g"]);
+        end if;
       end if;
       if "-t" in compiler_option then
         if pos(compiler_option["-t"], 'd') <> 0 then
