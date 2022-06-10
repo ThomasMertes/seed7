@@ -441,7 +441,7 @@ The latest source code release of Seed7 can be downloaded from:
 
   https://sourceforge.net/projects/seed7/files
 
-Just click on the link after the text: "Looking for the latest version?".
+Just click on the button "Download Latest Version".
 
 Other source code releases can be found in the directory seed7.
 It is strongly recommended to use the latest version.
@@ -1239,40 +1239,39 @@ Why does Seed7 not use type inference?
 
 Seed7 has a basic principle that would break if type inference would be used:
 
-   The type of every expression (and sub expression) is known at compile time.
-   This is independent from the place where this expression is used.
+   The type of every expression (and sub expression) is independent of the context.
 
 To explain this principle consider the expression:
 
   a + b
 
-If the types of a and b are known and the definition of + fits the
-type of the expression a + b is also known. In this example a and b can be
+If the types of a and b are known and the definition of + applies then the
+type of the expression a + b is also known. In this example a and b may be
 constants, variables or even sub-expressions. If one of the types of a or b
-is not known the type of a + b cannot be determined. Now assume that a + b
+is not known then the type of a + b cannot be determined. Now assume that a + b
 is part of a bigger expression:
 
   c = (a + b)
 
 In theory you could deduce the type of a + b if you know the type of c and
-how = works. But in this case the information where a + b is used is taken
-into account. The basic principle mentioned above rules that out. According
-to that the place where an expression is used has no influence on the type
-of the expression. In Seed7 the type information moves inside out from
-sub-expressions to expressions. In other words it moves from the bottom to
-the top. This rule simplifies parsing a lot. This is one of the reasons why
-the parser processes several hundred thousand lines per second.
+how = works. But in this case the context of a + b would have to be taken into
+account. The basic principle mentioned above rules that out. According to it
+the context around an expression has no influence on the type of the expression.
+In Seed7 the type information moves inside out from sub-expressions to
+expressions. Within the syntax tree it moves from the bottom to the top. This
+rule simplifies type checking a lot. This is one of the reasons why the
+interpreter is able to process several hundred thousand lines per second.
 
-To do type inference it is necessary that type information moves also in
-the other direction. You can see: It is exactly the violation of the basic
-principle mentioned above, that makes type inference possible. As long as
-this principle holds you need to know the global and local declarations to
-find out the result type of an expression. With type inference it is necessary
-to take other expressions in the local function and even expressions in other
-functions into account. I do not say that this is not possible (for sure it
-is an interesting challenge to invent an algorithm to do this). But the reader
-of the program needs to use this algorithm also every time he/she reads the
-program. And that is very bad since a program is more often read than written.
+For type inference it would be necessary that type information moves also into
+the other direction. You can see: This would violate the basic principle
+mentioned above. As long as this principle holds you need to know the global
+and local declarations to find out the result type of an expression. With type
+inference it would be necessary to take other expressions in the local
+function and even expressions in other functions into account. I do not say
+that this is not possible (for sure it is an interesting challenge to invent
+an algorithm to do this). But a human reader would also need to apply this
+algorithm when reading the program. You have to consider that a program is
+more often read than written.
 
 
 Why does a local type declaration trigger an error?
@@ -1400,22 +1399,51 @@ possible to define new operators and statements.
 Can I overload two functions which just differ in the result type?
 ==================================================================
 
-No, it is not possible to overload functions (operators, statements) which have
-the same parameter types and just differ in the result type. This type of
-overloading has a big advantage:
+No, return type overloading is not possible. Otherwise the type of an
+expression would depend on its context. Assume the function f
+is overloaded like this:
 
-   The type of every expression (and sub expression) is known at compile time.
-   This is independent from the place where this expression is used.
+  f(x) -> integer
+  f(x) -> string
 
-This means that the place, where an expression is used, has no influence on
-the type of the expression (see also at the answer about type inference).
-Therefore it is not possible to overload something which has no parameters
+In this case the compiler cannot determine the type of f(x) unless it analyzes
+the context of the call. Thus type checking expressions may become arbitrarily
+complex. Remember that the human reader has to do the same. Omitting return
+type overloading simplifies type checking a lot. This way the following holds:
+
+   The type of every expression (and sub expression) is independent of the context.
+
+Consider this expression about operator overloading (applying also to functions):
+
+  a = b + c * d
+
+Converted into a tree representation:
+
+    =
+   / \
+  a   +
+     / \
+    b   *
+       / \
+      c   d
+
+The type information goes strictly upward (or inside out).
+
+ - The * operator might be overloaded for various parameter types.
+ - The actual types of c and d determine which * operator is used.
+ - This determines the type of the sub expression c * d.
+ - The + operator might be overloaded and the parameters
+   b and c * d determine the + operator used and the type of
+   the sub expression b + c * d.
+ - The type of a and b + c * d determine which = is used and
+   the type of the whole expression.
+
+This bottom up approach simplifies type checking a lot for both the compiler
+and the human reader.
+
+It is not possible to overload something which has no parameters
 (like a variable or a literal). As a consequence it is sometimes necessary to
-cast a literal to get an unambiguous expression. This concept parallels the
-approach used in mathematics where it is also required to specify measurement
-units. Obviously there is a difference between 5 seconds, 5 square meters and
-5 apples. In school it is usually considered wrong to just write 5 and let
-the teacher guess the measurement unit.
+cast a literal to get an unambiguous expression.
 
 
 Can functions have variable parameter lists?
@@ -1484,7 +1512,7 @@ Are there types like byte, small and long?
 ==========================================
 
 Seed7 follows the "one size fits all" principle for fixed size integers. The
-type integer is 64-bit signed, smaller integer types do not exist. Today's
+type 'integer' is 64-bit signed, smaller integer types do not exist. Today's
 computers have 64-bit processors. Some processors do not have instructions
 for all the smaller integer types. On such computers, smaller integers must
 be converted into larger integers in order to do computations. So programs
@@ -1505,13 +1533,15 @@ unsigned representations of various sizes. These functions allow also that
 the endianness is specified explicit.
 
 Message digest and compression algorithms do bitwise operations on 32- or
-64-bit data. Bitwise operations are not supported by integer. To do that the
-types bin32 and bin64 have been introduced. These types support bitwise AND,
-OR and XOR operations, but no integer arithmetic. Conversions between integer
-and bin64 (respectively bin32) cause no additional costs in compiled programs.
+64-bit data. Bitwise operations are not supported by 'integer'. To do that the
+types 'bin32' and 'bin64' have been introduced. These types support bitwise
+'AND', 'OR' and 'XOR' operations, but no integer arithmetic. Hence 'bin32' and
+'bin64' are not integer types but types that describe bit-patterns with 32 and
+64 bits. Conversions between 'integer' and 'bin32' (respectively 'bin64')
+cause no additional costs in compiled programs.
 
-If the 64-bit signed 'integer' type is not sufficient the type 'bigInteger' can be
-used.
+If the 64-bit signed 'integer' type is not sufficient the type 'bigInteger'
+can be used.
 
 
 Is Unicode supported?
@@ -2042,7 +2072,7 @@ combined integer) and no overflow occurs.
 
 The automatic promotion to big integer (with the combined integer type)
 reduces performance. The approach that only checks for integer overflow
-needs two instructions for an addition. I needs no additional overhead
+needs two instructions for an addition. It needs no additional overhead
 for assignments, at the end of a variable scope, or in other situations.
 The possibility of optimizations applies to both approaches that check
 for integer overflow, but not everything can be optimized away.

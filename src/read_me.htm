@@ -1,0 +1,2476 @@
+<html>
+<head>
+<title>
+Build read me</title>
+<style type="text/css">
+<!--
+div.top_image {
+  position:fixed;
+  width:100%;
+  height:68px;
+  white-space:nowrap;
+}
+
+div.space_below_top_image {
+  position: fixed;
+  top: 68px;
+  left: 0;
+  width: 100%;
+  height:15px;
+}
+
+div.menu {
+  position:fixed;
+  top:85px;
+  left:10px;
+  bottom:10px;
+  width:145px;
+  overflow-y:auto;
+}
+
+div.content {
+  position:fixed;
+  top:85px;
+  left:165px;
+  right:0;
+  bottom:10px;
+  overflow-y:scroll;
+}
+
+a.link:visited { color: mediumblue; text-decoration: none }
+a.link:link    { color: blue; text-decoration: none }
+a.link:hover   { color: blue; text-decoration: underline }
+a.link:active  { color: orange; text-decoration: underline }
+
+a.head:visited { color: cyan;  background-color: blue }
+a.head:link    { color: cyan;  background-color: blue }
+a.head:hover   { color: white; background-color: blue }
+a.head:active  { color: green; background-color: blue }
+
+a.menu:visited { color: purple; background-color: silver }
+a.menu:link    { color: purple; background-color: silver }
+a.menu:hover   { color: red;    background-color: white  }
+a.menu:active  { color: green;  background-color: silver }
+
+a.navigation:visited { color: purple; text-decoration: none; background-color: silver }
+a.navigation:link    { color: purple; text-decoration: none; background-color: silver }
+a.navigation:hover   { color: red;    text-decoration: none; background-color: silver }
+a.navigation:active  { color: green;  text-decoration: none; background-color: silver }
+
+a.type:visited { color: red; text-decoration: underline }
+a.type:link    { color: red; text-decoration: underline }
+a.type:hover   { color: navy }
+a.type:active  { color: gold }
+
+a.type_no_ul:visited { color: red; text-decoration: none }
+a.type_no_ul:link    { color: red; text-decoration: none }
+a.type_no_ul:hover   { color: navy; text-decoration: underline }
+a.type_no_ul:active  { color: gold; text-decoration: underline }
+
+a.keywd:visited { color: blue; text-decoration: underline }
+a.keywd:link    { color: blue; text-decoration: underline }
+a.keywd:hover   { color: orange }
+a.keywd:active  { color: green }
+
+a.keywd_no_ul:visited { color: blue; text-decoration: none }
+a.keywd_no_ul:link    { color: blue; text-decoration: none }
+a.keywd_no_ul:hover   { color: orange; text-decoration: underline }
+a.keywd_no_ul:active  { color: green; text-decoration: underline }
+
+a.op:visited { color: blue; text-decoration: underline }
+a.op:link    { color: blue; text-decoration: underline }
+a.op:hover   { color: orange }
+a.op:active  { color: green }
+
+a.op_no_ul:visited { color: blue; text-decoration: none }
+a.op_no_ul:link    { color: blue; text-decoration: none }
+a.op_no_ul:hover   { color: orange; text-decoration: underline }
+a.op_no_ul:active  { color: green; text-decoration: underline }
+
+a.lib:visited { color: maroon; text-decoration: underline }
+a.lib:link    { color: maroon; text-decoration: underline }
+a.lib:hover   { color: blue }
+a.lib:active  { color: orange }
+
+a.prog:visited { color: darkgreen; text-decoration: underline }
+a.prog:link    { color: darkgreen; text-decoration: underline }
+a.prog:hover   { color: darkorange }
+a.prog:active  { color: orange }
+
+a.func:visited { color: purple; text-decoration: underline }
+a.func:link    { color: purple; text-decoration: underline }
+a.func:hover   { color: magenta }
+a.func:active  { color: olive }
+
+a.func_no_ul:visited { color: black; text-decoration: none }
+a.func_no_ul:link    { color: black; text-decoration: none }
+a.func_no_ul:hover   { color: magenta; text-decoration: underline }
+a.func_no_ul:active  { color: olive; text-decoration: underline }
+
+a.var:visited { color: darkcyan; text-decoration: underline  }
+a.var:link    { color: darkcyan; text-decoration: underline  }
+a.var:hover   { color: darkred }
+a.var:active  { color: gold }
+
+a.exception:visited { color: black; text-decoration: none }
+a.exception:link    { color: black; text-decoration: none }
+a.exception:hover   { color: blue; text-decoration: underline }
+a.exception:active  { color: orange; text-decoration: underline }
+
+a.ebnf:visited { color: black; text-decoration: none }
+a.ebnf:link    { color: black; text-decoration: none }
+a.ebnf:hover   { color: blue; text-decoration: underline }
+a.ebnf:active  { color: orange; text-decoration: underline }
+
+span.type    { color: red }
+span.keywd   { color: blue }
+span.op      { color: blue }
+span.comment { color: green }
+span.stri    { color: maroon }
+span.lib     { color: maroon }
+span.prog    { color: darkgreen }
+span.func    { color: purple }
+span.var     { color: darkcyan }
+span.input   { color: green }
+
+span.box {
+  border: solid 1px black;
+  background-color: WhiteSmoke;
+  padding: 0px 1px 0px 1px;
+  margin: 4px 2px 6px 2px;
+}
+
+a.menu, a.head {
+  text-decoration: none;
+  margin: 0px;
+  color: black;
+  padding: 0px;
+  padding-left: 5px;
+  border: 1px solid blue;
+  border-top: 0;
+  display: block;
+  width: 120px;
+}
+
+.tt { font-family: monospace; font-size: 10pt; }
+
+body  { font-size: 12pt; }
+table { font-size: 12pt; }
+tt    { font-size: 10pt; }
+
+pre.tt {
+    white-space: pre;
+    table-display: fixed;
+    white-space: pre-wrap;
+    font-size: 10pt;
+    overflow: auto;
+    color: black;
+    margin: 0;
+    padding: 0;
+}
+
+pre.box {
+    border: 1pt dashed black;
+    white-space: pre;
+    table-display: fixed;
+    white-space: pre-wrap;
+    font-size: 10pt;
+    overflow: auto;
+    padding: 1em 0;
+    background: #F8F8F8;
+    color: black;
+}
+
+pre.indent {
+    border: 1pt dashed black;
+    white-space: pre;
+    table-display: fixed;
+    white-space: pre-wrap;
+    font-size: 10pt;
+    overflow: auto;
+    padding: 1em 0;
+    background: #F8F8F8;
+    color: black;
+    padding-left: 16px;
+}
+//-->
+</style>
+</head>
+<body>
+
+<div><a name="build_BUILD_SEED7"><!--(*--><hr /><h1 align="center">Build Seed7</h1><hr /><!--*)-->
+</a>
+<p>
+    The way to compile the interpreter depends on the operating
+  system and the development tools used. You need a stand-alone
+  C compiler and a make utility to compile the interpreter.
+  A C compiler, which is only usable from an IDE, is not so
+  useful, since some Seed7 programs (e.g. The Seed7 compiler
+  s7c) need to call the C compiler as well. In case a make
+  utility is missing under Windows the program <span class="link">make7.exe</span> can
+  be downloaded from
+</p><dl><dd>
+    <span class="link">https://sourceforge.net/projects/seed7/files/bin</span>
+</dd></dl><p>
+  In this directory is also a <a class="link" href="#faq_installer">Seed7 installer</a> for Windows
+  (seed7_05_20191117_win.exe).
+</p></div>
+
+<div><br /><a name="build_THE_MAKEFILES"><h3>THE MAKEFILES
+</h3></a><p>
+    Several makefiles are prepared in 'seed7/src' for various
+  combinations of operating system, make utility, C compiler
+  and shell:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  <tr><th>makefile name</th><th>operating system </th><th>make prog     </th><th>C compiler  </th><th>shell</th></tr>
+  
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_LINUX">mk_linux.mak</a> </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_clang.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> clang      </td><td> sh</td></tr>
+  <tr><td>mk_icc.mak   </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> icc        </td><td> sh</td></tr>
+  <tr><td>mk_tcc_l.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> tcc        </td><td> sh</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_CYGWIN">mk_cygw.mak</a>  </td><td> Windows (Cygwin)</td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_GCC_FROM_MINGW">mk_msys.mak</a>  </td><td> Windows (MSYS)  </td><td> mingw32-make </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_GCC_FROM_MINGW">mk_mingw.mak</a> </td><td> Windows (MinGW) </td><td> mingw32-make </td><td> gcc        </td><td> cmd.exe</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_GCC_FROM_MINGW">mk_nmake.mak</a> </td><td> Windows (MinGW) </td><td> nmake        </td><td> gcc        </td><td> cmd.exe</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_CL_FROM_MSVC">mk_msvc.mak</a>  </td><td> Windows (MSVC)  </td><td> nmake        </td><td> cl         </td><td> cmd.exe</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_BCC32">mk_bcc32.mak</a> </td><td> Windows (bcc32) </td><td> make         </td><td> bcc32      </td><td> cmd.exe</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_BCC32">mk_bccv5.mak</a> </td><td> Windows (bcc32) </td><td> make         </td><td> bcc32 V5.5 </td><td> cmd.exe</td></tr>
+  <tr><td>mk_clangw.mak</td><td> Windows (clang) </td><td> (g)make      </td><td> clang      </td><td> cmd.exe</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_WINDOWS_WITH_TCC">mk_tcc_w.mak</a> </td><td> Windows (tcc)   </td><td> (g)make      </td><td> tcc        </td><td> cmd.exe</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_DOS_WITH_DJGPP">mk_djgpp.mak</a> </td><td> DOS             </td><td> (g)make      </td><td> gcc        </td><td> cmd.exe</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_MAC_OS">mk_osx.mak</a>   </td><td> Mac OS          </td><td> make         </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_UNDER_MAC_OS">mk_osxcl.mak</a> </td><td> Mac OS          </td><td> make         </td><td> clang      </td><td> sh</td></tr>
+  <tr><td>mk_freebsd.mk</td><td> FreeBSD         </td><td> make         </td><td> clang/gcc  </td><td> sh</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_WITH_EMCC_FROM_EMSCRIPTEN">mk_emccl.mak</a> </td><td> Linux/Unix/BSD  </td><td> make         </td><td> emcc + gcc </td><td> sh</td></tr>
+  <tr><td><a class="link" href="#build_COMPILING_WITH_EMCC_FROM_EMSCRIPTEN">mk_emccw.mak</a> </td><td> Windows (emcc)  </td><td> mingw32-make </td><td> emcc + gcc </td><td> cmd.exe</td></tr>
+</table></dd></dl><p>
+  Detailed explanations how to compile the interpreter (s7) can
+  be found in the <a class="link" href="#build_COMPILING_UNDER_LINUX">chapters below</a>. In the optimal case you just
+  copy one of these files to 'makefile' and do (with the make
+  program from the table above):
+</p><pre class="indent">
+make depend
+make
+</pre><p>
+  When the interpreter (s7) is compiled successfully the
+  executable and the libraries are placed in the 'bin' directory.
+  Additionally a symbolic link to the executable is placed in
+  the 'prg' directory (Under Windows symbolic links are not
+  supported, so a copy of the executable is placed in the 'prg'
+  directory).
+</p></div>
+
+<div><br /><a name="build_REMAINING_BUILD_STEPS"><h3>REMAINING BUILD STEPS
+</h3></a><p>
+    After a successful compilation of the Seed7 interpreter (s7)
+  the Seed7 compiler (s7c) can be compiled with:
+</p><pre class="indent">
+make s7c
+</pre><p>
+  The compiler executable is copied to the 'bin' directory.
+</p><p>
+  You can check interpreter and compiler with a test suite
+  (chk_all.sd7). This step is optional and it will take some
+  time. It is recommended to run the test suite but you can
+  also run it later. To run the test suite do:
+</p><pre class="indent">
+make test
+</pre><p>
+  There are some tools written in Seed7. If you compile these
+  tools now they are installed with the final step. You can
+  skip this step and compile (and install) the tools later.
+  Compile the tools with:
+</p><pre class="indent">
+make utils
+</pre><p>
+  Finally Seed7 can be installed with:
+</p><pre class="indent">
+sudo make install
+</pre><p>
+  To do several compilation attempts in succession you need to
+  execute the command
+</p><pre class="indent">
+make clean
+</pre><p>
+  before you do 'make depend' again.
+</p></div>
+
+<div><br /><a name="build_COMPILING_UNDER_LINUX"><h3>COMPILING UNDER LINUX
+</h3></a><p>
+    For Linux the compilation process is the simplest. The
+  file 'makefile' is (almost) identical to 'mk_linux.mak' and
+  that file is already prepared to compile under Linux.
+  Go to the 'seed7/src' directory and type:
+</p><pre class="indent">
+make depend
+make
+</pre><p>
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and the 'prg' directory will contain a
+  link to the executable.
+</p><p>
+  In some distributions the X11 library directory is not in
+  $PATH. In this case the value of the SYSTEM_DRAW_LIBS variable
+  in the makefile must be changed. Replace the -lX11 by the path
+  and the name of your libXll (e.g. /usr/X11/lib/libX11.so or
+  /usr/X11R6/lib/libX11.a).
+</p><p>
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
+</p></div>
+
+<div><br /><a name="build_COMPILING_UNDER_BSD_AND_UNIX"><h3>COMPILING UNDER BSD AND UNIX
+</h3></a><p>
+    Probably you can do it just the same way as under Linux.
+  If there are problems and the makefile needs to be adjusted
+  please let me know. If you send the changed makefile to me
+  I can include it in the release.
+</p></div>
+
+<div><br /><a name="build_COMPILING_UNDER_WINDOWS_WITH_GCC_FROM_MINGW"><h3>COMPILING UNDER WINDOWS WITH GCC FROM MINGW
+</h3></a><p>
+    If gcc and mingw32-make from MinGW are installed use a
+  console, go to the 'seed7\src' directory and type:
+</p><pre class="indent">
+copy /Y mk_mingw.mak makefile
+mingw32-make depend
+mingw32-make
+</pre><p>
+  To compile under MSYS (a Unix shell window from the MinGW
+  tools) go to the 'seed7/src' directory and type:
+</p><pre class="indent">
+cp mk_msys.mak makefile
+mingw32-make depend
+mingw32-make
+</pre><p>
+  If gmake uses Unix shell commands even if started from a
+  Windows console, you can use gmake together with mk_msys.mak
+  from a Windows console also.
+</p><p>
+  To compile with gcc from MinGW and nmake from Windows use
+  a console, go to the 'seed7\src' directory and type:
+</p><pre class="indent">
+copy /Y mk_nmake.mak makefile
+nmake depend
+nmake
+</pre><p>
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and it is also copied to prg/s7.exe.
+</p><p>
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
+  Keep in mind to use the same 'make' utility as before.
+</p></div>
+
+<div><br /><a name="build_COMPILING_UNDER_WINDOWS_WITH_CL_FROM_MSVC"><h3>COMPILING UNDER WINDOWS WITH CL FROM MSVC
+</h3></a><p>
+    To compile Seed7 with cl and nmake (C compiler and make
+  utility from a big big software company) it is necessary, that
+  cl and nmake can be executed from a console window. The script
+  vcvarsall.bat sets up the environment for cl and nmake. This
+  script is in the directory
+</p><pre class="indent">
+...Visual Studio\2019\Community\VC\Auxiliary\Build
+</pre><p>
+  Note that 2019 is the year of the MSVC release. In a 32-bit
+  operating system use a console and execute:
+</p><pre class="indent">
+...Studio\2019\Community\VC\Auxiliary\Build\vcvarsall x86
+</pre><p>
+  In older versions of MSVS the script was named vcvars32.bat.
+  In a 64-bit operating system you need to execute:
+</p><pre class="indent">
+...Studio\2019\Community\VC\Auxiliary\Build\vcvarsall x64
+</pre><p>
+  Afterwards the environment is set up for MSVC. In newer
+  versions of MSVC the include files and libraries are in the
+  "Windows Kits" directory. In this case it is necessary to
+  define the environment variables INCLUDE and LIB. To do
+  that look for: Control Panel -> System and Security ->
+  System -> Advanced system settings -> Environment Variables.
+  With "Windows Kits" the include files are in the directory:
+</p><pre class="indent">
+...Windows Kits\<main_version>\Include\<detailled_version>
+</pre><p>
+  The actual include files are in the sub directories 'um',
+  'ucrt' and 'shared'. Add the absolute paths of these three
+  directories to the INCLUDE environment variable. On such
+  installations the libraries are in the directory:
+</p><pre class="indent">
+...Windows Kits\<main_version>\Lib\<detailled_version>
+</pre><p>
+  For 32-bit compilation the actual libraries are in the sub
+  directories 'um\x86' and 'ucrt\x86'. For 64-bit compilation
+  the actual libraries are in the sub directories 'um\x64' and
+  'ucrt\x64'. Add the absolute paths of the 32-bit or 64-bit
+  directories to the LIB environment variable. Don't forget to
+  restart a console window after environment variables have
+  changed.
+</p><p>
+  After everything has been set up for MSVC you can go to the
+  'seed7\src' directory and type:
+</p><pre class="indent">
+copy /Y mk_msvc.mak makefile
+nmake depend
+nmake
+</pre><p>
+  If it is necessary to compile again you need to do a
+</p><pre class="indent">
+nmake clean
+</pre><p>
+  to clean the files from a previous compilation attempt.
+</p><p>
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and it is also copied to prg/s7.exe.
+  Note that the build process saves all environment variables
+  in the file seed7/bin/cl_env.ini. Every time the Seed7
+  compiler calls cl it restores the environment variables from
+  the file seed7/bin/cl_env.ini beforehand. This change of the
+  environment happens in the Seed7 compiler and the original
+  environment of the console remains unchanged. This means that
+  the Seed7 compiler (s7c) can be used without the need to call
+  vcvarsall.bat.
+</p><p>
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
+  Keep in mind to use the 'nmake' command as before.
+</p></div>
+
+<div><br /><a name="build_COMPILING_UNDER_WINDOWS_WITH_BCC32"><h3>COMPILING UNDER WINDOWS WITH BCC32
+</h3></a><p>
+    To compile Seed7 with bcc32 and make (C compiler and make
+  utility from a smaller software company) use a console, go
+  to the 'seed7\src' directory and type:
+</p><pre class="indent">
+copy /Y mk_bcc32.mak makefile
+make depend
+make
+</pre><p>
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and it is also copied to prg/s7.exe.
+  For the older version of bcc32 (Version 5.5, which is available
+  in the Internet) use:
+</p><pre class="indent">
+copy /Y mk_bccv5.mak makefile
+make depend
+make
+</pre><p>
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
+</p></div>
+
+<div><br /><a name="build_COMPILING_UNDER_WINDOWS_WITH_TCC"><h3>COMPILING UNDER WINDOWS WITH TCC
+</h3></a><p>
+    To compile Seed7 with tcc (Tiny C Compiler) and mingw32-make
+  you need version 0.9.27 of tcc. The support for tcc under
+  Windows is experimental.
+</p><p>
+  You need to decide, which archiver utility should be used
+  to create libraries. In the makefile mk_tcc_w.mak the value
+  ARCHIVER defines the archiver utility to be used. For the ar
+  utility from MinGW (ar should be in the search path) use the
+  following lines (this is the default):
+</p><pre class="indent">
+ARCHIVER = ar -r
+# ARCHIVER = tiny_libmaker
+</pre><p>
+  As an alternative the tiny_libmaker utility can be used.
+  Note that tiny_libmaker supports only 32-bit executables.
+  You might need to copy tiny_libmaker.exe to the directory
+  tcc. You need to change mk_tcc_w.mak also. Use the lines:
+</p><pre class="indent">
+# ARCHIVER = ar -r
+ARCHIVER = tiny_libmaker
+</pre><p>
+  Additionally you need some things:
+</p><ul>
+<li>The include file winsock2.h (copy it to tcc\include)</li>
+</ul><p>
+  Then use a console, go to the 'seed7\src' directory and type:
+</p><pre class="indent">
+copy /Y mk_tcc_w.mak makefile
+make depend
+make
+</pre><p>
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and it is also copied to prg/s7.exe.
+  Note that tcc for Windows has some bugs. The program chk_all.sd7
+  shows this bugs. Therefore Seed7 does not support the
+  compilation with tcc under windows officially.
+</p><p>
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
+  Keep in mind to use the same 'make' utility as before.
+</p></div>
+
+<div><br /><a name="build_COMPILING_UNDER_WINDOWS_WITH_CYGWIN"><h3>COMPILING UNDER WINDOWS WITH CYGWIN
+</h3></a><p>
+    To compile Seed7 with Cygwin several Cygwin packages need to
+  be installed. From the category Devel the following packages are
+  needed: binutils, gcc-core, libncurses-devel and make. From
+  category X11 the package libX11-devel is needed. To use graphic
+  programs it is necessary to install Cygwin/X. Instructions to
+  install Cygwin/X can be found in the Internet. To test the
+  installation start a Cygwin window and do:
+</p><pre class="indent">
+make --version
+gcc --version
+</pre><p>
+  If the Cygwin gcc does not have the name gcc it is necessary
+  to edit the file 'mk_cygw.mak'. The line containing
+</p><pre class="indent">
+CC = gcc
+</pre><p>
+  must be changed to define the name of your gcc. If gcc and
+  make work well change to the 'seed7/src' directory and do:
+</p><pre class="indent">
+cp mk_cygw.mak makefile
+make depend
+make
+</pre><p>
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and the 'prg' directory will contain a
+  link to the executable.
+</p><p>
+  Cygwin sometimes has problems with symlinks. This is indicated
+  by an error message which ends with:
+</p><pre class="indent">
+bin/as.exe: cannot execute binary file
+</pre><p>
+  The presence of a Cygwin symlink problem can be checked in
+  the directory /usr/i686-pc-cygwin/bin (or the corresponding
+  directory mentioned in the error message). If the file
+  /usr/i686-pc-cygwin/bin/as.exe is a small file with less than
+  100 bytes and starts with
+</p><pre class="indent">
+!<symlink>
+</pre><p>
+  it is some Cygwin symlink. To fix this error just copy the
+  symlink destination over the file as.exe (after making a
+  backup of the original symlink file as.exe). Additionally
+  it might also be necessary to do the same for ld.exe (and
+  maybe for some other symlinks as well).
+</p><p>
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
+</p></div>
+
+<div><br /><a name="build_COMPILING_WITH_EMCC_FROM_EMSCRIPTEN"><h3>COMPILING WITH EMCC FROM EMSCRIPTEN
+</h3></a><p>
+    The makefiles mk_emccl.mak and mk_emccw.mak are provided
+  for compiling with emcc under Linux and Windows. Besides emcc
+  you need also gcc (under Windows use gcc from MinGW) and
+  node.js. When you download emsdk you get also a version of
+  node.js.
+</p><p>
+  To compile Seed7 under Linux use a terminal window and
+  activate the PATH and other environment variables for emcc
+  (with 'source ./emsdk_env.sh' in the emsdk directory).
+  Afterwards go to the directory 'seed7/src' (with cd) and
+  type:
+</p><pre class="indent">
+cp mk_emccl.mak makefile
+make depend
+make
+</pre><p>
+  To compile Seed7 under Windows use a console window and
+  activate the PATH and other environment variables for emcc
+  (with 'emsdk_env.bat' in the emsdk directory). Afterwards
+  go to the directory 'seed7\src' (with cd) and type:
+</p><pre class="indent">
+copy /Y mk_emccw.mak makefile
+mingw32-make depend
+mingw32-make
+</pre><p>
+  After compilation of Seed7 the Seed7 interpreter (s7.js) can
+  be started (in the directory 'seed7/prg') with:
+</p><pre class="indent">
+node s7.js hello
+</pre><p>
+  Note that the Emscripten version of Seed7 is experimental.
+  Due to limitations of Emscripten and missing Seed7 driver
+  libraries several things do not work as they should:
+</p><ul>
+<li>In Emscripten stdout is always line buffered.</li>
+<li>Reading from stdin is not possible (EOF is reached
+      immediately).</li>
+<li>JavaScript and Wasm currently do not support
+      synchronous I/O.</li>
+<li>Processes cannot be started.</li>
+<li>Sockets cannot be used.</li>
+<li>Graphics is supported from the browser, but
+      without synchronous I/O its usage is limited.</li>
+<li>Graphics from node.js would need libraries that
+      access win32 or X11 via native calls.</li>
+</ul><p>
+  When you execute
+</p><pre class="indent">
+node s7.js aS7Program
+</pre><p>
+  you might get an error like:
+</p><pre class="indent">
+exception thrown: RangeError: Maximum call stack size exceeded
+</pre><p>
+  In this case you can raise the allowed stack size. Execute
+  node.js as follows (chose a sufficient stack_size):
+</p><pre class="indent">
+node --stack_size=8192 s7.js chkstr
+</pre><p>
+  You can also raise the allowed stack size of node.js
+  permanently. Under Windows this is done with the command
+  editbin (from Visual-C). The stack is increased (in the
+  directory of node.exe) with:
+</p><pre class="indent">
+editbin /stack:33554432 node.exe
+</pre><p>
+  If the stack problems are triggered by emscripten the file
+  .emscripten in your home directory must be also adjusted.
+  Change the NODE_JS entry to:
+</p><pre class="indent">
+NODE_JS = ['node', '--stack_size=8192']
+</pre><p>
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
+  Keep in mind to use the same 'make' utility as before.
+</p></div>
+
+<div><br /><a name="build_COMPILING_UNDER_DOS_WITH_DJGPP"><h3>COMPILING UNDER DOS WITH DJGPP
+</h3></a><p>
+    You need gcc and make from DJGPP. Make sure that the search
+  PATH leads to gcc and make from DJGPP. Use the command line,
+  go to the 'seed7\src' directory and type:
+</p><pre class="indent">
+copy /Y mk_djgpp.mak makefile
+make depend
+make
+</pre><p>
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and it is also copied to prg/s7.exe.
+  If your get errors you can try mk_djgp2.mak instead.
+
+  DOS usually supports only files with 8.3 file names (8 Ascii
+  character name + dot + 3 Ascii character extension). The C
+  source and header files of Seed7 all use this convention.
+  Seed7 library files use longer file names. The DOS version of
+  Seed7 maps long file names like reference.s7i to REFERE~1.S7I.
+  Dosbox uses the same mapping so it should just work. Dosemu
+  uses a different mapping, so the libraries are not found.
+  In that case I suggest to copy files with long names in the
+  'lib' directory:
+</p><pre class="indent">
+copy reference.s7i REFERE~1.S7I
+copy hashsetof.s7i HASHSE~1.S7I
+copy environment.s7i ENVIRO~1.S7I
+copy null_file.s7i NULL_F~1.S7I
+copy external_file.s7i EXTERN~1.S7I
+copy clib_file.s7i CLIB_F~1.S7I
+copy enable_io.s7i ENABLE~1.S7i
+copy graph_file.s7i GRAPH_~1.S7I
+</pre><p>
+  Note that the DOS version of Seed7 currently does not support
+  graphics, sockets, processes and databases.
+</p><p>
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
+</p></div>
+
+<div><br /><a name="build_COMPILING_UNDER_MAC_OS"><h3>COMPILING UNDER MAC OS
+</h3></a><p>
+    To compile under Mac OS make sure that the command line
+  tools for Mac OS are installed. They can be obtained from Xcode
+  (Xcode Menu: Xcode->Preferences->Downloads). Alternatively
+  the command line tools can be downloaded directly. The tools
+  contain the C compilers clang and gcc. They also provide a
+  'make' utility. Depending on the version of OS X it might be
+  necessary to install also XQuartz (the X11 support of OS X).
+  In newer versions of OS X gcc is based on clang. You can use
+  this gcc, but it is not the original gcc. To obtain the
+  original gcc you have to download it from a repository like
+  Homebrew. To compile Seed7 with gcc (the clang based gcc or
+  the original gcc) start a terminal, go to the 'seed7/src'
+  directory and type:
+</p><pre class="indent">
+cp mk_osx.mak makefile
+make depend
+make
+</pre><p>
+  To compile Seed7 with clang use the following commands:
+</p><pre class="indent">
+cp mk_osxcl.mak makefile
+make depend
+make
+</pre><p>
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and the 'prg' directory will contain a
+  link to the executable.
+</p><p>
+  Under Mac OS the X11 library is usually found in
+  '/usr/X11R6/lib'. For unknown reasons the Xcode (Mac OS)
+  linker normally does not search libraries in '/usr/X11R6/lib'.
+  Therefore 'mk_osx.mak' defines the following linker flag:
+</p><pre class="indent">
+LDFLAGS = -L/usr/X11R6/lib
+</pre><p>
+  Besides this 'mk_osx.mak' is almost identical to
+  'mk_linux.mak' and 'makefile'. If the X11 library is in a
+  different directory you need to change the LDFLAGS value to
+  that directory.
+</p><p>
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
+</p></div>
+
+<div><br /><a name="build_COMPILING_UNDER_ANDROID"><h3>COMPILING UNDER ANDROID
+</h3></a><p>
+    To compile under Android you need to install the termux
+  app on the Android device. Afterwards use the following
+  commands:
+</p><pre class="indent">
+pkg install clang
+pkg install make
+pkg install git
+git clone https://github.com/ThomasMertes/seed7.git
+cd seed7/src
+</pre><p>
+  Under termux the command gcc refers also to clang. There are
+  two ways to compile Seed7 with termux. The first way uses
+  the makefile mk_clang.mak. To compile with mk_clang.mak use
+  the following commands:
+</p><pre class="indent">
+make -f mk_clang.mak depend
+make -f mk_clang.mak
+make -f mk_clang.mak s7c
+</pre><p>
+  The second way to compile Seed7 uses makefile. To compile
+  with makefile use the following commands:
+</p><pre class="indent">
+make depend
+make
+make s7c
+</pre><p>
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter <a class="link" href="#build_REMAINING_BUILD_STEPS">REMAINING BUILD STEPS</a>.
+  If you decided to use the 'make' parameter
+</p><pre class="indent">
+-f mk_cygw.mak
+</pre><p>
+  you must continue to use this parameter with 'make'.
+</p></div>
+
+<div><br /><a name="build_PACKAGES_FOR_DATABASES_UNDER_LINUX"><h3>PACKAGES FOR DATABASES UNDER LINUX
+</h3></a><p>
+    Seed7 supports database access. Therefore the client library
+  packages of the databases must be installed. On my computer
+  the names of the client library packages are:
+</p><table border="0" cellspacing="0">
+<tr><td>MariaDb:    <td>&nbsp;</td><td>mariadb-client</td></tr>
+<tr><td>Sqlite:     <td>&nbsp;</td><td>sqlite3</td></tr>
+<tr><td>PostgreSql: <td>&nbsp;</td><td>postgresql</td></tr>
+<tr><td>ODBC:       <td>&nbsp;</td><td>unixODBC</td></tr>
+<tr><td>Firebird:   <td>&nbsp;</td><td>firebird</td></tr>
+<tr><td>SQL Server: <td>&nbsp;</td><td>libtdsodbc0</td></tr>
+</table><p>
+  The client libraries are sufficient for Seed7 to access the
+  databases. Seed7 provides replacements for the C header files
+  used by the database client libraries. To use the original
+  header files under Linux database client development packages
+  must be installed. On my computer the names of the client
+  development packages are:
+</p><table border="0" cellspacing="0">
+<tr><td>MariaDb:    <td>&nbsp;</td><td>libmariadb-devel</td></tr>
+<tr><td>Sqlite:     <td>&nbsp;</td><td>sqlite3-devel</td></tr>
+<tr><td>PostgreSql: <td>&nbsp;</td><td>postgresql-devel</td></tr>
+<tr><td>ODBC:       <td>&nbsp;</td><td>unixODBC-devel</td></tr>
+<tr><td>Firebird:   <td>&nbsp;</td><td>libfbclient-devel</td></tr>
+<tr><td>SQL Server: <td>&nbsp;</td><td>freetds-devel</td></tr>
+</table></div>
+
+<div><br /><a name="build_WHAT_TO_DO_IF_ERRORS_HAPPEN_DURING_THE_COMPILATION"><h3>WHAT TO DO IF ERRORS HAPPEN DURING THE COMPILATION?
+</h3></a><p>
+    In most cases errors indicate that some development package
+  of your distribution is missing. If your operating system is
+  Linux, BSD or Unix not all development packages with header
+  files might be installed. In this case you get some errors
+  after typing 'make depend'.
+</p><ul>
+<li>Errors such as
+<pre class="indent">
+chkccomp.c:56:20: fatal error: stdlib.h: No such file or directory
+s7.c:30:20: fatal error: stdlib.h: No such file or directory
+</pre></li></ul><p>
+  indicate that the development package of the C library is
+  missing. I don't know the name of this package in your
+  distribution (under Ubuntu it has the name libc6-dev), but
+  you can search for C development libraries and header files.
+</p><ul>
+<li>Errors such as
+<pre class="indent">
+con_inf.c:54:18: error: term.h: No such file or directory
+kbd_inf.c:53:18: error: term.h: No such file or directory
+trm_inf.c:47:18: error: term.h: No such file or directory
+</pre></li></ul><p>
+  indicate that the curses or ncurses development package is
+  missing. I don't know the name of this package in your
+  distribution (under Ubuntu it has the name libncurses5-dev),
+  but you can search in your package manager for a curses/ncurses
+  package which mentions that it contains the header files.
+  To execute programs you need also to install the non-developer
+  package of curses/ncurses (in most cases it will already
+  be installed because it is needed by other packages).
+</p><ul>
+<li>Errors such as
+<pre class="indent">
+drw_x11.c:38:19: error: X11/X.h: No such file or directory
+drw_x11.c:39:22: error: X11/Xlib.h: No such file or directory
+drw_x11.c:40:23: error: X11/Xutil.h: No such file or directory
+drw_x11.c:45:24: error: X11/keysym.h: No such file or directory
+</pre></li></ul><p>
+  indicate that the X11 development package is missing.
+  Under Ubuntu this package has the name libx11-dev and is
+  described as: X11 client-side library (development headers)
+  Note that under X11 'client' means: The program which wants
+  to draw. A X11 'server' is the place where the drawings are
+  displayed. So you have to search for a X11 client developer
+  package with headers. If you use X11 in some way (you don't
+  do everything from the text console) the non-developer package
+  of X11 will already be installed.
+</p><ul>
+<li>Errors such as
+<pre class="indent">
+common.h:35:17: fatal error: gmp.h: No such file or directory
+</pre></li></ul><p>
+  indicate that the GMP development package is missing.
+  I don't know the name of this package in your distribution.
+  Under Linux Mint this package has the name libgmp-dev and is
+  described as: Multiprecision arithmetic library developers
+  tools.
+</p><ul>
+<li>Errors such as
+<pre class="indent">
+gcc chkccomp.c -o chkccomp
+chkccomp.c:28:10: fatal error: base.h: No such file or directory
+compilation terminated.
+</pre><p>
+  or
+</p><pre class="indent">
+del version.h
+process_begin: CreateProcess(NULL, del version.h, ...) failed.
+make (e=2): The system cannot find the file specified.
+mingw32-make: *** [clean] Error 2
+</pre></li></ul><p>
+  indicate that your makefile contains commands for the cmd.exe
+  (or command.com) Windows console, but your 'make' program uses
+  a Unix shell (/usr/bin/sh) to execute them. Either use a
+  makefile which uses Unix shell commands (e.g. mk_msys.mak or
+  mk_cygw.mak) or take care that the 'make' program uses cmd.exe
+  (or command.com) to execute the commands.
+</p><ul>
+<li>Errors such as
+<pre class="indent">
+s7.c:28:21: error: version.h: No such file or directory
+</pre></li></ul><p>
+  indicate that you forgot to run 'make depend' before running
+  'make'. Since such an attempt produces several unneeded files it
+  is necessary now to run 'make clean', 'make depend' and 'make'.
+</p><ul>
+<li>The 'make' utility sometimes writes an error like
+<pre class="indent">
+depend:1: *** multiple target patterns.  Stop.
+</pre></li></ul><p>
+   This indicates that an old 'depend' file (probably a relict of
+   an earlier 'make' command with a different makefile) does not
+   fit to the current makefile. To get rid of this error remove
+   the file 'depend'. After that the compilation process must be
+   started from scratch with 'make clean', 'make depend' and
+   'make'.
+</p><ul>
+<li>If you use bcc32 an error like
+<pre class="indent">
+Error E2194: Could not find file 'Studio\7.0\bin\bcc32.exe'
+</pre></li></ul><p>
+  can happen. This indicates that the search path where bcc32.exe
+  is found contains a space and the 'make' program is not capable
+  to handle spaces in a search path. Creating the batch file
+  'seed7\src\bcc32.bat' with the content
+</p><pre class="indent">
+bcc32.exe %*
+</pre><p>
+  helps. As alternate solution 'bcc32.exe' and 'bcc32.cfg' can
+  be copied to the 'seed7\src' directory (this solution should be
+  avoided, since it does not consider updates of bcc32).
+</p><ul>
+<li>If you use cl (from msvc) an error like
+<pre class="indent">
+NMAKE : fatal error U1077: 'cl' : return code '0xc0000135'
+</pre></li></ul><p>
+  indicates that you forgot to execute vcvars32 before executing
+  'make depend' or 'make'. A message box, which complains that
+  mspdb100.dll was not found, indicates also that vcvars32 was
+  not executed.
+</p><ul>
+<li>If you use clang under Windows an error like
+<pre class="indent">
+chkccomp.c:60:10: fatal error: 'stdlib.h' file not found
+</pre></li></ul><p>
+  indicates that the include file search path is not set up.
+  If clang is based on the VC toolchain it is necessary to
+  call vcvars32 from the commandline to set up the environment.
+</p><ul>
+<li>A linker error like
+<pre class="indent">
+ld: library not found for -lX11
+</pre></li></ul><p>
+  indicates that the linker was not able to find the X11 library.
+  The X11 library can have the name libX11.so (dynamic library)
+  or libX11.a (static library). You need to search for this
+  library (the dynamic library should normally be preferred).
+  After you found it the LDFLAGS definition in your makefile must
+  be changed. E.g.: If you found libX11.so in '/usr/X11R6/lib'
+  the LDFLAGS assignment should be changed from
+</p><pre class="indent">
+LDFLAGS =
+</pre><p>
+  to
+</p><pre class="indent">
+LDFLAGS = -L/usr/X11R6/lib
+</pre><ul>
+<li>If you use icc an error like
+<pre class="indent">
+.../compiler/include/math.h(1216):
+error: identifier "_LIB_VERSION_TYPE" is undefined
+  _LIBIMF_EXT _LIB_VERSIONIMF_TYPE _LIBIMF_PUBVAR _LIB_VERSIONIMF;
+</pre></li></ul><p>
+  indicates, that the math.h include file of icc uses
+  _LIB_VERSION_TYPE. Recently the support for_LIB_VERSION_TYPE
+  has been removed from glibc. Fortunately there is a definition
+  of _LIB_VERSION_TYPE in math.h just a few lines above in
+  a part deactivated by an #if. The #if line starts with:
+</p><pre class="indent">
+#if (!defined(__linux__) || !defined(__USE_MISC)) && ...
+</pre><p>
+  I added a condition and the line now starts with:
+</p><pre class="indent">
+#if (1 || !defined(__linux__) || !defined(__USE_MISC)) && ...
+</pre><p>
+  This fixed the error.
+</p><ul>
+<li>Other errors
+<p>
+  If you got other errors I would like to know about.
+  Please send an mail with detailed information to
+  seed7-users@lists.sourceforge.net or to my mail address,
+  which can be found at the Seed7 Homepage (look for Links).
+  The detailed information should include:
+</p><ul>
+<li>Operating system</li>
+<li>Distribution used</li>
+<li>C compiler</li>
+<li>The version of Seed7 you wanted to compile.</li>
+<li>The complete log of error messages</li>
+<li>The file src/version.h</li>
+</ul></li></ul></div>
+
+<div><br /><a name="build_WHAT_ABOUT_THE_WARNINGS_THAT_HAPPEN_DURING_THE_COMPILATION"><h3>WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
+</h3></a><p>
+    The warnings can usually be ignored. Seed7 is compiled with
+  the highest warning level (-Wall). Additionally there are also
+  some warnings requested (such as -Wstrict-prototypes) which are
+  not part of -Wall. The warnings can be classified to the
+  following cases:
+</p><ul>
+<li>Warnings about float used instead of double because of the
+      prototype: There are functions which use float parameters or
+      return float values. Gcc has the opinion that only double
+      parameters and double results should be used and warns about
+      that.</li>
+<li>Warnings about unused parameter 'arguments'. The primitive
+      actions all use one parameter named 'arguments'. This is
+      necessary to access primitive actions with function
+      pointers. Some primitive actions do not use 'arguments'
+      which causes this warning.</li>
+<li>Warnings about signed/unsigned instead of unsigned/signed
+      because of the prototype.</li>
+<li>Warnings about 'variablename' may be used uninitialized:
+      This are false complaints. Interestingly gcc is not able to
+      recognize if the states of two variables are connected.
+      Such as a global fail_flag variable and a local condition
+      variable (cond). The connection is: As long as fail_flag is
+      FALSE the cond variable is initialized. If the fail_flag
+      is TRUE the cond variable is not used and therefore it could
+      be in an uninitialized state. At several places I use such
+      connected variable states which are not recognized by the
+      gcc optimizer and are therefore flagged with a warning. I
+      accept such warnings in performance critical paths. I am not
+      willing to do "unnecessary" initializations in performance
+      critical paths of the program. At places that are not
+      performance critical I do some of this "unnecessary"
+      initializations just to avoid such warnings.</li>
+<li>Warnings about passing argument with different width due to
+      prototype: Some compilers write such warnings for formal
+      boolean (boolType) parameters and actual boolean arguments.
+      Since the types of parameter and argument are identical and
+      a prototype is specified this warning can be considered as
+      false alarm.</li>
+</ul></div>
+
+<div><br /><a name="build_WHAT_TO_DO_WITH_ERRORS_TRIGGERED_BY_SEED7_PROGRAMS"><h3>WHAT TO DO WITH ERRORS TRIGGERED BY SEED7 PROGRAMS?
+</h3></a><p>
+    Sometimes errors are triggered, when a Seed7 program runs.
+  This can happen because of reasons unrelated to Seed7.
+</p><pre class="indent">
+A run-time error like
+
+error while loading shared libraries: libtinfo.so.5:
+cannot open shared object file: No such file or directory
+</pre><p>
+  indicates that the library libtinfo.so.5 is missing. This
+  happened, when starting a program that was dynamically linked
+  to ncurses. Obviously the dependency of the ncurses package
+  was set wrong. I fixed this by downloading libtinfo.so.5 and
+  copying it to the directory /lib64.
+</p></div>
+
+<div><br /><a name="build_HOW_TO_VERIFY_THAT_THE_INTERPRETER_WORKS_CORRECT"><h3>HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
+</h3></a><p>
+    A comprehensive test of the s7 interpreter and the s7c
+  compiler can be done in the directory 'prg' with the command:
+</p><pre class="indent">
+./s7 chk_all
+</pre><p>
+  Under Windows using ./ might not work. Just omit the ./ and
+  type:
+</p><pre class="indent">
+s7 chk_all
+</pre><p>
+  The program 'chk_all' uses several check programs to do its
+  work. First a check program is interpreted and the output
+  is compared to a reference. Then the program is compiled and
+  executed and this output is also checked. Finally the C code
+  generated by the compiled compiler is checked against the C
+  code generated by the interpreted compiler. The checks of
+  the compiler are repeated with several compiler options. If
+  everything works correct the output is (after the usual
+  information from the interpreter):
+</p><pre class="indent">
+compiling the compiler - okay
+chkint ........... okay
+chkovf ........... okay
+chkflt ........... okay
+chkbin ........... okay
+chkchr ........... okay
+chkstr ........... okay
+chkidx ........... okay
+chkbst ........... okay
+chkarr ........... okay
+chkprc ........... okay
+chkbig ........... okay
+chkbool ........... okay
+chkbitdata ........... okay
+chkset ........... okay
+chkhsh ........... okay
+chkfil ........... okay
+chkexc ........... okay
+</pre><p>
+  This verifies that interpreter and compiler work correct.
+</p></div>
+
+<div><br /><a name="build_HOW_TO_USE_THE_GMP_LIBRARY"><h3>HOW TO USE THE GMP LIBRARY?
+</h3></a><p>
+    The functions to operate with bigInteger values are defined
+  in the file 'big_rtl.c'. This functions provide reasonable
+  performance for the usual bigInteger computations. If for some
+  reason the bigInteger performance of 'big_rtl.c' is not enough
+  it is possible to replace 'big_rtl.c' with 'big_gmp.c'.
+  The file 'big_gmp.c' uses the GMP library to do the bigInteger
+  computations. To use the GMP library use the following steps:
+</p><p>
+  You need the GMP library (one of gmp.lib/gmp.dll/gmp.a/gmp.so)
+  and the gmp.h include file.
+</p><p>
+  The use of GMP must be enabled explicit in the makefile.
+  In the makefile (that you use) is an echo statement with:
+</p><pre class="indent">
+#define USE_GMP 0
+</pre><p>
+  To enable GMP just change the 0 in this echo statement to 1.
+  Remember to do a
+</p><pre class="indent">
+make clean
+</pre><p>
+  after you changed the makefile. When Seed7 is compiled with
+</p><pre class="indent">
+make depend
+</pre><p>
+  the program chkccomp.c checks if it is possible to compile and
+  link a small test program with the GMP library. If the small
+  test program works correct the definitions to use 'big_gmp.c'
+  are written to version.h:
+</p><pre class="indent">
+#define BIG_GMP_LIBRARY 2
+#define BIGINT_LIB BIG_GMP_LIBRARY
+</pre><p>
+  Additionally the option to link the GMP library is added to
+  ADDITIONAL_SYSTEM_LIBS. ADDITIONAL_SYSTEM_LIBS can be found
+  in version.h:
+</p><pre class="indent">
+#define ADDITIONAL_SYSTEM_LIBS "  ...  -lgmp"
+</pre><p>
+  The file macros will also contain a definition of
+  ADDITIONAL_SYSTEM_LIBS:
+</p><pre class="indent">
+ADDITIONAL_SYSTEM_LIBS =  ...  -lgmp
+</pre><p>
+  If everything works as expected the GMP library will be
+  used automatically.
+</p><p>
+  If chkccomp.c does not succceed with the small GMP test
+  program the file version.h will contain definitions to use
+  'big_rtl.c' as bigInteger library:
+</p><pre class="indent">
+#define BIG_RTL_LIBRARY 1
+#define BIGINT_LIB BIG_RTL_LIBRARY
+</pre><p>
+  In this case either the include file gmp.h is missing or
+  the GMP library cannot be linked. By default chkccomp.c
+  uses "-lgmp" as option to link the GMP library. If a
+  different option should be used it can be added to the
+  makefile used to compile Seed7. The section to create
+  chkccomp.h: can be extended with a line like
+</p><pre class="indent">
+echo "#define BIGINT_LIBS \" option to link GMP \"" >> chkccomp.h
+</pre><p>
+  to write a definition of BIGINT_LIBS to the file chkccomp.h.
+</p><p>
+  The GMP library might be used by other libraries as well.
+  In some cases the other users of the GMP library use
+  custom memory allocations that may corrupt the memory.
+  If you see buffer overflow errors or corrupt heap memory
+  you should switch back to the default bigInteger library.
+</p></div>
+
+<div><br /><a name="build_SOURCE_FILES"><h2>SOURCE FILES
+</h2></a><hr />
+<p>
+    The C code of Seed7 can be grouped into several categories:
+  <a class="link" href="#build_INTERPRETER_MAIN">Interpreter main</a>, <a class="link" href="#build_PARSER">Parser</a>, <a class="link" href="#build_INTERPRETER_CORE">Interpreter core</a>, <a class="link" href="#build_PRIMITIVE_ACTION_FUNCTIONS">Primitive action functions</a>,
+  <a class="link" href="#build_GENERAL_HELPER_FUNCTIONS">General helper functions</a>, <a class="link" href="#build_RUNTIME_LIBRARY">Runtime library</a>, <a class="link" href="#build_DRIVERS">Drivers</a> and <a class="link" href="#build_COMPILER_DATA_LIBRARY">Compiler data
+  library</a>.
+</p></div>
+
+<div><br /><a name="build_INTERPRETER_MAIN"><h3>INTERPRETER MAIN
+</h3></a><p>
+    The main() function of the interpreter calls the Parser to
+  create an internal program representation and afterwards it calls
+  the Interpreter core to execute this program.
+</p><table border="0" cellspacing="0">
+<tr><td>s7.c      <td>&nbsp;</td><td>Main program of the s7 Interpreter.</td></tr>
+</table><p>
+  The interpreter main is licensed under the GPL.
+</p></div>
+
+<div><br /><a name="build_PARSER"><h3>PARSER
+</h3></a><p>
+    The Seed7 parser (analyzer) reads Seed7 programs from a
+  file or string and creates an internal representation for them.
+</p><table border="0" cellspacing="0">
+<tr><td>analyze.c <td>&nbsp;</td><td>Main procedure of the analyzing phase.</td></tr>
+<tr><td>syntax.c  <td>&nbsp;</td><td>Generate new syntax descriptions out of expressions.</td></tr>
+<tr><td>token.c   <td>&nbsp;</td><td>Procedures to maintain objects of type tokentype.</td></tr>
+<tr><td>parser.c  <td>&nbsp;</td><td>Main procedures of the parser.</td></tr>
+<tr><td>name.c    <td>&nbsp;</td><td>Enter an object in a specified declaration level.</td></tr>
+<tr><td>type.c    <td>&nbsp;</td><td>Parse and assign a type of an object.</td></tr>
+<tr><td>expr.c    <td>&nbsp;</td><td>Read the next expression from the source file.</td></tr>
+<tr><td>atom.c    <td>&nbsp;</td><td>Read the next object from the source file.</td></tr>
+<tr><td>object.c  <td>&nbsp;</td><td>Procedures to maintain objects and lists.</td></tr>
+<tr><td>scanner.c <td>&nbsp;</td><td>Read the next symbol from the source file.</td></tr>
+<tr><td>literal.c <td>&nbsp;</td><td>Read next char or string literal from the source file.</td></tr>
+<tr><td>numlit.c  <td>&nbsp;</td><td>Read the next number from the source file.</td></tr>
+<tr><td>findid.c  <td>&nbsp;</td><td>Procedures to maintain the identifier table.</td></tr>
+<tr><td>error.c   <td>&nbsp;</td><td>Submit normal compile time error messages.</td></tr>
+<tr><td>infile.c  <td>&nbsp;</td><td>Procedures to open, close and read the source file.</td></tr>
+<tr><td>libpath.c <td>&nbsp;</td><td>Procedures to manage the include library search path.</td></tr>
+<tr><td>symbol.c  <td>&nbsp;</td><td>Maintains the current symbol of the scanner.</td></tr>
+<tr><td>info.c    <td>&nbsp;</td><td>Procedures for compile time info.</td></tr>
+<tr><td>stat.c    <td>&nbsp;</td><td>Procedures for maintaining an analyze phase statistic.</td></tr>
+<tr><td>fatal.c   <td>&nbsp;</td><td>Submit fatal compile time error messages.</td></tr>
+<tr><td>match.c   <td>&nbsp;</td><td>Procedures to do static match on expressions.</td></tr>
+<tr><td>act_comp.c<td>&nbsp;</td><td>Primitive actions for the action type.</td></tr>
+<tr><td>prg_comp.c<td>&nbsp;</td><td>Primitive actions for the program type.</td></tr>
+</table><p>
+  The Seed7 parser is licensed under the GPL.
+</p></div>
+
+<div><br /><a name="build_INTERPRETER_CORE"><h3>INTERPRETER CORE
+</h3></a><p>
+    The interpreter core executes the internal representation
+  of a program. In doing so primitive action functions are called.
+</p><table border="0" cellspacing="0">
+<tr><td>exec.c    <td>&nbsp;</td><td>Main interpreter procedures.</td></tr>
+<tr><td>doany.c   <td>&nbsp;</td><td>Procedures to call several Seed7 functions from C.</td></tr>
+<tr><td>objutl.c  <td>&nbsp;</td><td>isit_.. and bld_.. functions for primitive datatypes.</td></tr>
+</table><p>
+  The interpreter core is licensed under the GPL.
+</p></div>
+
+<div><br /><a name="build_PRIMITIVE_ACTION_FUNCTIONS"><h3>PRIMITIVE ACTION FUNCTIONS
+</h3></a><p>
+    The *lib.c files contain interpreter functions which execute
+  "PRIMITIVE ACTIONS" (in doing so they can call functions from
+  the runtime library. The PRIMITIVE ACTION functions are called
+  from the interpreter core.
+</p><table border="0" cellspacing="0">
+<tr><td>actlib.c  <td>&nbsp;</td><td>ACTION (ACT_*) actions</td></tr>
+<tr><td>arrlib.c  <td>&nbsp;</td><td>array (ARR_*) actions</td></tr>
+<tr><td>biglib.c  <td>&nbsp;</td><td>bigInteger (BIG_*) actions</td></tr>
+<tr><td>binlib.c  <td>&nbsp;</td><td>binary (BIN_*) actions</td></tr>
+<tr><td>blnlib.c  <td>&nbsp;</td><td>boolean (BLN_*) actions</td></tr>
+<tr><td>bstlib.c  <td>&nbsp;</td><td>byte string (BST_*) actions</td></tr>
+<tr><td>chrlib.c  <td>&nbsp;</td><td>char (CHR_*) actions</td></tr>
+<tr><td>cmdlib.c  <td>&nbsp;</td><td>Directory, file and system command (CMD_*) actions</td></tr>
+<tr><td>conlib.c  <td>&nbsp;</td><td>Text console (CON_*) actions</td></tr>
+<tr><td>dcllib.c  <td>&nbsp;</td><td>Declaration (DCL_*) actions</td></tr>
+<tr><td>drwlib.c  <td>&nbsp;</td><td>Drawing (DRW_*) actions</td></tr>
+<tr><td>enulib.c  <td>&nbsp;</td><td>Enumeration (ENU_*) actions</td></tr>
+<tr><td>fillib.c  <td>&nbsp;</td><td>PRIMITIVE_FILE (FIL_*) actions</td></tr>
+<tr><td>fltlib.c  <td>&nbsp;</td><td>float (FLT_*) actions</td></tr>
+<tr><td>hshlib.c  <td>&nbsp;</td><td>hash (HSH_*) actions</td></tr>
+<tr><td>intlib.c  <td>&nbsp;</td><td>integer (INT_*) actions</td></tr>
+<tr><td>itflib.c  <td>&nbsp;</td><td>interface (ITF_*) actions</td></tr>
+<tr><td>kbdlib.c  <td>&nbsp;</td><td>Keyboard (KBD_*) actions</td></tr>
+<tr><td>lstlib.c  <td>&nbsp;</td><td>List (LST_*) actions</td></tr>
+<tr><td>pcslib.c  <td>&nbsp;</td><td>Process (PCS_*) actions</td></tr>
+<tr><td>pollib.c  <td>&nbsp;</td><td>Poll (POL_*) actions</td></tr>
+<tr><td>prclib.c  <td>&nbsp;</td><td>proc/statement (PRC_*) actions</td></tr>
+<tr><td>prglib.c  <td>&nbsp;</td><td>Program (PRG_*) actions</td></tr>
+<tr><td>reflib.c  <td>&nbsp;</td><td>reference (REF_*) actions</td></tr>
+<tr><td>rfllib.c  <td>&nbsp;</td><td>ref_list (RFL_*) actions</td></tr>
+<tr><td>sctlib.c  <td>&nbsp;</td><td>struct (SCT_*) actions</td></tr>
+<tr><td>setlib.c  <td>&nbsp;</td><td>set (SET_*) actions</td></tr>
+<tr><td>soclib.c  <td>&nbsp;</td><td>PRIMITIVE_SOCKET (SOC_*) actions</td></tr>
+<tr><td>sqllib.c  <td>&nbsp;</td><td>database and sqlStatement (SQL_*) actions</td></tr>
+<tr><td>strlib.c  <td>&nbsp;</td><td>string (STR_*) actions</td></tr>
+<tr><td>timlib.c  <td>&nbsp;</td><td>time and duration (TIM_*) actions</td></tr>
+<tr><td>typlib.c  <td>&nbsp;</td><td>type (TYP_*) actions</td></tr>
+<tr><td>ut8lib.c  <td>&nbsp;</td><td>utf8_file (UT8_*) actions</td></tr>
+</table><p>
+  The primitive action functions are licensed under the GPL.
+</p></div>
+
+<div><br /><a name="build_GENERAL_HELPER_FUNCTIONS"><h3>GENERAL HELPER FUNCTIONS
+</h3></a><p>
+    General helper functions are used by Parser, Interpreter
+  core and Primitive action functions.
+</p><table border="0" cellspacing="0">
+<tr><td>runerr.c  <td>&nbsp;</td><td>Runtime error and exception handling procedures.</td></tr>
+<tr><td>option.c  <td>&nbsp;</td><td>Reads and interprets the command line options.</td></tr>
+<tr><td>primitiv.c<td>&nbsp;</td><td>Table definitions for all primitive actions.</td></tr>
+<tr><td>syvarutl.c<td>&nbsp;</td><td>Maintains the interpreter system variables.</td></tr>
+<tr><td>traceutl.c<td>&nbsp;</td><td>Tracing and protocol procedures.</td></tr>
+<tr><td>actutl.c  <td>&nbsp;</td><td>Conversion of strings to ACTIONs and back.</td></tr>
+<tr><td>executl.c <td>&nbsp;</td><td>Initialization operation procedures used at runtime.</td></tr>
+<tr><td>blockutl.c<td>&nbsp;</td><td>Procedures to maintain objects of type blocktype.</td></tr>
+<tr><td>entutl.c  <td>&nbsp;</td><td>Procedures to maintain objects of type entitytype.</td></tr>
+<tr><td>identutl.c<td>&nbsp;</td><td>Procedures to maintain objects of type identtype.</td></tr>
+<tr><td>chclsutl.c<td>&nbsp;</td><td>Compute the type of a character very quickly.</td></tr>
+<tr><td>arrutl.c  <td>&nbsp;</td><td>Maintain objects of type arraytype.</td></tr>
+</table><p>
+  The general helper functions are licensed under the GPL.
+</p></div>
+
+<div><br /><a name="build_RUNTIME_LIBRARY"><h3>RUNTIME LIBRARY
+</h3></a><p>
+    The functions defined in the runtime library are called from
+  interpreted and compiled code (The Seed7 runtime library is
+  linked to every compiled Seed7 program).
+</p><table border="0" cellspacing="0">
+<tr><td>arr_rtl.c <td>&nbsp;</td><td>Primitive actions for the array type.</td></tr>
+<tr><td>bln_rtl.c <td>&nbsp;</td><td>Primitive actions for the boolean type.</td></tr>
+<tr><td>bst_rtl.c <td>&nbsp;</td><td>Primitive actions for the byte string type.</td></tr>
+<tr><td>chr_rtl.c <td>&nbsp;</td><td>Primitive actions for the integer type.</td></tr>
+<tr><td>cmd_rtl.c <td>&nbsp;</td><td>Directory, file and other system functions.</td></tr>
+<tr><td>con_rtl.c <td>&nbsp;</td><td>Primitive actions for console/terminal output.</td></tr>
+<tr><td>dir_rtl.c <td>&nbsp;</td><td>Primitive actions for the directory type.</td></tr>
+<tr><td>drw_rtl.c <td>&nbsp;</td><td>Platform idependent drawing functions.</td></tr>
+<tr><td>fil_rtl.c <td>&nbsp;</td><td>Primitive actions for the C library file type.</td></tr>
+<tr><td>flt_rtl.c <td>&nbsp;</td><td>Primitive actions for the float type.</td></tr>
+<tr><td>hsh_rtl.c <td>&nbsp;</td><td>Primitive actions for the hash map type.</td></tr>
+<tr><td>int_rtl.c <td>&nbsp;</td><td>Primitive actions for the integer type.</td></tr>
+<tr><td>itf_rtl.c <td>&nbsp;</td><td>Primitive actions for the interface type.</td></tr>
+<tr><td>pcs_rtl.c <td>&nbsp;</td><td>Platform idependent process handling functions.</td></tr>
+<tr><td>set_rtl.c <td>&nbsp;</td><td>Primitive actions for the set type.</td></tr>
+<tr><td>soc_rtl.c <td>&nbsp;</td><td>Primitive actions for the socket type.</td></tr>
+<tr><td>sql_rtl.c <td>&nbsp;</td><td>Database access functions.</td></tr>
+<tr><td>str_rtl.c <td>&nbsp;</td><td>Primitive actions for the string type.</td></tr>
+<tr><td>tim_rtl.c <td>&nbsp;</td><td>Time access using the C capabilities.</td></tr>
+<tr><td>ut8_rtl.c <td>&nbsp;</td><td>Primitive actions for the UTF-8 file type.</td></tr>
+<tr><td>heaputl.c <td>&nbsp;</td><td>Procedures for heap allocation and maintenance.</td></tr>
+<tr><td>numutl.c  <td>&nbsp;</td><td>Numeric utility functions.</td></tr>
+<tr><td>sigutl.c  <td>&nbsp;</td><td>Driver shutdown and signal handling.</td></tr>
+<tr><td>striutl.c <td>&nbsp;</td><td>Procedures to work with wide char strings.</td></tr>
+</table><p>
+  The runtime library is licensed under the LGPL.
+</p></div>
+
+<div><br /><a name="build_DRIVERS"><h3>DRIVERS
+</h3></a><p>
+    The drivers are also part of the runtime library.
+  Depending on operating system and C compiler the makefile
+  decides, which driver is used.
+</p><table border="0" cellspacing="0">
+<tr><td>big_gmp.c <td>&nbsp;</td><td>Alternate bigInteger library based on GMP.</td></tr>
+<tr><td>big_rtl.c <td>&nbsp;</td><td>Functions for the built-in bigInteger support.</td></tr>
+<tr><td>cmd_unx.c <td>&nbsp;</td><td>Command functions which call the Unix API.</td></tr>
+<tr><td>cmd_win.c <td>&nbsp;</td><td>Command functions which call the Windows API.</td></tr>
+<tr><td>con_cap.c <td>&nbsp;</td><td>Driver for termcap console access.</td></tr>
+<tr><td>con_con.c <td>&nbsp;</td><td>Driver for conio console access.</td></tr>
+<tr><td>con_cur.c <td>&nbsp;</td><td>Driver for curses console access.</td></tr>
+<tr><td>con_dos.c <td>&nbsp;</td><td>Driver for dos console access.</td></tr>
+<tr><td>con_inf.c <td>&nbsp;</td><td>Driver for terminfo console access.</td></tr>
+<tr><td>con_tcp.c <td>&nbsp;</td><td>Driver for termcap console access.</td></tr>
+<tr><td>con_wat.c <td>&nbsp;</td><td>Driver for watcom console access.</td></tr>
+<tr><td>con_win.c <td>&nbsp;</td><td>Driver for windows console access.</td></tr>
+<tr><td>con_x11.c <td>&nbsp;</td><td>Driver for X11 text console access.</td></tr>
+<tr><td>dir_dos.c <td>&nbsp;</td><td>Directory functions which call the Dos API.</td></tr>
+<tr><td>dir_win.c <td>&nbsp;</td><td>Directory functions which call the Windows API.</td></tr>
+<tr><td>dll_dos.c <td>&nbsp;</td><td>Dynamic link library support (dummy).</td></tr>
+<tr><td>dll_unx.c <td>&nbsp;</td><td>Dynamic link library (*.so) support.</td></tr>
+<tr><td>dll_win.c <td>&nbsp;</td><td>Dynamic link library (*.dll) support.</td></tr>
+<tr><td>drw_dos.c <td>&nbsp;</td><td>Graphic access using the dos capabilities.</td></tr>
+<tr><td>drw_win.c <td>&nbsp;</td><td>Graphic access using the windows capabilities.</td></tr>
+<tr><td>drw_x11.c <td>&nbsp;</td><td>Graphic access using the X11 capabilities.</td></tr>
+<tr><td>fil_dos.c <td>&nbsp;</td><td>File functions which call the Dos API.</td></tr>
+<tr><td>fil_unx.c <td>&nbsp;</td><td>File functions which call the Unix API.</td></tr>
+<tr><td>fil_win.c <td>&nbsp;</td><td>File functions which call the Windows API.</td></tr>
+<tr><td>gkb_rtl.c <td>&nbsp;</td><td>Generic keyboard support for graphics keyboard.</td></tr>
+<tr><td>gkb_win.c <td>&nbsp;</td><td>Keyboard and mouse access for windows.</td></tr>
+<tr><td>gkb_x11.c <td>&nbsp;</td><td>Keyboard and mouse access with X11 capabilities.</td></tr>
+<tr><td>kbd_inf.c <td>&nbsp;</td><td>Driver for terminfo keyboard access.</td></tr>
+<tr><td>kbd_poll.c<td>&nbsp;</td><td>Driver for terminfo keyboard access using poll().</td></tr>
+<tr><td>kbd_rtl.c <td>&nbsp;</td><td>Platform idependent console keyboard support.</td></tr>
+<tr><td>pcs_dos.c <td>&nbsp;</td><td>Process functions using the dos capabilities.</td></tr>
+<tr><td>pcs_unx.c <td>&nbsp;</td><td>Process functions which use the Unix API.</td></tr>
+<tr><td>pcs_win.c <td>&nbsp;</td><td>Process functions which use the Windows API.</td></tr>
+<tr><td>pol_dos.c <td>&nbsp;</td><td>Poll type and function using DOS capabilities.</td></tr>
+<tr><td>pol_sel.c <td>&nbsp;</td><td>Poll type and function based on select function.</td></tr>
+<tr><td>pol_unx.c <td>&nbsp;</td><td>Poll type and function using UNIX capabilities.</td></tr>
+<tr><td>soc_none.c<td>&nbsp;</td><td>Dummy functions for the socket type.</td></tr>
+<tr><td>sql_base.c<td>&nbsp;</td><td>Basic database functions.</td></tr>
+<tr><td>sql_db2.c <td>&nbsp;</td><td>Database access functions for Db2.</td></tr>
+<tr><td>sql_fire.c<td>&nbsp;</td><td>Database access functions for Firebird/InterBase.</td></tr>
+<tr><td>sql_ifx.c <td>&nbsp;</td><td>Database access functions for Informix.</td></tr>
+<tr><td>sql_lite.c<td>&nbsp;</td><td>Database access functions for SQLite.</td></tr>
+<tr><td>sql_my.c  <td>&nbsp;</td><td>Database access functions for MariaDB and MySQL.</td></tr>
+<tr><td>sql_oci.c <td>&nbsp;</td><td>Database access functions for OCI.</td></tr>
+<tr><td>sql_odbc.c<td>&nbsp;</td><td>Database access functions for the ODBC interface.</td></tr>
+<tr><td>sql_post.c<td>&nbsp;</td><td>Database access functions for PostgreSQL.</td></tr>
+<tr><td>sql_srv.c <td>&nbsp;</td><td>Database access functions for MS SQL-Server.</td></tr>
+<tr><td>sql_tds.c <td>&nbsp;</td><td>Database access functions for Tabular Data Stream.</td></tr>
+<tr><td>trm_cap.c <td>&nbsp;</td><td>Driver for termcap screen access.</td></tr>
+<tr><td>trm_inf.c <td>&nbsp;</td><td>Driver for terminfo screen access.</td></tr>
+<tr><td>tim_dos.c <td>&nbsp;</td><td>Time functions which call the Dos API.</td></tr>
+<tr><td>tim_unx.c <td>&nbsp;</td><td>Time functions which call the Unix API.</td></tr>
+<tr><td>tim_win.c <td>&nbsp;</td><td>Time functions which call the Windows API.</td></tr>
+</table><p>
+  The drivers are licensed under the LGPL.
+</p></div>
+
+<div><br /><a name="build_COMPILER_DATA_LIBRARY"><h3>COMPILER DATA LIBRARY
+</h3></a><p>
+    The functions in the compiler data library manipulate
+  compiler and interpreter internal data such as "type",
+  "ref_list" and "reference". The compiler data library is
+  linked to the interpreter and to some compiled Seed7
+  programs such as the Seed7 compiler (s7c) itself.
+</p><table border="0" cellspacing="0">
+<tr><td>typ_data.c<td>&nbsp;</td><td>Primitive actions for the type type.</td></tr>
+<tr><td>rfl_data.c<td>&nbsp;</td><td>Primitive actions for the ref_list type.</td></tr>
+<tr><td>ref_data.c<td>&nbsp;</td><td>Primitive actions for the reference type.</td></tr>
+<tr><td>listutl.c <td>&nbsp;</td><td>Procedures to maintain objects of type listtype.</td></tr>
+<tr><td>flistutl.c<td>&nbsp;</td><td>Procedures for free memory list maintenance.</td></tr>
+<tr><td>typeutl.c <td>&nbsp;</td><td>Procedures to maintain objects of type typetype.</td></tr>
+<tr><td>datautl.c <td>&nbsp;</td><td>Procedures to maintain objects of type identtype.</td></tr>
+</table><p>
+  The compiler data library is licensed under the GPL.
+</p></div>
+
+<div><br /><a name="build_PROGRAMS_USED_BY_THE_MAKEFILES"><h3>PROGRAMS USED BY THE MAKEFILES
+</h3></a><p>
+    The makefiles use programs to write definitions to
+  version.h . This are stand-alone programs that are not
+  linked to the interpreter or to the runtime library.
+</p><table border="0" cellspacing="0">
+<tr><td>chkccomp.c <td>&nbsp;</td><td>Check properties of C compiler and runtime.</td></tr>
+<tr><td>setpaths.c <td>&nbsp;</td><td>Write definitions for Seed7 specific paths.</td></tr>
+<tr><td>setwpath.c <td>&nbsp;</td><td>Set the search path (PATH variable) under Windows.</td></tr>
+<tr><td>sudo.c     <td>&nbsp;</td><td>Execute command as administrator under Windows.</td></tr>
+</table><p>
+  The programs used by the makefiles are licensed under the GPL.
+</p></div>
+
+<div><br /><a name="build_MACROS_WRITTEN_TO_VERSION.H_BY_THE_MAKEFILE"><h3>MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
+</h3></a><p>
+    One of the main jobs of the makefile is creating a version.h
+  file. This is done with 'make depend' (or 'gmake depend' or
+  'nmake depend'). The version.h file contains several #defines
+  which contain information over available features and the way
+  they are available. Other #defines can be found in config.h.
+</p><table border="1" cellspacing="0" cellpadding="5">
+<tr><td valign="top">PATH_DELIMITER: </td><td>This is the path delimiter character used by
+the command shell of the operating system. It
+is defined as '/' for most operating systems,
+except for Windows, where it is defined as
+'\\'. The PATH_DELIMITER macro is used when
+the functions popen() and system() are called.
+Seed7 programs are portable and do not need to
+distinguish between different path delimiter
+characters. Instead Seed7 programs must always
+use '/' as path delimiter.</td></tr>
+
+<tr><td valign="top">USE_WMAIN: </td><td>Defined if the main function is named wmain.
+This is a way to support Unicode command line
+arguments under Windows. An alternate way to
+support Unicode command line arguments under
+Windows uses the functions getUtf16Argv and
+freeUtf16Argv (both defined in "cmd_win.c").</td></tr>
+
+<tr><td valign="top">USE_WINMAIN: </td><td>Defined if the main function is named WinMain.</td></tr>
+
+<tr><td valign="top">SEARCH_PATH_DELIMITER: </td><td>The paths in the PATH environment
+variable are separated with this
+character. Linux/Unix/BSD use ':' and
+Windows uses ';'. If it is unknown at
+compile-time it is set to 0 and at
+run-time a function tries to guess it.</td></tr>
+
+<tr><td valign="top">AWAIT_WITH_POLL: </td><td>The function timAwait() uses the function
+poll() to implement waiting for a time.
+Only one #define of AWAIT_WITH_xxx is
+allowed.</td></tr>
+
+<tr><td valign="top">AWAIT_WITH_PPOLL: </td><td>The function timAwait() uses the function
+ppoll() to implement waiting for a time.
+Only one #define of AWAIT_WITH_xxx is
+allowed.</td></tr>
+
+<tr><td valign="top">AWAIT_WITH_SELECT: </td><td>The function timAwait() uses the function
+select() to implement waiting for a time.
+Only one #define of AWAIT_WITH_xxx is
+allowed.</td></tr>
+
+<tr><td valign="top">AWAIT_WITH_SIGACTION: </td><td>The function timAwait() uses the
+functions sigaction(), setitimer(),
+pause() and a signal handler function to
+catch a SIGALRM signal. Only one #define
+of AWAIT_WITH_xxx is allowed.</td></tr>
+
+<tr><td valign="top">AWAIT_WITH_SIGNAL: </td><td>The function timAwait() uses the functions
+signal(), setitimer(), pause() and a signal
+handler function to catch a SIGALRM signal.
+Only one #define of AWAIT_WITH_xxx is
+allowed.</td></tr>
+
+<tr><td valign="top">USE_TERMINFO: </td><td>Defined if the console should be used with
+terminfo. Only one #define of USE_TERMxxx is
+allowed.</td></tr>
+
+<tr><td valign="top">USE_TERMCAP: </td><td>Defined if the console should be used with
+termcap. Only one #define of USE_TERMxxx is
+allowed.</td></tr>
+
+<tr><td valign="top">SIGNAL_HANDLER_CAN_DO_IO: </td><td>Defined if I/O in signal handlers
+works.</td></tr>
+
+<tr><td valign="top">CONSOLE_WCHAR: </td><td>Defined if the console uses wide characters.</td></tr>
+
+<tr><td valign="top">CONSOLE_UTF8: </td><td>Defined if the console uses UTF-8 characters.</td></tr>
+
+<tr><td valign="top">OS_STRI_WCHAR: </td><td>Defined if the system calls (os_...) use
+wide characters (type wchar_t) for string
+and path parameters. In this case functions
+like _wgetcwd(), wreaddir() and _wstati64()
+together with types like 'WDIR', 'wdirent'
+and 'struct _stati64' must be used. It is
+therefore necessary to define the os_...
+macros accordingly.</td></tr>
+
+<tr><td valign="top">OS_STRI_UTF8: </td><td>Defined if the system calls (os_...) use
+UTF-8 characters (type char) for string and
+path parameters. In this case functions like
+getcwd(), readdir() and stat() together with
+types like 'DIR', 'dirent' and 'struct stat'
+must be used. If this functions and types do
+not use the POSIX/SUS names it is necessary
+to define the os_... macros accordingly.</td></tr>
+
+<tr><td valign="top">OS_STRI_USES_CODE_PAGE: </td><td>Defined if the system calls (os_...)
+use characters (type char) encoded
+with a code page (only the code pages
+437 and 850 are supported). In this
+case functions like getcwd(),
+readdir() and stat() together with
+types like 'DIR', 'dirent' and
+'struct stat' must be used.</td></tr>
+
+<tr><td valign="top">ESCAPE_SHELL_COMMANDS: </td><td>Depending on the shell/os the C
+functions system() and popen() need
+to get processed shell commands.
+If the macro is defined, a
+backslash (\) is added before the
+chars tab, space, !, ", $, &, ', (,
+), *, ;, <, >, ?, \, `, and |. If
+the macro is not defined (undef),
+the whole shell command is surrounded
+by double quotes (") if it contains
+a space, &, comma, ;, =, ^, ~ or the
+non-breaking space.</td></tr>
+
+<tr><td valign="top">QUOTE_WHOLE_SHELL_COMMAND: </td><td>Defined if shell commands,
+starting with double quotes ("),
+need to be quoted a again. In this
+case the shell command, together
+with its parameters, needs to be
+quoted with double quotes (The
+final command string starts with
+two double quotes).</td></tr>
+
+<tr><td valign="top">OBJECT_FILE_EXTENSION: </td><td>The extension used by the C compiler for
+object files (Several object files and
+libraries are linked together to an
+executable). Under Linux/Unix/BSD this
+is usually ".o" Under Windows this is
+".o" for MinGW and Cygwin, but ".obj"
+for MSVC and bcc32.</td></tr>
+
+<tr><td valign="top">LIBRARY_FILE_EXTENSION: </td><td>The extension used by the linker for
+static libraries. Several object files
+can be grouped to a library. Under
+Linux/Unix/BSD this is usually ".a".
+Under Windows this is ".a" for MinGW
+and Cygwin, but ".lib" for other linkers.</td></tr>
+
+<tr><td valign="top">EXECUTABLE_FILE_EXTENSION: </td><td>The extension which is used by the
+operating system for executables.
+Since executable extensions are not
+used under Linux/Unix/BSD it is ""
+for them. Under Windows the value
+".exe" is used.</td></tr>
+
+<tr><td valign="top">LINKED_PROGRAM_EXTENSION: </td><td>The extension of the file produced by
+compiling and linking a program.
+Normally this is identical to the
+EXECUTABLE_FILE_EXTENSION, but in case
+of Emscripten this is independent from
+the EXECUTABLE_FILE_EXTENSION.</td></tr>
+
+<tr><td valign="top">INTERPRETER_FOR_LINKED_PROGRAM: </td><td>Defines an interpreter that is
+used if compiler and linker
+create a file that must be
+interpreted.</td></tr>
+
+<tr><td valign="top">C_COMPILER: </td><td>Contains the command to call the stand-alone C
+compiler and linker (Most IDEs provide also a
+stand-alone compiler/linker). If the C compiler is
+called via a script C_COMPILER_SCRIPT is defined and
+C_COMPILER is not defined by a makefile. In that
+case C_COMPILER is defined by setpaths.c together
+with the flag CALL_C_COMPILER_FROM_SHELL.</td></tr>
+
+<tr><td valign="top">CPLUSPLUS_COMPILER: </td><td>Contains the command to call the stand-alone
+C++ compiler and linker.</td></tr>
+
+<tr><td valign="top">C_COMPILER_SCRIPT: </td><td>Relative path of a script that calls the
+stand-alone C compiler and linker.</td></tr>
+
+<tr><td valign="top">CALL_C_COMPILER_FROM_SHELL: </td><td>Flag that is defined if the
+stand-alone C compiler and linker is
+called via a script (defined with
+C_COMPILER_SCRIPT).</td></tr>
+
+<tr><td valign="top">CC_ERROR_FILDES: </td><td>File descriptor to which the C compiler writes
+errors. The MSVC stand-alone C compiler (CL)
+writes the error messages to standard output
+(file descriptor 1). The C compilers of
+Linux/Unix/BSD and the compilers from MinGW and
+Cygwin write the error messages to the error
+output (file descriptor 2).</td></tr>
+
+<tr><td valign="top">CC_FLAGS: </td><td>Contains C compiler flags, which should be used when
+C programs are compiled.</td></tr>
+
+<tr><td valign="top">CC_OPT_DEBUG_INFO: </td><td>Contains the C compiler option to add source
+level debugging information to the object file.</td></tr>
+
+<tr><td valign="top">CC_OPT_LINK_TIME_OPTIMIZATION: </td><td>Contains the compiler option for
+link time optimization (e.g.:
+"-flto").</td></tr>
+
+<tr><td valign="top">CC_OPT_NO_WARNINGS: </td><td>Contains the C compiler option to suppress
+all warnings.</td></tr>
+
+<tr><td valign="top">CC_OPT_OPTIMIZE_1: </td><td>C compiler option to optimize with a level
+of -O1.</td></tr>
+
+<tr><td valign="top">CC_OPT_OPTIMIZE_2: </td><td>C compiler option to optimize with a level
+of -O2.</td></tr>
+
+<tr><td valign="top">CC_OPT_OPTIMIZE_3: </td><td>C compiler option to optimize with a level
+of -O3.</td></tr>
+
+<tr><td valign="top">CC_OPT_TRAP_OVERFLOW: </td><td>C compiler option to generate traps for
+signed integer overflow. An integer overflow
+in the compiled program will trigger the
+signal defined with OVERFLOW_SIGNAL.
+CC_OPT_TRAP_OVERFLOW is not defined, if the
+C compiler does not support such an option
+or if traps would not lead to a performance
+advantage.</td></tr>
+
+<tr><td valign="top">CC_OPT_VERSION_INFO: </td><td>C compiler option to write the C compiler
+version information.</td></tr>
+
+<tr><td valign="top">CC_SOURCE_UTF8: </td><td>Defined if the C compiler accepts UTF-8 encoded
+file names in #line directives. The file names
+from #line directives are used by the debugger to
+allow source code debugging.</td></tr>
+
+<tr><td valign="top">CC_VERSION_INFO_FILEDES: </td><td>File descriptor to which the C compiler
+writes its version info.</td></tr>
+
+<tr><td valign="top">LINKER: </td><td>Defined if C_COMPILER does just invoke the stand-alone
+C compiler. In that case LINKER contains the command to
+call the stand-alone linker.</td></tr>
+
+<tr><td valign="top">LINKER_FLAGS: </td><td>Contains options for the stand-alone linker to link
+a compiled Seed7 program.</td></tr>
+
+<tr><td valign="top">LINKER_OPT_DEBUG_INFO: </td><td>Contains the linker option to add source
+level debugging information to the
+executable file. Many compiler/linker
+combinations don't need this option
+to do source level debugging.</td></tr>
+
+<tr><td valign="top">LINKER_OPT_NO_DEBUG_INFO: </td><td>Linker option to be used without
+source level debugging. This option
+can strip debug information (e.g.:
+"-Wl,--strip-debug").</td></tr>
+
+<tr><td valign="top">LINKER_OPT_OUTPUT_FILE: </td><td>Contains the linker option to provide the
+output filename (e.g.: "-o "). If no
+such option exists the definition of
+LINKER_OPT_OUTPUT_FILE should be omitted.</td></tr>
+
+<tr><td valign="top">LINKER_OPT_STATIC_LINKING: </td><td>Contains the linker option to force
+static linking (e.g.: "-static").</td></tr>
+
+<tr><td valign="top">SYSTEM_LIBS: </td><td>Options to link system libraries to a compiled
+program. This is intended for options to link
+libraries required by the Seed7 runtime library.
+E.g. libraries for math or socket.</td></tr>
+
+<tr><td valign="top">SYSTEM_BIGINT_LIBS: </td><td>Options to link system bigint libraries to a
+compiled program. This is intended for options
+to link libraries required by the Seed7
+bigint.s7i runtime library (e.g.: "-lgmp").</td></tr>
+
+<tr><td valign="top">SYSTEM_CONSOLE_LIBS: </td><td>Options to link system console libraries to
+a compiled program. This is intended for
+options to link libraries required by the
+Seed7 console runtime library
+(e.g.: "-lncurses").</td></tr>
+
+<tr><td valign="top">SYSTEM_DRAW_LIBS: </td><td>Options to link system graphic libraries to a
+compiled program. This is intended for options
+to link libraries required by the Seed7 graphic
+runtime library (e.g.: "-lX11").</td></tr>
+
+<tr><td valign="top">SYSTEM_DATABASE_LIBS: </td><td>Options to link system database libraries
+to a compiled program. This is intended for
+options to link libraries required by the
+Seed7 database runtime libraries
+(e.g.: "-lmysqlclient").</td></tr>
+
+<tr><td valign="top">SYSTEM_MATH_LIBS: </td><td>Options to link system mathematic libraries to
+a compiled program. This is intended for
+options to link libraries required by the
+Seed7 math.s7i runtime library. (e.g.: "-lm").</td></tr>
+
+<tr><td valign="top">DEFINE_COMMAND_LINE_TO_ARGV_W: </td><td>Defined if the function
+CommandLineToArgvW() is missing or
+buggy. In this case the definition
+of CommandLineToArgvW() in
+cmd_win.c is be used instead.</td></tr>
+
+<tr><td valign="top">SUPPORTS_PARTIAL_LINKING: </td><td>Defined in chkccomp.h, if partial
+linking (with the option -r) is
+supporded and the tool objcopy is
+present.</td></tr>
+
+<tr><td valign="top">ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS: </td><td>Defined in chkccomp.h, if
+system header files for X11
+and ncurses can be replaced
+with header files provided
+by Seed7.</td></tr>
+</table></div>
+
+<div><br /><a name="build_MACROS_WRITTEN_TO_VERSION.H_BY_CHKCCOMP.C"><h3>MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
+</h3></a><p>
+    The program chkccomp.c is compiled and executed by the
+  makefile. Chkccomp checks properties of C compiler, include
+  files, linker, run-time library and operating systems. The result
+  is written to version.h
+</p><table border="1" cellspacing="0" cellpadding="5">
+<tr><td valign="top">UNISTD_H_PRESENT: </td><td>TRUE if the include file <unistd.h> is present.</td></tr>
+
+<tr><td valign="top">HAS_SIGNAL: </td><td>TRUE if the function signal() is present.</td></tr>
+
+<tr><td valign="top">HAS_SIGACTION: </td><td>TRUE if the function sigaction() is present.</td></tr>
+
+<tr><td valign="top">SIGNAL_RESETS_HANDLER: </td><td>TRUE if a signal resets the signal
+handling to SIG_DFL. If it is FALSE the
+signal handler stays unchanged, if a
+signal is raised. If a signal handler is
+set with signal() an incoming signal might
+trigger a reset of the signal handling.
+This depends on the C run-time. If a
+signal handler is set with sigaction()
+an incoming signal always leaves the
+signal handling unchanged.</td></tr>
+
+<tr><td valign="top">restrict: </td><td>Defined if the C compiler does not support the
+restrict keyword.</td></tr>
+
+<tr><td valign="top">likely: </td><td>Macro that expands to a __builtin_expect expression,
+if __builtin_expect is supported by the C compiler.
+Without support of __builtin_expect the macro expands
+to its argument.</td></tr>
+
+<tr><td valign="top">unlikely: </td><td>Macro that expands to a __builtin_expect expression,
+if __builtin_expect is supported by the C compiler.
+Without support of __builtin_expect the macro expands
+to its argument.</td></tr>
+
+<tr><td valign="top">NORETURN: </td><td>Macro that expands to __attribute__ ((noreturn)),
+if the C compiler supports this attribute. Without
+support for this attribute the macro expands to analyze
+empty expression.</td></tr>
+
+<tr><td valign="top">MACRO_DEFS: </td><td>String with macro definitions for likely, unlikely
+and NORETURN.</td></tr>
+
+<tr><td valign="top">NO_SOCKETS Defined as -1. The meaning is: </td><td>There is no socket
+library.</td></tr>
+
+<tr><td valign="top">UNIX_SOCKETS Defined as 1. The meaning is: </td><td>The operating system
+uses Unix sockets.</td></tr>
+
+<tr><td valign="top">WINSOCK_SOCKETS Defined as 2. The meaning is: </td><td>The operating system
+uses Windows sockets.</td></tr>
+
+<tr><td valign="top">SOCKET_LIB: </td><td>Defines the socket library used. The value is one of
+NO_SOCKETS, UNIX_SOCKETS and WINSOCK_SOCKETS.</td></tr>
+
+<tr><td valign="top">NO_DIRECTORY: </td><td>Defined as -1. The meaning is: No header file with
+definitions for opendir(), readdir() and closedir()
+is present.</td></tr>
+
+<tr><td valign="top">DIRENT_DIRECTORY: </td><td>Defined as 1. The meaning is: The prototypes
+of opendir(), readdir() and closedir() are in
+the header file <dirent.h>.</td></tr>
+
+<tr><td valign="top">DIRECT_DIRECTORY: </td><td>Defined as 2. The meaning is: The prototypes
+of opendir(), readdir() and closedir() are in
+the header file <direct.h>.</td></tr>
+
+<tr><td valign="top">DIRDOS_DIRECTORY: </td><td>Defined as 3. The meaning is: The opendir(),
+readdir() and closedir() functions from
+dir_dos.c are used. This functions are based
+on _dos_findfirst() and _dos_findnext().</td></tr>
+
+<tr><td valign="top">DIRWIN_DIRECTORY: </td><td>Defined as 4. The meaning is: The wopendir(),
+wreaddir() and wclosedir() functions from
+dir_win.c are used. This functions are based
+on FindFirstFileW() and FindNextFileW().
+Additionally the file dir_win.c contains also
+definitions of opendir(), readdir() and
+closedir(). This functions are based on
+FindFirstFileA() and FindNextFileA().</td></tr>
+
+<tr><td valign="top">DIR_LIB: </td><td>Defines the directory library used. The value is one
+of NO_DIRECTORY, DIRENT_DIRECTORY, DIRECT_DIRECTORY,
+DIRDOS_DIRECTORY and DIRWIN_DIRECTORY.</td></tr>
+
+<tr><td valign="top">os_DIR: </td><td>Type to be used instead of 'DIR' under the target
+operating system. If not defined 'DIR' is used.</td></tr>
+
+<tr><td valign="top">os_dirent_struct: </td><td>Type to be used instead of 'struct dirent'
+under the target operating system. If not
+defined 'struct dirent' is used.</td></tr>
+
+<tr><td valign="top">os_opendir: </td><td>Function to be used instead of opendir() under the
+target operating system. If not defined opendir()
+is used.</td></tr>
+
+<tr><td valign="top">os_readdir: </td><td>Function to be used instead of readdir() under the
+target operating system. If not defined readdir()
+is used.</td></tr>
+
+<tr><td valign="top">os_closedir: </td><td>Function to be used instead of closedir() under
+the target operating system. If not defined
+closedir() is used.</td></tr>
+
+<tr><td valign="top">os_chdir: </td><td>Function to be used instead of chdir() under the
+target operating system. If not defined chdir()
+is used.</td></tr>
+
+<tr><td valign="top">OS_GETCWD_MAX_BUFFER_SIZE: </td><td>Defined if there is a maximum
+buffer size supported by
+os_getcwd().</td></tr>
+
+<tr><td valign="top">OS_GETCWD_RETURNS_SLASH: </td><td>Defined if os_getcwd() returns a
+path with slashes instead of
+PATH_DELIMITER.</td></tr>
+
+<tr><td valign="top">os_getcwd: </td><td>Function to be used instead of getcwd() under the
+target operating system. If not defined getcwd()
+is used.</td></tr>
+
+<tr><td valign="top">os_mkdir(path,mode): </td><td>Function to be used instead of mkdir()
+under the target operating system.
+If not defined mkdir() is used. Under
+Windows the mkdir() function usually
+has only one parameter while under
+Unix/Linux/BSD mkdir() has two
+parameters.</td></tr>
+
+<tr><td valign="top">os_rmdir: </td><td>Function to be used instead of rmdir() under the
+target operating system. If not defined rmdir()
+is used.</td></tr>
+
+<tr><td valign="top">os_chmod: </td><td>Function to be used instead of chmod() under the
+target operating system. If not defined chmod() is
+used.</td></tr>
+
+<tr><td valign="top">os_chown(name,uid,gid): </td><td>Function to be used instead of chown()
+under the target operating system.
+If not defined chown() is used. If
+chown() is not supported this macro is
+defined empty.</td></tr>
+
+<tr><td valign="top">os_utimbuf_struct: </td><td>Type to be used instead of
+'struct utimbuf' under the target operating
+system. If not defined 'struct utimbuf' is
+used.</td></tr>
+
+<tr><td valign="top">USE_ALTERNATE_UTIME: </td><td>Defined if alternate_utime should be
+used instead of os_utime_orig.</td></tr>
+
+<tr><td valign="top">os_utime_orig: </td><td>Defined if the function alternate_utime is
+used instead of the function defined with
+os_utime. In this case os_utime_orig refers to
+the original os_utime function and the macro
+os_utime is redefined to refer to
+alternate_utime.</td></tr>
+
+<tr><td valign="top">os_utime: </td><td>Function to be used instead of utime() under the
+target operating system. If not defined utime() is
+used.</td></tr>
+
+<tr><td valign="top">os_remove: </td><td>Function to be used instead of remove() under the
+target operating system. If not defined remove() is
+used.</td></tr>
+
+<tr><td valign="top">os_rename: </td><td>Function to be used instead of rename() under the
+target operating system. If not defined rename() is
+used.</td></tr>
+
+<tr><td valign="top">os_system: </td><td>Function to be used instead of system() under the
+target operating system. If not defined system() is
+used.</td></tr>
+
+<tr><td valign="top">os_fopen: </td><td>Function to be used instead of fopen() under the
+target operating system. If not defined fopen() is
+used.</td></tr>
+
+<tr><td valign="top">os_popen: </td><td>Function to be used instead of popen() under the
+target operating system. If not defined popen() is
+used.</td></tr>
+
+<tr><td valign="top">os_pclose: </td><td>Function to be used instead of pclose() under the
+target operating system. If not defined pclose() is
+used.</td></tr>
+
+<tr><td valign="top">DEFINE_WGETENV: </td><td>Defined if an own implementation of wgetenv
+should be used.</td></tr>
+
+<tr><td valign="top">os_getenv: </td><td>Function to be used instead of getenv() under the
+target operating system. If not defined getenv() is
+used.</td></tr>
+
+<tr><td valign="top">os_setenv: </td><td>Function to be used instead of setenv() under the
+target operating system. If not defined setenv() is
+used.</td></tr>
+
+<tr><td valign="top">FILENO_WORKS_FOR_NULL: </td><td>TRUE if the fileno() function works
+for NULL and returns -1.</td></tr>
+
+<tr><td valign="top">FOPEN_SUPPORTS_CLOEXEC_MODE: </td><td>TRUE if fopen() supports a
+mode of "e".</td></tr>
+
+<tr><td valign="top">HAS_FCNTL_SETFD_CLOEXEC: </td><td>TRUE if fcntl() supports
+F_SETFD,FD_CLOEXEC.</td></tr>
+
+<tr><td valign="top">HAS_GETADDRINFO: </td><td>TRUE if the function getaddrinfo() is
+available.</td></tr>
+
+<tr><td valign="top">HAS_PIPE2: </td><td>TRUE if the function pipe2() is available.</td></tr>
+
+<tr><td valign="top">HAS_SNPRINTF: </td><td>TRUE if the function snprintf() is available.</td></tr>
+
+<tr><td valign="top">HAS_VSNPRINTF: </td><td>TRUE if the function vsnprintf() is available.</td></tr>
+
+<tr><td valign="top">HAS_POPEN: </td><td>TRUE if the function popen() is available.</td></tr>
+
+<tr><td valign="top">STAT_MISSING: </td><td>Defined if the function stat() is missing.
+This macro is only used in chkccomp.c.</td></tr>
+
+<tr><td valign="top">os_fstat: </td><td>Function to be used instead of fstat() under the
+target operating system. If not defined fstat()
+is used.</td></tr>
+
+<tr><td valign="top">os_lstat: </td><td>Function to be used instead of lstat() under the
+target operating system. If not defined lstat()
+is used.</td></tr>
+
+<tr><td valign="top">os_stat: </td><td>Function to be used instead of stat() under the
+target operating system. If not defined stat()
+is used.</td></tr>
+
+<tr><td valign="top">os_stat_struct: </td><td>Type to be used for the output parameter of
+os_stat() and os_lstat(). If not defined
+'struct stat' is used.</td></tr>
+
+<tr><td valign="top">os_fstat_struct: </td><td>Type to be used for the output parameter of
+os_fstat(). If not defined 'os_stat_struct'
+is used.</td></tr>
+
+<tr><td valign="top">os_fseek: </td><td>Function to be used instead of fseek() under the
+target operating system. If it is not defined
+os_fsetpos() or os_lseek() are used.</td></tr>
+
+<tr><td valign="top">os_ftell: </td><td>Function to be used instead of ftell()  under the
+target operating system. If it is not defined
+os_fgetpos() or os_lseek() are used.</td></tr>
+
+<tr><td valign="top">os_off_t: </td><td>Type used for os_fseek(), os_ftell(), offsetSeek(),
+offsetTell() and seekFileLength().</td></tr>
+
+<tr><td valign="top">CHAR_SIZE: </td><td>Size of a char in bits.</td></tr>
+
+<tr><td valign="top">SHORT_SIZE: </td><td>Size of a short int in bits.</td></tr>
+
+<tr><td valign="top">INT_SIZE: </td><td>Size of an int in bits.</td></tr>
+
+<tr><td valign="top">LONG_SIZE: </td><td>Size of a long int in bits.</td></tr>
+
+<tr><td valign="top">INTTYPE_SIZE: </td><td>Size of an inttype in bits (either 32 or 64).</td></tr>
+
+<tr><td valign="top">FLOAT_SIZE: </td><td>Size of a float in bits.</td></tr>
+
+<tr><td valign="top">DOUBLE_SIZE: </td><td>Size of a double in bits.</td></tr>
+
+<tr><td valign="top">FLOATTYPE_SIZE: </td><td>Size of an inttype in bits (either FLOAT_SIZE or DOUBLE_SIZE).</td></tr>
+
+<tr><td valign="top">POINTER_SIZE: </td><td>Size of a pointer in bits.</td></tr>
+
+<tr><td valign="top">OS_OFF_T_SIZE: </td><td>Size of os_off_t in bits.</td></tr>
+
+<tr><td valign="top">TIME_T_SIZE: </td><td>Size of time_t in bits.</td></tr>
+
+<tr><td valign="top">INT_RANGE_IN_FLOATTYPE_MAX:</td><td>
+Maximum from the continuous range of integers that map to floats.
+All integers from -INT_RANGE_IN_FLOATTYPE_MAX to
+INT_RANGE_IN_FLOATTYPE_MAX can be converted to 'floatType'
+and back to 'intType' without loss.</td></tr>
+
+<tr><td valign="top">MINIMUM_TRUNC_ARGUMENT:</td><td>
+Minimum value that trunc() or round() can convert.
+Values below MINIMUM_TRUNC_ARGUMENT raise RANGE_ERROR,
+if trunc() or round() is applied to them.</td></tr>
+
+<tr><td valign="top">MAXIMUM_TRUNC_ARGUMENT:</td><td>
+Maximum value that trunc() or round() can convert.
+Values above MAXIMUM_TRUNC_ARGUMENT raise RANGE_ERROR,
+if trunc() or round() is applied to them.</td></tr>
+
+<tr><td valign="top">NULL_DEVICE: </td><td>Name of the NULL device.
+Under Linux/Unix/BSD this is "/dev/null".
+Under Windows this is "NUL:".</td></tr>
+
+<tr><td valign="top">OS_PATH_HAS_DRIVE_LETTERS: </td><td>TRUE if the absolute paths of
+the operating system use drive
+letters. Determined by chkccomp.c.</td></tr>
+
+<tr><td valign="top">REDIRECT_FILDES_1: </td><td>Shell parameter to redirect to the file
+descriptor 1. Under Linux/Unix/BSD and
+Windows this is ">". The file to which the
+standard output should be redirected must
+be appended. E.g.: >myFile.</td></tr>
+
+<tr><td valign="top">REDIRECT_FILDES_2: </td><td>Shell parameter to redirect to the file
+descriptor 2. Under Linux/Unix/BSD and
+Windows this is "2>". The file to which
+the error output should be redirected must
+be appended. E.g.: 2>myFile.</td></tr>
+
+<tr><td valign="top">FTELL_SUCCEEDS_FOR_PIPE: </td><td>The ftell() function should return -1
+if it is called with a pipe (since a
+pipe is not seekable). This macro is
+TRUE if ftell() succeeds for pipes
+(it does not return -1). In this case
+the function improved_ftell is used
+which returns -1 if the check with
+fstat() does not verify that the
+parameter is a regular file.</td></tr>
+
+<tr><td valign="top">FSEEK_SUCCEEDS_FOR_STDIN: </td><td>TRUE if fseek(stdin, 0,  SEEK_SET)
+succeeds (stdin is not redirected).</td></tr>
+
+<tr><td valign="top">FOPEN_OPENS_DIRECTORIES: </td><td>TRUE if fopen() is able to open
+directories (it does not return NULL).</td></tr>
+
+<tr><td valign="top">FWRITE_WRONG_FOR_READ_ONLY_FILES: </td><td>TRUE if fwrite() to a
+read only file succeeds (it
+does not return 0).</td></tr>
+
+<tr><td valign="top">REMOVE_FAILS_FOR_EMPTY_DIRS: </td><td>TRUE if remove() cannot remove
+an empty directory (it does not
+return 0).</td></tr>
+
+<tr><td valign="top">HOME_DIR_ENV_VAR: </td><td>Name of the environment variable that contains
+the path of the home directory.</td></tr>
+
+<tr><td valign="top">INCLUDE_SYS_UTIME: </td><td>Defined if utime() respectively _wutime()
+is defined in <sys/utime.h>.</td></tr>
+
+<tr><td valign="top">USE_ALTERNATE_UTIME: </td><td>Defined if utime() is not able to change
+the access and modification times of a
+directory (utime() does not return 0 and
+errno has the value EACCES).</td></tr>
+
+<tr><td valign="top">RSHIFT_DOES_SIGN_EXTEND: </td><td>The C standard specifies that the
+right shift of signed integers is
+implementation defined, if the
+shifted values are negative. The
+macro is TRUE if the sign of negative
+signed integers is preserved with a
+right shift ( -1 >> 1 == -1 ).</td></tr>
+
+<tr><td valign="top">TWOS_COMPLEMENT_INTTYPE: </td><td>TRUE if signed integers are
+represented as twos complement
+numbers. This allows some simplified
+range checks in compiled programs.
+This macro is defined if
+~(-1) == 0 holds.</td></tr>
+
+<tr><td valign="top">ONES_COMPLEMENT_INTTYPE: </td><td>TRUE if signed integers are
+represented as ones complement
+numbers. This macro is currently
+not used.</td></tr>
+
+<tr><td valign="top">LITTLE_ENDIAN_INTTYPE: </td><td>TRUE if the byte ordering of
+integers is little endian.</td></tr>
+
+<tr><td valign="top">BIG_ENDIAN_INTTYPE: </td><td>TRUE if the byte ordering of integers
+is big endian.</td></tr>
+
+<tr><td valign="top">MALLOC_ALIGNMENT: </td><td>Contains the number of zero bits (counting
+from the least significant bit) in an address
+returned by malloc(). The memory management
+in the parser uses this alignment.</td></tr>
+
+<tr><td valign="top">UNALIGNED_MEMORY_ACCESS_OKAY: </td><td>Defined if integers can be read
+from unaligned memory positions.
+This macro is currently not used.</td></tr>
+
+<tr><td valign="top">NO_EMPTY_STRUCTS: </td><td>Defined if the C compiler considers an empty
+struct as syntax error.</td></tr>
+
+<tr><td valign="top">HAS_GETRLIMIT: </td><td>TRUE if the functions getrlimit() and
+setrlimit() are available.</td></tr>
+
+<tr><td valign="top">MEMCMP_RETURNS_SIGNUM: </td><td>TRUE if memcmp() returns only the
+values -1, 0 and 1.</td></tr>
+
+<tr><td valign="top">HAS_WMEMCMP: </td><td>TRUE if the function wmemcmp() is available.</td></tr>
+
+<tr><td valign="top">WMEMCMP_RETURNS_SIGNUM: </td><td>TRUE if wmemcmp() returns only the
+values -1, 0 and 1.</td></tr>
+
+<tr><td valign="top">HAS_WMEMCHR: </td><td>TRUE if the function wmemchr() is available.</td></tr>
+
+<tr><td valign="top">HAS_WMEMSET: </td><td>TRUE if the function wmemset() is available.</td></tr>
+
+<tr><td valign="top">HAS_SETJMP: </td><td>TRUE if the functions setjmp() and
+longjmp() are available.</td></tr>
+
+<tr><td valign="top">HAS_SIGSETJMP: </td><td>TRUE if the functions sigsetjmp() and
+siglongjmp() are available. If it is FALSE
+the functions setjmp() and longjmp() must be
+used instead.</td></tr>
+
+<tr><td valign="top">HAS_SYMBOLIC_LINKS: </td><td>TRUE if the operating system supports
+symlinks.</td></tr>
+
+<tr><td valign="top">HAS_READLINK: </td><td>TRUE if the function readlink() is available.</td></tr>
+
+<tr><td valign="top">HAS_FIFO_FILES: </td><td>TRUE if the operating system supports fifo
+(first in first out) files.</td></tr>
+
+<tr><td valign="top">HAS_SELECT: </td><td>TRUE if the function select() is available.</td></tr>
+
+<tr><td valign="top">HAS_POLL: </td><td>TRUE if the function poll() is available.</td></tr>
+
+<tr><td valign="top">HAS_MMAP: </td><td>TRUE if the function mmap() is available.</td></tr>
+
+<tr><td valign="top">INT_DIV_BY_ZERO_POPUP: </td><td>Defined if an integer division by zero
+may trigger a popup window. Consequently
+chkccomp.c defines CHECK_INT_DIV_BY_ZERO,
+to avoid the popup.</td></tr>
+
+<tr><td valign="top">DO_SIGFPE_WITH_DIV_BY_ZERO: </td><td>TRUE if SIGFPE should be raised
+with an integer division by zero.
+If it is FALSE raise(SIGFPE) can
+be called instead. Under Windows it
+is necessary to trigger SIGFPE this
+way, to assure that the debugger can
+catch it. If the compiler (s7c)
+is called with the option -e the
+function triggerSigfpe() is used to
+raise SIGFPE, if an uncaught
+EXCEPTION occurs.</td></tr>
+
+<tr><td valign="top">CHECK_INT_DIV_BY_ZERO:</td><td>
+TRUE if integer divisions must be checked for a division by
+zero. This applies to the division operations div and mdiv.
+The generated C code should, if a division by zero occurs,
+raise the exception NUMERIC_ERROR instead of doing the
+illegal divide operation.</td></tr>
+
+<tr><td valign="top">CHECK_INT_DIV_ZERO_BY_ZERO:</td><td>
+TRUE if the C expression 0/0 might not trigger SIGFPE.
+C compilers assume that so called "undefined behavior" will
+not happen. According to the C standard a division by 0
+triggers undefined behavior. This way a C compiler is allowed
+to optimize the expressions 0/0 and 0/variable to 0. Likewise
+the expression variable/variable can be optimized to 1.
+In Seed7 a division by zero is defined behavior, since it
+raises the exception NUMERIC_ERROR. This configuration
+setting applies to the division operations div and mdiv.
+The generated C code should, if a division by zero occurs,
+raise the exception NUMERIC_ERROR instead of allowing the
+C compiler to do its optimization.</td></tr>
+
+<tr><td valign="top">CHECK_INT_REM_BY_ZERO:</td><td>
+TRUE if integer remainder must be checked for a division by
+zero. This applies to the division operations rem and mod.
+The generated C code should, if a remainder by zero occurs,
+raise the exception NUMERIC_ERROR instead of doing the
+illegal divide operation.</td></tr>
+
+<tr><td valign="top">CHECK_INT_REM_ZERO_BY_ZERO:</td><td>
+TRUE if the C expression 0%0 might not trigger SIGFPE.
+C compilers assume that so called "undefined behavior" will
+not happen. According to the C standard a division by 0
+triggers undefined behavior. This way a C compiler is allowed
+to optimize the expressions 0%0 and 0%variable to 0. Likewise
+the expression variable%variable can be optimized to 1.
+In Seed7 a division by zero is defined behavior, since it
+raises the exception NUMERIC_ERROR. This configuration
+setting applies to the division operations rem and mod.
+The generated C code should, if a division by zero occurs,
+raise the exception NUMERIC_ERROR instead of allowing the
+C compiler to do its optimization.</td></tr>
+
+<tr><td valign="top">TURN_OFF_FP_EXCEPTIONS: </td><td>In Seed7 floating point errors such
+as the division by zero should create
+values like Infinite and NaN which
+are defined in IEEE 754. Some C
+compilers/libraries raise exceptions
+for floating point errors. This macro
+is used to turn off such a behaviour.</td></tr>
+
+<tr><td valign="top">DEFINE_MATHERR_FUNCTION: </td><td>Some C compilers/libraries call the
+matherr() function for every floating
+point error and terminate the program,
+if the function is not present.
+To get the Seed7 behaviour of using
+the IEEE 754 values of Infinite and
+NaN this function must be defined and
+it must return 1.</td></tr>
+
+<tr><td valign="top">DEFINE__MATHERR_FUNCTION: </td><td>Some C compilers/libraries call the
+_matherr() function for every floating
+point error and terminate the program,
+if the function is not present.
+To get the Seed7 behaviour of using
+the IEEE 754 values of Infinite and
+NaN this function must be defined and
+it must return 1.</td></tr>
+
+<tr><td valign="top">HAS_LOG2: </td><td>TRUE if the function log2() is available.</td></tr>
+
+<tr><td valign="top">HAS_CBRT: </td><td>TRUE if the function cbrt() is available.</td></tr>
+
+<tr><td valign="top">FLOAT_NAN_COMPARISON_OKAY: </td><td>TRUE if comparisons between NaN and
+any other value return FALSE.
+Comparison refers to comparisons with
+==  <  >  <=  or  >= .</td></tr>
+
+<tr><td valign="top">FLOAT_ZERO_COMPARISON_OKAY: </td><td>TRUE if comparisons consider negative
+zero as equal to positive zero.
+FALSE if this is not the case.
+Comparison refers to comparisons with
+==  <  >  <=  or  >= .</td></tr>
+
+<tr><td valign="top">POW_OF_NAN_OKAY: </td><td>TRUE if pow(NaN, 0.0) returns 1.0 and
+pow(NaN, anyOtherExponent) returns NaN.</td></tr>
+
+<tr><td valign="top">POW_OF_ZERO_OKAY: </td><td>TRUE if the pow() function works correct
+for a base of zero (0.0 or -0.0) and a negative
+exponent.</td></tr>
+
+<tr><td valign="top">POW_OF_NEGATIVE_OKAY: </td><td>TRUE if the pow() function works
+correct, if the base is negative.</td></tr>
+
+<tr><td valign="top">POW_OF_ONE_OKAY: </td><td>TRUE if the pow() function always returns
+1.0 if the base is 1.0 (Even for an exponent
+of NaN).</td></tr>
+
+<tr><td valign="top">POW_EXP_NAN_OKAY: </td><td>TRUE if the pow() function always returns
+NaN if the exponent is NaN and the base is
+not 1.0 (pow(1.0, NaN) should return 1.0).</td></tr>
+
+<tr><td valign="top">POW_EXP_MINUS_INFINITY_OKAY: </td><td>TRUE if the pow() function works
+correct for an exponent of minus
+infinity.</td></tr>
+
+<tr><td valign="top">LOG_OF_NAN_OKAY: </td><td>TRUE if log(NaN) returns NaN.</td></tr>
+
+<tr><td valign="top">LOG_OF_ZERO_OKAY: </td><td>TRUE if log(0.0) returns minus infinity.</td></tr>
+
+<tr><td valign="top">LOG_OF_NEGATIVE_OKAY: </td><td>TRUE if log() of a negative number
+returns NaN.</td></tr>
+
+<tr><td valign="top">LOG10_OF_NAN_OKAY: </td><td>TRUE if log10(NaN) returns NaN.</td></tr>
+
+<tr><td valign="top">LOG10_OF_ZERO_OKAY: </td><td>TRUE if log10(0.0) returns minus
+infinity.</td></tr>
+
+<tr><td valign="top">LOG10_OF_NEGATIVE_OKAY: </td><td>TRUE if log10() of a negative number
+returns NaN.</td></tr>
+
+<tr><td valign="top">LOG2_OF_NAN_OKAY: </td><td>TRUE if log2(NaN) returns NaN.</td></tr>
+
+<tr><td valign="top">LOG2_OF_ZERO_OKAY: </td><td>TRUE if log2(0.0) returns minus infinity.</td></tr>
+
+<tr><td valign="top">LOG2_OF_NEGATIVE_OKAY: </td><td>TRUE if log2() of a negative number
+returns NaN.</td></tr>
+
+<tr><td valign="top">FLOAT_ZERO_DIV_ERROR:</td><td>
+TRUE if floating point divisions by zero cause compilation errors.
+Some C compilers check if the dividend is 0.0 and classify a
+floating point division by zero as fatal compilation error.
+Some C compilers even trigger wrong behavior if the dividend
+is 0.0. In this case FLOAT_ZERO_DIV_ERROR is also TRUE.
+If FLOAT_ZERO_DIV_ERROR is TRUE the generated C code should
+avoid divisions by zero and generate code to return Infinity,
+-Infinity or NaN instead.</td></tr>
+
+<tr><td valign="top">CHECK_FLOAT_DIV_BY_ZERO:</td><td>
+TRUE if floating point divisions by zero don't conform to IEEE 754.
+According to IEEE 754 a floating point division by zero should
+return Infinity, -Infinity or NaN. In this case the compiler
+generates C code, which checks all float divisions ( / and /:= )
+for division by zero. The generated C code should return
+Infinity, -Infinity or NaN instead of doing the divide operation.</td></tr>
+
+<tr><td valign="top">PRINTF_MAXIMUM_FLOAT_PRECISION: </td><td>Precision up to which writing a
+float with printf (using format
+%e or %f) will always work ok.
+This can be defined in a makefile
+and is used only in chkccomp.c.</td></tr>
+
+<tr><td valign="top">PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION: </td><td>Precision up to which
+writing a float with printf
+(using format %e) will
+always work ok.</td></tr>
+
+<tr><td valign="top">LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION: </td><td>Defined if a printf
+(using format %e) with a
+larger precision crashes.
+In that case it is defined
+with a low precision limit
+as string.</td></tr>
+
+<tr><td valign="top">PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION: </td><td>Precision up to which
+writing a float with printf
+(using format %f) will
+always work ok.</td></tr>
+
+<tr><td valign="top">LIMIT_FMT_F_MAXIMUM_FLOAT_PRECISION: </td><td>Defined if a printf
+(using format %f) with a
+larger precision crashes.
+In that case it is defined
+with a low precision limit
+as string.</td></tr>
+
+<tr><td valign="top">ISNAN_WITH_UNDERLINE: </td><td>Defined if the macro/function _isnan() is
+defined in <float.h> respectively <math.h>
+instead of isnan().</td></tr>
+
+<tr><td valign="top">USE_ALTERNATE_LOCALTIME_R: </td><td>Defined if the function
+alternate_localtime_r() should be used
+instead of localtime().</td></tr>
+
+<tr><td valign="top">USE_LOCALTIME_R: </td><td>Defined if the thread-safe function
+localtime_r() should be used instead of
+localtime().</td></tr>
+
+<tr><td valign="top">USE_LOCALTIME_S: </td><td>Defined if the thread-safe function
+localtime_s() should be used instead of
+localtime().</td></tr>
+
+<tr><td valign="top">DEFINE_OS_ENVIRON: </td><td>Defined if environ respectively _wenviron
+is not defined in <stdlib.h> or <unistd.h>.
+In this case environ respectively _wenviron
+must be defined.</td></tr>
+
+<tr><td valign="top">INITIALIZE_OS_ENVIRON: </td><td>Defined if environ respectively
+_wenviron is NULL unless getenv() is
+called.</td></tr>
+
+<tr><td valign="top">LIMITED_CSTRI_LITERAL_LEN: </td><td>0 if the C compiler does not limit
+  the length of string literals and
+  at run-time the string literal has
+  the correct value.
+-1 if the compiler prohibits long
+  string literals.
+-2 if at run-time the whole string
+  literal is wrong.
+>0 if at run-time the string
+  literal is correct up to a position.</td></tr>
+
+<tr><td valign="top">LIMITED_ARRAY_LITERAL_LEN: </td><td>0 if the C compiler does not limit
+  the length of array literals and
+  at run-time the array literal has
+  the correct value.
+-1 if the compiler prohibits long
+  array literals.
+-2 if at run-time the whole array
+  literal is wrong.
+>0 if at run-time the array
+  literal is correct up to a position.</td></tr>
+
+<tr><td valign="top">NO_BIG_LIBRARY: </td><td>Defined as -1. The meaning is: No library to
+to implement the bigInteger functions.</td></tr>
+
+<tr><td valign="top">BIG_RTL_LIBRARY: </td><td>Defined as 1. The meaning is: The big_rtl.c
+library is used to implement the bigInteger
+functions.</td></tr>
+
+<tr><td valign="top">BIG_GMP_LIBRARY: </td><td>Defined as 2. The meaning is: The big_gmp.c
+library is used to implement the bigInteger
+functions.</td></tr>
+
+<tr><td valign="top">BIGINT_LIB: </td><td>Defines the bigInteger library used. The value is
+one of NO_BIG_LIBRARY, BIG_RTL_LIBRARY and
+BIG_GMP_LIBRARY.</td></tr>
+
+<tr><td valign="top">C_COMPILER_VERSION: </td><td>Contains a string describing the version of
+the C compiler which compiled the Seed7
+runtime libraries. This string can be used
+together with GET_CC_VERSION_INFO to compare
+the C compiler used to compile the Seed7
+runtime libraries with the actual version of
+the C compiler.</td></tr>
+
+<tr><td valign="top">CC_NO_OPT_OUTPUT_FILE: </td><td>Defined if compiling and linking with
+one command does not work, with the option
+LINKER_OPT_OUTPUT_FILE.</td></tr>
+
+<tr><td valign="top">SEED7_LIB: </td><td>Contains the name of the Seed7 runtime library.</td></tr>
+
+<tr><td valign="top">DRAW_LIB, CONSOLE_LIB, DATABASE_LIB, COMP_DATA_LIB, COMPILER_LIB:</td><td>
+Contain names of other Seed7 runtime libraries.</td></tr>
+
+<tr><td valign="top">CC_ENVIRONMENT_INI: </td><td>Path to an INI file with the environment for
+the C compiler. If it is "" the C compiler
+does not need environment settings. The INI
+file contains a snapshot of the environment
+variables at the time Seed7 is compiled. As
+snapshot it contains also environment
+variables that are not necessary for the C
+compiler.</td></tr>
+
+<tr><td valign="top">S7_LIB_DIR: </td><td>Directory containing the Seed7 runtime libraries.
+This path uses the standard path representation
+(a slash is used as path separator and instead of
+a drive letter like "C:" the path "/c" is used).</td></tr>
+
+<tr><td valign="top">SEED7_LIBRARY: </td><td>Directory containing the Seed7 include files.
+This path uses the standard path representation
+(a slash is used as path separator and instead of
+a drive letter like "C:" the path "/c" is used).</td></tr>
+
+<tr><td valign="top">INT32TYPE: </td><td>Name of a signed integer type that is 32 bits wide.</td></tr>
+
+<tr><td valign="top">UINT32TYPE: </td><td>Name of an unsigned integer type that is 32 bits wide.</td></tr>
+
+<tr><td valign="top">INT64TYPE: </td><td>Name of a signed integer type that is 64 bits wide.</td></tr>
+
+<tr><td valign="top">UINT64TYPE: </td><td>Name of an unsigned integer type that is 64 bits wide.</td></tr>
+
+<tr><td valign="top">INT32TYPE_LITERAL_SUFFIX: </td><td>The suffix used by the literals of the
+32 bits wide integer type.</td></tr>
+
+<tr><td valign="top">INT64TYPE_LITERAL_SUFFIX: </td><td>The suffix used by the literals of the
+64 bits wide integer type.</td></tr>
+</table></div>
+
+<div><br /><a name="build_MACROS_DEFINED_IN_CONFIG.H"><h3>MACROS DEFINED IN CONFIG.H
+</h3></a><table border="1" cellspacing="0" cellpadding="5">
+<tr><td valign="top">WITH_STRI_CAPACITY:</td><td>
+TRUE if the Seed7 runtime library uses strings with capacity.
+The capacity of a string can be larger than its size.
+Strings with capacity can be enlarged without calling realloc().</td></tr>
+
+<tr><td valign="top">ALLOW_STRITYPE_SLICES:</td><td>
+TRUE if the actual characters of a string can be stored elsewhere.
+This allows string slices without the need to copy characters.</td></tr>
+
+<tr><td valign="top">ALLOW_BSTRITYPE_SLICES:</td><td>
+TRUE if the actual characters of a bstring can be stored elsewhere.
+This allows bstring slices without the need to copy characters.</td></tr>
+
+<tr><td valign="top">WITH_SQL: </td><td>1 if SQL should be supported, 0 otherwise.</td></tr>
+
+<tr><td valign="top">MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS: </td><td>Defined in config.h, if
+absolute paths (paths
+starting with '/') must
+be mapped to operating
+system paths with drive
+letter. E.g.: "/c" is
+mapped to the drive letter
+"C:".</td></tr>
+
+<tr><td valign="top">FORBID_DRIVE_LETTERS: </td><td>Defined in config.h, if a Seed7 path
+with drive letters must raise
+RANGE_ERROR.</td></tr>
+
+<tr><td valign="top">EMULATE_ROOT_CWD: </td><td>Defined in config.h, if the operating
+system uses drive letters and reading the
+directory "/" must return a list of
+available drives.</td></tr>
+</table></div>
+</body>
+</html>

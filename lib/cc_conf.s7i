@@ -505,33 +505,33 @@ const type: ccConfigType is new struct
 
     (**
      *  Defines what happens in case of an integer division overflow.
-     *  An integer division can overflow with integer.first div -1.
-     *  0 if an overflow in an integer division can trigger
-     *  an endless loop or a popup window. In this case the compiler
+     *  An integer division can overflow with ''integer.first div -1''.
+     *  In this case the following things can happen:
+     *  * 0 it triggers an endless loop or a popup window.
+     *  * 1 it returns integer.first.
+     *  * 2 it returns some other value.
+     *  * 3 it raises SIGFPE.
+     *  * 4 it raises SIGILL.
+     *  * 5 it raises SIGABRT.
+     *  * 6 it raises SIGTRAP.
+     *  In case of 0 (endless loop or popup window) the compiler
      *  must always check for an integer division.
-     *  1 if an integer division overflow wraps
-     *  (integer.first div -1 returns integer.first).
-     *  2 if an integer division overflow returns some other value.
-     *  3 if an integer division overflow triggers SIGFPE.
-     *  4 if an integer division overflow triggers SIGILL.
-     *  5 if an integer division overflow triggers SIGABRT.
-     *  6 if an integer division overflow triggers SIGTRAP.
      *)
     var integer: INT_DIV_OVERFLOW               is 0;
 
     (**
      *  Defines what happens in case of an integer remainder overflow.
-     *  An integer remainder can overflow with integer.first rem -1.
-     *  0 if an overflow in an integer remainder can trigger
-     *  an endless loop or a popup window. In this case the compiler
+     *  An integer remainder can overflow with ''integer.first rem -1''.
+     *  In this case the following things can happen:
+     *  * 0 it triggers an endless loop or a popup window.
+     *  * 1 it returns 0.
+     *  * 2 it returns some other value.
+     *  * 3 it raises SIGFPE.
+     *  * 4 it raises SIGILL.
+     *  * 5 it raises SIGABRT.
+     *  * 6 it raises SIGTRAP.
+     *  In case of 0 (endless loop or popup window) the compiler
      *  must always check for an integer remainder.
-     *  1 if an integer remainder overflow wraps
-     *  (integer.first rem -1 returns 0).
-     *  2 if an integer remainder overflow returns some other value.
-     *  3 if an integer remainder overflow triggers SIGFPE.
-     *  4 if an integer remainder overflow triggers SIGILL.
-     *  5 if an integer remainder overflow triggers SIGABRT.
-     *  6 if an integer remainder overflow triggers SIGTRAP.
      *)
     var integer: INT_REM_OVERFLOW               is 0;
 

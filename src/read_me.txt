@@ -1,5 +1,6 @@
-COMPILING THE INTERPRETER
-=========================
+
+BUILD SEED7
+===========
 
     The way to compile the interpreter depends on the operating
   system and the development tools used. You need a stand-alone
@@ -10,15 +11,17 @@ COMPILING THE INTERPRETER
   utility is missing under Windows the program make7.exe can
   be downloaded from
 
-    https://sourceforge.net/projects/seed7/files/bin/
+    https://sourceforge.net/projects/seed7/files/bin
 
-  In this directory is also a Seed7 installer for Windows.
+  In this directory is also a Seed7 installer for Windows
+  (seed7_05_20191117_win.exe).
 
 
 THE MAKEFILES
 
-    Several makefiles are prepared for various combinations
-  of operating system, make utility, C compiler and shell:
+    Several makefiles are prepared in 'seed7/src' for various
+  combinations of operating system, make utility, C compiler
+  and shell:
 
   makefile name|operating system |make prog     |C compiler  |shell
   -------------+-----------------+--------------+------------+--------
@@ -36,14 +39,16 @@ THE MAKEFILES
   mk_clangw.mak| Windows (clang) | (g)make      | clang      | cmd.exe
   mk_tcc_w.mak | Windows (tcc)   | (g)make      | tcc        | cmd.exe
   mk_djgpp.mak | DOS             | (g)make      | gcc        | cmd.exe
-  mk_osx.mak   | Mac OS X        | make         | gcc        | sh
-  mk_osxcl.mak | Mac OS X        | make         | clang      | sh
+  mk_osx.mak   | Mac OS          | make         | gcc        | sh
+  mk_osxcl.mak | Mac OS          | make         | clang      | sh
   mk_freebsd.mk| FreeBSD         | make         | clang/gcc  | sh
   mk_emccl.mak | Linux/Unix/BSD  | make         | emcc + gcc | sh
   mk_emccw.mak | Windows (emcc)  | mingw32-make | emcc + gcc | cmd.exe
 
-  In the optimal case you just copy one of this files to
-  'makefile' and do (with the make program from the table above):
+  Detailed explanations how to compile the interpreter (s7) can
+  be found in the chapters below. In the optimal case you just
+  copy one of these files to 'makefile' and do (with the make
+  program from the table above):
 
     make depend
     make
@@ -53,7 +58,13 @@ THE MAKEFILES
   Additionally a symbolic link to the executable is placed in
   the 'prg' directory (Under Windows symbolic links are not
   supported, so a copy of the executable is placed in the 'prg'
-  directory). The Seed7 compiler (s7c) is compiled with:
+  directory).
+
+
+REMAINING BUILD STEPS
+
+    After a successful compilation of the Seed7 interpreter (s7)
+  the Seed7 compiler (s7c) can be compiled with:
 
     make s7c
 
@@ -105,6 +116,9 @@ COMPILING UNDER LINUX
   and the name of your libXll (e.g. /usr/X11/lib/libX11.so or
   /usr/X11R6/lib/libX11.a).
 
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter REMAINING BUILD STEPS.
+
 
 COMPILING UNDER BSD AND UNIX
 
@@ -119,7 +133,7 @@ COMPILING UNDER WINDOWS WITH GCC FROM MINGW
     If gcc and mingw32-make from MinGW are installed use a
   console, go to the 'seed7\src' directory and type:
 
-    copy mk_mingw.mak makefile
+    copy /Y mk_mingw.mak makefile
     mingw32-make depend
     mingw32-make
 
@@ -137,12 +151,16 @@ COMPILING UNDER WINDOWS WITH GCC FROM MINGW
   To compile with gcc from MinGW and nmake from Windows use
   a console, go to the 'seed7\src' directory and type:
 
-    copy mk_nmake.mak makefile
+    copy /Y mk_nmake.mak makefile
     nmake depend
     nmake
 
   After the compilation the interpreter executable can be found
   in the 'bin' directory and it is also copied to prg/s7.exe.
+
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter REMAINING BUILD STEPS.
+  Keep in mind to use the same 'make' utility as before.
 
 
 COMPILING UNDER WINDOWS WITH CL FROM MSVC
@@ -157,7 +175,7 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
 
   Note that 2019 is the year of the MSVC release. In a 32-bit
   operating system use a console and execute:
-  
+
     ...Studio\2019\Community\VC\Auxiliary\Build\vcvarsall x86
 
   In older versions of MSVS the script was named vcvars32.bat.
@@ -193,7 +211,7 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
   After everything has been set up for MSVC you can go to the
   'seed7\src' directory and type:
 
-    copy mk_msvc.mak makefile
+    copy /Y mk_msvc.mak makefile
     nmake depend
     nmake
 
@@ -202,7 +220,7 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
     nmake clean
 
   to clean the files from a previous compilation attempt.
-  
+
   After the compilation the interpreter executable can be found
   in the 'bin' directory and it is also copied to prg/s7.exe.
   Note that the build process saves all environment variables
@@ -212,7 +230,11 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
   environment happens in the Seed7 compiler and the original
   environment of the console remains unchanged. This means that
   the Seed7 compiler (s7c) can be used without the need to call
-  vcvarsall.bat. 
+  vcvarsall.bat.
+
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter REMAINING BUILD STEPS.
+  Keep in mind to use the 'nmake' command as before.
 
 
 COMPILING UNDER WINDOWS WITH BCC32
@@ -221,7 +243,7 @@ COMPILING UNDER WINDOWS WITH BCC32
   utility from a smaller software company) use a console, go
   to the 'seed7\src' directory and type:
 
-    copy mk_bcc32.mak makefile
+    copy /Y mk_bcc32.mak makefile
     make depend
     make
 
@@ -230,9 +252,12 @@ COMPILING UNDER WINDOWS WITH BCC32
   For the older version of bcc32 (Version 5.5, which is available
   in the Internet) use:
 
-    copy mk_bccv5.mak makefile
+    copy /Y mk_bccv5.mak makefile
     make depend
     make
+
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter REMAINING BUILD STEPS.
 
 
 COMPILING UNDER WINDOWS WITH TCC
@@ -264,7 +289,7 @@ COMPILING UNDER WINDOWS WITH TCC
 
   Then use a console, go to the 'seed7\src' directory and type:
 
-    copy mk_tcc_w.mak makefile
+    copy /Y mk_tcc_w.mak makefile
     make depend
     make
 
@@ -273,6 +298,10 @@ COMPILING UNDER WINDOWS WITH TCC
   Note that tcc for Windows has some bugs. The program chk_all.sd7
   shows this bugs. Therefore Seed7 does not support the
   compilation with tcc under windows officially.
+
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter REMAINING BUILD STEPS.
+  Keep in mind to use the same 'make' utility as before.
 
 
 COMPILING UNDER WINDOWS WITH CYGWIN
@@ -296,8 +325,9 @@ COMPILING UNDER WINDOWS WITH CYGWIN
   must be changed to define the name of your gcc. If gcc and
   make work well change to the 'seed7/src' directory and do:
 
-    make -f mk_cygw.mak depend
-    make -f mk_cygw.mak
+    cp mk_cygw.mak makefile
+    make depend
+    make
 
   After the compilation the interpreter executable can be found
   in the 'bin' directory and the 'prg' directory will contain a
@@ -322,6 +352,9 @@ COMPILING UNDER WINDOWS WITH CYGWIN
   it might also be necessary to do the same for ld.exe (and
   maybe for some other symlinks as well).
 
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter REMAINING BUILD STEPS.
+
 
 COMPILING WITH EMCC FROM EMSCRIPTEN
 
@@ -337,16 +370,18 @@ COMPILING WITH EMCC FROM EMSCRIPTEN
   Afterwards go to the directory 'seed7/src' (with cd) and
   type:
 
-    make -f mk_emccl.mak depend
-    make -f mk_emccl.mak
+    cp mk_emccl.mak makefile
+    make depend
+    make
 
   To compile Seed7 under Windows use a console window and
   activate the PATH and other environment variables for emcc
   (with 'emsdk_env.bat' in the emsdk directory). Afterwards
   go to the directory 'seed7\src' (with cd) and type:
 
-    mingw32-make -f mk_emccw.mak depend
-    mingw32-make -f mk_emccw.mak
+    copy /Y mk_emccw.mak makefile
+    mingw32-make depend
+    mingw32-make
 
   After compilation of Seed7 the Seed7 interpreter (s7.js) can
   be started (in the directory 'seed7/prg') with:
@@ -395,6 +430,10 @@ COMPILING WITH EMCC FROM EMSCRIPTEN
 
     NODE_JS = ['node', '--stack_size=8192']
 
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter REMAINING BUILD STEPS.
+  Keep in mind to use the same 'make' utility as before.
+
 
 COMPILING UNDER DOS WITH DJGPP
 
@@ -402,7 +441,7 @@ COMPILING UNDER DOS WITH DJGPP
   PATH leads to gcc and make from DJGPP. Use the command line,
   go to the 'seed7\src' directory and type:
 
-    copy mk_djgpp.mak makefile
+    copy /Y mk_djgpp.mak makefile
     make depend
     make
 
@@ -432,11 +471,14 @@ COMPILING UNDER DOS WITH DJGPP
   Note that the DOS version of Seed7 currently does not support
   graphics, sockets, processes and databases.
 
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter REMAINING BUILD STEPS.
 
-COMPILING UNDER MAC OS X
 
-    To compile under Mac OS X make sure that the command line
-  tools for OS X are installed. They can be obtained from Xcode
+COMPILING UNDER MAC OS
+
+    To compile under Mac OS make sure that the command line
+  tools for Mac OS are installed. They can be obtained from Xcode
   (Xcode Menu: Xcode->Preferences->Downloads). Alternatively
   the command line tools can be downloaded directly. The tools
   contain the C compilers clang and gcc. They also provide a
@@ -463,8 +505,8 @@ COMPILING UNDER MAC OS X
   in the 'bin' directory and the 'prg' directory will contain a
   link to the executable.
 
-  Under Mac OS X the X11 library is usually found in
-  '/usr/X11R6/lib'. For unknown reasons the Xcode (Mac OS X)
+  Under Mac OS the X11 library is usually found in
+  '/usr/X11R6/lib'. For unknown reasons the Xcode (Mac OS)
   linker normally does not search libraries in '/usr/X11R6/lib'.
   Therefore 'mk_osx.mak' defines the following linker flag:
 
@@ -474,6 +516,9 @@ COMPILING UNDER MAC OS X
   'mk_linux.mak' and 'makefile'. If the X11 library is in a
   different directory you need to change the LDFLAGS value to
   that directory.
+
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter REMAINING BUILD STEPS.
 
 
 COMPILING UNDER ANDROID
@@ -504,6 +549,14 @@ COMPILING UNDER ANDROID
     make
     make s7c
 
+  The remaining steps to build and install Seed7 are explained
+  above in the chapter REMAINING BUILD STEPS.
+  If you decided to use the 'make' parameter
+
+    -f mk_cygw.mak
+
+  you must continue to use this parameter with 'make'.
+
 
 PACKAGES FOR DATABASES UNDER LINUX
 
@@ -511,12 +564,12 @@ PACKAGES FOR DATABASES UNDER LINUX
   packages of the databases must be installed. On my computer
   the names of the client library packages are:
 
-  - MariaDb:     mariadb-client
-  - Sqlite:      sqlite3
-  - PostgreSql:  postgresql
-  - ODBC:        unixODBC
-  - Firebird:    firebird
-  - SQL Server:  libtdsodbc0
+    - MariaDb:     mariadb-client
+    - Sqlite:      sqlite3
+    - PostgreSql:  postgresql
+    - ODBC:        unixODBC
+    - Firebird:    firebird
+    - SQL Server:  libtdsodbc0
 
   The client libraries are sufficient for Seed7 to access the
   databases. Seed7 provides replacements for the C header files
@@ -525,12 +578,12 @@ PACKAGES FOR DATABASES UNDER LINUX
   must be installed. On my computer the names of the client
   development packages are:
 
-  - MariaDb:     libmariadb-devel
-  - Sqlite:      sqlite3-devel
-  - PostgreSql:  postgresql-devel
-  - ODBC:        unixODBC-devel
-  - Firebird:    libfbclient-devel
-  - SQL Server:  freetds-devel
+    - MariaDb:     libmariadb-devel
+    - Sqlite:      sqlite3-devel
+    - PostgreSql:  postgresql-devel
+    - ODBC:        unixODBC-devel
+    - Firebird:    libfbclient-devel
+    - SQL Server:  freetds-devel
 
 
 WHAT TO DO IF ERRORS HAPPEN DURING THE COMPILATION?
@@ -684,9 +737,9 @@ WHAT TO DO IF ERRORS HAPPEN DURING THE COMPILATION?
 
  --- If you use icc an error like
 
-   .../compiler/include/math.h(1216):
-   error: identifier "_LIB_VERSION_TYPE" is undefined
-     _LIBIMF_EXT _LIB_VERSIONIMF_TYPE _LIBIMF_PUBVAR _LIB_VERSIONIMF;
+    .../compiler/include/math.h(1216):
+    error: identifier "_LIB_VERSION_TYPE" is undefined
+      _LIBIMF_EXT _LIB_VERSIONIMF_TYPE _LIBIMF_PUBVAR _LIB_VERSIONIMF;
 
   indicates, that the math.h include file of icc uses
   _LIB_VERSION_TYPE. Recently the support for_LIB_VERSION_TYPE
@@ -726,39 +779,39 @@ WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
   not part of -Wall. The warnings can be classified to the
   following cases:
 
-   - Warnings about float used instead of double because of the
-     prototype: There are functions which use float parameters or
-     return float values. Gcc has the opinion that only double
-     parameters and double results should be used and warns about
-     that.
-   - Warnings about unused parameter 'arguments'. The primitive
-     actions all use one parameter named 'arguments'. This is
-     necessary to access primitive actions with function
-     pointers. Some primitive actions do not use 'arguments'
-     which causes this warning.
-   - Warnings about signed/unsigned instead of unsigned/signed
-     because of the prototype.
-   - Warnings about 'variablename' may be used uninitialized:
-     This are false complaints. Interestingly gcc is not able to
-     recognize if the states of two variables are connected.
-     Such as a global fail_flag variable and a local condition
-     variable (cond). The connection is: As long as fail_flag is
-     FALSE the cond variable is initialized. If the fail_flag
-     is TRUE the cond variable is not used and therefore it could
-     be in an uninitialized state. At several places I use such
-     connected variable states which are not recognized by the
-     gcc optimizer and are therefore flagged with a warning. I
-     accept such warnings in performance critical paths. I am not
-     willing to do "unnecessary" initializations in performance
-     critical paths of the program. At places that are not
-     performance critical I do some of this "unnecessary"
-     initializations just to avoid such warnings.
-   - Warnings about passing argument with different width due to
-     prototype: Some compilers write such warnings for formal
-     boolean (boolType) parameters and actual boolean arguments.
-     Since the types of parameter and argument are identical and
-     a prototype is specified this warning can be considered as
-     false alarm.
+    - Warnings about float used instead of double because of the
+      prototype: There are functions which use float parameters or
+      return float values. Gcc has the opinion that only double
+      parameters and double results should be used and warns about
+      that.
+    - Warnings about unused parameter 'arguments'. The primitive
+      actions all use one parameter named 'arguments'. This is
+      necessary to access primitive actions with function
+      pointers. Some primitive actions do not use 'arguments'
+      which causes this warning.
+    - Warnings about signed/unsigned instead of unsigned/signed
+      because of the prototype.
+    - Warnings about 'variablename' may be used uninitialized:
+      This are false complaints. Interestingly gcc is not able to
+      recognize if the states of two variables are connected.
+      Such as a global fail_flag variable and a local condition
+      variable (cond). The connection is: As long as fail_flag is
+      FALSE the cond variable is initialized. If the fail_flag
+      is TRUE the cond variable is not used and therefore it could
+      be in an uninitialized state. At several places I use such
+      connected variable states which are not recognized by the
+      gcc optimizer and are therefore flagged with a warning. I
+      accept such warnings in performance critical paths. I am not
+      willing to do "unnecessary" initializations in performance
+      critical paths of the program. At places that are not
+      performance critical I do some of this "unnecessary"
+      initializations just to avoid such warnings.
+    - Warnings about passing argument with different width due to
+      prototype: Some compilers write such warnings for formal
+      boolean (boolType) parameters and actual boolean arguments.
+      Since the types of parameter and argument are identical and
+      a prototype is specified this warning can be considered as
+      false alarm.
 
 
 WHAT TO DO WITH ERRORS TRIGGERED BY SEED7 PROGRAMS?
@@ -818,7 +871,6 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkhsh ........... okay
     chkfil ........... okay
     chkexc ........... okay
-
 
   This verifies that interpreter and compiler work correct.
 
@@ -1416,7 +1468,7 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                libraries required by the Seed7 runtime library.
                E.g. libraries for math or socket.
 
-  SYSTEM_BIGINT_LIBS Options to link system bigint libraries to a
+  SYSTEM_BIGINT_LIBS: Options to link system bigint libraries to a
                      compiled program. This is intended for options
                      to link libraries required by the Seed7
                      bigint.s7i runtime library (e.g.: "-lgmp").
@@ -2220,3 +2272,4 @@ MACROS DEFINED IN CONFIG.H
                     system uses drive letters and reading the
                     directory "/" must return a list of
                     available drives.
+

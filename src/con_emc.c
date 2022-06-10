@@ -296,13 +296,13 @@ charType kbdGetc (void)
 
 charType kbdRawGetc (void)
 
-  { /* kbdRawRead */
+  { /* kbdRawGetc */
     logFunction(printf("kbdRawGetc\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
     return (charType) EOF;
-  } /* kbdRawRead */
+  } /* kbdRawGetc */
 
 
 

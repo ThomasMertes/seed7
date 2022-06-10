@@ -897,9 +897,9 @@ files <nobr><span class="lib">seed7/read_me.txt</span></nobr> and <nobr><span cl
 </h3></a><hr />
 <p>
 A Seed7 installer for Windows can be downloaded from:
-</p><pre class="indent">
-<span class="link">https://sourceforge.net/projects/seed7/files/bin</span>
-</pre><p>
+</p><dl><dd>
+  <span class="link">https://sourceforge.net/projects/seed7/files/bin</span>
+</dd></dl><p>
 This directory contains the latest installer and older ones. Installers have
 names with the following pattern:
 </p><pre class="indent">
@@ -939,10 +939,10 @@ own Seed7 programs and libraries at a different place.
 </h3></a><hr />
 <p>
 The latest source code release of Seed7 can be downloaded from:
-</p><pre class="indent">
-<span class="link">https://sourceforge.net/projects/seed7/files</span>
-</pre><p>
-Just click on the link after the text: <tt><b>Looking for the latest version?</b></tt>.
+</p><dl><dd>
+  <span class="link">https://sourceforge.net/projects/seed7/files</span>
+</dd></dl><p>
+Just click on the button <tt><span class="box"><b><!--(*-->&nbsp;<!--*)--><span class="link">Download Latest Version</span><!--(*-->&nbsp;<!--*)--></b></span></tt>.
 </p><p>
 Other source code releases can be found in the directory <tt>seed7</tt>.
 It is strongly recommended to use the latest version.
@@ -1740,40 +1740,39 @@ type variables and type expressions are used in the <span class="link">Seed7 com
 <p>
 Seed7 has a basic principle that would break if type inference would be used:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
-  &nbsp;The type of every expression (and sub expression) is known at compile time.&nbsp;<br />
-  &nbsp;This is independent from the place where this expression is used.&nbsp;
+  &nbsp;The type of every expression (and sub expression) is independent of the context.
 </td></tr></table></dd></dl><p>
 To explain this principle consider the expression:
 </p><pre class="indent">
 <span class="var">a</span> + <span class="var">b</span>
 </pre><p>
-If the types of <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> are known and the definition of <tt>+</tt> fits the
-type of the expression <tt><span class="var">a</span> + <span class="var">b</span></tt> is also known. In this example <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> can be
+If the types of <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> are known and the definition of <tt>+</tt> applies then the
+type of the expression <tt><span class="var">a</span> + <span class="var">b</span></tt> is also known. In this example <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> may be
 constants, variables or even sub-expressions. If one of the types of <tt><span class="var">a</span></tt> or <tt><span class="var">b</span></tt>
-is not known the type of <tt><span class="var">a</span> + <span class="var">b</span></tt> cannot be determined. Now assume that <tt><span class="var">a</span> + <span class="var">b</span></tt>
+is not known then the type of <tt><span class="var">a</span> + <span class="var">b</span></tt> cannot be determined. Now assume that <tt><span class="var">a</span> + <span class="var">b</span></tt>
 is part of a bigger expression:
 </p><pre class="indent">
 <span class="var">c</span> = (<span class="var">a</span> + <span class="var">b</span>)
 </pre><p>
 In theory you could deduce the type of <tt><span class="var">a</span> + <span class="var">b</span></tt> if you know the type of <tt><span class="var">c</span></tt> and
-how <tt>=</tt> works. But in this case the information where <tt><span class="var">a</span> + <span class="var">b</span></tt> is used is taken
-into account. The basic principle mentioned above rules that out. According
-to that the place where an expression is used has no influence on the type
-of the expression. In Seed7 the type information moves inside out from
-sub-expressions to expressions. In other words it moves from the bottom to
-the top. This rule simplifies parsing a lot. This is one of the reasons why
-the parser processes several hundred thousand lines per second.
+how <tt>=</tt> works. But in this case the context of <tt><span class="var">a</span> + <span class="var">b</span></tt> would have to be taken into
+account. The basic principle mentioned above rules that out. According to it
+the context around an expression has no influence on the type of the expression.
+In Seed7 the type information moves inside out from sub-expressions to
+expressions. Within the syntax tree it moves from the bottom to the top. This
+rule simplifies type checking a lot. This is one of the reasons why the
+interpreter is able to process several hundred thousand lines per second.
 </p><p>
-To do type inference it is necessary that type information moves also in
-the other direction. You can see: It is exactly the violation of the basic
-principle mentioned above, that makes type inference possible. As long as
-this principle holds you need to know the global and local declarations to
-find out the result type of an expression. With type inference it is necessary
-to take other expressions in the local function and even expressions in other
-functions into account. I do not say that this is not possible (for sure it
-is an interesting challenge to invent an algorithm to do this). But the reader
-of the program needs to use this algorithm also every time he/she reads the
-program. And that is very bad since a program is more often read than written.
+For type inference it would be necessary that type information moves also into
+the other direction. You can see: This would violate the basic principle
+mentioned above. As long as this principle holds you need to know the global
+and local declarations to find out the result type of an expression. With type
+inference it would be necessary to take other expressions in the local
+function and even expressions in other functions into account. I do not say
+that this is not possible (for sure it is an interesting challenge to invent
+an algorithm to do this). But a human reader would also need to apply this
+algorithm when reading the program. You have to consider that a program is
+more often read than written.
 </p></div>
 
 <div><br /><a name="faq_local_type_declaration"><h3>Why does a local type declaration trigger an error?
@@ -1901,22 +1900,51 @@ possible to define new operators and statements.
 <div><br /><a name="faq_overload_result"><h3>Can I overload two functions which just differ in the result type?
 </h3></a><hr />
 <p>
-No, it is not possible to overload functions (operators, statements) which have
-the same parameter types and just differ in the result type. This type of
-overloading has a big advantage:
+No, return type overloading is not possible. Otherwise the type of an
+expression would depend on its context. Assume the function <tt>f</tt>
+is overloaded like this:
+</p><pre class="indent">
+f(x) -> integer
+f(x) -> string
+</pre><p>
+In this case the compiler cannot determine the type of <tt>f(x)</tt> unless it analyzes
+the context of the call. Thus type checking expressions may become arbitrarily
+complex. Remember that the human reader has to do the same. Omitting return
+type overloading simplifies type checking a lot. This way the following holds:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
-  &nbsp;The type of every expression (and sub expression) is known at compile time.&nbsp;<br />
-  &nbsp;This is independent from the place where this expression is used.&nbsp;
+  &nbsp;The type of every expression (and sub expression) is independent of the context.
 </td></tr></table></dd></dl><p>
-This means that the place, where an expression is used, has no influence on
-the type of the expression (see also at the answer about <a class="link" href="#faq_type_inference">type inference</a>).
-Therefore it is not possible to overload something which has no parameters
+Consider this expression about operator overloading (applying also to functions):
+</p><pre class="indent">
+<span class="var">a</span> <span class="op">=</span> <span class="var">b</span> <span class="op">+</span> <span class="var">c</span> <span class="op">*</span> <span class="var">d</span>
+</pre><p>
+Converted into a tree representation:
+</p><pre class="indent">
+  =
+ / \
+a   +
+   / \
+  b   *
+     / \
+    c   d
+</pre><p>
+The type information goes strictly upward (or inside out).
+</p><ul>
+<li>The <tt><span class="op">*</span></tt> operator might be overloaded for various parameter types.</li>
+<li>The actual types of <tt><span class="var">c</span></tt> and <tt><span class="var">d</span></tt> determine which <tt><span class="op">*</span></tt> operator is used.</li>
+<li>This determines the type of the sub expression <tt><span class="var">c</span> <span class="op">*</span> <span class="var">d</span></tt>.</li>
+<li>The <tt><span class="op">+</span></tt> operator might be overloaded and the parameters
+   <tt><span class="var">b</span></tt> and <tt><span class="var">c</span> <span class="op">*</span> <span class="var">d</span></tt> determine the <tt><span class="op">+</span></tt> operator used and the type of
+   the sub expression <tt><span class="var">b</span> <span class="op">+</span> <span class="var">c</span> <span class="op">*</span> <span class="var">d</span></tt>.</li>
+<li>The type of <tt><span class="var">a</span></tt> and <tt><span class="var">b</span> <span class="op">+</span> <span class="var">c</span> <span class="op">*</span> <span class="var">d</span></tt> determine which <tt><span class="op">=</span></tt> is used and
+   the type of the whole expression.</li>
+</ul><p>
+This bottom up approach simplifies type checking a lot for both the compiler
+and the human reader.
+</p><p>
+It is not possible to overload something which has no parameters
 (like a variable or a literal). As a consequence it is sometimes necessary to
-cast a literal to get an unambiguous expression. This concept parallels the
-approach used in mathematics where it is also required to specify measurement
-units. Obviously there is a difference between 5 seconds, 5 square meters and
-5 apples. In school it is usually considered wrong to just write 5 and let
-the teacher guess the measurement unit.
+cast a literal to get an unambiguous expression.
 </p></div>
 
 <div><br /><a name="faq_variable_parameter_list"><h3>Can functions have variable parameter lists?
@@ -1985,7 +2013,7 @@ must be initialized when it is declared.
 </h3></a><hr />
 <p>
 Seed7 follows the "one size fits all" principle for fixed size integers. The
-type <span class="type">integer</span> is 64-bit signed, smaller integer types do not exist. Today's
+type <tt><span class="type">integer</span></tt> is 64-bit signed, smaller integer types do not exist. Today's
 computers have 64-bit processors. Some processors do not have instructions
 for all the smaller integer types. On such computers, smaller integers must
 be converted into larger integers in order to do computations. So programs
@@ -2006,13 +2034,15 @@ unsigned representations of various sizes. These functions allow also that
 the endianness is specified explicit.
 </p><p>
 Message digest and compression algorithms do bitwise operations on 32- or
-64-bit data. Bitwise operations are not supported by <span class="type">integer</span>. To do that the
-types <span class="type">bin32</span> and <span class="type">bin64</span> have been introduced. These types support bitwise <span class="link">AND</span>,
-<span class="link">OR</span> and <span class="link">XOR</span> operations, but no integer arithmetic. Conversions between <span class="type">integer</span>
-and <span class="type">bin64</span> (respectively <span class="type">bin32</span>) cause no additional costs in compiled programs.
+64-bit data. Bitwise operations are not supported by <tt><span class="type">integer</span></tt>. To do that the
+types <tt><span class="type">bin32</span></tt> and <tt><span class="type">bin64</span></tt> have been introduced. These types support bitwise
+<tt><span class="link">AND</span></tt>, <tt><span class="link">OR</span></tt> and <tt><span class="link">XOR</span></tt> operations, but no integer arithmetic. Hence <tt><span class="type">bin32</span></tt> and
+<tt><span class="type">bin64</span></tt> are not integer types but types that describe bit-patterns with 32 and
+64 bits. Conversions between <tt><span class="type">integer</span></tt> and <tt><span class="type">bin32</span></tt> (respectively <tt><span class="type">bin64</span></tt>)
+cause no additional costs in compiled programs.
 </p><p>
-If the 64-bit signed <tt><span class="type">integer</span></tt> type is not sufficient the type <tt><span class="type">bigInteger</span></tt> can be
-used.
+If the 64-bit signed <tt><span class="type">integer</span></tt> type is not sufficient the type <tt><span class="type">bigInteger</span></tt>
+can be used.
 </p></div>
 
 <div><br /><a name="faq_unicode"><h3>Is Unicode supported?
@@ -2543,7 +2573,7 @@ if (!slow && !overflow_ocurred) {
 </ul><p>
 The automatic promotion to big integer (with the combined integer type)
 reduces performance. The approach that only checks for integer overflow
-needs two instructions for an addition. I needs no additional overhead
+needs two instructions for an addition. It needs no additional overhead
 for assignments, at the end of a variable scope, or in other situations.
 The possibility of optimizations applies to both approaches that check
 for integer overflow, but not everything can be optimized away.
