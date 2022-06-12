@@ -1139,6 +1139,18 @@ void err_expr_obj (errorType err, const_objectType expr_object,
         write_object(obj_found);
         prot_nl();
         break;
+      case DECL_FAILED:
+        if (GET_ENTITY(obj_found)->fparam_list == NULL) {
+          prot_cstri("Declaration of \"");
+          prot_ustri(GET_ENTITY(obj_found)->ident->name);
+          prot_cstri("\" failed");
+        } else {
+          prot_cstri("Declaration of ");
+          write_name_list(GET_ENTITY(obj_found)->fparam_list);
+          prot_cstri(" failed");
+        } /* if */
+        prot_nl();
+        break;
       default:
         undef_err();
         break;

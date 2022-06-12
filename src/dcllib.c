@@ -132,7 +132,7 @@ objectType dcl_const (listType arguments)
               (matched_value = match_object(value)) != NULL) {
             do_create(current_object, matched_value, &err_info);
             if (err_info == CREATE_ERROR) {
-              err_object(DECL_FAILED, current_object);
+              err_expr_obj(DECL_FAILED, curr_exec_object, current_object);
               err_info = OKAY_NO_ERROR;
 #if TRACE_DCL_CONST
               printf("*** do_create failed ");
@@ -159,7 +159,7 @@ objectType dcl_const (listType arguments)
         } else {
           do_create(current_object, value, &err_info);
           if (err_info == CREATE_ERROR) {
-            err_object(DECL_FAILED, current_object);
+            err_expr_obj(DECL_FAILED, curr_exec_object, current_object);
             err_info = OKAY_NO_ERROR;
 #if TRACE_DCL_CONST
             printf("*** do_create failed ");
@@ -891,7 +891,7 @@ objectType dcl_var (listType arguments)
               (matched_value = match_object(value)) != NULL) {
             do_create(current_object, matched_value, &err_info);
             if (err_info == CREATE_ERROR) {
-              err_object(DECL_FAILED, current_object);
+              err_expr_obj(DECL_FAILED, curr_exec_object, current_object);
               err_info = OKAY_NO_ERROR;
 #if TRACE_DCL_VAR
               printf("*** do_create failed ");
@@ -907,7 +907,7 @@ objectType dcl_var (listType arguments)
         } else {
           do_create(current_object, value, &err_info);
           if (err_info == CREATE_ERROR) {
-            err_object(DECL_FAILED, current_object);
+            err_expr_obj(DECL_FAILED, curr_exec_object, current_object);
             err_info = OKAY_NO_ERROR;
 #if TRACE_DCL_VAR
             printf("*** do_create failed ");
