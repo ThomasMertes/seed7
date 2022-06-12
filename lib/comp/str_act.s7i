@@ -154,11 +154,19 @@ const func array reference: getConcatNParamList (in ref_list: params) is func
     var array reference: concatNParamList is 0 times NIL;
   local
     var reference: leftParam is NIL;
+    var reference: rightParam is NIL;
     var boolean: concatFound is FALSE;
     var ref_list: subExprParams is ref_list.EMPTY;
+    var ref_list: rightParamList is ref_list.EMPTY;
   begin
     leftParam := params[1];
-    concatNParamList := [] (params[3]);
+    rightParam := params[3];
+    if isActionExpression(rightParam, "STR_CAT") then
+      rightParamList := getValue(rightParam, ref_list)[2 ..];
+      concatNParamList := getConcatNParamList(rightParamList);
+    else
+      concatNParamList := [] (rightParam);
+    end if;
     repeat
       concatFound := FALSE;
       if category(leftParam) = CALLOBJECT then
@@ -166,7 +174,13 @@ const func array reference: getConcatNParamList (in ref_list: params) is func
         if category(subExprParams[1]) = ACTOBJECT then
           if str(getValue(subExprParams[1], ACTION)) = "STR_CAT" then
             leftParam := subExprParams[2];
-            concatNParamList := [] (subExprParams[4]) & concatNParamList;
+            rightParam := subExprParams[4];
+            if isActionExpression(rightParam, "STR_CAT") then
+              rightParamList := getValue(rightParam, ref_list)[2 ..];
+              concatNParamList := getConcatNParamList(rightParamList) & concatNParamList;
+            else
+              concatNParamList := [] (rightParam) & concatNParamList;
+            end if;
             concatFound := TRUE;
           end if;
         end if;

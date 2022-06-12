@@ -8482,51 +8482,11 @@ const proc: check_string_substr is func
   end func;
 
 
-const proc: check_string_concat is func
-  local
+const func boolean: check_string_concat_1 is func
+  result
     var boolean: okay is TRUE;
   begin
-    if  "" & "" <> "" or
-        "" & "a" <> "a" or
-        "a" & "" <> "a" or
-        "" & "ab" <> "ab" or
-        "a" & "b" <> "ab" or
-        "ab" & "" <> "ab" or
-        "" & "abc" <> "abc" or
-        "a" & "bc" <> "abc" or
-        "ab" & "c" <> "abc" or
-        "abc" & "" <> "abc" or
-        "" & "abcd" <> "abcd" or
-        "a" & "bcd" <> "abcd" or
-        "ab" & "cd" <> "abcd" or
-        "abc" & "d" <> "abcd" or
-        "abcd" & "" <> "abcd" or
-        "" & "abcde" <> "abcde" or
-        "a" & "bcde" <> "abcde" or
-        "ab" & "cde" <> "abcde" or
-        "abc" & "de" <> "abcde" or
-        "abcd" & "e" <> "abcde" or
-        "abcde" & "" <> "abcde" or
-        "" & "abcdef" <> "abcdef" or
-        "a" & "bcdef" <> "abcdef" or
-        "ab" & "cdef" <> "abcdef" or
-        "abc" & "def" <> "abcdef" or
-        "abcd" & "ef" <> "abcdef" or
-        "abcde" & "f" <> "abcdef" or
-        "abcdef" & "" <> "abcdef" or
-        "" & "abcdefghij" <> "abcdefghij" or
-        "a" & "bcdefghij" <> "abcdefghij" or
-        "ab" & "cdefghij" <> "abcdefghij" or
-        "abc" & "defghij" <> "abcdefghij" or
-        "abcd" & "efghij" <> "abcdefghij" or
-        "abcde" & "fghij" <> "abcdefghij" or
-        "abcdef" & "ghij" <> "abcdefghij" or
-        "abcdefg" & "hij" <> "abcdefghij" or
-        "abcdefgh" & "ij" <> "abcdefghij" or
-        "abcdefghi" & "j" <> "abcdefghij" or
-        "abcdefghij" & "" <> "abcdefghij" or
-
-                 ""  &          ""  <> "" or
+    if           ""  &          ""  <> "" or
         striExpr("") &          ""  <> "" or
                  ""  & striExpr("") <> "" or
         striExpr("") & striExpr("") <> "" or
@@ -8541,9 +8501,12 @@ const proc: check_string_concat is func
                  "ab"  &          "cd"  <> "abcd" or
         striExpr("ab") &          "cd"  <> "abcd" or
                  "ab"  & striExpr("cd") <> "abcd" or
-        striExpr("ab") & striExpr("cd") <> "abcd" or
+        striExpr("ab") & striExpr("cd") <> "abcd" then
+      writeln(" ***** STRING & STRING does not work correct. (2)");
+      okay := FALSE;
+    end if;
 
-                 ""  &          ""  &          ""  <> "" or
+    if           ""  &          ""  &          ""  <> "" or
         striExpr("") &          ""  &          ""  <> "" or
                  ""  & striExpr("") &          ""  <> "" or
         striExpr("") & striExpr("") &          ""  <> "" or
@@ -8606,9 +8569,12 @@ const proc: check_string_concat is func
                  "ab"  &          "cd"  & striExpr("ef") <> "abcdef" or
         striExpr("ab") &          "cd"  & striExpr("ef") <> "abcdef" or
                  "ab"  & striExpr("cd") & striExpr("ef") <> "abcdef" or
-        striExpr("ab") & striExpr("cd") & striExpr("ef") <> "abcdef" or
+        striExpr("ab") & striExpr("cd") & striExpr("ef") <> "abcdef" then
+      writeln(" ***** STRING & STRING does not work correct. (3)");
+      okay := FALSE;
+    end if;
 
-                 ""  &          ""  &          ""  &          ""  <> "" or
+    if           ""  &          ""  &          ""  &          ""  <> "" or
         striExpr("") &          ""  &          ""  &          ""  <> "" or
                  ""  & striExpr("") &          ""  &          ""  <> "" or
         striExpr("") & striExpr("") &          ""  &          ""  <> "" or
@@ -8863,9 +8829,12 @@ const proc: check_string_concat is func
                  "ab"  &          "cd"  & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
         striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
                  "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
-        striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "abcdefgh" or
+        striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") <> "abcdefgh" then
+      writeln(" ***** STRING & STRING does not work correct. (4)");
+      okay := FALSE;
+    end if;
 
-                 "ab"  &          "cd"  &          "ef"  &          "gh"  &          "ij"  <> "abcdefghij" or
+    if           "ab"  &          "cd"  &          "ef"  &          "gh"  &          "ij"  <> "abcdefghij" or
         striExpr("ab") &          "cd"  &          "ef"  &          "gh"  &          "ij"  <> "abcdefghij" or
                  "ab"  & striExpr("cd") &          "ef"  &          "gh"  &          "ij"  <> "abcdefghij" or
         striExpr("ab") & striExpr("cd") &          "ef"  &          "gh"  &          "ij"  <> "abcdefghij" or
@@ -8897,8 +8866,435 @@ const proc: check_string_concat is func
         striExpr("ab") &          "cd"  & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
                  "ab"  & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" or
         striExpr("ab") & striExpr("cd") & striExpr("ef") & striExpr("gh") & striExpr("ij") <> "abcdefghij" then
+      writeln(" ***** STRING & STRING does not work correct. (5)");
+      okay := FALSE;
+    end if;
+  end func;
 
-      writeln(" ***** STRING & STRING does not work correct.");
+
+const func boolean: check_string_concat_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if           ""  & (         ""  &          "" ) <> "" or
+        striExpr("") & (         ""  &          "" ) <> "" or
+                 ""  & (striExpr("") &          "" ) <> "" or
+        striExpr("") & (striExpr("") &          "" ) <> "" or
+                 ""  & (         ""  & striExpr("")) <> "" or
+        striExpr("") & (         ""  & striExpr("")) <> "" or
+                 ""  & (striExpr("") & striExpr("")) <> "" or
+        striExpr("") & (striExpr("") & striExpr("")) <> "" or
+                 ""  & (         ""  &          "ef" ) <> "ef" or
+        striExpr("") & (         ""  &          "ef" ) <> "ef" or
+                 ""  & (striExpr("") &          "ef" ) <> "ef" or
+        striExpr("") & (striExpr("") &          "ef" ) <> "ef" or
+                 ""  & (         ""  & striExpr("ef")) <> "ef" or
+        striExpr("") & (         ""  & striExpr("ef")) <> "ef" or
+                 ""  & (striExpr("") & striExpr("ef")) <> "ef" or
+        striExpr("") & (striExpr("") & striExpr("ef")) <> "ef" or
+                 ""  & (         "cd"  &          "" ) <> "cd" or
+        striExpr("") & (         "cd"  &          "" ) <> "cd" or
+                 ""  & (striExpr("cd") &          "" ) <> "cd" or
+        striExpr("") & (striExpr("cd") &          "" ) <> "cd" or
+                 ""  & (         "cd"  & striExpr("")) <> "cd" or
+        striExpr("") & (         "cd"  & striExpr("")) <> "cd" or
+                 ""  & (striExpr("cd") & striExpr("")) <> "cd" or
+        striExpr("") & (striExpr("cd") & striExpr("")) <> "cd" or
+                 ""  & (         "cd"  &          "ef" ) <> "cdef" or
+        striExpr("") & (         "cd"  &          "ef" ) <> "cdef" or
+                 ""  & (striExpr("cd") &          "ef" ) <> "cdef" or
+        striExpr("") & (striExpr("cd") &          "ef" ) <> "cdef" or
+                 ""  & (         "cd"  & striExpr("ef")) <> "cdef" or
+        striExpr("") & (         "cd"  & striExpr("ef")) <> "cdef" or
+                 ""  & (striExpr("cd") & striExpr("ef")) <> "cdef" or
+        striExpr("") & (striExpr("cd") & striExpr("ef")) <> "cdef" or
+                 "ab"  & (         ""  &          "" ) <> "ab" or
+        striExpr("ab") & (         ""  &          "" ) <> "ab" or
+                 "ab"  & (striExpr("") &          "" ) <> "ab" or
+        striExpr("ab") & (striExpr("") &          "" ) <> "ab" or
+                 "ab"  & (         ""  & striExpr("")) <> "ab" or
+        striExpr("ab") & (         ""  & striExpr("")) <> "ab" or
+                 "ab"  & (striExpr("") & striExpr("")) <> "ab" or
+        striExpr("ab") & (striExpr("") & striExpr("")) <> "ab" or
+                 "ab"  & (         ""  &          "ef" ) <> "abef" or
+        striExpr("ab") & (         ""  &          "ef" ) <> "abef" or
+                 "ab"  & (striExpr("") &          "ef" ) <> "abef" or
+        striExpr("ab") & (striExpr("") &          "ef" ) <> "abef" or
+                 "ab"  & (         ""  & striExpr("ef")) <> "abef" or
+        striExpr("ab") & (         ""  & striExpr("ef")) <> "abef" or
+                 "ab"  & (striExpr("") & striExpr("ef")) <> "abef" or
+        striExpr("ab") & (striExpr("") & striExpr("ef")) <> "abef" or
+                 "ab"  & (         "cd"  &          "" ) <> "abcd" or
+        striExpr("ab") & (         "cd"  &          "" ) <> "abcd" or
+                 "ab"  & (striExpr("cd") &          "" ) <> "abcd" or
+        striExpr("ab") & (striExpr("cd") &          "" ) <> "abcd" or
+                 "ab"  & (         "cd"  & striExpr("")) <> "abcd" or
+        striExpr("ab") & (         "cd"  & striExpr("")) <> "abcd" or
+                 "ab"  & (striExpr("cd") & striExpr("")) <> "abcd" or
+        striExpr("ab") & (striExpr("cd") & striExpr("")) <> "abcd" or
+                 "ab"  & (         "cd"  &          "ef" ) <> "abcdef" or
+        striExpr("ab") & (         "cd"  &          "ef" ) <> "abcdef" or
+                 "ab"  & (striExpr("cd") &          "ef" ) <> "abcdef" or
+        striExpr("ab") & (striExpr("cd") &          "ef" ) <> "abcdef" or
+                 "ab"  & (         "cd"  & striExpr("ef")) <> "abcdef" or
+        striExpr("ab") & (         "cd"  & striExpr("ef")) <> "abcdef" or
+                 "ab"  & (striExpr("cd") & striExpr("ef")) <> "abcdef" or
+        striExpr("ab") & (striExpr("cd") & striExpr("ef")) <> "abcdef" then
+      writeln(" ***** STRING & STRING does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if           ""  & (         ""  & (         ""  &          "" )) <> "" or
+        striExpr("") & (         ""  & (         ""  &          "" )) <> "" or
+                 ""  & (striExpr("") & (         ""  &          "" )) <> "" or
+        striExpr("") & (striExpr("") & (         ""  &          "" )) <> "" or
+                 ""  & (         ""  & (striExpr("") &          "" )) <> "" or
+        striExpr("") & (         ""  & (striExpr("") &          "" )) <> "" or
+                 ""  & (striExpr("") & (striExpr("") &          "" )) <> "" or
+        striExpr("") & (striExpr("") & (striExpr("") &          "" )) <> "" or
+                 ""  & (         ""  & (         ""  & striExpr(""))) <> "" or
+        striExpr("") & (         ""  & (         ""  & striExpr(""))) <> "" or
+                 ""  & (striExpr("") & (         ""  & striExpr(""))) <> "" or
+        striExpr("") & (striExpr("") & (         ""  & striExpr(""))) <> "" or
+                 ""  & (         ""  & (striExpr("") & striExpr(""))) <> "" or
+        striExpr("") & (         ""  & (striExpr("") & striExpr(""))) <> "" or
+                 ""  & (striExpr("") & (striExpr("") & striExpr(""))) <> "" or
+        striExpr("") & (striExpr("") & (striExpr("") & striExpr(""))) <> "" or
+                 ""  & (         ""  & (         ""  &          "gh" )) <> "gh" or
+        striExpr("") & (         ""  & (         ""  &          "gh" )) <> "gh" or
+                 ""  & (striExpr("") & (         ""  &          "gh" )) <> "gh" or
+        striExpr("") & (striExpr("") & (         ""  &          "gh" )) <> "gh" or
+                 ""  & (         ""  & (striExpr("") &          "gh" )) <> "gh" or
+        striExpr("") & (         ""  & (striExpr("") &          "gh" )) <> "gh" or
+                 ""  & (striExpr("") & (striExpr("") &          "gh" )) <> "gh" or
+        striExpr("") & (striExpr("") & (striExpr("") &          "gh" )) <> "gh" or
+                 ""  & (         ""  & (         ""  & striExpr("gh"))) <> "gh" or
+        striExpr("") & (         ""  & (         ""  & striExpr("gh"))) <> "gh" or
+                 ""  & (striExpr("") & (         ""  & striExpr("gh"))) <> "gh" or
+        striExpr("") & (striExpr("") & (         ""  & striExpr("gh"))) <> "gh" or
+                 ""  & (         ""  & (striExpr("") & striExpr("gh"))) <> "gh" or
+        striExpr("") & (         ""  & (striExpr("") & striExpr("gh"))) <> "gh" or
+                 ""  & (striExpr("") & (striExpr("") & striExpr("gh"))) <> "gh" or
+        striExpr("") & (striExpr("") & (striExpr("") & striExpr("gh"))) <> "gh" or
+                 ""  & (         ""  & (         "ef"  &          "" )) <> "ef" or
+        striExpr("") & (         ""  & (         "ef"  &          "" )) <> "ef" or
+                 ""  & (striExpr("") & (         "ef"  &          "" )) <> "ef" or
+        striExpr("") & (striExpr("") & (         "ef"  &          "" )) <> "ef" or
+                 ""  & (         ""  & (striExpr("ef") &          "" )) <> "ef" or
+        striExpr("") & (         ""  & (striExpr("ef") &          "" )) <> "ef" or
+                 ""  & (striExpr("") & (striExpr("ef") &          "" )) <> "ef" or
+        striExpr("") & (striExpr("") & (striExpr("ef") &          "" )) <> "ef" or
+                 ""  & (         ""  & (         "ef"  & striExpr(""))) <> "ef" or
+        striExpr("") & (         ""  & (         "ef"  & striExpr(""))) <> "ef" or
+                 ""  & (striExpr("") & (         "ef"  & striExpr(""))) <> "ef" or
+        striExpr("") & (striExpr("") & (         "ef"  & striExpr(""))) <> "ef" or
+                 ""  & (         ""  & (striExpr("ef") & striExpr(""))) <> "ef" or
+        striExpr("") & (         ""  & (striExpr("ef") & striExpr(""))) <> "ef" or
+                 ""  & (striExpr("") & (striExpr("ef") & striExpr(""))) <> "ef" or
+        striExpr("") & (striExpr("") & (striExpr("ef") & striExpr(""))) <> "ef" or
+                 ""  & (         ""  & (         "ef"  &          "gh" )) <> "efgh" or
+        striExpr("") & (         ""  & (         "ef"  &          "gh" )) <> "efgh" or
+                 ""  & (striExpr("") & (         "ef"  &          "gh" )) <> "efgh" or
+        striExpr("") & (striExpr("") & (         "ef"  &          "gh" )) <> "efgh" or
+                 ""  & (         ""  & (striExpr("ef") &          "gh" )) <> "efgh" or
+        striExpr("") & (         ""  & (striExpr("ef") &          "gh" )) <> "efgh" or
+                 ""  & (striExpr("") & (striExpr("ef") &          "gh" )) <> "efgh" or
+        striExpr("") & (striExpr("") & (striExpr("ef") &          "gh" )) <> "efgh" or
+                 ""  & (         ""  & (         "ef"  & striExpr("gh"))) <> "efgh" or
+        striExpr("") & (         ""  & (         "ef"  & striExpr("gh"))) <> "efgh" or
+                 ""  & (striExpr("") & (         "ef"  & striExpr("gh"))) <> "efgh" or
+        striExpr("") & (striExpr("") & (         "ef"  & striExpr("gh"))) <> "efgh" or
+                 ""  & (         ""  & (striExpr("ef") & striExpr("gh"))) <> "efgh" or
+        striExpr("") & (         ""  & (striExpr("ef") & striExpr("gh"))) <> "efgh" or
+                 ""  & (striExpr("") & (striExpr("ef") & striExpr("gh"))) <> "efgh" or
+        striExpr("") & (striExpr("") & (striExpr("ef") & striExpr("gh"))) <> "efgh" or
+                 ""  & (         "cd"  & (         ""  &          "" )) <> "cd" or
+        striExpr("") & (         "cd"  & (         ""  &          "" )) <> "cd" or
+                 ""  & (striExpr("cd") & (         ""  &          "" )) <> "cd" or
+        striExpr("") & (striExpr("cd") & (         ""  &          "" )) <> "cd" or
+                 ""  & (         "cd"  & (striExpr("") &          "" )) <> "cd" or
+        striExpr("") & (         "cd"  & (striExpr("") &          "" )) <> "cd" or
+                 ""  & (striExpr("cd") & (striExpr("") &          "" )) <> "cd" or
+        striExpr("") & (striExpr("cd") & (striExpr("") &          "" )) <> "cd" or
+                 ""  & (         "cd"  & (         ""  & striExpr(""))) <> "cd" or
+        striExpr("") & (         "cd"  & (         ""  & striExpr(""))) <> "cd" or
+                 ""  & (striExpr("cd") & (         ""  & striExpr(""))) <> "cd" or
+        striExpr("") & (striExpr("cd") & (         ""  & striExpr(""))) <> "cd" or
+                 ""  & (         "cd"  & (striExpr("") & striExpr(""))) <> "cd" or
+        striExpr("") & (         "cd"  & (striExpr("") & striExpr(""))) <> "cd" or
+                 ""  & (striExpr("cd") & (striExpr("") & striExpr(""))) <> "cd" or
+        striExpr("") & (striExpr("cd") & (striExpr("") & striExpr(""))) <> "cd" or
+                 ""  & (         "cd"  & (         ""  &          "gh" )) <> "cdgh" or
+        striExpr("") & (         "cd"  & (         ""  &          "gh" )) <> "cdgh" or
+                 ""  & (striExpr("cd") & (         ""  &          "gh" )) <> "cdgh" or
+        striExpr("") & (striExpr("cd") & (         ""  &          "gh" )) <> "cdgh" or
+                 ""  & (         "cd"  & (striExpr("") &          "gh" )) <> "cdgh" or
+        striExpr("") & (         "cd"  & (striExpr("") &          "gh" )) <> "cdgh" or
+                 ""  & (striExpr("cd") & (striExpr("") &          "gh" )) <> "cdgh" or
+        striExpr("") & (striExpr("cd") & (striExpr("") &          "gh" )) <> "cdgh" or
+                 ""  & (         "cd"  & (         ""  & striExpr("gh"))) <> "cdgh" or
+        striExpr("") & (         "cd"  & (         ""  & striExpr("gh"))) <> "cdgh" or
+                 ""  & (striExpr("cd") & (         ""  & striExpr("gh"))) <> "cdgh" or
+        striExpr("") & (striExpr("cd") & (         ""  & striExpr("gh"))) <> "cdgh" or
+                 ""  & (         "cd"  & (striExpr("") & striExpr("gh"))) <> "cdgh" or
+        striExpr("") & (         "cd"  & (striExpr("") & striExpr("gh"))) <> "cdgh" or
+                 ""  & (striExpr("cd") & (striExpr("") & striExpr("gh"))) <> "cdgh" or
+        striExpr("") & (striExpr("cd") & (striExpr("") & striExpr("gh"))) <> "cdgh" or
+                 ""  & (         "cd"  & (         "ef"  &          "" )) <> "cdef" or
+        striExpr("") & (         "cd"  & (         "ef"  &          "" )) <> "cdef" or
+                 ""  & (striExpr("cd") & (         "ef"  &          "" )) <> "cdef" or
+        striExpr("") & (striExpr("cd") & (         "ef"  &          "" )) <> "cdef" or
+                 ""  & (         "cd"  & (striExpr("ef") &          "" )) <> "cdef" or
+        striExpr("") & (         "cd"  & (striExpr("ef") &          "" )) <> "cdef" or
+                 ""  & (striExpr("cd") & (striExpr("ef") &          "" )) <> "cdef" or
+        striExpr("") & (striExpr("cd") & (striExpr("ef") &          "" )) <> "cdef" or
+                 ""  & (         "cd"  & (         "ef"  & striExpr(""))) <> "cdef" or
+        striExpr("") & (         "cd"  & (         "ef"  & striExpr(""))) <> "cdef" or
+                 ""  & (striExpr("cd") & (         "ef"  & striExpr(""))) <> "cdef" or
+        striExpr("") & (striExpr("cd") & (         "ef"  & striExpr(""))) <> "cdef" or
+                 ""  & (         "cd"  & (striExpr("ef") & striExpr(""))) <> "cdef" or
+        striExpr("") & (         "cd"  & (striExpr("ef") & striExpr(""))) <> "cdef" or
+                 ""  & (striExpr("cd") & (striExpr("ef") & striExpr(""))) <> "cdef" or
+        striExpr("") & (striExpr("cd") & (striExpr("ef") & striExpr(""))) <> "cdef" or
+                 ""  & (         "cd"  & (         "ef"  &          "gh" )) <> "cdefgh" or
+        striExpr("") & (         "cd"  & (         "ef"  &          "gh" )) <> "cdefgh" or
+                 ""  & (striExpr("cd") & (         "ef"  &          "gh" )) <> "cdefgh" or
+        striExpr("") & (striExpr("cd") & (         "ef"  &          "gh" )) <> "cdefgh" or
+                 ""  & (         "cd"  & (striExpr("ef") &          "gh" )) <> "cdefgh" or
+        striExpr("") & (         "cd"  & (striExpr("ef") &          "gh" )) <> "cdefgh" or
+                 ""  & (striExpr("cd") & (striExpr("ef") &          "gh" )) <> "cdefgh" or
+        striExpr("") & (striExpr("cd") & (striExpr("ef") &          "gh" )) <> "cdefgh" or
+                 ""  & (         "cd"  & (         "ef"  & striExpr("gh"))) <> "cdefgh" or
+        striExpr("") & (         "cd"  & (         "ef"  & striExpr("gh"))) <> "cdefgh" or
+                 ""  & (striExpr("cd") & (         "ef"  & striExpr("gh"))) <> "cdefgh" or
+        striExpr("") & (striExpr("cd") & (         "ef"  & striExpr("gh"))) <> "cdefgh" or
+                 ""  & (         "cd"  & (striExpr("ef") & striExpr("gh"))) <> "cdefgh" or
+        striExpr("") & (         "cd"  & (striExpr("ef") & striExpr("gh"))) <> "cdefgh" or
+                 ""  & (striExpr("cd") & (striExpr("ef") & striExpr("gh"))) <> "cdefgh" or
+        striExpr("") & (striExpr("cd") & (striExpr("ef") & striExpr("gh"))) <> "cdefgh" or
+                 "ab"  & (         ""  & (         ""  &          "" )) <> "ab" or
+        striExpr("ab") & (         ""  & (         ""  &          "" )) <> "ab" or
+                 "ab"  & (striExpr("") & (         ""  &          "" )) <> "ab" or
+        striExpr("ab") & (striExpr("") & (         ""  &          "" )) <> "ab" or
+                 "ab"  & (         ""  & (striExpr("") &          "" )) <> "ab" or
+        striExpr("ab") & (         ""  & (striExpr("") &          "" )) <> "ab" or
+                 "ab"  & (striExpr("") & (striExpr("") &          "" )) <> "ab" or
+        striExpr("ab") & (striExpr("") & (striExpr("") &          "" )) <> "ab" or
+                 "ab"  & (         ""  & (         ""  & striExpr(""))) <> "ab" or
+        striExpr("ab") & (         ""  & (         ""  & striExpr(""))) <> "ab" or
+                 "ab"  & (striExpr("") & (         ""  & striExpr(""))) <> "ab" or
+        striExpr("ab") & (striExpr("") & (         ""  & striExpr(""))) <> "ab" or
+                 "ab"  & (         ""  & (striExpr("") & striExpr(""))) <> "ab" or
+        striExpr("ab") & (         ""  & (striExpr("") & striExpr(""))) <> "ab" or
+                 "ab"  & (striExpr("") & (striExpr("") & striExpr(""))) <> "ab" or
+        striExpr("ab") & (striExpr("") & (striExpr("") & striExpr(""))) <> "ab" or
+                 "ab"  & (         ""  & (         ""  &          "gh" )) <> "abgh" or
+        striExpr("ab") & (         ""  & (         ""  &          "gh" )) <> "abgh" or
+                 "ab"  & (striExpr("") & (         ""  &          "gh" )) <> "abgh" or
+        striExpr("ab") & (striExpr("") & (         ""  &          "gh" )) <> "abgh" or
+                 "ab"  & (         ""  & (striExpr("") &          "gh" )) <> "abgh" or
+        striExpr("ab") & (         ""  & (striExpr("") &          "gh" )) <> "abgh" or
+                 "ab"  & (striExpr("") & (striExpr("") &          "gh" )) <> "abgh" or
+        striExpr("ab") & (striExpr("") & (striExpr("") &          "gh" )) <> "abgh" or
+                 "ab"  & (         ""  & (         ""  & striExpr("gh"))) <> "abgh" or
+        striExpr("ab") & (         ""  & (         ""  & striExpr("gh"))) <> "abgh" or
+                 "ab"  & (striExpr("") & (         ""  & striExpr("gh"))) <> "abgh" or
+        striExpr("ab") & (striExpr("") & (         ""  & striExpr("gh"))) <> "abgh" or
+                 "ab"  & (         ""  & (striExpr("") & striExpr("gh"))) <> "abgh" or
+        striExpr("ab") & (         ""  & (striExpr("") & striExpr("gh"))) <> "abgh" or
+                 "ab"  & (striExpr("") & (striExpr("") & striExpr("gh"))) <> "abgh" or
+        striExpr("ab") & (striExpr("") & (striExpr("") & striExpr("gh"))) <> "abgh" or
+                 "ab"  & (         ""  & (         "ef"  &          "" )) <> "abef" or
+        striExpr("ab") & (         ""  & (         "ef"  &          "" )) <> "abef" or
+                 "ab"  & (striExpr("") & (         "ef"  &          "" )) <> "abef" or
+        striExpr("ab") & (striExpr("") & (         "ef"  &          "" )) <> "abef" or
+                 "ab"  & (         ""  & (striExpr("ef") &          "" )) <> "abef" or
+        striExpr("ab") & (         ""  & (striExpr("ef") &          "" )) <> "abef" or
+                 "ab"  & (striExpr("") & (striExpr("ef") &          "" )) <> "abef" or
+        striExpr("ab") & (striExpr("") & (striExpr("ef") &          "" )) <> "abef" or
+                 "ab"  & (         ""  & (         "ef"  & striExpr(""))) <> "abef" or
+        striExpr("ab") & (         ""  & (         "ef"  & striExpr(""))) <> "abef" or
+                 "ab"  & (striExpr("") & (         "ef"  & striExpr(""))) <> "abef" or
+        striExpr("ab") & (striExpr("") & (         "ef"  & striExpr(""))) <> "abef" or
+                 "ab"  & (         ""  & (striExpr("ef") & striExpr(""))) <> "abef" or
+        striExpr("ab") & (         ""  & (striExpr("ef") & striExpr(""))) <> "abef" or
+                 "ab"  & (striExpr("") & (striExpr("ef") & striExpr(""))) <> "abef" or
+        striExpr("ab") & (striExpr("") & (striExpr("ef") & striExpr(""))) <> "abef" or
+                 "ab"  & (         ""  & (         "ef"  &          "gh" )) <> "abefgh" or
+        striExpr("ab") & (         ""  & (         "ef"  &          "gh" )) <> "abefgh" or
+                 "ab"  & (striExpr("") & (         "ef"  &          "gh" )) <> "abefgh" or
+        striExpr("ab") & (striExpr("") & (         "ef"  &          "gh" )) <> "abefgh" or
+                 "ab"  & (         ""  & (striExpr("ef") &          "gh" )) <> "abefgh" or
+        striExpr("ab") & (         ""  & (striExpr("ef") &          "gh" )) <> "abefgh" or
+                 "ab"  & (striExpr("") & (striExpr("ef") &          "gh" )) <> "abefgh" or
+        striExpr("ab") & (striExpr("") & (striExpr("ef") &          "gh" )) <> "abefgh" or
+                 "ab"  & (         ""  & (         "ef"  & striExpr("gh"))) <> "abefgh" or
+        striExpr("ab") & (         ""  & (         "ef"  & striExpr("gh"))) <> "abefgh" or
+                 "ab"  & (striExpr("") & (         "ef"  & striExpr("gh"))) <> "abefgh" or
+        striExpr("ab") & (striExpr("") & (         "ef"  & striExpr("gh"))) <> "abefgh" or
+                 "ab"  & (         ""  & (striExpr("ef") & striExpr("gh"))) <> "abefgh" or
+        striExpr("ab") & (         ""  & (striExpr("ef") & striExpr("gh"))) <> "abefgh" or
+                 "ab"  & (striExpr("") & (striExpr("ef") & striExpr("gh"))) <> "abefgh" or
+        striExpr("ab") & (striExpr("") & (striExpr("ef") & striExpr("gh"))) <> "abefgh" or
+                 "ab"  & (         "cd"  & (         ""  &          "" )) <> "abcd" or
+        striExpr("ab") & (         "cd"  & (         ""  &          "" )) <> "abcd" or
+                 "ab"  & (striExpr("cd") & (         ""  &          "" )) <> "abcd" or
+        striExpr("ab") & (striExpr("cd") & (         ""  &          "" )) <> "abcd" or
+                 "ab"  & (         "cd"  & (striExpr("") &          "" )) <> "abcd" or
+        striExpr("ab") & (         "cd"  & (striExpr("") &          "" )) <> "abcd" or
+                 "ab"  & (striExpr("cd") & (striExpr("") &          "" )) <> "abcd" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("") &          "" )) <> "abcd" or
+                 "ab"  & (         "cd"  & (         ""  & striExpr(""))) <> "abcd" or
+        striExpr("ab") & (         "cd"  & (         ""  & striExpr(""))) <> "abcd" or
+                 "ab"  & (striExpr("cd") & (         ""  & striExpr(""))) <> "abcd" or
+        striExpr("ab") & (striExpr("cd") & (         ""  & striExpr(""))) <> "abcd" or
+                 "ab"  & (         "cd"  & (striExpr("") & striExpr(""))) <> "abcd" or
+        striExpr("ab") & (         "cd"  & (striExpr("") & striExpr(""))) <> "abcd" or
+                 "ab"  & (striExpr("cd") & (striExpr("") & striExpr(""))) <> "abcd" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("") & striExpr(""))) <> "abcd" or
+                 "ab"  & (         "cd"  & (         ""  &          "gh" )) <> "abcdgh" or
+        striExpr("ab") & (         "cd"  & (         ""  &          "gh" )) <> "abcdgh" or
+                 "ab"  & (striExpr("cd") & (         ""  &          "gh" )) <> "abcdgh" or
+        striExpr("ab") & (striExpr("cd") & (         ""  &          "gh" )) <> "abcdgh" or
+                 "ab"  & (         "cd"  & (striExpr("") &          "gh" )) <> "abcdgh" or
+        striExpr("ab") & (         "cd"  & (striExpr("") &          "gh" )) <> "abcdgh" or
+                 "ab"  & (striExpr("cd") & (striExpr("") &          "gh" )) <> "abcdgh" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("") &          "gh" )) <> "abcdgh" or
+                 "ab"  & (         "cd"  & (         ""  & striExpr("gh"))) <> "abcdgh" or
+        striExpr("ab") & (         "cd"  & (         ""  & striExpr("gh"))) <> "abcdgh" or
+                 "ab"  & (striExpr("cd") & (         ""  & striExpr("gh"))) <> "abcdgh" or
+        striExpr("ab") & (striExpr("cd") & (         ""  & striExpr("gh"))) <> "abcdgh" or
+                 "ab"  & (         "cd"  & (striExpr("") & striExpr("gh"))) <> "abcdgh" or
+        striExpr("ab") & (         "cd"  & (striExpr("") & striExpr("gh"))) <> "abcdgh" or
+                 "ab"  & (striExpr("cd") & (striExpr("") & striExpr("gh"))) <> "abcdgh" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("") & striExpr("gh"))) <> "abcdgh" or
+                 "ab"  & (         "cd"  & (         "ef"  &          "" )) <> "abcdef" or
+        striExpr("ab") & (         "cd"  & (         "ef"  &          "" )) <> "abcdef" or
+                 "ab"  & (striExpr("cd") & (         "ef"  &          "" )) <> "abcdef" or
+        striExpr("ab") & (striExpr("cd") & (         "ef"  &          "" )) <> "abcdef" or
+                 "ab"  & (         "cd"  & (striExpr("ef") &          "" )) <> "abcdef" or
+        striExpr("ab") & (         "cd"  & (striExpr("ef") &          "" )) <> "abcdef" or
+                 "ab"  & (striExpr("cd") & (striExpr("ef") &          "" )) <> "abcdef" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("ef") &          "" )) <> "abcdef" or
+                 "ab"  & (         "cd"  & (         "ef"  & striExpr(""))) <> "abcdef" or
+        striExpr("ab") & (         "cd"  & (         "ef"  & striExpr(""))) <> "abcdef" or
+                 "ab"  & (striExpr("cd") & (         "ef"  & striExpr(""))) <> "abcdef" or
+        striExpr("ab") & (striExpr("cd") & (         "ef"  & striExpr(""))) <> "abcdef" or
+                 "ab"  & (         "cd"  & (striExpr("ef") & striExpr(""))) <> "abcdef" or
+        striExpr("ab") & (         "cd"  & (striExpr("ef") & striExpr(""))) <> "abcdef" or
+                 "ab"  & (striExpr("cd") & (striExpr("ef") & striExpr(""))) <> "abcdef" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("ef") & striExpr(""))) <> "abcdef" or
+                 "ab"  & (         "cd"  & (         "ef"  &          "gh" )) <> "abcdefgh" or
+        striExpr("ab") & (         "cd"  & (         "ef"  &          "gh" )) <> "abcdefgh" or
+                 "ab"  & (striExpr("cd") & (         "ef"  &          "gh" )) <> "abcdefgh" or
+        striExpr("ab") & (striExpr("cd") & (         "ef"  &          "gh" )) <> "abcdefgh" or
+                 "ab"  & (         "cd"  & (striExpr("ef") &          "gh" )) <> "abcdefgh" or
+        striExpr("ab") & (         "cd"  & (striExpr("ef") &          "gh" )) <> "abcdefgh" or
+                 "ab"  & (striExpr("cd") & (striExpr("ef") &          "gh" )) <> "abcdefgh" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("ef") &          "gh" )) <> "abcdefgh" or
+                 "ab"  & (         "cd"  & (         "ef"  & striExpr("gh"))) <> "abcdefgh" or
+        striExpr("ab") & (         "cd"  & (         "ef"  & striExpr("gh"))) <> "abcdefgh" or
+                 "ab"  & (striExpr("cd") & (         "ef"  & striExpr("gh"))) <> "abcdefgh" or
+        striExpr("ab") & (striExpr("cd") & (         "ef"  & striExpr("gh"))) <> "abcdefgh" or
+                 "ab"  & (         "cd"  & (striExpr("ef") & striExpr("gh"))) <> "abcdefgh" or
+        striExpr("ab") & (         "cd"  & (striExpr("ef") & striExpr("gh"))) <> "abcdefgh" or
+                 "ab"  & (striExpr("cd") & (striExpr("ef") & striExpr("gh"))) <> "abcdefgh" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("ef") & striExpr("gh"))) <> "abcdefgh" then
+      writeln(" ***** STRING & STRING does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+
+    if           "ab"  & (         "cd"  & (         "ef"  & (         "gh"  &          "ij" ))) <> "abcdefghij" or
+        striExpr("ab") & (         "cd"  & (         "ef"  & (         "gh"  &          "ij" ))) <> "abcdefghij" or
+                 "ab"  & (striExpr("cd") & (         "ef"  & (         "gh"  &          "ij" ))) <> "abcdefghij" or
+        striExpr("ab") & (striExpr("cd") & (         "ef"  & (         "gh"  &          "ij" ))) <> "abcdefghij" or
+                 "ab"  & (         "cd"  & (striExpr("ef") & (         "gh"  &          "ij" ))) <> "abcdefghij" or
+        striExpr("ab") & (         "cd"  & (striExpr("ef") & (         "gh"  &          "ij" ))) <> "abcdefghij" or
+                 "ab"  & (striExpr("cd") & (striExpr("ef") & (         "gh"  &          "ij" ))) <> "abcdefghij" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("ef") & (         "gh"  &          "ij" ))) <> "abcdefghij" or
+                 "ab"  & (         "cd"  & (         "ef"  & (striExpr("gh") &          "ij" ))) <> "abcdefghij" or
+        striExpr("ab") & (         "cd"  & (         "ef"  & (striExpr("gh") &          "ij" ))) <> "abcdefghij" or
+                 "ab"  & (striExpr("cd") & (         "ef"  & (striExpr("gh") &          "ij" ))) <> "abcdefghij" or
+        striExpr("ab") & (striExpr("cd") & (         "ef"  & (striExpr("gh") &          "ij" ))) <> "abcdefghij" or
+                 "ab"  & (         "cd"  & (striExpr("ef") & (striExpr("gh") &          "ij" ))) <> "abcdefghij" or
+        striExpr("ab") & (         "cd"  & (striExpr("ef") & (striExpr("gh") &          "ij" ))) <> "abcdefghij" or
+                 "ab"  & (striExpr("cd") & (striExpr("ef") & (striExpr("gh") &          "ij" ))) <> "abcdefghij" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("ef") & (striExpr("gh") &          "ij" ))) <> "abcdefghij" or
+                 "ab"  & (         "cd"  & (         "ef"  & (         "gh"  & striExpr("ij")))) <> "abcdefghij" or
+        striExpr("ab") & (         "cd"  & (         "ef"  & (         "gh"  & striExpr("ij")))) <> "abcdefghij" or
+                 "ab"  & (striExpr("cd") & (         "ef"  & (         "gh"  & striExpr("ij")))) <> "abcdefghij" or
+        striExpr("ab") & (striExpr("cd") & (         "ef"  & (         "gh"  & striExpr("ij")))) <> "abcdefghij" or
+                 "ab"  & (         "cd"  & (striExpr("ef") & (         "gh"  & striExpr("ij")))) <> "abcdefghij" or
+        striExpr("ab") & (         "cd"  & (striExpr("ef") & (         "gh"  & striExpr("ij")))) <> "abcdefghij" or
+                 "ab"  & (striExpr("cd") & (striExpr("ef") & (         "gh"  & striExpr("ij")))) <> "abcdefghij" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("ef") & (         "gh"  & striExpr("ij")))) <> "abcdefghij" or
+                 "ab"  & (         "cd"  & (         "ef"  & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" or
+        striExpr("ab") & (         "cd"  & (         "ef"  & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" or
+                 "ab"  & (striExpr("cd") & (         "ef"  & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" or
+        striExpr("ab") & (striExpr("cd") & (         "ef"  & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" or
+                 "ab"  & (         "cd"  & (striExpr("ef") & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" or
+        striExpr("ab") & (         "cd"  & (striExpr("ef") & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" or
+                 "ab"  & (striExpr("cd") & (striExpr("ef") & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" or
+        striExpr("ab") & (striExpr("cd") & (striExpr("ef") & (striExpr("gh") & striExpr("ij")))) <> "abcdefghij" then
+      writeln(" ***** STRING & STRING does not work correct. (8)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_concat is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  "" & "" <> "" or
+        "" & "a" <> "a" or
+        "a" & "" <> "a" or
+        "" & "ab" <> "ab" or
+        "a" & "b" <> "ab" or
+        "ab" & "" <> "ab" or
+        "" & "abc" <> "abc" or
+        "a" & "bc" <> "abc" or
+        "ab" & "c" <> "abc" or
+        "abc" & "" <> "abc" or
+        "" & "abcd" <> "abcd" or
+        "a" & "bcd" <> "abcd" or
+        "ab" & "cd" <> "abcd" or
+        "abc" & "d" <> "abcd" or
+        "abcd" & "" <> "abcd" or
+        "" & "abcde" <> "abcde" or
+        "a" & "bcde" <> "abcde" or
+        "ab" & "cde" <> "abcde" or
+        "abc" & "de" <> "abcde" or
+        "abcd" & "e" <> "abcde" or
+        "abcde" & "" <> "abcde" or
+        "" & "abcdef" <> "abcdef" or
+        "a" & "bcdef" <> "abcdef" or
+        "ab" & "cdef" <> "abcdef" or
+        "abc" & "def" <> "abcdef" or
+        "abcd" & "ef" <> "abcdef" or
+        "abcde" & "f" <> "abcdef" or
+        "abcdef" & "" <> "abcdef" or
+        "" & "abcdefghij" <> "abcdefghij" or
+        "a" & "bcdefghij" <> "abcdefghij" or
+        "ab" & "cdefghij" <> "abcdefghij" or
+        "abc" & "defghij" <> "abcdefghij" or
+        "abcd" & "efghij" <> "abcdefghij" or
+        "abcde" & "fghij" <> "abcdefghij" or
+        "abcdef" & "ghij" <> "abcdefghij" or
+        "abcdefg" & "hij" <> "abcdefghij" or
+        "abcdefgh" & "ij" <> "abcdefghij" or
+        "abcdefghi" & "j" <> "abcdefghij" or
+        "abcdefghij" & "" <> "abcdefghij" then
+      writeln(" ***** STRING & STRING does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if not check_string_concat_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_concat_2 then
       okay := FALSE;
     end if;
 
