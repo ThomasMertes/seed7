@@ -2317,7 +2317,7 @@ static bigIntType bigModSizeLess (const const_bigIntType dividend,
         modulo = normalize(modulo);
       } /* if */
     } /* if */
-    logFunction(printf("bigModSizeLess --> %s\n", bigHexCStri(quotient)););
+    logFunction(printf("bigModSizeLess --> %s\n", bigHexCStri(modulo)););
     return modulo;
   } /* bigModSizeLess */
 

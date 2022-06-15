@@ -1039,7 +1039,7 @@ void arrInsert (rtlArrayType *arr_to, intType position, genericType element)
     arr1 = *arr_to;
     logFunction(printf("arrInsert(" FMT_U_MEM " (size=" FMT_U_MEM "), "
                        FMT_D ", " FMT_U "))\n",
-                       arr1, arraySize(arr1), position, element););
+                       (memSizeType) arr1, arraySize(arr1), position, element););
     if (unlikely(position < arr1->min_position ||
                  position > arr1->max_position + 1)) {
       logError(printf("arrInsert(arr1, " FMT_D ", *): "
@@ -1398,7 +1398,7 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
   /* arrRemove */
     arr1 = *arr_to;
     logFunction(printf("arrRemove(" FMT_U_MEM " (size=" FMT_U_MEM "), " FMT_D "))\n",
-                       arr1, arraySize(arr1), position););
+                       (memSizeType) arr1, arraySize(arr1), position););
     if (unlikely(position < arr1->min_position ||
                  position > arr1->max_position)) {
       logError(printf("arrRemove(arr1, " FMT_D "): "
@@ -1457,7 +1457,7 @@ rtlArrayType arrRemoveArray (rtlArrayType *arr_to, intType position, intType len
     arr1 = *arr_to;
     logFunction(printf("arrRemoveArray(" FMT_U_MEM " (size=" FMT_U_MEM "), "
                        FMT_D ", " FMT_D "))\n",
-                       arr1, arraySize(arr1), position, length););
+                       (memSizeType) arr1, arraySize(arr1), position, length););
     if (unlikely(length < 0)) {
       logError(printf("arrRemoveArray(arr1, " FMT_D ", " FMT_D "): "
                       "Length is negative.\n", position, length););

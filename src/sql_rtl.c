@@ -1352,7 +1352,7 @@ void sqlSetAutoCommit (databaseType database, boolType autoCommit)
     } else {
       ((dbType) database)->sqlFunc->sqlSetAutoCommit(database, autoCommit);
     } /* if */
-    logFunction(printf("sqlSetAutoCommit --> %d\n", fetchOkay););
+    logFunction(printf("sqlSetAutoCommit -->\n"););
   } /* sqlSetAutoCommit */
 
 

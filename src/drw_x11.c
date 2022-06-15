@@ -604,9 +604,9 @@ intType drwPointerXpos (const_winType actual_window)
                   &root_x, &root_y, &xPos, &yPos, &keys_buttons);
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
        root, child, root_x, root_y, xPos, yPos, keys_buttons); */
-    logFunction(printf("drwPointerXpos(" FMT_U_MEM ") --> " FMT_D "\n",
+    logFunction(printf("drwPointerXpos(" FMT_U_MEM ") --> %d\n",
                        (memSizeType) actual_window, xPos););
-    return xPos;
+    return (intType) xPos;
   } /* drwPointerXpos */
 
 
@@ -639,9 +639,9 @@ intType drwPointerYpos (const_winType actual_window)
                   &root_x, &root_y, &xPos, &yPos, &keys_buttons);
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
        root, child, root_x, root_y, xPos, yPos, keys_buttons); */
-    logFunction(printf("drwPointerYpos(" FMT_U_MEM ") --> " FMT_D "\n",
+    logFunction(printf("drwPointerYpos(" FMT_U_MEM ") --> %d\n",
                        (memSizeType) actual_window, yPos););
-    return yPos;
+    return (intType) yPos;
   } /* drwPointerYpos */
 
 

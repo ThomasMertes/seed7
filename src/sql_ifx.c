@@ -246,7 +246,7 @@ static boolType createConnectionString (connectDataType connectData, boolType wi
       } /* if */
     } /* if */
     logFunction(printf("createConnectionString --> %d (connectionString=\"", okay);
-                printWstri(connectData->connectionString);
+                printWstri(connectionString);
                 printf("\")\n"););
     return okay;
   } /* createConnectionString */
