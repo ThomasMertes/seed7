@@ -232,6 +232,7 @@ msgdigest.s7i Message digest and secure hash algorithms.
 multiscr.s7i Demonstration for several file filters
 null_file.s7i Base implementation type for all files
 osfiles.s7i  Functions to handle operating system files
+pem.s7i      Support for the PEM cryptographic file format.
 pic16.s7i    Pictures in the size 16 x 16
 pic32.s7i    Pictures in the size 32 x 32
 pic_util.s7i Picture utility functions

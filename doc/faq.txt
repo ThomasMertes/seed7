@@ -1991,15 +1991,21 @@ What is an integer overflow?
 ============================
 
 An integer overflow occurs if a calculation produces a result that
-cannot be stored in an integer variable. Very popular languages such as
-C, C++, Java, Objective-C and Go do not care about integer overflow.
-Programs in this languages continue to execute with a wrong value
-instead of the correct result. This wrong value can then trigger
-dangerous things. A program can make wrong decisions or produce wrong
-output, without any hint that an integer overflow occurred. In Seed7
-the exception OVERFLOW_ERROR is raised if an overflow occurs.
-If performance is important the overflow checking can be switched
-off with the compiler option -so.
+cannot be stored in an integer variable. E.g.:
+
+  1234567890 * 9876543210
+
+The correct result is 12193263111263526900 but this value does not fit
+into a 64-bit signed 'integer' variable. The lowest 64 bits of the
+result correspond to -6253480962446024716 which is obviously wrong.
+Very popular languages such as C, C++, Java, Objective-C and Go
+do not care about integer overflow. Programs in these languages
+continue to execute with a wrong value instead of the correct result.
+This wrong value can then trigger dangerous things. A program can
+make wrong decisions or produce wrong output, without any hint that
+an integer overflow occurred. In Seed7 the exception OVERFLOW_ERROR
+is raised if an overflow occurs. If performance is important the
+overflow checking can be switched off with the compiler option -so.
 
 
 Why are integers not promoted to bigInteger when they overflow?

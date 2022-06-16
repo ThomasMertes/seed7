@@ -198,7 +198,7 @@ pre.indent {
 </head>
 <body>
 
-<div><a name="build_BUILD_SEED7"><!--(*--><hr /><h1 align="center">Build Seed7</h1><hr /><!--*)-->
+<p></p><div><a name="build_BUILD_SEED7"><!--(*--><hr /><h1 align="center">Build Seed7</h1><hr /><!--*)-->
 </a>
 <p>
     The way to compile the interpreter depends on the operating
@@ -1110,15 +1110,15 @@ make depend
 #define BIGINT_LIB BIG_GMP_LIBRARY
 </pre><p>
   Additionally the option to link the GMP library is added to
-  ADDITIONAL_SYSTEM_LIBS. ADDITIONAL_SYSTEM_LIBS can be found
+  SYSTEM_BIGINT_LIBS. SYSTEM_BIGINT_LIBS can be found
   in version.h:
 </p><pre class="indent">
-#define ADDITIONAL_SYSTEM_LIBS "  ...  -lgmp"
+#define SYSTEM_BIGINT_LIBS "-lgmp"
 </pre><p>
   The file macros will also contain a definition of
-  ADDITIONAL_SYSTEM_LIBS:
+  SYSTEM_BIGINT_LIBS:
 </p><pre class="indent">
-ADDITIONAL_SYSTEM_LIBS =  ...  -lgmp
+SYSTEM_BIGINT_LIBS = -lgmp
 </pre><p>
   If everything works as expected the GMP library will be
   used automatically.
@@ -1142,8 +1142,10 @@ echo "#define BIGINT_LIBS \" option to link GMP \"" >> chkccomp.h
   to write a definition of BIGINT_LIBS to the file chkccomp.h.
 </p><p>
   The GMP library might be used by other libraries as well.
-  In some cases the other users of the GMP library use
-  custom memory allocations that may corrupt the memory.
+  In some cases the other users of the GMP library use a
+  custom memory allocator. By design all users of GMP share
+  the same custom memory allocator. Memory could be freed
+  with the wrong allocator and this corrupts the heap.
   If you see buffer overflow errors or corrupt heap memory
   you should switch back to the default bigInteger library.
 </p></div>

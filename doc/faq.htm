@@ -2492,15 +2492,21 @@ is assigned to <tt>'result'</tt>.
 </h3></a><hr />
 <p>
 An <span class="link">integer overflow</span> occurs if a calculation produces a result that
-cannot be stored in an integer variable. Very popular languages such as
-C, C++, Java, Objective-C and Go do not care about integer overflow.
-Programs in this languages continue to execute with a wrong value
-instead of the correct result. This wrong value can then trigger
-dangerous things. A program can make wrong decisions or produce wrong
-output, without any hint that an integer overflow occurred. In Seed7
-the <span class="link">exception</span> <tt><span class="exception">OVERFLOW_ERROR</span></tt> is raised if an overflow occurs.
-If performance is important the overflow checking can be switched
-off with the <span class="link">compiler</span> option <a class="link" href="#faq_compiler_option-s"><tt><b>-so</b></tt></a>.
+cannot be stored in an integer variable. E.g.:
+</p><pre class="indent">
+1234567890 * 9876543210
+</pre><p>
+The correct result is <tt>12193263111263526900</tt> but this value does not fit
+into a 64-bit signed <tt><span class="type">integer</span></tt> variable. The lowest 64 bits of the
+result correspond to <tt>-6253480962446024716</tt> which is obviously wrong.
+Very popular languages such as C, C++, Java, Objective-C and Go
+do not care about integer overflow. Programs in these languages
+continue to execute with a wrong value instead of the correct result.
+This wrong value can then trigger dangerous things. A program can
+make wrong decisions or produce wrong output, without any hint that
+an integer overflow occurred. In Seed7 the <span class="link">exception</span> <tt><span class="exception">OVERFLOW_ERROR</span></tt>
+is raised if an overflow occurs. If performance is important the
+overflow checking can be switched off with the <span class="link">compiler</span> option <a class="link" href="#faq_compiler_option-s"><tt><b>-so</b></tt></a>.
 </p></div>
 
 <div><br /><a name="faq_integer_to_bigInteger_promotion"><h3>Why are integers not promoted to bigInteger when they overflow?

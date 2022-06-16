@@ -772,7 +772,8 @@ CONTENTS
 
 2.5 For loop and containers
 
-    A for-loop can be used to iterate over an 'array':
+    A for-loop can be used to iterate over the elements of an 'array'
+  (so it is actually a for-each-loop):
 
     $ include "seed7_05.s7i";
 

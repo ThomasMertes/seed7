@@ -911,15 +911,15 @@ HOW TO USE THE GMP LIBRARY?
     #define BIGINT_LIB BIG_GMP_LIBRARY
 
   Additionally the option to link the GMP library is added to
-  ADDITIONAL_SYSTEM_LIBS. ADDITIONAL_SYSTEM_LIBS can be found
+  SYSTEM_BIGINT_LIBS. SYSTEM_BIGINT_LIBS can be found
   in version.h:
 
-    #define ADDITIONAL_SYSTEM_LIBS "  ...  -lgmp"
+    #define SYSTEM_BIGINT_LIBS "-lgmp"
 
   The file macros will also contain a definition of
-  ADDITIONAL_SYSTEM_LIBS:
+  SYSTEM_BIGINT_LIBS:
 
-    ADDITIONAL_SYSTEM_LIBS =  ...  -lgmp
+    SYSTEM_BIGINT_LIBS = -lgmp
 
   If everything works as expected the GMP library will be
   used automatically.
@@ -943,8 +943,10 @@ HOW TO USE THE GMP LIBRARY?
   to write a definition of BIGINT_LIBS to the file chkccomp.h.
 
   The GMP library might be used by other libraries as well.
-  In some cases the other users of the GMP library use
-  custom memory allocations that may corrupt the memory.
+  In some cases the other users of the GMP library use a
+  custom memory allocator. By design all users of GMP share
+  the same custom memory allocator. Memory could be freed
+  with the wrong allocator and this corrupts the heap.
   If you see buffer overflow errors or corrupt heap memory
   you should switch back to the default bigInteger library.
 
