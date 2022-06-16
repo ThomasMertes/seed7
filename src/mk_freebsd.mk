@@ -152,6 +152,7 @@ chkccomp.h:
 	echo "#include \"sys/types.h\"" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
 	echo "#define LINKER_OPT_DYN_LINK_LIBS \"-ldl\"" >> chkccomp.h
+	echo "#define USE_GMP 0" >> chkccomp.h
 	echo "#define MYSQL_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include/mysql\"" >> chkccomp.h
 	echo "#define MYSQL_LIBRARY_PATH \"-L%%LOCALBASE%%/lib/mysql\"" >> chkccomp.h
 	echo "#define SQLITE_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include\"" >> chkccomp.h
