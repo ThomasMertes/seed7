@@ -1514,6 +1514,16 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                                        with header files provided
                                        by Seed7.
 
+  INT_DIV_BY_ZERO_POPUP:
+      Defined if an integer division by zero may trigger a popup
+      window. Consequently chkccomp.c defines
+      CHECK_INT_DIV_BY_ZERO, to avoid the popup.
+
+  INT_DIV_OVERFLOW_INFINITE_LOOP:
+      Defined if an integer overflow may trigger an infinite
+      loop. In that case chkccomp.c defines INT_DIV_OVERFLOW and
+      INT_REM_OVERFLOW as 0.
+
 
 MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
@@ -1935,22 +1945,42 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   HAS_MMAP: TRUE if the function mmap() is available.
 
-  INT_DIV_BY_ZERO_POPUP: Defined if an integer division by zero
-                         may trigger a popup window. Consequently
-                         chkccomp.c defines CHECK_INT_DIV_BY_ZERO,
-                         to avoid the popup.
+  INT_DIV_OVERFLOW:
+      Defines what happens in case of an integer division
+      overflow. An integer division can overflow with:
+      integer.first div -1
+      Possible values of INT_DIV_OVERFLOW are:
+      0 it triggers an endless loop.
+      1 it triggers a popup window.
+      2 it returns integer.first.
+      3 it returns some other value.
+      4 it raises SIGFPE.
+      5 it raises SIGILL.
+      6 it raises SIGABRT.
+      7 it raises SIGTRAP.
 
-  DO_SIGFPE_WITH_DIV_BY_ZERO: TRUE if SIGFPE should be raised
-                              with an integer division by zero.
-                              If it is FALSE raise(SIGFPE) can
-                              be called instead. Under Windows it
-                              is necessary to trigger SIGFPE this
-                              way, to assure that the debugger can
-                              catch it. If the compiler (s7c)
-                              is called with the option -e the
-                              function triggerSigfpe() is used to
-                              raise SIGFPE, if an uncaught
-                              EXCEPTION occurs.
+  INT_REM_OVERFLOW:
+      Defines what happens in case of an integer remainder
+      overflow. An integer remainder can overflow with:
+      integer.first rem -1
+      Possible values of INT_REM_OVERFLOW are:
+      0 it triggers an endless loop.
+      1 it triggers a popup window.
+      2 it returns 0.
+      3 it returns some other value.
+      4 it raises SIGFPE.
+      5 it raises SIGILL.
+      6 it raises SIGABRT.
+      7 it raises SIGTRAP.
+
+  DO_SIGFPE_WITH_DIV_BY_ZERO:
+      TRUE if SIGFPE should be raised with an integer division by
+      zero. If it is FALSE raise(SIGFPE) can be called instead.
+      Under Windows it is necessary to trigger SIGFPE this way,
+      to assure that the debugger can catch it. If the compiler
+      (s7c) is called with the option -e the function
+      triggerSigfpe() is used to raise SIGFPE, if an uncaught
+      EXCEPTION occurs.
 
   CHECK_INT_DIV_BY_ZERO:
       TRUE if integer divisions must be checked for a division by

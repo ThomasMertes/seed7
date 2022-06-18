@@ -99,6 +99,7 @@ const proc: setIntegerOverflowCheck (in boolean: check) is func
       check_int_shift_overflow      := TRUE;
     else
       check_int_arithmetic_overflow := FALSE;
+      # Avoid an endless loop triggered by a division overflow.
       check_int_division_overflow   := ccConf.INT_DIV_OVERFLOW = 0 or
                                        ccConf.INT_REM_OVERFLOW = 0;
       check_int_abs_overflow        := FALSE;

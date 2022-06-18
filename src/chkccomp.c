@@ -2162,17 +2162,20 @@ static void checkIntDivisionOverflow (FILE *versionFile)
     char buffer[BUFFER_SIZE];
 
   /* checkIntDivisionOverflow */
-#if defined INT_DIV_OVERFLOW_INFINITE_LOOP || defined INT_DIV_BY_ZERO_POPUP
+#if defined INT_DIV_OVERFLOW_INFINITE_LOOP
     fputs("#define INT_DIV_OVERFLOW 0\n", versionFile);
     fputs("#define INT_REM_OVERFLOW 0\n", versionFile);
+#elif defined INT_DIV_BY_ZERO_POPUP
+    fputs("#define INT_DIV_OVERFLOW 1\n", versionFile);
+    fputs("#define INT_REM_OVERFLOW 1\n", versionFile);
 #else
     sprintf(buffer,
             "#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
             "typedef %s int64Type;\n"
-            "void handleSigfpe(int sig){puts(\"3\");exit(0);}\n"
-            "void handleSigill(int sig){puts(\"4\");exit(0);}\n"
-            "void handleSigabrt(int sig){puts(\"5\");exit(0);}\n"
-            "void handleSigtrap(int sig){puts(\"6\");exit(0);}\n"
+            "void handleSigfpe(int sig){puts(\"4\");exit(0);}\n"
+            "void handleSigill(int sig){puts(\"5\");exit(0);}\n"
+            "void handleSigabrt(int sig){puts(\"6\");exit(0);}\n"
+            "void handleSigtrap(int sig){puts(\"7\");exit(0);}\n"
             "int main(int argc,char *argv[]){\n"
             "int64Type minusOne=-1;\n"
             "int64Type minIntValue = -9223372036854775807-1;\n"
@@ -2182,7 +2185,7 @@ static void checkIntDivisionOverflow (FILE *versionFile)
             "#ifdef SIGTRAP\n"
             "signal(SIGTRAP,handleSigtrap);\n"
             "#endif\n"
-            "printf(\"%%d\\n\", minIntValue / minusOne == minIntValue ? 1 : 2);\n"
+            "printf(\"%%d\\n\", minIntValue / minusOne == minIntValue ? 2 : 3);\n"
             "return 0;}\n",
 	    int64TypeStri);
     if (compileAndLinkOk(buffer)) {
@@ -2191,10 +2194,10 @@ static void checkIntDivisionOverflow (FILE *versionFile)
     sprintf(buffer,
             "#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
             "typedef %s int64Type;\n"
-            "void handleSigfpe(int sig){puts(\"3\");exit(0);}\n"
-            "void handleSigill(int sig){puts(\"4\");exit(0);}\n"
-            "void handleSigabrt(int sig){puts(\"5\");exit(0);}\n"
-            "void handleSigtrap(int sig){puts(\"6\");exit(0);}\n"
+            "void handleSigfpe(int sig){puts(\"4\");exit(0);}\n"
+            "void handleSigill(int sig){puts(\"5\");exit(0);}\n"
+            "void handleSigabrt(int sig){puts(\"6\");exit(0);}\n"
+            "void handleSigtrap(int sig){puts(\"7\");exit(0);}\n"
             "int main(int argc,char *argv[]){\n"
             "int64Type minusOne=-1;\n"
             "int64Type minIntValue = -9223372036854775807-1;\n"
@@ -2204,7 +2207,7 @@ static void checkIntDivisionOverflow (FILE *versionFile)
             "#ifdef SIGTRAP\n"
             "signal(SIGTRAP,handleSigtrap);\n"
             "#endif\n"
-            "printf(\"%%d\\n\", minIntValue %% minusOne == 0 ? 1 : 2);\n"
+            "printf(\"%%d\\n\", minIntValue %% minusOne == 0 ? 2 : 3);\n"
             "return 0;}\n",
 	    int64TypeStri);
     if (compileAndLinkOk(buffer)) {

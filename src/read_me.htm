@@ -1712,6 +1712,16 @@ system header files for X11
 and ncurses can be replaced
 with header files provided
 by Seed7.</td></tr>
+
+<tr><td valign="top">INT_DIV_BY_ZERO_POPUP:</td><td>
+Defined if an integer division by zero may trigger a popup
+window. Consequently chkccomp.c defines
+CHECK_INT_DIV_BY_ZERO, to avoid the popup.</td></tr>
+
+<tr><td valign="top">INT_DIV_OVERFLOW_INFINITE_LOOP:</td><td>
+Defined if an integer overflow may trigger an infinite
+loop. In that case chkccomp.c defines INT_DIV_OVERFLOW and
+INT_REM_OVERFLOW as 0.</td></tr>
 </table></div>
 
 <div><br /><a name="build_MACROS_WRITTEN_TO_VERSION.H_BY_CHKCCOMP.C"><h3>MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
@@ -2134,21 +2144,41 @@ symlinks.</td></tr>
 
 <tr><td valign="top">HAS_MMAP: </td><td>TRUE if the function mmap() is available.</td></tr>
 
-<tr><td valign="top">INT_DIV_BY_ZERO_POPUP: </td><td>Defined if an integer division by zero
-may trigger a popup window. Consequently
-chkccomp.c defines CHECK_INT_DIV_BY_ZERO,
-to avoid the popup.</td></tr>
+<tr><td valign="top">INT_DIV_OVERFLOW:</td><td>
+Defines what happens in case of an integer division
+overflow. An integer division can overflow with:
+integer.first div -1
+Possible values of INT_DIV_OVERFLOW are:<ol start="0">
+<li>it triggers an endless loop.</li>
+<li>it triggers a popup window.</li>
+<li>it returns integer.first.</li>
+<li>it returns some other value.</li>
+<li>it raises SIGFPE.</li>
+<li>it raises SIGILL.</li>
+<li>it raises SIGABRT.</li>
+<li>it raises SIGTRAP.</li></ol></td></tr>
 
-<tr><td valign="top">DO_SIGFPE_WITH_DIV_BY_ZERO: </td><td>TRUE if SIGFPE should be raised
-with an integer division by zero.
-If it is FALSE raise(SIGFPE) can
-be called instead. Under Windows it
-is necessary to trigger SIGFPE this
-way, to assure that the debugger can
-catch it. If the compiler (s7c)
-is called with the option -e the
-function triggerSigfpe() is used to
-raise SIGFPE, if an uncaught
+<tr><td valign="top">INT_REM_OVERFLOW:</td><td>
+Defines what happens in case of an integer remainder
+overflow. An integer remainder can overflow with:
+integer.first rem -1
+Possible values of INT_REM_OVERFLOW are:<ol start="0">
+<li>it triggers an endless loop.</li>
+<li>it triggers a popup window.</li>
+<li>it returns 0.</li>
+<li>it returns some other value.</li>
+<li>it raises SIGFPE.</li>
+<li>it raises SIGILL.</li>
+<li>it raises SIGABRT.</li>
+<li>it raises SIGTRAP.</li></ol></td></tr>
+
+<tr><td valign="top">DO_SIGFPE_WITH_DIV_BY_ZERO:</td><td>
+TRUE if SIGFPE should be raised with an integer division by
+zero. If it is FALSE raise(SIGFPE) can be called instead.
+Under Windows it is necessary to trigger SIGFPE this way,
+to assure that the debugger can catch it. If the compiler
+(s7c) is called with the option -e the function
+triggerSigfpe() is used to raise SIGFPE, if an uncaught
 EXCEPTION occurs.</td></tr>
 
 <tr><td valign="top">CHECK_INT_DIV_BY_ZERO:</td><td>
