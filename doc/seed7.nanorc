@@ -1,0 +1,33 @@
+# Seed7 syntax highlighting for Nano editor
+# on Debian distros, this file lives in $HOME/.config/nano/
+# change the colours to suit your taste.
+
+syntax "seed7" "\.sd7"
+
+##[Keywords 1]
+color brightblue "\<(begin|block|case|const|do|downto|else|elsif|end|enum|exception|for|forward|func|false|if|in|include|inout|is|local|new|of|otherwise|param|range|ref|repeat|result|return|step|struct|syntax|system|then|to|true|until|val|var|when|while)\>"
+
+##[Keywords 2]
+color brightred "array|bigInteger|bigRational|bitset|boolean|char|color|complex|duration|expr|file|float|func|hash|integer|object|proc|program|rational|reference|ref_list|set|string|text|time|type|varfunc|void"
+
+## string literals
+color magenta "(^[ \t]*\\|")([^"\\]|\\([abefnrtv\\'"A-Z]|[0-9]+(#[0-9a-fA-F]+)?|[ \t]+\\)|"")*("|\\$)"
+
+## char literals
+color magenta "'([^\\]|\\([abefnrtv\\'"A-Z]|[0-9]+(#[0-9a-fA-F]+)?))*'"
+
+## line comment
+color green "(^|[ \t!"\$%&'\(\)\*\+,\-\.:;<=>\?a-zA-Z])#.*$"
+
+## block comment
+color green "\(\*.*\*\)"
+
+##[Keywords 3]
+## color cyan "\+|-|\>|\<|\^|:|=|:=|<>|<=|>=|><|**|<<|>>|<&|+:=|-:=|
+## \*:=|\/:=|\<<:=|>>:=|\&:=|\@:="
+
+##[Keywords 4]
+color magenta "\<(and|conv|digits|div|exp|lpad|lpad0|mdiv|mod|mult|not|or|parse|rem|rpad|sci|times|varconv)\>"
+
+##[Keyword 5]
+color brightcyan "read|readln|write|writeln"
