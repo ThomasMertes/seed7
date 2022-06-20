@@ -1,33 +1,37 @@
-# Seed7 syntax highlighting for Nano editor
-# on Debian distros, this file lives in $HOME/.config/nano/
-# change the colours to suit your taste.
+# Seed7 syntax highlighting for Nano editor.
+# On Debian distros, this file lives in $HOME/.config/nano
+# The global nanorc files are in /usr/share/nano
+# Change the colours to suit your taste.
 
-syntax "seed7" "\.sd7"
+syntax "seed7" "\.s(d7|7i)"
 
-##[Keywords 1]
+## Keywords
 color brightblue "\<(begin|block|case|const|do|downto|else|elsif|end|enum|exception|for|forward|func|false|if|in|include|inout|is|local|new|of|otherwise|param|range|ref|repeat|result|return|step|struct|syntax|system|then|to|true|until|val|var|when|while)\>"
 
-##[Keywords 2]
+## Types
 color brightred "array|bigInteger|bigRational|bitset|boolean|char|color|complex|duration|expr|file|float|func|hash|integer|object|proc|program|rational|reference|ref_list|set|string|text|time|type|varfunc|void"
 
-## string literals
-color magenta "(^[ \t]*\\|")([^"\\]|\\([abefnrtv\\'"A-Z]|[0-9]+(#[0-9a-fA-F]+)?|[ \t]+\\)|"")*("|\\$)"
+## Keyword correction
+color brightblue "\<(end func)\>"
 
-## char literals
+## Operator symbols
+color cyan "\+(:=)?|-(:=|>(<-)?)?|\*(:=|\*)?|/(:=)?|<([=>&]|<(:=)?|-(>)?)?|>([=<]|>(:=)?)?|:=?|\^|&(:=)?|@:="
+
+## Named operators
+color brightblue "\<(and|conv|digits|div|exp|lpad|lpad0|mdiv|mod|mult|not|or|parse|rem|rpad|sci|times|varconv)\>"
+
+## Function names
+color brightcyan "read|readln|write|writeln"
+
+## String literals
+color magenta "("|\\)([^"\\]|\\([abefnrtv\\'"A-Z]|[0-9]+(#[0-9a-fA-F]+)?)|"")*("|\\([ \t]|$))"
+
+## Char literals
 color magenta "'([^\\]|\\([abefnrtv\\'"A-Z]|[0-9]+(#[0-9a-fA-F]+)?))*'"
 
-## line comment
+## Line comment
 color green "(^|[ \t!"\$%&'\(\)\*\+,\-\.:;<=>\?a-zA-Z])#.*$"
 
-## block comment
-color green "\(\*.*\*\)"
-
-##[Keywords 3]
-## color cyan "\+|-|\>|\<|\^|:|=|:=|<>|<=|>=|><|**|<<|>>|<&|+:=|-:=|
-## \*:=|\/:=|\<<:=|>>:=|\&:=|\@:="
-
-##[Keywords 4]
-color magenta "\<(and|conv|digits|div|exp|lpad|lpad0|mdiv|mod|mult|not|or|parse|rem|rpad|sci|times|varconv)\>"
-
-##[Keyword 5]
-color brightcyan "read|readln|write|writeln"
+## Block comment
+color green "\(\*(.|$[ \t]*^)*\*\)"
+color green start="\(\*" end="\*\)"
