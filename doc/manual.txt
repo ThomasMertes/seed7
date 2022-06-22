@@ -821,6 +821,57 @@ CONTENTS
         writeln;
       end func;
 
+  A 'hash' is similar to an 'array' with the difference that the index
+  can be any type (not just one that can be converted to 'integer'). The
+  type 'hash [string] integer' defines a hash with a 'string' as index
+  and an 'integer' as value. The example below uses 'keyDescription'
+  which is defined as 'hash [char] string' in "keydescr.s7i". It
+  contains descriptive texts for keybord keys. A for-loop can loop
+  over the values of a 'hash':
+
+    $ include "seed7_05.s7i";
+      include "keydescr.s7i";
+
+    const proc: main is func
+      local
+        var string: description is "";
+      begin
+        for description range keyDescription do
+          write(description <& " ");
+        end for;
+        writeln;
+      end func;
+
+  A for-loop can also loop over the keys (indices) and values of a 'hash':
+
+    $ include "seed7_05.s7i";
+      include "keydescr.s7i";
+
+    const proc: main is func
+      local
+        var char: aChar is ' ';
+        var string: description is "";
+      begin
+        for description key aChar range keyDescription do
+          writeln("const char: " <& description <& " is " <& literal(aChar));
+        end for;
+      end func;
+
+  A for-loop can loop over the keys (indices) and values of a 'array':
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        var integer: number is 0;
+        var string: name is "";
+      begin
+        for name key number range [0] ("zero", "one", "two", "three", "four",
+                                       "five", "six", "seven", "eight", "nine") do
+          writeln(number <& ": " <& name);
+        end for;
+      end func;
+
   All loops that iterate over a container can be combined with an 'until' condition:
 
     $ include "seed7_05.s7i";
@@ -14346,7 +14397,7 @@ CONTENTS
      2: File "%s" not found
      3: Include file "%s" not found
      4: "END OF FILE" encountered
-     5: Illegal character in text "%s"
+     5: Illegal character in text "%s" (U+%04x)
      6: Unclosed comment
      7: Illegal pragma "%s"
      8: Illegal action "%s"
@@ -14418,7 +14469,9 @@ CONTENTS
     Expression raises "%s".
     Catch of "%s" although the checks are suppressed.
     Catch of otherwise although the checks for %s are suppressed.
-    When values "%s" do overlap.
+    Duplicate when values %s.
+    Previous usage of %s.
+    When value must be constant.
     Forward defined function called.
     Forward definition of the called function.
 
@@ -14590,39 +14643,41 @@ CONTENTS
   if this range is violated.
 
     It may be raised from the following 'boolean' operations:
-        parse, rand.
+        conv, parse, boolean, succ, pred, boolean, rand.
     It may be raised from the following 'integer' operations:
         parse, radix, RADIX, sci, rand, integer.
     It may be raised from the following 'bigInteger' operations:
-        parse, radix, RADIX, sci, rand, ord, bigInteger, bitLength, modInverse, modPow, .
+        parse, radix, RADIX, sci, rand, ord, integer, bigInteger, bitLength,
+        modInverse, modPow.
     It may be raised from the following 'rational' operations:
-        parse, digits, sci.
+        parse, digits, sci, rational.
     It may be raised from the following 'bigRational' operations:
-        parse, digits, sci.
+        parse, digits, sci, bigRational.
     It may be raised from the following 'float' operations:
-        parse, digits, sci, rand, round, trunc.
+        parse, digits, sci, float, round, trunc, rand.
     It may be raised from the following 'complex' operations:
-        parse, digits, sci.
+        parse, digits, sci, complex.
     It may be raised from the following 'char' operations:
-        chr, rand.
+        conv, parse, chr, char, rand, char, trimValue.
     It may be raised from the following 'string' operations:
         mult, pos, rpos.
     It may be raised from the following 'bitset' operations:
-        conv, parse, min, max, rand.
+        conv, parse, rand, min, max, next, integer, bitset.
     It may be raised from the following 'array' operations:
         times, rand.
     It may be raised from the following 'hash' operations:
         [.
     It may be raised from the following 'bin32' operations:
-        radix, RADIX.
+        radix, RADIX, bytes, float2MbfBits.
     It may be raised from the following 'bin64' operations:
-        radix, RADIX.
+        radix, RADIX, bin64, bytes, float2MbfBits.
     It may be raised from the following 'category' operations:
-        parse.
+        parse, category.
     It may be raised from the following 'ref_list' operations:
         pos.
     It may be raised from the following 'file' operations:
-        open, write, gets, length, seek, tell.
+        open, openUtf8, openUtf16le, openUtf16be, openUtf16, openInetSocket,
+        write, writeln, gets, length, truncate, seek, tell, skip.
 
 
 16.3.6 FILE_ERROR

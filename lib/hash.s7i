@@ -234,7 +234,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
         end func;
 
       (**
-       *  For-loop where ''keyVar'' loops over the keys of the hash map ''aHashMap''.
+       *  For-loop where ''keyVar'' loops over the keys (indices) of the hash map ''aHashMap''.
        *)
       const proc: for key (inout keyType: keyVar) range (in hashType: aHashMap) do
                     (in proc: statements)
@@ -244,7 +244,9 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
         end func;
 
       (**
-       *  For-loop where ''forVar'' and ''keyVar' loop over the hash map ''aHashMap''.
+       *  For-loop where ''forVar'' and ''keyVar'' loop over the hash map ''aHashMap''.
+       *  The variable ''forVar'' loops over the values of ''aHashMap''
+       *  and ''keyVar'' loops over the keys (indices) of ''aHashMap''.
        *)
       const proc: for (inout baseType: forVar) key (inout keyType: keyVar) range (in hashType: aHashMap) do
                     (in proc: statements)

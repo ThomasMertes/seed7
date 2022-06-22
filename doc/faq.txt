@@ -483,6 +483,8 @@ available at: www.7-zip.org.
 How do I compile the Seed7 interpreter?
 =======================================
 
+There is a detailed description how to build Seed7 in 'seed7/src/read_me.txt'.
+
 The way to compile the interpreter depends on the operating system and the
 development tools used. You need a stand-alone C compiler and a make utility
 to compile the interpreter. A C compiler, which is only usable from an IDE,
@@ -541,8 +543,7 @@ compilation attempts in succession you need to do
 
   make clean
 
-before you start a new attempt. More details about the compilation process can
-be found in the file 'seed7/src/read_me.txt'.
+before you start a new attempt.
 
 
 I got errors when compiling Seed7. What should I do?
@@ -732,7 +733,7 @@ The following options are recognized by s7:
          h Trace heap size (in combination with 'a')
          s Trace signals
   -d   Equivalent to -da
-  -i   Show the identifier table after the analyzing phase.
+  -i   Show the identifier table after the analysis phase.
   -l   Add a directory to the include library search path (e.g.: -l ../lib).
   -p   Specify a protocol file, for trace output (e.g.: -p prot.txt).
   -q   Compile quiet. Line and file information and compilation
@@ -747,7 +748,7 @@ The following options are recognized by s7:
          h Trace heap size (in combination with 'a')
          s Trace signals
   -t   Equivalent to -ta
-  -vn  Set verbosity level of analyse phase to n. Where n is one
+  -vn  Set verbosity level of analysis phase to n. Where n is one
        of the following characters:
          0 Compile quiet (equivalent to -q)
          1 Write just the header with version information (default)
@@ -904,14 +905,14 @@ How is the syntax of Seed7 defined?
 
 The syntax of Seed7 is described with the Seed7 Structured Syntax Description
 (S7SSD). The S7SSD is similar to an Extended Backus-Naur Form (EBNF), but there are
-important differences. S7SSD does not distinguish between different nonterminal
-symbols. Instead it only knows one nonterminal symbol: () . S7SSD syntax rules do
-not define named nonterminal symbols (EBNF rules define named nonterminal symbols).
+important differences. S7SSD does not distinguish between different non-terminal
+symbols. Instead it only knows one non-terminal symbol: () . S7SSD syntax rules do
+not define named non-terminal symbols (EBNF rules define named non-terminal symbols).
 S7SSD syntax rules are introduced with:
 
   $ syntax
 
-S7SSD syntax rules define a pattern of terminal and nonterminal symbols separated
+S7SSD syntax rules define a pattern of terminal and non-terminal symbols separated
 by dots. A S7SSD syntax rule defines also a priority and associativity. The syntax
 of the + operator is:
 
@@ -1568,7 +1569,7 @@ The usage of UTF-32 for strings in a program has several advantages:
  - UTF-8 has invalid byte sequences. In UTF-16 single surrogate characters
    are also invalid. A string library, that is based on UTF-8 or UTF-16
    must check for valid byte sequences. UTF-32 does not have invalid byte
-   sequences. UTF-32 can hold non-unicode characters, but this can be
+   sequences. UTF-32 can hold non-Unicode characters, but this can be
    used as advantage.
  - The overlong encodings of UTF-8 allow several encodings for the same
    character. According to the standard overlong encodings are not valid

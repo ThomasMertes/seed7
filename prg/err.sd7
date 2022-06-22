@@ -49,8 +49,8 @@ ignore(" ...     (* String literal exceeds source line  *)
 );
 $ 12345;         (* Name expected found "12345"         *)
 $ syntax expr:   (* Integer literal expected found "x"  *)  l2 is -> x;
-$ syntax expr:   (* Identifier expected found "123"     *)  .123 .() is -> 1;
 $ include 1;     (* String literal expected found "1"   *)
+$ syntax expr:   (* Identifier expected found "123"     *)  .123 .() is -> 1;
 const integer:   (* Identifier expected found "asdf"    *)  "asdf" is 1;
 ();              (* Expression expected found ")"       *)
 const proc: (ref char param) ::= (ref integer param) is func

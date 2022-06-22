@@ -2187,7 +2187,7 @@ static void checkIntDivisionOverflow (FILE *versionFile)
             "#endif\n"
             "printf(\"%%d\\n\", minIntValue / minusOne == minIntValue ? 2 : 3);\n"
             "return 0;}\n",
-	    int64TypeStri);
+            int64TypeStri);
     if (compileAndLinkOk(buffer)) {
       fprintf(versionFile, "#define INT_DIV_OVERFLOW %d\n", doTest());
     } /* if */
@@ -2209,7 +2209,7 @@ static void checkIntDivisionOverflow (FILE *versionFile)
             "#endif\n"
             "printf(\"%%d\\n\", minIntValue %% minusOne == 0 ? 2 : 3);\n"
             "return 0;}\n",
-	    int64TypeStri);
+            int64TypeStri);
     if (compileAndLinkOk(buffer)) {
       fprintf(versionFile, "#define INT_REM_OVERFLOW %d\n", doTest());
     } /* if */

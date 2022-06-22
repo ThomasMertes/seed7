@@ -267,7 +267,9 @@ const func type: array (in type: baseType) is func
         end func;
 
       (**
-       *  For-loop where ''forVar'' and ''keyVar' loop over the array ''arr''.
+       *  For-loop where ''forVar'' and ''keyVar'' loop over the array ''arr''.
+       *  The variable ''forVar'' loops over the elements of ''arr''
+       *  and ''keyVar'' loops over the indices of ''arr''.
        *)
       const proc: for (inout baseType: forVar) key (inout integer: keyVar) range (in arrayType: arr) do
                     (in proc: statements)
@@ -358,7 +360,9 @@ const func type: array (in type: baseType) is func
         end func;
 
       (**
-       *  For-loop where ''forVar'' and ''keyVar' loop over the array ''arr''.
+       *  For-loop where ''forVar'' and ''keyVar'' loop over the array ''arr''.
+       *  The variable ''forVar'' loops over the elements of ''arr''
+       *  and ''keyVar'' loops over the indices of ''arr''.
        *  Additionally a ''condition'' is checked before the statements in
        *  the loop body are executed.
        *)

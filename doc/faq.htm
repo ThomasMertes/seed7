@@ -984,6 +984,8 @@ available at: <span class="link">www.7-zip.org</span>.
 <div><br /><a name="faq_compile_interpreter"><h3>How do I compile the Seed7 interpreter?
 </h3></a><hr />
 <p>
+There is a detailed description how to <a class="link" href="#build_file_start">build Seed7</a> in <nobr><a class="lib" href="#build_file_start">seed7/src/read_me.txt</a></nobr>.
+</p><p>
 The way to compile the interpreter depends on the operating system and the
 development tools used. You need a stand-alone C compiler and a make utility
 to compile the interpreter. A C compiler, which is only usable from an IDE,
@@ -1042,8 +1044,7 @@ compilation attempts in succession you need to do
 </p><pre class="indent">
 make clean
 </pre><p>
-before you start a new attempt. More details about the compilation process can
-be found in the file <nobr><span class="lib">seed7/src/read_me.txt</span></nobr>.
+before you start a new attempt.
 </p></div>
 
 <div><br /><a name="faq_errors"><h3>I got errors when compiling Seed7. What should I do?
@@ -1233,7 +1234,7 @@ The following options are recognized by s7:
          <li><b>h</b> Trace heap size (in combination with 'a')</li>
          <li><b>s</b> Trace signals</li></ul></li>
   <li><b>-d</b>   Equivalent to <b>-da</b></li>
-  <li><b>-i</b>   Show the identifier table after the analyzing phase.</li>
+  <li><b>-i</b>   Show the identifier table after the analysis phase.</li>
   <li><a name="faq_interpreter_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
   <li><b>-p</b>   Specify a protocol file, for trace output (e.g.: <b>-p</b><tt> <span class="lib">prot.txt</span></tt>).</li>
   <li><b>-q</b>   Compile quiet. Line and file information and compilation
@@ -1248,7 +1249,7 @@ The following options are recognized by s7:
          <li><b>h</b> Trace heap size (in combination with 'a')</li>
          <li><b>s</b> Trace signals</li></ul></li>
   <li><b>-t</b>   Equivalent to <b>-ta</b></li>
-  <li><a name="faq_interpreter_option-v"><b>-v</b><span class="keywd">n</span></a>  Set verbosity level of analyse phase to <span class="keywd">n</span>. Where <span class="keywd">n</span> is one
+  <li><a name="faq_interpreter_option-v"><b>-v</b><span class="keywd">n</span></a>  Set verbosity level of analysis phase to <span class="keywd">n</span>. Where <span class="keywd">n</span> is one
        of the following characters:<ul>
          <li><b>0</b> Compile quiet (equivalent to <b>-q</b>)</li>
          <li><b>1</b> Write just the header with version information (default)</li>
@@ -1405,14 +1406,14 @@ Pascal, Ada, C/C++, Java and many other compilers.
 <p>
 The syntax of Seed7 is described with the <span class="link">Seed7 Structured Syntax Description</span>
 (S7SSD). The S7SSD is similar to an Extended Backus-Naur Form (EBNF), but there are
-important differences. S7SSD does not distinguish between different nonterminal
-symbols. Instead it only knows one nonterminal symbol: <i>()</i> . S7SSD syntax rules do
-not define named nonterminal symbols (EBNF rules define named nonterminal symbols).
+important differences. S7SSD does not distinguish between different non-terminal
+symbols. Instead it only knows one non-terminal symbol: <i>()</i> . S7SSD syntax rules do
+not define named non-terminal symbols (EBNF rules define named non-terminal symbols).
 S7SSD syntax rules are introduced with:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span>
 </pre><p>
-S7SSD syntax rules define a pattern of terminal and nonterminal symbols separated
+S7SSD syntax rules define a pattern of terminal and non-terminal symbols separated
 by dots. A S7SSD syntax rule defines also a priority and associativity. The syntax
 of the + operator is:
 </p><pre class="indent">
@@ -2069,7 +2070,7 @@ The usage of UTF-32 for strings in a program has several advantages:
 <li>UTF-8 has invalid byte sequences. In UTF-16 single surrogate characters
    are also invalid. A string library, that is based on UTF-8 or UTF-16
    must check for valid byte sequences. UTF-32 does not have invalid byte
-   sequences. UTF-32 can hold non-unicode characters, but this can be
+   sequences. UTF-32 can hold non-Unicode characters, but this can be
    used as advantage.</li>
 <li>The overlong encodings of UTF-8 allow several encodings for the same
    character. According to the standard overlong encodings are not valid

@@ -135,7 +135,7 @@ const proc: flush (in external_file: outFile) is func
  *  Write a [[string]] to an external_file.
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception RANGE_ERROR The string contains a character that does
- *             not fit into a byte.
+ *             not fit into a byte ('\0;' to '\255;' fit into a byte).
  *)
 const proc: write (in external_file: outFile, in string: stri) is func
   begin

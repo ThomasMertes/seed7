@@ -1020,6 +1020,57 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
     <span class="func_no_ul">writeln</span>;
   <span class="keywd">end func</span>;
 </pre><p>
+  A <tt><a class="type" href="#types_hash">hash</a></tt> is similar to an <tt><a class="type" href="#types_array">array</a></tt> with the difference that the index
+  can be any type (not just one that can be converted to <tt><a class="type" href="#types_integer">integer</a></tt>). The
+  type <tt><a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_string">string</a><span class="type">]</span> <a class="type" href="#types_integer">integer</a></tt> defines a hash with a <tt><a class="type" href="#types_string">string</a></tt> as index
+  and an <tt><a class="type" href="#types_integer">integer</a></tt> as value. The example below uses <tt><span class="var">keyDescription</span></tt>
+  which is defined as <tt><a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_char">char</a><span class="type">]</span> <a class="type" href="#types_string">string</a></tt> in <tt><span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span></tt>. It
+  contains descriptive texts for keybord keys. A <tt><span class="link">for-loop</span></tt> can loop
+  over the values of a <tt><a class="type" href="#types_hash">hash</a></tt>:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <span class="stri">""</span>;
+  <span class="keywd">begin</span>
+    <span class="keywd_no_ul">for</span> description <span class="keywd_no_ul">range</span> <span class="var">keyDescription</span> <span class="keywd_no_ul">do</span>
+      <span class="func_no_ul">write</span>(description <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" "</span>);
+    <span class="keywd_no_ul">end for</span>;
+    <span class="func_no_ul">writeln</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
+  A <tt><span class="link">for-loop</span></tt> can also loop over the keys (indices) and values of a <tt><a class="type" href="#types_hash">hash</a></tt>:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_char">char</a>: aChar <span class="keywd">is</span> <span class="stri">' '</span>;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: description <span class="keywd">is</span> <span class="stri">""</span>;
+  <span class="keywd">begin</span>
+    <span class="keywd_no_ul">for</span> description <span class="keywd_no_ul">key</span> aChar <span class="keywd_no_ul">range</span> <span class="var">keyDescription</span> <span class="keywd_no_ul">do</span>
+      <span class="func_no_ul">writeln</span>(<span class="stri">"const char: "</span> <span class="op_no_ul">&lt;&amp;</span> description <span class="op_no_ul">&lt;&amp;</span> <span class="stri">" is "</span> <span class="op_no_ul">&lt;&amp;</span> <span class="func_no_ul">literal</span>(aChar));
+    <span class="keywd_no_ul">end for</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
+  A <tt><span class="link">for-loop</span></tt> can loop over the keys (indices) and values of a <tt><a class="type" href="#types_array">array</a></tt>:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_integer">integer</a>: number <span class="keywd">is</span> 0;
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
+  <span class="keywd">begin</span>
+    <span class="keywd_no_ul">for</span> name <span class="keywd_no_ul">key</span> number <span class="keywd_no_ul">range</span> [0] (<span class="stri">"zero"</span>, <span class="stri">"one"</span>, <span class="stri">"two"</span>, <span class="stri">"three"</span>, <span class="stri">"four"</span>,
+                                   <span class="stri">"five"</span>, <span class="stri">"six"</span>, <span class="stri">"seven"</span>, <span class="stri">"eight"</span>, <span class="stri">"nine"</span>) <span class="keywd_no_ul">do</span>
+      <span class="func_no_ul">writeln</span>(number <span class="op_no_ul">&lt;&amp;</span> <span class="stri">": "</span> <span class="op_no_ul">&lt;&amp;</span> name);
+    <span class="keywd_no_ul">end for</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
   All loops that iterate over a container can be combined with an <tt><span class="func">until</span></tt> condition:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
@@ -14545,7 +14596,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right"> 2:</td> <td width="10"></td><td><a name="errors_NO_SOURCEFILE"                    >File "%s" not found</a></td></tr>
     <tr><td align="right"> 3:</td> <td width="10"></td><td><a name="errors_FILENOTFOUND"                     >Include file "%s" not found</a></td></tr>
     <tr><td align="right"> 4:</td> <td width="10"></td><td><a name="errors_EOF_ENCOUNTERED"                  >"END OF FILE" encountered</a></td></tr>
-    <tr><td align="right"> 5:</td> <td width="10"></td><td><a name="errors_CHAR_ILLEGAL"                     >Illegal character in text "%s"</a></td></tr>
+    <tr><td align="right"> 5:</td> <td width="10"></td><td><a name="errors_CHAR_ILLEGAL"                     >Illegal character in text "%s" (U+%04x)</a></td></tr>
     <tr><td align="right"> 6:</td> <td width="10"></td><td><a name="errors_COMMENTOPEN"                      >Unclosed comment</a></td></tr>
     <tr><td align="right"> 7:</td> <td width="10"></td><td><a name="errors_ILLEGALPRAGMA"                    >Illegal pragma "%s"</a></td></tr>
     <tr><td align="right"> 8:</td> <td width="10"></td><td><a name="errors_WRONGACTION"                      >Illegal action "%s"</a></td></tr>
@@ -14617,7 +14668,9 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td>Expression raises "%s".</td></tr>
     <tr><td>Catch of "%s" although the checks are suppressed.</td></tr>
     <tr><td>Catch of otherwise although the checks for %s are suppressed.</td></tr>
-    <tr><td>When values "%s" do overlap.</td></tr>
+    <tr><td>Duplicate when values %s.</td></tr>
+    <tr><td>Previous usage of %s.</td></tr>
+    <tr><td>When value must be constant.</td></tr>
     <tr><td>Forward defined function called.</td></tr>
     <tr><td>Forward definition of the called function.</td></tr>
 </table></dd></dl><p></p>
@@ -14789,39 +14842,41 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
   if this range is violated.
 </p><dl><dt>
     It may be raised from the following <tt><a class="type" href="#types_boolean">boolean</a></tt> operations:</dt><dd>
-        <span class="op">parse</span>, <span class="func">rand</span>.</dd><dt>
+        <span class="op">conv</span>, <span class="op">parse</span>, <span class="func">boolean</span>, <span class="func">succ</span>, <span class="func">pred</span>, <span class="func">boolean</span>, <span class="func">rand</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_integer">integer</a></tt> operations:</dt><dd>
         <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">integer</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations:</dt><dd>
-        <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">ord</span>, <span class="func">bigInteger</span>, <span class="func">bitLength</span>, <span class="func">modInverse</span>, <span class="func">modPow</span>, .</dd><dt>
+        <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">ord</span>, <span class="func">integer</span>, <span class="func">bigInteger</span>, <span class="func">bitLength</span>,
+        <span class="func">modInverse</span>, <span class="func">modPow</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_rational">rational</a></tt> operations:</dt><dd>
-        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>.</dd><dt>
+        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>, <span class="func">rational</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_bigRational">bigRational</a></tt> operations:</dt><dd>
-        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>.</dd><dt>
+        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>, <span class="func">bigRational</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_float">float</a></tt> operations:</dt><dd>
-        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">round</span>, <span class="func">trunc</span>.</dd><dt>
+        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>, <span class="func">float</span>, <span class="func">round</span>, <span class="func">trunc</span>, <span class="func">rand</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_complex">complex</a></tt> operations:</dt><dd>
-        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>.</dd><dt>
+        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>, <span class="func">complex</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_char">char</a></tt> operations:</dt><dd>
-        <span class="func">chr</span>, <span class="func">rand</span>.</dd><dt>
+        <span class="op">conv</span>, <span class="op">parse</span>, <span class="func">chr</span>, <span class="func">char</span>, <span class="func">rand</span>, <span class="func">char</span>, <span class="func">trimValue</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_string">string</a></tt> operations:</dt><dd>
         <span class="op">mult</span>, <span class="func">pos</span>, <span class="func">rpos</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_set">bitset</a></tt> operations:</dt><dd>
-        <span class="op">conv</span>, <span class="op">parse</span>, <span class="func">min</span>, <span class="func">max</span>, <span class="func">rand</span>.</dd><dt>
+        <span class="op">conv</span>, <span class="op">parse</span>, <span class="func">rand</span>, <span class="func">min</span>, <span class="func">max</span>, <span class="func">next</span>, <span class="func">integer</span>, <span class="func">bitset</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_array">array</a></tt> operations:</dt><dd>
         <span class="op">times</span>, <span class="func">rand</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_hash">hash</a></tt> operations:</dt><dd>
         <span class="op">[</span>.</dd><dt>
     It may be raised from the following <tt><span class="type">bin32</span></tt> operations:</dt><dd>
-        <span class="op">radix</span>, <span class="op">RADIX</span>.</dd><dt>
+        <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="func">bytes</span>, <span class="func">float2MbfBits</span>.</dd><dt>
     It may be raised from the following <tt><span class="type">bin64</span></tt> operations:</dt><dd>
-        <span class="op">radix</span>, <span class="op">RADIX</span>.</dd><dt>
+        <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="func">bin64</span>, <span class="func">bytes</span>, <span class="func">float2MbfBits</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_category">category</a></tt> operations:</dt><dd>
-        <span class="op">parse</span>.</dd><dt>
+        <span class="op">parse</span>, <span class="func">category</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations:</dt><dd>
         <span class="func">pos</span>.</dd><dt>
     It may be raised from the following <tt><a class="type" href="#types_file">file</a></tt> operations:</dt><dd>
-        <span class="func">open</span>, <span class="func">write</span>, <span class="func">gets</span>, <span class="func">length</span>, <span class="func">seek</span>, <span class="func">tell</span>.</dd></dl>
+        <span class="func">open</span>, <span class="func">openUtf8</span>, <span class="func">openUtf16le</span>, <span class="func">openUtf16be</span>, <span class="func">openUtf16</span>, <span class="func">openInetSocket</span>,
+        <span class="func">write</span>, <span class="func">writeln</span>, <span class="func">gets</span>, <span class="func">length</span>, <span class="func">truncate</span>, <span class="func">seek</span>, <span class="func">tell</span>, <span class="func">skip</span>.</dd></dl>
 <p></p>
 
 <a name="errors_FILE_ERROR"><h4>16.3.6 FILE_ERROR</h4></a>

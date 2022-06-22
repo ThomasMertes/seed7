@@ -110,7 +110,6 @@ $ syntax expr: .(). & .()                    is  -> 10;
 $ syntax expr: .(). >< .()                   is  -> 11;
 $ syntax expr: .(). | .()                    is  -> 11;
 $ syntax expr: .(). = .()                    is <-> 12;
-$ syntax expr: .(). == .()                   is <-> 12;
 $ syntax expr: .(). <> .()                   is <-> 12;
 $ syntax expr: .(). > .()                    is <-> 12;
 $ syntax expr: .(). >= .()                   is <-> 12;

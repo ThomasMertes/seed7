@@ -105,7 +105,7 @@ static void writeHelp (void)
     printf("         h Trace heap size (in combination with 'a')\n");
     printf("         s Trace signals\n");
     printf("  -d   Equivalent to -da\n");
-    printf("  -i   Show the identifier table after the analyzing phase.\n");
+    printf("  -i   Show the identifier table after the analysis phase.\n");
     printf("  -l   Add a directory to the include library search path (e.g.: -l ../lib).\n");
     printf("  -p   Specify a protocol file, for trace output (e.g.: -p prot.txt).\n");
     printf("  -q   Compile quiet. Line and file information and compilation\n");
@@ -119,7 +119,7 @@ static void writeHelp (void)
     printf("         h Trace heap size (in combination with 'a')\n");
     printf("         s Trace signals\n");
     printf("  -t   Equivalent to -ta\n");
-    printf("  -vn  Set verbosity level of analyse phase to n. Where n is one of:\n");
+    printf("  -vn  Set verbosity level of analysis phase to n. Where n is one of:\n");
     printf("         0 Compile quiet (equivalent to -q)\n");
     printf("         1 Write just the header with version information (default)\n");
     printf("         2 Write a list of include libraries\n");

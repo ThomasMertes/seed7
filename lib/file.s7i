@@ -38,6 +38,9 @@ const type: file is sub object interface;
 
 (**
  *  Write a [[string]] to a file.
+ *  @exception RANGE_ERROR - The string contains a character that
+ *             does not fit into the file specific representation
+ *             (e.g.: A byte-file allows just chars from '\0;' to '\255;').
  *)
 const proc: write (inout file: outFile, in string: stri)     is DYNAMIC;
 
@@ -56,6 +59,9 @@ const proc: writeln (inout file: outFile)                    is DYNAMIC;
  *  The implementation function decides how writing end-of-line is
  *  done. It can be done by writing '\n', but other solutions are also
  *  possible.
+ *  @exception RANGE_ERROR - The string contains a character that
+ *             does not fit into the file specific representation
+ *             (e.g.: A byte-file allows just chars from '\0;' to '\255;').
  *)
 const proc: writeln (inout file: outFile, in string: stri)   is DYNAMIC;
 
