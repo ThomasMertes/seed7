@@ -47,8 +47,7 @@ syntax match sd7Assignment		"(\+|-|\*|/|<<|>>|&|><|\||@)?:="
 
 " Section: Numbers, including floating point, exponents, and alternate bases. {{{1
 "
-syntax match   sd7Number		"\<\d[0-9_]*\(\.\d[0-9_]*\)\=\([Ee][+-]\=\d[0-9_]*\)\=\>"
-syntax match   sd7Number		"\<\d\d\=#\x[0-9A-Fa-f_]*\(\.\x[0-9A-Fa-f_]*\)\=#\([Ee][+-]\=\d[0-9_]*\)\="
+syntax match   sd7Number		"\<\d\d*\(_\|#[0-9a-zA-Z][0-9a-zA-Z]*_\{0,1\}\|[Ee]\(+\|-\)\{0,1\}\d\d*\|\.\d\d*\([Ee]\(+\|-\)\{0,1\}\d\d*\)\{0,1\}\)\{0,1\}\>"
 
 " Section: Boolean Constants {{{1
 " Boolean Constants.
@@ -74,10 +73,10 @@ syntax keyword  sd7Statement is
 syntax keyword sd7BuiltinSub	write writeln
 
 " Section: Types
-syntax keyword sd7BuiltinType	bigInteger bigRationalbitset     boolean    char       clib_file
-syntax keyword sd7BuiltinType	color      complex    duration   expr       file       float
-syntax keyword sd7BuiltinType	integer    object     program    rational   reference
-syntax keyword sd7BuiltinType	ref_list   string     text       time       type       void
+syntax keyword sd7BuiltinType	bigInteger bigRational bitset     boolean    char       clib_file
+syntax keyword sd7BuiltinType	color      complex     duration   expr       file       float
+syntax keyword sd7BuiltinType	integer    object      program    rational   reference
+syntax keyword sd7BuiltinType	ref_list   string      text       time       type       void
 syntax keyword sd7BuiltinType	PRIMITIVE_WINDOW
 
 "Section: Conditionals {{{1
@@ -114,7 +113,7 @@ syntax match    sd7Begin	"\<procedure\>" contains=sd7Procedure
 "
 syntax match   sd7Escapes  +\.+
 syntax region  sd7String	start=+L\="+ skip=+\\\\\|\\"+ end=+"+ contains=@Spell,sd7Escapes extend
-syntax match   sd7Character "'.'"
+syntax match   sd7Character "'.*'"
 
 " Section: Todo (only highlighted in comments) {{{1
 "
