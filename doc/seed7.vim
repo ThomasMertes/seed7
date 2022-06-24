@@ -47,7 +47,7 @@ syntax match sd7Assignment		"(\+|-|\*|/|<<|>>|&|><|\||@)?:="
 
 " Section: Numbers, including floating point, exponents, and alternate bases. {{{1
 "
-syntax match   sd7Number		"\<\d\d*\(_\|#[0-9a-zA-Z][0-9a-zA-Z]*_\{0,1\}\|[Ee]\(+\|-\)\{0,1\}\d\d*\|\.\d\d*\([Ee]\(+\|-\)\{0,1\}\d\d*\)\{0,1\}\)\{0,1\}\>"
+syntax match   sd7Number		"\<\d\d*\(_\|#[0-9a-zA-Z][0-9a-zA-Z]*_\{0,1\}\|[Ee]\(+\)\{0,1\}\d\d*\|\.\d\d*\([Ee]\(+\|-\)\{0,1\}\d\d*\)\{0,1\}\)\{0,1\}\>"
 
 " Section: Boolean Constants {{{1
 " Boolean Constants.
@@ -111,9 +111,10 @@ syntax match    sd7Begin	"\<procedure\>" contains=sd7Procedure
 
 " Section: String and character constants. {{{1
 "
-syntax match   sd7Escapes  +\.+
-syntax region  sd7String	start=+L\="+ skip=+\\\\\|\\"+ end=+"+ contains=@Spell,sd7Escapes extend
-syntax match   sd7Character "'.*'"
+syntax match   sd7Escapes       +\\\([abefnrtv\\'"A-Z]\|\d\d*\(;\|#[0-9a-zA-Z][0-9a-zA-Z]*;\)\)+
+syntax match   sd7WrongEscapes  +\\\([cdghijklmopqsuwxyz!#%&()+,/_`]\)+
+syntax region  sd7String        start=+"\|[ \t^]\\+ end=+"\|\\[ \t$]+ contains=@Spell,sd7Escapes,sd7WrongEscapes extend
+syntax match   sd7Character     "'.*'"
 
 " Section: Todo (only highlighted in comments) {{{1
 "
@@ -144,6 +145,8 @@ highlight def link sd7Special	    Special
 highlight def link sd7Begin	    Statement
 highlight def link sd7Statement	    Statement
 highlight def link sd7BuiltinSub    Type
+highlight def link sd7Escapes	    String
+highlight def link sd7WrongEscapes  Error
 highlight def link sd7String	    String
 highlight def link sd7Structure	    Structure
 highlight def link sd7Todo	    Todo
