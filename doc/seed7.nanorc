@@ -9,7 +9,7 @@ syntax "seed7" "\.s(d7|7i)"
 color brightblue "\<(begin|block|case|const|do|downto|else|elsif|end|enum|exception|for|forward|func|false|if|in|include|inout|is|local|new|of|otherwise|param|range|ref|repeat|result|return|step|struct|syntax|system|then|to|true|until|val|var|when|while)\>"
 
 ## Types
-color brightred "array|bigInteger|bigRational|bitset|boolean|char|color|complex|duration|expr|file|float|func|hash|integer|object|proc|program|rational|reference|ref_list|set|string|text|time|type|varfunc|void"
+color brightred "array|bigInteger|bigRational|bin32|bin64|bitset|boolean|char|clib_file|color|complex|duration|expr|file|float|func|hash|integer|object|proc|program|rational|reference|ref_list|set|string|text|time|type|varfunc|void"
 
 ## Keyword correction
 color brightblue "\<(end func)\>"

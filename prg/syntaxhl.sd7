@@ -52,6 +52,7 @@ const integer: leadingZero is 0299792458;  # A leading zero digit does not intro
 const integer: leading0x is 0x12345;       # A leading 0x does not introduce a hexadecimal integer.
 const integer: hexInteger is 16#fedcba98;
 const integer: million is 1e6;             # Integer literals can also use exponential notation.
+const integer: secondMillion is 1e+6;
 const integer: anotherMillion is 1E6;
 const integer: negativeExponent is 10e-1;  # A negative exponent in an integer literal is illegal.
 const integer: strangeConstant is (hexInteger mod(speedOfLight div million+ord(okay))*3-10**2 rem anotherMillion)mdiv 2;
@@ -72,6 +73,9 @@ const char: apostrophe is ''';
 const char: apostrophe2 is '\'';
 const char: quote is '"';
 const char: qote2 is '\"';
+const char: backslash is '\\';
+const char: nul is '\0;';
+const char: del is '\16#ff;';
 const char: alpha is 'α';     # The characters in a char literal are UTF-8 encoded.
 const char: illegalNumericEscape    is '\0';  # Numerical escape sequences should end with ";".
 const char: illegalEmptyCharLiteral is '';    # Empty char literals are illegal.
@@ -88,6 +92,7 @@ const string: multiLine2 is "Line comments inside of a line break <\  # There ca
 const string: controlCharacters is "\0;\1;\2;\3;\4;\5;\6;\a\b\t\n\v\f\r\14;\15;\16;\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\e\28;\29;\30;\31;";
 const string: hexCharacters is "\16#f;=\\a \16#10;=\\b \16#11;=\\t \16#12;=\\n";
 const string: greekAlphabet is "αβγδεζηθικλμνξοπρςστυφχψω";  # The characters in a string literal are UTF-8 encoded.
+const string: lowerCaseEscapes is "\a \b \c \d \e \f \g \h \i \j \k \l \m \n \o \p \q \r \s \t \u \v \w \x \y \z";  # Not all of them exist.
 const bitset: fibonacci is {1, 2, 3, 5, 8, 13, 21, 34, 55};
 const bitset: negative is {-1, -2, -3, -4, -5, -6};
 const bitset: digit is {0 .. 9};

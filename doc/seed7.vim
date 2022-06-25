@@ -30,7 +30,6 @@ let b:current_syntax = "sd7"
 "
 " There are some reserved words in total in sd7. Some keywords are used in more than one way. For example:
 " 1. "end" is a general keyword, but "end if" ends a Conditional.
-" 2. "then" is a conditional, but "and then" is an operator.
 "
 " Section: Operators {{{1
 "
@@ -58,7 +57,13 @@ syntax keyword sd7Boolean	TRUE FALSE
 "
 syntax match sd7Error "//"
 syntax match sd7Error "/\*"
+syntax match sd7Error "\*/"
 syntax match sd7Error "=="
+syntax match sd7Error "\<0x[0-9a-zA-Z][0-9a-zA-Z]*\>"
+syntax match sd7Error "\<\d\d*[Ee]-\d\d*\>"
+syntax match sd7Error "\(''\|'[^\\].'\|'\\\d\d*'\)"
+syntax match sd7Error "\.\d\d*"
+syntax match sd7Error "\d\d*\.[^0-9]"
 
 " Section: end {{{1
 syntax region   sd7Inc contains=sd7String start="\<include\>" end="$"
@@ -73,18 +78,14 @@ syntax keyword  sd7Statement is
 syntax keyword sd7BuiltinSub	write writeln
 
 " Section: Types
-syntax keyword sd7BuiltinType	bigInteger bigRational bitset     boolean    char       clib_file
-syntax keyword sd7BuiltinType	color      complex     duration   expr       file       float
+syntax keyword sd7BuiltinType	bigInteger bigRational bin32      bin64      bitset     boolean    char
+syntax keyword sd7BuiltinType	clib_file  color       complex    duration   expr       file       float
 syntax keyword sd7BuiltinType	integer    object      program    rational   reference
 syntax keyword sd7BuiltinType	ref_list   string      text       time       type       void
 syntax keyword sd7BuiltinType	PRIMITIVE_WINDOW
 
 "Section: Conditionals {{{1
-"
-" "abort" after "then" is a conditional of its own.
-"
 syntax match    sd7Conditional  "\<then\>"
-syntax match    sd7Conditional	"\<then\s\+abort\>"
 syntax match    sd7Conditional	"\<else\>"
 syntax match    sd7Conditional	"\<end\s\+if\>"
 syntax match    sd7Conditional	"\<end\s\+case\>"
@@ -102,31 +103,26 @@ syntax keyword  sd7Keyword	return struct sub syntax system to val
 " These keywords begin various constructs, and you _might_ want to
 " highlight them differently.
 "
-syntax keyword  sd7Begin	const begin interface declare entry generic local
-syntax keyword  sd7Begin	protected renames task
-
-syntax match    sd7Begin	"\<function\>" contains=sd7Function
-syntax match    sd7Begin	"\<procedure\>" contains=sd7Procedure
-
+syntax keyword  sd7Begin	const var begin local
 
 " Section: String and character constants. {{{1
 "
 syntax match   sd7Escapes       +\\\([abefnrtv\\'"A-Z]\|\d\d*\(;\|#[0-9a-zA-Z][0-9a-zA-Z]*;\)\)+
 syntax match   sd7WrongEscapes  +\\\([cdghijklmopqsuwxyz!#%&()+,/_`]\)+
 syntax region  sd7String        start=+"\|[ \t^]\\+ end=+"\|\\[ \t$]+ contains=@Spell,sd7Escapes,sd7WrongEscapes extend
-syntax match   sd7Character     "'.*'"
+syntax match   sd7Character     "'\([^\\]\|\\\([abefnrtv\\'"A-Z]\|\d\d*\(;\|#[0-9a-zA-Z][0-9a-zA-Z]*;\)\)\)'"
 
 " Section: Todo (only highlighted in comments) {{{1
 "
 syntax keyword sd7Todo contained TODO FIXME XXX NOTE
 
-" Section: Comments. {{{1
+" Section: Comments {{{1
 "
 syntax region  sd7Comment contains=sd7Todo,sd7LineError,@Spell,sd7Comment start="(\*" end="\*)"
 syntax region  sd7CommentL contains=sd7Todo,sd7LineError,@Spell start="#" end="$"
 
-" Section: Comments. {{{1
-syntax region sd7var contains=sd7String,sd7Number,sd7Character,sd7Statement start="\<var\>" end="\;"
+" Section: Var {{{1
+" syntax region sd7var contains=sd7String,sd7Number,sd7Character,sd7Statement start="\<var\>" end="\;"
 
 " Section: The default methods for highlighting. Can be overridden later. {{{1
 "
