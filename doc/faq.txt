@@ -340,12 +340,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2022-05-22 the number of lines is:
+than 300000 lines of Seed7. For version 2022-06-26 the number of lines is:
 
-  171168  C source files (*.c)
-   13016  C header files (*.h)
-  206029  Seed7 source files (*.sd7)
-  173328  Seed7 library/include files (*.s7i)
+  171338  C source files (*.c)
+   13018  C header files (*.h)
+  206526  Seed7 source files (*.sd7)
+  173600  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -806,6 +806,11 @@ Possible options are
          e Trace exceptions and handlers
          f Trace functions
          s Trace signals
+  -wn  Specify warning level n. E.g.: -w2
+       The level n is a digit between 0 and 2:
+         0 Omit warnings.
+         1 Write normal warnings (default).
+         2 Write warnings for raised exceptions.
 
 
 Is there support for syntax highlighting?
@@ -822,6 +827,8 @@ Syntax highlighting is available for several editors:
      cp seed7.vim ~/.vim/syntax
      cp sd7.vim ~/.vim/ftdetect
 
+ - For the Nano editor there is seed7/doc/seed7.nanorc. You can copy
+   this file to  (you might need superuser priviledges to do that).
  - For Notepad++ there is seed7/doc/seed7udl.xml. Start Notepad++ and
    go to Language => User Defined Language => Define your language...,
    click on Import..., select the seed7/doc/seed7udl.xml file and press Open.
@@ -834,6 +841,9 @@ Syntax highlighting is available for several editors:
    Copy the file seed7/doc/seed7.uew to the directory for wordfiles.
    Afterwards Seed7 can be found under Coding => Add another language...
  - For Textpad there is seed7/doc/seed7.syn.
+
+The file 'seed7/prg/syntaxhl.sd7' has been created to test syntax highlighting.
+Hopefully this allows creating syntax highlighting files for more editors.
 
 
 Can I debug Seed7 programs with Eclipse?

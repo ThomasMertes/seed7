@@ -1,3 +1,63 @@
+20220626:
+- Syntax highlighting for the Nano editor has been added. Many
+  thanks to Duke Normandin for creating seed7.nanorc.
+- The syntax highlighting of vim (in seed7.vim) has been improved.
+- The file syntaxhl.sd7 has been improved.
+- Explanations about type inference, return type overloading and
+  integer overflow have been improved in the FAQ.
+- In the manual the tutorial chapter "For loop and containers" has
+  been improved. The chapter about errors has been improved also.
+- The documentation in src/read_me.txt has been improved and the
+  new file src/read_me.htm has been introduced.
+- The interpreter (s7) has been improved to write the error message
+  with the correct line if a declaration fails (changes have been
+  done in dcllib.c and error.c).
+- The new library pem.s7i has been added. This library supports the
+  PEM cryptographic file format.
+- In encoding.s7i the function fromBase64 has been improved to
+  check that no = is in the middle of a base64 string.
+- The library zstd.s7i has been fixed to work correct if the ID
+  field size of the dictionary is 0.
+- The Seed7 compiler (s7c) has been improved to support warning
+  levels.
+- The compiler has been improved to support case statements if the
+  C switch statement does not work for int64Type (in prc_act.s7i).
+- In the compiler the string concatenation optimizations have been
+  improved (in str_act.s7i).
+- Tests for string concatenation have been added to chkstr.sd7.
+- Checks for converting float expressions to bin32 and bin64 have
+  been added to chkbin.sd7.
+- The support for the function log1p has been improved (in
+  flt_rtl.c, flt_rtl.h and flt_act.s7i).
+- In the library asn1.s7i the function printAsn1 has been improved.
+- The usage of the GMP library has been disabled by default. It
+  turned out that database connection libraries used GnuTLS which
+  used GMP with a custom memory allocator. This caused a memory
+  corruption. All makefiles now define USE_GMP as 0.
+- The program chkccomp.c has been improved to:
+  - Determine the C language version supported by the compiler.
+  - Determine C overflow behavior of int division.
+- The handling of integer division overflow has been fixed to avoid
+  a MinGW gcc bug that triggers an endless loop.
+- Several types in database drivers have been renamed to avoid
+  violating the C++ One Definition Rule (in sql_cli.c, sql_db2.c,
+  sql_fire.c, sql_ifx.c, sql_lite.c, sql_my.c, sql_oci.c,
+  sql_post.c, sql_srv.c and sql_tds.c).
+- Adjustments have be done in s7c.sd7 and comp/str_act.s7i to
+  support compilation with a C++ compiler.
+- In common.h the macro logErrorIfTrueX has been introduced.
+- Function logging has been added to big_gmp.c, kbd_inf.c and
+  kbd_poll.c.
+- Errors in function logging have been fixed in arr_rtl.c,
+  big_rtl.c, drw_x11.c and sql_rtl.c.
+- Definitions of LOG1P_FUNCTION_OKAY, INT_DIV_OVERFLOW and
+  INT_REM_OVERFLOW have been added to cc_conf.s7i. The definition
+  of HAS_LOG1P has been removed. The file cmd_rtl.c and the program
+  confval.sd7 have been adjusted.
+- Documentation comments have been updated in array.s7i, bin32.s7i,
+  bin64.s7i, cc_conf.s7i, external_file.s7i, file.s7i, hash.s7i,
+  math.s7i and flt_rtl.c.
+
 20220522:
 - An explanation for Seed7 syntax highlighting has been added to
   the FAQ.

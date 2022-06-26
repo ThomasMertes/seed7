@@ -7177,7 +7177,7 @@ const proc: pass_1 (in string: source, inout program: prog,
     if source <> "" then
       writeln("Compiling the program ...");
       if "-w" in compiler_option then
-        if compiler_option["-w"] in {"0", "1", "2", "3"} then
+        if compiler_option["-w"] in {"0", "1", "2"} then
           warning_level := integer(compiler_option["-w"][1 ..]);
         else
           writeln("*** Ignore unsupported option: -w" <& compiler_option["-w"]);
@@ -7814,7 +7814,10 @@ const proc: writeHelp is func
     writeln("         f Trace functions");
     writeln("         s Trace signals");
     writeln("  -wn  Specify warning level n. E.g.: -w2");
-    writeln("       The level n is a digit between 0 and 2.");
+    writeln("       The level n is a digit between 0 and 2:");
+    writeln("         0 Omit warnings.");
+    writeln("         1 Write normal warnings (default).");
+    writeln("         2 Write warnings for raised exceptions.");
     writeln;
   end func;
 

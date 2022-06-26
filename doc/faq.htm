@@ -841,12 +841,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2022-05-22 the number of lines is:
+than 300000 lines of Seed7. For version 2022-06-26 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">171168</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13016</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">206029</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">173328</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">171338</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 13018</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">206526</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">173600</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1307,6 +1307,11 @@ Possible options are
          <li><b>e</b> Trace exceptions and handlers</li>
          <li><b>f</b> Trace functions</li>
          <li><b>s</b> Trace signals</li></ul></li>
+  <li><a name="faq_compiler_option-w"><b>-w</b><span class="keywd">n</span></a>  Specify warning level n. E.g.: <b>-w2</b>
+       The level <span class="keywd">n</span> is a digit between 0 and 2:<ul>
+         <li><b>0</b> Omit warnings.</li>
+         <li><b>1</b> Write normal warnings (default).</li>
+         <li><b>2</b> Write warnings for raised exceptions.</li></ul></li>
 </ul></div>
 
 <div><br /><a name="faq_syntax_highlighting"><h3>Is there support for syntax highlighting?
@@ -1323,6 +1328,8 @@ mkdir -p ~/.vim/ftdetect
 cp seed7.vim ~/.vim/syntax
 cp sd7.vim ~/.vim/ftdetect
 </pre></li></li>
+<li>For the Nano editor there is <span class="link">seed7/doc/seed7.nanorc</span>. You can copy
+   this file to  (you might need superuser priviledges to do that).</li>
 <li>For Notepad++ there is <span class="link">seed7/doc/seed7udl.xml</span>. Start Notepad++ and
    go to <span class="stri">Language <b>&rArr;</b> User Defined Language <b>&rArr;</b> Define your language...</span>,
    click on <span class="stri">Import...</span>, select the <span class="link">seed7/doc/seed7udl.xml</span> file and press <span class="stri">Open</span>.
@@ -1335,7 +1342,10 @@ cp sd7.vim ~/.vim/ftdetect
    Copy the file <span class="link">seed7/doc/seed7.uew</span> to the directory for wordfiles.
    Afterwards Seed7 can be found under <span class="stri">Coding <b>&rArr;</b> Add another language...</span></li>
 <li>For Textpad there is <span class="link">seed7/doc/seed7.syn</span>.</li>
-</ul></div>
+</ul><p>
+The file <nobr><span class="lib">seed7/prg/syntaxhl.sd7</span></nobr> has been created to test syntax highlighting.
+Hopefully this allows creating syntax highlighting files for more editors.
+</p></div>
 
 <div><br /><a name="faq_debug_with_eclipse"><h3>Can I debug Seed7 programs with Eclipse?
 </h3></a><hr />

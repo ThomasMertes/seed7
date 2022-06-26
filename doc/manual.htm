@@ -202,7 +202,7 @@ pre.indent {
 (*                                                                  *)
 (*  manual.txt                                                      *)
 (*                                                                  *)
-(*  Copyright (C) 1989 - 2021  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2022  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
 (*  Documentation: Manual for the Seed7 programming language        *)
@@ -14663,16 +14663,19 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <a name="errors_Compilation_errors"><h3>16.2 Compilation errors</h3></a>
 <p>
   The compiler does checks when generating code. As a result of
-  the checks some errors might be triggered:
-</p><dl><dd><table border="0" cellspacing="0">
-    <tr><td>Expression raises "%s".</td></tr>
-    <tr><td>Catch of "%s" although the checks are suppressed.</td></tr>
-    <tr><td>Catch of otherwise although the checks for %s are suppressed.</td></tr>
-    <tr><td>Duplicate when values %s.</td></tr>
-    <tr><td>Previous usage of %s.</td></tr>
-    <tr><td>When value must be constant.</td></tr>
-    <tr><td>Forward defined function called.</td></tr>
-    <tr><td>Forward definition of the called function.</td></tr>
+  the checks some warnings might be written. The warning level can
+  be specified with the option <span class="link"><tt><b>-w</b></tt></span>
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Level </th><th> Warning</th></tr>
+    
+    <tr><td>2     </td><td> Expression raises "%s".</td></tr>
+    <tr><td>1     </td><td> Catch of "%s" although the checks are suppressed.</td></tr>
+    <tr><td>1     </td><td> Catch of otherwise although the checks for %s are suppressed.</td></tr>
+    <tr><td>1     </td><td> Duplicate when values %s.</td></tr>
+    <tr><td>1     </td><td> Previous usage of %s.</td></tr>
+    <tr><td>1     </td><td> When value must be constant.</td></tr>
+    <tr><td>1     </td><td> Forward defined function called.</td></tr>
+    <tr><td>1     </td><td> Forward definition of the called function.</td></tr>
 </table></dd></dl><p></p>
 
 <a name="errors_Exceptions"><h3>16.3 Exceptions</h3></a>
