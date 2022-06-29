@@ -151,7 +151,8 @@ boolType kbdKeyPressed (void)
           } /* if */
         } else if (event.EventType == FOCUS_EVENT ||
                    event.EventType == MENU_EVENT ||
-                   event.EventType == MOUSE_EVENT) {
+                   event.EventType == MOUSE_EVENT ||
+                   event.EventType == WINDOW_BUFFER_SIZE_EVENT) {
           /* Ignore focus and menu events.                  */
           /* They are used internally by windows.           */
           /* Ignore mouse movement and button press events. */
@@ -178,6 +179,7 @@ charType kbdGetc (void)
   {
     INPUT_RECORD event;
     DWORD count;
+    boolType altNumpadUsed = FALSE;
     charType result = K_NONE;
 
   /* kbdGetc */
@@ -265,6 +267,22 @@ charType kbdGetc (void)
               case VK_CAPITAL:
               case VK_NUMLOCK:
               case VK_SCROLL:   result = K_NONE;       break;
+              case VK_NUMPAD0:
+              case VK_NUMPAD1:
+              case VK_NUMPAD2:
+              case VK_NUMPAD3:
+              case VK_NUMPAD4:
+              case VK_NUMPAD5:
+              case VK_NUMPAD6:
+              case VK_NUMPAD7:
+              case VK_NUMPAD8:
+              case VK_NUMPAD9:
+                if (event.Event.KeyEvent.dwControlKeyState & NUMLOCK_ON) {
+                  result = K_UNDEF;
+                } else {
+                  altNumpadUsed = TRUE;
+                } /* if */
+                break;
               default:          result = K_UNDEF;      break;
             } /* switch */
           } else if (event.Event.KeyEvent.dwControlKeyState &
@@ -405,10 +423,16 @@ charType kbdGetc (void)
               */
             } /* if */
           } /* if */
+        } else {
+          if (event.Event.KeyEvent.wVirtualKeyCode == VK_MENU &&
+              altNumpadUsed) {
+            result = event.Event.KeyEvent.uChar.UnicodeChar;
+          } /* if */
         } /* if */
       } else if (event.EventType == FOCUS_EVENT ||
                  event.EventType == MENU_EVENT ||
-                 event.EventType == MOUSE_EVENT) {
+                 event.EventType == MOUSE_EVENT ||
+                 event.EventType == WINDOW_BUFFER_SIZE_EVENT) {
         /* Ignore focus and menu events.                  */
         /* They are used internally by windows.           */
         /* Ignore mouse movement and button press events. */
