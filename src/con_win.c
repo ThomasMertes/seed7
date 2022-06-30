@@ -180,6 +180,7 @@ charType kbdGetc (void)
     INPUT_RECORD event;
     DWORD count;
     boolType altNumpadUsed = FALSE;
+    charType highSurrogate = 0;
     charType result = K_NONE;
 
   /* kbdGetc */
@@ -427,6 +428,22 @@ charType kbdGetc (void)
           if (event.Event.KeyEvent.wVirtualKeyCode == VK_MENU &&
               altNumpadUsed) {
             result = event.Event.KeyEvent.uChar.UnicodeChar;
+            if (result >= 0xd800 && result <= 0xdfff) {
+              if (result <= 0xdbff) {
+                if (highSurrogate == 0) {
+                  highSurrogate = result;
+                  result = K_NONE;
+                } else {
+                  result = K_UNDEF;
+                } /* if */
+              } else {
+                if (highSurrogate != 0) {
+                  result = 0x10000 + (((highSurrogate - 0xd800) << 10) | (result - 0xdc00));
+                } else {
+                  result = K_UNDEF;
+                } /* if */
+              } /* if */
+            } /* if */
           } /* if */
         } /* if */
       } else if (event.EventType == FOCUS_EVENT ||
