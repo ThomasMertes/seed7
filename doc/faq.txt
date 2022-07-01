@@ -828,7 +828,7 @@ Syntax highlighting is available for several editors:
      cp sd7.vim ~/.vim/ftdetect
 
  - For the Nano editor there is seed7/doc/seed7.nanorc. You can copy
-   this file to  (you might need superuser priviledges to do that).
+   this file to '/usr/share/nano' (you might need superuser priviledges to do that).
  - For Notepad++ there is seed7/doc/seed7udl.xml. Start Notepad++ and
    go to Language => User Defined Language => Define your language...,
    click on Import..., select the seed7/doc/seed7udl.xml file and press Open.
