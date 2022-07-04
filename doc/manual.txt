@@ -8020,6 +8020,8 @@ CONTENTS
     KEY_ALT_MOUSE5             Alt mouse wheel scroll down
     KEY_ALT_MOUSE_FWD          Alt mouse forward button
     KEY_ALT_MOUSE_BACK         Alt mouse back button
+    KEY_CLOSE                  The close button of the window has been pressed
+    KEY_RESIZE                 The window has been resized
     KEY_UNDEF                  Undefined key
     KEY_NONE                   No key pressed (returned by busy_getc)
 
@@ -8041,9 +8043,12 @@ CONTENTS
   to deal with function and cursor keys, since the special key
   codes may change in future versions of Seed7.
 
+  Note that 'getc(KEYBOARD)' works synchonous. This means that it
+  might wait (block) until a key has been pressed.
+
   Additionally to the operations possible with a 'file' there
   are two functions that are applicable only to files of type
-  'keyboard_file':
+  'keyboard_file'. These functions allow non-blocking calls:
 
     - 'busy_getc', which delivers the next character
       from the keyboard or 'KEY_NONE' if no key has been pressed.
@@ -8154,6 +8159,34 @@ CONTENTS
           while buttonPressed(KEYBOARD, KEY_MOUSE1) do
             fcircle(pointerXPos(curr_win), pointerYPos(curr_win), 4, light_red);
           end while;
+          command := getc(KEYBOARD);
+        end while;
+      end func;
+
+Some keys are not delivered to the program by default. By default
+the close button of the window (often marked with X)
+just exits the program. By default resizing a window is also not
+communicated to the program. These two events can be activated
+with 'selectInput'.
+This way a program can also receive KEY_CLOSE and KEY_RESIZE:
+
+    $ include "seed7_05.s7i";
+      include "keybd.s7i";
+      include "draw.s7i";
+
+    const proc: main is func
+      local
+        var char: command is ' ';
+      begin
+        screen(640, 480);
+        KEYBOARD := GRAPH_KEYBOARD;
+        selectInput(curr_win, KEY_CLOSE, TRUE);  # Enable the program to get KEY_CLOSE without closing the window.
+        selectInput(curr_win, KEY_RESIZE, TRUE); # Enable the program to get KEY_RESIZE.
+        command := getc(KEYBOARD);
+        while command <> KEY_CLOSE do
+          if command = KEY_RESIZE then
+            lineTo(0, 0, width(curr_win), height(curr_win), white);
+          end if;
           command := getc(KEYBOARD);
         end while;
       end func;

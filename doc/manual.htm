@@ -8192,12 +8192,12 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
     <tr><td><tt>KEY_NULLCMD</tt></td>                <td>Null command of window manager</td></tr>
     <tr><td><tt>KEY_REDRAW</tt></td>                 <td>Redraw command of window manager</td></tr>
     <tr><td><tt><a name="file_KEY_MOUSE1">KEY_MOUSE1</a></tt></td>                 <td>Mouse button 1 (counted from left)</td></tr>
-    <tr><td><tt>KEY_MOUSE2</tt></td>                 <td>Mouse button 2 (counted from left)</td></tr>
-    <tr><td><tt>KEY_MOUSE3</tt></td>                 <td>Mouse button 3 (counted from left)</td></tr>
+    <tr><td><tt><a name="file_KEY_MOUSE2">KEY_MOUSE2</a></tt></td>                 <td>Mouse button 2 (counted from left)</td></tr>
+    <tr><td><tt><a name="file_KEY_MOUSE3">KEY_MOUSE3</a></tt></td>                 <td>Mouse button 3 (counted from left)</td></tr>
     <tr><td><tt>KEY_MOUSE4</tt></td>                 <td>Mouse wheel scroll up</td></tr>
     <tr><td><tt>KEY_MOUSE5</tt></td>                 <td>Mouse wheel scroll down</td></tr>
-    <tr><td><tt>KEY_MOUSE_FWD</tt></td>              <td>Mouse forward button</td></tr>
-    <tr><td><tt>KEY_MOUSE_BACK</tt></td>             <td>Mouse back button</td></tr>
+    <tr><td><tt><a name="file_KEY_MOUSE_FWD">KEY_MOUSE_FWD</a></tt></td>              <td>Mouse forward button</td></tr>
+    <tr><td><tt><a name="file_KEY_MOUSE_BACK">KEY_MOUSE_BACK</a></tt></td>             <td>Mouse back button</td></tr>
     <tr><td><tt>KEY_SFT_MOUSE1</tt></td>             <td>Shift mouse button 1 (counted from left)</td></tr>
     <tr><td><tt>KEY_SFT_MOUSE2</tt></td>             <td>Shift mouse button 2 (counted from left)</td></tr>
     <tr><td><tt>KEY_SFT_MOUSE3</tt></td>             <td>Shift mouse button 3 (counted from left)</td></tr>
@@ -8219,6 +8219,8 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
     <tr><td><tt>KEY_ALT_MOUSE5</tt></td>             <td>Alt mouse wheel scroll down</td></tr>
     <tr><td><tt>KEY_ALT_MOUSE_FWD</tt></td>          <td>Alt mouse forward button</td></tr>
     <tr><td><tt>KEY_ALT_MOUSE_BACK</tt></td>         <td>Alt mouse back button</td></tr>
+    <tr><td><tt><a name="file_KEY_CLOSE">KEY_CLOSE</a></tt></td>                  <td>The close button of the window has been pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_RESIZE">KEY_RESIZE</a></tt></td>                 <td>The window has been resized</td></tr>
     <tr><td><tt>KEY_UNDEF</tt></td>                  <td>Undefined key</td></tr>
     <tr><td><tt><a name="file_KEY_NONE">KEY_NONE</a></tt></td>                   <td>No key pressed (returned by busy_getc)</td></tr>
 </table></dd></dl><p>
@@ -8240,9 +8242,12 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   to deal with function and cursor keys, since the special key
   codes may change in future versions of Seed7.
 </p><p>
+  Note that <tt><span class="func">getc</span>(<span class="var">KEYBOARD</span>)</tt> works synchonous. This means that it
+  might wait (block) until a key has been pressed.
+</p><p>
   Additionally to the operations possible with a <tt><a class="type" href="#types_file">file</a></tt> there
   are two functions that are applicable only to files of type
-  <tt><span class="type">keyboard_file</span></tt>:
+  <tt><span class="type">keyboard_file</span></tt>. These functions allow non-blocking calls:
 </p><ul>
     <li><tt><span class="func">busy_getc</span></tt>, which delivers the next character
       from the keyboard or <tt><a class="var" href="#file_KEY_NONE">KEY_NONE</a></tt> if no key has been pressed.</li>
@@ -8353,6 +8358,34 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
       <span class="keywd">while</span> <span class="func">buttonPressed</span>(<span class="var">KEYBOARD</span>, <a class="var" href="#file_KEY_MOUSE1">KEY_MOUSE1</a>) <span class="keywd">do</span>
         fcircle(<span class="func">pointerXPos</span>(curr_win), <span class="func">pointerYPos</span>(curr_win), 4, light_red);
       <span class="keywd">end while</span>;
+      command := <span class="func">getc</span>(<span class="var">KEYBOARD</span>);
+    <span class="keywd">end while</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
+Some keys are not delivered to the program by default. By default
+the close button of the window (often marked with <tt><span class="box">X</span></tt>)
+just exits the program. By default resizing a window is also not
+communicated to the program. These two events can be activated
+with <tt><span class="func">selectInput</span></tt>.
+This way a program can also receive <tt><span class="var">KEY_CLOSE</span></tt> and <tt><span class="var">KEY_RESIZE</span></tt>:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">keybd.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">draw.s7i</span>"</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type" href="#types_char">char</a>: command <span class="keywd">is</span> <span class="stri">' '</span>;
+  <span class="keywd">begin</span>
+    screen(640, 480);
+    <span class="var">KEYBOARD</span> := <span class="var">GRAPH_KEYBOARD</span>;
+    <span class="func">selectInput</span>(curr_win, <span class="var">KEY_CLOSE</span>, <span class="var">TRUE</span>);  <span class="comment"># Enable the program to get KEY_CLOSE without closing the window.</span>
+    <span class="func">selectInput</span>(curr_win, <span class="var">KEY_RESIZE</span>, <span class="var">TRUE</span>); <span class="comment"># Enable the program to get KEY_RESIZE.</span>
+    command := <span class="func">getc</span>(<span class="var">KEYBOARD</span>);
+    <span class="keywd">while</span> command <> <a class="var" href="#file_KEY_CLOSE">KEY_CLOSE</a> <span class="keywd">do</span>
+      <span class="keywd">if</span> command = <a class="var" href="#file_KEY_RESIZE">KEY_RESIZE</a> <span class="keywd">then</span>
+        <span class="func">lineTo</span>(0, 0, <span class="func">width</span>(curr_win), <span class="func">height</span>(curr_win), white);
+      <span class="keywd">end if</span>;
       command := <span class="func">getc</span>(<span class="var">KEYBOARD</span>);
     <span class="keywd">end while</span>;
   <span class="keywd">end func</span>;
