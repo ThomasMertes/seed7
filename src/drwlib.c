@@ -90,18 +90,6 @@ static objectType toIntArray (rtlArrayType aRtlArray)
 
 
 
-objectType gkb_busy_getc (listType arguments)
-
-  { /* gkb_busy_getc */
-    if (gkbKeyPressed()) {
-      return bld_char_temp(gkbGetc());
-    } else {
-      return bld_char_temp((charType) K_NONE);
-    } /* if */
-  } /* gkb_busy_getc */
-
-
-
 objectType gkb_button_pressed (listType arguments)
 
   { /* gkb_button_pressed */

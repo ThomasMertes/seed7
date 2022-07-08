@@ -1850,7 +1850,7 @@ const func string: exec_str_primary (inout string: symbol, inout string: line,
         write(log, "INKEY$ ");
         flush(log);
         flush(win);
-        if keypressed(KEYBOARD) then
+        if inputReady(KEYBOARD) then
           current_key := getc(KEYBOARD);
           exprResult := extendedKeyCode(current_key);
         else
@@ -2531,11 +2531,10 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         expect(")", symbol, line);
         case index1 of
           when {16#60}:  # &H60/96    Get keyboard scan code
-            current_key := busy_getc(KEYBOARD);
-            if current_key = KEY_NONE then
-              exprResult := 128.0; # This is a key release code
+            if inputReady(KEYBOARD) then
+              exprResult := flt(keyboardScanCode(getc(KEYBOARD)));
             else
-              exprResult := flt(keyboardScanCode(current_key));
+              exprResult := 128.0; # This is a key release code
             end if;
           when {16#3DA}: # &H3DA/986  Indicate vertical retrace
             exprResult := flt(rand(0, 1) * 8);
@@ -2646,10 +2645,8 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
               exprResult := flt(index1);
             end if;
           when {49152, -16384}: # Read keyboard
-            current_key := busy_getc(KEYBOARD);
-            if current_key = KEY_NONE then
-              exprResult := 0.0;
-            else
+            if inputReady(KEYBOARD) then
+              current_key := getc(KEYBOARD);
               if current_key = KEY_NL then
                 current_key := KEY_CR;
               elsif current_key >= '\128;' then
@@ -2657,6 +2654,8 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
               end if;
               # Return value >= 128 if a key has been pressed.
               exprResult := flt(ord(current_key) + 128);
+            else
+              exprResult := 0.0;
             end if;
           otherwise:
             exprResult := 0.0;
@@ -2754,7 +2753,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         index1 := round(exec_expr(symbol, line));
         expect(")", symbol, line);
         exprResult := 0.0;
-        current_key := busy_getc(KEYBOARD);
+        current_key := getc(KEYBOARD, NO_WAIT);
         case index1 of
           when {0, 1}:
             if current_key = KEY_MOUSE1 then
@@ -7962,7 +7961,6 @@ const proc: exec_call_key (inout string: symbol, inout string: line) is func
     var integer: key_unit is 0;
     var string: return_variable is "";
     var string: status_variable is "";
-    var char: current_key is ' ';
   begin
     setup_graphic;
     symbol := get_symbol(line);
@@ -7973,13 +7971,12 @@ const proc: exec_call_key (inout string: symbol, inout string: line) is func
     expect(",", symbol, line);
     status_variable := get_name(symbol, line);
     expect(")", symbol, line);
-    current_key := busy_getc(KEYBOARD);
-    if current_key = KEY_NONE then
+    if inputReady(KEYBOARD) then
+      setNumericVar(return_variable, flt(ord(getc(KEYBOARD))));
+      setNumericVar(status_variable, 1.0);
+    else
       setNumericVar(return_variable, -1.0);
       setNumericVar(status_variable, 0.0);
-    else
-      setNumericVar(return_variable, flt(ord(current_key)));
-      setNumericVar(status_variable, 1.0);
     end if;
     line_marker;
     writeln(log, "CALL KEY(" <& key_unit <& ", " <& return_variable <& ", " <& status_variable <& ")");

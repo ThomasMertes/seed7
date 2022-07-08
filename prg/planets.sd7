@@ -1166,8 +1166,8 @@ const proc: showName is func
     var integer: selectedPlanet is 0;
     var string: name is "";
   begin
-    mouseXPos := getxpos(KEYBOARD);
-    mouseYPos := getypos(KEYBOARD);
+    mouseXPos := clickedXPos(KEYBOARD);
+    mouseYPos := clickedYPos(KEYBOARD);
     for index range 1 to length(stars) do
       equatorialCoordinate.rightAscension := stars[index].rightAscension;
       equatorialCoordinate.declination := stars[index].declination;

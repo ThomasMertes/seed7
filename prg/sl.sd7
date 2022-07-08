@@ -1001,7 +1001,7 @@ const proc: main is func
                 workspace[current].bact_list, workspace[next].bact_list);
             next := current;
             current := 3 - current;
-            ch := busy_getc(KEYBOARD);
+            ch := getc(KEYBOARD, NO_WAIT);
           until ch <> KEY_NONE;
           cursor(scr, TRUE);
         end if;

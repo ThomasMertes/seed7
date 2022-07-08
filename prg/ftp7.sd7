@@ -63,7 +63,7 @@ const proc: longFileListing (inout fileSys: aFileSys, in var string: directory) 
     end if;
     currentYear := time(NOW).year;
     for fileName range dir do
-      if busy_getc(KEYBOARD) = KEY_CTL_C then
+      if getc(KEYBOARD, NO_WAIT) = KEY_CTL_C then
         writeln(" ***** Terminated.");
         continue := FALSE;
       end if;
@@ -107,7 +107,7 @@ const proc: fileListing (inout fileSys: aFileSys, in string: directory) is func
       dir := readDir(aFileSys, directory);
     end if;
     for name range dir do
-      if busy_getc(KEYBOARD) = KEY_CTL_C then
+      if getc(KEYBOARD, NO_WAIT) = KEY_CTL_C then
         writeln(" ***** Terminated.");
         continue := FALSE;
       end if;
@@ -130,7 +130,7 @@ const proc: directoryListing (inout ftpFileSys: ftp, in string: directory) is fu
       dir := listDir(ftp, directory);
     end if;
     for line range dir do
-      if busy_getc(KEYBOARD) = KEY_CTL_C then
+      if getc(KEYBOARD, NO_WAIT) = KEY_CTL_C then
         writeln(" ***** Terminated.");
         continue := FALSE;
       end if;

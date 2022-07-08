@@ -1818,7 +1818,7 @@ const proc: init_round (in integer: num_round) is func
       monster[number].width := width(monster[number].pixmap[1]) div PICTURE_SCALE;
     end for;
     flushGraphic;
-    game_command(busy_getc(KEYBOARD));
+    game_command(getc(KEYBOARD, NO_WAIT));
     if not game.round_finished and not game.quit then
       await(start_time + 500000 . MICRO_SECONDS);
     end if;
@@ -1829,7 +1829,7 @@ const proc: init_round (in integer: num_round) is func
       change_direction(monster[number]);
       incr(number);
       flushGraphic;
-      game_command(busy_getc(KEYBOARD));
+      game_command(getc(KEYBOARD, NO_WAIT));
       if not game.round_finished and not game.quit then
         await(start_time + 500000 . MICRO_SECONDS);
       end if;
@@ -2323,7 +2323,7 @@ const proc: get_command (inout playerObj: playerObject) is func
   local
     var char: cmd is ' ';
   begin
-    cmd := busy_getc(KEYBOARD);
+    cmd := getc(KEYBOARD, NO_WAIT);
     if playerObject.living then
       case cmd of
         when {KEY_LEFT, 'J', 'j'}:
@@ -2414,7 +2414,7 @@ const proc: play_game is func
     game.round_number := 1;
     game.score := 0;
     game.restart := FALSE;
-    game_command(busy_getc(KEYBOARD));
+    game_command(getc(KEYBOARD, NO_WAIT));
     while not game.quit and not game.restart and game.num_players <> 0 do
       game_round;
       if not game.quit and not player.living then

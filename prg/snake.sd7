@@ -288,7 +288,7 @@ const func boolean: play(ROUND) is func
     var integer: apple_counter is 0;
   begin
     show_status();
-    inp := busy_getc(KEYBOARD);
+    inp := getc(KEYBOARD, NO_WAIT);
     while inp <> 'q' do
       start_time := time(NOW);
       if inp <> KEY_NONE then
@@ -343,7 +343,7 @@ const func boolean: play(ROUND) is func
 
           await(start_time + 100000 . MICRO_SECONDS);
 
-          inp := busy_getc(KEYBOARD);
+          inp := getc(KEYBOARD, NO_WAIT);
 
         end if;
       end if;

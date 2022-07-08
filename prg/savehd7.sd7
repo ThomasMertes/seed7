@@ -622,7 +622,7 @@ const proc: copyFile (inout stateType: state) is func
         currPosition := afterMaximumBadArea(state);
       end if;
       showProgress(state, state.inFileSize, pred(currPosition), pred(currPosition));
-      while currPosition <= state.inFileSize and not keypressed(KEYBOARD) do
+      while currPosition <= state.inFileSize and not inputReady(KEYBOARD) do
         seek(inFile, currPosition);
         chunkContent := gets(inFile, state.chunkSize);
         if length(chunkContent) <> 0 then
@@ -752,7 +752,7 @@ const proc: rereadFile (inout stateType: state) is func
       writeln(log, "Start reread from " <& state.inFileName <& " to " <& state.outFileName);
       currPosition := state.rereadPosition;
       showProgress(state, state.inFileSize, pred(currPosition), state.inFileSize);
-      while currPosition <= state.inFileSize and not keypressed(KEYBOARD) do
+      while currPosition <= state.inFileSize and not inputReady(KEYBOARD) do
         seek(inFile, currPosition);
         sourceChunk := gets(inFile, state.chunkSize);
         if length(sourceChunk) <> 0 then
@@ -823,7 +823,7 @@ const proc: processAreaBackward (inout stateType: state,
         (state.badBytesInUnprocessedAreas + (state.blockToProcess - state.badAreaToProcess) +
         bigInteger(state.blockSize)), state.inFileSize);
     saveState(state);
-    while state.blockToProcess >= state.badAreaToProcess and not keypressed(KEYBOARD) do
+    while state.blockToProcess >= state.badAreaToProcess and not inputReady(KEYBOARD) do
       # writeln(log, "process block " <& state.blockToProcess);
       seek(inFile, state.blockToProcess);
       sourceBlock := gets(inFile, state.blockSize);
@@ -864,7 +864,7 @@ const proc: fixOrImproveFile (inout stateType: state) is func
       writeln(log, "Start " <& state.phase <& " from " <& state.inFileName <&
           " to " <& state.outFileName);
 
-      while state.badAreaToProcess <= state.inFileSize and not keypressed(KEYBOARD) do
+      while state.badAreaToProcess <= state.inFileSize and not inputReady(KEYBOARD) do
         determineBadAreaToProcess(state);
         if state.badAreaToProcess <= state.inFileSize then
           state.badBytesInUnprocessedAreas := countBadBytesInAreasForward(state,
@@ -921,7 +921,7 @@ const proc: processAreaForward (inout stateType: state,
         state.blockToProcess)), state.inFileSize);
     saveState(state);
     while state.blockToProcess < state.badAreaToProcess + state.sizeOfBadAreaToProcess and
-        not keypressed(KEYBOARD) do
+        not inputReady(KEYBOARD) do
       # writeln(log, "process block " <& state.blockToProcess);
       seek(inFile, state.blockToProcess);
       sourceBlock := gets(inFile, state.blockSize);
@@ -963,7 +963,7 @@ const proc: examineFile (inout stateType: state) is func
       writeln(log, "Start " <& state.phase <& " from " <& state.inFileName <&
           " to " <& state.outFileName);
 
-      while state.badAreaToProcess <= state.inFileSize and not keypressed(KEYBOARD) do
+      while state.badAreaToProcess <= state.inFileSize and not inputReady(KEYBOARD) do
         determineBadAreaToProcess(state);
         # writeln(log, "Examine " <& state.badAreaToProcess <&
         #     " with size " <& state.sizeOfBadAreaToProcess);
@@ -1091,16 +1091,16 @@ const proc: main is func
           if state.phase = COPY then
             copyFile(state);
           end if;
-          while state.phase = REREAD and not keypressed(KEYBOARD) do
+          while state.phase = REREAD and not inputReady(KEYBOARD) do
             rereadFile(state);
           end while;
-          while state.phase = IMPROVE and not keypressed(KEYBOARD) do
+          while state.phase = IMPROVE and not inputReady(KEYBOARD) do
             fixOrImproveFile(state);
           end while;
-          while state.phase = EXAMINE and not keypressed(KEYBOARD) do
+          while state.phase = EXAMINE and not inputReady(KEYBOARD) do
             examineFile(state);
           end while;
-          while state.phase = FIX and not keypressed(KEYBOARD) do
+          while state.phase = FIX and not inputReady(KEYBOARD) do
             fixOrImproveFile(state);
           end while;
           saveState(state);

@@ -33,7 +33,7 @@ const proc: rand_test_1 is func
     var integer: count_even is 0;
     var integer: count_odd is 0;
   begin
-    while busy_getc(KEYBOARD) = KEY_NONE do
+    while getc(KEYBOARD, NO_WAIT) = KEY_NONE do
       for number range 1 to 1000 do
         if odd(rand(1, 1000000000)) then
           incr(count_odd);
@@ -53,7 +53,7 @@ const proc: rand_test_2 is func
     var integer: number is 0;
     var float: mean is 0.0;
   begin
-    while busy_getc(KEYBOARD) = KEY_NONE do
+    while getc(KEYBOARD, NO_WAIT) = KEY_NONE do
       for num range 1 to 1000 do
         number := rand(0, 1000000);
         incr(counter);
@@ -73,7 +73,7 @@ const proc: rand_test_3 is func
     var float: sum is 0.0;
     var float: mean is 0.0;
   begin
-    while busy_getc(KEYBOARD) = KEY_NONE do
+    while getc(KEYBOARD, NO_WAIT) = KEY_NONE do
       for num range 1 to 1000 do
         sum +:= rand(-1.0, 1.0);
       end for;

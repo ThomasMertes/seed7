@@ -519,7 +519,6 @@ static const actEntryRecord actEntryTable[] = {
     { "GEN_DESTR",                  gen_destr,                  },
 
 #if WITH_DRAW
-    { "GKB_BUSY_GETC",              gkb_busy_getc,              },
     { "GKB_BUTTON_PRESSED",         gkb_button_pressed,         },
     { "GKB_BUTTON_XPOS",            gkb_button_xpos,            },
     { "GKB_BUTTON_YPOS",            gkb_button_ypos,            },
@@ -627,7 +626,6 @@ static const actEntryRecord actEntryTable[] = {
     { "ITF_SELECT",                 itf_select,                 },
     { "ITF_TO_INTERFACE",           itf_to_interface,           },
 
-    { "KBD_BUSY_GETC",              kbd_busy_getc,              },
     { "KBD_GETC",                   kbd_getc,                   },
     { "KBD_GETS",                   kbd_gets,                   },
     { "KBD_KEYPRESSED",             kbd_keypressed,             },

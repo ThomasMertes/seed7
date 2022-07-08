@@ -520,7 +520,7 @@ const proc: move (inout image: anImage, in integer: xDest, in integer: yDest) is
     for stepNum range 1 to steps do
       setPos(anImage, xStart + (xDest - xStart) * stepNum div steps,
                       yStart + (yDest - yStart) * stepNum div steps);
-      ignore(busy_getc(KEYBOARD));
+      ignore(getc(KEYBOARD, NO_WAIT));
       flushGraphic;
       wait(5000 . MICRO_SECONDS);
     end for;
@@ -551,7 +551,7 @@ const proc: move (in subPileType: subPile, in integer: xDest, in integer: yDest)
                      yStart + (yDest - yStart) * stepNum div steps + yDist);
         yDist +:= PILE_DELTA_Y;
       end for;
-      ignore(busy_getc(KEYBOARD));
+      ignore(getc(KEYBOARD, NO_WAIT));
       flushGraphic;
       wait(5000 . MICRO_SECONDS);
     end for;
@@ -575,7 +575,7 @@ const proc: move (inout image: anImage) is func
         flushGraphic;
       end if;
       wait(30000 . MICRO_SECONDS);
-    until keypressed(KEYBOARD) or
+    until inputReady(KEYBOARD) or
         not (buttonPressed(KEYBOARD, KEY_MOUSE1) or
              buttonPressed(KEYBOARD, KEY_MOUSE2) or
              buttonPressed(KEYBOARD, KEY_MOUSE3));
@@ -603,7 +603,7 @@ const proc: move (in subPileType: subPile) is func
         flushGraphic;
       end if;
       wait(30000 . MICRO_SECONDS);
-    until keypressed(KEYBOARD) or
+    until inputReady(KEYBOARD) or
         not (buttonPressed(KEYBOARD, KEY_MOUSE1) or
              buttonPressed(KEYBOARD, KEY_MOUSE2) or
              buttonPressed(KEYBOARD, KEY_MOUSE3));
@@ -698,10 +698,10 @@ const proc: processMouseClick (inout stateType: state) is func
           setVisible(card, TRUE);
         end if;
       end if;
-    elsif getxpos(KEYBOARD) >= LEFT_MARGIN and
-          getxpos(KEYBOARD) < LEFT_MARGIN + CARD_WIDTH and
-          getypos(KEYBOARD) >= TOP_MARGIN and
-          getypos(KEYBOARD) < TOP_MARGIN + CARD_HEIGHT then
+    elsif clickedXPos(KEYBOARD) >= LEFT_MARGIN and
+          clickedXPos(KEYBOARD) < LEFT_MARGIN + CARD_WIDTH and
+          clickedYPos(KEYBOARD) >= TOP_MARGIN and
+          clickedYPos(KEYBOARD) < TOP_MARGIN + CARD_HEIGHT then
       recycleWaste(state);
     end if;
   end func;
@@ -767,7 +767,7 @@ const proc: jumpingCard (inout cardType: card) is func
     # card.window := PRIMITIVE_WINDOW.value;
     startTime := time(NOW);
     while xPos > -width(card.frontside) and xPos < width(curr_win) and
-        not keypressed(KEYBOARD) do
+        not inputReady(KEYBOARD) do
       put(xPos, yPos, card.frontside);
       setPos(card, xPos, yPos);
       xPos +:= xSpeed;
@@ -790,20 +790,20 @@ const proc: victoryAnimation (inout stateType: state) is func
     var boolean: allDestPilesEmpty is FALSE;
     var integer: destNumber is 0;
     var integer: topIndex is 0;
-    var boolean: keypressed is FALSE;
+    var boolean: inputReady is FALSE;
   begin
     repeat
       allDestPilesEmpty := TRUE;
-      for key destNumber range state.dest until keypressed do
+      for key destNumber range state.dest until inputReady do
         topIndex := length(state.dest[destNumber]);
         if topIndex <> 0 then
           allDestPilesEmpty := FALSE;
           jumpingCard(state.dest[destNumber][topIndex]);
           removeFromDest(state, destNumber);
         end if;
-        keypressed := keypressed(KEYBOARD);
+        inputReady := inputReady(KEYBOARD);
       end for;
-    until allDestPilesEmpty or keypressed;
+    until allDestPilesEmpty or inputReady;
   end func;
 
 

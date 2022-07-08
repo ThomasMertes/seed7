@@ -377,7 +377,7 @@ const proc: set_piece (in tetromino_type: tetromino) is func
     flushGraphic;
     if not is_occupied(actual_piece) then
       counter := counter_start;
-      command := busy_getc(KEYBOARD);
+      command := getc(KEYBOARD, NO_WAIT);
       while actual_piece.moving do
         start_time := time(NOW);
         if command = KEY_LEFT then
@@ -399,7 +399,7 @@ const proc: set_piece (in tetromino_type: tetromino) is func
         flushGraphic;
         decr(counter);
         await(start_time + delta);
-        command := busy_getc(KEYBOARD);
+        command := getc(KEYBOARD, NO_WAIT);
       end while;
       score +:= level + score(actual_piece.tetromino);
       if score > 1000 * level then

@@ -32,7 +32,7 @@ var time: last_time is time.value;
 const proc: main is func
   begin
     writeln;
-    while busy_getc(KEYBOARD) = KEY_NONE do
+    while getc(KEYBOARD, NO_WAIT) = KEY_NONE do
       last_time := time(NOW);
       write(last_time <& "\r");
       flush(OUT);

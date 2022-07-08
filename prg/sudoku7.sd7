@@ -2361,7 +2361,7 @@ const proc: processCommand is func
           CELL_SIZE, CELL_SIZE, light_red);
       flushGraphic;
 (*
-      if not keypressed(KEYBOARD) then
+      if not inputReady(KEYBOARD) then
         blueChanges;
       end if;
 *)
@@ -2434,8 +2434,8 @@ const proc: processCommand is func
               incr(column);
             end if; *)
           when {KEY_MOUSE1}:
-            x := getxpos(KEYBOARD);
-            y := getypos(KEYBOARD);
+            x := clickedXPos(KEYBOARD);
+            y := clickedYPos(KEYBOARD);
             if x >= X_SHIFT + STRETCH_FACTOR * 2 + 1 and
                 x <= X_SHIFT + STRETCH_FACTOR * 11 and
                 y >= Y_SHIFT + STRETCH_FACTOR * 2 + 1 and
@@ -2562,8 +2562,8 @@ const proc: processCommand is func
               end if;
             end if;
           when {KEY_MOUSE3}:
-            x := getxpos(KEYBOARD);
-            y := getypos(KEYBOARD);
+            x := clickedXPos(KEYBOARD);
+            y := clickedYPos(KEYBOARD);
             if x >= X_SHIFT + STRETCH_FACTOR * 2 + 1 and
                 x <= X_SHIFT + STRETCH_FACTOR * 11 and
                 y >= Y_SHIFT + STRETCH_FACTOR * 2 + 1 and
@@ -2582,7 +2582,7 @@ const proc: processCommand is func
               end if;
             end if;
         end case;
-      until not keypressed(KEYBOARD);
+      until not inputReady(KEYBOARD);
     until quit;
   end func;
 

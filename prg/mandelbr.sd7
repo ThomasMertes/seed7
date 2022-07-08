@@ -139,12 +139,12 @@ const proc: doCommand (inout char: ch) is func
   begin
     case upper(ch) of
       when {KEY_MOUSE1}:
-        center := complex(center.re + zoom * flt(getxpos(KEYBOARD) - pix),
-                          center.im + zoom * flt(getypos(KEYBOARD) - pix));
+        center := complex(center.re + zoom * flt(clickedXPos(KEYBOARD) - pix),
+                          center.im + zoom * flt(clickedYPos(KEYBOARD) - pix));
         zoom := zoom / 2.0;
       when {KEY_MOUSE2}:
-        center := complex(center.re + zoom * flt(getxpos(KEYBOARD) - pix),
-                          center.im + zoom * flt(getypos(KEYBOARD) - pix));
+        center := complex(center.re + zoom * flt(clickedXPos(KEYBOARD) - pix),
+                          center.im + zoom * flt(clickedYPos(KEYBOARD) - pix));
       when {KEY_MOUSE3}:
         zoom := zoom * 2.0;
       when {'R'}:

@@ -477,8 +477,8 @@ const func char: getCommand is func
   begin
     command := upper(getc(KEYBOARD));
     if command = KEY_MOUSE1 then
-      xPos := getxpos(KEYBOARD);
-      yPos := getypos(KEYBOARD);
+      xPos := clickedXPos(KEYBOARD);
+      yPos := clickedYPos(KEYBOARD);
       if yPos <= 20 then
         case xPos div 50 of
           when {0}: command := 'N';
@@ -1169,7 +1169,7 @@ const proc: showDemo is func
     drawBoard;
     number := 1;
     while continueDemo and number <= length(demoMoves) do
-      if keypressed(KEYBOARD) then
+      if inputReady(KEYBOARD) then
         command := getc(KEYBOARD);
         if command = KEY_ESC then
           bossMode(doQuit);
@@ -1284,8 +1284,8 @@ const proc: playerMove (inout moveType: move, inout char: command) is func
           moveFinished := TRUE;
         end if;
       else
-        xPos := getxpos(KEYBOARD);
-        yPos := getypos(KEYBOARD);
+        xPos := clickedXPos(KEYBOARD);
+        yPos := clickedYPos(KEYBOARD);
         if xPos >= LEFT_BORDER and yPos >= UPPER_BORDER then
           locateTile(xPos, yPos, pos.level, pos.line, pos.column, found);
           if found and legalMove(pos) then
@@ -1359,11 +1359,11 @@ const proc: playerTurn (inout char: command) is func
           tiles[field[move.pos2.level][move.pos2.line][move.pos2.column].tileNumber].value then
         flushGraphic;
         number := 0;
-        while not keypressed(KEYBOARD) and number <= 5 do
+        while not inputReady(KEYBOARD) and number <= 5 do
           wait(100000 . MICRO_SECONDS);
           incr(number);
         end while;
-        if keypressed(KEYBOARD) then
+        if inputReady(KEYBOARD) then
           ignore(getc(KEYBOARD));
         end if;
         unmark(move.pos1);
@@ -1731,7 +1731,7 @@ const proc: dealTiles (inout char: command) is func
       demoMoves := 0 times moveType.value;
       while okay and number <= 72 do
         dealTilePair(okay);
-        if keypressed(KEYBOARD) then
+        if inputReady(KEYBOARD) then
           command := upper(getc(KEYBOARD));
         end if;
         if command = KEY_ESC then
@@ -1847,7 +1847,7 @@ const proc: main is func
             moveNumber := 0;
             playerMoves := 0 times moveType.value;
             updateNumbers;
-            while command <> 'Q' and keypressed(KEYBOARD) do
+            while command <> 'Q' and inputReady(KEYBOARD) do
               command := getCommand;
             end while;
           end if;

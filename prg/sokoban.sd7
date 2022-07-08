@@ -743,13 +743,13 @@ const proc: playLevel is func
         while levelNumber < length(levels) and keyChar = 'n' do
           incr(levelNumber);
           levelFinished := TRUE;
-          keyChar := busy_getc(KEYBOARD);
+          keyChar := getc(KEYBOARD, NO_WAIT);
         end while;
       elsif keyChar = 'p' then
         while levelNumber > 1 and keyChar = 'p' do
           decr(levelNumber);
           levelFinished := TRUE;
-          keyChar := busy_getc(KEYBOARD);
+          keyChar := getc(KEYBOARD, NO_WAIT);
         end while;
       elsif keyChar = KEY_ESC then
         bossMode(levelFinished);
@@ -766,7 +766,7 @@ const proc: playLevel is func
         write(win,   "Press n for the next level ");
       end if;
     until levelFinished;
-    while keypressed(KEYBOARD) do
+    while inputReady(KEYBOARD) do
       ignore(getc(KEYBOARD));
     end while;
   end func;

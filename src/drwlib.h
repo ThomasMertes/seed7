@@ -25,7 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-objectType gkb_busy_getc              (listType arguments);
 objectType gkb_button_pressed         (listType arguments);
 objectType gkb_button_xpos            (listType arguments);
 objectType gkb_button_ypos            (listType arguments);

@@ -219,7 +219,7 @@ const proc: main is func
     write_shp(win2);
     write_com(win3);
     write_lrn_0(win4);
-    while busy_getc(KEYBOARD) = KEY_NONE do
+    while getc(KEYBOARD, NO_WAIT) = KEY_NONE do
       case rand(1, 4) of
         when {1}: curr_win := win1;
         when {2}: curr_win := win2;

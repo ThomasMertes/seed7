@@ -544,12 +544,9 @@ const proc: pause_game (in boolean: blankWindow) is func
 
 const proc: check_keyboard is func
   (* Check KEYBOARD for commands *)
-  local
-    var char: ch is ' ';
   begin (* check_keyboard *)
-    ch := busy_getc(KEYBOARD);
-    while ch <> KEY_NONE do
-      case ch of
+    while inputReady(KEYBOARD) do
+      case getc(KEYBOARD) of
         when {KEY_UP}:
           incr(rocket.thrust);
           if rocket.thrust > 19 then
@@ -588,7 +585,6 @@ const proc: check_keyboard is func
           flying := FALSE;
           quit_program := TRUE;
       end case;
-      ch := busy_getc(KEYBOARD);
     end while;
   end func; (* check_keyboard *)
 
@@ -1280,9 +1276,9 @@ const proc: end_of_flight is func
     var char: ch is ' ';
   begin (* end_of_flight *)
     repeat
-      repeat
-        ch := busy_getc(KEYBOARD);
-      until ch = KEY_NONE;
+      while inputReady(KEYBOARD) do
+        ignore(getc(KEYBOARD));
+      end while;
       setPos(screen, 14, 4);
       write(screen, "SOUND IS ");
       if sound_on then

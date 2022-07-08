@@ -178,7 +178,7 @@ const proc: main is func
             else
               await(time(NOW) + 30000 . MICRO_SECONDS);
             end if;
-            command := busy_getc(KEYBOARD);
+            command := getc(KEYBOARD, NO_WAIT);
           until command <> KEY_NONE and command <> KEY_RESIZE;
           commandPresent := TRUE;
         else
@@ -195,6 +195,6 @@ const proc: main is func
           previousImageFile(dirPath, fileList, index);
         end if;
         commandPresent := FALSE;
-      until not keypressed(KEYBOARD);
+      until not inputReady(KEYBOARD);
     until lower(command) = 'q' or command = KEY_ESC;
   end func;

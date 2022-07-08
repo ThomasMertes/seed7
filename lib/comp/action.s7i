@@ -1037,9 +1037,6 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"FLT_VALUE"}:
         mathLibraryUsed := TRUE;
         process(FLT_VALUE, function, params, c_expr);
-      when {"GKB_BUSY_GETC"}:
-        drawLibraryUsed := TRUE;
-        process(GKB_BUSY_GETC, function, params, c_expr);
       when {"GKB_GETC"}:
         drawLibraryUsed := TRUE;
         process(GKB_GETC, function, params, c_expr);
@@ -1241,9 +1238,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(ITF_NE, function, params, c_expr);
       when {"ITF_TO_INTERFACE"}:
         process(ITF_TO_INTERFACE, function, params, c_expr);
-      when {"KBD_BUSY_GETC"}:
-        consoleLibraryUsed := TRUE;
-        process(KBD_BUSY_GETC, function, params, c_expr);
       when {"KBD_GETC"}:
         consoleLibraryUsed := TRUE;
         process(KBD_GETC, function, params, c_expr);

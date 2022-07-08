@@ -861,8 +861,8 @@ const proc: InitAnimates is func
             column := 1;
           end if;
         when {KEY_MOUSE1}:
-          x := getxpos(KEYBOARD);
-          y := getypos(KEYBOARD);
+          x := clickedXPos(KEYBOARD);
+          y := clickedYPos(KEYBOARD);
           if x >= X_SHIFT + STRETCH_FACTOR * 2 + 1 and
               x <= X_SHIFT + STRETCH_FACTOR * XMAX and
               y >= Y_SHIFT + STRETCH_FACTOR * 2 + 1 and
@@ -1285,7 +1285,7 @@ const proc: main is func
         genNr := 0;
 
         turnTime := time(NOW);
-        while length(animates) <> 0 and busy_getc(KEYBOARD) = KEY_NONE do
+        while length(animates) <> 0 and getc(KEYBOARD, NO_WAIT) = KEY_NONE do
           generation;
           turnTime +:= 50000 . MICRO_SECONDS;
           flushGraphic;

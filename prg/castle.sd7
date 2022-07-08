@@ -1890,8 +1890,8 @@ const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, i
         elsif command = KEY_DOWN and position < card(player.inventory) then
           incr(position);
         elsif command = KEY_MOUSE1 then
-          xPos := getxpos(KEYBOARD);
-          yPos := getypos(KEYBOARD);
+          xPos := clickedXPos(KEYBOARD);
+          yPos := clickedYPos(KEYBOARD);
           if xPos >= LEGEND_XPOS and xPos < LEGEND_XPOS + 128 and
               yPos >= LEGEND_YPOS_MIN + startLine * PIXMAP_SIZE and
               yPos <= LEGEND_YPOS_MIN + (startLine + card(player.inventory)) * PIXMAP_SIZE then
@@ -2254,8 +2254,8 @@ const proc: lookItemInRoom is func
     var itemType: item_ident is NO_ITEM;
     var monsterType: monster_ident is NO_MONSTER;
   begin
-    xPos := getxpos(KEYBOARD);
-    yPos := getypos(KEYBOARD);
+    xPos := clickedXPos(KEYBOARD);
+    yPos := clickedYPos(KEYBOARD);
     xPos -:= BORDER_DIST;
     yPos -:= BORDER_DIST;
     line := succ(yPos div PIXMAP_SIZE);
@@ -2909,7 +2909,7 @@ const proc: moveTo (in integer: xPos, in integer: yPos) is func
       until abs(xPos - player.xPos) <= STEP_SIZE div 2 and
           abs(yPos - player.yPos) <= STEP_SIZE div 2 or
           old_x = player.xPos and old_y = player.yPos or
-          old_room <> player.room or keypressed(KEYBOARD);
+          old_room <> player.room or inputReady(KEYBOARD);
     end if;
   end func;
 
@@ -2960,8 +2960,8 @@ const proc: takeItem is func
     displayMessage;
     message := 0 times "";
     command := getc(KEYBOARD);
-    xPos := getxpos(KEYBOARD);
-    yPos := getypos(KEYBOARD);
+    xPos := clickedXPos(KEYBOARD);
+    yPos := clickedYPos(KEYBOARD);
     xPos -:= BORDER_DIST;
     yPos -:= BORDER_DIST;
     line := succ(yPos div PIXMAP_SIZE);
@@ -3093,8 +3093,8 @@ const proc: playGame is func
         when {KEY_ESC}:   bossMode(exitGame);
         when {'Q', 'q', KEY_CLOSE}: quitGame;
         when {KEY_MOUSE1}:
-          xPos := getxpos(KEYBOARD);
-          yPos := getypos(KEYBOARD);
+          xPos := clickedXPos(KEYBOARD);
+          yPos := clickedYPos(KEYBOARD);
           if xPos >= BUTTONS_1_XPOS and xPos < BUTTONS_1_XPOS + 80 and
             yPos >= BUTTON_YPOS_MIN and yPos <= BUTTON_YPOS_MIN + 3 * 32 then
             case (yPos - BUTTON_YPOS_MIN) div 32 of

@@ -50,23 +50,6 @@
 
 
 /**
- *  Read a char from keyboard, but don't wait if no key was pressed.
- *  @return the char read from the console keyboard file, or
- *          KEY_NONE if no char is available.
- */
-objectType kbd_busy_getc (listType arguments)
-
-  { /* kbd_busy_getc */
-    if (kbdKeyPressed()) {
-      return bld_char_temp(kbdGetc());
-    } else {
-      return bld_char_temp((charType) K_NONE);
-    } /* if */
-  } /* kbd_busy_getc */
-
-
-
-/**
  *  Read a character from the console keyboard file.
  *  @return the character read.
  */

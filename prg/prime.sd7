@@ -68,6 +68,6 @@ const proc: main is func
         end if;
       end if;
       incr(number);
-    until keypressed(KEYBOARD);
+    until inputReady(KEYBOARD);
     writeln;
   end func;

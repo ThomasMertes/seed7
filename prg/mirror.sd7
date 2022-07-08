@@ -124,7 +124,7 @@ const proc: main is func
               area.bottomRightY - area.topLeftY + 1);
           put(curr_win, 0, 0, pixmap);
           wait(30000 . MICRO_SECONDS);
-        until keypressed(KEYBOARD);
+        until inputReady(KEYBOARD);
       end if;
     end if;
   end func;

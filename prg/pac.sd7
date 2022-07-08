@@ -206,7 +206,7 @@ const proc: readCommand (inout pacmanType: pacman) is func
     var char: inp is ' ';
 
   begin
-    inp := busy_getc(KEYBOARD);
+    inp := getc(KEYBOARD, NO_WAIT);
     if inp = KEY_NONE then
       inp := nextCommand;
       nextCommand := KEY_NONE;
@@ -222,7 +222,7 @@ const proc: readCommand (inout pacmanType: pacman) is func
             playing := FALSE;
             quit := TRUE;
         end case;
-        inp := busy_getc(KEYBOARD);
+        inp := getc(KEYBOARD, NO_WAIT);
       until inp = KEY_NONE;
     end if;
   end func; # readCommand

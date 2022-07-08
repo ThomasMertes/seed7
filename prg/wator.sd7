@@ -624,10 +624,10 @@ const proc: main is func
         end if;
         oldFishGraph := newFishGraph;
         oldSharkGraph := newSharkGraph;
-        if keypressed(KEYBOARD) then
+        if inputReady(KEYBOARD) then
           repeat
             inchar := getc(KEYBOARD);
-          until not keypressed(KEYBOARD);
+          until not inputReady(KEYBOARD);
           setPos(info, 26, 1);
           writeln(info, "Simulation interrupted. Press");
           writeln(info, " Enter to continue");

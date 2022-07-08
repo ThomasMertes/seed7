@@ -25,7 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-objectType kbd_busy_getc  (listType arguments);
 objectType kbd_getc       (listType arguments);
 objectType kbd_gets       (listType arguments);
 objectType kbd_keypressed (listType arguments);

@@ -24,7 +24,6 @@
 (********************************************************************)
 
 
-const ACTION: GKB_BUSY_GETC       is action "GKB_BUSY_GETC";
 const ACTION: GKB_GETC            is action "GKB_GETC";
 const ACTION: GKB_GETS            is action "GKB_GETS";
 const ACTION: GKB_KEYPRESSED      is action "GKB_KEYPRESSED";
@@ -52,16 +51,6 @@ const proc: gkb_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        gkbSelectInput (winType, charType, boolType);");
     declareExtern(c_prog, "winType     gkbWindow (void);");
     declareExtern(c_prog, "striType    gkbWordRead (charType *);");
-  end func;
-
-
-const proc: process (GKB_BUSY_GETC, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "(gkbKeyPressed() ? gkbGetc() : ";
-    c_expr.expr &:= charLiteral(KEY_NONE);
-    c_expr.expr &:= ")";
   end func;
 
 

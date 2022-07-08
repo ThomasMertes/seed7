@@ -126,8 +126,8 @@ const func boolean: isOkay (in array string: messageText) is func
     ch := upper(getc(GRAPH_KEYBOARD));
     while not finished do
       if ch = KEY_MOUSE1 and buttonWindow(GRAPH_KEYBOARD) = popupWindow then
-        xPos := getxpos(GRAPH_KEYBOARD);
-        yPos := getypos(GRAPH_KEYBOARD);
+        xPos := clickedXPos(GRAPH_KEYBOARD);
+        yPos := clickedYPos(GRAPH_KEYBOARD);
         if yPos >= buttonYPos  and yPos <= buttonYPos + 20 then
           if xPos >= yesButtonXPos and xPos <= yesButtonXPos + 40 then
             okay := TRUE;
@@ -234,8 +234,8 @@ const proc: messageWindow (in array string: messageText) is func
     ch := upper(getc(GRAPH_KEYBOARD));
     while not finished do
       if ch = KEY_MOUSE1 and buttonWindow(GRAPH_KEYBOARD) = popupWindow then
-        xPos := getxpos(GRAPH_KEYBOARD);
-        yPos := getypos(GRAPH_KEYBOARD);
+        xPos := clickedXPos(GRAPH_KEYBOARD);
+        yPos := clickedYPos(GRAPH_KEYBOARD);
         if yPos >= okButtonYPos  and yPos <= okButtonYPos + 20 then
           if xPos >= okButtonXPos and xPos <= okButtonXPos + 40 then
             finished := TRUE;

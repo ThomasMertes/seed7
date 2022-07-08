@@ -1201,8 +1201,8 @@ const proc: playerMove (inout integer: line1, inout integer: column1,
       elsif command <> KEY_MOUSE1 then
         moveFinished := TRUE;
       else
-        line := getypos(KEYBOARD);
-        column := getxpos(KEYBOARD);
+        line := clickedYPos(KEYBOARD);
+        column := clickedXPos(KEYBOARD);
         if line >= UPPER_BORDER and column >= LEFT_BORDER then
           line := (line - UPPER_BORDER) div FIELD_SIZE + 1;
           column := (column - LEFT_BORDER) div FIELD_SIZE + 1;
@@ -1251,7 +1251,7 @@ const proc: playerTurn (inout char: command) is func
           field[line2][column2].cardNumber then
         flushGraphic;
         number := 0;
-        while not keypressed(KEYBOARD) and number <= 5 do
+        while not inputReady(KEYBOARD) and number <= 5 do
           wait(100000 . MICRO_SECONDS);
           incr(number);
         end while;

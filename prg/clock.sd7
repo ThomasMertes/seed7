@@ -35,7 +35,7 @@ const proc: main is func
     writeln;
     next_time := truncToSecond(time(NOW));
     write(next_time <& " \r");
-    while not keypressed(KEYBOARD) do
+    while getc(KEYBOARD, NO_WAIT) = KEY_NONE do
       next_time +:= 1 . SECONDS;
       await(next_time);
       write(next_time <& " \r");

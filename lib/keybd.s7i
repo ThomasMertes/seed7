@@ -41,19 +41,7 @@ const type: keyboard_file is subtype file;
 (* Procedures granted for every keyboard_file *)
 
 
-(**
- *  Read a char from ''keybd'', but don't wait if no key was pressed.
- *  @return the char read from ''keybd'', and
- +          KEY_NONE IF no char is available.
- *)
-const func char: busy_getc (in keyboard_file: keybd) is DYNAMIC;
-
-
-(**
- *  Determine if at least one character can be read without waiting.
- *  @return TRUE if a character is available at ''keybd'',
- *          FALSE otherwise.
- *)
+# The function keypressed() is deprecated. Use inputReady() instead.
 const func boolean: keypressed (in keyboard_file: keybd) is DYNAMIC;
 
 
@@ -67,21 +55,29 @@ const func boolean: buttonPressed (in keyboard_file: keybd, in char: button) is 
 
 (**
  *  X position of the mouse cursor when a button was pressed.
- *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  The functions ''clickedXPos'' and ''clickedYPos'' can be used to
  *  determine which position was "clicked".
  *  @return the X position of the mouse cursor at the time when
  *          the last button was pressed.
  *)
+const func integer: clickedXPos (in keyboard_file: keybd) is DYNAMIC;
+
+
+# The function getxpos() is deprecated. Use clickedXPos() instead.
 const func integer: getxpos (in keyboard_file: keybd) is DYNAMIC;
 
 
 (**
  *  Y position of the mouse cursor when a button was pressed.
- *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  The functions ''clickedXPos'' and ''clickedYPos'' can be used to
  *  determine which position was "clicked".
  *  @return the Y position of the mouse cursor at the time when
  *          the last button was pressed.
  *)
+const func integer: clickedYPos (in keyboard_file: keybd) is DYNAMIC;
+
+
+# The function getypos() is deprecated. Use clickedYPos() instead.
 const func integer: getypos (in keyboard_file: keybd) is DYNAMIC;
 
 
@@ -122,18 +118,15 @@ const func string: word_read (in console_keybd_file: keybd,
 
 
 (**
- *  Read a char from ''keybd'', but don't wait if no key was pressed.
- *  @return the char read from the console keyboard file, and
- *          KEY_NONE if no char is available.
- *)
-const func char: busy_getc (in console_keybd_file: keybd)                      is action "KBD_BUSY_GETC";
-
-
-(**
- *  Determine if at least one character can be read without waiting.
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that ''getc'' would wait until a key has been pressed.
  *  @return TRUE if a character is available at the console keyboard file
  *          FALSE otherwise.
  *)
+const func boolean: inputReady (in console_keybd_file: keybd)                  is action "KBD_KEYPRESSED";
+
+
+# The function keypressed() is deprecated. Use inputReady() instead.
 const func boolean: keypressed (in console_keybd_file: keybd)                  is action "KBD_KEYPRESSED";
 
 
@@ -153,7 +146,7 @@ const func string: getk (in console_keybd_file: keybd) is func
     var string: rawKey is "";
   begin
     rawKey := str(raw_getc(keybd));
-    while keypressed(keybd) do
+    while inputReady(keybd) do
       rawKey &:= str(raw_getc(keybd));
     end while;
   end func;
@@ -252,21 +245,29 @@ const func boolean: buttonPressed (in graph_keybd_file: keybd, in char: button) 
 
 (**
  *  X position of the mouse cursor when a button was pressed.
- *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  The functions ''clickedXPos'' and ''clickedYPos'' can be used to
  *  determine which position was "clicked".
  *  @return the X position of the mouse cursor at the time when
  *          the last button was pressed.
  *)
+const func integer: clickedXPos (in graph_keybd_file: keybd)                   is action "GKB_BUTTON_XPOS";
+
+
+# The function getxpos() is deprecated. Use clickedXPos() instead.
 const func integer: getxpos (in graph_keybd_file: keybd)                       is action "GKB_BUTTON_XPOS";
 
 
 (**
  *  Y position of the mouse cursor when a button was pressed.
- *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  The functions ''clickedXPos'' and ''clickedYPos'' can be used to
  *  determine which position was "clicked".
  *  @return the Y position of the mouse cursor at the time when
  *          the last button was pressed.
  *)
+const func integer: clickedYPos (in graph_keybd_file: keybd)                   is action "GKB_BUTTON_YPOS";
+
+
+# The function getypos() is deprecated. Use clickedYPos() instead.
 const func integer: getypos (in graph_keybd_file: keybd)                       is action "GKB_BUTTON_YPOS";
 
 
@@ -278,18 +279,15 @@ const func string: word_read (in graph_keybd_file: keybd,
 
 
 (**
- *  Read a char from ''keybd'', but don't wait if no key was pressed.
- *  @return the char read from the graphic keyboard file, and
- *          KEY_NONE if no char is available.
- *)
-const func char: busy_getc (in graph_keybd_file: keybd)                        is action "GKB_BUSY_GETC";
-
-
-(**
- *  Determine if at least one character can be read without waiting.
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that ''getc'' would wait until a key has been pressed.
  *  @return TRUE if a character is available at the graphic keyboard file
  *          FALSE otherwise.
  *)
+const func boolean: inputReady (in graph_keybd_file: keybd)                    is action "GKB_KEYPRESSED";
+
+
+# The function keypressed() is deprecated. Use inputReady() instead.
 const func boolean: keypressed (in graph_keybd_file: keybd)                    is action "GKB_KEYPRESSED";
 
 
@@ -309,7 +307,7 @@ const func string: getk (in graph_keybd_file: keybd) is func
     var string: rawKey is "";
   begin
     rawKey := str(raw_getc(keybd));
-    while keypressed(keybd) do
+    while inputReady(keybd) do
       rawKey &:= str(raw_getc(keybd));
     end while;
   end func;
@@ -619,3 +617,18 @@ const char: KEY_CLOSE          is chr(KEYCODE_BASE + 385);
 const char: KEY_RESIZE         is chr(KEYCODE_BASE + 386);
 const char: KEY_UNDEF          is chr(KEYCODE_BASE + 387);
 const char: KEY_NONE           is chr(KEYCODE_BASE + 388);
+
+
+(**
+ *  Read a char from ''inFile'' or return KEY_NONE if reading would wait (block).
+ *  This function never waits until a character is received (it does not block).
+ *  @return the char read from ''inFile'', or
+ *          KEY_NONE IF no char is available.
+ *)
+const func char: getc (inout file: inFile, NO_WAIT) is
+  return inputReady(inFile) ? getc(inFile) : KEY_NONE;
+
+
+# The function busy_getc(aFile) is deprecated. Use getc(aFile, NO_WAIT) instead.
+const func char: busy_getc (inout keyboard_file: keybd) is
+  return inputReady(keybd) ? getc(keybd) : KEY_NONE;

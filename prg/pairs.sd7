@@ -1247,14 +1247,14 @@ const proc: prepare (inout cardType: aCard) is func
       clear(pixmap, black);
 
       lin := 1;
-      while lin <= height and not keypressed(KEYBOARD) do
+      while lin <= height and not inputReady(KEYBOARD) do
         for col range 1 to width do
           rect(pixmap, pred(col) * scale, pred(lin) * scale,
               scale, scale, charColor(aCard.picture[lin][col], black));
         end for;
         incr(lin);
       end while;
-      if not keypressed(KEYBOARD) then
+      if not inputReady(KEYBOARD) then
         aCard.pixmap := pixmap;
       end if;
     end if;
@@ -1759,8 +1759,8 @@ const proc: checkHit (in integer: line1, in integer: column1,
 const proc: mouseCommand (inout integer: line, inout integer: column,
     inout integer: openCards) is func
   begin
-    line := getypos(KEYBOARD);
-    column := getxpos(KEYBOARD);
+    line := clickedYPos(KEYBOARD);
+    column := clickedXPos(KEYBOARD);
     if line >= UPPER_BORDER and column >= LEFT_BORDER then
       line := (line - UPPER_BORDER) div FIELD_SIZE + 1;
       column := (column - LEFT_BORDER) div FIELD_SIZE + 1;
@@ -1879,8 +1879,8 @@ const proc: selectSize is func
           selected := TRUE;
         end if;
       elsif command = KEY_MOUSE1 then
-        line := getypos(KEYBOARD);
-        column := getxpos(KEYBOARD);
+        line := clickedYPos(KEYBOARD);
+        column := clickedXPos(KEYBOARD);
         if line >= UPPER_BORDER and column >= LEFT_BORDER then
           line := (line - UPPER_BORDER) div FIELD_SIZE + 1;
           column := (column - LEFT_BORDER) div FIELD_SIZE + 1;
@@ -1942,9 +1942,9 @@ const proc: main is func
 
     index := 1;
     while countCardBacks > 0 and not game.quit do
-      while index <= length(cards) and not keypressed(KEYBOARD) do
+      while index <= length(cards) and not inputReady(KEYBOARD) do
         prepare(cards[index]);
-        if not keypressed(KEYBOARD) then
+        if not inputReady(KEYBOARD) then
           (* writeln(index); *)
           incr(index);
         end if;

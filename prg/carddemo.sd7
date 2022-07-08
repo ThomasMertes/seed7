@@ -83,7 +83,7 @@ const proc: move (inout image: anImage) is func
         flushGraphic;
       end if;
       wait(30000 . MICRO_SECONDS);
-    until keypressed(KEYBOARD) or
+    until inputReady(KEYBOARD) or
         not (buttonPressed(KEYBOARD, KEY_MOUSE1) or
              buttonPressed(KEYBOARD, KEY_MOUSE2) or
              buttonPressed(KEYBOARD, KEY_MOUSE3));
@@ -98,8 +98,8 @@ const func image: select_card is func
     var integer: yPos is 0;
     var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
   begin
-    xPos := getxpos(KEYBOARD);
-    yPos := getypos(KEYBOARD);
+    xPos := clickedXPos(KEYBOARD);
+    yPos := clickedYPos(KEYBOARD);
     win := buttonWindow(KEYBOARD);
     if win in imageHash then
       anImage := imageHash[win];

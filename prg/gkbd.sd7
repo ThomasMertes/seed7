@@ -175,7 +175,6 @@ const proc: main is func
     var file: logFile is STD_NULL;
     var keyActiveHashType: keyActive is keyActiveHashType.value;
     var char: ch is ' ';
-    var char: lastChar is ' ';
     var integer: xPos is 10;
     var integer: xIncr is xSpeed;
     var time: waitTime is time.value;
@@ -198,9 +197,8 @@ const proc: main is func
     waitTime := time(NOW);
     repeat
       waitTime +:= 30000 . MICRO_SECONDS;
-      ch := busy_getc(KEYBOARD);
-      while ch <> KEY_NONE do
-        lastChar := ch;
+      while inputReady(KEYBOARD) do
+        ch := getc(KEYBOARD);
         write(ord(ch) <& " ");
         if ch in keyDescription then
           if ch = KEY_RESIZE then
@@ -214,7 +212,6 @@ const proc: main is func
         else
           writeln;
         end if;
-        ch := busy_getc(KEYBOARD);
       end while;
       checkKey(keyActive, KEY_SHIFT_LOCK);
       checkKey(keyActive, KEY_LEFT_SHIFT);
@@ -321,8 +318,8 @@ const proc: main is func
         rect(xPos + 10 + xIncr, 10, -xIncr, 10, black);
       end if;
       xPos +:= xIncr;
-      rect(xPos, 10, 10, 10, buttonColor[buttonPressed(KEYBOARD, lastChar)]);
+      rect(xPos, 10, 10, 10, buttonColor[buttonPressed(KEYBOARD, ch)]);
       flushGraphic;
       await(waitTime);
-    until lastChar = '!';
+    until ch = '!';
   end func;
