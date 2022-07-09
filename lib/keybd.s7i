@@ -284,11 +284,11 @@ const func string: word_read (in graph_keybd_file: keybd,
  *  @return TRUE if a character is available at the graphic keyboard file
  *          FALSE otherwise.
  *)
-const func boolean: inputReady (in graph_keybd_file: keybd)                    is action "GKB_KEYPRESSED";
+const func boolean: inputReady (in graph_keybd_file: keybd)                    is action "GKB_INPUT_READY";
 
 
 # The function keypressed() is deprecated. Use inputReady() instead.
-const func boolean: keypressed (in graph_keybd_file: keybd)                    is action "GKB_KEYPRESSED";
+const func boolean: keypressed (in graph_keybd_file: keybd)                    is action "GKB_INPUT_READY";
 
 
 (**

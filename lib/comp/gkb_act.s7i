@@ -26,7 +26,7 @@
 
 const ACTION: GKB_GETC            is action "GKB_GETC";
 const ACTION: GKB_GETS            is action "GKB_GETS";
-const ACTION: GKB_KEYPRESSED      is action "GKB_KEYPRESSED";
+const ACTION: GKB_INPUT_READY     is action "GKB_INPUT_READY";
 const ACTION: GKB_LINE_READ       is action "GKB_LINE_READ";
 const ACTION: GKB_RAW_GETC        is action "GKB_RAW_GETC";
 const ACTION: GKB_SELECT_INPUT    is action "GKB_SELECT_INPUT";
@@ -73,7 +73,7 @@ const proc: process (GKB_GETS, in reference: function,
   end func;
 
 
-const proc: process (GKB_KEYPRESSED, in reference: function,
+const proc: process (GKB_INPUT_READY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin

@@ -524,7 +524,7 @@ static const actEntryRecord actEntryTable[] = {
     { "GKB_BUTTON_YPOS",            gkb_button_ypos,            },
     { "GKB_GETC",                   gkb_getc,                   },
     { "GKB_GETS",                   gkb_gets,                   },
-    { "GKB_KEYPRESSED",             gkb_keypressed,             },
+    { "GKB_INPUT_READY",            gkb_input_ready,           },
     { "GKB_LINE_READ",              gkb_line_read,              },
     { "GKB_RAW_GETC",               gkb_raw_getc,               },
     { "GKB_SELECT_INPUT",           gkb_select_input,           },

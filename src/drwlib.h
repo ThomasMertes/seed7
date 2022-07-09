@@ -30,7 +30,7 @@ objectType gkb_button_xpos            (listType arguments);
 objectType gkb_button_ypos            (listType arguments);
 objectType gkb_getc                   (listType arguments);
 objectType gkb_gets                   (listType arguments);
-objectType gkb_keypressed             (listType arguments);
+objectType gkb_input_ready            (listType arguments);
 objectType gkb_line_read              (listType arguments);
 objectType gkb_raw_getc               (listType arguments);
 objectType gkb_select_input           (listType arguments);

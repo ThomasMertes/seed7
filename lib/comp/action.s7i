@@ -1043,9 +1043,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"GKB_GETS"}:
         drawLibraryUsed := TRUE;
         process(GKB_GETS, function, params, c_expr);
-      when {"GKB_KEYPRESSED"}:
+      when {"GKB_INPUT_READY"}:
         drawLibraryUsed := TRUE;
-        process(GKB_KEYPRESSED, function, params, c_expr);
+        process(GKB_INPUT_READY, function, params, c_expr);
       when {"GKB_LINE_READ"}:
         drawLibraryUsed := TRUE;
         process(GKB_LINE_READ, function, params, c_expr);

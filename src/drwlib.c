@@ -137,15 +137,21 @@ objectType gkb_gets (listType arguments)
 
 
 
-objectType gkb_keypressed (listType arguments)
+/**
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that ''getc'' would wait until a key has been pressed.
+ *  @return TRUE if a character is available at the graphic keyboard file
+ *          FALSE otherwise.
+ */
+objectType gkb_input_ready (listType arguments)
 
-  { /* gkb_keypressed */
+  { /* gkb_input_ready */
     if (gkbKeyPressed()) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
     } /* if */
-  } /* gkb_keypressed */
+  } /* gkb_input_ready */
 
 
 
