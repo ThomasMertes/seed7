@@ -16923,6 +16923,62 @@ const proc: check_string_unicode_conversons is func
       writeln(" ***** striToUtf8(STRING) does not work correct.");
       okay := FALSE;
     end if;
+
+    if  utf16beToStri("\0;a\0;b\0;c")                          <> "abc" or
+        utf16beToStri(" ¬")                                    <> "€" or
+        utf16beToStri("Ø4Ý\30;")                               <> "𝄞" or
+        utf16beToStri("\16#d8;\16#34;\16#dd;\16#1e;")          <> "𝄞" or
+        utf16leToStri("a\0;b\0;c\0;")                          <> "abc" or
+        utf16leToStri("¬ ")                                    <> "€" or
+        utf16leToStri("4Ø\30;Ý")                               <> "𝄞" or
+        utf16leToStri("\16#34;\16#d8;\16#1e;\16#dd;")          <> "𝄞" or
+        striToUtf16be("abc")                                   <> "\0;a\0;b\0;c" or
+        striToUtf16be("€")                                     <> " ¬" or
+        striToUtf16be("𝄞")                                     <> "Ø4Ý\30;" or
+        striToUtf16be("\119070;")                              <> "Ø4Ý\30;" or
+        striToUtf16be("\16#10ffff;")                           <> "Ûÿßÿ" or
+        striToUtf16le("abc")                                   <> "a\0;b\0;c\0;" or
+        striToUtf16le("€")                                     <> "¬ " or
+        striToUtf16le("𝄞")                                     <> "4Ø\30;Ý" or
+        striToUtf16le("\119070;")                              <> "4Ø\30;Ý" or
+        striToUtf16le("\16#10ffff;")                           <> "ÿÛÿß" or
+        replaceUtf16SurrogatePairs("\16#d834;\16#dd1e;")       <> "𝄞" or
+        replaceUtf16SurrogatePairs("abc\16#d834;\16#dd1e;def") <> "abc𝄞def" then
+      writeln(" ***** UTF-16 Unicode conversions do not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(utf16beToStri("abc")) or
+        not raisesRangeError(utf16beToStri("ab\256;c")) or
+        not raisesRangeError(utf16beToStri("abc\256;")) or
+        not raisesRangeError(utf16beToStri("\16#dd;\16#1e;")) or
+        not raisesRangeError(utf16beToStri("\16#d8;\16#34;")) or
+        not raisesRangeError(utf16beToStri("\16#d8;\16#34;\256;a")) or
+        not raisesRangeError(utf16beToStri("\16#d8;\16#34;a\256;")) or
+        not raisesRangeError(utf16beToStri("\16#d8;\16#34;\16#db;\16#ff;")) or
+        not raisesRangeError(utf16beToStri("\16#d8;\16#34;\16#e0;\16#00;")) or
+        not raisesRangeError(utf16leToStri("abc")) or
+        not raisesRangeError(utf16leToStri("ab\256;c")) or
+        not raisesRangeError(utf16leToStri("abc\256;")) or
+        not raisesRangeError(utf16leToStri("\16#1e;\16#dd;")) or
+        not raisesRangeError(utf16leToStri("\16#34;\16#d8;")) or
+        not raisesRangeError(utf16leToStri("\16#34;\16#d8;\256;a")) or
+        not raisesRangeError(utf16leToStri("\16#34;\16#d8;a\256;")) or
+        not raisesRangeError(utf16leToStri("\16#34;\16#d8;\16#ff;\16#db;")) or
+        not raisesRangeError(utf16leToStri("\16#34;\16#d8;\16#00;\16#e0;")) or
+        not raisesRangeError(striToUtf16be("\16#d800;")) or
+        not raisesRangeError(striToUtf16be("\16#dfff;")) or
+        not raisesRangeError(striToUtf16be("\16#110000;")) or
+        not raisesRangeError(striToUtf16le("\16#d800;")) or
+        not raisesRangeError(striToUtf16le("\16#dfff;")) or
+        not raisesRangeError(striToUtf16le("\16#110000;")) or
+        not raisesRangeError(replaceUtf16SurrogatePairs("\16#dd1e;")) or
+        not raisesRangeError(replaceUtf16SurrogatePairs("\16#d834;")) or
+        not raisesRangeError(replaceUtf16SurrogatePairs("\16#d834;a")) then
+      writeln(" ***** Wrong UTF-16 Unicode conversions does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("striToUtf8(string) works correct.");
     end if;

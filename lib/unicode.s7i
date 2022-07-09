@@ -56,7 +56,7 @@ const func string: striToUtf8 (in string: stri)                is action "STR_TO
  *  @return ''utf16be'' converted to a normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR If the length of ''utf16be'' is odd or
  *                         if ''utf16be'' contains a char beyond '\255;' or
- *                         if an illegal surrogate pair is found.
+ *                         if ''utf16be'' contains an illegal surrogate pair.
  *)
 const func string: utf16beToStri (in string: utf16be) is func
   result
@@ -68,6 +68,9 @@ const func string: utf16beToStri (in string: utf16be) is func
     var char: ch1 is ' ';
     var char: ch2 is ' ';
   begin
+    if odd(length(utf16be)) then
+      raise RANGE_ERROR;
+    end if;
     for index range 1 to length(utf16be) step 2 do
       byte1 := utf16be[index];
       byte2 := utf16be[succ(index)];
@@ -75,20 +78,24 @@ const func string: utf16beToStri (in string: utf16be) is func
         raise RANGE_ERROR;
       else
         ch1 := chr(ord(byte1) * 256 + ord(byte2));
-        if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
-          index +:= 2;
-          byte1 := utf16be[index];
-          byte2 := utf16be[succ(index)];
-          if byte1 > '\255;' or byte2 > '\255;' then
-            raise RANGE_ERROR;
-          else
-            ch2 := chr(ord(byte1) * 256 + ord(byte2));
-            if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
-              stri &:= chr(((ord(ch1) - 16#d800) << 10) +
-                            (ord(ch2) - 16#dc00) + 16#10000);
-            else
+        if ch1 >= '\16#d800;' and ch1 <= '\16#dfff;' then
+          if ch1 <= '\16#dbff;' and index < length(utf16be) - 2 then
+            index +:= 2;
+            byte1 := utf16be[index];
+            byte2 := utf16be[succ(index)];
+            if byte1 > '\255;' or byte2 > '\255;' then
               raise RANGE_ERROR;
+            else
+              ch2 := chr(ord(byte1) * 256 + ord(byte2));
+              if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
+                stri &:= chr(((ord(ch1) - 16#d800) << 10) +
+                              (ord(ch2) - 16#dc00) + 16#10000);
+              else
+                raise RANGE_ERROR;
+              end if;
             end if;
+          else
+            raise RANGE_ERROR;
           end if;
         else
           stri &:= ch1;
@@ -103,7 +110,7 @@ const func string: utf16beToStri (in string: utf16be) is func
  *  @param stri Normal (UTF-32) string to be converted to UTF-16BE.
  *  @return ''stri'' converted to a string of bytes with UTF-16BE encoding.
  *  @exception RANGE_ERROR If a character is not representable as UTF-16 or
- *                         the first char of a surrogate pair is found.
+ *                         a surrogate character is present.
  *)
 const func string: striToUtf16be (in string: stri) is func
   result
@@ -115,7 +122,7 @@ const func string: striToUtf16be (in string: stri) is func
   begin
     for ch range stri do
       if ch <= '\16#ffff;' then
-        if ch >= '\16#d800;' and ch <= '\16#dbff;' then
+        if ch >= '\16#d800;' and ch <= '\16#dfff;' then
           raise RANGE_ERROR;
         else
           utf16be &:= chr((ord(ch) >> 8) mod 256);
@@ -142,7 +149,7 @@ const func string: striToUtf16be (in string: stri) is func
  *  @return ''utf16le'' converted to a normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR If the length of ''utf16le'' is odd or
  *                         if ''utf16le'' contains a char beyond '\255;' or
- *                         if an illegal surrogate pair is found.
+ *                         if ''utf16le'' contains an illegal surrogate pair.
  *)
 const func string: utf16leToStri (in string: utf16le) is func
   result
@@ -154,6 +161,9 @@ const func string: utf16leToStri (in string: utf16le) is func
     var char: ch1 is ' ';
     var char: ch2 is ' ';
   begin
+    if odd(length(utf16le)) then
+      raise RANGE_ERROR;
+    end if;
     for index range 1 to length(utf16le) step 2 do
       byte1 := utf16le[index];
       byte2 := utf16le[succ(index)];
@@ -161,20 +171,24 @@ const func string: utf16leToStri (in string: utf16le) is func
         raise RANGE_ERROR;
       else
         ch1 := chr(ord(byte2) * 256 + ord(byte1));
-        if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
-          index +:= 2;
-          byte1 := utf16le[index];
-          byte2 := utf16le[succ(index)];
-          if byte1 > '\255;' or byte2 > '\255;' then
-            raise RANGE_ERROR;
-          else
-            ch2 := chr(ord(byte2) * 256 + ord(byte1));
-            if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
-              stri &:= chr(((ord(ch1) - 16#d800) << 10) +
-                            (ord(ch2) - 16#dc00) + 16#10000);
-            else
+        if ch1 >= '\16#d800;' and ch1 <= '\16#dfff;' then
+          if ch1 <= '\16#dbff;' and index < length(utf16le) - 2 then
+            index +:= 2;
+            byte1 := utf16le[index];
+            byte2 := utf16le[succ(index)];
+            if byte1 > '\255;' or byte2 > '\255;' then
               raise RANGE_ERROR;
+            else
+              ch2 := chr(ord(byte2) * 256 + ord(byte1));
+              if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
+                stri &:= chr(((ord(ch1) - 16#d800) << 10) +
+                              (ord(ch2) - 16#dc00) + 16#10000);
+              else
+                raise RANGE_ERROR;
+              end if;
             end if;
+          else
+            raise RANGE_ERROR;
           end if;
         else
           stri &:= ch1;
@@ -189,7 +203,7 @@ const func string: utf16leToStri (in string: utf16le) is func
  *  @param stri Normal (UTF-32) string to be converted to UTF-16LE.
  *  @return ''stri'' converted to a string of bytes with UTF-16LE encoding.
  *  @exception RANGE_ERROR If a character is not representable as UTF-16 or
- *                         the first char of a surrogate pair is found.
+ *                         a surrogate character is present.
  *)
 const func string: striToUtf16le (in string: stri) is func
   result
@@ -201,7 +215,7 @@ const func string: striToUtf16le (in string: stri) is func
   begin
     for ch range stri do
       if ch <= '\16#ffff;' then
-        if ch >= '\16#d800;' and ch <= '\16#dbff;' then
+        if ch >= '\16#d800;' and ch <= '\16#dfff;' then
           raise RANGE_ERROR;
         else
           utf16le &:= chr( ord(ch)       mod 256);
@@ -232,7 +246,7 @@ const func string: striToUtf16le (in string: stri) is func
  *  @param stri String of UTF-16 or UTF-32 Unicode characters,
  *         which may contain surrogate pairs.
  *  @return ''stri'' with all surrogate pairs replaced by single UTF-32 chars.
- *  @exception RANGE_ERROR If an illegal surrogate pair is found.
+ *  @exception RANGE_ERROR If an illegal surrogate pair is present.
  *)
 const func string: replaceUtf16SurrogatePairs (in string: stri) is func
   result
@@ -245,15 +259,15 @@ const func string: replaceUtf16SurrogatePairs (in string: stri) is func
   begin
     for index range 1 to length(stri) do
       ch1 := stri[index];
-      if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
-        if index < length(stri) then
+      if ch1 >= '\16#d800;' and ch1 <= '\16#dfff;' then
+        if ch1 <= '\16#dbff;' and index < length(stri) then
           ch2 := stri[succ(index)];
           if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
             resultStri &:= stri[startPos .. pred(index)];
             resultStri &:= chr(((ord(ch1) - 16#d800) << 10) +
                                 (ord(ch2) - 16#dc00) + 16#10000);
-            startPos := succ(index);
             incr(index);
+            startPos := succ(index);
           else
             raise RANGE_ERROR;
           end if;
