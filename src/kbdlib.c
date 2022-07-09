@@ -51,6 +51,15 @@
 
 /**
  *  Read a character from the console keyboard file.
+ *  The function works synchronous. This means that it might wait (block)
+ *  until a key has been pressed. The function returns a normal Unicode
+ *  character or a special code (which may be or may not be a Unicode
+ *  character) for cursor- and function-keys. Character constants are
+ *  defined for various keys such as KEY_CTL_J for newline and KEY_ESC
+ *  for the ESCAPE key. If a button is pressed together with a modifier
+ *  key (SHIFT, CTRL, ALT) ''getc'' returns a character like KEY_CTL_A
+ *  or KEY_ALT_A. No character constants are defined for combinations
+ *  with two modifier keys (there is no KEY_SFT_CTL_A).
  *  @return the character read.
  */
 objectType kbd_getc (listType arguments)

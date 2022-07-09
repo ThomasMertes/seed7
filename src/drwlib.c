@@ -119,6 +119,19 @@ objectType gkb_button_ypos (listType arguments)
 
 
 
+/**
+ *  Read a character from the graphic keyboard or mouse.
+ *  The function works synchronous. This means that it might wait (block)
+ *  until a key has been pressed. The function returns a normal Unicode
+ *  character or a special code (which may be or may not be a Unicode
+ *  character) for cursor-, function- and mouse-keys. Character constants
+ *  are defined for various keys such as KEY_CTL_J for newline and
+ *  KEY_MOUSE1 for the first mouse key. If a button is pressed together
+ *  with a modifier key (SHIFT, CTRL, ALT) ''getc'' returns a character
+ *  like KEY_CTL_MOUSE1. No character constants are defined for
+ *  combinations with two modifier keys (there is no KEY_SFT_CTL_MOUSE1).
+ *  @return the character read.
+ */
 objectType gkb_getc (listType arguments)
 
   { /* gkb_getc */
@@ -127,6 +140,10 @@ objectType gkb_getc (listType arguments)
 
 
 
+/**
+ *  Read a string with maximum length from the graphic keyboard file.
+ *  @return the string read.
+ */
 objectType gkb_gets (listType arguments)
 
   { /* gkb_gets */
