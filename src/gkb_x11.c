@@ -2173,15 +2173,15 @@ static boolType processEvents (void)
 
 
 
-boolType gkbKeyPressed (void)
+boolType gkbInputReady (void)
 
-  { /* gkbKeyPressed */
-    logFunction(printf("gkbKeyPressed\n"););
+  { /* gkbInputReady */
+    logFunction(printf("gkbInputReady\n"););
     flushBeforeRead();
     processEvents();
-    logFunction(printf("gkbKeyPressed --> %d\n", eventPresent););
+    logFunction(printf("gkbInputReady --> %d\n", eventPresent););
     return eventPresent;
-  } /* gkbKeyPressed */
+  } /* gkbInputReady */
 
 
 

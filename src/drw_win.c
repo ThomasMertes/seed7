@@ -2179,7 +2179,7 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
         to_hwnd(actual_window), xPos, yPos); */
     SetWindowPos(to_hwnd(actual_window), 0, castToInt(xPos), castToInt(yPos), 0, 0,
         /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOSIZE);
-    gkbKeyPressed();
+    gkbInputReady();
     /* printf("end drwSetPos(%lu, %ld, %ld)\n",
         to_hwnd(actual_window), xPos, yPos); */
   } /* drwSetPos */

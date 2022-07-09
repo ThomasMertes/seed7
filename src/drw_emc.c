@@ -86,12 +86,12 @@ charType gkbGetc (void)
 
 
 
-boolType gkbKeyPressed (void)
+boolType gkbInputReady (void)
 
-  { /* gkbKeyPressed */
-    logFunction(printf("gkbKeyPressed\n"););
+  { /* gkbInputReady */
+    logFunction(printf("gkbInputReady\n"););
     return FALSE;
-  } /* gkbKeyPressed */
+  } /* gkbInputReady */
 
 
 

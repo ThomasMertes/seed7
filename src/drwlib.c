@@ -163,7 +163,7 @@ objectType gkb_gets (listType arguments)
 objectType gkb_input_ready (listType arguments)
 
   { /* gkb_input_ready */
-    if (gkbKeyPressed()) {
+    if (gkbInputReady()) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;

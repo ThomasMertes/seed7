@@ -34,7 +34,7 @@ boolType gkbButtonPressed (charType button);
 intType gkbButtonXpos (void);
 intType gkbButtonYpos (void);
 charType gkbGetc (void);
-boolType gkbKeyPressed (void);
+boolType gkbInputReady (void);
 charType gkbRawGetc (void);
 void gkbSelectInput (winType aWindow, charType aKey, boolType active);
 winType gkbWindow (void);

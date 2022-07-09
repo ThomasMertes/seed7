@@ -53,11 +53,11 @@ charType gkbGetc (void)
 
 
 
-boolType gkbKeyPressed (void)
+boolType gkbInputReady (void)
 
-  { /* gkbKeyPressed */
+  { /* gkbInputReady */
     return FALSE;
-  } /* gkbKeyPressed */
+  } /* gkbInputReady */
 
 
 

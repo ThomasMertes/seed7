@@ -45,7 +45,7 @@ const proc: gkb_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     gkbButtonYpos (void);");
     declareExtern(c_prog, "charType    gkbGetc (void);");
     declareExtern(c_prog, "striType    gkbGets (intType);");
-    declareExtern(c_prog, "boolType    gkbKeyPressed (void);");
+    declareExtern(c_prog, "boolType    gkbInputReady (void);");
     declareExtern(c_prog, "striType    gkbLineRead (charType *);");
     declareExtern(c_prog, "charType    gkbRawGetc (void);");
     declareExtern(c_prog, "void        gkbSelectInput (winType, charType, boolType);");
@@ -77,7 +77,7 @@ const proc: process (GKB_INPUT_READY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "gkbKeyPressed()";
+    c_expr.expr &:= "gkbInputReady()";
   end func;
 
 

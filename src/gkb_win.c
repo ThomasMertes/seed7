@@ -1157,7 +1157,7 @@ charType gkbGetc (void)
 
 
 
-boolType gkbKeyPressed (void)
+boolType gkbInputReady (void)
 
   {
     BOOL msg_present;
@@ -1165,12 +1165,12 @@ boolType gkbKeyPressed (void)
     MSG msg;
     boolType result;
 
-  /* gkbKeyPressed */
-    logFunction(printf("gkbKeyPressed\n"););
+  /* gkbInputReady */
+    logFunction(printf("gkbInputReady\n"););
     result = FALSE;
     msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
     while (msg_present) {
-      /* printf("gkbKeyPressed message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+      /* printf("gkbInputReady message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
       switch (msg.message) {
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
@@ -1199,12 +1199,12 @@ boolType gkbKeyPressed (void)
         case WM_RBUTTONDOWN:
         case WM_MOUSEWHEEL:
         case WM_XBUTTONDOWN:
-          /* printf("gkbKeyPressed --> TRUE for message %d\n", msg.message); */
+          /* printf("gkbInputReady --> TRUE for message %d\n", msg.message); */
           msg_present = 0;
           result = TRUE;
           break;
         case WM_NCLBUTTONDOWN:
-          traceEvent(printf("gkbKeyPressed WM_NCLBUTTONDOWN hwnd=" FMT_U_MEM
+          traceEvent(printf("gkbInputReady WM_NCLBUTTONDOWN hwnd=" FMT_U_MEM
                             ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
@@ -1253,7 +1253,7 @@ boolType gkbKeyPressed (void)
           } /* if */
           break;
         case WM_SYSCOMMAND:
-          traceEvent(printf("gkbKeyPressed WM_SYSCOMMAND hwnd=" FMT_U_MEM
+          traceEvent(printf("gkbInputReady WM_SYSCOMMAND hwnd=" FMT_U_MEM
                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
@@ -1289,7 +1289,7 @@ boolType gkbKeyPressed (void)
           } /* if */
           break;
         case WM_MOUSEMOVE:
-          /* printf("gkbKeyPressed WM_MOUSEMOVE\n"); */
+          /* printf("gkbInputReady WM_MOUSEMOVE\n"); */
           if (resizeMode != 0) {
             processMouseMove(&msg);
             if (resizeMode != HTCAPTION &&
@@ -1319,7 +1319,7 @@ boolType gkbKeyPressed (void)
           } /* if */
           break;
         case WM_LBUTTONUP:
-          traceEvent(printf("gkbKeyPressed WM_LBUTTONUP hwnd=" FMT_U_MEM
+          traceEvent(printf("gkbInputReady WM_LBUTTONUP hwnd=" FMT_U_MEM
                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
@@ -1343,7 +1343,7 @@ boolType gkbKeyPressed (void)
           } /* if */
           break;
         case WM_SYSKEYUP:
-          traceEvent(printf("gkbKeyPressed WM_SYSKEYUP hwnd=" FMT_U_MEM
+          traceEvent(printf("gkbInputReady WM_SYSKEYUP hwnd=" FMT_U_MEM
                             ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
@@ -1356,7 +1356,7 @@ boolType gkbKeyPressed (void)
           msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;
         case WM_USER:
-          traceEvent(printf("gkbKeyPressed WM_USER hwnd=" FMT_U_MEM
+          traceEvent(printf("gkbInputReady WM_USER hwnd=" FMT_U_MEM
                             ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
@@ -1380,9 +1380,9 @@ boolType gkbKeyPressed (void)
           break;
       } /* switch */
     } /* while */
-    logFunction(printf("gkbKeyPressed --> %d\n", result););
+    logFunction(printf("gkbInputReady --> %d\n", result););
     return result;
-  } /* gkbKeyPressed */
+  } /* gkbInputReady */
 
 
 
@@ -1397,7 +1397,7 @@ boolType gkbButtonPressed (charType button)
     boolType result;
 
   /* gkbButtonPressed */
-    gkbKeyPressed();
+    gkbInputReady();
     switch (button) {
       case K_CTL_A: case K_ALT_A: case 'A': case 'a': vkey1 = 'A'; break;
       case K_CTL_B: case K_ALT_B: case 'B': case 'b': vkey1 = 'B'; break;
@@ -1740,6 +1740,6 @@ void drwFlush (void)
 
   { /* drwFlush */
     logFunction(printf("drwFlush\n"););
-    gkbKeyPressed();
+    gkbInputReady();
     logFunction(printf("drwFlush -->\n"););
   } /* drwFlush */
