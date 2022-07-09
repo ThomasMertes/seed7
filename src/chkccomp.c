@@ -1010,6 +1010,79 @@ static int assertCompAndLnk (const char *content)
 
 
 
+static void prepareDoSleep (void)
+
+  {
+    char fileName[NAME_SIZE];
+
+  /* prepareDoSleep */
+#if defined UNIX_DO_SLEEP
+    if (assertCompAndLnk("#include <unistd.h>\n"
+                         "#include <stdio.h>\n"
+                         "int main(int argc, char *argv[]) {\n"
+                         "int seconds;\n"
+                         "if (argc == 2 && sscanf(argv[1], \"%d\", &seconds) == 1) {\n"
+                         "  sleep(seconds);\n"
+                         "} return 0;}\n")) {
+      doRemove("do_sleep" LINKED_PROGRAM_EXTENSION);
+      sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
+      if (rename(fileName, "do_sleep" LINKED_PROGRAM_EXTENSION) != 0) {
+        fprintf(logFile, "\n **** Renaming %s to do_sleep%s failed.\n", fileName, LINKED_PROGRAM_EXTENSION);
+      } /* if */
+    } /* if */
+#elif defined _WIN32
+    if (assertCompAndLnk("#include <windows.h>\n"
+                         "#include <stdio.h>\n"
+                         "int main(int argc, char *argv[]) {\n"
+                         "int seconds;\n"
+                         "if (argc == 2 && sscanf(argv[1], \"%d\", &seconds) == 1) {\n"
+                         "  Sleep(1000 * seconds);\n"
+                         "} return 0;}\n")) {
+      doRemove("do_sleep" LINKED_PROGRAM_EXTENSION);
+      sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
+      if (rename(fileName, "do_sleep" LINKED_PROGRAM_EXTENSION) != 0) {
+        fprintf(logFile, "\n **** Renaming %s to do_sleep%s failed.\n", fileName, LINKED_PROGRAM_EXTENSION);
+      } /* if */
+    } /* if */
+#endif
+  }  /* prepareDoSleep */
+
+
+
+static void removeDoSleep (void)
+
+  { /* removeDoSleep */
+#ifdef _WIN32
+    doRemove("do_sleep" LINKED_PROGRAM_EXTENSION);
+#endif
+  } /* removeDoSleep */
+
+
+
+static void doSleep (unsigned int seconds)
+
+  {
+    char command[COMMAND_SIZE];
+
+  /* doSleep */
+    /* printf("doSleep(%u)\n", seconds); */
+#if defined UNIX_DO_SLEEP || defined _WIN32
+#ifdef INTERPRETER_FOR_LINKED_PROGRAM
+    sprintf(command, "%s .%cdo_sleep%s %d",
+            INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER,
+            LINKED_PROGRAM_EXTENSION, seconds);
+#else
+    sprintf(command, ".%cdo_sleep%s %d", PATH_DELIMITER,
+            LINKED_PROGRAM_EXTENSION, seconds);
+#endif
+#else
+    sprintf(command, "sleep %d", seconds);
+#endif
+    system(command);
+  }  /* doSleep */
+
+
+
 static int runTest (int checkNumericValue)
 
   {
@@ -1044,11 +1117,12 @@ static int runTest (int checkNumericValue)
           outFile = fopen(fileName, "r");
           if (outFile != NULL) {
             readFailed = fscanf(outFile, "%d", &result) != 1;
+            fclose(outFile);
             if (checkNumericValue && readFailed) {
               /* This workaround is necessary for windows. */
+              doSleep(1);
               repeatCount++;
             } /* if */
-            fclose(outFile);
           } else {
             fprintf(logFile, "\n *** Cannot open \"%s\".\n ", fileName);
             errorOccurred = 1;
@@ -1062,7 +1136,7 @@ static int runTest (int checkNumericValue)
         errorOccurred = 1;
       } /* if */
     } while (checkNumericValue && readFailed && !errorOccurred &&
-             time(NULL) < startTime + 20);
+             time(NULL) < startTime + 5);
     if (checkNumericValue && repeatCount != 0) {
       if (readFailed) {
         fprintf(logFile, "\n *** No numeric result in \"%s\".\n", fileName);
@@ -8815,6 +8889,7 @@ int main (int argc, char **argv)
     fflush(logFile);
     prepareCompileCommand();
     determineCompilerVersion(versionFile);
+    prepareDoSleep();
     if (assertCompAndLnk("#include <stdio.h>\n"
                          "int main(int argc, char *argv[]){\n"
                          "#if defined(__STDC__)\n"
@@ -9237,6 +9312,7 @@ int main (int argc, char **argv)
     determineIncludesAndLibs(versionFile);
     writeReadBufferEmptyMacro(versionFile);
     cleanUpCompilation(testNumber);
+    removeDoSleep();
     fprintf(versionFile, "#define REMOVE_REATTEMPTS %lu\n", removeReattempts);
     if (removeReattempts != 0) {
       fprintf(logFile, "%lu times removing a file needed a reattempt.\n", removeReattempts);

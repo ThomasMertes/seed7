@@ -248,6 +248,7 @@ base.h:
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> base.h
 	echo #define LINKED_PROGRAM_EXTENSION ".js" >> base.h
 	echo #define INTERPRETER_FOR_LINKED_PROGRAM "node" >> base.h
+	echo #define UNIX_DO_SLEEP >> base.h
 	echo #define EMULATE_ENVIRONMENT >> base.h
 	echo #define EMULATE_NODE_ENVIRONMENT >> base.h
 	echo #define DETERMINE_OS_PROPERTIES_AT_RUNTIME >> base.h
