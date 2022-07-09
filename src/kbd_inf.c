@@ -824,19 +824,19 @@ static void kbd_init (void)
 
 
 
-boolType kbdKeyPressed (void)
+boolType kbdInputReady (void)
 
   {
     int file_no;
     char buffer;
     boolType result;
 
-  /* kbdKeyPressed */
+  /* kbdInputReady */
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
     if (!keybd_initialized) {
-      logError(printf("kbdKeyPressed: kbd_init() failed to open the keyboard.\n"););
+      logError(printf("kbdInputReady: kbd_init() failed to open the keyboard.\n"););
       raise_error(FILE_ERROR);
       result = FALSE;
     } else if (key_buffer_filled) {
@@ -847,7 +847,7 @@ boolType kbdKeyPressed (void)
       } /* if */
       file_no = fileno(stdin);
       if (!tcset_vmin_vtime(file_no, 0, 0)) {
-        printf("kbdKeyPressed: tcsetattr(%d, VMIN=0) failed:\n"
+        printf("kbdInputReady: tcsetattr(%d, VMIN=0) failed:\n"
                "errno=%d\nerror: %s\n",
                file_no, errno, strerror(errno));
         result = FALSE;
@@ -860,14 +860,14 @@ boolType kbdKeyPressed (void)
           result = FALSE;
         } /* if */
         if (!tcset_vmin_vtime(file_no, 1, 0)) {
-          printf("kbdKeyPressed: tcsetattr(%d, VMIN=1) failed:\n"
+          printf("kbdInputReady: tcsetattr(%d, VMIN=1) failed:\n"
                  "errno=%d\nerror: %s\n",
                  file_no, errno, strerror(errno));
         } /* if */
       } /* if */
     } /* if */
     return result;
-  } /* kbdKeyPressed */
+  } /* kbdInputReady */
 
 
 

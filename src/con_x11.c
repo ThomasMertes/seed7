@@ -125,12 +125,12 @@ static void kbd_init (void)
 
 
 
-boolType kbdKeyPressed (void)
+boolType kbdInputReady (void)
 
   {
     boolType result;
 
-  /* kbdKeyPressed */
+  /* kbdInputReady */
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
@@ -139,9 +139,9 @@ boolType kbdKeyPressed (void)
     } else {
       result = FALSE;
     } /* if */
-    /* printf("kbdKeyPressed --> %d\n", result); */
+    /* printf("kbdInputReady --> %d\n", result); */
     return result;
-  } /* kbdKeyPressed */
+  } /* kbdInputReady */
 
 
 
@@ -175,7 +175,7 @@ charType kbdGetc (void)
 #ifdef FLAG_EVENTS
         printf("NoExpose\n");
 #endif
-        if (kbdKeyPressed()) {
+        if (kbdInputReady()) {
           result = kbdGetc();
         } else {
           result = K_NULLCMD;

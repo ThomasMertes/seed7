@@ -317,14 +317,14 @@ static void kbd_init (void)
 
 
 
-boolType kbdKeyPressed (void)
+boolType kbdInputReady (void)
 
-  { /* kbdKeyPressed */
+  { /* kbdInputReady */
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
     return (char) bdos(0xB, 0, 0) & 1;
-  } /* kbdKeyPressed */
+  } /* kbdInputReady */
 
 
 

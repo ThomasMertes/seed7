@@ -93,7 +93,7 @@ objectType kbd_gets (listType arguments)
 objectType kbd_input_ready (listType arguments)
 
   { /* kbd_input_ready */
-    if (kbdKeyPressed()) {
+    if (kbdInputReady()) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;

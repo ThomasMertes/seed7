@@ -172,11 +172,11 @@ void kbdShut (void)
 
 
 
-boolType kbdKeyPressed (void)
+boolType kbdInputReady (void)
 
-  { /* kbdKeyPressed */
+  { /* kbdInputReady */
     return (char) bdos(0xB, 0, 0) & 1;
-  } /* kbdKeyPressed */
+  } /* kbdInputReady */
 
 
 

@@ -116,7 +116,7 @@ static void kbd_init (void)
 
 
 
-boolType kbdKeyPressed (void)
+boolType kbdInputReady (void)
 
   {
     INPUT_RECORD event;
@@ -124,8 +124,8 @@ boolType kbdKeyPressed (void)
     boolType ignoreEvent;
     boolType result;
 
-  /* kbdKeyPressed */
-    logFunction(printf("kbdKeyPressed\n"););
+  /* kbdInputReady */
+    logFunction(printf("kbdInputReady\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
@@ -158,7 +158,7 @@ boolType kbdKeyPressed (void)
           /* Ignore mouse movement and button press events. */
           ignoreEvent = TRUE;
         } else {
-          printf("kbdKeyPressed: EventType = %d\n", event.EventType);
+          printf("kbdInputReady: EventType = %d\n", event.EventType);
         } /* if */
         if (ignoreEvent) {
           /* Skip the event to be ignored. */
@@ -168,9 +168,9 @@ boolType kbdKeyPressed (void)
         } /* if */
       } /* if */
     } while (ignoreEvent);
-    logFunction(printf("kbdKeyPressed --> %d\n", result););
+    logFunction(printf("kbdInputReady --> %d\n", result););
     return result;
-  } /* kbdKeyPressed */
+  } /* kbdInputReady */
 
 
 

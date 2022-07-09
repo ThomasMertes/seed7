@@ -288,6 +288,6 @@
 
 
 charType kbdGetc (void);
-boolType kbdKeyPressed (void);
+boolType kbdInputReady (void);
 charType kbdRawGetc (void);
 void kbdShut (void);

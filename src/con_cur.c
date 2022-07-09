@@ -208,12 +208,12 @@ static void kbd_init (void)
 
 
 
-boolType kbdKeyPressed (void)
+boolType kbdInputReady (void)
 
   {
     boolType result;
 
-  /* kbdKeyPressed */
+  /* kbdInputReady */
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
@@ -233,7 +233,7 @@ boolType kbdKeyPressed (void)
       } /* if */
     } /* if */
     return result;
-  } /* kbdKeyPressed */
+  } /* kbdInputReady */
 
 
 

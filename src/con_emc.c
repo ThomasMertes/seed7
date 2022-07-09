@@ -257,20 +257,20 @@ static void kbd_init (void)
 
 
 
-boolType kbdKeyPressed (void)
+boolType kbdInputReady (void)
 
   {
     boolType result;
 
-  /* kbdKeyPressed */
-    logFunction(printf("kbdKeyPressed\n"););
+  /* kbdInputReady */
+    logFunction(printf("kbdInputReady\n"););
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
     result = keyBufferReadPos != keyBufferWritePos;
-    logFunction(printf("kbdKeyPressed --> %d\n", result););
+    logFunction(printf("kbdInputReady --> %d\n", result););
     return result;
-  } /* kbdKeyPressed */
+  } /* kbdInputReady */
 
 
 
@@ -284,7 +284,7 @@ charType kbdGetc (void)
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    if (kbdKeyPressed()) {
+    if (kbdInputReady()) {
       result = (charType) popKey();
     } else {
       result = (charType) EOF;

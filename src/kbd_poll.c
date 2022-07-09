@@ -628,19 +628,19 @@ static void kbd_init (void)
 
 
 
-boolType kbdKeyPressed (void)
+boolType kbdInputReady (void)
 
   {
     struct pollfd poll_fds[1];
     int poll_result;
     boolType result;
 
-  /* kbdKeyPressed */
+  /* kbdInputReady */
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
     if (!keybd_initialized) {
-      logError(printf("kbdKeyPressed: kbd_init() failed to open the keyboard.\n"););
+      logError(printf("kbdInputReady: kbd_init() failed to open the keyboard.\n"););
       raise_error(FILE_ERROR);
       result = FALSE;
     } else if (key_buffer_size > 0) {
@@ -661,7 +661,7 @@ boolType kbdKeyPressed (void)
       } /* if */
     } /* if */
     return result;
-  } /* kbdKeyPressed */
+  } /* kbdInputReady */
 
 
 

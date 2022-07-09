@@ -344,14 +344,14 @@ static void kbd_init (void)
 
 
 
-boolType kbdKeyPressed (void)
+boolType kbdInputReady (void)
 
   {
     int file_no;
     boolType result;
     char buffer;
 
-  /* kbdKeyPressed */
+  /* kbdInputReady */
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
@@ -374,7 +374,7 @@ boolType kbdKeyPressed (void)
       tcsetattr(file_no, TCSANOW, &term_descr);
     } /* if */
     return result;
-  } /* kbdKeyPressed */
+  } /* kbdInputReady */
 
 
 
