@@ -123,11 +123,11 @@ const func string: word_read (in console_keybd_file: keybd,
  *  @return TRUE if a character is available at the console keyboard file
  *          FALSE otherwise.
  *)
-const func boolean: inputReady (in console_keybd_file: keybd)                  is action "KBD_KEYPRESSED";
+const func boolean: inputReady (in console_keybd_file: keybd)                  is action "KBD_INPUT_READY";
 
 
 # The function keypressed() is deprecated. Use inputReady() instead.
-const func boolean: keypressed (in console_keybd_file: keybd)                  is action "KBD_KEYPRESSED";
+const func boolean: keypressed (in console_keybd_file: keybd)                  is action "KBD_INPUT_READY";
 
 
 (**

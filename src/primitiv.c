@@ -628,7 +628,7 @@ static const actEntryRecord actEntryTable[] = {
 
     { "KBD_GETC",                   kbd_getc,                   },
     { "KBD_GETS",                   kbd_gets,                   },
-    { "KBD_KEYPRESSED",             kbd_keypressed,             },
+    { "KBD_INPUT_READY",            kbd_input_ready,            },
     { "KBD_LINE_READ",              kbd_line_read,              },
     { "KBD_RAW_GETC",               kbd_raw_getc,               },
     { "KBD_WORD_READ",              kbd_word_read,              },

@@ -26,7 +26,7 @@
 
 const ACTION: KBD_GETC        is action "KBD_GETC";
 const ACTION: KBD_GETS        is action "KBD_GETS";
-const ACTION: KBD_KEYPRESSED  is action "KBD_KEYPRESSED";
+const ACTION: KBD_INPUT_READY is action "KBD_INPUT_READY";
 const ACTION: KBD_LINE_READ   is action "KBD_LINE_READ";
 const ACTION: KBD_RAW_GETC    is action "KBD_RAW_GETC";
 const ACTION: KBD_WORD_READ   is action "KBD_WORD_READ";
@@ -63,7 +63,7 @@ const proc: process (KBD_GETS, in reference: function,
   end func;
 
 
-const proc: process (KBD_KEYPRESSED, in reference: function,
+const proc: process (KBD_INPUT_READY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin

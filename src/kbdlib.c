@@ -76,19 +76,20 @@ objectType kbd_gets (listType arguments)
 
 
 /**
- *  Determine if at least one character can be read without waiting.
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that ''getc'' would wait until a key has been pressed.
  *  @return TRUE if a character is available at the console keyboard file
  *          FALSE otherwise.
  */
-objectType kbd_keypressed (listType arguments)
+objectType kbd_input_ready (listType arguments)
 
-  { /* kbd_keypressed */
+  { /* kbd_input_ready */
     if (kbdKeyPressed()) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
     } /* if */
-  } /* kbd_keypressed */
+  } /* kbd_input_ready */
 
 
 

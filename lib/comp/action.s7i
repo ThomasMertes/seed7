@@ -1244,9 +1244,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"KBD_GETS"}:
         consoleLibraryUsed := TRUE;
         process(KBD_GETS, function, params, c_expr);
-      when {"KBD_KEYPRESSED"}:
+      when {"KBD_INPUT_READY"}:
         consoleLibraryUsed := TRUE;
-        process(KBD_KEYPRESSED, function, params, c_expr);
+        process(KBD_INPUT_READY, function, params, c_expr);
       when {"KBD_LINE_READ"}:
         consoleLibraryUsed := TRUE;
         process(KBD_LINE_READ, function, params, c_expr);
