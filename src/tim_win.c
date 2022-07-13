@@ -201,7 +201,7 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
       *min       = local_time->tm_min;
       *sec       = local_time->tm_sec;
       *micro_sec = (intType) ((utc_time.nanosecs100 / 10) % 1000000);
-      *time_zone = (unchecked_mkutc(local_time) - utc_seconds) / 60;
+      *time_zone = ((intType) unchecked_mkutc(local_time) - (intType) utc_seconds) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
     logFunction(printf("timNow(" F_D(04) "-" F_D(02) "-" F_D(02) " "
