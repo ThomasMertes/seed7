@@ -185,7 +185,7 @@ void timFromTimestamp (time_t timestamp,
       *minute    = local_time->tm_min;
       *second    = local_time->tm_sec;
       *micro_sec = 0;
-      *timeZone  = (intType) (unchecked_mkutc(local_time) - timestamp) / 60;
+      *timeZone  = ((intType) unchecked_mkutc(local_time) - (intType) timestamp) / 60;
       /* Correct timeZone values that are outside of the allowed range. */
       /* Under Linux this never happens, but Windows has this problem.  */
       if (unlikely(*timeZone < -12 * 60)) {
@@ -333,7 +333,7 @@ void timUtcFromTimestamp (timeStampType timestamp,
     for (monthIdx = 0; monthIdx < 12 && yearDay >= yearDays[leapYear][monthIdx]; monthIdx++) ;
     *year = currentYear;
     *month = monthIdx;
-    *day = yearDay - yearDays[leapYear][monthIdx - 1] + 1;
+    *day = yearDay - (int64Type) yearDays[leapYear][monthIdx - 1] + 1;
     *hour = secondsSinceMidnight / 3600;
     *minute = (secondsSinceMidnight / 60) % 60;
     *second = secondsSinceMidnight % 60;
@@ -527,7 +527,7 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
                             timestamp, errno, strerror(errno)););
             raise_error(RANGE_ERROR);
           } else {
-            *timeZone = (intType) (unchecked_mkutc(local_time) - timestamp) / 60;
+            *timeZone = ((intType) unchecked_mkutc(local_time) - (intType) timestamp) / 60;
             /* Correct timeZone values that are outside of the allowed range. */
             /* Under Linux this never happens, but Windows has this problem.  */
             if (unlikely(*timeZone < -12 * 60)) {
@@ -623,7 +623,7 @@ void dateFromDaysSince1900 (int32Type daysSince1900_01_01,
     for (monthIdx = 0; monthIdx < 12 && yearDay >= yearDays[leapYear][monthIdx]; monthIdx++) ;
     *year = currentYear;
     *month = monthIdx;
-    *day = yearDay - yearDays[leapYear][monthIdx - 1] + 1;
+    *day = yearDay - (int32Type) yearDays[leapYear][monthIdx - 1] + 1;
     logFunction(printf("dateFromDaysSince1900 -> " F_D(04) "-" F_D(02) "-" F_D(02) "\n",
                        *year, *month, *day););
   } /* dateFromDaysSince1900 */

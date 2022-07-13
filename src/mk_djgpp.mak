@@ -171,7 +171,7 @@ clean_utils:
 
 distclean: clean clean_utils
 	copy level_bk.h level.h /Y
-	del vers_djgpp.h
+	del vers_djg.h
 
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
@@ -181,6 +181,7 @@ strip:
 
 chkccomp.h:
 	$(ECHO) "#define LIST_DIRECTORY_CONTENTS \"dir\"" > chkccomp.h
+	$(ECHO) "#define UNIX_DO_SLEEP" >> chkccomp.h
 	$(ECHO) "#define USE_GMP 0" >> chkccomp.h
 
 base.h:
@@ -227,7 +228,7 @@ version.h: chkccomp.exe base.h settings.h
 	$(CC) setpaths.c -o setpaths.exe
 	.\setpaths.exe S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
 	del setpaths.exe
-	copy version.h vers_djgpp.h /Y
+	copy version.h vers_djg.h /Y
 
 chkccomp.exe: chkccomp.c chkccomp.h base.h settings.h
 	$(CC) chkccomp.c -o chkccomp.exe

@@ -438,8 +438,16 @@ COMPILING WITH EMCC FROM EMSCRIPTEN
 COMPILING UNDER DOS WITH DJGPP
 
     You need gcc and make from DJGPP. Make sure that the search
-  PATH leads to gcc and make from DJGPP. Use the command line,
-  go to the 'seed7\src' directory and type:
+  PATH leads to gcc and make from DJGPP. Additionally the
+  environment variable DJGPP must be set to a path leading to
+  DJGPP.ENV. Note that make from DJGPP has some limitations:
+
+    - It does not understand the option -f. So copying mk_djgpp.mak
+      to makefile is really mandatory.
+    - It does not support redirecting command output. So you will
+      see all errors and warnings created by test programs.
+
+  Use the command line, go to the 'seed7\src' directory and type:
 
     copy /Y mk_djgpp.mak makefile
     make depend

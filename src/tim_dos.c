@@ -61,30 +61,33 @@ void timAwait (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    struct tm tm_time;
     struct timeb tstruct;
     time_t await_second;
 
   /* timAwait */
-    logFunction(printf("timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
-                       year, month, day, hour, min, sec, micro_sec, time_zone););
+    logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                   F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                   F_D(06) ", " FMT_D ")\n",
+                       year, month, day, hour, min, sec, micro_sec,
+                       time_zone););
     await_second = timToOsTimestamp(year, month, day, hour, min, sec,
                                     time_zone);
+    /* printf("await_second: " FMT_T "\n", await_second); */
     if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
       logError(printf("timAwait: Timestamp not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
       ftime(&tstruct);
-      /* printf("%ld %d %d %d\n",
+      /* printf(FMT_T " %hu %hd %hd\n",
              tstruct.time, tstruct.millitm, tstruct.timezone, tstruct.dstflag);
-         printf("%ld %ld %ld\n",
+         printf(FMT_T " " FMT_D " " FMT_D "\n",
              await_second, micro_sec, time_zone);
          printf("tstruct.time < await_second: %d < %d\n",
              tstruct.time, await_second); */
       if (tstruct.time < await_second) {
         do {
           ftime(&tstruct);
-/*        printf("%ld ?= %ld\n", tstruct.time, await_second); */
+/*        printf(FMT_T " ?= " FMT_T "\n", tstruct.time, await_second); */
         } while (tstruct.time < await_second);
       } /* if */
       if (micro_sec != 0) {
@@ -172,11 +175,13 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
       } /* if */
       *is_dst    = tstruct.dstflag;
 #else
-      *time_zone = (intType) (unchecked_mkutc(local_time) - tstruct.time) / 60;
+      *time_zone = ((intType) unchecked_mkutc(local_time) - (intType) tstruct.time) / 60;
       *is_dst    = local_time->tm_isdst > 0;
 #endif
     } /* if */
-    logFunction(printf("timNow(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
+    logFunction(printf("timNow(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                 F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                 F_D(06) ", " FMT_D ", %d) -->\n",
                        *year, *month, *day, *hour, *min, *sec,
                        *micro_sec, *time_zone, *is_dst););
   } /* timNow */

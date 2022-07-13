@@ -1293,7 +1293,7 @@ static inline boolType conv_to_os_stri (os_striType os_stri,
           } /* if */
         } /* if */
       } /* for */
-    } else if (code_page == 850) {
+    } else if (code_page == 850 || code_page == 858) {
       for (; len > 0; os_stri++, strelem++, len--) {
         if (*strelem <= 127) {
           if (unlikely(*strelem == '\0')) {
@@ -1311,9 +1311,10 @@ static inline boolType conv_to_os_stri (os_striType os_stri,
             ch = map_to_850_9472[*strelem - 9472];
           } else {
             switch (*strelem) {
-              case 8215: ch = 242; break;
-              case 305:  ch = 213; break;
+              case 305:  ch = code_page == 850 ? 213 : '?'; break;
               case 402:  ch = 159; break;
+              case 8215: ch = 242; break;
+              case 8364: ch = code_page == 858 ? 213 : '?'; break;
               default:   ch = '?'; break;
             } /* switch */
           } /* if */
@@ -1521,6 +1522,54 @@ static const strElemType map_from_850[] = {
 /* 240 */  173,  177, 8215,  190,  182,  167,  247,  184,  176,  168,
 /* 250 */  183,  185,  179,  178, 9632,  160};
 
+static const strElemType map_from_858[] = {
+/*   0 */    0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
+/*  10 */   10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
+/*  20 */   20,   21,   22,   23,   24,   25,   26,   27,   28,   29,
+/*  30 */   30,   31,  ' ',  '!',  '"',  '#',  '$',  '%',  '&', '\'',
+/*  40 */  '(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',  '0',  '1',
+/*  50 */  '2',  '3',  '4',  '5',  '6',  '7',  '8',  '9',  ':',  ';',
+/*  60 */  '<',  '=',  '>',  '?',  '@',  'A',  'B',  'C',  'D',  'E',
+/*  70 */  'F',  'G',  'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
+/*  80 */  'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',  'X',  'Y',
+/*  90 */  'Z',  '[', '\\',  ']',  '^',  '_',  '`',  'a',  'b',  'c',
+/* 100 */  'd',  'e',  'f',  'g',  'h',  'i',  'j',  'k',  'l',  'm',
+/* 110 */  'n',  'o',  'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
+/* 120 */  'x',  'y',  'z',  '{',  '|',  '}',  '~',  127,  199,  252,
+/* 130 */  233,  226,  228,  224,  229,  231,  234,  235,  232,  239,
+/* 140 */  238,  236,  196,  197,  201,  230,  198,  244,  246,  242,
+/* 150 */  251,  249,  255,  214,  220,  248,  163,  216,  215,  402,
+/* 160 */  225,  237,  243,  250,  241,  209,  170,  186,  191,  174,
+/* 170 */  172,  189,  188,  161,  171,  187, 9617, 9618, 9619, 9474,
+/* 180 */ 9508,  193,  194,  192,  169, 9571, 9553, 9559, 9565,  162,
+/* 190 */  165, 9488, 9492, 9524, 9516, 9500, 9472, 9532,  227,  195,
+/* 200 */ 9562, 9556, 9577, 9574, 9568, 9552, 9580,  164,  240,  208,
+/* 210 */  202,  203,  200, 8364,  205,  206,  207, 9496, 9484, 9608,
+/* 220 */ 9604,  166,  204, 9600,  211,  223,  212,  210,  245,  213,
+/* 230 */  181,  254,  222,  218,  219,  217,  253,  221,  175,  180,
+/* 240 */  173,  177, 8215,  190,  182,  167,  247,  184,  176,  168,
+/* 250 */  183,  185,  179,  178, 9632,  160};
+
+
+
+charType mapFromCodePage (unsigned char key)
+
+  {
+    charType ch;
+
+  /* mapFromCodePage */
+    logFunction(printf("mapFromCodePage(%u)\n", key););
+    if (code_page == 850) {
+      ch = map_from_850[key];
+    } else if (code_page == 858) {
+      ch = map_from_858[key];
+    } else {
+      ch = map_from_437[key];
+    } /* if */
+    logFunction(printf("mapFromCodePage --> " FMT_U32 "\n", ch););
+    return ch;
+  } /* mapFromCodePage */
+
 
 
 /**
@@ -1552,6 +1601,10 @@ striType conv_from_os_stri (const const_os_striType os_stri,
       } else if (code_page == 850) {
         for (pos = 0; pos < length; pos++) {
           stri->mem[pos] = map_from_850[(unsigned char) os_stri[pos]];
+        } /* for */
+      } else if (code_page == 858) {
+        for (pos = 0; pos < length; pos++) {
+          stri->mem[pos] = map_from_858[(unsigned char) os_stri[pos]];
         } /* for */
       } else {
         FREE_STRI(stri, length);
@@ -2392,6 +2445,7 @@ static boolType isShortFileName (os_striType fileName)
     boolType shortFileName = TRUE;
 
   /* isShortFileName */
+    logFunction(printf("isShortFileName(\"" FMT_S_OS "\")\n", fileName););
     ch = fileName[0];
     do {
       switch (ch) {
@@ -2431,7 +2485,7 @@ static boolType isShortFileName (os_striType fileName)
       ch = fileName[pos];
     } while (ch != PATH_DELIMITER && ch != '\0');
     if (dotPos == -1) {
-      if (pos >= 8) {
+      if (pos > 8) {
         shortFileName = FALSE;
       } /* if */
     } else {
@@ -2439,6 +2493,7 @@ static boolType isShortFileName (os_striType fileName)
         shortFileName = FALSE;
       } /* if */
     } /* if */
+    logFunction(printf("isShortFileName --> %d\n", shortFileName););
     return shortFileName;
   } /* isShortFileName */
 

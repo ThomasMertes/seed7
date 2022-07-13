@@ -124,6 +124,9 @@
 #ifndef CC_FLAGS
 #define CC_FLAGS ""
 #endif
+#ifndef C_COMPILER_VERSION
+#define C_COMPILER_VERSION ""
+#endif
 #ifndef LINKER_OPT_DEBUG_INFO
 #define LINKER_OPT_DEBUG_INFO ""
 #endif

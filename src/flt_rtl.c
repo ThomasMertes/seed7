@@ -1114,7 +1114,7 @@ floatType fltLog1p (floatType number)
     } /* if */
 #else
     logarithm = log1pMacro(number);
-#endif;
+#endif
     logFunction(printf("fltLog1p(" FMT_E ") --> " FMT_E "\n",
                 number, logarithm););
     return logarithm;
