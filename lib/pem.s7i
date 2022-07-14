@@ -146,7 +146,6 @@ const func pemObject: readPemObject (inout file: pemFile) is func
         base64 &:= line;
         line := getln(pemFile);
       end while;
-      writeln(base64);
       if line = PEM_FOOTER_START & pemType & PEM_HEADER_END then
         pemObj.pemType := pemType;
         pemObj.content := fromBase64(base64);
