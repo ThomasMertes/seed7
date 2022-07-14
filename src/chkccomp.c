@@ -1641,14 +1641,18 @@ static void checkSystemResult (FILE *versionFile)
     char fileName[NAME_SIZE];
 
   /* checkSystemResult */
-    if (assertCompAndLnk("int main (int argc, char *argv[])\n"
-                         "{ return 0; }\n")) {
+    /* Some anti virus software considers an empty program dangerous.  */
+    /* To avoid these false positives the test below writes something. */
+    if (assertCompAndLnk("#include <stdio.h>\n"
+                         "int main (int argc, char *argv[])\n"
+                         "{ printf(\"Test program returning 0.\\n\");\n"
+                         "return 0; }\n")) {
       sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
       if (rename(fileName, "ctest_b" LINKED_PROGRAM_EXTENSION) == 0) {
         sprintf(buffer, "#include <stdio.h>\n#include <stdlib.h>\n"
                         "int main(int argc, char *argv[])\n"
                         "{char buffer[5]; int retVal; retVal=system(\""
-                        ".%s%cctest_b%s"
+                        ".%s%cctest_b%s>ctest_b.out"
                         "\");\n"
                         "printf(\"%%d\\n\", retVal); return 0;}\n",
                         PATH_DELIMITER == '\\' ? "\\" : "", PATH_DELIMITER,
@@ -1659,6 +1663,7 @@ static void checkSystemResult (FILE *versionFile)
           if (testResult != 0) {
             fprintf(logFile, "\n *** System result for return 0 is %d\n", testResult);
           } /* if */
+          doRemove("ctest_b.out");
         } /* if */
         doRemove("ctest_b" LINKED_PROGRAM_EXTENSION);
       } else {
