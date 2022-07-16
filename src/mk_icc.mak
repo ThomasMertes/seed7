@@ -137,16 +137,16 @@ OBJCOPY_PARAMS = \
        -L SQLSetEnvAttr
 
 sql_db2.o: sql_db2.c
-	$(CC) $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $(DB2_LIBS) -c -r -o $@ $<
-	objcopy $(OBJCOPY_PARAMS) $@
+	$(CC) $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $(DB2_LIBS) -c $(LINKER_OPT_PARTIAL_LINKING) -o $@ $<
+	$(OBJCOPY) $(OBJCOPY_PARAMS) $@
 
 sql_ifx.o: sql_ifx.c
-	$(CC) $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS) $(INFORMIX_LIBS) -c -r -o $@ $<
-	objcopy $(OBJCOPY_PARAMS) $@
+	$(CC) $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS) $(INFORMIX_LIBS) -c $(LINKER_OPT_PARTIAL_LINKING) -o $@ $<
+	$(OBJCOPY) $(OBJCOPY_PARAMS) $@
 
 sql_srv.o: sql_srv.c
-	$(CC) $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $(SQL_SERVER_LIBS) -c -r -o $@ $<
-	objcopy $(OBJCOPY_PARAMS) $@
+	$(CC) $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $(SQL_SERVER_LIBS) -c $(LINKER_OPT_PARTIAL_LINKING) -o $@ $<
+	$(OBJCOPY) $(OBJCOPY_PARAMS) $@
 
 all: depend
 	$(MAKE) -f mk_icc.mak s7 s7c
@@ -219,7 +219,7 @@ strip:
 chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" > chkccomp.h
 	echo "#define LINKER_OPT_DYN_LINK_LIBS \"-ldl\"" >> chkccomp.h
-	echo "#define SUPPORTS_PARTIAL_LINKING" >> chkccomp.h
+	echo "#define LINKER_OPT_PARTIAL_LINKING \"-r\"" >> chkccomp.h
 	echo "#define USE_GMP 0" >> chkccomp.h
 
 base.h:

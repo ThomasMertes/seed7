@@ -160,10 +160,11 @@
  *      Contains the linker option to add the dynamic linking library.
  *      It might be added to the SYSTEM_DRAW_LIBS, SYSTEM_CONSOLE_LIBS or
  *      SYSTEM_DATABASE_LIBS settings.
- *  SUPPORTS_PARTIAL_LINKING: (optional)
- *      Defined if partial/incremental linking is prossible.
- *      In this case source code can be compiled with the options -r -c.
- *      The option -r produces a relocatable object as output. This is
+ *  LINKER_OPT_PARTIAL_LINKING: (optional)
+ *      Defined if partial/incremental linking is prossible with this option.
+ *      In this case source code can be compiled with the options -c and
+ *      LINKER_OPT_PARTIAL_LINKING. Usually LINKER_OPT_PARTIAL_LINKING is "-r".
+ *      This option produces a relocatable object as output. This is
  *      also known as partial linking. The tool objcopy is used also.
  *      Objcopy is used with the option -L symbolname which converts
  *      a global or weak symbol called symbolname into a local symbol.
@@ -340,6 +341,8 @@ static const char *uint128TypeStri = NULL;
 
 static const char *makeDirDefinition = NULL;
 static const char *removeDirDefinition = NULL;
+
+static int supportsPartialLinking = 0;
 
 
 
@@ -1101,12 +1104,14 @@ static int runTest (int checkNumericValue)
     fprintf(logFile, "+");
     fflush(logFile);
 #ifdef INTERPRETER_FOR_LINKED_PROGRAM
-    sprintf(command, "%s .%cctest%d%s>ctest%d.out",
+    sprintf(command, "%s .%cctest%d%s%sctest%d.out %s%s",
             INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
-            LINKED_PROGRAM_EXTENSION, testNumber);
+            LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1, testNumber,
+            REDIRECT_FILEDES_2, nullDevice);
 #else
-    sprintf(command, ".%cctest%d%s>ctest%d.out", PATH_DELIMITER,
-            testNumber, LINKED_PROGRAM_EXTENSION, testNumber);
+    sprintf(command, ".%cctest%d%s%sctest%d.out %s%s", PATH_DELIMITER,
+            testNumber, LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1,
+            testNumber, REDIRECT_FILEDES_2, nullDevice);
 #endif
     sprintf(fileName, "ctest%d.out", testNumber);
     startTime = time(NULL);
@@ -5964,6 +5969,95 @@ static void determineOptionForLinkTimeOptimization (FILE *versionFile)
 
 
 
+#ifdef LINKER_OPT_PARTIAL_LINKING
+static int checkPartialLinking (const char *ccOptPartialLinking)
+
+  {
+    char fileName[NAME_SIZE];
+    char linkOptions[COMMAND_SIZE];
+    int okay = 1;
+    int supportsPartialLinking = 0;
+
+  /* checkPartialLinking */
+    fprintf(logFile, "Check for partial linking: ");
+    okay = compileWithOptionsOk("int f_1(void) { return 1; }\n", "");
+    sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+    okay = okay && rename(fileName, "ctest_f1" OBJECT_FILE_EXTENSION) == 0;
+    okay = okay && compileWithOptionsOk("int f_1(void) { return 2; }\n", "");
+    sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+    okay = okay && rename(fileName, "ctest_f2" OBJECT_FILE_EXTENSION) == 0;
+    okay = okay && compileWithOptionsOk("int f_1(void);\n"
+                                        "int f_3(void) { return f_1(); }\n", "");
+    sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+    okay = okay && rename(fileName, "ctest_f3" OBJECT_FILE_EXTENSION) == 0;
+    sprintf(linkOptions, "%s ctest_f1" OBJECT_FILE_EXTENSION, ccOptPartialLinking);
+    okay = okay && doLink("ctest_f3" OBJECT_FILE_EXTENSION, linkOptions);
+    sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
+    okay = okay && rename(fileName, "ctest_f5" OBJECT_FILE_EXTENSION) == 0;
+    okay = okay && system("objcopy -L f_1 ctest_f5" OBJECT_FILE_EXTENSION) != -1;
+    okay = okay && compileWithOptionsOk("int f_1(void);\n"
+                                        "int f_4(void) { return f_1(); }\n", "");
+    sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+    okay = okay && rename(fileName, "ctest_f4" OBJECT_FILE_EXTENSION) == 0;
+    sprintf(linkOptions, "%s ctest_f2" OBJECT_FILE_EXTENSION, ccOptPartialLinking);
+    okay = okay && doLink("ctest_f4" OBJECT_FILE_EXTENSION, linkOptions);
+    sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
+    okay = okay && rename(fileName, "ctest_f6" OBJECT_FILE_EXTENSION) == 0;
+    okay = okay && system("objcopy -L f_1 ctest_f6" OBJECT_FILE_EXTENSION) != -1;
+    okay = okay && compileWithOptionsOk("#include \"stdio.h\"\n"
+                                        "int f_3(void);\n"
+                                        "int f_4(void);\n"
+                                        "int main(void) {\n"
+                                        "printf(\"%d\\n\", f_3() == 1 && f_4() == 2);\n"
+                                        "return 0; }\n", "");
+    sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+    okay = okay && rename(fileName, "ctest_f7" OBJECT_FILE_EXTENSION) == 0;
+    okay = okay && doLink("ctest_f7" OBJECT_FILE_EXTENSION,
+                          "ctest_f5" OBJECT_FILE_EXTENSION " ctest_f6" OBJECT_FILE_EXTENSION);
+    sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
+    if (okay && fileIsRegular(fileName)) {
+      supportsPartialLinking = doTest() == 1;
+    } /* if */
+    doRemove("ctest_f1" OBJECT_FILE_EXTENSION);
+    doRemove("ctest_f2" OBJECT_FILE_EXTENSION);
+    doRemove("ctest_f3" OBJECT_FILE_EXTENSION);
+    doRemove("ctest_f4" OBJECT_FILE_EXTENSION);
+    doRemove("ctest_f5" OBJECT_FILE_EXTENSION);
+    doRemove("ctest_f6" OBJECT_FILE_EXTENSION);
+    doRemove("ctest_f7" OBJECT_FILE_EXTENSION);
+    return supportsPartialLinking;
+  } /* checkPartialLinking */
+#endif
+
+
+
+static void determinePartialLinking (FILE *versionFile)
+
+  {
+    int okay = 1;
+    char buffer[BUFFER_SIZE];
+
+  /* determinePartialLinking */
+#ifdef LINKER_OPT_PARTIAL_LINKING
+    supportsPartialLinking = checkPartialLinking(LINKER_OPT_PARTIAL_LINKING);
+    if (supportsPartialLinking) {
+      fprintf(logFile, " Supported.\n");
+      fprintf(versionFile, "#define LINKER_OPT_PARTIAL_LINKING \"%s\"\n", LINKER_OPT_PARTIAL_LINKING);
+      sprintf(buffer, "LINKER_OPT_PARTIAL_LINKING = %s\n", LINKER_OPT_PARTIAL_LINKING);
+      appendToFile("macros", buffer);
+      appendToFile("macros", "OBJCOPY = objcopy\n");
+    } else {
+      fprintf(logFile, " Not supported.\n");
+    } /* if */
+#endif
+    if (!supportsPartialLinking) {
+      appendToFile("macros", "LINKER_OPT_PARTIAL_LINKING =\n");
+      appendToFile("macros", "OBJCOPY = @echo \"No partial linking with objcopy\"\n");
+    } /* if */
+  } /* determinePartialLinking */
+
+
+
 static void escapeString (FILE *versionFile, const char *text)
 
   { /* escapeString */
@@ -8080,41 +8174,43 @@ static void determineDb2Defines (FILE *versionFile,
         fprintf(versionFile, "#define DB2_SIZEOF_SQLWCHAR %d\n", doTest());
       } /* if */
     } /* if */
-#if !defined DB2_USE_DLL && defined SUPPORTS_PARTIAL_LINKING
-    /* Handle static libraries: */
-    sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
-                         "#include \"%s\"\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "SQLHENV sql_env;\n"
-                         "SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_env);\n"
-                         "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
-                         "printf(\"1\\n\");\n"
-                         "return 0;\n}\n",
-                         db2Include);
-    /* fprintf(logFile, "%s\n", testProgram);
-       fprintf(logFile, "db2Include: \"%s\"\n", db2Include); */
-    db2_libs[0] = '\0';
-    if (dbHomeExists) {
-      if (findStaticLib("DB2", testProgram, includeOption, "", dbHome,
-                        libDirList, sizeof(libDirList) / sizeof(char *),
-                        libNameList, sizeof(libNameList) / sizeof(char *),
-                        db2_libs)) {
-        sprintf(makeDefinition, "DB2_LIBS = %s", db2_libs);
-        replaceNLBySpace(makeDefinition);
-        strcat(makeDefinition, "\n");
-        appendToFile("macros", makeDefinition);
-        searchForLib = 0;
+#ifndef DB2_USE_DLL
+    if (supportsPartialLinking) {
+      /* Handle static libraries: */
+      sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
+                           "#include \"%s\"\n"
+                           "int main(int argc,char *argv[]){\n"
+                           "SQLHENV sql_env;\n"
+                           "SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_env);\n"
+                           "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
+                           "printf(\"1\\n\");\n"
+                           "return 0;\n}\n",
+                           db2Include);
+      /* fprintf(logFile, "%s\n", testProgram);
+         fprintf(logFile, "db2Include: \"%s\"\n", db2Include); */
+      db2_libs[0] = '\0';
+      if (dbHomeExists) {
+        if (findStaticLib("DB2", testProgram, includeOption, "", dbHome,
+                          libDirList, sizeof(libDirList) / sizeof(char *),
+                          libNameList, sizeof(libNameList) / sizeof(char *),
+                          db2_libs)) {
+          sprintf(makeDefinition, "DB2_LIBS = %s", db2_libs);
+          replaceNLBySpace(makeDefinition);
+          strcat(makeDefinition, "\n");
+          appendToFile("macros", makeDefinition);
+          searchForLib = 0;
+        } /* if */
       } /* if */
-    } /* if */
-    if (searchForLib) {
-      if (findLinkerOption("DB2", testProgram, includeOption, DB2_LIBRARY_PATH,
-                           libNameList, sizeof(libNameList) / sizeof(char *),
-                           db2_libs)) {
-        sprintf(makeDefinition, "DB2_LIBS = %s", db2_libs);
-        replaceNLBySpace(makeDefinition);
-        strcat(makeDefinition, "\n");
-        appendToFile("macros", makeDefinition);
-        searchForLib = 0;
+      if (searchForLib) {
+        if (findLinkerOption("DB2", testProgram, includeOption, DB2_LIBRARY_PATH,
+                             libNameList, sizeof(libNameList) / sizeof(char *),
+                             db2_libs)) {
+          sprintf(makeDefinition, "DB2_LIBS = %s", db2_libs);
+          replaceNLBySpace(makeDefinition);
+          strcat(makeDefinition, "\n");
+          appendToFile("macros", makeDefinition);
+          searchForLib = 0;
+        } /* if */
       } /* if */
     } /* if */
 #endif
@@ -8296,45 +8392,47 @@ static void determineInformixDefines (FILE *versionFile,
         fprintf(versionFile, "#define INFORMIX_SIZEOF_SQLWCHAR %d\n", doTest());
       } /* if */
     } /* if */
-#if !defined INFORMIX_USE_DLL && defined SUPPORTS_PARTIAL_LINKING
-    /* Handle static libraries: */
-    sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
-                         "%s#include \"%s\"\n%s"
-                         "int main(int argc,char *argv[]){\n"
-                         "SQLHENV sql_env;\n"
-                         "SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_env);\n"
-                         "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
-                         "printf(\"1\\n\");\n"
-                         "return 0;\n}\n",
-                         includeWindows ? "#include \"windows.h\"\n" : "",
-                         informixInclude,
-                         includeSqlext ? "#include \"sqlext.h\"\n" : "");
-    /* fprintf(logFile, "%s\n", testProgram);
-       fprintf(logFile, "informixInclude: \"%s\"\n", informixInclude); */
-    informix_libs[0] = '\0';
-    if (dbHomeExists) {
-      if (findStaticLib("Informix", testProgram, includeOption, "-lcrypt -lm", dbHome,
-                        libDirList, sizeof(libDirList) / sizeof(char *),
-                        libNameList, sizeof(libNameList) / sizeof(char *),
-                        informix_libs)) {
-        /* appendOption(informix_libs, "-lcrypt");
-           appendOption(informix_libs, "-lm"); */
-        sprintf(makeDefinition, "INFORMIX_LIBS = %s", informix_libs);
-        replaceNLBySpace(makeDefinition);
-        strcat(makeDefinition, "\n");
-        appendToFile("macros", makeDefinition);
-        searchForLib = 0;
+#ifndef INFORMIX_USE_DLL
+    if (supportsPartialLinking) {
+      /* Handle static libraries: */
+      sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
+                           "%s#include \"%s\"\n%s"
+                           "int main(int argc,char *argv[]){\n"
+                           "SQLHENV sql_env;\n"
+                           "SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_env);\n"
+                           "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
+                           "printf(\"1\\n\");\n"
+                           "return 0;\n}\n",
+                           includeWindows ? "#include \"windows.h\"\n" : "",
+                           informixInclude,
+                           includeSqlext ? "#include \"sqlext.h\"\n" : "");
+      /* fprintf(logFile, "%s\n", testProgram);
+         fprintf(logFile, "informixInclude: \"%s\"\n", informixInclude); */
+      informix_libs[0] = '\0';
+      if (dbHomeExists) {
+        if (findStaticLib("Informix", testProgram, includeOption, "-lcrypt -lm", dbHome,
+                          libDirList, sizeof(libDirList) / sizeof(char *),
+                          libNameList, sizeof(libNameList) / sizeof(char *),
+                          informix_libs)) {
+          /* appendOption(informix_libs, "-lcrypt");
+             appendOption(informix_libs, "-lm"); */
+          sprintf(makeDefinition, "INFORMIX_LIBS = %s", informix_libs);
+          replaceNLBySpace(makeDefinition);
+          strcat(makeDefinition, "\n");
+          appendToFile("macros", makeDefinition);
+          searchForLib = 0;
+        } /* if */
       } /* if */
-    } /* if */
-    if (searchForLib) {
-      if (findLinkerOption("Informix", testProgram, includeOption, INFORMIX_LIBRARY_PATH,
-                           libNameList, sizeof(libNameList) / sizeof(char *),
-                           informix_libs)) {
-        sprintf(makeDefinition, "INFORMIX_LIBS = %s", informix_libs);
-        replaceNLBySpace(makeDefinition);
-        strcat(makeDefinition, "\n");
-        appendToFile("macros", makeDefinition);
-        searchForLib = 0;
+      if (searchForLib) {
+        if (findLinkerOption("Informix", testProgram, includeOption, INFORMIX_LIBRARY_PATH,
+                             libNameList, sizeof(libNameList) / sizeof(char *),
+                             informix_libs)) {
+          sprintf(makeDefinition, "INFORMIX_LIBS = %s", informix_libs);
+          replaceNLBySpace(makeDefinition);
+          strcat(makeDefinition, "\n");
+          appendToFile("macros", makeDefinition);
+          searchForLib = 0;
+        } /* if */
       } /* if */
     } /* if */
 #endif
@@ -8469,29 +8567,31 @@ static void determineSqlServerDefines (FILE *versionFile,
         fprintf(versionFile, "#define SQL_SERVER_SIZEOF_SQLWCHAR %d\n", doTest());
       } /* if */
     } /* if */
-#if !defined SQL_SERVER_USE_DLL && defined SUPPORTS_PARTIAL_LINKING
-    /* Handle static libraries: */
-    sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
-                         "%s#include \"%s\"\n%s"
-                         "int main(int argc,char *argv[]){\n"
-                         "SQLHENV sql_env;\n"
-                         "SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_env);\n"
-                         "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
-                         "printf(\"1\\n\");\n"
-                         "return 0;\n}\n",
-                         includeWindows ? "#include \"windows.h\"\n" : "", sqlServerInclude,
-                         includeSqlext ? "#include \"sqlext.h\"\n" : "");
-    /* fprintf(logFile, "%s\n", testProgram);
-       fprintf(logFile, "sqlServerInclude: \"%s\"\n", sqlServerInclude); */
-    sql_server_libs[0] = '\0';
-    if (findLinkerOption("SQL Server", testProgram, includeOption, SQL_SERVER_LIBRARY_PATH,
-                         libNameList, sizeof(libNameList) / sizeof(char *),
-                         sql_server_libs)) {
-      sprintf(makeDefinition, "SQL_SERVER_LIBS = %s", sql_server_libs);
-      replaceNLBySpace(makeDefinition);
-      strcat(makeDefinition, "\n");
-      appendToFile("macros", makeDefinition);
-      searchForLib = 0;
+#ifndef SQL_SERVER_USE_DLL
+    if (supportsPartialLinking) {
+      /* Handle static libraries: */
+      sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
+                           "%s#include \"%s\"\n%s"
+                           "int main(int argc,char *argv[]){\n"
+                           "SQLHENV sql_env;\n"
+                           "SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &sql_env);\n"
+                           "SQLFreeHandle(SQL_HANDLE_ENV, sql_env);\n"
+                           "printf(\"1\\n\");\n"
+                           "return 0;\n}\n",
+                           includeWindows ? "#include \"windows.h\"\n" : "", sqlServerInclude,
+                           includeSqlext ? "#include \"sqlext.h\"\n" : "");
+      /* fprintf(logFile, "%s\n", testProgram);
+         fprintf(logFile, "sqlServerInclude: \"%s\"\n", sqlServerInclude); */
+      sql_server_libs[0] = '\0';
+      if (findLinkerOption("SQL Server", testProgram, includeOption, SQL_SERVER_LIBRARY_PATH,
+                           libNameList, sizeof(libNameList) / sizeof(char *),
+                           sql_server_libs)) {
+        sprintf(makeDefinition, "SQL_SERVER_LIBS = %s", sql_server_libs);
+        replaceNLBySpace(makeDefinition);
+        strcat(makeDefinition, "\n");
+        appendToFile("macros", makeDefinition);
+        searchForLib = 0;
+      } /* if */
     } /* if */
 #endif
     if (searchForLib) {
@@ -8911,6 +9011,7 @@ int main (int argc, char **argv)
     } /* if */
     fprintf(logFile, " done\n");
     determineOptionForLinkTimeOptimization(versionFile);
+    determinePartialLinking(versionFile);
     numericSizes(versionFile);
     fprintf(logFile, "General settings: ");
     determineNullDevice(versionFile);

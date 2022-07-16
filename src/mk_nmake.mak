@@ -133,16 +133,16 @@ OBJCOPY_PARAMS = \
        -L SQLSetEnvAttr
 
 sql_db2.o: sql_db2.c
-	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $(DB2_LIBS) -r sql_db2.c -o sql_db2.o
-	objcopy $(OBJCOPY_PARAMS) sql_db2.o
+	$(CC) -c $(CPPFLAGS) $(DB2_INCLUDE_OPTION) $(CFLAGS) $(DB2_LIBS) $(LINKER_OPT_PARTIAL_LINKING) sql_db2.c -o sql_db2.o
+	$(OBJCOPY) $(OBJCOPY_PARAMS) sql_db2.o
 
 sql_ifx.o: sql_ifx.c
-	$(CC) -c $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS) -r sql_ifx.c -o sql_ifx.o
-	objcopy $(OBJCOPY_PARAMS) sql_ifx.o
+	$(CC) -c $(CPPFLAGS) $(INFORMIX_INCLUDE_OPTION) $(CFLAGS) $(INFORMIX_LIBS) $(LINKER_OPT_PARTIAL_LINKING) sql_ifx.c -o sql_ifx.o
+	$(OBJCOPY) $(OBJCOPY_PARAMS) sql_ifx.o
 
 sql_srv.o: sql_srv.c
-	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) -r sql_srv.c -o sql_srv.o
-	objcopy $(OBJCOPY_PARAMS) sql_srv.o
+	$(CC) -c $(CPPFLAGS) $(SQL_SERVER_INCLUDE_OPTION) $(CFLAGS) $(SQL_SERVER_LIBS) $(LINKER_OPT_PARTIAL_LINKING) sql_srv.c -o sql_srv.o
+	$(OBJCOPY) $(OBJCOPY_PARAMS) sql_srv.o
 
 all: depend
 	$(MAKE) -f mk_nmake.mak s7 s7c
@@ -220,7 +220,7 @@ chkccomp.h:
 	echo #define LINKER_OPT_STATIC_LINKING "-static" >> chkccomp.h
 	echo #define CC_OPT_LINK_TIME_OPTIMIZATION "-flto" >> chkccomp.h
 	echo #define LINKER_OPT_NO_LTO "-fno-lto" >> chkccomp.h
-	echo #define SUPPORTS_PARTIAL_LINKING >> chkccomp.h
+	echo #define LINKER_OPT_PARTIAL_LINKING "-r" >> chkccomp.h
 	echo #define USE_GMP 0 >> chkccomp.h
 	echo #define INT_DIV_OVERFLOW_INFINITE_LOOP 1 >> chkccomp.h
 	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
