@@ -352,7 +352,7 @@ static void prepareCompileCommand (void)
     int mapAbsolutePathToDriveLetters = 0;
     int pos;
     int quote_command = 0;
-    int len;
+    size_t len;
 
   /* prepareCompileCommand */
 #ifdef TEST_C_COMPILER
@@ -622,25 +622,25 @@ static void determineCompilerVersion (FILE *versionFile)
 
 
 
-static void cleanUpCompilation (int testNumber)
+static void cleanUpCompilation (int testNumberToClean)
 
   {
     char fileName[NAME_SIZE];
 
   /* cleanUpCompilation */
-    sprintf(fileName, "ctest%d.c", testNumber);
+    sprintf(fileName, "ctest%d.c", testNumberToClean);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d.cerrs", testNumber);
+    sprintf(fileName, "ctest%d.cerrs", testNumberToClean);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d.lerrs", testNumber);
+    sprintf(fileName, "ctest%d.lerrs", testNumberToClean);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+    sprintf(fileName, "ctest%d%s", testNumberToClean, OBJECT_FILE_EXTENSION);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
+    sprintf(fileName, "ctest%d%s", testNumberToClean, LINKED_PROGRAM_EXTENSION);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d.out", testNumber);
+    sprintf(fileName, "ctest%d.out", testNumberToClean);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d.err", testNumber);
+    sprintf(fileName, "ctest%d.err", testNumberToClean);
     doRemove(fileName);
   } /* cleanUpCompilation */
 
@@ -671,7 +671,7 @@ static int fileIsPresentPossiblyAfterDelay (const char *fileName)
 
 
 
-static int doCompile (const char *compilerOptions, int testNumber)
+static int doCompile (const char *compilerOptions, int testNumberToCompile)
 
   {
     char command[COMMAND_SIZE];
@@ -684,16 +684,16 @@ static int doCompile (const char *compilerOptions, int testNumber)
     fprintf(logFile, "*");
     fflush(logFile);
     sprintf(command, "%s %s %s -c ctest%d.c",
-            c_compiler, compilerOptions, CC_FLAGS, testNumber);
+            c_compiler, compilerOptions, CC_FLAGS, testNumberToCompile);
     replaceNLBySpace(command);
 #ifdef CC_ERROR_FILEDES
     /* A missing CC_ERROR_FILEDES or an CC_ERROR_FILEDES of zero means: Do not redirect. */
     if (CC_ERROR_FILEDES == 1) {
       sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
-              REDIRECT_FILEDES_1, testNumber, REDIRECT_FILEDES_2, nullDevice);
+              REDIRECT_FILEDES_1, testNumberToCompile, REDIRECT_FILEDES_2, nullDevice);
     } else if (CC_ERROR_FILEDES == 2) {
       sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
-              REDIRECT_FILEDES_2, testNumber, REDIRECT_FILEDES_1, nullDevice);
+              REDIRECT_FILEDES_2, testNumberToCompile, REDIRECT_FILEDES_1, nullDevice);
     } /* if */
 #endif
 #ifdef QUOTE_WHOLE_SHELL_COMMAND
@@ -707,7 +707,7 @@ static int doCompile (const char *compilerOptions, int testNumber)
 #endif
     /* fprintf(logFile, "command: %s\n", command); */
     returncode = system(command);
-    sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
+    sprintf(fileName, "ctest%d%s", testNumberToCompile, OBJECT_FILE_EXTENSION);
     if (fileIsPresentPossiblyAfterDelay(fileName)) {
       if (returncode == 0) {
         okay = 1;
@@ -833,7 +833,8 @@ static int doLink (const char *objectOrLibraryName, const char *linkerOptions)
 
 
 
-static int doCompileAndLink (const char *compilerOptions, const char *linkerOptions, int testNumber)
+static int doCompileAndLink (const char *compilerOptions, const char *linkerOptions,
+    int testNumberToCompileAndLink)
 
   {
     char command[COMMAND_SIZE];
@@ -847,24 +848,24 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
     fflush(logFile);
 #ifdef LINKER
     sprintf(command, "%s %s %s -c ctest%d.c",
-            c_compiler, compilerOptions, CC_FLAGS, testNumber);
+            c_compiler, compilerOptions, CC_FLAGS, testNumberToCompileAndLink);
 #else
     sprintf(command, "%s %s %s ctest%d.c %s",
-            c_compiler, compilerOptions, CC_FLAGS, testNumber, linkerOptions);
+            c_compiler, compilerOptions, CC_FLAGS, testNumberToCompileAndLink, linkerOptions);
 #endif
     replaceNLBySpace(command);
 #if !defined LINKER && defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
     sprintf(&command[strlen(command)], " %sctest%d%s",
-            LINKER_OPT_OUTPUT_FILE, testNumber, LINKED_PROGRAM_EXTENSION);
+            LINKER_OPT_OUTPUT_FILE, testNumberToCompileAndLink, LINKED_PROGRAM_EXTENSION);
 #endif
 #ifdef CC_ERROR_FILEDES
     /* A missing CC_ERROR_FILEDES or an CC_ERROR_FILEDES of zero means: Do not redirect. */
     if (CC_ERROR_FILEDES == 1) {
       sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
-              REDIRECT_FILEDES_1, testNumber, REDIRECT_FILEDES_2, nullDevice);
+              REDIRECT_FILEDES_1, testNumberToCompileAndLink, REDIRECT_FILEDES_2, nullDevice);
     } else if (CC_ERROR_FILEDES == 2) {
       sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
-              REDIRECT_FILEDES_2, testNumber, REDIRECT_FILEDES_1, nullDevice);
+              REDIRECT_FILEDES_2, testNumberToCompileAndLink, REDIRECT_FILEDES_1, nullDevice);
     } /* if */
 #endif
 #ifdef QUOTE_WHOLE_SHELL_COMMAND
@@ -882,13 +883,13 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
     if (returncode == 0) {
       /* fprintf(logFile, "returncode: %d\n", returncode); */
       sprintf(command, "%s ctest%d%s %s %sctest%d%s",
-              LINKER, testNumber, OBJECT_FILE_EXTENSION, linkerOptions,
-              LINKER_OPT_OUTPUT_FILE, testNumber, LINKED_PROGRAM_EXTENSION);
+              LINKER, testNumberToCompileAndLink, OBJECT_FILE_EXTENSION, linkerOptions,
+              LINKER_OPT_OUTPUT_FILE, testNumberToCompileAndLink, LINKED_PROGRAM_EXTENSION);
       /* fprintf(logFile, "command: %s\n", command); */
       returncode = system(command);
     } /* if */
 #endif
-    sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
+    sprintf(fileName, "ctest%d%s", testNumberToCompileAndLink, LINKED_PROGRAM_EXTENSION);
     if (fileIsPresentPossiblyAfterDelay(fileName)) {
       if (returncode == 0) {
         okay = 1;
@@ -1096,11 +1097,10 @@ static int runTest (int checkNumericValue)
   {
     char command[COMMAND_SIZE];
     char fileName[NAME_SIZE];
-    int ch;
     int returncode;
     FILE *outFile;
     time_t startTime;
-    int readFailed;
+    int readFailed = 0;
     int errorOccurred = 0;
     int repeatCount = 0;
     int result = -1;
@@ -1360,25 +1360,25 @@ static int checkIfNullDevice (const char *nullDeviceName, const char *eofName)
 static void determineNullDevice (FILE *versionFile)
 
   {
-    const char *nullDevice = NULL;
+    const char *nullDeviceName = NULL;
 
   /* determineNullDevice */
     if (checkIfNullDevice("/dev/null", "EOF")) {
-      nullDevice = "/dev/null";
+      nullDeviceName = "/dev/null";
     } else if (checkIfNullDevice("NUL:", "EOF")) {
-      nullDevice = "NUL:";
+      nullDeviceName = "NUL:";
     } else if (checkIfNullDevice("NUL", "EOF")) {
-      nullDevice = "NUL";
+      nullDeviceName = "NUL";
     } else if (checkIfNullDevice("NUL:", "0")) {
-      nullDevice = "NUL:";
+      nullDeviceName = "NUL:";
     } else if (checkIfNullDevice("NUL", "0")) {
-      nullDevice = "NUL";
+      nullDeviceName = "NUL";
     } /* if */
-    if (nullDevice == NULL) {
+    if (nullDeviceName == NULL) {
       fputs("\n **** Unable to determine a null device.\n", logFile);
-      nullDevice = "null_device";
+      nullDeviceName = "null_device";
     } /* if */
-    fprintf(versionFile, "#define NULL_DEVICE \"%s\"\n", nullDevice);
+    fprintf(versionFile, "#define NULL_DEVICE \"%s\"\n", nullDeviceName);
   } /* determineNullDevice */
 
 
@@ -3593,10 +3593,10 @@ static void checkForLimitedStringLiteralLength (FILE *versionFile)
                              "}\n";
     /* The string literal length is repeatCount * charsInLine. */
     /* The definitions below correspond to a string literal length of 100000. */
-    const int repeatCount = 1000;
-    const int charsInLine = 100;
-    int lineLength;
-    int totalLength;
+    const size_t repeatCount = 1000;
+    const size_t charsInLine = 100;
+    size_t lineLength;
+    size_t totalLength;
     int count;
     char *buffer;
     char *bufPos;
@@ -3623,7 +3623,7 @@ static void checkForLimitedStringLiteralLength (FILE *versionFile)
     /* repeatCount * charsInLine characters is accepted and works. */
     if (compileAndLinkOk(buffer)) {
       testResult = doTest();
-      if (testResult == repeatCount * charsInLine) {
+      if (testResult == (int) (repeatCount * charsInLine)) {
         /* At run-time the string literal has the correct value. */
         fputs("#define LIMITED_CSTRI_LITERAL_LEN 0\n", versionFile);
       } else if (testResult != 0 ) {
@@ -3669,10 +3669,10 @@ static void checkForLimitedArrayLiteralLength (FILE *versionFile)
                              "}\n";
     /* The array literal length is repeatCount * elementsInLine. */
     /* The definitions below correspond to a array literal length of 100000. */
-    const int repeatCount = 5000;
-    const int elementsInLine = 20;
-    int lineLength;
-    int totalLength;
+    const size_t repeatCount = 5000;
+    const size_t elementsInLine = 20;
+    size_t lineLength;
+    size_t totalLength;
     int count;
     char *buffer;
     char *bufPos;
@@ -3696,7 +3696,7 @@ static void checkForLimitedArrayLiteralLength (FILE *versionFile)
     /* repeatCount * elementsInLine elements is accepted and works. */
     if (compileAndLinkOk(buffer)) {
       testResult = doTest();
-      if (testResult == repeatCount * elementsInLine) {
+      if (testResult == (int) (repeatCount * elementsInLine)) {
         /* At run-time the array literal has the correct value. */
         fputs("#define LIMITED_ARRAY_LITERAL_LEN 0\n", versionFile);
       } else if (testResult != 0 ) {
@@ -5982,7 +5982,7 @@ static int checkPartialLinking (const char *ccOptPartialLinking)
     char fileName[NAME_SIZE];
     char linkOptions[COMMAND_SIZE];
     int okay = 1;
-    int supportsPartialLinking = 0;
+    int partialLinkingOkay = 0;
 
   /* checkPartialLinking */
     okay = compileWithOptionsOk("int f_1(void) { return 1; }\n", "");
@@ -6021,7 +6021,7 @@ static int checkPartialLinking (const char *ccOptPartialLinking)
                           "ctest_f5" OBJECT_FILE_EXTENSION " ctest_f6" OBJECT_FILE_EXTENSION);
     sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
     if (okay && fileIsRegular(fileName)) {
-      supportsPartialLinking = doTest() == 1;
+      partialLinkingOkay = doTest() == 1;
     } /* if */
     doRemove("ctest_f1" OBJECT_FILE_EXTENSION);
     doRemove("ctest_f2" OBJECT_FILE_EXTENSION);
@@ -6030,7 +6030,7 @@ static int checkPartialLinking (const char *ccOptPartialLinking)
     doRemove("ctest_f5" OBJECT_FILE_EXTENSION);
     doRemove("ctest_f6" OBJECT_FILE_EXTENSION);
     doRemove("ctest_f7" OBJECT_FILE_EXTENSION);
-    return supportsPartialLinking;
+    return partialLinkingOkay;
   } /* checkPartialLinking */
 #endif
 
@@ -6440,7 +6440,6 @@ static void addDynamicLib (const char *scopeName,
 
   {
     unsigned int nameIndex;
-    char filePath[BUFFER_SIZE];
 
   /* addDynamicLib */
     for (nameIndex = 0;
@@ -7799,16 +7798,11 @@ static void determineOciDefines (FILE *versionFile,
     const char *inclDirList[] = {"/rdbms/public", "/oci/include", "/sdk/include"};
     const char *libDirList[] = {"/lib"};
     const char *dllDirList[] = {"/lib", "/bin", ""};
-    unsigned int dirIndex;
-    unsigned int nameIndex;
     int searchForLib = 1;
-    char dirPath[BUFFER_SIZE];
-    char filePath[BUFFER_SIZE];
     char includeOption[BUFFER_SIZE];
     const char *ociInclude = NULL;
     char testProgram[BUFFER_SIZE];
     int dbHomeExists = 0;
-    int found = 0;
 
   /* determineOciDefines */
 #ifdef OCI_INCLUDE_OPTIONS
@@ -8263,7 +8257,6 @@ static void determineInformixDefines (FILE *versionFile,
     const char *libDirList[] = {"/lib", "/lib/cli"};
     const char *dllDirList[] = {"/bin", "/lib/cli", "/lib/esql"};
     unsigned int dirIndex;
-    unsigned int nameIndex;
     int searchForLib = 1;
     const char *informixDir = NULL;
     const char *programFilesX86 = NULL;
