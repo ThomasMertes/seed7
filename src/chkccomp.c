@@ -640,6 +640,8 @@ static void cleanUpCompilation (int testNumber)
     doRemove(fileName);
     sprintf(fileName, "ctest%d.out", testNumber);
     doRemove(fileName);
+    sprintf(fileName, "ctest%d.err", testNumber);
+    doRemove(fileName);
   } /* cleanUpCompilation */
 
 
@@ -940,34 +942,37 @@ static int compileAndLinkWithOptionsOk (const char *content, const char *compile
 
 
 
-static void showErrors (void)
+static void showErrorsForTool (const char *tool, const char *extension)
 
   {
     char fileName[NAME_SIZE];
     FILE *errorFile;
     int ch;
 
-  /* showErrors */
-    sprintf(fileName, "ctest%d.cerrs", testNumber);
+  /* showErrorsForTool */
+    sprintf(fileName, "ctest%d%s", testNumber, extension);
     errorFile = fopen(fileName, "r");
     if (errorFile != NULL) {
-      fprintf(logFile, "\nCompiler errors:\n");
-      while ((ch = getc(errorFile)) != EOF) {
-        fputc(ch, logFile);
-      } /* while */
+      ch = getc(errorFile);
+      if (ch != EOF) {
+        fprintf(logFile, "\n%s errors:\n", tool);
+        do {
+          fputc(ch, logFile);
+          ch = getc(errorFile);
+        } while (ch != EOF);
+        fprintf(logFile, "\n");
+      } /* if */
       fclose(errorFile);
-      fprintf(logFile, "\n");
     } /* if */
-    sprintf(fileName, "ctest%d.lerrs", testNumber);
-    errorFile = fopen(fileName, "r");
-    if (errorFile != NULL) {
-      fprintf(logFile, "\nLinker errors:\n");
-      while ((ch = getc(errorFile)) != EOF) {
-        fputc(ch, logFile);
-      } /* while */
-      fclose(errorFile);
-      fprintf(logFile, "\n");
-    } /* if */
+  } /* showErrorsForTool */
+
+
+
+static void showErrors (void)
+
+  { /* showErrors */
+    showErrorsForTool("Compiler", ".cerrs");
+    showErrorsForTool("Linker", ".lerrs");
   } /* showErrors */
 
 
@@ -1104,14 +1109,14 @@ static int runTest (int checkNumericValue)
     fprintf(logFile, "+");
     fflush(logFile);
 #ifdef INTERPRETER_FOR_LINKED_PROGRAM
-    sprintf(command, "%s .%cctest%d%s%sctest%d.out %s%s",
+    sprintf(command, "%s .%cctest%d%s%sctest%d.out %sctest%d.err",
             INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
             LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1, testNumber,
-            REDIRECT_FILEDES_2, nullDevice);
+            REDIRECT_FILEDES_2, testNumber);
 #else
-    sprintf(command, ".%cctest%d%s%sctest%d.out %s%s", PATH_DELIMITER,
+    sprintf(command, ".%cctest%d%s%sctest%d.out %sctest%d.err", PATH_DELIMITER,
             testNumber, LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1,
-            testNumber, REDIRECT_FILEDES_2, nullDevice);
+            testNumber, REDIRECT_FILEDES_2, testNumber);
 #endif
     sprintf(fileName, "ctest%d.out", testNumber);
     startTime = time(NULL);
@@ -1145,6 +1150,7 @@ static int runTest (int checkNumericValue)
     if (checkNumericValue && repeatCount != 0) {
       if (readFailed) {
         fprintf(logFile, "\n *** No numeric result in \"%s\".\n", fileName);
+        showErrorsForTool("Run", ".err");
       } else {
         numberPresentAfterRestartOfTest++;
       } /* if */
@@ -5979,7 +5985,6 @@ static int checkPartialLinking (const char *ccOptPartialLinking)
     int supportsPartialLinking = 0;
 
   /* checkPartialLinking */
-    fprintf(logFile, "Check for partial linking: ");
     okay = compileWithOptionsOk("int f_1(void) { return 1; }\n", "");
     sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
     okay = okay && rename(fileName, "ctest_f1" OBJECT_FILE_EXTENSION) == 0;
@@ -6034,11 +6039,11 @@ static int checkPartialLinking (const char *ccOptPartialLinking)
 static void determinePartialLinking (FILE *versionFile)
 
   {
-    int okay = 1;
     char buffer[BUFFER_SIZE];
 
   /* determinePartialLinking */
 #ifdef LINKER_OPT_PARTIAL_LINKING
+    fprintf(logFile, "Check for partial linking: ");
     supportsPartialLinking = checkPartialLinking(LINKER_OPT_PARTIAL_LINKING);
     if (supportsPartialLinking) {
       fprintf(logFile, " Supported.\n");
