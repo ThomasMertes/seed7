@@ -1151,6 +1151,16 @@ void err_expr_obj (errorType err, const_objectType expr_object,
         } /* if */
         prot_nl();
         break;
+      case EXCEPTION_RAISED:
+        if (obj_found != NULL && HAS_ENTITY(obj_found)) {
+          prot_cstri("Exception \"");
+          prot_ustri(GET_ENTITY(obj_found)->ident->name);
+          prot_cstri("\" raised");
+        } else {
+          prot_cstri("Exception raised");
+        } /* if */
+        prot_nl();
+        break;
       default:
         undef_err();
         break;

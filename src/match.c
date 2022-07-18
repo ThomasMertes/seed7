@@ -221,7 +221,7 @@ void substitute_params (const_objectType expr_object)
               CATEGORY_OF_OBJ(current_element) == MATCHOBJECT ||
               CATEGORY_OF_OBJ(current_element) == LISTOBJECT) {
             created_object = copy_expression(current_element, &err_info);
-            if (err_info == CREATE_ERROR) {
+            if (err_info != OKAY_NO_ERROR) {
               printf("*** copy_expression failed ");
               printf("\n");
             } /* if */
@@ -231,7 +231,7 @@ void substitute_params (const_objectType expr_object)
             INIT_CATEGORY_OF_OBJ(created_object, DECLAREDOBJECT);
             created_object->value.objValue = NULL;
             do_create(created_object, current_element, &err_info);
-            if (err_info == CREATE_ERROR) {
+            if (err_info != OKAY_NO_ERROR) {
               printf("*** do_create failed ");
               printf("\n");
             } /* if */

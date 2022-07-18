@@ -384,6 +384,7 @@ static void old_do_create (objectType destination, objectType source,
 
   {
     listRecord crea_expr[3];
+    objectType call_result;
 
   /* old_do_create */
     logFunction(printf("old_do_create ");
@@ -407,12 +408,17 @@ static void old_do_create (objectType destination, objectType source,
     crea_expr[0].obj = destination;
     crea_expr[1].obj = SYS_CREA_OBJECT;
     crea_expr[2].obj = source;
-    if (exec1(crea_expr) != SYS_EMPTY_OBJECT) {
-      if (trace.exceptions) {
+    call_result = exec1(crea_expr);
+    if (call_result != SYS_EMPTY_OBJECT) {
+      if (fail_flag && trace.exceptions) {
         write_exception_info();
       } /* if */
       set_fail_flag(FALSE);
-      *err_info = CREATE_ERROR;
+      if (call_result != NULL) {
+        *err_info = getErrInfoFromFailValue(call_result);
+      } else {
+        *err_info = CREATE_ERROR;
+      } /* if */
     } /* if */
     /* printf("free callobjects ");
     trace1(crea_expr[0].obj);
@@ -481,11 +487,15 @@ void do_create (objectType destination, objectType source,
         /* printf("do_create: after exec_call\n");
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
-          if (trace.exceptions) {
+          if (fail_flag && trace.exceptions) {
             write_exception_info();
           } /* if */
           set_fail_flag(FALSE);
-          *err_info = CREATE_ERROR;
+          if (call_result != NULL) {
+            *err_info = getErrInfoFromFailValue(call_result);
+          } else {
+            *err_info = CREATE_ERROR;
+          } /* if */
         } /* if */
       } else {
         *err_info = CREATE_ERROR;
@@ -565,7 +575,7 @@ void do_destroy (objectType old_obj, errInfoType *err_info)
         /* printf("do_destroy: after exec_call\n");
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
-          if (trace.exceptions) {
+          if (fail_flag && trace.exceptions) {
             write_exception_info();
           } /* if */
           set_fail_flag(FALSE);
@@ -612,7 +622,7 @@ printf("\n");
     copy_expr[1].obj = SYS_ASSIGN_OBJECT;
     copy_expr[2].obj = source;
     if (exec1(copy_expr) != SYS_EMPTY_OBJECT) {
-      if (trace.exceptions) {
+      if (fail_flag && trace.exceptions) {
         write_exception_info();
       } /* if */
       set_fail_flag(FALSE);
@@ -671,7 +681,7 @@ static void do_copy (objectType destination, objectType source,
         /* printf("copy_local_object: after exec_call\n");
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
-          if (trace.exceptions) {
+          if (fail_flag && trace.exceptions) {
             write_exception_info();
           } /* if */
           set_fail_flag(FALSE);
