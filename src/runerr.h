@@ -56,4 +56,5 @@ objectType raise_exception (objectType exception);
 void leaveExceptionHandling (void);
 void saveFailState (failStateStruct *failState);
 void restoreFailState (failStateStruct *failState);
+errInfoType getErrInfoFromFailValue (objectType failValue);
 void show_signal (void);

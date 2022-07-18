@@ -840,36 +840,6 @@ objectType exec_call (objectType object)
 
 
 
-static errInfoType getErrInfoFromFailValue (objectType failValue)
-
-  {
-    errInfoType err_info;
-
-  /* getErrInfoFromFailValue */
-    if (failValue == SYS_MEM_EXCEPTION) {
-      err_info = MEMORY_ERROR;
-    } else if (failValue == SYS_NUM_EXCEPTION) {
-      err_info = NUMERIC_ERROR;
-    } else if (failValue == SYS_OVF_EXCEPTION) {
-      err_info = OVERFLOW_ERROR;
-    } else if (failValue == SYS_RNG_EXCEPTION) {
-      err_info = RANGE_ERROR;
-    } else if (failValue == SYS_IDX_EXCEPTION) {
-      err_info = INDEX_ERROR;
-    } else if (failValue == SYS_FIL_EXCEPTION) {
-      err_info = FILE_ERROR;
-    } else if (failValue == SYS_DB_EXCEPTION) {
-      err_info = DATABASE_ERROR;
-    } else if (failValue == SYS_CLOSE_EXCEPTION) {
-      err_info = CLOSE_ERROR;
-    } else {  /* if (failValue == SYS_ACT_ILLEGAL_EXCEPTION) { */
-      err_info = ACTION_ERROR;
-    } /* if */
-    return err_info;
-  } /* getErrInfoFromFailValue */
-
-
-
 objectType do_exec_call (objectType object, errInfoType *err_info)
 
   {
