@@ -6039,19 +6039,30 @@ static int checkPartialLinking (const char *ccOptPartialLinking)
 static void determinePartialLinking (FILE *versionFile)
 
   {
+#ifdef LINKER_OPT_PARTIAL_LINKING
+    const char *linkerOptPartialLinkingList[] = { LINKER_OPT_PARTIAL_LINKING };
+#endif
+    unsigned int pos;
+    int found = 0;
     char buffer[BUFFER_SIZE];
 
   /* determinePartialLinking */
 #ifdef LINKER_OPT_PARTIAL_LINKING
     fprintf(logFile, "Check for partial linking: ");
-    supportsPartialLinking = checkPartialLinking(LINKER_OPT_PARTIAL_LINKING);
-    if (supportsPartialLinking) {
-      fprintf(logFile, " Supported.\n");
-      fprintf(versionFile, "#define LINKER_OPT_PARTIAL_LINKING \"%s\"\n", LINKER_OPT_PARTIAL_LINKING);
-      sprintf(buffer, "LINKER_OPT_PARTIAL_LINKING = %s\n", LINKER_OPT_PARTIAL_LINKING);
-      appendToFile("macros", buffer);
-      appendToFile("macros", "OBJCOPY = objcopy\n");
-    } else {
+    for (pos = 0; pos < sizeof(linkerOptPartialLinkingList) / sizeof(char *) &&
+         !supportsPartialLinking; pos++) {
+      supportsPartialLinking = checkPartialLinking(linkerOptPartialLinkingList[pos]);
+      if (supportsPartialLinking) {
+        fprintf(logFile, " Supported.\n");
+        fprintf(versionFile, "#define LINKER_OPT_PARTIAL_LINKING \"%s\"\n",
+                linkerOptPartialLinkingList[pos]);
+        sprintf(buffer, "LINKER_OPT_PARTIAL_LINKING = %s\n",
+                linkerOptPartialLinkingList[pos]);
+        appendToFile("macros", buffer);
+        appendToFile("macros", "OBJCOPY = objcopy\n");
+      } /* if */
+    } /* for */
+    if (!supportsPartialLinking) {
       fprintf(logFile, " Not supported.\n");
     } /* if */
 #endif
