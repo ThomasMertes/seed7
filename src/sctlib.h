@@ -31,7 +31,6 @@ objectType sct_conv   (listType arguments);
 objectType sct_cpy    (listType arguments);
 objectType sct_create (listType arguments);
 objectType sct_destr  (listType arguments);
-objectType sct_elem   (listType arguments);
 objectType sct_empty  (listType arguments);
 objectType sct_incl   (listType arguments);
 objectType sct_lng    (listType arguments);

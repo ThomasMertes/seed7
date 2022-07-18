@@ -835,7 +835,6 @@ static const actEntryRecord actEntryTable[] = {
     { "SCT_CPY",                    sct_cpy,                    },
     { "SCT_CREATE",                 sct_create,                 },
     { "SCT_DESTR",                  sct_destr,                  },
-    { "SCT_ELEM",                   sct_elem,                   },
     { "SCT_EMPTY",                  sct_empty,                  },
     { "SCT_INCL",                   sct_incl,                   },
     { "SCT_LNG",                    sct_lng,                    },
