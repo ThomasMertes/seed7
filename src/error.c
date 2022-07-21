@@ -39,6 +39,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "datautl.h"
@@ -326,64 +327,185 @@ static void read_and_print_line (long line_start_position, long current_position
 
 
 
-static void print_line (lineNumType err_line)
+static void printLineOfCurrentFile (lineNumType errorLine)
 
   {
-    long current_position;
-    long buffer_start_position;
-    unsigned int table_size;
-    long *nl_table;
-    unsigned int table_start;
-    unsigned int table_pos;
+    long currentPosition;
+    long bufferStartPosition;
+    unsigned int tableSize;
+    long *nlTable;
+    unsigned int tableStart;
+    unsigned int tablePos;
     boolType searching;
-    int area_size;
-    int area_pos;
+    int areaSize;
+    int areaPos;
 
-  /* print_line */
-    logFunction(printf("print_line(%u) in_file.line=%u\n", err_line, in_file.line););
-    if (in_file.name != NULL && in_file.curr_infile != NULL &&
-        (current_position = IN_FILE_TELL()) >= 0L) {
-      /* printf("current_position=%lu in_file.character=%d\n",
-         current_position, in_file.character); */
-      table_size = in_file.line - err_line + 1;
-      if (ALLOC_TABLE(nl_table, long, table_size)) {
+  /* printLineOfCurrentFile */
+    logFunction(printf("printLineOfCurrentFile(%u) in_file.line=%u\n",
+                       errorLine, in_file.line););
+    if (in_file.curr_infile != NULL &&
+        (currentPosition = IN_FILE_TELL()) >= 0L) {
+      /* printf("currentPosition=%lu in_file.character=%d\n",
+         currentPosition, in_file.character); */
+      tableSize = in_file.line - errorLine + 1;
+      if (ALLOC_TABLE(nlTable, long, tableSize)) {
         if (in_file.character == EOF) {
-          buffer_start_position = current_position;
+          bufferStartPosition = currentPosition;
         } else {
-          buffer_start_position = current_position - 1;
+          bufferStartPosition = currentPosition - 1;
         } /* if */
-        table_pos = 0;
+        tablePos = 0;
         searching = TRUE;
         do {
-          if (buffer_start_position >= MAX_AREA_SIZE) {
-            area_size = MAX_AREA_SIZE;
+          if (bufferStartPosition >= MAX_AREA_SIZE) {
+            areaSize = MAX_AREA_SIZE;
           } else {
-            area_size = (int) buffer_start_position;
+            areaSize = (int) bufferStartPosition;
           } /* if */
-          buffer_start_position -= area_size;
-          /* printf("buffer_start_position=%ld\n", buffer_start_position); */
-          table_start = table_pos;
-          IN_FILE_SEEK(buffer_start_position);
-          area_pos = 0;
-          while (area_pos < area_size) {
+          bufferStartPosition -= areaSize;
+          /* printf("bufferStartPosition=%ld\n", bufferStartPosition); */
+          tableStart = tablePos;
+          IN_FILE_SEEK(bufferStartPosition);
+          areaPos = 0;
+          while (areaPos < areaSize) {
             if (next_character() == '\n') {
-              nl_table[table_pos] = IN_FILE_TELL();
-              table_pos++;
-              if (table_pos >= table_size) {
-                table_pos = table_start;
+              nlTable[tablePos] = IN_FILE_TELL();
+              tablePos++;
+              if (tablePos >= tableSize) {
+                tablePos = tableStart;
                 searching = FALSE;
               } /* if */
             } /* if */
-            area_pos++;
+            areaPos++;
           } /* while */
-        } while (searching && buffer_start_position > 0);
+        } while (searching && bufferStartPosition > 0);
         if (!searching) {
-          IN_FILE_SEEK(nl_table[table_pos]);
-          read_and_print_line(current_position + 1, current_position);
-          FREE_TABLE(nl_table, long, table_size);
+          IN_FILE_SEEK(nlTable[tablePos]);
+          read_and_print_line(currentPosition + 1, currentPosition);
+          FREE_TABLE(nlTable, long, tableSize);
         } /* if */
       } /* if */
-      IN_FILE_SEEK(current_position);
+      IN_FILE_SEEK(currentPosition);
+    } /* if */
+    logFunction(printf("printLineOfCurrentFile -->\n"););
+  } /* printLineOfCurrentFile */
+
+
+
+static void printLineOfFile (FILE *sourceFile, long lineStartPosInFile, long nlPosInFile)
+
+  {
+    memSizeType lineBufferSize;
+    ucharType *lineBuffer;
+    memSizeType numberOfCharsRead;
+    striType lineStri;
+
+  /* printLineOfFile */
+    if (fseek(sourceFile, lineStartPosInFile, SEEK_SET) == 0) {
+      lineBufferSize = (memSizeType) (nlPosInFile - lineStartPosInFile);
+      if (ALLOC_USTRI(lineBuffer, lineBufferSize)) {
+        numberOfCharsRead = fread(lineBuffer, 1, lineBufferSize, sourceFile);
+        if (numberOfCharsRead != 0 && lineBuffer[numberOfCharsRead - 1] == '\r') {
+          numberOfCharsRead--;
+        } /* if */
+        lineStri = ustri8_buffer_to_stri(lineBuffer, numberOfCharsRead);
+        if (lineStri != NULL) {
+          print_stri(lineStri);
+          FREE_STRI(lineStri, lineStri->size);
+        } /* if */
+        prot_nl();
+        prot_nl();
+        UNALLOC_USTRI(lineBuffer, lineBufferSize);
+      } /* if */
+    } /* if */
+  } /* printLineOfFile */
+
+
+
+static void printLineOfOtherFile (const_striType sourceFileName, lineNumType errorLine)
+
+  {
+    os_striType os_path;
+    FILE *sourceFile;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    ucharType buffer[BUFFER_SIZE];
+    memSizeType numberOfCharsRead;
+    ucharType *lineStartPos;
+    ucharType *nlPos;
+    lineNumType line = 1;
+    striType lineStri;
+    long lineStartPosInFile;
+    long nlPosInFile;
+
+  /* printLineOfOtherFile */
+    logFunction(printf("printLineOfOtherFile(\"%s\", %d)\n",
+                       striAsUnquotedCStri(sourceFileName), errorLine););
+    os_path = cp_to_os_path(sourceFileName, &path_info, &err_info);
+    if (likely(os_path != NULL)) {
+      sourceFile = os_fopen(os_path, os_mode_rb);
+      /* printf("fopen(\"" FMT_S_OS "\") --> " FMT_U_MEM "\n",
+             os_path, (memSizeType) sourceFile); */
+      if (sourceFile != NULL) {
+        do {
+          numberOfCharsRead = fread(buffer, 1, BUFFER_SIZE, sourceFile);
+          lineStartPos = buffer;
+          nlPos = (ucharType *) memchr(buffer, '\n', numberOfCharsRead);
+          while (line < errorLine && nlPos != NULL) {
+            line++;
+            lineStartPos = &nlPos[1];
+            nlPos = (ucharType *) memchr(lineStartPos, '\n',
+                (memSizeType) (&buffer[numberOfCharsRead] - lineStartPos));
+          } /* while */
+        } while (line < errorLine && numberOfCharsRead != 0);
+        if (line == errorLine) {
+          if (nlPos != NULL) {
+            if (nlPos != lineStartPos && nlPos[-1] == '\r') {
+              nlPos--;
+            } /* if */
+            lineStri = ustri8_buffer_to_stri(lineStartPos, (memSizeType) (nlPos - lineStartPos));
+            if (lineStri != NULL) {
+              print_stri(lineStri);
+              FREE_STRI(lineStri, lineStri->size);
+            } /* if */
+            prot_nl();
+            prot_nl();
+          } else {
+            lineStartPosInFile = ftell(sourceFile);
+            if (lineStartPosInFile != -1) {
+              lineStartPosInFile -= (long) (&buffer[numberOfCharsRead] - lineStartPos);
+              do {
+                numberOfCharsRead = fread(buffer, 1, BUFFER_SIZE, sourceFile);
+                nlPos = (ucharType *) memchr(buffer, '\n', numberOfCharsRead);
+              } while (numberOfCharsRead != 0 && nlPos == NULL);
+              nlPosInFile = ftell(sourceFile);
+              if (nlPosInFile != -1) {
+                if (nlPos != NULL) {
+                  nlPosInFile -= (long) (&buffer[numberOfCharsRead] - nlPos);
+                } /* if */
+                printLineOfFile(sourceFile, lineStartPosInFile, nlPosInFile);
+              } /* if */
+            } /* if */
+          } /* if */
+        } /* if */
+        fclose(sourceFile);
+      } /* if */
+    } /* if */
+  } /* printLineOfOtherFile */
+
+
+
+static void print_line (fileNumType fileNumber, lineNumType errorLine)
+
+  { /* print_line */
+    logFunction(printf("print_line(%u, %u) in_file.file_number=%u in_file.line=%u\n",
+                       fileNumber, errorLine, in_file.file_number, in_file.line););
+    if (in_file.name != NULL) {
+      if (fileNumber == in_file.file_number) {
+        printLineOfCurrentFile(errorLine);
+      } else {
+        printLineOfOtherFile(get_file_name(fileNumber), errorLine);
+      } /* if */
     } /* if */
     logFunction(printf("print_line -->\n"););
   } /* print_line */
@@ -1079,7 +1201,7 @@ void err_object (errorType err, const_objectType obj_found)
         break;
     } /* switch */
     if (obj_found != NULL && HAS_POSINFO(obj_found)){
-      print_line(GET_LINE_NUM(obj_found));
+      print_line(GET_FILE_NUM(obj_found), GET_LINE_NUM(obj_found));
     } else {
       print_error_line();
     } /* if */
@@ -1118,14 +1240,21 @@ void err_type (errorType err, const_typeType type_found)
 void err_expr_obj (errorType err, const_objectType expr_object,
     objectType obj_found)
 
-  { /* err_expr_obj */
+  {
+    boolType hasPosInfo;
+    fileNumType fileNumber;
+    lineNumType errorLine;
+
+  /* err_expr_obj */
     /* place_of_error(err); */
     if (prog != NULL) {
       prog->error_count++;
     } /* if */
-    if (HAS_POSINFO(expr_object)){
-      write_place(err, get_file_name(GET_FILE_NUM(expr_object)),
-          GET_LINE_NUM(expr_object));
+    hasPosInfo = HAS_POSINFO(expr_object);
+    if (hasPosInfo){
+      fileNumber = GET_FILE_NUM(expr_object);
+      errorLine = GET_LINE_NUM(expr_object);
+      write_place(err, get_file_name(fileNumber), errorLine);
     } else if (in_file.name != NULL) {
       write_place(err, in_file.name, in_file.line);
     } else {
@@ -1165,8 +1294,8 @@ void err_expr_obj (errorType err, const_objectType expr_object,
         undef_err();
         break;
     } /* switch */
-    if (HAS_POSINFO(expr_object)){
-      print_line(GET_LINE_NUM(expr_object));
+    if (hasPosInfo){
+      print_line(fileNumber, errorLine);
     } else {
       print_error_line();
     } /* if */
@@ -1233,7 +1362,7 @@ void err_match (errorType err, objectType obj_found)
           break;
       } /* switch */
       if (HAS_POSINFO(obj_found)){
-        print_line(GET_LINE_NUM(obj_found));
+        print_line(GET_FILE_NUM(obj_found), GET_LINE_NUM(obj_found));
       } else {
         print_error_line();
       } /* if */
@@ -1457,7 +1586,7 @@ void err_at_line (errorType err, lineNumType line)
         undef_err();
         break;
     } /* switch */
-    print_line(line);
+    print_line(in_file.file_number, line);
     display_compilation_info();
   } /* err_at_line */
 
