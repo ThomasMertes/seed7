@@ -330,7 +330,7 @@ void closeInfile (void)
       in_file.curr_infile = NULL;
     } /* if */
     in_file.next_msg_line = in_file.line + in_file.incr_message_line;
-    logFunction(printf("END closeInfile\n"););
+    logFunction(printf("closeInfile -->\n"););
   } /* closeInfile */
 
 
