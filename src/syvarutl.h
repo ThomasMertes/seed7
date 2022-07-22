@@ -36,7 +36,7 @@
 #define IDX_EXCEPTION(prog)         (prog)->sys_var[ 5]
 #define FIL_EXCEPTION(prog)         (prog)->sys_var[ 6]
 #define DB_EXCEPTION(prog)          (prog)->sys_var[ 7]
-#define CLOSE_EXCEPTION(prog)       (prog)->sys_var[ 8]
+#define GRAPHIC_EXCEPTION(prog)     (prog)->sys_var[ 8]
 #define ACT_ILLEGAL_EXCEPTION(prog) (prog)->sys_var[ 9]
 #define FALSE_OBJECT(prog)          (prog)->sys_var[10]
 #define TRUE_OBJECT(prog)           (prog)->sys_var[11]
@@ -68,7 +68,7 @@
 #define SYS_IDX_EXCEPTION         IDX_EXCEPTION(prog)
 #define SYS_FIL_EXCEPTION         FIL_EXCEPTION(prog)
 #define SYS_DB_EXCEPTION          DB_EXCEPTION(prog)
-#define SYS_CLOSE_EXCEPTION       CLOSE_EXCEPTION(prog)
+#define SYS_GRAPHIC_EXCEPTION     GRAPHIC_EXCEPTION(prog)
 #define SYS_ACT_ILLEGAL_EXCEPTION ACT_ILLEGAL_EXCEPTION(prog)
 #define SYS_FALSE_OBJECT          FALSE_OBJECT(prog)
 #define SYS_TRUE_OBJECT           TRUE_OBJECT(prog)

@@ -502,8 +502,8 @@ errInfoType getErrInfoFromFailValue (objectType failValue)
       err_info = FILE_ERROR;
     } else if (failValue == SYS_DB_EXCEPTION) {
       err_info = DATABASE_ERROR;
-    } else if (failValue == SYS_CLOSE_EXCEPTION) {
-      err_info = CLOSE_ERROR;
+    } else if (failValue == SYS_GRAPHIC_EXCEPTION) {
+      err_info = GRAPHIC_ERROR;
     } else {  /* if (failValue == SYS_ACT_ILLEGAL_EXCEPTION) { */
       err_info = ACTION_ERROR;
     } /* if */

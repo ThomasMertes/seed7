@@ -1027,7 +1027,7 @@ charType gkbGetc (void)
                   button_window = msg.hwnd;
                   break;
                 case CLOSE_BUTTON_RAISES_EXCEPTION:
-                  raise_error(CLOSE_ERROR);
+                  raise_error(GRAPHIC_ERROR);
                   result = K_CLOSE;
                   break;
               } /* switch */
@@ -1061,7 +1061,7 @@ charType gkbGetc (void)
                   button_window = msg.hwnd;
                   break;
                 case CLOSE_BUTTON_RAISES_EXCEPTION:
-                  raise_error(CLOSE_ERROR);
+                  raise_error(GRAPHIC_ERROR);
                   result = K_CLOSE;
                   break;
               } /* switch */
