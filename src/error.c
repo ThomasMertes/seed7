@@ -392,7 +392,27 @@ static void printLineOfCurrentFile (lineNumType errorLine)
 
 
 
-static void printLineOfFile (FILE *sourceFile, long lineStartPosInFile, long nlPosInFile)
+static void printLineFromBuffer (const const_ustriType lineStartPos, const_ustriType nlPos)
+
+  {
+    striType lineStri;
+
+  /* printLineFromBuffer */
+    if (nlPos != lineStartPos && nlPos[-1] == '\r') {
+      nlPos--;
+    } /* if */
+    lineStri = ustri8_buffer_to_stri(lineStartPos, (memSizeType) (nlPos - lineStartPos));
+    if (lineStri != NULL) {
+      print_stri(lineStri);
+      FREE_STRI(lineStri, lineStri->size);
+    } /* if */
+    prot_nl();
+    prot_nl();
+  } /* printLineFromBuffer */
+
+
+
+static void printLineFromFile (FILE *sourceFile, long lineStartPosInFile, long nlPosInFile)
 
   {
     memSizeType lineBufferSize;
@@ -400,7 +420,7 @@ static void printLineOfFile (FILE *sourceFile, long lineStartPosInFile, long nlP
     memSizeType numberOfCharsRead;
     striType lineStri;
 
-  /* printLineOfFile */
+  /* printLineFromFile */
     if (fseek(sourceFile, lineStartPosInFile, SEEK_SET) == 0) {
       lineBufferSize = (memSizeType) (nlPosInFile - lineStartPosInFile);
       if (ALLOC_USTRI(lineBuffer, lineBufferSize)) {
@@ -418,7 +438,37 @@ static void printLineOfFile (FILE *sourceFile, long lineStartPosInFile, long nlP
         UNALLOC_USTRI(lineBuffer, lineBufferSize);
       } /* if */
     } /* if */
-  } /* printLineOfFile */
+  } /* printLineFromFile */
+
+
+
+static void findLineEndAndPrintLine (FILE *sourceFile, const const_ustriType lineStartPos,
+    const const_ustriType beyondDataInBuffer)
+
+  {
+    memSizeType numberOfCharsRead;
+    long lineStartPosInFile;
+    long nlPosInFile;
+    ucharType *nlPos;
+    ucharType buffer[BUFFER_SIZE];
+
+  /* findLineEndAndPrintLine */
+    lineStartPosInFile = ftell(sourceFile);
+    if (lineStartPosInFile != -1) {
+      lineStartPosInFile -= (long) (beyondDataInBuffer - lineStartPos);
+      do {
+        numberOfCharsRead = fread(buffer, 1, BUFFER_SIZE, sourceFile);
+        nlPos = (ucharType *) memchr(buffer, '\n', numberOfCharsRead);
+      } while (numberOfCharsRead != 0 && nlPos == NULL);
+      nlPosInFile = ftell(sourceFile);
+      if (nlPosInFile != -1) {
+        if (nlPos != NULL) {
+          nlPosInFile -= (long) (&buffer[numberOfCharsRead] - nlPos);
+        } /* if */
+        printLineFromFile(sourceFile, lineStartPosInFile, nlPosInFile);
+      } /* if */
+    } /* if */
+  } /* findLineEndAndPrintLine */
 
 
 
@@ -434,9 +484,6 @@ static void printLineOfOtherFile (const_striType sourceFileName, lineNumType err
     ucharType *lineStartPos;
     ucharType *nlPos;
     lineNumType line = 1;
-    striType lineStri;
-    long lineStartPosInFile;
-    long nlPosInFile;
 
   /* printLineOfOtherFile */
     logFunction(printf("printLineOfOtherFile(\"%s\", %d)\n",
@@ -460,32 +507,9 @@ static void printLineOfOtherFile (const_striType sourceFileName, lineNumType err
         } while (line < errorLine && numberOfCharsRead != 0);
         if (line == errorLine) {
           if (nlPos != NULL) {
-            if (nlPos != lineStartPos && nlPos[-1] == '\r') {
-              nlPos--;
-            } /* if */
-            lineStri = ustri8_buffer_to_stri(lineStartPos, (memSizeType) (nlPos - lineStartPos));
-            if (lineStri != NULL) {
-              print_stri(lineStri);
-              FREE_STRI(lineStri, lineStri->size);
-            } /* if */
-            prot_nl();
-            prot_nl();
+            printLineFromBuffer(lineStartPos, nlPos);
           } else {
-            lineStartPosInFile = ftell(sourceFile);
-            if (lineStartPosInFile != -1) {
-              lineStartPosInFile -= (long) (&buffer[numberOfCharsRead] - lineStartPos);
-              do {
-                numberOfCharsRead = fread(buffer, 1, BUFFER_SIZE, sourceFile);
-                nlPos = (ucharType *) memchr(buffer, '\n', numberOfCharsRead);
-              } while (numberOfCharsRead != 0 && nlPos == NULL);
-              nlPosInFile = ftell(sourceFile);
-              if (nlPosInFile != -1) {
-                if (nlPos != NULL) {
-                  nlPosInFile -= (long) (&buffer[numberOfCharsRead] - nlPos);
-                } /* if */
-                printLineOfFile(sourceFile, lineStartPosInFile, nlPosInFile);
-              } /* if */
-            } /* if */
+            findLineEndAndPrintLine(sourceFile, lineStartPos, &buffer[numberOfCharsRead]);
           } /* if */
         } /* if */
         fclose(sourceFile);
