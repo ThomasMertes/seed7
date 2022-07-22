@@ -376,7 +376,7 @@ winType drwOpen (intType xPos, intType yPos,
     intType width, intType height, const const_striType window_name)
 
   { /* drwOpen */
-    raise_error(FILE_ERROR);
+    raise_error(GRAPHIC_ERROR);
     return NULL;
   } /* drwOpen */
 
@@ -386,7 +386,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
     intType width, intType height)
 
   { /* drwOpenSubWindow */
-    raise_error(FILE_ERROR);
+    raise_error(GRAPHIC_ERROR);
     return NULL;
   } /* drwOpenSubWindow */
 

@@ -454,13 +454,13 @@ intType drwPointerXpos (const_winType actual_window)
     logFunction(printf("drwPointerXpos(" FMT_U_MEM ")\n",
                        (memSizeType) actual_window););
     if (unlikely(GetCursorPos(&point) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       xPos = 0;
     } else if (to_width(actual_window) == 0 && to_height(actual_window) == 0) {
       xPos = point.x;
     } else {
       if (unlikely(ScreenToClient(to_hwnd(actual_window), &point) == 0)) {
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         xPos = 0;
       } else {
         xPos = point.x;
@@ -490,13 +490,13 @@ intType drwPointerYpos (const_winType actual_window)
     logFunction(printf("drwPointerYpos(" FMT_U_MEM ")\n",
                        (memSizeType) actual_window););
     if (unlikely(GetCursorPos(&point) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       yPos = 0;
     } else if (to_width(actual_window) == 0 && to_height(actual_window) == 0) {
       yPos = point.y;
     } else {
       if (unlikely(ScreenToClient(to_hwnd(actual_window), &point) == 0)) {
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         yPos = 0;
       } else {
         yPos = point.y;
@@ -762,7 +762,7 @@ rtlArrayType drwBorder (const_winType actual_window)
       border = NULL;
     } else if (unlikely(GetWindowRect(hWnd, &windowRect) == 0 ||
                         GetClientRect(hWnd, &clientRect) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       border = NULL;
     } else {
       clientTopLeft.x = clientRect.left;
@@ -771,7 +771,7 @@ rtlArrayType drwBorder (const_winType actual_window)
       clientBottomRight.y = clientRect.bottom;
       if (unlikely(ClientToScreen(hWnd, &clientTopLeft) == 0 ||
                    ClientToScreen(hWnd, &clientBottomRight) == 0)) {
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         border = NULL;
       } else {
         if (unlikely(!ALLOC_RTL_ARRAY(border, 4))) {
@@ -1718,7 +1718,7 @@ void drwSetPointerPos (const_winType aWindow, intType xPos, intType yPos)
         point.x = (long) xPos;
         point.y = (long) yPos;
         if (unlikely(ClientToScreen(to_hwnd(aWindow), &point) == 0)) {
-          raise_error(FILE_ERROR);
+          raise_error(GRAPHIC_ERROR);
         } else {
           SetCursorPos(point.x, point.y);
         } /* if */
@@ -2249,7 +2249,7 @@ void drwSetWindowName (winType aWindow, const const_striType windowName)
         logError(printf("SetWindowTextW(" FMT_U_MEM ", \"%s\") failed\n",
                         (memSizeType) aWindow,
                         striAsUnquotedCStri(windowName)););
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
       } /* if */
     } /* if */
     logFunction(printf("drwSetWindowName -->\n"););
@@ -2381,7 +2381,7 @@ intType drwXPos (const_winType actual_window)
       raise_error(RANGE_ERROR);
       xPos = 0;
     } else if (unlikely(GetWindowRect(to_hwnd(actual_window), &rect) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       xPos = 0;
     } else {
       point.x = rect.left;
@@ -2417,7 +2417,7 @@ intType drwYPos (const_winType actual_window)
       raise_error(RANGE_ERROR);
       yPos = 0;
     } else if (unlikely(GetWindowRect(to_hwnd(actual_window), &rect) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       yPos = 0;
     } else {
       point.x = rect.left;

@@ -277,7 +277,7 @@ rtlArrayType drwBorder (const_winType actual_window)
         }
       }, to_window(actual_window));
       if (unlikely(twoBorders == -1)) {
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         border = NULL;
       } else if (unlikely(!ALLOC_RTL_ARRAY(border, 4))) {
         raise_error(MEMORY_ERROR);
@@ -595,7 +595,7 @@ intType drwHeight (const_winType actual_window)
         }
       }, to_window(actual_window));
       if (unlikely(height == -1)) {
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         height = 0;
       } /* if */
     } /* if */
@@ -1148,7 +1148,7 @@ intType drwScreenHeight (void)
       }
     });
     if (unlikely(height == -1)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       height = 0;
     } /* if */
     return (intType) height;
@@ -1170,7 +1170,7 @@ intType drwScreenWidth (void)
       }
     });
     if (unlikely(width == -1)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       width = 0;
     } /* if */
     return (intType) width;
@@ -1232,7 +1232,7 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
         }, to_window(actual_window), (int) xPos, (int) yPos);
       } /* if */
       if (unlikely(!okay)) {
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
       } /* if */
     } /* if */
   } /* drwSetPos */
@@ -1295,7 +1295,7 @@ intType drwWidth (const_winType actual_window)
         }
       }, to_window(actual_window));
       if (unlikely(width == -1)) {
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         width = 0;
       } /* if */
     } /* if */
@@ -1347,7 +1347,7 @@ intType drwXPos (const_winType actual_window)
         }, to_window(actual_window));
       } /* if */
       if (unlikely(xPos == -2147483648)) {
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         xPos = 0;
       } /* if */
     } /* if */
@@ -1399,7 +1399,7 @@ intType drwYPos (const_winType actual_window)
         }, to_window(actual_window));
       } /* if */
       if (unlikely(yPos == -2147483648)) {
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         yPos = 0;
       } /* if */
     } /* if */

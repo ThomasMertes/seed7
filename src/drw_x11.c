@@ -931,7 +931,7 @@ rtlArrayType drwBorder (const_winType actual_window)
     } else if (is_managed(actual_window)) {
       if (unlikely(XGetGeometry(mydisplay, window, &root, &x, &y,
                                 &innerWidth, &innerHeight, &border_width, &depth) == 0)) {
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         border = NULL;
       } else {
         window = getWindowParent(window);
@@ -944,7 +944,7 @@ rtlArrayType drwBorder (const_winType actual_window)
           topBorder += y;
           if (unlikely(XGetGeometry(mydisplay, window, &root,
                        &x, &y, &width, &height, &border_width, &depth) == 0)) {
-            raise_error(FILE_ERROR);
+            raise_error(GRAPHIC_ERROR);
             window = 0;
             border = NULL;
           } else {
@@ -965,7 +965,7 @@ rtlArrayType drwBorder (const_winType actual_window)
       } /* if */
     } else if (unlikely(XGetGeometry(mydisplay, window, &root,
                         &x, &y, &width, &height, &border_width, &depth) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       border = NULL;
     } else if (unlikely(!ALLOC_RTL_ARRAY(border, 4))) {
       raise_error(MEMORY_ERROR);
@@ -1283,7 +1283,7 @@ winType drwCapture (intType left, intType upper,
       pixmap = NULL;
     } else if (unlikely(XGetGeometry(mydisplay, DefaultRootWindow(mydisplay), &root,
                               &x, &y, &screenWidth, &screenHeight, &border_width, &depth) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       pixmap = NULL;
     } else {
       image = XGetImage(mydisplay, DefaultRootWindow(mydisplay),
@@ -1293,7 +1293,7 @@ winType drwCapture (intType left, intType upper,
         logFunction(printf("drwCapture(" FMT_D ", " FMT_D ", "
                            FMT_D ", " FMT_D "): XGetImage failed\n",
                            left, upper, width, height););
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         pixmap = NULL;
       } else {
         if (unlikely(!ALLOC_RECORD2(pixmap, x11_winRecord, count.win, count.win_bytes))) {
@@ -1385,7 +1385,7 @@ bstriType drwGetPixelData (const_winType source_window)
       if (unlikely(image == NULL)) {
         logError(printf("drwGetPixelData(" FMT_U_MEM "): XGetImage failed\n",
                         (memSizeType) source_window););
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         result = NULL;
       } else {
         result_size = width * height * sizeof(int32Type);
@@ -1485,7 +1485,7 @@ intType drwHeight (const_winType actual_window)
       height = to_height(actual_window);
     } else if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
                         &x, &y, &width, &height, &border_width, &depth) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       height = 0;
     } /* if */
     logFunction(printf("drwHeight(" FMT_U_MEM ") --> %u\n",
@@ -1513,7 +1513,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
       } /* if */
       if (unlikely(!init_called)) {
         logError(printf("drwImage: drawInit() failed to open a display.\n"););
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         pixmap = NULL;
       } else {
         image = XCreateImage(mydisplay, default_visual,
@@ -1600,7 +1600,7 @@ winType drwNewPixmap (intType width, intType height)
       } /* if */
       if (unlikely(!init_called)) {
         logError(printf("drwNewPixmap: drawInit() failed to open a display.\n"););
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
         pixmap = NULL;
       } else {
         if (unlikely(!ALLOC_RECORD2(pixmap, x11_winRecord, count.win, count.win_bytes))) {
@@ -1684,7 +1684,7 @@ winType drwOpen (intType xPos, intType yPos,
       } /* if */
       if (unlikely(!init_called)) {
         logError(printf("drwOpen: drawInit() failed to open a display.\n"););
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
       } else {
         win_name = stri_to_cstri8(window_name, &err_info);
         if (unlikely(win_name == NULL)) {
@@ -1841,7 +1841,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
       } /* if */
       if (unlikely(!init_called)) {
         logError(printf("drwOpenSubWindow: drawInit() failed to open a display.\n"););
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
       } else {
         if (ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes)) {
           memset(result, 0, sizeof(x11_winRecord));
@@ -2599,7 +2599,7 @@ intType drwScreenHeight (void)
     } /* if */
     if (unlikely(XGetGeometry(mydisplay, DefaultRootWindow(mydisplay), &root,
                               &x, &y, &width, &height, &border_width, &depth) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       height = 0;
     } /* if */
     logFunction(printf("drwScreenHeight() --> %u\n", height););
@@ -2627,7 +2627,7 @@ intType drwScreenWidth (void)
     } /* if */
     if (unlikely(XGetGeometry(mydisplay, DefaultRootWindow(mydisplay), &root,
                               &x, &y, &width, &height, &border_width, &depth) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       width = 0;
     } /* if */
     logFunction(printf("drwScreenWidth() --> %u\n", width););
@@ -2760,7 +2760,7 @@ void drwSetWindowName (winType aWindow, const const_striType windowName)
         logError(printf("XStoreName(mydisplay, " FMT_U_MEM ", \"%s\") failed\n",
                         (memSizeType) aWindow,
                         striAsUnquotedCStri(windowName)););
-        raise_error(FILE_ERROR);
+        raise_error(GRAPHIC_ERROR);
       } /* if */
     } /* if */
     logFunction(printf("drwSetWindowName -->\n"););
@@ -2865,7 +2865,7 @@ intType drwWidth (const_winType actual_window)
       width = to_width(actual_window);
     } else if (unlikely(XGetGeometry(mydisplay, to_window(actual_window), &root,
                         &x, &y, &width, &height, &border_width, &depth) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       width = 0;
     } /* if */
     logFunction(printf("drwWidth(" FMT_U_MEM ") --> %u\n",
@@ -2906,7 +2906,7 @@ intType drwXPos (const_winType actual_window)
       do {
         if (unlikely(XGetGeometry(mydisplay, window, &root, &xPos, &y,
                      &width, &height, &border_width, &depth) == 0)) {
-          raise_error(FILE_ERROR);
+          raise_error(GRAPHIC_ERROR);
           window = 0;
           xPos = 0;
         } else {
@@ -2915,7 +2915,7 @@ intType drwXPos (const_winType actual_window)
       } while (window != root && window != 0);
     } else if (unlikely(XGetGeometry(mydisplay, window, &root, &xPos, &y,
                         &width, &height, &border_width, &depth) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       xPos = 0;
     } /* if */
     logFunction(printf("drwXPos(" FMT_U_MEM ") --> %d\n",
@@ -2956,7 +2956,7 @@ intType drwYPos (const_winType actual_window)
       do {
         if (unlikely(XGetGeometry(mydisplay, window, &root, &x, &yPos,
                      &width, &height, &border_width, &depth) == 0)) {
-          raise_error(FILE_ERROR);
+          raise_error(GRAPHIC_ERROR);
           window = 0;
           yPos = 0;
         } else {
@@ -2965,7 +2965,7 @@ intType drwYPos (const_winType actual_window)
       } while (window != root && window != 0);
     } else if (unlikely(XGetGeometry(mydisplay, window, &root, &x, &yPos,
                         &width, &height, &border_width, &depth) == 0)) {
-      raise_error(FILE_ERROR);
+      raise_error(GRAPHIC_ERROR);
       yPos = 0;
     } /* if */
     logFunction(printf("drwYPos(" FMT_U_MEM ") --> %d\n",
