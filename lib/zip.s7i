@@ -1538,7 +1538,7 @@ const proc: putFile (inout zipArchive: zip, in string: filePath,
         flush(zip.zipFile);
       end if;
     else
-      filePath8 := striToUtf8(filePath);
+      filePath8 := toUtf8(filePath);
       header.signature := ZIP_CENTRAL_HEADER_SIGNATURE;
       header.version_made_by            := (ZIP_HOST_SYSTEM_UNIX << 8) + 16#1e;
       header.version_needed_to_extract  := 10;

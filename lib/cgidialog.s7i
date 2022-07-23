@@ -163,7 +163,7 @@ const func string: toHtml (in header: aHeader) is func
   begin
     # writeln("header");
     content := "<h" <& aHeader.level <& ">" <&
-               encodeHtmlContent(striToUtf8(aHeader.name)) <& "</h" <& aHeader.level <& ">";
+               encodeHtmlContent(toUtf8(aHeader.name)) <& "</h" <& aHeader.level <& ">";
   end func;
 
 
@@ -192,7 +192,7 @@ const func string: toHtml (in label: aLabel) is func
     var string: content is "";
   begin
     # writeln("label");
-    content := "<p>" <& replace(encodeHtmlContent(striToUtf8(aLabel.name)), "\n", "<br/>") <& "</p>";
+    content := "<p>" <& replace(encodeHtmlContent(toUtf8(aLabel.name)), "\n", "<br/>") <& "</p>";
   end func;
 
 
@@ -328,7 +328,7 @@ const func string: toHtml (in script: aScript) is func
   begin
     # writeln("script");
     content := "<script language=\"JavaScript\" type=\"text/javascript\">" <&
-               encodeHtmlContent(striToUtf8(aScript.statements))
+               encodeHtmlContent(toUtf8(aScript.statements))
                <& "</script>";
   end func;
 
@@ -373,7 +373,7 @@ const func string: toHtml (in textField: aTextField) is func
   begin
     # writeln("textField");
     content := "<input type=\"text\" name=\"" <& aTextField.name <&
-               "\" value=" <& quoteHtmlAttrValue(striToUtf8(aTextField.content)) <& " ";
+               "\" value=" <& quoteHtmlAttrValue(toUtf8(aTextField.content)) <& " ";
     if aTextField.size <> 0 then
       content &:= "size=\"" <& aTextField.size <& "\" ";
     end if;
@@ -421,7 +421,7 @@ const func string: toHtml (in passwordField: aPasswordField) is func
   begin
     # writeln("passwordField");
     content := "<input type=\"password\" name=\"" <& aPasswordField.name <&
-               "\" value=" <& quoteHtmlAttrValue(striToUtf8(aPasswordField.content)) <& " ";
+               "\" value=" <& quoteHtmlAttrValue(toUtf8(aPasswordField.content)) <& " ";
     if aPasswordField.size <> 0 then
       content &:= "size=\"" <& aPasswordField.size <& "\" ";
     end if;
@@ -471,7 +471,7 @@ const func string: toHtml (in textArea: aTextArea) is func
     # writeln("textArea");
     content := "<textarea name=\"" <& aTextArea.name <& "\" rows=\"" <& aTextArea.rows <&
                "\" cols=\"" <& aTextArea.cols <& "\" wrap=\"virtual\">\n";
-    content &:= encodeHtmlContent(striToUtf8(aTextArea.content));
+    content &:= encodeHtmlContent(toUtf8(aTextArea.content));
     content &:= "</textarea>\n";
   end func;
 
@@ -813,7 +813,7 @@ const func string: toHtml (in selection: aSelectionList) is func
     # writeln("selection");
     content := "<select name=\"" <& aSelectionList.name <& "\" size=\"" <& aSelectionList.size <& "\">\n";
     for label range aSelectionList.labelList do
-      utf8Label := striToUtf8(label);
+      utf8Label := toUtf8(label);
       content &:= "<option value=" <& quoteHtmlAttrValue(utf8Label);
       if aSelectionList.selected = label then
         content &:= " selected=\"selected\"";

@@ -152,7 +152,7 @@ const proc: main is func
     browser := openBrowser;
     repeat
       display(browser, mainWebPage);
-      # writeln("prog:          " <& striToUtf8(prog.content));
+      # writeln("prog:          " <& toUtf8(prog.content));
       # writeln("load:          " <& load.activated);
       # writeln("save:          " <& save.activated);
       # writeln("clear:         " <& clear.activated);

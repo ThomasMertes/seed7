@@ -1122,7 +1122,7 @@ const proc: putFile (inout cpioArchive: cpio, in var string: filePath,
         filePath := missingPath;
       end if;
       if appendFile then
-        filePath8 := striToUtf8(filePath);
+        filePath8 := toUtf8(filePath);
         if missingPath <> "" then
           header.magic      := cpio.magic;
           header.ino        := 0;
@@ -1203,7 +1203,7 @@ const proc: mkdir (inout cpioArchive: cpio, in string: filePath) is func
       # The file exists and it is not an implicit directory.
       raise FILE_ERROR;
     else
-      filePath8 := striToUtf8(filePath);
+      filePath8 := toUtf8(filePath);
       header.magic      := cpio.magic;
       header.ino        := 0;
       header.mode       := ord(MODE_FILE_DIR) + 8#775;

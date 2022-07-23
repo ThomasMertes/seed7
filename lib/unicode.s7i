@@ -41,11 +41,16 @@ const func string: utf8ToStri (in string: utf8)                is action "STR_UT
 
 (**
  *  Convert a [[string]] to an UTF-8 encoded string of bytes.
+ *   toUtf8("€")          returns "â\130;¬"
  *  This function accepts unpaired surrogate halves.
- *   striToUtf8("\16#dc00;")  returns "\16#ed;\16#b0;\16#80;"  (surrogate halve)
+ *   toUtf8("\16#dc00;")  returns "\16#ed;\16#b0;\16#80;"  (surrogate halve)
  *  @param stri Normal (UTF-32) string to be converted to UTF-8.
  *  @return ''stri'' converted to a string of bytes with UTF-8 encoding.
  *)
+const func string: toUtf8 (in string: stri)                    is action "STR_TOUTF8";
+
+
+# The function striToUtf8(aString) is deprecated. Use toUtf8(aString) instead.
 const func string: striToUtf8 (in string: stri)                is action "STR_TOUTF8";
 
 

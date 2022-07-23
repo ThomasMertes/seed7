@@ -124,7 +124,7 @@ const func string: getPathArgument (in string: argument) is func
 
 
 const func string: toQuotedUtf8 (in string: stri) is
-  return "\"" <& striToUtf8(replace(stri, "\"", "\"\"")) <& "\"";
+  return "\"" <& toUtf8(replace(stri, "\"", "\"\"")) <& "\"";
 
 
 const proc: listOneFile (inout file: data, in string: fileName,
@@ -163,7 +163,7 @@ const proc: listOneFile (inout file: data, in string: fileName,
       line &:= modificationTime.year lpad 6;
     end if;
     line &:= " ";
-    line &:= striToUtf8(fileName);
+    line &:= toUtf8(fileName);
     # writeln("D> " <& line);
     write(data, line <& "\r\n");
   end func;
@@ -227,12 +227,12 @@ const proc: nameListFiles (inout ftpServerConnection: ftp, in string: filePath) 
         ftpResponse(ftp.control, "150 Here comes the directory listing.");
         dirContent := readDir(ftp.backendSys, filePath);
         for fileName range dirContent do
-          write(ftp.data, striToUtf8(fileName) <& "\r\n");
+          write(ftp.data, toUtf8(fileName) <& "\r\n");
         end for;
         ftpResponse(ftp.control, "226 Directory send OK.");
       elsif aFileType <> FILE_ABSENT then
         ftpResponse(ftp.control, "150 Here comes the directory listing.");
-        write(ftp.data, striToUtf8(filePath) <& "\r\n");
+        write(ftp.data, toUtf8(filePath) <& "\r\n");
         ftpResponse(ftp.control, "226 Directory send OK.");
       else
         ftpResponse(ftp.control, "450 File unavailable.");
@@ -276,7 +276,7 @@ const proc: mlsdFileList (inout ftpServerConnection: ftp, in string: dirName) is
                                      modificationTime.hour   lpad0 2 <&
                                      modificationTime.minute lpad0 2 <&
                                      modificationTime.second lpad0 2 <& ";");
-        write(ftp.data, " " <& striToUtf8(fileName) <& "\r\n");
+        write(ftp.data, " " <& toUtf8(fileName) <& "\r\n");
       end for;
       ftpResponse(ftp.control, "226 Directory send OK.");
     else
@@ -293,7 +293,7 @@ const proc: retrieveFile (inout ftpServerConnection: ftp, in string: filePath) i
     localFile := open(ftp.backendSys, filePath, "r");
     if localFile <> STD_NULL then
       ftpResponse(ftp.control, "150 Opening BINARY mode data connection for " <&
-          striToUtf8(filePath) <& " (" <& bigLength(localFile) <& " bytes).");
+          toUtf8(filePath) <& " (" <& bigLength(localFile) <& " bytes).");
       copyFile(localFile, ftp.data);
       close(localFile);
       ftpResponse(ftp.control, "226 Transfer complete.");
@@ -311,7 +311,7 @@ const proc: storeFile (inout ftpServerConnection: ftp, in string: filePath) is f
     localFile := open(ftp.backendSys, filePath, "w");
     if localFile <> STD_NULL then
       ftpResponse(ftp.control, "150 Opening BINARY mode data connection for " <&
-          striToUtf8(filePath));
+          toUtf8(filePath));
       copyFile(ftp.data, localFile);
       close(localFile);
       ftpResponse(ftp.control, "226 Transfer complete.");
@@ -426,7 +426,7 @@ const proc: processFtpRequest (inout ftpServerConnection: ftp, in string: reques
       end if;
       chdir(ftp.backendSys, ftp.currentDirectory);
       if fileType(ftp.backendSys, argument) <> FILE_ABSENT then
-        ftpResponse(ftp.control, "250- Listing " <& striToUtf8(argument));
+        ftpResponse(ftp.control, "250- Listing " <& toUtf8(argument));
         response := " ";
         if fileType(ftp.backendSys, argument) = FILE_DIR then
           response &:= "type=dir;";
@@ -441,7 +441,7 @@ const proc: processFtpRequest (inout ftpServerConnection: ftp, in string: reques
                                   modificationTime.hour   lpad0 2 <&
                                   modificationTime.minute lpad0 2 <&
                                   modificationTime.second lpad0 2 <& ";";
-        response &:= " " <& striToUtf8(argument);
+        response &:= " " <& toUtf8(argument);
         ftpResponse(ftp.control, response);
         ftpResponse(ftp.control, "250 End");
       else

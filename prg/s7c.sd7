@@ -3964,7 +3964,7 @@ const proc: process_dynamic_condition (in reference: current_object,
               c_expr.expr &:= "printf(\"other param_type\\n\");\n";
             end if;
           else
-            c_expr.expr &:= "printf(\"" <& striToUtf8(str(formal_param)) <& "\\n\");\n";
+            c_expr.expr &:= "printf(\"" <& toUtf8(str(formal_param)) <& "\\n\");\n";
           end if;
         end for;
       end if;
@@ -7087,11 +7087,11 @@ const proc: process_global_declarations (in program: prog) is func
       for index range 1 to pred(numObjects) do
         if index in profiledFunctions then
           write(c_prog, "  profile[" <& index <& "].file = " <&
-                c_literal(striToUtf8(file(profiledFunctions[index]))) <& ";");
+                c_literal(toUtf8(file(profiledFunctions[index]))) <& ";");
           write(c_prog, " profile[" <& index <& "].line = " <&
                 line(profiledFunctions[index]) <& ";");
           writeln(c_prog, " profile[" <& index <& "].name = " <&
-                  c_literal(striToUtf8(str(profiledFunctions[index]))) <& ";");
+                  c_literal(toUtf8(str(profiledFunctions[index]))) <& ";");
         end if;
       end for;
       writeln(c_prog, "}");

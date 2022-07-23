@@ -124,7 +124,7 @@ const func string: toHttpAscii (in string: stri) is func
     var integer: start is 1;
     var char: ch is ' ';
   begin
-    stri8 := striToUtf8(stri);
+    stri8 := toUtf8(stri);
     for ch key pos range stri8 do
       if ord(ch) >= 127 or ch < ' ' or
           ch in {'%', '/', '?', '&', '=', '+'} then

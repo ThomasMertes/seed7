@@ -45,7 +45,7 @@ const func string: sourceNameString (in string: sourceName) is func
     var string: stri is "";
   begin
     if ccConf.CC_SOURCE_UTF8 or not isByteString(sourceName) then
-      stri := c_literal(striToUtf8(toOsPath(sourceName)));
+      stri := c_literal(toUtf8(toOsPath(sourceName)));
     else
       stri := c_literal(toOsPath(sourceName));
     end if;

@@ -436,7 +436,7 @@ const proc: writeHead (inout file: outFile, in var tarHeader: header) is func
     var integer: startPos is 0;
     var integer: slashPos is 0;
   begin
-    filePath8 := striToUtf8(header.filePath);
+    filePath8 := toUtf8(header.filePath);
     if filePath8 & header.filePathSuffix <> header.prefix & "/" & header.name then
       if length(filePath8) + length(header.filePathSuffix) > 100 then
         if length(filePath8) + length(header.filePathSuffix) <= 256 then

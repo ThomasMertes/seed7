@@ -163,7 +163,7 @@ const func string: str (in arHeader: header) is func
   local
     var string: filePath8 is "";
   begin
-    filePath8 := striToUtf8(header.filePath);
+    filePath8 := toUtf8(header.filePath);
     # writeln("filePath8: " <& literal(filePath8));
     if header.longNameStart = 0 then
       if length(filePath8) < 16 then
@@ -434,7 +434,7 @@ const proc: setHeaderFileName (inout arArchive: ar, inout arHeader: header) is f
     var arHeader: longNamesHeader is arHeader.value;
   begin
     # writeln("setHeaderFileName: " <& header.filePath);
-    filePath8 := striToUtf8(header.filePath);
+    filePath8 := toUtf8(header.filePath);
     if length(filePath8) >= 16 then
       # Although 16 chars would fit a long name is used.
       longNames := ar.longNames;

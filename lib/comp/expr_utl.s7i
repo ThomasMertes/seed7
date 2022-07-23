@@ -37,7 +37,7 @@ const func string: create_name (in reference: current_object) is func
     raw_name := str(current_object);
     expr &:= str(objNumber(current_object));
     expr &:= "_";
-    expr &:= striToUtf8(raw_name);
+    expr &:= toUtf8(raw_name);
   end func;
 
 
@@ -56,7 +56,7 @@ const proc: create_name (in reference: current_object, inout string: expr) is fu
     end if;
     if raw_name <> "" then
       expr &:= "/*";
-      expr &:= striToUtf8(raw_name);
+      expr &:= toUtf8(raw_name);
       expr &:= "*/";
     end if;
   end func;
@@ -77,7 +77,7 @@ const proc: create_name2 (in reference: current_object, inout string: expr) is f
     end if;
     if raw_name <> "" then
       expr &:= "/ ";
-      expr &:= striToUtf8(raw_name);
+      expr &:= toUtf8(raw_name);
     end if;
   end func;
 

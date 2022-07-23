@@ -369,7 +369,7 @@ const func array string: readDir (inout ftpConnection: ftp, in string: dirPath) 
       if dirPath = "." then
         ftpCommand(ftp, "NLST");
       else
-        ftpCommand(ftp, "NLST " <& striToUtf8(dirPath));
+        ftpCommand(ftp, "NLST " <& toUtf8(dirPath));
       end if;
       ftpResponse(ftp);
       if  startsWith(ftp.response, "125") or
@@ -431,7 +431,7 @@ const func array string: listDir (inout ftpConnection: ftp, in string: dirPath) 
       if dirPath = "." then
         ftpCommand(ftp, "LIST");
       else
-        ftpCommand(ftp, "LIST " <& striToUtf8(dirPath));
+        ftpCommand(ftp, "LIST " <& toUtf8(dirPath));
       end if;
       ftpResponse(ftp);
       if  startsWith(ftp.response, "125") or
@@ -465,7 +465,7 @@ const proc: chdir (inout ftpConnection: ftp, in string: dirName) is func
     if dirName = ".." then
       ftpCommand(ftp, "CDUP");
     else
-      ftpCommand(ftp, "CWD " <& striToUtf8(dirName));
+      ftpCommand(ftp, "CWD " <& toUtf8(dirName));
     end if;
     ftpResponse(ftp);
     if not startsWith(ftp.response, "250") then
@@ -518,7 +518,7 @@ const func fileType: fileType (inout ftpConnection: ftp, in string: fileName) is
     var integer: pos is 0;
   begin
     if ftp.mlstCommandAvailable then
-      ftpCommand(ftp, "MLST " <& striToUtf8(fileName));
+      ftpCommand(ftp, "MLST " <& toUtf8(fileName));
       ftpResponse(ftp);
       if startsWith(ftp.response, "250") then
         lowerCaseReponseContent := lower(ftp.responseContent);
@@ -534,17 +534,17 @@ const func fileType: fileType (inout ftpConnection: ftp, in string: fileName) is
       end if;
     end if;
     if not ftp.mlstCommandAvailable then
-      ftpCommand(ftp, "SIZE " <& striToUtf8(fileName));
+      ftpCommand(ftp, "SIZE " <& toUtf8(fileName));
       ftpResponse(ftp);
       if startsWith(ftp.response, "213") then
         aFileType := FILE_REGULAR;
       else
         workingDir := getcwd(ftp);
-        ftpCommand(ftp, "CWD " <& striToUtf8(fileName));
+        ftpCommand(ftp, "CWD " <& toUtf8(fileName));
         ftpResponse(ftp);
         if startsWith(ftp.response, "250") then
           aFileType := FILE_DIR;
-          ftpCommand(ftp, "CWD " <& striToUtf8(workingDir));
+          ftpCommand(ftp, "CWD " <& toUtf8(workingDir));
           ftpResponse(ftp);
         end if;
       end if;
@@ -571,7 +571,7 @@ const func integer: fileSize (inout ftpConnection: ftp, in string: fileName) is 
   result
     var integer: size is 0;
   begin
-    ftpCommand(ftp, "SIZE " <& striToUtf8(fileName));
+    ftpCommand(ftp, "SIZE " <& toUtf8(fileName));
     ftpResponse(ftp);
     if startsWith(ftp.response, "213") then
       size := integer(trim(ftp.response[4 ..]));
@@ -588,7 +588,7 @@ const func bigInteger: bigFileSize (inout ftpConnection: ftp, in string: fileNam
   result
     var bigInteger: size is 0_;
   begin
-    ftpCommand(ftp, "SIZE " <& striToUtf8(fileName));
+    ftpCommand(ftp, "SIZE " <& toUtf8(fileName));
     ftpResponse(ftp);
     if startsWith(ftp.response, "213") then
       size := bigInteger(trim(ftp.response[4 ..]));
@@ -606,7 +606,7 @@ const func time: getMTime (inout ftpConnection: ftp, in string: fileName) is fun
   result
     var time: modificationTime is time.value;
   begin
-    ftpCommand(ftp, "MDTM " <& striToUtf8(fileName));
+    ftpCommand(ftp, "MDTM " <& toUtf8(fileName));
     ftpResponse(ftp);
     if startsWith(ftp.response, "213") and isDigitString(ftp.response[5 len 14]) then
       modificationTime.year   := integer(trim(ftp.response[ 5 len 4]));
@@ -754,9 +754,9 @@ const func file: open (inout ftpConnection: ftp, in string: filePath,
       openFtpData(ftp);
       if ftp.openDataSucceeded then
         if openForReading then
-          ftpCommand(ftp, "RETR " <& striToUtf8(filePath));
+          ftpCommand(ftp, "RETR " <& toUtf8(filePath));
         else
-          ftpCommand(ftp, "STOR " <& striToUtf8(filePath));
+          ftpCommand(ftp, "STOR " <& toUtf8(filePath));
         end if;
         ftpResponse(ftp);
         if  startsWith(ftp.response, "125") or
@@ -787,7 +787,7 @@ const func string: getFile (inout ftpConnection: ftp, in string: filePath) is fu
     setAsciiTransfer(ftp, FALSE);
     openFtpData(ftp);
     if ftp.openDataSucceeded then
-      ftpCommand(ftp, "RETR " <& striToUtf8(filePath));
+      ftpCommand(ftp, "RETR " <& toUtf8(filePath));
       ftpResponse(ftp);
       if  startsWith(ftp.response, "125") or
           startsWith(ftp.response, "150") then
@@ -825,7 +825,7 @@ const proc: putFile (inout ftpConnection: ftp, in string: filePath,
     setAsciiTransfer(ftp, FALSE);
     openFtpData(ftp);
     if ftp.openDataSucceeded then
-      ftpCommand(ftp, "STOR " <& striToUtf8(filePath));
+      ftpCommand(ftp, "STOR " <& toUtf8(filePath));
       ftpResponse(ftp);
       if  startsWith(ftp.response, "125") or
           startsWith(ftp.response, "150") then
@@ -850,7 +850,7 @@ const proc: putFile (inout ftpConnection: ftp, in string: filePath,
  *)
 const proc: removeFile (inout ftpConnection: ftp, in string: fileName) is func
   begin
-    ftpCommand(ftp, "DELE " <& striToUtf8(fileName));
+    ftpCommand(ftp, "DELE " <& toUtf8(fileName));
     ftpResponse(ftp);
     if not startsWith(ftp.response, "257") then
       raise FILE_ERROR;
@@ -864,12 +864,12 @@ const proc: removeFile (inout ftpConnection: ftp, in string: fileName) is func
  *)
 const proc: moveFile (inout ftpConnection: ftp, in string: sourcePath, in string: destPath) is func
   begin
-    ftpCommand(ftp, "RNFR " <& striToUtf8(sourcePath));
+    ftpCommand(ftp, "RNFR " <& toUtf8(sourcePath));
     ftpResponse(ftp);
     if not startsWith(ftp.response, "350") then
       raise FILE_ERROR;
     else
-      ftpCommand(ftp, "RNTO " <& striToUtf8(destPath));
+      ftpCommand(ftp, "RNTO " <& toUtf8(destPath));
       ftpResponse(ftp);
       if not startsWith(ftp.response, "250") then
         raise FILE_ERROR;
@@ -884,7 +884,7 @@ const proc: moveFile (inout ftpConnection: ftp, in string: sourcePath, in string
  *)
 const proc: mkdir (inout ftpConnection: ftp, in string: dirName) is func
   begin
-    ftpCommand(ftp, "MKD " <& striToUtf8(dirName));
+    ftpCommand(ftp, "MKD " <& toUtf8(dirName));
     ftpResponse(ftp);
     if not startsWith(ftp.response, "257") then
       raise FILE_ERROR;
@@ -898,7 +898,7 @@ const proc: mkdir (inout ftpConnection: ftp, in string: dirName) is func
  *)
 const proc: rmdir (inout ftpConnection: ftp, in string: dirName) is func
   begin
-    ftpCommand(ftp, "RMD " <& striToUtf8(dirName));
+    ftpCommand(ftp, "RMD " <& toUtf8(dirName));
     ftpResponse(ftp);
     if not startsWith(ftp.response, "257") then
       raise FILE_ERROR;
