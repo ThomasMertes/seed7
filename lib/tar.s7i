@@ -301,7 +301,7 @@ const proc: readHead (inout file: inFile, inout tarHeader: header) is func
       end if;
     end if;
     block
-      header.filePath := utf8ToStri(filePath8);
+      header.filePath := fromUtf8(filePath8);
     exception
       catch RANGE_ERROR:
         header.filePath := filePath8;
@@ -310,7 +310,7 @@ const proc: readHead (inout file: inFile, inout tarHeader: header) is func
       linkPath8 := header.linkname;
     end if;
     block
-      header.linkPath := utf8ToStri(linkPath8);
+      header.linkPath := fromUtf8(linkPath8);
     exception
       catch RANGE_ERROR:
         header.linkPath := linkPath8;
@@ -388,7 +388,7 @@ const proc: readMinimumOfHead (inout file: inFile, inout tarHeader: header) is f
       end if;
     end if;
     block
-      header.filePath := utf8ToStri(filePath8);
+      header.filePath := fromUtf8(filePath8);
     exception
       catch RANGE_ERROR:
         header.filePath := filePath8;

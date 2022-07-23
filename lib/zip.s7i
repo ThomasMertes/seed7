@@ -223,7 +223,7 @@ const func local_file_header: get_local_header (inout file: inFile) is func
       header.extraFieldMap := getExtraFieldMap(header.extra_field);
       if header.general_purpose_bit_flag & ZIP_FILE_NAME_IS_UTF8 <> bin32(0) then
         block
-          header.filePath := utf8ToStri(header.file_name);
+          header.filePath := fromUtf8(header.file_name);
         exception
           catch RANGE_ERROR:
             header.filePath := header.file_name;
@@ -601,7 +601,7 @@ const func central_file_header: get_central_header (inout file: inFile) is func
       header.extraFieldMap := getExtraFieldMap(header.extra_field);
       if header.general_purpose_bit_flag & ZIP_FILE_NAME_IS_UTF8 <> bin32(0) then
         block
-          header.filePath:= utf8ToStri(header.file_name);
+          header.filePath:= fromUtf8(header.file_name);
         exception
           catch RANGE_ERROR:
             header.filePath := header.file_name;
@@ -676,7 +676,7 @@ const func string: getCentralHeaderFilePath (inout file: inFile) is func
       ignore(gets(inFile, extra_field_length + file_comment_length));
       if general_purpose_bit_flag & ZIP_FILE_NAME_IS_UTF8 <> bin32(0) then
         block
-          filePath := utf8ToStri(filePath);
+          filePath := fromUtf8(filePath);
         exception
           catch RANGE_ERROR: noop;
         end block;

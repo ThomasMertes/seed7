@@ -113,7 +113,7 @@ const func string: getPathArgument (in string: argument) is func
   begin
     aPath := trim(argument);
     block
-      aPath := utf8ToStri(aPath);
+      aPath := fromUtf8(aPath);
     exception
       catch RANGE_ERROR:
         noop;

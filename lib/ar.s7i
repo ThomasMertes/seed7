@@ -98,7 +98,7 @@ const proc: assignFilePath (inout arHeader: header, in string: stri) is func
     end if;
     if header.name <> "" then
       block
-        header.filePath := utf8ToStri(header.name);
+        header.filePath := fromUtf8(header.name);
       exception
         catch RANGE_ERROR:
           header.filePath := header.name;
@@ -211,7 +211,7 @@ const func string: getLongName (in string: longNames, in integer: longNameStart)
       longName8 := longName8[ .. pred(slashPos)];
     end if;
     block
-      longName := utf8ToStri(longName8);
+      longName := fromUtf8(longName8);
     exception
       catch RANGE_ERROR:
         longName := longName8;

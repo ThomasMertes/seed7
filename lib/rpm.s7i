@@ -1078,7 +1078,7 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
         filePath8 &:= catalogEntry.baseName;
       end if;
       block
-        catalogEntry.filePath := utf8ToStri(filePath8);
+        catalogEntry.filePath := fromUtf8(filePath8);
       exception
         catch RANGE_ERROR:
           catalogEntry.filePath := filePath8;

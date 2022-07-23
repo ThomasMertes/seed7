@@ -64,7 +64,7 @@ const func hash [string] string: getCgiParameters (in string: paramStri) is func
         value := element[succ(pos) ..];
         value := fromUrlEncoded(value);
         block
-          value := utf8ToStri(value);
+          value := fromUtf8(value);
         exception
           catch RANGE_ERROR:
             noop;
@@ -75,7 +75,7 @@ const func hash [string] string: getCgiParameters (in string: paramStri) is func
       end if;
       name := fromUrlEncoded(name);
       block
-        name := utf8ToStri(name);
+        name := fromUtf8(name);
       exception
         catch RANGE_ERROR:
           noop;
@@ -99,7 +99,7 @@ const func hash [string] string: getCgiParameters (inout file: inFile) is func
   begin
     cgiParamLine := getln(inFile);
     block
-      cgiParamLine := utf8ToStri(cgiParamLine);
+      cgiParamLine := fromUtf8(cgiParamLine);
     exception
       catch RANGE_ERROR:
         noop;

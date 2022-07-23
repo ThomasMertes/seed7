@@ -131,7 +131,7 @@ const func httpRequest: processHttpRequest (inout httpServerConnection: conn) is
           end if;
           conn.request.path := replace(fromUrlEncoded(requestPath), "\\", "/");
           block
-            conn.request.path := utf8ToStri(conn.request.path);
+            conn.request.path := fromUtf8(conn.request.path);
           exception
             catch RANGE_ERROR:
               noop;

@@ -114,7 +114,7 @@ const func string: allowUtf8 (in string: inStri) is func
   begin
     outStri := inStri;
     block
-      outStri := utf8ToStri(outStri);
+      outStri := fromUtf8(outStri);
     exception
       catch RANGE_ERROR:
         noop;

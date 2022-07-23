@@ -27,23 +27,16 @@
 
 
 (**
- *  Convert a [[string]] with bytes in UTF-8 encoding to UTF-32.
- *  This function accepts overlong encodings and unpaired surrogate halves.
- *   utf8ToStri("\16#c0;\16#80;")         returns "\0;"        (overlong encoding)
- *   utf8ToStri("\16#ed;\16#b0;\16#80;")  returns "\16#dc00;"  (surrogate halve)
- *  @param utf8 String of bytes encoded with UTF-8.
- *  @return ''utf8'' converted to a normal (UTF-32) [[string]].
- *  @exception RANGE_ERROR If ''utf8'' contains a char beyond '\255;' or
- *                         if ''utf8'' is not encoded with UTF-8.
- *)
-const func string: utf8ToStri (in string: utf8)                is action "STR_UTF8TOSTRI";
-
-
-(**
  *  Convert a [[string]] to an UTF-8 encoded string of bytes.
  *   toUtf8("€")          returns "â\130;¬"
- *  This function accepts unpaired surrogate halves.
- *   toUtf8("\16#dc00;")  returns "\16#ed;\16#b0;\16#80;"  (surrogate halve)
+ *  Surrogate pairs are converted into a CESU-8 encoded string:
+ *   toUtf8("\16#d834;\16#dd1e;")  returns "\237;\160;\180;\237;\180;\158;"  (surrogate pair)
+ *  This function accepts unpaired surrogate characters.
+ *   toUtf8("\16#dc00;")  returns "\16#ed;\16#b0;\16#80;"  (unpaired surrogate char)
+ *  Note that a Unicode string should not contain surrogate characters.
+ *  If the string contains surrogate pairs use
+ *   toUtf8(replaceUtf16SurrogatePairs(stringWithSurrogatePairs))
+ *  to create a correct (not CESU-8 encoded) UTF-8 string.
  *  @param stri Normal (UTF-32) string to be converted to UTF-8.
  *  @return ''stri'' converted to a string of bytes with UTF-8 encoding.
  *)
@@ -52,6 +45,28 @@ const func string: toUtf8 (in string: stri)                    is action "STR_TO
 
 # The function striToUtf8(aString) is deprecated. Use toUtf8(aString) instead.
 const func string: striToUtf8 (in string: stri)                is action "STR_TOUTF8";
+
+
+(**
+ *  Convert a [[string]] with bytes in UTF-8 encoding to UTF-32.
+ *   fromUtf8("â\130;¬")                         returns "€"
+ *  Surrogate pairs from a CESU-8 encoded string are kept intact:
+ *   fromUtf8("\237;\160;\180;\237;\180;\158;")  returns "\16#d834;\16#dd1e;" (surrogate pair)
+ *  To decode a CESU-8 encoded string use:
+ *   replaceUtf16SurrogatePairs(fromUtf8(cesu8String))
+ *  Overlong encodings and unpaired surrogate chare are accepted.
+ *   fromUtf8("\16#c0;\16#80;")                  returns "\0;"        (overlong encoding)
+ *   fromUtf8("\16#ed;\16#b0;\16#80;")           returns "\16#dc00;"  (unpaired surrogate char)
+ *  @param utf8 String of bytes encoded with UTF-8.
+ *  @return ''utf8'' converted to a normal (UTF-32) [[string]].
+ *  @exception RANGE_ERROR If ''utf8'' contains a char beyond '\255;' or
+ *                         if ''utf8'' is not encoded with UTF-8.
+ *)
+const func string: fromUtf8 (in string: utf8)                  is action "STR_UTF8TOSTRI";
+
+
+# The function utf8ToStri(utf8String) is deprecated. Use fromUtf8(utf8String) instead.
+const func string: utf8ToStri (in string: utf8)                is action "STR_UTF8TOSTRI";
 
 
 (**
@@ -242,8 +257,9 @@ const func string: striToUtf16le (in string: stri) is func
 
 (**
  *  Return [[string]] where all surrogate pairs are replaced by single chars.
+ *   replaceUtf16SurrogatePairs("\16#d834;\16#dd1e;")  returns "\16#1d11e;"
  *  This function can be used to decode CESU-8 encoded strings:
- *   replaceUtf16SurrogatePairs(utf8ToStri(cesu8String))
+ *   replaceUtf16SurrogatePairs(fromUtf8(cesu8String))
  *  In CESU-8 an Unicode code point from the Basic Multilingual Plane (BMP) is
  *  encoded in the same way as in UTF-8. An Unicode code point outside the BMP
  *  is first represented as a surrogate pair, like in UTF-16, and then each

@@ -208,7 +208,7 @@ const proc: readHead (inout file: inFile, inout cpioHeader: header) is func
         header.magic := "";
       else
         block
-          header.filePath := utf8ToStri(filePath8);
+          header.filePath := fromUtf8(filePath8);
         exception
           catch RANGE_ERROR:
             header.filePath := filePath8;
@@ -289,7 +289,7 @@ const proc: readMinimumOfHead (inout file: inFile, inout cpioHeader: header) is 
         header.magic := "";
       else
         block
-          header.filePath := utf8ToStri(filePath8);
+          header.filePath := fromUtf8(filePath8);
         exception
           catch RANGE_ERROR:
             header.filePath := filePath8;
