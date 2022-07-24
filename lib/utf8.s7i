@@ -114,7 +114,7 @@ const proc: write (in utf8File: outFile, in string: stri) is func
 (**
  *  Read a character from an UTF-8 file.
  *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
- *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception RANGE_ERROR The file contains an invalid encoding.
  *)
 const func char: getc (in utf8File: inFile) is
   return utf8_getc(inFile.ext_file);
@@ -124,7 +124,7 @@ const func char: getc (in utf8File: inFile) is
  *  Return a string read with a maximum length from an UTF-8 file.
  *  @return the string read.
  *  @exception RANGE_ERROR The parameter ''maxLength'' is negative, or
- *             the file contains an illegal encoding.
+ *             the file contains an invalid encoding.
  *)
 const func string: gets (in utf8File: inFile, in integer: maxLength) is
   return utf8_gets(inFile.ext_file, maxLength);
@@ -139,7 +139,7 @@ const func string: gets (in utf8File: inFile, in integer: maxLength) is
  *  When the function is left inFile.bufferChar contains ' ',
  *  '\t', '\n' or [[char#EOF|EOF]].
  *  @return the word read.
- *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception RANGE_ERROR The file contains an invalid encoding.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  *)
@@ -155,7 +155,7 @@ const func string: getwd (inout utf8File: inFile) is
  *  When the function is left inFile.bufferChar contains '\n' or
  *  [[char#EOF|EOF]].
  *  @return the line read.
- *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception RANGE_ERROR The file contains an invalid encoding.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  *)

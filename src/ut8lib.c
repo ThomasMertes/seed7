@@ -46,7 +46,7 @@
 /**
  *  Read a character from an UTF-8 file.
  *  @return the character read, or EOF at the end of the file.
- *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception RANGE_ERROR The file contains an invalid encoding.
  */
 objectType ut8_getc (listType arguments)
 
@@ -62,7 +62,7 @@ objectType ut8_getc (listType arguments)
  *  Return a string read with a maximum length from an UTF-8 file.
  *  @return the string read.
  *  @exception RANGE_ERROR The length is negative or the file
- *             contains an illegal encoding.
+ *             contains an invalid encoding.
  */
 objectType ut8_gets (listType arguments)
 
@@ -83,7 +83,7 @@ objectType ut8_gets (listType arguments)
  *  When the function is left the 2nd parameter (terminationChar)
  *  contains '\n' or EOF.
  *  @return the line read.
- *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception RANGE_ERROR The file contains an invalid encoding.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
@@ -134,7 +134,7 @@ objectType ut8_seek (listType arguments)
  *  When the function is left the 2nd parameter (terminationChar)
  *  contains ' ', '\t', '\n' or EOF.
  *  @return the word read.
- *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception RANGE_ERROR The file contains an invalid encoding.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */

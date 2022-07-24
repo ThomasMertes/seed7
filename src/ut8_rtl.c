@@ -118,7 +118,7 @@ static inline void bytes_to_strelements (ustriType buffer, memSizeType bytes_in_
  *  @param inFile File from which UTF-8 encoded characters are read.
  *  @param stri An allocated string for the requested number of chars.
  *  @param err_info Unchanged if the function succeeds, and
- *                  RANGE_ERROR if inFile contains illegal encodings, and
+ *                  RANGE_ERROR if inFile contains invalid encodings, and
  *                  FILE_ERROR if a system function returns an error.
  *  @return the actual number of characters read.
  */
@@ -182,7 +182,7 @@ static memSizeType read_utf8_string (cFileType inFile, striType stri, errInfoTyp
  *  @param num_of_chars_read Address to which the actual number of
  *         characters read is assigned.
  *  @param err_info Unchanged if the function succeeds, and
- *                  RANGE_ERROR if inFile contains illegal encodings, and
+ *                  RANGE_ERROR if inFile contains invalid encodings, and
  *                  FILE_ERROR if a system function returns an error, and
  *                  MEMORY_ERROR if there was not enough memory.
  */
@@ -281,7 +281,7 @@ static striType read_and_alloc_utf8_stri (cFileType inFile, memSizeType chars_mi
 /**
  *  Read a character from an UTF-8 file.
  *  @return the character read, or EOF at the end of the file.
- *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception RANGE_ERROR The file contains an invalid encoding.
  */
 charType ut8Getc (fileType inFile)
 
@@ -316,7 +316,7 @@ charType ut8Getc (fileType inFile)
           result |= character & 0x3F;
           if (unlikely(result <= 0x7F)) {
             logError(printf("ut8Getc(%d): "
-                            "Overlong encodings are illegal "
+                            "Overlong encodings are invalid "
                             "('\\16#" FMT_X32 ";').\n",
                             safe_fileno(cInFile), result););
             raise_error(RANGE_ERROR);
@@ -346,7 +346,7 @@ charType ut8Getc (fileType inFile)
             if (unlikely(result <= 0x7FF)) {
               /* (result >= 0xD800 && result <= 0xDFFF)) */
               logError(printf("ut8Getc(%d): "
-                              "Overlong encodings are illegal "
+                              "Overlong encodings are invalid "
                               "('\\16#" FMT_X32 ";').\n",
                               safe_fileno(cInFile), result););
               raise_error(RANGE_ERROR);
@@ -386,7 +386,7 @@ charType ut8Getc (fileType inFile)
               result |= character & 0x3F;
               if (unlikely(result <= 0xFFFF)) {
                 logError(printf("ut8Getc(%d): "
-                                "Overlong encodings are illegal "
+                                "Overlong encodings are invalid "
                                 "('\\16#" FMT_X32 ";').\n",
                                 safe_fileno(cInFile), result););
                 raise_error(RANGE_ERROR);
@@ -439,7 +439,7 @@ charType ut8Getc (fileType inFile)
                 result |= character & 0x3F;
                 if (unlikely(result <= 0x1FFFFF)) {
                   logError(printf("ut8Getc(%d): "
-                                  "Overlong encodings are illegal "
+                                  "Overlong encodings are invalid "
                                   "('\\16#" FMT_X32 ";').\n",
                                   safe_fileno(cInFile), result););
                   raise_error(RANGE_ERROR);
@@ -501,7 +501,7 @@ charType ut8Getc (fileType inFile)
                   result |= character & 0x3F;
                   if (unlikely(result <= 0x3FFFFFF)) {
                     logError(printf("ut8Getc(%d): "
-                                    "Overlong encodings are illegal "
+                                    "Overlong encodings are invalid "
                                     "('\\16#" FMT_X32 ";').\n",
                                     safe_fileno(cInFile), result););
                     raise_error(RANGE_ERROR);
@@ -573,7 +573,7 @@ charType ut8Getc (fileType inFile)
  *  block is filled with data, resized and filled in a loop.
  *  @return the string read.
  *  @exception RANGE_ERROR The length is negative or the file
- *             contains an illegal encoding.
+ *             contains an invalid encoding.
  */
 striType ut8Gets (fileType inFile, intType length)
 
@@ -687,7 +687,7 @@ striType ut8Gets (fileType inFile, intType length)
  *  That means that the '\r' of a "\r\n" sequence is silently removed.
  *  When the function is left terminationChar contains '\n' or EOF.
  *  @return the line read.
- *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception RANGE_ERROR The file contains an invalid encoding.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
@@ -764,7 +764,7 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
               FREE_BSTRI(buffer, memlength);
               FREE_STRI(result, position);
               logError(printf("ut8LineRead(%d, '\\" FMT_U32 ";'): "
-                              "The file contains an illegal encoding.\n",
+                              "The file contains an invalid encoding.\n",
                               safe_fileno(cInFile), *terminationChar););
               raise_error(RANGE_ERROR);
               result = NULL;
@@ -887,7 +887,7 @@ void ut8Seek (fileType aFile, intType position)
  *  When the function is left terminationChar contains ' ', '\t', '\n' or
  *  EOF.
  *  @return the word read.
- *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception RANGE_ERROR The file contains an invalid encoding.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
@@ -969,7 +969,7 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
               FREE_BSTRI(buffer, memlength);
               FREE_STRI(result, position);
               logError(printf("ut8WordRead(%d, '\\" FMT_U32 ";'): "
-                              "The file contains an illegal encoding.\n",
+                              "The file contains an invalid encoding.\n",
                               safe_fileno(cInFile), *terminationChar););
               raise_error(RANGE_ERROR);
               result = NULL;

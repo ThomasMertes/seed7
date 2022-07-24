@@ -2069,7 +2069,7 @@ striType cstri_buf_to_stri (const_cstriType cstri, memSizeType length)
  *                  RANGE_ERROR if the conversion failed.
  *  @return an UTF-32 encoded Seed7 string, or
  *          NULL if the memory allocation failed or
- *          illegal UTF-8 encodings are used.
+ *          invalid UTF-8 encodings are used.
  */
 striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
 
@@ -2118,7 +2118,7 @@ striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
  *                  RANGE_ERROR if the conversion failed.
  *  @return an UTF-32 encoded Seed7 string, or
  *          NULL if the memory allocation failed or
- *          illegal UTF-8 encodings are used.
+ *          invalid UTF-8 encodings are used.
  */
 striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
     errInfoType *err_info)
@@ -3102,7 +3102,7 @@ os_striType temp_name_in_dir (const const_os_striType path)
  *  @param inBuffer Null terminated string with the shell command.
  *  @param outBuffer Destination for the processed command.
  *  @param err_info Unchanged if the function succeeds, and
- *                  RANGE_ERROR if there are illegal chars in inBuffer.
+ *                  RANGE_ERROR if there are invalid chars in inBuffer.
  */
 static void escape_command (const const_os_striType inBuffer, os_striType outBuffer,
     errInfoType *err_info)
