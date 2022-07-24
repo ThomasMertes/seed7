@@ -159,7 +159,7 @@ const func array string: readDir (inout fileSys: fileSystem, RECURSIVE) is DYNAM
  *  The function does follow symbolic links. Therefore it never
  *  returns ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
  *  not imply that a file with this name can be created, since missing
- *  directories and illegal file names cause also ''FILE_ABSENT''.
+ *  directories and invalid file names cause also ''FILE_ABSENT''.
  *  @return the type of the file.
  *)
 const func fileType: fileType (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
@@ -170,7 +170,7 @@ const func fileType: fileType (inout fileSys: fileSystem, in string: filePath) i
  *  The function does not follow symbolic links. Therefore it may
  *  return ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
  *  not imply that a file with this name can be created, since missing
- *  directories and illegal file names cause also ''FILE_ABSENT''.
+ *  directories and invalid file names cause also ''FILE_ABSENT''.
  *  @return the type of the file.
  *)
 const func fileType: fileTypeSL (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;

@@ -693,7 +693,7 @@ const func array string: readDir (inout cpioArchive: cpio, RECURSIVE) is
  *  is denied the function returns ''FILE_SYMLINK''.
  *  A return value of ''FILE_ABSENT'' does not imply that a file
  *  with this name can be created, since missing directories and
- *  illegal file names cause also ''FILE_ABSENT''.
+ *  invalid file names cause also ''FILE_ABSENT''.
  *  @return the type of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -747,7 +747,7 @@ const func fileType: fileType (inout cpioArchive: cpio, in var string: filePath)
  *  The function does not follow symbolic links. Therefore it may
  *  return ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
  *  not imply that a file with this name can be created, since missing
- *  directories and illegal file names cause also ''FILE_ABSENT''.
+ *  directories and invalid file names cause also ''FILE_ABSENT''.
  *  @return the type of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.

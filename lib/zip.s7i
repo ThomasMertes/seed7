@@ -1007,7 +1007,7 @@ const func array string: readDir (inout zipArchive: zip, RECURSIVE) is
  *  Determine the type of a file in a ZIP archive.
  *  A return value of ''FILE_ABSENT'' does not imply that a file
  *  with this name can be created, since missing directories and
- *  illegal file names cause also ''FILE_ABSENT''.
+ *  invalid file names cause also ''FILE_ABSENT''.
  *  @return the type of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
@@ -1046,7 +1046,7 @@ const func fileType: fileType (inout zipArchive: zip, in string: filePath) is fu
  *  Determine the type of a file in a ZIP archive.
  *  A return value of ''FILE_ABSENT'' does not imply that a file
  *  with this name can be created, since missing directories and
- *  illegal file names cause also ''FILE_ABSENT''.
+ *  invalid file names cause also ''FILE_ABSENT''.
  *  @return the type of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
