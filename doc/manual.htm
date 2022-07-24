@@ -8222,7 +8222,7 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
     <tr><td><tt><a name="file_KEY_CLOSE">KEY_CLOSE</a></tt></td>                  <td>The close button of the window has been pressed</td></tr>
     <tr><td><tt><a name="file_KEY_RESIZE">KEY_RESIZE</a></tt></td>                 <td>The window has been resized</td></tr>
     <tr><td><tt>KEY_UNDEF</tt></td>                  <td>Undefined key</td></tr>
-    <tr><td><tt><a name="file_KEY_NONE">KEY_NONE</a></tt></td>                   <td>No key pressed (returned by busy_getc)</td></tr>
+    <tr><td><tt><a name="file_KEY_NONE">KEY_NONE</a></tt></td>                   <td>No key pressed (returned by <tt><span class="func">getc</span>(<span class="var">KEYBOARD</span>, <span class="var">NO_WAIT</span>)</tt>)</td></tr>
 </table></dd></dl><p>
   The following example uses the <tt><a class="type" href="#types_char">char</a></tt> constant <tt><a class="var" href="#file_KEY_UP">KEY_UP</a></tt>:
 </p><pre class="indent">
@@ -8242,24 +8242,21 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   to deal with function and cursor keys, since the special key
   codes may change in future versions of Seed7.
 </p><p>
-  Note that <tt><span class="func">getc</span>(<span class="var">KEYBOARD</span>)</tt> works synchonous. This means that it
-  might wait (block) until a key has been pressed.
-</p><p>
-  Additionally to the operations possible with a <tt><a class="type" href="#types_file">file</a></tt> there
-  are two functions that are applicable only to files of type
-  <tt><span class="type">keyboard_file</span></tt>. These functions allow non-blocking calls:
+  Note that <tt><span class="func">getc</span>(<span class="var">KEYBOARD</span>)</tt> works synchronous. This means that it
+  might wait (block) until a key has been pressed. Blocking can be
+  avoided with the following functions:
 </p><ul>
-    <li><tt><span class="func">busy_getc</span></tt>, which delivers the next character
+    <li><tt><span class="func">inputReady</span></tt>, which returns <tt><span class="var">TRUE</span></tt> if a character can be read
+      without blocking and <tt><span class="var">FALSE</span></tt> otherwise.</li>
+    <li><tt><span class="func">getc</span>(<span class="var">KEYBOARD</span>, <span class="var">NO_WAIT</span>)</tt>, which delivers the next character
       from the keyboard or <tt><a class="var" href="#file_KEY_NONE">KEY_NONE</a></tt> if no key has been pressed.</li>
-    <li><tt><span class="func">keypressed</span></tt>, which returns <tt><span class="var">TRUE</span></tt> if a character
-      is available from the keyboard and <tt><span class="var">FALSE</span></tt> otherwise.</li>
 </ul><p>
-  Note that <tt><span class="func">keypressed</span></tt> does not actually read a character. Reading
-  must be done with a different function after <tt><span class="func">keypressed</span></tt> returns
-  <tt><span class="var">TRUE</span></tt>. Both functions (<tt><span class="func">busy_getc</span></tt> and <tt><span class="func">keypressed</span></tt>) are useful
-  when user input is allowed while some processing takes place.
-  The following program uses <tt><span class="func">busy_getc</span>(<span class="var">KEYBOARD</span>)</tt> to display
-  the time until a key is pressed:
+  Note that <tt><span class="func">inputReady</span></tt> does not actually read a character. Reading
+  must be done with a different function after <tt><span class="func">inputReady</span></tt> returns
+  <tt><span class="var">TRUE</span></tt>. Both functions (<tt><span class="func">getc</span>(<span class="var">KEYBOARD</span>, <span class="var">NO_WAIT</span>)</tt> and <tt><span class="func">inputReady</span></tt>)
+  are useful when user input is allowed while some processing takes
+  place. The following program uses <tt><span class="func">getc</span>(<span class="var">KEYBOARD</span>, <span class="var">NO_WAIT</span>)</tt> to
+  display the time until a key is pressed:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"<span class="lib">time.s7i</span>"</span>;
@@ -8268,7 +8265,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     writeln;
-    <span class="keywd">while</span> <span class="func">busy_getc</span>(<span class="var">KEYBOARD</span>) = <a class="var" href="#file_KEY_NONE">KEY_NONE</a> <span class="keywd">do</span>
+    <span class="keywd">while</span> <span class="func">getc</span>(<span class="var">KEYBOARD</span>, <span class="var">NO_WAIT</span>) = <a class="var" href="#file_KEY_NONE">KEY_NONE</a> <span class="keywd">do</span>
       write(time(NOW) &lt;&amp; <span class="stri">"\r"</span>);
       flush(<span class="var">OUT</span>);
     <span class="keywd">end while</span>;
@@ -8303,14 +8300,14 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
 </p><ul>
     <li><tt><span class="func">buttonPressed</span></tt>, which determines if a given button is
       currently pressed.</li>
-    <li><tt><span class="func">getxpos</span></tt>, which returns the X position of the mouse cursor
+    <li><tt><span class="func">clickedXPos</span></tt>, which returns the X position of the mouse cursor
       when a button was pressed.</li>
-    <li><tt><span class="func">getypos</span></tt>, which returns the Y position of the mouse cursor
+    <li><tt><span class="func">clickedYPos</span></tt>, which returns the Y position of the mouse cursor
       when a button was pressed.</li>
 </ul><p>
-  The functions <tt><span class="func">getxpos</span></tt> and <tt><span class="func">getypos</span></tt> can be used to determine
-  which position was "clicked". The program below uses <tt><span class="func">getxpos</span></tt>
-  and <tt><span class="func">getypos</span></tt> to produce a dot for each keypress.
+  The functions <tt><span class="func">clickedXPos</span></tt> and <tt><span class="func">clickedYPos</span></tt> can be used to determine
+  which position was "clicked". The program below uses <tt><span class="func">clickedXPos</span></tt>
+  and <tt><span class="func">clickedYPos</span></tt> to produce a dot for each keypress.
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="lib">"<span class="lib">keybd.s7i</span>"</span>;
@@ -8324,7 +8321,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
     <span class="var">KEYBOARD</span> := <span class="var">GRAPH_KEYBOARD</span>;
     command := <span class="func">getc</span>(<span class="var">KEYBOARD</span>);
     <span class="keywd">while</span> command = <a class="var" href="#file_KEY_MOUSE1">KEY_MOUSE1</a> <span class="keywd">do</span>
-      fcircle(<span class="func">getxpos</span>(<span class="var">KEYBOARD</span>), <span class="func">getypos</span>(<span class="var">KEYBOARD</span>), 4, light_red);
+      fcircle(<span class="func">clickedXPos</span>(<span class="var">KEYBOARD</span>), <span class="func">clickedYPos</span>(<span class="var">KEYBOARD</span>), 4, light_red);
       command := <span class="func">getc</span>(<span class="var">KEYBOARD</span>);
     <span class="keywd">end while</span>;
   <span class="keywd">end func</span>;
@@ -10379,8 +10376,8 @@ const char: charExceeds is '
 $ <span class="keywd">names</span> <span class="keywd">unicode</span>;
 </pre><p>
   <a class="link" href="#tokens_Comments">Comments</a> and <a class="link" href="#tokens_Line_comments">line comments</a> may also contain Unicode, but they are
-  not checked for valid UTF-8. This way code parts with illegal
-  UTF-8 can be commented out. Illegal UTF-8 encodings in <a class="link" href="#tokens_Identifiers">identifiers</a>
+  not checked for valid UTF-8. This way code parts with invalid
+  UTF-8 can be commented out. Invalid UTF-8 encodings in <a class="link" href="#tokens_Identifiers">identifiers</a>
   and <a class="link" href="#tokens_Literals">literals</a> trigger a <a class="link" href="#errors_Parsing_errors">parsing error</a>:
 </p><pre class="indent">
 *** err.sd7(90):58: <a class="link" href="#errors_OVERLONG_UTF8_ENCODING">Overlong UTF-8 encoding used for character "\0;" (U+0000)</a>
@@ -10772,7 +10769,7 @@ my_dir := homeDir;
   links. All functions which use a file path, except <tt><span class="func">fileTypeSL</span></tt>
   and <tt><span class="func">readLink</span></tt> follow symbolic links.  A return value of
   <tt><a class="var" href="#os_FILE_ABSENT">FILE_ABSENT</a></tt> does not imply that a file with this name can be
-  created, since missing directories and illegal file names cause
+  created, since missing directories and invalid file names cause
   also <tt><a class="var" href="#os_FILE_ABSENT">FILE_ABSENT</a></tt>.
 </p>
   <div><dl><dt><p>Returns:</p></dt><dd><dl>
@@ -11627,7 +11624,7 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELEC
   is not open. This is checked by the driver. Other things are
   checked by the database. The database might raise the exception
   <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt>. Note that some databases do not check everything,
-  when preparing the statement. So an illegal SQL statement might
+  when preparing the statement. So an invalid SQL statement might
   be accepted by <tt><span class="func">prepare</span>()</tt>, but executing the prepared statement
   later will fail.
 </p><p>
@@ -11731,7 +11728,7 @@ SELECT name, area FROM customers WHERE name = '' UNION SELECT login, password FR
   been prepared. Executing fails with a <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt>, if
   not all parameters have been <a class="link" href="#database_Bind_values_to_placeholders">bound</a>. If the database returns
   an error the exception <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt> gets also raised. Note
-  that illegal SQL statements might raise a <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt> in
+  that invalid SQL statements might raise a <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt> in
   <tt><span class="func">prepare</span>()</tt> or in <tt><span class="func">execute</span>()</tt>. When the exception is raised
   depends on the database.
 </p><p>
@@ -12707,13 +12704,12 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <a name="actions_graphic_keyboard"><h3>14.15 Actions to support the graphic keyboard</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>drwlib.c function</th>   <th>kbd_rtl.c/drw_x11.c/drw_win.c function</th></tr>
-    <tr><td>GKB_BUSY_GETC</td>       <td>gkb_busy_getc</td>       <td>gkbKeyPressed() ? gkbGetc() : 512</td></tr>
     <tr><td>GKB_BUTTON_PRESSED</td>  <td>gkb_button_pressed</td>  <td>gkbButtonPressed</td></tr>
     <tr><td>GKB_BUTTON_XPOS</td>     <td>gkb_button_xpos</td>     <td>gkbButtonXpos</td></tr>
     <tr><td>GKB_BUTTON_YPOS</td>     <td>gkb_button_ypos</td>     <td>gkbButtonYpos</td></tr>
     <tr><td>GKB_GETC</td>            <td>gkb_getc</td>            <td>gkbGetc</td></tr>
     <tr><td>GKB_GETS</td>            <td>gkb_gets</td>            <td>gkbGets</td></tr>
-    <tr><td>GKB_KEYPRESSED</td>      <td>gkb_keypressed</td>      <td>gkbKeyPressed</td></tr>
+    <tr><td>GKB_INPUT_READY</td>     <td>gkb_input_ready</td>     <td>gkbInputReady</td></tr>
     <tr><td>GKB_LINE_READ</td>       <td>gkb_line_read</td>       <td>gkbLineRead</td></tr>
     <tr><td>GKB_RAW_GETC</td>        <td>gkb_raw_getc</td>        <td>gkbRawGetc</td></tr>
     <tr><td>GKB_SELECT_INPUT</td>    <td>gkb_select_input</td>    <td>gkbSelectInput</td></tr>
@@ -12832,10 +12828,9 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 <a name="actions_console_keyboard"><h3>14.19 Actions to support the text (console) screen keyboard</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>kbdlib.c function</th>   <th>kbd_rtl.c/kbd_inf.c function</th></tr>
-    <tr><td>KBD_BUSY_GETC</td>       <td>kbd_busy_getc</td>       <td>kbdKeyPressed() ? kbdGetc() : 512</td></tr>
     <tr><td>KBD_GETC</td>            <td>kbd_getc</td>            <td>kbdGetc</td></tr>
     <tr><td>KBD_GETS</td>            <td>kbd_gets</td>            <td>kbdGets</td></tr>
-    <tr><td>KBD_KEYPRESSED</td>      <td>kbd_keypressed</td>      <td>kbdKeyPressed</td></tr>
+    <tr><td>KBD_INPUT_READY</td>     <td>kbd_input_ready</td>     <td>kbdInputReady</td></tr>
     <tr><td>KBD_LINE_READ</td>       <td>kbd_line_read</td>       <td>kbdLineRead</td></tr>
     <tr><td>KBD_RAW_GETC</td>        <td>kbd_raw_getc</td>        <td>kbdRawGetc</td></tr>
     <tr><td>KBD_WORD_READ</td>       <td>kbd_word_read</td>       <td>kbdWordRead</td></tr>
@@ -13072,7 +13067,6 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SCT_CPY</td>             <td>sct_cpy</td>             <td>cpy_ ...</td></tr>
     <tr><td>SCT_CREATE</td>          <td>sct_create</td>          <td>create_ ...</td></tr>
     <tr><td>SCT_DESTR</td>           <td>sct_destr</td>           <td>destr_ ...</td></tr>
-    <tr><td>SCT_ELEM</td>            <td>sct_elem</td>            <td>&nbsp;</td></tr>
     <tr><td>SCT_EMPTY</td>           <td>sct_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>SCT_INCL</td>            <td>sct_incl</td>            <td>&nbsp;</td></tr>
     <tr><td>SCT_LNG</td>             <td>sct_lng</td>             <td>&nbsp;</td></tr>
@@ -13857,7 +13851,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 string, or
         NULL if the memory allocation failed or
-        illegal UTF-8 encodings are used.</dd></dl></dd>
+        invalid UTF-8 encodings are used.</dd></dl></dd>
 </dl></div>
 <hr />
   <div><a name="ffi_cstri8_buf_to_stri"><h3>cstri8_buf_to_stri</h3></a>
@@ -13878,7 +13872,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 string, or
         NULL if the memory allocation failed or
-        illegal UTF-8 encodings are used.</dd></dl></dd>
+        invalid UTF-8 encodings are used.</dd></dl></dd>
 </dl></div>
 <hr />
   <div><a name="ffi_cstri8_or_cstri_to_stri"><h3>cstri8_or_cstri_to_stri</h3></a>

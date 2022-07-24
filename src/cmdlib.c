@@ -292,7 +292,7 @@ objectType cmd_filesize (listType arguments)
  *  The function does follow symbolic links. Therefore it never
  *  returns 'FILE_SYMLINK'. A return value of 'FILE_ABSENT' does
  *  not imply that a file with this name can be created, since missing
- *  directories and illegal file names cause also 'FILE_ABSENT'.
+ *  directories and invalid file names cause also 'FILE_ABSENT'.
  *  @return the type of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.
@@ -316,7 +316,7 @@ objectType cmd_filetype (listType arguments)
  *  The function does not follow symbolic links. Therefore it may
  *  return 'FILE_SYMLINK'. A return value of 'FILE_ABSENT' does
  *  not imply that a file with this name can be created, since missing
- *  directories and illegal file names cause also 'FILE_ABSENT'.
+ *  directories and invalid file names cause also 'FILE_ABSENT'.
  *  @return the type of the file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
  *             to the system path type.

@@ -1,3 +1,95 @@
+20220724:
+- The operating system DOS is supported (with DJGPP) again. The tests
+  have been done with Dosbox.
+- Explanations about syntax highlighting, static type checking and
+  return type overloading have been improved in the FAQ.
+- In the manual, the chapter about the keyboard has been improved to
+  explain the window close button and window resize events.
+  The manual has also been adjusted to describe the new functions
+  instead of the deprecated ones.
+- The error messages for failed declarations have been improved.
+- The error reporting has been improved to also show an error line
+  if parsing the file has finished.
+- Reading from a Windows console with getc(KEYBOARD) has been
+  improved to support all Unicode characters (including characters
+  outside of the Basic Multilingual Plane). This allows the reading
+  of characters that have been pasted from the clipboard to a console
+  window.
+- The functions inputReady(), getc(aFile, NO_WAIT), clickedXPos()
+  and clickedYPos() have been added to keybd.s7i.
+- The functions toUtf8(), fromUtf8(), toUtf16Be(), fromUtf16Be(),
+  toUtf16Le(), fromUtf16Le() and fromUtf7() have been added to
+  unicode.s7i.
+- The functions toUtf16Be() and toUtf16Le() raise RANGE_ERROR if a
+  surrogate character is present.
+- The functions fromUtf16Be() and fromUtf16Le() raise RANGE_ERROR
+  if an invalid surrogate pair is found (a single surrogate character
+  or surrogate characters not in the proper succession).
+- In unicode.s7i the function replaceUtf16SurrogatePairs() has been
+  fixed to work correctly.
+- Tests for toUtf16Be(), fromUtf16Be(), toUtf16Le(), fromUtf16Le()
+  and replaceUtf16SurrogatePairs() have been added to chkstr.sd7.
+- Several improvements have been done in chkccomp.c:
+  - If reading a numeric test result fails, the program waits for a
+    second before restarting the test.
+  - It shows an error message if a test fails to deliver a numeric
+    result.
+  - It does not create an empty test program. Some anti virus
+    software considers an empty program to be dangerous.
+  - It determines if partial linking is actually working.
+  - A list of potential partial linking options is tested to find
+    the correct one.
+  - The number of warnings has been reduced.
+- In tim_dos.c, tim_unx.c and tim_win.c the function timNow() has
+  been improved to work also for an unsigned time_t.
+- The support for the unused action SCT_ELEM has been removed.
+- In keybd.s7i the functions keypressed(), busy_getc(), getxpos()
+  and getypos() are deprecated now. The functions inputReady(),
+  getc(aFile, NO_WAIT), clickedXPos() and clickedYPos() should be
+  used instead.
+- The files dialog.s7i, bas7.sd7, carddemo.sd7, castle.sd7,
+  clock.sd7, clock2.sd7, clock3.sd7, dnafight.sd7, ftp7.sd7,
+  gkbd.sd7, hal.sd7, kbd.sd7, klondike.sd7, lander.sd7,
+  mahjong.sd7, mandelbr.sd7, mirror.sd7, pac.sd7, pairs.sd7,
+  panic.sd7, planets.sd7, prime.sd7, pv7.sd7, rand.sd7,
+  savehd7.sd7, shisen.sd7, sl.sd7, snake.sd7, sokoban.sd7,
+  sudoku7.sd7, tet.sd7, tetg.sd7 and wator.sd7 have been altered
+  to use inputReady(), getc(aFile, NO_WAIT), clickedXPos() and
+  clickedYPos() instead of the deprecated functions.
+- In keybd.s7, the implementation of getc(aFile, NO_WAIT) is now
+  based on inputReady(). The primitive actions KBD_BUSY_GETC and
+  GKB_BUSY_GETC are not needed anymore.
+- The support for the primitive actions KBD_BUSY_GETC and
+  GKB_BUSY_GETC has been removed from interpreter and compiler.
+  Changes have been done in drwlib.c, drwlib.h kbdlib.c, kbdlib.h,
+  primitiv.c, comp/action.s7i, comp/gkb_act.s7i and
+  comp/kbd_act.s7i.
+- The actions GKB_KEYPRESSED and KBD_KEYPRESSED have been renamed
+  to GKB_INPUT_READY and KBD_INPUT_READY respectively.
+- In unicode.s7i the functions striToUtf8(), utf8ToStri(),
+  striToUtf16be(), utf16beToStri, striToUtf16le, utf16leToStri and
+  utf7ToStri() are deprecated now. The functions toUtf8(),
+  fromUtf8(), toUtf16Be(), fromUtf16Be(), toUtf16Le(),
+  fromUtf16Le() and fromUtf7() should be used instead.
+- The files ar.s7i, cgi.s7i, cgidialog.s7i, charsets.s7i, cpio.s7i,
+  csv.s7i, ftp.s7i, ftpserv.s7i, gethttp.s7i, httpserv.s7i, rpm.s7i,
+  tar.s7i, zip.s7i, chkstr.sd7, ide7.sd7 s7c.sd7, comp/debug.s7i and
+  comp/expr_util.s7i have been altered to use the new functions
+  instead of the deprecated function.
+- The exception CLOSE_ERROR has been renamed to GRAPHIC_ERROR.
+- The graphic drivers have been changed to raise GRAPHIC_ERROR
+  instead of FILE_ERROR.
+- The C macro SUPPORTS_PARTIAL_LINKING has been renamed to
+  LINKER_OPT_PARTIAL_LINKING in chkccomp.c and several makefiles.
+- The functions checkPartialLinking() and determinePartialLinking()
+  have been added to chkccomp.c. These functions determine if
+  partial linking is actually working.
+- Documentation comments have been improved in keybd.s7i,
+  unicode.s7i, drwlib.c and kbdlib.c.
+- In several files phrases like "illegal encoding" and
+  "illegal file names" have been replaced with "invalid encoding"
+  and "invalid file names".
+
 20220626:
 - Syntax highlighting for the Nano editor has been added. Many
   thanks to Duke Normandin for creating seed7.nanorc.

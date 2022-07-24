@@ -841,12 +841,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2022-06-26 the number of lines is:
+than 300000 lines of Seed7. For version 2022-07-24 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">171338</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 13018</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">206526</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">173600</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">171723</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 13019</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">206574</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">173681</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1704,11 +1704,13 @@ Every good programmer has some concepts about what values will be hold by
 variables or parameters and what values will be returned by functions. A good
 type system helps to formalize the type concepts which are already in the mind of
 the programmer. That way the ideas of the programmer are also documented.
+This type documentation helps when reading the code. The maintenance costs are
+also reduced since code is more often read that written.
 </p><p>
 When comparing compile time and runtime type checking it can be concluded that
 dynamic typed languages save some programming time by omitting type
 declarations, but this time must be paid back with massive interest rates to do
-the debugging.
+the debugging and when the code needs to be maintained.
 </p></div>
 
 <div><br /><a name="faq_runtime_speed_and_type_checking"><h3>Does static type checking speed up programs?
@@ -1925,11 +1927,11 @@ type overloading simplifies type checking a lot. This way the following holds:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
   &nbsp;The type of every expression (and sub expression) is independent of the context.
 </td></tr></table></dd></dl><p>
-Consider this expression about operator overloading (applying also to functions):
+Consider this expression with operators (applying also to functions):
 </p><pre class="indent">
 <span class="var">a</span> <span class="op">=</span> <span class="var">b</span> <span class="op">+</span> <span class="var">c</span> <span class="op">*</span> <span class="var">d</span>
 </pre><p>
-Converted into a tree representation:
+Converting into a tree representation gives:
 </p><pre class="indent">
   =
  / \
@@ -1951,11 +1953,11 @@ The type information goes strictly upward (or inside out).
    the type of the whole expression.</li>
 </ul><p>
 This bottom up approach simplifies type checking a lot for both the compiler
-and the human reader.
-</p><p>
-It is not possible to overload something which has no parameters
-(like a variable or a literal). As a consequence it is sometimes necessary to
-cast a literal to get an unambiguous expression.
+and the human reader. With return type overloading there would be ambigous
+sub expressions. For the whole expression these ambiguities might be
+resolved or they might stay unresolved. It is obvious that return type
+overloading would complicate type checking considerable (also for the
+human reader).
 </p></div>
 
 <div><br /><a name="faq_variable_parameter_list"><h3>Can functions have variable parameter lists?

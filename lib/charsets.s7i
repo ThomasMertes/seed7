@@ -2000,11 +2000,11 @@ const proc: conv2unicodeByName (inout string: stri,
     elsif charset =     "NS_4551-1" then
       conv2unicode(stri, ns_4551_1);
     elsif charset =     "UTF-16BE" then
-      stri := utf16beToStri(stri);
+      stri := fromUtf16Be(stri);
     elsif charset =     "UTF-16LE" then
-      stri := utf16leToStri(stri);
+      stri := fromUtf16Le(stri);
     elsif charset =     "UTF-7" then
-      stri := utf7ToStri(stri);
+      stri := fromUtf7(stri);
     else
       # writeln("Unknown charset: " <& literal(charset));
       raise RANGE_ERROR;

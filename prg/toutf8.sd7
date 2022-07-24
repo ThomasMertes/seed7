@@ -196,20 +196,22 @@ const proc: main is func
           conv2unicode(stri, cp_1047);
         elsif conv_name = "UTF-16BE" then
           if startsWith(stri, "\254;\255;") then
-            stri := utf16beToStri(stri[3 ..]);
+            stri := fromUtf16Be(stri[3 ..]);
           elsif startsWith(stri, "\255;\254;") then
-            stri := utf16leToStri(stri[3 ..]);
+            stri := fromUtf16Le(stri[3 ..]);
           else
-            stri := utf16beToStri(stri);
+            stri := fromUtf16Be(stri);
           end if;
         elsif conv_name = "UTF-16LE" then
           if startsWith(stri, "\255;\254;") then
-            stri := utf16leToStri(stri[3 ..]);
+            stri := fromUtf16Le(stri[3 ..]);
           elsif startsWith(stri, "\254;\255;") then
-            stri := utf16beToStri(stri[3 ..]);
+            stri := fromUtf16Be(stri[3 ..]);
           else
-            stri := utf16leToStri(stri);
+            stri := fromUtf16Le(stri);
           end if;
+        elsif conv_name = "UTF-7" then
+          stri := fromUtf7(stri);
         else
           block
             conv2unicodeByName(stri, conv_name);
