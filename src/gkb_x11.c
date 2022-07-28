@@ -1436,6 +1436,39 @@ charType gkbGetc (void)
               default:
                 if (lookup_count == 1) {
                   result = buffer[0];
+                  if ((currentEvent.xkey.state & Mod1Mask || /* Left ALT modifier */
+                       modState.leftAlt) &&
+                      ((result >= 'a' && result <= 'z') ||
+                       (result >= 'A' && result <= 'Z'))) {
+                    switch (result) {
+                      case 'a': case 'A': result = K_ALT_A; break;
+                      case 'b': case 'B': result = K_ALT_B; break;
+                      case 'c': case 'C': result = K_ALT_C; break;
+                      case 'd': case 'D': result = K_ALT_D; break;
+                      case 'e': case 'E': result = K_ALT_E; break;
+                      case 'f': case 'F': result = K_ALT_F; break;
+                      case 'g': case 'G': result = K_ALT_G; break;
+                      case 'h': case 'H': result = K_ALT_H; break;
+                      case 'i': case 'I': result = K_ALT_I; break;
+                      case 'j': case 'J': result = K_ALT_J; break;
+                      case 'k': case 'K': result = K_ALT_K; break;
+                      case 'l': case 'L': result = K_ALT_L; break;
+                      case 'm': case 'M': result = K_ALT_M; break;
+                      case 'n': case 'N': result = K_ALT_N; break;
+                      case 'o': case 'O': result = K_ALT_O; break;
+                      case 'p': case 'P': result = K_ALT_P; break;
+                      case 'q': case 'Q': result = K_ALT_Q; break;
+                      case 'r': case 'R': result = K_ALT_R; break;
+                      case 's': case 'S': result = K_ALT_S; break;
+                      case 't': case 'T': result = K_ALT_T; break;
+                      case 'u': case 'U': result = K_ALT_U; break;
+                      case 'v': case 'V': result = K_ALT_V; break;
+                      case 'w': case 'W': result = K_ALT_W; break;
+                      case 'x': case 'X': result = K_ALT_X; break;
+                      case 'y': case 'Y': result = K_ALT_Y; break;
+                      case 'z': case 'Z': result = K_ALT_Z; break;
+                    } /* switch */
+                  } /* if */
                 } else {
                   result = mapKeysymToUnicode(currentKey);
                 } /* if */
@@ -1670,32 +1703,32 @@ charType gkbGetc (void)
                     case '7': result = K_ALT_7; break;
                     case '8': result = K_ALT_8; break;
                     case '9': result = K_ALT_9; break;
-                    case 'a': result = K_ALT_A; break;
-                    case 'b': result = K_ALT_B; break;
-                    case 'c': result = K_ALT_C; break;
-                    case 'd': result = K_ALT_D; break;
-                    case 'e': result = K_ALT_E; break;
-                    case 'f': result = K_ALT_F; break;
-                    case 'g': result = K_ALT_G; break;
-                    case 'h': result = K_ALT_H; break;
-                    case 'i': result = K_ALT_I; break;
-                    case 'j': result = K_ALT_J; break;
-                    case 'k': result = K_ALT_K; break;
-                    case 'l': result = K_ALT_L; break;
-                    case 'm': result = K_ALT_M; break;
-                    case 'n': result = K_ALT_N; break;
-                    case 'o': result = K_ALT_O; break;
-                    case 'p': result = K_ALT_P; break;
-                    case 'q': result = K_ALT_Q; break;
-                    case 'r': result = K_ALT_R; break;
-                    case 's': result = K_ALT_S; break;
-                    case 't': result = K_ALT_T; break;
-                    case 'u': result = K_ALT_U; break;
-                    case 'v': result = K_ALT_V; break;
-                    case 'w': result = K_ALT_W; break;
-                    case 'x': result = K_ALT_X; break;
-                    case 'y': result = K_ALT_Y; break;
-                    case 'z': result = K_ALT_Z; break;
+                    case 'a': case 'A': result = K_ALT_A; break;
+                    case 'b': case 'B': result = K_ALT_B; break;
+                    case 'c': case 'C': result = K_ALT_C; break;
+                    case 'd': case 'D': result = K_ALT_D; break;
+                    case 'e': case 'E': result = K_ALT_E; break;
+                    case 'f': case 'F': result = K_ALT_F; break;
+                    case 'g': case 'G': result = K_ALT_G; break;
+                    case 'h': case 'H': result = K_ALT_H; break;
+                    case 'i': case 'I': result = K_ALT_I; break;
+                    case 'j': case 'J': result = K_ALT_J; break;
+                    case 'k': case 'K': result = K_ALT_K; break;
+                    case 'l': case 'L': result = K_ALT_L; break;
+                    case 'm': case 'M': result = K_ALT_M; break;
+                    case 'n': case 'N': result = K_ALT_N; break;
+                    case 'o': case 'O': result = K_ALT_O; break;
+                    case 'p': case 'P': result = K_ALT_P; break;
+                    case 'q': case 'Q': result = K_ALT_Q; break;
+                    case 'r': case 'R': result = K_ALT_R; break;
+                    case 's': case 'S': result = K_ALT_S; break;
+                    case 't': case 'T': result = K_ALT_T; break;
+                    case 'u': case 'U': result = K_ALT_U; break;
+                    case 'v': case 'V': result = K_ALT_V; break;
+                    case 'w': case 'W': result = K_ALT_W; break;
+                    case 'x': case 'X': result = K_ALT_X; break;
+                    case 'y': case 'Y': result = K_ALT_Y; break;
+                    case 'z': case 'Z': result = K_ALT_Z; break;
                     default:
                       result = buffer[0];
                       break;

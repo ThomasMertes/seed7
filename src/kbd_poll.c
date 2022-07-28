@@ -104,7 +104,7 @@ static struct termios term_bak;
 static boolType keybd_initialized = FALSE;
 
 
-#define SIZE_KEY_TABLE 130
+#define SIZE_KEY_TABLE 156
 
 static const_cstriType key_table[SIZE_KEY_TABLE];
 static char erase_ch[2];
@@ -133,9 +133,15 @@ static charType key_code[SIZE_KEY_TABLE] = {
 /* 100 */ K_ALT_H,      K_ALT_I,      K_ALT_J,      K_ALT_K,      K_ALT_L,
 /* 105 */ K_ALT_M,      K_ALT_N,      K_ALT_O,      K_ALT_P,      K_ALT_Q,
 /* 110 */ K_ALT_R,      K_ALT_S,      K_ALT_T,      K_ALT_U,      K_ALT_V,
-/* 115 */ K_ALT_W,      K_ALT_X,      K_ALT_Y,      K_ALT_Z,      K_ALT_0,
-/* 120 */ K_ALT_1,      K_ALT_2,      K_ALT_3,      K_ALT_4,      K_ALT_5,
-/* 125 */ K_ALT_6,      K_ALT_7,      K_ALT_8,      K_ALT_9,      K_DEL};
+/* 115 */ K_ALT_W,      K_ALT_X,      K_ALT_Y,      K_ALT_Z,      K_ALT_A,
+/* 120 */ K_ALT_B,      K_ALT_C,      K_ALT_D,      K_ALT_E,      K_ALT_F,
+/* 125 */ K_ALT_G,      K_ALT_H,      K_ALT_I,      K_ALT_J,      K_ALT_K,
+/* 130 */ K_ALT_L,      K_ALT_M,      K_ALT_N,      K_ALT_O,      K_ALT_P,
+/* 135 */ K_ALT_Q,      K_ALT_R,      K_ALT_S,      K_ALT_T,      K_ALT_U,
+/* 140 */ K_ALT_V,      K_ALT_W,      K_ALT_X,      K_ALT_Y,      K_ALT_Z,
+/* 145 */ K_ALT_0,      K_ALT_1,      K_ALT_2,      K_ALT_3,      K_ALT_4,
+/* 150 */ K_ALT_5,      K_ALT_6,      K_ALT_7,      K_ALT_8,      K_ALT_9,
+/* 155 */ K_DEL};
 
 
 
@@ -475,7 +481,7 @@ static void key_table_init (void)
     key_table[97] = "\033e";    /* K_ALT_E */
     key_table[98] = "\033f";    /* K_ALT_F */
     key_table[99] = "\033g";    /* K_ALT_G */
-    key_table[100] = "\033h";    /* K_ALT_H */
+    key_table[100] = "\033h";   /* K_ALT_H */
     key_table[101] = "\033i";   /* K_ALT_I */
     key_table[102] = "\033j";   /* K_ALT_J */
     key_table[103] = "\033k";   /* K_ALT_K */
@@ -494,17 +500,43 @@ static void key_table_init (void)
     key_table[116] = "\033x";   /* K_ALT_X */
     key_table[117] = "\033y";   /* K_ALT_Y */
     key_table[118] = "\033z";   /* K_ALT_Z */
-    key_table[119] = "\0330";   /* K_ALT_0 */
-    key_table[120] = "\0331";   /* K_ALT_1 */
-    key_table[121] = "\0332";   /* K_ALT_2 */
-    key_table[122] = "\0333";   /* K_ALT_3 */
-    key_table[123] = "\0334";   /* K_ALT_4 */
-    key_table[124] = "\0335";   /* K_ALT_5 */
-    key_table[125] = "\0336";   /* K_ALT_6 */
-    key_table[126] = "\0337";   /* K_ALT_7 */
-    key_table[127] = "\0338";   /* K_ALT_8 */
-    key_table[128] = "\0339";   /* K_ALT_9 */
-    key_table[129] = "\177";    /* K_DEL */
+    key_table[119] = "\033A";   /* K_ALT_A */
+    key_table[120] = "\033B";   /* K_ALT_B */
+    key_table[121] = "\033C";   /* K_ALT_C */
+    key_table[122] = "\033D";   /* K_ALT_D */
+    key_table[123] = "\033E";   /* K_ALT_E */
+    key_table[124] = "\033F";   /* K_ALT_F */
+    key_table[125] = "\033G";   /* K_ALT_G */
+    key_table[126] = "\033H";   /* K_ALT_H */
+    key_table[127] = "\033I";   /* K_ALT_I */
+    key_table[128] = "\033J";   /* K_ALT_J */
+    key_table[129] = "\033K";   /* K_ALT_K */
+    key_table[130] = "\033L";   /* K_ALT_L */
+    key_table[131] = "\033M";   /* K_ALT_M */
+    key_table[132] = "\033N";   /* K_ALT_N */
+    key_table[133] = "\033O";   /* K_ALT_O */
+    key_table[134] = "\033P";   /* K_ALT_P */
+    key_table[135] = "\033Q";   /* K_ALT_Q */
+    key_table[136] = "\033R";   /* K_ALT_R */
+    key_table[137] = "\033S";   /* K_ALT_S */
+    key_table[138] = "\033T";   /* K_ALT_T */
+    key_table[139] = "\033U";   /* K_ALT_U */
+    key_table[140] = "\033V";   /* K_ALT_V */
+    key_table[141] = "\033W";   /* K_ALT_W */
+    key_table[142] = "\033X";   /* K_ALT_X */
+    key_table[143] = "\033Y";   /* K_ALT_Y */
+    key_table[144] = "\033Z";   /* K_ALT_Z */
+    key_table[145] = "\0330";   /* K_ALT_0 */
+    key_table[146] = "\0331";   /* K_ALT_1 */
+    key_table[147] = "\0332";   /* K_ALT_2 */
+    key_table[148] = "\0333";   /* K_ALT_3 */
+    key_table[149] = "\0334";   /* K_ALT_4 */
+    key_table[150] = "\0335";   /* K_ALT_5 */
+    key_table[151] = "\0336";   /* K_ALT_6 */
+    key_table[152] = "\0337";   /* K_ALT_7 */
+    key_table[153] = "\0338";   /* K_ALT_8 */
+    key_table[154] = "\0339";   /* K_ALT_9 */
+    key_table[155] = "\177";    /* K_DEL */
     /* Some function key definitions start with a printable         */
     /* character. This makes absolutely no sense and confuses the   */
     /* function key recognition. Therefore such definitions are     */
@@ -669,11 +701,11 @@ charType kbdGetc (void)
 
   {
     memSizeType read_result;
-    int exact_match_count;
-    int exact_matched_key;
-    int partial_match_count;
-    size_t partial_match_len;
-    int partial_matched_key;
+    int exact_match_count = 0;
+    int exact_matched_key = 0;
+    int partial_match_count = 0;
+    size_t partial_match_len = 0;
+    int partial_matched_key = 0;
     int number;
     size_t len;
     charType result;
@@ -714,11 +746,6 @@ charType kbdGetc (void)
       } /* if */
       printf("\n");
 #endif
-      exact_match_count = 0;
-      exact_matched_key = 0;
-      partial_match_len = 0;
-      partial_match_count = 0;
-      partial_matched_key = 0;
       for (number = 0; number < SIZE_KEY_TABLE; number++) {
         if (key_table[number] != NULL) {
           len = strlen(key_table[number]);
@@ -769,6 +796,7 @@ charType kbdGetc (void)
           key_buffer_size--;
         } else {
           /* The check for key encodings did not find an unique result. */
+          /* printf(" \\E%*s\n", (int) (key_buffer_size - 1), &key_buffer[1]); */
           result = K_UNDEF;
           key_buffer_size = 0;
         } /* if */
