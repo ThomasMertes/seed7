@@ -184,7 +184,7 @@ chkccomp.h:
 	echo "#define LINKER_OPT_STATIC_LINKING \"-static\"" >> chkccomp.h
 	echo "#define CC_OPT_LINK_TIME_OPTIMIZATION \"-flto\"" >> chkccomp.h
 	echo "#define LINKER_OPT_NO_LTO \"-fno-lto\"" >> chkccomp.h
-	echo "#define LINKER_OPT_PARTIAL_LINKING \"-r\"" >> chkccomp.h
+	echo "#define POTENTIAL_PARTIAL_LINKING_OPTIONS \"-r\"" >> chkccomp.h
 	echo "#define USE_GMP 0" >> chkccomp.h
 	echo "#define INT_DIV_OVERFLOW_INFINITE_LOOP 1" >> chkccomp.h
 	echo "#define POSTGRESQL_USE_DLL" >> chkccomp.h

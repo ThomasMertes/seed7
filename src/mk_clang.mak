@@ -221,7 +221,7 @@ chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" > chkccomp.h
 	echo "#define CC_OPT_LINK_TIME_OPTIMIZATION \"-flto\"" >> chkccomp.h
 	echo "#define LINKER_OPT_DYN_LINK_LIBS \"-ldl\"" >> chkccomp.h
-	echo "#define LINKER_OPT_PARTIAL_LINKING \"-r\"" >> chkccomp.h
+	echo "#define POTENTIAL_PARTIAL_LINKING_OPTIONS \"-r\"" >> chkccomp.h
 	echo "#define USE_GMP 0" >> chkccomp.h
 	echo "#define ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS" >> chkccomp.h
 

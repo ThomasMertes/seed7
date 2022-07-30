@@ -160,10 +160,14 @@
  *      Contains the linker option to add the dynamic linking library.
  *      It might be added to the SYSTEM_DRAW_LIBS, SYSTEM_CONSOLE_LIBS or
  *      SYSTEM_DATABASE_LIBS settings.
- *  LINKER_OPT_PARTIAL_LINKING: (optional)
- *      Defined if partial/incremental linking is prossible with this option.
- *      In this case source code can be compiled with the options -c and
- *      LINKER_OPT_PARTIAL_LINKING. Usually LINKER_OPT_PARTIAL_LINKING is "-r".
+ *  POTENTIAL_PARTIAL_LINKING_OPTIONS: (optional)
+ *      A comma separated list of potential partial/incremental linking options.
+ *      Defined if partial/incremental linking is possibly supported.
+ *      This list is tested to find an option that supports partial linking.
+ *      A working option is written to "version.h" and "macros" under the
+ *      name LINKER_OPT_PARTIAL_LINKING. Usually LINKER_OPT_PARTIAL_LINKING
+ *      is "-r" or "-r -nostdlib". In case partial works the source code
+ *      can be compiled with the options -c and LINKER_OPT_PARTIAL_LINKING.
  *      This option produces a relocatable object as output. This is
  *      also known as partial linking. The tool objcopy is used also.
  *      Objcopy is used with the option -L symbolname which converts
@@ -5975,7 +5979,7 @@ static void determineOptionForLinkTimeOptimization (FILE *versionFile)
 
 
 
-#ifdef LINKER_OPT_PARTIAL_LINKING
+#ifdef POTENTIAL_PARTIAL_LINKING_OPTIONS
 static int checkPartialLinking (const char *ccOptPartialLinking)
 
   {
@@ -6039,25 +6043,25 @@ static int checkPartialLinking (const char *ccOptPartialLinking)
 static void determinePartialLinking (FILE *versionFile)
 
   {
-#ifdef LINKER_OPT_PARTIAL_LINKING
-    const char *linkerOptPartialLinkingList[] = { LINKER_OPT_PARTIAL_LINKING };
+#ifdef POTENTIAL_PARTIAL_LINKING_OPTIONS
+    const char *potentialPartialLinkingOptions[] = { POTENTIAL_PARTIAL_LINKING_OPTIONS };
 #endif
     unsigned int pos;
     int found = 0;
     char buffer[BUFFER_SIZE];
 
   /* determinePartialLinking */
-#ifdef LINKER_OPT_PARTIAL_LINKING
+#ifdef POTENTIAL_PARTIAL_LINKING_OPTIONS
     fprintf(logFile, "Check for partial linking: ");
-    for (pos = 0; pos < sizeof(linkerOptPartialLinkingList) / sizeof(char *) &&
+    for (pos = 0; pos < sizeof(potentialPartialLinkingOptions) / sizeof(char *) &&
          !supportsPartialLinking; pos++) {
-      supportsPartialLinking = checkPartialLinking(linkerOptPartialLinkingList[pos]);
+      supportsPartialLinking = checkPartialLinking(potentialPartialLinkingOptions[pos]);
       if (supportsPartialLinking) {
         fprintf(logFile, " Supported.\n");
         fprintf(versionFile, "#define LINKER_OPT_PARTIAL_LINKING \"%s\"\n",
-                linkerOptPartialLinkingList[pos]);
+                potentialPartialLinkingOptions[pos]);
         sprintf(buffer, "LINKER_OPT_PARTIAL_LINKING = %s\n",
-                linkerOptPartialLinkingList[pos]);
+                potentialPartialLinkingOptions[pos]);
         appendToFile("macros", buffer);
         appendToFile("macros", "OBJCOPY = objcopy\n");
       } /* if */
