@@ -1125,10 +1125,9 @@ static boolType keyCodePressed (char keyVector[32], KeyCode keyCode)
 
 
 
-static boolType keyboardButtonPressed (KeySym sym)
+static boolType keyboardButtonPressed (char keyVector[32], KeySym sym)
 
   {
-    char keyVector[32];
     KeyCode keyCode;
     boolType useDeadKey;
     boolType result;
@@ -1166,7 +1165,6 @@ static boolType keyboardButtonPressed (KeySym sym)
     if (keyCode == 0) {
       result = 0;
     } else {
-      XQueryKeymap(mydisplay, keyVector);
       result = keyCodePressed(keyVector, keyCode);
     } /* if */
     /* printf("keyboardButtonPressed -> %d\n", result); */
@@ -1208,13 +1206,9 @@ void gkbInitKeyboard (void)
   } /* gkbInitKeyboard */
 
 
-static void setupModState (void)
+static void setupModState (char keyVector[32])
 
-  {
-    char keyVector[32];
-
-  /* setupModState */
-    XQueryKeymap(mydisplay, keyVector);
+  { /* setupModState */
     modState.leftShift    = keyCodePressed(keyVector, keyCodeOf.Shift_L);
     modState.rightShift   = keyCodePressed(keyVector, keyCodeOf.Shift_R);
     modState.leftControl  = keyCodePressed(keyVector, keyCodeOf.Control_L);
@@ -1301,7 +1295,11 @@ charType gkbGetc (void)
         case FocusIn:
           traceEvent(printf("FocusIn\n"););
           hasFocus = TRUE;
-          setupModState();
+          {
+            char keyVector[32];
+            XQueryKeymap(mydisplay, keyVector);
+            setupModState(keyVector);
+          }
           getNextChar = TRUE;
           break;
 
@@ -2094,7 +2092,11 @@ static boolType processEvents (void)
           case FocusIn:
             traceEvent(printf("processEvents: FocusIn\n"););
             hasFocus = TRUE;
-            setupModState();
+            {
+              char keyVector[32];
+              XQueryKeymap(mydisplay, keyVector);
+              setupModState(keyVector);
+            }
             if (num_events == 1) {
               num_events = XEventsQueued(mydisplay, QueuedAfterReading);
             } else {
@@ -2272,6 +2274,7 @@ boolType gkbInputReady (void)
 boolType gkbButtonPressed (charType button)
 
   {
+    char keyVector[32];
     unsigned int button_mask = 0;
     KeySym sym1;
     KeySym sym2 = 0;
@@ -2287,7 +2290,8 @@ boolType gkbButtonPressed (charType button)
       /* When the window has not the focus it does not receive keyPress   */
       /* and keyRelease events. In this case the state of the modifier    */
       /* keys in the current moment is retrived with setupModState().     */
-      setupModState();
+      XQueryKeymap(mydisplay, keyVector);
+      setupModState(keyVector);
     } /* if */
     switch (button) {
       case K_CTL_A: case K_ALT_A: case 'A': case 'a': sym1 = 'A'; break;
@@ -2724,13 +2728,16 @@ boolType gkbButtonPressed (charType button)
       if (button_mask != 0) {
         result = mouseButtonPressed(button_mask);
       } else {
-        result = keyboardButtonPressed(sym1);
+        if (hasFocus) {
+          XQueryKeymap(mydisplay, keyVector);
+        } /* if */
+        result = keyboardButtonPressed(keyVector, sym1);
         if (!result && sym2 != 0) {
-          result = keyboardButtonPressed(sym2);
+          result = keyboardButtonPressed(keyVector, sym2);
           if (!result && sym3 != 0) {
-            result = keyboardButtonPressed(sym3);
+            result = keyboardButtonPressed(keyVector, sym3);
             if (!result && sym4 != 0) {
-              result = keyboardButtonPressed(sym4);
+              result = keyboardButtonPressed(keyVector, sym4);
             } /* if */
           } /* if */
         } /* if */
