@@ -106,6 +106,23 @@ struct buttonStateStruct {
 
 static struct buttonStateStruct buttonState = {FALSE, FALSE};
 
+struct keyCodeStruct {
+    KeyCode Shift_L;
+    KeyCode Shift_R;
+    KeyCode Control_L;
+    KeyCode Control_R;
+    KeyCode Alt_L;
+    KeyCode Alt_R;
+    KeyCode ISO_Level3_Shift;
+    KeyCode Mode_switch;
+    KeyCode Shift_Lock;
+    KeyCode Caps_Lock;
+    KeyCode Num_Lock;
+    KeyCode Scroll_Lock;
+};
+
+static struct keyCodeStruct keyCodeOf;
+
 extern int getCloseAction (winType actual_window);
 extern void redraw (winType redrawWindow, int xPos, int yPos, unsigned int width, unsigned int height);
 extern boolType resize (winType resizeWindow, unsigned int width, unsigned int height);
@@ -1078,31 +1095,59 @@ static boolType mouseButtonPressed (unsigned int button_mask)
 
 
 
+static boolType keyCodePressed (char keyVector[32], KeyCode keyCode)
+
+  {
+    unsigned int byteIndex;
+    unsigned int bitIndex;
+    boolType result;
+
+  /* keyCodePressed */
+    byteIndex = keyCode >> 3;
+    bitIndex = keyCode & 0x7;
+    /*
+    {
+      unsigned int idx;
+
+      printf("keyCode=%d, byteIndex=%d, bitIndex=%d\n", keyCode, byteIndex, bitIndex);
+      for (idx = 0; idx < 32; idx++) {
+        printf("%02x", (unsigned char) keyVector[idx]);
+      }
+      for (idx = 0; idx < 32; idx++) {
+        if (keyVector[idx] != 0) printf("  byteIndex: %d, value: %x", idx, keyVector[idx]);
+      }
+      printf("\n");
+    }
+    */
+    result = 1 & (keyVector[byteIndex] >> bitIndex);
+    return result;
+  } /* keyCodePressed */
+
+
+
 static boolType keyboardButtonPressed (KeySym sym)
 
   {
-    char key_vector[32];
-    KeyCode code;
-    boolType use_dead_key;
-    unsigned int byteindex;
-    unsigned int bitindex;
+    char keyVector[32];
+    KeyCode keyCode;
+    boolType useDeadKey;
     boolType result;
 
   /* keyboardButtonPressed */
-    code = XKeysymToKeycode(mydisplay, sym);
-    /* printf("keyboardButtonPressed: XKeysymToKeycode(%04lx) returns %d\n", sym, code); */
-    if (code == 0) {
+    keyCode = XKeysymToKeycode(mydisplay, sym);
+    /* printf("keyboardButtonPressed: XKeysymToKeycode(%04lx) returns %d\n", sym, keyCode); */
+    if (keyCode == 0) {
       /* printf("keyboardButtonPressed: XKeysymToKeycode(%04lx) returns 0\n", sym); */
-      if (code == 0 && sym >= 0x0100 && sym <= 0x10FFFF) {
+      if (keyCode == 0 && sym >= 0x0100 && sym <= 0x10FFFF) {
         /* printf("XKeysymToKeycode(%08lx)\n", sym + 0x01000000); */
-        code = XKeysymToKeycode(mydisplay, sym + 0x01000000);
-        if (code != 0) {
+        keyCode = XKeysymToKeycode(mydisplay, sym + 0x01000000);
+        if (keyCode != 0) {
           sym += 0x01000000;
-          /* printf("XKeysymToKeycode(%08lx) -> %04lx\n", sym, code); */
+          /* printf("XKeysymToKeycode(%08lx) -> %04lx\n", sym, keyCode); */
         } /* if */
       } /* if */
-      if (code == 0) {
-        use_dead_key = TRUE;
+      if (keyCode == 0) {
+        useDeadKey = TRUE;
         switch (sym) {
           case '^':  sym = XK_dead_circumflex; break;
           case '~':  sym = XK_dead_tilde;      break;
@@ -1111,34 +1156,18 @@ static boolType keyboardButtonPressed (KeySym sym)
           case 0xb0: sym = XK_dead_abovering;  break;
           case 0xb4: sym = XK_dead_acute;      break;
           case 0xb8: sym = XK_dead_cedilla;    break;
-          default:   use_dead_key = FALSE;     break;
+          default:   useDeadKey = FALSE;     break;
         } /* switch */
-        if (use_dead_key) {
-          code = XKeysymToKeycode(mydisplay, sym);
+        if (useDeadKey) {
+          keyCode = XKeysymToKeycode(mydisplay, sym);
         } /* if */
       } /* if */
     } /* if */
-    if (code == 0) {
+    if (keyCode == 0) {
       result = 0;
     } else {
-      byteindex = code >> 3;
-      bitindex = code & 0x7;
-      XQueryKeymap(mydisplay, key_vector);
-      /*
-      {
-        unsigned int idx;
-
-        printf("sym=%lx, code=%d, byteindex=%d, bitindex=%d\n", sym, code, byteindex, bitindex);
-        for (idx = 0; idx < 32; idx++) {
-          printf("%02x", (unsigned char) key_vector[idx]);
-        }
-        for (idx = 0; idx < 32; idx++) {
-          if (key_vector[idx] != 0) printf("  byteindex: %d, value: %x", idx, key_vector[idx]);
-        }
-        printf("\n");
-      }
-      */
-      result = 1 & (key_vector[byteindex] >> bitindex);
+      XQueryKeymap(mydisplay, keyVector);
+      result = keyCodePressed(keyVector, keyCode);
     } /* if */
     /* printf("keyboardButtonPressed -> %d\n", result); */
     return result;
@@ -1161,22 +1190,44 @@ static void setKeyboardState (void)
 
 
 
+void gkbInitKeyboard (void)
+
+  { /* gkbInitKeyboard */
+    keyCodeOf.Shift_L          = XKeysymToKeycode(mydisplay, XK_Shift_L);
+    keyCodeOf.Shift_R          = XKeysymToKeycode(mydisplay, XK_Shift_R);
+    keyCodeOf.Control_L        = XKeysymToKeycode(mydisplay, XK_Control_L);
+    keyCodeOf.Control_R        = XKeysymToKeycode(mydisplay, XK_Control_R);
+    keyCodeOf.Alt_L            = XKeysymToKeycode(mydisplay, XK_Alt_L);
+    keyCodeOf.Alt_R            = XKeysymToKeycode(mydisplay, XK_Alt_R);
+    keyCodeOf.ISO_Level3_Shift = XKeysymToKeycode(mydisplay, XK_ISO_Level3_Shift);
+    keyCodeOf.Mode_switch      = XKeysymToKeycode(mydisplay, XK_Mode_switch);
+    keyCodeOf.Shift_Lock       = XKeysymToKeycode(mydisplay, XK_Shift_Lock);
+    keyCodeOf.Caps_Lock        = XKeysymToKeycode(mydisplay, XK_Caps_Lock);
+    keyCodeOf.Num_Lock         = XKeysymToKeycode(mydisplay, XK_Num_Lock);
+    keyCodeOf.Scroll_Lock      = XKeysymToKeycode(mydisplay, XK_Scroll_Lock);
+  } /* gkbInitKeyboard */
+
+
 static void setupModState (void)
 
-  { /* setupModState */
-    modState.leftShift    = keyboardButtonPressed(XK_Shift_L);
-    modState.rightShift   = keyboardButtonPressed(XK_Shift_R);
-    modState.leftControl  = keyboardButtonPressed(XK_Control_L);
-    modState.rightControl = keyboardButtonPressed(XK_Control_R);
-    modState.leftAlt      = keyboardButtonPressed(XK_Alt_L) ||
-                            keyboardButtonPressed(XK_Mode_switch);
-    modState.rightAlt     = keyboardButtonPressed(XK_Alt_R) ||
-                            keyboardButtonPressed(XK_ISO_Level3_Shift) ||
-                            keyboardButtonPressed(XK_Mode_switch);
-    modState.shiftLock    = keyboardButtonPressed(XK_Shift_Lock) ||
-                            keyboardButtonPressed(XK_Caps_Lock);
-    modState.numLock      = keyboardButtonPressed(XK_Num_Lock);
-    modState.scrollLock   = keyboardButtonPressed(XK_Scroll_Lock);
+  {
+    char keyVector[32];
+
+  /* setupModState */
+    XQueryKeymap(mydisplay, keyVector);
+    modState.leftShift    = keyCodePressed(keyVector, keyCodeOf.Shift_L);
+    modState.rightShift   = keyCodePressed(keyVector, keyCodeOf.Shift_R);
+    modState.leftControl  = keyCodePressed(keyVector, keyCodeOf.Control_L);
+    modState.rightControl = keyCodePressed(keyVector, keyCodeOf.Control_R);
+    modState.leftAlt      = keyCodePressed(keyVector, keyCodeOf.Alt_L) ||
+                            keyCodePressed(keyVector, keyCodeOf.Mode_switch);
+    modState.rightAlt     = keyCodePressed(keyVector, keyCodeOf.Alt_R) ||
+                            keyCodePressed(keyVector, keyCodeOf.ISO_Level3_Shift) ||
+                            keyCodePressed(keyVector, keyCodeOf.Mode_switch);
+    modState.shiftLock    = keyCodePressed(keyVector, keyCodeOf.Shift_Lock) ||
+                            keyCodePressed(keyVector, keyCodeOf.Caps_Lock);
+    modState.numLock      = keyCodePressed(keyVector, keyCodeOf.Num_Lock);
+    modState.scrollLock   = keyCodePressed(keyVector, keyCodeOf.Scroll_Lock);
     setKeyboardState();
   } /* setupModState */
 

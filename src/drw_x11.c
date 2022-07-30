@@ -80,6 +80,8 @@ boolType findX11Dll (void);
 #define findX11Dll() TRUE
 #endif
 
+void gkbInitKeyboard (void);
+
 
 #define MAX_XCHAR2B_LEN   (MAX_MEMSIZETYPE / sizeof(XChar2b))
 #define PI 3.141592653589793238462643383279502884197
@@ -530,6 +532,7 @@ void drawInit (void)
       blankPixmap = XCreateBitmapFromData(mydisplay, DefaultRootWindow(mydisplay), data, 1, 1);
       emptyCursor = XCreatePixmapCursor(mydisplay, blankPixmap, blankPixmap, &color, &color, 0, 0);
       XFreePixmap(mydisplay, blankPixmap);
+      gkbInitKeyboard();
       init_called = TRUE;
     } /* if */
     logFunction(printf("drawInit -->\n"););
