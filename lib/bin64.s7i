@@ -90,7 +90,7 @@ const func bin64: bin64 (in float: number)                     is action "FLT_DO
  *  Convert to integer.
  *  @return the unchanged value as integer.
  *)
-const func integer: (attr integer) conv (in bin64: binValue)   is action "INT_ICONV3";
+const func integer: (attr integer) conv (in bin64: bits)       is action "INT_ICONV3";
 
 
 (**
@@ -104,14 +104,14 @@ const func bin64: (attr bin64) conv (in integer: anInt)        is action "INT_IC
  *  Convert to integer.
  *  @return the unchanged value as integer.
  *)
-const func integer: ord (in bin64: binValue)                   is action "INT_ICONV1";
+const func integer: ord (in bin64: bits)                       is action "INT_ICONV1";
 
 
 (**
  *  Convert to integer.
  *  @return the unchanged value as integer.
  *)
-const func integer: integer (in bin64: binValue)               is action "INT_ICONV1";
+const func integer: integer (in bin64: bits)                   is action "INT_ICONV1";
 
 
 (**
@@ -119,7 +119,7 @@ const func integer: integer (in bin64: binValue)               is action "INT_IC
  *  @return the unchanged value as integer.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func bigInteger: big (in bin64: binValue)                is action "BIN_BIG";
+const func bigInteger: big (in bin64: bits)                    is action "BIN_BIG";
 
 
 (**
@@ -127,7 +127,7 @@ const func bigInteger: big (in bin64: binValue)                is action "BIN_BI
  *  @return the unchanged value as integer.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func bigInteger: bigInteger (in bin64: binValue)         is action "BIN_BIG";
+const func bigInteger: bigInteger (in bin64: bits)             is action "BIN_BIG";
 
 
 (**
@@ -148,14 +148,14 @@ const func float: float (in bin64: bits)                       is action "FLT_BI
  *          respectively less than, equal to, or greater than the
  *          second.
  *)
-const func integer: compare (in bin64: number1, in bin64: number2) is action "BIN_CMP";
+const func integer: compare (in bin64: bits1, in bin64: bits2) is action "BIN_CMP";
 
 
 (**
  *  Compute the hash value of a bin64 value.
  *  @return the hash value.
  *)
-const func integer: hashCode (in bin64: number)                is action "INT_HASHCODE";
+const func integer: hashCode (in bin64: bits)                  is action "INT_HASHCODE";
 
 
 (**
@@ -174,7 +174,7 @@ const func bin64: rand (attr bin64) is
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: str (in bin64: number)                      is action "BIN_STR";
+const func string: str (in bin64: bits)                        is action "BIN_STR";
 
 
 (**
@@ -186,7 +186,7 @@ const func string: str (in bin64: number)                      is action "BIN_ST
  *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: (in bin64: number) radix (in integer: base) is action "BIN_radix";
+const func string: (in bin64: bits) radix (in integer: base)   is action "BIN_radix";
 
 
 (**
@@ -198,37 +198,37 @@ const func string: (in bin64: number) radix (in integer: base) is action "BIN_ra
  *  @exception RANGE_ERROR If base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: (in bin64: number) RADIX (in integer: base) is action "BIN_RADIX";
+const func string: (in bin64: bits) RADIX (in integer: base)   is action "BIN_RADIX";
 
 
 (**
  *  Convert a ''bin64'' into a [[string]] of bytes with big-endian encoding.
  *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
- *  @param number Bin64 to be converted.
+ *  @param bits Bin64 to be converted.
  *  @param length Determines the length of the result string.
  *  @return a string of ''length'' bytes with the unsigned binary
- *          representation of ''number''.
+ *          representation of ''bits''.
  *  @exception RANGE_ERROR If ''length'' is negative or zero, or
  *                         if the result would not fit in ''length'' bytes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: bytes (in bin64: number, BE, in integer: length) is action "BIN_N_BYTES_BE";
+const func string: bytes (in bin64: bits, BE, in integer: length) is action "BIN_N_BYTES_BE";
 
 
 (**
  *  Convert a ''bin64'' into a [[string]] of bytes with little-endian encoding.
  *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
- *  @param number Bin64 to be converted.
+ *  @param bits Bin64 to be converted.
  *  @param length Determines the length of the result string.
  *  @return a string of ''length'' bytes with the unsigned binary
- *          representation of ''number''.
+ *          representation of ''bits''.
  *  @exception RANGE_ERROR If ''length'' is negative or zero, or
  *                         if the result would not fit in ''length'' bytes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: bytes (in bin64: number, LE, in integer: length) is action "BIN_N_BYTES_LE";
+const func string: bytes (in bin64: bits, LE, in integer: length) is action "BIN_N_BYTES_LE";
 
 
 (**
@@ -236,7 +236,7 @@ const func string: bytes (in bin64: number, LE, in integer: length) is action "B
  *  @return TRUE if the two values are equal,
  *          FALSE otherwise.
  *)
-const func boolean: (in bin64: binary1) = (in bin64: binary2)  is action "INT_EQ";
+const func boolean: (in bin64: bits1) = (in bin64: bits2)      is action "INT_EQ";
 
 
 (**
@@ -244,36 +244,36 @@ const func boolean: (in bin64: binary1) = (in bin64: binary2)  is action "INT_EQ
  *  @return FALSE if both values are equal,
  *          TRUE otherwise.
  *)
-const func boolean: (in bin64: binary1) <> (in bin64: binary2) is action "INT_NE";
+const func boolean: (in bin64: bits1) <> (in bin64: bits2)     is action "INT_NE";
 
 
 (**
  *  Compute a bitwise ''and'' of two bin64 values.
  *  @return the bitwise ''and'' of the two values.
  *)
-const func bin64: (in bin64: binary1) & (in bin64: binary2)    is action "BIN_AND";
+const func bin64: (in bin64: bits1) & (in bin64: bits2)        is action "BIN_AND";
 
 
 (**
  *  Compute a bitwise inclusive ''or'' of two bin64 values.
  *  @return the bitwise inclusive ''or'' of the two values.
  *)
-const func bin64: (in bin64: binary1) | (in bin64: binary2)    is action "BIN_OR";
+const func bin64: (in bin64: bits1) | (in bin64: bits2)        is action "BIN_OR";
 
 
 (**
  *  Compute a bitwise exclusive or (''xor'') of two bin64 values.
  *  @return the bitwise ''xor'' of the two values.
  *)
-const func bin64: (in bin64: binary1) >< (in bin64: binary2)   is action "BIN_XOR";
+const func bin64: (in bin64: bits1) >< (in bin64: bits2)       is action "BIN_XOR";
 
 
 (**
  *  Compute a bitwise ''not'' of a bin64 value.
  *  @return the bitwise ''not'' of the value.
  *)
-const func bin64: ~ (in bin64: aBinary) is
-  return aBinary >< bin64(16#ffffffffffffffff_);
+const func bin64: ~ (in bin64: bits) is
+  return bits >< bin64(16#ffffffffffffffff_);
 
 
 (**
@@ -284,7 +284,7 @@ const func bin64: ~ (in bin64: aBinary) is
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
-const func bin64: (in bin64: binValue) << (in integer: lshift) is action "BIN_LSHIFT";
+const func bin64: (in bin64: bits) << (in integer: lshift)     is action "BIN_LSHIFT";
 
 
 (**
@@ -295,43 +295,43 @@ const func bin64: (in bin64: binValue) << (in integer: lshift) is action "BIN_LS
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
-const func bin64: (in bin64: binValue) >> (in integer: lshift) is action "BIN_RSHIFT";
+const func bin64: (in bin64: bits) >> (in integer: lshift)     is action "BIN_RSHIFT";
 
 
 (**
- *  Shift a bin64 value left by lshift bits and assign the result back to ''binValue''.
+ *  Shift a bin64 value left by lshift bits and assign the result back to ''bits''.
  *  Bits shifted beyond the highest bit position are lost.
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
-const proc: (inout bin64: binValue) <<:= (in integer: lshift)  is action "BIN_LSHIFT_ASSIGN";
+const proc: (inout bin64: bits) <<:= (in integer: lshift)      is action "BIN_LSHIFT_ASSIGN";
 
 
 (**
- *  Shift a bin64 value right by rshift bits and assign the result back to ''binValue''.
+ *  Shift a bin64 value right by rshift bits and assign the result back to ''bits''.
  *  Bits shifted beyond the lowest bit position are lost.
  *  @exception OVERFLOW_ERROR If the shift amount is
  *             negative or greater equal 64.
  *)
-const proc: (inout bin64: binValue) >>:= (in integer: rshift)  is action "BIN_RSHIFT_ASSIGN";
+const proc: (inout bin64: bits) >>:= (in integer: rshift)      is action "BIN_RSHIFT_ASSIGN";
 
 
 (**
- *  Compute a bitwise ''and'' and assign the result back to ''binary1''.
+ *  Compute a bitwise ''and'' and assign the result back to ''bits1''.
  *)
-const proc: (inout bin64: binary1) &:= (in bin64: binary2)     is action "BIN_AND_ASSIGN";
+const proc: (inout bin64: bits1) &:= (in bin64: bits2)         is action "BIN_AND_ASSIGN";
 
 
 (**
- *  Compute a bitwise inclusive ''or'' and assign the result back to ''binary1''.
+ *  Compute a bitwise inclusive ''or'' and assign the result back to ''bits1''.
  *)
-const proc: (inout bin64: binary1) |:= (in bin64: binary2)     is action "BIN_OR_ASSIGN";
+const proc: (inout bin64: bits1) |:= (in bin64: bits2)         is action "BIN_OR_ASSIGN";
 
 
 (**
- *  Compute a bitwise exclusive or (''xor'') and assign the result back to ''binary1''.
+ *  Compute a bitwise exclusive or (''xor'') and assign the result back to ''bits1''.
  *)
-const proc: (inout bin64: binary1) ><:= (in bin64: binary2)    is action "BIN_XOR_ASSIGN";
+const proc: (inout bin64: bits1) ><:= (in bin64: bits2)        is action "BIN_XOR_ASSIGN";
 
 
 (**
@@ -365,7 +365,7 @@ const func bin64: rotRight (in bin64: x, in integer: shiftCount) is
  *  @return a bit pattern with 64 bits from ''set1''.
  *)
 const func bin64: getBinary (in bitset: set1,
-                             in integer: lowestBitNum) is action "BIN_GET_BINARY_FROM_SET";
+                             in integer: lowestBitNum)         is action "BIN_GET_BINARY_FROM_SET";
 
 
 (**
@@ -478,34 +478,34 @@ const func bin64: bin64 (in string: eightBytes, BE) is
 
 
 # The function bin64AsEightBytesLe() is deprecated. Use bytes(n, LE, 8) instead.
-const func string: bin64AsEightBytesLe (in bin64: binValue) is func
+const func string: bin64AsEightBytesLe (in bin64: bits) is func
   result
     var string: eightBytes is "\0;" mult 8;
   begin
-    eightBytes @:= [1] chr(ord( binValue        & bin64(255)));
-    eightBytes @:= [2] chr(ord((binValue >>  8) & bin64(255)));
-    eightBytes @:= [3] chr(ord((binValue >> 16) & bin64(255)));
-    eightBytes @:= [4] chr(ord((binValue >> 24) & bin64(255)));
-    eightBytes @:= [5] chr(ord((binValue >> 32) & bin64(255)));
-    eightBytes @:= [6] chr(ord((binValue >> 40) & bin64(255)));
-    eightBytes @:= [7] chr(ord((binValue >> 48) & bin64(255)));
-    eightBytes @:= [8] chr(ord((binValue >> 56) & bin64(255)));
+    eightBytes @:= [1] chr(ord( bits        & bin64(255)));
+    eightBytes @:= [2] chr(ord((bits >>  8) & bin64(255)));
+    eightBytes @:= [3] chr(ord((bits >> 16) & bin64(255)));
+    eightBytes @:= [4] chr(ord((bits >> 24) & bin64(255)));
+    eightBytes @:= [5] chr(ord((bits >> 32) & bin64(255)));
+    eightBytes @:= [6] chr(ord((bits >> 40) & bin64(255)));
+    eightBytes @:= [7] chr(ord((bits >> 48) & bin64(255)));
+    eightBytes @:= [8] chr(ord((bits >> 56) & bin64(255)));
   end func;
 
 
 # The function bin64AsEightBytesBe() is deprecated. Use bytes(n, BE, 8) instead.
-const func string: bin64AsEightBytesBe (in bin64: binValue) is func
+const func string: bin64AsEightBytesBe (in bin64: bits) is func
   result
     var string: eightBytes is "\0;" mult 8;
   begin
-    eightBytes @:= [1] chr(ord((binValue >> 56) & bin64(255)));
-    eightBytes @:= [2] chr(ord((binValue >> 48) & bin64(255)));
-    eightBytes @:= [3] chr(ord((binValue >> 40) & bin64(255)));
-    eightBytes @:= [4] chr(ord((binValue >> 32) & bin64(255)));
-    eightBytes @:= [5] chr(ord((binValue >> 24) & bin64(255)));
-    eightBytes @:= [6] chr(ord((binValue >> 16) & bin64(255)));
-    eightBytes @:= [7] chr(ord((binValue >>  8) & bin64(255)));
-    eightBytes @:= [8] chr(ord( binValue        & bin64(255)));
+    eightBytes @:= [1] chr(ord((bits >> 56) & bin64(255)));
+    eightBytes @:= [2] chr(ord((bits >> 48) & bin64(255)));
+    eightBytes @:= [3] chr(ord((bits >> 40) & bin64(255)));
+    eightBytes @:= [4] chr(ord((bits >> 32) & bin64(255)));
+    eightBytes @:= [5] chr(ord((bits >> 24) & bin64(255)));
+    eightBytes @:= [6] chr(ord((bits >> 16) & bin64(255)));
+    eightBytes @:= [7] chr(ord((bits >>  8) & bin64(255)));
+    eightBytes @:= [8] chr(ord( bits        & bin64(255)));
   end func;
 
 
