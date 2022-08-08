@@ -896,8 +896,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_BITS2DOUBLE, function, params, c_expr);
       when {"FLT_BITS2SINGLE"}:
         process(FLT_BITS2SINGLE, function, params, c_expr);
-      when {"FLT_CAST"}:
-        process(FLT_CAST, function, params, c_expr);
       when {"FLT_CEIL"}:
         mathLibraryUsed := TRUE;
         process(FLT_CEIL, function, params, c_expr);
@@ -941,8 +939,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_GT, function, params, c_expr);
       when {"FLT_HASHCODE"}:
         process(FLT_HASHCODE, function, params, c_expr);
-      when {"FLT_ICAST"}:
-        process(FLT_ICAST, function, params, c_expr);
       when {"FLT_ICONV1"}:
         process(FLT_ICONV1, function, params, c_expr);
       when {"FLT_ICONV3"}:

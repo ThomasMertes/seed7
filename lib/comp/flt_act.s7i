@@ -34,7 +34,6 @@ const ACTION: FLT_ATAN            is action "FLT_ATAN";
 const ACTION: FLT_ATAN2           is action "FLT_ATAN2";
 const ACTION: FLT_BITS2DOUBLE     is action "FLT_BITS2DOUBLE";
 const ACTION: FLT_BITS2SINGLE     is action "FLT_BITS2SINGLE";
-const ACTION: FLT_CAST            is action "FLT_CAST";
 const ACTION: FLT_CEIL            is action "FLT_CEIL";
 const ACTION: FLT_CMP             is action "FLT_CMP";
 const ACTION: FLT_COS             is action "FLT_COS";
@@ -52,7 +51,6 @@ const ACTION: FLT_FLOOR           is action "FLT_FLOOR";
 const ACTION: FLT_GE              is action "FLT_GE";
 const ACTION: FLT_GT              is action "FLT_GT";
 const ACTION: FLT_HASHCODE        is action "FLT_HASHCODE";
-const ACTION: FLT_ICAST           is action "FLT_ICAST";
 const ACTION: FLT_ICONV1          is action "FLT_ICONV1";
 const ACTION: FLT_ICONV3          is action "FLT_ICONV3";
 const ACTION: FLT_IPOW            is action "FLT_IPOW";
@@ -299,23 +297,6 @@ const proc: process (FLT_BITS2SINGLE, in reference: function,
       c_expr.expr &:= union_name;
       c_expr.expr &:= ".aFloat)";
     end if;
-  end func;
-
-
-const proc: process (FLT_CAST, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var string: union_name is "";
-  begin
-    union_name := defineTempVariable("rtlValueUnion", "conv_", c_expr);
-    c_expr.expr &:= "(";
-    c_expr.expr &:= union_name;
-    c_expr.expr &:= ".floatValue=";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ",";
-    c_expr.expr &:= union_name;
-    c_expr.expr &:= ".intValue)";
   end func;
 
 
@@ -857,23 +838,6 @@ const proc: process (FLT_HASHCODE, in reference: function,
     c_expr.expr &:= ",";
     c_expr.expr &:= temp_name;
     c_expr.expr &:= ".intValue)";
-  end func;
-
-
-const proc: process (FLT_ICAST, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var string: union_name is "";
-  begin
-    union_name := defineTempVariable("rtlValueUnion", "conv_", c_expr);
-    c_expr.expr &:= "(";
-    c_expr.expr &:= union_name;
-    c_expr.expr &:= ".intValue=";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ",";
-    c_expr.expr &:= union_name;
-    c_expr.expr &:= ".floatValue)";
   end func;
 
 

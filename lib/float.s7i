@@ -284,10 +284,6 @@ const func boolean: (in float: number1) <= (in float: number2) is action "FLT_LE
 const func boolean: (in float: number1) >= (in float: number2) is action "FLT_GE";
 
 
-const func integer: (attr integer) cast (in float: number)     is action "FLT_CAST";
-const func float: (attr float) cast (in integer: number)       is action "FLT_ICAST";
-
-
 (**
  *  Positive infinity.
  *  Infinity is the result of 1.0 / 0.0 .

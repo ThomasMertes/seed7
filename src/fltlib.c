@@ -247,16 +247,6 @@ objectType flt_bits2single (listType arguments)
 
 
 
-objectType flt_cast (listType arguments)
-
-  { /* flt_cast */
-    isit_float(arg_3(arguments));
-    /* The float value is taken as int on purpose */
-    return bld_int_temp(take_int(arg_3(arguments)));
-  } /* flt_cast */
-
-
-
 /**
  *  Round up towards positive infinity.
  *  Determine the smallest value that is greater than or equal
@@ -675,16 +665,6 @@ objectType flt_hashcode (listType arguments)
     /* The float value is taken as int on purpose */
     return bld_int_temp(take_int(arg_1(arguments)));
   } /* flt_hashcode */
-
-
-
-objectType flt_icast (listType arguments)
-
-  { /* flt_icast */
-    isit_int(arg_3(arguments));
-    /* The int value is taken as float on purpose */
-    return bld_float_temp(take_float(arg_3(arguments)));
-  } /* flt_icast */
 
 
 
