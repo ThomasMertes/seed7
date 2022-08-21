@@ -77,9 +77,12 @@ const func boolean: wildcardMatch (in string: stri, in string: pattern) is func
  *  * The question mark ? matches exactly one character.
  *  @param pattern File name pattern (e.g.: *.sd7) or path
  *         followed by a file name pattern (e.g.: prg/*.sd7).
+ *  @param caseSensitive TRUE if the match is case sensitive,
+ *         FALSE otherwise.
  *  @return array of matching file paths.
  *)
-const func array string: findMatchingFiles (in string: pattern) is func
+const func array string: findMatchingFiles (in string: pattern,
+    in boolean: caseSensitive) is func
   result
     var array string: matchingFiles is 0 times "";
   local
@@ -103,9 +106,31 @@ const func array string: findMatchingFiles (in string: pattern) is func
     exception
       catch FILE_ERROR: noop;
     end block;
-    for fileName range dirContent do
-      if wildcardMatch(fileName, filePattern) then
-        matchingFiles &:= [] (path & fileName);
-      end if;
-    end for;
+    if caseSensitive then
+      for fileName range dirContent do
+        if wildcardMatch(fileName, filePattern) then
+          matchingFiles &:= [] (path & fileName);
+        end if;
+      end for;
+    else
+      filePattern := lower(filePattern);
+      for fileName range dirContent do
+        if wildcardMatch(lower(fileName), filePattern) then
+          matchingFiles &:= [] (path & fileName);
+        end if;
+      end for;
+    end if;
   end func;
+
+
+(**
+ *  Determine which file paths that match a given ''pattern''.
+ *  The pattern may contain wildcard characters.
+ *  * The asterisk * matches zero or more characters.
+ *  * The question mark ? matches exactly one character.
+ *  @param pattern File name pattern (e.g.: *.sd7) or path
+ *         followed by a file name pattern (e.g.: prg/*.sd7).
+ *  @return array of matching file paths.
+ *)
+const func array string: findMatchingFiles (in string: pattern) is
+    return findMatchingFiles(pattern, TRUE);

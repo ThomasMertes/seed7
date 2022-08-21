@@ -564,13 +564,14 @@ const func string: execBacktickCommands (in string: stri) is func
   end func;
 
 
-const proc: addToFileList (inout array string: fileList, in var string: parameter) is func
+const proc: addToFileList (inout array string: fileList, in var string: parameter,
+    in boolean: caseSensitive) is func
   local
     var string: fileName is "";
   begin
     parameter := convDosPath(parameter);
     if pos(parameter, "*") <> 0 or pos(parameter, "?") <> 0 then
-      for fileName range findMatchingFiles(parameter) do
+      for fileName range findMatchingFiles(parameter, caseSensitive) do
         fileList &:= [] (fileName);
       end for;
     else
@@ -611,7 +612,7 @@ const proc: doRm (inout string: parameters) is func
       aParam := getUnixCommandParameter(parameters);
     end while;
     while aParam <> "" do
-      addToFileList(fileList, aParam);
+      addToFileList(fileList, aParam, TRUE);
       skipWhiteSpace(parameters);
       aParam := getUnixCommandParameter(parameters);
     end while;
@@ -639,7 +640,7 @@ const proc: doDel (inout string: parameters) is func
       if upper(aParam) = "/S" then
         recursive := TRUE;
       elsif not startsWith(aParam, "/") then
-        addToFileList(fileList, aParam);
+        addToFileList(fileList, aParam, FALSE);
       end if;
       skipWhiteSpace(parameters);
       aParam := getDosCommandParameter(parameters);
@@ -683,7 +684,7 @@ const proc: doCp (inout string: parameters) is func
       aParam := getUnixCommandParameter(parameters);
     end while;
     while aParam <> "" do
-      addToFileList(fileList, aParam);
+      addToFileList(fileList, aParam, TRUE);
       skipWhiteSpace(parameters);
       aParam := getUnixCommandParameter(parameters);
     end while;
@@ -711,7 +712,7 @@ const proc: doCopy (inout string: parameters) is func
       if upper(aParam) = "/Y" then
         overwriteExisting := TRUE;
       elsif not startsWith(aParam, "/") then
-        addToFileList(fileList, aParam);
+        addToFileList(fileList, aParam, FALSE);
       end if;
       skipWhiteSpace(parameters);
       aParam := getDosCommandParameter(parameters);
@@ -746,7 +747,7 @@ const proc: doXCopy (inout string: parameters) is func
       elsif upper(aParam) = "/Y" then
         overwriteExisting := TRUE;
       elsif not startsWith(aParam, "/") then
-        addToFileList(fileList, aParam);
+        addToFileList(fileList, aParam, FALSE);
       end if;
       skipWhiteSpace(parameters);
       aParam := getDosCommandParameter(parameters);
@@ -785,7 +786,7 @@ const proc: doMv (inout string: parameters) is func
       aParam := getUnixCommandParameter(parameters);
     end while;
     while aParam <> "" do
-      addToFileList(fileList, aParam);
+      addToFileList(fileList, aParam, TRUE);
       skipWhiteSpace(parameters);
       aParam := getUnixCommandParameter(parameters);
     end while;
@@ -813,7 +814,7 @@ const proc: doMove (inout string: parameters) is func
       if upper(aParam) = "/Y" then
         overwriteExisting := TRUE;
       elsif not startsWith(aParam, "/") then
-        addToFileList(fileList, aParam);
+        addToFileList(fileList, aParam, FALSE);
       end if;
       skipWhiteSpace(parameters);
       aParam := getDosCommandParameter(parameters);
@@ -852,7 +853,7 @@ const proc: doMkdir (inout string: parameters) is func
       aParam := getUnixCommandParameter(parameters);
     end while;
     while aParam <> "" do
-      addToFileList(fileList, aParam);
+      addToFileList(fileList, aParam, TRUE);
       skipWhiteSpace(parameters);
       aParam := getUnixCommandParameter(parameters);
     end while;
@@ -876,7 +877,7 @@ const proc: doMd (inout string: parameters) is func
     aParam := getDosCommandParameter(parameters);
     while aParam <> "" do
       if not startsWith(aParam, "/") then
-        addToFileList(fileList, aParam);
+        addToFileList(fileList, aParam, FALSE);
       end if;
       skipWhiteSpace(parameters);
       aParam := getDosCommandParameter(parameters);

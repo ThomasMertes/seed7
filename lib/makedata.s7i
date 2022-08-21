@@ -668,7 +668,7 @@ const func string: wildcard (in stringHash: macros, in string: parameters,
   begin
     # writeln("wildcard: " <& literal(parameters));
     evaluatedParam := applyMacros(macros, parameters, leaveUndefMacros);
-    matches := findMatchingFiles(evaluatedParam);
+    matches := findMatchingFiles(evaluatedParam, TRUE);
     if length(matches) <> 0 then
       funcResult := join(matches, ' ');
     end if;

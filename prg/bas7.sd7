@@ -6882,7 +6882,7 @@ const proc: exec_files (inout string: symbol, inout string: line) is func
     symbol := get_symbol(line);
     if symbol <> "" then
       filespec := exec_str_expr(symbol, line, unused_name);
-      for fileName range findMatchingFiles(convDosPath(filespec)) do
+      for fileName range findMatchingFiles(convDosPath(filespec), FALSE) do
         writeln(fileName);
       end for;
     else
