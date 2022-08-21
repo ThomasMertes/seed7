@@ -182,6 +182,7 @@ strip:
 chkccomp.h:
 	$(ECHO) "#define LIST_DIRECTORY_CONTENTS \"dir\"" > chkccomp.h
 	$(ECHO) "#define UNIX_DO_SLEEP" >> chkccomp.h
+	$(ECHO) "#define ERROR_REDIRECTING_FAILS" >> chkccomp.h
 	$(ECHO) "#define USE_GMP 0" >> chkccomp.h
 
 base.h:

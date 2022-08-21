@@ -173,6 +173,8 @@
  *      Objcopy is used with the option -L symbolname which converts
  *      a global or weak symbol called symbolname into a local symbol.
  *      This way the symbol is not visible externally.
+ *  ERROR_REDIRECTING_FAILS: (optional)
+ *      Defined if redirection with 2> fails.
  *  USE_GMP: (optional)
  *      Defines which library is used to implement bigInteger arithmetic.
  *      Set to 1 if the GNU Multiple Precision Arithmetic Library (GMP)
@@ -1112,15 +1114,27 @@ static int runTest (int checkNumericValue)
   /* runTest */
     fprintf(logFile, "+");
     fflush(logFile);
+#ifdef ERROR_REDIRECTING_FAILS
 #ifdef INTERPRETER_FOR_LINKED_PROGRAM
-    sprintf(command, "%s .%cctest%d%s%sctest%d.out %sctest%d.err",
+    sprintf(command, "%s .%cctest%d %s%sctest%d.out",
+            INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
+            LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1, testNumber);
+#else
+    sprintf(command, ".%cctest%d%s %sctest%d.out", PATH_DELIMITER,
+            testNumber, LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1,
+            testNumber);
+#endif
+#else
+#ifdef INTERPRETER_FOR_LINKED_PROGRAM
+    sprintf(command, "%s .%cctest%d %s%sctest%d.out %sctest%d.err",
             INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
             LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1, testNumber,
             REDIRECT_FILEDES_2, testNumber);
 #else
-    sprintf(command, ".%cctest%d%s%sctest%d.out %sctest%d.err", PATH_DELIMITER,
+    sprintf(command, ".%cctest%d%s %sctest%d.out %sctest%d.err", PATH_DELIMITER,
             testNumber, LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1,
             testNumber, REDIRECT_FILEDES_2, testNumber);
+#endif
 #endif
     sprintf(fileName, "ctest%d.out", testNumber);
     startTime = time(NULL);
@@ -1154,7 +1168,9 @@ static int runTest (int checkNumericValue)
     if (checkNumericValue && repeatCount != 0) {
       if (readFailed) {
         fprintf(logFile, "\n *** No numeric result in \"%s\".\n", fileName);
+#ifndef ERROR_REDIRECTING_FAILS
         showErrorsForTool("Run", ".err");
+#endif
       } else {
         numberPresentAfterRestartOfTest++;
       } /* if */
