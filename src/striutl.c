@@ -2644,7 +2644,7 @@ static void mapLongFileNamesToShort (os_striType path)
 
   /* mapLongFileNamesToShort */
     logFunction(printf("mapLongFileNamesToShort(\"" FMT_S_OS "\")\n", path););
-    /* Start after the the colon of the device letter ( e.g.: A: ) */
+    /* Start after the colon of the device letter ( e.g.: A: ) */
     source = &path[PREFIX_LEN + 2];
     dest = source;
     while (*source == PATH_DELIMITER) {

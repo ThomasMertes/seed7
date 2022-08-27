@@ -131,7 +131,7 @@ const func string: gets (inout bitStream: inBitStream, in integer: maxLength) is
 
 (**
  *  Type to read bitwise data starting with the least significant bit.
- *  This is used by the the Huffman compression (as part of the deflate
+ *  This is used by the Huffman compression (as part of the deflate
  *  compression) used for ZIP and GZIP files. It is also used by the
  *  Lempel-Ziv-Welch compression used for GIF files.
  *  In an ''lsbBitStream'' the read direction is from

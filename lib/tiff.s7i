@@ -1396,7 +1396,7 @@ const func PRIMITIVE_WINDOW: readTiffPlanarFormat (inout file: tiffFile,
  *  Reads a TIFF file into a pixmap.
  *  @param tiffFile File that contains a TIFF image.
  *  @return A pixmap with the TIFF image, or
- *          PRIMITIVE_WINDOW.value if the the file does
+ *          PRIMITIVE_WINDOW.value if the file does
  *          not contain a TIFF magic number.
  *  @exception RANGE_ERROR The file is not in the TIFF file format.
  *)

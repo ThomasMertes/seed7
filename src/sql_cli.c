@@ -1166,8 +1166,8 @@ static errInfoType setupParameters (preparedStmtType preparedStmt)
  * This function is used for bound and unbound SQL_C_NUMERIC data.
  * If the function is used for bound data the data pointer
  * (SQL_DESC_DATA_PTR) must be set afterwards, because according
- * to the the documentation of SQLSetDescFieldW changes of the
- * attributes sets SQL_DESC_DATA_PTR to a NULL pointer.
+ * to the documentation of SQLSetDescFieldW changes of the
+ * attributes set SQL_DESC_DATA_PTR to a NULL pointer.
  * If the function is used for unbound data setting the type is
  * necessary and setting the data pointer is omitted.
  */

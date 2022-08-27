@@ -103,7 +103,7 @@ const func pemObject: pemObject (in string: pemKey) is func
  *  @param pemFile File that contains PEM objects.
  *  @return A PEM object with PEM type and content, or
  *          or a PEM object with empty type and content
- *          if the the file in not in PEM format.
+ *          if the file in not in PEM format.
  *  @exception RANGE_ERROR If the PEM data is not in Base64 format.
  *)
 const func pemObject: readPemObject (inout file: pemFile) is func

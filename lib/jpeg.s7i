@@ -1466,7 +1466,7 @@ const func PRIMITIVE_WINDOW: colorAllMinimumCodedUnits (in jpegHeader: header,
  *  Reads a JPEG file into a pixmap.
  *  @param jpegFile File that contains a JPEG image.
  *  @return A pixmap with the JPEG image, or
- *          PRIMITIVE_WINDOW.value if the the file does
+ *          PRIMITIVE_WINDOW.value if the file does
  *          not contain a JPEG magic number.
  *  @exception RANGE_ERROR The file is not in the JPEG file format.
  *)

@@ -6417,7 +6417,7 @@
   and encoding with DES.
 - The functions blockSize and decode have been added to cipher.s7i
   and arc4.s7i.
-- The the functions str, rotLeft and rotRight and the operators
+- The functions str, rotLeft and rotRight and the operators
   radix, RADIX, ~ and ><:= have been added to bin32.s7i.
 - Support to write bin32 values has been added to bin32.s7i.
 - The new library unicode.s7i, with functions to convert between
@@ -8499,7 +8499,7 @@
   were improved.
 - The function 'prot_os_stri' was added to "traceutl.c".
 - The handling of the element 'tm_isdst' from 'struct tm' (filled when
-  localtime() is called) was changed. Now the the flag 'is_dst' is only
+  localtime() is called) was changed. Now the flag 'is_dst' is only
   set when tm_isdst > 0 holds.
 
 20110619:

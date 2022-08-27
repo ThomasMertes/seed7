@@ -81,7 +81,7 @@ const proc: readDirEntry (inout file: icoFile, inout icoDirEntry: dirEntry) is f
  *  Reads a ICO file into a pixmap.
  *  @param icoFile File that contains a ICO image.
  *  @return A pixmap with the ICO image, or
- *          PRIMITIVE_WINDOW.value if the the file does
+ *          PRIMITIVE_WINDOW.value if the file does
  *          not contain a ICO magic number.
  *  @exception RANGE_ERROR The file is not in the ICO file format.
  *)

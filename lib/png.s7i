@@ -587,7 +587,7 @@ const func pngImageType: interlaceToImage (in pngHeader: header,
  *  Reads a PNG file into a pixmap.
  *  @param pngFile File that contains a PNG image.
  *  @return A pixmap with the PNG image, or
- *          PRIMITIVE_WINDOW.value if the the file does
+ *          PRIMITIVE_WINDOW.value if the file does
  *          not contain a PNG magic number.
  *  @exception RANGE_ERROR The file is not in the PNG file format.
  *)

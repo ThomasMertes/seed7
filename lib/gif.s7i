@@ -252,7 +252,7 @@ const proc: fillGifImage8Bit (inout array array pixel: image, in string: pixelDa
  *  Reads a GIF file into a pixmap.
  *  @param gifFile File that contains a GIF image.
  *  @return A pixmap with the GIF image, or
- *          PRIMITIVE_WINDOW.value if the the file does
+ *          PRIMITIVE_WINDOW.value if the file does
  *          not contain a GIF magic number.
  *  @exception RANGE_ERROR The file is not in the GIF file format.
  *)

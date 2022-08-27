@@ -631,7 +631,7 @@ const func time: getMTime (inout ftpConnection: ftp, in string: fileName) is fun
 
 
 (**
- *  Get the the data transfer mode.
+ *  Get the data transfer mode.
  *  @return TRUE, if the transfer mode is active, or
  *          FALSE, if the transfer mode is passive.
  *)
@@ -640,7 +640,7 @@ const func boolean: getActiveMode (in ftpConnection: ftp) is
 
 
 (**
- *  Set the the data transfer mode to active (=TRUE) or passive (=FALSE).
+ *  Set the data transfer mode to active (=TRUE) or passive (=FALSE).
  *  By default passive mode is used.
  *)
 const proc: setActiveMode (inout ftpConnection: ftp, in boolean: activeMode) is func

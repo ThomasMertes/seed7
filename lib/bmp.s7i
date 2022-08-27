@@ -697,7 +697,7 @@ const func PRIMITIVE_WINDOW: readBmp (inout file: bmpFile, inout bmpHeader: head
  *  Reads a BMP file into a pixmap.
  *  @param bmpFile File that contains a BMP image.
  *  @return A pixmap with the BMP image, or
- *          PRIMITIVE_WINDOW.value if the the file does
+ *          PRIMITIVE_WINDOW.value if the file does
  *          not contain a BMP magic number.
  *  @exception RANGE_ERROR The file is not in the BMP file format.
  *)
