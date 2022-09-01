@@ -142,7 +142,7 @@ language tries to avoid such hard-coded constructs in normal programs.
 
 Extensible programming was an area of active research in the 1960s,
 but in the 1970s the extensibility movement was displaced by the
-abstraction movement. Todays software history gives almost no hint
+abstraction movement. Today's software history gives almost no hint
 that the extensible languages movement had ever occurred. In the
 historical movement an extensible programming language consisted of
 a base language providing elementary computing facilities, and a
@@ -828,7 +828,7 @@ Syntax highlighting is available for several editors:
      cp sd7.vim ~/.vim/ftdetect
 
  - For the Nano editor there is seed7/doc/seed7.nanorc. You can copy
-   this file to '/usr/share/nano' (you might need superuser priviledges to do that).
+   this file to '/usr/share/nano' (you might need superuser privileges to do that).
  - For Notepad++ there is seed7/doc/seed7udl.xml. Start Notepad++ and
    go to Language => User Defined Language => Define your language...,
    click on Import..., select the seed7/doc/seed7udl.xml file and press Open.
@@ -1412,7 +1412,7 @@ possible to define new operators and statements.
 Can I overload two functions which just differ in the result type?
 ==================================================================
 
-No, return type overloading is not possible. Otherwise the type of an
+No, return type overloading is not supported. Otherwise the type of an
 expression would depend on its context. Assume the function f
 is overloaded like this:
 
@@ -1452,7 +1452,7 @@ The type information goes strictly upward (or inside out).
    the type of the whole expression.
 
 This bottom up approach simplifies type checking a lot for both the compiler
-and the human reader. With return type overloading there would be ambigous
+and the human reader. With return type overloading there would be ambiguous
 sub expressions. For the whole expression these ambiguities might be
 resolved or they might stay unresolved. It is obvious that return type
 overloading would complicate type checking considerable (also for the
@@ -1592,7 +1592,7 @@ The usage of UTF-32 for strings in a program has several advantages:
    the beginning of an UTF-8 or UTF-16 code point. E.g.: If an UTF-8
    string is split into two parts a search for the beginning of an UTF-8
    byte sequence is necessary. UTF-32 does not need such an effort.
- - UTF-32 uses more memory, but todays computers are equipped with a lot
+ - UTF-32 uses more memory, but today's computers are equipped with a lot
    of memory. The pressure to save memory is gone and the simple and fast
    handling of UTF-32 strings outweighs the increased memory usage.
    Using UTF-32 leads to faster programs than any approach that tries to
@@ -2098,7 +2098,7 @@ for integer overflow, but not everything can be optimized away.
 
 For these reasons, Seed7 does not support the automatic promotion of
 integer expressions that overflow. Instead, it checks for integer
-overflow and raises the exception OVERFLOW_ERROR if neccessary.
+overflow and raises the exception OVERFLOW_ERROR if necessary.
 
 
 Is there a garbage collection?

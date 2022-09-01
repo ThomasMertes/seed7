@@ -566,7 +566,7 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
     <li>There is no implicit fall-through for control flow
       as in the switch statement of C.</li>
 
-    <li>There is no <span class="link">undefined bahavior</span>.</li>
+    <li>There is no <span class="link">undefined behavior</span>.</li>
 
     <li>There is no manual <span class="link">memory management</span>.</li>
 
@@ -720,8 +720,8 @@ hello world
 </p><pre class="indent">
 hello world
 </pre><p>
-  The the option <b>-q</b> can be used to suppress the line
-  with information about the Seed7 interpreter:
+  The option <b>-q</b> can be used to suppress the information line
+  of the Seed7 interpreter:
 </p><pre class="indent">
 s7 -q hello
 </pre><p>
@@ -817,7 +817,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   <span class="keywd">end func</span>;
 </pre><p>
   There can be zero or more <tt><span class="keywd">elsif</span></tt> parts, and the <tt><span class="keywd">else</span></tt> part
-  is optional. As you can see the equaliy of strings is checked with <tt><span class="op_no_ul">=</span></tt>.
+  is optional. As you can see the equality of strings is checked with <tt><span class="op_no_ul">=</span></tt>.
   An if-statement is one way to improve the greeting program.
   Alternatively we can use a loop to insist on entering a name:
 </p><pre class="indent">
@@ -1025,7 +1025,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   type <tt><a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_string">string</a><span class="type">]</span> <a class="type" href="#types_integer">integer</a></tt> defines a hash with a <tt><a class="type" href="#types_string">string</a></tt> as index
   and an <tt><a class="type" href="#types_integer">integer</a></tt> as value. The example below uses <tt><span class="var">keyDescription</span></tt>
   which is defined as <tt><a class="type" href="#types_hash">hash</a> <span class="type">[</span><a class="type" href="#types_char">char</a><span class="type">]</span> <a class="type" href="#types_string">string</a></tt> in <tt><span class="lib">"</span><span class="lib">keydescr.s7i</span><span class="lib">"</span></tt>. It
-  contains descriptive texts for keybord keys. A <tt><span class="link">for-loop</span></tt> can loop
+  contains descriptive texts for keyboard keys. A <tt><span class="link">for-loop</span></tt> can loop
   over the values of a <tt><a class="type" href="#types_hash">hash</a></tt>:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
@@ -1691,7 +1691,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 *** tst316.sd7(5):52: <a class="link" href="#errors_NO_MATCH">Match for {INT_ADD({1 + 1 }) ; writeln } failed</a>
     1 + 1;
 </pre><p>
-  An unused expression result must be explicitely ignored. E.g.:
+  An unused expression result must be explicitly ignored. E.g.:
 </p><pre class="indent">
 <span class="keywd">ignore</span>(<span class="func">getc</span>(<span class="var">KEYBOARD</span>));
 </pre><p>
@@ -1700,7 +1700,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   expressions take place. It is just the result of the expression
   that is ignored.
 </p><p>
-  The need to explicitely ignore unused expression results
+  The need to explicitly ignore unused expression results
   removes another possible source of errors.
 </p>
 
@@ -4706,7 +4706,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
 </p><pre class="box">
     enum_literal1 and enum_literal2
 </pre><p>
-  For a enumeration type only few operations are predefined.
+  For an enumeration type only few operations are predefined.
   Additional operations must be defined separately. So it is
   necessary to define the functions <tt><span class="func">str</span></tt> and <tt><font color=blue>parse</font></tt> in order to
   do I/O for a new enumeration type.
@@ -4752,7 +4752,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
   the same representation as an <tt><a class="type" href="#types_integer">integer</a></tt>. There is a division of
   responsibility. The type <tt><span class="type">bin64</span></tt> is for bitwise operations and
   the type <tt><a class="type" href="#types_integer">integer</a></tt> is for arithmetic operations. In compiled
-  programs conversionsions between <tt><span class="type">bin64</span></tt> and <tt><a class="type" href="#types_integer">integer</a></tt> have no
+  programs conversions between <tt><span class="type">bin64</span></tt> and <tt><a class="type" href="#types_integer">integer</a></tt> have no
   overhead.
 </p><pre class="tt">
     Constants:
@@ -4865,7 +4865,7 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
   the same representation as an <tt><a class="type" href="#types_integer">integer</a></tt>. There is a division of
   responsibility. The type <tt><span class="type">bin32</span></tt> is for bitwise operations and
   the type <tt><a class="type" href="#types_integer">integer</a></tt> is for arithmetic operations. In compiled
-  programs conversionsions between <tt><span class="type">bin32</span></tt> and <tt><a class="type" href="#types_integer">integer</a></tt> have no
+  programs conversions between <tt><span class="type">bin32</span></tt> and <tt><a class="type" href="#types_integer">integer</a></tt> have no
   overhead.
 </p><pre class="tt">
     Constants:
@@ -5306,8 +5306,8 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="type">utf16beFile</span>    UTF-16BE encoded files of the operating system
       <span class="type">dirFile</span>        Read the contents of a directory
       <span class="type">echoFile</span>       Generate an echo of the input
-      <span class="type">lineFile</span>       Read a baseFile linewise
-      <span class="type">editLineFile</span>   Support linewise editing with history
+      <span class="type">lineFile</span>       Read a baseFile line-wise
+      <span class="type">editLineFile</span>   Support line-wise editing with history
       <span class="type">gzipFile</span>       Read decompressed data from a GZIP file
       <span class="type">gzipWriteFile</span>  Write compressed data into a GZIP file
       <span class="type">bufferFile</span>     Buffer (cache) data based on the given base file
@@ -5388,11 +5388,11 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="func">openDir</span>(directoryPath)  Open a directory file
                   ( Type of argument directoryPath: <a class="type" href="#types_string">string</a> )
       <span class="func">openEcho</span>(inFile, outFile) Open an echo file
-      <span class="func">openLine</span>(aFile) Open a lineFile to filter aFile linewise
-      <span class="func">openEditLine</span>(inFile, outFile) Open an Unicode filter file
-                    for linewise editing with history
+      <span class="func">openLine</span>(aFile) Open a lineFile to filter aFile line-wise
+      <span class="func">openEditLine</span>(inFile, outFile) Open a Unicode filter file
+                    for line-wise editing with history
       <span class="func">openEditLineLatin1</span>(inFile, outFile) Open a Latin-1 filter file
-                    for linewise editing with history
+                    for line-wise editing with history
     Functions:
       <span class="func">length</span>(A) Length of <a class="type" href="#types_file">file</a> A
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
@@ -7150,8 +7150,8 @@ type_implements_interface(<span class="type">Float</span>, <span class="type">Nu
   operators and there can be also implementations using
   <tt><a class="type" href="#types_complex">complex</a></tt>, <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt>, <tt><a class="type" href="#types_bigRational">bigRational</a></tt>, etc. . That way
   <tt><span class="type">Number</span></tt> can be used as universal type for math
-  calculation. Further extending can lead to an universal
-  type. Such an universal type is loved by proponents of
+  calculation. Further extending can lead to a universal
+  type. Such a universal type is loved by proponents of
   dynamic typed languages, but there are also good reasons
   to have distinct types for different purposes.
 </p>
@@ -7361,7 +7361,7 @@ write(window1, <span class="stri">"hello there"</span>);
 clear(window1);
 </pre><p>
   Files can be used for much more things. Here is a list of
-  goals for an inout/output system:
+  goals for an input/output system:
 </p><ul>
     <li>A concept which provides conversions from arbitrary
       types to strings and back.</li>
@@ -7974,7 +7974,7 @@ my_out := <span class="func">openUtf8</span>(<span class="stri">"utf8_file"</spa
   UTF-16 comes in two flavors UTF-16LE and UTF-16BE. To support
   both flavors the <span class="stri">"<span class="lib">utf16.s7i</span>"</span> library defines several functions.
 </p><p>
-  The function <tt><span class="func">openUtf16</span></tt> opens an Unicode file which uses the
+  The function <tt><span class="func">openUtf16</span></tt> opens a Unicode file which uses the
   UTF-16LE or UTF-16BE encoding. The function <tt><span class="func">openUtf16</span></tt> checks for
   a BOM and depending on that it opens an UTF-16LE or UTF-16BE file.
 </p><p>
@@ -8589,7 +8589,7 @@ aListener := <span class="func">openInetListener</span>(1080);
   close(sock);
 <span class="keywd">end while</span>;
 </pre><p>
-  A similar loop is used in the <span class="link">comanche</span> webserver (see main function).
+  A similar loop is used in the <span class="link">Comanche</span> web server (see main function).
   The function <tt><span class="func">waitForRequest</span></tt> can be used to process requests with session:
 </p><pre class="indent">
 aListener := <span class="func">openInetListener</span>(2021);
@@ -8612,7 +8612,7 @@ listen(aListener, 10);
 <a name="file_Transport_layer_security"><h3>8.10 Transport Layer Security</h3></a>
 <p>
     Transport Layer Security (TLS) is the successor of the Secure
-  Sockets Layer (SSL). It provides secure communitaction over a
+  Sockets Layer (SSL). It provides secure communication over a
   computer network. The library <span class="stri">"<span class="lib">tls.s7i</span>"</span> defines types and functions
   for TLS sockets. The implementation type for sockets is <tt><span class="type">tlsFile</span></tt>.
   As interface type <tt><a class="type" href="#types_file">file</a></tt> is used:
@@ -9156,7 +9156,7 @@ currSymbol := getSymbol(inFile);
   programming language. The syntax of identifiers, literals and
   comments is not described with S7SSD. S7SSD views a program as
   a big typeless expression. The syntax of this expression is
-  described with prefix-, infix- and postfix-operators. The operators
+  described with prefix, infix and postfix operators. The operators
   have a priority and an associativity. Operators can have one or
   more operator symbols. The operator symbols of an operator can be
   adjacent or they can have parameters in between. The S7SSD of
@@ -9175,7 +9175,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 () + ()
 </pre><p>
   The place of the parameters is specified with <tt>()</tt>. The <tt>+</tt> operator
-  is an infix operator, because the <tt>+</tt> is preceeded and succeeded by
+  is an infix operator, because the <tt>+</tt> is preceded and succeeded by
   a <tt>()</tt>. Any expression can be used as <tt>()</tt> parameter. The type of the
   <tt>()</tt> parameters and the type of the result of <tt>+</tt> is not specified by
   the S7SSD. Checks for the correct type are not done at the syntactic
@@ -9348,7 +9348,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   The * operator has the strongest priority (6) of all operators
   involved. Therefore the <tt><span class="op">*</span></tt> takes its parameters first. Then
   the <tt><span class="op">+</span></tt> (with priority 7) and at last the <tt><span class="op">=</span></tt> (with priority 12)
-  follows. This leads to the the following interpretation of
+  follows. This leads to the following interpretation of
   the expression:
 </p><pre class="indent">
 A = (B + (C * D))
@@ -10369,7 +10369,7 @@ const char: charExceeds is '
 
 <a name="tokens_Unicode_characters"><h3>10.4 Unicode characters</h3></a>
 <p>
-    Seed7 source code may containg UTF-8 encoded Unicode characters.
+    Seed7 source code may contain UTF-8 encoded Unicode characters.
   Unicode is allowed in <a class="link" href="#tokens_String_literals">string</a> and <a class="link" href="#tokens_Character_literals">char</a> literals. The <a class="link" href="#decls_Pragmas">pragma</a> <tt><span class="keywd">names</span></tt>
   can be used to allow Unicode in <a class="link" href="#tokens_Name_identifiers">name identifiers</a>:
 </p><pre class="indent">
@@ -10615,7 +10615,7 @@ dir_array := readDir(<span class="stri">"."</span>);
 <p>
     The function <tt><span class="func">openDir</span></tt> opens the specified directory as file.
   Each line in this directory file contains the filename of a
-  file present in the the directory. The files <tt><span class="stri">"."</span></tt> and <tt><span class="stri">".."</span></tt> are
+  file present in the directory. The files <tt><span class="stri">"."</span></tt> and <tt><span class="stri">".."</span></tt> are
   left out from the directory file. Note that only filenames can
   be read from the directory file. Additional information must be
   obtained with other calls.
@@ -11311,7 +11311,7 @@ my_dir := homeDir;
   drivers for MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird,
   Interbase, Db2, Informix and SQL Server databases. Databases can
   also be accessed via the ODBC interface. The following example
-  uses the datapase abstraction API:
+  uses the database abstraction API:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: dbDemo <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">local</span>
@@ -12643,7 +12643,6 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FLT_ATAN2</td>           <td>flt_atan2</td>           <td>atan2</td></tr>
     <tr><td>FLT_BITS2DOUBLE</td>     <td>flt_bits2double</td>     <td>(x.bits=a, x.aDouble)</td></tr>
     <tr><td>FLT_BITS2SINGLE</td>     <td>flt_bits2single</td>     <td>(x.bits=a, x.aSingle)</td></tr>
-    <tr><td>FLT_CAST</td>            <td>flt_cast</td>            <td>(x.floatValue=a, x.intValue)</td></tr>
     <tr><td>FLT_CEIL</td>            <td>flt_ceil</td>            <td>ceil</td></tr>
     <tr><td>FLT_CMP</td>             <td>flt_cmp</td>             <td>fltCmp</td></tr>
     <tr><td>FLT_COS</td>             <td>flt_cos</td>             <td>cos</td></tr>
@@ -12662,7 +12661,6 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FLT_GE</td>              <td>flt_ge</td>              <td>&gt;=</td></tr>
     <tr><td>FLT_GT</td>              <td>flt_gt</td>              <td>&gt;</td></tr>
     <tr><td>FLT_HASHCODE</td>        <td>flt_hashcode</td>        <td>(x.floatValue=a, x.intValue)</td></tr>
-    <tr><td>FLT_ICAST</td>           <td>flt_icast</td>           <td>(x.intValue=a, x.floatValue)</td></tr>
     <tr><td>FLT_ICONV1</td>          <td>flt_iconv1</td>          <td>(float)</td></tr>
     <tr><td>FLT_ICONV3</td>          <td>flt_iconv3</td>          <td>(float)</td></tr>
     <tr><td>FLT_IPOW</td>            <td>flt_ipow</td>            <td>fltIPow</td></tr>
@@ -14861,7 +14859,7 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
   The interpreter checks always if an index refers to an existing element.
   By default the <span class="link">compiler</span> generates code to check if indices refer to an
   existing element. The option <span class="link"><tt><b>-si</b></tt></span> can be used to suppress the generation
-  of index checks. If a nonexisting element is referred, although index
+  of index checks. If a nonexistent element is referred, although index
   checking has been switched off (with <span class="link"><tt><b>-si</b></tt></span>), the behavior is undefined
   (see chapter <a class="link" href="#errors_Suppressing_exception_checks">16.6 Suppressing exception checks</a>).
 </p>
@@ -15082,7 +15080,7 @@ Program received signal SIGFPE, Arithmetic exception.
     <li>The program hangs.</li>
     <li>The program crashes.</li>
     <li>The computation continues with some garbage value. This garbage
-       value can then trigger dangerous things: The X-ray dosis computed
+       value can then trigger dangerous things: The X-ray dose computed
        by your program might be totally wrong. Your program might compute
        the statics of a bridge wrong.</li>
 </ul><p>

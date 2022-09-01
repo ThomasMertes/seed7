@@ -367,7 +367,7 @@ CONTENTS
     - There is no implicit fall-through for control flow
       as in the switch statement of C.
 
-    - There is no undefined bahavior.
+    - There is no undefined behavior.
 
     - There is no manual memory management.
 
@@ -521,8 +521,8 @@ CONTENTS
 
     hello world
 
-  The the option -q can be used to suppress the line
-  with information about the Seed7 interpreter:
+  The option -q can be used to suppress the information line
+  of the Seed7 interpreter:
 
     s7 -q hello
 
@@ -618,7 +618,7 @@ CONTENTS
       end func;
 
   There can be zero or more 'elsif' parts, and the 'else' part
-  is optional. As you can see the equaliy of strings is checked with '='.
+  is optional. As you can see the equality of strings is checked with '='.
   An if-statement is one way to improve the greeting program.
   Alternatively we can use a loop to insist on entering a name:
 
@@ -826,7 +826,7 @@ CONTENTS
   type 'hash [string] integer' defines a hash with a 'string' as index
   and an 'integer' as value. The example below uses 'keyDescription'
   which is defined as 'hash [char] string' in "keydescr.s7i". It
-  contains descriptive texts for keybord keys. A for-loop can loop
+  contains descriptive texts for keyboard keys. A for-loop can loop
   over the values of a 'hash':
 
     $ include "seed7_05.s7i";
@@ -1492,7 +1492,7 @@ CONTENTS
     *** tst316.sd7(5):52: Match for {INT_ADD({1 + 1 }) ; writeln } failed
         1 + 1;
 
-  An unused expression result must be explicitely ignored. E.g.:
+  An unused expression result must be explicitly ignored. E.g.:
 
     ignore(getc(KEYBOARD));
 
@@ -1501,7 +1501,7 @@ CONTENTS
   expressions take place. It is just the result of the expression
   that is ignored.
 
-  The need to explicitely ignore unused expression results
+  The need to explicitly ignore unused expression results
   removes another possible source of errors.
 
 
@@ -4507,7 +4507,7 @@ CONTENTS
 
     enum_literal1 and enum_literal2
 
-  For a enumeration type only few operations are predefined.
+  For an enumeration type only few operations are predefined.
   Additional operations must be defined separately. So it is
   necessary to define the functions 'str' and 'parse' in order to
   do I/O for a new enumeration type.
@@ -4553,7 +4553,7 @@ CONTENTS
   the same representation as an 'integer'. There is a division of
   responsibility. The type 'bin64' is for bitwise operations and
   the type 'integer' is for arithmetic operations. In compiled
-  programs conversionsions between 'bin64' and 'integer' have no
+  programs conversions between 'bin64' and 'integer' have no
   overhead.
 
     Constants:
@@ -4666,7 +4666,7 @@ CONTENTS
   the same representation as an 'integer'. There is a division of
   responsibility. The type 'bin32' is for bitwise operations and
   the type 'integer' is for arithmetic operations. In compiled
-  programs conversionsions between 'bin32' and 'integer' have no
+  programs conversions between 'bin32' and 'integer' have no
   overhead.
 
     Constants:
@@ -5107,8 +5107,8 @@ CONTENTS
       utf16beFile    UTF-16BE encoded files of the operating system
       dirFile        Read the contents of a directory
       echoFile       Generate an echo of the input
-      lineFile       Read a baseFile linewise
-      editLineFile   Support linewise editing with history
+      lineFile       Read a baseFile line-wise
+      editLineFile   Support line-wise editing with history
       gzipFile       Read decompressed data from a GZIP file
       gzipWriteFile  Write compressed data into a GZIP file
       bufferFile     Buffer (cache) data based on the given base file
@@ -5189,11 +5189,11 @@ CONTENTS
       openDir(directoryPath)  Open a directory file
                   ( Type of argument directoryPath: string )
       openEcho(inFile, outFile) Open an echo file
-      openLine(aFile) Open a lineFile to filter aFile linewise
-      openEditLine(inFile, outFile) Open an Unicode filter file
-                    for linewise editing with history
+      openLine(aFile) Open a lineFile to filter aFile line-wise
+      openEditLine(inFile, outFile) Open a Unicode filter file
+                    for line-wise editing with history
       openEditLineLatin1(inFile, outFile) Open a Latin-1 filter file
-                    for linewise editing with history
+                    for line-wise editing with history
     Functions:
       length(A) Length of file A
                   ( Type of result: integer )
@@ -6951,8 +6951,8 @@ CONTENTS
   operators and there can be also implementations using
   'complex', 'bigInteger', 'bigRational', etc. . That way
   'Number' can be used as universal type for math
-  calculation. Further extending can lead to an universal
-  type. Such an universal type is loved by proponents of
+  calculation. Further extending can lead to a universal
+  type. Such a universal type is loved by proponents of
   dynamic typed languages, but there are also good reasons
   to have distinct types for different purposes.
 
@@ -7162,7 +7162,7 @@ CONTENTS
     clear(window1);
 
   Files can be used for much more things. Here is a list of
-  goals for an inout/output system:
+  goals for an input/output system:
 
     - A concept which provides conversions from arbitrary
       types to strings and back.
@@ -7775,7 +7775,7 @@ CONTENTS
   UTF-16 comes in two flavors UTF-16LE and UTF-16BE. To support
   both flavors the "utf16.s7i" library defines several functions.
 
-  The function 'openUtf16' opens an Unicode file which uses the
+  The function 'openUtf16' opens a Unicode file which uses the
   UTF-16LE or UTF-16BE encoding. The function 'openUtf16' checks for
   a BOM and depending on that it opens an UTF-16LE or UTF-16BE file.
 
@@ -8390,7 +8390,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
       close(sock);
     end while;
 
-  A similar loop is used in the comanche webserver (see main function).
+  A similar loop is used in the Comanche web server (see main function).
   The function 'waitForRequest' can be used to process requests with session:
 
     aListener := openInetListener(2021);
@@ -8413,7 +8413,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 8.10 Transport Layer Security
 
     Transport Layer Security (TLS) is the successor of the Secure
-  Sockets Layer (SSL). It provides secure communitaction over a
+  Sockets Layer (SSL). It provides secure communication over a
   computer network. The library "tls.s7i" defines types and functions
   for TLS sockets. The implementation type for sockets is 'tlsFile'.
   As interface type 'file' is used:
@@ -8957,7 +8957,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   programming language. The syntax of identifiers, literals and
   comments is not described with S7SSD. S7SSD views a program as
   a big typeless expression. The syntax of this expression is
-  described with prefix-, infix- and postfix-operators. The operators
+  described with prefix, infix and postfix operators. The operators
   have a priority and an associativity. Operators can have one or
   more operator symbols. The operator symbols of an operator can be
   adjacent or they can have parameters in between. The S7SSD of
@@ -8976,7 +8976,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     () + ()
 
   The place of the parameters is specified with (). The + operator
-  is an infix operator, because the + is preceeded and succeeded by
+  is an infix operator, because the + is preceded and succeeded by
   a (). Any expression can be used as () parameter. The type of the
   () parameters and the type of the result of + is not specified by
   the S7SSD. Checks for the correct type are not done at the syntactic
@@ -9149,7 +9149,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   The * operator has the strongest priority (6) of all operators
   involved. Therefore the * takes its parameters first. Then
   the + (with priority 7) and at last the = (with priority 12)
-  follows. This leads to the the following interpretation of
+  follows. This leads to the following interpretation of
   the expression:
 
     A = (B + (C * D))
@@ -10170,7 +10170,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
 10.4 Unicode characters
 
-    Seed7 source code may containg UTF-8 encoded Unicode characters.
+    Seed7 source code may contain UTF-8 encoded Unicode characters.
   Unicode is allowed in string and char literals. The pragma 'names'
   can be used to allow Unicode in name identifiers:
 
@@ -10416,7 +10416,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
 
     The function 'openDir' opens the specified directory as file.
   Each line in this directory file contains the filename of a
-  file present in the the directory. The files "." and ".." are
+  file present in the directory. The files "." and ".." are
   left out from the directory file. Note that only filenames can
   be read from the directory file. Additional information must be
   obtained with other calls.
@@ -11112,7 +11112,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   drivers for MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird,
   Interbase, Db2, Informix and SQL Server databases. Databases can
   also be accessed via the ODBC interface. The following example
-  uses the datapase abstraction API:
+  uses the database abstraction API:
 
     const proc: dbDemo is func
       local
@@ -12444,7 +12444,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     FLT_ATAN2           flt_atan2           atan2
     FLT_BITS2DOUBLE     flt_bits2double     (x.bits=a, x.aDouble)
     FLT_BITS2SINGLE     flt_bits2single     (x.bits=a, x.aSingle)
-    FLT_CAST            flt_cast            (x.floatValue=a, x.intValue)
     FLT_CEIL            flt_ceil            ceil
     FLT_CMP             flt_cmp             fltCmp
     FLT_COS             flt_cos             cos
@@ -12463,7 +12462,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     FLT_GE              flt_ge              >=
     FLT_GT              flt_gt              >
     FLT_HASHCODE        flt_hashcode        (x.floatValue=a, x.intValue)
-    FLT_ICAST           flt_icast           (x.intValue=a, x.floatValue)
     FLT_ICONV1          flt_iconv1          (float)
     FLT_ICONV3          flt_iconv3          (float)
     FLT_IPOW            flt_ipow            fltIPow
@@ -14662,7 +14660,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
   The interpreter checks always if an index refers to an existing element.
   By default the compiler generates code to check if indices refer to an
   existing element. The option -si can be used to suppress the generation
-  of index checks. If a nonexisting element is referred, although index
+  of index checks. If a nonexistent element is referred, although index
   checking has been switched off (with -si), the behavior is undefined
   (see chapter 16.6 Suppressing exception checks).
 
@@ -14883,7 +14881,7 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
      - The program hangs.
      - The program crashes.
      - The computation continues with some garbage value. This garbage
-       value can then trigger dangerous things: The X-ray dosis computed
+       value can then trigger dangerous things: The X-ray dose computed
        by your program might be totally wrong. Your program might compute
        the statics of a bridge wrong.
 

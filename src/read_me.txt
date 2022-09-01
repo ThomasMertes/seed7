@@ -1473,6 +1473,20 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
   LINKER_OPT_STATIC_LINKING: Contains the linker option to force
                              static linking (e.g.: "-static").
 
+  POTENTIAL_PARTIAL_LINKING_OPTIONS:
+      A comma separated list of potential partial/incremental linking options.
+      Defined if partial/incremental linking is possibly supported.
+      This list is tested to find an option that supports partial linking.
+      A working option is written to "version.h" and "macros" under the
+      name LINKER_OPT_PARTIAL_LINKING. Usually LINKER_OPT_PARTIAL_LINKING
+      is "-r" or "-r -nostdlib". In case partial works the source code
+      can be compiled with the options -c and LINKER_OPT_PARTIAL_LINKING.
+      This option produces a relocatable object as output. This is
+      also known as partial linking. The tool objcopy is used also.
+      Objcopy is used with the option -L symbolname which converts
+      a global or weak symbol called symbolname into a local symbol.
+      This way the symbol is not visible externally.
+
   SYSTEM_LIBS: Options to link system libraries to a compiled
                program. This is intended for options to link
                libraries required by the Seed7 runtime library.
@@ -1510,11 +1524,6 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                                  buggy. In this case the definition
                                  of CommandLineToArgvW() in
                                  cmd_win.c is be used instead.
-
-  SUPPORTS_PARTIAL_LINKING: Defined in chkccomp.h, if partial
-                            linking (with the option -r) is
-                            supporded and the tool objcopy is
-                            present.
 
   ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS: Defined in chkccomp.h, if
                                        system header files for X11
