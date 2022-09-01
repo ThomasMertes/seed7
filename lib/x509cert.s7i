@@ -756,6 +756,27 @@ const func digestAlgorithm: getDigestFromSignatureAlgorithm (in string: algorith
   end func;
 
 
+const func string: getDigestOidFromSignatureAlgorithm (in string: algorithm) is func
+  result
+    var string: digestOid is "";
+  begin
+    if algorithm = MD5_WITH_RSA_ENCRYPTION then
+      digestOid := MD5_OID;
+    elsif algorithm = SHA1_WITH_RSA_ENCRYPTION then
+      digestOid := SHA1_OID;
+    elsif algorithm = SHA256_WITH_RSA_ENCRYPTION or
+          algorithm = ECDSA_WITH_SHA256 then
+      digestOid := SHA256_OID;
+    elsif algorithm = SHA384_WITH_RSA_ENCRYPTION or
+          algorithm = ECDSA_WITH_SHA384 then
+      digestOid := SHA384_OID;
+    elsif algorithm = SHA512_WITH_RSA_ENCRYPTION or
+          algorithm = ECDSA_WITH_SHA512 then
+      digestOid := SHA512_OID;
+    end if;
+  end func;
+
+
 const proc: showSignatureAlgorithm (in string: algorithm) is func
   begin
     if algorithm = MD5_WITH_RSA_ENCRYPTION then
@@ -820,14 +841,16 @@ const func string: genX509Cert (inout x509cert: cert, in rsaKey: encryptionKey) 
   local
     var digestAlgorithm: digestAlg is NO_DIGEST;
     var string: signature is "";
-    var algorithmIdentifierType: signatureAlgorithmIdentifier is algorithmIdentifierType.value;
+    var algorithmIdentifierType: digestAlgorithm is algorithmIdentifierType.value;
   begin
     stri := genX509TbsCertificate(cert.tbsCertificate);
     digestAlg := getDigestFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
     if digestAlg <> NO_DIGEST then
       cert.messageDigest := msgDigest(digestAlg, stri);
     end if;
-    signature := genAlgorithmIdentifier(cert.signatureAlgorithm);
+    digestAlgorithm.algorithm :=
+        getDigestOidFromSignatureAlgorithm(cert.signatureAlgorithm.algorithm);
+    signature := genAlgorithmIdentifier(digestAlgorithm);
     signature &:= genAsn1Element(tagOctetString, cert.messageDigest);
     signature := genAsn1Sequence(signature);
     cert.signatureValue := rsassaPkcs1V15Encrypt(encryptionKey, signature);
@@ -900,7 +923,7 @@ const func x509cert: createX509Cert (in rsaKey: publicRsaKey,
   begin
     cert.tbsCertificate.version := 0;  # v1
     cert.tbsCertificate.serialNumber := bytes(serialNumber, UNSIGNED, BE);
-    cert.tbsCertificate.signature.algorithm := SHA1_WITH_RSA_ENCRYPTION;
+    cert.tbsCertificate.signature.algorithm := SHA256_WITH_RSA_ENCRYPTION;
     cert.tbsCertificate.issuer @:= [COMMON_NAME_OID] commonName;
     cert.tbsCertificate.issuer @:= [COUNTRY_NAME_OID] country;
     cert.tbsCertificate.issuer @:= [LOCALITY_NAME_OID] locality;
@@ -914,7 +937,7 @@ const func x509cert: createX509Cert (in rsaKey: publicRsaKey,
     cert.tbsCertificate.subject @:= [ORGANIZATION_UNIT_NAME_OID] organizationUnit;
     cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm := RSA_ENCRYPTION_OID;
     cert.tbsCertificate.subjectPublicKeyInfo.publicRsaKey := publicRsaKey;
-    cert.signatureAlgorithm.algorithm := SHA1_WITH_RSA_ENCRYPTION;
+    cert.signatureAlgorithm.algorithm := SHA256_WITH_RSA_ENCRYPTION;
   end func;
 
 
@@ -1026,6 +1049,6 @@ const func certAndKey: selfSignedX509Cert (in string: commonName,
  *  Self signed X509 certificate.
  *)
 const certAndKey: stdCertificate is selfSignedX509Cert(
-    stdRsaKeyPair, 4_, "localhost",
+    stdRsaKeyPair, 6_, "localhost",
     "AT", "Vienna", "Black Hole", "Super Massive",
-    validityType(date(2021, 1, 1), date(2025, 1, 1)));
+    validityType(date(2022, 1, 1), date(2026, 1, 1)));
