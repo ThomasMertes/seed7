@@ -2500,7 +2500,7 @@ static errInfoType getBlob (preparedStmtType preparedStmt, memSizeType column,
         /* printf("totalLength=" FMT_D_LEN "\n", totalLength); */
         if (unlikely((SQLULEN) totalLength > MAX_CSTRI_LEN ||
                      (buffer = (cstriType) malloc(
-                          SIZ_CSTRI((SQLULEN) totalLength))) == NULL)) {
+                         SIZ_CSTRI((memSizeType) (SQLULEN) totalLength))) == NULL)) {
           err_info = MEMORY_ERROR;
         } else {
           returnCode= SQLGetData(preparedStmt->ppStmt,
