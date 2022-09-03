@@ -138,86 +138,91 @@ const func string: getln (inout editLineFile: inEditLine) is func
         else
           cursorOff(inEditLine.outFile, ' ');
         end if;
-        if ch = KEY_BS then
-          if pos > 1 then
-            decr(pos);
-            moveLeft(inEditLine.outFile, line[pos len 1]);
-            erase(inEditLine.outFile, line[pos ..]);
-            moveLeft(inEditLine.outFile, line[pos ..]);
-            line := line[.. pred(pos)] & line[succ(pos) ..];
-            write(inEditLine.outFile, line[pos ..]);
-            moveLeft(inEditLine.outFile, line[pos ..]);
-          end if;
-        elsif ch = KEY_DEL then
-          if pos <= length(line) then
-            erase(inEditLine.outFile, line[pos ..]);
-            moveLeft(inEditLine.outFile, line[pos ..]);
-            line := line[.. pred(pos)] & line[succ(pos) ..];
-            write(inEditLine.outFile, line[pos ..]);
-            moveLeft(inEditLine.outFile, line[pos ..]);
-          end if;
-        elsif ch = KEY_HOME then
-          moveLeft(inEditLine.outFile, line[.. pred(pos)]);
-          pos := 1;
-        elsif ch = KEY_END then
-          write(inEditLine.outFile, line[pos ..]);
-          pos := succ(length(line));
-        elsif ch = KEY_LEFT then
-          if pos > 1 then
-            decr(pos);
-            moveLeft(inEditLine.outFile, line[pos len 1]);
-          end if;
-        elsif ch = KEY_RIGHT then
-          if pos <= length(line) then
-            write(inEditLine.outFile, line[pos]);
-            incr(pos);
-          end if;
-        elsif ch = KEY_UP then
-          if historyPos > 1 then
+        case ch of
+          when {KEY_BS}:
+            if pos > 1 then
+              decr(pos);
+              moveLeft(inEditLine.outFile, line[pos len 1]);
+              erase(inEditLine.outFile, line[pos ..]);
+              moveLeft(inEditLine.outFile, line[pos ..]);
+              line := line[.. pred(pos)] & line[succ(pos) ..];
+              write(inEditLine.outFile, line[pos ..]);
+              moveLeft(inEditLine.outFile, line[pos ..]);
+            end if;
+          when {KEY_DEL}:
+            if pos <= length(line) then
+              erase(inEditLine.outFile, line[pos ..]);
+              moveLeft(inEditLine.outFile, line[pos ..]);
+              line := line[.. pred(pos)] & line[succ(pos) ..];
+              write(inEditLine.outFile, line[pos ..]);
+              moveLeft(inEditLine.outFile, line[pos ..]);
+            end if;
+          when {KEY_HOME}:
             moveLeft(inEditLine.outFile, line[.. pred(pos)]);
-            erase(inEditLine.outFile, line);
-            moveLeft(inEditLine.outFile, line);
-            history[historyPos] := line;
-            decr(historyPos);
-            line := history[historyPos];
-            write(inEditLine.outFile, line);
+            pos := 1;
+          when {KEY_END}:
+            write(inEditLine.outFile, line[pos ..]);
             pos := succ(length(line));
-          end if;
-        elsif ch = KEY_DOWN then
-          if historyPos < length(history) then
-            moveLeft(inEditLine.outFile, line[.. pred(pos)]);
-            erase(inEditLine.outFile, line);
-            moveLeft(inEditLine.outFile, line);
-            history[historyPos] := line;
-            incr(historyPos);
-            line := history[historyPos];
-            write(inEditLine.outFile, line);
-            pos := succ(length(line));
-          end if;
-        elsif ch = '\C' or ch = '\T' then
-          write(inEditLine.outFile, " terminate (y/n)?   ");
-          moveLeft(inEditLine.outFile, "  ");
-          cursorOn(inEditLine.outFile, ' ');
-          flush(inEditLine.outFile);
-          response := getc(inEditLine.inFile);
-          cursorOff(inEditLine.outFile, ' ');
-          if lower(response) = 'y' then
-            writeln(inEditLine.outFile, "yes  ");
-            writeln(inEditLine.outFile);
-            writeln(inEditLine.outFile, "*** PROGRAM TERMINATED BY USER");
-            exit(PROGRAM);
-          else
-            backSpace(inEditLine.outFile, " terminate (y/n)? ");
-            write(inEditLine.outFile, line[pos len 20]);
-            moveLeft(inEditLine.outFile, line[pos len 20]);
-          end if;
-        elsif ch >= ' ' and ch <= '~' or ch >= '\160;' and ch <= '\255;' or
-              ch >= '\256;' and ch <= '\16#10ffff;' and inEditLine.allowUnicode then
-          line := line[.. pred(pos)] & str(ch) & line[pos ..];
-          write(inEditLine.outFile, line[pos ..]);
-          moveLeft(inEditLine.outFile, line[succ(pos) ..]);
-          incr(pos);
-        end if;
+          when {KEY_LEFT}:
+            if pos > 1 then
+              decr(pos);
+              moveLeft(inEditLine.outFile, line[pos len 1]);
+            end if;
+          when {KEY_RIGHT}:
+            if pos <= length(line) then
+              write(inEditLine.outFile, line[pos]);
+              incr(pos);
+            end if;
+          when {KEY_UP}:
+            if historyPos > 1 then
+              moveLeft(inEditLine.outFile, line[.. pred(pos)]);
+              erase(inEditLine.outFile, line);
+              moveLeft(inEditLine.outFile, line);
+              history[historyPos] := line;
+              decr(historyPos);
+              line := history[historyPos];
+              write(inEditLine.outFile, line);
+              pos := succ(length(line));
+            end if;
+          when {KEY_DOWN}:
+            if historyPos < length(history) then
+              moveLeft(inEditLine.outFile, line[.. pred(pos)]);
+              erase(inEditLine.outFile, line);
+              moveLeft(inEditLine.outFile, line);
+              history[historyPos] := line;
+              incr(historyPos);
+              line := history[historyPos];
+              write(inEditLine.outFile, line);
+              pos := succ(length(line));
+            end if;
+          when {KEY_CTL_C, KEY_CTL_T}:
+            write(inEditLine.outFile, " terminate (y/n)?   ");
+            moveLeft(inEditLine.outFile, "  ");
+            cursorOn(inEditLine.outFile, ' ');
+            flush(inEditLine.outFile);
+            response := getc(inEditLine.inFile);
+            cursorOff(inEditLine.outFile, ' ');
+            if lower(response) = 'y' then
+              writeln(inEditLine.outFile, "yes  ");
+              writeln(inEditLine.outFile);
+              writeln(inEditLine.outFile, "*** PROGRAM TERMINATED BY USER");
+              exit(PROGRAM);
+            else
+              backSpace(inEditLine.outFile, " terminate (y/n)? ");
+              write(inEditLine.outFile, line[pos len 20]);
+              moveLeft(inEditLine.outFile, line[pos len 20]);
+            end if;
+          when {KEY_NL, KEY_CLOSE, EOF}:
+            noop;
+          otherwise:
+            if ch >= ' ' and ch <= '~' or ch >= '\160;' and ch <= '\255;' or
+                ch >= '\256;' and ch <= '\16#10ffff;' and inEditLine.allowUnicode then
+              line := line[.. pred(pos)] & str(ch) & line[pos ..];
+              write(inEditLine.outFile, line[pos ..]);
+              moveLeft(inEditLine.outFile, line[succ(pos) ..]);
+              incr(pos);
+            end if;
+        end case;
       until ch = KEY_NL or ch = EOF or ch = KEY_CLOSE;
       writeln(inEditLine.outFile);
       inEditLine.bufferChar := ch;
