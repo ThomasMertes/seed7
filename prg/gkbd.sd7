@@ -41,6 +41,12 @@ const array [boolean] color: buttonColor is [boolean] (light_blue, light_red);
 
 const type: keyActiveHashType is hash[char] boolean;
 
+const set of char: mouseKeys is
+    {KEY_MOUSE1, KEY_MOUSE2, KEY_MOUSE3, KEY_MOUSE4, KEY_MOUSE5, KEY_MOUSE_FWD, KEY_MOUSE_BACK,
+     KEY_SFT_MOUSE1, KEY_SFT_MOUSE2, KEY_SFT_MOUSE3, KEY_SFT_MOUSE4, KEY_SFT_MOUSE5, KEY_SFT_MOUSE_FWD, KEY_SFT_MOUSE_BACK,
+     KEY_CTL_MOUSE1, KEY_CTL_MOUSE2, KEY_CTL_MOUSE3, KEY_CTL_MOUSE4, KEY_CTL_MOUSE5, KEY_CTL_MOUSE_FWD, KEY_CTL_MOUSE_BACK,
+     KEY_ALT_MOUSE1, KEY_ALT_MOUSE2, KEY_ALT_MOUSE3, KEY_ALT_MOUSE4, KEY_ALT_MOUSE5, KEY_ALT_MOUSE_FWD, KEY_ALT_MOUSE_BACK};
+
 
 const proc: displayKey (in char: ch, in boolean: keyActive) is func
   local
@@ -203,6 +209,9 @@ const proc: main is func
         if ch in keyDescription then
           if ch = KEY_RESIZE then
             writeln("KEY_RESIZE (" <& width(curr_win) <& ", " <& height(curr_win) <& ")");
+          elsif ch in mouseKeys then
+            writeln(keyDescription[ch] <& " (" <& clickedXPos(KEYBOARD) <&
+                    ", " <& clickedYPos(KEYBOARD) <& ")");
           else
             writeln(keyDescription[ch]);
           end if;
