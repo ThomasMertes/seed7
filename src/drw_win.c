@@ -1145,15 +1145,15 @@ winType drwCapture (intType left, intType upper,
 
 
 
-intType drwGetPixel (const_winType source_window, intType x, intType y)
+intType drwGetPixel (const_winType sourceWin, intType x, intType y)
 
   { /* drwGetPixel */
-    return (intType) GetPixel(to_hdc(source_window), castToInt(x), castToInt(y));
+    return (intType) GetPixel(to_hdc(sourceWin), castToInt(x), castToInt(y));
   } /* drwGetPixel */
 
 
 
-bstriType drwGetPixelData (const_winType source_window)
+bstriType drwGetPixelData (const_winType sourceWin)
 
   {
     unsigned int xPos;
@@ -1163,17 +1163,17 @@ bstriType drwGetPixelData (const_winType source_window)
     bstriType result;
 
   /* drwGetPixelData */
-    logFunction(printf("drwGetPixelData(" FMT_U_MEM ")\n", (memSizeType) source_window););
-    result_size = to_width(source_window) * to_height(source_window) * sizeof(uint32Type);
+    logFunction(printf("drwGetPixelData(" FMT_U_MEM ")\n", (memSizeType) sourceWin););
+    result_size = to_width(sourceWin) * to_height(sourceWin) * sizeof(uint32Type);
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
       image_data = (uint32Type *) result->mem;
-      for (yPos = 0; yPos < to_height(source_window); yPos++) {
-        for (xPos = 0; xPos < to_width(source_window); xPos++) {
-          image_data[yPos * to_width(source_window) + xPos] =
-              (uint32Type) GetPixel(to_hdc(source_window), (int) xPos, (int) yPos);
+      for (yPos = 0; yPos < to_height(sourceWin); yPos++) {
+        for (xPos = 0; xPos < to_width(sourceWin); xPos++) {
+          image_data[yPos * to_width(sourceWin) + xPos] =
+              (uint32Type) GetPixel(to_hdc(sourceWin), (int) xPos, (int) yPos);
         } /* for */
       } /* for */
     } /* if */
@@ -1183,13 +1183,15 @@ bstriType drwGetPixelData (const_winType source_window)
 
 
 /**
- *  Create a new pixmap with the given 'width' and 'height'.
- *  A rectangle with the upper left corner at (left, upper) and the given
- *  'width' and 'height' is copied from 'source_window' to the new pixmap.
+ *  Create a new pixmap with the given 'width' and 'height' from 'sourceWin'.
+ *  A rectangle with the upper left corner at ('left', 'upper') and the given
+ *  'width' and 'height' is copied from 'sourceWin' to the new pixmap.
+ *  The rectangle may extend to areas outside of 'sourceWin'. The rectangle
+ *  areas outside of 'sourceWin' are colored with black.
  *  @exception RANGE_ERROR If 'height' or 'width' are negative.
  *  @return the new pixmap.
  */
-winType drwGetPixmap (const_winType source_window, intType left, intType upper,
+winType drwGetPixmap (const_winType sourceWin, intType left, intType upper,
     intType width, intType height)
 
   {
@@ -1197,7 +1199,7 @@ winType drwGetPixmap (const_winType source_window, intType left, intType upper,
 
   /* drwGetPixmap */
     logFunction(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) source_window, left, upper, width, height););
+                       (memSizeType) sourceWin, left, upper, width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
@@ -1208,8 +1210,8 @@ winType drwGetPixmap (const_winType source_window, intType left, intType upper,
     } else {
       memset(pixmap, 0, sizeof(win_winRecord));
       pixmap->usage_count = 1;
-      pixmap->hdc = CreateCompatibleDC(to_hdc(source_window));
-      pixmap->hBitmap = CreateCompatibleBitmap(to_hdc(source_window), (int) width, (int) height);
+      pixmap->hdc = CreateCompatibleDC(to_hdc(sourceWin));
+      pixmap->hBitmap = CreateCompatibleBitmap(to_hdc(sourceWin), (int) width, (int) height);
       if (unlikely(pixmap->hBitmap == NULL)) {
         free(pixmap);
         pixmap = NULL;
@@ -1221,12 +1223,12 @@ winType drwGetPixmap (const_winType source_window, intType left, intType upper,
         pixmap->is_pixmap = TRUE;
         pixmap->width = (unsigned int) width;
         pixmap->height = (unsigned int) height;
-        if (to_backup_hdc(source_window) != 0) {
+        if (to_backup_hdc(sourceWin) != 0) {
           BitBlt(pixmap->hdc, 0, 0, (int) width, (int) height,
-              to_backup_hdc(source_window), (int) left, (int) upper, SRCCOPY);
+              to_backup_hdc(sourceWin), (int) left, (int) upper, SRCCOPY);
         } else {
           BitBlt(pixmap->hdc, 0, 0, (int) width, (int) height,
-              to_hdc(source_window), (int) left, (int) upper, SRCCOPY);
+              to_hdc(sourceWin), (int) left, (int) upper, SRCCOPY);
         } /* if */
       } /* if */
     } /* if */

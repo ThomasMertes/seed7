@@ -1327,7 +1327,7 @@ winType drwCapture (intType left, intType upper,
 
 
 
-intType drwGetPixel (const_winType source_window, intType x, intType y)
+intType drwGetPixel (const_winType sourceWin, intType x, intType y)
 
   {
     XImage *image;
@@ -1335,13 +1335,13 @@ intType drwGetPixel (const_winType source_window, intType x, intType y)
 
   /* drwGetPixel */
     logFunction(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) source_window, x, y););
-    if (to_backup(source_window) != 0) {
-      image = XGetImage(mydisplay, to_backup(source_window),
+                       (memSizeType) sourceWin, x, y););
+    if (to_backup(sourceWin) != 0) {
+      image = XGetImage(mydisplay, to_backup(sourceWin),
                         castToInt(x), castToInt(y), 1, 1,
                         (unsigned long) -1, ZPixmap);
     } else {
-      image = XGetImage(mydisplay, to_window(source_window),
+      image = XGetImage(mydisplay, to_window(sourceWin),
                         castToInt(x), castToInt(y), 1, 1,
                         (unsigned long) -1, ZPixmap);
     } /* if */
@@ -1353,7 +1353,7 @@ intType drwGetPixel (const_winType source_window, intType x, intType y)
 
 
 
-bstriType drwGetPixelData (const_winType source_window)
+bstriType drwGetPixelData (const_winType sourceWin)
 
   {
     XImage *image;
@@ -1366,28 +1366,28 @@ bstriType drwGetPixelData (const_winType source_window)
     bstriType result;
 
   /* drwGetPixelData */
-    logFunction(printf("drwGetPixelData(" FMT_U_MEM ")\n", (memSizeType) source_window););
-    if (to_window(source_window) == 0) {
+    logFunction(printf("drwGetPixelData(" FMT_U_MEM ")\n", (memSizeType) sourceWin););
+    if (to_window(sourceWin) == 0) {
       if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = 0;
       } /* if */
     } else {
-      width = to_width(source_window);
-      height = to_height(source_window);
-      if (to_backup(source_window) != 0) {
-        image = XGetImage(mydisplay, to_backup(source_window),
+      width = to_width(sourceWin);
+      height = to_height(sourceWin);
+      if (to_backup(sourceWin) != 0) {
+        image = XGetImage(mydisplay, to_backup(sourceWin),
                           0, 0, width, height, (unsigned long) -1, ZPixmap);
-      } else if (to_window(source_window) != 0) {
-        image = XGetImage(mydisplay, to_window(source_window),
+      } else if (to_window(sourceWin) != 0) {
+        image = XGetImage(mydisplay, to_window(sourceWin),
                           0, 0, width, height, (unsigned long) -1, ZPixmap);
       } else {
         image = NULL;
       } /* if */
       if (unlikely(image == NULL)) {
         logError(printf("drwGetPixelData(" FMT_U_MEM "): XGetImage failed\n",
-                        (memSizeType) source_window););
+                        (memSizeType) sourceWin););
         raise_error(GRAPHIC_ERROR);
         result = NULL;
       } else {
@@ -1414,13 +1414,15 @@ bstriType drwGetPixelData (const_winType source_window)
 
 
 /**
- *  Create a new pixmap with the given 'width' and 'height'.
- *  A rectangle with the upper left corner at (left, upper) and the given
- *  'width' and 'height' is copied from 'source_window' to the new pixmap.
+ *  Create a new pixmap with the given 'width' and 'height' from 'sourceWin'.
+ *  A rectangle with the upper left corner at ('left', 'upper') and the given
+ *  'width' and 'height' is copied from 'sourceWin' to the new pixmap.
+ *  The rectangle may extend to areas outside of 'sourceWin'. The rectangle
+ *  areas outside of 'sourceWin' are colored with black.
  *  @exception RANGE_ERROR If 'height' or 'width' are negative.
  *  @return the new pixmap.
  */
-winType drwGetPixmap (const_winType source_window, intType left, intType upper,
+winType drwGetPixmap (const_winType sourceWin, intType left, intType upper,
     intType width, intType height)
 
   {
@@ -1428,7 +1430,7 @@ winType drwGetPixmap (const_winType source_window, intType left, intType upper,
 
   /* drwGetPixmap */
     logFunction(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) source_window, left, upper, width, height););
+                       (memSizeType) sourceWin, left, upper, width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
@@ -1439,7 +1441,7 @@ winType drwGetPixmap (const_winType source_window, intType left, intType upper,
     } else {
       memset(pixmap, 0, sizeof(x11_winRecord));
       pixmap->usage_count = 1;
-      pixmap->window = XCreatePixmap(mydisplay, to_window(source_window),
+      pixmap->window = XCreatePixmap(mydisplay, to_window(sourceWin),
           (unsigned int) width, (unsigned int) height,
           (unsigned int) DefaultDepth(mydisplay, myscreen));
       pixmap->backup = 0;
@@ -1448,12 +1450,17 @@ winType drwGetPixmap (const_winType source_window, intType left, intType upper,
       pixmap->is_managed = FALSE;
       pixmap->width = (unsigned int) width;
       pixmap->height = (unsigned int) height;
-      if (to_backup(source_window) != 0) {
-        XCopyArea(mydisplay, to_backup(source_window),
+      if (left < 0 || upper < 0 ||
+          left + width >= to_width(sourceWin) ||
+          upper + height >= to_height(sourceWin)) {
+        drwClear((winType) pixmap, (intType) myforeground);
+      } /* if */
+      if (to_backup(sourceWin) != 0) {
+        XCopyArea(mydisplay, to_backup(sourceWin),
             pixmap->window, mygc, (int) left, (int) upper,
             (unsigned int) width, (unsigned int) height, 0, 0);
       } else {
-        XCopyArea(mydisplay, to_window(source_window),
+        XCopyArea(mydisplay, to_window(sourceWin),
             pixmap->window, mygc, (int) left, (int) upper,
             (unsigned int) width, (unsigned int) height, 0, 0);
       } /* if */

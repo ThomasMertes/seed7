@@ -81,9 +81,9 @@ void drwPFEllipse (const_winType actual_window,
 winType drwEmpty (void);
 void drwFlush (void);
 void drwFree (winType old_window);
-intType drwGetPixel (const_winType source_window, intType x, intType y);
-bstriType drwGetPixelData (const_winType source_window);
-winType drwGetPixmap (const_winType source_window, intType left, intType upper,
+intType drwGetPixel (const_winType sourceWin, intType x, intType y);
+bstriType drwGetPixelData (const_winType sourceWin);
+winType drwGetPixmap (const_winType sourceWin, intType left, intType upper,
     intType width, intType height);
 void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType *blueLight);
 intType drwHeight (const_winType actual_window);

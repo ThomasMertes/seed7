@@ -643,6 +643,8 @@ const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) i
  *  Create a new pixmap with the given ''width'' and ''height'' from ''sourceWin''.
  *  A rectangle with the upper left corner at (''left'', ''upper'') and the given
  *  ''width'' and ''height'' is copied from ''sourceWin'' to the new pixmap.
+ *  The rectangle may extend to areas outside of ''sourceWin''. The rectangle
+ *  areas outside of ''sourceWin'' are colored with black.
  *  @return the created pixmap.
  *)
 const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin,
@@ -653,6 +655,8 @@ const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin,
  *  Create a new pixmap with the given ''width'' and ''height'' from ''curr_win''.
  *  A rectangle with the upper left corner at (''left'', ''upper'') and the given
  *  ''width'' and ''height'' is copied from ''curr_win'' to the new pixmap.
+ *  The rectangle may extend to areas outside of ''sourceWin''. The rectangle
+ *  areas outside of ''sourceWin'' are colored with black.
  *  @return the created pixmap.
  *)
 const func PRIMITIVE_WINDOW: getPixmap (in integer: left, in integer: upper,
@@ -667,6 +671,117 @@ const func PRIMITIVE_WINDOW: getPixmap (in integer: left, in integer: upper,
  *)
 const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin) is
   return getPixmap(sourceWin, 0, 0, width(sourceWin), height(sourceWin));
+
+
+(**
+ *  Create a new pixmap with the given ''width'' and ''height'' from ''sourceWin''.
+ *  A rectangle with the upper left corner at (''left'', ''upper'') and the given
+ *  ''width'' and ''height'' is copied from ''sourceWin'' to the new pixmap.
+ *  The rectangle may extend to areas outside of ''sourceWin''. The rectangle
+ *  areas outside of ''sourceWin'' are colored with the given ''background'' color.
+ *  @return the created pixmap.
+ *)
+const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin,
+    in integer: left, in integer: upper, in integer: width, in integer: height,
+    in color: background) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var integer: sourceLeft is 0;
+    var integer: sourceUpper is 0;
+    var integer: copyWidth is 0;
+    var integer: copyHeight is 0;
+    var integer: destLeft is 0;
+    var integer: destUpper is 0;
+    var PRIMITIVE_WINDOW: sourceToCopy is PRIMITIVE_WINDOW.value;
+  begin
+    pixmap := newPixmap(width, height);
+    if left + width <= 0 or left >= width(sourceWin) or
+        upper + height <= 0 or upper >= height(sourceWin) then
+      clear(pixmap, background);
+    else
+      sourceLeft := left;
+      copyWidth := width;
+      if left < 0 then
+        rect(pixmap, 0, 0, -left, height, background);
+        sourceLeft := 0;
+        copyWidth +:= left;
+        destLeft := -left;
+      end if;
+      if left + width > width(sourceWin) then
+        rect(pixmap, width(sourceWin) - left, 0, left + width - width(sourceWin), height, background);
+        copyWidth -:= left + width - width(sourceWin);
+      end if;
+      sourceUpper := upper;
+      copyHeight := height;
+      if upper < 0 then
+        rect(pixmap, 0, 0, width, -upper, background);
+        sourceUpper := 0;
+        copyHeight +:= upper;
+        destUpper := -upper;
+      end if;
+      if upper + height > height(sourceWin) then
+        rect(pixmap, 0, height(sourceWin) - upper, width, upper + height - height(sourceWin), background);
+        copyHeight -:= upper + height - height(sourceWin);
+      end if;
+      sourceToCopy := getPixmap(sourceWin, sourceLeft, sourceUpper, copyWidth, copyHeight);
+      put(pixmap, destLeft, destUpper, sourceToCopy);
+    end if;
+  end func;
+
+
+(**
+ *  Create a new pixmap with the given ''resultWidth'' and ''resultHeight'' from ''sourceWin''.
+ *  A rectangle with the upper left corner at (''left'', ''upper'') and the given
+ *  ''width'' and ''height'' is copied from ''sourceWin''. The rectangle may extend
+ *  to areas outside of ''sourceWin''. The rectangle areas outside of ''sourceWin'' are
+ *  colored with the given ''background'' color. The copied rectangle is
+ *  scaled to ''resultWidth'' and ''resultHeight'' and returned as new pixmap.
+ *  @return the created pixmap.
+ *)
+const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: sourceWin,
+    in integer: left, in integer: upper, in integer: width, in integer: height,
+    in integer: resultWidth, in integer: resultHeight, in color: background) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var integer: sourceLeft is 0;
+    var integer: sourceUpper is 0;
+    var integer: copyWidth is 0;
+    var integer: copyHeight is 0;
+    var integer: destLeft is 0;
+    var integer: destUpper is 0;
+    var PRIMITIVE_WINDOW: sourceToCopy is PRIMITIVE_WINDOW.value;
+  begin
+    pixmap := newPixmap(resultWidth, resultHeight);
+    clear(pixmap, background);
+    if left + width > 0 and left < width(sourceWin) and
+        upper + height > 0 and upper < height(sourceWin) then
+      sourceLeft := left;
+      copyWidth := width;
+      if left < 0 then
+        sourceLeft := 0;
+        copyWidth +:= left;
+        destLeft := -left;
+      end if;
+      if left + width > width(sourceWin) then
+        copyWidth -:= left + width - width(sourceWin);
+      end if;
+      sourceUpper := upper;
+      copyHeight := height;
+      if upper < 0 then
+        sourceUpper := 0;
+        copyHeight +:= upper;
+        destUpper := -upper;
+      end if;
+      if upper + height > height(sourceWin) then
+        copyHeight -:= upper + height - height(sourceWin);
+      end if;
+      sourceToCopy := getPixmap(sourceWin, sourceLeft, sourceUpper, copyWidth, copyHeight);
+      put(pixmap, destLeft * resultWidth mdiv width, destUpper * resultHeight mdiv height,
+          copyWidth * resultWidth mdiv width, copyHeight * resultHeight mdiv height, sourceToCopy);
+    end if;
+  end func;
 
 
 (**
