@@ -811,29 +811,45 @@ charType gkbGetc (void)
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
-            button_x = LOWORD(msg.lParam);
-            button_y = HIWORD(msg.lParam);
-            button_window = msg.hwnd;
-            if ((intPtrType) msg.wParam > 0) {
-              if (GetKeyState(VK_MENU) & 0x8000) {
-                result = K_ALT_MOUSE4;
-              } else if (msg.wParam & 0x04) {
-                result = K_SFT_MOUSE4;
-              } else if (msg.wParam & 0x08) {
-                result = K_CTL_MOUSE4;
+            if (IsWindow(msg.hwnd)) {
+              POINT point;
+              winType win;
+
+              point.x = GET_X_LPARAM(msg.lParam);
+              point.y = GET_Y_LPARAM(msg.lParam);
+              ScreenToClient(msg.hwnd, &point);
+              win = find_window(msg.hwnd);
+              if (point.x >= 0 && point.x < drwWidth(win) &&
+                  point.y >= 0 && point.y < drwHeight(win)) {
+                button_x = point.x;
+                button_y = point.y;
+                button_window = msg.hwnd;
+                if ((intPtrType) msg.wParam > 0) {
+                  if (GetKeyState(VK_MENU) & 0x8000) {
+                    result = K_ALT_MOUSE4;
+                  } else if (msg.wParam & 0x04) {
+                    result = K_SFT_MOUSE4;
+                  } else if (msg.wParam & 0x08) {
+                    result = K_CTL_MOUSE4;
+                  } else {
+                    result = K_MOUSE4;
+                  } /* if */
+                } else {
+                  if (GetKeyState(VK_MENU) & 0x8000) {
+                    result = K_ALT_MOUSE5;
+                  } else if (msg.wParam & 0x04) {
+                    result = K_SFT_MOUSE5;
+                  } else if (msg.wParam & 0x08) {
+                    result = K_CTL_MOUSE5;
+                  } else {
+                    result = K_MOUSE5;
+                  } /* if */
+                } /* if */
               } else {
-                result = K_MOUSE4;
+                result = K_NONE;
               } /* if */
             } else {
-              if (GetKeyState(VK_MENU) & 0x8000) {
-                result = K_ALT_MOUSE5;
-              } else if (msg.wParam & 0x04) {
-                result = K_SFT_MOUSE5;
-              } else if (msg.wParam & 0x08) {
-                result = K_CTL_MOUSE5;
-              } else {
-                result = K_MOUSE5;
-              } /* if */
+              result = K_NONE;
             } /* if */
             break;
           case WM_XBUTTONDOWN:
@@ -841,8 +857,8 @@ charType gkbGetc (void)
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
-            button_x = LOWORD(msg.lParam);
-            button_y = HIWORD(msg.lParam);
+            button_x = GET_X_LPARAM(msg.lParam);
+            button_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
             if ((msg.wParam & 0xffff0) == 0x20040) {
               if (GetKeyState(VK_MENU) & 0x8000) {
@@ -1197,11 +1213,38 @@ boolType gkbInputReady (void)
         case WM_LBUTTONDOWN:
         case WM_MBUTTONDOWN:
         case WM_RBUTTONDOWN:
-        case WM_MOUSEWHEEL:
         case WM_XBUTTONDOWN:
           /* printf("gkbInputReady --> TRUE for message %d\n", msg.message); */
           msg_present = 0;
           result = TRUE;
+          break;
+        case WM_MOUSEWHEEL:
+          if (IsWindow(msg.hwnd)) {
+            POINT point;
+            winType win;
+
+            point.x = GET_X_LPARAM(msg.lParam);
+            point.y = GET_Y_LPARAM(msg.lParam);
+            ScreenToClient(msg.hwnd, &point);
+            win = find_window(msg.hwnd);
+            if (point.x >= 0 && point.x < drwWidth(win) &&
+                point.y >= 0 && point.y < drwHeight(win)) {
+              msg_present = 0;
+              result = TRUE;
+            } else {
+              bRet = GetMessage(&msg, NULL, 0, 0);
+              if (bRet == 0 || bRet == -1) {
+                logError(printf("GetMessage(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+              } /* if */
+              msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+            } /* if */
+          } else {
+            bRet = GetMessage(&msg, NULL, 0, 0);
+            if (bRet == 0 || bRet == -1) {
+              logError(printf("GetMessage(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            } /* if */
+            msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+          } /* if */
           break;
         case WM_NCLBUTTONDOWN:
           traceEvent(printf("gkbInputReady WM_NCLBUTTONDOWN hwnd=" FMT_U_MEM
