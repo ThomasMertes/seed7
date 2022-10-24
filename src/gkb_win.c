@@ -757,8 +757,8 @@ charType gkbGetc (void)
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
-            button_x = LOWORD(msg.lParam);
-            button_y = HIWORD(msg.lParam);
+            button_x = GET_X_LPARAM(msg.lParam);
+            button_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
             if (GetKeyState(VK_MENU) & 0x8000) {
               result = K_ALT_MOUSE1;
@@ -775,8 +775,8 @@ charType gkbGetc (void)
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
-            button_x = LOWORD(msg.lParam);
-            button_y = HIWORD(msg.lParam);
+            button_x = GET_X_LPARAM(msg.lParam);
+            button_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
             if (GetKeyState(VK_MENU) & 0x8000) {
               result = K_ALT_MOUSE2;
@@ -793,8 +793,8 @@ charType gkbGetc (void)
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
-            button_x = LOWORD(msg.lParam);
-            button_y = HIWORD(msg.lParam);
+            button_x = GET_X_LPARAM(msg.lParam);
+            button_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
             if (GetKeyState(VK_MENU) & 0x8000) {
               result = K_ALT_MOUSE3;
