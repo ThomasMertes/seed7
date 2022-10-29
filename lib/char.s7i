@@ -227,7 +227,15 @@ const func char: lower (in char: ch)                          is action "CHR_LOW
 
 
 (**
- *  Check whether ''ch'' is an alphabetic Unicode character.
+ *  Determines if the specified character ''ch'' is a letter.
+ *  A character is considered to be a letter if the category
+ *  from the Unicode specification is any of the following:
+ *  * UPPERCASE_LETTER (Lu)
+ *  * LOWERCASE_LETTER (Ll)
+ *  * TITLECASE_LETTER (Lt)
+ *  * MODIFIER_LETTER  (Lm)
+ *  * OTHER_LETTER     (Lo)
+ *  Examples:
  *   isLetter('A')          returns TRUE
  *   isLetter('\16#4e2d;')  returns TRUE
  *   isLetter('4')          returns FALSE
@@ -235,7 +243,7 @@ const func char: lower (in char: ch)                          is action "CHR_LOW
  *   isLetter('\t')         returns FALSE
  *   isLetter(KEY_LEFT)     returns FALSE
  *   isLetter(EOF)          returns FALSE
- *  @return TRUE if ''ch'' is an alphabetic character,
+ *  @return TRUE if ''ch'' is a letter,
  *          FALSE otherwise.
  *)
 const func boolean: isLetter (in char: ch)                    is action "CHR_IS_LETTER";

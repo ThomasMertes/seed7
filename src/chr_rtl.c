@@ -56,72 +56,90 @@ static const uint64Type unicode_letters_data[] = {
   /* 0x000000-0x0001ff | number of bits: 373 */
   0x0000000000000000, 0x07fffffe07fffffe, 0x0420040000000000, 0xff7fffffff7fffff,
   0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-  /* 0x000200-0x0003ff | number of bits: 301 */
-  0x007fffffffffffff, 0xffffffffffff0000, 0xffffffffffffffff, 0x0000401f0003ffc3,
-  0x0000000000000000, 0x0400000000000020, 0xfffffffbffffd740, 0x0fbfffffffff7fff,
-  /* 0x000400-0x0005ff | number of bits: 380 */
-  0xffffffffffffffff, 0xffffffffffffffff, 0xfffffffffffffc03, 0x033fffffffff7fff,
-  0xfffe00000000ffff, 0xfffffffe027fffff, 0xbbff0000000000ff, 0x000707ffffff0016,
-  /* 0x000600-0x0007ff | number of bits: 282 */
-  0x07fffffe003f0000, 0xffffc00000ffffff, 0xffffffffffffffff, 0x9c00e1fe1fefffff,
-  0xffffffffffff0000, 0x000000000000e000, 0x0003ffffffffffff, 0x0000000000000000,
-  /* 0x000800-0x0009ff | number of bits: 155 */
-  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
-  0xe3fffffffffffffe, 0x0000000fff011fff, 0xe3c5fdfffff99fee, 0x0003000fb080199f,
-  /* 0x000a00-0x000bff | number of bits: 251 */
-  0xc36dfdfffff987ee, 0x001f00005e001987, 0xe3edfdfffffbbfee, 0x0000000f00011bbf,
-  0xe3edfdfffff99fee, 0x00020003b0c0198f, 0xc3bfc718d63dc7ec, 0x0000000000801dc7,
-  /* 0x000c00-0x000dff | number of bits: 284 */
-  0xc3effdfffffddfee, 0x0000000300601ddf, 0xe3effdfffffddfec, 0x0000000340601ddf,
-  0xc3fffdfffffddfec, 0x0000000300801dcf, 0x2ffbfffffc7fffec, 0x000c0000ff5f807f,
-  /* 0x000e00-0x000fff | number of bits: 224 */
-  0x07fffffffffffffe, 0x000000000000207f, 0x3bffecaefef02596, 0x000000003000205f,
-  0x0000000000000001, 0xfffe07fffffffeff, 0x1ffffffffeff0f03, 0x0000000000000000,
-  /* 0x001000-0x0011ff | number of bits: 379 */
-  0x0147f6fbffffffff, 0x0000000003ff0000, 0xffffffff00000000, 0x01ffffffffff003f,
-  0xffffffffffffffff, 0xffffffff83ffffff, 0xffffff07ffffffff, 0x03ffffffffffffff,
-  /* 0x001200-0x0013ff | number of bits: 402 */
-  0xffffffffffffff7f, 0xffffffff3d7f3d7f, 0x7f3d7fffffff3d7f, 0xffff7fffff7f7f3d,
-  0xffffffff7f3d7fff, 0x0000000007ffff7f, 0xffffffff00000000, 0x001fffffffffffff,
+  /* 0x000200-0x0003ff | number of bits: 342 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x0000501f0003ffc3,
+  0x0000000000000000, 0xbcdf000000000000, 0xfffffffbffffd740, 0xffbfffffffffffff,
+  /* 0x000400-0x0005ff | number of bits: 407 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xfffffffffffffc03, 0xffffffffffffffff,
+  0xfffeffffffffffff, 0xffffffff027fffff, 0x00000000000001ff, 0x000787ffffff0000,
+  /* 0x000600-0x0007ff | number of bits: 310 */
+  0xffffffff00000000, 0xfffec000000007ff, 0xffffffffffffffff, 0x9c00c060002fffff,
+  0x0000fffffffd0000, 0xffffffffffffe000, 0x0002003fffffffff, 0x043007fffffffc00,
+  /* 0x000800-0x0009ff | number of bits: 269 */
+  0x00000110043fffff, 0xffff07ff01ffffff, 0xffffffff00007eff, 0x00000000000003ff,
+  0x23fffffffffffff0, 0xfffe0003ff010000, 0x23c5fdfffff99fe1, 0x10030003b0004000,
+  /* 0x000a00-0x000bff | number of bits: 194 */
+  0x036dfdfffff987e0, 0x001c00005e000000, 0x23edfdfffffbbfe0, 0x0200000300010000,
+  0x23edfdfffff99fe0, 0x00020003b0000000, 0x03ffc718d63dc7e8, 0x0000000000010000,
+  /* 0x000c00-0x000dff | number of bits: 240 */
+  0x23fffdfffffddfe0, 0x0000000327000000, 0x23effdfffffddfe1, 0x0006000360000000,
+  0x27fffffffffddff0, 0xfc00000380704000, 0x2ffbfffffc7fffe0, 0x000000000000007f,
+  /* 0x000e00-0x000fff | number of bits: 163 */
+  0x000dfffffffffffe, 0x000000000000007f, 0x200dffaffffff7d6, 0x00000000f000005f,
+  0x0000000000000001, 0x00001ffffffffeff, 0x0000000000001f00, 0x0000000000000000,
+  /* 0x001000-0x0011ff | number of bits: 417 */
+  0x800007ffffffffff, 0xffe1c0623c3f0000, 0xffffffff00004003, 0xf7ffffffffff20bf,
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  /* 0x001200-0x0013ff | number of bits: 434 */
+  0xffffffffffffffff, 0xffffffff3d7f3dff, 0x7f3dffffffff3dff, 0xffffffffff7fff3d,
+  0xffffffffff3dffff, 0x0000000007ffffff, 0xffffffff0000ffff, 0x3f3fffffffffffff,
   /* 0x001400-0x0015ff | number of bits: 511 */
   0xfffffffffffffffe, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
   0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-  /* 0x001600-0x0017ff | number of bits: 371 */
-  0xffffffffffffffff, 0x007f9fffffffffff, 0xffffffff07fffffe, 0x0001c7ffffffffff,
-  0x000fffff000fdfff, 0x000ddfff000fffff, 0xffcfffffffffffff, 0x00000000108001ff,
-  /* 0x001800-0x0019ff | number of bits: 215 */
-  0xffffffff00000000, 0x00ffffffffffffff, 0x000003ffffffffff, 0x0000000000000000,
-  0x01ff0fff1fffffff, 0x001f3fffffff0000, 0x0000000000000000, 0x0000000000000000,
-  /* 0x001c00-0x001dff | number of bits: 108 */
-  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
-  0xffffffffffffffff, 0x00000fffffffffff, 0x0000000000000000, 0x0000000000000000,
-  /* 0x001e00-0x001fff | number of bits: 464 */
-  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffff0fffffff, 0x03ffffffffffffff,
+  /* 0x001600-0x0017ff | number of bits: 360 */
+  0xffffffffffffffff, 0xffff9fffffffffff, 0xffffffff07fffffe, 0x01fe07ffffffffff,
+  0x0003ffff8003ffff, 0x0001dfff0003ffff, 0x000fffffffffffff, 0x0000000010800000,
+  /* 0x001800-0x0019ff | number of bits: 335 */
+  0xffffffff00000000, 0x01ffffffffffffff, 0xffff05ffffffff9f, 0x003fffffffffffff,
+  0x000000007fffffff, 0x001f3fffffff0000, 0xffff0fffffffffff, 0x00000000000003ff,
+  /* 0x001a00-0x001bff | number of bits: 208 */
+  0xffffffff007fffff, 0x00000000001fffff, 0x0000008000000000, 0x0000000000000000,
+  0x000fffffffffffe0, 0x0000000000001fe0, 0xfc00c001fffffff8, 0x0000003fffffffff,
+  /* 0x001c00-0x001dff | number of bits: 335 */
+  0x0000000fffffffff, 0x3ffffffffc00e000, 0xe7ffffffffff01ff, 0x046fde0000000000,
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x0000000000000000,
+  /* 0x001e00-0x001fff | number of bits: 474 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
   0xffffffff3f3fffff, 0x3fffffffaaff3f3f, 0x5fdfffffffffffff, 0x1fdc1fff0fcf1fdc,
-  /* 0x002000-0x0021ff | number of bits: 81 */
-  0x0000000000000000, 0x8002000000000000, 0x0000000000000000, 0x0000000000000000,
-  0xe3fbbd503e2ffc84, 0xffffffff000003e0, 0x000000000000000f, 0x0000000000000000,
-  /* 0x003000-0x0031ff | number of bits: 379 */
-  0x1f3e03fe000000e0, 0xfffffffffffffffe, 0xfffffffee07fffff, 0xf7ffffffffffffff,
-  0xfffe1fffffffffe0, 0xffffffffffffffff, 0x00ffffff00007fff, 0xffff000000000000,
-  /* 0x004c00-0x004dff | number of bits: 438 */
-  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-  0xffffffffffffffff, 0xffffffffffffffff, 0x003fffffffffffff, 0x0000000000000000,
-  /* 0x009e00-0x009fff | number of bits: 422 */
-  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-  0xffffffffffffffff, 0xffffffffffffffff, 0x0000003fffffffff, 0x0000000000000000,
-  /* 0x00a400-0x00a5ff | number of bits: 141 */
-  0xffffffffffffffff, 0xffffffffffffffff, 0x0000000000001fff, 0x0000000000000000,
+  /* 0x002000-0x0021ff | number of bits: 63 */
+  0x0000000000000000, 0x8002000000000000, 0x000000001fff0000, 0x0000000000000000,
+  0xf3ffbd503e2ffc84, 0x00000000000043e0, 0x0000000000000018, 0x0000000000000000,
+  /* 0x002c00-0x002dff | number of bits: 411 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x000c781fffffffff,
+  0xffff20bfffffffff, 0x000080ffffffffff, 0x7f7f7f7f007fffff, 0x000000007f7f7f7f,
+  /* 0x002e00-0x002fff | number of bits: 1 */
+  0x0000800000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
   0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
-  /* 0x00d600-0x00d7ff | number of bits: 420 */
+  /* 0x003000-0x0031ff | number of bits: 377 */
+  0x183e000000000060, 0xfffffffffffffffe, 0xfffffffee07fffff, 0xf7ffffffffffffff,
+  0xfffeffffffffffe0, 0xffffffffffffffff, 0xffffffff00007fff, 0xffff000000000000,
+  /* 0x004c00-0x004dff | number of bits: 448 */
   0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-  0xffffffffffffffff, 0xffffffffffffffff, 0x0000000fffffffff, 0x0000000000000000,
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x0000000000000000,
+  /* 0x009e00-0x009fff | number of bits: 509 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x1fffffffffffffff,
+  /* 0x00a400-0x00a5ff | number of bits: 443 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0x0000000000001fff, 0x3fffffffffff0000,
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  /* 0x00a600-0x00a7ff | number of bits: 377 */
+  0x00000c00ffff1fff, 0x80007fffffffffff, 0xffffffff3fffffff, 0x0000003fffffffff,
+  0xfffffffcff800000, 0xffffffffffffffff, 0xfffffffffffff9ff, 0xfffc000003eb07ff,
+  /* 0x00a800-0x00a9ff | number of bits: 291 */
+  0x00000007fffff7bb, 0x000fffffffffffff, 0x000ffffffffffffc, 0x68fc000000000000,
+  0xffff003ffffffc00, 0x1fffffff0000007f, 0x0007fffffffffff0, 0x7c00ffdf00008000,
+  /* 0x00aa00-0x00abff | number of bits: 357 */
+  0x000001ffffffffff, 0xc47fffff00000ff7, 0x3e62ffffffffffff, 0x001c07ff38000005,
+  0xffff7f7f007e7e7e, 0xffff03fff7ffffff, 0xffffffffffffffff, 0x00000007ffffffff,
+  /* 0x00d600-0x00d7ff | number of bits: 492 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffff000fffffffff, 0x0ffffffffffff87f,
   /* 0x00f800-0x00f9ff | number of bits: 256 */
   0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
   0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-  /* 0x00fa00-0x00fbff | number of bits: 305 */
-  0xffff3fffffffffff, 0x000007ffffffffff, 0x0000000000000000, 0x0000000000000000,
-  0x5f7ffdffe0f8007f, 0xffffffffffffffdb, 0x0003ffffffffffff, 0xfffffffffff80000,
+  /* 0x00fa00-0x00fbff | number of bits: 415 */
+  0xffffffffffffffff, 0xffff3fffffffffff, 0xffffffffffffffff, 0x0000000003ffffff,
+  0x5f7ffdffa0f8007f, 0xffffffffffffffdb, 0x0003ffffffffffff, 0xfffffffffff80000,
   /* 0x00fc00-0x00fdff | number of bits: 448 */
   0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
   0x3fffffffffffffff, 0xffffffffffff0000, 0xfffffffffffcffff, 0x0fff0000000000ff,
@@ -131,61 +149,175 @@ static const uint64Type unicode_letters_data[] = {
   /* 0x010000-0x0101ff | number of bits: 211 */
   0xb7ffff7fffffefff, 0x000000003fff3fff, 0xffffffffffffffff, 0x07ffffffffffffff,
   0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
-  /* 0x010200-0x0103ff | number of bits: 88 */
+  /* 0x010200-0x0103ff | number of bits: 250 */
+  0x0000000000000000, 0x0000000000000000, 0xffffffff1fffffff, 0x000000000001ffff,
+  0xffffe000ffffffff, 0x003fffffffff03fd, 0xffffffff3fffffff, 0x000000000000ff0f,
+  /* 0x010400-0x0105ff | number of bits: 392 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffff00003fffffff, 0x0fffffffff0fffff,
+  0xffff00ffffffffff, 0xf7ff000fffffffff, 0x1bfbfffbffb7f7ff, 0x0000000000000000,
+  /* 0x010600-0x0107ff | number of bits: 398 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  0x007fffffffffffff, 0x000000ff003fffff, 0x07fdffffffffffbf, 0x0000000000000000,
+  /* 0x010800-0x0109ff | number of bits: 258 */
+  0x91bffffffffffd3f, 0x007fffff003fffff, 0x000000007fffffff, 0x0037ffff00000000,
+  0x03ffffff003fffff, 0x0000000000000000, 0xc0ffffffffffffff, 0x0000000000000000,
+  /* 0x010a00-0x010bff | number of bits: 244 */
+  0x003ffffffeef0001, 0x1fffffff00000000, 0x000000001fffffff, 0x0000001ffffffeff,
+  0x003fffffffffffff, 0x0007ffff003fffff, 0x000000000003ffff, 0x0000000000000000,
+  /* 0x010c00-0x010dff | number of bits: 211 */
+  0xffffffffffffffff, 0x00000000000001ff, 0x0007ffffffffffff, 0x0007ffffffffffff,
+  0x0000000fffffffff, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x010e00-0x010fff | number of bits: 158 */
+  0x0000000000000000, 0x0000000000000000, 0x000303ffffffffff, 0x0000000000000000,
+  0xffff00801fffffff, 0xffff00000000003f, 0xffff000000000003, 0x007fffff0000001f,
+  /* 0x011000-0x0111ff | number of bits: 254 */
+  0x00fffffffffffff8, 0x0026000000000000, 0x0000fffffffffff8, 0x000001ffffff0000,
+  0x0000007ffffffff8, 0x0047ffffffff0090, 0x0007fffffffffff8, 0x000000001400001e,
+  /* 0x011200-0x0113ff | number of bits: 182 */
+  0x80000ffffffbffff, 0x0000000000000001, 0xffff01ffbfffbd7f, 0x000000007fffffff,
+  0x23edfdfffff99fe0, 0x00000003e0010000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x011400-0x0115ff | number of bits: 162 */
+  0x001fffffffffffff, 0x0000000380000780, 0x0000ffffffffffff, 0x00000000000000b0,
+  0x0000000000000000, 0x0000000000000000, 0x00007fffffffffff, 0x000000000f000000,
+  /* 0x011600-0x0117ff | number of bits: 127 */
+  0x0000ffffffffffff, 0x0000000000000010, 0x010007ffffffffff, 0x0000000000000000,
+  0x0000000007ffffff, 0x000000000000007f, 0x0000000000000000, 0x0000000000000000,
+  /* 0x011800-0x0119ff | number of bits: 202 */
+  0x00000fffffffffff, 0x0000000000000000, 0xffffffff00000000, 0x80000000ffffffff,
+  0x8000ffffff6ff27f, 0x0000000000000002, 0xfffffcff00000000, 0x0000000a0001ffff,
+  /* 0x011a00-0x011bff | number of bits: 163 */
+  0x0407fffffffff801, 0xfffffffff0010000, 0xffff0000200003ff, 0x01ffffffffffffff,
   0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
-  0xffff00007fffffff, 0x00000000000007ff, 0x000000003fffffff, 0x0000000000000000,
-  /* 0x010400-0x0105ff | number of bits: 158 */
-  0xffffffffffffffff, 0xffffffffffffffff, 0x000000003fffffff, 0x0000000000000000,
+  /* 0x011c00-0x011dff | number of bits: 166 */
+  0x00007ffffffffdff, 0xfffc000000000001, 0x000000000000ffff, 0x0000000000000000,
+  0x0001fffffffffb7f, 0xfffffdbf00000040, 0x00000000010003ff, 0x0000000000000000,
+  /* 0x011e00-0x011fff | number of bits: 68 */
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0007ffff00000000,
+  0x000ffffffffdfff4, 0x0000000000000000, 0x0001000000000000, 0x0000000000000000,
+  /* 0x012200-0x0123ff | number of bits: 410 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  0xffffffffffffffff, 0xffffffffffffffff, 0x0000000003ffffff, 0x0000000000000000,
+  /* 0x012400-0x0125ff | number of bits: 196 */
+  0x0000000000000000, 0x0000000000000000, 0xffffffffffffffff, 0xffffffffffffffff,
+  0xffffffffffffffff, 0x000000000000000f, 0x0000000000000000, 0x0000000000000000,
+  /* 0x012e00-0x012fff | number of bits: 97 */
   0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
-  /* 0x010800-0x0109ff | number of bits: 55 */
-  0x91bffffffffffd3f, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  0x0000000000000000, 0x0000000000000000, 0xffffffffffff0000, 0x0001ffffffffffff,
+  /* 0x013400-0x0135ff | number of bits: 54 */
+  0x0000ffffffffffff, 0x000000000000007e, 0x0000000000000000, 0x0000000000000000,
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x014600-0x0147ff | number of bits: 71 */
+  0xffffffffffffffff, 0x000000000000007f, 0x0000000000000000, 0x0000000000000000,
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x016a00-0x016bff | number of bits: 289 */
+  0x01ffffffffffffff, 0xffff00007fffffff, 0x7fffffffffffffff, 0x00003fffffff0000,
+  0x0000ffffffffffff, 0xe0fffff80000000f, 0x000000000000ffff, 0x0000000000000000,
+  /* 0x016e00-0x016fff | number of bits: 156 */
+  0x0000000000000000, 0xffffffffffffffff, 0x0000000000000000, 0x0000000000000000,
+  0xffffffffffffffff, 0x00000000000107ff, 0x00000000fff80000, 0x0000000b00000000,
+  /* 0x018600-0x0187ff | number of bits: 504 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x00ffffffffffffff,
+  /* 0x018c00-0x018dff | number of bits: 223 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x00000000003fffff,
+  0x00000000000001ff, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x01ae00-0x01afff | number of bits: 13 */
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x6fef000000000000,
+  /* 0x01b000-0x01b1ff | number of bits: 444 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  0x00040007ffffffff, 0xffff00f000270000, 0xffffffffffffffff, 0xffffffffffffffff,
+  /* 0x01b200-0x01b3ff | number of bits: 252 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x0fffffffffffffff,
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x01bc00-0x01bdff | number of bits: 139 */
+  0xffffffffffffffff, 0x1fff07ffffffffff, 0x0000000003ff01ff, 0x0000000000000000,
   0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
   /* 0x01d400-0x01d5ff | number of bits: 488 */
   0xffffffffffffffff, 0xffffffffffdfffff, 0xebffde64dfffffff, 0xffffffffffffffef,
   0x7bffffffdfdfe7bf, 0xfffffffffffdfc5f, 0xffffffffffffffff, 0xffffffffffffffff,
-  /* 0x01d600-0x01d7ff | number of bits: 444 */
-  0xffffffffffffffff, 0xffffffffffffffff, 0xffffff0fffffffff, 0xf7fffffff7fffffd,
-  0xffdfffffffdfffff, 0xffff7fffffff7fff, 0xfffffdfffffffdff, 0x00000000000003f7,
-  /* 0x02a600-0x02a7ff | number of bits: 215 */
-  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x00000000007fffff,
+  /* 0x01d600-0x01d7ff | number of bits: 448 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffff3fffffffff, 0xf7fffffff7fffffd,
+  0xffdfffffffdfffff, 0xffff7fffffff7fff, 0xfffffdfffffffdff, 0x0000000000000ff7,
+  /* 0x01de00-0x01dfff | number of bits: 37 */
   0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  0x000007e07fffffff, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x01e000-0x01e1ff | number of bits: 115 */
+  0xffff000000000000, 0x00003fffffffffff, 0x0000000000000000, 0x0000000000000000,
+  0x3f801fffffffffff, 0x0000000000004000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x01e200-0x01e3ff | number of bits: 74 */
+  0x0000000000000000, 0x0000000000000000, 0x00003fffffff0000, 0x00000fffffffffff,
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x01e400-0x01e5ff | number of bits: 28 */
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x00000fffffff0000,
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x01e600-0x01e7ff | number of bits: 28 */
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x7fff6f7f00000000,
+  /* 0x01e800-0x01e9ff | number of bits: 266 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x000000000000001f,
+  0xffffffffffffffff, 0x000000000000080f, 0x0000000000000000, 0x0000000000000000,
+  /* 0x01ee00-0x01efff | number of bits: 141 */
+  0x0af7fe96ffffffef, 0x5ef7f796aa96ea84, 0x0ffffbee0ffffbff, 0x0000000000000000,
+  0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x02a600-0x02a7ff | number of bits: 480 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x00000000ffffffff,
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  /* 0x02b600-0x02b7ff | number of bits: 506 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  0x03ffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  /* 0x02b800-0x02b9ff | number of bits: 510 */
+  0xffffffff3fffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  /* 0x02ce00-0x02cfff | number of bits: 498 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffff0003ffffffff, 0xffffffffffffffff,
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  /* 0x02ea00-0x02ebff | number of bits: 481 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0x00000001ffffffff,
   /* 0x02fa00-0x02fbff | number of bits: 30 */
   0x000000003fffffff, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
   0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000,
+  /* 0x031200-0x0313ff | number of bits: 507 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  0xffffffffffffffff, 0xffffffffffff07ff, 0xffffffffffffffff, 0xffffffffffffffff,
+  /* 0x032200-0x0323ff | number of bits: 432 */
+  0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+  0xffffffffffffffff, 0xffffffffffffffff, 0x0000ffffffffffff, 0x0000000000000000,
 };
 
 static const signed char unicode_letters_ind[] = {
     0,   1,   2,   3,   4,   5,   6,   7, /* 0x000000-0x000fff */
-    8,   9,  10,  11,  12,  -1,  13,  14, /* 0x001000-0x001fff */
-   15,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x002000-0x002fff */
-   16,  -1,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x003000-0x003fff */
-   -2,  -2,  -2,  -2,  -2,  -2,  17,  -2, /* 0x004000-0x004fff */
+    8,   9,  10,  11,  12,  13,  14,  15, /* 0x001000-0x001fff */
+   16,  -1,  -1,  -1,  -1,  -1,  17,  18, /* 0x002000-0x002fff */
+   19,  -1,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x003000-0x003fff */
+   -2,  -2,  -2,  -2,  -2,  -2,  20,  -2, /* 0x004000-0x004fff */
    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x005000-0x005fff */
    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x006000-0x006fff */
    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x007000-0x007fff */
    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x008000-0x008fff */
-   -2,  -2,  -2,  -2,  -2,  -2,  -2,  18, /* 0x009000-0x009fff */
-   -2,  -2,  19,  -1,  -1,  -1,  -2,  -2, /* 0x00a000-0x00afff */
+   -2,  -2,  -2,  -2,  -2,  -2,  -2,  21, /* 0x009000-0x009fff */
+   -2,  -2,  22,  23,  24,  25,  -2,  -2, /* 0x00a000-0x00afff */
    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x00b000-0x00bfff */
    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x00c000-0x00cfff */
-   -2,  -2,  -2,  20,  -1,  -1,  -1,  -1, /* 0x00d000-0x00dfff */
+   -2,  -2,  -2,  26,  -1,  -1,  -1,  -1, /* 0x00d000-0x00dfff */
    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x00e000-0x00efff */
-   -1,  -1,  -1,  -1,  21,  22,  23,  24, /* 0x00f000-0x00ffff */
-   25,  26,  27,  -1,  28,  -1,  -1,  -1, /* 0x010000-0x010fff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x011000-0x011fff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x012000-0x012fff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x013000-0x013fff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x014000-0x014fff */
+   -1,  -1,  -1,  -1,  27,  28,  29,  30, /* 0x00f000-0x00ffff */
+   31,  32,  33,  34,  35,  36,  37,  38, /* 0x010000-0x010fff */
+   39,  40,  41,  42,  43,  44,  45,  46, /* 0x011000-0x011fff */
+   -2,  47,  48,  -1,  -1,  -1,  -1,  49, /* 0x012000-0x012fff */
+   -2,  -2,  50,  -1,  -1,  -1,  -1,  -1, /* 0x013000-0x013fff */
+   -1,  -1,  -2,  51,  -1,  -1,  -1,  -1, /* 0x014000-0x014fff */
    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x015000-0x015fff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x016000-0x016fff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x017000-0x017fff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x018000-0x018fff */
+   -1,  -1,  -1,  -1,  -2,  52,  -1,  53, /* 0x016000-0x016fff */
+   -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x017000-0x017fff */
+   -2,  -2,  -2,  54,  -2,  -2,  55,  -1, /* 0x018000-0x018fff */
    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x019000-0x019fff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x01a000-0x01afff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x01b000-0x01bfff */
+   -1,  -1,  -1,  -1,  -1,  -1,  -1,  56, /* 0x01a000-0x01afff */
+   57,  58,  -1,  -1,  -1,  -1,  59,  -1, /* 0x01b000-0x01bfff */
    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x01c000-0x01cfff */
-   -1,  -1,  29,  30,  -1,  -1,  -1,  -1, /* 0x01d000-0x01dfff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x01e000-0x01efff */
+   -1,  -1,  60,  61,  -1,  -1,  -1,  62, /* 0x01d000-0x01dfff */
+   63,  64,  65,  66,  67,  -1,  -1,  68, /* 0x01e000-0x01efff */
    -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x01f000-0x01ffff */
    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x020000-0x020fff */
    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x021000-0x021fff */
@@ -197,12 +329,15 @@ static const signed char unicode_letters_ind[] = {
    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x027000-0x027fff */
    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x028000-0x028fff */
    -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x029000-0x029fff */
-   -2,  -2,  -2,  31,  -1,  -1,  -1,  -1, /* 0x02a000-0x02afff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x02b000-0x02bfff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x02c000-0x02cfff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x02d000-0x02dfff */
-   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1, /* 0x02e000-0x02efff */
-   -1,  -1,  -1,  -1,  -2,  32            /* 0x02f000-0x02fbff */
+   -2,  -2,  -2,  69,  -2,  -2,  -2,  -2, /* 0x02a000-0x02afff */
+   -2,  -2,  -2,  70,  71,  -2,  -2,  -2, /* 0x02b000-0x02bfff */
+   -2,  -2,  -2,  -2,  -2,  -2,  -2,  72, /* 0x02c000-0x02cfff */
+   -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x02d000-0x02dfff */
+   -2,  -2,  -2,  -2,  -2,  73,  -1,  -1, /* 0x02e000-0x02efff */
+   -1,  -1,  -1,  -1,  -2,  74,  -1,  -1, /* 0x02f000-0x02ffff */
+   -2,  -2,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x030000-0x030fff */
+   -2,  75,  -2,  -2,  -2,  -2,  -2,  -2, /* 0x031000-0x031fff */
+   -2,  76                                /* 0x032000-0x0323ff */
 };
 
 /**
@@ -492,11 +627,16 @@ void chrCpyGeneric (genericType *const dest, const genericType source)
 
 
 /**
- *  Check whether 'ch' is an alphabetic Unicode character.
- *  Uses identifier data table to look up a particular code point.
- *  The table includes many Unicode ranges listed below.
- *  @return TRUE if 'ch' is an alphabetic symbol,
- *          FALSE otherwise
+ *  Determines if the specified character 'ch' is a letter.
+ *  A character is considered to be a letter if the category
+ *  from the Unicode specification is any of the following:
+ *  * UPPERCASE_LETTER (Lu)
+ *  * LOWERCASE_LETTER (Ll)
+ *  * TITLECASE_LETTER (Lt)
+ *  * MODIFIER_LETTER  (Lm)
+ *  * OTHER_LETTER     (Lo)
+ *  @return TRUE if 'ch' is a letter,
+ *          FALSE otherwise.
  */
 boolType chrIsLetter (charType ch)
 
@@ -504,7 +644,7 @@ boolType chrIsLetter (charType ch)
     int ind;
 
   /* chrIsLetter */
-    if (ch <= 0x02fbff) {
+    if (ch <= 0x0323ff) {
       ind = unicode_letters_ind[ch >> 9];
       if (ind >= 0) {
         return (boolType) (

@@ -312,9 +312,16 @@ objectType chr_incr (listType arguments)
 
 
 /**
- * Check whether a character is an alphabetic Unicode character.
- * @return TRUE if alphabetic property holds,
- *         FALSE otherwise
+ *  Determines if the specified character 'ch' is a letter.
+ *  A character is considered to be a letter if the category
+ *  from the Unicode specification is any of the following:
+ *  * UPPERCASE_LETTER (Lu)
+ *  * LOWERCASE_LETTER (Ll)
+ *  * TITLECASE_LETTER (Lt)
+ *  * MODIFIER_LETTER  (Lm)
+ *  * OTHER_LETTER     (Lo)
+ *  @return TRUE if 'ch' is a letter,
+ *          FALSE otherwise.
  */
 objectType chr_is_letter (listType arguments)
 
