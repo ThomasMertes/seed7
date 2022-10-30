@@ -832,7 +832,7 @@ objectType exec_call (objectType object)
         result = NULL;
         break;
     } /* switch */
-    logFunction(printf("exec_call ");
+    logFunction(printf("exec_call --> ");
                 trace1(result);
                 printf("\n"););
     return result;
