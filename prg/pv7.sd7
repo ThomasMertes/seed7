@@ -292,9 +292,11 @@ const proc: main is func
         if not commandPresent then
           command := getc(KEYBOARD);
         end if;
-        if command = KEY_MOUSE3 or command = KEY_NL or command = KEY_TAB or command = KEY_RIGHT then
+        if command = KEY_MOUSE3 or command = KEY_MOUSE_FWD or
+            command = KEY_NL or command = KEY_TAB or command = KEY_RIGHT then
           nextImageFile(dirPath, fileList, index);
-        elsif command = KEY_MOUSE2 or command = KEY_BACKTAB or command = KEY_LEFT then
+        elsif command = KEY_MOUSE2 or command = KEY_MOUSE_BACK or
+            command = KEY_BACKTAB or command = KEY_LEFT then
           previousImageFile(dirPath, fileList, index);
         end if;
         commandPresent := FALSE;
