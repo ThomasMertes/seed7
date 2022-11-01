@@ -254,7 +254,8 @@ static objectType pars_token (objectType expression,
     posType posinfo;
 
   /* pars_token */
-    logFunction(printf("pars_token\n"););
+    logFunction(printf("pars_token(" FMT_U_MEM ")\n",
+                       (memSizeType) expression););
     okay = FALSE;
     while (formal_token != NULL) {
       switch (formal_token->token_category) {
@@ -336,8 +337,8 @@ objectType pars_infix_expression (priorityType priority,
     listType helplist;
 
   /* pars_infix_expression */
-    logFunction(printf("pars_infix_expression %d \"%s\"\n",
-                       priority, id_string(current_ident)););
+    logFunction(printf("pars_infix_expression(%d, %d) %s\n",
+                       priority, do_match_expr, id_string(current_ident)););
     expr_prior = current_ident->prefix_priority;
     if (expr_prior == STRONGEST_PRIORITY) {
       expression = read_dot_expression(do_match_expr);
@@ -386,7 +387,8 @@ objectType pars_infix_expression (priorityType priority,
         } /* if */
       } /* if */
     } /* while */
-    logFunction(printf("pars_infix_expression --> " FMT_U_MEM ", ",
+    logFunction(printf("pars_infix_expression(%d, %d) --> " FMT_U_MEM ", ",
+                       priority, do_match_expr,
                        (memSizeType) expression);
                 trace1(expression);
                 printf("\n"););

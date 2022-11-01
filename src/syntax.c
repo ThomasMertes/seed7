@@ -99,7 +99,11 @@ static tokenType def_single_token (const_objectType statement_token,
     identType identifier;
 
   /* def_single_token */
-    logFunction(printf("def_single_token\n"););
+    logFunction(printf("def_single_token(");
+                trace1(statement_token);
+                printf(", %d, " FMT_U_MEM ", %d, \"%s\")\n",
+                       token_priority, (memSizeType) formal_tokens,
+                       *after_expr_token, *name_of_last_sy_token););
     if (CATEGORY_OF_OBJ(statement_token) == EXPROBJECT) {
 /*  printf("  >[]<\n"); */
       if (statement_token->value.listValue != NULL) {
@@ -161,7 +165,9 @@ static inline int count_inner_tokens (const_listType statement_tokens)
     int token_number;
 
   /* count_inner_tokens */
-    logFunction(printf("count_inner_tokens\n"););
+    logFunction(printf("count_inner_tokens(");
+                prot_list(statement_tokens);
+                printf(")\n"););
     number_of_inner_tokens = 0;
     token_number = 1;
     while (statement_tokens != NULL) {
@@ -171,7 +177,8 @@ static inline int count_inner_tokens (const_listType statement_tokens)
       statement_tokens = statement_tokens->next;
       token_number++;
     } /* while */
-    logFunction(printf("count_inner_tokens -->\n"););
+    logFunction(printf("count_inner_tokens --> %d\n",
+                       number_of_inner_tokens););
     return number_of_inner_tokens;
   } /* count_inner_tokens */
 
@@ -189,10 +196,12 @@ static tokenType def_token_list (const_listType statement_tokens,
     tokenType token_list_end;
 
   /* def_token_list */
-    logFunction(printf("def_token_list\n"););
-/*  printf(" DEF_PAR_LIST:  ");
-    prot_list(statement_tokens);
-    printf("\n"); */
+    logFunction(printf("def_token_list(");
+                prot_list(statement_tokens);
+                printf(", %d, " FMT_U_MEM ", \"%s\")\n",
+                       right_token_priority,
+                       (memSizeType) formal_tokens,
+                       name_of_last_sy_token););
     if (statement_tokens != NULL) {
       after_expr_token = FALSE;
       if (statement_tokens->next != NULL) {
@@ -268,7 +277,9 @@ static inline tokenType def_infix_syntax (const_listType statement_syntax,
     tokenType token_list_end;
 
   /* def_infix_syntax */
-    logFunction(printf("def_infix_syntax\n"););
+    logFunction(printf("def_infix_syntax(" FMT_U_MEM ", %d, %d)\n",
+                       (memSizeType) statement_syntax,
+                       statement_priority, statement_associativity););
     if (CATEGORY_OF_OBJ(statement_syntax->obj) != EXPROBJECT) {
       identifier = GET_ENTITY(statement_syntax->obj)->ident;
       if (identifier->infix_priority == 0) {
@@ -317,7 +328,9 @@ static inline tokenType def_prefix_syntax (const_listType statement_syntax,
     tokenType token_list_end;
 
   /* def_prefix_syntax */
-    logFunction(printf("def_prefix_syntax\n"););
+    logFunction(printf("def_prefix_syntax(" FMT_U_MEM ", %d, %d)\n",
+                       (memSizeType) statement_syntax,
+                       statement_priority, statement_associativity););
     identifier = GET_ENTITY(statement_syntax->obj)->ident;
     if (identifier->prefix_priority == 0) {
       identifier->prefix_priority = statement_priority;
