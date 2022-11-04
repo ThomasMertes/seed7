@@ -112,7 +112,7 @@ const func string: striToUtf16be (in string: stri) is
 
 
 (**
- *  Convert a [[string]] with bytes in UTF-16BE encoding to UTF-32.
+ *  Convert an UTF-16BE encoded [[string]] of bytes to UTF-32.
  *  @param utf16Be String of bytes encoded with UTF-16 in
  *         big endian byte order.
  *  @return ''utf16Be'' converted to a normal (UTF-32) [[string]].
@@ -215,7 +215,7 @@ const func string: striToUtf16le (in string: stri) is
 
 
 (**
- *  Convert a [[string]] with bytes in UTF-16LE encoding to UTF-32.
+ *  Convert an UTF-16LE encoded [[string]] of bytes to UTF-32.
  *  @param utf16Le String of bytes encoded with UTF-16 in
  *         little endian byte order.
  *  @return ''utf16Le'' converted to a normal (UTF-32) [[string]].
@@ -318,6 +318,142 @@ const func string: replaceUtf16SurrogatePairs (in string: stri) is func
       end if;
     end for;
     resultStri &:= stri[startPos ..];
+  end func;
+
+
+(**
+ *  Convert a null terminated UTF-16BE encoded [[string]] of bytes to UTF-32.
+ *  The UTF-16BE encoded string starts at ''currPos'' and ends with an
+ *  UTF-16BE encoded null ('\0;') character. When there is no null character
+ *  the UTF-16BE encoded string is assumed to extend to the end of ''stri''.
+ *  @param stri UTF-16BE encoded string of bytes (starting from ''currPos'').
+ *  @param currPos Start position for the UTF-16BE encoded null terminated string.
+ *                 The function advances ''currPos'' to refer to the position
+ *                 behind the terminating null ('\0;') character.
+ *  @return the string found in UTF-32 encoding without the null ('\0;') character.
+ *  @exception RANGE_ERROR If the conversion from UTF-16BE to UTF-32 fails.
+ *)
+const func string: fromUtf16Be (in string: stri, inout integer: currPos) is func
+  result
+    var string: resultStri is "";
+  local
+    var integer: pos is 0;
+  begin
+    pos := currPos;
+    while pos < length(stri) and (stri[pos] <> '\0;' or stri[succ(pos)] <> '\0;') do
+      pos +:= 2;
+    end while;
+    if pos >= length(stri) then
+      resultStri := fromUtf16Be(stri[currPos ..]);
+      currPos := succ(length(stri));
+    else
+      resultStri := fromUtf16Be(stri[currPos .. pred(pos)]);
+      currPos := pos + 2;
+    end if;
+  end func;
+
+
+(**
+ *  Read a null terminated UTF-16BE encoded string of bytes and convert it to UTF-32.
+ *  The reading ends when an UTF-16BE encoded null ('\0;') character has been read.
+ *  @param inFile File with UTF-16BE encoded bytes.
+ *  @return the string read in UTF-32 encoding without the null ('\0;') character.
+ *  @exception RANGE_ERROR If the conversion from UTF-16BE to UTF-32 fails.
+ *)
+const func string: fromUtf16Be (inout file: inFile) is func
+  result
+    var string: resultStri is "";
+  local
+    var char: byte1 is ' ';
+    var char: byte2 is ' ';
+    var char: ch is ' ';
+  begin
+    byte1 := getc(inFile);
+    byte2 := getc(inFile);
+    if byte1 > '\255;' or byte2 > '\255;' then
+      raise RANGE_ERROR;
+    else
+      ch := chr(ord(byte1) * 256 + ord(byte2));
+      while ch <> '\0;' do
+        resultStri &:= ch;
+        byte1 := getc(inFile);
+        byte2 := getc(inFile);
+        if byte1 > '\255;' or byte2 > '\255;' then
+          raise RANGE_ERROR;
+        else
+          ch := chr(ord(byte1) * 256 + ord(byte2));
+        end if;
+      end while;
+    end if;
+    resultStri := replaceUtf16SurrogatePairs(resultStri);
+  end func;
+
+
+(**
+ *  Convert a null terminated UTF-16LE encoded [[string]] of bytes to UTF-32.
+ *  The UTF-16LE encoded string starts at ''currPos'' and ends with an
+ *  UTF-16LE encoded null ('\0;') character. When there is no null character
+ *  the UTF-16LE encoded string is assumed to extend to the end of ''stri''.
+ *  @param stri UTF-16LE encoded string of bytes (starting from ''currPos'').
+ *  @param currPos Start position for the UTF-16LE encoded null terminated string.
+ *                 The function advances ''currPos'' to refer to the position
+ *                 behind the terminating null ('\0;') character.
+ *  @return the string found in UTF-32 encoding without the null ('\0;') character.
+ *  @exception RANGE_ERROR If the conversion from UTF-16LE to UTF-32 fails.
+ *)
+const func string: fromUtf16Le (in string: stri, inout integer: currPos) is func
+  result
+    var string: resultStri is "";
+  local
+    var integer: pos is 0;
+  begin
+    pos := currPos;
+    while pos < length(stri) and (stri[pos] <> '\0;' or stri[succ(pos)] <> '\0;') do
+      pos +:= 2;
+    end while;
+    if pos >= length(stri) then
+      resultStri := fromUtf16Le(stri[currPos ..]);
+      currPos := succ(length(stri));
+    else
+      resultStri := fromUtf16Le(stri[currPos .. pred(pos)]);
+      currPos := pos + 2;
+    end if;
+  end func;
+
+
+(**
+ *  Read a null terminated UTF-16LE encoded string of bytes and convert it to UTF-32.
+ *  The reading ends when an UTF-16LE encoded null ('\0;') character has been read.
+ *  @param inFile File with UTF-16LE encoded bytes.
+ *  @return the string read in UTF-32 encoding without the null ('\0;') character.
+ *  @exception RANGE_ERROR If the conversion from UTF-16LE to UTF-32 fails.
+ *)
+const func string: fromUtf16Le (inout file: inFile) is func
+  result
+    var string: resultStri is "";
+  local
+    var char: byte1 is ' ';
+    var char: byte2 is ' ';
+    var char: ch is ' ';
+  begin
+    byte1 := getc(inFile);
+    byte2 := getc(inFile);
+    if byte1 > '\255;' or byte2 > '\255;' then
+      raise RANGE_ERROR;
+    else
+      ch := chr(ord(byte2) * 256 + ord(byte1));
+      while ch <> '\0;' do
+        resultStri &:= ch;
+        byte1 := getc(inFile);
+        byte2 := getc(inFile);
+        if byte1 > '\255;' or byte2 > '\255;' then
+          raise RANGE_ERROR;
+        else
+          ch := chr(ord(byte2) * 256 + ord(byte1));
+        end if;
+      end while;
+    end if;
+    resultStri := replaceUtf16SurrogatePairs(resultStri);
   end func;
 
 

@@ -25,6 +25,7 @@
 
 $ include "seed7_05.s7i";
   include "unicode.s7i";
+  include "strifile.s7i";
   include "stdio.s7i";
 
 
@@ -16743,7 +16744,11 @@ const proc: check_string_replace is func
 
 const proc: check_string_unicode_conversons is func
   local
+    const string: utf16BeTest is "\0;a\0;b\0;c\0;\0;\0;d\0;e\0;f\0;\0; ¬\0;\0;Ø4Ý\30;\0;\0;zyxwvuts";
+    const string: utf16LeTest is "a\0;b\0;c\0;\0;\0;d\0;e\0;f\0;\0;\0;¬ \0;\0;4Ø\30;Ý\0;\0;zyxwvuts";
+    var file: testFile is STD_NULL;
     var boolean: okay is TRUE;
+    var integer: pos is 1;
   begin
     if  toUtf8("\0;\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;") <>
                "\0;\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;" or
@@ -16945,6 +16950,41 @@ const proc: check_string_unicode_conversons is func
         replaceUtf16SurrogatePairs("\16#d834;\16#dd1e;")       <> "𝄞" or
         replaceUtf16SurrogatePairs("abc\16#d834;\16#dd1e;def") <> "abc𝄞def" then
       writeln(" ***** UTF-16 Unicode conversions do not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  fromUtf16Be(utf16BeTest, pos) <> "abc" or
+        fromUtf16Be(utf16BeTest, pos) <> "def" or
+        fromUtf16Be(utf16BeTest, pos) <> "€" or
+        fromUtf16Be(utf16BeTest, pos) <> "𝄞" then
+      writeln(" ***** fromUtf16Be(string, pos) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    pos := 1;
+    if  fromUtf16Le(utf16LeTest, pos) <> "abc" or
+        fromUtf16Le(utf16LeTest, pos) <> "def" or
+        fromUtf16Le(utf16LeTest, pos) <> "€" or
+        fromUtf16Le(utf16LeTest, pos) <> "𝄞" then
+      writeln(" ***** fromUtf16Le(string, pos) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    testFile := openStriFile(utf16BeTest);
+    if  fromUtf16Be(testFile) <> "abc" or
+        fromUtf16Be(testFile) <> "def" or
+        fromUtf16Be(testFile) <> "€" or
+        fromUtf16Be(testFile) <> "𝄞" then
+      writeln(" ***** fromUtf16Be(file) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    testFile := openStriFile(utf16LeTest);
+    if  fromUtf16Le(testFile) <> "abc" or
+        fromUtf16Le(testFile) <> "def" or
+        fromUtf16Le(testFile) <> "€" or
+        fromUtf16Le(testFile) <> "𝄞" then
+      writeln(" ***** fromUtf16Le(file) does not work correct.");
       okay := FALSE;
     end if;
 
