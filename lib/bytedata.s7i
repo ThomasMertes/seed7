@@ -55,8 +55,35 @@ const type: endianness is new enum
 
 
 (**
- *  Get a null terminated string from ''stri'' starting from ''currPos''.
- *  CurrPos is advanced after the null ('\0;') character.
+ *  Get a null terminated string from ''stri'' starting from ''startPos''.
+ *  @param stri string of bytes from which the result is obtained.
+ *  @param startPos Start position of the null terminated string.
+ *  @return the null terminated string without the null ('\0;') character.
+ *)
+const func string: fromAsciiz (in string: stri, in integer: startPos) is func
+  result
+    var string: resultStri is "";
+  local
+    var integer: nullPos is 0;
+  begin
+    nullPos := pos(stri, '\0;', startPos);
+    if nullPos = 0 then
+      resultStri := stri[startPos ..];
+    else
+      resultStri := stri[startPos .. pred(nullPos)];
+    end if;
+  end func;
+
+
+(**
+ *  Read a null terminated string from ''stri'' starting from ''currPos''.
+ *  CurrPos is advanced after the null ('\0;') character. When there is
+ *  no null character the string is assumed to extend to the end of ''stri''.
+ *  In this case ''currPos'' is advanced beyond the length of ''stri''.
+ *  @param stri string of bytes from which the result is obtained.
+ *  @param currPos Start position of the null terminated string.
+ *                 The function advances ''currPos'' to refer to the position
+ *                 behind the terminating null ('\0;') character.
  *  @return the null terminated string without the null ('\0;') character.
  *)
 const func string: getAsciiz (in string: stri, inout integer: currPos) is func
@@ -77,8 +104,9 @@ const func string: getAsciiz (in string: stri, inout integer: currPos) is func
 
 
 (**
- *  Get a null terminated string from ''inFile''.
+ *  Read a null terminated string from ''inFile''.
  *  The file position is advanced after the null ('\0;') character.
+ *  @param inFile File from which the result is obtained.
  *  @return the null terminated string without the null ('\0;') character.
  *)
 const func string: getAsciiz (inout file: inFile) is func

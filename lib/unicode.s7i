@@ -322,10 +322,68 @@ const func string: replaceUtf16SurrogatePairs (in string: stri) is func
 
 
 (**
- *  Convert a null terminated UTF-16BE encoded [[string]] of bytes to UTF-32.
- *  The UTF-16BE encoded string starts at ''currPos'' and ends with an
+ *  Convert a null terminated UTF-16BE encoded string of bytes to UTF-32.
+ *  The UTF-16BE encoded string starts at ''startPos'' and ends with an
  *  UTF-16BE encoded null ('\0;') character. When there is no null character
  *  the UTF-16BE encoded string is assumed to extend to the end of ''stri''.
+ *  @param stri UTF-16BE encoded string of bytes (starting from ''startPos'').
+ *  @param startPos Start position for the UTF-16BE encoded null terminated string.
+ *  @return the string found in UTF-32 encoding without the null ('\0;') character.
+ *  @exception RANGE_ERROR If the conversion from UTF-16BE to UTF-32 fails.
+ *)
+const func string: fromNullTerminatedUtf16Be (in string: stri, in integer: startPos) is func
+  result
+    var string: resultStri is "";
+  local
+    var integer: pos is 0;
+  begin
+    pos := startPos;
+    while pos < length(stri) and (stri[pos] <> '\0;' or stri[succ(pos)] <> '\0;') do
+      pos +:= 2;
+    end while;
+    if pos >= length(stri) then
+      resultStri := fromUtf16Be(stri[startPos ..]);
+    else
+      resultStri := fromUtf16Be(stri[startPos .. pred(pos)]);
+    end if;
+  end func;
+
+
+(**
+ *  Convert a null terminated UTF-16LE encoded string of bytes to UTF-32.
+ *  The UTF-16LE encoded string starts at ''startPos'' and ends with an
+ *  UTF-16LE encoded null ('\0;') character. When there is no null character
+ *  the UTF-16LE encoded string is assumed to extend to the end of ''stri''.
+ *  @param stri UTF-16LE encoded string of bytes (starting from ''startPos'').
+ *  @param startPos Start position for the UTF-16LE encoded null terminated string.
+ *  @return the string found in UTF-32 encoding without the null ('\0;') character.
+ *  @exception RANGE_ERROR If the conversion from UTF-16LE to UTF-32 fails.
+ *)
+const func string: fromNullTerminatedUtf16Le (in string: stri, in integer: startPos) is func
+  result
+    var string: resultStri is "";
+  local
+    var integer: pos is 0;
+  begin
+    pos := startPos;
+    while pos < length(stri) and (stri[pos] <> '\0;' or stri[succ(pos)] <> '\0;') do
+      pos +:= 2;
+    end while;
+    if pos >= length(stri) then
+      resultStri := fromUtf16Le(stri[startPos ..]);
+    else
+      resultStri := fromUtf16Le(stri[startPos .. pred(pos)]);
+    end if;
+  end func;
+
+
+(**
+ *  Read a null terminated UTF-16BE encoded string of bytes and convert it to UTF-32.
+ *  The UTF-16BE encoded string starts at ''currPos'' and ends with an
+ *  UTF-16BE encoded null ('\0;') character. The position ''currPos'' is
+ *  advanced behind the null ('\0;') character. When there is no null character
+ *  the UTF-16BE encoded string is assumed to extend to the end of ''stri''.
+ *  In this case ''currPos'' is advanced beyond the length of ''stri''.
  *  @param stri UTF-16BE encoded string of bytes (starting from ''currPos'').
  *  @param currPos Start position for the UTF-16BE encoded null terminated string.
  *                 The function advances ''currPos'' to refer to the position
@@ -333,7 +391,7 @@ const func string: replaceUtf16SurrogatePairs (in string: stri) is func
  *  @return the string found in UTF-32 encoding without the null ('\0;') character.
  *  @exception RANGE_ERROR If the conversion from UTF-16BE to UTF-32 fails.
  *)
-const func string: fromUtf16Be (in string: stri, inout integer: currPos) is func
+const func string: getNullTerminatedUtf16Be (in string: stri, inout integer: currPos) is func
   result
     var string: resultStri is "";
   local
@@ -360,7 +418,7 @@ const func string: fromUtf16Be (in string: stri, inout integer: currPos) is func
  *  @return the string read in UTF-32 encoding without the null ('\0;') character.
  *  @exception RANGE_ERROR If the conversion from UTF-16BE to UTF-32 fails.
  *)
-const func string: fromUtf16Be (inout file: inFile) is func
+const func string: getNullTerminatedUtf16Be (inout file: inFile) is func
   result
     var string: resultStri is "";
   local
@@ -390,10 +448,12 @@ const func string: fromUtf16Be (inout file: inFile) is func
 
 
 (**
- *  Convert a null terminated UTF-16LE encoded [[string]] of bytes to UTF-32.
+ *  Read a null terminated UTF-16LE encoded string of bytes and convert it to UTF-32.
  *  The UTF-16LE encoded string starts at ''currPos'' and ends with an
- *  UTF-16LE encoded null ('\0;') character. When there is no null character
+ *  UTF-16LE encoded null ('\0;') character. The position ''currPos'' is
+ *  advanced behind the null ('\0;') character. When there is no null character
  *  the UTF-16LE encoded string is assumed to extend to the end of ''stri''.
+ *  In this case ''currPos'' is advanced beyond the length of ''stri''.
  *  @param stri UTF-16LE encoded string of bytes (starting from ''currPos'').
  *  @param currPos Start position for the UTF-16LE encoded null terminated string.
  *                 The function advances ''currPos'' to refer to the position
@@ -401,7 +461,7 @@ const func string: fromUtf16Be (inout file: inFile) is func
  *  @return the string found in UTF-32 encoding without the null ('\0;') character.
  *  @exception RANGE_ERROR If the conversion from UTF-16LE to UTF-32 fails.
  *)
-const func string: fromUtf16Le (in string: stri, inout integer: currPos) is func
+const func string: getNullTerminatedUtf16Le (in string: stri, inout integer: currPos) is func
   result
     var string: resultStri is "";
   local
@@ -428,7 +488,7 @@ const func string: fromUtf16Le (in string: stri, inout integer: currPos) is func
  *  @return the string read in UTF-32 encoding without the null ('\0;') character.
  *  @exception RANGE_ERROR If the conversion from UTF-16LE to UTF-32 fails.
  *)
-const func string: fromUtf16Le (inout file: inFile) is func
+const func string: getNullTerminatedUtf16Le (inout file: inFile) is func
   result
     var string: resultStri is "";
   local

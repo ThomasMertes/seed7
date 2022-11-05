@@ -16953,38 +16953,54 @@ const proc: check_string_unicode_conversons is func
       okay := FALSE;
     end if;
 
-    if  fromUtf16Be(utf16BeTest, pos) <> "abc" or
-        fromUtf16Be(utf16BeTest, pos) <> "def" or
-        fromUtf16Be(utf16BeTest, pos) <> "€" or
-        fromUtf16Be(utf16BeTest, pos) <> "𝄞" then
-      writeln(" ***** fromUtf16Be(string, pos) does not work correct.");
+    if  fromNullTerminatedUtf16Be(utf16BeTest,  1) <> "abc" or
+        fromNullTerminatedUtf16Be(utf16BeTest,  9) <> "def" or
+        fromNullTerminatedUtf16Be(utf16BeTest, 17) <> "€" or
+        fromNullTerminatedUtf16Be(utf16BeTest, 21) <> "𝄞" then
+      writeln(" ***** fromNullTerminatedUtf16Be(string, pos) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  fromNullTerminatedUtf16Le(utf16LeTest,  1) <> "abc" or
+        fromNullTerminatedUtf16Le(utf16LeTest,  9) <> "def" or
+        fromNullTerminatedUtf16Le(utf16LeTest, 17) <> "€" or
+        fromNullTerminatedUtf16Le(utf16LeTest, 21) <> "𝄞" then
+      writeln(" ***** fromNullTerminatedUtf16Le(string, pos) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  getNullTerminatedUtf16Be(utf16BeTest, pos) <> "abc" or
+        getNullTerminatedUtf16Be(utf16BeTest, pos) <> "def" or
+        getNullTerminatedUtf16Be(utf16BeTest, pos) <> "€" or
+        getNullTerminatedUtf16Be(utf16BeTest, pos) <> "𝄞" then
+      writeln(" ***** getNullTerminatedUtf16Be(string, pos) does not work correct.");
       okay := FALSE;
     end if;
 
     pos := 1;
-    if  fromUtf16Le(utf16LeTest, pos) <> "abc" or
-        fromUtf16Le(utf16LeTest, pos) <> "def" or
-        fromUtf16Le(utf16LeTest, pos) <> "€" or
-        fromUtf16Le(utf16LeTest, pos) <> "𝄞" then
-      writeln(" ***** fromUtf16Le(string, pos) does not work correct.");
+    if  getNullTerminatedUtf16Le(utf16LeTest, pos) <> "abc" or
+        getNullTerminatedUtf16Le(utf16LeTest, pos) <> "def" or
+        getNullTerminatedUtf16Le(utf16LeTest, pos) <> "€" or
+        getNullTerminatedUtf16Le(utf16LeTest, pos) <> "𝄞" then
+      writeln(" ***** getNullTerminatedUtf16Le(string, pos) does not work correct.");
       okay := FALSE;
     end if;
 
     testFile := openStriFile(utf16BeTest);
-    if  fromUtf16Be(testFile) <> "abc" or
-        fromUtf16Be(testFile) <> "def" or
-        fromUtf16Be(testFile) <> "€" or
-        fromUtf16Be(testFile) <> "𝄞" then
-      writeln(" ***** fromUtf16Be(file) does not work correct.");
+    if  getNullTerminatedUtf16Be(testFile) <> "abc" or
+        getNullTerminatedUtf16Be(testFile) <> "def" or
+        getNullTerminatedUtf16Be(testFile) <> "€" or
+        getNullTerminatedUtf16Be(testFile) <> "𝄞" then
+      writeln(" ***** getNullTerminatedUtf16Be(file) does not work correct.");
       okay := FALSE;
     end if;
 
     testFile := openStriFile(utf16LeTest);
-    if  fromUtf16Le(testFile) <> "abc" or
-        fromUtf16Le(testFile) <> "def" or
-        fromUtf16Le(testFile) <> "€" or
-        fromUtf16Le(testFile) <> "𝄞" then
-      writeln(" ***** fromUtf16Le(file) does not work correct.");
+    if  getNullTerminatedUtf16Le(testFile) <> "abc" or
+        getNullTerminatedUtf16Le(testFile) <> "def" or
+        getNullTerminatedUtf16Le(testFile) <> "€" or
+        getNullTerminatedUtf16Le(testFile) <> "𝄞" then
+      writeln(" ***** getNullTerminatedUtf16Le(file) does not work correct.");
       okay := FALSE;
     end if;
 
