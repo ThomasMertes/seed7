@@ -1,3 +1,76 @@
+20221105:
+- The picture viewer pv7.sd7 has been improved to support zooming
+  and moving.
+- The graphical keyboard test program gkbd.sd7 has been improved to
+  write the cursor position when a mouse key is clicked.
+- The function isLetter() in char.s7i has been improved to support
+  Unicode 15.0.
+- When matching an expression failed, two errors were reported.
+  A match error and an exception error (Exception MEMORY_ERROR
+  raised). The unnecessary exception error has been removed from
+  interpreter and compiler.
+- Additional versions of getPixmap() have been added to the library
+  draw.s7i.
+- In x509cert.s7i the algorithm OID of the signature in
+  stdCertificate and other generated certificates has been corrected.
+- The function getDigestOidFromSignatureAlgorithm() has been added
+  to x509cert.s7i.
+- In syntax.s7i the definition of the ternary operator (a ? b : c)
+  has been improved to allow chaining (e.g.: a ? b : c ? d : e).
+- The function fromAsciiz() has been added to bytedata.s7i.
+- Functions to convert null terminated UTF-16 strings
+  (fromNullTerminatedUtf16Be(), fromNullTerminatedUtf16Le(),
+  getNullTerminatedUtf16Be() and getNullTerminatedUtf16Le()) have
+  been added to unicode.s7i.
+- In editline.s7i the function getln() has been improved to use a
+  case-statement instead of an if-then-else chain.
+- Tests for the new conversion functions of unicode.s7i have been
+  added to chkstr.sd7.
+- The program chkchr.sd7 has been adjusted to test the improved
+  function isLetter().
+- The graphic keyboard driver of Windows (in gkb_win.c) has been
+  improved to return the mouse wheel button position in window
+  coordinates (instead of screen coordinates).
+- In gkb_win.c usages of the macros LOWORD and HIWORD have been
+  replaced with GET_X_LPARAM and GET_Y_LPARAM.
+- In prclib.c the functions prc_begin(), prc_local(),
+  prc_res_begin(), prc_return(), prc_return2(), prc_varfunc(),
+  prc_varfunc2() have been improved to raise CREATE_ERROR instead
+  of MEMORY_ERROR, if the block_body is NULL. This removes an
+  unnecessary MEMORY_ERROR when matching an expression fails.
+- In chr_rtl.c the function chrIsLetter() has been improved to
+  support Unicode 15.0.
+- In drw_x11.c the function drwGetPixmap() has been improved to set
+  destination pixels from areas outside of the source window to
+  black.
+- Logging functions have been improved in exec.c, expr.c and
+  syntax.c.
+- The console keyboard drivers (in kbd_inf.c and kbd_poll.c) have
+  been improved to support reading of alt-A to alt-Z when upper
+  case letters are pressed.
+- In gkb_x11.c the performance of setupModState() has been improved.
+- Build now uses the macro POTENTIAL_PARTIAL_LINKING_OPTIONS
+- The graphic keyboard driver of Linux (in gkb_x11.c) has been
+  improved to reduce number of XQueryKeymap() calls
+- Parameters in bin32.s7i and bin64.s7i have been renamed.
+- Undocumented functions to cast between integer and float have been
+  removed from float.s7i.
+- In wildcard.s7i the function findMatchingFiles() has been improved
+  to support case insensitive pattern matching.
+- The library cli_cmds.s7i has been improved to use case insensitive
+  file pattern matching for DOS/Windows commands.
+- The files chkccomp.c, mk_djgpp.mak and mk_djgp2.mak have been
+  altered to take into account that error redirection with 2> fails
+  under DOS.
+- Support for the actions FLT_CAST and FLT_ICAST has been removed
+  from interpreter and compiler.
+- Spelling errors have been fixed in faq.htm, faq.txt, manual.htm,
+  manual.txt, chlog.txt, bitdata.s7i, bmp.s7i, ftp.s7i, gif.s7i,
+  ico.s7i, jpeg.s7i, pem.s7i, png.s7i, ppm.s7i, tiff.s7i,
+  sql_cli.c, striutl.c.
+- Documentation comments have been improved in bytedata.s7i,
+  char.s7i, draw.s7i, chr_rtl.c, chrlib.c and drw_win.c.
+
 20220724:
 - The operating system DOS is supported (with DJGPP) again. The tests
   have been done with Dosbox.
