@@ -900,9 +900,9 @@ const func time: julianDayNumToTime (in integer: julianDayNumber) is func
 
 
 (**
- *  Return a time expressed in seconds since the Unix Epoch.
- *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
- *  @return the seconds since the Unix Epoch.
+ *  Return a time expressed in seconds since the Unix epoch.
+ *  The Unix epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @return the seconds since the Unix epoch.
  *)
 const func integer: timestamp1970 (in time: aTime) is func
   result
@@ -926,9 +926,9 @@ const func integer: timestamp1970 (in time: aTime) is func
 
 
 (**
- *  Convert a timestamp into a time from the local time zone.
- *  The timestamp is expressed in seconds since the Unix Epoch.
- *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  Convert a Unix timestamp into a time from the local time zone.
+ *  The timestamp is expressed in seconds since the Unix epoch.
+ *  The Unix epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
  *  @return the local time that corresponds to the timestamp.
  *)
 const func time: timestamp1970ToTime (in integer: timestamp) is func
@@ -942,6 +942,12 @@ const func time: timestamp1970ToTime (in integer: timestamp) is func
   end func;
 
 
+(**
+ *  Return a time expressed as Windows FILETIME.
+ *  A FILETIME is expressed in 100-nanosecond intervals since the Windows epoch.
+ *  The Windows epoch (1601-01-01 00:00:00 UTC) corresponds to 0.
+ *  @return the number of 100-nanosecond intervals since the Windows epoch.
+ *)
 const func integer: timestamp1601 (in time: aTime) is func
   result
     var integer: nanosecs100 is 0;
@@ -953,6 +959,12 @@ const func integer: timestamp1601 (in time: aTime) is func
   end func;
 
 
+(**
+ *  Convert a Windows FILETIME into a time from the local time zone.
+ *  A FILETIME is expressed in 100-nanosecond intervals since the Windows epoch.
+ *  The Windows epoch (1601-01-01 00:00:00 UTC) corresponds to 0.
+ *  @return the local time that corresponds to the FILETIME.
+ *)
 const func time: timestamp1601ToTime (in integer: timestamp) is func
   result
     var time: aTime is time.value;
@@ -1119,3 +1131,6 @@ const proc: await (ref time: aTime) is func
         aTime.hour, aTime.minute, aTime.second,
         aTime.micro_second, aTime.timeZone);
   end func;
+
+
+DECLARE_TERNARY(time);

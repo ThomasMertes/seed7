@@ -986,3 +986,6 @@ const proc: wait (in duration: aDuration) is func
   begin
     await(time(NOW) + aDuration);
   end func;
+
+
+DECLARE_TERNARY(duration);

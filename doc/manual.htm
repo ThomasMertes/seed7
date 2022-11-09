@@ -5094,6 +5094,10 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
     Constants:
       <span class="type">time</span>.<span class="var">value</span>  Default value of <span class="type">time</span> (time(0, 1, 1, 0, 0, 0))
     Infix operators:
+      A <span class="op">?</span> B <span class="op">:</span> C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: <a class="type" href="#types_boolean">boolean</a>,
+                    <span class="var">TRUE</span> ? a : b <b>&rArr;</b> a,
+                    <span class="var">FALSE</span> ? a : b <b>&rArr;</b> b )
       <span class="type">time</span> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <span class="type">time</span>
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     <span class="type">time</span> <span class="op">parse</span> <span class="stri">"2005-02-28 12:00:01"</span> <b>&rArr;</b> 2005-02-28 12:00:01,
@@ -5162,9 +5166,15 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="func">julianDayNumToTime</span>(A)  Convert julian day number to time
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
       <span class="func">timestamp1970</span>(A)  Time expressed in seconds since the
-                Unix Epoch (1970-01-01 00:00:00 UTC)
+                Unix epoch (1970-01-01 00:00:00 UTC)
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
-      <span class="func">timestamp1970ToTime</span>(A)  Convert a timestamp into a time from
+      <span class="func">timestamp1970ToTime</span>(A)  Convert a Unix timestamp into a time from
+                the local time zone
+                  ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">timestamp1601</span>(A)  100-nanosecond intervals since the
+                Windows epoch (1601-01-01 00:00:00 UTC)
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">timestamp1601ToTime</span>(A)  Convert a FILETIME into a time from
                 the local time zone
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
       <span class="func">compare</span>(A, B)  Compare function
@@ -5203,6 +5213,10 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       <span class="op">-</span>         Subtract two times
                   ( Type of left operand: <a class="type" href="#types_time">time</a>,
                     Type of right operand: <a class="type" href="#types_time">time</a> )
+      A <span class="op">?</span> B <span class="op">:</span> C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: <a class="type" href="#types_boolean">boolean</a>,
+                    <span class="var">TRUE</span> ? a : b <b>&rArr;</b> a,
+                    <span class="var">FALSE</span> ? a : b <b>&rArr;</b> b )
       <span class="type">duration</span> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <span class="type">duration</span>
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     <span class="type">duration</span> <span class="op">parse</span> <span class="stri">"P2M28DT12H1S"</span> <b>&rArr;</b> P2M28DT12H1S,

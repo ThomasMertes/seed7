@@ -4895,6 +4895,10 @@ CONTENTS
     Constants:
       time.value  Default value of time (time(0, 1, 1, 0, 0, 0))
     Infix operators:
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       time parse A   Conversion of string to time
                   ( Type of argument A: string,
                     time parse "2005-02-28 12:00:01" => 2005-02-28 12:00:01,
@@ -4963,9 +4967,15 @@ CONTENTS
       julianDayNumToTime(A)  Convert julian day number to time
                   ( Type of argument A: integer )
       timestamp1970(A)  Time expressed in seconds since the
-                Unix Epoch (1970-01-01 00:00:00 UTC)
+                Unix epoch (1970-01-01 00:00:00 UTC)
                   ( Type of result: integer )
-      timestamp1970ToTime(A)  Convert a timestamp into a time from
+      timestamp1970ToTime(A)  Convert a Unix timestamp into a time from
+                the local time zone
+                  ( Type of argument A: integer )
+      timestamp1601(A)  100-nanosecond intervals since the
+                Windows epoch (1601-01-01 00:00:00 UTC)
+                  ( Type of result: integer )
+      timestamp1601ToTime(A)  Convert a FILETIME into a time from
                 the local time zone
                   ( Type of argument A: integer )
       compare(A, B)  Compare function
@@ -5004,6 +5014,10 @@ CONTENTS
       -         Subtract two times
                   ( Type of left operand: time,
                     Type of right operand: time )
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
       duration parse A   Conversion of string to duration
                   ( Type of argument A: string,
                     duration parse "P2M28DT12H1S" => P2M28DT12H1S,

@@ -1975,7 +1975,7 @@ as 'proc' or 'func boolean' are used as type of formal call-by-name parameters.
 An expression with the correct type is allowed as actual call-by-name parameter. This
 actual parameter expression is not evaluated when the function is called. Instead
 the call-by-name expression is evaluated every time the formal call-by-name
-parameter is used. A 'conditional' function (similar to the ?: operator from C)
+parameter is used. A 'conditional' function (similar to the ?: ternary operator)
 is defined with:
 
   const func integer: conditional (in boolean: condition,
