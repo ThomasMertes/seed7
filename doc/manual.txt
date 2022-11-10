@@ -12207,7 +12207,6 @@ This way a program can also receive KEY_CLOSE and KEY_RESIZE:
     Action name         chrlib.c function   chr_rtl.c function
     CHR_CLIT            chr_clit            chrCLit
     CHR_CMP             chr_cmp             chrCmp
-    CHR_CONV            chr_conv            (noop)
     CHR_CPY             chr_cpy             chrCpy
     CHR_CREATE          chr_create          chrCreate
     CHR_DECR            chr_decr            --

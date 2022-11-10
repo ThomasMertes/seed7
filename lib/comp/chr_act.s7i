@@ -26,7 +26,6 @@
 
 const ACTION: CHR_CLIT      is action "CHR_CLIT";
 const ACTION: CHR_CMP       is action "CHR_CMP";
-const ACTION: CHR_CONV      is action "CHR_CONV";
 const ACTION: CHR_CPY       is action "CHR_CPY";
 const ACTION: CHR_EQ        is action "CHR_EQ";
 const ACTION: CHR_DECR      is action "CHR_DECR";
@@ -109,16 +108,6 @@ const proc: process (CHR_CMP, in reference: function,
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process (CHR_CONV, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "(";
-    process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 

@@ -228,7 +228,6 @@ static const actEntryRecord actEntryTable[] = {
 
     { "CHR_CLIT",                   chr_clit,                   },
     { "CHR_CMP",                    chr_cmp,                    },
-    { "CHR_CONV",                   chr_conv,                   },
     { "CHR_CPY",                    chr_cpy,                    },
     { "CHR_CREATE",                 chr_create,                 },
     { "CHR_DECR",                   chr_decr,                   },

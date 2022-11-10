@@ -27,7 +27,6 @@
 
 objectType chr_clit      (listType arguments);
 objectType chr_cmp       (listType arguments);
-objectType chr_conv      (listType arguments);
 objectType chr_cpy       (listType arguments);
 objectType chr_create    (listType arguments);
 objectType chr_decr      (listType arguments);

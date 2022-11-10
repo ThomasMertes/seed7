@@ -428,8 +428,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CHR_CLIT, function, params, c_expr);
       when {"CHR_CMP"}:
         process(CHR_CMP, function, params, c_expr);
-      when {"CHR_CONV"}:
-        process(CHR_CONV, function, params, c_expr);
       when {"CHR_CPY"}:
         process(CHR_CPY, function, params, c_expr);
       when {"CHR_EQ"}:

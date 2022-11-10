@@ -87,15 +87,6 @@ objectType chr_cmp (listType arguments)
 
 
 
-objectType chr_conv (listType arguments)
-
-  { /* chr_conv */
-    isit_char(arg_3(arguments));
-    return bld_char_temp(take_char(arg_3(arguments)));
-  } /* chr_conv */
-
-
-
 /**
  *  Assign source/arg_3 to dest/arg_1.
  *  A copy function assumes that dest/arg_1 contains a legal value.

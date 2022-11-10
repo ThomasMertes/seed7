@@ -42,10 +42,6 @@ const func boolean: (in PRIMITIVE_WINDOW: win1) = (in PRIMITIVE_WINDOW: win2)  i
 const func boolean: (in PRIMITIVE_WINDOW: win1) <> (in PRIMITIVE_WINDOW: win2) is action "DRW_NE";
 const func PRIMITIVE_WINDOW: _GENERATE_EMPTY_WINDOW                            is action "DRW_EMPTY";
 const PRIMITIVE_WINDOW: (attr PRIMITIVE_WINDOW) . value                        is _GENERATE_EMPTY_WINDOW;
-(*
-const func PRIMITIVE_WINDOW: (attr PRIMITIVE_WINDOW) conv (in char: ch)        is action "CHR_CONV";
-const func char: (attr char) conv (in PRIMITIVE_WINDOW: aWindow)               is action "CHR_CONV";
-*)
 
 const type: pixel is newtype;
 
