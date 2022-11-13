@@ -1707,7 +1707,37 @@ const func file: negotiateSecurityParameters (inout tlsFile: new_file) is func
   end func;
 
 
-const func file: openTlsSocket (inout file: sock, in clientSession: session) is func
+const func file: openNewTlsSocket (inout file: sock, in string: hostName) is func
+  result
+    var file: tlsSock is STD_NULL;
+  local
+    var tlsFile: new_file is tlsFile.value;
+    var string: clientHello is "";
+  begin
+    new_file.sock := sock;
+    new_file.parameters.isClient := TRUE;
+    new_file.parameters.hostName := hostName;
+    clientHello := genClientHello(new_file.parameters, "");
+    # showTlsMsg(clientHello);
+    write(sock, clientHello);
+    getTlsMsgRecord(sock, new_file.parseState);
+    # showTlsMsg(new_file.parseState.message);
+    if new_file.parseState.contentType = HANDSHAKE and
+        new_file.parseState.message[new_file.parseState.pos] = SERVER_HELLO then
+      processServerHello(new_file.parameters, new_file.parseState);
+      if new_file.parseState.alert <> CLOSE_NOTIFY then
+        sendAlertAndClose(new_file, new_file.parseState.alert);
+      else
+        tlsSock := negotiateSecurityParameters(new_file);
+      end if;
+    else
+      sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
+    end if;
+  end func;
+
+
+const func file: openTlsSocket (inout file: sock, in clientSession: session,
+    in string: hostName) is func
   result
     var file: tlsSock is STD_NULL;
   local
@@ -1722,6 +1752,7 @@ const func file: openTlsSocket (inout file: sock, in clientSession: session) is 
       peerAddress := peerAddress(sock);
       new_file.sock := sock;
       new_file.parameters.isClient := TRUE;
+      new_file.parameters.hostName := hostName;
       if session.last_use + clientCacheValid > time(NOW) then
         sessionId := session.session_id;
       end if;
@@ -1779,6 +1810,8 @@ const func file: openTlsSocket (inout file: sock, in clientSession: session) is 
       end if;
       if tlsSock = STD_NULL then
         excl(clientSessionCache, peerAddress);
+        sock := openSocket(peerAddress);
+        tlsSock := openNewTlsSocket(sock, hostName);
       end if;
     end if;
   end func;
@@ -1795,33 +1828,13 @@ const func file: openTlsSocket (inout file: sock, in clientSession: session) is 
 const func file: openTlsSocket (inout file: sock, in string: hostName) is func
   result
     var file: tlsSock is STD_NULL;
-  local
-    var tlsFile: new_file is tlsFile.value;
-    var string: clientHello is "";
   begin
     if sock <> STD_NULL then
       if peerAddress(sock) in clientSessionCache then
-        tlsSock := openTlsSocket(sock, clientSessionCache[peerAddress(sock)]);
+        tlsSock := openTlsSocket(sock, clientSessionCache[peerAddress(sock)],
+                                 hostName);
       else
-        new_file.sock := sock;
-        new_file.parameters.isClient := TRUE;
-        new_file.parameters.hostName := hostName;
-        clientHello := genClientHello(new_file.parameters, "");
-        # showTlsMsg(clientHello);
-        write(sock, clientHello);
-        getTlsMsgRecord(sock, new_file.parseState);
-        # showTlsMsg(new_file.parseState.message);
-        if new_file.parseState.contentType = HANDSHAKE and
-            new_file.parseState.message[new_file.parseState.pos] = SERVER_HELLO then
-          processServerHello(new_file.parameters, new_file.parseState);
-          if new_file.parseState.alert <> CLOSE_NOTIFY then
-            sendAlertAndClose(new_file, new_file.parseState.alert);
-          else
-            tlsSock := negotiateSecurityParameters(new_file);
-          end if;
-        else
-          sendAlertAndClose(new_file, UNEXPECTED_MESSAGE);
-        end if;
+        tlsSock := openNewTlsSocket(sock, hostName);
       end if;
     end if;
   end func;
