@@ -330,7 +330,7 @@ static const char *nullDevice = NULL;
 static FILE *logFile = NULL;
 static unsigned long removeReattempts = 0;
 static unsigned long filePresentAfterDelay = 0;
-static unsigned long numberPresentAfterRestartOfTest = 0;
+static unsigned long numberOfSuccessfulTestsAfterRestart = 0;
 
 static const char *int16TypeStri = NULL;
 static const char *uint16TypeStri = NULL;
@@ -1103,9 +1103,9 @@ static int runTest (int checkNumericValue)
   {
     char command[COMMAND_SIZE];
     char fileName[NAME_SIZE];
+    time_t startTime;
     int returncode;
     FILE *outFile;
-    time_t startTime;
     int readFailed = 0;
     int errorOccurred = 0;
     int repeatCount = 0;
@@ -1116,7 +1116,7 @@ static int runTest (int checkNumericValue)
     fflush(logFile);
 #ifdef ERROR_REDIRECTING_FAILS
 #ifdef INTERPRETER_FOR_LINKED_PROGRAM
-    sprintf(command, "%s .%cctest%d %s%sctest%d.out",
+    sprintf(command, "%s .%cctest%d%s %sctest%d.out",
             INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
             LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1, testNumber);
 #else
@@ -1126,14 +1126,14 @@ static int runTest (int checkNumericValue)
 #endif
 #else
 #ifdef INTERPRETER_FOR_LINKED_PROGRAM
-    sprintf(command, "%s .%cctest%d %s%sctest%d.out %sctest%d.err",
+    sprintf(command, "%s .%cctest%d%s %sctest%d.out %sctest%d.err",
             INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
             LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1, testNumber,
             REDIRECT_FILEDES_2, testNumber);
 #else
-    sprintf(command, ".%cctest%d%s %sctest%d.out %sctest%d.err", PATH_DELIMITER,
-            testNumber, LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1,
-            testNumber, REDIRECT_FILEDES_2, testNumber);
+    sprintf(command, ".%cctest%d%s %sctest%d.out %sctest%d.err",
+            PATH_DELIMITER, testNumber, LINKED_PROGRAM_EXTENSION,
+            REDIRECT_FILEDES_1, testNumber, REDIRECT_FILEDES_2, testNumber);
 #endif
 #endif
     sprintf(fileName, "ctest%d.out", testNumber);
@@ -1147,7 +1147,9 @@ static int runTest (int checkNumericValue)
             readFailed = fscanf(outFile, "%d", &result) != 1;
             fclose(outFile);
             if (checkNumericValue && readFailed) {
-              /* This workaround is necessary for windows. */
+              /* This workaround is necessary for windows. Some  */
+              /* antivirus software causes an empty output file. */
+              /* The test program is restarted to get a result.  */
               doSleep(1);
               repeatCount++;
             } /* if */
@@ -1172,7 +1174,7 @@ static int runTest (int checkNumericValue)
         showErrorsForTool("Run", ".err");
 #endif
       } else {
-        numberPresentAfterRestartOfTest++;
+        numberOfSuccessfulTestsAfterRestart++;
       } /* if */
     } /* if */
     fprintf(logFile, "\b");
@@ -1222,34 +1224,83 @@ static void testOutputToVersionFile (FILE *versionFile)
   {
     char command[COMMAND_SIZE];
     char fileName[NAME_SIZE];
+    time_t startTime;
     int returncode;
     FILE *outFile;
     int ch;
+    int readFailed = 0;
+    int errorOccurred = 0;
+    int repeatCount = 0;
 
   /* testOutputToVersionFile */
     fprintf(logFile, ">");
     fflush(logFile);
+#ifdef ERROR_REDIRECTING_FAILS
 #ifdef INTERPRETER_FOR_LINKED_PROGRAM
-    sprintf(command, "%s .%cctest%d%s>ctest%d.out",
+    sprintf(command, "%s .%cctest%d%s %sctest%d.out",
             INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
-            LINKED_PROGRAM_EXTENSION, testNumber);
+            LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1, testNumber);
 #else
-    sprintf(command, ".%cctest%d%s>ctest%d.out", PATH_DELIMITER,
-            testNumber, LINKED_PROGRAM_EXTENSION, testNumber);
+    sprintf(command, ".%cctest%d%s %sctest%d.out", PATH_DELIMITER,
+            testNumber, LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1,
+            testNumber);
 #endif
-    returncode = system(command);
-    if (returncode != -1) {
-      sprintf(fileName, "ctest%d.out", testNumber);
-      if (fileIsPresentPossiblyAfterDelay(fileName)) {
-        outFile = fopen(fileName, "r");
-        if (outFile != NULL) {
-          while ((ch = getc(outFile)) != EOF) {
-            putc(ch, versionFile);
-          } /* while */
-          fclose(outFile);
+#else
+#ifdef INTERPRETER_FOR_LINKED_PROGRAM
+    sprintf(command, "%s .%cctest%d%s %sctest%d.out %sctest%d.err",
+            INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
+            LINKED_PROGRAM_EXTENSION, REDIRECT_FILEDES_1, testNumber,
+            REDIRECT_FILEDES_2, testNumber);
+#else
+    sprintf(command, ".%cctest%d%s %sctest%d.out %sctest%d.err",
+            PATH_DELIMITER, testNumber, LINKED_PROGRAM_EXTENSION,
+            REDIRECT_FILEDES_1, testNumber, REDIRECT_FILEDES_2, testNumber);
+#endif
+#endif
+    sprintf(fileName, "ctest%d.out", testNumber);
+    startTime = time(NULL);
+    do {
+      returncode = system(command);
+      if (returncode != -1) {
+        if (fileIsPresentPossiblyAfterDelay(fileName)) {
+          outFile = fopen(fileName, "r");
+          if (outFile != NULL) {
+            ch = getc(outFile);
+            readFailed = ch == EOF;
+            if (readFailed) {
+              /* This workaround is necessary for windows. Some  */
+              /* antivirus software causes an empty output file. */
+              /* The test program is restarted to get a result.  */
+              fclose(outFile);
+              doSleep(1);
+              repeatCount++;
+            } else {
+              do {
+                putc(ch, versionFile);
+              } while ((ch = getc(outFile)) != EOF);
+              fclose(outFile);
+            } /* if */
+          } else {
+            fprintf(logFile, "\n *** Cannot open \"%s\".\n ", fileName);
+            errorOccurred = 1;
+          } /* if */
+        } else {
+          fprintf(logFile, "\n *** File \"%s\" missing.\n ", fileName);
+          errorOccurred = 1;
         } /* if */
       } else {
-        fprintf(logFile, "\n *** File \"%s\" missing.\n ", fileName);
+        fprintf(logFile, "\n *** system(\"%s\") failed with errno: %d.\n ", command, errno);
+        errorOccurred = 1;
+      } /* if */
+    } while (readFailed && !errorOccurred && time(NULL) < startTime + 5);
+    if (repeatCount != 0) {
+      if (readFailed) {
+        fprintf(logFile, "\n *** Cannot read data from \"%s\".\n", fileName);
+#ifndef ERROR_REDIRECTING_FAILS
+        showErrorsForTool("Run", ".err");
+#endif
+      } else {
+        numberOfSuccessfulTestsAfterRestart++;
       } /* if */
     } /* if */
     fprintf(logFile, "\b");
@@ -9457,10 +9508,11 @@ int main (int argc, char **argv)
       fprintf(logFile, "%lu times the test output was present after a delay.\n",
               filePresentAfterDelay);
     } /* if */
-    fprintf(versionFile, "#define NUMBER_PRESENT_AFTER_RESTART_OF_TEST %lu\n", numberPresentAfterRestartOfTest);
-    if (numberPresentAfterRestartOfTest != 0) {
-      fprintf(logFile, "%lu times tests had to be restarted to get a numeric test result.\n",
-              numberPresentAfterRestartOfTest);
+    fprintf(versionFile, "#define NUMBER_OF_SUCCESSFUL_TESTS_AFTER_RESTART %lu\n",
+            numberOfSuccessfulTestsAfterRestart);
+    if (numberOfSuccessfulTestsAfterRestart != 0) {
+      fprintf(logFile, "%lu times tests succeeded after restart.\n",
+              numberOfSuccessfulTestsAfterRestart);
     } /* if */
     closeVersionFile(versionFile);
     if (fileIsRegular("tst_vers.h")) {
