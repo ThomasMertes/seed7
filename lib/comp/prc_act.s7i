@@ -1035,7 +1035,7 @@ const proc: process (PRC_BLOCK_CATCH_ALL, in reference: function,
     c_expr.expr &:= "} else {\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
-    # checkWarning(CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, params[6]);
+    checkWarning(CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, params[6]);
     process_call_by_name_expr(params[6], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "}\n";
@@ -1099,7 +1099,7 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
         incr(c_expr.currentLine);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "} else {\n";
-        # checkWarning(CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, params[7]);
+        checkWarning(CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, params[7]);
         process_call_by_name_expr(params[7], c_expr);
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "}\n";

@@ -164,7 +164,7 @@ const proc: checkWarning (CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, in reference: p
     var array string: exceptionNameList is 0 times "";
     var integer: index is 0;
   begin
-    if warning_level >= 1 then
+    if warning_level >= 2 then
       if not (string_index_check and bstring_index_check and array_index_check) then
         exceptionNameList &:= "INDEX_ERROR";
       end if;
