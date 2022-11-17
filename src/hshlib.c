@@ -57,6 +57,8 @@
 #define TABLE_SIZE(bits) ((unsigned int) 1 << (bits))
 #define TABLE_MASK(bits) (TABLE_SIZE(bits)-1)
 
+typedef struct hashElemStruct *const hashElemType_const;
+
 
 
 static memSizeType free_helem (hashElemType old_helem, objectType key_destr_func,
@@ -449,17 +451,18 @@ static void for_hash (objectType for_variable, hashType curr_hash,
 
   {
     unsigned int number;
-    const hashElemType *table;
+    hashElemType_const *table_elem;
 
   /* for_hash */
     number = curr_hash->table_size;
-    table = curr_hash->table;
+    table_elem = &curr_hash->table[-1];
     while (number != 0) {
       do {
         number--;
-      } while (number != 0 && table[number] == NULL);
-      if (number != 0 || table[number] != NULL) {
-        for_helem(for_variable, table[number], statement, data_copy_func);
+        table_elem++;
+      } while (number != 0 && *table_elem == NULL);
+      if (number != 0 || *table_elem != NULL) {
+        for_helem(for_variable, *table_elem, statement, data_copy_func);
       } /* if */
     } /* while */
   } /* for_hash */
@@ -487,17 +490,18 @@ static void for_key_hash (objectType key_variable, hashType curr_hash,
 
   {
     unsigned int number;
-    const hashElemType *table;
+    hashElemType_const *table_elem;
 
   /* for_key_hash */
     number = curr_hash->table_size;
-    table = curr_hash->table;
+    table_elem = &curr_hash->table[-1];
     while (number != 0) {
       do {
         number--;
-      } while (number != 0 && table[number] == NULL);
-      if (number != 0 || table[number] != NULL) {
-        for_key_helem(key_variable, table[number], statement, key_copy_func);
+        table_elem++;
+      } while (number != 0 && *table_elem == NULL);
+      if (number != 0 || *table_elem != NULL) {
+        for_key_helem(key_variable, *table_elem, statement, key_copy_func);
       } /* if */
     } /* while */
   } /* for_key_hash */
@@ -530,17 +534,18 @@ static void for_data_key_hash (objectType for_variable, objectType key_variable,
 
   {
     unsigned int number;
-    const hashElemType *table;
+    hashElemType_const *table_elem;
 
   /* for_data_key_hash */
     number = curr_hash->table_size;
-    table = curr_hash->table;
+    table_elem = &curr_hash->table[-1];
     while (number != 0) {
       do {
         number--;
-      } while (number != 0 && table[number] == NULL);
-      if (number != 0 || table[number] != NULL) {
-        for_data_key_helem(for_variable, key_variable, table[number], statement,
+        table_elem++;
+      } while (number != 0 && *table_elem == NULL);
+      if (number != 0 || *table_elem != NULL) {
+        for_data_key_helem(for_variable, key_variable, *table_elem, statement,
             data_copy_func, key_copy_func);
       } /* if */
     } /* while */
