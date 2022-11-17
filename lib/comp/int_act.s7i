@@ -1380,31 +1380,59 @@ const proc: process (INT_ABS, in reference: function,
           incr(countOverflowChecks);
           c_expr.expr &:= "(";
           number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
-          c_expr.expr &:= number_name;
-          c_expr.expr &:= "<0?";
-          c_expr.expr &:= "(ovfChk(";
-          c_expr.expr &:= number_name;
-          c_expr.expr &:= "==";
-          c_expr.expr &:= integerLiteral(integer.first);
-          c_expr.expr &:= ")?";
-          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-          c_expr.expr &:= ": -";
-          c_expr.expr &:= number_name;
-          c_expr.expr &:= "):";
-          c_expr.expr &:= number_name;
+          if number_range.maxValue <= 0 then
+            incr(countOptimizations);
+            c_expr.expr &:= "ovfChk(";
+            c_expr.expr &:= number_name;
+            c_expr.expr &:= "==";
+            c_expr.expr &:= integerLiteral(integer.first);
+            c_expr.expr &:= ")?";
+            c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+            c_expr.expr &:= ": /*abs_of_nonpositive_number*/-";
+            c_expr.expr &:= number_name;
+          else
+            c_expr.expr &:= number_name;
+            c_expr.expr &:= "<0?";
+            c_expr.expr &:= "(ovfChk(";
+            c_expr.expr &:= number_name;
+            c_expr.expr &:= "==";
+            c_expr.expr &:= integerLiteral(integer.first);
+            c_expr.expr &:= ")?";
+            c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+            c_expr.expr &:= ": -";
+            c_expr.expr &:= number_name;
+            c_expr.expr &:= "):";
+            c_expr.expr &:= number_name;
+          end if;
           c_expr.expr &:= ")";
         else
           (* There is a signal for integer overflow. *)
-          c_expr.expr &:= "(";
-          number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
-          c_expr.expr &:= number_name;
-          c_expr.expr &:= "<0?";
-          c_expr.expr &:= " -";
-          c_expr.expr &:= number_name;
-          c_expr.expr &:= ":";
-          c_expr.expr &:= number_name;
-          c_expr.expr &:= ")";
+          if number_range.maxValue <= 0 then
+            incr(countOptimizations);
+            c_expr.expr &:= "/*abs_of_nonpositive_number*/-(";
+            process_expr(params[1], c_expr);
+            c_expr.expr &:= ")";
+          else
+            c_expr.expr &:= "(";
+            number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+            c_expr.expr &:= number_name;
+            c_expr.expr &:= "<0?";
+            c_expr.expr &:= " -";
+            c_expr.expr &:= number_name;
+            c_expr.expr &:= ":";
+            c_expr.expr &:= number_name;
+            c_expr.expr &:= ")";
+          end if;
         end if;
+      elsif number_range.minValue >= 0 then
+        incr(countOptimizations);
+        c_expr.expr &:= "/*abs_of_nonnegative_number*/";
+        process_expr(params[1], c_expr);
+      elsif number_range.maxValue <= 0 then
+        incr(countOptimizations);
+        c_expr.expr &:= "/*abs_of_nonpositive_number*/-(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ")";
       elsif ccConf.INT_SIZE = ccConf.INTTYPE_SIZE then
         c_expr.expr &:= "abs(";
         process_expr(params[1], c_expr);
@@ -4069,22 +4097,40 @@ const proc: process (INT_MULT, in reference: function,
 
   local
     var reference: evaluatedParam is NIL;
+    var intRange: productRange is intRange.value;
+    var boolean: doOverflowCheck is FALSE;
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_mult(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
       process_const_int_mult(params[3], getValue(evaluatedParam, integer), c_expr);
-    elsif check_int_arithmetic_overflow then
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      int_mult_with_overflow_check(params[1], params[3], c_expr);
-      c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ") * (";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ")";
+      if check_int_arithmetic_overflow then
+        if reduceOverflowChecks then
+          productRange := getIntMultRange(getIntRange(params[1]),
+                                          getIntRange(params[3]));
+          if productRange.mayOverflow then
+            doOverflowCheck := TRUE;
+          else
+            countOverflowOptimizations(c_expr);
+            c_expr.expr &:= "/*no_overflow_check_mult*/";
+          end if;
+        else
+          doOverflowCheck := TRUE;
+        end if;
+      end if;
+      if doOverflowCheck then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "(";
+        int_mult_with_overflow_check(params[1], params[3], c_expr);
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= "(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ") * (";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ")";
+      end if;
     end if;
   end func;
 

@@ -6251,22 +6251,56 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
       okay := FALSE;
     end if;
 
-    if   abs(         intExpr(            0)) +        integer.first <> integer.first or
+    if   abs(         intExpr(-integer.last)) +                    0 <>  integer.last or
+         abs(         intExpr(            0)) +        integer.first <> integer.first or
          abs(         intExpr( integer.last)) +                    0 <>  integer.last or
         -abs(         intExpr( integer.last)) -                    1 <> integer.first or
         -abs(         intExpr(            0)) -        -integer.last <>  integer.last or
+        -abs(         intExpr(-integer.last)) -                    1 <> integer.first or
+         abs(    -abs(intExpr(0))         - 1)  +        integer.first <> -9223372036854775807 or
+        -abs(    -abs(intExpr(0))         - 1)  -        -integer.last <>  9223372036854775806 or
+         abs(rand(            0,      9876543)) +  9223372036844899264 <   9223372036844899264 or
+         abs(rand(            0,  12345678901)) +  9223372024509096906 <   9223372024509096906 or
+         abs(rand(            0, integer.last)) +                    0 <                     0 or
+        -abs(rand(            0,      9876543)) -  9223372036844899265 >  -9223372036844899265 or
+        -abs(rand(            0,  12345678901)) -  9223372024509096907 >  -9223372024509096907 or
+        -abs(rand(            0, integer.last)) -                    1 >                    -1 or
+         abs(rand(     -9876543,            0)) +  9223372036844899264 <   9223372036844899264 or
+         abs(rand( -12345678901,            0)) +  9223372024509096906 <   9223372024509096906 or
+         abs(rand(-integer.last,            0)) +                    0 <                     0 or
+        -abs(rand(     -9876543,            0)) -  9223372036844899265 >  -9223372036844899265 or
+        -abs(rand( -12345678901,            0)) -  9223372024509096907 >  -9223372024509096907 or
+        -abs(rand(-integer.last,            0)) -                    1 >                    -1 or
+         abs(rand(     -9876543,      9876543)) +  9223372036844899264 <   9223372036844899264 or
+         abs(rand( -12345678901,  12345678901)) +  9223372024509096906 <   9223372024509096906 or
+         abs(rand(-integer.last, integer.last)) +                    0 <                     0 or
+        -abs(rand(     -9876543,      9876543)) -  9223372036844899265 >  -9223372036844899265 or
+        -abs(rand( -12345678901,  12345678901)) -  9223372024509096907 >  -9223372024509096907 or
+        -abs(rand(-integer.last, integer.last)) -                    1 >                    -1 or
          log2(        intExpr(            0)) + -9223372036854775807 <> integer.first or
          log2(        intExpr( integer.last)) +  9223372036854775745 <>  integer.last or
         -log2(        intExpr( integer.last)) -  9223372036854775746 <> integer.first or
         -log2(        intExpr(            0)) - -9223372036854775806 <>  integer.last or
+         log2(           rand(0,    2097151)) +  9223372036854775787 <   9223372036854775786 or
+         log2(           rand(0, 2147483647)) +  9223372036854775777 <   9223372036854775776 or
+        -log2(           rand(0,    2097151)) -  9223372036854775788 >  -9223372036854775787 or
+        -log2(           rand(0, 2147483647)) -  9223372036854775778 >  -9223372036854775777 or
          log10(       intExpr(            0)) + -9223372036854775807 <> integer.first or
          log10(       intExpr( integer.last)) +  9223372036854775789 <>  integer.last or
         -log10(       intExpr( integer.last)) -  9223372036854775790 <> integer.first or
         -log10(       intExpr(            0)) - -9223372036854775806 <>  integer.last or
+         log10(          rand(0,    9999999)) +  9223372036854775801 <   9223372036854775800 or
+         log10(          rand(0, 9999999999)) +  9223372036854775798 <   9223372036854775797 or
+        -log10(          rand(0,    9999999)) -  9223372036854775802 >  -9223372036854775801 or
+        -log10(          rand(0, 9999999999)) -  9223372036854775799 >  -9223372036854775798 or
          sqrt(        intExpr(            0)) +        integer.first <> integer.first or
          sqrt(        intExpr( integer.last)) +  9223372033817775308 <>  integer.last or
         -sqrt(        intExpr( integer.last)) -  9223372033817775309 <> integer.first or
         -sqrt(        intExpr(            0)) -        -integer.last <>  integer.last or
+         sqrt(           rand(0,    9998243)) +  9223372036854772646 <   9223372036854772646 or
+         sqrt(           rand(0, 9999800000)) +  9223372036854675809 <   9223372036854675809 or
+        -sqrt(           rand(0,    9998243)) -  9223372036854772647 >   9223372036854772647 or
+        -sqrt(           rand(0, 9999800000)) -  9223372036854675810 >   9223372036854675810 or
          bitLength(   intExpr(            0)) +        integer.first <> integer.first or
          bitLength(   intExpr( integer.last)) +  9223372036854775744 <>  integer.last or
          bitLength(   intExpr(            0)) + bitLength(   intExpr(            0)) +        integer.first <> integer.first or
@@ -6275,6 +6309,10 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
         -bitLength(   intExpr(            0)) -        -integer.last <>  integer.last or
         -bitLength(   intExpr( integer.last)) - bitLength(   intExpr( integer.last)) -  9223372036854775682 <> integer.first or
         -bitLength(   intExpr(            0)) - bitLength(   intExpr(            0)) -        -integer.last <>  integer.last or
+         bitLength(rand(    -2097152,   2097151)) +  9223372036854775786 <   9223372036854775786 or
+         bitLength(rand(-2147483648, 2147483647)) +  9223372036854775776 <   9223372036854775776 or
+        -bitLength(rand(    -2097152,   2097151)) -  9223372036854775787 >  -9223372036854775787 or
+        -bitLength(rand(-2147483648, 2147483647)) -  9223372036854775777 >  -9223372036854775777 or
          lowestSetBit(intExpr(            0)) + -9223372036854775807 <> integer.first or
          lowestSetBit(intExpr(integer.first)) +  9223372036854775744 <>  integer.last or
         -lowestSetBit(intExpr(integer.first)) -  9223372036854775745 <> integer.first or

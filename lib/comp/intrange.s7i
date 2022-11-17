@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  intrange.s7i  Handle ranges of possible values for expressions. *)
-(*  Copyright (C) 2020, 2021  Thomas Mertes                         *)
+(*  Copyright (C) 2020, 2021, 2022  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -27,6 +27,7 @@
 const type: intRange is new struct
     var integer: minValue is integer.first;
     var integer: maxValue is integer.last;
+    var boolean: mayOverflow is FALSE;
     var boolean: mayRaiseException is TRUE;
   end struct;
 
@@ -47,71 +48,144 @@ var intRangeOfVariableHash: intRangeOfVariable is intRangeOfVariableHash.value;
 const func intRange: getIntRange (in reference: intExpression) is forward;
 
 
-const func intRange: getIntAddRange (in reference: summand1, in reference: summand2) is func
+const func intRange: getIntAbsRange (in intRange: argument1Range) is func
   result
-    var intRange: valueRange is intRange.value;
-  local
-    var intRange: summand1Range is intRange.value;
-    var intRange: summand2Range is intRange.value;
+    var intRange: absRange is intRange.value;
   begin
-    summand1Range := getIntRange(summand1);
-    summand2Range := getIntRange(summand2);
-    if summand1Range.minValue < 0 then
-      if summand2Range.minValue < 0 then
-        if summand1Range.minValue >= integer.first - summand2Range.minValue then
-          valueRange.minValue := summand1Range.minValue + summand2Range.minValue;
-        end if;
+    if argument1Range.minValue > argument1Range.maxValue then
+      absRange.minValue := 0;
+      absRange.maxValue := -1;
+    elsif argument1Range.minValue = integer.first then
+      if argument1Range.maxValue = integer.first then
+        # Will always raise RANGE_ERROR.
+        absRange.minValue := 0;
+        absRange.maxValue := -1;
+        absRange.mayOverflow := TRUE;
       else
-        valueRange.minValue := summand1Range.minValue + summand2Range.minValue;
+        if argument1Range.maxValue >= 0 then
+          absRange.minValue := 0;
+        else
+          absRange.minValue := -argument1Range.maxValue;
+        end if;
+        absRange.mayOverflow := TRUE;
       end if;
     else
-      if summand2Range.minValue > 0 then
-        if summand2Range.minValue <= integer.last - summand1Range.minValue then
-          valueRange.minValue := summand1Range.minValue + summand2Range.minValue;
-        else
-          valueRange.minValue := integer.last;
-          valueRange.maxValue := integer.first;
-        end if
+      if argument1Range.minValue <= 0 and argument1Range.maxValue >= 0 then
+        absRange.minValue := 0;
       else
-        valueRange.minValue := summand1Range.minValue + summand2Range.minValue;
+        absRange.minValue := min(abs(argument1Range.minValue),
+                                 abs(argument1Range.maxValue));
       end if;
-    end if;
-    if summand1Range.maxValue > 0 then
-      if summand2Range.maxValue > 0 then
-        if summand2Range.maxValue <= integer.last - summand1Range.maxValue then
-          valueRange.maxValue := summand1Range.maxValue + summand2Range.maxValue;
-        end if;
-      else
-        valueRange.maxValue := summand1Range.maxValue + summand2Range.maxValue;
-      end if;
-    else
-      if summand2Range.maxValue < 0 then
-        if summand2Range.maxValue >= integer.first - summand1Range.maxValue then
-          valueRange.maxValue := summand1Range.maxValue + summand2Range.maxValue;
-        else
-          valueRange.minValue := integer.last;
-          valueRange.maxValue := integer.first;
-        end if
-      else
-        valueRange.maxValue := summand1Range.maxValue + summand2Range.maxValue;
-      end if;
-    end if;
-    if valueRange.minValue > valueRange.maxValue then
-      valueRange.minValue := 0;
-      valueRange.maxValue := -1;
+      absRange.maxValue := max(abs(argument1Range.minValue),
+                               abs(argument1Range.maxValue));
     end if;
   end func;
 
 
-const func intRange: getIntLshiftRange (in reference: number, in reference: lshift) is func
+const func intRange: getIntAddRange (in intRange: summand1Range, in intRange: summand2Range) is func
+  result
+    var intRange: sumRange is intRange.value;
+  local
+    var boolean: valueOutOfRange is FALSE;
+  begin
+    if summand1Range.minValue > summand1Range.maxValue or
+        summand2Range.minValue > summand2Range.maxValue then
+      sumRange.minValue := 0;
+      sumRange.maxValue := -1;
+    else
+      if summand1Range.minValue < 0 then
+        if summand2Range.minValue >= 0 or
+            summand1Range.minValue >= integer.first - summand2Range.minValue then
+          sumRange.minValue := summand1Range.minValue + summand2Range.minValue;
+        else
+          sumRange.mayOverflow := TRUE;
+        end if;
+      else
+        if summand2Range.minValue <= 0 or
+            summand1Range.minValue <= integer.last - summand2Range.minValue then
+          sumRange.minValue := summand1Range.minValue + summand2Range.minValue;
+        else
+          valueOutOfRange := TRUE;
+        end if
+      end if;
+      if summand1Range.maxValue > 0 then
+        if summand2Range.maxValue <= 0 or
+            summand1Range.maxValue <= integer.last - summand2Range.maxValue then
+          sumRange.maxValue := summand1Range.maxValue + summand2Range.maxValue;
+        else
+          sumRange.mayOverflow := TRUE;
+        end if;
+      else
+        if summand2Range.maxValue >= 0 or
+            summand1Range.maxValue >= integer.first - summand2Range.maxValue then
+          sumRange.maxValue := summand1Range.maxValue + summand2Range.maxValue;
+        else
+          valueOutOfRange := TRUE;
+        end if
+      end if;
+      if sumRange.minValue > sumRange.maxValue or valueOutOfRange then
+        sumRange.minValue := 0;
+        sumRange.maxValue := -1;
+        sumRange.mayOverflow := TRUE;
+      end if;
+    end if;
+  end func;
+
+
+const func intRange: getIntSbtrRange (in intRange: minuendRange, in intRange: subtrahendRange) is func
+  result
+    var intRange: differenceRange is intRange.value;
+  local
+    var boolean: valueOutOfRange is FALSE;
+  begin
+    if minuendRange.minValue > minuendRange.maxValue or
+        subtrahendRange.minValue > subtrahendRange.maxValue then
+      differenceRange.minValue := 0;
+      differenceRange.maxValue := -1;
+    else
+      if minuendRange.minValue < 0 then
+        if subtrahendRange.maxValue <= 0 or
+            minuendRange.minValue >= integer.first + subtrahendRange.maxValue then
+          differenceRange.minValue := minuendRange.minValue - subtrahendRange.maxValue;
+        else
+          differenceRange.mayOverflow := TRUE;
+        end if;
+      else
+        if subtrahendRange.maxValue >= 0 or
+            minuendRange.minValue <= integer.last + subtrahendRange.maxValue then
+          differenceRange.minValue := minuendRange.minValue - subtrahendRange.maxValue;
+        else
+          valueOutOfRange := TRUE;
+        end if
+      end if;
+      if minuendRange.maxValue >= 0 then
+        if subtrahendRange.minValue >= 0 or
+            minuendRange.maxValue <= integer.last + subtrahendRange.minValue then
+          differenceRange.maxValue := minuendRange.maxValue - subtrahendRange.minValue;
+        else
+          differenceRange.mayOverflow := TRUE;
+        end if;
+      else
+        if subtrahendRange.minValue <= 0 or
+            minuendRange.maxValue >= integer.first + subtrahendRange.minValue then
+          differenceRange.maxValue := minuendRange.maxValue - subtrahendRange.minValue;
+        else
+          valueOutOfRange := TRUE;
+        end if
+      end if;
+      if differenceRange.minValue > differenceRange.maxValue or valueOutOfRange then
+        differenceRange.minValue := 0;
+        differenceRange.maxValue := -1;
+        differenceRange.mayOverflow := TRUE;
+      end if;
+    end if;
+  end func;
+
+
+const func intRange: getIntLshiftRange (in intRange: numberRange, in intRange: lshiftRange) is func
   result
     var intRange: valueRange is intRange.value;
-  local
-    var intRange: numberRange is intRange.value;
-    var intRange: lshiftRange is intRange.value;
   begin
-    numberRange := getIntRange(number);
-    lshiftRange := getIntRange(lshift);
     if lshiftRange.maxValue < 0 or
         lshiftRange.minValue > bitLength(integer.last) then
       valueRange.minValue := 0;
@@ -224,6 +298,241 @@ const func intRange: getIntModRange (in reference: dividend, in reference: divis
   end func;
 
 
+const func intRange: getIntNegateRange (in intRange: argument1Range) is func
+  result
+    var intRange: negatedRange is intRange.value;
+  begin
+    if argument1Range.maxValue < argument1Range.minValue then
+      negatedRange.minValue := 0;
+      negatedRange.maxValue := -1;
+    else
+      if argument1Range.maxValue < -integer.last then
+        negatedRange.minValue := 0;
+        negatedRange.maxValue := -1;
+        negatedRange.mayOverflow := TRUE;
+      else
+        negatedRange.minValue := -argument1Range.maxValue;
+      end if;
+      if argument1Range.minValue < -integer.last then
+        if argument1Range.maxValue > argument1Range.minValue then
+          negatedRange.maxValue := integer.last;
+        else
+          negatedRange.minValue := 0;
+          negatedRange.maxValue := -1;
+          negatedRange.mayOverflow := TRUE;
+        end if;
+      else
+        negatedRange.maxValue := -argument1Range.minValue;
+      end if;
+    end if;
+  end func;
+
+
+const func intRange: getIntMultRange (in integer: factor1, in intRange: factor2Range) is func
+  result
+    var intRange: productRange is intRange.value;
+  local
+    var boolean: valueOutOfRange is FALSE;
+  begin
+    if factor1 >= 2 then
+      if factor2Range.minValue <= integer.last div factor1 then
+        if factor2Range.minValue >= integer.first div factor1 then
+          productRange.minValue := factor2Range.minValue * factor1;
+        else
+          productRange.minValue := integer.first div factor1 * factor1;
+          productRange.mayOverflow := TRUE;
+        end if;
+      else
+        valueOutOfRange := TRUE;
+      end if;
+      if factor2Range.maxValue >= integer.first div factor1 then
+        if factor2Range.maxValue <= integer.last div factor1 then
+          productRange.maxValue := factor2Range.maxValue * factor1;
+        else
+          productRange.maxValue := integer.last div factor1 * factor1;
+          productRange.mayOverflow := TRUE;
+        end if;
+      else
+        valueOutOfRange := TRUE;
+      end if;
+    elsif factor1 = 1 then
+      productRange := factor2Range;
+      productRange.mayOverflow := FALSE;
+    elsif factor1 = 0 then
+      productRange.minValue := 0;
+      productRange.maxValue := 0;
+    elsif factor1 = -1 then
+      productRange := getIntNegateRange(factor2Range);
+    else # factor1 <= -2 then
+      if factor2Range.minValue <= integer.first div factor1 then
+        if factor2Range.minValue >= integer.last div factor1 then
+          productRange.maxValue := factor2Range.minValue * factor1;
+        else
+          productRange.maxValue := integer.last div factor1 * factor1;
+          productRange.mayOverflow := TRUE;
+        end if;
+      else
+        valueOutOfRange := TRUE;
+      end if;
+      if factor2Range.maxValue >= integer.last div factor1 then
+        if factor2Range.maxValue <= integer.first div factor1 then
+          productRange.minValue := factor2Range.maxValue * factor1;
+        else
+          productRange.minValue := integer.first div factor1 * factor1;
+          productRange.mayOverflow := TRUE;
+        end if;
+      else
+        valueOutOfRange := TRUE;
+      end if;
+    end if;
+    if valueOutOfRange then
+      productRange.minValue := 0;
+      productRange.maxValue := -1;
+      productRange.mayOverflow := TRUE;
+    end if;
+  end func;
+
+
+const func intRange: getIntMultRange (in intRange: factor1Range, in intRange: factor2Range) is func
+  result
+    var intRange: productRange is intRange.value;
+  local
+    var boolean: valueOutOfRange is FALSE;
+    var integer: minProduct is integer.last;
+    var integer: maxProduct is integer.first;
+    var boolean: maxFound is FALSE;
+  begin
+    if factor1Range.minValue > factor1Range.maxValue or
+        factor2Range.minValue > factor2Range.maxValue then
+      productRange.minValue := 0;
+      productRange.maxValue := -1;
+    elsif factor1Range.minValue = factor1Range.maxValue then
+      productRange := getIntMultRange(factor1Range.minValue, factor2Range)
+    elsif factor2Range.minValue = factor2Range.maxValue then
+      productRange := getIntMultRange(factor2Range.minValue, factor1Range)
+    else
+      if factor1Range.maxValue > 0 then
+        if factor2Range.minValue < 0 then
+          if factor2Range.minValue >= integer.first div factor1Range.maxValue then
+            minProduct := factor1Range.maxValue * factor2Range.minValue;
+          else
+            minProduct := integer.first;
+            productRange.mayOverflow := TRUE;
+          end if;
+        elsif factor2Range.minValue = 0 then
+          minProduct := 0;
+        end if;
+        if factor2Range.maxValue > 0 then
+          if factor1Range.maxValue <= integer.last div factor2Range.maxValue then
+            maxProduct := factor1Range.maxValue * factor2Range.maxValue;
+          else
+            maxProduct := integer.last;
+            productRange.mayOverflow := TRUE;
+          end if;
+        elsif factor2Range.maxValue = 0 then
+          maxProduct := 0;
+        end if;
+      elsif factor1Range.maxValue = 0 then
+        if factor2Range.minValue <= 0 then
+          minProduct := 0;
+        end if;
+        if factor2Range.maxValue >= 0 then
+          maxProduct := 0;
+        end if;
+      else # factor1Range.maxValue < 0
+        if factor2Range.maxValue < 0 then
+          if (factor1Range.maxValue <> integer.first or factor2Range.maxValue <> -1) and
+              (factor1Range.maxValue <> -1 or factor2Range.maxValue <> integer.first) and
+              factor1Range.maxValue >= integer.last div factor2Range.maxValue then
+            minProduct := factor1Range.maxValue * factor2Range.maxValue;
+          else
+            # No valid productRange because minProduct > integer.last holds.
+            valueOutOfRange := TRUE;
+            productRange.mayOverflow := TRUE;
+          end if;
+        elsif factor2Range.maxValue = 0 then
+          minProduct := 0;
+        end if;
+        if factor2Range.minValue > 0 then
+          if factor1Range.maxValue >= integer.first div factor2Range.minValue then
+            maxProduct := factor1Range.maxValue * factor2Range.minValue;
+          else
+            # No valid productRange because maxProduct < integer.first holds.
+            valueOutOfRange := TRUE;
+            productRange.mayOverflow := TRUE;
+          end if;
+        elsif factor2Range.minValue = 0 then
+          maxProduct := 0;
+        end if;
+      end if;
+      if factor1Range.minValue > 0 then
+        if factor2Range.minValue > 0 then
+          if factor1Range.minValue <= integer.last div factor2Range.minValue then
+            minProduct := min(minProduct,
+                              factor1Range.minValue * factor2Range.minValue);
+          else
+            # No valid productRange because minProduct > integer.last holds.
+            valueOutOfRange := TRUE;
+            productRange.mayOverflow := TRUE;
+          end if;
+        elsif factor2Range.minValue = 0 then
+          minProduct := min(minProduct, 0);
+        end if;
+        if factor2Range.maxValue < 0 then
+          if factor2Range.maxValue >= integer.first div factor1Range.minValue then
+            maxProduct := max(maxProduct,
+                              factor1Range.minValue * factor2Range.maxValue);
+          else
+            # No valid productRange because maxProduct < integer.first holds.
+            valueOutOfRange := TRUE;
+            productRange.mayOverflow := TRUE;
+          end if;
+        elsif factor2Range.maxValue = 0 then
+          maxProduct := max(maxProduct, 0);
+        end if;
+      elsif factor1Range.minValue = 0 then
+        if factor2Range.minValue >= 0 then
+          minProduct := min(minProduct, 0);
+        end if;
+        if factor2Range.minValue <= 0 then
+          maxProduct := max(maxProduct, 0);
+        end if;
+      else # factor1Range.minValue < 0
+        if factor2Range.maxValue > 0 then
+          if factor1Range.minValue >= integer.first div factor2Range.maxValue then
+            minProduct := min(minProduct,
+                              factor1Range.minValue * factor2Range.maxValue);
+          else
+            minProduct := integer.first;
+            productRange.mayOverflow := TRUE;
+          end if;
+        elsif factor2Range.maxValue = 0 then
+          minProduct := min(minProduct, 0);
+        end if;
+        if factor2Range.minValue < 0 then
+          if (factor1Range.minValue <> integer.first or factor2Range.minValue <> -1) and
+              (factor1Range.minValue <> -1 or factor2Range.minValue <> integer.first) and
+              factor1Range.minValue >= integer.last div factor2Range.minValue then
+            maxProduct := max(maxProduct,
+                              factor1Range.minValue * factor2Range.minValue);
+          else
+            maxProduct := integer.last;
+            productRange.mayOverflow := TRUE;
+          end if;
+        elsif factor2Range.minValue = 0 then
+          maxProduct := max(maxProduct, 0);
+        end if;
+      end if;
+      productRange.minValue := minProduct;
+      productRange.maxValue := maxProduct;
+      if productRange.minValue > productRange.maxValue or valueOutOfRange then
+        productRange.minValue := 0;
+        productRange.maxValue := -1;
+      end if;
+    end if;
+  end func;
+
+
 const func intRange: getIntBytes2UIntRange (in reference: stri) is func
   result
     var intRange: valueRange is intRange.value;
@@ -292,7 +601,7 @@ const func intRange: getIntRange (in reference: intExpression) is func
         if category(function) = ACTOBJECT then
           actionName := str(getValue(function, ACTION));
           case actionName of
-            when {"ARR_LNG", "BST_LNG", "FIL_LNG", "HSH_LNG", "RFL_LNG",
+            when {"ARR_LNG", "BIG_BIT_LENGTH", "BST_LNG", "FIL_LNG", "HSH_LNG", "RFL_LNG",
                   "SET_CARD",
                   "SQL_STMT_COLUMN_COUNT"}:
               valueRange.minValue := 0;
@@ -303,6 +612,9 @@ const func intRange: getIntRange (in reference: intExpression) is func
                   "TYP_CMP"}:
               valueRange.minValue := -1;
               valueRange.maxValue := 1;
+            when {"BIG_LOWEST_SET_BIT"}:
+              valueRange.minValue := -1;
+              valueRange.maxValue := integer.last;
             when {"BIN_CARD"}:
               valueRange.minValue := 0;
               valueRange.maxValue := ccConf.INTTYPE_SIZE;
@@ -324,27 +636,21 @@ const func intRange: getIntRange (in reference: intExpression) is func
               valueRange.minValue := 1;
               valueRange.maxValue := integer.last;
             when {"INT_ABS"}:
-              valueRange.minValue := 0;
-              argument1Range := getIntRange(params[1]);
-              if argument1Range <> intRange.value and
-                  argument1Range.minValue > integer.first and
-                  argument1Range.maxValue > integer.first then
-                if argument1Range.maxValue < argument1Range.minValue then
-                  valueRange.minValue := 0;
-                  valueRange.maxValue := -1;
-                elsif abs(argument1Range.minValue) > abs(argument1Range.maxValue) then
-                  valueRange.maxValue := abs(argument1Range.minValue);
-                else
-                  valueRange.maxValue := abs(argument1Range.maxValue);
-                end if;
-              else
-                valueRange.maxValue := integer.last;
-              end if;
+              valueRange := getIntAbsRange(getIntRange(params[1]));
             when {"INT_ADD"}:
-              valueRange := getIntAddRange(params[1], params[3]);
+              valueRange := getIntAddRange(getIntRange(params[1]),
+                                           getIntRange(params[3]));
             when {"INT_BIT_LENGTH"}:
               valueRange.minValue := 0;
-              valueRange.maxValue := pred(ccConf.INTTYPE_SIZE);
+              argument1Range := getIntRange(params[1]);
+              if argument1Range.minValue <= 0 and argument1Range.maxValue >= 0 then
+                valueRange.minValue := 0;
+              else
+                valueRange.minValue := min(bitLength(argument1Range.minValue),
+                                           bitLength(argument1Range.maxValue));
+              end if;
+              valueRange.maxValue := max(bitLength(argument1Range.minValue),
+                                         bitLength(argument1Range.maxValue));
             when {"INT_BYTES_BE_2_UINT",
                   "INT_BYTES_LE_2_UINT"}:
               valueRange := getIntBytes2UIntRange(params[1]);
@@ -375,16 +681,37 @@ const func intRange: getIntRange (in reference: intExpression) is func
             when {"INT_ICONV3"}:
               valueRange := getIntRange(params[3]);
             when {"INT_LOG10"}:
-              valueRange.minValue := -1;
-              valueRange.maxValue := log10(integer.last);
+              argument1Range := getIntRange(params[1]);
+              if argument1Range.maxValue >= 0 then
+                if argument1Range.minValue >= 0 then
+                  valueRange.minValue := log10(argument1Range.minValue);
+                else
+                  valueRange.minValue := -1;
+                end if;
+                valueRange.maxValue := log10(argument1Range.maxValue);
+              else
+                valueRange.minValue := 0;
+                valueRange.maxValue := -1;
+              end if;
             when {"INT_LOG2"}:
-              valueRange.minValue := -1;
-              valueRange.maxValue := log2(integer.last);
+              argument1Range := getIntRange(params[1]);
+              if argument1Range.maxValue >= 0 then
+                if argument1Range.minValue >= 0 then
+                  valueRange.minValue := log2(argument1Range.minValue);
+                else
+                  valueRange.minValue := -1;
+                end if;
+                valueRange.maxValue := log2(argument1Range.maxValue);
+              else
+                valueRange.minValue := 0;
+                valueRange.maxValue := -1;
+              end if;
             when {"INT_LOWEST_SET_BIT"}:
               valueRange.minValue := -1;
               valueRange.maxValue := pred(ccConf.INTTYPE_SIZE);
             when {"INT_LSHIFT"}:
-              valueRange := getIntLshiftRange(params[1], params[3]);
+              valueRange := getIntLshiftRange(getIntRange(params[1]),
+                                              getIntRange(params[3]));
             when {"INT_MDIV"}:
               if getConstant(params[3], INTOBJECT, evaluatedParam) then
                 number := getValue(evaluatedParam, integer);
@@ -410,60 +737,10 @@ const func intRange: getIntRange (in reference: intExpression) is func
             when {"INT_MOD"}:
               valueRange := getIntModRange(params[1], params[3]);
             when {"INT_MULT"}:
-              if getConstant(params[1], INTOBJECT, evaluatedParam) then
-                number := getValue(evaluatedParam, integer);
-                if number >= 2 then
-                  argument2Range := getIntRange(params[3]);
-                  if argument2Range.minValue >= integer.first div number and
-                      argument2Range.minValue <= integer.last div number then
-                    valueRange.minValue := argument2Range.minValue * number;
-                  else
-                    valueRange.minValue := integer.first div number * number;
-                  end if;
-                  if argument2Range.maxValue >= integer.first div number and
-                      argument2Range.maxValue <= integer.last div number then
-                    valueRange.maxValue := argument2Range.maxValue * number;
-                  else
-                    valueRange.maxValue := integer.last div number * number;
-                  end if;
-                end if;
-              elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
-                number := getValue(evaluatedParam, integer);
-                if number >= 2 then
-                  argument1Range := getIntRange(params[1]);
-                  if argument1Range.minValue >= integer.first div number and
-                      argument1Range.minValue <= integer.last div number then
-                    valueRange.minValue := argument1Range.minValue * number;
-                  else
-                    valueRange.minValue := integer.first div number * number;
-                  end if;
-                  if argument1Range.maxValue >= integer.first div number and
-                      argument1Range.maxValue <= integer.last div number then
-                    valueRange.maxValue := argument1Range.maxValue * number;
-                  else
-                    valueRange.maxValue := integer.last div number * number;
-                  end if;
-                end if;
-              end if;
+              valueRange := getIntMultRange(getIntRange(params[1]),
+                                            getIntRange(params[3]));
             when {"INT_NEGATE"}:
-              argument1Range := getIntRange(params[2]);
-              if argument1Range <> intRange.value then
-                if argument1Range.maxValue < -integer.last or
-                    argument1Range.maxValue < argument1Range.minValue then
-                  valueRange.minValue := 0;
-                  valueRange.maxValue := -1;
-                else
-                  valueRange.minValue := -argument1Range.maxValue;
-                  if argument1Range.minValue < -integer.last then
-                    valueRange.maxValue := integer.last;
-                  else
-                    valueRange.maxValue := -argument1Range.minValue;
-                  end if;
-                end if;
-              else
-                valueRange.minValue := -integer.last;
-                valueRange.maxValue := integer.last;
-              end if;
+              valueRange := getIntNegateRange(getIntRange(params[2]));
             when {"INT_PRED"}:
               argument1Range := getIntRange(params[1]);
               if argument1Range.minValue <> integer.first then
@@ -530,9 +807,22 @@ const func intRange: getIntRange (in reference: intExpression) is func
                   valueRange.maxValue := number;
                 end if;
               end if;
+            when {"INT_SBTR"}:
+              valueRange := getIntSbtrRange(getIntRange(params[1]),
+                                            getIntRange(params[3]));
             when {"INT_SQRT"}:
-              valueRange.minValue := 0;
-              valueRange.maxValue := sqrt(integer.last);
+              argument1Range := getIntRange(params[1]);
+              if argument1Range.maxValue >= 0 then
+                if argument1Range.minValue >= 0 then
+                  valueRange.minValue := sqrt(argument1Range.minValue);
+                else
+                  valueRange.minValue := 0;
+                end if;
+                valueRange.maxValue := sqrt(argument1Range.maxValue);
+              else
+                valueRange.minValue := 0;
+                valueRange.maxValue := -1;
+              end if;
             when {"INT_SUCC"}:
               argument1Range := getIntRange(params[1]);
               if argument1Range.minValue <> integer.last then
@@ -566,7 +856,11 @@ const func intRange: getIntRange (in reference: intExpression) is func
                 valueRange.maxValue := 2 ** (ccConf.POINTER_SIZE - 2);
               end if;
             when {"STR_LNG"}:
-              if ccConf.POINTER_SIZE > ccConf.INTTYPE_SIZE then
+              if getConstant(params[1], STRIOBJECT, evaluatedParam) then
+                number := length(getValue(evaluatedParam, string));
+                valueRange.minValue := number;
+                valueRange.maxValue := number;
+              elsif ccConf.POINTER_SIZE > ccConf.INTTYPE_SIZE then
                 valueRange.minValue := 0;
                 valueRange.maxValue := integer.last;
               else
