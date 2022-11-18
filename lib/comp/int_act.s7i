@@ -1424,48 +1424,53 @@ const proc: process (INT_ABS, in reference: function,
             c_expr.expr &:= ")";
           end if;
         end if;
-      elsif number_range.minValue >= 0 then
-        incr(countOptimizations);
-        c_expr.expr &:= "/*abs_of_nonnegative_number*/";
-        process_expr(params[1], c_expr);
-      elsif number_range.maxValue <= 0 then
-        incr(countOptimizations);
-        c_expr.expr &:= "/*abs_of_nonpositive_number*/-(";
-        process_expr(params[1], c_expr);
-        c_expr.expr &:= ")";
-      elsif ccConf.INT_SIZE = ccConf.INTTYPE_SIZE then
-        c_expr.expr &:= "abs(";
-        process_expr(params[1], c_expr);
-        c_expr.expr &:= ")";
-      elsif ccConf.LONG_SIZE = ccConf.INTTYPE_SIZE then
-        c_expr.expr &:= "labs(";
-        process_expr(params[1], c_expr);
-        c_expr.expr &:= ")";
-      elsif ccConf.TWOS_COMPLEMENT_INTTYPE and ccConf.RSHIFT_DOES_SIGN_EXTEND then
-        c_expr.expr &:= "(";
-        number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
-        sign_name := defineTempVariable("intType", "sign_", c_expr);
-        c_expr.expr &:= sign_name;
-        c_expr.expr &:= " = ";
-        c_expr.expr &:= number_name;
-        c_expr.expr &:= " >> ";
-        c_expr.expr &:= str(pred(ccConf.INTTYPE_SIZE));
-        c_expr.expr &:= ", (";
-        c_expr.expr &:= number_name;
-        c_expr.expr &:= " + ";
-        c_expr.expr &:= sign_name;
-        c_expr.expr &:= ") ^ ";
-        c_expr.expr &:= sign_name;
-        c_expr.expr &:= ")";
       else
-        c_expr.expr &:= "(";
-        number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
-        c_expr.expr &:= number_name;
-        c_expr.expr &:= "<0? (intType)(-(uintType)";
-        c_expr.expr &:= number_name;
-        c_expr.expr &:= "):";
-        c_expr.expr &:= number_name;
-        c_expr.expr &:= ")";
+        if check_int_arithmetic_overflow then
+          countOverflowOptimizations(c_expr);
+        end if;
+        if number_range.minValue >= 0 then
+          incr(countOptimizations);
+          c_expr.expr &:= "/*abs_of_nonnegative_number*/";
+          process_expr(params[1], c_expr);
+        elsif number_range.maxValue <= 0 then
+          incr(countOptimizations);
+          c_expr.expr &:= "/*abs_of_nonpositive_number*/-(";
+          process_expr(params[1], c_expr);
+          c_expr.expr &:= ")";
+        elsif ccConf.INT_SIZE = ccConf.INTTYPE_SIZE then
+          c_expr.expr &:= "abs(";
+          process_expr(params[1], c_expr);
+          c_expr.expr &:= ")";
+        elsif ccConf.LONG_SIZE = ccConf.INTTYPE_SIZE then
+          c_expr.expr &:= "labs(";
+          process_expr(params[1], c_expr);
+          c_expr.expr &:= ")";
+        elsif ccConf.TWOS_COMPLEMENT_INTTYPE and ccConf.RSHIFT_DOES_SIGN_EXTEND then
+          c_expr.expr &:= "(";
+          number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+          sign_name := defineTempVariable("intType", "sign_", c_expr);
+          c_expr.expr &:= sign_name;
+          c_expr.expr &:= " = ";
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= " >> ";
+          c_expr.expr &:= str(pred(ccConf.INTTYPE_SIZE));
+          c_expr.expr &:= ", (";
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= " + ";
+          c_expr.expr &:= sign_name;
+          c_expr.expr &:= ") ^ ";
+          c_expr.expr &:= sign_name;
+          c_expr.expr &:= ")";
+        else
+          c_expr.expr &:= "(";
+          number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= "<0? (intType)(-(uintType)";
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= "):";
+          c_expr.expr &:= number_name;
+          c_expr.expr &:= ")";
+        end if;
       end if;
     end if;
   end func;
@@ -2797,13 +2802,14 @@ const proc: process_const_int_lshift (in integer: number, in reference: lshift,
   begin
     if check_int_shift_overflow then
       lshift_range := getIntRange(lshift);
-      if lshift_range.minValue < 0 or
-          lshift_range.maxValue > bitLength(integer.last) - bitLength(number) then
-        incr(countOverflowChecks);
-        doOverflowCheck := TRUE;
-      else
+      if lshift_range.minValue >= 0 and
+          lshift_range.maxValue < ccConf.INTTYPE_SIZE - bitLength(number) then
+        # This lshift cannot overflow
         countOverflowOptimizations(c_expr);
         c_expr.expr &:= "/*no_overflow_check_lshift*/";
+      else
+        incr(countOverflowChecks);
+        doOverflowCheck := TRUE;
       end if;
     end if;
     if doOverflowCheck then
@@ -2811,7 +2817,7 @@ const proc: process_const_int_lshift (in integer: number, in reference: lshift,
       lshift_name := getParameterAsVariable("intType", "tmp_", lshift, c_expr);
       c_expr.expr &:= "ovfChk(";
       checkRangeFromZero(lshift_name,
-          integerLiteral(bitLength(integer.last) - bitLength(number) + 1), c_expr);
+          integerLiteral(ccConf.INTTYPE_SIZE - bitLength(number)), c_expr);
       c_expr.expr &:= ")?";
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       c_expr.expr &:= ":";
@@ -3346,7 +3352,7 @@ const proc: optimize_mod_of_left_shifted_value (in reference: argument,
     in integer: lshift, in integer: bitsToMask, inout expr_type: c_expr) is func
 
   begin
-    if lshift < 0 then
+    if lshift < 0 or lshift >= ccConf.INTTYPE_SIZE then
       warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
     elsif lshift >= bitsToMask then
@@ -3369,14 +3375,13 @@ const proc: optimize_mod_of_left_shifted_value (in reference: argument,
     var reference: evaluatedParam is NIL;
     var integer: lshift_value is 0;
     var string: lshift_name is "";
+    var intRange: lshift_range is intRange.value;
   begin
     if getConstant(lshift, INTOBJECT, evaluatedParam) then
       lshift_value := getValue(evaluatedParam, integer);
-      if lshift_value < 0 then
+      if lshift_value < 0 or lshift_value >= ccConf.INTTYPE_SIZE then
         warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
         c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      elsif lshift_value >= pred(ccConf.INTTYPE_SIZE) then
-        c_expr.expr &:= "(uintType)0";
       else
         c_expr.expr &:= "((uintType)(";
         process_expr(argument, c_expr);
@@ -3385,20 +3390,37 @@ const proc: optimize_mod_of_left_shifted_value (in reference: argument,
         c_expr.expr &:= ")";
       end if;
     elsif check_int_shift_overflow then
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      lshift_name := getParameterAsVariable("intType", "tmp_", lshift, c_expr);
-      c_expr.expr &:= "ovfChk(";
-      checkRangeFromZero(lshift_name,
-          integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":";
-      c_expr.expr &:= "((uintType)(";
-      process_expr(argument, c_expr);
-      c_expr.expr &:= ") << ";
-      c_expr.expr &:= lshift_name;
-      c_expr.expr &:= "))";
+      lshift_range := getIntRange(lshift);
+      if lshift_range.maxValue < 0 or
+          lshift_range.minValue >= ccConf.INTTYPE_SIZE then
+        warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      elsif lshift_range.minValue >= 0 and
+          lshift_range.maxValue < ccConf.INTTYPE_SIZE then
+        # This lshift cannot overflow
+        countOverflowOptimizations(c_expr);
+        c_expr.expr &:= "/*no_overflow_check_lshift*/";
+        c_expr.expr &:= "((uintType)(";
+        process_expr(argument, c_expr);
+        c_expr.expr &:= ") << (";
+        process_expr(lshift, c_expr);
+        c_expr.expr &:= "))";
+      else
+        incr(countOverflowChecks);
+        c_expr.expr &:= "(";
+        lshift_name := getParameterAsVariable("intType", "tmp_", lshift, c_expr);
+        c_expr.expr &:= "ovfChk(";
+        checkRangeFromZero(lshift_name,
+            integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        c_expr.expr &:= ":";
+        c_expr.expr &:= "((uintType)(";
+        process_expr(argument, c_expr);
+        c_expr.expr &:= ") << ";
+        c_expr.expr &:= lshift_name;
+        c_expr.expr &:= "))";
+      end if;
     else
       c_expr.expr &:= "((uintType)(";
       process_expr(argument, c_expr);
@@ -3552,7 +3574,7 @@ const proc: optimize_mod_by_power_of_two (in reference: dividend, in reference: 
           warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
           c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
         end if;
-      elsif lshift_value >= pred(ccConf.INTTYPE_SIZE) then
+      elsif lshift_value >= ccConf.INTTYPE_SIZE then
         warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
         c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
       elsif lshift_value = 0 then
