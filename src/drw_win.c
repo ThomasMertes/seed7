@@ -84,8 +84,6 @@ typedef struct {
     unsigned int height; /* Always <= INT_MAX: Cast to int is safe. */
     unsigned int backupWidth;  /* Always <= INT_MAX: Cast to int is safe. */
     unsigned int backupHeight; /* Always <= INT_MAX: Cast to int is safe. */
-    unsigned int bruttoWidthDelta;
-    unsigned int bruttoHeightDelta;
     boolType minimized;
     intType clear_col;
     int close_action;
@@ -109,8 +107,6 @@ typedef const win_winRecord *const_win_winType;
 #define to_height(win)               (((const_win_winType) win)->height)
 #define to_backupWidth(win)          (((const_win_winType) win)->backupWidth)
 #define to_backupHeight(win)         (((const_win_winType) win)->backupHeight)
-#define to_bruttoWidthDelta(win)     (((const_win_winType) win)->bruttoWidthDelta)
-#define to_bruttoHeightDelta(win)    (((const_win_winType) win)->bruttoHeightDelta)
 #define to_minimized(win)            (((const_win_winType) win)->minimized)
 #define to_clear_col(win)            (((const_win_winType) win)->clear_col)
 #define to_close_action(win)         (((const_win_winType) win)->close_action)
@@ -1451,8 +1447,7 @@ winType drwOpen (intType xPos, intType yPos,
     intType width, intType height, const const_striType windowName)
 
   {
-    int bruttoWidthDelta;
-    int bruttoHeightDelta;
+    RECT windowRect;
     os_striType winName;
     HFONT std_font;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1462,21 +1457,27 @@ winType drwOpen (intType xPos, intType yPos,
     logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
                        ", \"%s\")\n", xPos, yPos, width, height,
                        striAsUnquotedCStri(windowName)););
-    bruttoWidthDelta = 2 * GetSystemMetrics(SM_CXSIZEFRAME);
-    bruttoHeightDelta = 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
-        GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER);
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
-                 bruttoWidthDelta < 0 || bruttoHeightDelta < 0 ||
-                 width < 1 || width > INT_MAX - bruttoWidthDelta ||
-                 height < 1 || height > INT_MAX - bruttoHeightDelta)) {
+                 width < 1 || width > INT_MAX ||
+                 height < 1 || height > INT_MAX)) {
       raise_error(RANGE_ERROR);
     } else {
       if (!init_called) {
         drawInit();
       } /* if */
       if (init_called) {
-        winName = stri_to_os_stri(windowName, &err_info);
-        if (unlikely(winName == NULL)) {
+        windowRect.left = 0;
+        windowRect.top = 0;
+        windowRect.right = (long) width;
+        windowRect.bottom = (long) height;
+        if (unlikely(AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, 0) == 0 ||
+                     windowRect.right < 0 ||
+                     windowRect.right - INT_MAX > windowRect.left ||
+                     windowRect.bottom < 0 ||
+                     windowRect.bottom - INT_MAX > windowRect.top)) {
+          /* Unable to compute window width or height that includes decorations. */
+          raise_error(RANGE_ERROR);
+        } else if (unlikely((winName = stri_to_os_stri(windowName, &err_info)) == NULL)) {
           raise_error(err_info);
         } else {
           if (privateConsole()) {
@@ -1503,13 +1504,11 @@ winType drwOpen (intType xPos, intType yPos,
             printf("height=%d\n",         height + 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
                 GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER));
 #endif
-            result->bruttoWidthDelta = (unsigned int) bruttoWidthDelta;
-            result->bruttoHeightDelta = (unsigned int) bruttoHeightDelta;
             result->hWnd = CreateWindowW(windowClassW, winName,
                 WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
                 (int) xPos, (int) yPos,
-                (int) width + bruttoWidthDelta,
-                (int) height + bruttoHeightDelta,
+                (int) (windowRect.right - windowRect.left),
+                (int) (windowRect.bottom - windowRect.top),
                 (HWND) NULL, (HMENU) NULL, NULL, NULL);
             enter_window((winType) result, result->hWnd);
             /* printf("hWnd=%lu\n", result->hWnd); */
@@ -1610,8 +1609,6 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
           printf("WS_CHILD            = %lx\n", WS_CHILD);
 #endif
 
-          result->bruttoWidthDelta = 0;
-          result->bruttoHeightDelta = 0;
           if (to_width(parent_window) == 0 && to_height(parent_window) == 0) {
             result->hWnd = CreateWindowEx(WS_EX_NOACTIVATE, windowClass, "",
                 WS_POPUP,
