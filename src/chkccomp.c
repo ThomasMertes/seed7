@@ -1102,7 +1102,9 @@ static int runTest (int checkNumericValue)
 
   {
     char command[COMMAND_SIZE];
-    char fileName[NAME_SIZE];
+    char outputFileName[NAME_SIZE];
+    char sourceFileName[NAME_SIZE];
+    char backupFileName[NAME_SIZE];
     time_t startTime;
     int returncode;
     FILE *outFile;
@@ -1136,13 +1138,13 @@ static int runTest (int checkNumericValue)
             REDIRECT_FILEDES_1, testNumber, REDIRECT_FILEDES_2, testNumber);
 #endif
 #endif
-    sprintf(fileName, "ctest%d.out", testNumber);
+    sprintf(outputFileName, "ctest%d.out", testNumber);
     startTime = time(NULL);
     do {
       returncode = system(command);
       if (returncode != -1) {
-        if (fileIsPresentPossiblyAfterDelay(fileName)) {
-          outFile = fopen(fileName, "r");
+        if (fileIsPresentPossiblyAfterDelay(outputFileName)) {
+          outFile = fopen(outputFileName, "r");
           if (outFile != NULL) {
             readFailed = fscanf(outFile, "%d", &result) != 1;
             fclose(outFile);
@@ -1154,11 +1156,11 @@ static int runTest (int checkNumericValue)
               repeatCount++;
             } /* if */
           } else {
-            fprintf(logFile, "\n *** Cannot open \"%s\".\n ", fileName);
+            fprintf(logFile, "\n *** Cannot open \"%s\".\n ", outputFileName);
             errorOccurred = 1;
           } /* if */
         } else {
-          fprintf(logFile, "\n *** File \"%s\" missing.\n ", fileName);
+          fprintf(logFile, "\n *** File \"%s\" missing.\n ", outputFileName);
           errorOccurred = 1;
         } /* if */
       } else {
@@ -1169,10 +1171,13 @@ static int runTest (int checkNumericValue)
              time(NULL) < startTime + 5);
     if (checkNumericValue && repeatCount != 0) {
       if (readFailed) {
-        fprintf(logFile, "\n *** No numeric result in \"%s\".\n", fileName);
+        fprintf(logFile, "\n *** No numeric result in \"%s\".\n", outputFileName);
 #ifndef ERROR_REDIRECTING_FAILS
         showErrorsForTool("Run", ".err");
 #endif
+        sprintf(sourceFileName, "ctest%d.c", testNumber);
+        sprintf(backupFileName, "ctest%d.cbak", testNumber);
+        copyFile(sourceFileName, backupFileName);
       } else {
         numberOfSuccessfulTestsAfterRestart++;
       } /* if */
@@ -1223,7 +1228,9 @@ static void testOutputToVersionFile (FILE *versionFile)
 
   {
     char command[COMMAND_SIZE];
-    char fileName[NAME_SIZE];
+    char outputFileName[NAME_SIZE];
+    char sourceFileName[NAME_SIZE];
+    char backupFileName[NAME_SIZE];
     time_t startTime;
     int returncode;
     FILE *outFile;
@@ -1257,13 +1264,13 @@ static void testOutputToVersionFile (FILE *versionFile)
             REDIRECT_FILEDES_1, testNumber, REDIRECT_FILEDES_2, testNumber);
 #endif
 #endif
-    sprintf(fileName, "ctest%d.out", testNumber);
+    sprintf(outputFileName, "ctest%d.out", testNumber);
     startTime = time(NULL);
     do {
       returncode = system(command);
       if (returncode != -1) {
-        if (fileIsPresentPossiblyAfterDelay(fileName)) {
-          outFile = fopen(fileName, "r");
+        if (fileIsPresentPossiblyAfterDelay(outputFileName)) {
+          outFile = fopen(outputFileName, "r");
           if (outFile != NULL) {
             ch = getc(outFile);
             readFailed = ch == EOF;
@@ -1281,11 +1288,11 @@ static void testOutputToVersionFile (FILE *versionFile)
               fclose(outFile);
             } /* if */
           } else {
-            fprintf(logFile, "\n *** Cannot open \"%s\".\n ", fileName);
+            fprintf(logFile, "\n *** Cannot open \"%s\".\n ", outputFileName);
             errorOccurred = 1;
           } /* if */
         } else {
-          fprintf(logFile, "\n *** File \"%s\" missing.\n ", fileName);
+          fprintf(logFile, "\n *** File \"%s\" missing.\n ", outputFileName);
           errorOccurred = 1;
         } /* if */
       } else {
@@ -1295,10 +1302,13 @@ static void testOutputToVersionFile (FILE *versionFile)
     } while (readFailed && !errorOccurred && time(NULL) < startTime + 5);
     if (repeatCount != 0) {
       if (readFailed) {
-        fprintf(logFile, "\n *** Cannot read data from \"%s\".\n", fileName);
+        fprintf(logFile, "\n *** Cannot read data from \"%s\".\n", outputFileName);
 #ifndef ERROR_REDIRECTING_FAILS
         showErrorsForTool("Run", ".err");
 #endif
+        sprintf(sourceFileName, "ctest%d.c", testNumber);
+        sprintf(backupFileName, "ctest%d.cbak", testNumber);
+        copyFile(sourceFileName, backupFileName);
       } else {
         numberOfSuccessfulTestsAfterRestart++;
       } /* if */
@@ -9310,9 +9320,6 @@ int main (int argc, char **argv)
                          "int main(int argc, char *argv[]){\n"
                          "wchar_t str1[] = {0x0201, 0x0102, 0};\n"
                          "wchar_t str2[] = {0x0102, 0x0201, 0};\n"
-                         "wchar_t stri1[3], stri2[3];\n"
-                         "memcpy(stri1, str1, 2 * sizeof(wchar_t));\n"
-                         "memcpy(stri2, str2, 2 * sizeof(wchar_t));\n"
                          "printf(\"%d\\n\",\n"
                          "       wmemcmp(str1, str2, 2) == 1 &&\n"
                          "       wmemcmp(str2, str1, 2) == -1);\n"
