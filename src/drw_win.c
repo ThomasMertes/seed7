@@ -409,11 +409,11 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 void drawInit (void)
 
   {
-    WNDCLASSEX wcex = {0};
+    WNDCLASSEXW wcex = {0};
     HMODULE hntdll = 0;
 
   /* drawInit */
-    wcex.cbSize        = sizeof(WNDCLASSEX);
+    wcex.cbSize        = sizeof(WNDCLASSEXW);
     wcex.style         = /* CS_HREDRAW | CS_VREDRAW | */ CS_OWNDC;
     wcex.lpfnWndProc   = (WNDPROC) WndProc;
     wcex.hInstance     = NULL;
@@ -421,9 +421,9 @@ void drawInit (void)
     wcex.hCursor       = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName  = NULL;
-    wcex.lpszClassName = windowClass;
+    wcex.lpszClassName = windowClassW;
     wcex.hIconSm       = NULL;
-    RegisterClassEx(&wcex);
+    RegisterClassExW(&wcex);
     hntdll = LoadLibraryA("kernel32.dll");
     if (hntdll != 0) {
       pGetConsoleWindow = (pGetConsoleWindowType) GetProcAddress(hntdll, "GetConsoleWindow");
@@ -1491,19 +1491,6 @@ winType drwOpen (intType xPos, intType yPos,
           if (ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes)) {
             memset(result, 0, sizeof(win_winRecord));
             result->usage_count = 1;
-#ifdef OUT_OF_ORDER
-            printf("SM_CXBORDER=%d\n",    GetSystemMetrics(SM_CXBORDER));
-            printf("SM_CYBORDER=%d\n",    GetSystemMetrics(SM_CYBORDER));
-            printf("SM_CXSIZE=%d\n",      GetSystemMetrics(SM_CXSIZE));
-            printf("SM_CYSIZE=%d\n",      GetSystemMetrics(SM_CYSIZE));
-            printf("SM_CXSIZEFRAME=%d\n", GetSystemMetrics(SM_CXSIZEFRAME));
-            printf("SM_CYSIZEFRAME=%d\n", GetSystemMetrics(SM_CYSIZEFRAME));
-            printf("SM_CXEDGE=%d\n",      GetSystemMetrics(SM_CXEDGE));
-            printf("SM_CYEDGE=%d\n",      GetSystemMetrics(SM_CYEDGE));
-            printf("width=%d\n",          width + 2 * GetSystemMetrics(SM_CXSIZEFRAME));
-            printf("height=%d\n",         height + 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
-                GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER));
-#endif
             result->hWnd = CreateWindowW(windowClassW, winName,
                 WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
                 (int) xPos, (int) yPos,

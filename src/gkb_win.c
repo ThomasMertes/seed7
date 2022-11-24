@@ -58,6 +58,7 @@
 #else
 #define traceEvent(traceStatements)
 #endif
+#define traceEventX(traceStatements) traceStatements
 
 static intType button_x = 0;
 static intType button_y = 0;
