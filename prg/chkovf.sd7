@@ -3869,14 +3869,36 @@ const proc: check_div is func
     var boolean: okay is TRUE;
   begin
     if  not raisesOverflowError(                      INT64_MIN   div         -1 ) or
-        not raisesOverflowError(intExpr(              INT64_MIN)  div         -1 ) or
         not raisesOverflowError(                      INT64_MIN   div intExpr(-1)) or
-        not raisesOverflowError(intExpr(              INT64_MIN)  div intExpr(-1)) or
         not raisesOverflowError(        (-9223372036854775807-1)  div         -1 ) or
-        not raisesOverflowError(intExpr((-9223372036854775807-1)) div         -1 ) or
         not raisesOverflowError(        (-9223372036854775807-1)  div intExpr(-1)) or
+        not raisesOverflowError(intExpr(              INT64_MIN)  div         -1 ) or
+        not raisesOverflowError(intExpr(              INT64_MIN)  div intExpr(-1)) or
+        not raisesOverflowError(intExpr((-9223372036854775807-1)) div         -1 ) or
         not raisesOverflowError(intExpr((-9223372036854775807-1)) div intExpr(-1)) then
-      writeln(" ***** Computing -9223372036854775808 div -1 does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Computing integer.first div -1 does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(          integer.first   div                   -1)    or
+        not raisesOverflowError(          integer.first   div  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(          integer.first   div       -abs(intExpr(1)))  or
+        not raisesOverflowError(          integer.first   div  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(          integer.first   div  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(          integer.first   div -ord(rand(TRUE, TRUE)))  or
+        not raisesOverflowError(pred(-abs(integer.last )) div                   -1)    or
+        not raisesOverflowError(pred(-abs(integer.last )) div  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(pred(-abs(integer.last )) div       -abs(intExpr(1)))  or
+        not raisesOverflowError(pred(-abs(integer.last )) div  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(pred(-abs(integer.last )) div  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(pred(-abs(integer.last )) div -ord(rand(TRUE, TRUE)))  or
+        not raisesOverflowError(intExpr(  integer.first)  div                   -1)    or
+        not raisesOverflowError(intExpr(  integer.first)  div  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(intExpr(  integer.first)  div       -abs(intExpr(1)))  or
+        not raisesOverflowError(intExpr(  integer.first)  div  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(intExpr(  integer.first)  div  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(intExpr(  integer.first)  div -ord(rand(TRUE, TRUE)))  then
+      writeln(" ***** Computing integer.first div -1 does not raise OVERFLOW_ERROR. (2)");
       okay := FALSE;
     end if;
 
@@ -3895,18 +3917,18 @@ const proc: check_rem is func
     # An integer expression must either raise OVERFLOW_ERROR or return the correct result.
     if  not (raisesOverflowError(                     INT64_MIN  rem         -1 )      or
                                                       INT64_MIN  rem         -1   = 0) or
-        not (raisesOverflowError(intExpr(             INT64_MIN) rem         -1 )      or
-                                 intExpr(             INT64_MIN) rem         -1   = 0) or
         not (raisesOverflowError(                     INT64_MIN  rem intExpr(-1))      or
                                                       INT64_MIN  rem intExpr(-1)  = 0) or
-        not (raisesOverflowError(intExpr(             INT64_MIN) rem intExpr(-1))      or
-                                 intExpr(             INT64_MIN) rem intExpr(-1)  = 0) or
         not (raisesOverflowError(       (-9223372036854775807-1) rem         -1 )      or
                                         (-9223372036854775807-1) rem         -1   = 0) or
-        not (raisesOverflowError(intExpr(-9223372036854775807-1) rem         -1 )      or
-                                 intExpr(-9223372036854775807-1) rem         -1   = 0) or
         not (raisesOverflowError(       (-9223372036854775807-1) rem intExpr(-1))      or
                                         (-9223372036854775807-1) rem intExpr(-1)  = 0) or
+        not (raisesOverflowError(intExpr(             INT64_MIN) rem         -1 )      or
+                                 intExpr(             INT64_MIN) rem         -1   = 0) or
+        not (raisesOverflowError(intExpr(             INT64_MIN) rem intExpr(-1))      or
+                                 intExpr(             INT64_MIN) rem intExpr(-1)  = 0) or
+        not (raisesOverflowError(intExpr(-9223372036854775807-1) rem         -1 )      or
+                                 intExpr(-9223372036854775807-1) rem         -1   = 0) or
         not (raisesOverflowError(intExpr(-9223372036854775807-1) rem intExpr(-1))      or
                                  intExpr(-9223372036854775807-1) rem intExpr(-1)  = 0) then
       writeln(" ***** Computing -9223372036854775808 rem -1 does neither raise OVERFLOW_ERROR nor return 0.");
@@ -3926,14 +3948,36 @@ const proc: check_mdiv is func
     var boolean: okay is TRUE;
   begin
     if  not raisesOverflowError(                      INT64_MIN   mdiv         -1 ) or
-        not raisesOverflowError(intExpr(              INT64_MIN)  mdiv         -1 ) or
         not raisesOverflowError(                      INT64_MIN   mdiv intExpr(-1)) or
-        not raisesOverflowError(intExpr(              INT64_MIN)  mdiv intExpr(-1)) or
         not raisesOverflowError(        (-9223372036854775807-1)  mdiv         -1 ) or
-        not raisesOverflowError(intExpr((-9223372036854775807-1)) mdiv         -1 ) or
         not raisesOverflowError(        (-9223372036854775807-1)  mdiv intExpr(-1)) or
+        not raisesOverflowError(intExpr(              INT64_MIN)  mdiv         -1 ) or
+        not raisesOverflowError(intExpr(              INT64_MIN)  mdiv intExpr(-1)) or
+        not raisesOverflowError(intExpr((-9223372036854775807-1)) mdiv         -1 ) or
         not raisesOverflowError(intExpr((-9223372036854775807-1)) mdiv intExpr(-1)) then
-      writeln(" ***** Computing -9223372036854775808 mdiv -1 does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Computing integer.first mdiv -1 does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(          integer.first   mdiv                   -1)    or
+        not raisesOverflowError(          integer.first   mdiv  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(          integer.first   mdiv       -abs(intExpr(1)))  or
+        not raisesOverflowError(          integer.first   mdiv  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(          integer.first   mdiv  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(          integer.first   mdiv -ord(rand(TRUE, TRUE)))  or
+        not raisesOverflowError(pred(-abs(integer.last )) mdiv                   -1)    or
+        not raisesOverflowError(pred(-abs(integer.last )) mdiv  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(pred(-abs(integer.last )) mdiv       -abs(intExpr(1)))  or
+        not raisesOverflowError(pred(-abs(integer.last )) mdiv  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(pred(-abs(integer.last )) mdiv  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(pred(-abs(integer.last )) mdiv -ord(rand(TRUE, TRUE)))  or
+        not raisesOverflowError(intExpr(  integer.first)  mdiv                   -1)    or
+        not raisesOverflowError(intExpr(  integer.first)  mdiv  pred(-abs(intExpr(0)))) or
+        not raisesOverflowError(intExpr(  integer.first)  mdiv       -abs(intExpr(1)))  or
+        not raisesOverflowError(intExpr(  integer.first)  mdiv  succ(-abs(intExpr(2)))) or
+        not raisesOverflowError(intExpr(  integer.first)  mdiv  pred( abs(intExpr(0)))) or
+        not raisesOverflowError(intExpr(  integer.first)  mdiv -ord(rand(TRUE, TRUE)))  then
+      writeln(" ***** Computing integer.first mdiv -1 does not raise OVERFLOW_ERROR. (2)");
       okay := FALSE;
     end if;
 
@@ -3952,46 +3996,104 @@ const proc: check_mod is func
     # An integer expression must either raise OVERFLOW_ERROR or return the correct result.
     if  not (raisesOverflowError(                     INT64_MIN  mod         -1 )      or
                                                       INT64_MIN  mod         -1   = 0) or
-        not (raisesOverflowError(intExpr(             INT64_MIN) mod         -1 )      or
-                                 intExpr(             INT64_MIN) mod         -1   = 0) or
         not (raisesOverflowError(                     INT64_MIN  mod intExpr(-1))      or
                                                       INT64_MIN  mod intExpr(-1)  = 0) or
-        not (raisesOverflowError(intExpr(             INT64_MIN) mod intExpr(-1))      or
-                                 intExpr(             INT64_MIN) mod intExpr(-1)  = 0) or
         not (raisesOverflowError(       (-9223372036854775807-1) mod         -1 )      or
                                         (-9223372036854775807-1) mod         -1   = 0) or
-        not (raisesOverflowError(intExpr(-9223372036854775807-1) mod         -1 )      or
-                                 intExpr(-9223372036854775807-1) mod         -1   = 0) or
         not (raisesOverflowError(       (-9223372036854775807-1) mod intExpr(-1))      or
                                         (-9223372036854775807-1) mod intExpr(-1)  = 0) or
+        not (raisesOverflowError(intExpr(             INT64_MIN) mod         -1 )      or
+                                 intExpr(             INT64_MIN) mod         -1   = 0) or
+        not (raisesOverflowError(intExpr(             INT64_MIN) mod intExpr(-1))      or
+                                 intExpr(             INT64_MIN) mod intExpr(-1)  = 0) or
+        not (raisesOverflowError(intExpr(-9223372036854775807-1) mod         -1 )      or
+                                 intExpr(-9223372036854775807-1) mod         -1   = 0) or
         not (raisesOverflowError(intExpr(-9223372036854775807-1) mod intExpr(-1))      or
                                  intExpr(-9223372036854775807-1) mod intExpr(-1)  = 0) then
       writeln(" ***** Computing -9223372036854775808 mod -1 does neither raise OVERFLOW_ERROR nor return 0.");
       okay := FALSE;
     end if;
 
-    if  not raisesOverflowError((1          <<         -1 ) mod 32) or
-        not raisesOverflowError((1          << intExpr(-1)) mod 32) or
+    if  not raisesOverflowError((        1  <<         -1 ) mod 32) or
+        not raisesOverflowError((        1  << intExpr(-1)) mod 32) or
+        not raisesOverflowError((        1  <<         64 ) mod 32) or
+        not raisesOverflowError((        1  << intExpr(64)) mod 32) or
+        not raisesOverflowError((        1  <<         rand(integer.first,           -1 )) mod 32) or
+        not raisesOverflowError((        1  << intExpr(rand(integer.first,           -1))) mod 32) or
+        not raisesOverflowError((        1  <<         rand(           64, integer.last )) mod 32) or
+        not raisesOverflowError((        1  << intExpr(rand(           64, integer.last))) mod 32) or
         not raisesOverflowError((intExpr(1) <<         -1 ) mod 32) or
         not raisesOverflowError((intExpr(1) << intExpr(-1)) mod 32) or
-        not raisesOverflowError((intExpr(1  <<         -1)) mod 32) then
-      writeln(" ***** Computing (1 << -1) mod 32 does not raise OVERFLOW_ERROR.");
+        not raisesOverflowError((intExpr(1  <<         -1)) mod 32) or
+        not raisesOverflowError((intExpr(1) <<         64 ) mod 32) or
+        not raisesOverflowError((intExpr(1) << intExpr(64)) mod 32) or
+        not raisesOverflowError((intExpr(1  <<         64)) mod 32) or
+        not raisesOverflowError((intExpr(1) <<         rand(integer.first,           -1 )) mod 32) or
+        not raisesOverflowError((intExpr(1) << intExpr(rand(integer.first,           -1))) mod 32) or
+        not raisesOverflowError((intExpr(1  <<         rand(integer.first,           -1))) mod 32) or
+        not raisesOverflowError((intExpr(1) <<         rand(           64, integer.last )) mod 32) or
+        not raisesOverflowError((intExpr(1) << intExpr(rand(           64, integer.last))) mod 32) or
+        not raisesOverflowError((intExpr(1  <<         rand(           64, integer.last))) mod 32) or
+        not raisesOverflowError(succ(        1  <<         -1 ) mod 32) or
+        not raisesOverflowError(succ(        1  << intExpr(-1)) mod 32) or
+        not raisesOverflowError(succ(        1  <<         64 ) mod 32) or
+        not raisesOverflowError(succ(        1  << intExpr(64)) mod 32) or
+        not raisesOverflowError(succ(        1  <<         rand(integer.first, -1 )) mod 32) or
+        not raisesOverflowError(succ(        1  << intExpr(rand(integer.first, -1))) mod 32) or
+        not raisesOverflowError(succ(        1  <<         rand(           64, integer.last )) mod 32) or
+        not raisesOverflowError(succ(        1  << intExpr(rand(           64, integer.last))) mod 32) or
+        not raisesOverflowError(succ(intExpr(1) <<         -1 ) mod 32) or
+        not raisesOverflowError(succ(intExpr(1) << intExpr(-1)) mod 32) or
+        not raisesOverflowError(succ(intExpr(1  <<         -1)) mod 32) or
+        not raisesOverflowError(succ(intExpr(1) <<         64 ) mod 32) or
+        not raisesOverflowError(succ(intExpr(1) << intExpr(64)) mod 32) or
+        not raisesOverflowError(succ(intExpr(1  <<         64)) mod 32) or
+        not raisesOverflowError(succ(intExpr(1) <<         rand(integer.first, -1 )) mod 32) or
+        not raisesOverflowError(succ(intExpr(1) << intExpr(rand(integer.first, -1))) mod 32) or
+        not raisesOverflowError(succ(intExpr(1  <<         rand(integer.first, -1))) mod 32) or
+        not raisesOverflowError(succ(intExpr(1) <<         rand(           64, integer.last )) mod 32) or
+        not raisesOverflowError(succ(intExpr(1) << intExpr(rand(           64, integer.last))) mod 32) or
+        not raisesOverflowError(succ(intExpr(1  <<         rand(           64, integer.last))) mod 32) then
+      writeln(" ***** Computing (1 << lshift) mod 32 with invalid lshift does not raise OVERFLOW_ERROR.");
       okay := FALSE;
     end if;
 
-    if  not raisesOverflowError(succ(1          <<         -1 ) mod 32) or
-        not raisesOverflowError(succ(1          << intExpr(-1)) mod 32) or
-        not raisesOverflowError(succ(intExpr(1) <<         -1 ) mod 32) or
-        not raisesOverflowError(succ(intExpr(1) << intExpr(-1)) mod 32) or
-        not raisesOverflowError(succ(intExpr(1  <<         -1)) mod 32) then
-      writeln(" ***** Computing succ(1 << -1) mod 32 does not raise OVERFLOW_ERROR.");
+    if  not raisesOverflowError((        2  **         64 ) mod 32) or
+        not raisesOverflowError((        2  ** intExpr(64)) mod 32) or
+        not raisesOverflowError((        2  **         rand(64, integer.last )) mod 32) or
+        not raisesOverflowError((        2  ** intExpr(rand(64, integer.last))) mod 32) or
+        not raisesOverflowError((intExpr(2) **         64 ) mod 32) or
+        not raisesOverflowError((intExpr(2) ** intExpr(64)) mod 32) or
+        not raisesOverflowError((intExpr(2  **         64)) mod 32) or
+        not raisesOverflowError((intExpr(2) **         rand(64, integer.last )) mod 32) or
+        not raisesOverflowError((intExpr(2) ** intExpr(rand(64, integer.last))) mod 32) or
+        not raisesOverflowError((intExpr(2  **         rand(64, integer.last))) mod 32) or
+        not raisesOverflowError(succ(        2  ** intExpr(64)) mod 32) or
+        not raisesOverflowError(succ(        2  **         64 ) mod 32) or
+        not raisesOverflowError(succ(        2  **         rand(64, integer.last )) mod 32) or
+        not raisesOverflowError(succ(        2  ** intExpr(rand(64, integer.last))) mod 32) or
+        not raisesOverflowError(succ(intExpr(2) **         64 ) mod 32) or
+        not raisesOverflowError(succ(intExpr(2) ** intExpr(64)) mod 32) or
+        not raisesOverflowError(succ(intExpr(2  **         64)) mod 32) or
+        not raisesOverflowError(succ(intExpr(2) **         rand(64, integer.last )) mod 32) or
+        not raisesOverflowError(succ(intExpr(2) ** intExpr(rand(64, integer.last))) mod 32) or
+        not raisesOverflowError(succ(intExpr(2  **         rand(64, integer.last))) mod 32) then
+      writeln(" ***** Computing (1 ** exponent) mod 32 with negative exponent does not raise OVERFLOW_ERROR.");
       okay := FALSE;
     end if;
 
     if  not raisesOverflowError(        5678901234567890123  mod (1 <<         -1 )) or
         not raisesOverflowError(        5678901234567890123  mod (1 << intExpr(-1))) or
+        not raisesOverflowError(        5678901234567890123  mod (1 <<         64 )) or
+        not raisesOverflowError(        5678901234567890123  mod (1 << intExpr(64))) or
+        not raisesOverflowError(        5678901234567890123  mod (2 **         64 )) or
+        not raisesOverflowError(        5678901234567890123  mod (2 ** intExpr(64))) or
         not raisesOverflowError(intExpr(5678901234567890123) mod (1 <<         -1 )) or
-        not raisesOverflowError(intExpr(5678901234567890123) mod (1 << intExpr(-1))) then
+        not raisesOverflowError(intExpr(5678901234567890123) mod (1 << intExpr(-1))) or
+        not raisesOverflowError(intExpr(5678901234567890123) mod (1 <<         64 )) or
+        not raisesOverflowError(intExpr(5678901234567890123) mod (1 << intExpr(64))) or
+        not raisesOverflowError(intExpr(5678901234567890123) mod (2 **         64 )) or
+        not raisesOverflowError(intExpr(5678901234567890123) mod (2 ** intExpr(64))) then
       writeln(" ***** mod by computed power of two does not raise OVERFLOW_ERROR.");
       okay := FALSE;
     end if;
@@ -4049,6 +4151,18 @@ const func boolean: check_reduced_overflow_checking_for_lshift is func
         not raisesOverflowError(( 4611686018427387904 >> intExpr( 0)) <<  1) or
         not raisesOverflowError((        integer.last >> intExpr( 0)) <<  1)  then
       writeln(" ***** Reduced overflow check for lshift failed: Maximum rshift result if the shifted value is known.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(rand(                          -2,  intExpr(                  -2)) << 63) or
+        not raisesOverflowError(rand(intExpr(                   1),                            1 ) << 63) or
+        not raisesOverflowError(rand(                          -3,  intExpr(                  -3)) << 62) or
+        not raisesOverflowError(rand(intExpr(                   2),                            2 ) << 62) or
+        not raisesOverflowError(rand(                 -8589934593,  intExpr(         -8589934593)) << 30) or
+        not raisesOverflowError(rand(intExpr(          8589934592),                   8589934592 ) << 30) or
+        not raisesOverflowError(rand(        -4611686018427387905,  intExpr(-4611686018427387905)) <<  1) or
+        not raisesOverflowError(rand(intExpr( 4611686018427387904),          4611686018427387904 ) <<  1) then
+      writeln(" ***** Reduced overflow check for lshift failed: Range shifted with constant lshift amount.");
       okay := FALSE;
     end if;
   end func;
@@ -6726,11 +6840,12 @@ const proc: check_abs is func
   local
     var boolean: okay is TRUE;
   begin
-    if  not raisesOverflowError(abs(                      INT64_MIN))   or
-        not raisesOverflowError(abs(intExpr(              INT64_MIN)))  or
-        not raisesOverflowError(abs(        (-9223372036854775807-1)))  or
-        not raisesOverflowError(abs(intExpr((-9223372036854775807-1)))) then
-      writeln(" ***** Overflow when computing abs(-9223372036854775808) does not work correct.");
+    if  not raisesOverflowError(     abs(                    integer.first )    ) or
+        not raisesOverflowError(     abs(            intExpr(integer.first))    ) or
+        not raisesOverflowError(     abs(rand(integer.first, integer.first))    ) or
+        not raisesOverflowError(     abs(rand(integer.first, integer.first)) - 1) or
+        not raisesOverflowError(pred(abs(rand(integer.first, integer.first))   )) then
+      writeln(" ***** Overflow when computing abs(integer.first) does not work correct.");
       okay := FALSE;
     end if;
 

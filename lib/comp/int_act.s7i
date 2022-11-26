@@ -1425,7 +1425,7 @@ const proc: process (INT_ABS, in reference: function,
           end if;
         end if;
       else
-        if check_int_arithmetic_overflow then
+        if check_int_abs_overflow and check_int_arithmetic_overflow then
           countOverflowOptimizations(c_expr);
         end if;
         if number_range.minValue >= 0 then
@@ -1564,11 +1564,11 @@ const proc: process (INT_ADD_ASSIGN, in reference: function,
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_add_assign(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif check_int_arithmetic_overflow then
-      incr(countOverflowChecks);
       deltaRange := getIntRange(params[3]);
       if deltaRange.minValue = 0 and deltaRange.maxValue = 0 then
         c_expr.expr &:= "/* ignore integer +:= 0; */\n";
       else
+        incr(countOverflowChecks);
         variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
         if ccConf.BUILTIN_ADD_OVERFLOW <> "" then
           statement.expr &:= "ovfChk(";
@@ -1809,7 +1809,7 @@ const proc: optimize_int_bytes_2_uint_length_1 (in reference: stri,
       start_value := getValue(evaluatedParam, integer);
       if start_value < 1 then
         warning(DOES_RAISE, "INDEX_ERROR", c_expr);
-        c_expr.expr &:= strRaiseError("INDEX_ERROR");
+        c_expr.expr &:= intRaiseError("INDEX_ERROR");
         raisesIndexError := TRUE;
       else
         start_name := integerLiteral(start_value);
@@ -1864,12 +1864,15 @@ const proc: optimize_int_bytes_be_2_uint (in reference: stri, in integer: length
     var string: stri_name is "";
     var integer: index is 0;
   begin
-    if length = 0 then
+    if length < 0 then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("INDEX_ERROR");
+    elsif length = 0 then
       optimize_int_bytes_2_uint_length_0(getValue(stri, ref_list)[4], c_expr);
     elsif length = 1 then
       optimize_int_bytes_2_uint_length_1(getValue(stri, ref_list)[2],
           getValue(stri, ref_list)[4], c_expr);
-    elsif length >= 1 and length <= 8 then
+    elsif length >= 2 and length <= 8 then
       incr(countOptimizations);
       incr(countInlinedFunctions);
       c_expr.expr &:= "(";
@@ -1926,13 +1929,14 @@ const proc: optimize_int_bytes_be_2_uint (in reference: stri, in integer: length
 const proc: process (INT_BYTES_BE_2_UINT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
     if inlineFunctions and
         isActionExpression(params[1], "STR_SUBSTR") and
-        category(getValue(params[1], ref_list)[6]) = INTOBJECT and
-        not isVar(getValue(params[1], ref_list)[6]) then
+        getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
       optimize_int_bytes_be_2_uint(params[1],
-          getValue(getValue(params[1], ref_list)[6], integer), c_expr);
+          getValue(evaluatedParam, integer), c_expr);
     else
       c_expr.expr &:= "intBytesBe2UInt(";
       getAnyParamToExpr(params[1], c_expr);
@@ -2005,7 +2009,7 @@ const proc: optimize_int_bytes_le_2_uint (in reference: stri,
       start_value := getValue(evaluatedParam, integer);
       if start_value < 1 then
         warning(DOES_RAISE, "INDEX_ERROR", c_expr);
-        c_expr.expr &:= strRaiseError("INDEX_ERROR");
+        c_expr.expr &:= intRaiseError("INDEX_ERROR");
         raisesIndexError := TRUE;
       else
         start_name := integerLiteral(start_value);
@@ -2110,7 +2114,10 @@ const proc: optimize_int_bytes_le_2_uint (in reference: stri, in integer: length
       c_expr.expr &:= intRaiseError("INDEX_ERROR");
     elsif length = 0 then
       optimize_int_bytes_2_uint_length_0(getValue(stri, ref_list)[4], c_expr);
-    elsif length >= 1 and length <= 8 then
+    elsif length = 1 then
+      optimize_int_bytes_2_uint_length_1(getValue(stri, ref_list)[2],
+          getValue(stri, ref_list)[4], c_expr);
+    elsif length >= 2 and length <= 8 then
       optimize_int_bytes_le_2_uint(getValue(stri, ref_list)[2],
           getValue(stri, ref_list)[4], length, c_expr);
     else
@@ -2124,13 +2131,14 @@ const proc: optimize_int_bytes_le_2_uint (in reference: stri, in integer: length
 const proc: process (INT_BYTES_LE_2_UINT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
     if inlineFunctions and
         isActionExpression(params[1], "STR_SUBSTR") and
-        category(getValue(params[1], ref_list)[6]) = INTOBJECT and
-        not isVar(getValue(params[1], ref_list)[6]) then
+        getConstant(getActionParameter(params[1], 5), INTOBJECT, evaluatedParam) then
       optimize_int_bytes_le_2_uint(params[1],
-          getValue(getValue(params[1], ref_list)[6], integer), c_expr);
+          getValue(evaluatedParam, integer), c_expr);
     else
       c_expr.expr &:= "intBytesLe2UInt(";
       getAnyParamToExpr(params[1], c_expr);
@@ -2326,31 +2334,46 @@ const proc: process_const_int_div (in integer: dividend, in reference: divisor,
       end if;
     elsif check_int_division_overflow and dividend = integer.first then
       # integer.first / -1 causes an integer overflow.
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
-      c_expr.expr &:= "ovfChk(";
-      c_expr.expr &:= divisor_name;
-      c_expr.expr &:= "==-1";
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":";
-      if check_int_div_by_zero then
-        if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-          incr(countDivisionChecks);
-          c_expr.expr &:= "divChk(";
-          c_expr.expr &:= divisor_name;
-          c_expr.expr &:= "==0)?";
-          c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
-          c_expr.expr &:= ":";
-        else
+      if divisor_range.maxValue < -1 or divisor_range.minValue > 0 then
+        # No checks for integer overflow and division by zero necessary.
+        countOverflowOptimizations(c_expr);
+        if check_int_div_by_zero then
           countDivisionOptimizations(c_expr);
         end if;
+        c_expr.expr &:= integerLiteral(dividend);
+        c_expr.expr &:= " / (";
+        process_expr(divisor, c_expr);
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= "(";
+        divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
+        if divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
+          incr(countOverflowChecks);
+          c_expr.expr &:= "ovfChk(";
+          c_expr.expr &:= divisor_name;
+          c_expr.expr &:= "==-1)?";
+          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+          c_expr.expr &:= ":";
+        else
+          countOverflowOptimizations(c_expr);
+        end if;
+        if check_int_div_by_zero then
+          if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
+            incr(countDivisionChecks);
+            c_expr.expr &:= "divChk(";
+            c_expr.expr &:= divisor_name;
+            c_expr.expr &:= "==0)?";
+            c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+            c_expr.expr &:= ":";
+          else
+            countDivisionOptimizations(c_expr);
+          end if;
+        end if;
+        c_expr.expr &:= integerLiteral(dividend);
+        c_expr.expr &:= " / ";
+        c_expr.expr &:= divisor_name;
+        c_expr.expr &:= ")";
       end if;
-      c_expr.expr &:= integerLiteral(dividend);
-      c_expr.expr &:= " / ";
-      c_expr.expr &:= divisor_name;
-      c_expr.expr &:= ")";
     elsif check_int_div_by_zero then
       if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
         incr(countDivisionChecks);
@@ -2388,6 +2411,7 @@ const proc: process (INT_DIV, in reference: function,
     var reference: evaluatedParam is NIL;
     var string: dividend_name is "";
     var string: divisor_name is "";
+    var intRange: dividend_range is intRange.value;
     var intRange: divisor_range is intRange.value;
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
@@ -2399,24 +2423,18 @@ const proc: process (INT_DIV, in reference: function,
           getValue(params[3], integer) = 0 then
       warning(DOES_RAISE, "NUMERIC_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
-    else
-      divisor_range := getIntRange(params[3]);
-      if evaluate_const_expr = 0 and check_int_div_zero_by_zero and
+    elsif evaluate_const_expr = 0 and check_int_div_zero_by_zero and
           category(params[1]) = INTOBJECT and not isVar(params[1]) and
           getValue(params[1], integer) = 0 then
-        if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
-            divisor_range.mayRaiseException then
-          incr(countDivisionChecks);
-          c_expr.expr &:= "(divChk((";
-          process_expr(params[3], c_expr);
-          c_expr.expr &:= ")==0)?";
-          c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
-          c_expr.expr &:= ":0)";
-        else
-          countDivisionOptimizations(c_expr);
-          c_expr.expr &:= "0";
-        end if;
-      elsif params[1] = params[3] then
+      incr(countDivisionChecks);
+      c_expr.expr &:= "(divChk((";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")==0)?";
+      c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":0)";
+    else
+      divisor_range := getIntRange(params[3]);
+      if params[1] = params[3] then
         # C compilers are allowed to optimize variable/variable to 1.
         # A C compiler can assume, that an "undefined behavior", like a
         # division by zero will never happen. So we need to handle this case.
@@ -2438,36 +2456,60 @@ const proc: process (INT_DIV, in reference: function,
         end if;
       elsif check_int_division_overflow then
         # integer.first / -1 causes an integer overflow.
-        incr(countOverflowChecks);
-        c_expr.expr &:= "(";
-        dividend_name := getParameterAsVariable("intType", "tmp_b_", params[1], c_expr);
-        divisor_name := getParameterAsVariable("intType", "tmp_b_", params[3], c_expr);
-        c_expr.expr &:= "ovfChk(";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "==";
-        c_expr.expr &:= integerLiteral(integer.first);
-        c_expr.expr &:= "&&";
-        c_expr.expr &:= divisor_name;
-        c_expr.expr &:= "==-1";
-        c_expr.expr &:= ")?";
-        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-        c_expr.expr &:= ":";
-        if check_int_div_by_zero then
-          if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-            incr(countDivisionChecks);
-            c_expr.expr &:= "divChk(";
-            c_expr.expr &:= divisor_name;
-            c_expr.expr &:= "==0)?";
-            c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
-            c_expr.expr &:= ":";
-          else
+        dividend_range := getIntRange(params[1]);
+        c_expr.expr &:= "/* dividend: [" <& dividend_range.minValue <& " .. " <& dividend_range.maxValue <& "], " <&
+                        "divisor: [" <& divisor_range.minValue <& " .. " <& divisor_range.maxValue <& "] */\n";
+        if (dividend_range.minValue > integer.first or
+            divisor_range.maxValue < -1 or divisor_range.minValue > -1) and
+            (not check_int_div_by_zero or
+            divisor_range.maxValue < 0 or divisor_range.minValue > 0) then
+          # No checks for integer overflow and division by zero necessary.
+          countOverflowOptimizations(c_expr);
+          if check_int_div_by_zero then
             countDivisionOptimizations(c_expr);
           end if;
+          c_expr.expr &:= "(";
+          process_expr(params[1], c_expr);
+          c_expr.expr &:= ") / (";
+          process_expr(params[3], c_expr);
+          c_expr.expr &:= ")";
+        else
+          c_expr.expr &:= "(";
+          dividend_name := getParameterAsVariable("intType", "tmp_b_", params[1], c_expr);
+          divisor_name := getParameterAsVariable("intType", "tmp_b_", params[3], c_expr);
+          if dividend_range.minValue = integer.first and
+              divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
+            incr(countOverflowChecks);
+            c_expr.expr &:= "ovfChk(";
+            c_expr.expr &:= dividend_name;
+            c_expr.expr &:= "==";
+            c_expr.expr &:= integerLiteral(integer.first);
+            c_expr.expr &:= "&&";
+            c_expr.expr &:= divisor_name;
+            c_expr.expr &:= "==-1";
+            c_expr.expr &:= ")?";
+            c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+            c_expr.expr &:= ":";
+          else
+            countOverflowOptimizations(c_expr);
+          end if;
+          if check_int_div_by_zero then
+            if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
+              incr(countDivisionChecks);
+              c_expr.expr &:= "divChk(";
+              c_expr.expr &:= divisor_name;
+              c_expr.expr &:= "==0)?";
+              c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+              c_expr.expr &:= ":";
+            else
+              countDivisionOptimizations(c_expr);
+            end if;
+          end if;
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= " / ";
+          c_expr.expr &:= divisor_name;
+          c_expr.expr &:= ")";
         end if;
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= " / ";
-        c_expr.expr &:= divisor_name;
-        c_expr.expr &:= ")";
       elsif check_int_div_by_zero then
         if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
           incr(countDivisionChecks);
@@ -2849,52 +2891,85 @@ const proc: process (INT_LSHIFT, in reference: function,
     var reference: evaluatedParam is NIL;
     var string: number_name is "";
     var string: lshift_name is "";
+    var intRange: number_range is intRange.value;
     var intRange: lshift_range is intRange.value;
+    var boolean: fullOverflowCheck is FALSE;
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_lshift(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
       process_const_int_lshift(getValue(evaluatedParam, integer), params[3], c_expr);
     elsif check_int_shift_overflow then
-      incr(countOverflowChecks);
-      c_expr.expr &:= "(";
-      number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
-      lshift_name := getParameterAsVariable("intType", "lshift_", params[3], c_expr);
+      number_range := getIntRange(params[1]);
       lshift_range := getIntRange(params[3]);
-      c_expr.expr &:= "ovfChk(";
-      if lshift_range.minValue < 0 or
-          lshift_range.maxValue >= ccConf.INTTYPE_SIZE then
-        checkRangeFromZero(lshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
-        c_expr.expr &:= "||";
+      if lshift_range.maxValue >= 0 and
+          lshift_range.maxValue < ccConf.INTTYPE_SIZE and
+          integer.first >> lshift_range.maxValue <= number_range.minValue and
+          integer.last >> lshift_range.maxValue >= number_range.maxValue then
+        if lshift_range.minValue >= 0 then
+          countOverflowOptimizations(c_expr);
+          c_expr.expr &:= "/*no_overflow_check_lshift*/(";
+          process_expr(params[1], c_expr);
+          c_expr.expr &:= ") << (";
+          process_expr(params[3], c_expr);
+          c_expr.expr &:= ")";
+        else
+          incr(countOverflowChecks);
+          c_expr.expr &:= "(";
+          lshift_name := getParameterAsVariable("intType", "lshift_", params[3], c_expr);
+          c_expr.expr &:= "ovfChk(";
+          c_expr.expr &:= lshift_name;
+          c_expr.expr &:= "<0)?";
+          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+          c_expr.expr &:= ":(";
+          process_expr(params[1], c_expr);
+          c_expr.expr &:= ") << ";
+          c_expr.expr &:= lshift_name;
+          c_expr.expr &:= ")";
+        end if;
       else
-        countOverflowOptimizations(c_expr);
+        fullOverflowCheck := TRUE;
       end if;
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= "<";
-      if ccConf.RSHIFT_DOES_SIGN_EXTEND then
-        c_expr.expr &:= integerLiteral(integer.first);
+      if fullOverflowCheck then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "(";
+        number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+        lshift_name := getParameterAsVariable("intType", "lshift_", params[3], c_expr);
+        c_expr.expr &:= "ovfChk(";
+        if lshift_range.minValue < 0 or
+            lshift_range.maxValue >= ccConf.INTTYPE_SIZE then
+          checkRangeFromZero(lshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
+          c_expr.expr &:= "||";
+        else
+          countOverflowOptimizations(c_expr);
+        end if;
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= "<";
+        if ccConf.RSHIFT_DOES_SIGN_EXTEND then
+          c_expr.expr &:= integerLiteral(integer.first);
+          c_expr.expr &:= ">>";
+          c_expr.expr &:= lshift_name;
+        else
+          c_expr.expr &:= "~(~";
+          c_expr.expr &:= integerLiteral(integer.first);
+          c_expr.expr &:= ">>";
+          c_expr.expr &:= lshift_name;
+          c_expr.expr &:= ")";
+        end if;
+        c_expr.expr &:= "||";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= ">";
+        c_expr.expr &:= integerLiteral(integer.last);
         c_expr.expr &:= ">>";
         c_expr.expr &:= lshift_name;
-      else
-        c_expr.expr &:= "~(~";
-        c_expr.expr &:= integerLiteral(integer.first);
-        c_expr.expr &:= ">>";
+        c_expr.expr &:= ")?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        c_expr.expr &:= ":";
+        c_expr.expr &:= number_name;
+        c_expr.expr &:= " << ";
         c_expr.expr &:= lshift_name;
         c_expr.expr &:= ")";
       end if;
-      c_expr.expr &:= "||";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= ">";
-      c_expr.expr &:= integerLiteral(integer.last);
-      c_expr.expr &:= ">>";
-      c_expr.expr &:= lshift_name;
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= " << ";
-      c_expr.expr &:= lshift_name;
-      c_expr.expr &:= ")";
     else
       c_expr.expr &:= "(";
       process_expr(params[1], c_expr);
@@ -3020,6 +3095,8 @@ const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
     var reference: evaluatedDividend is NIL;
     var integer: dividend_value is 0;
     var string: dividend_name is "";
+    var intRange: dividend_range is intRange.value;
+    var boolean: compareDividend is TRUE;
   begin
     incr(countOptimizations);
     if divisor = 0 then
@@ -3060,15 +3137,18 @@ const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
       #   divisor < 0 and 2 ** log2(-divisor) = -divisor
       # The check with bitLength is used to avoid negating the divisor.
       # Negating the divisor would fail for the most negative integer.
+      dividend_range := getIntRange(dividend);
       if ccConf.TWOS_COMPLEMENT_INTTYPE then
         c_expr.expr &:= "(";
         dividend_name := getParameterAsVariable("intType", "tmp_a_", dividend, c_expr);
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "==";
-        c_expr.expr &:= integerLiteral(integer.first);
-        c_expr.expr &:= "?";
-        c_expr.expr &:= integerLiteral(-(integer.first >> 1) >> pred(bitLength(divisor)));
-        c_expr.expr &:= ":";
+        if dividend_range.minValue = integer.first then
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "==";
+          c_expr.expr &:= integerLiteral(integer.first);
+          c_expr.expr &:= "?";
+          c_expr.expr &:= integerLiteral(-(integer.first >> 1) >> pred(bitLength(divisor)));
+          c_expr.expr &:= ":";
+        end if;
         if ccConf.RSHIFT_DOES_SIGN_EXTEND then
           c_expr.expr &:= "-";
           c_expr.expr &:= dividend_name;
@@ -3102,30 +3182,69 @@ const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
         end if;
       end if;
     else
-      c_expr.expr &:= "(";
-      dividend_name := getParameterAsVariable("intType", "tmp_a_", dividend, c_expr);
-      c_expr.expr &:= dividend_name;
+      dividend_range := getIntRange(dividend);
       if divisor > 0 then
-        (* Formula used: a<0?(a+1)/b-1:a/b *)
-        c_expr.expr &:= "<0?(";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "+1)/";
-        c_expr.expr &:= integerLiteral(divisor);
-        c_expr.expr &:= "-1:(intType)((uintType)";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "/";
-        c_expr.expr &:= integerLiteral(divisor);
-        c_expr.expr &:= "))";
+        if dividend_range.maxValue < 0 then
+          (* Formula used: (a+1)/b-1 *)
+          c_expr.expr &:= "((";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ")+1)/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= "-1";
+          compareDividend := FALSE;
+        elsif dividend_range.minValue >= 0 then
+          (* Formula used: a/b *)
+          c_expr.expr &:= "(intType)((uintType)(";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ")/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= ")";
+          compareDividend := FALSE;
+        end if;
       else # divisor < 0
-        (* Formula used: a>0?(a-1)/b-1:a/b *)
-        c_expr.expr &:= ">0?(";
+        if dividend_range.minValue > 0 then
+          (* Formula used: (a-1)/b-1 *)
+          c_expr.expr &:= "((";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ")-1)/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= "-1";
+          compareDividend := FALSE;
+        elsif dividend_range.maxValue <= 0 then
+          (* Formula used: a/b *)
+          c_expr.expr &:= "(";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ")/";
+          c_expr.expr &:= integerLiteral(divisor);
+          compareDividend := FALSE;
+        end if;
+      end if;
+      if compareDividend then
+        c_expr.expr &:= "(";
+        dividend_name := getParameterAsVariable("intType", "tmp_a_", dividend, c_expr);
         c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "-1)/";
-        c_expr.expr &:= integerLiteral(divisor);
-        c_expr.expr &:= "-1:";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "/";
-        c_expr.expr &:= integerLiteral(divisor);
+        if divisor > 0 then
+          (* Formula used: a<0?(a+1)/b-1:a/b *)
+          c_expr.expr &:= "<0?(";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "+1)/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= "-1:(intType)((uintType)";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= ")";
+        else # divisor < 0
+          (* Formula used: a>0?(a-1)/b-1:a/b *)
+          c_expr.expr &:= ">0?(";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "-1)/";
+          c_expr.expr &:= integerLiteral(divisor);
+          c_expr.expr &:= "-1:";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "/";
+          c_expr.expr &:= integerLiteral(divisor);
+        end if;
         c_expr.expr &:= ")";
       end if;
     end if;
@@ -3159,53 +3278,72 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: divisor,
         c_expr.expr &:= "0";
       end if;
     elsif check_int_division_overflow and dividend = integer.first then
-      incr(countOverflowChecks);
-      (* Formula used: b==-1?OVERFLOW_ERROR:b>0?(a+1)/b-1:a/b *)
-      c_expr.expr &:= "(";
-      divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
-      c_expr.expr &:= "ovfChk(";
-      c_expr.expr &:= divisor_name;
-      c_expr.expr &:= "==-1)?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":";
-      c_expr.expr &:= divisor_name;
-      c_expr.expr &:= ">0?";
-      c_expr.expr &:= integerLiteral(succ(dividend));
-      c_expr.expr &:= "/";
-      c_expr.expr &:= divisor_name;
-      c_expr.expr &:= "-1:";
-      if check_int_div_by_zero then
-        if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-          incr(countDivisionChecks);
-          c_expr.expr &:= "divChk(";
-          c_expr.expr &:= divisor_name;
-          c_expr.expr &:= "==0)?";
-          c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
-          c_expr.expr &:= ":";
-        else
+      if divisor_range.minValue > 0 then
+        # No checks for integer overflow and division by zero necessary.
+        countOverflowOptimizations(c_expr);
+        if check_int_div_by_zero then
           countDivisionOptimizations(c_expr);
         end if;
+        (* Formula used: (a+1)/b-1 *)
+        c_expr.expr &:= integerLiteral(succ(dividend));
+        c_expr.expr &:= "/(";
+        process_expr(divisor, c_expr);
+        c_expr.expr &:= ")-1";
+      else
+        (* Formula used: b==-1?OVERFLOW_ERROR:b>0?(a+1)/b-1:a/b *)
+        c_expr.expr &:= "(";
+        divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
+        if divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
+          incr(countOverflowChecks);
+          c_expr.expr &:= "ovfChk(";
+          c_expr.expr &:= divisor_name;
+          c_expr.expr &:= "==-1)?";
+          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+          c_expr.expr &:= ":";
+        else
+          countOverflowOptimizations(c_expr);
+        end if;
+        if divisor_range.maxValue > 0 then
+          c_expr.expr &:= divisor_name;
+          c_expr.expr &:= ">0?";
+          c_expr.expr &:= integerLiteral(succ(dividend));
+          c_expr.expr &:= "/";
+          c_expr.expr &:= divisor_name;
+          c_expr.expr &:= "-1:";
+        end if;
+        if check_int_div_by_zero then
+          if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
+            incr(countDivisionChecks);
+            c_expr.expr &:= "divChk(";
+            c_expr.expr &:= divisor_name;
+            c_expr.expr &:= "==0)?";
+            c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+            c_expr.expr &:= ":";
+          else
+            countDivisionOptimizations(c_expr);
+          end if;
+        end if;
+        c_expr.expr &:= integerLiteral(dividend);
+        c_expr.expr &:= "/";
+        c_expr.expr &:= divisor_name;
+        c_expr.expr &:= ")";
       end if;
-      c_expr.expr &:= integerLiteral(dividend);
-      c_expr.expr &:= "/";
-      c_expr.expr &:= divisor_name;
-      c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "(";
-      divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
       if dividend > 0 and divisor_range.maxValue < 0 then
         (* Formula used: (a-1)/b-1 *)
         c_expr.expr &:= integerLiteral(pred(dividend));
-        c_expr.expr &:= "/";
-        c_expr.expr &:= divisor_name;
-        c_expr.expr &:= "-1";
+        c_expr.expr &:= "/(";
+        process_expr(divisor, c_expr);
+        c_expr.expr &:= ")-1";
       elsif dividend < 0 and divisor_range.minValue > 0 then
         (* Formula used: (a+1)/b-1 *)
         c_expr.expr &:= integerLiteral(succ(dividend));
-        c_expr.expr &:= "/";
-        c_expr.expr &:= divisor_name;
-        c_expr.expr &:= "-1";
+        c_expr.expr &:= "/(";
+        process_expr(divisor, c_expr);
+        c_expr.expr &:= ")-1";
       else
+        c_expr.expr &:= "(";
+        divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
         if (dividend < 0 or divisor_range.minValue < 0) and
             (dividend > 0 or divisor_range.maxValue > 0) then
           c_expr.expr &:= divisor_name;
@@ -3237,8 +3375,8 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: divisor,
         c_expr.expr &:= integerLiteral(dividend);
         c_expr.expr &:= "/";
         c_expr.expr &:= divisor_name;
+        c_expr.expr &:= ")";
       end if;
-      c_expr.expr &:= ")";
     end if;
   end func;
 
@@ -3250,30 +3388,25 @@ const proc: process (INT_MDIV, in reference: function,
     var reference: evaluatedParam is NIL;
     var string: dividend_name is "";
     var string: divisor_name is "";
+    var intRange: dividend_range is intRange.value;
     var intRange: divisor_range is intRange.value;
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_mdiv(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
       process_const_int_mdiv(getValue(evaluatedParam, integer), params[3], c_expr);
-    else
-      divisor_range := getIntRange(params[3]);
-      if evaluate_const_expr = 0 and check_int_div_zero_by_zero and
+    elsif evaluate_const_expr = 0 and check_int_div_zero_by_zero and
           category(params[1]) = INTOBJECT and not isVar(params[1]) and
           getValue(params[1], integer) = 0 then
-        if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
-            divisor_range.mayRaiseException then
-          incr(countDivisionChecks);
-          c_expr.expr &:= "(divChk((";
-          process_expr(params[3], c_expr);
-          c_expr.expr &:= ")==0)?";
-          c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
-          c_expr.expr &:= ":0)";
-        else
-          countDivisionOptimizations(c_expr);
-          c_expr.expr &:= "0";
-        end if;
-      elsif params[1] = params[3] then
+      incr(countDivisionChecks);
+      c_expr.expr &:= "(divChk((";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")==0)?";
+      c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":0)";
+    else
+      divisor_range := getIntRange(params[3]);
+      if params[1] = params[3] then
         # C compilers are allowed to optimize variable/variable to 1.
         # A C compiler can assume, that an "undefined behavior", like a
         # division by zero will never happen. So we need to handle this case.
@@ -3294,55 +3427,109 @@ const proc: process (INT_MDIV, in reference: function,
           c_expr.expr &:= "1";
         end if;
       else
-        c_expr.expr &:= "(";
-        dividend_name := getParameterAsVariable("intType", "tmp_a_", params[1], c_expr);
-        divisor_name := getParameterAsVariable("intType", "tmp_b_", params[3], c_expr);
+        dividend_range := getIntRange(params[1]);
         (* Formula used: a>0&&b<0?(a-1)/b-1:a<0&&b>0?(a+1)/b-1:a/b *)
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= ">0&&";
-        c_expr.expr &:= divisor_name;
-        c_expr.expr &:= "<0?(";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "-1)/";
-        c_expr.expr &:= divisor_name;
-        c_expr.expr &:= "-1:";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "<0&&";
-        c_expr.expr &:= divisor_name;
-        c_expr.expr &:= ">0?(";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "+1)/";
-        c_expr.expr &:= divisor_name;
-        c_expr.expr &:= "-1:";
-        if check_int_div_by_zero then
-          if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
-            incr(countDivisionChecks);
-            c_expr.expr &:= "divChk(";
-            c_expr.expr &:= divisor_name;
-            c_expr.expr &:= "==0)?";
-            c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
-            c_expr.expr &:= ":";
-          else
+        if dividend_range.minValue > 0 and divisor_range.maxValue < 0 then
+          # No checks for integer overflow and division by zero necessary.
+          if check_int_division_overflow then
+            countOverflowOptimizations(c_expr);
+          end if;
+          if check_int_div_by_zero then
             countDivisionOptimizations(c_expr);
           end if;
-        end if;
-        if check_int_division_overflow then
-          incr(countOverflowChecks);
-          c_expr.expr &:= "ovfChk(";
+          c_expr.expr &:= "((";
+          process_expr(params[1], c_expr);
+          c_expr.expr &:= ")-1)/(";
+          process_expr(params[3], c_expr);
+          c_expr.expr &:= ")-1";
+        elsif dividend_range.maxValue < 0 and divisor_range.minValue > 0 then
+          # No checks for integer overflow and division by zero necessary.
+          if check_int_division_overflow then
+            countOverflowOptimizations(c_expr);
+          end if;
+          if check_int_div_by_zero then
+            countDivisionOptimizations(c_expr);
+          end if;
+          c_expr.expr &:= "((";
+          process_expr(params[1], c_expr);
+          c_expr.expr &:= ")+1)/(";
+          process_expr(params[3], c_expr);
+          c_expr.expr &:= ")-1";
+        else
+          c_expr.expr &:= "(";
+          dividend_name := getParameterAsVariable("intType", "tmp_a_", params[1], c_expr);
+          divisor_name := getParameterAsVariable("intType", "tmp_b_", params[3], c_expr);
+          if dividend_range.maxValue > 0 and divisor_range.minValue < 0 then
+            if dividend_range.minValue <= 0 then
+              c_expr.expr &:= dividend_name;
+              c_expr.expr &:= ">0";
+              if divisor_range.maxValue >= 0 then
+                c_expr.expr &:= "&&";
+              end if;
+            end if;
+            if divisor_range.maxValue >= 0 then
+              c_expr.expr &:= divisor_name;
+              c_expr.expr &:= "<0";
+            end if;
+            c_expr.expr &:= "?(";
+            c_expr.expr &:= dividend_name;
+            c_expr.expr &:= "-1)/";
+            c_expr.expr &:= divisor_name;
+            c_expr.expr &:= "-1:";
+          end if;
+          if dividend_range.minValue < 0 and divisor_range.maxValue > 0 then
+            if dividend_range.maxValue >= 0 then
+              c_expr.expr &:= dividend_name;
+              c_expr.expr &:= "<0";
+              if divisor_range.minValue <= 0 then
+                c_expr.expr &:= "&&";
+              end if;
+            end if;
+            if divisor_range.minValue <= 0 then
+              c_expr.expr &:= divisor_name;
+              c_expr.expr &:= ">0";
+            end if;
+            c_expr.expr &:= "?(";
+            c_expr.expr &:= dividend_name;
+            c_expr.expr &:= "+1)/";
+            c_expr.expr &:= divisor_name;
+            c_expr.expr &:= "-1:";
+          end if;
+          if check_int_div_by_zero then
+            if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
+              incr(countDivisionChecks);
+              c_expr.expr &:= "divChk(";
+              c_expr.expr &:= divisor_name;
+              c_expr.expr &:= "==0)?";
+              c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+              c_expr.expr &:= ":";
+            else
+              countDivisionOptimizations(c_expr);
+            end if;
+          end if;
+          if check_int_division_overflow then
+            if dividend_range.minValue = integer.first and
+                divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
+              incr(countOverflowChecks);
+              c_expr.expr &:= "ovfChk(";
+              c_expr.expr &:= dividend_name;
+              c_expr.expr &:= "==";
+              c_expr.expr &:= integerLiteral(integer.first);
+              c_expr.expr &:= "&&";
+              c_expr.expr &:= divisor_name;
+              c_expr.expr &:= "==-1";
+              c_expr.expr &:= ")?";
+              c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+              c_expr.expr &:= ":";
+            else
+              countOverflowOptimizations(c_expr);
+            end if;
+          end if;
           c_expr.expr &:= dividend_name;
-          c_expr.expr &:= "==";
-          c_expr.expr &:= integerLiteral(integer.first);
-          c_expr.expr &:= "&&";
+          c_expr.expr &:= "/";
           c_expr.expr &:= divisor_name;
-          c_expr.expr &:= "==-1";
-          c_expr.expr &:= ")?";
-          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-          c_expr.expr &:= ":";
+          c_expr.expr &:= ")";
         end if;
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "/";
-        c_expr.expr &:= divisor_name;
-        c_expr.expr &:= ")";
       end if;
     end if;
   end func;
@@ -3642,6 +3829,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
 
   local
     var reference: evaluatedDividend is NIL;
+    var reference: evaluatedLshift is NIL;
     var integer: dividend_value is 0;
     var string: dividend_name is "";
     var string: remainder_name is "";
@@ -3690,11 +3878,9 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
       incr(countOptimizations);
       if modDividendOptimization then
         if isActionExpression(dividend, "INT_LSHIFT") and
-            category(getValue(dividend, ref_list)[4]) = INTOBJECT and
-            not isVar(getValue(dividend, ref_list)[4]) then
-          optimize_mod_of_left_shifted_value(getValue(dividend, ref_list)[2],
-              getValue(getValue(dividend, ref_list)[4], integer),
-              log2(divisor), c_expr);
+            getConstant(getActionParameter(dividend, 3), INTOBJECT, evaluatedLshift) then
+          optimize_mod_of_left_shifted_value(getActionParameter(dividend, 1),
+              getValue(evaluatedLshift, integer), log2(divisor), c_expr);
         else
           optimize_mod_dividend(dividend, c_expr);
           c_expr.expr &:= "&";
@@ -3811,13 +3997,16 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
       divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
       remainder_name := defineTempVariable("intType", "tmp_c_", c_expr);
       if check_int_division_overflow and dividend = integer.first then
-        incr(countOverflowChecks);
-        c_expr.expr &:= "ovfChk(";
-        c_expr.expr &:= divisor_name;
-        c_expr.expr &:= "==-1";
-        c_expr.expr &:= ")?";
-        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-        c_expr.expr &:= ":";
+        if divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
+          incr(countOverflowChecks);
+          c_expr.expr &:= "ovfChk(";
+          c_expr.expr &:= divisor_name;
+          c_expr.expr &:= "==-1)?";
+          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+          c_expr.expr &:= ":";
+        else
+          countOverflowOptimizations(c_expr);
+        end if;
       end if;
       if check_int_rem_by_zero then
         if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
@@ -3875,6 +4064,7 @@ const proc: process (INT_MOD, in reference: function,
     var reference: evaluatedParam is NIL;
     var string: dividend_name is "";
     var string: divisor_name is "";
+    var intRange: dividend_range is intRange.value;
     var intRange: divisor_range is intRange.value;
     var string: remainder_name is "";
   begin
@@ -3896,24 +4086,18 @@ const proc: process (INT_MOD, in reference: function,
       process_const_int_mod(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
       process_const_int_mod(getValue(evaluatedParam, integer), params[3], c_expr);
-    else
-      divisor_range := getIntRange(params[3]);
-      if evaluate_const_expr = 0 and check_int_rem_zero_by_zero and
+    elsif evaluate_const_expr = 0 and check_int_rem_zero_by_zero and
           category(params[1]) = INTOBJECT and not isVar(params[1]) and
           getValue(params[1], integer) = 0 then
-        if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
-            divisor_range.mayRaiseException then
-          incr(countDivisionChecks);
-          c_expr.expr &:= "(divChk((";
-          process_expr(params[3], c_expr);
-          c_expr.expr &:= ")==0)?";
-          c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
-          c_expr.expr &:= ":0)";
-        else
-          countDivisionOptimizations(c_expr);
-          c_expr.expr &:= "0";
-        end if;
-      elsif params[1] = params[3] then
+      incr(countDivisionChecks);
+      c_expr.expr &:= "(divChk((";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")==0)?";
+      c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":0)";
+    else
+      divisor_range := getIntRange(params[3]);
+      if params[1] = params[3] then
         # C compilers are allowed to optimize variable%variable to 0.
         # A C compiler can assume, that an "undefined behavior", like a
         # division by zero will never happen. So we need to handle this case.
@@ -3934,22 +4118,28 @@ const proc: process (INT_MOD, in reference: function,
           c_expr.expr &:= "0";
         end if;
       else
+        dividend_range := getIntRange(params[1]);
         c_expr.expr &:= "(";
         dividend_name := getParameterAsVariable("intType", "tmp_a_", params[1], c_expr);
         divisor_name := getParameterAsVariable("intType", "tmp_b_", params[3], c_expr);
         remainder_name := defineTempVariable("intType", "tmp_c_", c_expr);
         if check_int_division_overflow then
-          incr(countOverflowChecks);
-          c_expr.expr &:= "ovfChk(";
-          c_expr.expr &:= dividend_name;
-          c_expr.expr &:= "==";
-          c_expr.expr &:= integerLiteral(integer.first);
-          c_expr.expr &:= "&&";
-          c_expr.expr &:= divisor_name;
-          c_expr.expr &:= "==-1";
-          c_expr.expr &:= ")?";
-          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-          c_expr.expr &:= ":";
+          if dividend_range.minValue = integer.first and
+              divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
+            incr(countOverflowChecks);
+            c_expr.expr &:= "ovfChk(";
+            c_expr.expr &:= dividend_name;
+            c_expr.expr &:= "==";
+            c_expr.expr &:= integerLiteral(integer.first);
+            c_expr.expr &:= "&&";
+            c_expr.expr &:= divisor_name;
+            c_expr.expr &:= "==-1";
+            c_expr.expr &:= ")?";
+            c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+            c_expr.expr &:= ":";
+          else
+            countOverflowOptimizations(c_expr);
+          end if;
         end if;
         if check_int_rem_by_zero then
           if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
@@ -5270,15 +5460,18 @@ const proc: process_const_int_rem (in integer: dividend, in reference: divisor,
       end if;
     elsif check_int_division_overflow and dividend = integer.first then
       # integer.first % -1 causes an integer overflow.
-      incr(countOverflowChecks);
       c_expr.expr &:= "(";
       divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
-      c_expr.expr &:= "ovfChk(";
-      c_expr.expr &:= divisor_name;
-      c_expr.expr &:= "==-1";
-      c_expr.expr &:= ")?";
-      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-      c_expr.expr &:= ":";
+      if divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "ovfChk(";
+        c_expr.expr &:= divisor_name;
+        c_expr.expr &:= "==-1)?";
+        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+        c_expr.expr &:= ":";
+      else
+        countOverflowOptimizations(c_expr);
+      end if;
       if check_int_rem_by_zero then
         if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
           incr(countDivisionChecks);
@@ -5332,6 +5525,7 @@ const proc: process (INT_REM, in reference: function,
     var reference: evaluatedParam is NIL;
     var string: dividend_name is "";
     var string: divisor_name is "";
+    var intRange: dividend_range is intRange.value;
     var intRange: divisor_range is intRange.value;
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
@@ -5340,24 +5534,18 @@ const proc: process (INT_REM, in reference: function,
       process_const_int_rem(params[1], -1, c_expr);
     elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
       process_const_int_rem(getValue(evaluatedParam, integer), params[3], c_expr);
-    else
-      divisor_range := getIntRange(params[3]);
-      if evaluate_const_expr = 0 and check_int_rem_zero_by_zero and
+    elsif evaluate_const_expr = 0 and check_int_rem_zero_by_zero and
           category(params[1]) = INTOBJECT and not isVar(params[1]) and
           getValue(params[1], integer) = 0 then
-        if (divisor_range.minValue <= 0 and divisor_range.maxValue >= 0) or
-            divisor_range.mayRaiseException then
-          incr(countDivisionChecks);
-          c_expr.expr &:= "(divChk((";
-          process_expr(params[3], c_expr);
-          c_expr.expr &:= ")==0)?";
-          c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
-          c_expr.expr &:= ":0)";
-        else
-          countDivisionOptimizations(c_expr);
-          c_expr.expr &:= "0";
-        end if;
-      elsif params[1] = params[3] then
+      incr(countDivisionChecks);
+      c_expr.expr &:= "(divChk((";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")==0)?";
+      c_expr.expr &:= intRaiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":0)";
+    else
+      divisor_range := getIntRange(params[3]);
+      if params[1] = params[3] then
         # C compilers are allowed to optimize variable%variable to 0.
         # A C compiler can assume, that an "undefined behavior", like a
         # division by zero will never happen. So we need to handle this case.
@@ -5379,20 +5567,26 @@ const proc: process (INT_REM, in reference: function,
         end if;
       elsif check_int_division_overflow then
         # integer.first % -1 causes an integer overflow.
-        incr(countOverflowChecks);
+        dividend_range := getIntRange(params[1]);
         c_expr.expr &:= "(";
         dividend_name := getParameterAsVariable("intType", "tmp_b_", params[1], c_expr);
         divisor_name := getParameterAsVariable("intType", "tmp_b_", params[3], c_expr);
-        c_expr.expr &:= "ovfChk(";
-        c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "==";
-        c_expr.expr &:= integerLiteral(integer.first);
-        c_expr.expr &:= "&&";
-        c_expr.expr &:= divisor_name;
-        c_expr.expr &:= "==-1";
-        c_expr.expr &:= ")?";
-        c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
-        c_expr.expr &:= ":";
+        if dividend_range.minValue = integer.first and
+            divisor_range.minValue <= -1 and divisor_range.maxValue >= -1 then
+          incr(countOverflowChecks);
+          c_expr.expr &:= "ovfChk(";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "==";
+          c_expr.expr &:= integerLiteral(integer.first);
+          c_expr.expr &:= "&&";
+          c_expr.expr &:= divisor_name;
+          c_expr.expr &:= "==-1";
+          c_expr.expr &:= ")?";
+          c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+          c_expr.expr &:= ":";
+        else
+          countOverflowOptimizations(c_expr);
+        end if;
         if check_int_rem_by_zero then
           if divisor_range.minValue <= 0 and divisor_range.maxValue >= 0 then
             incr(countDivisionChecks);
