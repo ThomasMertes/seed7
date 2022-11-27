@@ -55,29 +55,33 @@ const func intRange: getIntAbsRange (in intRange: argument1Range) is func
     if argument1Range.minValue > argument1Range.maxValue then
       absRange.minValue := 0;
       absRange.maxValue := -1;
-    elsif argument1Range.minValue = integer.first then
-      if argument1Range.maxValue = integer.first then
-        # Will always raise RANGE_ERROR.
-        absRange.minValue := 0;
-        absRange.maxValue := -1;
-        absRange.mayOverflow := TRUE;
+    else
+      if argument1Range.minValue = integer.first then
+        if argument1Range.maxValue = integer.first then
+          # Will always raise RANGE_ERROR.
+          absRange.minValue := 0;
+          absRange.maxValue := -1;
+          absRange.mayOverflow := TRUE;
+        else
+          if argument1Range.maxValue >= 0 then
+            absRange.minValue := 0;
+          else
+            absRange.minValue := -argument1Range.maxValue;
+          end if;
+          absRange.mayOverflow := TRUE;
+        end if;
       else
-        if argument1Range.maxValue >= 0 then
+        if argument1Range.minValue <= 0 and argument1Range.maxValue >= 0 then
           absRange.minValue := 0;
         else
-          absRange.minValue := -argument1Range.maxValue;
+          absRange.minValue := min(abs(argument1Range.minValue),
+                                   abs(argument1Range.maxValue));
         end if;
-        absRange.mayOverflow := TRUE;
-      end if;
-    else
-      if argument1Range.minValue <= 0 and argument1Range.maxValue >= 0 then
-        absRange.minValue := 0;
-      else
-        absRange.minValue := min(abs(argument1Range.minValue),
-                                 abs(argument1Range.maxValue));
-      end if;
-      absRange.maxValue := max(abs(argument1Range.minValue),
+        absRange.maxValue := max(abs(argument1Range.minValue),
                                abs(argument1Range.maxValue));
+      end if;
+      absRange.mayRaiseException := argument1Range.mayRaiseException or
+                                    absRange.mayOverflow;
     end if;
   end func;
 
@@ -128,6 +132,9 @@ const func intRange: getIntAddRange (in intRange: summand1Range, in intRange: su
         sumRange.maxValue := -1;
         sumRange.mayOverflow := TRUE;
       end if;
+      sumRange.mayRaiseException := summand1Range.mayRaiseException or
+                                    summand2Range.mayRaiseException or
+                                    sumRange.mayOverflow;
     end if;
   end func;
 
@@ -178,6 +185,9 @@ const func intRange: getIntSbtrRange (in intRange: minuendRange, in intRange: su
         differenceRange.maxValue := -1;
         differenceRange.mayOverflow := TRUE;
       end if;
+      differenceRange.mayRaiseException := minuendRange.mayRaiseException or
+                                           subtrahendRange.mayRaiseException or
+                                           differenceRange.mayOverflow;
     end if;
   end func;
 
@@ -185,62 +195,134 @@ const func intRange: getIntSbtrRange (in intRange: minuendRange, in intRange: su
 const func intRange: getIntLshiftRange (in intRange: numberRange, in intRange: lshiftRange) is func
   result
     var intRange: valueRange is intRange.value;
+  local
+    var boolean: valueOutOfRange is FALSE;
   begin
-    if lshiftRange.maxValue < 0 or
+    if numberRange.minValue > numberRange.maxValue or
+        lshiftRange.minValue > lshiftRange.maxValue then
+      valueRange.minValue := 0;
+      valueRange.maxValue := -1;
+    elsif lshiftRange.maxValue < 0 or
         lshiftRange.minValue > bitLength(integer.last) then
       valueRange.minValue := 0;
       valueRange.maxValue := -1;
-    elsif numberRange.minValue < 0 then
-      if lshiftRange.maxValue <= bitLength(integer.last) then
-        if numberRange.minValue >= integer.first >> lshiftRange.maxValue then
+      valueRange.mayOverflow := TRUE;
+    else
+      if numberRange.minValue < 0 then
+        if lshiftRange.maxValue <= bitLength(integer.last) and
+            numberRange.minValue >= integer.first >> lshiftRange.maxValue then
           valueRange.minValue := numberRange.minValue << lshiftRange.maxValue;
         else
-          valueRange.minValue := integer.first;
+          valueRange.mayOverflow := TRUE;
         end if;
-      else
-        valueRange.minValue := integer.first;
-      end if;
-    elsif numberRange.minValue > 0 then
-      if lshiftRange.minValue >= 0 then
-        if numberRange.minValue <= integer.last >> lshiftRange.minValue then
-          valueRange.minValue := numberRange.minValue << lshiftRange.minValue;
+      elsif numberRange.minValue > 0 then
+        if lshiftRange.minValue >= 0 then
+          if numberRange.minValue <= integer.last >> lshiftRange.minValue then
+            valueRange.minValue := numberRange.minValue << lshiftRange.minValue;
+          else
+            # No valid valueRange because minValue > integer.last holds.
+            valueOutOfRange := TRUE;
+            valueRange.mayOverflow := TRUE;
+          end if;
         else
-          valueRange.minValue := integer.last;
+          valueRange.minValue := numberRange.minValue;
+          valueRange.mayOverflow := TRUE;
         end if;
       else
-        valueRange.minValue := numberRange.minValue;
+        valueRange.minValue := 0;
       end if;
-    else
-      valueRange.minValue := 0;
-    end if;
-    if numberRange.maxValue < 0 then
-      if lshiftRange.minValue >= 0 then
-        if numberRange.maxValue >= integer.first >> lshiftRange.minValue then
-          valueRange.maxValue := numberRange.maxValue << lshiftRange.minValue;
+      if numberRange.maxValue < 0 then
+        if lshiftRange.minValue >= 0 then
+          if numberRange.maxValue >= integer.first >> lshiftRange.minValue then
+            valueRange.maxValue := numberRange.maxValue << lshiftRange.minValue;
+          else
+            # No valid valueRange because maxValue < integer.first holds.
+            valueOutOfRange := TRUE;
+            valueRange.mayOverflow := TRUE;
+          end if;
         else
-          valueRange.maxValue := integer.first;
+          valueRange.maxValue := numberRange.maxValue;
+          valueRange.mayOverflow := TRUE;
         end if;
-      else
-        valueRange.maxValue := numberRange.maxValue;
-      end if;
-    elsif numberRange.maxValue > 0 then
-      if lshiftRange.maxValue <= bitLength(integer.last) then
-        if numberRange.maxValue <= integer.last >> lshiftRange.maxValue then
+      elsif numberRange.maxValue > 0 then
+        if lshiftRange.maxValue <= bitLength(integer.last) and
+            numberRange.maxValue <= integer.last >> lshiftRange.maxValue then
           valueRange.maxValue := numberRange.maxValue << lshiftRange.maxValue;
-        elsif lshiftRange.minValue > 0 then
-          valueRange.maxValue := integer.last >> lshiftRange.minValue << lshiftRange.minValue;
         else
-          valueRange.maxValue := integer.last;
+          valueRange.mayOverflow := TRUE;
         end if;
       else
-        valueRange.maxValue := integer.last;
+        valueRange.maxValue := 0;
       end if;
-    else
-      valueRange.maxValue := 0;
+      if valueRange.minValue > valueRange.maxValue or valueOutOfRange then
+        valueRange.minValue := 0;
+        valueRange.maxValue := -1;
+      end if;
+      valueRange.mayOverflow := valueRange.mayOverflow or
+                                lshiftRange.minValue < 0 or
+                                lshiftRange.maxValue > bitLength(integer.last);
+      valueRange.mayRaiseException := numberRange.mayRaiseException or
+                                      lshiftRange.mayRaiseException or
+                                      valueRange.mayOverflow;
     end if;
-    if valueRange.minValue > valueRange.maxValue then
+  end func;
+
+
+const func intRange: getIntRshiftRange (in intRange: numberRange, in intRange: rshiftRange) is func
+  result
+    var intRange: valueRange is intRange.value;
+  local
+    var boolean: valueOutOfRange is FALSE;
+  begin
+    if numberRange.minValue > numberRange.maxValue or
+        rshiftRange.minValue > rshiftRange.maxValue then
       valueRange.minValue := 0;
       valueRange.maxValue := -1;
+    elsif rshiftRange.maxValue < 0 or
+        rshiftRange.minValue > bitLength(integer.last) then
+      valueRange.minValue := 0;
+      valueRange.maxValue := -1;
+      valueRange.mayOverflow := TRUE;
+    else
+      if numberRange.minValue < 0 then
+        if rshiftRange.minValue >= 0 then
+          valueRange.minValue := numberRange.minValue >> rshiftRange.minValue;
+        else
+          valueRange.minValue := numberRange.minValue;
+        end if;
+      elsif numberRange.minValue > 0 then
+        if rshiftRange.maxValue <= bitLength(integer.last) then
+          valueRange.minValue := numberRange.minValue >> rshiftRange.maxValue;
+        else
+          valueRange.minValue := 0;
+        end if;
+      else
+        valueRange.minValue := 0;
+      end if;
+      if numberRange.maxValue < 0 then
+        if rshiftRange.maxValue <= bitLength(integer.last) then
+          valueRange.maxValue := numberRange.maxValue >> rshiftRange.maxValue;
+        else
+          valueRange.maxValue := -1;
+        end if;
+      elsif numberRange.maxValue > 0 then
+        if rshiftRange.minValue >= 0 then
+          valueRange.maxValue := numberRange.maxValue >> rshiftRange.minValue;
+        else
+          valueRange.maxValue := numberRange.maxValue;
+        end if;
+      else
+        valueRange.maxValue := 0;
+      end if;
+      if valueRange.minValue > valueRange.maxValue then
+        valueRange.minValue := 0;
+        valueRange.maxValue := -1;
+      end if;
+      valueRange.mayOverflow := rshiftRange.minValue < 0 or
+                                rshiftRange.maxValue > bitLength(integer.last);
+      valueRange.mayRaiseException := numberRange.mayRaiseException or
+                                      rshiftRange.mayRaiseException or
+                                      valueRange.mayOverflow;
     end if;
   end func;
 
@@ -305,25 +387,20 @@ const func intRange: getIntNegateRange (in intRange: argument1Range) is func
     if argument1Range.maxValue < argument1Range.minValue then
       negatedRange.minValue := 0;
       negatedRange.maxValue := -1;
+    elsif argument1Range.maxValue < -integer.last then
+      negatedRange.minValue := 0;
+      negatedRange.maxValue := -1;
+      negatedRange.mayOverflow := TRUE;
     else
-      if argument1Range.maxValue < -integer.last then
-        negatedRange.minValue := 0;
-        negatedRange.maxValue := -1;
-        negatedRange.mayOverflow := TRUE;
-      else
-        negatedRange.minValue := -argument1Range.maxValue;
-      end if;
+      negatedRange.minValue := -argument1Range.maxValue;
       if argument1Range.minValue < -integer.last then
-        if argument1Range.maxValue > argument1Range.minValue then
-          negatedRange.maxValue := integer.last;
-        else
-          negatedRange.minValue := 0;
-          negatedRange.maxValue := -1;
-          negatedRange.mayOverflow := TRUE;
-        end if;
+        negatedRange.maxValue := integer.last;
+        negatedRange.mayOverflow := TRUE;
       else
         negatedRange.maxValue := -argument1Range.minValue;
       end if;
+      negatedRange.mayRaiseException := argument1Range.mayRaiseException or
+                                        negatedRange.mayOverflow;
     end if;
   end func;
 
@@ -390,6 +467,8 @@ const func intRange: getIntMultRange (in integer: factor1, in intRange: factor2R
       productRange.maxValue := -1;
       productRange.mayOverflow := TRUE;
     end if;
+    productRange.mayRaiseException := factor2Range.mayRaiseException or
+                                      productRange.mayOverflow;
   end func;
 
 
@@ -529,6 +608,9 @@ const func intRange: getIntMultRange (in intRange: factor1Range, in intRange: fa
         productRange.minValue := 0;
         productRange.maxValue := -1;
       end if;
+      productRange.mayRaiseException := factor1Range.mayRaiseException or
+                                        factor2Range.mayRaiseException or
+                                        productRange.mayOverflow;
     end if;
   end func;
 
@@ -621,6 +703,21 @@ const func intRange: getIntRange (in reference: intExpression) is func
             when {"BLN_ORD"}:
               valueRange.minValue := 0;
               valueRange.maxValue := 1;
+            when {"BLN_TERNARY"}:
+              if getConstant(params[1], ENUMLITERALOBJECT, evaluatedParam) then
+                if getValue(evaluatedParam, boolean) then
+                  valueRange := getIntRange(params[3]);
+                else
+                  valueRange := getIntRange(params[5]);
+                end if;
+              else
+                argument1Range := getIntRange(params[3]);
+                argument2Range := getIntRange(params[5]);
+                valueRange.minValue := min(argument1Range.minValue,
+                                           argument2Range.minValue);
+                valueRange.maxValue := max(argument1Range.maxValue,
+                                           argument2Range.maxValue);
+              end if;
             when {"CHR_ORD"}:
               if ccConf.TWOS_COMPLEMENT_INTTYPE then
                 valueRange.minValue := -2147483648;
@@ -791,22 +888,8 @@ const func intRange: getIntRange (in reference: intExpression) is func
                 end if;
               end if;
             when {"INT_RSHIFT"}:
-              if getConstant(params[3], INTOBJECT, evaluatedParam) then
-                number := getValue(evaluatedParam, integer);
-                if number > 0 and number < ccConf.INTTYPE_SIZE then
-                  valueRange.minValue := integer.first >> number;
-                  valueRange.maxValue := integer.last >> number;
-                end if;
-              elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
-                number := getValue(evaluatedParam, integer);
-                if number < 0 then
-                  valueRange.minValue := number;
-                  valueRange.maxValue := -1;
-                else
-                  valueRange.minValue := 0;
-                  valueRange.maxValue := number;
-                end if;
-              end if;
+              valueRange := getIntRshiftRange(getIntRange(params[1]),
+                                              getIntRange(params[3]));
             when {"INT_SBTR"}:
               valueRange := getIntSbtrRange(getIntRange(params[1]),
                                             getIntRange(params[3]));
