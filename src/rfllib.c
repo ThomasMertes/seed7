@@ -611,10 +611,11 @@ objectType rfl_idx (listType arguments)
         list_element = list_element->next;
       } /* while */
       if (unlikely(list_element == NULL)) {
-        logError(printf("rfl_idx(" FMT_U_MEM ", " FMT_D "): "
-                        "Index > length(list).\n",
+        logError(printf("rfl_idx(" FMT_U_MEM " (length = " FMT_D
+                        "), " FMT_D "): Index > length(list).\n",
                         (memSizeType) take_reflist(arg_1(arguments)),
-                        position););
+                        take_int(arg_3(arguments)) - position - 1,
+                        take_int(arg_3(arguments))););
         result = raise_exception(SYS_IDX_EXCEPTION);
       } else {
         result = bld_reference_temp(list_element->obj);

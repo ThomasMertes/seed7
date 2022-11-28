@@ -492,6 +492,8 @@ objectType int_div (listType arguments)
     isit_int(arg_3(arguments));
     dividend = take_int(arg_1(arguments));
     divisor = take_int(arg_3(arguments));
+    logFunction(printf("int_div(" FMT_D ", " FMT_D ")\n",
+                       dividend, divisor););
     if (unlikely(divisor == 0)) {
       logError(printf("int_div(" FMT_D ", 0): Division by zero.\n",
                       dividend););
@@ -506,6 +508,8 @@ objectType int_div (listType arguments)
       return raise_exception(SYS_OVF_EXCEPTION);
 #endif
     } /* if */
+    logFunction(printf("int_div --> " FMT_D "\n",
+                       dividend / divisor););
     return bld_int_temp(dividend / divisor);
   } /* int_div */
 
@@ -896,6 +900,8 @@ objectType int_mdiv (listType arguments)
     isit_int(arg_3(arguments));
     dividend = take_int(arg_1(arguments));
     divisor = take_int(arg_3(arguments));
+    logFunction(printf("int_mdiv(" FMT_D ", " FMT_D ")\n",
+                       dividend, divisor););
     if (unlikely(divisor == 0)) {
       logError(printf("int_mdiv(" FMT_D ", 0): Division by zero.\n",
                       dividend););
@@ -917,6 +923,7 @@ objectType int_mdiv (listType arguments)
     } else {
       quotient = dividend / divisor;
     } /* if */
+    logFunction(printf("int_mdiv --> " FMT_D "\n", quotient););
     return bld_int_temp(quotient);
   } /* int_mdiv */
 
@@ -941,6 +948,8 @@ objectType int_mod (listType arguments)
     isit_int(arg_3(arguments));
     dividend = take_int(arg_1(arguments));
     divisor = take_int(arg_3(arguments));
+    logFunction(printf("int_mod(" FMT_D ", " FMT_D ")\n",
+                       dividend, divisor););
     if (unlikely(divisor == 0)) {
       logError(printf("int_mod(" FMT_D ", 0): Division by zero.\n",
                       dividend););
@@ -961,6 +970,7 @@ objectType int_mod (listType arguments)
         modulo = modulo + divisor;
       } /* if */
     } /* if */
+    logFunction(printf("int_mod --> " FMT_D "\n", modulo););
     return bld_int_temp(modulo);
   } /* int_mod */
 
@@ -1007,8 +1017,7 @@ objectType int_mult (listType arguments)
 #else
     product = factor1 * factor2;
 #endif
-    logFunction(printf("int_mult --> " FMT_D "\n",
-                       product););
+    logFunction(printf("int_mult --> " FMT_D "\n", product););
     return bld_int_temp(product);
   } /* int_mult */
 
@@ -1373,6 +1382,8 @@ objectType int_rem (listType arguments)
     isit_int(arg_3(arguments));
     dividend = take_int(arg_1(arguments));
     divisor = take_int(arg_3(arguments));
+    logFunction(printf("int_rem(" FMT_D ", " FMT_D ")\n",
+                       dividend, divisor););
     if (unlikely(divisor == 0)) {
       logError(printf("int_rem(" FMT_D ", 0): Division by zero.\n",
                       dividend););
@@ -1390,6 +1401,7 @@ objectType int_rem (listType arguments)
     } else {
       remainder = dividend % divisor;
     } /* if */
+    logFunction(printf("int_rem --> " FMT_D "\n", remainder););
     return bld_int_temp(remainder);
   } /* int_rem */
 
