@@ -364,7 +364,8 @@ boolType openString (bstriType inputString, boolType write_library_names,
           *err_info = MEMORY_ERROR;
         } else {
           COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
-          strcpy((cstriType) name_ustri, sourceFileName);
+          memcpy(name_ustri, sourceFileName, name_length);
+          name_ustri[name_length] = '\0';
           in_name->size = name_length;
           memcpy_to_strelem(in_name->mem, name_ustri, name_length);
           if (in_file.curr_infile != NULL) {

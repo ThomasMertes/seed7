@@ -142,6 +142,9 @@
 #ifdef os_fileno
 #define fileno os_fileno
 #endif
+#ifdef os_fdopen
+#define fdopen os_fdopen
+#endif
 
 #if FILENO_WORKS_FOR_NULL
 #define safe_fileno(stream) fileno(stream)

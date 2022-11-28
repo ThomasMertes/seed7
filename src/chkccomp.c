@@ -5815,6 +5815,26 @@ static void determineIsattyFunction (FILE *versionFile)
 
 
 
+static void determineFdopenFunction (FILE *versionFile)
+
+  { /* determineFdopenFunction */
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "FILE *fp = _fdopen(0, \"r\");\n"
+                         "printf(\"%d\\n\", fp!=NULL);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define os_fdopen _fdopen\n");
+    } else if (!compileAndLinkOk("#include <stdio.h>\n"
+                                  "int main(int argc,char *argv[]){\n"
+                                  "FILE *fp = fdopen(0, \"r\");\n"
+                                  "printf(\"%d\\n\", fp!=NULL);\n"
+                                  "return 0;}\n")) {
+      fprintf(logFile, "\n *** Cannot determine fileno().\n");
+    } /* if */
+  } /* determineFdopenFunction */
+
+
+
 static const char *determineFilenoFunction (FILE *versionFile)
 
   {
@@ -5858,6 +5878,7 @@ static void determineOsFunctions (FILE *versionFile)
 
   /* determineOsFunctions */
     determineIsattyFunction(versionFile);
+    determineFdopenFunction(versionFile);
     fileno = determineFilenoFunction(versionFile);
     determineSocketLib(versionFile);
     determineOsDirAccess(versionFile);
