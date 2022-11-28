@@ -1085,7 +1085,7 @@ static cstriType getNumericAsCStri (numeric *numStruct)
         length = 4 * (unsigned int) numStruct->ndigits + 1;
         /* printf("length: %u\n", length); */
         decimal[0] = numStruct->sign ? '-' : '+';
-        for (idx = 0; idx < numStruct->ndigits; idx++) {
+        for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
           fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
                              (unsigned int) numStruct->digits[2 * idx + 1];
           for (digitNum = 4; digitNum >= 1; digitNum--) {
@@ -1113,7 +1113,7 @@ static cstriType getNumericAsCStri (numeric *numStruct)
         length = 4 * (unsigned int) numStruct->ndigits + 1;
         /* printf("length: %u\n", length); */
         decimal[0] = numStruct->sign ? '-' : '+';
-        for (idx = 0; idx < numStruct->ndigits; idx++) {
+        for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
           fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
                              (unsigned int) numStruct->digits[2 * idx + 1];
           for (digitNum = 4; digitNum >= 1; digitNum--) {
@@ -1147,7 +1147,7 @@ static striType getNumericAsStri (numeric *numStruct)
     if (likely(ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numStruct->ndigits + 1))) {
       stri->size = 4 * (memSizeType) numStruct->ndigits + 1;
       stri->mem[0] = numStruct->sign ? '-' : '+';
-      for (idx = 0; idx < numStruct->ndigits; idx++) {
+      for (idx = 0; idx < (unsigned int) numStruct->ndigits; idx++) {
         fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
                            (unsigned int) numStruct->digits[2 * idx + 1];
         for (digitNum = 4; digitNum >= 1; digitNum--) {

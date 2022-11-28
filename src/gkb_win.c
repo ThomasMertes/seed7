@@ -83,6 +83,8 @@ extern int getCloseAction (winType actual_window);
 extern void setResizeReturnsKey (winType resizeWindow, boolType active);
 extern boolType getResizeReturnsKey (winType resizeWindow);
 extern void drwSetCloseAction (winType actual_window, intType closeAction);
+extern intType drwHeight (const_winType actual_window);
+extern intType drwWidth (const_winType actual_window);
 
 
 #ifdef DMC_GKB_WIN_DEFINES
