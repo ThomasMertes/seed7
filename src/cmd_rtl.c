@@ -316,6 +316,7 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
     os_DIR *directory;
     os_dirent_struct *current_entry;
     size_t dir_name_size;
+    size_t d_name_size;
     size_t dir_path_capacity = 0;
     os_striType dir_path = NULL;
     size_t new_size;
@@ -342,7 +343,8 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
       while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
 /*      printf("!" FMT_S_OS "!\n", current_entry->d_name);
         fflush(stdout); */
-        new_size = dir_name_size + 1 + os_stri_strlen(current_entry->d_name);
+        d_name_size = os_stri_strlen(current_entry->d_name);
+        new_size = dir_name_size + 1 + d_name_size;
         if (new_size > dir_path_capacity) {
           resized_path = REALLOC_OS_STRI(dir_path, new_size);
           if (resized_path != NULL) {
@@ -355,11 +357,13 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
         } /* if */
         if (dir_path != NULL) {
           if (init_path) {
-            os_stri_strcpy(dir_path, dir_name);
-            os_stri_strcpy(&dir_path[dir_name_size], pathDelimiter);
+            memcpy(dir_path, dir_name, dir_name_size * sizeof(os_charType));
+            memcpy(&dir_path[dir_name_size], pathDelimiter, sizeof(os_charType));
             init_path = FALSE;
           } /* if */
-          os_stri_strcpy(&dir_path[dir_name_size + 1], current_entry->d_name);
+          memcpy(&dir_path[dir_name_size + 1], current_entry->d_name,
+                 d_name_size * sizeof(os_charType));
+          dir_path[dir_name_size + 1 + d_name_size] = '\0';
           remove_any_file(dir_path, err_info);
         } else {
           *err_info = MEMORY_ERROR;
@@ -601,14 +605,18 @@ static void copy_dir (const const_os_striType from_name,
           } /* if */
           if (from_path != NULL && to_path != NULL) {
             if (init_path) {
-              os_stri_strcpy(from_path, from_name);
-              os_stri_strcpy(&from_path[from_name_size], pathDelimiter);
-              os_stri_strcpy(to_path, to_name);
-              os_stri_strcpy(&to_path[to_name_size], pathDelimiter);
+              memcpy(from_path, from_name, from_name_size * sizeof(os_charType));
+              memcpy(&from_path[from_name_size], pathDelimiter, sizeof(os_charType));
+              memcpy(to_path, to_name, to_name_size * sizeof(os_charType));
+              memcpy(&to_path[to_name_size], pathDelimiter, sizeof(os_charType));
               init_path = FALSE;
             } /* if */
-            os_stri_strcpy(&from_path[from_name_size + 1], current_entry->d_name);
-            os_stri_strcpy(&to_path[to_name_size + 1], current_entry->d_name);
+            memcpy(&from_path[from_name_size + 1], current_entry->d_name,
+                   d_name_size * sizeof(os_charType));
+            from_path[from_name_size + 1 + d_name_size] = '\0';
+            memcpy(&to_path[to_name_size + 1], current_entry->d_name,
+                   d_name_size * sizeof(os_charType));
+            to_path[to_name_size + 1 + d_name_size] = '\0';
             copy_any_file(from_path, to_path, flags, err_info);
           } else {
             *err_info = MEMORY_ERROR;
@@ -1159,7 +1167,8 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
         if (unlikely(!os_stri_alloc(path_copy, path_length))) {
           *err_info = MEMORY_ERROR;
         } else {
-          os_stri_strcpy(path_copy, search_path_value);
+          memcpy(path_copy, search_path_value, path_length * sizeof(os_charType));
+          path_copy[path_length] = '\0';
           path_start = path_copy;
           do {
             path_end = os_stri_strchr(path_start, searchPathDelimiter);
