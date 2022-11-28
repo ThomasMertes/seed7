@@ -5792,21 +5792,23 @@ static void determineOsWCharFunctions (FILE *versionFile)
 static void determineIsattyFunction (FILE *versionFile)
 
   { /* determineIsattyFunction */
-    if (!compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "printf(\"%d\\n\", isatty(0)==0);\n"
-                          "return 0;}\n")) {
+    if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "printf(\"%d\\n\", _isatty(0)==0);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define ISATTY_INCLUDE_IO_H\n");
+      fprintf(versionFile, "#define os_isatty _isatty\n");
+    } else if (!compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
+                                  "int main(int argc,char *argv[]){\n"
+                                  "printf(\"%d\\n\", isatty(0)==0);\n"
+                                  "return 0;}\n")) {
       if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
                            "int main(int argc,char *argv[]){\n"
                            "printf(\"%d\\n\", isatty(0)==0);\n"
                            "return 0;}\n")) {
         fprintf(versionFile, "#define ISATTY_INCLUDE_IO_H\n");
-      } else if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
-                                  "int main(int argc,char *argv[]){\n"
-                                  "printf(\"%d\\n\", _isatty(0)==0);\n"
-                                  "return 0;}\n")) {
-        fprintf(versionFile, "#define ISATTY_INCLUDE_IO_H\n");
-        fprintf(versionFile, "#define os_isatty _isatty\n");
+      } else {
+        fprintf(logFile, "\n *** Cannot determine isatty().\n");
       } /* if */
     } /* if */
   } /* determineIsattyFunction */
@@ -5820,16 +5822,17 @@ static const char *determineFilenoFunction (FILE *versionFile)
     const char *fileno = "fileno";
 
   /* determineFilenoFunction */
-    if (!compileAndLinkOk("#include <stdio.h>\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "printf(\"%d\\n\", fileno(stdin)==0);\n"
-                          "return 0;}\n") &&
-        compileAndLinkOk("#include <stdio.h>\n"
+    if (compileAndLinkOk("#include <stdio.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "printf(\"%d\\n\", _fileno(stdin)==0);\n"
                          "return 0;}\n")) {
       fileno = "_fileno";
       fprintf(versionFile, "#define os_fileno _fileno\n");
+    } else if (!compileAndLinkOk("#include <stdio.h>\n"
+                                 "int main(int argc,char *argv[]){\n"
+                                 "printf(\"%d\\n\", fileno(stdin)==0);\n"
+                                 "return 0;}\n")) {
+      fprintf(logFile, "\n *** Cannot determine fileno().\n");
     } /* if */
 #ifndef FILENO_WORKS_FOR_NULL
     sprintf(buffer, "#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
