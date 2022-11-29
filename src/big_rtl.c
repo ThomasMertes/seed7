@@ -422,7 +422,8 @@ cstriType bigHexCStri (const const_bigIntType big1)
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        strcpy(result, stri_ptr);
+        memcpy(result, stri_ptr, len);
+        result[len] = '\0';
       } /* if */
     } /* if */
     return result;

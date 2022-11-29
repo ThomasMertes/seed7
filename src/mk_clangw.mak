@@ -237,6 +237,8 @@ base.h:
 	echo #define ARCHIVER_OPT_REPLACE "/out:" >> base.h
 	echo #define INT_DIV_BY_ZERO_POPUP >> base.h
 	echo #define FILENO_WORKS_FOR_NULL 0 >> base.h
+	echo #define _CRT_SECURE_NO_WARNINGS >> base.h
+	echo #define _CRT_NONSTDC_NO_DEPRECATE >> base.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
 	echo #define SYSTEM_MATH_LIBS "$(SYSTEM_MATH_LIBS)" >> base.h
 

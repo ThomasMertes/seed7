@@ -54,13 +54,6 @@ typedef BOOLTYPE boolType;
 #define EXTERN          extern
 
 
-#ifdef RENAMED_POSIX_FUNCTIONS
-#define kbhit    _kbhit
-#define setmode  _setmode
-#define fdopen   _fdopen
-#endif
-
-
 typedef INT8TYPE           int8Type;
 typedef UINT8TYPE          uint8Type;
 

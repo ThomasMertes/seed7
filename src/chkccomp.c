@@ -5784,6 +5784,14 @@ static void determineOsWCharFunctions (FILE *versionFile)
       showErrors();
     } /* if */
 #endif
+#ifndef os_setmode
+    if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
+                         "#include <fcntl.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\", _setmode(0, _O_BINARY) != -1);return 0;}\n")) {
+      fputs("#define os_setmode _setmode\n", versionFile);
+    } /* if */
+#endif
   } /* determineOsWCharFunctions */
 #endif
 

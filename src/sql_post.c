@@ -497,6 +497,7 @@ static PGresult *PQdeallocate (PGconn *conn, const char *stmtName)
 
   {
     const char deallocateCommand[] = "DEALLOCATE ";
+    memSizeType stmtNameLength;
     memSizeType length;
     char *command;
     PGresult *deallocate_result;
@@ -504,15 +505,16 @@ static PGresult *PQdeallocate (PGconn *conn, const char *stmtName)
   /* PQdeallocate */
     logFunction(printf("PQdeallocate(" FMT_X_MEM ", %s)\n",
                        (memSizeType) conn, stmtName););
-    length = STRLEN(deallocateCommand) + strlen(stmtName) + NULL_TERMINATION_LEN;
-    command = (char *) malloc(length);
-    if (command == NULL) {
+    stmtNameLength = strlen(stmtName);
+    length = STRLEN(deallocateCommand) + stmtNameLength;
+    if (unlikely(!ALLOC_CSTRI(command, length))) {
       deallocate_result = NULL;
     } else {
       memcpy(command, deallocateCommand, STRLEN(deallocateCommand));
-      strcpy(&command[STRLEN(deallocateCommand)], stmtName);
+      memcpy(&command[STRLEN(deallocateCommand)], stmtName, stmtNameLength);
+      command[length] = '\0';
       deallocate_result = PQexec(conn, command);
-      free(command);
+      UNALLOC_CSTRI(command, length);
     } /* if */
     return deallocate_result;
   } /* PQdeallocate */

@@ -640,7 +640,8 @@ ustriType bigRatToDecimal (const const_bigIntType numerator,
           if (unlikely(!ALLOC_USTRI(decimal, 3))) {
             *err_info = MEMORY_ERROR;
           } else {
-            strcpy((char *) decimal, "0.0");
+            memcpy(decimal, "0.0", 3);
+            decimal[3] = '\0';
             *length = 3;
           } /* if */
         } else {

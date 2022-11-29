@@ -254,6 +254,7 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
     ucharType ch;
     memSizeType idx;
     memSizeType pos = 0;
+    memSizeType len;
     static char buffer[AND_SO_ON_LIMIT * MAXIMUM_BYTE_ESCAPE_WIDTH +
                        AND_SO_ON_LENGTH];
 
@@ -267,8 +268,9 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
         ch = bstri->mem[idx];
         if (ch < 127) {
           if (ch < ' ') {
-            strcpy(&buffer[pos], stri_escape_sequence[ch]);
-            pos += strlen(&buffer[pos]);
+            len = strlen(stri_escape_sequence[ch]);
+            memcpy(&buffer[pos], stri_escape_sequence[ch], len);
+            pos += len;
           } else if (ch == '\\') {
             memcpy(&buffer[pos], "\\\\", 2);
             pos += 2;

@@ -463,18 +463,18 @@ void setupFiles (void)
     if (hConsole == INVALID_HANDLE_VALUE ||
         GetFileType(hConsole) != FILE_TYPE_CHAR ||
         GetConsoleMode(hConsole, &mode) == 0) {
-      setmode(fileno(stdin), _O_BINARY);
+      os_setmode(fileno(stdin), _O_BINARY);
     } /* if */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole == INVALID_HANDLE_VALUE ||
         GetFileType(hConsole) != FILE_TYPE_CHAR ||
         GetConsoleMode(hConsole, &mode) == 0) {
-      setmode(fileno(stdout), _O_BINARY);
+      os_setmode(fileno(stdout), _O_BINARY);
     } /* if */
     hConsole = GetStdHandle(STD_ERROR_HANDLE);
     if (hConsole == INVALID_HANDLE_VALUE ||
         GetFileType(hConsole) != FILE_TYPE_CHAR ||
         GetConsoleMode(hConsole, &mode) == 0) {
-      setmode(fileno(stderr), _O_BINARY);
+      os_setmode(fileno(stderr), _O_BINARY);
     } /* if */
   } /* setupFiles */
