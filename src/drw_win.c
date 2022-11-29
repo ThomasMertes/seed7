@@ -660,7 +660,55 @@ void drwFArcChord (const_winType actual_window, intType x, intType y,
 void drwPFArcChord (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
-  { /* drwPFArcChord */
+  {
+    FLOAT startAng, sweepAng;
+    HPEN old_pen;
+    HPEN current_pen;
+    HBRUSH old_brush;
+    HBRUSH current_brush;
+
+  /* drwPFArcChord */
+    if (sweepAngle != 0.0) {
+      startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
+      sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
+      current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+      current_brush = CreateSolidBrush((COLORREF) col);
+      if (unlikely(current_pen == NULL || current_brush == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else if (unlikely(!inIntRange(x) || !inIntRange(x) ||
+                          !inIntRange(radius) || radius < 0)) {
+        raise_error(RANGE_ERROR);
+      } else {
+        old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+        old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
+        BeginPath(to_hdc(actual_window));
+        MoveToEx(to_hdc(actual_window),
+                 (int) x + (int) (cos(startAngle) * (double) radius),
+                 (int) y - (int) (sin(startAngle) * (double) radius),
+                 (LPPOINT) NULL);
+        AngleArc(to_hdc(actual_window), (int) x, (int) y, (DWORD) radius, startAng, sweepAng);
+        EndPath(to_hdc(actual_window));
+        StrokeAndFillPath(to_hdc(actual_window));
+        SelectObject(to_hdc(actual_window), old_pen);
+        SelectObject(to_hdc(actual_window), old_brush);
+        if (to_backup_hdc(actual_window) != 0) {
+          old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+          old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
+          BeginPath(to_backup_hdc(actual_window));
+          MoveToEx(to_backup_hdc(actual_window),
+                   (int) x + (int) (cos(startAngle) * (double) radius),
+                   (int) y - (int) (sin(startAngle) * (double) radius),
+                   (LPPOINT) NULL);
+          AngleArc(to_backup_hdc(actual_window), (int) x, (int) y, (DWORD) radius, startAng, sweepAng);
+          EndPath(to_backup_hdc(actual_window));
+          StrokeAndFillPath(to_backup_hdc(actual_window));
+          SelectObject(to_backup_hdc(actual_window), old_pen);
+          SelectObject(to_backup_hdc(actual_window), old_brush);
+        } /* if */
+        DeleteObject(current_pen);
+        DeleteObject(current_brush);
+      } /* if */
+    } /* if */
   } /* drwPFArcChord */
 
 
