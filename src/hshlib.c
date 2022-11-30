@@ -455,15 +455,13 @@ static void for_hash (objectType for_variable, hashType curr_hash,
 
   /* for_hash */
     number = curr_hash->table_size;
-    table_elem = &curr_hash->table[-1];
+    table_elem = curr_hash->table;
     while (number != 0) {
-      do {
-        number--;
-        table_elem++;
-      } while (number != 0 && *table_elem == NULL);
-      if (number != 0 || *table_elem != NULL) {
+      if (*table_elem != NULL) {
         for_helem(for_variable, *table_elem, statement, data_copy_func);
       } /* if */
+      number--;
+      table_elem++;
     } /* while */
   } /* for_hash */
 
@@ -494,15 +492,13 @@ static void for_key_hash (objectType key_variable, hashType curr_hash,
 
   /* for_key_hash */
     number = curr_hash->table_size;
-    table_elem = &curr_hash->table[-1];
+    table_elem = curr_hash->table;
     while (number != 0) {
-      do {
-        number--;
-        table_elem++;
-      } while (number != 0 && *table_elem == NULL);
-      if (number != 0 || *table_elem != NULL) {
+      if (*table_elem != NULL) {
         for_key_helem(key_variable, *table_elem, statement, key_copy_func);
       } /* if */
+      number--;
+      table_elem++;
     } /* while */
   } /* for_key_hash */
 
@@ -538,16 +534,14 @@ static void for_data_key_hash (objectType for_variable, objectType key_variable,
 
   /* for_data_key_hash */
     number = curr_hash->table_size;
-    table_elem = &curr_hash->table[-1];
+    table_elem = curr_hash->table;
     while (number != 0) {
-      do {
-        number--;
-        table_elem++;
-      } while (number != 0 && *table_elem == NULL);
-      if (number != 0 || *table_elem != NULL) {
+      if (*table_elem != NULL) {
         for_data_key_helem(for_variable, key_variable, *table_elem, statement,
             data_copy_func, key_copy_func);
       } /* if */
+      number--;
+      table_elem++;
     } /* while */
   } /* for_data_key_hash */
 
