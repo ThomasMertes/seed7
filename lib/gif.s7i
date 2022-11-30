@@ -112,7 +112,7 @@ const proc: readImageHeader (inout file: gifFile, inout gifImageHeader: header) 
     header.width := bytes2Int(imageDescriptor[5 len 2], UNSIGNED, LE);
     header.height := bytes2Int(imageDescriptor[7 len 2], UNSIGNED, LE);
     header.hasLocalColorMap := ord(imageDescriptor[9]) >= 128;
-    header.interlacedOrder := (ord(imageDescriptor[9]) >> 6) mod 1 <> 0;
+    header.interlacedOrder := (ord(imageDescriptor[9]) >> 6) mod 2 <> 0;
     header.bitsPerPixel := succ(ord(imageDescriptor[9]) mod 8);
     # writeln("leftPosition: " <& header.leftPosition);
     # writeln("topPosition: " <& header.topPosition);
