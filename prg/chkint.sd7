@@ -13770,254 +13770,6 @@ const func boolean: check_mdiv_min_max is func
   result
     var boolean: okay is TRUE;
   begin
-    if         2109876543  mdiv           INT32_MIN  <>          -1 or
-               2109876543  mdiv         -1073741824  <>          -2 or
-               2109876543  mdiv          -536870912  <>          -4 or
-               2109876543  mdiv          -268435456  <>          -8 or
-               2109876543  mdiv          -134217728  <>         -16 or
-               2109876543  mdiv           -67108864  <>         -32 or
-               2109876543  mdiv           -33554432  <>         -63 or
-               2109876543  mdiv           -16777216  <>        -126 or
-               2109876543  mdiv            -8388608  <>        -252 or
-               2109876543  mdiv            -4194304  <>        -504 or
-               2109876543  mdiv            -2097152  <>       -1007 or
-               2109876543  mdiv            -1048576  <>       -2013 or
-               2109876543  mdiv             -524288  <>       -4025 or
-               2109876543  mdiv             -262144  <>       -8049 or
-               2109876543  mdiv             -131072  <>      -16098 or
-               2109876543  mdiv              -65536  <>      -32195 or
-               2109876543  mdiv              -32768  <>      -64389 or
-               2109876543  mdiv              -16384  <>     -128777 or
-               2109876543  mdiv               -8192  <>     -257554 or
-               2109876543  mdiv               -4096  <>     -515107 or
-               2109876543  mdiv               -2048  <>    -1030214 or
-               2109876543  mdiv               -1024  <>    -2060427 or
-               2109876543  mdiv                -512  <>    -4120853 or
-               2109876543  mdiv                -256  <>    -8241706 or
-               2109876543  mdiv                -128  <>   -16483411 or
-               2109876543  mdiv                 -64  <>   -32966821 or
-               2109876543  mdiv                 -32  <>   -65933642 or
-               2109876543  mdiv                 -16  <>  -131867284 or
-               2109876543  mdiv                  -8  <>  -263734568 or
-               2109876543  mdiv                  -4  <>  -527469136 or
-               2109876543  mdiv                  -2  <> -1054938272 or
-               2109876543  mdiv                   2  <>  1054938271 or
-               2109876543  mdiv                   4  <>   527469135 or
-               2109876543  mdiv                   8  <>   263734567 or
-               2109876543  mdiv                  16  <>   131867283 or
-               2109876543  mdiv                  32  <>    65933641 or
-               2109876543  mdiv                  64  <>    32966820 or
-               2109876543  mdiv                 128  <>    16483410 or
-               2109876543  mdiv                 256  <>     8241705 or
-               2109876543  mdiv                 512  <>     4120852 or
-               2109876543  mdiv                1024  <>     2060426 or
-               2109876543  mdiv                2048  <>     1030213 or
-               2109876543  mdiv                4096  <>      515106 or
-               2109876543  mdiv                8192  <>      257553 or
-               2109876543  mdiv               16384  <>      128776 or
-               2109876543  mdiv               32768  <>       64388 or
-               2109876543  mdiv               65536  <>       32194 or
-               2109876543  mdiv              131072  <>       16097 or
-               2109876543  mdiv              262144  <>        8048 or
-               2109876543  mdiv              524288  <>        4024 or
-               2109876543  mdiv             1048576  <>        2012 or
-               2109876543  mdiv             2097152  <>        1006 or
-               2109876543  mdiv             4194304  <>         503 or
-               2109876543  mdiv             8388608  <>         251 or
-               2109876543  mdiv            16777216  <>         125 or
-               2109876543  mdiv            33554432  <>          62 or
-               2109876543  mdiv            67108864  <>          31 or
-               2109876543  mdiv           134217728  <>          15 or
-               2109876543  mdiv           268435456  <>           7 or
-               2109876543  mdiv           536870912  <>           3 or
-               2109876543  mdiv          1073741824  <>           1 or
-       intExpr(2109876543) mdiv           INT32_MIN  <>          -1 or
-       intExpr(2109876543) mdiv         -1073741824  <>          -2 or
-       intExpr(2109876543) mdiv          -536870912  <>          -4 or
-       intExpr(2109876543) mdiv          -268435456  <>          -8 or
-       intExpr(2109876543) mdiv          -134217728  <>         -16 or
-       intExpr(2109876543) mdiv           -67108864  <>         -32 or
-       intExpr(2109876543) mdiv           -33554432  <>         -63 or
-       intExpr(2109876543) mdiv           -16777216  <>        -126 or
-       intExpr(2109876543) mdiv            -8388608  <>        -252 or
-       intExpr(2109876543) mdiv            -4194304  <>        -504 or
-       intExpr(2109876543) mdiv            -2097152  <>       -1007 or
-       intExpr(2109876543) mdiv            -1048576  <>       -2013 or
-       intExpr(2109876543) mdiv             -524288  <>       -4025 or
-       intExpr(2109876543) mdiv             -262144  <>       -8049 or
-       intExpr(2109876543) mdiv             -131072  <>      -16098 or
-       intExpr(2109876543) mdiv              -65536  <>      -32195 or
-       intExpr(2109876543) mdiv              -32768  <>      -64389 or
-       intExpr(2109876543) mdiv              -16384  <>     -128777 or
-       intExpr(2109876543) mdiv               -8192  <>     -257554 or
-       intExpr(2109876543) mdiv               -4096  <>     -515107 or
-       intExpr(2109876543) mdiv               -2048  <>    -1030214 or
-       intExpr(2109876543) mdiv               -1024  <>    -2060427 or
-       intExpr(2109876543) mdiv                -512  <>    -4120853 or
-       intExpr(2109876543) mdiv                -256  <>    -8241706 or
-       intExpr(2109876543) mdiv                -128  <>   -16483411 or
-       intExpr(2109876543) mdiv                 -64  <>   -32966821 or
-       intExpr(2109876543) mdiv                 -32  <>   -65933642 or
-       intExpr(2109876543) mdiv                 -16  <>  -131867284 or
-       intExpr(2109876543) mdiv                  -8  <>  -263734568 or
-       intExpr(2109876543) mdiv                  -4  <>  -527469136 or
-       intExpr(2109876543) mdiv                  -2  <> -1054938272 or
-       intExpr(2109876543) mdiv                   2  <>  1054938271 or
-       intExpr(2109876543) mdiv                   4  <>   527469135 or
-       intExpr(2109876543) mdiv                   8  <>   263734567 or
-       intExpr(2109876543) mdiv                  16  <>   131867283 or
-       intExpr(2109876543) mdiv                  32  <>    65933641 or
-       intExpr(2109876543) mdiv                  64  <>    32966820 or
-       intExpr(2109876543) mdiv                 128  <>    16483410 or
-       intExpr(2109876543) mdiv                 256  <>     8241705 or
-       intExpr(2109876543) mdiv                 512  <>     4120852 or
-       intExpr(2109876543) mdiv                1024  <>     2060426 or
-       intExpr(2109876543) mdiv                2048  <>     1030213 or
-       intExpr(2109876543) mdiv                4096  <>      515106 or
-       intExpr(2109876543) mdiv                8192  <>      257553 or
-       intExpr(2109876543) mdiv               16384  <>      128776 or
-       intExpr(2109876543) mdiv               32768  <>       64388 or
-       intExpr(2109876543) mdiv               65536  <>       32194 or
-       intExpr(2109876543) mdiv              131072  <>       16097 or
-       intExpr(2109876543) mdiv              262144  <>        8048 or
-       intExpr(2109876543) mdiv              524288  <>        4024 or
-       intExpr(2109876543) mdiv             1048576  <>        2012 or
-       intExpr(2109876543) mdiv             2097152  <>        1006 or
-       intExpr(2109876543) mdiv             4194304  <>         503 or
-       intExpr(2109876543) mdiv             8388608  <>         251 or
-       intExpr(2109876543) mdiv            16777216  <>         125 or
-       intExpr(2109876543) mdiv            33554432  <>          62 or
-       intExpr(2109876543) mdiv            67108864  <>          31 or
-       intExpr(2109876543) mdiv           134217728  <>          15 or
-       intExpr(2109876543) mdiv           268435456  <>           7 or
-       intExpr(2109876543) mdiv           536870912  <>           3 or
-       intExpr(2109876543) mdiv          1073741824  <>           1 or
-               2109876543  mdiv intExpr(  INT32_MIN) <>          -1 or
-               2109876543  mdiv intExpr(-1073741824) <>          -2 or
-               2109876543  mdiv intExpr( -536870912) <>          -4 or
-               2109876543  mdiv intExpr( -268435456) <>          -8 or
-               2109876543  mdiv intExpr( -134217728) <>         -16 or
-               2109876543  mdiv intExpr(  -67108864) <>         -32 or
-               2109876543  mdiv intExpr(  -33554432) <>         -63 or
-               2109876543  mdiv intExpr(  -16777216) <>        -126 or
-               2109876543  mdiv intExpr(   -8388608) <>        -252 or
-               2109876543  mdiv intExpr(   -4194304) <>        -504 or
-               2109876543  mdiv intExpr(   -2097152) <>       -1007 or
-               2109876543  mdiv intExpr(   -1048576) <>       -2013 or
-               2109876543  mdiv intExpr(    -524288) <>       -4025 or
-               2109876543  mdiv intExpr(    -262144) <>       -8049 or
-               2109876543  mdiv intExpr(    -131072) <>      -16098 or
-               2109876543  mdiv intExpr(     -65536) <>      -32195 or
-               2109876543  mdiv intExpr(     -32768) <>      -64389 or
-               2109876543  mdiv intExpr(     -16384) <>     -128777 or
-               2109876543  mdiv intExpr(      -8192) <>     -257554 or
-               2109876543  mdiv intExpr(      -4096) <>     -515107 or
-               2109876543  mdiv intExpr(      -2048) <>    -1030214 or
-               2109876543  mdiv intExpr(      -1024) <>    -2060427 or
-               2109876543  mdiv intExpr(       -512) <>    -4120853 or
-               2109876543  mdiv intExpr(       -256) <>    -8241706 or
-               2109876543  mdiv intExpr(       -128) <>   -16483411 or
-               2109876543  mdiv intExpr(        -64) <>   -32966821 or
-               2109876543  mdiv intExpr(        -32) <>   -65933642 or
-               2109876543  mdiv intExpr(        -16) <>  -131867284 or
-               2109876543  mdiv intExpr(         -8) <>  -263734568 or
-               2109876543  mdiv intExpr(         -4) <>  -527469136 or
-               2109876543  mdiv intExpr(         -2) <> -1054938272 or
-               2109876543  mdiv intExpr(          2) <>  1054938271 or
-               2109876543  mdiv intExpr(          4) <>   527469135 or
-               2109876543  mdiv intExpr(          8) <>   263734567 or
-               2109876543  mdiv intExpr(         16) <>   131867283 or
-               2109876543  mdiv intExpr(         32) <>    65933641 or
-               2109876543  mdiv intExpr(         64) <>    32966820 or
-               2109876543  mdiv intExpr(        128) <>    16483410 or
-               2109876543  mdiv intExpr(        256) <>     8241705 or
-               2109876543  mdiv intExpr(        512) <>     4120852 or
-               2109876543  mdiv intExpr(       1024) <>     2060426 or
-               2109876543  mdiv intExpr(       2048) <>     1030213 or
-               2109876543  mdiv intExpr(       4096) <>      515106 or
-               2109876543  mdiv intExpr(       8192) <>      257553 or
-               2109876543  mdiv intExpr(      16384) <>      128776 or
-               2109876543  mdiv intExpr(      32768) <>       64388 or
-               2109876543  mdiv intExpr(      65536) <>       32194 or
-               2109876543  mdiv intExpr(     131072) <>       16097 or
-               2109876543  mdiv intExpr(     262144) <>        8048 or
-               2109876543  mdiv intExpr(     524288) <>        4024 or
-               2109876543  mdiv intExpr(    1048576) <>        2012 or
-               2109876543  mdiv intExpr(    2097152) <>        1006 or
-               2109876543  mdiv intExpr(    4194304) <>         503 or
-               2109876543  mdiv intExpr(    8388608) <>         251 or
-               2109876543  mdiv intExpr(   16777216) <>         125 or
-               2109876543  mdiv intExpr(   33554432) <>          62 or
-               2109876543  mdiv intExpr(   67108864) <>          31 or
-               2109876543  mdiv intExpr(  134217728) <>          15 or
-               2109876543  mdiv intExpr(  268435456) <>           7 or
-               2109876543  mdiv intExpr(  536870912) <>           3 or
-               2109876543  mdiv intExpr( 1073741824) <>           1 or
-       intExpr(2109876543) mdiv intExpr(  INT32_MIN) <>          -1 or
-       intExpr(2109876543) mdiv intExpr(-1073741824) <>          -2 or
-       intExpr(2109876543) mdiv intExpr( -536870912) <>          -4 or
-       intExpr(2109876543) mdiv intExpr( -268435456) <>          -8 or
-       intExpr(2109876543) mdiv intExpr( -134217728) <>         -16 or
-       intExpr(2109876543) mdiv intExpr(  -67108864) <>         -32 or
-       intExpr(2109876543) mdiv intExpr(  -33554432) <>         -63 or
-       intExpr(2109876543) mdiv intExpr(  -16777216) <>        -126 or
-       intExpr(2109876543) mdiv intExpr(   -8388608) <>        -252 or
-       intExpr(2109876543) mdiv intExpr(   -4194304) <>        -504 or
-       intExpr(2109876543) mdiv intExpr(   -2097152) <>       -1007 or
-       intExpr(2109876543) mdiv intExpr(   -1048576) <>       -2013 or
-       intExpr(2109876543) mdiv intExpr(    -524288) <>       -4025 or
-       intExpr(2109876543) mdiv intExpr(    -262144) <>       -8049 or
-       intExpr(2109876543) mdiv intExpr(    -131072) <>      -16098 or
-       intExpr(2109876543) mdiv intExpr(     -65536) <>      -32195 or
-       intExpr(2109876543) mdiv intExpr(     -32768) <>      -64389 or
-       intExpr(2109876543) mdiv intExpr(     -16384) <>     -128777 or
-       intExpr(2109876543) mdiv intExpr(      -8192) <>     -257554 or
-       intExpr(2109876543) mdiv intExpr(      -4096) <>     -515107 or
-       intExpr(2109876543) mdiv intExpr(      -2048) <>    -1030214 or
-       intExpr(2109876543) mdiv intExpr(      -1024) <>    -2060427 or
-       intExpr(2109876543) mdiv intExpr(       -512) <>    -4120853 or
-       intExpr(2109876543) mdiv intExpr(       -256) <>    -8241706 or
-       intExpr(2109876543) mdiv intExpr(       -128) <>   -16483411 or
-       intExpr(2109876543) mdiv intExpr(        -64) <>   -32966821 or
-       intExpr(2109876543) mdiv intExpr(        -32) <>   -65933642 or
-       intExpr(2109876543) mdiv intExpr(        -16) <>  -131867284 or
-       intExpr(2109876543) mdiv intExpr(         -8) <>  -263734568 or
-       intExpr(2109876543) mdiv intExpr(         -4) <>  -527469136 or
-       intExpr(2109876543) mdiv intExpr(         -2) <> -1054938272 or
-       intExpr(2109876543) mdiv intExpr(          2) <>  1054938271 or
-       intExpr(2109876543) mdiv intExpr(          4) <>   527469135 or
-       intExpr(2109876543) mdiv intExpr(          8) <>   263734567 or
-       intExpr(2109876543) mdiv intExpr(         16) <>   131867283 or
-       intExpr(2109876543) mdiv intExpr(         32) <>    65933641 or
-       intExpr(2109876543) mdiv intExpr(         64) <>    32966820 or
-       intExpr(2109876543) mdiv intExpr(        128) <>    16483410 or
-       intExpr(2109876543) mdiv intExpr(        256) <>     8241705 or
-       intExpr(2109876543) mdiv intExpr(        512) <>     4120852 or
-       intExpr(2109876543) mdiv intExpr(       1024) <>     2060426 or
-       intExpr(2109876543) mdiv intExpr(       2048) <>     1030213 or
-       intExpr(2109876543) mdiv intExpr(       4096) <>      515106 or
-       intExpr(2109876543) mdiv intExpr(       8192) <>      257553 or
-       intExpr(2109876543) mdiv intExpr(      16384) <>      128776 or
-       intExpr(2109876543) mdiv intExpr(      32768) <>       64388 or
-       intExpr(2109876543) mdiv intExpr(      65536) <>       32194 or
-       intExpr(2109876543) mdiv intExpr(     131072) <>       16097 or
-       intExpr(2109876543) mdiv intExpr(     262144) <>        8048 or
-       intExpr(2109876543) mdiv intExpr(     524288) <>        4024 or
-       intExpr(2109876543) mdiv intExpr(    1048576) <>        2012 or
-       intExpr(2109876543) mdiv intExpr(    2097152) <>        1006 or
-       intExpr(2109876543) mdiv intExpr(    4194304) <>         503 or
-       intExpr(2109876543) mdiv intExpr(    8388608) <>         251 or
-       intExpr(2109876543) mdiv intExpr(   16777216) <>         125 or
-       intExpr(2109876543) mdiv intExpr(   33554432) <>          62 or
-       intExpr(2109876543) mdiv intExpr(   67108864) <>          31 or
-       intExpr(2109876543) mdiv intExpr(  134217728) <>          15 or
-       intExpr(2109876543) mdiv intExpr(  268435456) <>           7 or
-       intExpr(2109876543) mdiv intExpr(  536870912) <>           3 or
-       intExpr(2109876543) mdiv intExpr( 1073741824) <>           1 then
-      writeln(" ***** mdiv with powers of two does not work correct.");
-      okay := FALSE;
-    end if;
-
     if  INT64_MIN mdiv           INT64_MIN <>                    1 or
         INT64_MIN mdiv         -8589934592 <>           1073741824 or
         INT64_MIN mdiv         -4294967296 <>           2147483648 or
@@ -14054,8 +13806,12 @@ const func boolean: check_mdiv_min_max is func
         INT64_MAX mdiv 4611686018427387903 <>                    2 or
         INT64_MAX mdiv 4611686018427387904 <>                    1 or
         INT64_MAX mdiv 4611686018427387905 <>                    1 or
-        INT64_MAX mdiv           INT64_MAX <>                    1 or
-        intExpr(INT64_MIN) mdiv           INT64_MIN <>                    1 or
+        INT64_MAX mdiv           INT64_MAX <>                    1 then
+      writeln(" ***** mdiv with maximum values does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(INT64_MIN) mdiv           INT64_MIN <>                    1 or
         intExpr(INT64_MIN) mdiv         -8589934592 <>           1073741824 or
         intExpr(INT64_MIN) mdiv         -4294967296 <>           2147483648 or
         intExpr(INT64_MIN) mdiv         -2147483649 <>           4294967294 or
@@ -14091,8 +13847,12 @@ const func boolean: check_mdiv_min_max is func
         intExpr(INT64_MAX) mdiv 4611686018427387903 <>                    2 or
         intExpr(INT64_MAX) mdiv 4611686018427387904 <>                    1 or
         intExpr(INT64_MAX) mdiv 4611686018427387905 <>                    1 or
-        intExpr(INT64_MAX) mdiv           INT64_MAX <>                    1 or
-        INT64_MIN mdiv intExpr(          INT64_MIN) <>                    1 or
+        intExpr(INT64_MAX) mdiv           INT64_MAX <>                    1 then
+      writeln(" ***** mdiv with maximum values does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  INT64_MIN mdiv intExpr(          INT64_MIN) <>                    1 or
         INT64_MIN mdiv intExpr(        -8589934592) <>           1073741824 or
         INT64_MIN mdiv intExpr(        -4294967296) <>           2147483648 or
         INT64_MIN mdiv intExpr(        -2147483649) <>           4294967294 or
@@ -14128,8 +13888,12 @@ const func boolean: check_mdiv_min_max is func
         INT64_MAX mdiv intExpr(4611686018427387903) <>                    2 or
         INT64_MAX mdiv intExpr(4611686018427387904) <>                    1 or
         INT64_MAX mdiv intExpr(4611686018427387905) <>                    1 or
-        INT64_MAX mdiv intExpr(          INT64_MAX) <>                    1 or
-        intExpr(INT64_MIN) mdiv intExpr(          INT64_MIN) <>           1 or
+        INT64_MAX mdiv intExpr(          INT64_MAX) <>                    1 then
+      writeln(" ***** mdiv with maximum values does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(INT64_MIN) mdiv intExpr(          INT64_MIN) <>           1 or
         intExpr(INT64_MIN) mdiv intExpr(        -8589934592) <>           1073741824 or
         intExpr(INT64_MIN) mdiv intExpr(        -4294967296) <>           2147483648 or
         intExpr(INT64_MIN) mdiv intExpr(        -2147483649) <>           4294967294 or
@@ -14166,7 +13930,289 @@ const func boolean: check_mdiv_min_max is func
         intExpr(INT64_MAX) mdiv intExpr(4611686018427387904) <>                    1 or
         intExpr(INT64_MAX) mdiv intExpr(4611686018427387905) <>                    1 or
         intExpr(INT64_MAX) mdiv intExpr(          INT64_MAX) <>                    1 then
-      writeln(" ***** mdiv with maximum values does not work correct.");
+      writeln(" ***** mdiv with maximum values does not work correct. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_mdiv_powers_of_two is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if         2109876543  mdiv                   2  <>  1054938271 or
+               2109876543  mdiv                   4  <>   527469135 or
+               2109876543  mdiv                   8  <>   263734567 or
+               2109876543  mdiv                  16  <>   131867283 or
+               2109876543  mdiv                  32  <>    65933641 or
+               2109876543  mdiv                  64  <>    32966820 or
+               2109876543  mdiv                 128  <>    16483410 or
+               2109876543  mdiv                 256  <>     8241705 or
+               2109876543  mdiv                 512  <>     4120852 or
+               2109876543  mdiv                1024  <>     2060426 or
+               2109876543  mdiv                2048  <>     1030213 or
+               2109876543  mdiv                4096  <>      515106 or
+               2109876543  mdiv                8192  <>      257553 or
+               2109876543  mdiv               16384  <>      128776 or
+               2109876543  mdiv               32768  <>       64388 or
+               2109876543  mdiv               65536  <>       32194 or
+               2109876543  mdiv              131072  <>       16097 or
+               2109876543  mdiv              262144  <>        8048 or
+               2109876543  mdiv              524288  <>        4024 or
+               2109876543  mdiv             1048576  <>        2012 or
+               2109876543  mdiv             2097152  <>        1006 or
+               2109876543  mdiv             4194304  <>         503 or
+               2109876543  mdiv             8388608  <>         251 or
+               2109876543  mdiv            16777216  <>         125 or
+               2109876543  mdiv            33554432  <>          62 or
+               2109876543  mdiv            67108864  <>          31 or
+               2109876543  mdiv           134217728  <>          15 or
+               2109876543  mdiv           268435456  <>           7 or
+               2109876543  mdiv           536870912  <>           3 or
+               2109876543  mdiv          1073741824  <>           1 then
+      writeln(" ***** mdiv with positive powers of two does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if intExpr(2109876543) mdiv                   2  <>  1054938271 or
+       intExpr(2109876543) mdiv                   4  <>   527469135 or
+       intExpr(2109876543) mdiv                   8  <>   263734567 or
+       intExpr(2109876543) mdiv                  16  <>   131867283 or
+       intExpr(2109876543) mdiv                  32  <>    65933641 or
+       intExpr(2109876543) mdiv                  64  <>    32966820 or
+       intExpr(2109876543) mdiv                 128  <>    16483410 or
+       intExpr(2109876543) mdiv                 256  <>     8241705 or
+       intExpr(2109876543) mdiv                 512  <>     4120852 or
+       intExpr(2109876543) mdiv                1024  <>     2060426 or
+       intExpr(2109876543) mdiv                2048  <>     1030213 or
+       intExpr(2109876543) mdiv                4096  <>      515106 or
+       intExpr(2109876543) mdiv                8192  <>      257553 or
+       intExpr(2109876543) mdiv               16384  <>      128776 or
+       intExpr(2109876543) mdiv               32768  <>       64388 or
+       intExpr(2109876543) mdiv               65536  <>       32194 or
+       intExpr(2109876543) mdiv              131072  <>       16097 or
+       intExpr(2109876543) mdiv              262144  <>        8048 or
+       intExpr(2109876543) mdiv              524288  <>        4024 or
+       intExpr(2109876543) mdiv             1048576  <>        2012 or
+       intExpr(2109876543) mdiv             2097152  <>        1006 or
+       intExpr(2109876543) mdiv             4194304  <>         503 or
+       intExpr(2109876543) mdiv             8388608  <>         251 or
+       intExpr(2109876543) mdiv            16777216  <>         125 or
+       intExpr(2109876543) mdiv            33554432  <>          62 or
+       intExpr(2109876543) mdiv            67108864  <>          31 or
+       intExpr(2109876543) mdiv           134217728  <>          15 or
+       intExpr(2109876543) mdiv           268435456  <>           7 or
+       intExpr(2109876543) mdiv           536870912  <>           3 or
+       intExpr(2109876543) mdiv          1073741824  <>           1 then
+      writeln(" ***** mdiv with positive powers of two does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if         2109876543  mdiv intExpr(          2) <>  1054938271 or
+               2109876543  mdiv intExpr(          4) <>   527469135 or
+               2109876543  mdiv intExpr(          8) <>   263734567 or
+               2109876543  mdiv intExpr(         16) <>   131867283 or
+               2109876543  mdiv intExpr(         32) <>    65933641 or
+               2109876543  mdiv intExpr(         64) <>    32966820 or
+               2109876543  mdiv intExpr(        128) <>    16483410 or
+               2109876543  mdiv intExpr(        256) <>     8241705 or
+               2109876543  mdiv intExpr(        512) <>     4120852 or
+               2109876543  mdiv intExpr(       1024) <>     2060426 or
+               2109876543  mdiv intExpr(       2048) <>     1030213 or
+               2109876543  mdiv intExpr(       4096) <>      515106 or
+               2109876543  mdiv intExpr(       8192) <>      257553 or
+               2109876543  mdiv intExpr(      16384) <>      128776 or
+               2109876543  mdiv intExpr(      32768) <>       64388 or
+               2109876543  mdiv intExpr(      65536) <>       32194 or
+               2109876543  mdiv intExpr(     131072) <>       16097 or
+               2109876543  mdiv intExpr(     262144) <>        8048 or
+               2109876543  mdiv intExpr(     524288) <>        4024 or
+               2109876543  mdiv intExpr(    1048576) <>        2012 or
+               2109876543  mdiv intExpr(    2097152) <>        1006 or
+               2109876543  mdiv intExpr(    4194304) <>         503 or
+               2109876543  mdiv intExpr(    8388608) <>         251 or
+               2109876543  mdiv intExpr(   16777216) <>         125 or
+               2109876543  mdiv intExpr(   33554432) <>          62 or
+               2109876543  mdiv intExpr(   67108864) <>          31 or
+               2109876543  mdiv intExpr(  134217728) <>          15 or
+               2109876543  mdiv intExpr(  268435456) <>           7 or
+               2109876543  mdiv intExpr(  536870912) <>           3 or
+               2109876543  mdiv intExpr( 1073741824) <>           1 then
+      writeln(" ***** mdiv with positive powers of two does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if intExpr(2109876543) mdiv intExpr(          2) <>  1054938271 or
+       intExpr(2109876543) mdiv intExpr(          4) <>   527469135 or
+       intExpr(2109876543) mdiv intExpr(          8) <>   263734567 or
+       intExpr(2109876543) mdiv intExpr(         16) <>   131867283 or
+       intExpr(2109876543) mdiv intExpr(         32) <>    65933641 or
+       intExpr(2109876543) mdiv intExpr(         64) <>    32966820 or
+       intExpr(2109876543) mdiv intExpr(        128) <>    16483410 or
+       intExpr(2109876543) mdiv intExpr(        256) <>     8241705 or
+       intExpr(2109876543) mdiv intExpr(        512) <>     4120852 or
+       intExpr(2109876543) mdiv intExpr(       1024) <>     2060426 or
+       intExpr(2109876543) mdiv intExpr(       2048) <>     1030213 or
+       intExpr(2109876543) mdiv intExpr(       4096) <>      515106 or
+       intExpr(2109876543) mdiv intExpr(       8192) <>      257553 or
+       intExpr(2109876543) mdiv intExpr(      16384) <>      128776 or
+       intExpr(2109876543) mdiv intExpr(      32768) <>       64388 or
+       intExpr(2109876543) mdiv intExpr(      65536) <>       32194 or
+       intExpr(2109876543) mdiv intExpr(     131072) <>       16097 or
+       intExpr(2109876543) mdiv intExpr(     262144) <>        8048 or
+       intExpr(2109876543) mdiv intExpr(     524288) <>        4024 or
+       intExpr(2109876543) mdiv intExpr(    1048576) <>        2012 or
+       intExpr(2109876543) mdiv intExpr(    2097152) <>        1006 or
+       intExpr(2109876543) mdiv intExpr(    4194304) <>         503 or
+       intExpr(2109876543) mdiv intExpr(    8388608) <>         251 or
+       intExpr(2109876543) mdiv intExpr(   16777216) <>         125 or
+       intExpr(2109876543) mdiv intExpr(   33554432) <>          62 or
+       intExpr(2109876543) mdiv intExpr(   67108864) <>          31 or
+       intExpr(2109876543) mdiv intExpr(  134217728) <>          15 or
+       intExpr(2109876543) mdiv intExpr(  268435456) <>           7 or
+       intExpr(2109876543) mdiv intExpr(  536870912) <>           3 or
+       intExpr(2109876543) mdiv intExpr( 1073741824) <>           1 then
+      writeln(" ***** mdiv with positive powers of two does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if         2109876543  mdiv           INT32_MIN  <>          -1 or
+               2109876543  mdiv         -1073741824  <>          -2 or
+               2109876543  mdiv          -536870912  <>          -4 or
+               2109876543  mdiv          -268435456  <>          -8 or
+               2109876543  mdiv          -134217728  <>         -16 or
+               2109876543  mdiv           -67108864  <>         -32 or
+               2109876543  mdiv           -33554432  <>         -63 or
+               2109876543  mdiv           -16777216  <>        -126 or
+               2109876543  mdiv            -8388608  <>        -252 or
+               2109876543  mdiv            -4194304  <>        -504 or
+               2109876543  mdiv            -2097152  <>       -1007 or
+               2109876543  mdiv            -1048576  <>       -2013 or
+               2109876543  mdiv             -524288  <>       -4025 or
+               2109876543  mdiv             -262144  <>       -8049 or
+               2109876543  mdiv             -131072  <>      -16098 or
+               2109876543  mdiv              -65536  <>      -32195 or
+               2109876543  mdiv              -32768  <>      -64389 or
+               2109876543  mdiv              -16384  <>     -128777 or
+               2109876543  mdiv               -8192  <>     -257554 or
+               2109876543  mdiv               -4096  <>     -515107 or
+               2109876543  mdiv               -2048  <>    -1030214 or
+               2109876543  mdiv               -1024  <>    -2060427 or
+               2109876543  mdiv                -512  <>    -4120853 or
+               2109876543  mdiv                -256  <>    -8241706 or
+               2109876543  mdiv                -128  <>   -16483411 or
+               2109876543  mdiv                 -64  <>   -32966821 or
+               2109876543  mdiv                 -32  <>   -65933642 or
+               2109876543  mdiv                 -16  <>  -131867284 or
+               2109876543  mdiv                  -8  <>  -263734568 or
+               2109876543  mdiv                  -4  <>  -527469136 or
+               2109876543  mdiv                  -2  <> -1054938272 then
+      writeln(" ***** mdiv with negative powers of two does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if intExpr(2109876543) mdiv           INT32_MIN  <>          -1 or
+       intExpr(2109876543) mdiv         -1073741824  <>          -2 or
+       intExpr(2109876543) mdiv          -536870912  <>          -4 or
+       intExpr(2109876543) mdiv          -268435456  <>          -8 or
+       intExpr(2109876543) mdiv          -134217728  <>         -16 or
+       intExpr(2109876543) mdiv           -67108864  <>         -32 or
+       intExpr(2109876543) mdiv           -33554432  <>         -63 or
+       intExpr(2109876543) mdiv           -16777216  <>        -126 or
+       intExpr(2109876543) mdiv            -8388608  <>        -252 or
+       intExpr(2109876543) mdiv            -4194304  <>        -504 or
+       intExpr(2109876543) mdiv            -2097152  <>       -1007 or
+       intExpr(2109876543) mdiv            -1048576  <>       -2013 or
+       intExpr(2109876543) mdiv             -524288  <>       -4025 or
+       intExpr(2109876543) mdiv             -262144  <>       -8049 or
+       intExpr(2109876543) mdiv             -131072  <>      -16098 or
+       intExpr(2109876543) mdiv              -65536  <>      -32195 or
+       intExpr(2109876543) mdiv              -32768  <>      -64389 or
+       intExpr(2109876543) mdiv              -16384  <>     -128777 or
+       intExpr(2109876543) mdiv               -8192  <>     -257554 or
+       intExpr(2109876543) mdiv               -4096  <>     -515107 or
+       intExpr(2109876543) mdiv               -2048  <>    -1030214 or
+       intExpr(2109876543) mdiv               -1024  <>    -2060427 or
+       intExpr(2109876543) mdiv                -512  <>    -4120853 or
+       intExpr(2109876543) mdiv                -256  <>    -8241706 or
+       intExpr(2109876543) mdiv                -128  <>   -16483411 or
+       intExpr(2109876543) mdiv                 -64  <>   -32966821 or
+       intExpr(2109876543) mdiv                 -32  <>   -65933642 or
+       intExpr(2109876543) mdiv                 -16  <>  -131867284 or
+       intExpr(2109876543) mdiv                  -8  <>  -263734568 or
+       intExpr(2109876543) mdiv                  -4  <>  -527469136 or
+       intExpr(2109876543) mdiv                  -2  <> -1054938272 then
+      writeln(" ***** mdiv with negative powers of two does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if         2109876543  mdiv intExpr(  INT32_MIN) <>          -1 or
+               2109876543  mdiv intExpr(-1073741824) <>          -2 or
+               2109876543  mdiv intExpr( -536870912) <>          -4 or
+               2109876543  mdiv intExpr( -268435456) <>          -8 or
+               2109876543  mdiv intExpr( -134217728) <>         -16 or
+               2109876543  mdiv intExpr(  -67108864) <>         -32 or
+               2109876543  mdiv intExpr(  -33554432) <>         -63 or
+               2109876543  mdiv intExpr(  -16777216) <>        -126 or
+               2109876543  mdiv intExpr(   -8388608) <>        -252 or
+               2109876543  mdiv intExpr(   -4194304) <>        -504 or
+               2109876543  mdiv intExpr(   -2097152) <>       -1007 or
+               2109876543  mdiv intExpr(   -1048576) <>       -2013 or
+               2109876543  mdiv intExpr(    -524288) <>       -4025 or
+               2109876543  mdiv intExpr(    -262144) <>       -8049 or
+               2109876543  mdiv intExpr(    -131072) <>      -16098 or
+               2109876543  mdiv intExpr(     -65536) <>      -32195 or
+               2109876543  mdiv intExpr(     -32768) <>      -64389 or
+               2109876543  mdiv intExpr(     -16384) <>     -128777 or
+               2109876543  mdiv intExpr(      -8192) <>     -257554 or
+               2109876543  mdiv intExpr(      -4096) <>     -515107 or
+               2109876543  mdiv intExpr(      -2048) <>    -1030214 or
+               2109876543  mdiv intExpr(      -1024) <>    -2060427 or
+               2109876543  mdiv intExpr(       -512) <>    -4120853 or
+               2109876543  mdiv intExpr(       -256) <>    -8241706 or
+               2109876543  mdiv intExpr(       -128) <>   -16483411 or
+               2109876543  mdiv intExpr(        -64) <>   -32966821 or
+               2109876543  mdiv intExpr(        -32) <>   -65933642 or
+               2109876543  mdiv intExpr(        -16) <>  -131867284 or
+               2109876543  mdiv intExpr(         -8) <>  -263734568 or
+               2109876543  mdiv intExpr(         -4) <>  -527469136 or
+               2109876543  mdiv intExpr(         -2) <> -1054938272 then
+      writeln(" ***** mdiv with negative powers of two does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if intExpr(2109876543) mdiv intExpr(  INT32_MIN) <>          -1 or
+       intExpr(2109876543) mdiv intExpr(-1073741824) <>          -2 or
+       intExpr(2109876543) mdiv intExpr( -536870912) <>          -4 or
+       intExpr(2109876543) mdiv intExpr( -268435456) <>          -8 or
+       intExpr(2109876543) mdiv intExpr( -134217728) <>         -16 or
+       intExpr(2109876543) mdiv intExpr(  -67108864) <>         -32 or
+       intExpr(2109876543) mdiv intExpr(  -33554432) <>         -63 or
+       intExpr(2109876543) mdiv intExpr(  -16777216) <>        -126 or
+       intExpr(2109876543) mdiv intExpr(   -8388608) <>        -252 or
+       intExpr(2109876543) mdiv intExpr(   -4194304) <>        -504 or
+       intExpr(2109876543) mdiv intExpr(   -2097152) <>       -1007 or
+       intExpr(2109876543) mdiv intExpr(   -1048576) <>       -2013 or
+       intExpr(2109876543) mdiv intExpr(    -524288) <>       -4025 or
+       intExpr(2109876543) mdiv intExpr(    -262144) <>       -8049 or
+       intExpr(2109876543) mdiv intExpr(    -131072) <>      -16098 or
+       intExpr(2109876543) mdiv intExpr(     -65536) <>      -32195 or
+       intExpr(2109876543) mdiv intExpr(     -32768) <>      -64389 or
+       intExpr(2109876543) mdiv intExpr(     -16384) <>     -128777 or
+       intExpr(2109876543) mdiv intExpr(      -8192) <>     -257554 or
+       intExpr(2109876543) mdiv intExpr(      -4096) <>     -515107 or
+       intExpr(2109876543) mdiv intExpr(      -2048) <>    -1030214 or
+       intExpr(2109876543) mdiv intExpr(      -1024) <>    -2060427 or
+       intExpr(2109876543) mdiv intExpr(       -512) <>    -4120853 or
+       intExpr(2109876543) mdiv intExpr(       -256) <>    -8241706 or
+       intExpr(2109876543) mdiv intExpr(       -128) <>   -16483411 or
+       intExpr(2109876543) mdiv intExpr(        -64) <>   -32966821 or
+       intExpr(2109876543) mdiv intExpr(        -32) <>   -65933642 or
+       intExpr(2109876543) mdiv intExpr(        -16) <>  -131867284 or
+       intExpr(2109876543) mdiv intExpr(         -8) <>  -263734568 or
+       intExpr(2109876543) mdiv intExpr(         -4) <>  -527469136 or
+       intExpr(2109876543) mdiv intExpr(         -2) <> -1054938272 then
+      writeln(" ***** mdiv with negative powers of two does not work correct. (4)");
       okay := FALSE;
     end if;
   end func;
@@ -14744,16 +14790,57 @@ const func boolean: check_mdiv_optimization is func
       okay := FALSE;
     end if;
 
-    if  succ( abs(intExpr( 9223372036854775806))) mdiv pred(-abs(intExpr(       integer.last))) <>                   -1 or
-        succ( abs(intExpr( 9223372036854775806))) mdiv pred(-abs(intExpr(           12345652))) <>        -747094709114 or
-        succ( abs(intExpr( 9223372036854775806))) mdiv pred(-abs(intExpr(                  0))) <> -9223372036854775807 or
-        succ( abs(intExpr(            12345652))) mdiv pred(-abs(intExpr(       integer.last))) <>                   -1 or
-        succ( abs(intExpr(            12345652))) mdiv pred(-abs(intExpr(           12345652))) <>                   -1 or
-        succ( abs(intExpr(            12345652))) mdiv pred(-abs(intExpr(                  0))) <>            -12345653 or
-        succ( abs(intExpr(                   0))) mdiv pred(-abs(intExpr(       integer.last))) <>                   -1 or
-        succ( abs(intExpr(                   0))) mdiv pred(-abs(intExpr(           12345652))) <>                   -1 or
-        succ( abs(intExpr(                   0))) mdiv pred(-abs(intExpr(                  0))) <>                   -1 then
-      writeln(" ***** mdiv optimization with dividend > 0 and divisor < 0 does not work correct.");
+    if  pred(-abs(intExpr(        integer.last))) mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                    1 or
+        pred(-abs(intExpr(        integer.last))) mdiv (-abs(intExpr(            12345651)) - 2) <>         747094709113 or
+        pred(-abs(intExpr(        integer.last))) mdiv (-abs(intExpr(                   0)) - 2) <>  4611686018427387904 or
+        pred(-abs(intExpr(            12345652))) mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+        pred(-abs(intExpr(            12345652))) mdiv (-abs(intExpr(            12345651)) - 2) <>                    1 or
+        pred(-abs(intExpr(            12345652))) mdiv (-abs(intExpr(                   0)) - 2) <>              6172826 or
+        pred(-abs(intExpr(                   0))) mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+        pred(-abs(intExpr(                   0))) mdiv (-abs(intExpr(            12345651)) - 2) <>                    0 or
+        pred(-abs(intExpr(                   0))) mdiv (-abs(intExpr(                   0)) - 2) <>                    0 then
+      writeln(" ***** mdiv optimization with dividend < 0 and divisor < -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) mdiv pred(-abs(intExpr(       integer.last))) <>                    1 or
+        pred(-abs(intExpr(        integer.last))) mdiv pred(-abs(intExpr(           12345652))) <>         747094709113 or
+        pred(-abs(intExpr(        integer.last))) mdiv pred(-abs(intExpr(                  1))) <>  4611686018427387904 or
+        pred(-abs(intExpr( 9223372036854775806))) mdiv pred(-abs(intExpr(                  0))) <>  9223372036854775807 or
+        pred(-abs(intExpr(            12345652))) mdiv pred(-abs(intExpr(       integer.last))) <>                    0 or
+        pred(-abs(intExpr(            12345652))) mdiv pred(-abs(intExpr(           12345652))) <>                    1 or
+        pred(-abs(intExpr(            12345652))) mdiv pred(-abs(intExpr(                  0))) <>             12345653 or
+        pred(-abs(intExpr(                   0))) mdiv pred(-abs(intExpr(       integer.last))) <>                    0 or
+        pred(-abs(intExpr(                   0))) mdiv pred(-abs(intExpr(           12345652))) <>                    0 or
+        pred(-abs(intExpr(                   0))) mdiv pred(-abs(intExpr(                  0))) <>                    1 then
+      writeln(" ***** mdiv optimization with dividend < 0 and divisor < 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) mdiv      -abs(intExpr(       integer.last))  <>                    1 or
+        pred(-abs(intExpr(        integer.last))) mdiv      -abs(intExpr(           12345653))  <>         747094709113 or
+        pred(-abs(intExpr(        integer.last))) mdiv      -abs(intExpr(                  2))  <>  4611686018427387904 or
+        pred(-abs(intExpr( 9223372036854775806))) mdiv      -abs(intExpr(                  1))  <>  9223372036854775807 or
+        pred(-abs(intExpr(            12345652))) mdiv      -abs(intExpr(       integer.last))  <>                    0 or
+        pred(-abs(intExpr(            12345652))) mdiv      -abs(intExpr(           12345653))  <>                    1 or
+        pred(-abs(intExpr(            12345652))) mdiv      -abs(intExpr(                  1))  <>             12345653 or
+        pred(-abs(intExpr(                   0))) mdiv      -abs(intExpr(       integer.last))  <>                    0 or
+        pred(-abs(intExpr(                   0))) mdiv      -abs(intExpr(           12345653))  <>                    0 or
+        pred(-abs(intExpr(                   0))) mdiv      -abs(intExpr(                  1))  <>                    1 then
+      writeln(" ***** mdiv optimization with dividend < 0 and divisor <= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) mdiv       abs(intExpr(       integer.last))  <>                   -2 or
+        pred(-abs(intExpr(        integer.last))) mdiv       abs(intExpr(           12345653))  <>        -747094709114 or
+        pred(-abs(intExpr(        integer.last))) mdiv       abs(intExpr(                  1))  <>        integer.first or
+        pred(-abs(intExpr(            12345652))) mdiv       abs(intExpr(       integer.last))  <>                   -1 or
+        pred(-abs(intExpr(            12345652))) mdiv       abs(intExpr(           12345653))  <>                   -1 or
+        pred(-abs(intExpr(            12345652))) mdiv       abs(intExpr(                  1))  <>            -12345653 or
+        pred(-abs(intExpr(                   0))) mdiv       abs(intExpr(       integer.last))  <>                   -1 or
+        pred(-abs(intExpr(                   0))) mdiv       abs(intExpr(           12345653))  <>                   -1 or
+        pred(-abs(intExpr(                   0))) mdiv       abs(intExpr(                  1))  <>                   -1 then
+      writeln(" ***** mdiv optimization with dividend < 0 and divisor >= 0 does not work correct.");
       okay := FALSE;
     end if;
 
@@ -14767,6 +14854,201 @@ const func boolean: check_mdiv_optimization is func
         pred(-abs(intExpr(                   0))) mdiv succ( abs(intExpr(           12345652))) <>                   -1 or
         pred(-abs(intExpr(                   0))) mdiv succ( abs(intExpr(                  0))) <>                   -1 then
       writeln(" ***** mdiv optimization with dividend < 0 and divisor > 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+             -abs(intExpr(        integer.last))  mdiv (-abs(intExpr(            12345651)) - 2) <>         747094709113 or
+             -abs(intExpr(        integer.last))  mdiv (-abs(intExpr(                   0)) - 2) <>  4611686018427387903 or
+             -abs(intExpr(            12345653))  mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+             -abs(intExpr(            12345653))  mdiv (-abs(intExpr(            12345651)) - 2) <>                    1 or
+             -abs(intExpr(            12345653))  mdiv (-abs(intExpr(                   0)) - 2) <>              6172826 or
+             -abs(intExpr(                   0))  mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+             -abs(intExpr(                   0))  mdiv (-abs(intExpr(            12345651)) - 2) <>                    0 or
+             -abs(intExpr(                   0))  mdiv (-abs(intExpr(                   0)) - 2) <>                    0 then
+      writeln(" ***** mdiv optimization with dividend <= 0 and divisor < -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mdiv pred(-abs(intExpr(       integer.last))) <>                    0 or
+             -abs(intExpr(        integer.last))  mdiv pred(-abs(intExpr(           12345652))) <>         747094709113 or
+             -abs(intExpr(        integer.last))  mdiv pred(-abs(intExpr(                  0))) <>  9223372036854775807 or
+             -abs(intExpr(            12345653))  mdiv pred(-abs(intExpr(       integer.last))) <>                    0 or
+             -abs(intExpr(            12345653))  mdiv pred(-abs(intExpr(           12345652))) <>                    1 or
+             -abs(intExpr(            12345653))  mdiv pred(-abs(intExpr(                  0))) <>             12345653 or
+             -abs(intExpr(                   0))  mdiv pred(-abs(intExpr(       integer.last))) <>                    0 or
+             -abs(intExpr(                   0))  mdiv pred(-abs(intExpr(           12345652))) <>                    0 or
+             -abs(intExpr(                   0))  mdiv pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mdiv optimization with dividend <= 0 and divisor < 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mdiv      -abs(intExpr(       integer.last))  <>                    1 or
+             -abs(intExpr(        integer.last))  mdiv      -abs(intExpr(           12345653))  <>         747094709113 or
+             -abs(intExpr(        integer.last))  mdiv      -abs(intExpr(                  1))  <>  9223372036854775807 or
+             -abs(intExpr(            12345653))  mdiv      -abs(intExpr(       integer.last))  <>                    0 or
+             -abs(intExpr(            12345653))  mdiv      -abs(intExpr(           12345653))  <>                    1 or
+             -abs(intExpr(            12345653))  mdiv      -abs(intExpr(                  1))  <>             12345653 or
+             -abs(intExpr(                   0))  mdiv      -abs(intExpr(       integer.last))  <>                    0 or
+             -abs(intExpr(                   0))  mdiv      -abs(intExpr(           12345653))  <>                    0 or
+             -abs(intExpr(                   0))  mdiv      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mdiv optimization with dividend <= 0 and divisor <= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mdiv       abs(intExpr(       integer.last))  <>                   -1 or
+             -abs(intExpr(        integer.last))  mdiv       abs(intExpr(           12345653))  <>        -747094709114 or
+             -abs(intExpr(        integer.last))  mdiv       abs(intExpr(                  1))  <> -9223372036854775807 or
+             -abs(intExpr(            12345653))  mdiv       abs(intExpr(       integer.last))  <>                   -1 or
+             -abs(intExpr(            12345653))  mdiv       abs(intExpr(           12345653))  <>                   -1 or
+             -abs(intExpr(            12345653))  mdiv       abs(intExpr(                  1))  <>            -12345653 or
+             -abs(intExpr(                   0))  mdiv       abs(intExpr(       integer.last))  <>                    0 or
+             -abs(intExpr(                   0))  mdiv       abs(intExpr(           12345653))  <>                    0 or
+             -abs(intExpr(                   0))  mdiv       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mdiv optimization with dividend <= 0 and divisor >= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mdiv succ( abs(intExpr(9223372036854775806))) <>                   -1 or
+             -abs(intExpr(        integer.last))  mdiv succ( abs(intExpr(           12345652))) <>        -747094709114 or
+             -abs(intExpr(        integer.last))  mdiv succ( abs(intExpr(                  0))) <> -9223372036854775807 or
+             -abs(intExpr(            12345653))  mdiv succ( abs(intExpr(9223372036854775806))) <>                   -1 or
+             -abs(intExpr(            12345653))  mdiv succ( abs(intExpr(           12345652))) <>                   -1 or
+             -abs(intExpr(            12345653))  mdiv succ( abs(intExpr(                  0))) <>            -12345653 or
+             -abs(intExpr(                   0))  mdiv succ( abs(intExpr(9223372036854775806))) <>                    0 or
+             -abs(intExpr(                   0))  mdiv succ( abs(intExpr(           12345652))) <>                    0 or
+             -abs(intExpr(                   0))  mdiv succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mdiv optimization with dividend <= 0 and divisor > 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+              abs(intExpr(        integer.last))  mdiv (-abs(intExpr(            12345651)) - 2) <>        -747094709114 or
+              abs(intExpr(        integer.last))  mdiv (-abs(intExpr(                   0)) - 2) <> -4611686018427387904 or
+              abs(intExpr(            12345653))  mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+              abs(intExpr(            12345653))  mdiv (-abs(intExpr(            12345651)) - 2) <>                   -1 or
+              abs(intExpr(            12345653))  mdiv (-abs(intExpr(                   0)) - 2) <>             -6172827 or
+              abs(intExpr(                   0))  mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+              abs(intExpr(                   0))  mdiv (-abs(intExpr(            12345651)) - 2) <>                    0 or
+              abs(intExpr(                   0))  mdiv (-abs(intExpr(                   0)) - 2) <>                    0 then
+      writeln(" ***** mdiv optimization with dividend >= 0 and divisor < -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+     if       abs(intExpr(        integer.last))  mdiv pred(-abs(intExpr(       integer.last))) <>                   -1 or
+              abs(intExpr(        integer.last))  mdiv pred(-abs(intExpr(           12345652))) <>        -747094709114 or
+              abs(intExpr(        integer.last))  mdiv pred(-abs(intExpr(                  0))) <> -9223372036854775807 or
+              abs(intExpr(            12345653))  mdiv pred(-abs(intExpr(       integer.last))) <>                   -1 or
+              abs(intExpr(            12345653))  mdiv pred(-abs(intExpr(           12345652))) <>                   -1 or
+              abs(intExpr(            12345653))  mdiv pred(-abs(intExpr(                  0))) <>            -12345653 or
+              abs(intExpr(                   0))  mdiv pred(-abs(intExpr(       integer.last))) <>                    0 or
+              abs(intExpr(                   0))  mdiv pred(-abs(intExpr(           12345652))) <>                    0 or
+              abs(intExpr(                   0))  mdiv pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mdiv optimization with dividend >= 0 and divisor < 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+     if       abs(intExpr(        integer.last))  mdiv      -abs(intExpr(       integer.last))  <>                   -1 or
+              abs(intExpr(        integer.last))  mdiv      -abs(intExpr(           12345653))  <>        -747094709114 or
+              abs(intExpr(        integer.last))  mdiv      -abs(intExpr(                  1))  <> -9223372036854775807 or
+              abs(intExpr(            12345653))  mdiv      -abs(intExpr(       integer.last))  <>                   -1 or
+              abs(intExpr(            12345653))  mdiv      -abs(intExpr(           12345653))  <>                   -1 or
+              abs(intExpr(            12345653))  mdiv      -abs(intExpr(                  1))  <>            -12345653 or
+              abs(intExpr(                   0))  mdiv      -abs(intExpr(       integer.last))  <>                    0 or
+              abs(intExpr(                   0))  mdiv      -abs(intExpr(           12345653))  <>                    0 or
+              abs(intExpr(                   0))  mdiv      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mdiv optimization with dividend >= 0 and divisor <= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  mdiv       abs(intExpr(       integer.last))  <>                    1 or
+              abs(intExpr(        integer.last))  mdiv       abs(intExpr(           12345653))  <>         747094709113 or
+              abs(intExpr(        integer.last))  mdiv       abs(intExpr(                  1))  <>  9223372036854775807 or
+              abs(intExpr(            12345653))  mdiv       abs(intExpr(       integer.last))  <>                    0 or
+              abs(intExpr(            12345653))  mdiv       abs(intExpr(           12345653))  <>                    1 or
+              abs(intExpr(            12345653))  mdiv       abs(intExpr(                  1))  <>             12345653 or
+              abs(intExpr(                   0))  mdiv       abs(intExpr(       integer.last))  <>                    0 or
+              abs(intExpr(                   0))  mdiv       abs(intExpr(           12345653))  <>                    0 or
+              abs(intExpr(                   0))  mdiv       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mdiv optimization with dividend >= 0 and divisor >= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  mdiv succ( abs(intExpr(9223372036854775806))) <>                    1 or
+              abs(intExpr(        integer.last))  mdiv succ( abs(intExpr(           12345652))) <>         747094709113 or
+              abs(intExpr(        integer.last))  mdiv succ( abs(intExpr(                  0))) <>  9223372036854775807 or
+              abs(intExpr(            12345653))  mdiv succ( abs(intExpr(9223372036854775806))) <>                    0 or
+              abs(intExpr(            12345653))  mdiv succ( abs(intExpr(           12345652))) <>                    1 or
+              abs(intExpr(            12345653))  mdiv succ( abs(intExpr(                  0))) <>             12345653 or
+              abs(intExpr(                   0))  mdiv succ( abs(intExpr(9223372036854775806))) <>                    0 or
+              abs(intExpr(                   0))  mdiv succ( abs(intExpr(           12345652))) <>                    0 or
+              abs(intExpr(                   0))  mdiv succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mdiv optimization with dividend >= 0 and divisor > 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv (-abs(intExpr(            12345651)) - 2) <>        -747094709114 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv (-abs(intExpr(                   0)) - 2) <> -4611686018427387904 or
+        succ( abs(intExpr(            12345652))) mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+        succ( abs(intExpr(            12345652))) mdiv (-abs(intExpr(            12345651)) - 2) <>                   -1 or
+        succ( abs(intExpr(            12345652))) mdiv (-abs(intExpr(                   0)) - 2) <>             -6172827 or
+        succ( abs(intExpr(                   0))) mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+        succ( abs(intExpr(                   0))) mdiv (-abs(intExpr(            12345651)) - 2) <>                   -1 or
+        succ( abs(intExpr(                   0))) mdiv (-abs(intExpr(                   0)) - 2) <>                   -1 then
+      writeln(" ***** mdiv optimization with dividend > 0 and divisor < -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mdiv pred(-abs(intExpr(       integer.last))) <>                   -1 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv pred(-abs(intExpr(           12345652))) <>        -747094709114 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv pred(-abs(intExpr(                  0))) <> -9223372036854775807 or
+        succ( abs(intExpr(            12345652))) mdiv pred(-abs(intExpr(       integer.last))) <>                   -1 or
+        succ( abs(intExpr(            12345652))) mdiv pred(-abs(intExpr(           12345652))) <>                   -1 or
+        succ( abs(intExpr(            12345652))) mdiv pred(-abs(intExpr(                  0))) <>            -12345653 or
+        succ( abs(intExpr(                   0))) mdiv pred(-abs(intExpr(       integer.last))) <>                   -1 or
+        succ( abs(intExpr(                   0))) mdiv pred(-abs(intExpr(           12345652))) <>                   -1 or
+        succ( abs(intExpr(                   0))) mdiv pred(-abs(intExpr(                  0))) <>                   -1 then
+      writeln(" ***** mdiv optimization with dividend > 0 and divisor < 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mdiv      -abs(intExpr(       integer.last))  <>                   -1 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv      -abs(intExpr(           12345653))  <>        -747094709114 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv      -abs(intExpr(                  1))  <> -9223372036854775807 or
+        succ( abs(intExpr(            12345652))) mdiv      -abs(intExpr(       integer.last))  <>                   -1 or
+        succ( abs(intExpr(            12345652))) mdiv      -abs(intExpr(           12345653))  <>                   -1 or
+        succ( abs(intExpr(            12345652))) mdiv      -abs(intExpr(                  1))  <>            -12345653 or
+        succ( abs(intExpr(                   0))) mdiv      -abs(intExpr(       integer.last))  <>                   -1 or
+        succ( abs(intExpr(                   0))) mdiv      -abs(intExpr(           12345653))  <>                   -1 or
+        succ( abs(intExpr(                   0))) mdiv      -abs(intExpr(                  1))  <>                   -1 then
+      writeln(" ***** mdiv optimization with dividend > 0 and divisor <= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mdiv       abs(intExpr(       integer.last))  <>                    1 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv       abs(intExpr(           12345653))  <>         747094709113 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv       abs(intExpr(                  1))  <>  9223372036854775807 or
+        succ( abs(intExpr(            12345652))) mdiv       abs(intExpr(       integer.last))  <>                    0 or
+        succ( abs(intExpr(            12345652))) mdiv       abs(intExpr(           12345653))  <>                    1 or
+        succ( abs(intExpr(            12345652))) mdiv       abs(intExpr(                  1))  <>             12345653 or
+        succ( abs(intExpr(                   0))) mdiv       abs(intExpr(       integer.last))  <>                    0 or
+        succ( abs(intExpr(                   0))) mdiv       abs(intExpr(           12345653))  <>                    0 or
+        succ( abs(intExpr(                   0))) mdiv       abs(intExpr(                  1))  <>                    1 then
+      writeln(" ***** mdiv optimization with dividend > 0 and divisor >= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mdiv succ( abs(intExpr(9223372036854775806))) <>                    1 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv succ( abs(intExpr(           12345652))) <>         747094709113 or
+        succ( abs(intExpr( 9223372036854775806))) mdiv succ( abs(intExpr(                  0))) <>  9223372036854775807 or
+        succ( abs(intExpr(            12345652))) mdiv succ( abs(intExpr(9223372036854775806))) <>                    0 or
+        succ( abs(intExpr(            12345652))) mdiv succ( abs(intExpr(           12345652))) <>                    1 or
+        succ( abs(intExpr(            12345652))) mdiv succ( abs(intExpr(                  0))) <>             12345653 or
+        succ( abs(intExpr(                   0))) mdiv succ( abs(intExpr(9223372036854775806))) <>                    0 or
+        succ( abs(intExpr(                   0))) mdiv succ( abs(intExpr(           12345652))) <>                    0 or
+        succ( abs(intExpr(                   0))) mdiv succ( abs(intExpr(                  0))) <>                    1 then
+      writeln(" ***** mdiv optimization with dividend > 0 and divisor > 0 does not work correct.");
       okay := FALSE;
     end if;
 
@@ -16473,6 +16755,10 @@ const proc: check_mdiv is func
       okay := FALSE;
     end if;
 
+    if not check_mdiv_powers_of_two then
+      okay := FALSE;
+    end if;
+
     if not check_mdiv_by_zero then
       okay := FALSE;
     end if;
@@ -17744,6 +18030,619 @@ const func boolean: check_mod_by_computed_power_of_two_optimization is func
   end func;
 
 
+const func boolean: check_mod_optimization is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  integer.first mod     (-abs(intExpr( 9223372036854775806)) - 2) <>                   0 or
+        integer.first mod     (-abs(intExpr(            12345651)) - 2) <>            -9740019 or
+        integer.first mod     (-abs(intExpr(                   0)) - 2) <>                   0 then
+      writeln(" ***** mod optimization with dividend = integer.first and divisor < -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first mod pred(-abs(intExpr(        integer.last)))     <>                   0 or
+        integer.first mod pred(-abs(intExpr(            12345652)))     <>            -9740019 or
+        integer.first mod pred(-abs(intExpr(                   1)))     <>                   0 then
+      writeln(" ***** mod optimization with dividend = integer.first and divisor < 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first mod      -abs(intExpr(        integer.last))      <>                  -1 or
+        integer.first mod      -abs(intExpr(            12345653))      <>            -9740019 or
+        integer.first mod      -abs(intExpr(                   2))      <>                   0 then
+      writeln(" ***** mod optimization with dividend = integer.first and divisor <= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first mod pred( abs(intExpr(        integer.last)))     <> 9223372036854775804 or
+        integer.first mod pred( abs(intExpr(            12345654)))     <>             2605634 or
+        integer.first mod pred( abs(intExpr(                   2)))     <>                   0 then
+      writeln(" ***** mod optimization with dividend = integer.first and divisor >= -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first mod       abs(intExpr(        integer.last))      <> 9223372036854775806 or
+        integer.first mod       abs(intExpr(            12345653))      <>             2605634 or
+        integer.first mod       abs(intExpr(                   1))      <>                   0 then
+      writeln(" ***** mod optimization with dividend = integer.first and divisor >= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first mod succ( abs(intExpr( 9223372036854775806)))     <> 9223372036854775806 or
+        integer.first mod succ( abs(intExpr(            12345652)))     <>             2605634 or
+        integer.first mod succ( abs(intExpr(                   0)))     <>                   0 then
+      writeln(" ***** mod optimization with dividend = integer.first and divisor > 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first mod            pred(compare(intExpr(-1), 0))      <>                   0 then
+      writeln(" ***** mod optimization with dividend = integer.first and divisor in {-2, -1, 0} does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first mod                  compare(intExpr(1), 0)       <>                   0 then
+      writeln(" ***** mod optimization with dividend = integer.first and divisor in {-1, 0, 1} does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first mod                    ord(rand(TRUE, TRUE))      <>                   0 then
+      writeln(" ***** mod optimization with dividend = integer.first and divisor in {0, 1} does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first mod             succ(ord(rand(FALSE, FALSE)))     <>                   0 then
+      writeln(" ***** mod optimization with dividend = integer.first and divisor in {1, 2} does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  integer.first mod           intExpr(       integer.first)       <>                   0 or
+        integer.first mod           intExpr(           -12345653)       <>            -9740019 or
+        integer.first mod           intExpr(                  -2)       <>                   0 or
+        integer.first mod           intExpr(                   1)       <>                   0 or
+        integer.first mod           intExpr(            12345653)       <>             2605634 or
+        integer.first mod           intExpr(        integer.last)       <> 9223372036854775806 then
+      writeln(" ***** mod optimization with dividend = integer.first and any divisor does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  -3 mod                           rand( 1,  3)  not in { 0,  1} or
+        -2 mod                           rand( 1,  3)  not in { 0,  1} or
+        -1 mod                           rand( 1,  3)  not in { 0,  1,  2} or
+         0 mod                           rand( 1,  3)  <>       0 or
+         1 mod                           rand( 1,  3)  not in { 0,  1} or
+         2 mod                           rand( 1,  3)  not in { 0,  2} or
+         3 mod                           rand( 1,  3)  not in { 0,  1} or
+        -3 mod                           rand(-3, -1)  not in {-1,  0} or
+        -2 mod                           rand(-3, -1)  not in {-2,  0} or
+        -1 mod                           rand(-3, -1)  not in {-1,  0} or
+         0 mod                           rand(-3, -1)  <>       0 or
+         1 mod                           rand(-3, -1)  not in {-2, -1,  0} or
+         2 mod                           rand(-3, -1)  not in {-1,  0} or
+         3 mod                           rand(-3, -1)  not in {-1,  0} or
+         1 mod (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in {-1,  0,  1} or
+         2 mod (pred(2 * rand( 0,  1)) * rand( 1,  2)) <>       0 or
+         3 mod (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in {-1,  0,  1} or
+        -3 mod (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in {-1,  0,  1} or
+        -2 mod (pred(2 * rand( 0,  1)) * rand( 1,  2)) <>       0 or
+        -1 mod (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in {-1,  0,  1} then
+      writeln(" ***** mod with a constant dividend and a divisor in a range does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if   integer.last mod pred(-abs(intExpr(       integer.last))) <>                   -1 or
+         integer.last mod pred(-abs(intExpr(           12345652))) <>             -2605635 or
+         integer.last mod pred(-abs(intExpr(                  0))) <>                    0 or
+             12345653 mod pred(-abs(intExpr(       integer.last))) <> -9223372036842430155 or
+             12345653 mod pred(-abs(intExpr(           12345652))) <>                    0 or
+             12345653 mod pred(-abs(intExpr(                  0))) <>                    0 or
+                    1 mod pred(-abs(intExpr(       integer.last))) <> -9223372036854775807 or
+                    1 mod pred(-abs(intExpr(           12345652))) <>            -12345652 or
+                    1 mod pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mod optimization with constant dividend > 0 and divisor < 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if   integer.last mod      -abs(intExpr(       integer.last))  <>                    0 or
+         integer.last mod      -abs(intExpr(           12345653))  <>             -2605635 or
+         integer.last mod      -abs(intExpr(                  1))  <>                    0 or
+             12345653 mod      -abs(intExpr(       integer.last))  <> -9223372036842430154 or
+             12345653 mod      -abs(intExpr(           12345653))  <>                    0 or
+             12345653 mod      -abs(intExpr(                  1))  <>                    0 or
+                    1 mod      -abs(intExpr(       integer.last))  <> -9223372036854775806 or
+                    1 mod      -abs(intExpr(           12345653))  <>            -12345652 or
+                    1 mod      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mod optimization with constant dividend > 0 and divisor <= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  -9223372036854775807 mod       abs(intExpr(       integer.last))  <>                    0 or
+        -9223372036854775807 mod       abs(intExpr(           12345653))  <>              2605635 or
+        -9223372036854775807 mod       abs(intExpr(                  1))  <>                    0 or
+                   -12345653 mod       abs(intExpr(       integer.last))  <>  9223372036842430154 or
+                   -12345653 mod       abs(intExpr(           12345653))  <>                    0 or
+                   -12345653 mod       abs(intExpr(                  1))  <>                    0 or
+                          -1 mod       abs(intExpr(       integer.last))  <>  9223372036854775806 or
+                          -1 mod       abs(intExpr(           12345653))  <>             12345652 or
+                          -1 mod       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mod optimization with constant dividend < 0 and divisor >= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  -9223372036854775807 mod succ( abs(intExpr(9223372036854775806))) <>                    0 or
+        -9223372036854775807 mod succ( abs(intExpr(           12345652))) <>              2605635 or
+        -9223372036854775807 mod succ( abs(intExpr(                  0))) <>                    0 or
+                   -12345653 mod succ( abs(intExpr(9223372036854775806))) <>  9223372036842430154 or
+                   -12345653 mod succ( abs(intExpr(           12345652))) <>                    0 or
+                   -12345653 mod succ( abs(intExpr(                  0))) <>                    0 or
+                          -1 mod succ( abs(intExpr(9223372036854775806))) <>  9223372036854775806 or
+                          -1 mod succ( abs(intExpr(           12345652))) <>             12345652 or
+                          -1 mod succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mod optimization with constant dividend < 0 and divisor > 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ(intExpr(       integer.first)) mod (-abs(intExpr( 9223372036854775806)) - 2) <> -9223372036854775807 or
+        succ(intExpr(       integer.first)) mod (-abs(intExpr(            12345651)) - 2) <>             -9740018 or
+        succ(intExpr(       integer.first)) mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        succ(intExpr(           -12345654)) mod (-abs(intExpr( 9223372036854775806)) - 2) <>            -12345653 or
+        succ(intExpr(           -12345654)) mod (-abs(intExpr(            12345651)) - 2) <>                    0 or
+        succ(intExpr(           -12345654)) mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        succ(intExpr(                  -3)) mod (-abs(intExpr( 9223372036854775806)) - 2) <>                   -2 or
+        succ(intExpr(                  -3)) mod (-abs(intExpr(            12345651)) - 2) <>                   -2 or
+        succ(intExpr(                  -3)) mod (-abs(intExpr(                   0)) - 2) <>                    0 or
+        succ(intExpr(                  -2)) mod (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+        succ(intExpr(                  -2)) mod (-abs(intExpr(            12345651)) - 2) <>                   -1 or
+        succ(intExpr(                  -2)) mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        succ(intExpr(                  -1)) mod (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+        succ(intExpr(                  -1)) mod (-abs(intExpr(            12345651)) - 2) <>                    0 or
+        succ(intExpr(                  -1)) mod (-abs(intExpr(                   0)) - 2) <>                    0 or
+        succ(intExpr(                   0)) mod (-abs(intExpr( 9223372036854775806)) - 2) <> -9223372036854775807 or
+        succ(intExpr(                   0)) mod (-abs(intExpr(            12345651)) - 2) <>            -12345652 or
+        succ(intExpr(                   0)) mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        succ(intExpr(                   1)) mod (-abs(intExpr( 9223372036854775806)) - 2) <> -9223372036854775806 or
+        succ(intExpr(                   1)) mod (-abs(intExpr(            12345651)) - 2) <>            -12345651 or
+        succ(intExpr(                   1)) mod (-abs(intExpr(                   0)) - 2) <>                    0 or
+        succ(intExpr(            12345652)) mod (-abs(intExpr( 9223372036854775806)) - 2) <> -9223372036842430155 or
+        succ(intExpr(            12345652)) mod (-abs(intExpr(            12345651)) - 2) <>                    0 or
+        succ(intExpr(            12345652)) mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        succ(intExpr( 9223372036854775806)) mod (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+        succ(intExpr( 9223372036854775806)) mod (-abs(intExpr(            12345651)) - 2) <>             -2605635 or
+        succ(intExpr( 9223372036854775806)) mod (-abs(intExpr(                   0)) - 2) <>                   -1 then
+      writeln(" ***** mod optimization with dividend > integer.first and divisor < -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ(intExpr(       integer.first)) mod pred(-abs(intExpr(        integer.last))) <> -9223372036854775807 or
+        succ(intExpr(       integer.first)) mod pred(-abs(intExpr(            12345652))) <>             -9740018 or
+        succ(intExpr(       integer.first)) mod pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(           -12345654)) mod pred(-abs(intExpr(        integer.last))) <>            -12345653 or
+        succ(intExpr(           -12345654)) mod pred(-abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(           -12345654)) mod pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -3)) mod pred(-abs(intExpr(        integer.last))) <>                   -2 or
+        succ(intExpr(                  -3)) mod pred(-abs(intExpr(            12345652))) <>                   -2 or
+        succ(intExpr(                  -3)) mod pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -2)) mod pred(-abs(intExpr(        integer.last))) <>                   -1 or
+        succ(intExpr(                  -2)) mod pred(-abs(intExpr(            12345652))) <>                   -1 or
+        succ(intExpr(                  -2)) mod pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -1)) mod pred(-abs(intExpr(        integer.last))) <>                    0 or
+        succ(intExpr(                  -1)) mod pred(-abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(                  -1)) mod pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   0)) mod pred(-abs(intExpr(        integer.last))) <> -9223372036854775807 or
+        succ(intExpr(                   0)) mod pred(-abs(intExpr(            12345652))) <>            -12345652 or
+        succ(intExpr(                   0)) mod pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   1)) mod pred(-abs(intExpr(        integer.last))) <> -9223372036854775806 or
+        succ(intExpr(                   1)) mod pred(-abs(intExpr(            12345652))) <>            -12345651 or
+        succ(intExpr(                   1)) mod pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(            12345652)) mod pred(-abs(intExpr(        integer.last))) <> -9223372036842430155 or
+        succ(intExpr(            12345652)) mod pred(-abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(            12345652)) mod pred(-abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr( 9223372036854775806)) mod pred(-abs(intExpr(        integer.last))) <>                   -1 or
+        succ(intExpr( 9223372036854775806)) mod pred(-abs(intExpr(            12345652))) <>             -2605635 or
+        succ(intExpr( 9223372036854775806)) mod pred(-abs(intExpr(                   0))) <>                    0 then
+      writeln(" ***** mod optimization with dividend > integer.first and divisor < 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ(intExpr(       integer.first)) mod      -abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr(       integer.first)) mod      -abs(intExpr(            12345653))  <>             -9740018 or
+        succ(intExpr(       integer.first)) mod      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(           -12345654)) mod      -abs(intExpr(        integer.last))  <>            -12345653 or
+        succ(intExpr(           -12345654)) mod      -abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(           -12345654)) mod      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -3)) mod      -abs(intExpr(        integer.last))  <>                   -2 or
+        succ(intExpr(                  -3)) mod      -abs(intExpr(            12345653))  <>                   -2 or
+        succ(intExpr(                  -3)) mod      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -2)) mod      -abs(intExpr(        integer.last))  <>                   -1 or
+        succ(intExpr(                  -2)) mod      -abs(intExpr(            12345653))  <>                   -1 or
+        succ(intExpr(                  -2)) mod      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -1)) mod      -abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr(                  -1)) mod      -abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(                  -1)) mod      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                   0)) mod      -abs(intExpr(        integer.last))  <> -9223372036854775806 or
+        succ(intExpr(                   0)) mod      -abs(intExpr(            12345653))  <>            -12345652 or
+        succ(intExpr(                   0)) mod      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                   1)) mod      -abs(intExpr(        integer.last))  <> -9223372036854775805 or
+        succ(intExpr(                   1)) mod      -abs(intExpr(            12345653))  <>            -12345651 or
+        succ(intExpr(                   1)) mod      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(            12345652)) mod      -abs(intExpr(        integer.last))  <> -9223372036842430154 or
+        succ(intExpr(            12345652)) mod      -abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(            12345652)) mod      -abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr( 9223372036854775806)) mod      -abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr( 9223372036854775806)) mod      -abs(intExpr(            12345653))  <>             -2605635 or
+        succ(intExpr( 9223372036854775806)) mod      -abs(intExpr(                   1))  <>                    0 then
+      writeln(" ***** mod optimization with dividend > integer.first and divisor <= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ(intExpr(       integer.first)) mod pred( abs(intExpr(        integer.last))) <>  9223372036854775805 or
+        succ(intExpr(       integer.first)) mod pred( abs(intExpr(            12345654))) <>              2605635 or
+        succ(intExpr(       integer.first)) mod pred( abs(intExpr(                   2))) <>                    0 or
+        succ(intExpr(           -12345654)) mod pred( abs(intExpr(        integer.last))) <>  9223372036842430153 or
+        succ(intExpr(           -12345654)) mod pred( abs(intExpr(            12345654))) <>                    0 or
+        succ(intExpr(           -12345654)) mod pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -3)) mod pred( abs(intExpr(        integer.last))) <>  9223372036854775804 or
+        succ(intExpr(                  -3)) mod pred( abs(intExpr(            12345654))) <>             12345651 or
+        succ(intExpr(                  -3)) mod pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -2)) mod pred( abs(intExpr(        integer.last))) <>  9223372036854775805 or
+        succ(intExpr(                  -2)) mod pred( abs(intExpr(            12345654))) <>             12345652 or
+        succ(intExpr(                  -2)) mod pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -1)) mod pred( abs(intExpr(        integer.last))) <>                    0 or
+        succ(intExpr(                  -1)) mod pred( abs(intExpr(            12345654))) <>                    0 or
+        succ(intExpr(                  -1)) mod pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   0)) mod pred( abs(intExpr(        integer.last))) <>                    1 or
+        succ(intExpr(                   0)) mod pred( abs(intExpr(            12345654))) <>                    1 or
+        succ(intExpr(                   0)) mod pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   1)) mod pred( abs(intExpr(        integer.last))) <>                    2 or
+        succ(intExpr(                   1)) mod pred( abs(intExpr(            12345654))) <>                    2 or
+        succ(intExpr(                   1)) mod pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(            12345652)) mod pred( abs(intExpr(        integer.last))) <>             12345653 or
+        succ(intExpr(            12345652)) mod pred( abs(intExpr(            12345654))) <>                    0 or
+        succ(intExpr(            12345652)) mod pred( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr( 9223372036854775806)) mod pred( abs(intExpr(        integer.last))) <>                    1 or
+        succ(intExpr( 9223372036854775806)) mod pred( abs(intExpr(            12345654))) <>              9740018 or
+        succ(intExpr( 9223372036854775806)) mod pred( abs(intExpr(                   0))) <>                    0 then
+      writeln(" ***** mod optimization with dividend > integer.first and divisor >= -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ(intExpr(       integer.first)) mod       abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr(       integer.first)) mod       abs(intExpr(            12345653))  <>              2605635 or
+        succ(intExpr(       integer.first)) mod       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(           -12345654)) mod       abs(intExpr(        integer.last))  <>  9223372036842430154 or
+        succ(intExpr(           -12345654)) mod       abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(           -12345654)) mod       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -3)) mod       abs(intExpr(        integer.last))  <>  9223372036854775805 or
+        succ(intExpr(                  -3)) mod       abs(intExpr(            12345653))  <>             12345651 or
+        succ(intExpr(                  -3)) mod       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -2)) mod       abs(intExpr(        integer.last))  <>  9223372036854775806 or
+        succ(intExpr(                  -2)) mod       abs(intExpr(            12345653))  <>             12345652 or
+        succ(intExpr(                  -2)) mod       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                  -1)) mod       abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr(                  -1)) mod       abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(                  -1)) mod       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                   0)) mod       abs(intExpr(        integer.last))  <>                    1 or
+        succ(intExpr(                   0)) mod       abs(intExpr(            12345653))  <>                    1 or
+        succ(intExpr(                   0)) mod       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(                   1)) mod       abs(intExpr(        integer.last))  <>                    2 or
+        succ(intExpr(                   1)) mod       abs(intExpr(            12345653))  <>                    2 or
+        succ(intExpr(                   1)) mod       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr(            12345652)) mod       abs(intExpr(        integer.last))  <>             12345653 or
+        succ(intExpr(            12345652)) mod       abs(intExpr(            12345653))  <>                    0 or
+        succ(intExpr(            12345652)) mod       abs(intExpr(                   1))  <>                    0 or
+        succ(intExpr( 9223372036854775806)) mod       abs(intExpr(        integer.last))  <>                    0 or
+        succ(intExpr( 9223372036854775806)) mod       abs(intExpr(            12345653))  <>              9740018 or
+        succ(intExpr( 9223372036854775806)) mod       abs(intExpr(                   1))  <>                    0 then
+      writeln(" ***** mod optimization with dividend > integer.first and divisor >= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ(intExpr(       integer.first)) mod succ( abs(intExpr( 9223372036854775806))) <>                    0 or
+        succ(intExpr(       integer.first)) mod succ( abs(intExpr(            12345652))) <>              2605635 or
+        succ(intExpr(       integer.first)) mod succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(           -12345654)) mod succ( abs(intExpr( 9223372036854775806))) <>  9223372036842430154 or
+        succ(intExpr(           -12345654)) mod succ( abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(           -12345654)) mod succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -3)) mod succ( abs(intExpr( 9223372036854775806))) <>  9223372036854775805 or
+        succ(intExpr(                  -3)) mod succ( abs(intExpr(            12345652))) <>             12345651 or
+        succ(intExpr(                  -3)) mod succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -2)) mod succ( abs(intExpr( 9223372036854775806))) <>  9223372036854775806 or
+        succ(intExpr(                  -2)) mod succ( abs(intExpr(            12345652))) <>             12345652 or
+        succ(intExpr(                  -2)) mod succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                  -1)) mod succ( abs(intExpr( 9223372036854775806))) <>                    0 or
+        succ(intExpr(                  -1)) mod succ( abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(                  -1)) mod succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   0)) mod succ( abs(intExpr( 9223372036854775806))) <>                    1 or
+        succ(intExpr(                   0)) mod succ( abs(intExpr(            12345652))) <>                    1 or
+        succ(intExpr(                   0)) mod succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(                   1)) mod succ( abs(intExpr( 9223372036854775806))) <>                    2 or
+        succ(intExpr(                   1)) mod succ( abs(intExpr(            12345652))) <>                    2 or
+        succ(intExpr(                   1)) mod succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr(            12345652)) mod succ( abs(intExpr( 9223372036854775806))) <>             12345653 or
+        succ(intExpr(            12345652)) mod succ( abs(intExpr(            12345652))) <>                    0 or
+        succ(intExpr(            12345652)) mod succ( abs(intExpr(                   0))) <>                    0 or
+        succ(intExpr( 9223372036854775806)) mod succ( abs(intExpr( 9223372036854775806))) <>                    0 or
+        succ(intExpr( 9223372036854775806)) mod succ( abs(intExpr(            12345652))) <>              9740018 or
+        succ(intExpr( 9223372036854775806)) mod succ( abs(intExpr(                   0))) <>                    0 then
+      writeln(" ***** mod optimization with dividend > integer.first and divisor > 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  rand( 1,  3) mod                           rand(-3, -1)  not in {-2, -1,  0} or
+        rand(-3, -1) mod                           rand( 1,  3)  not in { 0,  1,  2} or
+        rand(-2,  2) mod                           rand(-3, -1)  not in {-2, -1,  0} or
+        rand( 1,  3) mod (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in {-1,  0,  1} or
+        rand(-2,  2) mod                           rand( 1,  3)  not in { 0,  1,  2} or
+        rand(-3, -1) mod (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in {-1,  0,  1} or
+        rand(-2,  2) mod (pred(2 * rand( 0,  1)) * rand( 1,  2)) not in {-1,  0,  1} then
+      writeln(" ***** mod with dividend and divisor in a range does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) mod (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+        pred(-abs(intExpr(        integer.last))) mod (-abs(intExpr(            12345651)) - 2) <>             -9740019 or
+        pred(-abs(intExpr(        integer.last))) mod (-abs(intExpr(                   0)) - 2) <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod (-abs(intExpr( 9223372036854775806)) - 2) <>            -12345653 or
+        pred(-abs(intExpr(            12345652))) mod (-abs(intExpr(            12345651)) - 2) <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        pred(-abs(intExpr(                   0))) mod (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+        pred(-abs(intExpr(                   0))) mod (-abs(intExpr(            12345651)) - 2) <>                   -1 or
+        pred(-abs(intExpr(                   0))) mod (-abs(intExpr(                   0)) - 2) <>                   -1 then
+      writeln(" ***** mod optimization with dividend < 0 and divisor < -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) mod pred(-abs(intExpr(       integer.last))) <>                    0 or
+        pred(-abs(intExpr(        integer.last))) mod pred(-abs(intExpr(           12345652))) <>             -9740019 or
+        pred(-abs(intExpr(        integer.last))) mod pred(-abs(intExpr(                  1))) <>                    0 or
+        pred(-abs(intExpr( 9223372036854775806))) mod pred(-abs(intExpr(                  0))) <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod pred(-abs(intExpr(       integer.last))) <>            -12345653 or
+        pred(-abs(intExpr(            12345652))) mod pred(-abs(intExpr(           12345652))) <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod pred(-abs(intExpr(                  0))) <>                    0 or
+        pred(-abs(intExpr(                   0))) mod pred(-abs(intExpr(       integer.last))) <>                   -1 or
+        pred(-abs(intExpr(                   0))) mod pred(-abs(intExpr(           12345652))) <>                   -1 or
+        pred(-abs(intExpr(                   0))) mod pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mod optimization with dividend < 0 and divisor < 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) mod      -abs(intExpr(       integer.last))  <>                   -1 or
+        pred(-abs(intExpr(        integer.last))) mod      -abs(intExpr(           12345653))  <>             -9740019 or
+        pred(-abs(intExpr(        integer.last))) mod      -abs(intExpr(                  2))  <>                    0 or
+        pred(-abs(intExpr( 9223372036854775806))) mod      -abs(intExpr(                  1))  <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod      -abs(intExpr(       integer.last))  <>            -12345653 or
+        pred(-abs(intExpr(            12345652))) mod      -abs(intExpr(           12345653))  <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod      -abs(intExpr(                  1))  <>                    0 or
+        pred(-abs(intExpr(                   0))) mod      -abs(intExpr(       integer.last))  <>                   -1 or
+        pred(-abs(intExpr(                   0))) mod      -abs(intExpr(           12345653))  <>                   -1 or
+        pred(-abs(intExpr(                   0))) mod      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mod optimization with dividend < 0 and divisor <= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) mod       abs(intExpr(       integer.last))  <>  9223372036854775806 or
+        pred(-abs(intExpr(        integer.last))) mod       abs(intExpr(           12345653))  <>              2605634 or
+        pred(-abs(intExpr(        integer.last))) mod       abs(intExpr(                  1))  <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod       abs(intExpr(       integer.last))  <>  9223372036842430154 or
+        pred(-abs(intExpr(            12345652))) mod       abs(intExpr(           12345653))  <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod       abs(intExpr(                  1))  <>                    0 or
+        pred(-abs(intExpr(                   0))) mod       abs(intExpr(       integer.last))  <>  9223372036854775806 or
+        pred(-abs(intExpr(                   0))) mod       abs(intExpr(           12345653))  <>             12345652 or
+        pred(-abs(intExpr(                   0))) mod       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mod optimization with dividend < 0 and divisor >= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  pred(-abs(intExpr(        integer.last))) mod succ( abs(intExpr(9223372036854775806))) <>  9223372036854775806 or
+        pred(-abs(intExpr(        integer.last))) mod succ( abs(intExpr(           12345652))) <>              2605634 or
+        pred(-abs(intExpr(        integer.last))) mod succ( abs(intExpr(                  0))) <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod succ( abs(intExpr(9223372036854775806))) <>  9223372036842430154 or
+        pred(-abs(intExpr(            12345652))) mod succ( abs(intExpr(           12345652))) <>                    0 or
+        pred(-abs(intExpr(            12345652))) mod succ( abs(intExpr(                  0))) <>                    0 or
+        pred(-abs(intExpr(                   0))) mod succ( abs(intExpr(9223372036854775806))) <>  9223372036854775806 or
+        pred(-abs(intExpr(                   0))) mod succ( abs(intExpr(           12345652))) <>             12345652 or
+        pred(-abs(intExpr(                   0))) mod succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mod optimization with dividend < 0 and divisor > 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mod (-abs(intExpr( 9223372036854775806)) - 2) <> -9223372036854775807 or
+             -abs(intExpr(        integer.last))  mod (-abs(intExpr(            12345651)) - 2) <>             -9740018 or
+             -abs(intExpr(        integer.last))  mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+             -abs(intExpr(            12345653))  mod (-abs(intExpr( 9223372036854775806)) - 2) <>            -12345653 or
+             -abs(intExpr(            12345653))  mod (-abs(intExpr(            12345651)) - 2) <>                    0 or
+             -abs(intExpr(            12345653))  mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+             -abs(intExpr(                   0))  mod (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+             -abs(intExpr(                   0))  mod (-abs(intExpr(            12345651)) - 2) <>                    0 or
+             -abs(intExpr(                   0))  mod (-abs(intExpr(                   0)) - 2) <>                    0 then
+      writeln(" ***** mod optimization with dividend <= 0 and divisor < -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mod pred(-abs(intExpr(       integer.last))) <> -9223372036854775807 or
+             -abs(intExpr(        integer.last))  mod pred(-abs(intExpr(           12345652))) <>             -9740018 or
+             -abs(intExpr(        integer.last))  mod pred(-abs(intExpr(                  0))) <>                    0 or
+             -abs(intExpr(            12345653))  mod pred(-abs(intExpr(       integer.last))) <>            -12345653 or
+             -abs(intExpr(            12345653))  mod pred(-abs(intExpr(           12345652))) <>                    0 or
+             -abs(intExpr(            12345653))  mod pred(-abs(intExpr(                  0))) <>                    0 or
+             -abs(intExpr(                   0))  mod pred(-abs(intExpr(       integer.last))) <>                    0 or
+             -abs(intExpr(                   0))  mod pred(-abs(intExpr(           12345652))) <>                    0 or
+             -abs(intExpr(                   0))  mod pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mod optimization with dividend <= 0 and divisor < 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mod      -abs(intExpr(       integer.last))  <>                    0 or
+             -abs(intExpr(        integer.last))  mod      -abs(intExpr(           12345653))  <>             -9740018 or
+             -abs(intExpr(        integer.last))  mod      -abs(intExpr(                  1))  <>                    0 or
+             -abs(intExpr(            12345653))  mod      -abs(intExpr(       integer.last))  <>            -12345653 or
+             -abs(intExpr(            12345653))  mod      -abs(intExpr(           12345653))  <>                    0 or
+             -abs(intExpr(            12345653))  mod      -abs(intExpr(                  1))  <>                    0 or
+             -abs(intExpr(                   0))  mod      -abs(intExpr(       integer.last))  <>                    0 or
+             -abs(intExpr(                   0))  mod      -abs(intExpr(           12345653))  <>                    0 or
+             -abs(intExpr(                   0))  mod      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mod optimization with dividend <= 0 and divisor <= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mod       abs(intExpr(       integer.last))  <>                    0 or
+             -abs(intExpr(        integer.last))  mod       abs(intExpr(           12345653))  <>              2605635 or
+             -abs(intExpr(        integer.last))  mod       abs(intExpr(                  1))  <>                    0 or
+             -abs(intExpr(            12345653))  mod       abs(intExpr(       integer.last))  <>  9223372036842430154 or
+             -abs(intExpr(            12345653))  mod       abs(intExpr(           12345653))  <>                    0 or
+             -abs(intExpr(            12345653))  mod       abs(intExpr(                  1))  <>                    0 or
+             -abs(intExpr(                   0))  mod       abs(intExpr(       integer.last))  <>                    0 or
+             -abs(intExpr(                   0))  mod       abs(intExpr(           12345653))  <>                    0 or
+             -abs(intExpr(                   0))  mod       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mod optimization with dividend <= 0 and divisor >= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if       -abs(intExpr(        integer.last))  mod succ( abs(intExpr(9223372036854775806))) <>                    0 or
+             -abs(intExpr(        integer.last))  mod succ( abs(intExpr(           12345652))) <>              2605635 or
+             -abs(intExpr(        integer.last))  mod succ( abs(intExpr(                  0))) <>                    0 or
+             -abs(intExpr(            12345653))  mod succ( abs(intExpr(9223372036854775806))) <>  9223372036842430154 or
+             -abs(intExpr(            12345653))  mod succ( abs(intExpr(           12345652))) <>                    0 or
+             -abs(intExpr(            12345653))  mod succ( abs(intExpr(                  0))) <>                    0 or
+             -abs(intExpr(                   0))  mod succ( abs(intExpr(9223372036854775806))) <>                    0 or
+             -abs(intExpr(                   0))  mod succ( abs(intExpr(           12345652))) <>                    0 or
+             -abs(intExpr(                   0))  mod succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mod optimization with dividend <= 0 and divisor > 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  mod (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+              abs(intExpr(        integer.last))  mod (-abs(intExpr(            12345651)) - 2) <>             -2605635 or
+              abs(intExpr(        integer.last))  mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+              abs(intExpr(            12345653))  mod (-abs(intExpr( 9223372036854775806)) - 2) <> -9223372036842430155 or
+              abs(intExpr(            12345653))  mod (-abs(intExpr(            12345651)) - 2) <>                    0 or
+              abs(intExpr(            12345653))  mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+              abs(intExpr(                   0))  mod (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
+              abs(intExpr(                   0))  mod (-abs(intExpr(            12345651)) - 2) <>                    0 or
+              abs(intExpr(                   0))  mod (-abs(intExpr(                   0)) - 2) <>                    0 then
+      writeln(" ***** mod optimization with dividend >= 0 and divisor < -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  mod pred(-abs(intExpr(       integer.last))) <>                   -1 or
+              abs(intExpr(        integer.last))  mod pred(-abs(intExpr(           12345652))) <>             -2605635 or
+              abs(intExpr(        integer.last))  mod pred(-abs(intExpr(                  0))) <>                    0 or
+              abs(intExpr(            12345653))  mod pred(-abs(intExpr(       integer.last))) <> -9223372036842430155 or
+              abs(intExpr(            12345653))  mod pred(-abs(intExpr(           12345652))) <>                    0 or
+              abs(intExpr(            12345653))  mod pred(-abs(intExpr(                  0))) <>                    0 or
+              abs(intExpr(                   0))  mod pred(-abs(intExpr(       integer.last))) <>                    0 or
+              abs(intExpr(                   0))  mod pred(-abs(intExpr(           12345652))) <>                    0 or
+              abs(intExpr(                   0))  mod pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mod optimization with dividend >= 0 and divisor < 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  mod      -abs(intExpr(       integer.last))  <>                    0 or
+              abs(intExpr(        integer.last))  mod      -abs(intExpr(           12345653))  <>             -2605635 or
+              abs(intExpr(        integer.last))  mod      -abs(intExpr(                  1))  <>                    0 or
+              abs(intExpr(            12345653))  mod      -abs(intExpr(       integer.last))  <> -9223372036842430154 or
+              abs(intExpr(            12345653))  mod      -abs(intExpr(           12345653))  <>                    0 or
+              abs(intExpr(            12345653))  mod      -abs(intExpr(                  1))  <>                    0 or
+              abs(intExpr(                   0))  mod      -abs(intExpr(       integer.last))  <>                    0 or
+              abs(intExpr(                   0))  mod      -abs(intExpr(           12345653))  <>                    0 or
+              abs(intExpr(                   0))  mod      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mod optimization with dividend >= 0 and divisor <= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  mod       abs(intExpr(       integer.last))  <>                    0 or
+              abs(intExpr(        integer.last))  mod       abs(intExpr(           12345653))  <>              9740018 or
+              abs(intExpr(        integer.last))  mod       abs(intExpr(                  1))  <>                    0 or
+              abs(intExpr(            12345653))  mod       abs(intExpr(       integer.last))  <>             12345653 or
+              abs(intExpr(            12345653))  mod       abs(intExpr(           12345653))  <>                    0 or
+              abs(intExpr(            12345653))  mod       abs(intExpr(                  1))  <>                    0 or
+              abs(intExpr(                   0))  mod       abs(intExpr(       integer.last))  <>                    0 or
+              abs(intExpr(                   0))  mod       abs(intExpr(           12345653))  <>                    0 or
+              abs(intExpr(                   0))  mod       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mod optimization with dividend >= 0 and divisor >= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if        abs(intExpr(        integer.last))  mod succ( abs(intExpr(9223372036854775806))) <>                    0 or
+              abs(intExpr(        integer.last))  mod succ( abs(intExpr(           12345652))) <>              9740018 or
+              abs(intExpr(        integer.last))  mod succ( abs(intExpr(                  0))) <>                    0 or
+              abs(intExpr(            12345653))  mod succ( abs(intExpr(9223372036854775806))) <>             12345653 or
+              abs(intExpr(            12345653))  mod succ( abs(intExpr(           12345652))) <>                    0 or
+              abs(intExpr(            12345653))  mod succ( abs(intExpr(                  0))) <>                    0 or
+              abs(intExpr(                   0))  mod succ( abs(intExpr(9223372036854775806))) <>                    0 or
+              abs(intExpr(                   0))  mod succ( abs(intExpr(           12345652))) <>                    0 or
+              abs(intExpr(                   0))  mod succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mod optimization with dividend >= 0 and divisor > 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mod (-abs(intExpr( 9223372036854775806)) - 2) <>                   -1 or
+        succ( abs(intExpr( 9223372036854775806))) mod (-abs(intExpr(            12345651)) - 2) <>             -2605635 or
+        succ( abs(intExpr( 9223372036854775806))) mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        succ( abs(intExpr(            12345652))) mod (-abs(intExpr( 9223372036854775806)) - 2) <> -9223372036842430155 or
+        succ( abs(intExpr(            12345652))) mod (-abs(intExpr(            12345651)) - 2) <>                    0 or
+        succ( abs(intExpr(            12345652))) mod (-abs(intExpr(                   0)) - 2) <>                   -1 or
+        succ( abs(intExpr(                   0))) mod (-abs(intExpr( 9223372036854775806)) - 2) <> -9223372036854775807 or
+        succ( abs(intExpr(                   0))) mod (-abs(intExpr(            12345651)) - 2) <>            -12345652 or
+        succ( abs(intExpr(                   0))) mod (-abs(intExpr(                   0)) - 2) <>                   -1 then
+      writeln(" ***** mod optimization with dividend > 0 and divisor < -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mod pred(-abs(intExpr(       integer.last))) <>                   -1 or
+        succ( abs(intExpr( 9223372036854775806))) mod pred(-abs(intExpr(           12345652))) <>             -2605635 or
+        succ( abs(intExpr( 9223372036854775806))) mod pred(-abs(intExpr(                  0))) <>                    0 or
+        succ( abs(intExpr(            12345652))) mod pred(-abs(intExpr(       integer.last))) <> -9223372036842430155 or
+        succ( abs(intExpr(            12345652))) mod pred(-abs(intExpr(           12345652))) <>                    0 or
+        succ( abs(intExpr(            12345652))) mod pred(-abs(intExpr(                  0))) <>                    0 or
+        succ( abs(intExpr(                   0))) mod pred(-abs(intExpr(       integer.last))) <> -9223372036854775807 or
+        succ( abs(intExpr(                   0))) mod pred(-abs(intExpr(           12345652))) <>            -12345652 or
+        succ( abs(intExpr(                   0))) mod pred(-abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mod optimization with dividend > 0 and divisor < 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mod      -abs(intExpr(       integer.last))  <>                    0 or
+        succ( abs(intExpr( 9223372036854775806))) mod      -abs(intExpr(           12345653))  <>             -2605635 or
+        succ( abs(intExpr( 9223372036854775806))) mod      -abs(intExpr(                  1))  <>                    0 or
+        succ( abs(intExpr(            12345652))) mod      -abs(intExpr(       integer.last))  <> -9223372036842430154 or
+        succ( abs(intExpr(            12345652))) mod      -abs(intExpr(           12345653))  <>                    0 or
+        succ( abs(intExpr(            12345652))) mod      -abs(intExpr(                  1))  <>                    0 or
+        succ( abs(intExpr(                   0))) mod      -abs(intExpr(       integer.last))  <> -9223372036854775806 or
+        succ( abs(intExpr(                   0))) mod      -abs(intExpr(           12345653))  <>            -12345652 or
+        succ( abs(intExpr(                   0))) mod      -abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mod optimization with dividend > 0 and divisor <= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mod       abs(intExpr(       integer.last))  <>                    0 or
+        succ( abs(intExpr( 9223372036854775806))) mod       abs(intExpr(           12345653))  <>              9740018 or
+        succ( abs(intExpr( 9223372036854775806))) mod       abs(intExpr(                  1))  <>                    0 or
+        succ( abs(intExpr(            12345652))) mod       abs(intExpr(       integer.last))  <>             12345653 or
+        succ( abs(intExpr(            12345652))) mod       abs(intExpr(           12345653))  <>                    0 or
+        succ( abs(intExpr(            12345652))) mod       abs(intExpr(                  1))  <>                    0 or
+        succ( abs(intExpr(                   0))) mod       abs(intExpr(       integer.last))  <>                    1 or
+        succ( abs(intExpr(                   0))) mod       abs(intExpr(           12345653))  <>                    1 or
+        succ( abs(intExpr(                   0))) mod       abs(intExpr(                  1))  <>                    0 then
+      writeln(" ***** mod optimization with dividend > 0 and divisor >= 0 does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  succ( abs(intExpr( 9223372036854775806))) mod succ( abs(intExpr(9223372036854775806))) <>                    0 or
+        succ( abs(intExpr( 9223372036854775806))) mod succ( abs(intExpr(           12345652))) <>              9740018 or
+        succ( abs(intExpr( 9223372036854775806))) mod succ( abs(intExpr(                  0))) <>                    0 or
+        succ( abs(intExpr(            12345652))) mod succ( abs(intExpr(9223372036854775806))) <>             12345653 or
+        succ( abs(intExpr(            12345652))) mod succ( abs(intExpr(           12345652))) <>                    0 or
+        succ( abs(intExpr(            12345652))) mod succ( abs(intExpr(                  0))) <>                    0 or
+        succ( abs(intExpr(                   0))) mod succ( abs(intExpr(9223372036854775806))) <>                    1 or
+        succ( abs(intExpr(                   0))) mod succ( abs(intExpr(           12345652))) <>                    1 or
+        succ( abs(intExpr(                   0))) mod succ( abs(intExpr(                  0))) <>                    0 then
+      writeln(" ***** mod optimization with dividend > 0 and divisor > 0 does not work correct.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const func boolean: check_mod_by_zero is func
   result
     var boolean: okay is TRUE;
@@ -17905,29 +18804,382 @@ const func boolean: check_mod_division_check_optimization is func
       okay := FALSE;
     end if;
 
+    if  not raisesNumericError(integer.first mod 0) or
+        not raisesNumericError(          -10 mod 0) or
+        not raisesNumericError(           -1 mod 0) or
+        not raisesNumericError(            0 mod 0) or
+        not raisesNumericError(            1 mod 0) or
+        not raisesNumericError(           10 mod 0) or
+        not raisesNumericError( integer.last mod 0) then
+      writeln(" ***** mod by zero optimization with constant dividend and divisor = 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ(intExpr(       integer.first)) mod 0) or
+        not raisesNumericError(succ(intExpr(           -12345654)) mod 0) or
+        not raisesNumericError(succ(intExpr(                  -2)) mod 0) or
+        not raisesNumericError(succ(intExpr(                  -1)) mod 0) or
+        not raisesNumericError(succ(intExpr(                   0)) mod 0) or
+        not raisesNumericError(succ(intExpr(            12345652)) mod 0) or
+        not raisesNumericError(succ(intExpr( 9223372036854775806)) mod 0) then
+      writeln(" ***** mod by zero optimization with dividend > integer.first and divisor = 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(pred(-abs(intExpr(        integer.last))) mod 0) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) mod 0) or
+        not raisesNumericError(pred(-abs(intExpr(                   1))) mod 0) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) mod 0) then
+      writeln(" ***** mod by zero optimization with dividend < 0 and divisor = 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(     -abs(intExpr(        integer.last))  mod 0) or
+        not raisesNumericError(     -abs(intExpr(            12345653))  mod 0) or
+        not raisesNumericError(     -abs(intExpr(                   1))  mod 0) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mod 0) then
+      writeln(" ***** mod by zero optimization with dividend <= 0 and divisor = 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(      abs(intExpr(        integer.last))  mod 0) or
+        not raisesNumericError(      abs(intExpr(            12345653))  mod 0) or
+        not raisesNumericError(      abs(intExpr(                   1))  mod 0) or
+        not raisesNumericError(      abs(intExpr(                   0))  mod 0) then
+      writeln(" ***** mod by zero optimization with dividend >= 0 and divisor = 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mod 0) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mod 0) or
+        not raisesNumericError(succ( abs(intExpr(                   1))) mod 0) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mod 0) then
+      writeln(" ***** mod by zero optimization with dividend > 0 and divisor = 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(intExpr(integer.first) mod 0) or
+        not raisesNumericError(intExpr(          -10) mod 0) or
+        not raisesNumericError(intExpr(           -1) mod 0) or
+        not raisesNumericError(intExpr(            0) mod 0) or
+        not raisesNumericError(intExpr(            1) mod 0) or
+        not raisesNumericError(intExpr(           10) mod 0) or
+        not raisesNumericError(intExpr( integer.last) mod 0) then
+      writeln(" ***** mod by zero optimization with any dividend and divisor = 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(integer.first mod -abs(intExpr(0))) or
+        not raisesNumericError(          -10 mod -abs(intExpr(0))) or
+        not raisesNumericError(           -1 mod -abs(intExpr(0))) or
+        not raisesNumericError(            0 mod -abs(intExpr(0))) or
+        not raisesNumericError(            1 mod -abs(intExpr(0))) or
+        not raisesNumericError(           10 mod -abs(intExpr(0))) or
+        not raisesNumericError( integer.last mod -abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with constant dividend and divisor <= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ(intExpr(       integer.first)) mod -abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr(           -12345654)) mod -abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr(                  -2)) mod -abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr(                  -1)) mod -abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr(                   0)) mod -abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr(            12345652)) mod -abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr( 9223372036854775806)) mod -abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with dividend > integer.first and divisor <= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(pred(-abs(intExpr(        integer.last))) mod -abs(intExpr(0))) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) mod -abs(intExpr(0))) or
+        not raisesNumericError(pred(-abs(intExpr(                   1))) mod -abs(intExpr(0))) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) mod -abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with dividend < 0 and divisor <= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(     -abs(intExpr(        integer.last))  mod -abs(intExpr(0))) or
+        not raisesNumericError(     -abs(intExpr(            12345653))  mod -abs(intExpr(0))) or
+        not raisesNumericError(     -abs(intExpr(                   1))  mod -abs(intExpr(0))) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mod -abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with dividend <= 0 and divisor <= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(      abs(intExpr(        integer.last))  mod -abs(intExpr(0))) or
+        not raisesNumericError(      abs(intExpr(            12345653))  mod -abs(intExpr(0))) or
+        not raisesNumericError(      abs(intExpr(                   1))  mod -abs(intExpr(0))) or
+        not raisesNumericError(      abs(intExpr(                   0))  mod -abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with dividend >= 0 and divisor <= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mod -abs(intExpr(0))) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mod -abs(intExpr(0))) or
+        not raisesNumericError(succ( abs(intExpr(                   1))) mod -abs(intExpr(0))) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mod -abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with dividend > 0 and divisor <= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(intExpr(integer.first) mod -abs(intExpr(0))) or
+        not raisesNumericError(intExpr(          -10) mod -abs(intExpr(0))) or
+        not raisesNumericError(intExpr(           -1) mod -abs(intExpr(0))) or
+        not raisesNumericError(intExpr(            0) mod -abs(intExpr(0))) or
+        not raisesNumericError(intExpr(            1) mod -abs(intExpr(0))) or
+        not raisesNumericError(intExpr(           10) mod -abs(intExpr(0))) or
+        not raisesNumericError(intExpr( integer.last) mod -abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with any dividend and divisor <= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(integer.first mod  abs(intExpr(0))) or
+        not raisesNumericError(          -10 mod  abs(intExpr(0))) or
+        not raisesNumericError(           -1 mod  abs(intExpr(0))) or
+        not raisesNumericError(            0 mod  abs(intExpr(0))) or
+        not raisesNumericError(            1 mod  abs(intExpr(0))) or
+        not raisesNumericError(           10 mod  abs(intExpr(0))) or
+        not raisesNumericError( integer.last mod  abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with constant dividend and divisor >= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ(intExpr(       integer.first)) mod  abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr(           -12345654)) mod  abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr(                  -2)) mod  abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr(                  -1)) mod  abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr(                   0)) mod  abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr(            12345652)) mod  abs(intExpr(0))) or
+        not raisesNumericError(succ(intExpr( 9223372036854775806)) mod  abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with dividend > integer.first and divisor >= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(pred(-abs(intExpr(        integer.last))) mod  abs(intExpr(0))) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) mod  abs(intExpr(0))) or
+        not raisesNumericError(pred(-abs(intExpr(                   1))) mod  abs(intExpr(0))) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) mod  abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with dividend < 0 and divisor >= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(     -abs(intExpr(        integer.last))  mod  abs(intExpr(0))) or
+        not raisesNumericError(     -abs(intExpr(            12345653))  mod  abs(intExpr(0))) or
+        not raisesNumericError(     -abs(intExpr(                   1))  mod  abs(intExpr(0))) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mod  abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with dividend <= 0 and divisor >= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(      abs(intExpr(        integer.last))  mod  abs(intExpr(0))) or
+        not raisesNumericError(      abs(intExpr(            12345653))  mod  abs(intExpr(0))) or
+        not raisesNumericError(      abs(intExpr(                   1))  mod  abs(intExpr(0))) or
+        not raisesNumericError(      abs(intExpr(                   0))  mod  abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with dividend >= 0 and divisor >= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mod  abs(intExpr(0))) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mod  abs(intExpr(0))) or
+        not raisesNumericError(succ( abs(intExpr(                   1))) mod  abs(intExpr(0))) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mod  abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with dividend > 0 and divisor >= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(intExpr(integer.first) mod  abs(intExpr(0))) or
+        not raisesNumericError(intExpr(          -10) mod  abs(intExpr(0))) or
+        not raisesNumericError(intExpr(           -1) mod  abs(intExpr(0))) or
+        not raisesNumericError(intExpr(            0) mod  abs(intExpr(0))) or
+        not raisesNumericError(intExpr(            1) mod  abs(intExpr(0))) or
+        not raisesNumericError(intExpr(           10) mod  abs(intExpr(0))) or
+        not raisesNumericError(intExpr( integer.last) mod  abs(intExpr(0))) then
+      writeln(" ***** mod by zero optimization with any dividend and divisor >= 0 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(integer.first mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(          -10 mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(           -1 mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(            0 mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(            1 mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(           10 mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError( integer.last mod succ(-abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with constant dividend and divisor <= 1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ(intExpr(       integer.first)) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr(           -12345654)) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr(                  -2)) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr(                  -1)) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr(                   0)) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr(            12345652)) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr( 9223372036854775806)) mod succ(-abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with dividend > integer.first and divisor <= 1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(pred(-abs(intExpr(        integer.last))) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(pred(-abs(intExpr(                   1))) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) mod succ(-abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with dividend < 0 and divisor <= 1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(     -abs(intExpr(        integer.last))  mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(     -abs(intExpr(            12345653))  mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(     -abs(intExpr(                   1))  mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mod succ(-abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with dividend <= 0 and divisor <= 1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(      abs(intExpr(        integer.last))  mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(      abs(intExpr(            12345653))  mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(      abs(intExpr(                   1))  mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(      abs(intExpr(                   0))  mod succ(-abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with dividend >= 0 and divisor <= 1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(succ( abs(intExpr(                   1))) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mod succ(-abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with dividend > 0 and divisor <= 1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(intExpr(integer.first) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(intExpr(          -10) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(intExpr(           -1) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(intExpr(            0) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(intExpr(            1) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(intExpr(           10) mod succ(-abs(intExpr(1)))) or
+        not raisesNumericError(intExpr( integer.last) mod succ(-abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with any dividend and divisor <= 1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(integer.first mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(          -10 mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(           -1 mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(            0 mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(            1 mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(           10 mod pred( abs(intExpr(1)))) or
+        not raisesNumericError( integer.last mod pred( abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with constant dividend and divisor >= -1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ(intExpr(       integer.first)) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr(           -12345654)) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr(                  -2)) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr(                  -1)) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr(                   0)) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr(            12345652)) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(succ(intExpr( 9223372036854775806)) mod pred( abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with dividend > integer.first and divisor >= -1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(pred(-abs(intExpr(        integer.last))) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(pred(-abs(intExpr(                   1))) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) mod pred( abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with dividend < 0 and divisor >= -1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(     -abs(intExpr(        integer.last))  mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(     -abs(intExpr(            12345653))  mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(     -abs(intExpr(                   1))  mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mod pred( abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with dividend <= 0 and divisor >= -1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(      abs(intExpr(        integer.last))  mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(      abs(intExpr(            12345653))  mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(      abs(intExpr(                   1))  mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(      abs(intExpr(                   0))  mod pred( abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with dividend >= 0 and divisor >= -1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(succ( abs(intExpr(                   1))) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mod pred( abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with dividend > 0 and divisor >= -1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(intExpr(integer.first) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(intExpr(          -10) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(intExpr(           -1) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(intExpr(            0) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(intExpr(            1) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(intExpr(           10) mod pred( abs(intExpr(1)))) or
+        not raisesNumericError(intExpr( integer.last) mod pred( abs(intExpr(1)))) then
+      writeln(" ***** mod by zero optimization with any dividend and divisor >= -1 does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
     if  not raisesNumericError(integer.first mod rand(0, 0)) or
         not raisesNumericError(          -10 mod rand(0, 0)) or
         not raisesNumericError(           -1 mod rand(0, 0)) or
         not raisesNumericError(            0 mod rand(0, 0)) or
         not raisesNumericError(            1 mod rand(0, 0)) or
         not raisesNumericError(           10 mod rand(0, 0)) or
-        not raisesNumericError(          -10 mod rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
-        not raisesNumericError(           -1 mod rand(0, 0) not in { -1,  0,  1}) or
-        not raisesNumericError(            0 mod rand(0, 0) <>        0) or
-        not raisesNumericError(            1 mod rand(0, 0) not in { -1,  0,  1}) or
-        not raisesNumericError(           10 mod rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
-        not raisesNumericError(integer.first mod intExpr(0)) or
-        not raisesNumericError(          -10 mod intExpr(0)) or
-        not raisesNumericError(           -1 mod intExpr(0)) or
-        not raisesNumericError(            0 mod intExpr(0)) or
-        not raisesNumericError(            1 mod intExpr(0)) or
-        not raisesNumericError(           10 mod intExpr(0)) or
-        not raisesNumericError(          -10 mod intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
-        not raisesNumericError(           -1 mod intExpr(0) not in { -1,  0,  1}) or
-        not raisesNumericError(            0 mod intExpr(0) <>        0) or
-        not raisesNumericError(            1 mod intExpr(0) not in { -1,  0,  1}) or
-        not raisesNumericError(           10 mod intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) then
-      writeln(" ***** Optimized division by zero with the mod operator does not raise NUMERIC_ERROR. (1)");
+        not raisesNumericError( integer.last mod rand(0, 0)) then
+      writeln(" ***** mod by zero optimization with constant dividend and divisor in {0} does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ(intExpr(       integer.first)) mod rand(0, 0)) or
+        not raisesNumericError(succ(intExpr(           -12345654)) mod rand(0, 0)) or
+        not raisesNumericError(succ(intExpr(                  -2)) mod rand(0, 0)) or
+        not raisesNumericError(succ(intExpr(                  -1)) mod rand(0, 0)) or
+        not raisesNumericError(succ(intExpr(                   0)) mod rand(0, 0)) or
+        not raisesNumericError(succ(intExpr(            12345652)) mod rand(0, 0)) or
+        not raisesNumericError(succ(intExpr( 9223372036854775806)) mod rand(0, 0)) then
+      writeln(" ***** mod by zero optimization with dividend > integer.first and divisor in {0} does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(pred(-abs(intExpr(        integer.last))) mod rand(0, 0)) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) mod rand(0, 0)) or
+        not raisesNumericError(pred(-abs(intExpr(                   1))) mod rand(0, 0)) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) mod rand(0, 0)) then
+      writeln(" ***** mod by zero optimization with dividend < 0 and divisor in {0} does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(     -abs(intExpr(        integer.last))  mod rand(0, 0)) or
+        not raisesNumericError(     -abs(intExpr(            12345653))  mod rand(0, 0)) or
+        not raisesNumericError(     -abs(intExpr(                   1))  mod rand(0, 0)) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mod rand(0, 0)) then
+      writeln(" ***** mod by zero optimization with dividend <= 0 and divisor in {0} does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(      abs(intExpr(        integer.last))  mod rand(0, 0)) or
+        not raisesNumericError(      abs(intExpr(            12345653))  mod rand(0, 0)) or
+        not raisesNumericError(      abs(intExpr(                   1))  mod rand(0, 0)) or
+        not raisesNumericError(      abs(intExpr(                   0))  mod rand(0, 0)) then
+      writeln(" ***** mod by zero optimization with dividend >= 0 and divisor in {0} does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mod rand(0, 0)) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mod rand(0, 0)) or
+        not raisesNumericError(succ( abs(intExpr(                   1))) mod rand(0, 0)) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mod rand(0, 0)) then
+      writeln(" ***** mod by zero optimization with dividend > 0 and divisor in {0} does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
 
@@ -17937,29 +19189,79 @@ const func boolean: check_mod_division_check_optimization is func
         not raisesNumericError(intExpr(            0) mod rand(0, 0)) or
         not raisesNumericError(intExpr(            1) mod rand(0, 0)) or
         not raisesNumericError(intExpr(           10) mod rand(0, 0)) or
-        not raisesNumericError(intExpr(          -10) mod rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
-        not raisesNumericError(intExpr(           -1) mod rand(0, 0) not in { -1,  0,  1}) or
-        not raisesNumericError(intExpr(            0) mod rand(0, 0) <>        0) or
-        not raisesNumericError(intExpr(            1) mod rand(0, 0) not in { -1,  0,  1}) or
-        not raisesNumericError(intExpr(           10) mod rand(0, 0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
-        not raisesNumericError(intExpr(integer.first) mod intExpr(0)) or
+        not raisesNumericError(intExpr( integer.last) mod rand(0, 0)) then
+      writeln(" ***** mod by zero optimization with any dividend and divisor in {0} does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(integer.first mod intExpr(0)) or
+        not raisesNumericError(          -10 mod intExpr(0)) or
+        not raisesNumericError(           -1 mod intExpr(0)) or
+        not raisesNumericError(            0 mod intExpr(0)) or
+        not raisesNumericError(            1 mod intExpr(0)) or
+        not raisesNumericError(           10 mod intExpr(0)) or
+        not raisesNumericError( integer.last mod intExpr(0)) then
+      writeln(" ***** mod by zero optimization with constant dividend and any divisor does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ(intExpr(       integer.first)) mod intExpr(0)) or
+        not raisesNumericError(succ(intExpr(           -12345654)) mod intExpr(0)) or
+        not raisesNumericError(succ(intExpr(                  -2)) mod intExpr(0)) or
+        not raisesNumericError(succ(intExpr(                  -1)) mod intExpr(0)) or
+        not raisesNumericError(succ(intExpr(                   0)) mod intExpr(0)) or
+        not raisesNumericError(succ(intExpr(            12345652)) mod intExpr(0)) or
+        not raisesNumericError(succ(intExpr( 9223372036854775806)) mod intExpr(0)) then
+      writeln(" ***** mod by zero optimization with dividend > integer.first and any divisor does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(pred(-abs(intExpr(        integer.last))) mod intExpr(0)) or
+        not raisesNumericError(pred(-abs(intExpr(            12345652))) mod intExpr(0)) or
+        not raisesNumericError(pred(-abs(intExpr(                   1))) mod intExpr(0)) or
+        not raisesNumericError(pred(-abs(intExpr(                   0))) mod intExpr(0)) then
+      writeln(" ***** mod by zero optimization with dividend < 0 and any divisor does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(     -abs(intExpr(        integer.last))  mod intExpr(0)) or
+        not raisesNumericError(     -abs(intExpr(            12345653))  mod intExpr(0)) or
+        not raisesNumericError(     -abs(intExpr(                   1))  mod intExpr(0)) or
+        not raisesNumericError(     -abs(intExpr(                   0))  mod intExpr(0)) then
+      writeln(" ***** mod by zero optimization with dividend <= 0 and any divisor does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(      abs(intExpr(        integer.last))  mod intExpr(0)) or
+        not raisesNumericError(      abs(intExpr(            12345653))  mod intExpr(0)) or
+        not raisesNumericError(      abs(intExpr(                   1))  mod intExpr(0)) or
+        not raisesNumericError(      abs(intExpr(                   0))  mod intExpr(0)) then
+      writeln(" ***** mod by zero optimization with dividend >= 0 and any divisor does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(succ( abs(intExpr( 9223372036854775806))) mod intExpr(0)) or
+        not raisesNumericError(succ( abs(intExpr(            12345652))) mod intExpr(0)) or
+        not raisesNumericError(succ( abs(intExpr(                   1))) mod intExpr(0)) or
+        not raisesNumericError(succ( abs(intExpr(                   0))) mod intExpr(0)) then
+      writeln(" ***** mod by zero optimization with dividend > 0 and any divisor does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesNumericError(intExpr(integer.first) mod intExpr(0)) or
         not raisesNumericError(intExpr(          -10) mod intExpr(0)) or
         not raisesNumericError(intExpr(           -1) mod intExpr(0)) or
         not raisesNumericError(intExpr(            0) mod intExpr(0)) or
         not raisesNumericError(intExpr(            1) mod intExpr(0)) or
         not raisesNumericError(intExpr(           10) mod intExpr(0)) or
-        not raisesNumericError(intExpr(          -10) mod intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) or
-        not raisesNumericError(intExpr(           -1) mod intExpr(0) not in { -1,  0,  1}) or
-        not raisesNumericError(intExpr(            0) mod intExpr(0) <>        0) or
-        not raisesNumericError(intExpr(            1) mod intExpr(0) not in { -1,  0,  1}) or
-        not raisesNumericError(intExpr(           10) mod intExpr(0) not in {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 5, 10}) then
-      writeln(" ***** Optimized division by zero with the mod operator does not raise NUMERIC_ERROR. (2)");
+        not raisesNumericError(intExpr( integer.last) mod intExpr(0)) then
+      writeln(" ***** mod by zero optimization with any dividend and any divisor does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
 
     number := 0;
     if  not raisesNumericError(number mod number) then
-      writeln(" ***** Optimized division by zero with the mod operator does not raise NUMERIC_ERROR. (2)");
+      writeln(" ***** mod by zero optimization with variable dividend and divisor does not raise NUMERIC_ERROR.");
       okay := FALSE;
     end if;
   end func;
@@ -18834,6 +20136,10 @@ const proc: check_mod is func
     end if;
 
     if not check_mod_by_computed_power_of_two_optimization then
+      okay := FALSE;
+    end if;
+
+    if not check_mod_optimization then
       okay := FALSE;
     end if;
 

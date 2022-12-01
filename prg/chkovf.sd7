@@ -4010,7 +4010,48 @@ const proc: check_mod is func
                                  intExpr(-9223372036854775807-1) mod         -1   = 0) or
         not (raisesOverflowError(intExpr(-9223372036854775807-1) mod intExpr(-1))      or
                                  intExpr(-9223372036854775807-1) mod intExpr(-1)  = 0) then
-      writeln(" ***** Computing -9223372036854775808 mod -1 does neither raise OVERFLOW_ERROR nor return 0.");
+      writeln(" ***** Computing integer.first mod -1 does neither raise OVERFLOW_ERROR nor return 0. (1)");
+      okay := FALSE;
+    end if;
+
+    # An integer expression must either raise OVERFLOW_ERROR or return the correct result.
+    if  not (raisesOverflowError(          integer.first   mod                   -1   )      or
+                                           integer.first   mod                   -1     = 0) or
+        not (raisesOverflowError(          integer.first   mod  pred(-abs(intExpr(0))))      or
+                                           integer.first   mod  pred(-abs(intExpr(0)))  = 0) or
+        not (raisesOverflowError(          integer.first   mod       -abs(intExpr(1)) )      or
+                                           integer.first   mod       -abs(intExpr(1))   = 0) or
+        not (raisesOverflowError(          integer.first   mod  succ(-abs(intExpr(2))))      or
+                                           integer.first   mod  succ(-abs(intExpr(2)))  = 0) or
+        not (raisesOverflowError(          integer.first   mod  pred( abs(intExpr(0))))      or
+                                           integer.first   mod  pred( abs(intExpr(0)))  = 0) or
+        not (raisesOverflowError(          integer.first   mod -ord(rand(TRUE, TRUE)) )      or
+                                           integer.first   mod -ord(rand(TRUE, TRUE))   = 0) or
+        not (raisesOverflowError(pred(-abs(integer.last )) mod                   -1   )      or
+                                 pred(-abs(integer.last )) mod                   -1     = 0) or
+        not (raisesOverflowError(pred(-abs(integer.last )) mod  pred(-abs(intExpr(0))))      or
+                                 pred(-abs(integer.last )) mod  pred(-abs(intExpr(0)))  = 0) or
+        not (raisesOverflowError(pred(-abs(integer.last )) mod       -abs(intExpr(1)) )      or
+                                 pred(-abs(integer.last )) mod       -abs(intExpr(1))   = 0) or
+        not (raisesOverflowError(pred(-abs(integer.last )) mod  succ(-abs(intExpr(2))))      or
+                                 pred(-abs(integer.last )) mod  succ(-abs(intExpr(2)))  = 0) or
+        not (raisesOverflowError(pred(-abs(integer.last )) mod  pred( abs(intExpr(0))))      or
+                                 pred(-abs(integer.last )) mod  pred( abs(intExpr(0)))  = 0) or
+        not (raisesOverflowError(pred(-abs(integer.last )) mod -ord(rand(TRUE, TRUE)) )      or
+                                 pred(-abs(integer.last )) mod -ord(rand(TRUE, TRUE))   = 0) or
+        not (raisesOverflowError(intExpr(  integer.first)  mod                   -1   )      or
+                                 intExpr(  integer.first)  mod                   -1     = 0) or
+        not (raisesOverflowError(intExpr(  integer.first)  mod  pred(-abs(intExpr(0))))      or
+                                 intExpr(  integer.first)  mod  pred(-abs(intExpr(0)))  = 0) or
+        not (raisesOverflowError(intExpr(  integer.first)  mod       -abs(intExpr(1)) )      or
+                                 intExpr(  integer.first)  mod       -abs(intExpr(1))   = 0) or
+        not (raisesOverflowError(intExpr(  integer.first)  mod  succ(-abs(intExpr(2))))      or
+                                 intExpr(  integer.first)  mod  succ(-abs(intExpr(2)))  = 0) or
+        not (raisesOverflowError(intExpr(  integer.first)  mod  pred( abs(intExpr(0))))      or
+                                 intExpr(  integer.first)  mod  pred( abs(intExpr(0)))  = 0) or
+        not (raisesOverflowError(intExpr(  integer.first)  mod -ord(rand(TRUE, TRUE)) )      or
+                                 intExpr(  integer.first)  mod -ord(rand(TRUE, TRUE))   = 0) then
+      writeln(" ***** Computing integer.first mod -1 does neither raise OVERFLOW_ERROR nor return 0. (2)");
       okay := FALSE;
     end if;
 
