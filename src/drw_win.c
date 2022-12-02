@@ -59,6 +59,7 @@
 #else
 #define traceEvent(traceStatements)
 #endif
+#define traceEventX(traceStatements) traceStatements
 
 #define PI 3.141592653589793238462643383279502884197
 
@@ -368,7 +369,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           SetCursor(NULL);
           result = 1;
         } else{
-          result = DefWindowProc(hWnd, message, wParam, lParam);
+          result = DefWindowProcW(hWnd, message, wParam, lParam);
         } /* if */
         break;
       case WM_SYSCOMMAND:
@@ -394,10 +395,14 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             paint_window->minimized = TRUE;
           } /* if */
         } /* if */
-        result = DefWindowProc(hWnd, message, wParam, lParam);
+        result = DefWindowProcW(hWnd, message, wParam, lParam);
         break;
       default:
-        result = DefWindowProc(hWnd, message, wParam, lParam);
+        traceEvent(printf("WndProc message=%d, hwnd=" FMT_U_MEM
+                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                          message, (memSizeType) hWnd, (uint64Type) wParam,
+                          (uint64Type) lParam););
+        result = DefWindowProcW(hWnd, message, wParam, lParam);
         break;
     } /* switch */
     logFunction(printf("WndProc --> %d\n", result););
