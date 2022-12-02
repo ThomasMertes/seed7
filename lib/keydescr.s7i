@@ -163,14 +163,22 @@ const func keyDescriptionType: genKeyDescription is func
         "KEY_SHIFT", "KEY_LEFT_SHIFT", "KEY_RIGHT_SHIFT",
         "KEY_CONTROL", "KEY_LEFT_CONTROL", "KEY_RIGHT_CONTROL",
         "KEY_ALT", "KEY_LEFT_ALT", "KEY_RIGHT_ALT",
-        "KEY_SHIFT_LOCK", "KEY_SHIFT_LOCK_ON",
-        "KEY_NUM_LOCK", "KEY_NUM_LOCK_ON",
-        "KEY_SCROLL_LOCK", "KEY_SCROLL_LOCK_ON") do
+        "KEY_SUPER", "KEY_LEFT_SUPER", "KEY_RIGHT_SUPER") do
       keyDescription @:= [chr(pred(ord(KEY_SHIFT)) + index)] description;
     end for;
     for description key index range [](
-        "KEY_CLOSE", "KEY_RESIZE", "KEY_UNDEF", "KEY_NONE") do
+        "KEY_SHIFT_LOCK", "KEY_SHIFT_LOCK_ON",
+        "KEY_NUM_LOCK", "KEY_NUM_LOCK_ON",
+        "KEY_SCROLL_LOCK", "KEY_SCROLL_LOCK_ON") do
+      keyDescription @:= [chr(pred(ord(KEY_SHIFT_LOCK)) + index)] description;
+    end for;
+    for description key index range [](
+        "KEY_CLOSE", "KEY_RESIZE") do
       keyDescription @:= [chr(pred(ord(KEY_CLOSE)) + index)] description;
+    end for;
+    for description key index range [](
+        "KEY_UNDEF", "KEY_NONE") do
+      keyDescription @:= [chr(pred(ord(KEY_UNDEF)) + index)] description;
     end for;
   end func;
 
