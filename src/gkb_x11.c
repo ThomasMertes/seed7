@@ -64,6 +64,7 @@
 #else
 #define traceEvent(traceStatements)
 #endif
+#define traceEventX(traceStatements) traceStatements
 
 #define ALLOW_REPARENT_NOTIFY
 
@@ -87,6 +88,8 @@ struct modifierState {
     boolType rightControl;
     boolType leftAlt;
     boolType rightAlt;
+    boolType leftSuper;
+    boolType rightSuper;
     boolType shiftLock;
     boolType numLock;
     boolType scrollLock;
@@ -114,6 +117,8 @@ struct keyCodeStruct {
     KeyCode Alt_L;
     KeyCode Alt_R;
     KeyCode ISO_Level3_Shift;
+    KeyCode Super_L;
+    KeyCode Super_R;
     KeyCode Mode_switch;
     KeyCode Shift_Lock;
     KeyCode Caps_Lock;
@@ -1179,6 +1184,7 @@ static void setKeyboardState (void)
     XKeyboardState keyboardState;
 
   /* setKeyboardState */
+    logFunction(printf("setKeyboardState()\n"););
     XGetKeyboardControl(mydisplay, &keyboardState);
     /* printf("led_mask=%lx\n", keyboardState.led_mask); */
     modState.shiftLockOn  = (keyboardState.led_mask & 1) != 0;
@@ -1191,6 +1197,7 @@ static void setKeyboardState (void)
 void gkbInitKeyboard (void)
 
   { /* gkbInitKeyboard */
+    logFunction(printf("gkbInitKeyboard()\n"););
     keyCodeOf.Shift_L          = XKeysymToKeycode(mydisplay, XK_Shift_L);
     keyCodeOf.Shift_R          = XKeysymToKeycode(mydisplay, XK_Shift_R);
     keyCodeOf.Control_L        = XKeysymToKeycode(mydisplay, XK_Control_L);
@@ -1198,6 +1205,8 @@ void gkbInitKeyboard (void)
     keyCodeOf.Alt_L            = XKeysymToKeycode(mydisplay, XK_Alt_L);
     keyCodeOf.Alt_R            = XKeysymToKeycode(mydisplay, XK_Alt_R);
     keyCodeOf.ISO_Level3_Shift = XKeysymToKeycode(mydisplay, XK_ISO_Level3_Shift);
+    keyCodeOf.Super_L          = XKeysymToKeycode(mydisplay, XK_Super_L);
+    keyCodeOf.Super_R          = XKeysymToKeycode(mydisplay, XK_Super_R);
     keyCodeOf.Mode_switch      = XKeysymToKeycode(mydisplay, XK_Mode_switch);
     keyCodeOf.Shift_Lock       = XKeysymToKeycode(mydisplay, XK_Shift_Lock);
     keyCodeOf.Caps_Lock        = XKeysymToKeycode(mydisplay, XK_Caps_Lock);
@@ -1209,6 +1218,7 @@ void gkbInitKeyboard (void)
 static void setupModState (char keyVector[32])
 
   { /* setupModState */
+    logFunction(printf("setupModState()\n"););
     modState.leftShift    = keyCodePressed(keyVector, keyCodeOf.Shift_L);
     modState.rightShift   = keyCodePressed(keyVector, keyCodeOf.Shift_R);
     modState.leftControl  = keyCodePressed(keyVector, keyCodeOf.Control_L);
@@ -1218,6 +1228,8 @@ static void setupModState (char keyVector[32])
     modState.rightAlt     = keyCodePressed(keyVector, keyCodeOf.Alt_R) ||
                             keyCodePressed(keyVector, keyCodeOf.ISO_Level3_Shift) ||
                             keyCodePressed(keyVector, keyCodeOf.Mode_switch);
+    modState.leftSuper    = keyCodePressed(keyVector, keyCodeOf.Super_L);
+    modState.rightSuper   = keyCodePressed(keyVector, keyCodeOf.Super_R);
     modState.shiftLock    = keyCodePressed(keyVector, keyCodeOf.Shift_Lock) ||
                             keyCodePressed(keyVector, keyCodeOf.Caps_Lock);
     modState.numLock      = keyCodePressed(keyVector, keyCodeOf.Num_Lock);
@@ -1461,6 +1473,12 @@ charType gkbGetc (void)
                                    modState.rightAlt     = TRUE;
                                    getNextChar = TRUE;
                                    break;
+              case XK_Super_L:     modState.leftSuper    = TRUE;
+                                   getNextChar = TRUE;
+                                   break;
+              case XK_Super_R:     modState.rightSuper   = TRUE;
+                                   getNextChar = TRUE;
+                                   break;
               case XK_Mode_switch: modState.leftAlt      = TRUE;
                                    modState.rightAlt     = TRUE;
                                    getNextChar = TRUE;
@@ -1610,6 +1628,12 @@ charType gkbGetc (void)
                                     modState.rightAlt     = TRUE;
                                     getNextChar = TRUE;
                                     break;
+              case XK_Super_L:      modState.leftSuper    = TRUE;
+                                    getNextChar = TRUE;
+                                    break;
+              case XK_Super_R:      modState.rightSuper   = TRUE;
+                                    getNextChar = TRUE;
+                                    break;
               case XK_Mode_switch:  modState.leftAlt      = TRUE;
                                     modState.rightAlt     = TRUE;
                                     getNextChar = TRUE;
@@ -1716,6 +1740,12 @@ charType gkbGetc (void)
               case XK_Alt_R:
               case XK_ISO_Level3_Shift:
                                     modState.rightAlt     = TRUE;
+                                    getNextChar = TRUE;
+                                    break;
+              case XK_Super_L:      modState.leftSuper    = TRUE;
+                                    getNextChar = TRUE;
+                                    break;
+              case XK_Super_R:      modState.rightSuper   = TRUE;
                                     getNextChar = TRUE;
                                     break;
               case XK_Mode_switch:  modState.leftAlt      = TRUE;
@@ -1841,6 +1871,12 @@ charType gkbGetc (void)
                                    modState.rightAlt     = TRUE;
                                    getNextChar = TRUE;
                                    break;
+              case XK_Super_L:     modState.leftSuper    = TRUE;
+                                   getNextChar = TRUE;
+                                   break;
+              case XK_Super_R:     modState.rightSuper   = TRUE;
+                                   getNextChar = TRUE;
+                                   break;
               case XK_Mode_switch: modState.leftAlt      = TRUE;
                                    modState.rightAlt     = TRUE;
                                    getNextChar = TRUE;
@@ -1946,6 +1982,12 @@ charType gkbGetc (void)
                                    modState.rightAlt     = TRUE;
                                    getNextChar = TRUE;
                                    break;
+              case XK_Super_L:     modState.leftSuper    = TRUE;
+                                   getNextChar = TRUE;
+                                   break;
+              case XK_Super_R:     modState.rightSuper   = TRUE;
+                                   getNextChar = TRUE;
+                                   break;
               case XK_Mode_switch: modState.leftAlt      = TRUE;
                                    modState.rightAlt     = TRUE;
                                    getNextChar = TRUE;
@@ -1996,6 +2038,8 @@ charType gkbGetc (void)
             case XK_Alt_R:
             case XK_ISO_Level3_Shift:
                                  modState.rightAlt     = FALSE; break;
+            case XK_Super_L:     modState.leftSuper    = FALSE; break;
+            case XK_Super_R:     modState.rightSuper   = FALSE; break;
             case XK_Mode_switch: modState.leftAlt      = FALSE;
                                  modState.rightAlt     = FALSE; break;
             case XK_Shift_Lock:
@@ -2146,6 +2190,8 @@ static boolType processEvents (void)
               case XK_Alt_L:
               case XK_Alt_R:
               case XK_ISO_Level3_Shift:
+              case XK_Super_L:
+              case XK_Super_R:
               case XK_Shift_Lock:
               case XK_Caps_Lock:
               case XK_Num_Lock:
@@ -2160,6 +2206,8 @@ static boolType processEvents (void)
                   case XK_Alt_R:
                   case XK_ISO_Level3_Shift:
                                        modState.rightAlt     = TRUE; break;
+                  case XK_Super_L:     modState.leftSuper    = TRUE; break;
+                  case XK_Super_R:     modState.rightSuper   = TRUE; break;
                   case XK_Mode_switch: modState.leftAlt      = TRUE;
                                        modState.rightAlt     = TRUE; break;
                   case XK_Shift_Lock:
@@ -2210,6 +2258,8 @@ static boolType processEvents (void)
               case XK_Alt_R:
               case XK_ISO_Level3_Shift:
                                    modState.rightAlt     = FALSE; break;
+              case XK_Super_L:     modState.leftSuper    = FALSE; break;
+              case XK_Super_R:     modState.rightSuper   = FALSE; break;
               case XK_Mode_switch: modState.leftAlt      = FALSE;
                                    modState.rightAlt     = FALSE; break;
               case XK_Shift_Lock:
@@ -2695,6 +2745,10 @@ boolType gkbButtonPressed (charType button)
                                       modState.rightAlt;     finished = TRUE; break;
       case K_LEFT_ALT:       result = modState.leftAlt;      finished = TRUE; break;
       case K_RIGHT_ALT:      result = modState.rightAlt;     finished = TRUE; break;
+      case K_SUPER:          result = modState.leftSuper     ||
+                                      modState.rightSuper;   finished = TRUE; break;
+      case K_LEFT_SUPER:     result = modState.leftSuper;    finished = TRUE; break;
+      case K_RIGHT_SUPER:    result = modState.rightSuper;   finished = TRUE; break;
       case K_SHIFT_LOCK:     result = modState.shiftLock;    finished = TRUE; break;
       case K_NUM_LOCK:       result = modState.numLock;      finished = TRUE; break;
       case K_SCROLL_LOCK:    result = modState.scrollLock;   finished = TRUE; break;

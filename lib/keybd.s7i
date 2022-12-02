@@ -607,16 +607,19 @@ const char: KEY_RIGHT_CONTROL  is chr(KEYCODE_BASE + 373);
 const char: KEY_ALT            is chr(KEYCODE_BASE + 374);
 const char: KEY_LEFT_ALT       is chr(KEYCODE_BASE + 375);
 const char: KEY_RIGHT_ALT      is chr(KEYCODE_BASE + 376);
-const char: KEY_SHIFT_LOCK     is chr(KEYCODE_BASE + 377);
-const char: KEY_SHIFT_LOCK_ON  is chr(KEYCODE_BASE + 378);
-const char: KEY_NUM_LOCK       is chr(KEYCODE_BASE + 379);
-const char: KEY_NUM_LOCK_ON    is chr(KEYCODE_BASE + 380);
-const char: KEY_SCROLL_LOCK    is chr(KEYCODE_BASE + 381);
-const char: KEY_SCROLL_LOCK_ON is chr(KEYCODE_BASE + 382);
-const char: KEY_CLOSE          is chr(KEYCODE_BASE + 385);
-const char: KEY_RESIZE         is chr(KEYCODE_BASE + 386);
-const char: KEY_UNDEF          is chr(KEYCODE_BASE + 387);
-const char: KEY_NONE           is chr(KEYCODE_BASE + 388);
+const char: KEY_SUPER          is chr(KEYCODE_BASE + 377);
+const char: KEY_LEFT_SUPER     is chr(KEYCODE_BASE + 378);
+const char: KEY_RIGHT_SUPER    is chr(KEYCODE_BASE + 379);
+const char: KEY_SHIFT_LOCK     is chr(KEYCODE_BASE + 383);
+const char: KEY_SHIFT_LOCK_ON  is chr(KEYCODE_BASE + 384);
+const char: KEY_NUM_LOCK       is chr(KEYCODE_BASE + 385);
+const char: KEY_NUM_LOCK_ON    is chr(KEYCODE_BASE + 386);
+const char: KEY_SCROLL_LOCK    is chr(KEYCODE_BASE + 387);
+const char: KEY_SCROLL_LOCK_ON is chr(KEYCODE_BASE + 388);
+const char: KEY_CLOSE          is chr(KEYCODE_BASE + 391);
+const char: KEY_RESIZE         is chr(KEYCODE_BASE + 392);
+const char: KEY_UNDEF          is chr(KEYCODE_BASE + 398);
+const char: KEY_NONE           is chr(KEYCODE_BASE + 399);
 
 
 (**

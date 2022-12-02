@@ -504,6 +504,8 @@ charType gkbGetc (void)
                 case VK_SHIFT:
                 case VK_CONTROL:
                 case VK_MENU:
+                case VK_LWIN:
+                case VK_RWIN:
                 case VK_CAPITAL:
                 case VK_NUMLOCK:
                 case VK_SCROLL:   result = K_NONE;           break;
@@ -571,6 +573,8 @@ charType gkbGetc (void)
                 case VK_SHIFT:
                 case VK_CONTROL:
                 case VK_MENU:
+                case VK_LWIN:
+                case VK_RWIN:
                 case VK_CAPITAL:
                 case VK_NUMLOCK:
                 case VK_SCROLL:   result = K_NONE;           break;
@@ -624,6 +628,8 @@ charType gkbGetc (void)
                 case VK_SHIFT:
                 case VK_CONTROL:
                 case VK_MENU:
+                case VK_LWIN:
+                case VK_RWIN:
                 case VK_CAPITAL:
                 case VK_NUMLOCK:
                 case VK_SCROLL:   result = K_NONE;           break;
@@ -655,6 +661,8 @@ charType gkbGetc (void)
                   case VK_SHIFT:
                   case VK_CONTROL:
                   case VK_MENU:
+                  case VK_LWIN:
+                  case VK_RWIN:
                   case VK_CAPITAL:
                   case VK_NUMLOCK:
                   case VK_SCROLL:   result = K_NONE;       break;
@@ -695,6 +703,8 @@ charType gkbGetc (void)
                   case VK_SHIFT:
                   case VK_CONTROL:
                   case VK_MENU:
+                  case VK_LWIN:
+                  case VK_RWIN:
                   case VK_CAPITAL:
                   case VK_NUMLOCK:
                   case VK_SCROLL:   result = K_NONE;           break;
@@ -735,6 +745,8 @@ charType gkbGetc (void)
                 case VK_SHIFT:
                 case VK_CONTROL:
                 case VK_MENU:
+                case VK_LWIN:
+                case VK_RWIN:
                 case VK_CAPITAL:
                 case VK_NUMLOCK:
                 case VK_SCROLL:   result = K_NONE;       break;
@@ -918,6 +930,8 @@ charType gkbGetc (void)
                 case VK_SHIFT:
                 case VK_CONTROL:
                 case VK_MENU:
+                case VK_LWIN:
+                case VK_RWIN:
                 case VK_CAPITAL:
                 case VK_NUMLOCK:
                 case VK_SCROLL:   result = K_NONE;        break;
@@ -1018,6 +1032,8 @@ charType gkbGetc (void)
                 case VK_SHIFT:
                 case VK_CONTROL:
                 case VK_MENU:
+                case VK_LWIN:
+                case VK_RWIN:
                 case VK_CAPITAL:
                 case VK_NUMLOCK:
                 case VK_SCROLL:   result = K_NONE;           break;
@@ -1189,12 +1205,17 @@ boolType gkbInputReady (void)
     result = FALSE;
     msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
     while (msg_present) {
-      /* printf("gkbInputReady message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
+      /* printf("gkbInputReady: message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
       switch (msg.message) {
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
+          traceEvent(printf("gkbInputReady: WM_KEYDOWN/WM_SYSKEYDOWN hwnd=" FMT_U_MEM
+                            ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                            (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
+                            (uint64Type) msg.lParam););
           if (msg.wParam == VK_SHIFT   || msg.wParam == VK_CONTROL ||
-              msg.wParam == VK_MENU    || msg.wParam == VK_CAPITAL ||
+              msg.wParam == VK_MENU    || msg.wParam == VK_LWIN    ||
+              msg.wParam == VK_RWIN    || msg.wParam == VK_CAPITAL ||
               msg.wParam == VK_NUMLOCK || msg.wParam == VK_SCROLL) {
             bRet = GetMessageW(&msg, NULL, 0, 0);
             if (bRet == 0) {
@@ -1217,7 +1238,7 @@ boolType gkbInputReady (void)
         case WM_MBUTTONDOWN:
         case WM_RBUTTONDOWN:
         case WM_XBUTTONDOWN:
-          /* printf("gkbInputReady --> TRUE for message %d\n", msg.message); */
+          /* printf("gkbInputReady: --> TRUE for message %d\n", msg.message); */
           msg_present = 0;
           result = TRUE;
           break;
@@ -1250,7 +1271,7 @@ boolType gkbInputReady (void)
           } /* if */
           break;
         case WM_NCLBUTTONDOWN:
-          traceEvent(printf("gkbInputReady WM_NCLBUTTONDOWN hwnd=" FMT_U_MEM
+          traceEvent(printf("gkbInputReady: WM_NCLBUTTONDOWN hwnd=" FMT_U_MEM
                             ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
@@ -1299,7 +1320,7 @@ boolType gkbInputReady (void)
           } /* if */
           break;
         case WM_SYSCOMMAND:
-          traceEvent(printf("gkbInputReady WM_SYSCOMMAND hwnd=" FMT_U_MEM
+          traceEvent(printf("gkbInputReady: WM_SYSCOMMAND hwnd=" FMT_U_MEM
                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
@@ -1335,7 +1356,7 @@ boolType gkbInputReady (void)
           } /* if */
           break;
         case WM_MOUSEMOVE:
-          /* printf("gkbInputReady WM_MOUSEMOVE\n"); */
+          /* printf("gkbInputReady: WM_MOUSEMOVE\n"); */
           if (resizeMode != 0) {
             processMouseMove(&msg);
             if (resizeMode != HTCAPTION &&
@@ -1365,7 +1386,7 @@ boolType gkbInputReady (void)
           } /* if */
           break;
         case WM_LBUTTONUP:
-          traceEvent(printf("gkbInputReady WM_LBUTTONUP hwnd=" FMT_U_MEM
+          traceEvent(printf("gkbInputReady: WM_LBUTTONUP hwnd=" FMT_U_MEM
                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
@@ -1389,7 +1410,7 @@ boolType gkbInputReady (void)
           } /* if */
           break;
         case WM_SYSKEYUP:
-          traceEvent(printf("gkbInputReady WM_SYSKEYUP hwnd=" FMT_U_MEM
+          traceEvent(printf("gkbInputReady: WM_SYSKEYUP hwnd=" FMT_U_MEM
                             ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
@@ -1402,7 +1423,7 @@ boolType gkbInputReady (void)
           msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;
         case WM_USER:
-          traceEvent(printf("gkbInputReady WM_USER hwnd=" FMT_U_MEM
+          traceEvent(printf("gkbInputReady: WM_USER hwnd=" FMT_U_MEM
                             ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
@@ -1695,6 +1716,9 @@ boolType gkbButtonPressed (charType button)
       case K_ALT:            vkey1 = VK_MENU;     break;
       case K_LEFT_ALT:       vkey1 = VK_LMENU;    break;
       case K_RIGHT_ALT:      vkey1 = VK_RMENU;    break;
+      case K_SUPER:          vkey1 = VK_LWIN;     vkey2 = VK_LWIN;     break;
+      case K_LEFT_SUPER:     vkey1 = VK_LWIN;     break;
+      case K_RIGHT_SUPER:    vkey1 = VK_RWIN;     break;
       case K_SHIFT_LOCK:     vkey1      = VK_CAPITAL; break;
       case K_SHIFT_LOCK_ON:  state_vkey = VK_CAPITAL; break;
       case K_NUM_LOCK:       vkey1      = VK_NUMLOCK; break;
