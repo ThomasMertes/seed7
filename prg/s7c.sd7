@@ -7173,6 +7173,8 @@ const func string: temp_name (in string: source) is func
 const proc: pass_1 (in string: source, inout program: prog,
     inout boolean: okay) is func
 
+  local
+    var char: optionChar is ' ';
   begin
     if source <> "" then
       writeln("Compiling the program ...");
@@ -7191,18 +7193,16 @@ const proc: pass_1 (in string: source, inout program: prog,
         end if;
       end if;
       if "-t" in compiler_option then
-        if pos(compiler_option["-t"], 'd') <> 0 then
-          trace_dynamic_calls := TRUE;
-        end if;
-        if pos(compiler_option["-t"], 'e') <> 0 then
-          trace_exception := TRUE;
-        end if;
-        if pos(compiler_option["-t"], 'f') <> 0 then
-          trace_function := TRUE;
-        end if;
-        if pos(compiler_option["-t"], 's') <> 0 then
-          trace_signal := TRUE;
-        end if;
+        for optionChar range compiler_option["-t"] do
+          case optionChar of
+            when {'d'}: trace_dynamic_calls := TRUE;
+            when {'e'}: trace_exception := TRUE;
+            when {'f'}: trace_function := TRUE;
+            when {'s'}: trace_signal := TRUE;
+            otherwise:
+              writeln("*** Ignore unsupported option: -t" <& optionChar);
+          end case;
+        end for;
       end if;
       if "-p" in compiler_option then
         profile_function := TRUE;
@@ -7219,22 +7219,20 @@ const proc: pass_1 (in string: source, inout program: prog,
       end if;
       setOptimizationSettings(evaluate_const_expr);
       if "-s" in compiler_option then
-        if pos(compiler_option["-s"], 'd') <> 0 then
-          integer_division_check := FALSE;
-        end if;
-        if pos(compiler_option["-s"], 'i') <> 0 then
-          string_index_check := FALSE;
-          bstring_index_check := FALSE;
-          array_index_check := FALSE;
-          ref_list_index_check := FALSE;
-        end if;
-        if pos(compiler_option["-s"], 'o') <> 0 then
-          integer_overflow_check := FALSE;
-        end if;
-        if pos(compiler_option["-s"], 'r') <> 0 then
-          function_range_check := FALSE;
-          conversion_range_check := FALSE;
-        end if;
+        for optionChar range compiler_option["-s"] do
+          case optionChar of
+            when {'d'}: integer_division_check := FALSE;
+            when {'i'}: string_index_check := FALSE;
+                        bstring_index_check := FALSE;
+                        array_index_check := FALSE;
+                        ref_list_index_check := FALSE;
+            when {'o'}: integer_overflow_check := FALSE;
+            when {'r'}: function_range_check := FALSE;
+                        conversion_range_check := FALSE;
+            otherwise:
+              writeln("*** Ignore unsupported option: -s" <& optionChar);
+          end case;
+        end for;
       end if;
       setIntegerDivisionCheck(integer_division_check);
       setIntegerOverflowCheck(integer_overflow_check);
