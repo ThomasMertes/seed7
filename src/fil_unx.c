@@ -165,9 +165,9 @@ boolType filInputReady (fileType inFile)
     if (!read_buffer_empty(cInFile)) {
       inputReady = TRUE;
     } else {
-      file_no = fileno(cInFile);
+      file_no = os_fileno(cInFile);
       if (unlikely(file_no == -1)) {
-        logError(printf("filInputReady(%d): fileno(%d) failed:\n"
+        logError(printf("filInputReady(%d): os_fileno(%d) failed:\n"
                         "errno=%d\nerror: %s\n",
                         safe_fileno(cInFile), safe_fileno(cInFile),
                         errno, strerror(errno)););
@@ -217,9 +217,9 @@ boolType filInputReady (fileType inFile)
                        inFile == NULL ? "NULL " : "",
                        inFile != NULL ? safe_fileno(inFile->cFile) : 0););
     cInFile = inFile->cFile;
-    file_no = fileno(cInFile);
+    file_no = os_fileno(cInFile);
     if (unlikely(file_no == -1)) {
-      logError(printf("filInputReady(%d): fileno(%d) failed:\n"
+      logError(printf("filInputReady(%d): os_fileno(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
                       safe_fileno(cInFile), safe_fileno(cInFile),
                       errno, strerror(errno)););
@@ -272,9 +272,9 @@ boolType filInputReady (fileType inFile)
                        inFile == NULL ? "NULL " : "",
                        inFile != NULL ? safe_fileno(inFile->cFile) : 0););
     cInFile = inFile->cFile;
-    file_no = fileno(cInFile);
+    file_no = os_fileno(cInFile);
     if (unlikely(file_no == -1)) {
-      logError(printf("filInputReady(%d): fileno(%d) failed:\n"
+      logError(printf("filInputReady(%d): os_fileno(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
                       safe_fileno(cInFile), safe_fileno(cInFile),
                       errno, strerror(errno)););

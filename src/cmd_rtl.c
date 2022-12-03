@@ -451,7 +451,7 @@ static void copy_file (const const_os_striType from_name,
     if ((from_file = os_fopen(from_name, os_mode_rb)) != NULL) {
       if ((to_file = os_fopen(to_name, os_mode_wb)) != NULL) {
 #if HAS_MMAP
-        file_no = fileno(from_file);
+        file_no = os_fileno(from_file);
         if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
           if (file_stat.st_size >= 0 &&
               (unsigned_os_off_t) file_stat.st_size < MAX_MEMSIZETYPE) {

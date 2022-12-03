@@ -523,7 +523,7 @@ static void print_real_value (const_objectType anyobject)
             prot_cstri("stderr");
           } else {
             prot_cstri("file ");
-            prot_int((intType) fileno(anyobject->value.fileValue->cFile));
+            prot_int((intType) safe_fileno(anyobject->value.fileValue->cFile));
           } /* if */
         } /* if */
         break;

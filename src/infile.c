@@ -112,7 +112,7 @@ static inline boolType speedup (void)
     okay = TRUE;
 #if USE_ALTERNATE_NEXT_CHARACTER
 #if HAS_MMAP
-    file_no = fileno(in_file.fil);
+    file_no = os_fileno(in_file.fil);
     if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
       if (file_stat.st_size >= 0 && (unsigned_os_off_t) file_stat.st_size < MAX_MEMSIZETYPE) {
         file_length = (memSizeType) file_stat.st_size;

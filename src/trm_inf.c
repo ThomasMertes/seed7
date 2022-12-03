@@ -365,7 +365,7 @@ int getcaps (void)
       if ((terminal_name = getenv("TERM")) != NULL) {
         logMessage(fprintf(stderr, "TERM = \"%s\"\n", terminal_name););
         errret = 1;
-        setup_result = setupterm(terminal_name, fileno(stdout), &errret);
+        setup_result = setupterm(terminal_name, os_fileno(stdout), &errret);
         logMessage(fprintf(stderr, "setupterm --> %d  errret = %d\n",
                            setup_result, errret););
 #ifdef SETUPTERM_WORKS_OK

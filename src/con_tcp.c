@@ -296,7 +296,7 @@ void kbdShut (void)
       term_descr.c_lflag = lflag_bak;
       term_descr.c_cc[VMIN] = min_bak;
       term_descr.c_cc[VTIME] = time_bak;
-      tcsetattr(fileno(stdin), TCSANOW, &term_descr);
+      tcsetattr(os_fileno(stdin), TCSANOW, &term_descr);
       keybd_initialized = FALSE;
     } /* if */
   } /* kbdShut */
@@ -310,7 +310,7 @@ static void kbd_init (void)
 
   /* kbd_init */
     logFunction(printf("kbd_init\n"););
-    file_no = fileno(stdin);
+    file_no = os_fileno(stdin);
     tcgetattr(file_no, &term_descr);
     lflag_bak = term_descr.c_lflag;
     min_bak = term_descr.c_cc[VMIN];
@@ -341,7 +341,7 @@ boolType kbdInputReady (void)
     if (key_buffer_filled) {
       result = TRUE;
     } else {
-      file_no = fileno(stdin);
+      file_no = os_fileno(stdin);
       term_descr.c_cc[VMIN] = 0;
       term_descr.c_cc[VTIME] = 0;
       tcsetattr(file_no, TCSANOW, &term_descr);

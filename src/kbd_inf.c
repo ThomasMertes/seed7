@@ -284,7 +284,7 @@ static boolType read_char_if_present (ucharType *ch)
     boolType result;
 
   /* read_char_if_present */
-    file_no = fileno(stdin);
+    file_no = os_fileno(stdin);
     tcset_vmin_vtime(file_no, 0, 10); /* Time in units of 0.1 seconds */
     result = read(file_no, ch, 1) == 1;
     tcset_vmin_vtime(file_no, 1, 0);
@@ -300,7 +300,7 @@ static void consume_chars_present (void)
     ucharType ch;
 
   /* consume_chars_present */
-    file_no = fileno(stdin);
+    file_no = os_fileno(stdin);
     tcset_vmin_vtime(file_no, 0, 0);
     while (read(file_no, &ch, 1) == 1) {
       /* printf("consume: %d\n", ch); */
@@ -496,7 +496,7 @@ static charType read_f_key (charType actual_char)
 #endif
       if (exact_match == 0) {
         if (partial_match != 0) {
-          if (read(fileno(stdin), &in_buffer[pos], 1) != 1) {
+          if (read(os_fileno(stdin), &in_buffer[pos], 1) != 1) {
             in_buffer[pos] = (char) EOF;
           } /* if */
           in_buffer[pos + 1] = '\0';
@@ -789,7 +789,7 @@ void kbdShut (void)
 
   { /* kbdShut */
     if (keybd_initialized) {
-      tcset_term_descr(fileno(stdin), &term_bak);
+      tcset_term_descr(os_fileno(stdin), &term_bak);
       if (caps_initialized) {
         /* fprintf(stderr, "keypad_local=\"%s\"\n", keypad_local); */
         putcontrol(keypad_local); /* out of keypad transmit mode */
@@ -812,7 +812,7 @@ static void kbd_init (void)
       if (!caps_initialized) {
         getcaps();
       } /* if */
-      file_no = fileno(stdin);
+      file_no = os_fileno(stdin);
       if (tcgetattr(file_no, &term_descr) != 0) {
         printf("kbd_init: tcgetattr(%d, ...) failed:\n"
                "errno=%d\nerror: %s\n",
@@ -876,7 +876,7 @@ boolType kbdInputReady (void)
       if (changes) {
         conFlush();
       } /* if */
-      file_no = fileno(stdin);
+      file_no = os_fileno(stdin);
       if (!tcset_vmin_vtime(file_no, 0, 0)) {
         printf("kbdInputReady: tcsetattr(%d, VMIN=0) failed:\n"
                "errno=%d\nerror: %s\n",
@@ -924,7 +924,7 @@ charType kbdGetc (void)
       if (changes) {
         conFlush();
       } /* if */
-      if (read(fileno(stdin), &ch, 1) != 1) {
+      if (read(os_fileno(stdin), &ch, 1) != 1) {
         result = (charType) EOF;
       } else {
         result = (charType) ch;
@@ -959,7 +959,7 @@ charType kbdRawGetc (void)
       if (changes) {
         conFlush();
       } /* if */
-      if (read(fileno(stdin), &ch, 1) != 1) {
+      if (read(os_fileno(stdin), &ch, 1) != 1) {
         result = (charType) EOF;
       } else {
         result = (charType) ch;

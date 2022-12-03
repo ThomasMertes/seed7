@@ -210,7 +210,7 @@ static os_off_t seekFileLength (cFileType aFile)
       int file_no;
       os_fstat_struct stat_buf;
 
-      file_no = fileno(aFile);
+      file_no = os_fileno(aFile);
       if (file_no == -1 || os_fstat(file_no, &stat_buf) != 0 ||
           !S_ISREG(stat_buf.st_mode)) {
         logFunction(printf("seekFileLength --> -1 (not regular file)\n"););
@@ -222,7 +222,7 @@ static os_off_t seekFileLength (cFileType aFile)
     {
       int file_no;
 
-      file_no = fileno(aFile);
+      file_no = os_fileno(aFile);
       if (file_no == -1 || os_isatty(file_no)) {
         logFunction(printf("seekFileLength --> -1 (isatty)\n"););
         return (os_off_t) -1;
@@ -270,7 +270,7 @@ static os_off_t seekFileLength (cFileType aFile)
       int file_no;
       os_off_t current_file_position;
 
-      file_no = fileno(aFile);
+      file_no = os_fileno(aFile);
       if (file_no == -1) {
         file_length = -1;
       } else {
@@ -316,7 +316,7 @@ static os_off_t offsetTell (cFileType aFile)
       int file_no;
       os_fstat_struct stat_buf;
 
-      file_no = fileno(aFile);
+      file_no = os_fileno(aFile);
       if (file_no == -1 || os_fstat(file_no, &stat_buf) != 0 ||
           !S_ISREG(stat_buf.st_mode)) {
         logFunction(printf("offsetTell --> -1 (not regular file)\n"););
@@ -328,7 +328,7 @@ static os_off_t offsetTell (cFileType aFile)
     {
       int file_no;
 
-      file_no = fileno(aFile);
+      file_no = os_fileno(aFile);
       if (file_no == -1 || os_isatty(file_no)) {
         logFunction(printf("offsetTell --> -1 (isatty)\n"););
         return (os_off_t) -1;
@@ -355,7 +355,7 @@ static os_off_t offsetTell (cFileType aFile)
     {
       int file_no;
 
-      file_no = fileno(aFile);
+      file_no = os_fileno(aFile);
       if (file_no == -1) {
         current_file_position = -1;
       } else {
@@ -401,7 +401,7 @@ int offsetSeek (cFileType aFile, const os_off_t anOffset, const int origin)
       int file_no;
       os_fstat_struct stat_buf;
 
-      file_no = fileno(aFile);
+      file_no = os_fileno(aFile);
       if (file_no == -1 || os_fstat(file_no, &stat_buf) != 0 ||
           !S_ISREG(stat_buf.st_mode)) {
         logFunction(printf("offsetSeek --> -1 (not regular file)\n"););
@@ -413,7 +413,7 @@ int offsetSeek (cFileType aFile, const os_off_t anOffset, const int origin)
     {
       int file_no;
 
-      file_no = fileno(aFile);
+      file_no = os_fileno(aFile);
       if (file_no == -1 || os_isatty(file_no)) {
         logFunction(printf("offsetSeek --> -1 (isatty)\n"););
         return -1;
@@ -466,7 +466,7 @@ int offsetSeek (cFileType aFile, const os_off_t anOffset, const int origin)
     {
       int file_no;
 
-      file_no = fileno(aFile);
+      file_no = os_fileno(aFile);
       if (file_no == -1) {
         result = -1;
       } else {
@@ -506,7 +506,7 @@ memSizeType remainingBytesInFile (cFileType aFile)
     if (current_file_position == (os_off_t) -1) {
       remainingBytes = 0;
     } else {
-      file_no = fileno(aFile);
+      file_no = os_fileno(aFile);
       if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
           S_ISREG(stat_buf.st_mode)) {
         /* Using stat_buf.st_size, which is filled by os_fstat() */
@@ -1214,7 +1214,7 @@ intType filFileType (fileType aFile)
 
   /* filFileType */
     cFile = aFile->cFile;
-    file_no = fileno(cFile);
+    file_no = os_fileno(cFile);
     if (unlikely(file_no == -1 ||
                  os_fstat(file_no, &stat_buf) != 0)) {
       result = 0;
@@ -1298,7 +1298,7 @@ charType filGetcChkCtrlC (fileType inFile)
       raise_error(FILE_ERROR);
       result = 0;
     } else {
-      file_no = fileno(cInFile);
+      file_no = os_fileno(cInFile);
       if (file_no != -1 && os_isatty(file_no)) {
         result = doGetcFromTerminal(cInFile);
       } else {
@@ -1463,7 +1463,7 @@ striType filGetsChkCtrlC (fileType inFile, intType length)
       raise_error(FILE_ERROR);
       result = NULL;
     } else {
-      file_no = fileno(cInFile);
+      file_no = os_fileno(cInFile);
       if (file_no != -1 && os_isatty(file_no)) {
         result = doGetsFromTerminal(inFile, length);
       } else {
@@ -1544,7 +1544,7 @@ boolType filHasNextChkCtrlC (fileType inFile)
     } else if (feof(cInFile)) {
       hasNext = FALSE;
     } else {
-      file_no = fileno(cInFile);
+      file_no = os_fileno(cInFile);
       if (file_no != -1 && os_isatty(file_no)) {
         next_char = (int) (scharType) doGetcFromTerminal(cInFile);
       } else {
@@ -1684,7 +1684,7 @@ striType filLineReadChkCtrlC (fileType inFile, charType *terminationChar)
       raise_error(FILE_ERROR);
       result = NULL;
     } else {
-      file_no = fileno(cInFile);
+      file_no = os_fileno(cInFile);
       if (file_no != -1 && os_isatty(file_no)) {
         result = doLineReadFromTerminal(inFile, terminationChar);
       } else {
@@ -1844,13 +1844,13 @@ static cFileType cFileOpen (const const_striType path, const const_striType mode
                           os_path, os_mode, errno, strerror(errno)););
         } else {
 #if !FOPEN_SUPPORTS_CLOEXEC_MODE && HAS_FCNTL_SETFD_CLOEXEC
-          file_no = fileno(result);
+          file_no = os_fileno(result);
           if (file_no != -1) {
             fcntl(file_no, F_SETFD, fcntl(file_no, F_GETFD) | FD_CLOEXEC);
           } /* if */
 #endif
 #if FOPEN_OPENS_DIRECTORIES
-          file_no = fileno(result);
+          file_no = os_fileno(result);
           if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
               S_ISDIR(stat_buf.st_mode)) {
             /* An attempt to open a directory with cFileOpen()   */
@@ -2232,7 +2232,7 @@ boolType filSeekable (fileType aFile)
       raise_error(FILE_ERROR);
       seekable = FALSE;
     } else {
-      file_no = fileno(cFile);
+      file_no = os_fileno(cFile);
       if (file_no != -1) {
         if (os_fstat(file_no, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
           seekable = TRUE;
@@ -2379,9 +2379,9 @@ void filTruncate (fileType aFile, intType length)
 #endif
 #endif
     } else {
-      file_no = fileno(cFile);
+      file_no = os_fileno(cFile);
       if (unlikely(file_no == -1)) {
-        logError(printf("filTruncate(%d): fileno(%d) failed:\n"
+        logError(printf("filTruncate(%d): os_fileno(%d) failed:\n"
                         "errno=%d\nerror: %s\n",
                         safe_fileno(cFile), safe_fileno(cFile),
                         errno, strerror(errno)););
@@ -2527,7 +2527,7 @@ striType filWordReadChkCtrlC (fileType inFile, charType *terminationChar)
       raise_error(FILE_ERROR);
       result = NULL;
     } else {
-      file_no = fileno(cInFile);
+      file_no = os_fileno(cInFile);
       if (file_no != -1 && os_isatty(file_no)) {
         result = doWordReadFromTerminal(inFile, terminationChar);
       } else {

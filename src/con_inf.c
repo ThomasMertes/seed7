@@ -471,7 +471,7 @@ void conFlush (void)
       changes = FALSE;
     } /* if */
     fflush(stdout);
-    /* fsync(fileno(stdout)); */
+    /* fsync(os_fileno(stdout)); */
   } /* conFlush */
 
 

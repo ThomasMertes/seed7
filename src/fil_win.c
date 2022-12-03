@@ -208,9 +208,9 @@ boolType filInputReady (fileType inFile)
                        inFile == NULL ? "NULL " : "",
                        inFile != NULL ? safe_fileno(inFile->cFile) : 0););
     cInFile = inFile->cFile;
-    file_no = fileno(cInFile);
+    file_no = os_fileno(cInFile);
     if (unlikely(file_no == -1)) {
-      logError(printf("filInputReady(%d): fileno(%d) failed:\n"
+      logError(printf("filInputReady(%d): os_fileno(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
                       safe_fileno(cInFile), safe_fileno(cInFile),
                       errno, strerror(errno)););
@@ -398,7 +398,7 @@ os_off_t ftelli64Ext (FILE *aFile)
     os_off_t filePosition;
 
   /* ftelli64Ext */
-    file_no = fileno(aFile);
+    file_no = os_fileno(aFile);
     if (file_no == -1) {
       filePosition = -1;
     } else {
@@ -463,18 +463,18 @@ void setupFiles (void)
     if (hConsole == INVALID_HANDLE_VALUE ||
         GetFileType(hConsole) != FILE_TYPE_CHAR ||
         GetConsoleMode(hConsole, &mode) == 0) {
-      os_setmode(fileno(stdin), _O_BINARY);
+      os_setmode(os_fileno(stdin), _O_BINARY);
     } /* if */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole == INVALID_HANDLE_VALUE ||
         GetFileType(hConsole) != FILE_TYPE_CHAR ||
         GetConsoleMode(hConsole, &mode) == 0) {
-      os_setmode(fileno(stdout), _O_BINARY);
+      os_setmode(os_fileno(stdout), _O_BINARY);
     } /* if */
     hConsole = GetStdHandle(STD_ERROR_HANDLE);
     if (hConsole == INVALID_HANDLE_VALUE ||
         GetFileType(hConsole) != FILE_TYPE_CHAR ||
         GetConsoleMode(hConsole, &mode) == 0) {
-      os_setmode(fileno(stderr), _O_BINARY);
+      os_setmode(os_fileno(stderr), _O_BINARY);
     } /* if */
   } /* setupFiles */

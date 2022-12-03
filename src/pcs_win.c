@@ -614,9 +614,9 @@ static HANDLE getHandleFromFile (cFileType aFile, errInfoType *err_info)
         logError(printf("CreateFile(\"nul:\", ...) failed.\n"););
       } /* if */
     } else {
-      file_no = fileno(aFile);
+      file_no = os_fileno(aFile);
       if (unlikely(file_no == -1)) {
-        logError(printf("getHandleFromFile(%d): fileno(%d) failed:\n"
+        logError(printf("getHandleFromFile(%d): os_fileno(%d) failed:\n"
                         "errno=%d\nerror: %s\n",
                         safe_fileno(aFile), safe_fileno(aFile),
                         errno, strerror(errno)););

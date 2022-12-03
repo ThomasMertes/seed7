@@ -264,7 +264,7 @@ int getcaps (void)
       if (terminal_name != NULL) {
         strcat(term_descr_file_name, terminal_name);
       } /* if */
-/*    setupterm(terminal_name, fileno(stdout), &err); */
+/*    setupterm(terminal_name, os_fileno(stdout), &err); */
 /* printf(":%s:%s:\n", terminal_name, term_descr_file_name); */
       return_code = tgetent(capbuf, term_descr_file_name);
 #else

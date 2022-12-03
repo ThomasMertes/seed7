@@ -254,7 +254,7 @@ static boolType read_char_if_present (ucharType *ch)
     boolType result;
 
   /* read_char_if_present */
-    file_no = fileno(stdin);
+    file_no = os_fileno(stdin);
     poll_fds[0].fd = file_no;
     poll_fds[0].events = POLLIN | POLLPRI;
     poll_result = poll(poll_fds, 1, 1000 /* milliseconds */);
@@ -594,7 +594,7 @@ void kbdShut (void)
 
   { /* kbdShut */
     if (keybd_initialized) {
-      tcset_term_descr(fileno(stdin), &term_bak);
+      tcset_term_descr(os_fileno(stdin), &term_bak);
       if (caps_initialized) {
         /* fprintf(stderr, "keypad_local=\"%s\"\n", keypad_local); */
         putcontrol(keypad_local); /* out of keypad transmit mode */
@@ -617,7 +617,7 @@ static void kbd_init (void)
       if (!caps_initialized) {
         getcaps();
       } /* if */
-      file_no = fileno(stdin);
+      file_no = os_fileno(stdin);
       if (tcgetattr(file_no, &term_descr) != 0) {
         printf("kbd_init: tcgetattr(%d, ...) failed, errno=%d\n",
             file_no, errno);
@@ -681,7 +681,7 @@ boolType kbdInputReady (void)
       if (changes) {
         conFlush();
       } /* if */
-      poll_fds[0].fd = fileno(stdin);
+      poll_fds[0].fd = os_fileno(stdin);
       poll_fds[0].events = POLLIN | POLLPRI;
       do {
         poll_result = poll(poll_fds, 1, 0);
@@ -724,7 +724,7 @@ charType kbdGetc (void)
         conFlush();
       } /* if */
       if (key_buffer_size == 0) {
-        read_result = (memSizeType) read(fileno(stdin), &key_buffer, KEY_BUFFER_SIZE);
+        read_result = (memSizeType) read(os_fileno(stdin), &key_buffer, KEY_BUFFER_SIZE);
         /* printf("kbdGetc: read_result=%ld", read_result); */
         if (read_result == 0 || read_result == (memSizeType) (-1)) {
           logFunction(printf("kbdGets() --> '\\" FMT_U32 ";'\n", EOF););
@@ -844,7 +844,7 @@ charType kbdRawGetc (void)
       if (changes) {
         conFlush();
       } /* if */
-      if (read(fileno(stdin), &ch, 1) != 1) {
+      if (read(os_fileno(stdin), &ch, 1) != 1) {
         result = (charType) EOF;
       } else {
         result = (charType) ch;

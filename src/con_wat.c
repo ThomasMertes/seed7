@@ -251,7 +251,7 @@ void kbdShut (void)
 
   { /* kbdShut */
     if (keybd_initialized) {
-      tcset_term_descr(fileno(stdin), &term_bak);
+      tcset_term_descr(os_fileno(stdin), &term_bak);
       keybd_initialized = FALSE;
     } /* if */
   } /* kbdShut */
@@ -264,7 +264,7 @@ static void kbd_init (void)
     int file_no;
 
   /* kbd_init */
-    file_no = fileno(stdin);
+    file_no = os_fileno(stdin);
     if (tcgetattr(0, &term_descr) != 0) {
       printf("kbd_init: tcgetattr(%d, ...) failed:\n"
              "errno=%d\nerror: %s\n",

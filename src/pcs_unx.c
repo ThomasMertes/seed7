@@ -619,20 +619,20 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     if (childStdin == NULL) {
       stdinFileNo = open(NULL_DEVICE, O_RDONLY);
     } else {
-      stdinFileNo = fileno(childStdin);
+      stdinFileNo = os_fileno(childStdin);
     } /* if */
     if (childStdout == NULL) {
       stdoutFileNo = open(NULL_DEVICE, O_WRONLY);
     } else {
-      stdoutFileNo = fileno(childStdout);
+      stdoutFileNo = os_fileno(childStdout);
     } /* if */
     if (childStderr == NULL) {
       stderrFileNo = open(NULL_DEVICE, O_WRONLY);
     } else {
-      stderrFileNo = fileno(childStderr);
+      stderrFileNo = os_fileno(childStderr);
     } /* if */
     if (unlikely(stdinFileNo == -1 || stdoutFileNo == -1 || stderrFileNo == -1)) {
-      logError(printf("pcsStart: fileno() or open() failed.\n"););
+      logError(printf("pcsStart: os_fileno() or open() failed.\n"););
       err_info = FILE_ERROR;
       process = NULL;
     } else {

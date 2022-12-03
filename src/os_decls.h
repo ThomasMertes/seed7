@@ -104,6 +104,9 @@
 #ifndef os_fdopen
 #define os_fdopen fdopen
 #endif
+#ifndef os_fileno
+#define os_fileno fileno
+#endif
 #ifndef os_poll
 #define os_poll poll
 #endif
@@ -140,13 +143,6 @@
 #define os_getenv_string_free(env_var) FREE_OS_STRI(env_var)
 #else
 #define os_getenv_string_free(env_var)
-#endif
-
-/* The definition of fileno below take place */
-/* after the system include files. This avoids warnings */
-/* about and _fileno being deprecated.          */
-#ifdef os_fileno
-#define fileno os_fileno
 #endif
 
 #if FILENO_WORKS_FOR_NULL
