@@ -180,7 +180,7 @@ static void get_mode (os_charType os_mode[MAX_MODE_LEN], const const_striType fi
       } /* if */
 #endif
     } /* if */
-    os_mode[mode_pos++] = '\0';
+    os_mode[mode_pos] = '\0';
     logFunction(printf("get_mode(\"" FMT_S_OS "\", \"%s\") -->\n",
                        os_mode, striAsUnquotedCStri(file_mode)););
   } /* get_mode */
@@ -223,7 +223,7 @@ static os_off_t seekFileLength (cFileType aFile)
       int file_no;
 
       file_no = fileno(aFile);
-      if (file_no == -1 || isatty(file_no)) {
+      if (file_no == -1 || os_isatty(file_no)) {
         logFunction(printf("seekFileLength --> -1 (isatty)\n"););
         return (os_off_t) -1;
       } /* if */
@@ -329,7 +329,7 @@ static os_off_t offsetTell (cFileType aFile)
       int file_no;
 
       file_no = fileno(aFile);
-      if (file_no == -1 || isatty(file_no)) {
+      if (file_no == -1 || os_isatty(file_no)) {
         logFunction(printf("offsetTell --> -1 (isatty)\n"););
         return (os_off_t) -1;
       } /* if */
@@ -414,7 +414,7 @@ int offsetSeek (cFileType aFile, const os_off_t anOffset, const int origin)
       int file_no;
 
       file_no = fileno(aFile);
-      if (file_no == -1 || isatty(file_no)) {
+      if (file_no == -1 || os_isatty(file_no)) {
         logFunction(printf("offsetSeek --> -1 (isatty)\n"););
         return -1;
       } /* if */
@@ -1299,7 +1299,7 @@ charType filGetcChkCtrlC (fileType inFile)
       result = 0;
     } else {
       file_no = fileno(cInFile);
-      if (file_no != -1 && isatty(file_no)) {
+      if (file_no != -1 && os_isatty(file_no)) {
         result = doGetcFromTerminal(cInFile);
       } else {
         result = (charType) getc(cInFile);
@@ -1464,7 +1464,7 @@ striType filGetsChkCtrlC (fileType inFile, intType length)
       result = NULL;
     } else {
       file_no = fileno(cInFile);
-      if (file_no != -1 && isatty(file_no)) {
+      if (file_no != -1 && os_isatty(file_no)) {
         result = doGetsFromTerminal(inFile, length);
       } else {
         result = filGets(inFile, length);
@@ -1545,7 +1545,7 @@ boolType filHasNextChkCtrlC (fileType inFile)
       hasNext = FALSE;
     } else {
       file_no = fileno(cInFile);
-      if (file_no != -1 && isatty(file_no)) {
+      if (file_no != -1 && os_isatty(file_no)) {
         next_char = (int) (scharType) doGetcFromTerminal(cInFile);
       } else {
         next_char = getc(cInFile);
@@ -1685,7 +1685,7 @@ striType filLineReadChkCtrlC (fileType inFile, charType *terminationChar)
       result = NULL;
     } else {
       file_no = fileno(cInFile);
-      if (file_no != -1 && isatty(file_no)) {
+      if (file_no != -1 && os_isatty(file_no)) {
         result = doLineReadFromTerminal(inFile, terminationChar);
       } else {
         result = filLineRead(inFile, terminationChar);
@@ -2098,7 +2098,7 @@ fileType filPopen (const const_striType command,
 #if POPEN_SUPPORTS_CLOEXEC_MODE
         os_mode[mode_pos++] = 'e';
 #endif
-        os_mode[mode_pos++] = '\0';
+        os_mode[mode_pos] = '\0';
 #if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
         adjustCwdForShell(&err_info);
 #endif
@@ -2528,7 +2528,7 @@ striType filWordReadChkCtrlC (fileType inFile, charType *terminationChar)
       result = NULL;
     } else {
       file_no = fileno(cInFile);
-      if (file_no != -1 && isatty(file_no)) {
+      if (file_no != -1 && os_isatty(file_no)) {
         result = doWordReadFromTerminal(inFile, terminationChar);
       } else {
         result = filWordRead(inFile, terminationChar);

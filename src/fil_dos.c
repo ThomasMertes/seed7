@@ -159,7 +159,7 @@ void setupFiles (void)
     stdinFileRecord.cFile = stdin;
     stdoutFileRecord.cFile = stdout;
     stderrFileRecord.cFile = stderr;
-    if (isatty(STDIN_FILENO)) {
+    if (os_isatty(STDIN_FILENO)) {
       if (tcgetattr(STDIN_FILENO, &term_descr) != 0) {
         printf("setupFiles: tcgetattr(STDIN_FILENO, ...) failed:\n"
                "errno=%d\nerror: %s\n",
@@ -175,10 +175,10 @@ void setupFiles (void)
     } else {
       setmode(STDIN_FILENO, O_BINARY);
     } /* if */
-    if (!isatty(STDOUT_FILENO)) {
+    if (!os_isatty(STDOUT_FILENO)) {
       setmode(STDOUT_FILENO, O_BINARY);
     } /* if */
-    if (!isatty(STDERR_FILENO)) {
+    if (!os_isatty(STDERR_FILENO)) {
       setmode(STDERR_FILENO, O_BINARY);
     } /* if */
   } /* setupFiles */

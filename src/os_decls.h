@@ -110,6 +110,9 @@
 #ifndef os_getenv
 #define os_getenv getenv
 #endif
+#ifndef os_isatty
+#define os_isatty isatty
+#endif
 #ifndef os_setmode
 #define os_setmode setmode
 #endif
@@ -136,12 +139,9 @@
 #define os_getenv_string_free(env_var)
 #endif
 
-/* The definition of isatty and fileno below take place */
+/* The definition of fileno below take place */
 /* after the system include files. This avoids warnings */
-/* about _isatty and _fileno being deprecated.          */
-#ifdef os_isatty
-#define isatty os_isatty
-#endif
+/* about and _fileno being deprecated.          */
 #ifdef os_fileno
 #define fileno os_fileno
 #endif
