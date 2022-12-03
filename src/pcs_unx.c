@@ -458,11 +458,11 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
         close(childStdoutPipes[1]);
         filDestr(*childStdin);
         initFileType(childStdinFile, 1);
-        childStdinFile->cFile = fdopen(childStdinPipes[1], "w");
+        childStdinFile->cFile = os_fdopen(childStdinPipes[1], "w");
         *childStdin  = childStdinFile;
         filDestr(*childStdout);
         initFileType(childStdoutFile, 1);
-        childStdoutFile->cFile = fdopen(childStdoutPipes[0], "r");
+        childStdoutFile->cFile = os_fdopen(childStdoutPipes[0], "r");
         *childStdout = childStdoutFile;
         freeArgVector(argv);
       } /* if */
@@ -571,11 +571,11 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
             close(slavefd); /* This is being used by the child */
             filDestr(*childStdin);
             initFileType(childStdinFile, 1);
-            childStdinFile->cFile = fdopen(masterfd, "w");
+            childStdinFile->cFile = os_fdopen(masterfd, "w");
             *childStdin = childStdinFile;
             filDestr(*childStdout);
             initFileType(childStdoutFile, 1);
-            childStdoutFile->cFile = fdopen(masterfd, "r");
+            childStdoutFile->cFile = os_fdopen(masterfd, "r");
             *childStdout = childStdoutFile;
             freeArgVector(argv);
           } /* if */
@@ -833,13 +833,13 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
         process->pid = pid;
         process->isTerminated = FALSE;
         initFileType(childStdinFile, 1);
-        childStdinFile->cFile  = fdopen(childStdinPipes[1], "w");
+        childStdinFile->cFile  = os_fdopen(childStdinPipes[1], "w");
         process->stdIn = childStdinFile;
         initFileType(childStdoutFile, 1);
-        childStdoutFile->cFile = fdopen(childStdoutPipes[0], "r");
+        childStdoutFile->cFile = os_fdopen(childStdoutPipes[0], "r");
         process->stdOut = childStdoutFile;
         initFileType(childStderrFile, 1);
-        childStderrFile->cFile = fdopen(childStderrPipes[0], "r");
+        childStderrFile->cFile = os_fdopen(childStderrPipes[0], "r");
         process->stdErr = childStderrFile;
       } /* if */
     } /* if */

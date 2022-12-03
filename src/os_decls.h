@@ -101,6 +101,9 @@
 #ifndef os_fopen
 #define os_fopen fopen
 #endif
+#ifndef os_fdopen
+#define os_fdopen fdopen
+#endif
 #ifndef os_poll
 #define os_poll poll
 #endif
@@ -144,9 +147,6 @@
 /* about and _fileno being deprecated.          */
 #ifdef os_fileno
 #define fileno os_fileno
-#endif
-#ifdef os_fdopen
-#define fdopen os_fdopen
 #endif
 
 #if FILENO_WORKS_FOR_NULL

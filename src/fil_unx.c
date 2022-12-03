@@ -329,15 +329,15 @@ void filPipe (fileType *inFile, fileType *outFile)
                       errno, strerror(errno)););
       err_info = FILE_ERROR;
     } else {
-      if (unlikely((cPipeInFile = fdopen(aPipe[0], "rb")) == NULL)) {
-        logError(printf("filPipe: fdopen(%d, \"rb\") failed:\n"
+      if (unlikely((cPipeInFile = os_fdopen(aPipe[0], "rb")) == NULL)) {
+        logError(printf("filPipe: os_fdopen(%d, \"rb\") failed:\n"
                       "errno=%d\nerror: %s\n",
                       aPipe[0], errno, strerror(errno)););
         close(aPipe[0]);
         close(aPipe[1]);
         err_info = FILE_ERROR;
-      } else if (unlikely((cPipeOutFile = fdopen(aPipe[1], "wb")) == NULL)) {
-        logError(printf("filPipe: fdopen(%d, \"wb\") failed:\n"
+      } else if (unlikely((cPipeOutFile = os_fdopen(aPipe[1], "wb")) == NULL)) {
+        logError(printf("filPipe: os_fdopen(%d, \"wb\") failed:\n"
                       "errno=%d\nerror: %s\n",
                       aPipe[1], errno, strerror(errno)););
         fclose(cPipeInFile);

@@ -542,11 +542,11 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
               CloseHandle(childOutputWrite);
               filDestr(*childStdin);
               initFileType(childStdinFile, 1);
-              childStdinFile->cFile = fdopen(_open_osfhandle((intPtrType) (childInputWrite), _O_TEXT), "w");
+              childStdinFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childInputWrite), _O_TEXT), "w");
               *childStdin = childStdinFile;
               filDestr(*childStdout);
               initFileType(childStdoutFile, 1);
-              childStdoutFile->cFile = fdopen(_open_osfhandle((intPtrType) (childOutputRead), _O_TEXT), "r");
+              childStdoutFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childOutputRead), _O_TEXT), "r");
               *childStdout = childStdoutFile;
               CloseHandle(processInformation.hProcess);
               CloseHandle(processInformation.hThread);
@@ -832,13 +832,13 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
               process->pid      = processInformation.dwProcessId;
               process->isTerminated = FALSE;
               initFileType(childStdinFile, 1);
-              childStdinFile->cFile = fdopen(_open_osfhandle((intPtrType) (childInputWrite), _O_TEXT), "w");
+              childStdinFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childInputWrite), _O_TEXT), "w");
               process->stdIn = childStdinFile;
               initFileType(childStdoutFile, 1);
-              childStdoutFile->cFile = fdopen(_open_osfhandle((intPtrType) (childOutputRead), _O_TEXT), "r");
+              childStdoutFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childOutputRead), _O_TEXT), "r");
               process->stdOut = childStdoutFile;
               initFileType(childStderrFile, 1);
-              childStderrFile->cFile = fdopen(_open_osfhandle((intPtrType) (childErrorRead), _O_TEXT), "r");
+              childStderrFile->cFile = os_fdopen(_open_osfhandle((intPtrType) (childErrorRead), _O_TEXT), "r");
               process->stdErr = childStderrFile;
             } else {
               logError(printf("pcsStartPipe: CreateProcessW(\"" FMT_S_OS "\", \"" FMT_S_OS "\", ...) failed.\n"
