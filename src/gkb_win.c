@@ -839,7 +839,7 @@ charType gkbGetc (void)
                 button_x = point.x;
                 button_y = point.y;
                 button_window = msg.hwnd;
-                if ((intPtrType) msg.wParam > 0) {
+                if (GET_WHEEL_DELTA_WPARAM(msg.wParam) > 0) {
                   if (GetKeyState(VK_MENU) & 0x8000) {
                     result = K_ALT_MOUSE4;
                   } else if (msg.wParam & 0x04) {
@@ -875,7 +875,7 @@ charType gkbGetc (void)
             button_x = GET_X_LPARAM(msg.lParam);
             button_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
-            if ((msg.wParam & 0xffff0) == 0x20040) {
+            if (GET_XBUTTON_WPARAM(msg.wParam) == XBUTTON2) {
               if (GetKeyState(VK_MENU) & 0x8000) {
                 result = K_ALT_MOUSE_FWD;
               } else if (msg.wParam & 0x04) {
@@ -885,7 +885,7 @@ charType gkbGetc (void)
               } else {
                 result = K_MOUSE_FWD;
               } /* if */
-            } else if ((msg.wParam & 0xffff0) == 0x10020) {
+            } else if (GET_XBUTTON_WPARAM(msg.wParam) == XBUTTON1) {
               if (GetKeyState(VK_MENU) & 0x8000) {
                 result = K_ALT_MOUSE_BACK;
               } else if (msg.wParam & 0x04) {
