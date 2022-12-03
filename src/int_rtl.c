@@ -765,7 +765,7 @@ striType uintNBytesBe (uintType number, intType length)
   {
     strElemType *buffer;
     memSizeType dataStart;
-    memSizeType pos = 0;
+    memSizeType pos;
     striType result;
 
   /* uintNBytesBe */
@@ -828,7 +828,7 @@ striType uintNBytesLe (uintType number, intType length)
   {
     strElemType *buffer;
     memSizeType dataLength;
-    memSizeType pos = 0;
+    memSizeType pos;
     striType result;
 
   /* uintNBytesLe */
@@ -2071,7 +2071,7 @@ striType intNBytesBeSigned (intType number, intType length)
   {
     strElemType *buffer;
     memSizeType dataStart;
-    memSizeType pos = 0;
+    memSizeType pos;
     striType result;
 
   /* intNBytesBeSigned */
@@ -2158,7 +2158,7 @@ striType intNBytesBeUnsigned (intType number, intType length)
   {
     strElemType *buffer;
     memSizeType dataStart;
-    memSizeType pos = 0;
+    memSizeType pos;
     striType result;
 
   /* intNBytesBeUnsigned */
@@ -2228,7 +2228,7 @@ striType intNBytesLeSigned (intType number, intType length)
   {
     strElemType *buffer;
     memSizeType dataLength;
-    memSizeType pos = 0;
+    memSizeType pos;
     striType result;
 
   /* intNBytesLeSigned */
@@ -2311,7 +2311,7 @@ striType intNBytesLeUnsigned (intType number, intType length)
   {
     strElemType *buffer;
     memSizeType dataLength;
-    memSizeType pos = 0;
+    memSizeType pos;
     striType result;
 
   /* intNBytesLeUnsigned */

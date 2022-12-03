@@ -665,7 +665,7 @@ static striType getBoundStatement (preparedStmtType preparedStmt, errInfoType *e
   {
     memSizeType paramIndex;
     memSizeType pos = 0;
-    memSizeType sizeOfBoundStatement = 0;
+    memSizeType sizeOfBoundStatement;
     striType boundStatement;
 
   /* getBoundStatement */

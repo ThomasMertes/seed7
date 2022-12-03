@@ -460,7 +460,7 @@ static inline boolType is_doublewidth (charType ch)
 
   {
     int min = 0;
-    int mid = 0;
+    int mid;
     int max = sizeof(east_asian_width) / sizeof(charType) - 1;
 
   /* is_doublewidth */

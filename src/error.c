@@ -87,7 +87,6 @@ static ustriType read_ustri8_line (memSizeType *line_len)
 
   /* read_ustri8_line */
     logFunction(printf("read_ustri8_line(*)\n"););
-    chars_read = 0;
     if ((ch = next_character()) == '\r') {
       ch = next_character();
     } /* if */
@@ -274,9 +273,9 @@ static void print_stri (striType stri)
 static void read_and_print_line (long line_start_position, long current_position)
 
   {
-    ustriType line = NULL;
+    ustriType line;
     memSizeType line_len;
-    memSizeType part1_len = 0;
+    memSizeType part1_len;
     striType part1;
     memSizeType error_column;
     striType lineStri;

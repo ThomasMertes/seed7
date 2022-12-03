@@ -709,7 +709,7 @@ striType cmdUser (void)
 
   {
     HANDLE hToken = NULL;
-    TOKEN_USER *ptu = NULL;
+    TOKEN_USER *ptu;
     DWORD dwSize = 0;
     striType user;
 

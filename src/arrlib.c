@@ -1344,7 +1344,6 @@ objectType arr_remove_array (listType arguments)
                       position, arr1->min_position, arr1->max_position););
       return raise_exception(SYS_IDX_EXCEPTION);
     } else {
-      arr1_size = arraySize(arr1);
       if ((uintType) length > MAX_ARR_LEN) {
         result_size = MAX_ARR_LEN;
       } else {

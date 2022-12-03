@@ -668,7 +668,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
           err_info = MEMORY_ERROR;
         } else {
           resultData->buffer_type   = column->type;
-          resultData->buffer_length = buffer_length;
+          resultData->buffer_length = (unsigned long) buffer_length;
           resultData->is_unsigned   = 0;
           resultData->is_null = &resultData->is_null_value;
           resultData->is_null_value = 0;
@@ -846,7 +846,7 @@ static unsigned int setBigRat (const void *buffer, const const_bigIntType numera
         bigDestr(number);
       } /* if */
       if (unlikely(mantissaValue == NULL)) {
-        decimal = NULL;
+        /* An exception has already been raised. */
       } else if (bigEqSignedDigit(mantissaValue, 0)) {
         memcpy((char *) buffer, "0.0", 3);
       } else {

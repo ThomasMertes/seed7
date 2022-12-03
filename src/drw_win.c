@@ -415,7 +415,7 @@ void drawInit (void)
 
   {
     WNDCLASSEXW wcex = {0};
-    HMODULE hntdll = 0;
+    HMODULE hntdll;
 
   /* drawInit */
     wcex.cbSize        = sizeof(WNDCLASSEXW);
