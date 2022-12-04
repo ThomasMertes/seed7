@@ -2571,7 +2571,7 @@ static errInfoType getWClob (preparedStmtType preparedStmt, memSizeType column,
                         "SQLGetData returns negative total length: " FMT_D_LEN "\n",
                         column, totalLength););
         err_info = DATABASE_ERROR;
-      } else if (unlikely(totalLength > MAX_MEMSIZETYPE)){
+      } else if (unlikely((SQLULEN) totalLength > MAX_MEMSIZETYPE)){
         /* TotalLength is not representable as memSizeType. */
         /* Memory with this length cannot be allocated. */
         err_info = MEMORY_ERROR;
@@ -5543,8 +5543,8 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
         err_info = DATABASE_ERROR;
         name = NULL;
       } else if (unlikely(stringLength < 0 ||
-                          stringLength > SQLSMALLINT_MAX -
-                                         sizeof(SQLWCHAR) * NULL_TERMINATION_LEN)) {
+                          (SQLUSMALLINT) stringLength >
+                              SQLSMALLINT_MAX - sizeof(SQLWCHAR) * NULL_TERMINATION_LEN)) {
         dbInconsistent("sqlStmtColumnName", "SQLColAttributeW");
         logError(printf("sqlStmtColumnName: "
                         "String length negative or too big: %hd\n",
@@ -5634,7 +5634,7 @@ static boolType setupFuncTable (void)
 
 
 #if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
-static void printWstri (SQLWCHAR *wstri)
+static void printWstri (const SQLWCHAR *wstri)
 
   { /* printWstri */
     while (*wstri != '\0') {

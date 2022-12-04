@@ -1023,7 +1023,7 @@ static memSizeType getBlobLength (isc_blob_handle blob_handle, errInfoType *err_
                       (int64Type) totalLength););
       *err_info = DATABASE_ERROR;
       totalLength = 0;
-    } if (unlikely(totalLength > MAX_MEMSIZETYPE)) {
+    } if (unlikely((ISC_UINT64) totalLength > MAX_MEMSIZETYPE)) {
       /* It is not possible to cast totalLength to memSizeType. */
       /* Memory with this length cannot be allocated. */
       *err_info = MEMORY_ERROR;

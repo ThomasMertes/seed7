@@ -773,7 +773,7 @@ memSizeType utf8_to_stri (strElemType *const dest_stri,
                   (strElemType) (ustri[4] & 0x3F);
         ustri += 5;
         len -= 4;
-      } else if (ustri[0] >= 0xFC && ustri[0] <= 0xFF && len >= 6 &&
+      } else if (ustri[0] >= 0xFC && len >= 6 &&
                  ustri[1] >= 0x80 && ustri[1] <= 0xBF &&
                  ustri[2] >= 0x80 && ustri[2] <= 0xBF &&
                  ustri[3] >= 0x80 && ustri[3] <= 0xBF &&
@@ -866,7 +866,7 @@ memSizeType utf8_bytes_missing (const const_ustriType ustri, const memSizeType l
             } /* if */
           } /* if */
         } /* if */
-      } else if (ustri[0] >= 0xFC && ustri[0] <= 0xFF) {
+      } else if (ustri[0] >= 0xFC) {
         /* ustri[0]   range 252 to 255 (leading bits 111111..) */
         if (len == 1) {
           result = 5;

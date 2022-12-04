@@ -1403,14 +1403,14 @@ striType doReadLink (const const_striType filePath, errInfoType *err_info)
         if (likely(link_destination != NULL)) {
           readlink_result = readlink(os_filePath, link_destination,
                                      (size_t) (link_size + NULL_TERMINATION_LEN));
-          if (unlikely(readlink_result == -1)) {
+          if (unlikely(readlink_result < 0)) {
             logError(printf("cmdReadLink: "
                             "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
                             "errno=%d\nerror: %s\n",
                             os_filePath, link_size + NULL_TERMINATION_LEN,
                             errno, strerror(errno)););
             *err_info = FILE_ERROR;
-          } else if (unlikely(readlink_result > link_size)) {
+          } else if (unlikely((memSizeType) readlink_result > link_size)) {
             logError(printf("cmdReadLink: "
                             "readlink(\"" FMT_S_OS "\", *, " FMT_U_MEM ") failed:\n"
                             "Link destination possibly truncated.\n",

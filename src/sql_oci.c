@@ -1895,7 +1895,7 @@ static intType getInt (const void *buffer, memSizeType length)
     striBuffer.striBuf.mem = striBuffer.striBuf.mem1;
 #endif
     err_info = sqltNumberToDecimalInt(length,
-                                      (uint8Type *) buffer,
+                                      (const uint8Type *) buffer,
                                       &striBuffer.striBuf);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -1925,7 +1925,7 @@ static bigIntType getBigInt (const void *buffer, memSizeType length)
     striBuffer.striBuf.mem = striBuffer.striBuf.mem1;
 #endif
     err_info = sqltNumberToDecimalInt(length,
-                                      (uint8Type *) buffer,
+                                      (const uint8Type *) buffer,
                                       &striBuffer.striBuf);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -1958,7 +1958,7 @@ static bigIntType getBigRational (const void *buffer, memSizeType length,
     striBuffer.striBuf.mem = striBuffer.striBuf.mem1;
 #endif
     scale = sqltNumberToDecimalFraction(length,
-                                        (uint8Type *) buffer,
+                                        (const uint8Type *) buffer,
                                         &striBuffer.striBuf, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       *denominator = NULL;
@@ -2006,7 +2006,7 @@ static floatType getFloat (const void *buffer, memSizeType length)
     striBuffer.striBuf.mem = striBuffer.striBuf.mem1;
 #endif
     scale = sqltNumberToDecimalFraction(length,
-                                        (uint8Type *) buffer,
+                                        (const uint8Type *) buffer,
                                         &striBuffer.striBuf, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -4755,7 +4755,8 @@ databaseType sqlOpenOci (const const_striType host, intType port,
                 sqlClose((databaseType) &db);
                 err_info = DATABASE_ERROR;
                 database = NULL;
-              } else if ((db.charSetId = OCINlsCharSetNameToId(db.oci_environment, (oratext *) "AL32UTF8")) == 0) {
+              } else if ((db.charSetId = OCINlsCharSetNameToId(db.oci_environment,
+                                                               (const oratext *) "AL32UTF8")) == 0) {
                 dbLibError("sqlOpenOci", "OCINlsCharSetNameToId",
                            "OCINlsCharSetNameToId(*, \"AL32UTF8\") failed.\n");
                 logError(printf("sqlOpenOci: OCINlsCharSetNameToId(*, \"AL32UTF8\") failed\n"););

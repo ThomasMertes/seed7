@@ -147,7 +147,7 @@ static striType ustri8_buffer_to_stri (const const_ustriType ustri,
         stri_size += converted_size;
         if (unconverted != 0) {
           ch = ustri[length - unconverted];
-          if (ch >= 0xC0 && ch <= 0xFF) {
+          if (ch >= 0xC0) {
             /* ch range 192 to 255 (leading bits 11......) */
             do {
               stri->mem[stri_size] = (strElemType) ch;

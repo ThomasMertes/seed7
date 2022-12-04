@@ -3678,7 +3678,7 @@ static void checkForLimitedStringLiteralLength (FILE *versionFile)
     const size_t charsInLine = 100;
     size_t lineLength;
     size_t totalLength;
-    int count;
+    size_t count;
     char *buffer;
     char *bufPos;
     int testResult;
@@ -3754,7 +3754,7 @@ static void checkForLimitedArrayLiteralLength (FILE *versionFile)
     const size_t elementsInLine = 20;
     size_t lineLength;
     size_t totalLength;
-    int count;
+    size_t count;
     char *buffer;
     char *bufPos;
     int testResult;
@@ -5350,6 +5350,7 @@ static void determineEnvironDefines (FILE *versionFile)
 
 
 
+#ifdef OS_STRI_WCHAR
 static void determineOsUtime (FILE *versionFile)
 
   {
@@ -5432,7 +5433,6 @@ static void determineOsUtime (FILE *versionFile)
 
 
 
-#ifdef OS_STRI_WCHAR
 static void determineStatFunctions (FILE *versionFile)
 
   {
@@ -6156,7 +6156,6 @@ static void determinePartialLinking (FILE *versionFile)
     const char *potentialPartialLinkingOptions[] = { POTENTIAL_PARTIAL_LINKING_OPTIONS };
 #endif
     unsigned int pos;
-    int found = 0;
     char buffer[BUFFER_SIZE];
 
   /* determinePartialLinking */
@@ -7380,7 +7379,7 @@ static int extractPostgresOid (const char* pgTypeFileName)
     char buffer[BUFFER_SIZE];
     char *line;
     int pos;
-    int idx;
+    size_t idx;
     int spaces;
     int anOidWasFound = 0;
 

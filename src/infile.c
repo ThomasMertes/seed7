@@ -408,7 +408,7 @@ static void freeFile (inFileType old_file)
 
   /* freeFile */
     logFunction(printf("freeFile\n"););
-    name_length = strlen((cstriType) old_file->name_ustri);
+    name_length = strlen((const_cstriType) old_file->name_ustri);
     FREE_USTRI(old_file->name_ustri, name_length, count.fnam, count.fnam_bytes);
     FREE_STRI(old_file->name, old_file->name->size);
     FREE_FILE(old_file);

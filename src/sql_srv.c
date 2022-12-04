@@ -198,33 +198,33 @@ static boolType createConnectionString (connectDataType connectData)
 
 
 
-static SQLWCHAR *wstriSearchCh (const SQLWCHAR *str, const SQLWCHAR ch)
+static const SQLWCHAR *wstriSearchCh (const SQLWCHAR *str, const SQLWCHAR ch)
 
   { /* wstriSearchCh */
     for (; *str != ch; str++) {
-      if (*str == (SQLWCHAR) 0) {
+      if (*str == (const SQLWCHAR) 0) {
         return NULL;
       } /* if */
     } /* for */
-    return (SQLWCHAR *) str;
+    return str;
   } /* wstriSearchCh */
 
 
 
-static SQLWCHAR *wstriSearch (const SQLWCHAR *haystack, const SQLWCHAR *needle)
+static const SQLWCHAR *wstriSearch (const SQLWCHAR *haystack, const SQLWCHAR *needle)
 
   {
     const SQLWCHAR *sc1;
     const SQLWCHAR *sc2;
 
   /* wstriSearch */
-    if (*needle == (SQLWCHAR) 0) {
-      return (SQLWCHAR *) haystack;
+    if (*needle == (const SQLWCHAR) 0) {
+      return haystack;
     } else {
       for (; (haystack = wstriSearchCh(haystack, *needle)) != NULL; haystack++) {
         for (sc1 = haystack, sc2 = needle; ; ) {
-          if (*++sc2 == (SQLWCHAR) 0) {
-            return (SQLWCHAR *) haystack;
+          if (*++sc2 == (const SQLWCHAR) 0) {
+            return haystack;
           } else if (*++sc1 != *sc2) {
             break;
           } /* if */
@@ -237,7 +237,7 @@ static SQLWCHAR *wstriSearch (const SQLWCHAR *haystack, const SQLWCHAR *needle)
 
 
 static boolType connectToServer (connectDataType connectData,
-    SQLHDBC sql_connection, SQLWCHAR *server, memSizeType serverLength)
+    SQLHDBC sql_connection, const SQLWCHAR *server, memSizeType serverLength)
 
   {
     const SQLWCHAR serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '=', '\0'};
@@ -319,8 +319,10 @@ static boolType connectToLocalServer (connectDataType connectData,
     SQLWCHAR inConnectionString[1];
     SQLWCHAR outConnectionString[4096];
     SQLSMALLINT outConnectionStringLength;
-    SQLWCHAR *posFound;
-    SQLWCHAR *server;
+    const SQLWCHAR *posFound;
+    const SQLWCHAR *server;
+    memSizeType serverNameLength;
+    SQLWCHAR *serverName;
     boolType lastServer;
     SQLRETURN returnCode;
     boolType triedToConnect = FALSE;
@@ -365,15 +367,20 @@ static boolType connectToLocalServer (connectDataType connectData,
               posFound++;
             } /* while */
             lastServer = *posFound != ',';
-            *posFound = '\0';
-            /* printf("check for server: ");
-               printWstri(server);
-               printf("\n"); */
             if (server != posFound) {
               /* Only try to connect if the server name is not empty. */
-              okay = connectToServer(connectData, sql_connection, server,
-                                     (memSizeType) (posFound - server));
-              triedToConnect = TRUE;
+              serverNameLength = (memSizeType) (posFound - server);
+              if (ALLOC_SQLWSTRI(serverName, serverNameLength)) {
+                memcpy(serverName, server, serverNameLength * sizeof(SQLWCHAR));
+                serverName[serverNameLength] = '\0';
+                /* printf("check for server: ");
+                   printWstri(serverName);
+                   printf("\n"); */
+                okay = connectToServer(connectData, sql_connection,
+                                       serverName, serverNameLength);
+                triedToConnect = TRUE;
+                UNALLOC_SQLWSTRI(serverName, serverNameLength);
+              } /* if */
             } /* if */
             posFound++;
           } while (!okay && !lastServer);

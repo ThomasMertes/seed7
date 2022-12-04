@@ -56,7 +56,7 @@
 
 typedef struct {
     unsigned int size;
-    actEntryType *table;
+    const_actEntryType *table;
 } actEntryMapType;
 
 static actEntryMapType actEntryMap = {0, NULL};
@@ -241,9 +241,9 @@ static void genActPtrTable (void)
   /* genActPtrTable */
     logFunction(printf("genActPtrTable\n"););
     actEntryMap.size = actTable.size;
-    if (ALLOC_TABLE(actEntryMap.table, actEntryType, actEntryMap.size)) {
+    if (ALLOC_TABLE(actEntryMap.table, const_actEntryType, actEntryMap.size)) {
       for (number = 0; number < actEntryMap.size; number++) {
-        actEntryMap.table[number] = (actEntryType) &actTable.table[number];
+        actEntryMap.table[number] = &actTable.table[number];
       } /* for */
       qsort(actEntryMap.table, actEntryMap.size, sizeof(actEntryType),
           actEntryMapCmp);

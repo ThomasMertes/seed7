@@ -114,6 +114,8 @@ typedef struct {
     unsigned char val[SQL_MAX_NUMERIC_LEN];
   } numericRecord, *numericType;
 
+typedef const numericRecord *const_numericType;
+
 static sqlFuncType sqlFunc = NULL;
 static striType quoteQuote = NULL;
 
@@ -907,7 +909,7 @@ static errInfoType setupResult (preparedStmtType preparedStmt)
 
 
 
-static cstriType getNumericAsCStri (numericType numStruct)
+static cstriType getNumericAsCStri (const_numericType numStruct)
 
   {
     memSizeType numBytes;
@@ -921,7 +923,7 @@ static cstriType getNumericAsCStri (numericType numStruct)
   /* getNumericAsCStri */
     if (unlikely(numStruct->precision == 0 || numStruct->precision > 100)) {
       raise_error(RANGE_ERROR);
-      decimal = 0;
+      decimal = NULL;
     } else {
       numBytes = (memSizeType) precisionToBytes[numStruct->precision];
       mantissa = bigFromByteBufferBe(numBytes, numStruct->val, FALSE);
@@ -993,14 +995,14 @@ static cstriType getNumericAsCStri (numericType numStruct)
 static intType getNumericInt (const void *buffer)
 
   {
-    numericType numStruct;
+    const_numericType numStruct;
     memSizeType numBytes;
     bigIntType bigIntValue;
     bigIntType powerOfTen;
     intType intValue = 0;
 
   /* getNumericInt */
-    numStruct = (numericType) buffer;
+    numStruct = (const_numericType) buffer;
     logFunction(printf("getNumericInt\n");
                 printf("numStruct->precision: %u\n", numStruct->precision);
                 printf("numStruct->scale: %d\n", numStruct->scale);
@@ -1060,13 +1062,13 @@ static intType getNumericInt (const void *buffer)
 static bigIntType getNumericBigInt (const void *buffer)
 
   {
-    numericType numStruct;
+    const_numericType numStruct;
     memSizeType numBytes;
     bigIntType powerOfTen;
     bigIntType bigIntValue;
 
   /* getNumericBigInt */
-    numStruct = (numericType) buffer;
+    numStruct = (const_numericType) buffer;
     logFunction(printf("getNumericBigInt\n");
                 printf("numStruct->precision: %u\n", numStruct->precision);
                 printf("numStruct->scale: %d\n", numStruct->scale);
@@ -1115,13 +1117,13 @@ static bigIntType getNumericBigInt (const void *buffer)
 static bigIntType getNumericBigRational (const void *buffer, bigIntType *denominator)
 
   {
-    numericType numStruct;
+    const_numericType numStruct;
     memSizeType numBytes;
     bigIntType powerOfTen;
     bigIntType numerator;
 
   /* getNumericBigRational */
-    numStruct = (numericType) buffer;
+    numStruct = (const_numericType) buffer;
     logFunction(printf("getNumericBigRational\n");
                 printf("numStruct->precision: %u\n", numStruct->precision);
                 printf("numStruct->scale: %d\n", numStruct->scale);
@@ -1171,12 +1173,12 @@ static bigIntType getNumericBigRational (const void *buffer, bigIntType *denomin
 static floatType getNumericFloat (const void *buffer)
 
   {
-    numericType numStruct;
+    const_numericType numStruct;
     cstriType decimal;
     floatType floatValue;
 
   /* getNumericFloat */
-    numStruct = (numericType) buffer;
+    numStruct = (const_numericType) buffer;
     logFunction(printf("getNumericFloat\n");
                 printf("numStruct->precision: %u\n", numStruct->precision);
                 printf("numStruct->scale: %d\n", numStruct->scale);

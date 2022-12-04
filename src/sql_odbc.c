@@ -119,33 +119,33 @@ static SQLWCHAR *getRegularName (SQLWCHAR *wstri, memSizeType wstriLength)
 
 
 
-static SQLWCHAR *wstriSearchCh (const SQLWCHAR *str, const SQLWCHAR ch)
+static const SQLWCHAR *wstriSearchCh (const SQLWCHAR *str, const SQLWCHAR ch)
 
   { /* wstriSearchCh */
     for (; *str != ch; str++) {
-      if (*str == (SQLWCHAR) 0) {
+      if (*str == (const SQLWCHAR) 0) {
         return NULL;
       } /* if */
     } /* for */
-    return (SQLWCHAR *) str;
+    return str;
   } /* wstriSearchCh */
 
 
 
-static SQLWCHAR *wstriSearch (const SQLWCHAR *haystack, const SQLWCHAR *needle)
+static const SQLWCHAR *wstriSearch (const SQLWCHAR *haystack, const SQLWCHAR *needle)
 
   {
     const SQLWCHAR *sc1;
     const SQLWCHAR *sc2;
 
   /* wstriSearch */
-    if (*needle == (SQLWCHAR) 0) {
-      return (SQLWCHAR *) haystack;
+    if (*needle == (const SQLWCHAR) 0) {
+      return haystack;
     } else {
       for (; (haystack = wstriSearchCh(haystack, *needle)) != NULL; haystack++) {
         for (sc1 = haystack, sc2 = needle; ; ) {
-          if (*++sc2 == (SQLWCHAR) 0) {
-            return (SQLWCHAR *) haystack;
+          if (*++sc2 == (const SQLWCHAR) 0) {
+            return haystack;
           } else if (*++sc1 != *sc2) {
             break;
           } /* if */
@@ -158,8 +158,8 @@ static SQLWCHAR *wstriSearch (const SQLWCHAR *haystack, const SQLWCHAR *needle)
 
 
 static boolType connectToServer (connectDataType connectData,
-    SQLHDBC sql_connection, SQLWCHAR *driver, memSizeType driverLength,
-    SQLWCHAR *server, memSizeType serverLength)
+    SQLHDBC sql_connection, const SQLWCHAR *driver, memSizeType driverLength,
+    const SQLWCHAR *server, memSizeType serverLength)
 
   {
     const SQLWCHAR driverKey[] = {'D', 'R', 'I', 'V', 'E', 'R', '=', '\0'};
@@ -253,7 +253,7 @@ static boolType connectToServer (connectDataType connectData,
 
 
 static boolType connectToDriver (connectDataType connectData,
-    SQLHDBC sql_connection, SQLWCHAR *driver, memSizeType driverLength)
+    SQLHDBC sql_connection, const SQLWCHAR *driver, memSizeType driverLength)
 
   {
     const SQLWCHAR driverKey[] = {'D', 'R', 'I', 'V', 'E', 'R', '=', '\0'};
@@ -263,9 +263,11 @@ static boolType connectToDriver (connectDataType connectData,
     SQLWCHAR outConnectionString[4096];
     SQLSMALLINT outConnectionStringLength;
     SQLWCHAR *regularNameOfSearchedServer;
+    const SQLWCHAR *posFound;
+    const SQLWCHAR *server;
+    memSizeType serverNameLength;
+    SQLWCHAR *serverName;
     SQLWCHAR *regularServerName;
-    SQLWCHAR *posFound;
-    SQLWCHAR *server;
     boolType lastServer;
     SQLRETURN returnCode;
     boolType okay = FALSE;
@@ -320,22 +322,26 @@ static boolType connectToDriver (connectDataType connectData,
                 posFound++;
               } /* while */
               lastServer = *posFound != ',';
-              *posFound = '\0';
-              /* printf("check for server: ");
-                 printWstri(server);
-                 printf("\n"); */
-              regularServerName = getRegularName(server,
-                  (memSizeType) (posFound - server));
-              if (regularServerName != NULL) {
-                if (wstriSearch(regularServerName, regularNameOfSearchedServer) != NULL) {
-                  /* printf("server that matches requested one: ");
-                     printWstri(server);
-                     printf("\n"); */
-                  okay = connectToServer(connectData, sql_connection, driver,
-                                         (memSizeType) driverLength, server,
-                                         (memSizeType) (posFound - server));
+              serverNameLength = (memSizeType) (posFound - server);
+              if (ALLOC_SQLWSTRI(serverName, serverNameLength)) {
+                memcpy(serverName, server, serverNameLength * sizeof(SQLWCHAR));
+                serverName[serverNameLength] = '\0';
+                /* printf("check for server: ");
+                   printWstri(serverName);
+                   printf("\n"); */
+                regularServerName = getRegularName(serverName, serverNameLength);
+                if (regularServerName != NULL) {
+                  if (wstriSearch(regularServerName, regularNameOfSearchedServer) != NULL) {
+                    /* printf("server that matches requested one: ");
+                       printWstri(serverName);
+                       printf("\n"); */
+                    okay = connectToServer(connectData, sql_connection,
+                                           driver, (memSizeType) driverLength,
+                                           serverName, serverNameLength);
+                  } /* if */
+                  UNALLOC_SQLWSTRI(regularServerName, serverNameLength);
                 } /* if */
-                UNALLOC_SQLWSTRI(regularServerName, driverLength);
+                UNALLOC_SQLWSTRI(serverName, serverNameLength);
               } /* if */
               posFound++;
             } while (!okay && !lastServer);

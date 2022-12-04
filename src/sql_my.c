@@ -769,7 +769,7 @@ static boolType allParametersBound (preparedStmtType preparedStmt)
 
 
 
-static unsigned int setBigInt (const void *buffer, const const_bigIntType bigIntValue,
+static unsigned int setBigInt (void *const buffer, const const_bigIntType bigIntValue,
     errInfoType *err_info)
 
   {
@@ -814,7 +814,7 @@ static unsigned int setBigInt (const void *buffer, const const_bigIntType bigInt
 
 
 
-static unsigned int setBigRat (const void *buffer, const const_bigIntType numerator,
+static unsigned int setBigRat (void *const buffer, const const_bigIntType numerator,
     const const_bigIntType denominator, errInfoType *err_info)
 
   {

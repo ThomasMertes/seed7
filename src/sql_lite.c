@@ -1236,7 +1236,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
                             column, (memSizeType) blob, length););
             raise_error(DATABASE_ERROR);
             columnValue = NULL;
-          } else if (length >= 2 && memcmp(&((char *) blob)[length - 2], ".0", 2) == 0) {
+          } else if (length >= 2 && memcmp(&((const_ustriType) blob)[length - 2], ".0", 2) == 0) {
             columnValue = getDecimalBigInt((const_ustriType) blob, (memSizeType) length - 2);
           } else {
             columnValue = getDecimalBigInt((const_ustriType) blob, (memSizeType) length);
@@ -1463,7 +1463,8 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
               raise_error(DATABASE_ERROR);
               columnValue = NULL;
             } else {
-              stri = cstri8_buf_to_stri((cstriType) stri8, (memSizeType) length, &err_info);
+              stri = cstri8_buf_to_stri((const_cstriType) stri8,
+                                        (memSizeType) length, &err_info);
               if (unlikely(stri == NULL)) {
                 raise_error(err_info);
                 columnValue = NULL;
@@ -1734,7 +1735,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
                             column, (memSizeType) blob, length););
             raise_error(DATABASE_ERROR);
             columnValue = 0;
-          } else if (length >= 2 && memcmp(&((char *) blob)[length - 2], ".0", 2) == 0) {
+          } else if (length >= 2 && memcmp(&((const_ustriType) blob)[length - 2], ".0", 2) == 0) {
             columnValue = getDecimalInt((const_ustriType) blob, (memSizeType) length - 2);
           } else {
             columnValue = getDecimalInt((const_ustriType) blob, (memSizeType) length);
@@ -1797,7 +1798,8 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
               raise_error(DATABASE_ERROR);
               columnValue = NULL;
             } else {
-              columnValue = cstri8_buf_to_stri((cstriType) stri8, (memSizeType) length, &err_info);
+              columnValue = cstri8_buf_to_stri((const_cstriType) stri8,
+                                               (memSizeType) length, &err_info);
               if (unlikely(columnValue == NULL)) {
                 raise_error(err_info);
               } /* if */

@@ -99,7 +99,8 @@ struct modifierState {
   };
 
 static struct modifierState modState = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
-                                        FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
+                                        FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
+                                        FALSE, FALSE};
 
 /* The state of a button is TRUE, if the button is currently pressed. */
 struct buttonStateStruct {

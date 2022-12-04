@@ -461,7 +461,7 @@ static boolType implicitCommit (const_cstriType query)
     const_cstriType beyond;
     const_cstriType pos;
     char keyword[20];
-    int idx;
+    memSizeType idx;
     boolType implicitCommit = TRUE;
 
   /* implicitCommit */
@@ -475,7 +475,7 @@ static boolType implicitCommit (const_cstriType query)
     while (isalpha(*beyond)) {
       beyond++;
     } /* while */
-    if (beyond - startPos <= sizeof(keyword)) {
+    if ((memSizeType) (beyond - startPos) <= sizeof(keyword)) {
       for (pos = startPos; pos != beyond; pos++) {
         keyword[pos - startPos] = (char) toupper(*pos);
       } /* for */
@@ -2210,13 +2210,13 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
           /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
           switch (buffer_type) {
             case INT2OID:
-              columnValue = bigFromInt32((int16Type) ntohs(*(uint16Type *) buffer));
+              columnValue = bigFromInt32((int16Type) ntohs(*(const uint16Type *) buffer));
               break;
             case INT4OID:
-              columnValue = bigFromInt32((int32Type) ntohl(*(uint32Type *) buffer));
+              columnValue = bigFromInt32((int32Type) ntohl(*(const uint32Type *) buffer));
               break;
             case INT8OID:
-              columnValue = bigFromInt64((int64Type) ntohll(*(uint64Type *) buffer));
+              columnValue = bigFromInt64((int64Type) ntohll(*(const uint64Type *) buffer));
               break;
             case NUMERICOID:
               columnValue = getNumericAsBigInt((const_ustriType) buffer);
@@ -2285,22 +2285,24 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
           /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
           switch (buffer_type) {
             case INT2OID:
-              *numerator = bigFromInt32((int16Type) ntohs(*(uint16Type *) buffer));
+              *numerator = bigFromInt32((int16Type) ntohs(*(const uint16Type *) buffer));
               *denominator = bigFromInt32(1);
               break;
             case INT4OID:
-              *numerator = bigFromInt32((int32Type) ntohl(*(uint32Type *) buffer));
+              *numerator = bigFromInt32((int32Type) ntohl(*(const uint32Type *) buffer));
               *denominator = bigFromInt32(1);
               break;
             case INT8OID:
-              *numerator = bigFromInt64((int64Type) ntohll(*(uint64Type *) buffer));
+              *numerator = bigFromInt64((int64Type) ntohll(*(const uint64Type *) buffer));
               *denominator = bigFromInt32(1);
               break;
             case FLOAT4OID:
-              *numerator = roundDoubleToBigRat(ntohf(*(float *) buffer), FALSE, denominator);
+              *numerator = roundDoubleToBigRat(ntohf(*(const float *) buffer),
+                                               FALSE, denominator);
               break;
             case FLOAT8OID:
-              *numerator = roundDoubleToBigRat(ntohd(*(double *) buffer), TRUE, denominator);
+              *numerator = roundDoubleToBigRat(ntohd(*(const double *) buffer),
+                                               TRUE, denominator);
               break;
             case NUMERICOID:
               *numerator = getNumericAsBigRat((const_ustriType) buffer, denominator);
@@ -2372,13 +2374,13 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
           /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
           switch (buffer_type) {
             case INT2OID:
-              columnValue = (int16Type) ntohs(*(uint16Type *) buffer);
+              columnValue = (int16Type) ntohs(*(const uint16Type *) buffer);
               break;
             case INT4OID:
-              columnValue = (int32Type) ntohl(*(uint32Type *) buffer);
+              columnValue = (int32Type) ntohl(*(const uint32Type *) buffer);
               break;
             case INT8OID:
-              columnValue = (int64Type) ntohll(*(uint64Type *) buffer);
+              columnValue = (int64Type) ntohll(*(const uint64Type *) buffer);
               break;
             case CHAROID:
             case BPCHAROID:
@@ -2618,12 +2620,13 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
               /* PQparameterStatus(connection, "integer_datetimes") is  */
               /* used to determine if an int64Type or a double is used. */
               if (preparedStmt->integerDatetimes) {
-                microsecDuration = (int64Type) ntohll(*(uint64Type *) buffer);
+                microsecDuration = (int64Type) ntohll(*(const uint64Type *) buffer);
               } else {
-                microsecDuration = (int64Type) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+                microsecDuration = (int64Type)
+                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
               } /* if */
-              dayDuration = (int32Type) ntohl(*(uint32Type *) &buffer[8]);
-              monthDuration = (int32Type) ntohl(*(uint32Type *) &buffer[12]);
+              dayDuration = (int32Type) ntohl(*(const uint32Type *) &buffer[8]);
+              monthDuration = (int32Type) ntohl(*(const uint32Type *) &buffer[12]);
               /* printf("microsecDuration: " FMT_D64 "\n", microsecDuration);
                  printf("dayDuration: " FMT_D32 "\n", dayDuration);
                  printf("monthDuration: " FMT_D32 "\n", monthDuration); */
@@ -2729,19 +2732,19 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
           /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
           switch (buffer_type) {
             case INT2OID:
-              columnValue = (floatType) (int16Type) ntohs(*(uint16Type *) buffer);
+              columnValue = (floatType) (int16Type) ntohs(*(const uint16Type *) buffer);
               break;
             case INT4OID:
-              columnValue = (floatType) (int32Type) ntohl(*(uint32Type *) buffer);
+              columnValue = (floatType) (int32Type) ntohl(*(const uint32Type *) buffer);
               break;
             case INT8OID:
-              columnValue = (floatType) (int64Type) ntohll(*(uint64Type *) buffer);
+              columnValue = (floatType) (int64Type) ntohll(*(const uint64Type *) buffer);
               break;
             case FLOAT4OID:
-              columnValue = ntohf(*(float *) buffer);
+              columnValue = ntohf(*(const float *) buffer);
               break;
             case FLOAT8OID:
-              columnValue = ntohd(*(double *) buffer);
+              columnValue = ntohd(*(const double *) buffer);
               break;
             case NUMERICOID:
               columnValue = getNumericAsFloat((const_ustriType) buffer);
@@ -2813,19 +2816,19 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
           /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
           switch (buffer_type) {
             case INT2OID:
-              columnValue = (int16Type) ntohs(*(uint16Type *) buffer);
+              columnValue = (int16Type) ntohs(*(const uint16Type *) buffer);
               break;
             case INT4OID:
-              columnValue = (int32Type) ntohl(*(uint32Type *) buffer);
+              columnValue = (int32Type) ntohl(*(const uint32Type *) buffer);
               break;
             case INT8OID:
-              columnValue = (int64Type) ntohll(*(uint64Type *) buffer);
+              columnValue = (int64Type) ntohll(*(const uint64Type *) buffer);
               break;
             case NUMERICOID:
               columnValue = getNumericAsInt((const_ustriType) buffer);
               break;
             case OIDOID:
-              columnValue = ntohl(*(uint32Type *) buffer);
+              columnValue = ntohl(*(const uint32Type *) buffer);
               break;
             default:
               logError(printf("sqlColumnInt: Column " FMT_D " has the unknown type %s.\n",
@@ -2951,7 +2954,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
               } else if (unlikely(!ALLOC_STRI_CHECK_SIZE(columnValue, (memSizeType) length))) {
                 raise_error(MEMORY_ERROR);
               } else {
-                memcpy_to_strelem(columnValue->mem, (ustriType) buffer,
+                memcpy_to_strelem(columnValue->mem, (const_ustriType) buffer,
                     (memSizeType) length);
                 columnValue->size = (memSizeType) length;
               } /* if */
@@ -3032,7 +3035,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
           /* printf("buffer_type: %s\n", nameOfBufferType(buffer_type)); */
           switch (buffer_type) {
             case DATEOID:
-              timestamp = (timeStampType) (int32Type) ntohl(*(uint32Type *) buffer);
+              timestamp = (timeStampType) (int32Type) ntohl(*(const uint32Type *) buffer);
               /* printf("DATEOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = timestamp * 24 * 60 * 60 + SECONDS_FROM_1970_TO_2000;
               timUtcFromTimestamp(timestamp, year, month, day,
@@ -3048,9 +3051,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               /* PQparameterStatus(connection, "integer_datetimes") is  */
               /* used to determine if an int64Type or a double is used. */
               if (preparedStmt->integerDatetimes) {
-                timestamp = (timeStampType) ntohll(*(uint64Type *) buffer);
+                timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
-                timestamp = (timeStampType) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+                timestamp = (timeStampType)
+                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
               } /* if */
               /* printf("TIMEOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
@@ -3069,9 +3073,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               /* PQparameterStatus(connection, "integer_datetimes") is  */
               /* used to determine if an int64Type or a double is used. */
               if (preparedStmt->integerDatetimes) {
-                timestamp = (timeStampType) ntohll(*(uint64Type *) buffer);
+                timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
-                timestamp = (timeStampType) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+                timestamp = (timeStampType)
+                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
               } /* if */
               /* printf("TIMETZOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
@@ -3079,8 +3084,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
                                   hour, minute, second);
               *is_dst = 0;
               /* printf("time_zone: " FMT_D32 "\n",
-                  (int32Type) -ntohl(*(uint32Type *) &buffer[8]) / 60); */
-              *time_zone = -ntohl(*(uint32Type *) &buffer[8]) / 60;
+                  (int32Type) -ntohl(*(const uint32Type *) &buffer[8]) / 60); */
+              *time_zone = -ntohl(*(const uint32Type *) &buffer[8]) / 60;
               *year = 0;
               *month = 1;
               *day = 1;
@@ -3092,9 +3097,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               /* PQparameterStatus(connection, "integer_datetimes") is  */
               /* used to determine if an int64Type or a double is used. */
               if (preparedStmt->integerDatetimes) {
-                timestamp = (timeStampType) ntohll(*(uint64Type *) buffer);
+                timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
-                timestamp = (timeStampType) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+                timestamp = (timeStampType)
+                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
               } /* if */
               /* printf("TIMESTAMPOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
@@ -3110,9 +3116,10 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
               /* PQparameterStatus(connection, "integer_datetimes") is  */
               /* used to determine if an int64Type or a double is used. */
               if (preparedStmt->integerDatetimes) {
-                timestamp = (timeStampType) ntohll(*(uint64Type *) buffer);
+                timestamp = (timeStampType) ntohll(*(const uint64Type *) buffer);
               } else {
-                timestamp = (timeStampType) (1000000.0 * ntohd(*(double *) buffer) + 0.5);
+                timestamp = (timeStampType)
+                    (1000000.0 * ntohd(*(const double *) buffer) + 0.5);
               } /* if */
               /* printf("TIMESTAMPTZOID timestamp: " FMT_D64 "\n", timestamp); */
               timestamp = getTimestamp1970(timestamp, micro_second);
@@ -3190,7 +3197,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
       preparedStmt->execute_result = PQexecPrepared(preparedStmt->db->connection,
                                                     preparedStmt->stmtName,
                                                     (int) preparedStmt->param_array_size,
-                                                    (const_cstriType *) preparedStmt->paramValues,
+                                                    (const const_cstriType *) preparedStmt->paramValues,
                                                     preparedStmt->paramLengths,
                                                     preparedStmt->paramFormats,
                                                     1);

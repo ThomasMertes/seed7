@@ -88,7 +88,7 @@ typedef socklen_t sockLenType;
 #define check_initialization(err_result)
 #define cast_send_recv_data(data_ptr) ((void *) (data_ptr))
 #define cast_buffer_len(len)          len
-#define SOCKLEN_NEGATIVE(len) 0
+#define ADDRLEN_NEGATIVE(len) 0
 #define INVALID_SOCKET (-1)
 
 #elif SOCKET_LIB == WINSOCK_SOCKETS
@@ -99,7 +99,7 @@ static boolType initialized = FALSE;
     if (unlikely(!initialized)) {if (init_winsock()) {return err_result;}}
 #define cast_send_recv_data(data_ptr) ((char *) (data_ptr))
 #define cast_buffer_len(len)          ((int) (len))
-#define SOCKLEN_NEGATIVE(len) (len) < 0
+#define ADDRLEN_NEGATIVE(len) (len) < 0
 #ifndef SHUT_RDWR
 #define SHUT_RDWR SD_BOTH
 #endif
@@ -503,7 +503,9 @@ socketType socAccept (socketType listenerSocket, bstriType *address)
       addrlen = MAX_ADDRESS_SIZE;
       result = (os_socketType) accept((os_socketType) listenerSocket,
                                       (struct sockaddr *) (*address)->mem, &addrlen);
-      if (unlikely(result == INVALID_SOCKET || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
+      if (unlikely(result == INVALID_SOCKET ||
+                   ADDRLEN_NEGATIVE(addrlen) ||
+                   addrlen > MAX_ADDRESS_SIZE)) {
         /* printf("socAccept(%d) %s=%d %s\n", listenerSocket, ERROR_INFORMATION); */
         REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
         if (resized_address == NULL) {
@@ -991,7 +993,9 @@ bstriType socGetLocalAddr (socketType sock)
       addrlen = MAX_ADDRESS_SIZE;
       getsockname_result = getsockname((os_socketType) sock,
                                        (struct sockaddr *) address->mem, &addrlen);
-      if (unlikely(getsockname_result != 0 || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
+      if (unlikely(getsockname_result != 0 ||
+                   ADDRLEN_NEGATIVE(addrlen) ||
+                   addrlen > MAX_ADDRESS_SIZE)) {
         FREE_BSTRI(address, MAX_ADDRESS_SIZE);
         logError(printf("socGetLocalAddr: getsockname(%d, ...) failed:\n"
                         "%s=%d\nerror: %s\n",
@@ -1041,7 +1045,9 @@ bstriType socGetPeerAddr (socketType sock)
       addrlen = MAX_ADDRESS_SIZE;
       getpeername_result = getpeername((os_socketType) sock,
                                        (struct sockaddr *) address->mem, &addrlen);
-      if (unlikely(getpeername_result != 0 || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
+      if (unlikely(getpeername_result != 0 ||
+                   ADDRLEN_NEGATIVE(addrlen) ||
+                   addrlen > MAX_ADDRESS_SIZE)) {
         FREE_BSTRI(address, MAX_ADDRESS_SIZE);
         logError(printf("socGetPeerAddr: getpeername(%d, ...) failed:\n"
                         "%s=%d\nerror: %s\n",
@@ -1201,7 +1207,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
         } else {
           /* dump_addrinfo(addrinfo_list); */
           result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
-          if (unlikely(SOCKLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
+          if (unlikely(ADDRLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
                        !ALLOC_BSTRI_SIZE_OK(result,
                            (memSizeType) result_addrinfo->ai_addrlen))) {
             free_cstri8(name, hostName);
@@ -1342,7 +1348,7 @@ bstriType socInetLocalAddr (intType port)
       } else {
         /* dump_addrinfo(addrinfo_list); */
         result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
-        if (unlikely(SOCKLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
+        if (unlikely(ADDRLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
                      !ALLOC_BSTRI_SIZE_OK(result,
                          (memSizeType) result_addrinfo->ai_addrlen))) {
           freeaddrinfo(addrinfo_list);
@@ -1429,7 +1435,7 @@ bstriType socInetServAddr (intType port)
       } else {
         /* dump_addrinfo(addrinfo_list); */
         result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
-        if (unlikely(SOCKLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
+        if (unlikely(ADDRLEN_NEGATIVE(result_addrinfo->ai_addrlen) ||
                      !ALLOC_BSTRI_SIZE_OK(result,
                          (memSizeType) result_addrinfo->ai_addrlen))) {
           freeaddrinfo(addrinfo_list);
@@ -1932,7 +1938,8 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
                                            cast_send_recv_data((*stri)->mem),
                                            cast_buffer_len(bytes_requested), (int) flags,
                                            (struct sockaddr *) (*address)->mem, &addrlen);
-        if (unlikely(stri_size == (memSizeType) -1 || addrlen < 0 ||
+        if (unlikely(stri_size == (memSizeType) -1 ||
+                     ADDRLEN_NEGATIVE(addrlen) ||
                      addrlen > MAX_ADDRESS_SIZE)) {
           REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
           if (resized_address == NULL) {
