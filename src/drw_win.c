@@ -206,7 +206,7 @@ boolType getResizeReturnsKey (winType resizeWindow)
 
 
 
-static void resize (win_winType resizeWindow, unsigned int width,
+static boolType resize (win_winType resizeWindow, unsigned int width,
     unsigned int height)
 
   {
@@ -214,34 +214,41 @@ static void resize (win_winType resizeWindow, unsigned int width,
     HBITMAP newBackup;
     unsigned int newWidth;
     unsigned int newHeight;
+    boolType returnKeyResize = FALSE;
 
   /* resize */
     logFunction(printf("resize(" FMT_U_MEM ", %d, %d)\n",
                        (memSizeType) resizeWindow, width, height););
     if (resizeWindow != NULL && resizeWindow->backup_hdc != 0) {
-      if (resizeWindow->backupWidth < width ||
-          resizeWindow->backupHeight < height) {
-        newWidth = resizeWindow->backupWidth > width ? resizeWindow->backupWidth : width;
-        newHeight = resizeWindow->backupHeight > height ? resizeWindow->backupHeight : height;
-        newBackupHdc = CreateCompatibleDC(resizeWindow->hdc);
-        newBackup = CreateCompatibleBitmap(resizeWindow->hdc, (int) newWidth, (int) newHeight);
-        SelectObject(newBackupHdc, newBackup);
-        drawRectangle(newBackupHdc, 0, 0, newWidth - 1, newHeight - 1,
-                      resizeWindow->clear_col);
-        BitBlt(newBackupHdc, 0, 0,
-               (int) resizeWindow->backupWidth, (int) resizeWindow->backupHeight,
-               resizeWindow->backup_hdc, 0, 0, SRCCOPY);
-        DeleteObject(resizeWindow->backup);
-        DeleteDC(resizeWindow->backup_hdc);
-        resizeWindow->backup = newBackup;
-        resizeWindow->backup_hdc = newBackupHdc;
-        resizeWindow->backupWidth = newWidth;
-        resizeWindow->backupHeight = newHeight;
+      if (resizeWindow->width != width || resizeWindow->height != height) {
+        if (resizeWindow->backupWidth < width ||
+            resizeWindow->backupHeight < height) {
+          newWidth = resizeWindow->backupWidth > width ? resizeWindow->backupWidth : width;
+          newHeight = resizeWindow->backupHeight > height ? resizeWindow->backupHeight : height;
+          newBackupHdc = CreateCompatibleDC(resizeWindow->hdc);
+          newBackup = CreateCompatibleBitmap(resizeWindow->hdc, (int) newWidth, (int) newHeight);
+          SelectObject(newBackupHdc, newBackup);
+          drawRectangle(newBackupHdc, 0, 0, newWidth - 1, newHeight - 1,
+                        resizeWindow->clear_col);
+          BitBlt(newBackupHdc, 0, 0,
+                 (int) resizeWindow->backupWidth, (int) resizeWindow->backupHeight,
+                 resizeWindow->backup_hdc, 0, 0, SRCCOPY);
+          DeleteObject(resizeWindow->backup);
+          DeleteDC(resizeWindow->backup_hdc);
+          resizeWindow->backup = newBackup;
+          resizeWindow->backup_hdc = newBackupHdc;
+          resizeWindow->backupWidth = newWidth;
+          resizeWindow->backupHeight = newHeight;
+        } /* if */
+        resizeWindow->width = width;
+        resizeWindow->height = height;
+        if (resizeWindow->resizeReturnsKey) {
+          returnKeyResize = TRUE;
+        } /* if */
       } /* if */
-      resizeWindow->width = width;
-      resizeWindow->height = height;
     } /* if */
-    logFunction(printf("resize -->\n"););
+    logFunction(printf("resize --> %d\n", returnKeyResize););
+    return returnKeyResize;
   } /* resize */
 
 
@@ -354,9 +361,21 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                           ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                           (memSizeType) hWnd, (uint64Type) wParam,
                           (uint64Type) lParam););
-        paint_window = (win_winType) find_window(hWnd);
-        resize(paint_window, (unsigned int) LOWORD(lParam),
-               (unsigned int) HIWORD(lParam));
+        if (wParam != SIZE_MINIMIZED) {
+          paint_window = (win_winType) find_window(hWnd);
+          if (resize(paint_window, (unsigned int) LOWORD(lParam),
+                 (unsigned int) HIWORD(lParam))) {
+            PostMessageW(hWnd, WM_USER + 1, wParam, lParam);
+          } /* if */
+        } /* if */
+        result = 0;
+        break;
+      case WM_USER + 1:
+        traceEvent(printf("WndProc WM_USER + 1 hwnd=" FMT_U_MEM
+                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                          (memSizeType) hWnd, (uint64Type) wParam,
+                          (uint64Type) lParam););
+        PostMessageW(hWnd, WM_USER, wParam, lParam);
         result = 1;
         break;
       case WM_SETCURSOR:
@@ -383,9 +402,6 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if (paint_window != NULL) {
             if (paint_window->minimized) {
               paint_window->minimized = FALSE;
-            } else if (paint_window->resizeReturnsKey) {
-              /* printf("send WM_USER\n"); */
-              PostMessageA(hWnd, WM_USER, wParam, lParam);
             } /* if */
           } /* if */
         } else if (wParam == SC_MINIMIZE) {

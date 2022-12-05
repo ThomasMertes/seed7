@@ -71,7 +71,6 @@ static int resizeStartWidth;
 static int resizeStartHeight;
 static int resizeWidthDelta;
 static int resizeHeightDelta;
-static boolType mouseMoveProcessed = FALSE;
 
 static const charType map_1252_to_unicode[] = {
 /* 128 */ 0x20AC,    '?', 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
@@ -1119,20 +1118,7 @@ charType gkbGetc (void)
                               (uint64Type) msg.lParam, GetKeyState(VK_SHIFT),
                               GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
             if (resizeMode != 0) {
-              if (mouseMoveProcessed) {
-                if (resizeMode != HTCAPTION) {
-                  result = K_RESIZE;
-                  button_window = msg.hwnd;
-                } /* if */
-              } else {
-                processMouseMove(&msg);
-                if (resizeMode != HTCAPTION &&
-                    getResizeReturnsKey(find_window(msg.hwnd))) {
-                  result = K_RESIZE;
-                  button_window = msg.hwnd;
-                } /* if */
-              } /* if */
-              mouseMoveProcessed = FALSE;
+              processMouseMove(&msg);
             } else {
               TranslateMessage(&msg);
               DispatchMessage(&msg);
@@ -1238,11 +1224,19 @@ boolType gkbInputReady (void)
         case WM_MBUTTONDOWN:
         case WM_RBUTTONDOWN:
         case WM_XBUTTONDOWN:
+          traceEvent(printf("gkbInputReady: WM_L/M/R/XBUTTONDOWN hwnd=" FMT_U_MEM
+                            ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                            (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
+                            (uint64Type) msg.lParam););
           /* printf("gkbInputReady: --> TRUE for message %d\n", msg.message); */
           msg_present = 0;
           result = TRUE;
           break;
         case WM_MOUSEWHEEL:
+          traceEvent(printf("gkbInputReady: WM_MOUSEWHEEL hwnd=" FMT_U_MEM
+                            ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                            (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
+                            (uint64Type) msg.lParam););
           if (IsWindow(msg.hwnd)) {
             POINT point;
             winType win;
@@ -1356,21 +1350,17 @@ boolType gkbInputReady (void)
           } /* if */
           break;
         case WM_MOUSEMOVE:
-          /* printf("gkbInputReady: WM_MOUSEMOVE\n"); */
+          traceEvent(printf("gkbInputReady: WM_MOUSEMOVE hwnd=" FMT_U_MEM
+                             ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                            (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
+                            (uint64Type) msg.lParam););
           if (resizeMode != 0) {
             processMouseMove(&msg);
-            if (resizeMode != HTCAPTION &&
-                getResizeReturnsKey(find_window(msg.hwnd))) {
-              mouseMoveProcessed = TRUE;
-              msg_present = 0;
-              result = TRUE;
-            } else {
-              bRet = GetMessageW(&msg, NULL, 0, 0);
-              if (bRet == 0 || bRet == -1) {
-                logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-              } /* if */
-              msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
+            bRet = GetMessageW(&msg, NULL, 0, 0);
+            if (bRet == 0 || bRet == -1) {
+              logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
             } /* if */
+            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           } else {
             bRet = GetMessageW(&msg, NULL, 0, 0);
             if (bRet == 0 || bRet == -1) {
@@ -1431,6 +1421,10 @@ boolType gkbInputReady (void)
           result = TRUE;
           break;
         default:
+          traceEvent(printf("gkbInputReady: message=%d, hwnd=" FMT_U_MEM
+                            ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                            msg.message, (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
+                            (uint64Type) msg.lParam););
           bRet = GetMessageW(&msg, NULL, 0, 0);
           if (bRet == 0) {
             logError(printf("GetMessageW(&msg, NULL, 0, 0)=0\n"););
