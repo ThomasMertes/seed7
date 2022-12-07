@@ -525,7 +525,7 @@ boolType determineDeadKey (uint32Type virtualKey, boolType shift)
 void gkbInitKeyboard (void)
 
   { /* gkbInitKeyboard */
-    logFunctionX(printf("gkbInitKeyboard()\n"););
+    logFunction(printf("gkbInitKeyboard()\n"););
     oem1_dead = determineDeadKey(VK_OEM_1, FALSE);
     oem2_dead = determineDeadKey(VK_OEM_2, FALSE);
     oem3_dead = determineDeadKey(VK_OEM_3, FALSE);
