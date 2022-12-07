@@ -52,6 +52,8 @@
 #define EXTERN
 #include "drw_drv.h"
 
+void gkbInitKeyboard (void);
+
 
 #define TRACE_EVENTS 0
 #if TRACE_EVENTS
@@ -449,6 +451,7 @@ void drawInit (void)
     if (hntdll != 0) {
       pGetConsoleWindow = (pGetConsoleWindowType) GetProcAddress(hntdll, "GetConsoleWindow");
     } /* if */
+    gkbInitKeyboard();
     init_called = TRUE;
   } /* drawInit */
 

@@ -71,6 +71,25 @@ static int resizeStartWidth;
 static int resizeStartHeight;
 static int resizeWidthDelta;
 static int resizeHeightDelta;
+static boolType processDeadKeys = FALSE;
+static boolType oem1_dead = FALSE;
+static boolType oem2_dead = FALSE;
+static boolType oem3_dead = FALSE;
+static boolType oem4_dead = FALSE;
+static boolType oem5_dead = FALSE;
+static boolType oem6_dead = FALSE;
+static boolType oem7_dead = FALSE;
+static boolType oem8_dead = FALSE;
+static boolType shift_oem1_dead = FALSE;
+static boolType shift_oem2_dead = FALSE;
+static boolType shift_oem3_dead = FALSE;
+static boolType shift_oem4_dead = FALSE;
+static boolType shift_oem5_dead = FALSE;
+static boolType shift_oem6_dead = FALSE;
+static boolType shift_oem7_dead = FALSE;
+static boolType shift_oem8_dead = FALSE;
+static WPARAM deadKeyActive = 0;
+
 
 static const charType map_1252_to_unicode[] = {
 /* 128 */ 0x20AC,    '?', 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
@@ -443,6 +462,90 @@ static void processMouseMove (MSG *msg)
 
 
 
+boolType isDeadKey (WPARAM virtualKey)
+
+  {
+    boolType deadKey = FALSE;
+
+  /* isDeadKey */
+    if (GetKeyState(VK_SHIFT) & 0x8000) {
+      if ((virtualKey == VK_OEM_1 && shift_oem1_dead) ||
+          (virtualKey == VK_OEM_2 && shift_oem2_dead) ||
+          (virtualKey == VK_OEM_3 && shift_oem3_dead) ||
+          (virtualKey == VK_OEM_4 && shift_oem4_dead) ||
+          (virtualKey == VK_OEM_5 && shift_oem5_dead) ||
+          (virtualKey == VK_OEM_6 && shift_oem6_dead) ||
+          (virtualKey == VK_OEM_7 && shift_oem7_dead) ||
+          (virtualKey == VK_OEM_8 && shift_oem8_dead)) {
+        deadKey = TRUE;
+      } /* if */
+    } else {
+      if ((virtualKey == VK_OEM_1 && oem1_dead) ||
+          (virtualKey == VK_OEM_2 && oem2_dead) ||
+          (virtualKey == VK_OEM_3 && oem3_dead) ||
+          (virtualKey == VK_OEM_4 && oem4_dead) ||
+          (virtualKey == VK_OEM_5 && oem5_dead) ||
+          (virtualKey == VK_OEM_6 && oem6_dead) ||
+          (virtualKey == VK_OEM_7 && oem7_dead) ||
+          (virtualKey == VK_OEM_8 && oem8_dead)) {
+        deadKey = TRUE;
+      } /* if */
+    } /* if */
+    return deadKey;
+  } /* isDeadKey */
+
+
+
+boolType determineDeadKey (uint32Type virtualKey, boolType shift)
+
+  {
+    BYTE keyboardState[256];
+    WCHAR unicodeChar[5];
+    boolType deadKey = FALSE;
+
+  /* determineDeadKey */
+    memset(keyboardState, 0, 256);
+    if (shift) {
+      keyboardState[VK_SHIFT] = 128;
+      keyboardState[VK_LSHIFT] = 128;
+      keyboardState[VK_RSHIFT] = 128;
+    } /* if */
+    if (ToUnicode(virtualKey, MapVirtualKey(virtualKey, MAPVK_VK_TO_VSC),
+                  keyboardState, unicodeChar, 4, 0) == -1) {
+      deadKey = TRUE;
+      /* To consume the dead key the function must be called again. */
+      ToUnicode(virtualKey, MapVirtualKey(virtualKey, MAPVK_VK_TO_VSC),
+                keyboardState, unicodeChar, 4, 0);
+    } /* if */
+    return deadKey;
+  } /* determineDeadKey */
+
+
+
+void gkbInitKeyboard (void)
+
+  { /* gkbInitKeyboard */
+    logFunctionX(printf("gkbInitKeyboard()\n"););
+    oem1_dead = determineDeadKey(VK_OEM_1, FALSE);
+    oem2_dead = determineDeadKey(VK_OEM_2, FALSE);
+    oem3_dead = determineDeadKey(VK_OEM_3, FALSE);
+    oem4_dead = determineDeadKey(VK_OEM_4, FALSE);
+    oem5_dead = determineDeadKey(VK_OEM_5, FALSE);
+    oem6_dead = determineDeadKey(VK_OEM_6, FALSE);
+    oem7_dead = determineDeadKey(VK_OEM_7, FALSE);
+    oem8_dead = determineDeadKey(VK_OEM_8, FALSE);
+    shift_oem1_dead = determineDeadKey(VK_OEM_1, TRUE);
+    shift_oem2_dead = determineDeadKey(VK_OEM_2, TRUE);
+    shift_oem3_dead = determineDeadKey(VK_OEM_3, TRUE);
+    shift_oem4_dead = determineDeadKey(VK_OEM_4, TRUE);
+    shift_oem5_dead = determineDeadKey(VK_OEM_5, TRUE);
+    shift_oem6_dead = determineDeadKey(VK_OEM_6, TRUE);
+    shift_oem7_dead = determineDeadKey(VK_OEM_7, TRUE);
+    shift_oem8_dead = determineDeadKey(VK_OEM_8, TRUE);
+  } /* gkbInitKeyboard */
+
+
+
 charType gkbGetc (void)
 
   {
@@ -508,6 +611,38 @@ charType gkbGetc (void)
                 case VK_CAPITAL:
                 case VK_NUMLOCK:
                 case VK_SCROLL:   result = K_NONE;           break;
+                case VK_OEM_1:
+                case VK_OEM_2:
+                case VK_OEM_3:
+                case VK_OEM_4:
+                case VK_OEM_5:
+                case VK_OEM_6:
+                case VK_OEM_7:
+                case VK_OEM_8:
+                  if (isDeadKey(msg.wParam)) {
+                    if (processDeadKeys) {
+                      if (deadKeyActive == 0) {
+                        deadKeyActive = msg.wParam;
+                        TranslateMessage(&msg);
+                        DispatchMessage(&msg);
+                        result = K_NONE;
+                      } else if (deadKeyActive == msg.wParam) {
+                        result = K_UNDEF;
+                      } else {
+                        deadKeyActive = msg.wParam;
+                        PostMessageW(msg.hwnd, WM_KEYDOWN, VK_SPACE, msg.lParam);
+                        result = K_NONE;
+                      } /* if */
+                    } else {
+                      TranslateMessage(&msg);
+                      DispatchMessage(&msg);
+                      PostMessageW(msg.hwnd, WM_KEYDOWN, VK_SPACE, msg.lParam);
+                      result = K_NONE;
+                    } /* if */
+                  } else {
+                    result = K_UNDEF;
+                  } /* if */
+                  break;
                 default:          result = K_UNDEF;          break;
               } /* switch */
             } else if (((GetKeyState(VK_CONTROL)  & 0x8000) != 0 &&
@@ -749,6 +884,38 @@ charType gkbGetc (void)
                 case VK_CAPITAL:
                 case VK_NUMLOCK:
                 case VK_SCROLL:   result = K_NONE;       break;
+                case VK_OEM_1:
+                case VK_OEM_2:
+                case VK_OEM_3:
+                case VK_OEM_4:
+                case VK_OEM_5:
+                case VK_OEM_6:
+                case VK_OEM_7:
+                case VK_OEM_8:
+                  if (isDeadKey(msg.wParam)) {
+                    if (processDeadKeys) {
+                      if (deadKeyActive == 0) {
+                        deadKeyActive = msg.wParam;
+                        TranslateMessage(&msg);
+                        DispatchMessage(&msg);
+                        result = K_NONE;
+                      } else if (deadKeyActive == msg.wParam) {
+                        result = K_UNDEF;
+                      } else {
+                        deadKeyActive = msg.wParam;
+                        PostMessageW(msg.hwnd, WM_KEYDOWN, VK_SPACE, msg.lParam);
+                        result = K_NONE;
+                      } /* if */
+                    } else {
+                      TranslateMessage(&msg);
+                      DispatchMessage(&msg);
+                      PostMessageW(msg.hwnd, WM_KEYDOWN, VK_SPACE, msg.lParam);
+                      result = K_NONE;
+                    } /* if */
+                  } else {
+                    result = K_UNDEF;
+                  } /* if */
+                  break;
                 default:          result = K_UNDEF;      break;
               } /* switch */
             } /* if */
@@ -1125,7 +1292,12 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_LBUTTONUP:
-            /* printf("WM_LBUTTONUP\n"); */
+            traceEvent(printf("WM_LBUTTONUP hwnd=" FMT_U_MEM
+                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 ", "
+                              "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
+                              (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
+                              (uint64Type) msg.lParam, GetKeyState(VK_SHIFT),
+                              GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
             if (resizeMode != 0) {
               /* printf("resizeMode: %d\n", (int) resizeMode); */
               ReleaseCapture();
@@ -1144,6 +1316,7 @@ charType gkbGetc (void)
             if (result >= 128 && result <= 159) {
               result = map_1252_to_unicode[result - 128];
             } /* if */
+            deadKeyActive = 0;
             break;
           case WM_USER:
             traceEvent(printf("WM_USER hwnd=" FMT_U_MEM
@@ -1204,20 +1377,53 @@ boolType gkbInputReady (void)
               msg.wParam == VK_RWIN    || msg.wParam == VK_CAPITAL ||
               msg.wParam == VK_NUMLOCK || msg.wParam == VK_SCROLL) {
             bRet = GetMessageW(&msg, NULL, 0, 0);
-            if (bRet == 0) {
-              logError(printf("GetMessageW(&msg, NULL, 0, 0)=0\n"););
-            } else if (bRet == -1) {
-              logError(printf("GetMessageW(&msg, NULL, 0, 0)=-1\n"););
+            if (bRet == 0 || bRet == -1) {
+              logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
             } else {
-              /* printf("message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
               TranslateMessage(&msg);
-              /* printf("translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
               DispatchMessage(&msg);
             } /* if */
             msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           } else {
-            msg_present = 0;
-            result = TRUE;
+            if (isDeadKey(msg.wParam)) {
+              if (processDeadKeys) {
+                if (deadKeyActive == 0) {
+                  deadKeyActive = msg.wParam;
+                  bRet = GetMessageW(&msg, NULL, 0, 0);
+                  if (bRet == 0 || bRet == -1) {
+                    logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+                  } /* if */
+                  TranslateMessage(&msg);
+                  DispatchMessage(&msg);
+                  msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
+                } else if (deadKeyActive == msg.wParam) {
+                  msg_present = 0;
+                  result = TRUE;
+                } else {
+                  deadKeyActive = msg.wParam;
+                  bRet = GetMessageW(&msg, NULL, 0, 0);
+                  if (bRet == 0 || bRet == -1) {
+                    logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+                  } /* if */
+                  PostMessageW(msg.hwnd, WM_KEYDOWN, VK_SPACE, msg.lParam);
+                  msg_present = 0;
+                  result = TRUE;
+                } /* if */
+              } else {
+                bRet = GetMessageW(&msg, NULL, 0, 0);
+                if (bRet == 0 || bRet == -1) {
+                  logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+                } /* if */
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+                PostMessageW(msg.hwnd, WM_KEYDOWN, VK_SPACE, msg.lParam);
+                msg_present = 0;
+                result = TRUE;
+              } /* if */
+            } else {
+              msg_present = 0;
+              result = TRUE;
+            } /* if */
           } /* if */
           break;
         case WM_LBUTTONDOWN:
@@ -1277,38 +1483,21 @@ boolType gkbInputReady (void)
               msg_present = 0;
               result = TRUE;
             } /* if */
-          } else if (msg.wParam == HTBOTTOMRIGHT || msg.wParam == HTRIGHT || msg.wParam == HTBOTTOM) {
-            resizeBottomAndRight(&msg);
-            bRet = GetMessageW(&msg, NULL, 0, 0);
-            if (bRet == 0 || bRet == -1) {
-              logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-            } /* if */
-            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
-          } else if (msg.wParam == HTTOPLEFT || msg.wParam == HTLEFT || msg.wParam == HTTOP ||
-              msg.wParam == HTTOPRIGHT || msg.wParam == HTBOTTOMLEFT) {
-            resizeTopAndLeft(&msg);
-            bRet = GetMessageW(&msg, NULL, 0, 0);
-            if (bRet == 0 || bRet == -1) {
-              logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-            } /* if */
-            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
-          } else if (msg.wParam == HTCAPTION) {
-            startMoveWindow(&msg);
-            bRet = GetMessageW(&msg, NULL, 0, 0);
-            if (bRet == 0 || bRet == -1) {
-              logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-            } /* if */
-            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           } else {
             bRet = GetMessageW(&msg, NULL, 0, 0);
             if (bRet == 0 || bRet == -1) {
               logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            } /* if */
+            if (msg.wParam == HTBOTTOMRIGHT || msg.wParam == HTRIGHT || msg.wParam == HTBOTTOM) {
+              resizeBottomAndRight(&msg);
+            } else if (msg.wParam == HTTOPLEFT || msg.wParam == HTLEFT || msg.wParam == HTTOP ||
+                msg.wParam == HTTOPRIGHT || msg.wParam == HTBOTTOMLEFT) {
+              resizeTopAndLeft(&msg);
+            } else if (msg.wParam == HTCAPTION) {
+              startMoveWindow(&msg);
             } else {
-              /* printf("x message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
               TranslateMessage(&msg);
-              /* printf("x translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
               DispatchMessage(&msg);
-              /* printf("x dispatched message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             } /* if */
             msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           } /* if */
@@ -1322,26 +1511,17 @@ boolType gkbInputReady (void)
             /* printf("SC_CLOSE\n"); */
             msg_present = 0;
             result = TRUE;
-          } else if (msg.wParam == SC_SIZE) {
-            /* printf("SC_SIZE\n"); */
-            systemSizeCommand(&msg);
-            bRet = GetMessageW(&msg, NULL, 0, 0);
-            if (bRet == 0 || bRet == -1) {
-              logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-            } /* if */
-            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
-          } else if (msg.wParam == SC_MOVE) {
-            /* printf("SC_MOVE\n"); */
-            systemMoveCommand(&msg);
-            bRet = GetMessageW(&msg, NULL, 0, 0);
-            if (bRet == 0 || bRet == -1) {
-              logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-            } /* if */
-            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           } else {
             bRet = GetMessageW(&msg, NULL, 0, 0);
             if (bRet == 0 || bRet == -1) {
               logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+            } /* if */
+            if (msg.wParam == SC_SIZE) {
+              /* printf("SC_SIZE\n"); */
+              systemSizeCommand(&msg);
+            } else if (msg.wParam == SC_MOVE) {
+              /* printf("SC_MOVE\n"); */
+              systemMoveCommand(&msg);
             } else {
               TranslateMessage(&msg);
               DispatchMessage(&msg);
@@ -1354,50 +1534,36 @@ boolType gkbInputReady (void)
                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
+          bRet = GetMessageW(&msg, NULL, 0, 0);
+          if (bRet == 0 || bRet == -1) {
+            logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+          } /* if */
           if (resizeMode != 0) {
             processMouseMove(&msg);
-            bRet = GetMessageW(&msg, NULL, 0, 0);
-            if (bRet == 0 || bRet == -1) {
-              logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-            } /* if */
-            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           } else {
-            bRet = GetMessageW(&msg, NULL, 0, 0);
-            if (bRet == 0 || bRet == -1) {
-              logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-            } else {
-              /* printf("x message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-              TranslateMessage(&msg);
-              /* printf("x translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-              DispatchMessage(&msg);
-              /* printf("x dispatched message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-            } /* if */
-            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
           } /* if */
+          msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;
         case WM_LBUTTONUP:
           traceEvent(printf("gkbInputReady: WM_LBUTTONUP hwnd=" FMT_U_MEM
                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
+          bRet = GetMessageW(&msg, NULL, 0, 0);
+          if (bRet == 0 || bRet == -1) {
+            logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+          } /* if */
           if (resizeMode != 0) {
             /* printf("resizeMode: %d\n", (int) resizeMode); */
             ReleaseCapture();
             resizeMode = 0;
-            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           } else {
-            bRet = GetMessageW(&msg, NULL, 0, 0);
-            if (bRet == 0 || bRet == -1) {
-              logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-            } else {
-              /* printf("y message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-              TranslateMessage(&msg);
-              /* printf("y translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-              DispatchMessage(&msg);
-              /* printf("y dispatched message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
-            } /* if */
-            msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
           } /* if */
+          msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;
         case WM_SYSKEYUP:
           traceEvent(printf("gkbInputReady: WM_SYSKEYUP hwnd=" FMT_U_MEM
