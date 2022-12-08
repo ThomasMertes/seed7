@@ -105,6 +105,10 @@ extern intType drwHeight (const_winType actual_window);
 extern intType drwWidth (const_winType actual_window);
 
 
+#ifndef GET_XBUTTON_WPARAM
+#define GET_XBUTTON_WPARAM(wParam)      (HIWORD(wParam))
+#endif
+
 #ifdef DMC_GKB_WIN_DEFINES
 #define WM_MOUSEWHEEL                   0x020A
 #endif
