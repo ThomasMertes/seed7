@@ -125,12 +125,6 @@ extern intType drwWidth (const_winType actual_window);
 #define WM_XBUTTONDOWN 0x020B
 #endif
 
-#if defined(_WIN64)
-typedef int64Type intPtrType;
-#else
-typedef int32Type intPtrType;
-#endif
-
 
 
 winType find_window (HWND sys_window)
@@ -1880,7 +1874,7 @@ boolType gkbButtonPressed (charType button)
       case K_ALT:            vkey1 = VK_MENU;     break;
       case K_LEFT_ALT:       vkey1 = VK_LMENU;    break;
       case K_RIGHT_ALT:      vkey1 = VK_RMENU;    break;
-      case K_SUPER:          vkey1 = VK_LWIN;     vkey2 = VK_LWIN;     break;
+      case K_SUPER:          vkey1 = VK_LWIN;     vkey2 = VK_RWIN;     break;
       case K_LEFT_SUPER:     vkey1 = VK_LWIN;     break;
       case K_RIGHT_SUPER:    vkey1 = VK_RWIN;     break;
       case K_SHIFT_LOCK:     vkey1      = VK_CAPITAL; break;
