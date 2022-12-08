@@ -1849,10 +1849,10 @@ boolType gkbButtonPressed (charType button)
         vkey1 = VK_PAUSE;  break;
 
       case ' ': vkey1 = VK_SPACE;    break;
-      case '*': vkey1 = VK_MULTIPLY; break;
-      case '+': vkey1 = VK_ADD;      break;
-      case '-': vkey1 = VK_SUBTRACT; break;
-      case '/': vkey1 = VK_DIVIDE;   break;
+      case '*': vkey1 = VK_MULTIPLY; vkey2 = VkKeyScanW('*') & 0xff; break;
+      case '+': vkey1 = VK_ADD;      vkey2 = VK_OEM_PLUS;            break;
+      case '-': vkey1 = VK_SUBTRACT; vkey2 = VK_OEM_MINUS;           break;
+      case '/': vkey1 = VK_DIVIDE;   vkey2 = VkKeyScanW('/') & 0xff; break;
 
       case K_MOUSE1: case K_SFT_MOUSE1: case K_CTL_MOUSE1: case K_ALT_MOUSE1:
         if (resizeMode == 0) {
@@ -1886,7 +1886,14 @@ boolType gkbButtonPressed (charType button)
       case K_SCROLL_LOCK:    vkey1      = VK_SCROLL;  break;
       case K_SCROLL_LOCK_ON: state_vkey = VK_SCROLL;  break;
 
-      default: result = FALSE; okay = FALSE; break;
+      default:
+        if (button <= 0xffff) {
+          vkey1 = VkKeyScanW((WCHAR) button) & 0xff;
+        } else {
+          result = FALSE;
+          okay = FALSE;
+        } /* if */
+        break;
     } /* switch */
 
     if (okay) {
