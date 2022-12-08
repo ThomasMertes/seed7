@@ -165,15 +165,13 @@ const proc: displayKey (in char: ch, in boolean: keyActive) is func
 
 
 const proc: checkKey (inout keyActiveHashType: keyActive, in char: ch) is func
+  local
+    var boolean: buttonPressed is FALSE;
   begin
-    if ch in keyActive then
-      if keyActive[ch] <> buttonPressed(KEYBOARD, ch) then
-        keyActive @:= [ch] not keyActive[ch];
-        displayKey(ch, keyActive[ch]);
-      end if;
-    else
-      keyActive @:= [ch] buttonPressed(KEYBOARD, ch);
-      displayKey(ch, keyActive[ch]);
+    buttonPressed := buttonPressed(KEYBOARD, ch);
+    if ch not in keyActive or keyActive[ch] <> buttonPressed then
+      keyActive @:= [ch] buttonPressed;
+      displayKey(ch, buttonPressed);
     end if;
   end func;
 
@@ -203,9 +201,8 @@ const proc: main is func
     OUT := openTee(OUT, logFile);
     KEYBOARD := GRAPH_KEYBOARD;
     flushGraphic;
-    waitTime := time(NOW);
     repeat
-      waitTime +:= 30000 . MICRO_SECONDS;
+      waitTime := time(NOW) + 30000 . MICRO_SECONDS;
       while inputReady(KEYBOARD) do
         ch := getc(KEYBOARD);
         write(ord(ch) <& " ");

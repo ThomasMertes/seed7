@@ -1143,7 +1143,7 @@ static boolType keyboardButtonPressed (char keyVector[32], KeySym sym)
     /* printf("keyboardButtonPressed: XKeysymToKeycode(%04lx) returns %d\n", sym, keyCode); */
     if (keyCode == 0) {
       /* printf("keyboardButtonPressed: XKeysymToKeycode(%04lx) returns 0\n", sym); */
-      if (keyCode == 0 && sym >= 0x0100 && sym <= 0x10FFFF) {
+      if (sym >= 0x0100 && sym <= 0x10FFFF) {
         /* printf("XKeysymToKeycode(%08lx)\n", sym + 0x01000000); */
         keyCode = XKeysymToKeycode(mydisplay, sym + 0x01000000);
         if (keyCode != 0) {
@@ -1154,6 +1154,7 @@ static boolType keyboardButtonPressed (char keyVector[32], KeySym sym)
       if (keyCode == 0) {
         useDeadKey = TRUE;
         switch (sym) {
+          case '`':  sym = XK_dead_grave;      break;
           case '^':  sym = XK_dead_circumflex; break;
           case '~':  sym = XK_dead_tilde;      break;
           case 0xa8: sym = XK_dead_diaeresis;  break;
