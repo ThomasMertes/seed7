@@ -173,6 +173,10 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
 
     ...Visual Studio\2019\Community\VC\Auxiliary\Build
 
+  or for a professional installation in the directory
+
+    ...Visual Studio\2019\Professional\VC\Auxiliary\Build
+
   Note that 2019 is the year of the MSVC release. In a 32-bit
   operating system use a console and execute:
 
@@ -195,8 +199,13 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
 
   The actual include files are in the sub directories 'um',
   'ucrt' and 'shared'. Add the absolute paths of these three
-  directories to the INCLUDE environment variable. On such
-  installations the libraries are in the directory:
+  directories to the INCLUDE environment variable. E.g.:
+
+    C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um
+    C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt
+    C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared
+
+  On such installations the libraries are in the directory:
 
     ...Windows Kits\<main_version>\Lib\<detailled_version>
 
@@ -204,9 +213,18 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
   directories 'um\x86' and 'ucrt\x86'. For 64-bit compilation
   the actual libraries are in the sub directories 'um\x64' and
   'ucrt\x64'. Add the absolute paths of the 32-bit or 64-bit
-  directories to the LIB environment variable. Don't forget to
-  restart a console window after environment variables have
-  changed.
+  directories to the LIB environment variable. E.g.:
+
+    C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x86
+    C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x86
+
+  or for 64-bit compilation:
+
+    C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64
+    C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64
+
+  Don't forget to restart a console window after environment
+  variables have changed.
 
   After everything has been set up for MSVC you can go to the
   'seed7\src' directory and type:
@@ -792,28 +810,72 @@ WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
       return float values. Gcc has the opinion that only double
       parameters and double results should be used and warns about
       that.
-    - Warnings about unused parameter 'arguments'. The primitive
-      actions all use one parameter named 'arguments'. This is
-      necessary to access primitive actions with function
-      pointers. Some primitive actions do not use 'arguments'
-      which causes this warning.
+    - Warnings about unused parameter 'arguments'.
+
+        actlib.c
+        actlib.c(204): warning C4100: 'arguments': unreferenced formal parameter
+
+      All primitive action functions use one parameter named
+      'arguments'. This is necessary to access primitive actions
+      with function pointers. Some primitive actions do not use
+      'arguments' which causes this warning.
     - Warnings about signed/unsigned instead of unsigned/signed
       because of the prototype.
-    - Warnings about 'variablename' may be used uninitialized:
-      This are false complaints. Interestingly gcc is not able to
-      recognize if the states of two variables are connected.
-      Such as a global fail_flag variable and a local condition
-      variable (cond). The connection is: As long as fail_flag is
-      FALSE the cond variable is initialized. If the fail_flag
-      is TRUE the cond variable is not used and therefore it could
-      be in an uninitialized state. At several places I use such
-      connected variable states which are not recognized by the
-      gcc optimizer and are therefore flagged with a warning. I
-      accept such warnings in performance critical paths. I am not
-      willing to do "unnecessary" initializations in performance
-      critical paths of the program. At places that are not
-      performance critical I do some of this "unnecessary"
+    - Warnings about 'variablename' may be used uninitialized.
+
+        dcllib.c
+        dcllib.c(512) : warning C4701: potentially uninitialized local variable 'created_object' used
+
+      These are false complaints. Interestingly C compilers are
+      not able to recognize if the states of two variables are
+      connected. Such as a global fail_flag variable and a local
+      condition variable (cond). The connection is: As long as
+      fail_flag is FALSE the cond variable is initialized. If
+      the fail_flag is TRUE the cond variable is not used and
+      therefore it could be in an uninitialized state. At several
+      places connected variable states are used which are not
+      recognized by the optimizer and are therefore flagged with
+      a warning. I accept such warnings in performance critical
+      paths. I am not willing to do "unnecessary" initializations
+      in performance critical paths of the program. At places that
+      are not performance critical I do some of this "unnecessary"
       initializations just to avoid such warnings.
+    - Warnings about unary minus operator applied to unsigned.
+
+        int_rtl.c
+        int_rtl.c(662): warning C4146: unary minus operator applied to unsigned type, result still unsigned
+
+      Applying the unary minus operator to an unsigned value is
+      done on purpose. In the two's complement representation the
+      most negative integer has no corresponding positive integer.
+      C considers negating the most negative number as undefined
+      behavior. For unsigned integers there is no undefined
+      behavior. So an unsigned is negated to have well defined
+      behavior.
+    - Warnings about unsafe functions that should be replaced.
+
+        scanner.c
+        scanner.c(203): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead.
+
+      There are doubts about the safety these "_s" functions.
+      The buffer size must be provided as additional parameter.
+      For code that does not consider buffer sizes there is a
+      high probability that the size parameter is also wrong. For
+      that reason these "safe" functions are unsupported by many
+      C libraries. So in portable C code they cannot be used.
+    - Warnings about "deprecated" POSIX functions.
+
+        traceutl.c
+        traceutl.c(526): warning C4996: 'fileno': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _fileno.
+
+      The reasoning about ISO C and C++ conformant names is
+      absurd. This is just an attemt to force a vendor lock-in.
+      If all POSIX function names are changed the program will
+      not compile elsewhere. To avoid the vendor lock-in the file
+      os_decls.h defines macros like 'os_fileno' which are used
+      in the source files of Seed7. Depending on the operating
+      system 'os_fileno' is defined as 'fileno' or '_fileno'.
+      This avoids these strange warnings and a vendor lock-in.
     - Warnings about passing argument with different width due to
       prototype: Some compilers write such warnings for formal
       boolean (boolType) parameters and actual boolean arguments.
@@ -1207,7 +1269,7 @@ COMPILER DATA LIBRARY
 PROGRAMS USED BY THE MAKEFILES
 
     The makefiles use programs to write definitions to
-  version.h . This are stand-alone programs that are not
+  version.h . These are stand-alone programs that are not
   linked to the interpreter or to the runtime library.
 
     chkccomp.c  Check properties of C compiler and runtime.
