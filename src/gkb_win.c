@@ -1010,61 +1010,79 @@ charType gkbGetc (void)
             break;
           case WM_LBUTTONDOWN:
             traceEvent(printf("WM_LBUTTONDOWN hwnd=" FMT_U_MEM
-                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                              ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
             button_x = GET_X_LPARAM(msg.lParam);
             button_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
-            if (GetKeyState(VK_MENU) & 0x8000) {
-              result = K_ALT_MOUSE1;
-            } else if (msg.wParam & 0x04) {
+            if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE1;
-            } else if (msg.wParam & 0x08) {
+            } else if (((msg.wParam & 0x08) != 0 &&
+                        (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                        (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+              /* This condition checks for VK_CONTROL. */
+              /* Unfortunately Alt Gr is encoded as if */
+              /* left-control + right-alt are pressed. */
+              /* The Alt Gr situation is filtered out. */
               result = K_CTL_MOUSE1;
+            } else if (GetKeyState(VK_MENU) & 0x8000) {
+              result = K_ALT_MOUSE1;
             } else {
               result = K_MOUSE1;
             } /* if */
             break;
           case WM_MBUTTONDOWN:
             traceEvent(printf("WM_MBUTTONDOWN hwnd=" FMT_U_MEM
-                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                              ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
             button_x = GET_X_LPARAM(msg.lParam);
             button_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
-            if (GetKeyState(VK_MENU) & 0x8000) {
-              result = K_ALT_MOUSE2;
-            } else if (msg.wParam & 0x04) {
+            if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE2;
-            } else if (msg.wParam & 0x08) {
+            } else if (((msg.wParam & 0x08) != 0 &&
+                        (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                        (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+              /* This condition checks for VK_CONTROL. */
+              /* Unfortunately Alt Gr is encoded as if */
+              /* left-control + right-alt are pressed. */
+              /* The Alt Gr situation is filtered out. */
               result = K_CTL_MOUSE2;
+            } else if (GetKeyState(VK_MENU) & 0x8000) {
+              result = K_ALT_MOUSE2;
             } else {
               result = K_MOUSE2;
             } /* if */
             break;
           case WM_RBUTTONDOWN:
             traceEvent(printf("WM_RBUTTONDOWN hwnd=" FMT_U_MEM
-                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                              ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
             button_x = GET_X_LPARAM(msg.lParam);
             button_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
-            if (GetKeyState(VK_MENU) & 0x8000) {
-              result = K_ALT_MOUSE3;
-            } else if (msg.wParam & 0x04) {
+            if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE3;
-            } else if (msg.wParam & 0x08) {
+            } else if (((msg.wParam & 0x08) != 0 &&
+                        (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                        (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+              /* This condition checks for VK_CONTROL. */
+              /* Unfortunately Alt Gr is encoded as if */
+              /* left-control + right-alt are pressed. */
+              /* The Alt Gr situation is filtered out. */
               result = K_CTL_MOUSE3;
+            } else if (GetKeyState(VK_MENU) & 0x8000) {
+              result = K_ALT_MOUSE3;
             } else {
               result = K_MOUSE3;
             } /* if */
             break;
           case WM_MOUSEWHEEL:
             traceEvent(printf("WM_MOUSEWHEEL hwnd=" FMT_U_MEM
-                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                              ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
             if (IsWindow(msg.hwnd)) {
@@ -1081,22 +1099,34 @@ charType gkbGetc (void)
                 button_y = point.y;
                 button_window = msg.hwnd;
                 if (GET_WHEEL_DELTA_WPARAM(msg.wParam) > 0) {
-                  if (GetKeyState(VK_MENU) & 0x8000) {
-                    result = K_ALT_MOUSE4;
-                  } else if (msg.wParam & 0x04) {
+                  if (msg.wParam & 0x04) {
                     result = K_SFT_MOUSE4;
-                  } else if (msg.wParam & 0x08) {
+                  } else if (((msg.wParam & 0x08) != 0 &&
+                              (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                              (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+                    /* This condition checks for VK_CONTROL. */
+                    /* Unfortunately Alt Gr is encoded as if */
+                    /* left-control + right-alt are pressed. */
+                    /* The Alt Gr situation is filtered out. */
                     result = K_CTL_MOUSE4;
+                  } else if (GetKeyState(VK_MENU) & 0x8000) {
+                    result = K_ALT_MOUSE4;
                   } else {
                     result = K_MOUSE4;
                   } /* if */
                 } else {
-                  if (GetKeyState(VK_MENU) & 0x8000) {
-                    result = K_ALT_MOUSE5;
-                  } else if (msg.wParam & 0x04) {
+                  if (msg.wParam & 0x04) {
                     result = K_SFT_MOUSE5;
-                  } else if (msg.wParam & 0x08) {
+                  } else if (((msg.wParam & 0x08) != 0 &&
+                              (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                              (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+                    /* This condition checks for VK_CONTROL. */
+                    /* Unfortunately Alt Gr is encoded as if */
+                    /* left-control + right-alt are pressed. */
+                    /* The Alt Gr situation is filtered out. */
                     result = K_CTL_MOUSE5;
+                  } else if (GetKeyState(VK_MENU) & 0x8000) {
+                    result = K_ALT_MOUSE5;
                   } else {
                     result = K_MOUSE5;
                   } /* if */
@@ -1110,29 +1140,41 @@ charType gkbGetc (void)
             break;
           case WM_XBUTTONDOWN:
             traceEvent(printf("WM_XBUTTONDOWN hwnd=" FMT_U_MEM
-                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                              ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
             button_x = GET_X_LPARAM(msg.lParam);
             button_y = GET_Y_LPARAM(msg.lParam);
             button_window = msg.hwnd;
             if (GET_XBUTTON_WPARAM(msg.wParam) == XBUTTON2) {
-              if (GetKeyState(VK_MENU) & 0x8000) {
-                result = K_ALT_MOUSE_FWD;
-              } else if (msg.wParam & 0x04) {
+              if (msg.wParam & 0x04) {
                 result = K_SFT_MOUSE_FWD;
-              } else if (msg.wParam & 0x08) {
+              } else if (((msg.wParam & 0x08) != 0 &&
+                          (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                          (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+                /* This condition checks for VK_CONTROL. */
+                /* Unfortunately Alt Gr is encoded as if */
+                /* left-control + right-alt are pressed. */
+                /* The Alt Gr situation is filtered out. */
                 result = K_CTL_MOUSE_FWD;
+              } else if (GetKeyState(VK_MENU) & 0x8000) {
+                result = K_ALT_MOUSE_FWD;
               } else {
                 result = K_MOUSE_FWD;
               } /* if */
             } else if (GET_XBUTTON_WPARAM(msg.wParam) == XBUTTON1) {
-              if (GetKeyState(VK_MENU) & 0x8000) {
-                result = K_ALT_MOUSE_BACK;
-              } else if (msg.wParam & 0x04) {
+              if (msg.wParam & 0x04) {
                 result = K_SFT_MOUSE_BACK;
-              } else if (msg.wParam & 0x08) {
+              } else if (((msg.wParam & 0x08) != 0 &&
+                          (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                          (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+                /* This condition checks for VK_CONTROL. */
+                /* Unfortunately Alt Gr is encoded as if */
+                /* left-control + right-alt are pressed. */
+                /* The Alt Gr situation is filtered out. */
                 result = K_CTL_MOUSE_BACK;
+              } else if (GetKeyState(VK_MENU) & 0x8000) {
+                result = K_ALT_MOUSE_BACK;
               } else {
                 result = K_MOUSE_BACK;
               } /* if */
@@ -1147,7 +1189,53 @@ charType gkbGetc (void)
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam, GetKeyState(VK_SHIFT),
                               GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
-            if (msg.lParam & 0x1000000) {
+            if (GetKeyState(VK_SHIFT) & 0x8000) {
+              /* Shift is pressed together with alt. */
+              switch (msg.wParam) {
+                case VK_RETURN:   result = K_SFT_NL;         break;
+                case VK_BACK:     result = K_SFT_BS;         break;
+                case VK_TAB:      result = K_BACKTAB;        break;
+                case VK_ESCAPE:   result = K_SFT_ESC;        break;
+                case VK_F1:       result = K_SFT_F1;         break;
+                case VK_F2:       result = K_SFT_F2;         break;
+                case VK_F3:       result = K_SFT_F3;         break;
+                case VK_F4:       result = K_SFT_F4;         break;
+                case VK_F5:       result = K_SFT_F5;         break;
+                case VK_F6:       result = K_SFT_F6;         break;
+                case VK_F7:       result = K_SFT_F7;         break;
+                case VK_F8:       result = K_SFT_F8;         break;
+                case VK_F9:       result = K_SFT_F9;         break;
+                case VK_F10:      result = K_SFT_F10;        break;
+                case VK_F11:      result = K_SFT_F11;        break;
+                case VK_F12:      result = K_SFT_F12;        break;
+                case VK_LEFT:     result = K_SFT_LEFT;       break;
+                case VK_RIGHT:    result = K_SFT_RIGHT;      break;
+                case VK_UP:       result = K_SFT_UP;         break;
+                case VK_DOWN:     result = K_SFT_DOWN;       break;
+                case VK_HOME:     result = K_SFT_HOME;       break;
+                case VK_END:      result = K_SFT_END;        break;
+                case VK_PRIOR:    result = K_SFT_PGUP;       break;
+                case VK_NEXT:     result = K_SFT_PGDN;       break;
+                case VK_CLEAR:    result = K_SFT_PAD_CENTER; break;
+                case VK_INSERT:   result = K_SFT_INS;        break;
+                case VK_DELETE:   result = K_SFT_DEL;        break;
+                case VK_APPS:     result = K_SFT_MENU;       break;
+                case VK_PRINT:    result = K_SFT_PRINT;      break;
+                case VK_PAUSE:    result = K_SFT_PAUSE;      break;
+                case VK_SHIFT:
+                case VK_CONTROL:
+                case VK_MENU:
+                case VK_LWIN:
+                case VK_RWIN:
+                case VK_CAPITAL:
+                case VK_NUMLOCK:
+                case VK_SCROLL:   result = K_NONE;           break;
+                default:
+                  /* printf("WM_SYSKEYDOWN %lu, %d %x\n", msg.hwnd, msg.wParam, msg.lParam); */
+                  result = K_UNDEF;
+                  break;
+              } /* switch */
+            } else if (msg.lParam & 0x1000000) {
               /* The key is a cursor key but not from the numeric keypad. */
               switch (msg.wParam) {
                 case VK_RETURN:   result = K_ALT_NL;         break;
@@ -1175,7 +1263,7 @@ charType gkbGetc (void)
                 case VK_RWIN:
                 case VK_CAPITAL:
                 case VK_NUMLOCK:
-                case VK_SCROLL:   result = K_NONE;        break;
+                case VK_SCROLL:   result = K_NONE;           break;
                 default:
                   /* printf("WM_SYSKEYDOWN %lu, %d %x\n", msg.hwnd, msg.wParam, msg.lParam); */
                   result = K_UNDEF;
@@ -1506,7 +1594,7 @@ boolType gkbInputReady (void)
         case WM_RBUTTONDOWN:
         case WM_XBUTTONDOWN:
           traceEvent(printf("gkbInputReady: WM_L/M/R/XBUTTONDOWN hwnd=" FMT_U_MEM
-                            ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
+                            ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
           /* printf("gkbInputReady: --> TRUE for message %d\n", msg.message); */
