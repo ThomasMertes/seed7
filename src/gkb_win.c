@@ -641,16 +641,103 @@ charType gkbGetc (void)
                     result = K_UNDEF;
                   } /* if */
                   break;
-                default:          result = K_UNDEF;          break;
+                default:
+                  if (((GetKeyState(VK_CONTROL)  & 0x8000) != 0 &&
+                       (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                       (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+                    /* This condition checks for VK_CONTROL. */
+                    /* Unfortunately Alt Gr is encoded as if */
+                    /* left-control + right-alt are pressed. */
+                    /* The Alt Gr situation is filtered out. */
+                    switch (msg.wParam) {
+                      case 'A':   result = K_CTL_A;          break;
+                      case 'B':   result = K_CTL_B;          break;
+                      case 'C':   result = K_CTL_C;          break;
+                      case 'D':   result = K_CTL_D;          break;
+                      case 'E':   result = K_CTL_E;          break;
+                      case 'F':   result = K_CTL_F;          break;
+                      case 'G':   result = K_CTL_G;          break;
+                      case 'H':   result = K_CTL_H;          break;
+                      case 'I':   result = K_CTL_I;          break;
+                      case 'J':   result = K_CTL_J;          break;
+                      case 'K':   result = K_CTL_K;          break;
+                      case 'L':   result = K_CTL_L;          break;
+                      case 'M':   result = K_CTL_M;          break;
+                      case 'N':   result = K_CTL_N;          break;
+                      case 'O':   result = K_CTL_O;          break;
+                      case 'P':   result = K_CTL_P;          break;
+                      case 'Q':   result = K_CTL_Q;          break;
+                      case 'R':   result = K_CTL_R;          break;
+                      case 'S':   result = K_CTL_S;          break;
+                      case 'T':   result = K_CTL_T;          break;
+                      case 'U':   result = K_CTL_U;          break;
+                      case 'V':   result = K_CTL_V;          break;
+                      case 'W':   result = K_CTL_W;          break;
+                      case 'X':   result = K_CTL_X;          break;
+                      case 'Y':   result = K_CTL_Y;          break;
+                      case 'Z':   result = K_CTL_Z;          break;
+                      case '0':   result = K_CTL_0;          break;
+                      case '1':   result = K_CTL_1;          break;
+                      case '2':   result = K_CTL_2;          break;
+                      case '3':   result = K_CTL_3;          break;
+                      case '4':   result = K_CTL_4;          break;
+                      case '5':   result = K_CTL_5;          break;
+                      case '6':   result = K_CTL_6;          break;
+                      case '7':   result = K_CTL_7;          break;
+                      case '8':   result = K_CTL_8;          break;
+                      case '9':   result = K_CTL_9;          break;
+                      default:    result = K_UNDEF;          break;
+                    } /* switch */
+                  } else {
+                    result = K_UNDEF;
+                  } /* if */
+                  break;
               } /* switch */
             } else if (((GetKeyState(VK_CONTROL)  & 0x8000) != 0 &&
                         (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
                         (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
-              /* This condition is complicated because Alt Gr is     */
-              /* encoded as if left-control + right-alt are pressed. */
-              /* This situation is filtered out with this condition. */
+              /* This condition checks for VK_CONTROL. */
+              /* Unfortunately Alt Gr is encoded as if */
+              /* left-control + right-alt are pressed. */
+              /* The Alt Gr situation is filtered out. */
               /* printf("VK_CONTROL\n"); */
               switch (msg.wParam) {
+                case 'A':         result = K_CTL_A;          break;
+                case 'B':         result = K_CTL_B;          break;
+                case 'C':         result = K_CTL_C;          break;
+                case 'D':         result = K_CTL_D;          break;
+                case 'E':         result = K_CTL_E;          break;
+                case 'F':         result = K_CTL_F;          break;
+                case 'G':         result = K_CTL_G;          break;
+                case 'H':         result = K_CTL_H;          break;
+                case 'I':         result = K_CTL_I;          break;
+                case 'J':         result = K_CTL_J;          break;
+                case 'K':         result = K_CTL_K;          break;
+                case 'L':         result = K_CTL_L;          break;
+                case 'M':         result = K_CTL_M;          break;
+                case 'N':         result = K_CTL_N;          break;
+                case 'O':         result = K_CTL_O;          break;
+                case 'P':         result = K_CTL_P;          break;
+                case 'Q':         result = K_CTL_Q;          break;
+                case 'R':         result = K_CTL_R;          break;
+                case 'S':         result = K_CTL_S;          break;
+                case 'T':         result = K_CTL_T;          break;
+                case 'U':         result = K_CTL_U;          break;
+                case 'V':         result = K_CTL_V;          break;
+                case 'W':         result = K_CTL_W;          break;
+                case 'X':         result = K_CTL_X;          break;
+                case 'Y':         result = K_CTL_Y;          break;
+                case 'Z':         result = K_CTL_Z;          break;
+                case '0':         result = K_CTL_0;          break;
+                case '1':         result = K_CTL_1;          break;
+                case '2':         result = K_CTL_2;          break;
+                case '3':         result = K_CTL_3;          break;
+                case '4':         result = K_CTL_4;          break;
+                case '5':         result = K_CTL_5;          break;
+                case '6':         result = K_CTL_6;          break;
+                case '7':         result = K_CTL_7;          break;
+                case '8':         result = K_CTL_8;          break;
+                case '9':         result = K_CTL_9;          break;
                 case VK_RETURN:   result = K_CTL_NL;         break;
                 case VK_BACK:     result = K_CTL_BS;         break;
                 case VK_TAB:      result = K_CTL_TAB;        break;
@@ -667,16 +754,6 @@ charType gkbGetc (void)
                 case VK_F10:      result = K_CTL_F10;        break;
                 case VK_F11:      result = K_CTL_F11;        break;
                 case VK_F12:      result = K_CTL_F12;        break;
-                case '0':         result = K_CTL_0;          break;
-                case '1':         result = K_CTL_1;          break;
-                case '2':         result = K_CTL_2;          break;
-                case '3':         result = K_CTL_3;          break;
-                case '4':         result = K_CTL_4;          break;
-                case '5':         result = K_CTL_5;          break;
-                case '6':         result = K_CTL_6;          break;
-                case '7':         result = K_CTL_7;          break;
-                case '8':         result = K_CTL_8;          break;
-                case '9':         result = K_CTL_9;          break;
                 case VK_NUMPAD0:  result = K_CTL_INS;        break;
                 case VK_NUMPAD1:  result = K_CTL_END;        break;
                 case VK_NUMPAD2:  result = K_CTL_DOWN;       break;
