@@ -2863,156 +2863,13 @@ const proc: check_string_index is func
   end func;
 
 
-const func string: headOfEmptyString (in integer: stop) is
-  return ""[ .. stop];
-
-
-const func string: headOfString1 (in integer: stop) is
-  return "1"[ .. stop];
-
-
-const func string: headFunction (in integer: stop) is
-  return "1234567890"[ .. stop];
-
-
-const func string: headFunction (in string: stri) is
-  return stri[ .. 1];
-
-
-const func string: headFunction (in string: stri, in integer: stop) is
-  return stri[ .. stop];
-
-
-const proc: check_string_head is func
-  local
+const func boolean: check_string_head_assign_1 is func
+  result
     var boolean: okay is TRUE;
+  local
     var boolean: ok is TRUE;
     var string: stri is "";
   begin
-    if  "" [ ..             0 ] <> "" or
-        "" [ ..             1 ] <> "" or
-        "" [ ..             2 ] <> "" or
-        "" [ ..             5 ] <> "" or
-        "" [ ..             9 ] <> "" or
-        "" [ ..            10 ] <> "" or
-        "" [ ..            11 ] <> "" or
-        "" [ ..            15 ] <> "" or
-        "" [ ..  integer.last ] <> "" or
-        "1" [ ..             0 ] <> "" or
-        "1" [ ..             1 ] <> "1" or
-        "1" [ ..             2 ] <> "1" or
-        "1" [ ..             5 ] <> "1" or
-        "1" [ ..             9 ] <> "1" or
-        "1" [ ..            10 ] <> "1" or
-        "1" [ ..            11 ] <> "1" or
-        "1" [ ..            15 ] <> "1" or
-        "1" [ ..  integer.last ] <> "1" or
-        "1234567890" [ ..             0 ] <> "" or
-        "1234567890" [ ..             1 ] <> "1" or
-        "1234567890" [ ..             2 ] <> "12" or
-        "1234567890" [ ..             5 ] <> "12345" or
-        "1234567890" [ ..             9 ] <> "123456789" or
-        "1234567890" [ ..            10 ] <> "1234567890" or
-        "1234567890" [ ..            11 ] <> "1234567890" or
-        "1234567890" [ ..            15 ] <> "1234567890" or
-        "1234567890" [ ..  integer.last ] <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (1)");
-      okay := FALSE;
-    end if;
-
-    if  "" [ .. intExpr(            0) ] <> "" or
-        "" [ .. intExpr(            1) ] <> "" or
-        "" [ .. intExpr(            2) ] <> "" or
-        "" [ .. intExpr(            5) ] <> "" or
-        "" [ .. intExpr(            9) ] <> "" or
-        "" [ .. intExpr(           10) ] <> "" or
-        "" [ .. intExpr(           11) ] <> "" or
-        "" [ .. intExpr(           15) ] <> "" or
-        "" [ .. intExpr( integer.last) ] <> "" or
-        "1" [ .. intExpr(            0) ] <> "" or
-        "1" [ .. intExpr(            1) ] <> "1" or
-        "1" [ .. intExpr(            2) ] <> "1" or
-        "1" [ .. intExpr(            5) ] <> "1" or
-        "1" [ .. intExpr(            9) ] <> "1" or
-        "1" [ .. intExpr(           10) ] <> "1" or
-        "1" [ .. intExpr(           11) ] <> "1" or
-        "1" [ .. intExpr(           15) ] <> "1" or
-        "1" [ .. intExpr( integer.last) ] <> "1" or
-        "1234567890" [ .. intExpr(            0) ] <> "" or
-        "1234567890" [ .. intExpr(            1) ] <> "1" or
-        "1234567890" [ .. intExpr(            2) ] <> "12" or
-        "1234567890" [ .. intExpr(            5) ] <> "12345" or
-        "1234567890" [ .. intExpr(            9) ] <> "123456789" or
-        "1234567890" [ .. intExpr(           10) ] <> "1234567890" or
-        "1234567890" [ .. intExpr(           11) ] <> "1234567890" or
-        "1234567890" [ .. intExpr(           15) ] <> "1234567890" or
-        "1234567890" [ .. intExpr( integer.last) ] <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (2)");
-      okay := FALSE;
-    end if;
-
-    if  striExpr("") [ ..             0 ] <> "" or
-        striExpr("") [ ..             1 ] <> "" or
-        striExpr("") [ ..             2 ] <> "" or
-        striExpr("") [ ..             5 ] <> "" or
-        striExpr("") [ ..             9 ] <> "" or
-        striExpr("") [ ..            10 ] <> "" or
-        striExpr("") [ ..            11 ] <> "" or
-        striExpr("") [ ..            15 ] <> "" or
-        striExpr("") [ ..  integer.last ] <> "" or
-        striExpr("1") [ ..             0 ] <> "" or
-        striExpr("1") [ ..             1 ] <> "1" or
-        striExpr("1") [ ..             2 ] <> "1" or
-        striExpr("1") [ ..             5 ] <> "1" or
-        striExpr("1") [ ..             9 ] <> "1" or
-        striExpr("1") [ ..            10 ] <> "1" or
-        striExpr("1") [ ..            11 ] <> "1" or
-        striExpr("1") [ ..            15 ] <> "1" or
-        striExpr("1") [ ..  integer.last ] <> "1" or
-        striExpr("1234567890") [ ..             0 ] <> "" or
-        striExpr("1234567890") [ ..             1 ] <> "1" or
-        striExpr("1234567890") [ ..             2 ] <> "12" or
-        striExpr("1234567890") [ ..             5 ] <> "12345" or
-        striExpr("1234567890") [ ..             9 ] <> "123456789" or
-        striExpr("1234567890") [ ..            10 ] <> "1234567890" or
-        striExpr("1234567890") [ ..            11 ] <> "1234567890" or
-        striExpr("1234567890") [ ..            15 ] <> "1234567890" or
-        striExpr("1234567890") [ ..  integer.last ] <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (3)");
-      okay := FALSE;
-    end if;
-
-    if  striExpr("") [ .. intExpr(            0) ] <> "" or
-        striExpr("") [ .. intExpr(            1) ] <> "" or
-        striExpr("") [ .. intExpr(            2) ] <> "" or
-        striExpr("") [ .. intExpr(            5) ] <> "" or
-        striExpr("") [ .. intExpr(            9) ] <> "" or
-        striExpr("") [ .. intExpr(           10) ] <> "" or
-        striExpr("") [ .. intExpr(           11) ] <> "" or
-        striExpr("") [ .. intExpr(           15) ] <> "" or
-        striExpr("") [ .. intExpr( integer.last) ] <> "" or
-        striExpr("1") [ .. intExpr(            0) ] <> "" or
-        striExpr("1") [ .. intExpr(            1) ] <> "1" or
-        striExpr("1") [ .. intExpr(            2) ] <> "1" or
-        striExpr("1") [ .. intExpr(            5) ] <> "1" or
-        striExpr("1") [ .. intExpr(            9) ] <> "1" or
-        striExpr("1") [ .. intExpr(           10) ] <> "1" or
-        striExpr("1") [ .. intExpr(           11) ] <> "1" or
-        striExpr("1") [ .. intExpr(           15) ] <> "1" or
-        striExpr("1") [ .. intExpr( integer.last) ] <> "1" or
-        striExpr("1234567890") [ .. intExpr(            0) ] <> "" or
-        striExpr("1234567890") [ .. intExpr(            1) ] <> "1" or
-        striExpr("1234567890") [ .. intExpr(            2) ] <> "12" or
-        striExpr("1234567890") [ .. intExpr(            5) ] <> "12345" or
-        striExpr("1234567890") [ .. intExpr(            9) ] <> "123456789" or
-        striExpr("1234567890") [ .. intExpr(           10) ] <> "1234567890" or
-        striExpr("1234567890") [ .. intExpr(           11) ] <> "1234567890" or
-        striExpr("1234567890") [ .. intExpr(           15) ] <> "1234567890" or
-        striExpr("1234567890") [ .. intExpr( integer.last) ] <> "1234567890" then
-      writeln(" ***** STRING [ .. STOP ] does not work correct. (4)");
-      okay := FALSE;
-    end if;
-
     stri := "" [ ..             0 ]; ok := ok and stri = "";
     stri := "" [ ..             1 ]; ok := ok and stri = "";
     stri := "" [ ..             2 ]; ok := ok and stri = "";
@@ -3077,7 +2934,16 @@ const proc: check_string_head is func
       writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_head_assign_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
     ok := TRUE;
     stri := striExpr("") [ ..             0 ]; ok := ok and stri = "";
     stri := striExpr("") [ ..             1 ]; ok := ok and stri = "";
@@ -3143,7 +3009,33 @@ const proc: check_string_head is func
       writeln(" ***** stri := STRING [ .. STOP ] does not work correct. (4)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func string: headOfEmptyString (in integer: stop) is
+  return ""[ .. stop];
+
+
+const func string: headOfString1 (in integer: stop) is
+  return "1"[ .. stop];
+
+
+const func string: headFunction (in integer: stop) is
+  return "1234567890"[ .. stop];
+
+
+const func string: headFunction (in string: stri) is
+  return stri[ .. 1];
+
+
+const func string: headFunction (in string: stri, in integer: stop) is
+  return stri[ .. stop];
+
+
+const func boolean: check_string_head_func is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  headOfEmptyString(            0) <> "" or
         headOfEmptyString(            1) <> "" or
         headOfEmptyString(            2) <> "" or
@@ -3343,6 +3235,148 @@ const proc: check_string_head is func
       writeln(" ***** STRING [ .. STOP ] via a function does not work correct. (8)");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: check_string_head is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  "" [ ..             0 ] <> "" or
+        "" [ ..             1 ] <> "" or
+        "" [ ..             2 ] <> "" or
+        "" [ ..             5 ] <> "" or
+        "" [ ..             9 ] <> "" or
+        "" [ ..            10 ] <> "" or
+        "" [ ..            11 ] <> "" or
+        "" [ ..            15 ] <> "" or
+        "" [ ..  integer.last ] <> "" or
+        "1" [ ..             0 ] <> "" or
+        "1" [ ..             1 ] <> "1" or
+        "1" [ ..             2 ] <> "1" or
+        "1" [ ..             5 ] <> "1" or
+        "1" [ ..             9 ] <> "1" or
+        "1" [ ..            10 ] <> "1" or
+        "1" [ ..            11 ] <> "1" or
+        "1" [ ..            15 ] <> "1" or
+        "1" [ ..  integer.last ] <> "1" or
+        "1234567890" [ ..             0 ] <> "" or
+        "1234567890" [ ..             1 ] <> "1" or
+        "1234567890" [ ..             2 ] <> "12" or
+        "1234567890" [ ..             5 ] <> "12345" or
+        "1234567890" [ ..             9 ] <> "123456789" or
+        "1234567890" [ ..            10 ] <> "1234567890" or
+        "1234567890" [ ..            11 ] <> "1234567890" or
+        "1234567890" [ ..            15 ] <> "1234567890" or
+        "1234567890" [ ..  integer.last ] <> "1234567890" then
+      writeln(" ***** STRING [ .. STOP ] does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  "" [ .. intExpr(            0) ] <> "" or
+        "" [ .. intExpr(            1) ] <> "" or
+        "" [ .. intExpr(            2) ] <> "" or
+        "" [ .. intExpr(            5) ] <> "" or
+        "" [ .. intExpr(            9) ] <> "" or
+        "" [ .. intExpr(           10) ] <> "" or
+        "" [ .. intExpr(           11) ] <> "" or
+        "" [ .. intExpr(           15) ] <> "" or
+        "" [ .. intExpr( integer.last) ] <> "" or
+        "1" [ .. intExpr(            0) ] <> "" or
+        "1" [ .. intExpr(            1) ] <> "1" or
+        "1" [ .. intExpr(            2) ] <> "1" or
+        "1" [ .. intExpr(            5) ] <> "1" or
+        "1" [ .. intExpr(            9) ] <> "1" or
+        "1" [ .. intExpr(           10) ] <> "1" or
+        "1" [ .. intExpr(           11) ] <> "1" or
+        "1" [ .. intExpr(           15) ] <> "1" or
+        "1" [ .. intExpr( integer.last) ] <> "1" or
+        "1234567890" [ .. intExpr(            0) ] <> "" or
+        "1234567890" [ .. intExpr(            1) ] <> "1" or
+        "1234567890" [ .. intExpr(            2) ] <> "12" or
+        "1234567890" [ .. intExpr(            5) ] <> "12345" or
+        "1234567890" [ .. intExpr(            9) ] <> "123456789" or
+        "1234567890" [ .. intExpr(           10) ] <> "1234567890" or
+        "1234567890" [ .. intExpr(           11) ] <> "1234567890" or
+        "1234567890" [ .. intExpr(           15) ] <> "1234567890" or
+        "1234567890" [ .. intExpr( integer.last) ] <> "1234567890" then
+      writeln(" ***** STRING [ .. STOP ] does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  striExpr("") [ ..             0 ] <> "" or
+        striExpr("") [ ..             1 ] <> "" or
+        striExpr("") [ ..             2 ] <> "" or
+        striExpr("") [ ..             5 ] <> "" or
+        striExpr("") [ ..             9 ] <> "" or
+        striExpr("") [ ..            10 ] <> "" or
+        striExpr("") [ ..            11 ] <> "" or
+        striExpr("") [ ..            15 ] <> "" or
+        striExpr("") [ ..  integer.last ] <> "" or
+        striExpr("1") [ ..             0 ] <> "" or
+        striExpr("1") [ ..             1 ] <> "1" or
+        striExpr("1") [ ..             2 ] <> "1" or
+        striExpr("1") [ ..             5 ] <> "1" or
+        striExpr("1") [ ..             9 ] <> "1" or
+        striExpr("1") [ ..            10 ] <> "1" or
+        striExpr("1") [ ..            11 ] <> "1" or
+        striExpr("1") [ ..            15 ] <> "1" or
+        striExpr("1") [ ..  integer.last ] <> "1" or
+        striExpr("1234567890") [ ..             0 ] <> "" or
+        striExpr("1234567890") [ ..             1 ] <> "1" or
+        striExpr("1234567890") [ ..             2 ] <> "12" or
+        striExpr("1234567890") [ ..             5 ] <> "12345" or
+        striExpr("1234567890") [ ..             9 ] <> "123456789" or
+        striExpr("1234567890") [ ..            10 ] <> "1234567890" or
+        striExpr("1234567890") [ ..            11 ] <> "1234567890" or
+        striExpr("1234567890") [ ..            15 ] <> "1234567890" or
+        striExpr("1234567890") [ ..  integer.last ] <> "1234567890" then
+      writeln(" ***** STRING [ .. STOP ] does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  striExpr("") [ .. intExpr(            0) ] <> "" or
+        striExpr("") [ .. intExpr(            1) ] <> "" or
+        striExpr("") [ .. intExpr(            2) ] <> "" or
+        striExpr("") [ .. intExpr(            5) ] <> "" or
+        striExpr("") [ .. intExpr(            9) ] <> "" or
+        striExpr("") [ .. intExpr(           10) ] <> "" or
+        striExpr("") [ .. intExpr(           11) ] <> "" or
+        striExpr("") [ .. intExpr(           15) ] <> "" or
+        striExpr("") [ .. intExpr( integer.last) ] <> "" or
+        striExpr("1") [ .. intExpr(            0) ] <> "" or
+        striExpr("1") [ .. intExpr(            1) ] <> "1" or
+        striExpr("1") [ .. intExpr(            2) ] <> "1" or
+        striExpr("1") [ .. intExpr(            5) ] <> "1" or
+        striExpr("1") [ .. intExpr(            9) ] <> "1" or
+        striExpr("1") [ .. intExpr(           10) ] <> "1" or
+        striExpr("1") [ .. intExpr(           11) ] <> "1" or
+        striExpr("1") [ .. intExpr(           15) ] <> "1" or
+        striExpr("1") [ .. intExpr( integer.last) ] <> "1" or
+        striExpr("1234567890") [ .. intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ .. intExpr(            1) ] <> "1" or
+        striExpr("1234567890") [ .. intExpr(            2) ] <> "12" or
+        striExpr("1234567890") [ .. intExpr(            5) ] <> "12345" or
+        striExpr("1234567890") [ .. intExpr(            9) ] <> "123456789" or
+        striExpr("1234567890") [ .. intExpr(           10) ] <> "1234567890" or
+        striExpr("1234567890") [ .. intExpr(           11) ] <> "1234567890" or
+        striExpr("1234567890") [ .. intExpr(           15) ] <> "1234567890" or
+        striExpr("1234567890") [ .. intExpr( integer.last) ] <> "1234567890" then
+      writeln(" ***** STRING [ .. STOP ] does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if not check_string_head_assign_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_head_assign_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_head_func then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("String head works correct.");
@@ -3350,144 +3384,13 @@ const proc: check_string_head is func
   end func;
 
 
-const func string: tailOfEmptyString (in integer: stop) is
-  return ""[stop .. ];
-
-
-const func string: tailOfString1 (in integer: stop) is
-  return "1"[stop .. ];
-
-
-const func string: tailFunction (in integer: start) is
-  return "1234567890"[start .. ];
-
-
-const func string: tailFunction (in string: stri) is
-  return stri[1 .. ];
-
-
-const func string: tailFunction (in string: stri, in integer: start) is
-  return stri[start .. ];
-
-
-const proc: check_string_tail is func
-  local
+const func boolean: check_string_tail_assign_1 is func
+  result
     var boolean: okay is TRUE;
+  local
     var boolean: ok is TRUE;
     var string: stri is "";
   begin
-    if  "" [             1 .. ] <> "" or
-        "" [             2 .. ] <> "" or
-        "" [             5 .. ] <> "" or
-        "" [             9 .. ] <> "" or
-        "" [            10 .. ] <> "" or
-        "" [            11 .. ] <> "" or
-        "" [            15 .. ] <> "" or
-        "" [  integer.last .. ] <> "" or
-        "1" [             1 .. ] <> "1" or
-        "1" [             2 .. ] <> "" or
-        "1" [             5 .. ] <> "" or
-        "1" [             9 .. ] <> "" or
-        "1" [            10 .. ] <> "" or
-        "1" [            11 .. ] <> "" or
-        "1" [            15 .. ] <> "" or
-        "1" [  integer.last .. ] <> "" or
-        "1234567890" [             1 .. ] <> "1234567890" or
-        "1234567890" [             2 .. ] <> "234567890" or
-        "1234567890" [             5 .. ] <> "567890" or
-        "1234567890" [             9 .. ] <> "90" or
-        "1234567890" [            10 .. ] <> "0" or
-        "1234567890" [            11 .. ] <> "" or
-        "1234567890" [            15 .. ] <> "" or
-        "1234567890" [  integer.last .. ] <> "" then
-      writeln(" ***** STRING [ START .. ] does not work correct. (1)");
-      okay := FALSE;
-    end if;
-
-    if  "" [ intExpr(            1) .. ] <> "" or
-        "" [ intExpr(            2) .. ] <> "" or
-        "" [ intExpr(            5) .. ] <> "" or
-        "" [ intExpr(            9) .. ] <> "" or
-        "" [ intExpr(           10) .. ] <> "" or
-        "" [ intExpr(           11) .. ] <> "" or
-        "" [ intExpr(           15) .. ] <> "" or
-        "" [ intExpr( integer.last) .. ] <> "" or
-        "1" [ intExpr(            1) .. ] <> "1" or
-        "1" [ intExpr(            2) .. ] <> "" or
-        "1" [ intExpr(            5) .. ] <> "" or
-        "1" [ intExpr(            9) .. ] <> "" or
-        "1" [ intExpr(           10) .. ] <> "" or
-        "1" [ intExpr(           11) .. ] <> "" or
-        "1" [ intExpr(           15) .. ] <> "" or
-        "1" [ intExpr( integer.last) .. ] <> "" or
-        "1234567890" [ intExpr(            1) .. ] <> "1234567890" or
-        "1234567890" [ intExpr(            2) .. ] <> "234567890" or
-        "1234567890" [ intExpr(            5) .. ] <> "567890" or
-        "1234567890" [ intExpr(            9) .. ] <> "90" or
-        "1234567890" [ intExpr(           10) .. ] <> "0" or
-        "1234567890" [ intExpr(           11) .. ] <> "" or
-        "1234567890" [ intExpr(           15) .. ] <> "" or
-        "1234567890" [ intExpr( integer.last) .. ] <> "" then
-      writeln(" ***** STRING [ START .. ] does not work correct. (2)");
-      okay := FALSE;
-    end if;
-
-    if  striExpr("") [             1 .. ] <> "" or
-        striExpr("") [             2 .. ] <> "" or
-        striExpr("") [             5 .. ] <> "" or
-        striExpr("") [             9 .. ] <> "" or
-        striExpr("") [            10 .. ] <> "" or
-        striExpr("") [            11 .. ] <> "" or
-        striExpr("") [            15 .. ] <> "" or
-        striExpr("") [  integer.last .. ] <> "" or
-        striExpr("1") [             1 .. ] <> "1" or
-        striExpr("1") [             2 .. ] <> "" or
-        striExpr("1") [             5 .. ] <> "" or
-        striExpr("1") [             9 .. ] <> "" or
-        striExpr("1") [            10 .. ] <> "" or
-        striExpr("1") [            11 .. ] <> "" or
-        striExpr("1") [            15 .. ] <> "" or
-        striExpr("1") [  integer.last .. ] <> "" or
-        striExpr("1234567890") [             1 .. ] <> "1234567890" or
-        striExpr("1234567890") [             2 .. ] <> "234567890" or
-        striExpr("1234567890") [             5 .. ] <> "567890" or
-        striExpr("1234567890") [             9 .. ] <> "90" or
-        striExpr("1234567890") [            10 .. ] <> "0" or
-        striExpr("1234567890") [            11 .. ] <> "" or
-        striExpr("1234567890") [            15 .. ] <> "" or
-        striExpr("1234567890") [  integer.last .. ] <> "" then
-      writeln(" ***** STRING [ START .. ] does not work correct. (3)");
-      okay := FALSE;
-    end if;
-
-    if  striExpr("") [ intExpr(            1) .. ] <> "" or
-        striExpr("") [ intExpr(            2) .. ] <> "" or
-        striExpr("") [ intExpr(            5) .. ] <> "" or
-        striExpr("") [ intExpr(            9) .. ] <> "" or
-        striExpr("") [ intExpr(           10) .. ] <> "" or
-        striExpr("") [ intExpr(           11) .. ] <> "" or
-        striExpr("") [ intExpr(           15) .. ] <> "" or
-        striExpr("") [ intExpr( integer.last) .. ] <> "" or
-        striExpr("1") [ intExpr(            1) .. ] <> "1" or
-        striExpr("1") [ intExpr(            2) .. ] <> "" or
-        striExpr("1") [ intExpr(            5) .. ] <> "" or
-        striExpr("1") [ intExpr(            9) .. ] <> "" or
-        striExpr("1") [ intExpr(           10) .. ] <> "" or
-        striExpr("1") [ intExpr(           11) .. ] <> "" or
-        striExpr("1") [ intExpr(           15) .. ] <> "" or
-        striExpr("1") [ intExpr( integer.last) .. ] <> "" or
-        striExpr("1234567890") [ intExpr(            1) .. ] <> "1234567890" or
-        striExpr("1234567890") [ intExpr(            2) .. ] <> "234567890" or
-        striExpr("1234567890") [ intExpr(            5) .. ] <> "567890" or
-        striExpr("1234567890") [ intExpr(            9) .. ] <> "90" or
-        striExpr("1234567890") [ intExpr(           10) .. ] <> "0" or
-        striExpr("1234567890") [ intExpr(           11) .. ] <> "" or
-        striExpr("1234567890") [ intExpr(           15) .. ] <> "" or
-        striExpr("1234567890") [ intExpr( integer.last) .. ] <> "" then
-      writeln(" ***** STRING [ START .. ] does not work correct. (4)");
-      okay := FALSE;
-    end if;
-
     stri := "" [             1 .. ]; ok := ok and stri = "";
     stri := "" [             2 .. ]; ok := ok and stri = "";
     stri := "" [             5 .. ]; ok := ok and stri = "";
@@ -3546,7 +3449,16 @@ const proc: check_string_tail is func
       writeln(" ***** stri := STRING [ START .. ] does not work correct. (2)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_string_tail_assign_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
     ok := TRUE;
     stri := striExpr("") [             1 .. ]; ok := ok and stri = "";
     stri := striExpr("") [             2 .. ]; ok := ok and stri = "";
@@ -3606,7 +3518,33 @@ const proc: check_string_tail is func
       writeln(" ***** stri := STRING [ START .. ] does not work correct. (4)");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func string: tailOfEmptyString (in integer: stop) is
+  return ""[stop .. ];
+
+
+const func string: tailOfString1 (in integer: stop) is
+  return "1"[stop .. ];
+
+
+const func string: tailFunction (in integer: start) is
+  return "1234567890"[start .. ];
+
+
+const func string: tailFunction (in string: stri) is
+  return stri[1 .. ];
+
+
+const func string: tailFunction (in string: stri, in integer: start) is
+  return stri[start .. ];
+
+
+const func boolean: check_string_tail_func is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  tailOfEmptyString(            1) <> "" or
         tailOfEmptyString(            2) <> "" or
         tailOfEmptyString(            5) <> "" or
@@ -3786,6 +3724,138 @@ const proc: check_string_tail is func
         tailFunction(striExpr("1234567890"), intExpr(           15)) <> "" or
         tailFunction(striExpr("1234567890"), intExpr( integer.last)) <> "" then
       writeln(" ***** STRING [ START .. ] via a function does not work correct. (8)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_tail is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
+    if  "" [             1 .. ] <> "" or
+        "" [             2 .. ] <> "" or
+        "" [             5 .. ] <> "" or
+        "" [             9 .. ] <> "" or
+        "" [            10 .. ] <> "" or
+        "" [            11 .. ] <> "" or
+        "" [            15 .. ] <> "" or
+        "" [  integer.last .. ] <> "" or
+        "1" [             1 .. ] <> "1" or
+        "1" [             2 .. ] <> "" or
+        "1" [             5 .. ] <> "" or
+        "1" [             9 .. ] <> "" or
+        "1" [            10 .. ] <> "" or
+        "1" [            11 .. ] <> "" or
+        "1" [            15 .. ] <> "" or
+        "1" [  integer.last .. ] <> "" or
+        "1234567890" [             1 .. ] <> "1234567890" or
+        "1234567890" [             2 .. ] <> "234567890" or
+        "1234567890" [             5 .. ] <> "567890" or
+        "1234567890" [             9 .. ] <> "90" or
+        "1234567890" [            10 .. ] <> "0" or
+        "1234567890" [            11 .. ] <> "" or
+        "1234567890" [            15 .. ] <> "" or
+        "1234567890" [  integer.last .. ] <> "" then
+      writeln(" ***** STRING [ START .. ] does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  "" [ intExpr(            1) .. ] <> "" or
+        "" [ intExpr(            2) .. ] <> "" or
+        "" [ intExpr(            5) .. ] <> "" or
+        "" [ intExpr(            9) .. ] <> "" or
+        "" [ intExpr(           10) .. ] <> "" or
+        "" [ intExpr(           11) .. ] <> "" or
+        "" [ intExpr(           15) .. ] <> "" or
+        "" [ intExpr( integer.last) .. ] <> "" or
+        "1" [ intExpr(            1) .. ] <> "1" or
+        "1" [ intExpr(            2) .. ] <> "" or
+        "1" [ intExpr(            5) .. ] <> "" or
+        "1" [ intExpr(            9) .. ] <> "" or
+        "1" [ intExpr(           10) .. ] <> "" or
+        "1" [ intExpr(           11) .. ] <> "" or
+        "1" [ intExpr(           15) .. ] <> "" or
+        "1" [ intExpr( integer.last) .. ] <> "" or
+        "1234567890" [ intExpr(            1) .. ] <> "1234567890" or
+        "1234567890" [ intExpr(            2) .. ] <> "234567890" or
+        "1234567890" [ intExpr(            5) .. ] <> "567890" or
+        "1234567890" [ intExpr(            9) .. ] <> "90" or
+        "1234567890" [ intExpr(           10) .. ] <> "0" or
+        "1234567890" [ intExpr(           11) .. ] <> "" or
+        "1234567890" [ intExpr(           15) .. ] <> "" or
+        "1234567890" [ intExpr( integer.last) .. ] <> "" then
+      writeln(" ***** STRING [ START .. ] does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  striExpr("") [             1 .. ] <> "" or
+        striExpr("") [             2 .. ] <> "" or
+        striExpr("") [             5 .. ] <> "" or
+        striExpr("") [             9 .. ] <> "" or
+        striExpr("") [            10 .. ] <> "" or
+        striExpr("") [            11 .. ] <> "" or
+        striExpr("") [            15 .. ] <> "" or
+        striExpr("") [  integer.last .. ] <> "" or
+        striExpr("1") [             1 .. ] <> "1" or
+        striExpr("1") [             2 .. ] <> "" or
+        striExpr("1") [             5 .. ] <> "" or
+        striExpr("1") [             9 .. ] <> "" or
+        striExpr("1") [            10 .. ] <> "" or
+        striExpr("1") [            11 .. ] <> "" or
+        striExpr("1") [            15 .. ] <> "" or
+        striExpr("1") [  integer.last .. ] <> "" or
+        striExpr("1234567890") [             1 .. ] <> "1234567890" or
+        striExpr("1234567890") [             2 .. ] <> "234567890" or
+        striExpr("1234567890") [             5 .. ] <> "567890" or
+        striExpr("1234567890") [             9 .. ] <> "90" or
+        striExpr("1234567890") [            10 .. ] <> "0" or
+        striExpr("1234567890") [            11 .. ] <> "" or
+        striExpr("1234567890") [            15 .. ] <> "" or
+        striExpr("1234567890") [  integer.last .. ] <> "" then
+      writeln(" ***** STRING [ START .. ] does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  striExpr("") [ intExpr(            1) .. ] <> "" or
+        striExpr("") [ intExpr(            2) .. ] <> "" or
+        striExpr("") [ intExpr(            5) .. ] <> "" or
+        striExpr("") [ intExpr(            9) .. ] <> "" or
+        striExpr("") [ intExpr(           10) .. ] <> "" or
+        striExpr("") [ intExpr(           11) .. ] <> "" or
+        striExpr("") [ intExpr(           15) .. ] <> "" or
+        striExpr("") [ intExpr( integer.last) .. ] <> "" or
+        striExpr("1") [ intExpr(            1) .. ] <> "1" or
+        striExpr("1") [ intExpr(            2) .. ] <> "" or
+        striExpr("1") [ intExpr(            5) .. ] <> "" or
+        striExpr("1") [ intExpr(            9) .. ] <> "" or
+        striExpr("1") [ intExpr(           10) .. ] <> "" or
+        striExpr("1") [ intExpr(           11) .. ] <> "" or
+        striExpr("1") [ intExpr(           15) .. ] <> "" or
+        striExpr("1") [ intExpr( integer.last) .. ] <> "" or
+        striExpr("1234567890") [ intExpr(            1) .. ] <> "1234567890" or
+        striExpr("1234567890") [ intExpr(            2) .. ] <> "234567890" or
+        striExpr("1234567890") [ intExpr(            5) .. ] <> "567890" or
+        striExpr("1234567890") [ intExpr(            9) .. ] <> "90" or
+        striExpr("1234567890") [ intExpr(           10) .. ] <> "0" or
+        striExpr("1234567890") [ intExpr(           11) .. ] <> "" or
+        striExpr("1234567890") [ intExpr(           15) .. ] <> "" or
+        striExpr("1234567890") [ intExpr( integer.last) .. ] <> "" then
+      writeln(" ***** STRING [ START .. ] does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if not check_string_tail_assign_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_tail_assign_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_tail_func then
       okay := FALSE;
     end if;
 
