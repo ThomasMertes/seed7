@@ -10372,7 +10372,7 @@ const proc: check_division is func
   end func;
 
 
-const func boolean: check_div_optimization is func
+const func boolean: check_div_optimization_1 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -10679,7 +10679,13 @@ const func boolean: check_div_optimization is func
       writeln(" ***** div optimization with constant dividend < 0 and divisor > 0 does not work correct.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_div_optimization_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  succ(intExpr(       integer.first)) div (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
         succ(intExpr(       integer.first)) div (-abs(intExpr(            12345651)) - 2) <>         747094709113 or
         succ(intExpr(       integer.first)) div (-abs(intExpr(                   0)) - 2) <>  4611686018427387903 or
@@ -10865,7 +10871,13 @@ const func boolean: check_div_optimization is func
       writeln(" ***** div optimization with dividend > integer.first and divisor > 0 does not work correct.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_div_optimization_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  rand( 1,  3) div                           rand(-3, -1)  not in {-3, -2, -1,  0} or
         rand(-3, -1) div                           rand( 1,  3)  not in {-3, -2, -1,  0} or
         rand(-2,  2) div                           rand(-3, -1)  not in {-2, -1,  0,  1,  2} or
@@ -10902,7 +10914,13 @@ const func boolean: check_div_optimization is func
       writeln(" ***** div optimization with dividend < 0 and divisor > 0 does not work correct.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_div_optimization_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if       intExpr(       integer.first)  div (-abs(intExpr( 9223372036854775806)) - 2) <>                    1 or
              intExpr(       integer.first)  div (-abs(intExpr(            12345651)) - 2) <>         747094709113 or
              intExpr(       integer.first)  div (-abs(intExpr(                   0)) - 2) <>  4611686018427387904 or
@@ -12814,7 +12832,19 @@ const proc: check_div is func
       okay := FALSE;
     end if;
 
-    if not check_div_optimization then
+    if not check_div_optimization_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_div_optimization_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_div_optimization_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_div_optimization_4 then
       okay := FALSE;
     end if;
 
@@ -14603,7 +14633,7 @@ const func boolean: check_mdiv_by_zero is func
   end func;
 
 
-const func boolean: check_mdiv_optimization is func
+const func boolean: check_mdiv_optimization_1 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -14910,7 +14940,13 @@ const func boolean: check_mdiv_optimization is func
       writeln(" ***** mdiv optimization with constant dividend < 0 and divisor > 0 does not work correct.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_mdiv_optimization_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  succ(intExpr(       integer.first)) mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                    0 or
         succ(intExpr(       integer.first)) mdiv (-abs(intExpr(            12345651)) - 2) <>         747094709113 or
         succ(intExpr(       integer.first)) mdiv (-abs(intExpr(                   0)) - 2) <>  4611686018427387903 or
@@ -15096,7 +15132,13 @@ const func boolean: check_mdiv_optimization is func
       writeln(" ***** mdiv optimization with dividend > integer.first and divisor > 0 does not work correct.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_mdiv_optimization_3 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  rand( 1,  3) mdiv                           rand(-3, -1)  not in {-3, -2, -1} or
         rand(-3, -1) mdiv                           rand( 1,  3)  not in {-3, -2, -1} or
         rand(-2,  2) mdiv                           rand(-3, -1)  not in {-2, -1,  0,  1,  2} or
@@ -15369,7 +15411,13 @@ const func boolean: check_mdiv_optimization is func
       writeln(" ***** mdiv optimization with dividend > 0 and divisor > 0 does not work correct.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_mdiv_optimization_4 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if       intExpr(       integer.first)  mdiv (-abs(intExpr( 9223372036854775806)) - 2) <>                    1 or
              intExpr(       integer.first)  mdiv (-abs(intExpr(            12345651)) - 2) <>         747094709113 or
              intExpr(       integer.first)  mdiv (-abs(intExpr(                   0)) - 2) <>  4611686018427387904 or
@@ -17081,7 +17129,19 @@ const proc: check_mdiv is func
       okay := FALSE;
     end if;
 
-    if not check_mdiv_optimization then
+    if not check_mdiv_optimization_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_mdiv_optimization_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_mdiv_optimization_3 then
+      okay := FALSE;
+    end if;
+
+    if not check_mdiv_optimization_4 then
       okay := FALSE;
     end if;
 
@@ -18348,7 +18408,7 @@ const func boolean: check_mod_by_computed_power_of_two_optimization is func
   end func;
 
 
-const func boolean: check_mod_optimization is func
+const func boolean: check_mod_optimization_1 is func
   result
     var boolean: okay is TRUE;
   begin
@@ -18685,7 +18745,13 @@ const func boolean: check_mod_optimization is func
       writeln(" ***** mod optimization with dividend > integer.first and divisor > 0 does not work correct.");
       okay := FALSE;
     end if;
+  end func;
 
+
+const func boolean: check_mod_optimization_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
     if  rand( 1,  3) mod                           rand(-3, -1)  not in {-2, -1,  0} or
         rand(-3, -1) mod                           rand( 1,  3)  not in { 0,  1,  2} or
         rand(-2,  2) mod                           rand(-3, -1)  not in {-2, -1,  0} or
@@ -20457,7 +20523,11 @@ const proc: check_mod is func
       okay := FALSE;
     end if;
 
-    if not check_mod_optimization then
+    if not check_mod_optimization_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_mod_optimization_2 then
       okay := FALSE;
     end if;
 
