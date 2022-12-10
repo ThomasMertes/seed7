@@ -184,6 +184,7 @@ strip:
 chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" > chkccomp.h
 	echo "#define UNIX_DO_SLEEP" >> chkccomp.h
+	echo "#define REMOVE_WASM" >> chkccomp.h
 	echo "#define USE_GMP 0" >> chkccomp.h
 
 base.h:

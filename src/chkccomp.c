@@ -628,26 +628,36 @@ static void determineCompilerVersion (FILE *versionFile)
 
 
 
-static void cleanUpCompilation (int testNumberToClean)
+static void cleanUpCompilation (const char *programName, int testNumberToClean)
 
   {
+    char baseFileName[NAME_SIZE];
     char fileName[NAME_SIZE];
 
   /* cleanUpCompilation */
-    sprintf(fileName, "ctest%d.c", testNumberToClean);
+    if (testNumberToClean == 0) {
+      strcpy(baseFileName, programName);
+    } else {
+      sprintf(baseFileName, "%s%d", programName, testNumberToClean);
+    } /* if */
+    sprintf(fileName, "%s.c", baseFileName);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d.cerrs", testNumberToClean);
+    sprintf(fileName, "%s.cerrs", baseFileName);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d.lerrs", testNumberToClean);
+    sprintf(fileName, "%s.lerrs", baseFileName);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d%s", testNumberToClean, OBJECT_FILE_EXTENSION);
+    sprintf(fileName, "%s%s", baseFileName, OBJECT_FILE_EXTENSION);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d%s", testNumberToClean, LINKED_PROGRAM_EXTENSION);
+    sprintf(fileName, "%s%s", baseFileName, LINKED_PROGRAM_EXTENSION);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d.out", testNumberToClean);
+    sprintf(fileName, "%s.out", baseFileName);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d.err", testNumberToClean);
+    sprintf(fileName, "%s.err", baseFileName);
     doRemove(fileName);
+#ifdef REMOVE_WASM
+    sprintf(fileName, "%s.wasm", baseFileName);
+    doRemove(fileName);
+#endif
   } /* cleanUpCompilation */
 
 
@@ -747,9 +757,9 @@ static int compileWithOptionsOk (const char *content, const char *compilerOption
 
   /* compileWithOptionsOk */
     /* fprintf(logFile, "compileWithOptionsOk(%s)\n", content); */
-    cleanUpCompilation(testNumber);
+    cleanUpCompilation("ctest", testNumber);
     testNumber++;
-    cleanUpCompilation(testNumber);
+    cleanUpCompilation("ctest", testNumber);
     sprintf(fileName, "ctest%d.c", testNumber);
     testFile = fopen(fileName, "w");
     if (testFile != NULL) {
@@ -839,12 +849,13 @@ static int doLink (const char *objectOrLibraryName, const char *linkerOptions)
 
 
 
-static int doCompileAndLink (const char *compilerOptions, const char *linkerOptions,
-    int testNumberToCompileAndLink)
+static int doCompileAndLink (const char *programName, const char *compilerOptions,
+    const char *linkerOptions, int testNumberToCompileAndLink)
 
   {
     char command[COMMAND_SIZE];
     int len;
+    char baseFileName[NAME_SIZE];
     char fileName[NAME_SIZE];
     int returncode;
     int okay = 0;
@@ -852,26 +863,31 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
   /* doCompileAndLink */
     fprintf(logFile, "*");
     fflush(logFile);
+    if (testNumberToCompileAndLink == 0) {
+      strcpy(baseFileName, programName);
+    } else {
+      sprintf(baseFileName, "%s%d", programName, testNumberToCompileAndLink);
+    } /* if */
 #ifdef LINKER
-    sprintf(command, "%s %s %s -c ctest%d.c",
-            c_compiler, compilerOptions, CC_FLAGS, testNumberToCompileAndLink);
+    sprintf(command, "%s %s %s -c %s.c",
+            c_compiler, compilerOptions, CC_FLAGS, baseFileName);
 #else
-    sprintf(command, "%s %s %s ctest%d.c %s",
-            c_compiler, compilerOptions, CC_FLAGS, testNumberToCompileAndLink, linkerOptions);
+    sprintf(command, "%s %s %s %s.c %s",
+            c_compiler, compilerOptions, CC_FLAGS, baseFileName, linkerOptions);
 #endif
     replaceNLBySpace(command);
 #if !defined LINKER && defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
-    sprintf(&command[strlen(command)], " %sctest%d%s",
-            LINKER_OPT_OUTPUT_FILE, testNumberToCompileAndLink, LINKED_PROGRAM_EXTENSION);
+    sprintf(&command[strlen(command)], " %s%s%s",
+            LINKER_OPT_OUTPUT_FILE, baseFileName, LINKED_PROGRAM_EXTENSION);
 #endif
 #ifdef CC_ERROR_FILEDES
     /* A missing CC_ERROR_FILEDES or an CC_ERROR_FILEDES of zero means: Do not redirect. */
     if (CC_ERROR_FILEDES == 1) {
-      sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
-              REDIRECT_FILEDES_1, testNumberToCompileAndLink, REDIRECT_FILEDES_2, nullDevice);
+      sprintf(&command[strlen(command)], " %s%s.cerrs %s%s",
+              REDIRECT_FILEDES_1, baseFileName, REDIRECT_FILEDES_2, nullDevice);
     } else if (CC_ERROR_FILEDES == 2) {
-      sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
-              REDIRECT_FILEDES_2, testNumberToCompileAndLink, REDIRECT_FILEDES_1, nullDevice);
+      sprintf(&command[strlen(command)], " %s%s.cerrs %s%s",
+              REDIRECT_FILEDES_2, baseFileName, REDIRECT_FILEDES_1, nullDevice);
     } /* if */
 #endif
 #ifdef QUOTE_WHOLE_SHELL_COMMAND
@@ -888,14 +904,14 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
 #ifdef LINKER
     if (returncode == 0) {
       /* fprintf(logFile, "returncode: %d\n", returncode); */
-      sprintf(command, "%s ctest%d%s %s %sctest%d%s",
-              LINKER, testNumberToCompileAndLink, OBJECT_FILE_EXTENSION, linkerOptions,
-              LINKER_OPT_OUTPUT_FILE, testNumberToCompileAndLink, LINKED_PROGRAM_EXTENSION);
+      sprintf(command, "%s %s%s %s %s%s%s",
+              LINKER, baseFileName, OBJECT_FILE_EXTENSION, linkerOptions,
+              LINKER_OPT_OUTPUT_FILE, baseFileName, LINKED_PROGRAM_EXTENSION);
       /* fprintf(logFile, "command: %s\n", command); */
       returncode = system(command);
     } /* if */
 #endif
-    sprintf(fileName, "ctest%d%s", testNumberToCompileAndLink, LINKED_PROGRAM_EXTENSION);
+    sprintf(fileName, "%s%s", baseFileName, LINKED_PROGRAM_EXTENSION);
     if (fileIsPresentPossiblyAfterDelay(fileName)) {
       if (returncode == 0) {
         okay = 1;
@@ -920,29 +936,47 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
 
 
 
-static int compileAndLinkWithOptionsOk (const char *content, const char *compilerOptions,
-    const char *linkerOptions)
+static int doCompileAndLinkContent (const char *programName, const char *content,
+    const char *compilerOptions, const char *linkerOptions, int testNumberToCompileAndLink)
 
   {
     char fileName[NAME_SIZE];
     FILE *testFile;
     int okay = 0;
 
-  /* compileAndLinkWithOptionsOk */
-    /* fprintf(logFile, "compileAndLinkWithOptionsOk(%s)\n", content); */
-    cleanUpCompilation(testNumber);
-    testNumber++;
-    cleanUpCompilation(testNumber);
-    sprintf(fileName, "ctest%d.c", testNumber);
+  /* doCompileAndLinkContent */
+    if (testNumberToCompileAndLink == 0) {
+      sprintf(fileName, "%s.c", programName);
+    } else {
+      sprintf(fileName, "%s%d.c", programName, testNumberToCompileAndLink);
+    } /* if */
     testFile = fopen(fileName, "w");
     if (testFile != NULL) {
       fprintf(testFile, "%s", content);
       fclose(testFile);
-      okay = doCompileAndLink(compilerOptions, linkerOptions, testNumber);
+      okay = doCompileAndLink(programName, compilerOptions, linkerOptions, testNumberToCompileAndLink);
     } /* if */
 #ifdef DEBUG_CHKCCOMP
     fprintf(logFile, "content: %s\n", content);
 #endif
+    return okay;
+  } /* doCompileAndLinkContent */
+
+
+
+static int compileAndLinkWithOptionsOk (const char *content, const char *compilerOptions,
+    const char *linkerOptions)
+
+  {
+    char fileName[NAME_SIZE];
+    int okay = 0;
+
+  /* compileAndLinkWithOptionsOk */
+    /* fprintf(logFile, "compileAndLinkWithOptionsOk(%s)\n", content); */
+    cleanUpCompilation("ctest", testNumber);
+    testNumber++;
+    cleanUpCompilation("ctest", testNumber);
+    okay = doCompileAndLinkContent("ctest", content, compilerOptions, linkerOptions, testNumber);
     /* fprintf(logFile, "compileAndLinkWithOptionsOk --> %d\n", okay); */
     return okay;
   } /* compileAndLinkWithOptionsOk */
@@ -1032,32 +1066,30 @@ static void prepareDoSleep (void)
 
   /* prepareDoSleep */
 #if defined UNIX_DO_SLEEP
-    if (assertCompAndLnk("#include <unistd.h>\n"
-                         "#include <stdio.h>\n"
-                         "int main(int argc, char *argv[]) {\n"
-                         "int seconds;\n"
-                         "if (argc == 2 && sscanf(argv[1], \"%d\", &seconds) == 1) {\n"
-                         "  sleep(seconds);\n"
-                         "} return 0;}\n")) {
-      doRemove("do_sleep" LINKED_PROGRAM_EXTENSION);
-      sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
-      if (rename(fileName, "do_sleep" LINKED_PROGRAM_EXTENSION) != 0) {
-        fprintf(logFile, "\n **** Renaming %s to do_sleep%s failed.\n", fileName, LINKED_PROGRAM_EXTENSION);
-      } /* if */
+    cleanUpCompilation("do_sleep", 0);
+    if (!doCompileAndLinkContent("do_sleep",
+                                 "#include <unistd.h>\n"
+                                 "#include <stdio.h>\n"
+                                 "int main(int argc, char *argv[]) {\n"
+                                 "int seconds;\n"
+                                 "if (argc == 2 && sscanf(argv[1], \"%d\", &seconds) == 1) {\n"
+                                 "  sleep(seconds);\n"
+                                 "} return 0;}\n",
+                                 "", "", 0)) {
+      fprintf(logFile, "\n **** Preparing do_sleep failed.\n");
     } /* if */
 #elif defined _WIN32
-    if (assertCompAndLnk("#include <windows.h>\n"
-                         "#include <stdio.h>\n"
-                         "int main(int argc, char *argv[]) {\n"
-                         "int seconds;\n"
-                         "if (argc == 2 && sscanf(argv[1], \"%d\", &seconds) == 1) {\n"
-                         "  Sleep(1000 * seconds);\n"
-                         "} return 0;}\n")) {
-      doRemove("do_sleep" LINKED_PROGRAM_EXTENSION);
-      sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
-      if (rename(fileName, "do_sleep" LINKED_PROGRAM_EXTENSION) != 0) {
-        fprintf(logFile, "\n **** Renaming %s to do_sleep%s failed.\n", fileName, LINKED_PROGRAM_EXTENSION);
-      } /* if */
+    cleanUpCompilation("do_sleep", 0);
+    if (!doCompileAndLinkContent("do_sleep",
+                                 "#include <windows.h>\n"
+                                 "#include <stdio.h>\n"
+                                 "int main(int argc, char *argv[]) {\n"
+                                 "int seconds;\n"
+                                 "if (argc == 2 && sscanf(argv[1], \"%d\", &seconds) == 1) {\n"
+                                 "  Sleep(1000 * seconds);\n"
+                                 "} return 0;}\n",
+                                 "", "", 0)) {
+      fprintf(logFile, "\n **** Preparing do_sleep failed.\n");
     } /* if */
 #endif
   }  /* prepareDoSleep */
@@ -1067,8 +1099,8 @@ static void prepareDoSleep (void)
 static void removeDoSleep (void)
 
   { /* removeDoSleep */
-#ifdef _WIN32
-    doRemove("do_sleep" LINKED_PROGRAM_EXTENSION);
+#if defined UNIX_DO_SLEEP || defined _WIN32
+    cleanUpCompilation("do_sleep", 0);
 #endif
   } /* removeDoSleep */
 
@@ -9535,7 +9567,7 @@ int main (int argc, char **argv)
     fprintf(logFile, " determined\n");
     determineIncludesAndLibs(versionFile);
     writeReadBufferEmptyMacro(versionFile);
-    cleanUpCompilation(testNumber);
+    cleanUpCompilation("ctest", testNumber);
     removeDoSleep();
     fprintf(versionFile, "#define REMOVE_REATTEMPTS %lu\n", removeReattempts);
     if (removeReattempts != 0) {
