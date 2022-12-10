@@ -1224,399 +1224,13 @@ const func string: cLiteralFunction (in char: ch) is
   return c_literal(ch);
 
 
-const proc: check_literal_functions is func
-  local
+const func boolean: check_literal_func is func
+  result
     var boolean: okay is TRUE;
+  local
     var boolean: ok is TRUE;
     var string: stri is "";
   begin
-    if  literal('\0;')   <> "'\\0;'" or
-        literal('\1;')   <> "'\\1;'" or
-        literal('\2;')   <> "'\\2;'" or
-        literal('\3;')   <> "'\\3;'" or
-        literal('\4;')   <> "'\\4;'" or
-        literal('\5;')   <> "'\\5;'" or
-        literal('\6;')   <> "'\\6;'" or
-        literal('\a')    <> "'\\a'" or
-        literal('\b')    <> "'\\b'" or
-        literal('\t')    <> "'\\t'" or
-        literal('\n')    <> "'\\n'" or
-        literal('\v')    <> "'\\v'" or
-        literal('\f')    <> "'\\f'" or
-        literal('\r')    <> "'\\r'" or
-        literal('\14;')  <> "'\\14;'" or
-        literal('\15;')  <> "'\\15;'" or
-        literal('\16;')  <> "'\\16;'" or
-        literal('\17;')  <> "'\\17;'" or
-        literal('\18;')  <> "'\\18;'" or
-        literal('\19;')  <> "'\\19;'" or
-        literal('\20;')  <> "'\\20;'" or
-        literal('\21;')  <> "'\\21;'" or
-        literal('\22;')  <> "'\\22;'" or
-        literal('\23;')  <> "'\\23;'" or
-        literal('\24;')  <> "'\\24;'" or
-        literal('\25;')  <> "'\\25;'" or
-        literal('\26;')  <> "'\\26;'" or
-        literal('\e')    <> "'\\e'" or
-        literal('\28;')  <> "'\\28;'" or
-        literal('\29;')  <> "'\\29;'" or
-        literal('\30;')  <> "'\\30;'" or
-        literal('\31;')  <> "'\\31;'" or
-        literal(' ')     <> "' '" or
-        literal('"')     <> "'\\\"'" or
-        literal('\\')    <> "'\\\\'" or
-        literal('\'')    <> "'\\''" or
-        literal('~')     <> "'~'" or
-        literal('\128;') <> "'\\128;'" or
-        literal('\128;') <> "'\\128;'" or
-        literal('\129;') <> "'\\129;'" or
-        literal('\130;') <> "'\\130;'" or
-        literal('\131;') <> "'\\131;'" or
-        literal('\132;') <> "'\\132;'" or
-        literal('\133;') <> "'\\133;'" or
-        literal('\134;') <> "'\\134;'" or
-        literal('\135;') <> "'\\135;'" or
-        literal('\136;') <> "'\\136;'" or
-        literal('\137;') <> "'\\137;'" or
-        literal('\138;') <> "'\\138;'" or
-        literal('\139;') <> "'\\139;'" or
-        literal('\140;') <> "'\\140;'" or
-        literal('\141;') <> "'\\141;'" or
-        literal('\142;') <> "'\\142;'" or
-        literal('\143;') <> "'\\143;'" or
-        literal('\144;') <> "'\\144;'" or
-        literal('\145;') <> "'\\145;'" or
-        literal('\146;') <> "'\\146;'" or
-        literal('\147;') <> "'\\147;'" or
-        literal('\148;') <> "'\\148;'" or
-        literal('\149;') <> "'\\149;'" or
-        literal('\150;') <> "'\\150;'" or
-        literal('\151;') <> "'\\151;'" or
-        literal('\152;') <> "'\\152;'" or
-        literal('\153;') <> "'\\153;'" or
-        literal('\154;') <> "'\\154;'" or
-        literal('\155;') <> "'\\155;'" or
-        literal('\156;') <> "'\\156;'" or
-        literal('\157;') <> "'\\157;'" or
-        literal('\158;') <> "'\\158;'" or
-        literal('\159;') <> "'\\159;'" or
-        literal('\160;') <> "'\\160;'" or
-        literal('¡')     <> "'¡'" or
-        literal('¤')     <> "'¤'" or
-        literal('§')     <> "'§'" or
-        literal('¬')     <> "'¬'" or
-        literal('­')     <> "'­'" or
-        literal('µ')     <> "'µ'" or
-        literal('¿')     <> "'¿'" or
-        literal('Ä')     <> "'Ä'" or
-        literal('×')     <> "'×'" or
-        literal('ß')     <> "'ß'" or
-        literal('ä')     <> "'ä'" or
-        literal('÷')     <> "'÷'" or
-        literal('ÿ')     <> "'ÿ'" or
-        literal('Œ')     <> "'\\338;'" or
-        literal('Š')     <> "'\\352;'" or
-        literal('ƒ')     <> "'\\402;'" or
-        literal('†')     <> "'\\8224;'" or
-        literal('•')     <> "'\\8226;'" or
-        literal('‰')     <> "'\\8240;'" or
-        literal('€')     <> "'\\8364;'" or
-        literal('™')     <> "'\\8482;'" then
-      writeln(" ***** Function literal(ch) does not work correct. (1)");
-      okay := FALSE;
-    end if;
-
-    if  literal(charExpr('\0;'))   <> "'\\0;'" or
-        literal(charExpr('\1;'))   <> "'\\1;'" or
-        literal(charExpr('\2;'))   <> "'\\2;'" or
-        literal(charExpr('\3;'))   <> "'\\3;'" or
-        literal(charExpr('\4;'))   <> "'\\4;'" or
-        literal(charExpr('\5;'))   <> "'\\5;'" or
-        literal(charExpr('\6;'))   <> "'\\6;'" or
-        literal(charExpr('\a'))    <> "'\\a'" or
-        literal(charExpr('\b'))    <> "'\\b'" or
-        literal(charExpr('\t'))    <> "'\\t'" or
-        literal(charExpr('\n'))    <> "'\\n'" or
-        literal(charExpr('\v'))    <> "'\\v'" or
-        literal(charExpr('\f'))    <> "'\\f'" or
-        literal(charExpr('\r'))    <> "'\\r'" or
-        literal(charExpr('\14;'))  <> "'\\14;'" or
-        literal(charExpr('\15;'))  <> "'\\15;'" or
-        literal(charExpr('\16;'))  <> "'\\16;'" or
-        literal(charExpr('\17;'))  <> "'\\17;'" or
-        literal(charExpr('\18;'))  <> "'\\18;'" or
-        literal(charExpr('\19;'))  <> "'\\19;'" or
-        literal(charExpr('\20;'))  <> "'\\20;'" or
-        literal(charExpr('\21;'))  <> "'\\21;'" or
-        literal(charExpr('\22;'))  <> "'\\22;'" or
-        literal(charExpr('\23;'))  <> "'\\23;'" or
-        literal(charExpr('\24;'))  <> "'\\24;'" or
-        literal(charExpr('\25;'))  <> "'\\25;'" or
-        literal(charExpr('\26;'))  <> "'\\26;'" or
-        literal(charExpr('\e'))    <> "'\\e'" or
-        literal(charExpr('\28;'))  <> "'\\28;'" or
-        literal(charExpr('\29;'))  <> "'\\29;'" or
-        literal(charExpr('\30;'))  <> "'\\30;'" or
-        literal(charExpr('\31;'))  <> "'\\31;'" or
-        literal(charExpr(' '))     <> "' '" or
-        literal(charExpr('"'))     <> "'\\\"'" or
-        literal(charExpr('\\'))    <> "'\\\\'" or
-        literal(charExpr('\''))    <> "'\\''" or
-        literal(charExpr('~'))     <> "'~'" or
-        literal(charExpr('\128;')) <> "'\\128;'" or
-        literal(charExpr('\128;')) <> "'\\128;'" or
-        literal(charExpr('\129;')) <> "'\\129;'" or
-        literal(charExpr('\130;')) <> "'\\130;'" or
-        literal(charExpr('\131;')) <> "'\\131;'" or
-        literal(charExpr('\132;')) <> "'\\132;'" or
-        literal(charExpr('\133;')) <> "'\\133;'" or
-        literal(charExpr('\134;')) <> "'\\134;'" or
-        literal(charExpr('\135;')) <> "'\\135;'" or
-        literal(charExpr('\136;')) <> "'\\136;'" or
-        literal(charExpr('\137;')) <> "'\\137;'" or
-        literal(charExpr('\138;')) <> "'\\138;'" or
-        literal(charExpr('\139;')) <> "'\\139;'" or
-        literal(charExpr('\140;')) <> "'\\140;'" or
-        literal(charExpr('\141;')) <> "'\\141;'" or
-        literal(charExpr('\142;')) <> "'\\142;'" or
-        literal(charExpr('\143;')) <> "'\\143;'" or
-        literal(charExpr('\144;')) <> "'\\144;'" or
-        literal(charExpr('\145;')) <> "'\\145;'" or
-        literal(charExpr('\146;')) <> "'\\146;'" or
-        literal(charExpr('\147;')) <> "'\\147;'" or
-        literal(charExpr('\148;')) <> "'\\148;'" or
-        literal(charExpr('\149;')) <> "'\\149;'" or
-        literal(charExpr('\150;')) <> "'\\150;'" or
-        literal(charExpr('\151;')) <> "'\\151;'" or
-        literal(charExpr('\152;')) <> "'\\152;'" or
-        literal(charExpr('\153;')) <> "'\\153;'" or
-        literal(charExpr('\154;')) <> "'\\154;'" or
-        literal(charExpr('\155;')) <> "'\\155;'" or
-        literal(charExpr('\156;')) <> "'\\156;'" or
-        literal(charExpr('\157;')) <> "'\\157;'" or
-        literal(charExpr('\158;')) <> "'\\158;'" or
-        literal(charExpr('\159;')) <> "'\\159;'" or
-        literal(charExpr('\160;')) <> "'\\160;'" or
-        literal(charExpr('¡'))     <> "'¡'" or
-        literal(charExpr('¤'))     <> "'¤'" or
-        literal(charExpr('§'))     <> "'§'" or
-        literal(charExpr('¬'))     <> "'¬'" or
-        literal(charExpr('­'))     <> "'­'" or
-        literal(charExpr('µ'))     <> "'µ'" or
-        literal(charExpr('¿'))     <> "'¿'" or
-        literal(charExpr('Ä'))     <> "'Ä'" or
-        literal(charExpr('×'))     <> "'×'" or
-        literal(charExpr('ß'))     <> "'ß'" or
-        literal(charExpr('ä'))     <> "'ä'" or
-        literal(charExpr('÷'))     <> "'÷'" or
-        literal(charExpr('ÿ'))     <> "'ÿ'" or
-        literal(charExpr('Œ'))     <> "'\\338;'" or
-        literal(charExpr('Š'))     <> "'\\352;'" or
-        literal(charExpr('ƒ'))     <> "'\\402;'" or
-        literal(charExpr('†'))     <> "'\\8224;'" or
-        literal(charExpr('•'))     <> "'\\8226;'" or
-        literal(charExpr('‰'))     <> "'\\8240;'" or
-        literal(charExpr('€'))     <> "'\\8364;'" or
-        literal(charExpr('™'))     <> "'\\8482;'" then
-      writeln(" ***** Function literal(ch) does not work correct. (2)");
-      okay := FALSE;
-    end if;
-
-    stri := literal('\0;');   ok := ok and stri = "'\\0;'";
-    stri := literal('\1;');   ok := ok and stri = "'\\1;'";
-    stri := literal('\2;');   ok := ok and stri = "'\\2;'";
-    stri := literal('\3;');   ok := ok and stri = "'\\3;'";
-    stri := literal('\4;');   ok := ok and stri = "'\\4;'";
-    stri := literal('\5;');   ok := ok and stri = "'\\5;'";
-    stri := literal('\6;');   ok := ok and stri = "'\\6;'";
-    stri := literal('\a');    ok := ok and stri = "'\\a'";
-    stri := literal('\b');    ok := ok and stri = "'\\b'";
-    stri := literal('\t');    ok := ok and stri = "'\\t'";
-    stri := literal('\n');    ok := ok and stri = "'\\n'";
-    stri := literal('\v');    ok := ok and stri = "'\\v'";
-    stri := literal('\f');    ok := ok and stri = "'\\f'";
-    stri := literal('\r');    ok := ok and stri = "'\\r'";
-    stri := literal('\14;');  ok := ok and stri = "'\\14;'";
-    stri := literal('\15;');  ok := ok and stri = "'\\15;'";
-    stri := literal('\16;');  ok := ok and stri = "'\\16;'";
-    stri := literal('\17;');  ok := ok and stri = "'\\17;'";
-    stri := literal('\18;');  ok := ok and stri = "'\\18;'";
-    stri := literal('\19;');  ok := ok and stri = "'\\19;'";
-    stri := literal('\20;');  ok := ok and stri = "'\\20;'";
-    stri := literal('\21;');  ok := ok and stri = "'\\21;'";
-    stri := literal('\22;');  ok := ok and stri = "'\\22;'";
-    stri := literal('\23;');  ok := ok and stri = "'\\23;'";
-    stri := literal('\24;');  ok := ok and stri = "'\\24;'";
-    stri := literal('\25;');  ok := ok and stri = "'\\25;'";
-    stri := literal('\26;');  ok := ok and stri = "'\\26;'";
-    stri := literal('\e');    ok := ok and stri = "'\\e'";
-    stri := literal('\28;');  ok := ok and stri = "'\\28;'";
-    stri := literal('\29;');  ok := ok and stri = "'\\29;'";
-    stri := literal('\30;');  ok := ok and stri = "'\\30;'";
-    stri := literal('\31;');  ok := ok and stri = "'\\31;'";
-    stri := literal(' ');     ok := ok and stri = "' '";
-    stri := literal('"');     ok := ok and stri = "'\\\"'";
-    stri := literal('\\');    ok := ok and stri = "'\\\\'";
-    stri := literal('\'');    ok := ok and stri = "'\\''";
-    stri := literal('~');     ok := ok and stri = "'~'";
-    stri := literal('\128;'); ok := ok and stri = "'\\128;'";
-    stri := literal('\128;'); ok := ok and stri = "'\\128;'";
-    stri := literal('\129;'); ok := ok and stri = "'\\129;'";
-    stri := literal('\130;'); ok := ok and stri = "'\\130;'";
-    stri := literal('\131;'); ok := ok and stri = "'\\131;'";
-    stri := literal('\132;'); ok := ok and stri = "'\\132;'";
-    stri := literal('\133;'); ok := ok and stri = "'\\133;'";
-    stri := literal('\134;'); ok := ok and stri = "'\\134;'";
-    stri := literal('\135;'); ok := ok and stri = "'\\135;'";
-    stri := literal('\136;'); ok := ok and stri = "'\\136;'";
-    stri := literal('\137;'); ok := ok and stri = "'\\137;'";
-    stri := literal('\138;'); ok := ok and stri = "'\\138;'";
-    stri := literal('\139;'); ok := ok and stri = "'\\139;'";
-    stri := literal('\140;'); ok := ok and stri = "'\\140;'";
-    stri := literal('\141;'); ok := ok and stri = "'\\141;'";
-    stri := literal('\142;'); ok := ok and stri = "'\\142;'";
-    stri := literal('\143;'); ok := ok and stri = "'\\143;'";
-    stri := literal('\144;'); ok := ok and stri = "'\\144;'";
-    stri := literal('\145;'); ok := ok and stri = "'\\145;'";
-    stri := literal('\146;'); ok := ok and stri = "'\\146;'";
-    stri := literal('\147;'); ok := ok and stri = "'\\147;'";
-    stri := literal('\148;'); ok := ok and stri = "'\\148;'";
-    stri := literal('\149;'); ok := ok and stri = "'\\149;'";
-    stri := literal('\150;'); ok := ok and stri = "'\\150;'";
-    stri := literal('\151;'); ok := ok and stri = "'\\151;'";
-    stri := literal('\152;'); ok := ok and stri = "'\\152;'";
-    stri := literal('\153;'); ok := ok and stri = "'\\153;'";
-    stri := literal('\154;'); ok := ok and stri = "'\\154;'";
-    stri := literal('\155;'); ok := ok and stri = "'\\155;'";
-    stri := literal('\156;'); ok := ok and stri = "'\\156;'";
-    stri := literal('\157;'); ok := ok and stri = "'\\157;'";
-    stri := literal('\158;'); ok := ok and stri = "'\\158;'";
-    stri := literal('\159;'); ok := ok and stri = "'\\159;'";
-    stri := literal('\160;'); ok := ok and stri = "'\\160;'";
-    stri := literal('¡');     ok := ok and stri = "'¡'";
-    stri := literal('¤');     ok := ok and stri = "'¤'";
-    stri := literal('§');     ok := ok and stri = "'§'";
-    stri := literal('¬');     ok := ok and stri = "'¬'";
-    stri := literal('­');     ok := ok and stri = "'­'";
-    stri := literal('µ');     ok := ok and stri = "'µ'";
-    stri := literal('¿');     ok := ok and stri = "'¿'";
-    stri := literal('Ä');     ok := ok and stri = "'Ä'";
-    stri := literal('×');     ok := ok and stri = "'×'";
-    stri := literal('ß');     ok := ok and stri = "'ß'";
-    stri := literal('ä');     ok := ok and stri = "'ä'";
-    stri := literal('÷');     ok := ok and stri = "'÷'";
-    stri := literal('ÿ');     ok := ok and stri = "'ÿ'";
-    stri := literal('Œ');     ok := ok and stri = "'\\338;'";
-    stri := literal('Š');     ok := ok and stri = "'\\352;'";
-    stri := literal('ƒ');     ok := ok and stri = "'\\402;'";
-    stri := literal('†');     ok := ok and stri = "'\\8224;'";
-    stri := literal('•');     ok := ok and stri = "'\\8226;'";
-    stri := literal('‰');     ok := ok and stri = "'\\8240;'";
-    stri := literal('€');     ok := ok and stri = "'\\8364;'";
-    stri := literal('™');     ok := ok and stri = "'\\8482;'";
-    if not ok then
-      writeln(" ***** Function literal(ch) does not work correct. (3)");
-      okay := FALSE;
-    end if;
-
-    ok := TRUE;
-    stri := literal(charExpr('\0;'));   ok := ok and stri = "'\\0;'";
-    stri := literal(charExpr('\1;'));   ok := ok and stri = "'\\1;'";
-    stri := literal(charExpr('\2;'));   ok := ok and stri = "'\\2;'";
-    stri := literal(charExpr('\3;'));   ok := ok and stri = "'\\3;'";
-    stri := literal(charExpr('\4;'));   ok := ok and stri = "'\\4;'";
-    stri := literal(charExpr('\5;'));   ok := ok and stri = "'\\5;'";
-    stri := literal(charExpr('\6;'));   ok := ok and stri = "'\\6;'";
-    stri := literal(charExpr('\a'));    ok := ok and stri = "'\\a'";
-    stri := literal(charExpr('\b'));    ok := ok and stri = "'\\b'";
-    stri := literal(charExpr('\t'));    ok := ok and stri = "'\\t'";
-    stri := literal(charExpr('\n'));    ok := ok and stri = "'\\n'";
-    stri := literal(charExpr('\v'));    ok := ok and stri = "'\\v'";
-    stri := literal(charExpr('\f'));    ok := ok and stri = "'\\f'";
-    stri := literal(charExpr('\r'));    ok := ok and stri = "'\\r'";
-    stri := literal(charExpr('\14;'));  ok := ok and stri = "'\\14;'";
-    stri := literal(charExpr('\15;'));  ok := ok and stri = "'\\15;'";
-    stri := literal(charExpr('\16;'));  ok := ok and stri = "'\\16;'";
-    stri := literal(charExpr('\17;'));  ok := ok and stri = "'\\17;'";
-    stri := literal(charExpr('\18;'));  ok := ok and stri = "'\\18;'";
-    stri := literal(charExpr('\19;'));  ok := ok and stri = "'\\19;'";
-    stri := literal(charExpr('\20;'));  ok := ok and stri = "'\\20;'";
-    stri := literal(charExpr('\21;'));  ok := ok and stri = "'\\21;'";
-    stri := literal(charExpr('\22;'));  ok := ok and stri = "'\\22;'";
-    stri := literal(charExpr('\23;'));  ok := ok and stri = "'\\23;'";
-    stri := literal(charExpr('\24;'));  ok := ok and stri = "'\\24;'";
-    stri := literal(charExpr('\25;'));  ok := ok and stri = "'\\25;'";
-    stri := literal(charExpr('\26;'));  ok := ok and stri = "'\\26;'";
-    stri := literal(charExpr('\e'));    ok := ok and stri = "'\\e'";
-    stri := literal(charExpr('\28;'));  ok := ok and stri = "'\\28;'";
-    stri := literal(charExpr('\29;'));  ok := ok and stri = "'\\29;'";
-    stri := literal(charExpr('\30;'));  ok := ok and stri = "'\\30;'";
-    stri := literal(charExpr('\31;'));  ok := ok and stri = "'\\31;'";
-    stri := literal(charExpr(' '));     ok := ok and stri = "' '";
-    stri := literal(charExpr('"'));     ok := ok and stri = "'\\\"'";
-    stri := literal(charExpr('\\'));    ok := ok and stri = "'\\\\'";
-    stri := literal(charExpr('\''));    ok := ok and stri = "'\\''";
-    stri := literal(charExpr('~'));     ok := ok and stri = "'~'";
-    stri := literal(charExpr('\128;')); ok := ok and stri = "'\\128;'";
-    stri := literal(charExpr('\128;')); ok := ok and stri = "'\\128;'";
-    stri := literal(charExpr('\129;')); ok := ok and stri = "'\\129;'";
-    stri := literal(charExpr('\130;')); ok := ok and stri = "'\\130;'";
-    stri := literal(charExpr('\131;')); ok := ok and stri = "'\\131;'";
-    stri := literal(charExpr('\132;')); ok := ok and stri = "'\\132;'";
-    stri := literal(charExpr('\133;')); ok := ok and stri = "'\\133;'";
-    stri := literal(charExpr('\134;')); ok := ok and stri = "'\\134;'";
-    stri := literal(charExpr('\135;')); ok := ok and stri = "'\\135;'";
-    stri := literal(charExpr('\136;')); ok := ok and stri = "'\\136;'";
-    stri := literal(charExpr('\137;')); ok := ok and stri = "'\\137;'";
-    stri := literal(charExpr('\138;')); ok := ok and stri = "'\\138;'";
-    stri := literal(charExpr('\139;')); ok := ok and stri = "'\\139;'";
-    stri := literal(charExpr('\140;')); ok := ok and stri = "'\\140;'";
-    stri := literal(charExpr('\141;')); ok := ok and stri = "'\\141;'";
-    stri := literal(charExpr('\142;')); ok := ok and stri = "'\\142;'";
-    stri := literal(charExpr('\143;')); ok := ok and stri = "'\\143;'";
-    stri := literal(charExpr('\144;')); ok := ok and stri = "'\\144;'";
-    stri := literal(charExpr('\145;')); ok := ok and stri = "'\\145;'";
-    stri := literal(charExpr('\146;')); ok := ok and stri = "'\\146;'";
-    stri := literal(charExpr('\147;')); ok := ok and stri = "'\\147;'";
-    stri := literal(charExpr('\148;')); ok := ok and stri = "'\\148;'";
-    stri := literal(charExpr('\149;')); ok := ok and stri = "'\\149;'";
-    stri := literal(charExpr('\150;')); ok := ok and stri = "'\\150;'";
-    stri := literal(charExpr('\151;')); ok := ok and stri = "'\\151;'";
-    stri := literal(charExpr('\152;')); ok := ok and stri = "'\\152;'";
-    stri := literal(charExpr('\153;')); ok := ok and stri = "'\\153;'";
-    stri := literal(charExpr('\154;')); ok := ok and stri = "'\\154;'";
-    stri := literal(charExpr('\155;')); ok := ok and stri = "'\\155;'";
-    stri := literal(charExpr('\156;')); ok := ok and stri = "'\\156;'";
-    stri := literal(charExpr('\157;')); ok := ok and stri = "'\\157;'";
-    stri := literal(charExpr('\158;')); ok := ok and stri = "'\\158;'";
-    stri := literal(charExpr('\159;')); ok := ok and stri = "'\\159;'";
-    stri := literal(charExpr('\160;')); ok := ok and stri = "'\\160;'";
-    stri := literal(charExpr('¡'));     ok := ok and stri = "'¡'";
-    stri := literal(charExpr('¤'));     ok := ok and stri = "'¤'";
-    stri := literal(charExpr('§'));     ok := ok and stri = "'§'";
-    stri := literal(charExpr('¬'));     ok := ok and stri = "'¬'";
-    stri := literal(charExpr('­'));     ok := ok and stri = "'­'";
-    stri := literal(charExpr('µ'));     ok := ok and stri = "'µ'";
-    stri := literal(charExpr('¿'));     ok := ok and stri = "'¿'";
-    stri := literal(charExpr('Ä'));     ok := ok and stri = "'Ä'";
-    stri := literal(charExpr('×'));     ok := ok and stri = "'×'";
-    stri := literal(charExpr('ß'));     ok := ok and stri = "'ß'";
-    stri := literal(charExpr('ä'));     ok := ok and stri = "'ä'";
-    stri := literal(charExpr('÷'));     ok := ok and stri = "'÷'";
-    stri := literal(charExpr('ÿ'));     ok := ok and stri = "'ÿ'";
-    stri := literal(charExpr('Œ'));     ok := ok and stri = "'\\338;'";
-    stri := literal(charExpr('Š'));     ok := ok and stri = "'\\352;'";
-    stri := literal(charExpr('ƒ'));     ok := ok and stri = "'\\402;'";
-    stri := literal(charExpr('†'));     ok := ok and stri = "'\\8224;'";
-    stri := literal(charExpr('•'));     ok := ok and stri = "'\\8226;'";
-    stri := literal(charExpr('‰'));     ok := ok and stri = "'\\8240;'";
-    stri := literal(charExpr('€'));     ok := ok and stri = "'\\8364;'";
-    stri := literal(charExpr('™'));     ok := ok and stri = "'\\8482;'";
-    if not ok then
-      writeln(" ***** Function literal(ch) does not work correct. (4)");
-      okay := FALSE;
-    end if;
-
     if  literalFunction('\0;')   <> "'\\0;'" or
         literalFunction('\1;')   <> "'\\1;'" or
         literalFunction('\2;')   <> "'\\2;'" or
@@ -2388,6 +2002,405 @@ const proc: check_literal_functions is func
       writeln(" ***** Function c_literal(ch) via a function does not work correct. (2)");
       okay := FALSE;
     end if;
+  end func;
+
+
+const proc: check_literal is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
+    if  literal('\0;')   <> "'\\0;'" or
+        literal('\1;')   <> "'\\1;'" or
+        literal('\2;')   <> "'\\2;'" or
+        literal('\3;')   <> "'\\3;'" or
+        literal('\4;')   <> "'\\4;'" or
+        literal('\5;')   <> "'\\5;'" or
+        literal('\6;')   <> "'\\6;'" or
+        literal('\a')    <> "'\\a'" or
+        literal('\b')    <> "'\\b'" or
+        literal('\t')    <> "'\\t'" or
+        literal('\n')    <> "'\\n'" or
+        literal('\v')    <> "'\\v'" or
+        literal('\f')    <> "'\\f'" or
+        literal('\r')    <> "'\\r'" or
+        literal('\14;')  <> "'\\14;'" or
+        literal('\15;')  <> "'\\15;'" or
+        literal('\16;')  <> "'\\16;'" or
+        literal('\17;')  <> "'\\17;'" or
+        literal('\18;')  <> "'\\18;'" or
+        literal('\19;')  <> "'\\19;'" or
+        literal('\20;')  <> "'\\20;'" or
+        literal('\21;')  <> "'\\21;'" or
+        literal('\22;')  <> "'\\22;'" or
+        literal('\23;')  <> "'\\23;'" or
+        literal('\24;')  <> "'\\24;'" or
+        literal('\25;')  <> "'\\25;'" or
+        literal('\26;')  <> "'\\26;'" or
+        literal('\e')    <> "'\\e'" or
+        literal('\28;')  <> "'\\28;'" or
+        literal('\29;')  <> "'\\29;'" or
+        literal('\30;')  <> "'\\30;'" or
+        literal('\31;')  <> "'\\31;'" or
+        literal(' ')     <> "' '" or
+        literal('"')     <> "'\\\"'" or
+        literal('\\')    <> "'\\\\'" or
+        literal('\'')    <> "'\\''" or
+        literal('~')     <> "'~'" or
+        literal('\128;') <> "'\\128;'" or
+        literal('\128;') <> "'\\128;'" or
+        literal('\129;') <> "'\\129;'" or
+        literal('\130;') <> "'\\130;'" or
+        literal('\131;') <> "'\\131;'" or
+        literal('\132;') <> "'\\132;'" or
+        literal('\133;') <> "'\\133;'" or
+        literal('\134;') <> "'\\134;'" or
+        literal('\135;') <> "'\\135;'" or
+        literal('\136;') <> "'\\136;'" or
+        literal('\137;') <> "'\\137;'" or
+        literal('\138;') <> "'\\138;'" or
+        literal('\139;') <> "'\\139;'" or
+        literal('\140;') <> "'\\140;'" or
+        literal('\141;') <> "'\\141;'" or
+        literal('\142;') <> "'\\142;'" or
+        literal('\143;') <> "'\\143;'" or
+        literal('\144;') <> "'\\144;'" or
+        literal('\145;') <> "'\\145;'" or
+        literal('\146;') <> "'\\146;'" or
+        literal('\147;') <> "'\\147;'" or
+        literal('\148;') <> "'\\148;'" or
+        literal('\149;') <> "'\\149;'" or
+        literal('\150;') <> "'\\150;'" or
+        literal('\151;') <> "'\\151;'" or
+        literal('\152;') <> "'\\152;'" or
+        literal('\153;') <> "'\\153;'" or
+        literal('\154;') <> "'\\154;'" or
+        literal('\155;') <> "'\\155;'" or
+        literal('\156;') <> "'\\156;'" or
+        literal('\157;') <> "'\\157;'" or
+        literal('\158;') <> "'\\158;'" or
+        literal('\159;') <> "'\\159;'" or
+        literal('\160;') <> "'\\160;'" or
+        literal('¡')     <> "'¡'" or
+        literal('¤')     <> "'¤'" or
+        literal('§')     <> "'§'" or
+        literal('¬')     <> "'¬'" or
+        literal('­')     <> "'­'" or
+        literal('µ')     <> "'µ'" or
+        literal('¿')     <> "'¿'" or
+        literal('Ä')     <> "'Ä'" or
+        literal('×')     <> "'×'" or
+        literal('ß')     <> "'ß'" or
+        literal('ä')     <> "'ä'" or
+        literal('÷')     <> "'÷'" or
+        literal('ÿ')     <> "'ÿ'" or
+        literal('Œ')     <> "'\\338;'" or
+        literal('Š')     <> "'\\352;'" or
+        literal('ƒ')     <> "'\\402;'" or
+        literal('†')     <> "'\\8224;'" or
+        literal('•')     <> "'\\8226;'" or
+        literal('‰')     <> "'\\8240;'" or
+        literal('€')     <> "'\\8364;'" or
+        literal('™')     <> "'\\8482;'" then
+      writeln(" ***** Function literal(ch) does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  literal(charExpr('\0;'))   <> "'\\0;'" or
+        literal(charExpr('\1;'))   <> "'\\1;'" or
+        literal(charExpr('\2;'))   <> "'\\2;'" or
+        literal(charExpr('\3;'))   <> "'\\3;'" or
+        literal(charExpr('\4;'))   <> "'\\4;'" or
+        literal(charExpr('\5;'))   <> "'\\5;'" or
+        literal(charExpr('\6;'))   <> "'\\6;'" or
+        literal(charExpr('\a'))    <> "'\\a'" or
+        literal(charExpr('\b'))    <> "'\\b'" or
+        literal(charExpr('\t'))    <> "'\\t'" or
+        literal(charExpr('\n'))    <> "'\\n'" or
+        literal(charExpr('\v'))    <> "'\\v'" or
+        literal(charExpr('\f'))    <> "'\\f'" or
+        literal(charExpr('\r'))    <> "'\\r'" or
+        literal(charExpr('\14;'))  <> "'\\14;'" or
+        literal(charExpr('\15;'))  <> "'\\15;'" or
+        literal(charExpr('\16;'))  <> "'\\16;'" or
+        literal(charExpr('\17;'))  <> "'\\17;'" or
+        literal(charExpr('\18;'))  <> "'\\18;'" or
+        literal(charExpr('\19;'))  <> "'\\19;'" or
+        literal(charExpr('\20;'))  <> "'\\20;'" or
+        literal(charExpr('\21;'))  <> "'\\21;'" or
+        literal(charExpr('\22;'))  <> "'\\22;'" or
+        literal(charExpr('\23;'))  <> "'\\23;'" or
+        literal(charExpr('\24;'))  <> "'\\24;'" or
+        literal(charExpr('\25;'))  <> "'\\25;'" or
+        literal(charExpr('\26;'))  <> "'\\26;'" or
+        literal(charExpr('\e'))    <> "'\\e'" or
+        literal(charExpr('\28;'))  <> "'\\28;'" or
+        literal(charExpr('\29;'))  <> "'\\29;'" or
+        literal(charExpr('\30;'))  <> "'\\30;'" or
+        literal(charExpr('\31;'))  <> "'\\31;'" or
+        literal(charExpr(' '))     <> "' '" or
+        literal(charExpr('"'))     <> "'\\\"'" or
+        literal(charExpr('\\'))    <> "'\\\\'" or
+        literal(charExpr('\''))    <> "'\\''" or
+        literal(charExpr('~'))     <> "'~'" or
+        literal(charExpr('\128;')) <> "'\\128;'" or
+        literal(charExpr('\128;')) <> "'\\128;'" or
+        literal(charExpr('\129;')) <> "'\\129;'" or
+        literal(charExpr('\130;')) <> "'\\130;'" or
+        literal(charExpr('\131;')) <> "'\\131;'" or
+        literal(charExpr('\132;')) <> "'\\132;'" or
+        literal(charExpr('\133;')) <> "'\\133;'" or
+        literal(charExpr('\134;')) <> "'\\134;'" or
+        literal(charExpr('\135;')) <> "'\\135;'" or
+        literal(charExpr('\136;')) <> "'\\136;'" or
+        literal(charExpr('\137;')) <> "'\\137;'" or
+        literal(charExpr('\138;')) <> "'\\138;'" or
+        literal(charExpr('\139;')) <> "'\\139;'" or
+        literal(charExpr('\140;')) <> "'\\140;'" or
+        literal(charExpr('\141;')) <> "'\\141;'" or
+        literal(charExpr('\142;')) <> "'\\142;'" or
+        literal(charExpr('\143;')) <> "'\\143;'" or
+        literal(charExpr('\144;')) <> "'\\144;'" or
+        literal(charExpr('\145;')) <> "'\\145;'" or
+        literal(charExpr('\146;')) <> "'\\146;'" or
+        literal(charExpr('\147;')) <> "'\\147;'" or
+        literal(charExpr('\148;')) <> "'\\148;'" or
+        literal(charExpr('\149;')) <> "'\\149;'" or
+        literal(charExpr('\150;')) <> "'\\150;'" or
+        literal(charExpr('\151;')) <> "'\\151;'" or
+        literal(charExpr('\152;')) <> "'\\152;'" or
+        literal(charExpr('\153;')) <> "'\\153;'" or
+        literal(charExpr('\154;')) <> "'\\154;'" or
+        literal(charExpr('\155;')) <> "'\\155;'" or
+        literal(charExpr('\156;')) <> "'\\156;'" or
+        literal(charExpr('\157;')) <> "'\\157;'" or
+        literal(charExpr('\158;')) <> "'\\158;'" or
+        literal(charExpr('\159;')) <> "'\\159;'" or
+        literal(charExpr('\160;')) <> "'\\160;'" or
+        literal(charExpr('¡'))     <> "'¡'" or
+        literal(charExpr('¤'))     <> "'¤'" or
+        literal(charExpr('§'))     <> "'§'" or
+        literal(charExpr('¬'))     <> "'¬'" or
+        literal(charExpr('­'))     <> "'­'" or
+        literal(charExpr('µ'))     <> "'µ'" or
+        literal(charExpr('¿'))     <> "'¿'" or
+        literal(charExpr('Ä'))     <> "'Ä'" or
+        literal(charExpr('×'))     <> "'×'" or
+        literal(charExpr('ß'))     <> "'ß'" or
+        literal(charExpr('ä'))     <> "'ä'" or
+        literal(charExpr('÷'))     <> "'÷'" or
+        literal(charExpr('ÿ'))     <> "'ÿ'" or
+        literal(charExpr('Œ'))     <> "'\\338;'" or
+        literal(charExpr('Š'))     <> "'\\352;'" or
+        literal(charExpr('ƒ'))     <> "'\\402;'" or
+        literal(charExpr('†'))     <> "'\\8224;'" or
+        literal(charExpr('•'))     <> "'\\8226;'" or
+        literal(charExpr('‰'))     <> "'\\8240;'" or
+        literal(charExpr('€'))     <> "'\\8364;'" or
+        literal(charExpr('™'))     <> "'\\8482;'" then
+      writeln(" ***** Function literal(ch) does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    stri := literal('\0;');   ok := ok and stri = "'\\0;'";
+    stri := literal('\1;');   ok := ok and stri = "'\\1;'";
+    stri := literal('\2;');   ok := ok and stri = "'\\2;'";
+    stri := literal('\3;');   ok := ok and stri = "'\\3;'";
+    stri := literal('\4;');   ok := ok and stri = "'\\4;'";
+    stri := literal('\5;');   ok := ok and stri = "'\\5;'";
+    stri := literal('\6;');   ok := ok and stri = "'\\6;'";
+    stri := literal('\a');    ok := ok and stri = "'\\a'";
+    stri := literal('\b');    ok := ok and stri = "'\\b'";
+    stri := literal('\t');    ok := ok and stri = "'\\t'";
+    stri := literal('\n');    ok := ok and stri = "'\\n'";
+    stri := literal('\v');    ok := ok and stri = "'\\v'";
+    stri := literal('\f');    ok := ok and stri = "'\\f'";
+    stri := literal('\r');    ok := ok and stri = "'\\r'";
+    stri := literal('\14;');  ok := ok and stri = "'\\14;'";
+    stri := literal('\15;');  ok := ok and stri = "'\\15;'";
+    stri := literal('\16;');  ok := ok and stri = "'\\16;'";
+    stri := literal('\17;');  ok := ok and stri = "'\\17;'";
+    stri := literal('\18;');  ok := ok and stri = "'\\18;'";
+    stri := literal('\19;');  ok := ok and stri = "'\\19;'";
+    stri := literal('\20;');  ok := ok and stri = "'\\20;'";
+    stri := literal('\21;');  ok := ok and stri = "'\\21;'";
+    stri := literal('\22;');  ok := ok and stri = "'\\22;'";
+    stri := literal('\23;');  ok := ok and stri = "'\\23;'";
+    stri := literal('\24;');  ok := ok and stri = "'\\24;'";
+    stri := literal('\25;');  ok := ok and stri = "'\\25;'";
+    stri := literal('\26;');  ok := ok and stri = "'\\26;'";
+    stri := literal('\e');    ok := ok and stri = "'\\e'";
+    stri := literal('\28;');  ok := ok and stri = "'\\28;'";
+    stri := literal('\29;');  ok := ok and stri = "'\\29;'";
+    stri := literal('\30;');  ok := ok and stri = "'\\30;'";
+    stri := literal('\31;');  ok := ok and stri = "'\\31;'";
+    stri := literal(' ');     ok := ok and stri = "' '";
+    stri := literal('"');     ok := ok and stri = "'\\\"'";
+    stri := literal('\\');    ok := ok and stri = "'\\\\'";
+    stri := literal('\'');    ok := ok and stri = "'\\''";
+    stri := literal('~');     ok := ok and stri = "'~'";
+    stri := literal('\128;'); ok := ok and stri = "'\\128;'";
+    stri := literal('\128;'); ok := ok and stri = "'\\128;'";
+    stri := literal('\129;'); ok := ok and stri = "'\\129;'";
+    stri := literal('\130;'); ok := ok and stri = "'\\130;'";
+    stri := literal('\131;'); ok := ok and stri = "'\\131;'";
+    stri := literal('\132;'); ok := ok and stri = "'\\132;'";
+    stri := literal('\133;'); ok := ok and stri = "'\\133;'";
+    stri := literal('\134;'); ok := ok and stri = "'\\134;'";
+    stri := literal('\135;'); ok := ok and stri = "'\\135;'";
+    stri := literal('\136;'); ok := ok and stri = "'\\136;'";
+    stri := literal('\137;'); ok := ok and stri = "'\\137;'";
+    stri := literal('\138;'); ok := ok and stri = "'\\138;'";
+    stri := literal('\139;'); ok := ok and stri = "'\\139;'";
+    stri := literal('\140;'); ok := ok and stri = "'\\140;'";
+    stri := literal('\141;'); ok := ok and stri = "'\\141;'";
+    stri := literal('\142;'); ok := ok and stri = "'\\142;'";
+    stri := literal('\143;'); ok := ok and stri = "'\\143;'";
+    stri := literal('\144;'); ok := ok and stri = "'\\144;'";
+    stri := literal('\145;'); ok := ok and stri = "'\\145;'";
+    stri := literal('\146;'); ok := ok and stri = "'\\146;'";
+    stri := literal('\147;'); ok := ok and stri = "'\\147;'";
+    stri := literal('\148;'); ok := ok and stri = "'\\148;'";
+    stri := literal('\149;'); ok := ok and stri = "'\\149;'";
+    stri := literal('\150;'); ok := ok and stri = "'\\150;'";
+    stri := literal('\151;'); ok := ok and stri = "'\\151;'";
+    stri := literal('\152;'); ok := ok and stri = "'\\152;'";
+    stri := literal('\153;'); ok := ok and stri = "'\\153;'";
+    stri := literal('\154;'); ok := ok and stri = "'\\154;'";
+    stri := literal('\155;'); ok := ok and stri = "'\\155;'";
+    stri := literal('\156;'); ok := ok and stri = "'\\156;'";
+    stri := literal('\157;'); ok := ok and stri = "'\\157;'";
+    stri := literal('\158;'); ok := ok and stri = "'\\158;'";
+    stri := literal('\159;'); ok := ok and stri = "'\\159;'";
+    stri := literal('\160;'); ok := ok and stri = "'\\160;'";
+    stri := literal('¡');     ok := ok and stri = "'¡'";
+    stri := literal('¤');     ok := ok and stri = "'¤'";
+    stri := literal('§');     ok := ok and stri = "'§'";
+    stri := literal('¬');     ok := ok and stri = "'¬'";
+    stri := literal('­');     ok := ok and stri = "'­'";
+    stri := literal('µ');     ok := ok and stri = "'µ'";
+    stri := literal('¿');     ok := ok and stri = "'¿'";
+    stri := literal('Ä');     ok := ok and stri = "'Ä'";
+    stri := literal('×');     ok := ok and stri = "'×'";
+    stri := literal('ß');     ok := ok and stri = "'ß'";
+    stri := literal('ä');     ok := ok and stri = "'ä'";
+    stri := literal('÷');     ok := ok and stri = "'÷'";
+    stri := literal('ÿ');     ok := ok and stri = "'ÿ'";
+    stri := literal('Œ');     ok := ok and stri = "'\\338;'";
+    stri := literal('Š');     ok := ok and stri = "'\\352;'";
+    stri := literal('ƒ');     ok := ok and stri = "'\\402;'";
+    stri := literal('†');     ok := ok and stri = "'\\8224;'";
+    stri := literal('•');     ok := ok and stri = "'\\8226;'";
+    stri := literal('‰');     ok := ok and stri = "'\\8240;'";
+    stri := literal('€');     ok := ok and stri = "'\\8364;'";
+    stri := literal('™');     ok := ok and stri = "'\\8482;'";
+    if not ok then
+      writeln(" ***** Function literal(ch) does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := literal(charExpr('\0;'));   ok := ok and stri = "'\\0;'";
+    stri := literal(charExpr('\1;'));   ok := ok and stri = "'\\1;'";
+    stri := literal(charExpr('\2;'));   ok := ok and stri = "'\\2;'";
+    stri := literal(charExpr('\3;'));   ok := ok and stri = "'\\3;'";
+    stri := literal(charExpr('\4;'));   ok := ok and stri = "'\\4;'";
+    stri := literal(charExpr('\5;'));   ok := ok and stri = "'\\5;'";
+    stri := literal(charExpr('\6;'));   ok := ok and stri = "'\\6;'";
+    stri := literal(charExpr('\a'));    ok := ok and stri = "'\\a'";
+    stri := literal(charExpr('\b'));    ok := ok and stri = "'\\b'";
+    stri := literal(charExpr('\t'));    ok := ok and stri = "'\\t'";
+    stri := literal(charExpr('\n'));    ok := ok and stri = "'\\n'";
+    stri := literal(charExpr('\v'));    ok := ok and stri = "'\\v'";
+    stri := literal(charExpr('\f'));    ok := ok and stri = "'\\f'";
+    stri := literal(charExpr('\r'));    ok := ok and stri = "'\\r'";
+    stri := literal(charExpr('\14;'));  ok := ok and stri = "'\\14;'";
+    stri := literal(charExpr('\15;'));  ok := ok and stri = "'\\15;'";
+    stri := literal(charExpr('\16;'));  ok := ok and stri = "'\\16;'";
+    stri := literal(charExpr('\17;'));  ok := ok and stri = "'\\17;'";
+    stri := literal(charExpr('\18;'));  ok := ok and stri = "'\\18;'";
+    stri := literal(charExpr('\19;'));  ok := ok and stri = "'\\19;'";
+    stri := literal(charExpr('\20;'));  ok := ok and stri = "'\\20;'";
+    stri := literal(charExpr('\21;'));  ok := ok and stri = "'\\21;'";
+    stri := literal(charExpr('\22;'));  ok := ok and stri = "'\\22;'";
+    stri := literal(charExpr('\23;'));  ok := ok and stri = "'\\23;'";
+    stri := literal(charExpr('\24;'));  ok := ok and stri = "'\\24;'";
+    stri := literal(charExpr('\25;'));  ok := ok and stri = "'\\25;'";
+    stri := literal(charExpr('\26;'));  ok := ok and stri = "'\\26;'";
+    stri := literal(charExpr('\e'));    ok := ok and stri = "'\\e'";
+    stri := literal(charExpr('\28;'));  ok := ok and stri = "'\\28;'";
+    stri := literal(charExpr('\29;'));  ok := ok and stri = "'\\29;'";
+    stri := literal(charExpr('\30;'));  ok := ok and stri = "'\\30;'";
+    stri := literal(charExpr('\31;'));  ok := ok and stri = "'\\31;'";
+    stri := literal(charExpr(' '));     ok := ok and stri = "' '";
+    stri := literal(charExpr('"'));     ok := ok and stri = "'\\\"'";
+    stri := literal(charExpr('\\'));    ok := ok and stri = "'\\\\'";
+    stri := literal(charExpr('\''));    ok := ok and stri = "'\\''";
+    stri := literal(charExpr('~'));     ok := ok and stri = "'~'";
+    stri := literal(charExpr('\128;')); ok := ok and stri = "'\\128;'";
+    stri := literal(charExpr('\128;')); ok := ok and stri = "'\\128;'";
+    stri := literal(charExpr('\129;')); ok := ok and stri = "'\\129;'";
+    stri := literal(charExpr('\130;')); ok := ok and stri = "'\\130;'";
+    stri := literal(charExpr('\131;')); ok := ok and stri = "'\\131;'";
+    stri := literal(charExpr('\132;')); ok := ok and stri = "'\\132;'";
+    stri := literal(charExpr('\133;')); ok := ok and stri = "'\\133;'";
+    stri := literal(charExpr('\134;')); ok := ok and stri = "'\\134;'";
+    stri := literal(charExpr('\135;')); ok := ok and stri = "'\\135;'";
+    stri := literal(charExpr('\136;')); ok := ok and stri = "'\\136;'";
+    stri := literal(charExpr('\137;')); ok := ok and stri = "'\\137;'";
+    stri := literal(charExpr('\138;')); ok := ok and stri = "'\\138;'";
+    stri := literal(charExpr('\139;')); ok := ok and stri = "'\\139;'";
+    stri := literal(charExpr('\140;')); ok := ok and stri = "'\\140;'";
+    stri := literal(charExpr('\141;')); ok := ok and stri = "'\\141;'";
+    stri := literal(charExpr('\142;')); ok := ok and stri = "'\\142;'";
+    stri := literal(charExpr('\143;')); ok := ok and stri = "'\\143;'";
+    stri := literal(charExpr('\144;')); ok := ok and stri = "'\\144;'";
+    stri := literal(charExpr('\145;')); ok := ok and stri = "'\\145;'";
+    stri := literal(charExpr('\146;')); ok := ok and stri = "'\\146;'";
+    stri := literal(charExpr('\147;')); ok := ok and stri = "'\\147;'";
+    stri := literal(charExpr('\148;')); ok := ok and stri = "'\\148;'";
+    stri := literal(charExpr('\149;')); ok := ok and stri = "'\\149;'";
+    stri := literal(charExpr('\150;')); ok := ok and stri = "'\\150;'";
+    stri := literal(charExpr('\151;')); ok := ok and stri = "'\\151;'";
+    stri := literal(charExpr('\152;')); ok := ok and stri = "'\\152;'";
+    stri := literal(charExpr('\153;')); ok := ok and stri = "'\\153;'";
+    stri := literal(charExpr('\154;')); ok := ok and stri = "'\\154;'";
+    stri := literal(charExpr('\155;')); ok := ok and stri = "'\\155;'";
+    stri := literal(charExpr('\156;')); ok := ok and stri = "'\\156;'";
+    stri := literal(charExpr('\157;')); ok := ok and stri = "'\\157;'";
+    stri := literal(charExpr('\158;')); ok := ok and stri = "'\\158;'";
+    stri := literal(charExpr('\159;')); ok := ok and stri = "'\\159;'";
+    stri := literal(charExpr('\160;')); ok := ok and stri = "'\\160;'";
+    stri := literal(charExpr('¡'));     ok := ok and stri = "'¡'";
+    stri := literal(charExpr('¤'));     ok := ok and stri = "'¤'";
+    stri := literal(charExpr('§'));     ok := ok and stri = "'§'";
+    stri := literal(charExpr('¬'));     ok := ok and stri = "'¬'";
+    stri := literal(charExpr('­'));     ok := ok and stri = "'­'";
+    stri := literal(charExpr('µ'));     ok := ok and stri = "'µ'";
+    stri := literal(charExpr('¿'));     ok := ok and stri = "'¿'";
+    stri := literal(charExpr('Ä'));     ok := ok and stri = "'Ä'";
+    stri := literal(charExpr('×'));     ok := ok and stri = "'×'";
+    stri := literal(charExpr('ß'));     ok := ok and stri = "'ß'";
+    stri := literal(charExpr('ä'));     ok := ok and stri = "'ä'";
+    stri := literal(charExpr('÷'));     ok := ok and stri = "'÷'";
+    stri := literal(charExpr('ÿ'));     ok := ok and stri = "'ÿ'";
+    stri := literal(charExpr('Œ'));     ok := ok and stri = "'\\338;'";
+    stri := literal(charExpr('Š'));     ok := ok and stri = "'\\352;'";
+    stri := literal(charExpr('ƒ'));     ok := ok and stri = "'\\402;'";
+    stri := literal(charExpr('†'));     ok := ok and stri = "'\\8224;'";
+    stri := literal(charExpr('•'));     ok := ok and stri = "'\\8226;'";
+    stri := literal(charExpr('‰'));     ok := ok and stri = "'\\8240;'";
+    stri := literal(charExpr('€'));     ok := ok and stri = "'\\8364;'";
+    stri := literal(charExpr('™'));     ok := ok and stri = "'\\8482;'";
+    if not ok then
+      writeln(" ***** Function literal(ch) does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if not check_literal_func then
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("Char literal functions work correct.");
@@ -2456,6 +2469,6 @@ const proc: main is func
     writeln;
     check_isLetter();
     check_width();
-    check_literal_functions();
+    check_literal();
     check_ternary();
   end func;
