@@ -125,6 +125,10 @@ extern intType drwWidth (const_winType actual_window);
 #define WM_XBUTTONDOWN 0x020B
 #endif
 
+#ifndef MAPVK_VK_TO_VSC
+#define MAPVK_VK_TO_VSC 0
+#endif
+
 
 
 winType find_window (HWND sys_window)
