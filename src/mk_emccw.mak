@@ -11,7 +11,7 @@ CFLAGS = -O2 -g -gsource-map -ffunction-sections -fdata-sections -Wall -Wstrict-
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -g -gsource-map -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString']
+LDFLAGS = -g -gsource-map -s TOTAL_STACK=1048576 -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString']
 # LDFLAGS = -Wl,--gc-sections,--stack,8388608,--subsystem,windows
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
