@@ -20657,8 +20657,12 @@ const proc: check_binom is func
                  1  !                 2  <>  0 or
                  1  !            123456  <>  0 or
                  1  !            654321  <>  0 or
-                 1  !         INT64_MAX  <>  0 or
-        intExpr(-1) !         INT64_MIN  <>  0 or
+                 1  !         INT64_MAX  <>  0 then
+      writeln(" ***** Computing binomial coefficient with small n does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(-1) !         INT64_MIN  <>  0 or
         intExpr(-1) !            (-1234) <>  0 or
         intExpr(-1) !               (-2) <>  0 or
         intExpr(-1) !               (-1) <>  0 or
@@ -20687,8 +20691,12 @@ const proc: check_binom is func
         intExpr( 1) !                 2  <>  0 or
         intExpr( 1) !            123456  <>  0 or
         intExpr( 1) !            654321  <>  0 or
-        intExpr( 1) !         INT64_MAX  <>  0 or
-               (-1) ! intExpr(INT64_MIN) <>  0 or
+        intExpr( 1) !         INT64_MAX  <>  0 then
+      writeln(" ***** Computing binomial coefficient with small n does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if         (-1) ! intExpr(INT64_MIN) <>  0 or
                (-1) ! intExpr(    -1234) <>  0 or
                (-1) ! intExpr(       -2) <>  0 or
                (-1) ! intExpr(       -1) <>  0 or
@@ -20717,8 +20725,12 @@ const proc: check_binom is func
                  1  ! intExpr(        2) <>  0 or
                  1  ! intExpr(   123456) <>  0 or
                  1  ! intExpr(   654321) <>  0 or
-                 1  ! intExpr(INT64_MAX) <>  0 or
-        intExpr(-1) ! intExpr(INT64_MIN) <>  0 or
+                 1  ! intExpr(INT64_MAX) <>  0 then
+      writeln(" ***** Computing binomial coefficient with small n does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(-1) ! intExpr(INT64_MIN) <>  0 or
         intExpr(-1) ! intExpr(    -1234) <>  0 or
         intExpr(-1) ! intExpr(       -2) <>  0 or
         intExpr(-1) ! intExpr(       -1) <>  0 or
@@ -20748,7 +20760,7 @@ const proc: check_binom is func
         intExpr( 1) ! intExpr(   123456) <>  0 or
         intExpr( 1) ! intExpr(   654321) <>  0 or
         intExpr( 1) ! intExpr(INT64_MAX) <>  0 then
-      writeln(" ***** Computing binomial coefficient with small constants does not work correct.");
+      writeln(" ***** Computing binomial coefficient with small n does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -20926,8 +20938,12 @@ const proc: check_binom is func
                 67  !                68  <>                   0 or
                 67  !            123456  <>                   0 or
                 67  !            654321  <>                   0 or
-                67  !         INT64_MAX  <>                   0 or
-        intExpr(30) !         INT64_MIN  <>                   0 or
+                67  !         INT64_MAX  <>                   0 then
+      writeln(" ***** Computing binomial coefficient with larger values does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(30) !         INT64_MIN  <>                   0 or
         intExpr(30) !            (-1234) <>                   0 or
         intExpr(30) !               (-2) <>                   0 or
         intExpr(30) !               (-1) <>                   0 or
@@ -21101,8 +21117,12 @@ const proc: check_binom is func
         intExpr(67) !                68  <>                   0 or
         intExpr(67) !            123456  <>                   0 or
         intExpr(67) !            654321  <>                   0 or
-        intExpr(67) !         INT64_MAX  <>                   0 or
-                30  ! intExpr(INT64_MIN) <>                   0 or
+        intExpr(67) !         INT64_MAX  <>                   0 then
+      writeln(" ***** Computing binomial coefficient with larger values does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if          30  ! intExpr(INT64_MIN) <>                   0 or
                 30  ! intExpr(    -1234) <>                   0 or
                 30  ! intExpr(       -2) <>                   0 or
                 30  ! intExpr(       -1) <>                   0 or
@@ -21276,8 +21296,12 @@ const proc: check_binom is func
                 67  ! intExpr(       68) <>                   0 or
                 67  ! intExpr(   123456) <>                   0 or
                 67  ! intExpr(   654321) <>                   0 or
-                67  ! intExpr(INT64_MAX) <>                   0 or
-        intExpr(30) ! intExpr(INT64_MIN) <>                   0 or
+                67  ! intExpr(INT64_MAX) <>                   0 then
+      writeln(" ***** Computing binomial coefficient with larger values does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(30) ! intExpr(INT64_MIN) <>                   0 or
         intExpr(30) ! intExpr(    -1234) <>                   0 or
         intExpr(30) ! intExpr(       -2) <>                   0 or
         intExpr(30) ! intExpr(       -1) <>                   0 or
@@ -21452,7 +21476,7 @@ const proc: check_binom is func
         intExpr(67) ! intExpr(   123456) <>                   0 or
         intExpr(67) ! intExpr(   654321) <>                   0 or
         intExpr(67) ! intExpr(INT64_MAX) <>                   0 then
-      writeln(" ***** Computing binomial coefficient with constants does not work correct.");
+      writeln(" ***** Computing binomial coefficient with larger values does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -21552,8 +21576,12 @@ const proc: check_binom is func
         ( -6) !      16170 <>  9220865312154653235 or
         ( -5) !     121973 <> -9223148185681446450 or
         ( -4) !    3810776 <>  9223371416043870029 or
-        ( -3) ! 4294967294 <>  9223372034707292160 or
-        intExpr(-99) !         15 <> -1809960172844903640 or
+        ( -3) ! 4294967294 <>  9223372034707292160 then
+      writeln(" ***** Binomial coefficient with negative n not correct for big values. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(-99) !         15 <> -1809960172844903640 or
         intExpr(-98) !         15 <> -1569699972909739440 or
         intExpr(-97) !         15 <> -1359472297966470765 or
         intExpr(-96) !         16 <>  8156833787798824590 or
@@ -21649,8 +21677,12 @@ const proc: check_binom is func
         intExpr( -6) !      16170 <>  9220865312154653235 or
         intExpr( -5) !     121973 <> -9223148185681446450 or
         intExpr( -4) !    3810776 <>  9223371416043870029 or
-        intExpr( -3) ! 4294967294 <>  9223372034707292160 or
-        (-99) ! intExpr(        15) <> -1809960172844903640 or
+        intExpr( -3) ! 4294967294 <>  9223372034707292160 then
+      writeln(" ***** Binomial coefficient with negative n not correct for big values. (2)");
+      okay := FALSE;
+    end if;
+
+    if  (-99) ! intExpr(        15) <> -1809960172844903640 or
         (-98) ! intExpr(        15) <> -1569699972909739440 or
         (-97) ! intExpr(        15) <> -1359472297966470765 or
         (-96) ! intExpr(        16) <>  8156833787798824590 or
@@ -21746,8 +21778,12 @@ const proc: check_binom is func
         ( -6) ! intExpr(     16170) <>  9220865312154653235 or
         ( -5) ! intExpr(    121973) <> -9223148185681446450 or
         ( -4) ! intExpr(   3810776) <>  9223371416043870029 or
-        ( -3) ! intExpr(4294967294) <>  9223372034707292160 or
-        intExpr(-99) ! intExpr(        15) <> -1809960172844903640 or
+        ( -3) ! intExpr(4294967294) <>  9223372034707292160 then
+      writeln(" ***** Binomial coefficient with negative n not correct for big values. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(-99) ! intExpr(        15) <> -1809960172844903640 or
         intExpr(-98) ! intExpr(        15) <> -1569699972909739440 or
         intExpr(-97) ! intExpr(        15) <> -1359472297966470765 or
         intExpr(-96) ! intExpr(        16) <>  8156833787798824590 or
@@ -21844,7 +21880,7 @@ const proc: check_binom is func
         intExpr( -5) ! intExpr(    121973) <> -9223148185681446450 or
         intExpr( -4) ! intExpr(   3810776) <>  9223371416043870029 or
         intExpr( -3) ! intExpr(4294967294) <>  9223372034707292160 then
-      writeln(" ***** Binomial coefficient with negative n not correct for big values.");
+      writeln(" ***** Binomial coefficient with negative n not correct for big values. (4)");
       okay := FALSE;
     end if;
 
@@ -21945,8 +21981,12 @@ const proc: check_binom is func
               111 ! 96 <> 1359472297966470765 or
               112 ! 97 <> 1569699972909739440 or
               113 ! 98 <> 1809960172844903640 or
-              114 ! 99 <> 2084196562669889040 or
-        intExpr(4294967296) !  2 <> 9223372034707292160 or
+              114 ! 99 <> 2084196562669889040 then
+      writeln(" ***** Binomial coefficient with positive n not correct for big values. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(4294967296) !  2 <> 9223372034707292160 or
         intExpr(   3810779) !  3 <> 9223371416043870029 or
         intExpr(    121977) !  4 <> 9223148185681446450 or
         intExpr(     16175) !  5 <> 9220865312154653235 or
@@ -22043,8 +22083,12 @@ const proc: check_binom is func
         intExpr(       111) ! 96 <> 1359472297966470765 or
         intExpr(       112) ! 97 <> 1569699972909739440 or
         intExpr(       113) ! 98 <> 1809960172844903640 or
-        intExpr(       114) ! 99 <> 2084196562669889040 or
-        4294967296 ! intExpr( 2) <> 9223372034707292160 or
+        intExpr(       114) ! 99 <> 2084196562669889040 then
+      writeln(" ***** Binomial coefficient with positive n not correct for big values. (2)");
+      okay := FALSE;
+    end if;
+
+    if  4294967296 ! intExpr( 2) <> 9223372034707292160 or
            3810779 ! intExpr( 3) <> 9223371416043870029 or
             121977 ! intExpr( 4) <> 9223148185681446450 or
              16175 ! intExpr( 5) <> 9220865312154653235 or
@@ -22141,8 +22185,12 @@ const proc: check_binom is func
                111 ! intExpr(96) <> 1359472297966470765 or
                112 ! intExpr(97) <> 1569699972909739440 or
                113 ! intExpr(98) <> 1809960172844903640 or
-               114 ! intExpr(99) <> 2084196562669889040 or
-        intExpr(4294967296) ! intExpr( 2) <> 9223372034707292160 or
+               114 ! intExpr(99) <> 2084196562669889040 then
+      writeln(" ***** Binomial coefficient with positive n not correct for big values. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(4294967296) ! intExpr( 2) <> 9223372034707292160 or
         intExpr(   3810779) ! intExpr( 3) <> 9223371416043870029 or
         intExpr(    121977) ! intExpr( 4) <> 9223148185681446450 or
         intExpr(     16175) ! intExpr( 5) <> 9220865312154653235 or
@@ -22240,7 +22288,7 @@ const proc: check_binom is func
         intExpr(       112) ! intExpr(97) <> 1569699972909739440 or
         intExpr(       113) ! intExpr(98) <> 1809960172844903640 or
         intExpr(       114) ! intExpr(99) <> 2084196562669889040 then
-      writeln(" ***** Binomial coefficient with positive n not correct for big values.");
+      writeln(" ***** Binomial coefficient with positive n not correct for big values. (4)");
       okay := FALSE;
     end if;
 
@@ -24770,8 +24818,12 @@ const proc: check_lShift is func
          1152921504606846975 <<  3 <>  9223372036854775800 or
          2305843009213693951 <<  2 <>  9223372036854775804 or
          4611686018427387903 <<  1 <>  9223372036854775806 or
-         9223372036854775807 <<  0 <>  9223372036854775807 or
-        intExpr(-9223372036854775807) <<  0 <> -9223372036854775807 or
+         9223372036854775807 <<  0 <>  9223372036854775807 then
+      writeln(" ***** Left shift where bitLength(result) is 63 does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(-9223372036854775807) <<  0 <> -9223372036854775807 or
         intExpr(-4611686018427387903) <<  1 <> -9223372036854775806 or
         intExpr(-2305843009213693951) <<  2 <> -9223372036854775804 or
         intExpr(-1152921504606846975) <<  3 <> -9223372036854775800 or
@@ -24809,8 +24861,12 @@ const proc: check_lShift is func
         intExpr( 1152921504606846975) <<  3 <>  9223372036854775800 or
         intExpr( 2305843009213693951) <<  2 <>  9223372036854775804 or
         intExpr( 4611686018427387903) <<  1 <>  9223372036854775806 or
-        intExpr( 9223372036854775807) <<  0 <>  9223372036854775807 or
-        -9223372036854775807 << intExpr( 0) <> -9223372036854775807 or
+        intExpr( 9223372036854775807) <<  0 <>  9223372036854775807 then
+      writeln(" ***** Left shift where bitLength(result) is 63 does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  -9223372036854775807 << intExpr( 0) <> -9223372036854775807 or
         -4611686018427387903 << intExpr( 1) <> -9223372036854775806 or
         -2305843009213693951 << intExpr( 2) <> -9223372036854775804 or
         -1152921504606846975 << intExpr( 3) <> -9223372036854775800 or
@@ -24848,8 +24904,12 @@ const proc: check_lShift is func
          1152921504606846975 << intExpr( 3) <>  9223372036854775800 or
          2305843009213693951 << intExpr( 2) <>  9223372036854775804 or
          4611686018427387903 << intExpr( 1) <>  9223372036854775806 or
-         9223372036854775807 << intExpr( 0) <>  9223372036854775807 or
-        intExpr(-9223372036854775807) << intExpr( 0) <> -9223372036854775807 or
+         9223372036854775807 << intExpr( 0) <>  9223372036854775807 then
+      writeln(" ***** Left shift where bitLength(result) is 63 does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(-9223372036854775807) << intExpr( 0) <> -9223372036854775807 or
         intExpr(-4611686018427387903) << intExpr( 1) <> -9223372036854775806 or
         intExpr(-2305843009213693951) << intExpr( 2) <> -9223372036854775804 or
         intExpr(-1152921504606846975) << intExpr( 3) <> -9223372036854775800 or
@@ -24888,7 +24948,7 @@ const proc: check_lShift is func
         intExpr( 2305843009213693951) << intExpr( 2) <>  9223372036854775804 or
         intExpr( 4611686018427387903) << intExpr( 1) <>  9223372036854775806 or
         intExpr( 9223372036854775807) << intExpr( 0) <>  9223372036854775807 then
-      writeln(" ***** Left shift where bitLength(result) is 63 does not work correct.");
+      writeln(" ***** Left shift where bitLength(result) is 63 does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -24931,8 +24991,12 @@ const proc: check_lShift is func
           576460752303423488 <<  3 <>  4611686018427387904 or
          1152921504606846976 <<  2 <>  4611686018427387904 or
          2305843009213693952 <<  1 <>  4611686018427387904 or
-         4611686018427387904 <<  0 <>  4611686018427387904 or
-        intExpr(           INT64_MIN) <<  0 <>            INT64_MIN or
+         4611686018427387904 <<  0 <>  4611686018427387904 then
+      writeln(" ***** Left shift with result of the biggest power of two does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) <<  0 <>            INT64_MIN or
         intExpr(-4611686018427387904) <<  1 <>            INT64_MIN or
         intExpr(-2305843009213693952) <<  2 <>            INT64_MIN or
         intExpr(-1152921504606846976) <<  3 <>            INT64_MIN or
@@ -24971,8 +25035,12 @@ const proc: check_lShift is func
         intExpr(  576460752303423488) <<  3 <>  4611686018427387904 or
         intExpr( 1152921504606846976) <<  2 <>  4611686018427387904 or
         intExpr( 2305843009213693952) <<  1 <>  4611686018427387904 or
-        intExpr( 4611686018427387904) <<  0 <>  4611686018427387904 or
-                   INT64_MIN << intExpr( 0) <>            INT64_MIN or
+        intExpr( 4611686018427387904) <<  0 <>  4611686018427387904 then
+      writeln(" ***** Left shift with result of the biggest power of two does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if             INT64_MIN << intExpr( 0) <>            INT64_MIN or
         -4611686018427387904 << intExpr( 1) <>            INT64_MIN or
         -2305843009213693952 << intExpr( 2) <>            INT64_MIN or
         -1152921504606846976 << intExpr( 3) <>            INT64_MIN or
@@ -25011,8 +25079,12 @@ const proc: check_lShift is func
           576460752303423488 << intExpr( 3) <>  4611686018427387904 or
          1152921504606846976 << intExpr( 2) <>  4611686018427387904 or
          2305843009213693952 << intExpr( 1) <>  4611686018427387904 or
-         4611686018427387904 << intExpr( 0) <>  4611686018427387904 or
-        intExpr(           INT64_MIN) << intExpr( 0) <>            INT64_MIN or
+         4611686018427387904 << intExpr( 0) <>  4611686018427387904 then
+      writeln(" ***** Left shift with result of the biggest power of two does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) << intExpr( 0) <>            INT64_MIN or
         intExpr(-4611686018427387904) << intExpr( 1) <>            INT64_MIN or
         intExpr(-2305843009213693952) << intExpr( 2) <>            INT64_MIN or
         intExpr(-1152921504606846976) << intExpr( 3) <>            INT64_MIN or
@@ -25052,7 +25124,7 @@ const proc: check_lShift is func
         intExpr( 1152921504606846976) << intExpr( 2) <>  4611686018427387904 or
         intExpr( 2305843009213693952) << intExpr( 1) <>  4611686018427387904 or
         intExpr( 4611686018427387904) << intExpr( 0) <>  4611686018427387904 then
-      writeln(" ***** Left shift with result of the biggest power of two does not work correct.");
+      writeln(" ***** Left shift with result of the biggest power of two does not work correct. (4)");
       okay := FALSE;
     end if;
 
