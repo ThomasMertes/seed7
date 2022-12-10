@@ -6693,8 +6693,12 @@ const proc: check_add is func
                           -3 + -9223372036854775805 <> INT64_MIN or
                           -2 + -9223372036854775806 <> INT64_MIN or
                           -1 + -9223372036854775807 <> INT64_MIN or
-                           0 +            INT64_MIN <> INT64_MIN or
-        intExpr(           INT64_MIN) +                    0 <> INT64_MIN or
+                           0 +            INT64_MIN <> INT64_MIN then
+      writeln(" ***** Addition that results in the minimum integer does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) +                    0 <> INT64_MIN or
         intExpr(-9223372036854775807) +                   -1 <> INT64_MIN or
         intExpr(-9223372036854775806) +                   -2 <> INT64_MIN or
         intExpr(-9223372036854775805) +                   -3 <> INT64_MIN or
@@ -6737,8 +6741,12 @@ const proc: check_add is func
         intExpr(                  -3) + -9223372036854775805 <> INT64_MIN or
         intExpr(                  -2) + -9223372036854775806 <> INT64_MIN or
         intExpr(                  -1) + -9223372036854775807 <> INT64_MIN or
-        intExpr(                   0) +            INT64_MIN <> INT64_MIN or
-                   INT64_MIN + intExpr(                   0) <> INT64_MIN or
+        intExpr(                   0) +            INT64_MIN <> INT64_MIN then
+      writeln(" ***** Addition that results in the minimum integer does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if             INT64_MIN + intExpr(                   0) <> INT64_MIN or
         -9223372036854775807 + intExpr(                  -1) <> INT64_MIN or
         -9223372036854775806 + intExpr(                  -2) <> INT64_MIN or
         -9223372036854775805 + intExpr(                  -3) <> INT64_MIN or
@@ -6781,8 +6789,12 @@ const proc: check_add is func
                           -3 + intExpr(-9223372036854775805) <> INT64_MIN or
                           -2 + intExpr(-9223372036854775806) <> INT64_MIN or
                           -1 + intExpr(-9223372036854775807) <> INT64_MIN or
-                           0 + intExpr(           INT64_MIN) <> INT64_MIN or
-        intExpr(           INT64_MIN) + intExpr(                   0) <> INT64_MIN or
+                           0 + intExpr(           INT64_MIN) <> INT64_MIN then
+      writeln(" ***** Addition that results in the minimum integer does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) + intExpr(                   0) <> INT64_MIN or
         intExpr(-9223372036854775807) + intExpr(                  -1) <> INT64_MIN or
         intExpr(-9223372036854775806) + intExpr(                  -2) <> INT64_MIN or
         intExpr(-9223372036854775805) + intExpr(                  -3) <> INT64_MIN or
@@ -6826,7 +6838,7 @@ const proc: check_add is func
         intExpr(                  -2) + intExpr(-9223372036854775806) <> INT64_MIN or
         intExpr(                  -1) + intExpr(-9223372036854775807) <> INT64_MIN or
         intExpr(                   0) + intExpr(           INT64_MIN) <> INT64_MIN then
-      writeln(" ***** Addition that results in the minimum integer does not work correct.");
+      writeln(" ***** Addition that results in the minimum integer does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -6873,8 +6885,12 @@ const proc: check_add is func
                           3 + 9223372036854775804 <> 9223372036854775807 or
                           2 + 9223372036854775805 <> 9223372036854775807 or
                           1 + 9223372036854775806 <> 9223372036854775807 or
-                          0 + 9223372036854775807 <> 9223372036854775807 or
-        intExpr(9223372036854775807) +                   0 <> 9223372036854775807 or
+                          0 + 9223372036854775807 <> 9223372036854775807 then
+      writeln(" ***** Addition that results in the maximum integer does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(9223372036854775807) +                   0 <> 9223372036854775807 or
         intExpr(9223372036854775806) +                   1 <> 9223372036854775807 or
         intExpr(9223372036854775805) +                   2 <> 9223372036854775807 or
         intExpr(9223372036854775804) +                   3 <> 9223372036854775807 or
@@ -6917,8 +6933,12 @@ const proc: check_add is func
         intExpr(                  3) + 9223372036854775804 <> 9223372036854775807 or
         intExpr(                  2) + 9223372036854775805 <> 9223372036854775807 or
         intExpr(                  1) + 9223372036854775806 <> 9223372036854775807 or
-        intExpr(                  0) + 9223372036854775807 <> 9223372036854775807 or
-        9223372036854775807 + intExpr(                  0) <> 9223372036854775807 or
+        intExpr(                  0) + 9223372036854775807 <> 9223372036854775807 then
+      writeln(" ***** Addition that results in the maximum integer does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  9223372036854775807 + intExpr(                  0) <> 9223372036854775807 or
         9223372036854775806 + intExpr(                  1) <> 9223372036854775807 or
         9223372036854775805 + intExpr(                  2) <> 9223372036854775807 or
         9223372036854775804 + intExpr(                  3) <> 9223372036854775807 or
@@ -6961,8 +6981,12 @@ const proc: check_add is func
                           3 + intExpr(9223372036854775804) <> 9223372036854775807 or
                           2 + intExpr(9223372036854775805) <> 9223372036854775807 or
                           1 + intExpr(9223372036854775806) <> 9223372036854775807 or
-                          0 + intExpr(9223372036854775807) <> 9223372036854775807 or
-        intExpr(9223372036854775807) + intExpr(                  0) <> 9223372036854775807 or
+                          0 + intExpr(9223372036854775807) <> 9223372036854775807 then
+      writeln(" ***** Addition that results in the maximum integer does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(9223372036854775807) + intExpr(                  0) <> 9223372036854775807 or
         intExpr(9223372036854775806) + intExpr(                  1) <> 9223372036854775807 or
         intExpr(9223372036854775805) + intExpr(                  2) <> 9223372036854775807 or
         intExpr(9223372036854775804) + intExpr(                  3) <> 9223372036854775807 or
@@ -7006,7 +7030,7 @@ const proc: check_add is func
         intExpr(                  2) + intExpr(9223372036854775805) <> 9223372036854775807 or
         intExpr(                  1) + intExpr(9223372036854775806) <> 9223372036854775807 or
         intExpr(                  0) + intExpr(9223372036854775807) <> 9223372036854775807 then
-      writeln(" ***** Addition that results in the maximum integer does not work correct.");
+      writeln(" ***** Addition that results in the maximum integer does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -7246,42 +7270,14 @@ const proc: check_add is func
   end func;
 
 
-const proc: check_add_assign is func
-  local
+const func boolean: check_add_assign_minimum_result is func
+  result
     var boolean: okay is TRUE;
+  local
     var boolean: ok is TRUE;
     var integer: num is 0;
     var array integer: arr is [] (0);
   begin
-    num :=            INT64_MIN; num +:=                    0; ok := ok and num =            INT64_MIN;
-    num :=            INT64_MIN; num +:=  9223372036854775807; ok := ok and num =                   -1;
-    num := -9223372036854775807; num +:=                   -1; ok := ok and num =            INT64_MIN;
-    num := -9223372036854775807; num +:=  9223372036854775807; ok := ok and num =                    0;
-    num :=                    0; num +:=            INT64_MIN; ok := ok and num =            INT64_MIN;
-    num :=                    0; num +:= -9223372036854775807; ok := ok and num = -9223372036854775807;
-    num :=                    0; num +:=                    0; ok := ok and num =                    0;
-    num :=                    0; num +:=           2147483647; ok := ok and num =           2147483647;
-    num :=                    0; num +:=           2147483648; ok := ok and num =           2147483648;
-    num :=                    0; num +:=  9223372036854775807; ok := ok and num =  9223372036854775807;
-    num :=                    2; num +:=                    3; ok := ok and num =                    5;
-    num :=                  127; num +:=                  127; ok := ok and num =                  254;
-    num :=                  255; num +:=                  255; ok := ok and num =                  510;
-    num :=                18341; num +:=                26783; ok := ok and num =                45124;
-    num :=                32767; num +:=                32767; ok := ok and num =                65534;
-    num :=                35759; num +:=                58537; ok := ok and num =                94296;
-    num :=                65535; num +:=                65535; ok := ok and num =               131070;
-    num :=                73819; num +:=               124303; ok := ok and num =               198122;
-    num :=           2147483647; num +:=                    0; ok := ok and num =           2147483647;
-    num :=           2147483648; num +:=                    0; ok := ok and num =           2147483648;
-    num :=  9223372036854775807; num +:=            INT64_MIN; ok := ok and num =                   -1;
-    num :=  9223372036854775807; num +:= -9223372036854775807; ok := ok and num =                    0;
-    num :=  9223372036854775807; num +:=                    0; ok := ok and num =  9223372036854775807;
-    if not ok then
-      writeln(" ***** Addition assignment with selected values does not work correct.");
-      okay := FALSE;
-    end if;
-
-    ok := TRUE;
     num :=            INT64_MIN; num +:=                    0; ok := ok and num = INT64_MIN;
     num := -9223372036854775807; num +:=                   -1; ok := ok and num = INT64_MIN;
     num := -9223372036854775806; num +:=                   -2; ok := ok and num = INT64_MIN;
@@ -7326,6 +7322,12 @@ const proc: check_add_assign is func
     num :=                   -2; num +:= -9223372036854775806; ok := ok and num = INT64_MIN;
     num :=                   -1; num +:= -9223372036854775807; ok := ok and num = INT64_MIN;
     num :=                    0; num +:=            INT64_MIN; ok := ok and num = INT64_MIN;
+    if not ok then
+      writeln(" ***** Addition assignment that results in the minimum integer does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num :=            INT64_MIN; num +:= intExpr(                   0); ok := ok and num = INT64_MIN;
     num := -9223372036854775807; num +:= intExpr(                  -1); ok := ok and num = INT64_MIN;
     num := -9223372036854775806; num +:= intExpr(                  -2); ok := ok and num = INT64_MIN;
@@ -7370,6 +7372,12 @@ const proc: check_add_assign is func
     num :=                   -2; num +:= intExpr(-9223372036854775806); ok := ok and num = INT64_MIN;
     num :=                   -1; num +:= intExpr(-9223372036854775807); ok := ok and num = INT64_MIN;
     num :=                    0; num +:= intExpr(           INT64_MIN); ok := ok and num = INT64_MIN;
+    if not ok then
+      writeln(" ***** Addition assignment that results in the minimum integer does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=            INT64_MIN; arr[1] +:=                    0; ok := ok and arr[1] = INT64_MIN;
     arr[1] := -9223372036854775807; arr[1] +:=                   -1; ok := ok and arr[1] = INT64_MIN;
     arr[1] := -9223372036854775806; arr[1] +:=                   -2; ok := ok and arr[1] = INT64_MIN;
@@ -7414,6 +7422,12 @@ const proc: check_add_assign is func
     arr[1] :=                   -2; arr[1] +:= -9223372036854775806; ok := ok and arr[1] = INT64_MIN;
     arr[1] :=                   -1; arr[1] +:= -9223372036854775807; ok := ok and arr[1] = INT64_MIN;
     arr[1] :=                    0; arr[1] +:=            INT64_MIN; ok := ok and arr[1] = INT64_MIN;
+    if not ok then
+      writeln(" ***** Addition assignment that results in the minimum integer does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=            INT64_MIN; arr[1] +:= intExpr(                   0); ok := ok and arr[1] = INT64_MIN;
     arr[1] := -9223372036854775807; arr[1] +:= intExpr(                  -1); ok := ok and arr[1] = INT64_MIN;
     arr[1] := -9223372036854775806; arr[1] +:= intExpr(                  -2); ok := ok and arr[1] = INT64_MIN;
@@ -7459,11 +7473,20 @@ const proc: check_add_assign is func
     arr[1] :=                   -1; arr[1] +:= intExpr(-9223372036854775807); ok := ok and arr[1] = INT64_MIN;
     arr[1] :=                    0; arr[1] +:= intExpr(           INT64_MIN); ok := ok and arr[1] = INT64_MIN;
     if not ok then
-      writeln(" ***** Addition assignment that results in the minimum integer does not work correct.");
+      writeln(" ***** Addition assignment that results in the minimum integer does not work correct. (4)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_add_assign_maximum_result is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var integer: num is 0;
+    var array integer: arr is [] (0);
+  begin
     num := 9223372036854775807; num +:=                   0; ok := ok and num = 9223372036854775807;
     num := 9223372036854775806; num +:=                   1; ok := ok and num = 9223372036854775807;
     num := 9223372036854775805; num +:=                   2; ok := ok and num = 9223372036854775807;
@@ -7508,6 +7531,12 @@ const proc: check_add_assign is func
     num :=                   2; num +:= 9223372036854775805; ok := ok and num = 9223372036854775807;
     num :=                   1; num +:= 9223372036854775806; ok := ok and num = 9223372036854775807;
     num :=                   0; num +:= 9223372036854775807; ok := ok and num = 9223372036854775807;
+    if not ok then
+      writeln(" ***** Addition assignment that results in the maximum integer does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num := 9223372036854775807; num +:= intExpr(                  0); ok := ok and num = 9223372036854775807;
     num := 9223372036854775806; num +:= intExpr(                  1); ok := ok and num = 9223372036854775807;
     num := 9223372036854775805; num +:= intExpr(                  2); ok := ok and num = 9223372036854775807;
@@ -7552,6 +7581,12 @@ const proc: check_add_assign is func
     num :=                   2; num +:= intExpr(9223372036854775805); ok := ok and num = 9223372036854775807;
     num :=                   1; num +:= intExpr(9223372036854775806); ok := ok and num = 9223372036854775807;
     num :=                   0; num +:= intExpr(9223372036854775807); ok := ok and num = 9223372036854775807;
+    if not ok then
+      writeln(" ***** Addition assignment that results in the maximum integer does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] := 9223372036854775807; arr[1] +:=                   0; ok := ok and arr[1] = 9223372036854775807;
     arr[1] := 9223372036854775806; arr[1] +:=                   1; ok := ok and arr[1] = 9223372036854775807;
     arr[1] := 9223372036854775805; arr[1] +:=                   2; ok := ok and arr[1] = 9223372036854775807;
@@ -7596,6 +7631,12 @@ const proc: check_add_assign is func
     arr[1] :=                   2; arr[1] +:= 9223372036854775805; ok := ok and arr[1] = 9223372036854775807;
     arr[1] :=                   1; arr[1] +:= 9223372036854775806; ok := ok and arr[1] = 9223372036854775807;
     arr[1] :=                   0; arr[1] +:= 9223372036854775807; ok := ok and arr[1] = 9223372036854775807;
+    if not ok then
+      writeln(" ***** Addition assignment that results in the maximum integer does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] := 9223372036854775807; arr[1] +:= intExpr(                  0); ok := ok and arr[1] = 9223372036854775807;
     arr[1] := 9223372036854775806; arr[1] +:= intExpr(                  1); ok := ok and arr[1] = 9223372036854775807;
     arr[1] := 9223372036854775805; arr[1] +:= intExpr(                  2); ok := ok and arr[1] = 9223372036854775807;
@@ -7641,7 +7682,44 @@ const proc: check_add_assign is func
     arr[1] :=                   1; arr[1] +:= intExpr(9223372036854775806); ok := ok and arr[1] = 9223372036854775807;
     arr[1] :=                   0; arr[1] +:= intExpr(9223372036854775807); ok := ok and arr[1] = 9223372036854775807;
     if not ok then
-      writeln(" ***** Addition assignment that results in the maximum integer does not work correct.");
+      writeln(" ***** Addition assignment that results in the maximum integer does not work correct. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_add_assign is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var integer: num is 0;
+    var array integer: arr is [] (0);
+  begin
+    num :=            INT64_MIN; num +:=                    0; ok := ok and num =            INT64_MIN;
+    num :=            INT64_MIN; num +:=  9223372036854775807; ok := ok and num =                   -1;
+    num := -9223372036854775807; num +:=                   -1; ok := ok and num =            INT64_MIN;
+    num := -9223372036854775807; num +:=  9223372036854775807; ok := ok and num =                    0;
+    num :=                    0; num +:=            INT64_MIN; ok := ok and num =            INT64_MIN;
+    num :=                    0; num +:= -9223372036854775807; ok := ok and num = -9223372036854775807;
+    num :=                    0; num +:=                    0; ok := ok and num =                    0;
+    num :=                    0; num +:=           2147483647; ok := ok and num =           2147483647;
+    num :=                    0; num +:=           2147483648; ok := ok and num =           2147483648;
+    num :=                    0; num +:=  9223372036854775807; ok := ok and num =  9223372036854775807;
+    num :=                    2; num +:=                    3; ok := ok and num =                    5;
+    num :=                  127; num +:=                  127; ok := ok and num =                  254;
+    num :=                  255; num +:=                  255; ok := ok and num =                  510;
+    num :=                18341; num +:=                26783; ok := ok and num =                45124;
+    num :=                32767; num +:=                32767; ok := ok and num =                65534;
+    num :=                35759; num +:=                58537; ok := ok and num =                94296;
+    num :=                65535; num +:=                65535; ok := ok and num =               131070;
+    num :=                73819; num +:=               124303; ok := ok and num =               198122;
+    num :=           2147483647; num +:=                    0; ok := ok and num =           2147483647;
+    num :=           2147483648; num +:=                    0; ok := ok and num =           2147483648;
+    num :=  9223372036854775807; num +:=            INT64_MIN; ok := ok and num =                   -1;
+    num :=  9223372036854775807; num +:= -9223372036854775807; ok := ok and num =                    0;
+    num :=  9223372036854775807; num +:=                    0; ok := ok and num =  9223372036854775807;
+    if not ok then
+      writeln(" ***** Addition assignment with selected values does not work correct.");
       okay := FALSE;
     end if;
 
@@ -7678,6 +7756,14 @@ const proc: check_add_assign is func
     arr[1] :=                     integer.last;  arr[1] +:= rand(0, 0); ok := ok and arr[1] =  integer.last;
     if not ok then
       writeln(" ***** Addition assignment with zero does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if not check_add_assign_minimum_result then
+      okay := FALSE;
+    end if;
+
+    if not check_add_assign_maximum_result then
       okay := FALSE;
     end if;
 
@@ -7761,8 +7847,12 @@ const proc: check_subtract is func
                          -11 - 9223372036854775797 <> INT64_MIN or
                           -3 - 9223372036854775805 <> INT64_MIN or
                           -2 - 9223372036854775806 <> INT64_MIN or
-                          -1 - 9223372036854775807 <> INT64_MIN or
-        intExpr(           INT64_MIN) -                   0 <> INT64_MIN or
+                          -1 - 9223372036854775807 <> INT64_MIN then
+      writeln(" ***** Subtraction that results in the minimum integer does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) -                   0 <> INT64_MIN or
         intExpr(-9223372036854775807) -                   1 <> INT64_MIN or
         intExpr(-9223372036854775806) -                   2 <> INT64_MIN or
         intExpr(-9223372036854775805) -                   3 <> INT64_MIN or
@@ -7804,8 +7894,12 @@ const proc: check_subtract is func
         intExpr(                 -11) - 9223372036854775797 <> INT64_MIN or
         intExpr(                  -3) - 9223372036854775805 <> INT64_MIN or
         intExpr(                  -2) - 9223372036854775806 <> INT64_MIN or
-        intExpr(                  -1) - 9223372036854775807 <> INT64_MIN or
-                   INT64_MIN - intExpr(                  0) <> INT64_MIN or
+        intExpr(                  -1) - 9223372036854775807 <> INT64_MIN then
+      writeln(" ***** Subtraction that results in the minimum integer does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if             INT64_MIN - intExpr(                  0) <> INT64_MIN or
         -9223372036854775807 - intExpr(                  1) <> INT64_MIN or
         -9223372036854775806 - intExpr(                  2) <> INT64_MIN or
         -9223372036854775805 - intExpr(                  3) <> INT64_MIN or
@@ -7847,8 +7941,12 @@ const proc: check_subtract is func
                          -11 - intExpr(9223372036854775797) <> INT64_MIN or
                           -3 - intExpr(9223372036854775805) <> INT64_MIN or
                           -2 - intExpr(9223372036854775806) <> INT64_MIN or
-                          -1 - intExpr(9223372036854775807) <> INT64_MIN or
-        intExpr(           INT64_MIN) - intExpr(                  0) <> INT64_MIN or
+                          -1 - intExpr(9223372036854775807) <> INT64_MIN then
+      writeln(" ***** Subtraction that results in the minimum integer does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) - intExpr(                  0) <> INT64_MIN or
         intExpr(-9223372036854775807) - intExpr(                  1) <> INT64_MIN or
         intExpr(-9223372036854775806) - intExpr(                  2) <> INT64_MIN or
         intExpr(-9223372036854775805) - intExpr(                  3) <> INT64_MIN or
@@ -7891,7 +7989,7 @@ const proc: check_subtract is func
         intExpr(                  -3) - intExpr(9223372036854775805) <> INT64_MIN or
         intExpr(                  -2) - intExpr(9223372036854775806) <> INT64_MIN or
         intExpr(                  -1) - intExpr(9223372036854775807) <> INT64_MIN then
-      writeln(" ***** Subtraction that results in the minimum integer does not work correct.");
+      writeln(" ***** Subtraction that results in the minimum integer does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -7939,8 +8037,12 @@ const proc: check_subtract is func
                           2 - -9223372036854775805 <> 9223372036854775807 or
                           1 - -9223372036854775806 <> 9223372036854775807 or
                           0 - -9223372036854775807 <> 9223372036854775807 or
-                         -1 -            INT64_MIN <> 9223372036854775807 or
-        intExpr(9223372036854775807) -                    0 <> 9223372036854775807 or
+                         -1 -            INT64_MIN <> 9223372036854775807 then
+      writeln(" ***** Subtraction that results in the maximum integer does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(9223372036854775807) -                    0 <> 9223372036854775807 or
         intExpr(9223372036854775806) -                   -1 <> 9223372036854775807 or
         intExpr(9223372036854775805) -                   -2 <> 9223372036854775807 or
         intExpr(9223372036854775804) -                   -3 <> 9223372036854775807 or
@@ -7984,8 +8086,12 @@ const proc: check_subtract is func
         intExpr(                  2) - -9223372036854775805 <> 9223372036854775807 or
         intExpr(                  1) - -9223372036854775806 <> 9223372036854775807 or
         intExpr(                  0) - -9223372036854775807 <> 9223372036854775807 or
-        intExpr(                 -1) -            INT64_MIN <> 9223372036854775807 or
-        9223372036854775807 - intExpr(                   0) <> 9223372036854775807 or
+        intExpr(                 -1) -            INT64_MIN <> 9223372036854775807 then
+      writeln(" ***** Subtraction that results in the maximum integer does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  9223372036854775807 - intExpr(                   0) <> 9223372036854775807 or
         9223372036854775806 - intExpr(                  -1) <> 9223372036854775807 or
         9223372036854775805 - intExpr(                  -2) <> 9223372036854775807 or
         9223372036854775804 - intExpr(                  -3) <> 9223372036854775807 or
@@ -8029,8 +8135,12 @@ const proc: check_subtract is func
                           2 - intExpr(-9223372036854775805) <> 9223372036854775807 or
                           1 - intExpr(-9223372036854775806) <> 9223372036854775807 or
                           0 - intExpr(-9223372036854775807) <> 9223372036854775807 or
-                         -1 - intExpr(           INT64_MIN) <> 9223372036854775807 or
-        intExpr(9223372036854775807) - intExpr(                   0) <> 9223372036854775807 or
+                         -1 - intExpr(           INT64_MIN) <> 9223372036854775807 then
+      writeln(" ***** Subtraction that results in the maximum integer does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(9223372036854775807) - intExpr(                   0) <> 9223372036854775807 or
         intExpr(9223372036854775806) - intExpr(                  -1) <> 9223372036854775807 or
         intExpr(9223372036854775805) - intExpr(                  -2) <> 9223372036854775807 or
         intExpr(9223372036854775804) - intExpr(                  -3) <> 9223372036854775807 or
@@ -8075,7 +8185,7 @@ const proc: check_subtract is func
         intExpr(                  1) - intExpr(-9223372036854775806) <> 9223372036854775807 or
         intExpr(                  0) - intExpr(-9223372036854775807) <> 9223372036854775807 or
         intExpr(                 -1) - intExpr(           INT64_MIN) <> 9223372036854775807 then
-      writeln(" ***** Subtraction that results in the maximum integer does not work correct.");
+      writeln(" ***** Subtraction that results in the maximum integer does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -8215,41 +8325,14 @@ const proc: check_subtract is func
   end func;
 
 
-const proc: check_subtract_assign is func
-  local
+const func boolean: check_subtract_assign_minimum_result is func
+  result
     var boolean: okay is TRUE;
+  local
     var boolean: ok is TRUE;
     var integer: num is 0;
     var array integer: arr is [] (0);
   begin
-    num :=            INT64_MIN; num -:=                    0; ok := ok and num =            INT64_MIN;
-    num :=            INT64_MIN; num -:= -9223372036854775807; ok := ok and num =                   -1;
-    num := -9223372036854775807; num -:=                    1; ok := ok and num =            INT64_MIN;
-    num := -9223372036854775807; num -:= -9223372036854775807; ok := ok and num =                    0;
-    num :=                   -1; num -:=  9223372036854775807; ok := ok and num =            INT64_MIN;
-    num :=                    0; num -:=  9223372036854775807; ok := ok and num = -9223372036854775807;
-    num :=                    0; num -:=                    0; ok := ok and num =                    0;
-    num :=                    0; num -:=          -2147483647; ok := ok and num =           2147483647;
-    num :=                    0; num -:=          -2147483648; ok := ok and num =           2147483648;
-    num :=                    0; num -:= -9223372036854775807; ok := ok and num =  9223372036854775807;
-    num :=                    2; num -:=                   -3; ok := ok and num =                    5;
-    num :=                  127; num -:=                 -127; ok := ok and num =                  254;
-    num :=                  255; num -:=                 -255; ok := ok and num =                  510;
-    num :=                18341; num -:=               -26783; ok := ok and num =                45124;
-    num :=                32767; num -:=               -32767; ok := ok and num =                65534;
-    num :=                35759; num -:=               -58537; ok := ok and num =                94296;
-    num :=                65535; num -:=               -65535; ok := ok and num =               131070;
-    num :=                73819; num -:=              -124303; ok := ok and num =               198122;
-    num :=           2147483647; num -:=                    0; ok := ok and num =           2147483647;
-    num :=           2147483648; num -:=                    0; ok := ok and num =           2147483648;
-    num :=  9223372036854775807; num -:=  9223372036854775807; ok := ok and num =                    0;
-    num :=  9223372036854775807; num -:=                    0; ok := ok and num =  9223372036854775807;
-    if not ok then
-      writeln(" ***** Subtraction assignment with selected values does not work correct.");
-      okay := FALSE;
-    end if;
-
-    ok := TRUE;
     num :=            INT64_MIN; num -:=                   0; ok := ok and num = INT64_MIN;
     num := -9223372036854775807; num -:=                   1; ok := ok and num = INT64_MIN;
     num := -9223372036854775806; num -:=                   2; ok := ok and num = INT64_MIN;
@@ -8293,6 +8376,12 @@ const proc: check_subtract_assign is func
     num :=                   -3; num -:= 9223372036854775805; ok := ok and num = INT64_MIN;
     num :=                   -2; num -:= 9223372036854775806; ok := ok and num = INT64_MIN;
     num :=                   -1; num -:= 9223372036854775807; ok := ok and num = INT64_MIN;
+    if not ok then
+      writeln(" ***** Subtraction assignment that results in the minimum integer does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num :=            INT64_MIN; num -:= intExpr(                  0); ok := ok and num = INT64_MIN;
     num := -9223372036854775807; num -:= intExpr(                  1); ok := ok and num = INT64_MIN;
     num := -9223372036854775806; num -:= intExpr(                  2); ok := ok and num = INT64_MIN;
@@ -8336,6 +8425,12 @@ const proc: check_subtract_assign is func
     num :=                   -3; num -:= intExpr(9223372036854775805); ok := ok and num = INT64_MIN;
     num :=                   -2; num -:= intExpr(9223372036854775806); ok := ok and num = INT64_MIN;
     num :=                   -1; num -:= intExpr(9223372036854775807); ok := ok and num = INT64_MIN;
+    if not ok then
+      writeln(" ***** Subtraction assignment that results in the minimum integer does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=            INT64_MIN; arr[1] -:=                   0; ok := ok and arr[1] = INT64_MIN;
     arr[1] := -9223372036854775807; arr[1] -:=                   1; ok := ok and arr[1] = INT64_MIN;
     arr[1] := -9223372036854775806; arr[1] -:=                   2; ok := ok and arr[1] = INT64_MIN;
@@ -8379,6 +8474,12 @@ const proc: check_subtract_assign is func
     arr[1] :=                   -3; arr[1] -:= 9223372036854775805; ok := ok and arr[1] = INT64_MIN;
     arr[1] :=                   -2; arr[1] -:= 9223372036854775806; ok := ok and arr[1] = INT64_MIN;
     arr[1] :=                   -1; arr[1] -:= 9223372036854775807; ok := ok and arr[1] = INT64_MIN;
+    if not ok then
+      writeln(" ***** Subtraction assignment that results in the minimum integer does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=            INT64_MIN; arr[1] -:= intExpr(                  0); ok := ok and arr[1] = INT64_MIN;
     arr[1] := -9223372036854775807; arr[1] -:= intExpr(                  1); ok := ok and arr[1] = INT64_MIN;
     arr[1] := -9223372036854775806; arr[1] -:= intExpr(                  2); ok := ok and arr[1] = INT64_MIN;
@@ -8423,11 +8524,20 @@ const proc: check_subtract_assign is func
     arr[1] :=                   -2; arr[1] -:= intExpr(9223372036854775806); ok := ok and arr[1] = INT64_MIN;
     arr[1] :=                   -1; arr[1] -:= intExpr(9223372036854775807); ok := ok and arr[1] = INT64_MIN;
     if not ok then
-      writeln(" ***** Subtraction assignment that results in the minimum integer does not work correct.");
+      writeln(" ***** Subtraction assignment that results in the minimum integer does not work correct. (4)");
       okay := FALSE;
     end if;
+  end func;
 
-    ok := TRUE;
+
+const func boolean: check_subtract_assign_maximum_result is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var integer: num is 0;
+    var array integer: arr is [] (0);
+  begin
     num := 9223372036854775807; num -:=                    0; ok := ok and num = 9223372036854775807;
     num := 9223372036854775806; num -:=                   -1; ok := ok and num = 9223372036854775807;
     num := 9223372036854775805; num -:=                   -2; ok := ok and num = 9223372036854775807;
@@ -8472,6 +8582,12 @@ const proc: check_subtract_assign is func
     num :=                   2; num -:= -9223372036854775805; ok := ok and num = 9223372036854775807;
     num :=                   1; num -:= -9223372036854775806; ok := ok and num = 9223372036854775807;
     num :=                   0; num -:= -9223372036854775807; ok := ok and num = 9223372036854775807;
+    if not ok then
+      writeln(" ***** Subtraction assignment that results in the maximum integer does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num := 9223372036854775807; num -:= intExpr(                   0); ok := ok and num = 9223372036854775807;
     num := 9223372036854775806; num -:= intExpr(                  -1); ok := ok and num = 9223372036854775807;
     num := 9223372036854775805; num -:= intExpr(                  -2); ok := ok and num = 9223372036854775807;
@@ -8516,6 +8632,12 @@ const proc: check_subtract_assign is func
     num :=                   2; num -:= intExpr(-9223372036854775805); ok := ok and num = 9223372036854775807;
     num :=                   1; num -:= intExpr(-9223372036854775806); ok := ok and num = 9223372036854775807;
     num :=                   0; num -:= intExpr(-9223372036854775807); ok := ok and num = 9223372036854775807;
+    if not ok then
+      writeln(" ***** Subtraction assignment that results in the maximum integer does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] := 9223372036854775807; arr[1] -:=                    0; ok := ok and arr[1] = 9223372036854775807;
     arr[1] := 9223372036854775806; arr[1] -:=                   -1; ok := ok and arr[1] = 9223372036854775807;
     arr[1] := 9223372036854775805; arr[1] -:=                   -2; ok := ok and arr[1] = 9223372036854775807;
@@ -8560,6 +8682,12 @@ const proc: check_subtract_assign is func
     arr[1] :=                   2; arr[1] -:= -9223372036854775805; ok := ok and arr[1] = 9223372036854775807;
     arr[1] :=                   1; arr[1] -:= -9223372036854775806; ok := ok and arr[1] = 9223372036854775807;
     arr[1] :=                   0; arr[1] -:= -9223372036854775807; ok := ok and arr[1] = 9223372036854775807;
+    if not ok then
+      writeln(" ***** Subtraction assignment that results in the maximum integer does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] := 9223372036854775807; arr[1] -:= intExpr(                   0); ok := ok and arr[1] = 9223372036854775807;
     arr[1] := 9223372036854775806; arr[1] -:= intExpr(                  -1); ok := ok and arr[1] = 9223372036854775807;
     arr[1] := 9223372036854775805; arr[1] -:= intExpr(                  -2); ok := ok and arr[1] = 9223372036854775807;
@@ -8605,7 +8733,43 @@ const proc: check_subtract_assign is func
     arr[1] :=                   1; arr[1] -:= intExpr(-9223372036854775806); ok := ok and arr[1] = 9223372036854775807;
     arr[1] :=                   0; arr[1] -:= intExpr(-9223372036854775807); ok := ok and arr[1] = 9223372036854775807;
     if not ok then
-      writeln(" ***** Subtraction assignment that results in the maximum integer does not work correct.");
+      writeln(" ***** Subtraction assignment that results in the maximum integer does not work correct. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_subtract_assign is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var integer: num is 0;
+    var array integer: arr is [] (0);
+  begin
+    num :=            INT64_MIN; num -:=                    0; ok := ok and num =            INT64_MIN;
+    num :=            INT64_MIN; num -:= -9223372036854775807; ok := ok and num =                   -1;
+    num := -9223372036854775807; num -:=                    1; ok := ok and num =            INT64_MIN;
+    num := -9223372036854775807; num -:= -9223372036854775807; ok := ok and num =                    0;
+    num :=                   -1; num -:=  9223372036854775807; ok := ok and num =            INT64_MIN;
+    num :=                    0; num -:=  9223372036854775807; ok := ok and num = -9223372036854775807;
+    num :=                    0; num -:=                    0; ok := ok and num =                    0;
+    num :=                    0; num -:=          -2147483647; ok := ok and num =           2147483647;
+    num :=                    0; num -:=          -2147483648; ok := ok and num =           2147483648;
+    num :=                    0; num -:= -9223372036854775807; ok := ok and num =  9223372036854775807;
+    num :=                    2; num -:=                   -3; ok := ok and num =                    5;
+    num :=                  127; num -:=                 -127; ok := ok and num =                  254;
+    num :=                  255; num -:=                 -255; ok := ok and num =                  510;
+    num :=                18341; num -:=               -26783; ok := ok and num =                45124;
+    num :=                32767; num -:=               -32767; ok := ok and num =                65534;
+    num :=                35759; num -:=               -58537; ok := ok and num =                94296;
+    num :=                65535; num -:=               -65535; ok := ok and num =               131070;
+    num :=                73819; num -:=              -124303; ok := ok and num =               198122;
+    num :=           2147483647; num -:=                    0; ok := ok and num =           2147483647;
+    num :=           2147483648; num -:=                    0; ok := ok and num =           2147483648;
+    num :=  9223372036854775807; num -:=  9223372036854775807; ok := ok and num =                    0;
+    num :=  9223372036854775807; num -:=                    0; ok := ok and num =  9223372036854775807;
+    if not ok then
+      writeln(" ***** Subtraction assignment with selected values does not work correct.");
       okay := FALSE;
     end if;
 
@@ -8642,6 +8806,14 @@ const proc: check_subtract_assign is func
     arr[1] :=                     integer.last;  arr[1] -:= rand(0, 0); ok := ok and arr[1] =  integer.last;
     if not ok then
       writeln(" ***** Subtraction assignment with zero does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if not check_subtract_assign_minimum_result then
+      okay := FALSE;
+    end if;
+
+    if not check_subtract_assign_maximum_result then
       okay := FALSE;
     end if;
 
@@ -9047,6 +9219,222 @@ const proc: check_mult is func
       okay := FALSE;
     end if;
 
+    if             INT64_MIN *                    1 <>            INT64_MIN or
+        -4611686018427387904 *                    2 <>            INT64_MIN or
+        -3074457345618258602 *                    3 <> -9223372036854775806 or
+         -838488366986797800 *                   11 <> -9223372036854775800 or
+          -10762394442070916 *                  857 <> -9223372036854775012 or
+           -1988224194191587 *                 4639 <> -9223372036854772093 or
+            -240989001041328 *                38273 <> -9223372036854746544 or
+             -14312161101687 *               644443 <> -9223372036854475341 or
+               -933865493037 *              9876553 <> -9223372036851061461 or
+               -747094709113 *             12345653 <> -9223372036845035789 or
+                -74709312968 *            123456791 <> -9223372036843965688 or
+                 -3037000499 *           3037000499 <> -9223372030926249001 or
+                  -123456791 *          74709312968 <> -9223372036843965688 or
+                   -12345653 *         747094709113 <> -9223372036845035789 or
+                    -9876553 *         933865493037 <> -9223372036851061461 or
+                     -644443 *       14312161101687 <> -9223372036854475341 or
+                      -38273 *      240989001041328 <> -9223372036854746544 or
+                       -4639 *     1988224194191587 <> -9223372036854772093 or
+                        -857 *    10762394442070916 <> -9223372036854775012 or
+                         -11 *   838488366986797800 <> -9223372036854775800 or
+                          -3 *  3074457345618258602 <> -9223372036854775806 or
+                          -2 *  4611686018427387904 <>            INT64_MIN or
+                          -1 *  9223372036854775807 <> -9223372036854775807 then
+      writeln(" ***** Multiplication with minimum product does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if   9223372036854775807 *                   -1 <> -9223372036854775807 or
+         4611686018427387904 *                   -2 <>            INT64_MIN or
+         3074457345618258602 *                   -3 <> -9223372036854775806 or
+          838488366986797800 *                  -11 <> -9223372036854775800 or
+           10762394442070916 *                 -857 <> -9223372036854775012 or
+            1988224194191587 *                -4639 <> -9223372036854772093 or
+             240989001041328 *               -38273 <> -9223372036854746544 or
+              14312161101687 *              -644443 <> -9223372036854475341 or
+                933865493037 *             -9876553 <> -9223372036851061461 or
+                747094709113 *            -12345653 <> -9223372036845035789 or
+                 74709312968 *           -123456791 <> -9223372036843965688 or
+                  3037000499 *          -3037000499 <> -9223372030926249001 or
+                   123456791 *         -74709312968 <> -9223372036843965688 or
+                    12345653 *        -747094709113 <> -9223372036845035789 or
+                     9876553 *        -933865493037 <> -9223372036851061461 or
+                      644443 *      -14312161101687 <> -9223372036854475341 or
+                       38273 *     -240989001041328 <> -9223372036854746544 or
+                        4639 *    -1988224194191587 <> -9223372036854772093 or
+                         857 *   -10762394442070916 <> -9223372036854775012 or
+                          11 *  -838488366986797800 <> -9223372036854775800 or
+                           3 * -3074457345618258602 <> -9223372036854775806 or
+                           2 * -4611686018427387904 <>            INT64_MIN or
+                           1 *            INT64_MIN <>            INT64_MIN then
+      writeln(" ***** Multiplication with minimum product does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) *                    1 <>            INT64_MIN or
+        intExpr(-4611686018427387904) *                    2 <>            INT64_MIN or
+        intExpr(-3074457345618258602) *                    3 <> -9223372036854775806 or
+        intExpr( -838488366986797800) *                   11 <> -9223372036854775800 or
+        intExpr(  -10762394442070916) *                  857 <> -9223372036854775012 or
+        intExpr(   -1988224194191587) *                 4639 <> -9223372036854772093 or
+        intExpr(    -240989001041328) *                38273 <> -9223372036854746544 or
+        intExpr(     -14312161101687) *               644443 <> -9223372036854475341 or
+        intExpr(       -933865493037) *              9876553 <> -9223372036851061461 or
+        intExpr(       -747094709113) *             12345653 <> -9223372036845035789 or
+        intExpr(        -74709312968) *            123456791 <> -9223372036843965688 or
+        intExpr(         -3037000499) *           3037000499 <> -9223372030926249001 or
+        intExpr(          -123456791) *          74709312968 <> -9223372036843965688 or
+        intExpr(           -12345653) *         747094709113 <> -9223372036845035789 or
+        intExpr(            -9876553) *         933865493037 <> -9223372036851061461 or
+        intExpr(             -644443) *       14312161101687 <> -9223372036854475341 or
+        intExpr(              -38273) *      240989001041328 <> -9223372036854746544 or
+        intExpr(               -4639) *     1988224194191587 <> -9223372036854772093 or
+        intExpr(                -857) *    10762394442070916 <> -9223372036854775012 or
+        intExpr(                 -11) *   838488366986797800 <> -9223372036854775800 or
+        intExpr(                  -3) *  3074457345618258602 <> -9223372036854775806 or
+        intExpr(                  -2) *  4611686018427387904 <>            INT64_MIN or
+        intExpr(                  -1) *  9223372036854775807 <> -9223372036854775807 then
+      writeln(" ***** Multiplication with minimum product does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr( 9223372036854775807) *                   -1 <> -9223372036854775807 or
+        intExpr( 4611686018427387904) *                   -2 <>            INT64_MIN or
+        intExpr( 3074457345618258602) *                   -3 <> -9223372036854775806 or
+        intExpr(  838488366986797800) *                  -11 <> -9223372036854775800 or
+        intExpr(   10762394442070916) *                 -857 <> -9223372036854775012 or
+        intExpr(    1988224194191587) *                -4639 <> -9223372036854772093 or
+        intExpr(     240989001041328) *               -38273 <> -9223372036854746544 or
+        intExpr(      14312161101687) *              -644443 <> -9223372036854475341 or
+        intExpr(        933865493037) *             -9876553 <> -9223372036851061461 or
+        intExpr(        747094709113) *            -12345653 <> -9223372036845035789 or
+        intExpr(         74709312968) *           -123456791 <> -9223372036843965688 or
+        intExpr(          3037000499) *          -3037000499 <> -9223372030926249001 or
+        intExpr(           123456791) *         -74709312968 <> -9223372036843965688 or
+        intExpr(            12345653) *        -747094709113 <> -9223372036845035789 or
+        intExpr(             9876553) *        -933865493037 <> -9223372036851061461 or
+        intExpr(              644443) *      -14312161101687 <> -9223372036854475341 or
+        intExpr(               38273) *     -240989001041328 <> -9223372036854746544 or
+        intExpr(                4639) *    -1988224194191587 <> -9223372036854772093 or
+        intExpr(                 857) *   -10762394442070916 <> -9223372036854775012 or
+        intExpr(                  11) *  -838488366986797800 <> -9223372036854775800 or
+        intExpr(                   3) * -3074457345618258602 <> -9223372036854775806 or
+        intExpr(                   2) * -4611686018427387904 <>            INT64_MIN or
+        intExpr(                   1) *            INT64_MIN <>            INT64_MIN then
+      writeln(" ***** Multiplication with minimum product does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if             INT64_MIN * intExpr(                   1) <>            INT64_MIN or
+        -4611686018427387904 * intExpr(                   2) <>            INT64_MIN or
+        -3074457345618258602 * intExpr(                   3) <> -9223372036854775806 or
+         -838488366986797800 * intExpr(                  11) <> -9223372036854775800 or
+          -10762394442070916 * intExpr(                 857) <> -9223372036854775012 or
+           -1988224194191587 * intExpr(                4639) <> -9223372036854772093 or
+            -240989001041328 * intExpr(               38273) <> -9223372036854746544 or
+             -14312161101687 * intExpr(              644443) <> -9223372036854475341 or
+               -933865493037 * intExpr(             9876553) <> -9223372036851061461 or
+               -747094709113 * intExpr(            12345653) <> -9223372036845035789 or
+                -74709312968 * intExpr(           123456791) <> -9223372036843965688 or
+                 -3037000499 * intExpr(          3037000499) <> -9223372030926249001 or
+                  -123456791 * intExpr(         74709312968) <> -9223372036843965688 or
+                   -12345653 * intExpr(        747094709113) <> -9223372036845035789 or
+                    -9876553 * intExpr(        933865493037) <> -9223372036851061461 or
+                     -644443 * intExpr(      14312161101687) <> -9223372036854475341 or
+                      -38273 * intExpr(     240989001041328) <> -9223372036854746544 or
+                       -4639 * intExpr(    1988224194191587) <> -9223372036854772093 or
+                        -857 * intExpr(   10762394442070916) <> -9223372036854775012 or
+                         -11 * intExpr(  838488366986797800) <> -9223372036854775800 or
+                          -3 * intExpr( 3074457345618258602) <> -9223372036854775806 or
+                          -2 * intExpr( 4611686018427387904) <>            INT64_MIN or
+                          -1 * intExpr( 9223372036854775807) <> -9223372036854775807 then
+      writeln(" ***** Multiplication with minimum product does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if   9223372036854775807 * intExpr(                  -1) <> -9223372036854775807 or
+         4611686018427387904 * intExpr(                  -2) <>            INT64_MIN or
+         3074457345618258602 * intExpr(                  -3) <> -9223372036854775806 or
+          838488366986797800 * intExpr(                 -11) <> -9223372036854775800 or
+           10762394442070916 * intExpr(                -857) <> -9223372036854775012 or
+            1988224194191587 * intExpr(               -4639) <> -9223372036854772093 or
+             240989001041328 * intExpr(              -38273) <> -9223372036854746544 or
+              14312161101687 * intExpr(             -644443) <> -9223372036854475341 or
+                933865493037 * intExpr(            -9876553) <> -9223372036851061461 or
+                747094709113 * intExpr(           -12345653) <> -9223372036845035789 or
+                 74709312968 * intExpr(          -123456791) <> -9223372036843965688 or
+                  3037000499 * intExpr(         -3037000499) <> -9223372030926249001 or
+                   123456791 * intExpr(        -74709312968) <> -9223372036843965688 or
+                    12345653 * intExpr(       -747094709113) <> -9223372036845035789 or
+                     9876553 * intExpr(       -933865493037) <> -9223372036851061461 or
+                      644443 * intExpr(     -14312161101687) <> -9223372036854475341 or
+                       38273 * intExpr(    -240989001041328) <> -9223372036854746544 or
+                        4639 * intExpr(   -1988224194191587) <> -9223372036854772093 or
+                         857 * intExpr(  -10762394442070916) <> -9223372036854775012 or
+                          11 * intExpr( -838488366986797800) <> -9223372036854775800 or
+                           3 * intExpr(-3074457345618258602) <> -9223372036854775806 or
+                           2 * intExpr(-4611686018427387904) <>            INT64_MIN or
+                           1 * intExpr(           INT64_MIN) <>            INT64_MIN then
+      writeln(" ***** Multiplication with minimum product does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr(           INT64_MIN) * intExpr(                   1) <>            INT64_MIN or
+        intExpr(-4611686018427387904) * intExpr(                   2) <>            INT64_MIN or
+        intExpr(-3074457345618258602) * intExpr(                   3) <> -9223372036854775806 or
+        intExpr( -838488366986797800) * intExpr(                  11) <> -9223372036854775800 or
+        intExpr(  -10762394442070916) * intExpr(                 857) <> -9223372036854775012 or
+        intExpr(   -1988224194191587) * intExpr(                4639) <> -9223372036854772093 or
+        intExpr(    -240989001041328) * intExpr(               38273) <> -9223372036854746544 or
+        intExpr(     -14312161101687) * intExpr(              644443) <> -9223372036854475341 or
+        intExpr(       -933865493037) * intExpr(             9876553) <> -9223372036851061461 or
+        intExpr(       -747094709113) * intExpr(            12345653) <> -9223372036845035789 or
+        intExpr(        -74709312968) * intExpr(           123456791) <> -9223372036843965688 or
+        intExpr(         -3037000499) * intExpr(          3037000499) <> -9223372030926249001 or
+        intExpr(          -123456791) * intExpr(         74709312968) <> -9223372036843965688 or
+        intExpr(           -12345653) * intExpr(        747094709113) <> -9223372036845035789 or
+        intExpr(            -9876553) * intExpr(        933865493037) <> -9223372036851061461 or
+        intExpr(             -644443) * intExpr(      14312161101687) <> -9223372036854475341 or
+        intExpr(              -38273) * intExpr(     240989001041328) <> -9223372036854746544 or
+        intExpr(               -4639) * intExpr(    1988224194191587) <> -9223372036854772093 or
+        intExpr(                -857) * intExpr(   10762394442070916) <> -9223372036854775012 or
+        intExpr(                 -11) * intExpr(  838488366986797800) <> -9223372036854775800 or
+        intExpr(                  -3) * intExpr( 3074457345618258602) <> -9223372036854775806 or
+        intExpr(                  -2) * intExpr( 4611686018427387904) <>            INT64_MIN or
+        intExpr(                  -1) * intExpr( 9223372036854775807) <> -9223372036854775807 then
+      writeln(" ***** Multiplication with minimum product does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr( 9223372036854775807) * intExpr(                  -1) <> -9223372036854775807 or
+        intExpr( 4611686018427387904) * intExpr(                  -2) <>            INT64_MIN or
+        intExpr( 3074457345618258602) * intExpr(                  -3) <> -9223372036854775806 or
+        intExpr(  838488366986797800) * intExpr(                 -11) <> -9223372036854775800 or
+        intExpr(   10762394442070916) * intExpr(                -857) <> -9223372036854775012 or
+        intExpr(    1988224194191587) * intExpr(               -4639) <> -9223372036854772093 or
+        intExpr(     240989001041328) * intExpr(              -38273) <> -9223372036854746544 or
+        intExpr(      14312161101687) * intExpr(             -644443) <> -9223372036854475341 or
+        intExpr(        933865493037) * intExpr(            -9876553) <> -9223372036851061461 or
+        intExpr(        747094709113) * intExpr(           -12345653) <> -9223372036845035789 or
+        intExpr(         74709312968) * intExpr(          -123456791) <> -9223372036843965688 or
+        intExpr(          3037000499) * intExpr(         -3037000499) <> -9223372030926249001 or
+        intExpr(           123456791) * intExpr(        -74709312968) <> -9223372036843965688 or
+        intExpr(            12345653) * intExpr(       -747094709113) <> -9223372036845035789 or
+        intExpr(             9876553) * intExpr(       -933865493037) <> -9223372036851061461 or
+        intExpr(              644443) * intExpr(     -14312161101687) <> -9223372036854475341 or
+        intExpr(               38273) * intExpr(    -240989001041328) <> -9223372036854746544 or
+        intExpr(                4639) * intExpr(   -1988224194191587) <> -9223372036854772093 or
+        intExpr(                 857) * intExpr(  -10762394442070916) <> -9223372036854775012 or
+        intExpr(                  11) * intExpr( -838488366986797800) <> -9223372036854775800 or
+        intExpr(                   3) * intExpr(-3074457345618258602) <> -9223372036854775806 or
+        intExpr(                   2) * intExpr(-4611686018427387904) <>            INT64_MIN or
+        intExpr(                   1) * intExpr(           INT64_MIN) <>            INT64_MIN then
+      writeln(" ***** Multiplication with minimum product does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
     if  -9223372036854775807 *                   -1 <>  9223372036854775807 or
         -4611686018427387903 *                   -2 <>  9223372036854775806 or
         -3074457345618258602 *                   -3 <>  9223372036854775806 or
@@ -9069,54 +9457,12 @@ const proc: check_mult is func
                          -11 *  -838488366986797800 <>  9223372036854775800 or
                           -3 * -3074457345618258602 <>  9223372036854775806 or
                           -2 * -4611686018427387903 <>  9223372036854775806 or
-                          -1 * -9223372036854775807 <>  9223372036854775807 or
-                   INT64_MIN *                    1 <>            INT64_MIN or
-        -4611686018427387904 *                    2 <>            INT64_MIN or
-        -3074457345618258602 *                    3 <> -9223372036854775806 or
-         -838488366986797800 *                   11 <> -9223372036854775800 or
-          -10762394442070916 *                  857 <> -9223372036854775012 or
-           -1988224194191587 *                 4639 <> -9223372036854772093 or
-            -240989001041328 *                38273 <> -9223372036854746544 or
-             -14312161101687 *               644443 <> -9223372036854475341 or
-               -933865493037 *              9876553 <> -9223372036851061461 or
-               -747094709113 *             12345653 <> -9223372036845035789 or
-                -74709312968 *            123456791 <> -9223372036843965688 or
-                 -3037000499 *           3037000499 <> -9223372030926249001 or
-                  -123456791 *          74709312968 <> -9223372036843965688 or
-                   -12345653 *         747094709113 <> -9223372036845035789 or
-                    -9876553 *         933865493037 <> -9223372036851061461 or
-                     -644443 *       14312161101687 <> -9223372036854475341 or
-                      -38273 *      240989001041328 <> -9223372036854746544 or
-                       -4639 *     1988224194191587 <> -9223372036854772093 or
-                        -857 *    10762394442070916 <> -9223372036854775012 or
-                         -11 *   838488366986797800 <> -9223372036854775800 or
-                          -3 *  3074457345618258602 <> -9223372036854775806 or
-                          -2 *  4611686018427387904 <>            INT64_MIN or
-                          -1 *  9223372036854775807 <> -9223372036854775807 or
-         9223372036854775807 *                   -1 <> -9223372036854775807 or
-         4611686018427387904 *                   -2 <>            INT64_MIN or
-         3074457345618258602 *                   -3 <> -9223372036854775806 or
-          838488366986797800 *                  -11 <> -9223372036854775800 or
-           10762394442070916 *                 -857 <> -9223372036854775012 or
-            1988224194191587 *                -4639 <> -9223372036854772093 or
-             240989001041328 *               -38273 <> -9223372036854746544 or
-              14312161101687 *              -644443 <> -9223372036854475341 or
-                933865493037 *             -9876553 <> -9223372036851061461 or
-                747094709113 *            -12345653 <> -9223372036845035789 or
-                 74709312968 *           -123456791 <> -9223372036843965688 or
-                  3037000499 *          -3037000499 <> -9223372030926249001 or
-                   123456791 *         -74709312968 <> -9223372036843965688 or
-                    12345653 *        -747094709113 <> -9223372036845035789 or
-                     9876553 *        -933865493037 <> -9223372036851061461 or
-                      644443 *      -14312161101687 <> -9223372036854475341 or
-                       38273 *     -240989001041328 <> -9223372036854746544 or
-                        4639 *    -1988224194191587 <> -9223372036854772093 or
-                         857 *   -10762394442070916 <> -9223372036854775012 or
-                          11 *  -838488366986797800 <> -9223372036854775800 or
-                           3 * -3074457345618258602 <> -9223372036854775806 or
-                           2 * -4611686018427387904 <>            INT64_MIN or
-                           1 *            INT64_MIN <>            INT64_MIN or
-         9223372036854775807 *                    1 <>  9223372036854775807 or
+                          -1 * -9223372036854775807 <>  9223372036854775807 then
+      writeln(" ***** Multiplication with maximum product does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if   9223372036854775807 *                    1 <>  9223372036854775807 or
          4611686018427387903 *                    2 <>  9223372036854775806 or
          3074457345618258602 *                    3 <>  9223372036854775806 or
           838488366986797800 *                   11 <>  9223372036854775800 or
@@ -9139,7 +9485,7 @@ const proc: check_mult is func
                            3 *  3074457345618258602 <>  9223372036854775806 or
                            2 *  4611686018427387903 <>  9223372036854775806 or
                            1 *  9223372036854775807 <>  9223372036854775807 then
-      writeln(" ***** Multiplication with big products does not work correct. (1)");
+      writeln(" ***** Multiplication with maximum product does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -9165,54 +9511,12 @@ const proc: check_mult is func
         intExpr(                 -11) *  -838488366986797800 <>  9223372036854775800 or
         intExpr(                  -3) * -3074457345618258602 <>  9223372036854775806 or
         intExpr(                  -2) * -4611686018427387903 <>  9223372036854775806 or
-        intExpr(                  -1) * -9223372036854775807 <>  9223372036854775807 or
-        intExpr(           INT64_MIN) *                    1 <>            INT64_MIN or
-        intExpr(-4611686018427387904) *                    2 <>            INT64_MIN or
-        intExpr(-3074457345618258602) *                    3 <> -9223372036854775806 or
-        intExpr( -838488366986797800) *                   11 <> -9223372036854775800 or
-        intExpr(  -10762394442070916) *                  857 <> -9223372036854775012 or
-        intExpr(   -1988224194191587) *                 4639 <> -9223372036854772093 or
-        intExpr(    -240989001041328) *                38273 <> -9223372036854746544 or
-        intExpr(     -14312161101687) *               644443 <> -9223372036854475341 or
-        intExpr(       -933865493037) *              9876553 <> -9223372036851061461 or
-        intExpr(       -747094709113) *             12345653 <> -9223372036845035789 or
-        intExpr(        -74709312968) *            123456791 <> -9223372036843965688 or
-        intExpr(         -3037000499) *           3037000499 <> -9223372030926249001 or
-        intExpr(          -123456791) *          74709312968 <> -9223372036843965688 or
-        intExpr(           -12345653) *         747094709113 <> -9223372036845035789 or
-        intExpr(            -9876553) *         933865493037 <> -9223372036851061461 or
-        intExpr(             -644443) *       14312161101687 <> -9223372036854475341 or
-        intExpr(              -38273) *      240989001041328 <> -9223372036854746544 or
-        intExpr(               -4639) *     1988224194191587 <> -9223372036854772093 or
-        intExpr(                -857) *    10762394442070916 <> -9223372036854775012 or
-        intExpr(                 -11) *   838488366986797800 <> -9223372036854775800 or
-        intExpr(                  -3) *  3074457345618258602 <> -9223372036854775806 or
-        intExpr(                  -2) *  4611686018427387904 <>            INT64_MIN or
-        intExpr(                  -1) *  9223372036854775807 <> -9223372036854775807 or
-        intExpr( 9223372036854775807) *                   -1 <> -9223372036854775807 or
-        intExpr( 4611686018427387904) *                   -2 <>            INT64_MIN or
-        intExpr( 3074457345618258602) *                   -3 <> -9223372036854775806 or
-        intExpr(  838488366986797800) *                  -11 <> -9223372036854775800 or
-        intExpr(   10762394442070916) *                 -857 <> -9223372036854775012 or
-        intExpr(    1988224194191587) *                -4639 <> -9223372036854772093 or
-        intExpr(     240989001041328) *               -38273 <> -9223372036854746544 or
-        intExpr(      14312161101687) *              -644443 <> -9223372036854475341 or
-        intExpr(        933865493037) *             -9876553 <> -9223372036851061461 or
-        intExpr(        747094709113) *            -12345653 <> -9223372036845035789 or
-        intExpr(         74709312968) *           -123456791 <> -9223372036843965688 or
-        intExpr(          3037000499) *          -3037000499 <> -9223372030926249001 or
-        intExpr(           123456791) *         -74709312968 <> -9223372036843965688 or
-        intExpr(            12345653) *        -747094709113 <> -9223372036845035789 or
-        intExpr(             9876553) *        -933865493037 <> -9223372036851061461 or
-        intExpr(              644443) *      -14312161101687 <> -9223372036854475341 or
-        intExpr(               38273) *     -240989001041328 <> -9223372036854746544 or
-        intExpr(                4639) *    -1988224194191587 <> -9223372036854772093 or
-        intExpr(                 857) *   -10762394442070916 <> -9223372036854775012 or
-        intExpr(                  11) *  -838488366986797800 <> -9223372036854775800 or
-        intExpr(                   3) * -3074457345618258602 <> -9223372036854775806 or
-        intExpr(                   2) * -4611686018427387904 <>            INT64_MIN or
-        intExpr(                   1) *            INT64_MIN <>            INT64_MIN or
-        intExpr( 9223372036854775807) *                    1 <>  9223372036854775807 or
+        intExpr(                  -1) * -9223372036854775807 <>  9223372036854775807 then
+      writeln(" ***** Multiplication with maximum product does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr( 9223372036854775807) *                    1 <>  9223372036854775807 or
         intExpr( 4611686018427387903) *                    2 <>  9223372036854775806 or
         intExpr( 3074457345618258602) *                    3 <>  9223372036854775806 or
         intExpr(  838488366986797800) *                   11 <>  9223372036854775800 or
@@ -9235,7 +9539,7 @@ const proc: check_mult is func
         intExpr(                   3) *  3074457345618258602 <>  9223372036854775806 or
         intExpr(                   2) *  4611686018427387903 <>  9223372036854775806 or
         intExpr(                   1) *  9223372036854775807 <>  9223372036854775807 then
-      writeln(" ***** Multiplication with big products does not work correct. (2)");
+      writeln(" ***** Multiplication with maximum product does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -9261,54 +9565,12 @@ const proc: check_mult is func
                          -11 * intExpr( -838488366986797800) <>  9223372036854775800 or
                           -3 * intExpr(-3074457345618258602) <>  9223372036854775806 or
                           -2 * intExpr(-4611686018427387903) <>  9223372036854775806 or
-                          -1 * intExpr(-9223372036854775807) <>  9223372036854775807 or
-                   INT64_MIN * intExpr(                   1) <>            INT64_MIN or
-        -4611686018427387904 * intExpr(                   2) <>            INT64_MIN or
-        -3074457345618258602 * intExpr(                   3) <> -9223372036854775806 or
-         -838488366986797800 * intExpr(                  11) <> -9223372036854775800 or
-          -10762394442070916 * intExpr(                 857) <> -9223372036854775012 or
-           -1988224194191587 * intExpr(                4639) <> -9223372036854772093 or
-            -240989001041328 * intExpr(               38273) <> -9223372036854746544 or
-             -14312161101687 * intExpr(              644443) <> -9223372036854475341 or
-               -933865493037 * intExpr(             9876553) <> -9223372036851061461 or
-               -747094709113 * intExpr(            12345653) <> -9223372036845035789 or
-                -74709312968 * intExpr(           123456791) <> -9223372036843965688 or
-                 -3037000499 * intExpr(          3037000499) <> -9223372030926249001 or
-                  -123456791 * intExpr(         74709312968) <> -9223372036843965688 or
-                   -12345653 * intExpr(        747094709113) <> -9223372036845035789 or
-                    -9876553 * intExpr(        933865493037) <> -9223372036851061461 or
-                     -644443 * intExpr(      14312161101687) <> -9223372036854475341 or
-                      -38273 * intExpr(     240989001041328) <> -9223372036854746544 or
-                       -4639 * intExpr(    1988224194191587) <> -9223372036854772093 or
-                        -857 * intExpr(   10762394442070916) <> -9223372036854775012 or
-                         -11 * intExpr(  838488366986797800) <> -9223372036854775800 or
-                          -3 * intExpr( 3074457345618258602) <> -9223372036854775806 or
-                          -2 * intExpr( 4611686018427387904) <>            INT64_MIN or
-                          -1 * intExpr( 9223372036854775807) <> -9223372036854775807 or
-         9223372036854775807 * intExpr(                  -1) <> -9223372036854775807 or
-         4611686018427387904 * intExpr(                  -2) <>            INT64_MIN or
-         3074457345618258602 * intExpr(                  -3) <> -9223372036854775806 or
-          838488366986797800 * intExpr(                 -11) <> -9223372036854775800 or
-           10762394442070916 * intExpr(                -857) <> -9223372036854775012 or
-            1988224194191587 * intExpr(               -4639) <> -9223372036854772093 or
-             240989001041328 * intExpr(              -38273) <> -9223372036854746544 or
-              14312161101687 * intExpr(             -644443) <> -9223372036854475341 or
-                933865493037 * intExpr(            -9876553) <> -9223372036851061461 or
-                747094709113 * intExpr(           -12345653) <> -9223372036845035789 or
-                 74709312968 * intExpr(          -123456791) <> -9223372036843965688 or
-                  3037000499 * intExpr(         -3037000499) <> -9223372030926249001 or
-                   123456791 * intExpr(        -74709312968) <> -9223372036843965688 or
-                    12345653 * intExpr(       -747094709113) <> -9223372036845035789 or
-                     9876553 * intExpr(       -933865493037) <> -9223372036851061461 or
-                      644443 * intExpr(     -14312161101687) <> -9223372036854475341 or
-                       38273 * intExpr(    -240989001041328) <> -9223372036854746544 or
-                        4639 * intExpr(   -1988224194191587) <> -9223372036854772093 or
-                         857 * intExpr(  -10762394442070916) <> -9223372036854775012 or
-                          11 * intExpr( -838488366986797800) <> -9223372036854775800 or
-                           3 * intExpr(-3074457345618258602) <> -9223372036854775806 or
-                           2 * intExpr(-4611686018427387904) <>            INT64_MIN or
-                           1 * intExpr(           INT64_MIN) <>            INT64_MIN or
-         9223372036854775807 * intExpr(                   1) <>  9223372036854775807 or
+                          -1 * intExpr(-9223372036854775807) <>  9223372036854775807 then
+      writeln(" ***** Multiplication with maximum product does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if   9223372036854775807 * intExpr(                   1) <>  9223372036854775807 or
          4611686018427387903 * intExpr(                   2) <>  9223372036854775806 or
          3074457345618258602 * intExpr(                   3) <>  9223372036854775806 or
           838488366986797800 * intExpr(                  11) <>  9223372036854775800 or
@@ -9331,7 +9593,7 @@ const proc: check_mult is func
                            3 * intExpr( 3074457345618258602) <>  9223372036854775806 or
                            2 * intExpr( 4611686018427387903) <>  9223372036854775806 or
                            1 * intExpr( 9223372036854775807) <>  9223372036854775807 then
-      writeln(" ***** Multiplication with big products does not work correct. (3)");
+      writeln(" ***** Multiplication with maximum product does not work correct. (6)");
       okay := FALSE;
     end if;
 
@@ -9357,54 +9619,12 @@ const proc: check_mult is func
         intExpr(                 -11) * intExpr( -838488366986797800) <>  9223372036854775800 or
         intExpr(                  -3) * intExpr(-3074457345618258602) <>  9223372036854775806 or
         intExpr(                  -2) * intExpr(-4611686018427387903) <>  9223372036854775806 or
-        intExpr(                  -1) * intExpr(-9223372036854775807) <>  9223372036854775807 or
-        intExpr(           INT64_MIN) * intExpr(                   1) <>            INT64_MIN or
-        intExpr(-4611686018427387904) * intExpr(                   2) <>            INT64_MIN or
-        intExpr(-3074457345618258602) * intExpr(                   3) <> -9223372036854775806 or
-        intExpr( -838488366986797800) * intExpr(                  11) <> -9223372036854775800 or
-        intExpr(  -10762394442070916) * intExpr(                 857) <> -9223372036854775012 or
-        intExpr(   -1988224194191587) * intExpr(                4639) <> -9223372036854772093 or
-        intExpr(    -240989001041328) * intExpr(               38273) <> -9223372036854746544 or
-        intExpr(     -14312161101687) * intExpr(              644443) <> -9223372036854475341 or
-        intExpr(       -933865493037) * intExpr(             9876553) <> -9223372036851061461 or
-        intExpr(       -747094709113) * intExpr(            12345653) <> -9223372036845035789 or
-        intExpr(        -74709312968) * intExpr(           123456791) <> -9223372036843965688 or
-        intExpr(         -3037000499) * intExpr(          3037000499) <> -9223372030926249001 or
-        intExpr(          -123456791) * intExpr(         74709312968) <> -9223372036843965688 or
-        intExpr(           -12345653) * intExpr(        747094709113) <> -9223372036845035789 or
-        intExpr(            -9876553) * intExpr(        933865493037) <> -9223372036851061461 or
-        intExpr(             -644443) * intExpr(      14312161101687) <> -9223372036854475341 or
-        intExpr(              -38273) * intExpr(     240989001041328) <> -9223372036854746544 or
-        intExpr(               -4639) * intExpr(    1988224194191587) <> -9223372036854772093 or
-        intExpr(                -857) * intExpr(   10762394442070916) <> -9223372036854775012 or
-        intExpr(                 -11) * intExpr(  838488366986797800) <> -9223372036854775800 or
-        intExpr(                  -3) * intExpr( 3074457345618258602) <> -9223372036854775806 or
-        intExpr(                  -2) * intExpr( 4611686018427387904) <>            INT64_MIN or
-        intExpr(                  -1) * intExpr( 9223372036854775807) <> -9223372036854775807 or
-        intExpr( 9223372036854775807) * intExpr(                  -1) <> -9223372036854775807 or
-        intExpr( 4611686018427387904) * intExpr(                  -2) <>            INT64_MIN or
-        intExpr( 3074457345618258602) * intExpr(                  -3) <> -9223372036854775806 or
-        intExpr(  838488366986797800) * intExpr(                 -11) <> -9223372036854775800 or
-        intExpr(   10762394442070916) * intExpr(                -857) <> -9223372036854775012 or
-        intExpr(    1988224194191587) * intExpr(               -4639) <> -9223372036854772093 or
-        intExpr(     240989001041328) * intExpr(              -38273) <> -9223372036854746544 or
-        intExpr(      14312161101687) * intExpr(             -644443) <> -9223372036854475341 or
-        intExpr(        933865493037) * intExpr(            -9876553) <> -9223372036851061461 or
-        intExpr(        747094709113) * intExpr(           -12345653) <> -9223372036845035789 or
-        intExpr(         74709312968) * intExpr(          -123456791) <> -9223372036843965688 or
-        intExpr(          3037000499) * intExpr(         -3037000499) <> -9223372030926249001 or
-        intExpr(           123456791) * intExpr(        -74709312968) <> -9223372036843965688 or
-        intExpr(            12345653) * intExpr(       -747094709113) <> -9223372036845035789 or
-        intExpr(             9876553) * intExpr(       -933865493037) <> -9223372036851061461 or
-        intExpr(              644443) * intExpr(     -14312161101687) <> -9223372036854475341 or
-        intExpr(               38273) * intExpr(    -240989001041328) <> -9223372036854746544 or
-        intExpr(                4639) * intExpr(   -1988224194191587) <> -9223372036854772093 or
-        intExpr(                 857) * intExpr(  -10762394442070916) <> -9223372036854775012 or
-        intExpr(                  11) * intExpr( -838488366986797800) <> -9223372036854775800 or
-        intExpr(                   3) * intExpr(-3074457345618258602) <> -9223372036854775806 or
-        intExpr(                   2) * intExpr(-4611686018427387904) <>            INT64_MIN or
-        intExpr(                   1) * intExpr(           INT64_MIN) <>            INT64_MIN or
-        intExpr( 9223372036854775807) * intExpr(                   1) <>  9223372036854775807 or
+        intExpr(                  -1) * intExpr(-9223372036854775807) <>  9223372036854775807 then
+      writeln(" ***** Multiplication with maximum product does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    if  intExpr( 9223372036854775807) * intExpr(                   1) <>  9223372036854775807 or
         intExpr( 4611686018427387903) * intExpr(                   2) <>  9223372036854775806 or
         intExpr( 3074457345618258602) * intExpr(                   3) <>  9223372036854775806 or
         intExpr(  838488366986797800) * intExpr(                  11) <>  9223372036854775800 or
@@ -9427,7 +9647,7 @@ const proc: check_mult is func
         intExpr(                   3) * intExpr( 3074457345618258602) <>  9223372036854775806 or
         intExpr(                   2) * intExpr( 4611686018427387903) <>  9223372036854775806 or
         intExpr(                   1) * intExpr( 9223372036854775807) <>  9223372036854775807 then
-      writeln(" ***** Multiplication with big products does not work correct. (4)");
+      writeln(" ***** Multiplication with maximum product does not work correct. (8)");
       okay := FALSE;
     end if;
 
@@ -9491,58 +9711,14 @@ const proc: check_mult is func
   end func;
 
 
-const proc: check_mult_assign is func
-  local
+const func boolean: check_mult_assign_minimum_result is func
+  result
     var boolean: okay is TRUE;
+  local
     var boolean: ok is TRUE;
     var integer: num is 0;
     var array integer: arr is [] (0);
   begin
-    num := -2147483648; num *:= -2147483648; ok := ok and num =  4611686018427387904;
-    num := -2147483648; num *:= -2147483647; ok := ok and num =  4611686016279904256;
-    num := -2147483648; num *:=  2147483647; ok := ok and num = -4611686016279904256;
-    num := -2147483648; num *:=  2147483648; ok := ok and num = -4611686018427387904;
-    num := -2147483647; num *:= -2147483648; ok := ok and num =  4611686016279904256;
-    num := -2147483647; num *:= -2147483647; ok := ok and num =  4611686014132420609;
-    num := -2147483647; num *:=  2147483647; ok := ok and num = -4611686014132420609;
-    num := -2147483647; num *:=  2147483648; ok := ok and num = -4611686016279904256;
-    num :=  2147483647; num *:= -2147483648; ok := ok and num = -4611686016279904256;
-    num :=  2147483647; num *:= -2147483647; ok := ok and num = -4611686014132420609;
-    num :=  2147483647; num *:=  2147483647; ok := ok and num =  4611686014132420609;
-    num :=  2147483647; num *:=  2147483648; ok := ok and num =  4611686016279904256;
-    num :=  2147483648; num *:= -2147483648; ok := ok and num = -4611686018427387904;
-    num :=  2147483648; num *:= -2147483647; ok := ok and num = -4611686016279904256;
-    num :=  2147483648; num *:=  2147483647; ok := ok and num =  4611686016279904256;
-    num :=  2147483648; num *:=  2147483648; ok := ok and num =  4611686018427387904;
-    if not ok then
-      writeln(" ***** Multiplication assignment with big and small factors does not work correct.");
-      okay := FALSE;
-    end if;
-
-    ok := TRUE;
-    num := -9223372036854775807; num *:=                   -1; ok := ok and num =  9223372036854775807;
-    num := -4611686018427387903; num *:=                   -2; ok := ok and num =  9223372036854775806;
-    num := -3074457345618258602; num *:=                   -3; ok := ok and num =  9223372036854775806;
-    num :=  -838488366986797800; num *:=                  -11; ok := ok and num =  9223372036854775800;
-    num :=   -10762394442070916; num *:=                 -857; ok := ok and num =  9223372036854775012;
-    num :=    -1988224194191587; num *:=                -4639; ok := ok and num =  9223372036854772093;
-    num :=     -240989001041328; num *:=               -38273; ok := ok and num =  9223372036854746544;
-    num :=      -14312161101687; num *:=              -644443; ok := ok and num =  9223372036854475341;
-    num :=        -933865493037; num *:=             -9876553; ok := ok and num =  9223372036851061461;
-    num :=        -747094709113; num *:=            -12345653; ok := ok and num =  9223372036845035789;
-    num :=         -74709312968; num *:=           -123456791; ok := ok and num =  9223372036843965688;
-    num :=          -3037000499; num *:=          -3037000499; ok := ok and num =  9223372030926249001;
-    num :=           -123456791; num *:=         -74709312968; ok := ok and num =  9223372036843965688;
-    num :=            -12345653; num *:=        -747094709113; ok := ok and num =  9223372036845035789;
-    num :=             -9876553; num *:=        -933865493037; ok := ok and num =  9223372036851061461;
-    num :=              -644443; num *:=      -14312161101687; ok := ok and num =  9223372036854475341;
-    num :=               -38273; num *:=     -240989001041328; ok := ok and num =  9223372036854746544;
-    num :=                -4639; num *:=    -1988224194191587; ok := ok and num =  9223372036854772093;
-    num :=                 -857; num *:=   -10762394442070916; ok := ok and num =  9223372036854775012;
-    num :=                  -11; num *:=  -838488366986797800; ok := ok and num =  9223372036854775800;
-    num :=                   -3; num *:= -3074457345618258602; ok := ok and num =  9223372036854775806;
-    num :=                   -2; num *:= -4611686018427387903; ok := ok and num =  9223372036854775806;
-    num :=                   -1; num *:= -9223372036854775807; ok := ok and num =  9223372036854775807;
     num :=            INT64_MIN; num *:=                    1; ok := ok and num =            INT64_MIN;
     num := -4611686018427387904; num *:=                    2; ok := ok and num =            INT64_MIN;
     num := -3074457345618258602; num *:=                    3; ok := ok and num = -9223372036854775806;
@@ -9566,6 +9742,12 @@ const proc: check_mult_assign is func
     num :=                   -3; num *:=  3074457345618258602; ok := ok and num = -9223372036854775806;
     num :=                   -2; num *:=  4611686018427387904; ok := ok and num =            INT64_MIN;
     num :=                   -1; num *:=  9223372036854775807; ok := ok and num = -9223372036854775807;
+    if not ok then
+      writeln(" ***** Multiplication assignment with minimum product does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num :=  9223372036854775807; num *:=                   -1; ok := ok and num = -9223372036854775807;
     num :=  4611686018427387904; num *:=                   -2; ok := ok and num =            INT64_MIN;
     num :=  3074457345618258602; num *:=                   -3; ok := ok and num = -9223372036854775806;
@@ -9589,6 +9771,224 @@ const proc: check_mult_assign is func
     num :=                    3; num *:= -3074457345618258602; ok := ok and num = -9223372036854775806;
     num :=                    2; num *:= -4611686018427387904; ok := ok and num =            INT64_MIN;
     num :=                    1; num *:=            INT64_MIN; ok := ok and num =            INT64_MIN;
+    if not ok then
+      writeln(" ***** Multiplication assignment with minimum product does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    num :=            INT64_MIN; num *:= intExpr(                   1); ok := ok and num =            INT64_MIN;
+    num := -4611686018427387904; num *:= intExpr(                   2); ok := ok and num =            INT64_MIN;
+    num := -3074457345618258602; num *:= intExpr(                   3); ok := ok and num = -9223372036854775806;
+    num :=  -838488366986797800; num *:= intExpr(                  11); ok := ok and num = -9223372036854775800;
+    num :=   -10762394442070916; num *:= intExpr(                 857); ok := ok and num = -9223372036854775012;
+    num :=    -1988224194191587; num *:= intExpr(                4639); ok := ok and num = -9223372036854772093;
+    num :=     -240989001041328; num *:= intExpr(               38273); ok := ok and num = -9223372036854746544;
+    num :=      -14312161101687; num *:= intExpr(              644443); ok := ok and num = -9223372036854475341;
+    num :=        -933865493037; num *:= intExpr(             9876553); ok := ok and num = -9223372036851061461;
+    num :=        -747094709113; num *:= intExpr(            12345653); ok := ok and num = -9223372036845035789;
+    num :=         -74709312968; num *:= intExpr(           123456791); ok := ok and num = -9223372036843965688;
+    num :=          -3037000499; num *:= intExpr(          3037000499); ok := ok and num = -9223372030926249001;
+    num :=           -123456791; num *:= intExpr(         74709312968); ok := ok and num = -9223372036843965688;
+    num :=            -12345653; num *:= intExpr(        747094709113); ok := ok and num = -9223372036845035789;
+    num :=             -9876553; num *:= intExpr(        933865493037); ok := ok and num = -9223372036851061461;
+    num :=              -644443; num *:= intExpr(      14312161101687); ok := ok and num = -9223372036854475341;
+    num :=               -38273; num *:= intExpr(     240989001041328); ok := ok and num = -9223372036854746544;
+    num :=                -4639; num *:= intExpr(    1988224194191587); ok := ok and num = -9223372036854772093;
+    num :=                 -857; num *:= intExpr(   10762394442070916); ok := ok and num = -9223372036854775012;
+    num :=                  -11; num *:= intExpr(  838488366986797800); ok := ok and num = -9223372036854775800;
+    num :=                   -3; num *:= intExpr( 3074457345618258602); ok := ok and num = -9223372036854775806;
+    num :=                   -2; num *:= intExpr( 4611686018427387904); ok := ok and num =            INT64_MIN;
+    num :=                   -1; num *:= intExpr( 9223372036854775807); ok := ok and num = -9223372036854775807;
+    if not ok then
+      writeln(" ***** Multiplication assignment with minimum product does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    num :=  9223372036854775807; num *:= intExpr(                  -1); ok := ok and num = -9223372036854775807;
+    num :=  4611686018427387904; num *:= intExpr(                  -2); ok := ok and num =            INT64_MIN;
+    num :=  3074457345618258602; num *:= intExpr(                  -3); ok := ok and num = -9223372036854775806;
+    num :=   838488366986797800; num *:= intExpr(                 -11); ok := ok and num = -9223372036854775800;
+    num :=    10762394442070916; num *:= intExpr(                -857); ok := ok and num = -9223372036854775012;
+    num :=     1988224194191587; num *:= intExpr(               -4639); ok := ok and num = -9223372036854772093;
+    num :=      240989001041328; num *:= intExpr(              -38273); ok := ok and num = -9223372036854746544;
+    num :=       14312161101687; num *:= intExpr(             -644443); ok := ok and num = -9223372036854475341;
+    num :=         933865493037; num *:= intExpr(            -9876553); ok := ok and num = -9223372036851061461;
+    num :=         747094709113; num *:= intExpr(           -12345653); ok := ok and num = -9223372036845035789;
+    num :=          74709312968; num *:= intExpr(          -123456791); ok := ok and num = -9223372036843965688;
+    num :=           3037000499; num *:= intExpr(         -3037000499); ok := ok and num = -9223372030926249001;
+    num :=            123456791; num *:= intExpr(        -74709312968); ok := ok and num = -9223372036843965688;
+    num :=             12345653; num *:= intExpr(       -747094709113); ok := ok and num = -9223372036845035789;
+    num :=              9876553; num *:= intExpr(       -933865493037); ok := ok and num = -9223372036851061461;
+    num :=               644443; num *:= intExpr(     -14312161101687); ok := ok and num = -9223372036854475341;
+    num :=                38273; num *:= intExpr(    -240989001041328); ok := ok and num = -9223372036854746544;
+    num :=                 4639; num *:= intExpr(   -1988224194191587); ok := ok and num = -9223372036854772093;
+    num :=                  857; num *:= intExpr(  -10762394442070916); ok := ok and num = -9223372036854775012;
+    num :=                   11; num *:= intExpr( -838488366986797800); ok := ok and num = -9223372036854775800;
+    num :=                    3; num *:= intExpr(-3074457345618258602); ok := ok and num = -9223372036854775806;
+    num :=                    2; num *:= intExpr(-4611686018427387904); ok := ok and num =            INT64_MIN;
+    num :=                    1; num *:= intExpr(           INT64_MIN); ok := ok and num =            INT64_MIN;
+    if not ok then
+      writeln(" ***** Multiplication assignment with minimum product does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] :=            INT64_MIN; arr[1] *:=                    1; ok := ok and arr[1] =            INT64_MIN;
+    arr[1] := -4611686018427387904; arr[1] *:=                    2; ok := ok and arr[1] =            INT64_MIN;
+    arr[1] := -3074457345618258602; arr[1] *:=                    3; ok := ok and arr[1] = -9223372036854775806;
+    arr[1] :=  -838488366986797800; arr[1] *:=                   11; ok := ok and arr[1] = -9223372036854775800;
+    arr[1] :=   -10762394442070916; arr[1] *:=                  857; ok := ok and arr[1] = -9223372036854775012;
+    arr[1] :=    -1988224194191587; arr[1] *:=                 4639; ok := ok and arr[1] = -9223372036854772093;
+    arr[1] :=     -240989001041328; arr[1] *:=                38273; ok := ok and arr[1] = -9223372036854746544;
+    arr[1] :=      -14312161101687; arr[1] *:=               644443; ok := ok and arr[1] = -9223372036854475341;
+    arr[1] :=        -933865493037; arr[1] *:=              9876553; ok := ok and arr[1] = -9223372036851061461;
+    arr[1] :=        -747094709113; arr[1] *:=             12345653; ok := ok and arr[1] = -9223372036845035789;
+    arr[1] :=         -74709312968; arr[1] *:=            123456791; ok := ok and arr[1] = -9223372036843965688;
+    arr[1] :=          -3037000499; arr[1] *:=           3037000499; ok := ok and arr[1] = -9223372030926249001;
+    arr[1] :=           -123456791; arr[1] *:=          74709312968; ok := ok and arr[1] = -9223372036843965688;
+    arr[1] :=            -12345653; arr[1] *:=         747094709113; ok := ok and arr[1] = -9223372036845035789;
+    arr[1] :=             -9876553; arr[1] *:=         933865493037; ok := ok and arr[1] = -9223372036851061461;
+    arr[1] :=              -644443; arr[1] *:=       14312161101687; ok := ok and arr[1] = -9223372036854475341;
+    arr[1] :=               -38273; arr[1] *:=      240989001041328; ok := ok and arr[1] = -9223372036854746544;
+    arr[1] :=                -4639; arr[1] *:=     1988224194191587; ok := ok and arr[1] = -9223372036854772093;
+    arr[1] :=                 -857; arr[1] *:=    10762394442070916; ok := ok and arr[1] = -9223372036854775012;
+    arr[1] :=                  -11; arr[1] *:=   838488366986797800; ok := ok and arr[1] = -9223372036854775800;
+    arr[1] :=                   -3; arr[1] *:=  3074457345618258602; ok := ok and arr[1] = -9223372036854775806;
+    arr[1] :=                   -2; arr[1] *:=  4611686018427387904; ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=                   -1; arr[1] *:=  9223372036854775807; ok := ok and arr[1] = -9223372036854775807;
+    if not ok then
+      writeln(" ***** Multiplication assignment with minimum product does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] :=  9223372036854775807; arr[1] *:=                   -1; ok := ok and arr[1] = -9223372036854775807;
+    arr[1] :=  4611686018427387904; arr[1] *:=                   -2; ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=  3074457345618258602; arr[1] *:=                   -3; ok := ok and arr[1] = -9223372036854775806;
+    arr[1] :=   838488366986797800; arr[1] *:=                  -11; ok := ok and arr[1] = -9223372036854775800;
+    arr[1] :=    10762394442070916; arr[1] *:=                 -857; ok := ok and arr[1] = -9223372036854775012;
+    arr[1] :=     1988224194191587; arr[1] *:=                -4639; ok := ok and arr[1] = -9223372036854772093;
+    arr[1] :=      240989001041328; arr[1] *:=               -38273; ok := ok and arr[1] = -9223372036854746544;
+    arr[1] :=       14312161101687; arr[1] *:=              -644443; ok := ok and arr[1] = -9223372036854475341;
+    arr[1] :=         933865493037; arr[1] *:=             -9876553; ok := ok and arr[1] = -9223372036851061461;
+    arr[1] :=         747094709113; arr[1] *:=            -12345653; ok := ok and arr[1] = -9223372036845035789;
+    arr[1] :=          74709312968; arr[1] *:=           -123456791; ok := ok and arr[1] = -9223372036843965688;
+    arr[1] :=           3037000499; arr[1] *:=          -3037000499; ok := ok and arr[1] = -9223372030926249001;
+    arr[1] :=            123456791; arr[1] *:=         -74709312968; ok := ok and arr[1] = -9223372036843965688;
+    arr[1] :=             12345653; arr[1] *:=        -747094709113; ok := ok and arr[1] = -9223372036845035789;
+    arr[1] :=              9876553; arr[1] *:=        -933865493037; ok := ok and arr[1] = -9223372036851061461;
+    arr[1] :=               644443; arr[1] *:=      -14312161101687; ok := ok and arr[1] = -9223372036854475341;
+    arr[1] :=                38273; arr[1] *:=     -240989001041328; ok := ok and arr[1] = -9223372036854746544;
+    arr[1] :=                 4639; arr[1] *:=    -1988224194191587; ok := ok and arr[1] = -9223372036854772093;
+    arr[1] :=                  857; arr[1] *:=   -10762394442070916; ok := ok and arr[1] = -9223372036854775012;
+    arr[1] :=                   11; arr[1] *:=  -838488366986797800; ok := ok and arr[1] = -9223372036854775800;
+    arr[1] :=                    3; arr[1] *:= -3074457345618258602; ok := ok and arr[1] = -9223372036854775806;
+    arr[1] :=                    2; arr[1] *:= -4611686018427387904; ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=                    1; arr[1] *:=            INT64_MIN; ok := ok and arr[1] =            INT64_MIN;
+    if not ok then
+      writeln(" ***** Multiplication assignment with minimum product does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] :=            INT64_MIN; arr[1] *:= intExpr(                   1); ok := ok and arr[1] =            INT64_MIN;
+    arr[1] := -4611686018427387904; arr[1] *:= intExpr(                   2); ok := ok and arr[1] =            INT64_MIN;
+    arr[1] := -3074457345618258602; arr[1] *:= intExpr(                   3); ok := ok and arr[1] = -9223372036854775806;
+    arr[1] :=  -838488366986797800; arr[1] *:= intExpr(                  11); ok := ok and arr[1] = -9223372036854775800;
+    arr[1] :=   -10762394442070916; arr[1] *:= intExpr(                 857); ok := ok and arr[1] = -9223372036854775012;
+    arr[1] :=    -1988224194191587; arr[1] *:= intExpr(                4639); ok := ok and arr[1] = -9223372036854772093;
+    arr[1] :=     -240989001041328; arr[1] *:= intExpr(               38273); ok := ok and arr[1] = -9223372036854746544;
+    arr[1] :=      -14312161101687; arr[1] *:= intExpr(              644443); ok := ok and arr[1] = -9223372036854475341;
+    arr[1] :=        -933865493037; arr[1] *:= intExpr(             9876553); ok := ok and arr[1] = -9223372036851061461;
+    arr[1] :=        -747094709113; arr[1] *:= intExpr(            12345653); ok := ok and arr[1] = -9223372036845035789;
+    arr[1] :=         -74709312968; arr[1] *:= intExpr(           123456791); ok := ok and arr[1] = -9223372036843965688;
+    arr[1] :=          -3037000499; arr[1] *:= intExpr(          3037000499); ok := ok and arr[1] = -9223372030926249001;
+    arr[1] :=           -123456791; arr[1] *:= intExpr(         74709312968); ok := ok and arr[1] = -9223372036843965688;
+    arr[1] :=            -12345653; arr[1] *:= intExpr(        747094709113); ok := ok and arr[1] = -9223372036845035789;
+    arr[1] :=             -9876553; arr[1] *:= intExpr(        933865493037); ok := ok and arr[1] = -9223372036851061461;
+    arr[1] :=              -644443; arr[1] *:= intExpr(      14312161101687); ok := ok and arr[1] = -9223372036854475341;
+    arr[1] :=               -38273; arr[1] *:= intExpr(     240989001041328); ok := ok and arr[1] = -9223372036854746544;
+    arr[1] :=                -4639; arr[1] *:= intExpr(    1988224194191587); ok := ok and arr[1] = -9223372036854772093;
+    arr[1] :=                 -857; arr[1] *:= intExpr(   10762394442070916); ok := ok and arr[1] = -9223372036854775012;
+    arr[1] :=                  -11; arr[1] *:= intExpr(  838488366986797800); ok := ok and arr[1] = -9223372036854775800;
+    arr[1] :=                   -3; arr[1] *:= intExpr( 3074457345618258602); ok := ok and arr[1] = -9223372036854775806;
+    arr[1] :=                   -2; arr[1] *:= intExpr( 4611686018427387904); ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=                   -1; arr[1] *:= intExpr( 9223372036854775807); ok := ok and arr[1] = -9223372036854775807;
+    if not ok then
+      writeln(" ***** Multiplication assignment with minimum product does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    arr[1] :=  9223372036854775807; arr[1] *:= intExpr(                  -1); ok := ok and arr[1] = -9223372036854775807;
+    arr[1] :=  4611686018427387904; arr[1] *:= intExpr(                  -2); ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=  3074457345618258602; arr[1] *:= intExpr(                  -3); ok := ok and arr[1] = -9223372036854775806;
+    arr[1] :=   838488366986797800; arr[1] *:= intExpr(                 -11); ok := ok and arr[1] = -9223372036854775800;
+    arr[1] :=    10762394442070916; arr[1] *:= intExpr(                -857); ok := ok and arr[1] = -9223372036854775012;
+    arr[1] :=     1988224194191587; arr[1] *:= intExpr(               -4639); ok := ok and arr[1] = -9223372036854772093;
+    arr[1] :=      240989001041328; arr[1] *:= intExpr(              -38273); ok := ok and arr[1] = -9223372036854746544;
+    arr[1] :=       14312161101687; arr[1] *:= intExpr(             -644443); ok := ok and arr[1] = -9223372036854475341;
+    arr[1] :=         933865493037; arr[1] *:= intExpr(            -9876553); ok := ok and arr[1] = -9223372036851061461;
+    arr[1] :=         747094709113; arr[1] *:= intExpr(           -12345653); ok := ok and arr[1] = -9223372036845035789;
+    arr[1] :=          74709312968; arr[1] *:= intExpr(          -123456791); ok := ok and arr[1] = -9223372036843965688;
+    arr[1] :=           3037000499; arr[1] *:= intExpr(         -3037000499); ok := ok and arr[1] = -9223372030926249001;
+    arr[1] :=            123456791; arr[1] *:= intExpr(        -74709312968); ok := ok and arr[1] = -9223372036843965688;
+    arr[1] :=             12345653; arr[1] *:= intExpr(       -747094709113); ok := ok and arr[1] = -9223372036845035789;
+    arr[1] :=              9876553; arr[1] *:= intExpr(       -933865493037); ok := ok and arr[1] = -9223372036851061461;
+    arr[1] :=               644443; arr[1] *:= intExpr(     -14312161101687); ok := ok and arr[1] = -9223372036854475341;
+    arr[1] :=                38273; arr[1] *:= intExpr(    -240989001041328); ok := ok and arr[1] = -9223372036854746544;
+    arr[1] :=                 4639; arr[1] *:= intExpr(   -1988224194191587); ok := ok and arr[1] = -9223372036854772093;
+    arr[1] :=                  857; arr[1] *:= intExpr(  -10762394442070916); ok := ok and arr[1] = -9223372036854775012;
+    arr[1] :=                   11; arr[1] *:= intExpr( -838488366986797800); ok := ok and arr[1] = -9223372036854775800;
+    arr[1] :=                    3; arr[1] *:= intExpr(-3074457345618258602); ok := ok and arr[1] = -9223372036854775806;
+    arr[1] :=                    2; arr[1] *:= intExpr(-4611686018427387904); ok := ok and arr[1] =            INT64_MIN;
+    arr[1] :=                    1; arr[1] *:= intExpr(           INT64_MIN); ok := ok and arr[1] =            INT64_MIN;
+    if not ok then
+      writeln(" ***** Multiplication assignment with minimum product does not work correct. (8)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_mult_assign_maximum_result is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var integer: num is 0;
+    var array integer: arr is [] (0);
+  begin
+    num := -9223372036854775807; num *:=                   -1; ok := ok and num =  9223372036854775807;
+    num := -4611686018427387903; num *:=                   -2; ok := ok and num =  9223372036854775806;
+    num := -3074457345618258602; num *:=                   -3; ok := ok and num =  9223372036854775806;
+    num :=  -838488366986797800; num *:=                  -11; ok := ok and num =  9223372036854775800;
+    num :=   -10762394442070916; num *:=                 -857; ok := ok and num =  9223372036854775012;
+    num :=    -1988224194191587; num *:=                -4639; ok := ok and num =  9223372036854772093;
+    num :=     -240989001041328; num *:=               -38273; ok := ok and num =  9223372036854746544;
+    num :=      -14312161101687; num *:=              -644443; ok := ok and num =  9223372036854475341;
+    num :=        -933865493037; num *:=             -9876553; ok := ok and num =  9223372036851061461;
+    num :=        -747094709113; num *:=            -12345653; ok := ok and num =  9223372036845035789;
+    num :=         -74709312968; num *:=           -123456791; ok := ok and num =  9223372036843965688;
+    num :=          -3037000499; num *:=          -3037000499; ok := ok and num =  9223372030926249001;
+    num :=           -123456791; num *:=         -74709312968; ok := ok and num =  9223372036843965688;
+    num :=            -12345653; num *:=        -747094709113; ok := ok and num =  9223372036845035789;
+    num :=             -9876553; num *:=        -933865493037; ok := ok and num =  9223372036851061461;
+    num :=              -644443; num *:=      -14312161101687; ok := ok and num =  9223372036854475341;
+    num :=               -38273; num *:=     -240989001041328; ok := ok and num =  9223372036854746544;
+    num :=                -4639; num *:=    -1988224194191587; ok := ok and num =  9223372036854772093;
+    num :=                 -857; num *:=   -10762394442070916; ok := ok and num =  9223372036854775012;
+    num :=                  -11; num *:=  -838488366986797800; ok := ok and num =  9223372036854775800;
+    num :=                   -3; num *:= -3074457345618258602; ok := ok and num =  9223372036854775806;
+    num :=                   -2; num *:= -4611686018427387903; ok := ok and num =  9223372036854775806;
+    num :=                   -1; num *:= -9223372036854775807; ok := ok and num =  9223372036854775807;
+    if not ok then
+      writeln(" ***** Multiplication assignment with maximum product does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num :=  9223372036854775807; num *:=                    1; ok := ok and num =  9223372036854775807;
     num :=  4611686018427387903; num *:=                    2; ok := ok and num =  9223372036854775806;
     num :=  3074457345618258602; num *:=                    3; ok := ok and num =  9223372036854775806;
@@ -9613,7 +10013,7 @@ const proc: check_mult_assign is func
     num :=                    2; num *:=  4611686018427387903; ok := ok and num =  9223372036854775806;
     num :=                    1; num *:=  9223372036854775807; ok := ok and num =  9223372036854775807;
     if not ok then
-      writeln(" ***** Multiplication assignment with big products does not work correct. (1)");
+      writeln(" ***** Multiplication assignment with maximum product does not work correct. (2)");
       okay := FALSE;
     end if;
 
@@ -9641,52 +10041,12 @@ const proc: check_mult_assign is func
     num :=                   -3; num *:= intExpr(-3074457345618258602); ok := ok and num =  9223372036854775806;
     num :=                   -2; num *:= intExpr(-4611686018427387903); ok := ok and num =  9223372036854775806;
     num :=                   -1; num *:= intExpr(-9223372036854775807); ok := ok and num =  9223372036854775807;
-    num :=            INT64_MIN; num *:= intExpr(                   1); ok := ok and num =            INT64_MIN;
-    num := -4611686018427387904; num *:= intExpr(                   2); ok := ok and num =            INT64_MIN;
-    num := -3074457345618258602; num *:= intExpr(                   3); ok := ok and num = -9223372036854775806;
-    num :=  -838488366986797800; num *:= intExpr(                  11); ok := ok and num = -9223372036854775800;
-    num :=   -10762394442070916; num *:= intExpr(                 857); ok := ok and num = -9223372036854775012;
-    num :=    -1988224194191587; num *:= intExpr(                4639); ok := ok and num = -9223372036854772093;
-    num :=     -240989001041328; num *:= intExpr(               38273); ok := ok and num = -9223372036854746544;
-    num :=      -14312161101687; num *:= intExpr(              644443); ok := ok and num = -9223372036854475341;
-    num :=        -933865493037; num *:= intExpr(             9876553); ok := ok and num = -9223372036851061461;
-    num :=        -747094709113; num *:= intExpr(            12345653); ok := ok and num = -9223372036845035789;
-    num :=         -74709312968; num *:= intExpr(           123456791); ok := ok and num = -9223372036843965688;
-    num :=          -3037000499; num *:= intExpr(          3037000499); ok := ok and num = -9223372030926249001;
-    num :=           -123456791; num *:= intExpr(         74709312968); ok := ok and num = -9223372036843965688;
-    num :=            -12345653; num *:= intExpr(        747094709113); ok := ok and num = -9223372036845035789;
-    num :=             -9876553; num *:= intExpr(        933865493037); ok := ok and num = -9223372036851061461;
-    num :=              -644443; num *:= intExpr(      14312161101687); ok := ok and num = -9223372036854475341;
-    num :=               -38273; num *:= intExpr(     240989001041328); ok := ok and num = -9223372036854746544;
-    num :=                -4639; num *:= intExpr(    1988224194191587); ok := ok and num = -9223372036854772093;
-    num :=                 -857; num *:= intExpr(   10762394442070916); ok := ok and num = -9223372036854775012;
-    num :=                  -11; num *:= intExpr(  838488366986797800); ok := ok and num = -9223372036854775800;
-    num :=                   -3; num *:= intExpr( 3074457345618258602); ok := ok and num = -9223372036854775806;
-    num :=                   -2; num *:= intExpr( 4611686018427387904); ok := ok and num =            INT64_MIN;
-    num :=                   -1; num *:= intExpr( 9223372036854775807); ok := ok and num = -9223372036854775807;
-    num :=  9223372036854775807; num *:= intExpr(                  -1); ok := ok and num = -9223372036854775807;
-    num :=  4611686018427387904; num *:= intExpr(                  -2); ok := ok and num =            INT64_MIN;
-    num :=  3074457345618258602; num *:= intExpr(                  -3); ok := ok and num = -9223372036854775806;
-    num :=   838488366986797800; num *:= intExpr(                 -11); ok := ok and num = -9223372036854775800;
-    num :=    10762394442070916; num *:= intExpr(                -857); ok := ok and num = -9223372036854775012;
-    num :=     1988224194191587; num *:= intExpr(               -4639); ok := ok and num = -9223372036854772093;
-    num :=      240989001041328; num *:= intExpr(              -38273); ok := ok and num = -9223372036854746544;
-    num :=       14312161101687; num *:= intExpr(             -644443); ok := ok and num = -9223372036854475341;
-    num :=         933865493037; num *:= intExpr(            -9876553); ok := ok and num = -9223372036851061461;
-    num :=         747094709113; num *:= intExpr(           -12345653); ok := ok and num = -9223372036845035789;
-    num :=          74709312968; num *:= intExpr(          -123456791); ok := ok and num = -9223372036843965688;
-    num :=           3037000499; num *:= intExpr(         -3037000499); ok := ok and num = -9223372030926249001;
-    num :=            123456791; num *:= intExpr(        -74709312968); ok := ok and num = -9223372036843965688;
-    num :=             12345653; num *:= intExpr(       -747094709113); ok := ok and num = -9223372036845035789;
-    num :=              9876553; num *:= intExpr(       -933865493037); ok := ok and num = -9223372036851061461;
-    num :=               644443; num *:= intExpr(     -14312161101687); ok := ok and num = -9223372036854475341;
-    num :=                38273; num *:= intExpr(    -240989001041328); ok := ok and num = -9223372036854746544;
-    num :=                 4639; num *:= intExpr(   -1988224194191587); ok := ok and num = -9223372036854772093;
-    num :=                  857; num *:= intExpr(  -10762394442070916); ok := ok and num = -9223372036854775012;
-    num :=                   11; num *:= intExpr( -838488366986797800); ok := ok and num = -9223372036854775800;
-    num :=                    3; num *:= intExpr(-3074457345618258602); ok := ok and num = -9223372036854775806;
-    num :=                    2; num *:= intExpr(-4611686018427387904); ok := ok and num =            INT64_MIN;
-    num :=                    1; num *:= intExpr(           INT64_MIN); ok := ok and num =            INT64_MIN;
+    if not ok then
+      writeln(" ***** Multiplication assignment with maximum product does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num :=  9223372036854775807; num *:= intExpr(                   1); ok := ok and num =  9223372036854775807;
     num :=  4611686018427387903; num *:= intExpr(                   2); ok := ok and num =  9223372036854775806;
     num :=  3074457345618258602; num *:= intExpr(                   3); ok := ok and num =  9223372036854775806;
@@ -9711,7 +10071,7 @@ const proc: check_mult_assign is func
     num :=                    2; num *:= intExpr( 4611686018427387903); ok := ok and num =  9223372036854775806;
     num :=                    1; num *:= intExpr( 9223372036854775807); ok := ok and num =  9223372036854775807;
     if not ok then
-      writeln(" ***** Multiplication assignment with big products does not work correct. (2)");
+      writeln(" ***** Multiplication assignment with maximum product does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -9739,52 +10099,12 @@ const proc: check_mult_assign is func
     arr[1] :=                   -3; arr[1] *:= -3074457345618258602; ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=                   -2; arr[1] *:= -4611686018427387903; ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=                   -1; arr[1] *:= -9223372036854775807; ok := ok and arr[1] =  9223372036854775807;
-    arr[1] :=            INT64_MIN; arr[1] *:=                    1; ok := ok and arr[1] =            INT64_MIN;
-    arr[1] := -4611686018427387904; arr[1] *:=                    2; ok := ok and arr[1] =            INT64_MIN;
-    arr[1] := -3074457345618258602; arr[1] *:=                    3; ok := ok and arr[1] = -9223372036854775806;
-    arr[1] :=  -838488366986797800; arr[1] *:=                   11; ok := ok and arr[1] = -9223372036854775800;
-    arr[1] :=   -10762394442070916; arr[1] *:=                  857; ok := ok and arr[1] = -9223372036854775012;
-    arr[1] :=    -1988224194191587; arr[1] *:=                 4639; ok := ok and arr[1] = -9223372036854772093;
-    arr[1] :=     -240989001041328; arr[1] *:=                38273; ok := ok and arr[1] = -9223372036854746544;
-    arr[1] :=      -14312161101687; arr[1] *:=               644443; ok := ok and arr[1] = -9223372036854475341;
-    arr[1] :=        -933865493037; arr[1] *:=              9876553; ok := ok and arr[1] = -9223372036851061461;
-    arr[1] :=        -747094709113; arr[1] *:=             12345653; ok := ok and arr[1] = -9223372036845035789;
-    arr[1] :=         -74709312968; arr[1] *:=            123456791; ok := ok and arr[1] = -9223372036843965688;
-    arr[1] :=          -3037000499; arr[1] *:=           3037000499; ok := ok and arr[1] = -9223372030926249001;
-    arr[1] :=           -123456791; arr[1] *:=          74709312968; ok := ok and arr[1] = -9223372036843965688;
-    arr[1] :=            -12345653; arr[1] *:=         747094709113; ok := ok and arr[1] = -9223372036845035789;
-    arr[1] :=             -9876553; arr[1] *:=         933865493037; ok := ok and arr[1] = -9223372036851061461;
-    arr[1] :=              -644443; arr[1] *:=       14312161101687; ok := ok and arr[1] = -9223372036854475341;
-    arr[1] :=               -38273; arr[1] *:=      240989001041328; ok := ok and arr[1] = -9223372036854746544;
-    arr[1] :=                -4639; arr[1] *:=     1988224194191587; ok := ok and arr[1] = -9223372036854772093;
-    arr[1] :=                 -857; arr[1] *:=    10762394442070916; ok := ok and arr[1] = -9223372036854775012;
-    arr[1] :=                  -11; arr[1] *:=   838488366986797800; ok := ok and arr[1] = -9223372036854775800;
-    arr[1] :=                   -3; arr[1] *:=  3074457345618258602; ok := ok and arr[1] = -9223372036854775806;
-    arr[1] :=                   -2; arr[1] *:=  4611686018427387904; ok := ok and arr[1] =            INT64_MIN;
-    arr[1] :=                   -1; arr[1] *:=  9223372036854775807; ok := ok and arr[1] = -9223372036854775807;
-    arr[1] :=  9223372036854775807; arr[1] *:=                   -1; ok := ok and arr[1] = -9223372036854775807;
-    arr[1] :=  4611686018427387904; arr[1] *:=                   -2; ok := ok and arr[1] =            INT64_MIN;
-    arr[1] :=  3074457345618258602; arr[1] *:=                   -3; ok := ok and arr[1] = -9223372036854775806;
-    arr[1] :=   838488366986797800; arr[1] *:=                  -11; ok := ok and arr[1] = -9223372036854775800;
-    arr[1] :=    10762394442070916; arr[1] *:=                 -857; ok := ok and arr[1] = -9223372036854775012;
-    arr[1] :=     1988224194191587; arr[1] *:=                -4639; ok := ok and arr[1] = -9223372036854772093;
-    arr[1] :=      240989001041328; arr[1] *:=               -38273; ok := ok and arr[1] = -9223372036854746544;
-    arr[1] :=       14312161101687; arr[1] *:=              -644443; ok := ok and arr[1] = -9223372036854475341;
-    arr[1] :=         933865493037; arr[1] *:=             -9876553; ok := ok and arr[1] = -9223372036851061461;
-    arr[1] :=         747094709113; arr[1] *:=            -12345653; ok := ok and arr[1] = -9223372036845035789;
-    arr[1] :=          74709312968; arr[1] *:=           -123456791; ok := ok and arr[1] = -9223372036843965688;
-    arr[1] :=           3037000499; arr[1] *:=          -3037000499; ok := ok and arr[1] = -9223372030926249001;
-    arr[1] :=            123456791; arr[1] *:=         -74709312968; ok := ok and arr[1] = -9223372036843965688;
-    arr[1] :=             12345653; arr[1] *:=        -747094709113; ok := ok and arr[1] = -9223372036845035789;
-    arr[1] :=              9876553; arr[1] *:=        -933865493037; ok := ok and arr[1] = -9223372036851061461;
-    arr[1] :=               644443; arr[1] *:=      -14312161101687; ok := ok and arr[1] = -9223372036854475341;
-    arr[1] :=                38273; arr[1] *:=     -240989001041328; ok := ok and arr[1] = -9223372036854746544;
-    arr[1] :=                 4639; arr[1] *:=    -1988224194191587; ok := ok and arr[1] = -9223372036854772093;
-    arr[1] :=                  857; arr[1] *:=   -10762394442070916; ok := ok and arr[1] = -9223372036854775012;
-    arr[1] :=                   11; arr[1] *:=  -838488366986797800; ok := ok and arr[1] = -9223372036854775800;
-    arr[1] :=                    3; arr[1] *:= -3074457345618258602; ok := ok and arr[1] = -9223372036854775806;
-    arr[1] :=                    2; arr[1] *:= -4611686018427387904; ok := ok and arr[1] =            INT64_MIN;
-    arr[1] :=                    1; arr[1] *:=            INT64_MIN; ok := ok and arr[1] =            INT64_MIN;
+    if not ok then
+      writeln(" ***** Multiplication assignment with maximum product does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=  9223372036854775807; arr[1] *:=                    1; ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=  4611686018427387903; arr[1] *:=                    2; ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=  3074457345618258602; arr[1] *:=                    3; ok := ok and arr[1] =  9223372036854775806;
@@ -9809,7 +10129,7 @@ const proc: check_mult_assign is func
     arr[1] :=                    2; arr[1] *:=  4611686018427387903; ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=                    1; arr[1] *:=  9223372036854775807; ok := ok and arr[1] =  9223372036854775807;
     if not ok then
-      writeln(" ***** Multiplication assignment with big products does not work correct. (3)");
+      writeln(" ***** Multiplication assignment with maximum product does not work correct. (6)");
       okay := FALSE;
     end if;
 
@@ -9837,52 +10157,12 @@ const proc: check_mult_assign is func
     arr[1] :=                   -3; arr[1] *:= intExpr(-3074457345618258602); ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=                   -2; arr[1] *:= intExpr(-4611686018427387903); ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=                   -1; arr[1] *:= intExpr(-9223372036854775807); ok := ok and arr[1] =  9223372036854775807;
-    arr[1] :=            INT64_MIN; arr[1] *:= intExpr(                   1); ok := ok and arr[1] =            INT64_MIN;
-    arr[1] := -4611686018427387904; arr[1] *:= intExpr(                   2); ok := ok and arr[1] =            INT64_MIN;
-    arr[1] := -3074457345618258602; arr[1] *:= intExpr(                   3); ok := ok and arr[1] = -9223372036854775806;
-    arr[1] :=  -838488366986797800; arr[1] *:= intExpr(                  11); ok := ok and arr[1] = -9223372036854775800;
-    arr[1] :=   -10762394442070916; arr[1] *:= intExpr(                 857); ok := ok and arr[1] = -9223372036854775012;
-    arr[1] :=    -1988224194191587; arr[1] *:= intExpr(                4639); ok := ok and arr[1] = -9223372036854772093;
-    arr[1] :=     -240989001041328; arr[1] *:= intExpr(               38273); ok := ok and arr[1] = -9223372036854746544;
-    arr[1] :=      -14312161101687; arr[1] *:= intExpr(              644443); ok := ok and arr[1] = -9223372036854475341;
-    arr[1] :=        -933865493037; arr[1] *:= intExpr(             9876553); ok := ok and arr[1] = -9223372036851061461;
-    arr[1] :=        -747094709113; arr[1] *:= intExpr(            12345653); ok := ok and arr[1] = -9223372036845035789;
-    arr[1] :=         -74709312968; arr[1] *:= intExpr(           123456791); ok := ok and arr[1] = -9223372036843965688;
-    arr[1] :=          -3037000499; arr[1] *:= intExpr(          3037000499); ok := ok and arr[1] = -9223372030926249001;
-    arr[1] :=           -123456791; arr[1] *:= intExpr(         74709312968); ok := ok and arr[1] = -9223372036843965688;
-    arr[1] :=            -12345653; arr[1] *:= intExpr(        747094709113); ok := ok and arr[1] = -9223372036845035789;
-    arr[1] :=             -9876553; arr[1] *:= intExpr(        933865493037); ok := ok and arr[1] = -9223372036851061461;
-    arr[1] :=              -644443; arr[1] *:= intExpr(      14312161101687); ok := ok and arr[1] = -9223372036854475341;
-    arr[1] :=               -38273; arr[1] *:= intExpr(     240989001041328); ok := ok and arr[1] = -9223372036854746544;
-    arr[1] :=                -4639; arr[1] *:= intExpr(    1988224194191587); ok := ok and arr[1] = -9223372036854772093;
-    arr[1] :=                 -857; arr[1] *:= intExpr(   10762394442070916); ok := ok and arr[1] = -9223372036854775012;
-    arr[1] :=                  -11; arr[1] *:= intExpr(  838488366986797800); ok := ok and arr[1] = -9223372036854775800;
-    arr[1] :=                   -3; arr[1] *:= intExpr( 3074457345618258602); ok := ok and arr[1] = -9223372036854775806;
-    arr[1] :=                   -2; arr[1] *:= intExpr( 4611686018427387904); ok := ok and arr[1] =            INT64_MIN;
-    arr[1] :=                   -1; arr[1] *:= intExpr( 9223372036854775807); ok := ok and arr[1] = -9223372036854775807;
-    arr[1] :=  9223372036854775807; arr[1] *:= intExpr(                  -1); ok := ok and arr[1] = -9223372036854775807;
-    arr[1] :=  4611686018427387904; arr[1] *:= intExpr(                  -2); ok := ok and arr[1] =            INT64_MIN;
-    arr[1] :=  3074457345618258602; arr[1] *:= intExpr(                  -3); ok := ok and arr[1] = -9223372036854775806;
-    arr[1] :=   838488366986797800; arr[1] *:= intExpr(                 -11); ok := ok and arr[1] = -9223372036854775800;
-    arr[1] :=    10762394442070916; arr[1] *:= intExpr(                -857); ok := ok and arr[1] = -9223372036854775012;
-    arr[1] :=     1988224194191587; arr[1] *:= intExpr(               -4639); ok := ok and arr[1] = -9223372036854772093;
-    arr[1] :=      240989001041328; arr[1] *:= intExpr(              -38273); ok := ok and arr[1] = -9223372036854746544;
-    arr[1] :=       14312161101687; arr[1] *:= intExpr(             -644443); ok := ok and arr[1] = -9223372036854475341;
-    arr[1] :=         933865493037; arr[1] *:= intExpr(            -9876553); ok := ok and arr[1] = -9223372036851061461;
-    arr[1] :=         747094709113; arr[1] *:= intExpr(           -12345653); ok := ok and arr[1] = -9223372036845035789;
-    arr[1] :=          74709312968; arr[1] *:= intExpr(          -123456791); ok := ok and arr[1] = -9223372036843965688;
-    arr[1] :=           3037000499; arr[1] *:= intExpr(         -3037000499); ok := ok and arr[1] = -9223372030926249001;
-    arr[1] :=            123456791; arr[1] *:= intExpr(        -74709312968); ok := ok and arr[1] = -9223372036843965688;
-    arr[1] :=             12345653; arr[1] *:= intExpr(       -747094709113); ok := ok and arr[1] = -9223372036845035789;
-    arr[1] :=              9876553; arr[1] *:= intExpr(       -933865493037); ok := ok and arr[1] = -9223372036851061461;
-    arr[1] :=               644443; arr[1] *:= intExpr(     -14312161101687); ok := ok and arr[1] = -9223372036854475341;
-    arr[1] :=                38273; arr[1] *:= intExpr(    -240989001041328); ok := ok and arr[1] = -9223372036854746544;
-    arr[1] :=                 4639; arr[1] *:= intExpr(   -1988224194191587); ok := ok and arr[1] = -9223372036854772093;
-    arr[1] :=                  857; arr[1] *:= intExpr(  -10762394442070916); ok := ok and arr[1] = -9223372036854775012;
-    arr[1] :=                   11; arr[1] *:= intExpr( -838488366986797800); ok := ok and arr[1] = -9223372036854775800;
-    arr[1] :=                    3; arr[1] *:= intExpr(-3074457345618258602); ok := ok and arr[1] = -9223372036854775806;
-    arr[1] :=                    2; arr[1] *:= intExpr(-4611686018427387904); ok := ok and arr[1] =            INT64_MIN;
-    arr[1] :=                    1; arr[1] *:= intExpr(           INT64_MIN); ok := ok and arr[1] =            INT64_MIN;
+    if not ok then
+      writeln(" ***** Multiplication assignment with maximum product does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=  9223372036854775807; arr[1] *:= intExpr(                   1); ok := ok and arr[1] =  9223372036854775807;
     arr[1] :=  4611686018427387903; arr[1] *:= intExpr(                   2); ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=  3074457345618258602; arr[1] *:= intExpr(                   3); ok := ok and arr[1] =  9223372036854775806;
@@ -9907,7 +10187,37 @@ const proc: check_mult_assign is func
     arr[1] :=                    2; arr[1] *:= intExpr( 4611686018427387903); ok := ok and arr[1] =  9223372036854775806;
     arr[1] :=                    1; arr[1] *:= intExpr( 9223372036854775807); ok := ok and arr[1] =  9223372036854775807;
     if not ok then
-      writeln(" ***** Multiplication assignment with big products does not work correct. (4)");
+      writeln(" ***** Multiplication assignment with maximum product does not work correct. (8)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_mult_assign is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var integer: num is 0;
+    var array integer: arr is [] (0);
+  begin
+    num := -2147483648; num *:= -2147483648; ok := ok and num =  4611686018427387904;
+    num := -2147483648; num *:= -2147483647; ok := ok and num =  4611686016279904256;
+    num := -2147483648; num *:=  2147483647; ok := ok and num = -4611686016279904256;
+    num := -2147483648; num *:=  2147483648; ok := ok and num = -4611686018427387904;
+    num := -2147483647; num *:= -2147483648; ok := ok and num =  4611686016279904256;
+    num := -2147483647; num *:= -2147483647; ok := ok and num =  4611686014132420609;
+    num := -2147483647; num *:=  2147483647; ok := ok and num = -4611686014132420609;
+    num := -2147483647; num *:=  2147483648; ok := ok and num = -4611686016279904256;
+    num :=  2147483647; num *:= -2147483648; ok := ok and num = -4611686016279904256;
+    num :=  2147483647; num *:= -2147483647; ok := ok and num = -4611686014132420609;
+    num :=  2147483647; num *:=  2147483647; ok := ok and num =  4611686014132420609;
+    num :=  2147483647; num *:=  2147483648; ok := ok and num =  4611686016279904256;
+    num :=  2147483648; num *:= -2147483648; ok := ok and num = -4611686018427387904;
+    num :=  2147483648; num *:= -2147483647; ok := ok and num = -4611686016279904256;
+    num :=  2147483648; num *:=  2147483647; ok := ok and num =  4611686016279904256;
+    num :=  2147483648; num *:=  2147483648; ok := ok and num =  4611686018427387904;
+    if not ok then
+      writeln(" ***** Multiplication assignment with big and small factors does not work correct.");
       okay := FALSE;
     end if;
 
@@ -9960,6 +10270,14 @@ const proc: check_mult_assign is func
     arr[1] := rand(integer.first, integer.last); arr[1] *:= intExpr(0); ok := ok and arr[1] = 0;
     if not ok then
       writeln(" ***** Multiplication assignment with zero does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if not check_mult_assign_minimum_result then
+      okay := FALSE;
+    end if;
+
+    if not check_mult_assign_maximum_result then
       okay := FALSE;
     end if;
 
