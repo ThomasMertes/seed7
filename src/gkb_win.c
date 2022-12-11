@@ -512,11 +512,11 @@ boolType determineDeadKey (uint32Type virtualKey, boolType shift)
       keyboardState[VK_LSHIFT] = 128;
       keyboardState[VK_RSHIFT] = 128;
     } /* if */
-    if (ToUnicode(virtualKey, MapVirtualKey(virtualKey, MAPVK_VK_TO_VSC),
+    if (ToUnicode(virtualKey, MapVirtualKeyW(virtualKey, MAPVK_VK_TO_VSC),
                   keyboardState, unicodeChar, 4, 0) == -1) {
       deadKey = TRUE;
       /* To consume the dead key the function must be called again. */
-      ToUnicode(virtualKey, MapVirtualKey(virtualKey, MAPVK_VK_TO_VSC),
+      ToUnicode(virtualKey, MapVirtualKeyW(virtualKey, MAPVK_VK_TO_VSC),
                 keyboardState, unicodeChar, 4, 0);
     } /* if */
     return deadKey;
@@ -999,16 +999,11 @@ charType gkbGetc (void)
               } /* switch */
             } /* if */
             if (result == K_UNDEF) {
-              /* printf("TranslateMessage(%d) %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
               TranslateMessage(&msg);
-              /* printf("translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
               if (PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-                /* printf("PeekMessageW(%d) %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
                 if (msg.message == WM_CHAR) {
                   result = K_NONE;
                 } /* if */
-              } else {
-                /* printf("PeekMessageW --> empty\n"); */
               } /* if */
             } /* if */
             break;
@@ -1494,14 +1489,12 @@ charType gkbGetc (void)
             button_window = msg.hwnd;
             break;
           default:
-            /* printf("A message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             traceEvent(printf("message=%d, hwnd=" FMT_U_MEM
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                               msg.message, (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
             /* E.g.: WM_NCMOUSELEAVE */
             TranslateMessage(&msg);
-            /* printf("translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             DispatchMessage(&msg);
             break;
         } /* switch */
@@ -1559,9 +1552,10 @@ boolType gkbInputReady (void)
                   bRet = GetMessageW(&msg, NULL, 0, 0);
                   if (bRet == 0 || bRet == -1) {
                     logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+                  } else {
+                    TranslateMessage(&msg);
+                    DispatchMessage(&msg);
                   } /* if */
-                  TranslateMessage(&msg);
-                  DispatchMessage(&msg);
                   msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
                 } else if (deadKeyActive == msg.wParam) {
                   msg_present = 0;
@@ -1580,9 +1574,10 @@ boolType gkbInputReady (void)
                 bRet = GetMessageW(&msg, NULL, 0, 0);
                 if (bRet == 0 || bRet == -1) {
                   logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
+                } else {
+                  TranslateMessage(&msg);
+                  DispatchMessage(&msg);
                 } /* if */
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
                 PostMessageW(msg.hwnd, WM_KEYDOWN, VK_SPACE, msg.lParam);
                 msg_present = 0;
                 result = TRUE;
@@ -1654,17 +1649,18 @@ boolType gkbInputReady (void)
             bRet = GetMessageW(&msg, NULL, 0, 0);
             if (bRet == 0 || bRet == -1) {
               logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-            } /* if */
-            if (msg.wParam == HTBOTTOMRIGHT || msg.wParam == HTRIGHT || msg.wParam == HTBOTTOM) {
-              resizeBottomAndRight(&msg);
-            } else if (msg.wParam == HTTOPLEFT || msg.wParam == HTLEFT || msg.wParam == HTTOP ||
-                msg.wParam == HTTOPRIGHT || msg.wParam == HTBOTTOMLEFT) {
-              resizeTopAndLeft(&msg);
-            } else if (msg.wParam == HTCAPTION) {
-              startMoveWindow(&msg);
             } else {
-              TranslateMessage(&msg);
-              DispatchMessage(&msg);
+              if (msg.wParam == HTBOTTOMRIGHT || msg.wParam == HTRIGHT || msg.wParam == HTBOTTOM) {
+                resizeBottomAndRight(&msg);
+              } else if (msg.wParam == HTTOPLEFT || msg.wParam == HTLEFT || msg.wParam == HTTOP ||
+                  msg.wParam == HTTOPRIGHT || msg.wParam == HTBOTTOMLEFT) {
+                resizeTopAndLeft(&msg);
+              } else if (msg.wParam == HTCAPTION) {
+                startMoveWindow(&msg);
+              } else {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+              } /* if */
             } /* if */
             msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           } /* if */
@@ -1682,16 +1678,17 @@ boolType gkbInputReady (void)
             bRet = GetMessageW(&msg, NULL, 0, 0);
             if (bRet == 0 || bRet == -1) {
               logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-            } /* if */
-            if (msg.wParam == SC_SIZE) {
-              /* printf("SC_SIZE\n"); */
-              systemSizeCommand(&msg);
-            } else if (msg.wParam == SC_MOVE) {
-              /* printf("SC_MOVE\n"); */
-              systemMoveCommand(&msg);
             } else {
-              TranslateMessage(&msg);
-              DispatchMessage(&msg);
+              if (msg.wParam == SC_SIZE) {
+                /* printf("SC_SIZE\n"); */
+                systemSizeCommand(&msg);
+              } else if (msg.wParam == SC_MOVE) {
+                /* printf("SC_MOVE\n"); */
+                systemMoveCommand(&msg);
+              } else {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+              } /* if */
             } /* if */
             msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           } /* if */
@@ -1704,12 +1701,13 @@ boolType gkbInputReady (void)
           bRet = GetMessageW(&msg, NULL, 0, 0);
           if (bRet == 0 || bRet == -1) {
             logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-          } /* if */
-          if (resizeMode != 0) {
-            processMouseMove(&msg);
           } else {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            if (resizeMode != 0) {
+              processMouseMove(&msg);
+            } else {
+              TranslateMessage(&msg);
+              DispatchMessage(&msg);
+            } /* if */
           } /* if */
           msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;
@@ -1721,14 +1719,15 @@ boolType gkbInputReady (void)
           bRet = GetMessageW(&msg, NULL, 0, 0);
           if (bRet == 0 || bRet == -1) {
             logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
-          } /* if */
-          if (resizeMode != 0) {
-            /* printf("resizeMode: %d\n", (int) resizeMode); */
-            ReleaseCapture();
-            resizeMode = 0;
           } else {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            if (resizeMode != 0) {
+              /* printf("resizeMode: %d\n", (int) resizeMode); */
+              ReleaseCapture();
+              resizeMode = 0;
+            } else {
+              TranslateMessage(&msg);
+              DispatchMessage(&msg);
+            } /* if */
           } /* if */
           msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;
@@ -1738,10 +1737,8 @@ boolType gkbInputReady (void)
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
           bRet = GetMessageW(&msg, NULL, 0, 0);
-          if (bRet == 0) {
-            logError(printf("y GetMessageW(&msg, NULL, 0, 0)=0\n"););
-          } else if (bRet == -1) {
-            logError(printf("y GetMessageW(&msg, NULL, 0, 0)=-1\n"););
+          if (bRet == 0 || bRet == -1) {
+            logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
           } /* if */
           msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;
@@ -1759,16 +1756,11 @@ boolType gkbInputReady (void)
                             msg.message, (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
           bRet = GetMessageW(&msg, NULL, 0, 0);
-          if (bRet == 0) {
-            logError(printf("GetMessageW(&msg, NULL, 0, 0)=0\n"););
-          } else if (bRet == -1) {
-            logError(printf("GetMessageW(&msg, NULL, 0, 0)=-1\n"););
+          if (bRet == 0 || bRet == -1) {
+            logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
           } else {
-            /* printf("B message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             TranslateMessage(&msg);
-            /* printf("translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             DispatchMessage(&msg);
-            /* printf("after DispatchMessage\n"); */
           } /* if */
           msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;

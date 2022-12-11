@@ -65,7 +65,6 @@ void gkbInitKeyboard (void);
 
 #define PI 3.141592653589793238462643383279502884197
 
-#define windowClass "MyWindowClass"
 #define windowClassW L"MyWindowClass"
 
 static boolType init_called = FALSE;
@@ -436,6 +435,7 @@ void drawInit (void)
     HMODULE hntdll;
 
   /* drawInit */
+    logFunction(printf("drawInit()\n"););
     wcex.cbSize        = sizeof(WNDCLASSEXW);
     wcex.style         = /* CS_HREDRAW | CS_VREDRAW | */ CS_OWNDC;
     wcex.lpfnWndProc   = (WNDPROC) WndProc;
@@ -1648,33 +1648,13 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
         if (ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes)) {
           memset(result, 0, sizeof(win_winRecord));
           result->usage_count = 1;
-#ifdef OUT_OF_ORDER
-          printf("SM_CXBORDER=%d\n",    GetSystemMetrics(SM_CXBORDER));
-          printf("SM_CYBORDER=%d\n",    GetSystemMetrics(SM_CYBORDER));
-          printf("SM_CXSIZE=%d\n",      GetSystemMetrics(SM_CXSIZE));
-          printf("SM_CYSIZE=%d\n",      GetSystemMetrics(SM_CYSIZE));
-          printf("SM_CXSIZEFRAME=%d\n", GetSystemMetrics(SM_CXSIZEFRAME));
-          printf("SM_CYSIZEFRAME=%d\n", GetSystemMetrics(SM_CYSIZEFRAME));
-          printf("SM_CXEDGE=%d\n",      GetSystemMetrics(SM_CXEDGE));
-          printf("SM_CYEDGE=%d\n",      GetSystemMetrics(SM_CYEDGE));
-          printf("width=%d\n",          width + 2 * GetSystemMetrics(SM_CXSIZEFRAME));
-          printf("height=%d\n",         height + 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
-              GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER));
-          printf("WS_OVERLAPPEDWINDOW = %lx\n", WS_OVERLAPPEDWINDOW);
-          printf("WS_BORDER           = %lx\n", WS_BORDER);
-          printf("WS_THICKFRAME       = %lx\n", WS_THICKFRAME);
-          printf("WS_DLGFRAME         = %lx\n", WS_DLGFRAME);
-          printf("WS_CAPTION          = %lx\n", WS_CAPTION);
-          printf("WS_CHILD            = %lx\n", WS_CHILD);
-#endif
-
           if (to_width(parent_window) == 0 && to_height(parent_window) == 0) {
-            result->hWnd = CreateWindowEx(WS_EX_NOACTIVATE, windowClass, "",
+            result->hWnd = CreateWindowExW(WS_EX_NOACTIVATE, windowClassW, L"",
                 WS_POPUP,
                 (int) xPos, (int) yPos, (int) width, (int) height,
                 (HWND) NULL, (HMENU) NULL, NULL, NULL);
           } else {
-            result->hWnd = CreateWindow(windowClass, "",
+            result->hWnd = CreateWindowW(windowClassW, L"",
                 WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
                 (int) xPos, (int) yPos, (int) width, (int) height,
                 to_hwnd(parent_window), (HMENU) NULL, NULL, NULL);
