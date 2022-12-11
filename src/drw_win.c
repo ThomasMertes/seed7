@@ -133,7 +133,7 @@ typedef const win_winRecord *const_win_winType;
 
 typedef HWND (WINAPI *pGetConsoleWindowType)(void);
 static pGetConsoleWindowType pGetConsoleWindow = NULL;
-
+static winType emptyWindow;
 
 
 winType find_window (HWND sys_window);
@@ -428,6 +428,38 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 
+winType generateEmptyWindow (void)
+
+  {
+    HDC screenDC;
+    win_winType newWindow;
+
+  /* drwEmpty */
+    logFunction(printf("generateEmptyWindow()\n"););
+    if (unlikely(!ALLOC_RECORD2(newWindow, win_winRecord, count.win, count.win_bytes))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memset(newWindow, 0, sizeof(win_winRecord));
+      newWindow->usage_count = 0;  /* Do not use reference counting (will not be freed). */
+      screenDC = GetDC(NULL);
+      newWindow->hdc = CreateCompatibleDC(screenDC);
+      newWindow->hBitmap = CreateCompatibleBitmap(screenDC, 0, 0);
+      ReleaseDC(NULL, screenDC);
+      newWindow->oldBitmap = (HBITMAP) SelectObject(newWindow->hdc, newWindow->hBitmap);
+      newWindow->hasTransparentPixel = FALSE;
+      newWindow->transparentPixel = 0;
+      newWindow->is_pixmap = TRUE;
+      newWindow->width = 0;
+      newWindow->height = 0;
+    } /* if */
+    logFunction(printf("generateEmptyWindow --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) newWindow,
+                       newWindow != NULL ? newWindow->usage_count : (uintType) 0););
+    return (winType) newWindow;
+  } /* generateEmptyWindow */
+
+
+
 void drawInit (void)
 
   {
@@ -451,6 +483,7 @@ void drawInit (void)
     if (hntdll != 0) {
       pGetConsoleWindow = (pGetConsoleWindowType) GetProcAddress(hntdll, "GetConsoleWindow");
     } /* if */
+    emptyWindow = generateEmptyWindow();
     gkbInitKeyboard();
     init_called = TRUE;
   } /* drawInit */
@@ -1081,35 +1114,15 @@ void drwPFEllipse (const_winType actual_window,
 
 winType drwEmpty (void)
 
-  {
-    HDC screenDC;
-    win_winType emptyWindow;
-
-  /* drwEmpty */
+  { /* drwEmpty */
     logFunction(printf("drwEmpty()\n"););
     if (!init_called) {
       drawInit();
     } /* if */
-    if (unlikely(!ALLOC_RECORD2(emptyWindow, win_winRecord, count.win, count.win_bytes))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      memset(emptyWindow, 0, sizeof(win_winRecord));
-      emptyWindow->usage_count = 0;  /* Do not use reference counting (will not be freed). */
-      screenDC = GetDC(NULL);
-      emptyWindow->hdc = CreateCompatibleDC(screenDC);
-      emptyWindow->hBitmap = CreateCompatibleBitmap(screenDC, 0, 0);
-      ReleaseDC(NULL, screenDC);
-      emptyWindow->oldBitmap = (HBITMAP) SelectObject(emptyWindow->hdc, emptyWindow->hBitmap);
-      emptyWindow->hasTransparentPixel = FALSE;
-      emptyWindow->transparentPixel = 0;
-      emptyWindow->is_pixmap = TRUE;
-      emptyWindow->width = 0;
-      emptyWindow->height = 0;
-    } /* if */
     logFunction(printf("drwEmpty --> " FMT_U_MEM " (usage=" FMT_U ")\n",
                        (memSizeType) emptyWindow,
                        emptyWindow != NULL ? emptyWindow->usage_count : (uintType) 0););
-    return (winType) emptyWindow;
+    return emptyWindow;
   } /* drwEmpty */
 
 
@@ -1523,7 +1536,7 @@ winType drwOpen (intType xPos, intType yPos,
     os_striType winName;
     HFONT std_font;
     errInfoType err_info = OKAY_NO_ERROR;
-    win_winType result = NULL;
+    win_winType newWindow = NULL;
 
   /* drwOpen */
     logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
@@ -1560,40 +1573,40 @@ winType drwOpen (intType xPos, intType yPos,
               FreeConsole();
             } /* if */
           } /* if */
-          if (ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes)) {
-            memset(result, 0, sizeof(win_winRecord));
-            result->usage_count = 1;
-            result->hWnd = CreateWindowW(windowClassW, winName,
+          if (ALLOC_RECORD2(newWindow, win_winRecord, count.win, count.win_bytes)) {
+            memset(newWindow, 0, sizeof(win_winRecord));
+            newWindow->usage_count = 1;
+            newWindow->hWnd = CreateWindowW(windowClassW, winName,
                 WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
                 (int) xPos, (int) yPos,
                 (int) (windowRect.right - windowRect.left),
                 (int) (windowRect.bottom - windowRect.top),
                 (HWND) NULL, (HMENU) NULL, NULL, NULL);
-            enter_window((winType) result, result->hWnd);
-            /* printf("hWnd=%lu\n", result->hWnd); */
-            if (result->hWnd != NULL) {
-              result->hdc = GetDC(result->hWnd);
-              /* printf("hdc=%lu\n", result->hdc); */
-              result->hasTransparentPixel = FALSE;
-              result->transparentPixel = 0;
-              result->is_pixmap = FALSE;
-              result->width = (unsigned int) width;
-              result->height = (unsigned int) height;
-              result->backupWidth = (unsigned int) width;
-              result->backupHeight = (unsigned int) height;
-              result->minimized = FALSE;
-              result->clear_col = (intType) RGB(0, 0, 0); /* black */
-              result->cursorVisible = TRUE;
-              result->backup_hdc = CreateCompatibleDC(result->hdc);
-              result->backup = CreateCompatibleBitmap(result->hdc, (int) width, (int) height);
-              SelectObject(result->backup_hdc, result->backup);
+            enter_window((winType) newWindow, newWindow->hWnd);
+            /* printf("hWnd=%lu\n", newWindow->hWnd); */
+            if (newWindow->hWnd != NULL) {
+              newWindow->hdc = GetDC(newWindow->hWnd);
+              /* printf("hdc=%lu\n", newWindow->hdc); */
+              newWindow->hasTransparentPixel = FALSE;
+              newWindow->transparentPixel = 0;
+              newWindow->is_pixmap = FALSE;
+              newWindow->width = (unsigned int) width;
+              newWindow->height = (unsigned int) height;
+              newWindow->backupWidth = (unsigned int) width;
+              newWindow->backupHeight = (unsigned int) height;
+              newWindow->minimized = FALSE;
+              newWindow->clear_col = (intType) RGB(0, 0, 0); /* black */
+              newWindow->cursorVisible = TRUE;
+              newWindow->backup_hdc = CreateCompatibleDC(newWindow->hdc);
+              newWindow->backup = CreateCompatibleBitmap(newWindow->hdc, (int) width, (int) height);
+              SelectObject(newWindow->backup_hdc, newWindow->backup);
               std_font = CreateFont(16, 6, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
                   ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
                   DEFAULT_QUALITY, FIXED_PITCH | FF_SWISS, NULL);
-              SelectObject(result->hdc, std_font);
-              SelectObject(result->backup_hdc, std_font);
-              ShowWindow(result->hWnd, SW_SHOWDEFAULT);
-              UpdateWindow(result->hWnd);
+              SelectObject(newWindow->hdc, std_font);
+              SelectObject(newWindow->backup_hdc, std_font);
+              ShowWindow(newWindow->hWnd, SW_SHOWDEFAULT);
+              UpdateWindow(newWindow->hWnd);
             } /* if */
           } /* if */
           os_stri_free(winName);
@@ -1601,9 +1614,9 @@ winType drwOpen (intType xPos, intType yPos,
       } /* if */
     } /* if */
     logFunction(printf("drwOpen --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) newWindow,
+                       newWindow != NULL ? newWindow->usage_count : (uintType) 0););
+    return (winType) newWindow;
   } /* drwOpen */
 
 
@@ -1630,12 +1643,11 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
 
   {
     HFONT std_font;
-    win_winType result;
+    win_winType newWindow = NULL;
 
   /* drwOpenSubWindow */
     logFunction(printf("drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        xPos, yPos, width, height););
-    result = NULL;
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
@@ -1645,55 +1657,55 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
         drawInit();
       } /* if */
       if (init_called) {
-        if (ALLOC_RECORD2(result, win_winRecord, count.win, count.win_bytes)) {
-          memset(result, 0, sizeof(win_winRecord));
-          result->usage_count = 1;
+        if (ALLOC_RECORD2(newWindow, win_winRecord, count.win, count.win_bytes)) {
+          memset(newWindow, 0, sizeof(win_winRecord));
+          newWindow->usage_count = 1;
           if (to_width(parent_window) == 0 && to_height(parent_window) == 0) {
-            result->hWnd = CreateWindowExW(WS_EX_NOACTIVATE, windowClassW, L"",
+            newWindow->hWnd = CreateWindowExW(WS_EX_NOACTIVATE, windowClassW, L"",
                 WS_POPUP,
                 (int) xPos, (int) yPos, (int) width, (int) height,
                 (HWND) NULL, (HMENU) NULL, NULL, NULL);
           } else {
-            result->hWnd = CreateWindowW(windowClassW, L"",
+            newWindow->hWnd = CreateWindowW(windowClassW, L"",
                 WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
                 (int) xPos, (int) yPos, (int) width, (int) height,
                 to_hwnd(parent_window), (HMENU) NULL, NULL, NULL);
           } /* if */
-          enter_window((winType) result, result->hWnd);
-          /* printf("hWnd=%lu\n", result->hWnd); */
-          if (result->hWnd != NULL) {
-            SetWindowLong(result->hWnd , GWL_STYLE, GetWindowLong(result->hWnd , GWL_STYLE) &~ WS_CAPTION);
-            SetWindowPos(result->hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
-            result->hdc = GetDC(result->hWnd);
-            /* printf("hdc=%lu\n", result->hdc); */
-            result->hasTransparentPixel = FALSE;
-            result->transparentPixel = 0;
-            result->is_pixmap = FALSE;
-            result->width = (unsigned int) width;
-            result->height = (unsigned int) height;
-            result->backupWidth = (unsigned int) width;
-            result->backupHeight = (unsigned int) height;
-            result->minimized = FALSE;
-            result->clear_col = (intType) RGB(0, 0, 0); /* black */
-            result->cursorVisible = TRUE;
-            result->backup_hdc = CreateCompatibleDC(result->hdc);
-            result->backup = CreateCompatibleBitmap(result->hdc, (int) width, (int) height);
-            SelectObject(result->backup_hdc, result->backup);
+          enter_window((winType) newWindow, newWindow->hWnd);
+          /* printf("hWnd=%lu\n", newWindow->hWnd); */
+          if (newWindow->hWnd != NULL) {
+            SetWindowLong(newWindow->hWnd , GWL_STYLE, GetWindowLong(newWindow->hWnd , GWL_STYLE) &~ WS_CAPTION);
+            SetWindowPos(newWindow->hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+            newWindow->hdc = GetDC(newWindow->hWnd);
+            /* printf("hdc=%lu\n", newWindow->hdc); */
+            newWindow->hasTransparentPixel = FALSE;
+            newWindow->transparentPixel = 0;
+            newWindow->is_pixmap = FALSE;
+            newWindow->width = (unsigned int) width;
+            newWindow->height = (unsigned int) height;
+            newWindow->backupWidth = (unsigned int) width;
+            newWindow->backupHeight = (unsigned int) height;
+            newWindow->minimized = FALSE;
+            newWindow->clear_col = (intType) RGB(0, 0, 0); /* black */
+            newWindow->cursorVisible = TRUE;
+            newWindow->backup_hdc = CreateCompatibleDC(newWindow->hdc);
+            newWindow->backup = CreateCompatibleBitmap(newWindow->hdc, (int) width, (int) height);
+            SelectObject(newWindow->backup_hdc, newWindow->backup);
             std_font = CreateFont(16, 6, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
                 ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
                 DEFAULT_QUALITY, FIXED_PITCH | FF_SWISS, NULL);
-            SelectObject(result->hdc, std_font);
-            SelectObject(result->backup_hdc, std_font);
-            ShowWindow(result->hWnd, SW_SHOW /*SW_SHOWDEFAULT*/);
-            UpdateWindow(result->hWnd);
+            SelectObject(newWindow->hdc, std_font);
+            SelectObject(newWindow->backup_hdc, std_font);
+            ShowWindow(newWindow->hWnd, SW_SHOW /*SW_SHOWDEFAULT*/);
+            UpdateWindow(newWindow->hWnd);
           } /* if */
         } /* if */
       } /* if */
     } /* if */
     logFunction(printf("drwOpenSubWindow --> " FMT_U_MEM " (usage=" FMT_U ")\n",
-                       (memSizeType) result,
-                       result != NULL ? result->usage_count : (uintType) 0););
-    return (winType) result;
+                       (memSizeType) newWindow,
+                       newWindow != NULL ? newWindow->usage_count : (uintType) 0););
+    return (winType) newWindow;
   } /* drwOpenSubWindow */
 
 
