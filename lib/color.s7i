@@ -135,6 +135,9 @@ const func integer: hashCode (in color: col) is
   return col.redLight + col.greenLight + col.blueLight;
 
 
+DECLARE_TERNARY(color);
+
+
 const color: black         is color(0, 0, 0);             (* Black     *)
 const color: dark_red      is color(32768, 0, 0);         (* Maroon  r *)
 const color: dark_green    is color(0, 32768, 0);         (* Green   g *)

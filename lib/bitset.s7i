@@ -499,3 +499,6 @@ const func bitset: (attr bitset) parse (in string: stri) is
  *  is an alternate name for [[bitset#bitset|bitset]].
  *)
 const type: set of (attr integer) is bitset;
+
+
+DECLARE_TERNARY(bitset);
