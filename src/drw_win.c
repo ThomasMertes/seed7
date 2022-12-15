@@ -397,7 +397,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                           ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                           (memSizeType) hWnd, (uint64Type) wParam,
                           (uint64Type) lParam););
-        if (wParam == SC_MAXIMIZE || wParam == SC_RESTORE) {
+        if ((wParam & 0xfff0) == SC_MAXIMIZE || (wParam & 0xfff0) == SC_RESTORE) {
           /* printf("SC_MAXIMIZE / SC_RESTORE\n"); */
           paint_window = (win_winType) find_window(hWnd);
           if (paint_window != NULL) {
@@ -405,7 +405,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
               paint_window->minimized = FALSE;
             } /* if */
           } /* if */
-        } else if (wParam == SC_MINIMIZE) {
+        } else if ((wParam & 0xfff0) == SC_MINIMIZE) {
           /* printf("SC_MINIMIZE\n"); */
           paint_window = (win_winType) find_window(hWnd);
           if (paint_window != NULL) {

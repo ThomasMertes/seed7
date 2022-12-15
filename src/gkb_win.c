@@ -1079,6 +1079,50 @@ charType gkbGetc (void)
               result = K_MOUSE3;
             } /* if */
             break;
+          case WM_XBUTTONDOWN:
+            traceEvent(printf("WM_XBUTTONDOWN hwnd=" FMT_U_MEM
+                              ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
+                              (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
+                              (uint64Type) msg.lParam););
+            button_x = GET_X_LPARAM(msg.lParam);
+            button_y = GET_Y_LPARAM(msg.lParam);
+            button_window = msg.hwnd;
+            if (GET_XBUTTON_WPARAM(msg.wParam) == XBUTTON2) {
+              if (msg.wParam & 0x04) {
+                result = K_SFT_MOUSE_FWD;
+              } else if (((msg.wParam & 0x08) != 0 &&
+                          (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                          (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+                /* This condition checks for VK_CONTROL. */
+                /* Unfortunately Alt Gr is encoded as if */
+                /* left-control + right-alt are pressed. */
+                /* The Alt Gr situation is filtered out. */
+                result = K_CTL_MOUSE_FWD;
+              } else if (GetKeyState(VK_MENU) & 0x8000) {
+                result = K_ALT_MOUSE_FWD;
+              } else {
+                result = K_MOUSE_FWD;
+              } /* if */
+            } else if (GET_XBUTTON_WPARAM(msg.wParam) == XBUTTON1) {
+              if (msg.wParam & 0x04) {
+                result = K_SFT_MOUSE_BACK;
+              } else if (((msg.wParam & 0x08) != 0 &&
+                          (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                          (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+                /* This condition checks for VK_CONTROL. */
+                /* Unfortunately Alt Gr is encoded as if */
+                /* left-control + right-alt are pressed. */
+                /* The Alt Gr situation is filtered out. */
+                result = K_CTL_MOUSE_BACK;
+              } else if (GetKeyState(VK_MENU) & 0x8000) {
+                result = K_ALT_MOUSE_BACK;
+              } else {
+                result = K_MOUSE_BACK;
+              } /* if */
+            } else {
+              result = K_UNDEF;
+            } /* if */
+            break;
           case WM_MOUSEWHEEL:
             traceEvent(printf("WM_MOUSEWHEEL hwnd=" FMT_U_MEM
                               ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
@@ -1135,50 +1179,6 @@ charType gkbGetc (void)
               } /* if */
             } else {
               result = K_NONE;
-            } /* if */
-            break;
-          case WM_XBUTTONDOWN:
-            traceEvent(printf("WM_XBUTTONDOWN hwnd=" FMT_U_MEM
-                              ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
-                              (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
-                              (uint64Type) msg.lParam););
-            button_x = GET_X_LPARAM(msg.lParam);
-            button_y = GET_Y_LPARAM(msg.lParam);
-            button_window = msg.hwnd;
-            if (GET_XBUTTON_WPARAM(msg.wParam) == XBUTTON2) {
-              if (msg.wParam & 0x04) {
-                result = K_SFT_MOUSE_FWD;
-              } else if (((msg.wParam & 0x08) != 0 &&
-                          (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
-                          (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
-                /* This condition checks for VK_CONTROL. */
-                /* Unfortunately Alt Gr is encoded as if */
-                /* left-control + right-alt are pressed. */
-                /* The Alt Gr situation is filtered out. */
-                result = K_CTL_MOUSE_FWD;
-              } else if (GetKeyState(VK_MENU) & 0x8000) {
-                result = K_ALT_MOUSE_FWD;
-              } else {
-                result = K_MOUSE_FWD;
-              } /* if */
-            } else if (GET_XBUTTON_WPARAM(msg.wParam) == XBUTTON1) {
-              if (msg.wParam & 0x04) {
-                result = K_SFT_MOUSE_BACK;
-              } else if (((msg.wParam & 0x08) != 0 &&
-                          (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
-                          (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
-                /* This condition checks for VK_CONTROL. */
-                /* Unfortunately Alt Gr is encoded as if */
-                /* left-control + right-alt are pressed. */
-                /* The Alt Gr situation is filtered out. */
-                result = K_CTL_MOUSE_BACK;
-              } else if (GetKeyState(VK_MENU) & 0x8000) {
-                result = K_ALT_MOUSE_BACK;
-              } else {
-                result = K_MOUSE_BACK;
-              } /* if */
-            } else {
-              result = K_UNDEF;
             } /* if */
             break;
           case WM_SYSKEYDOWN:
@@ -1413,7 +1413,7 @@ charType gkbGetc (void)
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam, GetKeyState(VK_SHIFT),
                               GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
-            if (msg.wParam == SC_CLOSE && IsWindow(msg.hwnd)) {
+            if ((msg.wParam & 0xfff0) == SC_CLOSE && IsWindow(msg.hwnd)) {
               /* printf("SC_CLOSE\n"); */
               switch (getCloseAction(find_window(msg.hwnd))) {
                 case CLOSE_BUTTON_CLOSES_PROGRAM:
@@ -1428,10 +1428,10 @@ charType gkbGetc (void)
                   result = K_CLOSE;
                   break;
               } /* switch */
-            } else if (msg.wParam == SC_SIZE) {
+            } else if ((msg.wParam & 0xfff0) == SC_SIZE) {
               /* printf("SC_SIZE\n"); */
               systemSizeCommand(&msg);
-            } else if (msg.wParam == SC_MOVE) {
+            } else if ((msg.wParam & 0xfff0) == SC_MOVE) {
               /* printf("SC_MOVE\n"); */
               systemMoveCommand(&msg);
             } else {
@@ -1596,7 +1596,6 @@ boolType gkbInputReady (void)
                             ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
-          /* printf("gkbInputReady: --> TRUE for message %d\n", msg.message); */
           msg_present = 0;
           result = TRUE;
           break;
@@ -1670,7 +1669,7 @@ boolType gkbInputReady (void)
                              ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                             (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                             (uint64Type) msg.lParam););
-          if (msg.wParam == SC_CLOSE && IsWindow(msg.hwnd)) {
+          if ((msg.wParam & 0xfff0) == SC_CLOSE && IsWindow(msg.hwnd)) {
             /* printf("SC_CLOSE\n"); */
             msg_present = 0;
             result = TRUE;
@@ -1679,10 +1678,10 @@ boolType gkbInputReady (void)
             if (bRet == 0 || bRet == -1) {
               logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
             } else {
-              if (msg.wParam == SC_SIZE) {
+              if ((msg.wParam & 0xfff0) == SC_SIZE) {
                 /* printf("SC_SIZE\n"); */
                 systemSizeCommand(&msg);
-              } else if (msg.wParam == SC_MOVE) {
+              } else if ((msg.wParam & 0xfff0) == SC_MOVE) {
                 /* printf("SC_MOVE\n"); */
                 systemMoveCommand(&msg);
               } else {
@@ -1741,6 +1740,14 @@ boolType gkbInputReady (void)
             logError(printf("GetMessageW(&msg, NULL, 0, 0)=%d\n", (int) bRet););
           } /* if */
           msg_present = PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE);
+          break;
+        case WM_CHAR:
+          traceEvent(printf("gkbInputReady: WM_CHAR hwnd=" FMT_U_MEM
+                            ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
+                            (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
+                            (uint64Type) msg.lParam););
+          msg_present = 0;
+          result = TRUE;
           break;
         case WM_USER:
           traceEvent(printf("gkbInputReady: WM_USER hwnd=" FMT_U_MEM
