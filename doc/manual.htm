@@ -5052,6 +5052,10 @@ CASE_DECLS(<a class="type" href="#types_bigInteger">bigInteger</a>);
       pink           color(65535, 32768, 32768);
     Infix operators:
       <span class="op">+</span>         Add two colors in an additive color system
+      A <span class="op">?</span> B <span class="op">:</span> C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: <a class="type" href="#types_boolean">boolean</a>,
+                    <span class="var">TRUE</span> ? a : b <b>&rArr;</b> a,
+                    <span class="var">FALSE</span> ? a : b <b>&rArr;</b> b )
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>
     Functions:
@@ -8266,8 +8270,28 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
       from the keyboard or <tt><a class="var" href="#file_KEY_NONE">KEY_NONE</a></tt> if no key has been pressed.</li>
 </ul><p>
   Note that <tt><span class="func">inputReady</span></tt> does not actually read a character. Reading
-  must be done with a different function after <tt><span class="func">inputReady</span></tt> returns
-  <tt><span class="var">TRUE</span></tt>. Both functions (<tt><span class="func">getc</span>(<span class="var">KEYBOARD</span>, <span class="var">NO_WAIT</span>)</tt> and <tt><span class="func">inputReady</span></tt>)
+  must be done with with a different function (e.g. <tt><span class="func">getc</span></tt>) after
+  <tt><span class="func">inputReady</span></tt> returns <tt><span class="var">TRUE</span></tt>. The program below writes a sequence of
+  <tt>#</tt> characters. If any key is pressed it starts a new line.
+  Pressing <span class="box">Return</span> (or <span class="box">Enter</span>) terminates the program:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">keybd.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">duration.s7i</span>"</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="keywd">repeat</span>
+      <span class="keywd">while</span> not <span class="func">inputReady</span>(<span class="var">KEYBOARD</span>) <span class="keywd">do</span>
+        write(<span class="stri">"#"</span>);
+        <span class="func">flush</span>(<span class="var">OUT</span>);
+        <span class="func">wait</span>(30000 . MICRO_SECONDS);
+      <span class="keywd">end while</span>;
+      writeln;
+    <span class="keywd">until</span> getc(KEYBOARD) = KEY_NL;
+  <span class="keywd">end func</span>;
+</pre><p>
+  Both functions (<tt><span class="func">getc</span>(<span class="var">KEYBOARD</span>, <span class="var">NO_WAIT</span>)</tt> and <tt><span class="func">inputReady</span></tt>)
   are useful when user input is allowed while some processing takes
   place. The following program uses <tt><span class="func">getc</span>(<span class="var">KEYBOARD</span>, <span class="var">NO_WAIT</span>)</tt> to
   display the time until a key is pressed:
@@ -8281,7 +8305,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
     writeln;
     <span class="keywd">while</span> <span class="func">getc</span>(<span class="var">KEYBOARD</span>, <span class="var">NO_WAIT</span>) = <a class="var" href="#file_KEY_NONE">KEY_NONE</a> <span class="keywd">do</span>
       write(time(NOW) &lt;&amp; <span class="stri">"\r"</span>);
-      flush(<span class="var">OUT</span>);
+      <span class="func">flush</span>(<span class="var">OUT</span>);
     <span class="keywd">end while</span>;
     writeln;
     writeln;
@@ -8293,7 +8317,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
       window (the default).</li>
     <li>Graphics mode, where the program has its own graphic window.</li>
 </ul><p>
-  This two modes are supported with two basic keyboard files:
+  These two modes are supported with two basic keyboard files:
 </p><ul>
     <li><tt><span class="var">CONSOLE_KEYBOARD</span></tt>, which uses a terminfo or console driver.</li>
     <li><tt><span class="var">GRAPH_KEYBOARD</span></tt>, which uses a X11 or GDI driver.</li>
@@ -8319,6 +8343,56 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
     <li><tt><span class="func">clickedYPos</span></tt>, which returns the Y position of the mouse cursor
       when a button was pressed.</li>
 </ul><p>
+  Modifier keys such as <span class="box">shift</span>, <span class="box">control</span>, <span class="box">super</span> and <span class="box">alt</span> do not send
+  key/button down or up events. The function <tt><span class="func">buttonPressed</span></tt>
+  can be used to determine if a modifier has been pressed. The
+  program below displays blue and red squares depending on the
+  state of the left and right <span class="box">shift</span> keys. The program is
+  terminated by pressing any non-modifier key:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">keybd.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">draw.s7i</span>"</span>;
+  <span class="keywd">include</span> <span class="lib">"<span class="lib">duration.s7i</span>"</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    screen(640, 480);
+    <span class="var">KEYBOARD</span> := <span class="var">GRAPH_KEYBOARD</span>;
+    <span class="keywd">repeat</span>
+      rect(  85, 190, 100, 100, <span class="func">buttonPressed</span>(<span class="var">KEYBOARD</span>, <a class="var" href="#file_KEY_LEFT_SHIFT">KEY_LEFT_SHIFT</a>)  ? light_blue : light_red);
+      rect( 270, 190, 100, 100, <span class="func">buttonPressed</span>(<span class="var">KEYBOARD</span>, <a class="var" href="#file_KEY_SHIFT">KEY_SHIFT</a>)       ? light_blue : light_red);
+      rect( 455, 190, 100, 100, <span class="func">buttonPressed</span>(<span class="var">KEYBOARD</span>, <a class="var" href="#file_KEY_RIGHT_SHIFT">KEY_RIGHT_SHIFT</a>) ? light_blue : light_red);
+      <span class="func">flushGraphic</span>;
+      <span class="func">wait</span>(30000 . MICRO_SECONDS);
+    <span class="keywd">until</span> <span class="func">inputReady</span>(<span class="var">KEYBOARD</span>);
+  <span class="keywd">end func</span>;
+</pre><p>
+  Note that <tt><span class="func">buttonPressed</span></tt> does not process key/button events.
+  This must be done with <tt><span class="func">inputReady</span></tt> or <tt><span class="func">getc</span></tt>.
+</p><p>
+  The library <span class="stri">"<span class="lib">keybd.s7i</span>"</span> provides definitions for modifier keys:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+    <tr><td>Key character constant</td>     <td>Description</td></tr>
+    <tr><td><tt><a name="file_KEY_SHIFT">KEY_SHIFT</a></tt></td>                  <td>Left or right shift is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_LEFT_SHIFT">KEY_LEFT_SHIFT</a></tt></td>             <td>Left shift is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_RIGHT_SHIFT">KEY_RIGHT_SHIFT</a></tt></td>            <td>Right shift is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_CONTROL">KEY_CONTROL</a></tt></td>                <td>Left or right control is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_LEFT_CONTROL">KEY_LEFT_CONTROL</a></tt></td>           <td>Left control is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_RIGHT_CONTROL">KEY_RIGHT_CONTROL</a></tt></td>          <td>Right control is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_ALT">KEY_ALT</a></tt></td>                    <td>Left or right alt is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_LEFT_ALT">KEY_LEFT_ALT</a></tt></td>               <td>Left alt is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_RIGHT_ALT">KEY_RIGHT_ALT</a></tt></td>              <td>Right alt is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_SUPER">KEY_SUPER</a></tt></td>                  <td>Left or right super is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_LEFT_SUPER">KEY_LEFT_SUPER</a></tt></td>             <td>Left super is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_RIGHT_SUPER">KEY_RIGHT_SUPER</a></tt></td>            <td>Right super is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_SHIFT_LOCK">KEY_SHIFT_LOCK</a></tt></td>             <td>Shift lock is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_SHIFT_LOCK_ON">KEY_SHIFT_LOCK_ON</a></tt></td>          <td>Shift lock is currently on</td></tr>
+    <tr><td><tt><a name="file_KEY_NUM_LOCK">KEY_NUM_LOCK</a></tt></td>               <td>Num lock is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_NUM_LOCK_ON">KEY_NUM_LOCK_ON</a></tt></td>            <td>Num lock is currently on</td></tr>
+    <tr><td><tt><a name="file_KEY_SCROLL_LOCK">KEY_SCROLL_LOCK</a></tt></td>            <td>Scroll lock is pressed</td></tr>
+    <tr><td><tt><a name="file_KEY_SCROLL_LOCK_ON">KEY_SCROLL_LOCK_ON</a></tt></td>         <td>Scroll lock is currently on</td></tr>
+</table></dd></dl><p>
   The functions <tt><span class="func">clickedXPos</span></tt> and <tt><span class="func">clickedYPos</span></tt> can be used to determine
   which position was "clicked". The program below uses <tt><span class="func">clickedXPos</span></tt>
   and <tt><span class="func">clickedYPos</span></tt> to produce a dot for each keypress.

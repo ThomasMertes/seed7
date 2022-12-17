@@ -454,6 +454,8 @@ Seed7 is now also available at GitHub. You can use the command:
 
 to clone the Seed7 repository.
 
+After downloading the Seed7 source code the interpreter can be compiled.
+
 
 How do I uncompress the *.tgz file from the release?
 ====================================================

@@ -4853,6 +4853,10 @@ CONTENTS
       pink           color(65535, 32768, 32768);
     Infix operators:
       +         Add two colors in an additive color system
+      A ? B : C  Ternary operator condition ? thenValue : elseValue
+                  ( Type of argument A: boolean,
+                    TRUE ? a : b => a,
+                    FALSE ? a : b => b )
     Relations:
       =, <>
     Functions:
@@ -8067,8 +8071,28 @@ CONTENTS
       from the keyboard or 'KEY_NONE' if no key has been pressed.
 
   Note that 'inputReady' does not actually read a character. Reading
-  must be done with a different function after 'inputReady' returns
-  TRUE. Both functions ('getc(KEYBOARD, NO_WAIT)' and 'inputReady')
+  must be done with with a different function (e.g. 'getc') after
+  'inputReady' returns TRUE. The program below writes a sequence of
+  '#' characters. If any key is pressed it starts a new line.
+  Pressing Return (or Enter) terminates the program:
+
+    $ include "seed7_05.s7i";
+      include "keybd.s7i";
+      include "duration.s7i";
+
+    const proc: main is func
+      begin
+        repeat
+          while not inputReady(KEYBOARD) do
+            write("#");
+            flush(OUT);
+            wait(30000 . MICRO_SECONDS);
+          end while;
+          writeln;
+        until getc(KEYBOARD) = KEY_NL;
+      end func;
+
+  Both functions ('getc(KEYBOARD, NO_WAIT)' and 'inputReady')
   are useful when user input is allowed while some processing takes
   place. The following program uses 'getc(KEYBOARD, NO_WAIT)' to
   display the time until a key is pressed:
@@ -8094,7 +8118,7 @@ CONTENTS
       window (the default).
     - Graphics mode, where the program has its own graphic window.
 
-  This two modes are supported with two basic keyboard files:
+  These two modes are supported with two basic keyboard files:
 
     - 'CONSOLE_KEYBOARD', which uses a terminfo or console driver.
     - 'GRAPH_KEYBOARD', which uses a X11 or GDI driver.
@@ -8119,6 +8143,56 @@ CONTENTS
       when a button was pressed.
     - 'clickedYPos', which returns the Y position of the mouse cursor
       when a button was pressed.
+
+  Modifier keys such as shift, control, super and alt do not send
+  key/button down or up events. The function 'buttonPressed'
+  can be used to determine if a modifier has been pressed. The
+  program below displays blue and red squares depending on the
+  state of the left and right shift keys. The program is
+  terminated by pressing any non-modifier key:
+
+    $ include "seed7_05.s7i";
+      include "keybd.s7i";
+      include "draw.s7i";
+      include "duration.s7i";
+
+    const proc: main is func
+      begin
+        screen(640, 480);
+        KEYBOARD := GRAPH_KEYBOARD;
+        repeat
+          rect(  85, 190, 100, 100, buttonPressed(KEYBOARD, KEY_LEFT_SHIFT)  ? light_blue : light_red);
+          rect( 270, 190, 100, 100, buttonPressed(KEYBOARD, KEY_SHIFT)       ? light_blue : light_red);
+          rect( 455, 190, 100, 100, buttonPressed(KEYBOARD, KEY_RIGHT_SHIFT) ? light_blue : light_red);
+          flushGraphic;
+          wait(30000 . MICRO_SECONDS);
+        until inputReady(KEYBOARD);
+      end func;
+
+  Note that buttonPressed does not process key/button events.
+  This must be done with 'inputReady' or 'getc'.
+
+  The library "keybd.s7i" provides definitions for modifier keys:
+
+    Key character constant     Description
+    KEY_SHIFT                  Left or right shift is pressed
+    KEY_LEFT_SHIFT             Left shift is pressed
+    KEY_RIGHT_SHIFT            Right shift is pressed
+    KEY_CONTROL                Left or right control is pressed
+    KEY_LEFT_CONTROL           Left control is pressed
+    KEY_RIGHT_CONTROL          Right control is pressed
+    KEY_ALT                    Left or right alt is pressed
+    KEY_LEFT_ALT               Left alt is pressed
+    KEY_RIGHT_ALT              Right alt is pressed
+    KEY_SUPER                  Left or right super is pressed
+    KEY_LEFT_SUPER             Left super is pressed
+    KEY_RIGHT_SUPER            Right super is pressed
+    KEY_SHIFT_LOCK             Shift lock is pressed
+    KEY_SHIFT_LOCK_ON          Shift lock is currently on
+    KEY_NUM_LOCK               Num lock is pressed
+    KEY_NUM_LOCK_ON            Num lock is currently on
+    KEY_SCROLL_LOCK            Scroll lock is pressed
+    KEY_SCROLL_LOCK_ON         Scroll lock is currently on
 
   The functions 'clickedXPos' and 'clickedYPos' can be used to determine
   which position was "clicked". The program below uses 'clickedXPos'
