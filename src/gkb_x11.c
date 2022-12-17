@@ -1263,13 +1263,13 @@ charType gkbGetc (void)
       } /* if */
       switch(currentEvent.type) {
         case Expose:
-          traceEvent(printf("Expose\n"););
+          traceEvent(printf("gkbGetc: Expose\n"););
           handleExpose(&currentEvent.xexpose);
           getNextChar = TRUE;
           break;
 
         case ConfigureNotify:
-          traceEvent(printf("ConfigureNotify"););
+          traceEvent(printf("gkbGetc: ConfigureNotify"););
           if (handleConfigure(&currentEvent.xconfigure)) {
             result = K_RESIZE;
             button_window = currentEvent.xconfigure.window;
@@ -1290,24 +1290,24 @@ charType gkbGetc (void)
         case MapNotify:
         case GraphicsExpose:
         case NoExpose:
-          traceEvent(printf("NoExpose\n"););
+          traceEvent(printf("gkbGetc: NoExpose\n"););
           getNextChar = TRUE;
           break;
 
         case MappingNotify:
-          traceEvent(printf("MappingNotify\n"););
+          traceEvent(printf("gkbGetc: MappingNotify\n"););
           XRefreshKeyboardMapping(&currentEvent.xmapping);
           break;
 
 #ifdef OUT_OF_ORDER
         case DestroyNotify:
-          traceEvent(printf("DestroyNotify\n"););
+          traceEvent(printf("gkbGetc: DestroyNotify\n"););
           exit(1);
           break;
 #endif
 
         case FocusIn:
-          traceEvent(printf("FocusIn\n"););
+          traceEvent(printf("gkbGetc: FocusIn\n"););
           hasFocus = TRUE;
           {
             char keyVector[32];
@@ -1318,13 +1318,13 @@ charType gkbGetc (void)
           break;
 
         case FocusOut:
-          traceEvent(printf("FocusOut\n"););
+          traceEvent(printf("gkbGetc: FocusOut\n"););
           hasFocus = FALSE;
           getNextChar = TRUE;
           break;
 
         case ClientMessage:
-          traceEvent(printf("ClientMessage\n"););
+          traceEvent(printf("gkbGetc: ClientMessage\n"););
           if ((Atom) currentEvent.xclient.data.l[0] == wm_delete_window) {
             /* printf("wm_delete_window\n"); */
             switch (getCloseAction(find_window(currentEvent.xclient.window))) {
@@ -1344,7 +1344,7 @@ charType gkbGetc (void)
           break;
 
         case ButtonPress:
-          traceEvent(printf("ButtonPress (%d, %d, %u %lu)\n",
+          traceEvent(printf("gkbGetc: ButtonPress (%d, %d, %u %lu)\n",
                             currentEvent.xbutton.x, currentEvent.xbutton.y,
                             currentEvent.xbutton.button,
                             (unsigned long) currentEvent.xbutton.window););
@@ -1380,7 +1380,7 @@ charType gkbGetc (void)
           break;
 
         case ButtonRelease:
-          traceEvent(printf("ButtonRelease (%d, %d, %u %lu)\n",
+          traceEvent(printf("gkbGetc: ButtonRelease (%d, %d, %u %lu)\n",
                             currentEvent.xbutton.x, currentEvent.xbutton.y,
                             currentEvent.xbutton.button,
                             (unsigned long) currentEvent.xbutton.window););
@@ -1396,7 +1396,7 @@ charType gkbGetc (void)
           lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
                                        20, &currentKey, 0);
           buffer[lookup_count] = '\0';
-          traceEvent(printf("KeyPress key.state: %x, currentKey %lx\n",
+          traceEvent(printf("gkbGetc: KeyPress key.state: %x, currentKey %lx\n",
                             currentEvent.xkey.state, currentKey););
           if (currentEvent.xkey.state & ShiftMask) {
             /* printf("ShiftMask\n"); */
@@ -2029,7 +2029,7 @@ charType gkbGetc (void)
           lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
                                        20, &currentKey, 0);
           buffer[lookup_count] = '\0';
-          traceEvent(printf("KeyRelease key.state: %x, currentKey %lx\n",
+          traceEvent(printf("gkbGetc: KeyRelease key.state: %x, currentKey %lx\n",
                             currentEvent.xkey.state, currentKey););
           switch (currentKey) {
             case XK_Shift_L:     modState.leftShift    = FALSE; break;
@@ -2053,7 +2053,7 @@ charType gkbGetc (void)
           break;
 
         default:
-          traceEvent(printf("Other Event %d\n", currentEvent.type););
+          traceEvent(printf("gkbGetc: Other Event %d\n", currentEvent.type););
           getNextChar = TRUE;
           break;
       } /* switch */
@@ -2298,7 +2298,8 @@ static boolType processEvents (void)
             break;
 
           default:
-            /* printf("currentEvent.type=%d\n", currentEvent.type); */
+            traceEvent(printf("processEvents: Other Event %d\n",
+                              currentEvent.type););
             num_events = 0;
             eventPresent = TRUE;
             break;

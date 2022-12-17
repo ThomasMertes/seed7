@@ -80,9 +80,6 @@ boolType findX11Dll (void);
 #define findX11Dll() TRUE
 #endif
 
-void gkbInitKeyboard (void);
-
-
 #define MAX_XCHAR2B_LEN   (MAX_MEMSIZETYPE / sizeof(XChar2b))
 #define PI 3.141592653589793238462643383279502884197
 
@@ -175,10 +172,10 @@ static const int highest_bit[16] = {
 };
 
 
-
 winType find_window (Window sys_window);
 void enter_window (winType curr_window, Window sys_window);
 void remove_window (Window sys_window);
+void gkbInitKeyboard (void);
 
 
 

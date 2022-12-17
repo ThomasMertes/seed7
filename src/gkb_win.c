@@ -567,7 +567,7 @@ charType gkbGetc (void)
         /* printf("gkbGetc message=%d %lu, %d, %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
         switch (msg.message) {
           case WM_KEYDOWN:
-            traceEvent(printf("WM_KEYDOWN hwnd=" FMT_U_MEM ", wParam=" FMT_U64
+            traceEvent(printf("gkbGetc: WM_KEYDOWN hwnd=" FMT_U_MEM ", wParam=" FMT_U64
                               ", lParam=" FMT_X64 ", SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam, GetKeyState(VK_SHIFT),
@@ -1008,7 +1008,7 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_LBUTTONDOWN:
-            traceEvent(printf("WM_LBUTTONDOWN hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_LBUTTONDOWN hwnd=" FMT_U_MEM
                               ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
@@ -1032,7 +1032,7 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_MBUTTONDOWN:
-            traceEvent(printf("WM_MBUTTONDOWN hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_MBUTTONDOWN hwnd=" FMT_U_MEM
                               ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
@@ -1056,7 +1056,7 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_RBUTTONDOWN:
-            traceEvent(printf("WM_RBUTTONDOWN hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_RBUTTONDOWN hwnd=" FMT_U_MEM
                               ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
@@ -1080,7 +1080,7 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_XBUTTONDOWN:
-            traceEvent(printf("WM_XBUTTONDOWN hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_XBUTTONDOWN hwnd=" FMT_U_MEM
                               ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
@@ -1124,7 +1124,7 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_MOUSEWHEEL:
-            traceEvent(printf("WM_MOUSEWHEEL hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_MOUSEWHEEL hwnd=" FMT_U_MEM
                               ", wParam=" FMT_X64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
@@ -1182,7 +1182,7 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_SYSKEYDOWN:
-            traceEvent(printf("WM_SYSKEYDOWN hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_SYSKEYDOWN hwnd=" FMT_U_MEM
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 ", "
                               "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
@@ -1373,7 +1373,7 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_NCLBUTTONDOWN:
-            traceEvent(printf("WM_NCLBUTTONDOWN hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_NCLBUTTONDOWN hwnd=" FMT_U_MEM
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 ", "
                               "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
@@ -1407,7 +1407,7 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_SYSCOMMAND:
-            traceEvent(printf("WM_SYSCOMMAND hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_SYSCOMMAND hwnd=" FMT_U_MEM
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 ", "
                               "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
@@ -1440,7 +1440,7 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_MOUSEMOVE:
-            traceEvent(printf("WM_MOUSEMOVE hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_MOUSEMOVE hwnd=" FMT_U_MEM
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 ", "
                               "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
@@ -1454,7 +1454,7 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_LBUTTONUP:
-            traceEvent(printf("WM_LBUTTONUP hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_LBUTTONUP hwnd=" FMT_U_MEM
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 ", "
                               "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
@@ -1470,7 +1470,7 @@ charType gkbGetc (void)
             } /* if */
             break;
           case WM_CHAR:
-            traceEvent(printf("WM_CHAR hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_CHAR hwnd=" FMT_U_MEM
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
@@ -1481,7 +1481,7 @@ charType gkbGetc (void)
             deadKeyActive = 0;
             break;
           case WM_USER:
-            traceEvent(printf("WM_USER hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: WM_USER hwnd=" FMT_U_MEM
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                               (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););
@@ -1489,7 +1489,7 @@ charType gkbGetc (void)
             button_window = msg.hwnd;
             break;
           default:
-            traceEvent(printf("message=%d, hwnd=" FMT_U_MEM
+            traceEvent(printf("gkbGetc: message=%d, hwnd=" FMT_U_MEM
                               ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                               msg.message, (memSizeType) msg.hwnd, (uint64Type) msg.wParam,
                               (uint64Type) msg.lParam););

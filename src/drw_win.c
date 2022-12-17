@@ -52,8 +52,6 @@
 #define EXTERN
 #include "drw_drv.h"
 
-void gkbInitKeyboard (void);
-
 
 #define TRACE_EVENTS 0
 #if TRACE_EVENTS
@@ -139,6 +137,7 @@ static winType emptyWindow;
 winType find_window (HWND sys_window);
 void enter_window (winType curr_window, HWND sys_window);
 void remove_window (HWND sys_window);
+void gkbInitKeyboard (void);
 
 
 
@@ -267,7 +266,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                        message, hWnd, wParam, lParam););
     switch (message) {
       case WM_PAINT:
-        traceEvent(printf("WndProc WM_PAINT hwnd=" FMT_U_MEM
+        traceEvent(printf("WndProc: WM_PAINT hwnd=" FMT_U_MEM
                           ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                           (memSizeType) hWnd, (uint64Type) wParam,
                           (uint64Type) lParam););
@@ -296,7 +295,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         result = 0;
         break;
       case WM_ERASEBKGND:
-        traceEvent(printf("WndProc WM_ERASEBKGND hwnd=" FMT_U_MEM
+        traceEvent(printf("WndProc: WM_ERASEBKGND hwnd=" FMT_U_MEM
                           ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                           (memSizeType) hWnd, (uint64Type) wParam,
                           (uint64Type) lParam););
@@ -358,7 +357,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         result = 1;
         break;
       case WM_SIZE:
-        traceEvent(printf("WndProc WM_SIZE hwnd=" FMT_U_MEM
+        traceEvent(printf("WndProc: WM_SIZE hwnd=" FMT_U_MEM
                           ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                           (memSizeType) hWnd, (uint64Type) wParam,
                           (uint64Type) lParam););
@@ -372,7 +371,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         result = 0;
         break;
       case WM_USER + 1:
-        traceEvent(printf("WndProc WM_USER + 1 hwnd=" FMT_U_MEM
+        traceEvent(printf("WndProc: WM_USER + 1 hwnd=" FMT_U_MEM
                           ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                           (memSizeType) hWnd, (uint64Type) wParam,
                           (uint64Type) lParam););
@@ -380,7 +379,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         result = 1;
         break;
       case WM_SETCURSOR:
-        traceEvent(printf("WndProc WM_SETCURSOR hwnd=" FMT_U_MEM
+        traceEvent(printf("WndProc: WM_SETCURSOR hwnd=" FMT_U_MEM
                           ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                           (memSizeType) hWnd, (uint64Type) wParam,
                           (uint64Type) lParam););
@@ -393,7 +392,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         } /* if */
         break;
       case WM_SYSCOMMAND:
-        traceEvent(printf("WndProc WM_SYSCOMMAND: hwnd=" FMT_U_MEM
+        traceEvent(printf("WndProc: WM_SYSCOMMAND: hwnd=" FMT_U_MEM
                           ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                           (memSizeType) hWnd, (uint64Type) wParam,
                           (uint64Type) lParam););
@@ -415,7 +414,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         result = DefWindowProcW(hWnd, message, wParam, lParam);
         break;
       default:
-        traceEvent(printf("WndProc message=%d, hwnd=" FMT_U_MEM
+        traceEvent(printf("WndProc: message=%d, hwnd=" FMT_U_MEM
                           ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
                           message, (memSizeType) hWnd, (uint64Type) wParam,
                           (uint64Type) lParam););
