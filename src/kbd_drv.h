@@ -289,6 +289,7 @@
 #define K_UNDEF          (KEYCODE_BASE + 398)
 #define K_NONE           (KEYCODE_BASE + 399)
 
+
 charType kbdGetc (void);
 boolType kbdInputReady (void);
 charType kbdRawGetc (void);

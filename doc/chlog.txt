@@ -1,3 +1,100 @@
+20221218:
+- Examples for reading from the keyboard have been added to the manual.
+- In src/read_me.txt and src/read_me.htm the description "compiling
+  Seed7 under windows with cl from MSVC" has been improved. The
+  description of possible C compiler warnings has also been improved.
+- Support for the ternary operator ?: has been added to the types
+  bitset, color, duration and time.
+- The graphic keyboard test program gkbd.sd7 has been improved to
+  support super/windows keys.
+- Definitions of KEY_SUPER, KEY_LEFT_SUPER and KEY_RIGHT_SUPER have
+  been added to the libraries keybd.s7i and keydescr.s7i.
+- The tls.s7i library has been improved to reopen a socket if the
+  old session cannot be reused.
+- In gif.s7i a small error in reading a GIF header has been fixed.
+- The compiler (s7c.sd7) has been improved:
+  - Unsupported Seed7 compiler options trigger a warning now.
+  - Better optimizations for abs(), mdiv and mod are done.
+  - More integer overflow checks of abs(), <<, *, div, mdiv, mod and
+    rem are optimized away (with option -oc3).
+  - More division by zero checks are optimized away.
+  - Computing the range of possible integer results for abs(),
+    bitLength(), log2(), log10(), sqrt() +, -, <<, >>, - (negate), *
+    and ?: (ternary operator) has been improved. This also helps in
+    reducing the number of integer overflow checks.
+  - The statistics about integer overflow checks and division checks
+    have been improved.
+  - A warning is written at a catch of otherwise when checks for an
+    exception have been suppressed (this is done with -w2).
+- The code coverage of the integer tests in chkint.sd7 and
+  chkovf.sd7 has been increased. Now, all code in comp/int_act.s7i
+  is tested (except code for non-twos-complement computers).
+- Several tests in chkint.sd7 have been refactored to avoid
+  optimizations that skip tests (Expressions are compared with
+  intExpr(value) instead of just value).
+- Documentation comments have been improved in time.s7i.
+- The graphic driver for windows (drw_win.c) has been improved:
+  - Windows are now created with a size that includes decorations.
+  - The windows class is registered with with RegisterClassExW() now.
+    This triggers the creation of Unicode windows (where keypresses
+    return Unicode characters).
+  - A function to draw filled chords (drwPFArcChord) under windows has
+    been added.
+  - An empty window is just created once on initialization and stored
+    globally.
+- The graphic keyboard driver for windows (gkb_win.c) has been
+  improved:
+  - The function getc(GRAPH_KEYBOARD) now returns Unicode characters.
+  - Dead keys are returned directly and are not combined with the next
+    character pressed (this combining can be done by the program).
+  - Holding down a windows/super key and pressing a cursor key is
+    supported now (this resizes and moves the current active window).
+    In this case the program now receives KEY_RESIZE characters (if
+    they have been requested with selectInput()).
+  - Combinations of CTRL + ALT + letter are now recognized correctly
+    (CTRL is preferred over ALT in combinations with a letter).
+  - The combination of cursor, function and mouse keys with modifier
+    keys now prefers SHIFT over the other modifiers and CTRL over ALT.
+  - The recognition of button presses in gkbButtonPressed() has been
+    improved to also work for Unicode characters.
+  - Now wide char functions (CreateWindowW(), CreateWindowExW(),
+    MapVirtualKeyW(), PeekMessageW(), GetMessageW()) are used and only
+    correctly received messages are processed.
+  - The lowest four bits of a system command (wParam of WM_SYSCOMMAND
+    message) are ignored now.
+  - Macros are used to recognize mouse wheel and xbuttons.
+  - Macro definitions have been added, as some C compilers do not
+    provide them.
+- The graphic keyboard drivers (gkb_win.c and gkb_x11.c) have been
+  improved to support super/windows keys.
+- The support for the unused action CHR_CONV has been removed.
+- The number of C compiler warnings has been reduced.
+- Unnecessary initialisations and assignments have been removed in
+  several C files.
+- Usages of strcpy() and wcscpy() have been reduced.
+- In hshlib.c the hash table for-loops have been adjusted to process
+  the elements in the same succession as in compiled programs. The
+  code has also been simplified.
+- The program chkccomp.c has been improved:
+  - Now, a backup copy of the source file (e.g. ctest123.cbak) is
+    created if a test program fails.
+  - Now, an empty output of a test program is recognized and the test
+    is repeated (Some anti-virus software of Windows may trigger this).
+  - Now, it considers wasm files for an Emscripten build.
+  - The macros os_setmode, os_fdopen and os_fileno are determined.
+- Usages of isatty(), fdopen() and fileno() have been replaced by
+  os_isatty(), os_fdopen() and os_fileno() respectively.
+- Some fixes for Emscripten have been done:
+  - The files mk_emccl.mak and mk_emccw.mak have been adjusted for the
+    newest version of Emscripten. Now, there is source information in a
+    stack trace, and the stack size used by Emscipten has been
+    increased.
+  - In chkccomp.c wasm files are considered now.
+  - The size of functions has been reduced in chkchr.sd7, chkint.sd7
+    and chkstr.sd7. This avoids a stack overflow in Node.js.
+- Logging functions have been added or improved in drw_win.c,
+  gkb_win.c, gkb_x11.c and intlib.c.
+
 20221105:
 - The picture viewer pv7.sd7 has been improved to support zooming
   and moving.

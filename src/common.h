@@ -765,6 +765,7 @@ typedef mpz_srcptr  const_bigIntType;
 
 /* Allow to activate selected logging functions by adding X. */
 
+#define logFunction0(logStatements)
 #define logFunctionX(logStatements) printf(__FILE__ ": "); logStatements
 #define logFunctionResultX(logStatements) printf(" --> "); logStatements
 #define logSignalFunctionX(logStatements) printf(__FILE__ ": "); logStatements
