@@ -59,6 +59,7 @@ const ACTION: DRW_OPEN                   is action "DRW_OPEN";
 const ACTION: DRW_OPEN_SUB_WINDOW        is action "DRW_OPEN_SUB_WINDOW";
 const ACTION: DRW_PARC                   is action "DRW_PARC";
 const ACTION: DRW_PCIRCLE                is action "DRW_PCIRCLE";
+const ACTION: DRW_PFARC                  is action "DRW_PFARC";
 const ACTION: DRW_PFARCCHORD             is action "DRW_PFARCCHORD";
 const ACTION: DRW_PFARCPIESLICE          is action "DRW_PFARCPIESLICE";
 const ACTION: DRW_PFCIRCLE               is action "DRW_PFCIRCLE";
@@ -175,6 +176,7 @@ const proc: drw_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        drwSetCloseAction (winType, intType);");
     declareExtern(c_prog, "void        drwPArc (const_winType, intType, intType, intType, floatType, floatType, intType);");
     declareExtern(c_prog, "void        drwPCircle (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPFArc (const_winType, intType, intType, intType, floatType, floatType, intType, intType);");
     declareExtern(c_prog, "void        drwPFArcChord (const_winType, intType, intType, intType, floatType, floatType, intType);");
     declareExtern(c_prog, "void        drwPFArcPieSlice (const_winType, intType, intType, intType, floatType, floatType, intType);");
     declareExtern(c_prog, "void        drwPFCircle (const_winType, intType, intType, intType, intType);");
@@ -812,6 +814,31 @@ const proc: process (DRW_PCIRCLE, in reference: function,
     process_expr(params[4], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_PFARC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPFArc(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[8], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 

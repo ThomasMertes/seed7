@@ -693,6 +693,9 @@ const proc: process_action (in reference: function, in ref_list: params,
       when {"DRW_PCIRCLE"}:
         drawLibraryUsed := TRUE;
         process(DRW_PCIRCLE, function, params, c_expr);
+      when {"DRW_PFARC"}:
+        drawLibraryUsed := TRUE;
+        process(DRW_PFARC, function, params, c_expr);
       when {"DRW_PFARCCHORD"}:
         drawLibraryUsed := TRUE;
         process(DRW_PFARCCHORD, function, params, c_expr);
