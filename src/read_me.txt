@@ -2029,28 +2029,30 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
       overflow. An integer division can overflow with:
       integer.first div -1
       Possible values of INT_DIV_OVERFLOW are:
-      0 it triggers an endless loop.
-      1 it triggers a popup window.
-      2 it returns integer.first.
-      3 it returns some other value.
-      4 it raises SIGFPE.
-      5 it raises SIGILL.
-      6 it raises SIGABRT.
-      7 it raises SIGTRAP.
+      -1 the test program crashed.
+       0 it triggers an endless loop.
+       1 it triggers a popup window.
+       2 it returns integer.first.
+       3 it returns some other value.
+       4 it raises SIGFPE.
+       5 it raises SIGILL.
+       6 it raises SIGABRT.
+       7 it raises SIGTRAP.
 
   INT_REM_OVERFLOW:
       Defines what happens in case of an integer remainder
       overflow. An integer remainder can overflow with:
       integer.first rem -1
       Possible values of INT_REM_OVERFLOW are:
-      0 it triggers an endless loop.
-      1 it triggers a popup window.
-      2 it returns 0.
-      3 it returns some other value.
-      4 it raises SIGFPE.
-      5 it raises SIGILL.
-      6 it raises SIGABRT.
-      7 it raises SIGTRAP.
+      -1 the test program crashed.
+       0 it triggers an endless loop.
+       1 it triggers a popup window.
+       2 it returns 0.
+       3 it returns some other value.
+       4 it raises SIGFPE.
+       5 it raises SIGILL.
+       6 it raises SIGABRT.
+       7 it raises SIGTRAP.
 
   DO_SIGFPE_WITH_DIV_BY_ZERO:
       TRUE if SIGFPE should be raised with an integer division by

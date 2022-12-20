@@ -3553,8 +3553,8 @@ static void numericProperties (FILE *versionFile)
       testOutputToVersionFile(versionFile);
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
-                         "int main(int argc,char *argv[]){\n"
                          "char buffer[100010];\n"
+                         "int main(int argc,char *argv[]){\n"
                          "sprintf(buffer, \"%1.100000e\", 1.0);\n"
                          "printf(\"%lu\\n\", (unsigned long) (strchr(buffer, 'e') - buffer));\n"
                          "return 0;}\n")) {
@@ -3574,8 +3574,8 @@ static void numericProperties (FILE *versionFile)
       } /* if */
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
-                         "int main(int argc,char *argv[]){\n"
                          "char buffer[100010];\n"
+                         "int main(int argc,char *argv[]){\n"
                          "sprintf(buffer, \"%1.100000f\", 1.0);\n"
                          "printf(\"%lu\\n\", (unsigned long) strlen(buffer));\n"
                          "return 0;}\n")) {
