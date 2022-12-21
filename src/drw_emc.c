@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_emc.c     Graphic access using browser capabilities.        */
-/*  Copyright (C) 2020, 2021  Thomas Mertes                         */
+/*  Copyright (C) 2020 - 2022  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_emc.c                                       */
-/*  Changes: 2020, 2021  Thomas Mertes                              */
+/*  Changes: 2020 - 2022  Thomas Mertes                             */
 /*  Content: Graphic access using browser capabilities.             */
 /*                                                                  */
 /********************************************************************/
@@ -50,6 +50,8 @@
 #include "drw_drv.h"
 #include "kbd_drv.h"
 
+
+#define PI 3.141592653589793238462643383279502884197
 
 typedef struct {
     uintType usage_count;
@@ -185,6 +187,19 @@ void drwPArc (const_winType actual_window, intType x, intType y,
   { /* drwPArc */
     logFunction(printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
                        (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
+    EM_ASM({
+      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+        let context = mapIdToContext[$0];
+        context.lineWidth=1;
+        context.strokeStyle = '#' + ('000000' + $6.toString(16)).slice(-6);
+        context.beginPath();
+        context.arc($1, $2, $3, $4, $5);
+        context.stroke();
+      } else {
+        console.log('drwPArc: windowId not found: ' + $0);
+      }
+    }, to_window(actual_window), castToInt(x), castToInt(y), castToInt(radius),
+        (2 * PI) - startAngle - sweepAngle, (2 * PI) - startAngle, (int) col);
   } /* drwPArc */
 
 
@@ -198,12 +213,35 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
                        ", %.4f, %.4f, " FMT_D ")\n",
                        (memSizeType) actual_window, x, y, radius,
                        startAngle, sweepAngle, width););
+    if ((width & 1) != 0) {
+      radius -= width / 2;
+    } else {
+      radius -= width / 2 - 1;
+    } /* if */
+    EM_ASM({
+      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+        let context = mapIdToContext[$0];
+        context.lineWidth=$6;
+        context.strokeStyle = '#' + ('000000' + $8.toString(16)).slice(-6);
+        context.beginPath();
+        if ($7) {
+          context.arc($1, $2, $3 - 0.5, $4, $5);
+        } else {
+          context.arc($1, $2, $3, $4, $5);
+        }
+        context.stroke();
+      } else {
+        console.log('drwPFArc: windowId not found: ' + $0);
+      }
+    }, to_window(actual_window), castToInt(x), castToInt(y), castToInt(radius),
+        (2 * PI) - startAngle - sweepAngle, (2 * PI) - startAngle,
+      castToInt(width), (width & 1) != 0, (int) col);
   } /* drwPFArc */
 
 
 
 void drwFArcChord (const_winType actual_window, intType x, intType y,
-    intType radius, floatType ang1, floatType ang2)
+    intType radius, floatType startAngle, floatType sweepAngle)
 
   { /* drwFArcChord */
   } /* drwFArcChord */
@@ -211,15 +249,30 @@ void drwFArcChord (const_winType actual_window, intType x, intType y,
 
 
 void drwPFArcChord (const_winType actual_window, intType x, intType y,
-    intType radius, floatType ang1, floatType ang2, intType col)
+    intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
   { /* drwPFArcChord */
+    logFunction(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
+                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
+    EM_ASM({
+      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+        let context = mapIdToContext[$0];
+        context.fillStyle = '#' + ('000000' + $6.toString(16)).slice(-6);
+        context.beginPath();
+        context.arc($1, $2, $3, $4, $5);
+        context.lineTo($1 + Math.cos($4) * $3, $2 + Math.sin($4) * $3);
+        context.fill();
+      } else {
+        console.log('drwPFArcChord: windowId not found: ' + $0);
+      }
+    }, to_window(actual_window), castToInt(x), castToInt(y), castToInt(radius),
+        (2 * PI) - startAngle - sweepAngle, (2 * PI) - startAngle, (int) col);
   } /* drwPFArcChord */
 
 
 
 void drwFArcPieSlice (const_winType actual_window, intType x, intType y,
-    intType radius, floatType ang1, floatType ang2)
+    intType radius, floatType startAngle, floatType sweepAngle)
 
   { /* drwFArcPieSlice */
   } /* drwFArcPieSlice */
@@ -227,9 +280,25 @@ void drwFArcPieSlice (const_winType actual_window, intType x, intType y,
 
 
 void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
-    intType radius, floatType ang1, floatType ang2, intType col)
+    intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
   { /* drwPFArcPieSlice */
+    logFunction(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
+                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
+    EM_ASM({
+      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+        let context = mapIdToContext[$0];
+        context.fillStyle = '#' + ('000000' + $6.toString(16)).slice(-6);
+        context.beginPath();
+        context.moveTo($1, $2);
+        context.arc($1, $2, $3, $4, $5);
+        context.lineTo($1, $2);
+        context.fill();
+      } else {
+        console.log('drwPFArcPieSlice: windowId not found: ' + $0);
+      }
+    }, to_window(actual_window), castToInt(x), castToInt(y), castToInt(radius),
+        (2 * PI) - startAngle - sweepAngle, (2 * PI) - startAngle, (int) col);
   } /* drwPFArcPieSlice */
 
 
@@ -272,7 +341,7 @@ rtlArrayType drwBorder (const_winType actual_window)
             return -1;
           }
         } else {
-          console.log('windowId not found: ' + $0);
+          console.log('drwBorder: windowId not found: ' + $0);
           return -1;
         }
       }, to_window(actual_window));
@@ -323,12 +392,13 @@ void drwPCircle (const_winType actual_window,
     EM_ASM({
       if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
         let context = mapIdToContext[$0];
+        context.lineWidth=1;
         context.strokeStyle = '#' + ('000000' + $4.toString(16)).slice(-6);
         context.beginPath();
         context.arc($1, $2, $3, 0, 2 * Math.PI);
         context.stroke();
       } else {
-        console.log('windowId not found: ' + $0);
+        console.log('drwPCircle: windowId not found: ' + $0);
       }
     }, to_window(actual_window), castToInt(x), castToInt(y),
         castToInt(radius), (int) col);
@@ -347,7 +417,7 @@ void drwClear (winType actual_window, intType col)
         context.fillStyle = '#' + ('000000' + $1.toString(16)).slice(-6);
         context.fillRect(0, 0, context.canvas.width, context.canvas.height);
       } else {
-        console.log('windowId not found: ' + $0);
+        console.log('drwClear: windowId not found: ' + $0);
       }
     }, to_window(actual_window), (int) col);
   } /* drwClear */
@@ -391,7 +461,7 @@ void drwPFCircle (const_winType actual_window,
         context.arc($1, $2, $3, 0, 2 * Math.PI);
         context.fill();
       } else {
-        console.log('windowId not found: ' + $0);
+        console.log('drwPFCircle: windowId not found: ' + $0);
       }
     }, to_window(actual_window), castToInt(x), castToInt(y),
         castToInt(radius), (int) col);
@@ -487,7 +557,7 @@ intType drwGetPixel (const_winType source_window, intType x, intType y)
         let b = canvasColor[2];
         return canvasColor[0] << 16 | canvasColor[1] << 8 | canvasColor[2]
       } else {
-        console.log('windowId not found: ' + $0);
+        console.log('drwGetPixel: windowId not found: ' + $0);
         return 0;
       }
     }, to_window(source_window), castToInt(x), castToInt(y));
@@ -557,7 +627,7 @@ winType drwGetPixmap (const_winType source_window, intType left, intType upper,
           mapIdToContext[currentWindowId] = context;
           return currentWindowId;
         } else {
-          console.log('windowId not found: ' + $0);
+          console.log('drwGetPixmap: windowId not found: ' + $0);
         }
       }, to_window(source_window), castToInt(left), castToInt(upper),
           castToInt(width), castToInt(height));
@@ -590,7 +660,7 @@ intType drwHeight (const_winType actual_window)
         if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
           return mapIdToCanvas[$0].height;
         } else {
-          console.log('windowId not found: ' + $0);
+          console.log('drwHeight: windowId not found: ' + $0);
           return -1;
         }
       }, to_window(actual_window));
@@ -631,13 +701,14 @@ void drwPLine (const_winType actual_window,
     EM_ASM({
       if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
         let context = mapIdToContext[$0];
+        context.lineWidth=1;
         context.strokeStyle = '#' + ('000000' + $5.toString(16)).slice(-6);
         context.beginPath();
         context.moveTo($1, $2);
         context.lineTo($3, $4);
         context.stroke();
       } else {
-        console.log('windowId not found: ' + $0);
+        console.log('drwPLine: windowId not found: ' + $0);
       }
     }, to_window(actual_window), castToInt(x1), castToInt(y1),
         castToInt(x2), castToInt(y2), (int) col);
@@ -884,7 +955,7 @@ void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
         context.fillStyle = '#' + ('000000' + $3.toString(16)).slice(-6);
         context.fillRect($1, $2, 1, 1);
       } else {
-        console.log('windowId not found: ' + $0);
+        console.log('drwPPoint: windowId not found: ' + $0);
       }
     }, to_window(actual_window), castToInt(x), castToInt(y), (int) col);
   } /* drwPPoint */
@@ -990,7 +1061,7 @@ void drwPolyLine (const_winType actual_window,
             }
             context.stroke();
           } else {
-            console.log('windowId not found: ' + $0);
+            console.log('drwPolyLine: windowId not found: ' + $0);
           }
         }, to_window(actual_window), (int) x, (int) y, numCoords, coords, (int) col);
       } /* if */
@@ -1026,7 +1097,7 @@ void drwFPolyLine (const_winType actual_window,
             context.closePath();
             context.fill();
           } else {
-            console.log('windowId not found: ' + $0);
+            console.log('drwFPolyLine: windowId not found: ' + $0);
           }
         }, to_window(actual_window), (int) x, (int) y, numCoords, coords, (int) col);
       } /* if */
@@ -1046,7 +1117,7 @@ void drwPut (const_winType destWindow, intType xDest, intType yDest,
                                            typeof mapIdToCanvas[$1] !== 'undefined') {
         mapIdToContext[$0].drawImage(mapIdToCanvas[$1], $2, $3);
       } else {
-        console.log('windowId not found: ' + $0);
+        console.log('drwPut: windowId not found: ' + $0);
       }
     }, to_window(destWindow), to_window(pixmap), castToInt(xDest), castToInt(yDest));
   } /* drwPut */
@@ -1086,7 +1157,7 @@ void drwPRect (const_winType actual_window,
         context.fillStyle = '#' + ('000000' + $5.toString(16)).slice(-6);
         context.fillRect($1, $2, $3, $4);
       } else {
-        console.log('windowId not found: ' + $0);
+        console.log('drwPRect: windowId not found: ' + $0);
       }
     }, to_window(actual_window), castToInt(x), castToInt(y),
         castToInt(width), castToInt(height), (int) col);
@@ -1214,7 +1285,7 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
             canvas.style.top = $2;
             return 1;
           } else {
-            console.log('windowId not found: ' + $0);
+            console.log('drwSetPos: windowId not found: ' + $0);
             return 0;
           }
         }, to_window(actual_window), (int) xPos, (int) yPos);
@@ -1226,7 +1297,7 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
             windowObject.screenY = $2;
             return 1;
           } else {
-            console.log('windowId not found: ' + $0);
+            console.log('drwSetPos: windowId not found: ' + $0);
             return 0;
           }
         }, to_window(actual_window), (int) xPos, (int) yPos);
@@ -1290,7 +1361,7 @@ intType drwWidth (const_winType actual_window)
         if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
           return mapIdToCanvas[$0].width;
         } else {
-          console.log('windowId not found: ' + $0);
+          console.log('drwWidth: windowId not found: ' + $0);
           return -1;
         }
       }, to_window(actual_window));
@@ -1332,7 +1403,7 @@ intType drwXPos (const_winType actual_window)
           if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
             return mapIdToCanvas[$0].style.left;
           } else {
-            console.log('windowId not found: ' + $0);
+            console.log('drwXPos: windowId not found: ' + $0);
             return -2147483648;
           }
         }, to_window(actual_window));
@@ -1341,7 +1412,7 @@ intType drwXPos (const_winType actual_window)
           if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
             return mapIdToWindow[$0].screenX;
           } else {
-            console.log('windowId not found: ' + $0);
+            console.log('drwXPos: windowId not found: ' + $0);
             return -2147483648;
           }
         }, to_window(actual_window));
@@ -1384,7 +1455,7 @@ intType drwYPos (const_winType actual_window)
           if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
             return mapIdToCanvas[$0].style.top;
           } else {
-            console.log('windowId not found: ' + $0);
+            console.log('drwYPos: windowId not found: ' + $0);
             return -2147483648;
           }
         }, to_window(actual_window));
@@ -1393,7 +1464,7 @@ intType drwYPos (const_winType actual_window)
           if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
             return mapIdToWindow[$0].screenY;
           } else {
-            console.log('windowId not found: ' + $0);
+            console.log('drwYPos: windowId not found: ' + $0);
             return -2147483648;
           }
         }, to_window(actual_window));
