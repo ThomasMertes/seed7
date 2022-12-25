@@ -376,7 +376,8 @@ EMSCRIPTEN_KEEPALIVE void setOsProperties (char *nullDeviceName, unsigned char *
                                            int useDriveLetters, int envCaseInsensitive)
 
   { /* setOsProperties */
-    logFunction(printf("setOsProperties(\"%s\")\n", ););
+    logFunction(printf("setOsProperties(\"%s\", \"%s\", %d, %d)\n",
+                       nullDeviceName, pathDelimiter, useDriveLetters, envCaseInsensitive););
     if ((nullDevice = malloc(strlen(nullDeviceName) + NULL_TERMINATION_LEN)) != NULL) {
       strcpy(nullDevice, nullDeviceName);
     } /* if */

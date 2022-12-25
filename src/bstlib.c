@@ -43,6 +43,7 @@
 #include "syvarutl.h"
 #include "striutl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "runerr.h"
 #include "bst_rtl.h"
 

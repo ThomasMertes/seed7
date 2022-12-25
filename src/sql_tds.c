@@ -1106,9 +1106,8 @@ static bigIntType getNumericBigInt (const void *buffer)
         bigIntValue = bigNegateTemp(bigIntValue);
       } /* if */
     } /* if */
-    logFunction(printf("getNumericBigInt --> ");
-                prot_bigint(bigIntValue);
-                printf("\n"););
+    logFunction(printf("getNumericBigInt --> %s\n",
+                       bigHexCStri(bigIntValue)););
     return bigIntValue;
  } /* getNumericBigInt */
 

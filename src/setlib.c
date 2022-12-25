@@ -40,6 +40,7 @@
 #include "flistutl.h"
 #include "syvarutl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "runerr.h"
 #include "int_rtl.h"
 #include "set_rtl.h"

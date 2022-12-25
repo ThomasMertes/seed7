@@ -40,6 +40,7 @@
 #include "syvarutl.h"
 #include "executl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "runerr.h"
 #include "big_drv.h"
 

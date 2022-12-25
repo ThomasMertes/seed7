@@ -41,6 +41,7 @@
 #include "syvarutl.h"
 #include "striutl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "runerr.h"
 #include "fil_rtl.h"
 #include "fil_drv.h"

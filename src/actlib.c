@@ -42,6 +42,7 @@
 #include "actutl.h"
 #include "syvarutl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "name.h"
 #include "runerr.h"
 

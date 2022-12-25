@@ -51,6 +51,44 @@
 
 
 
+#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
+void printSet (const_setType setValue)
+
+  {
+    intType position;
+    bitSetType bitset_elem;
+    unsigned int bit_index;
+    boolType first_elem;
+
+  /* printSet */
+    if (setValue != NULL) {
+      printf("set[" FMT_D "/" FMT_D "]{",
+             setValue->min_position, setValue->max_position);
+      first_elem = TRUE;
+      for (position = setValue->min_position; position <= setValue->max_position; position++) {
+        bitset_elem = setValue->bitset[position - setValue->min_position];
+        if (bitset_elem != 0) {
+          for (bit_index = 0; bit_index < CHAR_BIT * sizeof(bitSetType); bit_index++) {
+            if (bitset_elem & ((bitSetType) 1) << bit_index) {
+              if (first_elem) {
+                first_elem = FALSE;
+              } else {
+                printf(", ");
+              } /* if */
+              printf(FMT_D, position << bitset_shift | (intType) bit_index);
+            } /* if */
+          } /* for */
+        } /* if */
+      } /* for */
+      printf("}");
+    } else {
+      printf(" *NULL_SET* ");
+    } /* if */
+  } /* printSet */
+#endif;
+
+
+
 /**
  *  Determine the number of one bits in a bitset.
  *  The function uses a combination of sideways additions and
@@ -505,9 +543,9 @@ setType setDiff (const const_setType set1, const const_setType set2)
 
   /* setDiff */
     logFunction(printf("setDiff(");
-                prot_set(set1);
+                printSet(set1);
                 printf(", ");
-                prot_set(set2);
+                printSet(set2);
                 printf(")\n"););
     if (unlikely(!ALLOC_SET(difference, bitsetSize(set1)))) {
       raise_error(MEMORY_ERROR);
@@ -541,7 +579,7 @@ setType setDiff (const const_setType set1, const const_setType set2)
       } /* if */
     } /* if */
     logFunction(printf("setDiff --> ");
-                prot_set(difference);
+                printSet(difference);
                 printf("\n"););
     return difference;
   } /* setDiff */
@@ -563,9 +601,9 @@ void setDiffAssign (setType *const dest, const const_setType delta)
 
   /* setDiffAssign */
     logFunction(printf("setDiffAssign(");
-                prot_set(*dest);
+                printSet(*dest);
                 printf(", ");
-                prot_set(delta);
+                printSet(delta);
                 printf(")\n"););
     set1 = *dest;
     min_position = set1->min_position;
@@ -645,7 +683,7 @@ void setDiffAssign (setType *const dest, const const_setType delta)
       } /* if */
     } /* if */
     logFunction(printf("setDiffAssign --> ");
-                prot_set(*dest);
+                printSet(*dest);
                 printf("\n"););
   } /* setDiffAssign */
 
@@ -697,9 +735,9 @@ boolType setEq (const const_setType set1, const const_setType set2)
 
   /* setEq */
     logFunction(printf("setEq(");
-                prot_set(set1);
+                printSet(set1);
                 printf(", ");
-                prot_set(set2);
+                printSet(set2);
                 printf(")\n"););
     if (set1->min_position == set2->min_position &&
         set1->max_position == set2->max_position) {
@@ -956,9 +994,9 @@ setType setIntersect (const const_setType set1, const const_setType set2)
 
   /* setIntersect */
     logFunction(printf("setIntersect(\n");
-                prot_set(set1);
+                printSet(set1);
                 printf(",\n");
-                prot_set(set2);
+                printSet(set2);
                 printf(")\n"););
     if (set1->min_position > set2->min_position) {
       min_position = set1->min_position;
@@ -1002,7 +1040,7 @@ setType setIntersect (const const_setType set1, const const_setType set2)
       } /* if */
     } /* if */
     logFunction(printf("setIntersect --> ");
-                prot_set(intersection);
+                printSet(intersection);
                 printf("\n"););
     return intersection;
   } /* setIntersect */
@@ -1024,9 +1062,9 @@ void setIntersectAssign (setType *const dest, const const_setType delta)
 
   /* setIntersectAssign */
     logFunction(printf("setIntersectAssign(\n");
-                prot_set(*dest);
+                printSet(*dest);
                 printf(",\n");
-                prot_set(delta);
+                printSet(delta);
                 printf(")\n"););
     set1 = *dest;
     if (set1->min_position > delta->min_position) {
@@ -1099,7 +1137,7 @@ void setIntersectAssign (setType *const dest, const const_setType delta)
       } /* if */
     } /* if */
     logFunction(printf("setIntersectAssign --> ");
-                prot_set(*dest);
+                printSet(*dest);
                 printf("\n"););
   } /* setIntersectAssign */
 
@@ -1148,9 +1186,9 @@ boolType setIsProperSubset (const const_setType set1, const const_setType set2)
 
   /* setIsProperSubset */
     logFunction(printf("setIsProperSubset(");
-                prot_set(set1);
+                printSet(set1);
                 printf(", ");
-                prot_set(set2);
+                printSet(set2);
                 printf(")\n"););
     equal = TRUE;
     if (set1->min_position < set2->min_position) {
@@ -1253,9 +1291,9 @@ boolType setIsSubset (const const_setType set1, const const_setType set2)
 
   /* setIsSubset */
     logFunction(printf("setIsSubset(");
-                prot_set(set1);
+                printSet(set1);
                 printf(", ");
-                prot_set(set2);
+                printSet(set2);
                 printf(")\n"););
     if (set1->min_position < set2->min_position) {
       if (set1->max_position < set2->min_position) {
@@ -1402,7 +1440,7 @@ intType setNext (const const_setType aSet, const intType number)
 
   /* setNext */
     logFunction(printf("setNext(");
-                prot_set(aSet);
+                printSet(aSet);
                 printf(", " FMT_D ")\n", number););
     if (unlikely(number == INTTYPE_MAX)) {
       logError(printf("setNext(aSet, " FMT_D "): "
@@ -1555,7 +1593,7 @@ setType setRangelit (const intType lowValue, const intType highValue)
       } /* if */
     } /* if */
     logFunction(printf("setRangelit --> ");
-                prot_set(result);
+                printSet(result);
                 printf("\n"););
     return result;
   } /* setRangelit */
@@ -1620,9 +1658,9 @@ setType setSymdiff (const const_setType set1, const const_setType set2)
 
   /* setSymdiff */
     logFunction(printf("setSymdiff(\n");
-                prot_set(set1);
+                printSet(set1);
                 printf(",\n");
-                prot_set(set2);
+                printSet(set2);
                 printf(")\n"););
     if (set1->min_position < set2->min_position) {
       min_position = set1->min_position;
@@ -1683,7 +1721,7 @@ setType setSymdiff (const const_setType set1, const const_setType set2)
       } /* if */
     } /* if */
     logFunction(printf("setSymdiff --> ");
-                prot_set(symDiff);
+                printSet(symDiff);
                 printf("\n"););
     return symDiff;
   } /* setSymdiff */
@@ -1705,7 +1743,7 @@ uintType setToUInt (const const_setType set1, const intType lowestBitNum)
 
   /* setToUInt */
     logFunction(printf("setToUInt(");
-                prot_set(set1);
+                printSet(set1);
                 printf(", " FMT_D ")\n", lowestBitNum););
     position = bitset_pos(lowestBitNum);
     if (position >= set1->min_position && position <= set1->max_position) {
@@ -1754,9 +1792,9 @@ setType setUnion (const const_setType set1, const const_setType set2)
 
   /* setUnion */
     logFunction(printf("setUnion(\n");
-                prot_set(set1);
+                printSet(set1);
                 printf(",\n");
-                prot_set(set2);
+                printSet(set2);
                 printf(")\n"););
     if (set1->min_position < set2->min_position) {
       min_position = set1->min_position;
@@ -1817,7 +1855,7 @@ setType setUnion (const const_setType set1, const const_setType set2)
       } /* if */
     } /* if */
     logFunction(printf("setUnion --> ");
-                prot_set(unionOfSets);
+                printSet(unionOfSets);
                 printf("\n"););
     return unionOfSets;
   } /* setUnion */
@@ -1841,9 +1879,9 @@ void setUnionAssign (setType *const dest, const const_setType delta)
 
   /* setUnionAssign */
     logFunction(printf("setUnionAssign(\n");
-                prot_set(*dest);
+                printSet(*dest);
                 printf(",\n");
-                prot_set(delta);
+                printSet(delta);
                 printf(")\n"););
     set1 = *dest;
     if (set1->min_position < delta->min_position) {
@@ -1914,6 +1952,6 @@ void setUnionAssign (setType *const dest, const const_setType delta)
       } /* if */
     } /* if */
     logFunction(printf("setUnionAssign --> ");
-                prot_set(*dest);
+                printSet(*dest);
                 printf("\n"););
  } /* setUnionAssign */

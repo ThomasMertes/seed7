@@ -42,6 +42,7 @@
 #include "syvarutl.h"
 #include "objutl.h"
 #include "executl.h"
+#include "traceutl.h"
 #include "runerr.h"
 #include "pol_drv.h"
 #include "rtl_err.h"

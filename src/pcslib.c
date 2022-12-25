@@ -42,6 +42,7 @@
 #include "striutl.h"
 #include "arrutl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "runerr.h"
 #include "pcs_rtl.h"
 #include "pcs_drv.h"

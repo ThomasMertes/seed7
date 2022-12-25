@@ -45,6 +45,7 @@
 #include "flistutl.h"
 #include "syvarutl.h"
 #include "objutl.h"
+#include "traceutl.h"
 #include "runerr.h"
 #include "flt_rtl.h"
 
