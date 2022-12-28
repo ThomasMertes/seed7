@@ -10815,8 +10815,12 @@ const proc: chkMultiplication is func
         -3_ * bigintExpr(  1000000000000000000_) <>  -3000000000000000000_ or
         -3_ * bigintExpr( 10000000000000000000_) <> -30000000000000000000_ or
         -3_ * bigintExpr( 18446744073709551615_) <> -55340232221128654845_ or
-        -3_ * bigintExpr( 18446744073709551616_) <> -55340232221128654848_ or
-        -2_ * bigintExpr(-18446744073709551617_) <>  36893488147419103234_ or
+        -3_ * bigintExpr( 18446744073709551616_) <> -55340232221128654848_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  -2_ * bigintExpr(-18446744073709551617_) <>  36893488147419103234_ or
         -2_ * bigintExpr(-18446744073709551616_) <>  36893488147419103232_ or
         -2_ * bigintExpr(-10000000000000000000_) <>  20000000000000000000_ or
         -2_ * bigintExpr( -1000000000000000000_) <>   2000000000000000000_ or
@@ -10876,8 +10880,12 @@ const proc: chkMultiplication is func
         -2_ * bigintExpr(  1000000000000000000_) <>  -2000000000000000000_ or
         -2_ * bigintExpr( 10000000000000000000_) <> -20000000000000000000_ or
         -2_ * bigintExpr( 18446744073709551615_) <> -36893488147419103230_ or
-        -2_ * bigintExpr( 18446744073709551616_) <> -36893488147419103232_ or
-        -1_ * bigintExpr(-18446744073709551617_) <>  18446744073709551617_ or
+        -2_ * bigintExpr( 18446744073709551616_) <> -36893488147419103232_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  -1_ * bigintExpr(-18446744073709551617_) <>  18446744073709551617_ or
         -1_ * bigintExpr(-18446744073709551616_) <>  18446744073709551616_ or
         -1_ * bigintExpr(-10000000000000000000_) <>  10000000000000000000_ or
         -1_ * bigintExpr( -1000000000000000000_) <>   1000000000000000000_ or
@@ -10937,8 +10945,12 @@ const proc: chkMultiplication is func
         -1_ * bigintExpr(  1000000000000000000_) <>  -1000000000000000000_ or
         -1_ * bigintExpr( 10000000000000000000_) <> -10000000000000000000_ or
         -1_ * bigintExpr( 18446744073709551615_) <> -18446744073709551615_ or
-        -1_ * bigintExpr( 18446744073709551616_) <> -18446744073709551616_ or
-         0_ * bigintExpr(-18446744073709551617_) <> 0_ or
+        -1_ * bigintExpr( 18446744073709551616_) <> -18446744073709551616_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if   0_ * bigintExpr(-18446744073709551617_) <> 0_ or
          0_ * bigintExpr(-18446744073709551616_) <> 0_ or
          0_ * bigintExpr(-10000000000000000000_) <> 0_ or
          0_ * bigintExpr( -1000000000000000000_) <> 0_ or
@@ -10998,8 +11010,12 @@ const proc: chkMultiplication is func
          0_ * bigintExpr(  1000000000000000000_) <> 0_ or
          0_ * bigintExpr( 10000000000000000000_) <> 0_ or
          0_ * bigintExpr( 18446744073709551615_) <> 0_ or
-         0_ * bigintExpr( 18446744073709551616_) <> 0_ or
-         1_ * bigintExpr(-18446744073709551617_) <> -18446744073709551617_ or
+         0_ * bigintExpr( 18446744073709551616_) <> 0_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if   1_ * bigintExpr(-18446744073709551617_) <> -18446744073709551617_ or
          1_ * bigintExpr(-18446744073709551616_) <> -18446744073709551616_ or
          1_ * bigintExpr(-10000000000000000000_) <> -10000000000000000000_ or
          1_ * bigintExpr( -1000000000000000000_) <>  -1000000000000000000_ or
@@ -11059,8 +11075,12 @@ const proc: chkMultiplication is func
          1_ * bigintExpr(  1000000000000000000_) <>   1000000000000000000_ or
          1_ * bigintExpr( 10000000000000000000_) <>  10000000000000000000_ or
          1_ * bigintExpr( 18446744073709551615_) <>  18446744073709551615_ or
-         1_ * bigintExpr( 18446744073709551616_) <>  18446744073709551616_ or
-         2_ * bigintExpr(-18446744073709551617_) <> -36893488147419103234_ or
+         1_ * bigintExpr( 18446744073709551616_) <>  18446744073709551616_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if   2_ * bigintExpr(-18446744073709551617_) <> -36893488147419103234_ or
          2_ * bigintExpr(-18446744073709551616_) <> -36893488147419103232_ or
          2_ * bigintExpr(-10000000000000000000_) <> -20000000000000000000_ or
          2_ * bigintExpr( -1000000000000000000_) <>  -2000000000000000000_ or
@@ -11120,8 +11140,12 @@ const proc: chkMultiplication is func
          2_ * bigintExpr(  1000000000000000000_) <>   2000000000000000000_ or
          2_ * bigintExpr( 10000000000000000000_) <>  20000000000000000000_ or
          2_ * bigintExpr( 18446744073709551615_) <>  36893488147419103230_ or
-         2_ * bigintExpr( 18446744073709551616_) <>  36893488147419103232_ or
-         3_ * bigintExpr(-18446744073709551617_) <> -55340232221128654851_ or
+         2_ * bigintExpr( 18446744073709551616_) <>  36893488147419103232_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if   3_ * bigintExpr(-18446744073709551617_) <> -55340232221128654851_ or
          3_ * bigintExpr(-18446744073709551616_) <> -55340232221128654848_ or
          3_ * bigintExpr(-10000000000000000000_) <> -30000000000000000000_ or
          3_ * bigintExpr( -1000000000000000000_) <>  -3000000000000000000_ or
@@ -11181,8 +11205,12 @@ const proc: chkMultiplication is func
          3_ * bigintExpr(  1000000000000000000_) <>   3000000000000000000_ or
          3_ * bigintExpr( 10000000000000000000_) <>  30000000000000000000_ or
          3_ * bigintExpr( 18446744073709551615_) <>  55340232221128654845_ or
-         3_ * bigintExpr( 18446744073709551616_) <>  55340232221128654848_ or
-        bigintExpr(-18446744073709551617_) * -3_ <>  55340232221128654851_ or
+         3_ * bigintExpr( 18446744073709551616_) <>  55340232221128654848_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) * -3_ <>  55340232221128654851_ or
         bigintExpr(-18446744073709551616_) * -3_ <>  55340232221128654848_ or
         bigintExpr(-10000000000000000000_) * -3_ <>  30000000000000000000_ or
         bigintExpr( -1000000000000000000_) * -3_ <>   3000000000000000000_ or
@@ -11242,8 +11270,12 @@ const proc: chkMultiplication is func
         bigintExpr(  1000000000000000000_) * -3_ <>  -3000000000000000000_ or
         bigintExpr( 10000000000000000000_) * -3_ <> -30000000000000000000_ or
         bigintExpr( 18446744073709551615_) * -3_ <> -55340232221128654845_ or
-        bigintExpr( 18446744073709551616_) * -3_ <> -55340232221128654848_ or
-        bigintExpr(-18446744073709551617_) * -2_ <>  36893488147419103234_ or
+        bigintExpr( 18446744073709551616_) * -3_ <> -55340232221128654848_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (8)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) * -2_ <>  36893488147419103234_ or
         bigintExpr(-18446744073709551616_) * -2_ <>  36893488147419103232_ or
         bigintExpr(-10000000000000000000_) * -2_ <>  20000000000000000000_ or
         bigintExpr( -1000000000000000000_) * -2_ <>   2000000000000000000_ or
@@ -11303,8 +11335,12 @@ const proc: chkMultiplication is func
         bigintExpr(  1000000000000000000_) * -2_ <>  -2000000000000000000_ or
         bigintExpr( 10000000000000000000_) * -2_ <> -20000000000000000000_ or
         bigintExpr( 18446744073709551615_) * -2_ <> -36893488147419103230_ or
-        bigintExpr( 18446744073709551616_) * -2_ <> -36893488147419103232_ or
-        bigintExpr(-18446744073709551617_) * -1_ <>  18446744073709551617_ or
+        bigintExpr( 18446744073709551616_) * -2_ <> -36893488147419103232_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (9)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) * -1_ <>  18446744073709551617_ or
         bigintExpr(-18446744073709551616_) * -1_ <>  18446744073709551616_ or
         bigintExpr(-10000000000000000000_) * -1_ <>  10000000000000000000_ or
         bigintExpr( -1000000000000000000_) * -1_ <>   1000000000000000000_ or
@@ -11364,8 +11400,12 @@ const proc: chkMultiplication is func
         bigintExpr(  1000000000000000000_) * -1_ <>  -1000000000000000000_ or
         bigintExpr( 10000000000000000000_) * -1_ <> -10000000000000000000_ or
         bigintExpr( 18446744073709551615_) * -1_ <> -18446744073709551615_ or
-        bigintExpr( 18446744073709551616_) * -1_ <> -18446744073709551616_ or
-        bigintExpr(-18446744073709551617_) *  0_ <> 0_ or
+        bigintExpr( 18446744073709551616_) * -1_ <> -18446744073709551616_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (10)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) *  0_ <> 0_ or
         bigintExpr(-18446744073709551616_) *  0_ <> 0_ or
         bigintExpr(-10000000000000000000_) *  0_ <> 0_ or
         bigintExpr( -1000000000000000000_) *  0_ <> 0_ or
@@ -11425,8 +11465,12 @@ const proc: chkMultiplication is func
         bigintExpr(  1000000000000000000_) *  0_ <> 0_ or
         bigintExpr( 10000000000000000000_) *  0_ <> 0_ or
         bigintExpr( 18446744073709551615_) *  0_ <> 0_ or
-        bigintExpr( 18446744073709551616_) *  0_ <> 0_ or
-        bigintExpr(-18446744073709551617_) *  1_ <> -18446744073709551617_ or
+        bigintExpr( 18446744073709551616_) *  0_ <> 0_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (11)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) *  1_ <> -18446744073709551617_ or
         bigintExpr(-18446744073709551616_) *  1_ <> -18446744073709551616_ or
         bigintExpr(-10000000000000000000_) *  1_ <> -10000000000000000000_ or
         bigintExpr( -1000000000000000000_) *  1_ <>  -1000000000000000000_ or
@@ -11486,8 +11530,12 @@ const proc: chkMultiplication is func
         bigintExpr(  1000000000000000000_) *  1_ <>   1000000000000000000_ or
         bigintExpr( 10000000000000000000_) *  1_ <>  10000000000000000000_ or
         bigintExpr( 18446744073709551615_) *  1_ <>  18446744073709551615_ or
-        bigintExpr( 18446744073709551616_) *  1_ <>  18446744073709551616_ or
-        bigintExpr(-18446744073709551617_) *  2_ <> -36893488147419103234_ or
+        bigintExpr( 18446744073709551616_) *  1_ <>  18446744073709551616_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (12)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) *  2_ <> -36893488147419103234_ or
         bigintExpr(-18446744073709551616_) *  2_ <> -36893488147419103232_ or
         bigintExpr(-10000000000000000000_) *  2_ <> -20000000000000000000_ or
         bigintExpr( -1000000000000000000_) *  2_ <>  -2000000000000000000_ or
@@ -11547,8 +11595,12 @@ const proc: chkMultiplication is func
         bigintExpr(  1000000000000000000_) *  2_ <>   2000000000000000000_ or
         bigintExpr( 10000000000000000000_) *  2_ <>  20000000000000000000_ or
         bigintExpr( 18446744073709551615_) *  2_ <>  36893488147419103230_ or
-        bigintExpr( 18446744073709551616_) *  2_ <>  36893488147419103232_ or
-        bigintExpr(-18446744073709551617_) *  3_ <> -55340232221128654851_ or
+        bigintExpr( 18446744073709551616_) *  2_ <>  36893488147419103232_ then
+      writeln("Multiplication of digit with bigInteger values does not work correct. (13)");
+      okay := FALSE;
+    end if;
+
+    if  bigintExpr(-18446744073709551617_) *  3_ <> -55340232221128654851_ or
         bigintExpr(-18446744073709551616_) *  3_ <> -55340232221128654848_ or
         bigintExpr(-10000000000000000000_) *  3_ <> -30000000000000000000_ or
         bigintExpr( -1000000000000000000_) *  3_ <>  -3000000000000000000_ or
@@ -11609,7 +11661,7 @@ const proc: chkMultiplication is func
         bigintExpr( 10000000000000000000_) *  3_ <>  30000000000000000000_ or
         bigintExpr( 18446744073709551615_) *  3_ <>  55340232221128654845_ or
         bigintExpr( 18446744073709551616_) *  3_ <>  55340232221128654848_ then
-      writeln("Multiplication of digit with bigInteger values does not work correct.");
+      writeln("Multiplication of digit with bigInteger values does not work correct. (14)");
       okay := FALSE;
     end if;
 
@@ -19477,8 +19529,12 @@ const proc: chkLog2 is func
         log2(                                             1125899906842623_) <>  49_ or
         log2(                                             1125899906842624_) <>  50_ or
         log2(                                             1511254381298056_) <>  50_ or
-        log2(                                             2251799813685247_) <>  50_ or
-        log2(                                             2251799813685248_) <>  51_ or
+        log2(                                             2251799813685247_) <>  50_ then
+      writeln("The bigInteger log2 function does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  log2(                                             2251799813685248_) <>  51_ or
         log2(                                             2421662232362017_) <>  51_ or
         log2(                                             4503599627370495_) <>  51_ or
         log2(                                             4503599627370496_) <>  52_ or
@@ -19627,8 +19683,12 @@ const proc: chkLog2 is func
         log2(                              1267650600228229401496703205375_) <>  99_ or
         log2(                              1267650600228229401496703205376_) <> 100_ or
         log2(                              1500917277282758485643664600050_) <> 100_ or
-        log2(                              2535301200456458802993406410751_) <> 100_ or
-        log2(                              2535301200456458802993406410752_) <> 101_ or
+        log2(                              2535301200456458802993406410751_) <> 100_ then
+      writeln("The bigInteger log2 function does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  log2(                              2535301200456458802993406410752_) <> 101_ or
         log2(                              4237978568429874089790949076827_) <> 101_ or
         log2(                              5070602400912917605986812821503_) <> 101_ or
         log2(                              5070602400912917605986812821504_) <> 102_ or
@@ -19777,8 +19837,12 @@ const proc: chkLog2 is func
         log2(               1427247692705959881058285969449495136382746623_) <> 149_ or
         log2(               1427247692705959881058285969449495136382746624_) <> 150_ or
         log2(               2845858584540191812585998330593170538298418806_) <> 150_ or
-        log2(               2854495385411919762116571938898990272765493247_) <> 150_ or
-        log2(               2854495385411919762116571938898990272765493248_) <> 151_ or
+        log2(               2854495385411919762116571938898990272765493247_) <> 150_ then
+      writeln("The bigInteger log2 function does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  log2(               2854495385411919762116571938898990272765493248_) <> 151_ or
         log2(               5519497439624338462251212825651819036735110198_) <> 151_ or
         log2(               5708990770823839524233143877797980545530986495_) <> 151_ or
         log2(               5708990770823839524233143877797980545530986496_) <> 152_ or
@@ -19927,7 +19991,7 @@ const proc: chkLog2 is func
         log2(1606938044258990275541962092341162602522202993782792835301375_) <> 199_ or
         log2(1606938044258990275541962092341162602522202993782792835301376_) <> 200_ or
         log2(1828236661167998479746547920301995556315017882407621673118692_) <> 200_ then
-      writeln("The bigInteger log2 function does not work correct.");
+      writeln("The bigInteger log2 function does not work correct. (4)");
       okay := FALSE;
     end if;
 

@@ -557,9 +557,12 @@ const proc: check_compare is func
         compareTest(EMPTY_SET, {-1, 0, 900},    -1) or
         compareTest(EMPTY_SET, {-1, 900, 901},  -1) or
         compareTest(EMPTY_SET, {0, 1, 900},     -1) or
-        compareTest(EMPTY_SET, {0, 900, 901},   -1) or
+        compareTest(EMPTY_SET, {0, 900, 901},   -1) then
+      writeln("Set compare does not work correct. (1)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-900}, {-901},              1) or
+    if  compareTest({-900}, {-901},              1) or
         compareTest({-900}, {-900},              0) or
         compareTest({-900}, {-2},               -1) or
         compareTest({-900}, {-1},               -1) or
@@ -596,9 +599,12 @@ const proc: check_compare is func
         compareTest({-900}, {0, 1, 2},          -1) or
         compareTest({-900}, {0, 1, 900},        -1) or
         compareTest({-900}, {0, 900, 901},      -1) or
-        compareTest({-900}, {900, 901, 902},    -1) or
+        compareTest({-900}, {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (2)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-2},   {-901},              1) or
+    if  compareTest({-2},   {-901},              1) or
         compareTest({-2},   {-900},              1) or
         compareTest({-2},   {-2},                0) or
         compareTest({-2},   {-1},               -1) or
@@ -635,9 +641,12 @@ const proc: check_compare is func
         compareTest({-2},   {0, 1, 2},          -1) or
         compareTest({-2},   {0, 1, 900},        -1) or
         compareTest({-2},   {0, 900, 901},      -1) or
-        compareTest({-2},   {900, 901, 902},    -1) or
+        compareTest({-2},   {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (3)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-1},   {-901},              1) or
+    if  compareTest({-1},   {-901},              1) or
         compareTest({-1},   {-900},              1) or
         compareTest({-1},   {-2},                1) or
         compareTest({-1},   {-1},                0) or
@@ -674,9 +683,12 @@ const proc: check_compare is func
         compareTest({-1},   {0, 1, 2},          -1) or
         compareTest({-1},   {0, 1, 900},        -1) or
         compareTest({-1},   {0, 900, 901},      -1) or
-        compareTest({-1},   {900, 901, 902},    -1) or
+        compareTest({-1},   {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (4)");
+      okay := FALSE;
+    end if;
 
-        compareTest({0},    {-901},              1) or
+    if  compareTest({0},    {-901},              1) or
         compareTest({0},    {-900},              1) or
         compareTest({0},    {-2},                1) or
         compareTest({0},    {-1},                1) or
@@ -713,9 +725,12 @@ const proc: check_compare is func
         compareTest({0},    {0, 1, 2},          -1) or
         compareTest({0},    {0, 1, 900},        -1) or
         compareTest({0},    {0, 900, 901},      -1) or
-        compareTest({0},    {900, 901, 902},    -1) or
+        compareTest({0},    {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (5)");
+      okay := FALSE;
+    end if;
 
-        compareTest({1},    {-901},              1) or
+    if  compareTest({1},    {-901},              1) or
         compareTest({1},    {-900},              1) or
         compareTest({1},    {-2},                1) or
         compareTest({1},    {-1},                1) or
@@ -752,9 +767,12 @@ const proc: check_compare is func
         compareTest({1},    {0, 1, 2},          -1) or
         compareTest({1},    {0, 1, 900},        -1) or
         compareTest({1},    {0, 900, 901},      -1) or
-        compareTest({1},    {900, 901, 902},    -1) or
+        compareTest({1},    {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (6)");
+      okay := FALSE;
+    end if;
 
-        compareTest({900},  {-901},              1) or
+    if  compareTest({900},  {-901},              1) or
         compareTest({900},  {-900},              1) or
         compareTest({900},  {-2},                1) or
         compareTest({900},  {-1},                1) or
@@ -791,9 +809,12 @@ const proc: check_compare is func
         compareTest({900},  {0, 1, 2},           1) or
         compareTest({900},  {0, 1, 900},        -1) or
         compareTest({900},  {0, 900, 901},      -1) or
-        compareTest({900},  {900, 901, 902},    -1) or
+        compareTest({900},  {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (7)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-901, -900}, {-901, -900},        0) or
+    if  compareTest({-901, -900}, {-901, -900},        0) or
         compareTest({-901, -900}, {-900, -1},         -1) or
         compareTest({-901, -900}, {-900, 0},          -1) or
         compareTest({-901, -900}, {-900, 900},        -1) or
@@ -822,9 +843,12 @@ const proc: check_compare is func
         compareTest({-901, -900}, {0, 1, 2},          -1) or
         compareTest({-901, -900}, {0, 1, 900},        -1) or
         compareTest({-901, -900}, {0, 900, 901},      -1) or
-        compareTest({-901, -900}, {900, 901, 902},    -1) or
+        compareTest({-901, -900}, {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (8)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-900, -1},   {-900, -1},          0) or
+    if  compareTest({-900, -1},   {-900, -1},          0) or
         compareTest({-900, -1},   {-900, 0},          -1) or
         compareTest({-900, -1},   {-900, 900},        -1) or
         compareTest({-900, -1},   {-2, -1},           -1) or
@@ -852,9 +876,12 @@ const proc: check_compare is func
         compareTest({-900, -1},   {0, 1, 2},          -1) or
         compareTest({-900, -1},   {0, 1, 900},        -1) or
         compareTest({-900, -1},   {0, 900, 901},      -1) or
-        compareTest({-900, -1},   {900, 901, 902},    -1) or
+        compareTest({-900, -1},   {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (9)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-900, 0},    {-900, 0},           0) or
+    if  compareTest({-900, 0},    {-900, 0},           0) or
         compareTest({-900, 0},    {-900, 900},        -1) or
         compareTest({-900, 0},    {-2, -1},            1) or
         compareTest({-900, 0},    {-1, 0},            -1) or
@@ -881,9 +908,12 @@ const proc: check_compare is func
         compareTest({-900, 0},    {0, 1, 2},          -1) or
         compareTest({-900, 0},    {0, 1, 900},        -1) or
         compareTest({-900, 0},    {0, 900, 901},      -1) or
-        compareTest({-900, 0},    {900, 901, 902},    -1) or
+        compareTest({-900, 0},    {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (10)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-900, 900},  {-900, 900},         0) or
+    if  compareTest({-900, 900},  {-900, 900},         0) or
         compareTest({-900, 900},  {-2, -1},            1) or
         compareTest({-900, 900},  {-1, 0},             1) or
         compareTest({-900, 900},  {-1, 900},          -1) or
@@ -909,9 +939,12 @@ const proc: check_compare is func
         compareTest({-900, 900},  {0, 1, 2},           1) or
         compareTest({-900, 900},  {0, 1, 900},        -1) or
         compareTest({-900, 900},  {0, 900, 901},      -1) or
-        compareTest({-900, 900},  {900, 901, 902},    -1) or
+        compareTest({-900, 900},  {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (11)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-2, -1},     {-2, -1},            0) or
+    if  compareTest({-2, -1},     {-2, -1},            0) or
         compareTest({-2, -1},     {-1, 0},            -1) or
         compareTest({-2, -1},     {-1, 900},          -1) or
         compareTest({-2, -1},     {0, 1},             -1) or
@@ -936,9 +969,12 @@ const proc: check_compare is func
         compareTest({-2, -1},     {0, 1, 2},          -1) or
         compareTest({-2, -1},     {0, 1, 900},        -1) or
         compareTest({-2, -1},     {0, 900, 901},      -1) or
-        compareTest({-2, -1},     {900, 901, 902},    -1) or
+        compareTest({-2, -1},     {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (12)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-1, 0},      {-1, 0},             0) or
+    if  compareTest({-1, 0},      {-1, 0},             0) or
         compareTest({-1, 0},      {-1, 900},          -1) or
         compareTest({-1, 0},      {0, 1},             -1) or
         compareTest({-1, 0},      {0, 900},           -1) or
@@ -962,9 +998,12 @@ const proc: check_compare is func
         compareTest({-1, 0},      {0, 1, 2},          -1) or
         compareTest({-1, 0},      {0, 1, 900},        -1) or
         compareTest({-1, 0},      {0, 900, 901},      -1) or
-        compareTest({-1, 0},      {900, 901, 902},    -1) or
+        compareTest({-1, 0},      {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (13)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-1, 900},    {-1, 900},           0) or
+    if  compareTest({-1, 900},    {-1, 900},           0) or
         compareTest({-1, 900},    {0, 1},              1) or
         compareTest({-1, 900},    {0, 900},           -1) or
         compareTest({-1, 900},    {900, 901},         -1) or
@@ -987,9 +1026,12 @@ const proc: check_compare is func
         compareTest({-1, 900},    {0, 1, 2},           1) or
         compareTest({-1, 900},    {0, 1, 900},        -1) or
         compareTest({-1, 900},    {0, 900, 901},      -1) or
-        compareTest({-1, 900},    {900, 901, 902},    -1) or
+        compareTest({-1, 900},    {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (14)");
+      okay := FALSE;
+    end if;
 
-        compareTest({0, 1},       {0, 1},              0) or
+    if  compareTest({0, 1},       {0, 1},              0) or
         compareTest({0, 1},       {0, 900},           -1) or
         compareTest({0, 1},       {900, 901},         -1) or
         compareTest({0, 1},       {-902, -901, -900},  1) or
@@ -1011,9 +1053,12 @@ const proc: check_compare is func
         compareTest({0, 1},       {0, 1, 2},          -1) or
         compareTest({0, 1},       {0, 1, 900},        -1) or
         compareTest({0, 1},       {0, 900, 901},      -1) or
-        compareTest({0, 1},       {900, 901, 902},    -1) or
+        compareTest({0, 1},       {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (15)");
+      okay := FALSE;
+    end if;
 
-        compareTest({0, 900},     {0, 900},            0) or
+    if  compareTest({0, 900},     {0, 900},            0) or
         compareTest({0, 900},     {900, 901},         -1) or
         compareTest({0, 900},     {-902, -901, -900},  1) or
         compareTest({0, 900},     {-901, -900, -1},    1) or
@@ -1034,9 +1079,12 @@ const proc: check_compare is func
         compareTest({0, 900},     {0, 1, 2},           1) or
         compareTest({0, 900},     {0, 1, 900},        -1) or
         compareTest({0, 900},     {0, 900, 901},      -1) or
-        compareTest({0, 900},     {900, 901, 902},    -1) or
+        compareTest({0, 900},     {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (16)");
+      okay := FALSE;
+    end if;
 
-        compareTest({900, 901},   {900, 901},   0) or
+    if  compareTest({900, 901},   {900, 901},   0) or
         compareTest({900, 901},   {-902, -901, -900},  1) or
         compareTest({900, 901},   {-901, -900, -1},    1) or
         compareTest({900, 901},   {-901, -900, 0},     1) or
@@ -1056,9 +1104,12 @@ const proc: check_compare is func
         compareTest({900, 901},   {0, 1, 2},           1) or
         compareTest({900, 901},   {0, 1, 900},         1) or
         compareTest({900, 901},   {0, 900, 901},      -1) or
-        compareTest({900, 901},   {900, 901, 902},    -1) or
+        compareTest({900, 901},   {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (17)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-902, -901, -900}, {-902, -901, -900},  0) or
+    if  compareTest({-902, -901, -900}, {-902, -901, -900},  0) or
         compareTest({-902, -901, -900}, {-901, -900, -1},   -1) or
         compareTest({-902, -901, -900}, {-901, -900, 0},    -1) or
         compareTest({-902, -901, -900}, {-901, -900, 900},  -1) or
@@ -1077,9 +1128,12 @@ const proc: check_compare is func
         compareTest({-902, -901, -900}, {0, 1, 2},          -1) or
         compareTest({-902, -901, -900}, {0, 1, 900},        -1) or
         compareTest({-902, -901, -900}, {0, 900, 901},      -1) or
-        compareTest({-902, -901, -900}, {900, 901, 902},    -1) or
+        compareTest({-902, -901, -900}, {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (18)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-901, -900, -1},   {-901, -900, -1},    0) or
+    if  compareTest({-901, -900, -1},   {-901, -900, -1},    0) or
         compareTest({-901, -900, -1},   {-901, -900, 0},    -1) or
         compareTest({-901, -900, -1},   {-901, -900, 900},  -1) or
         compareTest({-901, -900, -1},   {-900, -2, -1},     -1) or
@@ -1097,9 +1151,12 @@ const proc: check_compare is func
         compareTest({-901, -900, -1},   {0, 1, 2},          -1) or
         compareTest({-901, -900, -1},   {0, 1, 900},        -1) or
         compareTest({-901, -900, -1},   {0, 900, 901},      -1) or
-        compareTest({-901, -900, -1},   {900, 901, 902},    -1) or
+        compareTest({-901, -900, -1},   {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (19)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-901, -900, 0},    {-901, -900, 0},     0) or
+    if  compareTest({-901, -900, 0},    {-901, -900, 0},     0) or
         compareTest({-901, -900, 0},    {-901, -900, 900},  -1) or
         compareTest({-901, -900, 0},    {-900, -2, -1},      1) or
         compareTest({-901, -900, 0},    {-900, -1, 0},      -1) or
@@ -1116,9 +1173,12 @@ const proc: check_compare is func
         compareTest({-901, -900, 0},    {0, 1, 2},          -1) or
         compareTest({-901, -900, 0},    {0, 1, 900},        -1) or
         compareTest({-901, -900, 0},    {0, 900, 901},      -1) or
-        compareTest({-901, -900, 0},    {900, 901, 902},    -1) or
+        compareTest({-901, -900, 0},    {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (20)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-901, -900, 900},  {-901, -900, 900},   0) or
+    if  compareTest({-901, -900, 900},  {-901, -900, 900},   0) or
         compareTest({-901, -900, 900},  {-900, -2, -1},      1) or
         compareTest({-901, -900, 900},  {-900, -1, 0},       1) or
         compareTest({-901, -900, 900},  {-900, -1, 900},    -1) or
@@ -1134,9 +1194,12 @@ const proc: check_compare is func
         compareTest({-901, -900, 900},  {0, 1, 2},           1) or
         compareTest({-901, -900, 900},  {0, 1, 900},        -1) or
         compareTest({-901, -900, 900},  {0, 900, 901},      -1) or
-        compareTest({-901, -900, 900},  {900, 901, 902},    -1) or
+        compareTest({-901, -900, 900},  {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (21)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-900, -2, -1},     {-900, -2, -1},      0) or
+    if  compareTest({-900, -2, -1},     {-900, -2, -1},      0) or
         compareTest({-900, -2, -1},     {-900, -1, 0},      -1) or
         compareTest({-900, -2, -1},     {-900, -1, 900},    -1) or
         compareTest({-900, -2, -1},     {-900, 0, 1},       -1) or
@@ -1151,9 +1214,12 @@ const proc: check_compare is func
         compareTest({-900, -2, -1},     {0, 1, 2},          -1) or
         compareTest({-900, -2, -1},     {0, 1, 900},        -1) or
         compareTest({-900, -2, -1},     {0, 900, 901},      -1) or
-        compareTest({-900, -2, -1},     {900, 901, 902},    -1) or
+        compareTest({-900, -2, -1},     {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (22)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-900, -1, 0},      {-900, -1, 0},       0) or
+    if  compareTest({-900, -1, 0},      {-900, -1, 0},       0) or
         compareTest({-900, -1, 0},      {-900, -1, 900},    -1) or
         compareTest({-900, -1, 0},      {-900, 0, 1},       -1) or
         compareTest({-900, -1, 0},      {-900, 0, 900},     -1) or
@@ -1167,9 +1233,12 @@ const proc: check_compare is func
         compareTest({-900, -1, 0},      {0, 1, 2},          -1) or
         compareTest({-900, -1, 0},      {0, 1, 900},        -1) or
         compareTest({-900, -1, 0},      {0, 900, 901},      -1) or
-        compareTest({-900, -1, 0},      {900, 901, 902},    -1) or
+        compareTest({-900, -1, 0},      {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (23)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-900, -1, 900},    {-900, -1, 900},     0) or
+    if  compareTest({-900, -1, 900},    {-900, -1, 900},     0) or
         compareTest({-900, -1, 900},    {-900, 0, 1},        1) or
         compareTest({-900, -1, 900},    {-900, 0, 900},     -1) or
         compareTest({-900, -1, 900},    {-900, 900, 901},   -1) or
@@ -1182,9 +1251,12 @@ const proc: check_compare is func
         compareTest({-900, -1, 900},    {0, 1, 2},           1) or
         compareTest({-900, -1, 900},    {0, 1, 900},        -1) or
         compareTest({-900, -1, 900},    {0, 900, 901},      -1) or
-        compareTest({-900, -1, 900},    {900, 901, 902},    -1) or
+        compareTest({-900, -1, 900},    {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (24)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-900, 0, 1},       {-900, 0, 1},        0) or
+    if  compareTest({-900, 0, 1},       {-900, 0, 1},        0) or
         compareTest({-900, 0, 1},       {-900, 0, 900},     -1) or
         compareTest({-900, 0, 1},       {-900, 900, 901},   -1) or
         compareTest({-900, 0, 1},       {-3, -2, -1},        1) or
@@ -1196,9 +1268,12 @@ const proc: check_compare is func
         compareTest({-900, 0, 1},       {0, 1, 2},          -1) or
         compareTest({-900, 0, 1},       {0, 1, 900},        -1) or
         compareTest({-900, 0, 1},       {0, 900, 901},      -1) or
-        compareTest({-900, 0, 1},       {900, 901, 902},    -1) or
+        compareTest({-900, 0, 1},       {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (25)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-900, 0, 900},     {-900, 0, 900},      0) or
+    if  compareTest({-900, 0, 900},     {-900, 0, 900},      0) or
         compareTest({-900, 0, 900},     {-900, 900, 901},   -1) or
         compareTest({-900, 0, 900},     {-3, -2, -1},        1) or
         compareTest({-900, 0, 900},     {-2, -1, 0},         1) or
@@ -1209,9 +1284,12 @@ const proc: check_compare is func
         compareTest({-900, 0, 900},     {0, 1, 2},           1) or
         compareTest({-900, 0, 900},     {0, 1, 900},        -1) or
         compareTest({-900, 0, 900},     {0, 900, 901},      -1) or
-        compareTest({-900, 0, 900},     {900, 901, 902},    -1) or
+        compareTest({-900, 0, 900},     {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (26)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-900, 900, 901},   {-900, 900, 901},    0) or
+    if  compareTest({-900, 900, 901},   {-900, 900, 901},    0) or
         compareTest({-900, 900, 901},   {-3, -2, -1},        1) or
         compareTest({-900, 900, 901},   {-2, -1, 0},         1) or
         compareTest({-900, 900, 901},   {-2, -1, 900},       1) or
@@ -1221,9 +1299,12 @@ const proc: check_compare is func
         compareTest({-900, 900, 901},   {0, 1, 2},           1) or
         compareTest({-900, 900, 901},   {0, 1, 900},         1) or
         compareTest({-900, 900, 901},   {0, 900, 901},      -1) or
-        compareTest({-900, 900, 901},   {900, 901, 902},    -1) or
+        compareTest({-900, 900, 901},   {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (27)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-3, -2, -1},       {-3, -2, -1},        0) or
+    if  compareTest({-3, -2, -1},       {-3, -2, -1},        0) or
         compareTest({-3, -2, -1},       {-2, -1, 0},        -1) or
         compareTest({-3, -2, -1},       {-2, -1, 900},      -1) or
         compareTest({-3, -2, -1},       {-1, 0, 1},         -1) or
@@ -1232,9 +1313,12 @@ const proc: check_compare is func
         compareTest({-3, -2, -1},       {0, 1, 2},          -1) or
         compareTest({-3, -2, -1},       {0, 1, 900},        -1) or
         compareTest({-3, -2, -1},       {0, 900, 901},      -1) or
-        compareTest({-3, -2, -1},       {900, 901, 902},    -1) or
+        compareTest({-3, -2, -1},       {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (28)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-2, -1, 0},        {-2, -1, 0},         0) or
+    if  compareTest({-2, -1, 0},        {-2, -1, 0},         0) or
         compareTest({-2, -1, 0},        {-2, -1, 900},      -1) or
         compareTest({-2, -1, 0},        {-1, 0, 1},         -1) or
         compareTest({-2, -1, 0},        {-1, 0, 900},       -1) or
@@ -1242,51 +1326,76 @@ const proc: check_compare is func
         compareTest({-2, -1, 0},        {0, 1, 2},          -1) or
         compareTest({-2, -1, 0},        {0, 1, 900},        -1) or
         compareTest({-2, -1, 0},        {0, 900, 901},      -1) or
-        compareTest({-2, -1, 0},        {900, 901, 902},    -1) or
+        compareTest({-2, -1, 0},        {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (29)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-2, -1, 900},      {-2, -1, 900},       0) or
+    if  compareTest({-2, -1, 900},      {-2, -1, 900},       0) or
         compareTest({-2, -1, 900},      {-1, 0, 1},          1) or
         compareTest({-2, -1, 900},      {-1, 0, 900},       -1) or
         compareTest({-2, -1, 900},      {-1, 900, 901},     -1) or
         compareTest({-2, -1, 900},      {0, 1, 2},           1) or
         compareTest({-2, -1, 900},      {0, 1, 900},        -1) or
         compareTest({-2, -1, 900},      {0, 900, 901},      -1) or
-        compareTest({-2, -1, 900},      {900, 901, 902},    -1) or
+        compareTest({-2, -1, 900},      {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (30)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-1, 0, 1},         {-1, 0, 1},          0) or
+    if  compareTest({-1, 0, 1},         {-1, 0, 1},          0) or
         compareTest({-1, 0, 1},         {-1, 0, 900},       -1) or
         compareTest({-1, 0, 1},         {-1, 900, 901},     -1) or
         compareTest({-1, 0, 1},         {0, 1, 2},          -1) or
         compareTest({-1, 0, 1},         {0, 1, 900},        -1) or
         compareTest({-1, 0, 1},         {0, 900, 901},      -1) or
-        compareTest({-1, 0, 1},         {900, 901, 902},    -1) or
+        compareTest({-1, 0, 1},         {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (31)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-1, 0, 900},       {-1, 0, 900},        0) or
+    if  compareTest({-1, 0, 900},       {-1, 0, 900},        0) or
         compareTest({-1, 0, 900},       {-1, 900, 901},     -1) or
         compareTest({-1, 0, 900},       {0, 1, 2},           1) or
         compareTest({-1, 0, 900},       {0, 1, 900},        -1) or
         compareTest({-1, 0, 900},       {0, 900, 901},      -1) or
-        compareTest({-1, 0, 900},       {900, 901, 902},    -1) or
+        compareTest({-1, 0, 900},       {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (32)");
+      okay := FALSE;
+    end if;
 
-        compareTest({-1, 900, 901},     {-1, 900, 901},      0) or
+    if  compareTest({-1, 900, 901},     {-1, 900, 901},      0) or
         compareTest({-1, 900, 901},     {0, 1, 2},           1) or
         compareTest({-1, 900, 901},     {0, 1, 900},         1) or
         compareTest({-1, 900, 901},     {0, 900, 901},      -1) or
-        compareTest({-1, 900, 901},     {900, 901, 902},    -1) or
+        compareTest({-1, 900, 901},     {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (33)");
+      okay := FALSE;
+    end if;
 
-        compareTest({0, 1, 2},          {0, 1, 2},           0) or
+    if  compareTest({0, 1, 2},          {0, 1, 2},           0) or
         compareTest({0, 1, 2},          {0, 1, 900},        -1) or
         compareTest({0, 1, 2},          {0, 900, 901},      -1) or
-        compareTest({0, 1, 2},          {900, 901, 902},    -1) or
+        compareTest({0, 1, 2},          {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (34)");
+      okay := FALSE;
+    end if;
 
-        compareTest({0, 1, 900},        {0, 1, 900},         0) or
+    if  compareTest({0, 1, 900},        {0, 1, 900},         0) or
         compareTest({0, 1, 900},        {0, 900, 901},      -1) or
-        compareTest({0, 1, 900},        {900, 901, 902},    -1) or
+        compareTest({0, 1, 900},        {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (35)");
+      okay := FALSE;
+    end if;
 
-        compareTest({0, 900, 901},      {0, 900, 901},       0) or
-        compareTest({0, 900, 901},      {900, 901, 902},    -1) or
+    if  compareTest({0, 900, 901},      {0, 900, 901},       0) or
+        compareTest({0, 900, 901},      {900, 901, 902},    -1) then
+      writeln("Set compare does not work correct. (36)");
+      okay := FALSE;
+    end if;
 
-        compareTest({900, 901, 902},    {900, 901, 902},     0) then
+    if  compareTest({900, 901, 902},    {900, 901, 902},     0) then
+      writeln("Set compare does not work correct. (37)");
       okay := FALSE;
     end if;
 
