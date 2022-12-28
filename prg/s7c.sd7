@@ -6847,6 +6847,9 @@ const proc: init_values (inout expr_type: c_expr) is func
     var reference: const_object is NIL;
     var integer: number is 0;
     var ref_list: elements_to_walk is ref_list.EMPTY;
+    var integer: functionNumber is 1;
+    var integer: functionBreakupLimit is 0;
+    const integer: intendedFunctionSize is 100000;
   begin
     const_index := flip(const_table);
     for number range sort(keys(const_index)) do
@@ -6894,7 +6897,8 @@ const proc: init_values (inout expr_type: c_expr) is func
     init_set_constants(c_expr);
     init_type_constants(c_expr);
 
-    c_expr.expr &:= "static void init_values (void)\n";
+    functionBreakupLimit := length(c_expr.expr) + intendedFunctionSize;
+    c_expr.expr &:= "static void init_values1 (void)\n";
     c_expr.expr &:= "{\n";
     initPollOperations(c_expr);
     assign_bigint_constants(c_expr);
@@ -6911,6 +6915,15 @@ const proc: init_values (inout expr_type: c_expr) is func
       end if;
     end for;
     for const_object range sorted_list do
+      if length(c_expr.expr) >= functionBreakupLimit then
+        c_expr.expr &:= "}\n\n";
+        functionBreakupLimit := length(c_expr.expr) + intendedFunctionSize;
+        incr(functionNumber);
+        c_expr.expr &:= "static void init_values";
+        c_expr.expr &:= str(functionNumber);
+        c_expr.expr &:= " (void)\n";
+        c_expr.expr &:= "{\n";
+      end if;
       if category(const_object) = ARRAYOBJECT then
         init_array_constants(const_object, c_expr);
       elsif category(const_object) = STRUCTOBJECT then
@@ -6929,7 +6942,15 @@ const proc: init_values (inout expr_type: c_expr) is func
         c_expr.expr &:= "] */\n";
       end if;
     end for;
-    c_expr.expr &:= "initCaseLabelsOfSwitch();\n";
+    c_expr.expr &:= "}\n\n";
+    c_expr.expr &:= "static void init_values (void)\n";
+    c_expr.expr &:= "{\n";
+    for number range 1 to functionNumber do
+      c_expr.expr &:= "  init_values";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "();\n";
+    end for;
+    c_expr.expr &:= "  initCaseLabelsOfSwitch();\n";
     c_expr.expr &:= "}\n\n";
     init_nan_constants(c_expr);
   end func;
