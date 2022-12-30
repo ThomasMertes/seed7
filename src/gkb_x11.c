@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  gkb_x11.c     Keyboard and mouse access with X11 capabilities.  */
-/*  Copyright (C) 1989 - 2013, 2015, 2018 - 2021  Thomas Mertes     */
+/*  Copyright (C) 1989 - 2013, 2015, 2018 - 2022  Thomas Mertes     */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -1217,6 +1217,7 @@ void gkbInitKeyboard (void)
   } /* gkbInitKeyboard */
 
 
+
 static void setupModState (char keyVector[32])
 
   { /* setupModState */
@@ -1455,10 +1456,14 @@ charType gkbGetc (void)
               case XK_Menu:        result = K_SFT_MENU;       break;
               case XK_Print:       result = K_SFT_PRINT;      break;
               case XK_Pause:       result = K_SFT_PAUSE;      break;
-              case XK_Shift_L:     modState.leftShift    = TRUE;
+              case XK_Shift_L:
+              case XK_ISO_Prev_Group:
+                                   modState.leftShift    = TRUE;
                                    getNextChar = TRUE;
                                    break;
-              case XK_Shift_R:     modState.rightShift   = TRUE;
+              case XK_Shift_R:
+              case XK_ISO_Next_Group:
+                                   modState.rightShift   = TRUE;
                                    getNextChar = TRUE;
                                    break;
               case XK_Control_L:   modState.leftControl  = TRUE;
@@ -1610,10 +1615,14 @@ charType gkbGetc (void)
               case XK_Menu:         result = K_CTL_MENU;       break;
               case XK_Print:        result = K_CTL_PRINT;      break;
               case XK_Pause:        result = K_CTL_PAUSE;      break;
-              case XK_Shift_L:      modState.leftShift    = TRUE;
+              case XK_Shift_L:
+              case XK_ISO_Prev_Group:
+                                    modState.leftShift    = TRUE;
                                     getNextChar = TRUE;
                                     break;
-              case XK_Shift_R:      modState.rightShift   = TRUE;
+              case XK_Shift_R:
+              case XK_ISO_Next_Group:
+                                    modState.rightShift   = TRUE;
                                     getNextChar = TRUE;
                                     break;
               case XK_Control_L:    modState.leftControl  = TRUE;
@@ -1724,10 +1733,14 @@ charType gkbGetc (void)
               case XK_Menu:         result = K_ALT_MENU;       break;
               case XK_Print:        result = K_ALT_PRINT;      break;
               case XK_Pause:        result = K_ALT_PAUSE;      break;
-              case XK_Shift_L:      modState.leftShift    = TRUE;
+              case XK_Shift_L:
+              case XK_ISO_Prev_Group:
+                                    modState.leftShift    = TRUE;
                                     getNextChar = TRUE;
                                     break;
-              case XK_Shift_R:      modState.rightShift   = TRUE;
+              case XK_Shift_R:
+              case XK_ISO_Next_Group:
+                                    modState.rightShift   = TRUE;
                                     getNextChar = TRUE;
                                     break;
               case XK_Control_L:    modState.leftControl  = TRUE;
@@ -1853,10 +1866,14 @@ charType gkbGetc (void)
               case XK_Menu:        result = K_MENU;  break;
               case XK_Print:       result = K_PRINT; break;
               case XK_Pause:       result = K_PAUSE; break;
-              case XK_Shift_L:     modState.leftShift    = TRUE;
+              case XK_Shift_L:
+              case XK_ISO_Prev_Group:
+                                   modState.leftShift    = TRUE;
                                    getNextChar = TRUE;
                                    break;
-              case XK_Shift_R:     modState.rightShift   = TRUE;
+              case XK_Shift_R:
+              case XK_ISO_Next_Group:
+                                   modState.rightShift   = TRUE;
                                    getNextChar = TRUE;
                                    break;
               case XK_Control_L:   modState.leftControl  = TRUE;
@@ -1964,10 +1981,14 @@ charType gkbGetc (void)
               case XK_Menu:        result = K_MENU;       break;
               case XK_Print:       result = K_PRINT;      break;
               case XK_Pause:       result = K_PAUSE;      break;
-              case XK_Shift_L:     modState.leftShift    = TRUE;
+              case XK_Shift_L:
+              case XK_ISO_Prev_Group:
+                                   modState.leftShift    = TRUE;
                                    getNextChar = TRUE;
                                    break;
-              case XK_Shift_R:     modState.rightShift   = TRUE;
+              case XK_Shift_R:
+              case XK_ISO_Next_Group:
+                                   modState.rightShift   = TRUE;
                                    getNextChar = TRUE;
                                    break;
               case XK_Control_L:   modState.leftControl  = TRUE;
@@ -2032,22 +2053,30 @@ charType gkbGetc (void)
           traceEvent(printf("gkbGetc: KeyRelease key.state: %x, currentKey %lx\n",
                             currentEvent.xkey.state, currentKey););
           switch (currentKey) {
-            case XK_Shift_L:     modState.leftShift    = FALSE; break;
-            case XK_Shift_R:     modState.rightShift   = FALSE; break;
-            case XK_Control_L:   modState.leftControl  = FALSE; break;
-            case XK_Control_R:   modState.rightControl = FALSE; break;
-            case XK_Alt_L:       modState.leftAlt      = FALSE; break;
+            case XK_Shift_L:
+            case XK_ISO_Prev_Group: modState.leftShift    = FALSE; break;
+            case XK_Shift_R:
+            case XK_ISO_Next_Group: modState.rightShift   = FALSE; break;
+            case XK_Control_L:      modState.leftControl  = FALSE; break;
+            case XK_Control_R:      modState.rightControl = FALSE; break;
+            case XK_Alt_L:          modState.leftAlt      = FALSE; break;
             case XK_Alt_R:
             case XK_ISO_Level3_Shift:
-                                 modState.rightAlt     = FALSE; break;
-            case XK_Super_L:     modState.leftSuper    = FALSE; break;
-            case XK_Super_R:     modState.rightSuper   = FALSE; break;
-            case XK_Mode_switch: modState.leftAlt      = FALSE;
-                                 modState.rightAlt     = FALSE; break;
+                                    modState.rightAlt     = FALSE; break;
+            case XK_Super_L:        modState.leftSuper    = FALSE; break;
+            case XK_Super_R:        modState.rightSuper   = FALSE; break;
+            case XK_Mode_switch:    modState.leftAlt      = FALSE;
+                                    modState.rightAlt     = FALSE; break;
             case XK_Shift_Lock:
-            case XK_Caps_Lock:   modState.shiftLock    = FALSE; break;
-            case XK_Num_Lock:    modState.numLock      = FALSE; break;
-            case XK_Scroll_Lock: modState.scrollLock   = FALSE; break;
+            case XK_Caps_Lock:      modState.shiftLock    = FALSE;
+                                    setKeyboardState();
+                                    break;
+            case XK_Num_Lock:       modState.numLock      = FALSE;
+                                    setKeyboardState();
+                                    break;
+            case XK_Scroll_Lock:    modState.scrollLock   = FALSE;
+                                    setKeyboardState();
+                                    break;
           } /* switch */
           getNextChar = TRUE;
           break;
@@ -2135,6 +2164,16 @@ static boolType processEvents (void)
             } /* if */
             break;
 
+          case MappingNotify:
+            traceEvent(printf("processEvents: MappingNotify\n"););
+            XRefreshKeyboardMapping(&currentEvent.xmapping);
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            break;
+
           case FocusIn:
             traceEvent(printf("processEvents: FocusIn\n"););
             hasFocus = TRUE;
@@ -2186,7 +2225,9 @@ static boolType processEvents (void)
                               currentEvent.xkey.state, currentKey););
             switch (currentKey) {
               case XK_Shift_L:
+              case XK_ISO_Prev_Group:
               case XK_Shift_R:
+              case XK_ISO_Next_Group:
               case XK_Control_L:
               case XK_Control_R:
               case XK_Alt_L:
@@ -2200,8 +2241,12 @@ static boolType processEvents (void)
               case XK_Scroll_Lock:
               case XK_Mode_switch:
                 switch (currentKey) {
-                  case XK_Shift_L:     modState.leftShift    = TRUE; break;
-                  case XK_Shift_R:     modState.rightShift   = TRUE; break;
+                  case XK_Shift_L:
+                  case XK_ISO_Prev_Group:
+                                       modState.leftShift    = TRUE; break;
+                  case XK_Shift_R:
+                  case XK_ISO_Next_Group:
+                                       modState.rightShift   = TRUE; break;
                   case XK_Control_L:   modState.leftControl  = TRUE; break;
                   case XK_Control_R:   modState.rightControl = TRUE; break;
                   case XK_Alt_L:       modState.leftAlt      = TRUE; break;
@@ -2252,28 +2297,30 @@ static boolType processEvents (void)
             traceEvent(printf("processEvents: KeyRelease key.state: %x, currentKey %lx\n",
                               currentEvent.xkey.state, currentKey););
             switch (currentKey) {
-              case XK_Shift_L:     modState.leftShift    = FALSE; break;
-              case XK_Shift_R:     modState.rightShift   = FALSE; break;
-              case XK_Control_L:   modState.leftControl  = FALSE; break;
-              case XK_Control_R:   modState.rightControl = FALSE; break;
-              case XK_Alt_L:       modState.leftAlt      = FALSE; break;
+              case XK_Shift_L:
+              case XK_ISO_Prev_Group: modState.leftShift    = FALSE; break;
+              case XK_Shift_R:
+              case XK_ISO_Next_Group: modState.rightShift   = FALSE; break;
+              case XK_Control_L:      modState.leftControl  = FALSE; break;
+              case XK_Control_R:      modState.rightControl = FALSE; break;
+              case XK_Alt_L:          modState.leftAlt      = FALSE; break;
               case XK_Alt_R:
               case XK_ISO_Level3_Shift:
-                                   modState.rightAlt     = FALSE; break;
-              case XK_Super_L:     modState.leftSuper    = FALSE; break;
-              case XK_Super_R:     modState.rightSuper   = FALSE; break;
-              case XK_Mode_switch: modState.leftAlt      = FALSE;
-                                   modState.rightAlt     = FALSE; break;
+                                      modState.rightAlt     = FALSE; break;
+              case XK_Super_L:        modState.leftSuper    = FALSE; break;
+              case XK_Super_R:        modState.rightSuper   = FALSE; break;
+              case XK_Mode_switch:    modState.leftAlt      = FALSE;
+                                      modState.rightAlt     = FALSE; break;
               case XK_Shift_Lock:
-              case XK_Caps_Lock:   modState.shiftLock    = FALSE;
-                                   setKeyboardState();
-                                   break;
-              case XK_Num_Lock:    modState.numLock      = FALSE;
-                                   setKeyboardState();
-                                   break;
-              case XK_Scroll_Lock: modState.scrollLock   = FALSE;
-                                   setKeyboardState();
-                                   break;
+              case XK_Caps_Lock:      modState.shiftLock    = FALSE;
+                                      setKeyboardState();
+                                      break;
+              case XK_Num_Lock:       modState.numLock      = FALSE;
+                                      setKeyboardState();
+                                      break;
+              case XK_Scroll_Lock:    modState.scrollLock   = FALSE;
+                                      setKeyboardState();
+                                      break;
             } /* switch */
             if (num_events == 1) {
               num_events = XEventsQueued(mydisplay, QueuedAfterReading);

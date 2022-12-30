@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  x11_x.h       X11 interfaces used by Seed7.                     */
-/*  Copyright (C) 1989 - 2021  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2022  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -219,6 +219,8 @@
 #define Button5Mask  (1<<12)
 
 #define XK_ISO_Level3_Shift  0xfe03
+#define XK_ISO_Next_Group    0xfe08
+#define XK_ISO_Prev_Group    0xfe0a
 #define XK_ISO_Left_Tab      0xfe20
 
 #define XK_dead_acute        0xfe51
