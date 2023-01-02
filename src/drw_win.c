@@ -262,14 +262,13 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     LRESULT result;
 
   /* WndProc */
-    logFunction(printf("WndProc message=%d, %lu, %d, %u\n",
-                       message, hWnd, wParam, lParam););
+    logFunction(printf("WndProc(" FMT_U_MEM ", %u, " FMT_U_MEM ", " FMT_X_MEM ")\n",
+                       (memSizeType) hWnd, message, wParam, lParam););
     switch (message) {
       case WM_PAINT:
         traceEvent(printf("WndProc: WM_PAINT hwnd=" FMT_U_MEM
-                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
-                          (memSizeType) hWnd, (uint64Type) wParam,
-                          (uint64Type) lParam););
+                          ", wParam=" FMT_U_MEM ", lParam=" FMT_X_MEM "\n",
+                          (memSizeType) hWnd, wParam, lParam););
         paint_window = (win_winType) find_window(hWnd);
         if (paint_window != NULL && paint_window->backup_hdc != 0) {
           BeginPaint(paint_window->hWnd, &paintStruct);
@@ -296,9 +295,8 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
       case WM_ERASEBKGND:
         traceEvent(printf("WndProc: WM_ERASEBKGND hwnd=" FMT_U_MEM
-                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
-                          (memSizeType) hWnd, (uint64Type) wParam,
-                          (uint64Type) lParam););
+                          ", wParam=" FMT_U_MEM ", lParam=" FMT_X_MEM "\n",
+                          (memSizeType) hWnd, wParam, lParam););
         paint_window = (win_winType) find_window(hWnd);
         if (paint_window != NULL && paint_window->backup_hdc != 0) {
           if (GetUpdateRect(paint_window->hWnd, &rect, FALSE) != 0) {
@@ -358,9 +356,8 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
       case WM_SIZE:
         traceEvent(printf("WndProc: WM_SIZE hwnd=" FMT_U_MEM
-                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
-                          (memSizeType) hWnd, (uint64Type) wParam,
-                          (uint64Type) lParam););
+                          ", wParam=" FMT_U_MEM ", lParam=" FMT_X_MEM "\n",
+                          (memSizeType) hWnd, wParam, lParam););
         if (wParam != SIZE_MINIMIZED) {
           paint_window = (win_winType) find_window(hWnd);
           if (resize(paint_window, (unsigned int) LOWORD(lParam),
@@ -372,17 +369,15 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
       case WM_USER + 1:
         traceEvent(printf("WndProc: WM_USER + 1 hwnd=" FMT_U_MEM
-                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
-                          (memSizeType) hWnd, (uint64Type) wParam,
-                          (uint64Type) lParam););
+                          ", wParam=" FMT_U_MEM ", lParam=" FMT_X_MEM "\n",
+                          (memSizeType) hWnd, wParam, lParam););
         PostMessageW(hWnd, WM_USER, wParam, lParam);
         result = 1;
         break;
       case WM_SETCURSOR:
         traceEvent(printf("WndProc: WM_SETCURSOR hwnd=" FMT_U_MEM
-                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
-                          (memSizeType) hWnd, (uint64Type) wParam,
-                          (uint64Type) lParam););
+                          ", wParam=" FMT_U_MEM ", lParam=" FMT_X_MEM "\n",
+                          (memSizeType) hWnd, wParam, lParam););
         paint_window = (win_winType) find_window(hWnd);
         if (LOWORD(lParam) == HTCLIENT && !paint_window->cursorVisible) {
           SetCursor(NULL);
@@ -393,9 +388,8 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
       case WM_SYSCOMMAND:
         traceEvent(printf("WndProc: WM_SYSCOMMAND: hwnd=" FMT_U_MEM
-                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
-                          (memSizeType) hWnd, (uint64Type) wParam,
-                          (uint64Type) lParam););
+                          ", wParam=" FMT_U_MEM ", lParam=" FMT_X_MEM "\n",
+                          (memSizeType) hWnd, wParam, lParam););
         if ((wParam & 0xfff0) == SC_MAXIMIZE || (wParam & 0xfff0) == SC_RESTORE) {
           /* printf("SC_MAXIMIZE / SC_RESTORE\n"); */
           paint_window = (win_winType) find_window(hWnd);
@@ -415,13 +409,12 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
       default:
         traceEvent(printf("WndProc: message=%d, hwnd=" FMT_U_MEM
-                          ", wParam=" FMT_U64 ", lParam=" FMT_X64 "\n",
-                          message, (memSizeType) hWnd, (uint64Type) wParam,
-                          (uint64Type) lParam););
+                          ", wParam=" FMT_U_MEM ", lParam=" FMT_X_MEM "\n",
+                          message, (memSizeType) hWnd, wParam, lParam););
         result = DefWindowProcW(hWnd, message, wParam, lParam);
         break;
     } /* switch */
-    logFunction(printf("WndProc --> %d\n", result););
+    logFunction(printf("WndProc --> " FMT_D_MEM "\n", result););
     return result;
   } /* WndProc */
 
@@ -585,6 +578,10 @@ void drwPArc (const_winType actual_window, intType x, intType y,
     HPEN current_pen;
 
   /* drwPArc */
+    logFunction(printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", %.4f, %.4f, " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle, col););
     if (unlikely(!inIntRange(x) || !inIntRange(x) || !inIntRange(radius) || radius <= 0)) {
       raise_error(RANGE_ERROR);
     } else {
@@ -634,9 +631,9 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
 
   /* drwPFArc */
     logFunction(printf("drwPFArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                       ", %.4f, %.4f, " FMT_D ")\n",
+                       ", %.4f, %.4f, " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
-                       startAngle, sweepAngle, width););
+                       startAngle, sweepAngle, width, col););
     if (width == 1) {
       drwPArc(actual_window, x, y, radius, startAngle, sweepAngle, col);
     } else if (unlikely(!inIntRange(x) || !inIntRange(y) || !inIntRange(radius) ||
@@ -724,6 +721,10 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
     HBRUSH current_brush;
 
   /* drwPFArcChord */
+    logFunction(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", %.4f, %.4f, " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle, col););
     if (sweepAngle != 0.0) {
       startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
       sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
@@ -788,6 +789,10 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
     HBRUSH current_brush;
 
   /* drwPFArcPieSlice */
+    logFunction(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", %.4f, %.4f, " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle, col););
     if (sweepAngle != 0.0) {
       startAng = (FLOAT) (startAngle * (360.0 / (2 * PI)));
       sweepAng = (FLOAT) (sweepAngle * (360.0 / (2 * PI)));
@@ -916,6 +921,8 @@ void drwPCircle (const_winType actual_window,
     HPEN current_pen;
 
   /* drwPCircle */
+    logFunction(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, radius, col););
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     if (unlikely(current_pen == NULL)) {
@@ -1040,6 +1047,8 @@ void drwPFCircle (const_winType actual_window,
     HBRUSH current_brush;
 
   /* drwPFCircle */
+    logFunction(printf("drwPFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, radius, col););
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
@@ -1085,6 +1094,8 @@ void drwPFEllipse (const_winType actual_window,
     HBRUSH current_brush;
 
   /* drwPFEllipse */
+    logFunction(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, width, height, col););
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
     if (unlikely(current_pen == NULL || current_brush == NULL)) {
@@ -1225,15 +1236,22 @@ winType drwCapture (intType left, intType upper,
 
 
 
-intType drwGetPixel (const_winType sourceWin, intType x, intType y)
+intType drwGetPixel (const_winType sourceWindow, intType x, intType y)
 
-  { /* drwGetPixel */
-    return (intType) GetPixel(to_hdc(sourceWin), castToInt(x), castToInt(y));
+  {
+    intType pixel;
+
+  /* drwGetPixel */
+    logFunction(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) sourceWindow, x, y););
+    pixel = (intType) GetPixel(to_hdc(sourceWindow), castToInt(x), castToInt(y));
+    logFunction(printf("drwGetPixel --> " F_X(08) "\n", pixel););
+    return pixel;
   } /* drwGetPixel */
 
 
 
-bstriType drwGetPixelData (const_winType sourceWin)
+bstriType drwGetPixelData (const_winType sourceWindow)
 
   {
     unsigned int xPos;
@@ -1243,17 +1261,17 @@ bstriType drwGetPixelData (const_winType sourceWin)
     bstriType result;
 
   /* drwGetPixelData */
-    logFunction(printf("drwGetPixelData(" FMT_U_MEM ")\n", (memSizeType) sourceWin););
-    result_size = to_width(sourceWin) * to_height(sourceWin) * sizeof(uint32Type);
+    logFunction(printf("drwGetPixelData(" FMT_U_MEM ")\n", (memSizeType) sourceWindow););
+    result_size = to_width(sourceWindow) * to_height(sourceWindow) * sizeof(uint32Type);
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
       image_data = (uint32Type *) result->mem;
-      for (yPos = 0; yPos < to_height(sourceWin); yPos++) {
-        for (xPos = 0; xPos < to_width(sourceWin); xPos++) {
-          image_data[yPos * to_width(sourceWin) + xPos] =
-              (uint32Type) GetPixel(to_hdc(sourceWin), (int) xPos, (int) yPos);
+      for (yPos = 0; yPos < to_height(sourceWindow); yPos++) {
+        for (xPos = 0; xPos < to_width(sourceWindow); xPos++) {
+          image_data[yPos * to_width(sourceWindow) + xPos] =
+              (uint32Type) GetPixel(to_hdc(sourceWindow), (int) xPos, (int) yPos);
         } /* for */
       } /* for */
     } /* if */
@@ -1263,15 +1281,15 @@ bstriType drwGetPixelData (const_winType sourceWin)
 
 
 /**
- *  Create a new pixmap with the given 'width' and 'height' from 'sourceWin'.
+ *  Create a new pixmap with the given 'width' and 'height' from 'sourceWindow'.
  *  A rectangle with the upper left corner at ('left', 'upper') and the given
- *  'width' and 'height' is copied from 'sourceWin' to the new pixmap.
- *  The rectangle may extend to areas outside of 'sourceWin'. The rectangle
- *  areas outside of 'sourceWin' are colored with black.
+ *  'width' and 'height' is copied from 'sourceWindow' to the new pixmap.
+ *  The rectangle may extend to areas outside of 'sourceWindow'. The rectangle
+ *  areas outside of 'sourceWindow' are colored with black.
  *  @exception RANGE_ERROR If 'height' or 'width' are negative.
  *  @return the new pixmap.
  */
-winType drwGetPixmap (const_winType sourceWin, intType left, intType upper,
+winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
     intType width, intType height)
 
   {
@@ -1279,7 +1297,7 @@ winType drwGetPixmap (const_winType sourceWin, intType left, intType upper,
 
   /* drwGetPixmap */
     logFunction(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) sourceWin, left, upper, width, height););
+                       (memSizeType) sourceWindow, left, upper, width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
@@ -1290,8 +1308,8 @@ winType drwGetPixmap (const_winType sourceWin, intType left, intType upper,
     } else {
       memset(pixmap, 0, sizeof(win_winRecord));
       pixmap->usage_count = 1;
-      pixmap->hdc = CreateCompatibleDC(to_hdc(sourceWin));
-      pixmap->hBitmap = CreateCompatibleBitmap(to_hdc(sourceWin), (int) width, (int) height);
+      pixmap->hdc = CreateCompatibleDC(to_hdc(sourceWindow));
+      pixmap->hBitmap = CreateCompatibleBitmap(to_hdc(sourceWindow), (int) width, (int) height);
       if (unlikely(pixmap->hBitmap == NULL)) {
         free(pixmap);
         pixmap = NULL;
@@ -1303,12 +1321,12 @@ winType drwGetPixmap (const_winType sourceWin, intType left, intType upper,
         pixmap->is_pixmap = TRUE;
         pixmap->width = (unsigned int) width;
         pixmap->height = (unsigned int) height;
-        if (to_backup_hdc(sourceWin) != 0) {
+        if (to_backup_hdc(sourceWindow) != 0) {
           BitBlt(pixmap->hdc, 0, 0, (int) width, (int) height,
-              to_backup_hdc(sourceWin), (int) left, (int) upper, SRCCOPY);
+              to_backup_hdc(sourceWindow), (int) left, (int) upper, SRCCOPY);
         } else {
           BitBlt(pixmap->hdc, 0, 0, (int) width, (int) height,
-              to_hdc(sourceWin), (int) left, (int) upper, SRCCOPY);
+              to_hdc(sourceWindow), (int) left, (int) upper, SRCCOPY);
         } /* if */
       } /* if */
     } /* if */
@@ -1889,6 +1907,8 @@ void drwPolyLine (const_winType actual_window,
     HPEN current_pen;
 
   /* drwPolyLine */
+    logFunction(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, (memSizeType) point_list, col););
     points = (POINT *) point_list->mem;
     numPoints = point_list->size / sizeof(POINT);
     if (numPoints >= 2) {
@@ -1932,6 +1952,8 @@ void drwFPolyLine (const_winType actual_window,
     HBRUSH current_brush;
 
   /* drwFPolyLine */
+    logFunction(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, (memSizeType) point_list, col););
     points = (POINT *) point_list->mem;
     numPoints = point_list->size / sizeof(POINT);
     for (pos = 0; pos < numPoints; pos ++) {
@@ -2123,12 +2145,16 @@ void drwPRect (const_winType actual_window,
 
 intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
 
-  { /* drwRgbColor */
-    logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       redLight, greenLight, blueLight););
-    return (intType) RGB(((uintType) redLight) >> 8,
-                         ((uintType) greenLight) >> 8,
-                         ((uintType) blueLight) >> 8);
+  {
+    intType col;
+
+  /* drwRgbColor */
+    col = (intType) RGB(((uintType) redLight) >> 8,
+                        ((uintType) greenLight) >> 8,
+                        ((uintType) blueLight) >> 8);
+    logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ") --> " F_X(08) "\n",
+                       redLight, greenLight, blueLight, col););
+    return col;
   } /* drwRgbColor */
 
 
@@ -2139,6 +2165,8 @@ void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType
     *redLight   = GetRValue(col) << 8;
     *greenLight = GetGValue(col) << 8;
     *blueLight  = GetBValue(col) << 8;
+    logFunction(printf("drwPixelToRgb(" F_X(08) ", " FMT_D ", " FMT_D ", " FMT_D ") -->\n",
+	               col, *redLight, *greenLight, *blueLight););
   } /* drwPixelToRgb */
 
 
