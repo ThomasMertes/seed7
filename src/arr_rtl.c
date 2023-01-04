@@ -951,7 +951,7 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
         } /* if */
       } /* if */
     } else if (unlikely(stop < arr1->min_position - 1)) {
-      logError(printf("arrHeadTemp(arr1 (minIdx=" FMT_U_MEM "), " FMT_D "): "
+      logError(printf("arrHeadTemp(arr1 (minIdx=" FMT_D "), " FMT_D "): "
                       "Stop less than pred(minIdx(arr1)).\n",
                       arr1->min_position, stop););
       raise_error(INDEX_ERROR);

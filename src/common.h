@@ -444,12 +444,21 @@ typedef uint64Type         memSizeType;
 #endif
 
 #if OS_OFF_T_SIZE == 32
+#if LONG_SIZE == 32
+#define F_D_OFF(width)     "%" #width "ld"
+#define F_U_OFF(width)     "%" #width "lu"
+#define F_X_OFF(width)     "%" #width "lx"
+#define FMT_D_OFF          "%ld"
+#define FMT_U_OFF          "%lu"
+#define FMT_X_OFF          "%lx"
+#else
 #define F_D_OFF(width)     F_D32(width)
 #define F_U_OFF(width)     F_U32(width)
 #define F_X_OFF(width)     F_X32(width)
 #define FMT_D_OFF          FMT_D32
 #define FMT_U_OFF          FMT_U32
 #define FMT_X_OFF          FMT_X32
+#endif
 #elif OS_OFF_T_SIZE == 64
 #define F_D_OFF(width)     F_D64(width)
 #define F_U_OFF(width)     F_U64(width)

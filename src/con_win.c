@@ -466,6 +466,7 @@ charType kbdGetc (void)
 charType kbdRawGetc (void)
 
   { /* kbdRawGetc */
+    logFunction(printf("kbdRawGetc\n"););
     return kbdGetc();
   } /* kbdRawGetc */
 

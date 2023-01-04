@@ -628,7 +628,8 @@ static striType read_and_alloc_stri (cFileType inFile, memSizeType chars_missing
           if (unlikely(currBuffer->next == NULL)) {
             logError(printf("read_and_alloc_stri(%d, " FMT_U_MEM ", *): "
                             "malloc(" FMT_U_MEM ") failed.\n",
-                            safe_fileno(inFile), chars_missing, sizeof(struct bufferStruct)););
+                            safe_fileno(inFile), chars_missing,
+                            (memSizeType) sizeof(struct bufferStruct)););
             *err_info = MEMORY_ERROR;
             result = NULL;
             /* Leave the while loop by setting bytes_in_buffer to zero. */
@@ -772,6 +773,10 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
     striType result;
 
   /* doGetsFromTerminal */
+    logFunction(printf("doGetsFromTerminal(%s%d, " FMT_D ")\n",
+                       inFile == NULL ? "NULL " : "",
+                       inFile != NULL ? safe_fileno(inFile->cFile) : 0,
+                       length););
     cInFile = inFile->cFile;
     if (unlikely(length <= 0)) {
       if (unlikely(length != 0)) {
