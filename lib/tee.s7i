@@ -58,6 +58,13 @@ const proc: writeln (inout tee_file: tee_fil) is func
   end func;
 
 
+const proc: flush (inout tee_file: tee_fil) is func
+  begin
+    flush(tee_fil.out_file1);
+    flush(tee_fil.out_file2);
+  end func;
+
+
 const proc: moveLeft (inout tee_file: tee_fil, in string: stri) is func
   begin
     moveLeft(tee_fil.out_file1, stri);
