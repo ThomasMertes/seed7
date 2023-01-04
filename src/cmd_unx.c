@@ -286,7 +286,7 @@ int setenvForNodeJs (const char *name, const char *value, int overwrite)
         let key = Module.UTF8ToString($0);
         let value = Module.UTF8ToString($1);
         let overwrite = $2;
-        if (typeof process !== 'undefined') {
+        if (typeof process !== "undefined") {
           if (key in process.env) {
             if (overwrite) {
               process.env[key] = value;
@@ -312,7 +312,7 @@ int unsetenvForNodeJs (const char *name)
     if (result == 0) {
       EM_ASM({
         let key = Module.UTF8ToString($0);
-        if (typeof process !== 'undefined') {
+        if (typeof process !== "undefined") {
           delete process.env[key];
         }
       }, name);

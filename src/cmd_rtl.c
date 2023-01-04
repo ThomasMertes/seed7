@@ -1766,31 +1766,31 @@ static int systemForNodeJs (const char *command)
     logFunction(printf("systemForNodeJs(\"%s\")\n", command););
     result = EM_ASM_INT({
       let cmd = Module.UTF8ToString($0);
-      // console.log('I received: ' + cmd);
-      if (typeof require === 'function') {
+      // console.log("I received: " + cmd);
+      if (typeof require === "function") {
         var child_process;
         try {
-          child_process = require('child_process');
+          child_process = require("child_process");
         } catch (e) {
           child_process = null;
         }
         if (child_process !== null) {
           let bslash = String.fromCharCode(92);
-          let currDir = process.cwd().replace(new RegExp(bslash + bslash, 'g'), '/');
+          let currDir = process.cwd().replace(new RegExp(bslash + bslash, "g"), "/");
           let newDir = FS.cwd();
-          // console.log('emcc cwd: ' + newDir);
-          // console.log('node cwd: ' + currDir);
-          if (currDir.charAt(1) === ':' && currDir.charAt(2) === '/') {
-            if (newDir !== '/') {
-              if (newDir.charAt(0) === '/' && newDir.charAt(1).match(/[a-z]/i) && newDir.charAt(2) === '/') {
-                newDir = newDir.charAt(1) + ':' + newDir.substring(2);
+          // console.log("emcc cwd: " + newDir);
+          // console.log("node cwd: " + currDir);
+          if (currDir.charAt(1) === ":" && currDir.charAt(2) === "/") {
+            if (newDir !== "/") {
+              if (newDir.charAt(0) === "/" && newDir.charAt(1).match(/[a-z]/i) && newDir.charAt(2) === "/") {
+                newDir = newDir.charAt(1) + ":" + newDir.substring(2);
               }
             }
           }
           try {
             process.chdir(newDir);
           } catch (e) {
-            // console.log('chdir: ' + e);
+            // console.log("chdir: " + e);
           }
           try {
             child_process.execSync(cmd);
