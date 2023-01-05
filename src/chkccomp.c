@@ -1762,38 +1762,47 @@ static void checkSystemResult (FILE *versionFile)
   {
     int testResult;
     char buffer[BUFFER_SIZE];
-    char fileName[NAME_SIZE];
 
   /* checkSystemResult */
     /* Some anti virus software considers an empty program dangerous.  */
     /* To avoid these false positives the test below writes something. */
-    if (assertCompAndLnk("#include <stdio.h>\n"
-                         "int main (int argc, char *argv[])\n"
-                         "{ printf(\"Test program returning 0.\\n\");\n"
-                         "return 0; }\n")) {
-      sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
-      if (rename(fileName, "ctest_b" LINKED_PROGRAM_EXTENSION) == 0) {
-        sprintf(buffer, "#include <stdio.h>\n#include <stdlib.h>\n"
-                        "int main(int argc, char *argv[])\n"
-                        "{char buffer[5]; int retVal; retVal=system(\""
-                        ".%s%cctest_b%s>ctest_b.out"
-                        "\");\n"
-                        "printf(\"%%d\\n\", retVal); return 0;}\n",
-                        PATH_DELIMITER == '\\' ? "\\" : "", PATH_DELIMITER,
-                        LINKED_PROGRAM_EXTENSION);
-        if (assertCompAndLnk(buffer)) {
-          testResult = doTest();
-          fprintf(versionFile, "#define SYSTEM_RESULT_FOR_RETURN_0 %d\n", testResult);
-          if (testResult != 0) {
-            fprintf(logFile, "\n *** System result for return 0 is %d\n", testResult);
-          } /* if */
-          doRemove("ctest_b.out");
+    cleanUpCompilation("ctest_b", 0);
+    if (!doCompileAndLinkContent("ctest_b",
+                                 "#include <stdio.h>\n"
+                                 "int main (int argc, char *argv[])\n"
+                                 "{ printf(\"Test program returning 0.\\n\");\n"
+                                 "return 0; }\n",
+                                 "", "", 0)) {
+      fprintf(logFile, "\n **** Compiling ctest_b failed.\n");
+    } else {
+#ifdef INTERPRETER_FOR_LINKED_PROGRAM
+      sprintf(buffer, "#include <stdio.h>\n#include <stdlib.h>\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{char buffer[5]; int retVal; retVal=system(\""
+                      "%s .%s%cctest_b%s>ctest_b.out"
+                      "\");\n"
+                      "printf(\"%%d\\n\", retVal); return 0;}\n",
+                      INTERPRETER_FOR_LINKED_PROGRAM,
+                      PATH_DELIMITER == '\\' ? "\\" : "", PATH_DELIMITER,
+                      LINKED_PROGRAM_EXTENSION);
+#else
+      sprintf(buffer, "#include <stdio.h>\n#include <stdlib.h>\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{char buffer[5]; int retVal; retVal=system(\""
+                      ".%s%cctest_b%s>ctest_b.out"
+                      "\");\n"
+                      "printf(\"%%d\\n\", retVal); return 0;}\n",
+                      PATH_DELIMITER == '\\' ? "\\" : "", PATH_DELIMITER,
+                      LINKED_PROGRAM_EXTENSION);
+#endif
+      if (assertCompAndLnk(buffer)) {
+        testResult = doTest();
+        fprintf(versionFile, "#define SYSTEM_RESULT_FOR_RETURN_0 %d\n", testResult);
+        if (testResult != 0) {
+          fprintf(logFile, "\n *** System result for return 0 is %d\n", testResult);
         } /* if */
-        doRemove("ctest_b" LINKED_PROGRAM_EXTENSION);
-      } else {
-        fprintf(logFile, "\n *** Unable to rename %s to ctest_b%s\n",
-                fileName, LINKED_PROGRAM_EXTENSION);
       } /* if */
+      cleanUpCompilation("ctest_b", 0);
     } /* if */
   } /* checkSystemResult */
 
