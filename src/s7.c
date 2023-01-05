@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2021  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2023  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -39,6 +39,7 @@
 #include "sigutl.h"
 #include "data.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "infile.h"
 #include "heaputl.h"
 #include "striutl.h"
@@ -73,7 +74,7 @@ typedef struct {
 typedef HINSTANCE__ *HINSTANCE;
 #endif
 
-#define VERSION_INFO "SEED7 INTERPRETER Version 5.1.%d  Copyright (c) 1990-2022 Thomas Mertes\n"
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.1.%d  Copyright (c) 1990-2023 Thomas Mertes\n"
 
 
 
@@ -488,5 +489,8 @@ int main (int argc, char **argv)
     printf("max_stack_size: " FMT_U_MEM "\n", getMaxStackSize());
 #endif
     logFunction(printf("main --> 0\n"););
+#ifdef USE_DO_EXIT
+    doExit(0);
+#endif
     return 0;
   } /* main */

@@ -292,6 +292,11 @@ const type: ccConfigType is new struct
     var boolean: USE_WINMAIN                  is FALSE;
 
     (**
+     *  TRUE if the main function must be terminated with doExit().
+     *)
+    var boolean: USE_DO_EXIT               is FALSE;
+
+    (**
      *  TRUE if the type ''floatType'' is ''double''.
      *  If it is FALSE ''floatType'' is ''float''.
      *)
@@ -875,6 +880,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.CC_SOURCE_UTF8                := boolean(configValue("CC_SOURCE_UTF8"));
     conf.USE_WMAIN                     := boolean(configValue("USE_WMAIN"));
     conf.USE_WINMAIN                   := boolean(configValue("USE_WINMAIN"));
+    conf.USE_DO_EXIT                   := boolean(configValue("USE_DO_EXIT"));
     conf.FLOATTYPE_DOUBLE              := boolean(configValue("FLOATTYPE_DOUBLE"));
     conf.INTTYPE_SIZE                  := integer(configValue("INTTYPE_SIZE"));
     conf.FLOATTYPE_SIZE                := integer(configValue("FLOATTYPE_SIZE"));

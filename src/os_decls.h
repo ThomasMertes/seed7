@@ -176,3 +176,9 @@
 #ifndef REDIRECT_FILEDES_2
 #define REDIRECT_FILEDES_2 "2>"
 #endif
+
+
+#ifdef USE_DO_EXIT
+void doExit (int returnCode);
+int registerExitFunction (void (*function)(void));
+#endif

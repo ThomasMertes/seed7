@@ -1130,7 +1130,7 @@ const proc: process (PRC_EXIT, in reference: function,
 
   begin
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "exit(";
+    c_expr.expr &:= "doExit(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
   end func;

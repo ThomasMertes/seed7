@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  s7c.sd7       Seed7 compiler - Compiles Seed7 to C              *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2022  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2023  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -2633,6 +2633,9 @@ const proc: process_main_declaration (in reference: current_object,
         main_epilog &:= ");\n";
       end if;
     end if;
+    if ccConf.USE_DO_EXIT then
+      main_epilog &:= "doExit(0);\n";
+    end if;
     main_epilog &:= "return 0;\n";
     main_epilog &:= "} else {\n";
     main_epilog &:= "  printf(\"\\n*** Uncaught exception \");\n";
@@ -2659,6 +2662,9 @@ const proc: process_main_declaration (in reference: current_object,
       main_epilog &:= "    printf(\"\\n\");\n";
       main_epilog &:= "    strDestr(message);\n";
       main_epilog &:= "  }\n";
+    end if;
+    if ccConf.USE_DO_EXIT then
+      main_epilog &:= "  doExit(1);\n";
     end if;
     main_epilog &:= "  return 1;\n";
     main_epilog &:= "}\n";
@@ -5594,6 +5600,11 @@ const proc: write_prototypes is func
     else
       writeln(c_prog, "#define filGetc(inFile) (unlikely((inFile)->cFile==NULL)?intRaiseError(FILE_ERROR):fgetc((inFile)->cFile))");
     end if;
+    if ccConf.USE_DO_EXIT then
+      writeln(c_prog, "void doExit (int returnCode);");
+    else
+      writeln(c_prog, "#define doExit(returnCode) exit(returnCode)");
+    end if;
   end func;
 
 
@@ -6984,7 +6995,7 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
       c_expr.expr &:= "         \"  /       Trigger SIGFPE\\n\");\n";
       c_expr.expr &:= "  ch = fgetc(stdin);\n";
       c_expr.expr &:= "  if (ch == (int) '*') {\n";
-      c_expr.expr &:= "    exit(1);\n";
+      c_expr.expr &:= "    doExit(1);\n";
       c_expr.expr &:= "  } else if (ch == (int) '/') {\n";
       c_expr.expr &:= "    triggerSigfpe();\n";
       c_expr.expr &:= "  }\n";
@@ -7038,7 +7049,7 @@ const proc: declare_raise_error2 (inout expr_type: c_expr) is func
         c_expr.expr &:= "           \"  /       Trigger SIGFPE\\n\");\n";
         c_expr.expr &:= "    ch = fgetc(stdin);\n";
         c_expr.expr &:= "    if (ch == (int) '*') {\n";
-        c_expr.expr &:= "      exit(1);\n";
+        c_expr.expr &:= "      doExit(1);\n";
         c_expr.expr &:= "    } else if (ch == (int) '/') {\n";
         c_expr.expr &:= "      triggerSigfpe();\n";
         c_expr.expr &:= "    }\n";
@@ -7858,7 +7869,7 @@ const proc: main is func
   begin
     OUT := STD_UTF8_OUT;
     writeln("SEED7 COMPILER Version 3.1." <& ccConf.VERSION_REVISION_LEVEL <&
-            " Copyright (c) 1990-2022 Thomas Mertes");
+            " Copyright (c) 1990-2023 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
