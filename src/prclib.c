@@ -40,6 +40,7 @@
 #include "sigutl.h"
 #include "data.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "striutl.h"
@@ -726,7 +727,7 @@ objectType prc_exit (listType arguments)
       raise_error(RANGE_ERROR);
     } else {
       shutDrivers();
-      exit((int) status);
+      os_exit((int) status);
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* prc_exit */

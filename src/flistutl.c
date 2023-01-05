@@ -894,7 +894,7 @@ void check_heap (long sizediff, const char *file_name, unsigned int line_num)
 /*    heapStatistic();
       fflush(stdout);
       printf("should not happen\n");
-      exit(1); */
+      os_exit(1); */
 /*  } else {
       printf("\n%lu %ld %d \n", hs, sizediff, in_file.line); */
     } /* if */

@@ -52,6 +52,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "hsh_rtl.h"
 #include "rtl_err.h"
 #include "kbd_drv.h"
@@ -1303,7 +1304,7 @@ charType gkbGetc (void)
 #ifdef OUT_OF_ORDER
         case DestroyNotify:
           traceEvent(printf("gkbGetc: DestroyNotify\n"););
-          exit(1);
+          os_exit(1);
           break;
 #endif
 
@@ -1330,7 +1331,7 @@ charType gkbGetc (void)
             /* printf("wm_delete_window\n"); */
             switch (getCloseAction(find_window(currentEvent.xclient.window))) {
               case CLOSE_BUTTON_CLOSES_PROGRAM:
-                exit(0);
+                os_exit(0);
                 break;
               case CLOSE_BUTTON_RETURNS_KEY:
                 result = K_CLOSE;
@@ -2205,7 +2206,7 @@ static boolType processEvents (void)
               /* printf("wm_delete_window\n"); */
               if (getCloseAction(find_window(currentEvent.xclient.window)) ==
                   CLOSE_BUTTON_CLOSES_PROGRAM) {
-                exit(0);
+                os_exit(0);
               } else {
                 num_events = 0;
                 eventPresent = TRUE;

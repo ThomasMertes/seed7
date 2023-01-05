@@ -43,6 +43,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "int_rtl.h"
@@ -104,7 +105,7 @@ static void *alloc_func (size_t size)
     if (unlikely(memory == NULL)) {
       raise_error(MEMORY_ERROR);
       printf(" ***** MEMORY_ERROR *****\n");
-      exit(0);
+      os_exit(0);
     } /* if */
     return memory;
   } /* alloc_func */
@@ -123,7 +124,7 @@ static void *realloc_func (void *ptr, size_t old_size, size_t new_size)
     if (unlikely(memory == NULL)) {
       raise_error(MEMORY_ERROR);
       printf(" ***** MEMORY_ERROR *****\n");
-      exit(0);
+      os_exit(0);
     } /* if */
     return memory;
   } /* realloc_func */

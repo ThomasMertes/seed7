@@ -668,7 +668,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
           logError(printf("pcsStart: execv(" FMT_S_OS ") failed:\n"
                           "errno=%d\nerror: %s\n",
                           argv[0], errno, strerror(errno)););
-          exit(1);
+          os_exit(1);
         } else if (unlikely(pid == (pid_t) -1)) {
           logError(printf("pcsStart: fork failed:\nerrno=%d\nerror: %s\n",
                           errno, strerror(errno)););

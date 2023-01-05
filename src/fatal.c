@@ -40,6 +40,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "traceutl.h"
@@ -88,7 +89,7 @@ static void no_memory (const_cstriType source_file, int source_line)
       shutDrivers();
       logFunction(printf("no_memory(\"%s\", %d) --> exit\n",
                          source_file, source_line););
-      exit(1);
+      os_exit(1);
     } /* if */
   } /* no_memory */
 

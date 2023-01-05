@@ -47,6 +47,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "hsh_rtl.h"
 #include "rtl_err.h"
 #include "kbd_drv.h"
@@ -1382,7 +1383,7 @@ charType gkbGetc (void)
               /* printf("HTCLOSE\n"); */
               switch (getCloseAction(find_window(msg.hwnd))) {
                 case CLOSE_BUTTON_CLOSES_PROGRAM:
-                  exit(0);
+                  os_exit(0);
                   break;
                 case CLOSE_BUTTON_RETURNS_KEY:
                   result = K_CLOSE;
@@ -1416,7 +1417,7 @@ charType gkbGetc (void)
               /* printf("SC_CLOSE\n"); */
               switch (getCloseAction(find_window(msg.hwnd))) {
                 case CLOSE_BUTTON_CLOSES_PROGRAM:
-                  exit(0);
+                  os_exit(0);
                   break;
                 case CLOSE_BUTTON_RETURNS_KEY:
                   result = K_CLOSE;
@@ -1632,7 +1633,7 @@ boolType gkbInputReady (void)
           if (msg.wParam == HTCLOSE && IsWindow(msg.hwnd)) {
             /* printf("HTCLOSE\n"); */
             if (getCloseAction(find_window(msg.hwnd)) == CLOSE_BUTTON_CLOSES_PROGRAM) {
-              exit(0);
+              os_exit(0);
             } else {
               msg_present = 0;
               result = TRUE;

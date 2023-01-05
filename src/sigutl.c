@@ -36,6 +36,7 @@
 #include "sys/types.h"
 
 #include "common.h"
+#include "os_decls.h"
 #include "fil_drv.h"
 #include "rtl_err.h"
 
@@ -184,7 +185,7 @@ static boolType signalDecision (int signalNum, boolType inHandler)
     } /* if */
     if (ch == '*') {
       shutDrivers();
-      exit(1);
+      os_exit(1);
     } else if (ch == '/') {
       triggerSigfpe();
     } else if (suspendInterpreter != NULL && ch == 'c') {
@@ -279,7 +280,7 @@ static void handleTermSignal (int signalNum)
     printf("\n*** SIGNAL %s RAISED\n"
            "\n*** Program terminated.\n", signalName(signalNum));
     shutDrivers();
-    exit(1);
+    os_exit(1);
   } /* handleTermSignal */
 
 

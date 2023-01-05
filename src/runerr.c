@@ -39,6 +39,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "syvarutl.h"
@@ -77,7 +78,7 @@ static void continue_question (objectType *exception)
     ch = fgetc(stdin);
     if (ch == (int) '*') {
       shutDrivers();
-      exit(1);
+      os_exit(1);
     } else if (ch == (int) '/') {
       triggerSigfpe();
     } /* if */
