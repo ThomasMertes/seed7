@@ -89,9 +89,6 @@
 #undef TRACE_FKEYS
 
 
-/* #define atexit(x) */
-
-
 static boolType utf8_mode = FALSE;
 static boolType key_buffer_filled = FALSE;
 static int last_key;
@@ -842,7 +839,7 @@ static void kbd_init (void)
           /* show_term_descr(&term_descr); */
         } else {
           keybd_initialized = TRUE;
-          atexit(kbdShut);
+          os_atexit(kbdShut);
           if (getcaps()) {
             key_table_init();
           } /* if */

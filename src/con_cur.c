@@ -40,7 +40,7 @@
 #include "curses.h"
 
 #include "common.h"
-
+#include "os_decls.h"
 #include "kbd_drv.h"
 #include "con_drv.h"
 
@@ -202,7 +202,7 @@ static void kbd_init (void)
     cbreak();
     keypad(stdscr, TRUE);
     keybd_initialized = TRUE;
-    atexit(kbdShut);
+    os_atexit(kbdShut);
     logFunction(printf("kbd_init -->\n"););
   } /* kbd_init */
 
@@ -678,7 +678,7 @@ int conOpen (void)
       cursor_on = FALSE;
       changes = TRUE;
       console_initialized = TRUE;
-      atexit(conShut);
+      os_atexit(conShut);
       result = 1;
     } /* if */
     logFunction(printf("conOpen -->\n"););

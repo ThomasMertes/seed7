@@ -90,8 +90,6 @@
 #undef TRACE_FKEYS
 
 
-/* #define atexit(x) */
-
 #define KEY_BUFFER_SIZE 20
 
 static boolType utf8_mode = FALSE;
@@ -647,7 +645,7 @@ static void kbd_init (void)
               EBADF, EINTR, EINVAL, ENOTTY, EIO);
         } else {
           keybd_initialized = TRUE;
-          atexit(kbdShut);
+          os_atexit(kbdShut);
           if (getcaps()) {
             key_table_init();
           } /* if */

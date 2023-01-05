@@ -40,11 +40,10 @@
 #include "conio.h"
 
 #include "common.h"
+#include "os_decls.h"
 #include "con_drv.h"
 #include "kbd_drv.h"
 
-
-/* #define atexit(x) */
 
 #define SCRHEIGHT 25
 #define SCRWIDTH 80
@@ -419,7 +418,7 @@ int conOpen (void)
     conClear(1, 1, SCRHEIGHT, SCRWIDTH);
     conCursor(FALSE);
     console_initialized = TRUE;
-    atexit(conShut);
+    os_atexit(conShut);
     logFunction(printf("conOpen -->\n"););
     return 1;
   } /* conOpen */

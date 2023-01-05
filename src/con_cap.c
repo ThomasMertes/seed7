@@ -44,9 +44,6 @@
 #include "con_drv.h"
 
 
-/* #define atexit(x) */
-
-
 
 #ifdef OUT_OF_ORDER
 void *memmove (char *to, char *from, size_t num)
@@ -338,7 +335,7 @@ static void kbd_init (void)
     term_descr.c_cc[VTIME] = 0;
     tcsetattr(file_no, TCSANOW, &term_descr);
     keybd_initialized = TRUE;
-    atexit(kbdShut);
+    os_atexit(kbdShut);
     logFunction(printf("kbd_init -->\n"););
   } /* kbd_init */
 
@@ -1047,7 +1044,7 @@ int conOpen (void)
       cursor_on = FALSE;
       changes = TRUE;
       console_initialized = TRUE;
-      atexit(conShut);
+      os_atexit(conShut);
       result = 1;
     } /* if */
     logFunction(printf("conOpen -->\n"););

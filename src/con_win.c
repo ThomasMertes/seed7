@@ -41,6 +41,7 @@
 #include "wchar.h"
 
 #include "common.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "fil_rtl.h"
@@ -108,7 +109,7 @@ static void kbd_init (void)
         SetConsoleMode(hKeyboard, savedKeybdMode &
                        (DWORD) ~(ENABLE_LINE_INPUT | ENABLE_PROCESSED_INPUT));
         keybd_initialized = TRUE;
-        atexit(kbdShut);
+        os_atexit(kbdShut);
       } /* if */
     } /* if */
     logFunction(printf("kbd_init -->\n"););
@@ -1041,7 +1042,7 @@ int conOpen (void)
     console_initialized = TRUE;
     conCursor(FALSE);
     conSetCursor(1, 1);
-    atexit(conShut);
+    os_atexit(conShut);
     logFunction(printf("conOpen -->\n"););
     return 1;
   } /* conOpen */

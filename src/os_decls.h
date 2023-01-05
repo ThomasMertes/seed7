@@ -92,6 +92,12 @@
 #ifndef os_system
 #define os_system system
 #endif
+#ifndef os_atexit
+#define os_atexit atexit
+#endif
+#ifndef os_exit
+#define os_exit exit
+#endif
 #ifndef os_pclose
 #define os_pclose pclose
 #endif

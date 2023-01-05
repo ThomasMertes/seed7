@@ -35,13 +35,13 @@
 #include "stdio.h"
 #include "string.h"
 
-#include "common.h"
-
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #define XK_MISCELLANY
 #include <X11/keysymdef.h>
 
+#include "common.h"
+#include "os_decls.h"
 #include "kbd_drv.h"
 #include "con_drv.h"
 
@@ -120,7 +120,7 @@ static void kbd_init (void)
 
   { /* kbd_init */
     keybd_initialized = TRUE;
-    atexit(kbdShut);
+    os_atexit(kbdShut);
   } /* kbd_init */
 
 

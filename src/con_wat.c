@@ -57,7 +57,6 @@
 #define EXTERN
 #include "con_drv.h"
 
-/* #define atexit(x) */
 
 #define int86(a,b,c) int386(a,b,c)
 
@@ -280,7 +279,7 @@ static void kbd_init (void)
         /* show_term_descr(&term_descr); */
       } else {
         keybd_initialized = TRUE;
-        atexit(kbdShut);
+        os_atexit(kbdShut);
         fflush(stdout);
       } /* if */
     } /* if */
@@ -793,7 +792,7 @@ int conOpen (void)
     cursor_endline = r.h.cl;
     conCursor(FALSE);
     console_initialized = TRUE;
-    atexit(conShut);
+    os_atexit(conShut);
     logFunction(printf("conOpen -->\n"););
     return 1;
   } /* conOpen */

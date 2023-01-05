@@ -1432,7 +1432,7 @@ int conOpen (void)
           cursor_column = 1;
           changes = TRUE;
           console_initialized = TRUE;
-          atexit(conShut);
+          os_atexit(conShut);
 #ifdef SIGWINCH
 #if HAS_SIGACTION
           {

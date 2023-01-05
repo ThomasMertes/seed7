@@ -48,13 +48,9 @@
 #include "trm_drv.h"
 #include "cap_def.h"
 
-/* #define atexit(x) */
-
-
 
 /* Configuration: */
 #undef EMULATE_TERMCAP
-
 
 
 #ifdef C_PLUS_PLUS
