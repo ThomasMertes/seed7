@@ -85,7 +85,7 @@ void printSet (const_setType setValue)
       printf(" *NULL_SET* ");
     } /* if */
   } /* printSet */
-#endif;
+#endif
 
 
 

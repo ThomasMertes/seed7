@@ -1764,9 +1764,9 @@ static void checkSystemResult (FILE *versionFile)
     char buffer[BUFFER_SIZE];
 
   /* checkSystemResult */
+    cleanUpCompilation("ctest_b", 0);
     /* Some anti virus software considers an empty program dangerous.  */
     /* To avoid these false positives the test below writes something. */
-    cleanUpCompilation("ctest_b", 0);
     if (!doCompileAndLinkContent("ctest_b",
                                  "#include <stdio.h>\n"
                                  "int main (int argc, char *argv[])\n"

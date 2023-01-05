@@ -19,7 +19,7 @@
     rem are optimized away (with option -oc3).
   - More division by zero checks are optimized away.
   - Computing the range of possible integer results for abs(),
-    bitLength(), log2(), log10(), sqrt() +, -, <<, >>, - (negate), *
+    bitLength(), log2(), log10(), sqrt(), +, -, <<, >>, - (negate), *
     and ?: (ternary operator) has been improved. This also helps in
     reducing the number of integer overflow checks.
   - The statistics about integer overflow checks and division checks
