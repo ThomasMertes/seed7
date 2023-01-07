@@ -165,8 +165,8 @@ EMSCRIPTEN_KEEPALIVE int decodeKeypress (int keyNameId, int key1, int key2,
 
   /* decodeKeypress */
     logFunction(printf("decodeKeypress(%d, %d, %d, %d, %d, %d, %d)\n",
-			keyNameId, key1, key2, keyLength,
-                        shiftKey, ctrlKey, altKey););
+                       keyNameId, key1, key2, keyLength,
+                       shiftKey, ctrlKey, altKey););
     if (keyLength == 1) {
       if (key1 < ' ') {
         if (key1 == 13) {

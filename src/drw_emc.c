@@ -1683,7 +1683,7 @@ void drwText (const_winType actual_window, intType x, intType y,
             let context = mapIdToContext[$0];
             context.fillStyle = "#" + ("000000" + $4.toString(16)).slice(-6);
             context.font = "12px Arial";
-            context.fillText(Module.UTF8ToString($3), $1, $2); 
+            context.fillText(Module.UTF8ToString($3), $1, $2);
             return 0;
           } else {
             return 1;

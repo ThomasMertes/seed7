@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/gkb_emc.c                                       */
-/*  Changes: 2022  Thomas Mertes                                    */
+/*  Changes: 2023  Thomas Mertes                                    */
 /*  Content: Keyboard and mouse access using the browser.           */
 /*                                                                  */
 /********************************************************************/
@@ -834,7 +834,7 @@ EM_ASYNC_JS(int, asyncGkbdGetc, (void), {
       return Module.ccall("decodeKeyupEvent", "number",
                           ["number", "number", "number", "boolean", "boolean", "boolean"],
                           [mapKeyboardEventCodeToId.get(event.code), event.key.charCodeAt(0),
-                           event.key.length, event.shiftKey, event.ctrlKey, event.altKey]); 
+                           event.key.length, event.shiftKey, event.ctrlKey, event.altKey]);
     } else if (event.type === "mousedown") {
 #if TRACE_EVENTS
       console.log(event);
@@ -953,9 +953,6 @@ boolType gkbInputReady (void)
     logFunction(printf("gkbInputReady --> %d\n", inputReady););
     return inputReady;
   } /* gkbInputReady */
-
-
-
 
 
 

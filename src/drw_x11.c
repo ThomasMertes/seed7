@@ -2576,7 +2576,7 @@ void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType
       *blueLight  = color.blue;
     } /* if */
     logFunction(printf("drwPixelToRgb(" F_X(08) ", " FMT_D ", " FMT_D ", " FMT_D ") -->\n",
-	               col, *redLight, *greenLight, *blueLight););
+                       col, *redLight, *greenLight, *blueLight););
   } /* drwPixelToRgb */
 
 
