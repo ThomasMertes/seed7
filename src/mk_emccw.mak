@@ -5,13 +5,13 @@
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -g -gsource-map -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O3 -g -gsource-map -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -g -gsource-map -s TOTAL_STACK=1048576 -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString']
+LDFLAGS = -g -gsource-map -s TOTAL_STACK=1048576 -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString'] -s ASYNCIFY -s ASYNCIFY_STACK_SIZE=16384
 # LDFLAGS = -Wl,--gc-sections,--stack,8388608,--subsystem,windows
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
@@ -50,11 +50,11 @@ GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
        tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o
-DOBJ = big_rtl.o big_gmp.o cmd_unx.o dir_win.o dll_unx.o fil_unx.o pcs_unx.o pol_unx.o soc_none.o \
-       tim_unx.o
+DOBJ = big_rtl.o big_gmp.o cmd_unx.o dir_win.o dll_unx.o emc_utl.o fil_emc.o pcs_unx.o pol_unx.o \
+       soc_none.o tim_emc.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
-DRAW_LIB_OBJ = gkb_rtl.o drw_emc.o
+DRAW_LIB_OBJ = gkb_rtl.o drw_emc.o gkb_emc.o
 CONSOLE_LIB_OBJ = kbd_rtl.o con_emc.o
 DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_ifx.o sql_lite.o sql_my.o sql_oci.o \
                    sql_odbc.o sql_post.o sql_srv.o sql_tds.o
@@ -76,11 +76,11 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
        tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c
-DSRC = big_rtl.c big_gmp.c cmd_unx.c dir_win.c dll_unx.c fil_unx.c pcs_unx.c pol_unx.c soc_none.c \
-       tim_unx.c
+DSRC = big_rtl.c big_gmp.c cmd_unx.c dir_win.c dll_unx.c emc_utl.c fil_emc.c pcs_unx.c pol_unx.c \
+       soc_none.c tim_emc.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
-DRAW_LIB_SRC = gkb_rtl.c drw_emc.c
+DRAW_LIB_SRC = gkb_rtl.c drw_emc.c gkb_emc.c
 CONSOLE_LIB_SRC = kbd_rtl.c con_emc.c
 DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c \
                             sql_post.c sql_tds.c
@@ -112,7 +112,7 @@ s7c: ..\bin\s7c.js ..\prg\s7c.js
 	copy ..\prg\s7c.wasm ..\bin /Y
 
 ..\prg\s7c.js: ..\prg\s7c.sd7 $(ALL_S7_LIBS) ..\bin\$(SPECIAL_LIB)
-	node --stack-size=2048 ..\bin\s7.js -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
+	node --stack-size=8192 ..\bin\s7.js -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
 
 levelup.exe: levelup.c
 	gcc levelup.c -o levelup
@@ -266,8 +266,12 @@ settings.h:
 	echo #define CONSOLE_UTF8 >> settings.h
 	echo #define OS_STRI_UTF8 >> settings.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> settings.h
+	echo #define USE_CONSOLE_FOR_PROT_CSTRI >> settings.h
 	echo #define MOUNT_NODEFS >> settings.h
 	echo #define DEFINE_SYSTEM_FUNCTION >> settings.h
+	echo #define USE_DO_EXIT >> settings.h
+	echo #define os_exit doExit >> settings.h
+	echo #define os_atexit registerExitFunction >> settings.h
 	echo #define CALL_C_COMPILER_FROM_SHELL 1 >> settings.h
 	echo #define CPLUSPLUS_COMPILER "em++" >> settings.h
 	echo #define CC_OPT_DEBUG_INFO "-g" >> settings.h

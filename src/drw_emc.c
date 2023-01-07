@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  drw_emc.c     Graphic access using browser capabilities.        */
-/*  Copyright (C) 2020 - 2022  Thomas Mertes                        */
+/*  drw_emc.c     Graphic access using the browser.                 */
+/*  Copyright (C) 2020 - 2023  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,8 +24,8 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_emc.c                                       */
-/*  Changes: 2020 - 2022  Thomas Mertes                             */
-/*  Content: Graphic access using browser capabilities.             */
+/*  Changes: 2020 - 2023  Thomas Mertes                             */
+/*  Content: Graphic access using the browser.                      */
 /*                                                                  */
 /********************************************************************/
 
@@ -37,18 +37,18 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "emscripten.h"
 
 #include "common.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "rtl_err.h"
-#include "emscripten.h"
 
 #undef EXTERN
 #define EXTERN
 #include "drw_drv.h"
-#include "kbd_drv.h"
 
 
 #define PI 3.141592653589793238462643383279502884197
@@ -59,98 +59,143 @@ typedef struct {
     int window;
     boolType is_pixmap;
     boolType is_subwindow;
+    boolType ignoreFirstResize;
     int width;
     int height;
+    intType clear_col;
+    boolType resizeReturnsKey;
   } emc_winRecord, *emc_winType;
 
 typedef const emc_winRecord *const_emc_winType;
 
-#define to_window(win)       (((const_emc_winType) win)->window)
-#define is_pixmap(win)       (((const_emc_winType) win)->is_pixmap)
-#define is_subwindow(win)    (((const_emc_winType) win)->is_subwindow)
-#define to_width(win)        (((const_emc_winType) win)->width)
-#define to_height(win)       (((const_emc_winType) win)->height)
+#define to_window(win)            (((const_emc_winType) win)->window)
+#define is_pixmap(win)            (((const_emc_winType) win)->is_pixmap)
+#define is_subwindow(win)         (((const_emc_winType) win)->is_subwindow)
+#define to_ignoreFirstResize(win) (((const_emc_winType) win)->ignoreFirstResize)
+#define to_width(win)             (((const_emc_winType) win)->width)
+#define to_height(win)            (((const_emc_winType) win)->height)
+#define to_clear_col(win)         (((const_emc_winType) win)->clear_col)
+#define to_resizeReturnsKey(win)  (((const_emc_winType) win)->resizeReturnsKey)
 
-#define to_var_window(win)       (((emc_winType) win)->window)
-#define is_var_pixmap(win)       (((emc_winType) win)->is_pixmap)
-#define is_var_subwindow(win)    (((emc_winType) win)->is_subwindow)
-#define to_var_width(win)        (((emc_winType) win)->width)
-#define to_var_height(win)       (((emc_winType) win)->height)
+#define to_var_window(win)            (((emc_winType) win)->window)
+#define is_var_pixmap(win)            (((emc_winType) win)->is_pixmap)
+#define is_var_subwindow(win)         (((emc_winType) win)->is_subwindow)
+#define to_var_ignoreFirstResize(win) (((emc_winType) win)->ignoreFirstResize)
+#define to_var_width(win)             (((emc_winType) win)->width)
+#define to_var_height(win)            (((emc_winType) win)->height)
+#define to_var_clear_col(win)         (((emc_winType) win)->clear_col)
+#define to_var_resizeReturnsKey(win)  (((emc_winType) win)->resizeReturnsKey)
 
-
-
-charType gkbGetc (void)
-
-  { /* gkbGetc */
-    logFunction(printf("gkbGetc\n"););
-    return (charType) EOF;
-  } /* gkbGetc */
-
+int maxWindowId = 0;
 
 
-boolType gkbInputReady (void)
-
-  { /* gkbInputReady */
-    logFunction(printf("gkbInputReady\n"););
-    return FALSE;
-  } /* gkbInputReady */
-
-
-
-boolType gkbButtonPressed (charType button)
-
-  { /* gkbButtonPressed */
-    logFunction(printf("gkbButtonPressed(%04x)\n", button););
-    return FALSE;
-  } /* gkbButtonPressed */
+winType find_window (int windowId);
+void enter_window (winType curr_window, int windowId);
+void remove_window (int windowId);
+void setupEventCallbacksForWindow (int windowId);
+void gkbInitKeyboard (void);
+void synchonizeTimAwaitWithGraphicKeyboard (void);
+extern intType pointerX;
+extern intType pointerY;
 
 
 
-charType gkbRawGetc (void)
+boolType ignoreResize (winType aWindow)
 
-  { /* gkbRawGetc */
-    return gkbGetc();
-  } /* gkbRawGetc */
-
-
-
-void gkbSelectInput (winType aWindow, charType aKey, boolType active)
-
-  { /* gkbSelectInput */
-    if (aKey != K_RESIZE && aKey != K_CLOSE) {
-      raise_error(RANGE_ERROR);
+  { /* ignoreResize */
+    if (to_ignoreFirstResize(aWindow)) {
+      to_var_ignoreFirstResize(aWindow) = FALSE;
+      return TRUE;
+    } else {
+      return FALSE;
     } /* if */
-  } /* gkbSelectInput */
+  } /* ignoreResize */
 
 
 
-winType gkbWindow (void)
+void setResizeReturnsKey (winType resizeWindow, boolType active)
 
-  { /* gkbWindow */
-    return NULL;
-  } /* gkbWindow */
-
-
-
-intType gkbButtonXpos (void)
-
-  { /* gkbButtonXpos */
-    return 0;
-  } /* gkbButtonXpos */
+  { /* setResizeReturnsKey */
+    to_var_resizeReturnsKey(resizeWindow) = active;
+  } /* setResizeReturnsKey */
 
 
 
-intType gkbButtonYpos (void)
+boolType resize (winType resizeWindow, int width, int height)
 
-  { /* gkbButtonYpos */
-    return 0;
-  } /* gkbButtonYpos */
+  {
+    int successInfo;
+    boolType returnKeyResize = FALSE;
+
+  /* resize */
+    logFunction(printf("resize(" FMT_U_MEM ", %d, %d)\n",
+                       (memSizeType) resizeWindow, width, height););
+    if (to_width(resizeWindow) != width || to_height(resizeWindow) != height) {
+      successInfo = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined" &&
+                                             typeof mapIdToContext[$0] !== "undefined") {
+          let canvas = mapIdToCanvas[$0];
+          if ($1 > canvas.width || $2 > canvas.height) {
+            let context = mapIdToContext[$0];
+            let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            if ($1 > canvas.width) {
+              canvas.width = $1;
+            }
+            if ($2 > canvas.height) {
+              canvas.height = $2;
+            }
+            context.fillStyle = "#" + ("000000" + $3.toString(16)).slice(-6);
+            context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+            context.putImageData(imageData, 0, 0);
+          }
+          return 0;
+        } else {
+          return 1;
+        }
+      }, to_window(resizeWindow), width, height, to_clear_col(resizeWindow));
+      if (likely(successInfo == 0)) {
+        to_var_width(resizeWindow) = width;
+        to_var_height(resizeWindow) = height;
+        returnKeyResize = to_resizeReturnsKey(resizeWindow);
+      } /* if */
+    } /* if */
+    logFunction(printf("resize --> %d\n", returnKeyResize););
+    return returnKeyResize;
+  } /* resize */
+
+
+
+void drawShut (void)
+
+  {
+    int windowId;
+    winType window;
+
+  /* drawShut */
+    logFunction(printf("drawShut\n"););
+    for (windowId = 1; windowId <= maxWindowId; windowId++) {
+      window = find_window(windowId);
+      if (window != NULL) {
+        drwFree(window);
+      } /* if */
+    } /* for */
+    maxWindowId = 0;
+    logFunction(printf("drawShut -->\n"););
+  } /* drawShut */
 
 
 
 void drawInit (void)
 
   { /* drawInit */
+    logFunction(printf("drawInit()\n"););
+    EM_ASM({
+      mapWindowToId = new Map();
+      mapCanvasToId = new Map();
+    });
+    gkbInitKeyboard();
+    os_atexit(drawShut);
+    logFunction(printf("drawInit -->\n"););
   } /* drawInit */
 
 
@@ -158,7 +203,9 @@ void drawInit (void)
 intType drwPointerXpos (const_winType actual_window)
 
   { /* drwPointerXpos */
-    return 0;
+    logFunction(printf("drwPointerXpos(" FMT_U_MEM ") --> " FMT_D "\n",
+                       (memSizeType) actual_window, pointerX););
+    return pointerX;
   } /* drwPointerXpos */
 
 
@@ -166,7 +213,9 @@ intType drwPointerXpos (const_winType actual_window)
 intType drwPointerYpos (const_winType actual_window)
 
   { /* drwPointerYpos */
-    return 0;
+    logFunction(printf("drwPointerYpos(" FMT_U_MEM ") --> " FMT_D "\n",
+                       (memSizeType) actual_window, pointerY););
+    return pointerY;
   } /* drwPointerYpos */
 
 
@@ -184,22 +233,35 @@ void drwArc (const_winType actual_window, intType x, intType y,
 void drwPArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
-  { /* drwPArc */
-    logFunction(printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+  {
+    int successInfo;
+
+  /* drwPArc */
+    logFunction(printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", %.4f, %.4f, " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle, col););
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
         context.lineWidth=1;
-        context.strokeStyle = '#' + ('000000' + $6.toString(16)).slice(-6);
+        context.strokeStyle = "#" + ("000000" + $6.toString(16)).slice(-6);
         context.beginPath();
         context.arc($1, $2, $3, $4, $5);
         context.stroke();
+        return 0;
       } else {
-        console.log('drwPArc: windowId not found: ' + $0);
+        return 1;
       }
     }, to_window(actual_window), castToInt(x), castToInt(y), castToInt(radius),
         (2 * PI) - startAngle - sweepAngle, (2 * PI) - startAngle, (int) col);
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", %.4f, %.4f, " F_X(08) "): windowId not found: %d\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle, col, to_window(actual_window)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwPArc */
 
 
@@ -208,21 +270,24 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle,
     intType width, intType col)
 
-  { /* drwPFArc */
+  {
+    int successInfo;
+
+  /* drwPFArc */
     logFunction(printf("drwPFArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
-                       ", %.4f, %.4f, " FMT_D ")\n",
+                       ", %.4f, %.4f, " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius,
-                       startAngle, sweepAngle, width););
+                       startAngle, sweepAngle, width, col););
     if ((width & 1) != 0) {
       radius -= width / 2;
     } else {
       radius -= width / 2 - 1;
     } /* if */
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
         context.lineWidth=$6;
-        context.strokeStyle = '#' + ('000000' + $8.toString(16)).slice(-6);
+        context.strokeStyle = "#" + ("000000" + $8.toString(16)).slice(-6);
         context.beginPath();
         if ($7) {
           context.arc($1, $2, $3 - 0.5, $4, $5);
@@ -230,12 +295,20 @@ void drwPFArc (const_winType actual_window, intType x, intType y,
           context.arc($1, $2, $3, $4, $5);
         }
         context.stroke();
+        return 0;
       } else {
-        console.log('drwPFArc: windowId not found: ' + $0);
+        return 1;
       }
     }, to_window(actual_window), castToInt(x), castToInt(y), castToInt(radius),
         (2 * PI) - startAngle - sweepAngle, (2 * PI) - startAngle,
       castToInt(width), (width & 1) != 0, (int) col);
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwPFArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", %.4f, %.4f, " FMT_D ", " F_X(08) "): windowId not found: %d\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle, width, col, to_window(actual_window)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwPFArc */
 
 
@@ -251,22 +324,35 @@ void drwFArcChord (const_winType actual_window, intType x, intType y,
 void drwPFArcChord (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
-  { /* drwPFArcChord */
-    logFunction(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+  {
+    int successInfo;
+
+  /* drwPFArcChord */
+    logFunction(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", %.4f, %.4f, " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle, col););
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
-        context.fillStyle = '#' + ('000000' + $6.toString(16)).slice(-6);
+        context.fillStyle = "#" + ("000000" + $6.toString(16)).slice(-6);
         context.beginPath();
         context.arc($1, $2, $3, $4, $5);
         context.lineTo($1 + Math.cos($4) * $3, $2 + Math.sin($4) * $3);
         context.fill();
+        return 0;
       } else {
-        console.log('drwPFArcChord: windowId not found: ' + $0);
+        return 1;
       }
     }, to_window(actual_window), castToInt(x), castToInt(y), castToInt(radius),
         (2 * PI) - startAngle - sweepAngle, (2 * PI) - startAngle, (int) col);
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", %.4f, %.4f, " F_X(08) "): windowId not found: %d\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle, col, to_window(actual_window)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwPFArcChord */
 
 
@@ -282,23 +368,36 @@ void drwFArcPieSlice (const_winType actual_window, intType x, intType y,
 void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
     intType radius, floatType startAngle, floatType sweepAngle, intType col)
 
-  { /* drwPFArcPieSlice */
-    logFunction(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+  {
+    int successInfo;
+
+  /* drwPFArcPieSlice */
+    logFunction(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", %.4f, %.4f, " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, radius,
+                       startAngle, sweepAngle, col););
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
-        context.fillStyle = '#' + ('000000' + $6.toString(16)).slice(-6);
+        context.fillStyle = "#" + ("000000" + $6.toString(16)).slice(-6);
         context.beginPath();
         context.moveTo($1, $2);
         context.arc($1, $2, $3, $4, $5);
         context.lineTo($1, $2);
         context.fill();
+        return 0;
       } else {
-        console.log('drwPFArcPieSlice: windowId not found: ' + $0);
+        return 1;
       }
     }, to_window(actual_window), castToInt(x), castToInt(y), castToInt(radius),
         (2 * PI) - startAngle - sweepAngle, (2 * PI) - startAngle, (int) col);
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", %.4f, %.4f, " F_X(08) "): windowId not found: %d\n",
+                      (memSizeType) actual_window, x, y, radius,
+                      startAngle, sweepAngle, col, to_window(actual_window)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwPFArcPieSlice */
 
 
@@ -331,7 +430,7 @@ rtlArrayType drwBorder (const_winType actual_window)
       border = NULL;
     } else {
       twoBorders = EM_ASM_INT({
-        if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
+        if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
           let windowObject = mapIdToWindow[$0];
           let rightBottomLeftBorder = windowObject.outerWidth - windowObject.innerWidth;
           let topBorder = windowObject.outerHeight - windowObject.innerHeight - rightBottomLeftBorder;
@@ -341,11 +440,14 @@ rtlArrayType drwBorder (const_winType actual_window)
             return -1;
           }
         } else {
-          console.log('drwBorder: windowId not found: ' + $0);
           return -1;
         }
       }, to_window(actual_window));
       if (unlikely(twoBorders == -1)) {
+        logError(printf("drwBorder(" FMT_U_MEM "): "
+                        "Border too large or windowId not found: %d\n",
+                        (memSizeType) actual_window,
+                        to_window(actual_window)););
         raise_error(GRAPHIC_ERROR);
         border = NULL;
       } else if (unlikely(!ALLOC_RTL_ARRAY(border, 4))) {
@@ -386,40 +488,63 @@ void drwCircle (const_winType actual_window,
 void drwPCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 
-  { /* drwPCircle */
+  {
+    int successInfo;
+
+  /* drwPCircle */
     logFunction(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius, col););
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
         context.lineWidth=1;
-        context.strokeStyle = '#' + ('000000' + $4.toString(16)).slice(-6);
+        context.strokeStyle = "#" + ("000000" + $4.toString(16)).slice(-6);
         context.beginPath();
         context.arc($1, $2, $3, 0, 2 * Math.PI);
         context.stroke();
+        return 0;
       } else {
-        console.log('drwPCircle: windowId not found: ' + $0);
+        return 1;
       }
     }, to_window(actual_window), castToInt(x), castToInt(y),
         castToInt(radius), (int) col);
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                      "windowId not found: %d\n",
+                      (memSizeType) actual_window, x, y, radius, col,
+                      to_window(actual_window)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwPCircle */
 
 
 
 void drwClear (winType actual_window, intType col)
 
-  { /* drwClear */
+  {
+    int successInfo;
+
+  /* drwClear */
     logFunction(printf("drwClear(" FMT_U_MEM ", " F_X(08) ")\n",
                        (memSizeType) actual_window, col););
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+    to_var_clear_col(actual_window) = col;
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
-        context.fillStyle = '#' + ('000000' + $1.toString(16)).slice(-6);
+        context.fillStyle = "#" + ("000000" + $1.toString(16)).slice(-6);
         context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+        return 0;
       } else {
-        console.log('drwClear: windowId not found: ' + $0);
+        return 1;
       }
     }, to_window(actual_window), (int) col);
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwClear(" FMT_U_MEM ", " F_X(08) "): "
+                      "windowId not found: %d\n",
+                      (memSizeType) actual_window, col,
+                      to_window(actual_window)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwClear */
 
 
@@ -428,11 +553,43 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
     intType src_x, intType src_y, intType width, intType height,
     intType dest_x, intType dest_y)
 
-  { /* drwCopyArea */
+  {
+    int successInfo;
+
+  /* drwCopyArea */
     logFunction(printf("drwCopyArea(" FMT_U_MEM ", " FMT_U_MEM ", "
                        FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) src_window, (memSizeType) dest_window,
                        src_x, src_y, width, height, dest_x, dest_y););
+    if (unlikely(!inIntRange(src_x) || !inIntRange(src_y) ||
+                 !inIntRange(width) || !inIntRange(height) ||
+                 !inIntRange(dest_x) || !inIntRange(dest_y) ||
+                 width < 1 || height < 1)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      successInfo = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined" &&
+            typeof mapIdToContext[$1] !== "undefined") {
+          let sourceContext = mapIdToContext[$0];
+          let destContext = mapIdToContext[$1];
+          let imageData = sourceContext.getImageData($2, $3, $4, $5);
+          destContext.putImageData(imageData, $6, $7);
+          return 0;
+        } else {
+          return 1;
+        }
+      }, to_window(src_window), to_window(dest_window), castToInt(src_x), castToInt(src_y),
+        castToInt(width), castToInt(height), castToInt(dest_x), castToInt(dest_y));
+      if (unlikely(successInfo != 0)) {
+        logError(printf("drwCopyArea(" FMT_U_MEM ", " FMT_U_MEM ", "
+                        FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D "): "
+                        "windowId not found: %d or %d\n",
+                        (memSizeType) src_window, (memSizeType) dest_window,
+                        src_x, src_y, width, height, dest_x, dest_y,
+                        to_window(src_window), to_window(dest_window)););
+        raise_error(GRAPHIC_ERROR);
+      } /* if */
+    } /* if */
   } /* drwCopyArea */
 
 
@@ -450,21 +607,32 @@ void drwFCircle (const_winType actual_window,
 void drwPFCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 
-  { /* drwPFCircle */
+  {
+    int successInfo;
+
+  /* drwPFCircle */
     logFunction(printf("drwPFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, radius, col););
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
-        context.fillStyle = '#' + ('000000' + $4.toString(16)).slice(-6);
+        context.fillStyle = "#" + ("000000" + $4.toString(16)).slice(-6);
         context.beginPath();
         context.arc($1, $2, $3, 0, 2 * Math.PI);
         context.fill();
+        return 0;
       } else {
-        console.log('drwPFCircle: windowId not found: ' + $0);
+        return 1;
       }
     }, to_window(actual_window), castToInt(x), castToInt(y),
         castToInt(radius), (int) col);
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwPFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                      "windowId not found: %d\n",
+                      (memSizeType) actual_window, x, y, radius, col,
+                      to_window(actual_window)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwPFCircle */
 
 
@@ -482,9 +650,33 @@ void drwFEllipse (const_winType actual_window,
 void drwPFEllipse (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 
-  { /* drwPFEllipse */
-    logFunction(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) actual_window, x, y, width, height););
+  {
+    int successInfo;
+
+  /* drwPFEllipse */
+    logFunction(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                       ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, width, height, col););
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
+        let context = mapIdToContext[$0];
+        context.fillStyle = "#" + ("000000" + $5.toString(16)).slice(-6);
+        context.beginPath();
+        context.ellipse($1, $2, $3 / 2, $4 / 2, 0, 0, 2 * Math.PI);
+        context.fill();
+        return 0;
+      } else {
+        return 1;
+      }
+    }, to_window(actual_window), castToInt(x + width / 2), castToInt(y + height / 2),
+        castToInt(width), castToInt(height), (int) col);
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                      ", " F_X(08) "): windowId not found: %d\n",
+                      (memSizeType) actual_window, x, y, width, height, col,
+                      to_window(actual_window)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwPFEllipse */
 
 
@@ -511,6 +703,7 @@ winType drwEmpty (void)
       emptyWindow->window = 0;
       emptyWindow->is_pixmap = TRUE;
       emptyWindow->is_subwindow = FALSE;
+      emptyWindow->ignoreFirstResize = FALSE;
       emptyWindow->width = 0;
       emptyWindow->height = 0;
     } /* if */
@@ -525,10 +718,30 @@ winType drwEmpty (void)
 void drwFree (winType old_window)
 
   { /* drwFree */
-    logFunction(printf("drwFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+    logFunction(printf("drwFree(" FMT_U_MEM ") (window=%d, usage=" FMT_U ")\n",
                        (memSizeType) old_window,
+                       old_window != NULL ? to_window(old_window) : 0,
                        old_window != NULL ? old_window->usage_count : (uintType) 0););
+    if (is_pixmap(old_window)) {
+      EM_ASM({
+        mapIdToCanvas[$0] = null;
+        mapIdToContext[$0] = null;
+      }, to_window(old_window));
+    } else {
+      EM_ASM({
+        let canvas = mapIdToCanvas[$0];
+        mapCanvasToId.delete(canvas);
+        mapIdToCanvas[$0] = null;
+        mapIdToContext[$0] = null;
+        let windowObject = mapIdToWindow[$0];
+        mapWindowToId.delete(windowObject);
+        mapIdToWindow[$0] = null;
+        windowObject.close();
+      }, to_window(old_window));
+      remove_window(to_window(old_window));
+    } /* if */
     FREE_RECORD2(old_window, emc_winRecord, count.win, count.win_bytes);
+    logFunction(printf("drwFree -->\n"););
   } /* drwFree */
 
 
@@ -542,14 +755,16 @@ winType drwCapture (intType left, intType upper,
 
 
 
-intType drwGetPixel (const_winType source_window, intType x, intType y)
+intType drwGetPixel (const_winType sourceWindow, intType x, intType y)
 
   {
-    intType col;
+    int col;
 
   /* drwGetPixel */
-    col = (intType) EM_ASM_INT({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+    logFunction(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) sourceWindow, x, y););
+    col = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
         let canvasColor = context.getImageData(x, y, 1, 1).data; // rgba e [0,255]
         let r = canvasColor[0];
@@ -557,16 +772,24 @@ intType drwGetPixel (const_winType source_window, intType x, intType y)
         let b = canvasColor[2];
         return canvasColor[0] << 16 | canvasColor[1] << 8 | canvasColor[2]
       } else {
-        console.log('drwGetPixel: windowId not found: ' + $0);
-        return 0;
+        return -1;
       }
-    }, to_window(source_window), castToInt(x), castToInt(y));
-    return col;
+    }, to_window(sourceWindow), castToInt(x), castToInt(y));
+    if (unlikely(col == -1)) {
+      logFunction(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                         "windowId not found: %d\n",
+                         (memSizeType) sourceWindow, x, y,
+                         to_window(sourceWindow)););
+      raise_error(GRAPHIC_ERROR);
+      col = 0;
+    } /* if */
+    logFunction(printf("drwGetPixel --> " F_X(08) "\n", (intType) col););
+    return (intType) col;
   } /* drwGetPixel */
 
 
 
-bstriType drwGetPixelData (const_winType source_window)
+bstriType drwGetPixelData (const_winType sourceWindow)
 
   {
     bstriType result;
@@ -585,41 +808,33 @@ bstriType drwGetPixelData (const_winType source_window)
 /**
  *  Create a new pixmap with the given 'width' and 'height'.
  *  A rectangle with the upper left corner at (left, upper) and the given
- *  'width' and 'height' is copied from 'source_window' to the new pixmap.
+ *  'width' and 'height' is copied from 'sourceWindow' to the new pixmap.
  *  @exception RANGE_ERROR If 'height' or 'width' are negative.
  *  @return the new pixmap.
  */
-winType drwGetPixmap (const_winType source_window, intType left, intType upper,
+winType drwGetPixmap (const_winType sourceWindow, intType left, intType upper,
     intType width, intType height)
 
   {
-    emc_winType pixmap;
+    int windowId;
+    emc_winType pixmap = NULL;
 
   /* drwGetPixmap */
     logFunction(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-                       (memSizeType) source_window, left, upper, width, height););
+                       (memSizeType) sourceWindow, left, upper, width, height););
     if (unlikely(!inIntRange(left) || !inIntRange(upper) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
-      pixmap = NULL;
-    } else if (unlikely(!ALLOC_RECORD2(pixmap, emc_winRecord, count.win, count.win_bytes))) {
-      raise_error(MEMORY_ERROR);
     } else {
-      memset(pixmap, 0, sizeof(emc_winRecord));
-      pixmap->usage_count = 1;
 
-      pixmap->window = EM_ASM_INT({
-        if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+      windowId = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
           let sourceContext = mapIdToContext[$0];
-          let left = $1;
-          let upper = $2;
-          let width = $3;
-          let height = $4;
-          let canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          let context = canvas.getContext('2d');
+          let canvas = document.createElement("canvas");
+          canvas.width = $3;
+          canvas.height = $4;
+          let context = canvas.getContext("2d");
           let imageData = sourceContext.getImageData($1, $2, $3, $4);
           context.putImageData(imageData, 0, 0);
           currentWindowId++;
@@ -627,15 +842,29 @@ winType drwGetPixmap (const_winType source_window, intType left, intType upper,
           mapIdToContext[currentWindowId] = context;
           return currentWindowId;
         } else {
-          console.log('drwGetPixmap: windowId not found: ' + $0);
+          return 0;
         }
-      }, to_window(source_window), castToInt(left), castToInt(upper),
+      }, to_window(sourceWindow), castToInt(left), castToInt(upper),
           castToInt(width), castToInt(height));
 
-      pixmap->is_pixmap = TRUE;
-      pixmap->is_subwindow = FALSE;
-      pixmap->width = (int) width;
-      pixmap->height = (int) height;
+      if (unlikely(windowId == 0)) {
+        logError(printf("drwGetPixmap(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                        "): Failed to get pixmap.\n",
+                        (memSizeType) sourceWindow, left, upper, width, height););
+        raise_error(GRAPHIC_ERROR);
+      } else if (unlikely(!ALLOC_RECORD2(pixmap, emc_winRecord, count.win, count.win_bytes))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        memset(pixmap, 0, sizeof(emc_winRecord));
+        pixmap->usage_count = 1;
+        pixmap->window = windowId;
+        pixmap->is_pixmap = TRUE;
+        pixmap->is_subwindow = FALSE;
+        pixmap->ignoreFirstResize = FALSE;
+        pixmap->width = (int) width;
+        pixmap->height = (int) height;
+        maxWindowId = pixmap->window;
+      } /* if */
     } /* if */
     logFunction(printf("drwGetPixmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
                        (memSizeType) pixmap,
@@ -653,22 +882,7 @@ intType drwHeight (const_winType actual_window)
   /* drwHeight */
     logFunction(printf("drwHeight(" FMT_U_MEM ")\n",
                        (memSizeType) actual_window););
-    if (is_pixmap(actual_window)) {
-      height = to_height(actual_window);
-    } else {
-      height = EM_ASM_INT({
-        if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
-          return mapIdToCanvas[$0].height;
-        } else {
-          console.log('drwHeight: windowId not found: ' + $0);
-          return -1;
-        }
-      }, to_window(actual_window));
-      if (unlikely(height == -1)) {
-        raise_error(GRAPHIC_ERROR);
-        height = 0;
-      } /* if */
-    } /* if */
+    height = to_height(actual_window);
     logFunction(printf("drwHeight(" FMT_U_MEM ") --> %d\n",
                        (memSizeType) actual_window, height););
     return (intType) height;
@@ -695,23 +909,34 @@ void drwLine (const_winType actual_window,
 void drwPLine (const_winType actual_window,
     intType x1, intType y1, intType x2, intType y2, intType col)
 
-  { /* drwPLine */
+  {
+    int successInfo;
+
+  /* drwPLine */
     logFunction(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x1, y1, x2, y2, col););
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
         context.lineWidth=1;
-        context.strokeStyle = '#' + ('000000' + $5.toString(16)).slice(-6);
+        context.strokeStyle = "#" + ("000000" + $5.toString(16)).slice(-6);
         context.beginPath();
         context.moveTo($1, $2);
         context.lineTo($3, $4);
         context.stroke();
+        return 0;
       } else {
-        console.log('drwPLine: windowId not found: ' + $0);
+        return 1;
       }
     }, to_window(actual_window), castToInt(x1), castToInt(y1),
         castToInt(x2), castToInt(y2), (int) col);
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                      "windowId not found: %d\n",
+                      (memSizeType) actual_window, x1, y1, x2, y2, col,
+                      to_window(actual_window)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwPLine */
 
 
@@ -719,42 +944,50 @@ void drwPLine (const_winType actual_window,
 winType drwNewPixmap (intType width, intType height)
 
   {
-    emc_winType pixmap;
+    int windowId;
+    emc_winType pixmap = NULL;
 
   /* drwNewPixmap */
     logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
     if (unlikely(!inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
-      pixmap = NULL;
     } else {
-      if (unlikely(!ALLOC_RECORD2(pixmap, emc_winRecord, count.win, count.win_bytes))) {
+
+      windowId = EM_ASM_INT({
+        if (typeof window !== "undefined") {
+          let width = $0;
+          let height = $1;
+          let canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          let context = canvas.getContext("2d");
+          currentWindowId++;
+          mapIdToCanvas[currentWindowId] = canvas;
+          mapIdToContext[currentWindowId] = context;
+          return currentWindowId;
+        } else {
+          return 0;
+        }
+      }, (int) width, (int) height);
+
+      if (unlikely(windowId == 0)) {
+        logError(printf("drwNewPixmap(" FMT_D ", " FMT_D "): "
+                        "Failed to create new pixmap.\n",
+                        width, height););
+        raise_error(GRAPHIC_ERROR);
+      } else if (unlikely(!ALLOC_RECORD2(pixmap, emc_winRecord, count.win, count.win_bytes))) {
         raise_error(MEMORY_ERROR);
       } else {
         memset(pixmap, 0, sizeof(emc_winRecord));
         pixmap->usage_count = 1;
-
-        pixmap->window = EM_ASM_INT({
-          if (typeof window !== 'undefined') {
-            let width = $0;
-            let height = $1;
-            let canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            let context = canvas.getContext('2d');
-            currentWindowId++;
-            mapIdToCanvas[currentWindowId] = canvas;
-            mapIdToContext[currentWindowId] = context;
-            return currentWindowId;
-          } else {
-            return 0;
-          }
-        }, (int) width, (int) height);
-
+        pixmap->window = windowId;
         pixmap->is_pixmap = TRUE;
         pixmap->is_subwindow = FALSE;
+        pixmap->ignoreFirstResize = FALSE;
         pixmap->width = (int) width;
         pixmap->height = (int) height;
+        maxWindowId = pixmap->window;
       } /* if */
     } /* if */
     logFunction(printf("drwNewPixmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
@@ -770,6 +1003,7 @@ winType drwOpen (intType xPos, intType yPos,
 
   {
     char *win_name;
+    int windowIdAndFlags;
     errInfoType err_info = OKAY_NO_ERROR;
     emc_winType result = NULL;
 
@@ -788,55 +1022,84 @@ winType drwOpen (intType xPos, intType yPos,
                         striAsUnquotedCStri(window_name), err_info););
         raise_error(err_info);
       } else {
-        if (ALLOC_RECORD2(result, emc_winRecord, count.win, count.win_bytes)) {
-          memset(result, 0, sizeof(emc_winRecord));
-          result->usage_count = 1;
 
-          result->window = EM_ASM_INT({
-            if (typeof window !== 'undefined') {
-              let left = $0;
-              let top = $1;
-              let width = $2;
-              let height = $3;
-              let windowName = Module.UTF8ToString($4);
-              let windowFeatures = 'toolbar=no,menubar=no,left=' + left + ',top=' + top +
-                                   ',width=' + width + ',height=' + height;
-              let windowObject = window.open("", windowName, windowFeatures);
-              if (windowObject == null) {
-                return 0;
+        windowIdAndFlags = EM_ASM_INT({
+          if (typeof window !== "undefined") {
+            let left = $0;
+            let top = $1;
+            let width = $2;
+            let height = $3;
+            let windowName = Module.UTF8ToString($4);
+            let windowFeatures = "titlebar=no,toolbar=no,menubar=no,scrollbars=no" +
+                                 ",left=" + left + ",top=" + top +
+                                 ",width=" + width + ",height=" + height;
+            let windowObject = window.open("", windowName, windowFeatures);
+            if (windowObject === null) {
+              return 0;
+            } else {
+              const title = windowObject.document.createElement("title");
+              const titleText = windowObject.document.createTextNode(windowName);
+              title.appendChild(titleText);
+              windowObject.document.head.appendChild(title);
+              windowObject.document.body.style.margin = 0;
+              windowObject.document.body.style.overflowX = "hidden";
+              windowObject.document.body.style.overflowY = "hidden";
+              currentWindowId++;
+              mapIdToWindow[currentWindowId] = windowObject;
+              mapWindowToId.set(windowObject, currentWindowId);
+              let canvas = windowObject.document.createElement("canvas");
+              let ignoreFirstResize = 0;
+              if (windowObject.innerWidth === 0 || windowObject.innerHeight === 0) {
+                canvas.width  = width ;
+                canvas.height = height;
+                ignoreFirstResize = 1;
               } else {
-                const title = windowObject.document.createElement('title');
-                const titleText = windowObject.document.createTextNode(windowName);
-                title.appendChild(titleText);
-                windowObject.document.head.appendChild(title);
-                windowObject.document.body.style.margin = 0;
-                let canvas = windowObject.document.createElement('canvas');
-                let context = canvas.getContext('2d');
                 canvas.width  = windowObject.innerWidth;
                 canvas.height = windowObject.innerHeight;
-                context.fillStyle = '#000000';
-                context.fillRect(0, 0, width, height);
-                windowObject.document.body.appendChild(canvas);
-                currentWindowId++;
-                mapIdToWindow[currentWindowId] = windowObject;
-                mapIdToCanvas[currentWindowId] = canvas;
-                mapIdToContext[currentWindowId] = context;
-                return currentWindowId;
               }
-            } else {
-              return 0;
+              let context = canvas.getContext("2d");
+              context.fillStyle = "#000000";
+              context.fillRect(0, 0, width, height);
+              windowObject.document.body.appendChild(canvas);
+              mapIdToCanvas[currentWindowId] = canvas;
+              mapCanvasToId.set(canvas, currentWindowId);
+              mapIdToContext[currentWindowId] = context;
+              return (currentWindowId << 1) | ignoreFirstResize;
             }
-          }, (int) xPos, (int) yPos, (int) width, (int) height, win_name);
+          } else {
+            return 0;
+          }
+        }, (int) xPos, (int) yPos, (int) width, (int) height, win_name);
+
+        free_cstri8(win_name, window_name);
+        if (unlikely(windowIdAndFlags == 0)) {
+          logError(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                          ", \"%s\"): Failed to open window.\n",
+                          xPos, yPos, width, height,
+                          striAsUnquotedCStri(window_name)););
+          raise_error(GRAPHIC_ERROR);
+        } else if (unlikely(!ALLOC_RECORD2(result, emc_winRecord, count.win,
+                                           count.win_bytes))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          memset(result, 0, sizeof(emc_winRecord));
+          result->usage_count = 1;
+          result->window = windowIdAndFlags >> 1;
           result->is_pixmap = FALSE;
           result->is_subwindow = FALSE;
+          result->ignoreFirstResize = windowIdAndFlags & 1;;
           result->width = (int) width;
           result->height = (int) height;
+          maxWindowId = result->window;
+          setupEventCallbacksForWindow(result->window);
+          enter_window((winType) result, result->window);
+          synchonizeTimAwaitWithGraphicKeyboard();
         } /* if */
-        free_cstri8(win_name, window_name);
       } /* if */
     } /* if */
-    logFunction(printf("drwOpen --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+    logFunction(printf("drwOpen --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
                        (memSizeType) result,
+                       result != NULL ? result->window : 0,
                        result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwOpen */
@@ -864,6 +1127,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
     intType width, intType height)
 
   {
+    int windowId;
     emc_winType result = NULL;
 
   /* drwOpenSubWindow */
@@ -874,42 +1138,54 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else {
-      if (ALLOC_RECORD2(result, emc_winRecord, count.win, count.win_bytes)) {
+
+      windowId = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
+          let windowObject = mapIdToWindow[$0];
+          let left = $1;
+          let top = $2;
+          let width = $3;
+          let height = $4;
+          let canvas = windowObject.document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          canvas.style.left = left;
+          canvas.style.top = top;
+          canvas.style.position = "absolute";
+          let context = canvas.getContext("2d");
+          windowObject.document.body.appendChild(canvas);
+          currentWindowId++;
+          mapIdToCanvas[currentWindowId] = canvas;
+          mapCanvasToId.set(canvas, currentWindowId);
+          mapIdToContext[currentWindowId] = context;
+          return currentWindowId;
+        } else {
+          return 0;
+        }
+      }, to_window(parent_window), (int) xPos, (int) yPos, (int) width, (int) height);
+
+      if (unlikely(windowId == 0)) {
+        logError(printf("drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
+                        "): Failed to open window.\n",
+                        xPos, yPos, width, height););
+        raise_error(GRAPHIC_ERROR);
+      } else if (ALLOC_RECORD2(result, emc_winRecord, count.win, count.win_bytes)) {
         memset(result, 0, sizeof(emc_winRecord));
         result->usage_count = 1;
-
-        result->window = EM_ASM_INT({
-          if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
-            let windowObject = mapIdToWindow[$0];
-            let left = $1;
-            let top = $2;
-            let width = $3;
-            let height = $4;
-            let canvas = windowObject.document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            canvas.style.left = left;
-            canvas.style.top = top;
-            canvas.style.position = 'absolute';
-            let context = canvas.getContext('2d');
-            windowObject.document.body.appendChild(canvas);
-            currentWindowId++;
-            mapIdToCanvas[currentWindowId] = canvas;
-            mapIdToContext[currentWindowId] = context;
-            return currentWindowId;
-          } else {
-            return 0;
-          }
-        }, to_window(parent_window), (int) xPos, (int) yPos, (int) width, (int) height);
-
+        result->window = windowId;
         result->is_pixmap = FALSE;
         result->is_subwindow = TRUE;
+        result->ignoreFirstResize = FALSE;
         result->width = (int) width;
         result->height = (int) height;
+        maxWindowId = result->window;
+        enter_window((winType) result, result->window);
+        synchonizeTimAwaitWithGraphicKeyboard();
       } /* if */
     } /* if */
-    logFunction(printf("drwOpenSubWindow --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+    logFunction(printf("drwOpenSubWindow --> " FMT_U_MEM " (window=%d, usage=" FMT_U ")\n",
                        (memSizeType) result,
+                       result != NULL ? result->window : 0,
                        result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwOpenSubWindow */
@@ -946,18 +1222,29 @@ void drwPoint (const_winType actual_window, intType x, intType y)
 
 void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
 
-  { /* drwPPoint */
+  {
+    int successInfo;
+
+  /* drwPPoint */
     logFunction(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, col););
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
-        context.fillStyle = '#' + ('000000' + $3.toString(16)).slice(-6);
+        context.fillStyle = "#" + ("000000" + $3.toString(16)).slice(-6);
         context.fillRect($1, $2, 1, 1);
+        return 0;
       } else {
-        console.log('drwPPoint: windowId not found: ' + $0);
+        return 1;
       }
     }, to_window(actual_window), castToInt(x), castToInt(y), (int) col);
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                      "windowId not found: %d\n",
+                      (memSizeType) actual_window, x, y, col,
+                      to_window(actual_window)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwPPoint */
 
 
@@ -1041,29 +1328,40 @@ void drwPolyLine (const_winType actual_window,
   {
     int *coords;
     memSizeType numCoords;
+    int successInfo;
 
   /* drwPolyLine */
+    logFunction(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, (memSizeType) point_list, col););
     if (unlikely(!inIntRange(x) || !inIntRange(y))) {
       raise_error(RANGE_ERROR);
     } else {
       coords = (int *) point_list->mem;
       numCoords = point_list->size / sizeof(int);
       if (numCoords >= 4) {
-        EM_ASM({
-          if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+        successInfo = EM_ASM_INT({
+          if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
             let context = mapIdToContext[$0];
             context.lineWidth = 1;
-            context.strokeStyle = '#' + ('000000' + $5.toString(16)).slice(-6);
+            context.strokeStyle = "#" + ("000000" + $5.toString(16)).slice(-6);
             context.beginPath();
             context.moveTo($1 + HEAP32[$4 >> 2], $2 + HEAP32[($4 >> 2) + 1]);
             for (let i = 2; i < $3; i += 2) {
               context.lineTo($1 + HEAP32[($4 >> 2) + i], $2 + HEAP32[($4 >> 2) + i + 1]);
             }
             context.stroke();
+            return 0;
           } else {
-            console.log('drwPolyLine: windowId not found: ' + $0);
+            return 1;
           }
         }, to_window(actual_window), (int) x, (int) y, numCoords, coords, (int) col);
+        if (unlikely(successInfo != 0)) {
+          logError(printf("drwPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " FMT_D "): "
+                          "windowId not found: %d\n",
+                          (memSizeType) actual_window, x, y, (memSizeType) point_list, col,
+                          to_window(actual_window)););
+          raise_error(GRAPHIC_ERROR);
+        } /* if */
       } /* if */
     } /* if */
   } /* drwPolyLine */
@@ -1076,19 +1374,21 @@ void drwFPolyLine (const_winType actual_window,
   {
     int *coords;
     memSizeType numCoords;
+    int successInfo;
 
   /* drwFPolyLine */
+    logFunction(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, (memSizeType) point_list, col););
     if (unlikely(!inIntRange(x) || !inIntRange(y))) {
       raise_error(RANGE_ERROR);
     } else {
       coords = (int *) point_list->mem;
       numCoords = point_list->size / sizeof(int);
       if (numCoords >= 4) {
-        EM_ASM({
-          if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+        successInfo = EM_ASM_INT({
+          if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
             let context = mapIdToContext[$0];
-            context.lineWidth = 1;
-            context.strokeStyle = '#' + ('000000' + $5.toString(16)).slice(-6);
+            context.fillStyle = "#" + ("000000" + $5.toString(16)).slice(-6);
             context.beginPath();
             context.moveTo($1 + HEAP32[$4 >> 2], $2 + HEAP32[($4 >> 2) + 1]);
             for (let i = 2; i < $3; i += 2) {
@@ -1096,10 +1396,18 @@ void drwFPolyLine (const_winType actual_window,
             }
             context.closePath();
             context.fill();
+            return 0;
           } else {
-            console.log('drwFPolyLine: windowId not found: ' + $0);
+            return 1;
           }
         }, to_window(actual_window), (int) x, (int) y, numCoords, coords, (int) col);
+        if (unlikely(successInfo != 0)) {
+          logError(printf("drwFPolyLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ", " FMT_D "): "
+                          "windowId not found: %d\n",
+                          (memSizeType) actual_window, x, y, (memSizeType) point_list, col,
+                          to_window(actual_window)););
+          raise_error(GRAPHIC_ERROR);
+        } /* if */
       } /* if */
     } /* if */
   } /* drwFPolyLine */
@@ -1109,17 +1417,28 @@ void drwFPolyLine (const_winType actual_window,
 void drwPut (const_winType destWindow, intType xDest, intType yDest,
     const_winType pixmap)
 
-  { /* drwPut */
+  {
+    int successInfo;
+
+  /* drwPut */
     logFunction(printf("drwPut(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM ")\n",
                        (memSizeType) destWindow, xDest, yDest, (memSizeType) pixmap););
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined' &&
-                                           typeof mapIdToCanvas[$1] !== 'undefined') {
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined" &&
+                                           typeof mapIdToCanvas[$1] !== "undefined") {
         mapIdToContext[$0].drawImage(mapIdToCanvas[$1], $2, $3);
+        return 0;
       } else {
-        console.log('drwPut: windowId not found: ' + $0);
+        return 1;
       }
     }, to_window(destWindow), to_window(pixmap), castToInt(xDest), castToInt(yDest));
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwPut(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_U_MEM "): "
+                      "windowId not found: %d\n",
+                      (memSizeType) destWindow, xDest, yDest, (memSizeType) pixmap,
+                      to_window(destWindow)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwPut */
 
 
@@ -1148,19 +1467,30 @@ void drwRect (const_winType actual_window,
 void drwPRect (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 
-  { /* drwPRect */
+  {
+    int successInfo;
+
+  /* drwPRect */
     logFunction(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
                        (memSizeType) actual_window, x, y, width, height, col););
-    EM_ASM({
-      if (typeof window !== 'undefined' && typeof mapIdToContext[$0] !== 'undefined') {
+    successInfo = EM_ASM_INT({
+      if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
         let context = mapIdToContext[$0];
-        context.fillStyle = '#' + ('000000' + $5.toString(16)).slice(-6);
+        context.fillStyle = "#" + ("000000" + $5.toString(16)).slice(-6);
         context.fillRect($1, $2, $3, $4);
+        return 0;
       } else {
-        console.log('drwPRect: windowId not found: ' + $0);
+        return 1;
       }
     }, to_window(actual_window), castToInt(x), castToInt(y),
         castToInt(width), castToInt(height), (int) col);
+    if (unlikely(successInfo != 0)) {
+      logError(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) "): "
+                      "windowId not found: %d\n",
+                      (memSizeType) actual_window, x, y, width, height, col,
+                      to_window(actual_window)););
+      raise_error(GRAPHIC_ERROR);
+    } /* if */
   } /* drwPRect */
 
 
@@ -1187,6 +1517,8 @@ void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType
     *redLight   = (intType) (( ((uintType) col) >> 16       ) << 8);
     *greenLight = (intType) (((((uintType) col) >>  8) & 255) << 8);
     *blueLight  = (intType) (( ((uintType) col)        & 255) << 8);
+    logFunction(printf("drwPixelToRgb(" F_X(08) ", " FMT_D ", " FMT_D ", " FMT_D ") -->\n",
+                       col, *redLight, *greenLight, *blueLight););
   } /* drwPixelToRgb */
 
 
@@ -1212,7 +1544,7 @@ intType drwScreenHeight (void)
 
   /* drwScreenHeight */
     height = EM_ASM_INT({
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         return window.screen.height;
       } else {
         return -1;
@@ -1234,7 +1566,7 @@ intType drwScreenWidth (void)
 
   /* drwScreenWidth */
     width = EM_ASM_INT({
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         return window.screen.width;
       } else {
         return -1;
@@ -1267,7 +1599,7 @@ void drwSetContent (const_winType actual_window, const_winType pixmap)
 void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
 
   {
-    int okay;
+    int successInfo;
 
   /* drwSetPos */
     logFunction(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
@@ -1278,31 +1610,33 @@ void drwSetPos (const_winType actual_window, intType xPos, intType yPos)
       raise_error(RANGE_ERROR);
     } else {
       if (is_subwindow(actual_window)) {
-        okay = EM_ASM_INT({
-          if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
+        successInfo = EM_ASM_INT({
+          if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
             let canvas = mapIdToCanvas[$0];
             canvas.style.left = $1;
             canvas.style.top = $2;
-            return 1;
-          } else {
-            console.log('drwSetPos: windowId not found: ' + $0);
             return 0;
+          } else {
+            return 1;
           }
         }, to_window(actual_window), (int) xPos, (int) yPos);
       } else {
-        okay = EM_ASM_INT({
-          if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
+        successInfo = EM_ASM_INT({
+          if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
             let windowObject = mapIdToWindow[$0];
             windowObject.screenX = $1;
             windowObject.screenY = $2;
-            return 1;
-          } else {
-            console.log('drwSetPos: windowId not found: ' + $0);
             return 0;
+          } else {
+            return 1;
           }
         }, to_window(actual_window), (int) xPos, (int) yPos);
       } /* if */
-      if (unlikely(!okay)) {
+      if (unlikely(successInfo != 0)) {
+        logError(printf("drwSetPos(" FMT_U_MEM ", " FMT_D ", " FMT_D "): "
+                        "windowId not found: %d\n",
+                        (memSizeType) actual_window, xPos, yPos,
+                        to_window(actual_window)););
         raise_error(GRAPHIC_ERROR);
       } /* if */
     } /* if */
@@ -1327,7 +1661,46 @@ void drwSetWindowName (winType aWindow, const const_striType windowName)
 void drwText (const_winType actual_window, intType x, intType y,
     const const_striType stri, intType col, intType bkcol)
 
-  { /* drwText */
+  {
+    cstriType stri8;
+    memSizeType length;
+    int successInfo;
+
+  /* drwText */
+    logFunction(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D ", \"%s\", "
+                       F_X(08) ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y,
+                       striAsUnquotedCStri(stri), col, bkcol););
+    if (unlikely(!inIntRange(x) || !inIntRange(y))) {
+      raise_error(RANGE_ERROR);
+    } else {
+      stri8 = stri_to_cstri8_buf(stri, &length);
+      if (unlikely(stri8 == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        successInfo = EM_ASM_INT({
+          if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {
+            let context = mapIdToContext[$0];
+            context.fillStyle = "#" + ("000000" + $4.toString(16)).slice(-6);
+            context.font = "12px Arial";
+            context.fillText(Module.UTF8ToString($3), $1, $2); 
+            return 0;
+          } else {
+            return 1;
+          }
+        }, to_window(actual_window), (int) x, (int) y, stri8,
+            (int) col, (int) bkcol);
+        free_cstri8(stri8, stri);
+        if (unlikely(successInfo != 0)) {
+          logError(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D ", \"%s\", "
+                          F_X(08) ", " F_X(08) "): windowId not found: %d\n",
+                          (memSizeType) actual_window, x, y,
+                          striAsUnquotedCStri(stri), col, bkcol,
+                          to_window(actual_window)););
+          raise_error(GRAPHIC_ERROR);
+        } /* if */
+      } /* if */
+    } /* if */
   } /* drwText */
 
 
@@ -1335,6 +1708,16 @@ void drwText (const_winType actual_window, intType x, intType y,
 void drwToBottom (const_winType actual_window)
 
   { /* drwToBottom */
+    logFunction(printf("drwToBottom(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
+      EM_ASM({
+        let canvas = mapIdToCanvas[$0];
+        let parent = canvas.parentNode;
+        parent.removeChild(canvas);
+        parent.insertBefore(canvas, parent.firstChild);
+      }, to_window(actual_window));
+    logFunction(printf("drwToBottom(" FMT_U_MEM ") -->\n",
+                       (memSizeType) actual_window););
   } /* drwToBottom */
 
 
@@ -1342,6 +1725,18 @@ void drwToBottom (const_winType actual_window)
 void drwToTop (const_winType actual_window)
 
   { /* drwToTop */
+    logFunction(printf("drwToTop(" FMT_U_MEM ")\n",
+                       (memSizeType) actual_window););
+    if (is_subwindow(actual_window)) {
+      EM_ASM({
+        let canvas = mapIdToCanvas[$0];
+        let parent = canvas.parentNode;
+        parent.removeChild(canvas);
+        parent.appendChild(canvas);
+      }, to_window(actual_window));
+    } /* if */
+    logFunction(printf("drwToTop(" FMT_U_MEM ") -->\n",
+                       (memSizeType) actual_window););
   } /* drwToTop */
 
 
@@ -1354,22 +1749,7 @@ intType drwWidth (const_winType actual_window)
   /* drwWidth */
     logFunction(printf("drwWidth(" FMT_U_MEM ")\n",
                        (memSizeType) actual_window););
-    if (is_pixmap(actual_window)) {
-      width = to_width(actual_window);
-    } else {
-      width = EM_ASM_INT({
-        if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
-          return mapIdToCanvas[$0].width;
-        } else {
-          console.log('drwWidth: windowId not found: ' + $0);
-          return -1;
-        }
-      }, to_window(actual_window));
-      if (unlikely(width == -1)) {
-        raise_error(GRAPHIC_ERROR);
-        width = 0;
-      } /* if */
-    } /* if */
+    width = to_width(actual_window);
     logFunction(printf("drwWidth(" FMT_U_MEM ") --> %d\n",
                        (memSizeType) actual_window, width););
     return (intType) width;
@@ -1400,24 +1780,29 @@ intType drwXPos (const_winType actual_window)
     } else {
       if (is_subwindow(actual_window)) {
         xPos = EM_ASM_INT({
-          if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
-            return mapIdToCanvas[$0].style.left;
+          if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
+            let left = mapIdToCanvas[$0].style.left;
+            if (left.endsWith("px")) {
+              return left.substring(0, left.length - 2);
+            } else {
+              return left;
+            }
           } else {
-            console.log('drwXPos: windowId not found: ' + $0);
             return -2147483648;
           }
         }, to_window(actual_window));
       } else {
         xPos = EM_ASM_INT({
-          if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
+          if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
             return mapIdToWindow[$0].screenX;
           } else {
-            console.log('drwXPos: windowId not found: ' + $0);
             return -2147483648;
           }
         }, to_window(actual_window));
       } /* if */
       if (unlikely(xPos == -2147483648)) {
+        logError(printf("drwXPos(" FMT_U_MEM "): windowId not found: %d\n",
+                        (memSizeType) actual_window, to_window(actual_window)););
         raise_error(GRAPHIC_ERROR);
         xPos = 0;
       } /* if */
@@ -1452,24 +1837,29 @@ intType drwYPos (const_winType actual_window)
     } else {
       if (is_subwindow(actual_window)) {
         yPos = EM_ASM_INT({
-          if (typeof window !== 'undefined' && typeof mapIdToCanvas[$0] !== 'undefined') {
-            return mapIdToCanvas[$0].style.top;
+          if (typeof window !== "undefined" && typeof mapIdToCanvas[$0] !== "undefined") {
+            let top = mapIdToCanvas[$0].style.top;
+            if (top.endsWith("px")) {
+              return top.substring(0, top.length - 2);
+            } else {
+              return top;
+            }
           } else {
-            console.log('drwYPos: windowId not found: ' + $0);
             return -2147483648;
           }
         }, to_window(actual_window));
       } else {
         yPos = EM_ASM_INT({
-          if (typeof window !== 'undefined' && typeof mapIdToWindow[$0] !== 'undefined') {
+          if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
             return mapIdToWindow[$0].screenY;
           } else {
-            console.log('drwYPos: windowId not found: ' + $0);
             return -2147483648;
           }
         }, to_window(actual_window));
       } /* if */
       if (unlikely(yPos == -2147483648)) {
+        logError(printf("drwYPos(" FMT_U_MEM "): windowId not found: %d\n",
+                        (memSizeType) actual_window, to_window(actual_window)););
         raise_error(GRAPHIC_ERROR);
         yPos = 0;
       } /* if */

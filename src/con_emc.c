@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  con_emc.c     Driver for emcc (JavaScript) console access.      */
-/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
+/*  Copyright (C) 2015, 2019, 2023  Thomas Mertes                   */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/con_emc.c                                       */
-/*  Changes: 2015, 2019  Thomas Mertes                              */
+/*  Changes: 2015, 2019, 2023  Thomas Mertes                        */
 /*  Content: Driver for emcc (JavaScript) console access.           */
 /*                                                                  */
 /********************************************************************/
@@ -41,20 +41,25 @@
 
 #include "common.h"
 #include "heaputl.h"
+#include "striutl.h"
 #include "fil_rtl.h"
 #include "ut8_rtl.h"
+#include "emc_utl.h"
 
 #undef EXTERN
 #define EXTERN
 #include "kbd_drv.h"
 #include "con_drv.h"
 
-#define KEY_BUFFER_SIZE 1024
+
+#define TRACE_EVENTS 0
+#define WRITE_STRI_BLOCK_SIZE    512
 
 static boolType keybd_initialized = FALSE;
-static int keyBuffer[KEY_BUFFER_SIZE];
-static int keyBufferReadPos;
-static int keyBufferWritePos = 0;
+static keyDataType lastKey = {K_NONE, 0, 0, 0, NULL};
+static keyQueueType keyQueue = {NULL, NULL};
+
+static void kbdDoWaitOrPushKey (int milliSec);
 
 
 
@@ -65,212 +70,175 @@ void kbdShut (void)
 
 
 
-static void pushKey (int aKey)
-
-  { /* pushKey */
-    if (likely(keyBufferReadPos != (keyBufferWritePos + 1) % KEY_BUFFER_SIZE)) {
-      keyBuffer[keyBufferWritePos] = aKey;
-      keyBufferWritePos = (keyBufferWritePos + 1) % KEY_BUFFER_SIZE;
-    } /* if */
-  } /* pushKey */
-
-
-
-static int popKey (void)
-
-  {
-    int aKey;
-
-  /* popKey */
-    if (likely(keyBufferReadPos != keyBufferWritePos)) {
-      aKey = keyBuffer[keyBufferReadPos];
-      keyBufferReadPos = (keyBufferReadPos + 1) % KEY_BUFFER_SIZE;
-    } else {
-      aKey = EOF;
-    } /* if */
-    return aKey;
-  } /* popKey */
-
-
-
-static int mapKeyByName (char *name, int ctrl, int meta, int shift)
-
-  {
-    int aKey;
-
-  /* mapKeyByName */
-    if (name[0] >= 'a' && name[0] <= 'z' && name[1] == '\0') {
-      if (ctrl) {
-        aKey = K_CTL_A + (name[0] - 'a');
-      } else if (meta) {
-        aKey = K_ALT_A + (name[0] - 'a');
-      } else if (shift) {
-        aKey = 'A' + (name[0] - 'a');
-      } else {
-        aKey = name[0];
-      } /* if */
-    } else if (name[0] >= '0' && name[0] <= '9' && name[1] == '\0') {
-      aKey = name[0];
-    } else if (name[0] == 'f' && name[1] >= '1' && name[1] <= '9' && name[2] == '\0') {
-      if (ctrl) {
-        aKey = K_CTL_F1 + (name[1] - '1');
-      } else if (meta) {
-        aKey = K_ALT_F1 + (name[1] - '1');
-      } else if (shift) {
-        aKey = K_SFT_F1 + (name[1] - '1');
-      } else {
-        aKey = K_F1 + (name[1] - '1');
-      } /* if */
-    } else if (name[0] == 'f' && name[1] == '1' && name[2] >= '0' && name[2] <= '2' && name[3] == '\0') {
-      if (ctrl) {
-        aKey = K_CTL_F10 + (name[2] - '0');
-      } else if (meta) {
-        aKey = K_ALT_F10 + (name[2] - '0');
-      } else if (shift) {
-        aKey = K_SFT_F10 + (name[2] - '0');
-      } else {
-        aKey = K_F10 + (name[2] - '0');
-      } /* if */
-    } else if (strcmp(name, "left") == 0) {
-      if (ctrl) {
-        aKey = K_CTL_LEFT;
-      } else {
-        aKey = K_LEFT;
-      } /* if */
-    } else if (strcmp(name, "right") == 0) {
-      if (ctrl) {
-        aKey = K_CTL_RIGHT;
-      } else {
-        aKey = K_RIGHT;
-      } /* if */
-    } else if (strcmp(name, "up") == 0) {
-      if (ctrl) {
-        aKey = K_CTL_UP;
-      } else {
-        aKey = K_UP;
-      } /* if */
-    } else if (strcmp(name, "down") == 0) {
-      if (ctrl) {
-        aKey = K_CTL_DOWN;
-      } else {
-        aKey = K_DOWN;
-      } /* if */
-    } else if (strcmp(name, "home") == 0) {
-      if (ctrl) {
-        aKey = K_CTL_HOME;
-      } else {
-        aKey = K_HOME;
-      } /* if */
-    } else if (strcmp(name, "end") == 0) {
-      if (ctrl) {
-        aKey = K_CTL_END;
-      } else {
-        aKey = K_END;
-      } /* if */
-    } else if (strcmp(name, "pageup") == 0) {
-      if (ctrl) {
-        aKey = K_CTL_PGUP;
-      } else {
-        aKey = K_PGUP;
-      } /* if */
-    } else if (strcmp(name, "pagedown") == 0) {
-      if (ctrl) {
-        aKey = K_CTL_PGDN;
-      } else {
-        aKey = K_PGDN;
-      } /* if */
-    } else if (strcmp(name, "insert") == 0) {
-      if (ctrl) {
-        aKey = K_CTL_INS;
-      } else {
-        aKey = K_INS;
-      } /* if */
-    } else if (strcmp(name, "delete") == 0) {
-      if (ctrl) {
-        aKey = K_CTL_DEL;
-      } else {
-        aKey = K_DEL;
-      } /* if */
-    } else if (strcmp(name, "tab") == 0) {
-      if (shift) {
-        aKey = K_BACKTAB;
-      } else {
-        aKey = K_TAB;
-      } /* if */
-    } else if (strcmp(name, "backspace") == 0) {
-      aKey = K_BS;
-    } else if (strcmp(name, "enter") == 0 || strcmp(name, "return") == 0) {
-      aKey = K_NL;
-    } else {
-      aKey = '?';
-    } /* if */
-    return aKey;
-  } /* mapKeyByName */
-
-
-
-static int mapKeyBySequence (char *sequence, int ctrl, int meta, int shift)
-
-  {
-    int aKey;
-
-  /* mapKeyBySequence */
-    printf("mapKeyBySequence: %s\n", sequence);
-    aKey = EOF;
-    return aKey;
-  } /* mapKeyBySequence */
-
-
-
 static void kbd_init (void)
 
   { /* kbd_init */
     logFunction(printf("kbd_init\n"););
-#ifdef OUT_OF_ORDER
-    EM_ASM(
-      const readline = require('readline');
+    doWaitOrPushKey = &kbdDoWaitOrPushKey;
+    EM_ASM({
+      const readline = require("readline");
       readline.emitKeypressEvents(process.stdin);
       process.stdin.setRawMode(true);
-      process.stdin.on('keypress', (str, key) => {
-        let aKey;
-        if (typeof key.name !== 'undefined') {
-          aKey = Module.ccall('mapKeyByName', // name of C function
-                              'number', // return type
-                              ['string', 'number', 'number', 'number'], // argument types
-                              [key.name, key.ctrl, key.meta, key.shift]); // arguments
-        } else {
-          aKey = Module.ccall('mapKeyBySequence', // name of C function
-                              'number', // return type
-                              ['string', 'number', 'number', 'number'], // argument types
-                              [key.sequence, key.ctrl, key.meta, key.shift]); // arguments
-        }
-        Module.ccall('pushKey', // name of C function
-                     null, // return type
-                     ['number'], // argument types
-                     aKey); // arguments
-      });
-    );
-#endif
+      mapKeynameToId = new Map([
+        ["f1",             1],
+        ["f2",             2],
+        ["f3",             3],
+        ["f4",             4],
+        ["f5",             5],
+        ["f6",             6],
+        ["f7",             7],
+        ["f8",             8],
+        ["f9",             9],
+        ["f10",           10],
+        ["f11",           11],
+        ["f12",           12],
+        ["left",          13],
+        ["right",         14],
+        ["up",            15],
+        ["down",          16],
+        ["home",          17],
+        ["end",           18],
+        ["pageup",        19],
+        ["pagedown",      20],
+        ["insert",        21],
+        ["delete",        22],
+        ["enter",         23],
+        ["return",        23],
+        ["backspace",     24],
+        ["tab",           25],
+        ["escape",        26],
+        ["clear",         35]
+      ]);
+    });
     keybd_initialized = TRUE;
     logFunction(printf("kbd_init -->\n"););
   } /* kbd_init */
 
 
 
-boolType kbdInputReady (void)
+static void addEventPromiseForStdin (void)
+
+  { /* addEventPromiseForStdin */
+    logFunction(printf("addEventPromiseForStdin\n"););
+    EM_ASM({
+      eventPromises.push(new Promise(resolve => {
+        function handler (str, key) {
+          process.stdin.removeListener("keypress", handler);
+          resolve(key);
+        }
+        process.stdin.on("keypress", handler);
+        registerCallback2(handler);
+      }));
+    });
+    logFunction(printf("addEventPromiseForStdin -->\n"););
+  } /* addEventPromiseForStdin */
+
+
+
+static void setupEventPromises (void)
+
+  { /* setupEventPromises */
+    EM_ASM({
+      eventPromises = [];
+    });
+    addEventPromiseForStdin();
+  } /* setupEventPromises */
+
+
+
+static void freeEventPromises (void)
+
+  { /* freeEventPromises */
+    EM_ASM({
+      executeCallbacks2();
+      eventPromises = [];
+    });
+  } /* freeEventPromises */
+
+
+
+EMSCRIPTEN_KEEPALIVE int decodeKeypress (int keyNameId, int key1, int key2,
+    int keyLength, boolType shiftKey, boolType ctrlKey, boolType altKey)
 
   {
-    boolType result;
+    int pressedKey;
 
-  /* kbdInputReady */
-    logFunction(printf("kbdInputReady\n"););
-    if (!keybd_initialized) {
-      kbd_init();
+  /* decodeKeypress */
+    logFunction(printf("decodeKeypress(%d, %d, %d, %d, %d, %d, %d)\n",
+			keyNameId, key1, key2, keyLength,
+                        shiftKey, ctrlKey, altKey););
+    if (keyLength == 1) {
+      if (key1 < ' ') {
+        if (key1 == 13) {
+          pressedKey = K_NL;
+        } else {
+          pressedKey = key1;
+        } /* if */
+      } else if (key1 == 127 && keyNameId == 24 /* backspace */) {
+        pressedKey = K_BS;
+      } else if (ctrlKey) {
+        if (key1 >= 'A' && key1 <= 'Z') {
+          pressedKey = key1 - 'A' + K_CTL_A;
+        } else if (key1 >= 'a' && key1 <= 'z') {
+          pressedKey = key1 - 'a' + K_CTL_A;
+        } else if (key1 >= '0' && key1 <= 57) {
+          pressedKey = key1 - '0' + K_CTL_0;
+        } else {
+          pressedKey = K_UNDEF;
+        }
+      } else if (altKey) {
+        if (key1 >= 'A' && key1 <= 'Z') {
+          pressedKey = key1 - 'A' + K_ALT_A;
+        } else if (key1 >= 'a' && key1 <= 'z') {
+          pressedKey = key1 - 'a' + K_ALT_A;
+        } else if (key1 >= '0' && key1 <= 57) {
+          pressedKey = key1 - '0' + K_ALT_0;
+        } else {
+          pressedKey = K_UNDEF;
+        } /* if */
+      } else {
+        pressedKey = key1;
+      } /* if */
+    } else if (keyLength == 2 && key1 == 27) {
+      if (key2 >= 'A' && key2 <= 'Z') {
+        pressedKey = key2 - 'A' + K_ALT_A;
+      } else if (key2 >= 'a' && key2 <= 'z') {
+        pressedKey = key2 - 'a' + K_ALT_A;
+      } else if (key2 >= '0' && key2 <= 57) {
+        pressedKey = key2 - '0' + K_ALT_0;
+      } else {
+        pressedKey = mapKeyNameIdToKey(keyNameId, shiftKey, ctrlKey, altKey, TRUE);
+      } /* if */
+    } else {
+      pressedKey = mapKeyNameIdToKey(keyNameId, shiftKey, ctrlKey, altKey, TRUE);
     } /* if */
-    result = keyBufferReadPos != keyBufferWritePos;
-    logFunction(printf("kbdInputReady --> %d\n", result););
-    return result;
-  } /* kbdInputReady */
+    logFunction(printf("decodeKeypress(%d, %d, %d, %d, %d, %d, %d) --> %d\n",
+                       keyNameId, key1, key2, keyLength,
+                       shiftKey, ctrlKey, altKey, pressedKey););
+    return pressedKey;
+  } /* decodeKeypress */
+
+
+
+EM_ASYNC_JS(int, asyncKbdGetc, (void), {
+    // console.log("asyncKbdGetc");
+    const key = await Promise.any(eventPromises);
+    // console.log("after await");
+    if (typeof key === "number") {
+      return key;
+    } else {
+#if TRACE_EVENTS
+      console.log(key);
+#endif
+      return Module.ccall("decodeKeypress",
+                          "number",
+                          ["number", "number", "number", "number",
+                           "boolean", "boolean", "boolean"],
+                          [mapKeynameToId.get(key.name), key.sequence.charCodeAt(0),
+                           key.sequence.charCodeAt(1), key.sequence.length,
+                           key.shift, key.ctrl, key.meta,]);
+    }
+  }); /* asyncKbdGetc */
 
 
 
@@ -284,13 +252,83 @@ charType kbdGetc (void)
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    if (kbdInputReady()) {
-      result = (charType) popKey();
+    if (keyQueue.queueOut != NULL) {
+      dequeue(&keyQueue, &lastKey);
+      result = lastKey.key;
+      lastKey.key = K_NONE;
+    } else if (lastKey.key != K_NONE) {
+      result = lastKey.key;
+      lastKey.key = K_NONE;
     } else {
-      result = (charType) EOF;
+      do {
+        setupEventPromises();
+        result = (charType) asyncKbdGetc();
+        freeEventPromises();
+      } while (result == K_NONE);
     } /* if */
+    logFunction(printf("kbdGetc --> %d\n", result););
     return result;
   } /* kbdGetc */
+
+
+
+static charType waitOrGetc (int milliSec)
+
+  {
+    charType result;
+
+  /* waitOrGetc */
+    logFunction(printf("waitOrGetc(%d)\n", milliSec););
+    setupEventPromises();
+    EM_ASM({
+      eventPromises.push(new Promise(resolve =>
+        setTimeout(() => resolve($0), $1)
+      ));
+    }, K_NONE,  milliSec);
+    result = (charType) asyncKbdGetc();
+    freeEventPromises();
+    logFunction(printf("waitOrGetc --> %d\n", result););
+    return result;
+  } /* waitOrGetc */
+
+
+
+static void kbdDoWaitOrPushKey (int milliSec)
+
+  { /* kbdDoWaitOrPushKey */
+    logFunction(printf("kbdDoWaitOrPushKey(%d)\n", milliSec););
+    if (lastKey.key != K_NONE) {
+      enqueue(&keyQueue, &lastKey);
+    } /* if */
+    lastKey.key = waitOrGetc(milliSec);
+    if (lastKey.key != K_NONE) {
+      enqueue(&keyQueue, &lastKey);
+      lastKey.key = K_NONE;
+    } /* if */
+    logFunction(printf("kbdDoWaitOrPushKey(%d) -->\n", milliSec););
+  } /* kbdDoWaitOrPushKey */
+
+
+
+boolType kbdInputReady (void)
+
+  {
+    boolType inputReady;
+
+  /* kbdInputReady */
+    logFunction(printf("kbdInputReady\n"););
+    if (!keybd_initialized) {
+      kbd_init();
+    } /* if */
+    if (keyQueue.queueOut != NULL || lastKey.key != K_NONE) {
+      inputReady = TRUE;
+    } else {
+      lastKey.key = waitOrGetc(1);
+      inputReady = lastKey.key != K_NONE;
+    } /* if */
+    logFunction(printf("kbdInputReady --> %d\n", inputReady););
+    return inputReady;
+  } /* kbdInputReady */
 
 
 
@@ -301,7 +339,7 @@ charType kbdRawGetc (void)
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    return (charType) EOF;
+    return kbdGetc();
   } /* kbdRawGetc */
 
 
@@ -364,8 +402,46 @@ intType conLine (void)
  */
 void conWrite (const const_striType stri)
 
-  { /* conWrite */
-    ut8Write(&stdoutFileRecord, stri);
+  {
+    const strElemType *str;
+    memSizeType len;
+    memSizeType size;
+    ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE) +
+                          NULL_TERMINATION_LEN];
+    static int useProcess = -1;
+
+  /* conWrite */
+    logFunction(printf("conWrite(\"%s\")\n", striAsUnquotedCStri(stri)););
+    if (useProcess == -1) {
+      useProcess = EM_ASM_INT({
+        if (typeof process !== "undefined") {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+    } /* if */
+    if (useProcess == 0) {
+      ut8Write(&stdoutFileRecord, stri);
+    } else {
+      for (str = stri->mem, len = stri->size; len >= WRITE_STRI_BLOCK_SIZE;
+           str += WRITE_STRI_BLOCK_SIZE, len -= WRITE_STRI_BLOCK_SIZE) {
+        size = stri_to_utf8(stri_buffer, str, WRITE_STRI_BLOCK_SIZE);
+        stri_buffer[size] = '\0';
+        EM_ASM({
+          let stri = Module.UTF8ToString($0);
+          process.stdout.write(stri);
+        }, stri_buffer);
+      } /* for */
+      if (len > 0) {
+        size = stri_to_utf8(stri_buffer, str, len);
+        stri_buffer[size] = '\0';
+        EM_ASM({
+          let stri = Module.UTF8ToString($0);
+          process.stdout.write(stri);
+        }, stri_buffer);
+      } /* if */
+    } /* if */
   } /* conWrite */
 
 

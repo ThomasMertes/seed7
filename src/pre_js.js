@@ -32,7 +32,31 @@
 var mapIdToWindow = {};
 var mapIdToCanvas = {};
 var mapIdToContext = {};
-var currentWindowId = 0;  
+var currentWindowId = 0;
+var callbackList = [];
+function registerCallback (callback) {
+    // console.log("register callback " + callbackList.length.toString());
+    callbackList.push(callback);
+}
+function executeCallbacks () {
+    for (let i = 0; i < callbackList.length; i++) {
+        // console.log("execute callback " + i.toString());
+        callbackList[i](1114511); // K_NONE
+    }
+    callbackList = [];
+}
+var callbackList2 = [];
+function registerCallback2 (callback) {
+    // console.log("register callback " + callbackList.length.toString());
+    callbackList2.push(callback);
+}
+function executeCallbacks2 () {
+    for (let i = 0; i < callbackList2.length; i++) {
+        // console.log("execute callback2 " + i.toString());
+        callbackList2[i](["", null]);
+    }
+    callbackList2 = [];
+}
 if (typeof document !== "undefined") {
   let scripts = document.getElementsByTagName('script');
   let index = scripts.length - 1;

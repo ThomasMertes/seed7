@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  fil_unx.c     File functions which call the Unix API.           */
-/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
+/*  fil_emc.c     File functions which use Emscripten.              */
+/*  Copyright (C) 1989 - 2012, 2023  Thomas Mertes                  */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,8 +23,8 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/fil_unx.c                                       */
-/*  Changes: 2011, 2012  Thomas Mertes                              */
+/*  File: seed7/src/fil_emc.c                                       */
+/*  Changes: 2011, 2012, 2023  Thomas Mertes                        */
 /*  Content: File functions which call the Unix API.                */
 /*                                                                  */
 /********************************************************************/
@@ -43,6 +43,9 @@
 #include "poll.h"
 #else
 #include "fcntl.h"
+#endif
+#ifdef MOUNT_NODEFS
+#include "emscripten.h"
 #endif
 #include "errno.h"
 
@@ -314,6 +317,41 @@ void filPipe (fileType *inFile, fileType *outFile)
 
 
 
+#ifdef DETERMINE_OS_PROPERTIES_AT_RUNTIME
+EMSCRIPTEN_KEEPALIVE void setOsProperties (char *nullDeviceName, unsigned char *pathDelimiter,
+                                           int useDriveLetters, int envCaseInsensitive)
+
+  { /* setOsProperties */
+    logFunction(printf("setOsProperties(\"%s\", \"%s\", %d, %d)\n",
+                       nullDeviceName, pathDelimiter, useDriveLetters, envCaseInsensitive););
+    if ((nullDevice = malloc(strlen(nullDeviceName) + NULL_TERMINATION_LEN)) != NULL) {
+      strcpy(nullDevice, nullDeviceName);
+    } /* if */
+    shellPathDelimiter = pathDelimiter[0];
+    shellUsesDriveLetters = useDriveLetters;
+#ifdef EMULATE_ENVIRONMENT
+    if (envCaseInsensitive) {
+      environmentStrncmp = strncasecmp;
+    } else {
+      environmentStrncmp = strncmp;
+    } /* if */
+#endif
+  } /* setOsProperties */
+#endif
+
+
+
+#ifdef EMULATE_NODE_ENVIRONMENT
+EMSCRIPTEN_KEEPALIVE void setEnvironmentVar (char *key, char *value)
+
+  { /* setEnvironmentVar */
+    logFunction(printf("setEnvironmentVar(\"%s\", \"%s\")\n", key, value););
+    setenv7(key, value, 1);
+  } /* setEnvironmentVar */
+#endif
+
+
+
 void setupFiles (void)
 
   { /* setupFiles */
@@ -321,5 +359,96 @@ void setupFiles (void)
     stdinFileRecord.cFile = stdin;
     stdoutFileRecord.cFile = stdout;
     stderrFileRecord.cFile = stderr;
+#ifdef MOUNT_NODEFS
+    EM_ASM(
+      let bslash = String.fromCharCode(92);
+      let setEnvironmentVar = Module.cwrap("setEnvironmentVar", "number", ["string", "string"]);
+      let setOsProperties = Module.cwrap("setOsProperties", "number", ["string", "string", "number"]);
+      if (typeof require === "function") {
+        let fs;
+        let os;
+        try {
+          fs = require("fs");
+          os = require("os");
+        } catch (e) {
+          fs = null;
+          os = null;
+        }
+        if (fs !== null) {
+          let statData;
+          if (os.platform() === "win32") {
+            for (let drive = 0; drive < 26; drive++) {
+              let ch = String.fromCharCode("a".charCodeAt(0) + drive);
+              try {
+                statData = fs.statSync(ch + ":/");
+                // console.log("drive: " + ch + " exists");
+                if (statData.isDirectory()) {
+                  try {
+                    statData = FS.stat("/" + ch);
+                  } catch (e) {
+                    // console.log("mkdir: " + "/" + ch);
+                    FS.mkdir("/" + ch);
+                  }
+                  FS.mount(NODEFS, { root: ch + ":/" }, "/" + ch);
+                }
+              } catch (e) {
+              }
+            }
+          } else {
+            let files = fs.readdirSync("/");
+            for (let idx in files) {
+              // console.log("file: " + files[idx]);
+              if (fs.statSync("/" + files[idx]).isDirectory()) {
+                try {
+                  statData = FS.stat("/" + files[idx]);
+                } catch (e) {
+                  // console.log("mkdir: " + "/" + files[idx]);
+                  FS.mkdir("/" + files[idx]);
+                }
+                FS.mount(NODEFS, { root: "/" + files[idx] }, "/" + files[idx]);
+              }
+            }
+          }
+          let workDir = process.cwd().replace(new RegExp(bslash + bslash, "g"), "/");
+          if (workDir.charAt(1) === ":" && workDir.charAt(2) === "/") {
+            workDir = "/" + workDir.charAt(0).toLowerCase() + workDir.substring(2);
+          }
+          // console.log("workDir: " + workDir);
+          FS.chdir(workDir);
+        }
+#ifdef DETERMINE_OS_PROPERTIES_AT_RUNTIME
+        // Setup nullDevice, shellPathDelimiter and shellUsesDriveLetters variables.
+        if (process.platform === "win32") {
+          setOsProperties("NUL:", bslash, 1, 1);
+        } else {
+          setOsProperties("/dev/null", "/", 0, 0);
+        }
+#endif
+#ifdef EMULATE_NODE_ENVIRONMENT
+        // Setup environment
+        Object.keys(process.env).forEach(function(key) {
+          setEnvironmentVar(key, process.env[key]);
+        });
+#endif
+      } else {
+        let scripts = document.getElementsByTagName("script");
+        let index = scripts.length - 1;
+        let myScript = scripts[index];
+        // console.log("myScript.src is " + myScript.src);
+        let src = myScript.src;
+        let n = src.search(bslash + "?");
+        let queryString = "";
+        if (n !== -1) {
+          queryString = myScript.src.substring(n + 1).replace("+", "%2B");
+        }
+#ifdef DETERMINE_OS_PROPERTIES_AT_RUNTIME
+        setOsProperties("/dev/null", "/", 0, 0);
+#endif
+        setEnvironmentVar("QUERY_STRING", queryString);
+        setEnvironmentVar("HOME", "/home/web_user");
+        // console.log("queryString is " + queryString);
+      }
+    );
+#endif
     logFunction(printf("setupFiles -->\n"););
   } /* setupFiles */
