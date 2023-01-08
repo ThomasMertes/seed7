@@ -1653,7 +1653,39 @@ void drwSetTransparentColor (winType pixmap, intType col)
 
 void drwSetWindowName (winType aWindow, const const_striType windowName)
 
-  { /* drwSetWindowName */
+  {
+    char *winName;
+    errInfoType err_info = OKAY_NO_ERROR;
+    int successInfo;
+
+  /* drwSetWindowName */
+    logFunction(printf("drwSetWindowName(" FMT_U_MEM ", \"%s\")\n",
+                       (memSizeType) aWindow,
+                       striAsUnquotedCStri(windowName)););
+    winName = stri_to_cstri8(windowName, &err_info);
+    if (unlikely(winName == NULL)) {
+      raise_error(err_info);
+    } else {
+      successInfo = EM_ASM_INT({
+        if (typeof window !== "undefined" && typeof mapIdToWindow[$0] !== "undefined") {
+          let windowObject = mapIdToWindow[$0];
+          let windowName = Module.UTF8ToString($1);
+          windowObject.document.title = windowName;
+          return 0;
+        } else {
+          return 1;
+        }
+      }, to_window(aWindow), winName);
+      free_cstri8(winName, windowName);
+      if (unlikely(successInfo != 0)) {
+        logError(printf("drwSetWindowName(" FMT_U_MEM ", \"%s\"): "
+                        "windowId not found: %d\n",
+                        (memSizeType) aWindow,
+                        striAsUnquotedCStri(windowName),
+                        to_window(aWindow)););
+        raise_error(GRAPHIC_ERROR);
+      } /* if */
+    } /* if */
   } /* drwSetWindowName */
 
 
