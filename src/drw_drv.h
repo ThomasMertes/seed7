@@ -95,7 +95,7 @@ void drwPLine (const_winType actual_window,
 winType drwNewPixmap (intType width, intType height);
 winType drwNewBitmap (const_winType actual_window, intType width, intType height);
 winType drwOpen (intType xPos, intType yPos,
-    intType width, intType height, const const_striType window_name);
+    intType width, intType height, const const_striType windowName);
 winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPos,
     intType width, intType height);
 void drwSetCloseAction (winType actual_window, intType closeAction);

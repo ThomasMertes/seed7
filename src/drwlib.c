@@ -1019,7 +1019,7 @@ objectType drw_open (listType arguments)
 
   {
     intType xPos, yPos, width, height;
-    striType window_name;
+    striType windowName;
 
   /* drw_open */
     isit_int(arg_1(arguments));
@@ -1031,9 +1031,9 @@ objectType drw_open (listType arguments)
     yPos = take_int(arg_2(arguments));
     width = take_int(arg_3(arguments));
     height = take_int(arg_4(arguments));
-    window_name = take_stri(arg_5(arguments));
+    windowName = take_stri(arg_5(arguments));
     return bld_win_temp(
-        drwOpen(xPos, yPos, width, height, window_name));
+        drwOpen(xPos, yPos, width, height, windowName));
   } /* drw_open */
 
 

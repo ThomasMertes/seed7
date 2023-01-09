@@ -1674,10 +1674,10 @@ winType drwNewBitmap (const_winType actual_window, intType width, intType height
 
 
 winType drwOpen (intType xPos, intType yPos,
-    intType width, intType height, const const_striType window_name)
+    intType width, intType height, const const_striType windowName)
 
   {
-    char *win_name;
+    char *winName8;
     XSizeHints myhint;
     XWMHints mywmhint;
     XSetWindowAttributes attributes;
@@ -1699,11 +1699,11 @@ winType drwOpen (intType xPos, intType yPos,
         logError(printf("drwOpen: drawInit() failed to open a display.\n"););
         raise_error(GRAPHIC_ERROR);
       } else {
-        win_name = stri_to_cstri8(window_name, &err_info);
-        if (unlikely(win_name == NULL)) {
+        winName8 = stri_to_cstri8(windowName, &err_info);
+        if (unlikely(winName8 == NULL)) {
           logError(printf("drwOpen: stri_to_cstri8(\"%s\") failed:\n"
                           "err_info=%d\n",
-                          striAsUnquotedCStri(window_name), err_info););
+                          striAsUnquotedCStri(windowName), err_info););
           raise_error(err_info);
         } else {
           if (ALLOC_RECORD2(result, x11_winRecord, count.win, count.win_bytes)) {
@@ -1730,7 +1730,7 @@ winType drwOpen (intType xPos, intType yPos,
             result->height = (unsigned int) height;
 
             XSetStandardProperties(mydisplay, result->window,
-                win_name, win_name,
+                winName8, winName8,
                 None, /* argv, argc, */ NULL, 0, &myhint);
 
             mywmhint.flags = InputHint;
@@ -1760,7 +1760,7 @@ winType drwOpen (intType xPos, intType yPos,
             XFlush(mydisplay);
             XSync(mydisplay, 0);
           } /* if */
-          free_cstri8(win_name, window_name);
+          free_cstri8(winName8, windowName);
         } /* if */
       } /* if */
     } /* if */

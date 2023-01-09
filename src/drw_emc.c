@@ -999,27 +999,27 @@ winType drwNewPixmap (intType width, intType height)
 
 
 winType drwOpen (intType xPos, intType yPos,
-    intType width, intType height, const const_striType window_name)
+    intType width, intType height, const const_striType windowName)
 
   {
-    char *win_name;
+    char *winName8;
     int windowIdAndFlags;
     errInfoType err_info = OKAY_NO_ERROR;
     emc_winType result = NULL;
 
   /* drwOpen */
     logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", \"%s\")\n",
-                        xPos, yPos, width, height, striAsUnquotedCStri(window_name)););
+                        xPos, yPos, width, height, striAsUnquotedCStri(windowName)););
     if (unlikely(!inIntRange(xPos) || !inIntRange(yPos) ||
                  !inIntRange(width) || !inIntRange(height) ||
                  width < 1 || height < 1)) {
       raise_error(RANGE_ERROR);
     } else {
-      win_name = stri_to_cstri8(window_name, &err_info);
-      if (unlikely(win_name == NULL)) {
+      winName8 = stri_to_cstri8(windowName, &err_info);
+      if (unlikely(winName8 == NULL)) {
         logError(printf("drwOpen: stri_to_cstri8(\"%s\") failed:\n"
                         "err_info=%d\n",
-                        striAsUnquotedCStri(window_name), err_info););
+                        striAsUnquotedCStri(windowName), err_info););
         raise_error(err_info);
       } else {
 
@@ -1069,14 +1069,14 @@ winType drwOpen (intType xPos, intType yPos,
           } else {
             return 0;
           }
-        }, (int) xPos, (int) yPos, (int) width, (int) height, win_name);
+        }, (int) xPos, (int) yPos, (int) width, (int) height, winName8);
 
-        free_cstri8(win_name, window_name);
+        free_cstri8(winName8, windowName);
         if (unlikely(windowIdAndFlags == 0)) {
           logError(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D
                           ", \"%s\"): Failed to open window.\n",
                           xPos, yPos, width, height,
-                          striAsUnquotedCStri(window_name)););
+                          striAsUnquotedCStri(windowName)););
           raise_error(GRAPHIC_ERROR);
         } else if (unlikely(!ALLOC_RECORD2(result, emc_winRecord, count.win,
                                            count.win_bytes))) {
@@ -1654,7 +1654,7 @@ void drwSetTransparentColor (winType pixmap, intType col)
 void drwSetWindowName (winType aWindow, const const_striType windowName)
 
   {
-    char *winName;
+    char *winName8;
     errInfoType err_info = OKAY_NO_ERROR;
     int successInfo;
 
@@ -1662,8 +1662,11 @@ void drwSetWindowName (winType aWindow, const const_striType windowName)
     logFunction(printf("drwSetWindowName(" FMT_U_MEM ", \"%s\")\n",
                        (memSizeType) aWindow,
                        striAsUnquotedCStri(windowName)););
-    winName = stri_to_cstri8(windowName, &err_info);
-    if (unlikely(winName == NULL)) {
+    winName8 = stri_to_cstri8(windowName, &err_info);
+    if (unlikely(winName8 == NULL)) {
+      logError(printf("drwSetWindowName: stri_to_cstri8(\"%s\") failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(windowName), err_info););
       raise_error(err_info);
     } else {
       successInfo = EM_ASM_INT({
@@ -1675,8 +1678,8 @@ void drwSetWindowName (winType aWindow, const const_striType windowName)
         } else {
           return 1;
         }
-      }, to_window(aWindow), winName);
-      free_cstri8(winName, windowName);
+      }, to_window(aWindow), winName8);
+      free_cstri8(winName8, windowName);
       if (unlikely(successInfo != 0)) {
         logError(printf("drwSetWindowName(" FMT_U_MEM ", \"%s\"): "
                         "windowId not found: %d\n",
@@ -1695,7 +1698,7 @@ void drwText (const_winType actual_window, intType x, intType y,
 
   {
     cstriType stri8;
-    memSizeType length;
+    errInfoType err_info = OKAY_NO_ERROR;
     int successInfo;
 
   /* drwText */
@@ -1706,9 +1709,12 @@ void drwText (const_winType actual_window, intType x, intType y,
     if (unlikely(!inIntRange(x) || !inIntRange(y))) {
       raise_error(RANGE_ERROR);
     } else {
-      stri8 = stri_to_cstri8_buf(stri, &length);
+      stri8 = stri_to_cstri8(stri, &err_info);
       if (unlikely(stri8 == NULL)) {
-        raise_error(MEMORY_ERROR);
+        logError(printf("drwText: stri_to_cstri8(\"%s\") failed:\n"
+                        "err_info=%d\n",
+                        striAsUnquotedCStri(stri), err_info););
+        raise_error(err_info);
       } else {
         successInfo = EM_ASM_INT({
           if (typeof window !== "undefined" && typeof mapIdToContext[$0] !== "undefined") {

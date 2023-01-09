@@ -373,7 +373,7 @@ winType drwNewPixmap (intType width, intType height)
 
 
 winType drwOpen (intType xPos, intType yPos,
-    intType width, intType height, const const_striType window_name)
+    intType width, intType height, const const_striType windowName)
 
   { /* drwOpen */
     raise_error(GRAPHIC_ERROR);
