@@ -5484,7 +5484,7 @@ const proc: write_file_head is func
       writeln(c_prog, "  intType line;");
       writeln(c_prog, "  char *name;");
       writeln(c_prog, "};");
-      writeln(c_prog, "static struct profileElement profile[];");
+      writeln(c_prog, "static struct profileElement *profile;");
       writeln(c_prog, "static void initProfile (void);");
       writeln(c_prog, "static int cmpProfileElement (const void *elem1, const void *elem2)");
       writeln(c_prog, "{");
@@ -7110,26 +7110,29 @@ const proc: process_global_declarations (in program: prog) is func
       int_type := getValue(sysVar(prog, "integer"), type);
       numObjects := objNumber(alloc(TRUE, int_type, 0));
       writeln(c_prog, "static unsigned int profile_size = " <& numObjects <& ";");
-      writeln(c_prog, "static struct profileElement profile[" <& numObjects <& "];");
       writeln(c_prog);
       writeln(c_prog, "static void initProfile (void)");
       writeln(c_prog, "{");
       writeln(c_prog, "  memSizeType index;");
-      writeln(c_prog, "  memset(profile, 0, " <& numObjects <& " * sizeof(struct profileElement));");
-      writeln(c_prog, "  for (index = 0; index < " <& numObjects <& "; index++) {");
-      writeln(c_prog, "    profile[index].file = \"\";");
-      writeln(c_prog, "    profile[index].name = \"\";");
-      writeln(c_prog, "  }");
+      writeln(c_prog, "  profile = (struct profileElement *) malloc(" <&
+              numObjects <& " * sizeof(struct profileElement));");
+      writeln(c_prog, "  if (profile != NULL) {");
+      writeln(c_prog, "    memset(profile, 0, " <& numObjects <& " * sizeof(struct profileElement));");
+      writeln(c_prog, "    for (index = 0; index < " <& numObjects <& "; index++) {");
+      writeln(c_prog, "      profile[index].file = \"\";");
+      writeln(c_prog, "      profile[index].name = \"\";");
+      writeln(c_prog, "    }");
       for index range 1 to pred(numObjects) do
         if index in profiledFunctions then
-          write(c_prog, "  profile[" <& index <& "].file = " <&
+          write(c_prog, "    profile[" <& index <& "].file = " <&
                 c_literal(toUtf8(file(profiledFunctions[index]))) <& ";");
-          write(c_prog, " profile[" <& index <& "].line = " <&
+          write(c_prog, "    profile[" <& index <& "].line = " <&
                 line(profiledFunctions[index]) <& ";");
-          writeln(c_prog, " profile[" <& index <& "].name = " <&
+          writeln(c_prog, "    profile[" <& index <& "].name = " <&
                   c_literal(toUtf8(str(profiledFunctions[index]))) <& ";");
         end if;
       end for;
+      writeln(c_prog, "  }");
       writeln(c_prog, "}");
       writeln(c_prog);
     end if;
