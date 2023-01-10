@@ -51,6 +51,14 @@
 #include "kbd_drv.h"
 
 
+#define TRACE_EVENTS 0
+#if TRACE_EVENTS
+#define traceEvent(traceStatements) traceStatements
+#else
+#define traceEvent(traceStatements)
+#endif
+#define traceEventX(traceStatements) traceStatements
+
 #define SCRHEIGHT 25
 #define SCRWIDTH 80
 #define WRITE_STRI_BLOCK_SIZE 256
@@ -137,6 +145,13 @@ boolType kbdInputReady (void)
       if (result) {
         if (event.EventType == KEY_EVENT) {
           if (event.Event.KeyEvent.bKeyDown) {
+            traceEvent(printf("kbdInputReady: KEY_EVENT KeyDown"
+                              ", ControlKeyState: " FMT_X32
+                              ", VirtualKeyCode: " FMT_D16
+                              ", UnicodeChar: " FMT_D16 "\n",
+                              event.Event.KeyEvent.dwControlKeyState,
+                              event.Event.KeyEvent.wVirtualKeyCode,
+                              event.Event.KeyEvent.uChar.UnicodeChar););
             switch (event.Event.KeyEvent.wVirtualKeyCode){
               case VK_SHIFT:
               case VK_CONTROL:
@@ -148,6 +163,13 @@ boolType kbdInputReady (void)
                 break;
             } /* switch */
           } else {
+            traceEvent(printf("kbdInputReady: KEY_EVENT KeyUp"
+                              ", ControlKeyState: " FMT_X32
+                              ", VirtualKeyCode: " FMT_D16
+                              ", UnicodeChar: " FMT_D16 "\n",
+                              event.Event.KeyEvent.dwControlKeyState,
+                              event.Event.KeyEvent.wVirtualKeyCode,
+                              event.Event.KeyEvent.uChar.UnicodeChar););
             ignoreEvent = TRUE;
           } /* if */
         } else if (event.EventType == FOCUS_EVENT ||
@@ -157,9 +179,13 @@ boolType kbdInputReady (void)
           /* Ignore focus and menu events.                  */
           /* They are used internally by windows.           */
           /* Ignore mouse movement and button press events. */
+          traceEvent(printf("kbdInputReady: Ignore event - EventType: " FMT_U16 "\n",
+                            event.EventType););
           ignoreEvent = TRUE;
         } else {
-          printf("kbdInputReady: EventType = %d\n", event.EventType);
+          /* Unknown event */
+          traceEvent(printf("kbdInputReady: EventType: " FMT_U16 "\n",
+                            event.EventType););
         } /* if */
         if (ignoreEvent) {
           /* Skip the event to be ignored. */
@@ -193,6 +219,13 @@ charType kbdGetc (void)
         ReadConsoleInputW(hKeyboard, &event, 1, &count) != 0) {
       if (event.EventType == KEY_EVENT) {
         if (event.Event.KeyEvent.bKeyDown) {
+          traceEvent(printf("kbdGetc: KEY_EVENT KeyDown"
+                            ", ControlKeyState: " FMT_X32
+                            ", VirtualKeyCode: " FMT_D16
+                            ", UnicodeChar: " FMT_D16 "\n",
+                            event.Event.KeyEvent.dwControlKeyState,
+                            event.Event.KeyEvent.wVirtualKeyCode,
+                            event.Event.KeyEvent.uChar.UnicodeChar););
           if (event.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED) {
             switch (event.Event.KeyEvent.wVirtualKeyCode){
               case VK_LBUTTON:  result = K_MOUSE1;     break;
@@ -426,6 +459,13 @@ charType kbdGetc (void)
             } /* if */
           } /* if */
         } else {
+          traceEvent(printf("kbdGetc: KEY_EVENT KeyUp"
+                            ", ControlKeyState: " FMT_X32
+                            ", VirtualKeyCode: " FMT_D16
+                            ", UnicodeChar: " FMT_D16 "\n",
+                            event.Event.KeyEvent.dwControlKeyState,
+                            event.Event.KeyEvent.wVirtualKeyCode,
+                            event.Event.KeyEvent.uChar.UnicodeChar););
           if (event.Event.KeyEvent.wVirtualKeyCode == VK_MENU &&
               altNumpadUsed) {
             result = event.Event.KeyEvent.uChar.UnicodeChar;
@@ -454,8 +494,13 @@ charType kbdGetc (void)
         /* Ignore focus and menu events.                  */
         /* They are used internally by windows.           */
         /* Ignore mouse movement and button press events. */
+        traceEvent(printf("kbdGetc: Ignore event - EventType: " FMT_U16 "\n",
+                          event.EventType););
       } else {
-        printf("kbdGetc: EventType = %d\n", event.EventType);
+        /* Unknown event */
+        traceEvent(printf("kbdGetc: EventType: " FMT_U16 "\n",
+                          event.EventType););
+        result = K_UNDEF;
       } /* if */
     } /* while */
     logFunction(printf("kbdGetc --> %d\n", result););
