@@ -185,6 +185,29 @@ const func string: (in string: stri) [ (in integer: start) len
 
 
 (**
+ *  Get a substring from a ''start'' position with a guaranteed ''length''.
+ *  The first character in a string has the position 1.
+ *   "abcde"[2 fixLen 3]   returns "bcd"
+ *   "abcde"[3 fixLen 0]   returns ""
+ *   "abcde"[2 fixLen 5]   raises INDEX_ERROR
+ *   "abcde"[6 fixLen 2]   raises INDEX_ERROR
+ *   "abcde"[3 fixLen -1]  raises INDEX_ERROR
+ *   "abcde"[0 fixLen 2]   raises INDEX_ERROR
+ *        ""[1 fixLen 0]   raises INDEX_ERROR
+ *  @param stri Source string from which the substring is created.
+ *  @param start Start position between 1 and length(''stri'').
+ *  @param length Guaranteed length of the substring.
+ *  @return the substring from the ''start'' position with ''length'' characters.
+ *  @exception INDEX_ERROR The ''length'' is negative, or the ''start'' position
+ *                         is outside of the string, or the substring from the
+ *                         ''start'' position has less than ''length'' characters.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: (in string: stri) [ (in integer: start) fixLen
+                                       (in integer: length) ]    is action "STR_SUBSTR_FIXLEN";
+
+
+(**
  *  Append the string ''extension'' to ''destination''.
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             string.
