@@ -1737,6 +1737,29 @@ objectType str_substr (listType arguments)
 
 
 /**
+ *  Get a substring from a 'start/arg_3' position with a guaranteed 'length/arg_5'.
+ *  The first character in a string has the position 1.
+ *  @return the substring from the 'start/arg_3' position with 'length/arg_5' characters.
+ *  @exception INDEX_ERROR The 'length/arg_5' is negative, or the 'start/arg_3' position
+ *                         is outside of the string, or the substring from the
+ *                         'start/arg_3' position has less than 'length/arg_5' characters.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result
+ */
+objectType str_substr_fixlen (listType arguments)
+
+  { /* str_substr_fixlen */
+    isit_stri(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_5(arguments));
+    return bld_stri_temp(
+        strSubstrFixLen(take_stri(arg_1(arguments)),
+                        take_int(arg_3(arguments)),
+                        take_int(arg_5(arguments))));
+  } /* str_substr_fixlen */
+
+
+
+/**
  *  Get a substring beginning at a start position.
  *  The first character in a 'string' has the position 1.
  *  @return the substring beginning at the start position.

@@ -113,9 +113,16 @@ striType strRtrim (const const_striType stri);
 /* rtlArrayType strSplit (const const_striType main_stri,
     const const_striType delimiter); */
 #if ALLOW_STRITYPE_SLICES
-void strSubstrSlice (const const_striType stri, intType start, intType len, striType slice);
+void strSubstrSlice (const const_striType stri, intType start, intType len,
+    striType slice);
 #endif
 striType strSubstr (const const_striType stri, intType start, intType len);
+#if ALLOW_STRITYPE_SLICES
+void strSubstrFixLenSlice (const const_striType stri, intType start,
+    intType length, striType slice);
+#endif
+striType strSubstrFixLen (const const_striType stri, intType start,
+    intType length);
 #if ALLOW_STRITYPE_SLICES
 void strTailSlice (const const_striType stri, intType start, striType slice);
 #endif

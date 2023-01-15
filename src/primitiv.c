@@ -1019,6 +1019,7 @@ static const actEntryRecord actEntryTable[] = {
     { "STR_SPLIT",                  str_split,                  },
     { "STR_STR",                    str_str,                    },
     { "STR_SUBSTR",                 str_substr,                 },
+    { "STR_SUBSTR_FIXLEN",          str_substr_fixlen,          },
     { "STR_TAIL",                   str_tail,                   },
     { "STR_TOUTF8",                 str_toutf8,                 },
     { "STR_TRIM",                   str_trim,                   },

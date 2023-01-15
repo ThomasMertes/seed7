@@ -4306,6 +4306,86 @@ striType strSubstr (const const_striType stri, intType start, intType length)
 
 #if ALLOW_STRITYPE_SLICES
 /**
+ *  Get a substring from a 'start' position with a guaranteed 'length'.
+ *  The first character in a string has the position 1.
+ *  This function is used by the compiler to avoid copying string data.
+ *  The 'slice' is initialized to refer to the substring of 'stri'
+ *  @exception INDEX_ERROR The 'length' is negative, or the 'start' position
+ *                         is outside of the string, or the substring from the
+ *                         'start' position has less than 'length' characters.
+ */
+void strSubstrFixLenSlice (const const_striType stri, intType start, intType length, striType slice)
+
+  {
+    memSizeType striSize;
+
+  /* strSubstrFixLenSlice */
+    logFunction(printf("strSubstrFixLenSlice(\"%s\", " FMT_D ", " FMT_D ")",
+                       striAsUnquotedCStri(stri), start, length);
+                fflush(stdout););
+    striSize = stri->size;
+    if (unlikely(start < 1 || length < 0 ||
+                 (uintType) start > striSize ||
+                 (uintType) length > striSize - (memSizeType) start + 1)) {
+      logError(printf("strSubstrFixLenSlice(\"%s\", " FMT_D ", " FMT_D "): "
+                      "Start outside of string or not length chars after start.\n",
+                      striAsUnquotedCStri(stri), start, length););
+      raise_error(INDEX_ERROR);
+    } else {
+      SET_SLICE_CAPACITY(slice, 0);
+      slice->mem = &stri->mem[start - 1];
+      slice->size = (memSizeType) length;
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(slice)););
+  } /* strSubstrFixLenSlice */
+
+#endif
+
+
+
+/**
+ *  Get a substring from a 'start' position with a guaranteed 'length'.
+ *  The first character in a string has the position 1.
+ *  @return the substring from the 'start' position with 'length' characters.
+ *  @exception INDEX_ERROR The 'length' is negative, or the 'start' position
+ *                         is outside of the string, or the substring from the
+ *                         'start' position has less than 'length' characters.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType strSubstrFixLen (const const_striType stri, intType start, intType length)
+
+  {
+    memSizeType striSize;
+    striType result;
+
+  /* strSubstrFixLen */
+    logFunction(printf("strSubstrFixLen(\"%s\", " FMT_D ", " FMT_D ")",
+                       striAsUnquotedCStri(stri), start, length);
+                fflush(stdout););
+    striSize = stri->size;
+    if (unlikely(start < 1 || length < 0 ||
+                 (uintType) start > striSize ||
+                 (uintType) length > striSize - (memSizeType) start + 1)) {
+      logError(printf("strSubstrFixLen(\"%s\", " FMT_D ", " FMT_D "): "
+                      "Start outside of string or not length chars after start.\n",
+                      striAsUnquotedCStri(stri), start, length););
+      raise_error(INDEX_ERROR);
+      result = NULL;
+    } else if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) length))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memcpy(result->mem, &stri->mem[start - 1],
+             (memSizeType) length * sizeof(strElemType));
+      result->size = (memSizeType) length;
+    } /* if */
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
+    return result;
+  } /* strSubstrFixLen */
+
+
+
+#if ALLOW_STRITYPE_SLICES
+/**
  *  Get a substring beginning at a start position.
  *  The first character in a 'string' has the position 1.
  *  This function is used by the compiler to avoid copying string data.
