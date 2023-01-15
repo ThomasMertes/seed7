@@ -8553,6 +8553,960 @@ const proc: check_string_substr is func
   end func;
 
 
+const func boolean: check_string_substr_fixLen_expr_1 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  "1" [             1 fixLen             0 ] <> "" or
+        "1" [             1 fixLen             1 ] <> "1" or
+
+        "1234567890" [             1 fixLen             0 ] <> "" or
+        "1234567890" [             1 fixLen             1 ] <> "1" or
+        "1234567890" [             1 fixLen             2 ] <> "12" or
+        "1234567890" [             1 fixLen             5 ] <> "12345" or
+        "1234567890" [             1 fixLen             9 ] <> "123456789" or
+        "1234567890" [             1 fixLen            10 ] <> "1234567890" or
+
+        "1234567890" [             2 fixLen             0 ] <> "" or
+        "1234567890" [             2 fixLen             1 ] <> "2" or
+        "1234567890" [             2 fixLen             2 ] <> "23" or
+        "1234567890" [             2 fixLen             5 ] <> "23456" or
+        "1234567890" [             2 fixLen             8 ] <> "23456789" or
+        "1234567890" [             2 fixLen             9 ] <> "234567890" or
+
+        "1234567890" [             5 fixLen             0 ] <> "" or
+        "1234567890" [             5 fixLen             1 ] <> "5" or
+        "1234567890" [             5 fixLen             2 ] <> "56" or
+        "1234567890" [             5 fixLen             5 ] <> "56789" or
+        "1234567890" [             5 fixLen             6 ] <> "567890" or
+
+        "1234567890" [             9 fixLen             0 ] <> "" or
+        "1234567890" [             9 fixLen             1 ] <> "9" or
+        "1234567890" [             9 fixLen             2 ] <> "90" or
+
+        "1234567890" [            10 fixLen             0 ] <> "" or
+        "1234567890" [            10 fixLen             1 ] <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  "1" [             1 fixLen intExpr(            0) ] <> "" or
+        "1" [             1 fixLen intExpr(            1) ] <> "1" or
+
+        "1234567890" [             1 fixLen intExpr(            0) ] <> "" or
+        "1234567890" [             1 fixLen intExpr(            1) ] <> "1" or
+        "1234567890" [             1 fixLen intExpr(            2) ] <> "12" or
+        "1234567890" [             1 fixLen intExpr(            5) ] <> "12345" or
+        "1234567890" [             1 fixLen intExpr(            9) ] <> "123456789" or
+        "1234567890" [             1 fixLen intExpr(           10) ] <> "1234567890" or
+
+        "1234567890" [             2 fixLen intExpr(            0) ] <> "" or
+        "1234567890" [             2 fixLen intExpr(            1) ] <> "2" or
+        "1234567890" [             2 fixLen intExpr(            2) ] <> "23" or
+        "1234567890" [             2 fixLen intExpr(            5) ] <> "23456" or
+        "1234567890" [             2 fixLen intExpr(            8) ] <> "23456789" or
+        "1234567890" [             2 fixLen intExpr(            9) ] <> "234567890" or
+
+        "1234567890" [             5 fixLen intExpr(            0) ] <> "" or
+        "1234567890" [             5 fixLen intExpr(            1) ] <> "5" or
+        "1234567890" [             5 fixLen intExpr(            2) ] <> "56" or
+        "1234567890" [             5 fixLen intExpr(            5) ] <> "56789" or
+        "1234567890" [             5 fixLen intExpr(            6) ] <> "567890" or
+
+        "1234567890" [             9 fixLen intExpr(            0) ] <> "" or
+        "1234567890" [             9 fixLen intExpr(            1) ] <> "9" or
+        "1234567890" [             9 fixLen intExpr(            2) ] <> "90" or
+
+        "1234567890" [            10 fixLen intExpr(            0) ] <> "" or
+        "1234567890" [            10 fixLen intExpr(            1) ] <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  "1" [ intExpr(            1) fixLen             0 ] <> "" or
+        "1" [ intExpr(            1) fixLen             1 ] <> "1" or
+
+        "1234567890" [ intExpr(            1) fixLen             0 ] <> "" or
+        "1234567890" [ intExpr(            1) fixLen             1 ] <> "1" or
+        "1234567890" [ intExpr(            1) fixLen             2 ] <> "12" or
+        "1234567890" [ intExpr(            1) fixLen             5 ] <> "12345" or
+        "1234567890" [ intExpr(            1) fixLen             9 ] <> "123456789" or
+        "1234567890" [ intExpr(            1) fixLen            10 ] <> "1234567890" or
+
+        "1234567890" [ intExpr(            2) fixLen             0 ] <> "" or
+        "1234567890" [ intExpr(            2) fixLen             1 ] <> "2" or
+        "1234567890" [ intExpr(            2) fixLen             2 ] <> "23" or
+        "1234567890" [ intExpr(            2) fixLen             5 ] <> "23456" or
+        "1234567890" [ intExpr(            2) fixLen             8 ] <> "23456789" or
+        "1234567890" [ intExpr(            2) fixLen             9 ] <> "234567890" or
+
+        "1234567890" [ intExpr(            5) fixLen             0 ] <> "" or
+        "1234567890" [ intExpr(            5) fixLen             1 ] <> "5" or
+        "1234567890" [ intExpr(            5) fixLen             2 ] <> "56" or
+        "1234567890" [ intExpr(            5) fixLen             5 ] <> "56789" or
+        "1234567890" [ intExpr(            5) fixLen             6 ] <> "567890" or
+
+        "1234567890" [ intExpr(            9) fixLen             0 ] <> "" or
+        "1234567890" [ intExpr(            9) fixLen             1 ] <> "9" or
+        "1234567890" [ intExpr(            9) fixLen             2 ] <> "90" or
+
+        "1234567890" [ intExpr(           10) fixLen             0 ] <> "" or
+        "1234567890" [ intExpr(           10) fixLen             1 ] <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  "1" [ intExpr(            1) fixLen intExpr(            0) ] <> "" or
+        "1" [ intExpr(            1) fixLen intExpr(            1) ] <> "1" or
+
+        "1234567890" [ intExpr(            1) fixLen intExpr(            0) ] <> "" or
+        "1234567890" [ intExpr(            1) fixLen intExpr(            1) ] <> "1" or
+        "1234567890" [ intExpr(            1) fixLen intExpr(            2) ] <> "12" or
+        "1234567890" [ intExpr(            1) fixLen intExpr(            5) ] <> "12345" or
+        "1234567890" [ intExpr(            1) fixLen intExpr(            9) ] <> "123456789" or
+        "1234567890" [ intExpr(            1) fixLen intExpr(           10) ] <> "1234567890" or
+
+        "1234567890" [ intExpr(            2) fixLen intExpr(            0) ] <> "" or
+        "1234567890" [ intExpr(            2) fixLen intExpr(            1) ] <> "2" or
+        "1234567890" [ intExpr(            2) fixLen intExpr(            2) ] <> "23" or
+        "1234567890" [ intExpr(            2) fixLen intExpr(            5) ] <> "23456" or
+        "1234567890" [ intExpr(            2) fixLen intExpr(            8) ] <> "23456789" or
+        "1234567890" [ intExpr(            2) fixLen intExpr(            9) ] <> "234567890" or
+
+        "1234567890" [ intExpr(            5) fixLen intExpr(            0) ] <> "" or
+        "1234567890" [ intExpr(            5) fixLen intExpr(            1) ] <> "5" or
+        "1234567890" [ intExpr(            5) fixLen intExpr(            2) ] <> "56" or
+        "1234567890" [ intExpr(            5) fixLen intExpr(            5) ] <> "56789" or
+        "1234567890" [ intExpr(            5) fixLen intExpr(            6) ] <> "567890" or
+
+        "1234567890" [ intExpr(            9) fixLen intExpr(            0) ] <> "" or
+        "1234567890" [ intExpr(            9) fixLen intExpr(            1) ] <> "9" or
+        "1234567890" [ intExpr(            9) fixLen intExpr(            2) ] <> "90" or
+
+        "1234567890" [ intExpr(           10) fixLen intExpr(            0) ] <> "" or
+        "1234567890" [ intExpr(           10) fixLen intExpr(            1) ] <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_string_substr_fixLen_expr_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  striExpr("1") [             1 fixLen             0 ] <> "" or
+        striExpr("1") [             1 fixLen             1 ] <> "1" or
+
+        striExpr("1234567890") [             1 fixLen             0 ] <> "" or
+        striExpr("1234567890") [             1 fixLen             1 ] <> "1" or
+        striExpr("1234567890") [             1 fixLen             2 ] <> "12" or
+        striExpr("1234567890") [             1 fixLen             5 ] <> "12345" or
+        striExpr("1234567890") [             1 fixLen             9 ] <> "123456789" or
+        striExpr("1234567890") [             1 fixLen            10 ] <> "1234567890" or
+
+        striExpr("1234567890") [             2 fixLen             0 ] <> "" or
+        striExpr("1234567890") [             2 fixLen             1 ] <> "2" or
+        striExpr("1234567890") [             2 fixLen             2 ] <> "23" or
+        striExpr("1234567890") [             2 fixLen             5 ] <> "23456" or
+        striExpr("1234567890") [             2 fixLen             8 ] <> "23456789" or
+        striExpr("1234567890") [             2 fixLen             9 ] <> "234567890" or
+
+        striExpr("1234567890") [             5 fixLen             0 ] <> "" or
+        striExpr("1234567890") [             5 fixLen             1 ] <> "5" or
+        striExpr("1234567890") [             5 fixLen             2 ] <> "56" or
+        striExpr("1234567890") [             5 fixLen             5 ] <> "56789" or
+        striExpr("1234567890") [             5 fixLen             6 ] <> "567890" or
+
+        striExpr("1234567890") [             9 fixLen             0 ] <> "" or
+        striExpr("1234567890") [             9 fixLen             1 ] <> "9" or
+        striExpr("1234567890") [             9 fixLen             2 ] <> "90" or
+
+        striExpr("1234567890") [            10 fixLen             0 ] <> "" or
+        striExpr("1234567890") [            10 fixLen             1 ] <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  striExpr("1") [             1 fixLen intExpr(            0) ] <> "" or
+        striExpr("1") [             1 fixLen intExpr(            1) ] <> "1" or
+
+        striExpr("1234567890") [             1 fixLen intExpr(            0) ] <> "" or
+        striExpr("1234567890") [             1 fixLen intExpr(            1) ] <> "1" or
+        striExpr("1234567890") [             1 fixLen intExpr(            2) ] <> "12" or
+        striExpr("1234567890") [             1 fixLen intExpr(            5) ] <> "12345" or
+        striExpr("1234567890") [             1 fixLen intExpr(            9) ] <> "123456789" or
+        striExpr("1234567890") [             1 fixLen intExpr(           10) ] <> "1234567890" or
+
+        striExpr("1234567890") [             2 fixLen intExpr(            0) ] <> "" or
+        striExpr("1234567890") [             2 fixLen intExpr(            1) ] <> "2" or
+        striExpr("1234567890") [             2 fixLen intExpr(            2) ] <> "23" or
+        striExpr("1234567890") [             2 fixLen intExpr(            5) ] <> "23456" or
+        striExpr("1234567890") [             2 fixLen intExpr(            8) ] <> "23456789" or
+        striExpr("1234567890") [             2 fixLen intExpr(            9) ] <> "234567890" or
+
+        striExpr("1234567890") [             5 fixLen intExpr(            0) ] <> "" or
+        striExpr("1234567890") [             5 fixLen intExpr(            1) ] <> "5" or
+        striExpr("1234567890") [             5 fixLen intExpr(            2) ] <> "56" or
+        striExpr("1234567890") [             5 fixLen intExpr(            5) ] <> "56789" or
+        striExpr("1234567890") [             5 fixLen intExpr(            6) ] <> "567890" or
+
+        striExpr("1234567890") [             9 fixLen intExpr(            0) ] <> "" or
+        striExpr("1234567890") [             9 fixLen intExpr(            1) ] <> "9" or
+        striExpr("1234567890") [             9 fixLen intExpr(            2) ] <> "90" or
+
+        striExpr("1234567890") [            10 fixLen intExpr(            0) ] <> "" or
+        striExpr("1234567890") [            10 fixLen intExpr(            1) ] <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  striExpr("1") [ intExpr(            1) fixLen             0 ] <> "" or
+        striExpr("1") [ intExpr(            1) fixLen             1 ] <> "1" or
+
+        striExpr("1234567890") [ intExpr(            1) fixLen             0 ] <> "" or
+        striExpr("1234567890") [ intExpr(            1) fixLen             1 ] <> "1" or
+        striExpr("1234567890") [ intExpr(            1) fixLen             2 ] <> "12" or
+        striExpr("1234567890") [ intExpr(            1) fixLen             5 ] <> "12345" or
+        striExpr("1234567890") [ intExpr(            1) fixLen             9 ] <> "123456789" or
+        striExpr("1234567890") [ intExpr(            1) fixLen            10 ] <> "1234567890" or
+
+        striExpr("1234567890") [ intExpr(            2) fixLen             0 ] <> "" or
+        striExpr("1234567890") [ intExpr(            2) fixLen             1 ] <> "2" or
+        striExpr("1234567890") [ intExpr(            2) fixLen             2 ] <> "23" or
+        striExpr("1234567890") [ intExpr(            2) fixLen             5 ] <> "23456" or
+        striExpr("1234567890") [ intExpr(            2) fixLen             8 ] <> "23456789" or
+        striExpr("1234567890") [ intExpr(            2) fixLen             9 ] <> "234567890" or
+
+        striExpr("1234567890") [ intExpr(            5) fixLen             0 ] <> "" or
+        striExpr("1234567890") [ intExpr(            5) fixLen             1 ] <> "5" or
+        striExpr("1234567890") [ intExpr(            5) fixLen             2 ] <> "56" or
+        striExpr("1234567890") [ intExpr(            5) fixLen             5 ] <> "56789" or
+        striExpr("1234567890") [ intExpr(            5) fixLen             6 ] <> "567890" or
+
+        striExpr("1234567890") [ intExpr(            9) fixLen             0 ] <> "" or
+        striExpr("1234567890") [ intExpr(            9) fixLen             1 ] <> "9" or
+        striExpr("1234567890") [ intExpr(            9) fixLen             2 ] <> "90" or
+
+        striExpr("1234567890") [ intExpr(           10) fixLen             0 ] <> "" or
+        striExpr("1234567890") [ intExpr(           10) fixLen             1 ] <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    if  striExpr("1") [ intExpr(            1) fixLen intExpr(            0) ] <> "" or
+        striExpr("1") [ intExpr(            1) fixLen intExpr(            1) ] <> "1" or
+
+        striExpr("1234567890") [ intExpr(            1) fixLen intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ intExpr(            1) fixLen intExpr(            1) ] <> "1" or
+        striExpr("1234567890") [ intExpr(            1) fixLen intExpr(            2) ] <> "12" or
+        striExpr("1234567890") [ intExpr(            1) fixLen intExpr(            5) ] <> "12345" or
+        striExpr("1234567890") [ intExpr(            1) fixLen intExpr(            9) ] <> "123456789" or
+        striExpr("1234567890") [ intExpr(            1) fixLen intExpr(           10) ] <> "1234567890" or
+
+        striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            1) ] <> "2" or
+        striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            2) ] <> "23" or
+        striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            5) ] <> "23456" or
+        striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            8) ] <> "23456789" or
+        striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            9) ] <> "234567890" or
+
+        striExpr("1234567890") [ intExpr(            5) fixLen intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ intExpr(            5) fixLen intExpr(            1) ] <> "5" or
+        striExpr("1234567890") [ intExpr(            5) fixLen intExpr(            2) ] <> "56" or
+        striExpr("1234567890") [ intExpr(            5) fixLen intExpr(            5) ] <> "56789" or
+        striExpr("1234567890") [ intExpr(            5) fixLen intExpr(            6) ] <> "567890" or
+
+        striExpr("1234567890") [ intExpr(            9) fixLen intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ intExpr(            9) fixLen intExpr(            1) ] <> "9" or
+        striExpr("1234567890") [ intExpr(            9) fixLen intExpr(            2) ] <> "90" or
+
+        striExpr("1234567890") [ intExpr(           10) fixLen intExpr(            0) ] <> "" or
+        striExpr("1234567890") [ intExpr(           10) fixLen intExpr(            1) ] <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] does not work correct. (8)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_string_substr_fixLen_assign_1 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
+    stri := "1" [             1 fixLen             0 ]; ok := ok and stri = "";
+    stri := "1" [             1 fixLen             1 ]; ok := ok and stri = "1";
+
+    stri := "1234567890" [             1 fixLen             0 ]; ok := ok and stri = "";
+    stri := "1234567890" [             1 fixLen             1 ]; ok := ok and stri = "1";
+    stri := "1234567890" [             1 fixLen             2 ]; ok := ok and stri = "12";
+    stri := "1234567890" [             1 fixLen             5 ]; ok := ok and stri = "12345";
+    stri := "1234567890" [             1 fixLen             9 ]; ok := ok and stri = "123456789";
+    stri := "1234567890" [             1 fixLen            10 ]; ok := ok and stri = "1234567890";
+
+    stri := "1234567890" [             2 fixLen             0 ]; ok := ok and stri = "";
+    stri := "1234567890" [             2 fixLen             1 ]; ok := ok and stri = "2";
+    stri := "1234567890" [             2 fixLen             2 ]; ok := ok and stri = "23";
+    stri := "1234567890" [             2 fixLen             5 ]; ok := ok and stri = "23456";
+    stri := "1234567890" [             2 fixLen             8 ]; ok := ok and stri = "23456789";
+    stri := "1234567890" [             2 fixLen             9 ]; ok := ok and stri = "234567890";
+
+    stri := "1234567890" [             5 fixLen             0 ]; ok := ok and stri = "";
+    stri := "1234567890" [             5 fixLen             1 ]; ok := ok and stri = "5";
+    stri := "1234567890" [             5 fixLen             2 ]; ok := ok and stri = "56";
+    stri := "1234567890" [             5 fixLen             5 ]; ok := ok and stri = "56789";
+    stri := "1234567890" [             5 fixLen             6 ]; ok := ok and stri = "567890";
+
+    stri := "1234567890" [             9 fixLen             0 ]; ok := ok and stri = "";
+    stri := "1234567890" [             9 fixLen             1 ]; ok := ok and stri = "9";
+    stri := "1234567890" [             9 fixLen             2 ]; ok := ok and stri = "90";
+
+    stri := "1234567890" [            10 fixLen             0 ]; ok := ok and stri = "";
+    stri := "1234567890" [            10 fixLen             1 ]; ok := ok and stri = "0";
+    if not ok then
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "1" [             1 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1" [             1 fixLen intExpr(            1) ]; ok := ok and stri = "1";
+
+    stri := "1234567890" [             1 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [             1 fixLen intExpr(            1) ]; ok := ok and stri = "1";
+    stri := "1234567890" [             1 fixLen intExpr(            2) ]; ok := ok and stri = "12";
+    stri := "1234567890" [             1 fixLen intExpr(            5) ]; ok := ok and stri = "12345";
+    stri := "1234567890" [             1 fixLen intExpr(            9) ]; ok := ok and stri = "123456789";
+    stri := "1234567890" [             1 fixLen intExpr(           10) ]; ok := ok and stri = "1234567890";
+
+    stri := "1234567890" [             2 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [             2 fixLen intExpr(            1) ]; ok := ok and stri = "2";
+    stri := "1234567890" [             2 fixLen intExpr(            2) ]; ok := ok and stri = "23";
+    stri := "1234567890" [             2 fixLen intExpr(            5) ]; ok := ok and stri = "23456";
+    stri := "1234567890" [             2 fixLen intExpr(            8) ]; ok := ok and stri = "23456789";
+    stri := "1234567890" [             2 fixLen intExpr(            9) ]; ok := ok and stri = "234567890";
+
+    stri := "1234567890" [             5 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [             5 fixLen intExpr(            1) ]; ok := ok and stri = "5";
+    stri := "1234567890" [             5 fixLen intExpr(            2) ]; ok := ok and stri = "56";
+    stri := "1234567890" [             5 fixLen intExpr(            5) ]; ok := ok and stri = "56789";
+    stri := "1234567890" [             5 fixLen intExpr(            6) ]; ok := ok and stri = "567890";
+
+    stri := "1234567890" [             9 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [             9 fixLen intExpr(            1) ]; ok := ok and stri = "9";
+    stri := "1234567890" [             9 fixLen intExpr(            2) ]; ok := ok and stri = "90";
+
+    stri := "1234567890" [            10 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [            10 fixLen intExpr(            1) ]; ok := ok and stri = "0";
+    if not ok then
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "1" [ intExpr(            1) fixLen             0 ]; ok := ok and stri = "";
+    stri := "1" [ intExpr(            1) fixLen             1 ]; ok := ok and stri = "1";
+
+    stri := "1234567890" [ intExpr(            1) fixLen             0 ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(            1) fixLen             1 ]; ok := ok and stri = "1";
+    stri := "1234567890" [ intExpr(            1) fixLen             2 ]; ok := ok and stri = "12";
+    stri := "1234567890" [ intExpr(            1) fixLen             5 ]; ok := ok and stri = "12345";
+    stri := "1234567890" [ intExpr(            1) fixLen             9 ]; ok := ok and stri = "123456789";
+    stri := "1234567890" [ intExpr(            1) fixLen            10 ]; ok := ok and stri = "1234567890";
+
+    stri := "1234567890" [ intExpr(            2) fixLen             0 ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(            2) fixLen             1 ]; ok := ok and stri = "2";
+    stri := "1234567890" [ intExpr(            2) fixLen             2 ]; ok := ok and stri = "23";
+    stri := "1234567890" [ intExpr(            2) fixLen             5 ]; ok := ok and stri = "23456";
+    stri := "1234567890" [ intExpr(            2) fixLen             8 ]; ok := ok and stri = "23456789";
+    stri := "1234567890" [ intExpr(            2) fixLen             9 ]; ok := ok and stri = "234567890";
+
+    stri := "1234567890" [ intExpr(            5) fixLen             0 ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(            5) fixLen             1 ]; ok := ok and stri = "5";
+    stri := "1234567890" [ intExpr(            5) fixLen             2 ]; ok := ok and stri = "56";
+    stri := "1234567890" [ intExpr(            5) fixLen             5 ]; ok := ok and stri = "56789";
+    stri := "1234567890" [ intExpr(            5) fixLen             6 ]; ok := ok and stri = "567890";
+
+    stri := "1234567890" [ intExpr(            9) fixLen             0 ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(            9) fixLen             1 ]; ok := ok and stri = "9";
+    stri := "1234567890" [ intExpr(            9) fixLen             2 ]; ok := ok and stri = "90";
+
+    stri := "1234567890" [ intExpr(           10) fixLen             0 ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(           10) fixLen             1 ]; ok := ok and stri = "0";
+    if not ok then
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := "1" [ intExpr(            1) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1" [ intExpr(            1) fixLen intExpr(            1) ]; ok := ok and stri = "1";
+
+    stri := "1234567890" [ intExpr(            1) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(            1) fixLen intExpr(            1) ]; ok := ok and stri = "1";
+    stri := "1234567890" [ intExpr(            1) fixLen intExpr(            2) ]; ok := ok and stri = "12";
+    stri := "1234567890" [ intExpr(            1) fixLen intExpr(            5) ]; ok := ok and stri = "12345";
+    stri := "1234567890" [ intExpr(            1) fixLen intExpr(            9) ]; ok := ok and stri = "123456789";
+    stri := "1234567890" [ intExpr(            1) fixLen intExpr(           10) ]; ok := ok and stri = "1234567890";
+
+    stri := "1234567890" [ intExpr(            2) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(            2) fixLen intExpr(            1) ]; ok := ok and stri = "2";
+    stri := "1234567890" [ intExpr(            2) fixLen intExpr(            2) ]; ok := ok and stri = "23";
+    stri := "1234567890" [ intExpr(            2) fixLen intExpr(            5) ]; ok := ok and stri = "23456";
+    stri := "1234567890" [ intExpr(            2) fixLen intExpr(            8) ]; ok := ok and stri = "23456789";
+    stri := "1234567890" [ intExpr(            2) fixLen intExpr(            9) ]; ok := ok and stri = "234567890";
+
+    stri := "1234567890" [ intExpr(            5) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(            5) fixLen intExpr(            1) ]; ok := ok and stri = "5";
+    stri := "1234567890" [ intExpr(            5) fixLen intExpr(            2) ]; ok := ok and stri = "56";
+    stri := "1234567890" [ intExpr(            5) fixLen intExpr(            5) ]; ok := ok and stri = "56789";
+    stri := "1234567890" [ intExpr(            5) fixLen intExpr(            6) ]; ok := ok and stri = "567890";
+
+    stri := "1234567890" [ intExpr(            9) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(            9) fixLen intExpr(            1) ]; ok := ok and stri = "9";
+    stri := "1234567890" [ intExpr(            9) fixLen intExpr(            2) ]; ok := ok and stri = "90";
+
+    stri := "1234567890" [ intExpr(           10) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := "1234567890" [ intExpr(           10) fixLen intExpr(            1) ]; ok := ok and stri = "0";
+    if not ok then
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_string_substr_fixLen_assign_2 is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var boolean: ok is TRUE;
+    var string: stri is "";
+  begin
+    stri := striExpr("1") [             1 fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1") [             1 fixLen             1 ]; ok := ok and stri = "1";
+
+    stri := striExpr("1234567890") [             1 fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [             1 fixLen             1 ]; ok := ok and stri = "1";
+    stri := striExpr("1234567890") [             1 fixLen             2 ]; ok := ok and stri = "12";
+    stri := striExpr("1234567890") [             1 fixLen             5 ]; ok := ok and stri = "12345";
+    stri := striExpr("1234567890") [             1 fixLen             9 ]; ok := ok and stri = "123456789";
+    stri := striExpr("1234567890") [             1 fixLen            10 ]; ok := ok and stri = "1234567890";
+
+    stri := striExpr("1234567890") [             2 fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [             2 fixLen             1 ]; ok := ok and stri = "2";
+    stri := striExpr("1234567890") [             2 fixLen             2 ]; ok := ok and stri = "23";
+    stri := striExpr("1234567890") [             2 fixLen             5 ]; ok := ok and stri = "23456";
+    stri := striExpr("1234567890") [             2 fixLen             8 ]; ok := ok and stri = "23456789";
+    stri := striExpr("1234567890") [             2 fixLen             9 ]; ok := ok and stri = "234567890";
+
+    stri := striExpr("1234567890") [             5 fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [             5 fixLen             1 ]; ok := ok and stri = "5";
+    stri := striExpr("1234567890") [             5 fixLen             2 ]; ok := ok and stri = "56";
+    stri := striExpr("1234567890") [             5 fixLen             5 ]; ok := ok and stri = "56789";
+    stri := striExpr("1234567890") [             5 fixLen             6 ]; ok := ok and stri = "567890";
+
+    stri := striExpr("1234567890") [             9 fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [             9 fixLen             1 ]; ok := ok and stri = "9";
+    stri := striExpr("1234567890") [             9 fixLen             2 ]; ok := ok and stri = "90";
+
+    stri := striExpr("1234567890") [            10 fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [            10 fixLen             1 ]; ok := ok and stri = "0";
+    if not ok then
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := striExpr("1") [             1 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1") [             1 fixLen intExpr(            1) ]; ok := ok and stri = "1";
+
+    stri := striExpr("1234567890") [             1 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [             1 fixLen intExpr(            1) ]; ok := ok and stri = "1";
+    stri := striExpr("1234567890") [             1 fixLen intExpr(            2) ]; ok := ok and stri = "12";
+    stri := striExpr("1234567890") [             1 fixLen intExpr(            5) ]; ok := ok and stri = "12345";
+    stri := striExpr("1234567890") [             1 fixLen intExpr(            9) ]; ok := ok and stri = "123456789";
+    stri := striExpr("1234567890") [             1 fixLen intExpr(           10) ]; ok := ok and stri = "1234567890";
+
+    stri := striExpr("1234567890") [             2 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [             2 fixLen intExpr(            1) ]; ok := ok and stri = "2";
+    stri := striExpr("1234567890") [             2 fixLen intExpr(            2) ]; ok := ok and stri = "23";
+    stri := striExpr("1234567890") [             2 fixLen intExpr(            5) ]; ok := ok and stri = "23456";
+    stri := striExpr("1234567890") [             2 fixLen intExpr(            8) ]; ok := ok and stri = "23456789";
+    stri := striExpr("1234567890") [             2 fixLen intExpr(            9) ]; ok := ok and stri = "234567890";
+
+    stri := striExpr("1234567890") [             5 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [             5 fixLen intExpr(            1) ]; ok := ok and stri = "5";
+    stri := striExpr("1234567890") [             5 fixLen intExpr(            2) ]; ok := ok and stri = "56";
+    stri := striExpr("1234567890") [             5 fixLen intExpr(            5) ]; ok := ok and stri = "56789";
+    stri := striExpr("1234567890") [             5 fixLen intExpr(            6) ]; ok := ok and stri = "567890";
+
+    stri := striExpr("1234567890") [             9 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [             9 fixLen intExpr(            1) ]; ok := ok and stri = "9";
+    stri := striExpr("1234567890") [             9 fixLen intExpr(            2) ]; ok := ok and stri = "90";
+
+    stri := striExpr("1234567890") [            10 fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [            10 fixLen intExpr(            1) ]; ok := ok and stri = "0";
+    if not ok then
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := striExpr("1") [ intExpr(            1) fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1") [ intExpr(            1) fixLen             1 ]; ok := ok and stri = "1";
+
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen             1 ]; ok := ok and stri = "1";
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen             2 ]; ok := ok and stri = "12";
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen             5 ]; ok := ok and stri = "12345";
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen             9 ]; ok := ok and stri = "123456789";
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen            10 ]; ok := ok and stri = "1234567890";
+
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen             1 ]; ok := ok and stri = "2";
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen             2 ]; ok := ok and stri = "23";
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen             5 ]; ok := ok and stri = "23456";
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen             8 ]; ok := ok and stri = "23456789";
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen             9 ]; ok := ok and stri = "234567890";
+
+    stri := striExpr("1234567890") [ intExpr(            5) fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(            5) fixLen             1 ]; ok := ok and stri = "5";
+    stri := striExpr("1234567890") [ intExpr(            5) fixLen             2 ]; ok := ok and stri = "56";
+    stri := striExpr("1234567890") [ intExpr(            5) fixLen             5 ]; ok := ok and stri = "56789";
+    stri := striExpr("1234567890") [ intExpr(            5) fixLen             6 ]; ok := ok and stri = "567890";
+
+    stri := striExpr("1234567890") [ intExpr(            9) fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(            9) fixLen             1 ]; ok := ok and stri = "9";
+    stri := striExpr("1234567890") [ intExpr(            9) fixLen             2 ]; ok := ok and stri = "90";
+
+    stri := striExpr("1234567890") [ intExpr(           10) fixLen             0 ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(           10) fixLen             1 ]; ok := ok and stri = "0";
+    if not ok then
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    stri := striExpr("1") [ intExpr(            1) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1") [ intExpr(            1) fixLen intExpr(            1) ]; ok := ok and stri = "1";
+
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen intExpr(            1) ]; ok := ok and stri = "1";
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen intExpr(            2) ]; ok := ok and stri = "12";
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen intExpr(            5) ]; ok := ok and stri = "12345";
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen intExpr(            9) ]; ok := ok and stri = "123456789";
+    stri := striExpr("1234567890") [ intExpr(            1) fixLen intExpr(           10) ]; ok := ok and stri = "1234567890";
+
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            1) ]; ok := ok and stri = "2";
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            2) ]; ok := ok and stri = "23";
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            5) ]; ok := ok and stri = "23456";
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            8) ]; ok := ok and stri = "23456789";
+    stri := striExpr("1234567890") [ intExpr(            2) fixLen intExpr(            9) ]; ok := ok and stri = "234567890";
+
+    stri := striExpr("1234567890") [ intExpr(            5) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(            5) fixLen intExpr(            1) ]; ok := ok and stri = "5";
+    stri := striExpr("1234567890") [ intExpr(            5) fixLen intExpr(            2) ]; ok := ok and stri = "56";
+    stri := striExpr("1234567890") [ intExpr(            5) fixLen intExpr(            5) ]; ok := ok and stri = "56789";
+    stri := striExpr("1234567890") [ intExpr(            5) fixLen intExpr(            6) ]; ok := ok and stri = "567890";
+
+    stri := striExpr("1234567890") [ intExpr(            9) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(            9) fixLen intExpr(            1) ]; ok := ok and stri = "9";
+    stri := striExpr("1234567890") [ intExpr(            9) fixLen intExpr(            2) ]; ok := ok and stri = "90";
+
+    stri := striExpr("1234567890") [ intExpr(           10) fixLen intExpr(            0) ]; ok := ok and stri = "";
+    stri := striExpr("1234567890") [ intExpr(           10) fixLen intExpr(            1) ]; ok := ok and stri = "0";
+    if not ok then
+      writeln(" ***** stri := STRING [ START fixLen LENGTH ] does not work correct. (8)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func string: substrFixLen (in string: stri, in integer: start) is
+  return stri[start fixLen 1];
+
+
+const func string: substrFixLen (in string: stri, in integer: start, in integer: length) is
+  return stri[start fixLen length];
+
+
+const func boolean: check_string_substr_fixLen_func_1 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  substrFixLen("1",             1) <> "1" or
+        substrFixLen("1234567890",             1) <> "1" or
+        substrFixLen("1234567890",             2) <> "2" or
+        substrFixLen("1234567890",             5) <> "5" or
+        substrFixLen("1234567890",             9) <> "9" or
+        substrFixLen("1234567890",            10) <> "0" then
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  substrFixLen("1", intExpr(            1)) <> "1" or
+        substrFixLen("1234567890", intExpr(            1)) <> "1" or
+        substrFixLen("1234567890", intExpr(            2)) <> "2" or
+        substrFixLen("1234567890", intExpr(            5)) <> "5" or
+        substrFixLen("1234567890", intExpr(            9)) <> "9" or
+        substrFixLen("1234567890", intExpr(           10)) <> "0" then
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  substrFixLen(striExpr("1"),             1) <> "1" or
+        substrFixLen(striExpr("1234567890"),             1) <> "1" or
+        substrFixLen(striExpr("1234567890"),             2) <> "2" or
+        substrFixLen(striExpr("1234567890"),             5) <> "5" or
+        substrFixLen(striExpr("1234567890"),             9) <> "9" or
+        substrFixLen(striExpr("1234567890"),            10) <> "0" then
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  substrFixLen(striExpr("1"), intExpr(            1)) <> "1" or
+        substrFixLen(striExpr("1234567890"), intExpr(            1)) <> "1" or
+        substrFixLen(striExpr("1234567890"), intExpr(            2)) <> "2" or
+        substrFixLen(striExpr("1234567890"), intExpr(            5)) <> "5" or
+        substrFixLen(striExpr("1234567890"), intExpr(            9)) <> "9" or
+        substrFixLen(striExpr("1234567890"), intExpr(           10)) <> "0" then
+      writeln(" ***** STRING [ START fixLen 1 ] via a function does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  substrFixLen("1",             1,             0) <> "" or
+        substrFixLen("1",             1,             1) <> "1" or
+
+        substrFixLen("1234567890",             1,             0) <> "" or
+        substrFixLen("1234567890",             1,             1) <> "1" or
+        substrFixLen("1234567890",             1,             2) <> "12" or
+        substrFixLen("1234567890",             1,             5) <> "12345" or
+        substrFixLen("1234567890",             1,             9) <> "123456789" or
+        substrFixLen("1234567890",             1,            10) <> "1234567890" or
+
+        substrFixLen("1234567890",             2,             0) <> "" or
+        substrFixLen("1234567890",             2,             1) <> "2" or
+        substrFixLen("1234567890",             2,             2) <> "23" or
+        substrFixLen("1234567890",             2,             5) <> "23456" or
+        substrFixLen("1234567890",             2,             8) <> "23456789" or
+        substrFixLen("1234567890",             2,             9) <> "234567890" or
+
+        substrFixLen("1234567890",             5,             0) <> "" or
+        substrFixLen("1234567890",             5,             1) <> "5" or
+        substrFixLen("1234567890",             5,             2) <> "56" or
+        substrFixLen("1234567890",             5,             5) <> "56789" or
+        substrFixLen("1234567890",             5,             6) <> "567890" or
+
+        substrFixLen("1234567890",             9,             0) <> "" or
+        substrFixLen("1234567890",             9,             1) <> "9" or
+        substrFixLen("1234567890",             9,             2) <> "90" or
+
+        substrFixLen("1234567890",            10,             0) <> "" or
+        substrFixLen("1234567890",            10,             1) <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  substrFixLen("1",             1, intExpr(            0)) <> "" or
+        substrFixLen("1",             1, intExpr(            1)) <> "1" or
+
+        substrFixLen("1234567890",             1, intExpr(            0)) <> "" or
+        substrFixLen("1234567890",             1, intExpr(            1)) <> "1" or
+        substrFixLen("1234567890",             1, intExpr(            2)) <> "12" or
+        substrFixLen("1234567890",             1, intExpr(            5)) <> "12345" or
+        substrFixLen("1234567890",             1, intExpr(            9)) <> "123456789" or
+        substrFixLen("1234567890",             1, intExpr(           10)) <> "1234567890" or
+
+        substrFixLen("1234567890",             2, intExpr(            0)) <> "" or
+        substrFixLen("1234567890",             2, intExpr(            1)) <> "2" or
+        substrFixLen("1234567890",             2, intExpr(            2)) <> "23" or
+        substrFixLen("1234567890",             2, intExpr(            5)) <> "23456" or
+        substrFixLen("1234567890",             2, intExpr(            8)) <> "23456789" or
+        substrFixLen("1234567890",             2, intExpr(            9)) <> "234567890" or
+
+        substrFixLen("1234567890",             5, intExpr(            0)) <> "" or
+        substrFixLen("1234567890",             5, intExpr(            1)) <> "5" or
+        substrFixLen("1234567890",             5, intExpr(            2)) <> "56" or
+        substrFixLen("1234567890",             5, intExpr(            5)) <> "56789" or
+        substrFixLen("1234567890",             5, intExpr(            6)) <> "567890" or
+
+        substrFixLen("1234567890",             9, intExpr(            0)) <> "" or
+        substrFixLen("1234567890",             9, intExpr(            1)) <> "9" or
+        substrFixLen("1234567890",             9, intExpr(            2)) <> "90" or
+
+        substrFixLen("1234567890",            10, intExpr(            0)) <> "" or
+        substrFixLen("1234567890",            10, intExpr(            1)) <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  substrFixLen("1", intExpr(            1),             0) <> "" or
+        substrFixLen("1", intExpr(            1),             1) <> "1" or
+
+        substrFixLen("1234567890", intExpr(            1),             0) <> "" or
+        substrFixLen("1234567890", intExpr(            1),             1) <> "1" or
+        substrFixLen("1234567890", intExpr(            1),             2) <> "12" or
+        substrFixLen("1234567890", intExpr(            1),             5) <> "12345" or
+        substrFixLen("1234567890", intExpr(            1),             9) <> "123456789" or
+        substrFixLen("1234567890", intExpr(            1),            10) <> "1234567890" or
+
+        substrFixLen("1234567890", intExpr(            2),             0) <> "" or
+        substrFixLen("1234567890", intExpr(            2),             1) <> "2" or
+        substrFixLen("1234567890", intExpr(            2),             2) <> "23" or
+        substrFixLen("1234567890", intExpr(            2),             5) <> "23456" or
+        substrFixLen("1234567890", intExpr(            2),             8) <> "23456789" or
+        substrFixLen("1234567890", intExpr(            2),             9) <> "234567890" or
+
+        substrFixLen("1234567890", intExpr(            5),             0) <> "" or
+        substrFixLen("1234567890", intExpr(            5),             1) <> "5" or
+        substrFixLen("1234567890", intExpr(            5),             2) <> "56" or
+        substrFixLen("1234567890", intExpr(            5),             5) <> "56789" or
+        substrFixLen("1234567890", intExpr(            5),             6) <> "567890" or
+
+        substrFixLen("1234567890", intExpr(            9),             0) <> "" or
+        substrFixLen("1234567890", intExpr(            9),             1) <> "9" or
+        substrFixLen("1234567890", intExpr(            9),             2) <> "90" or
+
+        substrFixLen("1234567890", intExpr(           10),             0) <> "" or
+        substrFixLen("1234567890", intExpr(           10),             1) <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  substrFixLen("1", intExpr(            1), intExpr(            0)) <> "" or
+        substrFixLen("1", intExpr(            1), intExpr(            1)) <> "1" or
+
+        substrFixLen("1234567890", intExpr(            1), intExpr(            0)) <> "" or
+        substrFixLen("1234567890", intExpr(            1), intExpr(            1)) <> "1" or
+        substrFixLen("1234567890", intExpr(            1), intExpr(            2)) <> "12" or
+        substrFixLen("1234567890", intExpr(            1), intExpr(            5)) <> "12345" or
+        substrFixLen("1234567890", intExpr(            1), intExpr(            9)) <> "123456789" or
+        substrFixLen("1234567890", intExpr(            1), intExpr(           10)) <> "1234567890" or
+
+        substrFixLen("1234567890", intExpr(            2), intExpr(            0)) <> "" or
+        substrFixLen("1234567890", intExpr(            2), intExpr(            1)) <> "2" or
+        substrFixLen("1234567890", intExpr(            2), intExpr(            2)) <> "23" or
+        substrFixLen("1234567890", intExpr(            2), intExpr(            5)) <> "23456" or
+        substrFixLen("1234567890", intExpr(            2), intExpr(            8)) <> "23456789" or
+        substrFixLen("1234567890", intExpr(            2), intExpr(            9)) <> "234567890" or
+
+        substrFixLen("1234567890", intExpr(            5), intExpr(            0)) <> "" or
+        substrFixLen("1234567890", intExpr(            5), intExpr(            1)) <> "5" or
+        substrFixLen("1234567890", intExpr(            5), intExpr(            2)) <> "56" or
+        substrFixLen("1234567890", intExpr(            5), intExpr(            5)) <> "56789" or
+        substrFixLen("1234567890", intExpr(            5), intExpr(            6)) <> "567890" or
+
+        substrFixLen("1234567890", intExpr(            9), intExpr(            0)) <> "" or
+        substrFixLen("1234567890", intExpr(            9), intExpr(            1)) <> "9" or
+        substrFixLen("1234567890", intExpr(            9), intExpr(            2)) <> "90" or
+
+        substrFixLen("1234567890", intExpr(           10), intExpr(            0)) <> "" or
+        substrFixLen("1234567890", intExpr(           10), intExpr(            1)) <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (4)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_string_substr_fixLen_func_2 is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  substrFixLen(striExpr("1"),             1,             0) <> "" or
+        substrFixLen(striExpr("1"),             1,             1) <> "1" or
+
+        substrFixLen(striExpr("1234567890"),             1,             0) <> "" or
+        substrFixLen(striExpr("1234567890"),             1,             1) <> "1" or
+        substrFixLen(striExpr("1234567890"),             1,             2) <> "12" or
+        substrFixLen(striExpr("1234567890"),             1,             5) <> "12345" or
+        substrFixLen(striExpr("1234567890"),             1,             9) <> "123456789" or
+        substrFixLen(striExpr("1234567890"),             1,            10) <> "1234567890" or
+
+        substrFixLen(striExpr("1234567890"),             2,             0) <> "" or
+        substrFixLen(striExpr("1234567890"),             2,             1) <> "2" or
+        substrFixLen(striExpr("1234567890"),             2,             2) <> "23" or
+        substrFixLen(striExpr("1234567890"),             2,             5) <> "23456" or
+        substrFixLen(striExpr("1234567890"),             2,             8) <> "23456789" or
+        substrFixLen(striExpr("1234567890"),             2,             9) <> "234567890" or
+
+        substrFixLen(striExpr("1234567890"),             5,             0) <> "" or
+        substrFixLen(striExpr("1234567890"),             5,             1) <> "5" or
+        substrFixLen(striExpr("1234567890"),             5,             2) <> "56" or
+        substrFixLen(striExpr("1234567890"),             5,             5) <> "56789" or
+        substrFixLen(striExpr("1234567890"),             5,             6) <> "567890" or
+
+        substrFixLen(striExpr("1234567890"),             9,             0) <> "" or
+        substrFixLen(striExpr("1234567890"),             9,             1) <> "9" or
+        substrFixLen(striExpr("1234567890"),             9,             2) <> "90" or
+
+        substrFixLen(striExpr("1234567890"),            10,             0) <> "" or
+        substrFixLen(striExpr("1234567890"),            10,             1) <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if  substrFixLen(striExpr("1"),             1, intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1"),             1, intExpr(            1)) <> "1" or
+
+        substrFixLen(striExpr("1234567890"),             1, intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1234567890"),             1, intExpr(            1)) <> "1" or
+        substrFixLen(striExpr("1234567890"),             1, intExpr(            2)) <> "12" or
+        substrFixLen(striExpr("1234567890"),             1, intExpr(            5)) <> "12345" or
+        substrFixLen(striExpr("1234567890"),             1, intExpr(            9)) <> "123456789" or
+        substrFixLen(striExpr("1234567890"),             1, intExpr(           10)) <> "1234567890" or
+
+        substrFixLen(striExpr("1234567890"),             2, intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1234567890"),             2, intExpr(            1)) <> "2" or
+        substrFixLen(striExpr("1234567890"),             2, intExpr(            2)) <> "23" or
+        substrFixLen(striExpr("1234567890"),             2, intExpr(            5)) <> "23456" or
+        substrFixLen(striExpr("1234567890"),             2, intExpr(            8)) <> "23456789" or
+        substrFixLen(striExpr("1234567890"),             2, intExpr(            9)) <> "234567890" or
+
+        substrFixLen(striExpr("1234567890"),             5, intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1234567890"),             5, intExpr(            1)) <> "5" or
+        substrFixLen(striExpr("1234567890"),             5, intExpr(            2)) <> "56" or
+        substrFixLen(striExpr("1234567890"),             5, intExpr(            5)) <> "56789" or
+        substrFixLen(striExpr("1234567890"),             5, intExpr(            6)) <> "567890" or
+
+        substrFixLen(striExpr("1234567890"),             9, intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1234567890"),             9, intExpr(            1)) <> "9" or
+        substrFixLen(striExpr("1234567890"),             9, intExpr(            2)) <> "90" or
+
+        substrFixLen(striExpr("1234567890"),            10, intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1234567890"),            10, intExpr(            1)) <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (6)");
+      okay := FALSE;
+    end if;
+
+    if  substrFixLen(striExpr("1"), intExpr(            1),             0) <> "" or
+        substrFixLen(striExpr("1"), intExpr(            1),             1) <> "1" or
+
+        substrFixLen(striExpr("1234567890"), intExpr(            1),             0) <> "" or
+        substrFixLen(striExpr("1234567890"), intExpr(            1),             1) <> "1" or
+        substrFixLen(striExpr("1234567890"), intExpr(            1),             2) <> "12" or
+        substrFixLen(striExpr("1234567890"), intExpr(            1),             5) <> "12345" or
+        substrFixLen(striExpr("1234567890"), intExpr(            1),             9) <> "123456789" or
+        substrFixLen(striExpr("1234567890"), intExpr(            1),            10) <> "1234567890" or
+
+        substrFixLen(striExpr("1234567890"), intExpr(            2),             0) <> "" or
+        substrFixLen(striExpr("1234567890"), intExpr(            2),             1) <> "2" or
+        substrFixLen(striExpr("1234567890"), intExpr(            2),             2) <> "23" or
+        substrFixLen(striExpr("1234567890"), intExpr(            2),             5) <> "23456" or
+        substrFixLen(striExpr("1234567890"), intExpr(            2),             8) <> "23456789" or
+        substrFixLen(striExpr("1234567890"), intExpr(            2),             9) <> "234567890" or
+
+        substrFixLen(striExpr("1234567890"), intExpr(            5),             0) <> "" or
+        substrFixLen(striExpr("1234567890"), intExpr(            5),             1) <> "5" or
+        substrFixLen(striExpr("1234567890"), intExpr(            5),             2) <> "56" or
+        substrFixLen(striExpr("1234567890"), intExpr(            5),             5) <> "56789" or
+        substrFixLen(striExpr("1234567890"), intExpr(            5),             6) <> "567890" or
+
+        substrFixLen(striExpr("1234567890"), intExpr(            9),             0) <> "" or
+        substrFixLen(striExpr("1234567890"), intExpr(            9),             1) <> "9" or
+        substrFixLen(striExpr("1234567890"), intExpr(            9),             2) <> "90" or
+
+        substrFixLen(striExpr("1234567890"), intExpr(           10),             0) <> "" or
+        substrFixLen(striExpr("1234567890"), intExpr(           10),             1) <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (7)");
+      okay := FALSE;
+    end if;
+
+    if  substrFixLen(striExpr("1"), intExpr(            1), intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1"), intExpr(            1), intExpr(            1)) <> "1" or
+
+        substrFixLen(striExpr("1234567890"), intExpr(            1), intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1234567890"), intExpr(            1), intExpr(            1)) <> "1" or
+        substrFixLen(striExpr("1234567890"), intExpr(            1), intExpr(            2)) <> "12" or
+        substrFixLen(striExpr("1234567890"), intExpr(            1), intExpr(            5)) <> "12345" or
+        substrFixLen(striExpr("1234567890"), intExpr(            1), intExpr(            9)) <> "123456789" or
+        substrFixLen(striExpr("1234567890"), intExpr(            1), intExpr(           10)) <> "1234567890" or
+
+        substrFixLen(striExpr("1234567890"), intExpr(            2), intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1234567890"), intExpr(            2), intExpr(            1)) <> "2" or
+        substrFixLen(striExpr("1234567890"), intExpr(            2), intExpr(            2)) <> "23" or
+        substrFixLen(striExpr("1234567890"), intExpr(            2), intExpr(            5)) <> "23456" or
+        substrFixLen(striExpr("1234567890"), intExpr(            2), intExpr(            8)) <> "23456789" or
+        substrFixLen(striExpr("1234567890"), intExpr(            2), intExpr(            9)) <> "234567890" or
+
+        substrFixLen(striExpr("1234567890"), intExpr(            5), intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1234567890"), intExpr(            5), intExpr(            1)) <> "5" or
+        substrFixLen(striExpr("1234567890"), intExpr(            5), intExpr(            2)) <> "56" or
+        substrFixLen(striExpr("1234567890"), intExpr(            5), intExpr(            5)) <> "56789" or
+        substrFixLen(striExpr("1234567890"), intExpr(            5), intExpr(            6)) <> "567890" or
+
+        substrFixLen(striExpr("1234567890"), intExpr(            9), intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1234567890"), intExpr(            9), intExpr(            1)) <> "9" or
+        substrFixLen(striExpr("1234567890"), intExpr(            9), intExpr(            2)) <> "90" or
+
+        substrFixLen(striExpr("1234567890"), intExpr(           10), intExpr(            0)) <> "" or
+        substrFixLen(striExpr("1234567890"), intExpr(           10), intExpr(            1)) <> "0" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] via a function does not work correct. (8)");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_string_substr_fixLen is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if not check_string_substr_fixLen_expr_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_fixLen_expr_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_fixLen_assign_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_fixLen_assign_2 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_fixLen_func_1 then
+      okay := FALSE;
+    end if;
+
+    if not check_string_substr_fixLen_func_2 then
+      okay := FALSE;
+    end if;
+
+    if          "aaaaa" [rand(1, 5) fixLen 0] <> "" or
+       striExpr("aaaaa")[rand(1, 5) fixLen 0] <> "" or
+                "aaaaa" [rand(1, 5) fixLen 1] <> "a" or
+       striExpr("aaaaa")[rand(1, 5) fixLen 1] <> "a" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] with optimized index check does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if          "12345" [succ(abs(intExpr(2))) fixLen 0] <> "" or
+       striExpr("12345")[succ(abs(intExpr(2))) fixLen 0] <> "" or
+                "12345" [succ(abs(intExpr(2))) fixLen 1] <> "3" or
+       striExpr("12345")[succ(abs(intExpr(2))) fixLen 1] <> "3" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] with optimized index check does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if          "12345" [5 - abs(intExpr(2)) fixLen 0] <> "" or
+       striExpr("12345")[5 - abs(intExpr(2)) fixLen 0] <> "" or
+                "12345" [5 - abs(intExpr(2)) fixLen 1] <> "3" or
+       striExpr("12345")[5 - abs(intExpr(2)) fixLen 1] <> "3" then
+      writeln(" ***** STRING [ START fixLen LENGTH ] with optimized index check does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("String substr with fixed length works correct.");
+    end if;
+  end func;
+
+
 const func boolean: check_string_concat_1 is func
   result
     var boolean: okay is TRUE;
@@ -20235,6 +21189,7 @@ const proc: main is func
     check_string_tail;
     check_string_range;
     check_string_substr;
+    check_string_substr_fixLen;
     check_string_concat;
     check_string_mult;
     check_string_ops;

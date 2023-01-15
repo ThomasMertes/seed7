@@ -168,6 +168,7 @@ const string: chkstr_output is "\n\
   \String tail works correct.\n\
   \String range works correct.\n\
   \String substr works correct.\n\
+  \String substr with fixed length works correct.\n\
   \String concatenation works correct.\n\
   \String multiplication works correct.\n\
   \String operations work correct.\n\
@@ -195,6 +196,7 @@ const string: chkidx_output is "\n\
   \Index checking for string tail works correct.\n\
   \Index checking for string range works correct.\n\
   \Index checking for string substr works correct.\n\
+  \Index checking for string substr with fixed length works correct.\n\
   \Index checking for string @:= works correct.\n";
 
 const string: chkbst_output is "\n\
