@@ -1682,11 +1682,11 @@ objectType str_str (listType arguments)
 
 
 /**
- *  Get a substring from a start position with a given length.
+ *  Get a substring from a 'start/arg_3' position with a given 'length/arg_5'.
  *  The first character in a string has the position 1.
- *  @return the substring from the start position with a given length.
- *  @exception INDEX_ERROR The start position is negative or zero, or
- *                         the length is negative.
+ *  @return the substring from the 'start/arg_3' position with up to 'length/arg_5' characters.
+ *  @exception INDEX_ERROR The 'start/arg_3' position is negative or zero, or
+ *                         the 'length/arg_5' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType str_substr (listType arguments)

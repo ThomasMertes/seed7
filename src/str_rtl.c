@@ -4215,12 +4215,12 @@ rtlArrayType strSplit (const const_striType mainStri,
 
 #if ALLOW_STRITYPE_SLICES
 /**
- *  Get a substring from a start position with a given length.
+ *  Get a substring from a 'start' position with a given 'length'.
  *  The first character in a string has the position 1.
  *  This function is used by the compiler to avoid copying string data.
  *  The 'slice' is initialized to refer to the substring of 'stri'
- *  @exception INDEX_ERROR The start position is negative or zero, or
- *                         the length is negative.
+ *  @exception INDEX_ERROR The 'start' position is negative or zero, or
+ *                         the 'length' is negative.
  */
 void strSubstrSlice (const const_striType stri, intType start, intType length, striType slice)
 
@@ -4257,11 +4257,11 @@ void strSubstrSlice (const const_striType stri, intType start, intType length, s
 
 
 /**
- *  Get a substring from a start position with a given length.
+ *  Get a substring from a 'start' position with a given 'length'.
  *  The first character in a string has the position 1.
- *  @return the substring from the start position with a given length.
- *  @exception INDEX_ERROR The start position is negative or zero, or
- *                         the length is negative.
+ *  @return the substring from the 'start' position with a given 'length'.
+ *  @exception INDEX_ERROR The 'start' position is negative or zero, or
+ *                         the 'length' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType strSubstr (const const_striType stri, intType start, intType length)

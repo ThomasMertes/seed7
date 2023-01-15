@@ -92,41 +92,71 @@ const func string: (in string: stri1) <& (in string: stri2)      is action "STR_
 
 
 (**
- *  Get a character, identified by an index, from a ''string''.
- *  The first character has the index 1.
- *  @return the character specified with the index.
- *  @exception INDEX_ERROR If the index is less than 1 or
+ *  Get a character, identified by an ''index'', from a ''string''.
+ *  The first character has the ''index'' 1.
+ *   "abcde"[1]  returns 'a'
+ *   "abcde"[5]  returns 'e'
+ *   "abcde"[0]  raises INDEX_ERROR
+ *   "abcde"[6]  raises INDEX_ERROR
+ *  @return the character specified with the ''index''.
+ *  @exception INDEX_ERROR If the ''index'' is less than 1 or
  *             greater than the length of the ''string''.
  *)
 const func char: (in string: stri) [ (in integer: index) ]       is action "STR_IDX";
 
 
 (**
- *  Get a substring beginning at a start position.
+ *  Get a substring beginning at a ''start'' position.
  *  The first character in a ''string'' has the position 1.
- *  @return the substring beginning at the start position.
- *  @exception INDEX_ERROR The start position is negative or zero.
+ *   "abcde"[3 ..]  returns "cde"
+ *   "abcde"[6 ..]  returns ""
+ *        ""[1 ..]  returns ""
+ *   "abcde"[1 ..]  returns "abcde"
+ *   "abcde"[0 ..]  raises INDEX_ERROR
+ *  @param stri Source string from which the substring is created.
+ *  @param start Start position which must be >= 1.
+ *  @return the substring beginning at the ''start'' position.
+ *  @exception INDEX_ERROR The ''start'' position is negative or zero.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in string: stri) [ (in integer: start) .. ]  is action "STR_TAIL";
 
 
 (**
- *  Get a substring ending at a stop position.
+ *  Get a substring ending at a ''stop'' position.
  *  The first character in a ''string'' has the position 1.
- *  @return the substring ending at the stop position.
- *  @exception INDEX_ERROR The stop position is negative.
+ *   "abcde"[.. 4]   returns "abcd"
+ *   "abcde"[.. 6]   returns "abcde"
+ *        ""[.. 5]   returns ""
+ *   "abcde"[.. 0]   returns ""
+ *   "abcde"[.. -1]  raises INDEX_ERROR
+ *  @param stri Source string from which the substring is created.
+ *  @param stop Stop position which must be >= 0.
+ *  @return the substring ending at the ''stop'' position.
+ *  @exception INDEX_ERROR The ''stop'' position is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in string: stri) [ .. (in integer: stop) ]   is action "STR_HEAD";
 
 
 (**
- *  Get a substring from a start position to a stop position.
+ *  Get a substring from a ''start'' position to a ''stop'' position.
  *  The first character in a ''string'' has the position 1.
- *  @return the substring from position start to stop.
- *  @exception INDEX_ERROR The start position is negative or zero, or
- *                         the stop position is less than pred(start).
+ *   "abcde"[2 .. 4]   returns "bcd"
+ *   "abcde"[2 .. 7]   returns "bcde"
+ *   "abcde"[4 .. 3]   returns ""
+ *   "abcde"[4 .. 2]   raises INDEX_ERROR
+ *   "abcde"[6 .. 8]   returns ""
+ *   "abcde"[1 .. 3]   returns "abc"
+ *   "abcde"[0 .. 3]   raises INDEX_ERROR
+ *   "abcde"[1 .. 0]   returns ""
+ *   "abcde"[1 .. -1]  raises INDEX_ERROR
+ *  @param stri Source string from which the substring is created.
+ *  @param start Start position which must be >= 1.
+ *  @param stop Stop position which must be >= pred(''start'').
+ *  @return the substring from position ''start'' to ''stop''.
+ *  @exception INDEX_ERROR The ''start'' position is negative or zero, or
+ *                         the ''stop'' position is less than pred(''start'').
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in string: stri) [ (in integer: start) ..
@@ -134,11 +164,20 @@ const func string: (in string: stri) [ (in integer: start) ..
 
 
 (**
- *  Get a substring from a start position with a given length.
+ *  Get a substring from a ''start'' position with a given ''length''.
  *  The first character in a ''string'' has the position 1.
- *  @return the substring from the start position with a given length.
- *  @exception INDEX_ERROR The start position is negative or zero, or
- *                         the length is negative.
+ *   "abcde"[2 len 3]   returns "bcd"
+ *   "abcde"[2 len 5]   returns "bcde"
+ *   "abcde"[3 len 0]   returns ""
+ *   "abcde"[6 len 2]   returns ""
+ *   "abcde"[3 len -1]  raises INDEX_ERROR
+ *   "abcde"[0 len 2]   raises INDEX_ERROR
+ *  @param stri Source string from which the substring is created.
+ *  @param start Start position which must be >= 1.
+ *  @param length Requested maximum length of the substring.
+ *  @return the substring from the ''start'' position with up to ''length'' characters.
+ *  @exception INDEX_ERROR The ''start'' position is negative or zero, or
+ *                         the ''length'' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in string: stri) [ (in integer: start) len
