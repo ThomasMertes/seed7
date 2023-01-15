@@ -3525,7 +3525,40 @@ const proc: process (STR_STR, in reference: function,
   end func;
 
 
-const proc: process_str_substr1 (in reference: stri, in reference: index,
+const proc: process_str_substr0 (in reference: stri, in reference: start,
+    inout expr_type: c_expr) is func
+
+  local
+    var intRange: start_range is intRange.value;
+  begin
+    incr(countOptimizations);
+    start_range := getIntRange(start);
+    if start_range.maxValue < 1 then
+      warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+      c_expr.expr &:= strRaiseError("INDEX_ERROR");
+    else
+      c_expr.expr &:= "/* string[m len 0] */ (";
+      if string_index_check then
+        if start_range.minValue < 1 then
+          incr(countIndexChecks);
+          c_expr.expr &:= "idxChk((";
+          process_expr(start, c_expr);
+          c_expr.expr &:= ")<1)?";
+          c_expr.expr &:= strRaiseError("INDEX_ERROR");
+          c_expr.expr &:= ":";
+        else
+          countIndexOptimizations(c_expr);
+        end if;
+      else
+        incr(countSuppressedIndexChecks);
+      end if;
+      c_expr.expr &:= stringLiteral("");
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_str_substr1 (in reference: stri, in reference: start,
     inout expr_type: c_expr) is func
 
   local
@@ -3533,8 +3566,8 @@ const proc: process_str_substr1 (in reference: stri, in reference: index,
     var string: stri_name is "";
     var string: stri_value is "";
     var string: stri_size is "";
-    var string: index_name is "";
-    var intRange: index_range is intRange.value;
+    var string: start_name is "";
+    var intRange: start_range is intRange.value;
     var string: striStruct_name is "";
   begin
     if c_expr.demand < REQUIRE_RESULT then
@@ -3549,18 +3582,18 @@ const proc: process_str_substr1 (in reference: stri, in reference: index,
         stri_size := stri_name & "->size";
       end if;
       incr(c_expr.temp_num);
-      index_name := getParameterAsVariable("intType", "idx_", index, c_expr);
+      start_name := getParameterAsVariable("intType", "start_", start, c_expr);
       incr(c_expr.temp_num);
       striStruct_name := "stri_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "struct striStruct ";
       c_expr.temp_decls &:= striStruct_name;
       c_expr.temp_decls &:= ";\n";
       if string_index_check then
-        index_range := getIntRange(index);
-        if index_range.minValue < 1 then
+        start_range := getIntRange(start);
+        if start_range.minValue < 1 then
           incr(countIndexChecks);
           c_expr.expr &:= "idxChk(";
-          c_expr.expr &:= index_name;
+          c_expr.expr &:= start_name;
           c_expr.expr &:= "<1)?";
           c_expr.expr &:= strRaiseError("INDEX_ERROR");
           c_expr.expr &:= ":";
@@ -3571,7 +3604,7 @@ const proc: process_str_substr1 (in reference: stri, in reference: index,
         incr(countSuppressedIndexChecks);
       end if;
       c_expr.expr &:= "(";
-      c_expr.expr &:= index_name;
+      c_expr.expr &:= start_name;
       c_expr.expr &:= ">";
       c_expr.expr &:= stri_size;
       c_expr.expr &:= " ? ";
@@ -3579,7 +3612,7 @@ const proc: process_str_substr1 (in reference: stri, in reference: index,
       c_expr.expr &:= " : chrStrMacro(";
       c_expr.expr &:= stri_name;
       c_expr.expr &:= "->mem[";
-      c_expr.expr &:= index_name;
+      c_expr.expr &:= start_name;
       c_expr.expr &:= "-1],";
       c_expr.expr &:= striStruct_name;
       c_expr.expr &:= ")))";
@@ -3588,7 +3621,7 @@ const proc: process_str_substr1 (in reference: stri, in reference: index,
       c_expr.result_expr := "strSubstr(";
       getAnyParamToResultExpr(stri, c_expr);
       c_expr.result_expr &:= ", ";
-      getStdParamToResultExpr(index, c_expr);
+      getStdParamToResultExpr(start, c_expr);
       c_expr.result_expr &:= ", 1)";
     end if;
   end func;
@@ -3827,23 +3860,10 @@ const proc: process (STR_SUBSTR, in reference: function,
     elsif getConstant(params[5], INTOBJECT, evaluatedParam) and
         getValue(evaluatedParam, integer) <= 1 then
       length := getValue(evaluatedParam, integer);
-      if length = 1 then
+      if length = 0 then
+        process_str_substr0(params[1], params[3], c_expr);
+      elsif length = 1 then
         process_str_substr1(params[1], params[3], c_expr);
-      elsif length = 0 then
-        incr(countOptimizations);
-        c_expr.expr &:= "/* string[m len 0] */ (";
-        if string_index_check then
-          incr(countIndexChecks);
-          c_expr.expr &:= "idxChk((";
-          process_expr(params[3], c_expr);
-          c_expr.expr &:= ")<1)?";
-          c_expr.expr &:= strRaiseError("INDEX_ERROR");
-          c_expr.expr &:= ":";
-        else
-          incr(countSuppressedIndexChecks);
-        end if;
-        c_expr.expr &:= stringLiteral("");
-        c_expr.expr &:= ")";
       else
         incr(countOptimizations);
         warning(DOES_RAISE, "INDEX_ERROR", c_expr);
