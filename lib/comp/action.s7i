@@ -1908,6 +1908,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(STR_STR, function, params, c_expr);
       when {"STR_SUBSTR"}:
         process(STR_SUBSTR, function, params, c_expr);
+      when {"STR_SUBSTR_FIXLEN"}:
+        process(STR_SUBSTR_FIXLEN, function, params, c_expr);
       when {"STR_TAIL"}:
         process(STR_TAIL, function, params, c_expr);
       when {"STR_TOUTF8"}:
