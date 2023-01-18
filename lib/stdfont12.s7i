@@ -2663,8 +2663,8 @@ const func bitmapFont: genStdFont12 is func
     incl(bmpFont.fontPictures, 'Å',
     [] ("    XXX    ",
         "   XX XX   ",
-        "  XX   XX  ",
         "   XX XX   ",
+        "    XXX    ",
         "    XXX    ",
         "   XX XX   ",
         "   XX XX   ",
@@ -3301,9 +3301,9 @@ const func bitmapFont: genStdFont12 is func
         "          "));
 
     incl(bmpFont.fontPictures, 'å',
-    [] ("    XXX   ",
+    [] ("          ",
+        "    XXX   ",
         "   XX XX  ",
-        "  XX   XX ",
         "   XX XX  ",
         "    XXX   ",
         "          ",
