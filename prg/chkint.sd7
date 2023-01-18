@@ -4273,6 +4273,282 @@ const func boolean: check_bytesBe2Int_len_optimization is func
   end func;
 
 
+const func boolean: check_bytesBe2Int_fixLen_optimization is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 1], UNSIGNED, BE) <>                  39 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 2], UNSIGNED, BE) <>               10096 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 3], UNSIGNED, BE) <>             2584620 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 4], UNSIGNED, BE) <>           661662928 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 5], UNSIGNED, BE) <>        169385709767 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 6], UNSIGNED, BE) <>      43362741700585 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 7], UNSIGNED, BE) <>   11100861875349880 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 8], UNSIGNED, BE) <> 2841820640089569495 or
+        bytes2Int("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 9], UNSIGNED, BE) <> 8083064988257277745 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 1], UNSIGNED, BE) <>                  39 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 2], UNSIGNED, BE) <>               10096 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 3], UNSIGNED, BE) <>             2584620 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 4], UNSIGNED, BE) <>           661662928 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 5], UNSIGNED, BE) <>        169385709767 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 6], UNSIGNED, BE) <>      43362741700585 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 7], UNSIGNED, BE) <>   11100861875349880 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 8], UNSIGNED, BE) <> 2841820640089569495 or
+        bytes2Int("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 9], UNSIGNED, BE) <> 8083064988257277745 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 1], UNSIGNED, BE) <>                  39 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 2], UNSIGNED, BE) <>               10096 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 3], UNSIGNED, BE) <>             2584620 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 4], UNSIGNED, BE) <>           661662928 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 5], UNSIGNED, BE) <>        169385709767 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 6], UNSIGNED, BE) <>      43362741700585 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 7], UNSIGNED, BE) <>   11100861875349880 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 8], UNSIGNED, BE) <> 2841820640089569495 or
+        bytes2Int(striExpr("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 9], UNSIGNED, BE) <> 8083064988257277745 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 1], UNSIGNED, BE) <>                  39 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 2], UNSIGNED, BE) <>               10096 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 3], UNSIGNED, BE) <>             2584620 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 4], UNSIGNED, BE) <>           661662928 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 5], UNSIGNED, BE) <>        169385709767 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 6], UNSIGNED, BE) <>      43362741700585 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 7], UNSIGNED, BE) <>   11100861875349880 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 8], UNSIGNED, BE) <> 2841820640089569495 or
+        bytes2Int(striExpr("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 9], UNSIGNED, BE) <> 8083064988257277745 then
+      writeln("Conversion of unsigned big endian byte string to integer with fixed length substring does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\071;\039;"                                   [2 fixLen 2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;"                              [2 fixLen 3], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;"                         [2 fixLen 4], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;"                    [2 fixLen 5], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;"               [2 fixLen 6], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;"          [2 fixLen 7], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;"     [2 fixLen 8], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;"[2 fixLen 9], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;"                                   [intExpr(2) fixLen 2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;"                              [intExpr(2) fixLen 3], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;"                         [intExpr(2) fixLen 4], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;"                    [intExpr(2) fixLen 5], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;"               [intExpr(2) fixLen 6], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;"          [intExpr(2) fixLen 7], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;"     [intExpr(2) fixLen 8], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;"[intExpr(2) fixLen 9], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;"                                   )[2 fixLen 2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;"                              )[2 fixLen 3], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;"                         )[2 fixLen 4], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;"                    )[2 fixLen 5], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;"               )[2 fixLen 6], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;"          )[2 fixLen 7], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;"     )[2 fixLen 8], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;")[2 fixLen 9], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;"                                   )[intExpr(2) fixLen 2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;"                              )[intExpr(2) fixLen 3], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;"                         )[intExpr(2) fixLen 4], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;"                    )[intExpr(2) fixLen 5], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;"               )[intExpr(2) fixLen 6], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;"          )[intExpr(2) fixLen 7], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;"     )[intExpr(2) fixLen 8], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;")[intExpr(2) fixLen 9], UNSIGNED, BE)) then
+      writeln("Conversion of unsigned big endian byte string to integer with fixed length substring does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 7], UNSIGNED, BE) + 9151314442816847872 <> 9162415304692197752 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 8], UNSIGNED, BE) + 6381551396765206312 <> 9223372036854775807 or
+        bytes2Int("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;"[2 fixLen 9], UNSIGNED, BE) + 1140307048597498062 <> 9223372036854775807 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 7], UNSIGNED, BE) + 9151314442816847872 <> 9162415304692197752 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 8], UNSIGNED, BE) + 6381551396765206312 <> 9223372036854775807 or
+        bytes2Int("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;"[intExpr(2) fixLen 9], UNSIGNED, BE) + 1140307048597498062 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 7], UNSIGNED, BE) + 9151314442816847872 <> 9162415304692197752 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 8], UNSIGNED, BE) + 6381551396765206312 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;")[2 fixLen 9], UNSIGNED, BE) + 1140307048597498062 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 7], UNSIGNED, BE) + 9151314442816847872 <> 9162415304692197752 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 8], UNSIGNED, BE) + 6381551396765206312 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\000;\112;\044;\208;\199;\233;\120;\215;\049;")[intExpr(2) fixLen 9], UNSIGNED, BE) + 1140307048597498062 <> 9223372036854775807 then
+      writeln("Conversion of unsigned big endian byte string to integer with fixed length substring does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 1], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 2], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[2 fixLen 2], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[2 fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[2 fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[2 fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[2 fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\256;\255;\255;\255;\255;"[2 fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[2 fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\256;\255;\255;\255;"[2 fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\256;\255;\255;\255;\255;"[2 fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\255;\256;\255;\255;"[2 fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\256;\255;\255;\255;"[2 fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\255;\255;\256;\255;"[2 fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\128;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 8], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\127;\255;\255;\255;\256;\255;\255;\255;"[2 fixLen 8], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\127;\255;\255;\255;\255;\255;\255;\256;"[2 fixLen 8], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 1], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 2], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 2], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\256;\255;\255;\255;\255;"[intExpr(2) fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\256;\255;\255;\255;"[intExpr(2) fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\256;\255;\255;\255;\255;"[intExpr(2) fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\255;\256;\255;\255;"[intExpr(2) fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\256;\255;\255;\255;"[intExpr(2) fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\255;\255;\256;\255;"[intExpr(2) fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\128;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 8], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\127;\255;\255;\255;\256;\255;\255;\255;"[intExpr(2) fixLen 8], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\000;\127;\255;\255;\255;\255;\255;\255;\256;"[intExpr(2) fixLen 8], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 1], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 2], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[2 fixLen 2], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[2 fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[2 fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[2 fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[2 fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\256;\255;\255;\255;\255;")[2 fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[2 fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\256;\255;\255;\255;")[2 fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\256;\255;\255;\255;\255;")[2 fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\255;\256;\255;\255;")[2 fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\256;\255;\255;\255;")[2 fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\255;\255;\256;\255;")[2 fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\128;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 8], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\127;\255;\255;\255;\256;\255;\255;\255;")[2 fixLen 8], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\127;\255;\255;\255;\255;\255;\255;\256;")[2 fixLen 8], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 1], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 2], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 2], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 3], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\256;\255;\255;\255;\255;")[intExpr(2) fixLen 4], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\256;\255;\255;\255;")[intExpr(2) fixLen 5], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\256;\255;\255;\255;\255;")[intExpr(2) fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\255;\256;\255;\255;")[intExpr(2) fixLen 6], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\256;\255;\255;\255;")[intExpr(2) fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\255;\255;\256;\255;")[intExpr(2) fixLen 7], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\128;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 8], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\127;\255;\255;\255;\256;\255;\255;\255;")[intExpr(2) fixLen 8], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\127;\255;\255;\255;\255;\255;\255;\256;")[intExpr(2) fixLen 8], UNSIGNED, BE)) then
+      writeln("Conversion of unsigned big endian byte string to integer with fixed length substring does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[3 fixLen integer.first], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[3 fixLen            -1], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int("\233;\120;\215;\049;"[3 fixLen             0], UNSIGNED, BE)) or
+                             bytes2Int("\233;\120;\215;\049;"[3 fixLen             1], UNSIGNED, BE) <>   215 or
+                             bytes2Int("\233;\120;\215;\049;"[3 fixLen             2], UNSIGNED, BE) <> 55089 or
+        not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[3 fixLen             3], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[3 fixLen  integer.last], UNSIGNED, BE)) then
+      writeln("Conversion of unsigned big endian byte string to integer with fixed length substring beyond string end does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[5 fixLen integer.first], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[5 fixLen            -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[5 fixLen             0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[5 fixLen             1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[5 fixLen             2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[5 fixLen             3], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\215;\049;"[5 fixLen  integer.last], UNSIGNED, BE)) then
+      writeln("Conversion of unsigned big endian byte string to integer with fixed length substring staring beyond string end does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        -1  fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(-1) fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        -1  fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(-1) fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        -1  fixLen  0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(-1) fixLen  0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        -1  fixLen  0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(-1) fixLen  0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        -1  fixLen  1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(-1) fixLen  1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        -1  fixLen  1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(-1) fixLen  1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        -1  fixLen  2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(-1) fixLen  2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        -1  fixLen  2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(-1) fixLen  2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [         0  fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr( 0) fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[         0  fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr( 0) fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [         0  fixLen  0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr( 0) fixLen  0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[         0  fixLen  0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr( 0) fixLen  0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [         0  fixLen  1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr( 0) fixLen  1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[         0  fixLen  1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr( 0) fixLen  1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [         0  fixLen  2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr( 0) fixLen  2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[         0  fixLen  2], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr( 0) fixLen  2], UNSIGNED, BE)) then
+      writeln("Conversion of unsigned big endian byte string to integer with fixed length substring starting at 0 or -1 does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        1  fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(1) fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        1  fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(1) fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        2  fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(2) fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        2  fixLen -1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(2) fixLen -1], UNSIGNED, BE)) then
+      writeln("Conversion of unsigned big endian byte string to integer with fixed length substring of length -1 does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(bytes2Int(         "\071;\039;\112;\044;" [        1  fixLen 0], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(1) fixLen 0], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\071;\039;\112;\044;")[        1  fixLen 0], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(1) fixLen 0], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(         "\071;\039;\112;\044;" [        2  fixLen 0], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(2) fixLen 0], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\071;\039;\112;\044;")[        2  fixLen 0], UNSIGNED, BE)) or
+        not raisesRangeError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(2) fixLen 0], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;" [        2  fixLen 1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(         "\071;" [intExpr(2) fixLen 1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;")[        2  fixLen 1], UNSIGNED, BE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;")[intExpr(2) fixLen 1], UNSIGNED, BE)) then
+      writeln("Conversion of unsigned big endian byte string to integer with empty substring does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
 const proc: check_bytesBe2Int is func
   local
     var boolean: okay is TRUE;
@@ -4612,6 +4888,10 @@ const proc: check_bytesBe2Int is func
       okay := FALSE;
     end if;
 
+    if not check_bytesBe2Int_fixLen_optimization then
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Conversion of big endian byte string to integer works correct.");
     else
@@ -4891,6 +5171,282 @@ const func boolean: check_bytesLe2Int_len_optimization is func
         not raisesRangeError(bytes2Int(         "\071;" [intExpr(2) len 1], UNSIGNED, LE)) or
         not raisesRangeError(bytes2Int(striExpr("\071;")[        2  len 1], UNSIGNED, LE)) or
         not raisesRangeError(bytes2Int(striExpr("\071;")[intExpr(2) len 1], UNSIGNED, LE)) then
+      writeln("Conversion of unsigned little endian byte string to integer with empty substring does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_bytesLe2Int_fixLen_optimization is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if  bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 1], UNSIGNED, LE) <>                  39 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 2], UNSIGNED, LE) <>               28711 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 3], UNSIGNED, LE) <>             2912295 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 4], UNSIGNED, LE) <>          3492573223 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 5], UNSIGNED, LE) <>        858191065127 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 6], UNSIGNED, LE) <>     257044400336935 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 7], UNSIGNED, LE) <>   34034041605615655 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 8], UNSIGNED, LE) <> 3564856149464084519 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;"[2 fixLen 9], UNSIGNED, LE) <> 3564856149464084519 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 1], UNSIGNED, LE) <>                  39 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 2], UNSIGNED, LE) <>               28711 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 3], UNSIGNED, LE) <>             2912295 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 4], UNSIGNED, LE) <>          3492573223 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 5], UNSIGNED, LE) <>        858191065127 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 6], UNSIGNED, LE) <>     257044400336935 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 7], UNSIGNED, LE) <>   34034041605615655 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 8], UNSIGNED, LE) <> 3564856149464084519 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;"[intExpr(2) fixLen 9], UNSIGNED, LE) <> 3564856149464084519 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 1], UNSIGNED, LE) <>                  39 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 2], UNSIGNED, LE) <>               28711 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 3], UNSIGNED, LE) <>             2912295 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 4], UNSIGNED, LE) <>          3492573223 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 5], UNSIGNED, LE) <>        858191065127 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 6], UNSIGNED, LE) <>     257044400336935 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 7], UNSIGNED, LE) <>   34034041605615655 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 8], UNSIGNED, LE) <> 3564856149464084519 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[2 fixLen 9], UNSIGNED, LE) <> 3564856149464084519 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 1], UNSIGNED, LE) <>                  39 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 2], UNSIGNED, LE) <>               28711 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 3], UNSIGNED, LE) <>             2912295 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 4], UNSIGNED, LE) <>          3492573223 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 5], UNSIGNED, LE) <>        858191065127 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 6], UNSIGNED, LE) <>     257044400336935 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 7], UNSIGNED, LE) <>   34034041605615655 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 8], UNSIGNED, LE) <> 3564856149464084519 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[intExpr(2) fixLen 9], UNSIGNED, LE) <> 3564856149464084519 then
+      writeln("Conversion of unsigned little endian byte string to integer with fixed length substring does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\071;\039;"                                   [2 fixLen 2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;"                              [2 fixLen 3], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;"                         [2 fixLen 4], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;"                    [2 fixLen 5], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;"               [2 fixLen 6], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;"          [2 fixLen 7], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;"     [2 fixLen 8], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;"[2 fixLen 9], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;"                                   [intExpr(2) fixLen 2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;"                              [intExpr(2) fixLen 3], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;"                         [intExpr(2) fixLen 4], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;"                    [intExpr(2) fixLen 5], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;"               [intExpr(2) fixLen 6], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;"          [intExpr(2) fixLen 7], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;"     [intExpr(2) fixLen 8], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;"[intExpr(2) fixLen 9], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;"                                   )[2 fixLen 2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;"                              )[2 fixLen 3], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;"                         )[2 fixLen 4], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;"                    )[2 fixLen 5], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;"               )[2 fixLen 6], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;"          )[2 fixLen 7], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;"     )[2 fixLen 8], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;")[2 fixLen 9], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;"                                   )[intExpr(2) fixLen 2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;"                              )[intExpr(2) fixLen 3], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;"                         )[intExpr(2) fixLen 4], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;"                    )[intExpr(2) fixLen 5], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;"               )[intExpr(2) fixLen 6], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;"          )[intExpr(2) fixLen 7], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;"     )[intExpr(2) fixLen 8], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;")[intExpr(2) fixLen 9], UNSIGNED, LE)) then
+      writeln("Conversion of unsigned little endian byte string to integer with fixed length substring does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 7], UNSIGNED, LE) + 9151314442816847872 <> 9185348484422463527 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[2 fixLen 8], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;"[2 fixLen 9], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 7], UNSIGNED, LE) + 9151314442816847872 <> 9185348484422463527 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;"[intExpr(2) fixLen 8], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;"[intExpr(2) fixLen 9], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 7], UNSIGNED, LE) + 9151314442816847872 <> 9185348484422463527 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[2 fixLen 8], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[2 fixLen 9], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 7], UNSIGNED, LE) + 9151314442816847872 <> 9185348484422463527 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\215;")[intExpr(2) fixLen 8], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 or
+        bytes2Int(striExpr("\071;\039;\112;\044;\208;\199;\233;\120;\049;\000;")[intExpr(2) fixLen 9], UNSIGNED, LE) + 5658515887390691288 <> 9223372036854775807 then
+      writeln("Conversion of unsigned little endian byte string to integer with fixed length substring does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 1], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 2], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[2 fixLen 2], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[2 fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[2 fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[2 fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[2 fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\256;\255;\255;\255;\255;"[2 fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[2 fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\256;\255;\255;\255;"[2 fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\256;\255;\255;\255;\255;"[2 fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\255;\256;\255;\255;"[2 fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[2 fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\256;\255;\255;\255;"[2 fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\255;\255;\256;\255;"[2 fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\255;\255;\255;\128;"[2 fixLen 8], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\256;\255;\255;\127;"[2 fixLen 8], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\127;"[2 fixLen 8], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 1], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 2], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 2], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\256;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\256;\255;\255;\255;\255;"[intExpr(2) fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\256;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\256;\255;\255;\255;"[intExpr(2) fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\256;\255;\255;\255;\255;"[intExpr(2) fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\255;\256;\255;\255;"[intExpr(2) fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\255;"[intExpr(2) fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\256;\255;\255;\255;"[intExpr(2) fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\255;\255;\256;\255;"[intExpr(2) fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\255;\255;\255;\128;"[intExpr(2) fixLen 8], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\255;\255;\255;\255;\256;\255;\255;\127;"[intExpr(2) fixLen 8], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\000;\256;\255;\255;\255;\255;\255;\255;\127;"[intExpr(2) fixLen 8], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 1], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 2], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[2 fixLen 2], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[2 fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[2 fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[2 fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[2 fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\256;\255;\255;\255;\255;")[2 fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[2 fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\256;\255;\255;\255;")[2 fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\256;\255;\255;\255;\255;")[2 fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\255;\256;\255;\255;")[2 fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[2 fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\256;\255;\255;\255;")[2 fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\255;\255;\256;\255;")[2 fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\255;\255;\255;\128;")[2 fixLen 8], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\256;\255;\255;\127;")[2 fixLen 8], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\127;")[2 fixLen 8], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 1], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 2], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 2], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 3], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\256;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\256;\255;\255;\255;\255;")[intExpr(2) fixLen 4], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\256;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\256;\255;\255;\255;")[intExpr(2) fixLen 5], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\256;\255;\255;\255;\255;")[intExpr(2) fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\255;\256;\255;\255;")[intExpr(2) fixLen 6], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\255;")[intExpr(2) fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\256;\255;\255;\255;")[intExpr(2) fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\255;\255;\256;\255;")[intExpr(2) fixLen 7], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\255;\255;\255;\128;")[intExpr(2) fixLen 8], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\255;\255;\255;\255;\256;\255;\255;\127;")[intExpr(2) fixLen 8], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\000;\256;\255;\255;\255;\255;\255;\255;\127;")[intExpr(2) fixLen 8], UNSIGNED, LE)) then
+      writeln("Conversion of unsigned little endian byte string to integer with fixed length substring does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[3 fixLen integer.first], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[3 fixLen            -1], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int("\233;\120;\049;\215;"[3 fixLen             0], UNSIGNED, LE)) or
+                             bytes2Int("\233;\120;\049;\215;"[3 fixLen             1], UNSIGNED, LE) <>    49 or
+                             bytes2Int("\233;\120;\049;\215;"[3 fixLen             2], UNSIGNED, LE) <> 55089 or
+        not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[3 fixLen             3], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[3 fixLen  integer.last], UNSIGNED, LE)) then
+      writeln("Conversion of unsigned little endian byte string to integer with fixed length substring beyond string end does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[5 fixLen integer.first], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[5 fixLen            -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[5 fixLen             0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[5 fixLen             1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[5 fixLen             2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[5 fixLen             3], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int("\233;\120;\049;\215;"[5 fixLen  integer.last], UNSIGNED, LE)) then
+      writeln("Conversion of unsigned little endian byte string to integer with fixed length substring starting beyond string end does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        -1  fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(-1) fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        -1  fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(-1) fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        -1  fixLen  0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(-1) fixLen  0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        -1  fixLen  0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(-1) fixLen  0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        -1  fixLen  1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(-1) fixLen  1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        -1  fixLen  1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(-1) fixLen  1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        -1  fixLen  2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(-1) fixLen  2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        -1  fixLen  2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(-1) fixLen  2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [         0  fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr( 0) fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[         0  fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr( 0) fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [         0  fixLen  0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr( 0) fixLen  0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[         0  fixLen  0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr( 0) fixLen  0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [         0  fixLen  1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr( 0) fixLen  1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[         0  fixLen  1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr( 0) fixLen  1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [         0  fixLen  2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr( 0) fixLen  2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[         0  fixLen  2], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr( 0) fixLen  2], UNSIGNED, LE)) then
+      writeln("Conversion of unsigned little endian byte string to integer with fixed length substring starting at 0 or -1 does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        1  fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(1) fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        1  fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(1) fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [        2  fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(2) fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[        2  fixLen -1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(2) fixLen -1], UNSIGNED, LE)) then
+      writeln("Conversion of unsigned little endian byte string to integer with fixed length substring of length -1 does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(bytes2Int(         "\071;\039;\112;\044;" [        1  fixLen 0], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(1) fixLen 0], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\071;\039;\112;\044;")[        1  fixLen 0], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(1) fixLen 0], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(         "\071;\039;\112;\044;" [        2  fixLen 0], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(         "\071;\039;\112;\044;" [intExpr(2) fixLen 0], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\071;\039;\112;\044;")[        2  fixLen 0], UNSIGNED, LE)) or
+        not raisesRangeError(bytes2Int(striExpr("\071;\039;\112;\044;")[intExpr(2) fixLen 0], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;" [        2  fixLen 1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(         "\071;" [intExpr(2) fixLen 1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;")[        2  fixLen 1], UNSIGNED, LE)) or
+        not raisesIndexError(bytes2Int(striExpr("\071;")[intExpr(2) fixLen 1], UNSIGNED, LE)) then
       writeln("Conversion of unsigned little endian byte string to integer with empty substring does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
@@ -5233,6 +5789,10 @@ const proc: check_bytesLe2Int is func
     end if;
 
     if not check_bytesLe2Int_len_optimization then
+      okay := FALSE;
+    end if;
+
+    if not check_bytesLe2Int_fixLen_optimization then
       okay := FALSE;
     end if;
 

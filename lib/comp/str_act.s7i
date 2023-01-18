@@ -3919,17 +3919,24 @@ const proc: process_str_substr_fixlen0 (in reference: stri,
     var integer: stri_length is 0;
     var intRange: start_range is intRange.value;
     var string: start_name is "";
+    var boolean: raisesIndexError is FALSE;
   begin
     incr(countOptimizations);
     start_range := getIntRange(start);
     if start_range.maxValue < 1 then
       warning(DOES_RAISE, "INDEX_ERROR", c_expr);
       c_expr.expr &:= strRaiseError("INDEX_ERROR");
-    else
-      if getConstant(stri, STRIOBJECT, evaluatedParam) then
-        stri_is_variable := FALSE;
-        stri_length := length(getValue(evaluatedParam, string));
+      raisesIndexError := TRUE;
+    elsif getConstant(stri, STRIOBJECT, evaluatedParam) then
+      stri_is_variable := FALSE;
+      stri_length := length(getValue(evaluatedParam, string));
+      if start_range.minValue > stri_length then
+        warning(DOES_RAISE, "INDEX_ERROR", c_expr);
+        c_expr.expr &:= strRaiseError("INDEX_ERROR");
+        raisesIndexError := TRUE;
       end if;
+    end if;
+    if not raisesIndexError then
       c_expr.expr &:= "/* string[m fixLen 0] */ (";
       if string_index_check then
         if stri_is_variable or start_range.minValue < 1 or
